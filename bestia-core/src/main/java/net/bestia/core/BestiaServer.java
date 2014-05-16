@@ -58,8 +58,7 @@ public final class BestiaServer {
 	private boolean isRunning = false;
 	
 	// All worker threads.
-	private ExecutorService commandExecutor = Executors.newFixedThreadPool(1);
-	// Die Message worker auch in einer Liste abarbeiten.
+	private ExecutorService commandExecutor;
 	private WorkerThread<MessageWorker> messageWorker = new WorkerThread<>();
 	private List<WorkerThread<ActorLogicWorker>> actorLogicWorkers = new ArrayList<>();
 
@@ -88,6 +87,8 @@ public final class BestiaServer {
 		}
 		
 		// #### Variable setup.
+		commandExecutor = Executors.newFixedThreadPool(
+				Integer.parseInt(config.getProperty("CommandExecThreads")));
 		messageQueue = new LinkedBlockingQueue<Message>();
 		serviceFactory.setMessageQueue(messageQueue);
 		cmdFactory = new CommandFactory(serviceFactory, messageQueue, connection);
@@ -95,19 +96,19 @@ public final class BestiaServer {
 	}
 	
 	private void setupDefaultIni() {
-		config.setProperty("actorThreads", "1");
+		config.setProperty("CommandExecThreads", "1");
+		config.setProperty("ActorThreads", "1");
 		config.setProperty("MessageThreadCount", "1");
 	}
 
 	/**
 	 * Let the Server handle one message. It returns a list of messages which in
-	 * turn must be send to the clients. TODO Command execution might be
-	 * buffered via a queue.
+	 * turn must be send to the clients.
 	 * 
 	 * @param message
 	 * @return
 	 */
-	public void handleMessage(Message message) {
+	public synchronized void handleMessage(Message message) {
 		if (isRunning() == false) {
 			throw new IllegalStateException("Server is not running.");
 		}
@@ -121,7 +122,13 @@ public final class BestiaServer {
 	 * Starts the server. Initializes all the messaging pipeline, database
 	 * connections, cache and scripts.
 	 */
-	public void start() throws Exception {
+	public synchronized void start() throws Exception {
+		
+		if(isRunning) {
+			log.warn("Bestia server is already running.");
+			return;
+		}
+		
 		// Initializing all messaging components.
 		log.info("Bestia Behemoth is starting up!");
 
@@ -136,7 +143,7 @@ public final class BestiaServer {
 		aiWorker.run();
 		
 		// Create ActorLogicWorker: KI of Actors.
-		final int nActorThreads = Integer.parseInt(config.getProperty("actorThreads"));
+		final int nActorThreads = Integer.parseInt(config.getProperty("ActorThreads"));
 		actorLogicWorkers = new ArrayList<>();
 		for(int i = 0; i < nActorThreads; i++) {
 			// Create the worker thread and initialize it.
@@ -160,7 +167,7 @@ public final class BestiaServer {
 	/**
 	 * Ceases all server operation and persists all pending data.
 	 */
-	public void stop() {
+	public synchronized void stop() {
 		isRunning = false;
 		
 		log.info("Bestia Behemoth Server is stopping...");
@@ -188,7 +195,7 @@ public final class BestiaServer {
 	 * 
 	 * @return
 	 */
-	public boolean isRunning() {
+	public synchronized boolean isRunning() {
 		return isRunning;
 	}
 }

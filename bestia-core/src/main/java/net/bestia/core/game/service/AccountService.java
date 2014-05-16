@@ -154,7 +154,7 @@ public final class AccountService extends net.bestia.core.game.service.Service {
 	}
 
 	@Override
-	protected Message getNotifyMessage() {
+	protected Message getDataChangedMessage() {
 		// TODO Auto-generated method stub
 		return null;
 	}

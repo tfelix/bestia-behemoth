@@ -3,7 +3,7 @@ package net.bestia.core.game.service;
 import net.bestia.core.game.model.Bestia;
 import net.bestia.core.game.model.StatusPoint;
 
-public abstract class BestiaService {
+public abstract class BestiaService extends Service {
 	private Bestia bestia;
 	private boolean isDead;
 	

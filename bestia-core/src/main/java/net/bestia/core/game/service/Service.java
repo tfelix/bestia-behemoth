@@ -35,7 +35,7 @@ public abstract class Service {
 	 * to update its information in case of changed data.
 	 * @return
 	 */
-	protected abstract Message getNotifyMessage();
+	protected abstract Message getDataChangedMessage();
 	
 	/**
 	 * Manually saves the changes of the entity to the database. This must be called
@@ -51,7 +51,7 @@ public abstract class Service {
 	 * to the client.
 	 */
 	protected void onChange() {
-		Message msg = getNotifyMessage();
+		Message msg = getDataChangedMessage();
 		log.trace("Underlying data changed. Issued message: {}", msg);
 		messageQueue.add(msg);
 	}

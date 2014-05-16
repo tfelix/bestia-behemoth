@@ -51,22 +51,22 @@ public class CommandFactory {
 
 	public Command getCommand(Message message) {
 
-		int msgId = message.getMessageId();
+		String msgId = message.getMessageId();
 		Command cmd = null;
 
 		// TODO Die commands haben jetzt einheitlichen ctor. Instanzierung kann automatisiert
 		// werden. Commands müssen sich bei der factory registrieren.
 		switch (msgId) {
-		case 1:
+		case "ping":
 			cmd = new PingCommand(message, serviceFactory, msgOutQueue);
 			break;
-		case 100:
+		case "req.login":
 			cmd = new RequestLoginCommand(message, serviceFactory, msgOutQueue, connection);
 			break;
-		case 102:
+		case "req.logout":
 			cmd = new RequestLogoutCommand(message, serviceFactory, msgOutQueue);
 			break;
-		case 201:
+		case "chat":
 			cmd = new ChatCommand(message, serviceFactory, msgOutQueue);
 		default:
 			log.error("Unknown command for message: {}", message.toString());
