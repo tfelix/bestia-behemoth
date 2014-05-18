@@ -4,6 +4,7 @@ import java.util.concurrent.BlockingQueue;
 
 import net.bestia.core.game.model.Account;
 import net.bestia.core.game.model.Password;
+import net.bestia.core.message.AccountInfoMessage;
 import net.bestia.core.message.Message;
 
 import org.apache.logging.log4j.LogManager;
@@ -33,12 +34,8 @@ public final class AccountService extends net.bestia.core.game.service.Service {
 		this.account = account;
 	}
 	
-	/**
-	 * Returns the account.
-	 * @return
-	 */
-	public Account getAccount() {
-		return account;
+	public int getAccountId() {
+		return account.getId();
 	}
 	
 	/**
@@ -93,75 +90,25 @@ public final class AccountService extends net.bestia.core.game.service.Service {
 	}
 	
 	/**
-	 * 
-	 * 
-	 * @param exp
-	 */
-	/*
-	public void addExperience(int exp) {
-		if(exp < 0) {
-			return;
-		}
-		account.setExperience(account.getExperience() + exp);
-		log.info(String.format("account(id:{0} received: {1} exp.", account.getId(), exp));
-		checkLevelUp();
-	}
-
-	/**
-	 * Checks if the account has enough exp to level up. If this happens perform the
-	 * necessairy steps to level up.
-	 */
-	/*
-	private void checkLevelUp() {
-		if(account.getMaster().getLevel() >= account.MAX_MASTER_LEVEL) {
-			return;
-		}
-		
-		if(account.getExperience() < getLevelUpExperience()) {
-			return;
-		}
-		
-		account.setExperience(account.getExperience() - getLevelUpExperience());
-		account.setLevel(account.getLevel() + 1);
-		// TODO Log.
-		// Check recursive if another level up has occured.
-		checkLevelUp();
-		
-	}
-	
-	/**
-	 * Returns the experience points which are needed for the next levelup.
-	 * @return
-	 */
-	/*
-	public long getLevelUpExperience() {
-		return (long)Math.exp(account.getMaster().getLevel() / 3.0 + 50);
-	}
-	
-	/**
 	 * Calculates the current number of bestia slots. This depends on the level
-	 * of the bestia master.
+	 * of the bestia master and the number of purchased bestia slots.
+	 * 
 	 * @return
 	 */
-	
-	public int getBestiaSlotNumber() {/*
+	public int getBestiaSlotNumber() {
 		int slots = account.getMaster().getLevel() / 30 * 3;
-		if(slots > AccountData.MAX_BESTIA_SLOTS) {
-			return AccountData.MAX_BESTIA_SLOTS;
+		slots += account.getBestiaSlots() + account.getAdditionalBestiaSlots(); 
+		if(slots > Account.MAX_BESTIA_SLOTS) {
+			slots = Account.MAX_BESTIA_SLOTS;
 		}
-		return slots;*/
-		return 0;
+		
+		return slots;
 	}
 
 	@Override
 	protected Message getDataChangedMessage() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected void save() {
-		// TODO Auto-generated method stub
-		
+		Message msg = new AccountInfoMessage(account);
+		log.trace("AccountService detected change: {0}", msg.toString());
+		return msg;
 	}
 }

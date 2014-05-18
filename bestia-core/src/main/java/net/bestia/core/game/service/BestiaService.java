@@ -1,13 +1,28 @@
 package net.bestia.core.game.service;
 
-import net.bestia.core.game.model.Bestia;
-import net.bestia.core.game.model.StatusPoint;
+import java.util.concurrent.BlockingQueue;
 
+import com.mysql.jdbc.NotImplemented;
+
+import net.bestia.core.game.model.Bestia;
+import net.bestia.core.game.model.StatusEffect;
+import net.bestia.core.game.model.StatusPoint;
+import net.bestia.core.message.Message;
+
+/**
+ * Simple basic service for bestias. It is abstract because
+ * there must be concrete implementations for either Player or
+ * NPCBestias.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public abstract class BestiaService extends Service {
 	private Bestia bestia;
-	private boolean isDead;
+	protected boolean isDead;
 	
-	public BestiaService(Bestia bestia) {
+	public BestiaService(Bestia bestia, BlockingQueue<Message> queue) {
+		super(queue);
 		if(bestia == null) {
 			throw new IllegalArgumentException("Bestia can not be null.");
 		}
@@ -38,6 +53,25 @@ public abstract class BestiaService extends Service {
 	 */
 	public StatusPoint getStatusData() {
 		return null;
+	}
+	
+	public void addStatusEffect(StatusEffect effect) {
+		return;
+	}
+	
+	public void removeStatusEffect(StatusEffect effect) {
+		return;
+	}
+	
+	public void removeStatusEffect(int statusEffectId) {
+		return;
+	}
+	
+	/**
+	 * Deletes all status effects.
+	 */
+	public void clearStatusEffects() {
+		return;
 	}
 	
 	public StatusPoint getOriginalStatus() {

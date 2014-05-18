@@ -21,7 +21,7 @@ public abstract class Service {
 	
 	/**
 	 * Ctor.
-	 * @param queue
+	 * @param queue Message queue so the services can deliver their very own messages.
 	 */
 	public Service(BlockingQueue<Message> messageQueue) {
 		if(messageQueue == null) {
@@ -31,19 +31,11 @@ public abstract class Service {
 	}
 	
 	/**
-	 * Clients should implement this method it should generate a message for the client
+	 * Clients must implement this method it should generate a message for the client
 	 * to update its information in case of changed data.
 	 * @return
 	 */
 	protected abstract Message getDataChangedMessage();
-	
-	/**
-	 * Manually saves the changes of the entity to the database. This must be called
-	 * if changes are made directly to the underlying Entity. This is possible in some
-	 * circumstances. Changes made internally by the Service calling this method is not
-	 * necessairy since it will be done internally.
-	 */
-	protected abstract void save();
 	
 	/**
 	 * Implementations should call this method if some operations have changed

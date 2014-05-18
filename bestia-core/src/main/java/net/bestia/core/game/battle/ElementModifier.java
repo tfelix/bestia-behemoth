@@ -6,6 +6,7 @@ import java.util.Map;
 /**
  * Returns the attack damage modifier for a given elemental set of the attacker
  * and defender.
+ * Since this class is immutable it is thread-safe.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -44,6 +45,20 @@ public final class ElementModifier {
 	}
 	
 	private final static Map<ElementKey, Double> elementMap = new HashMap<ElementKey, Double>();
+	static {
+		// Setup the elements.
+		elementMap.put(new ElementKey(Element.NORMAL, Element.NORMAL), 1.0);
+		elementMap.put(new ElementKey(Element.NORMAL, Element.FIRE), 1.0);
+		elementMap.put(new ElementKey(Element.NORMAL, Element.WATER), 1.0);
+		elementMap.put(new ElementKey(Element.NORMAL, Element.EARTH), 1.0);
+		elementMap.put(new ElementKey(Element.NORMAL, Element.WIND), 1.0);
+		elementMap.put(new ElementKey(Element.NORMAL, Element.GHOST), 1.0);
+		elementMap.put(new ElementKey(Element.NORMAL, Element.HOLY), 1.0);
+		elementMap.put(new ElementKey(Element.NORMAL, Element.POISON), 1.0);
+		elementMap.put(new ElementKey(Element.NORMAL, Element.SHADOW), 1.0);
+		elementMap.put(new ElementKey(Element.NORMAL, Element.UNDEAD), 1.0);
+		// TODO die anderen Elemente hinzufügen.
+	}
 	
 	/**
 	 * Returns the damage modifier for a given attacker element and defender element.

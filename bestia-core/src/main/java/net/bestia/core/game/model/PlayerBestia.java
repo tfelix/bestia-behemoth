@@ -30,7 +30,6 @@ public class PlayerBestia extends Bestia {
 	private int exp;
 	private String name;
 	private Date traveltime;
-
 	@AttributeOverrides({
 			@AttributeOverride(name = "mapDbName", column = @Column(name = "saveMapDbName")),
 			@AttributeOverride(name = "x", column = @Column(name = "saveX")),
@@ -45,6 +44,10 @@ public class PlayerBestia extends Bestia {
 	@ManyToOne
 	@JoinColumn(name="account_id")
 	private Account owner;
+	@Embedded
+	private StatusPoint individualValue;
+	@Embedded
+	private StatusPoint effortValue;
 
 	public int getCurrentHp() {
 		return currentHp;
@@ -124,5 +127,13 @@ public class PlayerBestia extends Bestia {
 
 	public void setPvpMode(PVPMode pvpMode) {
 		this.pvpMode = pvpMode;
+	}
+	
+	public StatusPoint getIndividualValue() {
+		return individualValue;
+	}
+	
+	public StatusPoint getEffortValue() {
+		return effortValue;
 	}
 }

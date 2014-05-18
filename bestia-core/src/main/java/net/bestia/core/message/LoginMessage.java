@@ -21,10 +21,10 @@ public class LoginMessage extends Message {
 		setToken("");
 	}
 
-	public LoginMessage(Account account, LoginStatus status, String token) {
+	public LoginMessage(int accountId, LoginStatus status, String token) {
 		setStatus(status);
 		setToken(token);
-		setAccountId(account.getId());
+		setAccountId(accountId);
 	}
 
 	/**

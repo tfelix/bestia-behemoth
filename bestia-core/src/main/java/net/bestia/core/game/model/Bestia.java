@@ -28,7 +28,8 @@ public class Bestia {
 	private int id;
 	/**
 	 * Override the names because the are the same like in status points. Both entities are
-	 * embedded so we need individual column names.
+	 * embedded so we need individual column names. This values is added to each bestia when
+	 * it kill another bestia from this kind.
 	 */
 	@Embedded
 	@AttributeOverrides({
@@ -40,9 +41,8 @@ public class Bestia {
 		@AttributeOverride(name = "spDef", column = @Column(name = "evSpDef")),
 		@AttributeOverride(name = "spd", column = @Column(name = "evSpd"))
 		})
-	private EffortValues effortValue;
-	@Embedded
-	private StatusPoint individualValue;
+	private EffortValues effortValueEarned;
+	private StatusPoint baseValue;
 	private String databaseName;
 	@Enumerated(EnumType.STRING)
 	private Element element;
@@ -92,5 +92,9 @@ public class Bestia {
 			throw new IllegalArgumentException("Bestia can only learn 4 attacks. Or 4 Attacks + 1 NO_DAMAGE Attack.");
 		}
 		this.attacks = attacks;
+	}
+
+	public StatusPoint getBaseValue() {
+		return baseValue;
 	}
 }

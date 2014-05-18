@@ -76,7 +76,9 @@ public abstract class Command implements Runnable {
 	}
 	
 	/**
-	 * Finds the sender of the command/message and puts it to the source of the command.
+	 * Finds the sender of the command/message and puts it to the source of the
+	 * command. This is a extra method so in case the a command needs another method
+	 * to identify a account it can override this method here.
 	 * @param message
 	 */
 	protected void setupAccountService(Message message) {

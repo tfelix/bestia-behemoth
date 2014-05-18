@@ -9,8 +9,8 @@ public class PongMessage extends Message {
 	private final String message = "Hello User.";
 	private final String messageId = "pong";
 	
-	public PongMessage(Account account) {
-		setAccountId(account.getId());
+	public PongMessage(int accountId) {
+		setAccountId(accountId);
 	}
 	
 	@JsonProperty("m")

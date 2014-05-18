@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="10" height="10" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="myTiles" tilewidth="32" tileheight="32">
+  <image source="tile.png" width="64" height="64"/>
+  <terraintypes>
+   <terrain name="Neues Terrain erzeugen" tile="-1"/>
+  </terraintypes>
+  <tile id="0" terrain="0,0,0,0"/>
+  <tile id="1" terrain="0,0,0,0"/>
+  <tile id="2" terrain="0,0,0,0"/>
+  <tile id="3" terrain="0,0,0,0"/>
+ </tileset>
+ <layer name="Kachelebene 1" width="10" height="10">
+  <data encoding="base64" compression="zlib">
+   eJxjYmBgYCISMxLAtFbHgibPAsW0tBfdTkrMQ8bMUIwuDgB19ACX
+  </data>
+ </layer>
+</map>

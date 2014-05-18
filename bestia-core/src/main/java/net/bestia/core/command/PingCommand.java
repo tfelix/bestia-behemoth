@@ -32,7 +32,7 @@ public class PingCommand extends Command {
 	@Override
 	protected void executeCommand() {
 		// Nothing is done here. Just a message will be returned.
-		PongMessage msg = new PongMessage(sender.getAccount());
+		PongMessage msg = new PongMessage(sender.getAccountId());
 		addMessage(msg);
 	}
 

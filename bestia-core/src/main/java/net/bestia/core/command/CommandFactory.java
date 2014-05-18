@@ -71,11 +71,7 @@ public class CommandFactory {
 		default:
 			log.error("Unknown command for message: {}", message.toString());
 			throw new IllegalArgumentException("Unknown command for message.");
-		}
-		
-		// Some commands need special attention. 
-		// E.g. special values like the connection manager.
-		
+		}		
 		
 		log.trace("Command created: {}", cmd.toString());
 

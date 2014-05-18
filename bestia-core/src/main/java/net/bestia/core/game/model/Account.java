@@ -75,11 +75,11 @@ public class Account {
 		this.password = password;
 	}
 	
-	/*
-	public PlayerBestiaData getMaster() {
+	public PlayerBestia getMaster() {
 		return master;
 	}
 	
+	/*
 	public void setMaster(PlayerBestiaData master) {
 		this.master = master;
 	}
@@ -118,9 +118,9 @@ public class Account {
 		this.gold = gold;
 	}
 	
+	@Override
 	public String toString() {
 		return MessageFormat.format("Account[id: {0}, email: {1}]", id, email);
-		
 	}
 
 	public Date getBannedUntilDate() {
@@ -146,5 +146,4 @@ public class Account {
 	public void setBestiaSlots(int bestiaSlots) {
 		this.bestiaSlots = bestiaSlots;
 	}
-	
 }

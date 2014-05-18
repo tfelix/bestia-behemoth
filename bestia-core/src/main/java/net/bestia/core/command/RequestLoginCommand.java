@@ -64,16 +64,17 @@ public class RequestLoginCommand extends Command {
 		// Check password. If match elevate the connection.
 		LoginMessage msg;
 		
+		// TODO Remove
 		// Currently login regardless of the password, set it to the current password.
-		sender.getAccount().setPassword(new Password(message.getPasswordToken()));
+		sender.setPassword(message.getPasswordToken());
 		
-		if(sender.getAccount().getPassword().matches(message.getPasswordToken())) {
+		if(sender.matchPassword(message.getPasswordToken())) {
 			// Elevate the connection. Passwords matches.
 			// TODO Create the login token.
-			msg = new LoginMessage(sender.getAccount(), LoginStatus.SUCCESS, "test123456");
-			connectionManager.elevateConnection(message.getUuid(), sender.getAccount().getId());
+			msg = new LoginMessage(sender.getAccountId(), LoginStatus.SUCCESS, "test123456");
+			connectionManager.elevateConnection(message.getUuid(), sender.getAccountId());
 		} else {
-			msg = new LoginMessage(sender.getAccount(), LoginStatus.ERROR, "");
+			msg = new LoginMessage(sender.getAccountId(), LoginStatus.ERROR, "");
 			msg.setAccountId(message.getAccountId());
 		}
 		

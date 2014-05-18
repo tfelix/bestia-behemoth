@@ -3,7 +3,6 @@ package net.bestia.core.message;
 import net.bestia.core.game.model.Account;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 /**
  * Chatmessage is sent from the user to the server and vice versa.
@@ -13,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
  */
 public class ChatMessage extends Message {
 
+	private final static String MESSAGE_ID = "chat.message";
+	
 	public enum Mode {
 		PUBLIC,
 		PARTY,
@@ -35,8 +36,12 @@ public class ChatMessage extends Message {
 	@JsonProperty("t")
 	private long time;
 	
+	/**
+	 * Std. Ctor
+	 * So the Jason Library can create this object.
+	 */
 	public ChatMessage() {
-		
+		// no op.
 	}
 	
 	public static ChatMessage getSystemMessage(Account account, String text) {
@@ -50,7 +55,7 @@ public class ChatMessage extends Message {
 
 	@Override
 	public String getMessageId() {
-		return "chat.message";
+		return MESSAGE_ID;
 	}
 
 	public Mode getChatMode() {
