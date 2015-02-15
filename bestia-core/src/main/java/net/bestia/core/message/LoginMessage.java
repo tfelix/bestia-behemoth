@@ -1,9 +1,13 @@
 package net.bestia.core.message;
 
-import net.bestia.core.game.model.Account;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Message from a client to request a login.
+ * 
+ * @author Thomas
+ *
+ */
 public class LoginMessage extends Message {
 	
 	public enum LoginStatus {

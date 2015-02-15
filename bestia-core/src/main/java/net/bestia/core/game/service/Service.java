@@ -1,11 +1,10 @@
 package net.bestia.core.game.service;
 
-import java.util.concurrent.BlockingQueue;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.core.message.Message;
+import net.bestia.core.net.Messenger;
 
 /**
  * Abstract base class for all services. Provides facility to send out
@@ -17,17 +16,17 @@ import net.bestia.core.message.Message;
 public abstract class Service {
 	private final static Logger log = LogManager.getLogger(Service.class);
 	
-	private BlockingQueue<Message> messageQueue;
+	private Messenger messenger;
 	
 	/**
 	 * Ctor.
 	 * @param queue Message queue so the services can deliver their very own messages.
 	 */
-	public Service(BlockingQueue<Message> messageQueue) {
-		if(messageQueue == null) {
-			throw new IllegalArgumentException("Queue can not be null.");
+	public Service(Messenger messenger) {
+		if(messenger == null) {
+			throw new IllegalArgumentException("Messenger can not be null.");
 		}
-		this.messageQueue = messageQueue;
+		this.messenger = messenger;
 	}
 	
 	/**
@@ -45,6 +44,6 @@ public abstract class Service {
 	protected void onChange() {
 		Message msg = getDataChangedMessage();
 		log.trace("Underlying data changed. Issued message: {}", msg);
-		messageQueue.add(msg);
+		messenger.sendMessage(getDataChangedMessage());
 	}
 }

@@ -1,8 +1,6 @@
 package net.bestia.core.game.service;
 
-import java.util.concurrent.BlockingQueue;
-
-import net.bestia.core.message.Message;
+import net.bestia.core.net.Messenger;
 import net.bestia.core.persist.AccountDAO;
 
 import org.springframework.context.ApplicationContext;
@@ -20,25 +18,14 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public final class HibernateServiceFactory implements ServiceFactory {
 
 	private AccountServiceFactory accServiceFactory;
-	private BlockingQueue<Message> messageQueue;
+	private BestiaServiceFactory bestiaServiceFactory;
 	private ApplicationContext ctx;
+	private final Messenger messenger;
 
-	public HibernateServiceFactory() {
+	public HibernateServiceFactory(Messenger messenger) {
 		ctx = new ClassPathXmlApplicationContext("spring-config.xml");
-	}
-
-	/*
-	 * private
-	 * 
-	 * 
-	 * 
-	 * /* (non-Javadoc)
-	 * 
-	 * @see net.bestia.core.game.service.ServiceFactory2#getBestiaService()
-	 */
-	@Override
-	public BestiaService getBestiaService() {
-		return null;
+		
+		this.messenger = messenger;
 	}
 
 	/*
@@ -50,13 +37,17 @@ public final class HibernateServiceFactory implements ServiceFactory {
 	public AccountServiceFactory getAccountServiceFactory() {
 		if(accServiceFactory == null) {
 			AccountDAO accDAO = (AccountDAO) ctx.getBean("accountDAOHibernate");
-			accServiceFactory = new AccountServiceFactory(accDAO, messageQueue);
+			accServiceFactory = new AccountServiceFactory(accDAO, messenger);
 		}
 		return accServiceFactory;
 	}
 
 	@Override
-	public void setMessageQueue(BlockingQueue<Message> queue) {
-		this.messageQueue = queue;		
+	public BestiaServiceFactory getBestiaServiceFactory() {
+		/*if(bestiaServiceFactory == null) {
+			BestiaDAO bestiaDAO = (BestiaDAO) ctx.getBean("bestiaDAOHibernate");
+			
+		}*/
+		return null;
 	}
 }

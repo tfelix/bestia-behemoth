@@ -9,7 +9,7 @@ import net.bestia.core.message.Message;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class NullConnectionManager implements BestiaConnectionManager {
+public class NullConnectionManager implements BestiaConnectionInterface {
 
 	@Override
 	public void sendMessage(Message message) {
@@ -24,6 +24,11 @@ public class NullConnectionManager implements BestiaConnectionManager {
 	@Override
 	public void handleMessage(Message message) {
 		// no op.
+	}
+
+	@Override
+	public boolean isConnected(int accountId) {
+		return true;
 	}
 
 }

@@ -1,9 +1,7 @@
 package net.bestia.core.game.service;
 
-import java.util.concurrent.BlockingQueue;
-
 import net.bestia.core.game.model.Account;
-import net.bestia.core.message.Message;
+import net.bestia.core.net.Messenger;
 import net.bestia.core.persist.AccountDAO;
 
 import org.apache.logging.log4j.LogManager;
@@ -16,12 +14,12 @@ import org.apache.logging.log4j.Logger;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public final class AccountServiceFactory {
+public class AccountServiceFactory {
 	
 	private final static Logger log = LogManager.getLogger(AccountServiceFactory.class);
-
-	private BlockingQueue<Message> messageQueue;	
+	
 	private AccountDAO accDAO;
+	private final Messenger messenger;
 	
 	/**
 	 * Ctor.
@@ -29,15 +27,15 @@ public final class AccountServiceFactory {
 	 * @param messageQueue Queue to generate messages for the messaging subsystem.
 	 */
 	public AccountServiceFactory(AccountDAO accDAO,
-			BlockingQueue<Message> messageQueue) {
+			Messenger messenger) {
 		if(accDAO == null) {
 			throw new IllegalArgumentException("AccDAO can not be null.");
 		}
-		if(messageQueue == null) {
-			throw new IllegalArgumentException("messageQueue can not be null.");
+		if(messenger == null) {
+			throw new IllegalArgumentException("Messenger can not be null.");
 		}
 		this.accDAO = accDAO;
-		this.messageQueue = messageQueue;
+		this.messenger = messenger;
 	}
 
 	/**
@@ -48,7 +46,7 @@ public final class AccountServiceFactory {
 	 */
 	public AccountService getAccount(int accId) {
 		Account data = accDAO.findByID(Account.class, accId);
-		return new AccountService(data, messageQueue);
+		return new AccountService(data, messenger);
 	}
 	
 	public AccountService getAccountByName(String accName) {
@@ -57,11 +55,11 @@ public final class AccountServiceFactory {
 			log.warn("No account found. Identifier: {}", accName);
 			throw new IllegalArgumentException("No account found");
 		}
-		return new AccountService(data, messageQueue);
+		return new AccountService(data, messenger);
 	}
 	
 	/**
-	 * Creates a completly new account.
+	 * Creates a completely new account.
 	 * 
 	 * @param email
 	 * @param mastername

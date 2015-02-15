@@ -2,7 +2,7 @@ package net.bestia.core.command;
 
 import java.util.concurrent.BlockingQueue;
 
-import net.bestia.core.connection.BestiaConnectionManager;
+import net.bestia.core.connection.BestiaConnectionInterface;
 import net.bestia.core.game.model.Account;
 import net.bestia.core.game.model.Password;
 import net.bestia.core.game.service.AccountService;
@@ -21,25 +21,19 @@ import net.bestia.core.message.LoginMessage.LoginStatus;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class RequestLoginCommand extends Command {
+class RequestLoginCommand extends Command {
 	
 	private RequestLoginMessage message;
-	private BestiaConnectionManager connectionManager;
+	private BestiaConnectionInterface connectionManager;
 
-	public RequestLoginCommand(Message message, 
-			ServiceFactory serviceFactory,
-			BlockingQueue<Message> msgOutQueue,
-			BestiaConnectionManager connection) {
-		super(message, serviceFactory, msgOutQueue);
+	public RequestLoginCommand(Message message, CommandContext context) {
+		super(message, context);
 		
 		if(!(message instanceof RequestLoginMessage)) {
 			throw new IllegalArgumentException("Message is not the correct type.");
 		}
-		if(connection == null) {
-			throw new IllegalArgumentException("ConnectionManager can not be null.");
-		}
+		
 		this.message = (RequestLoginMessage)message;
-		this.connectionManager = connection;
 	}
 
 	@Override
@@ -55,7 +49,7 @@ public class RequestLoginCommand extends Command {
 	@Override
 	protected void setupAccountService(Message message) {
 		// Find the account and try to match the password.
-		sender = serviceFactory.getAccountServiceFactory()
+		sender = context.getServiceFactory().getAccountServiceFactory()
 				.getAccountByName(this.message.getAccountIdentifier());
 	}
 
@@ -80,7 +74,7 @@ public class RequestLoginCommand extends Command {
 		
 		// Create login or logout messages.
 		
-		addMessage(msg);
+		sendMessage(msg);
 	}
 
 }

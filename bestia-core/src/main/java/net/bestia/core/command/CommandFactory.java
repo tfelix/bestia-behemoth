@@ -1,80 +1,88 @@
 package net.bestia.core.command;
 
-import java.util.concurrent.BlockingQueue;
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
 
-import net.bestia.core.connection.BestiaConnectionManager;
+import net.bestia.core.connection.BestiaConnectionInterface;
 import net.bestia.core.game.service.ServiceFactory;
 import net.bestia.core.message.Message;
+import net.bestia.core.net.Messenger;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Creates commands from incoming messages. Please bear in mind that not each message
- * creates a command for execution on the server. Only a subset of all available messages
- * have an associated command. (All the INCOMING messages).
+ * Creates commands from incoming messages. Please bear in mind that not each
+ * message creates a command for execution on the server. Only a subset of all
+ * available messages have an associated command. (All the INCOMING messages).
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class CommandFactory {
+public final class CommandFactory {
 
-	private static final Logger log = LogManager.getLogger(CommandFactory.class);
+	private static final Logger log = LogManager
+			.getLogger(CommandFactory.class);
 	
-	private ServiceFactory serviceFactory;
-	private BestiaConnectionManager connection;
-	private BlockingQueue<Message> msgOutQueue;
+	final private static Map<String, Class<? extends Command>> commandLibrary;
+	
+	static {
+		commandLibrary = new HashMap<String, Class<? extends Command>>();
+        
+		// TODO Maybe Autoregister all available commands?
+		commandLibrary.put("ping", PingCommand.class);
+		commandLibrary.put("req.login", RequestLoginCommand.class);
+		commandLibrary.put("req.logout", RequestLogoutCommand.class);
+		commandLibrary.put("chat", ChatCommand.class);
+    }
+
+	private final CommandContext context;
 
 	/**
 	 * Ctor.
 	 * 
 	 * @param serviceFactory
-	 * @param msgOutQueue
-	 * @param connection 
+	 * @param connection
 	 */
-	public CommandFactory(ServiceFactory serviceFactory, 
-			BlockingQueue<Message> msgOutQueue,
-			BestiaConnectionManager connection) {
-		if(serviceFactory == null) {
-			throw new IllegalArgumentException("ServiceFactory can not be null.");
+	public CommandFactory(ServiceFactory serviceFactory,
+			Messenger messenger) {
+		if (serviceFactory == null) {
+			throw new IllegalArgumentException(
+					"ServiceFactory can not be null.");
 		}
-		if(msgOutQueue == null) {
-			throw new IllegalArgumentException("OutMessageQueue can not be null.");
+		if (messenger == null) {
+			throw new IllegalArgumentException(
+					"Messenger can not be null.");
 		}
-		if(connection == null) {
-			throw new IllegalArgumentException("BestiaConnectionManager can not be null.");
-		}
-		this.connection = connection;
-		this.msgOutQueue = msgOutQueue;
-		this.serviceFactory = serviceFactory;
+		
+		context = new CommandContext(serviceFactory, messenger);
 	}
 
 	public Command getCommand(Message message) {
-
-		String msgId = message.getMessageId();
-		Command cmd = null;
-
-		// TODO Die commands haben jetzt einheitlichen ctor. Instanzierung kann automatisiert
-		// werden. Commands müssen sich bei der factory registrieren.
-		switch (msgId) {
-		case "ping":
-			cmd = new PingCommand(message, serviceFactory, msgOutQueue);
-			break;
-		case "req.login":
-			cmd = new RequestLoginCommand(message, serviceFactory, msgOutQueue, connection);
-			break;
-		case "req.logout":
-			cmd = new RequestLogoutCommand(message, serviceFactory, msgOutQueue);
-			break;
-		case "chat":
-			cmd = new ChatCommand(message, serviceFactory, msgOutQueue);
-		default:
+		
+		final String msgId = message.getMessageId();
+		
+		Class<? extends Command> clazz;
+		clazz = commandLibrary.get(msgId);
+		
+		if(clazz == null) {
 			log.error("Unknown command for message: {}", message.toString());
 			throw new IllegalArgumentException("Unknown command for message.");
-		}		
+		}
+		
+		Command cmd = null;
+		try {
+			
+			Constructor<? extends Command> cmdConst = clazz.getConstructor(Message.class, CommandContext.class);	
+			cmd = cmdConst.newInstance(message, context);
+			
+		} catch (Exception e) {
+			log.error("Error while creating command.", e);
+			return null;
+		}
 		
 		log.trace("Command created: {}", cmd.toString());
-
 		return cmd;
 	}
 }

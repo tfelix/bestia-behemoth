@@ -1,15 +1,14 @@
 package net.bestia.core.game.service;
 
-import java.util.concurrent.BlockingQueue;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import net.bestia.core.game.model.Account;
 import net.bestia.core.game.model.Location;
 import net.bestia.core.game.model.PlayerBestia;
 import net.bestia.core.game.model.StatusPoint;
 import net.bestia.core.message.Message;
+import net.bestia.core.net.Messenger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class PlayerBestiaService extends BestiaService {
 
@@ -29,8 +28,8 @@ public class PlayerBestiaService extends BestiaService {
 	 *            Account object to create messages for this account.
 	 */
 	public PlayerBestiaService(Account account, PlayerBestia bestia,
-			BlockingQueue<Message> queue) {
-		super(bestia, queue);
+			Messenger messenger) {
+		super(bestia, messenger);
 		if (account == null) {
 			throw new IllegalArgumentException("Account can not be null.");
 		}

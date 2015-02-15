@@ -1,13 +1,11 @@
 package net.bestia.core.message;
 
-import net.bestia.core.game.model.Account;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PongMessage extends Message {
 
-	private final String message = "Hello User.";
-	private final String messageId = "pong";
+	private static final String message = "Hello User.";
+	private static final String messageId = "pong";
 	
 	public PongMessage(int accountId) {
 		setAccountId(accountId);
@@ -25,6 +23,6 @@ public class PongMessage extends Message {
 
 	@Override
 	public String toString() {
-		return String.format("PongMessage[mid: {0}, account id: {1}]", getMessageId(), getAccountId());
+		return String.format("PongMessage[mid: %s, account id: %d]", getMessageId(), getAccountId());
 	}
 }

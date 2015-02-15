@@ -1,21 +1,20 @@
 package net.bestia.core.game.service;
 
-import java.util.concurrent.BlockingQueue;
-
 import net.bestia.core.game.model.Account;
 import net.bestia.core.game.model.Password;
 import net.bestia.core.message.AccountInfoMessage;
 import net.bestia.core.message.Message;
+import net.bestia.core.net.Messenger;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** Manages the business logic of the AccountData.
+/** Manages the business logic of the Account.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public final class AccountService extends net.bestia.core.game.service.Service {
+public class AccountService extends Service {
 	
 	private static final Logger log = LogManager.getLogger(AccountService.class);
 	
@@ -26,8 +25,8 @@ public final class AccountService extends net.bestia.core.game.service.Service {
 	 * @param account
 	 * @param messageQueue
 	 */
-	public AccountService(Account account, BlockingQueue<Message> messageQueue) {
-		super(messageQueue);
+	public AccountService(Account account, Messenger messenger) {
+		super(messenger);
 		if(account == null) {
 			throw new IllegalArgumentException("Account can not be null.");
 		}

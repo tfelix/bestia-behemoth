@@ -1,13 +1,9 @@
 package net.bestia.core.game.service;
 
-import java.util.concurrent.BlockingQueue;
-
-import com.mysql.jdbc.NotImplemented;
-
 import net.bestia.core.game.model.Bestia;
 import net.bestia.core.game.model.StatusEffect;
 import net.bestia.core.game.model.StatusPoint;
-import net.bestia.core.message.Message;
+import net.bestia.core.net.Messenger;
 
 /**
  * Simple basic service for bestias. It is abstract because
@@ -21,8 +17,8 @@ public abstract class BestiaService extends Service {
 	private Bestia bestia;
 	protected boolean isDead;
 	
-	public BestiaService(Bestia bestia, BlockingQueue<Message> queue) {
-		super(queue);
+	public BestiaService(Bestia bestia, Messenger messenger) {
+		super(messenger);
 		if(bestia == null) {
 			throw new IllegalArgumentException("Bestia can not be null.");
 		}

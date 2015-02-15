@@ -7,13 +7,12 @@ import net.bestia.core.message.LogoutMessage;
 import net.bestia.core.message.Message;
 import net.bestia.core.message.RequestLogoutMessage;
 
-public class RequestLogoutCommand extends Command {
+class RequestLogoutCommand extends Command {
 
 	private RequestLogoutMessage message;
 
-	public RequestLogoutCommand(Message message, ServiceFactory serviceFactory,
-			BlockingQueue<Message> msgOutQueue) {
-		super(message, serviceFactory, msgOutQueue);
+	public RequestLogoutCommand(Message message, CommandContext context) {
+		super(message, context);
 		
 		if(!(message instanceof RequestLogoutMessage)) {
 			throw new IllegalArgumentException("Message is not of correct type.");
@@ -31,7 +30,7 @@ public class RequestLogoutCommand extends Command {
 	protected void executeCommand() {
 		// TODO Logik einbauen.
 		LogoutMessage msg = new LogoutMessage();
-		addMessage(msg);
+		sendMessage(msg);
 	}
 
 }

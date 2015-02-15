@@ -1,10 +1,10 @@
 package net.bestia.core.command;
 
-import java.util.concurrent.BlockingQueue;
-
-import net.bestia.core.game.service.ServiceFactory;
 import net.bestia.core.message.Message;
 import net.bestia.core.message.PongMessage;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Creates a Pong message which is echoed to the client. This is the answer of a
@@ -13,11 +13,12 @@ import net.bestia.core.message.PongMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * 
  */
-public class PingCommand extends Command {
+class PingCommand extends Command {
+	
+	private final static Logger log = LogManager.getLogger(PingCommand.class);
 
-	public PingCommand(Message message, ServiceFactory serviceFactory,
-			BlockingQueue<Message> msgOutQueue) {
-		super(message, serviceFactory, msgOutQueue);
+	public PingCommand(Message message, CommandContext context) {
+		super(message, context);
 	}
 
 	/**
@@ -31,9 +32,16 @@ public class PingCommand extends Command {
 
 	@Override
 	protected void executeCommand() {
+		log.trace("Executing PingCommand.");
+		
 		// Nothing is done here. Just a message will be returned.
 		PongMessage msg = new PongMessage(sender.getAccountId());
-		addMessage(msg);
+		sendMessage(msg);
+	}
+	
+	@Override
+	public String toString() {
+		return "PingCommand[]";
 	}
 
 }

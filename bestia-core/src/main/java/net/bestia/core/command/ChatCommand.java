@@ -1,12 +1,9 @@
 package net.bestia.core.command;
 
-import java.util.concurrent.BlockingQueue;
-
-import net.bestia.core.game.service.ServiceFactory;
 import net.bestia.core.message.ChatEchoMessage;
+import net.bestia.core.message.ChatEchoMessage.EchoCode;
 import net.bestia.core.message.ChatMessage;
 import net.bestia.core.message.Message;
-import net.bestia.core.message.ChatEchoMessage.EchoCode;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,7 +16,7 @@ import org.apache.logging.log4j.Logger;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * 
  */
-public class ChatCommand extends Command {
+class ChatCommand extends Command {
 
 	private static final Logger log = LogManager.getLogger(ChatCommand.class);
 	private ChatMessage message;
@@ -32,9 +29,8 @@ public class ChatCommand extends Command {
 	 * @param serviceFactory
 	 * @param queue
 	 */
-	public ChatCommand(Message message, ServiceFactory serviceFactory,
-			BlockingQueue<Message> queue) {
-		super(message, serviceFactory, queue);
+	public ChatCommand(Message message, CommandContext context) {
+		super(message, context);
 
 		if (!(message instanceof ChatMessage)) {
 			throw new IllegalArgumentException("Mesage is not the correc type.");
@@ -69,7 +65,7 @@ public class ChatCommand extends Command {
 		// Echo the message back to the user.
 		ChatEchoMessage msg = ChatEchoMessage.getEchoMessage(message);
 		msg.setEchoCode(EchoCode.OK);
-		addMessage(msg);
+		sendMessage(msg);
 	}
 
 }
