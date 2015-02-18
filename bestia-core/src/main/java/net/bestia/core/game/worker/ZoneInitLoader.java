@@ -92,7 +92,8 @@ public class ZoneInitLoader {
 		List<String> zones = getZones();
 
 		// Split work.
-		final int sizeChunk = zones.size() / nThreads;
+		int sizeChunk = zones.size() / nThreads;
+		sizeChunk = (sizeChunk == 0) ? zones.size() : sizeChunk;
 
 		log.trace("Loading chunks of {} in {} thread(s).", sizeChunk, nThreads);
 

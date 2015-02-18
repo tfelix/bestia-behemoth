@@ -2,7 +2,10 @@ package net.bestia.core;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,6 +17,8 @@ import net.bestia.core.command.CommandFactory;
 import net.bestia.core.connection.BestiaConnectionInterface;
 import net.bestia.core.game.service.ServiceFactory;
 import net.bestia.core.game.worker.ScriptInitWorker;
+import net.bestia.core.game.worker.ZoneInitLoader;
+import net.bestia.core.game.zone.Zone;
 import net.bestia.core.message.Message;
 import net.bestia.core.net.Messenger;
 
@@ -21,10 +26,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class BestiaZoneserver {
+	
+	public final static String VERSION = "Bestia-Zone 1.0.0-ALPHA BUILD 2";
 
 	private final static Logger log = LogManager
 			.getLogger(BestiaZoneserver.class);
 
+	/**
+	 * Name of the server. Read from config.
+	 */
+	private final String name;
 	private final CommandFactory cmdFactory;
 	private final Messenger messenger;
 	private Properties config = new Properties();
@@ -32,6 +43,11 @@ public class BestiaZoneserver {
 
 	// Worker thread pool.
 	private final ExecutorService worker;
+	
+	/**
+	 * List of zones for which this server is responsible.
+	 */
+	private final Set<Zone> zones = new HashSet<Zone>();
 
 	/**
 	 * Ctor. The server needs a connection to its clients so it can use the
@@ -56,6 +72,8 @@ public class BestiaZoneserver {
 
 		this.messenger = new Messenger(connection, worker);
 		this.cmdFactory = new CommandFactory(serviceFactory, messenger);
+		
+		this.name = config.getProperty("name");
 	}
 
 	/**
@@ -80,6 +98,7 @@ public class BestiaZoneserver {
 
 		this.messenger = new Messenger(connection, worker);
 		this.cmdFactory = new CommandFactory(serviceFactory, messenger);
+		this.name = config.getProperty("name");
 	}
 
 	private void initilizeConfig(String configFile) {
@@ -105,21 +124,26 @@ public class BestiaZoneserver {
 
 		// Initializing all messaging components.
 		log.info("Bestia Behemoth is starting up!");
+		
+		log.info("Registering with Interserver...");
 
 		// Create ScriptInitWorker: Reading and compiling all the scripts.
 		log.info("Initializing: scripts...");
 		ScriptInitWorker siworker = new ScriptInitWorker();
 		siworker.run();
+		
+		// Create ActorInitWorker: Spawning and initializing all Actors.
+		ZoneInitLoader zoneLoader = new ZoneInitLoader(config, zones);
+		zoneLoader.init();
 
 		// Create ActorInitWorker: Spawning and initializing all Actors.
 		log.info("Initializing: actors...");
 
 		log.info("Initializing: message queue...");
 
-		log.info("Registering with Interserver...");
 
 		isRunning = true;
-		log.info("Bestia Behemoth Zone [{}] has started.", config.getProperty("name"));
+		log.info("Bestia Behemoth Zone [{}] has started.", name);
 	}
 
 	/**
@@ -170,12 +194,20 @@ public class BestiaZoneserver {
 	 * @param message
 	 * @return
 	 */
-	public void handleMessage(Message message) {
+	public void handleMessage(final Message message) {
 
 		// Create future command.
-		final FetchCommandTask task = new FetchCommandTask(cmdFactory, message);
-		final Future<Command> f = worker.submit(task);
+		final Future<Command> f = worker.submit(new Callable<Command>() {
 
+			@Override
+			public Command call() throws Exception {
+				log.trace("Entering FetchCommandTask.call(). {}", message);
+				Command cmd = cmdFactory.getCommand(message);
+				return cmd;
+			}
+		});
+		
+		// Execute the just created command as a future.
 		worker.execute(new Runnable() {
 
 			@Override

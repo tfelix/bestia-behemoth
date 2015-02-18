@@ -12,9 +12,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public final class ServerInfo extends Message {
+public final class ServerInfoMessage extends Message {
 
-	private final static String MESSAGE_ID = "server.info";
+	public final static String MESSAGE_ID = "server.info";
 
 	@JsonProperty("z")
 	private List<String> zones;
@@ -28,11 +28,11 @@ public final class ServerInfo extends Message {
 	@JsonProperty("res")
 	private String ressourceURL;
 	
-	public ServerInfo() {
+	public ServerInfoMessage() {
 		
 	}
 
-	public ServerInfo(List<String> zones, int connectedPlayer, String resUrl) {
+	public ServerInfoMessage(List<String> zones, int connectedPlayer, String resUrl) {
 		this.zones = zones;
 		this.connectedPlayer = connectedPlayer;
 		this.ressourceURL = resUrl;

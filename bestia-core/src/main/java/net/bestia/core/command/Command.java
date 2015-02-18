@@ -1,13 +1,10 @@
 package net.bestia.core.command;
 
-import java.util.concurrent.BlockingQueue;
+import net.bestia.core.game.service.AccountService;
+import net.bestia.core.message.Message;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import net.bestia.core.game.service.AccountService;
-import net.bestia.core.game.service.ServiceFactory;
-import net.bestia.core.message.Message;
 
 /**
  * This class represents the very basic interface for commands which are

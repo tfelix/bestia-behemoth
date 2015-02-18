@@ -49,14 +49,4 @@ public interface BestiaConnectionInterface {
 	 * @param Account
 	 */
 	public void elevateConnection(String uuid, int accountId);
-
-	/**
-	 * Connects the outside to the bestia behemoth game server. By generating
-	 * messages and calling these method the message is set to execution on the
-	 * gameserver infrastructure.
-	 * 
-	 * @param message
-	 *            Message to be executed.
-	 */
-	public void handleMessage(Message message);
 }

@@ -22,11 +22,6 @@ public class NullConnectionManager implements BestiaConnectionInterface {
 	}
 
 	@Override
-	public void handleMessage(Message message) {
-		// no op.
-	}
-
-	@Override
 	public boolean isConnected(int accountId) {
 		return true;
 	}
