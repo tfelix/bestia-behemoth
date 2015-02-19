@@ -1,6 +1,10 @@
 package net.bestia.core.command;
 
+import java.util.Map;
+
 import net.bestia.core.game.service.ServiceFactory;
+import net.bestia.core.game.zone.Property;
+import net.bestia.core.game.zone.Zone;
 import net.bestia.core.net.Messenger;
 
 /**
@@ -12,25 +16,55 @@ import net.bestia.core.net.Messenger;
  * @author Thomas
  *
  */
-final class CommandContext {
+public final class CommandContext {
+	
+	/**
+	 * Builder pattern for creating the command context.
+	 *
+	 */
+	public static class Builder {
+		private ServiceFactory serviceFactory;
+		private Messenger messenger;
+		private Map<String, Zone> zones;
+		
+		public Builder setServiceFactory(ServiceFactory serviceFactory) {
+			this.serviceFactory = serviceFactory;
+			return this;
+		}
+		
+		public Builder setMessenger(Messenger msg) {
+			this.messenger= msg;
+			return this;
+		}
+		
+		public Builder setZones(Map<String, Zone> zones) {
+			this.zones = zones;
+			return this;
+		}
+		
+		public CommandContext build() {
+			return new CommandContext(this);
+		}
+	}
 
 	private final ServiceFactory serviceFactory;
 	private final Messenger messenger;
+	private final Map<String, Zone> zones;
 
-	public CommandContext(
-			ServiceFactory serviceFactory, 
-			Messenger messenger) {
+	/**
+	 * Ctor. Creat
+	 * @param builder Builder holding the needed variables for creating this context.
+	 */
+	private CommandContext(Builder builder) {
 		
-		if(serviceFactory == null) {
-			throw new IllegalArgumentException("ServiceFactory can not be null.");
-		}
-		
-		if(messenger == null) {
-			throw new IllegalArgumentException("Messenger can not be null.");
+		if(builder == null) {
+			throw new IllegalArgumentException("Builder can not be null.");
 		}
 
-		this.serviceFactory = serviceFactory;
-		this.messenger = messenger;
+		this.serviceFactory = builder.serviceFactory;
+		this.messenger = builder.messenger;
+		this.zones = builder.zones;
+		
 	}
 
 	/**
@@ -50,5 +84,6 @@ final class CommandContext {
 	public Messenger getMessenger() {
 		return messenger;
 	}
+	
 
 }

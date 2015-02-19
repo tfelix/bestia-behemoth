@@ -4,9 +4,9 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.bestia.core.connection.BestiaConnectionInterface;
 import net.bestia.core.game.service.ServiceFactory;
 import net.bestia.core.message.Message;
+import net.bestia.core.message.ServerInfoMessage;
 import net.bestia.core.net.Messenger;
 
 import org.apache.logging.log4j.LogManager;
@@ -35,6 +35,7 @@ public final class CommandFactory {
 		commandLibrary.put("req.login", RequestLoginCommand.class);
 		commandLibrary.put("req.logout", RequestLogoutCommand.class);
 		commandLibrary.put("chat", ChatCommand.class);
+		commandLibrary.put(ServerInfoMessage.MESSAGE_ID, ServerInfoCommand.class);
     }
 
 	private final CommandContext context;
@@ -42,23 +43,18 @@ public final class CommandFactory {
 	/**
 	 * Ctor.
 	 * 
-	 * @param serviceFactory
-	 * @param connection
 	 */
-	public CommandFactory(ServiceFactory serviceFactory,
-			Messenger messenger) {
-		if (serviceFactory == null) {
-			throw new IllegalArgumentException(
-					"ServiceFactory can not be null.");
-		}
-		if (messenger == null) {
-			throw new IllegalArgumentException(
-					"Messenger can not be null.");
-		}
+	public CommandFactory(CommandContext ctx) {
 		
-		context = new CommandContext(serviceFactory, messenger);
+		context = ctx;
 	}
 
+	/**
+	 * Creates a command from the messages.
+	 * 
+	 * @param message
+	 * @return
+	 */
 	public Command getCommand(Message message) {
 		
 		final String msgId = message.getMessageId();

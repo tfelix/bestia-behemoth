@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * 
  */
-public abstract class Command implements Runnable {
+public abstract class Command {
 
 	private static final Logger log = LogManager.getLogger(Command.class);
 
@@ -61,7 +61,7 @@ public abstract class Command implements Runnable {
 	 */
 	protected abstract PreExecutionCheck validateExecution();
 
-	public void run() {
+	public void execute() {
 		if (validateExecution() == PreExecutionCheck.FAILED) {
 			// Command is no valid anymore. Stop execution.
 			return;
