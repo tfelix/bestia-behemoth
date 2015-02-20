@@ -11,6 +11,45 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
+	<!-- Profiles for the different builds. -->
+	<profiles>
+		<profile>
+			<id>profile-development</id>
+			<properties>
+				<environment>dev</environment>
+				<db.username>bestia</db.username>
+				<db.password>bestia</db.password>
+				<db.url>jdbc:mysql://localhost/myDb</db.url>
+				<db.dialect>org.hibernate.dialect.MySQL5Dialect</db.dialect>
+				<db.driver>com.mysql.jdbc.Driver</db.driver>
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+				<property>
+					<name>environment</name>
+					<value>dev</value>
+				</property>
+			</activation>
+		</profile>
+		<profile>
+			<id>profile-production</id>
+			<properties>
+				<environment>prod</environment>
+				<db.username>myProdUser</db.username>
+				<db.password>secretProdPasswd</db.password>
+				<db.url>jdbc:mysql://production-database/myDb</db.url>
+				<db.dialect>org.hibernate.dialect.MySQL5Dialect</db.dialect>
+				<db.driver>com.mysql.jdbc.Driver</db.driver>
+			</properties>
+			<activation>
+				<property>
+					<name>environment</name>
+					<value>prod</value>
+				</property>
+			</activation>
+		</profile>
+	</profiles>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -50,4 +89,8 @@
 			<version>2.0-beta9</version>
 		</dependency>
 	</dependencies>
+	<organization>
+		<name>tfelix Software</name>
+		<url>http://www.tfelix.de</url>
+	</organization>
 </project>
