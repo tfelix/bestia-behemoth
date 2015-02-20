@@ -14,6 +14,7 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class Zone {
 
+	private String name;
 	private final ScheduledExecutorService executor;
 	private final Map map;
 
@@ -37,6 +38,21 @@ public class Zone {
 
 		// Call the script trigger of the new entity.
 		
+		// Notify every observer in range... (must be done here?)
+	}
+	
+	/**
+	 * Deletes a entity on this map.
+	 * 
+	 * @param entity
+	 */
+	public void removeEntity(Entity entity) {
+		// Notify all listener about the new de-spawn.
+		
+		// Call the script trigger of the entity.
+		
+		// Remove the entity into the quad tree.	
+				
 		// Notify every observer in range... (must be done here?)
 	}
 
@@ -76,6 +92,11 @@ public class Zone {
 
 		return baseSpeed;
 	}
+	
+	public long countEntities() {
+		
+		return 0L;
+	}
 
 	/**
 	 * Finds the shortest path between these two points. If no path could be
@@ -94,5 +115,9 @@ public class Zone {
 
 	public void walkPath(List<Point> path) {
 
+	}
+	
+	public String getName() {
+		return name;
 	}
 }

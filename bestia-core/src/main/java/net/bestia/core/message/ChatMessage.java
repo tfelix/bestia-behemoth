@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class ChatMessage extends Message {
 
-	private final static String MESSAGE_ID = "chat.message";
+	public final static String MESSAGE_ID = "chat.message";
 	
 	public enum Mode {
 		PUBLIC,

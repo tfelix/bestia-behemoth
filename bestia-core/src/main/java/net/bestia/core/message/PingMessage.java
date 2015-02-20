@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PingMessage extends Message {
 
-	private final static String messageId = "ping";
 	private final static String message = "Hello Bestia.";
+	public static final String MESSAGE_ID = "system.ping";
 	
 	public PingMessage() {
 		// no op.
@@ -13,7 +13,7 @@ public class PingMessage extends Message {
 	
 	@Override
 	public String getMessageId() {
-		return messageId;
+		return MESSAGE_ID;
 	}
 	
 	@JsonProperty("m")

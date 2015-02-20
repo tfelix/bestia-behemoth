@@ -5,9 +5,6 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -21,23 +18,6 @@ public abstract class GenericDAOHibernate<T, ID extends Serializable>
 
 	@Autowired
 	protected SessionFactory sessionFactory;
-
-	public static CacheManager cacheMgr = null;
-
-	public void getCache() {
-		if (cacheMgr == null) {
-			// We could use an environment or a VM variable
-			cacheMgr = CacheManager.create();
-		}
-
-		/*
-		 * TODO Cache einbauen.
-		Ehcache cache = null;
-		if (cacheMgr != null) {
-			// cache = cacheMgr.addCacheIfAbsent(name);
-			cache = cacheMgr.getEhcache(cacheName);
-		}*/
-	}
 
 	public void save(T entity) {
 		Session hibernateSession = sessionFactory.getCurrentSession();

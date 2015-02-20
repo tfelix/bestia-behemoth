@@ -3,8 +3,8 @@ package net.bestia.webserver.bestia;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import net.bestia.core.BestiaServer;
-import net.bestia.core.connection.BestiaConnectionManager;
+import net.bestia.core.BestiaZoneserver;
+import net.bestia.core.connection.BestiaConnectionInterface;
 import net.bestia.core.connection.ConnectionState;
 import net.bestia.core.message.Message;
 
@@ -20,14 +20,16 @@ import org.apache.logging.log4j.Logger;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * 
  */
-public final class BestiaWebsocketConnector implements BestiaConnectionManager {
+public final class BestiaWebsocketConnector implements BestiaConnectionInterface {
+	
 	private final static Logger log = LogManager.getLogger(BestiaWebsocketConnector.class);
+	
 	private Hashtable<Integer, BestiaSocket> users = new Hashtable<Integer, BestiaSocket>();
 	private Hashtable<String, BestiaSocket> pendingConnections = new Hashtable<String, BestiaSocket>();
 	
 	private static BestiaWebsocketConnector INSTANCE;
 	
-	private BestiaServer gameServer;
+	private BestiaZoneserver gameServer;
 	
 	private BestiaWebsocketConnector() {
 		// no op.
@@ -45,8 +47,12 @@ public final class BestiaWebsocketConnector implements BestiaConnectionManager {
 	 * Otherwise the messages will be lost and not be processed.
 	 * @param server
 	 */
-	public void setBestiaServer(BestiaServer server) {
+	public void setBestiaServer(BestiaZoneserver server) {
 		gameServer = server;
+	}
+	
+	public BestiaZoneserver getZoneserver() {
+		return gameServer;
 	}
 
 	
@@ -104,11 +110,8 @@ public final class BestiaWebsocketConnector implements BestiaConnectionManager {
 	}
 
 	@Override
-	public void handleMessage(Message message) {
-		if(gameServer == null) {
-			log.error("Gameserver has not yet been set. Message will be LOST!");
-			return;
-		}
-		gameServer.handleMessage(message);
+	public boolean isConnected(int accountId) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

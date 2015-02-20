@@ -15,6 +15,8 @@ public class LoginMessage extends Message {
 		SUCCESS
 	}
 
+	public static final String MESSAGE_ID = "login";
+
 	@JsonProperty("s")
 	private LoginStatus status;
 	@JsonProperty("t")
@@ -63,7 +65,7 @@ public class LoginMessage extends Message {
 
 	@Override
 	public String getMessageId() {
-		return "system.login";
+		return MESSAGE_ID;
 	}
 
 	@Override

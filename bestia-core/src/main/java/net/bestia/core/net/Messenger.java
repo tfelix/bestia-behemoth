@@ -23,6 +23,8 @@ import net.bestia.core.message.Message;
  * otherwise it will ask the interserver who holds a connection and issue an RPC
  * call to this server.
  * 
+ * TODO DIE KLASSE MUSS THREADSAFE SEIN DA SIE GESHARED WIRD.
+ * 
  * @author Thomas
  *
  */
@@ -49,6 +51,8 @@ public class Messenger {
 	}
 
 	public void sendMessage(final Message msg) {
+		
+		log.trace("Sending message: {}", msg.toString());
 
 		// Is it a broadcast message? Then we need to deliver it locally as well
 		// as to all other servers.

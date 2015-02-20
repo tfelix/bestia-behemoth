@@ -19,34 +19,14 @@ import org.apache.logging.log4j.Logger;
 class ChatCommand extends Command {
 
 	private static final Logger log = LogManager.getLogger(ChatCommand.class);
-	private ChatMessage message;
 
-	/**
-	 * Ctor.
-	 * 
-	 * @param message
-	 *            The chat message from the user to the server.
-	 * @param serviceFactory
-	 * @param queue
-	 */
-	public ChatCommand(Message message, CommandContext context) {
-		super(message, context);
-
-		if (!(message instanceof ChatMessage)) {
-			throw new IllegalArgumentException("Mesage is not the correc type.");
-		}
-		this.message = (ChatMessage) message;
-	}
 
 	@Override
-	protected PreExecutionCheck validateExecution() {
-		return PreExecutionCheck.OK;
-	}
-
-	@Override
-	protected void executeCommand() {
+	public void execute(Message message, CommandContext ctx) {
+		ChatMessage m = (ChatMessage)message;
+		
 		// Check chat type.
-		switch (message.getChatMode()) {
+		switch (m.getChatMode()) {
 		case COMMAND:
 			// Check which command the user wanted. If his user level is high
 			// enough execute the command.
@@ -63,9 +43,15 @@ class ChatCommand extends Command {
 		}
 		
 		// Echo the message back to the user.
-		ChatEchoMessage msg = ChatEchoMessage.getEchoMessage(message);
-		msg.setEchoCode(EchoCode.OK);
-		sendMessage(msg);
+		ChatEchoMessage replyMsg = ChatEchoMessage.getEchoMessage(m);
+		replyMsg.setEchoCode(EchoCode.OK);
+		ctx.getMessenger().sendMessage(replyMsg);
+	}
+
+
+	@Override
+	public String handlesMessageId() {
+		return ChatMessage.MESSAGE_ID;
 	}
 
 }

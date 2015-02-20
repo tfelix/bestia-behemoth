@@ -2,8 +2,11 @@ package net.bestia.webserver.bestia;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import net.bestia.core.connection.ConnectionState;
+import net.bestia.core.message.LogoutMessage;
 import net.bestia.core.message.Message;
 import net.bestia.core.message.RequestLoginMessage;
 
@@ -28,11 +31,12 @@ public class BestiaSocket extends WebSocketAdapter {
 
 	private static final Logger log = LogManager.getLogger(BestiaSocket.class);
 	private static final ObjectMapper mapper = new ObjectMapper();
-	private static final BestiaWebsocketConnector connections = BestiaWebsocketConnector.getInstance();
+	private static final BestiaWebsocketConnector connections = BestiaWebsocketConnector
+			.getInstance();
 	static {
 		// Configure the Jackson mapper.
 		// to enable standard indentation ("pretty-printing"):
-		// mapper.enable(SerializationFeature.INDENT_OUTPUT);
+		mapper.enable(SerializationFeature.INDENT_OUTPUT);
 		// to allow serialization of "empty" POJOs (no properties to serialize)
 		// (without this setting, an exception is thrown in those cases)
 		mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
@@ -55,7 +59,7 @@ public class BestiaSocket extends WebSocketAdapter {
 	 * Ctor.
 	 */
 	public BestiaSocket() {
-		//no op.
+		// no op.
 	}
 
 	/**
@@ -80,7 +84,7 @@ public class BestiaSocket extends WebSocketAdapter {
 	@Override
 	public void onWebSocketConnect(Session session) {
 		super.onWebSocketConnect(session);
-		log.debug("WS connection opened from {}", session.getRemoteAddress());
+		log.trace("WS connection opened from {}", session.getRemoteAddress());
 
 		this.session = session;
 
@@ -105,22 +109,14 @@ public class BestiaSocket extends WebSocketAdapter {
 			msg.setAccountId(accountId);
 
 			if (state == ConnectionState.NEW) {
-				// Only accept login messages otherwise close the connection to
-				// the server.
-				if (msg.getMessageId() != 100) {
-					log.warn("First message was no RequestLoginMessage. Terminating connection.");
-					close();
-					return;
-				} else {
-					// Save the uuid to the message object
-					// so the server can reference the connection.
-					((RequestLoginMessage) msg).setUuid(uuid);
-				}
+				// Save the uuid to the message object
+				// so the server can reference the connection.
+				((RequestLoginMessage) msg).setUuid(uuid);
 			}
 
 			// Transform the message into a command object and let the bestia
 			// server execute it.
-			connections.handleMessage(msg);
+			connections.getZoneserver().handleMessage(msg);
 
 		} catch (IOException e) {
 			log.error(e.getMessage());
@@ -152,17 +148,30 @@ public class BestiaSocket extends WebSocketAdapter {
 	}
 
 	public void sendMessage(Message message) throws IOException {
+
 		if (!session.isOpen()) {
 			throw new IOException(String.format(
 					"Session to acc_id: {} is closed.", accountId));
 		}
 
-		RemoteEndpoint remote = session.getRemote();
+		final RemoteEndpoint remote = session.getRemote();
 
 		try {
 			String jsonMsg = mapper.writeValueAsString(message);
 			log.trace("Sending: {} to {}", jsonMsg, session.getRemoteAddress());
-			remote.sendStringByFuture(jsonMsg);
+			Future<Void> msgSend = remote.sendStringByFuture(jsonMsg);
+			
+			if (message.getMessageId().equals(LogoutMessage.MESSAGE_ID)) {
+				// Close the session after a the logout has been send.
+				// TODO das geschickter lösen ohne blocken.
+				try {
+					msgSend.get();
+				} catch (InterruptedException | ExecutionException e) {
+					session.close();
+				}
+				
+			}
+			
 		} catch (JsonProcessingException e) {
 			log.error(e.getMessage());
 		}

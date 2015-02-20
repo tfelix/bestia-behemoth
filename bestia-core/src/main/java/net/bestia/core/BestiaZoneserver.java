@@ -2,17 +2,15 @@ package net.bestia.core;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import net.bestia.core.command.Command;
+import net.bestia.core.command.CommandContext;
 import net.bestia.core.command.CommandFactory;
 import net.bestia.core.connection.BestiaConnectionInterface;
 import net.bestia.core.game.service.ServiceFactory;
@@ -26,7 +24,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class BestiaZoneserver {
-	
+
 	public final static String VERSION = "Bestia-Zone 1.0.0-ALPHA BUILD 2";
 
 	private final static Logger log = LogManager
@@ -36,6 +34,7 @@ public class BestiaZoneserver {
 	 * Name of the server. Read from config.
 	 */
 	private final String name;
+	private final CommandContext commandContext;
 	private final CommandFactory cmdFactory;
 	private final Messenger messenger;
 	private Properties config = new Properties();
@@ -43,11 +42,11 @@ public class BestiaZoneserver {
 
 	// Worker thread pool.
 	private final ExecutorService worker;
-	
+
 	/**
 	 * List of zones for which this server is responsible.
 	 */
-	private final Set<Zone> zones = new HashSet<Zone>();
+	private final Map<String, Zone> zones = new HashMap<>();
 
 	/**
 	 * Ctor. The server needs a connection to its clients so it can use the
@@ -71,15 +70,18 @@ public class BestiaZoneserver {
 				.getProperty("serverThreads")));
 
 		this.messenger = new Messenger(connection, worker);
-		this.cmdFactory = new CommandFactory(serviceFactory, messenger);
-		
 		this.name = config.getProperty("name");
+		this.commandContext = new CommandContext.Builder()
+			.setMessenger(messenger)
+			.setServiceFactory(serviceFactory)
+			.setZones(zones).build();
+		this.cmdFactory = new CommandFactory();
 	}
 
 	/**
-	 * Ctor. For providing an external executor service. This is mostly for internal use for
-	 * unit testing purposes to run the commands in the same thread as the unit
-	 * tests. Should not be needed to be used in production.
+	 * Ctor. For providing an external executor service. This is mostly for
+	 * internal use for unit testing purposes to run the commands in the same
+	 * thread as the unit tests. Should not be needed to be used in production.
 	 * 
 	 * @param serviceFactory
 	 * @param connection
@@ -97,8 +99,12 @@ public class BestiaZoneserver {
 		worker = execService;
 
 		this.messenger = new Messenger(connection, worker);
-		this.cmdFactory = new CommandFactory(serviceFactory, messenger);
 		this.name = config.getProperty("name");
+		this.commandContext = new CommandContext.Builder()
+			.setMessenger(messenger)
+			.setServiceFactory(serviceFactory)
+			.setZones(zones).build();
+		this.cmdFactory = new CommandFactory();
 	}
 
 	private void initilizeConfig(String configFile) {
@@ -124,14 +130,14 @@ public class BestiaZoneserver {
 
 		// Initializing all messaging components.
 		log.info("Bestia Behemoth is starting up!");
-		
+
 		log.info("Registering with Interserver...");
 
 		// Create ScriptInitWorker: Reading and compiling all the scripts.
 		log.info("Initializing: scripts...");
 		ScriptInitWorker siworker = new ScriptInitWorker();
 		siworker.run();
-		
+
 		// Create ActorInitWorker: Spawning and initializing all Actors.
 		ZoneInitLoader zoneLoader = new ZoneInitLoader(config, zones);
 		zoneLoader.init();
@@ -140,7 +146,6 @@ public class BestiaZoneserver {
 		log.info("Initializing: actors...");
 
 		log.info("Initializing: message queue...");
-
 
 		isRunning = true;
 		log.info("Bestia Behemoth Zone [{}] has started.", name);
@@ -196,27 +201,13 @@ public class BestiaZoneserver {
 	 */
 	public void handleMessage(final Message message) {
 
-		// Create future command.
-		final Future<Command> f = worker.submit(new Callable<Command>() {
-
-			@Override
-			public Command call() throws Exception {
-				log.trace("Entering FetchCommandTask.call(). {}", message);
-				Command cmd = cmdFactory.getCommand(message);
-				return cmd;
-			}
-		});
-		
-		// Execute the just created command as a future.
+		// Create a command and execute it.
 		worker.execute(new Runnable() {
 
 			@Override
 			public void run() {
-				try {
-					worker.execute(f.get());
-				} catch (InterruptedException | ExecutionException e) {
-					log.error("Could not execute command.", e);
-				}
+				Command cmd = cmdFactory.getCommand(message);
+				cmd.execute(message, commandContext);
 			}
 		});
 	}

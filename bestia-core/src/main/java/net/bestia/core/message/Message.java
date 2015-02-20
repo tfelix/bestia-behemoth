@@ -1,5 +1,7 @@
 package net.bestia.core.message;
 
+import java.util.UUID;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -18,6 +20,11 @@ import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 @JsonTypeIdResolver(MessageTypeIdResolver.class)
 public abstract class Message {
 
+	/**
+	 * Unique id to identify a connection to a client if no authentication has 
+	 * occurred and the account id is missing.
+	 */
+	private UUID uuid;
 	private int accountId;
 	private boolean isBroadcast = false;
 
@@ -30,8 +37,16 @@ public abstract class Message {
 	 * The broadcast flag can be set to send this message to all connected players.
 	 * @param isBroadcast
 	 */
-	public Message(boolean isBroadcast) {
+	public Message(UUID uuid, int accountId, boolean isBroadcast) {
 		this.isBroadcast = isBroadcast;
+	}
+	
+	public void setUUID(UUID newUUID) {
+		this.uuid = newUUID;
+	}
+	
+	public UUID getUUID(){
+		return uuid;
 	}
 
 	@JsonIgnore

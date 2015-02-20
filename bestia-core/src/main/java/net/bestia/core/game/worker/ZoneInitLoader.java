@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -54,7 +55,7 @@ public class ZoneInitLoader {
 	private final int nThreads;
 
 	private final ExecutorService worker;
-	private final Set<Zone> serverZones;
+	private final Map<String, Zone> serverZones;
 
 	/**
 	 * 
@@ -64,7 +65,7 @@ public class ZoneInitLoader {
 	 *            Reference to the zonelist the server is using. Loaded zones
 	 *            will be added to this list if finished.
 	 */
-	public ZoneInitLoader(Properties config, Set<Zone> zones) {
+	public ZoneInitLoader(Properties config, Map<String, Zone> zones) {
 		if(config == null) {
 			throw new IllegalArgumentException("Config can not be null.");
 		}
@@ -109,7 +110,9 @@ public class ZoneInitLoader {
 
 			for (Future<Set<Zone>> loadedZone : loadedZones) {
 				try {
-					serverZones.addAll(loadedZone.get());
+					for(Zone z : loadedZone.get()) {
+						serverZones.put(z.getName(), z);
+					}			
 				} catch (ExecutionException e) {
 					log.error("Error while loading zones.", e);
 					throw new IOException("Error while loading zones.", e);

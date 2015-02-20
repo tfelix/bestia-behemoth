@@ -1,6 +1,11 @@
 package net.bestia.webserver;
 
-import net.bestia.core.BestiaServer;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import net.bestia.core.BestiaZoneserver;
+import net.bestia.core.game.service.AccountService;
+import net.bestia.core.game.service.AccountServiceFactory;
 import net.bestia.core.game.service.HibernateServiceFactory;
 import net.bestia.core.game.service.ServiceFactory;
 import net.bestia.webserver.bestia.BestiaWebsocketConnector;
@@ -27,13 +32,23 @@ public class App {
 		server.addConnector(connector);
 		
 		// Create the necessary factories.
-		ServiceFactory servFac = new HibernateServiceFactory();
+		// Currently mock some stuff.
+		//ServiceFactory servFac = new HibernateServiceFactory();
+		
+		AccountService accService = mock(AccountService.class);
+
+		AccountServiceFactory accountServiceFactory = mock(AccountServiceFactory.class);
+		when(accountServiceFactory.getAccount(anyInt())).thenReturn(accService);
+
+		ServiceFactory servFac = mock(ServiceFactory.class);
+		when(servFac.getAccountServiceFactory()).thenReturn(
+				accountServiceFactory);
 		
 		// Get the bestia config.
 		String configFile = App.class.getClassLoader()
                 .getResource("bestia.properties").toString();
 		
-		BestiaServer bestiaServer = new BestiaServer(
+		BestiaZoneserver bestiaServer = new BestiaZoneserver(
 				servFac, 
 				BestiaWebsocketConnector.getInstance(), 
 				configFile);
