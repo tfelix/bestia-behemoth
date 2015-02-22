@@ -1,5 +1,6 @@
 package net.bestia.core.game.zone;
 
+
 /**
  * A simple 2D bounding box shape for collision detection.
  * 
@@ -16,6 +17,10 @@ public class BoxCollisionShape extends CollisionShape {
 		}
 
 		this.dimension = dimension;
+	}
+	
+	public BoxCollisionShape(int x, int y, int width, int height) {
+		this.dimension = new Dimension(x, y, width, height);
 	}
 
 	@Override
@@ -57,4 +62,6 @@ public class BoxCollisionShape extends CollisionShape {
 	public Dimension getBoundingBox() {
 		return dimension;
 	}
+
+
 }

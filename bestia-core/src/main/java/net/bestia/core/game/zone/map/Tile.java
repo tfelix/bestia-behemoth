@@ -1,4 +1,4 @@
-package net.bestia.core.game.zone;
+package net.bestia.core.game.zone.map;
 
 public class Tile {
 	

@@ -4,7 +4,7 @@
   <property name="test" value="blubber123"/>
  </properties>
  <tileset firstgid="1" name="sewer_tileset" tilewidth="24" tileheight="24">
-  <image source="../../../Program Files (x86)/Tiled/examples/sewer_tileset.png" trans="ff00ff" width="192" height="217"/>
+  <image source="sewer_tileset.png" trans="ff00ff" width="192" height="217"/>
  </tileset>
  <layer name="Bottom" width="50" height="50">
   <data>
@@ -5029,7 +5029,10 @@
   <object x="0" y="0" width="48" height="336"/>
   <object type="Wall" x="240" y="504" width="120" height="120"/>
  </objectgroup>
- <objectgroup name="Scripts" width="50" height="50"/>
+ <objectgroup color="#a2a41e" name="Scripts" width="50" height="50">
+  <object name="test" type="abc" x="1104" y="480" width="96" height="144"/>
+  <object type="cdef" x="456" y="456" width="48" height="168"/>
+ </objectgroup>
  <objectgroup name="Particles" width="50" height="50"/>
  <objectgroup color="#a25ca4" name="Sounds" width="50" height="50">
   <object name="Musik1" type="test.mp3" x="600" y="768" width="72" height="72"/>

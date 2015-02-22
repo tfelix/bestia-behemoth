@@ -1,4 +1,4 @@
-package net.bestia.core.game.zone;
+package net.bestia.core.game.zone.map;
 
 import java.io.IOException;
 
