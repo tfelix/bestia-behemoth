@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+
+<meta charset="utf-8" />
+
+<title>WebSocket Test</title>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+<script src="./jquery.atmosphere.js"></script>
+<script language="javascript" type="text/javascript">
+
+var socket = $.atmosphere;
+var subSocket;
+var transport = 'websocket';
+
+// We are now ready to cut the request
+var request = { 
+url: document.location.protocol + "//" + document.location.host + '/behemoth',
+contentType: "application/json",
+logLevel: 'debug',
+transport: transport,
+trackMessageLength: true,
+enableProtocol: true,
+fallbackTransport: 'long-polling'};
+request.onOpen = function (response) {
+
+	console.log('Atmosphere connected using ' + response.transport);
+	transport = response.transport;
+};
+
+// For demonstration of how you can customize the fallbackTransport using the onTransportFailure function
+request.onTransportFailure = function (errorMsg, request) {
+	jQuery.atmosphere.info(errorMsg);
+	if (window.EventSource) {
+		request.fallbackTransport = "sse";
+	}
+	console.log('Atmosphere Chat. Default transport is WebSocket, fallback is ' + request.fallbackTransport);
+};
+
+request.onMessage = function (response) {
+	var message = response.responseBody;
+	try {
+	var json = jQuery.parseJSON(message);
+	} catch (e) {
+	console.log('This doesn\'t look like a valid JSON: ', message.data);
+	return;
+}
+}
+
+request.onClose = function (response) { };
+request.onError = function (response) { };
+
+
+
+/*
+  var wsUri = "ws://localhost:8080/api";
+  var output;
+  var websocket;
+
+  function testWebSocket()
+  {
+    websocket = new WebSocket(wsUri);
+	output = $("#output");
+    websocket.onopen = function(evt) { onOpen(evt) };
+    websocket.onclose = function(evt) { onClose(evt) };
+    websocket.onmessage = function(evt) { onMessage(evt) };
+    websocket.onerror = function(evt) { onError(evt) };
+  }
+
+  function onOpen(evt)
+  {
+    writeToScreen("CONNECTED");
+  }
+
+  function onClose(evt)
+  {
+    writeToScreen("DISCONNECTED");
+  }
+
+  function onMessage(evt)
+  {
+	$('#output').append('<div>'+ evt.data +'</div>');
+  }
+
+  function onError(evt)
+  {
+    writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+  }
+
+  function doSend(message)
+  {
+    writeToScreen("SENT: " + message); 
+    websocket.send(JSON.stringify(message));
+  }
+
+  function writeToScreen(message)
+  {
+    $('#output').append(message);
+  }
+  
+  function ping() {
+	var msg = {accident: 'thomas.felix@tfelix.de', t: 'test', mid: 1};
+	doSend(msg);
+  }
+  
+  function login() {
+	var msg = {accident: 'max.mustermann@test.de', p: 'test123', mid: 100};
+	doSend(msg);
+  }
+  */
+</script>
+
+<h2>WebSocket Test</h2>
+
+<div style="height: 300px; width: 600px; padding: 5px; border: 1px black solid; font-family: Console; font-size: 10pt;" id="output"></div>
+
+<button onclick="testWebSocket()">Connect</button>
+<button onclick="ping()">Ping!</button>
+<button onclick="login()">Login</button>

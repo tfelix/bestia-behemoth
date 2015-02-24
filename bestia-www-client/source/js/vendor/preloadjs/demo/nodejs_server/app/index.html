@@ -1,0 +1,53 @@
+<!-- Initial demo structure taken from https://github.com/angular/angular-seed -->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>My AngularJS App</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="styles/app.css">
+</head>
+<body>
+  <ul class="menu">
+    <li><a href="#/view1">view1</a></li>
+    <li><a href="#/view2">view2</a></li>
+  </ul>
+
+  <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+  <![endif]-->
+
+  <div ng-view></div>
+
+  <div>Angular seed app: v<span app-version></span></div>
+
+  <script src="bower_components/lodash/dist/lodash.js"></script>
+  <script src="preload.js"></script>
+
+  <script type="text/javascript">
+    var applicationMap = {
+      core: {
+        scripts: ['vendors/angular.min.js', 'vendors/angular-route.min.js'],
+        initOnLoad: false//This can be true, but in this example, the module 'myApp' will call the module 'core', because is a dependency
+      },
+      myApp: {
+        scripts: ['scripts/app.js','scripts/view1/view1.js','scripts/view2/view2.js', 'components/version/version.js', 'components/version/version-directive.js', 'components/version/interpolate-filter.js'],
+        dependencies: ['core'],
+        isAngularModule: true,
+        initOnLoad: true/*, Uncomment and run nodejs server, to try allInOne
+        allInOne: {
+          url: 'allInOne'
+        }*/
+      }
+    };
+
+    var version = 0.1;
+
+    var debugMode = true;
+
+    preload({map: applicationMap, version: version, debug: debugMode});
+  </script>
+</body>
+</html>

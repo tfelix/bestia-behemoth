@@ -1,0 +1,16 @@
+{
+  "name": "bestia-behemoth",
+  "version": "0.0.0",
+  "authors": [
+    "Thomas Felix <thomas.felix@tfelix.de>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

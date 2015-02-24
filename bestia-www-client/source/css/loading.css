@@ -1,0 +1,42 @@
+body {
+	position: relative;
+	margin: 0;
+}
+
+.noscroll {
+	overflow: hidden;
+}
+
+#overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 999;
+	background-color: black; /*rgba(0, 0, 0, 0.5); /*dim the background*/
+}
+
+#loading {
+	background: red;
+	
+	width: 500px;
+	height: 300px;
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	z-index: 1000;
+	margin-top: -150px; /* negative half the size of height */
+	margin-left: -150px; /* negative half the size of width */
+}
+
+.loading-bar-wrap {
+	height: 30px;
+	background: gray;
+	margin: 15px 0;
+}
+
+.loading-bar {
+	background: black;
+	height: 100%;
+}

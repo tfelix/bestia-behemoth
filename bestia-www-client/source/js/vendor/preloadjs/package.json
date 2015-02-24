@@ -1,0 +1,37 @@
+{
+  "name": "preloadjs",
+  "version": "0.1.2",
+  "description": "PreloadJS load your application scripts for high speed in future connections.",
+  "main": "./dist/preload.min.js",
+  "directories": {
+    "dist": "dist"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "gulp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CristianMR/preloadjs.git"
+  },
+  "keywords": [
+    "preload",
+    "preloadjs",
+    "javascript",
+    "module",
+    "localStorage",
+    "CristianMR"
+  ],
+  "author": "Cristian Martín Rios <matrixcmr@gmail.com> & Heber Lopez <heberlopez@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CristianMR/preloadjs/issues"
+  },
+  "homepage": "https://github.com/CristianMR/preloadjs",
+  "devDependencies": {
+    "gulp": "^3.8.10",
+    "gulp-concat": "^2.4.2",
+    "gulp-rename": "^1.2.0",
+    "gulp-uglify": "^1.0.1"
+  }
+}

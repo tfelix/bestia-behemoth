@@ -1,0 +1,30 @@
+{
+  "name": "preloadjs",
+  "version": "0.1.2",
+  "homepage": "https://github.com/CristianMR/preloadjs",
+  "authors": [
+    "Cristian Martín Rios <matrixcmr@gmail.com>",
+    "Heber Lopez <heberlopez@gmail.com>"
+  ],
+  "description": "PreloadJS load your application scripts for high speed in future connections.",
+  "main": "./dist/preload.js",
+  "keywords": [
+    "preload",
+    "preloadjs",
+    "javascript",
+    "module",
+    "localStorage",
+    "CristianMR"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "lodash": "~2.4.1"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "preloadjs",
+  "version": "0.0.0",
+  "description": "NodeJS Demo Server",
+  "dependencies": {
+    "bluebird": "^2.3.11",
+    "body-parser": "^1.9.3",
+    "express": "^4.10.2",
+    "lodash": "^2.4.1"
+  }
+}
