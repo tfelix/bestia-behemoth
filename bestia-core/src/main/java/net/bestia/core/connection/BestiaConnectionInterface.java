@@ -1,6 +1,7 @@
 package net.bestia.core.connection;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import net.bestia.core.message.Message;
 
@@ -49,4 +50,11 @@ public interface BestiaConnectionInterface {
 	 * @param Account
 	 */
 	public void elevateConnection(String uuid, int accountId);
+	
+	/**
+	 * Drops the connection with the given UUID. 
+	 * 
+	 * @param connectionId Connection to drop.
+	 */
+	public void dropConnection(UUID connectionId);
 }

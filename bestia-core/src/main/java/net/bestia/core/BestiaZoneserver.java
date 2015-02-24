@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -13,6 +14,7 @@ import net.bestia.core.command.Command;
 import net.bestia.core.command.CommandContext;
 import net.bestia.core.command.CommandFactory;
 import net.bestia.core.connection.BestiaConnectionInterface;
+import net.bestia.core.connection.Connection;
 import net.bestia.core.game.service.ServiceFactory;
 import net.bestia.core.game.worker.ScriptInitWorker;
 import net.bestia.core.game.worker.ZoneInitLoader;
@@ -34,14 +36,18 @@ public class BestiaZoneserver {
 	 * Name of the server. Read from config.
 	 */
 	private final String name;
+
 	private final CommandContext commandContext;
 	private final CommandFactory cmdFactory;
 	private final Messenger messenger;
+
 	private Properties config = new Properties();
 	private boolean isRunning = false;
 
 	// Worker thread pool.
 	private final ExecutorService worker;
+
+	private Map<Integer, Connection> connections = new HashMap<>();
 
 	/**
 	 * List of zones for which this server is responsible.
@@ -72,9 +78,8 @@ public class BestiaZoneserver {
 		this.messenger = new Messenger(connection, worker);
 		this.name = config.getProperty("name");
 		this.commandContext = new CommandContext.Builder()
-			.setMessenger(messenger)
-			.setServiceFactory(serviceFactory)
-			.setZones(zones).build();
+				.setMessenger(messenger).setServiceFactory(serviceFactory)
+				.setZones(zones).build();
 		this.cmdFactory = new CommandFactory();
 	}
 
@@ -101,9 +106,8 @@ public class BestiaZoneserver {
 		this.messenger = new Messenger(connection, worker);
 		this.name = config.getProperty("name");
 		this.commandContext = new CommandContext.Builder()
-			.setMessenger(messenger)
-			.setServiceFactory(serviceFactory)
-			.setZones(zones).build();
+				.setMessenger(messenger).setServiceFactory(serviceFactory)
+				.setZones(zones).build();
 		this.cmdFactory = new CommandFactory();
 	}
 
@@ -155,6 +159,7 @@ public class BestiaZoneserver {
 	 * Ceases all server operation and persists all pending data.
 	 */
 	public void stop() {
+		// TODO das hier noch fertig machen und alles runterfahren.
 		stop(false);
 	}
 
@@ -199,7 +204,12 @@ public class BestiaZoneserver {
 	 * @param message
 	 * @return
 	 */
-	public void handleMessage(final Message message) {
+	public boolean handleMessage(final Message message) {
+
+		// If not correctly authenticated ignore the message.
+		if (!connections.containsKey(message.getAccountId())) {
+			return false;
+		}
 
 		// Create a command and execute it.
 		worker.execute(new Runnable() {
@@ -210,5 +220,60 @@ public class BestiaZoneserver {
 				cmd.execute(message, commandContext);
 			}
 		});
+
+		return true;
+	}
+
+	/**
+	 * Checks if the user is authenticated.
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	public boolean isAuthenticated(UUID uuid, int accountId) {
+		// TODO Das hier fertig bauen.
+		return true;
+
+	}
+
+	/**
+	 * Prepares the connection with the server. The connection must be set by
+	 * the external frontend server so the server will process the messages from
+	 * this account.
+	 * 
+	 * @param accountId
+	 *            Account id which should be logged in.
+	 * @param uuid
+	 *            UUID which can be obtained via successfull login from the
+	 *            login server.
+	 * @return TRUE if the connection was successfull and the user is correctly
+	 *         authenticated which is checked with the loginserver. Or FALSE
+	 *         otherwise if the connection is rejected.
+	 */
+	public boolean connect(int accountId, UUID uuid) {
+		if (isAuthenticated(uuid, accountId)) {
+
+			final Connection connection = new Connection(uuid, accountId);
+
+			synchronized (connections) {
+				connections.put(accountId, connection);
+			}
+
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Disconnects the given account id from this zone server.
+	 * 
+	 * @param accountId
+	 *            Account id.
+	 */
+	public void disconnect(int accountId) {
+		synchronized (connections) {
+			connections.remove(accountId);
+		}
 	}
 }

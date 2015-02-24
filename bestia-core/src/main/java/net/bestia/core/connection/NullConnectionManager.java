@@ -1,5 +1,7 @@
 package net.bestia.core.connection;
 
+import java.util.UUID;
+
 import net.bestia.core.message.Message;
 
 /**
@@ -24,6 +26,12 @@ public class NullConnectionManager implements BestiaConnectionInterface {
 	@Override
 	public boolean isConnected(int accountId) {
 		return true;
+	}
+
+	@Override
+	public void dropConnection(UUID connectionId) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

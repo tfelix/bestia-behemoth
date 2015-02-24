@@ -8,13 +8,10 @@ import java.util.concurrent.Future;
 import net.bestia.core.connection.ConnectionState;
 import net.bestia.core.message.LogoutMessage;
 import net.bestia.core.message.Message;
-import net.bestia.core.message.RequestLoginMessage;
+
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.websocket.api.RemoteEndpoint;
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.WebSocketAdapter;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -27,8 +24,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * 
  */
-public class BestiaSocket extends WebSocketAdapter {
+public class BestiaSocket {
 
+	/*
 	private static final Logger log = LogManager.getLogger(BestiaSocket.class);
 	private static final ObjectMapper mapper = new ObjectMapper();
 	private static final BestiaWebsocketConnector connections = BestiaWebsocketConnector
@@ -55,27 +53,12 @@ public class BestiaSocket extends WebSocketAdapter {
 	private String uuid = UUID.randomUUID().toString();
 	private ConnectionState state;
 
-	/**
-	 * Ctor.
-	 */
+
 	public BestiaSocket() {
 		// no op.
 	}
 
-	/**
-	 * @return the accountId
-	 */
-	public int getAccountId() {
-		return accountId;
-	}
 
-	/**
-	 * @param accountId
-	 *            the accountId to set
-	 */
-	public void setAccountId(int accountId) {
-		this.accountId = accountId;
-	}
 
 	public void setState(ConnectionState state) {
 		this.state = state;
@@ -126,7 +109,7 @@ public class BestiaSocket extends WebSocketAdapter {
 	/**
 	 * Closes a websocket session in case of an error etc. Does also additional
 	 * cleanup work.
-	 */
+
 	private void close() {
 		if (session.isOpen()) {
 			session.close();
@@ -175,5 +158,5 @@ public class BestiaSocket extends WebSocketAdapter {
 		} catch (JsonProcessingException e) {
 			log.error(e.getMessage());
 		}
-	}
+	}*/
 }

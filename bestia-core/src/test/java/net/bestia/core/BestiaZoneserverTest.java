@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 
 import net.bestia.core.connection.BestiaConnectionInterface;
@@ -47,6 +48,12 @@ public class BestiaZoneserverTest {
 
 		@Override
 		public void elevateConnection(String uuid, int accountId) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void dropConnection(UUID connectionId) {
 			// TODO Auto-generated method stub
 			
 		}
