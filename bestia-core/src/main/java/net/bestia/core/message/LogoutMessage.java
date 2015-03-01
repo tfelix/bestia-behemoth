@@ -4,9 +4,12 @@ public class LogoutMessage extends Message {
 	
 	public static final String MESSAGE_ID = "system.logout";
 
+	public LogoutMessage() {
+		// no op.
+	}
+	
 	public LogoutMessage(Message message) {
 		setAccountId(message.getAccountId());
-		setUUID(message.getUUID());
 	}
 
 	@Override

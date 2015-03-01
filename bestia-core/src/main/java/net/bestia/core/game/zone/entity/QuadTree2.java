@@ -1,4 +1,4 @@
-package net.bestia.core.game.zone.quadtree;
+package net.bestia.core.game.zone.entity;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -29,7 +29,6 @@ public class BoxCollisionShape extends CollisionShape {
 		// ist sehr inflexibel wenn neue bounding boxen hinzukommen.
 		if (shape instanceof BoxCollisionShape) {
 			BoxCollisionShape box = (BoxCollisionShape) shape;
-
 			
 			return (dimension.getX() < box.dimension.getX() + box.dimension.getWidth() &&
 					box.dimension.getX() < dimension.getX() + dimension.getWidth() &&

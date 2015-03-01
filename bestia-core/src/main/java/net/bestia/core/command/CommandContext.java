@@ -1,6 +1,7 @@
 package net.bestia.core.command;
 
 import java.util.Map;
+import java.util.Properties;
 
 import net.bestia.core.game.service.ServiceFactory;
 import net.bestia.core.game.zone.Property;
@@ -26,6 +27,7 @@ public final class CommandContext {
 		private ServiceFactory serviceFactory;
 		private Messenger messenger;
 		private Map<String, Zone> zones;
+		private Properties config;
 		
 		public Builder setServiceFactory(ServiceFactory serviceFactory) {
 			this.serviceFactory = serviceFactory;
@@ -42,6 +44,11 @@ public final class CommandContext {
 			return this;
 		}
 		
+		public Builder setConfiguration(Properties config) {
+			this.config = config;
+			return this;
+		}
+		
 		public CommandContext build() {
 			return new CommandContext(this);
 		}
@@ -49,6 +56,7 @@ public final class CommandContext {
 
 	private final ServiceFactory serviceFactory;
 	private final Messenger messenger;
+	private final Properties configuration;
 	private final Map<String, Zone> zones;
 
 	/**
@@ -64,7 +72,7 @@ public final class CommandContext {
 		this.serviceFactory = builder.serviceFactory;
 		this.messenger = builder.messenger;
 		this.zones = builder.zones;
-		
+		this.configuration = builder.config;
 	}
 
 	/**
@@ -83,6 +91,15 @@ public final class CommandContext {
 	 */
 	public Messenger getMessenger() {
 		return messenger;
+	}
+	
+	/**
+	 * Returns the server configuration. 
+	 * TODO Das in ein eigenes Configuration object kapseln das immutable ist.
+	 * @return Configuration of the server.
+	 */
+	public Properties getConfiguration() {
+		return configuration;
 	}
 	
 

@@ -2,7 +2,7 @@ package net.bestia.core.game.service;
 
 import net.bestia.core.game.model.Bestia;
 import net.bestia.core.game.model.StatusEffect;
-import net.bestia.core.game.model.StatusPoint;
+import net.bestia.core.game.model.StatusPoints;
 import net.bestia.core.net.Messenger;
 
 /**
@@ -47,7 +47,7 @@ public abstract class BestiaService extends Service {
 	 * status changes. In contrast to NPCBestia this implementation respects equipment.
 	 * @return
 	 */
-	public StatusPoint getStatusData() {
+	public StatusPoints getStatusData() {
 		return null;
 	}
 	
@@ -70,7 +70,7 @@ public abstract class BestiaService extends Service {
 		return;
 	}
 	
-	public StatusPoint getOriginalStatus() {
+	public StatusPoints getOriginalStatus() {
 		return bestia.getStatusPoints();
 	}
 }

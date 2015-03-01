@@ -14,14 +14,14 @@
 	<!-- Profiles for the different builds. -->
 	<profiles>
 		<profile>
-			<id>profile-development</id>
+			<id>development</id>
 			<properties>
 				<environment>dev</environment>
-				<db.username>bestia</db.username>
-				<db.password>bestia</db.password>
-				<db.url>jdbc:mysql://localhost/myDb</db.url>
-				<db.dialect>org.hibernate.dialect.MySQL5Dialect</db.dialect>
-				<db.driver>com.mysql.jdbc.Driver</db.driver>
+				<db.username>sa</db.username>
+				<db.password></db.password>
+				<db.url>jdbc:h2:mem:</db.url>
+				<db.dialect>org.hibernate.dialect.H2Dialect</db.dialect>
+				<db.driver>org.h2.Driver</db.driver>
 			</properties>
 			<activation>
 				<activeByDefault>true</activeByDefault>
@@ -32,7 +32,7 @@
 			</activation>
 		</profile>
 		<profile>
-			<id>profile-production</id>
+			<id>production</id>
 			<properties>
 				<environment>prod</environment>
 				<db.username>myProdUser</db.username>

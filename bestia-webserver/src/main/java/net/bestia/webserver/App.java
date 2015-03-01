@@ -1,6 +1,12 @@
 package net.bestia.webserver;
 
-import net.bestia.webserver.bestia.BestiaBehemoth;
+import java.io.File;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+
+import net.bestia.core.BestiaZoneserver;
+import net.bestia.webserver.bestia.BestiaNettosphereConnection;
 
 import org.atmosphere.nettosphere.Config;
 import org.atmosphere.nettosphere.Nettosphere;
@@ -13,56 +19,39 @@ public class App {
 		// Starting up the spring framework.
 		// ApplicationContext ctx = new
 		// ClassPathXmlApplicationContext("spring-config.xml");
+		try {
+			File configFile = new File(App.class.getClassLoader()
+					.getResource("bestia.properties").toURI());
+			
+			final BestiaZoneserver bestiaZone = new BestiaZoneserver(
+					BestiaNettosphereConnection.getInstance(), configFile.toString());
+			BestiaNettosphereConnection.getInstance().setZone(bestiaZone);
+			
+			// Start the zone.
+			try {
+				bestiaZone.start();
+			} catch (Exception e) {
+				// TODO besseres exception handling.
+				System.err.println("Can not start bestia zone. " + e.getMessage());
+				System.exit(1);
+			}
 
-		// Create the necessary factories.
-		// Currently mock some stuff.
-		// ServiceFactory servFac = new HibernateServiceFactory();
+			Config.Builder b = new Config.Builder();
 
-		/*
-		 * AccountService accService = mock(AccountService.class);
-		 * 
-		 * AccountServiceFactory accountServiceFactory =
-		 * mock(AccountServiceFactory.class);
-		 * when(accountServiceFactory.getAccount
-		 * (anyInt())).thenReturn(accService);
-		 * 
-		 * ServiceFactory servFac = mock(ServiceFactory.class);
-		 * when(servFac.getAccountServiceFactory()).thenReturn(
-		 * accountServiceFactory);
-		 * 
-		 * // Get the bestia config. String configFile =
-		 * App.class.getClassLoader()
-		 * .getResource("bestia.properties").toString();
-		 * 
-		 * BestiaZoneserver bestiaServer = new BestiaZoneserver( servFac,
-		 * BestiaWebsocketConnector.getInstance(), configFile);
-		 */
+			List<String> paths = new ArrayList<String>();
+			paths.add("C:\\xampp\\htdocs\\bestia\\img");
 
-		Config.Builder b = new Config.Builder();
+			b.resource("../bestia-www-client/source").host("0.0.0.0").port(8080);
 
-		b.resource(BestiaBehemoth.class).resource("../bestia-www-client/source").host("0.0.0.0")
-				.port(8080);
+			Nettosphere server = new Nettosphere.Builder().config(b.build())
+					.build();
+			server.start();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-		Nettosphere server = new Nettosphere.Builder().config(b.build())
-				.build();
-		server.start();
-
-		/*
-		 * Nettosphere server = new Nettosphere.Builder().config( new
-		 * Config.Builder() .host("127.0.0.1") .port(8080) .resource(new
-		 * Handler() { public void handle(AtmosphereResource r) { try {
-		 * r.getResponse
-		 * ().write("Hello World").write(" from Nettosphere").flushBuffer(); }
-		 * catch (IOException e) { e.printStackTrace(); } } }) .build())
-		 * .build(); server.start();
-		 */
-
-		/*
-		 * try { // Start the bestia server. bestiaServer.start();
-		 * 
-		 * server.start(); server.join(); } catch (Throwable t) {
-		 * t.printStackTrace(System.err); }
-		 */
+		
 
 	}
 

@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,24 +28,27 @@ public class Account {
 	private int id;
 	@Column(length = 32, unique = true)
 	private String email;
+	@Embedded
 	private Password password;
-	private int bestiaSlots;
 	private int additionalBestiaSlots;
 	private int gold;
 	private Date registerDate;
+	private Date lastLogin;
+	private boolean isActivated;
+	private String remarks;
 	private Date bannedUntilDate;
 	
-	@OneToMany(mappedBy="account")
-	private List<GuildMember> guild;
+	//@OneToMany(mappedBy="account")
+	//private List<GuildMember> guild;
 	
 	@OneToOne(cascade=CascadeType.ALL)
 	private PlayerBestia master;
+	
 	@OneToMany(cascade=CascadeType.ALL, mappedBy="owner")
 	private List<PlayerBestia> bestias;
 	
 	
 	public Account() {
-		setBestiaSlots(0);
 		additionalBestiaSlots = 0;
 		gold = 0;
 		setRegisterDate(new Date());
@@ -139,11 +143,28 @@ public class Account {
 		this.registerDate = registerDate;
 	}
 
-	public int getBestiaSlots() {
-		return bestiaSlots;
+	public Date getLastLogin() {
+		return lastLogin;
 	}
 
-	public void setBestiaSlots(int bestiaSlots) {
-		this.bestiaSlots = bestiaSlots;
+	public void setLastLogin(Date lastLogin) {
+		this.lastLogin = lastLogin;
 	}
+
+	public boolean isActivated() {
+		return isActivated;
+	}
+
+	public void setActivated(boolean isActivated) {
+		this.isActivated = isActivated;
+	}
+
+	public String getRemarks() {
+		return remarks;
+	}
+
+	public void setRemarks(String remarks) {
+		this.remarks = remarks;
+	}
+
 }

@@ -14,11 +14,11 @@ import java.util.UUID;
 public class Connection {
 	
 	private final Date connectionStarted;
-	private final UUID uuid;
+	private final String token;
 	private final int accountId;
 	
-	public Connection(UUID uuid, int accountId) {
-		this.uuid = uuid;
+	public Connection(String token, int accountId) {
+		this.token = token;
 		this.accountId = accountId;
 		this.connectionStarted = new Date();
 	}

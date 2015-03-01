@@ -9,16 +9,11 @@ import javax.persistence.Embeddable;
  *
  */
 @Embeddable
-public class StatusPoint {
+public class StatusPoints extends BaseValues {
 	private int curHp;
 	private int curMana;
 	private int maxMana;
 	private int maxHp;
-	private int atk;
-	private int def;
-	private int spAtk;
-	private int spDef;
-	private int spd;
 	private int armorDef;
 	private int armorSpDef;
 
@@ -30,11 +25,11 @@ public class StatusPoint {
 		this.curHp = hp;
 		checkInvalidStatusValue();
 	}
-	
+
 	public int getMaxHp() {
 		return maxHp;
 	}
-	
+
 	public void setMaxHp(int maxHp) {
 		this.maxHp = maxHp;
 		checkInvalidStatusValue();
@@ -48,70 +43,42 @@ public class StatusPoint {
 		this.curMana = mana;
 		checkInvalidStatusValue();
 	}
-	
+
 	public void setMaxMana(int maxMana) {
 		this.maxMana = maxMana;
 		checkInvalidStatusValue();
 	}
-	
+
 	public int getMaxMana() {
 		return maxMana;
 	}
 
-	public int getAtk() {
-		return atk;
-	}
-
-	public void setAtk(int atk) {
-		this.atk = atk;
-		checkInvalidStatusValue();
-	}
-
-	public int getDef() {
-		return def;
-	}
-
-	public void setDef(int def) {
-		this.def = def;
-		checkInvalidStatusValue();
-	}
-
-	public int getSpAtk() {
-		return spAtk;
-	}
-
-	public void setSpAtk(int spAtk) {
-		this.spAtk = spAtk;
-		checkInvalidStatusValue();
-	}
-
-	public int getSpDef() {
-		return spDef;
-	}
-
-	public void setSpDef(int spDef) {
-		this.spDef = spDef;
-		checkInvalidStatusValue();
-	}
-
-	public int getSpd() {
-		return spd;
-	}
-
+	/**
+	 * Sets the speed of the bestia. The speed determines walkspeed and
+	 * spellcasting.
+	 * 
+	 * @param spd
+	 */
+	@Override
 	public void setSpd(int spd) {
-		this.spd = spd;
+		super.setSpd(spd);
 		checkInvalidStatusValue();
 	}
 
-	public void add(StatusPoint rhs) {
-		this.atk += rhs.getAtk();
+	/**
+	 * Adds some other status points to this object.
+	 * 
+	 * @param rhs
+	 */
+	public void add(StatusPoints rhs) {
+		/*this.atk += rhs.getAtk();
 		this.def += rhs.getDef();
 		this.curHp += rhs.getCurrentHp();
 		this.curMana += rhs.getCurrentMana();
 		this.spAtk += rhs.getSpAtk();
 		this.spd += rhs.getSpd();
 		this.spDef += rhs.getSpDef();
-		checkInvalidStatusValue();
+		checkInvalidStatusValue();*/
 	}
 
 	/**
@@ -145,15 +112,14 @@ public class StatusPoint {
 		if (curMana < 0) {
 			curMana = 0;
 		}
-		
-		if(armorDef < 1) {
+
+		if (armorDef < 1) {
 			armorDef = 1;
 		}
-		
-		if(armorSpDef < 1) {
+
+		if (armorSpDef < 1) {
 			armorSpDef = 1;
 		}
 
-		
 	}
 }

@@ -19,11 +19,6 @@ public class NullConnectionManager implements BestiaConnectionInterface {
 	}
 
 	@Override
-	public void elevateConnection(String uuid, int accountId) {
-		// no op.
-	}
-
-	@Override
 	public boolean isConnected(int accountId) {
 		return true;
 	}

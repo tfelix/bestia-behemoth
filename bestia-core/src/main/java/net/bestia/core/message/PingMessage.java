@@ -22,7 +22,7 @@ public class PingMessage extends Message {
 	}
 	
 	public void setMessage(String message) {
-		if(!this.message.equals(message)) {
+		if(!PingMessage.message.equals(message)) {
 			throw new IllegalArgumentException("Wrong message for ping message.");
 		}
 	}

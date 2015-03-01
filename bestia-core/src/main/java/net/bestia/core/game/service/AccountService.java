@@ -116,7 +116,7 @@ public class AccountService extends Service {
 
 	@Override
 	protected Message getDataChangedMessage() {
-		Message msg = new AccountInfoMessage(account);
+		Message msg = null; //new AccountInfoMessage(account);
 		log.trace("AccountService detected change: {0}", msg.toString());
 		return msg;
 	}

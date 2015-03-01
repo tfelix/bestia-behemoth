@@ -18,8 +18,12 @@
 <script src="js/vendor/knockout-3.0.0.js"></script>
 
 <!-- Loading custom scripts, order is important! -->
-<script src="js/message/server.info.js"></script>
-<script src="js/message/system.all.js"></script>
+<script src="js/message/message.js"></script>
+
+
+<script src="js/view/server.info.js"></script>
+<script src="js/view/bestias.js"></script>
+<script src="js/view/system.pingpong.js"></script>
 
 <script src="js/io/connection.js"></script>
 
@@ -40,10 +44,14 @@ body {
 	padding-top: 15px;
 }
 
+p {
+	line-height: 1em;
+}
+
 #game-canvas {
 	height: 300px;
 	width: 100%;
-	background: green; 
+	background: green;
 	border: 5px brown solid;
 }
 
@@ -85,18 +93,21 @@ body {
 #available-bestia {
 	width: 300px;
 	background: #808080;
-	
 	margin: 20px;
 }
 
-
-
+.left-navi {
+	width: 300px;
+	backgorund: gray;
+	left-margin: 10px;
+	float: left;
+}
 </style>
 
 </head>
 <body class="noscroll">
 
-<!-- 
+	<!-- 
 	<div id="overlay"></div>
 	
 	<div id="loading">
@@ -104,65 +115,118 @@ body {
 		<div class="loading-bar-wrap"><div style="width: 0px;" class="loading-bar"></div></div>
 	</div>
 	-->
-	
-	<div id="selected-bestia">
-	
-	<img src="http://placehold.it/130x220" alt="Bestia Image" style="float:left;">
-	
+
+	<div class="left-navi">
+
+
+
+		<div id="selected-bestia">
+
+			<p data-bind="text: customName"></p>
+			<p data-bind="text: name"></p>
+
+			<img data-bind="attr: {src: image}" src="http://placehold.it/130x220" alt="Bestia Image" style="float: left;">
+
+			<p>---</p>
+			<div data-bind="with: location">
+				<p>
+					Map: <span data-bind="text: mapId"></span>
+				</p>
+				<p>
+					X: <span data-bind="text: x"></span>
+				</p>
+				<p>
+					Y: <span data-bind="text: y"></span>
+				</p>
+			</div>
+			<div data-bind="text: playerBestiaId"></div>
+			<div data-bind="text: sprite"></div>
+			<div data-bind="text: slot"></div>
+
+
+			<!-- 
 	<table>
 			<tr>
 				<td>Attacke</td>
-				<td>213</td>
+				<td data-bind="text: atk">213</td>
 			</tr>
 			<tr>
 				<td>Verteidigung</td>
-				<td>213</td>
+				<td data-bind="text: def">213</td>
 			</tr>
 			<tr>
 				<td>Sp. Attacke</td>
-				<td>213</td>
+				<td data-bind="text: spAtk">213</td>
 			</tr>
 			<tr>
 				<td>Sp. Verteidigung</td>
-				<td>213</td>
+				<td data-bind="text: spDef">213</td>
 			</tr>
 			<tr>
 				<td>Geschwindigkeit</td>
-				<td>213</td>
+				<td data-bind="text: spd">213</td>
 			</tr>
 			<tr>
 				<td>Rüstung</td>
-				<td>40%</td>
+				<td data-bind="text: armor">40%</td>
 			</tr>
 			<tr>
 				<td>Spezial Rüstung</td>
-				<td>23%</td>
+				<td data-bind="text: spArmor">23%</td>
 			</tr>
-		</table>
-	
-	<div style="clear: both"></div>
-	</div>
-	
-	<div id="available-bestia" data-bind="foreach: available_bestias">
-		<div>
-			<!-- TODO Austauschen gegen ein animiertes Canvas. -->
-			<img src="http://placehold.it/32x32" alt="Bestia">
-			<p data-bind="text: name"></p>
-			<p data-bind="text: bestia"></p>
-			
-			<div class="hp-bar">
-				<div class="bar bar-small"><div></div></div>
-				<div><span data-bind="text: curHp"></span>/<span data-bind="text: maxHp"></span></div>
-			</div>
-			<div class="mana-bar">
-				<div class="bar bar-small"><div></div></div>
-				<div><span data-bind="text: curMana"></span>/<span data-bind="text: maxMana"></span></div>
-			</div>
-			
+		</table>-->
+
+			<div style="clear: both"></div>
 		</div>
+
+		<div id="available-bestia" data-bind="foreach: available_bestias">
+			<div>
+				<!-- TODO Austauschen gegen ein animiertes Canvas. -->
+				<img src="http://placehold.it/32x32" alt="Bestia">
+				<p data-bind="text: name"></p>
+				<p data-bind="text: bestia"></p>
+
+				<div class="hp-bar">
+					<div class="bar bar-small">
+						<div></div>
+					</div>
+					<div>
+						<span data-bind="text: curHp"></span>/<span data-bind="text: maxHp"></span>
+					</div>
+				</div>
+				<div class="mana-bar">
+					<div class="bar bar-small">
+						<div></div>
+					</div>
+					<div>
+						<span data-bind="text: curMana"></span>/<span data-bind="text: maxMana"></span>
+					</div>
+				</div>
+
+			</div>
+		</div>
+
+		<div id="server-info">
+			<p>
+				Zone-Server: <span data-bind="text: server"></span>
+			</p>
+			<p>
+				Zones: <span data-bind="text: zones"></span>
+			</p>
+			<p>
+				Version: <span data-bind="text: version"></span>
+			</p>
+			<p>
+				Player: <span data-bind="text: connectedPlayer"></span>
+			</p>
+			<p>
+				Resource URL: <span data-bind="text: resourceURL"></span>
+			</p>
+		</div>
+
 	</div>
 
-	<canvas></canvas>
+	<canvas style="width: 300px; height: 500px; background-color: red; float: left;"></canvas>
 
 </body>
 </html>

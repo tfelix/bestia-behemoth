@@ -18,12 +18,17 @@ $(document).ready(function(){
 	
 	Bestia.io.Connection.init();
 	
+	// Connection created. Bootstrap server information.
+	Bestia.io.Connection.sendMessage(new Bestia.message.ServerInfo());
+	
+	/*
+	
 	// Simulate the server communication.
 	var serverInfo = {
 		z: ['test-1', 'test-2'],
 		v: '1.0.0-ALPHA1-build1234',
 		cp: 3,
-		res: 'http://localhost/resource'
+		res: 'http://localhost:8080/resource'
 	};
 	
 	$.publish('server.info', serverInfo);
@@ -34,9 +39,34 @@ $(document).ready(function(){
 		s: 'doommaster.png',
 		eq: [1,4,6,2,4,-1],
 		mid: 123,
-		loc: {x: 4, y: 15}
+		loc: {mid: 14, x: 4, y: 15},
+		spO: {atk: 20, def: 120, spatk: 123, spdef: 234, arm: 12, sparm: 6},
+		sp: {atk: 20, def: 120, spatk: 123, spdef: 234, arm: 12, sparm: 6},
+		cn: 'Blubber',
+		n: 'Doommaster of Doom',
+		se: [],
+		img: 'dommaster.png',
+		sl: 0
 	};
-	$.publish('bestia.select', bs);
+	
+	
+	var item = {
+		iid: 12, // item id
+		pid: 15, // player_item_id
+		img: 'item.jpg',
+		t: 0, // 0: equip, 1: usable, 2: equip
+		bq: 0, // bQuestitem
+		bs: 0, // bSoulbound
+		eqii: {ulv: 0, f: null, bb: 0}, // Equip item info. upgrade_level, forger: , b_broken
+		eqpi: {}, // todo
+		a: 1, //amount
+		name: 'Blubber'
+		
+	};
+	
+	
+	
+	$.publish('bestia.update', bs);
 	
 	
 	// Server weißt den Client an eine Map zu laden.
@@ -47,6 +77,6 @@ $(document).ready(function(){
 			name: 'Hello World Map'
 	};
 	
-	$.publish('map.load', mapLoad);
+	$.publish('map.load', mapLoad);*/
 	
 });

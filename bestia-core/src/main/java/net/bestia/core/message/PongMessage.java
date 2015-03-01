@@ -5,10 +5,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class PongMessage extends Message {
 
 	private static final String message = "Hello User.";
-	private static final String messageId = "pong";
+	private static final String MESSAGE_ID = "system.pong";
 	
-	public PongMessage(int accountId) {
-		setAccountId(accountId);
+	/**
+	 * Ctor.
+	 */
+	public PongMessage() {
+		// no op.
+	}
+	
+	public PongMessage(Message msg) {
+		super(msg);
 	}
 	
 	@JsonProperty("m")
@@ -18,7 +25,7 @@ public class PongMessage extends Message {
 
 	@Override
 	public String getMessageId() {
-		return messageId;
+		return MESSAGE_ID;
 	}
 
 	@Override

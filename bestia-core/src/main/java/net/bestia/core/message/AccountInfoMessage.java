@@ -11,12 +11,10 @@ public class AccountInfoMessage extends Message {
 	@JsonProperty("acc")
 	private Account account;
 	
-	public AccountInfoMessage(Account account) {
-		if(account == null) {
-			throw new IllegalArgumentException("Account can not be null.");
-		}
-		this.account = account;
+	public AccountInfoMessage() {
+		
 	}
+	
 	
 	@Override
 	public String getMessageId() {

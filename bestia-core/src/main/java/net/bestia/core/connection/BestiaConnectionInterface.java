@@ -36,20 +36,6 @@ public interface BestiaConnectionInterface {
 	 */
 	public boolean isConnected(int accountId);
 
-	/**
-	 * The servers uses this method to elevate a connection to a higher state
-	 * when an valid login has occurred. The uuid usually has to be provided
-	 * from the outside since the real id of the account is not known until an
-	 * elevation occurs. This uuid is temporarily used to identify the account.
-	 * Note session handling itself is not a job of the server. This method is
-	 * rather some kind of callback to the calling API that an account has
-	 * gained higher privileges.
-	 * 
-	 * @param uuid
-	 *            Unique ID of the connection to elevate.
-	 * @param Account
-	 */
-	public void elevateConnection(String uuid, int accountId);
 	
 	/**
 	 * Drops the connection with the given UUID. 

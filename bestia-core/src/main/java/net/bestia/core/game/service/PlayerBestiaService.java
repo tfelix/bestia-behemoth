@@ -3,7 +3,7 @@ package net.bestia.core.game.service;
 import net.bestia.core.game.model.Account;
 import net.bestia.core.game.model.Location;
 import net.bestia.core.game.model.PlayerBestia;
-import net.bestia.core.game.model.StatusPoint;
+import net.bestia.core.game.model.StatusPoints;
 import net.bestia.core.message.Message;
 import net.bestia.core.net.Messenger;
 
@@ -76,8 +76,8 @@ public class PlayerBestiaService extends BestiaService {
 		calculateStatusValues();
 
 		// Refill HP and Mana.
-		bestia.setCurrentHp(bestia.getMaxHp());
-		bestia.setCurrentMana(bestia.getMaxMana());
+		bestia.getStatusPoints().setCurrentHp(bestia.getStatusPoints().getMaxHp());
+		bestia.getStatusPoints().setCurrentMana(bestia.getStatusPoints().getMaxMana());
 	}
 
 	/**
@@ -86,7 +86,7 @@ public class PlayerBestiaService extends BestiaService {
 	 */
 	private void calculateStatusValues() {
 		//Calculate the different stats.
-		int atk = (bestia.getBaseValue().getAtk() * 2 + bestia.getIndividualValue().getAtk()
+		/*int atk = (bestia.getBaseValue().getAtk() * 2 + bestia.getIndividualValue().getAtk()
 				+ bestia.getEffortValue().getAtk() / 4) * bestia.getLevel() / 100 + 5; 
 		int def = (bestia.getBaseValue().getDef() * 2 + bestia.getIndividualValue().getDef()
 				+ bestia.getEffortValue().getDef() / 4) * bestia.getLevel() / 100 + 5; 
@@ -96,7 +96,7 @@ public class PlayerBestiaService extends BestiaService {
 		 int spdef = (bestia.getBaseValue().getSpDef() * 2 + bestia.getIndividualValue().getSpDef()
 					+ bestia.getEffortValue().getSpDef() / 4) * bestia.getLevel() / 100 + 5; 
 		int spd = (bestia.getBaseValue().getSpd() * 2 + bestia.getIndividualValue().getSpd()
-				+ bestia.getEffortValue().getSpd() / 4) * bestia.getLevel() / 100 + 5;  
+				+ bestia.getEffortValue().getSpd() / 4) * bestia.getLevel() / 100 + 5;  */
 		// TODO HP und Mana passen nicht ins Statuspunkt konzept da sie verändelrich sind.
 		// eigene klasse?
 		/*
@@ -108,12 +108,12 @@ public class PlayerBestiaService extends BestiaService {
 		 * floor($this->data->get('ev_mana')/4) ) *
 		 * $this->data->get('level')/100 + 10 + $this->data->get('level') * 2);
 		 */
-		StatusPoint points = bestia.getStatusPoints();
-		points.setAtk(atk);
+		StatusPoints points = bestia.getStatusPoints();
+		/*points.setAtk(atk);
 		points.setDef(def);
 		points.setSpAtk(spatk);
 		points.setSpDef(spdef);
-		points.setSpd(spd);
+		points.setSpd(spd);*/
 		
 		// HP + Mana nicht vergessen.
 	}
@@ -145,8 +145,8 @@ public class PlayerBestiaService extends BestiaService {
 		// ++ Alle Statusveränderungen löschen.
 		clearStatusEffects();
 
-		bestia.setCurrentHp(1);
-		bestia.setCurrentMana(0);
+		bestia.getStatusPoints().setCurrentHp(1);
+		bestia.getStatusPoints().setCurrentMana(0);
 		isDead = true;
 	}
 

@@ -17,11 +17,11 @@ var Bestia = window.Bestia = window.Bestia || {};
 			socket : null,
 			
 			init : function() {
-				var request = { url: document.location.protocol + "//" + document.location.host + '/behemoth',
+				var request = { url: document.location.protocol + "//" + document.location.host + '/api',
 						contentType: "application/json",
 						logLevel: 'debug',
 						transport: 'websocket',
-						headers: {token: 'test123'},
+						headers: {bestia_token: 'test-1234-1234-1234', bestia_acc_id: 1},
 						trackMessageLength: true,
 						enableProtocol: true,
 						fallbackTransport: 'long-polling'};
@@ -32,6 +32,7 @@ var Bestia = window.Bestia = window.Bestia || {};
 				}
 				
 				request.onTransportFailure = function (errorMsg, request) {
+					console.log('Error while failing transport: ' + errorMsg);
 					jQuery.atmosphere.info(errorMsg);
 				};
 				
@@ -40,7 +41,7 @@ var Bestia = window.Bestia = window.Bestia || {};
 					try {
 						var json = jQuery.parseJSON(message);
 					} catch (e) {
-						console.log('This doesn\'t look like a valid JSON: ', message.data);
+						console.log('No valid JSON: ', message.data);
 						return;
 					}
 
@@ -63,6 +64,10 @@ var Bestia = window.Bestia = window.Bestia || {};
 			sendMessage(msg) {
 				// TODO Some sanity checking.
 				app.io.Connection.socket.push(JSON.stringify(msg));
+			},
+			
+			sendTest() {
+				app.io.Connection.socket.push(JSON.stringify({mid: 'system.ping', m: 'Hello Bestia.'}));
 			}
 	};
 

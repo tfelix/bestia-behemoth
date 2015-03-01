@@ -47,12 +47,6 @@ public class BestiaZoneserverTest {
 		}
 
 		@Override
-		public void elevateConnection(String uuid, int accountId) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
 		public void dropConnection(UUID connectionId) {
 			// TODO Auto-generated method stub
 			

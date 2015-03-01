@@ -1,11 +1,13 @@
 package net.bestia.core;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -15,6 +17,7 @@ import net.bestia.core.command.CommandContext;
 import net.bestia.core.command.CommandFactory;
 import net.bestia.core.connection.BestiaConnectionInterface;
 import net.bestia.core.connection.Connection;
+import net.bestia.core.game.service.HibernateServiceFactory;
 import net.bestia.core.game.service.ServiceFactory;
 import net.bestia.core.game.worker.ScriptInitWorker;
 import net.bestia.core.game.worker.ZoneInitLoader;
@@ -27,10 +30,22 @@ import org.apache.logging.log4j.Logger;
 
 public class BestiaZoneserver {
 
-	public final static String VERSION = "Bestia-Zone 1.0.0-ALPHA BUILD 2";
+	private final static Logger log = LogManager.getLogger(BestiaZoneserver.class);
 
-	private final static Logger log = LogManager
-			.getLogger(BestiaZoneserver.class);
+	public final static String VERSION;
+	static {
+		String version = "NOT-ASSIGNED-ERROR";
+		// Find the version number from the maven build script.
+		try {
+			File versionFile = new File(BestiaZoneserver.class.getClassLoader().getResource("buildnumber.txt").toURI());
+			BufferedReader br = new BufferedReader(new FileReader(versionFile));
+			version  = br.readLine();
+			br.close();
+		} catch (IOException | URISyntaxException e) {
+			log.error("Error while reading version file.", e);
+		}
+		VERSION = version;
+	}
 
 	/**
 	 * Name of the server. Read from config.
@@ -55,8 +70,7 @@ public class BestiaZoneserver {
 	private final Map<String, Zone> zones = new HashMap<>();
 
 	/**
-	 * Ctor. The server needs a connection to its clients so it can use the
-	 * messaging API to communicate with them.
+	 * Ctor. The server needs a connection to its clients so it can use the messaging API to communicate with them.
 	 * 
 	 * @param serviceFactory
 	 *            Service factory to getting the game beans from a datasource.
@@ -65,36 +79,35 @@ public class BestiaZoneserver {
 	 * @param configFile
 	 *            File with config settings for the bestia server.
 	 */
-	public BestiaZoneserver(ServiceFactory serviceFactory,
-			BestiaConnectionInterface connection, String configFile) {
+	public BestiaZoneserver(BestiaConnectionInterface connection, String configFile) {
 
 		// #### Config: Setup the config file.
 		initilizeConfig(configFile);
 
 		// #### Variable setup.
-		worker = Executors.newFixedThreadPool(Integer.parseInt(config
-				.getProperty("serverThreads")));
+		worker = Executors.newFixedThreadPool(Integer.parseInt(config.getProperty("serverThreads")));
 
 		this.messenger = new Messenger(connection, worker);
+
+		// Creating the service factory.
+		final ServiceFactory serviceFactory = new HibernateServiceFactory(messenger);
+
 		this.name = config.getProperty("name");
-		this.commandContext = new CommandContext.Builder()
-				.setMessenger(messenger).setServiceFactory(serviceFactory)
+		this.commandContext = new CommandContext.Builder().setMessenger(messenger).setServiceFactory(serviceFactory)
 				.setZones(zones).build();
 		this.cmdFactory = new CommandFactory();
 	}
 
 	/**
-	 * Ctor. For providing an external executor service. This is mostly for
-	 * internal use for unit testing purposes to run the commands in the same
-	 * thread as the unit tests. Should not be needed to be used in production.
+	 * Ctor. For providing an external executor service. This is mostly for internal use for unit testing purposes to
+	 * run the commands in the same thread as the unit tests. Should not be needed to be used in production.
 	 * 
 	 * @param serviceFactory
 	 * @param connection
 	 * @param configFile
 	 * @param execService
 	 */
-	public BestiaZoneserver(ServiceFactory serviceFactory,
-			BestiaConnectionInterface connection, String configFile,
+	public BestiaZoneserver(ServiceFactory serviceFactory, BestiaConnectionInterface connection, String configFile,
 			ExecutorService execService) {
 
 		// #### Config: Setup the config file.
@@ -105,8 +118,7 @@ public class BestiaZoneserver {
 
 		this.messenger = new Messenger(connection, worker);
 		this.name = config.getProperty("name");
-		this.commandContext = new CommandContext.Builder()
-				.setMessenger(messenger).setServiceFactory(serviceFactory)
+		this.commandContext = new CommandContext.Builder().setMessenger(messenger).setServiceFactory(serviceFactory)
 				.setZones(zones).build();
 		this.cmdFactory = new CommandFactory();
 	}
@@ -115,15 +127,13 @@ public class BestiaZoneserver {
 		try {
 			config.load(new FileReader(configFile));
 		} catch (IOException ex) {
-			log.error("Can not read from config file: {}. Stopping.",
-					configFile);
+			log.error("Can not read from config file: {}. Stopping.", configFile);
 			System.exit(1);
 		}
 	}
 
 	/**
-	 * Starts the server. Initializes all the messaging pipeline, database
-	 * connections, cache and scripts.
+	 * Starts the server. Initializes all the messaging pipeline, database connections, cache and scripts.
 	 */
 	public void start() throws Exception {
 
@@ -167,8 +177,8 @@ public class BestiaZoneserver {
 	 * Ceases all server operation and persists all pending data.
 	 * 
 	 * @param waitLong
-	 *            If TRUE the server will wait for a far longer timeout until it
-	 *            terminates all pending commands. Nice for debugging.
+	 *            If TRUE the server will wait for a far longer timeout until it terminates all pending commands. Nice
+	 *            for debugging.
 	 */
 	public void stop(boolean waitLong) {
 		isRunning = false;
@@ -196,28 +206,24 @@ public class BestiaZoneserver {
 	}
 
 	/**
-	 * Let the Server handle one message. It wraps the message asynchronously in
-	 * a command with a given context so the command in turn can be executed
-	 * asynchronously aswell. The resulting messages are send out over the
-	 * connections to the clients.
+	 * Let the Server handle one message. It wraps the message asynchronously in a command with a given context so the
+	 * command in turn can be executed asynchronously aswell. The resulting messages are send out over the connections
+	 * to the clients.
 	 * 
 	 * @param message
 	 * @return
 	 */
 	public boolean handleMessage(final Message message) {
 
-		// If not correctly authenticated ignore the message.
-		if (!connections.containsKey(message.getAccountId())) {
-			return false;
-		}
-
 		// Create a command and execute it.
 		worker.execute(new Runnable() {
 
 			@Override
 			public void run() {
-				Command cmd = cmdFactory.getCommand(message);
-				cmd.execute(message, commandContext);
+				final Command cmd = cmdFactory.getCommand(message);
+				if (cmd != null) {
+					cmd.execute(message, commandContext);
+				}
 			}
 		});
 
@@ -230,30 +236,27 @@ public class BestiaZoneserver {
 	 * @param uuid
 	 * @return
 	 */
-	public boolean isAuthenticated(UUID uuid, int accountId) {
+	public boolean isAuthenticated(int accountId, String token) {
 		// TODO Das hier fertig bauen.
 		return true;
 
 	}
 
 	/**
-	 * Prepares the connection with the server. The connection must be set by
-	 * the external frontend server so the server will process the messages from
-	 * this account.
+	 * Prepares the connection with the server. The connection must be set by the external frontend server so the server
+	 * will process the messages from this account.
 	 * 
 	 * @param accountId
 	 *            Account id which should be logged in.
-	 * @param uuid
-	 *            UUID which can be obtained via successfull login from the
-	 *            login server.
-	 * @return TRUE if the connection was successfull and the user is correctly
-	 *         authenticated which is checked with the loginserver. Or FALSE
-	 *         otherwise if the connection is rejected.
+	 * @param token
+	 *            UUID which can be obtained via successfull login from the login server.
+	 * @return TRUE if the connection was successfull and the user is correctly authenticated which is checked with the
+	 *         loginserver. Or FALSE otherwise if the connection is rejected.
 	 */
-	public boolean connect(int accountId, UUID uuid) {
-		if (isAuthenticated(uuid, accountId)) {
+	public boolean connect(int accountId, String token) {
+		if (isAuthenticated(accountId, token)) {
 
-			final Connection connection = new Connection(uuid, accountId);
+			final Connection connection = new Connection(token, accountId);
 
 			synchronized (connections) {
 				connections.put(accountId, connection);

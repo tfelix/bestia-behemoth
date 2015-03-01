@@ -28,11 +28,16 @@ public final class ServerInfoMessage extends Message {
 	@JsonProperty("res")
 	private String ressourceURL;
 	
+	public ServerInfoMessage(Message msg) {
+		super(msg);
+	}
+	
 	public ServerInfoMessage() {
 		
 	}
 
-	public ServerInfoMessage(List<String> zones, int connectedPlayer, String resUrl) {
+	public ServerInfoMessage(Message msg, List<String> zones, int connectedPlayer, String resUrl) {
+		super(msg);
 		this.zones = zones;
 		this.connectedPlayer = connectedPlayer;
 		this.ressourceURL = resUrl;
