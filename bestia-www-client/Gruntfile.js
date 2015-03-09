@@ -37,6 +37,15 @@ module.exports = function(grunt) {
 			/*production: {}*/
 		},
 		
+		connect : {
+			server: {
+				options: {
+					base: 'build',
+					port: 80
+				}
+			}
+		},
+		
 		concat: {
 			development: {
 		      src: ['build/js/vendor/preloadjs/src/preload.js', 'build/js/loader.js', 'build/js/main.js'],
@@ -90,13 +99,19 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-less');
 	grunt.loadNpmTasks('grunt-cssbeautifier');
 	grunt.loadNpmTasks('grunt-contrib-watch');
-	grunt.loadNpmTasks('grunt-bower-concat');
 	grunt.loadNpmTasks('grunt-contrib-concat');
+	grunt.loadNpmTasks('grunt-contrib-connect');
 	
 	grunt.registerTask(
 		'css:dev', 
 		'DEVELOPMENT: Compiles the stylesheets.', 
 		[ 'less:development', 'cssbeautifier' ]
+	);
+	
+	grunt.registerTask(
+		'blabla',
+		'Builds the project and runs a webserver connecting to it.',
+		['clean', 'copy', 'less', 'concat', 'connect', 'watch']
 	);
 	
 	grunt.registerTask(

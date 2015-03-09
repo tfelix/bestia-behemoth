@@ -1,5 +1,55 @@
 @import "bootstrap/bootstrap.less";
+@import "bars.less";
+@import "selected-bestias.less";
 
-h1 {
-	font-family: 'Open Sans', arial, sans-serif;
+body {
+	font-family: 'Open Sans', sans-serif;
+	background-color: #574216;
+	color: #EDEDED;
+}
+
+p {
+	line-height: 0.8em;
+}
+
+#canvas-debug {
+	width: 200px;
+}
+
+
+
+.debug-box {
+	font-size: 0.8em;
+	background: rgba(255, 255, 255, 0.8);
+	border-radius: 5px;
+	color: black;
+	margin: 10px;
+	position: absolute;
+	padding: 5px;
+}
+
+.cont {
+	width: 100%;
+	min-width: 600px;
+}
+
+.navi {
+	width: 320px;
+	height: 100%;
+	background: green;
+	left-margin: 10px;
+	float: left;
+}
+
+#bestia-canvas {
+	
+}
+
+#canvas-container {
+	margin-left: 340px;
+	background: blue;
+}
+
+canvas {
+	display: block;
 }

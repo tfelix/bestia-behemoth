@@ -15,6 +15,7 @@ var Bestia = window.Bestia = window.Bestia || {};
 	app.server.Config = {
 		zones : ko.observableArray(),
 		version: ko.observable(0),
+		server: ko.observable(),
 		connectedPlayer: ko.observable(0),
 		resourceURL: ko.observable(''),
 		debug: ko.observable(false),
@@ -27,7 +28,14 @@ var Bestia = window.Bestia = window.Bestia || {};
 		 */
 		makeUrl : function(type, name) {
 			var conf = app.server.Config;
-			return conf.resourceURL() + '/' + type + '/' + name;
+			
+			if(type == 'map') {
+				return conf.resourceURL() + '/maps/' + name + '/' + name + '.json';
+			} else {
+				
+			}
+			
+			
 		},
 		
 		onMessageHandler : function(_, msg) {
@@ -39,6 +47,7 @@ var Bestia = window.Bestia = window.Bestia || {};
 			conf.version(msg.v);
 			conf.connectedPlayer(msg.cp);
 			conf.resourceURL(msg.res);
+			conf.server(msg.zn);
 		}
 	};
 	
@@ -47,6 +56,6 @@ var Bestia = window.Bestia = window.Bestia || {};
 	
 	// Apply bindings AFTER the DOM has loaded.
 	$(document).ready(function(){
-		//ko.applyBindings(app.server.Config, $('#server-info').get(0));
+		ko.applyBindings(app.server.Config, $('#server-info').get(0));
 	});
 })(Bestia, jQuery, ko);

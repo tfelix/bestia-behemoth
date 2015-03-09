@@ -17,7 +17,7 @@ var Bestia = window.Bestia = window.Bestia || {};
 			socket : null,
 			
 			init : function() {
-				var request = { url: document.location.protocol + "//" + document.location.host + '/api',
+				var request = { url: 'http://localhost:8080/api', //document.location.protocol + "//" + document.location.host + '/api',
 						contentType: "application/json",
 						logLevel: 'debug',
 						transport: 'websocket',
@@ -28,7 +28,7 @@ var Bestia = window.Bestia = window.Bestia || {};
 				
 				request.onOpen = function(response) {
 					console.log('Connection to established via ' + response.transport);
-					$.publish('client.io.onConnected', {});
+					$.publish('io.onConnected', {});
 				}
 				
 				request.onTransportFailure = function (errorMsg, request) {
@@ -38,6 +38,14 @@ var Bestia = window.Bestia = window.Bestia || {};
 				
 				request.onMessage = function (response) {
 					var message = response.responseBody;
+					
+					// Ignore keepalive.
+					if(message == 'X') {
+						return;
+					}
+					
+					console.log('Message: ' + message);					
+					
 					try {
 						var json = jQuery.parseJSON(message);
 					} catch (e) {
@@ -57,16 +65,16 @@ var Bestia = window.Bestia = window.Bestia || {};
 					console.log('Server error. Can not create connection.')
 				};
 				
-				$.publish('client.io.onConnecting', {});
+				$.publish('io.onConnecting', {});
 				app.io.Connection.socket = $.atmosphere.subscribe(request);
 			},
 
-			sendMessage(msg) {
+			sendMessage : function(msg) {
 				// TODO Some sanity checking.
 				app.io.Connection.socket.push(JSON.stringify(msg));
 			},
 			
-			sendTest() {
+			sendTest : function() {
 				app.io.Connection.socket.push(JSON.stringify({mid: 'system.ping', m: 'Hello Bestia.'}));
 			}
 	};

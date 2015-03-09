@@ -1,0 +1,45 @@
+.bar {
+	width: 100%;
+	.bar-bg {
+		border-radius: 4px;
+		background: linear-gradient(to bottom, #787878, #616161) #757575;
+		height: 10px;
+	}
+	
+	.bar-bg > div {
+		height: 10px;
+		border-radius: 4px;
+		transition: width 1s ease-in-out;
+		
+	}
+
+	.bar-text {
+		text-align: right;
+		margin: 0 0 6px 0;
+	}
+}
+
+.bar.small-bar {
+	border-radius: 0;
+	.bar-bg {
+		height: 5px;
+		border-radius: 0;
+	}
+
+	.bar-bg > div {
+		height: 5px;
+	}
+	.bar-text {
+		font-size: 10pt;
+		line-height: 0.9em;
+	}
+}
+
+.hp-bar .bar-bg > div {
+	background: linear-gradient(to bottom, #F50C0C, #A82A2A) red;
+}
+
+.mana-bar .bar-bg > div {
+	background: linear-gradient(to bottom, #150DFC, #231F9C) blue;
+}
+

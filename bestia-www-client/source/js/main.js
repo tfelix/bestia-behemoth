@@ -16,12 +16,14 @@ $(document).ready(function(){
 			       {id: 'loading_screen_1', src: 'img/loadingscreen/ls2.jpg'},
 			       {id: 'loading_screen_2', src: 'img/loadingscreen/ls3.jpg'}];
 	
-	Bestia.io.Connection.init();
-	
 	// Connection created. Bootstrap server information.
-	Bestia.io.Connection.sendMessage(new Bestia.message.ServerInfo());
+	/*$.subscribe('io.onConnected', function(){
+		Bestia.io.Connection.sendMessage(new Bestia.message.ServerInfo());
+		Bestia.io.Connection.sendMessage(new Bestia.message.BestiaInfo());
+	});*/
 	
-	/*
+	//Bestia.io.Connection.init();
+	
 	
 	// Simulate the server communication.
 	var serverInfo = {
@@ -34,22 +36,38 @@ $(document).ready(function(){
 	$.publish('server.info', serverInfo);
 	
 	// Server sendet welche Bestia selektiert wurde (Bestia master)
-	var bs = {
+	var bm = {
 		pbid: 1337,
 		s: 'doommaster.png',
-		eq: [1,4,6,2,4,-1],
-		mid: 123,
-		loc: {mid: 14, x: 4, y: 15},
-		spO: {atk: 20, def: 120, spatk: 123, spdef: 234, arm: 12, sparm: 6},
-		sp: {atk: 20, def: 120, spatk: 123, spdef: 234, arm: 12, sparm: 6},
+		loc: {mid: 14, x: 4, y: 15, mn: 'Doomyland'},
+		spO: {atk: 20, def: 120, spatk: 123, spdef: 234, arm: 12, sparm: 6, spd: 5, cMana: 12, mMana: 45, cHp: 45, mHp: 56},
+		sp: {atk: 20, def: 120, spatk: 123, spdef: 234, arm: 12, sparm: 6, spd: 5, cMana: 12, mMana: 45, cHp: 45, mHp: 56},
 		cn: 'Blubber',
-		n: 'Doommaster of Doom',
+		bdbn: 'Doommaster of Doom',
 		se: [],
-		img: 'dommaster.png',
-		sl: 0
+		img: 'dommaster.png'
 	};
+	var bm1 = {
+			pbid: 1338,
+			s: 'blob.png',
+			loc: {mid: 14, x: 6, y: 10, mn: 'Doomyland'},
+			spO: {atk: 20, def: 120, spatk: 123, spdef: 234, arm: 12, sparm: 10, spd: 5, cMana: 12, mMana: 45, cHp: 45, mHp: 56},
+			sp: {atk: 20, def: 120, spatk: 123, spdef: 234, arm: 12, sparm: 6, spd: 5, cMana: 12, mMana: 45, cHp: 45, mHp: 56},
+			cn: 'Bla bla bla',
+			bdbn: 'Blob',
+			se: [],
+			img: 'blob.png'
+		};
 	
+	var bestiaInfo = {
+		mid: 'bestia.info',
+		bm: bm,
+		b: [bm1],
+		s: 4
+	}
+	$.publish('bestia.info', bestiaInfo);
 	
+	/*
 	var item = {
 		iid: 12, // item id
 		pid: 15, // player_item_id
@@ -60,13 +78,11 @@ $(document).ready(function(){
 		eqii: {ulv: 0, f: null, bb: 0}, // Equip item info. upgrade_level, forger: , b_broken
 		eqpi: {}, // todo
 		a: 1, //amount
-		name: 'Blubber'
-		
-	};
+		name: 'Blubber'	
+	};*/
 	
 	
 	
-	$.publish('bestia.update', bs);
 	
 	
 	// Server weißt den Client an eine Map zu laden.
@@ -77,6 +93,6 @@ $(document).ready(function(){
 			name: 'Hello World Map'
 	};
 	
-	$.publish('map.load', mapLoad);*/
+	$.publish('map.load', mapLoad);
 	
 });

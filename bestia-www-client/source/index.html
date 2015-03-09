@@ -4,8 +4,11 @@
 <title>Bestia - Das Browsergame</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link rel="stylesheet" type="text/css" href="css/loading.css">
-<link rel="stylesheet" type="text/css" href="css/main2.css">
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
+<link rel="stylesheet/less" type="text/css" href="css/less/main.less" />
+<script src="js/vendor/less/less-1.3.3.min.js"></script>
 
 <!-- JAVASCRIPT -->
 
@@ -16,21 +19,23 @@
 <script src="js/vendor/createjs/createjs-2014.12.12.min.js"></script>
 <script src="js/vendor/proton-1.0.0.js"></script>
 <script src="js/vendor/knockout-3.0.0.js"></script>
+<script src="js/vendor/i18next-1.7.7.js"></script>
 
 <!-- Loading custom scripts, order is important! -->
 <script src="js/message/message.js"></script>
+<script src="js/io/preloader.js"></script>
 
 
 <script src="js/view/server.info.js"></script>
 <script src="js/view/bestias.js"></script>
 <script src="js/view/system.pingpong.js"></script>
+<script src="js/engine/engine.js"></script>
 
-<script src="js/io/connection.js"></script>
+<!-- <script src="js/io/connection.js"></script>-->
 
 
 <script src="js/main.js"></script>
 
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -39,112 +44,130 @@
       <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
 <![endif]-->
 
-<style>
-body {
-	padding-top: 15px;
-}
-
-p {
-	line-height: 1em;
-}
-
-#game-canvas {
-	height: 300px;
-	width: 100%;
-	background: green;
-	border: 5px brown solid;
-}
-
-.bar {
-	height: 10px;
-	width: 100%;
-	background: grey;
-}
-
-.bar.bar-small {
-	height: 4px;
-}
-
-.bar.bar-small div {
-	height: 4px;
-}
-
-.bar div {
-	height: 10px;
-	background: red;
-	width: 100%;
-	transition: width 1s ease;
-}
-
-/* SELECTED BESTIA */
-#selected-bestia {
-	width: 300px;
-	margin: 20px;
-}
-
-#selected-bestia table {
-	margin-left: 10px;
-}
-
-#selected-bestia table tr>td {
-	width: 150px;
-}
-
-#available-bestia {
-	width: 300px;
-	background: #808080;
-	margin: 20px;
-}
-
-.left-navi {
-	width: 300px;
-	backgorund: gray;
-	left-margin: 10px;
-	float: left;
-}
-</style>
-
 </head>
 <body class="noscroll">
 
-	<!-- 
-	<div id="overlay"></div>
-	
-	<div id="loading">
-		<div id="loading-content"></div>
-		<div class="loading-bar-wrap"><div style="width: 0px;" class="loading-bar"></div></div>
-	</div>
-	-->
 
-	<div class="left-navi">
+	<div class="cont">
+		<div class="navi">
 
+			<div id="selected-bestia" data-bind="with: selectedBestia">
+				<!-- TODO Austauschen gegen ein animiertes Canvas. -->
+				<img src="http://placehold.it/64x64" alt="Bestia" style="float: left; margin: 10px;">
 
+				<div style="float: left; margin-top: 10px;">
+					<p data-bind="text: customName">---</p>
+					<p data-bind="text: name">---</p>
+				</div>
 
-		<div id="selected-bestia">
-
-			<p data-bind="text: customName"></p>
-			<p data-bind="text: name"></p>
-
-			<img data-bind="attr: {src: image}" src="http://placehold.it/130x220" alt="Bestia Image" style="float: left;">
-
-			<p>---</p>
-			<div data-bind="with: location">
-				<p>
-					Map: <span data-bind="text: mapId"></span>
-				</p>
-				<p>
-					X: <span data-bind="text: x"></span>
-				</p>
-				<p>
-					Y: <span data-bind="text: y"></span>
-				</p>
+				<div class="bar hp-bar" style="clear: both;" data-bind="with: statusPoints">
+					<div class="bar-bg">
+						<div data-bind="style: {width: hpWidth}"></div>
+					</div>
+					<div class="bar-text">
+						<span data-bind="text: curHp">0</span> / <span data-bind="text: maxHp">0</span>
+					</div>
+				</div>
+				<div class="bar mana-bar" data-bind="with: statusPoints">
+					<div class="bar-bg">
+						<div data-bind="style: {width: manaWidth}"></div>
+					</div>
+					<div class="bar-text">
+						<span data-bind="text: curMana">0</span> / <span data-bind="text: maxMana">0</span>
+					</div>
+				</div>
 			</div>
-			<div data-bind="text: playerBestiaId"></div>
-			<div data-bind="text: sprite"></div>
-			<div data-bind="text: slot"></div>
+
+			<div id="bestia-slots" data-bind="foreach: bestias">
+				
+				<h1 data-bind="text: $root.slots"></h1>
+				
+				<div data-bind="if: $index >= $parent.bestias.length">There aren't any pets. To add a pet...</div>
+				
+				<div class="bestia-slot" >
+				
+					
+					<img src="http://placehold.it/64x64" alt="Bestia" style="float: left; margin: 10px;">
+					
+					<div class="name">
+						<b><span data-bind="text: customName"></span></b> - <span data-bind="text: name"></span>
+					</div>
+
+					<div style="margin-top: 8px; float: left; width: 200px;" data-bind="width: statusPoints">
+						<div class="bar hp-bar small-bar">
+							<div class="bar-bg">
+								<div data-bind="style: {width: hpWidth}"></div>
+							</div>
+							<div class="bar-text">
+								<span data-bind="text: curHp">0</span> / <span data-bind="text: maxHp">0</span>
+							</div>
+						</div>
+						<div class="bar mana-bar small-bar">
+							<div class="bar-bg">
+								<div data-bind="style: {width: manaWidth}"></div>
+							</div>
+							<div class="bar-text">
+								<span data-bind="text: curMana">0</span> / <span data-bind="text: maxMana">0</span>
+							</div>
+						</div>
+					</div>
+				
+					<div style="clear: both;"></div>
+				</div>
+
+			</div>
+
+			<div style="clear: both"></div>
+		</div>
+
+		<div id="canvas-container">
+			<div id="canvas-overlay" style="display: none;">
+				<div id="loading-content"></div>
+				<div class="loading-bar-wrap">
+					<div style="width: 0px;" class="loading-bar"></div>
+				</div>
+			</div>
+			<canvas id="bestia-canvas"></canvas>
+		</div>
+	</div>
+
+	<!-- DEBUG VIEWS -->
+	<div id="canvas-debug" class="debug-box" style="top: 10px; right: 10px; width: 100px;">
+		<p>
+			FPS: <span data-bind="text: fps"></span>
+		</p>
+		<p>
+			Entities: <span data-bind="text: entities"></span>
+		</p>
+		<p>
+			Show Heat: <input data-bind="checked: showHeat" type="checkbox">
+		</p>
+		<p>
+			Show Water: <input data-bind="checked: showHumidity" type="checkbox">
+		</p>
+	</div>
+
+	<div id="server-info" class="debug-box" style="bottom: 10px; left: 10px; width: 300px;">
+		<p>
+			Zone-Server: <span data-bind="text: server"></span>
+		</p>
+		<p>
+			Zones: <span data-bind="text: zones"></span>
+		</p>
+		<p>
+			Version: <span data-bind="text: version"></span>
+		</p>
+		<p>
+			Player: <span data-bind="text: connectedPlayer"></span>
+		</p>
+		<p>
+			Resource URL: <span data-bind="text: resourceURL"></span>
+		</p>
+	</div>
+	<!-- /END DEBUG VIEWS -->
 
 
-			<!-- 
+	<!-- 
 	<table>
 			<tr>
 				<td>Attacke</td>
@@ -175,58 +198,5 @@ p {
 				<td data-bind="text: spArmor">23%</td>
 			</tr>
 		</table>-->
-
-			<div style="clear: both"></div>
-		</div>
-
-		<div id="available-bestia" data-bind="foreach: available_bestias">
-			<div>
-				<!-- TODO Austauschen gegen ein animiertes Canvas. -->
-				<img src="http://placehold.it/32x32" alt="Bestia">
-				<p data-bind="text: name"></p>
-				<p data-bind="text: bestia"></p>
-
-				<div class="hp-bar">
-					<div class="bar bar-small">
-						<div></div>
-					</div>
-					<div>
-						<span data-bind="text: curHp"></span>/<span data-bind="text: maxHp"></span>
-					</div>
-				</div>
-				<div class="mana-bar">
-					<div class="bar bar-small">
-						<div></div>
-					</div>
-					<div>
-						<span data-bind="text: curMana"></span>/<span data-bind="text: maxMana"></span>
-					</div>
-				</div>
-
-			</div>
-		</div>
-
-		<div id="server-info">
-			<p>
-				Zone-Server: <span data-bind="text: server"></span>
-			</p>
-			<p>
-				Zones: <span data-bind="text: zones"></span>
-			</p>
-			<p>
-				Version: <span data-bind="text: version"></span>
-			</p>
-			<p>
-				Player: <span data-bind="text: connectedPlayer"></span>
-			</p>
-			<p>
-				Resource URL: <span data-bind="text: resourceURL"></span>
-			</p>
-		</div>
-
-	</div>
-
-	<canvas style="width: 300px; height: 500px; background-color: red; float: left;"></canvas>
-
 </body>
 </html>
