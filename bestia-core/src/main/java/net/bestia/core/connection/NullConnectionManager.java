@@ -24,9 +24,8 @@ public class NullConnectionManager implements BestiaConnectionInterface {
 	}
 
 	@Override
-	public void dropConnection(UUID connectionId) {
-		// TODO Auto-generated method stub
-		
+	public int getConnectedPlayers() {
+		return 0;
 	}
 
 }

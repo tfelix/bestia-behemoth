@@ -71,7 +71,8 @@ public abstract class BestiaService extends Service {
 	}
 	
 	public StatusPoints getOriginalStatus() {
-		return bestia.getStatusPoints();
+		//return bestia.getStatusPoints();
+		return null;
 	}
 }
 

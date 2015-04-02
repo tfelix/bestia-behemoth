@@ -17,11 +17,11 @@
 			<id>development</id>
 			<properties>
 				<environment>dev</environment>
-				<db.username>sa</db.username>
-				<db.password></db.password>
-				<db.url>jdbc:h2:mem:</db.url>
-				<db.dialect>org.hibernate.dialect.H2Dialect</db.dialect>
-				<db.driver>org.h2.Driver</db.driver>
+				<db.username>bestia</db.username>
+				<db.password>bestia</db.password>
+				<db.url>jdbc:mysql://localhost/bestia2</db.url>
+				<db.dialect>org.hibernate.dialect.MySQL5Dialect</db.dialect>
+				<db.driver>com.mysql.jdbc.Driver</db.driver>
 			</properties>
 			<activation>
 				<activeByDefault>true</activeByDefault>
@@ -35,9 +35,9 @@
 			<id>production</id>
 			<properties>
 				<environment>prod</environment>
-				<db.username>myProdUser</db.username>
-				<db.password>secretProdPasswd</db.password>
-				<db.url>jdbc:mysql://production-database/myDb</db.url>
+				<db.username>bestia</db.username>
+				<db.password>bestia</db.password>
+				<db.url>jdbc:mysql://localhost/bestia2</db.url>
 				<db.dialect>org.hibernate.dialect.MySQL5Dialect</db.dialect>
 				<db.driver>com.mysql.jdbc.Driver</db.driver>
 			</properties>

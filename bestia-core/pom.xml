@@ -15,12 +15,13 @@
 		<!-- Define Spring version as a constant -->
 		<spring.version>4.0.3.RELEASE</spring.version>
 		<hibernate.version>4.3.4.Final</hibernate.version>
+
+		<build.number>${buildNumber}</build.number>
 	</properties>
 
 	<profiles>
 		<profile>
 			<id>development</id>
-
 			<dependencies>
 				<dependency>
 					<groupId>com.h2database</groupId>
@@ -105,12 +106,17 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-dbcp2</artifactId>
-			<version>2.1</version>
+			<version>2.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-pool2</artifactId>
 			<version>2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>${spring.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -164,32 +170,21 @@
 					</dependencies>
 				</plugin>
 				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>hibernate3-maven-plugin</artifactId>
-					<version>2.2</version>
-					<executions>
+					<groupId>de.juplo</groupId>
+					<artifactId>hibernate4-maven-plugin</artifactId>
+					<version>1.0.5</version>
+					<!-- <executions>
 						<execution>
-							<phase>process-classes</phase>
 							<goals>
-								<goal>hbm2ddl</goal>
+								<goal>export</goal>
 							</goals>
 						</execution>
-					</executions>
+					</executions>-->
 					<configuration>
-						<components>
-							<component>
-								<name>hbm2ddl</name>
-								<implementation>jpaconfiguration</implementation>
-							</component>
-						</components>
-						<componentProperties>
-							<persistenceunit>Default</persistenceunit>
-							<outputfilename>schema.sql</outputfilename>
-							<drop>false</drop>
-							<create>true</create>
-							<export>false</export>
-							<format>true</format>
-						</componentProperties>
+						<url><![CDATA[${db.url}]]></url>
+						<hibernateDialect>${db.dialect}</hibernateDialect>
+						<target>SCRIPT</target>
+						<outputFile>${project.build.directory}/mysql-schema.sql</outputFile>
 					</configuration>
 				</plugin>
 			</plugins>

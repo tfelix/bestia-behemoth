@@ -1,12 +1,16 @@
 package net.bestia.webserver.bestia;
 
 import java.io.IOException;
-import java.util.UUID;
 
 import net.bestia.core.BestiaZoneserver;
 import net.bestia.core.connection.BestiaConnectionInterface;
 import net.bestia.core.message.Message;
 
+/**
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class BestiaNettosphereConnection implements BestiaConnectionInterface {
 	
 	private static BestiaNettosphereConnection INSTANCE;
@@ -14,7 +18,7 @@ public class BestiaNettosphereConnection implements BestiaConnectionInterface {
 	private BestiaZoneserver zone;
 	
 	private BestiaNettosphereConnection() {
-		
+		// no op.
 	}
 	
 	public synchronized static BestiaNettosphereConnection getInstance() {
@@ -46,10 +50,9 @@ public class BestiaNettosphereConnection implements BestiaConnectionInterface {
 		return nettoSphere.isConnected(accountId);
 	}
 
-
 	@Override
-	public void dropConnection(UUID connectionId) {
-		nettoSphere.dropConnection(connectionId);
+	public int getConnectedPlayers() {
+		return nettoSphere.getConnectedPlayers();
 	}
 
 }

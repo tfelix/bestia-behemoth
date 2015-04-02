@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -16,7 +15,6 @@ import net.bestia.core.command.Command;
 import net.bestia.core.command.CommandContext;
 import net.bestia.core.command.CommandFactory;
 import net.bestia.core.connection.BestiaConnectionInterface;
-import net.bestia.core.connection.Connection;
 import net.bestia.core.game.service.HibernateServiceFactory;
 import net.bestia.core.game.service.ServiceFactory;
 import net.bestia.core.game.worker.ScriptInitWorker;
@@ -24,6 +22,7 @@ import net.bestia.core.game.worker.ZoneInitLoader;
 import net.bestia.core.game.zone.Zone;
 import net.bestia.core.message.Message;
 import net.bestia.core.net.Messenger;
+import net.bestia.core.util.BestiaConfiguration;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,7 +38,7 @@ public class BestiaZoneserver {
 		try {
 			File versionFile = new File(BestiaZoneserver.class.getClassLoader().getResource("buildnumber.txt").toURI());
 			BufferedReader br = new BufferedReader(new FileReader(versionFile));
-			version  = br.readLine();
+			version = br.readLine();
 			br.close();
 		} catch (IOException | URISyntaxException e) {
 			log.error("Error while reading version file.", e);
@@ -56,13 +55,13 @@ public class BestiaZoneserver {
 	private final CommandFactory cmdFactory;
 	private final Messenger messenger;
 
-	private Properties config = new Properties();
+	private BestiaConfiguration config = new BestiaConfiguration();
 	private boolean isRunning = false;
 
 	// Worker thread pool.
 	private final ExecutorService worker;
 
-	private Map<Integer, Connection> connections = new HashMap<>();
+	private BestiaConnectionInterface connection;
 
 	/**
 	 * List of zones for which this server is responsible.
@@ -85,16 +84,16 @@ public class BestiaZoneserver {
 		initilizeConfig(configFile);
 
 		// #### Variable setup.
-		worker = Executors.newFixedThreadPool(Integer.parseInt(config.getProperty("serverThreads")));
-
+		this.worker = Executors.newFixedThreadPool(Integer.parseInt(config.getProperty("serverThreads")));
 		this.messenger = new Messenger(connection, worker);
+		this.connection = connection;
 
 		// Creating the service factory.
 		final ServiceFactory serviceFactory = new HibernateServiceFactory(messenger);
 
 		this.name = config.getProperty("name");
 		this.commandContext = new CommandContext.Builder().setMessenger(messenger).setServiceFactory(serviceFactory)
-				.setZones(zones).build();
+				.setZoneserver(this).setConfiguration(config).setZones(zones).build();
 		this.cmdFactory = new CommandFactory();
 	}
 
@@ -125,9 +124,9 @@ public class BestiaZoneserver {
 
 	private void initilizeConfig(String configFile) {
 		try {
-			config.load(new FileReader(configFile));
+			config.load(new File(configFile));
 		} catch (IOException ex) {
-			log.error("Can not read from config file: {}. Stopping.", configFile);
+			log.fatal("Can not read from config file: {}. Stopping.", configFile);
 			System.exit(1);
 		}
 	}
@@ -236,7 +235,7 @@ public class BestiaZoneserver {
 	 * @param uuid
 	 * @return
 	 */
-	public boolean isAuthenticated(int accountId, String token) {
+	private boolean isAuthenticated(int accountId, String token) {
 		// TODO Das hier fertig bauen.
 		return true;
 
@@ -255,13 +254,6 @@ public class BestiaZoneserver {
 	 */
 	public boolean connect(int accountId, String token) {
 		if (isAuthenticated(accountId, token)) {
-
-			final Connection connection = new Connection(token, accountId);
-
-			synchronized (connections) {
-				connections.put(accountId, connection);
-			}
-
 			return true;
 		} else {
 			return false;
@@ -269,14 +261,21 @@ public class BestiaZoneserver {
 	}
 
 	/**
-	 * Disconnects the given account id from this zone server.
+	 * Returns the number of currently conneted players.
 	 * 
-	 * @param accountId
-	 *            Account id.
+	 * @return Number of currently connected players.
 	 */
-	public void disconnect(int accountId) {
-		synchronized (connections) {
-			connections.remove(accountId);
-		}
+	public int getConnectedPlayer() {
+		return connection.getConnectedPlayers();
 	}
+
+	/**
+	 * Returns the name of this zoneserver instance.
+	 * 
+	 * @return Name of this zoneserver.
+	 */
+	public String getName() {
+		return name;
+	}
+
 }

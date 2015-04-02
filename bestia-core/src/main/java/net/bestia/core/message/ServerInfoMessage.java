@@ -27,20 +27,28 @@ public final class ServerInfoMessage extends Message {
 
 	@JsonProperty("res")
 	private String ressourceURL;
+
+	@JsonProperty("zn")
+	private String zoneName;
 	
+	@JsonProperty("st")
+	private long serverTime;
+	
+	public ServerInfoMessage() {
+		// no op.
+	}
+
 	public ServerInfoMessage(Message msg) {
 		super(msg);
 	}
-	
-	public ServerInfoMessage() {
-		
-	}
 
-	public ServerInfoMessage(Message msg, List<String> zones, int connectedPlayer, String resUrl) {
+	public ServerInfoMessage(Message msg, List<String> zones, String zoneName, int connectedPlayer, String resUrl) {
 		super(msg);
 		this.zones = zones;
 		this.connectedPlayer = connectedPlayer;
 		this.ressourceURL = resUrl;
+		this.zoneName = zoneName;
+		this.serverTime = System.currentTimeMillis();
 	}
 
 	@Override
@@ -50,9 +58,8 @@ public final class ServerInfoMessage extends Message {
 
 	@Override
 	public String toString() {
-		return String.format(
-				"ServerInfoMessage[zones: %s, players: %d, ressourceURL: %s]",
-				zones.toString(), connectedPlayer, ressourceURL);
+		return String.format("ServerInfoMessage[zoneName: %s, zones: %s, players: %d, ressourceURL: %s, version: %s, serverTime: %d]",
+				zoneName, zones.toString(), connectedPlayer, ressourceURL, version, serverTime);
 	}
 
 }

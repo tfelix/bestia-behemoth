@@ -20,5 +20,4 @@ public interface EntityContainer {
 	public Collection<Entity> getElements(Point p);
 	public int count();
 	
-
 }

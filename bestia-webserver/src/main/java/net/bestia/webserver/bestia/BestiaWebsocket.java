@@ -2,8 +2,6 @@ package net.bestia.webserver.bestia;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 
 import net.bestia.core.BestiaZoneserver;
 import net.bestia.core.connection.BestiaConnectionInterface;
@@ -54,6 +52,10 @@ public class BestiaWebsocket implements WebSocketHandler, BestiaConnectionInterf
 		
 		public boolean containsAccountId(int accId) {
 			return accIdCache.containsKey(accId);
+		}
+		
+		public int size() {
+			return uuidCache.size();
 		}
 	}
 
@@ -152,9 +154,8 @@ public class BestiaWebsocket implements WebSocketHandler, BestiaConnectionInterf
 	}
 
 	@Override
-	public void onError(WebSocket arg0, WebSocketException arg1) {
-		// TODO Auto-generated method stub
-
+	public void onError(WebSocket socket, WebSocketException ex) {
+		log.error("Error sending data to client.", ex);
 	}
 
 	@Override
@@ -171,16 +172,15 @@ public class BestiaWebsocket implements WebSocketHandler, BestiaConnectionInterf
 		return cache.containsAccountId(accountId);
 	}
 
-	@Override
-	public void dropConnection(UUID connectionId) {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public void onByteMessage(WebSocket webSocket, byte[] data, int offset, int length) throws IOException {
-		// TODO Auto-generated method stub
+		// no op.
+	}
 
+	@Override
+	public int getConnectedPlayers() {
+		return cache.size();
 	}
 
 }

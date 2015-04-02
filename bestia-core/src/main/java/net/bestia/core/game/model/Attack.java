@@ -3,8 +3,6 @@ package net.bestia.core.game.model;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import net.bestia.core.game.battle.AttackBasedStatus;
@@ -13,28 +11,28 @@ import net.bestia.core.game.battle.Element;
 @Entity
 public class Attack {
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	private int id;
-	private String attackDbName;
+	private String databaseName;
 	private int strength;
 	private String name;
+	@Enumerated(EnumType.STRING)
 	private Element element;
 	private int manaCost;
 	@Enumerated(EnumType.STRING)
 	private AttackBasedStatus basedStatus;
 	
-	/**
-	 * @return the attackDbName
-	 */
-	public String getAttackDbName() {
-		return attackDbName;
+	public Attack() {
+		// no op.
+	}
+	
+	public Attack(String databaseName) {
+		this.databaseName = databaseName;
 	}
 	
 	/**
-	 * @param attackDbName the attackDbName to set
+	 * @return the attackDbName
 	 */
-	public void setAttackDbName(String attackDbName) {
-		this.attackDbName = attackDbName;
+	public String getDatabaseName() {
+		return databaseName;
 	}
 	
 	/**
@@ -105,12 +103,5 @@ public class Attack {
 	 */
 	public void setBasedStatus(AttackBasedStatus basedStatus) {
 		this.basedStatus = basedStatus;
-	}
-	
-	/**
-	 * @return the id
-	 */
-	public int getId() {
-		return id;
 	}
 }

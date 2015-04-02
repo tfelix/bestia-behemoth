@@ -54,6 +54,7 @@ this.Bestia = this.Bestia || {};
 		}
 	}
 	BestiaViewModel.prototype.update = function(msg) {
+		var self = this;
 		this.playerBestiaId(msg.pbid);
 		this.sprite(app.server.Config.makeUrl('sprite', msg.s));
 		//this.equip;
@@ -64,6 +65,10 @@ this.Bestia = this.Bestia || {};
 		this.image(app.server.Config.makeUrl('image', msg.img));
 		this.slot(msg.sl);
 		this.statusPoints.update(msg.sp);
+		
+		self.selectBestia = function(bestia) {
+            console.log(bestia);
+        };
 	}
 	
 	
@@ -78,11 +83,17 @@ this.Bestia = this.Bestia || {};
 		this.selectedBestia.update(msg.bm);
 		
 		// Add as many
-		this.bestias(msg.b);
-		for(var i = msg.s - msg.b.length; i > 0; i--) {
-			this.bestias.push({});
-		}
-			
+		//this.bestias(msg.b);
+		/*for(var i = msg.s - msg.b.length; i > 0; i--) {
+			//this.bestias.push({});
+		}*/
+		var self = this;
+		ko.utils.arrayForEach(msg.b, function(bestia) {
+			var model = new BestiaViewModel();
+			model.update(bestia);
+            self.bestias.push(model); 
+        });
+		
 		this.slots(msg.s);
 	}
 	
@@ -91,9 +102,7 @@ this.Bestia = this.Bestia || {};
 
 	// Apply bindings AFTER the DOM has loaded.
 	$(document).ready(function() {
-		ko.applyBindings(bestiaInfo, $('#selected-bestia').get(0));
-		//ko.applyBindings(Bestias.master, $('#master-bestia').get(0));
-		ko.applyBindings(bestiaInfo, $('#bestia-slots').get(0));
+		ko.applyBindings(bestiaInfo, $('#navi').get(0));
 	});
 
 

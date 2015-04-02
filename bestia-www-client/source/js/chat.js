@@ -1,11 +1,13 @@
-define(['knockout', 'connection'], function (ko, con) {
-	
+(function(app, $, ko) {
+	'use strict';
 	// Add startsWith functionality to string prototype.
 	if (typeof String.prototype.startsWith != 'function') {
 		String.prototype.startsWith = function (str){
 			return this.slice(0, str.length) == str;
 		};
 	}
+	
+	
 	
 	var Chat = function(){
 		this.mode = ko.observable(1);
@@ -47,4 +49,4 @@ define(['knockout', 'connection'], function (ko, con) {
 	};
 	
 	return Chat;
-});
+})(Bestia, jQuery, ko);

@@ -14,8 +14,8 @@ import javax.persistence.PrimaryKeyJoinColumn;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * 
  */
-@Entity
-@IdClass(GuildMemberId.class)
+//@Entity
+//@IdClass(GuildMemberId.class)
 public class GuildMember {
 
 	@Id

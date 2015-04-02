@@ -11,7 +11,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 // Checken ob eine Gilde nur einen Member haben kann bzw. 
-@Entity
+//@Entity
 public class Guild {
 	
 	@Transient

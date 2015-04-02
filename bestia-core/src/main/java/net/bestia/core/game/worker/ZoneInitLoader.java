@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -15,23 +14,26 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import net.bestia.core.game.zone.Zone;
+import net.bestia.core.game.zone.map.Map;
+import net.bestia.core.game.zone.map.Map.Mapbuilder;
+import net.bestia.core.game.zone.map.Maploader;
+import net.bestia.core.game.zone.map.TMXMaploader;
+import net.bestia.core.util.BestiaConfiguration;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class is responsible for taking the config, parsing the zone data and
- * then initializing the appropriate zones. In order to speed up the very hard
- * task of instancing the zones the work will be split in several threads
- * working in parallel.
+ * This class is responsible for taking the config, parsing the zone data and then initializing the appropriate zones.
+ * In order to speed up the very hard task of instancing the zones the work will be split in several threads working in
+ * parallel.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class ZoneInitLoader {
 
-	private final static Logger log = LogManager
-			.getLogger(ZoneInitLoader.class);
+	private final static Logger log = LogManager.getLogger(ZoneInitLoader.class);
 
 	/**
 	 * Helper class to actually load the zones.
@@ -39,15 +41,31 @@ public class ZoneInitLoader {
 	 */
 	private class ZoneLoader implements Callable<Set<Zone>> {
 
-		public ZoneLoader(List<String> zones) {
+		private List<String> zonesToLoad;
+		private BestiaConfiguration config;
 
+		public ZoneLoader(List<String> zones, BestiaConfiguration configuration) {
+			this.zonesToLoad = zones;
+			this.config = configuration;
 		}
 
 		@Override
 		public Set<Zone> call() throws Exception {
 
-			// TODO Auto-generated method stub
-			return new HashSet<Zone>();
+			final HashSet<Zone> loadedZones = new HashSet<>();
+			
+			for(String zoneName : zonesToLoad) {
+				
+				Maploader loader = new TMXMaploader(config.getMapfile(zoneName));
+				Map.Mapbuilder builder = new Mapbuilder();
+				Map map = builder.build(loader);
+				Zone z = new Zone(config, zoneName, map);
+				loadedZones.add(z);
+
+			}
+			
+			
+			return loadedZones;
 		}
 	}
 
@@ -55,24 +73,25 @@ public class ZoneInitLoader {
 	private final int nThreads;
 
 	private final ExecutorService worker;
-	private final Map<String, Zone> serverZones;
+	private final java.util.Map<String, Zone> serverZones;
+	private final BestiaConfiguration configuration;
 
 	/**
 	 * 
 	 * @param config
 	 *            Server configuration.
 	 * @param zones
-	 *            Reference to the zonelist the server is using. Loaded zones
-	 *            will be added to this list if finished.
+	 *            Reference to the zonelist the server is using. Loaded zones will be added to this list if finished.
 	 */
-	public ZoneInitLoader(Properties config, Map<String, Zone> zones) {
-		if(config == null) {
+	public ZoneInitLoader(BestiaConfiguration config, java.util.Map<String, Zone> zones) {
+		if (config == null) {
 			throw new IllegalArgumentException("Config can not be null.");
 		}
-		if(zones == null) {
+		if (zones == null) {
 			throw new IllegalArgumentException("Zones can not be null.");
 		}
-		
+
+		configuration = config;
 		zoneString = config.getProperty("zones");
 		nThreads = Integer.parseInt(config.getProperty("initThreads"));
 
@@ -81,8 +100,8 @@ public class ZoneInitLoader {
 	}
 
 	/**
-	 * Starts the loading process. Blocks until all loading is done and adds the
-	 * instanced zones to the list given in the constructor.
+	 * Starts the loading process. Blocks until all loading is done and adds the instanced zones to the list given in
+	 * the constructor. Its splits the work of loading into separated threads.
 	 * 
 	 * @throws IOException
 	 *             If loading of one or more zones fails.
@@ -101,7 +120,7 @@ public class ZoneInitLoader {
 		List<Callable<Set<Zone>>> tasks = new ArrayList<Callable<Set<Zone>>>();
 		for (int i = 0; i < zones.size(); i += sizeChunk) {
 			List<String> subList = zones.subList(i, i + sizeChunk);
-			tasks.add(new ZoneLoader(subList));
+			tasks.add(new ZoneLoader(subList, configuration));
 		}
 
 		// Wait for all worker to finish.
@@ -110,9 +129,9 @@ public class ZoneInitLoader {
 
 			for (Future<Set<Zone>> loadedZone : loadedZones) {
 				try {
-					for(Zone z : loadedZone.get()) {
+					for (Zone z : loadedZone.get()) {
 						serverZones.put(z.getName(), z);
-					}			
+					}
 				} catch (ExecutionException e) {
 					log.error("Error while loading zones.", e);
 					throw new IOException("Error while loading zones.", e);

@@ -64,9 +64,9 @@ public class PlayerBestiaService extends BestiaService {
 	 */
 	private void checkLevelUp() {
 		int neededExp = getNeededExp();
-		if (bestia.getExp() < neededExp || bestia.getLevel() >= MAX_LEVEL) {
+		/*if (bestia.getExp() < neededExp || bestia.getLevel() >= MAX_LEVEL) {
 			return;
-		}
+		}*/
 
 		bestia.setExp(bestia.getExp() - neededExp);
 		// Send system message for chat.
@@ -76,8 +76,8 @@ public class PlayerBestiaService extends BestiaService {
 		calculateStatusValues();
 
 		// Refill HP and Mana.
-		bestia.getStatusPoints().setCurrentHp(bestia.getStatusPoints().getMaxHp());
-		bestia.getStatusPoints().setCurrentMana(bestia.getStatusPoints().getMaxMana());
+		//bestia.getStatusPoints().setCurrentHp(bestia.getStatusPoints().getMaxHp());
+		//bestia.getStatusPoints().setCurrentMana(bestia.getStatusPoints().getMaxMana());
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class PlayerBestiaService extends BestiaService {
 		 * floor($this->data->get('ev_mana')/4) ) *
 		 * $this->data->get('level')/100 + 10 + $this->data->get('level') * 2);
 		 */
-		StatusPoints points = bestia.getStatusPoints();
+		//StatusPoints points = bestia.getStatusPoints();
 		/*points.setAtk(atk);
 		points.setDef(def);
 		points.setSpAtk(spatk);
@@ -124,7 +124,8 @@ public class PlayerBestiaService extends BestiaService {
 	 * @return Exp needed for next levelup.
 	 */
 	private int getNeededExp() {
-		return (int) (Math.ceil(Math.exp(bestia.getLevel() / 7)) + 10);
+		//return (int) (Math.ceil(Math.exp(bestia.getLevel() / 7)) + 10);
+		return 100000;
 	}
 
 	@Override
@@ -145,8 +146,8 @@ public class PlayerBestiaService extends BestiaService {
 		// ++ Alle Statusveränderungen löschen.
 		clearStatusEffects();
 
-		bestia.getStatusPoints().setCurrentHp(1);
-		bestia.getStatusPoints().setCurrentMana(0);
+		//bestia.getStatusPoints().setCurrentHp(1);
+		//bestia.getStatusPoints().setCurrentMana(0);
 		isDead = true;
 	}
 

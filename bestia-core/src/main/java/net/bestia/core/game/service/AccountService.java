@@ -101,7 +101,7 @@ public class AccountService extends Service {
 	 * @return Number of available bestia slots.
 	 */
 	public int getBestiaSlotNumber() {
-		final int level = account.getMaster().getLevel();
+		/*final int level = account.getMaster().getLevel();
 
 		if (level >= 90) {
 			return 4 + account.getAdditionalBestiaSlots();
@@ -111,7 +111,9 @@ public class AccountService extends Service {
 			return 2 + account.getAdditionalBestiaSlots();
 		} else {
 			return 1 + account.getAdditionalBestiaSlots();
-		}
+		}*/
+		
+		return 0;
 	}
 
 	@Override
@@ -119,5 +121,9 @@ public class AccountService extends Service {
 		Message msg = null; //new AccountInfoMessage(account);
 		log.trace("AccountService detected change: {0}", msg.toString());
 		return msg;
+	}
+	
+	public Account getAccount() {
+		return account;
 	}
 }

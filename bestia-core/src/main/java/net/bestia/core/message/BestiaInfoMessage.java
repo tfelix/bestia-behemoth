@@ -12,13 +12,11 @@ public class BestiaInfoMessage extends Message {
 	public final static String MESSAGE_ID = "bestia.info";
 	
 	@JsonProperty("ns")
-	private int numberOfSlots;
+	private int numberOfExtraSlots;
 	@JsonProperty("b")
 	private List<PlayerBestia> bestias = new ArrayList<PlayerBestia>();
-	@JsonProperty("m")
-	private int masterId;
-	@JsonProperty("s")
-	private int selectedId;
+	@JsonProperty("bm")
+	private PlayerBestia master;
 
 
 	/**
@@ -43,11 +41,11 @@ public class BestiaInfoMessage extends Message {
 	}
 
 	public int getNumberOfSlots() {
-		return numberOfSlots;
+		return numberOfExtraSlots;
 	}
 
 	public void setNumberOfSlots(int numberOfSlots) {
-		this.numberOfSlots = numberOfSlots;
+		this.numberOfExtraSlots = numberOfSlots;
 	}
 
 	public List<PlayerBestia> getBestias() {
@@ -58,20 +56,11 @@ public class BestiaInfoMessage extends Message {
 		this.bestias = bestias;
 	}
 
-	public int getMasterId() {
-		return masterId;
+	public PlayerBestia getMaster() {
+		return master;
 	}
 
-	public void setMasterId(int masterId) {
-		this.masterId = masterId;
+	public void setMaster(PlayerBestia master) {
+		this.master = master;
 	}
-
-	public int getSelectedId() {
-		return selectedId;
-	}
-
-	public void setSelectedId(int selectedId) {
-		this.selectedId = selectedId;
-	}
-
 }

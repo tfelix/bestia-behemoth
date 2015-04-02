@@ -15,6 +15,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.bestia.core.game.zone.entity.QuadTree2;
 import net.bestia.core.game.zone.map.Map;
+import net.bestia.core.util.BestiaConfiguration;
 
 /**
  * The Zone holds the static mapdata as well is responsible for managing
@@ -51,7 +52,7 @@ public class Zone {
 	private final QuadTree2 tree;
 	private final java.util.Map<Event, Set<Entity>> observer;
 
-	public Zone(Properties config, String name, Map map) {
+	public Zone(BestiaConfiguration config, String name, Map map) {
 
 		executor = Executors.newScheduledThreadPool(Integer.parseInt(config
 				.getProperty("zoneThreads")));

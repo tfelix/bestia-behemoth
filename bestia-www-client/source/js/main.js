@@ -82,7 +82,14 @@ $(document).ready(function(){
 	};*/
 	
 	
-	
+	var mapPreload = {
+		mid: 'map.preload',
+		mpid: 123, // map id
+		mdbn: 'meine_map', // tiled map datei.
+		tms: ['tilemap1.png, tilemap2.png'], // tile maps
+		esp: ['doommaster', 'blob'], // entity sprites, Sprites aller aktueller auf der Map befindlicher Bestia und Entities.
+		s: ['sound1', 'sound2'] // Sounds.
+	};
 	
 	
 	// Server weißt den Client an eine Map zu laden.

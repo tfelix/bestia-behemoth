@@ -18,6 +18,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.core.game.battle.AttackBasedStatus;
 import net.bestia.core.game.battle.Element;
@@ -27,6 +28,7 @@ import net.bestia.core.game.battle.Element;
 public class Bestia {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
+	@Column(name = "bestia_id")
 	private int id;
 
 	@Embedded
@@ -40,39 +42,37 @@ public class Bestia {
 			@AttributeOverride(name = "spd", column = @Column(name = "bSpd")) })
 	@JsonIgnore
 	private BaseValues baseValue;
-	@JsonIgnore
+	@JsonProperty("bdbn")
 	private String databaseName;
 	@Enumerated(EnumType.STRING)
+	@JsonProperty("ele")
 	private Element element;
-	private int level;
-	@OneToMany
-	@JsonIgnore
-	private Set<Attack> attacks;
-	private StatusPoints statusPoints;
+	@JsonProperty("img")
+	private String image;
+	@JsonProperty("s")
+	private String sprite;
 
-	public StatusPoints getStatusPoints() {
-		return statusPoints;
-	}
 
-	public int getLevel() {
-		return level;
-	}
-
-	public void setLevel(int level) {
-		if (level < 0 || level > 100) {
-			throw new IllegalArgumentException(
-					"Level must be in the range between 0 and 100.");
-		}
-		this.level = level;
-	}
 
 	public String getDatabaseName() {
 		return databaseName;
 	}
 
-	public Set<Attack> getAttacks() {
-		return new HashSet<Attack>(attacks);
+
+	public String getImage() {
+		return image;
 	}
+
+
+	public String getSprite() {
+		return sprite;
+	}
+	
+	public Element getElement() {
+		return element;
+	}
+
+
 
 	/**
 	 * Sets the attacks of a bestia. A bestia can not learn more then 4 attacks
@@ -80,6 +80,7 @@ public class Bestia {
 	 * 
 	 * @param attacks
 	 */
+	/*
 	public void setAttacks(Set<Attack> attacks) {
 		boolean hasBuff = false;
 		for (Attack atk : attacks) {
@@ -93,5 +94,5 @@ public class Bestia {
 					"Bestia can only learn 4 attacks. Or 4 Attacks + 1 NO_DAMAGE Attack.");
 		}
 		this.attacks = attacks;
-	}
+	}*/
 }

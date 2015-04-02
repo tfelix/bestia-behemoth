@@ -1,9 +1,8 @@
 package net.bestia.core.message;
 
-import java.util.UUID;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeId;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 
@@ -31,7 +30,6 @@ public abstract class Message {
 	 * @param msg
 	 */
 	public Message(Message msg) {
-
 		this.accountId = msg.getAccountId();
 	}
 
@@ -41,7 +39,8 @@ public abstract class Message {
 	 * 
 	 * @param isBroadcast
 	 */
-	public Message(UUID uuid, int accountId, boolean isBroadcast) {
+	public Message(int accountId, boolean isBroadcast) {
+		this.accountId = accountId;
 		this.isBroadcast = isBroadcast;
 	}
 
@@ -57,7 +56,7 @@ public abstract class Message {
 	 * 
 	 * @return Event name to be triggered on the client.
 	 */
-	@JsonProperty("mid")
+	@JsonTypeId
 	public abstract String getMessageId();
 
 	/**
@@ -78,6 +77,6 @@ public abstract class Message {
 
 	@Override
 	public String toString() {
-		return String.format("Message[account id: {0}]", accountId);
+		return String.format("Message[account id: %d]", accountId);
 	}
 }

@@ -9,8 +9,11 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,10 +28,14 @@ import net.bestia.core.game.battle.PVPMode;
  * 
  */
 @Entity
+@PrimaryKeyJoinColumn(name="bestia_id")
 public class PlayerBestia extends Bestia {
+	@Column(name="player_bestia_id")
+	private int player_bestia_id;
+	
 	@JsonProperty("e")
 	private int exp;
-	@JsonProperty("n")
+	@JsonProperty("cn")
 	private String name;
 	@JsonProperty("tt")
 	private Date traveltime;
@@ -37,31 +44,23 @@ public class PlayerBestia extends Bestia {
 			@AttributeOverride(name = "x", column = @Column(name = "saveX")),
 			@AttributeOverride(name = "y", column = @Column(name = "saveY")), })
 	@Embedded
-	@JsonProperty("sp")
+	@JsonProperty("sl")
 	private Location savePosition;
 
 	@Embedded
-	@JsonProperty("cp")
+	@JsonProperty("cl")
 	private Location currentPosition;
 	@Enumerated(EnumType.STRING)
 	@JsonProperty("pvp")
 	private PVPMode pvpMode;
-	@ManyToOne
-	@JoinColumn(name="account_id")
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "account_id", nullable = false)
 	@JsonIgnore
 	private Account owner;
 	
-	@AttributeOverrides({
-		@AttributeOverride(name = "hp", column = @Column(name = "statCurHp")),
-		@AttributeOverride(name = "maxHp", column = @Column(name = "statMaxHp")),
-		@AttributeOverride(name = "mana", column = @Column(name = "statCurMana")),
-		@AttributeOverride(name = "maxMana", column = @Column(name = "statMaxMana")),		
-		@AttributeOverride(name = "atk", column = @Column(name = "statCurAtk")),
-		@AttributeOverride(name = "def", column = @Column(name = "statCurDef")),
-		@AttributeOverride(name = "spAtk", column = @Column(name = "statCurSpAtk")),
-		@AttributeOverride(name = "spDef", column = @Column(name = "statCurSpDef")),
-		@AttributeOverride(name = "spd", column = @Column(name = "statCurSpd")) })
-	private StatusPoints statusPoints;
+	private int curHp;
+	private int curMana;
 	
 	/**
 	 * Override the names because the are the same like in status points. Both
@@ -147,5 +146,14 @@ public class PlayerBestia extends Bestia {
 	
 	public BaseValues getEffortValue() {
 		return effortValues;
+	}
+	
+	public int getPlayerBestiaId() {
+		return player_bestia_id;
+	}
+	
+	@JsonProperty("sp")
+	public StatusPoints getStatusPoints() {
+		return new StatusPoints();
 	}
 }

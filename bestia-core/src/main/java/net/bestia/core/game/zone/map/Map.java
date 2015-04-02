@@ -25,7 +25,7 @@ public class Map {
 	private Dimension dimensions;
 	private java.util.Map<Point, Tile> tiles = new HashMap<>();
 
-	public Map(Mapbuilder builder) {
+	private Map(Mapbuilder builder) {
 		dimensions = new Dimension(builder.width, builder.height);
 		tileset = builder.tileset;
 	}
