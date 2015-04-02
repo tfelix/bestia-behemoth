@@ -29,8 +29,8 @@ public class ChatMessage extends Message {
 	private Mode chatMode;
 	@JsonProperty("txt")
 	private String text;
-	@JsonProperty("rxn")
-	private String receiverNickname;
+	@JsonProperty("sn")
+	private String senderNickname;
 	@JsonProperty("cmid")
 	private int chatMessageId;
 	@JsonProperty("t")
@@ -72,14 +72,6 @@ public class ChatMessage extends Message {
 
 	public void setText(String text) {
 		this.text = text;
-	}
-
-	public String getReceiverNickname() {
-		return receiverNickname;
-	}
-
-	public void setReceiverNickname(String receiverNickname) {
-		this.receiverNickname = receiverNickname;
 	}
 
 	public int getChatMessageId() {

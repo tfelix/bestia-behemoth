@@ -33,8 +33,6 @@ this.Bestia = this.Bestia || {};
 		this.curHp(msg.cHp);
 		this.maxHp(msg.mHp);
 	}
-
-	
 	
 	function BestiaViewModel(msg) {
 		this.playerBestiaId = ko.observable();

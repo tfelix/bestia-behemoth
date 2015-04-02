@@ -102,4 +102,24 @@ $(document).ready(function(){
 	
 	$.publish('map.load', mapLoad);
 	
+	// TODO Bestia klein schreiben.
+	// Create a sample chat.
+	var chat = new Bestia.Chat($('#chat').get(0));
+	
+	var msgs = [{mid: 'chat.message', m: 'PUBLIC', txt: 'Das ist ein Public Chat test.', sn: 'rocket'},
+	{mid: 'chat.message', m: 'PARTY', txt: 'Das ist ein Party Chat test.', sn: 'rocket'},
+	{mid: 'chat.message', m: 'GUILD', txt: 'Das ist ein Guild Chat test.', sn: 'rocket'},
+	{mid: 'chat.message', m: 'WHISPER', txt: 'Das ist ein Whisper Chat test.', sn: 'rocket'},
+	{mid: 'chat.message', m: 'SYSTEM', txt: 'Das ist ein System Chat test.', sn: ''},
+	{mid: 'chat.message', m: 'GM_BROADCAST', txt: 'Das ist ein GM Chat test.', sn: 'rocket'},
+	{mid: 'chat.message', m: 'ERROR', txt: 'Das ist ein Chat test.', sn: ''},
+	{mid: 'chat.message', m: 'COMMAND', txt: 'Das ist ein Command Chat test', sn: ''}];
+	
+	//$.publish('chat.message', {mid: 'chat.message', m: 'PARTY', txt: 'Das ist ein Chat test.', sn: 'rocket'});
+	for(var i = 0; i < msgs.length; i++) {
+		var msg = msgs[i];
+		$.publish('chat.message', msg);
+		$.publish('chat.message', msg);
+		$.publish('chat.message', msg);
+	}
 });

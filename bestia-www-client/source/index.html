@@ -18,11 +18,11 @@
 <script src="js/vendor/jquery/ba-tiny-pubsub.js"></script>
 <script src="js/vendor/createjs/createjs-2014.12.12.min.js"></script>
 <script src="js/vendor/proton-1.0.0.js"></script>
-<script src="js/vendor/knockout-3.0.0.js"></script>
+<script src="js/vendor/knockout-3.3.0.js"></script>
 <script src="js/vendor/i18next-1.7.7.js"></script>
 
 <!-- Loading custom scripts, order is important! -->
-<script src="js/message/message.js"></script>
+<script src="js/io/message.js"></script>
 <script src="js/io/preloader.js"></script>
 
 
@@ -30,6 +30,8 @@
 <script src="js/view/bestias.js"></script>
 <script src="js/view/system.pingpong.js"></script>
 <script src="js/engine/engine.js"></script>
+
+<script src="js/chat.js"></script>
 
 <!-- <script src="js/io/connection.js"></script>-->
 
@@ -111,17 +113,6 @@
 			<div style="clear: both"></div>
 		</div>
 
-		<div id="chat" style="width: 500px; background: gray;">
-			<div id="chat-messages" style="height: 400px;">
-				<div class="chat-text-broadcast">Das hier ist eine serverweite Meldung.</div>
-			</div>
-
-			<div>
-				<input id="chat-text" type="text" style="display: inline-block; width: 100%;">
-				<button>Senden</button>
-			</div>
-		</div>
-
 		<div id="canvas-container">
 			<div id="canvas-overlay" style="display: none;">
 				<div id="loading-content"></div>
@@ -129,6 +120,34 @@
 					<div style="width: 0px;" class="loading-bar"></div>
 				</div>
 			</div>
+
+			<!-- CHAT -->
+			<div id="chat">
+				<div class="chat-msgs" data-bind="foreach: messages">
+
+					<div data-bind="css: cssMode">
+						<span data-bind="visible: nickname().length > 0" class="nick"><span data-bind="text: nickname"></span>: </span><span data-bind="text: text"></span>
+					</div>
+
+				</div>
+				<div id="chat-input">
+					<ul class="dropdown dropdown-upward">
+						<li><span data-bind="text: modeText"></span>
+							<ul>
+								<li data-bind="click: changeMode.bind($data, 'PUBLIC')">Öffentlich</li>
+								<li data-bind="click: changeMode.bind($data, 'PARTY')">Party</li>
+								<li data-bind="click: changeMode.bind($data, 'GUILD')">Gilde</li>
+							</ul></li>
+					</ul>
+					<form data-bind="submit: sendChat">
+						<span class="whisper-nick" data-bind="visible: whisperNick().length > 0"><span data-bind="text: whisperNick"></span>:
+						</span> <input type="text" data-bind="textInput: text" style="display: block;">
+					</form>
+					<div style="clear: both;"></div>
+				</div>
+			</div>
+			<!-- /CHAT -->
+
 			<canvas id="bestia-canvas"></canvas>
 		</div>
 	</div>

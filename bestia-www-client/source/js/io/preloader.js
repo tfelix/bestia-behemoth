@@ -1,17 +1,16 @@
-	'use strict';
 /**
  * The preloader awaits a list of elements to load from the server. It will
  * retrieve this elements store them in an apropriate way and will display a
  * loading screen to the user.
  */
 (function($, Bestia, ko) {
-
+	'use strict';
 	var Preloader = {
-			
+
 		View : {
-			isLoading :  ko.observable(false),
+			isLoading : ko.observable(false),
 			percent : ko.observable(0),
-			currentFile :  ko.observable('')
+			currentFile : ko.observable('')
 		},
 
 		queue : new window.createjs.LoadQueue(),
@@ -30,15 +29,15 @@
 
 		handleComplete : function(event, data) {
 			console.log('File loading completed: ' + event);
-			$.publish('io.preloader.onloadfinished', data);	
+			$.publish('io.preloader.onloadfinished', data);
 			Preloader.View.isLoading(false);
 		},
 
 		handleProgress : function(event) {
 			var perc = Math.ceil(event.loaded * 100 / event.total);
-			Preloader.View.percent(perc);	
+			Preloader.View.percent(perc);
 		},
-		
+
 		handleFilestart : function(event) {
 			Preloader.View.currentFile(event.item);
 		},
@@ -52,13 +51,13 @@
 		handleCommand : function(_, data) {
 			Preloader.View.percent(0);
 			Preloader.View.isLoading(true);
-			
+
 			Preloader.queue.on('complete', Preloader.handleComplete, Preloader, true, data);
-			
+
 			Preloader.loadFiles(data.files);
 		}
 	};
-	
+
 	Bestia.io = Bestia.io || {};
 	Bestia.io.Preloader = Preloader;
 

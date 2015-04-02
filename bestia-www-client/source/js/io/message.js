@@ -1,7 +1,7 @@
 'use strict';
 /**
- * Main message module. Responsible for sending messages to the server and to
- * receive them and rebroadcast them into the client.
+ * Main message module. This module collects all message constructors so that a
+ * massage can be easily created within the app.
  * 
  * @module io.Connection
  */
@@ -20,14 +20,18 @@ var Bestia = window.Bestia = window.Bestia || {};
 			this.mid = 'server.info';
 		},
 		/**
-		 * Asks the server to provide information about the bestia 
-		 * which are in posession.
+		 * Asks the server to provide information about the bestia which are in
+		 * posession.
 		 */
 		BestiaInfo : function() {
 			this.mid = 'bestia.info';
+		},
+		
+		Chat : function(mode, text) {
+			this.mid = 'chat.message';
+			this.m = mode;
+			this.txt = text;
 		}
 	};
-
-
 
 })(Bestia, jQuery);
