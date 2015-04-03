@@ -88,17 +88,17 @@ var Bestia = window.Bestia = window.Bestia || {};
 			app.io.Connection.socket = $.atmosphere.subscribe(request);
 		},
 
-		sendMessage : function(msg) {
-			// TODO Some sanity checking.
-			app.io.Connection.socket.push(JSON.stringify(msg));
-		},
-
 		sendPing : function() {
 			app.io.Connection.socket.push(JSON.stringify({
 				mid : 'system.ping',
 				m : 'Hello Bestia.'
 			}));
-		}
+		},
+		
+		// Sends a message while listening to this channel.
+		$.publish('io.sendMessage', function(_, msg) {
+			app.io.Connection.socket.push(JSON.stringify(msg));
+		});
 	};
 
 })(Bestia, jQuery);

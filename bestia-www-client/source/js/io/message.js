@@ -19,6 +19,7 @@ var Bestia = window.Bestia = window.Bestia || {};
 		ServerInfo : function() {
 			this.mid = 'server.info';
 		},
+		
 		/**
 		 * Asks the server to provide information about the bestia which are in
 		 * posession.
@@ -27,10 +28,11 @@ var Bestia = window.Bestia = window.Bestia || {};
 			this.mid = 'bestia.info';
 		},
 		
-		Chat : function(mode, text) {
+		Chat : function(mode, text, nick) {
 			this.mid = 'chat.message';
 			this.m = mode;
 			this.txt = text;
+			this.rxn = nick;
 		}
 	};
 

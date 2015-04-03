@@ -60,6 +60,11 @@
 		 */
 		self.sendChat = function() {
 
+			var msg = new app.message.Chat(self.mode(), self.text(), self.whisperNick());
+			$.subscribe('io.sendMessage', function(_, msg){
+				self.model.addMessage(msg);
+			});
+			
 			// Clear text.
 			self.text('');
 		};
@@ -80,6 +85,8 @@
 		var self = this;
 		self.domNode = domNode;
 		self.model = new ChatViewModel();
+		
+		var whisperRegex = /^\/[wW] (\w.+) /;
 
 		/**
 		 * Identifying local chat commands which can be executed directly by the
@@ -90,15 +97,22 @@
 			if (str.startsWith('/s ')) {
 				// Public chat.
 				self.model.mode('PUBLIC');
-				self.model.text(self.model.text().replace('/s ', ''));
+				self.model.text(str.replace('/s ', ''));
+				self.model.whisperNick('');
 			} else if (str.startsWith('/p ')) {
 				// Party chat.
 				self.model.mode('PARTY');
-				self.model.text(self.model.text().replace('/p ', ''));
+				self.model.text(str.replace('/p ', ''));
+				self.model.whisperNick('');
 			} else if (str.startsWith('/g ')) {
 				// Guild chat.
 				self.model.mode('GUILD');
-				self.model.text(self.model.text().replace('/g ', ''));
+				self.model.text(str.replace('/g ', ''));
+				self.model.whisperNick('');
+			} else if(whisperRegex.test(str)) {
+				// Whisper chat.
+				self.model.whisperNick(RegExp.$1);
+				self.model.text(str.replace(whisperRegex, ''));
 			}
 		};
 

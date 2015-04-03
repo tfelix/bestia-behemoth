@@ -130,8 +130,8 @@
 					</div>
 
 				</div>
-				<div id="chat-input">
-					<ul class="dropdown dropdown-upward">
+				<div class="chat-input">
+					<ul class="dropdown">
 						<li><span data-bind="text: modeText"></span>
 							<ul>
 								<li data-bind="click: changeMode.bind($data, 'PUBLIC')">Öffentlich</li>
@@ -140,8 +140,7 @@
 							</ul></li>
 					</ul>
 					<form data-bind="submit: sendChat">
-						<span class="whisper-nick" data-bind="visible: whisperNick().length > 0"><span data-bind="text: whisperNick"></span>:
-						</span> <input type="text" data-bind="textInput: text" style="display: block;">
+						<span class="whisper-nick" data-bind="visible: whisperNick().length > 0"><span data-bind="text: whisperNick"></span>: </span><input type="text" data-bind="textInput: text">
 					</form>
 					<div style="clear: both;"></div>
 				</div>

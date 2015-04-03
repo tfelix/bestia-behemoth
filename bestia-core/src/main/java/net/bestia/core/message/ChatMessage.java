@@ -31,6 +31,8 @@ public class ChatMessage extends Message {
 	private String text;
 	@JsonProperty("sn")
 	private String senderNickname;
+	@JsonProperty("rxn")
+	private String receiverNickname;
 	@JsonProperty("cmid")
 	private int chatMessageId;
 	@JsonProperty("t")
