@@ -8,24 +8,31 @@
 		};
 	}
 
+	/**
+	 * View Model for single messages.
+	 * 
+	 * @param msg
+	 * @returns
+	 */
 	function ChatMessageModel(msg) {
 		var self = this;
-		
+
 		self.nickname = ko.observable(msg.sn);
 		self.mode = ko.observable(msg.m);
 		self.text = ko.observable(msg.txt);
-		
-		self.cssMode = ko.pureComputed(function(){
+
+		self.cssMode = ko.pureComputed(function() {
 			return self.mode().toLowerCase();
 		});
 	}
 
-	function ChatViewModel() {
+	function ChatViewModel(localNickname) {
 		var self = this;
 
 		// Config values.
 		self.MAX_MESSAGES = 50;
-		
+		self.localNickname = localNickname;
+
 		self.mode = ko.observable('PUBLIC');
 		self.modeText = ko.computed(function() {
 			// TODO Lokalisieren
@@ -42,7 +49,7 @@
 		self.whisperNick = ko.observable('');
 		self.messages = ko.observableArray();
 		self.text = ko.observable('');
-		
+
 		/**
 		 * Changes the mode of the model.
 		 */
@@ -50,21 +57,48 @@
 			self.mode(mode);
 		};
 
+		// TODO Die Local Commands und Commands allgemein können und sollten
+		// refactored werden in einzelne Objekte um sie besser zu trennen.
+
+		/**
+		 * Identifying local commands which are executed when the user presses
+		 * enter.
+		 * 
+		 * @returns TRUE if the message was a local command and was executed.
+		 *          FALSE if the local command was not found. Message is for the
+		 *          server.
+		 */
+		self.executeLocalCommand = function(str) {
+			if (str.startsWith('/clear')) {
+				self.messages.removeAll();
+				self.text('');
+				return true;
+			}
+
+			return false;
+		}
+
 		/**
 		 * Triggers if a chat is about to be send. Create a chat message of all
 		 * the typed information and fire it to the server.
 		 */
 		self.sendChat = function() {
-			var msg = new app.message.Chat(self.mode(), self.text(), self.whisperNick());
-			$.subscribe('io.sendMessage', function(_, msg){
-				self.model.addMessage(msg);
-			});
-			
+			var msgText = self.text();
+
 			// Clear text.
 			self.text('');
+
+			if (self.executeLocalCommand(msgText)) {
+				return;
+			}
+
+			var msg = new app.message.Chat(self.mode(), msgText, self
+					.whisperNick(), self.localNickname);
+
+			$.publish('io.sendMessage', msg);
+			self.addMessage(msg);
 		};
-		
-		
+
 		self.setWhisperNick = function(message) {
 			self.whisperNick(message.nickname());
 		};
@@ -75,17 +109,21 @@
 	 */
 	ChatViewModel.prototype.addMessage = function(msg) {
 		this.messages.push(new ChatMessageModel(msg));
-		
-		if(this.messages().length > this.MAX_MESSAGES) {
+
+		if (this.messages().length > this.MAX_MESSAGES) {
 			this.messages.shift();
 		}
 	};
 
-	function Chat(domNode) {
+	/**
+	 * Chat module. Contains the ViewModel for a chat and some functions to
+	 * check the various commands.
+	 */
+	function Chat(domNode, localNick) {
 		var self = this;
 		self.domNode = domNode;
-		self.model = new ChatViewModel();
-		
+		self.model = new ChatViewModel(localNick);
+
 		var whisperRegex = /^\/[wW] (\w.+) /;
 
 		/**
@@ -93,7 +131,7 @@
 		 * client. Later when this gets more complex we might need to refactor
 		 * this as an extra class.
 		 */
-		self.identifyLocalCommand = function(str) {
+		self.identifyLocalCommandTyping = function(str) {
 			if (str.startsWith('/s ')) {
 				// Public chat.
 				self.model.mode('PUBLIC');
@@ -109,7 +147,7 @@
 				self.model.mode('GUILD');
 				self.model.text(str.replace('/g ', ''));
 				self.model.whisperNick('');
-			} else if(whisperRegex.test(str)) {
+			} else if (whisperRegex.test(str)) {
 				// Whisper chat.
 				self.model.whisperNick(RegExp.$1);
 				self.model.text(str.replace(whisperRegex, ''));
@@ -121,11 +159,11 @@
 		// Check for constant updates to this value e.g. if the user is typing
 		// to this property. react to certain inputs on the fly.
 		self.model.text.subscribe(function(newValue) {
-			self.identifyLocalCommand(newValue);
+			self.identifyLocalCommandTyping(newValue);
 		});
-		
+
 		// Finally subscribe to chat messages.
-		$.subscribe('chat.message', function(_, msg){
+		$.subscribe('chat.message', function(_, msg) {
 			self.model.addMessage(msg);
 		});
 	}

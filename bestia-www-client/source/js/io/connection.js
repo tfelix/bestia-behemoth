@@ -8,11 +8,7 @@
 var Bestia = window.Bestia = window.Bestia || {};
 (function(app, $) {
 	'use strict';
-	/**
-	 * Central configuration variables.
-	 */
-	app.io = app.io || {};
-	app.io.Connection = {
+	 var Connection = {
 
 		socket : null,
 

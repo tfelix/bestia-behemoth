@@ -104,7 +104,7 @@ $(document).ready(function(){
 	
 	// TODO Bestia klein schreiben.
 	// Create a sample chat.
-	var chat = new Bestia.Chat($('#chat').get(0));
+	var chat = new Bestia.Chat($('#chat').get(0), 'rocket');
 	
 	var msgs = [{mid: 'chat.message', m: 'PUBLIC', txt: 'Das ist ein Public Chat test.', sn: 'rocket'},
 	{mid: 'chat.message', m: 'PARTY', txt: 'Das ist ein Party Chat test.', sn: 'rocket'},
