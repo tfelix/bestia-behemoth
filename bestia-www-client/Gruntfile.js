@@ -91,14 +91,10 @@ module.exports = function(grunt) {
 						files : [ 'source/css/**/*.less', 'source/css/**/*.css' ],
 						tasks : [ 'css:dev' ]
 					},
-					scripts : {
-						files : 'source/**/*.coffee',
-						tasks : [ 'scripts' ]
-					},
 					copy : {
 						files : [ 'source/**', '!source/**/*.styl',
 								'!source/**/*.coffee', '!source/**/*.jade' ],
-						tasks : [ 'copy' ]
+						tasks : [ 'default' ]
 					}
 				},
 

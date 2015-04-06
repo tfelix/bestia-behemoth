@@ -8,10 +8,6 @@
 		};
 	}
 
-	/*
-	 * modes PUBLIC, PARTY, GUILD, WHISPER, SYSTEM, GM_BROADCAST, ERROR, COMMAND
-	 */
-
 	function ChatMessageModel(msg) {
 		var self = this;
 		
@@ -59,7 +55,6 @@
 		 * the typed information and fire it to the server.
 		 */
 		self.sendChat = function() {
-
 			var msg = new app.message.Chat(self.mode(), self.text(), self.whisperNick());
 			$.subscribe('io.sendMessage', function(_, msg){
 				self.model.addMessage(msg);
@@ -67,6 +62,11 @@
 			
 			// Clear text.
 			self.text('');
+		};
+		
+		
+		self.setWhisperNick = function(message) {
+			self.whisperNick(message.nickname());
 		};
 	}
 

@@ -101,7 +101,7 @@
 				<div class="chat-msgs" data-bind="foreach: messages">
 
 					<div data-bind="css: cssMode">
-						<span data-bind="visible: nickname().length > 0" class="nick"><span data-bind="text: nickname"></span>: </span><span data-bind="text: text"></span>
+						<span data-bind="click: $parent.setWhisperNick, visible: nickname().length > 0" class="nick"><span data-bind="text: nickname"></span>: </span><span data-bind="text: text"></span>
 					</div>
 
 				</div>
