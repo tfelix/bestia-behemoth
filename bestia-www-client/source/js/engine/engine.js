@@ -92,8 +92,8 @@ this.Bestia = this.Bestia || {};
 				id : "map",
 				src : mapUrl
 			}, {
-				id : msg.tilesets[0].name,
-				src : Bestia.server.Config.resourceURL() + '/maps/' + msg.mdbn + '/' + msg.tilesets[0].image
+				id : msg.tms[0],
+				src : Bestia.server.Config.resourceURL() + '/maps/' + msg.mdbn + '/' + msg.tms[0]
 			} ];
 
 			$.publish('io.preloader.load', {
@@ -227,7 +227,7 @@ this.Bestia = this.Bestia || {};
 		}
 	}
 
-	$.subscribe('engine.load', app.Engine.onLoadHandler);
+	$.subscribe('map.load', app.Engine.onLoadHandler);
 
 	function resizeCanvasHandler() {
 		var height = $(document).height();
@@ -246,6 +246,7 @@ this.Bestia = this.Bestia || {};
 		ko.applyBindings(DebugView, $('#canvas-debug').get(0));
 	});
 
+	// Resize the canvas to the windows size on window resize events.
 	$(window).resize(app.Engine.resizeWindowHandler);
 
 })(Bestia, jQuery, createjs, ko);

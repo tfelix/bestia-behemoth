@@ -120,6 +120,5 @@ $(document).ready(function(){
 		var msg = msgs[i];
 		$.publish('chat.message', msg);
 		$.publish('chat.message', msg);
-		$.publish('chat.message', msg);
 	}
 });
