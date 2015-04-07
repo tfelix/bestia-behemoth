@@ -15,7 +15,7 @@ module.exports = function(grunt) {
 					expand: true,
 					cwd: '../game-data',
 					src : '**',
-					dest : 'build/resources'
+					dest : 'build/assets'
 				} ]
 			}
 		},
@@ -63,7 +63,7 @@ module.exports = function(grunt) {
 						'build/js/vendor/knockout-3.3.0.js', 'build/js/vendor/i18next-1.7.7.js',
 
 						// Custom scripts. Order is important!
-						'build/js/io/message.js', 'build/js/io/preloader.js', 'build/js/view/server.info.js',
+						'build/js/config.js', 'build/js/io/message.js', 'build/js/io/preloader.js', 'build/js/view/server.info.js',
 						'build/js/view/bestias.js', 'build/js/view/system.pingpong.js', 'build/js/engine/engine.js',
 						'build/js/chat.js',
 

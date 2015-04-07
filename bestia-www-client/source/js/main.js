@@ -30,7 +30,7 @@ $(document).ready(function(){
 		z: ['test-1', 'test-2'],
 		v: '1.0.0-ALPHA1-build1234',
 		cp: 3,
-		res: 'http://localhost:8080/resource'
+		res: 'http://localhost/assets'
 	};
 	
 	$.publish('server.info', serverInfo);
@@ -82,7 +82,7 @@ $(document).ready(function(){
 	};*/
 	
 	
-	var mapPreload = {
+	var mapload = {
 		mid: 'map.preload',
 		mpid: 123, // map id
 		mdbn: 'meine_map', // tiled map datei.
@@ -91,16 +91,7 @@ $(document).ready(function(){
 		s: ['sound1', 'sound2'] // Sounds.
 	};
 	
-	
-	// Server weißt den Client an eine Map zu laden.
-	var mapLoad = {
-			mid: 123,
-			tms: ['tilemap1.png', 'tilemap2.png'],
-			pm: 0,
-			name: 'Hello World Map'
-	};
-	
-	$.publish('map.load', mapLoad);
+	$.publish('map.load', mapload);
 	
 	// TODO Bestia klein schreiben.
 	// Create a sample chat.
