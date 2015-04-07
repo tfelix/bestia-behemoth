@@ -13,19 +13,39 @@ this.Bestia = this.Bestia || {};
 		tileSize : 32
 	};
 
-	var DebugView = {
-		fps : ko.observable(0),
-		entities : ko.observable(0),
-		showHeat : ko.observable(false),
-		showHumidity : ko.observable(false)
-	};
+	function DebugView() {
+		var self = this;
+		
+		self.fps = ko.observable(0);
+		self.entities = ko.observable(0);
+		self.showHeat = ko.observable(false);
+		self.showHumidity = ko.observable(false);
+		
+		self.lastTick = 0;
+		self.frameCounter = 0;
+		
+		
+		self.tickFPS = function() {
+			self.frameCounter++;
+			
+			if (Date.now() - self.lastTick < 1000) {
+				return;
+			}
+
+			self.fps(self.frameCounter);
+			self.frameCounter = 0;
+			self.lastTick = Date.now();
+		}
+	}
+	
 
 	function MousePointer(stage, displObject) {
 		var that = this;
 		this.pointer = displObject;
-		stage.getChildByName('top').addChild(displObject);
-		stage.on('stagemousemove', function(e) { that.mouseMoveHandler(e); });
-
+		stage.getChildByName('gui').addChild(displObject);
+		stage.on('stagemousemove', function(e) {
+			that.mouseMoveHandler(e);
+		});
 	}
 	var p = MousePointer.prototype;
 
@@ -36,16 +56,10 @@ this.Bestia = this.Bestia || {};
 		this.pointer.x = tileX * config.tileSize;
 		this.pointer.y = tileY * config.tileSize;
 	};
-	
-	var Engine = {
-		debug : {
-			frame : 0,
-			time: 0
-		}	
-	};
 
 	app.Engine = {
 
+		debugView : new DebugView(),
 		canvas : null,
 		stage : null,
 		isDebug : true,
@@ -72,7 +86,7 @@ this.Bestia = this.Bestia || {};
 				}
 			}
 			// Cache the tiles.
-			app.Engine.tileContainer.cache(0, 0, layerData.width * tilewidth, layerData.height * tileheight);
+			//app.Engine.tileContainer.cache(0, 0, layerData.width * tilewidth, layerData.height * tileheight);
 		},
 
 		/**
@@ -112,6 +126,9 @@ this.Bestia = this.Bestia || {};
 			// parametized)
 			var w = map.tilesets[0].tilewidth;
 			var h = map.tilesets[0].tileheight;
+
+			console.debug('Loaded mapfile.  [' + w + ',' + h + ']');
+
 			var imageData = {
 				images : [ event.files[1].src ],
 				frames : {
@@ -143,26 +160,28 @@ this.Bestia = this.Bestia || {};
 
 			// Resize canvas to max. screen width.
 			resizeCanvasHandler();
-			
+
 			// Setup the different layer to draw onto. The tile stage e.g.
 			app.Engine.tileContainer = new createjs.Container();
 			app.Engine.tileContainer.name = 'tiles';
 			app.Engine.stage.addChild(app.Engine.tileContainer);
 			app.Engine.stage.setChildIndex(app.Engine.tileContainer, 0);
-			
 
-			var topContainer = new createjs.Container();
-			topContainer.name = 'top';
-			app.Engine.stage.addChild(topContainer);
-			app.Engine.stage.setChildIndex(topContainer, 1);
-			
+			// Container for GUI elements. Will be drawn upon everything else.
+			var guiContainer = new createjs.Container();
+			guiContainer.name = 'gui';
+			app.Engine.stage.addChild(guiContainer);
+			app.Engine.stage.setChildIndex(guiContainer, 1);
+
 			var cursor = new createjs.Shape();
 			cursor.graphics.beginFill("#72EB46").drawRect(0, 0, config.tileSize, config.tileSize);
 			cursor.alpha = 0.65;
 			var pointer = new MousePointer(app.Engine.stage, cursor);
+			
+			createjs.Tween.get(cursor, {loop: true}).to({alpha: 0.65}, 1000).to({alpha: 0.35}, 1000);
 
 			createjs.Ticker.timingMode = createjs.Ticker.RAF;
-			createjs.Ticker.setFPS(10);
+			createjs.Ticker.setFPS(60);
 		},
 
 		/**
@@ -202,33 +221,16 @@ this.Bestia = this.Bestia || {};
 			if (!app.Engine.isDebug) {
 				return;
 			}
-			
-			Engine.debug.frame++;
-			Engine.debug.time += event.delta;
-			
-			if(Engine.debug.time < 1000) {
-				return;
-			}
-			
-			//var fps = Math.round(Engine.debug.frame / Engine.debug.time);
-			var fps = Math.round(Engine.debug.frame / Engine.debug.time * 1000);
-			DebugView.fps(fps);
-			Engine.debug.frame = Engine.debug.time = 0;
-		},
 
-		test : function() {
-			app.Engine.onLoadHandler('', {
-				mdbn : 'test-zone1',
-				tilesets : [ {
-					image : 'mountain_landscape_23.png',
-					name : 'Berge'
-				} ],
-			});
+			app.Engine.debugView.tickFPS();
 		}
 	}
 
 	$.subscribe('map.load', app.Engine.onLoadHandler);
 
+	/**
+	 * Resizes the canvas to the screen size.
+	 */
 	function resizeCanvasHandler() {
 		var height = $(document).height();
 		var width = $('#canvas-container').width();
@@ -242,8 +244,7 @@ this.Bestia = this.Bestia || {};
 
 	$(document).ready(function() {
 		app.Engine.init();
-
-		ko.applyBindings(DebugView, $('#canvas-debug').get(0));
+		ko.applyBindings(app.Engine.debugView, $('#canvas-debug').get(0));
 	});
 
 	// Resize the canvas to the windows size on window resize events.
