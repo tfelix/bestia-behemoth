@@ -5,18 +5,11 @@ module.exports = function(grunt) {
 		pkg : grunt.file.readJSON('package.json'),
 
 		copy : {
-			build : {
-				files : [ {
-					expand : true,
-					cwd : 'source',
-					src : '**',
-					dest : 'build'
-				}, {
-					expand: true,
-					cwd: '../game-data',
-					src : '**',
-					dest : 'build/assets'
-				} ]
+			main : {
+				files : [ 
+				{expand : true, cwd : 'source', src : ['**', '!js/lib/**'],dest : 'build'}, 
+				{expand : true, cwd : '../game-data', src : '**', dest : 'build/assets'}
+				]
 			}
 		},
 
@@ -57,13 +50,8 @@ module.exports = function(grunt) {
 				sourceMap : true
 			},
 			dist : {
-				src : [ 'build/js/vendor/jquery/jquery-2.1.3.js', 'build/js/vendor/jquery/jquery.atmosphere.js',
-						'build/js/vendor/jquery/ba-tiny-pubsub.js',
-						'build/js/vendor/createjs/createjs-2014.12.12.min.js', 'build/js/vendor/proton-1.0.0.js',
-						'build/js/vendor/knockout-3.3.0.js', 'build/js/vendor/i18next-1.7.7.js',
-
-						// Custom scripts. Order is important!
-						'build/js/config.js', 'build/js/io/message.js', 'build/js/io/preloader.js', 'build/js/view/server.info.js',
+				// Custom scripts. Order is important!
+				src : [ 'build/js/config.js', 'build/js/io/message.js', 'build/js/io/preloader.js',
 						'build/js/view/bestias.js', 'build/js/view/system.pingpong.js', 'build/js/engine/engine.js',
 						'build/js/chat.js',
 
@@ -99,6 +87,13 @@ module.exports = function(grunt) {
 				src : 'src/<%= pkg.name %>.js',
 				dest : 'build/<%= pkg.name %>.min.js'
 			}
+		},
+		
+		bower_concat : {
+			all: {
+				dest: 'build/js/lib/bower_libs.js',
+				cssDest: 'build/css/lib/bower_libs.css'
+			}
 		}
 	});
 
@@ -110,8 +105,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-connect');
-
-	grunt.registerTask('css', 'Compiles  and prepares the stylesheets.', [ 'less' ]);
+	grunt.loadNpmTasks('grunt-bower-concat');
 
 	grunt.registerTask('default', 'Watches the project for changes automatically builds them.', [ 'clean', 'copy',
 			'css', 'concat', 'connect', 'watch' ]);

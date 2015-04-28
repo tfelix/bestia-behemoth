@@ -21,11 +21,22 @@
          "width":50,
          "x":0,
          "y":0
+        }, 
+        {
+         "height":50,
+         "name":"Objektebene 1",
+         "objects":[],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "width":50,
+         "x":0,
+         "y":0
         }],
  "orientation":"orthogonal",
  "properties":
     {
-
+     "ambientSound":"background1"
     },
  "tileheight":32,
  "tilesets":[

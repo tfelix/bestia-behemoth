@@ -11,6 +11,22 @@
     "node_modules",
     "bower_components",
     "test",
-    "tests"
-  ]
+    "tests",
+    "source/js/vendor"
+  ],
+  "dependencies": {
+    "phaser": "~2.3.0",
+    "jquery": "~2.1.4",
+    "less": "~2.5.0",
+    "i18next": "~1.8.2",
+    "knockout": "~3.3.0",
+    "proton": "*",
+    "bootstrap": "~3.3.4",
+    "html5shiv": "~3.7.2",
+    "jquery-atmosphere": "~2.2.7",
+    "jquery-tiny-pubsub": "https://github.com/cowboy/jquery-tiny-pubsub"
+  },
+  "resolutions": {
+    "jquery-tiny-pubsub": "~0.7.0"
+  }
 }

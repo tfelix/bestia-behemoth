@@ -86,9 +86,7 @@ $(document).ready(function(){
 		mid: 'map.preload',
 		mpid: 123, // map id
 		mdbn: 'test-zone1', // tiled map datei.
-		tms: ['tilemap1.png', 'tilemap2.png'], // tile maps
-		esp: ['doommaster', 'blob'], // entity sprites, Sprites aller aktueller auf der Map befindlicher Bestia und Entities.
-		s: ['sound1', 'sound2'] // Sounds.
+		esp: ['blob'], // entity sprites, Sprites aller aktueller auf der Map befindlicher Bestia und Entities.
 	};
 	
 	$.publish('map.load', mapload);
