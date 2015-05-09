@@ -76,7 +76,7 @@
 			}
 
 			return false;
-		}
+		};
 
 		/**
 		 * Triggers if a chat is about to be send. Create a chat message of all

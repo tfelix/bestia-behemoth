@@ -49,6 +49,12 @@ module.exports = function(grunt) {
 					base : 'build',
 					port : 80
 				}
+			},
+			test_debug : {
+				options : {
+					port: 8000,
+					keepalive: true
+				}
 			}
 		},
 
@@ -99,6 +105,31 @@ module.exports = function(grunt) {
 				src : 'src/<%= pkg.name %>.js',
 				dest : 'build/<%= pkg.name %>.min.js'
 			}
+		},
+		
+		
+		// ============ DEVELOPMENT =============
+		jasmine: {
+			all: {//src: 'source/**/*.js', Temporär ersetzt durch eine Date um das neue Format zu erproben.
+				src: 'source/js/view/inventory.js',
+				options: {
+					specs: 'specs/**/*Spec.js',
+					vendor: 'source/js/vendor/knockout-3.3.0.js'
+				},
+				keepRunner: true
+			}
+		},
+		  
+		 jshint: {
+			 src: 'source/js/view/inventory.js'
+			 //src: ['source/js/**/*.js', '!source/js/vendor/**/*.js'],
+		},
+		
+		open : {
+		    test_debug : {
+		      path: 'http://localhost:8000/_SpecRunner.html',
+		      app: 'Firefox'
+		    }
 		}
 	});
 
@@ -110,10 +141,21 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-connect');
+	grunt.loadNpmTasks('grunt-contrib-jasmine');
+	grunt.loadNpmTasks('grunt-contrib-imagemin');
+	grunt.loadNpmTasks('grunt-contrib-jshint');
+	grunt.loadNpmTasks('grunt-contrib-connect');
+	grunt.loadNpmTasks('grunt-open');
 
 	grunt.registerTask('css', 'Compiles  and prepares the stylesheets.', [ 'less' ]);
 
 	grunt.registerTask('default', 'Watches the project for changes automatically builds them.', [ 'clean', 'copy',
 			'css', 'concat', 'connect', 'watch' ]);
+	
+	
+	// This is not finished yet. We have to perform a build first.
+	grunt.registerTask('test', ['jshint', 'jasmine']);
+	grunt.registerTask('debug', ['jasmine:all:build', 'open:test_debug', 'connect:test_debug']);
+	
 
 };

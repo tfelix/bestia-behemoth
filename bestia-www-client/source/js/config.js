@@ -3,7 +3,7 @@
 
 	var Config = {
 		
-	}
+	};
 	
 	
 })(Bestia, jQuery);
