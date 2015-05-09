@@ -144,7 +144,6 @@ $(document).ready(function() {
 			bb : 0
 		}, 
 		a : 10, // amount
-		name : 'Apfel'
 	}, {
 		iid : 13, // item id
 		pid : 16, // player_item_id
@@ -156,12 +155,11 @@ $(document).ready(function() {
 			ulv : 4,
 			f : {
 				id : 123,
-				name : 'Heino'
+				n : 'Heino'
 			},
 			bb : 0
 		}, // Equip item info. upgrade_level, forger: , b_broken
 		a : 1, // amount
-		name : 'Dagger'
 	}, {
 		iid : 14, // item id
 		pid : 17, // player_item_id
@@ -172,7 +170,6 @@ $(document).ready(function() {
 		eqii : null, // Equip item info.
 		eqpi : {}, // todo
 		a : 13, // amount
-		name : 'Apfel'
 	} ];
 	
 	$.publish('inventory.init', items);
@@ -188,7 +185,6 @@ $(document).ready(function() {
 			eqii : null, // Equip item info.
 			eqpi : {}, // todo
 			a : 100, // amount
-			name : 'Gedönsi'
 		};
 	$.publish('inventory.add', item1);
 	var item2 = {
@@ -201,7 +197,6 @@ $(document).ready(function() {
 		eqii : null, // Equip item info.
 		eqpi : {}, // todo
 		a : 13, // amount
-		name : 'Apfel'
 	};
 	$.publish('inventory.add', item2);
 	

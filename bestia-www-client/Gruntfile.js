@@ -53,10 +53,32 @@ module.exports = function(grunt) {
 			test_debug : {
 				options : {
 					port: 8000,
-					keepalive: true
+					keepalive: true,
+					open: {
+						target: 'http://localhost:8000/_SpecRunner.html',
+						appName: 'Firefox'
+					}
 				}
-			}
-		},
+			},
+			
+			// Damit kann man den Unit Test der Übersetzungs Strings simulieren.
+			test_test: {
+				options: {
+					port: 8000,
+					keepalive: true,
+			        middleware: function(connect, options, middlewares) {
+			        	// inject a custom middleware into the array of default middlewares
+			        	middlewares.unshift(function(req, res, next) {
+			            if (req.url !== '/hello/world') return next();
+
+			            res.end('Hello, world from port #' + options.port + '!');
+			          });
+
+			          return middlewares;
+			        }
+			      }
+			    }
+			},
 
 		concat : {
 			options : {
@@ -123,13 +145,6 @@ module.exports = function(grunt) {
 		 jshint: {
 			 src: 'source/js/view/inventory.js'
 			 //src: ['source/js/**/*.js', '!source/js/vendor/**/*.js'],
-		},
-		
-		open : {
-		    test_debug : {
-		      path: 'http://localhost:8000/_SpecRunner.html',
-		      app: 'Firefox'
-		    }
 		}
 	});
 
@@ -145,7 +160,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-imagemin');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-connect');
-	grunt.loadNpmTasks('grunt-open');
 
 	grunt.registerTask('css', 'Compiles  and prepares the stylesheets.', [ 'less' ]);
 
@@ -155,7 +169,11 @@ module.exports = function(grunt) {
 	
 	// This is not finished yet. We have to perform a build first.
 	grunt.registerTask('test', ['jshint', 'jasmine']);
-	grunt.registerTask('debug', ['jasmine:all:build', 'open:test_debug', 'connect:test_debug']);
+	
+	/**
+	 * Prepares a spec runner file, starts a webserver and displays the unit test runs.
+	 */
+	grunt.registerTask('debug', ['jshint', 'jasmine:all:build', 'connect:test_debug']);
 	
 
 };
