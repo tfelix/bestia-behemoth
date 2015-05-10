@@ -9,7 +9,7 @@
  * @param App
  * @param window
  */
-(function($, App, window) {
+(function($) {
 	'use strict';
 
 	var Loader = {
@@ -25,6 +25,9 @@
 		hide : function() {
 			$('overlay').hide();
 			$('body').removeClass('noscroll');
+			
+			$('#loading').hide();
+			$('#overlay').fadeOut();
 		},
 		
 		displayPercent : function(perc) {
@@ -46,17 +49,12 @@
 			div.css('margin-top', -1 * height / 2);
 		},
 		
-		hideSplashscreen : function(img) {
+		hideSplashscreen : function() {
 			if(!Loader.isSplashDisplayed) {
 				return;
 			}
 			Loader.isSplashDisplayed = false;
 			$('#loading-content').fadeOut('slow');
-		},
-
-		hide : function() {
-			$('#loading').hide();
-			$('#overlay').fadeOut();
 		},
 
 		handleCommand : function(cmd) {
@@ -78,4 +76,4 @@
 	// Subscribe to the mediator.
 	$.subscribe('io.preloader.onload', Loader.handleCommand);
 
-})(jQuery, Bestia, this);
+})(jQuery);

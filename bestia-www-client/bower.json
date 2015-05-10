@@ -1,10 +1,9 @@
 {
   "name": "bestia-behemoth",
-  "version": "0.0.0",
+  "version": "0.0.1-ALPHA",
   "authors": [
     "Thomas Felix <thomas.felix@tfelix.de>"
   ],
-  "license": "MIT",
   "private": true,
   "ignore": [
     "**/.*",
@@ -24,9 +23,6 @@
     "bootstrap": "~3.3.4",
     "html5shiv": "~3.7.2",
     "jquery-atmosphere": "~2.2.7",
-    "jquery-tiny-pubsub": "https://github.com/cowboy/jquery-tiny-pubsub"
-  },
-  "resolutions": {
-    "jquery-tiny-pubsub": "~0.7.0"
+    "jquery-tiny-pubsub": "git://github.com/cowboy/jquery-tiny-pubsub"
   }
 }

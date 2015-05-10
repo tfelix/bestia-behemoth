@@ -1,4 +1,3 @@
-this.Bestia = this.Bestia || {};
 /**
  * This message is send by the server if some data regarding a bestia are
  * changing. We will take the data and update the view model with all the
@@ -16,10 +15,10 @@ this.Bestia = this.Bestia || {};
 		this.curHp = ko.observable(0);
 		this.maxHp = ko.observable(0);
 		this.manaWidth = ko.computed(function() {
-			return (this.maxMana() == 0) ? '0%' : (Math.floor(this.curMana() * 100 / this.maxMana())) + '%';
+			return (this.maxMana() === 0) ? '0%' : (Math.floor(this.curMana() * 100 / this.maxMana())) + '%';
 	    }, this);
 		this.hpWidth = ko.computed(function() {
-			return (this.maxHp() == 0) ? '0%' : (Math.floor(this.curHp() * 100 / this.maxHp())) + '%';
+			return (this.maxHp() === 0) ? '0%' : (Math.floor(this.curHp() * 100 / this.maxHp())) + '%';
 	    }, this);
 		
 		
@@ -32,7 +31,7 @@ this.Bestia = this.Bestia || {};
 		this.maxMana(msg.mMana);
 		this.curHp(msg.cHp);
 		this.maxHp(msg.mHp);
-	}
+	};
 	
 	function BestiaViewModel(msg) {
 		this.playerBestiaId = ko.observable();
@@ -67,7 +66,7 @@ this.Bestia = this.Bestia || {};
 		self.selectBestia = function(bestia) {
             console.log(bestia);
         };
-	}
+	};
 	
 	
 	
@@ -93,7 +92,7 @@ this.Bestia = this.Bestia || {};
         });
 		
 		this.slots(msg.s);
-	}
+	};
 	
 
 	var bestiaInfo = new BestiaInfoViewModel();
@@ -112,7 +111,7 @@ this.Bestia = this.Bestia || {};
 
 		bestiaInfo.update(msg);
 		
-	}
+	};
 
 	// Register for messages.
 	$.subscribe('bestia.info', onMessageHandler);

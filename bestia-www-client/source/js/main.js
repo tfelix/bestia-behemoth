@@ -7,18 +7,7 @@
  */
 
 $(document).ready(function() {
-
-	// Load
-	var screens = [ {
-		id : 'loading_screen_1',
-		src : 'img/loadingscreen/ls1.jpg'
-	}, {
-		id : 'loading_screen_1',
-		src : 'img/loadingscreen/ls2.jpg'
-	}, {
-		id : 'loading_screen_2',
-		src : 'img/loadingscreen/ls3.jpg'
-	} ];
+	'use strict';
 
 	// Connection created. Bootstrap server information.
 	/*
@@ -28,7 +17,6 @@ $(document).ready(function() {
 	 */
 
 	// Bestia.io.Connection.init();
-
 	// Simulate the server communication.
 	var serverInfo = {
 		z : [ 'test-1', 'test-2' ],
@@ -126,7 +114,7 @@ $(document).ready(function() {
 		bm : bm,
 		b : [ bm1 ],
 		s : 4
-	}
+	};
 	$.publish('bestia.info', bestiaInfo);
 
 	var items = [ {
@@ -140,8 +128,8 @@ $(document).ready(function() {
 			ulv : 0,
 			f : null,
 			bb : 0
-		}, 
-		a : 10, // amount
+		},
+		a : 10 // amount
 	}, {
 		iid : 13, // item id
 		pid : 16, // player_item_id
@@ -157,7 +145,7 @@ $(document).ready(function() {
 			},
 			bb : 0
 		}, // Equip item info. upgrade_level, forger: , b_broken
-		a : 1, // amount
+		a : 1 // amount
 	}, {
 		iid : 14, // item id
 		pid : 17, // player_item_id
@@ -167,23 +155,23 @@ $(document).ready(function() {
 		bs : 0, // bSoulbound
 		eqii : null, // Equip item info.
 		eqpi : {}, // todo
-		a : 13, // amount
+		a : 13 // amount
 	} ];
-	
+
 	$.publish('inventory.init', items);
-	
+
 	// Add item amount.
 	var item1 = {
-			iid : 15, // item id
-			pid : 17, // player_item_id
-			img : 'apfel.jpg',
-			t : 1, // 0: etc, 1: usable, 2: equip
-			bq : 0, // bQuestitem
-			bs : 0, // bSoulbound
-			eqii : null, // Equip item info.
-			eqpi : {}, // todo
-			a : 100, // amount
-		};
+		iid : 15, // item id
+		pid : 17, // player_item_id
+		img : 'apfel.jpg',
+		t : 1, // 0: etc, 1: usable, 2: equip
+		bq : 0, // bQuestitem
+		bs : 0, // bSoulbound
+		eqii : null, // Equip item info.
+		eqpi : {}, // todo
+		a : 100 // amount
+	};
 	$.publish('inventory.add', item1);
 	var item2 = {
 		iid : 14, // item id
@@ -194,18 +182,17 @@ $(document).ready(function() {
 		bs : 0, // bSoulbound
 		eqii : null, // Equip item info.
 		eqpi : {}, // todo
-		a : 13, // amount
+		a : 13 // amount
 	};
 	$.publish('inventory.add', item2);
-	
-	
+
 	// Remove certain item amount.
 	var itemRemove = {
-			pid: 13, // player item id
-			a: 1 // Amount
+		pid : 13, // player item id
+		a : 1
+	// Amount
 	};
 	$.publish('inventory.remove', itemRemove);
-	
 
 	var mapload = {
 		mid : 'map.preload',
@@ -213,8 +200,8 @@ $(document).ready(function() {
 		mdbn : 'test-zone1', // tiled map datei.
 		tms : [ 'tilemap1.png', 'tilemap2.png' ], // tile maps
 		esp : [ 'doommaster', 'blob' ], // entity sprites, Sprites aller
-										// aktueller auf der Map befindlicher
-										// Bestia und Entities.
+		// aktueller auf der Map befindlicher
+		// Bestia und Entities.
 		s : [ 'sound1', 'sound2' ]
 	// Sounds.
 	};
@@ -223,7 +210,7 @@ $(document).ready(function() {
 
 	// TODO Bestia klein schreiben.
 	// Create a sample chat.
-	var chat = new Bestia.Chat($('#chat').get(0), 'rocket');
+	//var chat = new Bestia.Chat($('#chat').get(0), 'rocket');
 
 	var msgs = [ {
 		mid : 'chat.message',

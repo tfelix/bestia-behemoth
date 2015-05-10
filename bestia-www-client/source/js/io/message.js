@@ -1,13 +1,11 @@
-'use strict';
 /**
  * Main message module. This module collects all message constructors so that a
  * massage can be easily created within the app.
  * 
  * @module io.Connection
  */
-
-var Bestia = window.Bestia = window.Bestia || {};
-(function(app, $) {
+(function(app) {
+	'use strict';
 	/**
 	 * Central configuration variables.
 	 */
