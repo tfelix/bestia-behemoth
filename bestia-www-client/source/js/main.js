@@ -117,48 +117,6 @@ $(document).ready(function() {
 	};
 	$.publish('bestia.info', bestiaInfo);
 
-	var items = [ {
-		iid : 12, // item id
-		pid : 15, // player_item_id
-		img : 'item.jpg',
-		t : 0, // 0: etc, 1: usable, 2: equip
-		bq : 0, // bQuestitem
-		bs : 0, // bSoulbound
-		eqii : { // Equip item info. upgrade_level, forger: , b_broken
-			ulv : 0,
-			f : null,
-			bb : 0
-		},
-		a : 10 // amount
-	}, {
-		iid : 13, // item id
-		pid : 16, // player_item_id
-		img : 'item.jpg',
-		t : 2, // 0: etc, 1: usable, 2: equip
-		bq : 0, // bQuestitem
-		bs : 0, // bSoulbound
-		eqii : {
-			ulv : 4,
-			f : {
-				id : 123,
-				n : 'Heino'
-			},
-			bb : 0
-		}, // Equip item info. upgrade_level, forger: , b_broken
-		a : 1 // amount
-	}, {
-		iid : 14, // item id
-		pid : 17, // player_item_id
-		img : 'item.jpg',
-		t : 1, // 0: etc, 1: usable, 2: equip
-		bq : 0, // bQuestitem
-		bs : 0, // bSoulbound
-		eqii : null, // Equip item info.
-		eqpi : {}, // todo
-		a : 13 // amount
-	} ];
-
-	$.publish('inventory.init', items);
 
 	// Add item amount.
 	var item1 = {

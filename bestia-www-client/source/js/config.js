@@ -22,6 +22,7 @@
 		self.connectedPlayer = ko.observable(0);
 		self.resourceURL = ko.observable('');
 		self.debug = ko.observable(false);
+		self.locale = ko.observable('de-DE');
 
 		var onMessageHandler = function(_, msg) {
 			console.log('New configuration message arrived! Setting values.');

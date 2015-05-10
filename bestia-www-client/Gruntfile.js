@@ -129,7 +129,7 @@ module.exports = function(grunt) {
 		jasmine: {
 			all: {// src: 'source/**/*.js', Temporär ersetzt durch eine Date
 					// um das neue Format zu erproben.
-				src: ['source/js/bestia.js', 'source/js/config.js', 'source/js/util/net.js', 'source/js/view/inventory.js'],
+				src: ['source/js/bestia.js', 'source/js/config.js', 'source/js/util/net.js', 'source/js/inventory/inventory.js'],
 				options: {
 					specs: 'specs/**/*Spec.js',
 					vendor: 'build/js/libs.js'
