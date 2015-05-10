@@ -108,6 +108,6 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-bower-concat');
 
 	grunt.registerTask('default', 'Watches the project for changes automatically builds them.', [ 'clean', 'copy',
-			'css', 'concat', 'connect', 'watch' ]);
+			'less', 'concat', 'connect', 'watch' ]);
 
 };
