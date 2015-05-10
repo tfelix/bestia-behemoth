@@ -33,7 +33,7 @@ var Bestia = window.Bestia = window.Bestia || {};
 			request.onOpen = function(response) {
 				console.log('Connection to established via ' + response.transport);
 				$.publish('io.onConnected', {});
-			}
+			};
 
 			request.onTransportFailure = function(errorMsg, request) {
 				console.log('Error while failing transport: ' + errorMsg);
@@ -77,7 +77,7 @@ var Bestia = window.Bestia = window.Bestia || {};
 			 * Handle the error event.
 			 */
 			request.onError = function(response) {
-				console.error('Server error. Can not create connection.')
+				console.error('Server error. Can not create connection.');
 			};
 
 			$.publish('io.onConnecting', {});

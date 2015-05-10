@@ -1,4 +1,7 @@
 module.exports = function(grunt) {
+	
+	// require time grunt.
+    require('time-grunt')(grunt);
 
 	// Project configuration.
 	grunt.initConfig({
@@ -42,8 +45,37 @@ module.exports = function(grunt) {
 					base : 'build',
 					port : 80
 				}
-			}
-		},
+			},
+			test_debug : {
+				options : {
+					port: 8000,
+					keepalive: true,
+					open: {
+						target: 'http://localhost:8000/_SpecRunner.html',
+						appName: 'Firefox'
+					}
+				}
+			},
+			
+			// Damit kann man den Unit Test der Übersetzungs Strings simulieren.
+			test_test: {
+				options: {
+					port: 8000,
+					keepalive: true,
+			        middleware: function(connect, options, middlewares) {
+			        	// inject a custom middleware into the array of default
+						// middlewares
+			        	middlewares.unshift(function(req, res, next) {
+			            if (req.url !== '/hello/world') return next();
+
+			            res.end('Hello, world from port #' + options.port + '!');
+			          });
+
+			          return middlewares;
+			        }
+			      }
+			    }
+			},
 
 		concat : {
 			options : {
@@ -94,6 +126,26 @@ module.exports = function(grunt) {
 				dest: 'build/js/lib/bower_libs.js',
 				cssDest: 'build/css/lib/bower_libs.css'
 			}
+		},
+		
+		// ============ DEVELOPMENT =============
+		jasmine: {
+			all: {// src: 'source/**/*.js', Temporär ersetzt durch eine Date
+					// um das neue Format zu erproben.
+				src: ['source/js/bestia.js', 'source/js/config.js', 'source/js/util/net.js', 'source/js/view/inventory.js'],
+				options: {
+					specs: 'specs/**/*Spec.js',
+					vendor: ['source/js/vendor/knockout-3.3.0.js', 
+					         'source/js/vendor/jquery/jquery-2.1.3.js', 
+					         'source/js/vendor/jquery/ba-tiny-pubsub.js']
+				},
+				keepRunner: true
+			}
+		},
+		  
+		 jshint: {
+			 src: ['source/js/bestia.js', 'source/js/config.js', 'source/js/view/inventory.js']
+			 // src: ['source/js/**/*.js', '!source/js/vendor/**/*.js'],
 		}
 	});
 
@@ -106,8 +158,24 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-concat');
 	grunt.loadNpmTasks('grunt-contrib-connect');
 	grunt.loadNpmTasks('grunt-bower-concat');
+	grunt.loadNpmTasks('grunt-contrib-jasmine');
+	grunt.loadNpmTasks('grunt-contrib-imagemin');
+	grunt.loadNpmTasks('grunt-contrib-jshint');
+	grunt.loadNpmTasks('grunt-contrib-connect');
 
-	grunt.registerTask('default', 'Watches the project for changes automatically builds them.', [ 'clean', 'copy',
-			'less', 'concat', 'connect', 'watch' ]);
 
+	grunt.registerTask('default', 'Watches the project for changes automatically builds them.', ['build', 'connect', 'watch' ]);
+	
+	grunt.registerTask('build', 'Creates a complete build of the system.', ['clean', 'copy', 'less', 'css', 'concat']);
+	// grunt.registerTask('optimize', []); Minimiert und optimiert alle Scripte
+	// und Ressourcen.
+	
+	// This is not finished yet. We have to perform a build first.
+	grunt.registerTask('test', ['jshint', 'jasmine']);
+	grunt.registerTask('release', 'Builds the release version and optimizes it.' ['clean', 'test']);
+	/**
+	 * Prepares a spec runner file, starts a webserver and displays the unit
+	 * test runs.
+	 */
+	grunt.registerTask('debug', ['jshint', 'jasmine:all:build', 'connect:test_debug']);
 };
