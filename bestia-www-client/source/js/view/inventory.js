@@ -3,11 +3,7 @@
  * @copyright 2015 Thomas Felix
  */
 
-(function(globals) {
-	"use strict";
-	globals.Bestia = {};
-	globals.Bestia.Inventory = {};
-}(this));
+Bestia.Inventory = Bestia.Inventory || {};
 
 /**
  * Holds the ViewModel for the EquipmentItemInfo.
@@ -65,16 +61,26 @@ Bestia.Inventory.EquipItemInfoViewModel.prototype.update = function(msg) {
  * 
  * @class Bestia.Inventory.ItemViewModel
  * @constructor
+ * @param {Bestia.Net}
+ *            net - Handle to a Net object which will provide correct resource
+ *            URLs to do on demand ajax loading.
  * @param {Object}
  *            msg - Optional, message used to initialize the view model.
  */
-Bestia.Inventory.ItemViewModel = function(msg) {
+Bestia.Inventory.ItemViewModel = function(net, msg) {
+	if(!(net instanceof Bestia.Net)) {
+		throw "net is not an instance of Bestia.Net";
+	}
+	
 	var self = this;
+	
+	this._net = net;
+	
 	self.itemId = ko.observable(0);
 	self.playerItemId = ko.observable(0);
 	self._img = '';
-	self.imgUrl = ko.pureComputed(function() {
-		return "TODO";
+	self.imageURL = ko.pureComputed(function() {
+		return self._net.getItemImageUrl(self._img);
 	});
 	self._type = '';
 	self.type = ko.pureComputed(function() {
@@ -89,7 +95,7 @@ Bestia.Inventory.ItemViewModel = function(msg) {
 			return 'etc';
 		}
 	});
-	
+
 	self.equipItemInfo = new Bestia.Inventory.EquipItemInfoViewModel();
 	self.bQuestItem = ko.observable(true);
 	self.bSoulbound = ko.observable(true);
@@ -109,9 +115,9 @@ Bestia.Inventory.ItemViewModel.prototype.update = function(msg) {
 	this._type = msg.t;
 	this.bQuestItem(msg.bq);
 	this.bSoulbound(msg.bs);
-	this.amount(msg.a)
-	
-	if(msg.eqii !== null) {
+	this.amount(msg.a);
+
+	if (msg.eqii !== null) {
 		this.equipItemInfo.update(msg.eqii);
 	}
 };

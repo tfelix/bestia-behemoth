@@ -15,3 +15,6 @@ e.g.: /assets/i18n/de-DE/item/5
 
 Returns the translated JSON object for this item.
 
+Item images
+/assets/img/items/[ITEM_IMAGE]
+

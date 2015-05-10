@@ -1,5 +1,8 @@
 module.exports = function(grunt) {
 
+	// require time grunt.
+    require('time-grunt')(grunt);
+
 	// Project configuration.
 	grunt.initConfig({
 		pkg : grunt.file.readJSON('package.json'),
@@ -91,11 +94,7 @@ module.exports = function(grunt) {
 						'build/js/vendor/knockout-3.3.0.js', 'build/js/vendor/i18next-1.7.7.js',
 
 						// Custom scripts. Order is important!
-						'build/js/config.js', 'build/js/io/message.js', 'build/js/io/preloader.js', 'build/js/view/server.info.js',
-						'build/js/view/bestias.js', 'build/js/view/system.pingpong.js', 'build/js/engine/engine.js',
-						'build/js/chat.js',
-
-						'build/js/main.js' ],
+						'build/js/bestia.js', 'build/js/config.js', 'build/js/view/inventory.js'],
 				dest : 'build/js/app.js'
 			}
 		},
@@ -111,7 +110,7 @@ module.exports = function(grunt) {
 		watch : {
 			stylesheets : {
 				files : [ 'source/css/**/*.less', 'source/css/**/*.css' ],
-				tasks : [ 'css:dev' ]
+				tasks : [ 'default' ]
 			},
 			copy : {
 				files : [ 'source/**', '!source/**/*.styl', '!source/**/*.coffee', '!source/**/*.jade' ],
@@ -133,17 +132,19 @@ module.exports = function(grunt) {
 		// ============ DEVELOPMENT =============
 		jasmine: {
 			all: {//src: 'source/**/*.js', Temporär ersetzt durch eine Date um das neue Format zu erproben.
-				src: 'source/js/view/inventory.js',
+				src: ['source/js/bestia.js', 'source/js/config.js', 'source/js/util/net.js', 'source/js/view/inventory.js'],
 				options: {
 					specs: 'specs/**/*Spec.js',
-					vendor: 'source/js/vendor/knockout-3.3.0.js'
+					vendor: ['source/js/vendor/knockout-3.3.0.js', 
+					         'source/js/vendor/jquery/jquery-2.1.3.js', 
+					         'source/js/vendor/jquery/ba-tiny-pubsub.js']
 				},
 				keepRunner: true
 			}
 		},
 		  
 		 jshint: {
-			 src: 'source/js/view/inventory.js'
+			 src: ['source/js/bestia.js', 'source/js/config.js', 'source/js/view/inventory.js']
 			 //src: ['source/js/**/*.js', '!source/js/vendor/**/*.js'],
 		}
 	});
@@ -163,12 +164,15 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('css', 'Compiles  and prepares the stylesheets.', [ 'less' ]);
 
-	grunt.registerTask('default', 'Watches the project for changes automatically builds them.', [ 'clean', 'copy',
-			'css', 'concat', 'connect', 'watch' ]);
+	grunt.registerTask('default', 'Watches the project for changes automatically builds them.', ['build', 'connect', 'watch' ]);
+	
+	grunt.registerTask('build', 'Creates a complete build of the system.', ['clean', 'copy', 'css', 'concat']);
+	// grunt.registerTask('optimize', []); Minimiert und optimiert alle Scripte und Ressourcen.
 	
 	
 	// This is not finished yet. We have to perform a build first.
 	grunt.registerTask('test', ['jshint', 'jasmine']);
+	grunt.registerTask('release', 'Builds the release version and optimizes it.' ['clean', 'test']);
 	
 	/**
 	 * Prepares a spec runner file, starts a webserver and displays the unit test runs.
