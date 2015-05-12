@@ -22,7 +22,6 @@
     "proton": "*",
     "bootstrap": "~3.3.4",
     "html5shiv": "~3.7.2",
-    "jquery-atmosphere": "~2.2.7",
-    "jquery-tiny-pubsub": "git://github.com/cowboy/jquery-tiny-pubsub"
+    "jquery-atmosphere": "~2.2.7"
   }
 }

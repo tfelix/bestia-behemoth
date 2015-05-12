@@ -35,6 +35,6 @@
 		};
 
 		// Register for messages.
-		$.subscribe('server.info', onMessageHandler);
+		Bestia.PubSub.subscribe('server.info', onMessageHandler);
 	};
 })(Bestia, ko);

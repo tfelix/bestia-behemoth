@@ -1,7 +1,11 @@
 module.exports = function(grunt) {
-	
+
 	// require time grunt.
-    require('time-grunt')(grunt);
+	require('time-grunt')(grunt);
+	
+	var jsFiles = ['source/js/bestia.js', 'source/js/config.js', 'source/js/util/net.js', 'source/js/util/pubsub.js', 'source/js/io/message.js',
+				'source/js/inventory/inventory.js', 'source/js/view/system.pingpong.js', 'source/js/engine/engine.js',
+				'source/js/chat.js'];
 
 	// Project configuration.
 	grunt.initConfig({
@@ -9,10 +13,17 @@ module.exports = function(grunt) {
 
 		copy : {
 			dist : {
-				files : [ 
-				{expand : true, cwd : 'source', src : ['**', '!js/**', '!css/**'],dest : 'build'}, 
-				{expand : true, cwd : '../game-data', src : '**', dest : 'build/assets'}
-				]
+				files : [ {
+					expand : true,
+					cwd : 'source',
+					src : [ '**', '!js/**', '!css/**' ],
+					dest : 'build'
+				}, {
+					expand : true,
+					cwd : '../game-data',
+					src : '**',
+					dest : 'build/assets'
+				} ]
 			}
 		},
 
@@ -25,10 +36,10 @@ module.exports = function(grunt) {
 		less : {
 			development : {
 				options : {
-					paths : [ 'build/css/less/**/' ]
+					paths : [ 'source/css/less/**/' ]
 				},
 				files : {
-					'build/css/app.css' : 'build/css/less/main.less'
+					'build/css/app.css' : 'source/css/less/main.less'
 				}
 			}
 		},
@@ -42,34 +53,35 @@ module.exports = function(grunt) {
 			},
 			test_debug : {
 				options : {
-					port: 8000,
-					keepalive: true,
-					open: {
-						target: 'http://localhost:8000/_SpecRunner.html',
-						appName: 'Firefox'
+					port : 8000,
+					keepalive : true,
+					open : {
+						target : 'http://localhost:8000/_SpecRunner.html',
+						appName : 'Firefox'
 					}
 				}
 			},
-			
+
 			// Damit kann man den Unit Test der Übersetzungs Strings simulieren.
-			test_test: {
-				options: {
-					port: 8000,
-					keepalive: true,
-			        middleware: function(connect, options, middlewares) {
-			        	// inject a custom middleware into the array of default
+			test_test : {
+				options : {
+					port : 8000,
+					keepalive : true,
+					middleware : function(connect, options, middlewares) {
+						// inject a custom middleware into the array of default
 						// middlewares
-			        	middlewares.unshift(function(req, res, next) {
-			            if (req.url !== '/hello/world') return next();
+						middlewares.unshift(function(req, res, next) {
+							if (req.url !== '/hello/world')
+								return next();
 
-			            res.end('Hello, world from port #' + options.port + '!');
-			          });
+							res.end('Hello, world from port #' + options.port + '!');
+						});
 
-			          return middlewares;
-			        }
-			      }
-			    }
-			},
+						return middlewares;
+					}
+				}
+			}
+		},
 
 		concat : {
 			options : {
@@ -77,11 +89,7 @@ module.exports = function(grunt) {
 			},
 			dist : {
 				// Custom scripts. Order is important!
-				src : [ 'source/js/config.js', 'source/js/io/message.js', 'source/js/io/preloader.js',
-						'source/js/view/bestias.js', 'source/js/view/system.pingpong.js', 'source/js/engine/engine.js',
-						'source/js/chat.js',
-
-						'source/js/main.js' ],
+				src : jsFiles,
 				dest : 'build/js/bestia.js'
 			}
 		},
@@ -107,60 +115,57 @@ module.exports = function(grunt) {
 
 		uglify : {
 			options : {
-				banner : '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+				banner : '/*! BESTIA BEHEMOTH V.<%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
 			},
 			build : {
 				src : 'src/<%= pkg.name %>.js',
 				dest : 'build/<%= pkg.name %>.min.js'
 			}
 		},
-		
+
 		bower_concat : {
-			dist: {
-				dest: 'build/js/libs.js',
-				cssDest: 'build/css/libs.css',
-				mainFiles: {
-					'jquery-tiny-pubsub': ['dist/ba-tiny-pubsub.js']
-				}
+			dist : {
+				dest : 'build/js/libs.js',
+				cssDest : 'build/css/libs.css'
 			}
 		},
-		
+
 		// ============ DEVELOPMENT =============
-		jasmine: {
-			all: {// src: 'source/**/*.js', Temporär ersetzt durch eine Date
-					// um das neue Format zu erproben.
-				src: ['source/js/bestia.js', 'source/js/config.js', 'source/js/util/net.js', 'source/js/inventory/inventory.js'],
-				options: {
-					specs: 'specs/**/*Spec.js',
-					vendor: 'build/js/libs.js'
+		jasmine : {
+			all : {
+				src : jsFiles,
+				options : {
+					specs : 'specs/**/*Spec.js',
+					vendor : 'build/js/libs.js'
 				},
-				keepRunner: true
+				keepRunner : true
 			}
 		},
-		  
-		 jshint: {
-			 src: ['source/js/**/*.js', '!source/js/lib/**'],
-			 options: { jshintrc: '.jshintrc' }
+
+		jshint : {
+			src : [ 'source/js/**/*.js', '!source/js/lib/**' ],
+			options : {
+				jshintrc : '.jshintrc'
+			}
 		}
 	});
 
 	// Load the tasks.
 	require('load-grunt-tasks')(grunt);
 
+	grunt.registerTask('default', 'Builds the project and packages it for distribution.', [ 'compile' ]);
 
-	grunt.registerTask('default', 'Watches the project for changes automatically builds them.', ['compile', 'connect', 'watch' ]);
-	
-	grunt.registerTask('compile', 'Creates a complete build of the system.', ['clean', 'copy', 'bower_concat', 'less', 'concat']);
-	
-	// grunt.registerTask('optimize', []); Minimiert und optimiert alle Scripte
-	// und Ressourcen.
-	
-	// This is not finished yet. We have to perform a build first.
-	grunt.registerTask('test', ['bower_concat', 'jshint', 'jasmine']);
-	grunt.registerTask('release', 'Builds the release version and optimizes it.' ['clean', 'test']);
-	/**
-	 * Prepares a spec runner file, starts a webserver and displays the unit
-	 * test runs.
-	 */
-	grunt.registerTask('debug', ['jshint', 'jasmine:all:build', 'connect:test_debug']);
+	grunt.registerTask('dev', 'Testing of the framework.', [ 'test', 'connect:test_debug' ]);
+	grunt.registerTask('dev-test', 'Testing of the framework.', [ 'test', 'connect', 'watch' ]);
+
+	grunt.registerTask('compile-js', 'Compiles JS files.', 'bower_concat', 'concat');
+	grunt.registerTask('compile-css', 'Compiles CSS files.', [ 'less' ]);
+	grunt.registerTask('compile-html', 'Compile HTML files.');
+
+	grunt.registerTask('compile', 'Compile all.', [ 'clean', 'copy', 'compile-css', 'compile-js' ]);
+
+	grunt.registerTask('test', 'Testing of the framework.', [ 'jshint', 'jasmine:all:build' ]);
+
+	grunt.registerTask('dist', 'Packages the build files for distribution.', function() {
+	});
 };

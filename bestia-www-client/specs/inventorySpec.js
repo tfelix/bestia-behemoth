@@ -186,8 +186,10 @@ describe("Bestia.Inventory.Inventory", function() {
 		var inv = new Bestia.Inventory.Inventory(net);
 		
 		var i = 0;
-		$.subscribe('inventory.request', function(_, msg){
-			i++;
+		Bestia.PubSub.subscribe('io.send', function(_, msg){
+			if(msg.mid == 'inventory.request') {
+				i++;
+			}
 		});
 		inv.init();
 		expect(i).toEqual(1);
@@ -195,8 +197,8 @@ describe("Bestia.Inventory.Inventory", function() {
 	
 	it("Initializes on a server message.", function() {
 		var inv = new Bestia.Inventory.Inventory(net);	
-		$.publish('inventory.init', JSON.stringify(items));
-		expect(inv.items.length).toEqual(3);
+		Bestia.PubSub.publish('inventory.init', items);
+		expect(inv.items().length).toEqual(3);
 	});
 
 });

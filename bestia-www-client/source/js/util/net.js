@@ -39,7 +39,7 @@
 	 * @returns The resource url for an item image.
 	 */
 	Bestia.Net.prototype.getItemImageUrl = function(itemImg) {
-		return this.config.resourceURL() + '/assets/img/items/' + itemImg;
+		return this.config.resourceURL() + '/img/items/' + itemImg;
 	};
 	
 	/**
@@ -50,6 +50,6 @@
 	 * @returns {Object} - JSON object of the item translation.
 	 */
 	Bestia.Net.prototype.getItemI18NUrl = function(itemId) {
-		return this.config.resourceURL() + '/assets/i18n/'+this.config.locale()+'/item/' + itemId;
+		return this.config.resourceURL() + '/i18n/'+this.config.locale()+'/item/' + itemId;
 	};
 })(Bestia);

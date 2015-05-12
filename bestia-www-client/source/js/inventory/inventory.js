@@ -120,7 +120,7 @@
 
 		// Async request the correct translation for the items.
 		ko.computed(function() {
-			$.ajax(self._net.getItemI18NUrl(self.itemId), {
+			$.ajax(self._net.getItemI18NUrl(self.itemId()), {
 				success : function(data) {
 					self.name(data.name);
 					self.description(data.desc);
@@ -163,14 +163,16 @@
 	 * @constructor
 	 */
 	Bestia.Inventory.Inventory = function(net) {
+		
+		var self = this;
 
 		this._net = net;
 		this.items = ko.observableArray();
 
 		// Register for messages.
-		$.subscribe('inventory.init', this._onMessageInit);
-		$.subscribe('inventory.add', this._onMessageAdd);
-		$.subscribe('inventory.remove', this._onMessageRemove);
+		Bestia.PubSub.subscribe('inventory.init', function(_, msg) { self._onMessageInit(msg); });
+		Bestia.PubSub.subscribe('inventory.add', function(_, msg) { self._onMessageAdd(msg); });
+		Bestia.PubSub.subscribe('inventory.remove', function(_, msg) { self._onMessageRemove(msg); });
 	};
 
 	/**
@@ -179,7 +181,7 @@
 	 * @method Bestia.Inventory.Inventory#init
 	 */
 	Bestia.Inventory.Inventory.prototype.init = function() {
-		$.publish('io.send', Bestia.Message.InventoryInit());
+		Bestia.PubSub.publish('io.send', new Bestia.Message.InventoryRequest());
 	};
 
 	/**
@@ -190,8 +192,11 @@
 	 *            msg - An array with JSON messages for items.
 	 * @private
 	 */
-	Bestia.Inventory.Inventory.prototype._onMessageInit = function(_, msg) {
+	Bestia.Inventory.Inventory.prototype._onMessageInit = function(msg) {
 		var self = this;
+		
+		// Clear all existing items.
+		self.items.removeAll();
 
 		msg.forEach(function(val) {
 			self.items.push(new Bestia.Inventory.ItemViewModel(self._net, val));

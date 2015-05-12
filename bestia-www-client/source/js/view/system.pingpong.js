@@ -3,11 +3,11 @@
  * 
  * @module Server.Config
  */
-(function($) {
+(function(Bestia) {
 	'use strict';
 	// Register for messages.
-	$.subscribe('system.pong', function(_, msg) {
+	Bestia.PubSub.subscribe('system.pong', function(_, msg) {
 		console.log('Server just send a PONG! ' + JSON.stringify(msg));
 	});
 
-})(jQuery);
+})(Bestia);
