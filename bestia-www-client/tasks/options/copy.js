@@ -3,7 +3,7 @@ module.exports = {
 	dist : {
 		files : [ {
 			expand : true,
-			cwd : 'source',
+			cwd : '<%= source_dir %>',
 			src : [ '**', '!js/**', '!css/**' ],
 			dest : 'build'
 		}, {

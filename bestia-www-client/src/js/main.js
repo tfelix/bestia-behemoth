@@ -10,9 +10,11 @@ $(document).ready(function() {
 	'use strict';
 
 	// Bootstrap the behemoth.
+
+	
 	var config = new Bestia.Config();
 	var net = new Bestia.Net(config);
-	var inventory = new Bestia.Inventory.Inventory(net);
+	var inventory = new Bestia.Inventory(net);
 
 	var Game = {
 		config : config,

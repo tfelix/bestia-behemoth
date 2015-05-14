@@ -11,7 +11,7 @@
     "bower_components",
     "test",
     "tests",
-    "source/js/vendor"
+    "src/js/vendor"
   ],
   "dependencies": {
     "phaser": "~2.3.0",

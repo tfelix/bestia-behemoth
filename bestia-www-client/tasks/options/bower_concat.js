@@ -1,6 +1,6 @@
 module.exports = {
-	dist : {
-		dest : 'build/js/libs.js',
-		cssDest : 'build/css/libs.css'
+	compile : {
+		dest : '<%= compile_dir %>/js/lib.js',
+		cssDest : '<%= compile_dir %>/css/lib.css'
 	}
 };

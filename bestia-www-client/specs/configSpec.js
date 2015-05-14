@@ -12,7 +12,7 @@ describe("Bestia.Config", function() {
 			res : 'http://localhost/assets'
 		};
 
-		Bestia.PubSub.publish('server.info', serverInfo);
+		Bestia.publish('server.info', serverInfo);
 		
 		expect(conf.zones()).toEqual(serverInfo.z);
 		expect(conf.version()).toBe(serverInfo.v);

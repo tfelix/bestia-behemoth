@@ -6,7 +6,7 @@
 (function(Bestia) {
 	'use strict';
 	// Register for messages.
-	Bestia.PubSub.subscribe('system.pong', function(_, msg) {
+	Bestia.subscribe('system.pong', function(_, msg) {
 		console.log('Server just send a PONG! ' + JSON.stringify(msg));
 	});
 

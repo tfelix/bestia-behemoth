@@ -8,11 +8,12 @@ module.exports = function(grunt) {
 	var jsFiles = [ 'src/js/bestia.js', 'src/js/core/config.js', 'src/js/core/chat.js',
 	    			'src/js/util/net.js', 'src/js/util/pubsub.js', 'src/js/io/message.js',
 	    			'src/js/inventory/inventory.js', 'src/js/view/system.pingpong.js', 'src/js/engine/engine.js',
-	    			'src/js/chat.js' ];
+	    			'src/js/chat.js', 'src/js/main.js' ];
 
 	loadConfig(grunt, {
 		configPath : __dirname + '/tasks/options',
 		config : {
+			source_dir : 'src',
 			target_dir : 'dist',
 			release_dir : 'dist',
 			compile_dir : 'build',
@@ -31,13 +32,13 @@ module.exports = function(grunt) {
 	grunt.registerTask('dev', 'Testing of the framework.', [ 'test', 'compile', 'connect:dev', 'watch' ]);
 	grunt.registerTask('dev-test', 'Testing of the framework.', [ 'test', 'connect:test_test', 'watch' ]);
 
-	grunt.registerTask('compile-js', 'Compiles JS files.', 'bower_concat', 'concat');
+	grunt.registerTask('compile-js', 'Compiles JS files.', ['bower_concat', 'concat:compile']);
 	grunt.registerTask('compile-css', 'Compiles CSS files.', [ 'less' ]);
 	grunt.registerTask('compile-html', 'Compile HTML files.');
 
-	grunt.registerTask('compile', 'Compile all.', [ 'clean', 'copy', 'compile-css', 'compile-js' ]);
+	grunt.registerTask('compile', 'Compile all.', [ 'clean', 'copy', 'compile-js', 'compile-css' ]);
 
-	grunt.registerTask('test', 'Testing of the framework.', [ 'jshint', 'jasmine:all:build' ]);
+	grunt.registerTask('test', 'Testing of the framework.', [ 'jshint', 'jasmine' ]);
 
 	//grunt.registerTask('dist', 'Packages the build files for distribution.', function() {});
 };

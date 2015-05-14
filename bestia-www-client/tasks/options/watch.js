@@ -1,10 +1,10 @@
 module.export = {
-	stylesheets : {
-		files : [ 'source/css/**/*.less', 'source/css/**/*.css' ],
-		tasks : [ 'css:dev' ]
+	css : {
+		files : [ '<%= source_dir %>/css/**/*.less', '<%= source_dir %>/css/**/*.css' ],
+		tasks : [ 'compile-css' ]
 	},
 	copy : {
-		files : [ 'source/**', '!source/**/*.styl', '!source/**/*.coffee', '!source/**/*.jade' ],
-		tasks : [ 'default' ]
+		files : [ '<%= source_dir %>/**' ],
+		tasks : [ 'copy' ]
 	}
 };

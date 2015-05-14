@@ -5,13 +5,13 @@ module.exports = {
 		desc : '<%= modules_dir %>/chat.js'
 	},
 
-	dist : {
+	compile : {
 		options : {
 			sourceMap : true
 		},
 		// Custom scripts. Order is important!
 		src : [ '<%= filelist %>' ],
-		dest : '<%= compile_dir %>/<%= filename %>.js'
+		dest : '<%= compile_dir %>/js/<%= filename %>.js'
 	}
 
 };

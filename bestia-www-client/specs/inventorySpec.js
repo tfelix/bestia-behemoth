@@ -1,4 +1,4 @@
-describe("Bestia.Inventory.EquipItemInfoViewModel", function() {
+describe("Bestia.EquipItemInfoViewModel", function() {
 
 	var equipItemInfo;
 	var forger;
@@ -16,21 +16,21 @@ describe("Bestia.Inventory.EquipItemInfoViewModel", function() {
 	});
 
 	it("Shows upgrade level like ''.", function() {
-		var eqii = new Bestia.Inventory.EquipItemInfoViewModel();
+		var eqii = new Bestia.EquipItemInfoViewModel();
 		equipItemInfo.ulv = 0;
 		eqii.update(equipItemInfo);
 		expect(eqii.upgradeLevel()).toBe('');
 	});
 
 	it("Shows upgrade level like +5.", function() {
-		var eqii = new Bestia.Inventory.EquipItemInfoViewModel();
+		var eqii = new Bestia.EquipItemInfoViewModel();
 		equipItemInfo.ulv = 5;
 		eqii.update(equipItemInfo);
 		expect(eqii.upgradeLevel()).toBe('+5');
 	});
 
 	it("Equipment not broken.", function() {
-		var eqii = new Bestia.Inventory.EquipItemInfoViewModel();
+		var eqii = new Bestia.EquipItemInfoViewModel();
 		eqii.update(equipItemInfo);
 		expect(eqii.bBroken()).toBe(false);
 	});
@@ -42,7 +42,7 @@ describe("Bestia.Inventory.EquipItemInfoViewModel", function() {
 	 */
 });
 
-describe("Bestia.Inventory.ItemViewModel", function() {
+describe("Bestia.ItemViewModel", function() {
 
 	var item;
 	var net = new Bestia.Net(new Bestia.Config());
@@ -78,26 +78,26 @@ describe("Bestia.Inventory.ItemViewModel", function() {
 	});
 
 	it("Generates correct image url.", function() {
-		var vm = new Bestia.Inventory.ItemViewModel(net, item);
+		var vm = new Bestia.ItemViewModel(net, item);
 		expect(vm.imageURL()).toBe('http://localhost/assets/img/items/item.png');
 		expect(net.getItemImageUrl).toHaveBeenCalledWith('item.png');
 	});
 
 	it("Shows correct type (etc).", function() {
 		item.t = 0;
-		var vm = new Bestia.Inventory.ItemViewModel(net, item);
+		var vm = new Bestia.ItemViewModel(net, item);
 		expect(vm.type()).toBe('etc');
 	});
 
 	it("Shows correct type (usable).", function() {
 		item.t = 1;
-		var vm = new Bestia.Inventory.ItemViewModel(net, item);
+		var vm = new Bestia.ItemViewModel(net, item);
 		expect(vm.type()).toBe('usable');
 	});
 
 	it("Shows correct type (equip).", function() {
 		item.t = 2;
-		var vm = new Bestia.Inventory.ItemViewModel(net, item);
+		var vm = new Bestia.ItemViewModel(net, item);
 		expect(vm.type()).toBe('equip');
 	});
 
@@ -107,7 +107,7 @@ describe("Bestia.Inventory.ItemViewModel", function() {
 			f : null,
 			bb : 1
 		};
-		var vm = new Bestia.Inventory.ItemViewModel(net, item);
+		var vm = new Bestia.ItemViewModel(net, item);
 		expect(vm.equipItemInfo.upgradeLevel()).toBe('+4');
 		expect(vm.equipItemInfo.bBroken()).toBe(true);
 	});
@@ -179,8 +179,8 @@ describe("Bestia.Inventory.Inventory", function() {
 	});
 
 	it("Adds an existing (normal) item on the given message.", function() {
-		var inv = new Bestia.Inventory.Inventory(net);
-		Bestia.PubSub.publish('inventory.init', items);
+		var inv = new Bestia.Inventory(net);
+		Bestia.publish('inventory.init', items);
 		var item = {
 			iid : 13,
 			pid : 16,
@@ -199,14 +199,14 @@ describe("Bestia.Inventory.Inventory", function() {
 			a : 1
 		};
 		expect(inv.items().length).toEqual(3);
-		Bestia.PubSub.publish('inventory.add', item);
+		Bestia.publish('inventory.add', item);
 		expect(inv.items().length).toEqual(4);
 		expect(inv._findItem(item.pid).amount()).toEqual(1);
 	});
 
 	it("Adds an existing (equip) item on the given message.", function() {
-		var inv = new Bestia.Inventory.Inventory(net);
-		Bestia.PubSub.publish('inventory.init', items);
+		var inv = new Bestia.Inventory(net);
+		Bestia.publish('inventory.init', items);
 		var item = {
 			iid : 12,
 			pid : 15,
@@ -222,16 +222,16 @@ describe("Bestia.Inventory.Inventory", function() {
 			a : 10
 		};
 		expect(inv.items().length).toEqual(3);
-		Bestia.PubSub.publish('inventory.add', item);
+		Bestia.publish('inventory.add', item);
 		expect(inv.items().length).toEqual(3);
 		expect(inv._findItem(item.pid).amount()).toEqual(20);
 	});
 
 	it("Sends to the server on init.", function() {
-		var inv = new Bestia.Inventory.Inventory(net);
+		var inv = new Bestia.Inventory(net);
 
 		var i = 0;
-		Bestia.PubSub.subscribe('io.send', function(_, msg) {
+		Bestia.subscribe('io.send', function(_, msg) {
 			if (msg.mid == 'inventory.request') {
 				i++;
 			}
@@ -241,8 +241,8 @@ describe("Bestia.Inventory.Inventory", function() {
 	});
 
 	it("Initializes on a server message.", function() {
-		var inv = new Bestia.Inventory.Inventory(net);
-		Bestia.PubSub.publish('inventory.init', items);
+		var inv = new Bestia.Inventory(net);
+		Bestia.publish('inventory.init', items);
 		expect(inv.items().length).toEqual(3);
 	});
 

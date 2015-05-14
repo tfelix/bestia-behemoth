@@ -35,6 +35,6 @@
 		};
 
 		// Register for messages.
-		Bestia.PubSub.subscribe('server.info', onMessageHandler);
+		Bestia.subscribe('server.info', onMessageHandler);
 	};
 })(Bestia, ko);

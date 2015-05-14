@@ -14,7 +14,7 @@
 	 * @param {Object}
 	 *            msg - Optional, message used to initialize the view model.
 	 */
-	Bestia.Inventory.EquipItemInfoViewModel = function(msg) {
+	Bestia.EquipItemInfoViewModel = function(msg) {
 		var self = this;
 		/**
 		 * Upgraded item level.
@@ -53,7 +53,7 @@
 	 * @param {Object}
 	 *            msg - Message json object to set new data.
 	 */
-	Bestia.Inventory.EquipItemInfoViewModel.prototype.update = function(msg) {
+	Bestia.EquipItemInfoViewModel.prototype.update = function(msg) {
 		this.bBroken(1 === msg.bb);
 		if (msg.f === null) {
 			this._forger.playerId(0);
@@ -77,7 +77,7 @@
 	 * @param {Object}
 	 *            msg - Optional, message used to initialize the view model.
 	 */
-	Bestia.Inventory.ItemViewModel = function(net, msg) {
+	Bestia.ItemViewModel = function(net, msg) {
 		if (!(net instanceof Bestia.Net)) {
 			throw "net is not an instance of Bestia.Net";
 		}
@@ -110,7 +110,7 @@
 			}
 		});
 
-		self.equipItemInfo = new Bestia.Inventory.EquipItemInfoViewModel();
+		self.equipItemInfo = new Bestia.EquipItemInfoViewModel();
 		self.bQuestItem = ko.observable(true);
 		self.bSoulbound = ko.observable(true);
 		self.amount = ko.observable(0);
@@ -140,7 +140,7 @@
 	 * @param {Object}
 	 *            msg - Message json object to set new data.
 	 */
-	Bestia.Inventory.ItemViewModel.prototype.update = function(msg) {
+	Bestia.ItemViewModel.prototype.update = function(msg) {
 		this.itemId(msg.iid);
 		this.playerItemId(msg.pid);
 		this._img = msg.img;
@@ -162,7 +162,7 @@
 	 *            net - Network helper class.
 	 * @constructor
 	 */
-	Bestia.Inventory.Inventory = function(net) {
+	Bestia.Inventory = function(net) {
 		
 		var self = this;
 
@@ -170,9 +170,9 @@
 		this.items = ko.observableArray();
 
 		// Register for messages.
-		Bestia.PubSub.subscribe('inventory.init', function(_, msg) { self._onMessageInit(msg); });
-		Bestia.PubSub.subscribe('inventory.add', function(_, msg) { self._onMessageAdd(msg); });
-		Bestia.PubSub.subscribe('inventory.remove', function(_, msg) { self._onMessageRemove(msg); });
+		Bestia.subscribe('inventory.init', function(_, msg) { self._onMessageInit(msg); });
+		Bestia.subscribe('inventory.add', function(_, msg) { self._onMessageAdd(msg); });
+		Bestia.subscribe('inventory.remove', function(_, msg) { self._onMessageRemove(msg); });
 	};
 
 	/**
@@ -180,8 +180,8 @@
 	 * 
 	 * @method Bestia.Inventory.Inventory#init
 	 */
-	Bestia.Inventory.Inventory.prototype.init = function() {
-		Bestia.PubSub.publish('io.send', new Bestia.Message.InventoryRequest());
+	Bestia.Inventory.prototype.init = function() {
+		Bestia.publish('io.send', new Bestia.Message.InventoryRequest());
 	};
 
 	/**
@@ -192,14 +192,14 @@
 	 *            msg - An array with JSON messages for items.
 	 * @private
 	 */
-	Bestia.Inventory.Inventory.prototype._onMessageInit = function(msg) {
+	Bestia.Inventory.prototype._onMessageInit = function(msg) {
 		var self = this;
 		
 		// Clear all existing items.
 		self.items.removeAll();
 
 		msg.forEach(function(val) {
-			self.items.push(new Bestia.Inventory.ItemViewModel(self._net, val));
+			self.items.push(new Bestia.ItemViewModel(self._net, val));
 		});
 	};
 	
@@ -210,7 +210,7 @@
 	 * @private
 	 * @return Bestia.Inventory.ItemViewModel
 	 */
-	Bestia.Inventory.Inventory.prototype._findItem = function(playerItemId) {
+	Bestia.Inventory.prototype._findItem = function(playerItemId) {
 		
 		for(var i = 0; i < this.items().length; ++i) {
 			var val = this.items()[i];
@@ -225,7 +225,7 @@
 	/**
 	 * Removes an item if the server sends this message.
 	 */
-	Bestia.Inventory.Inventory.prototype._onMessageRemove = function(msg) {
+	Bestia.Inventory.prototype._onMessageRemove = function(msg) {
 		var item = this._findItem(msg.pid);
 		if(item === null) {
 			return;
@@ -244,12 +244,12 @@
 	/**
 	 * Adds an item to the inventory if the given message is encountered.
 	 */
-	Bestia.Inventory.Inventory.prototype._onMessageAdd = function(msg) {
+	Bestia.Inventory.prototype._onMessageAdd = function(msg) {
 		var item = this._findItem(msg.pid);
 		if(item !== null) {
 			// Is it an equip? If so create new item slot.
 			if(item.type() == 'equip') {
-				this.items.push(new Bestia.Inventory.ItemViewModel(this._net, msg));
+				this.items.push(new Bestia.ItemViewModel(this._net, msg));
 				return;
 			}
 			
@@ -257,7 +257,7 @@
 			return;
 		}
 		
-		this.items.push(new Bestia.Inventory.ItemViewModel(this._net, msg));
+		this.items.push(new Bestia.ItemViewModel(this._net, msg));
 	};
 
 })(Bestia, jQuery, ko);

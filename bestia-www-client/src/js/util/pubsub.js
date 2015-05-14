@@ -68,16 +68,12 @@
 		}
 	};
 
-	PubSub.extend = function(obj) {
-		var pubsub = new PubSub();
-		obj.subscribe = pubsub.subscribe.bind(pubsub);
-		obj.unsubscribe = pubsub.unsubscribe.bind(pubsub);
-		obj.publish = pubsub.publish.bind(pubsub);
-	};
-
 	Bestia.Util = {
 		PubSub : PubSub
 	};
-	Bestia.PubSub = new PubSub();
-
+	
+	var pubsub = new PubSub();
+	Bestia.subscribe = pubsub.subscribe.bind(pubsub);
+	Bestia.unsubscribe = pubsub.unsubscribe.bind(pubsub);
+	Bestia.publish = pubsub.publish.bind(pubsub);
 })(Bestia);
