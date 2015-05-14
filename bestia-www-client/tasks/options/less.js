@@ -3,8 +3,7 @@ module.exports = {
 		options : {
 			paths : [ 'src/css/less/**/' ],
 			sourceMap : true,
-			sourceMapBasepath: '<%= compile_dir %>/css',
-			
+			sourceMapURL: '/css/app.css.map',
 		},
 		files : {
 			'build/css/app.css' : 'src/css/less/main.less'

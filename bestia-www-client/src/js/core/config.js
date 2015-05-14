@@ -18,7 +18,7 @@
 		var self = this;
 		self.zones = ko.observableArray();
 		self.version = ko.observable(0);
-		self.server = ko.observable();
+		self.server = ko.observable('');
 		self.connectedPlayer = ko.observable(0);
 		self.resourceURL = ko.observable('');
 		self.debug = ko.observable(false);

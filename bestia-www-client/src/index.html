@@ -22,11 +22,8 @@
 
 </head>
 <body class="noscroll">
-
-
 	<div class="cont">
 		<div class="navi" id="navi">
-
 			<div id="selected-bestia" data-bind="with: selectedBestia">
 				<!-- TODO Austauschen gegen ein animiertes Canvas. -->
 				<img src="http://placehold.it/64x64" alt="Bestia" style="float: left; margin: 10px;">
@@ -100,7 +97,8 @@
 				<div class="chat-msgs" data-bind="foreach: messages">
 
 					<div data-bind="css: cssMode" style="display: none;">
-						<span data-bind="click: $parent.setWhisperNick, visible: nickname().length > 0" class="nick"><span data-bind="text: nickname"></span>: </span><span data-bind="text: text"></span>
+						<span data-bind="click: $parent.setWhisperNick, visible: nickname().length > 0" class="nick"><span
+							data-bind="text: nickname"></span>: </span><span data-bind="text: text"></span>
 					</div>
 
 				</div>
@@ -114,7 +112,8 @@
 							</ul></li>
 					</ul>
 					<form data-bind="submit: sendChat">
-						<span class="whisper-nick" data-bind="visible: whisperNick().length > 0"><span data-bind="text: whisperNick"></span>: </span><input type="text" data-bind="textInput: text">
+						<span class="whisper-nick" data-bind="visible: whisperNick().length > 0"><span
+							data-bind="text: whisperNick"></span>: </span><input type="text" data-bind="textInput: text">
 					</form>
 					<div style="clear: both;"></div>
 				</div>
@@ -126,6 +125,7 @@
 	</div>
 
 	<!-- DEBUG VIEWS -->
+	<!-- 
 	<div id="canvas-debug" class="debug-box" style="top: 10px; right: 10px; width: 100px;">
 		<p>
 			FPS: <span data-bind="text: fps"></span>
@@ -139,9 +139,9 @@
 		<p>
 			Show Water: <input data-bind="checked: showHumidity" type="checkbox">
 		</p>
-	</div>
+	</div>-->
 
-	<div id="server-info" class="debug-box" style="bottom: 10px; left: 10px; width: 300px;">
+	<div id="server-info" class="debug-box" data-bind="with: config" style="bottom: 10px; left: 10px; width: 300px;">
 		<p>
 			Zone-Server: <span data-bind="text: server"></span>
 		</p>

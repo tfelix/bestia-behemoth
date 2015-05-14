@@ -1,37 +1,35 @@
-/**
- * This javascript object will use the preloader to get an initial set of data
- * from the server which is important for the app to work. This migh be loading
- * screen, important news data to display etc.
- * 
- * Dependencies: connection, preloader
- */
+var Game = {};
 
 $(document).ready(function() {
 	'use strict';
 
 	// Bootstrap the behemoth.
-
 	
 	var config = new Bestia.Config();
 	var net = new Bestia.Net(config);
 	var inventory = new Bestia.Inventory(net);
 
-	var Game = {
-		config : config,
-		net : net,
-		inventory : inventory
-	};
+	Game.config = config;
+	Game.net = net;
+	Game.inventory = inventory;
+	
+	// Bind the DOM to the game.
+	ko.applyBindings(Game);
+	
 
 	// Simulate the server communication.
 	var serverInfo = {
 		z : [ 'test-1', 'test-2' ],
 		v : '1.0.0-ALPHA1-build1234',
 		cp : 3,
+		sn : 'Test-Zone',
 		res : 'http://localhost/assets'
 	};
 
 	Bestia.publish('server.info', serverInfo);
 
+	return;
+	
 	// Server sendet welche Bestia selektiert wurde (Bestia master)
 	var bm = {
 		pbid : 1337,
