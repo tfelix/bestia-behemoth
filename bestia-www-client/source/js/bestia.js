@@ -8,3 +8,4 @@
 * @namespace Bestia
 */
 var Bestia = Bestia || {};
+

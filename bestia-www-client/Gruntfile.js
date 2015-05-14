@@ -71,10 +71,15 @@ module.exports = function(grunt) {
 						// inject a custom middleware into the array of default
 						// middlewares
 						middlewares.unshift(function(req, res, next) {
-							if (req.url !== '/hello/world')
-								return next();
+							
+							
+							if (req.url.match(/assets\/i18n\/(.*)\/item\/\d+/)) {
+								// Item translation.
+								res.end('Hello, world from port #' + options.port + '!');
+							}
 
-							res.end('Hello, world from port #' + options.port + '!');
+							
+							return next();
 						});
 
 						return middlewares;
@@ -143,7 +148,7 @@ module.exports = function(grunt) {
 		},
 
 		jshint : {
-			src : [ 'source/js/**/*.js', '!source/js/lib/**' ],
+			src : [ 'source/js/**/*.js', '!source/js/lib/**'],
 			options : {
 				jshintrc : '.jshintrc'
 			}
@@ -155,7 +160,7 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('default', 'Builds the project and packages it for distribution.', [ 'compile' ]);
 
-	grunt.registerTask('dev', 'Testing of the framework.', [ 'test', 'connect:test_debug' ]);
+	grunt.registerTask('dev', 'Testing of the framework.', [ 'test', 'connect:test_test' ]);
 	grunt.registerTask('dev-test', 'Testing of the framework.', [ 'test', 'connect', 'watch' ]);
 
 	grunt.registerTask('compile-js', 'Compiles JS files.', 'bower_concat', 'concat');
