@@ -3,7 +3,7 @@ module.exports = function(grunt) {
 	// require time grunt.
 	require('time-grunt')(grunt);
 	
-	var jsFiles = ['source/js/bestia.js', 'source/js/config.js', 'source/js/util/net.js', 'source/js/util/pubsub.js', 'source/js/io/message.js',
+	var jsFiles = ['source/js/bestia.js', 'source/js/core/config.js', 'source/js/core/chat.js', 'source/js/util/net.js', 'source/js/util/pubsub.js', 'source/js/io/message.js',
 				'source/js/inventory/inventory.js', 'source/js/view/system.pingpong.js', 'source/js/engine/engine.js',
 				'source/js/chat.js'];
 
@@ -67,19 +67,27 @@ module.exports = function(grunt) {
 				options : {
 					port : 8000,
 					keepalive : true,
+					open : {
+						target : 'http://localhost:8000/_SpecRunner.html',
+						appName : 'Firefox'
+					},
 					middleware : function(connect, options, middlewares) {
 						// inject a custom middleware into the array of default
 						// middlewares
+						
+						var itemTransl = /assets\/i18n\/(.*)\/item\/\d/;
+						
 						middlewares.unshift(function(req, res, next) {
 							
 							
-							if (req.url.match(/assets\/i18n\/(.*)\/item\/\d+/)) {
-								// Item translation.
-								res.end('Hello, world from port #' + options.port + '!');
+							if (req.url.match(itemTransl)) {
+								next();
+								return;
 							}
-
+							// Item translation.
+							res.end('Hello, world from port #' + options.port + '!');
 							
-							return next();
+							
 						});
 
 						return middlewares;
