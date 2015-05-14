@@ -219,4 +219,8 @@ $(document).ready(function() {
 		$.publish('chat.message', msg);
 		$.publish('chat.message', msg);
 	}
+	
+	
+	// Final code.
+	//i18n.init({ lng: "de-DE" });
 });

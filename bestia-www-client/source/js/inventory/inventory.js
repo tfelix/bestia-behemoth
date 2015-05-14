@@ -202,13 +202,62 @@
 			self.items.push(new Bestia.Inventory.ItemViewModel(self._net, val));
 		});
 	};
-
-	Bestia.Inventory.Inventory.prototype._onMessageRemove = function() {
-
+	
+	/**
+	 * 
+	 * @paran {Number} itemId - player item id of the item to be found. Returns
+	 *        the ItemViewModel or null if no item was found.
+	 * @private
+	 * @return Bestia.Inventory.ItemViewModel
+	 */
+	Bestia.Inventory.Inventory.prototype._findItem = function(playerItemId) {
+		
+		for(var i = 0; i < this.items().length; ++i) {
+			var val = this.items()[i];
+			if(val.playerItemId() === playerItemId) {
+				return val;
+			}
+		}
+		
+		return null;
 	};
 
-	Bestia.Inventory.Inventory.prototype._onMessageAdd = function() {
+	/**
+	 * Removes an item if the server sends this message.
+	 */
+	Bestia.Inventory.Inventory.prototype._onMessageRemove = function(msg) {
+		var item = this._findItem(msg.pid);
+		if(item === null) {
+			return;
+		}
+		
+		// Set item amount if bit enough.
+		if(item.amount() > msg.a) {
+			item.amount(item.amount() - msg.a);
+			return;
+		}
+		
+		// Remove item.
+		this.items.remove(item);
+	};
 
+	/**
+	 * Adds an item to the inventory if the given message is encountered.
+	 */
+	Bestia.Inventory.Inventory.prototype._onMessageAdd = function(msg) {
+		var item = this._findItem(msg.pid);
+		if(item !== null) {
+			// Is it an equip? If so create new item slot.
+			if(item.type() == 'equip') {
+				this.items.push(new Bestia.Inventory.ItemViewModel(this._net, msg));
+				return;
+			}
+			
+			item.amount(item.amount() + msg.a);
+			return;
+		}
+		
+		this.items.push(new Bestia.Inventory.ItemViewModel(this._net, msg));
 	};
 
 })(Bestia, jQuery, ko);

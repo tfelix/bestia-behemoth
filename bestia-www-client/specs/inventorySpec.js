@@ -124,7 +124,7 @@ describe("Bestia.Inventory.ItemViewModel", function() {
 });
 
 describe("Bestia.Inventory.Inventory", function() {
-	
+
 	var items;
 	var net = new Bestia.Net(new Bestia.Config());
 	net.getItemImageUrl = function(name) {
@@ -133,22 +133,22 @@ describe("Bestia.Inventory.Inventory", function() {
 
 	beforeEach(function() {
 		items = [ {
-			iid : 12, 
+			iid : 12,
 			pid : 15,
 			img : 'item.jpg',
-			t : 0, 
-			bq : 0, 
+			t : 0,
+			bq : 0,
 			bs : 0,
 			eqii : {
 				ulv : 0,
 				f : null,
 				bb : 0
 			},
-			a : 10 
+			a : 10
 		}, {
-			iid : 13, 
+			iid : 13,
 			pid : 16,
-			img : 'item.jpg',
+			img : 'equip_item.jpg',
 			t : 2,
 			bq : 0,
 			bs : 0,
@@ -171,32 +171,77 @@ describe("Bestia.Inventory.Inventory", function() {
 			eqii : null,
 			eqpi : {},
 			a : 13
-		}];		
+		} ];
 	});
-	
+
 	it("Deletes an item on the given message.", function() {
 
 	});
 
-	it("Adds an item on the given message.", function() {
+	it("Adds an existing (normal) item on the given message.", function() {
+		var inv = new Bestia.Inventory.Inventory(net);
+		Bestia.PubSub.publish('inventory.init', items);
+		var item = {
+			iid : 13,
+			pid : 16,
+			img : 'equip_item.jpg',
+			t : 2,
+			bq : 0,
+			bs : 0,
+			eqii : {
+				ulv : 4,
+				f : {
+					id : 123,
+					n : 'Heino'
+				},
+				bb : 0
+			},
+			a : 1
+		};
+		expect(inv.items().length).toEqual(3);
+		Bestia.PubSub.publish('inventory.add', item);
+		expect(inv.items().length).toEqual(4);
+		expect(inv._findItem(item.pid).amount()).toEqual(1);
+	});
 
+	it("Adds an existing (equip) item on the given message.", function() {
+		var inv = new Bestia.Inventory.Inventory(net);
+		Bestia.PubSub.publish('inventory.init', items);
+		var item = {
+			iid : 12,
+			pid : 15,
+			img : 'item_etc.jpg',
+			t : 0,
+			bq : 0,
+			bs : 0,
+			eqii : {
+				ulv : 0,
+				f : null,
+				bb : 0
+			},
+			a : 10
+		};
+		expect(inv.items().length).toEqual(3);
+		Bestia.PubSub.publish('inventory.add', item);
+		expect(inv.items().length).toEqual(3);
+		expect(inv._findItem(item.pid).amount()).toEqual(20);
 	});
 
 	it("Sends to the server on init.", function() {
 		var inv = new Bestia.Inventory.Inventory(net);
-		
+
 		var i = 0;
-		Bestia.PubSub.subscribe('io.send', function(_, msg){
-			if(msg.mid == 'inventory.request') {
+		Bestia.PubSub.subscribe('io.send', function(_, msg) {
+			if (msg.mid == 'inventory.request') {
 				i++;
 			}
 		});
 		inv.init();
 		expect(i).toEqual(1);
 	});
-	
+
 	it("Initializes on a server message.", function() {
-		var inv = new Bestia.Inventory.Inventory(net);	
+		var inv = new Bestia.Inventory.Inventory(net);
 		Bestia.PubSub.publish('inventory.init', items);
 		expect(inv.items().length).toEqual(3);
 	});
