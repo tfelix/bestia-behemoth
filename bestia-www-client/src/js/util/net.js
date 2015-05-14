@@ -1,6 +1,6 @@
 /**
- * @author       Thomas Felix <thomas.felix@tfelix.de>
- * @copyright    2015 Thomas Felix
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @copyright 2015 Thomas Felix
  */
 (function(Bestia) {
 	'use strict';
@@ -41,15 +41,40 @@
 	Bestia.Net.prototype.getItemImageUrl = function(itemImg) {
 		return this.config.resourceURL() + '/img/items/' + itemImg;
 	};
-	
+
+	/**
+	 * Returns the resource object for a mob sprite. This is not so easy since a
+	 * mob has many resources associated with it. First of all it has a sprite,
+	 * a detailed image and maybe JSON files describing more information about
+	 * animation etc.
+	 * 
+	 * The returned object looks like this: {spriteSheet: URL, spriteInfo: URL,
+	 * img: URL}
+	 * 
+	 * @method Bestia.Net#getItemImageUrl
+	 * @param {string}
+	 *            dbName - Database unique name of the bestia.
+	 * @returns {Object} Object with information regarding this mob.
+	 */
+	Bestia.Net.prototype.getMobImageUrl = function(dbName) {
+		var obj = {
+			spriteSheet : '',
+			spriteInfo : '',
+			img : this.config.resourceURL() + '/mob/' + dbName + '.png'
+		};
+
+		return obj;
+	};
+
 	/**
 	 * Returns the url to fetch item translation.
 	 * 
 	 * @method Bestia.Net#getItemI18NUrl
-	 * @param {Number} itemId - Id of the item to fetch.
+	 * @param {Number}
+	 *            itemId - Id of the item to fetch.
 	 * @returns {Object} - JSON object of the item translation.
 	 */
 	Bestia.Net.prototype.getItemI18NUrl = function(itemId) {
-		return this.config.resourceURL() + '/i18n/'+this.config.locale()+'/item/' + itemId;
+		return this.config.resourceURL() + '/i18n/' + this.config.locale() + '/item/' + itemId;
 	};
 })(Bestia);

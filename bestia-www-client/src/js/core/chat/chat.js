@@ -55,7 +55,7 @@ Bestia.Chat = function(domNode, localNick) {
 	});
 
 	// Finally subscribe to chat messages.
-	$.subscribe('chat.message', function(_, msg) {
+	Bestia.subscribe('chat.message', function(_, msg) {
 		self.model.addMessage(msg);
 	});
 };

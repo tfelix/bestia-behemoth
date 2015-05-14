@@ -8,10 +8,14 @@ $(document).ready(function() {
 	var config = new Bestia.Config();
 	var net = new Bestia.Net(config);
 	var inventory = new Bestia.Inventory(net);
+	var bestias = new Bestia.BestiaInfoViewModel(net);
+	//var chat = new Bestia.Chat($('#chat')[0], 'rocket');
 
 	Game.config = config;
 	Game.net = net;
 	Game.inventory = inventory;
+	Game.bestias = bestias;
+	//Game.chat = chat;
 	
 	// Bind the DOM to the game.
 	ko.applyBindings(Game);
@@ -27,8 +31,6 @@ $(document).ready(function() {
 	};
 
 	Bestia.publish('server.info', serverInfo);
-
-	return;
 	
 	// Server sendet welche Bestia selektiert wurde (Bestia master)
 	var bm = {
@@ -66,8 +68,9 @@ $(document).ready(function() {
 			cHp : 45,
 			mHp : 56
 		},
+		sl: 0,
 		cn : 'Blubber',
-		bdbn : 'Doommaster of Doom',
+		bdbn : 'doom_master',
 		se : [],
 		img : 'dommaster.png'
 	};
@@ -106,19 +109,20 @@ $(document).ready(function() {
 			cHp : 45,
 			mHp : 56
 		},
+		sl: 1,
 		cn : 'Bla bla bla',
-		bdbn : 'Blob',
+		bdbn : 'blob',
 		se : [],
 		img : 'blob.png'
 	};
 
 	var bestiaInfo = {
-		mid : 'bestia.info',
+		mid : 'bestia.init',
 		bm : bm,
-		b : [ bm1 ],
+		b : [ bm1, bm ],
 		s : 4
 	};
-	Bestia.publish('bestia.info', bestiaInfo);
+	Bestia.publish('bestia.init', bestiaInfo);
 
 	// Add item amount.
 	var item1 = {

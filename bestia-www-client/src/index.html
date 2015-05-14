@@ -24,61 +24,63 @@
 <body class="noscroll">
 	<div class="cont">
 		<div class="navi" id="navi">
-			<div id="selected-bestia" data-bind="with: selectedBestia">
-				<!-- TODO Austauschen gegen ein animiertes Canvas. -->
-				<img src="http://placehold.it/64x64" alt="Bestia" style="float: left; margin: 10px;">
-
-				<div style="float: left; margin-top: 10px;">
-					<p data-bind="text: customName">---</p>
-					<p data-bind="text: name">---</p>
-				</div>
-
-				<div class="bar hp-bar" style="clear: both;" data-bind="with: statusPoints">
-					<div class="bar-bg">
-						<div data-bind="style: {width: hpWidth}"></div>
-					</div>
-					<div class="bar-text">
-						<span data-bind="text: curHp">0</span> / <span data-bind="text: maxHp">0</span>
-					</div>
-				</div>
-				<div class="bar mana-bar" data-bind="with: statusPoints">
-					<div class="bar-bg">
-						<div data-bind="style: {width: manaWidth}"></div>
-					</div>
-					<div class="bar-text">
-						<span data-bind="text: curMana">0</span> / <span data-bind="text: maxMana">0</span>
-					</div>
-				</div>
-			</div>
-
-			<div id="bestia-slots" data-bind="foreach: bestias">
-
-				<div class="bestia-slot" data-bind="click: selectBestia">
+			<div data-bind="with: bestias">
+				<div id="selected-bestia" data-bind="with: selectedBestia">
+					<!-- TODO Austauschen gegen ein animiertes Canvas. -->
 					<img src="http://placehold.it/64x64" alt="Bestia" style="float: left; margin: 10px;">
-					<div class="name">
-						<b><span data-bind="text: customName"></span></b> - <span data-bind="text: name"></span>
+
+					<div style="float: left; margin-top: 10px;">
+						<p data-bind="text: customName">---</p>
+						<p data-bind="text: name">---</p>
 					</div>
-					<div style="margin-top: 8px; float: left; width: 200px;" data-bind="with: statusPoints">
-						<div class="bar hp-bar small-bar">
-							<div class="bar-bg">
-								<div data-bind="style: {width: hpWidth}"></div>
-							</div>
-							<div class="bar-text">
-								<span data-bind="text: curHp">0</span> / <span data-bind="text: maxHp">0</span>
-							</div>
+
+					<div class="bar hp-bar" style="clear: both;" data-bind="with: statusPoints">
+						<div class="bar-bg">
+							<div data-bind="style: {width: hpWidth}"></div>
 						</div>
-						<div class="bar mana-bar small-bar">
-							<div class="bar-bg">
-								<div data-bind="style: {width: manaWidth}"></div>
-							</div>
-							<div class="bar-text">
-								<span data-bind="text: curMana">0</span> / <span data-bind="text: maxMana">0</span>
-							</div>
+						<div class="bar-text">
+							<span data-bind="text: curHp">0</span> / <span data-bind="text: maxHp">0</span>
 						</div>
 					</div>
-					<div style="clear: both;"></div>
+					<div class="bar mana-bar" data-bind="with: statusPoints">
+						<div class="bar-bg">
+							<div data-bind="style: {width: manaWidth}"></div>
+						</div>
+						<div class="bar-text">
+							<span data-bind="text: curMana">0</span> / <span data-bind="text: maxMana">0</span>
+						</div>
+					</div>
 				</div>
 
+				<div id="bestia-slots" data-bind="foreach: bestias">
+
+					<div class="bestia-slot" data-bind="click: selectBestia">
+						<img src="http://placehold.it/64x64" alt="Bestia" style="float: left; margin: 10px;">
+						<div class="name">
+							<b><span data-bind="text: customName"></span></b> - <span data-bind="text: name"></span>
+						</div>
+						<div style="margin-top: 8px; float: left; width: 200px;" data-bind="with: statusPoints">
+							<div class="bar hp-bar small-bar">
+								<div class="bar-bg">
+									<div data-bind="style: {width: hpWidth}"></div>
+								</div>
+								<div class="bar-text">
+									<span data-bind="text: curHp">0</span> / <span data-bind="text: maxHp">0</span>
+								</div>
+							</div>
+							<div class="bar mana-bar small-bar">
+								<div class="bar-bg">
+									<div data-bind="style: {width: manaWidth}"></div>
+								</div>
+								<div class="bar-text">
+									<span data-bind="text: curMana">0</span> / <span data-bind="text: maxMana">0</span>
+								</div>
+							</div>
+						</div>
+						<div style="clear: both;"></div>
+					</div>
+
+				</div>
 			</div>
 
 			<div style="clear: both"></div>
@@ -92,8 +94,8 @@
 				</div>
 			</div>
 
-			<!-- CHAT -->
-			<div id="chat">
+			<!-- CHAT
+			<div id="chat" data-bind="width: chat">
 				<div class="chat-msgs" data-bind="foreach: messages">
 
 					<div data-bind="css: cssMode" style="display: none;">

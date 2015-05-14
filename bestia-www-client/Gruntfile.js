@@ -4,11 +4,14 @@ module.exports = function(grunt) {
 	require('time-grunt')(grunt);
 
 	var loadConfig = require('load-grunt-config');
-	
-	var jsFiles = [ 'src/js/bestia.js', 'src/js/core/config.js', 'src/js/core/chat.js',
-	    			'src/js/util/net.js', 'src/js/util/pubsub.js', 'src/js/io/message.js',
-	    			'src/js/inventory/inventory.js', 'src/js/view/system.pingpong.js', 'src/js/engine/engine.js',
-	    			'src/js/chat.js', 'src/js/main.js' ];
+
+	var jsFiles = [ 'src/js/bestia.js', 'src/js/core/config.js',
+	// === CHAT ===
+	'src/js/core/chat/models.js', 'src/js/core/chat/chat.js',
+	// === BESTIAS ===
+	'src/js/core/bestia/models.js', 'src/js/core/bestia/bestias.js', 'src/js/util/net.js', 'src/js/util/pubsub.js',
+			'src/js/io/message.js', 'src/js/inventory/inventory.js', 'src/js/view/system.pingpong.js',
+			'src/js/engine/engine.js', 'src/js/chat.js', 'src/js/main.js' ];
 
 	loadConfig(grunt, {
 		configPath : __dirname + '/tasks/options',
@@ -32,7 +35,7 @@ module.exports = function(grunt) {
 	grunt.registerTask('dev', 'Testing of the framework.', [ 'test', 'compile', 'connect:dev', 'watch' ]);
 	grunt.registerTask('dev-test', 'Testing of the framework.', [ 'test', 'connect:test_test', 'watch' ]);
 
-	grunt.registerTask('compile-js', 'Compiles JS files.', ['bower_concat', 'concat:compile']);
+	grunt.registerTask('compile-js', 'Compiles JS files.', [ 'bower_concat', 'concat:compile' ]);
 	grunt.registerTask('compile-css', 'Compiles CSS files.', [ 'less' ]);
 	grunt.registerTask('compile-html', 'Compile HTML files.');
 
@@ -40,5 +43,6 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('test', 'Testing of the framework.', [ 'jshint', 'jasmine' ]);
 
-	//grunt.registerTask('dist', 'Packages the build files for distribution.', function() {});
+	// grunt.registerTask('dist', 'Packages the build files for distribution.',
+	// function() {});
 };

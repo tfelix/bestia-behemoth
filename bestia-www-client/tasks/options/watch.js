@@ -4,13 +4,13 @@ module.exports = {
 		tasks : [ 'compile-css' ]
 	},
 	
+	js: {
+		files : ['<%= source_dir %>/js/**/*.js'],
+		tasks : [ 'compile-js']
+	},
+	
 	html: {
 		files : ['<%= source_dir %>/*.html'],
 		tasks : [ 'copy']
-	},
-	
-	compile : {
-		files : [ '<%= source_dir %>/js/**/*.js' ],
-		tasks : [ 'compile-js' ]
 	}
 };
