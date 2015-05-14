@@ -7,4 +7,4 @@ module.export = {
 		},
 		keepRunner : true
 	}
-}
+};

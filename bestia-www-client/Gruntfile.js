@@ -28,8 +28,8 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('default', 'Builds the project and packages it for distribution.', [ 'compile' ]);
 
-	grunt.registerTask('dev', 'Testing of the framework.', [ 'test', 'connect:test_test' ]);
-	grunt.registerTask('dev-test', 'Testing of the framework.', [ 'test', 'connect', 'watch' ]);
+	grunt.registerTask('dev', 'Testing of the framework.', [ 'test', 'compile', 'connect:dev', 'watch' ]);
+	grunt.registerTask('dev-test', 'Testing of the framework.', [ 'test', 'connect:test_test', 'watch' ]);
 
 	grunt.registerTask('compile-js', 'Compiles JS files.', 'bower_concat', 'concat');
 	grunt.registerTask('compile-css', 'Compiles CSS files.', [ 'less' ]);
@@ -39,6 +39,5 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('test', 'Testing of the framework.', [ 'jshint', 'jasmine:all:build' ]);
 
-	grunt.registerTask('dist', 'Packages the build files for distribution.', function() {
-	});
+	//grunt.registerTask('dist', 'Packages the build files for distribution.', function() {});
 };

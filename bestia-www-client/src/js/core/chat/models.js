@@ -4,7 +4,7 @@
  * @param msg
  * @returns
  */
-function ChatMessageModel(msg) {
+Bestia.ChatMessageModel = function(msg) {
 	var self = this;
 
 	self.nickname = ko.observable(msg.sn);
@@ -14,9 +14,9 @@ function ChatMessageModel(msg) {
 	self.cssMode = ko.pureComputed(function() {
 		return self.mode().toLowerCase();
 	});
-}
+};
 
-function ChatViewModel(localNickname) {
+Bestia.ChatViewModel = function(localNickname) {
 	var self = this;
 
 	// Config values.
@@ -79,22 +79,22 @@ function ChatViewModel(localNickname) {
 			return;
 		}
 
-		var msg = new app.message.Chat(self.mode(), msgText, self.whisperNick(), self.localNickname);
+		var msg = new Bestia.Message.Chat(self.mode(), msgText, self.whisperNick(), self.localNickname);
 
-		$.publish('io.sendMessage', msg);
+		Bestia.publish('io.sendMessage', msg);
 		self.addMessage(msg);
 	};
 
 	self.setWhisperNick = function(message) {
 		self.whisperNick(message.nickname());
 	};
-}
+};
 
 /**
  * Adds a message to the chat model.
  */
-ChatViewModel.prototype.addMessage = function(msg) {
-	this.messages.push(new ChatMessageModel(msg));
+Bestia.ChatViewModel.prototype.addMessage = function(msg) {
+	this.messages.push(new Bestia.ChatMessageModel(msg));
 
 	if (this.messages().length > this.MAX_MESSAGES) {
 		this.messages.shift();

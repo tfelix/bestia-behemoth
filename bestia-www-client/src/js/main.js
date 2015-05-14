@@ -8,11 +8,18 @@
 
 $(document).ready(function() {
 	'use strict';
-	
-	// Bootstrap the behemoth.
-	var game = 
 
-	
+	// Bootstrap the behemoth.
+	var config = new Bestia.Config();
+	var net = new Bestia.Net(config);
+	var inventory = new Bestia.Inventory.Inventory(net);
+
+	var Game = {
+		config : config,
+		net : net,
+		inventory : inventory
+	};
+
 	// Simulate the server communication.
 	var serverInfo = {
 		z : [ 'test-1', 'test-2' ],
@@ -21,7 +28,7 @@ $(document).ready(function() {
 		res : 'http://localhost/assets'
 	};
 
-	$.publish('server.info', serverInfo);
+	Bestia.publish('server.info', serverInfo);
 
 	// Server sendet welche Bestia selektiert wurde (Bestia master)
 	var bm = {
@@ -111,8 +118,7 @@ $(document).ready(function() {
 		b : [ bm1 ],
 		s : 4
 	};
-	$.publish('bestia.info', bestiaInfo);
-
+	Bestia.publish('bestia.info', bestiaInfo);
 
 	// Add item amount.
 	var item1 = {
@@ -124,9 +130,10 @@ $(document).ready(function() {
 		bs : 0, // bSoulbound
 		eqii : null, // Equip item info.
 		eqpi : {}, // todo
-		a : 100 // amount
+		a : 100
+	// amount
 	};
-	$.publish('inventory.add', item1);
+	Bestia.publish('inventory.add', item1);
 	var item2 = {
 		iid : 14, // item id
 		pid : 17, // player_item_id
@@ -136,9 +143,10 @@ $(document).ready(function() {
 		bs : 0, // bSoulbound
 		eqii : null, // Equip item info.
 		eqpi : {}, // todo
-		a : 13 // amount
+		a : 13
+	// amount
 	};
-	$.publish('inventory.add', item2);
+	Bestia.publish('inventory.add', item2);
 
 	// Remove certain item amount.
 	var itemRemove = {
@@ -146,7 +154,7 @@ $(document).ready(function() {
 		a : 1
 	// Amount
 	};
-	$.publish('inventory.remove', itemRemove);
+	Bestia.publish('inventory.remove', itemRemove);
 
 	var mapload = {
 		mid : 'map.preload',
@@ -160,7 +168,7 @@ $(document).ready(function() {
 	// Sounds.
 	};
 
-	$.publish('map.load', mapload);
+	Bestia.publish('map.load', mapload);
 	var msgs = [ {
 		mid : 'chat.message',
 		m : 'PUBLIC',
@@ -207,11 +215,10 @@ $(document).ready(function() {
 	// ein Chat test.', sn: 'rocket'});
 	for (var i = 0; i < msgs.length; i++) {
 		var msg = msgs[i];
-		$.publish('chat.message', msg);
-		$.publish('chat.message', msg);
+		Bestia.publish('chat.message', msg);
+		Bestia.publish('chat.message', msg);
 	}
-	
-	
+
 	// Final code.
-	//i18n.init({ lng: "de-DE" });
+	// i18n.init({ lng: "de-DE" });
 });

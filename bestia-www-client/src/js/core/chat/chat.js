@@ -13,7 +13,7 @@ if (typeof String.prototype.startsWith != 'function') {
 Bestia.Chat = function(domNode, localNick) {
 	var self = this;
 	this.domNode = domNode;
-	this.model = new ChatViewModel(localNick);
+	this.model = new Bestia.ChatViewModel(localNick);
 	this._commandHandler = [];
 
 	var whisperRegex = /^\/[wW] (\w.+) /;
@@ -60,6 +60,7 @@ Bestia.Chat = function(domNode, localNick) {
 	});
 };
 
+/*
 Bestia.Chat.registerCommand = function(cmd) {
 	
-}
+};*/

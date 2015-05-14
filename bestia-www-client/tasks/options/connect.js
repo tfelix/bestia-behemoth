@@ -1,6 +1,6 @@
 module.exports = {
 
-	server : {
+	dev : {
 		options : {
 			base : 'build',
 			port : 80
