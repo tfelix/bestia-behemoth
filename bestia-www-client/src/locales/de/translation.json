@@ -1,5 +1,11 @@
 {
 	"app": {
 		"name": "Hello World"
+	},
+	
+	"chat": {
+		"public" : "Öffentlich",
+		"party" : "Party",
+		"guild" : "Gilde"
 	}
 }

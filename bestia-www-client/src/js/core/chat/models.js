@@ -56,15 +56,14 @@ Bestia.ChatViewModel = function(localNickname) {
 
 	self.mode = ko.observable('PUBLIC');
 	self.modeText = ko.computed(function() {
-		// TODO Lokalisieren
 		if (self.mode() == 'PUBLIC') {
-			return "Öffentlich";
+			return i18n.t('chat.public');
 		}
 		if (self.mode() == 'PARTY') {
-			return "Party";
+			return i18n.t('chat.party');
 		}
 		if (self.mode() == 'GUILD') {
-			return "Gilde";
+			return i18n.t('chat.guild');
 		}
 	});
 	self.whisperNick = ko.observable('');

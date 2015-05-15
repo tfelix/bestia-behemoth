@@ -10,7 +10,7 @@ module.exports = {
 	},
 	
 	html: {
-		files : ['<%= source_dir %>/*.html'],
+		files : ['<%= source_dir %>/*.html', '<%= source_dir %>/**/*.json'],
 		tasks : [ 'copy']
 	},
 	

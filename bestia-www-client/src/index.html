@@ -81,8 +81,6 @@
 					</div>
 
 				</div>
-				
-				<div id="trans-test" data-i18n="app.name">test.test1</div>
 			</div>
 
 			<div style="clear: both"></div>
@@ -110,9 +108,9 @@
 					<ul class="dropdown">
 						<li><span data-bind="text: modeText"></span>
 							<ul>
-								<li data-bind="click: changeMode.bind($data, 'PUBLIC')">Öffentlich</li>
-								<li data-bind="click: changeMode.bind($data, 'PARTY')">Party</li>
-								<li data-bind="click: changeMode.bind($data, 'GUILD')">Gilde</li>
+								<li data-bind="click: changeMode.bind($data, 'PUBLIC')" data-i18n="chat.public">chat.public</li>
+								<li data-bind="click: changeMode.bind($data, 'PARTY')" data-i18n="chat.party">chat.party</li>
+								<li data-bind="click: changeMode.bind($data, 'GUILD')" data-i18n="chat.guild">chat.guild</li>
 							</ul></li>
 					</ul>
 					<form data-bind="submit: sendChat">

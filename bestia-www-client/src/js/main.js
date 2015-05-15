@@ -225,5 +225,6 @@ $(document).ready(function() {
 	// Final code.
 	i18n.init({ lng: "de", fallbackLng: false }, function(){
 		$('#trans-test').i18n();
+		$('#chat').i18n();
 	});
 });
