@@ -1,5 +1,3 @@
-
-
 var States = {
 	loading : {
 		preload : function() {
@@ -29,8 +27,17 @@ var States = {
 
 		preload : function() {
 			this.load.image('logo', 'assets/img/logo_small.png');
-			this.load.tilemap('map', 'assets/maps/test-zone1/test-zone1.json', null, Phaser.Tilemap.TILED_JSON);
-			this.load.image('tiles', 'assets/maps/test-zone1/tilemap1.png');
+			this.load.tilemap('map', 'assets/map/test-zone1/test-zone1.json', null, Phaser.Tilemap.TILED_JSON);
+			this.load.image('tiles', 'assets/map/test-zone1/tilemap1.png');
+
+			// Sprites.
+			this.load.image('1_F_ORIENT_01', 'assets/sprite/1_F_ORIENT_01.png');
+			this.load.image('1_M_BARD', 'assets/sprite/1_M_BARD.png');
+
+			this.load.audio('bg_theme', 'assets/sound/theme/prontera_fields.mp3');
+
+			// ATLAS
+			this.load.atlasJSONHash('poring', 'assets/sprite/mob/poring.png', 'assets/sprite/mob/poring.json');
 		},
 
 		create : function() {
@@ -44,29 +51,64 @@ var States = {
 			this.marker = this.game.add.graphics();
 			this.marker.lineStyle(2, 0xffffff, 1);
 			this.marker.drawRect(0, 0, 32, 32);
-			
+
 			this.game.input.addMoveCallback(this.updateMarker, this);
+
+			// Music.
+			//this.game.add.audio('bg_theme').play();
+
+			// Single Sprites
+			this.game.add.sprite(160, 320, '1_F_ORIENT_01');
+			this.game.add.sprite(320, 320, '1_M_BARD');
+
+			// create atlas
+			var poring1 = this.game.add.sprite(500, 120, 'poring', '001.png');
+			var poring2 = this.game.add.sprite(320, 90, 'poring', '001.png');
+			var poring3 = this.game.add.sprite(150, 160, 'poring', '001.png');
+			// poring.scale.setTo(0.5,0.5);
+
+			// add animation phases
+			poring1.animations.add('stand_01', [ '001.png', '002.png', '003.png', '004.png' ], 5, true, false);
+			poring2.animations.add('stand_01', [ '001.png', '002.png', '003.png', '004.png' ], 5, true, false);
+			poring3.animations.add('stand_01', [ '001.png', '002.png', '003.png', '004.png' ], 5, true, false);
+
+			// play animation
+			poring1.animations.play('stand_01');
+			poring2.animations.play('stand_01');
+			poring3.animations.play('stand_01');
 		},
 
 		update : function() {
-			
+
 		},
 
 		updateMarker : function() {
 
 			this.marker.x = this.groundLayer.getTileX(this.game.input.activePointer.worldX) * 32;
-		    this.marker.y = this.groundLayer.getTileY(this.game.input.activePointer.worldY) * 32;
+			this.marker.y = this.groundLayer.getTileY(this.game.input.activePointer.worldY) * 32;
 
 		}
 	}
 };
 
+/**
+ * Bestia Graphics engine. Responsible for displaying the game collecting user
+ * input and sending these data to the server.
+ * 
+ * @class Bestia.Engine
+ */
 Bestia.Engine = function() {
 
-	 this.info = {};
-	 this.info.fps = ko.observable(0);
-	 this.info.fps.extend({rateLimit: 1000});
-	 
+	this.options = {
+		enableMusic : ko.observable('true'),
+		musicVolume : ko.observable(100)
+	};
+
+	this.info = {};
+	this.info.fps = ko.observable(0);
+	this.info.fps.extend({
+		rateLimit : 1000
+	});
 
 	function preload() {
 	}
@@ -77,12 +119,14 @@ Bestia.Engine = function() {
 	function update() {
 
 		// Update Ticker.
-		// info.fps(game.time.fps);
+		info.fps(this.game.time.fps);
 	}
 
 	// Determine the size of the canvas.
+	var height = $(document).height();
+	var width = $('#canvas-container').width();
 
-	var game = new Phaser.Game(800, 600, Phaser.AUTO, 'bestia-canvas', {
+	var game = new Phaser.Game(width, height, Phaser.AUTO, 'bestia-canvas', {
 		preload : preload,
 		create : create,
 		update : update

@@ -81,6 +81,8 @@
 					</div>
 
 				</div>
+				
+				<div id="trans-test" data-i18n="app.name">test.test1</div>
 			</div>
 
 			<div style="clear: both"></div>
@@ -130,7 +132,7 @@
 	</div>
 
 	<!-- DEBUG VIEWS -->
-	<div id="canvas-debug" class="debug-box" data-bind="with: engine.info" style="top: 10px; right: 10px; width: 100px;">
+	<div id="canvas-debug" class="debug-box" data-bind="with: engine.info, visible: config.debug" style="top: 10px; right: 10px; width: 100px;">
 		<p>
 			FPS: <span data-bind="text: fps"></span>
 		</p>

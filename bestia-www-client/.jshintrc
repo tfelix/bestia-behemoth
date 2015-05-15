@@ -1,5 +1,5 @@
 {
-  "globals"     : { "Bestia": false, "jQuery": false, "ko": false, "Phaser": false, "$": false, "JSON": false},
+  "globals"     : { "Bestia": false, "jQuery": false, "ko": false, "Phaser": false, "$": false, "JSON": false, "i18n": false},
 
   // Ignore Environment Globals
   "browser"     : true,   // Standard browser globals e.g. `window`, `document`.
