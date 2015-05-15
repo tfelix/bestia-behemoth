@@ -4,22 +4,23 @@ $(document).ready(function() {
 	'use strict';
 
 	// Bootstrap the behemoth.
-	
+
 	var config = new Bestia.Config();
 	var net = new Bestia.Net(config);
 	var inventory = new Bestia.Inventory(net);
 	var bestias = new Bestia.BestiaInfoViewModel(net);
-	//var chat = new Bestia.Chat($('#chat')[0], 'rocket');
+	var chat = new Bestia.ChatViewModel('rocket');
+	var engine = new Bestia.Engine();
 
 	Game.config = config;
 	Game.net = net;
 	Game.inventory = inventory;
 	Game.bestias = bestias;
-	//Game.chat = chat;
-	
+	Game.chat = chat;
+	Game.engine = engine;
+
 	// Bind the DOM to the game.
 	ko.applyBindings(Game);
-	
 
 	// Simulate the server communication.
 	var serverInfo = {
@@ -31,7 +32,7 @@ $(document).ready(function() {
 	};
 
 	Bestia.publish('server.info', serverInfo);
-	
+
 	// Server sendet welche Bestia selektiert wurde (Bestia master)
 	var bm = {
 		pbid : 1337,
@@ -68,7 +69,7 @@ $(document).ready(function() {
 			cHp : 45,
 			mHp : 56
 		},
-		sl: 0,
+		sl : 0,
 		cn : 'Blubber',
 		bdbn : 'doom_master',
 		se : [],
@@ -109,7 +110,7 @@ $(document).ready(function() {
 			cHp : 45,
 			mHp : 56
 		},
-		sl: 1,
+		sl : 1,
 		cn : 'Bla bla bla',
 		bdbn : 'blob',
 		se : [],
@@ -215,8 +216,6 @@ $(document).ready(function() {
 		sn : ''
 	} ];
 
-	// $.publish('chat.message', {mid: 'chat.message', m: 'PARTY', txt: 'Das ist
-	// ein Chat test.', sn: 'rocket'});
 	for (var i = 0; i < msgs.length; i++) {
 		var msg = msgs[i];
 		Bestia.publish('chat.message', msg);

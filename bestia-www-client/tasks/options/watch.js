@@ -12,5 +12,10 @@ module.exports = {
 	html: {
 		files : ['<%= source_dir %>/*.html'],
 		tasks : [ 'copy']
+	},
+	
+	asset : {
+		files : ['../game-data/**/*'],
+		tasks : [ 'copy:dist' ]
 	}
 };

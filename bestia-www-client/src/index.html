@@ -94,11 +94,11 @@
 				</div>
 			</div>
 
-			<!-- CHAT
-			<div id="chat" data-bind="width: chat">
+			<!-- CHAT -->
+			<div id="chat" data-bind="with: chat">
 				<div class="chat-msgs" data-bind="foreach: messages">
 
-					<div data-bind="css: cssMode" style="display: none;">
+					<div data-bind="css: cssMode">
 						<span data-bind="click: $parent.setWhisperNick, visible: nickname().length > 0" class="nick"><span
 							data-bind="text: nickname"></span>: </span><span data-bind="text: text"></span>
 					</div>
@@ -122,16 +122,19 @@
 			</div>
 			<!-- /CHAT -->
 
+			<!-- GAME CANVAS -->
 			<div id="bestia-canvas"></div>
+			<!-- /GAME CANVAS -->
+			
 		</div>
 	</div>
 
 	<!-- DEBUG VIEWS -->
-	<!-- 
-	<div id="canvas-debug" class="debug-box" style="top: 10px; right: 10px; width: 100px;">
+	<div id="canvas-debug" class="debug-box" data-bind="with: engine.info" style="top: 10px; right: 10px; width: 100px;">
 		<p>
 			FPS: <span data-bind="text: fps"></span>
 		</p>
+		<!-- 
 		<p>
 			Entities: <span data-bind="text: entities"></span>
 		</p>
@@ -141,9 +144,10 @@
 		<p>
 			Show Water: <input data-bind="checked: showHumidity" type="checkbox">
 		</p>
-	</div>-->
+		-->
+	</div>
 
-	<div id="server-info" class="debug-box" data-bind="with: config" style="bottom: 10px; left: 10px; width: 300px;">
+	<div id="server-info" class="debug-box" data-bind="with: config, visible: config.debug" style="bottom: 10px; left: 10px; width: 300px;">
 		<p>
 			Zone-Server: <span data-bind="text: server"></span>
 		</p>

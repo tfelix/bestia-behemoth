@@ -20,8 +20,39 @@ Bestia.ChatViewModel = function(localNickname) {
 	var self = this;
 
 	// Config values.
-	self.MAX_MESSAGES = 50;
-	self.localNickname = localNickname;
+	this.MAX_MESSAGES = 50;
+	this.localNickname = localNickname;
+	
+	this._commandHandler = [];
+	var whisperRegex = /^\/[wW] (\w.+) /;
+
+	/**
+	 * Identifying local chat commands which can be executed directly by the
+	 * client. Later when this gets more complex we might need to refactor this
+	 * as an extra class.
+	 */
+	this._identifyLocalCommandTyping = function(str) {
+		if (str.startsWith('/s ')) {
+			// Public chat.
+			self.model.mode('PUBLIC');
+			self.model.text(str.replace('/s ', ''));
+			self.model.whisperNick('');
+		} else if (str.startsWith('/p ')) {
+			// Party chat.
+			self.model.mode('PARTY');
+			self.model.text(str.replace('/p ', ''));
+			self.model.whisperNick('');
+		} else if (str.startsWith('/g ')) {
+			// Guild chat.
+			self.model.mode('GUILD');
+			self.model.text(str.replace('/g ', ''));
+			self.model.whisperNick('');
+		} else if (whisperRegex.test(str)) {
+			// Whisper chat.
+			self.model.whisperNick(RegExp.$1);
+			self.model.text(str.replace(whisperRegex, ''));
+		}
+	};
 
 	self.mode = ko.observable('PUBLIC');
 	self.modeText = ko.computed(function() {
@@ -39,6 +70,11 @@ Bestia.ChatViewModel = function(localNickname) {
 	self.whisperNick = ko.observable('');
 	self.messages = ko.observableArray();
 	self.text = ko.observable('');
+	// Check for constant updates to this value e.g. if the user is typing
+	// to this property. react to certain inputs on the fly.
+	self.text.subscribe(function(newValue) {
+		self._identifyLocalCommandTyping(newValue);
+	});
 
 	/**
 	 * Changes the mode of the model.
@@ -85,9 +121,15 @@ Bestia.ChatViewModel = function(localNickname) {
 		self.addMessage(msg);
 	};
 
+	
 	self.setWhisperNick = function(message) {
 		self.whisperNick(message.nickname());
 	};
+	
+	// Finally subscribe to chat messages.
+	Bestia.subscribe('chat.message', function(_, msg) {
+		self.addMessage(msg);
+	});
 };
 
 /**
@@ -99,4 +141,11 @@ Bestia.ChatViewModel.prototype.addMessage = function(msg) {
 	if (this.messages().length > this.MAX_MESSAGES) {
 		this.messages.shift();
 	}
+};
+
+/**
+ * Adds a message to the chat model.
+ */
+Bestia.ChatViewModel.prototype.registerCommand = function(cmd) {
+	this._commandHandler.push(cmd);
 };

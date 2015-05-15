@@ -18,7 +18,7 @@ Bestia.Config = function() {
 	self.server = ko.observable('');
 	self.connectedPlayer = ko.observable(0);
 	self.resourceURL = ko.observable('');
-	self.debug = ko.observable(false);
+	self.debug = ko.observable(true);
 	self.locale = ko.observable('de-DE');
 
 	var onMessageHandler = function(_, msg) {
