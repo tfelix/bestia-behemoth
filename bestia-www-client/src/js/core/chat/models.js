@@ -34,23 +34,23 @@ Bestia.ChatViewModel = function(localNickname) {
 	this._identifyLocalCommandTyping = function(str) {
 		if (str.startsWith('/s ')) {
 			// Public chat.
-			self.model.mode('PUBLIC');
-			self.model.text(str.replace('/s ', ''));
-			self.model.whisperNick('');
+			self.mode('PUBLIC');
+			self.text(str.replace('/s ', ''));
+			self.whisperNick('');
 		} else if (str.startsWith('/p ')) {
 			// Party chat.
-			self.model.mode('PARTY');
-			self.model.text(str.replace('/p ', ''));
-			self.model.whisperNick('');
+			self.mode('PARTY');
+			self.text(str.replace('/p ', ''));
+			self.whisperNick('');
 		} else if (str.startsWith('/g ')) {
 			// Guild chat.
-			self.model.mode('GUILD');
-			self.model.text(str.replace('/g ', ''));
-			self.model.whisperNick('');
+			self.mode('GUILD');
+			self.text(str.replace('/g ', ''));
+			self.whisperNick('');
 		} else if (whisperRegex.test(str)) {
 			// Whisper chat.
-			self.model.whisperNick(RegExp.$1);
-			self.model.text(str.replace(whisperRegex, ''));
+			self.whisperNick(RegExp.$1);
+			self.text(str.replace(whisperRegex, ''));
 		}
 	};
 
