@@ -1,0 +1,44 @@
+{"frames": {
+
+"001.png":
+{
+	"frame": {"x":2,"y":2,"w":37,"h":36},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":37,"h":36},
+	"sourceSize": {"w":37,"h":36}
+},
+"002.png":
+{
+	"frame": {"x":41,"y":2,"w":39,"h":37},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":39,"h":37},
+	"sourceSize": {"w":39,"h":37}
+},
+"003.png":
+{
+	"frame": {"x":82,"y":2,"w":41,"h":39},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":41,"h":39},
+	"sourceSize": {"w":41,"h":39}
+},
+"004.png":
+{
+	"frame": {"x":125,"y":2,"w":39,"h":33},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":39,"h":33},
+	"sourceSize": {"w":39,"h":33}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "poring.png",
+	"format": "RGBA8888",
+	"size": {"w":166,"h":43},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:8899471c36099e7db61f0d16c78a7ec3:3e20bdc6cc95c1edd5f307ebc4960711:41f69e9f57ef5978a096f296c878d334$"
+}
+}
