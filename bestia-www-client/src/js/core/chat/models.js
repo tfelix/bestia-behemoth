@@ -65,6 +65,8 @@ Bestia.ChatViewModel = function(localNickname) {
 		if (self.mode() == 'GUILD') {
 			return i18n.t('chat.guild');
 		}
+		
+		return i18n.t('chat.public');
 	});
 	self.whisperNick = ko.observable('');
 	self.messages = ko.observableArray();
