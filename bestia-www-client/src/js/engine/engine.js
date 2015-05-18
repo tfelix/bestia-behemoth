@@ -70,8 +70,8 @@ var States = {
 			// add animation phases
 			poring1.animations.add('stand_01', [ 'stand/001.png', 'stand/002.png', 'stand/003.png', 'stand/004.png' ],
 					5, true, false);
-			poring1.animations.add('walk_left', [ 'walk/001.png', 'walk/002.png', 'walk/003.png', 'walk/004.png', 'walk/005.png', 'walk/006.png', 'walk/007.png', 'walk/008.png' ],
-					5, true, false);
+			poring1.animations.add('walk_left', [ 'walk/001.png', 'walk/002.png', 'walk/003.png', 'walk/004.png',
+					'walk/005.png', 'walk/006.png', 'walk/007.png', 'walk/008.png' ], 5, true, false);
 			poring2.animations.add('stand_01', [ 'stand/001.png', 'stand/002.png', 'stand/003.png', 'stand/004.png' ],
 					5, true, false);
 			poring3.animations.add('stand_01', [ 'stand/001.png', 'stand/002.png', 'stand/003.png', 'stand/004.png' ],
@@ -160,8 +160,11 @@ Bestia.Engine = function() {
 		update : update
 	});
 
-	game.state.add('loading', States.loading);
+	// game.state.add('loading', States.loading);
 	game.state.add('game', States.game);
+	game.state.add('loading', new Bestia.Engine.States.LoadingState());
 
 	game.state.start('loading');
 };
+
+Bestia.Engine.States = {};
