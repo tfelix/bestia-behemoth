@@ -7,7 +7,7 @@ module.exports = function(grunt) {
 
 	var jsFiles = [ 'src/js/bestia.js', 'src/js/core/config.js',
 	// === CHAT ===
-	'src/js/core/chat/models.js', 'src/js/core/chat/chat.js',
+	'src/js/chat/chat_message.js', 'src/js/chat/chat.js', 'src/js/chat/commands/*.js',
 	// === BESTIAS ===
 	'src/js/core/bestia/models.js', 'src/js/core/bestia/bestias.js', 'src/js/util/net.js', 'src/js/util/pubsub.js',
 			'src/js/io/message.js', 'src/js/inventory/inventory.js', 'src/js/view/system.pingpong.js',

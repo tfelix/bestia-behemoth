@@ -9,7 +9,7 @@ $(document).ready(function() {
 	var net = new Bestia.Net(config);
 	var inventory = new Bestia.Inventory(net);
 	var bestias = new Bestia.BestiaInfoViewModel(net);
-	var chat = new Bestia.ChatViewModel('rocket');
+	var chat = new Bestia.Chat(Game, 'rocket');
 	var engine = new Bestia.Engine();
 
 	Game.config = config;
