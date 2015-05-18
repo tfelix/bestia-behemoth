@@ -13,15 +13,12 @@ ul.dropdown li {
 ul.dropdown {
 	position: relative;
 	z-index: 600;
-	float: left;
-	padding: 0;
-	
+	padding: 0 2px;
 	li:hover {
 		position: relative;
 		z-index: 600;
 		cursor: pointer;
 		background: red;
-		
 		li:hover {
 			background: green;
 		}
@@ -56,7 +53,6 @@ ul.dropdown li:hover > ul {
 	border: 1px solid #C0C0C0;
 	position: absolute;
 	bottom: 0px;
-	
 	.whisper-nick {
 		float: left;
 		margin: 0 3px;
@@ -112,18 +108,25 @@ ul.dropdown li:hover > ul {
 	border: 1px solid black;
 	margin-top: 3px;
 	font-size: 0.9em;
-	padding: 2px 0;
-	
+	padding: 0 2px;
+	.flex ();
+	form {
+		display: block;
+		flex: 1;
+		width: 100%;
+	}
+
 	input {
+		width: 100%;
 		margin-left: 2px;
 		border: none;
 		padding: 0;
-		margin: 0;
-		background: #4F4F4F;
+		margin: 0 0 0 4px;
+		background: transparent;
 		color: #E8E8E8;
 		box-sizing: border-box;
-     -webkit-box-sizing:border-box;
-     -moz-box-sizing: border-box;
+		-webkit-box-sizing: border-box;
+		-moz-box-sizing: border-box;
 	}
 }
 
