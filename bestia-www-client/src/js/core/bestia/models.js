@@ -127,9 +127,31 @@ Bestia.BestiaInfoViewModel = function(net) {
 		self.update(msg);
 
 	};
+	
+	/**
+	 * Handler is called if an update is send for one bestia.
+	 */
+	var onUpdateHandler = function(_, msg) {
+		// Find the bestia which should be updated.
+		var bestias = self.bestias();
+		
+		for(var i = 0; i < bestias.length; i++) {
+			if(bestias[i].playerBestiaId() !== msg.pbid) {
+				continue;
+			}
+			bestias[i].update(msg);
+			break;
+		}
+		
+		// Check aswell for the bestia master.
+		if(self.selectedBestia.playerBestiaId() === msg.pbid) {
+			self.selectedBestia.update(msg);
+		}
+	}
 
 	// Register for messages from the server.
 	Bestia.subscribe('bestia.init', onInitHandler);
+	Bestia.subscribe('bestia.update', onUpdateHandler);
 };
 
 /**

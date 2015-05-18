@@ -125,6 +125,51 @@ $(document).ready(function() {
 	};
 	Bestia.publish('bestia.init', bestiaInfo);
 
+	window.setTimeout(function() {
+		var bm = {
+			pbid : 1337,
+			s : 'doommaster.png',
+			loc : {
+				mid : 20,
+				x : 10,
+				y : 15,
+				mn : 'Doomyland'
+			},
+			spO : {
+				atk : 20,
+				def : 120,
+				spatk : 123,
+				spdef : 234,
+				arm : 12,
+				sparm : 6,
+				spd : 5,
+				cMana : 12,
+				mMana : 45,
+				cHp : 45,
+				mHp : 56
+			},
+			sp : {
+				atk : 20,
+				def : 120,
+				spatk : 123,
+				spdef : 234,
+				arm : 12,
+				sparm : 6,
+				spd : 5,
+				cMana : 45,
+				mMana : 45,
+				cHp : 56,
+				mHp : 56
+			},
+			sl : 0,
+			cn : 'Blubber',
+			bdbn : 'doom_master',
+			se : [],
+			img : 'dommaster.png'
+		};
+		Bestia.publish('bestia.update', bm);
+	}, 3000);
+
 	// Add item amount.
 	var item1 = {
 		iid : 15, // item id
@@ -223,7 +268,10 @@ $(document).ready(function() {
 	}
 
 	// Final code.
-	i18n.init({ lng: "de", fallbackLng: false }, function(){
+	i18n.init({
+		lng : "de",
+		fallbackLng : false
+	}, function() {
 		$('#trans-test').i18n();
 		$('#chat').i18n();
 	});
