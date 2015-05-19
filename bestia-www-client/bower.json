@@ -22,6 +22,7 @@
     "proton": "*",
     "bootstrap": "~3.3.4",
     "html5shiv": "~3.7.2",
-    "jquery-atmosphere": "~2.2.7"
+    "jquery-atmosphere": "~2.2.7",
+    "phaser-state-transition-plugin": "~0.1.5"
   }
 }
