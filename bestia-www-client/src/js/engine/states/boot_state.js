@@ -22,7 +22,7 @@ Bestia.Engine.States.BootState.prototype = {
 			y : 3
 		}, 2000, Phaser.Easing.Linear.None);
 		tween.onComplete.addOnce(function() {
-			this.game.state.start('game');
+			this.game.state.start('loading');
 		}, this);
 		tween.start();
 	},
