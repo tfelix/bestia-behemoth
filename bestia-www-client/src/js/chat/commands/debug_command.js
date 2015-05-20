@@ -5,6 +5,7 @@
  * 
  * @returns TRUE if the chat string starts with this command. FALSE otherwise.
  */
+/*
 Bestia.Chat.localCommands.push(function(chat, game, input) {
 	
 	var cmdStr = /\/debug (ON|OFF)/gi;
@@ -14,10 +15,10 @@ Bestia.Chat.localCommands.push(function(chat, game, input) {
 	}
 
 	if(RegExp.$1.toUpperCase() === 'ON') {
-		Game.config.debug(true);
+		game.config.debug(true);
 	} else {
-		Game.config.debug(false);
+		game.config.debug(false);
 	}
 
 	return true;
-});
+});*/

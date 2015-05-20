@@ -5,6 +5,7 @@
  * 
  * @returns TRUE if the chat string starts with this command. FALSE otherwise.
  */
+/*
 Bestia.Chat.localCommands.push(function(chat, game, input) {
 
 	if (!strStartsWith(input, '/clear')) {
@@ -15,4 +16,4 @@ Bestia.Chat.localCommands.push(function(chat, game, input) {
 	chat.text('');
 
 	return true;
-});
+});*/

@@ -6,6 +6,11 @@
 	"chat": {
 		"public" : "Öffentlich",
 		"party" : "Party",
-		"guild" : "Gilde"
+		"guild" : "Gilde",
+		
+		"commands" : {
+			"help_short" : "/help - Listet alle nutzbaren Chat Kommandos auf.",
+			"help" : ""
+		}
 	}
 }

@@ -5,7 +5,7 @@ module.exports = function(grunt) {
 
 	var loadConfig = require('load-grunt-config');
 
-	var jsFiles = [ 'src/js/bestia.js', 'src/js/core/config.js',
+	var jsFiles = [ 'src/js/bestia.js', 'src/js/config.js',
 	// === CHAT ===
 	'src/js/chat/chat_message.js', 'src/js/chat/chat.js', 'src/js/chat/commands/*.js',
 	// === BESTIAS ===

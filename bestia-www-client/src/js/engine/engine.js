@@ -17,18 +17,6 @@ Bestia.Engine = function() {
 		rateLimit : 1000
 	});
 
-	function preload() {
-	}
-
-	function create() {
-	}
-
-	function update() {
-
-		// Update Ticker.
-		info.fps(this.game.time.fps);
-	}
-
 	// Determine the size of the canvas.
 	var height = $(document).height();
 	var width = $('#canvas-container').width();

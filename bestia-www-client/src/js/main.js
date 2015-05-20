@@ -1,27 +1,26 @@
-var Game = {};
+var BG = {};
 
-$(document).ready(function() {
-	'use strict';
-
+function bootstrap() {
 	// Bootstrap the behemoth.
-
 	var config = new Bestia.Config();
 	var net = new Bestia.Net(config);
 	var inventory = new Bestia.Inventory(net);
 	var bestias = new Bestia.BestiaInfoViewModel(net);
-	var chat = new Bestia.Chat(Game, 'rocket');
+	var chat = new Bestia.Chat(BG, 'rocket');
 	var engine = new Bestia.Engine();
 
-	Game.config = config;
-	Game.net = net;
-	Game.inventory = inventory;
-	Game.bestias = bestias;
-	Game.chat = chat;
-	Game.engine = engine;
+	BG.config = config;
+	BG.net = net;
+	BG.inventory = inventory;
+	BG.bestias = bestias;
+	BG.chat = chat;
+	BG.engine = engine;
 
 	// Bind the DOM to the game.
-	ko.applyBindings(Game);
+	ko.applyBindings(BG);
+}
 
+function simulate() {
 	// Simulate the server communication.
 	var serverInfo = {
 		z : [ 'test-1', 'test-2' ],
@@ -266,13 +265,17 @@ $(document).ready(function() {
 		Bestia.publish('chat.message', msg);
 		Bestia.publish('chat.message', msg);
 	}
+}
 
-	// Final code.
-	i18n.init({
-		lng : "de",
-		fallbackLng : false
-	}, function() {
-		$('#trans-test').i18n();
-		$('#chat').i18n();
-	});
+//Final code.
+i18n.init({
+	lng : "de",
+	fallbackLng : false
+}, function() {
+	$('#trans-test').i18n();
+	$('#chat').i18n();
+	
+	// Setup the game object.
+	bootstrap();
+	simulate();
 });

@@ -5,7 +5,7 @@
 
 function strStartsWith(str, start) {
 	return str.slice(0, start.length) == start;
-};
+}
 
 /**
  * Chat for the bestia client. It subscribes to the necessairy messages to get
@@ -29,6 +29,14 @@ Bestia.Chat = function(game, localNickname) {
 	 */
 	this.MAX_MESSAGES = 50;
 	this.localNickname = localNickname;
+
+	/**
+	 * Array list of local commands. Commands can register themselve to this
+	 * array and they will be executed when a message is typed so the can
+	 * interact with the user. For a sample implementation look inside the
+	 * command folder.
+	 */
+	this._localCommands = [];
 	this.whisperRegex = /^\/[wW] (\w.+) /;
 
 	self.mode = ko.observable('PUBLIC');
@@ -67,20 +75,16 @@ Bestia.Chat = function(game, localNickname) {
 	 */
 	self.sendChat = function() {
 		var msgText = self.text();
-		
+
 		// Clear text.
 		self.text('');
 
-		var localCmd = Bestia.Chat.localCommands;
+		var localCmd = this._localCommands;
 		for (var i = 0; i < localCmd.length; i++) {
-			if (localCmd[i](self, self.game, msgText) === true) {
+			if (localCmd[i].executeCommand(msgText, self, self.game) === true) {
 				// Command was handled.
 				return;
 			}
-		}
-
-		if (self.executeLocalCommand(msgText)) {
-			return;
 		}
 
 		var msg = new Bestia.Message.Chat(self.mode(), msgText, self.whisperNick(), self.localNickname);
@@ -93,23 +97,26 @@ Bestia.Chat = function(game, localNickname) {
 		self.whisperNick(message.nickname());
 	};
 
+	// Register all local command handler.
+	$.each(Bestia.Chat.Commands, function(key, value) {
+		// BasicCommand is kind of a abstract placeholder. It has no use. Skip
+		// it.
+		if (key === 'BasicCommand') {
+			return;
+		}
+		self._localCommands.push(new value());
+	});
+
 	// Finally subscribe to chat messages.
 	Bestia.subscribe('chat.message', function(_, msg) {
 		self.addMessage(msg);
 	});
+
 };
 
 /**
- * Static array list of local commands. Commands can register themselve to this
- * array and they will be executed when a message is typed so the can interact
- * with the user. For a sample implementation look inside the command folder.
- * 
- * @static
- */
-Bestia.Chat.localCommands = [];
-
-/**
- * Adds a message to the chat model.
+ * Adds a message to the chat model. Message is from the server and therefore a
+ * server object.
  */
 Bestia.Chat.prototype.addMessage = function(msg) {
 	this.messages.push(new Bestia.ChatMessage(msg));
@@ -118,6 +125,22 @@ Bestia.Chat.prototype.addMessage = function(msg) {
 		this.messages.shift();
 	}
 };
+
+/**
+ * Locally add a message from a script event to display it to the user.
+ * 
+ * @method Bestia.Chat#addLocalMessage
+ * @param {String}
+ *            msg - Textstring to add to the chat.
+ * @param {String}
+ *            mode - Mode/Type of the message to add. Possible types are:
+ *            PUBLIC, PARTY, GUILD, WHISPER, SYSTEM, GM_BROADCAST, ERROR,
+ *            COMMAND.
+ */
+Bestia.Chat.prototype.addLocalMessage = function(msg, mode) {
+	var msgObj = new Bestia.Message.Chat(mode, msg);
+	this.addMessage(msgObj);
+}
 
 /**
  * Identifying local chat commands which can be executed directly by the client.
@@ -144,6 +167,13 @@ Bestia.Chat.prototype._identifyLocalCommandTyping = function(str) {
 		this.whisperNick('');
 	} else if (this.whisperRegex.test(str)) { // Whisper chat.
 		this.whisperNick(RegExp.$1);
-		this.text(str.replace(whisperRegex, ''));
+		this.text(str.replace(this.whisperRegex, ''));
 	}
 };
+
+/**
+ * Holds all objects for defined local chat commands.
+ * 
+ * @namespace Bestia.Chat.Commands
+ */
+Bestia.Chat.Commands = {};
