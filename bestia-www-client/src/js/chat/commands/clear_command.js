@@ -3,17 +3,17 @@
  * 
  * Usage: /clear
  * 
- * @returns TRUE if the chat string starts with this command. FALSE otherwise.
  */
-/*
-Bestia.Chat.localCommands.push(function(chat, game, input) {
+Bestia.Chat.Commands.ClearCommand = function() {
+	this.paramRegex = /\/clear/gi;
+	this.cmdRegex = /\/clear/gi;
 
-	if (!strStartsWith(input, '/clear')) {
-		return false;
-	}
+	this.cmdHandle = 'clear';
+};
 
+Bestia.Chat.Commands.ClearCommand.prototype = new Bestia.Chat.Commands.BasicCommand();
+Bestia.Chat.Commands.ClearCommand.prototype.constructor = Bestia.Chat.Commands.ClearCommand;
+
+Bestia.Chat.Commands.ClearCommand.prototype._doCommand = function(cmdStr, chat, game) {
 	chat.messages.removeAll();
-	chat.text('');
-
-	return true;
-});*/
+}

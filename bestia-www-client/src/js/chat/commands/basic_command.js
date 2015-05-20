@@ -3,8 +3,8 @@ Bestia.Chat.Commands.BasicCommand = function() {
 	this.cmdRegex = new RegExp();
 	this.paramRegex = new RegExp();
 
-	this.shortHelp = "";
-	this.help = "";
+	this.cmdHandle = '';
+	this.matches = null;
 };
 
 Bestia.Chat.Commands.BasicCommand.prototype._checkCommand = function(cmdStr, chat, game) {
@@ -12,7 +12,8 @@ Bestia.Chat.Commands.BasicCommand.prototype._checkCommand = function(cmdStr, cha
 };
 
 Bestia.Chat.Commands.BasicCommand.prototype._checkParameter = function(cmdStr) {
-	return this.paramRegex.test(cmdStr);
+	this.matches = this.paramRegex.exec(cmdStr);
+	return this.matches !== null;
 };
 
 Bestia.Chat.Commands.BasicCommand.prototype.executeCommand = function(cmdStr, chat, game) {
@@ -30,7 +31,7 @@ Bestia.Chat.Commands.BasicCommand.prototype.executeCommand = function(cmdStr, ch
 		return true;
 	}
 	
-	this._doCommand();
+	this._doCommand(cmdStr, chat, game);
 	return true;
 };
 
@@ -40,8 +41,8 @@ Bestia.Chat.Commands.BasicCommand.prototype.executeCommand = function(cmdStr, ch
  * @method Bestia.Chat.Commands.ChatCommand#shortHelp
  * @return void
  */
-Bestia.Chat.Commands.BasicCommand.prototype._shortHelp = function(chat) {
-	chat.addLocalMessage(this.shortHelp, 'SYSTEM');
+Bestia.Chat.Commands.BasicCommand.prototype._shortHelp = function(chat) {	
+	chat.addLocalMessage(i18n.t('chat.commands.'+this.cmdHandle+'_short'), 'SYSTEM');
 };
 
 /**
@@ -52,7 +53,7 @@ Bestia.Chat.Commands.BasicCommand.prototype._shortHelp = function(chat) {
  *            chat - Chat instance.
  */
 Bestia.Chat.Commands.BasicCommand.prototype._help = function(chat) {
-	chat.addLocalMessage(this.help, 'SYSTEM');
+	chat.addLocalMessage(i18n.t('chat.commands.'+this.cmdHandle), 'SYSTEM');
 };
 
 Bestia.Chat.Commands.BasicCommand.prototype._doCommand = function(cmdStr, chat, game) {

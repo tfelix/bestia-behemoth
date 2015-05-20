@@ -10,7 +10,12 @@
 		
 		"commands" : {
 			"help_short" : "/help - Listet alle nutzbaren Chat Kommandos auf.",
-			"help" : ""
+			"help" : "Vewendung: /help",
+			"clear_short" : "/clear - Löscht den Chat.",
+			"clear" : "Verwendung: /clear",
+			"debug_short" : "/debug - Aktiviert die Debugausgabe.",
+			"debug" : "Verwendung: /debug ON|OFF "
+				
 		}
 	}
 }

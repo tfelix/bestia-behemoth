@@ -5,20 +5,20 @@
  * 
  * @returns TRUE if the chat string starts with this command. FALSE otherwise.
  */
-/*
-Bestia.Chat.localCommands.push(function(chat, game, input) {
-	
-	var cmdStr = /\/debug (ON|OFF)/gi;
-	
-	if(!input.match(cmdStr)) {
-		return false;
-	}
+Bestia.Chat.Commands.DebugCommand = function() {
+	this.cmdRegex = /\/debug/gi;
+	this.paramRegex = /\/debug (ON|OFF)/gi;
 
-	if(RegExp.$1.toUpperCase() === 'ON') {
+	this.cmdHandle = 'debug';
+};
+
+Bestia.Chat.Commands.DebugCommand.prototype = new Bestia.Chat.Commands.BasicCommand();
+Bestia.Chat.Commands.DebugCommand.prototype.constructor = Bestia.Chat.Commands.DebugCommand;
+
+Bestia.Chat.Commands.DebugCommand.prototype._doCommand = function(cmdStr, chat, game) {
+	if(this.matches[1].toUpperCase() === 'ON') {
 		game.config.debug(true);
 	} else {
 		game.config.debug(false);
 	}
-
-	return true;
-});*/
+};

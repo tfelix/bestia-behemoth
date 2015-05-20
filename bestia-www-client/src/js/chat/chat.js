@@ -38,6 +38,7 @@ Bestia.Chat = function(game, localNickname) {
 	 */
 	this._localCommands = [];
 	this.whisperRegex = /^\/[wW] (\w.+) /;
+	this.game = game;
 
 	self.mode = ko.observable('PUBLIC');
 	self.modeText = ko.computed(function() {
