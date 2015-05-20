@@ -9,12 +9,15 @@ module.exports = function(grunt) {
 	// === CHAT ===
 	'src/js/chat/chat_message.js', 'src/js/chat/chat.js', 'src/js/chat/commands/*.js',
 	// === BESTIAS ===
-	'src/js/core/bestia/models.js', 'src/js/core/bestia/bestias.js', 'src/js/util/net.js', 'src/js/util/pubsub.js',
-			'src/js/io/message.js', 'src/js/inventory/inventory.js', 'src/js/view/system.pingpong.js',
-	// === ENGINE ===	
-	'src/js/engine/engine.js','src/js/engine/states/*.js', 
-	// === ETC ===	
-	'src/js/chat.js', 'src/js/main.js' ];
+	'src/js/bestia/status_point_view_model.js', 'src/js/bestia/bestia_view_model.js',
+			'src/js/bestia/bestia_info_view_model.js',
+			// === MISC ===
+			'src/js/core/bestia/bestias.js', 'src/js/util/net.js', 'src/js/util/pubsub.js', 'src/js/io/message.js',
+			'src/js/inventory/inventory.js', 'src/js/view/system.pingpong.js',
+			// === ENGINE ===
+			'src/js/engine/engine.js', 'src/js/engine/states/*.js',
+			// === ETC ===
+			'src/js/chat.js', 'src/js/main.js' ];
 
 	loadConfig(grunt, {
 		configPath : __dirname + '/tasks/options',
