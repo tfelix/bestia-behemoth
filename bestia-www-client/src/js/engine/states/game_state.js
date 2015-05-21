@@ -8,6 +8,16 @@ Bestia.Engine.States.GameState = function() {
 	this.marker = null;
 	this.groundLayer = null;
 
+	/**
+	 * Holds AStar plugin reference to calculate paths of the bestias when
+	 * clicked by the user. The other bestias are controlled by the server. But
+	 * user movement will be controlled by the client.
+	 * 
+	 * @private
+	 * @property
+	 */
+	this.astar = null;
+
 	this.config = {
 		mapNameStyle : {
 			font : "65px Arial",
@@ -36,17 +46,22 @@ Bestia.Engine.States.GameState.prototype = {
 	},
 
 	create : function() {
-		var map = this.game.add.tilemap('map');
 		
+		var map = this.game.add.tilemap('map');
+
 		// Extract map properties.
 		var props = map.properties;
 		props.isPVP = (props.isPVP === "true");
-		
-		
+
 		map.addTilesetImage('Berge', 'tiles');
 		this.groundLayer = map.createLayer('layer_0');
 		this.groundLayer.resizeWorld();
 		map.createLayer('layer_1');
+		
+		// Prepare the AStar plugin.
+		this.astar =  this.game.plugins.add(Phaser.Plugin.AStar);
+		this.astar.setAStarMap(map, 'maze', 'claytus');
+
 
 		// Our painting marker
 		this.marker = this.game.add.graphics();

@@ -15,6 +15,7 @@ module.exports = function(grunt) {
 			'src/js/core/bestia/bestias.js', 'src/js/util/net.js', 'src/js/util/pubsub.js', 'src/js/io/message.js',
 			'src/js/inventory/inventory.js', 'src/js/view/system.pingpong.js',
 			// === ENGINE ===
+			'src/js/engine/plugins/AStar.js',
 			'src/js/engine/engine.js', 'src/js/engine/states/*.js',
 			// === ETC ===
 			'src/js/chat.js', 'src/js/main.js' ];
