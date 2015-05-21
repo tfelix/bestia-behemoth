@@ -6,9 +6,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" type="text/css" href="css/app.css" />
+<link rel="stylesheet" type="text/css" href="css/login.css" />
 
-
+<script src="js/lib.js"></script>
+<script src="js/app-login.js"></script>
 
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -20,7 +21,22 @@
 </head>
 <body>
 
-<h1>Login</h1>
+	<div class="login-box">
+	<h3 data-i18n="login.title">Bestia</h3>
+	<p></p>
+		<form>
+			<div class="form-group">
+				<label for="inputEmail1" data-i18n="login.username">Username</label> <input type="text" class="form-control"
+					id="inputEmail1" data-i18n="[placeholder]login.username_placeholder;" placeholder="Enter username">
+			</div>
+			<div class="form-group">
+				<label for="inputPassword1" data-i18n="login.password">Password</label> <input type="password" class="form-control"
+					id="inputPassword1" data-i18n="[placeholder]login.password_placeholder;" placeholder="Password">
+			</div>
+			<button type="submit" class="btn btn-default" data-i18n="login.login">Login</button>
+		</form>
+		<h5>Version: XXX</h5>
+	</div>
 
 </body>
 </html>

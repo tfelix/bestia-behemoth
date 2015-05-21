@@ -22,5 +22,13 @@
 	"map": {
 		"testmap1" : "Die Felder von Kalarian",
 		"testmap1_long" : "Dies ist ein längerer Untertitel der eingeblendet werden kann..."
+	},
+	
+	"login": {
+		"username" : "Benutzername",
+		"title" : "Bestia - Anmeldung",
+		"username_placeholder": "Benutzernamen...",
+		"password_placeholder": "Passwort...",
+		"login": "Anmelden"
 	}
 }

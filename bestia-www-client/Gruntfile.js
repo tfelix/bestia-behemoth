@@ -47,7 +47,7 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('compile', 'Compile all.', [ 'clean', 'copy', 'compile-js', 'compile-css' ]);
 
-	grunt.registerTask('test', 'Testing of the framework.', [ 'jshint', 'jasmine' ]);
+	grunt.registerTask('test', 'Testing of the framework.', [ 'jsonlint', 'jshint', 'jasmine' ]);
 
 	// grunt.registerTask('dist', 'Packages the build files for distribution.',
 	// function() {});

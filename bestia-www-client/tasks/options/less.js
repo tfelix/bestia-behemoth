@@ -6,7 +6,8 @@ module.exports = {
 			sourceMapURL: '/css/app.css.map',
 		},
 		files : {
-			'build/css/app.css' : 'src/css/less/main.less'
+			'build/css/app.css' : 'src/css/less/main.less',
+			'build/css/login.css' : 'src/css/less/login.less'
 		}
 	}
 };
