@@ -17,5 +17,10 @@
 			"debug" : "Verwendung: /debug ON|OFF "
 				
 		}
+	},
+	
+	"map": {
+		"testmap1" : "Die Felder von Kalarian",
+		"testmap1_long" : "Dies ist ein längerer Untertitel der eingeblendet werden kann..."
 	}
 }

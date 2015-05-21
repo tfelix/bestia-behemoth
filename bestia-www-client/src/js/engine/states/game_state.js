@@ -7,11 +7,18 @@
 Bestia.Engine.States.GameState = function() {
 	this.marker = null;
 	this.groundLayer = null;
+
+	this.config = {
+		mapNameStyle : {
+			font : "65px Arial",
+			fill : "#ff0044",
+			align : "center"
+		}
+	}
 };
 
 Bestia.Engine.States.GameState.prototype = {
-		
-		
+
 	preload : function() {
 		// TODO Sollte ausgelagert werden in den Loading State.
 		this.load.image('logo', 'assets/img/logo_small.png');
@@ -30,10 +37,16 @@ Bestia.Engine.States.GameState.prototype = {
 
 	create : function() {
 		var map = this.game.add.tilemap('map');
+		
+		// Extract map properties.
+		var props = map.properties;
+		props.isPVP = (props.isPVP === "true");
+		
+		
 		map.addTilesetImage('Berge', 'tiles');
-		this.groundLayer = map.createLayer('Boden');
+		this.groundLayer = map.createLayer('layer_0');
 		this.groundLayer.resizeWorld();
-		map.createLayer('Berge');
+		map.createLayer('layer_1');
 
 		// Our painting marker
 		this.marker = this.game.add.graphics();
@@ -56,14 +69,14 @@ Bestia.Engine.States.GameState.prototype = {
 		// poring.scale.setTo(0.5,0.5);
 
 		// add animation phases
-		poring1.animations.add('stand_01', [ 'stand/001.png', 'stand/002.png', 'stand/003.png', 'stand/004.png' ],
-				5, true, false);
+		poring1.animations.add('stand_01', [ 'stand/001.png', 'stand/002.png', 'stand/003.png', 'stand/004.png' ], 5,
+				true, false);
 		poring1.animations.add('walk_left', [ 'walk/001.png', 'walk/002.png', 'walk/003.png', 'walk/004.png',
 				'walk/005.png', 'walk/006.png', 'walk/007.png', 'walk/008.png' ], 5, true, false);
-		poring2.animations.add('stand_01', [ 'stand/001.png', 'stand/002.png', 'stand/003.png', 'stand/004.png' ],
-				5, true, false);
-		poring3.animations.add('stand_01', [ 'stand/001.png', 'stand/002.png', 'stand/003.png', 'stand/004.png' ],
-				5, true, false);
+		poring2.animations.add('stand_01', [ 'stand/001.png', 'stand/002.png', 'stand/003.png', 'stand/004.png' ], 5,
+				true, false);
+		poring3.animations.add('stand_01', [ 'stand/001.png', 'stand/002.png', 'stand/003.png', 'stand/004.png' ], 5,
+				true, false);
 
 		// play animation
 		poring1.animations.play('walk_left');
@@ -92,12 +105,40 @@ Bestia.Engine.States.GameState.prototype = {
 			alpha : 0
 		}, 100, Phaser.Easing.Linear.None, true, 900).start();
 		tween.start();
+
+		// ========== DISPLAY MAP NAME ==============
+		var mapName = i18n.t('map.' + props.mapDbName);
+		var bPvp = false;
+		text = this.game.add.text(this.game._width / 2, this.game._height / 2 - 100, mapName);
+		text.align = 'center';
+		text.anchor.setTo(0.5);
+		// Font style
+		text.font = 'Arial';
+		text.fontSize = 50;
+		text.fontWeight = 'bold';
+
+		// Stroke color and thickness
+		text.stroke = '#525252';
+		text.strokeThickness = 4;
+		if (props.isPVP) {
+			text.fill = '#D9B525';
+		} else {
+			text.fill = '#2ED925';
+		}
+		text.alpha = 0;
+
+		var textTween = this.game.add.tween(text).to({
+			alpha : 1
+		}, 2000, Phaser.Easing.Linear.None, false, 1000).to({
+			alpha : 0
+		}, 2000, Phaser.Easing.Linear.None, false, 2500).start();
+
 	},
 
 	update : function() {
 
 	},
-	
+
 	updateMarker : function() {
 
 		this.marker.x = this.groundLayer.getTileX(this.game.input.activePointer.worldX) * 32;
