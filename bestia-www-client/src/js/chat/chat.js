@@ -25,6 +25,7 @@ Bestia.Chat = function(game, localNickname) {
 	/**
 	 * Number of max messages until old messages are discarded.
 	 * 
+	 * @property
 	 * @contant
 	 */
 	this.MAX_MESSAGES = 50;
@@ -54,8 +55,21 @@ Bestia.Chat = function(game, localNickname) {
 
 		return i18n.t('chat.public');
 	});
+	/**
+	 * Holds the nickname which is used to whisper someone.
+	 * @property
+	 */
 	self.whisperNick = ko.observable('');
+	
+	/**
+	 * Holds all the messages for the chat.
+	 * @property
+	 */
 	self.messages = ko.observableArray();
+	
+	/**
+	 * Holds the text of the chat.
+	 */
 	self.text = ko.observable('');
 	// Check for constant updates to this value e.g. if the user is typing
 	// to this property. react to certain inputs on the fly.
@@ -99,13 +113,13 @@ Bestia.Chat = function(game, localNickname) {
 	};
 
 	// Register all local command handler.
-	$.each(Bestia.Chat.Commands, function(key, value) {
+	$.each(Bestia.Chat.Commands, function(key, Command) {
 		// BasicCommand is kind of a abstract placeholder. It has no use. Skip
 		// it.
 		if (key === 'BasicCommand') {
 			return;
 		}
-		self._localCommands.push(new value());
+		self._localCommands.push(new Command());
 	});
 
 	// Finally subscribe to chat messages.
@@ -141,7 +155,7 @@ Bestia.Chat.prototype.addMessage = function(msg) {
 Bestia.Chat.prototype.addLocalMessage = function(msg, mode) {
 	var msgObj = new Bestia.Message.Chat(mode, msg);
 	this.addMessage(msgObj);
-}
+};
 
 /**
  * Identifying local chat commands which can be executed directly by the client.
