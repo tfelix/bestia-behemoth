@@ -7,6 +7,7 @@
 Bestia.Engine.States.GameState = function() {
 	this.marker = null;
 	this.groundLayer = null;
+	this.map = null;
 
 	/**
 	 * Holds AStar plugin reference to calculate paths of the bestias when
@@ -23,8 +24,12 @@ Bestia.Engine.States.GameState = function() {
 			font : "65px Arial",
 			fill : "#ff0044",
 			align : "center"
+		},
+		tileSize : 32,
+		debug : {
+			renderCollision: true
 		}
-	}
+	};
 };
 
 Bestia.Engine.States.GameState.prototype = {
@@ -47,20 +52,35 @@ Bestia.Engine.States.GameState.prototype = {
 
 	create : function() {
 		
+		this.gfxCollision = this.add.graphics(0, 0);
+		this.gfxCollision.beginFill(0xFF0000, 0.5);
+		
 		var map = this.game.add.tilemap('map');
+		this.map = map;
 
 		// Extract map properties.
 		var props = map.properties;
 		props.isPVP = (props.isPVP === "true");
 
 		map.addTilesetImage('Berge', 'tiles');
+		// Ground layer MUST be present.
 		this.groundLayer = map.createLayer('layer_0');
 		this.groundLayer.resizeWorld();
-		map.createLayer('layer_1');
+		
+		// Now check how many layer there are and then create them.
+		for(var i = 0; i < map.layers.length; i++) {
+			var layer = map.layers[i];
+			if(layer.name === 'layer_0') {
+				continue;
+			}
+			if(layer.name.match(/layer_\d/gi)) {
+				map.createLayer(layer.name);
+			}
+		}
 		
 		// Prepare the AStar plugin.
-		this.astar =  this.game.plugins.add(Phaser.Plugin.AStar);
-		this.astar.setAStarMap(map, 'maze', 'claytus');
+		// this.astar = this.game.plugins.add(Phaser.Plugin.AStar);
+		// this.astar.setAStarMap(map, 'maze', 'claytus');
 
 
 		// Our painting marker
@@ -150,7 +170,7 @@ Bestia.Engine.States.GameState.prototype = {
 
 	},
 
-	update : function() {
+	render : function() {
 
 	},
 
@@ -159,6 +179,18 @@ Bestia.Engine.States.GameState.prototype = {
 		this.marker.x = this.groundLayer.getTileX(this.game.input.activePointer.worldX) * 32;
 		this.marker.y = this.groundLayer.getTileY(this.game.input.activePointer.worldY) * 32;
 
+	},
+	
+	getTilePos : function(x) {
+		return Math.floor(x / this.config.tileSize);
+	},
+	
+	renderCollisions : function() {
+		
+		// Loop over all visible tiles and check if they are walkable. if not render a block.
+		var x = 0;
+		var y = 0;
+		this.gfxCollision.drawRect(x, y, this.config.tileSize, this.config.tileSize) ;
 	}
 };
 
