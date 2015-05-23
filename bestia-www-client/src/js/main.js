@@ -16,8 +16,16 @@ function bootstrap() {
 	BG.chat = chat;
 	BG.engine = engine;
 
-	// Bind the DOM to the game.
-	ko.applyBindings(BG);
+	// UI init must wait until dom is loaded and accessible.
+	$(document).ready(function() {
+		BG.page = {
+			logoutDialog : new Bestia.Page.LogoutDialog('#modal-logout')
+		};
+		
+		// Bind the DOM to the game.
+		ko.applyBindings(BG);
+	});
+
 }
 
 function simulate() {
@@ -267,14 +275,14 @@ function simulate() {
 	}
 }
 
-//Final code.
+// Final code.
 i18n.init({
 	lng : "de",
 	fallbackLng : false
 }, function() {
 	$('#trans-test').i18n();
 	$('#chat').i18n();
-	
+
 	// Setup the game object.
 	bootstrap();
 	simulate();

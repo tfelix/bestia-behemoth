@@ -51,9 +51,12 @@
 						</div>
 					</div>
 				</div>
+				
+				<!-- UI BUTTONS -->
+				<div></div>
+				<!-- /UI BUTTONS -->
 
 				<div id="bestia-slots" data-bind="foreach: bestias">
-
 					<div class="bestia-slot" data-bind="click: selectBestia">
 						<img src="http://placehold.it/64x64" alt="Bestia" style="float: left; margin: 10px;">
 						<div class="name">
@@ -124,12 +127,13 @@
 			<!-- GAME CANVAS -->
 			<div id="bestia-canvas"></div>
 			<!-- /GAME CANVAS -->
-			
+
 		</div>
 	</div>
 
 	<!-- DEBUG VIEWS -->
-	<div id="canvas-debug" class="debug-box" data-bind="with: engine.info, visible: config.debug" style="top: 10px; right: 10px; width: 100px;">
+	<div id="canvas-debug" class="debug-box" data-bind="with: engine.info, visible: config.debug"
+		style="top: 10px; right: 10px; width: 100px;">
 		<p>
 			FPS: <span data-bind="text: fps"></span>
 		</p>
@@ -146,7 +150,8 @@
 		-->
 	</div>
 
-	<div id="server-info" class="debug-box" data-bind="with: config, visible: config.debug" style="bottom: 10px; left: 10px; width: 300px;">
+	<div id="server-info" class="debug-box" data-bind="with: config, visible: config.debug"
+		style="bottom: 10px; left: 10px; width: 300px;">
 		<p>
 			Zone-Server: <span data-bind="text: server"></span>
 		</p>
@@ -197,5 +202,27 @@
 				<td data-bind="text: spArmor">23%</td>
 			</tr>
 		</table>-->
+
+	<div id="modal-logout" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Ausgeloggt...</h4>
+				</div>
+				<div class="modal-body">
+					<p>Du wurdest vom Bestia Game ausgeloggt. Bitte logge dich erneut ein.</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!-- /.modal -->
 </body>
 </html>
