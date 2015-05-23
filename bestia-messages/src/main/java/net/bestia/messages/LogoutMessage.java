@@ -1,4 +1,4 @@
-package net.bestia.core.message;
+package net.bestia.messages;
 
 public class LogoutMessage extends Message {
 	

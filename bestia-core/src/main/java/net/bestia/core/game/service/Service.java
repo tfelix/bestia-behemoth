@@ -3,8 +3,8 @@ package net.bestia.core.game.service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.bestia.core.message.Message;
 import net.bestia.core.net.Messenger;
+import net.bestia.messages.Message;
 
 /**
  * Abstract base class for all services. Provides facility to send out

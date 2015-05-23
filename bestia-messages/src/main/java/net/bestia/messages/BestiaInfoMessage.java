@@ -1,4 +1,4 @@
-package net.bestia.core.message;
+package net.bestia.messages;
 
 import java.util.ArrayList;
 import java.util.List;

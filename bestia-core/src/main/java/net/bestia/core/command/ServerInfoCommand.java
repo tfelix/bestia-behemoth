@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bestia.core.game.zone.Zone;
-import net.bestia.core.message.Message;
-import net.bestia.core.message.ServerInfoMessage;
 import net.bestia.core.util.BestiaConfiguration;
+import net.bestia.messages.Message;
+import net.bestia.messages.ServerInfoMessage;
 
 /**
  * Returns information about this zone server which is requested and needed for the client in order to start operation.

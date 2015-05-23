@@ -15,6 +15,9 @@ function bootstrap() {
 	BG.bestias = bestias;
 	BG.chat = chat;
 	BG.engine = engine;
+	BG.connection = new Bestia.Connection();
+	
+	BG.connection.init();
 
 	// UI init must wait until dom is loaded and accessible.
 	$(document).ready(function() {

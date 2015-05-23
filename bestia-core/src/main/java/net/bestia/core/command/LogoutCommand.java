@@ -1,7 +1,7 @@
 package net.bestia.core.command;
 
-import net.bestia.core.message.LogoutMessage;
-import net.bestia.core.message.Message;
+import net.bestia.messages.LogoutMessage;
+import net.bestia.messages.Message;
 
 class LogoutCommand extends Command {
 

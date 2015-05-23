@@ -4,10 +4,10 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.bestia.core.BestiaZoneserverTest;
-import net.bestia.core.message.Message;
-import net.bestia.core.message.PingMessage;
-import net.bestia.core.message.PongMessage;
-import net.bestia.core.message.ServerInfoMessage;
+import net.bestia.messages.Message;
+import net.bestia.messages.PingMessage;
+import net.bestia.messages.PongMessage;
+import net.bestia.messages.ServerInfoMessage;
 
 public class CommandIntegrationTest extends BestiaZoneserverTest {
 

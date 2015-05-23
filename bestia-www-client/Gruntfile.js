@@ -12,11 +12,10 @@ module.exports = function(grunt) {
 	'src/js/bestia/status_point_view_model.js', 'src/js/bestia/bestia_view_model.js',
 			'src/js/bestia/bestia_info_view_model.js',
 			// === MISC ===
-			'src/js/core/bestia/bestias.js', 'src/js/util/net.js', 'src/js/util/pubsub.js', 'src/js/io/message.js',
-			'src/js/inventory/inventory.js', 'src/js/view/system.pingpong.js',
+			'src/js/core/bestia/bestias.js', 'src/js/util/net.js', 'src/js/util/pubsub.js', 'src/js/io/connection.js',
+			'src/js/io/message.js', 'src/js/inventory/inventory.js', 'src/js/view/system.pingpong.js',
 			// === ENGINE ===
-			'src/js/engine/plugins/AStar.js',
-			'src/js/engine/engine.js', 'src/js/engine/states/*.js',
+			'src/js/engine/plugins/AStar.js', 'src/js/engine/engine.js', 'src/js/engine/states/*.js',
 			// === PAGE ===
 			'src/js/pages/main.js',
 			// === ETC ===

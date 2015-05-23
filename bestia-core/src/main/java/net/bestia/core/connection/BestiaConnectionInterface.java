@@ -3,7 +3,7 @@ package net.bestia.core.connection;
 import java.io.IOException;
 import java.util.UUID;
 
-import net.bestia.core.message.Message;
+import net.bestia.messages.Message;
 
 /**
  * All services who whish to interface with the bestia gameserver should implement this interface and route all

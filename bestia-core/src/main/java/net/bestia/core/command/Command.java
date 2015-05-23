@@ -1,6 +1,6 @@
 package net.bestia.core.command;
 
-import net.bestia.core.message.Message;
+import net.bestia.messages.Message;
 
 /**
  * This class represents the very basic interface for commands which are

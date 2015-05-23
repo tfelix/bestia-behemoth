@@ -4,8 +4,8 @@ import net.bestia.core.game.model.Account;
 import net.bestia.core.game.model.Location;
 import net.bestia.core.game.model.PlayerBestia;
 import net.bestia.core.game.model.StatusPoints;
-import net.bestia.core.message.Message;
 import net.bestia.core.net.Messenger;
+import net.bestia.messages.Message;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

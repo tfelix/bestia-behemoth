@@ -11,9 +11,9 @@ import net.bestia.core.connection.BestiaConnectionInterface;
 import net.bestia.core.game.service.AccountService;
 import net.bestia.core.game.service.AccountServiceFactory;
 import net.bestia.core.game.service.ServiceFactory;
-import net.bestia.core.message.Message;
-import net.bestia.core.message.PingMessage;
 import net.bestia.core.util.CurrentThreadExecutorService;
+import net.bestia.messages.Message;
+import net.bestia.messages.PingMessage;
 
 import org.junit.After;
 import org.junit.AfterClass;

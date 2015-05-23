@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import net.bestia.core.game.model.PlayerBestia;
 import net.bestia.core.game.service.AccountService;
 import net.bestia.core.game.service.AccountServiceFactory;
-import net.bestia.core.message.BestiaInfoMessage;
-import net.bestia.core.message.Message;
+import net.bestia.messages.BestiaInfoMessage;
+import net.bestia.messages.Message;
 
 /**
  * Gathers information about all bestias which are currently under the control

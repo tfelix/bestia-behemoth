@@ -1,8 +1,10 @@
-package net.bestia.core.message;
+package net.bestia.messages.jackson;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Set;
+
+import net.bestia.messages.Message;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

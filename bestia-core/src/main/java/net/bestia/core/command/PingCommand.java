@@ -1,8 +1,8 @@
 package net.bestia.core.command;
 
-import net.bestia.core.message.Message;
-import net.bestia.core.message.PingMessage;
-import net.bestia.core.message.PongMessage;
+import net.bestia.messages.Message;
+import net.bestia.messages.PingMessage;
+import net.bestia.messages.PongMessage;
 
 /**
  * Creates a Pong message which is echoed to the client. This is the answer of a

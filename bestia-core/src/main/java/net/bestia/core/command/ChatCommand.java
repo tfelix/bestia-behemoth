@@ -1,9 +1,9 @@
 package net.bestia.core.command;
 
-import net.bestia.core.message.ChatEchoMessage;
-import net.bestia.core.message.ChatEchoMessage.EchoCode;
-import net.bestia.core.message.ChatMessage;
-import net.bestia.core.message.Message;
+import net.bestia.messages.ChatEchoMessage;
+import net.bestia.messages.ChatMessage;
+import net.bestia.messages.Message;
+import net.bestia.messages.ChatEchoMessage.EchoCode;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

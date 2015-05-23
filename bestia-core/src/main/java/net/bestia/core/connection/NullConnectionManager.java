@@ -2,7 +2,7 @@ package net.bestia.core.connection;
 
 import java.util.UUID;
 
-import net.bestia.core.message.Message;
+import net.bestia.messages.Message;
 
 /**
  * ConnectionManager for testing purposes. It simply does nothing

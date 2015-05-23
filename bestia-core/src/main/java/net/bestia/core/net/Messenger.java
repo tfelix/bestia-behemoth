@@ -10,7 +10,7 @@ import java.util.concurrent.ExecutorService;
 import javax.annotation.processing.Messager;
 
 import net.bestia.core.connection.BestiaConnectionInterface;
-import net.bestia.core.message.Message;
+import net.bestia.messages.Message;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -16,6 +16,8 @@ public class App {
 			//File configFile = new File(App.class.getClassLoader().getResource("bestia.properties").toURI());
 
 			log.info("Starting the Bestia Behemoth Websocket Server...");
+			
+			log.debug("Try to connect to interserver...");
 
 			Config.Builder b = new Config.Builder();
 			b.host("0.0.0.0").port(8080);

@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import net.bestia.core.message.Message;
+import net.bestia.messages.Message;
 
 import org.junit.Assert;
 import org.reflections.Reflections;

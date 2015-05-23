@@ -1,7 +1,8 @@
-package net.bestia.core.message;
+package net.bestia.messages;
+
+import net.bestia.messages.jackson.MessageTypeIdResolver;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeId;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;

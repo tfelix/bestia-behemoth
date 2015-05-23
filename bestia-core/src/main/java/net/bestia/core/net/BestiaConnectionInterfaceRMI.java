@@ -5,7 +5,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 import net.bestia.core.connection.BestiaConnectionInterface;
-import net.bestia.core.message.Message;
+import net.bestia.messages.Message;
 
 public interface BestiaConnectionInterfaceRMI extends Remote, BestiaConnectionInterface {
 	
