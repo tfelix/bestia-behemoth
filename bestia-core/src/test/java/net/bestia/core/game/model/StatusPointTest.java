@@ -1,7 +1,7 @@
 package net.bestia.core.game.model;
 
 
-import net.bestia.core.game.model.StatusPoints;
+import net.bestia.model.StatusPoints;
 
 import org.junit.Assert;
 import org.junit.Test;

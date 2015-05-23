@@ -1,4 +1,4 @@
-package net.bestia.core.game.battle;
+package net.bestia.model;
 
 public enum PVPMode {
 	AGRESSIVE,

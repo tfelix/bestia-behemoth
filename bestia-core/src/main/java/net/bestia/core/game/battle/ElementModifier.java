@@ -3,6 +3,8 @@ package net.bestia.core.game.battle;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.bestia.model.Element;
+
 /**
  * Returns the attack damage modifier for a given elemental set of the attacker
  * and defender. Since this class is immutable it is thread-safe.

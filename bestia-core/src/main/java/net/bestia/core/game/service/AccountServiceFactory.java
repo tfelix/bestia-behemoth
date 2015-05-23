@@ -1,8 +1,8 @@
 package net.bestia.core.game.service;
 
-import net.bestia.core.game.model.Account;
 import net.bestia.core.net.Messenger;
 import net.bestia.core.persist.AccountDAO;
+import net.bestia.model.Account;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -1,4 +1,4 @@
-package net.bestia.core.game.battle;
+package net.bestia.model;
 
 /**
  * List of all elements used by the Bestia game.

@@ -1,6 +1,6 @@
 package net.bestia.core.persist;
 
-import net.bestia.core.game.model.Account;
+import net.bestia.model.Account;
 
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;

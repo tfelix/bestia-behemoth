@@ -1,4 +1,4 @@
-package net.bestia.core.game.model;
+package net.bestia.model;
 
 import java.sql.Date;
 
@@ -17,8 +17,6 @@ import javax.persistence.PrimaryKeyJoinColumn;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import net.bestia.core.game.battle.PVPMode;
 
 /**
  * Entity for the PlayerBestias these are bestias which are directly controlled

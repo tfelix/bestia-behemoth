@@ -1,11 +1,11 @@
 package net.bestia.core.game.service;
 
-import net.bestia.core.game.model.Account;
-import net.bestia.core.game.model.Location;
-import net.bestia.core.game.model.PlayerBestia;
-import net.bestia.core.game.model.StatusPoints;
 import net.bestia.core.net.Messenger;
 import net.bestia.messages.Message;
+import net.bestia.model.Account;
+import net.bestia.model.Location;
+import net.bestia.model.PlayerBestia;
+import net.bestia.model.StatusPoints;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

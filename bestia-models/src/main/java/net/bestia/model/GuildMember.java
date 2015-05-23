@@ -1,4 +1,4 @@
-package net.bestia.core.game.model;
+package net.bestia.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

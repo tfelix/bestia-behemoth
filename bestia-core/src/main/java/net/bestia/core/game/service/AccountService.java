@@ -1,10 +1,10 @@
 package net.bestia.core.game.service;
 
-import net.bestia.core.game.model.Account;
-import net.bestia.core.game.model.Password;
 import net.bestia.core.net.Messenger;
 import net.bestia.messages.AccountInfoMessage;
 import net.bestia.messages.Message;
+import net.bestia.model.Account;
+import net.bestia.model.Password;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

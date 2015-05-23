@@ -2,11 +2,11 @@ package net.bestia.core.command;
 
 import java.util.ArrayList;
 
-import net.bestia.core.game.model.PlayerBestia;
 import net.bestia.core.game.service.AccountService;
 import net.bestia.core.game.service.AccountServiceFactory;
 import net.bestia.messages.BestiaInfoMessage;
 import net.bestia.messages.Message;
+import net.bestia.model.PlayerBestia;
 
 /**
  * Gathers information about all bestias which are currently under the control

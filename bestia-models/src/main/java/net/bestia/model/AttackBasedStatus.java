@@ -1,4 +1,4 @@
-package net.bestia.core.game.battle;
+package net.bestia.model;
 
 /**
  * Specifies on which status value an attack is based.

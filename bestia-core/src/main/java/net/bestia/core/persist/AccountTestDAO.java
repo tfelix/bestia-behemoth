@@ -2,7 +2,7 @@ package net.bestia.core.persist;
 
 import java.util.List;
 
-import net.bestia.core.game.model.Account;
+import net.bestia.model.Account;
 
 import org.hibernate.Query;
 

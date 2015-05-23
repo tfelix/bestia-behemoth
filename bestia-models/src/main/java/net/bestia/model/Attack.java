@@ -1,12 +1,9 @@
-package net.bestia.core.game.model;
+package net.bestia.model;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
-
-import net.bestia.core.game.battle.AttackBasedStatus;
-import net.bestia.core.game.battle.Element;
 
 @Entity
 public class Attack {

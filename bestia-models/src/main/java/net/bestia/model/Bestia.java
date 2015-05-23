@@ -1,10 +1,7 @@
-package net.bestia.core.game.model;
+package net.bestia.model;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.persistence.AttributeOverrides;
 import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -15,13 +12,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.OneToMany;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import net.bestia.core.game.battle.AttackBasedStatus;
-import net.bestia.core.game.battle.Element;
 
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)

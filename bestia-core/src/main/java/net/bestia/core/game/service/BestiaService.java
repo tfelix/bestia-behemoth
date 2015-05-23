@@ -1,9 +1,9 @@
 package net.bestia.core.game.service;
 
-import net.bestia.core.game.model.Bestia;
-import net.bestia.core.game.model.StatusEffect;
-import net.bestia.core.game.model.StatusPoints;
 import net.bestia.core.net.Messenger;
+import net.bestia.model.Bestia;
+import net.bestia.model.StatusEffect;
+import net.bestia.model.StatusPoints;
 
 /**
  * Simple basic service for bestias. It is abstract because

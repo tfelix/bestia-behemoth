@@ -1,4 +1,4 @@
-package net.bestia.core.game.model;
+package net.bestia.model;
 
 import java.util.Set;
 

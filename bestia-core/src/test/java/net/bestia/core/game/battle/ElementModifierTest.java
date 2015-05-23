@@ -1,5 +1,7 @@
 package net.bestia.core.game.battle;
 
+import net.bestia.model.Element;
+
 import org.junit.*;
 
 
