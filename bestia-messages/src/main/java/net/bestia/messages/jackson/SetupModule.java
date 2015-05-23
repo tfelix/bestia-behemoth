@@ -1,7 +1,7 @@
 package net.bestia.messages.jackson;
 
-import net.bestia.core.game.model.Location;
-import net.bestia.core.game.model.PlayerBestia;
+import net.bestia.model.Location;
+import net.bestia.model.PlayerBestia;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;

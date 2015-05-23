@@ -2,7 +2,7 @@ package net.bestia.messages;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.core.game.model.Account;
+import net.bestia.model.Account;
 
 public class AccountInfoMessage extends Message {
 

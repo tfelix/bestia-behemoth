@@ -2,8 +2,6 @@ package net.bestia.messages;
 
 import java.util.List;
 
-import net.bestia.core.BestiaZoneserver;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -20,7 +18,7 @@ public final class ServerInfoMessage extends Message {
 	private List<String> zones;
 
 	@JsonProperty("v")
-	private String version = BestiaZoneserver.VERSION;
+	private String version = "VERSIONEINFÜGEN";
 
 	@JsonProperty("cp")
 	private int connectedPlayer;

@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.core.game.model.PlayerBestia;
+import net.bestia.model.PlayerBestia;
 
 public class BestiaInfoMessage extends Message {
 	

@@ -29,6 +29,11 @@
          <artifactId>reflections</artifactId>
          <version>0.9.9-RC1</version>
      </dependency>
+     <dependency>
+     	<groupId>net.bestia</groupId>
+     	<artifactId>bestia-models</artifactId>
+     	<version>${project.version}</version>
+     </dependency>
 	</dependencies>
 	<description>Bestia Messages are used to communicate between the servers and the client. The messages are usually serialized or serialized to JSON with Jackson.</description>
 	<organization>

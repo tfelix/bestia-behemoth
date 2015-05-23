@@ -2,12 +2,12 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>tiled</groupId>
-  <artifactId>tiled</artifactId>
+  <groupId>map-tmxloader</groupId>
+  <artifactId>map-tmxloader</artifactId>
   <version>1.0</version>
   <packaging>jar</packaging>
 
-  <name>tiled</name>
+  <name>map-tmxloader</name>
   <parent>
 		<groupId>net.bestia</groupId>
 		<artifactId>behemoth</artifactId>
