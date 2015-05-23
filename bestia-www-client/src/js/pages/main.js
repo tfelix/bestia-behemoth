@@ -35,7 +35,7 @@ Bestia.Page.LogoutDialog = function(domID) {
 	});
 
 	Bestia.subscribe('system.logout', $.proxy(this._handleLogout, this));
-}
+};
 
 /**
  * Handler for the logout system message.
@@ -44,4 +44,4 @@ Bestia.Page.LogoutDialog = function(domID) {
  */
 Bestia.Page.LogoutDialog.prototype._handleLogout = function() {
 	this.dialog.modal('show');
-}
+};

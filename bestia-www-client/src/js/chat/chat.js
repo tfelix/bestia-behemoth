@@ -41,8 +41,8 @@ Bestia.Chat = function(game, localNickname) {
 	this.whisperRegex = /^\/[wW] (\w.+) /;
 	this.game = game;
 
-	self.mode = ko.observable('PUBLIC');
-	self.modeText = ko.computed(function() {
+	this.mode = ko.observable('PUBLIC');
+	this.modeText = ko.computed(function() {
 		if (self.mode() == 'PUBLIC') {
 			return i18n.t('chat.public');
 		}
@@ -57,60 +57,27 @@ Bestia.Chat = function(game, localNickname) {
 	});
 	/**
 	 * Holds the nickname which is used to whisper someone.
+	 * 
 	 * @property
 	 */
-	self.whisperNick = ko.observable('');
-	
+	this.whisperNick = ko.observable('');
+
 	/**
 	 * Holds all the messages for the chat.
+	 * 
 	 * @property
 	 */
-	self.messages = ko.observableArray();
-	
+	this.messages = ko.observableArray();
+
 	/**
 	 * Holds the text of the chat.
 	 */
-	self.text = ko.observable('');
+	this.text = ko.observable('');
 	// Check for constant updates to this value e.g. if the user is typing
 	// to this property. react to certain inputs on the fly.
-	self.text.subscribe(function(newValue) {
+	this.text.subscribe(function(newValue) {
 		self._identifyLocalCommandTyping(newValue);
 	});
-
-	/**
-	 * Changes the mode of the model.
-	 */
-	self.changeMode = function(mode) {
-		self.mode(mode);
-	};
-
-	/**
-	 * Triggers if a chat is about to be send. Create a chat message of all the
-	 * typed information and fire it to the server.
-	 */
-	self.sendChat = function() {
-		var msgText = self.text();
-
-		// Clear text.
-		self.text('');
-
-		var localCmd = this._localCommands;
-		for (var i = 0; i < localCmd.length; i++) {
-			if (localCmd[i].executeCommand(msgText, self, self.game) === true) {
-				// Command was handled.
-				return;
-			}
-		}
-
-		var msg = new Bestia.Message.Chat(self.mode(), msgText, self.whisperNick(), self.localNickname);
-
-		Bestia.publish('io.sendMessage', msg);
-		self.addMessage(msg);
-	};
-
-	self.setWhisperNick = function(message) {
-		self.whisperNick(message.nickname());
-	};
 
 	// Register all local command handler.
 	$.each(Bestia.Chat.Commands, function(key, Command) {
@@ -126,8 +93,49 @@ Bestia.Chat = function(game, localNickname) {
 	Bestia.subscribe('chat.message', function(_, msg) {
 		self.addMessage(msg);
 	});
-
 };
+
+/**
+ * Triggers if a chat is about to be send. Create a chat message of all the
+ * typed information and send it to the server.
+ * 
+ * @public
+ * @method Bestia.Chat#sendChat
+ */
+Bestia.Chat.prototype.sendChat = function() {
+	var msgText = this.text();
+
+	// Clear text.
+	this.text('');
+
+	var localCmd = this._localCommands;
+	for (var i = 0; i < localCmd.length; i++) {
+		if (localCmd[i].executeCommand(msgText, this, this.game) === true) {
+			// Command was handled.
+			return;
+		}
+	}
+
+	var msg = new Bestia.Message.Chat(this.mode(), msgText, this.whisperNick(), this.localNickname);
+
+	Bestia.publish('io.sendMessage', msg);
+	this.addMessage(msg);
+};
+
+/**
+ * Changes the mode of the model. Is used to bind against as a view callback.
+ * 
+ * @public
+ * @method Bestia.Chat#changeMode
+ */
+Bestia.Chat.prototype.changeMode = function(mode) {
+	this.mode(mode);
+};
+
+/*
+ * Bestia.Chat.prototype.setWhisperNick = function(message) {
+ * self.whisperNick(message.nickname()); };
+ */
 
 /**
  * Adds a message to the chat model. Message is from the server and therefore a

@@ -2,7 +2,7 @@
  * View Model for single messages.
  * 
  * @class Bestia.ChatMessage
- * @param {Object} msg - Message object to create the model with.
+ * @param {Object} msg - Message object to create the model.
  */
 Bestia.ChatMessage = function(msg) {
 	var self = this;

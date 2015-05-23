@@ -71,7 +71,6 @@ Bestia.Engine.States.GameState.prototype = {
 			return x.name;
 		});
 		for (var i = 1; i < map.layers.length; i++) {
-			var layer = map.layers[i];
 			var curLayer = 'layer_'+i;
 			if(layerNames.indexOf(curLayer) === -1) {
 				continue;
@@ -122,7 +121,6 @@ Bestia.Engine.States.GameState.prototype = {
 
 		// ========== DISPLAY MAP NAME ==============
 		var mapName = i18n.t('map.' + props.mapDbName);
-		var bPvp = false;
 		text = this.game.add.text(this.game._width / 2, this.game._height / 2 - 100, mapName);
 		text.align = 'center';
 		text.anchor.setTo(0.5);
@@ -141,7 +139,7 @@ Bestia.Engine.States.GameState.prototype = {
 		}
 		text.alpha = 0;
 
-		var textTween = this.game.add.tween(text).to({
+		this.game.add.tween(text).to({
 			alpha : 1
 		}, 2000, Phaser.Easing.Linear.None, false, 1000).to({
 			alpha : 0
