@@ -30,5 +30,10 @@
 		"username_placeholder": "Benutzernamen...",
 		"password_placeholder": "Passwort...",
 		"login": "Anmelden"
+	},
+	
+	"logout": {
+		"title" : "Ausgeloggt...",
+		"msg" : "Du wurdest vom Bestia Game ausgeloggt. Bitte logge dich erneut ein."
 	}
 }
