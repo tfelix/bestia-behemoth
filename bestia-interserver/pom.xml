@@ -19,6 +19,11 @@
 			<artifactId>bestia-config</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>net.bestia</groupId>
+			<artifactId>bestia-messages</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

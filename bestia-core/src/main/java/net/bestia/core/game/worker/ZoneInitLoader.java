@@ -18,7 +18,7 @@ import net.bestia.core.game.zone.map.Map;
 import net.bestia.core.game.zone.map.Map.Mapbuilder;
 import net.bestia.core.game.zone.map.Maploader;
 import net.bestia.core.game.zone.map.TMXMaploader;
-import net.bestia.core.util.BestiaConfiguration;
+import net.bestia.util.BestiaConfiguration;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

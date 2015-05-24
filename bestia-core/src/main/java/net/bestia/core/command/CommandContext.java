@@ -7,7 +7,7 @@ import net.bestia.core.BestiaZoneserver;
 import net.bestia.core.game.service.ServiceFactory;
 import net.bestia.core.game.zone.Zone;
 import net.bestia.core.net.Messenger;
-import net.bestia.core.util.BestiaConfiguration;
+import net.bestia.util.BestiaConfiguration;
 
 /**
  * Facade class to cover the needed information context for a {@link Command} class. It contains references to database

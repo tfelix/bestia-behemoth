@@ -1,5 +1,11 @@
 package net.bestia.connect;
 
+import java.io.IOException;
+import java.nio.channels.ClosedSelectorException;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import net.bestia.util.BestiaConfiguration;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.zeromq.ZMQ;
@@ -10,71 +16,122 @@ public class Interserver {
 
 	private final static Logger log = LogManager.getLogger(Interserver.class);
 
-	public static class SenderThread extends Thread {
-		
-		private Context ctx;
-		
-		public SenderThread(Context ctx) {
-			// TODO Auto-generated constructor stub
+	public static class RequestThread extends Thread {
+
+		private final Context ctx;
+		private final BestiaConfiguration config;
+		private Socket responder;
+		private final String publishUrl;
+		private AtomicBoolean isRunning = new AtomicBoolean(true);
+
+		public RequestThread(String publishUrl, Context ctx, BestiaConfiguration config) {
 			this.ctx = ctx;
+			this.publishUrl = publishUrl;
+			this.config = config;
+
+			this.setName("AnnounceRequestThread");
 		}
 
 		@Override
 		public void run() {
-			// Prepare our context and publisher
-			Socket publisher = ctx.socket(ZMQ.PUB);
-			publisher.bind("tcp://*:9999");
-			
-			while (true) {
-				// Write two messages, each with an envelope and content
-				publisher.sendMore("web/onMessage");
-				publisher.send("Hello World!");
+			responder = ctx.socket(ZMQ.REP);
+			responder.bind("tcp://*:" + config.getProperty("inter.announcePort"));
+
+			while (isRunning.get()) {
+
+				// Wait for next request from the client
+				byte[] msg = null;
 				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
+					log.debug("Interserver is waiting for announcement.");
+					msg = responder.recv(0);
+				} catch (ClosedSelectorException ex) {
+					// Socket was closed by another thread. nop.
+					log.trace("Announcement channel shutdown.", ex);
+				}
+
+				try {
+					AnnounceWebserverMessage request = (AnnounceWebserverMessage) ObjectSerializer
+							.deserializeObject(msg);
+
+					// At the moment there can not be much wrong with the request.
+					log.info("Webserver [{}] joins the bestia network.", request.getName());
+					
+					// Respond with an apropriate message.
+					AnnounceWebserverMessage response = AnnounceWebserverMessage.getReplyMessage("interserver", publishUrl);
+					final byte[] reply = ObjectSerializer.serializeObject(response);
+					responder.send(reply, 0);
+
+				} catch (ClassNotFoundException | IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
 			}
-			//publisher.close();
-			//context.term();
+		}
+
+		public void cancel() {
+			responder.close();
+			isRunning.set(false);
 		}
 	}
 
-	public static void main(String[] args) {
+	private RequestThread requestThread;
+	private BestiaConfiguration config;
+	private Context context;
 
-		final InterserverConfig config = new InterserverConfig();
+	public Interserver() {
+		config = new BestiaConfiguration();
+	}
 
+	/**
+	 * Starts the interserver.
+	 */
+	public void start() {
 		log.info("Starting Bestia Behemoth Interserver...");
-
-		// TODO Replace with build file version.
 		log.info("Version v" + "0.0.1-alpha");
 
-		// TODO hier number of threads einfügen.
-		final Context context = ZMQ.context(1);
+		try {
+			config.load();
+		} catch (IOException ex) {
+			log.fatal("Could not start the interserver.", ex);
+			System.exit(1);
+		}
+		context = ZMQ.context(config.getIntProperty("inter.threads"));
 
-		/*final Socket publisher = context.socket(ZMQ.PUB);
-		publisher.bind("tcp://*:" + config.getPort());
+		// ===== PUB SUB SERVER =====
+		final Socket publisher = context.socket(ZMQ.PUB);
+		publisher.bind("tcp://*:" + config.getProperty("inter.publishPort"));
+		// TODO hier noch was besseres ausdenken wenn das auf verschiedenen servern läuft.
+		final String subscriberUrl = "tcp://localhost:" + config.getProperty("inter.publishPort");
+
+		// ===== REQ REP SERVER =====
+		requestThread = new RequestThread(subscriberUrl, context, config);
+		requestThread.start();
+
+		log.info("Interserver started.");
+
+	}
+
+	/**
+	 * Stops the interserver.
+	 */
+	public void stop() {
+		log.info("Stopping the Interserver...");
+
+		requestThread.cancel();
+		// publisher.close();
+
+		context.term();
+	}
+
+	public static void main(String[] args) {
+		final Interserver interserver = new Interserver();
+		interserver.start();
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
-				log.info("Terminating the Interserver...");
-				publisher.close();
-				context.term();
+				interserver.stop();
 			}
-		});*/
-		
-		// Start pub thread.
-		SenderThread t = new SenderThread(context);
-		t.start();
-
-		// Should be done by zone servers.
-		WebserverSubscriber test = new WebserverSubscriber(config, context);
-		test.subscribe();
-		test.test();
-
-		log.info("Interserver started.");
+		});
 	}
 
 }

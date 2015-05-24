@@ -30,6 +30,11 @@
 			<version>1.7.7</version>
 		</dependency>
 		<dependency>
+			<groupId>net.bestia</groupId>
+			<artifactId>bestia-interserver</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.zeromq</groupId>
 			<artifactId>jeromq</artifactId>
 			<version>0.3.4</version>

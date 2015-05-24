@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.bestia.core.game.zone.entity.QuadTree2;
 import net.bestia.core.game.zone.map.Map;
-import net.bestia.core.util.BestiaConfiguration;
+import net.bestia.util.BestiaConfiguration;
 
 /**
  * The Zone holds the static mapdata as well is responsible for managing

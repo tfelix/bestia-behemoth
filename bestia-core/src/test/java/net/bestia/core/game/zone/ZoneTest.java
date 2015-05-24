@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 import net.bestia.core.BestiaZoneserverTest;
 import net.bestia.core.game.zone.Zone.Event;
 import net.bestia.core.game.zone.map.Map;
-import net.bestia.core.util.BestiaConfiguration;
+import net.bestia.util.BestiaConfiguration;
 
 public class ZoneTest {
 

@@ -21,8 +21,8 @@ import net.bestia.core.game.worker.ScriptInitWorker;
 import net.bestia.core.game.worker.ZoneInitLoader;
 import net.bestia.core.game.zone.Zone;
 import net.bestia.core.net.Messenger;
-import net.bestia.core.util.BestiaConfiguration;
 import net.bestia.messages.Message;
+import net.bestia.util.BestiaConfiguration;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

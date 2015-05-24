@@ -1,8 +1,9 @@
-package net.bestia.core.util;
+package net.bestia.util;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -22,6 +23,26 @@ public class BestiaConfiguration {
 		prop = new Properties();
 	}
 
+	/**
+	 * It will try to load the default configuration file bestia.properties from the classpath.
+	 * 
+	 * @throws IOException
+	 *             If no file could be found or read.
+	 */
+	public void load() throws IOException {
+		ClassLoader loader = this.getClass().getClassLoader();
+		InputStream bestiaStream = loader.getResourceAsStream("bestia.properties");
+		prop.load(bestiaStream);
+	}
+
+	/**
+	 * Loads the given file into the configuration object.
+	 * 
+	 * @param propFile
+	 *            File which holds the configuration.
+	 * @throws IOException
+	 *             If the file could not be found or read.
+	 */
 	public void load(File propFile) throws IOException {
 		prop.load(new FileReader(propFile));
 	}
