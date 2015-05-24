@@ -14,7 +14,7 @@ import net.bestia.messages.Message;
 /**
  * This class provides a facade to the interserver connection.
  * 
- * @author Thomas
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public final class InterserverConnection {
@@ -28,6 +28,11 @@ public final class InterserverConnection {
 		 * @param msg
 		 */
 		public void onMessage(Message msg);
+
+		/**
+		 * Handler gets called if a connection to be interserver is lost and can not be reestablished.
+		 */
+		public void connectionLost();
 	}
 
 	private final InterserverConnectionHandler handler;
@@ -38,11 +43,20 @@ public final class InterserverConnection {
 	private final Context ctx;
 	private final String name;
 
-	public InterserverConnection(String name, InterserverConnectionHandler handler, Context ctx, String publishUrl) {
+	/**
+	 * Maintaines a persistend connection to the interserver. This communication backbone is essential for the operation
+	 * of the webserver. If the connections gets dropped the webserver is headless and without function. It will cease
+	 * to operate without backbone connection.
+	 * 
+	 * @param name
+	 * @param handler
+	 * @param publishUrl
+	 */
+	public InterserverConnection(String name, InterserverConnectionHandler handler, String publishUrl) {
 		this.handler = handler;
 
 		this.name = name;
-		this.ctx = ctx;
+		this.ctx = ZMQ.context(1);
 		subscriber = ctx.socket(ZMQ.SUB);
 		publisher = ctx.socket(ZMQ.PUB);
 
@@ -50,19 +64,32 @@ public final class InterserverConnection {
 		this.interserverUrl = "";
 	}
 
-	public void startPublisher() {
+	private void startPublisher() {
 		publisher.bind(publishUrl);
 	}
 
-	public void connectSubscriber(String subscribeUrl) {
+	private void connectSubscriber(String subscribeUrl) {
 		subscriber.connect(subscribeUrl);
 		// Subscribe only to special topics.
 
 		// Read message contents
 		byte[] data = subscriber.recv(0);
-		Message msg = (Message) ObjectSerializer.deserializeObject(data);
-
-		handler.onMessage(msg);
+		Message msg;
+		try {
+			msg = (Message) ObjectSerializer.deserializeObject(data);
+			handler.onMessage(msg);
+		} catch (ClassNotFoundException | IOException e) {
+			log.error("Could not deserialize message.", e);
+		}
+	}
+	
+	/**
+	 * Sends a message to the interserver.
+	 * 
+	 * @param msg
+	 */
+	public void sendMessage(Message msg) {
+		// TODO implementieren.
 	}
 
 	public void connect() throws IOException {

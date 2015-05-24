@@ -47,6 +47,35 @@ public class BestiaConfiguration {
 		prop.load(new FileReader(propFile));
 	}
 
+	/**
+	 * Builds a domain name/port combination out of the values. This is useful for binding the the webserver and
+	 * interserver. The build string looks like: [PREFIX][DOMAIN][:PORT] where prefix and port are optional. If not
+	 * needed just pass null. The domainkey and portkey reference values in the configuration file.
+	 * 
+	 * @param domainkey
+	 *            Key of the config value to look up as the domain name.
+	 * @param portkey
+	 *            Key of the config value to look up as a port number.
+	 * @param prefix
+	 *            Optional. Prefix of the domain name. Usually its "tcp://".
+	 * @return Build domain string.
+	 */
+	public String getDomainPortString(String domainkey, String portkey, String prefix) {
+
+		String port = "";
+		if (portkey != null) {
+			port = ":" + getProperty(portkey);
+		}
+
+		String domain = getProperty(domainkey);
+		
+		if(prefix == null) {
+			prefix = "";
+		}
+
+		return prefix + domain + port;
+	}
+
 	public String getProperty(String key) {
 		return prop.getProperty(key);
 	}
