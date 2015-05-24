@@ -46,7 +46,7 @@ Bestia.Message = {
 		this.txt = text;
 		this.rxn = nick;
 		this.sn = senderNick || '';
-		this.lmid = Bestia.Message._localMessageId++;
+		this.cmid = Bestia.Message._localMessageId++;
 	},
 
 	/**

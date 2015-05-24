@@ -1,5 +1,7 @@
 package net.bestia.messages;
 
+import java.io.Serializable;
+
 import net.bestia.messages.jackson.MessageTypeIdResolver;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -15,8 +17,9 @@ import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "mid")
 @JsonTypeIdResolver(MessageTypeIdResolver.class)
-public abstract class Message {
+public abstract class Message implements Serializable {
 
+	private static final long serialVersionUID = 2015052401L;
 	private int accountId;
 	private boolean isBroadcast = false;
 
@@ -78,6 +81,6 @@ public abstract class Message {
 
 	@Override
 	public String toString() {
-		return String.format("Message[account id: %d]", accountId);
+		return String.format("Message[message id: %s, account id: %d]", getMessageId(), accountId);
 	}
 }

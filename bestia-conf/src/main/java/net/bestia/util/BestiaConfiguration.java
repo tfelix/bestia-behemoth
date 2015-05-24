@@ -18,6 +18,7 @@ import java.util.Properties;
 public class BestiaConfiguration {
 
 	private Properties prop;
+	private boolean isLoaded = false;
 
 	public BestiaConfiguration() {
 		prop = new Properties();
@@ -33,6 +34,7 @@ public class BestiaConfiguration {
 		ClassLoader loader = this.getClass().getClassLoader();
 		InputStream bestiaStream = loader.getResourceAsStream("bestia.properties");
 		prop.load(bestiaStream);
+		isLoaded = true;
 	}
 
 	/**
@@ -45,6 +47,7 @@ public class BestiaConfiguration {
 	 */
 	public void load(File propFile) throws IOException {
 		prop.load(new FileReader(propFile));
+		isLoaded = true;
 	}
 
 	/**
@@ -87,6 +90,15 @@ public class BestiaConfiguration {
 	public File getMapfile(String zoneName) {
 		Path path = Paths.get(prop.getProperty("gameDataDir"), "maps", zoneName, zoneName + ".tmx");
 		return path.toFile();
+	}
+
+	/**
+	 * Checks if a configuration file has been loaded.
+	 * 
+	 * @return TRUE if a configuration file has been loaded. FALSE otherwise.
+	 */
+	public boolean isLoaded() {
+		return isLoaded;
 	}
 
 }

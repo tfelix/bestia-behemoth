@@ -41,7 +41,7 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 		baseType = bt;
 
 		// Find all classes implementing the message interface.
-		Reflections reflections = new Reflections("net.bestia.core.message");
+		Reflections reflections = new Reflections("net.bestia.messages");
 		Set<Class<? extends Message>> messages = reflections.getSubTypesOf(Message.class);
 		// Instantiate the message classes to get their message id from the method and store
 		// it for later serialization and deserialization.

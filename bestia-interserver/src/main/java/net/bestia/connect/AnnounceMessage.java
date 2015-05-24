@@ -47,6 +47,7 @@ abstract class AnnounceMessage implements Serializable {
 
 	/**
 	 * Gets the subscribe URL.
+	 * TODO Das hier müsste publisherURL heißen.
 	 * 
 	 * @return The url to which the receiver of this message should subscribe.
 	 */

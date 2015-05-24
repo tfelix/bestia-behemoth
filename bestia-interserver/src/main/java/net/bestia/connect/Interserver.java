@@ -1,9 +1,11 @@
 package net.bestia.connect;
 
 import java.io.IOException;
-import java.nio.channels.ClosedSelectorException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import net.bestia.messages.Message;
 import net.bestia.util.BestiaConfiguration;
 
 import org.apache.logging.log4j.LogManager;
@@ -16,99 +18,134 @@ public class Interserver {
 
 	private final static Logger log = LogManager.getLogger(Interserver.class);
 
-	public static class RequestThread extends Thread {
+	/**
+	 * This thread processes incoming messages from the zone or the webserver and puts them into the message queue. The
+	 * messages will be published again under a certain path depending on the kind of message so subscriber can react to
+	 * the messages.
+	 *
+	 */
+	private class MessageSubscriberThread extends Thread {
 
-		private final Context ctx;
-		private final BestiaConfiguration config;
-		private Socket responder;
-		private final String publishUrl;
-		private AtomicBoolean isRunning = new AtomicBoolean(true);
+		private final Socket subscriber;
+		public final AtomicBoolean isRunning = new AtomicBoolean(true);
 
-		public RequestThread(String publishUrl, Context ctx, BestiaConfiguration config) {
-			this.ctx = ctx;
-			this.publishUrl = publishUrl;
-			this.config = config;
-
-			this.setName("AnnounceRequestThread");
+		public MessageSubscriberThread(Socket subscriber) {
+			this.setName("MessageSubscriberThread");
+			this.subscriber = subscriber;
 		}
 
 		@Override
 		public void run() {
-			responder = ctx.socket(ZMQ.REP);
-			responder.bind("tcp://*:" + config.getProperty("inter.announcePort"));
-
 			while (isRunning.get()) {
-
-				// Wait for next request from the client
-				byte[] msg = null;
 				try {
-					log.debug("Interserver is waiting for announcement.");
-					msg = responder.recv(0);
-				} catch (ClosedSelectorException ex) {
-					// Socket was closed by another thread. nop.
-					log.trace("Announcement channel shutdown.", ex);
-				}
-
-				try {
-					AnnounceWebserverMessage request = (AnnounceWebserverMessage) ObjectSerializer
-							.deserializeObject(msg);
-
-					// At the moment there can not be much wrong with the request.
-					log.info("Webserver [{}] joins the bestia network.", request.getName());
-					
-					// Respond with an apropriate message.
-					AnnounceWebserverMessage response = AnnounceWebserverMessage.getReplyMessage("interserver", publishUrl);
-					final byte[] reply = ObjectSerializer.serializeObject(response);
-					responder.send(reply, 0);
-
-				} catch (ClassNotFoundException | IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					byte[] data = subscriber.recv();
+					log.trace("Received message of {} byte.", data.length);
+					messageQueue.put(data);
+				} catch (InterruptedException ex) {
+					// no op.
+					// TODO entfernen.
+					log.trace("Was interrupted.");
 				}
 			}
 		}
 
-		public void cancel() {
-			responder.close();
-			isRunning.set(false);
-		}
 	}
 
-	private RequestThread requestThread;
-	private BestiaConfiguration config;
-	private Context context;
+	private class MessagePublisherThread extends Thread {
 
-	public Interserver() {
-		config = new BestiaConfiguration();
+		private final Socket publisher;
+		public final AtomicBoolean isRunning = new AtomicBoolean(true);
+
+		public MessagePublisherThread(Socket publisher) {
+			this.setName("MessagePublisherThread");
+			this.publisher = publisher;
+		}
+
+		private String getTopic(Message msg) {
+			return "TODO";
+		}
+
+		@Override
+		public void run() {
+			while (isRunning.get() || messageQueue.size() > 0) {
+				try {
+					final byte[] data = messageQueue.take();
+					final Message msg = (Message) ObjectSerializer.deserializeObject(data);
+					log.trace("Received message: {}", msg.toString());
+					final String topicName = getTopic(msg);
+
+					publisher.sendMore(topicName);
+					publisher.send(data);
+				} catch (InterruptedException | IOException | ClassNotFoundException ex) {
+					// no op.
+				}
+			}
+
+			log.trace("MessagePublisherThread has ended.");
+		}
+
+	}
+
+	private MessageSubscriberThread subscriberThread;
+	private MessagePublisherThread publisherThread;
+
+	private Context context;
+	private Socket publisher;
+	private Socket subscriber;
+
+	private BlockingQueue<byte[]> messageQueue = new LinkedBlockingQueue<>();
+	private final String publishUrl;
+	private final String subscriberUrl;
+
+	/**
+	 * 
+	 * @param config
+	 *            Loaded BestiaConfiguration.
+	 */
+	public Interserver(BestiaConfiguration config) {
+		if (!config.isLoaded()) {
+			throw new IllegalArgumentException("BestiaConfiguration is not loaded.");
+		}
+
+		context = ZMQ.context(config.getIntProperty("inter.threads"));
+		publishUrl = "tcp://localhost:" + config.getProperty("inter.publishPort");
+		subscriberUrl = "tcp://*:" + config.getProperty("inter.listenPort");
 	}
 
 	/**
 	 * Starts the interserver.
 	 */
 	public void start() {
-		log.info("Starting Bestia Behemoth Interserver...");
-		log.info("Version v" + "0.0.1-alpha");
+		log.info("Starting Bestia Interserver...");
 
-		try {
-			config.load();
-		} catch (IOException ex) {
-			log.fatal("Could not start the interserver.", ex);
-			System.exit(1);
-		}
-		context = ZMQ.context(config.getIntProperty("inter.threads"));
+		startPublisher();
 
-		// ===== PUB SUB SERVER =====
-		final Socket publisher = context.socket(ZMQ.PUB);
-		publisher.bind("tcp://*:" + config.getProperty("inter.publishPort"));
-		// TODO hier noch was besseres ausdenken wenn das auf verschiedenen servern läuft.
-		final String subscriberUrl = "tcp://localhost:" + config.getProperty("inter.publishPort");
-
-		// ===== REQ REP SERVER =====
-		requestThread = new RequestThread(subscriberUrl, context, config);
-		requestThread.start();
+		startSubscriber();
 
 		log.info("Interserver started.");
+	}
 
+	private void startSubscriber() {
+		subscriber = context.socket(ZMQ.PULL);
+
+		subscriber.bind(subscriberUrl);
+
+		// Start thread which will process all incoming messages.
+		subscriberThread = new MessageSubscriberThread(subscriber);
+		subscriberThread.start();
+	}
+
+	/**
+	 * Starts the message sending capability of the interserver. Incoming messages will be sorted and broadcasted with a
+	 * given topic. All interested zone or webserver can listen for these kind of messages and subscribe to them.
+	 */
+	private void startPublisher() {
+		publisher = context.socket(ZMQ.PUB);
+		publisher.bind(publishUrl);
+
+		// Start thread which will publish all received messages.
+		publisherThread = new MessagePublisherThread(publisher);
+		publisherThread.start();
 	}
 
 	/**
@@ -117,16 +154,42 @@ public class Interserver {
 	public void stop() {
 		log.info("Stopping the Interserver...");
 
-		requestThread.cancel();
-		// publisher.close();
+		log.trace("Stopping incoming messages...");
+		subscriberThread.isRunning.set(false);
+		subscriber.close();
+		try {
+			subscriberThread.join(10000);
+		} catch (InterruptedException e) {
+			log.warn("Could not shut down subscriberThread gracefully.", e);
+		}
 
+		log.trace("Stopping the message processing...");
+		publisherThread.isRunning.set(false);
+		try {
+			publisherThread.join(10000);
+		} catch (InterruptedException e) {
+			log.warn("Could not shut down publisherThread gracefully.", e);
+		}
+		publisher.close();
 		context.term();
+
+		log.info("Interserver has gone down.");
 	}
 
 	public static void main(String[] args) {
-		final Interserver interserver = new Interserver();
+
+		BestiaConfiguration config = new BestiaConfiguration();
+		try {
+			config.load();
+		} catch (IOException ex) {
+			log.fatal("Could not load config file. Exiting.", ex);
+			System.exit(1);
+		}
+
+		final Interserver interserver = new Interserver(config);
 		interserver.start();
 
+		// Cancel the interserver gracefully when the VM shuts down. Does not work properly on windows machines.
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				interserver.stop();
