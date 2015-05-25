@@ -80,7 +80,11 @@
 			<artifactId>spring-tx</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.badlogicgames.ashley</groupId>
+			<artifactId>ashley</artifactId>
+			<version>1.5.0</version>
+		</dependency>
 		<dependency>
 			<groupId>map-tmxloader</groupId>
 			<artifactId>map-tmxloader</artifactId>
@@ -112,7 +116,7 @@
 			<artifactId>spring-jdbc</artifactId>
 			<version>${spring.version}</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>net.bestia</groupId>
 			<artifactId>bestia-config</artifactId>
@@ -183,13 +187,8 @@
 					<groupId>de.juplo</groupId>
 					<artifactId>hibernate4-maven-plugin</artifactId>
 					<version>1.0.5</version>
-					<!-- <executions>
-						<execution>
-							<goals>
-								<goal>export</goal>
-							</goals>
-						</execution>
-					</executions>-->
+					<!-- <executions> <execution> <goals> <goal>export</goal> </goals> </execution> 
+						</executions> -->
 					<configuration>
 						<url><![CDATA[${db.url}]]></url>
 						<hibernateDialect>${db.dialect}</hibernateDialect>
