@@ -30,6 +30,7 @@ public class BestiaLoginInterceptor implements AtmosphereInterceptor {
 	public Action inspect(AtmosphereResource r) {
 		log.debug("Intercepting connection. Checking for login: " + r.toString());
 		AtmosphereRequest req = r.getRequest();
+		
         if (req.getHeader("SomeSecurityToken") == null) {
         	//req.
             return Action.CANCELLED;

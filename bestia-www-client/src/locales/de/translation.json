@@ -3,6 +3,12 @@
 		"name": "Hello World"
 	},
 	
+	"nav": {
+		"inventory": "Inventar",
+		"equip": "Ausrüstung",
+		"attacks": "Attacken"
+	},
+	
 	"chat": {
 		"public" : "Öffentlich",
 		"party" : "Party",
