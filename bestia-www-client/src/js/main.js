@@ -28,7 +28,7 @@ function bootstrap() {
 		// Bind the DOM to the game.
 		ko.applyBindings(BG);
 		
-		$('#modal-inventory').modal('show');
+		//$('#modal-inventory').modal('show');
 	});
 
 }

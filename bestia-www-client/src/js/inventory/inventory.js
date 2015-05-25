@@ -178,6 +178,11 @@ Bestia.Inventory = function(net) {
 	Bestia.subscribe('inventory.remove', function(_, msg) {
 		self._onMessageRemove(msg);
 	});
+	
+	// Set onclick handler.
+	$('#show-inventory').click(function(){
+		$('#modal-inventory').modal('show');
+	});
 };
 
 /**
@@ -225,6 +230,14 @@ Bestia.Inventory.prototype._findItem = function(playerItemId) {
 	}
 
 	return null;
+};
+
+/**
+ * Displays the inventory modal dialog.
+ */
+Bestia.Inventory.prototype.showInventory = function() {
+	// TODO gegen ein gespeichertes DOM node austauschen.
+	$('#modal-inventory').modal('show');
 };
 
 /**
