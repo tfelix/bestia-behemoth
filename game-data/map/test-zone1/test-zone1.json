@@ -46,6 +46,22 @@
          "tileheight":32,
          "tileproperties":
             {
+             "116":
+                {
+                 "bWalkable":"false"
+                },
+             "117":
+                {
+                 "bWalkable":"false"
+                },
+             "132":
+                {
+                 "bWalkable":"false"
+                },
+             "133":
+                {
+                 "bWalkable":"false"
+                },
              "238":
                 {
                  "bWalkable":"false"

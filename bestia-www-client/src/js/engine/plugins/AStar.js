@@ -153,15 +153,37 @@ Phaser.Plugin.AStar.prototype.setAStarMap = function(map, layerName, tilesetName
 {
     var tile;
     var walkable;
+    
+    var layerIndices = ['layer_0', 'layer_1'];
+    var tileset = this._tilemap.tilesets[this._tilesetIndex];
 
     //for each tile, add a default AStarNode with x, y and walkable properties according to the tilemap/tileset datas
     for(var y=0; y < this._tilemap.height; y++)
     {
         for(var x=0; x < this._tilemap.width; x++)
         {
-            tile = this._tilemap.layers[this._layerIndex].data[y][x];
-            walkable = this._tilemap.tilesets[this._tilesetIndex].tileProperties[tile.index - 1][this._walkablePropName] !== "false" ? true : false;
-            tile.properties.astarNode = new Phaser.Plugin.AStar.AStarNode(x, y, walkable);
+        	walkable = true;
+        	// Iterate over all layers in order to get non walkable tiles of higher order layers.
+        	for(var l=0; l < this._tilemap.layers.length; l++) {
+        		var layerName = this._tilemap.layers[l].name;
+        		// Skip this layer if we are in a special and not a ground layer.
+        		if(layerIndices.indexOf(layerName) === -1) {
+        			continue;
+        		}
+        		
+        		tile = this._tilemap.layers[l].data[y][x];
+        		
+        		// Per default map non existing bWalkable attributes as walkable.
+                if(tileset.tileProperties[tile.index - 1] === undefined) {
+                	continue;
+                } 
+                
+                if(tileset.tileProperties[tile.index - 1][this._walkablePropName] === "false") {
+                	walkable = false;
+                	break;
+                }
+        	}
+        	tile.properties.astarNode = new Phaser.Plugin.AStar.AStarNode(x, y, walkable);
         }
     }
 

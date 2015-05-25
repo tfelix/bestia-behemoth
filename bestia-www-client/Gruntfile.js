@@ -16,6 +16,7 @@ module.exports = function(grunt) {
 			'src/js/io/message.js', 'src/js/inventory/inventory.js', 'src/js/view/system.pingpong.js',
 			// === ENGINE ===
 			'src/js/engine/plugins/AStar.js', 'src/js/engine/engine.js', 'src/js/engine/states/*.js',
+			'src/js/engine/entity.js', 'src/js/engine/entities/*.js',
 			// === PAGE ===
 			'src/js/pages/main.js',
 			// === ETC ===

@@ -39,12 +39,7 @@ Bestia.Engine.States.LoadingState.prototype = {
 		// ATLAS
 		this.load.atlasJSONHash('poring', 'assets/sprite/mob/poring.png', 'assets/sprite/mob/poring.json');
 		
-		this.load.start();
-		
-		//this.preloadBar = this.add.sprite(356, 370, 'preloaderBar');
-
-		//this.load.setPreloadSprite(this.preloadBar);
-		
+		this.load.start();	
 	},
 	
 	render : function() {

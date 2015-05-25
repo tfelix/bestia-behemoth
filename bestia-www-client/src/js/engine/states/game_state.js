@@ -25,7 +25,6 @@ Bestia.Engine.States.GameState = function() {
 			fill : "#ff0044",
 			align : "center"
 		},
-		tileSize : 32,
 		debug : {
 			renderCollision : true
 		}
@@ -35,17 +34,7 @@ Bestia.Engine.States.GameState = function() {
 Bestia.Engine.States.GameState.prototype = {
 
 	preload : function() {
-		// TODO Sollte ausgelagert werden in den Loading State.
-		this.load.image('logo', 'assets/img/logo_small.png');
-		this.load.tilemap('map', 'assets/map/test-zone1/test-zone1.json', null, Phaser.Tilemap.TILED_JSON);
-		this.load.image('tiles', 'assets/map/test-zone1/tilemap1.png');
-
-		// Sprites.
-		this.load.image('1_F_ORIENT_01', 'assets/sprite/1_F_ORIENT_01.png');
-		this.load.image('1_M_BARD', 'assets/sprite/1_M_BARD.png');
-
-		this.load.audio('bg_theme', 'assets/sound/theme/prontera_fields.mp3');
-
+		
 	},
 
 	create : function() {
@@ -77,10 +66,13 @@ Bestia.Engine.States.GameState.prototype = {
 			}
 			map.createLayer(curLayer);
 		}
+		
+		// Iterate over all layers and pull down the collision attributes for the a* plugin.
 
 		// Prepare the AStar plugin.
-		// this.astar = this.game.plugins.add(Phaser.Plugin.AStar);
-		// this.astar.setAStarMap(map, 'maze', 'claytus');
+		this.astar = this.game.plugins.add(Phaser.Plugin.AStar);
+		// Namen der layer und tilesets der map einfügen.
+		this.astar.setAStarMap(map, 'layer_0', 'Berge');
 
 		// Our painting marker
 		this.marker = this.game.add.graphics();
@@ -95,29 +87,6 @@ Bestia.Engine.States.GameState.prototype = {
 		// Single Sprites
 		this.game.add.sprite(160, 320, '1_F_ORIENT_01');
 		this.game.add.sprite(320, 320, '1_M_BARD');
-
-		// Text test.
-		var style = {
-			font : "18px Arial",
-			fill : "#ffffff",
-			align : "center",
-			stroke : '#000000',
-			strokeThickness : 3
-		};
-
-		var text = this.game.add.text(500, 600, "123", style);
-		var tween = this.game.add.tween(text).to({
-			x : [ 475, 450 ],
-			y : [ 510, 615 ]
-		}, 1000);
-		tween.interpolation(function(v, k) {
-			return Phaser.Math.bezierInterpolation(v, k);
-		});
-		tween.repeat(Infinity);
-		this.game.add.tween(text).to({
-			alpha : 0
-		}, 100, Phaser.Easing.Linear.None, true, 900).start();
-		tween.start();
 
 		// ========== DISPLAY MAP NAME ==============
 		var mapName = i18n.t('map.' + props.mapDbName);
