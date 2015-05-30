@@ -33,6 +33,7 @@ Bestia.Engine.States.LoadingState.prototype = {
 		// Sprites.
 		this.load.image('1_F_ORIENT_01', 'assets/sprite/1_F_ORIENT_01.png');
 		this.load.image('1_M_BARD', 'assets/sprite/1_M_BARD.png');
+		this.load.image('player', 'assets/sprite/player.png');
 
 		this.load.audio('bg_theme', 'assets/sound/theme/prontera_fields.mp3');
 
