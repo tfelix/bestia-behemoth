@@ -93,18 +93,18 @@ public final class InterserverConnection {
 
 	/**
 	 * Maintains a persisted connection to the interserver. This communication
-	 * backbone is essential for the operation of the webserver. If the
-	 * connections gets dropped the webserver is headless and without function.
-	 * It will cease to operate without backbone connection.
+	 * backbone is essential for the operation between the bestia server. If the
+	 * connections gets dropped the server are headless and without function. It
+	 * will cease to operate without backbone connection.
 	 * 
-	 * @param name
+	 * @param publishUrl
 	 * @param handler
+	 *            Callback which will get invoked on various events.
 	 * @param config
 	 *            A loaded BestiaConfiguration object.
 	 */
-	public InterserverConnection(String name,
-			InterserverConnectionHandler handler, String publishUrl,
-			BestiaConfiguration config) {
+	public InterserverConnection(InterserverConnectionHandler handler,
+			String publishUrl, BestiaConfiguration config) {
 		this.handler = handler;
 
 		this.ctx = ZMQ.context(1);
@@ -119,7 +119,6 @@ public final class InterserverConnection {
 
 	private void startPublisher() {
 		publisher.connect(publishUrl);
-
 		// Start the thread so message sending can occure.
 		consumerThread = new MessageConsumerThread(publisher);
 		consumerThread.start();
@@ -128,14 +127,27 @@ public final class InterserverConnection {
 	private void connectSubscriber(String subscribeUrl) {
 		subscriber.connect(subscribeUrl);
 		// TODO Subscribe only to special topics.
+	}
 
-		// Read message contents. Must be done in seperate thread.
-		/*
-		 * byte[] data = subscriber.recv(0); Message msg; try { msg = (Message)
-		 * ObjectSerializer.deserializeObject(data); handler.onMessage(msg); }
-		 * catch (ClassNotFoundException | IOException e) {
-		 * log.error("Could not deserialize message.", e); }
-		 */
+	/**
+	 * Subscribes only to a certain topic with the connected listener.
+	 * 
+	 * @param topic
+	 *            Name of the topic to subscribe to. Only messages regarding
+	 *            this topic will be send via callback.
+	 */
+	public void subscribeTopic(String topic) {
+		subscriber.subscribe(topic.getBytes());
+	}
+
+	/**
+	 * Unsubscribes from a topic.
+	 * 
+	 * @param topic
+	 *            Name of the topic to unsubscribe from.
+	 */
+	public void unsubscribeTopic(String topic) {
+		subscriber.unsubscribe(topic.getBytes());
 	}
 
 	/**

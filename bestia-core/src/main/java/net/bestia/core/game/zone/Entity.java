@@ -1,6 +1,6 @@
 package net.bestia.core.game.zone;
 
-import java.time.Duration;
+//import java.time.Duration;
 import java.util.Date;
 import java.util.Hashtable;
 
@@ -63,7 +63,7 @@ public class Entity {
 	 */
 	private Point location;
 
-	private Duration duration;
+	//private Duration duration;
 
 	/**
 	 * Shape of the entity used for calculating the collision.
@@ -127,9 +127,9 @@ public class Entity {
 
 		spawnTime = new Date();
 
-		if (duration != null) {
+		/*if (duration != null) {
 			zone.scheduleNotify(duration, this, REQUEST_REMOVE);
-		}
+		}*/
 		// TODO Entity script callen.
 	}
 

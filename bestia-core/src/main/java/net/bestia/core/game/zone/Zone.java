@@ -1,6 +1,5 @@
 package net.bestia.core.game.zone;
 
-import java.time.Duration;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -285,6 +284,7 @@ public class Zone {
 		return numEntities;
 	}
 
+	/*
 	public void scheduleNotify(final Duration duration, final Entity entity,
 			final int requestCode) {
 		executor.schedule(new Runnable() {
@@ -302,5 +302,5 @@ public class Zone {
 				}
 			}
 		}, duration.toMillis(), TimeUnit.MILLISECONDS);
-	}
+	}*/
 }

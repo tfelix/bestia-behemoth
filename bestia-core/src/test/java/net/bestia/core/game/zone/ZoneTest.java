@@ -5,7 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.time.Duration;
+//import java.time.Duration;
 import java.util.Properties;
 
 import org.junit.Assert;
@@ -164,7 +164,7 @@ public class ZoneTest {
 		Entity e1 = mock(Entity.class);
 		when(e1.getId()).thenReturn(new Long(1));
 
-		z.scheduleNotify(Duration.ofSeconds(1), e1, 1);
+		//z.scheduleNotify(Duration.ofSeconds(1), e1, 1);
 		
 		try {
 			Thread.sleep(600);

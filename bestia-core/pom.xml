@@ -132,6 +132,11 @@
 			<artifactId>bestia-messages</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>net.bestia</groupId>
+			<artifactId>bestia-interserver</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

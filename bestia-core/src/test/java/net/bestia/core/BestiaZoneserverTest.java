@@ -14,6 +14,7 @@ import net.bestia.core.game.service.ServiceFactory;
 import net.bestia.core.util.CurrentThreadExecutorService;
 import net.bestia.messages.Message;
 import net.bestia.messages.PingMessage;
+import net.bestia.zoneserver.BestiaZoneserver;
 
 import org.junit.After;
 import org.junit.AfterClass;
