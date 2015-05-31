@@ -25,18 +25,6 @@ public class BestiaWebsocketHandler implements WebSocketHandler {
 	public void onOpen(WebSocket webSocket) throws IOException {
 
 		log.trace("onOpen called.");
-
-		// See if the given credentials are correct.
-		/*
-		 * try { final String token = webSocket.resource().getRequest().getHeader("bestia_token"); final int accId =
-		 * Integer.parseInt(webSocket.resource().getRequest().getHeader("bestia_acc_id"));
-		 * 
-		 * final BestiaConnection con = new BestiaConnection(webSocket, accId); cache.put(con);
-		 * log.trace("{} - Connection opened.", webSocket.resource().getRequest().getRemoteAddr());
-		 * 
-		 * } catch(IllegalArgumentException ex) { log.warn("Can not get bestia login credentials: " +
-		 * webSocket.resource().getRequest().toString()); closeSocket(webSocket); }
-		 */
 	}
 
 	@Override
@@ -45,16 +33,12 @@ public class BestiaWebsocketHandler implements WebSocketHandler {
 
 		final Message msg = mapper.readValue(message, Message.class);
 
-		// Find account id for this connection.
-		// msg.setAccountId(cache.get(webSocket.resource().uuid()).getAccountId());
-		provider.getConnection().sendMessage(msg);
+		provider.getConnection().publish(msg);
 	}
 
 	@Override
 	public void onClose(WebSocket webSocket) {
 		log.trace("onClose called.");
-		// cache.remove(webSocket.resource().uuid());
-		// log.trace("Connection closed by client: {}", webSocket.resource().toString());
 	}
 
 	@Override

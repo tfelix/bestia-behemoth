@@ -11,6 +11,7 @@ public final class App {
 	
 	public static void main(String[] args) {
 		BestiaZoneserver zone = new BestiaZoneserver();
+		zone.start();
 	}
 
 }

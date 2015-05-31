@@ -74,7 +74,7 @@ public class Interserver {
 		}
 
 		private String getTopic(Message msg) {
-			return "TODO";
+			return "zone/all";
 		}
 
 		@Override
