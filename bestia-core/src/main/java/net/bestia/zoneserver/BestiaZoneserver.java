@@ -18,7 +18,10 @@ import net.bestia.core.game.worker.ScriptInitWorker;
 import net.bestia.core.game.worker.ZoneInitLoader;
 import net.bestia.core.game.zone.Zone;
 import net.bestia.interserver.InterserverConnection;
+import net.bestia.interserver.InterserverConnectionFactory;
 import net.bestia.interserver.InterserverConnection.InterserverConnectionHandler;
+import net.bestia.interserver.InterserverMessageHandler;
+import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.messages.Message;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
@@ -49,10 +52,26 @@ public class BestiaZoneserver implements InterserverConnectionHandler {
 		VERSION = version;
 	}
 	
+	private class InterserverHandler implements InterserverMessageHandler {
+
+		@Override
+		public void onMessage(Message msg) {
+			log.info("Received: {}", msg.toString());
+		}
+
+		@Override
+		public void connectionLost() {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
+	
 	private final String name;
 	private final BestiaConfiguration config;
 	private final AtomicBoolean isRunning = new AtomicBoolean(false);
-	private final InterserverConnection interserver;
+	private final InterserverHandler interserverHandler = new InterserverHandler();
+	private final InterserverSubscriber interserverSubscriber;
 
 
 	/**
@@ -71,17 +90,22 @@ public class BestiaZoneserver implements InterserverConnectionHandler {
 	 * @param configFile
 	 *            File with config settings for the bestia server.
 	 */
-	public BestiaZoneserver(String configFile) {
+	public BestiaZoneserver() {
 
 		// #### Config: Setup the config file.
 		this.config = new BestiaConfiguration();
-		initilizeConfig(configFile);
-		
+		try {
+			config.load();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//initilizeConfig(configFile);
 		
 		this.name = config.getProperty("zone.name");
 		
-		interserver = new InterserverConnection(this, "", config);
-
+		InterserverConnectionFactory interservConFactory = new InterserverConnectionFactory(1);
+		interserverSubscriber = interservConFactory.getSubscriber(interserverHandler, "tcp://localhost:9800");
 	}
 
 	/**
@@ -149,6 +173,8 @@ public class BestiaZoneserver implements InterserverConnectionHandler {
 		log.info("Initializing: message queue...");
 
 		log.info("Registering with Interserver...");
+		interserverSubscriber.connect();
+		interserverSubscriber.subscribe("zone/all");
 
 		
 		log.info("Bestia Behemoth Zone [{}] has started.", name);

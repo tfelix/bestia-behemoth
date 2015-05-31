@@ -144,10 +144,11 @@ public class Interserver {
 		subscriber = context.socket(ZMQ.PULL);
 
 		subscriber.bind(subscriberUrl);
-
 		// Start thread which will process all incoming messages.
 		subscriberThread = new MessageSubscriberThread(subscriber);
 		subscriberThread.start();
+		
+		log.info("Now listening for messages on [{}].", subscriberUrl);
 	}
 
 	/**
@@ -163,6 +164,8 @@ public class Interserver {
 		// Start thread which will publish all received messages.
 		publisherThread = new MessagePublisherThread(publisher);
 		publisherThread.start();
+		
+		log.info("Now publishing messages on [{}].", publishUrl);
 	}
 
 	/**
