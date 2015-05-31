@@ -1,6 +1,8 @@
 package net.bestia.messages;
 
 public class LogoutMessage extends Message {
+
+	private static final long serialVersionUID = 1L;
 	
 	public static final String MESSAGE_ID = "system.logout";
 

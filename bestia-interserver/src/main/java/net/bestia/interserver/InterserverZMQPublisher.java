@@ -45,11 +45,11 @@ class InterserverZMQPublisher implements InterserverPublisher {
 			log.warn("Already connected.");
 			return;
 		}
-		log.info("Connecting to interserver...");
+		log.debug("Connecting to interserver...");
 
 		publisher.connect(url);
 
-		log.info("Connected to interserver.");
+		log.debug("Connected to interserver on {}.", url);
 	}
 
 	/*
@@ -79,7 +79,7 @@ class InterserverZMQPublisher implements InterserverPublisher {
 		}
 		
 		byte[] data = ObjectSerializer.serializeObject(msg);
-		publisher.sendMore("zone/all");
+		publisher.sendMore(msg.getMessagePath());
 		publisher.send(data);
 	}
 

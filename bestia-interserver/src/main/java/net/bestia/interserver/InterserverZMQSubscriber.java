@@ -29,23 +29,29 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 	private class MessageConsumerThread extends Thread {
 
 		public final AtomicBoolean isRunning = new AtomicBoolean(true);
+		private final Socket subscriber;
 
-		public MessageConsumerThread() {
+		public MessageConsumerThread(Socket subscriber) {
 			this.setName("MessageConsumerThread");
+			
+			this.subscriber = subscriber;
 		}
 
 		@Override
 		public void run() {
 			while (isRunning.get()) {
+				log.trace("Listening to messages...");
 				try {
+					String topic = subscriber.recvStr();
 					byte[] data = subscriber.recv();
 					log.trace("Received message of {} byte.", data.length);
 					Message msg = (Message) ObjectSerializer.deserializeObject(data);
 					listener.onMessage(msg);
 				} catch (ClassNotFoundException | IOException ex) {
-					// no op.
+					log.error("Could not create instance of message.", ex);
 				}
 			}
+			log.trace("MessageConsumerThread has ended.");
 		}
 	}
 
@@ -61,7 +67,7 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 
 		this.url = url;
 		this.listener = listener;
-		this.thread = new MessageConsumerThread();
+		this.thread = new MessageConsumerThread(subscriber);
 	}
 
 	/*
@@ -71,8 +77,11 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 	 */
 	@Override
 	public void connect() {
+		log.debug("Connecting to interserver...");
 		subscriber.connect(url);
+		//subscriber.subscribe("zone/all".getBytes());
 		thread.start();
+		log.debug("Connected to interserver on {}.", url);
 	}
 
 	/*
@@ -99,6 +108,7 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 	 */
 	@Override
 	public void subscribe(String topic) {
+		log.trace("Subscribing to topic: {}", topic);
 		subscriber.subscribe(topic.getBytes());
 	}
 
@@ -109,6 +119,7 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 	 */
 	@Override
 	public void unsubscribe(String topic) {
+		log.trace("Unsubscribing from topic: {}", topic);
 		subscriber.unsubscribe(topic.getBytes());
 	}
 }

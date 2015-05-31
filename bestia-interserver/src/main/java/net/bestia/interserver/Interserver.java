@@ -6,6 +6,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.bestia.messages.Message;
+import net.bestia.messages.PingMessage;
 import net.bestia.util.BestiaConfiguration;
 
 import org.apache.logging.log4j.LogManager;
@@ -15,9 +16,8 @@ import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQ.Socket;
 
 /**
- * The Interserver builds the bestia system backbone. It will receive messages
- * from the webserver and will relay this information to the zone server. These
- * are able to subscribe to account topics which will then receive all
+ * The Interserver builds the bestia system backbone. It will receive messages from the webserver and will relay this
+ * information to the zone server. These are able to subscribe to account topics which will then receive all
  * communication from this account.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
@@ -28,10 +28,9 @@ public class Interserver {
 	private final static Logger log = LogManager.getLogger(Interserver.class);
 
 	/**
-	 * This thread processes incoming messages from the zone or the webserver
-	 * and puts them into the message queue. The messages will be published
-	 * again under a certain path depending on the kind of message so subscriber
-	 * can react to the messages.
+	 * This thread processes incoming messages from the zone or the webserver and puts them into the message queue. The
+	 * messages will be published again under a certain path depending on the kind of message so subscriber can react to
+	 * the messages.
 	 *
 	 */
 	private class MessageSubscriberThread extends Thread {
@@ -56,7 +55,36 @@ public class Interserver {
 				}
 			}
 		}
+	}
 
+	private class HeartbeatThread extends Thread {
+		@Override
+		public void run() {
+			while (true) {
+				log.debug("Sending heardbeat.");
+
+				PingMessage msg = new PingMessage();
+				msg.setAccountId(1);
+				try {
+					byte[] data = ObjectSerializer.serializeObject(msg);
+
+					publisher.sendMore(msg.getMessagePath());
+					//publisher.sendMore("zone/all");
+					publisher.send(data);
+
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+		}
 	}
 
 	/**
@@ -73,24 +101,17 @@ public class Interserver {
 			this.publisher = publisher;
 		}
 
-		private String getTopic(Message msg) {
-			return "zone/all";
-		}
-
 		@Override
 		public void run() {
 			while (isRunning.get() || messageQueue.size() > 0) {
 				try {
 					final byte[] data = messageQueue.take();
-					final Message msg = (Message) ObjectSerializer
-							.deserializeObject(data);
+					final Message msg = (Message) ObjectSerializer.deserializeObject(data);
 					log.trace("Received message: {}", msg.toString());
-					final String topicName = getTopic(msg);
 
-					publisher.sendMore(topicName);
+					publisher.sendMore(msg.getMessagePath());
 					publisher.send(data);
-				} catch (InterruptedException | IOException
-						| ClassNotFoundException ex) {
+				} catch (InterruptedException | IOException | ClassNotFoundException ex) {
 					// no op.
 				}
 			}
@@ -111,6 +132,9 @@ public class Interserver {
 	private final String publishUrl;
 	private final String subscriberUrl;
 
+	// TODO entfernen.
+	private HeartbeatThread t;
+
 	/**
 	 * 
 	 * @param config
@@ -118,13 +142,11 @@ public class Interserver {
 	 */
 	public Interserver(BestiaConfiguration config) {
 		if (!config.isLoaded()) {
-			throw new IllegalArgumentException(
-					"BestiaConfiguration is not loaded.");
+			throw new IllegalArgumentException("BestiaConfiguration is not loaded.");
 		}
 
 		context = ZMQ.context(config.getIntProperty("inter.threads"));
-		publishUrl = "tcp://localhost:"
-				+ config.getProperty("inter.publishPort");
+		publishUrl = "tcp://localhost:" + config.getProperty("inter.publishPort");
 		subscriberUrl = "tcp://*:" + config.getProperty("inter.listenPort");
 	}
 
@@ -137,6 +159,8 @@ public class Interserver {
 		startPublisher();
 		startSubscriber();
 
+		//startHeartbeat();
+
 		log.info("Interserver started.");
 	}
 
@@ -147,15 +171,13 @@ public class Interserver {
 		// Start thread which will process all incoming messages.
 		subscriberThread = new MessageSubscriberThread(subscriber);
 		subscriberThread.start();
-		
+
 		log.info("Now listening for messages on [{}].", subscriberUrl);
 	}
 
 	/**
-	 * Starts the message sending capability of the interserver. Incoming
-	 * messages will be sorted and broadcasted with a given topic. All
-	 * interested zone or webserver can listen for these kind of messages and
-	 * subscribe to them.
+	 * Starts the message sending capability of the interserver. Incoming messages will be sorted and broadcasted with a
+	 * given topic. All interested zone or webserver can listen for these kind of messages and subscribe to them.
 	 */
 	private void startPublisher() {
 		publisher = context.socket(ZMQ.PUB);
@@ -164,8 +186,15 @@ public class Interserver {
 		// Start thread which will publish all received messages.
 		publisherThread = new MessagePublisherThread(publisher);
 		publisherThread.start();
-		
+
 		log.info("Now publishing messages on [{}].", publishUrl);
+	}
+
+	private void startHeartbeat() {
+
+		t = new HeartbeatThread();
+		t.start();
+
 	}
 
 	/**

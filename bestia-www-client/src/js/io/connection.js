@@ -36,7 +36,7 @@ Bestia.Connection.prototype.init = function() {
 
 	request.onOpen = function(response) {
 		console.log('Connection to established via ' + response.transport);
-		Bestia.PubSub.publish('io.onConnected', {});
+		Bestia.publish('io.onConnected', {});
 	};
 
 	request.onTransportFailure = function(errorMsg) {
@@ -61,7 +61,7 @@ Bestia.Connection.prototype.init = function() {
 		try {
 			var json = jQuery.parseJSON(message);
 			// Is it a valid server message? If yes send it to the engine.
-			Bestia.PubSub.publish(json.mid, json);
+			Bestia.publish(json.mid, json);
 		} catch (e) {
 			console.log('No valid JSON: ', message.data);
 			return;

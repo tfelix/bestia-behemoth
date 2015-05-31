@@ -12,8 +12,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import net.bestia.core.game.zone.Zone;
 import net.bestia.interserver.InterserverConnectionFactory;
 import net.bestia.interserver.InterserverMessageHandler;
+import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.messages.Message;
+import net.bestia.messages.PongMessage;
+import net.bestia.messages.RequestLoginMessage;
 import net.bestia.util.BestiaConfiguration;
 
 import org.apache.logging.log4j.LogManager;
@@ -42,7 +45,22 @@ public class BestiaZoneserver {
 
 		@Override
 		public void onMessage(Message msg) {
-			log.info("Received: {}", msg.toString());
+			log.trace("Zoneserver received: {}", msg.toString());
+
+			switch (msg.getMessageId()) {
+
+			case RequestLoginMessage.MESSAGE_ID:
+				// TODO Usually we would like a message/command dispatch service. Create a command execute it and then
+				// send back the server answer.
+				RequestLoginMessage message = (RequestLoginMessage) msg;
+				PongMessage pong = new PongMessage(msg);
+				try {
+					interserverPublisher.publish(pong);
+				} catch (IOException e) {
+					// TODO hier noch alles machen.
+				}
+				break;
+			}
 		}
 
 		@Override
@@ -57,7 +75,9 @@ public class BestiaZoneserver {
 	private final BestiaConfiguration config;
 	private final AtomicBoolean isRunning = new AtomicBoolean(false);
 	private final InterserverHandler interserverHandler = new InterserverHandler();
+
 	private final InterserverSubscriber interserverSubscriber;
+	private final InterserverPublisher interserverPublisher;
 
 	/**
 	 * List of zones for which this server is responsible.
@@ -88,7 +108,9 @@ public class BestiaZoneserver {
 		this.name = config.getProperty("zone.name");
 
 		InterserverConnectionFactory interservConFactory = new InterserverConnectionFactory(1);
+		// Das hier kann man auch noch schöner machen. Die URLs mach ich eigentlich nicht jedesmal eingeben.
 		interserverSubscriber = interservConFactory.getSubscriber(interserverHandler, "tcp://localhost:9800");
+		interserverPublisher = interservConFactory.getPublisher("tcp://localhost:9700");
 	}
 
 	/**
@@ -142,18 +164,19 @@ public class BestiaZoneserver {
 
 		log.info("Registering with Interserver...");
 		interserverSubscriber.connect();
+		interserverPublisher.connect();
+
 		// Subscribe to zone broadcast messages.
-		//interserverSubscriber.subscribe("zone/all");
+		interserverSubscriber.subscribe("zone/all");
 		// Subscribe to messages explicity for this zone.
 		//interserverSubscriber.subscribe("zone/" + name);
-		
+
 		// TODO Temporär. Subscribe zu account message.
 		// Das muss dann dynamisch geschehen mit allen eingeloggten accounts.
 		//interserverSubscriber.subscribe("zone/account/1");
 
 		log.info("Bestia Behemoth Zone [{}] has started.", name);
 	}
-
 
 	/**
 	 * Ceases all server operation and persists all pending data.

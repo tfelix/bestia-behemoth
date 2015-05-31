@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import net.bestia.interserver.InterserverConnectionFactory;
 import net.bestia.interserver.InterserverPublisher;
+import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.util.BestiaConfiguration;
 
 import org.apache.logging.log4j.LogManager;
@@ -13,40 +14,10 @@ import org.atmosphere.nettosphere.Nettosphere;
 
 public final class Webserver {
 
-	final static class InterserverConnectionProvider {
-		private static InterserverConnectionProvider instance = null;
-
-		private InterserverPublisher publisher;
-
-		private InterserverConnectionProvider(InterserverPublisher publisher) {
-			this.publisher = publisher;
-		}
-
-		public InterserverPublisher getConnection() {
-			return publisher;
-		}
-
-		public static void setup(InterserverPublisher publisher) {
-			instance = new InterserverConnectionProvider(publisher);
-		}
-
-		/**
-		 * Static getter of the InterserverConnectionProvider so it can be retrieved for the socket handler.
-		 * 
-		 * @return Instance of the InterserverConnectionProvider
-		 */
-		public static InterserverConnectionProvider getInstance() {
-			if (instance == null) {
-				throw new IllegalStateException("setup() must be called bevor invoking these method.");
-			}
-			return instance;
-		}
-
-	}
-
 	private static final Logger log = LogManager.getLogger(Webserver.class);
 
-	private final InterserverPublisher connection;
+	private final InterserverPublisher publisher;
+	private final InterserverSubscriber subscriber;
 	private final String name;
 
 	/**
@@ -61,18 +32,22 @@ public final class Webserver {
 		// Create the publish url.
 		String publishUrl = config.getDomainPortString("web.domain", "web.publishPort", "tcp://");
 		
+		BestiaConnectionProvider.create();
+		
 		InterserverConnectionFactory interservConnectionFactory = new InterserverConnectionFactory(1);
 		
-		this.connection = interservConnectionFactory.getPublisher(publishUrl);
-		// Setup the provider in this static way so the handler can access it.
-		InterserverConnectionProvider.setup(connection);
+		this.publisher = interservConnectionFactory.getPublisher(publishUrl);
+		this.subscriber = interservConnectionFactory.getSubscriber(BestiaConnectionProvider.getInstance(), "tcp://localhost:9800");
+		
+		BestiaConnectionProvider.getInstance().setup(publisher, subscriber);
 	}
 
 	public void start() throws Exception {
 		log.info("Starting the Bestia Websocket Server [{}]...", name);
 
 		// Connect to the interserver.
-		connection.connect();
+		publisher.connect();
+		subscriber.connect();
 
 		Config.Builder b = new Config.Builder();
 		b.host("0.0.0.0").port(8080);

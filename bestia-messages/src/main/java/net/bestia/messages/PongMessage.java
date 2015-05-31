@@ -1,5 +1,7 @@
 package net.bestia.messages;
 
+import java.io.ObjectInputStream.GetField;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PongMessage extends Message {
@@ -26,6 +28,11 @@ public class PongMessage extends Message {
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
+	}
+	
+	@Override
+	public String getMessagePath() {
+		return String.format("account/%d", getAccountId());
 	}
 
 	@Override
