@@ -21,14 +21,21 @@ import net.bestia.messages.Message;
  *
  */
 class InterserverZMQPublisher implements InterserverPublisher {
-	
+
 	private final static Logger log = LogManager.getLogger(InterserverZMQPublisher.class);
 
 	private final Socket publisher;
 	private final String url;
 	private final AtomicBoolean isConnected = new AtomicBoolean(false);
 
-
+	/**
+	 * Ctor.
+	 * 
+	 * @param url
+	 *            The url to connect to. In the form of: tcp://DOMAIN:PORT
+	 * @param ctx
+	 *            ZMQ.Context
+	 */
 	public InterserverZMQPublisher(String url, Context ctx) {
 		this.publisher = ctx.socket(ZMQ.PUSH);
 		this.url = url;
@@ -77,9 +84,10 @@ class InterserverZMQPublisher implements InterserverPublisher {
 		if (!isConnected.get()) {
 			throw new IOException("Socket was already closed.");
 		}
-		
-		byte[] data = ObjectSerializer.serializeObject(msg);
-		publisher.sendMore(msg.getMessagePath());
+
+		final String topic = msg.getMessagePath();
+		final byte[] data = ObjectSerializer.serializeObject(msg);
+		publisher.sendMore(topic);
 		publisher.send(data);
 	}
 

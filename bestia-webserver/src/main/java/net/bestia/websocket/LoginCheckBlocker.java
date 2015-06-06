@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
 import net.bestia.messages.LoginAuthMessage;
@@ -41,8 +40,15 @@ public class LoginCheckBlocker {
 		}
 
 		try {
-			// Offer the item for 1 second.
-			blockingQueue.get(requestId).offer(msg, 1, TimeUnit.SECONDS);
+			synchronized (blockingQueue) {
+				// Offer the item for 1 second.
+				BlockingQueue<LoginAuthReplyMessage> queue = blockingQueue.get(requestId);
+				if (queue == null) {
+					return;
+				}
+				// Offer the item for 1 second.
+				queue.offer(msg, 1, TimeUnit.SECONDS);
+			}
 		} catch (InterruptedException e) {
 			log.trace("Offering for LoginAuthReply exeeded wait time.", e);
 		}
@@ -65,7 +71,7 @@ public class LoginCheckBlocker {
 			provider.publishInterserver(msg);
 		} catch (IOException e) {
 			log.debug("Could not send LoginAuth message.", e);
-			
+
 			synchronized (blockingQueue) {
 				blockingQueue.remove(requestId);
 			}
@@ -74,7 +80,7 @@ public class LoginCheckBlocker {
 		}
 
 		try {
-			LoginAuthReplyMessage replyMsg = queue.poll(20, TimeUnit.SECONDS);
+			LoginAuthReplyMessage replyMsg = queue.poll(5, TimeUnit.SECONDS);
 			return replyMsg.getLoginState() == LoginState.AUTHORIZED;
 		} catch (InterruptedException e) {
 			log.debug("Timeout while waiting for LoginAuthReply message.", e);

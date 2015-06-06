@@ -19,9 +19,9 @@ import net.bestia.interserver.InterserverConnectionFactory;
 import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
+import net.bestia.messages.LoginBroadcastMessage;
 import net.bestia.messages.Message;
 import net.bestia.messages.PongMessage;
-import net.bestia.messages.RequestLoginMessage;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandFactory;
@@ -71,11 +71,11 @@ public class Zoneserver {
 
 			switch (msg.getMessageId()) {
 
-			case RequestLoginMessage.MESSAGE_ID:
+			case LoginBroadcastMessage.MESSAGE_ID:
 				// TODO Usually we would like a message/command dispatch
 				// service. Create a command execute it and then
 				// send back the server answer.
-				RequestLoginMessage message = (RequestLoginMessage) msg;
+				LoginBroadcastMessage message = (LoginBroadcastMessage) msg;
 				PongMessage pong = new PongMessage(msg);
 				try {
 					interserverPublisher.publish(pong);

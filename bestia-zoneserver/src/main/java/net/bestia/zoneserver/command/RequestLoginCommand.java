@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bestia.messages.BestiaInitMessage;
+import net.bestia.messages.LoginBroadcastMessage;
 import net.bestia.messages.Message;
-import net.bestia.messages.RequestLoginMessage;
 import net.bestia.model.Location;
 import net.bestia.model.PlayerBestia;
 
@@ -28,7 +28,7 @@ public class RequestLoginCommand extends Command {
 
 	@Override
 	public String handlesMessageId() {
-		return RequestLoginMessage.MESSAGE_ID;
+		return LoginBroadcastMessage.MESSAGE_ID;
 	}
 
 	@Override

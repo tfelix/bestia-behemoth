@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
+import net.bestia.messages.LoginAuthReplyMessage;
 import net.bestia.messages.Message;
 
 /**
@@ -45,7 +46,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 		publisher.publish(message);
 	}
 
-	public void publishClient(Message msg) throws IOException {
+	private void publishClient(Message msg) throws IOException {
 		final long accountId = msg.getAccountId();
 		if (!connections.containsKey(accountId)) {
 			throw new IOException(String.format("No existing connection to account id %d", accountId));
@@ -107,6 +108,13 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	 */
 	@Override
 	public void onMessage(Message msg) {
+		// Special case: If the message is a LoginAuthReply message we must route it to the blocker for further
+		// processing.
+		if(msg.getMessageId().equals(LoginAuthReplyMessage.MESSAGE_ID)) {
+			loginChecker.receivedAuthReplayMessage((LoginAuthReplyMessage) msg);
+			return;
+		}
+
 		// Check the kind of message.
 		if (msg.getMessagePath().startsWith("account/")) {
 			try {

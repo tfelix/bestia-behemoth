@@ -4,7 +4,8 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
-import net.bestia.messages.RequestLoginMessage;
+import net.bestia.messages.LoginAuthMessage;
+import net.bestia.messages.LoginBroadcastMessage;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,8 +37,8 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 			// Since login is ok we must now be prepared to receive zone messages for this account connection.
 			provider.addConnection(accountId, webSocket);
 
-			// if so announce a new login.
-			final RequestLoginMessage msg = new RequestLoginMessage(accountId);
+			// if so announce a new login to the zones.
+			final LoginBroadcastMessage msg = new LoginBroadcastMessage(accountId);
 			provider.publishInterserver(msg);
 		} else {
 			webSocket.close();

@@ -33,7 +33,7 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 
 		public MessageConsumerThread(Socket subscriber) {
 			this.setName("MessageConsumerThread");
-			
+
 			this.subscriber = subscriber;
 		}
 
@@ -79,7 +79,7 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 	public void connect() {
 		log.debug("Connecting to interserver...");
 		subscriber.connect(url);
-		//subscriber.subscribe("zone/all".getBytes());
+		// subscriber.subscribe("zone/all".getBytes());
 		thread.start();
 		log.debug("Connected to interserver on {}.", url);
 	}

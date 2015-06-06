@@ -61,6 +61,7 @@ public class Account {
 	public Account(String email, String password) {
 		this.email = email;
 		this.password = new Password(password);
+		this.registerDate = new Date();
 		
 	}
 

@@ -9,11 +9,10 @@ import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.loginserver.authenticator.AuthState;
 import net.bestia.loginserver.authenticator.Authenticator;
 import net.bestia.loginserver.authenticator.DebugAuthenticator;
-import net.bestia.loginserver.authenticator.LoginTokenAuthenticator;
 import net.bestia.messages.LoginAuthMessage;
 import net.bestia.messages.LoginAuthReplyMessage;
-import net.bestia.messages.Message;
 import net.bestia.messages.LoginAuthReplyMessage.LoginState;
+import net.bestia.messages.Message;
 import net.bestia.util.BestiaConfiguration;
 
 import org.apache.logging.log4j.LogManager;
@@ -44,8 +43,9 @@ public final class Loginserver implements InterserverMessageHandler {
 
 		// Create the publish url.
 		final String interUrl = config.getProperty("inter.domain");
-		final int publishPort = config.getIntProperty("inter.publishPort");
-		final int listenPort = config.getIntProperty("inter.listenPort");
+		// Since this is from "our" perspective, the listening port of the interserver is our publishing port.
+		final int listenPort = config.getIntProperty("inter.publishPort");
+		final int publishPort = config.getIntProperty("inter.listenPort");
 
 		InterserverConnectionFactory conFactory = new InterserverConnectionFactory(1, interUrl, listenPort, publishPort);
 
@@ -74,17 +74,17 @@ public final class Loginserver implements InterserverMessageHandler {
 		LoginAuthMessage loginMsg = (LoginAuthMessage) msg;
 		log.debug("Received login auth request: {}", loginMsg.toString());
 
-		//Authenticator tokenAuth = new LoginTokenAuthenticator(loginMsg.getAccountId(), loginMsg.getToken());
+		// Authenticator tokenAuth = new LoginTokenAuthenticator(loginMsg.getAccountId(), loginMsg.getToken());
 		Authenticator tokenAuth = new DebugAuthenticator();
-		
+
 		final LoginAuthReplyMessage loginReplyMsg = new LoginAuthReplyMessage(loginMsg);
 		loginReplyMsg.setAccountId(msg.getAccountId());
-		if(tokenAuth.authenticate() == AuthState.AUTHENTICATED) {
+		if (tokenAuth.authenticate() == AuthState.AUTHENTICATED) {
 			loginReplyMsg.setLoginState(LoginState.AUTHORIZED);
 		} else {
 			loginReplyMsg.setLoginState(LoginState.DENIED);
 		}
-		
+
 		try {
 			publisher.publish(loginReplyMsg);
 		} catch (IOException e) {

@@ -1,9 +1,10 @@
 package net.bestia.interserver;
 
+import net.bestia.messages.Message;
+
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.bestia.messages.Message;
 
 public class InterserverConnectionFactoryTest {
 

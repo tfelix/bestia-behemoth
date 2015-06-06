@@ -36,10 +36,13 @@ public final class Webserver {
 		final String domain = config.getProperty("inter.domain");
 
 		InterserverConnectionFactory interservConnectionFactory = new InterserverConnectionFactory(1, domain,
-				listenPort, publishPort);
+				publishPort, listenPort);
 
 		this.publisher = interservConnectionFactory.getPublisher();
 		this.subscriber = interservConnectionFactory.getSubscriber(BestiaConnectionProvider.getInstance());
+		
+		// Subscribe to special topics.
+		subscriber.subscribe("web/all");
 
 		BestiaConnectionProvider.getInstance().setup(publisher, subscriber);
 	}
