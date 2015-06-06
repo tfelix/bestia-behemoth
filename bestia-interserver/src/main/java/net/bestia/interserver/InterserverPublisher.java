@@ -14,8 +14,11 @@ public interface InterserverPublisher {
 
 	/**
 	 * Connects the publisher to the interserver.
+	 * 
+	 * @throws IOException
+	 *             If the connection was not successful.
 	 */
-	public void connect();
+	public void connect() throws IOException;
 
 	/**
 	 * Disconnects the publisher from the interserver.

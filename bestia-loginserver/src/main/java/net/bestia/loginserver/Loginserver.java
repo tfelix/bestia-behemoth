@@ -30,6 +30,7 @@ public final class Loginserver implements InterserverMessageHandler {
 
 	private static final Logger log = LogManager.getLogger(Loginserver.class);
 
+	private final InterserverConnectionFactory conFactory;
 	private final InterserverPublisher publisher;
 	private final InterserverSubscriber subscriber;
 
@@ -47,22 +48,48 @@ public final class Loginserver implements InterserverMessageHandler {
 		final int listenPort = config.getIntProperty("inter.publishPort");
 		final int publishPort = config.getIntProperty("inter.listenPort");
 
-		InterserverConnectionFactory conFactory = new InterserverConnectionFactory(1, interUrl, listenPort, publishPort);
+		this.conFactory = new InterserverConnectionFactory(1, interUrl, listenPort, publishPort);
 
 		this.publisher = conFactory.getPublisher();
 		this.subscriber = conFactory.getSubscriber(this);
 	}
 
-	public void start() throws Exception {
+	/**
+	 * Starts the Loginserver.
+	 * 
+	 * @return {@code TRUE} if started. {@code FALSE} otherwise.
+	 */
+	public boolean start() {
 		log.info("Starting the Bestia Loginserver...");
 
 		// Connect to the interserver.
-		publisher.connect();
-		subscriber.connect();
-
-		subscriber.subscribe("login");
+		try {
+			publisher.connect();
+			subscriber.connect();
+			subscriber.subscribe("login");
+		} catch (IOException ex) {
+			log.error("Loginserver could not start.", ex);
+			stop();
+			return false;
+		}
 
 		log.info("Loginserver started.");
+		return true;
+	}
+
+	/**
+	 * Stops the Loginserver.
+	 */
+	public void stop() {
+		if (subscriber != null) {
+			subscriber.disconnect();
+		}
+
+		if (publisher != null) {
+			publisher.disconnect();
+		}
+
+		conFactory.shutdown();
 	}
 
 	@Override
@@ -90,7 +117,6 @@ public final class Loginserver implements InterserverMessageHandler {
 		} catch (IOException e) {
 			log.error("Could not send LoginReplyMessage", e);
 		}
-
 	}
 
 	@Override
@@ -109,11 +135,17 @@ public final class Loginserver implements InterserverMessageHandler {
 		}
 
 		final Loginserver server = new Loginserver(config);
-		try {
-			server.start();
-		} catch (Exception ex) {
-			log.fatal("Server could not start.", ex);
+
+		if (!server.start()) {
 			System.exit(1);
 		}
+
+		// Cancel the loginserver gracefully when the VM shuts down. Does not
+		// work properly on windows machines.
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				server.stop();
+			}
+		});
 	}
 }
