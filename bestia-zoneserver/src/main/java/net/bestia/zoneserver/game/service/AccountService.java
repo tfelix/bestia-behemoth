@@ -35,7 +35,7 @@ public class AccountService extends Service {
 		this.account = account;
 	}
 
-	public int getAccountId() {
+	public long getAccountId() {
 		return account.getId();
 	}
 

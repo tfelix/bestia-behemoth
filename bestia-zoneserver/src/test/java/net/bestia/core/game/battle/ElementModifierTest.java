@@ -1,6 +1,7 @@
 package net.bestia.core.game.battle;
 
 import net.bestia.model.Element;
+import net.bestia.zoneserver.game.battle.ElementModifier;
 
 import org.junit.*;
 

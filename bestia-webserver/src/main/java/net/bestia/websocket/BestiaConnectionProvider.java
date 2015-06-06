@@ -15,36 +15,38 @@ import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.messages.Message;
 
+/**
+ * Helper class to provide a centralized storage for all opend websocket connections and filter the incoming interserver
+ * messages for accounts and deliver them via websocket. Basically all shared objects beween the webserver threads
+ * should be here. Be aware that calling to methods inside this must be threadsafe.
+ * 
+ * @author Thomas
+ *
+ */
 public class BestiaConnectionProvider implements InterserverMessageHandler {
-	
+
 	private static final Logger log = LogManager.getLogger(BestiaConnectionProvider.class);
 
 	private static BestiaConnectionProvider instance = null;
 	private final ObjectMapper mapper = new ObjectMapper();
-	
+
 	private InterserverPublisher publisher;
 	private InterserverSubscriber subscriber;
-	
+	private final LoginCheckBlocker loginChecker = new LoginCheckBlocker(this);
+
 	private final Map<Integer, WebSocket> connections = new ConcurrentHashMap<>();
 
 	public void publishInterserver(String message) throws IOException {
-
 		final Message msg = mapper.readValue(message, Message.class);
-		
-		// TODO das hier ausbauen.
-		msg.setAccountId(1);
-
 		publisher.publish(msg);
 	}
 
 	public void publishInterserver(Message message) throws IOException {
-		
 		publisher.publish(message);
-		
 	}
 
 	public void publishClient(Message msg) throws IOException {
-		final int accountId = msg.getAccountId();
+		final long accountId = msg.getAccountId();
 		if (!connections.containsKey(accountId)) {
 			throw new IOException(String.format("No existing connection to account id %d", accountId));
 		}
@@ -56,7 +58,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 
 	public void addConnection(int accountId, WebSocket socket) {
 		connections.put(accountId, socket);
-		
+
 		// Subscribe to the messages.
 		subscriber.subscribe("account/" + accountId);
 	}
@@ -65,7 +67,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 		subscriber.unsubscribe("account/" + accountId);
 		connections.remove(accountId);
 	}
-	
+
 	public static void create() {
 		instance = new BestiaConnectionProvider();
 	}
@@ -74,7 +76,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 		if (instance == null) {
 			throw new IllegalStateException("setup() must be called bevor invoking these method.");
 		}
-		
+
 		this.publisher = publisher;
 		this.subscriber = subscriber;
 	}
@@ -89,6 +91,15 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 			throw new IllegalStateException("create() must be called bevor invoking these method.");
 		}
 		return instance;
+	}
+
+	/**
+	 * Returns the login check blocker.
+	 * 
+	 * @return
+	 */
+	public LoginCheckBlocker getLoginCheckBlocker() {
+		return loginChecker;
 	}
 
 	/**

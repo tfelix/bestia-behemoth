@@ -1,28 +1,19 @@
 package net.bestia.core;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.concurrent.ExecutorService;
 
-import net.bestia.core.connection.BestiaConnectionInterface;
-import net.bestia.core.game.service.AccountService;
-import net.bestia.core.game.service.AccountServiceFactory;
-import net.bestia.core.game.service.ServiceFactory;
 import net.bestia.core.util.CurrentThreadExecutorService;
-import net.bestia.messages.Message;
-import net.bestia.messages.PingMessage;
 import net.bestia.zoneserver.Zoneserver;
+import net.bestia.zoneserver.game.service.AccountService;
+import net.bestia.zoneserver.game.service.AccountServiceFactory;
+import net.bestia.zoneserver.game.service.ServiceFactory;
 
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
-
-import static org.mockito.Mockito.*;
 
 public class BestiaZoneserverTest {
 
@@ -31,33 +22,6 @@ public class BestiaZoneserverTest {
 	protected static Zoneserver zone;
 	protected static AccountServiceFactory accountServiceFactory;
 	protected static ExecutorService worker = new CurrentThreadExecutorService();
-	protected static FakeConnection connection = new FakeConnection();
-	
-	protected static class FakeConnection implements BestiaConnectionInterface {
-		
-		public List<Message> buffer = new ArrayList<Message>();
-
-		@Override
-		public void sendMessage(Message message) throws IOException {
-			buffer.add(message);
-		}
-
-		@Override
-		public boolean isConnected(int accountId) {
-			return true;
-		}
-
-		@Override
-		public int getConnectedPlayers() {
-			return 0;
-		}
-		
-	}
-	
-	@Before
-	public void resetBuffer() {
-		connection.buffer.clear();
-	}
 
 	@BeforeClass
 	public static void setUp() {
@@ -69,37 +33,26 @@ public class BestiaZoneserverTest {
 		when(accountServiceFactory.getAccount(anyInt())).thenReturn(accService);
 
 		servFac = mock(ServiceFactory.class);
-		when(servFac.getAccountServiceFactory()).thenReturn(
-				accountServiceFactory);
+		when(servFac.getAccountServiceFactory()).thenReturn(accountServiceFactory);
 
-		try {
-			File configFile = new File(BestiaZoneserverTest.class.getClassLoader()
-					.getResource("bestia.properties").toURI());
+		zone = new Zoneserver();
+		zone.start();
 
-			zone = new Zoneserver(servFac, connection,
-					configFile.getAbsolutePath(), worker);
-			
-			zone.start();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	@AfterClass
 	public static void tearDown() {
-		zone.stop(true);
+		zone.stop();
 	}
 
 	/*
-	@Test
-	public void test_ReceiveCommand() throws Exception {
-
-		Message msg = new PingMessage();
-
-		zone.handleMessage(msg);
-
-		verify(connection).sendMessage(any(Message.class));
-	}*/
+	 * @Test public void test_ReceiveCommand() throws Exception {
+	 * 
+	 * Message msg = new PingMessage();
+	 * 
+	 * zone.handleMessage(msg);
+	 * 
+	 * verify(connection).sendMessage(any(Message.class)); }
+	 */
 
 }

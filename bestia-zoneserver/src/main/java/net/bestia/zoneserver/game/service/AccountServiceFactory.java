@@ -44,13 +44,13 @@ public class AccountServiceFactory {
 	 * @param accId
 	 * @return
 	 */
-	public AccountService getAccount(int accId) {
-		Account data = accDAO.findByID(Account.class, accId);
+	public AccountService getAccount(long accId) {
+		Account data = accDAO.find(accId);
 		return new AccountService(data, server);
 	}
 	
 	public AccountService getAccountByName(String accName) {
-		Account data = accDAO.getByIdentifier(accName);
+		Account data = accDAO.findByEmail(accName);
 		if(data == null) {
 			log.warn("No account found. Identifier: {}", accName);
 			throw new IllegalArgumentException("No account found");

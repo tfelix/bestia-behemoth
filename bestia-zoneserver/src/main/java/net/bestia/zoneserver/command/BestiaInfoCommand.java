@@ -26,9 +26,9 @@ public class BestiaInfoCommand extends Command {
 		AccountService accService = ctx.getServiceFactory().getAccountServiceFactory().getAccount(message.getAccountId());
 		
 		// Setup the bestia information inside this message.
-		reply.setMaster(accService.getAccount().getMaster());
+		//reply.setMaster(accService.getAccount().getMaster());
 		reply.setNumberOfSlots(accService.getBestiaSlotNumber());
-		reply.setBestias(accService.getAccount().getBestias());
+		//reply.setBestias(accService.getAccount().getBestias());
 		
 		ctx.getServer().sendMessage(reply);
 	}

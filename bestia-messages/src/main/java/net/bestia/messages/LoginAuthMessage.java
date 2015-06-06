@@ -9,18 +9,18 @@ public class LoginAuthMessage extends Message {
 	public static final String MESSAGE_PATH = "login";
 	public static final String MESSAGE_ID = "system.login";
 	
-	private UUID requestId;
+	private String requestId;
 	private String token;
 	
 	public LoginAuthMessage() {
-		requestId = UUID.randomUUID();
+		requestId = UUID.randomUUID().toString();
 	}
 	
 	public LoginAuthMessage(String token) {
-		requestId = UUID.randomUUID();
+		requestId = UUID.randomUUID().toString();
 	}
 	
-	public LoginAuthMessage(String token, UUID requestId) {
+	public LoginAuthMessage(String token, String requestId) {
 		this.requestId = requestId;
 		this.token = token;
 	}
@@ -30,7 +30,7 @@ public class LoginAuthMessage extends Message {
 	 * 
 	 * @return
 	 */
-	public UUID getRequestId() {
+	public String getRequestId() {
 		return requestId;
 	}
 	
