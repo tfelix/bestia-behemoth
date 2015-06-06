@@ -6,6 +6,8 @@ import net.bestia.interserver.InterserverConnectionFactory;
 import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
+import net.bestia.loginserver.authenticator.AuthState;
+import net.bestia.loginserver.authenticator.Authenticator;
 import net.bestia.messages.LoginMessage;
 import net.bestia.messages.LoginReplyMessage;
 import net.bestia.messages.LoginReplyMessage.LoginState;
@@ -65,25 +67,6 @@ public final class Loginserver implements InterserverMessageHandler {
 		log.info("Loginserver started.");
 	}
 
-	public static void main(String[] args) {
-
-		final BestiaConfiguration config = new BestiaConfiguration();
-		try {
-			config.load();
-		} catch (IOException ex) {
-			log.fatal("Could not load configuration file. Exiting.", ex);
-			System.exit(1);
-		}
-
-		final Loginserver server = new Loginserver(config);
-		try {
-			server.start();
-		} catch (Exception ex) {
-			log.fatal("Server could not start.", ex);
-			System.exit(1);
-		}
-	}
-
 	@Override
 	public void onMessage(Message msg) {
 		// Just process login authentication messages.
@@ -116,5 +99,33 @@ public final class Loginserver implements InterserverMessageHandler {
 	@Override
 	public void connectionLost() {
 		log.warn("Connection to the interserver was lost.");
+	}
+	
+	/**
+	 * Authenticate a user via the provided authenticator.
+	 * 
+	 * @param authenticator
+	 */
+	public AuthState authenticate(Authenticator authenticator) {
+		return authenticator.authenticate(this);
+	}
+	
+	public static void main(String[] args) {
+
+		final BestiaConfiguration config = new BestiaConfiguration();
+		try {
+			config.load();
+		} catch (IOException ex) {
+			log.fatal("Could not load configuration file. Exiting.", ex);
+			System.exit(1);
+		}
+
+		final Loginserver server = new Loginserver(config);
+		try {
+			server.start();
+		} catch (Exception ex) {
+			log.fatal("Server could not start.", ex);
+			System.exit(1);
+		}
 	}
 }

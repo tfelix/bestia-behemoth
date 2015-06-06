@@ -1,7 +1,6 @@
-package net.bestia.core.game.service;
+package net.bestia.zoneserver.game.service;
 
-import net.bestia.core.net.Messenger;
-import net.bestia.messages.AccountInfoMessage;
+import net.bestia.zoneserver.Zoneserver;
 import net.bestia.messages.Message;
 import net.bestia.model.Account;
 import net.bestia.model.Password;
@@ -28,8 +27,8 @@ public class AccountService extends Service {
 	 * @param account
 	 * @param messageQueue
 	 */
-	public AccountService(Account account, Messenger messenger) {
-		super(messenger);
+	public AccountService(Account account, Zoneserver server) {
+		super(server);
 		if (account == null) {
 			throw new IllegalArgumentException("Account can not be null.");
 		}

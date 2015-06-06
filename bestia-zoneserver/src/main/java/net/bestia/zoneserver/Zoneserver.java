@@ -40,17 +40,17 @@ import org.apache.logging.log4j.Logger;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class BestiaZoneserver {
+public class Zoneserver {
 
 	private final static Logger log = LogManager
-			.getLogger(BestiaZoneserver.class);
+			.getLogger(Zoneserver.class);
 
 	public final static String VERSION;
 	static {
 		String version = "NOT-ASSIGNED-ERROR";
 		// Find the version number from the maven build script.
 		try {
-			File versionFile = new File(BestiaZoneserver.class.getClassLoader()
+			File versionFile = new File(Zoneserver.class.getClassLoader()
 					.getResource("buildnumber.txt").toURI());
 			BufferedReader br = new BufferedReader(new FileReader(versionFile));
 			version = br.readLine();
@@ -123,7 +123,7 @@ public class BestiaZoneserver {
 	 * @param configFile
 	 *            File with config settings for the bestia server.
 	 */
-	public BestiaZoneserver() {
+	public Zoneserver() {
 
 		// Setup the config file.
 		this.config = new BestiaConfiguration();
@@ -153,9 +153,8 @@ public class BestiaZoneserver {
 		String[] zoneStrings = config.getProperty("zone.zones").split(",");
 		Set<String> zones = new HashSet<String>();
 		zones.addAll(Arrays.asList(zoneStrings));
-		// TODO das hier richtig instanzieren.
-		this.responsibleZones = zones;
-		// this.responsibleZones = new com.google.common.collect.ImmutableSet<String>(zones);
+		
+		this.responsibleZones = Collections.unmodifiableSet(zones);
 	}
 
 	/**
@@ -239,7 +238,7 @@ public class BestiaZoneserver {
 	/**
 	 * This will schedule a command for execution. Since the commands receive a
 	 * {@link CommandContext} which in turn holds a reference to a
-	 * {@link BestiaZoneserver} commands can trigger new commands on their own.
+	 * {@link Zoneserver} commands can trigger new commands on their own.
 	 * 
 	 * @param cmd
 	 *            {@link Command} implementation to be executed.
@@ -268,7 +267,7 @@ public class BestiaZoneserver {
 	}
 
 	public static void main(String[] args) {
-		BestiaZoneserver zone = new BestiaZoneserver();
+		Zoneserver zone = new Zoneserver();
 		zone.start();
 	}
 

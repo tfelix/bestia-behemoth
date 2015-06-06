@@ -1,7 +1,7 @@
-package net.bestia.core.game.service;
+package net.bestia.zoneserver.game.service;
 
-import net.bestia.core.game.battle.Damage;
 import net.bestia.model.Bestia;
+import net.bestia.zoneserver.game.battle.Damage;
 
 public class StatusEffectService {
 	public void onAlign() {

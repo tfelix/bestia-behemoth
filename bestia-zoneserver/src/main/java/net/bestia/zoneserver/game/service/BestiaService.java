@@ -1,9 +1,9 @@
-package net.bestia.core.game.service;
+package net.bestia.zoneserver.game.service;
 
-import net.bestia.core.net.Messenger;
 import net.bestia.model.Bestia;
 import net.bestia.model.StatusEffect;
 import net.bestia.model.StatusPoints;
+import net.bestia.zoneserver.Zoneserver;
 
 /**
  * Simple basic service for bestias. It is abstract because
@@ -17,8 +17,8 @@ public abstract class BestiaService extends Service {
 	private Bestia bestia;
 	protected boolean isDead;
 	
-	public BestiaService(Bestia bestia, Messenger messenger) {
-		super(messenger);
+	public BestiaService(Bestia bestia, Zoneserver server) {
+		super(server);
 		if(bestia == null) {
 			throw new IllegalArgumentException("Bestia can not be null.");
 		}

@@ -4,7 +4,7 @@ import net.bestia.interserver.Interserver;
 import net.bestia.interserver.InterserverConnectionFactory;
 import net.bestia.messages.LoginMessage;
 import net.bestia.util.BestiaConfiguration;
-import net.bestia.zoneserver.BestiaZoneserver;
+import net.bestia.zoneserver.Zoneserver;
 
 import org.junit.Test;
 
@@ -18,7 +18,7 @@ public class MessageIntegrationTest {
 		inter.start();
 
 		// Create zoneserver.
-		BestiaZoneserver zone = new BestiaZoneserver();
+		Zoneserver zone = new Zoneserver();
 		zone.start();
 
 		// Conn

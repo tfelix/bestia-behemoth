@@ -1,4 +1,4 @@
-package net.bestia.core.net;
+package net.bestia.zoneserver;
 
 import java.net.URL;
 import java.util.Collections;

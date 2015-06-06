@@ -13,11 +13,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import net.bestia.core.game.zone.map.Map;
-import net.bestia.core.game.zone.map.Maploader;
-import net.bestia.core.game.zone.map.TMXMaploader;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.game.zone.Zone;
+import net.bestia.zoneserver.game.zone.map.Map;
+import net.bestia.zoneserver.game.zone.map.Map.Mapbuilder;
+import net.bestia.zoneserver.game.zone.map.Maploader;
+import net.bestia.zoneserver.game.zone.map.TMXMaploader;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

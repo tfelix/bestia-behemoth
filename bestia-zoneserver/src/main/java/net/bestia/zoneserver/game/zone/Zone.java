@@ -12,9 +12,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import net.bestia.core.game.zone.entity.QuadTree2;
-import net.bestia.core.game.zone.map.Map;
+
+
+
 import net.bestia.util.BestiaConfiguration;
+import net.bestia.zoneserver.game.zone.entity.QuadTree2;
+import net.bestia.zoneserver.game.zone.map.Map;
 
 /**
  * The Zone holds the static mapdata as well is responsible for managing

@@ -1,6 +1,6 @@
 package net.bestia.messages;
 
-import java.util.List;
+import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -12,10 +12,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public final class ServerInfoMessage extends Message {
 
+	private static final long serialVersionUID = 1L;
+
 	public final static String MESSAGE_ID = "server.info";
 
 	@JsonProperty("z")
-	private List<String> zones;
+	private Collection<String> zones;
 
 	@JsonProperty("v")
 	private String version = "VERSIONEINFÜGEN";
@@ -40,7 +42,7 @@ public final class ServerInfoMessage extends Message {
 		super(msg);
 	}
 
-	public ServerInfoMessage(Message msg, List<String> zones, String zoneName, int connectedPlayer, String resUrl) {
+	public ServerInfoMessage(Message msg, Collection<String> zones, String zoneName, int connectedPlayer, String resUrl) {
 		super(msg);
 		this.zones = zones;
 		this.connectedPlayer = connectedPlayer;
@@ -58,6 +60,11 @@ public final class ServerInfoMessage extends Message {
 	public String toString() {
 		return String.format("ServerInfoMessage[zoneName: %s, zones: %s, players: %d, ressourceURL: %s, version: %s, serverTime: %d]",
 				zoneName, zones.toString(), connectedPlayer, ressourceURL, version, serverTime);
+	}
+
+	@Override
+	public String getMessagePath() {
+		return getAccountMessagePath();
 	}
 
 }

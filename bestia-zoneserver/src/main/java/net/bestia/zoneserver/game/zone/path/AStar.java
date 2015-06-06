@@ -1,4 +1,4 @@
-package net.bestia.core.game.zone.path;
+package net.bestia.zoneserver.game.zone.path;
 
 import java.util.ArrayList;
 import java.util.Collections;

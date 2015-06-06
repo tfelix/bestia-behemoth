@@ -1,4 +1,4 @@
-package net.bestia.core.game.worker;
+package net.bestia.zoneserver.game.worker;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

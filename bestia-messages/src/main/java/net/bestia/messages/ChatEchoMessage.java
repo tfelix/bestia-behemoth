@@ -69,4 +69,9 @@ public class ChatEchoMessage extends Message {
 	public String getMessageId() {
 		return "chat.echo";
 	}
+
+	@Override
+	public String getMessagePath() {
+		return getAccountMessagePath();
+	}
 }

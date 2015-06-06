@@ -18,4 +18,9 @@ public class LogoutMessage extends Message {
 	public String getMessageId() {
 		return MESSAGE_ID;
 	}
+
+	@Override
+	public String getMessagePath() {
+		return getAccountMessagePath();
+	}
 }

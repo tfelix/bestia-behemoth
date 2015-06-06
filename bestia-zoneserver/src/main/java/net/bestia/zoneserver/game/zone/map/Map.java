@@ -1,9 +1,9 @@
-package net.bestia.core.game.zone.map;
+package net.bestia.zoneserver.game.zone.map;
 
 import java.util.HashMap;
 
-import net.bestia.core.game.zone.Dimension;
-import net.bestia.core.game.zone.Point;
+import net.bestia.zoneserver.game.zone.Dimension;
+import net.bestia.zoneserver.game.zone.Point;
 
 public class Map {
 

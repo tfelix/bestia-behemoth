@@ -1,12 +1,8 @@
 package net.bestia.zoneserver.command;
 
-import java.util.ArrayList;
-
-import net.bestia.core.game.service.AccountService;
-import net.bestia.core.game.service.AccountServiceFactory;
 import net.bestia.messages.BestiaInitMessage;
 import net.bestia.messages.Message;
-import net.bestia.model.PlayerBestia;
+import net.bestia.zoneserver.game.service.AccountService;
 
 /**
  * Gathers information about all bestias which are currently under the control
@@ -34,8 +30,7 @@ public class BestiaInfoCommand extends Command {
 		reply.setNumberOfSlots(accService.getBestiaSlotNumber());
 		reply.setBestias(accService.getAccount().getBestias());
 		
-		//ctx.getMessenger().sendMessage(reply);
-		
+		ctx.getServer().sendMessage(reply);
 	}
 
 }

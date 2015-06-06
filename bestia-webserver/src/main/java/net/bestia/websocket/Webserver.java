@@ -29,16 +29,18 @@ public final class Webserver {
 	public Webserver(BestiaConfiguration config) {
 		this.name = config.getProperty("web.name");
 
-		// Create the publish url.
-		String publishUrl = config.getDomainPortString("web.domain", "web.publishPort", "tcp://");
-		
 		BestiaConnectionProvider.create();
-		
-		InterserverConnectionFactory interservConnectionFactory = new InterserverConnectionFactory(1);
-		
-		this.publisher = interservConnectionFactory.getPublisher(publishUrl);
-		this.subscriber = interservConnectionFactory.getSubscriber(BestiaConnectionProvider.getInstance(), "tcp://localhost:9800");
-		
+
+		final int listenPort = config.getIntProperty("inter.listenPort");
+		final int publishPort = config.getIntProperty("inter.publishPort");
+		final String domain = config.getProperty("inter.domain");
+
+		InterserverConnectionFactory interservConnectionFactory = new InterserverConnectionFactory(1, domain,
+				listenPort, publishPort);
+
+		this.publisher = interservConnectionFactory.getPublisher();
+		this.subscriber = interservConnectionFactory.getSubscriber(BestiaConnectionProvider.getInstance());
+
 		BestiaConnectionProvider.getInstance().setup(publisher, subscriber);
 	}
 

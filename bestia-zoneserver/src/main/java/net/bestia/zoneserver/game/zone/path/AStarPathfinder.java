@@ -1,10 +1,11 @@
-package net.bestia.core.game.zone.path;
+package net.bestia.zoneserver.game.zone.path;
 
 import java.util.List;
 import java.util.PriorityQueue;
 
-import net.bestia.core.game.zone.Point;
-import net.bestia.core.game.zone.Zone;
+import net.bestia.zoneserver.game.zone.Point;
+import net.bestia.zoneserver.game.zone.Zone;
+
 
 public class AStarPathfinder implements Pathfinder {
 	

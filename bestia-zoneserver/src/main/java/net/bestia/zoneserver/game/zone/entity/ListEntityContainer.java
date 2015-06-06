@@ -1,13 +1,14 @@
-package net.bestia.core.game.zone.entity;
+package net.bestia.zoneserver.game.zone.entity;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.bestia.core.game.zone.BoxCollisionShape;
-import net.bestia.core.game.zone.Dimension;
-import net.bestia.core.game.zone.Entity;
-import net.bestia.core.game.zone.Point;
+import net.bestia.zoneserver.game.zone.BoxCollisionShape;
+import net.bestia.zoneserver.game.zone.Dimension;
+import net.bestia.zoneserver.game.zone.Entity;
+import net.bestia.zoneserver.game.zone.Point;
+
 
 /**
  * Very simple implementation of EntityContainer. Backed up by a simple list.

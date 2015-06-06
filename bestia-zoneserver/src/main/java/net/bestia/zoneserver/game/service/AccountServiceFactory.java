@@ -1,8 +1,8 @@
-package net.bestia.core.game.service;
+package net.bestia.zoneserver.game.service;
 
-import net.bestia.core.net.Messenger;
 import net.bestia.model.Account;
-import net.bestia.model.persistence.AccountDAO;
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.zoneserver.Zoneserver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,7 +19,7 @@ public class AccountServiceFactory {
 	private final static Logger log = LogManager.getLogger(AccountServiceFactory.class);
 	
 	private AccountDAO accDAO;
-	private final Messenger messenger;
+	private final Zoneserver server;
 	
 	/**
 	 * Ctor.
@@ -27,15 +27,15 @@ public class AccountServiceFactory {
 	 * @param messageQueue Queue to generate messages for the messaging subsystem.
 	 */
 	public AccountServiceFactory(AccountDAO accDAO,
-			Messenger messenger) {
+			Zoneserver server) {
 		if(accDAO == null) {
 			throw new IllegalArgumentException("AccDAO can not be null.");
 		}
-		if(messenger == null) {
-			throw new IllegalArgumentException("Messenger can not be null.");
+		if(server == null) {
+			throw new IllegalArgumentException("Server can not be null.");
 		}
 		this.accDAO = accDAO;
-		this.messenger = messenger;
+		this.server = server;
 	}
 
 	/**
@@ -46,7 +46,7 @@ public class AccountServiceFactory {
 	 */
 	public AccountService getAccount(int accId) {
 		Account data = accDAO.findByID(Account.class, accId);
-		return new AccountService(data, messenger);
+		return new AccountService(data, server);
 	}
 	
 	public AccountService getAccountByName(String accName) {
@@ -55,7 +55,7 @@ public class AccountServiceFactory {
 			log.warn("No account found. Identifier: {}", accName);
 			throw new IllegalArgumentException("No account found");
 		}
-		return new AccountService(data, messenger);
+		return new AccountService(data, server);
 	}
 	
 	/**

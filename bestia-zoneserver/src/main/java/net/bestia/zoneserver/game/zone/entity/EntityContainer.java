@@ -1,10 +1,10 @@
-package net.bestia.core.game.zone.entity;
+package net.bestia.zoneserver.game.zone.entity;
 
 import java.util.Collection;
 
-import net.bestia.core.game.zone.Dimension;
-import net.bestia.core.game.zone.Entity;
-import net.bestia.core.game.zone.Point;
+import net.bestia.zoneserver.game.zone.Dimension;
+import net.bestia.zoneserver.game.zone.Entity;
+import net.bestia.zoneserver.game.zone.Point;
 
 /**
  * Specialized container for holding entites indexed via their coordinates in an

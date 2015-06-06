@@ -14,7 +14,7 @@ import net.bestia.core.game.service.ServiceFactory;
 import net.bestia.core.util.CurrentThreadExecutorService;
 import net.bestia.messages.Message;
 import net.bestia.messages.PingMessage;
-import net.bestia.zoneserver.BestiaZoneserver;
+import net.bestia.zoneserver.Zoneserver;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -28,7 +28,7 @@ public class BestiaZoneserverTest {
 
 	protected static ServiceFactory servFac;
 
-	protected static BestiaZoneserver zone;
+	protected static Zoneserver zone;
 	protected static AccountServiceFactory accountServiceFactory;
 	protected static ExecutorService worker = new CurrentThreadExecutorService();
 	protected static FakeConnection connection = new FakeConnection();
@@ -76,7 +76,7 @@ public class BestiaZoneserverTest {
 			File configFile = new File(BestiaZoneserverTest.class.getClassLoader()
 					.getResource("bestia.properties").toURI());
 
-			zone = new BestiaZoneserver(servFac, connection,
+			zone = new Zoneserver(servFac, connection,
 					configFile.getAbsolutePath(), worker);
 			
 			zone.start();

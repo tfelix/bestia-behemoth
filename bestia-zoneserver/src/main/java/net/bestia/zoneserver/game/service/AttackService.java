@@ -1,4 +1,4 @@
-package net.bestia.core.game.service;
+package net.bestia.zoneserver.game.service;
 
 public class AttackService {
 

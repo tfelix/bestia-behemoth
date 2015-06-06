@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.command;
 
-import java.util.List;
+import java.util.Set;
 
 import net.bestia.messages.Message;
 import net.bestia.messages.ServerInfoMessage;
@@ -25,7 +25,7 @@ public class ServerInfoCommand extends Command {
 
 		final BestiaConfiguration conf = ctx.getConfiguration();
 
-		List<String> zoneNames = ctx.getServer().getResponsibleZones().asList();
+		final Set<String> zoneNames = ctx.getServer().getResponsibleZones();
 
 		final ServerInfoMessage reply = new ServerInfoMessage(message,
 				zoneNames, ctx.getServer().getName(), 0,

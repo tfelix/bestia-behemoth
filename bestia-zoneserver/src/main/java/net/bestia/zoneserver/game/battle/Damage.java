@@ -1,4 +1,4 @@
-package net.bestia.core.game.battle;
+package net.bestia.zoneserver.game.battle;
 
 public class Damage {
 

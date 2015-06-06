@@ -5,7 +5,7 @@ import java.util.Map;
 
 import net.bestia.zoneserver.game.service.ServiceFactory;
 import net.bestia.util.BestiaConfiguration;
-import net.bestia.zoneserver.BestiaZoneserver;
+import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.game.zone.Zone;
 
 /**
@@ -26,7 +26,7 @@ public final class CommandContext {
 	public static class Builder {
 		private ServiceFactory serviceFactory;
 		private Map<String, Zone> zones;
-		private BestiaZoneserver zoneserver;
+		private Zoneserver zoneserver;
 		private BestiaConfiguration config;
 
 		public Builder setServiceFactory(ServiceFactory serviceFactory) {
@@ -49,7 +49,7 @@ public final class CommandContext {
 			return this;
 		}
 
-		public Builder setZoneserver(BestiaZoneserver server) {
+		public Builder setZoneserver(Zoneserver server) {
 			this.zoneserver = server;
 			return this;
 		}
@@ -62,7 +62,7 @@ public final class CommandContext {
 	private final ServiceFactory serviceFactory;
 	private final BestiaConfiguration configuration;
 	private final Map<String, Zone> zones;
-	private final BestiaZoneserver server;
+	private final Zoneserver server;
 
 	/**
 	 * Ctor. Creat
@@ -143,7 +143,7 @@ public final class CommandContext {
 	 * 
 	 * @return Zoneserver instance.
 	 */
-	public BestiaZoneserver getServer() {
+	public Zoneserver getServer() {
 		return server;
 	}
 

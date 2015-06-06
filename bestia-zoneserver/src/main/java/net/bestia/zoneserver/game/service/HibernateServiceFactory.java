@@ -1,7 +1,7 @@
-package net.bestia.core.game.service;
+package net.bestia.zoneserver.game.service;
 
-import net.bestia.core.net.Messenger;
-import net.bestia.model.persistence.AccountDAO;
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.zoneserver.Zoneserver;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -20,12 +20,15 @@ public final class HibernateServiceFactory implements ServiceFactory {
 	private AccountServiceFactory accServiceFactory;
 	private BestiaServiceFactory bestiaServiceFactory;
 	private ApplicationContext ctx;
-	private final Messenger messenger;
+	private final Zoneserver server;
 
-	public HibernateServiceFactory(Messenger messenger) {
-		ctx = new ClassPathXmlApplicationContext("spring-config.xml");
+	public HibernateServiceFactory(Zoneserver server) {
+		if(server == null) {
+			throw new IllegalArgumentException("Server can not be null.");
+		}
 		
-		this.messenger = messenger;
+		this.ctx = new ClassPathXmlApplicationContext("spring-config.xml");		
+		this.server = server;
 	}
 
 	/*
@@ -37,7 +40,7 @@ public final class HibernateServiceFactory implements ServiceFactory {
 	public AccountServiceFactory getAccountServiceFactory() {
 		if(accServiceFactory == null) {
 			AccountDAO accDAO = (AccountDAO) ctx.getBean("accountDAOHibernate");
-			accServiceFactory = new AccountServiceFactory(accDAO, messenger);
+			accServiceFactory = new AccountServiceFactory(accDAO, server);
 		}
 		return accServiceFactory;
 	}
