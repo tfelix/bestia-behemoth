@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 public abstract class Message implements Serializable {
 
 	private static final long serialVersionUID = 2015052401L;
-	private int accountId;
+	private long accountId;
 	private boolean isBroadcast = false;
 
 	public Message() {
@@ -71,11 +71,11 @@ public abstract class Message implements Serializable {
 	 * @return
 	 */
 	@JsonIgnore
-	public int getAccountId() {
+	public long getAccountId() {
 		return accountId;
 	}
 
-	public void setAccountId(int accountId) {
+	public void setAccountId(long accountId) {
 		this.accountId = accountId;
 	}
 

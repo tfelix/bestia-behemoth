@@ -8,22 +8,20 @@ import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.loginserver.authenticator.AuthState;
 import net.bestia.loginserver.authenticator.Authenticator;
-import net.bestia.messages.LoginMessage;
-import net.bestia.messages.LoginReplyMessage;
-import net.bestia.messages.LoginReplyMessage.LoginState;
+import net.bestia.loginserver.authenticator.LoginTokenAuthenticator;
+import net.bestia.messages.LoginAuthMessage;
+import net.bestia.messages.LoginAuthReplyMessage;
 import net.bestia.messages.Message;
-import net.bestia.model.Account;
+import net.bestia.messages.LoginAuthReplyMessage.LoginState;
 import net.bestia.util.BestiaConfiguration;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * The loginserver connects to the interserver and listens for auth.login
- * messages. With these messages the webserver will authenticate new incoming
- * connections. For this purpose the loginserver also access the database and
- * checks the current token. But the loginserver also provides means of login
- * methods for setting exactly this login token.
+ * The loginserver connects to the interserver and listens for auth.login messages. With these messages the webserver
+ * will authenticate new incoming connections. For this purpose the loginserver also access the database and checks the
+ * current token. But the loginserver also provides means of login methods for setting exactly this login token.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -48,15 +46,14 @@ public final class Loginserver implements InterserverMessageHandler {
 		final int publishPort = config.getIntProperty("inter.publishPort");
 		final int listenPort = config.getIntProperty("inter.listenPort");
 
-		InterserverConnectionFactory conFactory = new InterserverConnectionFactory(
-				1, interUrl, listenPort, publishPort);
+		InterserverConnectionFactory conFactory = new InterserverConnectionFactory(1, interUrl, listenPort, publishPort);
 
 		this.publisher = conFactory.getPublisher();
 		this.subscriber = conFactory.getSubscriber(this);
 	}
 
 	public void start() throws Exception {
-		log.info("Starting the Bestia Loginserver [{}]...");
+		log.info("Starting the Bestia Loginserver...");
 
 		// Connect to the interserver.
 		publisher.connect();
@@ -70,19 +67,17 @@ public final class Loginserver implements InterserverMessageHandler {
 	@Override
 	public void onMessage(Message msg) {
 		// Just process login authentication messages.
-		if (!(msg instanceof LoginMessage)) {
+		if (!(msg instanceof LoginAuthMessage)) {
 			return;
 		}
-		LoginMessage loginMsg = (LoginMessage) msg;
+		LoginAuthMessage loginMsg = (LoginAuthMessage) msg;
 		log.debug("Received login auth request: {}", loginMsg.toString());
+
+		Authenticator tokenAuth = new LoginTokenAuthenticator(loginMsg.getAccountId(), loginMsg.getToken());
 		
-		// Get the account from the database. 
-		// TODO
-		loginMsg.getAccountId();
-		
-		Account account = null;
-		LoginReplyMessage loginReplyMsg = new LoginReplyMessage(loginMsg);
-		if(account.getLoginToken().equals(loginMsg.getToken())) {
+		final LoginAuthReplyMessage loginReplyMsg = new LoginAuthReplyMessage(loginMsg);
+		loginReplyMsg.setAccountId(msg.getAccountId());
+		if(tokenAuth.authenticate() == AuthState.AUTHENTICATED) {
 			loginReplyMsg.setLoginState(LoginState.AUTHORIZED);
 		} else {
 			loginReplyMsg.setLoginState(LoginState.DENIED);
@@ -93,23 +88,14 @@ public final class Loginserver implements InterserverMessageHandler {
 		} catch (IOException e) {
 			log.error("Could not send LoginReplyMessage", e);
 		}
-		
+
 	}
 
 	@Override
 	public void connectionLost() {
 		log.warn("Connection to the interserver was lost.");
 	}
-	
-	/**
-	 * Authenticate a user via the provided authenticator.
-	 * 
-	 * @param authenticator
-	 */
-	public AuthState authenticate(Authenticator authenticator) {
-		return authenticator.authenticate(this);
-	}
-	
+
 	public static void main(String[] args) {
 
 		final BestiaConfiguration config = new BestiaConfiguration();

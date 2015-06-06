@@ -13,7 +13,7 @@ import java.lang.reflect.ParameterizedType;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-public abstract class GenericDAOHibernate<E, K> implements GenericDAO<E, K> {
+public abstract class GenericDAOHibernate<E, K extends Serializable> implements GenericDAO<E, K> {
 
 	private SessionFactory sessionFactory;
 	protected final Class<? extends E> daoType;
@@ -43,7 +43,11 @@ public abstract class GenericDAOHibernate<E, K> implements GenericDAO<E, K> {
 
 	@Override
 	public E find(K id) {
-		//return (E) currentSession().
-		return null;
+		return (E) currentSession().get(daoType, id);
+	}
+	
+	@Override
+	public List<E> list() {
+		return currentSession().createCriteria(daoType).list();
 	}
 }

@@ -11,5 +11,5 @@ import net.bestia.loginserver.Loginserver;
  */
 public interface Authenticator {
 
-	public AuthState authenticate(Loginserver server);
+	public AuthState authenticate();
 }

@@ -1,27 +1,44 @@
 package net.bestia.model;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
 import java.util.List;
+
+import net.bestia.model.dao.AccountDAO;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 
-import static org.junit.Assert.*;
-import net.bestia.model.dao.GenericDAO;
-import net.bestia.model.dao.MemoryDao;
+@ContextConfiguration(locations = "/spring-config.xml")
+public class AccountDAOTest extends DomainAwareBase {
 
-public class AccountDAOTest {
+	@Autowired
+	private AccountDAO accountDao;
 
-	private GenericDAO<Account, Long> accountDao = new MemoryDao<>();
-	
 	@Before
 	public void setUp() {
-		for(int i = 0; i < 5; i++) {
+		for (int i = 0; i < 5; i++) {
 			Account a = new Account();
 			a.setEmail("account" + i + "@example.com");
 			accountDao.save(a);
 		}
 	}
-	
+
+	@Test
+	public void update_test() {
+		Account a = new Account("thomas.felix@tfelix.de", "test123");
+		accountDao.save(a);
+		a.setEmail("max.muser@mann.de");
+		accountDao.save(a);
+
+		Account found = accountDao.find(a.getId());
+		assertEquals("max.muser@mann.de", found.getEmail());
+	}
+
 	@Test
 	public void add_test() {
 		int oldSize = accountDao.list().size();
@@ -29,24 +46,33 @@ public class AccountDAOTest {
 		a.setEmail("hello@world.de");
 		accountDao.save(a);
 		int newSize = accountDao.list().size();
-		
+
 		assertFalse(oldSize == newSize);
 	}
-	
+
 	@Test
 	public void remove_test() {
 		int oldSize = accountDao.list().size();
 		Account a = accountDao.find(1L);
 		accountDao.delete(a);
 		int newSize = accountDao.list().size();
-		
+
 		assertFalse(oldSize == newSize);
+	}
+
+	@Test
+	public void testList() {
+		List<Account> list = accountDao.list();
+		assertNotNull(list);
+		assertFalse(list.isEmpty());
 	}
 	
 	@Test
-    public void testList() {
-        List<Account> list = accountDao.list();
-        assertNotNull (list);
-        assertFalse (list.isEmpty());
-    }
+	public void findByEmail_test() {
+		Account a = new Account("thomas.felix@tfelix.de", "test123");
+		accountDao.save(a);
+		
+		Account found = accountDao.findByEmail("thomas.felix@tfelix.de");
+		assertNotNull(found);
+	}
 }

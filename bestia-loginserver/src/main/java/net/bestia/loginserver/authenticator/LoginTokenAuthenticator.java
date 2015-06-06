@@ -5,33 +5,40 @@ import net.bestia.model.dao.AccountDAO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class PasswordAuthenticator implements Authenticator {
-	
+/**
+ * Authenticates an account with an already saved token.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
+public class LoginTokenAuthenticator implements Authenticator {
+
 	@Autowired
 	private AccountDAO accountDao;
 	
-	private final String username;
-	private final String password;
+	private final String token;
+	private final long accountId;
 	
-	public PasswordAuthenticator(String username, String password) {
-		this.username = username;
-		this.password = password;
+	public LoginTokenAuthenticator(long id, String token) {
+		this.token = token;
+		this.accountId = id;
 	}
 
 	@Override
 	public AuthState authenticate() {
 		
 		// Get the account from the database. 		
-		Account account = accountDao.findByEmail(username);
+		Account account = accountDao.find(accountId);
 
 		if(account == null) {	
 			return AuthState.NO_ACCOUNT;	
 		} else {
-			if(account.getPassword().matches(password)) {
+			if(account.getLoginToken().equals(token)) {
 				return AuthState.AUTHENTICATED;
 			} else {
 				return AuthState.DENIED;
 			}
 		}
 	}
+
 }

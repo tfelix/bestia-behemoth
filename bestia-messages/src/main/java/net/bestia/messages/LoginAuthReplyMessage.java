@@ -1,6 +1,6 @@
 package net.bestia.messages;
 
-public class LoginReplyMessage extends LoginMessage {
+public class LoginAuthReplyMessage extends LoginAuthMessage {
 
 	public enum LoginState {
 		DENIED,
@@ -13,7 +13,7 @@ public class LoginReplyMessage extends LoginMessage {
 	
 	private LoginState state;
 	
-	public LoginReplyMessage(LoginMessage loginMsg) {
+	public LoginAuthReplyMessage(LoginAuthMessage loginMsg) {
 		super(loginMsg.getToken(), loginMsg.getRequestId());
 		this.setAccountId(loginMsg.getAccountId());
 		

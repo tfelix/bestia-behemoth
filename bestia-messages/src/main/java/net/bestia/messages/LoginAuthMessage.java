@@ -2,7 +2,7 @@ package net.bestia.messages;
 
 import java.util.UUID;
 
-public class LoginMessage extends Message {
+public class LoginAuthMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -12,15 +12,15 @@ public class LoginMessage extends Message {
 	private UUID requestId;
 	private String token;
 	
-	public LoginMessage() {
+	public LoginAuthMessage() {
 		requestId = UUID.randomUUID();
 	}
 	
-	public LoginMessage(String token) {
+	public LoginAuthMessage(String token) {
 		requestId = UUID.randomUUID();
 	}
 	
-	public LoginMessage(String token, UUID requestId) {
+	public LoginAuthMessage(String token, UUID requestId) {
 		this.requestId = requestId;
 		this.token = token;
 	}

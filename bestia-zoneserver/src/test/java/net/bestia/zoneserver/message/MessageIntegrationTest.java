@@ -2,7 +2,7 @@ package net.bestia.zoneserver.message;
 
 import net.bestia.interserver.Interserver;
 import net.bestia.interserver.InterserverConnectionFactory;
-import net.bestia.messages.LoginMessage;
+import net.bestia.messages.LoginAuthMessage;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.Zoneserver;
 
@@ -27,7 +27,7 @@ public class MessageIntegrationTest {
 				config.getIntProperty("inter.publishPort"));
 
 		// Now send a auth token message to trigger a response.
-		LoginMessage msg = new LoginMessage();
+		LoginAuthMessage msg = new LoginAuthMessage();
 		
 
 	}

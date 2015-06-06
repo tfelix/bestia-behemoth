@@ -14,10 +14,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.Column;
 
 @Entity
+@Table(name = "account")
 public class Account {
 
 	@Transient
@@ -26,17 +28,15 @@ public class Account {
 	public final static int MAX_BESTIA_SLOTS = 6;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
 	@Column(length = 32, unique = true)
 	private String email = "";
 	@Embedded
 	private Password password;
-	@Column(nullable=false)
 	private int additionalBestiaSlots = 0;
-	@Column(nullable=false)
 	private int gold = 0;
-	private String loginToken;
+	private String loginToken = "";
 	private Date registerDate;
 	private Date lastLogin;
 	private boolean isActivated = false;
@@ -46,18 +46,25 @@ public class Account {
 	// @OneToMany(mappedBy="account")
 	// private List<GuildMember> guild;
 
-	@OneToOne(cascade = CascadeType.ALL, optional= true)
-	@JoinColumn(name= "MASTER_ID", nullable = true)
-	private PlayerBestia master;
+	//@OneToOne(cascade = CascadeType.ALL, optional = true)
+	//@JoinColumn(name = "MASTER_ID", nullable = true)
+	//private PlayerBestia master;
 
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "owner")
-	private List<PlayerBestia> bestias;
+	//@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "owner")
+	//private List<PlayerBestia> bestias;
 
 	public Account() {
 		setRegisterDate(new Date());
+		password = new Password();
+	}
+	
+	public Account(String email, String password) {
+		this.email = email;
+		this.password = new Password(password);
+		
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
@@ -80,7 +87,7 @@ public class Account {
 	public void setPassword(Password password) {
 		this.password = password;
 	}
-
+/*
 	public PlayerBestia getMaster() {
 		return master;
 	}
@@ -116,11 +123,6 @@ public class Account {
 		this.gold = gold;
 	}
 
-	@Override
-	public String toString() {
-		return MessageFormat.format("Account[id: {0}, email: {1}]", id, email);
-	}
-
 	public Date getBannedUntilDate() {
 		return bannedUntilDate;
 	}
@@ -152,11 +154,11 @@ public class Account {
 	public void setActivated(boolean isActivated) {
 		this.isActivated = isActivated;
 	}
-	
+
 	public String getLoginToken() {
 		return loginToken;
 	}
-	
+
 	public void setLoginToken(String token) {
 		this.loginToken = token;
 	}
@@ -168,9 +170,44 @@ public class Account {
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
 	}
-	
+/*
 	public List<PlayerBestia> getBestias() {
 		return bestias;
+	}*/
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((email == null) ? 0 : email.hashCode());
+        result = prime * result + (int)id;
+        // TODO Alle anderen Felder hashen.
+        return result;
+	}
+	
+	public boolean equals(Object obj) {
+		if(this == obj) {
+			return true;
+		}
+		if(obj == null || !(obj instanceof Account)) {
+			return false;
+		}
+		
+		Account other = (Account) obj;
+		
+		if(id != other.id) {
+			return false;
+		}
+		
+		// TODO Alle anderen Felder prüfen.
+		
+		return true;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("Account[id=%d, email=%s, registerDate=%t]", id, email, registerDate);
 	}
 
 }
