@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class ChatMessage extends Message {
 
+	private static final long serialVersionUID = 1L;
 	public final static String MESSAGE_ID = "chat.message";
 	
 	public enum Mode {
@@ -90,5 +91,10 @@ public class ChatMessage extends Message {
 
 	public void setTime(long time) {
 		this.time = time;
+	}
+
+	@Override
+	public String getMessagePath() {
+		return getAccountMessagePath();
 	}
 }

@@ -9,39 +9,40 @@ import org.atmosphere.cpr.AtmosphereRequest;
 import org.atmosphere.cpr.AtmosphereResource;
 
 public class BestiaLoginInterceptor implements AtmosphereInterceptor {
-	
-	private final static Logger log = LogManager.getLogger(BestiaLoginInterceptor.class);
+
+	private final static Logger log = LogManager
+			.getLogger(BestiaLoginInterceptor.class);
 
 	@Override
-	public void configure(AtmosphereConfig arg0) {
-		// TODO Auto-generated method stub
-		
+	public void configure(AtmosphereConfig config) {
+
 	}
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public Action inspect(AtmosphereResource r) {
-		log.debug("Intercepting connection. Checking for login: " + r.toString());
+		log.debug("Intercepting connection. Checking for login: "
+				+ r.toString());
 		AtmosphereRequest req = r.getRequest();
-		
-        if (req.getHeader("SomeSecurityToken") == null) {
-        	//req.
-            return Action.CANCELLED;
-            
-        } else {
-            return Action.CONTINUE;                   
-        }
+
+		if (req.getHeader("X-Bestia-Access-Token") == null) {
+			return Action.CANCELLED;
+
+		} else {
+			
+			// Send a login check message to the login server.
+			
+			return Action.CONTINUE;
+		}
 	}
 
 	@Override
 	public void postInspect(AtmosphereResource arg0) {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 }

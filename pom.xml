@@ -11,16 +11,20 @@
 		<module>bestia-conf</module>
 		<module>bestia-messages</module>
 		<module>bestia-models</module>
-		<module>bestia-core</module>
+		<module>bestia-zoneserver</module>
 		<module>bestia-interserver</module>
 		<module>bestia-webserver</module>
+		<module>bestia-loginserver</module>
 		<module>map-tmxloader</module>
 	</modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
 		<jackson-annotations-version>2.5.3</jackson-annotations-version>
+		<!-- Define Spring version as a constant -->
+		<spring.version>4.0.3.RELEASE</spring.version>
+		<hibernate.version>4.3.4.Final</hibernate.version>
+		<build.number>${buildNumber}</build.number>
 	</properties>
 
 	<!-- Profiles for the different builds. -->

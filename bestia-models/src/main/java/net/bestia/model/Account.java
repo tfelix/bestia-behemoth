@@ -36,6 +36,7 @@ public class Account {
 	private int additionalBestiaSlots = 0;
 	@Column(nullable=false)
 	private int gold = 0;
+	private String loginToken;
 	private Date registerDate;
 	private Date lastLogin;
 	private boolean isActivated = false;
@@ -150,6 +151,14 @@ public class Account {
 
 	public void setActivated(boolean isActivated) {
 		this.isActivated = isActivated;
+	}
+	
+	public String getLoginToken() {
+		return loginToken;
+	}
+	
+	public void setLoginToken(String token) {
+		this.loginToken = token;
 	}
 
 	public String getRemarks() {

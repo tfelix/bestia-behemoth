@@ -1,11 +1,10 @@
 package net.bestia.messages;
 
-import java.io.ObjectInputStream.GetField;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PongMessage extends Message {
 
+	private static final long serialVersionUID = 1L;
 	private static final String message = "Hello User.";
 	private static final String MESSAGE_ID = "system.pong";
 	
@@ -32,7 +31,7 @@ public class PongMessage extends Message {
 	
 	@Override
 	public String getMessagePath() {
-		return String.format("account/%d", getAccountId());
+		return getAccountMessagePath();
 	}
 
 	@Override
