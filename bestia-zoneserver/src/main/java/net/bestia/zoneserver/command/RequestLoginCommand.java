@@ -6,8 +6,8 @@ import java.util.List;
 import net.bestia.messages.BestiaInitMessage;
 import net.bestia.messages.LoginBroadcastMessage;
 import net.bestia.messages.Message;
-import net.bestia.model.Location;
-import net.bestia.model.PlayerBestia;
+import net.bestia.model.domain.Location;
+import net.bestia.model.domain.PlayerBestia;
 
 /**
  * This command will be executed if a new user wants to join. He needs a few

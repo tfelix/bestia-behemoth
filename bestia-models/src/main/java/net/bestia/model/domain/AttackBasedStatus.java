@@ -1,4 +1,4 @@
-package net.bestia.model;
+package net.bestia.model.domain;
 
 /**
  * Specifies on which status value an attack is based.

@@ -1,6 +1,6 @@
 package net.bestia.model.dao;
 
-import net.bestia.model.Account;
+import net.bestia.model.domain.Account;
 
 public interface AccountDAO extends GenericDAO<Account, Long> {
 

@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.game;
 
-import net.bestia.model.Attack;
-import net.bestia.model.Bestia;
+import net.bestia.model.domain.Attack;
+import net.bestia.model.domain.Bestia;
 import net.bestia.zoneserver.game.battle.Damage;
 import net.bestia.zoneserver.game.service.BestiaService;
 

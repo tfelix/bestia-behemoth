@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.game.service;
 
-import net.bestia.model.Account;
 import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.Zoneserver;
 
 import org.apache.logging.log4j.LogManager;

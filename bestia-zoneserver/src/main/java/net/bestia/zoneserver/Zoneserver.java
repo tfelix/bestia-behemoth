@@ -88,7 +88,7 @@ public class Zoneserver {
 
 		@Override
 		public void connectionLost() {
-			// TODO Auto-generated method stub
+			// TODO connectionLost entfernen.
 
 		}
 
@@ -160,12 +160,14 @@ public class Zoneserver {
 	/**
 	 * Starts the server. Initializes all the messaging pipeline, database
 	 * connections, cache and scripts.
+	 * 
+	 * @return {@code TRUE} if started. {@code FALSE} otherwise.
 	 */
-	public void start() {
+	public boolean start() {
 
 		if (isRunning.getAndSet(true)) {
 			log.warn("Zoneserver is already running.");
-			return;
+			return false;
 		}
 
 		// Initializing all messaging components.
@@ -186,8 +188,15 @@ public class Zoneserver {
 		log.info("Initializing: message queue...");
 
 		log.info("Registering with Interserver...");
-		interserverSubscriber.connect();
-		interserverPublisher.connect();
+		try {
+			interserverSubscriber.connect();
+			interserverPublisher.connect();
+		} catch(IOException ex) {
+			log.error("Can not start zoneserver.", ex);
+			stop();
+			return false;
+		}
+		
 
 		// Subscribe to zone broadcast messages.
 		interserverSubscriber.subscribe("zone/all");
@@ -199,6 +208,7 @@ public class Zoneserver {
 		// interserverSubscriber.subscribe("zone/account/1");
 
 		log.info("Bestia Behemoth Zone [{}] has started.", name);
+		return true;
 	}
 
 	/**
@@ -215,7 +225,6 @@ public class Zoneserver {
 		log.info("Shutting down: entity subsystem...");
 
 		// Wait for all threads to cease operation.
-
 		log.info("Zone: [{}] went down.", config.getProperty("name"));
 	}
 
@@ -268,7 +277,9 @@ public class Zoneserver {
 
 	public static void main(String[] args) {
 		Zoneserver zone = new Zoneserver();
-		zone.start();
+		if(!zone.start()) {
+			System.exit(1);
+		}
 	}
 
 }

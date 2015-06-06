@@ -9,6 +9,7 @@ import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.loginserver.authenticator.AuthState;
 import net.bestia.loginserver.authenticator.Authenticator;
 import net.bestia.loginserver.authenticator.DebugAuthenticator;
+import net.bestia.loginserver.authenticator.LoginTokenAuthenticator;
 import net.bestia.messages.LoginAuthMessage;
 import net.bestia.messages.LoginAuthReplyMessage;
 import net.bestia.messages.LoginAuthReplyMessage.LoginState;
@@ -101,8 +102,8 @@ public final class Loginserver implements InterserverMessageHandler {
 		LoginAuthMessage loginMsg = (LoginAuthMessage) msg;
 		log.debug("Received login auth request: {}", loginMsg.toString());
 
-		// Authenticator tokenAuth = new LoginTokenAuthenticator(loginMsg.getAccountId(), loginMsg.getToken());
-		Authenticator tokenAuth = new DebugAuthenticator();
+		Authenticator tokenAuth = new LoginTokenAuthenticator(loginMsg.getAccountId(), loginMsg.getToken());
+		//Authenticator tokenAuth = new DebugAuthenticator();
 
 		final LoginAuthReplyMessage loginReplyMsg = new LoginAuthReplyMessage(loginMsg);
 		loginReplyMsg.setAccountId(msg.getAccountId());

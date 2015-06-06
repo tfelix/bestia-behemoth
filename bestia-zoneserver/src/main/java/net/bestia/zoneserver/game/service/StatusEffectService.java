@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.game.service;
 
-import net.bestia.model.Bestia;
+import net.bestia.model.domain.Bestia;
 import net.bestia.zoneserver.game.battle.Damage;
 
 public class StatusEffectService {

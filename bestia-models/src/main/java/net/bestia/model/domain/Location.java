@@ -1,4 +1,4 @@
-package net.bestia.model;
+package net.bestia.model.domain;
 
 import javax.persistence.Embeddable;
 

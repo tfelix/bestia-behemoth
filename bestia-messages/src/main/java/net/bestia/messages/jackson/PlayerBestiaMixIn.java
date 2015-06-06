@@ -11,10 +11,10 @@ import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import net.bestia.model.PVPMode;
-import net.bestia.model.Account;
-import net.bestia.model.Location;
-import net.bestia.model.StatusPoints;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Location;
+import net.bestia.model.domain.PVPMode;
+import net.bestia.model.domain.StatusPoints;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.game.service;
 
-import net.bestia.model.Bestia;
-import net.bestia.model.StatusEffect;
-import net.bestia.model.StatusPoints;
+import net.bestia.model.domain.Bestia;
+import net.bestia.model.domain.StatusEffect;
+import net.bestia.model.domain.StatusPoints;
 import net.bestia.zoneserver.Zoneserver;
 
 /**

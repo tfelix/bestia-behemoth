@@ -1,4 +1,4 @@
-package net.bestia.model;
+package net.bestia.model.domain;
 
 /**
  * List of all elements used by the Bestia game.

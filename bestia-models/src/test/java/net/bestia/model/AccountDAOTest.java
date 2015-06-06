@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNotNull;
 import java.util.List;
 
 import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +54,7 @@ public class AccountDAOTest extends DomainAwareBase {
 	@Test
 	public void remove_test() {
 		int oldSize = accountDao.list().size();
-		Account a = accountDao.find(1L);
+		Account a = accountDao.list().get(0);
 		accountDao.delete(a);
 		int newSize = accountDao.list().size();
 

@@ -9,19 +9,6 @@
 		<version>0.1.0-SNAPSHOT</version>
 	</parent>
 
-	<profiles>
-		<profile>
-			<id>development</id>
-			<dependencies>
-				<dependency>
-					<groupId>com.h2database</groupId>
-					<artifactId>h2</artifactId>
-					<version>1.4.185</version>
-				</dependency>
-			</dependencies>
-		</profile>
-	</profiles>
-
 	<dependencies>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>

@@ -3,7 +3,7 @@ package net.bestia.zoneserver.game.battle;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.bestia.model.Element;
+import net.bestia.model.domain.Element;
 
 /**
  * Returns the attack damage modifier for a given elemental set of the attacker

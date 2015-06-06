@@ -3,7 +3,7 @@ package net.bestia.core.game.service;
 import java.util.Date;
 
 import net.bestia.core.net.Messenger;
-import net.bestia.model.Account;
+import net.bestia.model.domain.Account;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -1,7 +1,8 @@
 package net.bestia.loginserver.authenticator;
 
-import net.bestia.model.Account;
+import net.bestia.model.ServiceLocator;
 import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -13,8 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class LoginTokenAuthenticator implements Authenticator {
 
-	@Autowired
-	private AccountDAO accountDao;
+	private final AccountDAO accountDao;
 	
 	private final String token;
 	private final long accountId;
@@ -22,6 +22,9 @@ public class LoginTokenAuthenticator implements Authenticator {
 	public LoginTokenAuthenticator(long id, String token) {
 		this.token = token;
 		this.accountId = id;
+		
+		ServiceLocator locator = new ServiceLocator();
+		this.accountDao = locator.getObject(AccountDAO.class);
 	}
 
 	@Override

@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.model.PlayerBestia;
+import net.bestia.model.domain.PlayerBestia;
 
 /**
  * This message is send to the client to trigger a initial synchronisation about

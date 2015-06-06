@@ -1,7 +1,7 @@
 package net.bestia.model.dao;
 
 
-import net.bestia.model.Account;
+import net.bestia.model.domain.Account;
 
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;

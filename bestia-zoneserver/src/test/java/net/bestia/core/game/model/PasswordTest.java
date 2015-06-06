@@ -3,7 +3,7 @@ package net.bestia.core.game.model;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.bestia.model.Password;
+import net.bestia.model.domain.Password;
 
 /**
  * Test for the Password model.

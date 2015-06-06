@@ -2,8 +2,8 @@ package net.bestia.zoneserver.game.service;
 
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.messages.Message;
-import net.bestia.model.Account;
-import net.bestia.model.Password;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Password;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

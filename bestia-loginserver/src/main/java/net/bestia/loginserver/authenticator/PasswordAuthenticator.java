@@ -1,7 +1,7 @@
 package net.bestia.loginserver.authenticator;
 
-import net.bestia.model.Account;
 import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
 
 import org.springframework.beans.factory.annotation.Autowired;
 

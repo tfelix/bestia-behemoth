@@ -46,14 +46,14 @@
 
 		<property name="annotatedClasses">
 			<list>
-				<value>net.bestia.model.Account</value>
-				<value>net.bestia.model.Password</value>
+				
+				<value>net.bestia.model.domain.Account</value>
+				<value>net.bestia.model.domain.Password</value>
 			</list>
 		</property>
 
 		<!-- WIEDER UMSTELLEN AUF ALLE KLASSEN SOBALD BEREIT. -->
-		<!-- <property name="packagesToScan" value="net.bestia.core.game.model" 
-			/> -->
+		<property name="packagesToScan" value="net.bestia.model.dao" />
 	</bean>
 
 	<bean id="transactionManager"

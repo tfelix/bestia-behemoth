@@ -1,6 +1,6 @@
 package net.bestia.messages;
 
-import net.bestia.model.Account;
+import net.bestia.model.domain.Account;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -1,10 +1,10 @@
 package net.bestia.zoneserver.game.service;
 
 import net.bestia.messages.Message;
-import net.bestia.model.Account;
-import net.bestia.model.Location;
-import net.bestia.model.PlayerBestia;
-import net.bestia.model.StatusPoints;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Location;
+import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.domain.StatusPoints;
 import net.bestia.zoneserver.Zoneserver;
 
 import org.apache.logging.log4j.LogManager;

@@ -36,12 +36,15 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 		if (provider.getLoginCheckBlocker().isAuthenticated(accountId, token)) {
 			// Since login is ok we must now be prepared to receive zone messages for this account connection.
 			provider.addConnection(accountId, webSocket);
-
 			// if so announce a new login to the zones.
 			final LoginBroadcastMessage msg = new LoginBroadcastMessage(accountId);
 			provider.publishInterserver(msg);
+			
+			log.trace("Websocket connection accepted.");
 		} else {
 			webSocket.close();
+			
+			log.trace("Websocket connection was refused.");
 		}
 	}
 
