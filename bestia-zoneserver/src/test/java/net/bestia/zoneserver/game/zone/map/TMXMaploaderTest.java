@@ -1,4 +1,4 @@
-package net.bestia.core.game.zone.map;
+package net.bestia.zoneserver.game.zone.map;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 
 import org.junit.Test;
 
-import net.bestia.core.game.zone.map.Map.Mapbuilder;
+import net.bestia.zoneserver.game.zone.map.Map.Mapbuilder;
 
 public class TMXMaploaderTest {
 

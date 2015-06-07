@@ -1,9 +1,9 @@
-package net.bestia.core.game.service;
+package net.bestia.zoneserver.game.service;
 
 import java.util.Date;
 
-import net.bestia.core.net.Messenger;
 import net.bestia.model.domain.Account;
+import net.bestia.zoneserver.Zoneserver;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,24 +14,23 @@ import static org.mockito.Mockito.*;
 public class AccountServiceTest {
 	
 	private Account acc;
+	private Zoneserver zone;
 	private AccountService service;
-	private Messenger messenger;
 	
 	@Before
 	public void setup() {
 		
 		acc = mock(Account.class);
+		zone = mock(Zoneserver.class);
 		
-		when(acc.getId()).thenReturn(1);
+		when(acc.getId()).thenReturn(1L);
 		when(acc.getAdditionalBestiaSlots()).thenReturn(0);
 		when(acc.getBannedUntilDate()).thenReturn(null);
 		when(acc.getEmail()).thenReturn("john.doe@example.com");
 		when(acc.getGold()).thenReturn(1337);
 		when(acc.getRegisterDate()).thenReturn(new Date());
 		
-		messenger = mock(Messenger.class);
-		
-		service = new AccountService(acc, messenger);
+		service = new AccountService(acc, zone);
 		
 	}
 

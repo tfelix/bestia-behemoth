@@ -1,4 +1,4 @@
-package net.bestia.core.game.zone;
+package net.bestia.zoneserver.game.zone;
 
 import org.junit.Assert;
 import org.junit.Test;

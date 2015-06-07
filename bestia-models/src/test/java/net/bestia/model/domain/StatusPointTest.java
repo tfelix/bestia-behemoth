@@ -1,4 +1,4 @@
-package net.bestia.core.game.model;
+package net.bestia.model.domain;
 
 
 import net.bestia.model.domain.StatusPoints;

@@ -1,4 +1,4 @@
-package net.bestia.core.game.zone;
+package net.bestia.zoneserver.game.zone;
 
 import java.io.File;
 import java.io.FileReader;
@@ -15,10 +15,9 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import static org.mockito.Mockito.*;
-import net.bestia.core.BestiaZoneserverTest;
-import net.bestia.core.game.zone.Zone.Event;
-import net.bestia.core.game.zone.map.Map;
 import net.bestia.util.BestiaConfiguration;
+import net.bestia.zoneserver.game.zone.Zone.Event;
+import net.bestia.zoneserver.game.zone.map.Map;
 
 public class ZoneTest {
 
@@ -41,7 +40,7 @@ public class ZoneTest {
 
 		File configFile;
 		try {
-			configFile = new File(BestiaZoneserverTest.class.getClassLoader()
+			configFile = new File(ZoneTest.class.getClassLoader()
 					.getResource("bestia.properties").toURI());
 			BestiaConfiguration p = new BestiaConfiguration();
 			p.load(configFile);

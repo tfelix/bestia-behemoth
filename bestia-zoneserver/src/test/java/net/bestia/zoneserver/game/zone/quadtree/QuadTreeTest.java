@@ -1,9 +1,9 @@
-package net.bestia.core.game.zone.quadtree;
+package net.bestia.zoneserver.game.zone.quadtree;
 
-import net.bestia.core.game.zone.Dimension;
-import net.bestia.core.game.zone.Entity;
-import net.bestia.core.game.zone.Point;
-import net.bestia.core.game.zone.entity.QuadTree2;
+import net.bestia.zoneserver.game.zone.Dimension;
+import net.bestia.zoneserver.game.zone.Entity;
+import net.bestia.zoneserver.game.zone.Point;
+import net.bestia.zoneserver.game.zone.entity.QuadTree2;
 
 import org.junit.Test;
 import org.mockito.Mock;

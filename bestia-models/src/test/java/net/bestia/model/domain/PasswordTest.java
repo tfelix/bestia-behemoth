@@ -1,4 +1,4 @@
-package net.bestia.core.game.model;
+package net.bestia.model.domain;
 
 import org.junit.Assert;
 import org.junit.Test;
