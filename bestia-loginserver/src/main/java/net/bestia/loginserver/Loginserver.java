@@ -121,11 +121,6 @@ public final class Loginserver implements InterserverMessageHandler {
 		}
 	}
 
-	@Override
-	public void connectionLost() {
-		log.warn("Connection to the interserver was lost.");
-	}
-
 	public static void main(String[] args) {
 
 		final BestiaConfiguration config = new BestiaConfiguration();

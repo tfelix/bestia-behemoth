@@ -131,13 +131,4 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 			}
 		}
 	}
-
-	/**
-	 * Callback when the interserver connection has been lost.
-	 */
-	@Override
-	public void connectionLost() {
-		// TODO Auto-generated method stub
-
-	}
 }

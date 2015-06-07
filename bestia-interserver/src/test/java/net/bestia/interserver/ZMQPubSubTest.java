@@ -50,11 +50,6 @@ public class ZMQPubSubTest {
 			public void onMessage(Message msg) {
 				msgs.add(msg);
 			}
-			
-			@Override
-			public void connectionLost() {
-				
-			}
 		});
 		
 		pub.connect();

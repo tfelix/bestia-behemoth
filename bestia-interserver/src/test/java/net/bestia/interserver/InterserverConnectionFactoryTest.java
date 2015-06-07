@@ -24,11 +24,6 @@ public class InterserverConnectionFactoryTest {
 			public void onMessage(Message msg) {
 				
 			}
-			
-			@Override
-			public void connectionLost() {
-				
-			}
 		});
 		Assert.assertNotNull(sub);
 	}

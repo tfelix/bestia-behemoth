@@ -17,10 +17,4 @@ public interface InterserverMessageHandler {
 	 *            Message which was received by the interserver.
 	 */
 	public void onMessage(Message msg);
-
-	/**
-	 * Handler gets called if a connection to be interserver is lost and can not
-	 * be reestablished.
-	 */
-	public void connectionLost();
 }

@@ -85,13 +85,6 @@ public class Zoneserver {
 				break;
 			}
 		}
-
-		@Override
-		public void connectionLost() {
-			// TODO connectionLost entfernen.
-
-		}
-
 	}
 
 	private final String name;
