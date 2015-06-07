@@ -2,6 +2,13 @@ package net.bestia.messages;
 
 import java.util.UUID;
 
+/**
+ * Message is send if a webserver wants to authenticate a pending connection. It will send the given access token from
+ * the request to the login server which must respond accordingly.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class LoginAuthMessage extends Message {
 
 	private static final long serialVersionUID = 1L;

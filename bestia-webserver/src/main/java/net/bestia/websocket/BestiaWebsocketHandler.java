@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.inject.Inject;
 
 import net.bestia.messages.LoginBroadcastMessage;
+import net.bestia.messages.LogoutBroadcastMessage;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -81,12 +82,11 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 			long accountId = Long.parseLong(resource.getRequest().getHeader("X-Bestia-Account"));
 			// Remove connection from the provider.
 			provider.removeConnection(accountId);
-
-		} catch (NullPointerException ex) {
-			log.warn("This should not happen since a conneciton without account id should never been opened.", ex);
+			LogoutBroadcastMessage logoutMsg = new LogoutBroadcastMessage(accountId);		
+			provider.publishInterserver(logoutMsg);
+		} catch (NullPointerException | IOException ex) {
+			log.warn("Could not properly broadcast a terminated connection.", ex);
 		}
-
-		// TODO announce logout to the zone/interserver.
 	}
 
 	@Override

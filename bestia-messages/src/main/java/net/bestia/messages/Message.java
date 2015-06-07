@@ -23,13 +23,15 @@ public abstract class Message implements Serializable {
 	private long accountId;
 	private boolean isBroadcast = false;
 
+	private final static String MSG_PATH_ZONE_ALL = "zone/all";
+
 	public Message() {
 		// no op.
 	}
 
 	/**
-	 * Creates a message out of a previous message. Informations like the
-	 * account id and the uuid for connection identification are reused.
+	 * Creates a message out of a previous message. Informations like the account id and the uuid for connection
+	 * identification are reused.
 	 * 
 	 * @param msg
 	 */
@@ -38,8 +40,7 @@ public abstract class Message implements Serializable {
 	}
 
 	/**
-	 * Ctor. The broadcast flag can be set to send this message to all connected
-	 * players.
+	 * Ctor. The broadcast flag can be set to send this message to all connected players.
 	 * 
 	 * @param isBroadcast
 	 */
@@ -54,9 +55,8 @@ public abstract class Message implements Serializable {
 	}
 
 	/**
-	 * Returns the id of this message. The same id is used on the client to
-	 * trigger events which have subscribed for the arrival of this kind of
-	 * messages.
+	 * Returns the id of this message. The same id is used on the client to trigger events which have subscribed for the
+	 * arrival of this kind of messages.
 	 * 
 	 * @return Event name to be triggered on the client.
 	 */
@@ -64,9 +64,8 @@ public abstract class Message implements Serializable {
 	public abstract String getMessageId();
 
 	/**
-	 * Returns the account id for this message. Note: Not everytime this id is
-	 * set. If the user is not logged in this might not reflect the true id of
-	 * the connected account until he has authenticated.
+	 * Returns the account id for this message. Note: Not everytime this id is set. If the user is not logged in this
+	 * might not reflect the true id of the connected account until he has authenticated.
 	 * 
 	 * @return
 	 */
@@ -81,15 +80,12 @@ public abstract class Message implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("Message[message id: %s, account id: %d]",
-				getMessageId(), accountId);
+		return String.format("Message[message id: %s, account id: %d]", getMessageId(), accountId);
 	}
 
 	/**
-	 * Gets the designated message path e.g. "zone/all" if the messages are
-	 * intended to be send to all zone servers. By overwriting this
-	 * getMessagePath method the message itself can decide for which server they
-	 * are intended.
+	 * Gets the designated message path e.g. "zone/all" if the messages are intended to be send to all zone servers. By
+	 * overwriting this getMessagePath method the message itself can decide for which server they are intended.
 	 * 
 	 * @return The message path to which the message wants to be delivered.
 	 */
@@ -97,13 +93,21 @@ public abstract class Message implements Serializable {
 	public abstract String getMessagePath();
 
 	/**
-	 * Helper method. Might be used as getMessagePath() implementation if the
-	 * message is directed to the client which is quite often the case.
+	 * Helper method. Might be used as getMessagePath() implementation if the message is directed to the client which is
+	 * quite often the case.
 	 * 
-	 * @return A message path designated to reach a user connected to a
-	 *         webserver.
+	 * @return A message path designated to reach a user connected to a webserver.
 	 */
 	protected String getAccountMessagePath() {
 		return String.format("account/%d", getAccountId());
+	}
+
+	/**
+	 * Helper method. Returns the message path for addressing a broadcast to all zones.
+	 * 
+	 * @return A message path addressing a zone broadcast.
+	 */
+	protected String getZoneBroadcastMessagePath() {
+		return MSG_PATH_ZONE_ALL;
 	}
 }
