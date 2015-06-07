@@ -26,8 +26,8 @@ Bestia.Connection.prototype.init = function() {
 		logLevel : 'debug',
 		transport : 'websocket',
 		headers : {
-			'bestia_token' : 'test-1234-1234-1234',
-			'bestia_acc_id' : 1
+			'X-Bestia-Token' : 'test-1234-1234-1234',
+			'X-Bestia-Account' : 1
 		},
 		maxReconnectOnClose: 0,
 		trackMessageLength : true,

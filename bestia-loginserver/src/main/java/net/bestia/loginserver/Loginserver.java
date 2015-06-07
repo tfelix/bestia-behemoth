@@ -103,13 +103,14 @@ public final class Loginserver implements InterserverMessageHandler {
 		log.debug("Received login auth request: {}", loginMsg.toString());
 
 		Authenticator tokenAuth = new LoginTokenAuthenticator(loginMsg.getAccountId(), loginMsg.getToken());
-		//Authenticator tokenAuth = new DebugAuthenticator();
 
 		final LoginAuthReplyMessage loginReplyMsg = new LoginAuthReplyMessage(loginMsg);
 		loginReplyMsg.setAccountId(msg.getAccountId());
 		if (tokenAuth.authenticate() == AuthState.AUTHENTICATED) {
+			log.info("Connection with account id: {}, token: {}, state: AUTHORIZED", loginMsg.getAccountId(), loginMsg.getToken());
 			loginReplyMsg.setLoginState(LoginState.AUTHORIZED);
 		} else {
+			log.info("Connection with account id: {}, token: {}, state: DENIED", loginMsg.getAccountId(), loginMsg.getToken());
 			loginReplyMsg.setLoginState(LoginState.DENIED);
 		}
 

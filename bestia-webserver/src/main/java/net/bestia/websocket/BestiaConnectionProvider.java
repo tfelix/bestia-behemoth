@@ -21,7 +21,7 @@ import net.bestia.messages.Message;
  * messages for accounts and deliver them via websocket. Basically all shared objects beween the webserver threads
  * should be here. Be aware that calling to methods inside this must be threadsafe.
  * 
- * @author Thomas
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class BestiaConnectionProvider implements InterserverMessageHandler {
@@ -35,7 +35,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	private InterserverSubscriber subscriber;
 	private final LoginCheckBlocker loginChecker = new LoginCheckBlocker(this);
 
-	private final Map<Integer, WebSocket> connections = new ConcurrentHashMap<>();
+	private final Map<Long, WebSocket> connections = new ConcurrentHashMap<>();
 
 	public void publishInterserver(String message) throws IOException {
 		final Message msg = mapper.readValue(message, Message.class);
@@ -57,14 +57,20 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 		connections.get(accountId).write(data);
 	}
 
-	public void addConnection(int accountId, WebSocket socket) {
+	public void addConnection(long accountId, WebSocket socket) {
 		connections.put(accountId, socket);
 
 		// Subscribe to the messages.
 		subscriber.subscribe("account/" + accountId);
 	}
 
-	public void removeConnection(int accountId) {
+	/**
+	 * Unsubscribes from the topic from the zone/interserver and removes this account from our saved connection list.
+	 * 
+	 * @param accountId
+	 *            Account ID to be removed.
+	 */
+	public void removeConnection(long accountId) {
 		subscriber.unsubscribe("account/" + accountId);
 		connections.remove(accountId);
 	}
@@ -110,7 +116,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	public void onMessage(Message msg) {
 		// Special case: If the message is a LoginAuthReply message we must route it to the blocker for further
 		// processing.
-		if(msg.getMessageId().equals(LoginAuthReplyMessage.MESSAGE_ID)) {
+		if (msg.getMessageId().equals(LoginAuthReplyMessage.MESSAGE_ID)) {
 			loginChecker.receivedAuthReplayMessage((LoginAuthReplyMessage) msg);
 			return;
 		}

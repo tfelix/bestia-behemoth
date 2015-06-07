@@ -16,8 +16,10 @@ public class LoginAuthMessage extends Message {
 		requestId = UUID.randomUUID().toString();
 	}
 
-	public LoginAuthMessage(String token) {
-		requestId = UUID.randomUUID().toString();
+	public LoginAuthMessage(long accountId, String token) {
+		setAccountId(accountId);
+		this.token = token;
+		this.requestId = UUID.randomUUID().toString();
 	}
 
 	public LoginAuthMessage(String token, String requestId) {

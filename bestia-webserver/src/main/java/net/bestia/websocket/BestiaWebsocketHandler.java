@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
-import net.bestia.messages.LoginAuthMessage;
 import net.bestia.messages.LoginBroadcastMessage;
 
 import org.apache.logging.log4j.LogManager;
@@ -31,20 +30,33 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 		log.trace("onOpen called.");
 
 		// New connection incoming. Check if login is ok.
-		final int accountId = 1;
-		final String token = "test-1234-5678";
-		if (provider.getLoginCheckBlocker().isAuthenticated(accountId, token)) {
-			// Since login is ok we must now be prepared to receive zone messages for this account connection.
-			provider.addConnection(accountId, webSocket);
-			// if so announce a new login to the zones.
-			final LoginBroadcastMessage msg = new LoginBroadcastMessage(accountId);
-			provider.publishInterserver(msg);
-			
-			log.trace("Websocket connection accepted.");
-		} else {
+
+		final String uuid = (String) webSocket.resource().getRequest()
+				.getAttribute(ApplicationConfig.SUSPENDED_ATMOSPHERE_RESOURCE_UUID);
+		final AtmosphereResource resource = resourceFactory.find(uuid);
+
+		try {
+			final long accountId = Long.parseLong(resource.getRequest().getHeader("X-Bestia-Account"));
+			final String token = resource.getRequest().getHeader("X-Bestia-Token");
+
+			if (provider.getLoginCheckBlocker().isAuthenticated(accountId, token)) {
+				// Since login is ok we must now be prepared to receive zone messages for this account connection.
+				provider.addConnection(accountId, webSocket);
+				// if so announce a new login to the zones.
+				final LoginBroadcastMessage msg = new LoginBroadcastMessage(accountId);
+				provider.publishInterserver(msg);
+
+				log.trace("Websocket connection accepted.");
+			} else {
+				webSocket.close();
+
+				log.trace("Websocket connection was refused.");
+			}
+		} catch (NullPointerException | NumberFormatException ex) {
 			webSocket.close();
-			
-			log.trace("Websocket connection was refused.");
+
+			log.debug("No header or account id present. Closing websocket.");
+			return;
 		}
 	}
 
@@ -64,14 +76,17 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 		final String uuid = (String) webSocket.resource().getRequest()
 				.getAttribute(ApplicationConfig.SUSPENDED_ATMOSPHERE_RESOURCE_UUID);
 		final AtmosphereResource resource = resourceFactory.find(uuid);
-		// long accountId = Long.parseLong(resource.getRequest().getHeader("X-Bestia-AccoundId"));
 
-		final int accountId = 1;
+		try {
+			long accountId = Long.parseLong(resource.getRequest().getHeader("X-Bestia-Account"));
+			// Remove connection from the provider.
+			provider.removeConnection(accountId);
+
+		} catch (NullPointerException ex) {
+			log.warn("This should not happen since a conneciton without account id should never been opened.", ex);
+		}
 
 		// TODO announce logout to the zone/interserver.
-
-		// Remove connection from the provider.
-		provider.removeConnection(accountId);
 	}
 
 	@Override

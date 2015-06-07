@@ -56,8 +56,7 @@ public class LoginCheckBlocker {
 
 	public boolean isAuthenticated(long accountId, String token) {
 
-		LoginAuthMessage msg = new LoginAuthMessage(token);
-		msg.setAccountId(accountId);
+		LoginAuthMessage msg = new LoginAuthMessage(accountId, token);
 
 		final String requestId = msg.getRequestId();
 		final BlockingQueue<LoginAuthReplyMessage> queue = new ArrayBlockingQueue<>(1);
@@ -81,6 +80,12 @@ public class LoginCheckBlocker {
 
 		try {
 			LoginAuthReplyMessage replyMsg = queue.poll(5, TimeUnit.SECONDS);
+			
+			// Might be null if we hid a timeout.
+			if(replyMsg == null) {
+				return false;
+			}
+			
 			return replyMsg.getLoginState() == LoginState.AUTHORIZED;
 		} catch (InterruptedException e) {
 			log.debug("Timeout while waiting for LoginAuthReply message.", e);
