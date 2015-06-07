@@ -11,7 +11,7 @@ public class ServiceLocatorTest {
 
 	@Test
 	public void get_accountDao_test() {
-		ServiceLocator locator = new ServiceLocator();
+		DAOLocator locator = new DAOLocator();
 		AccountDAO accDao = locator.getObject(AccountDAO.class);	
 		assertNotNull(accDao);
 	}

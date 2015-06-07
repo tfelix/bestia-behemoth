@@ -6,6 +6,10 @@ public class LoginBroadcastMessage extends Message {
 	private final static String MESSAGE_PATH = "zone/all";
 	public final static String MESSAGE_ID = "system.loginbroadcast";
 
+	public LoginBroadcastMessage() {
+		setAccountId(0);
+	}
+	
 	public LoginBroadcastMessage(long accountId) {
 		setAccountId(accountId);
 	}

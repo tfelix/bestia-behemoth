@@ -1,6 +1,6 @@
 package net.bestia.loginserver.authenticator;
 
-import net.bestia.model.ServiceLocator;
+import net.bestia.model.DAOLocator;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 
@@ -23,7 +23,7 @@ public class LoginTokenAuthenticator implements Authenticator {
 		this.token = token;
 		this.accountId = id;
 		
-		ServiceLocator locator = new ServiceLocator();
+		DAOLocator locator = new DAOLocator();
 		this.accountDao = locator.getObject(AccountDAO.class);
 	}
 

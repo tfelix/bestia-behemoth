@@ -24,34 +24,32 @@ import net.bestia.messages.Message;
 import net.bestia.messages.PongMessage;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
+import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
+import net.bestia.zoneserver.game.service.HibernateServiceFactory;
 import net.bestia.zoneserver.game.zone.Zone;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 /**
- * This is the central game server instance. Upon start it will read all
- * designated maps parse them, instance all needed entities and scripts. It will
- * then populate the map with the spawned entities and with data from the
- * database and start simulating the game environment.
+ * This is the central game server instance. Upon start it will read all designated maps parse them, instance all needed
+ * entities and scripts. It will then populate the map with the spawned entities and with data from the database and
+ * start simulating the game environment.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class Zoneserver {
 
-	private final static Logger log = LogManager
-			.getLogger(Zoneserver.class);
+	private final static Logger log = LogManager.getLogger(Zoneserver.class);
 
 	public final static String VERSION;
 	static {
 		String version = "NOT-ASSIGNED-ERROR";
 		// Find the version number from the maven build script.
 		try {
-			File versionFile = new File(Zoneserver.class.getClassLoader()
-					.getResource("buildnumber.txt").toURI());
+			File versionFile = new File(Zoneserver.class.getClassLoader().getResource("buildnumber.txt").toURI());
 			BufferedReader br = new BufferedReader(new FileReader(versionFile));
 			version = br.readLine();
 			br.close();
@@ -65,25 +63,11 @@ public class Zoneserver {
 
 		@Override
 		public void onMessage(Message msg) {
-			log.trace("Zoneserver received: {}", msg.toString());
+			log.trace("Zoneserver {} received: {}", name, msg.toString());
 
-			Command cmd = commandFactory.getCommand(msg);
-
-			switch (msg.getMessageId()) {
-
-			case LoginBroadcastMessage.MESSAGE_ID:
-				// TODO Usually we would like a message/command dispatch
-				// service. Create a command execute it and then
-				// send back the server answer.
-				LoginBroadcastMessage message = (LoginBroadcastMessage) msg;
-				PongMessage pong = new PongMessage(msg);
-				try {
-					interserverPublisher.publish(pong);
-				} catch (IOException e) {
-					// TODO hier noch alles machen.
-				}
-				break;
-			}
+			// Create command out of the message and deliver it to the executor.
+			final Command cmd = commandFactory.getCommand(msg);
+			commandExecutor.execute(cmd);
 		}
 	}
 
@@ -106,8 +90,7 @@ public class Zoneserver {
 	private final Set<String> responsibleZones;
 
 	/**
-	 * Ctor. The server needs a connection to its clients so it can use the
-	 * messaging API to communicate with them.
+	 * Ctor. The server needs a connection to its clients so it can use the messaging API to communicate with them.
 	 * 
 	 * @param serviceFactory
 	 *            Service factory to getting the game beans from a datasource.
@@ -129,30 +112,36 @@ public class Zoneserver {
 
 		this.name = config.getProperty("zone.name");
 
-		this.commandFactory = new CommandFactory();
+		// Create a command context.
+		final CommandContext.Builder cmdCtxBuilder = new CommandContext.Builder();
+		cmdCtxBuilder.setConfiguration(config).setZones(zones).setZoneserver(this)
+				.setServiceFactory(new HibernateServiceFactory(this));
+		final CommandContext cmdContext = cmdCtxBuilder.build();
+
+		this.commandFactory = new CommandFactory(cmdContext);
 		this.commandExecutor = Executors.newFixedThreadPool(1);
 
 		final String interUrl = config.getProperty("inter.domain");
-		final int listenPort = config.getIntProperty("inter.listenPort");
-		final int subscribePort = config.getIntProperty("inter.subscribePort");
+		// We receive where the interserver publishes and vice versa.
+		final int subscribePort = config.getIntProperty("inter.listenPort");
+		final int listenPort = config.getIntProperty("inter.publishPort");
 
-		InterserverConnectionFactory conFactory = new InterserverConnectionFactory(
-				1, interUrl, listenPort, subscribePort);
+		InterserverConnectionFactory conFactory = new InterserverConnectionFactory(1, interUrl, listenPort,
+				subscribePort);
 
 		interserverSubscriber = conFactory.getSubscriber(interserverHandler);
 		interserverPublisher = conFactory.getPublisher();
-		
+
 		// Generate the list of zones for this server.
 		String[] zoneStrings = config.getProperty("zone.zones").split(",");
 		Set<String> zones = new HashSet<String>();
 		zones.addAll(Arrays.asList(zoneStrings));
-		
+
 		this.responsibleZones = Collections.unmodifiableSet(zones);
 	}
 
 	/**
-	 * Starts the server. Initializes all the messaging pipeline, database
-	 * connections, cache and scripts.
+	 * Starts the server. Initializes all the messaging pipeline, database connections, cache and scripts.
 	 * 
 	 * @return {@code TRUE} if started. {@code FALSE} otherwise.
 	 */
@@ -184,21 +173,16 @@ public class Zoneserver {
 		try {
 			interserverSubscriber.connect();
 			interserverPublisher.connect();
-		} catch(IOException ex) {
+		} catch (IOException ex) {
 			log.error("Can not start zoneserver.", ex);
 			stop();
 			return false;
 		}
-		
 
 		// Subscribe to zone broadcast messages.
 		interserverSubscriber.subscribe("zone/all");
 		// Subscribe to messages explicity for this zone.
 		interserverSubscriber.subscribe("zone/" + name);
-
-		// TODO Temporär. Subscribe zu account message.
-		// Das muss dann dynamisch geschehen mit allen eingeloggten accounts.
-		// interserverSubscriber.subscribe("zone/account/1");
 
 		log.info("Bestia Behemoth Zone [{}] has started.", name);
 		return true;
@@ -222,9 +206,8 @@ public class Zoneserver {
 	}
 
 	/**
-	 * Sends the message back to the interserver. One must make sure the message
-	 * path is now correct since this basically tells the interserver how to
-	 * process this message.
+	 * Sends the message back to the interserver. One must make sure the message path is now correct since this
+	 * basically tells the interserver how to process this message.
 	 * 
 	 * @param message
 	 */
@@ -232,15 +215,13 @@ public class Zoneserver {
 		try {
 			interserverPublisher.publish(message);
 		} catch (IOException e) {
-			log.trace("Error: Could not deliver message: {}",
-					message.toString());
+			log.trace("Error: Could not deliver message: {}", message.toString(), e);
 		}
 	}
 
 	/**
-	 * This will schedule a command for execution. Since the commands receive a
-	 * {@link CommandContext} which in turn holds a reference to a
-	 * {@link Zoneserver} commands can trigger new commands on their own.
+	 * This will schedule a command for execution. Since the commands receive a {@link CommandContext} which in turn
+	 * holds a reference to a {@link Zoneserver} commands can trigger new commands on their own.
 	 * 
 	 * @param cmd
 	 *            {@link Command} implementation to be executed.
@@ -259,8 +240,7 @@ public class Zoneserver {
 	}
 
 	/**
-	 * Returns a set of zone names (map_db_name of a map) the server is
-	 * responsible for.
+	 * Returns a set of zone names (map_db_name of a map) the server is responsible for.
 	 * 
 	 * @return Set of names for which this server is responsible.
 	 */
@@ -270,9 +250,29 @@ public class Zoneserver {
 
 	public static void main(String[] args) {
 		Zoneserver zone = new Zoneserver();
-		if(!zone.start()) {
+		if (!zone.start()) {
 			System.exit(1);
 		}
+	}
+
+	/**
+	 * Subscribes to a topic on the subscriber from the interserver.
+	 * 
+	 * @param topic
+	 *            Topic to subscribe to.
+	 */
+	public void subscribe(String topic) {
+		interserverSubscriber.subscribe(topic);
+	}
+
+	/**
+	 * UNsubscribes from a topic on the subscriber from the interserver.
+	 * 
+	 * @param topic
+	 *            Topic to unsubscribe from.
+	 */
+	public void unsubscribe(String topic) {
+		interserverSubscriber.unsubscribe(topic);
 	}
 
 }

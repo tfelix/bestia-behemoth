@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService;
 import net.bestia.core.util.CurrentThreadExecutorService;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.game.service.AccountService;
-import net.bestia.zoneserver.game.service.AccountServiceFactory;
+import net.bestia.zoneserver.game.service.AccountServiceManager;
 import net.bestia.zoneserver.game.service.ServiceFactory;
 
 import org.junit.AfterClass;
@@ -20,7 +20,7 @@ public class BestiaZoneserverTest {
 	protected static ServiceFactory servFac;
 
 	protected static Zoneserver zone;
-	protected static AccountServiceFactory accountServiceFactory;
+	protected static AccountServiceManager accountServiceFactory;
 	protected static ExecutorService worker = new CurrentThreadExecutorService();
 
 	@BeforeClass
@@ -29,7 +29,7 @@ public class BestiaZoneserverTest {
 		// Setup mocks.
 		AccountService accService = mock(AccountService.class);
 
-		accountServiceFactory = mock(AccountServiceFactory.class);
+		accountServiceFactory = mock(AccountServiceManager.class);
 		when(accountServiceFactory.getAccount(anyInt())).thenReturn(accService);
 
 		servFac = mock(ServiceFactory.class);

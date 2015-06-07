@@ -8,6 +8,8 @@ import net.bestia.messages.LoginBroadcastMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
+import net.bestia.zoneserver.game.service.AccountService;
+import net.bestia.zoneserver.game.service.AccountServiceManager;
 
 /**
  * This command will be executed if a new user wants to join. He needs a few
@@ -33,14 +35,18 @@ public class RequestLoginCommand extends Command {
 
 	@Override
 	public void execute(Message message, CommandContext ctx) {
+		
+		AccountServiceManager accManager = ctx.getServiceFactory().getAccountServiceFactory();
+		AccountService accService = accManager.getAccountService(message.getAccountId());
+		
 
 		// See if the master is on this zone.
-		PlayerBestia master = null;
+		/*PlayerBestia master = null;
 		// If this zone is not responsible stop processing.
 		if (!ctx.getServer().getResponsibleZones()
 				.contains(master.getCurrentPosition().getMapDbName())) {
 			return;
-		}
+		}*/
 
 		// Find the playerbestias associated with this account.
 		List<PlayerBestia> bestias = new ArrayList<PlayerBestia>();
@@ -64,9 +70,9 @@ public class RequestLoginCommand extends Command {
 		// Add to the zone.
 		// ctx.getZone(b.getCurrentPosition().getMapDbName()).addEntity(null);
 
-		// Add the bestia as a entity to the zone.
 
-		// Register this zone now as responsible for handling messages regarding 
+		// Register this zone now as responsible for handling messages regarding this account.
+		ctx.getServer().subscribe("zone/account/" + message.getAccountId());
 	}
 
 }

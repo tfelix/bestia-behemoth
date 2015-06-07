@@ -19,7 +19,10 @@ public class AccountService extends Service {
 	private static final Logger log = LogManager
 			.getLogger(AccountService.class);
 
-	private Account account;
+	public final static int MAX_MASTER_LEVEL = 60;
+	public final static int MAX_BESTIA_SLOTS = 6;
+	
+	private final Account account;
 
 	/**
 	 * Ctor.

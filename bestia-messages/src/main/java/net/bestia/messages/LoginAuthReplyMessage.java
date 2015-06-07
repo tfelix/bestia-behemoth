@@ -15,12 +15,15 @@ public class LoginAuthReplyMessage extends LoginAuthMessage {
 	private static final long serialVersionUID = 1L;
 
 	private LoginState state;
+	
+	public LoginAuthReplyMessage() {
+		super(0, "");
+		setLoginState(LoginState.DENIED);
+	}
 
 	public LoginAuthReplyMessage(LoginAuthMessage loginMsg) {
 		super(loginMsg.getToken(), loginMsg.getRequestId());
 		this.setAccountId(loginMsg.getAccountId());
-
-		// no op.
 	}
 
 	public void setLoginState(LoginState state) {

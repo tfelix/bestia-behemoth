@@ -1,5 +1,6 @@
 package net.bestia.model.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -11,12 +12,10 @@ import javax.persistence.Id;
 import javax.persistence.Transient;
 
 @Entity
-public class Account {
+public class Account implements Serializable {
 
 	@Transient
-	public final static int MAX_MASTER_LEVEL = 60;
-	@Transient
-	public final static int MAX_BESTIA_SLOTS = 6;
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,23 +36,23 @@ public class Account {
 	// @OneToMany(mappedBy="account")
 	// private List<GuildMember> guild;
 
-	//@OneToOne(cascade = CascadeType.ALL, optional = true)
-	//@JoinColumn(name = "MASTER_ID", nullable = true)
-	//private PlayerBestia master;
+	// @OneToOne(cascade = CascadeType.ALL, optional = true)
+	// @JoinColumn(name = "MASTER_ID", nullable = true)
+	// private PlayerBestia master;
 
-	//@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "owner")
-	//private List<PlayerBestia> bestias;
+	// @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "owner")
+	// private List<PlayerBestia> bestias;
 
 	public Account() {
 		setRegisterDate(new Date());
 		password = new Password();
 	}
-	
+
 	public Account(String email, String password) {
 		this.email = email;
 		this.password = new Password(password);
 		this.registerDate = new Date();
-		
+
 	}
 
 	public long getId() {
@@ -79,13 +78,11 @@ public class Account {
 	public void setPassword(Password password) {
 		this.password = password;
 	}
-/*
-	public PlayerBestia getMaster() {
-		return master;
-	}
 
 	/*
-	 * public void setMaster(PlayerBestiaData master) { this.master = master; }
+	 * public PlayerBestia getMaster() { return master; }
+	 * 
+	 * /* public void setMaster(PlayerBestiaData master) { this.master = master; }
 	 * 
 	 * public List<PlayerBestiaData> getBestias() { return java.util.Collections.unmodifiableList(bestias); }
 	 * 
@@ -162,41 +159,40 @@ public class Account {
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
 	}
-/*
-	public List<PlayerBestia> getBestias() {
-		return bestias;
-	}*/
-	
+
+	/*
+	 * public List<PlayerBestia> getBestias() { return bestias; }
+	 */
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-        int result = 1;
-        result = prime * result
-                + ((email == null) ? 0 : email.hashCode());
-        result = prime * result + (int)id;
-        // TODO Alle anderen Felder hashen.
-        return result;
+		int result = 1;
+		result = prime * result + ((email == null) ? 0 : email.hashCode());
+		result = prime * result + (int) id;
+		// TODO Alle anderen Felder hashen.
+		return result;
 	}
-	
+
 	public boolean equals(Object obj) {
-		if(this == obj) {
+		if (this == obj) {
 			return true;
 		}
-		if(obj == null || !(obj instanceof Account)) {
+		if (obj == null || !(obj instanceof Account)) {
 			return false;
 		}
-		
+
 		Account other = (Account) obj;
-		
-		if(id != other.id) {
+
+		if (id != other.id) {
 			return false;
 		}
-		
+
 		// TODO Alle anderen Felder prüfen.
-		
+
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("Account[id=%d, email=%s, registerDate=%t]", id, email, registerDate);

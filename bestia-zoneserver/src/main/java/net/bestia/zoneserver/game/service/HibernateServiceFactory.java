@@ -1,10 +1,8 @@
 package net.bestia.zoneserver.game.service;
 
+import net.bestia.model.DAOLocator;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.zoneserver.Zoneserver;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * Use this factory to get service implementations of all the data objects and
@@ -17,9 +15,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public final class HibernateServiceFactory implements ServiceFactory {
 
-	private AccountServiceFactory accServiceFactory;
-	private BestiaServiceFactory bestiaServiceFactory;
-	private ApplicationContext ctx;
+	private final DAOLocator locator;
 	private final Zoneserver server;
 
 	public HibernateServiceFactory(Zoneserver server) {
@@ -27,7 +23,7 @@ public final class HibernateServiceFactory implements ServiceFactory {
 			throw new IllegalArgumentException("Server can not be null.");
 		}
 		
-		this.ctx = new ClassPathXmlApplicationContext("spring-config.xml");		
+		this.locator = new DAOLocator();
 		this.server = server;
 	}
 
@@ -37,20 +33,14 @@ public final class HibernateServiceFactory implements ServiceFactory {
 	 * @see net.bestia.core.game.service.ServiceFactory#getBestiaService()
 	 */
 	@Override
-	public AccountServiceFactory getAccountServiceFactory() {
-		if(accServiceFactory == null) {
-			AccountDAO accDAO = (AccountDAO) ctx.getBean("accountDAOHibernate");
-			accServiceFactory = new AccountServiceFactory(accDAO, server);
-		}
+	public AccountServiceManager getAccountServiceFactory() {
+		AccountDAO accDAO = locator.getObject(AccountDAO.class);
+		final AccountServiceManager accServiceFactory = new AccountServiceManager(accDAO, server);
 		return accServiceFactory;
 	}
 
 	@Override
 	public BestiaServiceFactory getBestiaServiceFactory() {
-		/*if(bestiaServiceFactory == null) {
-			BestiaDAO bestiaDAO = (BestiaDAO) ctx.getBean("bestiaDAOHibernate");
-			
-		}*/
 		return null;
 	}
 }

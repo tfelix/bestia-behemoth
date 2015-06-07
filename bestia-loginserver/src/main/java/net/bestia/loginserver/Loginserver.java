@@ -8,7 +8,6 @@ import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.loginserver.authenticator.AuthState;
 import net.bestia.loginserver.authenticator.Authenticator;
-import net.bestia.loginserver.authenticator.DebugAuthenticator;
 import net.bestia.loginserver.authenticator.LoginTokenAuthenticator;
 import net.bestia.messages.LoginAuthMessage;
 import net.bestia.messages.LoginAuthReplyMessage;

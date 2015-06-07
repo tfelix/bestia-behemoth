@@ -8,6 +8,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * Central configuration object it encapsulates a Properties object reads the bestia config file and provides some nice
  * access methods.
@@ -16,6 +19,8 @@ import java.util.Properties;
  *
  */
 public class BestiaConfiguration {
+	
+	private static final Logger log = LogManager.getLogger(BestiaConfiguration.class);
 
 	private Properties prop;
 	private boolean isLoaded = false;
@@ -80,11 +85,19 @@ public class BestiaConfiguration {
 	}
 
 	public String getProperty(String key) {
+		checkProperty(key);
 		return prop.getProperty(key);
 	}
 
 	public int getIntProperty(String key) {
+		checkProperty(key);
 		return Integer.parseInt(prop.getProperty(key));
+	}
+	
+	private void checkProperty(String key) {
+		if(!prop.containsKey(key)) {
+			log.warn("Key: {} was not found in the config file!", key);
+		}
 	}
 
 	public File getMapfile(String zoneName) {

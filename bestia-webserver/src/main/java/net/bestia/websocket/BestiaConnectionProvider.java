@@ -53,8 +53,12 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 		}
 
 		// Serialize the msg.
-		final String data = mapper.writeValueAsString(msg);
-		connections.get(accountId).write(data);
+		try {
+			final String data = mapper.writeValueAsString(msg);
+			connections.get(accountId).write(data);
+		} catch(NoSuchMethodError ex) {
+			log.error("Error while serializing this message.", ex);
+		}
 	}
 
 	public void addConnection(long accountId, WebSocket socket) {

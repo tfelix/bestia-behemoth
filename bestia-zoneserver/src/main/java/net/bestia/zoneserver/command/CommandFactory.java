@@ -23,7 +23,8 @@ public final class CommandFactory {
 	private static final Logger log = LogManager
 			.getLogger(CommandFactory.class);
 
-	final private static Map<String, Command> commandLibrary;
+	private final CommandContext commandContext;
+	private final static Map<String, Command> commandLibrary;
 
 	/**
 	 * Search for all command handler and register them with this factory for
@@ -57,6 +58,10 @@ public final class CommandFactory {
 			}
 		}
 	}
+	
+	public CommandFactory(CommandContext ctx) {
+		this.commandContext = ctx;
+	}
 
 	/**
 	 * Creates a command from the messages. Do some sanity checking as well to
@@ -75,6 +80,8 @@ public final class CommandFactory {
 		}
 
 		Command cmd = commandLibrary.get(msgId);
+		cmd.setCommandContext(commandContext);
+		cmd.setMessage(message);
 
 		log.trace("Command created: {}", cmd.toString());
 		return cmd;

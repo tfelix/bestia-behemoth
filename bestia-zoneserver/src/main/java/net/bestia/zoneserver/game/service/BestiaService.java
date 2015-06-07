@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.game.service;
 
+import javax.persistence.Transient;
+
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
@@ -14,6 +16,9 @@ import net.bestia.zoneserver.Zoneserver;
  *
  */
 public abstract class BestiaService extends Service {
+	
+	
+	
 	private Bestia bestia;
 	protected boolean isDead;
 	

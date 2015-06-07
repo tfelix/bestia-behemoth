@@ -1,8 +1,10 @@
 package net.bestia.model.domain;
 
+import java.io.Serializable;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.persistence.Embeddable;
+import javax.persistence.Transient;
 
 /**
  * Saves holds the basic bestia status values. Can be used to represent effort values or individual values.
@@ -11,7 +13,10 @@ import javax.persistence.Embeddable;
  *
  */
 @Embeddable
-public class BaseValues {
+public class BaseValues implements Serializable {
+
+	@Transient
+	private static final long serialVersionUID = 1L;
 
 	private static final int MAX_IV_VALUE = 15;
 

@@ -1,6 +1,9 @@
 package net.bestia.model.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.Embeddable;
+import javax.persistence.Transient;
 
 /**
  * Saves a location on a map.
@@ -9,8 +12,10 @@ import javax.persistence.Embeddable;
  *
  */
 @Embeddable
-public class Location {
+public class Location implements Serializable {
 	
+	@Transient
+	private static final long serialVersionUID = 1L;
 	private String mapDbName;
 	private int x;
 	private int y;
