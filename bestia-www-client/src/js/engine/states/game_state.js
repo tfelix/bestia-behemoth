@@ -10,6 +10,14 @@ Bestia.Engine.States.GameState = function() {
 	this.map = null;
 
 	/**
+	 * Position on the map.
+	 */
+	this.position = {
+		x : 0,
+		y : 0
+	};
+
+	/**
 	 * Holds AStar plugin reference to calculate paths of the bestias when
 	 * clicked by the user. The other bestias are controlled by the server. But
 	 * user movement will be controlled by the client.
@@ -34,7 +42,8 @@ Bestia.Engine.States.GameState = function() {
 Bestia.Engine.States.GameState.prototype = {
 
 	preload : function() {
-
+		// Timing for FPS.
+		this.game.time.advancedTiming = true;
 	},
 
 	create : function() {
@@ -100,8 +109,7 @@ Bestia.Engine.States.GameState.prototype = {
 
 		// ========== DISPLAY MAP NAME ==============
 		var mapName = i18n.t('map.' + props.mapDbName);
-		text = this.game.add.text(this.game._width / 2,
-				this.game._height / 2 - 100, mapName);
+		text = this.game.add.text(this.game._width / 2, this.game._height / 2 - 100, mapName);
 		text.align = 'center';
 		text.anchor.setTo(0.5);
 		// Font style
@@ -129,6 +137,19 @@ Bestia.Engine.States.GameState.prototype = {
 
 	update : function() {
 
+		var game = this.game;
+
+		BG.engine.info.fps(this.game.time.fps);
+
+		// React on click.
+		if (this.game.input.mousePointer.isDown) {
+			var tileX = Math.floor(game.input.x / 32);
+			var tileY = Math.floor(game.input.y / 32);
+			console.log("Tile: " + tileX + " " + tileY);
+			
+			//Tilemap has a getTileWorldXY() function which takes pixel values (i.e. could take the pointer x/y coords).
+		}
+
 		var cursors = this.cursors;
 		// For example this checks if the up or down keys are pressed and moves
 		// the camera accordingly.
@@ -136,7 +157,7 @@ Bestia.Engine.States.GameState.prototype = {
 			this.player.y -= 32;
 		} else if (cursors.down.isDown) {
 			this.player.y += 32;
-		}else if (cursors.left.isDown) {
+		} else if (cursors.left.isDown) {
 			this.player.x -= 32;
 		} else if (cursors.right.isDown) {
 			this.player.x += 32;
@@ -145,10 +166,8 @@ Bestia.Engine.States.GameState.prototype = {
 
 	updateMarker : function() {
 
-		this.marker.x = this.groundLayer
-				.getTileX(this.game.input.activePointer.worldX) * 32;
-		this.marker.y = this.groundLayer
-				.getTileY(this.game.input.activePointer.worldY) * 32;
+		this.marker.x = this.groundLayer.getTileX(this.game.input.activePointer.worldX) * 32;
+		this.marker.y = this.groundLayer.getTileY(this.game.input.activePointer.worldY) * 32;
 
 	},
 
@@ -162,8 +181,7 @@ Bestia.Engine.States.GameState.prototype = {
 		// render a block.
 		var x = 0;
 		var y = 0;
-		this.gfxCollision.drawRect(x, y, this.config.tileSize,
-				this.config.tileSize);
+		this.gfxCollision.drawRect(x, y, this.config.tileSize, this.config.tileSize);
 	}
 };
 
