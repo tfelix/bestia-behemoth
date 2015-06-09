@@ -20,11 +20,16 @@ import net.bestia.model.domain.Password;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Path("v1/account")
 public class AccountApi {
 
 	private final static Logger log = LogManager.getLogger(AccountApi.class);
 	private final static int FORBIDDEN_STATUS = 403;
+	
+	private static final ObjectMapper mapper = new ObjectMapper();
 	
 	private final AccountDAO accountDao;
 	
@@ -81,10 +86,18 @@ public class AccountApi {
 			
 			accountDao.save(acc);
 			
-			// Return the login token.
-			return Response.ok().entity(token).build();
+			AccountLoginResponse loginResponse = new AccountLoginResponse(acc.getId(), token);
+			
+			try {
+				final String answer = mapper.writeValueAsString(loginResponse);
+				// Return the login token.
+				return Response.ok().entity(answer).build();
+			} catch (JsonProcessingException e) {
+				log.error("Could not generate JSON response.", e);
+				return Response.serverError().entity("Could not process request. Try again later.").build();
+			}
 		} else {
-			return Response.status(FORBIDDEN_STATUS).build();
+			return Response.status(FORBIDDEN_STATUS).entity("Wrong login data.").build();
 		}
 	}
 

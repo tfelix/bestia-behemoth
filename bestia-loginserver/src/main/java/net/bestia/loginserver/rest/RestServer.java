@@ -22,6 +22,7 @@ import com.sun.net.httpserver.HttpServer;
 @SuppressWarnings("restriction")
 public class RestServer {
 	
+	// TODO Das hier noch konfiguruerbar machen!
 	private static final Logger log = LogManager.getLogger(RestServer.class);
 	private static final int PORT = 8080;
 	private static final String HOSTNAME = "localhost";
@@ -45,7 +46,7 @@ public class RestServer {
 	private HttpServer createHttpServer() throws IOException {
 		ResourceConfig resourceConfig = new PackagesResourceConfig("net.bestia.loginserver.rest");
 		// This tutorial required and then enable below line: http://crunfy.me/1DZIui5
-		// crunchifyResourceConfig.getContainerResponseFilters().add(CrunchifyCORSFilter.class);
+		resourceConfig.getContainerResponseFilters().add(CORSFilter.class);
 		return HttpServerFactory.create(getURI(), resourceConfig);
 	}
 	
