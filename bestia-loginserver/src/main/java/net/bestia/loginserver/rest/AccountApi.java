@@ -69,7 +69,7 @@ public class AccountApi {
 	 * @return
 	 */
 	@GET
-	@Produces("text/plain; charset=UTF-8")
+	@Produces("application/json")
 	@Path("/login")
 	public Response login(@QueryParam("ident") String ident, @QueryParam("password") String password) {
 		log.debug("Login request: Ident: {}, Password: {}", ident, password);

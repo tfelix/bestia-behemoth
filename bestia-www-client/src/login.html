@@ -22,21 +22,25 @@
 <body>
 
 	<div class="login-box">
-	<p style="text-align: center;"><img src="img/bestia_logo.png" alt="Bestia Logo"></p>
-	<h3 data-i18n="login.title">Bestia</h3>
-	<p></p>
-		<form>
-			<div class="form-group">
-				<label for="inputEmail1" data-i18n="login.username">Username</label> <input type="text" class="form-control"
-					id="inputEmail1" data-i18n="[placeholder]login.username_placeholder;" placeholder="Enter username">
+		<p style="text-align: center;">
+			<img src="img/bestia_logo.png" alt="Bestia Logo">
+		</p>
+		<h3 data-i18n="login.title">Bestia</h3>
+		<p></p>
+		<form id="login">
+			<div class="form-group sr-only">
+				<b>Ups! Fehlerhafter Login.</b>
 			</div>
 			<div class="form-group">
-				<label for="inputPassword1" data-i18n="login.password">Password</label> <input type="password" class="form-control"
-					id="inputPassword1" data-i18n="[placeholder]login.password_placeholder;" placeholder="Password">
+				<label for="inputEmail" data-i18n="login.username">Username</label> <input type="text" class="form-control"
+					id="inputEmail" data-i18n="[placeholder]login.username_placeholder;" placeholder="Enter username">
+			</div>
+			<div class="form-group">
+				<label for="inputPassword" data-i18n="login.password">Password</label> <input type="password" class="form-control"
+					id="inputPassword" data-i18n="[placeholder]login.password_placeholder;" placeholder="Password">
 			</div>
 			<button type="submit" class="btn btn-default" data-i18n="login.login">Login</button>
 		</form>
-		<h5>Version: XXX</h5>
 	</div>
 
 </body>
