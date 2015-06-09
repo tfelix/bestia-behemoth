@@ -4,8 +4,6 @@ import net.bestia.model.DAOLocator;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 /**
  * Authenticates an account with an already saved token.
  * 
@@ -15,28 +13,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class LoginTokenAuthenticator implements Authenticator {
 
 	private final AccountDAO accountDao;
-	
+
 	private final String token;
 	private final long accountId;
-	
+
+	/**
+	 * Basic constructor for a authenticator. Uses the account id and a login token which must be set in the database to
+	 * authenticate a login.
+	 * 
+	 * @param id
+	 *            Account ID
+	 * @param token
+	 *            Login token.
+	 */
 	public LoginTokenAuthenticator(long id, String token) {
 		this.token = token;
 		this.accountId = id;
-		
+
 		DAOLocator locator = new DAOLocator();
 		this.accountDao = locator.getObject(AccountDAO.class);
 	}
 
 	@Override
 	public AuthState authenticate() {
-		
-		// Get the account from the database. 		
+
+		// Get the account from the database.
 		Account account = accountDao.find(accountId);
 
-		if(account == null) {	
-			return AuthState.NO_ACCOUNT;	
+		if (account == null) {
+			return AuthState.NO_ACCOUNT;
 		} else {
-			if(account.getLoginToken().equals(token)) {
+			if (account.getLoginToken().equals(token)) {
 				return AuthState.AUTHENTICATED;
 			} else {
 				return AuthState.DENIED;

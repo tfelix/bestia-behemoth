@@ -1,33 +1,50 @@
 package net.bestia.loginserver.authenticator;
 
+import net.bestia.model.DAOLocator;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
+/**
+ * Authenticates a given account identified by a username (email) and a password.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class PasswordAuthenticator implements Authenticator {
-	
-	@Autowired
-	private AccountDAO accountDao;
-	
+
+	private final AccountDAO accountDao;
+
 	private final String username;
 	private final String password;
 	
+	private Account foundAccount;
+
 	public PasswordAuthenticator(String username, String password) {
 		this.username = username;
 		this.password = password;
+
+		DAOLocator locator = new DAOLocator();
+		this.accountDao = locator.getObject(AccountDAO.class);
+	}
+	
+	public Account getFoundAccount() {
+		return foundAccount;
 	}
 
 	@Override
 	public AuthState authenticate() {
-		
-		// Get the account from the database. 		
-		Account account = accountDao.findByEmail(username);
 
-		if(account == null) {	
-			return AuthState.NO_ACCOUNT;	
+		// Get the account from the database.
+		final Account account = accountDao.findByEmail(username);
+
+		// Validate the password.
+		if (account == null) {
+			return AuthState.NO_ACCOUNT;
 		} else {
-			if(account.getPassword().matches(password)) {
+			if (account.getPassword().matches(password)) {
+				
+				foundAccount = account;
+				
 				return AuthState.AUTHENTICATED;
 			} else {
 				return AuthState.DENIED;

@@ -9,6 +9,7 @@ import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.loginserver.authenticator.AuthState;
 import net.bestia.loginserver.authenticator.Authenticator;
 import net.bestia.loginserver.authenticator.LoginTokenAuthenticator;
+import net.bestia.loginserver.rest.RestServer;
 import net.bestia.messages.LoginAuthMessage;
 import net.bestia.messages.LoginAuthReplyMessage;
 import net.bestia.messages.LoginAuthReplyMessage.LoginState;
@@ -29,6 +30,8 @@ import org.apache.logging.log4j.Logger;
 public final class Loginserver implements InterserverMessageHandler {
 
 	private static final Logger log = LogManager.getLogger(Loginserver.class);
+	
+	private final RestServer restServer;
 
 	private final InterserverConnectionFactory conFactory;
 	private final InterserverPublisher publisher;
@@ -52,6 +55,8 @@ public final class Loginserver implements InterserverMessageHandler {
 
 		this.publisher = conFactory.getPublisher();
 		this.subscriber = conFactory.getSubscriber(this);
+		
+		this.restServer = new RestServer();
 	}
 
 	/**
@@ -72,6 +77,10 @@ public final class Loginserver implements InterserverMessageHandler {
 			stop();
 			return false;
 		}
+		
+		if(!restServer.start()) {
+			return false;
+		}
 
 		log.info("Loginserver started.");
 		return true;
@@ -81,6 +90,8 @@ public final class Loginserver implements InterserverMessageHandler {
 	 * Stops the Loginserver.
 	 */
 	public void stop() {
+		restServer.stop();
+		
 		if (subscriber != null) {
 			subscriber.disconnect();
 		}

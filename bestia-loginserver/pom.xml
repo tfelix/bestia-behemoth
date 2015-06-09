@@ -19,5 +19,11 @@
 			<artifactId>bestia-models</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-server</artifactId>
+			<version>1.19</version>
+		</dependency>
 	</dependencies>
+	<description>Bestia Loginserver. This server provides a way to check for the bestia network for authorized checks. It currently also serves as a REST endpoint so webservices can interact with the game itself. In future versions this might get moved to a standalone application.</description>
 </project>
