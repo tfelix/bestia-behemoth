@@ -13,11 +13,11 @@ $(document).ready(function(){
 		var email = $('#inputEmail').val();
 		var password = $('#inputPassword').val();
 		
-		$.get("http://localhost:8080/v1/account/login", {ident: email, password: password}, function(data){
+		$.get("http://localhost:8090/v1/account/login", {ident: email, password: password}, function(data){
 			
 			// Save cookie with this data.
-			// TODO hier Kapseln in eigenem Modul.
-			Cookies.set('auth', JSON.stringify({id: data.accId, token: data.token}));
+			var storage = new Bestia.Storage();
+			storage.storeAuth(data);			
 			
 			// URL ersetzen.
 			window.location.href = "http://localhost";

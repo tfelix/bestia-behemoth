@@ -72,6 +72,6 @@ public class ChatEchoMessage extends Message {
 
 	@Override
 	public String getMessagePath() {
-		return getAccountMessagePath();
+		return getClientMessagePath();
 	}
 }

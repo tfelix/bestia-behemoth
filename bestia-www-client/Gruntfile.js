@@ -13,7 +13,7 @@ module.exports = function(grunt) {
 			'src/js/bestia/bestia_info_view_model.js',
 			// === MISC ===
 			'src/js/core/bestia/bestias.js', 'src/js/util/net.js', 'src/js/util/pubsub.js', 'src/js/io/connection.js',
-			'src/js/io/message.js', 'src/js/inventory/inventory.js', 'src/js/view/system.pingpong.js',
+			'src/js/io/message.js', 'src/js/inventory/inventory.js', 'src/js/view/system.pingpong.js', 'src/js/util/storage.js',
 			// === ENGINE ===
 			'src/js/engine/plugins/AStar.js', 'src/js/engine/engine.js', 'src/js/engine/states/*.js',
 			'src/js/engine/entity.js', 'src/js/engine/entities/*.js',
@@ -21,6 +21,8 @@ module.exports = function(grunt) {
 			'src/js/pages/main.js',
 			// === ETC ===
 			'src/js/chat.js', 'src/js/main.js' ];
+	
+	var pageFiles = ['src/js/bestia.js', 'src/js/util/storage.js'];
 
 	loadConfig(grunt, {
 		configPath : __dirname + '/tasks/options',
@@ -33,7 +35,8 @@ module.exports = function(grunt) {
 			docs_dir : 'docs',
 			sourcemap : true,
 			filename : 'bestia',
-			filelist : jsFiles
+			filelist : jsFiles,
+			pageFilelist : pageFiles
 		}
 	});
 

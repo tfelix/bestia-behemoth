@@ -24,7 +24,7 @@ public class MapEntitiesMessage extends Message {
 
 	@Override
 	public String getMessagePath() {
-		return getAccountMessagePath();
+		return getClientMessagePath();
 	}
 
 }

@@ -29,6 +29,6 @@ public class LogoutMessage extends Message {
 
 	@Override
 	public String getMessagePath() {
-		return getAccountMessagePath();
+		return getClientMessagePath();
 	}
 }

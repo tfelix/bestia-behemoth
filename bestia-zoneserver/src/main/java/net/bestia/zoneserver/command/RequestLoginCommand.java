@@ -10,6 +10,7 @@ import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.game.service.AccountService;
 import net.bestia.zoneserver.game.service.AccountServiceManager;
+import net.bestia.zoneserver.game.zone.Entity;
 
 /**
  * This command will be executed if a new user wants to join. He needs a few
@@ -40,6 +41,7 @@ public class RequestLoginCommand extends Command {
 		AccountService accService = accManager.getAccountService(message.getAccountId());
 		
 
+		// TODO finalisiere und unit testen.
 		// See if the master is on this zone.
 		/*PlayerBestia master = null;
 		// If this zone is not responsible stop processing.
@@ -53,10 +55,10 @@ public class RequestLoginCommand extends Command {
 
 		// TEMP
 		PlayerBestia b = new PlayerBestia();
-		b.setCurrentPosition(new Location("testmap1", 20, 20));
+		b.setCurrentPosition(new Location("test-zone1", 20, 20));
 		b.setExp(100);
 		b.setName("Blubber");
-		b.setSavePosition(new Location("testmap1", 10, 10));
+		b.setSavePosition(new Location("test-zone1", 10, 10));
 		bestias.add(b);
 
 		BestiaInitMessage bestiaInitMessage = new BestiaInitMessage(message);
@@ -68,7 +70,8 @@ public class RequestLoginCommand extends Command {
 		// Create bestia entity.
 
 		// Add to the zone.
-		// ctx.getZone(b.getCurrentPosition().getMapDbName()).addEntity(null);
+		Entity entity = new Entity(accService.getAccountId());
+		ctx.getZone(b.getCurrentPosition().getMapDbName()).addEntity(entity);
 
 
 		// Register this zone now as responsible for handling messages regarding this account.

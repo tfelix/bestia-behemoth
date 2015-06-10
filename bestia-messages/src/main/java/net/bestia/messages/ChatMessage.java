@@ -2,6 +2,7 @@ package net.bestia.messages;
 
 import net.bestia.model.domain.Account;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -39,12 +40,15 @@ public class ChatMessage extends Message {
 	@JsonProperty("t")
 	private long time;
 	
+	@JsonIgnore
+	private String messagePath;
+	
 	/**
 	 * Std. Ctor
 	 * So the Jason Library can create this object.
 	 */
 	public ChatMessage() {
-		// no op.
+		messagePath = getServerMessagePath();
 	}
 	
 	public static ChatMessage getSystemMessage(Account account, String text) {
@@ -95,6 +99,24 @@ public class ChatMessage extends Message {
 
 	@Override
 	public String getMessagePath() {
-		return getAccountMessagePath();
+		return messagePath;
+	}
+
+	/**
+	 * 
+	 * @param receiverId
+	 * @return
+	 */
+	public ChatMessage getForwardMessage(long receiverId) {
+		ChatMessage forwardMsg = new ChatMessage();
+		
+		forwardMsg.setAccountId(getAccountId());
+		forwardMsg.setChatMessageId(chatMessageId);
+		forwardMsg.setChatMode(chatMode);
+		forwardMsg.setText(text);
+		forwardMsg.setTime(time);
+		forwardMsg.messagePath = String.format("account/%d", receiverId);
+		
+		return forwardMsg;
 	}
 }

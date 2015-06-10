@@ -163,6 +163,11 @@ public class Zoneserver {
 		// Create ActorInitWorker: Spawning and initializing all Actors.
 		// ZoneInitLoader zoneLoader = new ZoneInitLoader(config, zones);
 		// zoneLoader.init();
+		
+		// Creating the test zone.
+		for (String zoneName : responsibleZones) {
+			zones.put(zoneName, new Zone(config, zoneName, null));
+		}
 
 		// Create ActorInitWorker: Spawning and initializing all Actors.
 		log.info("Initializing: actors...");

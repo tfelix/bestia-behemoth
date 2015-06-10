@@ -14,7 +14,7 @@ module.exports = {
 			src : [ '<%= filelist %>' ],
 			dest : '<%= compile_dir %>/js/<%= filename %>.js'
 		}, {
-			src : [ '<%= source_dir %>/js/pages/login.js' ],
+			src : [ '<%= pageFilelist %>', '<%= source_dir %>/js/pages/login.js' ],
 			dest : '<%= compile_dir %>/js/app-login.js'
 		} ],
 

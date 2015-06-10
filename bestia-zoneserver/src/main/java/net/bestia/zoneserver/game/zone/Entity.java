@@ -74,6 +74,12 @@ public class Entity {
 
 	private Date spawnTime;
 
+	// TODO auch noch nicht final.
+	public long accountId;
+	public Entity(long accountId) {
+		this.accountId = accountId;
+	}
+
 	/**
 	 * Returns the bounding box of the entity. It has local coordinates. If the
 	 * bounding box is a rectangle it left top coordinate will always be 0,0

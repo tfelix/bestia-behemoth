@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.game.zone;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11,6 +13,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+
 
 
 
@@ -51,7 +55,7 @@ public class Zone {
 	private final ReadWriteLock observerLock = new ReentrantReadWriteLock();
 
 	private final java.util.Map<Long, Entity> entities;
-	private final QuadTree2 tree;
+	//private final QuadTree2 tree;
 	private final java.util.Map<Event, Set<Entity>> observer;
 
 	public Zone(BestiaConfiguration config, String name, Map map) {
@@ -62,8 +66,8 @@ public class Zone {
 		this.map = map;
 		this.name = name;
 
-		Dimension dimen = map.getDimension();
-		tree = new QuadTree2(0, 0, dimen.getWidth(), dimen.getHeight());
+		//Dimension dimen = map.getDimension();
+		//tree = new QuadTree2(0, 0, dimen.getWidth(), dimen.getHeight());
 		entities = new HashMap<Long, Entity>();
 
 		observer = new EnumMap<Event, Set<Entity>>(Event.class);
@@ -97,7 +101,7 @@ public class Zone {
 		entities.put(entity.getId(), entity);
 		for (int y = cords.y; y < cords.y + shape.getHeight(); y++) {
 			for (int x = cords.x; x < cords.x + shape.getWidth(); x++) {
-				tree.remove(x, y);
+				//tree.remove(x, y);
 			}
 		}
 		entityLock.writeLock().unlock();
@@ -119,12 +123,15 @@ public class Zone {
 		entities.remove(entity.getId());
 		for (int y = cords.y; y < cords.y + shape.getHeight(); y++) {
 			for (int x = cords.x; x < cords.x + shape.getWidth(); x++) {
-				tree.remove(x, y);
+				//tree.remove(x, y);
 			}
 		}
 		entityLock.writeLock().unlock();
 
 	}
+	
+	// TODO das hier mit einer richtigen implementierung austauschen.
+	private List<Entity> temp = new ArrayList<>();
 
 	/**
 	 * Spawns a new entity on this map.
@@ -133,13 +140,22 @@ public class Zone {
 	 */
 	public void addEntity(Entity entity) {
 		// Add the entity into the quad tree and hashmap.
-		registerEntity(entity);
+		//registerEntity(entity);
+		temp.add(entity);
 
 		// Call the script trigger of the new entity.
 
 		// Notify all listener about the new spawn.
 
 		// Notify every observer in range... (must be done here?)
+	}
+	
+	/*public Entity getEntity(long id) {
+		
+	}*/
+	
+	public Collection<Entity> getEntities(long id, int range) {
+		return temp;
 	}
 
 	/**
@@ -211,7 +227,7 @@ public class Zone {
 	public boolean isWalkable(Point cords) {
 		boolean baseWalk = map.isWalkable(cords);
 
-		entityLock.readLock().lock();
+		/*entityLock.readLock().lock();
 		List<Entity> entities = tree.get(cords);
 		for (Entity ent : entities) {
 			if (!ent.isColliding()) {
@@ -222,9 +238,10 @@ public class Zone {
 				break;
 			}
 		}
-		entityLock.readLock().unlock();
+		entityLock.readLock().unlock();*/
 
-		return baseWalk;
+		//return baseWalk;
+		return true;
 	}
 
 	/**
@@ -286,24 +303,4 @@ public class Zone {
 		entityLock.readLock().unlock();
 		return numEntities;
 	}
-
-	/*
-	public void scheduleNotify(final Duration duration, final Entity entity,
-			final int requestCode) {
-		executor.schedule(new Runnable() {
-
-			@Override
-			public void run() {
-				// Check if the entity is still alive.
-				if (!hasEntity(entity)) {
-					return;
-				}
-				// We need to lock the entity since we dont know what
-				// happens inside the callback.
-				synchronized (entity) {
-					entity.onTick(Zone.this, requestCode);
-				}
-			}
-		}, duration.toMillis(), TimeUnit.MILLISECONDS);
-	}*/
 }

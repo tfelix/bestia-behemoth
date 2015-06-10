@@ -98,8 +98,18 @@ public abstract class Message implements Serializable {
 	 * 
 	 * @return A message path designated to reach a user connected to a webserver.
 	 */
-	protected String getAccountMessagePath() {
+	protected String getClientMessagePath() {
 		return String.format("account/%d", getAccountId());
+	}
+
+	/**
+	 * Helper method. Might be used as getMessagePath() implementation if the message is intended to be received by the
+	 * zone server on which a client originating this message is connected.
+	 * 
+	 * @return A message path designated to reach zoneserver on which a certain user is connected.
+	 */
+	protected String getServerMessagePath() {
+		return String.format("zone/account/%d", getAccountId());
 	}
 
 	/**

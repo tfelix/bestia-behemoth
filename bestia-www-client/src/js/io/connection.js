@@ -20,14 +20,25 @@ Bestia.Connection = function() {
 };
 
 Bestia.Connection.prototype.init = function() {
+	
+	//  Prepare the request.
+	var store = new Bestia.Storage();
+	var authData = store.getAuth();
+	
+	if(authData == null) {
+		log.error("No authentication was found. Return to login.");
+		// TODO zum login weiterleiten.
+		return;
+	}
+	
 	var request = {
 		url : 'http://localhost:8080/api',
 		contentType : "application/json",
 		logLevel : 'debug',
 		transport : 'websocket',
 		headers : {
-			'X-Bestia-Token' : 'test-1234-1234-1234',
-			'X-Bestia-Account' : 1
+			'X-Bestia-Token' : authData.token,
+			'X-Bestia-Account' : authData.id
 		},
 		maxReconnectOnClose: 0,
 		trackMessageLength : true,
