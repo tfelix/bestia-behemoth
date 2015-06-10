@@ -37,8 +37,21 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 
 	private final Map<Long, WebSocket> connections = new ConcurrentHashMap<>();
 
-	public void publishInterserver(String message) throws IOException {
+	/**
+	 * Publishes a message to the interserver.
+	 * 
+	 * @param accountId
+	 *            Account id of the accound sending this message.
+	 * @param message
+	 *            String representation of the message. Must be parsed to an object.
+	 * @throws IOException
+	 */
+	public void publishInterserver(long accountId, String message) throws IOException {
 		final Message msg = mapper.readValue(message, Message.class);
+
+		// Regenerate the account id from the server connection.
+		msg.setAccountId(accountId);
+
 		publisher.publish(msg);
 	}
 

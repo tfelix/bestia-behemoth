@@ -64,9 +64,35 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 	@Override
 	public void onTextMessage(WebSocket webSocket, String message) throws IOException {
 		log.trace("MSG received: {}", message);
+		
+		final long accountId = getAccountId(webSocket);
+		
+		if(accountId == 0) {
+			return;
+		}
 
 		// Forward message to the interserver.
-		provider.publishInterserver(message);
+		provider.publishInterserver(accountId, message);
+	}
+
+	/**
+	 * Regenerates the original account id of this connection.
+	 * 
+	 * @return
+	 */
+	private long getAccountId(WebSocket socket) {
+		// Get the ID from this websocket connection.
+		final String uuid = (String) socket.resource().getRequest()
+				.getAttribute(ApplicationConfig.SUSPENDED_ATMOSPHERE_RESOURCE_UUID);
+		final AtmosphereResource resource = resourceFactory.find(uuid);
+		try {
+			long accountId = Long.parseLong(resource.getRequest().getHeader("X-Bestia-Account"));
+			return accountId;
+		} catch (NullPointerException ex) {
+			// Could not get account id. This should not happen.
+			log.error("Could not get account id for existing connection.", ex);
+			return 0L;
+		}
 	}
 
 	@Override
@@ -74,17 +100,19 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 		log.trace("onClose called.");
 
 		// Get the ID from this websocket connection.
-		final String uuid = (String) webSocket.resource().getRequest()
-				.getAttribute(ApplicationConfig.SUSPENDED_ATMOSPHERE_RESOURCE_UUID);
-		final AtmosphereResource resource = resourceFactory.find(uuid);
-
+		long accountId = getAccountId(webSocket);
+		
+		if(accountId == 0) {
+			return;
+		}
+		
+		// Remove connection from the provider.
+		provider.removeConnection(accountId);
+		
 		try {
-			long accountId = Long.parseLong(resource.getRequest().getHeader("X-Bestia-Account"));
-			// Remove connection from the provider.
-			provider.removeConnection(accountId);
-			LogoutBroadcastMessage logoutMsg = new LogoutBroadcastMessage(accountId);		
+			LogoutBroadcastMessage logoutMsg = new LogoutBroadcastMessage(accountId);
 			provider.publishInterserver(logoutMsg);
-		} catch (NullPointerException | IOException ex) {
+		} catch (IOException ex) {
 			log.warn("Could not properly broadcast a terminated connection.", ex);
 		}
 	}

@@ -12,21 +12,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 public class ChatMessage extends Message {
+	
+	private static final String CLIENT_PATH = "account/%d";
+	private static final String SERVER_PATH = "zone/account/%d";
 
 	private static final long serialVersionUID = 1L;
 	public final static String MESSAGE_ID = "chat.message";
-	
+
 	public enum Mode {
-		PUBLIC,
-		PARTY,
-		GUILD,
-		WHISPER,
-		SYSTEM,
-		GM_BROADCAST,
-		ERROR,
-		COMMAND
+		PUBLIC, PARTY, GUILD, WHISPER, SYSTEM, GM_BROADCAST, ERROR, COMMAND
 	}
-	
+
 	@JsonProperty("m")
 	private Mode chatMode;
 	@JsonProperty("txt")
@@ -41,18 +37,17 @@ public class ChatMessage extends Message {
 	private long time;
 	
 	@JsonIgnore
-	private String messagePath;
-	
+	private String currentPath = SERVER_PATH;
+
 	/**
-	 * Std. Ctor
-	 * So the Jason Library can create this object.
+	 * Std. Ctor So the Jason Library can create this object.
 	 */
 	public ChatMessage() {
-		messagePath = getServerMessagePath();
+		// no op.
 	}
-	
+
 	public static ChatMessage getSystemMessage(Account account, String text) {
-		ChatMessage msg =  new ChatMessage();
+		ChatMessage msg = new ChatMessage();
 		msg.setAccountId(account.getId());
 		msg.setText(text);
 		msg.setTime(System.currentTimeMillis() / 1000L);
@@ -97,26 +92,35 @@ public class ChatMessage extends Message {
 		this.time = time;
 	}
 
-	@Override
-	public String getMessagePath() {
-		return messagePath;
+	public void setSenderNickname(String senderNickname) {
+		this.senderNickname = senderNickname;
 	}
 
-	/**
-	 * 
-	 * @param receiverId
-	 * @return
-	 */
-	public ChatMessage getForwardMessage(long receiverId) {
+	@Override
+	public String getMessagePath() {
+		return String.format(currentPath, getAccountId());
+	}
+
+	@Override
+	public String toString() {
+		return String.format("ChatMessage[accId: %d, mode: %s, txNick: %s, rxNick: %s, txt: %s, time: %d, path: %s]",
+				getAccountId(), chatMode, senderNickname, receiverNickname, text, time, getMessagePath());
+	}
+
+	public static ChatMessage getForwardMessage(long receiverAccountId, ChatMessage msg) {
 		ChatMessage forwardMsg = new ChatMessage();
 		
-		forwardMsg.setAccountId(getAccountId());
-		forwardMsg.setChatMessageId(chatMessageId);
-		forwardMsg.setChatMode(chatMode);
-		forwardMsg.setText(text);
-		forwardMsg.setTime(time);
-		forwardMsg.messagePath = String.format("account/%d", receiverId);
-		
+		forwardMsg.currentPath = CLIENT_PATH;
+
+		forwardMsg.senderNickname = msg.senderNickname;
+		forwardMsg.receiverNickname = msg.receiverNickname;
+
+		forwardMsg.setAccountId(receiverAccountId);
+		forwardMsg.setChatMessageId(msg.chatMessageId);
+		forwardMsg.setChatMode(msg.chatMode);
+		forwardMsg.setText(msg.text);
+		forwardMsg.setTime(msg.time);
+
 		return forwardMsg;
 	}
 }

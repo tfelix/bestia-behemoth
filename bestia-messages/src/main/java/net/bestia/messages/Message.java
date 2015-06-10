@@ -108,7 +108,7 @@ public abstract class Message implements Serializable {
 	 * 
 	 * @return A message path designated to reach zoneserver on which a certain user is connected.
 	 */
-	protected String getServerMessagePath() {
+	protected String getZoneMessagePath() {
 		return String.format("zone/account/%d", getAccountId());
 	}
 

@@ -2,10 +2,8 @@ package net.bestia.zoneserver.command;
 
 import java.util.Collection;
 
-import net.bestia.messages.ChatEchoMessage;
 import net.bestia.messages.ChatMessage;
 import net.bestia.messages.Message;
-import net.bestia.messages.ChatEchoMessage.EchoCode;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.game.zone.Entity;
 
@@ -36,6 +34,7 @@ class ChatCommand extends Command {
 				.getAccount();
 		
 		// Set the username of the message to this player.
+		m.setSenderNickname("rocket");
 		
 		// Get the location of the current active bestia.
 		String location = "test-zone1";
@@ -75,7 +74,7 @@ class ChatCommand extends Command {
 	}
 	
 	private void redirectMessage(long receiverId, ChatMessage msg, CommandContext ctx) {
-		ctx.getServer().sendMessage(msg.getForwardMessage(receiverId));
+		ctx.getServer().sendMessage(ChatMessage.getForwardMessage(receiverId, msg));
 	}
 
 	@Override
