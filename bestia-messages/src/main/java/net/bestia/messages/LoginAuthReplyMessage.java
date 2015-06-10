@@ -1,7 +1,16 @@
 package net.bestia.messages;
 
+/**
+ * Message is replied from the login server after a {@link LoginAuthMessage}.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class LoginAuthReplyMessage extends LoginAuthMessage {
 
+	/**
+	 * State of the authorization.
+	 */
 	public enum LoginState {
 		DENIED, AUTHORIZED
 	}
@@ -15,7 +24,7 @@ public class LoginAuthReplyMessage extends LoginAuthMessage {
 	private static final long serialVersionUID = 1L;
 
 	private LoginState state;
-	
+
 	public LoginAuthReplyMessage() {
 		super(0, "");
 		setLoginState(LoginState.DENIED);
@@ -43,11 +52,11 @@ public class LoginAuthReplyMessage extends LoginAuthMessage {
 	public String getMessagePath() {
 		return MESSAGE_PATH;
 	}
-	
+
 	@Override
 	public String toString() {
-		return String.format("LoginAuthReplyMessage[accountId: %d, messageId: %s, path: %s, reqId: %s, state: %s]", getAccountId(),
-				getMessageId(), getMessagePath(), getRequestId(), state.toString());
+		return String.format("LoginAuthReplyMessage[accountId: %d, messageId: %s, path: %s, reqId: %s, state: %s]",
+				getAccountId(), getMessageId(), getMessagePath(), getRequestId(), state.toString());
 	}
 
 }

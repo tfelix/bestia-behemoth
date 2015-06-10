@@ -56,7 +56,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 		try {
 			final String data = mapper.writeValueAsString(msg);
 			connections.get(accountId).write(data);
-		} catch(NoSuchMethodError ex) {
+		} catch (NoSuchMethodError ex) {
 			log.error("Error while serializing this message.", ex);
 		}
 	}

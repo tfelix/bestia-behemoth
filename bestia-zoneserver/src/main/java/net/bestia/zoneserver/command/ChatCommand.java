@@ -70,9 +70,8 @@ class ChatCommand extends Command {
 		}
 
 		// Echo the message back to the user.
-		ChatEchoMessage replyMsg = ChatEchoMessage.getEchoMessage(m);
-		replyMsg.setEchoCode(EchoCode.OK);
-		// ctx.getMessenger().sendMessage(replyMsg);
+		//ChatEchoMessage replyMsg = ChatEchoMessage.getEchoMessage(m);
+		//replyMsg.setEchoCode(EchoCode.OK);
 	}
 	
 	private void redirectMessage(long receiverId, ChatMessage msg, CommandContext ctx) {
