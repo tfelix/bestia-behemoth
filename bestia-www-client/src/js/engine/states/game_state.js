@@ -1,3 +1,22 @@
+Bestia.Engine.ClickDebounce = function(callback) {
+	// TODO Error check.
+
+	this.btnDown = false;
+	this.onClick = callback;
+};
+
+Bestia.Engine.ClickDebounce.prototype.clicked = function() {
+	if (!this.btnDown) {
+		this.btnDown = true;
+		// Trigger callback.
+		this.onClick();
+	}
+};
+
+Bestia.Engine.ClickDebounce.prototype.released = function() {
+	this.btnDown = false;
+}
+
 /**
  * Central game state for controlling the games logic.
  * 
@@ -7,15 +26,19 @@
 Bestia.Engine.States.GameState = function() {
 	this.marker = null;
 	this.groundLayer = null;
+
 	this.map = null;
 
 	/**
-	 * Position on the map.
+	 * Ground layer of the map. Can be used for various purpose like path
+	 * calculation and tile location.
 	 */
-	this.position = {
-		x : 0,
-		y : 0
-	};
+	this.groundLayer = null;
+	
+	/**
+	 * Sprite of the player.
+	 */
+	this.player = null;
 
 	/**
 	 * Holds AStar plugin reference to calculate paths of the bestias when
@@ -47,6 +70,8 @@ Bestia.Engine.States.GameState.prototype = {
 	},
 
 	create : function() {
+
+		var game = this.game;
 
 		this.gfxCollision = this.add.graphics(0, 0);
 		this.gfxCollision.beginFill(0xFF0000, 0.5);
@@ -133,6 +158,23 @@ Bestia.Engine.States.GameState.prototype = {
 			alpha : 0
 		}, 2000, Phaser.Easing.Linear.None, false, 2500).start();
 
+		game.input.onDown.add(function(pointer, event) {
+			// this is run once per input down event;
+			// pointer passes the Pointer that triggered it, and event passes
+			// the
+			// DOM event			
+			var tX = this.groundLayer.getTileX(this.game.input.x);
+			var tY = this.groundLayer.getTileY(this.game.input.y);
+			console.log("Tile: " + tX + " " + tY);
+			
+			var start = this.groundLayer.getTileXY(this.player.x, this.player.y, {});
+			var goal = {x: tX, y: tY};
+			var path = this.astar.findPath(start, goal);
+
+			console.log(path);
+
+
+		}, this);
 	},
 
 	update : function() {
@@ -140,15 +182,6 @@ Bestia.Engine.States.GameState.prototype = {
 		var game = this.game;
 
 		BG.engine.info.fps(this.game.time.fps);
-
-		// React on click.
-		if (this.game.input.mousePointer.isDown) {
-			var tileX = Math.floor(game.input.x / 32);
-			var tileY = Math.floor(game.input.y / 32);
-			console.log("Tile: " + tileX + " " + tileY);
-			
-			//Tilemap has a getTileWorldXY() function which takes pixel values (i.e. could take the pointer x/y coords).
-		}
 
 		var cursors = this.cursors;
 		// For example this checks if the up or down keys are pressed and moves
@@ -162,6 +195,11 @@ Bestia.Engine.States.GameState.prototype = {
 		} else if (cursors.right.isDown) {
 			this.player.x += 32;
 		}
+	},
+
+	movePlayer : function(x, y) {
+		this.position.x = x;
+		this.position.y = y;
 	},
 
 	updateMarker : function() {

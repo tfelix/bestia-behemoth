@@ -183,6 +183,7 @@ Phaser.Plugin.AStar.prototype.setAStarMap = function(map, layerName, tilesetName
                 	break;
                 }
         	}
+        	// TODO das hier funktioniert nicht. mit original vergleichen.
         	tile.properties.astarNode = new Phaser.Plugin.AStar.AStarNode(x, y, walkable);
         }
     }
