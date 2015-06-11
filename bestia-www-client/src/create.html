@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Bestia &#8226; Das Browsergame - Anmeldung</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="css/lib-pages.css" />
+
+<script src="js/app-pages.js"></script>
+<script src="js/create.js"></script>
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+<![endif]-->
+
+</head>
+<body>
+
+	<div class="container">
+		<div style="float: none; margin: 0 auto;" class="col-md-6">
+			<p style="text-align: center;">
+				<img src="img/bestia_logo.png" alt="Bestia Logo">
+			</p>
+
+			<div style="font-size: 16pt;" class="label label-warning pull-right">early access ALPHA-Version</div>
+			<h3 data-i18n="register.title">register.title</h3>
+			<p></p>
+			<form id="login">
+				<p>Vielen Dank! Durch deine Anmeldung hilfst du uns in einem sehr frühen Prozess der Spielentwicklung auf Fehler
+					und Ungereimtheiten aufmerksam zu werden!</p>
+				<div class="form-group">
+					<label for="email" data-i18n="username">username</label> <input type="text" class="form-control" name="email"
+						data-i18n="[placeholder]username_placeholder;" placeholder="username_placeholder">
+				</div>
+				<div class="form-group">
+					<label for="password" data-i18n="password">password</label> <input type="password" class="form-control"
+						name="password" data-i18n="[placeholder]password_placeholder;" placeholder="password_placeholder">
+						<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+				</div>
+				<div class="form-group">
+					<label for="password" data-i18n="password_confirm">password_confirm</label> <input type="password"
+						class="form-control" name="password" data-i18n="[placeholder]password_confirm_placeholder;"
+						placeholder="password_confirm_placeholder">
+						<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+				</div>
+				<button type="submit" class="btn btn-default" data-i18n="create_account">create_account</button>
+			</form>
+		</div>
+	</div>
+</body>
+</html>

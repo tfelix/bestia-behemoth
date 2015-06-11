@@ -1,6 +1,12 @@
 module.exports = {
 	compile : {
-		dest : '<%= compile_dir %>/js/lib.js',
-		cssDest : '<%= compile_dir %>/css/lib.css'
+		dest : '<%= compile_dir %>/js/lib-app.js',
+		cssDest : '<%= compile_dir %>/css/lib-app.css'
+	},
+	
+	compilePage : {
+		include: ['jquery', 'i18next', 'bootstrap', 'html5shiv', 'js-cookie'],
+		dest : '<%= compile_dir %>/js/lib-pages.js',
+		cssDest : '<%= compile_dir %>/css/lib-pages.css'
 	}
 };

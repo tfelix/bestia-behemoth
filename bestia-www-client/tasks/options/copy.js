@@ -11,6 +11,14 @@ module.exports = {
 			cwd : '../game-data',
 			src : '**',
 			dest : 'build/assets'
-		} ]
+		},
+		{
+			expand : true,
+			flatten: true,
+			cwd : '<%= source_dir %>',
+			src : 'js/pages/*.js',
+			dest : 'build/js'
+		}
+		]
 	}
 };

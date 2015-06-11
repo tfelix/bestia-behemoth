@@ -1,0 +1,12 @@
+{
+"register": {
+"title": "Account Erstellung"
+},
+"username": "Meister-Name",
+"username_placeholder": "Wähle den Namen deines Meisters...",
+"password": "Passwort",
+"password_placeholder": "Bitte wähle ein sicheres Passwort...",
+"password_confirm": "Passwort bestätigen",
+"password_confirm_placeholder": "Bitte bestätige dein Passwort...",
+"create_account": "Account erstellen"
+}

@@ -5,7 +5,7 @@ module.exports = function(grunt) {
 
 	var loadConfig = require('load-grunt-config');
 
-	var jsFiles = [ 'src/js/bestia.js', 'src/js/config.js',
+	var appFiles = [ 'src/js/bestia.js', 'src/js/config.js',
 	// === CHAT ===
 	'src/js/chat/chat_message.js', 'src/js/chat/chat.js', 'src/js/chat/commands/*.js',
 	// === BESTIAS ===
@@ -22,7 +22,7 @@ module.exports = function(grunt) {
 			// === ETC ===
 			'src/js/chat.js', 'src/js/main.js' ];
 	
-	var pageFiles = ['src/js/bestia.js', 'src/js/util/storage.js'];
+	var pageFiles = ['src/js/bestia.js', 'src/js/util/storage.js', 'src/js/pages/all-pages.js'];
 
 	loadConfig(grunt, {
 		configPath : __dirname + '/tasks/options',
@@ -35,7 +35,7 @@ module.exports = function(grunt) {
 			docs_dir : 'docs',
 			sourcemap : true,
 			filename : 'bestia',
-			filelist : jsFiles,
+			appFilelist : appFiles,
 			pageFilelist : pageFiles
 		}
 	});
