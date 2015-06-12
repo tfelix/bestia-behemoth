@@ -107,7 +107,7 @@ Bestia.Engine.States.GameState.prototype = {
 		// Prepare the AStar plugin.
 		this.astar = this.game.plugins.add(Phaser.Plugin.AStar);
 		// Namen der layer und tilesets der map einfügen.
-		this.astar.setAStarMap(map, 'layer_0', 'Berge');
+		this.astar.setAStarMap(map, 'Berge');
 
 		// Draw our player.
 		this.player = this.game.add.sprite(0, 0, 'player');
@@ -195,6 +195,14 @@ Bestia.Engine.States.GameState.prototype = {
 		} else if (cursors.right.isDown) {
 			this.player.x += 32;
 		}
+	},
+	
+	render : function() {
+		var game = this.game;
+		
+		// Render all debug code.
+		game.debug.AStar(this.astar, 20, 20, '#ff0000');
+
 	},
 
 	movePlayer : function(x, y) {
