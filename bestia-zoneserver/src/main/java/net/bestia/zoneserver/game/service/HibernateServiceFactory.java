@@ -2,6 +2,7 @@ package net.bestia.zoneserver.game.service;
 
 import net.bestia.model.DAOLocator;
 import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.service.AccountServiceManager;
 import net.bestia.zoneserver.Zoneserver;
 
 /**

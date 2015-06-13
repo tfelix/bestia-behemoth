@@ -1,5 +1,6 @@
-package net.bestia.zoneserver.game.service;
+package net.bestia.model.service;
 
+import net.bestia.messages.Message;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.Zoneserver;
@@ -14,11 +15,10 @@ import org.apache.logging.log4j.Logger;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class AccountServiceManager {
+public class AccountServiceManager extends Service {
 
 	private final static Logger log = LogManager.getLogger(AccountServiceManager.class);
 
-	private final Zoneserver server;
 
 	private final AccountDAO accountDao;
 
@@ -27,15 +27,13 @@ public class AccountServiceManager {
 	 * @param locator
 	 * @param server
 	 */
-	public AccountServiceManager(AccountDAO accountDao, Zoneserver server) {
+	public AccountServiceManager(AccountDAO accountDao, MessageSender sender) {
+		super(sender);
 		if (accountDao == null) {
 			throw new IllegalArgumentException("AccDAO can not be null.");
 		}
-		if (server == null) {
-			throw new IllegalArgumentException("Server can not be null.");
-		}
+		
 		this.accountDao = accountDao;
-		this.server = server;
 	}
 
 	/**
@@ -50,7 +48,7 @@ public class AccountServiceManager {
 			log.warn("No account found. ID: {}", accId);
 			throw new IllegalArgumentException("No account found");
 		}
-		return new AccountService(data, server);
+		return new AccountService(data, sender);
 	}
 
 	public AccountService getAccountService(String accEmail) {
@@ -59,7 +57,7 @@ public class AccountServiceManager {
 			log.warn("No account found. Identifier: {}", accEmail);
 			throw new IllegalArgumentException("No account found");
 		}
-		return new AccountService(data, server);
+		return new AccountService(data, sender);
 	}
 
 	/**
@@ -71,6 +69,12 @@ public class AccountServiceManager {
 	 * @return
 	 */
 	public AccountService createNewAccount(String email, String mastername, String password) {
+		return null;
+	}
+
+	@Override
+	protected Message getDataChangedMessage() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

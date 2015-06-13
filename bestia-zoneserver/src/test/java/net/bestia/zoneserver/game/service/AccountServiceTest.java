@@ -3,6 +3,7 @@ package net.bestia.zoneserver.game.service;
 import java.util.Date;
 
 import net.bestia.model.domain.Account;
+import net.bestia.model.service.AccountService;
 import net.bestia.zoneserver.Zoneserver;
 
 import org.junit.Before;

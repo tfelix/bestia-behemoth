@@ -2,7 +2,7 @@ package net.bestia.zoneserver.command;
 
 import net.bestia.messages.BestiaInitMessage;
 import net.bestia.messages.Message;
-import net.bestia.zoneserver.game.service.AccountService;
+import net.bestia.model.service.AccountService;
 
 /**
  * Gathers information about all bestias which are currently under the control

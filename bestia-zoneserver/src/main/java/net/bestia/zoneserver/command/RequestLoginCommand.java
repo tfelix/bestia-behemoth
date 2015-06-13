@@ -8,8 +8,8 @@ import net.bestia.messages.LoginBroadcastMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
-import net.bestia.zoneserver.game.service.AccountService;
-import net.bestia.zoneserver.game.service.AccountServiceManager;
+import net.bestia.model.service.AccountService;
+import net.bestia.model.service.AccountServiceManager;
 import net.bestia.zoneserver.game.zone.Entity;
 
 /**
