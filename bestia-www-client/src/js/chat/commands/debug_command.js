@@ -6,9 +6,8 @@
  * @returns TRUE if the chat string starts with this command. FALSE otherwise.
  */
 Bestia.Chat.Commands.DebugCommand = function() {
-	this.cmdRegex = /\/debug/gi;
-	this.paramRegex = /\/debug (ON|OFF)/gi;
-
+	this.cmdRegex = /\/debug/i;
+	this.paramRegex = /\/debug (ON|OFF)/i;
 	this.cmdHandle = 'debug';
 };
 

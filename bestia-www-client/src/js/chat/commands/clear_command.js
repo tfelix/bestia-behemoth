@@ -5,8 +5,8 @@
  * 
  */
 Bestia.Chat.Commands.ClearCommand = function() {
-	this.paramRegex = /\/clear/gi;
-	this.cmdRegex = /\/clear/gi;
+	this.paramRegex = /\/clear/i;
+	this.cmdRegex = /\/clear/i;
 
 	this.cmdHandle = 'clear';
 };

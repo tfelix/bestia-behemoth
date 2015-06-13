@@ -68,7 +68,7 @@ Bestia.Chat.Commands.BasicCommand.prototype._shortHelp = function(chat) {
 /**
  * Prints a longer help notice.
  * 
- * @method Bestia.Chat.Commands.BasicCOmmand#_help()
+ * @method Bestia.Chat.Commands.BasicCommand#_help()
  * @param {Bestia.Chat}
  *            chat - Chat instance.
  */

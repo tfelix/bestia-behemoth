@@ -1,6 +1,6 @@
 Bestia.Chat.Commands.HelpCommand = function() {
-	this.paramRegex = /\/help/gi;
-	this.cmdRegex = /\/help/gi;
+	this.paramRegex = /\/help/i;
+	this.cmdRegex = /\/help/i;
 
 	this.cmdHandle = 'help';
 };

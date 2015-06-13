@@ -80,6 +80,7 @@ Bestia.Chat = function(game, localNickname) {
 	});
 
 	// Register all local command handler.
+	
 	$.each(Bestia.Chat.Commands, function(key, Command) {
 		// BasicCommand is kind of a abstract placeholder. It has no use. Skip
 		// it.
