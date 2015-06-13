@@ -18,6 +18,11 @@ Bestia.Config = function() {
 	self.server = ko.observable('');
 	self.connectedPlayer = ko.observable(0);
 	self.resourceURL = ko.observable('');
+	/**
+	 * @property {boolean} debug - Flag if we should enable debug information.
+	 *           Later this should be splitted in hard debug only for
+	 *           development and soft debug for all players.
+	 */
 	self.debug = ko.observable(true);
 	self.locale = ko.observable('de-DE');
 

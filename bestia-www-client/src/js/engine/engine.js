@@ -4,7 +4,14 @@
  * 
  * @class Bestia.Engine
  */
-Bestia.Engine = function() {
+Bestia.Engine = function(config) {
+
+	/**
+	 * @property {Bestia.Config} config - Holds a reference to the central
+	 *           config object for the bestia game. So User options can be read
+	 *           an used.
+	 */
+	this.config = config;
 
 	this.options = {
 		enableMusic : ko.observable('true'),
@@ -23,9 +30,9 @@ Bestia.Engine = function() {
 
 	var game = new Phaser.Game(width, height, Phaser.AUTO, 'bestia-canvas');
 
-	game.state.add('game', new Bestia.Engine.States.GameState());
-	game.state.add('loading', new Bestia.Engine.States.LoadingState());
-	game.state.add('boot', new Bestia.Engine.States.BootState());
+	game.state.add('game', new Bestia.Engine.States.GameState(this));
+	game.state.add('loading', new Bestia.Engine.States.LoadingState(this));
+	game.state.add('boot', new Bestia.Engine.States.BootState(this));
 
 	game.state.start('loading');
 };
@@ -46,7 +53,8 @@ Bestia.Engine.Config = {
 };
 
 /**
- * Returns the tile coordinates when a pixel koordinate is given.
+ * Returns the tile coordinates when a pixel koordinate is given. TODO Phaser
+ * kann das wohl auch. Entfernen.
  * 
  * @static
  */
@@ -55,7 +63,8 @@ Bestia.Engine.px2cords = function(px) {
 };
 
 /**
- * Returns the px coordinates if a tile coordinate is given.
+ * Returns the px coordinates if a tile coordinate is given. TODO Phaser kann
+ * das wohl auch. Entfernen.
  * 
  * @static
  */

@@ -22,10 +22,16 @@ Bestia.Engine.ClickDebounce.prototype.released = function() {
  * 
  * @constructor
  * @class Bestia.Engine.States.GameState
+ * @param {Bestia.Engine}
+ *            engine - Reference to the bestia engine.
  */
-Bestia.Engine.States.GameState = function() {
+Bestia.Engine.States.GameState = function(engine) {
 	this.marker = null;
-	this.groundLayer = null;
+	/**
+	 * @property {Bestia.Engine} engine - Reference to the central bestia engine
+	 *           object.
+	 */
+	this.engine = engine;
 
 	this.map = null;
 
@@ -34,7 +40,7 @@ Bestia.Engine.States.GameState = function() {
 	 * calculation and tile location.
 	 */
 	this.groundLayer = null;
-	
+
 	/**
 	 * Sprite of the player.
 	 */
@@ -51,13 +57,11 @@ Bestia.Engine.States.GameState = function() {
 	this.astar = null;
 
 	this.config = {
+		tileSize : 0,
 		mapNameStyle : {
 			font : "65px Arial",
 			fill : "#ff0044",
 			align : "center"
-		},
-		debug : {
-			renderCollision : true
 		}
 	};
 };
@@ -77,6 +81,13 @@ Bestia.Engine.States.GameState.prototype = {
 		this.gfxCollision.beginFill(0xFF0000, 0.5);
 
 		var map = this.game.add.tilemap('map');
+		
+		// Do some sanity checks.
+		if(map.tileHeight !== map.tileWidth) {
+			throw "Engine does not support maps with different width and heights. Tiles must be square.";
+		}
+		this.config.tileSize = map.tileHeight;
+		
 		this.map = map;
 
 		// Extract map properties.
@@ -159,20 +170,19 @@ Bestia.Engine.States.GameState.prototype = {
 		}, 2000, Phaser.Easing.Linear.None, false, 2500).start();
 
 		game.input.onDown.add(function(pointer, event) {
-			// this is run once per input down event;
-			// pointer passes the Pointer that triggered it, and event passes
-			// the
-			// DOM event			
-			var tX = this.groundLayer.getTileX(this.game.input.x);
-			var tY = this.groundLayer.getTileY(this.game.input.y);
-			console.log("Tile: " + tX + " " + tY);
-			
+
 			var start = this.groundLayer.getTileXY(this.player.x, this.player.y, {});
-			var goal = {x: tX, y: tY};
+			var goal = this.groundLayer.getTileXY(this.game.input.x, this.game.input.y, {});
+			console.log("Tile: " + goal.x + " " + goal.y);
+
 			var path = this.astar.findPath(start, goal);
+			var self = this;
+			// Start movement.
+			path.nodes.reverse().forEach(function(ele){
+				self.movePlayer(ele.x, ele.y);
+			});
 
 			console.log(path);
-
 
 		}, this);
 	},
@@ -196,18 +206,33 @@ Bestia.Engine.States.GameState.prototype = {
 			this.player.x += 32;
 		}
 	},
-	
+
 	render : function() {
 		var game = this.game;
-		
-		// Render all debug code.
-		game.debug.AStar(this.astar, 20, 20, '#ff0000');
 
+		// Check if we have to render the debug display.
+		if (this.engine.config.debug()) {
+			this.renderDebug();
+		}
+	},
+
+	/**
+	 * Renders all the debug information.
+	 * 
+	 * @method Bestia.Engine.States.GameState#renderDebug
+	 */
+	renderDebug : function() {
+		var game = this.game;
+
+		// Show the path.
+		game.debug.AStar(this.astar, 20, 20, '#ff0000');
+		
+		
 	},
 
 	movePlayer : function(x, y) {
-		this.position.x = x;
-		this.position.y = y;
+		this.player.x = x * this.config.tileSize;
+		this.player.y = y * this.config.tileSize;
 	},
 
 	updateMarker : function() {
@@ -222,7 +247,6 @@ Bestia.Engine.States.GameState.prototype = {
 	},
 
 	renderCollisions : function() {
-
 		// Loop over all visible tiles and check if they are walkable. if not
 		// render a block.
 		var x = 0;
