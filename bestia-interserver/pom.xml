@@ -21,7 +21,7 @@
 		</dependency>
 		<dependency>
 			<groupId>net.bestia</groupId>
-			<artifactId>bestia-messages</artifactId>
+			<artifactId>bestia-models</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

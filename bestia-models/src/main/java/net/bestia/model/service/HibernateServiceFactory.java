@@ -1,9 +1,7 @@
-package net.bestia.zoneserver.game.service;
+package net.bestia.model.service;
 
 import net.bestia.model.DAOLocator;
 import net.bestia.model.dao.AccountDAO;
-import net.bestia.model.service.AccountServiceManager;
-import net.bestia.zoneserver.Zoneserver;
 
 /**
  * Use this factory to get service implementations of all the data objects and
@@ -17,15 +15,15 @@ import net.bestia.zoneserver.Zoneserver;
 public final class HibernateServiceFactory implements ServiceFactory {
 
 	private final DAOLocator locator;
-	private final Zoneserver server;
+	private final MessageSender sender;
 
-	public HibernateServiceFactory(Zoneserver server) {
-		if(server == null) {
-			throw new IllegalArgumentException("Server can not be null.");
+	public HibernateServiceFactory(MessageSender sender) {
+		if(sender == null) {
+			throw new IllegalArgumentException("MessageSender can not be null.");
 		}
 		
 		this.locator = new DAOLocator();
-		this.server = server;
+		this.sender = sender;
 	}
 
 	/*
@@ -36,12 +34,7 @@ public final class HibernateServiceFactory implements ServiceFactory {
 	@Override
 	public AccountServiceManager getAccountServiceFactory() {
 		AccountDAO accDAO = locator.getObject(AccountDAO.class);
-		final AccountServiceManager accServiceFactory = new AccountServiceManager(accDAO, server);
+		final AccountServiceManager accServiceFactory = new AccountServiceManager(accDAO, sender);
 		return accServiceFactory;
-	}
-
-	@Override
-	public BestiaServiceFactory getBestiaServiceFactory() {
-		return null;
 	}
 }

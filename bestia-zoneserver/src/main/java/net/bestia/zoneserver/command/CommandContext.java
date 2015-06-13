@@ -3,9 +3,9 @@ package net.bestia.zoneserver.command;
 import java.util.Collection;
 import java.util.Map;
 
+import net.bestia.model.service.ServiceFactory;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.Zoneserver;
-import net.bestia.zoneserver.game.service.ServiceFactory;
 import net.bestia.zoneserver.game.zone.Zone;
 
 /**

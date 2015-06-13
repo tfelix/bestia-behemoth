@@ -20,11 +20,12 @@ import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.messages.Message;
+import net.bestia.model.service.HibernateServiceFactory;
+import net.bestia.model.service.MessageSender;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
-import net.bestia.zoneserver.game.service.HibernateServiceFactory;
 import net.bestia.zoneserver.game.zone.Zone;
 
 import org.apache.logging.log4j.LogManager;
@@ -67,6 +68,19 @@ public class Zoneserver {
 			final Command cmd = commandFactory.getCommand(msg);
 			commandExecutor.execute(cmd);
 		}
+	}
+	
+	private class ServiceMessageSender implements MessageSender {
+
+		@Override
+		public void sendMessage(Message message) {
+			try {
+				interserverPublisher.publish(message);
+			} catch (IOException e) {
+				log.error("Can not send message.", e);
+			}
+		}
+		
 	}
 
 	private final String name;
@@ -112,8 +126,11 @@ public class Zoneserver {
 
 		// Create a command context.
 		final CommandContext.Builder cmdCtxBuilder = new CommandContext.Builder();
+		
+		ServiceMessageSender sender = new ServiceMessageSender();
+		
 		cmdCtxBuilder.setConfiguration(config).setZones(zones).setZoneserver(this)
-				.setServiceFactory(new HibernateServiceFactory(this));
+				.setServiceFactory(new HibernateServiceFactory(sender));
 		final CommandContext cmdContext = cmdCtxBuilder.build();
 
 		this.commandFactory = new CommandFactory(cmdContext);

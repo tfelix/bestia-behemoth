@@ -1,11 +1,9 @@
-package net.bestia.zoneserver.game.service;
+package net.bestia.model.service;
 
 import net.bestia.messages.Message;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
-import net.bestia.model.domain.StatusPoints;
-import net.bestia.zoneserver.Zoneserver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +26,7 @@ public class PlayerBestiaService extends BestiaService {
 	 *            Account object to create messages for this account.
 	 */
 	public PlayerBestiaService(Account account, PlayerBestia bestia,
-			Zoneserver server) {
+			MessageSender server) {
 		super(bestia, server);
 		if (account == null) {
 			throw new IllegalArgumentException("Account can not be null.");

@@ -3,7 +3,6 @@ package net.bestia.model.service;
 import net.bestia.messages.Message;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.zoneserver.Zoneserver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

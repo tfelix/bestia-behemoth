@@ -2,8 +2,8 @@ package net.bestia.zoneserver.game;
 
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Bestia;
+import net.bestia.model.service.BestiaService;
 import net.bestia.zoneserver.game.battle.Damage;
-import net.bestia.zoneserver.game.service.BestiaService;
 
 /**
  * Triggers events upon entities on the map. All events which can happen to a entity (or better its attached script)

@@ -1,11 +1,10 @@
-package net.bestia.zoneserver.game.service;
+package net.bestia.model.service;
 
 import javax.persistence.Transient;
 
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
-import net.bestia.zoneserver.Zoneserver;
 
 /**
  * Simple basic service for bestias. It is abstract because
@@ -22,7 +21,7 @@ public abstract class BestiaService extends Service {
 	private Bestia bestia;
 	protected boolean isDead;
 	
-	public BestiaService(Bestia bestia, Zoneserver server) {
+	public BestiaService(Bestia bestia, MessageSender server) {
 		super(server);
 		if(bestia == null) {
 			throw new IllegalArgumentException("Bestia can not be null.");
