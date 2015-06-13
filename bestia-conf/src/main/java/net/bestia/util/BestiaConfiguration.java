@@ -20,7 +20,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class BestiaConfiguration {
 	
-	private static final Logger log = LogManager.getLogger(BestiaConfiguration.class);
+	private static final Logger LOG = LogManager.getLogger(BestiaConfiguration.class);
 
 	private Properties prop;
 	private boolean isLoaded = false;
@@ -96,7 +96,7 @@ public class BestiaConfiguration {
 	
 	private void checkProperty(String key) {
 		if(!prop.containsKey(key)) {
-			log.warn("Key: {} was not found in the config file!", key);
+			LOG.warn("Key: {} was not found in the config file!", key);
 		}
 	}
 

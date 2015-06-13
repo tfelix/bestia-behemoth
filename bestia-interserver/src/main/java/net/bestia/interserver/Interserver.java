@@ -23,7 +23,7 @@ import org.zeromq.ZMQException;
  */
 public class Interserver {
 
-	private final static Logger log = LogManager.getLogger(Interserver.class);
+	private static final Logger LOG = LogManager.getLogger(Interserver.class);
 
 	/**
 	 * This thread processes incoming messages from the zone or the webserver and puts them into the message queue. The
@@ -34,7 +34,7 @@ public class Interserver {
 	private class MessageSubscriberThread extends Thread {
 
 		private final Socket subscriber;
-		public final AtomicBoolean isRunning = new AtomicBoolean(true);
+		private final AtomicBoolean isRunning = new AtomicBoolean(true);
 
 		public MessageSubscriberThread(Socket subscriber) {
 			this.setName("MessageSubscriberThread");
@@ -48,13 +48,13 @@ public class Interserver {
 
 					final String topic = subscriber.recvStr();
 					final byte[] data = subscriber.recv();
-					log.trace("Received message[topic: {}, size {} byte]", topic, data.length);
+					LOG.trace("Received message[topic: {}, size {} byte]", topic, data.length);
 
 					publisher.sendMore(topic);
 					publisher.send(data);
 				}
 			} catch (ClosedSelectorException ex) {
-				log.trace("Socket was externally closed.");
+				LOG.trace("Socket was externally closed.", ex);
 			}
 		}
 	}
@@ -87,18 +87,18 @@ public class Interserver {
 	 * Starts the interserver.
 	 */
 	public boolean start() {
-		log.info("Starting Bestia Interserver...");
+		LOG.info("Starting Bestia Interserver...");
 
 		try {
 			startPublisher();
 			startSubscriber();
 		} catch (ZMQException ex) {
-			log.error("Could not start Interserver.", ex);
+			LOG.error("Could not start Interserver.", ex);
 			stop();
 			return false;
 		}
 
-		log.info("Interserver started.");
+		LOG.info("Interserver started.");
 		return true;
 	}
 
@@ -109,7 +109,7 @@ public class Interserver {
 		subscriberThread = new MessageSubscriberThread(subscriber);
 		subscriberThread.start();
 
-		log.info("Now listening for messages on [{}].", subscriberUrl);
+		LOG.info("Now listening for messages on [{}].", subscriberUrl);
 	}
 
 	/**
@@ -120,16 +120,16 @@ public class Interserver {
 		publisher = context.socket(ZMQ.PUB);
 		publisher.bind(publishUrl);
 
-		log.info("Now publishing messages on [{}].", publishUrl);
+		LOG.info("Now publishing messages on [{}].", publishUrl);
 	}
 
 	/**
 	 * Stops the interserver.
 	 */
 	public void stop() {
-		log.info("Stopping the Interserver...");
+		LOG.info("Stopping the Interserver...");
 
-		log.trace("Stopping message processing...");
+		LOG.trace("Stopping message processing...");
 		// We have to do all the null checks since we may have an stop call during the start and may not have
 		// initialized everything.
 		if (subscriberThread != null) {
@@ -144,7 +144,7 @@ public class Interserver {
 			try {
 				subscriberThread.join(10000);
 			} catch (InterruptedException e) {
-				log.warn("Could not shut down subscriberThread gracefully.", e);
+				LOG.warn("Could not shut down subscriberThread gracefully.", e);
 			}
 		}
 		if (publisher != null) {
@@ -152,7 +152,7 @@ public class Interserver {
 		}
 		context.term();
 
-		log.info("Interserver has gone down.");
+		LOG.info("Interserver has gone down.");
 	}
 
 	public static void main(String[] args) {
@@ -161,13 +161,14 @@ public class Interserver {
 		try {
 			config.load();
 		} catch (IOException ex) {
-			log.fatal("Could not load config file. Exiting.", ex);
-			System.exit(1);
+			LOG.fatal("Could not load config file. Exiting.", ex);
+			return;
 		}
 
 		final Interserver interserver = new Interserver(config);
 		if (!interserver.start()) {
-			System.exit(1);
+			LOG.fatal("Server could not start. Exiting.");
+			return;
 		}
 
 		// Cancel the interserver gracefully when the VM shuts down. Does not
