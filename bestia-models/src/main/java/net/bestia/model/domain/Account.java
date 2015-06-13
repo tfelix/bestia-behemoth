@@ -3,12 +3,15 @@ package net.bestia.model.domain;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
 @Entity
@@ -36,9 +39,9 @@ public class Account implements Serializable {
 	// @OneToMany(mappedBy="account")
 	// private List<GuildMember> guild;
 
-	// @OneToOne(cascade = CascadeType.ALL, optional = true)
-	// @JoinColumn(name = "MASTER_ID", nullable = true)
-	// private PlayerBestia master;
+	@OneToOne(cascade = CascadeType.ALL, optional = false)
+	@JoinColumn(name = "MASTER_ID", nullable = false)
+	private PlayerBestia master;
 
 	// @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "owner")
 	// private List<PlayerBestia> bestias;

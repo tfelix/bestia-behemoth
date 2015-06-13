@@ -14,4 +14,13 @@ public interface AccountDAO extends GenericDAO<Account, Long> {
 	 */
 	public Account findByEmail(String email);
 
+	/**
+	 * Checks the nickname of the designated master. If this a master with this nickname is found then the apropriate
+	 * {@link Account} is returned.
+	 * 
+	 * @param username
+	 * @return Account with the master with this nickname or {@code null}.
+	 */
+	public Account findByNickname(String username);
+
 }

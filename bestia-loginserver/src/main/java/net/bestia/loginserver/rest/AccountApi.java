@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response;
 
 import net.bestia.loginserver.authenticator.AuthState;
 import net.bestia.loginserver.authenticator.PasswordAuthenticator;
+import net.bestia.messages.api.AccountCheckJson;
 import net.bestia.model.DAOLocator;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
@@ -36,7 +37,7 @@ public class AccountApi {
 
 	public AccountApi() {
 		DAOLocator daoLocator = new DAOLocator();
-		this.accountDao = daoLocator.getObject(AccountDAO.class);
+		this.accountDao = daoLocator.getDAO(AccountDAO.class);
 	}
 
 	@GET
@@ -78,10 +79,25 @@ public class AccountApi {
 			@QueryParam("username") String username, @DefaultValue("1") @QueryParam("master") int masterId,
 			@DefaultValue("false") @QueryParam("validate") boolean validate) {
 
-		if(validate == false) {
-			log.info("Create new account: email: {}, username: {}, master_id: {}", email, username, masterId);
+		if(validate == true) {
+			// Check if there is already an account.
+			AccountCheckJson answer = new AccountCheckJson();
+			
+			// Check email.
+			if(accountDao.findByEmail(email) != null) {
+				answer.emailUsed = true;
+			}
+			
+			// Check username.
+			if(accountDao.findByNickname(username) != null) {
+				answer.nameUsed = true;
+			}
+			
+			final String answerString = mapper.writeValueAsString(answer);
+			return Response.ok().entity(answerString).build();
 		}
 		
+		log.info("Create new account: email: {}, username: {}, master_id: {}", email, username, masterId);
 
 		return null;
 	}

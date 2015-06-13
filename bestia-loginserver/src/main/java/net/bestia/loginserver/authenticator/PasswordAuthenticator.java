@@ -24,7 +24,7 @@ public class PasswordAuthenticator implements Authenticator {
 		this.password = password;
 
 		DAOLocator locator = new DAOLocator();
-		this.accountDao = locator.getObject(AccountDAO.class);
+		this.accountDao = locator.getDAO(AccountDAO.class);
 	}
 	
 	public Account getFoundAccount() {

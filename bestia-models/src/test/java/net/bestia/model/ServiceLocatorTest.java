@@ -12,7 +12,7 @@ public class ServiceLocatorTest {
 	@Test
 	public void get_accountDao_test() {
 		DAOLocator locator = new DAOLocator();
-		AccountDAO accDao = locator.getObject(AccountDAO.class);	
+		AccountDAO accDao = locator.getDAO(AccountDAO.class);	
 		assertNotNull(accDao);
 	}
 }

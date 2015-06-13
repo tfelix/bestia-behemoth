@@ -12,9 +12,10 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class DAOLocator {
 
-	private static ApplicationContext context = new ClassPathXmlApplicationContext("/spring-config.xml");
+	private static final ApplicationContext context = new ClassPathXmlApplicationContext("/spring-config.xml");
 	
-	public <T> T getObject(Class<T> type) {
+	public <T> T getDAO(Class<T> type) {
 		return context.getBean(type);
 	}
+	
 }

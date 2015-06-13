@@ -33,7 +33,7 @@ public final class HibernateServiceFactory implements ServiceFactory {
 	 */
 	@Override
 	public AccountServiceManager getAccountServiceFactory() {
-		AccountDAO accDAO = locator.getObject(AccountDAO.class);
+		AccountDAO accDAO = locator.getDAO(AccountDAO.class);
 		final AccountServiceManager accServiceFactory = new AccountServiceManager(accDAO, sender);
 		return accServiceFactory;
 	}

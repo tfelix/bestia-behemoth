@@ -13,7 +13,9 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -28,6 +30,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Entity
 @PrimaryKeyJoinColumn(name="bestia_id")
 public class PlayerBestia extends Bestia {
+	@Transient
+	private static final long serialVersionUID = 1L;
+
 	@Column(name="player_bestia_id")
 	private int player_bestia_id;
 	
@@ -56,6 +61,10 @@ public class PlayerBestia extends Bestia {
 	@JoinColumn(name = "account_id", nullable = false)
 	@JsonIgnore
 	private Account owner;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+	@JsonIgnore
+	private NPCBestia sourceBestia;
 	
 	private int curHp;
 	private int curMana;
@@ -153,5 +162,21 @@ public class PlayerBestia extends Bestia {
 	@JsonProperty("sp")
 	public StatusPoints getStatusPoints() {
 		return new StatusPoints();
+	}
+
+	public int getCurHp() {
+		return curHp;
+	}
+
+	public void setCurHp(int curHp) {
+		this.curHp = curHp;
+	}
+
+	public int getCurMana() {
+		return curMana;
+	}
+
+	public void setCurMana(int curMana) {
+		this.curMana = curMana;
 	}
 }

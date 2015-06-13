@@ -15,4 +15,11 @@ public class AccountDAOHibernate extends GenericDAOHibernate<Account, Long> impl
 		query.setParameter("email", email);
 		return (Account) query.uniqueResult();
 	}
+
+	@Override
+	public Account findByNickname(String username) {
+		Query query = currentSession().createQuery("from Account a where a.master.name = :username");
+		query.setParameter("username", username);
+		return (Account) query.uniqueResult();
+	}
 }
