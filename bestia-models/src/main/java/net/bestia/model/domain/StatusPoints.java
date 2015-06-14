@@ -1,6 +1,5 @@
 package net.bestia.model.domain;
 
-import javax.persistence.Embeddable;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonProperty;

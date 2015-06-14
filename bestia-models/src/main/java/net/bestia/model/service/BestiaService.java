@@ -14,15 +14,14 @@ import net.bestia.model.domain.StatusPoints;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public abstract class BestiaService extends Service {
-	
+public abstract class BestiaService {
 	
 	
 	private Bestia bestia;
 	protected boolean isDead;
 	
 	public BestiaService(Bestia bestia, MessageSender server) {
-		super(server);
+
 		if(bestia == null) {
 			throw new IllegalArgumentException("Bestia can not be null.");
 		}

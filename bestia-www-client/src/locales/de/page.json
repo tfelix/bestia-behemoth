@@ -1,12 +1,18 @@
 {
 "register": {
-"title": "Account Erstellung"
+"title": "Account Erstellung",
+"title_html": "Bestia &#8226; Das Browsergame - Anmeldung"
 },
 "username": "Meister-Name",
 "username_placeholder": "Wähle den Namen deines Meisters...",
+"login_username": "Benutzername",
+"login_username_placeholder": "Benutzername eingeben...",
 "password": "Passwort",
 "password_placeholder": "Bitte wähle ein sicheres Passwort...",
 "password_confirm": "Passwort bestätigen",
 "password_confirm_placeholder": "Bitte bestätige dein Passwort...",
-"create_account": "Account erstellen"
+"create_account": "Account erstellen",
+"login": "Anmelden",
+"email": "E-Mail",
+"email_placeholder" : "Bitte gib deine gültige E-Mail Adresse ein..."
 }

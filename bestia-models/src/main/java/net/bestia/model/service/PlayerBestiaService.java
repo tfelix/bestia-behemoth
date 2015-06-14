@@ -1,6 +1,5 @@
 package net.bestia.model.service;
 
-import net.bestia.messages.Message;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
@@ -152,11 +151,5 @@ public class PlayerBestiaService extends BestiaService {
 	private void moveTo(Location saveLoc) {
 		// TODO Auto-generated method stub
 
-	}
-
-	@Override
-	protected Message getDataChangedMessage() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

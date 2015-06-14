@@ -9,5 +9,6 @@ i18n.init({
 	fallbackLng : false
 }, function() {
 	$('body').i18n();
+	$('title').i18n();
 });
 

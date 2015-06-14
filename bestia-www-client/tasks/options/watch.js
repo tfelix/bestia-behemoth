@@ -9,6 +9,11 @@ module.exports = {
 		tasks : [ 'compile-js']
 	},
 	
+	page_js: {
+		files : ['<%= source_dir %>/js/pages/single/*.js'],
+		tasks : [ 'copy']
+	},
+	
 	html: {
 		files : ['<%= source_dir %>/*.html', '<%= source_dir %>/**/*.json'],
 		tasks : [ 'copy']

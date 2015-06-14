@@ -4,7 +4,9 @@ import java.util.Collection;
 
 import net.bestia.messages.ChatMessage;
 import net.bestia.messages.Message;
+import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
+import net.bestia.model.service.AccountService;
 import net.bestia.zoneserver.game.zone.Entity;
 
 import org.apache.logging.log4j.LogManager;
@@ -28,25 +30,23 @@ class ChatCommand extends Command {
 		ChatMessage m = (ChatMessage) message;
 
 		// Find the player who send the message.
-		Account acc = ctx.getServiceFactory()
-				.getAccountServiceFactory()
-				.getAccountService(m.getAccountId())
-				.getAccount();
-		
+		Account acc = ctx.getServiceLocator().getBean(AccountDAO.class).find(m.getAccountId());
+
 		// Set the username of the message to this player.
 		m.setSenderNickname("rocket");
-		
+
 		// Get the location of the current active bestia.
 		String location = "test-zone1";
-		
+
 		// Get the player bestia id and use it to find entity and determine other player entities in range.
-		
+
 		// Send the message to all active player in the range. There will be a list of entities.
-		
+
 		// Get the account ids.
 		Collection<Entity> entities = ctx.getZone(location).getEntities(1, 0);
-		entities.forEach((e) -> { redirectMessage(e.accountId, m, ctx); });
-		
+		entities.forEach((e) -> {
+			redirectMessage(e.accountId, m, ctx);
+		});
 
 		// Check chat type.
 		switch (m.getChatMode()) {
@@ -69,10 +69,10 @@ class ChatCommand extends Command {
 		}
 
 		// Echo the message back to the user.
-		//ChatEchoMessage replyMsg = ChatEchoMessage.getEchoMessage(m);
-		//replyMsg.setEchoCode(EchoCode.OK);
+		// ChatEchoMessage replyMsg = ChatEchoMessage.getEchoMessage(m);
+		// replyMsg.setEchoCode(EchoCode.OK);
 	}
-	
+
 	private void redirectMessage(long receiverId, ChatMessage msg, CommandContext ctx) {
 		ctx.getServer().sendMessage(ChatMessage.getForwardMessage(receiverId, msg));
 	}

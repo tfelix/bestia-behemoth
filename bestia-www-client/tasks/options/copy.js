@@ -16,7 +16,7 @@ module.exports = {
 			expand : true,
 			flatten: true,
 			cwd : '<%= source_dir %>',
-			src : 'js/pages/*.js',
+			src : 'js/pages/single/*.js',
 			dest : 'build/js'
 		}
 		]

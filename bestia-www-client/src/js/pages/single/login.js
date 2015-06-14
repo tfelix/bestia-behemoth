@@ -4,7 +4,7 @@ $(document).ready(function() {
 		var email = $('#inputEmail').val();
 		var password = $('#inputPassword').val();
 
-		$.get(Bestia.Urls.bestiaLogin + "/v1/account/login", {
+		$.get(Bestia.Urls.bestiaWebAPI + "/v1/account/login", {
 			ident : email,
 			password : password
 		}, function(data) {

@@ -14,10 +14,12 @@ import javax.ws.rs.core.Response;
 import net.bestia.loginserver.authenticator.AuthState;
 import net.bestia.loginserver.authenticator.PasswordAuthenticator;
 import net.bestia.messages.api.AccountCheckJson;
-import net.bestia.model.DAOLocator;
+import net.bestia.model.ServiceLocator;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Password;
+import net.bestia.model.service.AccountService;
+import net.bestia.model.service.AccountService.Master;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,10 +36,12 @@ public class AccountApi {
 	private static final ObjectMapper mapper = new ObjectMapper();
 
 	private final AccountDAO accountDao;
+	private final AccountService accountService;
 
 	public AccountApi() {
-		DAOLocator daoLocator = new DAOLocator();
+		ServiceLocator daoLocator = new ServiceLocator();
 		this.accountDao = daoLocator.getDAO(AccountDAO.class);
+		this.accountService = daoLocator.getBean(AccountService.class);
 	}
 
 	@GET
@@ -73,33 +77,72 @@ public class AccountApi {
 	 *            Name of the master.
 	 * @return
 	 */
+	@GET
+	@Produces("application/json")
+	@Path("/create/validate")
+	public Response create(@QueryParam("email") String email, @QueryParam("username") String username) {
+
+		// Check if there is already an account.
+		AccountCheckJson answer = new AccountCheckJson();
+
+		// Check email.
+		if (accountDao.findByEmail(email) != null) {
+			answer.emailUsed = true;
+		}
+
+		// Check username.
+		if (accountDao.findByNickname(username) != null) {
+			answer.nameUsed = true;
+		}
+
+		String answerString = "";
+		// final String answerString = mapper.writeValueAsString(answer);
+		return Response.ok().entity(answerString).build();
+	}
+
+	/**
+	 * Creates an new user account with the given username (email) and password.
+	 * 
+	 * @param email
+	 *            Email of the user.
+	 * @param password
+	 *            Password.
+	 * @param masterId
+	 *            Select which master to use.
+	 * @param username
+	 *            Name of the master.
+	 * @return
+	 */
+	// TODO Der eingebaute Webserver unterstützt kein PUT und DELETE später austauschen und hier API abhändern.
+	@GET
 	@Produces("application/json")
 	@Path("/create")
 	public Response create(@QueryParam("email") String email, @QueryParam("password") String password,
-			@QueryParam("username") String username, @DefaultValue("1") @QueryParam("master") int masterId,
-			@DefaultValue("false") @QueryParam("validate") boolean validate) {
+			@QueryParam("username") String username, @DefaultValue("1") @QueryParam("master") int masterId) {
 
-		if(validate == true) {
-			// Check if there is already an account.
-			AccountCheckJson answer = new AccountCheckJson();
-			
-			// Check email.
-			if(accountDao.findByEmail(email) != null) {
-				answer.emailUsed = true;
-			}
-			
-			// Check username.
-			if(accountDao.findByNickname(username) != null) {
-				answer.nameUsed = true;
-			}
-			
-			final String answerString = mapper.writeValueAsString(answer);
-			return Response.ok().entity(answerString).build();
+		// Falidate inputs.
+		if (email.isEmpty() || password.isEmpty() || username.isEmpty()) {
+			return Response.serverError().build();
 		}
-		
+
+		// Switch master id.
+		AccountService.Master master;
+		switch (masterId) {
+		case 1:
+		case 2:
+		case 3:
+			master = Master.FIGHTER;
+			break;
+		default:
+			master = Master.FIGHTER;
+			break;
+		}
+
+		accountService.createNewAccount(email, username, password, master);
+
 		log.info("Create new account: email: {}, username: {}, master_id: {}", email, username, masterId);
 
-		return null;
+		return Response.ok().build();
 	}
 
 	/***

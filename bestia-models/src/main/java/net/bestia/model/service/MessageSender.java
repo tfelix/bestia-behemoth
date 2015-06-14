@@ -10,5 +10,10 @@ import net.bestia.messages.Message;
  */
 public interface MessageSender {
 
+	/**
+	 * Sends a message to the user/client.
+	 * 
+	 * @param message Message to be send.
+	 */
 	public void sendMessage(Message message);
 }

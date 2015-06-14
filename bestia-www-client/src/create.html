@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Bestia &#8226; Das Browsergame - Anmeldung</title>
+<title data-i18n="[html]register.title_html">register.title_title</title>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -22,32 +22,42 @@
 <body>
 
 	<div class="container">
-		<div style="float: none; margin: 0 auto;" class="col-md-6">
+		<div style="float: none; margin: 50px auto;" class="col-md-6">
 			<p style="text-align: center;">
 				<img src="img/bestia_logo.png" alt="Bestia Logo">
 			</p>
 
-			<div style="font-size: 16pt;" class="label label-warning pull-right">early access ALPHA-Version</div>
+			<div style="font-size: 16pt;" class="label label-warning pull-right">ALPHA-Version</div>
 			<h3 data-i18n="register.title">register.title</h3>
 			<p></p>
-			<form id="login">
+			<form id="login" data-bind="submit: onSubmit">
 				<p>Vielen Dank! Durch deine Anmeldung hilfst du uns in einem sehr frühen Prozess der Spielentwicklung auf Fehler
 					und Ungereimtheiten aufmerksam zu werden!</p>
 				<div class="form-group">
-					<label for="email" data-i18n="username">username</label> <input type="text" class="form-control" name="email"
-						data-i18n="[placeholder]username_placeholder;" placeholder="username_placeholder">
+					<label for="email" data-i18n="username">username</label> <input type="text" class="form-control" name="masterName"
+						data-i18n="[placeholder]username_placeholder;" placeholder="username_placeholder" data-bind="value: masterName">
+					<p class="help-block">Der Meister-Name wird im Spiel für andere Spieler sichtbar sein. Es ist sozusagen dein
+						sichtbarer Spitzname. Er kann nicht mehr geändert werden! Wähle in mit Bedacht junger Meister!</p>
+				</div>
+				<div class="form-group">
+					<label for="email" data-i18n="email">email</label> <input type="text" class="form-control" name="email"
+						data-i18n="[placeholder]email_placeholder;" placeholder="email_placeholder" data-bind="value: email">
+					<p class="help-block">Deine E-Mail dient als Login für das Spiel. Außerdem senden wir, sofern du das möchtest,
+						ab und an einen Newsletter über Events, Gewinnmöglichkeiten und Updates. Aber keine Angst wir hassen Spam genau so
+						wie du und du kannst diesen Service auch abschalten.</p>
 				</div>
 				<div class="form-group">
 					<label for="password" data-i18n="password">password</label> <input type="password" class="form-control"
-						name="password" data-i18n="[placeholder]password_placeholder;" placeholder="password_placeholder">
-						<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+						name="password" data-i18n="[placeholder]password_placeholder;" placeholder="password_placeholder"
+						data-bind="value: password"> <span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
 				</div>
 				<div class="form-group">
 					<label for="password" data-i18n="password_confirm">password_confirm</label> <input type="password"
 						class="form-control" name="password" data-i18n="[placeholder]password_confirm_placeholder;"
-						placeholder="password_confirm_placeholder">
-						<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+						placeholder="password_confirm_placeholder" data-bind="value: passwordConfirm"> <span
+						class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
 				</div>
+				<div data-bind="text: password"></div>
 				<button type="submit" class="btn btn-default" data-i18n="create_account">create_account</button>
 			</form>
 		</div>

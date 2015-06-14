@@ -8,7 +8,6 @@ import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -21,7 +20,7 @@ public class Account implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue
 	private long id;
 	@Column(length = 32, unique = true)
 	private String email = "";
@@ -39,23 +38,27 @@ public class Account implements Serializable {
 	// @OneToMany(mappedBy="account")
 	// private List<GuildMember> guild;
 
-	@OneToOne(cascade = CascadeType.ALL, optional = false)
-	@JoinColumn(name = "MASTER_ID", nullable = false)
+	/**
+	 * Master id must sadly be optional because otherwise we get a cycle dependency with player_bestias. These must
+	 * always have a account as foreign key so we must make this optional to allow account creation.
+	 */
+	@OneToOne(cascade = CascadeType.ALL, optional = true)
+	@JoinColumn(name = "MASTER_ID", nullable = true)
 	private PlayerBestia master;
 
 	// @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "owner")
 	// private List<PlayerBestia> bestias;
 
 	public Account() {
+		this.email = "";
+		this.password = new Password();
 		setRegisterDate(new Date());
-		password = new Password();
 	}
 
 	public Account(String email, String password) {
 		this.email = email;
 		this.password = new Password(password);
-		this.registerDate = new Date();
-
+		setRegisterDate(new Date());
 	}
 
 	public long getId() {
@@ -199,6 +202,13 @@ public class Account implements Serializable {
 	@Override
 	public String toString() {
 		return String.format("Account[id=%d, email=%s, registerDate=%t]", id, email, registerDate);
+	}
+
+	public void setMaster(PlayerBestia masterBestia) {
+		if (masterBestia == null) {
+			throw new IllegalArgumentException("MasterBestia can not be null.");
+		}
+		this.master = masterBestia;
 	}
 
 }

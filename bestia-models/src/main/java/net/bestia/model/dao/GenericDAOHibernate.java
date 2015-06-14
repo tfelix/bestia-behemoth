@@ -16,6 +16,7 @@ public abstract class GenericDAOHibernate<E, K extends Serializable> implements 
 	private SessionFactory sessionFactory;
 	protected final Class<? extends E> daoType;
 
+	@SuppressWarnings("unchecked")
 	public GenericDAOHibernate() {
 		daoType = (Class<E>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 	}
@@ -39,11 +40,13 @@ public abstract class GenericDAOHibernate<E, K extends Serializable> implements 
 		currentSession().delete(entity);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public E find(K id) {
 		return (E) currentSession().get(daoType, id);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<E> list() {
 		return currentSession().createCriteria(daoType).list();

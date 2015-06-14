@@ -41,19 +41,37 @@ public class BaseValues implements Serializable {
 	/**
 	 * Creates a new BaseValues object with individual values set. Useful when generating a new bestia.
 	 * 
-	 * @return
+	 * @return {@link BaseValues} instance initiated with random values between 0 and {@code MAX_IV_VALUE}.
 	 */
 	public static BaseValues getNewIndividualValues() {
 
 		final ThreadLocalRandom rand = ThreadLocalRandom.current();
 
-		BaseValues bv = new BaseValues();
+		final BaseValues bv = new BaseValues();
 		bv.setAtk(rand.nextInt(0, MAX_IV_VALUE + 1));
 		bv.setDef(rand.nextInt(0, MAX_IV_VALUE + 1));
 		bv.setHp(rand.nextInt(0, MAX_IV_VALUE + 1));
 		bv.setMana(rand.nextInt(0, MAX_IV_VALUE + 1));
 		bv.setSpAtk(rand.nextInt(0, MAX_IV_VALUE + 1));
 		bv.setSpDef(rand.nextInt(0, MAX_IV_VALUE + 1));
+
+		return bv;
+	}
+
+	/**
+	 * To create non random starter bestia the values are all created equally.
+	 * 
+	 * @return {@link BaseValues} instance initiated with equal values of 13.
+	 */
+	public static BaseValues getStarterIndividualValues() {
+
+		final BaseValues bv = new BaseValues();
+		bv.setAtk(13);
+		bv.setDef(13);
+		bv.setHp(13);
+		bv.setMana(13);
+		bv.setSpAtk(13);
+		bv.setSpDef(13);
 
 		return bv;
 	}

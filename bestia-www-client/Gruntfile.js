@@ -18,11 +18,11 @@ module.exports = function(grunt) {
 			'src/js/engine/plugins/AStar.js', 'src/js/engine/engine.js', 'src/js/engine/states/*.js',
 			'src/js/engine/entity.js', 'src/js/engine/entities/*.js',
 			// === PAGE ===
-			'src/js/pages/main.js',
+			'src/js/pages/bestia.js',
 			// === ETC ===
 			'src/js/chat.js', 'src/js/main.js' ];
 	
-	var pageFiles = ['src/js/bestia.js', 'src/js/util/storage.js', 'src/js/pages/all-pages.js'];
+	var pageFiles = ['src/js/bestia.js', 'src/js/util/storage.js', 'src/js/pages/single/all-pages.js'];
 
 	loadConfig(grunt, {
 		configPath : __dirname + '/tasks/options',

@@ -8,6 +8,29 @@
 		<artifactId>behemoth</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
 	</parent>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>de.juplo</groupId>
+				<artifactId>hibernate4-maven-plugin</artifactId>
+				<version>1.1.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>export</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<driverClassName>${db.driver}</driverClassName>
+					<hibernateDialect>${db.dialect}</hibernateDialect>
+					<username>${db.username}</username>
+					<password>${db.password}</password>
+					<url><![CDATA[${db.url}]]></url>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 	<dependencies>
 		<dependency>

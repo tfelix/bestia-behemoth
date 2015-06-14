@@ -3,16 +3,15 @@ package net.bestia.zoneserver.command;
 import java.util.Collection;
 import java.util.Map;
 
-import net.bestia.model.service.ServiceFactory;
+import net.bestia.model.ServiceLocator;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.game.zone.Zone;
 
 /**
- * Facade class to cover the needed information context for a {@link Command}
- * class. It contains references to database access and messaging API. The
- * context itself is immutable because multi-thread access will happen. The
- * member of itself must be thread safe as well.
+ * Facade class to cover the needed information context for a {@link Command} class. It contains references to database
+ * access and messaging API. The context itself is immutable because multi-thread access will happen. The member of
+ * itself must be thread safe as well.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -24,20 +23,9 @@ public final class CommandContext {
 	 *
 	 */
 	public static class Builder {
-		private ServiceFactory serviceFactory;
 		private Map<String, Zone> zones;
 		private Zoneserver zoneserver;
 		private BestiaConfiguration config;
-
-		public Builder setServiceFactory(ServiceFactory serviceFactory) {
-			this.serviceFactory = serviceFactory;
-			return this;
-		}
-
-		/*
-		 * public Builder setMessenger(Messenger msg) { this.messenger = msg;
-		 * return this; }
-		 */
 
 		public Builder setZones(Map<String, Zone> zones) {
 			this.zones = zones;
@@ -59,27 +47,21 @@ public final class CommandContext {
 		}
 	}
 
-	private final ServiceFactory serviceFactory;
 	private final BestiaConfiguration configuration;
 	private final Map<String, Zone> zones;
 	private final Zoneserver server;
+	private final ServiceLocator serviceLocator = new ServiceLocator();
 
 	/**
 	 * Ctor. Creat
 	 * 
 	 * @param builder
-	 *            Builder holding the needed variables for creating this
-	 *            context.
+	 *            Builder holding the needed variables for creating this context.
 	 */
 	private CommandContext(Builder builder) {
 
 		if (builder == null) {
 			throw new IllegalArgumentException("Builder can not be null.");
-		}
-
-		if (builder.serviceFactory == null) {
-			throw new IllegalArgumentException(
-					"serviceFactory can not be null.");
 		}
 
 		if (builder.zones == null) {
@@ -94,24 +76,13 @@ public final class CommandContext {
 			throw new IllegalArgumentException("zoneserver can not be null.");
 		}
 
-		this.serviceFactory = builder.serviceFactory;
 		this.zones = builder.zones;
 		this.configuration = builder.config;
 		this.server = builder.zoneserver;
 	}
 
 	/**
-	 * Returns the {@link ServiceFactory}.
-	 * 
-	 * @return ServiceFactory to create DAOs.
-	 */
-	public ServiceFactory getServiceFactory() {
-		return serviceFactory;
-	}
-
-	/**
-	 * Returns the server configuration. TODO Das in ein eigenes Configuration
-	 * object kapseln das immutable ist.
+	 * Returns the server configuration. TODO Das in ein eigenes Configuration object kapseln das immutable ist.
 	 * 
 	 * @return Configuration of the server.
 	 */
@@ -145,6 +116,15 @@ public final class CommandContext {
 	 */
 	public Zoneserver getServer() {
 		return server;
+	}
+
+	/**
+	 * Service locator for creating services and DAO.
+	 * 
+	 * @return
+	 */
+	public ServiceLocator getServiceLocator() {
+		return serviceLocator;
 	}
 
 }

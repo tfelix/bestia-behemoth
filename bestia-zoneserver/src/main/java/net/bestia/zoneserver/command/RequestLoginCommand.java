@@ -6,10 +6,10 @@ import java.util.List;
 import net.bestia.messages.BestiaInitMessage;
 import net.bestia.messages.LoginBroadcastMessage;
 import net.bestia.messages.Message;
+import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.service.AccountService;
-import net.bestia.model.service.AccountServiceManager;
 import net.bestia.zoneserver.game.zone.Entity;
 
 /**
@@ -37,8 +37,8 @@ public class RequestLoginCommand extends Command {
 	@Override
 	public void execute(Message message, CommandContext ctx) {
 		
-		AccountServiceManager accManager = ctx.getServiceFactory().getAccountServiceFactory();
-		AccountService accService = accManager.getAccountService(message.getAccountId());
+		AccountService accService = ctx.getServiceLocator().getBean(AccountService.class);
+		Account account = accService.getAccount(message.getAccountId());
 		
 
 		// TODO finalisiere und unit testen.
@@ -70,7 +70,7 @@ public class RequestLoginCommand extends Command {
 		// Create bestia entity.
 
 		// Add to the zone.
-		Entity entity = new Entity(accService.getAccountId());
+		Entity entity = new Entity(account.getId());
 		ctx.getZone(b.getCurrentPosition().getMapDbName()).addEntity(entity);
 
 

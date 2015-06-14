@@ -1,6 +1,6 @@
 package net.bestia.loginserver.authenticator;
 
-import net.bestia.model.DAOLocator;
+import net.bestia.model.ServiceLocator;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 
@@ -23,7 +23,7 @@ public class PasswordAuthenticator implements Authenticator {
 		this.username = username;
 		this.password = password;
 
-		DAOLocator locator = new DAOLocator();
+		ServiceLocator locator = new ServiceLocator();
 		this.accountDao = locator.getDAO(AccountDAO.class);
 	}
 	

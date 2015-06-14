@@ -20,7 +20,6 @@ import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.messages.Message;
-import net.bestia.model.service.HibernateServiceFactory;
 import net.bestia.model.service.MessageSender;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
@@ -129,8 +128,7 @@ public class Zoneserver {
 		
 		ServiceMessageSender sender = new ServiceMessageSender();
 		
-		cmdCtxBuilder.setConfiguration(config).setZones(zones).setZoneserver(this)
-				.setServiceFactory(new HibernateServiceFactory(sender));
+		cmdCtxBuilder.setConfiguration(config).setZones(zones).setZoneserver(this);
 		final CommandContext cmdContext = cmdCtxBuilder.build();
 
 		this.commandFactory = new CommandFactory(cmdContext);
