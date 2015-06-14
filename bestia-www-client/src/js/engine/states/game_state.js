@@ -15,7 +15,114 @@ Bestia.Engine.ClickDebounce.prototype.clicked = function() {
 
 Bestia.Engine.ClickDebounce.prototype.released = function() {
 	this.btnDown = false;
-}
+};
+
+Bestia.Engine.Entity = function(game, sprite, world) {
+	this.walkspeed = 1;
+	this.sprite = sprite;
+
+	this.game = game;
+	this.world = world;
+
+	this.path = [];
+	this.tween = game.add.tween(sprite);
+};
+
+/**
+ * Calculates the duration in ms of the total walk of the given path. Depends
+ * upon the relative walkspeed of the entity.
+ * 
+ * @private
+ * @method Bestia.Engine.Entity.#_getWalkDuration
+ * @returns Total walkspeed in ms.
+ */
+Bestia.Engine.Entity.prototype._getWalkDuration = function(length, walkspeed) {
+	// Usual walkspeed is 3 tiles / s -> 1/3 s/tile.
+	return Math.round((1 / 3) * length / walkspeed * 1000);
+
+};
+
+Bestia.Engine.Entity.prototype.moveTo = function(path) {
+	
+	this.tween = this.game.add.tween(this.sprite);
+
+	var pathX = new Array(path.length);
+	var pathY = new Array(path.length);
+	
+	var self = this;
+
+	// Calculate coordinate arrays from path.
+	path.forEach(function(ele, i) {
+		var cords = self.world.getPxXY(ele.x, ele.y);
+		pathX[i] = cords.x;
+		pathY[i] = cords.y;
+	});
+
+	// Calculate total amount of speed.
+	this.tween.to({
+		x : pathX,
+		y : pathY,
+	}, this._getWalkDuration(path.length, 1), Phaser.Easing.Linear.None, true);
+};
+
+/**
+ * Stops a current movement.
+ * 
+ * @method Bestia.Engine.Entit#stopMove
+ */
+Bestia.Engine.Entity.prototype.stopMove = function() {
+
+	this.tween.stop();
+	
+};
+
+/**
+ * API facade implementation to access various API methods which are hidden deep
+ * within the GameState. In order to use them in an unobtrusive way we
+ * encapsulate this methods behind this facade.
+ * 
+ * @constructor
+ * @class Bestia.Engine.WorldApi
+ * @param {Bestia.Engine.States.GameState}
+ *            state - GameState which we will use to provide the API.
+ */
+Bestia.Engine.WorldApi = function(state) {
+	this.state = state;
+};
+
+/**
+ * Returns the tile coordinates if world pixel are given.
+ * 
+ * @method Bestia.Engine.WorldApi#getTileXY
+ * @return {Object} - X and Y tile coordiantes in px in the form
+ * @{code {x: INT, y: INT}}.
+ */
+Bestia.Engine.WorldApi.prototype.getTileXY = function(pxX, pxY) {
+
+};
+
+/**
+ * Returns the px coordiantes if tiles x and y coordiantes are given.
+ * 
+ * @method Bestia.Engine.WorldApi#getPxXY
+ * @param {Object}
+ *            obj - Optional: Object to update with the new coordiantes.
+ * @return {Object} - X and Y px coordiantes in the form
+ * @{code {x: INT, y: INT}}.
+ */
+Bestia.Engine.WorldApi.prototype.getPxXY = function(tileX, tileY, obj) {
+	if (obj === undefined) {
+		obj = {
+			x : 0,
+			y : 0
+		};
+	}
+
+	obj.x = tileX * this.state.config.tileSize;
+	obj.y = tileY * this.state.config.tileSize;
+
+	return obj;
+};
 
 /**
  * Central game state for controlling the games logic.
@@ -64,6 +171,8 @@ Bestia.Engine.States.GameState = function(engine) {
 			align : "center"
 		}
 	};
+	
+	this._api = new Bestia.Engine.WorldApi(this);
 };
 
 Bestia.Engine.States.GameState.prototype = {
@@ -81,13 +190,13 @@ Bestia.Engine.States.GameState.prototype = {
 		this.gfxCollision.beginFill(0xFF0000, 0.5);
 
 		var map = this.game.add.tilemap('map');
-		
+
 		// Do some sanity checks.
-		if(map.tileHeight !== map.tileWidth) {
+		if (map.tileHeight !== map.tileWidth) {
 			throw "Engine does not support maps with different width and heights. Tiles must be square.";
 		}
 		this.config.tileSize = map.tileHeight;
-		
+
 		this.map = map;
 
 		// Extract map properties.
@@ -122,9 +231,9 @@ Bestia.Engine.States.GameState.prototype = {
 
 		// Draw our player.
 		this.player = this.game.add.sprite(0, 0, 'player');
-		this.player.anchor.setTo(0, 1);
-		this.player.x = 64;
-		this.player.y = 128;
+		this.player.anchor.setTo(0, 0);
+		this.movePlayer(3, 3);
+		this._playerEntity = new Bestia.Engine.Entity(this.game, this.player, this._api);
 
 		this.cursors = this.game.input.keyboard.createCursorKeys();
 		this.game.camera.follow(this.player);
@@ -169,6 +278,7 @@ Bestia.Engine.States.GameState.prototype = {
 			alpha : 0
 		}, 2000, Phaser.Easing.Linear.None, false, 2500).start();
 
+		/*
 		game.input.onDown.add(function(pointer, event) {
 
 			var start = this.groundLayer.getTileXY(this.player.x, this.player.y, {});
@@ -178,11 +288,23 @@ Bestia.Engine.States.GameState.prototype = {
 			var path = this.astar.findPath(start, goal);
 			var self = this;
 			// Start movement.
-			path.nodes.reverse().forEach(function(ele){
-				self.movePlayer(ele.x, ele.y);
-			});
+			/*
+			 * path.nodes.reverse().forEach(function(ele){
+			 * self.movePlayer(ele.x, ele.y); });
+			 
 
 			console.log(path);
+
+		}, this);*/
+		
+		game.input.onDown.add(function(pointer, event) {
+
+			var start = this.groundLayer.getTileXY(this.player.x, this.player.y, {});
+			var goal = this.groundLayer.getTileXY(this.game.input.x, this.game.input.y, {});
+			
+			var path = this.astar.findPath(start, goal);
+			// Start movement.			 
+			this._playerEntity.moveTo(path.nodes.reverse());
 
 		}, this);
 	},
@@ -226,8 +348,7 @@ Bestia.Engine.States.GameState.prototype = {
 
 		// Show the path.
 		game.debug.AStar(this.astar, 20, 20, '#ff0000');
-		
-		
+
 	},
 
 	movePlayer : function(x, y) {

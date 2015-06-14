@@ -2,7 +2,6 @@ package net.bestia.model.domain;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -11,7 +10,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -58,7 +56,7 @@ public class PlayerBestia {
 	@JsonIgnore
 	private Account owner;
 
-	@OneToOne(cascade = CascadeType.ALL, optional = false, fetch = FetchType.LAZY)
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "BESTIA_ID", nullable = false)
 	@JsonIgnore
 	private Bestia originBestia;

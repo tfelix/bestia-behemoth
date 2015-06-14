@@ -173,7 +173,7 @@ public class AccountApi {
 
 			accountDao.save(acc);
 
-			AccountLoginResponse loginResponse = new AccountLoginResponse(acc.getId(), token);
+			AccountLoginResponse loginResponse = new AccountLoginResponse(acc.getId(), acc.getName(), token);
 
 			try {
 				final String answer = mapper.writeValueAsString(loginResponse);

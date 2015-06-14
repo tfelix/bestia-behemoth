@@ -1,4 +1,4 @@
-Bestia.Engine.Entity = function(data, game) {
+Bestia.Engine.Entity2 = function(data, game) {
 
 	var self = this;
 
@@ -49,15 +49,15 @@ Bestia.Engine.Entity = function(data, game) {
 // position of this entity in px. getSizeX() and getSizeY() will also return the
 // value in px and give the size of the entity.
 
-Bestia.Engine.Entity.prototype = {
+Bestia.Engine.Entity2.prototype = {
 	get getCenterX() {
 		return 100;
 	}
 };
 
-Bestia.Engine.Entity.prototype.constructor = Bestia.Engine.Entity;
+Bestia.Engine.Entity2.prototype.constructor = Bestia.Engine.Entity;
 
-Bestia.Engine.Entity.prototype.playAnim = function(name) {
+Bestia.Engine.Entity2.prototype.playAnim = function(name) {
 	if (name === 'walk_left' || name === 'walk_left_back') {
 		this.sprite.animations.play(name);
 	}
@@ -79,11 +79,11 @@ Bestia.Engine.Entity.prototype.playAnim = function(name) {
  * @param {Object}
  *            damage - Bestia damage JSON object.
  */
-Bestia.Engine.Entity.prototype.takeDamage = function(damage) {
+Bestia.Engine.Entity2.prototype.takeDamage = function(damage) {
 
 };
 
-Bestia.Engine.Entity.preload = function() {
+Bestia.Engine.Entity2.preload = function() {
 	// ATLAS
 	this.load.atlasJSONHash('poring', 'assets/sprite/mob/poring.png', 'assets/sprite/mob/poring.json');
 };

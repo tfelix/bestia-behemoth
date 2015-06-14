@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -20,8 +21,8 @@ public class Account implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue
-	private long id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id = 0;
 	@Column(length = 32, unique = true)
 	private String email = "";
 	@Embedded
@@ -65,7 +66,7 @@ public class Account implements Serializable {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -175,7 +176,7 @@ public class Account implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
-		result = prime * result + (int) id;
+		result = prime * result +  (int)id;
 		// TODO Alle anderen Felder hashen.
 		return result;
 	}
@@ -209,6 +210,14 @@ public class Account implements Serializable {
 			throw new IllegalArgumentException("MasterBestia can not be null.");
 		}
 		this.master = masterBestia;
+	}
+
+	/**
+	 * Returns the username of the account, the name of the bestia master.
+	 * @return
+	 */
+	public String getName() {
+		return master.getName();
 	}
 
 }

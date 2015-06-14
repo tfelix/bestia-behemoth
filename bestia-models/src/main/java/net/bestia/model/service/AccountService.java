@@ -116,6 +116,7 @@ public class AccountService {
 
 		// Create the bestia.
 		PlayerBestia masterBestia = new PlayerBestia(account, origin, BaseValues.getStarterIndividualValues());
+		masterBestia.setName(mastername);
 		
 		account.setMaster(masterBestia);
 

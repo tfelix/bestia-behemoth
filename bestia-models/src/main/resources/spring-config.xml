@@ -38,7 +38,7 @@
 			<props>
 				<prop key="hibernate.dialect">${db.dialect}</prop>
 				<prop key="hibernate.show_sql">true</prop>
-				<prop key="hibernate.hbm2ddl.auto">none</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
 			</props>
 		</property>
 
@@ -46,7 +46,6 @@
 			<list>
 				<value>net.bestia.model.domain.Account</value>
 				<value>net.bestia.model.domain.Password</value>
-				<value>net.bestia.model.domain.NPCBestia</value>
 				<value>net.bestia.model.domain.Bestia</value>
 				<value>net.bestia.model.domain.PlayerBestia</value>
 			</list>

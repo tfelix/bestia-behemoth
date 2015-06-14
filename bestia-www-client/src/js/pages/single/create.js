@@ -42,7 +42,6 @@ var CreateForm = function() {
 		});
 
 		return false;
-
 	};
 
 };
