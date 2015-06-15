@@ -42,14 +42,15 @@ Bestia.Engine.Entity.prototype._getWalkDuration = function(length, walkspeed) {
 
 };
 
-Bestia.Engine.Entity.prototype.moveTo = function(path) {
-	
+Bestia.Engine.Entity.prototype.moveTo = function(path, world) {
+
 	this.tween = this.game.add.tween(this.sprite);
 
 	var pathX = new Array(path.length);
 	var pathY = new Array(path.length);
-	
+
 	var self = this;
+	self.world = world;
 
 	// Calculate coordinate arrays from path.
 	path.forEach(function(ele, i) {
@@ -73,55 +74,7 @@ Bestia.Engine.Entity.prototype.moveTo = function(path) {
 Bestia.Engine.Entity.prototype.stopMove = function() {
 
 	this.tween.stop();
-	
-};
 
-/**
- * API facade implementation to access various API methods which are hidden deep
- * within the GameState. In order to use them in an unobtrusive way we
- * encapsulate this methods behind this facade.
- * 
- * @constructor
- * @class Bestia.Engine.WorldApi
- * @param {Bestia.Engine.States.GameState}
- *            state - GameState which we will use to provide the API.
- */
-Bestia.Engine.WorldApi = function(state) {
-	this.state = state;
-};
-
-/**
- * Returns the tile coordinates if world pixel are given.
- * 
- * @method Bestia.Engine.WorldApi#getTileXY
- * @return {Object} - X and Y tile coordiantes in px in the form
- * @{code {x: INT, y: INT}}.
- */
-Bestia.Engine.WorldApi.prototype.getTileXY = function(pxX, pxY) {
-
-};
-
-/**
- * Returns the px coordiantes if tiles x and y coordiantes are given.
- * 
- * @method Bestia.Engine.WorldApi#getPxXY
- * @param {Object}
- *            obj - Optional: Object to update with the new coordiantes.
- * @return {Object} - X and Y px coordiantes in the form
- * @{code {x: INT, y: INT}}.
- */
-Bestia.Engine.WorldApi.prototype.getPxXY = function(tileX, tileY, obj) {
-	if (obj === undefined) {
-		obj = {
-			x : 0,
-			y : 0
-		};
-	}
-
-	obj.x = tileX * this.state.config.tileSize;
-	obj.y = tileY * this.state.config.tileSize;
-
-	return obj;
 };
 
 /**
@@ -154,6 +107,14 @@ Bestia.Engine.States.GameState = function(engine) {
 	this.player = null;
 
 	/**
+	 * World object holding all features and functions regarding to the "world".
+	 * 
+	 * @property {Bestia.Engine.World}
+	 * @private
+	 */
+	this._bestiaWorld = null;
+
+	/**
 	 * Holds AStar plugin reference to calculate paths of the bestias when
 	 * clicked by the user. The other bestias are controlled by the server. But
 	 * user movement will be controlled by the client.
@@ -171,8 +132,6 @@ Bestia.Engine.States.GameState = function(engine) {
 			align : "center"
 		}
 	};
-	
-	this._api = new Bestia.Engine.WorldApi(this);
 };
 
 Bestia.Engine.States.GameState.prototype = {
@@ -186,48 +145,16 @@ Bestia.Engine.States.GameState.prototype = {
 
 		var game = this.game;
 
+		// Prepare the AStar plugin.
+		// TODO dieser call evtl in die world rein.
+		this.astar = this.game.plugins.add(Phaser.Plugin.AStar);
+		
+		this._bestiaWorld = new Bestia.Engine.World(game, this.astar);
+		this._bestiaWorld.loadMap();
+		
+
 		this.gfxCollision = this.add.graphics(0, 0);
 		this.gfxCollision.beginFill(0xFF0000, 0.5);
-
-		var map = this.game.add.tilemap('map');
-
-		// Do some sanity checks.
-		if (map.tileHeight !== map.tileWidth) {
-			throw "Engine does not support maps with different width and heights. Tiles must be square.";
-		}
-		this.config.tileSize = map.tileHeight;
-
-		this.map = map;
-
-		// Extract map properties.
-		var props = map.properties;
-		props.isPVP = (props.isPVP === "true");
-
-		map.addTilesetImage('Berge', 'tiles');
-		// Ground layer MUST be present.
-		this.groundLayer = map.createLayer('layer_0');
-		this.groundLayer.resizeWorld();
-
-		// Now check how many layer there are and then create them.
-		// Get the names of all layer.
-		var layerNames = map.layers.map(function(x) {
-			return x.name;
-		});
-		for (var i = 1; i < map.layers.length; i++) {
-			var curLayer = 'layer_' + i;
-			if (layerNames.indexOf(curLayer) === -1) {
-				continue;
-			}
-			map.createLayer(curLayer);
-		}
-
-		// Iterate over all layers and pull down the collision attributes for
-		// the a* plugin.
-
-		// Prepare the AStar plugin.
-		this.astar = this.game.plugins.add(Phaser.Plugin.AStar);
-		// Namen der layer und tilesets der map einfügen.
-		this.astar.setAStarMap(map, 'Berge');
 
 		// Draw our player.
 		this.player = this.game.add.sprite(0, 0, 'player');
@@ -252,59 +179,14 @@ Bestia.Engine.States.GameState.prototype = {
 		this.game.add.sprite(160, 320, '1_F_ORIENT_01');
 		this.game.add.sprite(320, 320, '1_M_BARD');
 
-		// ========== DISPLAY MAP NAME ==============
-		var mapName = i18n.t('map.' + props.mapDbName);
-		text = this.game.add.text(this.game._width / 2, this.game._height / 2 - 100, mapName);
-		text.align = 'center';
-		text.anchor.setTo(0.5);
-		// Font style
-		text.font = 'Arial';
-		text.fontSize = 50;
-		text.fontWeight = 'bold';
-
-		// Stroke color and thickness
-		text.stroke = '#525252';
-		text.strokeThickness = 4;
-		if (props.isPVP) {
-			text.fill = '#D9B525';
-		} else {
-			text.fill = '#2ED925';
-		}
-		text.alpha = 0;
-
-		this.game.add.tween(text).to({
-			alpha : 1
-		}, 2000, Phaser.Easing.Linear.None, false, 1000).to({
-			alpha : 0
-		}, 2000, Phaser.Easing.Linear.None, false, 2500).start();
-
-		/*
 		game.input.onDown.add(function(pointer, event) {
 
-			var start = this.groundLayer.getTileXY(this.player.x, this.player.y, {});
-			var goal = this.groundLayer.getTileXY(this.game.input.x, this.game.input.y, {});
-			console.log("Tile: " + goal.x + " " + goal.y);
+			var start = this._bestiaWorld.getTileXY(this.player.x, this.player.y);
+			var goal = this._bestiaWorld.getTileXY(this.game.input.x, this.game.input.y);
 
-			var path = this.astar.findPath(start, goal);
-			var self = this;
+			var path = this._bestiaWorld.findPath(start, goal);
 			// Start movement.
-			/*
-			 * path.nodes.reverse().forEach(function(ele){
-			 * self.movePlayer(ele.x, ele.y); });
-			 
-
-			console.log(path);
-
-		}, this);*/
-		
-		game.input.onDown.add(function(pointer, event) {
-
-			var start = this.groundLayer.getTileXY(this.player.x, this.player.y, {});
-			var goal = this.groundLayer.getTileXY(this.game.input.x, this.game.input.y, {});
-			
-			var path = this.astar.findPath(start, goal);
-			// Start movement.			 
-			this._playerEntity.moveTo(path.nodes.reverse());
+			this._playerEntity.moveTo(path.nodes.reverse(), this._bestiaWorld);
 
 		}, this);
 	},
@@ -312,8 +194,6 @@ Bestia.Engine.States.GameState.prototype = {
 	update : function() {
 
 		var game = this.game;
-
-		BG.engine.info.fps(this.game.time.fps);
 
 		var cursors = this.cursors;
 		// For example this checks if the up or down keys are pressed and moves
@@ -327,6 +207,11 @@ Bestia.Engine.States.GameState.prototype = {
 		} else if (cursors.right.isDown) {
 			this.player.x += 32;
 		}
+
+		// Check if we have to render the debug display.
+		if (this.engine.config.debug()) {
+			this._updateDebug();
+		}
 	},
 
 	render : function() {
@@ -334,16 +219,28 @@ Bestia.Engine.States.GameState.prototype = {
 
 		// Check if we have to render the debug display.
 		if (this.engine.config.debug()) {
-			this.renderDebug();
+			this._renderDebug();
 		}
+	},
+
+	/**
+	 * Updates all needed debug information. Only called if debug is enabled.
+	 * 
+	 * @method Bestia.Engine.States.GameState#updateDebug
+	 * @private
+	 */
+	_updateDebug : function() {
+		// Das hier noch irgendwie anpassen.
+		BG.engine.info.fps(this.game.time.fps);
 	},
 
 	/**
 	 * Renders all the debug information.
 	 * 
 	 * @method Bestia.Engine.States.GameState#renderDebug
+	 * @private
 	 */
-	renderDebug : function() {
+	_renderDebug : function() {
 		var game = this.game;
 
 		// Show the path.
@@ -357,9 +254,12 @@ Bestia.Engine.States.GameState.prototype = {
 	},
 
 	updateMarker : function() {
+		
+		var cords = this._bestiaWorld.getTileXY(this.game.input.activePointer.worldX, this.game.input.activePointer.worldY);
+		this._bestiaWorld.getPxXY(cords.x, cords.y, cords);
 
-		this.marker.x = this.groundLayer.getTileX(this.game.input.activePointer.worldX) * 32;
-		this.marker.y = this.groundLayer.getTileY(this.game.input.activePointer.worldY) * 32;
+		this.marker.x = cords.x;
+		this.marker.y = cords.y;
 
 	},
 
