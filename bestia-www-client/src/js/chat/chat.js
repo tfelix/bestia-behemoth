@@ -13,23 +13,29 @@ function strStartsWith(str, start) {
  * provide chat functionality to the user.
  * 
  * @class Bestia.Chat
+ * @param {DOMElement}
+ *            domEle - DOM element of the chat. Should have all the needed
+ *            classes of a chat set.
  * @param {BestiaGame}
  *            game - An instance to the central bestia game object.
  * @param {String}
  *            localNickname - How the players account is called to display the
  *            correct name in the echo messages.
  */
-Bestia.Chat = function(game, localNickname) {
+Bestia.Chat = function(domEle, game, localNickname) {
 	var self = this;
 
 	/**
 	 * Number of max messages until old messages are discarded.
 	 * 
 	 * @property
-	 * @contant
+	 * @constant
 	 */
 	this.MAX_MESSAGES = 50;
 	this.localNickname = localNickname;
+
+	this.domEle = domEle;
+	this.chatEle = $(domEle).find('.chat-msgs:first').get(0);
 
 	/**
 	 * Array list of local commands. Commands can register themselve to this
@@ -70,9 +76,18 @@ Bestia.Chat = function(game, localNickname) {
 	this.messages = ko.observableArray();
 
 	/**
+	 * Flag if the chat as unread messages for the user at the bottom of the
+	 * display.
+	 * 
+	 * @property {boolean}
+	 */
+	this.hasUnreadMessages = ko.observable(false);
+
+	/**
 	 * Holds the text of the chat.
 	 */
 	this.text = ko.observable('');
+
 	// Check for constant updates to this value e.g. if the user is typing
 	// to this property. react to certain inputs on the fly.
 	this.text.subscribe(function(newValue) {
@@ -80,7 +95,7 @@ Bestia.Chat = function(game, localNickname) {
 	});
 
 	// Register all local command handler.
-	
+
 	$.each(Bestia.Chat.Commands, function(key, Command) {
 		// BasicCommand is kind of a abstract placeholder. It has no use. Skip
 		// it.
@@ -140,14 +155,46 @@ Bestia.Chat.prototype.changeMode = function(mode) {
 
 /**
  * Adds a message to the chat model. Message is from the server and therefore a
- * server object.
+ * server object. If scrolled to bottom stays at bottom. If not display a
+ * notification that there are new messages waiting.
+ * 
+ * @method Bestia.Chat#addMessage
+ * @param {Bestia.ChatMessage}
+ *            msg - Chat message to add to the display.
+ * @public
  */
 Bestia.Chat.prototype.addMessage = function(msg) {
+
+	var scrollBottom = false;
+	var scrollPos = this.chatEle.scrollTop + this.chatEle.clientHeight;
+	// Check bottom.
+	if (scrollPos === this.chatEle.scrollHeight) {
+		scrollBottom = true;
+	}
+
 	this.messages.push(new Bestia.ChatMessage(msg));
 
 	if (this.messages().length > this.MAX_MESSAGES) {
 		this.messages.shift();
 	}
+
+	if (scrollBottom) {
+		this.scrollToBottom();
+	} else {
+		this.hasUnreadMessages(true);
+	}
+};
+
+/**
+ * Scrolls to the latest messages in the chat and sets the flag
+ * {@code hasUnreadMessages} to false.
+ * 
+ * @method Bestia.Chat#scrollToBottom
+ * @public
+ */
+Bestia.Chat.prototype.scrollToBottom = function() {
+	this.chatEle.scrollTop = this.chatEle.scrollHeight;
+	this.hasUnreadMessages(false);
 };
 
 /**

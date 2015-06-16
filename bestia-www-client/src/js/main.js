@@ -6,7 +6,7 @@ function bootstrap() {
 	var net = new Bestia.Net(config);
 	var inventory = new Bestia.Inventory(net);
 	var bestias = new Bestia.BestiaInfoViewModel(net);
-	var chat = new Bestia.Chat(BG, 'rocket');
+	var chat = new Bestia.Chat($('#chat'), BG, 'rocket');
 	var engine = new Bestia.Engine(config);
 
 	BG.config = config;
@@ -275,8 +275,9 @@ function simulate() {
 
 	for (var i = 0; i < msgs.length; i++) {
 		var msg = msgs[i];
-		//Bestia.publish('chat.message', msg);
-		//Bestia.publish('chat.message', msg);
+		Bestia.publish('chat.message', msg);
+		Bestia.publish('chat.message', msg);
+		Bestia.publish('chat.message', msg);
 	}
 }
 
