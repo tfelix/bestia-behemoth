@@ -50,6 +50,26 @@ Bestia.Message = {
 	},
 
 	/**
+	 * Tells the server to move the bestia to a certain spot on the map.
+	 */
+	BestiaMove : function(path, walkspeed) {
+		this.mid = 'bestia.move';
+		
+		// Generate the path arrays.
+		var pX = new Array(path.length);
+		var pY = new Array(path.length);
+		
+		path.forEach(function(ele, i){
+			pX[i] = ele.x;
+			pY[i] = ele.y;
+		});
+		
+		this.pX = pX;
+		this.pY = pY;
+		this.w = walkspeed;
+	},
+
+	/**
 	 * Requests a complete sync with the inventory from the server.
 	 */
 	InventoryRequest : function() {

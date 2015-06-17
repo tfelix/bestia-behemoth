@@ -182,7 +182,7 @@ Bestia.Engine.States.GameState.prototype = {
 		game.input.onDown.add(function(pointer, event) {
 
 			var start = this._bestiaWorld.getTileXY(this.player.x, this.player.y);
-			var goal = this._bestiaWorld.getTileXY(this.game.input.x, this.game.input.y);
+			var goal = this._bestiaWorld.getTileXY(this.game.input.worldX, this.game.input.worldY);
 
 			var path = this._bestiaWorld.findPath(start, goal);
 			// Start movement.
