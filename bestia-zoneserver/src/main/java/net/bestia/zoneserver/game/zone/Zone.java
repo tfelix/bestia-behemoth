@@ -14,18 +14,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-
-
-
-
-
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.game.zone.entity.QuadTree2;
 import net.bestia.zoneserver.game.zone.map.Map;
 
 /**
- * The Zone holds the static mapdata as well is responsible for managing
- * entities, actors, scripts etc.
+ * The Zone holds the static mapdata as well is responsible for managing entities, actors, scripts etc.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -55,19 +49,18 @@ public class Zone {
 	private final ReadWriteLock observerLock = new ReentrantReadWriteLock();
 
 	private final java.util.Map<Long, Entity> entities;
-	//private final QuadTree2 tree;
+	// private final QuadTree2 tree;
 	private final java.util.Map<Event, Set<Entity>> observer;
 
 	public Zone(BestiaConfiguration config, String name, Map map) {
 
-		executor = Executors.newScheduledThreadPool(Integer.parseInt(config
-				.getProperty("zoneThreads")));
+		executor = Executors.newScheduledThreadPool(Integer.parseInt(config.getProperty("zoneThreads")));
 
 		this.map = map;
 		this.name = name;
 
-		//Dimension dimen = map.getDimension();
-		//tree = new QuadTree2(0, 0, dimen.getWidth(), dimen.getHeight());
+		// Dimension dimen = map.getDimension();
+		// tree = new QuadTree2(0, 0, dimen.getWidth(), dimen.getHeight());
 		entities = new HashMap<Long, Entity>();
 
 		observer = new EnumMap<Event, Set<Entity>>(Event.class);
@@ -101,7 +94,7 @@ public class Zone {
 		entities.put(entity.getId(), entity);
 		for (int y = cords.y; y < cords.y + shape.getHeight(); y++) {
 			for (int x = cords.x; x < cords.x + shape.getWidth(); x++) {
-				//tree.remove(x, y);
+				// tree.remove(x, y);
 			}
 		}
 		entityLock.writeLock().unlock();
@@ -123,13 +116,13 @@ public class Zone {
 		entities.remove(entity.getId());
 		for (int y = cords.y; y < cords.y + shape.getHeight(); y++) {
 			for (int x = cords.x; x < cords.x + shape.getWidth(); x++) {
-				//tree.remove(x, y);
+				// tree.remove(x, y);
 			}
 		}
 		entityLock.writeLock().unlock();
 
 	}
-	
+
 	// TODO das hier mit einer richtigen implementierung austauschen.
 	private List<Entity> temp = new ArrayList<>();
 
@@ -140,7 +133,7 @@ public class Zone {
 	 */
 	public void addEntity(Entity entity) {
 		// Add the entity into the quad tree and hashmap.
-		//registerEntity(entity);
+		// registerEntity(entity);
 		temp.add(entity);
 
 		// Call the script trigger of the new entity.
@@ -149,13 +142,29 @@ public class Zone {
 
 		// Notify every observer in range... (must be done here?)
 	}
-	
-	/*public Entity getEntity(long id) {
+
+	/*
+	 * public Entity getEntity(long id) {
+	 * 
+	 * }
+	 */
+
+	/**
+	 * Returns all entities located around a given entity id and within a given range. The choosen center entity with ID
+	 * is not included. TODO Hier muss man noch klären wie genau der Identifier aussieht.
+	 * 
+	 * @param id
+	 *            Entity ID.
+	 * @param range
+	 *            Range in tiles of which entites to include.
+	 * @return A collection of entities.
+	 */
+	public Collection<Entity> getEntities(long id, int range) {	
+		List<Entity> entities = new ArrayList<>(temp);
 		
-	}*/
-	
-	public Collection<Entity> getEntities(long id, int range) {
-		return temp;
+		entities.removeIf((x) -> x.accountId == id);
+		
+		return entities;
 	}
 
 	/**
@@ -177,8 +186,7 @@ public class Zone {
 	}
 
 	/**
-	 * Removes the observing entity from all listeners. MUST be called if the
-	 * entity gets removed.
+	 * Removes the observing entity from all listeners. MUST be called if the entity gets removed.
 	 * 
 	 * @param entity
 	 */
@@ -227,27 +235,19 @@ public class Zone {
 	public boolean isWalkable(Point cords) {
 		boolean baseWalk = map.isWalkable(cords);
 
-		/*entityLock.readLock().lock();
-		List<Entity> entities = tree.get(cords);
-		for (Entity ent : entities) {
-			if (!ent.isColliding()) {
-				continue;
-			}
-			if (ent.getCollision().collide(cords)) {
-				baseWalk = false;
-				break;
-			}
-		}
-		entityLock.readLock().unlock();*/
+		/*
+		 * entityLock.readLock().lock(); List<Entity> entities = tree.get(cords); for (Entity ent : entities) { if
+		 * (!ent.isColliding()) { continue; } if (ent.getCollision().collide(cords)) { baseWalk = false; break; } }
+		 * entityLock.readLock().unlock();
+		 */
 
-		//return baseWalk;
+		// return baseWalk;
 		return true;
 	}
 
 	/**
-	 * Returns the given walkspeed for a given tile. The walkspeed is fixed
-	 * point 1000 means 1.0, 500 means 0.5 and so on. If the tile is not
-	 * walkable at all 0 will be returned.
+	 * Returns the given walkspeed for a given tile. The walkspeed is fixed point 1000 means 1.0, 500 means 0.5 and so
+	 * on. If the tile is not walkable at all 0 will be returned.
 	 * 
 	 * @param cords
 	 * @return
