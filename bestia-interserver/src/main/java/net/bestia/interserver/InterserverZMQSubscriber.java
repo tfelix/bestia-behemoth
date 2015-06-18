@@ -42,7 +42,8 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 			while (isRunning.get()) {
 				log.trace("Listening to messages...");
 				try {
-					String topic = subscriber.recvStr();
+					// Receive the topic name. Throw it away we only need data.
+					subscriber.recvStr();
 					byte[] data = subscriber.recv();
 					log.trace("Received message of {} byte.", data.length);
 					Message msg = (Message) ObjectSerializer.deserializeObject(data);
@@ -62,6 +63,16 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 	private final InterserverMessageHandler listener;
 	private final MessageConsumerThread thread;
 
+	/**
+	 * Creates a subscriber for a ZMQ socket.
+	 * 
+	 * @param listener
+	 *            Handler to be called when an messages is incoming.
+	 * @param url
+	 *            URL to connect to.
+	 * @param ctx
+	 *            ZMQ context to create the socket.
+	 */
 	public InterserverZMQSubscriber(InterserverMessageHandler listener, String url, Context ctx) {
 		subscriber = ctx.socket(ZMQ.SUB);
 
