@@ -10,6 +10,10 @@
 		<artifactId>behemoth</artifactId>
 		<version>0.1.0-SNAPSHOT</version>
 	</parent>
+	
+	<properties>
+		<artemis.version>0.9.0</artemis.version>
+	</properties>
 
 	<dependencies>
 		<dependency>
@@ -35,7 +39,7 @@
 		<dependency>
 			<groupId>net.onedaybeard.artemis</groupId>
 			<artifactId>artemis-odb</artifactId>
-			<version>0.9.0</version>
+			<version>${artemis.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>map-tmxloader</groupId>
@@ -50,6 +54,11 @@
 		<dependency>
 			<groupId>net.bestia</groupId>
 			<artifactId>bestia-models</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.bestia</groupId>
+			<artifactId>bestia-messages</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -78,8 +87,13 @@
 					<groupId>de.juplo</groupId>
 					<artifactId>hibernate4-maven-plugin</artifactId>
 					<version>1.0.5</version>
-					<!-- <executions> <execution> <goals> <goal>export</goal> </goals> </execution> 
-						</executions> -->
+					<executions>
+						<execution>
+							<goals>
+								<goal>export</goal>
+							</goals>
+						</execution>
+					</executions>
 					<configuration>
 						<url><![CDATA[${db.url}]]></url>
 						<hibernateDialect>${db.dialect}</hibernateDialect>
@@ -89,5 +103,19 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>net.onedaybeard.artemis</groupId>
+				<artifactId>artemis-odb-maven-plugin</artifactId>
+				<version>${artemis.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>matrix</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
 	</build>
 </project>

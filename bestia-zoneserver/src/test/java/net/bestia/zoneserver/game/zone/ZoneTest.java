@@ -16,7 +16,6 @@ import org.mockito.stubbing.Answer;
 
 import static org.mockito.Mockito.*;
 import net.bestia.util.BestiaConfiguration;
-import net.bestia.zoneserver.game.zone.Zone.Event;
 import net.bestia.zoneserver.game.zone.map.Map;
 
 public class ZoneTest {
@@ -53,7 +52,7 @@ public class ZoneTest {
 	}
 
 	private Zone getZone() {
-		return new Zone(getTestProp(), ZONE_NAME, getTestMap());
+		return new Zone(getTestProp(), getTestMap());
 	}
 
 	@Test
@@ -76,57 +75,6 @@ public class ZoneTest {
 	}
 
 	@Test
-	public void addObserver_test() {
-		Zone z = getZone();
-
-		Entity e1 = mock(Entity.class);
-		Entity e2 = mock(Entity.class);
-
-		z.addObserver(Event.ON_ENTITY_SPAWN, e1);
-		z.addEntity(e2);
-
-		verify(e1).onEntitySpawn(eq(e2));
-
-	}
-
-	@Test
-	public void removeObserver_test() {
-
-		Zone z = getZone();
-
-		Entity e1 = mock(Entity.class);
-		Entity e2 = mock(Entity.class);
-
-		z.addObserver(Event.ON_ENTITY_SPAWN, e1);
-		z.removeObserver(e1);
-		z.addEntity(e2);
-		verify(e1, times(0)).onEntitySpawn(eq(e2));
-
-		z.removeObserver(e1);
-	}
-
-	@Test
-	public void removeObserverWithoutAdding_test() {
-		Zone z = getZone();
-		Entity e1 = mock(Entity.class);
-		z.removeObserver(e1);
-	}
-
-	@Test
-	public void removeEntityWhileObserving_test() {
-		Zone z = getZone();
-
-		Entity e1 = mock(Entity.class);
-		Entity e2 = mock(Entity.class);
-
-		z.addObserver(Event.ON_ENTITY_SPAWN, e1);
-		z.removeEntity(e1);
-		z.addEntity(e2);
-
-		//verify(e1, times(0)).onEntitySpawn(any());
-	}
-
-	@Test
 	public void isWalkable_test() {
 		Zone z = getZone();
 		Assert.assertEquals(ZONE_NAME, z.getName());
@@ -137,18 +85,6 @@ public class ZoneTest {
 
 	}
 
-	@Test
-	public void hasEntity_test() {
-		Zone z = getZone();
-
-		Entity e1 = mock(Entity.class);
-		when(e1.getId()).thenReturn(new Long(1));
-
-		z.addEntity(e1);
-		
-		Assert.assertTrue(z.hasEntity(e1));
-		Assert.assertTrue(z.hasEntity(e1.getId()));
-	}
 
 	@Test
 	public void countEntities_test() {

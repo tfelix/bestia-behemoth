@@ -7,7 +7,10 @@ import java.util.List;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import com.artemis.World;
+
 import net.bestia.util.BestiaConfiguration;
+import net.bestia.zoneserver.ecs.system.MovementSystem;
 import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.game.zone.map.Map;
 
@@ -33,6 +36,9 @@ public class Zone {
 
 	private final String name;
 	private final Map map;
+	
+	// EC System.
+	private final World world;
 
 	/**
 	 * Lock for modifying the entity storages tree and entities.
@@ -42,6 +48,14 @@ public class Zone {
 	public Zone(BestiaConfiguration config, Map map) {
 		this.map = map;
 		this.name = map.getMapDbName();
+		
+		// Initialize ECS.
+		this.world = new World();
+		// Set all the managers.
+		
+		// Set all the systems.
+		this.world.setSystem(new MovementSystem());
+		this.world.initialize();
 	}
 
 	// =================== START GETTER AND SETTER =====================
