@@ -10,6 +10,7 @@
 	<modules>
 		<module>bestia-conf</module>
 		<module>bestia-models</module>
+		<module>bestia-messages</module>
 		<module>bestia-zoneserver</module>
 		<module>bestia-interserver</module>
 		<module>bestia-webserver</module>
