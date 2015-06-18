@@ -2,20 +2,13 @@ package net.bestia.zoneserver.game.zone;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.bestia.util.BestiaConfiguration;
-import net.bestia.zoneserver.game.zone.entity.QuadTree2;
+import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.game.zone.map.Map;
 
 /**
@@ -26,15 +19,17 @@ import net.bestia.zoneserver.game.zone.map.Map;
  */
 public class Zone {
 
-	public enum Event {
-		ON_ENTITY_SPAWN
+	private class PlayerEntity {
+		public final PlayerBestiaManager playerBestiaManager;
+		public final com.artemis.Entity entity;
+		
+		public PlayerEntity(PlayerBestiaManager pbManager, com.artemis.Entity entity) {	
+			this.playerBestiaManager = pbManager;
+			this.entity = entity;			
+		}
 	}
-
-	public interface ZoneObserver {
-
-	}
-
-	private final ScheduledExecutorService executor;
+	
+	private final HashMap<Long, List<PlayerEntity>> playerEntities = new HashMap<>();
 
 	private final String name;
 	private final Map map;
@@ -43,27 +38,10 @@ public class Zone {
 	 * Lock for modifying the entity storages tree and entities.
 	 */
 	private final ReadWriteLock entityLock = new ReentrantReadWriteLock();
-	/**
-	 * Lock for modifying the observer lists.
-	 */
-	private final ReadWriteLock observerLock = new ReentrantReadWriteLock();
 
-	private final java.util.Map<Long, Entity> entities;
-	// private final QuadTree2 tree;
-	private final java.util.Map<Event, Set<Entity>> observer;
-
-	public Zone(BestiaConfiguration config, String name, Map map) {
-
-		executor = Executors.newScheduledThreadPool(Integer.parseInt(config.getProperty("zoneThreads")));
-
+	public Zone(BestiaConfiguration config, Map map) {
 		this.map = map;
-		this.name = name;
-
-		// Dimension dimen = map.getDimension();
-		// tree = new QuadTree2(0, 0, dimen.getWidth(), dimen.getHeight());
-		entities = new HashMap<Long, Entity>();
-
-		observer = new EnumMap<Event, Set<Entity>>(Event.class);
+		this.name = map.getMapDbName();
 	}
 
 	// =================== START GETTER AND SETTER =====================
@@ -79,49 +57,6 @@ public class Zone {
 
 	// ===================== END GETTER AND SETTER =====================
 
-	/**
-	 * Adds the entity to the holding structures.
-	 * 
-	 * @param entity
-	 *            Entity to register/add.
-	 */
-	private void registerEntity(Entity entity) {
-
-		final Point cords = entity.getLocation();
-		final Dimension shape = entity.getBoundingBox();
-
-		entityLock.writeLock().lock();
-		entities.put(entity.getId(), entity);
-		for (int y = cords.y; y < cords.y + shape.getHeight(); y++) {
-			for (int x = cords.x; x < cords.x + shape.getWidth(); x++) {
-				// tree.remove(x, y);
-			}
-		}
-		entityLock.writeLock().unlock();
-
-	}
-
-	/**
-	 * Removes the entity to the holding structures.
-	 * 
-	 * @param entity
-	 *            Entity to unregister/remove.
-	 */
-	private void unregisterEntity(Entity entity) {
-
-		final Point cords = entity.getLocation();
-		final Dimension shape = entity.getBoundingBox();
-
-		entityLock.writeLock().lock();
-		entities.remove(entity.getId());
-		for (int y = cords.y; y < cords.y + shape.getHeight(); y++) {
-			for (int x = cords.x; x < cords.x + shape.getWidth(); x++) {
-				// tree.remove(x, y);
-			}
-		}
-		entityLock.writeLock().unlock();
-
-	}
 
 	// TODO das hier mit einer richtigen implementierung austauschen.
 	private List<Entity> temp = new ArrayList<>();
@@ -167,39 +102,7 @@ public class Zone {
 		return entities;
 	}
 
-	/**
-	 * Registers a observer to the zone.
-	 * 
-	 * @param entity
-	 */
-	public void addObserver(Event event, Entity entity) {
 
-		observerLock.writeLock().lock();
-
-		if (!observer.containsKey(event)) {
-			observer.put(event, new HashSet<Entity>());
-		}
-		observer.get(entity).add(entity);
-
-		observerLock.writeLock().unlock();
-
-	}
-
-	/**
-	 * Removes the observing entity from all listeners. MUST be called if the entity gets removed.
-	 * 
-	 * @param entity
-	 */
-	public void removeObserver(Entity entity) {
-
-		observerLock.writeLock().lock();
-
-		for (Set<Entity> obs : observer.values()) {
-			obs.remove(entity);
-		}
-
-		observerLock.writeLock().unlock();
-	}
 
 	private void notifyObserver() {
 
@@ -220,7 +123,6 @@ public class Zone {
 		// TODO Call the script trigger of the entity.
 
 		// Remove the entity into the quad tree.
-		unregisterEntity(entity);
 
 		// TODO Notify every observer in range... (must be done here?)
 	}
@@ -264,43 +166,5 @@ public class Zone {
 		// TODO modify the baseSpeed by entities.
 
 		return baseSpeed;
-	}
-
-	/**
-	 * Checks if the {@link Entity} is living inside this zone.
-	 * 
-	 * @param id
-	 *            Id of the entity.
-	 * @return TRUE if the Entity is active. FALSE otherwise.
-	 */
-	public boolean hasEntity(Long id) {
-		entityLock.readLock().lock();
-		boolean hasEntity = entities.containsKey(id);
-		entityLock.readLock().unlock();
-		return hasEntity;
-	}
-
-	/**
-	 * @see #hasEntity(Long)
-	 * 
-	 * @param Entity
-	 *            Entity to look up.
-	 * @return TRUE if the Entity is active. FALSE otherwise.
-	 */
-	public boolean hasEntity(Entity entity) {
-		return hasEntity(entity.getId());
-	}
-
-	/**
-	 * Returns the number of entities currently managed by this zone.
-	 * 
-	 * @return Number of active entities.
-	 */
-	public int countEntities() {
-		final int numEntities;
-		entityLock.readLock().lock();
-		numEntities = entities.size();
-		entityLock.readLock().unlock();
-		return numEntities;
 	}
 }

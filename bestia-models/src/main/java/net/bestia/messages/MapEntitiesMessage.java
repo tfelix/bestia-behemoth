@@ -1,6 +1,5 @@
-package net.bestia.messages.map;
+package net.bestia.messages;
 
-import net.bestia.messages.Message;
 
 /**
  * This message contains a list of (visible) entities around a player. These

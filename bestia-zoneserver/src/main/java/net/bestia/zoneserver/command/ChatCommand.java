@@ -33,7 +33,7 @@ class ChatCommand extends Command {
 		Account acc = ctx.getServiceLocator().getBean(AccountDAO.class).find(m.getAccountId());
 
 		// Set the username of the message to this player.
-		m.setSenderNickname("rocket");
+		m.setSenderNickname(acc.getName());
 
 		// Get the location of the current active bestia.
 		String location = "test-zone1";

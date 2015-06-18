@@ -33,15 +33,15 @@
 			<version>0.9.9</version>
 		</dependency>
 		<dependency>
-			<groupId>com.badlogicgames.ashley</groupId>
-			<artifactId>ashley</artifactId>
-			<version>1.5.0</version>
+			<groupId>net.onedaybeard.artemis</groupId>
+			<artifactId>artemis-odb</artifactId>
+			<version>0.9.0</version>
 		</dependency>
 		<dependency>
 			<groupId>map-tmxloader</groupId>
 			<artifactId>map-tmxloader</artifactId>
 			<version>1.0</version>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>net.bestia</groupId>
 			<artifactId>bestia-config</artifactId>

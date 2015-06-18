@@ -63,6 +63,8 @@ public class PlayerBestia {
 
 	private int curHp;
 	private int curMana;
+	
+	private int level;
 
 	/**
 	 * Override the names because the are the same like in status points. Both entities are embedded so we need
@@ -173,8 +175,28 @@ public class PlayerBestia {
 		return individualValue;
 	}
 
-	public BaseValues getEffortValue() {
+	public BaseValues getEffortValues() {
 		return effortValues;
+	}
+	
+	public int getLevel() {
+		return level;
+	}
+	
+	public void setLevel(int level) {
+		this.level = level;
+	}
+	
+	public Bestia getOrigin() {
+		return originBestia;
+	}
+	
+	public BaseValues getBaseValues() {
+		return originBestia.getBaseValues();
+	}
+	
+	public Account getOwner() {
+		return owner;
 	}
 
 	public int getId() {

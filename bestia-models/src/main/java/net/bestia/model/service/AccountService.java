@@ -33,7 +33,7 @@ public class AccountService {
 	private BestiaDAO bestiaDao;
 
 	public enum Master {
-		/*
+		/**
 		 * DPS starter class.
 		 */
 		FIGHTER,

@@ -1,10 +1,11 @@
-package net.bestia.model.service;
+package net.bestia.zoneserver.game.manager;
 
 import javax.persistence.Transient;
 
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.zoneserver.Zoneserver;
 
 /**
  * Simple basic service for bestias. It is abstract because
@@ -14,17 +15,20 @@ import net.bestia.model.domain.StatusPoints;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public abstract class BestiaService {
-	
+public abstract class BestiaManager {
 	
 	private Bestia bestia;
-	protected boolean isDead;
+	final private Zoneserver server;
 	
-	public BestiaService(Bestia bestia, MessageSender server) {
-
+	public BestiaManager(Bestia bestia, Zoneserver server) {
 		if(bestia == null) {
 			throw new IllegalArgumentException("Bestia can not be null.");
 		}
+		if (server == null) {
+			throw new IllegalArgumentException("Zoneserver can not be null.");
+		}
+
+		this.server = server;
 		this.bestia = bestia;
 	}
 	
@@ -33,17 +37,6 @@ public abstract class BestiaService {
 	 */
 	public abstract void kill();
 	
-	/**
-	 * Returns a boolean value if the bestia was dead or not. This can be used to
-	 * stop an ongoing battle if one of the bestias were defeated. (Once they are killed
-	 * their hp is set to 1 thus it can not be checked with the HP alone if a bestia
-	 * was killed by enemy damage.)
-	 * 
-	 * @return Bool flag if the bestia was dead or not.
-	 */
-	public boolean isDead() {
-		return isDead;
-	}
 	
 	/**
 	 * Return the CHANGED status value of the bestia. This includes changes from equipment and
@@ -71,11 +64,6 @@ public abstract class BestiaService {
 	 */
 	public void clearStatusEffects() {
 		return;
-	}
-	
-	public StatusPoints getOriginalStatus() {
-		//return bestia.getStatusPoints();
-		return null;
 	}
 }
 

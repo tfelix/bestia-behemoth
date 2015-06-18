@@ -123,8 +123,16 @@ public class Bestia {
 		effortValues.setSpd(evSpd);
 	}
 
+	/**
+	 * Calculates the status points of the bestias based on their base values. They get a small boost instead of regular
+	 * player bestias to compensate for equipment..
+	 */
 	private void calculateStatusPoints() {
 
+	}
+
+	public BaseValues getBaseValues() {
+		return baseValues;
 	}
 
 	public String getImage() {

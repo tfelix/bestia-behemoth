@@ -2,7 +2,7 @@ package net.bestia.messages;
 
 /**
  * Signals a logout from an account by whatsoever means. Zones can react then to this logout and deal with pending
- * entites.
+ * entities.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *

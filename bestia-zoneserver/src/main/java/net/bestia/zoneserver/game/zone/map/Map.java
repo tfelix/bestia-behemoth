@@ -21,6 +21,7 @@ public class Map {
 		}
 	}
 
+	private String mapDbName;
 	private String tileset;
 	private Dimension dimensions;
 	private java.util.Map<Point, Tile> tiles = new HashMap<>();
@@ -53,6 +54,10 @@ public class Map {
 		}
 
 		return tiles.get(cords).getWalkspeed();
+	}
+	
+	public String getMapDbName() {
+		return mapDbName;
 	}
 
 	/**

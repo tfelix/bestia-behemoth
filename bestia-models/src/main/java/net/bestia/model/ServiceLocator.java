@@ -1,7 +1,5 @@
 package net.bestia.model;
 
-import net.bestia.model.service.AccountService;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -17,6 +15,10 @@ public class ServiceLocator {
 
 	private static final ApplicationContext context = new ClassPathXmlApplicationContext("/spring-config.xml");
 	
+	/**
+	 * @Deprecated Use getBean
+	 */	
+	@Deprecated
 	public <T> T getDAO(Class<T> type) {
 		return context.getBean(type);
 	}

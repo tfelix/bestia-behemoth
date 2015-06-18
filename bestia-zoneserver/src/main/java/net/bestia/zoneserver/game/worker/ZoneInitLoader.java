@@ -59,7 +59,7 @@ public class ZoneInitLoader {
 				Maploader loader = new TMXMaploader(config.getMapfile(zoneName));
 				Map.Mapbuilder builder = new Mapbuilder();
 				Map map = builder.build(loader);
-				Zone z = new Zone(config, zoneName, map);
+				Zone z = new Zone(config, map);
 				loadedZones.add(z);
 
 			}

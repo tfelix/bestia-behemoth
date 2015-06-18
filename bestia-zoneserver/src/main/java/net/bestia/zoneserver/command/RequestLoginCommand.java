@@ -39,6 +39,7 @@ public class RequestLoginCommand extends Command {
 		
 		AccountService accService = ctx.getServiceLocator().getBean(AccountService.class);
 		Account account = accService.getAccount(message.getAccountId());
+
 		
 
 		// TODO finalisiere und unit testen.

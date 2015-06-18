@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ChatEchoMessage extends Message {
 	
+	private static final long serialVersionUID = 1L;
+
 	public enum EchoCode {
 		OK,
 		ERROR,

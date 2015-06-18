@@ -5,10 +5,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -20,7 +22,8 @@ import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.messages.Message;
-import net.bestia.model.service.MessageSender;
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
@@ -29,6 +32,8 @@ import net.bestia.zoneserver.game.zone.Zone;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.artemis.Entity;
 
 /**
  * This is the central game server instance. Upon start it will read all designated maps parse them, instance all needed
@@ -56,6 +61,27 @@ public class Zoneserver {
 		}
 		VERSION = version;
 	}
+	
+	private class AccountEntities {
+		
+		private final Account account;
+		private final List<Entity> accountEntities = new ArrayList<>();
+		
+		public AccountEntities(Account account, List<Entity> entities) {
+			this.account = account;
+			this.accountEntities.addAll(entities);
+		}
+		
+		public Account getAccount() {
+			return account;
+		}
+		
+		public List<Entity> getEntities() {
+			return accountEntities;
+		}	
+	}
+	
+	
 
 	private class InterserverHandler implements InterserverMessageHandler {
 
@@ -68,36 +94,25 @@ public class Zoneserver {
 			commandExecutor.execute(cmd);
 		}
 	}
-	
-	private class ServiceMessageSender implements MessageSender {
-
-		@Override
-		public void sendMessage(Message message) {
-			try {
-				interserverPublisher.publish(message);
-			} catch (IOException e) {
-				log.error("Can not send message.", e);
-			}
-		}
-		
-	}
 
 	private final String name;
 	private final BestiaConfiguration config;
 	private final AtomicBoolean isRunning = new AtomicBoolean(false);
-	private final InterserverHandler interserverHandler = new InterserverHandler();
 
+	private final InterserverHandler interserverHandler = new InterserverHandler();
 	private final InterserverSubscriber interserverSubscriber;
 	private final InterserverPublisher interserverPublisher;
 
 	private final CommandFactory commandFactory;
 	private final ExecutorService commandExecutor;
+	private final CommandContext commandContext;
+	
+	private final HashMap<Long, AccountEntities> accountEntities = new HashMap<>();
 
 	/**
 	 * List of zones for which this server is responsible.
 	 */
 	private final Map<String, Zone> zones = new HashMap<>();
-
 	private final Set<String> responsibleZones;
 
 	/**
@@ -125,13 +140,12 @@ public class Zoneserver {
 
 		// Create a command context.
 		final CommandContext.Builder cmdCtxBuilder = new CommandContext.Builder();
-		
-		ServiceMessageSender sender = new ServiceMessageSender();
-		
-		cmdCtxBuilder.setConfiguration(config).setZones(zones).setZoneserver(this);
-		final CommandContext cmdContext = cmdCtxBuilder.build();
 
-		this.commandFactory = new CommandFactory(cmdContext);
+		cmdCtxBuilder.setConfiguration(config).setZones(zones).setZoneserver(this);
+		commandContext = cmdCtxBuilder.build();
+
+
+		this.commandFactory = new CommandFactory(commandContext);
 		this.commandExecutor = Executors.newFixedThreadPool(1);
 
 		final String interUrl = config.getProperty("inter.domain");
@@ -151,6 +165,16 @@ public class Zoneserver {
 		zones.addAll(Arrays.asList(zoneStrings));
 
 		this.responsibleZones = Collections.unmodifiableSet(zones);
+	}
+
+	/**
+	 * Registers an account with this server. It will register all associated player bestias with the entity system.
+	 * 
+	 * @param accId
+	 */
+	public void registerAccount(long accId) {
+		Account account = commandContext.getServiceLocator().getBean(AccountDAO.class).find(accId);
+		
 	}
 
 	/**
@@ -176,10 +200,10 @@ public class Zoneserver {
 		// Create ActorInitWorker: Spawning and initializing all Actors.
 		// ZoneInitLoader zoneLoader = new ZoneInitLoader(config, zones);
 		// zoneLoader.init();
-		
+
 		// Creating the test zone.
 		for (String zoneName : responsibleZones) {
-			zones.put(zoneName, new Zone(config, zoneName, null));
+			zones.put(zoneName, new Zone(config, null));
 		}
 
 		// Create ActorInitWorker: Spawning and initializing all Actors.
@@ -266,13 +290,6 @@ public class Zoneserver {
 		return responsibleZones;
 	}
 
-	public static void main(String[] args) {
-		Zoneserver zone = new Zoneserver();
-		if (!zone.start()) {
-			System.exit(1);
-		}
-	}
-
 	/**
 	 * Subscribes to a topic on the subscriber from the interserver.
 	 * 
@@ -291,6 +308,18 @@ public class Zoneserver {
 	 */
 	public void unsubscribe(String topic) {
 		interserverSubscriber.unsubscribe(topic);
+	}
+
+	/**
+	 * Entry point. Starts the server.
+	 * 
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		Zoneserver zone = new Zoneserver();
+		if (!zone.start()) {
+			System.exit(1);
+		}
 	}
 
 }

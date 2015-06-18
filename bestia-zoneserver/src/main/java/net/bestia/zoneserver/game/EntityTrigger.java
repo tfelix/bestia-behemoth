@@ -2,7 +2,7 @@ package net.bestia.zoneserver.game;
 
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Bestia;
-import net.bestia.model.service.BestiaService;
+import net.bestia.model.service.BestiaManager;
 import net.bestia.zoneserver.game.battle.Damage;
 
 /**
@@ -13,11 +13,11 @@ import net.bestia.zoneserver.game.battle.Damage;
  *
  */
 public interface EntityTrigger {
-	public void onAttack(BestiaService enemy);
+	public void onAttack(BestiaManager enemy);
 
-	public void onTick(BestiaService enemy);
+	public void onTick(BestiaManager enemy);
 
-	public void onAttack(Attack atk, Damage damage, BestiaService enemy);
+	public void onAttack(Attack atk, Damage damage, BestiaManager enemy);
 
 	public void onTakeDamage(Damage damage);
 
