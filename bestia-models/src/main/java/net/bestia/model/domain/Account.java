@@ -2,6 +2,7 @@ package net.bestia.model.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -11,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
@@ -40,15 +42,16 @@ public class Account implements Serializable {
 	// private List<GuildMember> guild;
 
 	/**
-	 * Master id must sadly be optional because otherwise we get a cycle dependency with player_bestias. These must
-	 * always have a account as foreign key so we must make this optional to allow account creation.
+	 * Master id must sadly be optional because otherwise we get a cycle
+	 * dependency with player_bestias. These must always have a account as
+	 * foreign key so we must make this optional to allow account creation.
 	 */
 	@OneToOne(cascade = CascadeType.ALL, optional = true)
 	@JoinColumn(name = "MASTER_ID", nullable = true)
 	private PlayerBestia master;
 
-	// @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "owner")
-	// private List<PlayerBestia> bestias;
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+	private List<PlayerBestia> bestias;
 
 	public Account() {
 		this.email = "";
@@ -85,20 +88,10 @@ public class Account implements Serializable {
 	public void setPassword(Password password) {
 		this.password = password;
 	}
-
-	/*
-	 * public PlayerBestia getMaster() { return master; }
-	 * 
-	 * /* public void setMaster(PlayerBestiaData master) { this.master = master; }
-	 * 
-	 * public List<PlayerBestiaData> getBestias() { return java.util.Collections.unmodifiableList(bestias); }
-	 * 
-	 * public void addBestia(PlayerBestiaData bestia) { if(bestias.size() + 1 >= bestiaSlots + additionalBestiaSlots) {
-	 * throw new IllegalArgumentException("Number of bestias can not exceed the slots + the additional slots."); }
-	 * this.bestias.add(bestia); }
-	 * 
-	 * public void removeBestia(PlayerBestiaData bestia) { this.bestias.remove(bestia); }
-	 */
+	
+	public List<PlayerBestia> getBestias() {
+		return java.util.Collections.unmodifiableList(bestias);
+	}
 
 	public int getAdditionalBestiaSlots() {
 		return additionalBestiaSlots;
@@ -114,7 +107,8 @@ public class Account implements Serializable {
 
 	public void setGold(int gold) {
 		if (gold < 0) {
-			throw new IllegalArgumentException("Gold value can not be negative.");
+			throw new IllegalArgumentException(
+					"Gold value can not be negative.");
 		}
 		this.gold = gold;
 	}
@@ -166,18 +160,27 @@ public class Account implements Serializable {
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
 	}
-
-	/*
-	 * public List<PlayerBestia> getBestias() { return bestias; }
+	
+	/**
+	 * The bestia master.
+	 * @return Bestia master.
 	 */
+	public PlayerBestia getMaster() {
+		return master;
+	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
-		result = prime * result +  (int)id;
-		// TODO Alle anderen Felder hashen.
+		result = prime * result + (int) id;
+		result = prime * result + password.hashCode();
+		result += (loginToken == null) ? 0: loginToken.hashCode();
+		result = additionalBestiaSlots + gold + remarks.hashCode();
+		result += registerDate.hashCode();
+		result += (lastLogin == null) ? 0 : lastLogin.hashCode();
+		result += (bannedUntilDate == null) ? 0 : bannedUntilDate.hashCode();
 		return result;
 	}
 
@@ -202,7 +205,8 @@ public class Account implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("Account[id=%d, email=%s, registerDate=%t]", id, email, registerDate);
+		return String.format("Account[id=%d, email=%s, registerDate=%t]", id,
+				email, registerDate);
 	}
 
 	public void setMaster(PlayerBestia masterBestia) {
@@ -214,6 +218,7 @@ public class Account implements Serializable {
 
 	/**
 	 * Returns the username of the account, the name of the bestia master.
+	 * 
 	 * @return
 	 */
 	public String getName() {

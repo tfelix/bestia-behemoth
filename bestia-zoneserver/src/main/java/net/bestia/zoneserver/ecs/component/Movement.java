@@ -3,7 +3,7 @@ package net.bestia.zoneserver.ecs.component;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.bestia.zoneserver.game.zone.Point;
+import net.bestia.zoneserver.game.zone.Vector2;
 
 import com.artemis.Component;
 
@@ -15,7 +15,7 @@ import com.artemis.Component;
  */
 public class Movement extends Component {
 
-	public final List<Point> path = new ArrayList<Point>();
+	public final List<Vector2> path = new ArrayList<Vector2>();
 	public int walkspeed;
 	public int lastCheck = 0;
 	

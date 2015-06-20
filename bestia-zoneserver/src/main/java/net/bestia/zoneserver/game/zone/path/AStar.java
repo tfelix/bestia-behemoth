@@ -13,7 +13,7 @@ import java.util.Queue;
 import java.util.Set;
 
 
-public class AStar<T> {
+class AStar<T> {
 
     private final GraphAStar<T> graph;
 

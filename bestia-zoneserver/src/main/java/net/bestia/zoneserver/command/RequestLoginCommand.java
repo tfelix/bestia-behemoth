@@ -2,15 +2,13 @@ package net.bestia.zoneserver.command;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-import net.bestia.messages.BestiaInitMessage;
 import net.bestia.messages.LoginBroadcastMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.domain.Account;
-import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.service.AccountService;
-import net.bestia.zoneserver.game.zone.Entity;
 
 /**
  * This command will be executed if a new user wants to join. He needs a few
@@ -37,24 +35,24 @@ public class RequestLoginCommand extends Command {
 	@Override
 	public void execute(Message message, CommandContext ctx) {
 		
-		AccountService accService = ctx.getServiceLocator().getBean(AccountService.class);
-		Account account = accService.getAccount(message.getAccountId());
-
+		final AccountService accService = ctx.getServiceLocator().getBean(AccountService.class);
+		final Account account = accService.getAccount(message.getAccountId());
 		
+		final Set<String> responsibleZones = ctx.getServer().getResponsibleZones();
 
-		// TODO finalisiere und unit testen.
-		// See if the master is on this zone.
-		/*PlayerBestia master = null;
-		// If this zone is not responsible stop processing.
-		if (!ctx.getServer().getResponsibleZones()
-				.contains(master.getCurrentPosition().getMapDbName())) {
+		// Check if this player has bestias or his master on this zone.
+		PlayerBestia master = account.getMaster();
+		
+		if(!responsibleZones.contains(master.getCurrentPosition().getMapDbName())) {
+			// Not responsible.
 			return;
-		}*/
+		}
 
 		// Find the playerbestias associated with this account.
 		List<PlayerBestia> bestias = new ArrayList<PlayerBestia>();
 
 		// TEMP
+		/*
 		PlayerBestia b = new PlayerBestia();
 		b.setCurrentPosition(new Location("test-zone1", 20, 20));
 		b.setExp(100);
@@ -66,15 +64,15 @@ public class RequestLoginCommand extends Command {
 		bestiaInitMessage.setBestias(bestias);
 		bestiaInitMessage.setMaster(b);
 		bestiaInitMessage.setNumberOfSlots(0);
-		ctx.getServer().sendMessage(bestiaInitMessage);
+		ctx.getServer().sendMessage(bestiaInitMessage);*/
 
 		// Create bestia entity.
 
 		// Add to the zone.
-		Entity entity = new Entity(account.getId());
-		ctx.getZone(b.getCurrentPosition().getMapDbName()).addEntity(entity);
+		
 
 
+		// We have bestias from this account on this zone.
 		// Register this zone now as responsible for handling messages regarding this account.
 		ctx.getServer().subscribe("zone/account/" + message.getAccountId());
 	}

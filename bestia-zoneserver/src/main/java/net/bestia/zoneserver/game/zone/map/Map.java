@@ -1,34 +1,58 @@
 package net.bestia.zoneserver.game.zone.map;
 
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
-import net.bestia.zoneserver.game.zone.Dimension;
-import net.bestia.zoneserver.game.zone.Point;
+import net.bestia.zoneserver.game.zone.Rect;
+import net.bestia.zoneserver.game.zone.Vector2;
 
+/**
+ * Representation of a map used by the bestia zone server. The map holds all
+ * static map data like tiles, scripts and entities like light sources and
+ * sounds.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class Map {
 
-	public static class Mapbuilder {
+	public static class MapBuilder {
 
-		public int width;
-		public int height;
-		public String globalScript;
-		public String tileset;
+		int width;
+		int height;
+		String globalScript;
+		String tileset;
+		Set<Vector2> collisions = new HashSet<Vector2>();
 
-		public Map build(Maploader loader) {
-
-			// loader.loadMap(this);
+		public Map build(Maploader loader) throws IOException {
+			loader.loadMap(this);
 			return new Map(this);
 		}
 	}
 
 	private String mapDbName;
 	private String tileset;
-	private Dimension dimensions;
-	private java.util.Map<Point, Tile> tiles = new HashMap<>();
+	private Rect dimensions;
 
-	private Map(Mapbuilder builder) {
-		dimensions = new Dimension(builder.width, builder.height);
+	private java.util.Map<Vector2, Tile> tiles = new HashMap<>();
+
+	/**
+	 * Holds the static collisions on a map.
+	 */
+	private Set<Vector2> collisions = new HashSet<Vector2>();
+
+	/**
+	 * Constructor must be invoked with a {@link MapBuilder}. All needed data
+	 * will be extracted from the builder.
+	 * 
+	 * @param builder
+	 */
+	private Map(MapBuilder builder) {
+		dimensions = new Rect(builder.width, builder.height);
 		tileset = builder.tileset;
+		collisions = builder.collisions;
 	}
 
 	/**
@@ -38,7 +62,7 @@ public class Map {
 	 *            Coordinate to check.
 	 * @return TRUE if tile is walkable. FALSE otherwise.
 	 */
-	public boolean isWalkable(Point cords) {
+	public boolean isWalkable(Vector2 cords) {
 		if (cords.x > dimensions.getWidth() || cords.y > dimensions.getHeight()
 				|| cords.x < 0 || cords.y < 0) {
 			return false;
@@ -47,7 +71,7 @@ public class Map {
 		return tiles.get(cords).isWalkable();
 	}
 
-	public int getWalkspeed(Point cords) {
+	public int getWalkspeed(Vector2 cords) {
 		if (cords.x > dimensions.getWidth() || cords.y > dimensions.getHeight()
 				|| cords.x < 0 || cords.y < 0) {
 			return 0;
@@ -55,7 +79,7 @@ public class Map {
 
 		return tiles.get(cords).getWalkspeed();
 	}
-	
+
 	public String getMapDbName() {
 		return mapDbName;
 	}
@@ -65,7 +89,7 @@ public class Map {
 	 * 
 	 * @return Width of the map.
 	 */
-	public Dimension getDimension() {
+	public Rect getDimension() {
 		return dimensions;
 	}
 

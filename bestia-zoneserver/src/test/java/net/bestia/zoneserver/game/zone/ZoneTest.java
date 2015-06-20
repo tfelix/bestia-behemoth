@@ -1,22 +1,15 @@
 package net.bestia.zoneserver.game.zone;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-//import java.time.Duration;
-import java.util.Properties;
+
+import net.bestia.util.BestiaConfiguration;
+import net.bestia.zoneserver.game.zone.map.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
-import static org.mockito.Mockito.*;
-import net.bestia.util.BestiaConfiguration;
-import net.bestia.zoneserver.game.zone.map.Map;
 
 public class ZoneTest {
 
@@ -30,7 +23,7 @@ public class ZoneTest {
 	private Map getTestMap() {
 		Map m = mock(Map.class);
 
-		when(m.getDimension()).thenReturn(new Dimension(100, 100));
+		when(m.getDimension()).thenReturn(new Rect(100, 100));
 
 		return m;
 	}
@@ -61,60 +54,10 @@ public class ZoneTest {
 		Assert.assertEquals(ZONE_NAME, z.getName());
 	}
 
-	@Test
-	public void addEntity_test() {
-		Zone z = getZone();
-
-		Entity e1 = mock(Entity.class);
-		Entity e2 = mock(Entity.class);
-
-		z.addEntity(e1);
-		z.addEntity(e2);
-
-		verify(e1).onEntitySpawn(Matchers.eq(e2));
-	}
 
 	@Test
 	public void isWalkable_test() {
 		Zone z = getZone();
 		Assert.assertEquals(ZONE_NAME, z.getName());
-	}
-
-	@Test
-	public void getWalkspeed_test() {
-
-	}
-
-
-	@Test
-	public void countEntities_test() {
-
-	}
-
-	@Test
-	public void scheduleNotify_test() {
-
-		Zone z = getZone();
-
-		Entity e1 = mock(Entity.class);
-		when(e1.getId()).thenReturn(new Long(1));
-
-		//z.scheduleNotify(Duration.ofSeconds(1), e1, 1);
-		
-		try {
-			Thread.sleep(600);
-		} catch (InterruptedException e) {
-			// no op.
-		}
-		
-		//verify(e1, times(0)).onTick(any(), eq(1));
-		
-		try {
-			Thread.sleep(600);
-		} catch (InterruptedException e) {
-			// no op.
-		}
-		
-		//verify(e1).onTick(any(), eq(1));
 	}
 }

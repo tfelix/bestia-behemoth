@@ -3,18 +3,18 @@ package net.bestia.zoneserver.game.zone.path;
 import java.util.List;
 import java.util.PriorityQueue;
 
-import net.bestia.zoneserver.game.zone.Point;
+import net.bestia.zoneserver.game.zone.Vector2;
 import net.bestia.zoneserver.game.zone.Zone;
 
 
-public class AStarPathfinder implements Pathfinder {
+class AStarPathfinder implements Pathfinder {
 	
 	private Zone zone;
 	
 	private class Node implements Comparable<Node> {
 		
 		public Node parent;
-		public Point p;
+		public Vector2 p;
 		//public final double g;  // g is distance from the source
 		//public final double h;  // h is the heuristic of destination.
 		//public final double f;  // f = g + h 
@@ -50,11 +50,11 @@ public class AStarPathfinder implements Pathfinder {
 	 * @param n
 	 */
 	private void addConnected(Node n) {
-		Point last = n.p;
+		Vector2 last = n.p;
 		
 		for(int i = -1; i < 2; i++) {
 			for(int j = -1; j < 2; j++) {
-				Point newP = new Point(last.x - 1, last.y - 1);
+				Vector2 newP = new Vector2(last.x - 1, last.y - 1);
 				if(i == 0 && j == 0) {
 					continue;
 				}
@@ -70,7 +70,7 @@ public class AStarPathfinder implements Pathfinder {
 	}
 
 	@Override
-	public List<Point> findPath(Point start, Point end, Zone zone) {
+	public List<Vector2> findPath(Vector2 start, Vector2 end, Zone zone) {
 		// TODO Auto-generated method stub
 		return null;
 	}

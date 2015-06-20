@@ -6,12 +6,12 @@ package net.bestia.zoneserver.game.zone;
  * @author Thomas Felix <thoams.felix@tfelix.de>
  *
  */
-public class Point {
+public class Vector2 {
 
 	public final int x;
 	public final int y;
 
-	public Point(int x, int y) {
+	public Vector2(int x, int y) {
 		this.x = x;
 		this.y = y;
 	}
@@ -26,11 +26,11 @@ public class Point {
 	}
 
 	public boolean equals(Object o) {
-		if (o == null || !(o instanceof Point)) {
+		if (o == null || !(o instanceof Vector2)) {
 			return false;
 		}
 
-		Point p = (Point) o;
+		Vector2 p = (Vector2) o;
 		return x == p.x && y == p.y;
 	}
 

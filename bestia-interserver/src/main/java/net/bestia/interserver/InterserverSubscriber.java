@@ -40,5 +40,4 @@ public interface InterserverSubscriber {
 	 *            The topic to unsubscribe from.
 	 */
 	public abstract void unsubscribe(String topic);
-
 }

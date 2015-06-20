@@ -12,17 +12,27 @@ import tiled.core.ObjectGroup;
 import tiled.core.TileSet;
 import tiled.io.TMXMapReader;
 
+/**
+ * Loads a TMX map.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class TMXMaploader implements Maploader {
 
 	private TMXMapReader reader;
 	private String mapFile;
 
+	/**
+	 * 
+	 * @param tmxMapFile
+	 */
 	public TMXMaploader(File tmxMapFile) {
 		this.reader = new TMXMapReader();
 		this.mapFile = tmxMapFile.getAbsolutePath();
 	}
 
-	public void loadMap(Map.Mapbuilder builder) throws IOException {
+	public void loadMap(Map.MapBuilder builder) throws IOException {
 		tiled.core.Map tiledMap;
 		try {
 			tiledMap = reader.readMap(mapFile);
@@ -48,7 +58,7 @@ public class TMXMaploader implements Maploader {
 				setWalls(l);
 			} else if (name.equals("SCRIPTS")) {
 				setScripts(l);
-			} else if(name.equals("SOUNDS")) {
+			} else if (name.equals("SOUNDS")) {
 				setSounds(l);
 			}
 		}
@@ -56,13 +66,13 @@ public class TMXMaploader implements Maploader {
 
 	private void setSounds(MapLayer l) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private void setScripts(MapLayer l) {
 		ObjectGroup grp = (ObjectGroup) l;
 		Iterator<MapObject> itObj = grp.getObjects();
-		
+
 		while (itObj.hasNext()) {
 			MapObject obj = itObj.next();
 			Rectangle rect = obj.getBounds();
@@ -73,7 +83,7 @@ public class TMXMaploader implements Maploader {
 	private void setWalls(MapLayer l) {
 		ObjectGroup grp = (ObjectGroup) l;
 		Iterator<MapObject> itObj = grp.getObjects();
-		
+
 		while (itObj.hasNext()) {
 			MapObject obj = itObj.next();
 			Rectangle rect = obj.getBounds();

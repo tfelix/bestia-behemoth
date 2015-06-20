@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 
 import org.junit.Test;
 
-import net.bestia.zoneserver.game.zone.map.Map.Mapbuilder;
+import net.bestia.zoneserver.game.zone.map.Map.MapBuilder;
 
 public class TMXMaploaderTest {
 
@@ -22,7 +22,7 @@ public class TMXMaploaderTest {
 		
 		TMXMaploader loader = new TMXMaploader(mapFile);
 		
-		Map.Mapbuilder builder = new Mapbuilder();
+		Map.MapBuilder builder = new MapBuilder();
 		
 		loader.loadMap(builder);
 		

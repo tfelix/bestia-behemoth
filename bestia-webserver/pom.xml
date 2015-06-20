@@ -35,6 +35,11 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>net.bestia</groupId>
+			<artifactId>bestia-messages</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.zeromq</groupId>
 			<artifactId>jeromq</artifactId>
 			<version>0.3.4</version>

@@ -1,7 +1,5 @@
 package net.bestia.zoneserver.game.manager;
 
-import javax.persistence.Transient;
-
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;

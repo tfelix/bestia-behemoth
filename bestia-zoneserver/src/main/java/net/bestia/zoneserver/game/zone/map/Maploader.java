@@ -19,6 +19,6 @@ public interface Maploader {
 	 * @throws IOException
 	 *             If the loading and parsing of the datasource fails.
 	 */
-	public void loadMap(Map.Mapbuilder builder) throws IOException;
+	public void loadMap(Map.MapBuilder builder) throws IOException;
 
 }

@@ -106,24 +106,11 @@
 					<autoversionsubmodules>true</autoversionsubmodules>
 				</configuration>
 			</plugin>
-			<!-- Muss noch configuriert werden. Erst mal ausgebaut.
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>buildnumber-maven-plugin</artifactId>
-				<version>1.3</version>
-				<executions>
-					<execution>
-						<phase>validate</phase>
-						<goals>
-							<goal>create</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<doCheck>true</doCheck>
-					<doUpdate>true</doUpdate>
-				</configuration>
-			</plugin>-->
+			<!-- Muss noch configuriert werden. Erst mal ausgebaut. <plugin> <groupId>org.codehaus.mojo</groupId> 
+				<artifactId>buildnumber-maven-plugin</artifactId> <version>1.3</version> 
+				<executions> <execution> <phase>validate</phase> <goals> <goal>create</goal> 
+				</goals> </execution> </executions> <configuration> <doCheck>true</doCheck> 
+				<doUpdate>true</doUpdate> </configuration> </plugin> -->
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -132,11 +119,21 @@
 					<artifactId>sonar-maven-plugin</artifactId>
 					<version>2.3</version>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.5.5</version>
+					<configuration>
+						<descriptors>
+							<descriptor>src/assembly/assembly.xml</descriptor>
+						</descriptors>
+					</configuration>
+				</plugin>
 			</plugins>
+
 		</pluginManagement>
 
 		<finalName>${project.artifactId}-${project.version}-build${buildNumber}</finalName>
-		
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>

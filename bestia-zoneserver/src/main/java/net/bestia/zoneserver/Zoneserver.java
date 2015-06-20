@@ -28,6 +28,7 @@ import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
+import net.bestia.zoneserver.game.worker.ZoneInitLoader;
 import net.bestia.zoneserver.game.zone.Zone;
 
 import org.apache.logging.log4j.LogManager;
@@ -198,18 +199,18 @@ public class Zoneserver {
 		// siworker.run();
 
 		// Create ActorInitWorker: Spawning and initializing all Actors.
-		// ZoneInitLoader zoneLoader = new ZoneInitLoader(config, zones);
-		// zoneLoader.init();
-
-		// Creating the test zone.
-		for (String zoneName : responsibleZones) {
-			zones.put(zoneName, new Zone(config, null));
+		log.info("Initializing: maps...");
+		ZoneInitLoader zoneLoader = new ZoneInitLoader(getResponsibleZones(), config, zones);
+		try {
+			zoneLoader.init();
+		} catch(IOException ex) {
+			log.error("There was an error while loading the maps.", ex);
+			stop();
+			return false;
 		}
 
 		// Create ActorInitWorker: Spawning and initializing all Actors.
 		log.info("Initializing: actors...");
-
-		log.info("Initializing: message queue...");
 
 		log.info("Registering with Interserver...");
 		try {
@@ -223,6 +224,7 @@ public class Zoneserver {
 
 		// Subscribe to zone broadcast messages.
 		interserverSubscriber.subscribe("zone/all");
+		
 		// Subscribe to messages explicity for this zone.
 		interserverSubscriber.subscribe("zone/" + name);
 
@@ -234,17 +236,21 @@ public class Zoneserver {
 	 * Ceases all server operation and persists all pending data.
 	 */
 	public void stop() {
-
 		log.info("Bestia Behemoth Server is stopping...");
+		
 		log.info("Unsubscribe from Interserver...");
+		interserverSubscriber.disconnect();
+		interserverPublisher.disconnect();
 
 		// Shut down all the msg queues.
 		log.info("Shutting down: command and messaging system...");
+		commandExecutor.shutdown();
 
-		log.info("Shutting down: entity subsystem...");
+		log.info("Shutting down: zones entity subsystem...");
+		zones.values().forEach((x) -> { x.stop(); }); 
 
 		// Wait for all threads to cease operation.
-		log.info("Zone: [{}] went down.", config.getProperty("name"));
+		log.info("Zone: [{}] went down.", name);
 	}
 
 	/**

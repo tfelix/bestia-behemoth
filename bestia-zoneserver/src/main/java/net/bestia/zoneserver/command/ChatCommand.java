@@ -7,7 +7,6 @@ import net.bestia.messages.Message;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.service.AccountService;
-import net.bestia.zoneserver.game.zone.Entity;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,10 +42,10 @@ class ChatCommand extends Command {
 		// Send the message to all active player in the range. There will be a list of entities.
 
 		// Get the account ids.
-		Collection<Entity> entities = ctx.getZone(location).getEntities(1, 0);
-		entities.forEach((e) -> {
+		//Collection<Entity> entities = ctx.getZone(location).getEntities(1, 0);
+		/*entities.forEach((e) -> {
 			redirectMessage(e.accountId, m, ctx);
-		});
+		});*/
 
 		// Check chat type.
 		switch (m.getChatMode()) {

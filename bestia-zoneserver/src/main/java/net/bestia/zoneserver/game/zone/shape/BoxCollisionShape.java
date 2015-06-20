@@ -1,4 +1,7 @@
-package net.bestia.zoneserver.game.zone;
+package net.bestia.zoneserver.game.zone.shape;
+
+import net.bestia.zoneserver.game.zone.Rect;
+import net.bestia.zoneserver.game.zone.Vector2;
 
 
 /**
@@ -9,9 +12,9 @@ package net.bestia.zoneserver.game.zone;
  */
 public class BoxCollisionShape extends CollisionShape {
 
-	private Dimension dimension;
+	private Rect dimension;
 
-	public BoxCollisionShape(Dimension dimension) {
+	public BoxCollisionShape(Rect dimension) {
 		if (dimension == null) {
 			throw new IllegalArgumentException("Dimension can not be null.");
 		}
@@ -20,7 +23,7 @@ public class BoxCollisionShape extends CollisionShape {
 	}
 	
 	public BoxCollisionShape(int x, int y, int width, int height) {
-		this.dimension = new Dimension(x, y, width, height);
+		this.dimension = new Rect(x, y, width, height);
 	}
 
 	@Override
@@ -41,7 +44,7 @@ public class BoxCollisionShape extends CollisionShape {
 	}
 
 	@Override
-	public boolean collide(Point p) {
+	public boolean collide(Vector2 p) {
 
 		final int ax = p.x - dimension.getX();
 		final int ay = p.y - dimension.getY();
@@ -58,7 +61,7 @@ public class BoxCollisionShape extends CollisionShape {
 	}
 
 	@Override
-	public Dimension getBoundingBox() {
+	public Rect getBoundingBox() {
 		return dimension;
 	}
 
