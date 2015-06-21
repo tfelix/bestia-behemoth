@@ -154,4 +154,13 @@ public class PlayerBestiaManager {
 		// bestia.getStatusPoints().setCurrentMana(0);
 		// isDead = true;
 	}
+
+	public PlayerBestia getBestia() {
+		return bestia;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("PlayerBestiaManager[bestia: %s]", bestia);
+	}
 }

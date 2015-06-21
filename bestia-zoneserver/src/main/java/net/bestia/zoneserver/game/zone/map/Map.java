@@ -25,9 +25,14 @@ public class Map {
 		String globalScript;
 		String tileset;
 		Set<Vector2> collisions = new HashSet<Vector2>();
-
-		public Map build(Maploader loader) throws IOException {
+		String mapDbName;
+		
+		public MapBuilder load(Maploader loader) throws IOException {
 			loader.loadMap(this);
+			return this;
+		}
+
+		public Map build() {
 			return new Map(this);
 		}
 	}
@@ -53,6 +58,7 @@ public class Map {
 		dimensions = new Rect(builder.width, builder.height);
 		tileset = builder.tileset;
 		collisions = builder.collisions;
+		mapDbName = builder.mapDbName;
 	}
 
 	/**

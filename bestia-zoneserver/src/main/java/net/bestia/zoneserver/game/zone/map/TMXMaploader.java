@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
 
+import org.apache.commons.io.FilenameUtils;
+
 import tiled.core.MapLayer;
 import tiled.core.MapObject;
 import tiled.core.ObjectGroup;
@@ -42,6 +44,9 @@ public class TMXMaploader implements Maploader {
 
 		builder.height = tiledMap.getHeight();
 		builder.width = tiledMap.getWidth();
+		
+		String filename = FilenameUtils.removeExtension(FilenameUtils.getBaseName(mapFile));
+		builder.mapDbName = filename;
 
 		Properties p = tiledMap.getProperties();
 

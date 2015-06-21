@@ -24,18 +24,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class is responsible for taking the config, parsing the zone data and
- * then initializing the appropriate zones. In order to speed up the very hard
- * task of instancing the zones the work will be split in several threads
- * working in parallel.
+ * This class is responsible for taking the config, parsing the zone data and then initializing the appropriate zones.
+ * In order to speed up the very hard task of instancing the zones the work will be split in several threads working in
+ * parallel.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class ZoneInitLoader {
 
-	private final static Logger log = LogManager
-			.getLogger(ZoneInitLoader.class);
+	private final static Logger log = LogManager.getLogger(ZoneInitLoader.class);
 
 	/**
 	 * Helper class to actually load the zones.
@@ -52,16 +50,14 @@ public class ZoneInitLoader {
 		}
 
 		/**
-		 * Returns the path to the map file which can be parsed in order to
-		 * generate our static map data.
+		 * Returns the path to the map file which can be parsed in order to generate our static map data.
 		 * 
 		 * @param zoneName
 		 *            MapDBName of the map to load.
 		 * @return File pointing to the mapfile.
 		 */
 		private File getMapFile(String zoneName) {
-			return Paths.get(mapDataDir.getAbsolutePath(), "map", zoneName,
-					zoneName + ".json").toFile();
+			return Paths.get(mapDataDir.getAbsolutePath(), "map", zoneName, zoneName + ".tmx").toFile();
 		}
 
 		@Override
@@ -72,8 +68,7 @@ public class ZoneInitLoader {
 			for (String zoneName : zonesToLoad) {
 
 				final File mapFile = getMapFile(zoneName);
-
-				final Zone z = loadZone(mapFile);
+				final Zone z = loadZone(zoneName, mapFile);
 				loadedZones.add(z);
 
 			}
@@ -81,13 +76,13 @@ public class ZoneInitLoader {
 			return loadedZones;
 		}
 
-		private Zone loadZone(File mapFile) throws IOException {
+		private Zone loadZone(String zoneName, File mapFile) throws IOException {
 			final Maploader loader = new TMXMaploader(mapFile);
 			final Map.MapBuilder builder = new MapBuilder();
-			
-			Map map = builder.build(loader);
 
-			Zone z = new Zone(config, map);
+			builder.load(loader);
+
+			Zone z = new Zone(config, builder.build());
 
 			return z;
 		}
@@ -109,11 +104,9 @@ public class ZoneInitLoader {
 	 * @param nThreads
 	 *            Number of threads to use for loading.
 	 * @param zones
-	 *            Reference to the zonelist the server is using. Loaded zones
-	 *            will be added to this list if finished.
+	 *            Reference to the zonelist the server is using. Loaded zones will be added to this list if finished.
 	 */
-	public ZoneInitLoader(Set<String> zoneNames, BestiaConfiguration config,
-			java.util.Map<String, Zone> zones) {
+	public ZoneInitLoader(Set<String> zoneNames, BestiaConfiguration config, java.util.Map<String, Zone> zones) {
 		if (config == null) {
 			throw new IllegalArgumentException("Config can not be null.");
 		}
@@ -121,8 +114,7 @@ public class ZoneInitLoader {
 			throw new IllegalArgumentException("Config can not be null.");
 		}
 		if (zones == null) {
-			throw new IllegalArgumentException(
-					"Zone reference can not be null.");
+			throw new IllegalArgumentException("Zone reference can not be null.");
 		}
 
 		this.nThreads = config.getIntProperty("zone.initThreads");
@@ -134,9 +126,8 @@ public class ZoneInitLoader {
 	}
 
 	/**
-	 * Starts the loading process. Blocks until all loading is done and adds the
-	 * instanced zones to the list given in the constructor. Its splits the work
-	 * of loading into separated threads.
+	 * Starts the loading process. Blocks until all loading is done and adds the instanced zones to the list given in
+	 * the constructor. Its splits the work of loading into separated threads.
 	 * 
 	 * @throws IOException
 	 *             If loading of one or more zones fails.

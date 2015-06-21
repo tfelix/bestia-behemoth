@@ -5,12 +5,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -33,8 +31,6 @@ import net.bestia.zoneserver.game.zone.Zone;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.artemis.Entity;
 
 /**
  * This is the central game server instance. Upon start it will read all designated maps parse them, instance all needed
@@ -62,27 +58,6 @@ public class Zoneserver {
 		}
 		VERSION = version;
 	}
-	
-	private class AccountEntities {
-		
-		private final Account account;
-		private final List<Entity> accountEntities = new ArrayList<>();
-		
-		public AccountEntities(Account account, List<Entity> entities) {
-			this.account = account;
-			this.accountEntities.addAll(entities);
-		}
-		
-		public Account getAccount() {
-			return account;
-		}
-		
-		public List<Entity> getEntities() {
-			return accountEntities;
-		}	
-	}
-	
-	
 
 	private class InterserverHandler implements InterserverMessageHandler {
 
@@ -107,8 +82,6 @@ public class Zoneserver {
 	private final CommandFactory commandFactory;
 	private final ExecutorService commandExecutor;
 	private final CommandContext commandContext;
-	
-	private final HashMap<Long, AccountEntities> accountEntities = new HashMap<>();
 
 	/**
 	 * List of zones for which this server is responsible.
@@ -145,7 +118,6 @@ public class Zoneserver {
 		cmdCtxBuilder.setConfiguration(config).setZones(zones).setZoneserver(this);
 		commandContext = cmdCtxBuilder.build();
 
-
 		this.commandFactory = new CommandFactory(commandContext);
 		this.commandExecutor = Executors.newFixedThreadPool(1);
 
@@ -175,7 +147,7 @@ public class Zoneserver {
 	 */
 	public void registerAccount(long accId) {
 		Account account = commandContext.getServiceLocator().getBean(AccountDAO.class).find(accId);
-		
+
 	}
 
 	/**
@@ -203,7 +175,7 @@ public class Zoneserver {
 		ZoneInitLoader zoneLoader = new ZoneInitLoader(getResponsibleZones(), config, zones);
 		try {
 			zoneLoader.init();
-		} catch(IOException ex) {
+		} catch (IOException ex) {
 			log.error("There was an error while loading the maps.", ex);
 			stop();
 			return false;
@@ -211,6 +183,7 @@ public class Zoneserver {
 
 		// Create ActorInitWorker: Spawning and initializing all Actors.
 		log.info("Initializing: actors...");
+		zones.values().forEach((x) -> x.start());
 
 		log.info("Registering with Interserver...");
 		try {
@@ -224,7 +197,7 @@ public class Zoneserver {
 
 		// Subscribe to zone broadcast messages.
 		interserverSubscriber.subscribe("zone/all");
-		
+
 		// Subscribe to messages explicity for this zone.
 		interserverSubscriber.subscribe("zone/" + name);
 
@@ -237,7 +210,7 @@ public class Zoneserver {
 	 */
 	public void stop() {
 		log.info("Bestia Behemoth Server is stopping...");
-		
+
 		log.info("Unsubscribe from Interserver...");
 		interserverSubscriber.disconnect();
 		interserverPublisher.disconnect();
@@ -247,7 +220,9 @@ public class Zoneserver {
 		commandExecutor.shutdown();
 
 		log.info("Shutting down: zones entity subsystem...");
-		zones.values().forEach((x) -> { x.stop(); }); 
+		zones.values().forEach((x) -> {
+			x.stop();
+		});
 
 		// Wait for all threads to cease operation.
 		log.info("Zone: [{}] went down.", name);
@@ -314,6 +289,23 @@ public class Zoneserver {
 	 */
 	public void unsubscribe(String topic) {
 		interserverSubscriber.unsubscribe(topic);
+	}
+
+	/**
+	 * Returns the zone with this name. Usually this is the map db name.
+	 * 
+	 * @param zoneName
+	 *            Name of the zone. Usually its the map db name.
+	 * @return Zone responsible for this map.
+	 * @throws IllegalArgumentException
+	 *             if the zone with this name is not active on this server.
+	 */
+	public Zone getZone(String zoneName) {
+		if (!zones.containsKey(zoneName)) {
+			throw new IllegalArgumentException("Zone unknown: " + zoneName);
+		}
+		
+		return zones.get(zoneName);
 	}
 
 	/**
