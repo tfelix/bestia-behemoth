@@ -1,9 +1,7 @@
 package net.bestia.zoneserver.game.zone;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Queue;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -62,8 +60,7 @@ public class Zone {
 	/**
 	 * Holds the player input for the registered bestias.
 	 */
-	private final HashMap<Integer, Queue<Message>> playerInput = new HashMap<>();
-	private final Set<Integer> activePlayerBestias = new HashSet<>();
+	private final java.util.Map<Integer, Queue<Message>> playerInput = new ConcurrentHashMap<>();
 
 	private final String name;
 	private final Map map;
@@ -156,12 +153,15 @@ public class Zone {
 		log.debug("Adding {} to zone {}.", pb.toString(), name);
 
 		// Prepare the communications.
-		activePlayerBestias.add(pb.getBestia().getId());
 		playerInput.put(pb.getBestia().getId(), new ConcurrentLinkedQueue<>());
 
 		// Spawn the entity.
 		new EntityBuilder(world).with(new PlayerControlled(pb)).build();
-
+	}
+	
+	public void queueMessage(Message msg) {
+		checkStart();		
+		playerInput.get(msg.getPlayerBestiaId()).add(msg);
 	}
 
 	/**
@@ -171,6 +171,8 @@ public class Zone {
 	 */
 	public void removePlayerBestia(PlayerBestia pb) {
 		checkStart();
+		
+		// TODO
 
 		log.debug("Removing {} from zone {}.", pb.toString(), name);
 	}

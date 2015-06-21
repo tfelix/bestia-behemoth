@@ -46,8 +46,8 @@ public class MoveCommand extends Command {
 		for (int i = 0; i < msg.getCordsX().size(); i++) {
 			path.add(new Vector2(msg.getCordsX().get(i), msg.getCordsY().get(i)));
 		}
-
 		
+		ctx.getServer().processPlayerInput(msg);
 	}
 
 }

@@ -5,6 +5,7 @@ import java.io.Serializable;
 import net.bestia.messages.jackson.MessageTypeIdResolver;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeId;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
@@ -22,6 +23,8 @@ public abstract class Message implements Serializable {
 	private static final long serialVersionUID = 2015052401L;
 	private long accountId;
 	private boolean isBroadcast = false;
+	@JsonProperty("pbi")
+	private int playerBestiaId = 0;
 
 	private final static String MSG_PATH_ZONE_ALL = "zone/all";
 
@@ -76,6 +79,21 @@ public abstract class Message implements Serializable {
 
 	public void setAccountId(long accountId) {
 		this.accountId = accountId;
+	}
+
+	/**
+	 * Gets the player bestia id for which this message is meant. Not all messages are subject to a selected player
+	 * bestia thus this field can contain the ID 0 which is reserved for this case.
+	 * 
+	 * @return
+	 */
+	@JsonIgnore
+	public int getPlayerBestiaId() {
+		return playerBestiaId;
+	}
+	
+	public void setPlayerBestiaId(int playerBestiaId) {
+		this.playerBestiaId = playerBestiaId;
 	}
 
 	@Override

@@ -9,13 +9,11 @@ import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.game.zone.Zone;
 
 /**
- * Facade class to cover the needed information context for a {@link Command}
- * class. It contains references to database access and messaging API. The
- * context itself is immutable because multi-thread access will happen. The
- * member of itself must be thread safe as well.
+ * Facade class to cover the needed information context for a {@link Command} class. It contains references to database
+ * access and messaging API. The context itself is immutable because multi-thread access will happen. The member of
+ * itself must be thread safe as well.
  * 
- * TODO Später muss hier noch geprüft werden ob wirklich alle befehle so
- * benötigt werden wie sie hier stehen.
+ * TODO Später muss hier noch geprüft werden ob wirklich alle befehle so benötigt werden wie sie hier stehen.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -60,8 +58,7 @@ public final class CommandContext {
 	 * Ctor. Creat
 	 * 
 	 * @param builder
-	 *            Builder holding the needed variables for creating this
-	 *            context.
+	 *            Builder holding the needed variables for creating this context.
 	 */
 	private CommandContext(Builder builder) {
 
@@ -87,8 +84,7 @@ public final class CommandContext {
 	}
 
 	/**
-	 * Returns the server configuration. TODO Das in ein eigenes Configuration
-	 * object kapseln das immutable ist.
+	 * Returns the server configuration.
 	 * 
 	 * @return Configuration of the server.
 	 */
@@ -99,6 +95,7 @@ public final class CommandContext {
 	/**
 	 * Return a zone by its name.
 	 * 
+	 * @deprecated Auch das sollte nicht notwendig sein.
 	 * @param name
 	 * @return Zone specified by its name, or NULL.
 	 */
@@ -109,6 +106,7 @@ public final class CommandContext {
 	/**
 	 * Returns all zones.
 	 * 
+	 * @deprecated Das ist eigentlich nicht nötig. Der Server managt das jetzt.
 	 * @return Collection of all zones.
 	 */
 	public Collection<Zone> getAllZones() {

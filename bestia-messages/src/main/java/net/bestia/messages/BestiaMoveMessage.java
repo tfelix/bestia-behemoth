@@ -14,6 +14,9 @@ public class BestiaMoveMessage extends Message {
 
 	@JsonProperty("pY")
 	private List<Integer> cordsY;
+	
+	@JsonProperty("w")
+	private float walkspeed;
 
 	public List<Integer> getCordsX() {
 		return cordsX;
@@ -39,8 +42,6 @@ public class BestiaMoveMessage extends Message {
 		this.walkspeed = walkspeed;
 	}
 
-	@JsonProperty("w")
-	private float walkspeed;
 
 	@Override
 	public String getMessageId() {
@@ -58,5 +59,4 @@ public class BestiaMoveMessage extends Message {
 				"BestiaMoveMessage[pathX: %s, pathY: %s, walkspeed: %d]",
 				cordsX.toString(), cordsY.toString(), walkspeed);
 	}
-
 }

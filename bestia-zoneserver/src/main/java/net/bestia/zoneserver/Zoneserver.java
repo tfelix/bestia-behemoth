@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -21,11 +22,14 @@ import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.messages.Message;
 import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.Account;
+import net.bestia.model.domain.PlayerBestia;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
+import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.game.worker.ZoneInitLoader;
 import net.bestia.zoneserver.game.zone.Zone;
 
@@ -89,6 +93,9 @@ public class Zoneserver {
 	private final Map<String, Zone> zones = new HashMap<>();
 	private final Set<String> responsibleZones;
 
+	private final Map<Long, Map<Integer, PlayerBestia>> activeBestias = new ConcurrentHashMap<>();
+	private final Map<Integer, Zone> activeBestiasZoneCache = new ConcurrentHashMap<>();
+
 	/**
 	 * Ctor. The server needs a connection to its clients so it can use the messaging API to communicate with them.
 	 * 
@@ -146,8 +153,57 @@ public class Zoneserver {
 	 * @param accId
 	 */
 	public void registerAccount(long accId) {
-		Account account = commandContext.getServiceLocator().getBean(AccountDAO.class).find(accId);
+		final PlayerBestiaDAO pbDAO = commandContext.getServiceLocator().getBean(PlayerBestiaDAO.class);
+		final Account account = commandContext.getServiceLocator().getBean(AccountDAO.class).find(accId);
 
+		boolean hasAtLeastOneEntity = false;
+		Map<Integer, PlayerBestia> activeBestias = new ConcurrentHashMap<>();
+
+		// Check if this player has bestias or his master on this zone.
+		final PlayerBestia master = account.getMaster();
+		hasAtLeastOneEntity = addToZone(accId, master);
+		
+		Set<PlayerBestia> bestias = pbDAO.findPlayerBestiasForAccount(accId);
+
+		// Create bestia entity.
+		for (PlayerBestia playerBestia : bestias) {
+			if (addToZone(accId, playerBestia)) {
+				hasAtLeastOneEntity = true;
+			}
+		}
+
+		// We have bestias from this account on this zone.
+		// Register this zone now as responsible for handling messages regarding this account.
+		if (hasAtLeastOneEntity) {
+			subscribe("zone/account/" + accId);
+			log.debug("Registered account {} with {} bestias on zone.", accId, activeBestias.size());
+		}
+	}
+
+	private boolean addToZone(long accId, PlayerBestia pb) {
+		if (!isOnZone(pb)) {
+			return false;
+		}
+
+		Zone z = getResponsibleZone(pb);
+		z.addPlayerBestia(new PlayerBestiaManager(pb, this));
+
+		if (!activeBestias.containsKey(accId)) {
+			activeBestias.put(accId, new ConcurrentHashMap<>());
+		}
+		activeBestias.get(accId).put(pb.getId(), pb);
+		// Save zone in the cache for fast resolution of messages.
+		activeBestiasZoneCache.put(pb.getId(), z);
+		return true;
+	}
+
+	private boolean isOnZone(PlayerBestia pb) {
+		return responsibleZones.contains(pb.getCurrentPosition().getMapDbName());
+	}
+
+	private Zone getResponsibleZone(PlayerBestia pb) {
+		final String mapDbName = pb.getCurrentPosition().getMapDbName();
+		return zones.get(mapDbName);
 	}
 
 	/**
@@ -291,21 +347,21 @@ public class Zoneserver {
 		interserverSubscriber.unsubscribe(topic);
 	}
 
-	/**
-	 * Returns the zone with this name. Usually this is the map db name.
-	 * 
-	 * @param zoneName
-	 *            Name of the zone. Usually its the map db name.
-	 * @return Zone responsible for this map.
-	 * @throws IllegalArgumentException
-	 *             if the zone with this name is not active on this server.
-	 */
-	public Zone getZone(String zoneName) {
-		if (!zones.containsKey(zoneName)) {
-			throw new IllegalArgumentException("Zone unknown: " + zoneName);
+	public void processPlayerInput(Message msg) {
+		
+		if(msg.getPlayerBestiaId() == 0) {
+			log.warn("PlayerInput: No player bestia id given.");
+			return;
 		}
 		
-		return zones.get(zoneName);
+		// Sanitycheck: Is player really owner of this bestia?
+		if(activeBestias.get(msg.getAccountId()).containsKey(msg.getPlayerBestiaId())) {
+			log.warn("HACK: Account {} does not own bestia with id {}!", msg.getAccountId(), msg.getPlayerBestiaId());
+			return;
+		}
+		
+		Zone z = activeBestiasZoneCache.get(msg.getPlayerBestiaId());
+		z.queueMessage(msg);
 	}
 
 	/**

@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.game.manager;
 
 import net.bestia.messages.ChatMessage;
-import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.zoneserver.Zoneserver;
@@ -135,11 +134,11 @@ public class PlayerBestiaManager {
 	}
 
 	public void kill() {
-		Location saveLoc = bestia.getSavePosition();
+		//Location saveLoc = bestia.getSavePosition();
 
-		int neededExp = getNeededExp();
+		//int neededExp = getNeededExp();
 		// Reduce exp by 5%.
-		bestia.setExp(bestia.getExp() - neededExp * 5 / 100);
+		//bestia.setExp(bestia.getExp() - neededExp * 5 / 100);
 
 		// Alle Encounter löschen
 		// $encounter_dao->deleteBestiaEncounter($this->data->get('id'), false);
