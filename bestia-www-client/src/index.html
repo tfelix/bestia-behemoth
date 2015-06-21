@@ -24,8 +24,10 @@
 <body class="noscroll">
 	<div class="cont">
 		<div class="navi" id="navi">
-			<p style="text-align: center; padding-top: 10px;"><img src="img/bestia_logo.png" alt="Bestia Logo"></p>
-			<div data-bind="with: bestias">			
+			<p style="text-align: center; padding-top: 10px;">
+				<img src="img/bestia_logo.png" alt="Bestia Logo">
+			</p>
+			<div data-bind="with: bestias">
 				<div id="selected-bestia" data-bind="with: selectedBestia">
 					<!-- TODO Austauschen gegen ein animiertes Canvas. -->
 					<img src="http://placehold.it/64x64" alt="Bestia" style="float: left; margin: 10px;">
@@ -53,15 +55,15 @@
 							<span data-bind="text: curMana">0</span> / <span data-bind="text: maxMana">0</span>
 						</div>
 					</div>
-					
+
 					<div>
 						<!-- STATUS VALUES -->
-						<img src="http://placehold.it/32x32/ffed23/000000" alt="Pest">
-						<img src="http://placehold.it/32x32/abc078/000000" alt="Pest">
-						<img src="http://placehold.it/32x32/ad2923/000000" alt="Pest">
+						<img src="http://placehold.it/32x32/ffed23/000000" alt="Pest"> <img
+							src="http://placehold.it/32x32/abc078/000000" alt="Pest"> <img
+							src="http://placehold.it/32x32/ad2923/000000" alt="Pest">
 					</div>
 				</div>
-				
+
 				<!-- UI BUTTONS -->
 				<div class="ui-buttons">
 					<button id="show-inventory" class="btn btn-sm btn-block" data-i18n="nav.inventory">nav.inventory</button>
@@ -69,7 +71,7 @@
 					<button class="btn btn-sm btn-block" data-i18n="nav.attacks">nav.attacks</button>
 				</div>
 				<!-- /UI BUTTONS -->
-				
+
 				<div id="bestia-slots" data-bind="foreach: bestias">
 					<div class="bestia-slot" data-bind="click: selectBestia">
 						<img src="http://placehold.it/64x64" alt="Bestia" style="float: left; margin: 10px;">
@@ -113,7 +115,10 @@
 
 			<!-- CHAT -->
 			<div id="chat" data-bind="with: chat">
-				<div style="position: absolute; bottom: 25px; right: 20px; text-align: right;"><button>Test</button></div>
+				<div data-bind="visible: hasUnreadMessages"
+					style="position: absolute; bottom: 25px; right: 20px; text-align: right;">
+					<button data-bind="click: scrollToBottom">Neu</button>
+				</div>
 				<div class="chat-msgs" data-bind="foreach: messages">
 
 					<div data-bind="css: cssMode">
@@ -250,12 +255,12 @@
 				</div>
 				<div class="modal-body" style="background: green; height: 400px; width: 600px;">
 					<div>
-						<img src="http://placehold.it/50x50/ad2923/000000" alt="Pest">
-						<img src="http://placehold.it/50x50/ad2923/000000" alt="Pest">
-						<img src="http://placehold.it/50x50/ad2923/000000" alt="Pest">
-						<img src="http://placehold.it/50x50/ad2923/000000" alt="Pest">
-						<img src="http://placehold.it/50x50/ad2923/000000" alt="Pest">
-						<img src="http://placehold.it/50x50/ad2923/000000" alt="Pest">
+						<img src="http://placehold.it/50x50/ad2923/000000" alt="Pest"> <img
+							src="http://placehold.it/50x50/ad2923/000000" alt="Pest"> <img
+							src="http://placehold.it/50x50/ad2923/000000" alt="Pest"> <img
+							src="http://placehold.it/50x50/ad2923/000000" alt="Pest"> <img
+							src="http://placehold.it/50x50/ad2923/000000" alt="Pest"> <img
+							src="http://placehold.it/50x50/ad2923/000000" alt="Pest">
 					</div>
 				</div>
 				<div class="modal-footer">
@@ -267,6 +272,6 @@
 		<!-- /.modal-dialog -->
 	</div>
 	<!-- /.modal -->
-	
+
 </body>
 </html>
