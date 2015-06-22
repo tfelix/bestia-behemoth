@@ -6,9 +6,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.bestia.messages.Message;
+import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
+import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
 import net.bestia.zoneserver.ecs.system.PlayerControlSystem;
 import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
@@ -40,15 +42,14 @@ public class Zone {
 			lastRun = System.currentTimeMillis();
 
 			while (true) {
-				// Delta in s.
 				final long now = System.currentTimeMillis();
-				float delta = (now - lastRun) / 1000f;
+				float delta = now - lastRun;
 				lastRun = now;
 				world.setDelta(delta);
 				world.process();
 
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(10);
 				} catch (InterruptedException e) {
 					// no op.
 				}
@@ -156,12 +157,25 @@ public class Zone {
 		playerInput.put(pb.getBestia().getId(), new ConcurrentLinkedQueue<>());
 
 		// Spawn the entity.
-		new EntityBuilder(world).with(new PlayerControlled(pb)).build();
+		final Location curLoc = pb.getBestia().getCurrentPosition();
+		new EntityBuilder(world).with(new PlayerControlled(pb), new Position(curLoc.getX(), curLoc.getY())).build();
 	}
-	
-	public void queueMessage(Message msg) {
-		checkStart();		
+
+	public void processPlayerInput(Message msg) {
+		checkStart();
 		playerInput.get(msg.getPlayerBestiaId()).add(msg);
+	}
+
+	/**
+	 * Returns the input message queue of the player bestia with the given id. It is sure that the bestia is on this
+	 * zone otherwise the messages would be redirected to a different zone.
+	 * 
+	 * @param playerBestiaId
+	 * @return
+	 */
+	public Queue<Message> getPlayerInput(int playerBestiaId) {
+		checkStart();
+		return playerInput.get(playerBestiaId);
 	}
 
 	/**
@@ -171,33 +185,10 @@ public class Zone {
 	 */
 	public void removePlayerBestia(PlayerBestia pb) {
 		checkStart();
-		
+
 		// TODO
 
 		log.debug("Removing {} from zone {}.", pb.toString(), name);
-	}
-
-	/**
-	 * Returns the given walkspeed for a given tile. The walkspeed is fixed point 1000 means 1.0, 500 means 0.5 and so
-	 * on. If the tile is not walkable at all 0 will be returned.
-	 * 
-	 * @param cords
-	 * @return
-	 */
-	public int getWalkspeed(Vector2 cords) {
-		checkStart();
-
-		if (!map.isWalkable(cords)) {
-			return 0;
-		}
-
-		// Ask the map for the general walking speed, then look for effects of
-		// placed entities who might afflict these speed.
-		int baseSpeed = map.getWalkspeed(cords);
-
-		// TODO modify the baseSpeed by entities.
-
-		return baseSpeed;
 	}
 
 	/**
@@ -208,5 +199,10 @@ public class Zone {
 		if (!hasStarted.get()) {
 			throw new IllegalStateException("Zone is not running. Call .start() first before doing this operation!");
 		}
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("Zone[name: %s, hasStarted: %s]", name, hasStarted.toString());
 	}
 }

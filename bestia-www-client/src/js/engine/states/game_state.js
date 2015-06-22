@@ -20,6 +20,8 @@ Bestia.Engine.ClickDebounce.prototype.released = function() {
 Bestia.Engine.Entity = function(game, sprite, world) {
 	this.walkspeed = 1;
 	this.sprite = sprite;
+	// TODO Das Bestia selection system ausweiten und ausbessern.
+	this.pbid = 2;
 
 	this.game = game;
 	this.world = world;
@@ -185,6 +187,11 @@ Bestia.Engine.States.GameState.prototype = {
 			var goal = this._bestiaWorld.getTileXY(this.game.input.worldX, this.game.input.worldY);
 
 			var path = this._bestiaWorld.findPath(start, goal);
+			// Send to server.
+			
+			var msg = new Bestia.Message.BestiaMove(this._playerEntity.pbid, path.nodes, this._playerEntity.walkspeed);
+			Bestia.publish('io.sendMessage', msg);
+			
 			// Start movement.
 			this._playerEntity.moveTo(path.nodes.reverse(), this._bestiaWorld);
 

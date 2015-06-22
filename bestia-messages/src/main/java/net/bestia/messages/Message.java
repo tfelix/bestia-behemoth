@@ -23,7 +23,7 @@ public abstract class Message implements Serializable {
 	private static final long serialVersionUID = 2015052401L;
 	private long accountId;
 	private boolean isBroadcast = false;
-	@JsonProperty("pbi")
+	@JsonProperty("pbid")
 	private int playerBestiaId = 0;
 
 	private final static String MSG_PATH_ZONE_ALL = "zone/all";

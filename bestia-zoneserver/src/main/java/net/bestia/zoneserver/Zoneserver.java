@@ -350,18 +350,18 @@ public class Zoneserver {
 	public void processPlayerInput(Message msg) {
 		
 		if(msg.getPlayerBestiaId() == 0) {
-			log.warn("PlayerInput: No player bestia id given.");
+			log.warn("PlayerInput: No player bestia id given. %s", msg);
 			return;
 		}
 		
 		// Sanitycheck: Is player really owner of this bestia?
-		if(activeBestias.get(msg.getAccountId()).containsKey(msg.getPlayerBestiaId())) {
+		if(!activeBestias.get(msg.getAccountId()).containsKey(msg.getPlayerBestiaId())) {
 			log.warn("HACK: Account {} does not own bestia with id {}!", msg.getAccountId(), msg.getPlayerBestiaId());
 			return;
 		}
 		
 		Zone z = activeBestiasZoneCache.get(msg.getPlayerBestiaId());
-		z.queueMessage(msg);
+		z.processPlayerInput(msg);
 	}
 
 	/**

@@ -56,7 +56,7 @@ public class BestiaMoveMessage extends Message {
 	@Override
 	public String toString() {
 		return String.format(
-				"BestiaMoveMessage[pathX: %s, pathY: %s, walkspeed: %d]",
+				"BestiaMoveMessage[pathX: %s, pathY: %s, walkspeed: %f]",
 				cordsX.toString(), cordsY.toString(), walkspeed);
 	}
 }

@@ -1,25 +1,70 @@
 package net.bestia.zoneserver.ecs.system;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.game.zone.Vector2;
 
 import com.artemis.Aspect;
+import com.artemis.ComponentMapper;
 import com.artemis.Entity;
-import com.artemis.systems.EntityProcessingSystem;
+import com.artemis.annotations.Wire;
+import com.artemis.systems.DelayedEntityProcessingSystem;
 
-// TODO Besser ein https://github.com/junkdog/artemis-odb/wiki/DelayedEntityProcessingSystem nutzen.
-public class MovementSystem extends EntityProcessingSystem {
+/**
+ * Process linear movement along a given path. Calculates the delay until the next move to the next tile is completed.
+ * Then the system will be called again.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
+@Wire
+public class MovementSystem extends DelayedEntityProcessingSystem {
+	
+	private final static Logger log = LogManager.getLogger(MovementSystem.class);
+
+	ComponentMapper<Movement> moveM;
+	ComponentMapper<Position> posM;
 
 	@SuppressWarnings("unchecked")
 	public MovementSystem() {
 		super(Aspect.getAspectForAll(Position.class, Movement.class));
-		
+
 	}
 
 	@Override
-	protected void process(Entity entity) {
-		// TODO Auto-generated method stub
+	protected float getRemainingDelay(Entity e) {
+		Movement m = moveM.get(e);
+		return m.nextMove;
+	}
+
+	@Override
+	protected void processDelta(Entity e, float accumulatedDelta) {
+		Movement m = moveM.get(e);
+		m.nextMove -= accumulatedDelta;
+	}
+
+	@Override
+	protected void processExpired(Entity e) {
+		Movement m = moveM.get(e);
+		Position p = posM.get(e);
+
+		Vector2 pos = m.path.poll();
+		if (pos == null) {
+			// End of movement. Remove this component.
+			e.edit().remove(Movement.class);
+			return;
+		}
+
+		p.x = pos.x;
+		p.y = pos.y;
 		
+		log.trace("Moved to: {}", pos.toString());
+
+		m.nextMove = 1000 / (m.walkspeed * Movement.TILES_PER_SECOND);
+		offerDelay(m.nextMove);
 	}
 
 }

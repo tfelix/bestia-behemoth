@@ -52,8 +52,10 @@ Bestia.Message = {
 	/**
 	 * Tells the server to move the bestia to a certain spot on the map.
 	 */
-	BestiaMove : function(path, walkspeed) {
+	BestiaMove : function(playerBestiaId, path, walkspeed) {
 		this.mid = 'bestia.move';
+		
+		this.pbid = playerBestiaId;
 		
 		// Generate the path arrays.
 		var pX = new Array(path.length);
