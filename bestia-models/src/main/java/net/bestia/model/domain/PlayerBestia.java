@@ -1,5 +1,7 @@
 package net.bestia.model.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
@@ -26,7 +28,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Entity
 @Table(name="player_bestias")
 @PrimaryKeyJoinColumn(name = "bestia_id")
-public class PlayerBestia {
+public class PlayerBestia implements Serializable {
 	@Transient
 	private static final long serialVersionUID = 1L;
 

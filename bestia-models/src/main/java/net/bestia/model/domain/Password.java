@@ -5,6 +5,7 @@ import javax.persistence.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.Serializable;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
@@ -16,7 +17,10 @@ import java.util.Arrays;
  *
  */
 @Embeddable
-public class Password {
+public class Password implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
 	@Transient
 	private final static Logger log = LogManager.getLogger(Password.class);
 	

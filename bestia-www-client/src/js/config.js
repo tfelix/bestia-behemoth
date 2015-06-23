@@ -18,6 +18,10 @@ Bestia.Config = function() {
 	self.server = ko.observable('');
 	self.connectedPlayer = ko.observable(0);
 	self.resourceURL = ko.observable('');
+
+	self.userName = ko.observable('');
+	self.accountId = ko.observable(0);
+
 	/**
 	 * @property {boolean} debug - Flag if we should enable debug information.
 	 *           Later this should be splitted in hard debug only for
@@ -36,6 +40,16 @@ Bestia.Config = function() {
 		self.server(msg.sn);
 	};
 
+	/**
+	 * Handler for setting the auth values emit by the system during login.
+	 */
+	var onAuthHandler = function(_, msg) {
+		self.userName(msg.username);
+		self.accountId(msg.accId);
+	};
+
 	// Register for messages.
 	Bestia.subscribe('server.info', onMessageHandler);
+
+	Bestia.subscribe('system.auth', onAuthHandler);
 };

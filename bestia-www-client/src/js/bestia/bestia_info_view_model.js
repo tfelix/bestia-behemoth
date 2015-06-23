@@ -20,6 +20,8 @@ Bestia.BestiaInfoViewModel = function(net) {
 	var self = this;
 
 	this._net = net;
+	this.selectedBestia = ko.observable(0);
+	
 	this.masterBestia = new Bestia.BestiaViewModel(net);
 	this.selectedBestia = new Bestia.BestiaViewModel(net);
 	this.bestias = ko.observableArray([]);

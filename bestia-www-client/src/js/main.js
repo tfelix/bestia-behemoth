@@ -2,19 +2,12 @@ var BG = {};
 
 function bootstrap() {
 	// Bootstrap the behemoth.
-	var config = new Bestia.Config();
-	var net = new Bestia.Net(config);
-	var inventory = new Bestia.Inventory(net);
-	var bestias = new Bestia.BestiaInfoViewModel(net);
-	var chat = new Bestia.Chat($('#chat'), BG, 'rocket');
-	var engine = new Bestia.Engine(config);
-
-	BG.config = config;
-	BG.net = net;
-	BG.inventory = inventory;
-	BG.bestias = bestias;
-	BG.chat = chat;
-	BG.engine = engine;
+	BG.config = new Bestia.Config();
+	BG.net = new Bestia.Net(BG.config);
+	BG.inventory = new Bestia.Inventory(BG.net);
+	BG.bestias = new Bestia.BestiaInfoViewModel(BG.net);	
+	BG.chat = new Bestia.Chat($('#chat'), BG);
+	BG.engine = new Bestia.Engine(BG.config);
 	BG.connection = new Bestia.Connection();
 	
 	BG.connection.init();
@@ -34,17 +27,6 @@ function bootstrap() {
 }
 
 function simulate() {
-	// Simulate the server communication.
-	var serverInfo = {
-		z : [ 'test-1', 'test-2' ],
-		v : '1.0.0-ALPHA1-build1234',
-		cp : 3,
-		sn : 'Test-Zone',
-		res : 'http://localhost/assets'
-	};
-
-	Bestia.publish('server.info', serverInfo);
-
 	// Server sendet welche Bestia selektiert wurde (Bestia master)
 	var bm = {
 		pbid : 1337,
@@ -275,9 +257,9 @@ function simulate() {
 
 	for (var i = 0; i < msgs.length; i++) {
 		var msg = msgs[i];
-		Bestia.publish('chat.message', msg);
-		Bestia.publish('chat.message', msg);
-		Bestia.publish('chat.message', msg);
+		//Bestia.publish('chat.message', msg);
+		//Bestia.publish('chat.message', msg);
+		//Bestia.publish('chat.message', msg);
 	}
 }
 

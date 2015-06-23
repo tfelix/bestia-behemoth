@@ -22,7 +22,7 @@ function strStartsWith(str, start) {
  *            localNickname - How the players account is called to display the
  *            correct name in the echo messages.
  */
-Bestia.Chat = function(domEle, game, localNickname) {
+Bestia.Chat = function(domEle, game) {
 	var self = this;
 
 	/**
@@ -32,7 +32,7 @@ Bestia.Chat = function(domEle, game, localNickname) {
 	 * @constant
 	 */
 	this.MAX_MESSAGES = 50;
-	this.localNickname = localNickname;
+	this.localNickname = game.config.userName;
 
 	this.domEle = domEle;
 	this.chatEle = $(domEle).find('.chat-msgs:first').get(0);
@@ -132,8 +132,8 @@ Bestia.Chat.prototype.sendChat = function() {
 		}
 	}
 
-	var msg = new Bestia.Message.Chat(this.mode(), msgText, this.whisperNick(), this.localNickname);
-
+	// Prepare and send the message to the server and add it to the local chat.
+	var msg = new Bestia.Message.Chat(this.mode(), msgText, this.whisperNick(), this.localNickname());
 	Bestia.publish('io.sendMessage', msg);
 	this.addMessage(msg);
 };

@@ -19,6 +19,10 @@ Bestia.Connection = function() {
 	});
 };
 
+/**
+ * 
+ * Publishes: auth
+ */
 Bestia.Connection.prototype.init = function() {
 	
 	//  Prepare the request.
@@ -30,6 +34,9 @@ Bestia.Connection.prototype.init = function() {
 		// TODO zum login weiterleiten.
 		return;
 	}
+	
+	// Emit the auth data signal so other parts of the app can react to it.
+	Bestia.publish('system.auth', authData);
 	
 	var request = {
 		url : 'http://localhost:8080/api',

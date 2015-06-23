@@ -13,16 +13,4 @@ public abstract class InputMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 
-	@Override
-	public String getMessageId() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getMessagePath() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

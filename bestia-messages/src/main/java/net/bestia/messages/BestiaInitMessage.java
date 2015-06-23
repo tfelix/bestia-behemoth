@@ -1,9 +1,11 @@
 package net.bestia.messages;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.Lists;
 
 import net.bestia.model.domain.PlayerBestia;
 
@@ -22,7 +24,7 @@ public class BestiaInitMessage extends Message {
 	public final static String MESSAGE_ID = "bestia.info";
 
 	@JsonProperty("ns")
-	private int numberOfExtraSlots;
+	private int numberOfSlots;
 	@JsonProperty("b")
 	private List<PlayerBestia> bestias = new ArrayList<PlayerBestia>();
 	@JsonProperty("bm")
@@ -43,6 +45,33 @@ public class BestiaInitMessage extends Message {
 	public BestiaInitMessage() {
 
 	}
+	
+	/**
+	 * 
+	 * @param numberOfExtraSlots Number of extra 
+	 * @param masterBestia
+	 * @param bestias
+	 */
+	public BestiaInitMessage(Message msg, int numberOfSlots, PlayerBestia masterBestia, Collection<PlayerBestia> bestias) {
+		if(msg == null) {
+			throw new IllegalArgumentException("Message can not be null.");
+		}
+		if(numberOfSlots <= 0) {
+			throw new IllegalArgumentException("NumberOfSlots can not be 0 or negative.");
+		}
+		if(masterBestia == null) {
+			throw new IllegalArgumentException("MasterBestia can not be null.");
+		}
+		if(bestias == null) {
+			throw new IllegalArgumentException("Bestias can not be null.");
+		}
+		
+		setAccountId(msg.getAccountId());
+		
+		this.numberOfSlots = numberOfSlots;
+		this.bestias = Lists.newArrayList(bestias);
+		this.master = masterBestia;
+	}
 
 	@Override
 	public String getMessageId() {
@@ -50,11 +79,11 @@ public class BestiaInitMessage extends Message {
 	}
 
 	public int getNumberOfSlots() {
-		return numberOfExtraSlots;
+		return numberOfSlots;
 	}
 
 	public void setNumberOfSlots(int numberOfSlots) {
-		this.numberOfExtraSlots = numberOfSlots;
+		this.numberOfSlots = numberOfSlots;
 	}
 
 	public List<PlayerBestia> getBestias() {

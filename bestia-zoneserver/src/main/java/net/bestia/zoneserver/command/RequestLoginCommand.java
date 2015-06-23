@@ -1,7 +1,14 @@
 package net.bestia.zoneserver.command;
 
+import java.util.Set;
+
+import net.bestia.messages.BestiaInitMessage;
 import net.bestia.messages.LoginBroadcastMessage;
 import net.bestia.messages.Message;
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.dao.PlayerBestiaDAO;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.PlayerBestia;
 
 /**
  * This command will be executed if a new user wants to join. He needs a few information in order to boot the client
@@ -25,7 +32,20 @@ public class RequestLoginCommand extends Command {
 	@Override
 	public void execute(Message message, CommandContext ctx) {
 
+		// Register the bestias to the server.
 		ctx.getServer().registerAccount(message.getAccountId());
+		
+		// Gather all the needed data for the client to completely display everything...
+		
+		// gather bestias.
+		final PlayerBestiaDAO bestiaDao = ctx.getServiceLocator().getBean(PlayerBestiaDAO.class);
+		final AccountDAO accountDao = ctx.getServiceLocator().getBean(AccountDAO.class);
+		
+		final Account account = accountDao.find(message.getAccountId());
+		final Set<PlayerBestia> bestias = bestiaDao.findPlayerBestiasForAccount(message.getAccountId());
+		
+		final BestiaInitMessage msg = new BestiaInitMessage(message, 1, account.getMaster(), bestias);
+		ctx.getServer().sendMessage(msg);
 
 	}
 	
