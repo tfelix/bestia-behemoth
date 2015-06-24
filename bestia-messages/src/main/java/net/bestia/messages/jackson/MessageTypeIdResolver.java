@@ -1,6 +1,7 @@
 package net.bestia.messages.jackson;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -46,6 +47,12 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 		// Instantiate the message classes to get their message id from the method and store
 		// it for later serialization and deserialization.
 		for (Class<? extends Message> msg : messages) {
+
+			// Avoid abstract classes.
+			if (Modifier.isAbstract(msg.getModifiers())) {
+				continue;
+			}
+
 			try {
 				Constructor<? extends Message> cons = msg.getConstructor();
 

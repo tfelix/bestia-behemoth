@@ -1,6 +1,7 @@
 package net.bestia.messages;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -14,6 +15,21 @@ import org.reflections.Reflections;
 public class MessageTest {
 
 	private static Reflections reflections = new Reflections("net.bestia.messages");
+	
+	private Set<Class<? extends Message>> getMessageSubtypes() {
+		Set<Class<? extends Message>> subTypes = reflections.getSubTypesOf(Message.class);
+		Set<Class<? extends Message>> finalTypes = new HashSet<>();
+		for (Class<? extends Message> clazz : subTypes) {
+			
+			// Avoid abstract classes.
+			if(Modifier.isAbstract(clazz.getModifiers())) {
+				continue;
+			}
+			
+			finalTypes.add(clazz);
+		}
+		return finalTypes;
+	}
 
 	/**
 	 * Look if every message class has an std. ctor and can be instantiated. Important for jackson serialization.
@@ -21,11 +37,11 @@ public class MessageTest {
 	@Test
 	public void std_ctor_present_test() {
 
-		Set<Class<? extends Message>> subTypes = reflections.getSubTypesOf(Message.class);
+		Set<Class<? extends Message>> subTypes = getMessageSubtypes();
 
 		List<String> notInstances = new ArrayList<>();
 
-		for (Class<? extends Message> clazz : subTypes) {
+		for (Class<? extends Message> clazz : subTypes) {			
 			try {
 				clazz.newInstance();
 			} catch (Exception ex) {
@@ -34,7 +50,6 @@ public class MessageTest {
 		}
 
 		String msg = "Could not instanciated: " + notInstances.toString();
-
 		Assert.assertTrue(msg, notInstances.isEmpty());
 	}
 
@@ -45,13 +60,12 @@ public class MessageTest {
 		Set<String> ids = new HashSet<>();
 
 		// Find all classes implementing the message interface.
-		Set<Class<? extends Message>> messages = reflections.getSubTypesOf(Message.class);
+		Set<Class<? extends Message>> messages = getMessageSubtypes();
 		// Instantiate the message classes to get their message id from the
 		// method and store it for later serialization and deserialization.
 		for (Class<? extends Message> msg : messages) {
 
 			Constructor<? extends Message> cons = msg.getConstructor();
-
 			String key = cons.newInstance().getMessageId();
 			
 			if(ids.contains(key)) {
@@ -62,7 +76,6 @@ public class MessageTest {
 		}
 		
 		String msg = "Duplicate Message IDs found: " + duplicates.toString();
-		
 		Assert.assertTrue(msg, duplicates.isEmpty());
 	}
 }

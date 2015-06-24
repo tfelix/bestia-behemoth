@@ -1,4 +1,4 @@
-package net.bestia.model;
+package net.bestia.model.dao;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
+import net.bestia.model.DomainAwareBase;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 

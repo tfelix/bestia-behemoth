@@ -16,8 +16,17 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class Account implements Serializable {
+	
+	public enum UserLevel {
+		USER,
+		GM,
+		SUPER_GM,
+		ADMIN
+	}
 
 	@Transient
 	private static final long serialVersionUID = 1L;
@@ -37,6 +46,7 @@ public class Account implements Serializable {
 	private boolean isActivated = false;
 	private String remarks = "";
 	private Date bannedUntilDate;
+	private UserLevel userLevel = UserLevel.USER;
 
 	// @OneToMany(mappedBy="account")
 	// private List<GuildMember> guild;
@@ -165,6 +175,7 @@ public class Account implements Serializable {
 	 * The bestia master.
 	 * @return Bestia master.
 	 */
+	@JsonIgnore
 	public PlayerBestia getMaster() {
 		return master;
 	}
@@ -182,6 +193,15 @@ public class Account implements Serializable {
 		result += (lastLogin == null) ? 0 : lastLogin.hashCode();
 		result += (bannedUntilDate == null) ? 0 : bannedUntilDate.hashCode();
 		return result;
+	}
+	
+	/**
+	 * Returns the username of the account, the name of the bestia master.
+	 * 
+	 * @return
+	 */
+	public String getName() {
+		return master.getName();
 	}
 
 	public boolean equals(Object obj) {
@@ -216,13 +236,12 @@ public class Account implements Serializable {
 		this.master = masterBestia;
 	}
 
-	/**
-	 * Returns the username of the account, the name of the bestia master.
-	 * 
-	 * @return
-	 */
-	public String getName() {
-		return master.getName();
+	public UserLevel getUserLevel() {
+		return userLevel;
+	}
+
+	public void setUserLevel(UserLevel userLevel) {
+		this.userLevel = userLevel;
 	}
 
 }

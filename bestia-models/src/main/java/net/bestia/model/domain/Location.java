@@ -13,29 +13,31 @@ import javax.persistence.Transient;
  */
 @Embeddable
 public class Location implements Serializable {
-	
+
 	@Transient
 	private static final long serialVersionUID = 1L;
 	private String mapDbName;
 	private int x;
 	private int y;
-	
+
 	/**
-	 * Ctor.
-	 * Parameterless ctor which is needed for JPA.
+	 * Ctor. Parameterless ctor which is needed for JPA.
 	 */
 	public Location() {
 		mapDbName = "";
 		x = 0;
 		y = 0;
 	}
-	
+
 	/**
 	 * Ctor.
 	 * 
-	 * @param mapDbName Database name of the map.
-	 * @param x X coordinate.
-	 * @param y Y coordinate.
+	 * @param mapDbName
+	 *            Database name of the map.
+	 * @param x
+	 *            X coordinate.
+	 * @param y
+	 *            Y coordinate.
 	 */
 	public Location(String mapDbName, int x, int y) {
 		this.setMapDbName(mapDbName);
@@ -48,7 +50,7 @@ public class Location implements Serializable {
 	}
 
 	public void setMapDbName(String mapDbName) {
-		if(mapDbName == null || mapDbName.isEmpty()) {
+		if (mapDbName == null || mapDbName.isEmpty()) {
 			throw new IllegalArgumentException("MapDbName can not be null or empty.");
 		}
 		this.mapDbName = mapDbName;
@@ -59,7 +61,7 @@ public class Location implements Serializable {
 	}
 
 	public void setX(int x) {
-		if(x < 0) {
+		if (x < 0) {
 			throw new IllegalArgumentException("Coordinates can not be negative.");
 		}
 		this.x = x;
@@ -70,11 +72,14 @@ public class Location implements Serializable {
 	}
 
 	public void setY(int y) {
-		if(y < 0) {
+		if (y < 0) {
 			throw new IllegalArgumentException("Coordinates can not be negative.");
 		}
 		this.y = y;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return String.format("Location[x: %d, y: %d, mabDbName: %s]", x, y, mapDbName);
+	}
 }

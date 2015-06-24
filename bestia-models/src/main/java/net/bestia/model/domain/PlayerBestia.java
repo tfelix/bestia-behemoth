@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * 
  */
 @Entity
-@Table(name="player_bestias")
+@Table(name = "player_bestias")
 @PrimaryKeyJoinColumn(name = "bestia_id")
 public class PlayerBestia implements Serializable {
 	@Transient
@@ -38,10 +38,10 @@ public class PlayerBestia implements Serializable {
 
 	@JsonProperty("e")
 	private int exp;
-	
+
 	@JsonProperty("cn")
 	private String name = "";
-	
+
 	@AttributeOverrides({ @AttributeOverride(name = "mapDbName", column = @Column(name = "saveMapDbName")),
 			@AttributeOverride(name = "x", column = @Column(name = "saveX")),
 			@AttributeOverride(name = "y", column = @Column(name = "saveY")), })
@@ -55,17 +55,15 @@ public class PlayerBestia implements Serializable {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "ACCOUNT_ID", nullable = false)
-	@JsonIgnore
 	private Account owner;
 
 	@ManyToOne(optional = false, fetch = FetchType.LAZY)
 	@JoinColumn(name = "BESTIA_ID", nullable = false)
-	@JsonIgnore
 	private Bestia originBestia;
 
 	private int curHp;
 	private int curMana;
-	
+
 	private int level;
 
 	/**
@@ -91,52 +89,51 @@ public class PlayerBestia implements Serializable {
 			@AttributeOverride(name = "spAtk", column = @Column(name = "ivSpAtk")),
 			@AttributeOverride(name = "spDef", column = @Column(name = "ivSpDef")),
 			@AttributeOverride(name = "spd", column = @Column(name = "ivSpd")) })
-	@JsonIgnore
 	private BaseValues individualValue;
-	
+
 	public PlayerBestia() {
 		initialize();
 		this.individualValue = BaseValues.getNewIndividualValues();
 	}
-	
+
 	public PlayerBestia(Account owner, Bestia origin) {
-		if(owner == null) {
+		if (owner == null) {
 			throw new IllegalArgumentException("Owner can not be null.");
-		}		
-		if(origin == null) {
+		}
+		if (origin == null) {
 			throw new IllegalArgumentException("Origin Bestia can not be null.");
 		}
-		
+
 		initialize();
-		
+
 		this.owner = owner;
 		this.originBestia = origin;
 		this.individualValue = BaseValues.getNewIndividualValues();
 	}
-	
+
 	public PlayerBestia(Account owner, Bestia origin, BaseValues iValues) {
-		if(owner == null) {
+		if (owner == null) {
 			throw new IllegalArgumentException("Owner can not be null.");
-		}		
-		if(origin == null) {
+		}
+		if (origin == null) {
 			throw new IllegalArgumentException("Origin Bestia can not be null.");
 		}
-		if(iValues == null) {
+		if (iValues == null) {
 			throw new IllegalArgumentException("IValues can not be null.");
 		}
-		
+
 		initialize();
-		
+
 		this.owner = owner;
 		this.originBestia = origin;
 		this.individualValue = iValues;
 	}
-	
+
 	private void initialize() {
-		Location defaultLocation = new Location("testmap124", 10, 10);	
+		Location defaultLocation = new Location("testmap124", 10, 10);
 		setCurrentPosition(defaultLocation);
 		setSavePosition(defaultLocation);
-		
+
 		this.effortValues = new BaseValues();
 		this.individualValue = BaseValues.getNewIndividualValues();
 	}
@@ -173,30 +170,35 @@ public class PlayerBestia implements Serializable {
 		this.currentPosition = currentPosition;
 	}
 
+	@JsonIgnore
 	public BaseValues getIndividualValue() {
 		return individualValue;
 	}
 
+	@JsonIgnore
 	public BaseValues getEffortValues() {
 		return effortValues;
 	}
-	
+
 	public int getLevel() {
 		return level;
 	}
-	
+
 	public void setLevel(int level) {
 		this.level = level;
 	}
-	
+
+	@JsonIgnore
 	public Bestia getOrigin() {
 		return originBestia;
 	}
-	
+
+	@JsonIgnore
 	public BaseValues getBaseValues() {
 		return originBestia.getBaseValues();
 	}
-	
+
+	@JsonIgnore
 	public Account getOwner() {
 		return owner;
 	}
@@ -224,5 +226,11 @@ public class PlayerBestia implements Serializable {
 
 	public void setCurMana(int curMana) {
 		this.curMana = curMana;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("PlayerBestia[id: %d, name: %s, lv: %d, pos: %s]", id, name, level,
+				currentPosition.toString());
 	}
 }

@@ -27,5 +27,10 @@ public class MoveCommand extends Command {
 		
 		ctx.getServer().processPlayerInput(msg);
 	}
+	
+	@Override
+	public String toString() {
+		return "MoveCommand[]";
+	}
 
 }
