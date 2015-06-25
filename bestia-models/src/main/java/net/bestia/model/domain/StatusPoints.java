@@ -11,43 +11,49 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 public class StatusPoints {
-	@JsonProperty("cHp")
-	private int currentHp;
-	@JsonProperty("mHp")
+	@JsonProperty("chp")
+	private int curHp;
+
+	@JsonProperty("mhp")
 	@Transient
 	private int maxHp;
-	@JsonProperty("cMana")
-	private int currentMana;
-	@JsonProperty("mMana")
+
+	@JsonProperty("cmana")
+	private int curMana;
+
+	@JsonProperty("mmana")
 	@Transient
 	private int maxMana;
-	@JsonProperty("aD")
+
+	@JsonProperty("adef")
 	@Transient
 	private int armorDef;
-	@JsonProperty("aSpD")
+
+	@JsonProperty("aspdef")
 	@Transient
 	private int armorSpDef;
-	@JsonProperty
+
 	@Transient
 	private int atk;
-	@JsonProperty
+
 	@Transient
 	private int def;
-	@JsonProperty
+
 	@Transient
 	private int spAtk;
-	@JsonProperty
+
 	@Transient
 	private int spDef;
-	@JsonProperty
+
+	@Transient
 	private int spd;
 
 	public int getCurrentHp() {
-		return currentHp;
+		return curHp;
 	}
 
 	public void setCurrentHp(int hp) {
-		this.currentHp = hp;
+		this.curHp = hp;
 		checkInvalidStatusValue();
 	}
 
@@ -61,11 +67,11 @@ public class StatusPoints {
 	}
 
 	public int getCurrentMana() {
-		return currentMana;
+		return curMana;
 	}
 
 	public void setCurrentMana(int mana) {
-		this.currentMana = mana;
+		this.curMana = mana;
 		checkInvalidStatusValue();
 	}
 
@@ -140,11 +146,18 @@ public class StatusPoints {
 	 * @param rhs
 	 */
 	public void add(StatusPoints rhs) {
-		/*
-		 * this.atk += rhs.getAtk(); this.def += rhs.getDef(); this.curHp += rhs.getCurrentHp(); this.curMana +=
-		 * rhs.getCurrentMana(); this.spAtk += rhs.getSpAtk(); this.spd += rhs.getSpd(); this.spDef += rhs.getSpDef();
-		 * checkInvalidStatusValue();
-		 */
+
+		this.atk += rhs.getAtk();
+		this.def += rhs.getDef();
+		this.curHp += rhs.getCurrentHp();
+		this.curMana += rhs.getCurrentMana();
+		this.spAtk += rhs.getSpAtk();
+		this.spd += rhs.getSpd();
+		this.spDef += rhs.getSpDef();
+		this.armorDef += rhs.getArmorDef();
+		this.armorSpDef += rhs.getArmorSpDef();
+		checkInvalidStatusValue();
+
 	}
 
 	/**
@@ -156,33 +169,36 @@ public class StatusPoints {
 	 */
 	private void checkInvalidStatusValue() {
 
-		/*
-		 * Überprüft ob gewisse Statuswerte ihren max. Wert überschritten haben, wenn ja werden sie am max. gecapped.
-		 * Normal ist dies HP und Mana.
-		 */
-
-		if (currentHp > maxHp) {
-			currentHp = maxHp;
+		if (curHp > maxHp) {
+			curHp = maxHp;
 		}
 
-		if (currentMana > maxMana) {
-			currentMana = maxMana;
+		if (curMana > maxMana) {
+			curMana = maxMana;
 		}
 
-		if (currentHp < 0) {
-			currentHp = 0;
+		if (curHp < 0) {
+			curHp = 0;
 		}
 
-		if (currentMana < 0) {
-			currentMana = 0;
+		if (curMana < 0) {
+			curMana = 0;
 		}
 
 		if (armorDef < 1) {
 			armorDef = 1;
 		}
+		
+		if(armorDef > 100) {
+			armorDef = 100;
+		}
 
 		if (armorSpDef < 1) {
 			armorSpDef = 1;
+		}
+		
+		if(armorSpDef > 100) {
+			armorSpDef = 100;
 		}
 
 	}

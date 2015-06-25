@@ -5,6 +5,8 @@ import java.io.Serializable;
 import javax.persistence.Embeddable;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Saves a location on a map.
  * 
@@ -16,6 +18,8 @@ public class Location implements Serializable {
 
 	@Transient
 	private static final long serialVersionUID = 1L;
+	
+	@JsonProperty("mdbn")
 	private String mapDbName;
 	private int x;
 	private int y;

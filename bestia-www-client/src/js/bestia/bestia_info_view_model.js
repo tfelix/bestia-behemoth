@@ -59,7 +59,7 @@ Bestia.BestiaInfoViewModel = function(net) {
 	};
 
 	// Register for messages from the server.
-	Bestia.subscribe('bestia.init', onInitHandler);
+	Bestia.subscribe('bestia.info', onInitHandler);
 	Bestia.subscribe('bestia.update', onUpdateHandler);
 };
 

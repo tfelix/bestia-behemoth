@@ -48,6 +48,9 @@ public class PlayerBestia implements Serializable {
 	@Embedded
 	@JsonProperty("sl")
 	private Location savePosition;
+	
+	@Embedded
+	private StatusPoints statusPoints;
 
 	@Embedded
 	@JsonProperty("cl")
@@ -61,9 +64,7 @@ public class PlayerBestia implements Serializable {
 	@JoinColumn(name = "BESTIA_ID", nullable = false)
 	private Bestia originBestia;
 
-	private int curHp;
-	private int curMana;
-
+	@JsonProperty("lv")
 	private int level;
 
 	/**
@@ -89,6 +90,7 @@ public class PlayerBestia implements Serializable {
 			@AttributeOverride(name = "spAtk", column = @Column(name = "ivSpAtk")),
 			@AttributeOverride(name = "spDef", column = @Column(name = "ivSpDef")),
 			@AttributeOverride(name = "spd", column = @Column(name = "ivSpd")) })
+	@JsonIgnore
 	private BaseValues individualValue;
 
 	public PlayerBestia() {
@@ -130,7 +132,7 @@ public class PlayerBestia implements Serializable {
 	}
 
 	private void initialize() {
-		Location defaultLocation = new Location("testmap124", 10, 10);
+		Location defaultLocation = new Location("", 0, 0);
 		setCurrentPosition(defaultLocation);
 		setSavePosition(defaultLocation);
 
@@ -209,23 +211,27 @@ public class PlayerBestia implements Serializable {
 
 	@JsonProperty("sp")
 	public StatusPoints getStatusPoints() {
-		return new StatusPoints();
+		return statusPoints;
 	}
 
+	@JsonIgnore
 	public int getCurHp() {
-		return curHp;
+		return statusPoints.getCurrentHp();
 	}
 
+	@JsonIgnore
 	public void setCurHp(int curHp) {
-		this.curHp = curHp;
+		this.statusPoints.setCurrentHp(curHp);
 	}
 
+	@JsonIgnore
 	public int getCurMana() {
-		return curMana;
+		return statusPoints.getCurrentMana();
 	}
 
+	@JsonIgnore
 	public void setCurMana(int curMana) {
-		this.curMana = curMana;
+		statusPoints.setCurrentMana(curMana);
 	}
 
 	@Override
