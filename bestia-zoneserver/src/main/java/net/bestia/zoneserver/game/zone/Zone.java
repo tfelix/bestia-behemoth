@@ -11,6 +11,7 @@ import net.bestia.model.domain.PlayerBestia;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
 import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.manager.MyTagManager;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
 import net.bestia.zoneserver.ecs.system.PlayerControlSystem;
 import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
@@ -19,6 +20,7 @@ import net.bestia.zoneserver.game.zone.map.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.artemis.Entity;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
 import com.artemis.utils.EntityBuilder;
@@ -92,6 +94,8 @@ public class Zone {
 		// Set all the systems.
 		this.world.setSystem(new MovementSystem());
 		this.world.setSystem(new PlayerControlSystem());
+		
+		this.world.setManager(new MyTagManager());
 
 		this.world.initialize();
 
@@ -158,7 +162,8 @@ public class Zone {
 
 		// Spawn the entity.
 		final Location curLoc = pb.getBestia().getCurrentPosition();
-		new EntityBuilder(world).with(new PlayerControlled(pb), new Position(curLoc.getX(), curLoc.getY())).build();
+		Entity e = new EntityBuilder(world).with(new PlayerControlled(pb), new Position(curLoc.getX(), curLoc.getY())).build();
+		world.getManager(MyTagManager.class).register("PLAYER", e);
 	}
 
 	public void processPlayerInput(Message msg) {
