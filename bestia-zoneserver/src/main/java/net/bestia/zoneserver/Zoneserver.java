@@ -36,6 +36,8 @@ import net.bestia.zoneserver.game.zone.Zone;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.mysql.jdbc.NotImplemented;
+
 /**
  * This is the central game server instance. Upon start it will read all designated maps parse them, instance all needed
  * entities and scripts. It will then populate the map with the spawned entities and with data from the database and
@@ -374,6 +376,14 @@ public class Zoneserver {
 		if (!zone.start()) {
 			System.exit(1);
 		}
+	}
+
+	/**
+	 * TODO Noch implementierne.
+	 * @return
+	 */
+	public ECSInputControler getInputController() {
+		return null;
 	}
 
 }

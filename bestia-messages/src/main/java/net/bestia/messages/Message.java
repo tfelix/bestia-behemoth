@@ -84,7 +84,7 @@ public abstract class Message implements Serializable {
 	/**
 	 * Gets the player bestia id for which this message is meant. Not all messages are subject to a selected player
 	 * bestia thus this field can contain the ID 0 which is reserved for this case.
-	 * 
+	 * TODO Das runter ziehen in die Child class.
 	 * @return
 	 */
 	@JsonIgnore
@@ -92,6 +92,7 @@ public abstract class Message implements Serializable {
 		return playerBestiaId;
 	}
 	
+	// TODO das in die InputMessage Child class ziehen.
 	public void setPlayerBestiaId(int playerBestiaId) {
 		this.playerBestiaId = playerBestiaId;
 	}

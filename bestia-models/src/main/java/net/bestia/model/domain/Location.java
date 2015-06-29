@@ -54,9 +54,6 @@ public class Location implements Serializable {
 	}
 
 	public void setMapDbName(String mapDbName) {
-		if (mapDbName == null || mapDbName.isEmpty()) {
-			throw new IllegalArgumentException("MapDbName can not be null or empty.");
-		}
 		this.mapDbName = mapDbName;
 	}
 

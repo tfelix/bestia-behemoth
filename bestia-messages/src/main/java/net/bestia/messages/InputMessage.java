@@ -12,5 +12,18 @@ package net.bestia.messages;
 public abstract class InputMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
+	
+	public InputMessage() {
+		
+	}
+	
+	public InputMessage(int pbid) {
+		setPlayerBestiaId(pbid);
+	}
+	
+	public InputMessage(Message msg, int pbid) {
+		setAccountId(msg.getAccountId());
+		setPlayerBestiaId(pbid);
+	}
 
 }

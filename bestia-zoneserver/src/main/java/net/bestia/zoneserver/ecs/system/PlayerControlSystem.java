@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.messages.BestiaMoveMessage;
+import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
@@ -49,8 +50,23 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 			case BestiaMoveMessage.MESSAGE_ID:
 				processMoveMessage(player, (BestiaMoveMessage) msg);
 				break;
+
+			case LogoutBroadcastMessage.MESSAGE_ID:
+				processLogoutMessage(player, (LogoutBroadcastMessage) msg);
+				break;
 			}
 		}
+	}
+
+	/**
+	 * Synchronizes the bestia with the database and then removes this entity from the ECS.
+	 * 
+	 * @param player
+	 * @param msg
+	 */
+	private void processLogoutMessage(Entity player, LogoutBroadcastMessage msg) {
+		// TODO Auto-generated method stub
+
 	}
 
 	/**
