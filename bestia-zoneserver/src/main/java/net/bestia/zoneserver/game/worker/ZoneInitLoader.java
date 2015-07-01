@@ -14,6 +14,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import net.bestia.util.BestiaConfiguration;
+import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.game.zone.Zone;
 import net.bestia.zoneserver.game.zone.map.Map;
 import net.bestia.zoneserver.game.zone.map.Map.MapBuilder;
@@ -44,6 +45,11 @@ public class ZoneInitLoader {
 		private List<String> zonesToLoad;
 		private File mapDataDir;
 
+		/**
+		 * Ctor.
+		 * @param zones
+		 * @param mapDataDir
+		 */
 		public ZoneLoader(List<String> zones, File mapDataDir) {
 			this.zonesToLoad = zones;
 			this.mapDataDir = mapDataDir;
@@ -82,7 +88,7 @@ public class ZoneInitLoader {
 
 			builder.load(loader);
 
-			Zone z = new Zone(config, builder.build());
+			Zone z = new Zone(context, builder.build());
 
 			return z;
 		}
@@ -94,35 +100,25 @@ public class ZoneInitLoader {
 	private final int nThreads;
 	private final BestiaConfiguration config;
 	private final File mapDataDir;
+	private final CommandContext context;
 
-	/**
-	 * 
-	 * @param zoneNames
-	 *            Name of the zones to load.
-	 * @param mapDataDir
-	 *            Directory where to find the zone datafiles.
-	 * @param nThreads
-	 *            Number of threads to use for loading.
-	 * @param zones
-	 *            Reference to the zonelist the server is using. Loaded zones will be added to this list if finished.
-	 */
-	public ZoneInitLoader(Set<String> zoneNames, BestiaConfiguration config, java.util.Map<String, Zone> zones) {
-		if (config == null) {
-			throw new IllegalArgumentException("Config can not be null.");
-		}
-		if (zoneNames == null) {
-			throw new IllegalArgumentException("Config can not be null.");
+	
+	public ZoneInitLoader(CommandContext ctx, java.util.Map<String, Zone> zones) {
+		if (ctx == null) {
+			throw new IllegalArgumentException("Context can not be null.");
 		}
 		if (zones == null) {
 			throw new IllegalArgumentException("Zone reference can not be null.");
 		}
+		
+		this.config = ctx.getConfiguration();
 
 		this.nThreads = config.getIntProperty("zone.initThreads");
-		this.zoneNames = zoneNames;
+		this.zoneNames = ctx.getServer().getResponsibleZones();
 		this.worker = Executors.newFixedThreadPool(nThreads);
 		this.serverZones = zones;
 		this.mapDataDir = new File(config.getProperty("zone.gameDataDir"));
-		this.config = config;
+		this.context = ctx;
 	}
 
 	/**

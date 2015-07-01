@@ -11,7 +11,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.bestia.messages.InputMessage;
-import net.bestia.zoneserver.ECSInputControler.InputControllerCallback;
+import net.bestia.model.domain.PlayerBestia;
+import net.bestia.zoneserver.ecs.ECSInputControler;
+import net.bestia.zoneserver.ecs.ECSInputControler.InputControllerCallback;
 import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
 
 public class PlayerInputControllerTest {
@@ -29,7 +31,7 @@ public class PlayerInputControllerTest {
 		pic.addCallback(callback);
 
 		List<PlayerBestiaManager> managerList = new ArrayList<PlayerBestiaManager>();
-		managerList.add(mock(PlayerBestiaManager.class));
+		managerList.add(getMockedManager());
 
 		pic.registerAccount(1, managerList);
 		verify(callback, times(1)).addedAccount(anyLong());
@@ -43,7 +45,7 @@ public class PlayerInputControllerTest {
 		pic.addCallback(callback);
 
 		List<PlayerBestiaManager> managerList = new ArrayList<PlayerBestiaManager>();
-		managerList.add(mock(PlayerBestiaManager.class));
+		managerList.add(getMockedManager());
 
 		pic.registerAccount(1, managerList);
 		pic.removeAccount(1);
@@ -59,7 +61,7 @@ public class PlayerInputControllerTest {
 		pic.addCallback(callback);
 
 		List<PlayerBestiaManager> managerList = new ArrayList<PlayerBestiaManager>();
-		managerList.add(mock(PlayerBestiaManager.class));
+		managerList.add(getMockedManager());
 
 		pic.registerAccount(1, managerList);
 
@@ -107,7 +109,7 @@ public class PlayerInputControllerTest {
 		pic.addCallback(callback);
 		
 		final int pbid = 1337;
-		PlayerBestiaManager pbm = mock(PlayerBestiaManager.class);
+		PlayerBestiaManager pbm = getMockedManager();
 		when(pbm.getBestia().getId()).thenReturn(pbid);
 		
 		pic.addPlayerBestia(1, pbm);
@@ -125,10 +127,7 @@ public class PlayerInputControllerTest {
 		ECSInputControler pic = new ECSInputControler();
 		pic.addCallback(callback);
 		
-		final int pbid = 1337;
-		PlayerBestiaManager pbm = mock(PlayerBestiaManager.class);
-		when(pbm.getBestia().getId()).thenReturn(pbid);
-		
+		PlayerBestiaManager pbm = getMockedManager();		
 		pic.addPlayerBestia(1, pbm);
 		
 		Set<PlayerBestiaManager> actives = pic.getActiveBestias(1);
@@ -144,14 +143,12 @@ public class PlayerInputControllerTest {
 		ECSInputControler pic = new ECSInputControler();
 		pic.addCallback(callback);
 		
-		final int pbid = 1337;
-		PlayerBestiaManager pbm = mock(PlayerBestiaManager.class);
-		when(pbm.getBestia().getId()).thenReturn(pbid);
+		PlayerBestiaManager pbm = getMockedManager();
 		
 		pic.addPlayerBestia(1, pbm);
 		pic.removePlayerBestia(1, pbm);
 		
-		Assert.assertNull(pic.getInput(pbid));
+		Assert.assertNull(pic.getInput(1));
 		Assert.assertNull(pic.getActiveBestias(1));
 		
 		verify(callback, times(1)).addedAccount(anyLong());
@@ -167,7 +164,7 @@ public class PlayerInputControllerTest {
 		pic.addCallback(callback);
 
 		List<PlayerBestiaManager> managerList = new ArrayList<PlayerBestiaManager>();
-		managerList.add(mock(PlayerBestiaManager.class));
+		managerList.add(getMockedManager());
 
 		pic.registerAccount(1, managerList);
 
@@ -184,9 +181,14 @@ public class PlayerInputControllerTest {
 		Assert.assertNull(queue);
 	}
 
-	// @TODO Das hier fertig machen.
 	private PlayerBestiaManager getMockedManager() {
+		PlayerBestia pb = mock(PlayerBestia.class);
+		PlayerBestiaManager pbm = mock(PlayerBestiaManager.class);
 		
+		when(pb.getId()).thenReturn(1);
+		when(pbm.getBestia()).thenReturn(pb);
+		
+		return pbm;
 	}
 
 	private ECSInputControler.InputControllerCallback getCallback() {

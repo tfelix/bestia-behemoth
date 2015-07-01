@@ -7,7 +7,7 @@ import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.zoneserver.ECSInputControler;
+import net.bestia.zoneserver.ecs.ECSInputControler;
 import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
 
 /**

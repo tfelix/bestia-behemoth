@@ -1,4 +1,4 @@
-package net.bestia.zoneserver;
+package net.bestia.zoneserver.ecs;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -145,10 +145,6 @@ public class ECSInputControler {
 		for (PlayerBestiaManager bestia : bestias) {
 			removePlayerBestia(accId, bestia);
 		}
-
-		activeBestias.remove(accId);
-		onRemovedAccount(accId);
-		log.trace("Remove account: {}.", accId);
 	}
 
 	/**
@@ -166,13 +162,15 @@ public class ECSInputControler {
 
 		// Remove messages.
 		inputQueues.remove(bestiaId);
-		activeBestias.get(accId).remove(bestiaId);
+		activeBestias.get(accId).remove(bestia);
 		onRemovedBestia(accId, bestiaId);
 		log.trace("Removed bestia: {} from account: {}.", bestiaId, accId);
 
 		if (activeBestias.get(accId).size() == 0) {
 			// Remove account aswell.
-			removeAccount(accId);
+			activeBestias.remove(accId);
+			onRemovedAccount(accId);
+			log.trace("Remove account: {}.", accId);
 		}
 	}
 

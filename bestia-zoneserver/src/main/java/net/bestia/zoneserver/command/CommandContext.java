@@ -52,7 +52,7 @@ public final class CommandContext {
 	private final BestiaConfiguration configuration;
 	private final Map<String, Zone> zones;
 	private final Zoneserver server;
-	private final ServiceLocator serviceLocator = new ServiceLocator();
+	private final ServiceLocator serviceLocator;
 
 	/**
 	 * Ctor. Creat
@@ -81,6 +81,7 @@ public final class CommandContext {
 		this.zones = builder.zones;
 		this.configuration = builder.config;
 		this.server = builder.zoneserver;
+		this.serviceLocator = new ServiceLocator();
 	}
 
 	/**

@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import net.bestia.messages.BestiaMoveMessage;
 import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
+import net.bestia.model.ServiceLocator;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
 import net.bestia.zoneserver.game.zone.Vector2;
@@ -28,6 +29,9 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 
 	@Wire
 	private Zone zone;
+	
+	@Wire
+	private ServiceLocator locator;
 
 	ComponentMapper<PlayerControlled> pcm;
 

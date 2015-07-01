@@ -29,6 +29,7 @@ import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
+import net.bestia.zoneserver.ecs.ECSInputControler;
 import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.game.worker.ZoneInitLoader;
 import net.bestia.zoneserver.game.zone.Zone;
@@ -230,7 +231,7 @@ public class Zoneserver {
 
 		// Create ActorInitWorker: Spawning and initializing all Actors.
 		log.info("Initializing: maps...");
-		ZoneInitLoader zoneLoader = new ZoneInitLoader(getResponsibleZones(), config, zones);
+		ZoneInitLoader zoneLoader = new ZoneInitLoader(commandContext, zones);
 		try {
 			zoneLoader.init();
 		} catch (IOException ex) {

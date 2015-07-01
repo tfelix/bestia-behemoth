@@ -9,6 +9,7 @@ import net.bestia.messages.Message;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.util.BestiaConfiguration;
+import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.manager.MyTagManager;
@@ -74,7 +75,10 @@ public class Zone {
 	// EC System.
 	private final World world;
 
-	public Zone(BestiaConfiguration config, Map map) {
+	public Zone(CommandContext ctx, Map map) {
+		if(ctx == null) {
+			throw new IllegalArgumentException("Context can not be null.");
+		}	
 		if (map == null) {
 			throw new IllegalArgumentException("Map can not be null.");
 		}
@@ -87,14 +91,15 @@ public class Zone {
 		}
 
 		// Initialize ECS.
-		final WorldConfiguration worldConfig = new WorldConfiguration().register(this);
+		final WorldConfiguration worldConfig = new WorldConfiguration();
+		//worldConfig.register(this).register(map).register();
 		this.world = new World(worldConfig);
-		// Set all the managers.
 
 		// Set all the systems.
 		this.world.setSystem(new MovementSystem());
 		this.world.setSystem(new PlayerControlSystem());
-		
+
+		// Set all the managers.
 		this.world.setManager(new MyTagManager());
 
 		this.world.initialize();
@@ -162,7 +167,8 @@ public class Zone {
 
 		// Spawn the entity.
 		final Location curLoc = pb.getBestia().getCurrentPosition();
-		Entity e = new EntityBuilder(world).with(new PlayerControlled(pb), new Position(curLoc.getX(), curLoc.getY())).build();
+		Entity e = new EntityBuilder(world).with(new PlayerControlled(pb), new Position(curLoc.getX(), curLoc.getY()))
+				.build();
 		world.getManager(MyTagManager.class).register("PLAYER", e);
 	}
 
@@ -205,7 +211,7 @@ public class Zone {
 			throw new IllegalStateException("Zone is not running. Call .start() first before doing this operation!");
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("Zone[name: %s, hasStarted: %s]", name, hasStarted.toString());
