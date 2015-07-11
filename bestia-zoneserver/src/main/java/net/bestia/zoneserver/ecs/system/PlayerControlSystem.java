@@ -13,8 +13,10 @@ import net.bestia.messages.Message;
 import net.bestia.model.ServiceLocator;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
+import net.bestia.zoneserver.ecs.event.PersistEvent;
 import net.bestia.zoneserver.game.zone.Vector2;
 import net.bestia.zoneserver.game.zone.Zone;
+import net.mostlyoriginal.api.event.common.EventSystem;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
@@ -33,7 +35,8 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	@Wire
 	private ServiceLocator locator;
 
-	ComponentMapper<PlayerControlled> pcm;
+	private ComponentMapper<PlayerControlled> pcm;
+	private EventSystem eventSystem;
 
 	@SuppressWarnings("unchecked")
 	public PlayerControlSystem() {
@@ -69,8 +72,9 @@ public class PlayerControlSystem extends EntityProcessingSystem {
 	 * @param msg
 	 */
 	private void processLogoutMessage(Entity player, LogoutBroadcastMessage msg) {
-		// TODO Auto-generated method stub
-
+		
+		// Trigger a immediat persist operation.
+		eventSystem.dispatch(new PersistEvent(player));
 	}
 
 	/**

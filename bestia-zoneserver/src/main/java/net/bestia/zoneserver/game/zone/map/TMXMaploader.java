@@ -1,23 +1,18 @@
 package net.bestia.zoneserver.game.zone.map;
 
-import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Properties;
-import java.util.Set;
-import java.util.Vector;
 
 import net.bestia.zoneserver.game.zone.Vector2;
 
 import org.apache.commons.io.FilenameUtils;
 
 import tiled.core.MapLayer;
-import tiled.core.MapObject;
-import tiled.core.ObjectGroup;
 import tiled.core.TileLayer;
-import tiled.core.TileSet;
 import tiled.io.TMXMapReader;
 
 /**
@@ -31,6 +26,8 @@ public class TMXMaploader implements Maploader {
 	private TMXMapReader reader;
 	private String mapFile;
 
+	private Map.MapBuilder builder;
+
 	/**
 	 * 
 	 * @param tmxMapFile
@@ -41,6 +38,9 @@ public class TMXMaploader implements Maploader {
 	}
 
 	public void loadMap(Map.MapBuilder builder) throws IOException {
+
+		this.builder = builder;
+
 		tiled.core.Map tiledMap;
 		try {
 			tiledMap = reader.readMap(mapFile);
@@ -48,100 +48,123 @@ public class TMXMaploader implements Maploader {
 			throw new IOException(e);
 		}
 
+		prepareMapData(tiledMap);
+
+		prepareTilesData(tiledMap);
+	}
+
+	/**
+	 * Translates general map data.
+	 * 
+	 * @param tiledMap
+	 */
+	private void prepareMapData(tiled.core.Map tiledMap) {
 		builder.height = tiledMap.getHeight();
 		builder.width = tiledMap.getWidth();
 
 		String filename = FilenameUtils.removeExtension(FilenameUtils.getBaseName(mapFile));
 		builder.mapDbName = filename;
 
-		Properties p = tiledMap.getProperties();
+		Properties mapProperties = tiledMap.getProperties();
 
 		// Get map properties.
-		builder.globalScript = p.getProperty("globalScript");
-
-		checkStaticCollisions(tiledMap);
-
-		for (MapLayer l : tiledMap.getLayers()) {
-			String name = l.getName().toUpperCase();
-			if (name.equals("WALLS")) {
-				setWalls(l);
-			} else if (name.equals("SCRIPTS")) {
-				setScripts(l);
-			} else if (name.equals("SOUNDS")) {
-				setSounds(l);
-			}
-		}
+		builder.globalScript = mapProperties.getProperty("globalScript");
 	}
 
-	private void setSounds(MapLayer l) {
-		// TODO Auto-generated method stub
 
-	}
-
-	private Set<Vector2> checkStaticCollisions(tiled.core.Map tiledMap) {
-		Set<Vector2> collisions = new HashSet<>();
+	/**
+	 * Translates the map tile data into bestia usable tile informations.
+	 * 
+	 * @param tiledMap
+	 */
+	private void prepareTilesData(tiled.core.Map tiledMap) throws IOException {
 
 		int numLayer = tiledMap.getLayerCount();
-		Vector<TileSet> tileSet = tiledMap.getTileSets();
-		
-		// Find the ground tileset with MUST contain all collidable tiles.
-		final TileSet ts;
-		for (TileSet curTs : tileSet) {
-			if(curTs.getName().equals("Berge")) {
-				ts = curTs;
-				break;
-			}
-		}
 
+		// We must sort the layer since order is not guranteed.
+		List<TileLayer> layers = new ArrayList<>();
+
+		// Extract all ground layers.
 		for (int i = 0; i < numLayer; i++) {
+
 			MapLayer layer = tiledMap.getLayer(i);
+
 			TileLayer tLayer;
-			if(layer instanceof TileLayer) {
+			if (layer instanceof TileLayer) {
 				tLayer = (TileLayer) layer;
 			} else {
 				continue;
 			}
-			
-			final int height = layer.getHeight();
-			final int width = layer.getWidth();
-			
-			// Ignore non bottom/ground layer.
+
+			// Ignore non bottom/ground layers. (Like special sound layer, event trigger etc.)
 			if (!layer.getName().toLowerCase().startsWith("layer_")) {
 				continue;
 			}
 
-			for(int y = 0; y < height; y++) {
-				for(int x = 0; x < width; x++) {					
-					Properties p = tLayer.getTileInstancePropertiesAt(22, 13);
-					tiled.core.Map map = layer.getMap();
-					
-					//ts.getTile(width)
-				}			
+			layers.add(tLayer);
+		}
+
+		// Sort the layer list. Ascending order.
+		layers.sort(new Comparator<MapLayer>() {
+
+			@Override
+			public int compare(MapLayer o1, MapLayer o2) {
+				// Snip "layer_" away.
+				int o1i = Integer.parseInt(o1.getName().substring(6));
+				int o2i = Integer.parseInt(o2.getName().substring(6));
+
+				if (o1i == o2i) {
+					return 0;
+				}
+				return (o1i < o2i) ? -1 : 1;
 			}
+
+		});
+
+		// Sanity checks.
+		if (layers.isEmpty()) {
+			throw new IOException("No tiles to load have been found.");
 		}
 
-		return null;
-	}
+		// Save the size of the map.
+		final int height = layers.get(0).getHeight();
+		final int width = layers.get(0).getWidth();
 
-	private void setScripts(MapLayer l) {
-		ObjectGroup grp = (ObjectGroup) l;
-		Iterator<MapObject> itObj = grp.getObjects();
+		// Iterate bottom up through tiles and layers.
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				
+				boolean isWalkable = true;
+				int walkspeed = 1000;
+				
+				for (int i = 0; i < layers.size(); i++) {
+					
+					final TileLayer layer = layers.get(i);		
+					final tiled.core.Tile tile = layer.getTileAt(x, y);
 
-		while (itObj.hasNext()) {
-			MapObject obj = itObj.next();
-			Rectangle rect = obj.getBounds();
+					if (tile == null) {
+						continue;
+					}
 
-		}
-	}
+					Properties p = tile.getProperties();
 
-	private void setWalls(MapLayer l) {
-		ObjectGroup grp = (ObjectGroup) l;
-		Iterator<MapObject> itObj = grp.getObjects();
+					if (p == null) {
+						continue;
+					}
 
-		while (itObj.hasNext()) {
-			MapObject obj = itObj.next();
-			Rectangle rect = obj.getBounds();
+					final String pWalkable = p.getProperty("bWalkable");
+					//final String pWalkspeed = p.getProperty("walkspeed");
 
+					if (pWalkable != null && pWalkable.equals("false")) {
+						isWalkable = false;
+					} else {
+						isWalkable = true;
+					}
+				}
+				
+				final Tile mapTile = new Tile(isWalkable, walkspeed);
+				builder.tiles.put(new Vector2(x, y), mapTile);
+			}
 		}
 	}
 }

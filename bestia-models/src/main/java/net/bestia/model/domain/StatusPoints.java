@@ -1,5 +1,7 @@
 package net.bestia.model.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,7 +12,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class StatusPoints {
+public class StatusPoints implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
 	@JsonProperty("chp")
 	private int curHp;
 

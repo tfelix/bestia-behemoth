@@ -17,7 +17,7 @@ public class Vector2 {
 	}
 
 	public String toString() {
-		return String.format("Point[x: %d, y: %d]", x, y);
+		return String.format("Vec2[x: %d, y: %d]", x, y);
 	}
 
 	@Override

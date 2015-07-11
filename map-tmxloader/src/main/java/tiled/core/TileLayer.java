@@ -48,7 +48,7 @@ public class TileLayer extends MapLayer
             return null;
         }
         Object key = new Point(x, y);
-        return tileInstanceProperties.get(key);
+       return tileInstanceProperties.get(key);
     }
 
     public void setTileInstancePropertiesAt(int x, int y, Properties tip) {

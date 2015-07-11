@@ -12,7 +12,8 @@
 	</parent>
 
 	<properties>
-		<artemis.version>0.9.0</artemis.version>
+		<artemis.version>0.9.1-SNAPSHOT</artemis.version>
+		<artemis-contrib.version>0.9.1</artemis-contrib.version>
 	</properties>
 
 	<dependencies>
@@ -40,6 +41,11 @@
 			<groupId>net.onedaybeard.artemis</groupId>
 			<artifactId>artemis-odb</artifactId>
 			<version>${artemis.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.mostlyoriginal.artemis-odb</groupId>
+			<artifactId>contrib-eventbus</artifactId>
+			<version>${artemis-contrib.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>map-tmxloader</groupId>
@@ -116,7 +122,7 @@
 				<executions>
 					<execution>
 						<goals>
-							<goal>matrix</goal>
+							<goal>artemis</goal>
 						</goals>
 					</execution>
 				</executions>

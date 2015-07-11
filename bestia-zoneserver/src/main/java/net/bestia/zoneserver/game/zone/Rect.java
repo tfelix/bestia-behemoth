@@ -1,8 +1,7 @@
 package net.bestia.zoneserver.game.zone;
 
 /**
- * Rectangle. Immutable. Can be used as collision bounding box shape and other
- * things.
+ * Rectangle. Immutable. Can be used as collision bounding box shape and other things.
  * 
  * @author Thomas Felix <thoams.felix@tfelix.de>
  *
@@ -53,8 +52,7 @@ public class Rect {
 
 	@Override
 	public String toString() {
-		return String.format("Dimension[x: %d, y: %d, width: %d, height: %d]",
-				x, y, width, height);
+		return String.format("Dimension[x: %d, y: %d, width: %d, height: %d]", x, y, width, height);
 	}
 
 	@Override
@@ -106,5 +104,16 @@ public class Rect {
 	 */
 	public int getY() {
 		return y;
+	}
+
+	/**
+	 * Checks if the given coordinate lies within the rectangle.
+	 * 
+	 * @param cords
+	 *            Coordinates to check against this rectangle.
+	 * @return TRUE if it lies within, FALSE otherwise.
+	 */
+	public boolean contains(Vector2 cords) {
+		return (cords.x < x || cords.y < y || cords.x > x + width || cords.y > y + height);
 	}
 }

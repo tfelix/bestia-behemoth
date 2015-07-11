@@ -186,14 +186,15 @@ Bestia.Engine.States.GameState.prototype = {
 			var start = this._bestiaWorld.getTileXY(this.player.x, this.player.y);
 			var goal = this._bestiaWorld.getTileXY(this.game.input.worldX, this.game.input.worldY);
 
-			var path = this._bestiaWorld.findPath(start, goal);
+			var path = this._bestiaWorld.findPath(start, goal).nodes;
 			// Send to server.
 			
-			var msg = new Bestia.Message.BestiaMove(this._playerEntity.pbid, path.nodes, this._playerEntity.walkspeed);
+			var path = path.reverse();
+			var msg = new Bestia.Message.BestiaMove(this._playerEntity.pbid, path, this._playerEntity.walkspeed);
 			Bestia.publish('io.sendMessage', msg);
 			
 			// Start movement.
-			this._playerEntity.moveTo(path.nodes.reverse(), this._bestiaWorld);
+			this._playerEntity.moveTo(path, this._bestiaWorld);
 
 		}, this);
 	},

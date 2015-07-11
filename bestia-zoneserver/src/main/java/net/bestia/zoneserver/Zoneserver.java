@@ -31,13 +31,11 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
 import net.bestia.zoneserver.ecs.ECSInputControler;
 import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
-import net.bestia.zoneserver.game.worker.ZoneInitLoader;
 import net.bestia.zoneserver.game.zone.Zone;
+import net.bestia.zoneserver.worker.ZoneInitLoader;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.mysql.jdbc.NotImplemented;
 
 /**
  * This is the central game server instance. Upon start it will read all designated maps parse them, instance all needed

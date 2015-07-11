@@ -3,6 +3,7 @@ package net.bestia.zoneserver.ecs.system;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.bestia.zoneserver.ecs.component.ChangedData;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.game.zone.Vector2;
@@ -10,6 +11,8 @@ import net.bestia.zoneserver.game.zone.Vector2;
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
+import com.artemis.EntityTransmuter;
+import com.artemis.EntityTransmuterFactory;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.DelayedEntityProcessingSystem;
 
@@ -22,13 +25,15 @@ import com.artemis.systems.DelayedEntityProcessingSystem;
  */
 @Wire
 public class MovementSystem extends DelayedEntityProcessingSystem {
-	
+
 	private final static Logger log = LogManager.getLogger(MovementSystem.class);
 
-	ComponentMapper<Movement> moveM;
-	ComponentMapper<Position> posM;
+	private ComponentMapper<Movement> moveM;
+	private ComponentMapper<Position> posM;
 
-	@SuppressWarnings("unchecked")
+	private EntityTransmuter changedTransmuter;
+
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	public MovementSystem() {
 		super(Aspect.getAspectForAll(Position.class, Movement.class));
 
@@ -47,6 +52,12 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 	}
 
 	@Override
+	protected void begin() {
+		super.begin();
+		changedTransmuter = new EntityTransmuterFactory(world).add(ChangedData.class).build();
+	};
+
+	@Override
 	protected void processExpired(Entity e) {
 		Movement m = moveM.get(e);
 		Position p = posM.get(e);
@@ -60,7 +71,9 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 
 		p.x = pos.x;
 		p.y = pos.y;
-		
+
+		changedTransmuter.transmute(e);
+
 		log.trace("Moved to: {}", pos.toString());
 
 		m.nextMove = 1000 / (m.walkspeed * Movement.TILES_PER_SECOND);

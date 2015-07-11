@@ -8,15 +8,16 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import net.bestia.messages.Message;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
-import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.manager.MyTagManager;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
+import net.bestia.zoneserver.ecs.system.PersistSystem;
 import net.bestia.zoneserver.ecs.system.PlayerControlSystem;
 import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.game.zone.map.Map;
+import net.mostlyoriginal.api.event.common.EventSystem;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,7 +28,8 @@ import com.artemis.WorldConfiguration;
 import com.artemis.utils.EntityBuilder;
 
 /**
- * The Zone holds the static mapdata as well is responsible for managing entities, actors, scripts etc.
+ * The Zone holds the static mapdata as well is responsible for managing entities, actors, scripts etc. The entity
+ * management is done via an ECS. The important data (player bestias etc.) is periodically persistet into the database.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -76,9 +78,9 @@ public class Zone {
 	private final World world;
 
 	public Zone(CommandContext ctx, Map map) {
-		if(ctx == null) {
+		if (ctx == null) {
 			throw new IllegalArgumentException("Context can not be null.");
-		}	
+		}
 		if (map == null) {
 			throw new IllegalArgumentException("Map can not be null.");
 		}
@@ -92,15 +94,21 @@ public class Zone {
 
 		// Initialize ECS.
 		final WorldConfiguration worldConfig = new WorldConfiguration();
-		//worldConfig.register(this).register(map).register();
+		// Register all external helper objects.
+		worldConfig.register(this);
+		worldConfig.register(map);
+		worldConfig.register(ctx);
+
 		this.world = new World(worldConfig);
 
 		// Set all the systems.
 		this.world.setSystem(new MovementSystem());
 		this.world.setSystem(new PlayerControlSystem());
+		this.world.setSystem(new EventSystem());
+		this.world.setSystem(new PersistSystem(10000));
 
 		// Set all the managers.
-		this.world.setManager(new MyTagManager());
+		//this.world.setManager(new MyTagManager());
 
 		this.world.initialize();
 

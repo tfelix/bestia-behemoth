@@ -79,7 +79,7 @@ public class LoginCheckBlocker {
 		}
 
 		try {
-			LoginAuthReplyMessage replyMsg = queue.poll(3, TimeUnit.SECONDS);
+			LoginAuthReplyMessage replyMsg = queue.poll(30, TimeUnit.SECONDS);
 			
 			// Might be null if we hid a timeout.
 			if(replyMsg == null) {

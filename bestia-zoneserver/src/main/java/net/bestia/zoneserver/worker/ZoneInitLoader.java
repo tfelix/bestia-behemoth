@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.game.worker;
+package net.bestia.zoneserver.worker;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.game.zone.map;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -24,7 +25,8 @@ public class Map {
 		int height;
 		String globalScript;
 		String tileset;
-		Set<Vector2> collisions = new HashSet<Vector2>();
+		Set<Vector2> collisions = new HashSet<>();
+		java.util.Map<Vector2, Tile> tiles = new HashMap<>();
 		String mapDbName;
 		
 		public MapBuilder load(Maploader loader) throws IOException {
@@ -44,21 +46,16 @@ public class Map {
 	private java.util.Map<Vector2, Tile> tiles = new HashMap<>();
 
 	/**
-	 * Holds the static collisions on a map.
-	 */
-	private Set<Vector2> collisions = new HashSet<Vector2>();
-
-	/**
 	 * Constructor must be invoked with a {@link MapBuilder}. All needed data
 	 * will be extracted from the builder.
 	 * 
 	 * @param builder
 	 */
 	private Map(MapBuilder builder) {
-		dimensions = new Rect(builder.width, builder.height);
+		dimensions = new Rect(0, 0, builder.width, builder.height);
 		tileset = builder.tileset;
-		collisions = builder.collisions;
 		mapDbName = builder.mapDbName;
+		tiles = Collections.unmodifiableMap(builder.tiles);
 	}
 
 	/**
@@ -69,8 +66,8 @@ public class Map {
 	 * @return TRUE if tile is walkable. FALSE otherwise.
 	 */
 	public boolean isWalkable(Vector2 cords) {
-		if (cords.x > dimensions.getWidth() || cords.y > dimensions.getHeight()
-				|| cords.x < 0 || cords.y < 0) {
+		
+		if(!dimensions.contains(cords)) {
 			return false;
 		}
 

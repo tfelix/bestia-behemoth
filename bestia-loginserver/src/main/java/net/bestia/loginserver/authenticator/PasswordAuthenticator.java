@@ -24,7 +24,7 @@ public class PasswordAuthenticator implements Authenticator {
 		this.password = password;
 
 		ServiceLocator locator = new ServiceLocator();
-		this.accountDao = locator.getDAO(AccountDAO.class);
+		this.accountDao = locator.getBean(AccountDAO.class);
 	}
 	
 	public Account getFoundAccount() {
