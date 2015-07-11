@@ -32,9 +32,8 @@ Bestia.BestiaInfoViewModel = function(net) {
 	 * messages.
 	 */
 	var onInitHandler = function(_, msg) {
-		console.debug('Init bestia model with data.');
+		console.debug('Update bestia model with data.');
 		self.update(msg);
-
 	};
 	
 	/**

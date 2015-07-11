@@ -64,7 +64,15 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 
 		Vector2 pos = m.path.poll();
 		if (pos == null) {
-			// End of movement. Remove this component.
+			e.edit().remove(Movement.class);
+			return;
+		}
+		
+		// Check that the next move position is only one tile away.
+		final int distance = getDistance(p, pos);
+		if(distance > 1) {
+			// Something is wrong. Path is no longer valid.
+			m.path.clear();
 			e.edit().remove(Movement.class);
 			return;
 		}
@@ -78,6 +86,10 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 
 		m.nextMove = 1000 / (m.walkspeed * Movement.TILES_PER_SECOND);
 		offerDelay(m.nextMove);
+	}
+	
+	private int getDistance(Position p1, Vector2 p2) {
+		return (int) Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
 	}
 
 }

@@ -33,5 +33,8 @@ Bestia.Urls = {
 	/**
 	 * @property URL of the websocket API endpoint.
 	 */
-	bestiaSocket : 'http://localhost:8080/api'
+	bestiaSocket : 'http://localhost:8080/api',
+	
+	assetsRoot : 'http://localhost/assets/',
+	assetsMobIcon : 'http://localhost/assets/img/mob-icon/'
 };

@@ -17,15 +17,15 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Manages the communication towards the ECS system. Since this communication must somehow work asyncronously we store
- * messages inside this {@link ECSInputControler} and the ECS will fetch them as its ticking. It will question the
+ * messages inside this {@link ECSInputController} and the ECS will fetch them as its ticking. It will question the
  * InputController if it holds messages regarding a particular bestia and execute it in ECS world.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class ECSInputControler {
+public class ECSInputController {
 
-	private final static Logger log = LogManager.getLogger(ECSInputControler.class);
+	private final static Logger log = LogManager.getLogger(ECSInputController.class);
 
 	/**
 	 * Callback which can be used to get notified about changed in this
@@ -47,12 +47,12 @@ public class ECSInputControler {
 	private final Map<Integer, Queue<InputMessage>> inputQueues = new HashMap<>();
 	private final List<InputControllerCallback> callbacks = new ArrayList<>();
 
-	public ECSInputControler() {
+	public ECSInputController() {
 
 	}
 
 	/**
-	 * Adds a callback to the {@link ECSInputControler}. These callback are called if the according events are
+	 * Adds a callback to the {@link ECSInputController}. These callback are called if the according events are
 	 * triggered.
 	 * 
 	 * @param callback
@@ -118,6 +118,7 @@ public class ECSInputControler {
 		}
 	}
 
+	@Deprecated
 	public void registerAccount(long accId, List<PlayerBestiaManager> bestias) {
 		log.trace("Registered account: {} with {} bestias.", accId, bestias.size());
 

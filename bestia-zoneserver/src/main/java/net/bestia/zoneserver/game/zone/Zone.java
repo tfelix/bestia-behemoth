@@ -177,7 +177,7 @@ public class Zone {
 		final Location curLoc = pb.getBestia().getCurrentPosition();
 		Entity e = new EntityBuilder(world).with(new PlayerControlled(pb), new Position(curLoc.getX(), curLoc.getY()))
 				.build();
-		world.getManager(MyTagManager.class).register("PLAYER", e);
+		//world.getManager(MyTagManager.class).register("PLAYER", e);
 	}
 
 	public void processPlayerInput(Message msg) {

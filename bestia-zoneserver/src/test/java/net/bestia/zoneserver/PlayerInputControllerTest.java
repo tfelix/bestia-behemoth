@@ -12,22 +12,22 @@ import org.junit.Test;
 
 import net.bestia.messages.InputMessage;
 import net.bestia.model.domain.PlayerBestia;
-import net.bestia.zoneserver.ecs.ECSInputControler;
-import net.bestia.zoneserver.ecs.ECSInputControler.InputControllerCallback;
+import net.bestia.zoneserver.ecs.ECSInputController;
+import net.bestia.zoneserver.ecs.ECSInputController.InputControllerCallback;
 import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
 
 public class PlayerInputControllerTest {
 
 	@Test
 	public void empty_account_add_test() {
-		ECSInputControler pic = new ECSInputControler();
+		ECSInputController pic = new ECSInputController();
 		pic.registerAccount(1, new ArrayList<PlayerBestiaManager>());
 	}
 
 	@Test
 	public void account_add_callback_test() {
 		InputControllerCallback callback = getCallback();
-		ECSInputControler pic = new ECSInputControler();
+		ECSInputController pic = new ECSInputController();
 		pic.addCallback(callback);
 
 		List<PlayerBestiaManager> managerList = new ArrayList<PlayerBestiaManager>();
@@ -41,7 +41,7 @@ public class PlayerInputControllerTest {
 	@Test
 	public void account_remove_callback_test() {
 		InputControllerCallback callback = getCallback();
-		ECSInputControler pic = new ECSInputControler();
+		ECSInputController pic = new ECSInputController();
 		pic.addCallback(callback);
 
 		List<PlayerBestiaManager> managerList = new ArrayList<PlayerBestiaManager>();
@@ -57,7 +57,7 @@ public class PlayerInputControllerTest {
 	@Test
 	public void account_queue_registered_message_test() {
 		InputControllerCallback callback = getCallback();
-		ECSInputControler pic = new ECSInputControler();
+		ECSInputController pic = new ECSInputController();
 		pic.addCallback(callback);
 
 		List<PlayerBestiaManager> managerList = new ArrayList<PlayerBestiaManager>();
@@ -90,7 +90,7 @@ public class PlayerInputControllerTest {
 	@Test
 	public void account_queue_unregistered_message_test() {
 		InputControllerCallback callback = getCallback();
-		ECSInputControler pic = new ECSInputControler();
+		ECSInputController pic = new ECSInputController();
 		pic.addCallback(callback);
 		
 		InputMessage msg = mock(InputMessage.class);
@@ -105,7 +105,7 @@ public class PlayerInputControllerTest {
 	@Test
 	public void add_bestia_without_account_test() {
 		InputControllerCallback callback = getCallback();
-		ECSInputControler pic = new ECSInputControler();
+		ECSInputController pic = new ECSInputController();
 		pic.addCallback(callback);
 		
 		final int pbid = 1337;
@@ -124,7 +124,7 @@ public class PlayerInputControllerTest {
 	@Test
 	public void get_active_bestias_test() {
 		InputControllerCallback callback = getCallback();
-		ECSInputControler pic = new ECSInputControler();
+		ECSInputController pic = new ECSInputController();
 		pic.addCallback(callback);
 		
 		PlayerBestiaManager pbm = getMockedManager();		
@@ -140,7 +140,7 @@ public class PlayerInputControllerTest {
 	@Test
 	public void remove_bestia_test() {
 		InputControllerCallback callback = getCallback();
-		ECSInputControler pic = new ECSInputControler();
+		ECSInputController pic = new ECSInputController();
 		pic.addCallback(callback);
 		
 		PlayerBestiaManager pbm = getMockedManager();
@@ -160,7 +160,7 @@ public class PlayerInputControllerTest {
 	@Test
 	public void message_removed_after_acc_removed_test() {
 		InputControllerCallback callback = getCallback();
-		ECSInputControler pic = new ECSInputControler();
+		ECSInputController pic = new ECSInputController();
 		pic.addCallback(callback);
 
 		List<PlayerBestiaManager> managerList = new ArrayList<PlayerBestiaManager>();
@@ -191,7 +191,7 @@ public class PlayerInputControllerTest {
 		return pbm;
 	}
 
-	private ECSInputControler.InputControllerCallback getCallback() {
-		return mock(ECSInputControler.InputControllerCallback.class);
+	private ECSInputController.InputControllerCallback getCallback() {
+		return mock(ECSInputController.InputControllerCallback.class);
 	}
 }

@@ -50,6 +50,5 @@ Bestia.Config = function() {
 
 	// Register for messages.
 	Bestia.subscribe('server.info', onMessageHandler);
-
 	Bestia.subscribe('system.auth', onAuthHandler);
 };

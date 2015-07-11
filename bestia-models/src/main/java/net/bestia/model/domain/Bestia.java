@@ -1,5 +1,7 @@
 package net.bestia.model.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
@@ -12,12 +14,13 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "bestias")
 @PrimaryKeyJoinColumn(name = "bestia_id")
-public class Bestia {
+public class Bestia implements Serializable {
 
 	@Transient
 	private static final long serialVersionUID = 1L;
@@ -26,6 +29,7 @@ public class Bestia {
 	private int id;
 
 	@Column(name = "bestia_db_name")
+	@JsonProperty("bdbn")
 	private String databaseName;
 
 	@Enumerated(EnumType.STRING)
@@ -37,9 +41,13 @@ public class Bestia {
 	@JsonProperty("s")
 	private String sprite = "";
 
+	@JsonIgnore
 	private int gold;
+	@JsonIgnore
 	private int expGained;
+	@JsonIgnore
 	private int level;
+	
 	private boolean isBoss;
 
 	/*-
@@ -54,6 +62,7 @@ public class Bestia {
 	 * 
 	 */
 	@Transient
+	@JsonIgnore
 	private BaseValues effortValues;
 
 	/**
@@ -62,6 +71,7 @@ public class Bestia {
 	 * armor and special armor is also saved as a fixed value in the database.
 	 */
 	@Transient
+	@JsonIgnore
 	private StatusPoints statusValues;
 
 	/**
@@ -76,7 +86,14 @@ public class Bestia {
 			@AttributeOverride(name = "spAtk", column = @Column(name = "bSpAtk")),
 			@AttributeOverride(name = "spDef", column = @Column(name = "bSpDef")),
 			@AttributeOverride(name = "spd", column = @Column(name = "bSpd")) })
+	@JsonIgnore
 	private BaseValues baseValues;
+	
+	/**
+	 * Script which will be attached to this bestia.
+	 */
+	@JsonIgnore
+	private String scriptExec;
 
 	public Bestia() {
 
@@ -123,14 +140,6 @@ public class Bestia {
 		effortValues.setSpd(evSpd);
 	}
 
-	/**
-	 * Calculates the status points of the bestias based on their base values. They get a small boost instead of regular
-	 * player bestias to compensate for equipment..
-	 */
-	private void calculateStatusPoints() {
-
-	}
-
 	public BaseValues getBaseValues() {
 		return baseValues;
 	}
@@ -142,11 +151,6 @@ public class Bestia {
 	public String getSprite() {
 		return sprite;
 	}
-
-	/**
-	 * Script which will be attached to this bestia.
-	 */
-	private String scriptExec;
 
 	public int getGold() {
 		return gold;
@@ -160,6 +164,7 @@ public class Bestia {
 		return level;
 	}
 
+	@JsonIgnore
 	public boolean isBoss() {
 		return isBoss;
 	}

@@ -25,7 +25,7 @@ public class MoveCommand extends Command {
 	protected void execute(Message message, CommandContext ctx) {
 		BestiaMoveMessage msg = (BestiaMoveMessage) message;
 		
-		ctx.getServer().processPlayerInput(msg);
+		ctx.getServer().getInputController().sendInput(msg);
 	}
 	
 	@Override

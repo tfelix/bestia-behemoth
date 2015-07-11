@@ -17,7 +17,7 @@ import net.bestia.model.domain.PlayerBestia;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class BestiaInitMessage extends Message {
+public class BestiaInfoMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 
@@ -34,7 +34,7 @@ public class BestiaInitMessage extends Message {
 	 * 
 	 * @param message
 	 */
-	public BestiaInitMessage(Message message) {
+	public BestiaInfoMessage(Message message) {
 		super(message);
 	}
 
@@ -42,7 +42,7 @@ public class BestiaInitMessage extends Message {
 	 * 
 	 * @param message
 	 */
-	public BestiaInitMessage() {
+	public BestiaInfoMessage() {
 
 	}
 	
@@ -52,7 +52,7 @@ public class BestiaInitMessage extends Message {
 	 * @param masterBestia
 	 * @param bestias
 	 */
-	public BestiaInitMessage(Message msg, int numberOfSlots, PlayerBestia masterBestia, Collection<PlayerBestia> bestias) {
+	public BestiaInfoMessage(Message msg, int numberOfSlots, PlayerBestia masterBestia, Collection<PlayerBestia> bestias) {
 		if(msg == null) {
 			throw new IllegalArgumentException("Message can not be null.");
 		}

@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -21,16 +20,12 @@ import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.messages.Message;
-import net.bestia.model.dao.AccountDAO;
-import net.bestia.model.dao.PlayerBestiaDAO;
-import net.bestia.model.domain.Account;
-import net.bestia.model.domain.PlayerBestia;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
-import net.bestia.zoneserver.ecs.ECSInputControler;
-import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.ecs.ECSInputController;
+import net.bestia.zoneserver.ecs.ECSInputController.InputControllerCallback;
 import net.bestia.zoneserver.game.zone.Zone;
 import net.bestia.zoneserver.worker.ZoneInitLoader;
 
@@ -63,6 +58,37 @@ public class Zoneserver {
 		}
 		VERSION = version;
 	}
+	
+	private class InputControllerCallbackImpl implements InputControllerCallback {
+
+		@Override
+		public void removedBestia(long accId, int bestiaId) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void removedAccount(long accountId) {
+			unsubscribe("zone/account/" + accountId);
+			log.trace("Unregistered account {} from zone {}.", accountId, name);	
+		}
+
+		/**
+		 * New account added to this input controller. Register it with this server.
+		 */
+		@Override
+		public void addedAccount(long accountId) {
+			subscribe("zone/account/" + accountId);
+			log.trace("Registered account {} on zone {}.", accountId, name);	
+		}
+
+		@Override
+		public void addedBestia(long accId, int bestiaId) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
 
 	private class InterserverHandler implements InterserverMessageHandler {
 
@@ -94,8 +120,7 @@ public class Zoneserver {
 	private final Map<String, Zone> zones = new HashMap<>();
 	private final Set<String> responsibleZones;
 
-	private final Map<Long, Map<Integer, PlayerBestia>> activeBestias = new ConcurrentHashMap<>();
-	private final Map<Integer, Zone> activeBestiasZoneCache = new ConcurrentHashMap<>();
+	private final ECSInputController ecsInputController = new ECSInputController();
 
 	/**
 	 * Ctor. The server needs a connection to its clients so it can use the messaging API to communicate with them.
@@ -146,65 +171,8 @@ public class Zoneserver {
 		zones.addAll(Arrays.asList(zoneStrings));
 
 		this.responsibleZones = Collections.unmodifiableSet(zones);
-	}
-
-	/**
-	 * Registers an account with this server. It will register all associated player bestias with the entity system.
-	 * 
-	 * @param accId
-	 */
-	public void registerAccount(long accId) {
-		final PlayerBestiaDAO pbDAO = commandContext.getServiceLocator().getBean(PlayerBestiaDAO.class);
-		final Account account = commandContext.getServiceLocator().getBean(AccountDAO.class).find(accId);
-
-		boolean hasAtLeastOneEntity = false;
-		Map<Integer, PlayerBestia> activeBestias = new ConcurrentHashMap<>();
-
-		// Check if this player has bestias or his master on this zone.
-		final PlayerBestia master = account.getMaster();
-		hasAtLeastOneEntity = addToZone(accId, master);
 		
-		Set<PlayerBestia> bestias = pbDAO.findPlayerBestiasForAccount(accId);
-
-		// Create bestia entity.
-		for (PlayerBestia playerBestia : bestias) {
-			if (addToZone(accId, playerBestia)) {
-				hasAtLeastOneEntity = true;
-			}
-		}
-
-		// We have bestias from this account on this zone.
-		// Register this zone now as responsible for handling messages regarding this account.
-		if (hasAtLeastOneEntity) {
-			subscribe("zone/account/" + accId);
-			log.debug("Registered account {} with {} bestias on zone.", accId, activeBestias.size());
-		}
-	}
-
-	private boolean addToZone(long accId, PlayerBestia pb) {
-		if (!isOnZone(pb)) {
-			return false;
-		}
-
-		Zone z = getResponsibleZone(pb);
-		z.addPlayerBestia(new PlayerBestiaManager(pb, this));
-
-		if (!activeBestias.containsKey(accId)) {
-			activeBestias.put(accId, new ConcurrentHashMap<>());
-		}
-		activeBestias.get(accId).put(pb.getId(), pb);
-		// Save zone in the cache for fast resolution of messages.
-		activeBestiasZoneCache.put(pb.getId(), z);
-		return true;
-	}
-
-	private boolean isOnZone(PlayerBestia pb) {
-		return responsibleZones.contains(pb.getCurrentPosition().getMapDbName());
-	}
-
-	private Zone getResponsibleZone(PlayerBestia pb) {
-		final String mapDbName = pb.getCurrentPosition().getMapDbName();
-		return zones.get(mapDbName);
+		this.ecsInputController.addCallback(new InputControllerCallbackImpl());
 	}
 
 	/**
@@ -348,21 +316,15 @@ public class Zoneserver {
 		interserverSubscriber.unsubscribe(topic);
 	}
 
-	public void processPlayerInput(Message msg) {
-		
-		if(msg.getPlayerBestiaId() == 0) {
-			log.warn("PlayerInput: No player bestia id given. %s", msg);
-			return;
-		}
-		
-		// Sanitycheck: Is player really owner of this bestia?
-		if(!activeBestias.get(msg.getAccountId()).containsKey(msg.getPlayerBestiaId())) {
-			log.warn("HACK: Account {} does not own bestia with id {}!", msg.getAccountId(), msg.getPlayerBestiaId());
-			return;
-		}
-		
-		Zone z = activeBestiasZoneCache.get(msg.getPlayerBestiaId());
-		z.processPlayerInput(msg);
+	
+	/**
+	 * Returns a {@link ECSInputController}. It will be used by the ECS to fetch the player input async aswell as the
+	 * commands to pipe the player input for the different bestias to the ECS.
+	 * 
+	 * @return
+	 */
+	public ECSInputController getInputController() {
+		return ecsInputController;
 	}
 
 	/**
@@ -376,13 +338,4 @@ public class Zoneserver {
 			System.exit(1);
 		}
 	}
-
-	/**
-	 * TODO Noch implementierne.
-	 * @return
-	 */
-	public ECSInputControler getInputController() {
-		return null;
-	}
-
 }

@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.command;
 
-import net.bestia.messages.BestiaInitMessage;
+import net.bestia.messages.BestiaInfoMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.service.AccountService;
 
@@ -15,13 +15,13 @@ public class BestiaInfoCommand extends Command {
 
 	@Override
 	public String handlesMessageId() {
-		return BestiaInitMessage.MESSAGE_ID;
+		return BestiaInfoMessage.MESSAGE_ID;
 	}
 
 	@Override
 	public void execute(Message message, CommandContext ctx) {
 
-		BestiaInitMessage reply = new BestiaInitMessage(message);
+		BestiaInfoMessage reply = new BestiaInfoMessage(message);
 		
 		/*AccountService accService = ctx.getServiceFactory().getAccountServiceFactory().getAccount(message.getAccountId());
 		

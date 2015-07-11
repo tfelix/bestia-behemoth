@@ -1,12 +1,12 @@
 /**
- * First and primary state. It will load all the absolutly necessairy assets to
+ * First and primary state. It will load all the absolutely necessairy assets to
  * bootstrap the engine.
  * 
  * @constructor
  * @class Bestia.Engine.States.BootState
  */
 Bestia.Engine.States.BootState = function() {
-
+	// no op.
 };
 
 Bestia.Engine.States.BootState.prototype = {
@@ -21,9 +21,6 @@ Bestia.Engine.States.BootState.prototype = {
 			x : 3,
 			y : 3
 		}, 2000, Phaser.Easing.Linear.None);
-		tween.onComplete.addOnce(function() {
-			this.game.stateTransition.to('loading');
-		}, this);
 		tween.start();
 
 		this.game.stateTransition = this.game.plugins.add(Phaser.Plugin.StateTransition);
@@ -39,10 +36,6 @@ Bestia.Engine.States.BootState.prototype = {
 				}
 			}
 		});
-	},
-
-	update : function() {
-
 	}
 };
 

@@ -30,13 +30,11 @@
 			<div data-bind="with: bestias">
 				<div id="selected-bestia" data-bind="with: selectedBestia">
 					<!-- TODO Austauschen gegen ein animiertes Canvas. -->
-					<img src="http://placehold.it/64x64" alt="Bestia" style="float: left; margin: 10px;">
+					<img data-bind="attr: {src: iconUrl}" alt="Bestia Icon" style="float: left; margin: 10px;">
 
 					<div style="float: left; margin-top: 10px;">
 						<p data-bind="text: customName">---</p>
 						<p data-bind="text: name">---</p>
-						<p>Felder von Kalarian</p>
-						<p>Ankunft: 12h 20m (13:67 Uhr)</p>
 					</div>
 
 					<div class="bar hp-bar" style="clear: both;" data-bind="with: statusPoints">
@@ -58,9 +56,11 @@
 
 					<div>
 						<!-- STATUS VALUES -->
+						<!-- 
 						<img src="http://placehold.it/32x32/ffed23/000000" alt="Pest"> <img
 							src="http://placehold.it/32x32/abc078/000000" alt="Pest"> <img
 							src="http://placehold.it/32x32/ad2923/000000" alt="Pest">
+							-->
 					</div>
 				</div>
 
@@ -74,9 +74,9 @@
 
 				<div id="bestia-slots" data-bind="foreach: bestias">
 					<div class="bestia-slot" data-bind="click: selectBestia">
-						<img src="http://placehold.it/64x64" alt="Bestia" style="float: left; margin: 10px;">
+						<img data-bind="attr: {src: iconUrl}" alt="Bestia Icon" style="float: left; margin: 10px;">
 						<div class="name">
-							<b><span data-bind="text: customName"></span></b> - <span data-bind="text: name"></span>
+							<b><span data-bind="text: customName"></span></b> - Lv. <span data-bind="text: level"></span>
 						</div>
 						<div style="margin-top: 8px; float: left; width: 200px;" data-bind="with: statusPoints">
 							<div class="bar hp-bar small-bar">
@@ -170,6 +170,7 @@
 		-->
 	</div>
 
+<!-- 
 	<div id="server-info" class="debug-box" data-bind="with: config, visible: config.debug"
 		style="bottom: 10px; left: 10px; width: 300px;">
 		<p>
@@ -188,6 +189,7 @@
 			Resource URL: <span data-bind="text: resourceURL"></span>
 		</p>
 	</div>
+-->
 	<!-- /END DEBUG VIEWS -->
 
 

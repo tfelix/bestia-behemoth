@@ -2,6 +2,7 @@ package net.bestia.model.domain;
 
 import java.io.Serializable;
 
+import javax.persistence.Embeddable;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -12,19 +13,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@Embeddable
 public class StatusPoints implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@JsonProperty("chp")
-	private int curHp;
+	private int currentHp;
 
 	@JsonProperty("mhp")
 	@Transient
 	private int maxHp;
 
 	@JsonProperty("cmana")
-	private int curMana;
+	private int currentMana;
 
 	@JsonProperty("mmana")
 	@Transient
@@ -38,27 +40,32 @@ public class StatusPoints implements Serializable {
 	@Transient
 	private int armorSpDef;
 
+	@JsonProperty("atk")
 	@Transient
 	private int atk;
 
+	@JsonProperty("def")
 	@Transient
 	private int def;
 
+	@JsonProperty("spatk")
 	@Transient
 	private int spAtk;
 
+	@JsonProperty("spdef")
 	@Transient
 	private int spDef;
 
+	@JsonProperty("spd")
 	@Transient
 	private int spd;
 
 	public int getCurrentHp() {
-		return curHp;
+		return currentHp;
 	}
 
 	public void setCurrentHp(int hp) {
-		this.curHp = hp;
+		this.currentHp = hp;
 		checkInvalidStatusValue();
 	}
 
@@ -72,11 +79,11 @@ public class StatusPoints implements Serializable {
 	}
 
 	public int getCurrentMana() {
-		return curMana;
+		return currentMana;
 	}
 
 	public void setCurrentMana(int mana) {
-		this.curMana = mana;
+		this.currentMana = mana;
 		checkInvalidStatusValue();
 	}
 
@@ -146,6 +153,22 @@ public class StatusPoints implements Serializable {
 	}
 
 	/**
+	 * Special setter to avoid the clearance of any of the current mana or current hp value wich will occure if one set
+	 * a single value but the other value has not yet been set. Either one of the values will get reset. To avoid this
+	 * use this method and set the limiting values at the same time.
+	 * 
+	 * @param maxHp
+	 * @param maxMana
+	 */
+	public void setMaxValues(int maxHp, int maxMana) {
+
+		this.maxHp = maxHp;
+		this.maxMana = maxMana;
+		checkInvalidStatusValue();
+		
+	}
+
+	/**
 	 * Adds some other status points to this object.
 	 * 
 	 * @param rhs
@@ -154,8 +177,8 @@ public class StatusPoints implements Serializable {
 
 		this.atk += rhs.getAtk();
 		this.def += rhs.getDef();
-		this.curHp += rhs.getCurrentHp();
-		this.curMana += rhs.getCurrentMana();
+		this.currentHp += rhs.getCurrentHp();
+		this.currentMana += rhs.getCurrentMana();
 		this.spAtk += rhs.getSpAtk();
 		this.spd += rhs.getSpd();
 		this.spDef += rhs.getSpDef();
@@ -174,35 +197,35 @@ public class StatusPoints implements Serializable {
 	 */
 	private void checkInvalidStatusValue() {
 
-		if (curHp > maxHp) {
-			curHp = maxHp;
+		if (currentHp > maxHp) {
+			currentHp = maxHp;
 		}
 
-		if (curMana > maxMana) {
-			curMana = maxMana;
+		if (currentMana > maxMana) {
+			currentMana = maxMana;
 		}
 
-		if (curHp < 0) {
-			curHp = 0;
+		if (currentHp < 0) {
+			currentHp = 0;
 		}
 
-		if (curMana < 0) {
-			curMana = 0;
+		if (currentMana < 0) {
+			currentMana = 0;
 		}
 
 		if (armorDef < 1) {
 			armorDef = 1;
 		}
-		
-		if(armorDef > 100) {
+
+		if (armorDef > 100) {
 			armorDef = 100;
 		}
 
 		if (armorSpDef < 1) {
 			armorSpDef = 1;
 		}
-		
-		if(armorSpDef > 100) {
+
+		if (armorSpDef > 100) {
 			armorSpDef = 100;
 		}
 

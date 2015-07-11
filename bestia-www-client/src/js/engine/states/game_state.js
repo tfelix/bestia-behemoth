@@ -35,7 +35,7 @@ Bestia.Engine.Entity = function(game, sprite, world) {
  * upon the relative walkspeed of the entity.
  * 
  * @private
- * @method Bestia.Engine.Entity.#_getWalkDuration
+ * @method Bestia.Engine.Entity#_getWalkDuration
  * @returns Total walkspeed in ms.
  */
 Bestia.Engine.Entity.prototype._getWalkDuration = function(length, walkspeed) {

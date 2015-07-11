@@ -7,7 +7,7 @@ import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.zoneserver.ecs.ECSInputControler;
+import net.bestia.zoneserver.ecs.ECSInputController;
 import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
 
 /**
@@ -28,7 +28,7 @@ public class LogoutBroadcastCommand extends Command {
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
 
-		ECSInputControler controller = ctx.getServer().getInputController();
+		ECSInputController controller = ctx.getServer().getInputController();
 
 		final Account acc = ctx.getServiceLocator().getBean(AccountDAO.class).find(message.getAccountId());
 

@@ -34,6 +34,9 @@ public class PlayerBestiaManager {
 
 		this.server = server;
 		this.bestia = bestia;
+		
+		// Calculate values.
+		calculateStatusValues();
 	}
 
 	/**
@@ -56,6 +59,11 @@ public class PlayerBestiaManager {
 		checkLevelUp();
 	}
 
+	/**
+	 * Sends a system message to the owner of this bestia.
+	 * TODO Hier die Übersetzung kären.
+	 * @param text
+	 */
 	private void sendSystemMessage(String text) {
 		final ChatMessage msg = ChatMessage.getSystemMessage(bestia.getOwner(), text);
 		server.sendMessage(msg);
@@ -115,13 +123,12 @@ public class PlayerBestiaManager {
 				+ bestia.getEffortValues().getMana() / 4 * bestia.getLevel() / 100 + 10 + bestia.getLevel() * 2;
 
 		final StatusPoints points = bestia.getStatusPoints();
+		points.setMaxValues(maxHp, maxMana);
 		points.setAtk(atk);
 		points.setDef(def);
 		points.setSpAtk(spatk);
 		points.setSpDef(spdef);
 		points.setSpd(spd);
-		points.setMaxHp(maxHp);
-		points.setMaxMana(maxMana);
 	}
 
 	/**

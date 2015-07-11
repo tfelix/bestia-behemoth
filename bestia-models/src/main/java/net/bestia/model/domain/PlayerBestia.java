@@ -60,8 +60,9 @@ public class PlayerBestia implements Serializable {
 	@JoinColumn(name = "ACCOUNT_ID", nullable = false)
 	private Account owner;
 
-	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	@ManyToOne(optional = false, fetch = FetchType.EAGER)
 	@JoinColumn(name = "BESTIA_ID", nullable = false)
+	@JsonProperty("b")
 	private Bestia originBestia;
 
 	@JsonProperty("lv")
@@ -215,22 +216,22 @@ public class PlayerBestia implements Serializable {
 	}
 
 	@JsonIgnore
-	public int getCurHp() {
+	public int getCurrentHp() {
 		return statusPoints.getCurrentHp();
 	}
 
 	@JsonIgnore
-	public void setCurHp(int curHp) {
+	public void setCurrentHp(int curHp) {
 		this.statusPoints.setCurrentHp(curHp);
 	}
 
 	@JsonIgnore
-	public int getCurMana() {
+	public int getCurrentMana() {
 		return statusPoints.getCurrentMana();
 	}
 
 	@JsonIgnore
-	public void setCurMana(int curMana) {
+	public void setCurrentMana(int curMana) {
 		statusPoints.setCurrentMana(curMana);
 	}
 

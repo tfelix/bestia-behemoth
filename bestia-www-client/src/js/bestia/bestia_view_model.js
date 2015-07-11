@@ -15,20 +15,18 @@
  * @constructor
  */
 Bestia.BestiaViewModel = function(net, msg) {
-
-	if (net === undefined) {
-		throw "Net param is not optional.";
-	}
-
-	this._net = net;
+	var self = this;
+	
 	this.playerBestiaId = ko.observable();
+	this.databaseName = ko.observable('');
 	this.equip = [];
 	this.location = ko.observable();
-	this.saveLovation = ko.observable();
+	this.saveLocation = ko.observable();
 	this.customName = ko.observable('');
-	this.databaseName = ko.observable();
 	this.statusEffects = [];
-	this.image = ko.observable();
+	this.iconUrl = ko.pureComputed(function() {
+		return Bestia.Urls.assetsMobIcon + self.databaseName() + '.png';
+	});
 	this.level = ko.observable(1);
 	this.slot = ko.observable();
 	this.statusPoints = new Bestia.StatusPointViewModel();
@@ -53,9 +51,8 @@ Bestia.BestiaViewModel.prototype.update = function(msg) {
 	this.saveLocation(msg.sl.mdbn);
 	this.customName(msg.cn);
 	this.level(msg.lv);
-	//this.databaseName(msg.bdbn);
+	this.databaseName(msg.b.bdbn);
 	//this.statusEffects = [];
-	//this.image(self._net.getMobImageUrl(self.databaseName()).img);
 	//this.slot(msg.sl);
 	this.statusPoints.update(msg.sp);
 
