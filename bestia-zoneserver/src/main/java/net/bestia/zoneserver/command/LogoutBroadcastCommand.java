@@ -1,14 +1,8 @@
 package net.bestia.zoneserver.command;
 
-import java.util.Set;
-
-import net.bestia.messages.BestiaLogoutMessage;
 import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
-import net.bestia.model.dao.AccountDAO;
-import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.ecs.ECSInputController;
-import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
 
 /**
  * Executes if a logout broadcast message is issued. This message will be send from the webserver if an error happens or
@@ -30,16 +24,9 @@ public class LogoutBroadcastCommand extends Command {
 
 		ECSInputController controller = ctx.getServer().getInputController();
 
-		final Account acc = ctx.getServiceLocator().getBean(AccountDAO.class).find(message.getAccountId());
-
-		// Get all bestias from the zone.
-		Set<PlayerBestiaManager> activeBestias = controller.getActiveBestias(acc.getId());
-
-		// Re-adress the message to each of this bestia and send to the ECS as poison pill.
-		for (PlayerBestiaManager pbm : activeBestias) {
-			BestiaLogoutMessage logoutMsg = new BestiaLogoutMessage(message, pbm.getBestia().getId());
-			controller.sendInput(logoutMsg);
-		}
+		// Simply remove the bestia from the input controller. The ECS has to register itself to the handler to react
+		// upon removal.
+		controller.removeAccount(message.getAccountId());
 	}
 
 	@Override

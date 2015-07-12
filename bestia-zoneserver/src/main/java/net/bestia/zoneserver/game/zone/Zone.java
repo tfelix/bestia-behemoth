@@ -1,31 +1,21 @@
 package net.bestia.zoneserver.game.zone;
 
-import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import net.bestia.messages.Message;
-import net.bestia.model.domain.Location;
-import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.PlayerControlled;
-import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.manager.MyTagManager;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
 import net.bestia.zoneserver.ecs.system.PlayerControlSystem;
-import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.game.zone.map.Map;
 import net.mostlyoriginal.api.event.common.EventSystem;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.artemis.Entity;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
-import com.artemis.utils.EntityBuilder;
+import com.artemis.managers.PlayerManager;
+import com.artemis.managers.TagManager;
 
 /**
  * The Zone holds the static mapdata as well is responsible for managing entities, actors, scripts etc. The entity
@@ -63,11 +53,6 @@ public class Zone {
 
 	}
 
-	/**
-	 * Holds the player input for the registered bestias.
-	 */
-	private final java.util.Map<Integer, Queue<Message>> playerInput = new ConcurrentHashMap<>();
-
 	private final String name;
 	private final Map map;
 	private AtomicBoolean hasStarted = new AtomicBoolean(false);
@@ -92,12 +77,15 @@ public class Zone {
 			throw new IllegalArgumentException("Zone name can not be null or empty.");
 		}
 
+		// TODO Das ECS sollte auch in einer eigenen Klasse gekapselt sein.
+		
 		// Initialize ECS.
 		final WorldConfiguration worldConfig = new WorldConfiguration();
 		// Register all external helper objects.
 		worldConfig.register(this);
 		worldConfig.register(map);
 		worldConfig.register(ctx);
+		worldConfig.register(ctx.getServer().getInputController());
 
 		this.world = new World(worldConfig);
 
@@ -109,6 +97,8 @@ public class Zone {
 
 		// Set all the managers.
 		//this.world.setManager(new MyTagManager());
+		this.world.setManager(new PlayerManager());
+		this.world.setManager(new TagManager());
 
 		this.world.initialize();
 
@@ -158,56 +148,6 @@ public class Zone {
 	public boolean isWalkable(Vector2 cords) {
 		checkStart();
 		return map.isWalkable(cords);
-	}
-
-	/**
-	 * Adds this bestia to the zone and spawns it.
-	 * 
-	 * @param pb
-	 *            PlayerBestia to add.
-	 */
-	public void addPlayerBestia(PlayerBestiaManager pb) {
-		checkStart();
-		log.debug("Adding {} to zone {}.", pb.toString(), name);
-
-		// Prepare the communications.
-		playerInput.put(pb.getBestia().getId(), new ConcurrentLinkedQueue<>());
-
-		// Spawn the entity.
-		final Location curLoc = pb.getBestia().getCurrentPosition();
-		Entity e = new EntityBuilder(world).with(new PlayerControlled(pb), new Position(curLoc.getX(), curLoc.getY()))
-				.build();
-		//world.getManager(MyTagManager.class).register("PLAYER", e);
-	}
-
-	public void processPlayerInput(Message msg) {
-		checkStart();
-		playerInput.get(msg.getPlayerBestiaId()).add(msg);
-	}
-
-	/**
-	 * Returns the input message queue of the player bestia with the given id. It is sure that the bestia is on this
-	 * zone otherwise the messages would be redirected to a different zone.
-	 * 
-	 * @param playerBestiaId
-	 * @return
-	 */
-	public Queue<Message> getPlayerInput(int playerBestiaId) {
-		checkStart();
-		return playerInput.get(playerBestiaId);
-	}
-
-	/**
-	 * Removes the bestia from the entity system and
-	 * 
-	 * @param pb
-	 */
-	public void removePlayerBestia(PlayerBestia pb) {
-		checkStart();
-
-		// TODO
-
-		log.debug("Removing {} from zone {}.", pb.toString(), name);
 	}
 
 	/**

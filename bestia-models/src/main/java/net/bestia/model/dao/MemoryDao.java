@@ -31,6 +31,15 @@ public class MemoryDao<E, K> implements GenericDAO<E, K>{
 		return entities;
 	}
 
+	@Override
+	public void update(E entity) {
+		if(!entities.contains(entity)) {
+			return;
+		}
+		entities.remove(entity);
+		entities.add(entity);
+	}
+
 	
 
 }

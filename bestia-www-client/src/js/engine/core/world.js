@@ -84,45 +84,52 @@ Bestia.Engine.World.prototype.displayMapName = function() {
 	}, 2000, Phaser.Easing.Linear.None, false, 2500).start();
 };
 
-Bestia.Engine.World.prototype.loadMap = function() {
+/**
+ * Initializes a new map (all map data like tilesets and must have been already
+ * loaded!) for the engine to display.
+ * 
+ * @method Bestia.Engine.World#loadMap
+ * @param {String}
+ *            mapDbName - The mapDbName of the map to load into the engine.
+ */
+Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 
-	var map = this._game.add.tilemap('map');
+	this.map = this._game.add.tilemap(mapDbName);
 
 	// Do some sanity checks.
-	if (map.tileHeight !== map.tileWidth) {
+	if (this.map.tileHeight !== this.map.tileWidth) {
 		throw "Engine does not support maps with different width and heights. Tiles must be square.";
 	}
 
-	this.map = map;
-
-	// Extract map properties.
-	var props = map.properties;
+	// Extract map properties, and typecast them since they are all strings!
+	var props = this.map.properties;
 	props.isPVP = (props.isPVP === "true");
-	this.properties = props;
-	// Set tile size.
-	this.properties.tileSize = map.tileHeight;
 
-	map.addTilesetImage('Berge', 'tiles');
+	this.properties = props;
+
+	// Set tile size.
+	this.properties.tileSize = this.map.tileHeight;
+
+	this.map.addTilesetImage('Berge', 'tiles-' + mapDbName);
+	// Namen der layer und tilesets der map einfügen.
+	this._astar.setAStarMap(this.map, 'Berge');
 
 	// Ground layer MUST be present.
-	this._groundLayer = map.createLayer('layer_0');
+	this._groundLayer = this.map.createLayer('layer_0');
 	this._groundLayer.resizeWorld();
 
 	// Now check how many layer there are and then create them.
 	// Get the names of all layer.
-	var layerNames = map.layers.map(function(x) {
+	var layerNames = this.map.layers.map(function(x) {
 		return x.name;
 	});
-	for (var i = 1; i < map.layers.length; i++) {
+	for (var i = 1; i < this.map.layers.length; i++) {
 		var curLayer = 'layer_' + i;
 		if (layerNames.indexOf(curLayer) === -1) {
 			continue;
 		}
-		map.createLayer(curLayer);
+		this.map.createLayer(curLayer);
 	}
-
-	// Namen der layer und tilesets der map einfügen.
-	this._astar.setAStarMap(map, 'Berge');
 
 	this.displayMapName();
 };

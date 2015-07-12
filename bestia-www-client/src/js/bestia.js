@@ -36,5 +36,6 @@ Bestia.Urls = {
 	bestiaSocket : 'http://localhost:8080/api',
 	
 	assetsRoot : 'http://localhost/assets/',
+	assetsMap : 'http://localhost/assets/map/',
 	assetsMobIcon : 'http://localhost/assets/img/mob-icon/'
 };

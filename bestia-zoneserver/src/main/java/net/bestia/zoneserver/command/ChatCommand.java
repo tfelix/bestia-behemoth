@@ -75,6 +75,11 @@ class ChatCommand extends Command {
 	private void redirectMessage(long receiverId, ChatMessage msg, CommandContext ctx) {
 		ctx.getServer().sendMessage(ChatMessage.getForwardMessage(receiverId, msg));
 	}
+	
+	@Override
+	public String toString() {
+		return "ChatCommand[]";
+	}
 
 	@Override
 	public String handlesMessageId() {

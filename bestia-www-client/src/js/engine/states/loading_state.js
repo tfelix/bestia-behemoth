@@ -20,6 +20,9 @@ Bestia.Engine.States.LoadingState.prototype = {
 	create : function() {
 		
 		console.debug("LoadState: Loading for bestia: " + this.bestia);
+		var self = this;
+		
+		var mapDbName = this.bestia.location();
 		
 		this.gfx = this.add.graphics(0, 0);
 		this.gfx.beginFill(0xFF0000, 1);
@@ -30,22 +33,9 @@ Bestia.Engine.States.LoadingState.prototype = {
 		// You can listen for each of these events from Phaser.Loader
 		this.load.onFileComplete.add(this.fileComplete, this);
 		this.load.onLoadComplete.add(this.loadComplete, this);
-
-		// TEMP
-		this.load.image('logo', 'assets/img/logo_small.png');
-		this.load.tilemap('map', 'assets/map/test-zone1/test-zone1.json', null, Phaser.Tilemap.TILED_JSON);
-		this.load.image('tiles', 'assets/map/test-zone1/tilemap1.png');
-
-		// Sprites.
-		this.load.image('1_F_ORIENT_01', 'assets/img/sprite/1_F_ORIENT_01.png');
-		this.load.image('1_M_BARD', 'assets/img/sprite/1_M_BARD.png');
-		this.load.image('player', 'assets/img/sprite/player.png');
-
-		this.load.audio('bg_theme', 'assets/img/sound/theme/prontera_fields.mp3');
-
-		// ATLAS
-		this.load.atlasJSONHash('poring', 'assets/img/sprite/mob/poring.png', 'assets/sprite/mob/poring.json');
-
+		
+		var packUrl = Bestia.Urls.assetsMap + mapDbName +'/assetpack.json';
+		this.load.pack(mapDbName, packUrl);
 		this.load.start();
 	},
 

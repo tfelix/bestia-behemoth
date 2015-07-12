@@ -1,22 +1,3 @@
-Bestia.Engine.ClickDebounce = function(callback) {
-	// TODO Error check.
-
-	this.btnDown = false;
-	this.onClick = callback;
-};
-
-Bestia.Engine.ClickDebounce.prototype.clicked = function() {
-	if (!this.btnDown) {
-		this.btnDown = true;
-		// Trigger callback.
-		this.onClick();
-	}
-};
-
-Bestia.Engine.ClickDebounce.prototype.released = function() {
-	this.btnDown = false;
-};
-
 Bestia.Engine.Entity = function(game, sprite, world) {
 	this.walkspeed = 1;
 	this.sprite = sprite;
@@ -165,11 +146,10 @@ Bestia.Engine.States.GameState.prototype = {
 		var game = this.game;
 
 		// Prepare the AStar plugin.
-		// TODO dieser call evtl in die world rein.
 		this.astar = this.game.plugins.add(Phaser.Plugin.AStar);
 
 		this._bestiaWorld = new Bestia.Engine.World(game, this.astar);
-		this._bestiaWorld.loadMap();
+		this._bestiaWorld.loadMap(this.bestia.location());
 
 		this.gfxCollision = this.add.graphics(0, 0);
 		this.gfxCollision.beginFill(0xFF0000, 0.5);
@@ -178,7 +158,7 @@ Bestia.Engine.States.GameState.prototype = {
 		this.player = this.game.add.sprite(0, 0, 'player');
 		this.player.anchor.setTo(0, 0);
 		
-		this._playerEntity = new Bestia.Engine.Entity(this.game, this.player, this._api);
+		this._playerEntity = new Bestia.Engine.Entity(this.game, this.player, this._bestiaWorld);
 		this._playerEntity.setTo(this.bestia.posX(), this.bestia.posY());
 
 		this.cursors = this.game.input.keyboard.createCursorKeys();
@@ -193,10 +173,6 @@ Bestia.Engine.States.GameState.prototype = {
 
 		// Music.
 		// this.game.add.audio('bg_theme').play();
-
-		// Single Sprites
-		this.game.add.sprite(160, 320, '1_F_ORIENT_01');
-		this.game.add.sprite(320, 320, '1_M_BARD');
 
 		game.input.onDown.add(function(pointer, event) {
 

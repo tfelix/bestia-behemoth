@@ -1,0 +1,37 @@
+{ 
+    "test-zone1": [
+		{
+            "type": "tilemap",
+            "key": "test-zone1",
+            "url": "assets/map/test-zone1/test-zone1.json",
+            "data": null,
+            "format": "TILED_JSON"
+        },
+        {
+            "type": "image",
+            "key": "tiles-test-zone1",
+            "url": "assets/map/test-zone1/tilemap1.png",
+            "overwrite": false
+        },		
+        {
+            "type": "audio",
+            "key": "boden",
+            "urls": ["assets/sound/theme/prontera_fields.mp3", "assets/sound/theme/prontera_fields.ogg"],
+            "autoDecode": true
+        },
+		{
+            "type": "atlasJSONHash",
+            "key": "poring",
+            "textureURL": "assets/img/sprite/mob/poring.png",
+            "atlasURL": "assets/img/sprite/mob/poring.json",
+            "atlasData": null
+        }
+    ],
+    "meta": {
+        "generated": "1401380327373",
+        "app": "Bestia Asset Packer",
+        "url": "http://www.bestia-game.net",
+        "version": "1.0",
+        "copyright": "Thomas Felix - bestia-game.net - 2015"
+    }
+}

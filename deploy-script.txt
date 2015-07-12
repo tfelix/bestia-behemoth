@@ -1,0 +1,17 @@
+git clone git@bitbucket.org:rocket/bestia-behemoth.git download
+cd download
+mvn package
+
+# ggf
+cd bestia-www-client
+mvn package
+
+# Deploy webpage
+cp -r build/* /var/www/html/
+
+# Copy bestia servers to /opt
+
+/opt/bestia/loginserver/loginserver.jar
+/opt/bestia/zoneserver/zoneserver.jar
+/opt/bestia/interserver/interserver.jar
+/opt/bestia/webserver/interserver.jar

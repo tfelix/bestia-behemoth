@@ -34,6 +34,11 @@ public abstract class GenericDAOHibernate<E, K extends Serializable> implements 
 	public void save(E entity) {
 		currentSession().saveOrUpdate(entity);
 	}
+	
+	@Override
+	public void update(E entity) {
+		currentSession().update(entity);
+	}
 
 	@Override
 	public void delete(E entity) {

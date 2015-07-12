@@ -43,10 +43,12 @@ Bestia.Engine = function(config) {
 	// Subscribe for the first info messages until we gathered information about
 	// the master bestia to trigger initial map load.
 	var onSelectBestiaHandler = function(_, data) {
+		console.debug('New bestia selected. Starting loading process.');
 		self.loadMap(data);		
 	};
 	
 	var onInitHandler = function(_, data) {
+		console.debug('Engine.onInitHandler called. Starting initial load and remove handler.');
 		var bestia = new Bestia.BestiaViewModel(null, data.bm);
 		self.loadMap(bestia);
 		Bestia.unsubscribe('bestia.info', onInitHandler);

@@ -6,6 +6,8 @@ import java.util.List;
 public interface GenericDAO<E, K> {
 
     void save(E entity);
+    
+    void update(E entity);
 
     void delete(E entity);
     

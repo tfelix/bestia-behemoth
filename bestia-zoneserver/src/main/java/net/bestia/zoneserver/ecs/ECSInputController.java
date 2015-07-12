@@ -45,6 +45,7 @@ public class ECSInputController {
 
 	private final Map<Long, Set<PlayerBestiaManager>> activeBestias = new HashMap<>();
 	private final Map<Integer, Queue<InputMessage>> inputQueues = new HashMap<>();
+	
 	private final List<InputControllerCallback> callbacks = new ArrayList<>();
 
 	public ECSInputController() {
@@ -142,8 +143,16 @@ public class ECSInputController {
 	public void removeAccount(long accId) {
 		// Remove all outstanding bestias.
 		Set<PlayerBestiaManager> bestias = activeBestias.get(accId);
+		
+		if(bestias == null) {
+			return;
+		}
+		
+		// Helper set to avoid ConcurrentModificationException.
+		final Set<PlayerBestiaManager> removalSet = new HashSet<>();
+		removalSet.addAll(bestias);
 
-		for (PlayerBestiaManager bestia : bestias) {
+		for (PlayerBestiaManager bestia : removalSet) {
 			removePlayerBestia(accId, bestia);
 		}
 	}
@@ -238,5 +247,33 @@ public class ECSInputController {
 			return null;
 		}
 		return inputQueues.get(playerBestiaId);
+	}
+
+	/**
+	 * Returns the {@link PlayerBestiaManager} of the given bestiaId. If no bestia is active with this id null is
+	 * returned.
+	 * 
+	 * TODO Hier kann man auch noch mal die accId rauswerfen und das analog nur über die bestiaId abfragen.
+	 * 
+	 * @param accId
+	 *            The account id which holds the requested bestia.
+	 * @param bestiaId
+	 *            Player bestia id of the requests {@link PlayerBestiaManager}.
+	 * @return The manager or null if no player bestia with this id is active.
+	 */
+	public PlayerBestiaManager getActiveBestia(long accId, int bestiaId) {
+		if (!activeBestias.containsKey(accId)) {
+			return null;
+		}
+
+		Set<PlayerBestiaManager> bestias = activeBestias.get(accId);
+
+		for (PlayerBestiaManager playerBestiaManager : bestias) {
+			if (playerBestiaManager.getBestia().getId() == bestiaId) {
+				return playerBestiaManager;
+			}
+		}
+		
+		return null;
 	}
 }

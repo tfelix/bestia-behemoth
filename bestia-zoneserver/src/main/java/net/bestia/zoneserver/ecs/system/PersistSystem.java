@@ -71,7 +71,7 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 		pb.getCurrentPosition().setX(pos.x);
 		pb.getCurrentPosition().setY(pos.y);
 
-		dao.save(pb);
+		dao.update(pb);
 	}
 
 }
