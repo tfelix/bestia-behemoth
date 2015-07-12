@@ -25,6 +25,7 @@ Bestia.BestiaViewModel = function(net, msg) {
 	this.posY = ko.observable(0);
 	this.saveLocation = ko.observable();
 	this.customName = ko.observable('');
+	this.sprite = ko.observable('');
 	this.statusEffects = [];
 	this.iconUrl = ko.pureComputed(function() {
 		return Bestia.Urls.assetsMobIcon + self.databaseName() + '.png';
@@ -56,6 +57,7 @@ Bestia.BestiaViewModel.prototype.update = function(msg) {
 	this.customName(msg.cn);
 	this.level(msg.lv);
 	this.databaseName(msg.b.bdbn);
+	this.sprite(msg.b.s);
 	//this.statusEffects = [];
 	//this.slot(msg.sl);
 	this.statusPoints.update(msg.sp);

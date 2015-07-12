@@ -1,5 +1,8 @@
 git clone git@bitbucket.org:rocket/bestia-behemoth.git download
+
 cd download
+git pull
+
 mvn package
 
 # ggf

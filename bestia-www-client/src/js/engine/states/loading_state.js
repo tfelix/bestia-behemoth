@@ -36,6 +36,11 @@ Bestia.Engine.States.LoadingState.prototype = {
 		
 		var packUrl = Bestia.Urls.assetsMap + mapDbName +'/assetpack.json';
 		this.load.pack(mapDbName, packUrl);
+		
+		// Load the bestia sprite.
+		packUrl = Bestia.Urls.assetsMobSprite + this.bestia.sprite() + '_pack.json';
+		this.load.pack(this.bestia.sprite(), packUrl);
+		
 		this.load.start();
 	},
 
@@ -43,15 +48,6 @@ Bestia.Engine.States.LoadingState.prototype = {
 		this.game.debug.text(this.text, 10, 30, '#FFFFFF');
 		var maxWidth = this.game.width - 20;
 		this.gfx.drawRect(10, 60, (maxWidth * this.curProgress / 100), 20);
-
-	},
-
-	/**
-	 * Starts the loading of the given files. Progress will be displayed.
-	 * 
-	 * @method Bestia.Engine.States.LoadingState#loadAssets
-	 */
-	loadAssets : function() {
 
 	},
 

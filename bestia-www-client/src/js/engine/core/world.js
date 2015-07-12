@@ -166,8 +166,8 @@ Bestia.Engine.World.prototype.getPxXY = function(tileX, tileY, obj) {
 		};
 	}
 
-	obj.x = tileX * this.properties.tileSize;
-	obj.y = tileY * this.properties.tileSize;
+	obj.x = (tileX) * this.properties.tileSize;
+	obj.y = (tileY) * this.properties.tileSize;
 
 	return obj;
 };

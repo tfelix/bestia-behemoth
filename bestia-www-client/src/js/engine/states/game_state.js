@@ -1,71 +1,3 @@
-Bestia.Engine.Entity = function(game, sprite, world) {
-	this.walkspeed = 1;
-	this.sprite = sprite;
-	// TODO Das Bestia selection system ausweiten und ausbessern.
-	this.pbid = 2;
-
-	this.game = game;
-	this.world = world;
-
-	this.path = [];
-	this.tween = game.add.tween(sprite);
-};
-
-/**
- * Calculates the duration in ms of the total walk of the given path. Depends
- * upon the relative walkspeed of the entity.
- * 
- * @private
- * @method Bestia.Engine.Entity#_getWalkDuration
- * @returns Total walkspeed in ms.
- */
-Bestia.Engine.Entity.prototype._getWalkDuration = function(length, walkspeed) {
-	// Usual walkspeed is 3 tiles / s -> 1/3 s/tile.
-	return Math.round((1 / 3) * length / walkspeed * 1000);
-
-};
-
-Bestia.Engine.Entity.prototype.setTo = function(x, y) {
-	var cords = this.world.getPxXY(x, y);
-	this.sprite.x = cords.x;
-	this.sprite.y = cords.y;
-};
-
-Bestia.Engine.Entity.prototype.moveTo = function(path, world) {
-
-	this.tween = this.game.add.tween(this.sprite);
-
-	var pathX = new Array(path.length);
-	var pathY = new Array(path.length);
-
-	var self = this;
-	self.world = world;
-
-	// Calculate coordinate arrays from path.
-	path.forEach(function(ele, i) {
-		var cords = self.world.getPxXY(ele.x, ele.y);
-		pathX[i] = cords.x;
-		pathY[i] = cords.y;
-	});
-
-	// Calculate total amount of speed.
-	this.tween.to({
-		x : pathX,
-		y : pathY,
-	}, this._getWalkDuration(path.length, 1), Phaser.Easing.Linear.None, true);
-};
-
-/**
- * Stops a current movement.
- * 
- * @method Bestia.Engine.Entit#stopMove
- */
-Bestia.Engine.Entity.prototype.stopMove = function() {
-
-	this.tween.stop();
-
-};
-
 /**
  * Central game state for controlling the games logic.
  * 
@@ -117,17 +49,11 @@ Bestia.Engine.States.GameState = function(engine) {
 	 * Holds the player bestia which should be used as the current player
 	 * object. Some information like the current position will be extracted from
 	 * it.
+	 * 
+	 * @private
+	 * @property {Bestia.BestiaViewModel}
 	 */
 	this.bestia = null;
-
-	this.config = {
-		tileSize : 0,
-		mapNameStyle : {
-			font : "65px Arial",
-			fill : "#ff0044",
-			align : "center"
-		}
-	};
 };
 
 Bestia.Engine.States.GameState.prototype = {
@@ -155,14 +81,11 @@ Bestia.Engine.States.GameState.prototype = {
 		this.gfxCollision.beginFill(0xFF0000, 0.5);
 
 		// Draw our player.
-		this.player = this.game.add.sprite(0, 0, 'player');
-		this.player.anchor.setTo(0, 0);
-		
-		this._playerEntity = new Bestia.Engine.Entity(this.game, this.player, this._bestiaWorld);
-		this._playerEntity.setTo(this.bestia.posX(), this.bestia.posY());
+		this.player = new Bestia.Engine.Entity(this.game, this._bestiaWorld);
+		this.player.setTo(this.bestia.posX(), this.bestia.posY());
 
 		this.cursors = this.game.input.keyboard.createCursorKeys();
-		this.game.camera.follow(this.player);
+		this.game.camera.follow(this.player.sprite);
 
 		// Our painting marker
 		this.marker = this.game.add.graphics();
@@ -176,17 +99,17 @@ Bestia.Engine.States.GameState.prototype = {
 
 		game.input.onDown.add(function(pointer, event) {
 
-			var start = this._bestiaWorld.getTileXY(this.player.x, this.player.y);
+			var start = this._bestiaWorld.getTileXY(this.player.sprite.x, this.player.sprite.y);
 			var goal = this._bestiaWorld.getTileXY(this.game.input.worldX, this.game.input.worldY);
 
 			var path = this._bestiaWorld.findPath(start, goal).nodes;
 
 			var path = path.reverse();
-			var msg = new Bestia.Message.BestiaMove(this._playerEntity.pbid, path, this._playerEntity.walkspeed);
+			var msg = new Bestia.Message.BestiaMove(this.player.pbid, path, this.player.walkspeed);
 			Bestia.publish('io.sendMessage', msg);
 
 			// Start movement locally aswell.
-			this._playerEntity.moveTo(path, this._bestiaWorld);
+			this.player.moveTo(path);
 
 		}, this);
 	},
@@ -219,7 +142,7 @@ Bestia.Engine.States.GameState.prototype = {
 
 		// Check if we have to render the debug display.
 		if (this.engine.config.debug()) {
-			this._renderDebug();
+			//this._renderDebug();
 		}
 	},
 

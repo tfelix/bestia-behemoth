@@ -18,13 +18,6 @@
             "key": "boden",
             "urls": ["assets/sound/theme/prontera_fields.mp3", "assets/sound/theme/prontera_fields.ogg"],
             "autoDecode": true
-        },
-		{
-            "type": "atlasJSONHash",
-            "key": "poring",
-            "textureURL": "assets/img/sprite/mob/poring.png",
-            "atlasURL": "assets/img/sprite/mob/poring.json",
-            "atlasData": null
         }
     ],
     "meta": {

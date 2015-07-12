@@ -37,5 +37,6 @@ Bestia.Urls = {
 	
 	assetsRoot : 'http://localhost/assets/',
 	assetsMap : 'http://localhost/assets/map/',
-	assetsMobIcon : 'http://localhost/assets/img/mob-icon/'
+	assetsMobIcon : 'http://localhost/assets/img/mob-icon/',
+	assetsMobSprite : 'http://localhost/assets/img/sprite/mob/'
 };
