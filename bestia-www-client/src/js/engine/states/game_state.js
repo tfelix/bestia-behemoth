@@ -44,6 +44,12 @@ Bestia.Engine.Entity.prototype._getWalkDuration = function(length, walkspeed) {
 
 };
 
+Bestia.Engine.Entity.prototype.setTo = function(x, y) {
+	var cords = this.world.getPxXY(x, y);
+	this.sprite.x = cords.x;
+	this.sprite.y = cords.y;
+};
+
 Bestia.Engine.Entity.prototype.moveTo = function(path, world) {
 
 	this.tween = this.game.add.tween(this.sprite);
@@ -126,6 +132,13 @@ Bestia.Engine.States.GameState = function(engine) {
 	 */
 	this.astar = null;
 
+	/**
+	 * Holds the player bestia which should be used as the current player
+	 * object. Some information like the current position will be extracted from
+	 * it.
+	 */
+	this.bestia = null;
+
 	this.config = {
 		tileSize : 0,
 		mapNameStyle : {
@@ -137,6 +150,10 @@ Bestia.Engine.States.GameState = function(engine) {
 };
 
 Bestia.Engine.States.GameState.prototype = {
+
+	init : function(bestia) {
+		this.bestia = bestia;
+	},
 
 	preload : function() {
 		// Timing for FPS.
@@ -150,10 +167,9 @@ Bestia.Engine.States.GameState.prototype = {
 		// Prepare the AStar plugin.
 		// TODO dieser call evtl in die world rein.
 		this.astar = this.game.plugins.add(Phaser.Plugin.AStar);
-		
+
 		this._bestiaWorld = new Bestia.Engine.World(game, this.astar);
 		this._bestiaWorld.loadMap();
-		
 
 		this.gfxCollision = this.add.graphics(0, 0);
 		this.gfxCollision.beginFill(0xFF0000, 0.5);
@@ -161,8 +177,9 @@ Bestia.Engine.States.GameState.prototype = {
 		// Draw our player.
 		this.player = this.game.add.sprite(0, 0, 'player');
 		this.player.anchor.setTo(0, 0);
-		this.movePlayer(3, 3);
+		
 		this._playerEntity = new Bestia.Engine.Entity(this.game, this.player, this._api);
+		this._playerEntity.setTo(this.bestia.posX(), this.bestia.posY());
 
 		this.cursors = this.game.input.keyboard.createCursorKeys();
 		this.game.camera.follow(this.player);
@@ -187,13 +204,12 @@ Bestia.Engine.States.GameState.prototype = {
 			var goal = this._bestiaWorld.getTileXY(this.game.input.worldX, this.game.input.worldY);
 
 			var path = this._bestiaWorld.findPath(start, goal).nodes;
-			// Send to server.
-			
+
 			var path = path.reverse();
 			var msg = new Bestia.Message.BestiaMove(this._playerEntity.pbid, path, this._playerEntity.walkspeed);
 			Bestia.publish('io.sendMessage', msg);
-			
-			// Start movement.
+
+			// Start movement locally aswell.
 			this._playerEntity.moveTo(path, this._bestiaWorld);
 
 		}, this);
@@ -262,8 +278,9 @@ Bestia.Engine.States.GameState.prototype = {
 	},
 
 	updateMarker : function() {
-		
-		var cords = this._bestiaWorld.getTileXY(this.game.input.activePointer.worldX, this.game.input.activePointer.worldY);
+
+		var cords = this._bestiaWorld.getTileXY(this.game.input.activePointer.worldX,
+				this.game.input.activePointer.worldY);
 		this._bestiaWorld.getPxXY(cords.x, cords.y, cords);
 
 		this.marker.x = cords.x;

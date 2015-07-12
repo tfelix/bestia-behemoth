@@ -20,7 +20,9 @@ Bestia.BestiaViewModel = function(net, msg) {
 	this.playerBestiaId = ko.observable();
 	this.databaseName = ko.observable('');
 	this.equip = [];
-	this.location = ko.observable();
+	this.location = ko.observable('');
+	this.posX = ko.observable(0);
+	this.posY = ko.observable(0);
 	this.saveLocation = ko.observable();
 	this.customName = ko.observable('');
 	this.statusEffects = [];
@@ -48,6 +50,8 @@ Bestia.BestiaViewModel.prototype.update = function(msg) {
 	var self = this;
 	this.playerBestiaId(msg.id);
 	this.location(msg.cl.mdbn);
+	this.posX(msg.cl.x);
+	this.posY(msg.cl.y);
 	this.saveLocation(msg.sl.mdbn);
 	this.customName(msg.cn);
 	this.level(msg.lv);

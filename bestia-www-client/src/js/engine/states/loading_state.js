@@ -28,7 +28,6 @@ Bestia.Engine.States.LoadingState.prototype = {
 		this.curProgress = 0;
 
 		// You can listen for each of these events from Phaser.Loader
-		// this.game.load.onLoadStart.add(this.loadStart, this);
 		this.load.onFileComplete.add(this.fileComplete, this);
 		this.load.onLoadComplete.add(this.loadComplete, this);
 
@@ -38,14 +37,14 @@ Bestia.Engine.States.LoadingState.prototype = {
 		this.load.image('tiles', 'assets/map/test-zone1/tilemap1.png');
 
 		// Sprites.
-		this.load.image('1_F_ORIENT_01', 'assets/sprite/1_F_ORIENT_01.png');
-		this.load.image('1_M_BARD', 'assets/sprite/1_M_BARD.png');
-		this.load.image('player', 'assets/sprite/player.png');
+		this.load.image('1_F_ORIENT_01', 'assets/img/sprite/1_F_ORIENT_01.png');
+		this.load.image('1_M_BARD', 'assets/img/sprite/1_M_BARD.png');
+		this.load.image('player', 'assets/img/sprite/player.png');
 
-		this.load.audio('bg_theme', 'assets/sound/theme/prontera_fields.mp3');
+		this.load.audio('bg_theme', 'assets/img/sound/theme/prontera_fields.mp3');
 
 		// ATLAS
-		this.load.atlasJSONHash('poring', 'assets/sprite/mob/poring.png', 'assets/sprite/mob/poring.json');
+		this.load.atlasJSONHash('poring', 'assets/img/sprite/mob/poring.png', 'assets/sprite/mob/poring.json');
 
 		this.load.start();
 	},
