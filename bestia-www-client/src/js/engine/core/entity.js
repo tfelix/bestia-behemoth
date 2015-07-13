@@ -5,7 +5,6 @@
  *            and utility methods of the current map/world.
  */
 Bestia.Engine.Entity = function(game, world) {
-	var self = this;
 	this.walkspeed = 1;
 	// TODO Das Bestia selection system ausweiten und ausbessern.
 	this.pbid = 2;
@@ -72,7 +71,7 @@ Bestia.Engine.Entity.prototype.moveTo = function(path) {
 	// Calculate coordinate arrays from path.
 	var lastTile = curPosT;
 	var animationOrder = [];
-	path.forEach(function(ele, i) {
+	path.forEach(function(ele) {
 		var cords = self.world.getPxXY(ele.x, ele.y);
 		cords.y += this.world.properties.tileSize;
 
@@ -89,7 +88,7 @@ Bestia.Engine.Entity.prototype.moveTo = function(path) {
 		// Calculate total amount of speed.
 		this.tween.to({
 			x : cords.x,
-			y : cords.y,
+			y : cords.y
 		}, duration, Phaser.Easing.Linear.None, false);
 
 		animationOrder.push(this.getAnimationName(ele, lastTile));
@@ -122,24 +121,24 @@ Bestia.Engine.Entity.prototype.getAnimationName = function(nextTile, curTile) {
 	var dX = nextTile.x - curTile.x;
 	var dY = nextTile.y - curTile.y;
 
-	if (dX == 0 && dY == -1) {
+	if (dX === 0 && dY === -1) {
 		// moving up.
 		return 'walk_up';
-	} else if (dX == 0 && dY == 1) {
+	} else if (dX === 0 && dY === 1) {
 		// moving down.
 		return 'walk_down';
-	} else if (dX == -1 && dY == 0) {
+	} else if (dX === -1 && dY === 0) {
 		return 'walk_left';
-	} else if (dX == 1 && dY == 0) {
+	} else if (dX === 1 && dY === 0) {
 		return 'walk_right';
-	} else if (dX == -1 && dY == -1) {
+	} else if (dX === -1 && dY === -1) {
 		// left up.
 		return 'walk_left_up';
-	} else if (dX == -1 && dY == 1) {
+	} else if (dX === -1 && dY === 1) {
 		return 'walk_down_left';
-	} else if (dX == -1 && dY == 1) {
+	} else if (dX === -1 && dY === 1) {
 		return 'walk_right_up';
-	} else if (dX == 1 && dY == 1) {
+	} else if (dX === 1 && dY === 1) {
 		return 'walk_down_right';
 	}
 

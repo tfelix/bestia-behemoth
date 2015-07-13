@@ -11,6 +11,5 @@ module.exports = {
             'Gruntfile.js',
             'tasks/**/*.js'
         ]
-        //options: { jshintrc: 'tasks/.jshintrc' }
     }
 };

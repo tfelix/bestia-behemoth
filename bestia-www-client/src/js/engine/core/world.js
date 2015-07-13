@@ -143,7 +143,7 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
  */
 Bestia.Engine.World.prototype.findPath = function(start, goal) {
 	return this._astar.findPath(start, goal);
-}
+};
 
 /**
  * Returns the px coordiantes if tiles x and y coordiantes are given.

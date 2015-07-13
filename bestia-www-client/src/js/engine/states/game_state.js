@@ -97,7 +97,7 @@ Bestia.Engine.States.GameState.prototype = {
 		// Music.
 		// this.game.add.audio('bg_theme').play();
 
-		game.input.onDown.add(function(pointer, event) {
+		game.input.onDown.add(function() {
 
 			var start = this._bestiaWorld.getTileXY(this.player.sprite.x, this.player.sprite.y);
 			var goal = this._bestiaWorld.getTileXY(this.game.input.worldX, this.game.input.worldY);
@@ -115,8 +115,6 @@ Bestia.Engine.States.GameState.prototype = {
 	},
 
 	update : function() {
-
-		var game = this.game;
 
 		var cursors = this.cursors;
 		// For example this checks if the up or down keys are pressed and moves
@@ -138,11 +136,10 @@ Bestia.Engine.States.GameState.prototype = {
 	},
 
 	render : function() {
-		var game = this.game;
-
+		
 		// Check if we have to render the debug display.
 		if (this.engine.config.debug()) {
-			//this._renderDebug();
+			this._renderDebug();
 		}
 	},
 
@@ -153,8 +150,7 @@ Bestia.Engine.States.GameState.prototype = {
 	 * @private
 	 */
 	_updateDebug : function() {
-		// Das hier noch irgendwie anpassen.
-		BG.engine.info.fps(this.game.time.fps);
+		this.engine.info.fps(this.game.time.fps);
 	},
 
 	/**

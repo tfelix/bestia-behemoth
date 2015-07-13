@@ -17,10 +17,8 @@ Bestia.Engine.States.LoadingState.prototype = {
 		this.bestia = bestia;
 	},
 
-	create : function() {
-		
-		console.debug("LoadState: Loading for bestia: " + this.bestia);
-		var self = this;
+	create : function() {	
+		console.debug("LoadState: Loading for bestia: " + this.bestia);		
 		
 		var mapDbName = this.bestia.location();
 		

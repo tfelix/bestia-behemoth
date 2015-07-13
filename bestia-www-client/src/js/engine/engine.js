@@ -26,14 +26,14 @@ Bestia.Engine = function(config) {
 	this.info.fps.extend({
 		rateLimit : 1000
 	});
-	
+
 	this.bestia = undefined;
 
 	// Determine the size of the canvas.
 	var height = $(document).height();
 	var width = $('#canvas-container').width();
 
-	this.game= new Phaser.Game(width, height, Phaser.AUTO, 'bestia-canvas');
+	this.game = new Phaser.Game(width, height, Phaser.AUTO, 'bestia-canvas');
 
 	this.game.state.add('game', new Bestia.Engine.States.GameState(this));
 	this.game.state.add('load', new Bestia.Engine.States.LoadingState(this));
@@ -44,9 +44,9 @@ Bestia.Engine = function(config) {
 	// the master bestia to trigger initial map load.
 	var onSelectBestiaHandler = function(_, data) {
 		console.debug('New bestia selected. Starting loading process.');
-		self.loadMap(data);		
+		self.loadMap(data);
 	};
-	
+
 	var onInitHandler = function(_, data) {
 		console.debug('Engine.onInitHandler called. Starting initial load and remove handler.');
 		var bestia = new Bestia.BestiaViewModel(null, data.bm);
@@ -69,15 +69,15 @@ Bestia.Engine = function(config) {
  */
 Bestia.Engine.prototype.loadMap = function(bestia) {
 	console.debug('Loading map.');
-	
+
 	// See if we can do a partial mapload or a full map reload.
-	if(undefined === this.bestia || this.bestia.location() !== bestia.location()) {
+	if (undefined === this.bestia || this.bestia.location() !== bestia.location()) {
 		// We need to do a full load.
 		this.game.state.start('load', true, false, bestia);
-	} else {
-		// Partial load (switch view to active bestia).
-		// TODO
 	}
+	// Partial load (switch view to active bestia).
+	// TODO
+
 };
 
 /**

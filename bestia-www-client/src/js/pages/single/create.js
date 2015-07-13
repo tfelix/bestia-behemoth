@@ -32,7 +32,7 @@ var CreateForm = function() {
 				username : this.masterName(),
 				master : 1
 			},
-			success : function(data) {
+			success : function() {
 				window.location.href = Bestia.Urls.gameHtml;
 			},
 			error : function() {

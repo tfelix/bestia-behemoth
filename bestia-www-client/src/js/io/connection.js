@@ -32,7 +32,7 @@ Bestia.Connection.prototype.init = function() {
 	var authData = store.getAuth();
 	
 	if(authData == null) {
-		log.error("No authentication was found. Return to login.");
+		console.error("No authentication was found. Return to login.");
 		// TODO zum login weiterleiten.
 		return;
 	}

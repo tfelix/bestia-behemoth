@@ -13,17 +13,17 @@ module.exports = function(grunt) {
 			'src/js/bestia/bestia_info_view_model.js',
 			// === MISC ===
 			'src/js/core/bestia/bestias.js', 'src/js/util/net.js', 'src/js/util/pubsub.js', 'src/js/io/connection.js',
-			'src/js/io/message.js', 'src/js/inventory/inventory.js', 'src/js/view/system.pingpong.js', 'src/js/util/storage.js',
+			'src/js/io/message.js', 'src/js/inventory/inventory.js', 'src/js/view/system.pingpong.js',
+			'src/js/util/storage.js',
 			// === ENGINE ===
 			'src/js/engine/plugins/AStar.js', 'src/js/engine/engine.js', 'src/js/engine/states/*.js',
-			'src/js/engine/core/*.js',
-			'src/js/engine/entity.js', 'src/js/engine/entities/*.js',
+			'src/js/engine/core/*.js', 'src/js/engine/entity.js', 'src/js/engine/entities/*.js',
 			// === PAGE ===
 			'src/js/pages/bestia.js',
 			// === ETC ===
 			'src/js/chat.js', 'src/js/main.js' ];
-	
-	var pageFiles = ['src/js/bestia.js', 'src/js/util/storage.js', 'src/js/pages/single/all-pages.js'];
+
+	var pageFiles = [ 'src/js/bestia.js', 'src/js/util/storage.js', 'src/js/pages/single/all-pages.js' ];
 
 	loadConfig(grunt, {
 		configPath : __dirname + '/tasks/options',
@@ -43,19 +43,15 @@ module.exports = function(grunt) {
 
 	grunt.loadTasks('tasks');
 
-	grunt.registerTask('default', 'Builds the project and packages it for distribution.', [ 'compile' ]);
+	grunt.registerTask('default', 'Builds the project and packages it for distribution.', [ 'prod' ]);
 
-	grunt.registerTask('dev', 'Testing of the framework.', [ 'test', 'compile', 'connect:dev', 'watch' ]);
-	grunt.registerTask('dev-test', 'Testing of the framework.', [ 'test', 'connect:test_test', 'watch' ]);
-
-	grunt.registerTask('compile-js', 'Compiles JS files.', [ 'bower_concat', 'concat:compile' ]);
-	grunt.registerTask('compile-css', 'Compiles CSS files.', [ 'less' ]);
-	grunt.registerTask('compile-html', 'Compile HTML files.');
-
-	grunt.registerTask('compile', 'Compile all.', [ 'clean', 'copy', 'compile-js', 'compile-css' ]);
+	grunt.registerTask('compile', 'Compile all.', [ 'clean', 'copy', 'bower_concat', 'concat:compile', 'less' ]);
 
 	grunt.registerTask('test', 'Testing of the framework.', [ 'jsonlint', 'jshint', 'jasmine' ]);
 
-	// grunt.registerTask('dist', 'Packages the build files for distribution.',
-	// function() {});
+	grunt.registerTask('dev', 'Compiles for local development of the client.', [ 'test', 'compile', 'connect:dev', 'watch' ]);
+	grunt.registerTask('dev-test', 'Testing of the framework.', [ 'test', 'connect:test_test', 'watch' ]);
+
+	grunt.registerTask('prod', 'Compiles the client for production.', [ 'test', 'clean', 'copy', 'compile-js',
+			'compile-css', 'jshint:prod', 'jsonlint:prod' ]);
 };

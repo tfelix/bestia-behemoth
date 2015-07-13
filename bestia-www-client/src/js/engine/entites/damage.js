@@ -43,7 +43,7 @@ Bestia.Engine.Entity.Damage = function(game, entity, dmg) {
 	} else {
 		// Create multiple visual for the damage.
 		dmg.dmgs.forEach(function(obj) {
-			var visual = self._createVisual(obj.d, ob.bc, posX, posY);
+			var visual = self._createVisual(obj.d, obj.bc, posX, posY);
 			this._animateVisual(visual);
 		});
 	}
