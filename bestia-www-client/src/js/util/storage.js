@@ -26,8 +26,24 @@ Bestia.Storage.prototype.storeAuth = function(data) {
  * zone/web server if a new connection has to be made.
  * 
  * @method Bestia.Storage#getAuth
- * @returns {Object} Authorization object.
+ * @returns {Object} Authorization object or @{code null} if no object was persisted.
  */
 Bestia.Storage.prototype.getAuth = function() {
-	return JSON.parse(Cookies.get('auth'));
+	
+	var data = Cookies.get('auth');
+	
+	if(data === undefined) {
+		return null;
+	}
+	
+	return JSON.parse(data);
+};
+
+/**
+ * Clears the storage of all data which was stored inside.
+ * 
+ * @method Bestia.Storage#clear
+ */
+Bestia.Storage.prototype.clear = function() {
+	Cookies.remove('auth');
 };

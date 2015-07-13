@@ -36,16 +36,6 @@ Bestia.Engine.States.GameState = function(engine) {
 	this._bestiaWorld = null;
 
 	/**
-	 * Holds AStar plugin reference to calculate paths of the bestias when
-	 * clicked by the user. The other bestias are controlled by the server. But
-	 * user movement will be controlled by the client.
-	 * 
-	 * @private
-	 * @property
-	 */
-	this.astar = null;
-
-	/**
 	 * Holds the player bestia which should be used as the current player
 	 * object. Some information like the current position will be extracted from
 	 * it.
@@ -72,9 +62,9 @@ Bestia.Engine.States.GameState.prototype = {
 		var game = this.game;
 
 		// Prepare the AStar plugin.
-		this.astar = this.game.plugins.add(Phaser.Plugin.AStar);
+		var astar = this.game.plugins.add(Phaser.Plugin.AStar);
 
-		this._bestiaWorld = new Bestia.Engine.World(game, this.astar);
+		this._bestiaWorld = new Bestia.Engine.World(game, astar);
 		this._bestiaWorld.loadMap(this.bestia.location());
 
 		this.gfxCollision = this.add.graphics(0, 0);
@@ -82,7 +72,7 @@ Bestia.Engine.States.GameState.prototype = {
 
 		// Draw our player.
 		this.player = new Bestia.Engine.Entity(this.game, this._bestiaWorld);
-		this.player.setTo(this.bestia.posX(), this.bestia.posY());
+		this.player.setPos(this.bestia.posX(), this.bestia.posY());
 
 		this.cursors = this.game.input.keyboard.createCursorKeys();
 		this.game.camera.follow(this.player.sprite);
@@ -99,7 +89,7 @@ Bestia.Engine.States.GameState.prototype = {
 
 		game.input.onDown.add(function() {
 
-			var start = this._bestiaWorld.getTileXY(this.player.sprite.x, this.player.sprite.y);
+			var start = this.player.pos;
 			var goal = this._bestiaWorld.getTileXY(this.game.input.worldX, this.game.input.worldY);
 
 			var path = this._bestiaWorld.findPath(start, goal).nodes;
@@ -115,19 +105,6 @@ Bestia.Engine.States.GameState.prototype = {
 	},
 
 	update : function() {
-
-		var cursors = this.cursors;
-		// For example this checks if the up or down keys are pressed and moves
-		// the camera accordingly.
-		if (cursors.up.isDown) {
-			this.player.y -= 32;
-		} else if (cursors.down.isDown) {
-			this.player.y += 32;
-		} else if (cursors.left.isDown) {
-			this.player.x -= 32;
-		} else if (cursors.right.isDown) {
-			this.player.x += 32;
-		}
 
 		// Check if we have to render the debug display.
 		if (this.engine.config.debug()) {
@@ -160,16 +137,11 @@ Bestia.Engine.States.GameState.prototype = {
 	 * @private
 	 */
 	_renderDebug : function() {
-		var game = this.game;
+		//var game = this.game;
 
 		// Show the path.
-		game.debug.AStar(this.astar, 20, 20, '#ff0000');
+		//game.debug.AStar(this.astar, 20, 20, '#ff0000');
 
-	},
-
-	movePlayer : function(x, y) {
-		this.player.x = x * this.config.tileSize;
-		this.player.y = y * this.config.tileSize;
 	},
 
 	updateMarker : function() {
@@ -181,18 +153,6 @@ Bestia.Engine.States.GameState.prototype = {
 		this.marker.x = cords.x;
 		this.marker.y = cords.y;
 
-	},
-
-	getTilePos : function(x) {
-		return Math.floor(x / this.config.tileSize);
-	},
-
-	renderCollisions : function() {
-		// Loop over all visible tiles and check if they are walkable. if not
-		// render a block.
-		var x = 0;
-		var y = 0;
-		this.gfxCollision.drawRect(x, y, this.config.tileSize, this.config.tileSize);
 	}
 };
 

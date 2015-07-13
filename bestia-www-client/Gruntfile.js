@@ -52,6 +52,5 @@ module.exports = function(grunt) {
 	grunt.registerTask('dev', 'Compiles for local development of the client.', [ 'test', 'compile', 'connect:dev', 'watch' ]);
 	grunt.registerTask('dev-test', 'Testing of the framework.', [ 'test', 'connect:test_test', 'watch' ]);
 
-	grunt.registerTask('prod', 'Compiles the client for production.', [ 'test', 'clean', 'copy', 'compile-js',
-			'compile-css', 'jshint:prod', 'jsonlint:prod' ]);
+	grunt.registerTask('prod', 'Compiles the client for production.', [ 'test', 'clean', 'copy', 'compile-css', 'jshint:prod', 'jsonlint:prod' ]);
 };

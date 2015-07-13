@@ -6,13 +6,29 @@
  */
 Bestia.Engine.Entity = function(game, world) {
 	this.walkspeed = 1;
+
+	/**
+	 * Position in tile coordinates.
+	 * 
+	 * @property
+	 */
+	this.pos = {
+		x : 0,
+		y : 0
+	};
+
 	// TODO Das Bestia selection system ausweiten und ausbessern.
 	this.pbid = 2;
 
 	this.game = game;
 	this.world = world;
-
-	this.path = [];
+	/**
+	 * Shortcut to the tile size of the current loaded map. Used to position
+	 * entities.
+	 * 
+	 * @property
+	 */
+	this.tileSize = world.properties.tileSize;
 
 	/**
 	 * Holds the information about the resources of this sprite/entity.
@@ -24,12 +40,10 @@ Bestia.Engine.Entity = function(game, world) {
 
 	// Initialize the sprite.
 	this.sprite = game.add.sprite(128, 128, 'mastersmith', 'walk_down/001.png');
-	// Todo das funktioniert nur wenn die sprites ca 2 tiles groß sind. besser
-	// wäre 0,1 und dann halt durch koordinaten steuern.
-	this.sprite.anchor.setTo(0, 1);
-	this.sprite.scale.setTo(0.68);
 
-	this.tween = game.add.tween(this.sprite);
+	// Set anchor to the middle of the sprite to the bottom.
+	this.sprite.anchor.setTo(0.5, 1);
+	this.sprite.scale.setTo(0.68);
 
 	// Prepare the animations of the sprite.
 	this.desc.animations.forEach(function(anim) {
@@ -37,8 +51,8 @@ Bestia.Engine.Entity = function(game, world) {
 		this.sprite.animations.add(anim.name, frames, anim.fps, true, false);
 	}, this);
 
-	// play stand animation.
-	// this.sprite.animations.play('stand');
+	this.sprite.frameName = 'walk_down/001.png';
+
 };
 
 /**
@@ -54,10 +68,17 @@ Bestia.Engine.Entity.prototype._getWalkDuration = function(length, walkspeed) {
 	return Math.round((1 / 3) * length / walkspeed * 1000);
 };
 
-Bestia.Engine.Entity.prototype.setTo = function(x, y) {
-	var cords = this.world.getPxXY(x, y + 1);
-	this.sprite.x = cords.x;
-	this.sprite.y = cords.y;
+/**
+ * Sets the position in tile coordinates.
+ * 
+ * @method Bestia.Engine.Entity#setPos
+ */
+Bestia.Engine.Entity.prototype.setPos = function(x, y) {
+	this.pos.x = x;
+	this.pos.y = y;
+	var cords = this.world.getPxXY(x, y);
+	this.sprite.x = cords.x + this.sprite.width / 2;
+	this.sprite.y = cords.y + this.tileSize;
 };
 
 Bestia.Engine.Entity.prototype.moveTo = function(path) {
@@ -65,20 +86,23 @@ Bestia.Engine.Entity.prototype.moveTo = function(path) {
 
 	this.tween = this.game.add.tween(this.sprite);
 
-	// Get current position.
-	var curPosT = this.world.getTileXY(this.sprite.x, this.sprite.y);
+	// Push current position of the entity (start) to the path aswell.
+	path.unshift(this.pos);
 
 	// Calculate coordinate arrays from path.
-	var lastTile = curPosT;
-	var animationOrder = [];
-	path.forEach(function(ele) {
+	path.forEach(function(ele, i) {
+		// This is our current position. No need to move TO this positon.
+		if (i == 0) {
+			return;
+		}
+
 		var cords = self.world.getPxXY(ele.x, ele.y);
-		cords.y += this.world.properties.tileSize;
 
 		// We go single tile steps.
 		var duration = this._getWalkDuration(1, 1);
+		var lastTile = path[i - 1];
 
-		// Check if we go diagonal.
+		// Check if we go diagonal to adjust speed.
 		var distance = (lastTile.x - ele.x) * (lastTile.x - ele.x) + (lastTile.y - ele.y) * (lastTile.y - ele.y);
 		if (distance > 1) {
 			// diagonal move. Multi with sqrt(2).
@@ -87,23 +111,31 @@ Bestia.Engine.Entity.prototype.moveTo = function(path) {
 
 		// Calculate total amount of speed.
 		this.tween.to({
-			x : cords.x,
-			y : cords.y
+			x : cords.x + this.sprite.width / 2,
+			y : cords.y + this.tileSize
 		}, duration, Phaser.Easing.Linear.None, false);
-
-		animationOrder.push(this.getAnimationName(ele, lastTile));
-
-		// Set last tile.
-		lastTile = ele;
 	}, this);
 
-	this.tween.onChildComplete.addOnce(function(a, b) {
-		this.playAnim(animationOrder[b.current]);
 
+	this.tween.onChildComplete.addOnce(function(a, b) {
+		this.pos = path[b.current - 1];
+		var nextAnim = this.getAnimationName(path[b.current], this.pos);
+		
+		var isLast = path.length === (b.current - 1);
+		
+		this.playAnim(nextAnim, isLast);
+	}, this);
+
+
+	this.tween.onComplete.addOnce(function(a, b) {
+		var size = path.length;
+		this.pos = path[size - 1];
+		var nextAnim = this.getAnimationName(this.pos, path[size - 2], true);
+		this.playAnim(nextAnim);
 	}, this);
 
 	// Start first animation immediately.
-	this.playAnim(this.getAnimationName(curPosT, path[0]));
+	this.playAnim(this.getAnimationName(path[1], path[0]));
 	this.tween.start();
 };
 
@@ -112,37 +144,45 @@ Bestia.Engine.Entity.prototype.moveTo = function(path) {
  * direction of the movement which is determined by looking into the difference
  * vector of the current tile and the next tile.
  * 
+ * @param {boolean}
+ *            isStanding - (Optional) Flag if the animation direction name
+ *            should be the standing variant.
  * @method Bestia.Engine.Entity#getAnimationName
  * @private
  * @return {String} Name of the animation to play.
  */
-Bestia.Engine.Entity.prototype.getAnimationName = function(nextTile, curTile) {
+Bestia.Engine.Entity.prototype.getAnimationName = function(nextTile, curTile, isStanding) {
+
+	isStanding = isStanding || false;
 
 	var dX = nextTile.x - curTile.x;
 	var dY = nextTile.y - curTile.y;
 
 	if (dX === 0 && dY === -1) {
 		// moving up.
-		return 'walk_up';
+
+		return (isStanding) ? 'stand_up' : 'walk_up';
 	} else if (dX === 0 && dY === 1) {
 		// moving down.
-		return 'walk_down';
+		return (isStanding) ? 'stand_down' : 'walk_down';
 	} else if (dX === -1 && dY === 0) {
-		return 'walk_left';
+		// moving left.
+		return (isStanding) ? 'stand_left' : 'walk_left';
 	} else if (dX === 1 && dY === 0) {
-		return 'walk_right';
+		// moving right.
+		return (isStanding) ? 'stand_right' : 'walk_right';
 	} else if (dX === -1 && dY === -1) {
 		// left up.
-		return 'walk_left_up';
+		return (isStanding) ? 'stand_left_up' : 'walk_left_up';
 	} else if (dX === -1 && dY === 1) {
-		return 'walk_down_left';
+		return (isStanding) ? 'stand_down_left' : 'walk_down_left';
 	} else if (dX === -1 && dY === 1) {
-		return 'walk_right_up';
+		return (isStanding) ? 'stand_right_up' : 'walk_right_up';
 	} else if (dX === 1 && dY === 1) {
-		return 'walk_down_right';
+		return (isStanding) ? 'stand_down_right' : 'walk_down_right';
 	}
 
-	return 'walk_left_up';
+	return 'stand_down';
 
 };
 

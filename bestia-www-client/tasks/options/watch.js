@@ -1,12 +1,12 @@
 module.exports = {
 	css : {
 		files : [ '<%= source_dir %>/css/**/*.less', '<%= source_dir %>/css/**/*.css' ],
-		tasks : [ 'compile-css' ]
+		tasks : [ 'compile' ]
 	},
 	
 	js: {
 		files : ['<%= source_dir %>/js/**/*.js'],
-		tasks : [ 'compile-js']
+		tasks : [ 'compile']
 	},
 	
 	page_js: {
