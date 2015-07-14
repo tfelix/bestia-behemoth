@@ -162,7 +162,6 @@ Bestia.Engine.Entity.prototype.getAnimationName = function(nextTile, curTile, is
 
 	if (dX === 0 && dY === -1) {
 		// moving up.
-
 		return (isStanding) ? 'stand_up' : 'walk_up';
 	} else if (dX === 0 && dY === 1) {
 		// moving down.
@@ -178,7 +177,7 @@ Bestia.Engine.Entity.prototype.getAnimationName = function(nextTile, curTile, is
 		return (isStanding) ? 'stand_left_up' : 'walk_left_up';
 	} else if (dX === -1 && dY === 1) {
 		return (isStanding) ? 'stand_down_left' : 'walk_down_left';
-	} else if (dX === -1 && dY === 1) {
+	} else if (dX === 1 && dY === -1) {
 		return (isStanding) ? 'stand_right_up' : 'walk_right_up';
 	} else if (dX === 1 && dY === 1) {
 		return (isStanding) ? 'stand_down_right' : 'walk_down_right';
