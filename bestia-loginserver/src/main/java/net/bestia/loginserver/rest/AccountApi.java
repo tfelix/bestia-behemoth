@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response;
 
 import net.bestia.loginserver.authenticator.AuthState;
 import net.bestia.loginserver.authenticator.PasswordAuthenticator;
+import net.bestia.loginserver.rest.response.AccountLoginResponse;
 import net.bestia.messages.api.AccountCheckJson;
 import net.bestia.model.ServiceLocator;
 import net.bestia.model.dao.AccountDAO;
@@ -40,7 +41,7 @@ public class AccountApi {
 
 	public AccountApi() {
 		ServiceLocator daoLocator = new ServiceLocator();
-		this.accountDao = daoLocator.getDAO(AccountDAO.class);
+		this.accountDao = daoLocator.getBean(AccountDAO.class);
 		this.accountService = daoLocator.getBean(AccountService.class);
 	}
 

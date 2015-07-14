@@ -18,7 +18,7 @@ Bestia.Storage = function() {
  *            data - Object with account id and login token.
  */
 Bestia.Storage.prototype.storeAuth = function(data) {
-	Cookies.set('auth', JSON.stringify({id: data.accId, token: data.token}));
+	Cookies.set('auth', JSON.stringify(data));
 };
 
 /**

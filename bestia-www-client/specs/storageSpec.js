@@ -1,6 +1,6 @@
 describe("Bestia.Storage", function() {
 	
-	var testObj = {test: 123, hello: 'lalal'};
+	var testObj = {username: 'blubber 2', token: '12398244837489347823423432454354353453453244523', id: 5};
 
 	it("Can store and retrieve arbitrary objects with getAuth.", function() {
 

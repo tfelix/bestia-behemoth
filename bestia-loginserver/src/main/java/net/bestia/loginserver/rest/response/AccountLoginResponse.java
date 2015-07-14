@@ -1,4 +1,4 @@
-package net.bestia.loginserver.rest;
+package net.bestia.loginserver.rest.response;
 
 public class AccountLoginResponse {
 
