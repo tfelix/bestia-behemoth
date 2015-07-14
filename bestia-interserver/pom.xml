@@ -31,6 +31,13 @@
 		</dependency>
 	</dependencies>
 
+	<distributionManagement>
+		<repository>
+			<id>bestiagamenet</id>
+			<url>scp://bestia-game.net:50000/home/bestia/deploy</url>
+		</repository>
+	</distributionManagement>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -42,7 +49,7 @@
 					<appendAssemblyId>false</appendAssemblyId>
 					<archive>
 						<manifest>
-							<mainClass>net.bestia.connect.Interserver</mainClass>
+							<mainClass>net.bestia.interserver.Interserver</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -56,6 +63,32 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>wagon-maven-plugin</artifactId>
+				<version>1.0</version>
+				<configuration>
+					<serverId>bestiagamenet</serverId>
+					<fromFile>${project.build.directory}/${project.build.finalName}.jar</fromFile>
+					<url>scp://bestia-game.net:50000/home/bestia/deploy</url>
+				</configuration>
+				<executions>
+					<execution>
+						<id>upload-jar-to-server</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>upload-single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh</artifactId>
+				<version>2.9</version>
+			</extension>
+		</extensions>
 	</build>
 </project>
