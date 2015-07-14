@@ -33,7 +33,7 @@ Bestia.Connection.prototype.init = function() {
 	
 	if(authData == null) {
 		console.error("No authentication was found. Return to login.");
-		// TODO zum login weiterleiten.
+		window.location.replace(Bestia.Urls.loginHtml);
 		return;
 	}
 	
@@ -41,7 +41,7 @@ Bestia.Connection.prototype.init = function() {
 	Bestia.publish('system.auth', authData);
 	
 	var request = {
-		url : 'http://localhost:8080/api',
+		url : Bestia.Urls.bestiaWebsocket,
 		contentType : "application/json",
 		logLevel : 'debug',
 		transport : 'websocket',

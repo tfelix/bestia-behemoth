@@ -31,6 +31,8 @@ Bestia.Urls = {
 	 */
 	bestiaWebAPI : 'http://localhost:8090',
 	
+	bestiaWebsocket: 'http://localhost:8080/api',
+	
 	/**
 	 * @property URL of the websocket API endpoint.
 	 */
