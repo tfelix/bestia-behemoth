@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 
 import net.bestia.util.BestiaConfiguration;
+import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.game.zone.map.Map;
 
 import org.junit.Assert;
@@ -28,15 +29,16 @@ public class ZoneTest {
 		return m;
 	}
 
-	private BestiaConfiguration getTestProp() {
+	private CommandContext getTestContext() {
 
+		// TODO Das hier richtig machen.
 		File configFile;
 		try {
 			configFile = new File(ZoneTest.class.getClassLoader()
 					.getResource("bestia.properties").toURI());
 			BestiaConfiguration p = new BestiaConfiguration();
 			p.load(configFile);
-			return p;
+			return null;
 		} catch (Exception e) {
 			Assert.fail("Could not read test properties file: bestia.properties.");
 		}
@@ -45,7 +47,7 @@ public class ZoneTest {
 	}
 
 	private Zone getZone() {
-		return new Zone(getTestProp(), getTestMap());
+		return new Zone(getTestContext(), getTestMap());
 	}
 
 	@Test

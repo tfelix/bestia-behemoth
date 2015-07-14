@@ -116,18 +116,6 @@
 		</pluginManagement>
 		<plugins>
 			<plugin>
-				<groupId>net.onedaybeard.artemis</groupId>
-				<artifactId>artemis-odb-maven-plugin</artifactId>
-				<version>${artemis.version}</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>artemis</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
 					<descriptorRefs>
