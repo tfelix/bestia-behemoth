@@ -43,7 +43,7 @@ Bestia.Engine.Entity = function(game, world) {
 
 	// Set anchor to the middle of the sprite to the bottom.
 	this.sprite.anchor.setTo(0.5, 1);
-	this.sprite.scale.setTo(0.68);
+	this.sprite.scale.setTo(this.desc.scale);
 
 	// Prepare the animations of the sprite.
 	this.desc.animations.forEach(function(anim) {
@@ -111,7 +111,8 @@ Bestia.Engine.Entity.prototype.moveTo = function(path) {
 
 		// Calculate total amount of speed.
 		this.tween.to({
-			x : cords.x + this.sprite.width / 2,
+			//x : cords.x + Math.abs(this.sprite.width) / 2,
+			x : cords.x + 20,
 			y : cords.y + this.tileSize
 		}, duration, Phaser.Easing.Linear.None, false);
 	}, this);
@@ -119,11 +120,11 @@ Bestia.Engine.Entity.prototype.moveTo = function(path) {
 
 	this.tween.onChildComplete.addOnce(function(a, b) {
 		this.pos = path[b.current - 1];
-		var nextAnim = this.getAnimationName(path[b.current], this.pos);
-		
 		var isLast = path.length === (b.current - 1);
-		
+		var nextAnim = this.getAnimationName(path[b.current], this.pos);	
 		this.playAnim(nextAnim, isLast);
+		
+		console.log("Moved to: " + this.pos.x +" - " + this.pos.y);
 	}, this);
 
 
@@ -132,6 +133,7 @@ Bestia.Engine.Entity.prototype.moveTo = function(path) {
 		this.pos = path[size - 1];
 		var nextAnim = this.getAnimationName(this.pos, path[size - 2], true);
 		this.playAnim(nextAnim);
+		console.log("Moved to: " + this.pos.x +" - " + this.pos.y);
 	}, this);
 
 	// Start first animation immediately.
@@ -204,32 +206,40 @@ Bestia.Engine.Entity.prototype.playAnim = function(name) {
 
 	// Check if its a stand animation or still image.
 	var prefix = name.substring(0, 5);
+	var isSingle = false;
 
 	if (prefix === 'stand') {
+		isStand = true;
 		if (name === 'stand_right' || name === 'stand_right_up' || name === 'stand_down_right') {
-			this.sprite.scale.x = -0.68;
+			this.sprite.scale.x = -1 * this.desc.scale;
 			// Show the left variant animation.
 			name = name.replace('right', 'left');
 		} else {
-			this.sprite.scale.x = 0.68;
+			this.sprite.scale.x = this.desc.scale;
+		}
+	} else {
+		if (name === 'walk_left' || name === 'walk_left_back') {
+			this.sprite.animations.play(name);
 		}
 
-		this.sprite.frameName = this.desc[name];
-		return;
+		if (name === 'walk_right' || name === 'walk_down_right' || name == 'walk_right_up') {
+			// for the right versions we must flip the sprite.
+			this.sprite.scale.x = -1 * this.desc.scale;
+			// Show the left variant animation.
+			name = name.replace('right', 'left');
+		} else {
+			this.sprite.scale.x = this.desc.scale;
+		}
 	}
-
-	if (name === 'walk_left' || name === 'walk_left_back') {
+	
+	// Stop the current animation.
+	if(name !== this.sprite.animations.name) {
+		this.sprite.animations.stop();
+	}
+	
+	if(isSingle) {
+		this.sprite.frameName = this.desc[name];
+	} else {
 		this.sprite.animations.play(name);
 	}
-
-	if (name === 'walk_right' || name === 'walk_down_right' || name == 'walk_right_up') {
-		// for the right versions we must flip the sprite.
-		this.sprite.scale.x = -0.68;
-		// Show the left variant animation.
-		name = name.replace('right', 'left');
-	} else {
-		this.sprite.scale.x = 0.68;
-	}
-
-	this.sprite.animations.play(name);
 };

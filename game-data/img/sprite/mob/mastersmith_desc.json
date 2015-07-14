@@ -1,4 +1,5 @@
 { 
+	"scale" : 0.68,
 	"stand_up" : "walk_up/001.png",
 	"stand_down" : "walk_down/001.png",
 	"stand_down_left": "walk_down_left/001.png",

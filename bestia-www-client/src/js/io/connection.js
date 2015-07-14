@@ -22,24 +22,57 @@ Bestia.Connection = function() {
 };
 
 /**
+ * Checks if logindata is ok or otherwise not complete.
+ * 
+ * @private
+ * @param {Object}
+ *            data - The data object containting the login data.
+ * @method Bestia.Connection#checkLoginData
+ * @returns TRUE if all the login data is existing. FALSE if there is something
+ *          missing or an error.
+ */
+Bestia.Connection.prototype.checkLoginData = function(data) {
+	
+	var state = true;
+	
+	if (!data) {
+		state = false;
+	}
+	
+	if(data.token === undefined) {
+		console.error("Login: token missing.");
+		state = false;
+	} else if(data.accId === undefined) {
+		console.error("Login:account id missing.");
+		state = false;
+	} else if(data.username === undefined) {
+		console.error("Login: username missing.");
+		state = false;
+	}
+	
+	if(state === false) {
+		window.location.replace(Bestia.Urls.loginHtml);
+		return false;
+	}
+	
+	return true;
+};
+
+/**
  * 
  * Publishes: auth
  */
 Bestia.Connection.prototype.init = function() {
-	
-	//  Prepare the request.
+
+	// Prepare the request.
 	var store = new Bestia.Storage();
 	var authData = store.getAuth();
-	
-	if(authData == null) {
-		console.error("No authentication was found. Return to login.");
-		window.location.replace(Bestia.Urls.loginHtml);
-		return;
-	}
-	
+
+	this.checkLoginData(authData);
+
 	// Emit the auth data signal so other parts of the app can react to it.
 	Bestia.publish('system.auth', authData);
-	
+
 	var request = {
 		url : Bestia.Urls.bestiaWebsocket,
 		contentType : "application/json",
@@ -47,9 +80,9 @@ Bestia.Connection.prototype.init = function() {
 		transport : 'websocket',
 		headers : {
 			'X-Bestia-Token' : authData.token,
-			'X-Bestia-Account' : authData.id
+			'X-Bestia-Account' : authData.accId
 		},
-		maxReconnectOnClose: 0,
+		maxReconnectOnClose : 0,
 		trackMessageLength : true,
 		enableProtocol : true
 	};

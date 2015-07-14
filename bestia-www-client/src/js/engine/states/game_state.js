@@ -93,6 +93,10 @@ Bestia.Engine.States.GameState.prototype = {
 			var goal = this._bestiaWorld.getTileXY(this.game.input.worldX, this.game.input.worldY);
 
 			var path = this._bestiaWorld.findPath(start, goal).nodes;
+			
+			if(path.length === 0) {
+				return;
+			}
 
 			var path = path.reverse();
 			var msg = new Bestia.Message.BestiaMove(this.player.pbid, path, this.player.walkspeed);
