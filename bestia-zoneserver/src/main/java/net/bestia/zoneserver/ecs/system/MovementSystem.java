@@ -33,9 +33,9 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 
 	private EntityTransmuter changedTransmuter;
 
-	@SuppressWarnings({ "unchecked", "deprecation" })
+	@SuppressWarnings({ "unchecked" })
 	public MovementSystem() {
-		super(Aspect.getAspectForAll(Position.class, Movement.class));
+		super(Aspect.all(Position.class, Movement.class));
 
 	}
 

@@ -1,0 +1,22 @@
+{ 
+    "poring": [
+        {
+            "type": "atlasJSONHash",
+            "key": "poring",
+            "textureURL": "assets/img/sprite/mob/poring.png",
+            "atlasURL": "assets/img/sprite/mob/poring.json",
+            "atlasData": null
+        },
+		{
+            "type": "json",
+            "key": "poring_desc",
+            "url": "assets/img/sprite/mob/poring_desc.json"
+        }
+    ],
+    "meta": {
+        "generated": "1401380327373",
+        "app": "Handmade",
+        "version": "1.0",
+        "copyright": "Thomas Felix 2015"
+    }
+}

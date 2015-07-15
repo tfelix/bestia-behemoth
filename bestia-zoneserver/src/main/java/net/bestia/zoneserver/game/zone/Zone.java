@@ -14,8 +14,10 @@ import org.apache.logging.log4j.Logger;
 
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
+import com.artemis.managers.GroupManager;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
+import com.artemis.managers.UuidEntityManager;
 
 /**
  * The Zone holds the static mapdata as well is responsible for managing entities, actors, scripts etc. The entity
@@ -98,7 +100,9 @@ public class Zone {
 		// Set all the managers.
 		//this.world.setManager(new MyTagManager());
 		this.world.setManager(new PlayerManager());
+		this.world.setManager(new GroupManager());
 		this.world.setManager(new TagManager());
+		this.world.setManager(new UuidEntityManager());
 
 		this.world.initialize();
 

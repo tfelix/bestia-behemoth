@@ -35,9 +35,9 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 	private ComponentMapper<PlayerControlled> pcm;
 	private ComponentMapper<Position> pm;
 
-	@SuppressWarnings({ "unchecked", "deprecation" })
+	@SuppressWarnings({ "unchecked"})
 	public PersistSystem(float interval) {
-		super(Aspect.getAspectForAll(PlayerControlled.class, Position.class, ChangedData.class), interval);
+		super(Aspect.all(PlayerControlled.class, Position.class, ChangedData.class), interval);
 
 	}
 

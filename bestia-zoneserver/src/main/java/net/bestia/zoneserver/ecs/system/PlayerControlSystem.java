@@ -3,16 +3,11 @@ package net.bestia.zoneserver.ecs.system;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 
-import net.bestia.messages.BestiaLogoutMessage;
 import net.bestia.messages.BestiaMoveMessage;
 import net.bestia.messages.InputMessage;
-import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.ServiceLocator;
-import net.bestia.model.dao.AccountDAO;
-import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.ecs.ECSInputController;
 import net.bestia.zoneserver.ecs.ECSInputController.InputControllerCallback;
@@ -32,16 +27,18 @@ import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
+import com.artemis.managers.GroupManager;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
 import com.artemis.systems.EntityProcessingSystem;
 import com.artemis.utils.EntityBuilder;
-import com.artemis.utils.ImmutableBag;
 
 @Wire
 public class PlayerControlSystem extends EntityProcessingSystem implements InputControllerCallback {
 
 	private final Logger log = LogManager.getLogger(PlayerControlSystem.class);
+	
+	public static final String CLIENT_GROUP = "client_group";
 
 	@Wire
 	private Zone zone;
@@ -56,12 +53,13 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 
 	private PlayerManager playerManager;
 	private TagManager tagManager;
+	private GroupManager groupManager;
 
 	private EventSystem eventSystem;
 
 	@SuppressWarnings("unchecked")
 	public PlayerControlSystem() {
-		super(Aspect.getAspectForAll(PlayerControlled.class));
+		super(Aspect.all(PlayerControlled.class));
 
 		// no op.
 	}
@@ -156,8 +154,9 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 		Entity e = new EntityBuilder(world).with(new PlayerControlled(pbm), new Position(curLoc.getX(), curLoc.getY()))
 				.build();
 
-		playerManager.setPlayer(e, getPlayerString(accId));
+		//playerManager.setPlayer(e, getPlayerString(accId));
 		tagManager.register(getBestiaString(bestiaId), e);
+		groupManager.add(e, CLIENT_GROUP);
 	}
 
 	private String getPlayerString(long accId) {
