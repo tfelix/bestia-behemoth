@@ -1,7 +1,6 @@
 package net.bestia.interserver;
 
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.bestia.messages.Message;
 
@@ -10,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQ.Socket;
+import org.zeromq.ZMQException;
 
 /**
  * With the InterserverSubscriber it is possible to connect to the interserver and listen to certain topics. If a
@@ -28,7 +28,6 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 	 */
 	private class MessageConsumerThread extends Thread {
 
-		public final AtomicBoolean isRunning = new AtomicBoolean(true);
 		private final Socket subscriber;
 
 		public MessageConsumerThread(Socket subscriber) {
@@ -39,8 +38,11 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 
 		@Override
 		public void run() {
-			while (isRunning.get()) {
-				log.trace("Listening to messages...");
+			
+			subscriber.connect(url);
+			log.debug("Connected to interserver on {}.", url);
+			
+			while (!Thread.currentThread().isInterrupted()) {
 				try {
 					// Receive the topic name. Throw it away we only need data.
 					subscriber.recvStr();
@@ -50,8 +52,16 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 					listener.onMessage(msg);
 				} catch (ClassNotFoundException | IOException ex) {
 					log.error("Could not create instance of message.", ex);
+					break;
+				} catch(ZMQException ex) {
+					if (ex.getErrorCode () == ZMQ.Error.ETERM.getCode ()) {
+                        break;
+                    }
 				}
 			}
+			
+			subscriber.close();
+			
 			log.trace("MessageConsumerThread has ended.");
 		}
 	}
@@ -88,11 +98,8 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 	 */
 	@Override
 	public void connect() {
-		log.debug("Connecting to interserver...");
-		subscriber.connect(url);
-		// subscriber.subscribe("zone/all".getBytes());
+		log.debug("Connecting to interserver...");	
 		thread.start();
-		log.debug("Connected to interserver on {}.", url);
 	}
 
 	/*
@@ -102,11 +109,9 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 	 */
 	@Override
 	public void disconnect() {
-		subscriber.close();
-		thread.isRunning.set(false);
-		thread.interrupt();
 		try {
-			thread.join(10000);
+			thread.interrupt();
+			thread.join();
 		} catch (InterruptedException e) {
 			log.warn("Could not properly close the socket.", e);
 		}

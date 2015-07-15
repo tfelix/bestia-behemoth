@@ -10,69 +10,118 @@ import net.bestia.messages.Message;
 import net.bestia.messages.PingMessage;
 import net.bestia.util.BestiaConfiguration;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ZMQPubSubTest {
-	private static Interserver server;
-	private static BestiaConfiguration config;
-	private static int listenPort;
-	private static int publishPort;
-	private static String domain;
-	
-	@BeforeClass
-	public static void setUp() throws IOException {
+	private Interserver server;
+	private BestiaConfiguration config;
+	private int listenPort;
+	private int publishPort;
+	private String domain;
+
+	private InterserverConnectionFactory fac;
+	private InterserverPublisher pub;
+	private InterserverSubscriber sub;
+
+	private List<Message> msgs = new ArrayList<>();
+
+	@Before
+	public void setUp() throws IOException {
 		config = new BestiaConfiguration();
 		config.load();
 		server = new Interserver(config);
 		server.start();
-		
+
 		// Get url.
 		domain = config.getProperty("inter.domain");
 		listenPort = config.getIntProperty("inter.publishPort");
 		publishPort = config.getIntProperty("inter.listenPort");
-	}
-	
-	@AfterClass
-	public static void teardown() {
-		server.stop();
-	}
-	
-	@Test
-	public void topic_test() throws IOException {
-		InterserverConnectionFactory fac = new InterserverConnectionFactory(1, domain, listenPort, publishPort);
-		InterserverPublisher pub = fac.getPublisher();
-		List<Message> msgs = new ArrayList<>();
-		InterserverSubscriber sub = fac.getSubscriber(new InterserverMessageHandler() {
-			
+
+		msgs.clear();
+		
+		fac = new InterserverConnectionFactory(1, domain, listenPort, publishPort);
+		
+		pub = fac.getPublisher();
+		sub = fac.getSubscriber(new InterserverMessageHandler() {
+
 			@Override
 			public void onMessage(Message msg) {
 				msgs.add(msg);
 			}
 		});
-		
+
 		pub.connect();
 		sub.connect();
+	}
+
+	@After
+	public void teardown() {				
+
+		fac.shutdown();
+		server.stop();
 		
+	}
+
+	@Test
+	public void not_subscribed_test() throws IOException {
+
 		PingMessage ping = new PingMessage();
 		pub.publish(ping);
 		assertTrue("No received message since no subscribed topic.", msgs.size() == 0);
-		
+
+		sleep(200);
+	}
+
+	private void sleep(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+			// no op.
+		}
+	}
+
+	@Test
+	public void wrong_subscribed_topic_test() throws IOException {
+
+		PingMessage ping = new PingMessage();
 		sub.subscribe("test");
 		pub.publish(ping);
+
+		// Dont close too early.
+		sleep(200);
+
 		assertTrue("No message should arrive via wrong subscribed topic.", msgs.size() == 0);
-		
+	}
+
+	@Test
+	public void right_subscribed_topic_test() throws IOException {
+
+		PingMessage ping = new PingMessage();
 		sub.subscribe(ping.getMessagePath());
-		pub.publish(ping);
-		assertTrue("Message should arrive via right subscribed topic.", msgs.size() == 1);
+		sleep(100);
 		
+		pub.publish(ping);
+
+		// Dont close too early.
+		sleep(200);
+
+		assertTrue("Message should arrive via subscribed topic.", msgs.size() == 1);
+
+	}
+
+	@Test
+	public void unsubscribed_topic_test() throws IOException {
+
+		PingMessage ping = new PingMessage();
+		sub.subscribe(ping.getMessagePath());
 		sub.unsubscribe(ping.getMessagePath());
 		pub.publish(ping);
-		assertTrue("No Message should arrive via unsubscribed topic.", msgs.size() == 1);
-		
-		
-		pub.disconnect();
-		sub.disconnect();
+
+		// Dont close too early.
+		sleep(200);
+
+		assertTrue("No Message should arrive via unsubscribed topic.", msgs.size() == 0);
 	}
 }

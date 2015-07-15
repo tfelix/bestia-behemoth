@@ -1,8 +1,6 @@
 package net.bestia.interserver;
 
 import java.io.IOException;
-import java.nio.channels.ClosedSelectorException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.bestia.util.BestiaConfiguration;
 
@@ -34,36 +32,51 @@ public class Interserver {
 	private class MessageSubscriberThread extends Thread {
 
 		private final Socket subscriber;
-		private final AtomicBoolean isRunning = new AtomicBoolean(true);
+		private final Socket publisher;
 
-		public MessageSubscriberThread(Socket subscriber) {
+		public MessageSubscriberThread(Socket subscriber, Socket publisher) {
 			this.setName("MessageSubscriberThread");
 			this.subscriber = subscriber;
+			this.publisher = publisher;
 		}
 
 		@Override
 		public void run() {
 			try {
-				while (isRunning.get()) {
+				subscriber.bind(subscriberUrl);
+				LOG.info("Now listening for messages on [{}].", subscriberUrl);
+				publisher.bind(publishUrl);
+				LOG.info("Now publishing messages on [{}].", publishUrl);
+			} catch (ZMQException ex) {
+				LOG.error("Could not open sockets.", ex);
+				return;
+			}
 
+			while (!Thread.currentThread().isInterrupted()) {
+
+				try {
 					final String topic = subscriber.recvStr();
 					final byte[] data = subscriber.recv();
+
 					LOG.trace("Received message[topic: {}, size {} byte]", topic, data.length);
 
 					publisher.sendMore(topic);
 					publisher.send(data);
+
+				} catch (ZMQException e) {
+					if (e.getErrorCode() == ZMQ.Error.ETERM.getCode()) {
+						break;
+					}
 				}
-			} catch (ClosedSelectorException ex) {
-				LOG.trace("Socket was externally closed.", ex);
 			}
+			subscriber.close();
+			publisher.close();
 		}
 	}
 
 	private MessageSubscriberThread subscriberThread;
 
-	private Context context;
-	private Socket publisher;
-	private Socket subscriber;
+	private final Context context;
 
 	private final String publishUrl;
 	private final String subscriberUrl;
@@ -87,13 +100,29 @@ public class Interserver {
 	 * Starts the interserver.
 	 */
 	public boolean start() {
+
+		// Dont start again if we are already running.
+		if (subscriberThread != null && subscriberThread.isAlive()) {
+			throw new IllegalStateException(
+					"Interserver is already running and can not be started again. Call stop() first.");
+		}
+
 		LOG.info("Starting Bestia Interserver...");
 
+		Socket subscriber = context.socket(ZMQ.PULL);
+		Socket publisher = context.socket(ZMQ.PUB);
+
+		// Start thread which will process all incoming messages.
+		subscriberThread = new MessageSubscriberThread(subscriber, publisher);
+		subscriberThread.start();
+
 		try {
-			startPublisher();
-			startSubscriber();
-		} catch (ZMQException ex) {
-			LOG.error("Could not start Interserver.", ex);
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// no op.
+		}
+		
+		if(!subscriberThread.isAlive()) {
 			stop();
 			return false;
 		}
@@ -102,55 +131,27 @@ public class Interserver {
 		return true;
 	}
 
-	private void startSubscriber() {
-		subscriber = context.socket(ZMQ.PULL);
-		subscriber.bind(subscriberUrl);
-		// Start thread which will process all incoming messages.
-		subscriberThread = new MessageSubscriberThread(subscriber);
-		subscriberThread.start();
-
-		LOG.info("Now listening for messages on [{}].", subscriberUrl);
-	}
-
-	/**
-	 * Starts the message sending capability of the interserver. Incoming messages will be sorted and broadcasted with a
-	 * given topic. All interested zone or webserver can listen for these kind of messages and subscribe to them.
-	 */
-	private void startPublisher() {
-		publisher = context.socket(ZMQ.PUB);
-		publisher.bind(publishUrl);
-
-		LOG.info("Now publishing messages on [{}].", publishUrl);
-	}
-
 	/**
 	 * Stops the interserver.
 	 */
 	public void stop() {
+
 		LOG.info("Stopping the Interserver...");
 
 		LOG.trace("Stopping message processing...");
+
+		context.term();
+
 		// We have to do all the null checks since we may have an stop call during the start and may not have
 		// initialized everything.
 		if (subscriberThread != null) {
-			subscriberThread.isRunning.set(false);
-		}
-
-		if (subscriber != null) {
-			subscriber.close();
-		}
-
-		if (subscriberThread != null) {
 			try {
-				subscriberThread.join(10000);
+				subscriberThread.interrupt();
+				subscriberThread.join();
 			} catch (InterruptedException e) {
 				LOG.warn("Could not shut down subscriberThread gracefully.", e);
 			}
 		}
-		if (publisher != null) {
-			publisher.close();
-		}
-		context.term();
 
 		LOG.info("Interserver has gone down.");
 	}
@@ -166,6 +167,7 @@ public class Interserver {
 		}
 
 		final Interserver interserver = new Interserver(config);
+
 		if (!interserver.start()) {
 			LOG.fatal("Server could not start. Exiting.");
 			return;

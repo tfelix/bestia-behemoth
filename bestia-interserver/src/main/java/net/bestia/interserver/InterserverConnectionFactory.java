@@ -1,10 +1,13 @@
 package net.bestia.interserver;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 
 /**
- * Abstract factory class implementation which is used to create connection to the interserver. This class could be a
+ * Factory class implementation which is used to create connection to the interserver. This class could be a
  * candidate for refactoring. To support multiple messaging backbones just implement this as an abstract factory.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
@@ -15,6 +18,9 @@ public class InterserverConnectionFactory {
 	private final Context context;
 	private final String subscriberUrl;
 	private final String publishUrl;
+	
+	private final List<InterserverSubscriber> spawnedSubsciber = new ArrayList<>();
+	private final List<InterserverPublisher> spawnedPublisher = new ArrayList<>();
 
 	public InterserverConnectionFactory(int numThreads, String url, int listenPort, int publishPort) {
 
@@ -32,7 +38,10 @@ public class InterserverConnectionFactory {
 	 * @return Subscriber which can be used to receive asyncrounous data from the interserver.
 	 */
 	public InterserverSubscriber getSubscriber(InterserverMessageHandler handler) {
-		return new InterserverZMQSubscriber(handler, subscriberUrl, context);
+		
+		final InterserverSubscriber sub = new InterserverZMQSubscriber(handler, subscriberUrl, context);
+		spawnedSubsciber.add(sub);
+		return sub;
 	}
 
 	/**
@@ -41,7 +50,10 @@ public class InterserverConnectionFactory {
 	 * @return An publisher which is able to send data to the interserver.
 	 */
 	public InterserverPublisher getPublisher() {
-		return new InterserverZMQPublisher(publishUrl, context);
+		
+		final InterserverPublisher pub =  new InterserverZMQPublisher(publishUrl, context);
+		spawnedPublisher.add(pub);
+		return pub;
 	}
 
 	/**
@@ -49,6 +61,18 @@ public class InterserverConnectionFactory {
 	 * should be called to do some cleanup.
 	 */
 	public void shutdown() {
+		
+		for(InterserverPublisher p : spawnedPublisher) {
+			p.disconnect();
+		}
+		
 		context.term();
+		
+		for(InterserverSubscriber s : spawnedSubsciber) {
+			s.disconnect();
+		}
+		
+		spawnedPublisher.clear();
+		spawnedSubsciber.clear();
 	}
 }

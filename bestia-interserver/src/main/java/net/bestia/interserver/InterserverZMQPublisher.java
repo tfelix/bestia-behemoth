@@ -68,7 +68,6 @@ class InterserverZMQPublisher implements InterserverPublisher {
 	public void disconnect() {
 		// Close the queue so no more messages are accepted.
 		isConnected.set(false);
-
 		publisher.close();
 
 		log.debug("Disconnected from interserver.");
