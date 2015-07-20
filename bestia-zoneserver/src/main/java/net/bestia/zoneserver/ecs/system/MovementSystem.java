@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import net.bestia.zoneserver.ecs.component.ChangedData;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.game.zone.Vector2;
 
 import com.artemis.Aspect;
@@ -30,6 +31,7 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 
 	private ComponentMapper<Movement> moveM;
 	private ComponentMapper<Position> posM;
+	private ComponentMapper<Visible> visM;
 
 	private EntityTransmuter changedTransmuter;
 
@@ -79,6 +81,8 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 
 		p.x = pos.x;
 		p.y = pos.y;
+		
+		visM.get(e).hasChanged = true;
 
 		changedTransmuter.transmute(e);
 

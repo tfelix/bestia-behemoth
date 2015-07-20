@@ -14,6 +14,7 @@ import net.bestia.zoneserver.ecs.ECSInputController.InputControllerCallback;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
 import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.event.PersistEvent;
 import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.game.zone.Vector2;
@@ -151,10 +152,9 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 
 		// Spawn the entity.
 		final Location curLoc = pbm.getBestia().getCurrentPosition();
-		Entity e = new EntityBuilder(world).with(new PlayerControlled(pbm), new Position(curLoc.getX(), curLoc.getY()))
+		Entity e = new EntityBuilder(world).with(new PlayerControlled(pbm), new Position(curLoc.getX(), curLoc.getY()), new Visible())
 				.build();
 
-		//playerManager.setPlayer(e, getPlayerString(accId));
 		tagManager.register(getBestiaString(bestiaId), e);
 		groupManager.add(e, CLIENT_GROUP);
 	}

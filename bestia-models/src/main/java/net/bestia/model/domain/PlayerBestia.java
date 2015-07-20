@@ -56,7 +56,7 @@ public class PlayerBestia implements Serializable {
 	@JsonProperty("cl")
 	private Location currentPosition;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "ACCOUNT_ID", nullable = false)
 	private Account owner;
 

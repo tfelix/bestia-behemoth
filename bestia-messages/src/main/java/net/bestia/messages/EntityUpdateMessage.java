@@ -12,6 +12,24 @@ public class EntityUpdateMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.update";
+	
+	private int playerBestiaId;
+	private int x;
+	private int y;
+	
+	public EntityUpdateMessage() {
+		
+	}
+	
+	public EntityUpdateMessage(long accId, int pbid, int x, int y) {
+		this.playerBestiaId = pbid;
+		this.x = x;
+		this.y = y;
+		
+		setAccountId(accId);
+	}
+	
+	
 
 	@Override
 	public String getMessageId() {

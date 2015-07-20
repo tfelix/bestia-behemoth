@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
+import net.bestia.zoneserver.ecs.system.NetworkSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
 import net.bestia.zoneserver.ecs.system.PlayerControlSystem;
 import net.bestia.zoneserver.game.zone.map.Map;
@@ -96,6 +97,7 @@ public class Zone {
 		this.world.setSystem(new PlayerControlSystem());
 		this.world.setSystem(new EventSystem());
 		this.world.setSystem(new PersistSystem(10000));
+		this.world.setSystem(new NetworkSystem());
 
 		// Set all the managers.
 		//this.world.setManager(new MyTagManager());
