@@ -10,7 +10,7 @@ import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.Zoneserver;
-import net.bestia.zoneserver.ecs.ECSInputController;
+import net.bestia.zoneserver.ecs.InputController;
 import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
 
 /*-
@@ -50,7 +50,7 @@ public class RequestLoginCommand extends Command {
 		checkAndRegister(message.getAccountId(), bestias, ctx);
 
 		// Get all the bestias added to this server.
-		final ECSInputController controller = ctx.getServer().getInputController();
+		final InputController controller = ctx.getServer().getInputController();
 		final Set<PlayerBestiaManager> activeBestias = controller.getActiveBestias(message.getAccountId());
 
 		final BestiaInfoMessage msg = new BestiaInfoMessage(message, 1, account.getMaster(), bestias);
@@ -65,7 +65,7 @@ public class RequestLoginCommand extends Command {
 
 		final Zoneserver server = ctx.getServer();
 		final Set<String> zones = server.getResponsibleZones();
-		final ECSInputController ecsInput = ctx.getServer().getInputController();
+		final InputController ecsInput = ctx.getServer().getInputController();
 
 		for (PlayerBestia playerBestia : bestias) {
 			if (!zones.contains(playerBestia.getCurrentPosition().getMapDbName())) {

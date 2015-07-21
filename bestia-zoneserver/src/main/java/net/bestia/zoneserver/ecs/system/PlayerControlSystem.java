@@ -9,8 +9,10 @@ import net.bestia.messages.InputMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.ServiceLocator;
 import net.bestia.model.domain.Location;
-import net.bestia.zoneserver.ecs.ECSInputController;
-import net.bestia.zoneserver.ecs.ECSInputController.InputControllerCallback;
+import net.bestia.zoneserver.ecs.InputController;
+import net.bestia.zoneserver.ecs.InputController.InputControllerCallback;
+import net.bestia.zoneserver.ecs.component.Active;
+import net.bestia.zoneserver.ecs.component.Changable;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
 import net.bestia.zoneserver.ecs.component.Position;
@@ -38,7 +40,7 @@ import com.artemis.utils.EntityBuilder;
 public class PlayerControlSystem extends EntityProcessingSystem implements InputControllerCallback {
 
 	private final Logger log = LogManager.getLogger(PlayerControlSystem.class);
-	
+
 	public static final String CLIENT_GROUP = "client_group";
 
 	@Wire
@@ -48,7 +50,7 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 	private ServiceLocator locator;
 
 	@Wire
-	private ECSInputController inputController;
+	private InputController inputController;
 
 	private ComponentMapper<PlayerControlled> pcm;
 
@@ -128,10 +130,10 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 	public void removedBestia(long accId, int bestiaId) {
 		Entity entity = tagManager.getEntity(getBestiaString(bestiaId));
 
-		// Synchronizes the bestia with the database.
+		// Synchronizes the bestia with the database NOW.
 		eventSystem.dispatch(new PersistEvent(entity));
 
-		// After persistence. remove entity.
+		// After it was persisted remove entity.
 		entity.deleteFromWorld();
 	}
 
@@ -151,9 +153,17 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 		log.debug("Adding {} to ecs.", pbm.toString());
 
 		// Spawn the entity.
+		// TODO das hier besser erzeugen.
 		final Location curLoc = pbm.getBestia().getCurrentPosition();
-		Entity e = new EntityBuilder(world).with(new PlayerControlled(pbm), new Position(curLoc.getX(), curLoc.getY()), new Visible())
-				.build();
+
+		Entity e = new EntityBuilder(world).with(new PlayerControlled(pbm), new Position(curLoc.getX(), curLoc.getY()),
+				new Visible(), new Changable(true), new Active()).build();
+
+		// TODO WORKAROUND ONLY FIRST BESTIA IS SET ACTIVE. LATER DO THIS VIA SEPERATE MESSAGE.
+		boolean hasActive = inputController.getActiveBestias(accId).size() > 1;
+		if (hasActive) {
+			e.edit().remove(Active.class);
+		}
 
 		tagManager.register(getBestiaString(bestiaId), e);
 		groupManager.add(e, CLIENT_GROUP);

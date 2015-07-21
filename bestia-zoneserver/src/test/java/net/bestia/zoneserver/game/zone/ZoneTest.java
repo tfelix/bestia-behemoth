@@ -62,4 +62,6 @@ public class ZoneTest {
 		Zone z = getZone();
 		Assert.assertEquals(ZONE_NAME, z.getName());
 	}
+	
+
 }

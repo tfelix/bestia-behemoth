@@ -12,9 +12,5 @@ import com.artemis.Component;
  */
 public class Visible extends Component {
 
-	/**
-	 * Flag if the entity has changed in some way so its state must be re-transmitted to the clients in sight.
-	 */
-	public boolean hasChanged;
 	public String sprite;
 }

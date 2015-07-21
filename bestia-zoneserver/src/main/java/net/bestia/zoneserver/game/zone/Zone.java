@@ -147,6 +147,7 @@ public class Zone {
 	 * Checks if the zone/map is walkable at the given coordinates. It will consider all temporary effects and
 	 * collidable entities on the ground aswell.
 	 * 
+	 * @depricated ECS soll das nun testen.
 	 * @param cords
 	 *            Coordinates to be checked.
 	 * @return TRUE if the tile is walkable, FALSE otherwise.

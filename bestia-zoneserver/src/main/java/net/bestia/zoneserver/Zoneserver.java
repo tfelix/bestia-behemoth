@@ -24,8 +24,8 @@ import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
-import net.bestia.zoneserver.ecs.ECSInputController;
-import net.bestia.zoneserver.ecs.ECSInputController.InputControllerCallback;
+import net.bestia.zoneserver.ecs.InputController;
+import net.bestia.zoneserver.ecs.InputController.InputControllerCallback;
 import net.bestia.zoneserver.game.zone.Zone;
 import net.bestia.zoneserver.worker.ZoneInitLoader;
 
@@ -120,7 +120,7 @@ public class Zoneserver {
 	private final Map<String, Zone> zones = new HashMap<>();
 	private final Set<String> responsibleZones;
 
-	private final ECSInputController ecsInputController = new ECSInputController();
+	private final InputController ecsInputController = new InputController();
 
 	/**
 	 * Ctor. The server needs a connection to its clients so it can use the messaging API to communicate with them.
@@ -318,12 +318,12 @@ public class Zoneserver {
 
 	
 	/**
-	 * Returns a {@link ECSInputController}. It will be used by the ECS to fetch the player input async aswell as the
+	 * Returns a {@link InputController}. It will be used by the ECS to fetch the player input async aswell as the
 	 * commands to pipe the player input for the different bestias to the ECS.
 	 * 
 	 * @return
 	 */
-	public ECSInputController getInputController() {
+	public InputController getInputController() {
 		return ecsInputController;
 	}
 

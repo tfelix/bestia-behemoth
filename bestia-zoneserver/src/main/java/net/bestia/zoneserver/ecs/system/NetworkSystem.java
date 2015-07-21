@@ -4,9 +4,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import net.bestia.messages.EntityUpdateMessage;
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.component.Active;
+import net.bestia.zoneserver.ecs.component.Changable;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
@@ -16,6 +22,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.GroupManager;
+import com.artemis.managers.UuidEntityManager;
 import com.artemis.systems.EntityProcessingSystem;
 import com.artemis.utils.ImmutableBag;
 
@@ -29,12 +36,17 @@ import com.artemis.utils.ImmutableBag;
 @Wire
 public class NetworkSystem extends EntityProcessingSystem {
 	
+	private static final Logger log = LogManager.getLogger(NetworkSystem.class);
+	
 	@Wire
 	private CommandContext ctx;
-	
-	private ComponentMapper<Visible> vcm;
+
 	private ComponentMapper<PlayerControlled> pcm;
+	private ComponentMapper<Active> activeMapper;
 	private ComponentMapper<Position> ppm;
+	private ComponentMapper<Changable> changableMapper;
+	
+	private UuidEntityManager uuidManager;
 	
 	private Set<Long> accountSet = new HashSet<>();
 	private List<Entity> tempEntities = new ArrayList<>();
@@ -43,22 +55,22 @@ public class NetworkSystem extends EntityProcessingSystem {
 
 	@SuppressWarnings("unchecked")
 	public NetworkSystem() {
-		super(Aspect.all(Visible.class));
-		// TODO Auto-generated constructor stub
+		super(Aspect.all(Visible.class, Active.class, Changable.class));
+		// no op.
 	}
 	
 	
 	@Override
-	protected void process(Entity e) {		
-		final Visible visible = vcm.get(e);
-		
-		// Check if the visible entity has changed somehow.
-		if(!visible.hasChanged) {
-			return;
-		}
+	protected void process(Entity e) {	
 		
 		accountSet.clear();
 		tempEntities.clear();
+		
+		// Dont process non changed entity.
+		final Changable changeComp = changableMapper.get(e);
+		if(false == changeComp.changed) {
+			return;
+		}
 		
 		// Now comes the tricky part. Get all player controlled bestias.
 		final ImmutableBag<Entity> clientEntities = groupManager.getEntities(PlayerControlSystem.CLIENT_GROUP);
@@ -66,7 +78,11 @@ public class NetworkSystem extends EntityProcessingSystem {
 		// Which are active...
 		for(Entity client : clientEntities) {
 			
-			// TODO Check activity.
+			// Skip non active player entities.
+			final Active activeComp = activeMapper.getSafe(e);
+			if(activeComp == null) {
+				continue;
+			}
 			
 			tempEntities.add(client);
 		}
@@ -76,8 +92,6 @@ public class NetworkSystem extends EntityProcessingSystem {
 		
 		// And send them the update of this entity.
 		for(Entity client : tempEntities) {
-			// Check if we have send this account an update already. If so skip this account entity.
-			
 			
 			final PlayerControlled playerControlled = pcm.get(client);
 			final Position pos = ppm.get(client);
@@ -85,22 +99,25 @@ public class NetworkSystem extends EntityProcessingSystem {
 			final long accId = playerControlled.playerBestia.getBestia().getOwner().getId();
 			final int pbId = playerControlled.playerBestia.getBestia().getId();
 			
+			// Check if we have send this account an update already. If so skip this account entity.
 			if(accountSet.contains(accId)) {
 				continue;
-			}
+			} else {
+				accountSet.add(accId);
+			}	
 			
-			accountSet.add(accId);
+			final UUID uuid = uuidManager.getUuid(e);
 			
+			log.trace("Sending update message to account: {}", accId);
 			
 			// Create EntityUpdate message, will with the informations.
-			final EntityUpdateMessage updateMessage = new EntityUpdateMessage(accId, pbId, pos.x, pos.y);
+			final EntityUpdateMessage updateMessage = new EntityUpdateMessage(uuid.toString(), accId, pbId, pos.x, pos.y);
 			
 			// And send it.
 			ctx.getServer().sendMessage(updateMessage);
-			
-			// Set the entity back to unchanged.
-			visible.hasChanged = false;
 		}
+		
+		changeComp.changed = false;
 	}
 
 }

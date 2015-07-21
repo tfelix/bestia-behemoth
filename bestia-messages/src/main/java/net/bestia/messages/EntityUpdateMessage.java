@@ -12,24 +12,23 @@ public class EntityUpdateMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.update";
-	
-	private int playerBestiaId;
+
 	private int x;
 	private int y;
-	
+	private String entityId;
+
 	public EntityUpdateMessage() {
-		
+
 	}
-	
-	public EntityUpdateMessage(long accId, int pbid, int x, int y) {
-		this.playerBestiaId = pbid;
-		this.x = x;
-		this.y = y;
-		
+
+	public EntityUpdateMessage(String entityId, long accId, int pbid, int x, int y) {
+		this.setX(x);
+		this.setY(y);
+		this.setEntityId(entityId);
+
+		setPlayerBestiaId(pbid);
 		setAccountId(accId);
 	}
-	
-	
 
 	@Override
 	public String getMessageId() {
@@ -41,4 +40,33 @@ public class EntityUpdateMessage extends Message {
 		return getClientMessagePath();
 	}
 
+	public String getEntityId() {
+		return entityId;
+	}
+
+	public void setEntityId(String entityId) {
+		this.entityId = entityId;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public void setY(int y) {
+		this.y = y;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public void setX(int x) {
+		this.x = x;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("EntityUpdateMessage[uuid: %s, accId: %d, pbid: %d, x: %d, y: %d]", entityId,
+				getAccountId(), getPlayerBestiaId(), x, y);
+	}
 }

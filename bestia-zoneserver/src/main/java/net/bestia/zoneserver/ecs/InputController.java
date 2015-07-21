@@ -17,15 +17,15 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Manages the communication towards the ECS system. Since this communication must somehow work asyncronously we store
- * messages inside this {@link ECSInputController} and the ECS will fetch them as its ticking. It will question the
+ * messages inside this {@link InputController} and the ECS will fetch them as its ticking. It will question the
  * InputController if it holds messages regarding a particular bestia and execute it in ECS world.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class ECSInputController {
+public class InputController {
 
-	private final static Logger log = LogManager.getLogger(ECSInputController.class);
+	private final static Logger log = LogManager.getLogger(InputController.class);
 
 	/**
 	 * Callback which can be used to get notified about changed in this
@@ -48,12 +48,12 @@ public class ECSInputController {
 	
 	private final List<InputControllerCallback> callbacks = new ArrayList<>();
 
-	public ECSInputController() {
+	public InputController() {
 
 	}
 
 	/**
-	 * Adds a callback to the {@link ECSInputController}. These callback are called if the according events are
+	 * Adds a callback to the {@link InputController}. These callback are called if the according events are
 	 * triggered.
 	 * 
 	 * @param callback
@@ -90,6 +90,7 @@ public class ECSInputController {
 			c.removedAccount(accId);
 		}
 	}
+	
 
 	/**
 	 * Triggers callback action.
@@ -156,6 +157,7 @@ public class ECSInputController {
 			removePlayerBestia(accId, bestia);
 		}
 	}
+
 
 	/**
 	 * Removes a bestia from the input system. If the last bestia of an account is removed the account will be removed

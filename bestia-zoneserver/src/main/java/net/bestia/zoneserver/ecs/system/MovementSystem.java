@@ -3,6 +3,7 @@ package net.bestia.zoneserver.ecs.system;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.bestia.zoneserver.ecs.component.Changable;
 import net.bestia.zoneserver.ecs.component.ChangedData;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
@@ -15,6 +16,7 @@ import com.artemis.Entity;
 import com.artemis.EntityTransmuter;
 import com.artemis.EntityTransmuterFactory;
 import com.artemis.annotations.Wire;
+import com.artemis.managers.UuidEntityManager;
 import com.artemis.systems.DelayedEntityProcessingSystem;
 
 /**
@@ -31,7 +33,8 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 
 	private ComponentMapper<Movement> moveM;
 	private ComponentMapper<Position> posM;
-	private ComponentMapper<Visible> visM;
+	private ComponentMapper<Changable> changableMapper;
+
 
 	private EntityTransmuter changedTransmuter;
 
@@ -61,8 +64,9 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 
 	@Override
 	protected void processExpired(Entity e) {
-		Movement m = moveM.get(e);
-		Position p = posM.get(e);
+		final Movement m = moveM.get(e);
+		final Position p = posM.get(e);
+		
 
 		Vector2 pos = m.path.poll();
 		if (pos == null) {
@@ -81,10 +85,11 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 
 		p.x = pos.x;
 		p.y = pos.y;
-		
-		visM.get(e).hasChanged = true;
 
+		// Mark as candidate for persisting.
 		changedTransmuter.transmute(e);
+		// Set changed for visibility.
+		changableMapper.get(e).changed = true;
 
 		log.trace("Moved to: {}", pos.toString());
 

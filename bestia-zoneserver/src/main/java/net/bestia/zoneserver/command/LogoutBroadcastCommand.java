@@ -2,7 +2,7 @@ package net.bestia.zoneserver.command;
 
 import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
-import net.bestia.zoneserver.ecs.ECSInputController;
+import net.bestia.zoneserver.ecs.InputController;
 
 /**
  * Executes if a logout broadcast message is issued. This message will be send from the webserver if an error happens or
@@ -22,7 +22,7 @@ public class LogoutBroadcastCommand extends Command {
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
 
-		ECSInputController controller = ctx.getServer().getInputController();
+		InputController controller = ctx.getServer().getInputController();
 
 		// Simply remove the bestia from the input controller. The ECS has to register itself to the handler to react
 		// upon removal.
