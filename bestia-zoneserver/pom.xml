@@ -12,7 +12,7 @@
 	</parent>
 
 	<properties>
-		<artemis.version>0.9.1-SNAPSHOT</artemis.version>
+		<artemis.version>0.10.2</artemis.version>
 		<artemis-contrib.version>0.9.1</artemis-contrib.version>
 	</properties>
 

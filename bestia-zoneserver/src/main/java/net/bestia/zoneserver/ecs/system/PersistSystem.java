@@ -1,16 +1,14 @@
 package net.bestia.zoneserver.ecs.system;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.ChangedData;
+import net.bestia.zoneserver.ecs.component.Changable;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
 import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.event.PersistEvent;
-import net.mostlyoriginal.api.event.common.Subscribe;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
@@ -34,26 +32,29 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 
 	private ComponentMapper<PlayerControlled> pcm;
 	private ComponentMapper<Position> pm;
+	private ComponentMapper<Changable> changableMapper;
 
-	@SuppressWarnings({ "unchecked"})
+	@SuppressWarnings({ "unchecked" })
 	public PersistSystem(float interval) {
-		super(Aspect.all(PlayerControlled.class, Position.class, ChangedData.class), interval);
+		super(Aspect.all(PlayerControlled.class, Position.class, Changable.class), interval);
 
 	}
 
 	@Override
 	protected void process(Entity e) {
+		if(!changableMapper.get(e).changed) {
+			return;
+		}
+		
 		synchronizeAndSaveEntity(e);
-		e.edit().remove(ChangedData.class);
 	}
 
 	/**
-	 * Is triggered is a persistence action is NOW required.
+	 * Persist an entity the system is interested immediately if it was removed from the world.
 	 */
-	@Subscribe
-	public void onPersistNowEvent(PersistEvent event) {
-		synchronizeAndSaveEntity(event.entity);
-		event.entity.edit().remove(ChangedData.class);
+	@Override
+	protected void removed(Entity e) {
+		synchronizeAndSaveEntity(e);
 	}
 
 	private void synchronizeAndSaveEntity(Entity e) {

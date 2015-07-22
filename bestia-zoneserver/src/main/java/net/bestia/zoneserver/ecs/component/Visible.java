@@ -12,5 +12,13 @@ import com.artemis.Component;
  */
 public class Visible extends Component {
 
-	public String sprite;
+	public String sprite = "";
+	
+	public Visible() {
+		
+	}
+	
+	public Visible(String sprite) {
+		this.sprite = sprite;
+	}
 }

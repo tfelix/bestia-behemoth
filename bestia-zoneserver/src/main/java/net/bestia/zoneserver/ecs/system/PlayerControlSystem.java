@@ -9,6 +9,7 @@ import net.bestia.messages.InputMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.ServiceLocator;
 import net.bestia.model.domain.Location;
+import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.ecs.InputController;
 import net.bestia.zoneserver.ecs.InputController.InputControllerCallback;
 import net.bestia.zoneserver.ecs.component.Active;
@@ -17,11 +18,9 @@ import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.ecs.event.PersistEvent;
 import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.game.zone.Vector2;
 import net.bestia.zoneserver.game.zone.Zone;
-import net.mostlyoriginal.api.event.common.EventSystem;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,7 +30,6 @@ import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.GroupManager;
-import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
 import com.artemis.systems.EntityProcessingSystem;
 import com.artemis.utils.EntityBuilder;
@@ -54,11 +52,8 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 
 	private ComponentMapper<PlayerControlled> pcm;
 
-	private PlayerManager playerManager;
 	private TagManager tagManager;
 	private GroupManager groupManager;
-
-	private EventSystem eventSystem;
 
 	@SuppressWarnings("unchecked")
 	public PlayerControlSystem() {
@@ -130,10 +125,7 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 	public void removedBestia(long accId, int bestiaId) {
 		Entity entity = tagManager.getEntity(getBestiaString(bestiaId));
 
-		// Synchronizes the bestia with the database NOW.
-		eventSystem.dispatch(new PersistEvent(entity));
-
-		// After it was persisted remove entity.
+		// Removing the entity will persist it.
 		entity.deleteFromWorld();
 	}
 
@@ -154,10 +146,11 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 
 		// Spawn the entity.
 		// TODO das hier besser erzeugen.
+		final PlayerBestia bestia = pbm.getBestia();
 		final Location curLoc = pbm.getBestia().getCurrentPosition();
 
 		Entity e = new EntityBuilder(world).with(new PlayerControlled(pbm), new Position(curLoc.getX(), curLoc.getY()),
-				new Visible(), new Changable(true), new Active()).build();
+				new Visible(bestia.getOrigin().getSprite()), new Changable(false), new Active()).build();
 
 		// TODO WORKAROUND ONLY FIRST BESTIA IS SET ACTIVE. LATER DO THIS VIA SEPERATE MESSAGE.
 		boolean hasActive = inputController.getActiveBestias(accId).size() > 1;
@@ -165,8 +158,12 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 			e.edit().remove(Active.class);
 		}
 
+		// Das kann man auch nun direkt abfragen.
 		tagManager.register(getBestiaString(bestiaId), e);
 		groupManager.add(e, CLIENT_GROUP);
+
+		// Add a test entity.
+		new EntityBuilder(world).with(new Position(0, 0), new Visible("feuer")).build();
 	}
 
 	private String getPlayerString(long accId) {

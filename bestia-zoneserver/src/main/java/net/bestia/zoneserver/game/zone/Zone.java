@@ -3,22 +3,25 @@ package net.bestia.zoneserver.game.zone;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
-import net.bestia.zoneserver.ecs.system.NetworkSystem;
+import net.bestia.zoneserver.ecs.system.PlayerNetworkSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
 import net.bestia.zoneserver.ecs.system.PlayerControlSystem;
+import net.bestia.zoneserver.ecs.system.VisibleUpdateSystem;
 import net.bestia.zoneserver.game.zone.map.Map;
-import net.mostlyoriginal.api.event.common.EventSystem;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.artemis.AspectSubscriptionManager;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
 import com.artemis.managers.GroupManager;
-import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
 import com.artemis.managers.UuidEntityManager;
+import com.artemis.utils.EntityBuilder;
 
 /**
  * The Zone holds the static mapdata as well is responsible for managing entities, actors, scripts etc. The entity
@@ -81,7 +84,7 @@ public class Zone {
 		}
 
 		// TODO Das ECS sollte auch in einer eigenen Klasse gekapselt sein.
-		
+
 		// Initialize ECS.
 		final WorldConfiguration worldConfig = new WorldConfiguration();
 		// Register all external helper objects.
@@ -90,23 +93,19 @@ public class Zone {
 		worldConfig.register(ctx);
 		worldConfig.register(ctx.getServer().getInputController());
 
-		this.world = new World(worldConfig);
-
 		// Set all the systems.
-		this.world.setSystem(new MovementSystem());
-		this.world.setSystem(new PlayerControlSystem());
-		this.world.setSystem(new EventSystem());
-		this.world.setSystem(new PersistSystem(10000));
-		this.world.setSystem(new NetworkSystem());
+		worldConfig.setSystem(new PlayerControlSystem());
+		worldConfig.setSystem(new MovementSystem());
+		worldConfig.setSystem(new PlayerNetworkSystem());
+		worldConfig.setSystem(new VisibleUpdateSystem());
+		worldConfig.setSystem(new PersistSystem(10000));
 
 		// Set all the managers.
-		//this.world.setManager(new MyTagManager());
-		this.world.setManager(new PlayerManager());
-		this.world.setManager(new GroupManager());
-		this.world.setManager(new TagManager());
-		this.world.setManager(new UuidEntityManager());
+		worldConfig.setManager(new GroupManager());
+		worldConfig.setManager(new TagManager());
+		worldConfig.setManager(new UuidEntityManager());
 
-		this.world.initialize();
+		this.world = new World(worldConfig);
 
 		zoneTickerThread = new Thread(null, new ZoneTicker(), "zoneECS-" + name);
 	}
