@@ -6,10 +6,10 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
-import net.bestia.zoneserver.ecs.system.PlayerNetworkSystem;
+import net.bestia.zoneserver.ecs.system.PlayerNetworkUpdateSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
 import net.bestia.zoneserver.ecs.system.PlayerControlSystem;
-import net.bestia.zoneserver.ecs.system.VisibleUpdateSystem;
+import net.bestia.zoneserver.ecs.system.VisibleNetworkUpdateSystem;
 import net.bestia.zoneserver.game.zone.map.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -96,8 +96,8 @@ public class Zone {
 		// Set all the systems.
 		worldConfig.setSystem(new PlayerControlSystem());
 		worldConfig.setSystem(new MovementSystem());
-		worldConfig.setSystem(new PlayerNetworkSystem());
-		worldConfig.setSystem(new VisibleUpdateSystem());
+		worldConfig.setSystem(new PlayerNetworkUpdateSystem());
+		worldConfig.setSystem(new VisibleNetworkUpdateSystem());
 		worldConfig.setSystem(new PersistSystem(10000));
 
 		// Set all the managers.

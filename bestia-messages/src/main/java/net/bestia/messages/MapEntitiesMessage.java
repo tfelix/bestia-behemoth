@@ -36,7 +36,7 @@ public class MapEntitiesMessage extends Message {
 	/**
 	 * Describes an entity on the map for the engine to display.
 	 */
-	public class Entity {
+	public static class Entity {
 
 		private String uuid;
 		private List<String> sprites = new ArrayList<>();
@@ -65,6 +65,10 @@ public class MapEntitiesMessage extends Message {
 
 		public List<String> getSprites() {
 			return sprites;
+		}
+		
+		public void addSprite(String sprite) {
+			this.sprites.add(sprite);
 		}
 
 		public void setSprites(List<String> sprites) {
@@ -107,7 +111,7 @@ public class MapEntitiesMessage extends Message {
 	public final static String MESSAGE_ID = "map.entites";
 
 	@JsonProperty("e")
-	private List<Entity> entities;
+	private List<Entity> entities = new ArrayList<>();
 
 	@Override
 	public String getMessageId() {
@@ -117,6 +121,10 @@ public class MapEntitiesMessage extends Message {
 	@Override
 	public String getMessagePath() {
 		return getClientMessagePath();
+	}
+	
+	public List<Entity> getEntities() {
+		return entities;
 	}
 
 	@Override

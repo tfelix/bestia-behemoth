@@ -1,30 +1,21 @@
 package net.bestia.zoneserver.ecs.system;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Changable;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
-import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.artemis.Aspect;
 import com.artemis.AspectSubscriptionManager;
 import com.artemis.ComponentMapper;
-import com.artemis.EntitySubscription;
-import com.artemis.Aspect.Builder;
 import com.artemis.Entity;
+import com.artemis.EntitySubscription;
 import com.artemis.EntitySubscription.SubscriptionListener;
 import com.artemis.annotations.Wire;
-import com.artemis.managers.GroupManager;
-import com.artemis.managers.UuidEntityManager;
 import com.artemis.systems.EntityProcessingSystem;
 import com.artemis.utils.ImmutableBag;
 
@@ -36,9 +27,9 @@ import com.artemis.utils.ImmutableBag;
  *
  */
 @Wire
-public class VisibleUpdateSystem extends EntityProcessingSystem {
+public class VisibleNetworkUpdateSystem extends EntityProcessingSystem {
 
-	private final static Logger log = LogManager.getLogger(VisibleUpdateSystem.class);
+	private final static Logger log = LogManager.getLogger(VisibleNetworkUpdateSystem.class);
 
 	@Wire
 	private CommandContext ctx;
@@ -47,7 +38,7 @@ public class VisibleUpdateSystem extends EntityProcessingSystem {
 	
 	private EntitySubscription playerSubscription;
 
-	public VisibleUpdateSystem() {
+	public VisibleNetworkUpdateSystem() {
 		super(Aspect.all(Visible.class));
 
 	}
