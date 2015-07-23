@@ -31,7 +31,7 @@ public class MapEntitiesMessage extends Message {
 	 *
 	 */
 	public enum EntityAction {
-		APPEAR, DIE, VANISH
+		APPEAR, DIE, VANISH, UPDATE
 	}
 
 	/**
@@ -42,10 +42,13 @@ public class MapEntitiesMessage extends Message {
 		private static final long serialVersionUID = 1L;
 		
 		private String uuid;
+		@JsonProperty("s")
 		private List<String> sprites = new ArrayList<>();
 		private int x;
 		private int y;
+		@JsonProperty("t")
 		private EntityType type = EntityType.NONE;
+		@JsonProperty("a")
 		private EntityAction action = EntityAction.APPEAR;
 
 		public Entity() {
@@ -100,6 +103,14 @@ public class MapEntitiesMessage extends Message {
 
 		public void setType(EntityType type) {
 			this.type = type;
+		}
+		
+		public EntityAction getAction() {
+			return action;
+		}
+		
+		public void setAction(EntityAction action) {
+			this.action = action;
 		}
 
 		@Override
