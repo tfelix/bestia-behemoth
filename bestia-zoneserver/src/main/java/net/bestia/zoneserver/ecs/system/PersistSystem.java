@@ -42,7 +42,7 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 
 	@Override
 	protected void process(Entity e) {
-		if(!changableMapper.get(e).changed) {
+		if(changableMapper.get(e).hasPersisted) {
 			return;
 		}
 		
@@ -73,6 +73,9 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 		pb.getCurrentPosition().setY(pos.y);
 
 		dao.update(pb);
+		
+		// Stop persisting.
+		changableMapper.get(e).hasPersisted = true;
 	}
 
 }

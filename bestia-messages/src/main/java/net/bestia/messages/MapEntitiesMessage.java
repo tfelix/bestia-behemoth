@@ -1,5 +1,6 @@
 package net.bestia.messages;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public class MapEntitiesMessage extends Message {
 	 *
 	 */
 	public enum EntityType {
-		LOOT, INTERACT, ATTACK
+		NONE, LOOT, INTERACT, ATTACK
 	}
 
 	/**
@@ -36,13 +37,15 @@ public class MapEntitiesMessage extends Message {
 	/**
 	 * Describes an entity on the map for the engine to display.
 	 */
-	public static class Entity {
+	public static class Entity implements Serializable {
 
+		private static final long serialVersionUID = 1L;
+		
 		private String uuid;
 		private List<String> sprites = new ArrayList<>();
 		private int x;
 		private int y;
-		private EntityType type;
+		private EntityType type = EntityType.NONE;
 		private EntityAction action = EntityAction.APPEAR;
 
 		public Entity() {

@@ -5,6 +5,7 @@ import com.artemis.Component;
 public class Changable extends Component {
 	
 	public boolean changed = false;
+	public boolean hasPersisted = true;
 	
 	public Changable() {
 		// no op.
@@ -12,6 +13,11 @@ public class Changable extends Component {
 	
 	public Changable(boolean changed) {
 		this.changed = changed;
+	}
+	
+	public void setChanged() {
+		changed = true;
+		hasPersisted = false;
 	}
 
 }

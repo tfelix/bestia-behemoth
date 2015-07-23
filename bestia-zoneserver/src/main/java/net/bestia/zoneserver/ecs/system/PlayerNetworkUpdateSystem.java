@@ -99,7 +99,7 @@ public class PlayerNetworkUpdateSystem extends EntityProcessingSystem {
 		final PlayerControlled playerControlled = pcm.get(playerEntity);
 		final long accId = playerControlled.playerBestia.getBestia().getOwner().getId();
 
-		IntBag activeEntities = visibleSubscription.getEntities();
+		final IntBag activeEntities = visibleSubscription.getEntities();
 		log.trace("Found {} entities in sight.", activeEntities.size());
 
 		// Dont waste a message if nothing is in sight.
