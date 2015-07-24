@@ -174,11 +174,10 @@ public class AccountApi {
 
 			accountDao.save(acc);
 
-			AccountLoginResponse loginResponse = new AccountLoginResponse(acc.getId(), acc.getName(), token);
+			final AccountLoginResponse loginResponse = new AccountLoginResponse(acc.getId(), acc.getName(), token);
 
 			try {
 				final String answer = mapper.writeValueAsString(loginResponse);
-				// Return the login token.
 				return Response.ok().entity(answer).build();
 			} catch (JsonProcessingException e) {
 				log.error("Could not generate JSON response.", e);
