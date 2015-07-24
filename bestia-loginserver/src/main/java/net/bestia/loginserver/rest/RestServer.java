@@ -14,14 +14,15 @@ import com.sun.jersey.api.core.ResourceConfig;
 import com.sun.net.httpserver.HttpServer;
 
 /**
- * Provides RESTful services for the bestia game.
+ * Provides RESTful services for the bestia game. Can and should be used to interact externally with the game. Could be
+ * extended to access game statistics etc. Currently it provides APIs for registering accounts, changing passwords etc.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 @SuppressWarnings("restriction")
 public class RestServer {
-	
+
 	// TODO Das hier noch konfiguruerbar machen!
 	private static final Logger log = LogManager.getLogger(RestServer.class);
 	private static final int PORT = 8090;
@@ -30,29 +31,30 @@ public class RestServer {
 	public boolean start() {
 		log.info("Starting Bestia RESTful Server API...");
 		try {
-			
+
 			HttpServer restServer = createHttpServer();
 			restServer.start();
-			
+
 			log.info("Bestia RESTful Server API started.");
 			log.info("WADL available at: {}application.wadl", getURI());
-		} catch(IOException ex) {
+		} catch (IOException ex) {
 			log.warn("Could not start RESTful Server: ", ex);
 			return false;
 		}
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	private HttpServer createHttpServer() throws IOException {
 		ResourceConfig resourceConfig = new PackagesResourceConfig("net.bestia.loginserver.rest");
 		// This tutorial required and then enable below line: http://crunfy.me/1DZIui5
 		resourceConfig.getContainerResponseFilters().add(CORSFilter.class);
 		return HttpServerFactory.create(getURI(), resourceConfig);
 	}
-	
+
 	private URI getURI() {
-        return UriBuilder.fromUri("http://" + HOSTNAME + "/").port(PORT).build();
-    }
+		return UriBuilder.fromUri("http://" + HOSTNAME + "/").port(PORT).build();
+	}
 
 	public void stop() {
 
