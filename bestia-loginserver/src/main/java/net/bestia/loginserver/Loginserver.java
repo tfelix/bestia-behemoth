@@ -47,7 +47,7 @@ public final class Loginserver implements InterserverMessageHandler {
 	 */
 	public Loginserver(BestiaConfiguration config) {
 		
-		if(config == null || config.isLoaded()) {
+		if(config == null || !config.isLoaded()) {
 			throw new IllegalArgumentException("Config was null or not loaded.");
 		}
 		
