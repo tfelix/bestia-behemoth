@@ -7,6 +7,7 @@
  *            engine - Reference to the bestia engine.
  */
 Bestia.Engine.States.GameState = function(engine) {
+	
 	this.marker = null;
 	/**
 	 * @property {Bestia.Engine} engine - Reference to the central bestia engine
@@ -44,6 +45,8 @@ Bestia.Engine.States.GameState = function(engine) {
 	 * @property {Bestia.BestiaViewModel}
 	 */
 	this.bestia = null;
+	
+	this._entityUpdate = new Bestia.Engine.EntityUpdater(Bestia, this.game, this._bestiaWorld);
 };
 
 Bestia.Engine.States.GameState.prototype = {

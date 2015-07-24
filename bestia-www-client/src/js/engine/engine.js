@@ -100,6 +100,7 @@ Bestia.Engine.Config = {
  * kann das wohl auch. Entfernen.
  * 
  * @static
+ * @depricated Mit Bestia.World machen.
  */
 Bestia.Engine.px2cords = function(px) {
 	return Math.floor(px / Bestia.Engine.Config.TILE_SIZE);
@@ -110,6 +111,7 @@ Bestia.Engine.px2cords = function(px) {
  * das wohl auch. Entfernen.
  * 
  * @static
+ * @depricated Mit Bestia.World machen.
  */
 Bestia.Engine.cords2px = function(cords) {
 	return cords * Bestia.Engine.Config.TILE_SIZE;

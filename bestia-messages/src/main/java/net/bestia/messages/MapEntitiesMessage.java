@@ -49,7 +49,9 @@ public class MapEntitiesMessage extends Message {
 		@JsonProperty("t")
 		private EntityType type = EntityType.NONE;
 		@JsonProperty("a")
-		private EntityAction action = EntityAction.APPEAR;
+		private EntityAction action = null;		
+		@JsonProperty("pbid")
+		private Integer playerBestiaId;
 
 		public Entity() {
 
@@ -111,6 +113,14 @@ public class MapEntitiesMessage extends Message {
 		
 		public void setAction(EntityAction action) {
 			this.action = action;
+		}
+		
+		public Integer getPlayerBestiaId() {
+			return playerBestiaId;
+		}
+		
+		public void setPlayerBestiaId(int pbid) {
+			this.playerBestiaId = pbid;
 		}
 
 		@Override

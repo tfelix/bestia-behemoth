@@ -3,8 +3,13 @@
  * @param {Bestia.Engine.World}
  *            world - A instance of the bestia world holding parsed information
  *            and utility methods of the current map/world.
+ * @param {String}
+ *            ident - Identifier for the entity. This identifier is used to
+ *            locate the sprite of the entity and the description file
+ *            ([IDENT]_desc).
  */
-Bestia.Engine.Entity = function(game, world) {
+Bestia.Engine.Entity = function(game, world, ident) {
+
 	this.walkspeed = 1;
 
 	/**
@@ -36,15 +41,37 @@ Bestia.Engine.Entity = function(game, world) {
 	 * 
 	 * @property
 	 */
-	this.desc = game.cache.getJSON('mastersmith_desc');
+	this.desc = null;
 
 	// Initialize the sprite.
-	this.sprite = game.add.sprite(128, 128, 'mastersmith', 'walk_down/001.png');
+	this.sprite = null;
 
+};
+
+/**
+ * Loads the data into the entity given by an object.
+ * 
+ * @method Bestia.Engine.Entity#_init
+ * @private
+ * @param {Object}
+ *            obj - Object describing the entity.
+ */
+Bestia.Engine.Entity._init = function(obj) {
+	// For now there is only one sprite. Might change.
+	var spriteName = obj.s[0];
+	
+	this.desc = game.cache.getJSON(spriteName+'_desc');
+	this.sprite = game.add.sprite(0, 0, spriteName, 'walk_down/001.png');
+	
+	this.setPos(obj.x, obj.y);
+	
+	// Add it invisible first.
+	this.sprite.alpha = 1;
+	
 	// Set anchor to the middle of the sprite to the bottom.
 	this.sprite.anchor.setTo(0.5, 1);
 	this.sprite.scale.setTo(this.desc.scale);
-
+	
 	// Prepare the animations of the sprite.
 	this.desc.animations.forEach(function(anim) {
 		var frames = Phaser.Animation.generateFrameNames(anim.name + '/', anim.from, anim.to, '.png', 3);
@@ -52,8 +79,8 @@ Bestia.Engine.Entity = function(game, world) {
 	}, this);
 
 	this.sprite.frameName = 'walk_down/001.png';
-
 };
+
 
 /**
  * Calculates the duration in ms of the total walk of the given path. Depends
@@ -92,7 +119,7 @@ Bestia.Engine.Entity.prototype.moveTo = function(path) {
 	// Calculate coordinate arrays from path.
 	path.forEach(function(ele, i) {
 		// This is our current position. No need to move TO this positon.
-		if (i == 0) {
+		if (i === 0) {
 			return;
 		}
 
@@ -111,29 +138,27 @@ Bestia.Engine.Entity.prototype.moveTo = function(path) {
 
 		// Calculate total amount of speed.
 		this.tween.to({
-			//x : cords.x + Math.abs(this.sprite.width) / 2,
+			// x : cords.x + Math.abs(this.sprite.width) / 2,
 			x : cords.x + 20,
 			y : cords.y + this.tileSize
 		}, duration, Phaser.Easing.Linear.None, false);
 	}, this);
 
-
 	this.tween.onChildComplete.addOnce(function(a, b) {
 		this.pos = path[b.current - 1];
 		var isLast = path.length === (b.current - 1);
-		var nextAnim = this.getAnimationName(path[b.current], this.pos);	
+		var nextAnim = this.getAnimationName(path[b.current], this.pos);
 		this.playAnim(nextAnim, isLast);
-		
-		console.log("Moved to: " + this.pos.x +" - " + this.pos.y);
+
+		console.log("Moved to: " + this.pos.x + " - " + this.pos.y);
 	}, this);
 
-
-	this.tween.onComplete.addOnce(function(a, b) {
+	this.tween.onComplete.addOnce(function() {
 		var size = path.length;
 		this.pos = path[size - 1];
 		var nextAnim = this.getAnimationName(this.pos, path[size - 2], true);
 		this.playAnim(nextAnim);
-		console.log("Moved to: " + this.pos.x +" - " + this.pos.y);
+		console.log("Moved to: " + this.pos.x + " - " + this.pos.y);
 	}, this);
 
 	// Start first animation immediately.
@@ -199,7 +224,15 @@ Bestia.Engine.Entity.prototype.stopMove = function() {
 };
 
 /**
+ * Plays a specific animation. If it is a walk animation then by the name of the
+ * animation the method takes core of flipping the sprite for mirrored
+ * animations. It also handles stopping running animations and changing between
+ * them.
  * 
+ * @public
+ * @method Bestia.Engine.Entity#playAnim
+ * @param {String}
+ *            name - Name of the animation to play.
  */
 Bestia.Engine.Entity.prototype.playAnim = function(name) {
 
@@ -208,7 +241,7 @@ Bestia.Engine.Entity.prototype.playAnim = function(name) {
 	var isSingle = false;
 
 	if (prefix === 'stand') {
-		isStand = true;
+		var isStand = true;
 		if (name === 'stand_right' || name === 'stand_right_up' || name === 'stand_down_right') {
 			this.sprite.scale.x = -1 * this.desc.scale;
 			// Show the left variant animation.
@@ -230,13 +263,13 @@ Bestia.Engine.Entity.prototype.playAnim = function(name) {
 			this.sprite.scale.x = this.desc.scale;
 		}
 	}
-	
+
 	// Stop the current animation.
-	if(name !== this.sprite.animations.name) {
+	if (name !== this.sprite.animations.name) {
 		this.sprite.animations.stop();
 	}
-	
-	if(isSingle) {
+
+	if (isSingle) {
 		this.sprite.frameName = this.desc[name];
 	} else {
 		this.sprite.animations.play(name);
