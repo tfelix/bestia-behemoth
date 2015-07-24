@@ -1,4 +1,4 @@
-package net.bestia.websocket;
+package net.bestia.webserver;
 
 import java.io.IOException;
 

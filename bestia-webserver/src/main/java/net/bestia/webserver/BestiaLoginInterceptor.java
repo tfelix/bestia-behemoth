@@ -1,4 +1,4 @@
-package net.bestia.websocket;
+package net.bestia.webserver;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

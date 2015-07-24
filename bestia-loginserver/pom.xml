@@ -40,5 +40,41 @@
 			<version>2.3.2</version>
 		</dependency>
 	</dependencies>
-	<description>Bestia Loginserver. This server provides a way to check for the bestia network for authorized checks. It currently also serves as a REST endpoint so webservices can interact with the game itself. In future versions this might get moved to a standalone application.</description>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<appendAssemblyId>false</appendAssemblyId>
+					<attach>false</attach>
+					<finalName>loginserver</finalName>
+					<archive>
+						<manifest>
+							<mainClass>net.bestia.loginserver.Loginserver</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-my-jar-with-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<description>Bestia Loginserver. This server provides a way to check
+				for the bestia network for authorized checks. It currently also
+				serves as a REST endpoint so webservices can interact with the game
+				itself. In future versions this might get moved to a standalone
+				application.</description>
 </project>

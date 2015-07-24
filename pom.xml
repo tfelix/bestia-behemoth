@@ -24,7 +24,6 @@
 		<!-- Define Spring version as a constant -->
 		<spring.version>4.0.3.RELEASE</spring.version>
 		<hibernate.version>4.3.4.Final</hibernate.version>
-		<build.number>${buildNumber}</build.number>
 	</properties>
 
 	<!-- Profiles for the different builds. -->
@@ -42,7 +41,7 @@
 			<activation>
 				<activeByDefault>true</activeByDefault>
 				<property>
-					<name>environment</name>
+					<name>env</name>
 					<value>dev</value>
 				</property>
 			</activation>
@@ -59,7 +58,7 @@
 			</properties>
 			<activation>
 				<property>
-					<name>environment</name>
+					<name>env</name>
 					<value>prod</value>
 				</property>
 			</activation>
@@ -102,7 +101,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>x.y.z</version>
 				<configuration>
 					<goals>deploy</goals>
 					<autoversionsubmodules>true</autoversionsubmodules>
@@ -139,6 +137,17 @@
 					<artifactId>maven-assembly-plugin</artifactId>
 					<version>2.5.5</version>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<configuration>
+						<archive>
+							<manifestEntries>
+								<Built-By></Built-By>
+							</manifestEntries>
+						</archive>
+					</configuration>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 
@@ -169,6 +178,7 @@
 			<version>2.3</version>
 		</dependency>
 	</dependencies>
+
 	<organization>
 		<name>tfelix Software</name>
 		<url>http://www.tfelix.de</url>
