@@ -80,6 +80,8 @@ public class Interserver {
 
 	private final String publishUrl;
 	private final String subscriberUrl;
+	
+	private final BestiaConfiguration config;
 
 	/**
 	 * 
@@ -87,13 +89,15 @@ public class Interserver {
 	 *            Loaded BestiaConfiguration.
 	 */
 	public Interserver(BestiaConfiguration config) {
-		if (!config.isLoaded()) {
-			throw new IllegalArgumentException("BestiaConfiguration is not loaded.");
+		if (config == null || !config.isLoaded()) {
+			throw new IllegalArgumentException("BestiaConfiguration is null or not loaded.");
 		}
 
 		context = ZMQ.context(config.getIntProperty("inter.threads"));
 		publishUrl = "tcp://" + config.getProperty("inter.domain") + ":" + config.getProperty("inter.publishPort");
 		subscriberUrl = "tcp://*:" + config.getProperty("inter.listenPort");
+		
+		this.config = config;
 	}
 
 	/**
@@ -107,6 +111,7 @@ public class Interserver {
 					"Interserver is already running and can not be started again. Call stop() first.");
 		}
 
+		LOG.info(config.getVersion());
 		LOG.info("Starting Bestia Interserver...");
 
 		Socket subscriber = context.socket(ZMQ.PULL);
@@ -158,7 +163,7 @@ public class Interserver {
 
 	public static void main(String[] args) {
 
-		BestiaConfiguration config = new BestiaConfiguration();
+		final BestiaConfiguration config = new BestiaConfiguration();
 		try {
 			config.load();
 		} catch (IOException ex) {

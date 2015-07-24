@@ -19,6 +19,7 @@ public final class Webserver {
 	private final InterserverPublisher publisher;
 	private final InterserverSubscriber subscriber;
 	private final String name;
+	private final BestiaConfiguration config;
 
 	/**
 	 * Class which starts and runs the bestia web front server.
@@ -27,7 +28,13 @@ public final class Webserver {
 	 *            Loaded configuration file.
 	 */
 	public Webserver(BestiaConfiguration config) {
+
+		if (config == null || !config.isLoaded()) {
+			throw new IllegalArgumentException("Config is null or not loaded.");
+		}
+
 		this.name = config.getProperty("web.name");
+		this.config = config;
 
 		BestiaConnectionProvider.create();
 
@@ -40,7 +47,7 @@ public final class Webserver {
 
 		this.publisher = interservConnectionFactory.getPublisher();
 		this.subscriber = interservConnectionFactory.getSubscriber(BestiaConnectionProvider.getInstance());
-		
+
 		// Subscribe to special topics.
 		subscriber.subscribe("web/all");
 
@@ -48,6 +55,7 @@ public final class Webserver {
 	}
 
 	public void start() throws Exception {
+		log.info(config.getVersion());
 		log.info("Starting the Bestia Websocket Server [{}]...", name);
 
 		// Connect to the interserver.
@@ -61,6 +69,11 @@ public final class Webserver {
 		Nettosphere server = new Nettosphere.Builder().config(b.build()).build();
 		server.start();
 		log.info("Webserver [{}] started.", name);
+	}
+	
+	public void stop() {
+		log.info("Stopping the Bestia Websocket Server [{}]...", name);
+		log.info("Websocket Server [{}] stopped.", name);
 	}
 
 	public static void main(String[] args) {
@@ -80,5 +93,13 @@ public final class Webserver {
 			log.fatal("Server could not start.", ex);
 			System.exit(1);
 		}
+
+		// Cancel the loginserver gracefully when the VM shuts down. Does not
+		// work properly on windows machines.
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			public void run() {
+				server.stop();
+			}
+		});
 	}
 }

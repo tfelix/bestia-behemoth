@@ -1,10 +1,6 @@
 package net.bestia.zoneserver;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,21 +39,6 @@ import org.apache.logging.log4j.Logger;
 public class Zoneserver {
 
 	private final static Logger log = LogManager.getLogger(Zoneserver.class);
-
-	public final static String VERSION;
-	static {
-		String version = "NOT-ASSIGNED-ERROR";
-		// Find the version number from the maven build script.
-		try {
-			File versionFile = new File(Zoneserver.class.getClassLoader().getResource("buildnumber.txt").toURI());
-			BufferedReader br = new BufferedReader(new FileReader(versionFile));
-			version = br.readLine();
-			br.close();
-		} catch (IOException | URISyntaxException e) {
-			log.error("Error while reading version file.", e);
-		}
-		VERSION = version;
-	}
 	
 	private class InputControllerCallbackImpl implements InputControllerCallback {
 
@@ -188,6 +169,7 @@ public class Zoneserver {
 		}
 
 		// Initializing all messaging components.
+		log.info(config.getVersion());
 		log.info("Zoneserver is starting...");
 
 		// Create ScriptInitWorker: Reading and compiling all the scripts.

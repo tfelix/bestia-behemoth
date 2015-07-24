@@ -36,6 +36,8 @@ public final class Loginserver implements InterserverMessageHandler {
 	private final InterserverConnectionFactory conFactory;
 	private final InterserverPublisher publisher;
 	private final InterserverSubscriber subscriber;
+	
+	private final BestiaConfiguration config;
 
 	/**
 	 * Class which starts and runs the bestia web front server.
@@ -44,6 +46,12 @@ public final class Loginserver implements InterserverMessageHandler {
 	 *            Loaded configuration file.
 	 */
 	public Loginserver(BestiaConfiguration config) {
+		
+		if(config == null || config.isLoaded()) {
+			throw new IllegalArgumentException("Config was null or not loaded.");
+		}
+		
+		this.config = config;
 
 		// Create the publish url.
 		final String interUrl = config.getProperty("inter.domain");
@@ -65,6 +73,7 @@ public final class Loginserver implements InterserverMessageHandler {
 	 * @return {@code TRUE} if started. {@code FALSE} otherwise.
 	 */
 	public boolean start() {
+		log.info(config.getVersion());
 		log.info("Starting the Bestia Loginserver...");
 
 		// Connect to the interserver.
@@ -90,6 +99,7 @@ public final class Loginserver implements InterserverMessageHandler {
 	 * Stops the Loginserver.
 	 */
 	public void stop() {
+		log.info("Stopping the Bestia Loginserver...");
 		restServer.stop();
 		
 		if (subscriber != null) {
@@ -101,6 +111,7 @@ public final class Loginserver implements InterserverMessageHandler {
 		}
 
 		conFactory.shutdown();
+		log.info("Loginserver stopped.");
 	}
 
 	@Override
