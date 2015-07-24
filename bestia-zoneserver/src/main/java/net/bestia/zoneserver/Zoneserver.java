@@ -1,5 +1,6 @@
 package net.bestia.zoneserver;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +26,11 @@ import net.bestia.zoneserver.ecs.InputController.InputControllerCallback;
 import net.bestia.zoneserver.game.zone.Zone;
 import net.bestia.zoneserver.worker.ZoneInitLoader;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -113,16 +119,14 @@ public class Zoneserver {
 	 * @param configFile
 	 *            File with config settings for the bestia server.
 	 */
-	public Zoneserver() {
+	public Zoneserver(BestiaConfiguration config) {
+		
+		if(config == null || !config.isLoaded()) {
+			throw new IllegalArgumentException("Config can not be null or unloaded.");
+		}
 
 		// Setup the config file.
-		this.config = new BestiaConfiguration();
-		try {
-			config.load();
-		} catch (IOException e) {
-			log.fatal("Can not read from config file. Stopping.", e);
-			System.exit(1);
-		}
+		this.config = config;
 
 		this.name = config.getProperty("zone.name");
 
@@ -315,7 +319,32 @@ public class Zoneserver {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		Zoneserver zone = new Zoneserver();
+		
+		// Create cmd line arguments.
+		Options options = new Options();
+		options.addOption("config", true, "Path to the config file to use.");
+		
+		// TODO das CMD parsing hier noch in eine extra datei packen.
+		CommandLineParser parser = new DefaultParser();
+		final BestiaConfiguration config = new BestiaConfiguration();
+		try {
+			CommandLine cmd = parser.parse(options, args);
+			
+			if(cmd.hasOption("config")) {
+				String configFile = cmd.getOptionValue("config");
+				config.load(new File(configFile));
+			} else {
+				config.load();
+			}	
+		} catch (ParseException e) {
+			log.fatal("Could not parse the commandline. Exit.");
+			System.exit(1);
+		} catch(IOException e) {
+			log.fatal("Could not read the config file.");
+			System.exit(1);
+		}
+		
+		final Zoneserver zone = new Zoneserver(config);
 		if (!zone.start()) {
 			System.exit(1);
 		}

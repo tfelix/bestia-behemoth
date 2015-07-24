@@ -29,7 +29,7 @@ import org.apache.logging.log4j.Logger;
  */
 public final class Loginserver implements InterserverMessageHandler {
 
-	private static final Logger log = LogManager.getLogger(Loginserver.class);
+	private static final Logger LOG = LogManager.getLogger(Loginserver.class);
 	
 	private final RestServer restServer;
 
@@ -73,8 +73,8 @@ public final class Loginserver implements InterserverMessageHandler {
 	 * @return {@code TRUE} if started. {@code FALSE} otherwise.
 	 */
 	public boolean start() {
-		log.info(config.getVersion());
-		log.info("Starting the Bestia Loginserver...");
+		LOG.info(config.getVersion());
+		LOG.info("Starting the Bestia Loginserver...");
 
 		// Connect to the interserver.
 		try {
@@ -82,7 +82,7 @@ public final class Loginserver implements InterserverMessageHandler {
 			subscriber.connect();
 			subscriber.subscribe("login");
 		} catch (IOException ex) {
-			log.error("Loginserver could not start.", ex);
+			LOG.error("Loginserver could not start.", ex);
 			stop();
 			return false;
 		}
@@ -91,7 +91,7 @@ public final class Loginserver implements InterserverMessageHandler {
 			return false;
 		}
 
-		log.info("Loginserver started.");
+		LOG.info("Loginserver started.");
 		return true;
 	}
 
@@ -99,8 +99,9 @@ public final class Loginserver implements InterserverMessageHandler {
 	 * Stops the Loginserver.
 	 */
 	public void stop() {
-		log.info("Stopping the Bestia Loginserver...");
+		LOG.info("Stopping the Bestia Loginserver...");
 		restServer.stop();
+		conFactory.shutdown();
 		
 		if (subscriber != null) {
 			subscriber.disconnect();
@@ -111,7 +112,7 @@ public final class Loginserver implements InterserverMessageHandler {
 		}
 
 		conFactory.shutdown();
-		log.info("Loginserver stopped.");
+		LOG.info("Loginserver stopped.");
 	}
 
 	@Override
@@ -121,24 +122,24 @@ public final class Loginserver implements InterserverMessageHandler {
 			return;
 		}
 		LoginAuthMessage loginMsg = (LoginAuthMessage) msg;
-		log.debug("Received login auth request: {}", loginMsg.toString());
+		LOG.debug("Received login auth request: {}", loginMsg.toString());
 
 		Authenticator tokenAuth = new LoginTokenAuthenticator(loginMsg.getAccountId(), loginMsg.getToken());
 
 		final LoginAuthReplyMessage loginReplyMsg = new LoginAuthReplyMessage(loginMsg);
 		loginReplyMsg.setAccountId(msg.getAccountId());
 		if (tokenAuth.authenticate() == AuthState.AUTHENTICATED) {
-			log.info("Connection with account id: {}, token: {}, state: AUTHORIZED", loginMsg.getAccountId(), loginMsg.getToken());
+			LOG.info("Connection with account id: {}, token: {}, state: AUTHORIZED", loginMsg.getAccountId(), loginMsg.getToken());
 			loginReplyMsg.setLoginState(LoginState.AUTHORIZED);
 		} else {
-			log.info("Connection with account id: {}, token: {}, state: DENIED", loginMsg.getAccountId(), loginMsg.getToken());
+			LOG.info("Connection with account id: {}, token: {}, state: DENIED", loginMsg.getAccountId(), loginMsg.getToken());
 			loginReplyMsg.setLoginState(LoginState.DENIED);
 		}
 
 		try {
 			publisher.publish(loginReplyMsg);
 		} catch (IOException e) {
-			log.error("Could not send LoginReplyMessage", e);
+			LOG.error("Could not send LoginReplyMessage", e);
 		}
 	}
 
@@ -148,13 +149,14 @@ public final class Loginserver implements InterserverMessageHandler {
 		try {
 			config.load();
 		} catch (IOException ex) {
-			log.fatal("Could not load configuration file. Exiting.", ex);
+			LOG.fatal("Could not load configuration file. Exiting.", ex);
 			System.exit(1);
 		}
 
 		final Loginserver server = new Loginserver(config);
 
 		if (!server.start()) {
+			LOG.fatal("Server could not start. Exiting.");
 			System.exit(1);
 		}
 
