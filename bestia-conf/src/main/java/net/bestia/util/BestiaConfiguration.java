@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,14 +20,31 @@ import org.apache.logging.log4j.Logger;
  *
  */
 public class BestiaConfiguration {
-	
+
 	private static final Logger LOG = LogManager.getLogger(BestiaConfiguration.class);
 
 	private Properties prop;
+	private final String version;
 	private boolean isLoaded = false;
 
 	public BestiaConfiguration() {
 		prop = new Properties();
+
+		// Try to read the version string.
+		final ClassLoader loader = this.getClass().getClassLoader();
+		final InputStream inStream = loader.getResourceAsStream("version.properties");
+		if (inStream == null) {
+			this.version = "UNKNOWN (version.properties missing)";
+		} else {
+			String versionCode;
+			try {
+				versionCode = IOUtils.toString(inStream, "UTF-8");
+			} catch (IOException e) {
+				LOG.warn("Could not read version.properties file.", e);
+				versionCode = "UNKNOWN (version.properties missing)";
+			}
+			this.version = versionCode;
+		}
 	}
 
 	/**
@@ -76,8 +94,8 @@ public class BestiaConfiguration {
 		}
 
 		String domain = getProperty(domainkey);
-		
-		if(prefix == null) {
+
+		if (prefix == null) {
 			prefix = "";
 		}
 
@@ -93,13 +111,14 @@ public class BestiaConfiguration {
 		checkProperty(key);
 		return Integer.parseInt(prop.getProperty(key));
 	}
-	
+
 	private void checkProperty(String key) {
-		if(!prop.containsKey(key)) {
+		if (!prop.containsKey(key)) {
 			LOG.warn("Key: {} was not found in the config file!", key);
 		}
 	}
 
+	@Deprecated
 	public File getMapfile(String zoneName) {
 		Path path = Paths.get(prop.getProperty("gameDataDir"), "maps", zoneName, zoneName + ".tmx");
 		return path.toFile();
@@ -112,6 +131,17 @@ public class BestiaConfiguration {
 	 */
 	public boolean isLoaded() {
 		return isLoaded;
+	}
+
+	/**
+	 * Returns the version of the build and the name. The information is placed during build process in
+	 * version.properties in the class path and read upon creation of this class. If the file is missing somehow a
+	 * placeholder text is inserted.
+	 * 
+	 * @return The version of this software.
+	 */
+	public String getVersion() {
+		return version;
 	}
 
 }

@@ -1,4 +1,4 @@
-package net.bestia.conf;
+package net.bestia.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,6 +51,12 @@ public class BestiaConfigurationTest {
 		BestiaConfiguration bc = new BestiaConfiguration();
 		bc.load(configFile);
 		Assert.assertEquals(4, bc.getIntProperty("initThreads"));
+	}
+	
+	@Test
+	public void get_version() {
+		BestiaConfiguration bc = new BestiaConfiguration();
+		Assert.assertTrue(bc.getVersion().equals("ALLHAILTHECAT"));
 	}
 	
 }
