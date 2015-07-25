@@ -27,7 +27,7 @@ import com.artemis.systems.EntityProcessingSystem;
  *
  */
 @Wire
-public class NetworkUpdateSystem extends EntityProcessingSystem {
+public abstract class NetworkUpdateSystem extends EntityProcessingSystem {
 
 	private static final Logger log = LogManager.getLogger(VisibleNetworkUpdateSystem.class);
 
@@ -43,6 +43,15 @@ public class NetworkUpdateSystem extends EntityProcessingSystem {
 
 	public NetworkUpdateSystem(Builder aspect) {
 		super(aspect);
+	}
+
+	/**
+	 * Workaround since the wireing of artemis does not work here. Must be set by child class.
+	 * 
+	 * @param ctx
+	 */
+	protected void setCommandContext(CommandContext ctx) {
+		this.ctx = ctx;
 	}
 
 	@Override

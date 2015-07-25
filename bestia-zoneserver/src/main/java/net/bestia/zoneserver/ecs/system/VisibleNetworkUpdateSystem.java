@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.messages.MapEntitiesMessage.EntityAction;
+import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Changable;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
@@ -28,11 +29,14 @@ import com.artemis.utils.IntBag;
  */
 @Wire
 public class VisibleNetworkUpdateSystem extends NetworkUpdateSystem {
-	
+
 	private static final Logger log = LogManager.getLogger(VisibleNetworkUpdateSystem.class);
-	
+
 	private ComponentMapper<Changable> changableMapper;
-	
+
+	@Wire
+	private CommandContext ctx;
+
 	private EntitySubscription playerSubscription;
 
 	@SuppressWarnings("unchecked")
@@ -45,6 +49,9 @@ public class VisibleNetworkUpdateSystem extends NetworkUpdateSystem {
 	@Override
 	protected void initialize() {
 		super.initialize();
+
+		// Workaround must be set since parent gets no wireing.
+		setCommandContext(ctx);
 
 		AspectSubscriptionManager asm = world.getManager(AspectSubscriptionManager.class);
 		playerSubscription = asm.get(Aspect.all(PlayerControlled.class, Active.class));

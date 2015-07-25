@@ -50,6 +50,10 @@ public class PlayerNetworkUpdateSystem extends NetworkUpdateSystem {
 	@Override
 	protected void initialize() {
 		super.initialize();
+		
+		// Workaround must be set since parent gets no wireing.
+		setCommandContext(ctx);
+		
 		asm = world.getManager(AspectSubscriptionManager.class);
 		visibleSubscription = asm.get(Aspect.all(Visible.class));
 
