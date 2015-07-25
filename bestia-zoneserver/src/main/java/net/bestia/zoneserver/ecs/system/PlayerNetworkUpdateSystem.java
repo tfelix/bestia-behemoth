@@ -1,13 +1,13 @@
 package net.bestia.zoneserver.ecs.system;
 
-import java.util.UUID;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import net.bestia.messages.MapEntitiesMessage;
 import net.bestia.messages.MapEntitiesMessage.EntityAction;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
-import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 
 import com.artemis.Aspect;
@@ -29,6 +29,8 @@ import com.artemis.utils.IntBag;
  */
 @Wire
 public class PlayerNetworkUpdateSystem extends NetworkUpdateSystem {
+	
+	private static final Logger log = LogManager.getLogger(PlayerNetworkUpdateSystem.class);
 
 	private AspectSubscriptionManager asm;
 	@Wire

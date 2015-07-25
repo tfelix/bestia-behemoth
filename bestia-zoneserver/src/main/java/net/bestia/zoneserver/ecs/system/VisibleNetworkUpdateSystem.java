@@ -1,5 +1,8 @@
 package net.bestia.zoneserver.ecs.system;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import net.bestia.messages.MapEntitiesMessage.EntityAction;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Changable;
@@ -8,7 +11,9 @@ import net.bestia.zoneserver.ecs.component.Visible;
 
 import com.artemis.Aspect;
 import com.artemis.AspectSubscriptionManager;
+import com.artemis.ComponentMapper;
 import com.artemis.Entity;
+import com.artemis.EntitySubscription;
 import com.artemis.EntitySubscription.SubscriptionListener;
 import com.artemis.annotations.Wire;
 import com.artemis.utils.ImmutableBag;
@@ -23,6 +28,12 @@ import com.artemis.utils.IntBag;
  */
 @Wire
 public class VisibleNetworkUpdateSystem extends NetworkUpdateSystem {
+	
+	private static final Logger log = LogManager.getLogger(VisibleNetworkUpdateSystem.class);
+	
+	private ComponentMapper<Changable> changableMapper;
+	
+	private EntitySubscription playerSubscription;
 
 	@SuppressWarnings("unchecked")
 	public VisibleNetworkUpdateSystem() {
@@ -33,6 +44,7 @@ public class VisibleNetworkUpdateSystem extends NetworkUpdateSystem {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void initialize() {
+		super.initialize();
 
 		AspectSubscriptionManager asm = world.getManager(AspectSubscriptionManager.class);
 		playerSubscription = asm.get(Aspect.all(PlayerControlled.class, Active.class));

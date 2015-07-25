@@ -16,27 +16,46 @@ import org.apache.logging.log4j.Logger;
 import com.artemis.Aspect.Builder;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
-import com.artemis.EntitySubscription;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.UuidEntityManager;
 import com.artemis.systems.EntityProcessingSystem;
 
-public abstract class NetworkUpdateSystem extends EntityProcessingSystem {
+/**
+ * Should be abstract. Does not work with @Wire dependency injection.
+ * 
+ * @author Thomas
+ *
+ */
+@Wire
+public class NetworkUpdateSystem extends EntityProcessingSystem {
 
-	protected static final Logger log = LogManager.getLogger(VisibleNetworkUpdateSystem.class);
+	private static final Logger log = LogManager.getLogger(VisibleNetworkUpdateSystem.class);
 
 	@Wire
 	private CommandContext ctx;
-	protected ComponentMapper<Changable> changableMapper;
+
+	private ComponentMapper<Changable> changableMapper;
 	private ComponentMapper<PlayerControlled> pcm;
 	private ComponentMapper<Position> positionMapper;
 	private ComponentMapper<Visible> visibleMapper;
+
 	private UuidEntityManager uuidManager;
-	
-	protected EntitySubscription playerSubscription;
 
 	public NetworkUpdateSystem(Builder aspect) {
 		super(aspect);
+	}
+
+	@Override
+	protected void initialize() {
+		super.initialize();
+
+		// Autowiring does not work.
+		uuidManager = world.getManager(UuidEntityManager.class);
+
+		changableMapper = world.getMapper(Changable.class);
+		pcm = world.getMapper(PlayerControlled.class);
+		positionMapper = world.getMapper(Position.class);
+		visibleMapper = world.getMapper(Visible.class);
 	}
 
 	/**
@@ -66,16 +85,16 @@ public abstract class NetworkUpdateSystem extends EntityProcessingSystem {
 
 		final MapEntitiesMessage.Entity msg = getMessageFromEntity(visibleEntity, action);
 		final MapEntitiesMessage updateMsg = new MapEntitiesMessage();
-		
+
 		updateMsg.setAccountId(accId);
 		updateMsg.getEntities().add(msg);
-		
+
 		log.trace("Sending update for entity: {} to accId: {}", msg.getUuid(), accId);
 
 		ctx.getServer().sendMessage(updateMsg);
 		markUnchanged(visibleEntity);
 	}
-	
+
 	/**
 	 * Converts a simple "map entity" from the ECS to a {@link MapEntitiesMessage.Entity}.
 	 * 
@@ -100,6 +119,11 @@ public abstract class NetworkUpdateSystem extends EntityProcessingSystem {
 		if (changable != null) {
 			changable.changed = false;
 		}
+	}
+
+	@Override
+	protected void process(Entity e) {
+		// no op.
 	}
 
 }

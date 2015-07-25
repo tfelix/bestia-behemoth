@@ -188,14 +188,14 @@ public class InputController {
 			activeBestias.put(accId, new HashSet<>());
 			onAddedAccount(accId);
 			log.trace("Added account: {}.", accId);
-
-		} else {
-			activeBestias.get(accId).add(pbm);
-			final int bestiaId = pbm.getBestia().getId();
-			inputQueues.put(bestiaId, new LinkedList<>());
-			onAddedBestia(accId, bestiaId);
-			log.trace("Added bestia: {} to account: {}.", bestiaId, accId);
 		}
+		
+		activeBestias.get(accId).add(pbm);
+		final int bestiaId = pbm.getBestia().getId();
+		inputQueues.put(bestiaId, new LinkedList<>());
+		onAddedBestia(accId, bestiaId);
+		log.trace("Added bestia: {} to account: {}.", bestiaId, accId);
+
 	}
 
 	/**
