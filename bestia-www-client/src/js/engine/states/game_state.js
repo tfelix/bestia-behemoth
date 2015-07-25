@@ -7,11 +7,10 @@
  *            engine - Reference to the bestia engine.
  */
 Bestia.Engine.States.GameState = function(engine) {
-	
+
 	this.marker = null;
 	/**
-	 * @property {Bestia.Engine} engine - Reference to the central bestia engine
-	 *           object.
+	 * @property {Bestia.Engine} Reference to the central bestia engine object.
 	 */
 	this.engine = engine;
 
@@ -45,8 +44,14 @@ Bestia.Engine.States.GameState = function(engine) {
 	 * @property {Bestia.BestiaViewModel}
 	 */
 	this.bestia = null;
-	
-	this._entityUpdate = new Bestia.Engine.EntityUpdater(Bestia, this.game, this._bestiaWorld);
+
+	/**
+	 * Entity updater for managing the adding and removal of entities.
+	 * 
+	 * @private
+	 * @property {Bestia.Engine.EntityUpdater}
+	 */
+	this._entityUpdater = null;
 };
 
 Bestia.Engine.States.GameState.prototype = {
@@ -70,11 +75,18 @@ Bestia.Engine.States.GameState.prototype = {
 		this._bestiaWorld = new Bestia.Engine.World(game, astar);
 		this._bestiaWorld.loadMap(this.bestia.location());
 
+		this._entityUpdater = new Bestia.Engine.EntityUpdater(Bestia, this.game, this._bestiaWorld)
+
 		this.gfxCollision = this.add.graphics(0, 0);
 		this.gfxCollision.beginFill(0xFF0000, 0.5);
 
 		// Draw our player.
-		this.player = new Bestia.Engine.Entity(this.game, this._bestiaWorld);
+		this.player = new Bestia.Engine.Entity({
+			uuid : 'player',
+			s : [ 'mastersmith' ],
+			x : 10,
+			y : 10
+		}, this.game, this._bestiaWorld);
 		this.player.setPos(this.bestia.posX(), this.bestia.posY());
 
 		this.cursors = this.game.input.keyboard.createCursorKeys();
@@ -96,8 +108,8 @@ Bestia.Engine.States.GameState.prototype = {
 			var goal = this._bestiaWorld.getTileXY(this.game.input.worldX, this.game.input.worldY);
 
 			var path = this._bestiaWorld.findPath(start, goal).nodes;
-			
-			if(path.length === 0) {
+
+			if (path.length === 0) {
 				return;
 			}
 
@@ -120,7 +132,7 @@ Bestia.Engine.States.GameState.prototype = {
 	},
 
 	render : function() {
-		
+
 		// Check if we have to render the debug display.
 		if (this.engine.config.debug()) {
 			this._renderDebug();
@@ -144,10 +156,10 @@ Bestia.Engine.States.GameState.prototype = {
 	 * @private
 	 */
 	_renderDebug : function() {
-		//var game = this.game;
+		// var game = this.game;
 
 		// Show the path.
-		//game.debug.AStar(this.astar, 20, 20, '#ff0000');
+		// game.debug.AStar(this.astar, 20, 20, '#ff0000');
 
 	},
 

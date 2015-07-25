@@ -1,27 +1,16 @@
 package net.bestia.zoneserver.ecs.system;
 
-import java.util.UUID;
-
-import net.bestia.messages.MapEntitiesMessage;
-import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.messages.MapEntitiesMessage.EntityAction;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Changable;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
-import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.artemis.Aspect;
 import com.artemis.AspectSubscriptionManager;
-import com.artemis.ComponentMapper;
 import com.artemis.Entity;
-import com.artemis.EntitySubscription;
 import com.artemis.EntitySubscription.SubscriptionListener;
 import com.artemis.annotations.Wire;
-import com.artemis.managers.UuidEntityManager;
-import com.artemis.systems.EntityProcessingSystem;
 import com.artemis.utils.ImmutableBag;
 import com.artemis.utils.IntBag;
 
@@ -33,21 +22,7 @@ import com.artemis.utils.IntBag;
  *
  */
 @Wire
-public class VisibleNetworkUpdateSystem extends EntityProcessingSystem {
-
-	private final static Logger log = LogManager.getLogger(VisibleNetworkUpdateSystem.class);
-
-	@Wire
-	private CommandContext ctx;
-
-	private ComponentMapper<Changable> changableMapper;
-	private ComponentMapper<PlayerControlled> pcm;
-	private ComponentMapper<Position> positionMapper;
-	private ComponentMapper<Visible> visibleMapper;
-
-	private UuidEntityManager uuidManager;
-
-	private EntitySubscription playerSubscription;
+public class VisibleNetworkUpdateSystem extends NetworkUpdateSystem {
 
 	@SuppressWarnings("unchecked")
 	public VisibleNetworkUpdateSystem() {
@@ -88,7 +63,7 @@ public class VisibleNetworkUpdateSystem extends EntityProcessingSystem {
 							continue;
 						}
 
-						sendUpdate(playerEntity, visibleEntity);
+						sendUpdate(playerEntity, visibleEntity, EntityAction.APPEAR);
 					}
 				}
 			}
@@ -97,7 +72,7 @@ public class VisibleNetworkUpdateSystem extends EntityProcessingSystem {
 
 	@Override
 	protected void process(Entity e) {
-		// If the entitiy can not or has not changed then do nothing.
+		// If the entity can not or has not changed then do nothing.
 		final Changable changable = changableMapper.getSafe(e);
 		if (changable == null || !changable.changed) {
 			return;
@@ -115,49 +90,7 @@ public class VisibleNetworkUpdateSystem extends EntityProcessingSystem {
 				continue;
 			}
 
-			sendUpdate(playerEntity, e);
-		}
-	}
-
-	private boolean isInSightDistance(Entity playerEntity, Entity visibleEntity) {
-		// TODO
-		return true;
-	}
-
-	/**
-	 * Creates a update message from a visible entity for a given player entity.
-	 * 
-	 * @param playerEntity
-	 * @param visibleEntity
-	 */
-	private void sendUpdate(Entity playerEntity, Entity visibleEntity) {
-
-		final PlayerControlled playerControlled = pcm.get(playerEntity);
-		final long accId = playerControlled.playerBestia.getBestia().getOwner().getId();
-			
-		final UUID uuid = uuidManager.getUuid(visibleEntity);
-		final Position pos = positionMapper.get(visibleEntity);
-		final Visible visible = visibleMapper.get(visibleEntity);
-		
-		log.trace("Sending update for entity: {} to accId: {}", uuid.toString(), accId);
-
-		final MapEntitiesMessage.Entity msg = new MapEntitiesMessage.Entity(uuid.toString(), pos.x, pos.y);
-		msg.addSprite(visible.sprite);
-		
-		MapEntitiesMessage updateMsg = new MapEntitiesMessage();
-		updateMsg.setAccountId(accId);
-		
-		updateMsg.getEntities().add(msg);
-		
-		ctx.getServer().sendMessage(updateMsg);
-		
-		markUnchanged(visibleEntity);		
-	}
-	
-	private void markUnchanged(Entity e) {
-		final Changable changable = changableMapper.getSafe(e);
-		if(changable != null) {
-			changable.changed = false;
+			sendUpdate(playerEntity, e, EntityAction.UPDATE);
 		}
 	}
 

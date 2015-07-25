@@ -1,14 +1,13 @@
 package net.bestia.zoneserver.ecs.system;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import net.bestia.zoneserver.ecs.component.Changable;
 import net.bestia.zoneserver.ecs.component.ChangedData;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.game.zone.Vector2;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
@@ -16,7 +15,6 @@ import com.artemis.Entity;
 import com.artemis.EntityTransmuter;
 import com.artemis.EntityTransmuterFactory;
 import com.artemis.annotations.Wire;
-import com.artemis.managers.UuidEntityManager;
 import com.artemis.systems.DelayedEntityProcessingSystem;
 
 /**

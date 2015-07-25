@@ -23,8 +23,7 @@ public class MoveCommand extends Command {
 	 */
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
-		BestiaMoveMessage msg = (BestiaMoveMessage) message;
-		
+		BestiaMoveMessage msg = (BestiaMoveMessage) message;		
 		ctx.getServer().getInputController().sendInput(msg);
 	}
 	

@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -37,10 +39,11 @@ public class MapEntitiesMessage extends Message {
 	/**
 	 * Describes an entity on the map for the engine to display.
 	 */
+	@JsonInclude(Include.NON_EMPTY)
 	public static class Entity implements Serializable {
 
 		private static final long serialVersionUID = 1L;
-		
+
 		private String uuid;
 		@JsonProperty("s")
 		private List<String> sprites = new ArrayList<>();
@@ -49,7 +52,7 @@ public class MapEntitiesMessage extends Message {
 		@JsonProperty("t")
 		private EntityType type = EntityType.NONE;
 		@JsonProperty("a")
-		private EntityAction action = null;		
+		private EntityAction action = null;
 		@JsonProperty("pbid")
 		private Integer playerBestiaId;
 
@@ -63,6 +66,20 @@ public class MapEntitiesMessage extends Message {
 			this.y = y;
 		}
 
+		/**
+		 * Returns a Entity with the action preset to APPEAR.
+		 * 
+		 * @param uuid
+		 * @param x
+		 * @param y
+		 * @return Entity with action preset to appear.
+		 */
+		public static Entity getAppearEntity(String uuid, int x, int y) {
+			final Entity e = new Entity(uuid, x, y);
+			e.setAction(EntityAction.APPEAR);
+			return e;
+		}
+
 		public String getUuid() {
 			return uuid;
 		}
@@ -74,7 +91,7 @@ public class MapEntitiesMessage extends Message {
 		public List<String> getSprites() {
 			return sprites;
 		}
-		
+
 		public void addSprite(String sprite) {
 			this.sprites.add(sprite);
 		}
@@ -106,19 +123,19 @@ public class MapEntitiesMessage extends Message {
 		public void setType(EntityType type) {
 			this.type = type;
 		}
-		
+
 		public EntityAction getAction() {
 			return action;
 		}
-		
+
 		public void setAction(EntityAction action) {
 			this.action = action;
 		}
-		
+
 		public Integer getPlayerBestiaId() {
 			return playerBestiaId;
 		}
-		
+
 		public void setPlayerBestiaId(int pbid) {
 			this.playerBestiaId = pbid;
 		}
@@ -137,6 +154,10 @@ public class MapEntitiesMessage extends Message {
 	@JsonProperty("e")
 	private List<Entity> entities = new ArrayList<>();
 
+	public MapEntitiesMessage() {
+		// no op.
+	}
+
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
@@ -146,7 +167,7 @@ public class MapEntitiesMessage extends Message {
 	public String getMessagePath() {
 		return getClientMessagePath();
 	}
-	
+
 	public List<Entity> getEntities() {
 		return entities;
 	}

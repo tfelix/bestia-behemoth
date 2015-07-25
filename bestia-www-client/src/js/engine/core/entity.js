@@ -8,7 +8,7 @@
  *            locate the sprite of the entity and the description file
  *            ([IDENT]_desc).
  */
-Bestia.Engine.Entity = function(game, world, ident) {
+Bestia.Engine.Entity = function(ident, game, world) {
 
 	this.walkspeed = 1;
 
@@ -43,9 +43,14 @@ Bestia.Engine.Entity = function(game, world, ident) {
 	 */
 	this.desc = null;
 
-	// Initialize the sprite.
+	/**
+	 * The underlying sprite for the engine.
+	 * 
+	 * @property
+	 */
 	this.sprite = null;
 
+	this._init(ident);
 };
 
 /**
@@ -56,22 +61,22 @@ Bestia.Engine.Entity = function(game, world, ident) {
  * @param {Object}
  *            obj - Object describing the entity.
  */
-Bestia.Engine.Entity._init = function(obj) {
+Bestia.Engine.Entity.prototype._init = function(obj) {
 	// For now there is only one sprite. Might change.
 	var spriteName = obj.s[0];
-	
-	this.desc = game.cache.getJSON(spriteName+'_desc');
-	this.sprite = game.add.sprite(0, 0, spriteName, 'walk_down/001.png');
-	
+
+	this.desc = this.game.cache.getJSON(spriteName + '_desc');
+	this.sprite = this.game.add.sprite(0, 0, spriteName, 'walk_down/001.png');
+
 	this.setPos(obj.x, obj.y);
-	
+
 	// Add it invisible first.
 	this.sprite.alpha = 1;
-	
+
 	// Set anchor to the middle of the sprite to the bottom.
 	this.sprite.anchor.setTo(0.5, 1);
 	this.sprite.scale.setTo(this.desc.scale);
-	
+
 	// Prepare the animations of the sprite.
 	this.desc.animations.forEach(function(anim) {
 		var frames = Phaser.Animation.generateFrameNames(anim.name + '/', anim.from, anim.to, '.png', 3);
@@ -80,7 +85,6 @@ Bestia.Engine.Entity._init = function(obj) {
 
 	this.sprite.frameName = 'walk_down/001.png';
 };
-
 
 /**
  * Calculates the duration in ms of the total walk of the given path. Depends
@@ -215,12 +219,26 @@ Bestia.Engine.Entity.prototype.getAnimationName = function(nextTile, curTile, is
 /**
  * Stops a current movement.
  * 
- * @method Bestia.Engine.Entit#stopMove
+ * @public
+ * @method Bestia.Engine.Entity#stopMove
  */
 Bestia.Engine.Entity.prototype.stopMove = function() {
 
 	this.tween.stop();
 
+};
+
+/**
+ * Removes an entity from the game.
+ * 
+ * @public
+ * @method Bestia.Engine.Entity#remove
+ */
+Bestia.Engine.Entity.prototype.remove = function() {
+	
+	this.tween.stop();
+	this.sprite.destroy();
+	
 };
 
 /**

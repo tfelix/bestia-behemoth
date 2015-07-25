@@ -15,6 +15,8 @@
  */
 Bestia.Engine.EntityUpdater = function(pubsub, game, bestiaWorld) {
 
+	var self = this;
+
 	this._game = game;
 
 	this._bestiaWorld = bestiaWorld;
@@ -27,9 +29,8 @@ Bestia.Engine.EntityUpdater = function(pubsub, game, bestiaWorld) {
 	this._cache = {};
 
 	var onMessageHandler = function(_, msg) {
-		msg.e.forEach(this._update);
+		msg.e.forEach(self._update, self);
 	};
-	// {"uuid":"1460814f-e2a0-467e-898c-7fba8731a57e","s":["mastersmith"],"x":1,"y":11,"t":"NONE"}
 	pubsub.subscribe('map.entites', onMessageHandler);
 };
 
@@ -39,8 +40,11 @@ Bestia.Engine.EntityUpdater = function(pubsub, game, bestiaWorld) {
  * @method Bestia.Engine.EntityUpdater#_update
  * @private
  */
-Bestia.Engine.EntityUpdater._update = function(obj) {
-	console.trace('Updating entity: ' + JSON.stringify(obj));
+Bestia.Engine.EntityUpdater.prototype._update = function(obj) {
+	// console.trace('Updating entity: ' + JSON.stringify(obj));
+
+	this._addGameEntity(obj);
+
 	if (obj.a === 'APPEAR') {
 
 		this._addGameEntity(obj);
@@ -59,7 +63,7 @@ Bestia.Engine.EntityUpdater._update = function(obj) {
 /**
  * Look up the cache to see if the entity is already inside it.
  */
-Bestia.Engine.EntityUpdater._getGameEntity = function(obj) {
+Bestia.Engine.EntityUpdater.prototype._getGameEntity = function(obj) {
 	if (this._cache.hasOwnProperty(obj.uuid)) {
 		return this._cache[obj.uuid];
 	}
@@ -68,21 +72,29 @@ Bestia.Engine.EntityUpdater._getGameEntity = function(obj) {
 	this._addGameEntity(obj);
 };
 
-Bestia.Engine.EntityUpdater._addGameEntity = function(obj) {
+/**
+ * Adds a new entity/game object to the game itself.
+ * 
+ * @private
+ * @method Bestia.Engine.EntityUpdater#_addGameEntity
+ */
+Bestia.Engine.EntityUpdater.prototype._addGameEntity = function(obj) {
 
 	// Add the entity to the engine.
-	var entity = new Bestia.Engine.Entity(this._game, this._bestiaWorld, obj);
+	var entity = new Bestia.Engine.Entity(obj, this._game, this._bestiaWorld);
 	this._cache[obj.uuid] = entity;
-	
+
 	// Let the sprite appear.
 };
 
-Bestia.Engine.EntityUpdater._removeGameEntity = function(obj) {
+Bestia.Engine.EntityUpdater.prototype._removeGameEntity = function(obj) {
 
-	// Add the entity to the engine.
+	// Remove the entity from the game.
+	this._cache[obj.uuid].remove();
+	delete this._cache[obj.uuid];
 };
 
-Bestia.Engine.EntityUpdater._updateGameEntity = function(obj) {
+Bestia.Engine.EntityUpdater.prototype._updateGameEntity = function(obj) {
 
 	// Add the entity to the engine.
 };

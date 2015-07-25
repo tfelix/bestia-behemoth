@@ -10,6 +10,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import net.bestia.messages.InputMessage;
+import net.bestia.messages.Message;
 import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
 
 import org.apache.logging.log4j.LogManager;
@@ -19,6 +20,8 @@ import org.apache.logging.log4j.Logger;
  * Manages the communication towards the ECS system. Since this communication must somehow work asyncronously we store
  * messages inside this {@link InputController} and the ECS will fetch them as its ticking. It will question the
  * InputController if it holds messages regarding a particular bestia and execute it in ECS world.
+ * 
+ * TODO Das ding wird von mehreren Threads geshared. Mit read/write lock versehen.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -44,8 +47,8 @@ public class InputController {
 	}
 
 	private final Map<Long, Set<PlayerBestiaManager>> activeBestias = new HashMap<>();
-	private final Map<Integer, Queue<InputMessage>> inputQueues = new HashMap<>();
-	
+	private final Map<Integer, Queue<Message>> inputQueues = new HashMap<>();
+
 	private final List<InputControllerCallback> callbacks = new ArrayList<>();
 
 	public InputController() {
@@ -53,8 +56,7 @@ public class InputController {
 	}
 
 	/**
-	 * Adds a callback to the {@link InputController}. These callback are called if the according events are
-	 * triggered.
+	 * Adds a callback to the {@link InputController}. These callback are called if the according events are triggered.
 	 * 
 	 * @param callback
 	 *            Callback to be added.
@@ -90,7 +92,6 @@ public class InputController {
 			c.removedAccount(accId);
 		}
 	}
-	
 
 	/**
 	 * Triggers callback action.
@@ -120,20 +121,6 @@ public class InputController {
 		}
 	}
 
-	@Deprecated
-	public void registerAccount(long accId, List<PlayerBestiaManager> bestias) {
-		log.trace("Registered account: {} with {} bestias.", accId, bestias.size());
-
-		if (!activeBestias.containsKey(accId)) {
-			activeBestias.put(accId, new HashSet<>());
-			onAddedAccount(accId);
-		}
-
-		for (PlayerBestiaManager pbm : bestias) {
-			addPlayerBestia(accId, pbm);
-		}
-	}
-
 	/**
 	 * Removes an account an all currently registered bestias from the system. Outstanding input messages not yet
 	 * processed are lost.
@@ -144,11 +131,11 @@ public class InputController {
 	public void removeAccount(long accId) {
 		// Remove all outstanding bestias.
 		Set<PlayerBestiaManager> bestias = activeBestias.get(accId);
-		
-		if(bestias == null) {
+
+		if (bestias == null) {
 			return;
 		}
-		
+
 		// Helper set to avoid ConcurrentModificationException.
 		final Set<PlayerBestiaManager> removalSet = new HashSet<>();
 		removalSet.addAll(bestias);
@@ -157,7 +144,6 @@ public class InputController {
 			removePlayerBestia(accId, bestia);
 		}
 	}
-
 
 	/**
 	 * Removes a bestia from the input system. If the last bestia of an account is removed the account will be removed
@@ -199,7 +185,9 @@ public class InputController {
 		if (activeBestias.get(accId) == null) {
 			List<PlayerBestiaManager> list = new ArrayList<>();
 			list.add(pbm);
-			registerAccount(accId, list);
+			activeBestias.put(accId, new HashSet<>());
+			onAddedAccount(accId);
+			log.trace("Added account: {}.", accId);
 
 		} else {
 			activeBestias.get(accId).add(pbm);
@@ -222,8 +210,8 @@ public class InputController {
 	}
 
 	/**
-	 * Queues a message for delivery inside the input queue. Silently fails if there is not account/player bestia active
-	 * with the id the message is referring to.
+	 * Queues a message for delivery to a specific bestia inside the input queue. Silently fails if there is not
+	 * account/player bestia active with the id the message is referring to.
 	 * 
 	 * @param message
 	 *            {@link InputMessage} from the player.
@@ -233,7 +221,24 @@ public class InputController {
 		if (inputQueues.containsKey(message.getPlayerBestiaId())) {
 			inputQueues.get(message.getPlayerBestiaId()).add(message);
 		}
+	}
 
+	/**
+	 * Queues a message for delivery. Like {@link sendInput}, since {@link InputMessage}s are helper to address a
+	 * special bestia directly with normal messages this is not directly possible. Thus a playerBestiaId is needed to
+	 * deliver the message. Apart from this the message processing system is not dependent upon a special playerBestiaId
+	 * inside the message and can therefore handle normal messages as well.
+	 * 
+	 * @param message
+	 *            Message to deliver.
+	 * @param playerBestiaId
+	 *            ID of the bestia to address this message to.
+	 */
+	public void sendInput(Message message, int playerBestiaId) {
+
+		if (inputQueues.containsKey(playerBestiaId)) {
+			inputQueues.get(playerBestiaId).add(message);
+		}
 	}
 
 	/**
@@ -244,7 +249,7 @@ public class InputController {
 	 * @return A queue with the {@link InputMessage}s or {@code null} if no bestia with this ID is registered at the
 	 *         controller.
 	 */
-	public Queue<InputMessage> getInput(int playerBestiaId) {
+	public Queue<Message> getInput(int playerBestiaId) {
 		if (!inputQueues.containsKey(playerBestiaId)) {
 			return null;
 		}
@@ -255,7 +260,8 @@ public class InputController {
 	 * Returns the {@link PlayerBestiaManager} of the given bestiaId. If no bestia is active with this id null is
 	 * returned.
 	 * 
-	 * TODO Hier kann man auch noch mal die accId rauswerfen und das analog nur über die bestiaId abfragen.
+	 * TODO Hier kann man auch noch mal die accId rauswerfen und das analog nur über die bestiaId abfragen. Indem man
+	 * das besser chached.
 	 * 
 	 * @param accId
 	 *            The account id which holds the requested bestia.
@@ -275,7 +281,7 @@ public class InputController {
 				return playerBestiaManager;
 			}
 		}
-		
+
 		return null;
 	}
 }

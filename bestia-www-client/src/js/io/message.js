@@ -70,6 +70,16 @@ Bestia.Message = {
 		this.pY = pY;
 		this.w = walkspeed;
 	},
+	
+	/**
+	 * Orders the server to switch to another active bestia in order to get
+	 * client updates now from it.
+	 */
+	BestiaActivate : function(playerBestiaId) {
+		this.mid = 'bestia.activate';
+		
+		this.pbid = playerBestiaId;
+	},
 
 	/**
 	 * Requests a complete sync with the inventory from the server.

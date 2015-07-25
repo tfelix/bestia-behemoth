@@ -11,18 +11,13 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import net.bestia.messages.InputMessage;
+import net.bestia.messages.Message;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.ecs.InputController;
 import net.bestia.zoneserver.ecs.InputController.InputControllerCallback;
 import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
 
 public class InputControllerTest {
-
-	@Test
-	public void empty_account_add_test() {
-		InputController pic = new InputController();
-		pic.registerAccount(1, new ArrayList<PlayerBestiaManager>());
-	}
 
 	@Test
 	public void account_add_callback_test() {
@@ -33,7 +28,6 @@ public class InputControllerTest {
 		List<PlayerBestiaManager> managerList = new ArrayList<PlayerBestiaManager>();
 		managerList.add(getMockedManager());
 
-		pic.registerAccount(1, managerList);
 		verify(callback, times(1)).addedAccount(anyLong());
 		verify(callback, times(1)).addedBestia(anyLong(), anyInt());
 	}
@@ -47,7 +41,6 @@ public class InputControllerTest {
 		List<PlayerBestiaManager> managerList = new ArrayList<PlayerBestiaManager>();
 		managerList.add(getMockedManager());
 
-		pic.registerAccount(1, managerList);
 		pic.removeAccount(1);
 
 		verify(callback, times(1)).removedAccount(anyLong());
@@ -63,15 +56,13 @@ public class InputControllerTest {
 		List<PlayerBestiaManager> managerList = new ArrayList<PlayerBestiaManager>();
 		managerList.add(getMockedManager());
 
-		pic.registerAccount(1, managerList);
-
 		InputMessage msg = mock(InputMessage.class);
 		when(msg.getPlayerBestiaId()).thenReturn(1);
 		when(msg.getAccountId()).thenReturn(1L);
 
 		pic.sendInput(msg);
 
-		Queue<InputMessage> queue = pic.getInput(1);
+		Queue<Message> queue = pic.getInput(1);
 		
 		Assert.assertEquals(1, queue.size());
 		verify(callback, times(0)).removedAccount(anyLong());
@@ -98,7 +89,7 @@ public class InputControllerTest {
 		when(msg.getAccountId()).thenReturn(1L);
 		pic.sendInput(msg);	
 
-		Queue<InputMessage> queue = pic.getInput(1);
+		Queue<Message> queue = pic.getInput(1);
 		Assert.assertNull(queue);
 	}
 
@@ -114,7 +105,7 @@ public class InputControllerTest {
 		
 		pic.addPlayerBestia(1, pbm);
 		
-		Queue<InputMessage> queue = pic.getInput(pbid);
+		Queue<Message> queue = pic.getInput(pbid);
 		Assert.assertNotNull(queue);
 		Assert.assertEquals(0, queue.size());
 		verify(callback, times(1)).addedAccount(anyLong());
@@ -166,8 +157,6 @@ public class InputControllerTest {
 		List<PlayerBestiaManager> managerList = new ArrayList<PlayerBestiaManager>();
 		managerList.add(getMockedManager());
 
-		pic.registerAccount(1, managerList);
-
 		InputMessage msg = mock(InputMessage.class);
 		when(msg.getPlayerBestiaId()).thenReturn(1);
 		when(msg.getAccountId()).thenReturn(1L);
@@ -177,7 +166,7 @@ public class InputControllerTest {
 		// Remove account now.
 		pic.removeAccount(1);
 
-		Queue<InputMessage> queue = pic.getInput(1);
+		Queue<Message> queue = pic.getInput(1);
 		Assert.assertNull(queue);
 	}
 

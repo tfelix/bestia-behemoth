@@ -5,7 +5,6 @@ import java.io.Serializable;
 import net.bestia.messages.jackson.MessageTypeIdResolver;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeId;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
@@ -22,9 +21,6 @@ public abstract class Message implements Serializable {
 
 	private static final long serialVersionUID = 2015052401L;
 	private long accountId;
-	private boolean isBroadcast = false;
-	@JsonProperty("pbid")
-	private int playerBestiaId = 0;
 
 	private final static String MSG_PATH_ZONE_ALL = "zone/all";
 
@@ -47,14 +43,8 @@ public abstract class Message implements Serializable {
 	 * 
 	 * @param isBroadcast
 	 */
-	public Message(int accountId, boolean isBroadcast) {
+	public Message(int accountId) {
 		this.accountId = accountId;
-		this.isBroadcast = isBroadcast;
-	}
-
-	@JsonIgnore
-	public boolean isBroadcast() {
-		return isBroadcast;
 	}
 
 	/**
@@ -79,22 +69,6 @@ public abstract class Message implements Serializable {
 
 	public void setAccountId(long accountId) {
 		this.accountId = accountId;
-	}
-
-	/**
-	 * Gets the player bestia id for which this message is meant. Not all messages are subject to a selected player
-	 * bestia thus this field can contain the ID 0 which is reserved for this case.
-	 * TODO Das runter ziehen in die Child class.
-	 * @return
-	 */
-	@JsonIgnore
-	public int getPlayerBestiaId() {
-		return playerBestiaId;
-	}
-	
-	// TODO das in die InputMessage Child class ziehen.
-	public void setPlayerBestiaId(int playerBestiaId) {
-		this.playerBestiaId = playerBestiaId;
 	}
 
 	@Override
@@ -123,7 +97,8 @@ public abstract class Message implements Serializable {
 
 	/**
 	 * Helper method. Might be used as getMessagePath() implementation if the message is intended to be received by the
-	 * zone server on which a client originating this message is connected.
+	 * zones on which a client as spawned bestias (all zones will listen to account messages if they have a bestia
+	 * alive).
 	 * 
 	 * @return A message path designated to reach zoneserver on which a certain user is connected.
 	 */

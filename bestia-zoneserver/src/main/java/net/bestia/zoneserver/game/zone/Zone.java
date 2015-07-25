@@ -3,25 +3,21 @@ package net.bestia.zoneserver.game.zone;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
-import net.bestia.zoneserver.ecs.system.PlayerNetworkUpdateSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
 import net.bestia.zoneserver.ecs.system.PlayerControlSystem;
+import net.bestia.zoneserver.ecs.system.PlayerNetworkUpdateSystem;
 import net.bestia.zoneserver.ecs.system.VisibleNetworkUpdateSystem;
 import net.bestia.zoneserver.game.zone.map.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.artemis.AspectSubscriptionManager;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
 import com.artemis.managers.GroupManager;
 import com.artemis.managers.TagManager;
 import com.artemis.managers.UuidEntityManager;
-import com.artemis.utils.EntityBuilder;
 
 /**
  * The Zone holds the static mapdata as well is responsible for managing entities, actors, scripts etc. The entity

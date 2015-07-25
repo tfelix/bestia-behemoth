@@ -34,7 +34,7 @@ public class PlayerBestiaManager {
 
 		this.server = server;
 		this.bestia = bestia;
-		
+
 		// Calculate values.
 		calculateStatusValues();
 	}
@@ -60,8 +60,8 @@ public class PlayerBestiaManager {
 	}
 
 	/**
-	 * Sends a system message to the owner of this bestia.
-	 * TODO Hier die Übersetzung kären.
+	 * Sends a system message to the owner of this bestia. TODO Hier die Übersetzung kären.
+	 * 
 	 * @param text
 	 */
 	private void sendSystemMessage(String text) {
@@ -141,11 +141,11 @@ public class PlayerBestiaManager {
 	}
 
 	public void kill() {
-		//Location saveLoc = bestia.getSavePosition();
+		// Location saveLoc = bestia.getSavePosition();
 
-		//int neededExp = getNeededExp();
+		// int neededExp = getNeededExp();
 		// Reduce exp by 5%.
-		//bestia.setExp(bestia.getExp() - neededExp * 5 / 100);
+		// bestia.setExp(bestia.getExp() - neededExp * 5 / 100);
 
 		// Alle Encounter löschen
 		// $encounter_dao->deleteBestiaEncounter($this->data->get('id'), false);
@@ -164,7 +164,16 @@ public class PlayerBestiaManager {
 	public PlayerBestia getBestia() {
 		return bestia;
 	}
-	
+
+	/**
+	 * Shortcut to get the id of the wrapped bestia.
+	 * 
+	 * @return The id of the wrapped bestia.
+	 */
+	public int getPlayerBestiaId() {
+		return bestia.getId();
+	}
+
 	@Override
 	public String toString() {
 		return String.format("PlayerBestiaManager[bestia: %s]", bestia);

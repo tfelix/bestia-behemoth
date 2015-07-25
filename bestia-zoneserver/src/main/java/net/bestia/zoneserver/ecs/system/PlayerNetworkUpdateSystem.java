@@ -3,14 +3,12 @@ package net.bestia.zoneserver.ecs.system;
 import java.util.UUID;
 
 import net.bestia.messages.MapEntitiesMessage;
+import net.bestia.messages.MapEntitiesMessage.EntityAction;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.artemis.Aspect;
 import com.artemis.AspectSubscriptionManager;
@@ -19,8 +17,6 @@ import com.artemis.Entity;
 import com.artemis.EntitySubscription;
 import com.artemis.EntitySubscription.SubscriptionListener;
 import com.artemis.annotations.Wire;
-import com.artemis.managers.UuidEntityManager;
-import com.artemis.systems.EntityProcessingSystem;
 import com.artemis.utils.ImmutableBag;
 import com.artemis.utils.IntBag;
 
@@ -32,20 +28,14 @@ import com.artemis.utils.IntBag;
  *
  */
 @Wire
-public class PlayerNetworkUpdateSystem extends EntityProcessingSystem {
+public class PlayerNetworkUpdateSystem extends NetworkUpdateSystem {
 
-	private static final Logger log = LogManager.getLogger(PlayerNetworkUpdateSystem.class);
-
+	private AspectSubscriptionManager asm;
 	@Wire
 	private CommandContext ctx;
 
-	private ComponentMapper<PlayerControlled> pcm;
-	private ComponentMapper<Position> positionMapper;
-	private ComponentMapper<Visible> visibleMapper;
-
-	private UuidEntityManager uuidManager;
-	private AspectSubscriptionManager asm;
-
+	private ComponentMapper<PlayerControlled> playerMapper;
+	
 	private EntitySubscription visibleSubscription;
 
 	@SuppressWarnings("unchecked")
@@ -74,7 +64,7 @@ public class PlayerNetworkUpdateSystem extends EntityProcessingSystem {
 				log.trace("New active and player controlled entities appeared.");
 
 				for (Entity entity : entities) {
-					sendAllVisibleInRange(entity);
+					sendAllVisibleInRange(entity, EntityAction.APPEAR);
 				}
 
 			}
@@ -87,16 +77,16 @@ public class PlayerNetworkUpdateSystem extends EntityProcessingSystem {
 	 * @param playerEntity
 	 *            Entity with Active and PlayerControlled component.
 	 */
-	private void sendAllVisibleInRange(Entity playerEntity) {
+	private void sendAllVisibleInRange(Entity playerEntity, EntityAction action) {
 
-		final PlayerControlled pc = pcm.getSafe(playerEntity);
+		final PlayerControlled pc = playerMapper.getSafe(playerEntity);
 
 		if (pc == null) {
 			log.warn("Given entity was NOT decorated with PlayerControlled component.");
 			return;
 		}
 
-		final PlayerControlled playerControlled = pcm.get(playerEntity);
+		final PlayerControlled playerControlled = playerMapper.get(playerEntity);
 		final long accId = playerControlled.playerBestia.getBestia().getOwner().getId();
 
 		final IntBag activeEntities = visibleSubscription.getEntities();
@@ -114,7 +104,7 @@ public class PlayerNetworkUpdateSystem extends EntityProcessingSystem {
 			final int id = activeEntities.get(i);
 			final Entity visibleEntity = world.getEntity(id);
 
-			final MapEntitiesMessage.Entity msg = getMessageFromEntity(visibleEntity);
+			final MapEntitiesMessage.Entity msg = getMessageFromEntity(visibleEntity, action);
 
 			entitiesMessage.getEntities().add(msg);
 		}
@@ -122,24 +112,6 @@ public class PlayerNetworkUpdateSystem extends EntityProcessingSystem {
 		ctx.getServer().sendMessage(entitiesMessage);
 	}
 
-	/**
-	 * Converts a simple "map entity" from the ECS to a {@link MapEntitiesMessage.Entity}.
-	 * 
-	 * @param e
-	 *            Entity to convert to a message for the client.
-	 * @return A message containing all needed information about this entity for the client.
-	 */
-	private MapEntitiesMessage.Entity getMessageFromEntity(Entity e) {
-		final UUID uuid = uuidManager.getUuid(e);
-		final Position pos = positionMapper.get(e);
-		final Visible visible = visibleMapper.get(e);
-
-		final MapEntitiesMessage.Entity msg = new MapEntitiesMessage.Entity(uuid.toString(), pos.x, pos.y);
-
-		msg.addSprite(visible.sprite);
-
-		return msg;
-	}
 
 	@Override
 	protected void process(Entity e) {

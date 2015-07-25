@@ -3,7 +3,7 @@ package net.bestia.messages;
 /**
  * This message is send to the clients whenever an entity changes during the calculation of the zone system. Changes in
  * movement, animation etc are send to the client. However not all animation changes for example are propagated to the
- * client. Its up to him to decide which animation to play (dmg upon receiving of damage vor example).
+ * client. Its up to him to decide which animation to play (a damage animation for example).
  * 
  * @author Thomas
  *
@@ -26,7 +26,6 @@ public class EntityUpdateMessage extends Message {
 		this.setY(y);
 		this.setEntityId(entityId);
 
-		setPlayerBestiaId(pbid);
 		setAccountId(accId);
 	}
 
@@ -66,7 +65,6 @@ public class EntityUpdateMessage extends Message {
 
 	@Override
 	public String toString() {
-		return String.format("EntityUpdateMessage[uuid: %s, accId: %d, pbid: %d, x: %d, y: %d]", entityId,
-				getAccountId(), getPlayerBestiaId(), x, y);
+		return String.format("EntityUpdateMessage[uuid: %s, accId: %d, x: %d, y: %d]", entityId, getAccountId(), x, y);
 	}
 }

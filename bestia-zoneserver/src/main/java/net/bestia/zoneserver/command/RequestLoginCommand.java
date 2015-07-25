@@ -50,9 +50,6 @@ public class RequestLoginCommand extends Command {
 		checkAndRegister(message.getAccountId(), bestias, ctx);
 
 		// Get all the bestias added to this server.
-		final InputController controller = ctx.getServer().getInputController();
-		final Set<PlayerBestiaManager> activeBestias = controller.getActiveBestias(message.getAccountId());
-
 		final BestiaInfoMessage msg = new BestiaInfoMessage(message, 1, account.getMaster(), bestias);
 		ctx.getServer().sendMessage(msg);
 	}

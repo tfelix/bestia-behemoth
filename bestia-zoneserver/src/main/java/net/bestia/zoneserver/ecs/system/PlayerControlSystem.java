@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+import net.bestia.messages.BestiaActivateMessage;
 import net.bestia.messages.BestiaMoveMessage;
-import net.bestia.messages.InputMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.ServiceLocator;
 import net.bestia.model.domain.Location;
@@ -29,11 +29,18 @@ import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
-import com.artemis.managers.GroupManager;
 import com.artemis.managers.TagManager;
 import com.artemis.systems.EntityProcessingSystem;
 import com.artemis.utils.EntityBuilder;
 
+/**
+ * Verarbeitet die PlayerInput Messages. Ein guter Kandidate fürs Refactoring. Die Commands sollten selbstständig anhand
+ * der Message erzeugt und ausgeführt werden. Vielleicht kann man hier das Commandsystem aufgreifen. Und die
+ * ServerCommands weiterverwenden? Bzw in ähnlicher form.
+ * 
+ * @author Thomas
+ *
+ */
 @Wire
 public class PlayerControlSystem extends EntityProcessingSystem implements InputControllerCallback {
 
@@ -51,9 +58,9 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 	private InputController inputController;
 
 	private ComponentMapper<PlayerControlled> pcm;
+	private ComponentMapper<Active> activeMapper;
 
 	private TagManager tagManager;
-	private GroupManager groupManager;
 
 	@SuppressWarnings("unchecked")
 	public PlayerControlSystem() {
@@ -65,6 +72,7 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 	@Override
 	protected void initialize() {
 		super.initialize();
+
 		inputController.addCallback(this);
 	}
 
@@ -74,7 +82,7 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 
 		final int playerBestiaId = playerControlled.playerBestia.getBestia().getId();
 
-		Queue<InputMessage> msgQueue = inputController.getInput(playerBestiaId);
+		Queue<Message> msgQueue = inputController.getInput(playerBestiaId);
 
 		// The entity might have been already removed from the server but the ecs is still iterating. If this is the
 		// case ignore this run. The entity will be automatically be removed the next iteration.
@@ -91,10 +99,32 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 			case BestiaMoveMessage.MESSAGE_ID:
 				processMoveMessage(player, (BestiaMoveMessage) msg);
 				break;
-
+			case BestiaActivateMessage.MESSAGE_ID:
+				processActivateMessage(playerBestiaId, player, (BestiaActivateMessage) msg);
+				break;
 			default:
 				// Unknown message.
 				break;
+			}
+		}
+	}
+
+	/**
+	 * Process a activate message.
+	 * 
+	 * @param playerBestiaId
+	 * @param player
+	 * @param msg
+	 */
+	private void processActivateMessage(int playerBestiaId, Entity player, BestiaActivateMessage msg) {
+
+		if (playerBestiaId == msg.getActivatePlayerBestiaId()) {
+			// This bestia should be marked as active.
+			player.edit().create(Active.class);
+		} else {
+			if (activeMapper.has(player)) {
+				// This bestia should not be active anymore.
+				player.edit().remove(Active.class);
 			}
 		}
 	}
@@ -111,7 +141,7 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 		}
 
 		// Convert the strange JSON format to a path array.
-		List<Vector2> path = new ArrayList<>(msg.getCordsX().size());
+		final List<Vector2> path = new ArrayList<>(msg.getCordsX().size());
 
 		for (int i = 0; i < msg.getCordsX().size(); i++) {
 			path.add(new Vector2(msg.getCordsX().get(i), msg.getCordsY().get(i)));
@@ -149,25 +179,10 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 		final PlayerBestia bestia = pbm.getBestia();
 		final Location curLoc = pbm.getBestia().getCurrentPosition();
 
-		Entity e = new EntityBuilder(world).with(new PlayerControlled(pbm), new Position(curLoc.getX(), curLoc.getY()),
-				new Visible(bestia.getOrigin().getSprite()), new Changable(false), new Active()).build();
-
-		// TODO WORKAROUND ONLY FIRST BESTIA IS SET ACTIVE. LATER DO THIS VIA SEPERATE MESSAGE.
-		boolean hasActive = inputController.getActiveBestias(accId).size() > 1;
-		if (hasActive) {
-			e.edit().remove(Active.class);
-		}
-
-		// Das kann man auch nun direkt abfragen.
-		tagManager.register(getBestiaString(bestiaId), e);
-		groupManager.add(e, CLIENT_GROUP);
-
-		// Add a test entity.
-		new EntityBuilder(world).with(new Position(0, 0), new Visible("feuer")).build();
-	}
-
-	private String getPlayerString(long accId) {
-		return String.format("account-%d", accId);
+		final EntityBuilder builder = new EntityBuilder(world);
+		builder.with(new PlayerControlled(pbm), new Position(curLoc.getX(), curLoc.getY()),
+				new Visible(bestia.getOrigin().getSprite()), new Changable(false)).tag(getBestiaString(bestiaId))
+				.build();
 	}
 
 	private String getBestiaString(int bestiaId) {
