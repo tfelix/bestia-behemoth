@@ -80,11 +80,6 @@ Bestia.Engine.prototype.loadMap = function(bestia) {
 
 };
 
-Bestia.Engine.prototype.test = function() {
-	var msg = new Bestia.Message.BestiaActivate(2);
-	Bestia.publish('io.sendMessage', msg);
-};
-
 /**
  * Static holder for the different engine states. will be added in the ctor of
  * the engine to the phaser.js system.

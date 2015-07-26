@@ -6,6 +6,7 @@ import java.util.Queue;
 
 import net.bestia.messages.BestiaActivateMessage;
 import net.bestia.messages.BestiaMoveMessage;
+import net.bestia.messages.ChatMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.ServiceLocator;
 import net.bestia.model.domain.Location;
@@ -80,6 +81,7 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 	protected void process(Entity player) {
 		final PlayerControlled playerControlled = pcm.get(player);
 
+		final long accountId = playerControlled.playerBestia.getBestia().getOwner().getId();
 		final int playerBestiaId = playerControlled.playerBestia.getBestia().getId();
 
 		Queue<Message> msgQueue = inputController.getInput(playerBestiaId);
@@ -100,13 +102,21 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 				processMoveMessage(player, (BestiaMoveMessage) msg);
 				break;
 			case BestiaActivateMessage.MESSAGE_ID:
-				processActivateMessage(playerBestiaId, player, (BestiaActivateMessage) msg);
+				processActivateMessage(accountId, playerBestiaId, player, (BestiaActivateMessage) msg);
 				break;
+				
+			case ChatMessage.MESSAGE_ID:
+				//processChatMessage(player, (ChatMessage) msg);
 			default:
 				// Unknown message.
 				break;
 			}
 		}
+	}
+
+	private void processChatMessage(Entity player, ChatMessage msg) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	/**
@@ -116,11 +126,13 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 	 * @param player
 	 * @param msg
 	 */
-	private void processActivateMessage(int playerBestiaId, Entity player, BestiaActivateMessage msg) {
+	private void processActivateMessage(long accountId, int playerBestiaId, Entity player, BestiaActivateMessage msg) {
 
 		if (playerBestiaId == msg.getActivatePlayerBestiaId()) {
 			// This bestia should be marked as active.
 			player.edit().create(Active.class);
+			inputController.setActiveBestia(accountId, playerBestiaId);
+			
 		} else {
 			if (activeMapper.has(player)) {
 				// This bestia should not be active anymore.
@@ -171,7 +183,7 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 
 	@Override
 	public void addedBestia(long accId, int bestiaId) {
-		PlayerBestiaManager pbm = inputController.getActiveBestia(accId, bestiaId);
+		PlayerBestiaManager pbm = inputController.getSpawnedBestia(accId, bestiaId);
 		log.debug("Adding {} to ecs.", pbm.toString());
 
 		// Spawn the entity.

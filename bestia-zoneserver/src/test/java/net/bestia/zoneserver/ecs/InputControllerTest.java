@@ -121,7 +121,7 @@ public class InputControllerTest {
 		PlayerBestiaManager pbm = getMockedManager();		
 		pic.addPlayerBestia(1, pbm);
 		
-		Set<PlayerBestiaManager> actives = pic.getActiveBestias(1);
+		Set<PlayerBestiaManager> actives = pic.getSpawnedBestias(1);
 		
 		Assert.assertNotNull(actives);
 		Assert.assertTrue(actives.contains(pbm));
@@ -140,7 +140,7 @@ public class InputControllerTest {
 		pic.removePlayerBestia(1, pbm);
 		
 		Assert.assertNull(pic.getInput(1));
-		Assert.assertNull(pic.getActiveBestias(1));
+		Assert.assertNull(pic.getSpawnedBestias(1));
 		
 		verify(callback, times(1)).addedAccount(anyLong());
 		verify(callback, times(1)).addedBestia(anyLong(), anyInt());

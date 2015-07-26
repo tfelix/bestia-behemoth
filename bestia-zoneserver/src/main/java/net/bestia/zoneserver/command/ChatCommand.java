@@ -2,11 +2,15 @@ package net.bestia.zoneserver.command;
 
 import java.util.Collection;
 
+import net.bestia.messages.ChatEchoMessage;
+import net.bestia.messages.ChatEchoMessage.EchoCode;
 import net.bestia.messages.ChatMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Bestia;
 import net.bestia.model.service.AccountService;
+import net.bestia.zoneserver.ecs.InputController;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,23 +33,19 @@ class ChatCommand extends Command {
 		ChatMessage m = (ChatMessage) message;
 
 		// Find the player who send the message.
-		Account acc = ctx.getServiceLocator().getBean(AccountDAO.class).find(m.getAccountId());
+		final Account acc = ctx.getServiceLocator().getBean(AccountDAO.class).find(m.getAccountId());
+		final long accId = acc.getId();
 
 		// Set the username of the message to this player.
 		m.setSenderNickname(acc.getName());
 
-		// Get the location of the current active bestia.
-		String location = "test-zone1";
+		final InputController controller = ctx.getServer().getInputController();
+		final int activeBestiaId = controller.getActiveBestia(accId);
 
-		// Get the player bestia id and use it to find entity and determine other player entities in range.
-
-		// Send the message to all active player in the range. There will be a list of entities.
-
-		// Get the account ids.
-		//Collection<Entity> entities = ctx.getZone(location).getEntities(1, 0);
-		/*entities.forEach((e) -> {
-			redirectMessage(e.accountId, m, ctx);
-		});*/
+		if (activeBestiaId == 0) {
+			// No bestia was active. Do nothing.
+			return;
+		}
 
 		// Check chat type.
 		switch (m.getChatMode()) {
@@ -67,15 +67,27 @@ class ChatCommand extends Command {
 			return;
 		}
 
-		// Echo the message back to the user.
-		// ChatEchoMessage replyMsg = ChatEchoMessage.getEchoMessage(m);
-		// replyMsg.setEchoCode(EchoCode.OK);
+		// Get the player bestia id and use it to find entity and determine other player entities in range.
+
+		// Send the message to all active player in the range. There will be a list of entities.
+		final ChatEchoMessage replyMsg;
+		if (controller.sendInput(m, activeBestiaId)) {
+			// Echo the message back to the user.
+			replyMsg = ChatEchoMessage.getEchoMessage(m);
+			replyMsg.setEchoCode(EchoCode.ERROR);
+		} else {
+			// Echo the message back to the user.
+			replyMsg = ChatEchoMessage.getEchoMessage(m);
+			replyMsg.setEchoCode(EchoCode.ERROR);
+		}
+
+		ctx.getServer().sendMessage(replyMsg);
 	}
 
 	private void redirectMessage(long receiverId, ChatMessage msg, CommandContext ctx) {
 		ctx.getServer().sendMessage(ChatMessage.getForwardMessage(receiverId, msg));
 	}
-	
+
 	@Override
 	public String toString() {
 		return "ChatCommand[]";

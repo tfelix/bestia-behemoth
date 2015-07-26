@@ -7,6 +7,8 @@
  *            engine - Reference to the bestia engine.
  */
 Bestia.Engine.States.GameState = function(engine) {
+	
+	var self = this;
 
 	this.marker = null;
 	/**
@@ -44,6 +46,20 @@ Bestia.Engine.States.GameState = function(engine) {
 	 * @property {Bestia.BestiaViewModel}
 	 */
 	this.bestia = null;
+	
+	// Setup the callbacks.
+	var entityCreateCallback = function(obj, updater) {
+		var entity = new Bestia.Engine.Entity(obj, self.game, self._bestiaWorld);
+		
+		// Check if we just created the player bestia. if so hold reference to it for the engine.
+		if(entity.pbid === self.bestia.playerBestiaId()) {
+			self.player = entity;
+			// Center the camera on the spot of the soon to be selected bestia.
+			self.game.camera.follow(self.player.sprite);
+		}
+		
+		return entity;
+	};
 
 	/**
 	 * Entity updater for managing the adding and removal of entities.
@@ -51,7 +67,15 @@ Bestia.Engine.States.GameState = function(engine) {
 	 * @private
 	 * @property {Bestia.Engine.EntityUpdater}
 	 */
-	this._entityUpdater = null;
+	this._entityUpdater = new Bestia.Engine.EntityUpdater(Bestia, entityCreateCallback);
+	
+	/**
+	 * Updates an entity if a change is incoming.
+	 */
+	var entityUpdateCallback = function(entity, obj, updater) {
+		entity.moveTo([{x: obj.x, y: obj.y}]);
+	};
+	this._entityUpdater.addHandler('onUpdate', entityUpdateCallback);
 };
 
 Bestia.Engine.States.GameState.prototype = {
@@ -68,29 +92,22 @@ Bestia.Engine.States.GameState.prototype = {
 	create : function() {
 
 		var game = this.game;
+		
+		// In development run in the background.
+		// TODO in production das entfernen.
+		game.stage.disableVisibilityChange = true;
 
 		// Prepare the AStar plugin.
 		var astar = this.game.plugins.add(Phaser.Plugin.AStar);
 
+		// Load the tilemap and display it.
 		this._bestiaWorld = new Bestia.Engine.World(game, astar);
 		this._bestiaWorld.loadMap(this.bestia.location());
 
-		this._entityUpdater = new Bestia.Engine.EntityUpdater(Bestia, this.game, this._bestiaWorld)
-
-		this.gfxCollision = this.add.graphics(0, 0);
-		this.gfxCollision.beginFill(0xFF0000, 0.5);
-
-		// Draw our player.
-		this.player = new Bestia.Engine.Entity({
-			uuid : 'player',
-			s : [ 'mastersmith' ],
-			x : 10,
-			y : 10
-		}, this.game, this._bestiaWorld);
-		this.player.setPos(this.bestia.posX(), this.bestia.posY());
+		// Make a blackscreen which fades.
+		// TODO
 
 		this.cursors = this.game.input.keyboard.createCursorKeys();
-		this.game.camera.follow(this.player.sprite);
 
 		// Our painting marker
 		this.marker = this.game.add.graphics();
@@ -121,6 +138,10 @@ Bestia.Engine.States.GameState.prototype = {
 			this.player.moveTo(path);
 
 		}, this);
+
+		// Activate the selected bestia which triggered the mapload.
+		var msg = new Bestia.Message.BestiaActivate(this.bestia.playerBestiaId());
+		Bestia.publish('io.sendMessage', msg);
 	},
 
 	update : function() {

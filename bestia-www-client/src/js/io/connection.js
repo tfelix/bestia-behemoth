@@ -39,13 +39,13 @@ Bestia.Connection.prototype.checkLoginData = function(data) {
 		state = false;
 	}
 	
-	if(data.token === undefined) {
+	if(!state || data.token === undefined) {
 		console.error("Login: token missing.");
 		state = false;
-	} else if(data.accId === undefined) {
+	} else if(!state | data.accId === undefined) {
 		console.error("Login:account id missing.");
 		state = false;
-	} else if(data.username === undefined) {
+	} else if(!state | data.username === undefined) {
 		console.error("Login: username missing.");
 		state = false;
 	}

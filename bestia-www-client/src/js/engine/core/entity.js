@@ -15,25 +15,44 @@ Bestia.Engine.Entity = function(ident, game, world) {
 	/**
 	 * Position in tile coordinates.
 	 * 
-	 * @property
+	 * @public
+	 * @property {Object}
 	 */
 	this.pos = {
 		x : 0,
 		y : 0
 	};
 
-	// TODO Das Bestia selection system ausweiten und ausbessern.
-	this.pbid = 2;
+	/**
+	 * ID of the bestia for this entity. Note: Not all entities have ids. A map
+	 * entity is decribed only by it UUID. However the pbid is needed for
+	 * different reasons for accessing these entities. So it is stored.
+	 * 
+	 * @public
+	 * @property {Number}
+	 */
+	this.pbid = 0;
+
+	/**
+	 * Entities have aswell a UUID with which they can be identified. This UUID
+	 * exisits (unlike the player bestia id, or pbid) in EVERY entity.
+	 * 
+	 * @public
+	 * @property {String}
+	 */
+	this.uuid = "";
 
 	this.game = game;
 	this.world = world;
+
 	/**
 	 * Shortcut to the tile size of the current loaded map. Used to position
 	 * entities.
 	 * 
-	 * @property
+	 * @private
+	 * @property {Number}
 	 */
-	this.tileSize = world.properties.tileSize;
+	this._tileSize = world.properties.tileSize;
 
 	/**
 	 * Holds the information about the resources of this sprite/entity.
@@ -46,7 +65,8 @@ Bestia.Engine.Entity = function(ident, game, world) {
 	/**
 	 * The underlying sprite for the engine.
 	 * 
-	 * @property
+	 * @public
+	 * @property {String}
 	 */
 	this.sprite = null;
 
@@ -62,6 +82,9 @@ Bestia.Engine.Entity = function(ident, game, world) {
  *            obj - Object describing the entity.
  */
 Bestia.Engine.Entity.prototype._init = function(obj) {
+
+	this.pbid = obj.pbid;
+
 	// For now there is only one sprite. Might change.
 	var spriteName = obj.s[0];
 
@@ -109,9 +132,16 @@ Bestia.Engine.Entity.prototype.setPos = function(x, y) {
 	this.pos.y = y;
 	var cords = this.world.getPxXY(x, y);
 	this.sprite.x = cords.x + this.sprite.width / 2;
-	this.sprite.y = cords.y + this.tileSize;
+	this.sprite.y = cords.y + this._tileSize;
 };
 
+/**
+ * Moves the entity along a certain path. The path is an array with {x: INT, y:
+ * INT} components.
+ * 
+ * @param {Array}
+ *            path - Array of coordinate objects {x: INT, y: INT}.
+ */
 Bestia.Engine.Entity.prototype.moveTo = function(path) {
 	var self = this;
 
@@ -144,7 +174,7 @@ Bestia.Engine.Entity.prototype.moveTo = function(path) {
 		this.tween.to({
 			// x : cords.x + Math.abs(this.sprite.width) / 2,
 			x : cords.x + 20,
-			y : cords.y + this.tileSize
+			y : cords.y + this._tileSize
 		}, duration, Phaser.Easing.Linear.None, false);
 	}, this);
 
@@ -235,10 +265,10 @@ Bestia.Engine.Entity.prototype.stopMove = function() {
  * @method Bestia.Engine.Entity#remove
  */
 Bestia.Engine.Entity.prototype.remove = function() {
-	
+
 	this.tween.stop();
 	this.sprite.destroy();
-	
+
 };
 
 /**

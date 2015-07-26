@@ -115,10 +115,16 @@ public abstract class NetworkUpdateSystem extends EntityProcessingSystem {
 		final UUID uuid = uuidManager.getUuid(e);
 		final Position pos = positionMapper.get(e);
 		final Visible visible = visibleMapper.get(e);
+		
+		final PlayerControlled playerControlled = pcm.getSafe(e);
 
 		final MapEntitiesMessage.Entity msg = new MapEntitiesMessage.Entity(uuid.toString(), pos.x, pos.y);
 		msg.setAction(action);
 		msg.addSprite(visible.sprite);
+		
+		if(playerControlled != null) {
+			msg.setPlayerBestiaId(playerControlled.playerBestia.getPlayerBestiaId());
+		}
 
 		return msg;
 	}

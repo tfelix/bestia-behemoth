@@ -27,7 +27,7 @@ public class SwitchActiveCommand extends Command {
 		final BestiaActivateMessage msg = (BestiaActivateMessage) message;
 		final InputController controller = ctx.getServer().getInputController();
 
-		Set<PlayerBestiaManager> pbms = controller.getActiveBestias(message.getAccountId());
+		Set<PlayerBestiaManager> pbms = controller.getSpawnedBestias(message.getAccountId());
 		for (PlayerBestiaManager pbm : pbms) {
 			final int pbId = pbm.getPlayerBestiaId();
 
