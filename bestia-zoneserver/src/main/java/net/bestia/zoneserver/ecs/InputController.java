@@ -8,8 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 
 import net.bestia.messages.InputMessage;
 import net.bestia.messages.Message;
@@ -32,8 +34,6 @@ public class InputController {
 
 	private final static Logger log = LogManager.getLogger(InputController.class);
 
-	final ReadWriteLock lock = new ReentrantReadWriteLock();
-
 	/**
 	 * Callback which can be used to get notified about changed in this
 	 * 
@@ -50,9 +50,9 @@ public class InputController {
 		public void addedBestia(long accId, int bestiaId);
 	}
 
-	private final Map<Long, Set<PlayerBestiaManager>> spawnedBestias = new HashMap<>();
-	private final Map<Integer, Queue<Message>> inputQueues = new HashMap<>();
-	private final Map<Long, Integer> activeBestias = new HashMap<>();
+	private final Map<Long, Set<PlayerBestiaManager>> spawnedBestias = new ConcurrentHashMap<>();
+	private final Map<Integer, Queue<Message>> inputQueues = new ConcurrentHashMap<>();
+	private final Map<Long, Integer> activeBestias = new ConcurrentHashMap<>();
 
 	private final List<InputControllerCallback> callbacks = new ArrayList<>();
 
@@ -135,8 +135,6 @@ public class InputController {
 	 */
 	public void removeAccount(long accId) {
 
-		lock.writeLock().lock();
-
 		// Remove all outstanding bestias.
 		Set<PlayerBestiaManager> bestias = spawnedBestias.get(accId);
 
@@ -155,7 +153,6 @@ public class InputController {
 		// Remove possible active bestias.
 		activeBestias.remove(accId);
 
-		lock.writeLock().unlock();
 	}
 
 	/**
@@ -168,8 +165,6 @@ public class InputController {
 	 *            The {@link PlayerBestiaManager} to remove.
 	 */
 	public void removePlayerBestia(long accId, PlayerBestiaManager bestia) {
-
-		lock.writeLock().lock();
 
 		final int bestiaId = bestia.getBestia().getId();
 
@@ -191,7 +186,6 @@ public class InputController {
 			log.trace("Remove account: {}.", accId);
 		}
 
-		lock.writeLock().unlock();
 	}
 
 	/**
@@ -204,8 +198,6 @@ public class InputController {
 	 *            The {@link PlayerBestiaManager} to add as active to this account.
 	 */
 	public void addPlayerBestia(long accId, PlayerBestiaManager pbm) {
-
-		lock.writeLock().lock();
 
 		if (spawnedBestias.get(accId) == null) {
 			List<PlayerBestiaManager> list = new ArrayList<>();
@@ -221,7 +213,6 @@ public class InputController {
 		onAddedBestia(accId, bestiaId);
 		log.trace("Added bestia: {} to account: {}.", bestiaId, accId);
 
-		lock.writeLock().unlock();
 	}
 
 	/**
@@ -233,9 +224,7 @@ public class InputController {
 	 */
 	public Set<PlayerBestiaManager> getSpawnedBestias(long accId) {
 
-		lock.readLock().lock();
 		final Set<PlayerBestiaManager> result = spawnedBestias.get(accId);
-		lock.readLock().unlock();
 		return result;
 	}
 
@@ -248,11 +237,9 @@ public class InputController {
 	 */
 	public void sendInput(InputMessage message) {
 
-		lock.writeLock().lock();
 		if (inputQueues.containsKey(message.getPlayerBestiaId())) {
 			inputQueues.get(message.getPlayerBestiaId()).add(message);
 		}
-		lock.writeLock().unlock();
 	}
 
 	/**
@@ -270,13 +257,10 @@ public class InputController {
 	 */
 	public boolean sendInput(Message message, int playerBestiaId) {
 
-		lock.writeLock().lock();
 		if (inputQueues.containsKey(playerBestiaId)) {
 			inputQueues.get(playerBestiaId).add(message);
-			lock.writeLock().unlock();
 			return true;
 		} else {
-			lock.writeLock().unlock();
 			return false;
 		}
 	}
@@ -291,13 +275,10 @@ public class InputController {
 	 */
 	public Queue<Message> getInput(int playerBestiaId) {
 
-		lock.readLock().lock();
 		if (!inputQueues.containsKey(playerBestiaId)) {
-			lock.readLock().unlock();
 			return null;
 		}
 		final Queue<Message> result = inputQueues.get(playerBestiaId);
-		lock.readLock().unlock();
 		return result;
 	}
 
@@ -316,9 +297,7 @@ public class InputController {
 	 */
 	public PlayerBestiaManager getSpawnedBestia(long accId, int bestiaId) {
 
-		lock.readLock().lock();
 		if (!spawnedBestias.containsKey(accId)) {
-			lock.readLock().unlock();
 			return null;
 		}
 
@@ -327,12 +306,10 @@ public class InputController {
 		for (PlayerBestiaManager playerBestiaManager : bestias) {
 			if (playerBestiaManager.getBestia().getId() == bestiaId) {
 
-				lock.readLock().unlock();
 				return playerBestiaManager;
 			}
 		}
 
-		lock.readLock().unlock();
 		return null;
 	}
 
@@ -346,14 +323,11 @@ public class InputController {
 	 */
 	public int getActiveBestia(long accId) {
 
-		lock.readLock().lock();
 		if (!activeBestias.containsKey(accId)) {
-
 			return 0;
 		}
 
 		final int bestiaId = activeBestias.get(accId);
-		lock.readLock().unlock();
 
 		return bestiaId;
 	}
@@ -365,17 +339,19 @@ public class InputController {
 	 * @param bestiaId
 	 */
 	public void setActiveBestia(long accId, int bestiaId) {
-		lock.writeLock().lock();
 
 		// The bestia must be active.
-		if (!spawnedBestias.values().contains(bestiaId)) {
-			lock.writeLock().unlock();
+		final Set<PlayerBestiaManager> pbm = spawnedBestias.get(accId);
+
+		if (!pbm.stream().map(x -> x.getPlayerBestiaId()).collect(Collectors.toList()).contains(bestiaId)) {
 			// Cannot mark active.
 			return;
 		}
 
 		activeBestias.put(accId, bestiaId);
+	}
 
-		lock.writeLock().unlock();
+	public void unsetActiveBestia(long accountId) {
+		activeBestias.remove(accountId);
 	}
 }

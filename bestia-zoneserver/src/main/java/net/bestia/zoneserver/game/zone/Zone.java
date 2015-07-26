@@ -2,7 +2,10 @@ package net.bestia.zoneserver.game.zone;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import net.bestia.messages.ChatMessageTest;
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.manager.NetworkManager;
+import net.bestia.zoneserver.ecs.system.ChatSystem;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
 import net.bestia.zoneserver.ecs.system.PlayerControlSystem;
@@ -94,12 +97,14 @@ public class Zone {
 		worldConfig.setSystem(new MovementSystem());
 		worldConfig.setSystem(new PlayerNetworkUpdateSystem());
 		worldConfig.setSystem(new VisibleNetworkUpdateSystem());
+		worldConfig.setSystem(new ChatSystem());
 		worldConfig.setSystem(new PersistSystem(10000));
 
 		// Set all the managers.
 		worldConfig.setManager(new GroupManager());
 		worldConfig.setManager(new TagManager());
 		worldConfig.setManager(new UuidEntityManager());
+		worldConfig.setManager(new NetworkManager());
 
 		this.world = new World(worldConfig);
 

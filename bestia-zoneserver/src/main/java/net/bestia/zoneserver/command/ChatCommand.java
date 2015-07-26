@@ -1,15 +1,11 @@
 package net.bestia.zoneserver.command;
 
-import java.util.Collection;
-
 import net.bestia.messages.ChatEchoMessage;
 import net.bestia.messages.ChatEchoMessage.EchoCode;
 import net.bestia.messages.ChatMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.model.domain.Bestia;
-import net.bestia.model.service.AccountService;
 import net.bestia.zoneserver.ecs.InputController;
 
 import org.apache.logging.log4j.LogManager;
@@ -53,12 +49,14 @@ class ChatCommand extends Command {
 			// Check which command the user wanted. If his user level is high
 			// enough execute the command.
 		case PUBLIC:
+			// Send to the ecs since we must make sight tests.
+			controller.sendInput(m, activeBestiaId);
+			
+			break;
 		case PARTY:
 		case GUILD:
-			// TODO Handle the other chat types.
-
-			// Since sightests are not available send the message back to all player on the same zone.
-
+			// not supported atm.
+			log.warn("Not supported atm.");
 			break;
 		default:
 			// Command will not be handled since these command types
@@ -82,10 +80,6 @@ class ChatCommand extends Command {
 		}
 
 		ctx.getServer().sendMessage(replyMsg);
-	}
-
-	private void redirectMessage(long receiverId, ChatMessage msg, CommandContext ctx) {
-		ctx.getServer().sendMessage(ChatMessage.getForwardMessage(receiverId, msg));
 	}
 
 	@Override

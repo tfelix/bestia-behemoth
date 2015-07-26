@@ -19,6 +19,7 @@ import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
+import net.bestia.zoneserver.ecs.manager.NetworkManager;
 import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.game.zone.Vector2;
 import net.bestia.zoneserver.game.zone.Zone;
@@ -106,7 +107,7 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 				break;
 				
 			case ChatMessage.MESSAGE_ID:
-				//processChatMessage(player, (ChatMessage) msg);
+				processChatMessage(player, (ChatMessage) msg);
 			default:
 				// Unknown message.
 				break;
@@ -115,8 +116,7 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 	}
 
 	private void processChatMessage(Entity player, ChatMessage msg) {
-		// TODO Auto-generated method stub
-		
+		activeMapper.get(player).chatQueue.add(msg);
 	}
 
 	/**
@@ -137,6 +137,7 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 			if (activeMapper.has(player)) {
 				// This bestia should not be active anymore.
 				player.edit().remove(Active.class);
+				inputController.unsetActiveBestia(accountId);
 			}
 		}
 	}
