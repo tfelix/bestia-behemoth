@@ -289,7 +289,7 @@ Bestia.Engine.Entity.prototype.playAnim = function(name) {
 	var isSingle = false;
 
 	if (prefix === 'stand') {
-		var isStand = true;
+		//var isStand = true;
 		if (name === 'stand_right' || name === 'stand_right_up' || name === 'stand_down_right') {
 			this.sprite.scale.x = -1 * this.desc.scale;
 			// Show the left variant animation.

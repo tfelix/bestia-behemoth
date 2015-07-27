@@ -18,7 +18,7 @@ function strStartsWith(str, start) {
  *            classes of a chat set.
  * @param {BestiaGame}
  *            game - An instance to the central bestia game object.
- * @param {String}
+ * @param {string}
  *            localNickname - How the players account is called to display the
  *            correct name in the echo messages.
  */
@@ -42,6 +42,9 @@ Bestia.Chat = function(domEle, game) {
 	 * array and they will be executed when a message is typed so the can
 	 * interact with the user. For a sample implementation look inside the
 	 * command folder.
+	 * 
+	 * @private
+	 * @property
 	 */
 	this._localCommands = [];
 	this.whisperRegex = /^\/[wW] (\w.+) /;
@@ -147,11 +150,6 @@ Bestia.Chat.prototype.sendChat = function() {
 Bestia.Chat.prototype.changeMode = function(mode) {
 	this.mode(mode);
 };
-
-/*
- * Bestia.Chat.prototype.setWhisperNick = function(message) {
- * self.whisperNick(message.nickname()); };
- */
 
 /**
  * Adds a message to the chat model. Message is from the server and therefore a

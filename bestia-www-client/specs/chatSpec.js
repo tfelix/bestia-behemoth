@@ -1,8 +1,22 @@
+jasmine.getFixtures().fixturesPath = 'specs/fixtures';
+
 describe("Bestia.Chat", function() {
 
+	var chatEle;
+	var game = {
+		config : {
+			userName : 'Test'
+		}
+	};
+
+	beforeEach(function() {
+		loadFixtures('chat.html');
+		chatEle = $('#chat');
+	});
+
 	it("Reacts upon messages from the server.", function() {
-		var game = {};
-		var chat = new Bestia.Chat(game, "test");
+
+		var chat = new Bestia.Chat(chatEle, game);
 
 		Bestia.publish('chat.message', {
 			mid : 'chat.message',
@@ -15,8 +29,7 @@ describe("Bestia.Chat", function() {
 	});
 
 	it("Changes chat modes on specific input.", function() {
-		var game = {};
-		var chat = new Bestia.Chat(game, "test");
+		var chat = new Bestia.Chat(chatEle, game);
 
 		chat.text('/g lalala');
 		expect(chat.mode()).toEqual('GUILD');
@@ -27,8 +40,7 @@ describe("Bestia.Chat", function() {
 	});
 
 	it("Can whisper to a user.", function() {
-		var game = {};
-		var chat = new Bestia.Chat(game, "test");
+		var chat = new Bestia.Chat(chatEle, game);
 
 		chat.text('/w John test1234');
 		expect(chat.whisperNick()).toEqual('John');
@@ -38,24 +50,21 @@ describe("Bestia.Chat", function() {
 	});
 
 	it("Changes mode via direct click input.", function() {
-		var game = {};
-		var chat = new Bestia.Chat(game, "test");
+		var chat = new Bestia.Chat(chatEle, game);
 
 		chat.changeMode('GUILD');
 		expect(chat.mode()).toEqual('GUILD');
 	});
 
 	it("Registers commands.", function() {
-		var game = {};
-		var chat = new Bestia.Chat(game, "test");
+		var chat = new Bestia.Chat(chatEle, game);
 
 		// Exclude the basic command.
 		expect(chat._localCommands.length).toBe(Object.keys(Bestia.Chat.Commands).length - 1);
 	});
 
 	it("Executes commands.", function() {
-		var game = {};
-		var chat = new Bestia.Chat(game, "test");
+		var chat = new Bestia.Chat(chatEle, game);
 
 		Bestia.publish('chat.message', {
 			mid : 'chat.message',

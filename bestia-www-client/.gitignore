@@ -3,3 +3,4 @@ node
 build
 .settings
 src/js/lib
+_SpecRunner.html

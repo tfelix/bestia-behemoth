@@ -31,8 +31,6 @@ Bestia.Config = function() {
 	self.locale = ko.observable('de-DE');
 
 	var onMessageHandler = function(_, msg) {
-		console.log('New configuration message arrived! Setting values.');
-
 		self.zones(msg.z);
 		self.version(msg.v);
 		self.connectedPlayer(msg.cp);

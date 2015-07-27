@@ -22,8 +22,12 @@
     "proton": "*",
     "bootstrap": "~3.3.4",
     "html5shiv": "~3.7.2",
-    "jquery-atmosphere": "~2.2.7",
     "phaser-state-transition-plugin": "~0.1.5",
-    "js-cookie": "~1.5.1"
+    "js-cookie": "~1.5.1",
+    "jquery-atmosphere": "~2.2.7"
+  },
+  "devDependencies": {
+    "jquery": "~2.1.4",
+    "jasmine-jquery": "~2.1.0"
   }
 }

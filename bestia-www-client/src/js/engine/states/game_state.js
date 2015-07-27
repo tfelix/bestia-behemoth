@@ -48,7 +48,7 @@ Bestia.Engine.States.GameState = function(engine) {
 	this.bestia = null;
 	
 	// Setup the callbacks.
-	var entityCreateCallback = function(obj, updater) {
+	var entityCreateCallback = function(obj) {
 		var entity = new Bestia.Engine.Entity(obj, self.game, self._bestiaWorld);
 		
 		// Check if we just created the player bestia. if so hold reference to it for the engine.
@@ -72,7 +72,7 @@ Bestia.Engine.States.GameState = function(engine) {
 	/**
 	 * Updates an entity if a change is incoming.
 	 */
-	var entityUpdateCallback = function(entity, obj, updater) {
+	var entityUpdateCallback = function(entity, obj) {
 		entity.moveTo([{x: obj.x, y: obj.y}]);
 	};
 	this._entityUpdater.addHandler('onUpdate', entityUpdateCallback);

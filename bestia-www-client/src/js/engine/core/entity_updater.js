@@ -14,7 +14,7 @@
 Bestia.Engine.EntityUpdater = function(pubsub, onAppearFn) {
 
 	if(onAppearFn === undefined) {
-		throw "onAppear callback can not be null."
+		throw "onAppear callback can not be null.";
 	}
 	
 	var self = this;
@@ -78,7 +78,6 @@ Bestia.Engine.EntityUpdater.prototype.addHandler = function(type, fn) {
 		break;
 	default:
 		throw "Unknown function handler! Use onAppear, onVanish or onUpdate only.";
-		break;
 	}
 };
 
