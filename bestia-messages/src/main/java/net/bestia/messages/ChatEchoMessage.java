@@ -32,9 +32,6 @@ public class ChatEchoMessage extends Message {
 		if(msg.getAccountId() == 0) {
 			throw new IllegalArgumentException("AccountId can not be null.");
 		}
-		if(msg.getChatMessageId() == 0) {
-			throw new IllegalArgumentException("MessageId can not be null.");
-		}
 		
 		ChatEchoMessage cem = new ChatEchoMessage();
 		cem.setAccountId(msg.getAccountId());
