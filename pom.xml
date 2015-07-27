@@ -15,6 +15,7 @@
 		<module>bestia-interserver</module>
 		<module>bestia-webserver</module>
 		<module>bestia-loginserver</module>
+		<module>bestia-www-client</module>
 		<module>map-tmxloader</module>
 	</modules>
 

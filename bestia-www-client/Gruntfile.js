@@ -1,8 +1,5 @@
 module.exports = function(grunt) {
 
-	// require time grunt.
-	require('time-grunt')(grunt);
-
 	var loadConfig = require('load-grunt-config');
 
 	var appFiles = [ 'src/js/bestia.js', 'src/js/config.js',
@@ -45,12 +42,21 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('default', 'Builds the project and packages it for distribution.', [ 'prod' ]);
 
+	grunt.registerTask('compile-js', 'Compile the Javascript.', [ 'copy:dist', 'bower_concat', 'concat:compile']);
 	grunt.registerTask('compile', 'Compile all.', [ 'clean', 'copy', 'bower_concat', 'concat:compile', 'less' ]);
+	
+	grunt.registerTask('compress', 'Compress all files.', []);
 
 	grunt.registerTask('test', 'Testing of the framework.', [ 'jsonlint', 'jshint', 'jasmine' ]);
 
-	grunt.registerTask('dev', 'Compiles for local development of the client.', [ 'test', 'compile', 'connect:dev', 'watch' ]);
-	grunt.registerTask('dev-test', 'Testing of the framework.', [ 'test', 'connect:test_test', 'watch' ]);
+	grunt.registerTask('dev', 'Compiles for local development of the client.', function(){
+		require('time-grunt')(grunt);
+		
+		grunt.task.run([ 'test', 'compile', 'connect:dev', 'watch' ]);
+	});
 
-	grunt.registerTask('prod', 'Compiles the client for production.', [ 'test', 'clean', 'copy', 'compile-css', 'jshint:prod', 'jsonlint:prod' ]);
+	// [ 'test', 'clean', 'copy', 'compile-css', 'jshint:prod', 'jsonlint:prod' ]
+	grunt.registerTask('prod', 'Compiles the client for production.', function(){
+		grunt.task.run([ 'clean', 'compile-js', 'uglify:compile']);
+	});
 };

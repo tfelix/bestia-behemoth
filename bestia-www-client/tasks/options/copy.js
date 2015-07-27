@@ -8,17 +8,19 @@ module.exports = {
 			dest : 'build'
 		}, {
 			expand : true,
-			cwd : '../game-data',
-			src : '**',
-			dest : 'build/assets'
-		},
-		{
-			expand : true,
-			flatten: true,
+			flatten : true,
 			cwd : '<%= source_dir %>',
 			src : 'js/pages/single/*.js',
 			dest : 'build/js'
-		}
-		]
+		} ]
+	},
+
+	gamedata : {
+		files : [ {
+			expand : true,
+			cwd : '../game-data',
+			src : '**',
+			dest : 'build/assets'
+		} ]
 	}
 };
