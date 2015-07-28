@@ -7,7 +7,7 @@
 /**
  * @namespace Bestia
  */
-var Bestia = Bestia || {};
+var Bestia = {};
 
 /**
  * Holds various hard coded URLs. These might be different in production and in
@@ -43,7 +43,7 @@ Bestia.Urls = {
 	assetsMobIcon : 'http://localhost/assets/img/mob-icon/',
 	assetsMobSprite : 'http://localhost/assets/img/sprite/mob/'
 	// @endif
-/*	// @ifdef PRODUCTION
+	// @ifdef PRODUCTION
 	loginHtml : 'http://www.bestia-game.net/login.html',
 	gameHtml : 'http://www.bestia-game.net/index.html',
 	bestiaWebAPI : 'http://www.bestia-game.net:8090',
@@ -53,5 +53,5 @@ Bestia.Urls = {
 	assetsMap : 'http://www.bestia-game.net/assets/map/',
 	assetsMobIcon : 'http://www.bestia-game.net/assets/img/mob-icon/',
 	assetsMobSprite : 'http://www.bestia-game.net/assets/img/sprite/mob/'
-	// @endif*/
+	// @endif
 };

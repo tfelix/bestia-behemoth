@@ -2,7 +2,6 @@ package net.bestia.zoneserver.game.zone;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import net.bestia.messages.ChatMessageTest;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.NetworkManager;
 import net.bestia.zoneserver.ecs.system.ChatSystem;

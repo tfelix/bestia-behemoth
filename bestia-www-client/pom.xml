@@ -4,7 +4,6 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>bestia-www-client</artifactId>
-	<groupId>net.bestia</groupId>
 	<name>bestia-www-client</name>
 	<packaging>pom</packaging>
 	<description>Bestia WWW-Client</description>

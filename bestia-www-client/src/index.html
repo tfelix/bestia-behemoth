@@ -9,9 +9,14 @@
 <link rel="stylesheet" type="text/css" href="css/app.css" />
 
 <!-- JAVASCRIPT -->
+<!-- @ifdef PRODUCTION -->
+<script src="js/lib-app.min.js"></script>
+<script src="js/behemoth.min.js"></script>
+<!-- @endif -->
+<!-- @ifdef DEVELOPMENT -->
 <script src="js/lib-app.js"></script>
-<script src="js/bestia.js"></script>
-
+<script src="js/behemoth.js"></script>
+<!-- @endif -->
 
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -35,7 +40,9 @@
 					<div style="float: left; margin-top: 10px;">
 						<p data-bind="text: customName">---</p>
 						<p data-bind="text: name">---</p>
-						<p>X: <span data-bind="text: posX"></span> Y: <span data-bind="text: posY"></span></p>
+						<p>
+							X: <span data-bind="text: posX"></span> Y: <span data-bind="text: posY"></span>
+						</p>
 					</div>
 
 					<div class="bar hp-bar" style="clear: both;" data-bind="with: statusPoints">
@@ -171,7 +178,7 @@
 		-->
 	</div>
 
-<!-- 
+	<!-- 
 	<div id="server-info" class="debug-box" data-bind="with: config, visible: config.debug"
 		style="bottom: 10px; left: 10px; width: 300px;">
 		<p>

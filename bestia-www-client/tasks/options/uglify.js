@@ -1,13 +1,15 @@
 module.exports = {
 	options : {
-		sourceMap : true,
-		sourceMapName : '<%= compile_dir %>/<%= filename %>.map',
-		banner : '/*! BESTIA BEHEMOTH v.<%= package.version %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+		sourceMap : false,
+		sourceMapName : '<%= buildDir %>/<%= filename %>.map',
+		banner : '/*! BESTIA BEHEMOTH v.<%= version %> <%= grunt.template.today("yyyy-mm-dd") %> */\n',
+		mangle : true,
 	},
 	compile : {
 		files : {
-			'build/js/lib-app.min.js' : [ 'build/js/lib-app.js' ],
-			'build/js/lib-pages.min.js' : [ 'build/js/lib-pages.js' ]
+			'<%= buildDir %>/js/lib-app.min.js' : [ 'build/js/lib-app.js' ],
+			'<%= buildDir %>/js/lib-pages.min.js' : [ 'build/js/lib-pages.js' ],
+			'<%= buildDir %>/js/behemoth.min.js' : [ 'build/js/behemoth.js' ]
 		}
 	}
 };

@@ -3,7 +3,7 @@ module.exports = {
 		src : [ '<%= appFilelist %>' ],
 		options : {
 			specs : 'specs/**/*Spec.js',
-			vendor : ['<%= compile_dir %>/js/lib-app.js', 'src/js/lib/jasmine-jquery/lib/jasmine-jquery.js']
+			vendor : ['<%= buildDir %>/js/lib-app.js', 'vendor/jasmine-jquery/lib/jasmine-jquery.js']
 		},
 		keepRunner : true
 	}

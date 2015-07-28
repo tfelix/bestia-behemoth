@@ -1,20 +1,28 @@
 module.exports = {
 	options : {
-		inline : true,
-		context : {
-			DEBUG : true
+
+	},
+	
+	htmlprod : {
+		src: '**/*.html',
+		dest: '<%= buildDir %>',
+		cwd: '<%= sourceDir %>',
+		expand: true,
+		options : {
+			context : {
+				PRODUCTION: true
+			}
 		}
 	},
 
-	development : {
-		src : ['']
-	},
-
-	production : {
-		src : [''],
+	prod : {
+		src : 'js/**/*.js',
+		dest : '<%= tempDir %>',
+		cwd: 'src',
+		expand: true,
 		options : {
 			context : {
-				DEBUG : false
+				PRODUCTION: true
 			}
 		}
 	}

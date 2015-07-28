@@ -26,45 +26,6 @@ function bootstrap() {
 
 }
 
-function simulate() {
-
-	// Add item amount.
-	var item1 = {
-		iid : 15, // item id
-		pid : 17, // player_item_id
-		img : 'apfel.jpg',
-		t : 1, // 0: etc, 1: usable, 2: equip
-		bq : 0, // bQuestitem
-		bs : 0, // bSoulbound
-		eqii : null, // Equip item info.
-		eqpi : {}, // todo
-		a : 100
-	// amount
-	};
-	Bestia.publish('inventory.add', item1);
-	var item2 = {
-		iid : 14, // item id
-		pid : 17, // player_item_id
-		img : 'item.jpg',
-		t : 1, // 0: etc, 1: usable, 2: equip
-		bq : 0, // bQuestitem
-		bs : 0, // bSoulbound
-		eqii : null, // Equip item info.
-		eqpi : {}, // todo
-		a : 13
-	// amount
-	};
-	Bestia.publish('inventory.add', item2);
-
-	// Remove certain item amount.
-	var itemRemove = {
-		pid : 13, // player item id
-		a : 1
-	// Amount
-	};
-	Bestia.publish('inventory.remove', itemRemove);
-}
-
 // Final code.
 i18n.init({
 	lng : "de",
@@ -74,5 +35,4 @@ i18n.init({
 
 	// Setup the game object.
 	bootstrap();
-	simulate();
 });
