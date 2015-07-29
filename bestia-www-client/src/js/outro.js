@@ -1,1 +1,1 @@
-})(Bestia, jQuery, ko);
+})(jQuery, ko);

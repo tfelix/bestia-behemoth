@@ -1,8 +1,8 @@
 describe("Bestia.Config", function() {
 	
 	it("Updates upon server.info message arrival.", function() {
-		
-		var conf = new Bestia.Config();
+		var pubsub = new Bestia.PubSub();
+		var conf = new Bestia.Config(pubsub);
 		
 		// Simulate the server communication.
 		var serverInfo = {
@@ -12,11 +12,23 @@ describe("Bestia.Config", function() {
 			res : 'http://localhost/assets'
 		};
 
-		Bestia.publish('server.info', serverInfo);
+		pubsub.publish('server.info', serverInfo);
 		
 		expect(conf.zones()).toEqual(serverInfo.z);
 		expect(conf.version()).toBe(serverInfo.v);
 		expect(conf.connectedPlayer()).toBe(serverInfo.cp);
 		expect(conf.resourceURL()).toBe(serverInfo.res);
+	});
+	
+	it("Updates upon server.auth message arrival.", function() {
+		var pubsub = new Bestia.PubSub();
+		var conf = new Bestia.Config(pubsub);
+		
+		// Simulate the server communication.
+		var authMsg = {username: "thomas", accId: 1337}
+		pubsub.publish('system.auth', authMsg);
+		
+		expect(conf.userName()).toEqual(authMsg.username);
+		expect(conf.accountId()).toBe(authMsg.accId);
 	});
 });

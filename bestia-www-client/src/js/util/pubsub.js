@@ -2,78 +2,76 @@
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * @copyright 2015 Thomas Felix
  */
-(function(Bestia) {
-	'use strict';
 
-	function PubSub() {
-		this.cache = {};
+/**
+ * Publish/Subscriber object. Central object for the game inter communucation.
+ * 
+ * @constructor
+ * @class Bestia.PubSub
+ */
+Bestia.PubSub = function() {
+	this.cache = {};
+};
+
+/**
+ * Subscibes to the bestia publish subscriber model.
+ * 
+ * @method Bestia#subscribe
+ * @param {string}
+ *            e - Eventname or topic to subscribe to.
+ * @param {function}
+ *            fn - Callback function which will get invoked if such an event
+ *            happens.
+ */
+Bestia.PubSub.prototype.subscribe = function(e, fn) {
+	if (!this.cache[e]) {
+		this.cache[e] = [];
+	}
+	this.cache[e].push(fn);
+};
+
+/**
+ * Removes the function from the publisher list. If no function is given it
+ * removes ALL event handler from the given callback name.
+ * 
+ * @method Bestia.PubSub#unsubscribe
+ * @param {string}
+ *            e - Name of the event handler.
+ * @param {function}
+ *            fn - Function to be removed from this handler.
+ * @returns {boolean} TRUE upon success, FALSE otherwise.
+ */
+Bestia.PubSub.prototype.unsubscribe = function(e, fn) {
+	if (!this.cache[e]) {
+		return false;
+	}
+	var fns = this.cache[e];
+	if (!fn) {
+		// No function given. Remove all handler.
+		fns.length = 0;
+		return true;
+	}
+	var index = fns.indexOf(fn);
+	if (index !== -1) {
+		fns.splice(index, 1);
+		return true;
 	}
 
-	/**
-	 * Subscibes to the bestia publish subscriber model.
-	 * 
-	 * @method Bestia#subscribe
-	 * @param
-	 */
-	PubSub.prototype.subscribe = function(e, fn) {
-		if (!this.cache[e]) {
-			this.cache[e] = [];
-		}
-		this.cache[e].push(fn);
-	};
+	return false;
+};
 
-	/**
-	 * Removes the function from the publisher list. If no function is given it
-	 * removes ALL event handler from the given callback name.
-	 * 
-	 * @method Bestia.PubSub#unsubscribe
-	 * @param {String}
-	 *            e - Name of the event handler.
-	 * @param {Function}
-	 *            fn - Function to be removed from this handler.
-	 * @returns {Boolean} TRUE upon success, FALSE otherwise.
-	 */
-	PubSub.prototype.unsubscribe = function(e, fn) {
-		if (!this.cache[e]) {
-			return false;
-		}
-		var fns = this.cache[e];
-		if (!fn) {
-			// No function given. Remove all handler.
-			fns.length = 0;
-			return true;
-		}
-		var index = fns.indexOf(fn);
-		if (index !== -1) {
-			fns.splice(index, 1);
-			return true;
-		}
-		
-		return false;
-	};
-
-	/**
-	 * Publishes a message to the subscribed listener.
-	 * 
-	 * @param {String}
-	 *            e - Name
-	 */
-	PubSub.prototype.publish = function(e, data) {
-		if (!this.cache[e]) {
-			return;
-		}
-		var fns = this.cache[e];
-		for (var i = 0; i < fns.length; ++i) {
-			fns[i](e, data);
-		}
-	};
-
-	Bestia.Util = {
-		PubSub : PubSub
-	};
-	
-	var pubsub = new PubSub();
-	Bestia.subscribe = pubsub.subscribe.bind(pubsub);
-	Bestia.unsubscribe = pubsub.unsubscribe.bind(pubsub);
-	Bestia.publish = pubsub.publish.bind(pubsub);
-})(Bestia);
+/**
+ * Publishes a message to the subscribed listener.
+ * 
+ * @param {String}
+ *            e - Name
+ */
+Bestia.PubSub.prototype.publish = function(e, data) {
+	if (!this.cache[e]) {
+		return;
+	}
+	var fns = this.cache[e];
+	for (var i = 0; i < fns.length; ++i) {
+		fns[i](e, data);
+	}
+};

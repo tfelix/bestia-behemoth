@@ -109,7 +109,7 @@ Bestia.Chat = function(domEle, game) {
 	});
 
 	// Finally subscribe to chat messages.
-	Bestia.subscribe('chat.message', function(_, msg) {
+	game.pubsub.subscribe('chat.message', function(_, msg) {
 		self.addMessage(msg);
 	});
 };
@@ -137,7 +137,7 @@ Bestia.Chat.prototype.sendChat = function() {
 
 	// Prepare and send the message to the server and add it to the local chat.
 	var msg = new Bestia.Message.Chat(this.mode(), msgText, this.whisperNick(), this.localNickname());
-	Bestia.publish('io.sendMessage', msg);
+	this.game.pubsub.publish('io.sendMessage', msg);
 	this.addMessage(msg);
 };
 

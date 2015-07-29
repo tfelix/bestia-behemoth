@@ -1,30 +1,32 @@
-var BG = {};
-
-function bootstrap() {
-	// Bootstrap the behemoth.
-	BG.config = new Bestia.Config();
-	BG.net = new Bestia.Net(BG.config);
-	BG.inventory = new Bestia.Inventory(BG.net);
-	BG.bestias = new Bestia.BestiaInfoViewModel(BG.net);	
-	BG.chat = new Bestia.Chat($('#chat'), BG);
-	BG.engine = new Bestia.Engine(BG.config);
-	BG.connection = new Bestia.Connection();
+Bestia.Game = function() {
 	
-	BG.connection.init();
+	var self = this;
+
+	this.pubsub = new Bestia.PubSub();
+	this.config = new Bestia.Config(this.pubsub);
+
+	this.config = new Bestia.Config();
+	this.net = new Bestia.Net(this.config);
+	this.inventory = new Bestia.Inventory(this.net);
+	this.bestias = new Bestia.BestiaInfoViewModel(this.net);
+	this.chat = new Bestia.Chat($('#chat'), this);
+	this.engine = new Bestia.Engine(this.config);
+	this.connection = new Bestia.Connection();
+
+	this.connection.init();
 
 	// UI init must wait until dom is loaded and accessible.
 	$(document).ready(function() {
-		BG.page = {
+		self.page = {
 			logoutDialog : new Bestia.Page.LogoutDialog('#modal-logout')
 		};
-		
-		// Bind the DOM to the game.
-		ko.applyBindings(BG);
-		
-		//$('#modal-inventory').modal('show');
-	});
 
-}
+		// Bind the DOM to the game.
+		ko.applyBindings(self);
+
+		// $('#modal-inventory').modal('show');
+	});
+};
 
 // Final code.
 i18n.init({
@@ -32,7 +34,4 @@ i18n.init({
 	fallbackLng : false
 }, function() {
 	$('body').i18n();
-
-	// Setup the game object.
-	bootstrap();
 });

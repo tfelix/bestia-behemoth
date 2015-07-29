@@ -1,3 +1,6 @@
+
+Bestia.Chat.Commands = Bestia.Chat.Commands || {};
+
 /**
  * Sample command which should be extended when writing new functions for the
  * local chat.

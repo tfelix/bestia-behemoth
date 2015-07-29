@@ -1,24 +1,27 @@
 jasmine.getFixtures().fixturesPath = 'specs/fixtures';
 
 describe("Bestia.Chat", function() {
+	
+	var Game = function() {		
+		var self = this;
+		this.pubsub = new Bestia.PubSub();
+		this.config = new Bestia.Config(this.pubsub);
+	};
 
 	var chatEle;
-	var game = {
-		config : {
-			userName : 'Test'
-		}
-	};
+	var game;
 
 	beforeEach(function() {
 		loadFixtures('chat.html');
 		chatEle = $('#chat');
+		game = new Game();		
 	});
 
 	it("Reacts upon messages from the server.", function() {
 
 		var chat = new Bestia.Chat(chatEle, game);
 
-		Bestia.publish('chat.message', {
+		game.pubsub.publish('chat.message', {
 			mid : 'chat.message',
 			m : 'PARTY',
 			txt : 'Das ist ein Party Chat test.',
@@ -66,7 +69,7 @@ describe("Bestia.Chat", function() {
 	it("Executes commands.", function() {
 		var chat = new Bestia.Chat(chatEle, game);
 
-		Bestia.publish('chat.message', {
+		game.pubsub.publish('chat.message', {
 			mid : 'chat.message',
 			m : 'PARTY',
 			txt : 'Das ist ein Party Chat test.',

@@ -1,6 +1,6 @@
 module.exports = {
 	prod : {
-		src : [ '<%= tempDir %>/**/*.json' ]
+		src : [ '<%= sourceDir %>/**/*.json' ]
 	},
 
 	config : {

@@ -1,4 +1,4 @@
-(function(Bestia, $, ko) {
+(function($, ko) {
 'use strict';
 
 	

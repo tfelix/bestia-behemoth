@@ -8,28 +8,47 @@
  * Instances of this class will hook into the system and update their data upon
  * arrival of such a message.
  * 
+ * @constructor
  * @class Bestia.Config
+ * @param {Bestia.PubSub}
+ *            pubsub - Publish/Subscriber reference.
  */
-Bestia.Config = function() {
+Bestia.Config = function(pubsub) {
 
 	var self = this;
-	self.zones = ko.observableArray();
-	self.version = ko.observable(0);
-	self.server = ko.observable('');
-	self.connectedPlayer = ko.observable(0);
-	self.resourceURL = ko.observable('');
+	this.zones = ko.observableArray();
+	this.version = ko.observable(0);
+	this.server = ko.observable('');
+	this.connectedPlayer = ko.observable(0);
+	this.resourceURL = ko.observable('');
 
-	self.userName = ko.observable('');
-	self.accountId = ko.observable(0);
+	this.userName = ko.observable('');
+
+	/**
+	 * ID of the authenticated account.
+	 * 
+	 * @public
+	 * @property {Number} accountId
+	 */
+	this.accountId = ko.observable(0);
 
 	/**
 	 * @property {boolean} debug - Flag if we should enable debug information.
 	 *           Later this should be splitted in hard debug only for
 	 *           development and soft debug for all players.
 	 */
-	self.debug = ko.observable(true);
-	self.locale = ko.observable('de-DE');
+	this.debug = ko.observable(true);
 
+	/**
+	 * Used locale of the user.
+	 * 
+	 * @property {string} locale
+	 */
+	this.locale = ko.observable('de-DE');
+
+	/**
+	 * Handler for setting the config values emitted by the server.
+	 */
 	var onMessageHandler = function(_, msg) {
 		self.zones(msg.z);
 		self.version(msg.v);
@@ -47,6 +66,6 @@ Bestia.Config = function() {
 	};
 
 	// Register for messages.
-	Bestia.subscribe('server.info', onMessageHandler);
-	Bestia.subscribe('system.auth', onAuthHandler);
+	pubsub.subscribe('server.info', onMessageHandler);
+	pubsub.subscribe('system.auth', onAuthHandler);
 };

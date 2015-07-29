@@ -2,7 +2,7 @@ describe("Bestia.PubSub", function() {
 
 	it("Can subscribe and publish.", function() {
 
-		var pubsub = new Bestia.Util.PubSub();
+		var pubsub = new Bestia.PubSub();
 
 		var call1 = null;
 		var call2 = null;
@@ -20,7 +20,7 @@ describe("Bestia.PubSub", function() {
 
 	it("Can unsubscribe one function.", function() {
 
-		var pubsub = new Bestia.Util.PubSub();
+		var pubsub = new Bestia.PubSub();
 
 		var call1 = null;
 		var call2 = null;
@@ -41,7 +41,7 @@ describe("Bestia.PubSub", function() {
 	
 	it("Can unsubscribe all functions.", function() {
 
-		var pubsub = new Bestia.Util.PubSub();
+		var pubsub = new Bestia.PubSub();
 
 		var call1 = null;
 		var call2 = null;
