@@ -20,24 +20,24 @@ Bestia.EquipItemInfoViewModel = function(msg) {
 	 * 
 	 * @private
 	 */
-	self._upgradeLv = 0;
+	this._upgradeLv = 0;
 
 	/**
 	 * @returns {String}
 	 */
-	self.upgradeLevel = ko.pureComputed(function() {
+	this.upgradeLevel = ko.pureComputed(function() {
 		if (self._upgradeLv > 0) {
 			return '+' + self._upgradeLv;
 		} else {
 			return '';
 		}
 	});
-	self._forger = {
+	this._forger = {
 		playerId : ko.observable(0),
 		name : ko.observable('')
 	};
-	self.forgerName = self._forger.name;
-	self.bBroken = ko.observable(false);
+	this.forgerName = self._forger.name;
+	this.bBroken = ko.observable(false);
 
 	if (msg !== undefined) {
 		self.update(msg);
@@ -157,25 +157,30 @@ Bestia.ItemViewModel.prototype.update = function(msg) {
  * Manages all the displayed items and the user interaction with them.
  * 
  * @class Bestia.Inventory.Inventory
- * @param {Bestia.Net}
- *            net - Network helper class.
+ * @param {Bestia.PubSub}
+ *            pubsub - Publish/Subscriber.
  * @constructor
  */
-Bestia.Inventory = function(net) {
+Bestia.Inventory = function(pubsub) {
 
 	var self = this;
+	
+	/**
+	 * Holds reference to a {@link Bestia.PubSub} instance.
+	 * @private
+	 */
+	this._pubsub = pubsub;
 
-	this._net = net;
 	this.items = ko.observableArray();
 
 	// Register for messages.
-	Bestia.subscribe('inventory.init', function(_, msg) {
+	pubsub.subscribe('inventory.init', function(_, msg) {
 		self._onMessageInit(msg);
 	});
-	Bestia.subscribe('inventory.add', function(_, msg) {
+	pubsub.subscribe('inventory.add', function(_, msg) {
 		self._onMessageAdd(msg);
 	});
-	Bestia.subscribe('inventory.remove', function(_, msg) {
+	pubsub.subscribe('inventory.remove', function(_, msg) {
 		self._onMessageRemove(msg);
 	});
 	
@@ -191,7 +196,7 @@ Bestia.Inventory = function(net) {
  * @method Bestia.Inventory.Inventory#init
  */
 Bestia.Inventory.prototype.init = function() {
-	Bestia.publish('io.send', new Bestia.Message.InventoryRequest());
+	this.pubsub.publish('io.send', new Bestia.Message.InventoryRequest());
 };
 
 /**

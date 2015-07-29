@@ -228,7 +228,8 @@ describe("Bestia.Inventory.Inventory", function() {
 	});
 
 	it("Sends to the server on init.", function() {
-		var inv = new Bestia.Inventory(net);
+		var pubsub = new Bestia.PubSub();
+		var inv = new Bestia.Inventory(pubsub);
 
 		var i = 0;
 		Bestia.subscribe('io.send', function(_, msg) {
@@ -240,8 +241,9 @@ describe("Bestia.Inventory.Inventory", function() {
 		expect(i).toEqual(1);
 	});
 
-	it("Initializes on a server message.", function() {
-		var inv = new Bestia.Inventory(net);
+	it("Initializes on 'inventory.init' message.", function() {
+		var pubsub = new Bestia.PubSub();
+		var inv = new Bestia.Inventory(pubsub);
 		Bestia.publish('inventory.init', items);
 		expect(inv.items().length).toEqual(3);
 	});
