@@ -3,16 +3,10 @@ module.exports = {
 	dist : {
 		files : [ {
 			expand : true,
-			cwd : '<%= source_dir %>',
-			src : [ '**', '!js/**', '!css/**' ],
+			cwd : '<%= sourceDir %>',
+			src : [ 'img/**', 'locales/**' ],
 			dest : 'build'
-		}, {
-			expand : true,
-			flatten : true,
-			cwd : '<%= source_dir %>',
-			src : 'js/pages/single/*.js',
-			dest : 'build/js'
-		} ]
+		}]
 	},
 
 	gamedata : {

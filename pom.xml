@@ -42,8 +42,7 @@
 			<activation>
 				<activeByDefault>true</activeByDefault>
 				<property>
-					<name>env</name>
-					<value>dev</value>
+					<name>dev</name>
 				</property>
 			</activation>
 		</profile>
@@ -52,15 +51,15 @@
 			<properties>
 				<environment>prod</environment>
 				<db.username>bestia</db.username>
-				<db.password>bestia</db.password>
-				<db.url>jdbc:mysql://localhost/bestia2</db.url>
+				<!-- TODO CHANGE IT IN PRODUCTION -->
+				<db.password>bestia-test123</db.password>
+				<db.url>jdbc:mysql://localhost/bestia</db.url>
 				<db.dialect>org.hibernate.dialect.MySQL5Dialect</db.dialect>
 				<db.driver>com.mysql.jdbc.Driver</db.driver>
 			</properties>
 			<activation>
 				<property>
-					<name>env</name>
-					<value>prod</value>
+					<name>prod</name>
 				</property>
 			</activation>
 		</profile>

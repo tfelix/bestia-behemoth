@@ -120,9 +120,9 @@ public class AccountApi {
 	@Path("/create")
 	public Response create(@QueryParam("email") String email, @QueryParam("password") String password,
 			@QueryParam("username") String username, @DefaultValue("1") @QueryParam("master") int masterId) {
-
+		
 		// Falidate inputs.
-		if (email.isEmpty() || password.isEmpty() || username.isEmpty()) {
+		if (email == null || password == null || username == null) {
 			return Response.serverError().build();
 		}
 
