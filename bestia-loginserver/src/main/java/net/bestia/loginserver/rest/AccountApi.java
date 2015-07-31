@@ -49,6 +49,9 @@ public class AccountApi {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Path("/password")
 	public Response password(@QueryParam("ident") String ident, @QueryParam("password") String password) {
+		if(ident == null || password == null) {
+			return Response.serverError().build();
+		}
 		log.info("Set new password: Ident: {}, Password: {}", ident, password);
 
 		Account acc = accountDao.findByEmail(ident);
@@ -82,7 +85,12 @@ public class AccountApi {
 	@Produces("application/json")
 	@Path("/create/validate")
 	public Response create(@QueryParam("email") String email, @QueryParam("username") String username) {
-
+		// Validate input.
+		if(email == null || username == null) {
+			return Response.serverError().build();
+		}
+		
+		
 		// Check if there is already an account.
 		AccountCheckJson answer = new AccountCheckJson();
 
@@ -121,7 +129,7 @@ public class AccountApi {
 	public Response create(@QueryParam("email") String email, @QueryParam("password") String password,
 			@QueryParam("username") String username, @DefaultValue("1") @QueryParam("master") int masterId) {
 		
-		// Falidate inputs.
+		// Validate inputs.
 		if (email == null || password == null || username == null) {
 			return Response.serverError().build();
 		}
@@ -160,6 +168,11 @@ public class AccountApi {
 	@Produces("application/json")
 	@Path("/login")
 	public Response login(@QueryParam("ident") String ident, @QueryParam("password") String password) {
+		// Validate input.
+		if(ident == null || password == null) {
+			return Response.serverError().build();
+		}
+		
 		log.debug("Login request: Ident: {}, Password: {}", ident, password);
 
 		PasswordAuthenticator auth = new PasswordAuthenticator(ident, password);
