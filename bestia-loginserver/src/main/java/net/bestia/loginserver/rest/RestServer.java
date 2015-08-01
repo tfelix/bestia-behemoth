@@ -1,15 +1,25 @@
 package net.bestia.loginserver.rest;
 
-import java.io.IOException;
 import java.net.URI;
+import java.util.EnumSet;
 
+import javax.servlet.DispatcherType;
 import javax.ws.rs.core.UriBuilder;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.DefaultHandler;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 /**
@@ -28,36 +38,66 @@ public class RestServer {
 	private static final int PORT = 8090;
 	private static final String HOSTNAME = "localhost";
 
+	private Server jettyServer;
+
 	public boolean start() {
 		log.info("Starting Bestia RESTful Server API...");
 		try {
-			ServletContextHandler context = new ServletContextHandler(
+			jettyServer = new Server();
+
+			// Server options.
+			jettyServer.setDumpAfterStart(true);
+			jettyServer.setDumpBeforeStop(true);
+			jettyServer.setStopAtShutdown(true);
+
+			// HTTP Configuration.
+			HttpConfiguration config = new HttpConfiguration();
+			config.setSendServerVersion(false);
+
+			// Server connector.
+			ServerConnector http = new ServerConnector(jettyServer,
+					new HttpConnectionFactory(config));
+			http.setPort(PORT);
+			jettyServer.addConnector(http);
+
+			// Handler structure.
+			HandlerCollection handlers = new HandlerCollection();
+			ContextHandlerCollection contexts = new ContextHandlerCollection();
+			handlers.setHandlers(new Handler[] { contexts, new DefaultHandler() });
+
+			ServletContextHandler servletContext = new ServletContextHandler(
 					ServletContextHandler.SESSIONS);
-			context.setContextPath("/");
+			servletContext.setContextPath("/");
 
-			Server jettyServer = new Server(PORT);
-			jettyServer.setHandler(context);
-
-			ServletHolder jerseyServlet = context.addServlet(
+			ServletHolder jerseyServlet = servletContext.addServlet(
 					ServletContainer.class, "/*");
 			jerseyServlet.setInitOrder(0);
-
 			// Tells the Jersey Servlet which REST service/class to load.
 			jerseyServlet.setInitParameter(
 					"jersey.config.server.provider.classnames",
 					AccountApi.class.getCanonicalName());
 
-			try {
-				jettyServer.start();
-				jettyServer.join();
-			} finally {
-				jettyServer.destroy();
-			}
+			contexts.addHandler(servletContext);
 
+			FilterHolder filter = new FilterHolder();
+			/*
+			 * filter.setInitParameter("allowedOrigins", "*");
+			 * filter.setInitParameter("allowedMethods",
+			 * "POST,GET,OPTIONS,PUT,DELETE,HEAD");
+			 */
+			CrossOriginFilter corsFilter = new CrossOriginFilter();
+			filter.setFilter(corsFilter);
+
+			servletContext.addFilter(filter, "*",
+					EnumSet.of(DispatcherType.REQUEST, DispatcherType.INCLUDE));
+
+			jettyServer.setHandler(handlers);
+
+			jettyServer.start();
 
 			log.info("Bestia RESTful Server API started.");
 			log.info("WADL available at: {}application.wadl", getURI());
-		} catch (IOException ex) {
+		} catch (Exception ex) {
 			log.warn("Could not start RESTful Server: ", ex);
 			return false;
 		}
@@ -70,7 +110,13 @@ public class RestServer {
 	}
 
 	public void stop() {
-
+		try {
+			jettyServer.stop();
+			jettyServer.join();
+		} catch (Exception e) {
+			log.error("Error while stopping Jetty:", e);
+		}
+		jettyServer.destroy();
 	}
 
 }

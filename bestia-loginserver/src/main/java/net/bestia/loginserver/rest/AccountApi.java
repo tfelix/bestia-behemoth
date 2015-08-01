@@ -105,9 +105,14 @@ public class AccountApi {
 			answer.nameUsed = true;
 		}
 
-		String answerString = "";
-		// final String answerString = mapper.writeValueAsString(answer);
-		return Response.ok().entity(answerString).build();
+		try {
+			final String answerString = mapper.writeValueAsString(answer);
+			return Response.ok().entity(answerString).build();
+		} catch (JsonProcessingException e) {
+			log.error("Could not generate answer JSON:", e);
+			return Response.serverError().build();
+		}
+		
 	}
 
 	/**
