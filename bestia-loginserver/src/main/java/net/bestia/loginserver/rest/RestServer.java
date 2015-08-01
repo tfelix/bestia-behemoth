@@ -16,6 +16,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -79,17 +80,8 @@ public class RestServer {
 
 			contexts.addHandler(servletContext);
 
-			FilterHolder filter = new FilterHolder();
-			/*
-			 * filter.setInitParameter("allowedOrigins", "*");
-			 * filter.setInitParameter("allowedMethods",
-			 * "POST,GET,OPTIONS,PUT,DELETE,HEAD");
-			 */
-			CrossOriginFilter corsFilter = new CrossOriginFilter();
-			filter.setFilter(corsFilter);
-
-			servletContext.addFilter(filter, "*",
-					EnumSet.of(DispatcherType.REQUEST, DispatcherType.INCLUDE));
+			servletContext.addFilter(TestFilter.class, "/*",
+					EnumSet.of(DispatcherType.REQUEST));
 
 			jettyServer.setHandler(handlers);
 
