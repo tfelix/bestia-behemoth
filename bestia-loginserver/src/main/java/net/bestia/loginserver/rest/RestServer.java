@@ -7,20 +7,20 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.sun.jersey.api.container.httpserver.HttpServerFactory;
-import com.sun.jersey.api.core.PackagesResourceConfig;
-import com.sun.jersey.api.core.ResourceConfig;
-import com.sun.net.httpserver.HttpServer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.glassfish.jersey.servlet.ServletContainer;
 
 /**
- * Provides RESTful services for the bestia game. Can and should be used to interact externally with the game. Could be
- * extended to access game statistics etc. Currently it provides APIs for registering accounts, changing passwords etc.
+ * Provides RESTful services for the bestia game. Can and should be used to
+ * interact externally with the game. Could be extended to access game
+ * statistics etc. Currently it provides APIs for registering accounts, changing
+ * passwords etc.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-@SuppressWarnings("restriction")
 public class RestServer {
 
 	// TODO Das hier noch konfiguruerbar machen!
@@ -31,9 +31,29 @@ public class RestServer {
 	public boolean start() {
 		log.info("Starting Bestia RESTful Server API...");
 		try {
+			ServletContextHandler context = new ServletContextHandler(
+					ServletContextHandler.SESSIONS);
+			context.setContextPath("/");
 
-			HttpServer restServer = createHttpServer();
-			restServer.start();
+			Server jettyServer = new Server(PORT);
+			jettyServer.setHandler(context);
+
+			ServletHolder jerseyServlet = context.addServlet(
+					ServletContainer.class, "/*");
+			jerseyServlet.setInitOrder(0);
+
+			// Tells the Jersey Servlet which REST service/class to load.
+			jerseyServlet.setInitParameter(
+					"jersey.config.server.provider.classnames",
+					AccountApi.class.getCanonicalName());
+
+			try {
+				jettyServer.start();
+				jettyServer.join();
+			} finally {
+				jettyServer.destroy();
+			}
+
 
 			log.info("Bestia RESTful Server API started.");
 			log.info("WADL available at: {}application.wadl", getURI());
@@ -44,16 +64,9 @@ public class RestServer {
 		return true;
 	}
 
-	@SuppressWarnings("unchecked")
-	private HttpServer createHttpServer() throws IOException {
-		ResourceConfig resourceConfig = new PackagesResourceConfig("net.bestia.loginserver.rest");
-		// This tutorial required and then enable below line: http://crunfy.me/1DZIui5
-		resourceConfig.getContainerResponseFilters().add(CORSFilter.class);
-		return HttpServerFactory.create(getURI(), resourceConfig);
-	}
-
 	private URI getURI() {
-		return UriBuilder.fromUri("http://" + HOSTNAME + "/").port(PORT).build();
+		return UriBuilder.fromUri("http://" + HOSTNAME + "/").port(PORT)
+				.build();
 	}
 
 	public void stop() {

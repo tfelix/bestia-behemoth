@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
@@ -82,7 +83,7 @@ public class AccountApi {
 	 * @return
 	 */
 	@GET
-	@Produces("application/json")
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/create/validate")
 	public Response create(@QueryParam("email") String email, @QueryParam("username") String username) {
 		// Validate input.
@@ -122,9 +123,8 @@ public class AccountApi {
 	 *            Name of the master.
 	 * @return
 	 */
-	// TODO Der eingebaute Webserver unterstützt kein PUT und DELETE später austauschen und hier API abhändern.
-	@GET
-	@Produces("application/json")
+	@PUT
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/create")
 	public Response create(@QueryParam("email") String email, @QueryParam("password") String password,
 			@QueryParam("username") String username, @DefaultValue("1") @QueryParam("master") int masterId) {
@@ -165,7 +165,7 @@ public class AccountApi {
 	 * @return
 	 */
 	@GET
-	@Produces("application/json")
+	@Produces(MediaType.APPLICATION_JSON)
 	@Path("/login")
 	public Response login(@QueryParam("ident") String ident, @QueryParam("password") String password) {
 		// Validate input.
