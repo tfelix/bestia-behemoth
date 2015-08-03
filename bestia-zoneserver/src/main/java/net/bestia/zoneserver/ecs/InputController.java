@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.ecs;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,8 +8,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import net.bestia.messages.InputMessage;
@@ -21,11 +18,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Manages the communication towards the ECS system. Since this communication must somehow work asyncronously we store
+ * Manages the communication towards the ECS system. Since this communication must somehow work asynchronously we store
  * messages inside this {@link InputController} and the ECS will fetch them as its ticking. It will question the
  * InputController if it holds messages regarding a particular bestia and execute it in ECS world.
- * 
- * TODO Das ding wird von mehreren Threads geshared. Mit read/write lock versehen.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
