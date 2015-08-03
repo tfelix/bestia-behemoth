@@ -13,7 +13,7 @@ start () {
 
 stop () {
 	echo "Stopping interserver..."
-	/sbin/start-stop-daemon --stop --verbose --user $DAEMONUSER --pidfile $PIDFILE --exec /usr/bin/java -- -Dlog4j.configurationFile=log4j2-prod.xml -jar $JAR
+	/sbin/start-stop-daemon --stop --quiet --user $DAEMONUSER --pidfile $PIDFILE --exec /usr/bin/java -- -Dlog4j.configurationFile=log4j2-prod.xml -jar $JAR
 	rm $PIDFILE
 }
 

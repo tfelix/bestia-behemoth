@@ -1,1 +1,0 @@
-java -jar <ZONE> -Dlog4j.configuration=log4j_prod.properties

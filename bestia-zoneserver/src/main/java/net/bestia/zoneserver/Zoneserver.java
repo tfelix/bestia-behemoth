@@ -29,6 +29,8 @@ import net.bestia.zoneserver.worker.ZoneInitLoader;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.LogManager;
@@ -322,7 +324,14 @@ public class Zoneserver {
 		
 		// Create cmd line arguments.
 		Options options = new Options();
-		options.addOption("config", true, "Path to the config file to use.");
+		
+		Option configFileProp   = OptionBuilder.withArgName( "cf" )
+				.withLongOpt("configFile")
+                .hasArg()
+                .withDescription(  "use an external config file." )
+                .create( "config" );
+		
+		options.addOption(configFileProp);
 		
 		// TODO das CMD parsing hier noch in eine extra datei packen.
 		CommandLineParser parser = new DefaultParser();
@@ -331,7 +340,8 @@ public class Zoneserver {
 			CommandLine cmd = parser.parse(options, args);
 			
 			if(cmd.hasOption("config")) {
-				String configFile = cmd.getOptionValue("config");
+				final String configFile = cmd.getOptionValue("config");
+				log.info("Use config file: " + configFile);
 				config.load(new File(configFile));
 			} else {
 				config.load();
