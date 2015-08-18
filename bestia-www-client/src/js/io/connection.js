@@ -8,13 +8,14 @@
  * receive them and rebroadcast them into the client.
  * 
  * @class Bestia.Connection
+ * @param {Bestia.PubSub} pubsub - Publish/Subscriber interface.
  */
-Bestia.Connection = function() {
+Bestia.Connection = function(pubsub) {
 	var self = this;
 	this.socket = null;
 
 	// Sends a message while listening to this channel.
-	Bestia.subscribe('io.sendMessage', function(_, msg) {
+	pubsub.subscribe('io.sendMessage', function(_, msg) {
 		var message = JSON.stringify(msg);
 		console.trace('Sending Message: ' + message);
 		self.socket.push(message);

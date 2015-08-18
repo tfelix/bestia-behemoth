@@ -10,7 +10,7 @@
  * 
  * @namespace Bestia.Page
  */
-Bestia.Page = {};
+Bestia.Page = Bestia.Page || {};
 
 /**
  * Listens for 'system.logout' messages and perform a user notification and

@@ -1,13 +1,13 @@
 module.exports = {
 	compile : {
 		options : {
-			paths : [ 'src/css/less/**/' ],
+			paths : [ '<%= sourceDir %>/css/less/**/' ],
 			sourceMap : true,
 			sourceMapURL: '/css/app.css.map',
 		},
 		files : {
-			'build/css/app.css' : 'src/css/less/main.less',
-			'build/css/login.css' : 'src/css/less/login.less'
+			'<%= buildDir %>/css/app.css' : '<%= sourceDir %>/css/less/main.less',
+			'<%= buildDir %>/css/login.css' : '<%= sourceDir %>/css/less/login.less'
 		}
 	}
 };

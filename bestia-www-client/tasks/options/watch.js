@@ -1,26 +1,21 @@
 module.exports = {
 	css : {
-		files : [ '<%= source_dir %>/css/**/*.less', '<%= source_dir %>/css/**/*.css' ],
-		tasks : [ 'compile' ]
+		files : [ '<%= sourceDir %>/css/**/*.less', '<%= sourceDir %>/css/**/*.css' ],
+		tasks : [ 'less' ]
 	},
 	
-	js: {
-		files : ['<%= source_dir %>/js/**/*.js'],
-		tasks : [ 'compile']
-	},
-	
-	page_js: {
-		files : ['<%= source_dir %>/js/pages/single/*.js'],
-		tasks : [ 'copy']
-	},
+	//js: {
+	//	files : ['<%= sourceDir %>/js/**/*.js'],
+	//	tasks : [ 'compile']
+	//},
 	
 	html: {
-		files : ['<%= source_dir %>/*.html', '<%= source_dir %>/**/*.json'],
-		tasks : [ 'copy']
+		files : ['<%= sourceDir %>/*.html', '<%= sourceDir %>/**/*.json'],
+		tasks : [ 'preprocess:htmldev', 'copy:dist']
 	},
 	
 	asset : {
 		files : ['../game-data/**/*'],
-		tasks : [ 'copy:dist' ]
+		tasks : [ 'copy:gamedata' ]
 	}
 };

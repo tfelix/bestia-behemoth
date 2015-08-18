@@ -14,7 +14,7 @@
  *            net - Net helper object to generate URLs within the model.
  * @constructor
  */
-Bestia.BestiaViewModel = function(net, msg) {
+Bestia.BestiaViewModel = function(msg) {
 	var self = this;
 	
 	this.playerBestiaId = ko.observable();

@@ -21,12 +21,9 @@
     "grunt-contrib-uglify": "^0.7.0",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-jsonlint": "^1.0.4",
-    "grunt-preprocess": "^5.0.0",
+    "grunt-preprocess": "^5.0.1",
     "load-grunt-config": "^0.17.1",
     "load-grunt-tasks": "^3.1.0",
     "time-grunt": "^1.2.0"
-  },
-  "devDependencies": {
-    "grunt-preprocess": "^5.0.1"
   }
 }

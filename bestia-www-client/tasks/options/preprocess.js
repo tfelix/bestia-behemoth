@@ -14,6 +14,19 @@ module.exports = {
 			}
 		}
 	},
+	
+	/* HTML DEVELOPMENT SET */
+	htmldev : {
+		src: '**/*.html',
+		dest: '<%= buildDir %>',
+		cwd: '<%= sourceDir %>',
+		expand: true,
+		options : {
+			context : {
+				DEVELOPMENT: true
+			}
+		}
+	},
 
 	prod : {
 		src : 'js/**/*.js',
@@ -25,5 +38,17 @@ module.exports = {
 				PRODUCTION: true
 			}
 		}
-	}
+	},
+	
+	dev : {
+		src : 'js/**/*.js',
+		dest : '<%= tempDir %>',
+		cwd: 'src',
+		expand: true,
+		options : {
+			context : {
+				DEVELOPMENT: true
+			}
+		}
+	}	
 };

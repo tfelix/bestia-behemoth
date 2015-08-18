@@ -8,22 +8,21 @@
  * 
  * @class Bestia.BestiaInfoViewModel
  * @constructor
- * @param {Bestia.Net}
- *            net - Net object to create URLs.
+ * @param {Bestia.PubSub}
+ *            pubsub - Publish/Subscriber interface.
  */
-Bestia.BestiaInfoViewModel = function(net) {
-
-	if (net === undefined) {
-		throw "Net is not an optional parameter.";
+Bestia.BestiaInfoViewModel = function(pubsub) {
+	
+	if(pubsub === undefined) {
+		throw "Bestia.BestiaInfoViewModel: Pubsub is not optional.";
 	}
-
+	
 	var self = this;
 
-	this._net = net;
 	this.selectedBestia = ko.observable(0);
 	
-	this.masterBestia = new Bestia.BestiaViewModel(net);
-	this.selectedBestia = new Bestia.BestiaViewModel(net);
+	this.masterBestia = new Bestia.BestiaViewModel();
+	this.selectedBestia = new Bestia.BestiaViewModel();
 	this.bestias = ko.observableArray([]);
 	this.slots = ko.observable();
 
@@ -58,8 +57,8 @@ Bestia.BestiaInfoViewModel = function(net) {
 	};
 
 	// Register for messages from the server.
-	Bestia.subscribe('bestia.info', onInitHandler);
-	Bestia.subscribe('bestia.update', onUpdateHandler);
+	pubsub.subscribe('bestia.info', onInitHandler);
+	pubsub.subscribe('bestia.update', onUpdateHandler);
 };
 
 /**
@@ -84,7 +83,7 @@ Bestia.BestiaInfoViewModel.prototype.update = function(msg) {
 	});
 	
 	$(msg.b).each(function(_, val ) {
-		var model = new Bestia.BestiaViewModel(self._net, val);
+		var model = new Bestia.BestiaViewModel(val);
 		self.bestias.push(model);
 	});
 

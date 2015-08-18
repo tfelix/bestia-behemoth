@@ -67,7 +67,7 @@ Bestia.Engine.States.GameState = function(engine) {
 	 * @private
 	 * @property {Bestia.Engine.EntityUpdater}
 	 */
-	this._entityUpdater = new Bestia.Engine.EntityUpdater(Bestia, entityCreateCallback);
+	this._entityUpdater = new Bestia.Engine.EntityUpdater(this.engine.pubsub, entityCreateCallback);
 	
 	/**
 	 * Updates an entity if a change is incoming.
