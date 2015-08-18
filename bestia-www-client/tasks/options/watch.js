@@ -4,10 +4,15 @@ module.exports = {
 		tasks : [ 'less' ]
 	},
 	
-	//js: {
-	//	files : ['<%= sourceDir %>/js/**/*.js'],
-	//	tasks : [ 'compile']
-	//},
+	js: {
+		files : ['<%= sourceDir %>/js/**/*.js', '!<%= sourceDir %>/js/pages/**'],
+		tasks : [ 'preprocess:dev', 'jsonlint', 'jshint', 'concat']
+	},
+	
+	jsPages: {
+		files : ['<%= sourceDir %>/js/pages/**/*.js'],
+		tasks : [ 'preprocess:dev', 'jsonlint', 'jshint', 'concat']
+	},
 	
 	html: {
 		files : ['<%= sourceDir %>/*.html', '<%= sourceDir %>/**/*.json'],

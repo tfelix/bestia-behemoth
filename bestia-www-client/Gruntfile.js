@@ -9,11 +9,8 @@ module.exports = function(grunt) {
 		var data = matcher.exec(str);
 		return data[1];
 	}();
-
-
-	var pageFiles = [ 'src/js/bestia.js', 'src/js/util/storage.js', 'src/js/pages/single/all-pages.js' ];
 	
-	var appFiles = [ '<%= tempDir %>/js/behemoth.js', '<%= tempDir %>/js/util/*.js', '<%= tempDir %>/js/main.js', 
+	var appFiles = [ '<%= tempDir %>/js/behemoth.js', '<%= tempDir %>/js/util/*.js',
 	         		// === CHAT ===
 	         		'<%= tempDir %>/js/chat/*.js', '<%= tempDir %>/js/chat/commands/*.js',
 	         		// === BESTIAS ===
@@ -22,8 +19,15 @@ module.exports = function(grunt) {
 	         		'<%= tempDir %>/js/io/*.js',
 	         		// === ENGINE ===
 	         		'<%= tempDir %>/js/engine/engine.js', '<%= tempDir %>/js/engine/core/*.js',
-	         				'<%= tempDir %>/js/engine/entities/*.js', '<%= tempDir %>/js/engine/plugins/*.js',
-	         				'<%= tempDir %>/js/engine/states/*.js' ];
+	         		'<%= tempDir %>/js/engine/entities/*.js', '<%= tempDir %>/js/engine/plugins/*.js',
+	         		'<%= tempDir %>/js/engine/states/*.js' ];
+	
+	// Add the intro, outro 
+	var appFilelistShimed = appFiles.slice();
+	appFilelistShimed.unshift('<%= tempDir %>/js/intro.js');
+	appFilelistShimed.push('<%= tempDir %>/js/pages/app.js');
+	appFilelistShimed.push('<%= tempDir %>/js/main.js');
+	appFilelistShimed.push('<%= tempDir %>/js/outro.js');
 
 	loadConfig(grunt, {
 		configPath : __dirname + '/tasks/options',
@@ -33,8 +37,8 @@ module.exports = function(grunt) {
 			buildDir : 'build',
 			distDir : 'dist',
 			sourcemap : true,
-			appFilelist : null,
-			pageFilelist : pageFiles,
+			appFilelist : appFiles,
+			appFilelistShimed : appFilelistShimed,
 			version : version
 		}
 	});
@@ -43,15 +47,15 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('default', 'Builds the project and packages it for distribution.', [ 'prod' ]);
 
+	
 	grunt.registerTask('test:config', 'Testing of the Grunt config.', [ 'jsonlint:config', 'jshint:config' ]);
+	
 
 	grunt.registerTask('dev', 'Compiles for local development of the client.', function() {
 		require('time-grunt')(grunt);
 		grunt.log.writeln("====================================================================");
 		grunt.log.writeln("Compiling bestia-www-client: " + version + " (development)");
 		grunt.log.writeln("====================================================================");
-		
-		grunt.config.set('appFilelist', appFiles);
 
 		// Prepare build.
 		grunt.task.run('test:config');
@@ -72,29 +76,17 @@ module.exports = function(grunt) {
 
 		// Compile JS (Main application)
 		//grunt.task.run([ 'preprocess:dev', 'jsonlint', 'jshint', 'jasmine' ]);
-		grunt.task.run([ 'preprocess:dev', 'jsonlint', 'jshint']);
-
-		appFiles.unshift('<%= tempDir %>/intro.js');
-		appFiles.push('<%= tempDir %>/outro.js');
-		appFiles.push('<%= tempDir %>/pages/app.js');
-		grunt.config.set('appFilelist', appFiles);
-
-		grunt.task.run('concat');
-		
-		// Compile JS (Pages)
-		// TODO
+		grunt.task.run([ 'preprocess:dev', 'jsonlint', 'jshint', 'concat']);
 		
 		// Start server and watch tasks.
 		grunt.task.run(['connect', 'watch']);
 	});
 
+	
 	grunt.registerTask('prod', 'Compiles the client for production.', function() {
 		grunt.log.writeln("====================================================================");
 		grunt.log.writeln("Compiling bestia-www-client: " + version + " (production)");
 		grunt.log.writeln("====================================================================");
-
-
-		grunt.config.set('appFilelist', appFiles);
 
 		// Prepare build
 		grunt.task.run('test:config');
@@ -112,14 +104,10 @@ module.exports = function(grunt) {
 
 		// Compile JS
 		grunt.task.run('bower_concat');
+		
+		// Before we can start the testing process we need to 
 
 		grunt.task.run([ 'preprocess:prod', 'jsonlint', 'jshint', 'jasmine' ]);
-
-		appFiles.unshift('<%= tempDir %>/intro.js');
-		appFiles.push('<%= tempDir %>/outro.js');
-		appFiles.push('<%= tempDir %>/pages/app.js');
-
-		grunt.config.set('appFilelist', appFiles);
 
 		grunt.task.run([ 'concat', 'uglify' ]);
 	});

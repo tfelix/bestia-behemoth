@@ -9,7 +9,9 @@ module.exports = {
 		files : {
 			'<%= buildDir %>/js/lib-app.min.js' : [ 'build/js/lib-app.js' ],
 			'<%= buildDir %>/js/lib-pages.min.js' : [ 'build/js/lib-pages.js' ],
-			'<%= buildDir %>/js/behemoth.min.js' : [ 'build/js/behemoth.js' ]
+			'<%= buildDir %>/js/behemoth.min.js' : [ 'build/js/behemoth.js' ],
+			'<%= buildDir %>/js/login.min.js' : [ 'build/js/login.js' ],
+			'<%= buildDir %>/js/create.min.js' : [ 'build/js/create.js' ]
 		}
 	}
 };

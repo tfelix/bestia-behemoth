@@ -12,7 +12,15 @@
  */
 Bestia.Connection = function(pubsub) {
 	var self = this;
+	
 	this.socket = null;
+	
+	/**
+	 * Pubsub interface.
+	 * @property {Bestia.PubSub}
+	 * @private
+	 */
+	this._pubsub = pubsub;
 
 	// Sends a message while listening to this channel.
 	pubsub.subscribe('io.sendMessage', function(_, msg) {
@@ -23,7 +31,8 @@ Bestia.Connection = function(pubsub) {
 };
 
 /**
- * Checks if logindata is ok or otherwise not complete.
+ * Checks if logindata is ok or otherwise not complete. Returns true if everything
+ * is looking good. Otherwise false.
  * 
  * @private
  * @param {Object}
@@ -69,10 +78,12 @@ Bestia.Connection.prototype.init = function() {
 	var store = new Bestia.Storage();
 	var authData = store.getAuth();
 
-	this.checkLoginData(authData);
+	if(!this.checkLoginData(authData)) {
+		return;
+	}
 
 	// Emit the auth data signal so other parts of the app can react to it.
-	Bestia.publish('system.auth', authData);
+	this._pubsub.publish('system.auth', authData);
 
 	var request = {
 		url : Bestia.Urls.bestiaWebsocket,
@@ -90,7 +101,7 @@ Bestia.Connection.prototype.init = function() {
 
 	request.onOpen = function(response) {
 		console.log('Connection to established via ' + response.transport);
-		Bestia.publish('io.onConnected', {});
+		this._pubsub.publish('io.onConnected', {});
 	};
 
 	request.onTransportFailure = function(errorMsg) {

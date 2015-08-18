@@ -1,5 +1,5 @@
 module.exports = {
-	prod : {
+	source : {
 		src : [ '<%= sourceDir %>/**/*.json' ]
 	},
 
