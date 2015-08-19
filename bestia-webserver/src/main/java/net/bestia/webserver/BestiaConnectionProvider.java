@@ -18,7 +18,7 @@ import net.bestia.messages.Message;
 
 /**
  * Helper class to provide a centralized storage for all opend websocket connections and filter the incoming interserver
- * messages for accounts and deliver them via websocket. Basically all shared objects beween the webserver threads
+ * messages for accounts and deliver them via websocket. Basically all shared objects between the webserver threads
  * should be here. Be aware that calling to methods inside this must be threadsafe.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>

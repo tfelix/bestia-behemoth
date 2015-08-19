@@ -20,6 +20,7 @@ public final class Webserver {
 	private final InterserverSubscriber subscriber;
 	private final String name;
 	private final BestiaConfiguration config;
+	private final int PORT = 8080;
 
 	/**
 	 * Class which starts and runs the bestia web front server.
@@ -64,11 +65,11 @@ public final class Webserver {
 
 		// TODO das hier per config steuerbar machen.
 		Config.Builder b = new Config.Builder();
-		b.host("0.0.0.0").port(8080);
+		b.host("0.0.0.0").port(PORT);
 
 		Nettosphere server = new Nettosphere.Builder().config(b.build()).build();
 		server.start();
-		log.info("Webserver [{}] started.", name);
+		log.info("Webserver [{}] started. Listening on port: {}", name, PORT);
 	}
 	
 	public void stop() {

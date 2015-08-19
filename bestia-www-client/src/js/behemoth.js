@@ -43,7 +43,7 @@ var Bestia = Bestia || {
 		loginHtml : 'http://www.bestia-game.net/login.html',
 		gameHtml : 'http://www.bestia-game.net/index.html',
 		bestiaWebAPI : 'http://login1.bestia-game.net',
-		bestiaSocket : 'http://socket1.bestia-game.net/api',
+		bestiaWebsocket : 'http://socket1.bestia-game.net/api',
 		assetsRoot : 'http://www.bestia-game.net/assets/',
 		assetsMap : 'http://www.bestia-game.net/assets/map/',
 		assetsMobIcon : 'http://www.bestia-game.net/assets/img/mob-icon/',

@@ -97,7 +97,6 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 
 	@Override
 	public void onClose(WebSocket webSocket) {
-		log.trace("onClose called.");
 
 		// Get the ID from this websocket connection.
 		long accountId = getAccountId(webSocket);
@@ -108,6 +107,7 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 		
 		// Remove connection from the provider.
 		provider.removeConnection(accountId);
+		log.debug("Connection closed. Account id: {}", accountId);
 		
 		try {
 			LogoutBroadcastMessage logoutMsg = new LogoutBroadcastMessage(accountId);
@@ -119,7 +119,6 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 
 	@Override
 	public void onError(WebSocket socket, WebSocketException ex) {
-		log.debug("onError called.");
 		log.error("Error sending data to client.", ex);
 	}
 }

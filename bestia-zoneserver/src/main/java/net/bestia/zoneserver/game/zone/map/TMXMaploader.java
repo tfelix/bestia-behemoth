@@ -10,6 +10,8 @@ import java.util.Properties;
 import net.bestia.zoneserver.game.zone.Vector2;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import tiled.core.MapLayer;
 import tiled.core.TileLayer;
@@ -22,9 +24,11 @@ import tiled.io.TMXMapReader;
  *
  */
 public class TMXMaploader implements Maploader {
+	
+	private final static Logger log = LogManager.getLogger(TMXMaploader.class);
 
-	private TMXMapReader reader;
-	private String mapFile;
+	private final TMXMapReader reader;
+	private final String mapFile;
 
 	private Map.MapBuilder builder;
 
@@ -38,9 +42,10 @@ public class TMXMaploader implements Maploader {
 	}
 
 	public void loadMap(Map.MapBuilder builder) throws IOException {
+		
+		log.debug("Loading mapfile: {}", mapFile);
 
 		this.builder = builder;
-
 		tiled.core.Map tiledMap;
 		try {
 			tiledMap = reader.readMap(mapFile);
@@ -62,10 +67,11 @@ public class TMXMaploader implements Maploader {
 		builder.height = tiledMap.getHeight();
 		builder.width = tiledMap.getWidth();
 
-		String filename = FilenameUtils.removeExtension(FilenameUtils.getBaseName(mapFile));
-		builder.mapDbName = filename;
+		final String baseName = FilenameUtils.getBaseName(mapFile);
+		final String mapDbName = FilenameUtils.removeExtension(baseName);
+		builder.mapDbName = mapDbName;
 
-		Properties mapProperties = tiledMap.getProperties();
+		final Properties mapProperties = tiledMap.getProperties();
 
 		// Get map properties.
 		builder.globalScript = mapProperties.getProperty("globalScript");
