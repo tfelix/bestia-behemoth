@@ -51,9 +51,9 @@ public class AccountApi {
 	@Path("/password")
 	public Response password(@QueryParam("ident") String ident, @QueryParam("password") String password) {
 		if(ident == null || password == null) {
+			log.warn("Set new password: invalid ident or password.");
 			return Response.serverError().build();
 		}
-		log.info("Set new password: Ident: {}, Password: {}", ident, password);
 
 		Account acc = accountDao.findByEmail(ident);
 
@@ -61,12 +61,11 @@ public class AccountApi {
 			return Response.status(404).build();
 		}
 
-		acc.setGold(acc.getGold() + 1);
 		acc.setPassword(new Password(password));
-
 		accountDao.save(acc);
+		log.info("Set new password: Ident: {}, Password: {}", ident, password);
 
-		return Response.ok().build();
+		return Response.ok("Password set.").build();
 	}
 
 	/**
@@ -88,6 +87,7 @@ public class AccountApi {
 	public Response create(@QueryParam("email") String email, @QueryParam("username") String username) {
 		// Validate input.
 		if(email == null || username == null) {
+			log.warn("Create/Validate: Invalid credentials.");
 			return Response.serverError().build();
 		}
 		
@@ -136,6 +136,7 @@ public class AccountApi {
 		
 		// Validate inputs.
 		if (email == null || password == null || username == null) {
+			log.warn("Create: Invalid credentials.");
 			return Response.serverError().build();
 		}
 
@@ -175,6 +176,7 @@ public class AccountApi {
 	public Response login(@QueryParam("ident") String ident, @QueryParam("password") String password) {
 		// Validate input.
 		if(ident == null || password == null) {
+			log.warn("Login: Invalid credentials.");
 			return Response.serverError().build();
 		}
 		

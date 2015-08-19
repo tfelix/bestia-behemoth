@@ -16,11 +16,8 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.DefaultHandler;
 import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.servlet.DefaultServlet;
-import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 /**
@@ -80,7 +77,7 @@ public class RestServer {
 
 			contexts.addHandler(servletContext);
 
-			servletContext.addFilter(TestFilter.class, "/*",
+			servletContext.addFilter(AddCORSFilter.class, "/*",
 					EnumSet.of(DispatcherType.REQUEST));
 
 			jettyServer.setHandler(handlers);
