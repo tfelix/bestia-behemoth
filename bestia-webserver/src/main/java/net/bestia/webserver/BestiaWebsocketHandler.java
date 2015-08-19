@@ -47,11 +47,11 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 				final LoginBroadcastMessage msg = new LoginBroadcastMessage(accountId);
 				provider.publishInterserver(msg);
 
-				log.trace("Websocket connection accepted.");
+				log.debug("Websocket connection accepted. account id: {}, token: {}", accountId, token);
 			} else {
 				webSocket.close();
 
-				log.trace("Websocket connection was refused.");
+				log.debug("Websocket connection not authenticated. account id: {}, token: {}", accountId, token);
 			}
 		} catch (NullPointerException | NumberFormatException ex) {
 			webSocket.close();

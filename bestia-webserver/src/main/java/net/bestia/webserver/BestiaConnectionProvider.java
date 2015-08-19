@@ -47,6 +47,8 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	 * @throws IOException
 	 */
 	public void publishInterserver(long accountId, String message) throws IOException {
+		log.trace("Publish message to interserver: {}", message);
+		
 		final Message msg = mapper.readValue(message, Message.class);
 
 		// Regenerate the account id from the server connection.
@@ -56,6 +58,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	}
 
 	public void publishInterserver(Message message) throws IOException {
+		log.trace("Publish message to interserver: {}", message.toString());
 		publisher.publish(message);
 	}
 
@@ -89,6 +92,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	 *            Account ID to be removed.
 	 */
 	public void removeConnection(long accountId) {
+		log.debug("Removed connection to account id: {}", accountId);
 		subscriber.unsubscribe("account/" + accountId);
 		connections.remove(accountId);
 	}
@@ -132,6 +136,9 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	 */
 	@Override
 	public void onMessage(Message msg) {
+		
+		log.trace("Received message from interserver: {}", msg.toString());
+		
 		// Special case: If the message is a LoginAuthReply message we must route it to the blocker for further
 		// processing.
 		if (msg.getMessageId().equals(LoginAuthReplyMessage.MESSAGE_ID)) {

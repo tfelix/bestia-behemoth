@@ -176,11 +176,9 @@ public class AccountApi {
 	public Response login(@QueryParam("ident") String ident, @QueryParam("password") String password) {
 		// Validate input.
 		if(ident == null || password == null) {
-			log.warn("Login: Invalid credentials.");
+			log.debug("Login: Invalid credentials.");
 			return Response.serverError().build();
 		}
-		
-		log.debug("Login request: Ident: {}, Password: {}", ident, password);
 
 		PasswordAuthenticator auth = new PasswordAuthenticator(ident, password);
 
@@ -195,6 +193,7 @@ public class AccountApi {
 			accountDao.save(acc);
 
 			final AccountLoginResponse loginResponse = new AccountLoginResponse(acc.getId(), acc.getName(), token);
+			log.debug("Login request accepted: Ident: {}, token: {}", ident, loginResponse.getToken());
 
 			try {
 				final String answer = mapper.writeValueAsString(loginResponse);
@@ -204,6 +203,7 @@ public class AccountApi {
 				return Response.serverError().entity("Could not process request. Try again later.").build();
 			}
 		} else {
+			log.debug("Login request refused: Ident: {}", ident);
 			return Response.status(FORBIDDEN_STATUS).entity("Wrong login data.").build();
 		}
 	}
