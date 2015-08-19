@@ -395,9 +395,6 @@ public class TMXMapReader
                             Color color = new Color(colorInt);
                             set.setTransparentColor(color);
                         }
-
-                        set.importTileBitmap(sourcePath, new BasicTileCutter(
-                                tileWidth, tileHeight, tileSpacing, tileMargin));
                     }
                 }
                 else if (child.getNodeName().equalsIgnoreCase("tile")) {
