@@ -19,7 +19,7 @@ function strStartsWith(str, start) {
  * @param {BestiaGame}
  *            game - An instance to the central bestia game object.
  * @param {string}
- *            localNickname - How the players account is called to display the
+ *            LOCAL_NICKNAME - How the players account is called to display the
  *            correct name in the echo messages.
  */
 Bestia.Chat = function(domEle, game) {
@@ -32,7 +32,15 @@ Bestia.Chat = function(domEle, game) {
 	 * @constant
 	 */
 	this.MAX_MESSAGES = 50;
-	this.localNickname = game.config.userName;
+	
+	/**
+	 * Name of the bestia master. Is extracted from the game config which is set
+	 * during login process.
+	 * 
+	 * @property
+	 * @constant
+	 */
+	this.LOCAL_NICKNAME = '';
 
 	this.domEle = domEle;
 	this.chatEle = $(domEle).find('.chat-msgs:first').get(0);
@@ -112,6 +120,11 @@ Bestia.Chat = function(domEle, game) {
 	game.pubsub.subscribe('chat.message', function(_, msg) {
 		self.addMessage(msg);
 	});
+	
+	// Handle authentication to set username.
+	game.pubsub.subscribe('system.auth', function(_, data) {
+		self.LOCAL_NICKNAME = data.username;
+	});
 };
 
 /**
@@ -136,7 +149,7 @@ Bestia.Chat.prototype.sendChat = function() {
 	}
 
 	// Prepare and send the message to the server and add it to the local chat.
-	var msg = new Bestia.Message.Chat(this.mode(), msgText, this.whisperNick(), this.localNickname());
+	var msg = new Bestia.Message.Chat(this.mode(), msgText, this.whisperNick(), this.LOCAL_NICKNAME);
 	this.game.pubsub.publish('io.sendMessage', msg);
 	this.addMessage(msg);
 };

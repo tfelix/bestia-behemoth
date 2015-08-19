@@ -68,9 +68,15 @@ Bestia.Connection.prototype.checkLoginData = function(data) {
 	return true;
 };
 
-/**
+/**-
+ * Initializes a connection to the server using the login data present in a cookie which must be acquired 
+ * via the login process before trying to establish this connection.
  * 
- * Publishes: auth
+ * Publishes: 
+ * system.auth - Containing the auth data (bestia name, user id) if a successful connection to the 
+ * server has been established.
+ * 
+ * @method Bestia.Connection#init
  */
 Bestia.Connection.prototype.init = function() {
 	
