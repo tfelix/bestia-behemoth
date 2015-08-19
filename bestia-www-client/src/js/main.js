@@ -19,13 +19,19 @@ i18n.init({
 	$('body').i18n();
 });
 
+/**
+ * Das gefällt mir hier noch nicht. Das sollte eigentlich vielmehr in die Page Sektion von Bestia und das Bestia.Game ist eine eigene Klasse.
+ */
 $(document).ready(function() {
+	
+	console.log("Starting Bestia Client V." + Bestia.VERSION);
 
+	// Creating the bestia game.
 	var game = new Bestia.Game();
 
 	// UI init must wait until dom is loaded and accessible.
 	Bestia.page = {
-		logoutDialog : new Bestia.Page.LogoutDialog('#modal-logout')
+		logoutDialog : new Bestia.Page.LogoutDialog('#modal-logout', game.pubsub)
 	};
 
 	// Bind the DOM to the game.

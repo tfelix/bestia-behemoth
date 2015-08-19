@@ -15,6 +15,11 @@ Bestia.Engine.States.GameState = function(engine) {
 	 * @property {Bestia.Engine} Reference to the central bestia engine object.
 	 */
 	this.engine = engine;
+	
+	/**
+	 * @property {Bestia.PubSub} Shortcut to the publish subscriber interface.
+	 */
+	this.pubsub = this.engine.pubsub;
 
 	this.map = null;
 
@@ -67,7 +72,7 @@ Bestia.Engine.States.GameState = function(engine) {
 	 * @private
 	 * @property {Bestia.Engine.EntityUpdater}
 	 */
-	this._entityUpdater = new Bestia.Engine.EntityUpdater(this.engine.pubsub, entityCreateCallback);
+	this._entityUpdater = new Bestia.Engine.EntityUpdater(this.pubsub, entityCreateCallback);
 	
 	/**
 	 * Updates an entity if a change is incoming.
@@ -132,7 +137,7 @@ Bestia.Engine.States.GameState.prototype = {
 
 			var path = path.reverse();
 			var msg = new Bestia.Message.BestiaMove(this.player.pbid, path, this.player.walkspeed);
-			Bestia.publish('io.sendMessage', msg);
+			this.pubsub.publish('io.sendMessage', msg);
 
 			// Start movement locally aswell.
 			this.player.moveTo(path);
@@ -141,7 +146,7 @@ Bestia.Engine.States.GameState.prototype = {
 
 		// Activate the selected bestia which triggered the mapload.
 		var msg = new Bestia.Message.BestiaActivate(this.bestia.playerBestiaId());
-		Bestia.publish('io.sendMessage', msg);
+		this.pubsub.publish('io.sendMessage', msg);
 	},
 
 	update : function() {

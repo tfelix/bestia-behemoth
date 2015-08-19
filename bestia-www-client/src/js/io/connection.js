@@ -73,6 +73,8 @@ Bestia.Connection.prototype.checkLoginData = function(data) {
  * Publishes: auth
  */
 Bestia.Connection.prototype.init = function() {
+	
+	var self = this;
 
 	// Prepare the request.
 	var store = new Bestia.Storage();
@@ -101,7 +103,7 @@ Bestia.Connection.prototype.init = function() {
 
 	request.onOpen = function(response) {
 		console.log('Connection to established via ' + response.transport);
-		this._pubsub.publish('io.onConnected', {});
+		self._pubsub.publish('io.onConnected', {});
 	};
 
 	request.onTransportFailure = function(errorMsg) {
@@ -123,13 +125,17 @@ Bestia.Connection.prototype.init = function() {
 
 		console.debug('Received Message: ' + message);
 
+		// Is it a valid server message? 
 		try {
 			var json = jQuery.parseJSON(message);
-			// Is it a valid server message? If yes send it to the engine.
-			Bestia.publish(json.mid, json);
 		} catch (e) {
 			console.log('No valid JSON: ', message.data);
 			return;
+		}
+		
+		// If yes send it to the engine.
+		if(json !== undefined) {
+			self._pubsub.publish(json.mid, json);
 		}
 	};
 
@@ -147,7 +153,7 @@ Bestia.Connection.prototype.init = function() {
 		console.error('Server error. Can not create connection.');
 	};
 
-	Bestia.publish('io.onConnecting', {});
+	this._pubsub.publish('io.onConnecting', {});
 	this.socket = $.atmosphere.subscribe(request);
 };
 

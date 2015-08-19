@@ -38,6 +38,10 @@ Bestia.BestiaViewModel = function(msg) {
 		this.update(msg);
 		this.statusPoints.update(msg.sp);
 	}
+	
+	this.selectBestia = function(bestia) {
+		console.debug("Selecting player bestia: " + bestia.playerBestiaId());
+	};
 };
 
 /**
@@ -48,7 +52,6 @@ Bestia.BestiaViewModel = function(msg) {
  *            msg - Message object from the server.
  */
 Bestia.BestiaViewModel.prototype.update = function(msg) {
-	var self = this;
 	this.playerBestiaId(msg.id);
 	this.location(msg.cl.mdbn);
 	this.posX(msg.cl.x);
@@ -61,8 +64,4 @@ Bestia.BestiaViewModel.prototype.update = function(msg) {
 	//this.statusEffects = [];
 	//this.slot(msg.sl);
 	this.statusPoints.update(msg.sp);
-
-	self.selectBestia = function(bestia) {
-		console.log("Selecting bestia: " + bestia);
-	};
 };

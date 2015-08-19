@@ -21,11 +21,12 @@ Bestia.Page = Bestia.Page || {};
  * @param {String}
  *            domID - DOM id of the object which will be used as the bootstrap
  *            modal dialog popup.
+ * @param {Bestia.PubSub}
+ *            pubsub - Publish/Subscriber interface.
  */
-Bestia.Page.LogoutDialog = function(domID) {
+Bestia.Page.LogoutDialog = function(domID, pubsub) {
 
 	this.dialog = $(domID);
-
 	if (this.dialog.length === 0) {
 		throw "DOM node was not found.";
 	}
@@ -34,11 +35,12 @@ Bestia.Page.LogoutDialog = function(domID) {
 		window.location.replace(Bestia.Urls.loginUrl);
 	});
 
-	Bestia.subscribe('system.logout', $.proxy(this._handleLogout, this));
+	pubsub.subscribe('system.logout', $.proxy(this._handleLogout, this));
 };
 
 /**
  * Handler for the logout system message.
+ * 
  * @private
  * @method Bestia.Page.LogoutDialog#_handleLogout
  */
