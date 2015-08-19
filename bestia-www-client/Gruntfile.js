@@ -29,7 +29,10 @@ module.exports = function(grunt) {
 	appFilelistShimed.push('<%= tempDir %>/js/main.js');
 	appFilelistShimed.push('<%= tempDir %>/js/outro.js');
 	
-	var pageFilelistShimed = ['<%= tempDir %>/js/intro.js', '<%= tempDir %>/js/behemoth.js', '<%= tempDir %>/js/outro.js'];
+	var pageFilelistShimed = ['<%= tempDir %>/js/intro.js', 
+	                          '<%= tempDir %>/js/behemoth.js',
+	                          '<%= tempDir %>/js/util/storage.js',
+	                          '<%= tempDir %>/js/outro.js'];
 
 	loadConfig(grunt, {
 		configPath : __dirname + '/tasks/options',

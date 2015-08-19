@@ -38,7 +38,7 @@
 			<props>
 				<prop key="hibernate.dialect">${db.dialect}</prop>
 				<prop key="hibernate.show_sql">true</prop>
-				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.hbm2ddl.auto">${db.hbm2ddl}</prop>
 			</props>
 		</property>
 

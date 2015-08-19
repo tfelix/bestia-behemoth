@@ -38,6 +38,7 @@
 				<db.url>jdbc:mysql://localhost/bestia2</db.url>
 				<db.dialect>org.hibernate.dialect.MySQL5Dialect</db.dialect>
 				<db.driver>com.mysql.jdbc.Driver</db.driver>
+				<db.hbm2ddl>update</db.hbm2ddl>
 			</properties>
 			<activation>
 				<activeByDefault>true</activeByDefault>
@@ -56,6 +57,7 @@
 				<db.url>jdbc:mysql://localhost/bestia</db.url>
 				<db.dialect>org.hibernate.dialect.MySQL5Dialect</db.dialect>
 				<db.driver>com.mysql.jdbc.Driver</db.driver>
+				<db.hbm2ddl>validate</db.hbm2ddl>
 			</properties>
 			<activation>
 				<property>
