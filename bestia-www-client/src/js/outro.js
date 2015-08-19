@@ -1,1 +1,2 @@
-})(jQuery, ko);
+return Bestia;
+})(this, jQuery, ko);

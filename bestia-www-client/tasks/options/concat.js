@@ -11,14 +11,16 @@ module.exports = {
 	},
 
 	pageCreate : {
-		src : [ '<%= tempDir %>/js/pages/all-pages.js',
+		src : [ '<%= pageFilelistShimed %>',
+		        '<%= tempDir %>/js/pages/all-pages.js',
 				'<%= tempDir %>/js/pages/create.js' ],
 		dest : '<%= buildDir %>/js/create.js'
 
 	},
 
 	pageLogin : {
-		src : [ '<%= tempDir %>/js/pages/all-pages.js',
+		src : [ '<%= pageFilelistShimed %>',
+		        '<%= tempDir %>/js/pages/all-pages.js',
 				'<%= tempDir %>/js/pages/login.js' ],
 		dest : '<%= buildDir %>/js/login.js'
 	}

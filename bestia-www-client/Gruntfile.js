@@ -28,6 +28,8 @@ module.exports = function(grunt) {
 	appFilelistShimed.push('<%= tempDir %>/js/pages/app.js');
 	appFilelistShimed.push('<%= tempDir %>/js/main.js');
 	appFilelistShimed.push('<%= tempDir %>/js/outro.js');
+	
+	var pageFilelistShimed = ['<%= tempDir %>/js/intro.js', '<%= tempDir %>/js/behemoth.js', '<%= tempDir %>/js/outro.js'];
 
 	loadConfig(grunt, {
 		configPath : __dirname + '/tasks/options',
@@ -39,6 +41,7 @@ module.exports = function(grunt) {
 			sourcemap : true,
 			appFilelist : appFiles,
 			appFilelistShimed : appFilelistShimed,
+			pageFilelistShimed : pageFilelistShimed,
 			version : version
 		}
 	});
@@ -75,7 +78,6 @@ module.exports = function(grunt) {
 		grunt.task.run('bower_concat');
 
 		// Compile JS (Main application)
-		//grunt.task.run([ 'preprocess:dev', 'jsonlint', 'jshint', 'jasmine' ]);
 		grunt.task.run([ 'preprocess:dev', 'jsonlint', 'jshint', 'concat']);
 		
 		// Start server and watch tasks.

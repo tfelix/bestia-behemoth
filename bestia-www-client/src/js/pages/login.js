@@ -14,8 +14,10 @@ $(document).ready(function() {
 			storage.storeAuth(data);
 
 			window.location.href = Bestia.Urls.gameHtml;
-		}).fail(function() {
+		}).fail(function(jqXHR, textStatus, errorThrown) {
 			$('#login').addClass('has-error');
+			
+			console.debug("Error while login: " + errorThrown + ", Status: " + textStatus);
 		});
 
 		return false;
