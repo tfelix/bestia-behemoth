@@ -1,44 +1,53 @@
 package net.bestia.model.domain;
 
-import java.net.URL;
+import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
-//@Entity
-public class Item {
-	
-	public enum ItemType {
-		USABLE_NORMAL,
-		USABLE_BATTLE,
-		USABLE_ALL,
-		EQUIP,
-		ETC,
-		QUEST
-	}
-	
+/**
+ * Items can be added to a players inventory. They can be used, traded, sold,
+ * dropped etc.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
+@Entity
+@Table(name = "items")
+public class Item implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	private int id;
-	@Column(name = "item_db_name")
+
+	@Column(name = "item_db_name", unique = true, nullable = false)
 	private String itemDbName;
-	// name description
-	private URL image;
-	private int price;
-	private ItemType type;
+
+	@Column(nullable = false)
+	private String image;
 	
+	private int price;
+
+	@Enumerated(EnumType.STRING)
+	private ItemType type;
+
 	public int getId() {
 		return id;
 	}
-	
-	public URL getImage() {
+
+	public String getImage() {
 		return image;
 	}
-	
+
 	public int getPrice() {
 		return price;
 	}
-	
+
 	public ItemType getType() {
 		return type;
 	}

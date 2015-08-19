@@ -1,15 +1,27 @@
 package net.bestia.model.domain;
 
+import java.io.Serializable;
+import java.util.Set;
+
+import javax.persistence.Entity;
+
+import org.junit.Assert;
 import org.junit.Test;
+import org.reflections.Reflections;
 
 public class GeneralModelTest {
 
+	
 	/**
-	 * TO avoid a duplicate key entry exception new entities should instanciated with a value different from 0 in order
-	 * to get detected as an update by hibernate.
+	 * All entities must implement serializable.
 	 */
 	@Test
-	public void primary_key_default_is_null() {
-
+	public void all_serializable_test() {
+		Reflections reflections = new Reflections("net.bestia.model");
+		Set<Class<?>> allClasses = reflections.getTypesAnnotatedWith(Entity.class);
+		
+		for(Class<?> clazz : allClasses) {
+			Assert.assertTrue(Serializable.class.isAssignableFrom(clazz));
+		}		
 	}
 }

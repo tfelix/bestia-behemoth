@@ -1,5 +1,6 @@
 package net.bestia.model.domain;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -10,9 +11,12 @@ import javax.persistence.Table;
 @Table(name="attacks")
 public class Attack {
 	@Id
+	private int id;
+	
+	@Column(unique = true)
 	private String databaseName;
 	private int strength;
-	private String name;
+
 	@Enumerated(EnumType.STRING)
 	private Element element;
 	private int manaCost;
@@ -46,20 +50,6 @@ public class Attack {
 	 */
 	public void setStrength(int strength) {
 		this.strength = strength;
-	}
-	
-	/**
-	 * @return the name
-	 */
-	public String getName() {
-		return name;
-	}
-	
-	/**
-	 * @param name the name to set
-	 */
-	public void setName(String name) {
-		this.name = name;
 	}
 	
 	/**
