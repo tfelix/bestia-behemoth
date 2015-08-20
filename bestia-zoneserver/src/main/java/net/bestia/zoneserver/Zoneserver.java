@@ -128,13 +128,11 @@ public class Zoneserver {
 		// Setup the config file.
 		this.config = config;
 
+		// Name of the zoneserver.
 		this.name = config.getProperty("zone.name");
 
 		// Create a command context.
-		final CommandContext.Builder cmdCtxBuilder = new CommandContext.Builder();
-
-		cmdCtxBuilder.setConfiguration(config).setZones(zones).setZoneserver(this);
-		commandContext = cmdCtxBuilder.build();
+		this.commandContext = new CommandContext(config, this);
 
 		this.commandFactory = new CommandFactory(commandContext);
 		this.commandExecutor = Executors.newFixedThreadPool(1);
@@ -205,6 +203,7 @@ public class Zoneserver {
 			stop();
 			return false;
 		}
+
 
 		// Subscribe to zone broadcast messages.
 		interserverSubscriber.subscribe("zone/all");

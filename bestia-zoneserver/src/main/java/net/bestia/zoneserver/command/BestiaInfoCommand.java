@@ -32,5 +32,9 @@ public class BestiaInfoCommand extends Command {
 		
 		ctx.getServer().sendMessage(reply);*/
 	}
-
+	
+	@Override
+	public String toString() {
+		return "BestiaInfoCommand[]";
+	}
 }

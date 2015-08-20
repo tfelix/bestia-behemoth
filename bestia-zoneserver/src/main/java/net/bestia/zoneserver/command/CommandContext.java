@@ -1,86 +1,46 @@
 package net.bestia.zoneserver.command;
 
-import java.util.Collection;
-import java.util.Map;
-
 import net.bestia.model.ServiceLocator;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.Zoneserver;
-import net.bestia.zoneserver.zone.Zone;
 
 /**
- * Facade class to cover the needed information context for a {@link Command} class. It contains references to database
- * access and messaging API. The context itself is immutable because multi-thread access will happen. The member of
- * itself must be thread safe as well.
- * 
- * TODO Später muss hier noch geprüft werden ob wirklich alle befehle so benötigt werden wie sie hier stehen.
+ * Facade class to cover the needed information context for a {@link Command}
+ * class. It contains references to database access and messaging API. The
+ * context itself is immutable because multi-thread access will happen. All the
+ * member of this class must therefore be thread safe as well.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public final class CommandContext {
 
-	/**
-	 * Builder pattern for creating the command context.
-	 *
-	 */
-	public static class Builder {
-		private Map<String, Zone> zones;
-		private Zoneserver zoneserver;
-		private BestiaConfiguration config;
-
-		public Builder setZones(Map<String, Zone> zones) {
-			this.zones = zones;
-			return this;
-		}
-
-		public Builder setConfiguration(BestiaConfiguration config) {
-			this.config = config;
-			return this;
-		}
-
-		public Builder setZoneserver(Zoneserver server) {
-			this.zoneserver = server;
-			return this;
-		}
-
-		public CommandContext build() {
-			return new CommandContext(this);
-		}
-	}
-
 	private final BestiaConfiguration configuration;
-	private final Map<String, Zone> zones;
 	private final Zoneserver server;
 	private final ServiceLocator serviceLocator;
 
 	/**
-	 * Ctor. Creat
+	 * Ctor. Creates the CommandContext.
 	 * 
-	 * @param builder
-	 *            Builder holding the needed variables for creating this context.
+	 * @param config
+	 *            Configuration of the currently running zoneserver.
+	 * @param zoneserver
+	 *            Handle to the zoneserver to retrieve various information about
+	 *            it.
+	 * 
 	 */
-	private CommandContext(Builder builder) {
+	public CommandContext(BestiaConfiguration config, Zoneserver zoneserver) {
 
-		if (builder == null) {
-			throw new IllegalArgumentException("Builder can not be null.");
-		}
-
-		if (builder.zones == null) {
-			throw new IllegalArgumentException("zones can not be null.");
-		}
-
-		if (builder.config == null) {
+		if (config == null) {
 			throw new IllegalArgumentException("config can not be null.");
 		}
 
-		if (builder.zoneserver == null) {
+		if (zoneserver == null) {
 			throw new IllegalArgumentException("zoneserver can not be null.");
 		}
 
-		this.zones = builder.zones;
-		this.configuration = builder.config;
-		this.server = builder.zoneserver;
+		this.configuration = config;
+		this.server = zoneserver;
 		this.serviceLocator = new ServiceLocator();
 	}
 
@@ -91,27 +51,6 @@ public final class CommandContext {
 	 */
 	public BestiaConfiguration getConfiguration() {
 		return configuration;
-	}
-
-	/**
-	 * Return a zone by its name.
-	 * 
-	 * @deprecated Auch das sollte nicht notwendig sein.
-	 * @param name
-	 * @return Zone specified by its name, or NULL.
-	 */
-	public Zone getZone(String name) {
-		return zones.get(name);
-	}
-
-	/**
-	 * Returns all zones.
-	 * 
-	 * @deprecated Das ist eigentlich nicht nötig. Der Server managt das jetzt.
-	 * @return Collection of all zones.
-	 */
-	public Collection<Zone> getAllZones() {
-		return zones.values();
 	}
 
 	/**
