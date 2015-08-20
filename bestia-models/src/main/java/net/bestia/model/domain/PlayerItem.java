@@ -27,6 +27,7 @@ public class PlayerItem implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(unique = true, nullable = false)
+	@JsonProperty("pid")
 	private int id;
 
 	@ManyToOne

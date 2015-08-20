@@ -36,6 +36,9 @@ $(document).ready(function() {
 
 	// Bind the DOM to the game.
 	ko.applyBindings(game);
-
-	// $('#modal-inventory').modal('show');
+	
+	// Add click handler.
+	$('#btn-inventory').click(function(){
+		$('#modal-inventory').modal('show');
+	});
 });

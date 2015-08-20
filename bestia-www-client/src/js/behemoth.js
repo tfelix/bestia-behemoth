@@ -36,6 +36,7 @@ var Bestia = Bestia || {
 		bestiaWebsocket: 'http://localhost:8080/api',	
 		assetsRoot : 'http://localhost/assets/',
 		assetsMap : 'http://localhost/assets/map/',
+		assetsItems : 'http://localhost/assets/img/items/',
 		assetsMobIcon : 'http://localhost/assets/img/mob-icon/',
 		assetsMobSprite : 'http://localhost/assets/img/sprite/mob/'
 		// @endif
@@ -46,6 +47,7 @@ var Bestia = Bestia || {
 		bestiaWebsocket : 'http://socket1.bestia-game.net/api',
 		assetsRoot : 'http://www.bestia-game.net/assets/',
 		assetsMap : 'http://www.bestia-game.net/assets/map/',
+		assetsItems : 'http://www.bestia-game.net/assets/img/items/',
 		assetsMobIcon : 'http://www.bestia-game.net/assets/img/mob-icon/',
 		assetsMobSprite : 'http://www.bestia-game.net/assets/img/sprite/mob/'
 		// @endif
