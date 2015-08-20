@@ -26,10 +26,12 @@ class ChatCommand extends Command {
 
 	@Override
 	public void execute(Message message, CommandContext ctx) {
-		ChatMessage m = (ChatMessage) message;
+		
+		final ChatMessage m = (ChatMessage) message;
+		final AccountDAO accDAO = ctx.getServiceLocator().getBean(AccountDAO.class);
 
 		// Find the player who send the message.
-		final Account acc = ctx.getServiceLocator().getBean(AccountDAO.class).find(m.getAccountId());
+		final Account acc = accDAO.find(m.getAccountId());
 		final long accId = acc.getId();
 
 		// Set the username of the message to this player.
@@ -39,24 +41,39 @@ class ChatCommand extends Command {
 		final int activeBestiaId = controller.getActiveBestia(accId);
 
 		if (activeBestiaId == 0) {
-			// No bestia was active. Do nothing.
+			// No bestia was active. Do nothing. Actually this should not happen
+			// since the server should not listen to accounts with non active bestias.
+			// but better be sure.
 			return;
 		}
 
+		final ChatEchoMessage replyMsg;
+		
 		// Check chat type.
 		switch (m.getChatMode()) {
 		case COMMAND:
 			// Check which command the user wanted. If his user level is high
 			// enough execute the command.
+			log.warn("Commands not supported atm.");
+			break;
 		case PUBLIC:
-			// Send to the ecs since we must make sight tests.
-			controller.sendInput(m, activeBestiaId);
-			
+			// Send the message to all active player in the range so send to the ecs 
+			// since we must make sight tests.
+			if (controller.sendInput(m, activeBestiaId)) {
+				// Echo the message back to the user.
+				replyMsg = ChatEchoMessage.getEchoMessage(m);
+				replyMsg.setEchoCode(EchoCode.OK);
+			} else {
+				// Internal error. Signal this back to the user.
+				replyMsg = ChatEchoMessage.getEchoMessage(m);
+				replyMsg.setEchoCode(EchoCode.ERROR);
+			}
+			ctx.getServer().sendMessage(replyMsg);
 			break;
 		case PARTY:
 		case GUILD:
 			// not supported atm.
-			log.warn("Not supported atm.");
+			log.warn("Guild or Party msg not supported atm.");
 			break;
 		default:
 			// Command will not be handled since these command types
@@ -64,22 +81,6 @@ class ChatCommand extends Command {
 			log.error("Malformed ChatMessage: {}", message.toString());
 			return;
 		}
-
-		// Get the player bestia id and use it to find entity and determine other player entities in range.
-
-		// Send the message to all active player in the range. There will be a list of entities.
-		final ChatEchoMessage replyMsg;
-		if (controller.sendInput(m, activeBestiaId)) {
-			// Echo the message back to the user.
-			replyMsg = ChatEchoMessage.getEchoMessage(m);
-			replyMsg.setEchoCode(EchoCode.ERROR);
-		} else {
-			// Echo the message back to the user.
-			replyMsg = ChatEchoMessage.getEchoMessage(m);
-			replyMsg.setEchoCode(EchoCode.ERROR);
-		}
-
-		ctx.getServer().sendMessage(replyMsg);
 	}
 
 	@Override

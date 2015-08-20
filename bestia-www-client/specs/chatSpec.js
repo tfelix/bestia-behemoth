@@ -82,4 +82,8 @@ describe("Bestia.Chat", function() {
 		chat.sendChat();
 		expect(chat.messages().length).toEqual(0);
 	});
+	
+	it("Sends a correct public chat message", function(){
+		// TODO
+	});
 });

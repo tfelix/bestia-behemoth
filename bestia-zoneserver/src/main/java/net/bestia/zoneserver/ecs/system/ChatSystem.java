@@ -38,19 +38,25 @@ public class ChatSystem extends EntityProcessingSystem {
 		while(!active.chatQueue.isEmpty()) {
 			final ChatMessage msg = active.chatQueue.poll();
 			
-			// Get all bestias in range.
+			// Get all bestias who are possible chat receivers (active and player controlled)
 			final IntBag receiverEntities = subscription.getEntities();
 			
 			for(int i = 0; i < receiverEntities.size(); i++) {
 				final int entityId = receiverEntities.get(i);
 				Entity receiverEntity = world.getEntity(entityId);
 				
+				// Are they in sight range?
 				if(!networkManager.isInSightDistance(e, receiverEntity)) {
 					continue;
 				}
 				
 				final PlayerControlled playerCtrl = playerMapper.get(receiverEntity);
 				final long receiverAccId = playerCtrl.playerBestia.getBestia().getOwner().getId();
+				
+				// Skip the same owner of the bestia.
+				if(msg.getAccountId() == receiverAccId) {
+					continue;
+				}
 				
 				final ChatMessage forwardMsg = ChatMessage.getForwardMessage(receiverAccId, msg);
 				ctx.getServer().sendMessage(forwardMsg);
