@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Generates all the needed account services. Please be careful: This factory is not threadsafe. Therefore each thread
- * should have its own service factory.
+ * should have its own AccountService.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
