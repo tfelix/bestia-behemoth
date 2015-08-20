@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.game.zone;
+package net.bestia.zoneserver.zone;
 
 /**
  * 2D Point. Immutable. Used as coordinates in various systems.

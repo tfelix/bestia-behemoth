@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.game.zone.map;
+package net.bestia.zoneserver.zone.map;
 
 /**
  * Holds information about a basic tile. Usually this data is loaded from a mapfile first and then stored in RAM. It

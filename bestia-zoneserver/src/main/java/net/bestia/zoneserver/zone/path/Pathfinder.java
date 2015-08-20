@@ -1,9 +1,9 @@
-package net.bestia.zoneserver.game.zone.path;
+package net.bestia.zoneserver.zone.path;
 
 import java.util.List;
 
-import net.bestia.zoneserver.game.zone.Vector2;
-import net.bestia.zoneserver.game.zone.Zone;
+import net.bestia.zoneserver.zone.Vector2;
+import net.bestia.zoneserver.zone.Zone;
 
 /**
  * Interface for path calculation algorithms used by the bestia game.

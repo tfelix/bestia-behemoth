@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.game.zone.path;
+package net.bestia.zoneserver.zone.path;
 
 import java.util.Collections;
 import java.util.HashMap;

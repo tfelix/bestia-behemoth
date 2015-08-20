@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.ecs.component;
 
-import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 import com.artemis.Component;
 

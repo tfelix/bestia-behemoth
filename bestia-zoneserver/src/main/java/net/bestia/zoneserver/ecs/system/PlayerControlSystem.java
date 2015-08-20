@@ -19,9 +19,9 @@ import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.PlayerControlled;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
-import net.bestia.zoneserver.game.zone.Vector2;
-import net.bestia.zoneserver.game.zone.Zone;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.zone.Vector2;
+import net.bestia.zoneserver.zone.Zone;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

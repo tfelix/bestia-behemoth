@@ -11,7 +11,7 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.InputController;
-import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 /*-
  * This command will be executed if a new user wants to join. He needs a few information in order to boot the client

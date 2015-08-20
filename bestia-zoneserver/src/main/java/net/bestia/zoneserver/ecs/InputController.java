@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import net.bestia.messages.InputMessage;
 import net.bestia.messages.Message;
-import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

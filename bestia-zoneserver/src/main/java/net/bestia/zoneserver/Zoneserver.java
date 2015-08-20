@@ -23,8 +23,8 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
 import net.bestia.zoneserver.ecs.InputController;
 import net.bestia.zoneserver.ecs.InputController.InputControllerCallback;
-import net.bestia.zoneserver.game.zone.Zone;
 import net.bestia.zoneserver.worker.ZoneInitLoader;
+import net.bestia.zoneserver.zone.Zone;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -52,8 +52,7 @@ public class Zoneserver {
 
 		@Override
 		public void removedBestia(long accId, int bestiaId) {
-			// TODO Auto-generated method stub
-			
+			// no op.
 		}
 
 		@Override
@@ -73,8 +72,7 @@ public class Zoneserver {
 
 		@Override
 		public void addedBestia(long accId, int bestiaId) {
-			// TODO Auto-generated method stub
-			
+			// no op.
 		}
 		
 	}

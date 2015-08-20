@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.game.zone.map;
+package net.bestia.zoneserver.zone.map;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.bestia.zoneserver.game.zone.Rect;
-import net.bestia.zoneserver.game.zone.Vector2;
+import net.bestia.zoneserver.zone.Rect;
+import net.bestia.zoneserver.zone.Vector2;
 
 /**
  * Representation of a map used by the bestia zone server. The map holds all

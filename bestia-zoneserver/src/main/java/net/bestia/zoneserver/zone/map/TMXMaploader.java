@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.game.zone.map;
+package net.bestia.zoneserver.zone.map;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,7 +7,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 
-import net.bestia.zoneserver.game.zone.Vector2;
+import net.bestia.zoneserver.zone.Vector2;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;

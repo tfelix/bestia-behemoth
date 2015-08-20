@@ -7,7 +7,9 @@ import java.io.File;
 
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.game.zone.map.Map;
+import net.bestia.zoneserver.zone.map.Map;
+import net.bestia.zoneserver.zone.Rect;
+import net.bestia.zoneserver.zone.Zone;
 
 import org.junit.Assert;
 import org.junit.Test;

@@ -4,7 +4,7 @@ import net.bestia.zoneserver.ecs.component.Changable;
 import net.bestia.zoneserver.ecs.component.ChangedData;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.game.zone.Vector2;
+import net.bestia.zoneserver.zone.Vector2;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

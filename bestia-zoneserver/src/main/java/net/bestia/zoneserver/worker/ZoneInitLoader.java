@@ -15,11 +15,11 @@ import java.util.concurrent.Future;
 
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.game.zone.Zone;
-import net.bestia.zoneserver.game.zone.map.Map;
-import net.bestia.zoneserver.game.zone.map.Map.MapBuilder;
-import net.bestia.zoneserver.game.zone.map.Maploader;
-import net.bestia.zoneserver.game.zone.map.TMXMaploader;
+import net.bestia.zoneserver.zone.Zone;
+import net.bestia.zoneserver.zone.map.Map;
+import net.bestia.zoneserver.zone.map.Map.MapBuilder;
+import net.bestia.zoneserver.zone.map.Maploader;
+import net.bestia.zoneserver.zone.map.TMXMaploader;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

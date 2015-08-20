@@ -15,7 +15,7 @@ import net.bestia.messages.Message;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.ecs.InputController;
 import net.bestia.zoneserver.ecs.InputController.InputControllerCallback;
-import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 public class InputControllerTest {
 

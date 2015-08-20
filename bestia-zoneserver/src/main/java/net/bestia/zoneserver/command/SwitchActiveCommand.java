@@ -5,7 +5,7 @@ import java.util.Set;
 import net.bestia.messages.BestiaActivateMessage;
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.ecs.InputController;
-import net.bestia.zoneserver.game.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 /**
  * This command will switch between active bestias. Since it is not known on which zone the bestia resides, this command

@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.game.manager;
+package net.bestia.zoneserver.manager;
 
 import net.bestia.messages.ChatMessage;
 import net.bestia.model.domain.PlayerBestia;
@@ -8,10 +8,16 @@ import net.bestia.zoneserver.Zoneserver;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * The PlayerBestiaManager is responsible for executing the "business logic" to a {@link PlayerBestia} DTO.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class PlayerBestiaManager {
 	private final static Logger log = LogManager.getLogger(PlayerBestiaManager.class);
 
-	private final static int MAX_LEVEL = 100;
+	private final static int MAX_LEVEL = 40;
 
 	private final PlayerBestia bestia;
 	private final Zoneserver server;

@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.game.zone;
+package net.bestia.zoneserver.zone;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -10,7 +10,7 @@ import net.bestia.zoneserver.ecs.system.PersistSystem;
 import net.bestia.zoneserver.ecs.system.PlayerControlSystem;
 import net.bestia.zoneserver.ecs.system.PlayerNetworkUpdateSystem;
 import net.bestia.zoneserver.ecs.system.VisibleNetworkUpdateSystem;
-import net.bestia.zoneserver.game.zone.map.Map;
+import net.bestia.zoneserver.zone.map.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

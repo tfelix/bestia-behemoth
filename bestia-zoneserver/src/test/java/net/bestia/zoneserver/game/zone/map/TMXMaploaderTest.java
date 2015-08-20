@@ -1,14 +1,15 @@
 package net.bestia.zoneserver.game.zone.map;
 
 import java.io.File;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.junit.Test;
 
-import net.bestia.zoneserver.game.zone.map.Map.MapBuilder;
+import net.bestia.zoneserver.zone.map.Map;
+import net.bestia.zoneserver.zone.map.Map.MapBuilder;
+import net.bestia.zoneserver.zone.map.TMXMaploader;
 
 public class TMXMaploaderTest {
 

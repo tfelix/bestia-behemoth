@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import net.bestia.zoneserver.game.zone.Vector2;
+import net.bestia.zoneserver.zone.Vector2;
 
 import com.artemis.Component;
 

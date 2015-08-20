@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.game.zone;
+package net.bestia.zoneserver.zone;
 
 /**
  * Rectangle. Immutable. Can be used as collision bounding box shape and other things.

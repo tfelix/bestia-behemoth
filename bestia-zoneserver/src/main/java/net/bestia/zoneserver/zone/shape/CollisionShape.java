@@ -1,7 +1,7 @@
-package net.bestia.zoneserver.game.zone.shape;
+package net.bestia.zoneserver.zone.shape;
 
-import net.bestia.zoneserver.game.zone.Rect;
-import net.bestia.zoneserver.game.zone.Vector2;
+import net.bestia.zoneserver.zone.Rect;
+import net.bestia.zoneserver.zone.Vector2;
 
 
 public abstract class CollisionShape {

@@ -6,7 +6,7 @@ import java.util.Map;
 import net.bestia.model.ServiceLocator;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.Zoneserver;
-import net.bestia.zoneserver.game.zone.Zone;
+import net.bestia.zoneserver.zone.Zone;
 
 /**
  * Facade class to cover the needed information context for a {@link Command} class. It contains references to database

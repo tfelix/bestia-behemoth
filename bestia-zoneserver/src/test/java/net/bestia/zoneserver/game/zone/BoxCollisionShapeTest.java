@@ -1,6 +1,8 @@
 package net.bestia.zoneserver.game.zone;
 
-import net.bestia.zoneserver.game.zone.shape.BoxCollisionShape;
+import net.bestia.zoneserver.zone.Rect;
+import net.bestia.zoneserver.zone.Vector2;
+import net.bestia.zoneserver.zone.shape.BoxCollisionShape;
 
 import org.junit.Assert;
 import org.junit.Test;

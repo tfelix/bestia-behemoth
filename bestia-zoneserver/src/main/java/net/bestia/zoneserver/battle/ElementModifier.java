@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.game.battle;
+package net.bestia.zoneserver.battle;
 
 import java.util.HashMap;
 import java.util.Map;
