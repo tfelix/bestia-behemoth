@@ -66,7 +66,7 @@ describe("Bestia.Chat", function() {
 		expect(chat._localCommands.length).toBe(Object.keys(Bestia.Chat.Commands).length - 1);
 	});
 
-	it("Executes commands.", function() {
+	it("Executes local commands.", function() {
 		var chat = new Bestia.Chat(chatEle, game);
 
 		game.pubsub.publish('chat.message', {
@@ -84,6 +84,23 @@ describe("Bestia.Chat", function() {
 	});
 	
 	it("Sends a correct public chat message", function(){
-		// TODO
+		var chat = new Bestia.Chat(chatEle, game);
+		chat.LOCAL_NICKNAME = 'Sam'
+		
+		var handler = function(_, msg) {
+			// {"mid":"chat.message","m":"PUBLIC","txt":"test","rxn":"","sn":"blubber 2","cmid":0}
+			 
+			expect(msg.mid).toEqual("chat.message");
+			expect(msg.m).toEqual("PUBLIC");
+			expect(msg.txt).toEqual("HelloWorld");
+			expect(msg.rxn).toEqual("");
+			expect(msg.sn).toEqual("Sam");
+			expect(msg.cmid).toEqual(0);
+		};
+		
+		game.pubsub.subscribe('io.sendMessage', handler);
+		
+		chat.test('HelloWorld');
+		chat.sendChat();
 	});
 });
