@@ -31,7 +31,7 @@ public class LoginTokenAuthenticator implements Authenticator {
 		this.accountId = id;
 
 		ServiceLocator locator = new ServiceLocator();
-		this.accountDao = locator.getDAO(AccountDAO.class);
+		this.accountDao = locator.getBean(AccountDAO.class);
 	}
 
 	@Override

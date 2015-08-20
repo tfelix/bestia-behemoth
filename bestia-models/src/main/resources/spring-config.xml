@@ -47,24 +47,6 @@
 				<value>net.bestia.model.domain</value>
 			</list>
 		</property>
-
-		<!-- 
-		<property name="annotatedClasses">
-			<list>
-				<value>net.bestia.model.domain.Account</value>
-				<value>net.bestia.model.domain.Password</value>
-				<value>net.bestia.model.domain.Bestia</value>
-				<value>net.bestia.model.domain.PlayerBestia</value>
-			</list>
-		</property> -->
-
-		<!-- WIEDER UMSTELLEN AUF ALLE KLASSEN SOBALD BEREIT. -->
-		<!-- <property name="packagesToScan">
-			<list>
-				<value>net.bestia.model.dao</value>
-				<value>net.bestia.model.domain</value>
-			</list>
-		</property>-->
 	</bean>
 
 	<bean id="transactionManager"

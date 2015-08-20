@@ -13,7 +13,7 @@ public class ServiceLocatorTest {
 
 	@SuppressWarnings("rawtypes")
 	@Test
-	public void get_daos_test() {
+	public void get_daos() {
 		Reflections reflections = new Reflections("net.bestia.model.dao");
 		// Get all dao classes.
 		Set<Class<? extends GenericDAO>> daoClasses = reflections.getSubTypesOf(GenericDAO.class);
@@ -22,12 +22,12 @@ public class ServiceLocatorTest {
 
 		for (Class<? extends GenericDAO> daoClass : daoClasses) {
 			GenericDAO dao = locator.getBean(daoClass);
-			assertNotNull(dao);
+			assertNotNull("DAO missing for: " + daoClass.getCanonicalName() , dao);
 		}
 	}
 
 	@Test
-	public void get_services_test() {
+	public void get_services() {
 		Reflections reflections = new Reflections("net.bestia.model.service");
 		// Get all dao classes.
 		Set<Class<? extends Object>> serviceClasses = reflections.getSubTypesOf(Object.class);
@@ -36,7 +36,7 @@ public class ServiceLocatorTest {
 
 		for (Class<? extends Object> serviceClass : serviceClasses) {
 			Object dao = locator.getBean(serviceClass);
-			assertNotNull(dao);
+			assertNotNull("Service missing for: " + serviceClass.getCanonicalName(), dao);
 		}
 	}
 }

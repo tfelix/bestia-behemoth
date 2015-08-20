@@ -14,14 +14,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class ServiceLocator {
 
 	private static final ApplicationContext context = new ClassPathXmlApplicationContext("/spring-config.xml");
-	
-	/**
-	 * @Deprecated Use getBean
-	 */	
-	@Deprecated
-	public <T> T getDAO(Class<T> type) {
-		return context.getBean(type);
-	}
 
 	public <T> T  getBean(Class<T> type) {
 		return context.getBean(type);
