@@ -58,7 +58,7 @@ Bestia.Chat = function(domEle, game) {
 	this.whisperRegex = /^\/[wW] (\w.+) /;
 	this.game = game;
 
-	this.mode = ko.observable('PUBLIC');
+	this.mode = ko.observable('');
 	this.modeText = ko.computed(function() {
 		if (self.mode() == 'PUBLIC') {
 			return i18n.t('chat.public');

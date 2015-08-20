@@ -11,19 +11,8 @@ Bestia.Game = function() {
 	this.connection.init();
 };
 
-// Final code.
-i18n.init({
-	lng : "de",
-	fallbackLng : false
-}, function() {
-	$('body').i18n();
-});
+function main() {
 
-/**
- * Das gefällt mir hier noch nicht. Das sollte eigentlich vielmehr in die Page Sektion von Bestia und das Bestia.Game ist eine eigene Klasse.
- */
-$(document).ready(function() {
-	
 	console.log("Starting Bestia Client V." + Bestia.VERSION);
 
 	// Creating the bestia game.
@@ -31,19 +20,32 @@ $(document).ready(function() {
 
 	// UI init must wait until dom is loaded and accessible.
 	Bestia.page = {
-		logoutDialog : new Bestia.Page.LogoutDialog('#modal-logout', game.pubsub)
+		logoutDialog : new Bestia.Page.LogoutDialog('#modal-logout',
+				game.pubsub)
 	};
 
 	// Bind the DOM to the game.
 	ko.applyBindings(game);
-	
+
 	// Add click handler.
-	$('#btn-inventory').click(function(){
+	$('#btn-inventory').click(function() {
 		$('#modal-inventory').modal('show');
 	});
-	
+
 	// Add click handler.
-	$('#btn-playground').click(function(){
+	$('#btn-playground').click(function() {
 		$('#modal-playground').modal('show');
 	});
+
+}
+
+i18n.init({
+	lng : "de",
+	fallbackLng : false
+}, function() {
+	// Translate document.
+	$('body').i18n();
+
+	// Start game.
+	$(document).ready(main);
 });
