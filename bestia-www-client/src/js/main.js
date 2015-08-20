@@ -2,7 +2,7 @@ Bestia.Game = function() {
 	this.pubsub = new Bestia.PubSub();
 	this.config = new Bestia.Config(this.pubsub);
 
-	//this.inventory = new Bestia.Inventory(this.net);
+	this.inventory = new Bestia.Inventory(this.pubsub);
 	this.bestias = new Bestia.BestiaInfoViewModel(this.pubsub);
 	this.chat = new Bestia.Chat($('#chat'), this);
 	this.engine = new Bestia.Engine(this.pubsub, this.config);
@@ -40,5 +40,10 @@ $(document).ready(function() {
 	// Add click handler.
 	$('#btn-inventory').click(function(){
 		$('#modal-inventory').modal('show');
+	});
+	
+	// Add click handler.
+	$('#btn-playground').click(function(){
+		$('#modal-playground').modal('show');
 	});
 });

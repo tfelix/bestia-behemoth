@@ -1,0 +1,31 @@
+
+.item {
+	width: 32px;
+	height: 32px;
+	display: inline-block;
+	
+	cursor: pointer;
+	
+	position: relative;
+	
+	background: white;
+	
+	img {
+		position: absolute;
+	}
+	
+	span.amount {
+		background: fade(@darkGray, 70%);
+		padding: 2px 2px 1px 2px;
+		border-radius: 2px;
+		color: white;
+		
+		line-height: 1;
+		
+		font-size: 7pt;
+		
+		position: absolute;
+		right: 0px;
+		bottom: 0px;
+	}
+}

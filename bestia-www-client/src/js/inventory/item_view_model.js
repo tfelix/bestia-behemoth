@@ -14,13 +14,15 @@ Bestia.ItemViewModel = function(data) {
 	 * Name of the item. Must be translated via i18n and item db name.
 	 * @property
 	 */
-	this.name = ko.observable();
+	this.name = ko.observable("Lalal");
+
+	
 	this.type = ko.observable();
 	this.amount = ko.observable(0);
 	this.playerItemId = ko.observable();
 	this.itemId = ko.observable();
 	this.itemDatabaseName = '';
-	this.image = ko.observable();
+	this.imageSrc = ko.observable();
 	
 	if(data !== undefined) {
 		this.update(data);
@@ -44,5 +46,16 @@ Bestia.ItemViewModel.prototype.update = function(data) {
 	this.itemId(data.i.id);
 	this.itemDatabaseName = data.i.idbn;
 	
-	this.image(Bestia.Urls.assetsItems + data.i.img);
+	this.imageSrc(Bestia.Urls.assetsItems + data.i.img);
+};
+
+/**
+ * Click handler. Handles clicks on this item.
+ * 
+ * @public
+ * @method Bestia.ItemViewModel#onClick
+ */
+Bestia.ItemViewModel.prototype.onClick = function() {
+	
+	alert("Hihi geklickt");
 };

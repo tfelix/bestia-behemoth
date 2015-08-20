@@ -9,6 +9,10 @@
 		"attacks": "Attacken"
 	},
 	
+	"ui": {
+		"close": "Schließen"
+	},
+	
 	"chat": {
 		"public" : "Öffentlich",
 		"party" : "Party",

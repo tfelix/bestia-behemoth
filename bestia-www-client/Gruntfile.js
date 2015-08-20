@@ -17,6 +17,8 @@ module.exports = function(grunt) {
 	         		'<%= tempDir %>/js/bestia/*.js',
 	         		// === IO ===
 	         		'<%= tempDir %>/js/io/*.js',
+	         		// === INVENTORY ===
+	         		'<%= tempDir %>/js/inventory/*.js',
 	         		// === ENGINE ===
 	         		'<%= tempDir %>/js/engine/engine.js', '<%= tempDir %>/js/engine/core/*.js',
 	         		'<%= tempDir %>/js/engine/entities/*.js', '<%= tempDir %>/js/engine/plugins/*.js',
