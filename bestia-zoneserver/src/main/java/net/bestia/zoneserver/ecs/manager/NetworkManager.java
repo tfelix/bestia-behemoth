@@ -20,7 +20,8 @@ import com.artemis.annotations.Wire;
 import com.artemis.managers.UuidEntityManager;
 
 /**
- * Helper manager
+ * Helper manager to help for network communication with other players.
+ * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
@@ -52,7 +53,7 @@ public class NetworkManager extends Manager {
 	}
 
 	/**
-	 * Creates a update message from a visible entity for a given player entity.
+	 * Creates a update message from a visible entity for a different player entity (client).
 	 * 
 	 * @param playerEntity
 	 * @param visibleEntit

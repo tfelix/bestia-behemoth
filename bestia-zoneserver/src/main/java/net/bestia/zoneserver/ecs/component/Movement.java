@@ -25,10 +25,14 @@ public class Movement extends Component {
 	public Movement() {
 		this.walkspeed = 1.0f;
 		this.nextMove = 1f;
+		// Clear it if artemis recycles an component.
+		this.path.clear();
 	}
 
 	public Movement(float walkspeed, List<Vector2> path) {
 		this.walkspeed = walkspeed;
+		// Clear it if artemis recycles an component.
+		this.path.clear();
 		this.path.addAll(path);
 		this.nextMove = 1f;
 	}

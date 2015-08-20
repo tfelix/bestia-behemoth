@@ -3,7 +3,12 @@ package net.bestia.zoneserver.zone;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.component.AI;
+import net.bestia.zoneserver.ecs.component.Movement;
+import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.manager.NetworkManager;
+import net.bestia.zoneserver.ecs.system.AISystem;
 import net.bestia.zoneserver.ecs.system.ChatSystem;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
@@ -15,11 +20,15 @@ import net.bestia.zoneserver.zone.map.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.artemis.Archetype;
+import com.artemis.ArchetypeBuilder;
+import com.artemis.Entity;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
 import com.artemis.managers.GroupManager;
 import com.artemis.managers.TagManager;
 import com.artemis.managers.UuidEntityManager;
+import com.artemis.utils.EntityBuilder;
 
 /**
  * The Zone holds the static mapdata as well is responsible for managing entities, actors, scripts etc. The entity
@@ -40,7 +49,7 @@ public class Zone {
 		public void run() {
 			lastRun = System.currentTimeMillis();
 
-			while (true) {
+			while (hasStarted.get()) {
 				final long now = System.currentTimeMillis();
 				float delta = now - lastRun;
 				lastRun = now;
@@ -81,8 +90,6 @@ public class Zone {
 			throw new IllegalArgumentException("Zone name can not be null or empty.");
 		}
 
-		// TODO Das ECS sollte auch in einer eigenen Klasse gekapselt sein.
-
 		// Initialize ECS.
 		final WorldConfiguration worldConfig = new WorldConfiguration();
 		// Register all external helper objects.
@@ -96,11 +103,12 @@ public class Zone {
 		worldConfig.setSystem(new MovementSystem());
 		worldConfig.setSystem(new PlayerNetworkUpdateSystem());
 		worldConfig.setSystem(new VisibleNetworkUpdateSystem());
+		worldConfig.setSystem(new AISystem());
 		worldConfig.setSystem(new ChatSystem());
 		worldConfig.setSystem(new PersistSystem(10000));
 
 		// Set all the managers.
-		worldConfig.setManager(new GroupManager());
+		//worldConfig.setManager(new GroupManager());
 		worldConfig.setManager(new TagManager());
 		worldConfig.setManager(new UuidEntityManager());
 		worldConfig.setManager(new NetworkManager());
@@ -108,6 +116,24 @@ public class Zone {
 		this.world = new World(worldConfig);
 
 		zoneTickerThread = new Thread(null, new ZoneTicker(), "zoneECS-" + name);
+		
+		// TODO Das ist temporär.
+		spawnEntities();
+	}
+	
+	/**
+	 * Temporärer Spawn von 10 Test entities die sich auf der map bewegen.
+	 */
+	private void spawnEntities() {
+
+		for(int i = 0; i < 10; i++) {
+		
+			Entity myEntity = new EntityBuilder(world).with(new Position(10 + i,10 + i), 
+	    		 new Visible("poring"),
+	    		 new AI()).build();
+		
+			
+		}
 	}
 
 	// =================== START GETTER AND SETTER =====================
@@ -126,10 +152,16 @@ public class Zone {
 	/**
 	 * Starts the entity system, initializes all message queues, load needed data and basically starts the zone
 	 * simulation.
+	 *
 	 */
 	public void start() {
-		zoneTickerThread.start();
+		if(hasStarted.get()) {
+			throw new IllegalStateException("Zone can not be started twice.");
+		}
+		
+		// TODO This is not save since the thread can not be started twice.
 		hasStarted.set(true);
+		zoneTickerThread.start();
 
 		log.debug("Zone {} has started.", name);
 	}
@@ -140,6 +172,11 @@ public class Zone {
 	 */
 	public void stop() {
 
+		// TODO Poisen pill the ECS.
+		
+		hasStarted.set(false);
+		
+		log.debug("Zone {} has stopped.", name);
 	}
 
 	/**
@@ -151,6 +188,7 @@ public class Zone {
 	 *            Coordinates to be checked.
 	 * @return TRUE if the tile is walkable, FALSE otherwise.
 	 */
+	@Deprecated
 	public boolean isWalkable(Vector2 cords) {
 		checkStart();
 		return map.isWalkable(cords);

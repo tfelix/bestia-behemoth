@@ -39,6 +39,8 @@ import com.artemis.utils.EntityBuilder;
  * der Message erzeugt und ausgeführt werden. Vielleicht kann man hier das Commandsystem aufgreifen. Und die
  * ServerCommands weiterverwenden? Bzw in ähnlicher form.
  * 
+ * TODO Das hier kann noch mal überarbeitet werden.
+ * 
  * @author Thomas
  *
  */
