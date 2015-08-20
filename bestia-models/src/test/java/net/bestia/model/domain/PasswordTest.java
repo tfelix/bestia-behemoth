@@ -47,8 +47,9 @@ public class PasswordTest {
 
 	@Test
 	public void check_given_salt_usage() {
-		Password pw =new Password(password, salt);
-		Assert.assertEquals(salt, pw.getSalt());
+		Password pw = new Password(password, salt);
+		byte[] savedSalt = pw.getSalt();
+		Assert.assertArrayEquals(salt, savedSalt);
 	}
 
 	@Test
