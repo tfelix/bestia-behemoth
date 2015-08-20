@@ -245,6 +245,7 @@ public class Zoneserver {
 	 * @param message
 	 */
 	public void sendMessage(final Message message) {
+		log.trace("Sending: {}", message.toString());
 		try {
 			interserverPublisher.publish(message);
 		} catch (IOException e) {
