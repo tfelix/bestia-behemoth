@@ -30,12 +30,12 @@ public class PlayerItem implements Serializable {
 	private int id;
 
 	@ManyToOne
-	@JoinColumn(name="ITEM_ID", nullable = false)
+	@JoinColumn(name = "ITEM_ID", nullable = false)
 	@JsonProperty("i")
 	private Item item;
 
 	@ManyToOne
-	@JoinColumn(name="ACCOUNT_ID", nullable = false)
+	@JoinColumn(name = "ACCOUNT_ID", nullable = false)
 	@JsonIgnore
 	private Account account;
 
@@ -127,5 +127,11 @@ public class PlayerItem implements Serializable {
 		}
 
 		this.amount = amount;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("PlayerItem[accId: %d, itemId: %d, amount: %d]",
+				account.getId(), item.getId(), amount);
 	}
 }

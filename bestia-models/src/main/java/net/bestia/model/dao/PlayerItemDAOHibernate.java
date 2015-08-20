@@ -16,7 +16,7 @@ public class PlayerItemDAOHibernate extends GenericDAOHibernate<PlayerItem, Inte
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<PlayerItem> findPlayerItemsForAccount(long accId) {
-		final Query query = currentSession().createQuery("from PlayerItem pi where pi.ACCOUNT_ID = :accId");
+		final Query query = currentSession().createQuery("from PlayerItem pi where pi.account.id = :accId");
 		query.setParameter("accId", accId);
 		return (List<PlayerItem>)query.list();
 	}
