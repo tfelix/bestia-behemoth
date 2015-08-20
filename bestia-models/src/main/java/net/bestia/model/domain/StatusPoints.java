@@ -102,6 +102,7 @@ public class StatusPoints implements Serializable {
 
 	public void setArmorDef(int armorDef) {
 		this.armorDef = armorDef;
+		checkInvalidStatusValue();
 	}
 
 	public int getArmorSpDef() {
@@ -110,6 +111,7 @@ public class StatusPoints implements Serializable {
 
 	public void setArmorSpDef(int armorSpDef) {
 		this.armorSpDef = armorSpDef;
+		checkInvalidStatusValue();
 	}
 
 	public int getAtk() {
@@ -118,6 +120,7 @@ public class StatusPoints implements Serializable {
 
 	public void setAtk(int atk) {
 		this.atk = atk;
+		checkInvalidStatusValue();
 	}
 
 	public int getDef() {
@@ -126,6 +129,7 @@ public class StatusPoints implements Serializable {
 
 	public void setDef(int def) {
 		this.def = def;
+		checkInvalidStatusValue();
 	}
 
 	public int getSpAtk() {
@@ -134,6 +138,7 @@ public class StatusPoints implements Serializable {
 
 	public void setSpAtk(int spAtk) {
 		this.spAtk = spAtk;
+		checkInvalidStatusValue();
 	}
 
 	public int getSpDef() {
@@ -142,6 +147,7 @@ public class StatusPoints implements Serializable {
 
 	public void setSpDef(int spDef) {
 		this.spDef = spDef;
+		checkInvalidStatusValue();
 	}
 
 	public int getSpd() {
@@ -150,6 +156,7 @@ public class StatusPoints implements Serializable {
 
 	public void setSpd(int spd) {
 		this.spd = spd;
+		checkInvalidStatusValue();
 	}
 
 	/**
@@ -174,11 +181,14 @@ public class StatusPoints implements Serializable {
 	 * @param rhs
 	 */
 	public void add(StatusPoints rhs) {
+		
+		this.maxHp += rhs.getMaxHp();
+		this.maxMana += rhs.getMaxMana();
+		this.currentHp += rhs.getCurrentHp();
+		this.currentMana += rhs.getCurrentMana();
 
 		this.atk += rhs.getAtk();
 		this.def += rhs.getDef();
-		this.currentHp += rhs.getCurrentHp();
-		this.currentMana += rhs.getCurrentMana();
 		this.spAtk += rhs.getSpAtk();
 		this.spd += rhs.getSpd();
 		this.spDef += rhs.getSpDef();
@@ -197,6 +207,15 @@ public class StatusPoints implements Serializable {
 	 */
 	private void checkInvalidStatusValue() {
 
+		// MAX HP & MANA TEST
+		if(maxHp < 1) {
+			maxHp = 1;
+		}
+		
+		if(maxMana < 1) {
+			maxMana = 1;
+		}
+		
 		if (currentHp > maxHp) {
 			currentHp = maxHp;
 		}
@@ -213,21 +232,40 @@ public class StatusPoints implements Serializable {
 			currentMana = 0;
 		}
 
+		// ARMOR TEST
 		if (armorDef < 1) {
 			armorDef = 1;
 		}
-
 		if (armorDef > 100) {
 			armorDef = 100;
 		}
 
+		// SP ARMOR TEST
 		if (armorSpDef < 1) {
 			armorSpDef = 1;
 		}
-
 		if (armorSpDef > 100) {
 			armorSpDef = 100;
 		}
-
+		
+		if(atk < 0) {
+			atk = 0;
+		}
+		
+		if(def < 0) {
+			def = 0;
+		}
+		
+		if(spd < 0) {
+			spd = 0;
+		}
+		
+		if(spAtk < 0) {
+			spAtk = 0;
+		}
+		
+		if(spDef < 0) {
+			spDef = 0;
+		}
 	}
 }

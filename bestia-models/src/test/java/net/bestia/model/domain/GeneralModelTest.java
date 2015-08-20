@@ -11,17 +11,19 @@ import org.reflections.Reflections;
 
 public class GeneralModelTest {
 
-	
 	/**
 	 * All entities must implement serializable.
 	 */
 	@Test
 	public void all_serializable_test() {
 		Reflections reflections = new Reflections("net.bestia.model");
-		Set<Class<?>> allClasses = reflections.getTypesAnnotatedWith(Entity.class);
-		
-		for(Class<?> clazz : allClasses) {
-			Assert.assertTrue(Serializable.class.isAssignableFrom(clazz));
-		}		
+		Set<Class<?>> allClasses = reflections
+				.getTypesAnnotatedWith(Entity.class);
+
+		for (Class<?> clazz : allClasses) {
+			Assert.assertTrue(clazz.toGenericString()
+					+ " does not implement Serializable.",
+					Serializable.class.isAssignableFrom(clazz));
+		}
 	}
 }

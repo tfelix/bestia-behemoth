@@ -1,13 +1,21 @@
 package net.bestia.model.domain;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Items can be added to a players inventory. They can be used, traded, sold,
@@ -20,21 +28,30 @@ import javax.persistence.Table;
 @Table(name = "items")
 public class Item implements Serializable {
 
+	@Transient
 	private static final long serialVersionUID = 1L;
 
 	@Id
 	private int id;
 
 	@Column(name = "item_db_name", unique = true, nullable = false)
+	@JsonProperty("idbn")
 	private String itemDbName;
 
 	@Column(nullable = false)
+	@JsonProperty("img")
 	private String image;
 	
+	@JsonIgnore
 	private int price;
 
 	@Enumerated(EnumType.STRING)
+	@JsonProperty("t")
 	private ItemType type;
+	
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "item")
+	@JsonIgnore
+	private Set<PlayerItem> playerItems = new HashSet<>(0);
 
 	public int getId() {
 		return id;

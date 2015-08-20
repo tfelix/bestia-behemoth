@@ -1,17 +1,25 @@
 package net.bestia.model.domain;
 
-import javax.persistence.*;
+import java.io.Serializable;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Base64;
+
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.Transient;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.Serializable;
-import java.security.MessageDigest;
-import java.util.Arrays;
-
 /**
- * Embedable data class for storing and checking passwords securely hashed inside
- * a database.
+ * Embeddable data class for storing and checking passwords securely hashed
+ * inside a database.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -23,31 +31,90 @@ public class Password implements Serializable {
 
 	@Transient
 	private final static Logger log = LogManager.getLogger(Password.class);
-	
-	// TODO Bessere KEY Hashfunktion.
-	@Transient
-	private final static String HASH_FUNCTION = "SHA-256";
 
-	// TODO Eigenes Salt für jedes Passwort.
 	@Transient
-	private static final String SALT = "ABCDEFGSJDHFT!12345";
-	
-	@Column(length = 64, name = "password")
-	private byte[] passwordHash;
+	private final static String HASH_FUNCTION = "PBKDF2WithHmacSHA1";
 
-	public Password(String password) {
-		passwordHash = hash(password);
-	}
+	@Transient
+	private final static int ITERATIONS = 512;
+
+	@Transient
+	private final static int KEY_LENGTH = 128;
+
+	@Transient
+	private static final int SALT_LENGTH = 32;
+
+	/**
+	 * Length is key + salt + delimiter char.
+	 */
+	@Column(name = "password", length = KEY_LENGTH + SALT_LENGTH + 1, nullable = false)
+	private String passwordHash = "";
 	
 	/**
 	 * Paramless Ctor for Hibernate.
 	 */
 	public Password() {
-		passwordHash = new byte[64];
+
 	}
+
+	/**
+	 * Creates a new password with a random new salt.
+	 * 
+	 * @param password
+	 */
+	public Password(String password) {
+
+		try {
+			final byte[] salt = getNewSalt();
+			final byte[] data = hash(password, salt);
+			setPasswordHash(data, salt);
+		} catch (Exception e) {
+			log.fatal("Encryption algorithm not supported on this VM! Passwords can not be hashed!");
+		}
+
+	}
+
+	/**
+	 * Creates a new password with a given salt.
+	 * 
+	 * @param password
+	 * @param salt
+	 */
+	public Password(String password, byte[] salt) {
+		try {
+			final byte[] data = hash(password, salt);
+			setPasswordHash(data, salt);
+		} catch (Exception e) {
+			log.fatal("Encryption algorithm not supported on this VM! Passwords can not be hashed!");
+		}
+	}
+
 	
-	public void setHash(byte[] hash) {
-		this.passwordHash = hash;	
+	private void setPasswordHash(byte[] data, byte[] salt) {
+		final Base64.Encoder enc = Base64.getEncoder();
+		
+		passwordHash = enc.encodeToString(data) + "$" + enc.encodeToString(salt);
+	}
+
+
+	private byte[] getNewSalt() throws Exception {
+		final byte[] salt = SecureRandom.getInstance("SHA1PRNG").generateSeed(
+				SALT_LENGTH);
+		return salt;
+	}
+
+	/**
+	 * Returns the saved salt from the password.
+	 * 
+	 * @return
+	 */
+	public byte[] getSalt() throws IllegalStateException {
+		final String[] splitted = passwordHash.split("\\$");
+		if (splitted.length < 2) {
+			throw new IllegalStateException(
+					"Password does not contain salt seperator symbol. Invalid data.");
+		}
+		return stringToByte(splitted[1]);
 	}
 
 	/**
@@ -56,16 +123,29 @@ public class Password implements Serializable {
 	 * @param str
 	 * @return
 	 */
-	private byte[] hash(String str) {
-		MessageDigest md = null;
+	private byte[] hash(String str, byte[] salt)
+			throws NoSuchAlgorithmException {
+		
+		// KEY_LENGTH is in byte. Function awaits bits.
+		final KeySpec spec = new PBEKeySpec(str.toCharArray(), salt,
+				ITERATIONS, KEY_LENGTH * 8);
+		final SecretKeyFactory f = SecretKeyFactory.getInstance(HASH_FUNCTION);
 		try {
-			md = MessageDigest.getInstance(HASH_FUNCTION);
-			byte[] hash = md.digest((str + SALT).getBytes("UTF-8"));
+			final SecretKey key = f.generateSecret(spec);
+			final byte[] hash = key.getEncoded();
+			
 			return hash;
-		} catch (Exception e) {
-			log.error("Hash function {} not supported.", HASH_FUNCTION);
-			throw new IllegalStateException("Can not generate hash of password. Hash function not supported.", e);
+		} catch (InvalidKeySpecException ex) {
+
+			log.fatal("Invalid key spec! Can not create hashed passwords!", ex);
 		}
+
+		return new byte[KEY_LENGTH];
+	}
+
+	private byte[] stringToByte(String data) {
+		final byte[] decoded = Base64.getDecoder().decode(data);
+		return decoded;
 	}
 
 	/**
@@ -75,9 +155,13 @@ public class Password implements Serializable {
 	 * @return
 	 */
 	public boolean matches(String password) {
-		return equals(new Password(password));
+
+		// Extract current salt.
+		final byte[] salt = getSalt();
+
+		return equals(new Password(password, salt));
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return passwordHash.hashCode();
@@ -92,6 +176,11 @@ public class Password implements Serializable {
 			return false;
 		}
 		Password that = (Password) o;
-		return Arrays.equals(this.passwordHash, that.passwordHash);
+		return this.passwordHash.equals(that.passwordHash);
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("Password[Hash: %s...]", passwordHash.subSequence(0, 12));
 	}
 }

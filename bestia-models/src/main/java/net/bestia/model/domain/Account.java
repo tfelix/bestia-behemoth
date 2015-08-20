@@ -2,12 +2,15 @@ package net.bestia.model.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -15,19 +18,18 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name="accounts")
+@Table(name = "accounts")
 public class Account implements Serializable {
-	
+
 	public enum UserLevel {
-		USER,
-		GM,
-		SUPER_GM,
-		ADMIN
+		USER, GM, SUPER_GM, ADMIN
 	}
 
 	@Transient
@@ -35,28 +37,46 @@ public class Account implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(unique = true, nullable = false)
 	private long id = 0;
-	@Column(length = 32, unique = true)
+	
+	@Column(length = 64, unique = true, nullable = false)
 	private String email = "";
+	
 	@Embedded
 	private Password password;
+	
 	private int additionalBestiaSlots = 0;
 	private int gold = 0;
 	private String loginToken = "";
+	
+	@Temporal(TemporalType.DATE)
 	private Date registerDate;
+	
+	@Temporal(TemporalType.DATE)
 	private Date lastLogin;
+	
 	private boolean isActivated = false;
+	
 	private String remarks = "";
+	
+	@Temporal(TemporalType.DATE)
 	private Date bannedUntilDate;
+	
 	private UserLevel userLevel = UserLevel.USER;
 
 	// @OneToMany(mappedBy="account")
 	// private List<GuildMember> guild;
 
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "account", fetch = FetchType.LAZY)
+	private Set<PlayerItem> items = new HashSet<>(0);
+
 	/**
 	 * Master id must sadly be optional because otherwise we get a cycle
 	 * dependency with player_bestias. These must always have a account as
 	 * foreign key so we must make this optional to allow account creation.
+	 * 
+	 * TODO: Kann man das nicht in einer Transaction machen?
 	 */
 	@OneToOne(cascade = CascadeType.ALL, optional = true)
 	@JoinColumn(name = "MASTER_ID", nullable = true)
@@ -100,7 +120,7 @@ public class Account implements Serializable {
 	public void setPassword(Password password) {
 		this.password = password;
 	}
-	
+
 	public List<PlayerBestia> getBestias() {
 		return java.util.Collections.unmodifiableList(bestias);
 	}
@@ -172,14 +192,30 @@ public class Account implements Serializable {
 	public void setRemarks(String remarks) {
 		this.remarks = remarks;
 	}
-	
+
 	/**
 	 * The bestia master.
+	 * 
 	 * @return Bestia master.
 	 */
 	@JsonIgnore
 	public PlayerBestia getMaster() {
 		return master;
+	}
+	
+	public void setMaster(PlayerBestia masterBestia) {
+		if (masterBestia == null) {
+			throw new IllegalArgumentException("MasterBestia can not be null.");
+		}
+		this.master = masterBestia;
+	}
+
+	public UserLevel getUserLevel() {
+		return userLevel;
+	}
+
+	public void setUserLevel(UserLevel userLevel) {
+		this.userLevel = userLevel;
 	}
 
 	@Override
@@ -189,14 +225,14 @@ public class Account implements Serializable {
 		result = prime * result + ((email == null) ? 0 : email.hashCode());
 		result = prime * result + (int) id;
 		result = prime * result + password.hashCode();
-		result += (loginToken == null) ? 0: loginToken.hashCode();
+		result += (loginToken == null) ? 0 : loginToken.hashCode();
 		result = additionalBestiaSlots + gold + remarks.hashCode();
 		result += registerDate.hashCode();
 		result += (lastLogin == null) ? 0 : lastLogin.hashCode();
 		result += (bannedUntilDate == null) ? 0 : bannedUntilDate.hashCode();
 		return result;
 	}
-	
+
 	/**
 	 * Returns the username of the account, the name of the bestia master.
 	 * 
@@ -230,20 +266,4 @@ public class Account implements Serializable {
 		return String.format("Account[id=%d, email=%s, registerDate=%t]", id,
 				email, registerDate);
 	}
-
-	public void setMaster(PlayerBestia masterBestia) {
-		if (masterBestia == null) {
-			throw new IllegalArgumentException("MasterBestia can not be null.");
-		}
-		this.master = masterBestia;
-	}
-
-	public UserLevel getUserLevel() {
-		return userLevel;
-	}
-
-	public void setUserLevel(UserLevel userLevel) {
-		this.userLevel = userLevel;
-	}
-
 }

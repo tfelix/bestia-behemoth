@@ -1,26 +1,43 @@
 package net.bestia.model.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name="attacks")
-public class Attack {
+public class Attack implements Serializable {
+
+	@Transient
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	private int id;
 	
-	@Column(unique = true)
+	@Column(name="attack_db_name", unique = true, nullable = false)
+	@JsonProperty("adbn")
 	private String databaseName;
+	
+	@JsonProperty("str")
 	private int strength;
 
 	@Enumerated(EnumType.STRING)
+	@JsonProperty("ele")
 	private Element element;
+	
+	@JsonProperty("m")
 	private int manaCost;
+	
 	@Enumerated(EnumType.STRING)
+	@JsonProperty("bs")
 	private AttackBasedStatus basedStatus;
 	
 	public Attack() {

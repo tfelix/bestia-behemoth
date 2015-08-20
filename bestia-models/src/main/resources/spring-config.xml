@@ -41,7 +41,14 @@
 				<prop key="hibernate.hbm2ddl.auto">${db.hbm2ddl}</prop>
 			</props>
 		</property>
+		
+		<property name="packagesToScan">
+			<list>
+				<value>net.bestia.model.domain</value>
+			</list>
+		</property>
 
+		<!-- 
 		<property name="annotatedClasses">
 			<list>
 				<value>net.bestia.model.domain.Account</value>
@@ -49,7 +56,7 @@
 				<value>net.bestia.model.domain.Bestia</value>
 				<value>net.bestia.model.domain.PlayerBestia</value>
 			</list>
-		</property>
+		</property> -->
 
 		<!-- WIEDER UMSTELLEN AUF ALLE KLASSEN SOBALD BEREIT. -->
 		<!-- <property name="packagesToScan">
@@ -68,7 +75,4 @@
 	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
 		<constructor-arg type="javax.sql.DataSource" ref="dataSource" />
 	</bean>
-
-	<!-- <jdbc:embedded-database id="embeddedDataSource"> <jdbc:script location="classpath:schema.sql" 
-		/> <jdbc:script location="classpath:data.sql" /> </jdbc:embedded-database> -->
 </beans>
