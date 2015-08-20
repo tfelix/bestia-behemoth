@@ -7,7 +7,7 @@
  * Main message module. This module collects all message constructors so that a
  * massage can be easily created within the app.
  * 
- * @module io.Connection
+ * @class Bestia.Message 
  */
 Bestia.Message = {
 

@@ -7,16 +7,23 @@
  * ViewModel of a Bestia.
  * 
  * @class Bestia.BestiaViewModel
+ * 
+ * @param {Bestia.PubSub}
+ *            pubsub - Publish/Subscriber interface.
  * @param {Object}
  *            msg - Optional. Server message object to initialize the model with
  *            values.
- * @param {Bestia.Net}
- *            net - Net helper object to generate URLs within the model.
  * @constructor
  */
-Bestia.BestiaViewModel = function(msg) {
-	var self = this;
+Bestia.BestiaViewModel = function(pubsub, msg) {
+	if(!(pubsub instanceof Bestia.PubSub)) {
+		throw "Bestia.BestiaViewModel: PubSub must be given."; 
+	}
 	
+	var self = this;
+
+	this._pubsub = pubsub;
+
 	this.playerBestiaId = ko.observable();
 	this.databaseName = ko.observable('');
 	this.equip = [];
@@ -38,9 +45,16 @@ Bestia.BestiaViewModel = function(msg) {
 		this.update(msg);
 		this.statusPoints.update(msg.sp);
 	}
-	
-	this.selectBestia = function(bestia) {
-		console.debug("Selecting player bestia: " + bestia.playerBestiaId());
+
+	/**
+	 * This method selects this bestia as active. All server updates will then
+	 * forwarded to this bestia.
+	 * 
+	 * @method Bestia.BestiaViewModel#selectBestia
+	 */
+	this.selectBestia = function() {
+		var activeMsg = new Bestia.Message.BestiaActivate(this.playerBestiaId());
+		this._pubsub.publish('io.sendMessage', activeMsg);
 	};
 };
 
@@ -61,7 +75,7 @@ Bestia.BestiaViewModel.prototype.update = function(msg) {
 	this.level(msg.lv);
 	this.databaseName(msg.b.bdbn);
 	this.sprite(msg.b.s);
-	//this.statusEffects = [];
-	//this.slot(msg.sl);
+	// this.statusEffects = [];
+	// this.slot(msg.sl);
 	this.statusPoints.update(msg.sp);
 };

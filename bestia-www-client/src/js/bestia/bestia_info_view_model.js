@@ -13,16 +13,17 @@
  */
 Bestia.BestiaInfoViewModel = function(pubsub) {
 	
-	if(pubsub === undefined) {
+	if(!(pubsub instanceof Bestia.PubSub)) {
 		throw "Bestia.BestiaInfoViewModel: Pubsub is not optional.";
 	}
 	
 	var self = this;
+	this._pubsub = pubsub;
 
 	this.selectedBestia = ko.observable(0);
 	
-	this.masterBestia = new Bestia.BestiaViewModel();
-	this.selectedBestia = new Bestia.BestiaViewModel();
+	this.masterBestia = new Bestia.BestiaViewModel(pubsub);
+	this.selectedBestia = new Bestia.BestiaViewModel(pubsub);
 	this.bestias = ko.observableArray([]);
 	this.slots = ko.observable();
 
@@ -83,7 +84,7 @@ Bestia.BestiaInfoViewModel.prototype.update = function(msg) {
 	});
 	
 	$(msg.b).each(function(_, val ) {
-		var model = new Bestia.BestiaViewModel(val);
+		var model = new Bestia.BestiaViewModel(self._pubsub, val);
 		self.bestias.push(model);
 	});
 

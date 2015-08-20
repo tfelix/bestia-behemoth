@@ -58,7 +58,7 @@ Bestia.Engine = function(pubsub, config) {
 	// the master bestia to trigger initial map load.
 	var onInitHandler = function(_, data) {
 		console.debug('Engine.onInitHandler called. Starting initial load and remove handler.');
-		var bestia = new Bestia.BestiaViewModel(data.bm);
+		var bestia = new Bestia.BestiaViewModel(self.pubsub, data.bm);
 		self.loadMap(bestia);
 		// Remove handler again since we only trigger this once.
 		self.pubsub.unsubscribe('bestia.info', onInitHandler);

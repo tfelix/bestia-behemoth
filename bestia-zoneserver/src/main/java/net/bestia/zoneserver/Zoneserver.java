@@ -74,7 +74,6 @@ public class Zoneserver {
 		public void addedBestia(long accId, int bestiaId) {
 			// no op.
 		}
-		
 	}
 
 	private class InterserverHandler implements InterserverMessageHandler {
