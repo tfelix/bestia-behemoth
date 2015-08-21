@@ -30,7 +30,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.LogManager;
@@ -322,15 +321,15 @@ public class Zoneserver {
 		// Create cmd line arguments.
 		Options options = new Options();
 		
-		Option configFileProp   = OptionBuilder.withArgName( "cf" )
-				.withLongOpt("configFile")
-                .hasArg()
-                .withDescription(  "use an external config file." )
-                .create( "config" );
+		Option configOpt = Option.builder("config")
+				.argName("cf")
+				.longOpt("configFile")
+				.hasArg()
+				.desc("path to an external config file.")
+				.build();
 		
-		options.addOption(configFileProp);
+		options.addOption(configOpt);
 		
-		// TODO das CMD parsing hier noch in eine extra datei packen.
 		CommandLineParser parser = new DefaultParser();
 		final BestiaConfiguration config = new BestiaConfiguration();
 		try {
