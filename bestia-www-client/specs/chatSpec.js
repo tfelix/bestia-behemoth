@@ -95,12 +95,11 @@ describe("Bestia.Chat", function() {
 			expect(msg.txt).toEqual("HelloWorld");
 			expect(msg.rxn).toEqual("");
 			expect(msg.sn).toEqual("Sam");
-			expect(msg.cmid).toEqual(0);
 		};
 		
 		game.pubsub.subscribe('io.sendMessage', handler);
 		
-		chat.test('HelloWorld');
+		chat.text('HelloWorld');
 		chat.sendChat();
 	});
 });
