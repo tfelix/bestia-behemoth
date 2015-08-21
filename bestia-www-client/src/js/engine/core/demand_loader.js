@@ -33,10 +33,10 @@ Bestia.Engine.DemandLoader.prototype._packLoadedCallback = function(key, success
 	console.debug("Loaded: "+ key +" ("+ totalLoaded + "/" + totalPacks + ") success: " + success);
 	
 	var uniqueKey = this._keyCache[key];
-	//var fns = this._cache[uniqueKey];
+	var fns = this._cache[uniqueKey];
 	
 	// Trigger all the cached callbacks.
-	//fns.forEach(function(fn){ fn(); }, this);
+	fns.forEach(function(fn){ fn(); }, this);
 	
 	// Remove all callbacks and keys.
 	delete this._keyCache[key];
