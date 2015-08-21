@@ -14,14 +14,6 @@
 				<groupId>de.juplo</groupId>
 				<artifactId>hibernate4-maven-plugin</artifactId>
 				<version>1.1.0</version>
-<!--
-				<executions>
-					<execution>
-						<goals>
-							<goal>export</goal>
-						</goals>
-					</execution>
-				</executions>-->
 				<configuration>
 					<driverClassName>${db.driver}</driverClassName>
 					<hibernateDialect>${db.dialect}</hibernateDialect>
@@ -98,6 +90,12 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-pool2</artifactId>
 			<version>2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.4.188</version>
+			<scope>test</scope>
 		</dependency>
 
 	</dependencies>
