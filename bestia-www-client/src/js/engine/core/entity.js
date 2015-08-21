@@ -1,4 +1,6 @@
 /**
+ * Entity which the player can directly interact with. Any kind of visual display to 
+ * the engine.
  * 
  * @param {Bestia.Engine.World}
  *            world - A instance of the bestia world holding parsed information
@@ -35,7 +37,8 @@ Bestia.Engine.Entity = function(ident, game, world) {
 
 	/**
 	 * Entities have aswell a UUID with which they can be identified. This UUID
-	 * exisits (unlike the player bestia id, or pbid) in EVERY entity.
+	 * exisits (unlike the player bestia id, or pbid) in EVERY entity which is spawned
+	 * in the system.
 	 * 
 	 * @public
 	 * @property {String}

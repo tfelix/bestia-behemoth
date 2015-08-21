@@ -41,6 +41,14 @@ Bestia.Engine.States.GameState = function(engine) {
 	 * @private
 	 */
 	this._bestiaWorld = null;
+	
+	/**
+	 * Can load asset packs on demand and fires events if it has done so.
+	 * 
+	 * @property {Bestia.Engine.DemandLoader}
+	 * @private
+	 */
+	this._demandLoader = null;
 
 	/**
 	 * Holds the player bestia which should be used as the current player
@@ -54,16 +62,36 @@ Bestia.Engine.States.GameState = function(engine) {
 	
 	// Setup the callbacks.
 	var entityCreateCallback = function(obj) {
-		var entity = new Bestia.Engine.Entity(obj, self.game, self._bestiaWorld);
 		
-		// Check if we just created the player bestia. if so hold reference to it for the engine.
-		if(entity.pbid === self.bestia.playerBestiaId()) {
-			self.player = entity;
-			// Center the camera on the spot of the soon to be selected bestia.
-			self.game.camera.follow(self.player.sprite);
+		// Prepare callback function, since we might need it.
+		var completeEntityInsert = function() {
+			var entity = new Bestia.Engine.Entity(obj, self.game, self._bestiaWorld);
+			
+			// Check if we just created the player bestia. if so hold reference to it for the engine.
+			if(entity.pbid === self.bestia.playerBestiaId()) {
+				self.player = entity;
+				// Center the camera on the spot of the soon to be selected bestia.
+				self.game.camera.follow(self.player.sprite);
+			}
+			
+			return entity;
+		};
+		
+		// Check if the spritepack for this new entity has been loaded. 
+		// If not delay the call and preload the pack first.
+		for(var i = 0; i < obj.s.length; i++) {
+			var name = obj.s[i];
+			var key =  name + '_desc';
+			if(!self.game.cache.checkJSONKey(key)) {
+				// Preload the missing stuff and wait for completion.
+				self._demandLoader.loadMobSprite(name, function(){
+					return completeEntityInsert();
+				});
+				return;
+			}
 		}
 		
-		return entity;
+		return completeEntityInsert();
 	};
 
 	/**
@@ -108,9 +136,10 @@ Bestia.Engine.States.GameState.prototype = {
 		// Load the tilemap and display it.
 		this._bestiaWorld = new Bestia.Engine.World(game, astar);
 		this._bestiaWorld.loadMap(this.bestia.location());
+		
+		// Prepare the demandloader.
+		this._demandLoader = new Bestia.Engine.DemandLoader(this.load);
 
-		// Make a blackscreen which fades.
-		// TODO
 
 		this.cursors = this.game.input.keyboard.createCursorKeys();
 
@@ -187,6 +216,13 @@ Bestia.Engine.States.GameState.prototype = {
 		// Show the path.
 		// game.debug.AStar(this.astar, 20, 20, '#ff0000');
 
+	},
+	
+	/**
+	 * Performs an on demand load of an asset which must be displayed by the engine.
+	 */
+	loadAsset : function() {
+		
 	},
 
 	updateMarker : function() {

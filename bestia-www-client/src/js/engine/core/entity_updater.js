@@ -2,6 +2,8 @@
  * The updater will hook into the messaging system and listen for entity update
  * messages. If such a message is received it is responsible for updating and
  * translating this change message to commands for the bestia engine.
+ * If updates to entities are detected this will be communicated "upstream" via the
+ * use of callback function. The engine/state can hook into the updater via them.
  * 
  * @param {Function}
  *            onAppearFn - An onAppear-Handler when an entity is added to the system.

@@ -321,8 +321,7 @@ public class Zoneserver {
 		// Create cmd line arguments.
 		Options options = new Options();
 		
-		Option configOpt = Option.builder("config")
-				.argName("cf")
+		Option configOpt = Option.builder("cf")
 				.longOpt("configFile")
 				.hasArg()
 				.desc("path to an external config file.")
@@ -335,8 +334,8 @@ public class Zoneserver {
 		try {
 			CommandLine cmd = parser.parse(options, args);
 			
-			if(cmd.hasOption("config")) {
-				final String configFile = cmd.getOptionValue("config");
+			if(cmd.hasOption("cf")) {
+				final String configFile = cmd.getOptionValue("cf");
 				log.info("Use config file: " + configFile);
 				config.load(new File(configFile));
 			} else {

@@ -85,7 +85,7 @@ Bestia.Engine.prototype.loadMap = function(bestia) {
 		// We need to do a full load.
 		this.game.state.start('load', true, false, bestia);
 	}
-	// Partial load (switch view to active bestia).
+	// else: Partial load only (just switch view to active bestia).
 	// TODO
 
 };
