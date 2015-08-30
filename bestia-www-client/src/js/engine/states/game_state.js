@@ -7,7 +7,7 @@
  *            engine - Reference to the bestia engine.
  */
 Bestia.Engine.States.GameState = function(engine) {
-	
+
 	var self = this;
 
 	this.marker = null;
@@ -15,7 +15,7 @@ Bestia.Engine.States.GameState = function(engine) {
 	 * @property {Bestia.Engine} Reference to the central bestia engine object.
 	 */
 	this.engine = engine;
-	
+
 	/**
 	 * @property {Bestia.PubSub} Shortcut to the publish subscriber interface.
 	 */
@@ -41,7 +41,7 @@ Bestia.Engine.States.GameState = function(engine) {
 	 * @private
 	 */
 	this._bestiaWorld = null;
-	
+
 	/**
 	 * Can load asset packs on demand and fires events if it has done so.
 	 * 
@@ -59,38 +59,43 @@ Bestia.Engine.States.GameState = function(engine) {
 	 * @property {Bestia.BestiaViewModel}
 	 */
 	this.bestia = null;
-	
+
 	// Setup the callbacks.
 	var entityCreateCallback = function(obj) {
-		
+
 		// Prepare callback function, since we might need it.
 		var completeEntityInsert = function() {
 			var entity = new Bestia.Engine.Entity(obj, self.game, self._bestiaWorld);
-			
-			// Check if we just created the player bestia. if so hold reference to it for the engine.
-			if(entity.pbid === self.bestia.playerBestiaId()) {
+
+			// Check if we just created the player bestia. if so hold reference
+			// to it for the engine.
+			if (entity.pbid === self.bestia.playerBestiaId()) {
 				self.player = entity;
-				// Center the camera on the spot of the soon to be selected bestia.
+				// Center the camera on the spot of the soon to be selected
+				// bestia.
 				self.game.camera.follow(self.player.sprite);
 			}
-			
+
 			return entity;
 		};
-		
-		// Check if the spritepack for this new entity has been loaded. 
+
+		// Check if the spritepack for this new entity has been loaded.
 		// If not delay the call and preload the pack first.
-		for(var i = 0; i < obj.s.length; i++) {
+		for (var i = 0; i < obj.s.length; i++) {
 			var name = obj.s[i];
-			var key =  name + '_desc';
-			if(!self.game.cache.checkJSONKey(key)) {
+			var key = name + '_desc';
+			if (!self.game.cache.checkJSONKey(key)) {
 				// Preload the missing stuff and wait for completion.
-				self._demandLoader.loadMobSprite(name, function(){
-					return completeEntityInsert();
+				self._demandLoader.loadMobSprite(name, function() {
+					
+					var entity = completeEntityInsert();
+					
+					self._entityUpdater.registerEntity(obj, entity);
 				});
 				return;
 			}
 		}
-		
+
 		return completeEntityInsert();
 	};
 
@@ -101,12 +106,15 @@ Bestia.Engine.States.GameState = function(engine) {
 	 * @property {Bestia.Engine.EntityUpdater}
 	 */
 	this._entityUpdater = new Bestia.Engine.EntityUpdater(this.pubsub, entityCreateCallback);
-	
+
 	/**
 	 * Updates an entity if a change is incoming.
 	 */
 	var entityUpdateCallback = function(entity, obj) {
-		entity.moveTo([{x: obj.x, y: obj.y}]);
+		entity.moveTo([ {
+			x : obj.x,
+			y : obj.y
+		} ]);
 	};
 	this._entityUpdater.addHandler('onUpdate', entityUpdateCallback);
 };
@@ -125,7 +133,7 @@ Bestia.Engine.States.GameState.prototype = {
 	create : function() {
 
 		var game = this.game;
-		
+
 		// In development run in the background.
 		// TODO in production das entfernen.
 		game.stage.disableVisibilityChange = true;
@@ -136,10 +144,9 @@ Bestia.Engine.States.GameState.prototype = {
 		// Load the tilemap and display it.
 		this._bestiaWorld = new Bestia.Engine.World(game, astar);
 		this._bestiaWorld.loadMap(this.bestia.location());
-		
+
 		// Prepare the demandloader.
 		this._demandLoader = new Bestia.Engine.DemandLoader(this.load, this.cache);
-
 
 		this.cursors = this.game.input.keyboard.createCursorKeys();
 
@@ -217,12 +224,13 @@ Bestia.Engine.States.GameState.prototype = {
 		// game.debug.AStar(this.astar, 20, 20, '#ff0000');
 
 	},
-	
+
 	/**
-	 * Performs an on demand load of an asset which must be displayed by the engine.
+	 * Performs an on demand load of an asset which must be displayed by the
+	 * engine.
 	 */
 	loadAsset : function() {
-		
+
 	},
 
 	updateMarker : function() {

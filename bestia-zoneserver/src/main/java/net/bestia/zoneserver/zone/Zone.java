@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.AI;
+import net.bestia.zoneserver.ecs.component.Changable;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
@@ -130,6 +131,7 @@ public class Zone {
 		
 			Entity myEntity = new EntityBuilder(world).with(new Position(10 + i,10 + i), 
 	    		 new Visible("poring"),
+	    		 new Changable(),
 	    		 new AI()).build();
 		
 			

@@ -74,9 +74,11 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 		p.y = pos.y;
 
 		// Mark as candidate for persisting and set changed for visibility.
-		Changable changable = changableMapper.get(e);
-		changable.changed = true;
-		changable.hasPersisted = false;
+		Changable changable = changableMapper.getSafe(e);
+		if(changable != null) {
+			changable.changed = true;
+			changable.hasPersisted = false;
+		}
 
 		log.trace("Moved to: {}", pos.toString());
 

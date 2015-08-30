@@ -1,24 +1,24 @@
 /**
  * The updater will hook into the messaging system and listen for entity update
  * messages. If such a message is received it is responsible for updating and
- * translating this change message to commands for the bestia engine.
- * If updates to entities are detected this will be communicated "upstream" via the
- * use of callback function. The engine/state can hook into the updater via them.
+ * translating this change message to commands for the bestia engine. If updates
+ * to entities are detected this will be communicated "upstream" via the use of
+ * callback function. The engine/state can hook into the updater via them.
  * 
  * @param {Function}
- *            onAppearFn - An onAppear-Handler when an entity is added to the system.
- *            This handler should return some kind of entity which will be used
- *            to be stored inside the cache.
+ *            onAppearFn - An onAppear-Handler when an entity is added to the
+ *            system. This handler should return some kind of entity which will
+ *            be used to be stored inside the cache.
  * @param {Bestia.PubSub}
  *            pubsub - Reference to the bestia publish/subscriber system for
  *            hooking into update calls.
  */
 Bestia.Engine.EntityUpdater = function(pubsub, onAppearFn) {
 
-	if(onAppearFn === undefined) {
+	if (onAppearFn === undefined) {
 		throw "onAppear callback can not be null.";
 	}
-	
+
 	var self = this;
 
 	/**
@@ -41,15 +41,15 @@ Bestia.Engine.EntityUpdater = function(pubsub, onAppearFn) {
 	this._callbacks = {};
 
 	var onMessageHandler = function(_, msg) {
-		
+
 		var entities = msg.e;
-		
-		for(var i = 0; i < entities.length; i++) {
+
+		for (var i = 0; i < entities.length; i++) {
 			self._update(entities[i]);
 		}
 	};
 	pubsub.subscribe('map.entites', onMessageHandler);
-	
+
 	this.addHandler('onAppear', onAppearFn);
 };
 
@@ -135,17 +135,37 @@ Bestia.Engine.EntityUpdater.prototype._addGameEntity = function(obj) {
 
 	if (this._callbacks['onappear']) {
 		var entity = this._callbacks['onappear'](obj, this);
-		
-		if(entity === undefined) {
+
+		if (entity === undefined) {
 			return;
 		}
-		
+
 		// Add to cache.
 		this._cache[obj.uuid] = entity;
-		
-		if(obj.pbid !== undefined) {
+
+		if (obj.pbid !== undefined) {
 			this._pbidCache[obj.pbid] = entity;
 		}
+	}
+};
+
+/**
+ * The EntityUpdater upon apearance of a new entity will use the callback to
+ * initiate a call to the engine to fullfill this task. However: Adding an
+ * entity might not be a blocking but an asyncronous call. Thus we can not
+ * directly return any information about the entity. This method can come in
+ * handy. The entity can (and MUST) registered with this method.
+ * 
+ * @param {Object}
+ *            obj - Object containing the update information from the server.
+ *            The callback function gets this as an argument.
+ */
+Bestia.Engine.EntityUpdater.prototype.registerEntity = function(obj, entity) {
+	// Add to cache.
+	this._cache[obj.uuid] = entity;
+
+	if (obj.pbid !== undefined) {
+		this._pbidCache[obj.pbid] = entity;
 	}
 };
 
@@ -189,7 +209,7 @@ Bestia.Engine.EntityUpdater.prototype._updateGameEntity = function(obj) {
 	if (obj.uuid === undefined || this._cache[obj.uuid] === undefined) {
 		return;
 	}
-	
+
 	var entity = this._cache[obj.uuid];
 
 	if (this._callbacks['onupdate']) {
