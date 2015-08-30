@@ -138,7 +138,7 @@ Bestia.Engine.States.GameState.prototype = {
 		this._bestiaWorld.loadMap(this.bestia.location());
 		
 		// Prepare the demandloader.
-		this._demandLoader = new Bestia.Engine.DemandLoader(this.load);
+		this._demandLoader = new Bestia.Engine.DemandLoader(this.load, this.cache);
 
 
 		this.cursors = this.game.input.keyboard.createCursorKeys();
