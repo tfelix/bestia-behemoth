@@ -72,8 +72,6 @@ Bestia.Engine.DemandLoader.prototype._packPreLoadedCallback = function(progress,
 				delete this._cache[iKey];
 			}
 		}
-		
-		
 	}
 	
 };
