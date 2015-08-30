@@ -32,7 +32,7 @@ Bestia.Page.LogoutDialog = function(domID, pubsub) {
 	}
 
 	this.dialog.on('hide.bs.modal', function() {
-		window.location.replace(Bestia.Urls.loginUrl);
+		window.location.replace(Bestia.Urls.loginHtml);
 	});
 
 	pubsub.subscribe('system.logout', $.proxy(this._handleLogout, this));
