@@ -163,6 +163,11 @@ public class Bestia implements Serializable {
 	public int getLevel() {
 		return level;
 	}
+	
+	@JsonIgnore
+	public int getId() {
+		return id;
+	}
 
 	@JsonIgnore
 	public boolean isBoss() {
