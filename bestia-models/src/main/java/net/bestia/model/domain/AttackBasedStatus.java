@@ -7,11 +7,9 @@ package net.bestia.model.domain;
  *
  */
 public enum AttackBasedStatus {
-	SPECIAL,
-	NORMAL,
+	SPECIAL, NORMAL,
 	/**
-	 * Attacks which do a special calculation and deal no real damage 
-	 *(it use none of the battle based stats)	
+	 * Attacks which do a special calculation and deal no real damage (it use none of the battle based stats)
 	 */
 	NO_DAMAGE
 }
