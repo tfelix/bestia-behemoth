@@ -18,7 +18,7 @@ public class ServiceLocatorTest {
 		// Get all dao classes.
 		Set<Class<? extends GenericDAO>> daoClasses = reflections.getSubTypesOf(GenericDAO.class);
 
-		final ServiceLocator locator = new ServiceLocator();
+		final ServiceLocator locator = ServiceLocator.getInstance();
 
 		for (Class<? extends GenericDAO> daoClass : daoClasses) {
 			GenericDAO dao = locator.getBean(daoClass);
@@ -32,7 +32,7 @@ public class ServiceLocatorTest {
 		// Get all dao classes.
 		Set<Class<? extends Object>> serviceClasses = reflections.getSubTypesOf(Object.class);
 
-		final ServiceLocator locator = new ServiceLocator();
+		final ServiceLocator locator = ServiceLocator.getInstance();
 
 		for (Class<? extends Object> serviceClass : serviceClasses) {
 			Object dao = locator.getBean(serviceClass);

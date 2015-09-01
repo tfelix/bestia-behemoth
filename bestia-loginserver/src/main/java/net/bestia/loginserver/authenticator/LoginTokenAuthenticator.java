@@ -30,7 +30,7 @@ public class LoginTokenAuthenticator implements Authenticator {
 		this.token = token;
 		this.accountId = id;
 
-		ServiceLocator locator = new ServiceLocator();
+		ServiceLocator locator = ServiceLocator.getInstance();
 		this.accountDao = locator.getBean(AccountDAO.class);
 	}
 

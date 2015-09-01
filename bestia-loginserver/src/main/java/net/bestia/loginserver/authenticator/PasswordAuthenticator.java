@@ -23,7 +23,7 @@ public class PasswordAuthenticator implements Authenticator {
 		this.username = username;
 		this.password = password;
 
-		ServiceLocator locator = new ServiceLocator();
+		ServiceLocator locator = ServiceLocator.getInstance();
 		this.accountDao = locator.getBean(AccountDAO.class);
 	}
 	

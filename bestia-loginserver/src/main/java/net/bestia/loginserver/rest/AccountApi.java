@@ -41,7 +41,7 @@ public class AccountApi {
 	private final AccountService accountService;
 
 	public AccountApi() {
-		ServiceLocator daoLocator = new ServiceLocator();
+		ServiceLocator daoLocator = ServiceLocator.getInstance();
 		this.accountDao = daoLocator.getBean(AccountDAO.class);
 		this.accountService = daoLocator.getBean(AccountService.class);
 	}

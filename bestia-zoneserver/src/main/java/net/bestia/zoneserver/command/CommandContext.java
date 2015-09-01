@@ -41,7 +41,7 @@ public final class CommandContext {
 
 		this.configuration = config;
 		this.server = zoneserver;
-		this.serviceLocator = new ServiceLocator();
+		this.serviceLocator = ServiceLocator.getInstance();
 	}
 
 	/**
