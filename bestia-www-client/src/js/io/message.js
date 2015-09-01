@@ -86,5 +86,18 @@ Bestia.Message = {
 	 */
 	InventoryRequest : function() {
 		this.mid = 'inventory.request';
+	},
+	
+	/**
+	 * Advises the server to use an item. The response depends on which item was used.
+	 * A simple consumable item will simply trigger its effect and apply it to the currently
+	 * selected bestia. But the item might also trigger a script response which leads to
+	 * download of additional scripts from the server or an effect on the map itself.
+	 */
+	InventoryItemUse : function(playerItemId) {
+		this.mid = 'inventory.item.use';
+		
+		this.pid = playerItemId;
 	}
 };
+

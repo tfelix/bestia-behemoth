@@ -270,7 +270,7 @@
 					<h4 class="modal-title" data-i18n="nav.inventory">mav.inventar</h4>
 				</div>
 				<div class="modal-body" style="height: 400px; width: 600px;" data-bind="foreach: items">
-					<div class="item tooltip" data-bind="click: onClick" data-tooltip="+7 Anales Breitschwert">
+					<div class="item tooltip" data-bind="click: $parent.useItem" data-tooltip="+7 Anales Breitschwert">
 						<img data-bind="attr: {src: imageSrc, alt: name}" src="" alt="">
 						<span class="amount" data-bind="text: amount"></span>
 					</div>
