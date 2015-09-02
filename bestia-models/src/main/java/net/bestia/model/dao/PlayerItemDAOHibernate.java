@@ -21,4 +21,13 @@ public class PlayerItemDAOHibernate extends GenericDAOHibernate<PlayerItem, Inte
 		return (List<PlayerItem>)query.list();
 	}
 
+	@Override
+	public PlayerItem findPlayerItem(long accId, int itemId) {
+		final Query query = currentSession().createQuery("from PlayerItem pi where pi.account.id = :accId and pi.item.id = :itemId");
+		query.setParameter("accId", accId);
+		query.setParameter("itemId", itemId);
+		query.setMaxResults(1);
+		return (PlayerItem) query.list().get(0);
+	}
+
 }

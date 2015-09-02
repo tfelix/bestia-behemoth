@@ -31,8 +31,6 @@ public class InputController {
 
 	/**
 	 * Callback which can be used to get notified about changed in this
-	 * 
-	 * @author Thomas
 	 *
 	 */
 	public interface InputControllerCallback {

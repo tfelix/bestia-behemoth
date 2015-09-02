@@ -25,6 +25,7 @@ public class Vector2 {
 		return 31 * x + y;
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (o == null || !(o instanceof Vector2)) {
 			return false;

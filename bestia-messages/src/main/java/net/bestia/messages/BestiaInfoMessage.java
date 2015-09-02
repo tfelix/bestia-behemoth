@@ -10,9 +10,8 @@ import com.google.common.collect.Lists;
 import net.bestia.model.domain.PlayerBestia;
 
 /**
- * This message is send to the client to trigger a initial synchronisation about
- * all possessed bestias and the bestia master. Contains general infomration
- * about the bestias, their status and their position on the map.
+ * This message is send to the client to trigger a initial synchronisation about all possessed bestias and the bestia
+ * master. Contains general infomration about the bestias, their status and their position on the map.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -45,29 +44,30 @@ public class BestiaInfoMessage extends Message {
 	public BestiaInfoMessage() {
 
 	}
-	
+
 	/**
 	 * 
-	 * @param numberOfExtraSlots Number of extra 
+	 * @param numberOfExtraSlots
+	 *            Number of extra
 	 * @param masterBestia
 	 * @param bestias
 	 */
 	public BestiaInfoMessage(Message msg, int numberOfSlots, PlayerBestia masterBestia, Collection<PlayerBestia> bestias) {
-		if(msg == null) {
+		if (msg == null) {
 			throw new IllegalArgumentException("Message can not be null.");
 		}
-		if(numberOfSlots <= 0) {
+		if (numberOfSlots <= 0) {
 			throw new IllegalArgumentException("NumberOfSlots can not be 0 or negative.");
 		}
-		if(masterBestia == null) {
+		if (masterBestia == null) {
 			throw new IllegalArgumentException("MasterBestia can not be null.");
 		}
-		if(bestias == null) {
+		if (bestias == null) {
 			throw new IllegalArgumentException("Bestias can not be null.");
 		}
-		
+
 		setAccountId(msg.getAccountId());
-		
+
 		this.numberOfSlots = numberOfSlots;
 		this.bestias = Lists.newArrayList(bestias);
 		this.master = masterBestia;

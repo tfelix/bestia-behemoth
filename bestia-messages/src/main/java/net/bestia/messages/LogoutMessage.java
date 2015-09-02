@@ -31,4 +31,9 @@ public class LogoutMessage extends Message {
 	public String getMessagePath() {
 		return getClientMessagePath();
 	}
+	
+	@Override
+	public String toString() {
+		return "LogoutMessage[]";
+	}
 }
