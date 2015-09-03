@@ -18,7 +18,7 @@ import org.reflections.Reflections;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public final class CommandFactory {
+public class CommandFactory {
 
 	private static final Logger log = LogManager
 			.getLogger(CommandFactory.class);
@@ -45,21 +45,23 @@ public final class CommandFactory {
 
 				// Dont put a command handler in the library twice.
 				if (commandLibrary.containsKey(cmd.handlesMessageId())) {
-					log.warn(
-							"Handler for message {} already registered. Can not add command {}.",
+					log.warn("Handler for message {} already registered. Can not add command {}.",
 							cmd.handlesMessageId(), clazz.toString());
 					continue;
 				}
 
 				commandLibrary.put(cmd.handlesMessageId(), cmd);
 			} catch (InstantiationException | IllegalAccessException e) {
-				log.error("Can not instanciate command handler: {}",
-						clazz.toString(), e);
+				log.error("Can not instanciate command handler: {}", clazz.toString(), e);
 			}
 		}
 	}
 	
 	public CommandFactory(CommandContext ctx) {
+		if(ctx == null) {
+			throw new IllegalArgumentException("Context can not be null.");
+		}
+		
 		this.commandContext = ctx;
 	}
 

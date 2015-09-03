@@ -23,7 +23,9 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
 import net.bestia.zoneserver.ecs.InputController;
 import net.bestia.zoneserver.ecs.InputController.InputControllerCallback;
-import net.bestia.zoneserver.worker.ZoneInitLoader;
+import net.bestia.zoneserver.loader.ScriptCacheLoader;
+import net.bestia.zoneserver.loader.ZoneLoader;
+import net.bestia.zoneserver.script.ScriptManager;
 import net.bestia.zoneserver.zone.Zone;
 
 import org.apache.commons.cli.CommandLine;
@@ -104,6 +106,8 @@ public class Zoneserver {
 	 */
 	private final Map<String, Zone> zones = new HashMap<>();
 	private final Set<String> responsibleZones;
+	
+	private final ScriptManager scriptManager = new ScriptManager();
 
 	private final InputController ecsInputController = new InputController();
 
@@ -172,14 +176,18 @@ public class Zoneserver {
 		log.info(config.getVersion());
 		log.info("Zoneserver is starting...");
 
-		// Create ScriptInitWorker: Reading and compiling all the scripts.
-		// log.info("Initializing: scripts...");
-		// ScriptInitWorker siworker = new ScriptInitWorker();
-		// siworker.run();
+		// Create ScriptCacheLoader: Reading and compiling all the scripts.
+		final ScriptCacheLoader scriptLoader = new ScriptCacheLoader(config, commandContext, scriptManager);
+		try {
+			scriptLoader.init();
+		} catch(IOException ex) {
+			stop();
+			return false;
+		}
 
 		// Create ActorInitWorker: Spawning and initializing all Actors.
 		log.info("Initializing: maps...");
-		ZoneInitLoader zoneLoader = new ZoneInitLoader(commandContext, zones);
+		ZoneLoader zoneLoader = new ZoneLoader(commandContext, zones);
 		try {
 			zoneLoader.init();
 		} catch (IOException ex) {

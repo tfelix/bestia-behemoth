@@ -1,7 +1,9 @@
 package net.bestia.zoneserver.script;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +24,7 @@ import org.apache.logging.log4j.Logger;
  *
  */
 public class ScriptCache {
-	
+
 	private static final Logger log = LogManager.getLogger(ScriptCache.class);
 
 	private Map<String, CompiledScript> compiledScripts = new HashMap<String, CompiledScript>();
@@ -40,34 +42,36 @@ public class ScriptCache {
 		File[] directoryListing = scriptFolder.listFiles();
 		if (directoryListing != null) {
 			for (File child : directoryListing) {
+				
+				log.debug("Compiling script: {}", child.getCanonicalPath());
+				
 				try {
 					compile(child);
 				} catch (ScriptException e) {
-					log.error("Could not parse script: {}", child.getAbsolutePath());
+					log.error("Could not parse script: {}", child.getCanonicalPath(), e);
 				}
 			}
 		}
 	}
 
-	private void compile(File scriptFile) throws ScriptException {
+	private void compile(File scriptFile) throws ScriptException, IOException {
 		// move this into initialization part so that you do not call this every time.
 		final ScriptEngineManager manager = new ScriptEngineManager();
 		final ScriptEngine engine = manager.getEngineByName("groovy");
-		final CompiledScript script = ((Compilable) engine).compile(scriptFile.getAbsolutePath());
+		
+		if(engine == null) {
+			throw new ScriptException("Can not create script engine.");
+		}
+		
+		final Reader scriptReader = new FileReader(scriptFile);
+		final CompiledScript script = ((Compilable) engine).compile(scriptReader);
 
 		// Script name.
 		final String scriptFileName = FilenameUtils.removeExtension(scriptFile.getName());
 
 		compiledScripts.put(scriptFileName, script);
-
-		// the code below will use the precompiled script code
-		//Bindings bindings = new SimpleBindings();
-		/*
-		 * bindings.put("state", state; bindings.put("zipcode", zip); bindings.put("url",
-		 * locationAwareAd.getLocationData().getGeneratedUrl()); url = script.eval(bindings);
-		 */
 	}
-	
+
 	public CompiledScript getScript(String name) {
 		return compiledScripts.get(name);
 	}

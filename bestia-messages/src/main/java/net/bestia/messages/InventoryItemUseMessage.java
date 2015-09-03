@@ -25,6 +25,10 @@ public class InventoryItemUseMessage extends Message {
 	public InventoryItemUseMessage() {
 
 	}
+	
+	public InventoryItemUseMessage(int accId) {
+		super(accId);
+	}
 
 	/**
 	 * Ctor.

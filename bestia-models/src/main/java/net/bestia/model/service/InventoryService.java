@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  */
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-@Service("AccountService")
+@Service("InventoryService")
 public class InventoryService {
 
 	private final static Logger log = LogManager.getLogger(InventoryService.class);
@@ -40,45 +40,70 @@ public class InventoryService {
 	public void setPlayerItemDao(PlayerItemDAO playerItemDao) {
 		this.playerItemDao = playerItemDao;
 	}
-	
+
 	@Autowired
 	public void setAccountDao(AccountDAO accountDao) {
 		this.accountDao = accountDao;
 	}
-	
+
 	@Autowired
 	public void setItemDao(ItemDAO itemDao) {
 		this.itemDao = itemDao;
 	}
 
+	public boolean hasItem(long accId, int itemId, int amount) {
+
+		PlayerItem item = playerItemDao.findPlayerItem(accId, itemId);
+
+		if (item == null) {
+			return false;
+		}
+
+		if (item.getAmount() < amount) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	public boolean hasItem(long accId, String itemDbName, int amount) {
+		final Item item = itemDao.findItemByName(itemDbName);
+
+		if (item == null) {
+			return false;
+		}
+
+		return hasItem(accId, item.getId(), amount);
+	}
+
 	/**
-	 * Adds an item to the account
+	 * Adds an item to the account.
 	 * 
 	 * @param itemId
 	 * @param amount
 	 * @return
 	 */
 	public void addItem(long accId, int itemId, int amount) {
-		
+
 		// Look if the account already has such an item.
 		PlayerItem pitem = playerItemDao.findPlayerItem(accId, itemId);
-		
+
 		if (pitem == null) {
 			// New item.
-			
+
 			final Account acc = accountDao.find(accId);
 			final Item item = itemDao.find(itemId);
-			
-			if(acc == null) {
+
+			if (acc == null) {
 				log.info("Could not find account {}", accId);
 				return;
 			}
-			
-			if(item == null) {
+
+			if (item == null) {
 				log.info("Could not find item {}", itemId);
 				return;
 			}
-			
+
 			pitem = new PlayerItem(item, acc, amount);
 			playerItemDao.save(pitem);
 		} else {
@@ -86,8 +111,25 @@ public class InventoryService {
 			pitem.setAmount(pitem.getAmount() + amount);
 			playerItemDao.update(pitem);
 		}
-		
+
 		log.info("Account {} received item {}, amount: {}", accId, itemId, amount);
+	}
+	
+	/**
+	 * Adds an item to the account. Like addItem.
+	 * 
+	 * @param accId
+	 * @param itemDbName
+	 * @param amount
+	 */
+	public void addItem(long accId, String itemDbName, int amount) {
+		final Item item = itemDao.findItemByName(itemDbName);
+		
+		if(item == null) {
+			return;
+		}
+		
+		addItem(accId, item.getId(), amount);
 	}
 
 	/**
@@ -123,5 +165,26 @@ public class InventoryService {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Like {@link removeItem()} but accepting the item database name instead of the item id.
+	 * 
+	 * @param accId
+	 *            Account id.
+	 * @param itemDbName
+	 *            Item Database name.
+	 * @param amount
+	 *            Amount to be removed.
+	 * @return TRUE of the item (and the amount) could be removed. FALSE otherwise.
+	 */
+	public boolean removeItem(long accId, String itemDbName, int amount) {
+		final Item item = itemDao.findItemByName(itemDbName);
+
+		if (item == null) {
+			return false;
+		}
+
+		return removeItem(accId, item.getId(), amount);
 	}
 }

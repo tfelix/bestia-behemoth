@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.worker;
+package net.bestia.zoneserver.loader;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,15 +32,15 @@ import org.apache.logging.log4j.Logger;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class ZoneInitLoader {
+public class ZoneLoader implements Loader {
 
-	private final static Logger log = LogManager.getLogger(ZoneInitLoader.class);
+	private final static Logger log = LogManager.getLogger(ZoneLoader.class);
 
 	/**
 	 * Helper class to actually load the zones.
 	 *
 	 */
-	private class ZoneLoader implements Callable<Set<Zone>> {
+	private class ZoneWorker implements Callable<Set<Zone>> {
 
 		private List<String> zonesToLoad;
 		private File mapDataDir;
@@ -50,7 +50,7 @@ public class ZoneInitLoader {
 		 * @param zones
 		 * @param mapDataDir
 		 */
-		public ZoneLoader(List<String> zones, File mapDataDir) {
+		public ZoneWorker(List<String> zones, File mapDataDir) {
 			this.zonesToLoad = zones;
 			this.mapDataDir = mapDataDir;
 		}
@@ -103,7 +103,7 @@ public class ZoneInitLoader {
 	private final CommandContext context;
 
 	
-	public ZoneInitLoader(CommandContext ctx, java.util.Map<String, Zone> zones) {
+	public ZoneLoader(CommandContext ctx, java.util.Map<String, Zone> zones) {
 		if (ctx == null) {
 			throw new IllegalArgumentException("Context can not be null.");
 		}
@@ -145,7 +145,7 @@ public class ZoneInitLoader {
 
 		for (int i = 0; i < zoneNames.size(); i += sizeChunk) {
 			List<String> subList = zoneList.subList(i, i + sizeChunk);
-			tasks.add(new ZoneLoader(subList, mapDataDir));
+			tasks.add(new ZoneWorker(subList, mapDataDir));
 		}
 
 		// Wait for all worker to finish.
