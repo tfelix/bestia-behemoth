@@ -2,8 +2,10 @@ package net.bestia.zoneserver.loader;
 
 import java.io.File;
 
+import javax.script.Bindings;
+import javax.script.SimpleBindings;
+
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.script.ExecutionBindings;
 
 /**
  * Kommentieren. TODO
@@ -23,10 +25,10 @@ public class ItemScriptLoader extends ScriptLoader {
 	}
 
 	@Override
-	public ExecutionBindings getExecutionBindings() {
-		final ExecutionBindings bindings = new ExecutionBindings();
+	public Bindings getExecutionBindings() {
+		final Bindings bindings = new SimpleBindings();
 		
-		bindings.addBinding("msg", ctx.getServer());
+		bindings.put("msg", ctx.getServer());
 		
 		return bindings;
 	}

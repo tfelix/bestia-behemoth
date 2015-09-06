@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class InventoryItemUseMessage extends Message {
+public class InventoryItemUseMessage extends InputMessage {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;
@@ -26,19 +26,18 @@ public class InventoryItemUseMessage extends Message {
 
 	}
 	
-	public InventoryItemUseMessage(int accId) {
-		super(accId);
-	}
-
-	/**
-	 * Ctor.
-	 * 
-	 * @param message
-	 */
-	public InventoryItemUseMessage(Message message) {
-		super(message);
+	public InventoryItemUseMessage(long accId, int pbid) {
+		this.setAccountId(accId);
+		this.setPlayerBestiaId(pbid);
 	}
 	
+	public InventoryItemUseMessage(Message msg, int pbid) {
+		super(msg, pbid);
+	}
+	
+	public int getPlayerItemId() {
+		return playerItemId;
+	}
 
 	@Override
 	public String getMessageId() {

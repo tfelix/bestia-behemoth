@@ -7,7 +7,7 @@
  * Main message module. This module collects all message constructors so that a
  * massage can be easily created within the app.
  * 
- * @class Bestia.Message 
+ * @class Bestia.Message
  */
 Bestia.Message = {
 
@@ -54,30 +54,30 @@ Bestia.Message = {
 	 */
 	BestiaMove : function(playerBestiaId, path, walkspeed) {
 		this.mid = 'bestia.move';
-		
+
 		this.pbid = playerBestiaId;
-		
+
 		// Generate the path arrays.
 		var pX = new Array(path.length);
 		var pY = new Array(path.length);
-		
-		path.forEach(function(ele, i){
+
+		path.forEach(function(ele, i) {
 			pX[i] = ele.x;
 			pY[i] = ele.y;
 		});
-		
+
 		this.pX = pX;
 		this.pY = pY;
 		this.w = walkspeed;
 	},
-	
+
 	/**
 	 * Orders the server to switch to another active bestia in order to get
 	 * client updates now from it.
 	 */
 	BestiaActivate : function(playerBestiaId) {
 		this.mid = 'bestia.activate';
-		
+
 		this.pbid = playerBestiaId;
 	},
 
@@ -87,17 +87,23 @@ Bestia.Message = {
 	InventoryRequest : function() {
 		this.mid = 'inventory.request';
 	},
-	
+
 	/**
-	 * Advises the server to use an item. The response depends on which item was used.
-	 * A simple consumable item will simply trigger its effect and apply it to the currently
-	 * selected bestia. But the item might also trigger a script response which leads to
-	 * download of additional scripts from the server or an effect on the map itself.
+	 * Advises the server to use an item. The response depends on which item was
+	 * used. A simple consumable item will simply trigger its effect and apply
+	 * it to the currently selected bestia. But the item might also trigger a
+	 * script response which leads to download of additional scripts from the
+	 * server or an effect on the map itself.
+	 * 
+	 * @param {Number}
+	 *            playerItemId - The player item id of the item to be used.
+	 * @param {Number}
+	 *            playerBestiaId - The id of the currently selected bestia.
 	 */
-	InventoryItemUse : function(playerItemId) {
+	InventoryItemUse : function(playerItemId, playerBestiaId) {
 		this.mid = 'inventory.item.use';
-		
+
 		this.pid = playerItemId;
+		this.pbid = playerBestiaId;
 	}
 };
-

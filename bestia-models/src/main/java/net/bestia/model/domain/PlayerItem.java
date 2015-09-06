@@ -31,7 +31,7 @@ public class PlayerItem implements Serializable {
 	@JsonProperty("pid")
 	private int id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "ITEM_ID", nullable = false)
 	@JsonProperty("i")
 	private Item item;

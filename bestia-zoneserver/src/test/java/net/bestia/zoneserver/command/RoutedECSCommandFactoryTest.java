@@ -36,7 +36,7 @@ public class RoutedECSCommandFactoryTest {
 		Command cmd = fac.getCommand(msg);
 		Assert.assertTrue("Instance of a InputCommand. Should not be!", !(cmd instanceof InputCommand));
 		
-		msg = new InventoryItemUseMessage(1);
+		msg = new InventoryItemUseMessage(1, 1);
 		
 		cmd = fac.getCommand(msg);
 		Assert.assertTrue("Instance of a InputCommand. Should not be!", !(cmd instanceof InputCommand));

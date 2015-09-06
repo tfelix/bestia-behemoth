@@ -7,12 +7,15 @@ import java.util.Queue;
 import net.bestia.messages.BestiaActivateMessage;
 import net.bestia.messages.BestiaMoveMessage;
 import net.bestia.messages.ChatMessage;
+import net.bestia.messages.InventoryItemUseMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.ServiceLocator;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
+import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.InputController;
 import net.bestia.zoneserver.ecs.InputController.InputControllerCallback;
+import net.bestia.zoneserver.ecs.command.UseItemCommand;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Changable;
 import net.bestia.zoneserver.ecs.component.Movement;
@@ -20,6 +23,7 @@ import net.bestia.zoneserver.ecs.component.PlayerControlled;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.script.ItemScript;
 import net.bestia.zoneserver.zone.Vector2;
 import net.bestia.zoneserver.zone.Zone;
 
@@ -59,6 +63,9 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 
 	@Wire
 	private InputController inputController;
+	
+	@Wire
+	private CommandContext ctx;
 
 	private ComponentMapper<PlayerControlled> pcm;
 	private ComponentMapper<Active> activeMapper;
@@ -103,17 +110,29 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 			case BestiaMoveMessage.MESSAGE_ID:
 				processMoveMessage(player, (BestiaMoveMessage) msg);
 				break;
+			
 			case BestiaActivateMessage.MESSAGE_ID:
 				processActivateMessage(accountId, playerBestiaId, player, (BestiaActivateMessage) msg);
 				break;
 				
 			case ChatMessage.MESSAGE_ID:
 				processChatMessage(player, (ChatMessage) msg);
+				break;
+				
+			case InventoryItemUseMessage.MESSAGE_ID:
+				processUseItemMessage(player, (InventoryItemUseMessage) msg);
 			default:
 				// Unknown message.
 				break;
 			}
 		}
+	}
+
+	private void processUseItemMessage(Entity player, InventoryItemUseMessage msg) {
+		
+		ItemScript iScript = new ItemScript("apple", null, null);
+		ctx.getScriptManager().executeScript(iScript);
+		
 	}
 
 	private void processChatMessage(Entity player, ChatMessage msg) {
@@ -133,6 +152,8 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 			// This bestia should be marked as active.
 			player.edit().create(Active.class);
 			inputController.setActiveBestia(accountId, playerBestiaId);
+			
+			// TODO BUG Update the Client via msg to the latest activated bestia.
 			
 		} else {
 			if (activeMapper.has(player)) {

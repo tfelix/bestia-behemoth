@@ -21,6 +21,7 @@ import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
+import net.bestia.zoneserver.command.RoutedECSCommandFactory;
 import net.bestia.zoneserver.ecs.InputController;
 import net.bestia.zoneserver.ecs.InputController.InputControllerCallback;
 import net.bestia.zoneserver.loader.ScriptCacheLoader;
@@ -85,6 +86,12 @@ public class Zoneserver {
 
 			// Create command out of the message and deliver it to the executor.
 			final Command cmd = commandFactory.getCommand(msg);
+			
+			if(cmd == null) {
+				// No command was found.
+				return;
+			}
+			
 			commandExecutor.execute(cmd);
 		}
 	}
@@ -134,9 +141,9 @@ public class Zoneserver {
 		this.name = config.getProperty("zone.name");
 
 		// Create a command context.
-		this.commandContext = new CommandContext(config, this);
+		this.commandContext = new CommandContext(config, this, scriptManager);
 
-		this.commandFactory = new CommandFactory(commandContext);
+		this.commandFactory = new RoutedECSCommandFactory(commandContext);
 		this.commandExecutor = Executors.newFixedThreadPool(1);
 
 		final String interUrl = config.getProperty("inter.domain");

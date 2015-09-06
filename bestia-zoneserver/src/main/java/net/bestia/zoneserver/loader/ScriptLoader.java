@@ -4,8 +4,9 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import javax.script.Bindings;
+
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.script.ExecutionBindings;
 
 /**
  * TODO Kommentieren.
@@ -26,7 +27,7 @@ abstract class ScriptLoader {
 
 	public abstract String getKey();
 	
-	public abstract ExecutionBindings getExecutionBindings();
+	public abstract Bindings getExecutionBindings();
 	
 	public ScriptWorker getWorker() {
 		final String key = getKey();

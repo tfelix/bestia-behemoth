@@ -29,6 +29,10 @@ public class ScriptCache {
 
 	private Map<String, CompiledScript> compiledScripts = new HashMap<String, CompiledScript>();
 
+	// move this into initialization part so that you do not call this every time.
+	final ScriptEngineManager manager = new ScriptEngineManager();
+	final ScriptEngine engine = manager.getEngineByName("groovy");
+
 	/**
 	 * Loads all scripts inside this folder and caches
 	 * 
@@ -42,9 +46,9 @@ public class ScriptCache {
 		File[] directoryListing = scriptFolder.listFiles();
 		if (directoryListing != null) {
 			for (File child : directoryListing) {
-				
+
 				log.debug("Compiling script: {}", child.getCanonicalPath());
-				
+
 				try {
 					compile(child);
 				} catch (ScriptException e) {
@@ -55,14 +59,10 @@ public class ScriptCache {
 	}
 
 	private void compile(File scriptFile) throws ScriptException, IOException {
-		// move this into initialization part so that you do not call this every time.
-		final ScriptEngineManager manager = new ScriptEngineManager();
-		final ScriptEngine engine = manager.getEngineByName("groovy");
-		
-		if(engine == null) {
+		if (engine == null) {
 			throw new ScriptException("Can not create script engine.");
 		}
-		
+
 		final Reader scriptReader = new FileReader(scriptFile);
 		final CompiledScript script = ((Compilable) engine).compile(scriptReader);
 

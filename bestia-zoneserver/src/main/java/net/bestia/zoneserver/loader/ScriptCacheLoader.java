@@ -14,10 +14,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import javax.script.Bindings;
+
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.loader.ScriptWorker.ScriptLoaded;
-import net.bestia.zoneserver.script.ExecutionBindings;
 import net.bestia.zoneserver.script.ScriptManager;
 
 import org.apache.logging.log4j.LogManager;
@@ -102,7 +103,7 @@ public class ScriptCacheLoader implements Loader {
 				try {
 
 					final ScriptLoaded scriptLoaded = loadedScript.get();
-					final ExecutionBindings bindings = scriptLoaderCache.get(scriptLoaded.key).getExecutionBindings();
+					final Bindings bindings = scriptLoaderCache.get(scriptLoaded.key).getExecutionBindings();
 					
 					scriptManager.addCache(scriptLoaded.key, scriptLoaded.cache, bindings);
 

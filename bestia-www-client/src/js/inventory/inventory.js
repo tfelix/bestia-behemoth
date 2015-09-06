@@ -26,6 +26,11 @@ Bestia.Inventory = function(pubsub) {
 	 * @property
 	 */
 	this.items = ko.observableArray();
+	
+	/**
+	 * Id of the currently selected bestia.
+	 */
+	this.currentBestiaId = 0;
 
 	/**
 	 * Handler if the server advises to completly re-display the inventory.
@@ -39,6 +44,14 @@ Bestia.Inventory = function(pubsub) {
 
 	pubsub.subscribe('inventory.list', listHandler);
 	
+	var bestiaSelectHandler = function(_, data) {
+		// TODO Hier die ID übdaten wenn eine neue Bestia selektiert wird.
+		self.currentBestiaId = data.bm.id;
+	};
+	
+	pubsub.subscribe('bestia.info', bestiaSelectHandler);
+	pubsub.subscribe('engine.selectBestia', bestiaSelectHandler);
+	
 	/**
 	 * This function will try to use an item. In order to do this some sanity checks
 	 * will be conducted: Is the item usable? If so the a request to the server will
@@ -50,7 +63,7 @@ Bestia.Inventory = function(pubsub) {
 			return;
 		}
 		
-		var msg = new Bestia.Message.InventoryItemUse(item.playerItemId());
+		var msg = new Bestia.Message.InventoryItemUse(item.playerItemId(), self.currentBestiaId);
 		self._pubsub.publish('io.sendMessage', msg);
 	};
 };
