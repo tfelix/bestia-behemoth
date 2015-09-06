@@ -25,4 +25,13 @@ public interface PlayerItemDAO extends GenericDAO<PlayerItem, Integer> {
 	 * @return The found PlayerItem, null otherwise.
 	 */
 	public PlayerItem findPlayerItem(long accId, int itemId);
+
+	/**
+	 * Returns the total weight of all items inside the inventory of the given account.
+	 * 
+	 * @param accId
+	 *            Account ID
+	 * @return The summed weight of all items.
+	 */
+	public int getTotalItemWeight(long accId);
 }

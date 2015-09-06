@@ -51,6 +51,17 @@ public class InventoryService {
 		this.itemDao = itemDao;
 	}
 
+	/**
+	 * Checks if an account owns a certain item.
+	 * 
+	 * @param accId
+	 *            Account ID.
+	 * @param itemId
+	 *            ID of the item to check.
+	 * @param amount
+	 *            Amount of the item the player should own.
+	 * @return TRUE if the item with the given amount is in the inventory. FALSE otherwise.
+	 */
 	public boolean hasItem(long accId, int itemId, int amount) {
 
 		PlayerItem item = playerItemDao.findPlayerItem(accId, itemId);
@@ -66,6 +77,17 @@ public class InventoryService {
 		}
 	}
 
+	/**
+	 * Checks if an account owns a certain item.
+	 * 
+	 * @param accId
+	 *            Account ID.
+	 * @param itemDbName
+	 *            Name of the item to check.
+	 * @param amount
+	 *            Amount of the item the player should own.
+	 * @return TRUE if the item with the given amount is in the inventory. FALSE otherwise.
+	 */
 	public boolean hasItem(long accId, String itemDbName, int amount) {
 		final Item item = itemDao.findItemByName(itemDbName);
 
@@ -114,7 +136,7 @@ public class InventoryService {
 
 		log.info("Account {} received item {}, amount: {}", accId, itemId, amount);
 	}
-	
+
 	/**
 	 * Adds an item to the account. Like addItem.
 	 * 
@@ -124,11 +146,11 @@ public class InventoryService {
 	 */
 	public void addItem(long accId, String itemDbName, int amount) {
 		final Item item = itemDao.findItemByName(itemDbName);
-		
-		if(item == null) {
+
+		if (item == null) {
 			return;
 		}
-		
+
 		addItem(accId, item.getId(), amount);
 	}
 

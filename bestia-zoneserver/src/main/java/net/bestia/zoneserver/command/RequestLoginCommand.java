@@ -82,11 +82,14 @@ public class RequestLoginCommand extends Command {
 		
 		// Master is here. It will be spawned by registerPlayerBestias anyways so only do the house keeping work.
 		final PlayerItemDAO playerItemDao = ctx.getServiceLocator().getBean(PlayerItemDAO.class);
+		
 		final List<PlayerItem> items = playerItemDao.findPlayerItemsForAccount(account.getId());
+		final int curWeight = playerItemDao.getTotalItemWeight(account.getId());
 		
 		// Generate a list of inventory items.
 		final InventoryListMessage invMsg = new InventoryListMessage(message);
 		invMsg.setPlayerItems(items);
+		invMsg.setCurrentWeight(curWeight);
 		ctx.getServer().sendMessage(invMsg);
 		
 		// Generate a list of bestias for this account.

@@ -26,6 +26,12 @@ public class InventoryListMessage extends Message {
 	@JsonProperty("pis")
 	private List<PlayerItem> playerItems = new ArrayList<>(0);
 	
+	@JsonProperty("cw")
+	private int currentWeight;
+	
+	@JsonProperty("mw")
+	private int maxWeight;
+	
 	/**
 	 * Std. Ctor.
 	 */
@@ -48,6 +54,22 @@ public class InventoryListMessage extends Message {
 	
 	public void setPlayerItems(List<PlayerItem> playerItems) {
 		this.playerItems = playerItems;
+	}
+	
+	public void setCurrentWeight(int curWeight) {
+		this.currentWeight = curWeight;
+	}
+	
+	public int getCurrentWeight() {
+		return currentWeight;
+	}
+	
+	public void setMaxWeight(int maxWeight) {
+		this.maxWeight = maxWeight;
+	}
+	
+	public int getMaxWeight() {
+		return maxWeight;
 	}
 
 	@Override
