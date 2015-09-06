@@ -18,8 +18,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Items can be added to a players inventory. They can be used, traded, sold,
- * dropped etc.
+ * Items can be added to a players inventory. They can be used, traded, sold, dropped etc.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -41,14 +40,21 @@ public class Item implements Serializable {
 	@Column(nullable = false)
 	@JsonProperty("img")
 	private String image;
-	
+
 	@JsonIgnore
+	@Column(nullable = false)
 	private int price;
+
+	/**
+	 * Weight of the item. The rule is: 100gr = 1 weight unit.
+	 */
+	@Column(nullable = false)
+	private int weight;
 
 	@Enumerated(EnumType.STRING)
 	@JsonProperty("t")
 	private ItemType type;
-	
+
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "item")
 	@JsonIgnore
 	private Set<PlayerItem> playerItems = new HashSet<>(0);
@@ -67,5 +73,9 @@ public class Item implements Serializable {
 
 	public ItemType getType() {
 		return type;
+	}
+
+	public int getWeight() {
+		return weight;
 	}
 }
