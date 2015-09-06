@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.bestia</groupId>
 	<artifactId>behemoth</artifactId>
-	<version>0.1.2</version>
+	<version>0.1.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>bestia</name>
 
@@ -96,14 +96,6 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<configuration>
-					<goals>deploy</goals>
-					<autoversionsubmodules>true</autoversionsubmodules>
 				</configuration>
 			</plugin>
 			<plugin>
