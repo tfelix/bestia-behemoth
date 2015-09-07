@@ -1,12 +1,16 @@
 package net.bestia.zoneserver.game.zone;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.File;
 
+import javax.rmi.CORBA.Stub;
+
+import net.bestia.model.ServiceLocator;
 import net.bestia.util.BestiaConfiguration;
+import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.script.ScriptManager;
 import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.Rect;
 import net.bestia.zoneserver.zone.Zone;
@@ -33,19 +37,29 @@ public class ZoneTest {
 
 	private CommandContext getTestContext() {
 
-		// TODO Das hier richtig machen.
+		BestiaConfiguration p = new BestiaConfiguration();
+		
 		File configFile;
 		try {
 			configFile = new File(ZoneTest.class.getClassLoader()
 					.getResource("bestia.properties").toURI());
-			BestiaConfiguration p = new BestiaConfiguration();
 			p.load(configFile);
-			return null;
 		} catch (Exception e) {
 			Assert.fail("Could not read test properties file: bestia.properties.");
 		}
 		
-		return null;
+		ScriptManager manager = mock(ScriptManager.class);
+		ServiceLocator locator = mock(ServiceLocator.class);
+		Zoneserver server = mock(Zoneserver.class);
+		
+		CommandContext ctx = mock(CommandContext.class);
+		
+		stub(ctx.getConfiguration()).toReturn(p);
+		stub(ctx.getScriptManager()).toReturn(manager);
+		stub(ctx.getServiceLocator()).toReturn(locator);
+		stub(ctx.getServer()).toReturn(server);
+		
+		return ctx;
 	}
 
 	private Zone getZone() {

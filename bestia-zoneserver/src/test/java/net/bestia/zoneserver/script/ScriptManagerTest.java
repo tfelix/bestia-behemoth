@@ -1,43 +1,45 @@
 package net.bestia.zoneserver.script;
 
-import java.io.File;
-import java.io.IOException;
+import javax.script.Bindings;
+import javax.script.CompiledScript;
+import javax.script.SimpleBindings;
+
+import static org.mockito.Mockito.*;
 
 import org.junit.Test;
-import org.springframework.util.Assert;
 
 public class ScriptManagerTest {
 
 	@Test
-	public void load_scripts_from_folder() throws IOException {
-		ScriptCache cache = new ScriptCache();
+	public void execute_script() {
+		ScriptManager manager = new ScriptManager();
+		Bindings bindings = new SimpleBindings();
 		
-		File folder = new File(getClass().getResource("/data/script/item").getFile());
+		ScriptCache cache = mock(ScriptCache.class);
+		CompiledScript compScript = mock(CompiledScript.class);
+		stub(cache.getScript("apple")).toReturn(compScript);
 		
-		cache.load(folder);
+		manager.addCache("item", cache, bindings);
 		
-		Assert.notNull(cache.getScript("apple"));
+		Script script = mock(Script.class);
+		stub(script.getScriptKey()).toReturn("item");
+		stub(script.getName()).toReturn("apple");
+		stub(script.getBindings()).toReturn(bindings);
+		
+		manager.executeScript(script);
 	}
 	
-	@Test
-	public void log_on_faulty_script() throws IOException {
-		ScriptCache cache = new ScriptCache();
-		
-		File folder = new File(getClass().getResource("/data/script/item_faulty").getFile());
-		
-		cache.load(folder);
-		
-		Assert.isNull(cache.getScript("apple"));
+	@Test(expected = IllegalArgumentException.class)
+	public void execute_null_script() {
+		ScriptManager manager = new ScriptManager();
+		manager.executeScript(null);
 	}
 	
-	@Test
-	public void null_on_unknown_script() throws IOException {
-		ScriptCache cache = new ScriptCache();
-		
-		File folder = new File(getClass().getResource("/data/script/item").getFile());
-		
-		cache.load(folder);
-		
-		Assert.isNull(cache.getScript("apple123"));
+	@Test(expected = IllegalArgumentException.class)
+	public void add_null_script() {
+		ScriptManager manager = new ScriptManager();
+		manager.addCache(null, null, null);
 	}
+	
+	
 }

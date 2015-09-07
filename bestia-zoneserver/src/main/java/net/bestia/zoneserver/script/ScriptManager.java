@@ -47,6 +47,18 @@ public class ScriptManager {
 	 */
 	public void addCache(String scriptKey, ScriptCache cache, Bindings bindings) {
 
+		if(scriptKey == null || scriptKey.isEmpty()) {
+			throw new IllegalArgumentException("ScriptKey can not be empty or null.");
+		}
+		
+		if(cache == null) {
+			throw new IllegalArgumentException("Cache can not be null.");
+		}
+		
+		if(bindings == null) {
+			throw new IllegalArgumentException("Bindings can not be null.");
+		}
+		
 		final ScriptPackage pkg = new ScriptPackage(cache, bindings);
 
 		scriptPackages.put(scriptKey, pkg);
@@ -60,6 +72,10 @@ public class ScriptManager {
 	 */
 	public void executeScript(Script script) {
 
+		if(script == null) {
+			throw new IllegalArgumentException("Script can not be null.");
+		}
+		
 		final String scriptKey = script.getScriptKey();
 		final String scriptName = script.getName();
 

@@ -13,7 +13,7 @@ import net.bestia.zoneserver.script.ScriptManager;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public final class CommandContext {
+public class CommandContext {
 
 	private final BestiaConfiguration configuration;
 	private final Zoneserver server;

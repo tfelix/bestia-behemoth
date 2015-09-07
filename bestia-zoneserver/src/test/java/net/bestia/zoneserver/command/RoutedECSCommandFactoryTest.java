@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.command;
 
 import net.bestia.messages.BestiaMoveMessage;
-import net.bestia.messages.InventoryItemUseMessage;
 import net.bestia.messages.LoginBroadcastMessage;
 import net.bestia.messages.Message;
 
@@ -34,11 +33,6 @@ public class RoutedECSCommandFactoryTest {
 		Message msg = new LoginBroadcastMessage(1L);
 		
 		Command cmd = fac.getCommand(msg);
-		Assert.assertTrue("Instance of a InputCommand. Should not be!", !(cmd instanceof InputCommand));
-		
-		msg = new InventoryItemUseMessage(1, 1);
-		
-		cmd = fac.getCommand(msg);
-		Assert.assertTrue("Instance of a InputCommand. Should not be!", !(cmd instanceof InputCommand));
+		Assert.assertFalse("Instance of a InputCommand. Should not be!", cmd instanceof InputCommand);
 	}
 }
