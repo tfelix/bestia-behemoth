@@ -64,6 +64,17 @@ public class PlayerBestiaManager extends BestiaManager {
 	}
 
 	/**
+	 * Returns the maximum item weight the current bestia could carry. Plase note: only the bestia master will be used
+	 * to calculate the inventory max weight.
+	 * 
+	 * @return
+	 */
+	public int getMaxItemWeight() {
+		final PlayerBestia bestia = getBestia();
+		return 100 + 100 * bestia.getStatusPoints().getAtk() * 3 + bestia.getLevel();
+	}
+
+	/**
 	 * Sends a system message to the owner of this bestia. TODO Hier die Übersetzung kären.
 	 * 
 	 * @param text
@@ -108,33 +119,33 @@ public class PlayerBestiaManager extends BestiaManager {
 	private int getNeededExp() {
 		return (int) (Math.ceil(Math.exp(bestia.getLevel() / 7)) + 10);
 	}
-	
+
 	/**
 	 * Recalculates the status values of a bestia. It uses the EVs, IVs and BaseValues. Must be called after the level
 	 * of a bestia has changed.
 	 */
 	protected void calculateStatusValues() {
-	
+
 		final int atk = (bestia.getBaseValues().getAtk() * 2 + bestia.getIndividualValue().getAtk() + bestia
 				.getEffortValues().getAtk() / 4) * bestia.getLevel() / 100 + 5;
-	
+
 		final int def = (bestia.getBaseValues().getDef() * 2 + bestia.getIndividualValue().getDef() + bestia
 				.getEffortValues().getDef() / 4) * bestia.getLevel() / 100 + 5;
-	
+
 		final int spatk = (bestia.getBaseValues().getSpAtk() * 2 + bestia.getIndividualValue().getSpAtk() + bestia
 				.getEffortValues().getSpAtk() / 4) * bestia.getLevel() / 100 + 5;
-	
+
 		final int spdef = (bestia.getBaseValues().getSpDef() * 2 + bestia.getIndividualValue().getSpDef() + bestia
 				.getEffortValues().getSpDef() / 4) * bestia.getLevel() / 100 + 5;
-	
+
 		int spd = (bestia.getBaseValues().getSpd() * 2 + bestia.getIndividualValue().getSpd() + bestia
 				.getEffortValues().getSpd() / 4) * bestia.getLevel() / 100 + 5;
-	
+
 		final int maxHp = bestia.getBaseValues().getHp() * 2 + bestia.getIndividualValue().getHp()
 				+ bestia.getEffortValues().getHp() / 4 * bestia.getLevel() / 100 + 10 + bestia.getLevel();
 		final int maxMana = bestia.getBaseValues().getMana() * 2 + bestia.getIndividualValue().getMana()
 				+ bestia.getEffortValues().getMana() / 4 * bestia.getLevel() / 100 + 10 + bestia.getLevel() * 2;
-	
+
 		final StatusPoints points = bestia.getStatusPoints();
 		points.setMaxValues(maxHp, maxMana);
 		points.setAtk(atk);
