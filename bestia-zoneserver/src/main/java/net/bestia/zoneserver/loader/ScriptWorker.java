@@ -10,14 +10,15 @@ import org.apache.logging.log4j.Logger;
 import net.bestia.zoneserver.script.ScriptCache;
 
 /**
- * TODO Kommentieren.
- * @author Thomas
+ * The ScriptWorker is used to load scripts of a certain type parallel at server startup.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 class ScriptWorker implements Callable<ScriptWorker.ScriptLoaded> {
 
 	private static final Logger log = LogManager.getLogger(ScriptWorker.class);
-	
+
 	/**
 	 * Helper class to return cache with key.
 	 *
@@ -33,10 +34,18 @@ class ScriptWorker implements Callable<ScriptWorker.ScriptLoaded> {
 		}
 
 	}
-	
+
 	private final File scriptFolder;
 	private final String key;
 
+	/**
+	 * Ctor.
+	 * 
+	 * @param scriptFolder
+	 *            The folder to load all scripts from.
+	 * @param key
+	 *            The script key (e.g. item) to save them.
+	 */
 	public ScriptWorker(File scriptFolder, String key) {
 		this.scriptFolder = scriptFolder;
 		this.key = key;

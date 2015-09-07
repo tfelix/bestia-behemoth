@@ -5,21 +5,21 @@ import java.io.File;
 import net.bestia.zoneserver.command.CommandContext;
 
 /**
- * Loads all the item scripts.
+ * Loads all the attack scripts.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class ItemScriptLoader extends ScriptLoader {
+public class AttackScriptLoader extends ScriptLoader {
 
-	public ItemScriptLoader(File baseDir, CommandContext ctx) {
+	public AttackScriptLoader(File baseDir, CommandContext ctx) {
 		super(baseDir, ctx);
-
-		addBinding("msg", ctx.getServer());
+		// TODO Do the bindings.
 	}
 
 	@Override
 	public String getKey() {
-		return "item";
+		return "attack";
 	}
+
 }

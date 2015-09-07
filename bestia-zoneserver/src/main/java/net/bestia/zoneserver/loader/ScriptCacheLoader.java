@@ -26,7 +26,7 @@ import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
 
 /**
- * TODO Hier noch Kommentare schreiben.
+ * Automatically uses all available {@link ScriptLoader} in this package to load scripts.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -42,18 +42,21 @@ public class ScriptCacheLoader implements Loader {
 	private final CommandContext ctx;
 
 	/**
-	 * TODO
+	 * Ctor. The inputs are needed since these are used as bindings for the later to be executed scripts.
 	 * 
 	 * @param config
+	 *            BestiaConfiguration object.
 	 * @param ctx
+	 *            A command context.
 	 * @param scriptManager
+	 *            The ScriptManager to be filled with the loaded and compiled scripts.
 	 */
 	public ScriptCacheLoader(BestiaConfiguration config, CommandContext ctx, ScriptManager scriptManager) {
 		this.ctx = ctx;
 		this.nThreads = config.getIntProperty("zone.initThreads");
 		this.worker = Executors.newFixedThreadPool(nThreads);
 		this.scriptManager = scriptManager;
-		
+
 		this.baseDir = new File(config.getProperty("zone.gameDataDir"));
 	}
 
@@ -70,27 +73,26 @@ public class ScriptCacheLoader implements Loader {
 
 		List<Callable<ScriptWorker.ScriptLoaded>> tasks = new ArrayList<Callable<ScriptWorker.ScriptLoaded>>();
 
-		// List all ScriptLoader instances.
+		// List all ScriptLoader instances with the script types the will load.
 		final Map<String, ScriptLoader> scriptLoaderCache = new HashMap<>();
-		
+
 		Reflections reflections = new Reflections("net.bestia.zoneserver.loader");
 		Set<Class<? extends ScriptLoader>> subTypes = reflections.getSubTypesOf(ScriptLoader.class);
-		
+
 		for (Class<? extends ScriptLoader> clazz : subTypes) {
 			try {
-				
+
 				Constructor<? extends ScriptLoader> ctor = clazz.getConstructor(File.class, CommandContext.class);
 				ScriptLoader instance = ctor.newInstance(baseDir, ctx);
-				
+
 				// Save the loader for later access for the ExecutionBindings.
 				scriptLoaderCache.put(instance.getKey(), instance);
-				
+
 				// And setup the worker.
 				tasks.add(instance.getWorker());
-				
+
 			} catch (Exception e) {
-				log.error("Can not instanciate command handler: {}",
-						clazz.toString(), e);
+				log.error("Can not instanciate command handler: {}", clazz.toString(), e);
 				throw new IOException("Can not load scripts.", e);
 			}
 		}
@@ -104,7 +106,7 @@ public class ScriptCacheLoader implements Loader {
 
 					final ScriptLoaded scriptLoaded = loadedScript.get();
 					final Bindings bindings = scriptLoaderCache.get(scriptLoaded.key).getExecutionBindings();
-					
+
 					scriptManager.addCache(scriptLoaded.key, scriptLoaded.cache, bindings);
 
 				} catch (ExecutionException e) {

@@ -25,9 +25,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class is responsible for taking the config, parsing the zone data and then initializing the appropriate zones.
- * In order to speed up the very hard task of instancing the zones the work will be split in several threads working in
- * parallel.
+ * This class is responsible for taking the configuration, parsing the zone data and then initializing the appropriate
+ * zones. In order to speed up the very hard task of instancing the zones the work will be split in several threads
+ * working in parallel.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -47,6 +47,7 @@ public class ZoneLoader implements Loader {
 
 		/**
 		 * Ctor.
+		 * 
 		 * @param zones
 		 * @param mapDataDir
 		 */
@@ -102,7 +103,6 @@ public class ZoneLoader implements Loader {
 	private final File mapDataDir;
 	private final CommandContext context;
 
-	
 	public ZoneLoader(CommandContext ctx, java.util.Map<String, Zone> zones) {
 		if (ctx == null) {
 			throw new IllegalArgumentException("Context can not be null.");
@@ -110,7 +110,7 @@ public class ZoneLoader implements Loader {
 		if (zones == null) {
 			throw new IllegalArgumentException("Zone reference can not be null.");
 		}
-		
+
 		this.config = ctx.getConfiguration();
 
 		this.nThreads = config.getIntProperty("zone.initThreads");
