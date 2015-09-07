@@ -24,6 +24,7 @@ import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.script.ItemScript;
+import net.bestia.zoneserver.script.Script;
 import net.bestia.zoneserver.zone.Vector2;
 import net.bestia.zoneserver.zone.Zone;
 
@@ -130,7 +131,7 @@ public class PlayerControlSystem extends EntityProcessingSystem implements Input
 
 	private void processUseItemMessage(Entity player, InventoryItemUseMessage msg) {
 		
-		ItemScript iScript = new ItemScript("apple", null, null);
+		Script iScript = new ItemScript("apple", null, null);
 		ctx.getScriptManager().executeScript(iScript);
 		
 	}
