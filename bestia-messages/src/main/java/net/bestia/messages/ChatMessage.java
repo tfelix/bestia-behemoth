@@ -13,10 +13,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class ChatMessage extends Message {
 	
+	private static final long serialVersionUID = 1L;
 	private static final String CLIENT_PATH = "account/%d";
 	private static final String SERVER_PATH = "zone/account/%d";
-
-	private static final long serialVersionUID = 1L;
+	
 	public final static String MESSAGE_ID = "chat.message";
 
 	public enum Mode {

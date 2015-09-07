@@ -14,6 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public abstract class InputMessage extends Message {
 
+	@JsonIgnore
 	private static final long serialVersionUID = 1L;
 
 	@JsonProperty("pbid")

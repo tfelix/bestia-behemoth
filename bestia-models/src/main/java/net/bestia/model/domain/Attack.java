@@ -36,6 +36,9 @@ public class Attack implements Serializable {
 	@JsonProperty("m")
 	private int manaCost;
 
+	@JsonProperty("r")
+	private int range;
+
 	@Enumerated(EnumType.STRING)
 	@JsonProperty("bs")
 	private AttackBasedStatus basedStatus;
@@ -128,6 +131,15 @@ public class Attack implements Serializable {
 	 */
 	public int getCasttime() {
 		return casttime;
+	}
+
+	/**
+	 * Returns the range of the attack in tiles.
+	 * 
+	 * @return The range of the attack in tiles.
+	 */
+	public int getRange() {
+		return range;
 	}
 
 	/**

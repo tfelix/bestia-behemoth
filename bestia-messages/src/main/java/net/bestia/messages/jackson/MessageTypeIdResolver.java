@@ -29,7 +29,7 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 
 	private final TypeFactory typeFactory = TypeFactory.defaultInstance();
 	private final HashMap<String, Class<? extends Message>> idToClass = new HashMap<String, Class<? extends Message>>();
-	private HashMap<Class<? extends Message>, String> classToId = new HashMap<Class<? extends Message>, String>();
+	private final HashMap<Class<? extends Message>, String> classToId = new HashMap<Class<? extends Message>, String>();
 
 	private JavaType baseType;
 
