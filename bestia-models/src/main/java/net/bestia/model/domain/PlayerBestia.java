@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -12,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -48,7 +50,7 @@ public class PlayerBestia implements Serializable {
 	@Embedded
 	@JsonProperty("sl")
 	private Location savePosition;
-	
+
 	@Embedded
 	private StatusPoints statusPoints;
 
@@ -67,6 +69,31 @@ public class PlayerBestia implements Serializable {
 
 	@JsonProperty("lv")
 	private int level;
+
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "ATTACK_1", nullable = true)
+	@JsonProperty("atk1")
+	private Attack attack1;
+	
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "ATTACK_2", nullable = true)
+	@JsonProperty("atk2")
+	private Attack attack2;
+	
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "ATTACK_3", nullable = true)
+	@JsonProperty("atk3")
+	private Attack attack3;
+	
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "ATTACK_4", nullable = true)
+	@JsonProperty("atk4")
+	private Attack attack4;
+	
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "ATTACK_5", nullable = true)
+	@JsonProperty("atk5")
+	private Attack attack5;
 
 	/**
 	 * Override the names because the are the same like in status points. Both entities are embedded so we need
@@ -233,6 +260,46 @@ public class PlayerBestia implements Serializable {
 	@JsonIgnore
 	public void setCurrentMana(int curMana) {
 		statusPoints.setCurrentMana(curMana);
+	}
+
+	public Attack getAttack1() {
+		return attack1;
+	}
+
+	public void setAttack1(Attack attack1) {
+		this.attack1 = attack1;
+	}
+
+	public Attack getAttack2() {
+		return attack2;
+	}
+
+	public void setAttack2(Attack attack2) {
+		this.attack2 = attack2;
+	}
+
+	public Attack getAttack3() {
+		return attack3;
+	}
+
+	public void setAttack3(Attack attack3) {
+		this.attack3 = attack3;
+	}
+
+	public Attack getAttack4() {
+		return attack4;
+	}
+
+	public void setAttack4(Attack attack4) {
+		this.attack4 = attack4;
+	}
+
+	public Attack getAttack5() {
+		return attack5;
+	}
+
+	public void setAttack5(Attack attack5) {
+		this.attack5 = attack5;
 	}
 
 	@Override
