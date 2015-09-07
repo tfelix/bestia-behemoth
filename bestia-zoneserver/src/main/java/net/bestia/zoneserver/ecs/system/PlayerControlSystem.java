@@ -15,7 +15,6 @@ import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.InputController;
 import net.bestia.zoneserver.ecs.InputController.InputControllerCallback;
-import net.bestia.zoneserver.ecs.command.UseItemCommand;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Changable;
 import net.bestia.zoneserver.ecs.component.Movement;
