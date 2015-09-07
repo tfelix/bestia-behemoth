@@ -1,10 +1,10 @@
 package net.bestia.zoneserver.script;
 
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.BestiaManager;
 
 public class AttackScript extends Script {
 
-	public AttackScript(String name, PlayerBestiaManager owner) {
+	public AttackScript(String name, BestiaManager owner) {
 		super(name);
 		
 		addBinding("owner", owner);

@@ -14,12 +14,12 @@ import org.apache.logging.log4j.Logger;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class PlayerBestiaManager {
+public class PlayerBestiaManager extends BestiaManager {
 	private final static Logger log = LogManager.getLogger(PlayerBestiaManager.class);
 
 	private final static int MAX_LEVEL = 40;
 
-	private final PlayerBestia bestia;
+	final PlayerBestia bestia;
 	private final Zoneserver server;
 
 	/**
@@ -30,9 +30,7 @@ public class PlayerBestiaManager {
 	 *            Account object to create messages for this account.
 	 */
 	public PlayerBestiaManager(PlayerBestia bestia, Zoneserver server) {
-		if (bestia == null) {
-			throw new IllegalArgumentException("Account can not be null.");
-		}
+		super(bestia.getOrigin());
 
 		if (server == null) {
 			throw new IllegalArgumentException("Zoneserver can not be null.");
@@ -103,41 +101,6 @@ public class PlayerBestiaManager {
 	}
 
 	/**
-	 * Recalculates the status values of a bestia. It uses the EVs, IVs and BaseValues. Must be called after the level
-	 * of a bestia has changed.
-	 */
-	private void calculateStatusValues() {
-
-		final int atk = (bestia.getBaseValues().getAtk() * 2 + bestia.getIndividualValue().getAtk() + bestia
-				.getEffortValues().getAtk() / 4) * bestia.getLevel() / 100 + 5;
-
-		final int def = (bestia.getBaseValues().getDef() * 2 + bestia.getIndividualValue().getDef() + bestia
-				.getEffortValues().getDef() / 4) * bestia.getLevel() / 100 + 5;
-
-		final int spatk = (bestia.getBaseValues().getSpAtk() * 2 + bestia.getIndividualValue().getSpAtk() + bestia
-				.getEffortValues().getSpAtk() / 4) * bestia.getLevel() / 100 + 5;
-
-		final int spdef = (bestia.getBaseValues().getSpDef() * 2 + bestia.getIndividualValue().getSpDef() + bestia
-				.getEffortValues().getSpDef() / 4) * bestia.getLevel() / 100 + 5;
-
-		int spd = (bestia.getBaseValues().getSpd() * 2 + bestia.getIndividualValue().getSpd() + bestia
-				.getEffortValues().getSpd() / 4) * bestia.getLevel() / 100 + 5;
-
-		final int maxHp = bestia.getBaseValues().getHp() * 2 + bestia.getIndividualValue().getHp()
-				+ bestia.getEffortValues().getHp() / 4 * bestia.getLevel() / 100 + 10 + bestia.getLevel();
-		final int maxMana = bestia.getBaseValues().getMana() * 2 + bestia.getIndividualValue().getMana()
-				+ bestia.getEffortValues().getMana() / 4 * bestia.getLevel() / 100 + 10 + bestia.getLevel() * 2;
-
-		final StatusPoints points = bestia.getStatusPoints();
-		points.setMaxValues(maxHp, maxMana);
-		points.setAtk(atk);
-		points.setDef(def);
-		points.setSpAtk(spatk);
-		points.setSpDef(spdef);
-		points.setSpd(spd);
-	}
-
-	/**
 	 * Calculates the needed experience until the next levelup.
 	 * 
 	 * @return Exp needed for next levelup.
@@ -145,26 +108,40 @@ public class PlayerBestiaManager {
 	private int getNeededExp() {
 		return (int) (Math.ceil(Math.exp(bestia.getLevel() / 7)) + 10);
 	}
-
-	public void kill() {
-		// Location saveLoc = bestia.getSavePosition();
-
-		// int neededExp = getNeededExp();
-		// Reduce exp by 5%.
-		// bestia.setExp(bestia.getExp() - neededExp * 5 / 100);
-
-		// Alle Encounter löschen
-		// $encounter_dao->deleteBestiaEncounter($this->data->get('id'), false);
-
-		// $this->msg->addMsg(array('BATTLE_BESTIA_DOWN',
-		// array($this->data->get('name'))),'battle');
-
-		// ++ Alle Statusveränderungen löschen.
-		// clearStatusEffects();
-
-		// bestia.getStatusPoints().setCurrentHp(1);
-		// bestia.getStatusPoints().setCurrentMana(0);
-		// isDead = true;
+	
+	/**
+	 * Recalculates the status values of a bestia. It uses the EVs, IVs and BaseValues. Must be called after the level
+	 * of a bestia has changed.
+	 */
+	protected void calculateStatusValues() {
+	
+		final int atk = (bestia.getBaseValues().getAtk() * 2 + bestia.getIndividualValue().getAtk() + bestia
+				.getEffortValues().getAtk() / 4) * bestia.getLevel() / 100 + 5;
+	
+		final int def = (bestia.getBaseValues().getDef() * 2 + bestia.getIndividualValue().getDef() + bestia
+				.getEffortValues().getDef() / 4) * bestia.getLevel() / 100 + 5;
+	
+		final int spatk = (bestia.getBaseValues().getSpAtk() * 2 + bestia.getIndividualValue().getSpAtk() + bestia
+				.getEffortValues().getSpAtk() / 4) * bestia.getLevel() / 100 + 5;
+	
+		final int spdef = (bestia.getBaseValues().getSpDef() * 2 + bestia.getIndividualValue().getSpDef() + bestia
+				.getEffortValues().getSpDef() / 4) * bestia.getLevel() / 100 + 5;
+	
+		int spd = (bestia.getBaseValues().getSpd() * 2 + bestia.getIndividualValue().getSpd() + bestia
+				.getEffortValues().getSpd() / 4) * bestia.getLevel() / 100 + 5;
+	
+		final int maxHp = bestia.getBaseValues().getHp() * 2 + bestia.getIndividualValue().getHp()
+				+ bestia.getEffortValues().getHp() / 4 * bestia.getLevel() / 100 + 10 + bestia.getLevel();
+		final int maxMana = bestia.getBaseValues().getMana() * 2 + bestia.getIndividualValue().getMana()
+				+ bestia.getEffortValues().getMana() / 4 * bestia.getLevel() / 100 + 10 + bestia.getLevel() * 2;
+	
+		final StatusPoints points = bestia.getStatusPoints();
+		points.setMaxValues(maxHp, maxMana);
+		points.setAtk(atk);
+		points.setDef(def);
+		points.setSpAtk(spatk);
+		points.setSpDef(spdef);
+		points.setSpd(spd);
 	}
 
 	public PlayerBestia getBestia() {
