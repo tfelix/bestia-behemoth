@@ -11,37 +11,31 @@ import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
 
 /**
- * Creates commands from incoming messages. Please bear in mind that not each
- * message creates a command for execution on the server. Only a subset of all
- * available messages have an associated command. (All the INCOMING messages).
+ * Creates commands from incoming messages. Please bear in mind that not each message creates a command for execution on
+ * the server. Only a subset of all available messages have an associated command. (All the INCOMING messages).
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class CommandFactory {
 
-	private static final Logger log = LogManager
-			.getLogger(CommandFactory.class);
+	private static final Logger log = LogManager.getLogger(CommandFactory.class);
 
 	private final CommandContext commandContext;
-	private final static Map<String, Command> commandLibrary;
+	private final Map<String, Command> commandLibrary = new HashMap<String, Command>();
 
 	/**
-	 * Search for all command handler and register them with this factory for
-	 * automatic command creation.
+	 * Scans the package for commands to instanciate if a message with the given ID is incoming.
+	 * 
+	 * @param packageName
 	 */
-	static {
-		commandLibrary = new HashMap<String, Command>();
-
-		Reflections reflections = new Reflections(
-				"net.bestia.zoneserver.command");
-		Set<Class<? extends Command>> subTypes = reflections
-				.getSubTypesOf(Command.class);
+	private void scanPackage(String packageName) {
+		final Reflections reflections = new Reflections(packageName);
+		final Set<Class<? extends Command>> subTypes = reflections.getSubTypesOf(Command.class);
 
 		for (Class<? extends Command> clazz : subTypes) {
-			Command cmd;
 			try {
-				cmd = clazz.newInstance();
+				final Command cmd = clazz.newInstance();
 
 				// Dont put a command handler in the library twice.
 				if (commandLibrary.containsKey(cmd.handlesMessageId())) {
@@ -56,18 +50,34 @@ public class CommandFactory {
 			}
 		}
 	}
-	
-	public CommandFactory(CommandContext ctx) {
-		if(ctx == null) {
+
+	public CommandFactory(CommandContext ctx, String packageToScan) {
+		if (ctx == null) {
 			throw new IllegalArgumentException("Context can not be null.");
 		}
-		
+
+		if (packageToScan == null || packageToScan.isEmpty()) {
+			throw new IllegalArgumentException("PackageToScan can not be null or empty.");
+		}
+
 		this.commandContext = ctx;
+
+		scanPackage(packageToScan);
+	}
+
+	public CommandFactory(CommandContext ctx) {
+		if (ctx == null) {
+			throw new IllegalArgumentException("Context can not be null.");
+		}
+
+		this.commandContext = ctx;
+
+		scanPackage("net.bestia.zoneserver.command");
 	}
 
 	/**
-	 * Creates a command from the messages. Do some sanity checking as well to
-	 * see if the message is ok and applying to the specifications.
+	 * Creates a command from the messages. Do some sanity checking as well to see if the message is ok and applying to
+	 * the specifications.
 	 * 
 	 * @param message
 	 * @return
