@@ -38,9 +38,6 @@ public class PlayerBestiaManager extends BestiaManager {
 
 		this.server = server;
 		this.bestia = bestia;
-
-		// Calculate values.
-		calculateStatusValues();
 	}
 
 	/**
@@ -124,7 +121,8 @@ public class PlayerBestiaManager extends BestiaManager {
 	 * Recalculates the status values of a bestia. It uses the EVs, IVs and BaseValues. Must be called after the level
 	 * of a bestia has changed.
 	 */
-	protected void calculateStatusValues() {
+	@Override
+	protected StatusPoints calculateStatusValues() {
 
 		final int atk = (bestia.getBaseValues().getAtk() * 2 + bestia.getIndividualValue().getAtk() + bestia
 				.getEffortValues().getAtk() / 4) * bestia.getLevel() / 100 + 5;
@@ -146,13 +144,24 @@ public class PlayerBestiaManager extends BestiaManager {
 		final int maxMana = bestia.getBaseValues().getMana() * 2 + bestia.getIndividualValue().getMana()
 				+ bestia.getEffortValues().getMana() / 4 * bestia.getLevel() / 100 + 10 + bestia.getLevel() * 2;
 
-		final StatusPoints points = bestia.getStatusPoints();
+		final StatusPoints points = new StatusPoints();
+
 		points.setMaxValues(maxHp, maxMana);
 		points.setAtk(atk);
 		points.setDef(def);
 		points.setSpAtk(spatk);
 		points.setSpDef(spdef);
 		points.setSpd(spd);
+
+		return points;
+	}
+
+	/**
+	 * Calculates and sets the status values to the PlayerBestia connected with this manager. This is handy if the
+	 * current status values must be send to the client.
+	 */
+	public void updateStatusValues() {
+		bestia.setStatusPoints(getStatusPoints());
 	}
 
 	public PlayerBestia getBestia() {

@@ -5,7 +5,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.AI;
 import net.bestia.zoneserver.ecs.component.Changable;
-import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.manager.NetworkManager;
@@ -21,12 +20,8 @@ import net.bestia.zoneserver.zone.map.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.artemis.Archetype;
-import com.artemis.ArchetypeBuilder;
-import com.artemis.Entity;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
-import com.artemis.managers.GroupManager;
 import com.artemis.managers.TagManager;
 import com.artemis.managers.UuidEntityManager;
 import com.artemis.utils.EntityBuilder;
@@ -129,7 +124,7 @@ public class Zone {
 
 		for(int i = 0; i < 10; i++) {
 		
-			Entity myEntity = new EntityBuilder(world).with(new Position(10 + i,10 + i), 
+			new EntityBuilder(world).with(new Position(10 + i,10 + i), 
 	    		 new Visible("poring"),
 	    		 new Changable(),
 	    		 new AI()).build();

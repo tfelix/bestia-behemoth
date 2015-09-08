@@ -80,6 +80,15 @@ Bestia.Message = {
 
 		this.pbid = playerBestiaId;
 	},
+	
+	/**
+	 * Uses an attack.
+	 */
+	AttackUse : function(attackId, x, y) {
+		this.aid = attackId;
+		this.x = x;
+		this.y = y;
+	},
 
 	/**
 	 * Requests a complete sync with the inventory from the server.

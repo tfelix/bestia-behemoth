@@ -51,7 +51,11 @@ public class PlayerBestia implements Serializable {
 	@JsonProperty("sl")
 	private Location savePosition;
 
-	@Embedded
+	/**
+	 * StatusPoints must be calculates because the depend upon status effects and equipments. PlayerBestiaManager will
+	 * do this.
+	 */
+	@Transient
 	private StatusPoints statusPoints;
 
 	@Embedded
@@ -74,22 +78,22 @@ public class PlayerBestia implements Serializable {
 	@JoinColumn(name = "ATTACK_1", nullable = true)
 	@JsonProperty("atk1")
 	private Attack attack1;
-	
+
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ATTACK_2", nullable = true)
 	@JsonProperty("atk2")
 	private Attack attack2;
-	
+
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ATTACK_3", nullable = true)
 	@JsonProperty("atk3")
 	private Attack attack3;
-	
+
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ATTACK_4", nullable = true)
 	@JsonProperty("atk4")
 	private Attack attack4;
-	
+
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ATTACK_5", nullable = true)
 	@JsonProperty("atk5")
@@ -240,6 +244,13 @@ public class PlayerBestia implements Serializable {
 	@JsonProperty("sp")
 	public StatusPoints getStatusPoints() {
 		return statusPoints;
+	}
+	
+	public void setStatusPoints(StatusPoints points) {
+		if(points == null) {
+			throw new IllegalArgumentException("Points can not be null.");
+		}
+		this.statusPoints = points;
 	}
 
 	@JsonIgnore

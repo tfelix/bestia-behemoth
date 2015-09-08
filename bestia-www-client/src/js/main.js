@@ -36,6 +36,12 @@ function main() {
 	$('#btn-playground').click(function() {
 		$('#modal-playground').modal('show');
 	});
+	
+	// +++ PLAYGROUND
+	$('#btn-useattack').click(function() {
+		var msg = new Bestia.Message.AttackUse(1, 10, 10);
+		game.pubsub.publish('io.sendMessage', msg);
+	});
 
 }
 

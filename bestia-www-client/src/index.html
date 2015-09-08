@@ -267,7 +267,7 @@
 						<span aria-hidden="true">&times;</span>
 					</button>
 					<input style="border: 1px solid; display: inline-block; float: right; margin-right: 20px;" placeholder="Suche">
-					<h4 class="modal-title" data-i18n="nav.inventory">mav.inventar</h4>
+					<h4 class="modal-title" data-i18n="nav.inventory">nav.inventar</h4>
 				</div>
 				<div class="modal-body" style="height: 400px; width: 600px;" data-bind="foreach: items">
 					<div class="item tooltip" data-bind="click: $parent.useItem" data-tooltip="+7 Anales Breitschwert">
@@ -285,6 +285,40 @@
 	</div>
 	<!-- /INVENTORY -->
 	
+	<!-- ATTACKS -->
+	<div id="modal-attacks" class="modal fade">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4 class="modal-title" data-i18n="attack.attacks">attacks</h4>
+				</div>
+				<div class="modal-body">
+					<div>
+						<div>Tackle</div>
+						<div>
+							<span data-i18n="attack.mana">Mana</span>: <span></span>, 
+							<span data-i18n="attack.type">Type</span>: <span></span>
+						</div>
+					</div>
+					
+					<div>
+						<div>SLOT 1</div>
+						<div>SLOT 2</div>
+						<div>SLOT 3</div>
+						<div>SLOT 4</div>
+						<div>SLOT 5</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="ui.close">ui.close</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!-- /ATTACKS -->
+	
 	<!-- PLAYGROUND -->
 	<div id="modal-playground" class="modal fade" data-bind="with: inventory">
 		<div class="modal-dialog">
@@ -296,7 +330,7 @@
 					<h4 class="modal-title">Spielwiese</h4>
 				</div>
 				<div class="modal-body">
-					
+					<button id="btn-useattack">Use Attack</button>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="ui.close">ui.close</button>

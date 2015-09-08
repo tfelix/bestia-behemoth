@@ -92,8 +92,14 @@ public class RequestLoginCommand extends Command {
 		invMsg.setCurrentWeight(curWeight);
 		ctx.getServer().sendMessage(invMsg);
 		
+		// Calculate current status values.
+		for (PlayerBestia playerBestia : bestias) {
+			final PlayerBestiaManager manager = new PlayerBestiaManager(playerBestia, ctx.getServer());
+			manager.updateStatusValues();
+		}
+		
 		// Generate a list of bestias for this account.
-		final BestiaInfoMessage msg = new BestiaInfoMessage(message, 1, account.getMaster(), bestias);
+		final BestiaInfoMessage msg = new BestiaInfoMessage(message, 1, master, bestias);
 		ctx.getServer().sendMessage(msg);
 	}
 

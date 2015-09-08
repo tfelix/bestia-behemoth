@@ -7,12 +7,10 @@ public class BestiaManager {
 	//private final static Logger log = LogManager.getLogger(BestiaManager.class);
 	
 	private final Bestia bestia;
-	private final StatusPoints statusPoints = new StatusPoints();
+	private StatusPoints statusPoints = null;
 	
 	public BestiaManager(Bestia bestia) {
 		this.bestia = bestia;
-		
-		calculateStatusValues();
 	}
 	
 	public float getManaRegenerationRate() {
@@ -24,7 +22,7 @@ public class BestiaManager {
 	 * Recalculates the status values of a bestia. It uses the EVs, IVs and BaseValues. Must be called after the level
 	 * of a bestia has changed.
 	 */
-	protected void calculateStatusValues() {
+	protected StatusPoints calculateStatusValues() {
 	
 		final int atk = (bestia.getBaseValues().getAtk() * 2 + 5 + bestia
 				.getEffortValues().getAtk() / 4) * bestia.getLevel() / 100 + 5;
@@ -46,6 +44,7 @@ public class BestiaManager {
 		final int maxMana = bestia.getBaseValues().getMana() * 2 + 5
 				+ bestia.getEffortValues().getMana() / 4 * bestia.getLevel() / 100 + 10 + bestia.getLevel() * 2;
 	
+		final StatusPoints statusPoints = new StatusPoints();
 		
 		statusPoints.setMaxValues(maxHp, maxMana);
 		statusPoints.setAtk(atk);
@@ -53,9 +52,15 @@ public class BestiaManager {
 		statusPoints.setSpAtk(spatk);
 		statusPoints.setSpDef(spdef);
 		statusPoints.setSpd(spd);
+		
+		return statusPoints;
 	}
 	
 	public StatusPoints getStatusPoints() {
+		if(statusPoints == null) {
+			statusPoints = calculateStatusValues();
+		}
+		
 		return statusPoints;
 	}
 }
