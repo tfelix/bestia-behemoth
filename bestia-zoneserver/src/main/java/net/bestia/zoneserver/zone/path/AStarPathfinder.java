@@ -59,9 +59,6 @@ class AStarPathfinder implements Pathfinder {
 					continue;
 				}
 				
-				if(!zone.isWalkable(newP)) {
-					continue;
-				}
 				
 				/*Node newN = Node.createHeuristicNode(start, newP, end, zone);
 				openQueue.add(newN);*/

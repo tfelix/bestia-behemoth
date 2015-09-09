@@ -1,11 +1,8 @@
 package net.bestia.zoneserver.ecs.system;
 
 import net.bestia.model.dao.PlayerBestiaDAO;
-import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.Changable;
-import net.bestia.zoneserver.ecs.component.PlayerControlled;
-import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.component.PlayerBestia;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,19 +27,17 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 	@Wire
 	private CommandContext cmdContext;
 
-	private ComponentMapper<PlayerControlled> pcm;
-	private ComponentMapper<Position> pm;
-	private ComponentMapper<Changable> changableMapper;
+	private ComponentMapper<PlayerBestia> playerMapper;
 
 	@SuppressWarnings({ "unchecked" })
 	public PersistSystem(float interval) {
-		super(Aspect.all(PlayerControlled.class, Position.class, Changable.class), interval);
+		super(Aspect.all(PlayerBestia.class), interval);
 
 	}
 
 	@Override
 	protected void process(Entity e) {
-		if(changableMapper.get(e).hasPersisted) {
+		if(!playerMapper.get(e).playerBestiaManager.hasChanged()) {
 			return;
 		}
 		
@@ -60,22 +55,14 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 	private void synchronizeAndSaveEntity(Entity e) {
 		final PlayerBestiaDAO dao = cmdContext.getServiceLocator().getBean(PlayerBestiaDAO.class);
 
-		final PlayerControlled playerControlled = pcm.get(e);
-		final PlayerBestia pb = playerControlled.playerBestia.getBestia();
-		final Position pos = pm.get(e);
+		final PlayerBestia playerControlled = playerMapper.get(e);
+		final net.bestia.model.domain.PlayerBestia pb = playerControlled.playerBestiaManager.getPlayerBestia();
 
 		log.trace("Persisting entity: {}", pb.toString());
 
-		// Synchronize position with the ECS and the entity.
-
-		// TODO hier noch den Mapwechsel bedenken.
-		pb.getCurrentPosition().setX(pos.x);
-		pb.getCurrentPosition().setY(pos.y);
-
 		dao.update(pb);
 		
-		// Stop persisting.
-		changableMapper.get(e).hasPersisted = true;
+		playerControlled.playerBestiaManager.resetChanged();
 	}
 
 }

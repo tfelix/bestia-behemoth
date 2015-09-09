@@ -51,7 +51,15 @@ public abstract class Command implements Runnable {
 			throw new IllegalStateException("Message and/or CommandContext was not set before execution.");
 		}
 
+		initialize();
 		execute(message, ctx);
+	}
+
+	/**
+	 * Can be overwritten to do initialization work before the main execute method is called.
+	 */
+	protected void initialize() {
+		// no op.
 	}
 
 	/**

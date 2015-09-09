@@ -3,64 +3,65 @@ package net.bestia.zoneserver.ecs.system;
 import net.bestia.messages.ChatMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
-import net.bestia.zoneserver.ecs.component.PlayerControlled;
-import net.bestia.zoneserver.ecs.manager.NetworkManager;
+import net.bestia.zoneserver.ecs.component.Chat;
+import net.bestia.zoneserver.ecs.component.PlayerBestia;
 
 import com.artemis.Aspect;
+import com.artemis.AspectSubscriptionManager;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
+import com.artemis.EntitySubscription;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.EntityProcessingSystem;
 import com.artemis.utils.IntBag;
 
 @Wire
 public class ChatSystem extends EntityProcessingSystem {
-	
-	private ComponentMapper<Active> activeMapper;
-	private ComponentMapper<PlayerControlled> playerMapper;
-	
-	private NetworkManager networkManager;
-	
+
+	private ComponentMapper<Chat> chatMapper;
+	private ComponentMapper<PlayerBestia> playerMapper;
+
+	private EntitySubscription activePlayerEntities;
+
 	@Wire
 	private CommandContext ctx;
 
 	@SuppressWarnings("unchecked")
 	public ChatSystem() {
-		super(Aspect.all(Active.class, PlayerControlled.class));
+		super(Aspect.all(Chat.class));
 		// no op.
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	protected void initialize() {
+		final AspectSubscriptionManager asm = world.getManager(AspectSubscriptionManager.class);
+		activePlayerEntities = asm.get(Aspect.all(Active.class, PlayerBestia.class));
 	}
 
 	@Override
 	protected void process(Entity e) {
-		
-		final Active active = activeMapper.get(e);
-		
-		while(!active.chatQueue.isEmpty()) {
-			final ChatMessage msg = active.chatQueue.poll();
+
+		// All active bestias on this zone.
+		final IntBag entityIds = activePlayerEntities.getEntities();
+
+		final ChatMessage chatMsg = chatMapper.get(e).chatMessage;
+
+		for (int i = 0; i < entityIds.size(); i++) {
+			final Entity receiverEntity = world.getEntity(entityIds.get(i));
 			
-			// Get all bestias who are possible chat receivers (active and player controlled)
-			final IntBag receiverEntities = subscription.getEntities();
+			// TODO Are they in sight range?
 			
-			for(int i = 0; i < receiverEntities.size(); i++) {
-				final int entityId = receiverEntities.get(i);
-				Entity receiverEntity = world.getEntity(entityId);
-				
-				// Are they in sight range?
-				if(!networkManager.isInSightDistance(e, receiverEntity)) {
-					continue;
-				}
-				
-				final PlayerControlled playerCtrl = playerMapper.get(receiverEntity);
-				final long receiverAccId = playerCtrl.playerBestia.getBestia().getOwner().getId();
-				
-				// Skip the same owner of the bestia.
-				if(msg.getAccountId() == receiverAccId) {
-					continue;
-				}
-				
-				final ChatMessage forwardMsg = ChatMessage.getForwardMessage(receiverAccId, msg);
-				ctx.getServer().sendMessage(forwardMsg);
+			final PlayerBestia player = playerMapper.get(receiverEntity);
+			final long receiverAccId = player.playerBestiaManager.getAccountId();
+
+			// Skip the same owner of the bestia.
+			if (chatMsg.getAccountId() == receiverAccId) {
+				continue;
 			}
+
+			final ChatMessage forwardMsg = ChatMessage.getForwardMessage(receiverAccId, chatMsg);
+			ctx.getServer().sendMessage(forwardMsg);
 		}
 	}
 

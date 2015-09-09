@@ -51,6 +51,14 @@ public class CommandFactory {
 		}
 	}
 
+	/**
+	 * Ctor.
+	 * 
+	 * @param ctx
+	 *            The CommandContext to be used for executing these commands.
+	 * @param packageToScan
+	 *            Path to the package to be scanned for {@link Command} implementations.
+	 */
 	public CommandFactory(CommandContext ctx, String packageToScan) {
 		if (ctx == null) {
 			throw new IllegalArgumentException("Context can not be null.");

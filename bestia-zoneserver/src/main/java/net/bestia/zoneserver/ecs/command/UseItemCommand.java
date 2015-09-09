@@ -2,10 +2,9 @@ package net.bestia.zoneserver.ecs.command;
 
 import net.bestia.messages.InventoryItemUseMessage;
 import net.bestia.messages.Message;
-import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 
-public class UseItemCommand extends Command {
+public class UseItemCommand extends ECSCommand {
 
 	@Override
 	public String handlesMessageId() {

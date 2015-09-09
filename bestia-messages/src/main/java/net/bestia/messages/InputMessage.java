@@ -20,10 +20,21 @@ public abstract class InputMessage extends Message {
 	@JsonProperty("pbid")
 	private int playerBestiaId = 0;
 
+	/**
+	 * Std. Ctor. for deserialization purposes.
+	 */
 	public InputMessage() {
 
 	}
 
+	/**
+	 * Ctor. For initializing this class directly with values.
+	 * 
+	 * @param msg
+	 *            The {@link Message} to be based upon.
+	 * @param pbid
+	 *            The player bestia to which this input message shall be addressed.
+	 */
 	public InputMessage(Message msg, int pbid) {
 		super(msg);
 		setPlayerBestiaId(pbid);
@@ -40,6 +51,12 @@ public abstract class InputMessage extends Message {
 		return playerBestiaId;
 	}
 
+	/**
+	 * Sets the player bestia id if this message.
+	 * 
+	 * @param playerBestiaId
+	 *            The id of the player bestia.
+	 */
 	public void setPlayerBestiaId(int playerBestiaId) {
 		this.playerBestiaId = playerBestiaId;
 	}

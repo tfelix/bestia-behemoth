@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import net.bestia.messages.InputMessage;
-import net.bestia.messages.Message;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 import org.apache.logging.log4j.LogManager;
@@ -44,7 +43,7 @@ public class InputController {
 	}
 
 	private final Map<Long, Set<PlayerBestiaManager>> spawnedBestias = new ConcurrentHashMap<>();
-	private final Map<Integer, Queue<Message>> inputQueues = new ConcurrentHashMap<>();
+	private final Map<Integer, Queue<InputMessage>> inputQueues = new ConcurrentHashMap<>();
 	private final Map<Long, Integer> activeBestias = new ConcurrentHashMap<>();
 
 	private final List<InputControllerCallback> callbacks = new ArrayList<>();
@@ -159,7 +158,7 @@ public class InputController {
 	 */
 	public void removePlayerBestia(long accId, PlayerBestiaManager bestia) {
 
-		final int bestiaId = bestia.getBestia().getId();
+		final int bestiaId = bestia.getPlayerBestiaId();
 
 		// Remove messages.
 		inputQueues.remove(bestiaId);
@@ -201,7 +200,7 @@ public class InputController {
 		}
 
 		spawnedBestias.get(accId).add(pbm);
-		final int bestiaId = pbm.getBestia().getId();
+		final int bestiaId = pbm.getPlayerBestiaId();
 		inputQueues.put(bestiaId, new LinkedList<>());
 		onAddedBestia(accId, bestiaId);
 		log.trace("Added bestia: {} to account: {}.", bestiaId, accId);
@@ -227,52 +226,16 @@ public class InputController {
 	 * 
 	 * @param message
 	 *            {@link InputMessage} from the player.
+	 * @return
 	 */
-	public void sendInput(InputMessage message) {
+	public boolean sendInput(InputMessage message) {
 
 		if (inputQueues.containsKey(message.getPlayerBestiaId())) {
 			inputQueues.get(message.getPlayerBestiaId()).add(message);
-		}
-	}
-
-	/**
-	 * Queues a message for delivery. Like {@link sendInput}, since {@link InputMessage}s are helper to address a
-	 * special bestia directly with normal messages this is not directly possible. Thus a playerBestiaId is needed to
-	 * deliver the message. Apart from this the message processing system is not dependent upon a special playerBestiaId
-	 * inside the message and can therefore handle normal messages as well.
-	 * 
-	 * @param message
-	 *            Message to deliver.
-	 * @param playerBestiaId
-	 *            ID of the bestia to address this message to.
-	 * @return boolean TRUE if delivery was possible. FALSE if there was no bestia spawned with this id (message could
-	 *         not be delivered).
-	 */
-	public boolean sendInput(Message message, int playerBestiaId) {
-
-		if (inputQueues.containsKey(playerBestiaId)) {
-			inputQueues.get(playerBestiaId).add(message);
 			return true;
 		} else {
 			return false;
 		}
-	}
-
-	/**
-	 * Returns the input queue for the outstanding bestia messages.
-	 * 
-	 * @param playerBestiaId
-	 *            Bestia ID for the outstanding messages.
-	 * @return A queue with the {@link InputMessage}s or {@code null} if no bestia with this ID is registered at the
-	 *         controller.
-	 */
-	public Queue<Message> getInput(int playerBestiaId) {
-
-		if (!inputQueues.containsKey(playerBestiaId)) {
-			return null;
-		}
-		final Queue<Message> result = inputQueues.get(playerBestiaId);
-		return result;
 	}
 
 	/**
@@ -297,7 +260,7 @@ public class InputController {
 		Set<PlayerBestiaManager> bestias = spawnedBestias.get(accId);
 
 		for (PlayerBestiaManager playerBestiaManager : bestias) {
-			if (playerBestiaManager.getBestia().getId() == bestiaId) {
+			if (playerBestiaManager.getPlayerBestiaId() == bestiaId) {
 
 				return playerBestiaManager;
 			}
@@ -314,6 +277,7 @@ public class InputController {
 	 *            Account id too look up the active bestia.
 	 * @return The bestia id or 0 if no bestia was marked as active.
 	 */
+	/*
 	public int getActiveBestia(long accId) {
 
 		if (!activeBestias.containsKey(accId)) {
@@ -323,7 +287,7 @@ public class InputController {
 		final int bestiaId = activeBestias.get(accId);
 
 		return bestiaId;
-	}
+	}*/
 
 	/**
 	 * Sets a active bestia for this account.
@@ -346,5 +310,21 @@ public class InputController {
 
 	public void unsetActiveBestia(long accountId) {
 		activeBestias.remove(accountId);
+	}
+
+	/**
+	 * Returns one of the pending {@link InputMessage}s for the given playerBesitaId. If no messages are waiting in the
+	 * queue {@code NULL} will be returned.
+	 * 
+	 * @param playerBestiaId
+	 *            The PlayerBestiaId of the bestia which InputMessages are polled.
+	 * @return A InputMessage or NULL of the queue is empty.
+	 */
+	public InputMessage getNextInputMessage(int playerBestiaId) {
+		if (!inputQueues.containsKey(playerBestiaId)) {
+			return null;
+		}
+		final Queue<InputMessage> result = inputQueues.get(playerBestiaId);
+		return result.poll();
 	}
 }

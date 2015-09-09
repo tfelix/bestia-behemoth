@@ -161,7 +161,6 @@ public class Zoneserver {
 		String[] zoneStrings = config.getProperty("zone.zones").split(",");
 		Set<String> zones = new HashSet<String>();
 		zones.addAll(Arrays.asList(zoneStrings));
-
 		this.responsibleZones = Collections.unmodifiableSet(zones);
 		
 		this.ecsInputController.addCallback(new InputControllerCallbackImpl());
@@ -306,7 +305,7 @@ public class Zoneserver {
 	}
 
 	/**
-	 * UNsubscribes from a topic on the subscriber from the interserver.
+	 * Unsubscribes from a topic on the subscriber from the interserver.
 	 * 
 	 * @param topic
 	 *            Topic to unsubscribe from.

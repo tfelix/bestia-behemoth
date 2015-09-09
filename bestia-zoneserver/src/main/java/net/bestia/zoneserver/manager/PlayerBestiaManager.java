@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class PlayerBestiaManager extends BestiaManager {
+public class PlayerBestiaManager extends NPCBestiaManager {
 	private final static Logger log = LogManager.getLogger(PlayerBestiaManager.class);
 
 	private final static int MAX_LEVEL = 40;
@@ -67,8 +67,8 @@ public class PlayerBestiaManager extends BestiaManager {
 	 * @return
 	 */
 	public int getMaxItemWeight() {
-		final PlayerBestia bestia = getBestia();
-		return 100 + 100 * bestia.getStatusPoints().getAtk() * 3 + bestia.getLevel();
+		StatusPoints sp = getStatusPoints();
+		return 100 + 100 * sp.getAtk() * 3 + bestia.getLevel();
 	}
 
 	/**
@@ -164,7 +164,13 @@ public class PlayerBestiaManager extends BestiaManager {
 		bestia.setStatusPoints(getStatusPoints());
 	}
 
-	public PlayerBestia getBestia() {
+	/**
+	 * Returns the domain models controlled by this manager. Please use this only to persist it to databse or for
+	 * reading access since sync with the ECS might get compromised otherwise.
+	 * 
+	 * @return The managed {@link PlayerBestia} domain model.
+	 */
+	public PlayerBestia getPlayerBestia() {
 		return bestia;
 	}
 
@@ -177,8 +183,36 @@ public class PlayerBestiaManager extends BestiaManager {
 		return bestia.getId();
 	}
 
+	public long getAccountId() {
+		return bestia.getOwner().getId();
+	}
+
 	@Override
 	public String toString() {
 		return String.format("PlayerBestiaManager[bestia: %s]", bestia);
+	}
+
+	@Override
+	public int hashCode() {
+		return bestia.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+
+		PlayerBestiaManager other = (PlayerBestiaManager) obj;
+
+		if (bestia == null) {
+			if (other.bestia != null)
+				return false;
+		} else if (!bestia.equals(other.bestia))
+			return false;
+		return true;
 	}
 }

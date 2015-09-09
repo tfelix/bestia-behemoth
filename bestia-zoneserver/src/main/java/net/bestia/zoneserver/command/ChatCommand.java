@@ -4,6 +4,7 @@ import net.bestia.messages.ChatEchoMessage;
 import net.bestia.messages.ChatEchoMessage.EchoCode;
 import net.bestia.messages.ChatMessage;
 import net.bestia.messages.Message;
+import net.bestia.messages.PublicChatMessage;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.ecs.InputController;
@@ -56,10 +57,12 @@ class ChatCommand extends Command {
 			// enough execute the command.
 			log.warn("Commands not supported atm.");
 			break;
+		
 		case PUBLIC:
 			// Send the message to all active player in the range so send to the ecs 
 			// since we must make sight tests.
-			if (controller.sendInput(m, activeBestiaId)) {
+			PublicChatMessage pcm = new PublicChatMessage(m, activeBestiaId);
+			if (controller.sendInput(pcm)) {
 				// Echo the message back to the user.
 				replyMsg = ChatEchoMessage.getEchoMessage(m);
 				replyMsg.setEchoCode(EchoCode.OK);
@@ -70,6 +73,7 @@ class ChatCommand extends Command {
 			}
 			ctx.getServer().sendMessage(replyMsg);
 			break;
+		
 		case PARTY:
 		case GUILD:
 			// not supported atm.

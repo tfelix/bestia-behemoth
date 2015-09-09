@@ -1,23 +1,17 @@
 package net.bestia.zoneserver.ecs.system;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import net.bestia.messages.MapEntitiesMessage.EntityAction;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
-import net.bestia.zoneserver.ecs.component.Changable;
-import net.bestia.zoneserver.ecs.component.PlayerControlled;
+import net.bestia.zoneserver.ecs.component.Changed;
+import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Visible;
 
 import com.artemis.Aspect;
 import com.artemis.AspectSubscriptionManager;
-import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.EntitySubscription;
-import com.artemis.EntitySubscription.SubscriptionListener;
 import com.artemis.annotations.Wire;
-import com.artemis.utils.ImmutableBag;
 import com.artemis.utils.IntBag;
 
 /**
@@ -30,9 +24,7 @@ import com.artemis.utils.IntBag;
 @Wire
 public class VisibleNetworkUpdateSystem extends NetworkUpdateSystem {
 
-	private static final Logger log = LogManager.getLogger(VisibleNetworkUpdateSystem.class);
-
-	private ComponentMapper<Changable> changableMapper;
+	//private static final Logger log = LogManager.getLogger(VisibleNetworkUpdateSystem.class);
 
 	@Wire
 	private CommandContext ctx;
@@ -41,7 +33,7 @@ public class VisibleNetworkUpdateSystem extends NetworkUpdateSystem {
 
 	@SuppressWarnings("unchecked")
 	public VisibleNetworkUpdateSystem() {
-		super(Aspect.all(Visible.class));
+		super(Aspect.all(Visible.class, Changed.class));
 
 	}
 
@@ -53,50 +45,32 @@ public class VisibleNetworkUpdateSystem extends NetworkUpdateSystem {
 		// Workaround must be set since parent gets no wireing.
 		setCommandContext(ctx);
 
-		AspectSubscriptionManager asm = world.getManager(AspectSubscriptionManager.class);
-		playerSubscription = asm.get(Aspect.all(PlayerControlled.class, Active.class));
+		final AspectSubscriptionManager asm = world.getManager(AspectSubscriptionManager.class);
+		playerSubscription = asm.get(Aspect.all(PlayerBestia.class, Active.class));
+	}
 
-		subscription.addSubscriptionListener(new SubscriptionListener() {
+	@Override
+	protected void inserted(Entity e) {
+		super.inserted(e);
 
-			@Override
-			public void removed(ImmutableBag<Entity> entities) {
-				// TODO Auto-generated method stub
+		final IntBag playersBag = playerSubscription.getEntities();
 
+		for (int i = 0; i < playersBag.size(); i++) {
+			final int id = playersBag.get(i);
+			final Entity playerEntity = world.getEntity(id);
+
+			// Is this player in sight of entity? If not continue.
+			if (!isInSightDistance(playerEntity, e)) {
+				continue;
 			}
 
-			@Override
-			public void inserted(ImmutableBag<Entity> entities) {
-				log.info("=== NEW {} VISIBLE ENTITY === UPDATING ALL {} PLAYERS IN RANGE ===", entities.size(),
-						playerSubscription.getEntities().size());
+			sendUpdate(playerEntity, e, EntityAction.APPEAR);
+		}
 
-				// Find all players.
-				final IntBag playersBag = playerSubscription.getEntities();
-
-				for (Entity visibleEntity : entities) {
-					for (int i = 0; i < playersBag.size(); i++) {
-						final int id = playersBag.get(i);
-						final Entity playerEntity = world.getEntity(id);
-
-						// Is this player in sight of entity? If not continue.
-						if (!isInSightDistance(playerEntity, visibleEntity)) {
-							continue;
-						}
-
-						sendUpdate(playerEntity, visibleEntity, EntityAction.APPEAR);
-					}
-				}
-			}
-		});
 	}
 
 	@Override
 	protected void process(Entity e) {
-		// If the entity can not or has not changed then do nothing.
-		final Changable changable = changableMapper.getSafe(e);
-		if (changable == null || !changable.changed) {
-			return;
-		}
-
 		// Find all players.
 		final IntBag playersBag = playerSubscription.getEntities();
 
@@ -111,6 +85,8 @@ public class VisibleNetworkUpdateSystem extends NetworkUpdateSystem {
 
 			sendUpdate(playerEntity, e, EntityAction.UPDATE);
 		}
+
+		e.edit().remove(Changed.class);
 	}
 
 }

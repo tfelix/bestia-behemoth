@@ -1,8 +1,9 @@
 package net.bestia.zoneserver.ecs.system;
 
-import net.bestia.zoneserver.ecs.component.Changable;
+import net.bestia.model.domain.Location;
+import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Movement;
-import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.manager.BestiaManager;
 import net.bestia.zoneserver.zone.Vector2;
 
 import org.apache.logging.log4j.LogManager;
@@ -22,38 +23,36 @@ import com.artemis.systems.DelayedEntityProcessingSystem;
  *
  */
 @Wire
-public class MovementSystem extends DelayedEntityProcessingSystem {
+public class BestiaMovementSystem extends DelayedEntityProcessingSystem {
 
-	private final static Logger log = LogManager.getLogger(MovementSystem.class);
+	private final static Logger log = LogManager.getLogger(BestiaMovementSystem.class);
 
-	private ComponentMapper<Movement> moveM;
-	private ComponentMapper<Position> posM;
-	private ComponentMapper<Changable> changableMapper;
+	private ComponentMapper<Bestia> bestiaMapper;
+	private ComponentMapper<Movement> movementMapper;
 
 
 	@SuppressWarnings({ "unchecked" })
-	public MovementSystem() {
-		super(Aspect.all(Position.class, Movement.class));
+	public BestiaMovementSystem() {
+		super(Aspect.all(Bestia.class, Movement.class));
 
 	}
 
 	@Override
 	protected float getRemainingDelay(Entity e) {
-		Movement m = moveM.get(e);
+		final Movement m = movementMapper.get(e);
 		return m.nextMove;
 	}
 
 	@Override
 	protected void processDelta(Entity e, float accumulatedDelta) {
-		Movement m = moveM.get(e);
+		Movement m = movementMapper.get(e);
 		m.nextMove -= accumulatedDelta;
 	}
 
 	@Override
 	protected void processExpired(Entity e) {
-		final Movement m = moveM.get(e);
-		final Position p = posM.get(e);
-		
+		final Movement m = movementMapper.get(e);
+		final BestiaManager manager = bestiaMapper.get(e).bestiaManager;
 
 		Vector2 pos = m.path.poll();
 		if (pos == null) {
@@ -62,7 +61,7 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 		}
 		
 		// Check that the next move position is only one tile away.
-		final int distance = getDistance(p, pos);
+		final int distance = getDistance(manager.getLocation(), pos);
 		if(distance > 1) {
 			// Something is wrong. Path is no longer valid.
 			m.path.clear();
@@ -70,24 +69,18 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 			return;
 		}
 
-		p.x = pos.x;
-		p.y = pos.y;
+		manager.getLocation().setX(pos.x);
+		manager.getLocation().setY(pos.y);
 
 		// Mark as candidate for persisting and set changed for visibility.
-		Changable changable = changableMapper.getSafe(e);
-		if(changable != null) {
-			changable.changed = true;
-			changable.hasPersisted = false;
-		}
-
 		log.trace("Moved to: {}", pos.toString());
 
 		m.nextMove = 1000 / (m.walkspeed * Movement.TILES_PER_SECOND);
 		offerDelay(m.nextMove);
 	}
 	
-	private int getDistance(Position p1, Vector2 p2) {
-		return (int) Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+	private int getDistance(Location p1, Vector2 p2) {
+		return (int) Math.sqrt(Math.pow(p1.getX() - p2.x, 2) + Math.pow(p1.getY() - p2.y, 2));
 	}
 
 }

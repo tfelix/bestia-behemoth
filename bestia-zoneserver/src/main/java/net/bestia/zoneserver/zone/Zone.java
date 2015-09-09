@@ -4,16 +4,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.AI;
-import net.bestia.zoneserver.ecs.component.Changable;
+import net.bestia.zoneserver.ecs.component.Changed;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.ecs.manager.NetworkManager;
 import net.bestia.zoneserver.ecs.system.AISystem;
 import net.bestia.zoneserver.ecs.system.ChatSystem;
-import net.bestia.zoneserver.ecs.system.MovementSystem;
+import net.bestia.zoneserver.ecs.system.BestiaMovementSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
-import net.bestia.zoneserver.ecs.system.PlayerControlSystem;
-import net.bestia.zoneserver.ecs.system.PlayerNetworkUpdateSystem;
+import net.bestia.zoneserver.ecs.system.PlayerInputSystem;
 import net.bestia.zoneserver.ecs.system.VisibleNetworkUpdateSystem;
 import net.bestia.zoneserver.zone.map.Map;
 
@@ -59,7 +57,6 @@ public class Zone {
 				}
 			}
 		}
-
 	}
 
 	private final String name;
@@ -95,9 +92,8 @@ public class Zone {
 		worldConfig.register(ctx.getServer().getInputController());
 
 		// Set all the systems.
-		worldConfig.setSystem(new PlayerControlSystem());
-		worldConfig.setSystem(new MovementSystem());
-		worldConfig.setSystem(new PlayerNetworkUpdateSystem());
+		worldConfig.setSystem(new PlayerInputSystem());
+		worldConfig.setSystem(new BestiaMovementSystem());
 		worldConfig.setSystem(new VisibleNetworkUpdateSystem());
 		worldConfig.setSystem(new AISystem());
 		worldConfig.setSystem(new ChatSystem());
@@ -107,7 +103,6 @@ public class Zone {
 		//worldConfig.setManager(new GroupManager());
 		worldConfig.setManager(new TagManager());
 		worldConfig.setManager(new UuidEntityManager());
-		worldConfig.setManager(new NetworkManager());
 
 		this.world = new World(worldConfig);
 
@@ -126,7 +121,7 @@ public class Zone {
 		
 			new EntityBuilder(world).with(new Position(10 + i,10 + i), 
 	    		 new Visible("poring"),
-	    		 new Changable(),
+	    		 new Changed(),
 	    		 new AI()).build();
 		
 			
@@ -169,26 +164,10 @@ public class Zone {
 	 */
 	public void stop() {
 
-		// TODO Poisen pill the ECS.
-		
-		hasStarted.set(false);
+		// TODO Stop the world gracefull: persist all player one final time.
+		//world.getEntityManager().
 		
 		log.debug("Zone {} has stopped.", name);
-	}
-
-	/**
-	 * Checks if the zone/map is walkable at the given coordinates. It will consider all temporary effects and
-	 * collidable entities on the ground aswell.
-	 * 
-	 * @depricated ECS soll das nun testen.
-	 * @param cords
-	 *            Coordinates to be checked.
-	 * @return TRUE if the tile is walkable, FALSE otherwise.
-	 */
-	@Deprecated
-	public boolean isWalkable(Vector2 cords) {
-		checkStart();
-		return map.isWalkable(cords);
 	}
 
 	/**

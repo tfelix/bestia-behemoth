@@ -4,10 +4,9 @@ import java.util.UUID;
 
 import net.bestia.messages.MapEntitiesMessage;
 import net.bestia.messages.MapEntitiesMessage.EntityAction;
+import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.Changable;
-import net.bestia.zoneserver.ecs.component.PlayerControlled;
-import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Visible;
 
 import org.apache.logging.log4j.LogManager;
@@ -34,9 +33,7 @@ public abstract class NetworkUpdateSystem extends EntityProcessingSystem {
 	@Wire
 	private CommandContext ctx;
 
-	private ComponentMapper<Changable> changableMapper;
-	private ComponentMapper<PlayerControlled> pcm;
-	private ComponentMapper<Position> positionMapper;
+	private ComponentMapper<PlayerBestia> playerMapper;
 	private ComponentMapper<Visible> visibleMapper;
 
 	private UuidEntityManager uuidManager;
@@ -61,9 +58,7 @@ public abstract class NetworkUpdateSystem extends EntityProcessingSystem {
 		// Autowiring does not work.
 		uuidManager = world.getManager(UuidEntityManager.class);
 
-		changableMapper = world.getMapper(Changable.class);
-		pcm = world.getMapper(PlayerControlled.class);
-		positionMapper = world.getMapper(Position.class);
+		playerMapper = world.getMapper(PlayerBestia.class);
 		visibleMapper = world.getMapper(Visible.class);
 	}
 
@@ -89,8 +84,13 @@ public abstract class NetworkUpdateSystem extends EntityProcessingSystem {
 	 */
 	protected void sendUpdate(Entity playerEntity, Entity visibleEntity, EntityAction action) {
 
-		final PlayerControlled playerControlled = pcm.get(playerEntity);
-		final long accId = playerControlled.playerBestia.getBestia().getOwner().getId();
+		final PlayerBestia playerControlled = playerMapper.getSafe(playerEntity);
+		
+		if(playerControlled == null) {
+			return;
+		}
+		
+		final long accId = playerControlled.playerBestiaManager.getAccountId();
 
 		final MapEntitiesMessage.Entity msg = getMessageFromEntity(visibleEntity, action);
 		final MapEntitiesMessage updateMsg = new MapEntitiesMessage();
@@ -101,7 +101,6 @@ public abstract class NetworkUpdateSystem extends EntityProcessingSystem {
 		log.trace("Sending update for entity: {} to accId: {}", msg.getUuid(), accId);
 
 		ctx.getServer().sendMessage(updateMsg);
-		markUnchanged(visibleEntity);
 	}
 
 	/**
@@ -113,32 +112,20 @@ public abstract class NetworkUpdateSystem extends EntityProcessingSystem {
 	 */
 	protected MapEntitiesMessage.Entity getMessageFromEntity(Entity e, EntityAction action) {
 		final UUID uuid = uuidManager.getUuid(e);
-		final Position pos = positionMapper.get(e);
 		final Visible visible = visibleMapper.get(e);
 		
-		final PlayerControlled playerControlled = pcm.getSafe(e);
+		final PlayerBestia playerControlled = playerMapper.getSafe(e);
+		final Location loc = playerControlled.playerBestiaManager.getLocation();
 
-		final MapEntitiesMessage.Entity msg = new MapEntitiesMessage.Entity(uuid.toString(), pos.x, pos.y);
+		final MapEntitiesMessage.Entity msg = new MapEntitiesMessage.Entity(uuid.toString(), loc.getX(), loc.getY());
 		msg.setAction(action);
 		msg.addSprite(visible.sprite);
 		
 		if(playerControlled != null) {
-			msg.setPlayerBestiaId(playerControlled.playerBestia.getPlayerBestiaId());
+			msg.setPlayerBestiaId(playerControlled.playerBestiaManager.getPlayerBestiaId());
 		}
 
 		return msg;
-	}
-
-	private void markUnchanged(Entity e) {
-		final Changable changable = changableMapper.getSafe(e);
-		if (changable != null) {
-			changable.changed = false;
-		}
-	}
-
-	@Override
-	protected void process(Entity e) {
-		// no op.
 	}
 
 }
