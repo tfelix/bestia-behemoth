@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.ecs;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -8,6 +9,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import net.bestia.messages.InputMessage;
@@ -42,9 +45,10 @@ public class InputController {
 		public void addedBestia(long accId, int bestiaId);
 	}
 
-	private final Map<Long, Set<PlayerBestiaManager>> spawnedBestias = new ConcurrentHashMap<>();
-	private final Map<Integer, Queue<InputMessage>> inputQueues = new ConcurrentHashMap<>();
-	private final Map<Long, Integer> activeBestias = new ConcurrentHashMap<>();
+	private final ReadWriteLock lock = new ReentrantReadWriteLock();
+	private final Map<Long, Set<PlayerBestiaManager>> spawnedBestias = new HashMap<>();
+	private final Map<Integer, Queue<InputMessage>> inputQueues = new HashMap<>();
+	private final Map<Long, Integer> activeBestias = new HashMap<>();
 
 	private final List<InputControllerCallback> callbacks = new ArrayList<>();
 
@@ -229,12 +233,16 @@ public class InputController {
 	 * @return
 	 */
 	public boolean sendInput(InputMessage message) {
-
-		if (inputQueues.containsKey(message.getPlayerBestiaId())) {
-			inputQueues.get(message.getPlayerBestiaId()).add(message);
-			return true;
-		} else {
-			return false;
+		lock.writeLock().lock();
+		try {
+			if (inputQueues.containsKey(message.getPlayerBestiaId())) {
+				inputQueues.get(message.getPlayerBestiaId()).add(message);
+				return true;
+			} else {
+				return false;
+			}
+		} finally {
+			lock.writeLock().unlock();
 		}
 	}
 
@@ -277,17 +285,19 @@ public class InputController {
 	 *            Account id too look up the active bestia.
 	 * @return The bestia id or 0 if no bestia was marked as active.
 	 */
-	/*
+
 	public int getActiveBestia(long accId) {
+		lock.readLock().lock();
+		try {
+			if (!activeBestias.containsKey(accId)) {
+				return 0;
+			}
 
-		if (!activeBestias.containsKey(accId)) {
-			return 0;
+			return activeBestias.get(accId);
+		} finally {
+			lock.readLock().unlock();
 		}
-
-		final int bestiaId = activeBestias.get(accId);
-
-		return bestiaId;
-	}*/
+	}
 
 	/**
 	 * Sets a active bestia for this account.
@@ -309,7 +319,9 @@ public class InputController {
 	}
 
 	public void unsetActiveBestia(long accountId) {
+		lock.writeLock().lock();
 		activeBestias.remove(accountId);
+		lock.writeLock().unlock();
 	}
 
 	/**
@@ -321,10 +333,18 @@ public class InputController {
 	 * @return A InputMessage or NULL of the queue is empty.
 	 */
 	public InputMessage getNextInputMessage(int playerBestiaId) {
+		lock.readLock().lock();
 		if (!inputQueues.containsKey(playerBestiaId)) {
+			lock.readLock().unlock();
 			return null;
 		}
-		final Queue<InputMessage> result = inputQueues.get(playerBestiaId);
-		return result.poll();
+		lock.readLock().unlock();
+		lock.writeLock().lock();
+		try {
+			final Queue<InputMessage> result = inputQueues.get(playerBestiaId);
+			return result.poll();
+		} finally {
+			lock.writeLock().unlock();
+		}
 	}
 }

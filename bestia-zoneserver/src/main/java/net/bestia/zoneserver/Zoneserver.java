@@ -49,7 +49,7 @@ import org.apache.logging.log4j.Logger;
 public class Zoneserver {
 
 	private final static Logger log = LogManager.getLogger(Zoneserver.class);
-	
+
 	private class InputControllerCallbackImpl implements InputControllerCallback {
 
 		@Override
@@ -60,7 +60,7 @@ public class Zoneserver {
 		@Override
 		public void removedAccount(long accountId) {
 			unsubscribe("zone/account/" + accountId);
-			log.trace("Unregistered account {} from zone {}.", accountId, name);	
+			log.trace("Unregistered account {} from zone {}.", accountId, name);
 		}
 
 		/**
@@ -69,7 +69,7 @@ public class Zoneserver {
 		@Override
 		public void addedAccount(long accountId) {
 			subscribe("zone/account/" + accountId);
-			log.trace("Registered account {} on zone {}.", accountId, name);	
+			log.trace("Registered account {} on zone {}.", accountId, name);
 		}
 
 		@Override
@@ -86,12 +86,12 @@ public class Zoneserver {
 
 			// Create command out of the message and deliver it to the executor.
 			final Command cmd = commandFactory.getCommand(msg);
-			
-			if(cmd == null) {
+
+			if (cmd == null) {
 				// No command was found.
 				return;
 			}
-			
+
 			commandExecutor.execute(cmd);
 		}
 	}
@@ -113,7 +113,7 @@ public class Zoneserver {
 	 */
 	private final Map<String, Zone> zones = new HashMap<>();
 	private final Set<String> responsibleZones;
-	
+
 	private final ScriptManager scriptManager = new ScriptManager();
 
 	private final InputController ecsInputController = new InputController();
@@ -129,8 +129,8 @@ public class Zoneserver {
 	 *            File with config settings for the bestia server.
 	 */
 	public Zoneserver(BestiaConfiguration config) {
-		
-		if(config == null || !config.isLoaded()) {
+
+		if (config == null || !config.isLoaded()) {
 			throw new IllegalArgumentException("Config can not be null or unloaded.");
 		}
 
@@ -162,7 +162,7 @@ public class Zoneserver {
 		Set<String> zones = new HashSet<String>();
 		zones.addAll(Arrays.asList(zoneStrings));
 		this.responsibleZones = Collections.unmodifiableSet(zones);
-		
+
 		this.ecsInputController.addCallback(new InputControllerCallbackImpl());
 	}
 
@@ -186,7 +186,7 @@ public class Zoneserver {
 		final ScriptCacheLoader scriptLoader = new ScriptCacheLoader(config, commandContext, scriptManager);
 		try {
 			scriptLoader.init();
-		} catch(IOException ex) {
+		} catch (IOException ex) {
 			stop();
 			return false;
 		}
@@ -215,7 +215,6 @@ public class Zoneserver {
 			stop();
 			return false;
 		}
-
 
 		// Subscribe to zone broadcast messages.
 		interserverSubscriber.subscribe("zone/all");
@@ -314,7 +313,6 @@ public class Zoneserver {
 		interserverSubscriber.unsubscribe(topic);
 	}
 
-	
 	/**
 	 * Returns a {@link InputController}. It will be used by the ECS to fetch the player input async aswell as the
 	 * commands to pipe the player input for the different bestias to the ECS.
@@ -331,38 +329,35 @@ public class Zoneserver {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		
+
 		// Create cmd line arguments.
 		Options options = new Options();
-		
-		Option configOpt = Option.builder("cf")
-				.longOpt("configFile")
-				.hasArg()
-				.desc("path to an external config file.")
+
+		Option configOpt = Option.builder("cf").longOpt("configFile").hasArg().desc("path to an external config file.")
 				.build();
-		
+
 		options.addOption(configOpt);
-		
+
 		CommandLineParser parser = new DefaultParser();
 		final BestiaConfiguration config = new BestiaConfiguration();
 		try {
 			CommandLine cmd = parser.parse(options, args);
-			
-			if(cmd.hasOption("cf")) {
+
+			if (cmd.hasOption("cf")) {
 				final String configFile = cmd.getOptionValue("cf");
 				log.info("Use config file: " + configFile);
 				config.load(new File(configFile));
 			} else {
 				config.load();
-			}	
+			}
 		} catch (ParseException e) {
 			log.fatal("Could not parse the commandline. Exit.");
 			System.exit(1);
-		} catch(IOException e) {
+		} catch (IOException e) {
 			log.fatal("Could not read the config file.");
 			System.exit(1);
 		}
-		
+
 		final Zoneserver zone = new Zoneserver(config);
 		if (!zone.start()) {
 			System.exit(1);

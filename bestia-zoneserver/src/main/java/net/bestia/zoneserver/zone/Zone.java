@@ -1,25 +1,28 @@
 package net.bestia.zoneserver.zone;
 
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import net.bestia.messages.InputMessage;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.AI;
-import net.bestia.zoneserver.ecs.component.Changed;
-import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.Visible;
+import net.bestia.zoneserver.ecs.component.Input;
 import net.bestia.zoneserver.ecs.system.AISystem;
-import net.bestia.zoneserver.ecs.system.ChatSystem;
 import net.bestia.zoneserver.ecs.system.BestiaMovementSystem;
+import net.bestia.zoneserver.ecs.system.ChatSystem;
+import net.bestia.zoneserver.ecs.system.InputSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
-import net.bestia.zoneserver.ecs.system.PlayerInputSystem;
 import net.bestia.zoneserver.ecs.system.VisibleNetworkUpdateSystem;
 import net.bestia.zoneserver.zone.map.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.artemis.Entity;
+import com.artemis.EntityEdit;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
+import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
 import com.artemis.managers.UuidEntityManager;
 import com.artemis.utils.EntityBuilder;
@@ -39,34 +42,88 @@ public class Zone {
 
 		private long lastRun = 0;
 
+		/**
+		 * Delay between ticks of the zone. Depending on the work on the zone the sleep time is adjusted to hit the
+		 * delay as good as possible.
+		 */
+		private static final int DELAY_MS = 10;
+
+		/**
+		 * How many input messages are piped into the zone at each tick. Limit this to a reasonable number in order to
+		 * avoid starvation of the zone on massive massge input.
+		 */
+		private static final int MAX_PROCESSED_MSGS = 10;
+		
+		private final EntityBuilder builder;
+		private final World world;
+		
+		public ZoneTicker(World world) {
+			this.world = world;
+			this.builder = new EntityBuilder(world);
+		}
+		
+		private void sendInput(InputMessage msg) {
+			final Entity e = builder.build();
+			final EntityEdit ee = e.edit();
+			final Input input = ee.create(Input.class);
+			input.inputMessage = msg;
+		}
+
 		@Override
 		public void run() {
+
 			lastRun = System.currentTimeMillis();
 
 			while (hasStarted.get()) {
 				final long now = System.currentTimeMillis();
-				float delta = now - lastRun;
+				final float delta = now - lastRun;
+
 				lastRun = now;
+
+				// We now pipe the messages into the zone as entities in order to let the system process them.
+				InputMessage msg = messageQueue.poll();
+				int i = 0;
+				while(msg != null) {
+					msg = messageQueue.poll();
+					
+					// Create entity with input message.
+					sendInput(msg);
+					
+					if(i++ >= MAX_PROCESSED_MSGS) {
+						log.warn("Too much input messages queued. Slowing processing to avoid starvation of zone.");
+						break;
+					}
+				}
+
+				// Let the world tick.
 				world.setDelta(delta);
 				world.process();
 
 				try {
-					Thread.sleep(10);
+					if (delta > DELAY_MS) {
+						continue;
+					}
+					Thread.sleep(DELAY_MS - (int) delta);
 				} catch (InterruptedException e) {
 					// no op.
 				}
 			}
+
+			// TODO Persist the dying world.
+			messageQueue.clear();
+			// Add poisen pill and tick once more.
+			world.setDelta(DELAY_MS);
+			world.process();
+			// World is now persisted.
 		}
 	}
 
 	private final String name;
 	private final Map map;
 	private AtomicBoolean hasStarted = new AtomicBoolean(false);
+	private final Queue<InputMessage> messageQueue = new ConcurrentLinkedQueue<>();
 
 	private final Thread zoneTickerThread;
-
-	// EC System.
-	private final World world;
 
 	public Zone(CommandContext ctx, Map map) {
 		if (ctx == null) {
@@ -92,7 +149,7 @@ public class Zone {
 		worldConfig.register(ctx.getServer().getInputController());
 
 		// Set all the systems.
-		worldConfig.setSystem(new PlayerInputSystem());
+		worldConfig.setSystem(new InputSystem());
 		worldConfig.setSystem(new BestiaMovementSystem());
 		worldConfig.setSystem(new VisibleNetworkUpdateSystem());
 		worldConfig.setSystem(new AISystem());
@@ -100,32 +157,11 @@ public class Zone {
 		worldConfig.setSystem(new PersistSystem(10000));
 
 		// Set all the managers.
-		//worldConfig.setManager(new GroupManager());
+		worldConfig.setManager(new PlayerManager());
 		worldConfig.setManager(new TagManager());
 		worldConfig.setManager(new UuidEntityManager());
 
-		this.world = new World(worldConfig);
-
-		zoneTickerThread = new Thread(null, new ZoneTicker(), "zoneECS-" + name);
-		
-		// TODO Das ist temporär.
-		spawnEntities();
-	}
-	
-	/**
-	 * Temporärer Spawn von 10 Test entities die sich auf der map bewegen.
-	 */
-	private void spawnEntities() {
-
-		for(int i = 0; i < 10; i++) {
-		
-			new EntityBuilder(world).with(new Position(10 + i,10 + i), 
-	    		 new Visible("poring"),
-	    		 new Changed(),
-	    		 new AI()).build();
-		
-			
-		}
+		zoneTickerThread = new Thread(null, new ZoneTicker(new World(worldConfig)), "zoneECS-" + name);
 	}
 
 	// =================== START GETTER AND SETTER =====================
@@ -141,17 +177,24 @@ public class Zone {
 
 	// ===================== END GETTER AND SETTER =====================
 
+	public void sendInput(InputMessage msg) {
+		if(!hasStarted.get()) {
+			log.warn("Zone already stopped. Does not process messages anymore.");
+			return;
+		}
+		messageQueue.add(msg);
+	}
+
 	/**
 	 * Starts the entity system, initializes all message queues, load needed data and basically starts the zone
 	 * simulation.
 	 *
 	 */
 	public void start() {
-		if(hasStarted.get()) {
+		if (hasStarted.get()) {
 			throw new IllegalStateException("Zone can not be started twice.");
 		}
-		
-		// TODO This is not save since the thread can not be started twice.
+
 		hasStarted.set(true);
 		zoneTickerThread.start();
 
@@ -164,20 +207,9 @@ public class Zone {
 	 */
 	public void stop() {
 
-		// TODO Stop the world gracefull: persist all player one final time.
-		//world.getEntityManager().
-		
-		log.debug("Zone {} has stopped.", name);
-	}
+		hasStarted.set(false);
 
-	/**
-	 * Checks if the zone is started. Throws a invalid state exception if this is not the case (since we assume it
-	 * SHOULD be started if this method is invoked.
-	 */
-	private void checkStart() {
-		if (!hasStarted.get()) {
-			throw new IllegalStateException("Zone is not running. Call .start() first before doing this operation!");
-		}
+		log.debug("Zone {} has stopped.", name);
 	}
 
 	@Override
