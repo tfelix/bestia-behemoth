@@ -19,7 +19,6 @@ import net.bestia.zoneserver.ecs.system.BestiaMovementSystem;
 import net.bestia.zoneserver.ecs.system.ChatSystem;
 import net.bestia.zoneserver.ecs.system.InputSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
-import net.bestia.zoneserver.ecs.system.VisibleNetworkUpdateSystem;
 import net.bestia.zoneserver.ecs.system.VisibleSpawnSystem;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.zone.map.Map;
@@ -80,31 +79,11 @@ public class Zone {
 			input.inputMessage = msg;
 			log.trace("Creating input entity: {}", msg.toString());
 		}
-		
-		
-		private void testEntity() {
-			EntityBuilder builder = new EntityBuilder(world);
-			Entity e = builder.build();
-			EntityEdit ee = e.edit();
-			Visible v = ee.create(Visible.class);
-			v.sprite = "lalal";
-			ee.add(new PlayerBestia());
-			
-			builder = new EntityBuilder(world);
-			e = builder.build();
-			ee = e.edit();
-			v = ee.create(Visible.class);
-			v.sprite = "lalal";
-			ee.create(Active.class);
-			ee.add(new PlayerBestia());
-		}
 
 		@Override
 		public void run() {
 
 			lastRun = System.currentTimeMillis();
-			
-			testEntity();
 
 			while (hasStarted.get()) {
 				final long now = System.currentTimeMillis();
@@ -226,7 +205,6 @@ public class Zone {
 		worldConfig.setSystem(new ChatSystem());
 		worldConfig.setSystem(new ActiveSpawnSystem());
 		worldConfig.setSystem(new VisibleSpawnSystem());
-		worldConfig.setSystem(new VisibleNetworkUpdateSystem());
 		//worldConfig.setSystem(new PersistSystem(10000));
 
 		// Set all the managers.

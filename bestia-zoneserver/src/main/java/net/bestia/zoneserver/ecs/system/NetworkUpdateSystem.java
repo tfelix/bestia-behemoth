@@ -28,7 +28,7 @@ import com.artemis.systems.EntityProcessingSystem;
 @Wire
 public abstract class NetworkUpdateSystem extends EntityProcessingSystem {
 
-	private static final Logger log = LogManager.getLogger(VisibleNetworkUpdateSystem.class);
+	private static final Logger log = LogManager.getLogger(NetworkUpdateSystem.class);
 
 	@Wire
 	private CommandContext ctx;

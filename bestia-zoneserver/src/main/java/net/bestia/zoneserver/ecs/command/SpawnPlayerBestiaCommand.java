@@ -1,21 +1,20 @@
 package net.bestia.zoneserver.ecs.command;
 
+import net.bestia.messages.Message;
+import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.component.Active;
+import net.bestia.zoneserver.ecs.component.PlayerBestia;
+import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.component.Visible;
+import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.artemis.Entity;
 import com.artemis.EntityEdit;
 import com.artemis.utils.EntityBuilder;
-
-import net.bestia.messages.Message;
-import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.Active;
-import net.bestia.zoneserver.ecs.component.Changed;
-import net.bestia.zoneserver.ecs.component.PlayerBestia;
-import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 public class SpawnPlayerBestiaCommand extends ECSCommand {
 	
@@ -45,11 +44,11 @@ public class SpawnPlayerBestiaCommand extends ECSCommand {
 		playerEdit.add(new Visible());
 		playerEdit.add(new PlayerBestia(pbm));
 		
-		//playerEdit.create(Visible.class).sprite = pbm.getPlayerBestia().getOrigin().getSprite();
-		//playerEdit.create(PlayerBestia.class).playerBestiaManager = pbm;
-		//final Position pos = playerEdit.create(Position.class);
-		//pos.x = pbm.getLocation().getX();
-		//pos.y = pbm.getLocation().getY();
+		playerEdit.create(Visible.class).sprite = pbm.getPlayerBestia().getOrigin().getSprite();
+		playerEdit.create(PlayerBestia.class).playerBestiaManager = pbm;
+		final Position pos = playerEdit.create(Position.class);
+		pos.x = pbm.getLocation().getX();
+		pos.y = pbm.getLocation().getY();
 		
 		
 		if(pbm.getPlayerBestiaId() == 2) {
