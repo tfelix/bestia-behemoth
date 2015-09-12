@@ -15,11 +15,12 @@ import com.artemis.EntitySubscription;
 import com.artemis.EntitySubscription.SubscriptionListener;
 import com.artemis.EntitySystem;
 import com.artemis.annotations.Wire;
+import com.artemis.systems.EntityProcessingSystem;
 import com.artemis.utils.ImmutableBag;
 import com.artemis.utils.IntBag;
 
 @Wire
-public class VisibleSpawnSystem extends EntitySystem {
+public class VisibleSpawnSystem extends EntityProcessingSystem {
 
 	public VisibleSpawnSystem() {
 		super(Aspect.all(Visible.class));
@@ -35,19 +36,23 @@ public class VisibleSpawnSystem extends EntitySystem {
 
 	@Override
 	protected void initialize() {
+		super.initialize();
 
-		playerSubscription = world.getManager(AspectSubscriptionManager.class).get(
-				Aspect.all(Active.class));
-		
+		final AspectSubscriptionManager asm = world.getManager(AspectSubscriptionManager.class);
+
+		playerSubscription = asm.get(Aspect.all(Active.class, PlayerBestia.class));
+
 		subscription.addSubscriptionListener(new SubscriptionListener() {
 
 			@Override
-			public void inserted(ImmutableBag<Entity> entities) {
-				log.info("### {} NEW VISIBLE, UPDATING {} PLAYERS ###", entities.size(), playerSubscription.getEntities().size());
+			public void inserted(IntBag entities) {
+				IntBag players = playerSubscription.getEntities();
+
+				log.info("### {} NEW VISIBLE, UPDATING {} PLAYERS ###", entities.size(), players.size());
 			}
 
 			@Override
-			public void removed(ImmutableBag<Entity> entities) {
+			public void removed(IntBag entities) {
 				// TODO Auto-generated method stub
 				
 			}
@@ -56,7 +61,8 @@ public class VisibleSpawnSystem extends EntitySystem {
 	}
 
 	@Override
-	protected void processSystem() {
+	protected void process(Entity e) {
+		// TODO Auto-generated method stub
 
 	}
 }

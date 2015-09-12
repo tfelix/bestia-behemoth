@@ -7,7 +7,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import net.bestia.messages.InputMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.BestiaRegister.InputControllerCallback;
+import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Input;
+import net.bestia.zoneserver.ecs.component.PlayerBestia;
+import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.message.DespawnPlayerBestiaMessage;
 import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
 import net.bestia.zoneserver.ecs.system.AISystem;
@@ -77,11 +80,31 @@ public class Zone {
 			input.inputMessage = msg;
 			log.trace("Creating input entity: {}", msg.toString());
 		}
+		
+		
+		private void testEntity() {
+			EntityBuilder builder = new EntityBuilder(world);
+			Entity e = builder.build();
+			EntityEdit ee = e.edit();
+			Visible v = ee.create(Visible.class);
+			v.sprite = "lalal";
+			ee.add(new PlayerBestia());
+			
+			builder = new EntityBuilder(world);
+			e = builder.build();
+			ee = e.edit();
+			v = ee.create(Visible.class);
+			v.sprite = "lalal";
+			ee.create(Active.class);
+			ee.add(new PlayerBestia());
+		}
 
 		@Override
 		public void run() {
 
 			lastRun = System.currentTimeMillis();
+			
+			testEntity();
 
 			while (hasStarted.get()) {
 				final long now = System.currentTimeMillis();
@@ -199,12 +222,12 @@ public class Zone {
 		// Set all the systems.
 		worldConfig.setSystem(new InputSystem());
 		worldConfig.setSystem(new BestiaMovementSystem());
+		worldConfig.setSystem(new AISystem());
+		worldConfig.setSystem(new ChatSystem());
 		worldConfig.setSystem(new ActiveSpawnSystem());
 		worldConfig.setSystem(new VisibleSpawnSystem());
 		worldConfig.setSystem(new VisibleNetworkUpdateSystem());
-		worldConfig.setSystem(new AISystem());
-		worldConfig.setSystem(new ChatSystem());
-		worldConfig.setSystem(new PersistSystem(10000));
+		//worldConfig.setSystem(new PersistSystem(10000));
 
 		// Set all the managers.
 		worldConfig.setManager(new PlayerManager());

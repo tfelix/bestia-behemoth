@@ -13,5 +13,13 @@ import com.artemis.Component;
 public class PlayerBestia extends Component {
 
 	public PlayerBestiaManager playerBestiaManager;
+	
+	public PlayerBestia() {
+		
+	}
+	
+	public PlayerBestia(PlayerBestiaManager manager) {
+		this.playerBestiaManager = manager;
+	}
 
 }

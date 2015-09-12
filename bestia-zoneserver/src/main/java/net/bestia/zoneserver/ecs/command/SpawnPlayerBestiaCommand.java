@@ -42,18 +42,19 @@ public class SpawnPlayerBestiaCommand extends ECSCommand {
 		final Entity playerBestia = builder.player(Long.toString(accId)).tag(Integer.toString(bestiaId)).build();
 		final EntityEdit playerEdit = playerBestia.edit();
 		
-		playerEdit.create(Visible.class).sprite = pbm.getPlayerBestia().getOrigin().getSprite();
-		playerEdit.create(PlayerBestia.class).playerBestiaManager = pbm;
-		final Position pos = playerEdit.create(Position.class);
-		pos.x = pbm.getLocation().getX();
-		pos.y = pbm.getLocation().getY();
+		playerEdit.add(new Visible());
+		playerEdit.add(new PlayerBestia(pbm));
 		
-		playerEdit.create(Active.class);
+		//playerEdit.create(Visible.class).sprite = pbm.getPlayerBestia().getOrigin().getSprite();
+		//playerEdit.create(PlayerBestia.class).playerBestiaManager = pbm;
+		//final Position pos = playerEdit.create(Position.class);
+		//pos.x = pbm.getLocation().getX();
+		//pos.y = pbm.getLocation().getY();
 		
-		/*
+		
 		if(pbm.getPlayerBestiaId() == 2) {
 			playerEdit.create(Active.class);
-		}*/
+		}
 	}
 	
 	@Override
