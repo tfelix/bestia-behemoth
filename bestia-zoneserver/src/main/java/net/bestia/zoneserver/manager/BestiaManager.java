@@ -10,8 +10,15 @@ public abstract class BestiaManager {
 	public abstract StatusPoints getStatusPoints();
 
 	public abstract Location getLocation();
+	
+	public abstract int getLevel();
 
-	public abstract float getManaRegenerationRate();
+	public float getManaRegenerationRate() {
+		final StatusPoints statusPoints = getStatusPoints();
+		final int level = getLevel();
+		final float regen = (statusPoints.getDef() * 2 + statusPoints.getSpDef() * 4 + level / 2) / 100.0f;
+		return regen;
+	}
 
 	public BestiaManager() {
 		

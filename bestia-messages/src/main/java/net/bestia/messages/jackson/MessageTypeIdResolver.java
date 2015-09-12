@@ -56,7 +56,7 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 			try {
 				Constructor<? extends Message> cons = msg.getConstructor();
 
-				String key = cons.newInstance().getMessageId();
+				final String key = cons.newInstance().getMessageId();
 
 				idToClass.put(key, msg);
 				classToId.put(msg, key);

@@ -39,6 +39,11 @@ public abstract class InputMessage extends Message {
 		super(msg);
 		setPlayerBestiaId(pbid);
 	}
+	
+	public InputMessage(long accId, int pbid) {
+		this.setAccountId(accId);
+		this.setPlayerBestiaId(pbid);
+	}
 
 	/**
 	 * Gets the player bestia id for which this message is meant. Not all messages are subject to a selected player

@@ -6,8 +6,8 @@ import com.artemis.EntityEdit;
 import com.artemis.utils.EntityBuilder;
 
 import net.bestia.messages.ChatMessage;
+import net.bestia.messages.InputWrapperMessage;
 import net.bestia.messages.Message;
-import net.bestia.messages.PublicChatMessage;
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Chat;
@@ -28,7 +28,7 @@ public class PublicChatCommand extends ECSCommand {
 
 	@Override
 	public String handlesMessageId() {
-		return PublicChatMessage.MESSAGE_ID;
+		return ChatMessage.MESSAGE_ID;
 	}
 
 	@Override
@@ -40,7 +40,8 @@ public class PublicChatCommand extends ECSCommand {
 	protected void execute(Message message, CommandContext ctx) {
 
 		// Unwrap the message.
-		ChatMessage msg = ((PublicChatMessage) message).getChatMessage();
+		@SuppressWarnings("unchecked")
+		ChatMessage msg = ((InputWrapperMessage<ChatMessage>) message).getMessage();
 
 		final Entity chatEntity = new EntityBuilder(world).build();
 

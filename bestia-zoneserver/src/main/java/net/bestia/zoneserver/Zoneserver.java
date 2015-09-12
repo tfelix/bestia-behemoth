@@ -22,8 +22,8 @@ import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
 import net.bestia.zoneserver.command.RoutedECSCommandFactory;
-import net.bestia.zoneserver.ecs.InputController;
-import net.bestia.zoneserver.ecs.InputController.InputControllerCallback;
+import net.bestia.zoneserver.ecs.BestiaRegister;
+import net.bestia.zoneserver.ecs.BestiaRegister.InputControllerCallback;
 import net.bestia.zoneserver.loader.ScriptCacheLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
 import net.bestia.zoneserver.script.ScriptManager;
@@ -116,7 +116,7 @@ public class Zoneserver {
 
 	private final ScriptManager scriptManager = new ScriptManager();
 
-	private final InputController ecsInputController = new InputController();
+	private final BestiaRegister ecsInputController = new BestiaRegister();
 
 	/**
 	 * Ctor. The server needs a connection to its clients so it can use the messaging API to communicate with them.
@@ -294,6 +294,17 @@ public class Zoneserver {
 	}
 
 	/**
+	 * Returns the zone with the given name.
+	 * 
+	 * @param name
+	 *            Name of the zone to return.
+	 * @return Zone or null if this zone does not exist.
+	 */
+	public Zone getZone(String name) {
+		return zones.get(name);
+	}
+
+	/**
 	 * Subscribes to a topic on the subscriber from the interserver.
 	 * 
 	 * @param topic
@@ -314,12 +325,12 @@ public class Zoneserver {
 	}
 
 	/**
-	 * Returns a {@link InputController}. It will be used by the ECS to fetch the player input async aswell as the
+	 * Returns a {@link BestiaRegister}. It will be used by the ECS to fetch the player input async aswell as the
 	 * commands to pipe the player input for the different bestias to the ECS.
 	 * 
 	 * @return
 	 */
-	public InputController getInputController() {
+	public BestiaRegister getBestiaRegister() {
 		return ecsInputController;
 	}
 

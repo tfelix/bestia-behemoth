@@ -14,7 +14,7 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
 import net.bestia.zoneserver.Zoneserver;
-import net.bestia.zoneserver.ecs.InputController;
+import net.bestia.zoneserver.ecs.BestiaRegister;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 /*-
@@ -63,9 +63,8 @@ public class RequestLoginCommand extends Command {
 		// Add master as well since its not listed as a "player bestia".
 		bestias.add(account.getMaster());
 		
-		registerMaster(account.getMaster());
-		
 		registerPlayerBestias(message.getAccountId(), bestias);
+		registerMaster(account.getMaster());
 	}
 	
 	private boolean isBestiaOnZone(PlayerBestia playerBestia) {
@@ -103,6 +102,7 @@ public class RequestLoginCommand extends Command {
 		ctx.getServer().sendMessage(msg);
 	}
 
+
 	/**
 	 * Checks if a certain bestia is managed by this particular zone. If this is the case register the bestia in the ECS
 	 * of the server and then add the account to this server to it listens for incoming messages.
@@ -111,7 +111,7 @@ public class RequestLoginCommand extends Command {
 	private void registerPlayerBestias(Long accId, Set<PlayerBestia> bestias) {
 
 		final Zoneserver server = ctx.getServer();
-		final InputController ecsInput = ctx.getServer().getInputController();
+		final BestiaRegister register = ctx.getServer().getBestiaRegister();
 
 		for (PlayerBestia playerBestia : bestias) {
 			if(!isBestiaOnZone(playerBestia)) {
@@ -119,7 +119,8 @@ public class RequestLoginCommand extends Command {
 			}
 
 			// Register on zone.
-			ecsInput.addPlayerBestia(accId, new PlayerBestiaManager(playerBestia, server));
+			final PlayerBestiaManager pbm = new PlayerBestiaManager(playerBestia, server);
+			register.addPlayerBestia(accId, pbm);
 		}
 	}
 

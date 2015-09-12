@@ -14,12 +14,6 @@ public class NPCBestiaManager extends BestiaManager {
 	public NPCBestiaManager(Bestia bestia) {
 		this.bestia = bestia;
 	}
-	
-	@Override
-	public float getManaRegenerationRate() {
-		final float regen = (statusPoints.getDef() * 2 + statusPoints.getSpDef() * 4 + bestia.getLevel() / 2) / 100.0f;
-		return regen;
-	}
 
 	/**
 	 * Recalculates the status values of a bestia. It uses the EVs, IVs and BaseValues. Must be called after the level
@@ -71,5 +65,11 @@ public class NPCBestiaManager extends BestiaManager {
 		}
 		
 		return statusPoints;
+	}
+
+	@Override
+	public int getLevel() {
+		// TODO Auto-generated method stub
+		return 1;
 	}
 }

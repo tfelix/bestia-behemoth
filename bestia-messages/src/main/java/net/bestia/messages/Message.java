@@ -20,9 +20,11 @@ import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 public abstract class Message implements Serializable {
 
 	private static final long serialVersionUID = 2015052401L;
+
 	private long accountId;
 
 	private final static String MSG_PATH_ZONE_ALL = "zone/all";
+	private final static String MSG_PATH_NULL = "";
 
 	public Message() {
 		// no op.
@@ -104,6 +106,16 @@ public abstract class Message implements Serializable {
 	 */
 	protected String getZoneMessagePath() {
 		return String.format("zone/account/%d", getAccountId());
+	}
+
+	/**
+	 * Returns a null value for the message path. This can be used for internal messages to the ECS system for example
+	 * which should not take part in inter-server communication.
+	 * 
+	 * @return
+	 */
+	protected String getNullMessagePath() {
+		return MSG_PATH_NULL;
 	}
 
 	/**

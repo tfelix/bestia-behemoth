@@ -52,6 +52,18 @@ public class MessageTest {
 		String msg = "Could not instanciated: " + notInstances.toString();
 		Assert.assertTrue(msg, notInstances.isEmpty());
 	}
+	
+	@Test
+	public void msg_id_present() throws InstantiationException, IllegalAccessException {
+
+		Set<Class<? extends Message>> subTypes = getMessageSubtypes();
+		for (Class<? extends Message> clazz : subTypes) {			
+			Message msg = clazz.newInstance();
+			Assert.assertNotNull(msg.getMessageId());
+			Assert.assertFalse(msg.getMessageId().isEmpty());
+		}
+		
+	}
 
 	@Test
 	public void duplicate_msg_id_test() throws Exception {

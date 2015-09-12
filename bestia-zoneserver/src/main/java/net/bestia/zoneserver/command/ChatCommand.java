@@ -3,11 +3,12 @@ package net.bestia.zoneserver.command;
 import net.bestia.messages.ChatEchoMessage;
 import net.bestia.messages.ChatEchoMessage.EchoCode;
 import net.bestia.messages.ChatMessage;
+import net.bestia.messages.InputMessage;
+import net.bestia.messages.InputWrapperMessage;
 import net.bestia.messages.Message;
-import net.bestia.messages.PublicChatMessage;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.zoneserver.ecs.InputController;
+import net.bestia.zoneserver.ecs.BestiaRegister;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,8 +39,8 @@ class ChatCommand extends Command {
 		// Set the username of the message to this player.
 		m.setSenderNickname(acc.getName());
 
-		final InputController controller = ctx.getServer().getInputController();
-		final int activeBestiaId = controller.getActiveBestia(accId);
+		final BestiaRegister register = ctx.getServer().getBestiaRegister();
+		final int activeBestiaId = register.getActiveBestia(accId);
 
 		if (activeBestiaId == 0) {
 			// No bestia was active. Do nothing. Actually this should not happen
@@ -61,16 +62,15 @@ class ChatCommand extends Command {
 		case PUBLIC:
 			// Send the message to all active player in the range so send to the ecs 
 			// since we must make sight tests.
-			PublicChatMessage pcm = new PublicChatMessage(m, activeBestiaId);
-			if (controller.sendInput(pcm)) {
-				// Echo the message back to the user.
-				replyMsg = ChatEchoMessage.getEchoMessage(m);
-				replyMsg.setEchoCode(EchoCode.OK);
-			} else {
-				// Internal error. Signal this back to the user.
-				replyMsg = ChatEchoMessage.getEchoMessage(m);
-				replyMsg.setEchoCode(EchoCode.ERROR);
-			}
+			final InputMessage pcm = new InputWrapperMessage<ChatMessage>(m, activeBestiaId);
+			
+			String activeZone = register.getSpawnedBestia(pcm.getAccountId(), activeBestiaId).getLocation().getMapDbName();	
+			ctx.getServer().getZone(activeZone).sendInput(pcm);
+			
+			// Echo the message back to the user.
+			replyMsg = ChatEchoMessage.getEchoMessage(m);
+			replyMsg.setEchoCode(EchoCode.OK);
+			
 			ctx.getServer().sendMessage(replyMsg);
 			break;
 		
@@ -86,6 +86,7 @@ class ChatCommand extends Command {
 			return;
 		}
 	}
+	
 
 	@Override
 	public String toString() {

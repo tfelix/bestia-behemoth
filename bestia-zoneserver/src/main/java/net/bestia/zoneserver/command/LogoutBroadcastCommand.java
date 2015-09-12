@@ -2,7 +2,7 @@ package net.bestia.zoneserver.command;
 
 import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
-import net.bestia.zoneserver.ecs.InputController;
+import net.bestia.zoneserver.ecs.BestiaRegister;
 
 /**
  * Executes if a logout broadcast message is issued. This message will be send from the webserver if an error happens or
@@ -22,11 +22,11 @@ public class LogoutBroadcastCommand extends Command {
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
 
-		InputController controller = ctx.getServer().getInputController();
+		BestiaRegister register = ctx.getServer().getBestiaRegister();
 
-		// Simply remove the bestia from the input controller. The ECS has to register itself to the handler to react
-		// upon removal.
-		controller.removeAccount(message.getAccountId());
+		// Simply remove the bestia from the input controller. 
+		// The ECS has to register itself to the handler to react upon removal.
+		register.removeAccount(message.getAccountId());
 	}
 
 	@Override

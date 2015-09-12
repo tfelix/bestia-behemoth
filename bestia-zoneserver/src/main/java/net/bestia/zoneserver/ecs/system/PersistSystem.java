@@ -29,7 +29,6 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 
 	private ComponentMapper<PlayerBestia> playerMapper;
 
-	@SuppressWarnings({ "unchecked" })
 	public PersistSystem(float interval) {
 		super(Aspect.all(PlayerBestia.class), interval);
 
@@ -47,7 +46,7 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 	/**
 	 * Persist an entity the system is interested immediately if it was removed from the world.
 	 */
-	@Override
+	//@Override
 	protected void removed(Entity e) {
 		synchronizeAndSaveEntity(e);
 	}

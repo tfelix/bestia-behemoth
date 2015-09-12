@@ -6,13 +6,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.bestia.messages.InputMessage;
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.BestiaRegister.InputControllerCallback;
 import net.bestia.zoneserver.ecs.component.Input;
+import net.bestia.zoneserver.ecs.message.DespawnPlayerBestiaMessage;
+import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
 import net.bestia.zoneserver.ecs.system.AISystem;
+import net.bestia.zoneserver.ecs.system.ActiveSpawnSystem;
 import net.bestia.zoneserver.ecs.system.BestiaMovementSystem;
 import net.bestia.zoneserver.ecs.system.ChatSystem;
 import net.bestia.zoneserver.ecs.system.InputSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
 import net.bestia.zoneserver.ecs.system.VisibleNetworkUpdateSystem;
+import net.bestia.zoneserver.ecs.system.VisibleSpawnSystem;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.zone.map.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -38,7 +44,7 @@ public class Zone {
 
 	private static final Logger log = LogManager.getLogger(Zone.class);
 
-	private class ZoneTicker implements Runnable {
+	private class ZoneTicker implements Runnable, InputControllerCallback {
 
 		private long lastRun = 0;
 
@@ -53,20 +59,23 @@ public class Zone {
 		 * avoid starvation of the zone on massive massge input.
 		 */
 		private static final int MAX_PROCESSED_MSGS = 10;
-		
-		private final EntityBuilder builder;
+
 		private final World world;
-		
-		public ZoneTicker(World world) {
+
+		private final CommandContext ctx;
+
+		public ZoneTicker(World world, CommandContext ctx) {
 			this.world = world;
-			this.builder = new EntityBuilder(world);
+			this.ctx = ctx;
 		}
-		
-		private void sendInput(InputMessage msg) {
+
+		private void createInputEntity(InputMessage msg) {
+			final EntityBuilder builder = new EntityBuilder(world);
 			final Entity e = builder.build();
 			final EntityEdit ee = e.edit();
 			final Input input = ee.create(Input.class);
 			input.inputMessage = msg;
+			log.trace("Creating input entity: {}", msg.toString());
 		}
 
 		@Override
@@ -83,21 +92,28 @@ public class Zone {
 				// We now pipe the messages into the zone as entities in order to let the system process them.
 				InputMessage msg = messageQueue.poll();
 				int i = 0;
-				while(msg != null) {
-					msg = messageQueue.poll();
-					
+				while (msg != null) {
+
 					// Create entity with input message.
-					sendInput(msg);
-					
-					if(i++ >= MAX_PROCESSED_MSGS) {
+					createInputEntity(msg);
+
+					if (i++ >= MAX_PROCESSED_MSGS) {
 						log.warn("Too much input messages queued. Slowing processing to avoid starvation of zone.");
 						break;
 					}
+
+					msg = messageQueue.poll();
 				}
 
-				// Let the world tick.
-				world.setDelta(delta);
-				world.process();
+				try {
+
+					// Let the world tick.
+					world.setDelta(delta);
+					world.process();
+
+				} catch (Exception e) {
+					log.error("Exception in zone: {}.", getName(), e);
+				}
 
 				try {
 					if (delta > DELAY_MS) {
@@ -116,13 +132,44 @@ public class Zone {
 			world.process();
 			// World is now persisted.
 		}
+
+		@Override
+		public void removedBestia(long accId, int bestiaId) {
+			final DespawnPlayerBestiaMessage despawnMsg = new DespawnPlayerBestiaMessage(accId, bestiaId);
+			sendInput(despawnMsg);
+		}
+
+		@Override
+		public void removedAccount(long accountId) {
+			// no op.
+		}
+
+		@Override
+		public void addedAccount(long accountId) {
+			// no op.
+		}
+
+		@Override
+		public void addedBestia(long accId, int bestiaId) {
+			// Check if this bestia belongs to this zone if so create a responsible spawn command.
+			final PlayerBestiaManager pbm = ctx.getServer().getBestiaRegister().getSpawnedBestia(accId, bestiaId);
+			
+			if(!pbm.getLocation().getMapDbName().equals(name)) {
+				return;
+			}
+			
+			final SpawnPlayerBestiaMessage spawnMsg = new SpawnPlayerBestiaMessage(accId, bestiaId);
+			sendInput(spawnMsg);
+		}
 	}
 
 	private final String name;
 	private final Map map;
 	private AtomicBoolean hasStarted = new AtomicBoolean(false);
 	private final Queue<InputMessage> messageQueue = new ConcurrentLinkedQueue<>();
+	private final CommandContext cmdContext;
 
+	private final ZoneTicker zoneTicker;
 	private final Thread zoneTickerThread;
 
 	public Zone(CommandContext ctx, Map map) {
@@ -135,6 +182,7 @@ public class Zone {
 
 		this.map = map;
 		this.name = map.getMapDbName();
+		this.cmdContext = ctx;
 
 		if (this.name == null || this.name.isEmpty()) {
 			throw new IllegalArgumentException("Zone name can not be null or empty.");
@@ -146,11 +194,13 @@ public class Zone {
 		worldConfig.register(this);
 		worldConfig.register(map);
 		worldConfig.register(ctx);
-		worldConfig.register(ctx.getServer().getInputController());
+		worldConfig.register(ctx.getServer().getBestiaRegister());
 
 		// Set all the systems.
 		worldConfig.setSystem(new InputSystem());
 		worldConfig.setSystem(new BestiaMovementSystem());
+		worldConfig.setSystem(new ActiveSpawnSystem());
+		worldConfig.setSystem(new VisibleSpawnSystem());
 		worldConfig.setSystem(new VisibleNetworkUpdateSystem());
 		worldConfig.setSystem(new AISystem());
 		worldConfig.setSystem(new ChatSystem());
@@ -161,7 +211,8 @@ public class Zone {
 		worldConfig.setManager(new TagManager());
 		worldConfig.setManager(new UuidEntityManager());
 
-		zoneTickerThread = new Thread(null, new ZoneTicker(new World(worldConfig)), "zoneECS-" + name);
+		zoneTicker = new ZoneTicker(new World(worldConfig), ctx);
+		zoneTickerThread = new Thread(null, zoneTicker, "zoneECS-" + name);
 	}
 
 	// =================== START GETTER AND SETTER =====================
@@ -178,7 +229,7 @@ public class Zone {
 	// ===================== END GETTER AND SETTER =====================
 
 	public void sendInput(InputMessage msg) {
-		if(!hasStarted.get()) {
+		if (!hasStarted.get()) {
 			log.warn("Zone already stopped. Does not process messages anymore.");
 			return;
 		}
@@ -198,6 +249,8 @@ public class Zone {
 		hasStarted.set(true);
 		zoneTickerThread.start();
 
+		cmdContext.getServer().getBestiaRegister().addCallback(zoneTicker);
+
 		log.debug("Zone {} has started.", name);
 	}
 
@@ -206,6 +259,9 @@ public class Zone {
 	 * database or a file for later reloading.
 	 */
 	public void stop() {
+		if (!hasStarted.get()) {
+			return;
+		}
 
 		hasStarted.set(false);
 

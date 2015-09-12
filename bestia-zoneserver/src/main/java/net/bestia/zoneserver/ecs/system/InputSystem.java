@@ -14,6 +14,7 @@ import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
+import com.artemis.managers.TagManager;
 import com.artemis.systems.EntityProcessingSystem;
 
 @Wire
@@ -26,9 +27,10 @@ public class InputSystem extends EntityProcessingSystem {
 
 	private ComponentMapper<Input> inputMapper;
 
+	private TagManager tagManager;
+
 	private CommandFactory cmdFactory;
 
-	@SuppressWarnings("unchecked")
 	public InputSystem() {
 		super(Aspect.all(Input.class));
 		// no op.
@@ -44,16 +46,23 @@ public class InputSystem extends EntityProcessingSystem {
 	@Override
 	protected void process(Entity input) {
 
-		final InputMessage msg = inputMapper.get(input).inputMessage;
+		final Input inputComp = inputMapper.getSafe(input);
+		
+		if(inputComp == null) {
+			input.edit().deleteEntity();			
+			return;
+		}
+		
+		// Get the message.
+		final InputMessage msg = inputComp.inputMessage;
+		
 		// Removed processed entity.
 		input.edit().deleteEntity();
-
-		// Does this player have pending input commands?
-		//final PlayerBestia playerBestia = playerMapper.get(player);
-		//final int playerBestiaId = playerBestia.playerBestiaManager.getPlayerBestiaId();
+		
 
 		log.trace("ECS received input message: {}", msg.toString());
 
+		
 		// Process the input messages.
 		final Command cmd = cmdFactory.getCommand(msg);
 
@@ -61,12 +70,15 @@ public class InputSystem extends EntityProcessingSystem {
 			return;
 		}
 
+		// Find the player entity for this command/message. If the bestia id is invalid null should be returned.
+		final Entity player = tagManager.getEntity(Integer.toString(msg.getPlayerBestiaId()));
+
 		// Instances of the cmd Factory should be of this type.
 		final ECSCommand ecsCmd = (ECSCommand) cmd;
 
 		// Set the world instance.
 		ecsCmd.setWorld(world);
-		//ecsCmd.setPlayer(player);
+		ecsCmd.setPlayer(player);
 
 		cmd.run();
 	}

@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.command;
 
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -34,6 +35,12 @@ public class CommandFactory {
 		final Set<Class<? extends Command>> subTypes = reflections.getSubTypesOf(Command.class);
 
 		for (Class<? extends Command> clazz : subTypes) {
+			
+			// Dont instance abstract classes.
+			if(Modifier.isAbstract(clazz.getModifiers())) {
+				continue;
+			}
+			
 			try {
 				final Command cmd = clazz.newInstance();
 

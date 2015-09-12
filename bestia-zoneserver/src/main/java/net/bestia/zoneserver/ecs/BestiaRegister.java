@@ -3,17 +3,13 @@ package net.bestia.zoneserver.ecs;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
-import net.bestia.messages.InputMessage;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 import org.apache.logging.log4j.LogManager;
@@ -21,15 +17,15 @@ import org.apache.logging.log4j.Logger;
 
 /**
  * Manages the communication towards the ECS system. Since this communication must somehow work asynchronously we store
- * messages inside this {@link InputController} and the ECS will fetch them as its ticking. It will question the
+ * messages inside this {@link BestiaRegister} and the ECS will fetch them as its ticking. It will question the
  * InputController if it holds messages regarding a particular bestia and execute it in ECS world.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class InputController {
+public class BestiaRegister {
 
-	private final static Logger log = LogManager.getLogger(InputController.class);
+	private final static Logger log = LogManager.getLogger(BestiaRegister.class);
 
 	/**
 	 * Callback which can be used to get notified about changed in this
@@ -47,17 +43,16 @@ public class InputController {
 
 	private final ReadWriteLock lock = new ReentrantReadWriteLock();
 	private final Map<Long, Set<PlayerBestiaManager>> spawnedBestias = new HashMap<>();
-	private final Map<Integer, Queue<InputMessage>> inputQueues = new HashMap<>();
 	private final Map<Long, Integer> activeBestias = new HashMap<>();
 
 	private final List<InputControllerCallback> callbacks = new ArrayList<>();
 
-	public InputController() {
+	public BestiaRegister() {
 
 	}
 
 	/**
-	 * Adds a callback to the {@link InputController}. These callback are called if the according events are triggered.
+	 * Adds a callback to the {@link BestiaRegister}. These callback are called if the according events are triggered.
 	 * 
 	 * @param callback
 	 *            Callback to be added.
@@ -165,7 +160,6 @@ public class InputController {
 		final int bestiaId = bestia.getPlayerBestiaId();
 
 		// Remove messages.
-		inputQueues.remove(bestiaId);
 		spawnedBestias.get(accId).remove(bestia);
 		onRemovedBestia(accId, bestiaId);
 		log.trace("Removed bestia: {} from account: {}.", bestiaId, accId);
@@ -205,10 +199,8 @@ public class InputController {
 
 		spawnedBestias.get(accId).add(pbm);
 		final int bestiaId = pbm.getPlayerBestiaId();
-		inputQueues.put(bestiaId, new LinkedList<>());
 		onAddedBestia(accId, bestiaId);
 		log.trace("Added bestia: {} to account: {}.", bestiaId, accId);
-
 	}
 
 	/**
@@ -225,33 +217,8 @@ public class InputController {
 	}
 
 	/**
-	 * Queues a message for delivery to a specific bestia inside the input queue. Silently fails if there is not
-	 * account/player bestia active with the id the message is referring to.
-	 * 
-	 * @param message
-	 *            {@link InputMessage} from the player.
-	 * @return
-	 */
-	public boolean sendInput(InputMessage message) {
-		lock.writeLock().lock();
-		try {
-			if (inputQueues.containsKey(message.getPlayerBestiaId())) {
-				inputQueues.get(message.getPlayerBestiaId()).add(message);
-				return true;
-			} else {
-				return false;
-			}
-		} finally {
-			lock.writeLock().unlock();
-		}
-	}
-
-	/**
 	 * Returns the {@link PlayerBestiaManager} of the given bestiaId. If no bestia is active with this id null is
 	 * returned.
-	 * 
-	 * TODO Hier kann man auch noch mal die accId rauswerfen und das analog nur über die bestiaId abfragen. Indem man
-	 * das besser chached.
 	 * 
 	 * @param accId
 	 *            The account id which holds the requested bestia.
@@ -322,29 +289,5 @@ public class InputController {
 		lock.writeLock().lock();
 		activeBestias.remove(accountId);
 		lock.writeLock().unlock();
-	}
-
-	/**
-	 * Returns one of the pending {@link InputMessage}s for the given playerBesitaId. If no messages are waiting in the
-	 * queue {@code NULL} will be returned.
-	 * 
-	 * @param playerBestiaId
-	 *            The PlayerBestiaId of the bestia which InputMessages are polled.
-	 * @return A InputMessage or NULL of the queue is empty.
-	 */
-	public InputMessage getNextInputMessage(int playerBestiaId) {
-		lock.readLock().lock();
-		if (!inputQueues.containsKey(playerBestiaId)) {
-			lock.readLock().unlock();
-			return null;
-		}
-		lock.readLock().unlock();
-		lock.writeLock().lock();
-		try {
-			final Queue<InputMessage> result = inputQueues.get(playerBestiaId);
-			return result.poll();
-		} finally {
-			lock.writeLock().unlock();
-		}
 	}
 }

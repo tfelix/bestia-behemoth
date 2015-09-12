@@ -3,8 +3,10 @@ package net.bestia.zoneserver.command;
 import java.util.Set;
 
 import net.bestia.messages.BestiaActivateMessage;
+import net.bestia.messages.InputMessage;
+import net.bestia.messages.InputWrapperMessage;
 import net.bestia.messages.Message;
-import net.bestia.zoneserver.ecs.InputController;
+import net.bestia.zoneserver.ecs.BestiaRegister;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 /**
@@ -25,14 +27,16 @@ public class SwitchActiveCommand extends Command {
 	protected void execute(Message message, CommandContext ctx) {
 		// With the filtering of handlesMessageId we are safe to cast directly.
 		final BestiaActivateMessage msg = (BestiaActivateMessage) message;
-		final InputController controller = ctx.getServer().getInputController();
+		final BestiaRegister controller = ctx.getServer().getBestiaRegister();
 
 		Set<PlayerBestiaManager> pbms = controller.getSpawnedBestias(message.getAccountId());
 		for (PlayerBestiaManager pbm : pbms) {
 			final int pbId = pbm.getPlayerBestiaId();
-
+			final String zoneName = pbm.getLocation().getMapDbName();
+			
 			// Copy the message since it is not immutable and we should not share the message between threads.
-			controller.sendInput(new BestiaActivateMessage(msg), pbId);
+			final InputMessage wrappedMsg = new InputWrapperMessage<BestiaActivateMessage>(msg, pbId);
+			ctx.getServer().getZone(zoneName).sendInput(wrappedMsg);
 		}
 	}
 
