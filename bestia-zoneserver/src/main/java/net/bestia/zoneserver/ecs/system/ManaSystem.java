@@ -22,7 +22,6 @@ public class ManaSystem extends IntervalEntityProcessingSystem {
 
 	private ComponentMapper<Bestia> bestiaMapper;
 
-	@SuppressWarnings("unchecked")
 	public ManaSystem() {
 		super(Aspect.all(Bestia.class), TICK_RATE_MS);
 		// No op.

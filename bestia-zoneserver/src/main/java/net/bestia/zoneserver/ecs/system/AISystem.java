@@ -32,7 +32,6 @@ public class AISystem extends IntervalEntityProcessingSystem {
 
 	private ComponentMapper<Position> positionMapper;
 
-	@SuppressWarnings("unchecked")
 	public AISystem() {
 		super(Aspect.all(AI.class, Position.class), 7000);
 		// No op.
