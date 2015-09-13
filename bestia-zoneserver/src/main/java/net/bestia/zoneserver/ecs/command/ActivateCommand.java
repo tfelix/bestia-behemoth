@@ -54,5 +54,10 @@ public class ActivateCommand extends ECSCommand {
 			}
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return "ActivateCommand[]";
+	}
 
 }

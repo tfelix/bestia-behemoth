@@ -26,13 +26,11 @@ public class ChatSystem extends EntityProcessingSystem {
 	@Wire
 	private CommandContext ctx;
 
-	@SuppressWarnings("unchecked")
 	public ChatSystem() {
 		super(Aspect.all(Chat.class));
 		// no op.
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	protected void initialize() {
 		final AspectSubscriptionManager asm = world.getManager(AspectSubscriptionManager.class);
@@ -46,6 +44,9 @@ public class ChatSystem extends EntityProcessingSystem {
 		final IntBag entityIds = activePlayerEntities.getEntities();
 
 		final ChatMessage chatMsg = chatMapper.get(e).chatMessage;
+		
+		// Remove the chat msg entity.
+		e.edit().deleteEntity();
 
 		for (int i = 0; i < entityIds.size(); i++) {
 			final Entity receiverEntity = world.getEntity(entityIds.get(i));

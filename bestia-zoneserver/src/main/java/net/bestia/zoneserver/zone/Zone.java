@@ -205,7 +205,7 @@ public class Zone {
 		worldConfig.setSystem(new ChatSystem());
 		worldConfig.setSystem(new ActiveSpawnSystem());
 		worldConfig.setSystem(new VisibleSpawnSystem());
-		//worldConfig.setSystem(new PersistSystem(10000));
+		worldConfig.setSystem(new PersistSystem(10000));
 
 		// Set all the managers.
 		worldConfig.setManager(new PlayerManager());
