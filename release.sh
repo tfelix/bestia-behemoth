@@ -21,10 +21,11 @@ read -p "Enter the new version (like v.1.2.3): " version
 
 git checkout master
 git merge $current_version || error_exit
+mvn versions:set -DnewVersion=$current_version
 
 # Create a new versioning branch.
 git checkout -b $version
-mvn versions:set -DnewVersion=$version
+mvn versions:set -DnewVersion=$version-SNAPSHOT
 git add .
 git commit -m "$version start"
 
