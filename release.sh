@@ -3,17 +3,22 @@
 function error_exit
 {
 	echo "Failed to create the release version."
+	echo "Reason: $1"
 	exit 1
 }
 
+# get the current version.
+current_version = $(git rev-parse --abbrev-ref HEAD)
+
 echo This will release a new version of the Bestia Behemoth software system.
 echo 
-echo Testing release...
+echo =========== Testing release and sanity checks... ===========
 
 mvn test || error_exit
 
-# get the current version.
-current_version = $(git rev-parse --abbrev-ref HEAD)
+test -f db-dumps/database-$current_version || error_exit "No current database dump is present in /dp-dumps!"
+
+echo =========== Starting release... ===========
 
 read -p "Enter the new version (like v.1.2.3): " version
 
