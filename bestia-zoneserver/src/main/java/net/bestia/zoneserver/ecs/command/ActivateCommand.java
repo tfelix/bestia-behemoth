@@ -38,8 +38,7 @@ public class ActivateCommand extends ECSCommand {
 		final PlayerBestiaManager playerBestia = playerMapper.get(player).playerBestiaManager;
 		final int pbId = playerBestia.getPlayerBestiaId();
 		final long accId = msg.getAccountId();
-		
-		/*
+
 		if (pbId == msg.getActivatePlayerBestiaId()) {
 			// This bestia should be marked as active.
 			player.edit().create(Active.class);
@@ -53,7 +52,7 @@ public class ActivateCommand extends ECSCommand {
 				// This bestia should not be active anymore.
 				player.edit().remove(Active.class);
 			}
-		}*/
+		}
 	}
 
 }

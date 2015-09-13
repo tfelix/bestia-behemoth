@@ -3,6 +3,7 @@ package net.bestia.zoneserver.ecs.system;
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Movement;
+import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.manager.BestiaManager;
 import net.bestia.zoneserver.zone.Vector2;
 
@@ -23,18 +24,15 @@ import com.artemis.systems.DelayedEntityProcessingSystem;
  *
  */
 @Wire
-public class BestiaMovementSystem extends DelayedEntityProcessingSystem {
+public class MovementSystem extends DelayedEntityProcessingSystem {
 
-	private final static Logger log = LogManager.getLogger(BestiaMovementSystem.class);
+	private final static Logger log = LogManager.getLogger(MovementSystem.class);
 
 	private ComponentMapper<Bestia> bestiaMapper;
 	private ComponentMapper<Movement> movementMapper;
 
-
-	@SuppressWarnings({ "unchecked" })
-	public BestiaMovementSystem() {
+	public MovementSystem() {
 		super(Aspect.all(Bestia.class, Movement.class));
-
 	}
 
 	@Override
@@ -52,13 +50,15 @@ public class BestiaMovementSystem extends DelayedEntityProcessingSystem {
 	@Override
 	protected void processExpired(Entity e) {
 		final Movement m = movementMapper.get(e);
-		final BestiaManager manager = bestiaMapper.get(e).bestiaManager;
 
 		Vector2 pos = m.path.poll();
 		if (pos == null) {
 			e.edit().remove(Movement.class);
 			return;
 		}
+		
+		// Check if we handle a bestia or a generic position only entity.
+		final BestiaManager manager = bestiaMapper.get(e).bestiaManager;
 		
 		// Check that the next move position is only one tile away.
 		final int distance = getDistance(manager.getLocation(), pos);
@@ -72,7 +72,6 @@ public class BestiaMovementSystem extends DelayedEntityProcessingSystem {
 		manager.getLocation().setX(pos.x);
 		manager.getLocation().setY(pos.y);
 
-		// Mark as candidate for persisting and set changed for visibility.
 		log.trace("Moved to: {}", pos.toString());
 
 		m.nextMove = 1000 / (m.walkspeed * Movement.TILES_PER_SECOND);

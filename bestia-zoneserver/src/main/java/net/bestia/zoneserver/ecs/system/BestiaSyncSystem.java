@@ -24,7 +24,6 @@ public class BestiaSyncSystem extends EntityProcessingSystem {
 	private ComponentMapper<Position> posMapper;
 	private ComponentMapper<Bestia> bestiaMapper;
 	
-	@SuppressWarnings("unchecked")
 	public BestiaSyncSystem(Builder aspect) {
 		super(Aspect.all(Bestia.class, Position.class));
 		// no op.

@@ -13,4 +13,8 @@ import com.artemis.Component;
 public class Bestia extends Component {
 
 	public BestiaManager bestiaManager;
+	
+	public Bestia(BestiaManager manager) {
+		this.bestiaManager = manager;
+	}
 }

@@ -49,7 +49,7 @@ public class MoveCommand extends ECSCommand {
 			path.add(new Vector2(msg.getCordsX().get(i), msg.getCordsY().get(i)));
 		}
 
-		Movement movement = player.edit().create(Movement.class);
+		final Movement movement = player.edit().create(Movement.class);
 		movement.path.addAll(path);
 	}
 	

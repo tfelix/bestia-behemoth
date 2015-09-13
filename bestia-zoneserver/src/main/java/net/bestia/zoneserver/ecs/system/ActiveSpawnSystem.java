@@ -17,7 +17,6 @@ import com.artemis.Entity;
 import com.artemis.EntitySubscription;
 import com.artemis.EntitySubscription.SubscriptionListener;
 import com.artemis.annotations.Wire;
-import com.artemis.systems.EntityProcessingSystem;
 import com.artemis.utils.IntBag;
 
 @Wire

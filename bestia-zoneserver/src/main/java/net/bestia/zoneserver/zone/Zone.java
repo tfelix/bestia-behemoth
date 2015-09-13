@@ -15,7 +15,7 @@ import net.bestia.zoneserver.ecs.message.DespawnPlayerBestiaMessage;
 import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
 import net.bestia.zoneserver.ecs.system.AISystem;
 import net.bestia.zoneserver.ecs.system.ActiveSpawnSystem;
-import net.bestia.zoneserver.ecs.system.BestiaMovementSystem;
+import net.bestia.zoneserver.ecs.system.MovementSystem;
 import net.bestia.zoneserver.ecs.system.ChatSystem;
 import net.bestia.zoneserver.ecs.system.InputSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
@@ -200,7 +200,7 @@ public class Zone {
 
 		// Set all the systems.
 		worldConfig.setSystem(new InputSystem());
-		worldConfig.setSystem(new BestiaMovementSystem());
+		worldConfig.setSystem(new MovementSystem());
 		worldConfig.setSystem(new AISystem());
 		worldConfig.setSystem(new ChatSystem());
 		worldConfig.setSystem(new ActiveSpawnSystem());
