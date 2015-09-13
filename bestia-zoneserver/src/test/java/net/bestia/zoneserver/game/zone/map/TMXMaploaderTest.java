@@ -26,8 +26,6 @@ public class TMXMaploaderTest {
 		Map.MapBuilder builder = new MapBuilder();
 		
 		loader.loadMap(builder);
-		
-		
 	}
 
 }

@@ -1,7 +1,9 @@
 package net.bestia.zoneserver.battle;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import net.bestia.model.domain.Element;
 
@@ -49,7 +51,8 @@ public final class ElementModifier {
 	 * The damage table is saved as integer. Basically its a fixed point. 100
 	 * means a multiplier factor of 1.00.
 	 */
-	private final static Map<ElementKey, Integer> elementMap = new HashMap<ElementKey, Integer>();
+	private final static Map<ElementKey, Integer> elementMap = new HashMap<>();
+	private final static Set<Element> legalAttackElements = new HashSet<>();
 	static {
 		// Setup the elements.
 		// LEVEL 1
@@ -494,7 +497,19 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.HOLY_4), 175);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.SHADOW_4), 0);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.GHOST_4), 100);
-		elementMap.put(new ElementKey(Element.UNDEAD, Element.UNDEAD_4), 0);	
+		elementMap.put(new ElementKey(Element.UNDEAD, Element.UNDEAD_4), 0);
+		
+		// Define the legal attack elements.
+		legalAttackElements.add(Element.EARTH);
+		legalAttackElements.add(Element.FIRE);
+		legalAttackElements.add(Element.GHOST);
+		legalAttackElements.add(Element.HOLY);
+		legalAttackElements.add(Element.NORMAL);
+		legalAttackElements.add(Element.POISON);
+		legalAttackElements.add(Element.SHADOW);
+		legalAttackElements.add(Element.UNDEAD);
+		legalAttackElements.add(Element.WATER);
+		legalAttackElements.add(Element.WIND);
 	}
 
 	/**
@@ -508,6 +523,11 @@ public final class ElementModifier {
 	 * @return
 	 */
 	public static int getModifier(Element attacker, Element defender) {
+		
+		if(!legalAttackElements.contains(attacker)) {
+			throw new IllegalArgumentException("Attack element must be level 1.");
+		}
+		
 		final ElementKey key = new ElementKey(attacker, defender);
 		return elementMap.get(key).intValue();
 	}

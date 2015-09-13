@@ -1,23 +1,24 @@
 package net.bestia.zoneserver.game.zone;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.stub;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
-
-import javax.rmi.CORBA.Stub;
 
 import net.bestia.model.ServiceLocator;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.script.ScriptManager;
-import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.Rect;
 import net.bestia.zoneserver.zone.Zone;
+import net.bestia.zoneserver.zone.map.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+// TODO Die Zone hier noch richtig testen.
 public class ZoneTest {
 
 	private final static String ZONE_NAME = "test123";
@@ -65,19 +66,5 @@ public class ZoneTest {
 	private Zone getZone() {
 		return new Zone(getTestContext(), getTestMap());
 	}
-
-	@Test
-	public void nameTest() {
-		Zone z = getZone();
-		Assert.assertEquals(ZONE_NAME, z.getName());
-	}
-
-
-	@Test
-	public void isWalkable_test() {
-		Zone z = getZone();
-		Assert.assertEquals(ZONE_NAME, z.getName());
-	}
-	
 
 }
