@@ -160,7 +160,7 @@ Bestia.Connection.prototype.init = function() {
 	request.onError = function() {
 		console.error('Server error. Can not create connection.');
 		// Most likly we are not authenticated. Back to login.
-		this._pubsub.publish('system.logout', {});
+		self._pubsub.publish('system.logout', {});
 	};
 
 	this._pubsub.publish('io.onConnecting', {});
