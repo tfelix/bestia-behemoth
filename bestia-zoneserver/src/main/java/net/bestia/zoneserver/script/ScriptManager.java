@@ -70,7 +70,7 @@ public class ScriptManager {
 	 * @param script
 	 *            Script to be executed.
 	 */
-	public void executeScript(Script script) {
+	public boolean executeScript(Script script) {
 
 		if(script == null) {
 			throw new IllegalArgumentException("Script can not be null.");
@@ -83,14 +83,14 @@ public class ScriptManager {
 
 		if (pkg == null) {
 			log.error("Scriptpackage with key {} was not found.", scriptKey);
-			return;
+			return false;
 		}
 
 		CompiledScript compiledScript = pkg.cache.getScript(scriptName);
 
 		if (compiledScript == null) {
 			log.error("Script with key {} and name {} was not found.", scriptKey, scriptName);
-			return;
+			return false;
 		}
 
 		// Prepare bindings.
@@ -99,9 +99,18 @@ public class ScriptManager {
 		scriptBindings.putAll(pkg.bindings);
 
 		try {
-			compiledScript.eval(scriptBindings);
+			final Object ret = compiledScript.eval(scriptBindings);
+			
+			if(ret instanceof Boolean) {
+				final Boolean retBool = (Boolean) ret;
+				return retBool.booleanValue();
+			} else {
+				return false;
+			}
+			
 		} catch (ScriptException e) {
 			log.error("Error while executing script: {}.{}", scriptKey, scriptName, e);
+			return false;
 		}
 	}
 

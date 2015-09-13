@@ -62,6 +62,10 @@ public class Item implements Serializable {
 	public int getId() {
 		return id;
 	}
+	
+	public String getItemDbName() {
+		return itemDbName;
+	}
 
 	public String getImage() {
 		return image;
