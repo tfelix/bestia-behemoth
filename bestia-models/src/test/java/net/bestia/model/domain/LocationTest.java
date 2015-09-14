@@ -70,11 +70,6 @@ public class LocationTest {
 	}
 	
 	@Test(expected = IllegalArgumentException.class)
-	public void false_ctor_args4() {
-		new Location("", 10, 0);
-	}
-	
-	@Test(expected = IllegalArgumentException.class)
 	public void no_negative_x_cord() {
 		Location loc = new Location("test", 10, 5);
 		loc.setX(-5);
@@ -90,12 +85,5 @@ public class LocationTest {
 	public void no_null_mab_db_name() {
 		Location loc = new Location("test", 10, 5);
 		loc.setMapDbName(null);
-	}
-	
-	@Test(expected = IllegalArgumentException.class)
-	public void no_empty_mab_db_name() {
-		Location loc = new Location("test", 10, 5);
-		loc.setMapDbName("");
-	}
-	
+	}	
 }

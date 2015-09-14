@@ -1,5 +1,3 @@
-@echo off
-
 function error_exit
 {
 	echo "Failed to create the release version."
@@ -10,15 +8,16 @@ function error_exit
 }
 
 # get the current version.
-current_version = $(git rev-parse --abbrev-ref HEAD)
+current_version=$(git rev-parse --abbrev-ref HEAD)
 
 echo This will release a new version of the Bestia Behemoth software system.
 echo 
 echo =========== Testing release and sanity checks... ===========
 
+# Test if there is everything commited.
+git diff --exit-code >/dev/null || error_exit "There are unstaged/uncommited changes."
+test -f db-dumps/database-$current_version.sql || error_exit "No current database dump is present in /dp-dumps!"
 mvn test || error_exit "Tests where not successful."
-
-test -f db-dumps/database-$current_version || error_exit "No current database dump is present in /dp-dumps!"
 
 echo =========== Starting release... ===========
 
