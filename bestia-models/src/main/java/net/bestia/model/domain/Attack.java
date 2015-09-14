@@ -27,26 +27,33 @@ public class Attack implements Serializable {
 	private String databaseName;
 
 	@JsonProperty("str")
+	@Column(nullable = false)
 	private int strength;
 
 	@Enumerated(EnumType.STRING)
 	@JsonProperty("ele")
+	@Column(nullable = false)
 	private Element element;
 
 	@JsonProperty("m")
+	@Column(nullable = false)
 	private int manaCost;
 
 	@JsonProperty("r")
+	@Column(nullable = false)
 	private int range;
 
 	@Enumerated(EnumType.STRING)
 	@JsonProperty("bs")
+	@Column(nullable = false)
 	private AttackBasedStatus basedStatus;
 
 	@JsonProperty("ct")
+	@Column(nullable = false)
 	private int casttime;
 
 	@JsonProperty("cd")
+	@Column(nullable = false)
 	private int cooldown;
 
 	public Attack() {

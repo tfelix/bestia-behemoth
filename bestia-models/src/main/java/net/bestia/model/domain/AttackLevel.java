@@ -58,7 +58,7 @@ public class AttackLevel implements Serializable {
 	
 	@Override
 	public String toString() {
-		return "AttackLevel[]";
+		return String.format("AttackLevel[attack_db_name: %s, minLevel: %d]", attack.getDatabaseName(), minLevel);
 	}
 
 	public Attack getAttack() {
