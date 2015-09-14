@@ -16,7 +16,7 @@ public class TMXMaploaderTest {
 	@Test
 	public void loadMapTest() throws Exception {
 			
-		URL resourceUrl = getClass().getResource("/data/maps/test1.tmx");
+		URL resourceUrl = getClass().getResource("/data/maps/test-zone1.tmx");
 		Path resourcePath = Paths.get(resourceUrl.toURI());
 		
 		File mapFile = resourcePath.toFile();

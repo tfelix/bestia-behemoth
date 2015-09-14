@@ -7,8 +7,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import net.bestia.model.domain.PlayerBestia;
@@ -26,8 +24,7 @@ public class InputControllerTest {
 		BestiaRegister pic = new BestiaRegister();
 		pic.addCallback(callback);
 
-		List<PlayerBestiaManager> managerList = new ArrayList<PlayerBestiaManager>();
-		managerList.add(getMockedManager());
+		pic.addPlayerBestia(1, getMockedManager());
 
 		verify(callback, times(1)).addedAccount(anyLong());
 		verify(callback, times(1)).addedBestia(anyLong(), anyInt());
@@ -39,9 +36,7 @@ public class InputControllerTest {
 		BestiaRegister pic = new BestiaRegister();
 		pic.addCallback(callback);
 
-		List<PlayerBestiaManager> managerList = new ArrayList<PlayerBestiaManager>();
-		managerList.add(getMockedManager());
-
+		pic.addPlayerBestia(1, getMockedManager());
 		pic.removeAccount(1);
 
 		verify(callback, times(1)).removedAccount(anyLong());

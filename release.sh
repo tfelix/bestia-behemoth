@@ -3,7 +3,9 @@
 function error_exit
 {
 	echo "Failed to create the release version."
+	echo "============"
 	echo "Reason: $1"
+	echo "============"
 	exit 1
 }
 
@@ -14,13 +16,14 @@ echo This will release a new version of the Bestia Behemoth software system.
 echo 
 echo =========== Testing release and sanity checks... ===========
 
-mvn test || error_exit
+mvn test || error_exit "Tests where not successful."
 
 test -f db-dumps/database-$current_version || error_exit "No current database dump is present in /dp-dumps!"
 
 echo =========== Starting release... ===========
 
 read -p "Enter the new version (like v.1.2.3): " version
+versioUpper=`sed 's/\(.\)/\U\1/' <<< "$version"`
 
 # do the merging of the current version.
 
@@ -38,6 +41,6 @@ git add .
 git commit -m "$version start"
 
 # Push changes to the master.
-git push --follow-tags
-git push origin $version
+#git push --follow-tags
+#git push origin $version
 

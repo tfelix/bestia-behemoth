@@ -143,7 +143,6 @@ public class BestiaRegister {
 
 		// Remove possible active bestias.
 		activeBestias.remove(accId);
-
 	}
 
 	/**
