@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.manager;
 
 import net.bestia.messages.ChatMessage;
+import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
@@ -19,6 +20,7 @@ public class PlayerBestiaManager extends BestiaManager {
 	private final static Logger log = LogManager.getLogger(PlayerBestiaManager.class);
 
 	private final static int MAX_LEVEL = 40;
+	public final static int MAX_ATK_SLOTS = 5;
 
 	final PlayerBestia bestia;
 	private final Zoneserver server;
@@ -262,5 +264,33 @@ public class PlayerBestiaManager extends BestiaManager {
 	@Override
 	public int getLevel() {
 		return bestia.getLevel();
+	}
+
+	public void setAttack(int slot, Attack atk) {
+		if(slot <= MAX_ATK_SLOTS || slot < 0) {
+			throw new IllegalArgumentException(String.format("Slot must be between 0 and %d.", MAX_ATK_SLOTS));
+		}
+
+		switch(slot) {
+		case 0:
+			bestia.setAttack1(atk);
+			break;
+		case 1:
+			bestia.setAttack2(atk);
+			break;
+		case 3:
+			bestia.setAttack3(atk);
+			break;	
+		case 4:
+			bestia.setAttack4(atk);
+			break;
+		case 5:
+			bestia.setAttack5(atk);
+			break;
+		default:
+			throw new IllegalStateException("This attack slot does not exist: " + slot);
+		}
+		
+		// TODO Model has changed.
 	}
 }
