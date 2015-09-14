@@ -29,6 +29,14 @@
 		}
 	},
 	
+	"attack": {
+		"type": "Typ",
+		"strength": "Stärke",
+		"element": "Element",
+		"mana": "Mana",
+		"minlv": "Min. Lv."
+	},
+	
 	"map": {
 		"testmap1" : "Die Felder von Kalarian",
 		"testmap1_long" : "Dies ist ein längerer Untertitel der eingeblendet werden kann..."

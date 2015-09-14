@@ -32,7 +32,7 @@ Bestia.BestiaAttacks = function(pubsub) {
 	 * 
 	 * @property
 	 */
-	this.hasAttacklist = ko.observable(false);
+	this.hasAttackList = ko.observable(false);
 
 	this.attackList = ko.observableArray();
 
@@ -93,7 +93,7 @@ Bestia.BestiaAttacks = function(pubsub) {
 		data.atks.forEach(function(val) {
 			self.attackList.push(new Bestia.BestiaAttack(val));
 		});
-		self.hasAttacklist(true);
+		self.hasAttackList(true);
 
 		/*
 		 * for (var i = 0; i < data.is.length; i++) { var attack = data.is[i];
@@ -112,7 +112,7 @@ Bestia.BestiaAttacks = function(pubsub) {
 	 * Resets the current list if for example a new bestia was selected.
 	 */
 	this.invalidateListHandle = function() {
-		this.hasAttacklist(false);
+		this.hasAttackList(false);
 		this.attackList.removeAll();
 	};
 	pubsub.subscribe('engine.selectBestia', this.invalidateListHandle);
@@ -123,7 +123,7 @@ Bestia.BestiaAttacks = function(pubsub) {
  * If the caches or not dirty this method call will do nothing and just return.
  */
 Bestia.BestiaAttacks.prototype.request = function() {
-	if (this.hasAttacklist()) {
+	if (this.hasAttackList()) {
 		return;
 	}
 
@@ -134,11 +134,12 @@ Bestia.BestiaAttacks.prototype.request = function() {
 Bestia.BestiaAttack = function(data) {
 	this.minLevel = ko.observable(0);
 	this.id = ko.observable(0);
-	this.atkDbName = ko.observable('');
+	this.attackDatabaseName = ko.observable('');
 	this.manaCost = ko.observable(0);
 	this.strength = ko.observable(0);
 	this.range = ko.observable(0);
 	this.basedStatus = ko.observable('');
+	this.element = ko.observable('');
 	this.casttime = ko.observable(0);
 	this.cooldown = ko.observable(0);
 
@@ -153,9 +154,9 @@ Bestia.BestiaAttack = function(data) {
 
 Bestia.BestiaAttack.prototype.update = function(data) {
 	var atk = data.a;
-	this.minLevel(data.mlv);
+	this.minLevel(data.mlv || 0);
 	this.id(atk.id);
-	this.atkDbName(atk.adbn);
+	this.attackDatabaseName(atk.adbn);
 	this.strength(atk.str);
 	this.element(atk.ele);
 	this.manaCost(atk.m);

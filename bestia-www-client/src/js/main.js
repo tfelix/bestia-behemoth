@@ -33,6 +33,11 @@ function main() {
 	$('#btn-inventory').click(function() {
 		$('#modal-inventory').modal('show');
 	});
+	
+	$('#btn-attacks').click(function() {
+		$('#modal-attacks').modal('show');
+		game.attacks.request();
+	});
 
 	// Add click handler.
 	$('#btn-playground').click(function() {
