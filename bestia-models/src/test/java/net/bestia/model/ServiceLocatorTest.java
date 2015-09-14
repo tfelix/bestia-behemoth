@@ -15,7 +15,6 @@ public class ServiceLocatorTest {
 	public static final String DAO_REGEX = "^\\w+DAO$";
 
 	@SuppressWarnings("rawtypes")
-	@Test
 	public void get_daos() {
 		Reflections reflections = new Reflections("net.bestia.model.dao");
 		// Get all dao classes.
@@ -37,7 +36,7 @@ public class ServiceLocatorTest {
 		}
 	}
 
-	@Test
+
 	public void get_services() {
 		Reflections reflections = new Reflections("net.bestia.model.service");
 		// Get all dao classes.
