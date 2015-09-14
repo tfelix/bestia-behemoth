@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javax.persistence.Embeddable;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -60,6 +61,14 @@ public class StatusPoints implements Serializable {
 	@Transient
 	private int spd;
 
+	/**
+	 * Flag to see if data in this class has changed and need to be
+	 * retransmitted to the client.
+	 */
+	@JsonIgnore
+	@Transient
+	private boolean hasChanged = false;
+
 	public int getCurrentHp() {
 		return currentHp;
 	}
@@ -67,6 +76,7 @@ public class StatusPoints implements Serializable {
 	public void setCurrentHp(int hp) {
 		this.currentHp = hp;
 		checkInvalidStatusValue();
+		hasChanged = true;
 	}
 
 	public int getMaxHp() {
@@ -76,6 +86,7 @@ public class StatusPoints implements Serializable {
 	public void setMaxHp(int maxHp) {
 		this.maxHp = maxHp;
 		checkInvalidStatusValue();
+		hasChanged = true;
 	}
 
 	public int getCurrentMana() {
@@ -85,11 +96,13 @@ public class StatusPoints implements Serializable {
 	public void setCurrentMana(int mana) {
 		this.currentMana = mana;
 		checkInvalidStatusValue();
+		hasChanged = true;
 	}
 
 	public void setMaxMana(int maxMana) {
 		this.maxMana = maxMana;
 		checkInvalidStatusValue();
+		hasChanged = true;
 	}
 
 	public int getMaxMana() {
@@ -103,6 +116,7 @@ public class StatusPoints implements Serializable {
 	public void setArmorDef(int armorDef) {
 		this.armorDef = armorDef;
 		checkInvalidStatusValue();
+		hasChanged = true;
 	}
 
 	public int getArmorSpDef() {
@@ -112,6 +126,7 @@ public class StatusPoints implements Serializable {
 	public void setArmorSpDef(int armorSpDef) {
 		this.armorSpDef = armorSpDef;
 		checkInvalidStatusValue();
+		hasChanged = true;
 	}
 
 	public int getAtk() {
@@ -121,6 +136,7 @@ public class StatusPoints implements Serializable {
 	public void setAtk(int atk) {
 		this.atk = atk;
 		checkInvalidStatusValue();
+		hasChanged = true;
 	}
 
 	public int getDef() {
@@ -130,6 +146,7 @@ public class StatusPoints implements Serializable {
 	public void setDef(int def) {
 		this.def = def;
 		checkInvalidStatusValue();
+		hasChanged = true;
 	}
 
 	public int getSpAtk() {
@@ -139,6 +156,7 @@ public class StatusPoints implements Serializable {
 	public void setSpAtk(int spAtk) {
 		this.spAtk = spAtk;
 		checkInvalidStatusValue();
+		hasChanged = true;
 	}
 
 	public int getSpDef() {
@@ -148,6 +166,7 @@ public class StatusPoints implements Serializable {
 	public void setSpDef(int spDef) {
 		this.spDef = spDef;
 		checkInvalidStatusValue();
+		hasChanged = true;
 	}
 
 	public int getSpd() {
@@ -157,12 +176,14 @@ public class StatusPoints implements Serializable {
 	public void setSpd(int spd) {
 		this.spd = spd;
 		checkInvalidStatusValue();
+		hasChanged = true;
 	}
 
 	/**
-	 * Special setter to avoid the clearance of any of the current mana or current hp value wich will occure if one set
-	 * a single value but the other value has not yet been set. Either one of the values will get reset. To avoid this
-	 * use this method and set the limiting values at the same time.
+	 * Special setter to avoid the clearance of any of the current mana or
+	 * current hp value wich will occure if one set a single value but the other
+	 * value has not yet been set. Either one of the values will get reset. To
+	 * avoid this use this method and set the limiting values at the same time.
 	 * 
 	 * @param maxHp
 	 * @param maxMana
@@ -172,7 +193,6 @@ public class StatusPoints implements Serializable {
 		this.maxHp = maxHp;
 		this.maxMana = maxMana;
 		checkInvalidStatusValue();
-		
 	}
 
 	/**
@@ -181,7 +201,7 @@ public class StatusPoints implements Serializable {
 	 * @param rhs
 	 */
 	public void add(StatusPoints rhs) {
-		
+
 		this.maxHp += rhs.getMaxHp();
 		this.maxMana += rhs.getMaxMana();
 		this.currentHp += rhs.getCurrentHp();
@@ -195,12 +215,14 @@ public class StatusPoints implements Serializable {
 		this.armorDef += rhs.getArmorDef();
 		this.armorSpDef += rhs.getArmorSpDef();
 		checkInvalidStatusValue();
-
+		hasChanged = true;
 	}
 
 	/**
-	 * Überprüft ob sich ein Statuswert im "illegalen" Bereich aufhält, zb das die cur_hp immer niedriger sind als die
-	 * max_hp. Bei änderungen an kritischen Stati wird diese Methode gecalled um evtl Berichtigungen durchzuführen.
+	 * Überprüft ob sich ein Statuswert im "illegalen" Bereich aufhält, zb das
+	 * die cur_hp immer niedriger sind als die max_hp. Bei änderungen an
+	 * kritischen Stati wird diese Methode gecalled um evtl Berichtigungen
+	 * durchzuführen.
 	 * 
 	 * @param $changed_stat
 	 * @return void
@@ -208,14 +230,14 @@ public class StatusPoints implements Serializable {
 	private void checkInvalidStatusValue() {
 
 		// MAX HP & MANA TEST
-		if(maxHp < 1) {
+		if (maxHp < 1) {
 			maxHp = 1;
 		}
-		
-		if(maxMana < 1) {
+
+		if (maxMana < 1) {
 			maxMana = 1;
 		}
-		
+
 		if (currentHp > maxHp) {
 			currentHp = maxHp;
 		}
@@ -247,25 +269,41 @@ public class StatusPoints implements Serializable {
 		if (armorSpDef > 100) {
 			armorSpDef = 100;
 		}
-		
-		if(atk < 0) {
+
+		if (atk < 0) {
 			atk = 0;
 		}
-		
-		if(def < 0) {
+
+		if (def < 0) {
 			def = 0;
 		}
-		
-		if(spd < 0) {
+
+		if (spd < 0) {
 			spd = 0;
 		}
-		
-		if(spAtk < 0) {
+
+		if (spAtk < 0) {
 			spAtk = 0;
 		}
-		
-		if(spDef < 0) {
+
+		if (spDef < 0) {
 			spDef = 0;
 		}
+	}
+
+	/**
+	 * Returns the flag if underlying data in this object has been changed.
+	 * 
+	 * @return TRUE if data has changed. FALSE otherwise.
+	 */
+	public boolean hasChanged() {
+		return hasChanged;
+	}
+
+	/**
+	 * Resets the changed flag back to false.
+	 */
+	public void resetChanged() {
+		hasChanged = false;
 	}
 }

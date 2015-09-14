@@ -25,5 +25,8 @@
     "load-grunt-config": "^0.17.1",
     "load-grunt-tasks": "^3.1.0",
     "time-grunt": "^1.2.0"
+  },
+  "devDependencies": {
+    "grunt-jsdoc": "^0.6.8"
   }
 }

@@ -4,6 +4,8 @@ Bestia.Game = function() {
 
 	this.inventory = new Bestia.Inventory(this.pubsub);
 	this.bestias = new Bestia.BestiaInfoViewModel(this.pubsub);
+	this.attacks = new Bestia.BestiaAttacks(this.pubsub);
+	
 	this.chat = new Bestia.Chat($('#chat'), this);
 	this.engine = new Bestia.Engine(this.pubsub, this.config);
 	this.connection = new Bestia.Connection(this.pubsub);
@@ -31,6 +33,11 @@ function main() {
 	$('#btn-inventory').click(function() {
 		$('#modal-inventory').modal('show');
 	});
+	
+	$('#btn-attacks').click(function() {
+		$('#modal-attacks').modal('show');
+		game.attacks.request();
+	});
 
 	// Add click handler.
 	$('#btn-playground').click(function() {
@@ -41,6 +48,10 @@ function main() {
 	$('#btn-useattack').click(function() {
 		var msg = new Bestia.Message.AttackUse(1, 10, 10);
 		game.pubsub.publish('io.sendMessage', msg);
+	});
+	
+	$('#btn-request').click(function() {
+		game.attacks.request();
 	});
 
 }

@@ -6,8 +6,10 @@ import net.bestia.model.domain.AttackLevel;
 import net.bestia.model.domain.Bestia;
 
 import org.hibernate.Query;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+@Repository("attackLevelDao")
 @Transactional(readOnly = true)
 public class AttackLevelDAOHibernate extends GenericDAOHibernate<AttackLevel, Integer> implements AttackLevelDAO {
 

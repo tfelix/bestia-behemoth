@@ -5,7 +5,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600'
+	rel='stylesheet' type='text/css'>
 <link rel="stylesheet" type="text/css" href="css/app.css" />
 
 <!-- JAVASCRIPT -->
@@ -35,22 +36,26 @@
 			<div data-bind="with: bestias">
 				<div id="selected-bestia" data-bind="with: selectedBestia">
 					<!-- TODO Austauschen gegen ein animiertes Canvas. -->
-					<img data-bind="attr: {src: iconUrl}" alt="Bestia Icon" style="float: left; margin: 10px;">
+					<img data-bind="attr: {src: iconUrl}" alt="Bestia Icon"
+						style="float: left; margin: 10px;">
 
 					<div style="float: left; margin-top: 10px;">
 						<p data-bind="text: customName">---</p>
 						<p data-bind="text: name">---</p>
 						<p>
-							X: <span data-bind="text: posX"></span> Y: <span data-bind="text: posY"></span>
+							X: <span data-bind="text: posX"></span> Y: <span
+								data-bind="text: posY"></span>
 						</p>
 					</div>
 
-					<div class="bar hp-bar" style="clear: both;" data-bind="with: statusPoints">
+					<div class="bar hp-bar" style="clear: both;"
+						data-bind="with: statusPoints">
 						<div class="bar-bg">
 							<div data-bind="style: {width: hpWidth}"></div>
 						</div>
 						<div class="bar-text">
-							<span data-bind="text: curHp">0</span> / <span data-bind="text: maxHp">0</span>
+							<span data-bind="text: curHp">0</span> / <span
+								data-bind="text: maxHp">0</span>
 						</div>
 					</div>
 					<div class="bar mana-bar" data-bind="with: statusPoints">
@@ -58,7 +63,8 @@
 							<div data-bind="style: {width: manaWidth}"></div>
 						</div>
 						<div class="bar-text">
-							<span data-bind="text: curMana">0</span> / <span data-bind="text: maxMana">0</span>
+							<span data-bind="text: curMana">0</span> / <span
+								data-bind="text: maxMana">0</span>
 						</div>
 					</div>
 
@@ -74,28 +80,34 @@
 
 				<!-- UI BUTTONS -->
 				<div class="ui-buttons">
-					<button id="btn-inventory" class="btn btn-sm btn-block" data-i18n="nav.inventory">nav.inventory</button>
-					<button class="btn btn-sm btn-block" data-i18n="nav.equip">nav.equip</button>
-					<button class="btn btn-sm btn-block" data-i18n="nav.attacks">nav.attacks</button>
-					<br>
-					<br>
+					<button id="btn-inventory" class="btn btn-sm btn-block"
+						data-i18n="nav.inventory">nav.inventory</button>
+					<button id="btn-equip" class="btn btn-sm btn-block"
+						data-i18n="nav.equip">nav.equip</button>
+					<button id="btn-attacks" class="btn btn-sm btn-block"
+						data-i18n="nav.attacks">nav.attacks</button>
+					<br> <br>
 					<button id="btn-playground" class="btn btn-sm btn-block">Spielwiese</button>
 				</div>
 				<!-- /UI BUTTONS -->
 
 				<div id="bestia-slots" data-bind="foreach: bestias">
 					<div class="bestia-slot" data-bind="click: selectBestia">
-						<img data-bind="attr: {src: iconUrl}" alt="Bestia Icon" style="float: left; margin: 10px;">
+						<img data-bind="attr: {src: iconUrl}" alt="Bestia Icon"
+							style="float: left; margin: 10px;">
 						<div class="name">
-							<b><span data-bind="text: customName"></span></b> - Lv. <span data-bind="text: level"></span>
+							<b><span data-bind="text: customName"></span></b> - Lv. <span
+								data-bind="text: level"></span>
 						</div>
-						<div style="margin-top: 8px; float: left; width: 200px;" data-bind="with: statusPoints">
+						<div style="margin-top: 8px; float: left; width: 200px;"
+							data-bind="with: statusPoints">
 							<div class="bar hp-bar small-bar">
 								<div class="bar-bg">
 									<div data-bind="style: {width: hpWidth}"></div>
 								</div>
 								<div class="bar-text">
-									<span data-bind="text: curHp">0</span> / <span data-bind="text: maxHp">0</span>
+									<span data-bind="text: curHp">0</span> / <span
+										data-bind="text: maxHp">0</span>
 								</div>
 							</div>
 							<div class="bar mana-bar small-bar">
@@ -103,7 +115,8 @@
 									<div data-bind="style: {width: manaWidth}"></div>
 								</div>
 								<div class="bar-text">
-									<span data-bind="text: curMana">0</span> / <span data-bind="text: maxMana">0</span>
+									<span data-bind="text: curMana">0</span> / <span
+										data-bind="text: maxMana">0</span>
 								</div>
 							</div>
 						</div>
@@ -133,8 +146,10 @@
 				<div class="chat-msgs" data-bind="foreach: messages">
 
 					<div data-bind="css: cssMode">
-						<span data-bind="click: $parent.setWhisperNick, visible: nickname().length > 0" class="nick"><span
-							data-bind="text: nickname"></span>: </span><span data-bind="text: text"></span>
+						<span
+							data-bind="click: $parent.setWhisperNick, visible: nickname().length > 0"
+							class="nick"><span data-bind="text: nickname"></span>: </span><span
+							data-bind="text: text"></span>
 					</div>
 
 				</div>
@@ -142,14 +157,19 @@
 					<ul class="dropdown">
 						<li><span data-bind="text: modeText"></span>
 							<ul>
-								<li data-bind="click: changeMode.bind($data, 'PUBLIC')" data-i18n="chat.public">chat.public</li>
-								<li data-bind="click: changeMode.bind($data, 'PARTY')" data-i18n="chat.party">chat.party</li>
-								<li data-bind="click: changeMode.bind($data, 'GUILD')" data-i18n="chat.guild">chat.guild</li>
+								<li data-bind="click: changeMode.bind($data, 'PUBLIC')"
+									data-i18n="chat.public">chat.public</li>
+								<li data-bind="click: changeMode.bind($data, 'PARTY')"
+									data-i18n="chat.party">chat.party</li>
+								<li data-bind="click: changeMode.bind($data, 'GUILD')"
+									data-i18n="chat.guild">chat.guild</li>
 							</ul></li>
 					</ul>
 					<form data-bind="submit: sendChat">
-						<span class="whisper-nick" data-bind="visible: whisperNick().length > 0"><span
-							data-bind="text: whisperNick"></span>: </span><input type="text" data-bind="textInput: text">
+						<span class="whisper-nick"
+							data-bind="visible: whisperNick().length > 0"><span
+							data-bind="text: whisperNick"></span>: </span><input type="text"
+							data-bind="textInput: text">
 					</form>
 				</div>
 			</div>
@@ -163,7 +183,8 @@
 	</div>
 
 	<!-- DEBUG VIEWS -->
-	<div id="canvas-debug" class="debug-box" data-bind="with: engine.info, visible: config.debug"
+	<div id="canvas-debug" class="debug-box"
+		data-bind="with: engine.info, visible: config.debug"
 		style="top: 10px; right: 10px; width: 100px;">
 		<p>
 			FPS: <span data-bind="text: fps"></span>
@@ -240,7 +261,8 @@
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 					<h4 class="modal-title" data-i18n="logout.title">logout.title</h4>
@@ -249,7 +271,8 @@
 					<p data-i18n="logout.msg">logout.msg</p>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="ui.close">ui.close</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal"
+						data-i18n="ui.close">ui.close</button>
 				</div>
 			</div>
 			<!-- /.modal-content -->
@@ -257,26 +280,33 @@
 		<!-- /.modal-dialog -->
 	</div>
 	<!-- /.modal -->
-	
+
 	<!-- INVENTORY -->
-	<div id="modal-inventory" class="modal fade" data-bind="with: inventory">
+	<div id="modal-inventory" class="modal fade"
+		data-bind="with: inventory">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
-					<input style="border: 1px solid; display: inline-block; float: right; margin-right: 20px;" placeholder="Suche">
+					<input
+						style="border: 1px solid; display: inline-block; float: right; margin-right: 20px;"
+						placeholder="Suche">
 					<h4 class="modal-title" data-i18n="nav.inventory">nav.inventar</h4>
 				</div>
-				<div class="modal-body" style="height: 400px; width: 600px;" data-bind="foreach: items">
-					<div class="item tooltip" data-bind="click: $parent.useItem" data-tooltip="+7 Anales Breitschwert">
+				<div class="modal-body" style="height: 400px; width: 600px;"
+					data-bind="foreach: items">
+					<div class="item tooltip" data-bind="click: $parent.useItem"
+						data-tooltip="+7 Anales Breitschwert">
 						<img data-bind="attr: {src: imageSrc, alt: name}" src="" alt="">
 						<span class="amount" data-bind="text: amount"></span>
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="ui.close">ui.close</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal"
+						data-i18n="ui.close">ui.close</button>
 				</div>
 			</div>
 			<!-- /.modal-content -->
@@ -284,33 +314,79 @@
 		<!-- /.modal-dialog -->
 	</div>
 	<!-- /INVENTORY -->
-	
+
 	<!-- ATTACKS -->
 	<div id="modal-attacks" class="modal fade">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h4 class="modal-title" data-i18n="attack.attacks">attacks</h4>
+					<h4 class="modal-title" data-i18n="nav.attacks">nav.attacks</h4>
 				</div>
 				<div class="modal-body">
-					<div>
-						<div>Tackle</div>
-						<div>
-							<span data-i18n="attack.mana">Mana</span>: <span></span>, 
-							<span data-i18n="attack.type">Type</span>: <span></span>
+
+					<div data-bind="with: attacks">
+						<div style="width: 300px; float: left; background: brown;">
+							<div data-bind="if: hasAttackList">
+								<div data-bind="foreach: attackList">
+									<div>
+										<p>
+											<b data-bind="text: attackDatabaseName">Tackle</b>
+										</p>
+										<p>
+											<span data-i18n="attack.element">attack.element</span>: <span
+												data-bind="text: element">-</span> <span
+												data-i18n="attack.strength">attack.strength</span>: <span
+												data-bind="text: strength">-</span>
+										</p>
+										<p>
+											<span data-i18n="attack.minlv">attack.minlv</span>: <span
+												data-bind="text: minLevel">-</span> <span
+												data-i18n="attack.mana">attack.mana</span>: <span
+												data-bind="text: manaCost">-</span>
+										</p>
+									</div>
+								</div>
+							</div>
+							<div data-bind="ifnot: hasAttackList">
+								<!-- TODO Das hier austauschen -->
+								<p>
+									<b>Loading...</b>
+								</p>
+							</div>
+							<div style="text-align: center;">
+								<button class="btn btn-small">1</button>
+								<button class="btn btn-small">2</button>
+								<button class="btn btn-small">3</button>
+								<button class="btn btn-small">4</button>
+								<button class="btn btn-small">5</button>
+							</div>
 						</div>
+						<div style="width: 300px; float: left; background: green;">
+							<div class="attack-short">
+								<div
+									style="width: 20px; font-size: 1.5em; font-weight: bold; float: left;">1</div>
+								<div style="float: left;">
+									<p>
+										<b>ATK NAME</b>
+									</p>
+									<p>
+										<span data-i18n="attack.element">attack.element</span>: <span>-</span>
+										<span data-i18n="attack.strength">attack.strength</span>: <span>-</span>
+									</p>
+									<p>
+										<span data-i18n="attack.type">attack.type</span>: <span>-</span>
+										<span data-i18n="attack.mana">attack.mana</span>: <span>-</span>
+									</p>
+								</div>
+							</div>
+						</div>
+						<div style="clear: both;"></div>
 					</div>
-					
-					<div>
-						<div>SLOT 1</div>
-						<div>SLOT 2</div>
-						<div>SLOT 3</div>
-						<div>SLOT 4</div>
-						<div>SLOT 5</div>
-					</div>
+
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="ui.close">ui.close</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal"
+						data-i18n="ui.close">ui.close</button>
 				</div>
 			</div>
 			<!-- /.modal-content -->
@@ -318,22 +394,26 @@
 		<!-- /.modal-dialog -->
 	</div>
 	<!-- /ATTACKS -->
-	
+
 	<!-- PLAYGROUND -->
-	<div id="modal-playground" class="modal fade" data-bind="with: inventory">
+	<div id="modal-playground" class="modal fade"
+		data-bind="with: inventory">
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 					<h4 class="modal-title">Spielwiese</h4>
 				</div>
 				<div class="modal-body">
+					<button id="btn-request">Request Attacks</button>
 					<button id="btn-useattack">Use Attack</button>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="ui.close">ui.close</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal"
+						data-i18n="ui.close">ui.close</button>
 				</div>
 			</div>
 			<!-- /.modal-content -->

@@ -114,5 +114,9 @@ Bestia.Message = {
 
 		this.pid = playerItemId;
 		this.pbid = playerBestiaId;
+	},
+	
+	AttackListRequest : function() {
+		this.mid = 'attack.list.request';
 	}
 };

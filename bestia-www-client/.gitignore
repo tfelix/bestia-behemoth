@@ -7,3 +7,4 @@ build_temp
 src/js/lib
 _SpecRunner.html
 vendor
+doc

@@ -25,7 +25,7 @@
 	<bean id="dataSource"
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="org.h2.Driver" />
-		<property name="url" value="jdbc:h2:mem:bestia" />
+		<property name="url" value="jdbc:h2:~/db/database.db;DB_CLOSE_ON_EXIT=TRUE;INIT=create schema IF NOT EXISTS bestia;" />
 		<property name="username" value="sa" />
 		<property name="password" value="" />
 	</bean>
