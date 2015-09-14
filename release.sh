@@ -21,8 +21,8 @@ mvn test || error_exit "Tests where not successful."
 
 echo =========== Starting release... ===========
 
-read -p "Enter the new version (like v.1.2.3): " version
-versioUpper=`sed 's/\(.\)/\U\1/' <<< "$version"`
+read -p "Enter the new version (like: 1.2.3): " version
+current_version_upper=`sed 's/\(.\)/\U\1/' <<< "$current_version"`
 
 # do the merging of the current version.
 
@@ -31,7 +31,7 @@ git merge $current_version || error_exit
 mvn versions:set -DnewVersion=$current_version
 git add .
 git commit -m "$current_version release."
-git tag -a v$current_version -m "$current_version release."
+git tag -a v$current_version_upper -m "v$current_version_upper release."
 
 # Create a new versioning branch.
 git checkout -b $version
