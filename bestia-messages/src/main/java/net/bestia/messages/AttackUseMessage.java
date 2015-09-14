@@ -18,9 +18,44 @@ public class AttackUseMessage extends InputMessage {
 
 	@JsonProperty("aid")
 	private int attackId;
-
+	
+	@JsonProperty("s")
+	private int slot;
+	
 	private int x;
 	private int y;
+
+	public int getAttackId() {
+		return attackId;
+	}
+
+	public void setAttackId(int attackId) {
+		this.attackId = attackId;
+	}
+
+	public int getSlot() {
+		return slot;
+	}
+
+	public void setSlot(int slot) {
+		this.slot = slot;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public void setX(int x) {
+		this.x = x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public void setY(int y) {
+		this.y = y;
+	}
 
 	@Override
 	public String getMessageId() {

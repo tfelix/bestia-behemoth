@@ -157,4 +157,8 @@ public class Attack implements Serializable {
 	public int getCooldown() {
 		return cooldown;
 	}
+
+	public Integer getId() {
+		return id;
+	}
 }
