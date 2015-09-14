@@ -55,7 +55,7 @@ describe("Bestia.BestiaAttacks", function() {
 				attacks.request();
 
 				expect(lastTopic).toEqual('io.sendMessage');
-				expect(lastData.id).toEqual('attack.list.request');
+				expect(lastData.mid).toEqual('attack.list.request');
 			});
 
 	it("Wont requests attack list again after the attacks are cached.",
