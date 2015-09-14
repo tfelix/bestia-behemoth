@@ -1,5 +1,6 @@
 module.exports = {
 	temp : [ '<%= tempDir %>' ],
 	build : [ '<%= buildDir %>' ],
-	dist : [ '<%= distDir %>' ]
+	dist : [ '<%= distDir %>' ],
+	doc : 'doc'
 };
