@@ -29,6 +29,13 @@ current_version_upper=`sed 's/\(.\)/\U\1/' <<< "$current_version"`
 git checkout master
 git merge $current_version || error_exit
 mvn versions:set -DnewVersion=$current_version
+
+# setup the JS versions in bestia-www-client projekt.
+cd bestia-www-client
+mvn generate-resources -DsetupVersion
+cd ..
+
+# Commit all changes.
 git add .
 git commit -m "$current_version release."
 git tag -a v$current_version_upper -m "v$current_version_upper release."
@@ -36,6 +43,12 @@ git tag -a v$current_version_upper -m "v$current_version_upper release."
 # Create a new versioning branch.
 git checkout -b $version
 mvn versions:set -DnewVersion=$version-SNAPSHOT
+
+# Update the www-client version
+cd bestia-www-client
+mvn generate-resources -DsetupVersion
+cd ..
+
 git add .
 git commit -m "$version start"
 

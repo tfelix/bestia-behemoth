@@ -58,6 +58,28 @@ module.exports = function(grunt) {
 	
 	grunt.registerTask('test:config', 'Testing of the Grunt config.', [ 'jsonlint:config', 'jshint:config' ]);
 	
+	grunt.registerTask('setupversion', 'Transfering the current POM.xml version to Grunt.', function(){
+		grunt.log.writeln("====================================================================");
+		grunt.log.writeln("Updating bestia-www-client versions to: " + version);
+		grunt.log.writeln("====================================================================");
+		
+		var opt = {encoding: 'UTF-8'};
+		
+		grunt.log.writeln("Updating bower.json version...");
+		var filedata = grunt.file.read('bower.json', opt);
+		filedata = filedata.replace(/"version":\s?".+?",/, '"version": "'+version+'",');
+		grunt.file.write('bower.json', filedata, opt);
+		
+		grunt.log.writeln("Updating package.json version...");
+		filedata = grunt.file.read('package.json', opt);
+		filedata = filedata.replace(/"version":\s?".+?",/, '"version": "'+version+'",');
+		grunt.file.write('package.json', filedata, opt);
+		
+		grunt.log.writeln("Updating src/js/behemoth.js version...");
+		filedata = grunt.file.read('src/js/behemoth.js', opt);
+		filedata = filedata.replace(/VERSION[\s+]?:[\s+]?["'].+?["'],/, 'VERSION: \''+version+'\',');
+		grunt.file.write('src/js/behemoth.js', filedata, opt);
+	});
 
 	grunt.registerTask('dev', 'Compiles for local development of the client.', function() {
 		require('time-grunt')(grunt);
