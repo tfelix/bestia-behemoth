@@ -335,7 +335,19 @@ public class PlayerBestiaManager extends BestiaManager {
 	 * @param slot
 	 *            Number of the slot attack to be used. Starts with 0.
 	 */
-	public void useAttackInSlot(int slot) {
+	public boolean useAttackInSlot(int slot) {
+		final Attack atk = getAttackInSlot(slot);
+		return useAttack(atk);
+	}
+
+	/**
+	 * Returns the attack for a given slot number.
+	 * 
+	 * @param slot
+	 * @return The {@link Attack} in the given slot or {@code NULL} if no attack
+	 *         was saved in this slot.
+	 */
+	public Attack getAttackInSlot(int slot) {
 		if (slot < 0 || slot >= MAX_ATK_SLOTS) {
 			throw new IllegalArgumentException(
 					"Slot number must be between 0 and " + (MAX_ATK_SLOTS - 1));
@@ -364,6 +376,6 @@ public class PlayerBestiaManager extends BestiaManager {
 			break;
 		}
 
-		useAttack(atk);
+		return atk;
 	}
 }

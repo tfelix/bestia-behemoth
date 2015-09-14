@@ -1,13 +1,8 @@
 package net.bestia.zoneserver.ecs.command;
 
-import com.artemis.ComponentManager;
-import com.artemis.ComponentMapper;
-
 import net.bestia.messages.AttackUseMessage;
 import net.bestia.messages.Message;
-import net.bestia.model.domain.Attack;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 /**
@@ -31,7 +26,12 @@ public class AttackUseCommand extends ECSCommand {
 		final AttackUseMessage atkMsg = (AttackUseMessage) message;
 		final PlayerBestiaManager pbm = getPlayerBestiaManager();
 		
-		pbm.useAttackInSlot(atkMsg.getSlot());
+		if(pbm.useAttackInSlot(atkMsg.getSlot())) {
+			
+			// TODO Trigger the attack effects. This is done by invoking a script.
+			
+			
+		}
 	}
 
 }
