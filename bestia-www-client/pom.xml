@@ -16,7 +16,7 @@
 
 	<!-- Profiles for the different builds. -->
 	<profiles>
-		<!-- This profile will only copy the current version to the JS files.  -->
+		<!-- This profile will only copy the current version to the JS files. -->
 		<profile>
 			<id>setup-version</id>
 			<activation>
@@ -24,7 +24,7 @@
 					<name>setupVersion</name>
 				</property>
 			</activation>
-			
+
 			<build>
 				<plugins>
 					<plugin>
@@ -43,7 +43,7 @@
 						</executions>
 					</plugin>
 				</plugins>
-			</build>	
+			</build>
 		</profile>
 		<!-- This profile will run the usual build process for the client. -->
 		<profile>
@@ -103,6 +103,14 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>${findbugs.version}</version>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

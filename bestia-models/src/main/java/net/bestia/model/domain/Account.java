@@ -1,6 +1,7 @@
 package net.bestia.model.domain;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -40,30 +41,30 @@ public class Account implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(unique = true, nullable = false)
 	private long id = 0;
-	
+
 	@Column(length = 64, unique = true, nullable = false)
 	private String email = "";
-	
+
 	@Embedded
 	private Password password;
-	
+
 	private int additionalBestiaSlots = 0;
 	private int gold = 0;
 	private String loginToken = "";
-	
+
 	@Temporal(TemporalType.DATE)
 	private Date registerDate;
-	
+
 	@Temporal(TemporalType.DATE)
 	private Date lastLogin;
-	
+
 	private boolean isActivated = false;
-	
+
 	private String remarks = "";
-	
+
 	@Temporal(TemporalType.DATE)
 	private Date bannedUntilDate;
-	
+
 	private UserLevel userLevel = UserLevel.USER;
 
 	// @OneToMany(mappedBy="account")
@@ -203,7 +204,7 @@ public class Account implements Serializable {
 	public PlayerBestia getMaster() {
 		return master;
 	}
-	
+
 	public void setMaster(PlayerBestia masterBestia) {
 		if (masterBestia == null) {
 			throw new IllegalArgumentException("MasterBestia can not be null.");
@@ -230,7 +231,7 @@ public class Account implements Serializable {
 	 * @return
 	 */
 	public String getName() {
-		if(master == null) {
+		if (master == null) {
 			return "";
 		}
 		return master.getName();
@@ -257,7 +258,9 @@ public class Account implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("Account[id=%d, email=%s, registerDate=%t]", id,
-				email, registerDate);
+		final String dateStr = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+				.format(registerDate);
+		return String.format("Account[id: %d, email: %s, registerDate: %s]",
+				id, email, dateStr);
 	}
 }

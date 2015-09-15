@@ -22,6 +22,7 @@ public class TranslationRequestMessage extends Message {
 	public class TranslationItem {
 		private TranslationType type;
 		private String key;
+		private String value;
 
 		public TranslationItem() {
 
@@ -41,6 +42,14 @@ public class TranslationRequestMessage extends Message {
 
 		public void setKey(String key) {
 			this.key = key;
+		}
+		
+		public String getValue() {
+			return value;
+		}
+		
+		public void setValue(String value) {
+			this.value = value;
 		}
 
 		@Override

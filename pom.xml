@@ -25,6 +25,7 @@
 		<!-- Define Spring version as a constant -->
 		<spring.version>4.0.3.RELEASE</spring.version>
 		<hibernate.version>4.3.4.Final</hibernate.version>
+		<findbugs.version>3.0.2</findbugs.version>
 	</properties>
 
 	<!-- Profiles for the different builds. -->
@@ -47,6 +48,7 @@
 				</property>
 			</activation>
 		</profile>
+
 		<profile>
 			<id>production</id>
 			<properties>
@@ -65,6 +67,7 @@
 				</property>
 			</activation>
 		</profile>
+
 		<profile>
 			<id>sonar</id>
 			<activation>
@@ -117,6 +120,29 @@
 					<shortRevisionLength>6</shortRevisionLength>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>findbugs-maven-plugin</artifactId>
+				<version>${findbugs.version}</version>
+				<configuration>
+					<effort>Max</effort>
+					<failOnError>
+						false
+					</failOnError>
+					<threshold>Low</threshold>
+					<xmlOutput>true</xmlOutput>
+					<findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
+				</configuration>
+				<executions>
+					<execution>
+						<id>analyze-compile</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -144,6 +170,37 @@
 								<Built-By />
 							</manifestEntries>
 						</archive>
+					</configuration>
+				</plugin>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.codehaus.mojo
+										</groupId>
+										<artifactId>
+											findbugs-maven-plugin
+										</artifactId>
+										<versionRange>
+											[3.0.2,)
+										</versionRange>
+										<goals>
+											<goal>check</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
 			</plugins>
