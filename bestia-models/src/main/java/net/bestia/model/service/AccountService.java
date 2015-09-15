@@ -62,29 +62,6 @@ public class AccountService {
 		this.bestiaDao = bestiaDAO;
 	}
 
-	public AccountDAO getAccountDao() {
-		return this.accountDao;
-	}
-
-	public BestiaDAO getBestiaDao() {
-		return this.bestiaDao;
-	}
-
-	public PlayerBestiaDAO getPlayerBestiaDao() {
-		return this.playerBestiaDao;
-	}
-
-	/**
-	 * Returns an Account with the given id. Returns null if no account has been found.
-	 * 
-	 * @param accId
-	 * @return
-	 */
-	public Account getAccount(long accId) {
-		Account data = accountDao.find(accId);
-		return data;
-	}
-
 	/**
 	 * Creates a completely new account.
 	 * 

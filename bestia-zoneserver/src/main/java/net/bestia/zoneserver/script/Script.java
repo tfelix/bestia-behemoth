@@ -22,7 +22,8 @@ public abstract class Script {
 	}
 
 	/**
-	 * Must return the script key (type of the script: item, attack etc.)
+	 * Must return the script key (type of the script: item, attack etc.) under
+	 * which the script was stored in the script manager.
 	 * 
 	 * @return The type of the script.
 	 */
@@ -31,7 +32,16 @@ public abstract class Script {
 	public String getName() {
 		return name;
 	}
-	
+
+	/**
+	 * This will add a temporary binding to the script which lasts only during
+	 * the execution.
+	 * 
+	 * @param name
+	 *            Name of the binding.
+	 * @param obj
+	 *            Data to bind to this name.
+	 */
 	protected void addBinding(String name, Object obj) {
 		bindings.put(name, obj);
 	}

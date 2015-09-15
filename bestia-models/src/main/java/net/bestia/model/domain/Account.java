@@ -1,6 +1,7 @@
 package net.bestia.model.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -83,7 +84,7 @@ public class Account implements Serializable {
 	private PlayerBestia master;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
-	private List<PlayerBestia> bestias;
+	private List<PlayerBestia> bestias = new ArrayList<>();
 
 	public Account() {
 		this.email = "";
@@ -220,17 +221,7 @@ public class Account implements Serializable {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((email == null) ? 0 : email.hashCode());
-		result = prime * result + (int) id;
-		result = prime * result + password.hashCode();
-		result += (loginToken == null) ? 0 : loginToken.hashCode();
-		result = additionalBestiaSlots + gold + remarks.hashCode();
-		result += registerDate.hashCode();
-		result += (lastLogin == null) ? 0 : lastLogin.hashCode();
-		result += (bannedUntilDate == null) ? 0 : bannedUntilDate.hashCode();
-		return result;
+		return email.hashCode();
 	}
 
 	/**
@@ -239,6 +230,9 @@ public class Account implements Serializable {
 	 * @return
 	 */
 	public String getName() {
+		if(master == null) {
+			return "";
+		}
 		return master.getName();
 	}
 

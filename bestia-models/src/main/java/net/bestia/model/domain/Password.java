@@ -17,6 +17,8 @@ import javax.persistence.Transient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Embeddable data class for storing and checking passwords securely hashed
  * inside a database.
@@ -47,7 +49,7 @@ public class Password implements Serializable {
 	/**
 	 * Length is key + salt + delimiter char.
 	 */
-	@Column(name = "password", length = KEY_LENGTH + SALT_LENGTH + 1, nullable = false)
+	@Column(name = "password", length = 255, nullable = false)
 	private String passwordHash = "";
 	
 	/**
@@ -93,7 +95,10 @@ public class Password implements Serializable {
 	private void setPasswordHash(byte[] data, byte[] salt) {
 		final Base64.Encoder enc = Base64.getEncoder();
 		
-		passwordHash = enc.encodeToString(data) + "$" + enc.encodeToString(salt);
+		final String dataStr = enc.encodeToString(data);
+		final String saltStr = enc.encodeToString(salt);
+		
+		passwordHash = dataStr  + "$" + saltStr;
 	}
 
 
@@ -108,6 +113,7 @@ public class Password implements Serializable {
 	 * 
 	 * @return
 	 */
+	@JsonIgnore
 	public byte[] getSalt() throws IllegalStateException {
 		final String[] splitted = passwordHash.split("\\$");
 		if (splitted.length < 2) {

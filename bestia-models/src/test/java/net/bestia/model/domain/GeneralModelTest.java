@@ -9,21 +9,51 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.reflections.Reflections;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class GeneralModelTest {
 
+	private ObjectMapper mapper = new ObjectMapper();
+	private Reflections reflections = new Reflections("net.bestia.model");
+	
+	private Set<Class<?>> getAllEntities() {
+		final Set<Class<?>> allClasses = reflections
+				.getTypesAnnotatedWith(Entity.class);
+		return allClasses;
+	}
+	
 	/**
 	 * All entities must implement serializable.
 	 */
 	@Test
-	public void all_serializable_test() {
-		Reflections reflections = new Reflections("net.bestia.model");
-		Set<Class<?>> allClasses = reflections
-				.getTypesAnnotatedWith(Entity.class);
-
-		for (Class<?> clazz : allClasses) {
+	public void all_serializable() {
+		for (Class<?> clazz : getAllEntities()) {
 			Assert.assertTrue(clazz.toGenericString()
 					+ " does not implement Serializable.",
 					Serializable.class.isAssignableFrom(clazz));
+		}
+	}
+	
+	/**
+	 * All entities must implement serializable.
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
+	 */
+	@Test
+	public void all_std_ctor() throws InstantiationException, IllegalAccessException {
+		for (Class<?> clazz : getAllEntities()) {
+			clazz.newInstance();
+		}
+	}
+	
+	/**
+	 * All models should be serializable to JSON.
+	 */
+	@Test
+	public void all_serializable_json() throws Exception {
+		for (Class<?> clazz : getAllEntities()) {
+			Object obj = clazz.newInstance();
+			mapper.writeValueAsString(obj);
 		}
 	}
 }
