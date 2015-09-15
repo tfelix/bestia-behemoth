@@ -20,7 +20,7 @@ public class I18n implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Embeddable
-	public class I18nPK implements Serializable {
+	public static class I18nPK implements Serializable {
 
 		@Transient
 		private static final long serialVersionUID = 1L;
