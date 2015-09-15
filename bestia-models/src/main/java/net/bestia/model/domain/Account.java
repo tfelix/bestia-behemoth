@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -61,6 +62,8 @@ public class Account implements Serializable {
 	private boolean isActivated = false;
 
 	private String remarks = "";
+	
+	private String language = "en";
 
 	@Temporal(TemporalType.DATE)
 	private Date bannedUntilDate;
@@ -262,5 +265,13 @@ public class Account implements Serializable {
 				.format(registerDate);
 		return String.format("Account[id: %d, email: %s, registerDate: %s]",
 				id, email, dateStr);
+	}
+
+	public Locale getLanguage() {
+		return new Locale(language);
+	}
+
+	public void setLanguage(Locale locale) {
+		this.language = locale.getLanguage();
 	}
 }

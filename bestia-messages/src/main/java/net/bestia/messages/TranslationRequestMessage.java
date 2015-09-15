@@ -2,6 +2,8 @@ package net.bestia.messages;
 
 import java.util.List;
 
+import net.bestia.model.domain.TranslationCategory;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -15,12 +17,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class TranslationRequestMessage extends Message {
 
-	public enum TranslationType {
-		ATTACK, ITEM, QUEST, MAP, ENTITY
-	}
-
 	public class TranslationItem {
-		private TranslationType type;
+		private TranslationCategory category;
 		private String key;
 		private String value;
 
@@ -28,12 +26,12 @@ public class TranslationRequestMessage extends Message {
 
 		}
 
-		public TranslationType getType() {
-			return type;
+		public TranslationCategory getCategory() {
+			return category;
 		}
 
-		public void setType(TranslationType type) {
-			this.type = type;
+		public void setCategory(TranslationCategory type) {
+			this.category = type;
 		}
 
 		public String getKey() {
@@ -55,7 +53,7 @@ public class TranslationRequestMessage extends Message {
 		@Override
 		public String toString() {
 			return String.format("TranslationItem[type: {}, key: {}]",
-					type.toString(), key);
+					category.toString(), key);
 		}
 	}
 

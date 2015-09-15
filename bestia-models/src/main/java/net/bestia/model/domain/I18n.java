@@ -7,6 +7,8 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -25,7 +27,9 @@ public class I18n implements Serializable {
 		@Transient
 		private static final long serialVersionUID = 1L;
 		protected String key;
-		protected String category;
+		
+		@Enumerated(EnumType.STRING)
+		protected TranslationCategory category;
 
 		@JsonIgnore
 		@Column(length = 5)
@@ -35,7 +39,7 @@ public class I18n implements Serializable {
 
 		}
 
-		public I18nPK(String category, String key, String lang) {
+		public I18nPK(TranslationCategory category, String key, String lang) {
 			this.category = category;
 			this.key = key;
 			this.lang = lang;
@@ -54,7 +58,7 @@ public class I18n implements Serializable {
 	}
 
 	@EmbeddedId
-	private I18nPK i18nKey;
+	private I18nPK id;
 
 	private String value;
 	
@@ -62,8 +66,8 @@ public class I18n implements Serializable {
 		
 	}
 	
-	public I18n(String key, String category, String lang, String value) {
-		i18nKey = new I18nPK(category, key, lang);
+	public I18n(String key, TranslationCategory category, String lang, String value) {
+		id = new I18nPK(category, key, lang);
 		this.value = value;
 	}
 

@@ -42,6 +42,11 @@ public class TranslationResponseMessage extends Message {
 		this.items.addAll(msg.getItems());
 		this.token = msg.getToken();
 	}
+	
+	public void setItems(List<TranslationItem> items) {
+		this.items.clear();
+		this.items.addAll(items);
+	}
 
 	public List<TranslationItem> getItems() {
 		return items;
