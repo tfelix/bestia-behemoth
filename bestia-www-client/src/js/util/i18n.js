@@ -74,11 +74,18 @@ Bestia.I18n = function(pubsub) {
 			}
 		}
 
-		var cachedData = self._callback[data.t];
-		delete self._callback[data.t];
-		cachedData.fn();
+		self._triggerCallback(data.t);
 	};
 	pubsub.subscribe('translation.response', this.translationReceivedHandler);
+};
+
+/**
+ * 
+ */
+Bestia.I18n.prototype._triggerCallback = function(token) {
+	var cachedData = this._callback[token];
+	delete this._callback[token];
+	cachedData.fn();
 };
 
 Bestia.I18n.prototype._existsCatKey = function(cat, key) {
@@ -187,6 +194,10 @@ Bestia.I18n.prototype._translationRequested = function(_, data, fn) {
 		if (!this._existsCatKey(data[i].cat, data[i].key)) {
 			newDataItems.push(data[i]);
 		}
+	}
+	
+	if(newDataItems.length === 0) {
+		self._triggerCallback(uuid);
 	}
 
 	var msg = new Bestia.Message.TranslationRequest(newDataItems, uuid);

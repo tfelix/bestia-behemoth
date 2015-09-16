@@ -58,7 +58,7 @@ describe("Bestia.I18n", function() {
 				expect(called).toBe(true);
 			});
 
-	it("It sends no message if all keys are already cached.", function() {
+	it("It sends no message if all keys are already cached.", function(done) {
 
 		var i18n = new Bestia.I18n(pubsub);
 
@@ -78,7 +78,7 @@ describe("Bestia.I18n", function() {
 		expect(hasSend).toBe(false);
 	});
 
-	it("It resets cache if language changes.", function() {
+	it("It resets cache if language changes.", function(done) {
 
 		var i18n = new Bestia.I18n(pubsub);
 
