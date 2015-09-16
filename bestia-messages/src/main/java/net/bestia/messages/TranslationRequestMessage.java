@@ -18,8 +18,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class TranslationRequestMessage extends Message {
 
 	public class TranslationItem {
+		@JsonProperty("cat")
 		private TranslationCategory category;
+		
+		@JsonProperty("k")
 		private String key;
+		
+		@JsonProperty("v")
 		private String value;
 
 		public TranslationItem() {

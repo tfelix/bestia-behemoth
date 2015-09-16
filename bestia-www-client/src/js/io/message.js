@@ -116,7 +116,32 @@ Bestia.Message = {
 		this.pbid = playerBestiaId;
 	},
 	
+	/**
+	 * Requests to the server to list all available attacks for this bestia.
+	 */
 	AttackListRequest : function() {
 		this.mid = 'attack.list.request';
+	},
+	
+	/**
+	 * Sends a translation request to the server. Category and 
+	 */
+	TranslationRequest : function(items, token) {
+		this.mid = 'translation.request';
+		
+		this.is = [];
+		this.t = token;
+		
+		// Translate the items.
+		if(!Array.isArray(items)) {
+			return;
+		}
+		
+		for(var i = 0; i < items.length; i++) {
+			if(!items[i].hasOwnProperty('cat') || !items[i].hasOwnProperty('key')) {
+				continue;
+			}
+			this.is.push({c: items[i].cat, k: items[i].key});
+		}
 	}
 };
