@@ -2,7 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:p="http://www.springframework.org/schema/p"
-	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
     http://www.springframework.org/schema/context
@@ -10,7 +10,9 @@
     http://www.springframework.org/schema/tx 
     http://www.springframework.org/schema/tx/spring-tx.xsd
     http://www.springframework.org/schema/jdbc 
-    http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
+    http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd
+    http://www.springframework.org/schema/data/jpa
+    http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
 
 	<!-- we will manage transactions with annotations -->
 	<tx:annotation-driven />
@@ -20,6 +22,8 @@
 
 	<!-- package to look for annotated classes -->
 	<context:component-scan base-package="net.bestia.model" />
+
+	<jpa:repositories base-package="net.bestia.model.dao" />
 
 	<!-- data source for our database -->
 	<bean id="dataSource"
@@ -41,7 +45,7 @@
 				<prop key="hibernate.hbm2ddl.auto">${db.hbm2ddl}</prop>
 			</props>
 		</property>
-		
+
 		<property name="packagesToScan">
 			<list>
 				<value>net.bestia.model.domain</value>
@@ -49,12 +53,23 @@
 		</property>
 	</bean>
 
+	<bean id="jpaVendorAdapter"
+		class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+		<property name="showSql" value="true" />
+		<property name="generateDdl" value="true" />
+		<property name="database" value="MYSQL" />
+	</bean>
+
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
+		<!-- spring based scanning for entity classes> -->
+		<property name="packagesToScan" value="net.bestia.model" />
+	</bean>
+
 	<bean id="transactionManager"
 		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
 		<property name="sessionFactory" ref="sessionFactory" />
-	</bean>
-
-	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
-		<constructor-arg type="javax.sql.DataSource" ref="dataSource" />
 	</bean>
 </beans>
