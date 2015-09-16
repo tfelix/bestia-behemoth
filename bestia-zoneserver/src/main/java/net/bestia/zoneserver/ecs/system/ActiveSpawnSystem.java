@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.ecs.system;
 
-import net.bestia.messages.MapEntitiesMessage;
 import net.bestia.messages.MapEntitiesMessage.EntityAction;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
@@ -12,7 +11,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.artemis.Aspect;
 import com.artemis.AspectSubscriptionManager;
-import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.EntitySubscription;
 import com.artemis.EntitySubscription.SubscriptionListener;
@@ -36,8 +34,6 @@ public class ActiveSpawnSystem extends NetworkUpdateSystem {
 
 	private EntitySubscription visibleSubscription;
 
-	private ComponentMapper<PlayerBestia> playerMapper;
-
 	@Override
 	protected void initialize() {
 		super.initialize();
@@ -59,7 +55,14 @@ public class ActiveSpawnSystem extends NetworkUpdateSystem {
 					final int newEntityId = entities.get(i);
 					final Entity newActiveEntity = world.getEntity(newEntityId);
 
-					sendAllVisibleInRange(newActiveEntity, EntityAction.APPEAR);
+					for(int j = 0; j < visibleEntities.size(); j++) {
+						final int visibleEntityId = visibleEntities.get(j);
+						final Entity visibleEntity = world.getEntity(visibleEntityId);
+						
+						// TODO Do a range check.
+						
+						sendUpdate(newActiveEntity, visibleEntity, EntityAction.APPEAR);
+					}
 				}
 			}
 
@@ -68,42 +71,6 @@ public class ActiveSpawnSystem extends NetworkUpdateSystem {
 				// no op.
 			}
 		});
-	}
-
-	/**
-	 * Sends all visible entities in the view distance to the given (player controlled) entity e.
-	 * 
-	 * @param playerEntity
-	 *            Entity with Active and PlayerControlled component.
-	 */
-	private void sendAllVisibleInRange(Entity playerEntity, EntityAction action) {
-
-		final PlayerBestia player = playerMapper.getSafe(playerEntity);
-
-		final long accId = player.playerBestiaManager.getAccountId();
-
-		final IntBag activeEntities = visibleSubscription.getEntities();
-
-		log.trace("Found {} entities in sight.", activeEntities.size());
-
-		// Dont waste a message if nothing is in sight.
-		if (activeEntities.size() == 0) {
-			return;
-		}
-
-		final MapEntitiesMessage entitiesMessage = new MapEntitiesMessage();
-		entitiesMessage.setAccountId(accId);
-
-		for (int i = 0; i < activeEntities.size(); i++) {
-			final int id = activeEntities.get(i);
-			final Entity visibleEntity = world.getEntity(id);
-
-			final MapEntitiesMessage.Entity msg = getMessageFromEntity(visibleEntity, action);
-
-			entitiesMessage.getEntities().add(msg);
-		}
-
-		ctx.getServer().sendMessage(entitiesMessage);
 	}
 
 	@Override
