@@ -11,7 +11,7 @@
 	<parent>
 		<groupId>net.bestia</groupId>
 		<artifactId>behemoth</artifactId>
-		<version>alpha-0.1.5</version>
+		<version>alpha-0.2.0-SNAPSHOT</version>
 	</parent>
 
 	<!-- Profiles for the different builds. -->
