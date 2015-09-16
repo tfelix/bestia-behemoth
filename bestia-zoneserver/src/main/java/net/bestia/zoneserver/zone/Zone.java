@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.zone;
 
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -33,8 +34,10 @@ import com.artemis.managers.UuidEntityManager;
 import com.artemis.utils.EntityBuilder;
 
 /**
- * The Zone holds the static mapdata as well is responsible for managing entities, actors, scripts etc. The entity
- * management is done via an ECS. The important data (player bestias etc.) is periodically persistet into the database.
+ * The Zone holds the static mapdata as well is responsible for managing
+ * entities, actors, scripts etc. The entity management is done via an ECS. The
+ * important data (player bestias etc.) is periodically persistet into the
+ * database.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -48,14 +51,15 @@ public class Zone {
 		private long lastRun = 0;
 
 		/**
-		 * Delay between ticks of the zone. Depending on the work on the zone the sleep time is adjusted to hit the
-		 * delay as good as possible.
+		 * Delay between ticks of the zone. Depending on the work on the zone
+		 * the sleep time is adjusted to hit the delay as good as possible.
 		 */
 		private static final int DELAY_MS = 10;
 
 		/**
-		 * How many input messages are piped into the zone at each tick. Limit this to a reasonable number in order to
-		 * avoid starvation of the zone on massive massge input.
+		 * How many input messages are piped into the zone at each tick. Limit
+		 * this to a reasonable number in order to avoid starvation of the zone
+		 * on massive massge input.
 		 */
 		private static final int MAX_PROCESSED_MSGS = 10;
 
@@ -88,7 +92,8 @@ public class Zone {
 
 				lastRun = now;
 
-				// We now pipe the messages into the zone as entities in order to let the system process them.
+				// We now pipe the messages into the zone as entities in order
+				// to let the system process them.
 				InputMessage msg = messageQueue.poll();
 				int i = 0;
 				while (msg != null) {
@@ -134,7 +139,8 @@ public class Zone {
 
 		@Override
 		public void removedBestia(long accId, int bestiaId) {
-			final DespawnPlayerBestiaMessage despawnMsg = new DespawnPlayerBestiaMessage(accId, bestiaId);
+			final DespawnPlayerBestiaMessage despawnMsg = new DespawnPlayerBestiaMessage(
+					accId, bestiaId);
 			sendInput(despawnMsg);
 		}
 
@@ -150,14 +156,17 @@ public class Zone {
 
 		@Override
 		public void addedBestia(long accId, int bestiaId) {
-			// Check if this bestia belongs to this zone if so create a responsible spawn command.
-			final PlayerBestiaManager pbm = ctx.getServer().getBestiaRegister().getSpawnedBestia(accId, bestiaId);
-			
-			if(!pbm.getLocation().getMapDbName().equals(name)) {
+			// Check if this bestia belongs to this zone if so create a
+			// responsible spawn command.
+			final PlayerBestiaManager pbm = ctx.getServer().getBestiaRegister()
+					.getSpawnedBestia(accId, bestiaId);
+
+			if (!pbm.getLocation().getMapDbName().equals(name)) {
 				return;
 			}
-			
-			final SpawnPlayerBestiaMessage spawnMsg = new SpawnPlayerBestiaMessage(accId, bestiaId);
+
+			final SpawnPlayerBestiaMessage spawnMsg = new SpawnPlayerBestiaMessage(
+					accId, bestiaId);
 			sendInput(spawnMsg);
 		}
 	}
@@ -184,7 +193,8 @@ public class Zone {
 		this.cmdContext = ctx;
 
 		if (this.name == null || this.name.isEmpty()) {
-			throw new IllegalArgumentException("Zone name can not be null or empty.");
+			throw new IllegalArgumentException(
+					"Zone name can not be null or empty.");
 		}
 
 		// Initialize ECS.
@@ -235,8 +245,8 @@ public class Zone {
 	}
 
 	/**
-	 * Starts the entity system, initializes all message queues, load needed data and basically starts the zone
-	 * simulation.
+	 * Starts the entity system, initializes all message queues, load needed
+	 * data and basically starts the zone simulation.
 	 *
 	 */
 	public void start() {
@@ -247,14 +257,30 @@ public class Zone {
 		hasStarted.set(true);
 		zoneTickerThread.start();
 
+		executeMapScripts();
+		
+		// Add the ticker thread of the ECS so newly spawned bestias will be
+		// created to the zone.
 		cmdContext.getServer().getBestiaRegister().addCallback(zoneTicker);
 
+		
+		
 		log.debug("Zone {} has started.", name);
 	}
 
 	/**
-	 * Stops the zone and persists all data to the database. It also tries to persist zone dependent data to the
-	 * database or a file for later reloading.
+	 * This method reads the scripts of the map and executes them.
+	 */
+	private void executeMapScripts() {
+		// Get the global scripts.
+		List<String> scripts = map.getMapscripts();
+		
+	}
+
+	/**
+	 * Stops the zone and persists all data to the database. It also tries to
+	 * persist zone dependent data to the database or a file for later
+	 * reloading.
 	 */
 	public void stop() {
 		if (!hasStarted.get()) {
@@ -268,6 +294,7 @@ public class Zone {
 
 	@Override
 	public String toString() {
-		return String.format("Zone[name: %s, hasStarted: %s]", name, hasStarted.toString());
+		return String.format("Zone[name: %s, hasStarted: %s]", name,
+				hasStarted.toString());
 	}
 }

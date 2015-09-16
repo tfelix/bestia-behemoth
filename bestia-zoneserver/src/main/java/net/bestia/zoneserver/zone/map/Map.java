@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import net.bestia.zoneserver.zone.Rect;
@@ -28,7 +29,8 @@ public class Map {
 		Set<Vector2> collisions = new HashSet<>();
 		java.util.Map<Vector2, Tile> tiles = new HashMap<>();
 		String mapDbName;
-		
+		List<String> mapscripts;
+
 		public MapBuilder load(Maploader loader) throws IOException {
 			loader.loadMap(this);
 			return this;
@@ -42,7 +44,7 @@ public class Map {
 	private String mapDbName;
 	private String tileset;
 	private Rect dimensions;
-
+	private final List<String> mapscripts;
 	private java.util.Map<Vector2, Tile> tiles = new HashMap<>();
 
 	/**
@@ -56,6 +58,7 @@ public class Map {
 		tileset = builder.tileset;
 		mapDbName = builder.mapDbName;
 		tiles = Collections.unmodifiableMap(builder.tiles);
+		mapscripts = builder.mapscripts;
 	}
 
 	/**
@@ -66,8 +69,8 @@ public class Map {
 	 * @return TRUE if tile is walkable. FALSE otherwise.
 	 */
 	public boolean isWalkable(Vector2 cords) {
-		
-		if(!dimensions.contains(cords)) {
+
+		if (!dimensions.contains(cords)) {
 			return false;
 		}
 
@@ -103,6 +106,16 @@ public class Map {
 	 */
 	public String getTileset() {
 		return tileset;
+	}
+
+	/**
+	 * The mapscripts which are attached to this map.
+	 * 
+	 * @return A list of names for the mapscripts which are attached to this
+	 *         map.
+	 */
+	public List<String> getMapscripts() {
+		return mapscripts;
 	}
 
 }

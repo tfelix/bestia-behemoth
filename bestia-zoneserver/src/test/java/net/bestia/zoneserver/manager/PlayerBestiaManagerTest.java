@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.game.manager;
+package net.bestia.zoneserver.manager;
 
 import net.bestia.zoneserver.Zoneserver;
 

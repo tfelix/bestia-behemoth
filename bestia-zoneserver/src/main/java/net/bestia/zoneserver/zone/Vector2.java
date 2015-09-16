@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.zone;
 
+import java.util.Objects;
+
 /**
  * 2D Point. Immutable. Used as coordinates in various systems.
  * 
@@ -22,7 +24,7 @@ public class Vector2 {
 
 	@Override
 	public int hashCode() {
-		return 31 * x + y;
+		return Objects.hash(x, y);
 	}
 
 	@Override
