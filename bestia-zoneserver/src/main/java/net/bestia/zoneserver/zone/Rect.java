@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.zone;
 
+import java.util.Objects;
+
 /**
  * Rectangle. Immutable. Can be used as collision bounding box shape and other things.
  * 
@@ -57,7 +59,7 @@ public class Rect {
 
 	@Override
 	public int hashCode() {
-		return 31 * width + 11 * height + 7 * x + y;
+		return Objects.hash(width, height, x ,y);
 	}
 
 	@Override
