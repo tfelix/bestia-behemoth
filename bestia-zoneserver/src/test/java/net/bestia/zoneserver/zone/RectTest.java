@@ -8,11 +8,8 @@ public class RectTest {
 	@Test
 	public void ctor_legal_works() {
 		new Rect(3, 5, 10, 10);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void ctor_illegal_throws() {
 		new Rect(-3, 5, 10, 10);
+		new Rect(3, -6, 10, 10);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

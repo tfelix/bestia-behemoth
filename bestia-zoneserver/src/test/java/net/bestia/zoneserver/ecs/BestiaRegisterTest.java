@@ -16,7 +16,7 @@ import net.bestia.zoneserver.manager.PlayerBestiaManager;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class InputControllerTest {
+public class BestiaRegisterTest {
 
 	@Test
 	public void account_add_callback_test() {

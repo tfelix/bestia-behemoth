@@ -3,9 +3,11 @@ package net.bestia.zoneserver.zone.map;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import net.bestia.zoneserver.zone.Vector2;
 
@@ -24,12 +26,11 @@ import tiled.io.TMXMapReader;
  *
  */
 public class TMXMaploader implements Maploader {
-	
+
 	private final static Logger log = LogManager.getLogger(TMXMaploader.class);
 
 	private final TMXMapReader reader;
 	private final String mapFile;
-
 	private Map.MapBuilder builder;
 
 	/**
@@ -42,7 +43,7 @@ public class TMXMaploader implements Maploader {
 	}
 
 	public void loadMap(Map.MapBuilder builder) throws IOException {
-		
+
 		log.debug("Loading mapfile: {}", mapFile);
 
 		this.builder = builder;
@@ -56,6 +57,29 @@ public class TMXMaploader implements Maploader {
 		prepareMapData(tiledMap);
 
 		prepareTilesData(tiledMap);
+
+		prepareMapscripts(tiledMap);
+	}
+
+	/**
+	 * Reads the map scripts, parses them into the right format and fills the
+	 * builder with it.
+	 * 
+	 * @param tiledMap
+	 */
+	private void prepareMapscripts(tiled.core.Map tiledMap) {
+		final String scriptStr = tiledMap.getProperties().getProperty(
+				"globalScripts");
+
+		if (scriptStr == null) {
+			builder.mapscripts = new ArrayList<>();
+			return;
+		}
+
+		final List<String> scripts = Arrays.stream(scriptStr.split(","))
+				.map((String x) -> x.trim()).collect(Collectors.toList());
+		
+		builder.mapscripts = scripts;
 	}
 
 	/**
@@ -71,12 +95,8 @@ public class TMXMaploader implements Maploader {
 		final String mapDbName = FilenameUtils.removeExtension(baseName);
 		builder.mapDbName = mapDbName;
 
-		final Properties mapProperties = tiledMap.getProperties();
-
-		// Get map properties.
-		builder.globalScript = mapProperties.getProperty("globalScript");
+		//final Properties mapProperties = tiledMap.getProperties();
 	}
-
 
 	/**
 	 * Translates the map tile data into bestia usable tile informations.
@@ -102,7 +122,8 @@ public class TMXMaploader implements Maploader {
 				continue;
 			}
 
-			// Ignore non bottom/ground layers. (Like special sound layer, event trigger etc.)
+			// Ignore non bottom/ground layers. (Like special sound layer, event
+			// trigger etc.)
 			if (!layer.getName().toLowerCase().startsWith("layer_")) {
 				continue;
 			}
@@ -139,13 +160,13 @@ public class TMXMaploader implements Maploader {
 		// Iterate bottom up through tiles and layers.
 		for (int y = 0; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				
+
 				boolean isWalkable = true;
 				int walkspeed = 1000;
-				
+
 				for (int i = 0; i < layers.size(); i++) {
-					
-					final TileLayer layer = layers.get(i);		
+
+					final TileLayer layer = layers.get(i);
 					final tiled.core.Tile tile = layer.getTileAt(x, y);
 
 					if (tile == null) {
@@ -159,7 +180,7 @@ public class TMXMaploader implements Maploader {
 					}
 
 					final String pWalkable = p.getProperty("bWalkable");
-					//final String pWalkspeed = p.getProperty("walkspeed");
+					// final String pWalkspeed = p.getProperty("walkspeed");
 
 					if (pWalkable != null && pWalkable.equals("false")) {
 						isWalkable = false;
@@ -167,7 +188,7 @@ public class TMXMaploader implements Maploader {
 						isWalkable = true;
 					}
 				}
-				
+
 				final Tile mapTile = new Tile(isWalkable, walkspeed);
 				builder.tiles.put(new Vector2(x, y), mapTile);
 			}

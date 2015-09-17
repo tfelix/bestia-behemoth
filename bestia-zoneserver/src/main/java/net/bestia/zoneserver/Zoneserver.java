@@ -24,8 +24,8 @@ import net.bestia.zoneserver.command.CommandFactory;
 import net.bestia.zoneserver.command.RoutedECSCommandFactory;
 import net.bestia.zoneserver.ecs.BestiaRegister;
 import net.bestia.zoneserver.ecs.BestiaRegister.InputControllerCallback;
-import net.bestia.zoneserver.loader.ScriptCacheLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
+import net.bestia.zoneserver.loader.script.ScriptCacheLoader;
 import net.bestia.zoneserver.script.ScriptManager;
 import net.bestia.zoneserver.zone.Zone;
 

@@ -24,7 +24,6 @@ public class Map {
 
 		int width;
 		int height;
-		String globalScript;
 		String tileset;
 		Set<Vector2> collisions = new HashSet<>();
 		java.util.Map<Vector2, Tile> tiles = new HashMap<>();

@@ -8,11 +8,7 @@ public class Vector2Test {
 	@Test
 	public void ctor_normal_works() {
 		new Vector2(10, 5);
-	}
-	
-	@Test(expected=IllegalArgumentException.class)
-	public void ctor_illegal_throws() {
-		new Vector2(-15,5);
+		new Vector2(-10, 5);
 	}
 	
 	@Test

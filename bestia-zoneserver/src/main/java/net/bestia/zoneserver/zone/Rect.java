@@ -41,6 +41,9 @@ public class Rect {
 	public Rect(int x, int y, int width, int height) {
 		this.x = x;
 		this.y = y;
+		
+		checkNotNegative(width, height);
+		
 		this.width = width;
 		this.height = height;
 	}
@@ -48,8 +51,20 @@ public class Rect {
 	public Rect(Vector2 cords, Vector2 size) {
 		this.x = cords.x;
 		this.y = cords.y;
+		
+		checkNotNegative(size.x, size.y);
+		
 		this.width = size.x;
 		this.height = size.y;
+	}
+	
+	private void checkNotNegative(int width, int height) {
+		if(width < 0) {
+			throw new IllegalArgumentException("Width can not be null.");
+		}
+		if(height < 0) {
+			throw new IllegalArgumentException("Height can not be null.");
+		}
 	}
 
 	@Override
