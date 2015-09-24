@@ -11,6 +11,8 @@ describe("Bestia.I18n", function() {
 	var hasSend = false;
 
 	var TRANSLATED = "TRANSLATED!";
+	var TRANSLATED2 = "Hahahaha!";
+	var TRANSLATED3 = "Well that was easy.";
 
 	var handler = function(_, data) {
 		sendToken = data.t;
@@ -33,6 +35,31 @@ describe("Bestia.I18n", function() {
 				v : TRANSLATED
 			});
 		}
+
+		pubsub.publish('translation.response', msg);
+	};
+	
+	var sendResponse2 = function() {
+		var msg = {
+			t : sendToken,
+			is : []
+		};
+
+		msg.is.push({
+			c : sendItems[0].c,
+			k : sendItems[0].k,
+			v : TRANSLATED
+		});
+		msg.is.push({
+			c : sendItems[1].c,
+			k : sendItems[1].k,
+			v : TRANSLATED2
+		});
+		msg.is.push({
+			c : sendItems[2].c,
+			k : sendItems[2].k,
+			v : TRANSLATED3
+		});
 
 		pubsub.publish('translation.response', msg);
 	};
@@ -100,25 +127,18 @@ describe("Bestia.I18n", function() {
 		expect(hasSend).toBe(true);
 	});
 	
-	/*
+
 	it("It can translate multiple items and access them via callback.", function() {
 
 		var i18n = new Bestia.I18n(pubsub);
 
-		i18n.t('cat.key', function(t) {
-			expect(t('cat.key')).toEqual(TRANSLATED);
+		i18n.t(['cat.key', 'cat.key2', 'cat.key3'], function(t) {
+			expect(t(['cat.key'])).toEqual(TRANSLATED);
+			expect(t(['cat.key2'])).toEqual(TRANSLATED2);
+			expect(t(['cat.key3'])).toEqual(TRANSLATED3);
 		});
 
-		hasSend = false;
-
-		pubsub.publish('i18n.lang', 'de');
-
-		i18n.t('cat.key', function(t) {
-			expect(t('cat.key')).toEqual(TRANSLATED);
-			done();
-		});
-
-		expect(hasSend).toBe(true);
-	});*/
+		sendResponse2();
+	});
 
 });
