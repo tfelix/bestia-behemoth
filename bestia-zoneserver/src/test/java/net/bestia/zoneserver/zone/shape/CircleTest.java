@@ -83,9 +83,9 @@ public class CircleTest {
 	
 	@Test
 	public void collide_rect_true() {
-		Circle c1 = new Circle(5, 5, 3);
-		Rect r1 = new Rect(4, 4, 10, 10);		
-		Rect r2 = new Rect(8, 8, 5, 5);
+		Circle c1 = new Circle(6, 6, 2);
+		Rect r1 = new Rect(1, 1, 20, 20);		
+		Rect r2 = new Rect(7, 2, 5, 5);
 		
 		Assert.assertTrue(c1.collide(r1));
 		Assert.assertTrue(c1.collide(r2));
@@ -93,10 +93,29 @@ public class CircleTest {
 	
 	@Test
 	public void collide_rect_false() {
-		Circle c1 = new Circle(5, 5, 3);
-		Rect r1 = new Rect(10, 10, 3, 3);	
+		// Top circle.
+		Circle c1 = new Circle(12, 5, 2);
+		// Top right circle.
+		Circle c2 = new Circle(20, 5, 2);
+		// Right circle
+		Circle c3 = new Circle(20, 11, 2);
+		// Right bottom circle.
+		Circle c4 = new Circle(18, 18, 2);
+		// Bottom circle.
+		Circle c5 = new Circle(12, 18, 2);
+		// Bottom left circle.
+		Circle c6 = new Circle(5, 18, 2);
+		// Left circle.
+		Circle c7 = new Circle(4, 12, 2);		
+		Rect r1 = new Rect(10, 10, 5, 5);	
 		
 		Assert.assertFalse(c1.collide(r1));
+		Assert.assertFalse(c2.collide(r1));
+		Assert.assertFalse(c3.collide(r1));
+		Assert.assertFalse(c4.collide(r1));
+		Assert.assertFalse(c5.collide(r1));
+		Assert.assertFalse(c6.collide(r1));
+		Assert.assertFalse(c7.collide(r1));
 	}
 	
 	@Test

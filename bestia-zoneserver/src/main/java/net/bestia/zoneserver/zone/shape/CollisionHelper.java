@@ -18,6 +18,15 @@ final class CollisionHelper {
 		// no op.
 	}
 
+	/**
+	 * Checks if a {@link Vector2} and a {@link Rect} collide.
+	 * 
+	 * @param s
+	 *            Vector.
+	 * @param r
+	 *            Rect.
+	 * @return TRUE if they collide. FALSE otherwise.
+	 */
 	public static boolean collide(Vector2 s, Rect r) {
 
 		final boolean xLeft = s.x < r.getX();
@@ -28,25 +37,87 @@ final class CollisionHelper {
 		return !xLeft && !yTop && !xRight && !yBottom;
 	}
 
+	/**
+	 * Checks if a {@link Circle} and a {@link Rect} collide.
+	 * 
+	 * @param s
+	 *            Circle.
+	 * @param r
+	 *            Rect.
+	 * @return TRUE if they collide. FALSE otherwise.
+	 */
 	public static boolean collide(Circle s, Rect r) {
-		
+
 		final Vector2 cc = s.getCenter();
 
-		if (s.collide(cc)) {
+		if (r.collide(cc)) {
 			return true;
 		}
 
 		// Check where the center of the circle is compared to the rectangle.
-		// TODO
+		final int x = r.getX();
+		final int y = r.getY();
+		final int x2 = x + r.getWidth();
+		final int y2 = y + r.getHeight();
 
-		return false;
+		if (cc.x < x && cc.y < y) {
+			// Top left case.
+			final int d = (int) Math.sqrt((cc.x - x) * (cc.x - x) + (cc.y - y) * (cc.y - y));
+			return d <= s.getRadius();
+		} else if (cc.x >= x && cc.x <= x2 && cc.y <= y) {
+			// Top case.
+			final int d = y - cc.y;
+			return d <= s.getRadius();
+		} else if (cc.x > x2 && cc.y < y) {
+			// Right top case.
+			final int d = (int) Math.sqrt((x2 - cc.x) * (x2 - cc.x) + (y - cc.y) * (y - cc.y));
+			return d <= s.getRadius();
+		} else if (cc.x >= x2 && cc.y >= y && cc.y <= y2) {
+			// Right case.
+			final int d = cc.x - x2;
+			return d <= s.getRadius();
+		} else if (cc.x > x2 && cc.y > y2) {
+			// Right bottom case.
+			final int d = (int) Math.sqrt((cc.x - x2) * (cc.x - x2) + (cc.y - y2) * (cc.y - y2));
+			return d <= s.getRadius();
+		} else if (cc.x >= x && cc.x <= x2 && cc.y >= y2) {
+			// Bottom case.
+			final int d = cc.y - y2;
+			return d <= s.getRadius();
+		} else if (cc.x < x && cc.y > y2) {
+			// Bottom left case.
+			final int d = (int) Math.sqrt((cc.x - x) * (cc.x - x) + (cc.y - y2) * (cc.y - y2));
+			return d <= s.getRadius();
+		} else {
+			// Left case.
+			final int d = x - cc.x;
+			return d <= s.getRadius();
+		}
 	}
 
+	/**
+	 * Checks if a {@link Circle} and a {@link Vector2} collide.
+	 * 
+	 * @param c
+	 *            Circle.
+	 * @param v
+	 *            Vector.
+	 * @return TRUE if they collide. FALSE otherwise.
+	 */
 	public static boolean collide(Circle c, Vector2 v) {
 		final int distance = Math.abs(c.getCenter().x - v.x) + Math.abs(c.getCenter().y - v.y);
 		return (distance <= c.getRadius());
 	}
 
+	/**
+	 * Checks if two {@link Rect} collides.
+	 * 
+	 * @param r1
+	 *            First Rect.
+	 * @param r2
+	 *            Second Rect.
+	 * @return TRUE if they collide. FALSE otherwise.
+	 */
 	public static boolean collide(Rect r1, Rect r2) {
 		final boolean xCheck1 = r1.getX() < r2.getX() + r2.getWidth();
 		final boolean xCheck2 = r1.getX() + r1.getWidth() > r2.getX();
@@ -56,12 +127,30 @@ final class CollisionHelper {
 		return xCheck1 && xCheck2 && yCheck1 && yCheck2;
 	}
 
+	/**
+	 * Checks if two {@link Circle} collide.
+	 * 
+	 * @param s
+	 *            First circle.
+	 * @param s2
+	 *            Second circle.
+	 * @return TRUE if they collide. FALSE otherwise.
+	 */
 	public static boolean collide(Circle s, Circle s2) {
 		final int distance = Math.abs(s.getCenter().x - s2.getCenter().x)
 				+ Math.abs(s.getCenter().y - s2.getCenter().y);
 		return (distance < s.getRadius() + s2.getRadius());
 	}
 
+	/**
+	 * Checks if two {@link Vector2} collide.
+	 * 
+	 * @param s
+	 *            First vector.
+	 * @param s2
+	 *            Second vector.
+	 * @return TRUE if they collide. False otherwise.
+	 */
 	public static boolean collide(Vector2 s, Vector2 s2) {
 		return s.x == s2.x && s.y == s2.y;
 	}
