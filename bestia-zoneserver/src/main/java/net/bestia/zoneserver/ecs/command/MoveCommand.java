@@ -7,7 +7,7 @@ import net.bestia.messages.BestiaMoveMessage;
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Movement;
-import net.bestia.zoneserver.zone.Vector2;
+import net.bestia.zoneserver.zone.shape.Vector2;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

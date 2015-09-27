@@ -7,8 +7,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.bestia.zoneserver.zone.Rect;
-import net.bestia.zoneserver.zone.Vector2;
+import net.bestia.zoneserver.zone.shape.Rect;
+import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
  * Representation of a map used by the bestia zone server. The map holds all
@@ -69,7 +69,7 @@ public class Map {
 	 */
 	public boolean isWalkable(Vector2 cords) {
 
-		if (!dimensions.contains(cords)) {
+		if (!dimensions.collide(cords)) {
 			return false;
 		}
 

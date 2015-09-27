@@ -12,6 +12,7 @@ import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.script.ScriptManager;
 import net.bestia.zoneserver.zone.map.Map;
+import net.bestia.zoneserver.zone.shape.Rect;
 
 import org.junit.Assert;
 

@@ -3,8 +3,8 @@ package net.bestia.zoneserver.zone.path;
 import java.util.List;
 import java.util.PriorityQueue;
 
-import net.bestia.zoneserver.zone.Vector2;
 import net.bestia.zoneserver.zone.Zone;
+import net.bestia.zoneserver.zone.shape.Vector2;
 
 
 class AStarPathfinder implements Pathfinder {

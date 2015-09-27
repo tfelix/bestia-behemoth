@@ -4,7 +4,7 @@ import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.manager.BestiaManager;
-import net.bestia.zoneserver.zone.Vector2;
+import net.bestia.zoneserver.zone.shape.Vector2;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

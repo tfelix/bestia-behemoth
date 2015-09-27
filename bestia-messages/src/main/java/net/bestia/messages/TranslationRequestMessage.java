@@ -30,6 +30,11 @@ public class TranslationRequestMessage extends Message {
 		public TranslationItem() {
 
 		}
+		
+		public TranslationItem(TranslationCategory category, String key) {
+			this.category = category;
+			this.key = key;
+		}
 
 		public TranslationCategory getCategory() {
 			return category;
@@ -80,6 +85,10 @@ public class TranslationRequestMessage extends Message {
 
 	public List<TranslationItem> getItems() {
 		return items;
+	}
+	
+	public void setItems(List<TranslationItem> items) {
+		this.items = items;
 	}
 	
 	public void setToken(String token) {

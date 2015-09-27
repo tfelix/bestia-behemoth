@@ -7,7 +7,7 @@ import java.util.Random;
 import net.bestia.zoneserver.ecs.component.AI;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.zone.Vector2;
+import net.bestia.zoneserver.zone.shape.Vector2;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;

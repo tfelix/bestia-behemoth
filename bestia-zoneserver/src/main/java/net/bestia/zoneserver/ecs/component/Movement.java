@@ -4,9 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import net.bestia.zoneserver.zone.Vector2;
-
 import com.artemis.Component;
+
+import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
  * Allows an entity to be moved. It has can have a path and if it has a walkspeed component the path will be followed.

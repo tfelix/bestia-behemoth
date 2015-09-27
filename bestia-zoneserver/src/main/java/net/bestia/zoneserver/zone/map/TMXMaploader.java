@@ -9,12 +9,11 @@ import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import net.bestia.zoneserver.zone.Vector2;
-
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.bestia.zoneserver.zone.shape.Vector2;
 import tiled.core.MapLayer;
 import tiled.core.TileLayer;
 import tiled.io.TMXMapReader;
