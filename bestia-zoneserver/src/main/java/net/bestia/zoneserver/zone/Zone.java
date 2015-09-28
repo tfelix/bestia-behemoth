@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.zone;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -9,6 +11,7 @@ import net.bestia.messages.InputMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.BestiaRegister.InputControllerCallback;
 import net.bestia.zoneserver.ecs.component.Input;
+import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
 import net.bestia.zoneserver.ecs.message.DespawnPlayerBestiaMessage;
 import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
 import net.bestia.zoneserver.ecs.system.AISystem;
@@ -83,6 +86,8 @@ public class Zone {
 
 		@Override
 		public void run() {
+			
+			// TODO Check if the should load persisted entities while loading the map. 
 
 			lastRun = System.currentTimeMillis();
 
@@ -129,12 +134,13 @@ public class Zone {
 				}
 			}
 
-			// TODO Persist the dying world.
+			// Persist the dying world.
 			messageQueue.clear();
-			// Add poisen pill and tick once more.
-			world.setDelta(DELAY_MS);
-			world.process();
-			// World is now persisted.
+			try {
+				world.getManager(WorldPersistenceManager.class).save();
+			} catch (IOException e) {
+				log.error("Could not persist the zone entities. %s", e.getMessage(), e);
+			}
 		}
 
 		@Override
@@ -196,6 +202,8 @@ public class Zone {
 			throw new IllegalArgumentException(
 					"Zone name can not be null or empty.");
 		}
+		
+		final File saveFolder = new File(ctx.getConfiguration().getProperty("zone.persistFolder"));
 
 		// Initialize ECS.
 		final WorldConfiguration worldConfig = new WorldConfiguration();
@@ -218,6 +226,7 @@ public class Zone {
 		worldConfig.setManager(new PlayerManager());
 		worldConfig.setManager(new TagManager());
 		worldConfig.setManager(new UuidEntityManager());
+		worldConfig.setManager(new WorldPersistenceManager(saveFolder, name));
 
 		zoneTicker = new ZoneTicker(new World(worldConfig), ctx);
 		zoneTickerThread = new Thread(null, zoneTicker, "zoneECS-" + name);
