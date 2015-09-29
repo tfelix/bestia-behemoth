@@ -57,4 +57,9 @@ public class Vector2 implements CollisionShape {
 		return new Rect(x, y, 0, 0);
 	}
 
+	@Override
+	public boolean collide(CollisionShape s) {
+		return s.collide(this);
+	}
+
 }

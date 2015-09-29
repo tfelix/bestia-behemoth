@@ -144,6 +144,11 @@ public class Rect implements CollisionShape {
 	public boolean collide(Rect s) {
 		return CollisionHelper.collide(s, this);
 	}
+	
+	@Override
+	public boolean collide(CollisionShape s) {
+		return s.collide(this);
+	}
 
 	@Override
 	public Rect getBoundingBox() {

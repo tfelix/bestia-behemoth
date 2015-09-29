@@ -58,6 +58,11 @@ public class Circle implements CollisionShape {
 	public int hashCode() {
 		return Objects.hashCode(center, radius);
 	}
+	
+	@Override
+	public boolean collide(CollisionShape s) {
+		return s.collide(this);
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -77,7 +82,4 @@ public class Circle implements CollisionShape {
 			return false;
 		return true;
 	}
-	
-	
-
 }

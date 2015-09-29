@@ -265,8 +265,6 @@ public class Zone {
 
 		hasStarted.set(true);
 		zoneTickerThread.start();
-
-		executeMapScripts();
 		
 		// Add the ticker thread of the ECS so newly spawned bestias will be
 		// created to the zone.
@@ -280,11 +278,12 @@ public class Zone {
 	/**
 	 * This method reads the scripts of the map and executes them.
 	 */
+	/*
 	private void executeMapScripts() {
 		// Get the global scripts.
-		List<String> scripts = map.getMapscripts();
-		
-	}
+		final List<String> scripts = map.getMapscripts();
+		log.debug("Executing scripts: %s on zone: %s", scripts.toString(), name);
+	}*/
 
 	/**
 	 * Stops the zone and persists all data to the database. It also tries to
