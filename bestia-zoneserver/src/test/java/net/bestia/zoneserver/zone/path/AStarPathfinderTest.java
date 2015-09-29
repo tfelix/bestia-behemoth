@@ -33,14 +33,12 @@ public class AStarPathfinderTest {
 		final List<Vector2> path = finder.findPath(start, end);
 
 		// Check the returned path.
-		Assert.assertEquals(7, path.size());
+		Assert.assertEquals(5, path.size());
 		Assert.assertEquals(new Vector2(1, 1), path.get(0));
-		Assert.assertEquals(new Vector2(1, 0), path.get(1));
-		Assert.assertEquals(new Vector2(2, 0), path.get(2));
-		Assert.assertEquals(new Vector2(3, 0), path.get(3));
-		Assert.assertEquals(new Vector2(3, 1), path.get(4));
-		Assert.assertEquals(new Vector2(3, 2), path.get(5));
-		Assert.assertEquals(new Vector2(3, 3), path.get(6));
+		Assert.assertEquals(new Vector2(2, 0), path.get(1));
+		Assert.assertEquals(new Vector2(3, 1), path.get(2));
+		Assert.assertEquals(new Vector2(3, 2), path.get(3));
+		Assert.assertEquals(new Vector2(3, 3), path.get(4));
 	}
 
 	@Test

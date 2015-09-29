@@ -101,7 +101,8 @@ class AStarPathfinder implements Pathfinder {
 
 	private final Map map;
 	private final PriorityQueue<Node> openQueue = new PriorityQueue<>();
-	private final Set<Node> closedQueue = new HashSet<>();
+	private final Set<Node> openSet = new HashSet<>();
+	private final Set<Node> closedSet = new HashSet<>();
 
 	/**
 	 * Ctor.
@@ -141,31 +142,39 @@ class AStarPathfinder implements Pathfinder {
 				// lest the upper or lower tile must be free aswell.
 				if (i == -1 && j == -1) {
 					// Top left.
-					if (!map.isWalkable(new Vector2(newP.x, newP.y - 1))
-							&& !map.isWalkable(new Vector2(newP.x - 1, newP.y))) {
+					if (!map.isWalkable(new Vector2(last.x, last.y - 1))
+							&& !map.isWalkable(new Vector2(last.x - 1, last.y))) {
 						continue;
 					}
 				} else if (i == 1 && j == -1) {
 					// top right
-					if (!map.isWalkable(new Vector2(newP.x, newP.y - 1))
-							&& !map.isWalkable(new Vector2(newP.x + 1, newP.y))) {
+					if (!map.isWalkable(new Vector2(last.x, last.y - 1))
+							&& !map.isWalkable(new Vector2(last.x + 1, last.y))) {
 						continue;
 					}
 				} else if (i == -1 && j == 1) {
 					// bottom left
-					if (!map.isWalkable(new Vector2(newP.x - 1, newP.y))
-							&& !map.isWalkable(new Vector2(newP.x, newP.y + 1))) {
+					if (!map.isWalkable(new Vector2(last.x - 1, last.y))
+							&& !map.isWalkable(new Vector2(last.x, last.y + 1))) {
 						continue;
 					}
 				} else if (i == 1 && j == 1) {
 					// bottom right.
-					if (!map.isWalkable(new Vector2(newP.x + 1, newP.y))
-							&& !map.isWalkable(new Vector2(newP.x, newP.y + 1))) {
+					if (!map.isWalkable(new Vector2(last.x + 1, last.y))
+							&& !map.isWalkable(new Vector2(last.x, last.y + 1))) {
 						continue;
 					}
 				}
 
-				openQueue.add(new Node(n, newP, dest));
+				// Last check: Is it already in the closed queue? If so dont add
+				// it again!
+				final Node newNode = new Node(n, newP, dest);
+				if (closedSet.contains(newNode) || openSet.contains(newNode)) {
+					continue;
+				}
+
+				openSet.add(newNode);
+				openQueue.add(newNode);
 			}
 		}
 	}
@@ -174,7 +183,7 @@ class AStarPathfinder implements Pathfinder {
 	public List<Vector2> findPath(Vector2 start, Vector2 end) {
 		// Clear all queues.
 		openQueue.clear();
-		closedQueue.clear();
+		closedSet.clear();
 
 		// Trivial checks.
 		if (!map.isWalkable(start) || !map.isWalkable(end)) {
@@ -184,7 +193,7 @@ class AStarPathfinder implements Pathfinder {
 		// Start with the search. Create start node.
 		final Node startNode = new Node(null, start, end);
 
-		closedQueue.add(startNode);
+		closedSet.add(startNode);
 		addAdjacentNodesToQueue(startNode, end);
 
 		int i = 0;
@@ -197,6 +206,9 @@ class AStarPathfinder implements Pathfinder {
 				// Path could not be found.
 				return null;
 			}
+
+			openSet.remove(nextNode);
+			closedSet.add(nextNode);
 
 			if (nextNode.p.equals(end)) {
 				// Solution found. Generate path and return.
