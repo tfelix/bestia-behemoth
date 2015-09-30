@@ -15,9 +15,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class WorldPersistenceManager extends Manager {
 
-	private final static Logger log = LogManager.getLogger(WorldPersistenceManager.class);
+	private final static Logger log = LogManager
+			.getLogger(WorldPersistenceManager.class);
 	private final ObjectMapper mapper = new ObjectMapper();
-	private final File saveSubfolder;
+	private File saveSubfolder;
 	private final Bag<Entity> persistEntities = new Bag<>();
 
 	/**
@@ -30,25 +31,36 @@ public class WorldPersistenceManager extends Manager {
 	 */
 	public WorldPersistenceManager(File saveFolder, String zoneName) {
 		if (saveFolder == null) {
-			throw new IllegalArgumentException("saveFolder can not be null.");
+			log.warn("SaveFolder is null. Loading and persisting of entities disabled.");
+			saveSubfolder = null;
+		} else {
+			if (!saveFolder.isDirectory() || !saveFolder.canRead()) {
+				log.warn(
+						"SaveFolder {} is not a directory or can not be read. Loading and persisting of entities disabled.",
+						saveFolder.getAbsolutePath());
+				saveSubfolder = null;
+			} else {
+				createSubfolder(saveFolder, zoneName);
+			}
 		}
+	}
 
-		if (!saveFolder.isDirectory() || !saveFolder.canRead()) {
-
-			throw new IllegalArgumentException(
-					String.format("Path %s is not a directory or can not be read.", saveFolder.getAbsolutePath()));
-		}
-
+	private void createSubfolder(File saveFolder, String zoneName) {
 		this.saveSubfolder = new File(saveFolder, zoneName);
 
 		if (!this.saveSubfolder.exists()) {
 			if (!this.saveSubfolder.mkdir()) {
-				throw new IllegalArgumentException("Can not create subfolder: " + saveSubfolder.getAbsolutePath());
+				throw new IllegalArgumentException("Can not create subfolder: "
+						+ saveSubfolder.getAbsolutePath());
 			}
 		}
 	}
 
 	public void save() throws IOException {
+
+		if (saveSubfolder == null) {
+			return;
+		}
 
 		for (Entity e : persistEntities) {
 			// TODO Check if this entity should be persisted.
@@ -61,12 +73,18 @@ public class WorldPersistenceManager extends Manager {
 			try {
 				mapper.writeValue(saveFile, e);
 			} catch (JsonGenerationException | JsonMappingException e1) {
-				log.error("Can not write entity %s to file: %s", e.toString(), saveFile.getAbsolutePath());
+				log.error("Can not write entity %s to file: %s", e.toString(),
+						saveFile.getAbsolutePath());
 			}
 		}
 	}
 
 	public void load() {
+
+		if (saveSubfolder == null) {
+			return;
+		}
+
 		// TODO Schreiben.
 	}
 
