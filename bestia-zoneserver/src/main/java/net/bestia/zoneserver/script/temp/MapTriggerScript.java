@@ -22,15 +22,16 @@ public abstract class MapTriggerScript {
 
 	/**
 	 * Called when an entity leaves the script area.
+	 * @param bm 
 	 */
-	public void onLeave() {
-
+	public void onExit(BestiaManager bm) {
+		// no op.
 	}
 
 	/**
 	 * Called when an entity stands inside the script.
 	 */
 	public void onInside() {
-
+		// no op.
 	}
 }
