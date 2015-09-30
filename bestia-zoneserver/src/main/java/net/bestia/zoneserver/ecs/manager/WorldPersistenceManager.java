@@ -30,7 +30,7 @@ public class WorldPersistenceManager extends Manager {
 	 */
 	public WorldPersistenceManager(File saveFolder, String zoneName) {
 		if (saveFolder == null) {
-			throw new IllegalArgumentException("saveFilder can not be null.");
+			throw new IllegalArgumentException("saveFolder can not be null.");
 		}
 
 		if (!saveFolder.isDirectory() || !saveFolder.canRead()) {
