@@ -114,7 +114,7 @@ public class TMXMaploader implements Maploader {
 		final List<String> scripts = Arrays.stream(scriptStr.split(","))
 				.map((String x) -> x.trim()).collect(Collectors.toList());
 		
-		builder.mapscripts = scripts;
+		builder.globalMapscripts = scripts;
 	}
 
 	/**
