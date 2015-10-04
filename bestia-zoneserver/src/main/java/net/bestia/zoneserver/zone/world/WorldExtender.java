@@ -21,6 +21,7 @@ import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
 import net.bestia.zoneserver.ecs.system.AISystem;
 import net.bestia.zoneserver.ecs.system.ActiveSpawnSystem;
 import net.bestia.zoneserver.ecs.system.ChatSystem;
+import net.bestia.zoneserver.ecs.system.DelayedRemoveSystem;
 import net.bestia.zoneserver.ecs.system.InputSystem;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
@@ -91,6 +92,7 @@ public class WorldExtender {
 		worldConfig.setSystem(new VisibleSpawnSystem());
 		worldConfig.setSystem(new PersistSystem(10000));
 		worldConfig.setSystem(new TriggerScriptSystem());
+		worldConfig.setSystem(new DelayedRemoveSystem());
 
 		// Set all the managers.
 		worldConfig.setManager(new PlayerManager());
