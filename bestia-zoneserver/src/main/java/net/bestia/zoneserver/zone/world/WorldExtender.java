@@ -25,7 +25,7 @@ import net.bestia.zoneserver.ecs.system.DelayedRemoveSystem;
 import net.bestia.zoneserver.ecs.system.InputSystem;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
-import net.bestia.zoneserver.ecs.system.TriggerScriptSystem;
+import net.bestia.zoneserver.ecs.system.MapScriptSystem;
 import net.bestia.zoneserver.ecs.system.VisibleSpawnSystem;
 import net.bestia.zoneserver.zone.map.Map;
 
@@ -91,7 +91,7 @@ public class WorldExtender {
 		worldConfig.setSystem(new ActiveSpawnSystem());
 		worldConfig.setSystem(new VisibleSpawnSystem());
 		worldConfig.setSystem(new PersistSystem(10000));
-		worldConfig.setSystem(new TriggerScriptSystem());
+		worldConfig.setSystem(new MapScriptSystem());
 		worldConfig.setSystem(new DelayedRemoveSystem());
 
 		// Set all the managers.
