@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.map.Map.MapBuilder;
-import net.bestia.zoneserver.zone.map.TMXMaploader;
+import net.bestia.zoneserver.zone.map.tmx.TMXMaploader;
 
 public class TMXMaploaderTest {
 

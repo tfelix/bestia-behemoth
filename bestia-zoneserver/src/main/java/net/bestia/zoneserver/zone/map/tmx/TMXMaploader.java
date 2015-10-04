@@ -1,24 +1,27 @@
-package net.bestia.zoneserver.zone.map;
+package net.bestia.zoneserver.zone.map.tmx;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
-import java.util.Vector;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.reflections.Reflections;
 
+import net.bestia.zoneserver.zone.map.Map;
+import net.bestia.zoneserver.zone.map.Maploader;
+import net.bestia.zoneserver.zone.map.Tile;
 import net.bestia.zoneserver.zone.shape.Vector2;
 import tiled.core.MapLayer;
-import tiled.core.MapObject;
-import tiled.core.ObjectGroup;
 import tiled.core.TileLayer;
 import tiled.io.TMXMapReader;
 
@@ -33,13 +36,32 @@ public class TMXMaploader implements Maploader {
 	private final static Logger log = LogManager.getLogger(TMXMaploader.class);
 
 	private final TMXMapReader reader;
-	private final String mapFile;
+	private String mapFile;
 	private Map.MapBuilder builder;
+	private final static Set<TMXMapExtender> extras = new HashSet<>();
 
-	/**
-	 * 
-	 * @param tmxMapFile
-	 */
+	static {
+		// TODO dieses Autoloading von Extendern in eigene Klasse auslagern per
+		// Template. Siehe WorldExtender. Siehe Command Factory.
+		final Reflections reflections = new Reflections("net.bestia.zoneserver.zone.map.tmx");
+		final Set<Class<? extends TMXMapExtender>> subTypes = reflections.getSubTypesOf(TMXMapExtender.class);
+
+		for (Class<? extends TMXMapExtender> clazz : subTypes) {
+
+			// Dont instance abstract classes.
+			if (Modifier.isAbstract(clazz.getModifiers())) {
+				continue;
+			}
+
+			try {
+				final TMXMapExtender extra = clazz.newInstance();
+				extras.add(extra);
+			} catch (InstantiationException | IllegalAccessException e) {
+				log.error("Can not instanciate : {}", clazz.toString(), e);
+			}
+		}
+	}
+
 	public TMXMaploader(File tmxMapFile) {
 		this.reader = new TMXMapReader();
 		this.mapFile = tmxMapFile.getAbsolutePath();
@@ -63,36 +85,14 @@ public class TMXMaploader implements Maploader {
 
 		prepareGlobalMapscripts(tiledMap);
 		
-		prepareTriggerMapscripts(tiledMap);
+		// Extend the map with all missing features.
+		extendMapBuilder(tiledMap);
 	}
 
-	private void prepareTriggerMapscripts(tiled.core.Map tiledMap) {
-		Vector<MapLayer> layers = tiledMap.getLayers();
-		for(MapLayer layer : layers) {
-			if(!(layer instanceof ObjectGroup)) {
-				continue;
-			}
-			
-			final ObjectGroup objLayer = (ObjectGroup) layer;
-			
-			// Basically we are looking for two layers: the portal layer and the "normal" script layer.
-			final String layerName = objLayer.getName().toLowerCase();
-			if(layerName.equals("portals"))  {
-				
-				// Create the portal scripts.
-				final Iterator<MapObject> objIter = objLayer.getObjects();
-				while(objIter.hasNext()) {
-					
-					//final MapObject mapObj = objIter.next();
-					//mapObj.getBounds().
-				}
-				
-			} else if(layerName.equals("scripts")) {
-				
-			} else {
-				// Unknown script layer. Ignore.
-				log.warn("Found unknown script layer: {}", objLayer.getName());
-			}
+
+	private void extendMapBuilder(tiled.core.Map tiledMap) {
+		for(TMXMapExtender extender : extras) {
+			extender.extendMap(tiledMap, builder);
 		}
 	}
 
@@ -103,17 +103,16 @@ public class TMXMaploader implements Maploader {
 	 * @param tiledMap
 	 */
 	private void prepareGlobalMapscripts(tiled.core.Map tiledMap) {
-		final String scriptStr = tiledMap.getProperties().getProperty(
-				"globalScripts");
+		final String scriptStr = tiledMap.getProperties().getProperty("globalScripts");
 
 		if (scriptStr == null) {
 			builder.mapscripts = new ArrayList<>();
 			return;
 		}
 
-		final List<String> scripts = Arrays.stream(scriptStr.split(","))
-				.map((String x) -> x.trim()).collect(Collectors.toList());
-		
+		final List<String> scripts = Arrays.stream(scriptStr.split(",")).map((String x) -> x.trim())
+				.collect(Collectors.toList());
+
 		builder.globalMapscripts = scripts;
 	}
 
@@ -130,7 +129,7 @@ public class TMXMaploader implements Maploader {
 		final String mapDbName = FilenameUtils.removeExtension(baseName);
 		builder.mapDbName = mapDbName;
 
-		//final Properties mapProperties = tiledMap.getProperties();
+		// final Properties mapProperties = tiledMap.getProperties();
 	}
 
 	/**
