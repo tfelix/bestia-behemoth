@@ -1,8 +1,6 @@
 package net.bestia.zoneserver.zone;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -14,15 +12,9 @@ import net.bestia.zoneserver.ecs.component.Input;
 import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
 import net.bestia.zoneserver.ecs.message.DespawnPlayerBestiaMessage;
 import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
-import net.bestia.zoneserver.ecs.system.AISystem;
-import net.bestia.zoneserver.ecs.system.ActiveSpawnSystem;
-import net.bestia.zoneserver.ecs.system.ChatSystem;
-import net.bestia.zoneserver.ecs.system.InputSystem;
-import net.bestia.zoneserver.ecs.system.MovementSystem;
-import net.bestia.zoneserver.ecs.system.PersistSystem;
-import net.bestia.zoneserver.ecs.system.VisibleSpawnSystem;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.zone.map.Map;
+import net.bestia.zoneserver.zone.world.WorldExtender;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,10 +22,6 @@ import org.apache.logging.log4j.Logger;
 import com.artemis.Entity;
 import com.artemis.EntityEdit;
 import com.artemis.World;
-import com.artemis.WorldConfiguration;
-import com.artemis.managers.PlayerManager;
-import com.artemis.managers.TagManager;
-import com.artemis.managers.UuidEntityManager;
 import com.artemis.utils.EntityBuilder;
 
 /**
@@ -183,8 +171,8 @@ public class Zone {
 	private final Queue<InputMessage> messageQueue = new ConcurrentLinkedQueue<>();
 	private final CommandContext cmdContext;
 
-	private final ZoneTicker zoneTicker;
-	private final Thread zoneTickerThread;
+	private ZoneTicker zoneTicker;
+	private Thread zoneTickerThread;
 
 	public Zone(CommandContext ctx, Map map) {
 		if (ctx == null) {
@@ -202,37 +190,7 @@ public class Zone {
 			throw new IllegalArgumentException(
 					"Zone name can not be null or empty.");
 		}
-		
-		final File saveFolder = new File(ctx.getConfiguration().getProperty("zone.persistFolder"));
-
-		// Initialize ECS.
-		final WorldConfiguration worldConfig = new WorldConfiguration();
-		// Register all external helper objects.
-		worldConfig.register(this);
-		worldConfig.register(map);
-		worldConfig.register(ctx);
-		worldConfig.register(ctx.getServer().getBestiaRegister());
-
-		// Set all the systems.
-		worldConfig.setSystem(new InputSystem());
-		worldConfig.setSystem(new MovementSystem());
-		worldConfig.setSystem(new AISystem());
-		worldConfig.setSystem(new ChatSystem());
-		worldConfig.setSystem(new ActiveSpawnSystem());
-		worldConfig.setSystem(new VisibleSpawnSystem());
-		worldConfig.setSystem(new PersistSystem(10000));
-
-		// Set all the managers.
-		worldConfig.setManager(new PlayerManager());
-		worldConfig.setManager(new TagManager());
-		worldConfig.setManager(new UuidEntityManager());
-		worldConfig.setManager(new WorldPersistenceManager(saveFolder, name));
-
-		zoneTicker = new ZoneTicker(new World(worldConfig), ctx);
-		zoneTickerThread = new Thread(null, zoneTicker, "zoneECS-" + name);
 	}
-
-	// =================== START GETTER AND SETTER =====================
 
 	/**
 	 * Gets the name of the zone.
@@ -242,8 +200,6 @@ public class Zone {
 	public String getName() {
 		return name;
 	}
-
-	// ===================== END GETTER AND SETTER =====================
 
 	public void sendInput(InputMessage msg) {
 		if (!hasStarted.get()) {
@@ -262,28 +218,21 @@ public class Zone {
 		if (hasStarted.get()) {
 			throw new IllegalStateException("Zone can not be started twice.");
 		}
-
+		
+		// Create and prepare the thread.
+		final WorldExtender worldExtender = new WorldExtender(cmdContext.getConfiguration());
+		final World world = worldExtender.createWorld(cmdContext, map);
+		zoneTicker = new ZoneTicker(world, cmdContext);
+		zoneTickerThread = new Thread(null, zoneTicker, "zoneECS-" + name);
+		
 		hasStarted.set(true);
 		zoneTickerThread.start();
 		
 		// Add the ticker thread of the ECS so newly spawned bestias will be
 		// created to the zone.
 		cmdContext.getServer().getBestiaRegister().addCallback(zoneTicker);
-
-		
-		
 		log.debug("Zone {} has started.", name);
 	}
-
-	/**
-	 * This method reads the scripts of the map and executes them.
-	 */
-	/*
-	private void executeMapScripts() {
-		// Get the global scripts.
-		final List<String> scripts = map.getMapscripts();
-		log.debug("Executing scripts: %s on zone: %s", scripts.toString(), name);
-	}*/
 
 	/**
 	 * Stops the zone and persists all data to the database. It also tries to

@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.bestia.zoneserver.zone.shape.CollisionShape;
 import net.bestia.zoneserver.zone.shape.Rect;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
@@ -28,7 +29,8 @@ public class Map {
 		Set<Vector2> collisions = new HashSet<>();
 		java.util.Map<Vector2, Tile> tiles = new HashMap<>();
 		String mapDbName;
-		List<String> mapscripts;
+		List<Script> mapscripts;
+		List<String> globalMapscripts;
 
 		public MapBuilder load(Maploader loader) throws IOException {
 			loader.loadMap(this);
@@ -39,11 +41,34 @@ public class Map {
 			return new Map(this);
 		}
 	}
+	
+	public static class Script {
+		
+		private CollisionShape shape;
+		private String name;
+		
+		public Script(String name, CollisionShape shape) {
+			this.shape = shape;
+			this.name = name;
+		}
+
+		public CollisionShape getShape() {
+			return shape;
+		}
+
+		public String getName() {
+			return name;
+		}
+		
+	}
 
 	private String mapDbName;
 	private String tileset;
 	private Rect dimensions;
-	private final List<String> mapscripts;
+	private final List<String> globalMapscripts;
+	
+	private final List<Script> mapscripts;
+	
 	private java.util.Map<Vector2, Tile> tiles = new HashMap<>();
 
 	/**
@@ -57,6 +82,7 @@ public class Map {
 		tileset = builder.tileset;
 		mapDbName = builder.mapDbName;
 		tiles = Collections.unmodifiableMap(builder.tiles);
+		globalMapscripts = builder.globalMapscripts;
 		mapscripts = builder.mapscripts;
 	}
 
@@ -114,7 +140,7 @@ public class Map {
 	 *         map.
 	 */
 	public List<String> getMapscripts() {
-		return mapscripts;
+		return globalMapscripts;
 	}
 
 }

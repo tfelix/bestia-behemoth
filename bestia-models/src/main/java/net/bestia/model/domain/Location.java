@@ -60,12 +60,24 @@ public class Location implements Serializable {
 		resetChanged();
 	}
 
+	/**
+	 * Copy ctor. For save creation of a copy of this location.
+	 * 
+	 * @param dest
+	 *            Location to be copied.
+	 */
+	public Location(Location dest) {
+		this.setMapDbName(dest.getMapDbName());
+		this.setX(dest.getX());
+		this.setY(dest.getY());
+	}
+
 	public String getMapDbName() {
 		return mapDbName;
 	}
 
 	public void setMapDbName(String mapDbName) {
-		if(mapDbName == null) {
+		if (mapDbName == null) {
 			throw new IllegalArgumentException("MapDbName can not be null.");
 		}
 		this.mapDbName = mapDbName;

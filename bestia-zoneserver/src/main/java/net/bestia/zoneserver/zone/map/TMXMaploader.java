@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Vector;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
@@ -15,6 +17,8 @@ import org.apache.logging.log4j.Logger;
 
 import net.bestia.zoneserver.zone.shape.Vector2;
 import tiled.core.MapLayer;
+import tiled.core.MapObject;
+import tiled.core.ObjectGroup;
 import tiled.core.TileLayer;
 import tiled.io.TMXMapReader;
 
@@ -57,7 +61,39 @@ public class TMXMaploader implements Maploader {
 
 		prepareTilesData(tiledMap);
 
-		prepareMapscripts(tiledMap);
+		prepareGlobalMapscripts(tiledMap);
+		
+		prepareTriggerMapscripts(tiledMap);
+	}
+
+	private void prepareTriggerMapscripts(tiled.core.Map tiledMap) {
+		Vector<MapLayer> layers = tiledMap.getLayers();
+		for(MapLayer layer : layers) {
+			if(!(layer instanceof ObjectGroup)) {
+				continue;
+			}
+			
+			final ObjectGroup objLayer = (ObjectGroup) layer;
+			
+			// Basically we are looking for two layers: the portal layer and the "normal" script layer.
+			final String layerName = objLayer.getName().toLowerCase();
+			if(layerName.equals("portals"))  {
+				
+				// Create the portal scripts.
+				final Iterator<MapObject> objIter = objLayer.getObjects();
+				while(objIter.hasNext()) {
+					
+					//final MapObject mapObj = objIter.next();
+					//mapObj.getBounds().
+				}
+				
+			} else if(layerName.equals("scripts")) {
+				
+			} else {
+				// Unknown script layer. Ignore.
+				log.warn("Found unknown script layer: {}", objLayer.getName());
+			}
+		}
 	}
 
 	/**
@@ -66,7 +102,7 @@ public class TMXMaploader implements Maploader {
 	 * 
 	 * @param tiledMap
 	 */
-	private void prepareMapscripts(tiled.core.Map tiledMap) {
+	private void prepareGlobalMapscripts(tiled.core.Map tiledMap) {
 		final String scriptStr = tiledMap.getProperties().getProperty(
 				"globalScripts");
 
@@ -78,7 +114,7 @@ public class TMXMaploader implements Maploader {
 		final List<String> scripts = Arrays.stream(scriptStr.split(","))
 				.map((String x) -> x.trim()).collect(Collectors.toList());
 		
-		builder.mapscripts = scripts;
+		builder.globalMapscripts = scripts;
 	}
 
 	/**
