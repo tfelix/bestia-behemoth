@@ -25,8 +25,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This class is responsible for taking the configuration, parsing the zone data and then initializing the appropriate
- * zones. In order to speed up the very hard task of instancing the zones the work will be split in several threads
+ * This class is responsible for taking the configuration, parsing the zone data
+ * and then initializing the appropriate zones. In order to speed up the very
+ * hard task of instancing the zones the work will be split in several threads
  * working in parallel.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
@@ -57,7 +58,8 @@ public class ZoneLoader implements Loader {
 		}
 
 		/**
-		 * Returns the path to the map file which can be parsed in order to generate our static map data.
+		 * Returns the path to the map file which can be parsed in order to
+		 * generate our static map data.
 		 * 
 		 * @param zoneName
 		 *            MapDBName of the map to load.
@@ -83,6 +85,14 @@ public class ZoneLoader implements Loader {
 			return loadedZones;
 		}
 
+		/**
+		 * Parses the TMX mapfile and creates the zone.
+		 * 
+		 * @param zoneName
+		 * @param mapFile
+		 * @return
+		 * @throws IOException
+		 */
 		private Zone loadZone(String zoneName, File mapFile) throws IOException {
 			final Maploader loader = new TMXMaploader(mapFile);
 			final Map.MapBuilder builder = new MapBuilder();
@@ -122,8 +132,9 @@ public class ZoneLoader implements Loader {
 	}
 
 	/**
-	 * Starts the loading process. Blocks until all loading is done and adds the instanced zones to the list given in
-	 * the constructor. Its splits the work of loading into separated threads.
+	 * Starts the loading process. Blocks until all loading is done and adds the
+	 * instanced zones to the list given in the constructor. Its splits the work
+	 * of loading into separated threads.
 	 * 
 	 * @throws IOException
 	 *             If loading of one or more zones fails.

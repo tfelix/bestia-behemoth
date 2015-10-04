@@ -11,7 +11,7 @@ import net.bestia.zoneserver.manager.BestiaManager;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public abstract class MapTriggerScript {
+public class MapTriggerScript {
 
 	/**
 	 * Called when an entity enters the script area.
