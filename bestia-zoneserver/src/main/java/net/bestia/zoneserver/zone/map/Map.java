@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.zone.map;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,8 +31,8 @@ public class Map {
 		public Set<Vector2> collisions = new HashSet<>();
 		public java.util.Map<Vector2, Tile> tiles = new HashMap<>();
 		public String mapDbName;
-		public List<Script> mapscripts;
-		public List<String> globalMapscripts;
+		public List<Script> mapscripts = new ArrayList<>();
+		public List<String> globalMapscripts = new ArrayList<>();
 
 		public MapBuilder load(Maploader loader) throws IOException {
 			loader.loadMap(this);
