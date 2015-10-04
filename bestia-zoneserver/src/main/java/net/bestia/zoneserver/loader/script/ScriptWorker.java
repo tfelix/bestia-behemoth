@@ -7,7 +7,7 @@ import java.util.concurrent.Callable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.bestia.zoneserver.script.ScriptCache;
+import net.bestia.zoneserver.script.ScriptCompiler;
 
 /**
  * The ScriptWorker is used to load scripts of a certain type parallel at server startup.
@@ -25,10 +25,10 @@ class ScriptWorker implements Callable<ScriptWorker.ScriptLoaded> {
 	 */
 	public class ScriptLoaded {
 
-		public final ScriptCache cache;
+		public final ScriptCompiler cache;
 		public final String key;
 
-		public ScriptLoaded(ScriptCache cache, String key) {
+		public ScriptLoaded(ScriptCompiler cache, String key) {
 			this.cache = cache;
 			this.key = key;
 		}
@@ -54,7 +54,7 @@ class ScriptWorker implements Callable<ScriptWorker.ScriptLoaded> {
 	@Override
 	public ScriptLoaded call() throws IOException {
 
-		final ScriptCache cache = new ScriptCache();
+		final ScriptCompiler cache = new ScriptCompiler();
 
 		log.info("Loading scripts: {}", scriptFolder.getCanonicalPath());
 

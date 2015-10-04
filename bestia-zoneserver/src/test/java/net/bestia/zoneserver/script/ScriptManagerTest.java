@@ -15,7 +15,7 @@ public class ScriptManagerTest {
 		ScriptManager manager = new ScriptManager();
 		Bindings bindings = new SimpleBindings();
 		
-		ScriptCache cache = mock(ScriptCache.class);
+		ScriptCompiler cache = mock(ScriptCompiler.class);
 		CompiledScript compScript = mock(CompiledScript.class);
 		stub(cache.getScript("apple")).toReturn(compScript);
 		

@@ -23,9 +23,9 @@ public class ScriptManager {
 	private class ScriptPackage {
 
 		public final Bindings bindings;
-		public final ScriptCache cache;
+		public final ScriptCompiler cache;
 
-		public ScriptPackage(ScriptCache cache, Bindings bindings) {
+		public ScriptPackage(ScriptCompiler cache, Bindings bindings) {
 			this.bindings = bindings;
 			this.cache = cache;
 		}
@@ -45,7 +45,7 @@ public class ScriptManager {
 	 * @param bindings
 	 *            The permanent bindings of this script.
 	 */
-	public void addCache(String scriptKey, ScriptCache cache, Bindings bindings) {
+	public void addCache(String scriptKey, ScriptCompiler cache, Bindings bindings) {
 
 		if(scriptKey == null || scriptKey.isEmpty()) {
 			throw new IllegalArgumentException("ScriptKey can not be empty or null.");

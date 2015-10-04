@@ -23,15 +23,15 @@ import org.apache.logging.log4j.Logger;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class ScriptCache {
+public class ScriptCompiler {
 
-	private static final Logger log = LogManager.getLogger(ScriptCache.class);
+	private static final Logger log = LogManager.getLogger(ScriptCompiler.class);
 
-	private Map<String, CompiledScript> compiledScripts = new HashMap<String, CompiledScript>();
+	private final Map<String, CompiledScript> compiledScripts = new HashMap<String, CompiledScript>();
 
 	// move this into initialization part so that you do not call this every time.
-	final ScriptEngineManager manager = new ScriptEngineManager();
-	final ScriptEngine engine = manager.getEngineByName("groovy");
+	private final ScriptEngineManager manager = new ScriptEngineManager();
+	private final ScriptEngine engine = manager.getEngineByName("groovy");
 
 	/**
 	 * Loads all scripts inside this folder and caches

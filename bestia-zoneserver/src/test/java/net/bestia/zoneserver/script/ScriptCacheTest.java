@@ -10,7 +10,7 @@ public class ScriptCacheTest {
 
 	@Test
 	public void load_scripts_from_folder() throws IOException {
-		ScriptCache cache = new ScriptCache();
+		ScriptCompiler cache = new ScriptCompiler();
 		
 		File folder = new File(getClass().getResource("/data/script/item").getFile());
 		
@@ -21,7 +21,7 @@ public class ScriptCacheTest {
 	
 	@Test
 	public void log_on_faulty_script() throws IOException {
-		ScriptCache cache = new ScriptCache();
+		ScriptCompiler cache = new ScriptCompiler();
 		
 		File folder = new File(getClass().getResource("/data/script/item_faulty").getFile());
 		
@@ -32,7 +32,7 @@ public class ScriptCacheTest {
 	
 	@Test
 	public void null_on_unknown_script() throws IOException {
-		ScriptCache cache = new ScriptCache();
+		ScriptCompiler cache = new ScriptCompiler();
 		
 		File folder = new File(getClass().getResource("/data/script/item").getFile());
 		
