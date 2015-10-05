@@ -18,7 +18,7 @@ public class PackageLoaderTest {
 	@Test
 	public void subclasses_stdctor_all() {
 		PackageLoader<A> pkg = new PackageLoader<>(A.class, PKG);
-		Set<Class<? extends A>> clazzes = pkg.getSubclasses();
+		Set<Class<? extends A>> clazzes = pkg.getSubClasses();
 		Assert.assertTrue(clazzes.contains(A1.class));
 		Assert.assertTrue(clazzes.contains(A2.class));
 	}
@@ -26,7 +26,7 @@ public class PackageLoaderTest {
 	@Test
 	public void subclasses_nonstdctor_all() {
 		PackageLoader<B> pkg = new PackageLoader<>(B.class, PKG);
-		Set<Class<? extends B>> clazzes = pkg.getSubclasses();
+		Set<Class<? extends B>> clazzes = pkg.getSubClasses();
 		Assert.assertTrue(clazzes.contains(B1.class));
 	}
 

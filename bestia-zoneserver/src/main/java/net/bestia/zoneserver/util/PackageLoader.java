@@ -29,7 +29,12 @@ public class PackageLoader<BaseT> {
 		this.typeParameterClass = type;
 	}
 
-	public Set<Class<? extends BaseT>> getSubclasses() {
+	/**
+	 * Returns a Set of all the subclasses for the given super-type and package.
+	 * 
+	 * @return The set of subclasses.
+	 */
+	public Set<Class<? extends BaseT>> getSubClasses() {
 
 		if (!hasLoaded) {
 			load();
@@ -43,6 +48,12 @@ public class PackageLoader<BaseT> {
 		subclasses.addAll(reflections.getSubTypesOf(typeParameterClass));
 	}
 
+	/**
+	 * Tries to instantiate the given sub-types of objects if this is needed. Of
+	 * course the objects need a std. ctor in order for this to work.
+	 * 
+	 * @return The Set of instantiated objects.
+	 */
 	public Set<BaseT> getSubObjects() {
 		if (!hasLoaded) {
 			load();
