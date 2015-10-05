@@ -3,9 +3,9 @@ package net.bestia.zoneserver.ecs.component;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.bestia.zoneserver.script.temp.MapTriggerScript;
-
 import com.artemis.Component;
+
+import net.bestia.zoneserver.script.MapTriggerScript;
 
 /**
  * This script is triggered when an entity touches/collides with it.

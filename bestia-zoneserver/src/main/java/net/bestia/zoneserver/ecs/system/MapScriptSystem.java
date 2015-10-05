@@ -7,7 +7,7 @@ import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Collision;
 import net.bestia.zoneserver.ecs.component.TriggerScript;
 import net.bestia.zoneserver.manager.BestiaManager;
-import net.bestia.zoneserver.script.temp.MapTriggerScript;
+import net.bestia.zoneserver.script.MapTriggerScript;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
 
 import com.artemis.Aspect;

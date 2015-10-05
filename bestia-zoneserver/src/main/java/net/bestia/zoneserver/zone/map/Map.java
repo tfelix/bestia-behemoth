@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.bestia.zoneserver.script.temp.MapTriggerScript;
+import net.bestia.zoneserver.script.MapTriggerScript;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
 import net.bestia.zoneserver.zone.shape.Rect;
 import net.bestia.zoneserver.zone.shape.Vector2;

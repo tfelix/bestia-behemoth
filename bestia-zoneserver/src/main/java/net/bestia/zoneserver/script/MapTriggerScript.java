@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.script.temp;
+package net.bestia.zoneserver.script;
 
 import net.bestia.zoneserver.manager.BestiaManager;
 
