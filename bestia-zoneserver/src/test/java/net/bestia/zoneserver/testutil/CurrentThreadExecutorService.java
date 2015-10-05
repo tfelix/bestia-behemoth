@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.util;
+package net.bestia.zoneserver.testutil;
 
 import java.util.List;
 import java.util.concurrent.AbstractExecutorService;
