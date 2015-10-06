@@ -37,7 +37,7 @@ public class UseItemCommand extends ECSCommand {
 				.getSpawnedBestia(useMessage.getAccountId(), useMessage.getPlayerBestiaId());
 
 		final ItemScript iScript = new ItemScript(item.getItemDbName(), owner, inventory);
-		final boolean success = ctx.getScriptManager().executeScript(iScript);
+		final boolean success = ctx.getScriptManager().execute(iScript);
 
 		if (success) {
 			inventory.removeItem(useMessage.getPlayerItemId(), 1);

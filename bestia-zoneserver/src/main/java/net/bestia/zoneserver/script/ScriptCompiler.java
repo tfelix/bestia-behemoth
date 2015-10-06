@@ -43,7 +43,7 @@ public class ScriptCompiler {
 			throw new IOException("Path is no directory of scriptfiles: " + scriptFolder.toString());
 		}
 
-		File[] directoryListing = scriptFolder.listFiles();
+		final File[] directoryListing = scriptFolder.listFiles();
 		if (directoryListing != null) {
 			for (File child : directoryListing) {
 

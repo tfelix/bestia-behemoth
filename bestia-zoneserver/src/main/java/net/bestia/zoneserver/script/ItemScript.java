@@ -7,7 +7,6 @@ public class ItemScript extends Script {
 
 	public ItemScript(String name, BestiaManager owner, InventoryManager inventory) {
 		super(name);
-		
 		addBinding("owner", owner);
 		addBinding("inventory", inventory);
 	}
@@ -17,6 +16,6 @@ public class ItemScript extends Script {
 	 */
 	@Override
 	public String getScriptKey() {
-		return "item";
+		return String.format("item.%s", getName());
 	}
 }

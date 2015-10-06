@@ -1,38 +1,36 @@
 package net.bestia.zoneserver.script;
 
 import javax.script.Bindings;
+import javax.script.CompiledScript;
+import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
-/**
- * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
- *
- */
-public abstract class Script {
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+
+public abstract class Script {
+	
+	private final static Logger LOG = LogManager.getLogger(Script.class);
+	
 	private final String name;
 	private final Bindings bindings = new SimpleBindings();
 
+	public Script() {
+		name = "STD-CTOR";
+	}
+	
 	public Script(String name) {
-		if (name == null || name.isEmpty()) {
+		if(name == null || name.isEmpty()) {
 			throw new IllegalArgumentException("Name can not be null or empty.");
 		}
-
 		this.name = name;
 	}
-
-	/**
-	 * Must return the script key (type of the script: item, attack etc.) under
-	 * which the script was stored in the script manager.
-	 * 
-	 * @return The type of the script.
-	 */
-	public abstract String getScriptKey();
-
+	
 	public String getName() {
 		return name;
 	}
-
+	
 	/**
 	 * This will add a temporary binding to the script which lasts only during
 	 * the execution.
@@ -54,5 +52,16 @@ public abstract class Script {
 	public Bindings getBindings() {
 		return bindings;
 	}
+	
+	abstract String getScriptKey();
 
+	boolean execute(Bindings bindings, CompiledScript compScript) {
+		try {
+			compScript.eval(bindings);
+		} catch (ScriptException e) {
+			LOG.error("Could not execute script: {}", getName(), e);
+			return false;
+		}
+		return true;
+	}
 }

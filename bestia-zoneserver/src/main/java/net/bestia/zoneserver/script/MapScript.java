@@ -14,5 +14,4 @@ public class MapScript extends Script {
 	public String getScriptKey() {
 		return String.format("map.%s.%s", mapDbName, getName());
 	}
-
 }

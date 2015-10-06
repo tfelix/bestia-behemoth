@@ -5,63 +5,40 @@ import java.util.Map;
 
 import javax.script.Bindings;
 import javax.script.CompiledScript;
-import javax.script.ScriptException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.codehaus.groovy.jsr223.GroovyCompiledScript;
 
 /**
- * This class loads directories of scripts. And saves them in a compiled form to let them be executed later.
+ * This class loads directories of scripts. And saves them in a compiled form to
+ * let them be executed later.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class ScriptManager {
 
-	private final static Logger log = LogManager.getLogger(ScriptManager.class);
+	private Map<String, GroovyCompiledScript> compiledScripts = new HashMap<>();
+	private Bindings bindings;
 
-	private class ScriptPackage {
 
-		public final Bindings bindings;
-		public final ScriptCompiler cache;
-
-		public ScriptPackage(ScriptCompiler cache, Bindings bindings) {
-			this.bindings = bindings;
-			this.cache = cache;
-		}
+	public ScriptManager() {
+		// no op.
 	}
 
-	private Map<String, ScriptPackage> scriptPackages = new HashMap<>();
+	public void setStdBindings(Bindings bindings) {
 
-	/**
-	 * Adds a script to the manager. The script consists of the key determining the kind of the script (item, attack
-	 * etc.) a cache containing all the scripts and the permanent bindings for this kind of scripts. These will be added
-	 * upon each invocation.
-	 * 
-	 * @param scriptKey
-	 *            Script kind (item, attack etc.)
-	 * @param cache
-	 *            The script cache.
-	 * @param bindings
-	 *            The permanent bindings of this script.
-	 */
-	public void addCache(String scriptKey, ScriptCompiler cache, Bindings bindings) {
-
-		if(scriptKey == null || scriptKey.isEmpty()) {
-			throw new IllegalArgumentException("ScriptKey can not be empty or null.");
-		}
-		
-		if(cache == null) {
-			throw new IllegalArgumentException("Cache can not be null.");
-		}
-		
-		if(bindings == null) {
+		if (bindings == null) {
 			throw new IllegalArgumentException("Bindings can not be null.");
 		}
-		
-		final ScriptPackage pkg = new ScriptPackage(cache, bindings);
 
-		scriptPackages.put(scriptKey, pkg);
+		this.bindings = bindings;
+	}
+
+	/**
+	 * Load all the script required for the system.
+	 */
+	public void load() {
+
 	}
 
 	/**
@@ -70,48 +47,23 @@ public class ScriptManager {
 	 * @param script
 	 *            Script to be executed.
 	 */
-	public boolean executeScript(Script script) {
-
-		if(script == null) {
-			throw new IllegalArgumentException("Script can not be null.");
-		}
-		
+	public boolean execute(Script script) {
+		// get the right script from the cache.
 		final String scriptKey = script.getScriptKey();
-		final String scriptName = script.getName();
+		final CompiledScript compScript = compiledScripts.get(scriptKey);
 
-		final ScriptPackage pkg = scriptPackages.get(scriptKey);
-
-		if (pkg == null) {
-			log.error("Scriptpackage with key {} was not found.", scriptKey);
+		// Probably was not loaded.
+		if (compScript == null) {
 			return false;
 		}
 
-		CompiledScript compiledScript = pkg.cache.getScript(scriptName);
+		// Combine custom and std. bindings.
+		final Bindings customBindings = script.getBindings();
+		customBindings.putAll(bindings);
 
-		if (compiledScript == null) {
-			log.error("Script with key {} and name {} was not found.", scriptKey, scriptName);
-			return false;
-		}
-
-		// Prepare bindings.
-		Bindings scriptBindings = script.getBindings();
-
-		scriptBindings.putAll(pkg.bindings);
-
-		try {
-			final Object ret = compiledScript.eval(scriptBindings);
-			
-			if(ret instanceof Boolean) {
-				final Boolean retBool = (Boolean) ret;
-				return retBool.booleanValue();
-			} else {
-				return false;
-			}
-			
-		} catch (ScriptException e) {
-			log.error("Error while executing script: {}.{}", scriptKey, scriptName, e);
-			return false;
-		}
+		// Kinda do a double dispatch in order to customfy script execution if
+		// needed.
+		return script.execute(customBindings, compScript);
 	}
 
 }
