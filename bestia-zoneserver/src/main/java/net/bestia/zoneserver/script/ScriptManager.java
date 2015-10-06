@@ -1,12 +1,7 @@
 package net.bestia.zoneserver.script;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.script.Bindings;
 import javax.script.CompiledScript;
-
-import org.codehaus.groovy.jsr223.GroovyCompiledScript;
 
 /**
  * This class loads directories of scripts. And saves them in a compiled form to
@@ -17,12 +12,24 @@ import org.codehaus.groovy.jsr223.GroovyCompiledScript;
  */
 public class ScriptManager {
 
-	private Map<String, GroovyCompiledScript> compiledScripts = new HashMap<>();
+	private final ScriptCompiler compiler;
 	private Bindings bindings;
 
+	public ScriptManager(ScriptCompiler compiler) {
+		if (compiler == null) {
+			throw new IllegalArgumentException("Compiler can not be null.");
+		}
 
-	public ScriptManager() {
-		// no op.
+		this.compiler = compiler;
+	}
+
+	/**
+	 * Returns the underlying {@link ScriptCompiler}.
+	 * 
+	 * @return The {@link ScriptCompiler}.
+	 */
+	public ScriptCompiler getCompiler() {
+		return compiler;
 	}
 
 	public void setStdBindings(Bindings bindings) {
@@ -35,22 +42,17 @@ public class ScriptManager {
 	}
 
 	/**
-	 * Load all the script required for the system.
-	 */
-	public void load() {
-
-	}
-
-	/**
 	 * Executes a script with the given parameters.
 	 * 
 	 * @param script
 	 *            Script to be executed.
+	 * @return TRUE if the script was successfully executed. FALSE if an error
+	 *         had occurred.
 	 */
 	public boolean execute(Script script) {
 		// get the right script from the cache.
 		final String scriptKey = script.getScriptKey();
-		final CompiledScript compScript = compiledScripts.get(scriptKey);
+		final CompiledScript compScript = compiler.getScript(scriptKey);
 
 		// Probably was not loaded.
 		if (compScript == null) {

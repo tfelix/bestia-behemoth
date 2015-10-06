@@ -1,45 +1,58 @@
 package net.bestia.zoneserver.script;
 
-import javax.script.Bindings;
+import static org.mockito.Mockito.*;
+
 import javax.script.CompiledScript;
 import javax.script.SimpleBindings;
 
-import static org.mockito.Mockito.*;
 
+import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ScriptManagerTest {
 
-	@Test
-	public void execute_script() {
-		ScriptManager manager = new ScriptManager();
-		Bindings bindings = new SimpleBindings();
+	private static ScriptCompiler compiler = mock(ScriptCompiler.class);
+	
+	@BeforeClass
+	public static void init() {
 		
-		ScriptCompiler cache = mock(ScriptCompiler.class);
 		CompiledScript compScript = mock(CompiledScript.class);
-		stub(cache.getScript("apple")).toReturn(compScript);
 		
-		manager.addCache("item", cache, bindings);
-		
+		when(compiler.getScript("known")).thenReturn(compScript);
+	}
+	
+
+	@Test(expected = IllegalArgumentException.class)
+	public void setStdBindings_null_exception() {
+		final ScriptManager manager = new ScriptManager(compiler);
+		manager.setStdBindings(null);
+	}
+
+	@Test
+	public void setStdBindings_notnull_noexception() {
+		final ScriptManager manager = new ScriptManager(compiler);
+		manager.setStdBindings(new SimpleBindings());
+	}
+
+	@Test
+	public void execute_unloadedscript_false() {
+		final ScriptManager manager = new ScriptManager(compiler);
+
 		Script script = mock(Script.class);
-		stub(script.getScriptKey()).toReturn("item");
-		stub(script.getName()).toReturn("apple");
-		stub(script.getBindings()).toReturn(bindings);
-		
-		manager.executeScript(script);
+		when(script.getScriptKey()).thenReturn("unknown");
+		when(script.execute(any(), any())).thenReturn(true);
+
+		Assert.assertFalse(manager.execute(script));
 	}
-	
-	@Test(expected = IllegalArgumentException.class)
-	public void execute_null_script() {
-		ScriptManager manager = new ScriptManager();
-		manager.executeScript(null);
+
+	@Test
+	public void execute_loadedscript_true() {
+		final ScriptManager manager = new ScriptManager(compiler);
+
+		Script script = mock(Script.class);
+		when(script.getScriptKey()).thenReturn("known");
+
+		Assert.assertTrue(manager.execute(script));
 	}
-	
-	@Test(expected = IllegalArgumentException.class)
-	public void add_null_script() {
-		ScriptManager manager = new ScriptManager();
-		manager.addCache(null, null, null);
-	}
-	
-	
 }

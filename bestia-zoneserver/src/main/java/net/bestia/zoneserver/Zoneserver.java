@@ -26,6 +26,7 @@ import net.bestia.zoneserver.ecs.BestiaRegister;
 import net.bestia.zoneserver.ecs.BestiaRegister.InputControllerCallback;
 import net.bestia.zoneserver.loader.ScriptLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
+import net.bestia.zoneserver.script.ScriptCompiler;
 import net.bestia.zoneserver.script.ScriptManager;
 import net.bestia.zoneserver.zone.Zone;
 
@@ -39,9 +40,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * This is the central game server instance. Upon start it will read all designated maps parse them, instance all needed
- * entities and scripts. It will then populate the map with the spawned entities and with data from the database and
- * start simulating the game environment.
+ * This is the central game server instance. Upon start it will read all
+ * designated maps parse them, instance all needed entities and scripts. It will
+ * then populate the map with the spawned entities and with data from the
+ * database and start simulating the game environment.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -64,7 +66,8 @@ public class Zoneserver {
 		}
 
 		/**
-		 * New account added to this input controller. Register it with this server.
+		 * New account added to this input controller. Register it with this
+		 * server.
 		 */
 		@Override
 		public void addedAccount(long accountId) {
@@ -114,12 +117,13 @@ public class Zoneserver {
 	private final Map<String, Zone> zones = new HashMap<>();
 	private final Set<String> responsibleZones;
 
-	private final ScriptManager scriptManager = new ScriptManager();
+	private final ScriptManager scriptManager = new ScriptManager(new ScriptCompiler());
 
 	private final BestiaRegister ecsInputController = new BestiaRegister();
 
 	/**
-	 * Ctor. The server needs a connection to its clients so it can use the messaging API to communicate with them.
+	 * Ctor. The server needs a connection to its clients so it can use the
+	 * messaging API to communicate with them.
 	 * 
 	 * @param serviceFactory
 	 *            Service factory to getting the game beans from a datasource.
@@ -167,7 +171,8 @@ public class Zoneserver {
 	}
 
 	/**
-	 * Starts the server. Initializes all the messaging pipeline, database connections, cache and scripts.
+	 * Starts the server. Initializes all the messaging pipeline, database
+	 * connections, cache and scripts.
 	 * 
 	 * @return {@code TRUE} if started. {@code FALSE} otherwise.
 	 */
@@ -250,8 +255,9 @@ public class Zoneserver {
 	}
 
 	/**
-	 * Sends the message back to the interserver. One must make sure the message path is now correct since this
-	 * basically tells the interserver how to process this message.
+	 * Sends the message back to the interserver. One must make sure the message
+	 * path is now correct since this basically tells the interserver how to
+	 * process this message.
 	 * 
 	 * @param message
 	 */
@@ -265,8 +271,9 @@ public class Zoneserver {
 	}
 
 	/**
-	 * This will schedule a command for execution. Since the commands receive a {@link CommandContext} which in turn
-	 * holds a reference to a {@link Zoneserver} commands can trigger new commands on their own.
+	 * This will schedule a command for execution. Since the commands receive a
+	 * {@link CommandContext} which in turn holds a reference to a
+	 * {@link Zoneserver} commands can trigger new commands on their own.
 	 * 
 	 * @param cmd
 	 *            {@link Command} implementation to be executed.
@@ -285,7 +292,8 @@ public class Zoneserver {
 	}
 
 	/**
-	 * Returns a set of zone names (map_db_name of a map) the server is responsible for.
+	 * Returns a set of zone names (map_db_name of a map) the server is
+	 * responsible for.
 	 * 
 	 * @return Set of names for which this server is responsible.
 	 */
@@ -325,8 +333,9 @@ public class Zoneserver {
 	}
 
 	/**
-	 * Returns a {@link BestiaRegister}. It will be used by the ECS to fetch the player input async aswell as the
-	 * commands to pipe the player input for the different bestias to the ECS.
+	 * Returns a {@link BestiaRegister}. It will be used by the ECS to fetch the
+	 * player input async aswell as the commands to pipe the player input for
+	 * the different bestias to the ECS.
 	 * 
 	 * @return
 	 */
