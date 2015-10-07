@@ -9,7 +9,7 @@ Bestia.Input = {};
  */
 Bestia.InputConfig = function(pubsub, config) {
 
-	var self = this;
+	//var self = this;
 
 	/**
 	 * @property {Bestia.Config} config - Holds a reference to the central

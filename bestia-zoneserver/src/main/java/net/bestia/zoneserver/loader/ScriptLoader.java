@@ -155,12 +155,12 @@ public class ScriptLoader implements Loader {
 	 */
 	private void buildScriptFolder(List<Callable<Map<String, CompiledScript>>> tasks) {
 
-		tasks.add(new ScriptWorker(new ItemScript(), Paths.get(baseDir.getAbsolutePath(), "item").toFile()));
-		tasks.add(new ScriptWorker(new AttackScript(), Paths.get(baseDir.getAbsolutePath(), "attack").toFile()));
+		tasks.add(new ScriptWorker(new ItemScript(), Paths.get(baseDir.getAbsolutePath(),"script", "item").toFile()));
+		tasks.add(new ScriptWorker(new AttackScript(), Paths.get(baseDir.getAbsolutePath(),"script", "attack").toFile()));
 
 		// The maps are a bit trickier. Depending on the responsible zones.
 		for (String zone : zones) {
-			final File scriptFolder = Paths.get(baseDir.getAbsolutePath(), "map", zone).toFile();		
+			final File scriptFolder = Paths.get(baseDir.getAbsolutePath(),"script", "map", zone).toFile();		
 			tasks.add(new ScriptWorker(new MapScript(), scriptFolder));
 		}
 	}

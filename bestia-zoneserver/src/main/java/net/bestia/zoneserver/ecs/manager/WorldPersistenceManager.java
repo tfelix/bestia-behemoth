@@ -2,6 +2,8 @@ package net.bestia.zoneserver.ecs.manager;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,7 +21,7 @@ public class WorldPersistenceManager extends Manager {
 			.getLogger(WorldPersistenceManager.class);
 	private final ObjectMapper mapper = new ObjectMapper();
 	private File saveSubfolder;
-	private final Bag<Entity> persistEntities = new Bag<>();
+	private final Map<Integer, Entity> trackedEntities = new HashMap<>();
 
 	/**
 	 * 
@@ -62,7 +64,7 @@ public class WorldPersistenceManager extends Manager {
 			return;
 		}
 
-		for (Entity e : persistEntities) {
+		for (Entity e : trackedEntities.values()) {
 			// TODO Check if this entity should be persisted.
 			// Dont persist player or script entities which can be regenerated
 			// from database or during startup.
@@ -90,11 +92,11 @@ public class WorldPersistenceManager extends Manager {
 
 	@Override
 	public void added(int entityId) {
-		persistEntities.add(world.getEntity(entityId));
+		trackedEntities.put(entityId, world.getEntity(entityId));
 	}
 
 	@Override
 	public void deleted(int entityId) {
-		persistEntities.remove(world.getEntity(entityId));
+		trackedEntities.remove(entityId);
 	}
 }
