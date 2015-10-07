@@ -35,20 +35,41 @@ public class ScriptCompiler {
 	private final ScriptEngineManager manager = new ScriptEngineManager();
 	private final ScriptEngine engine = manager.getEngineByName("groovy");
 
+	/**
+	 * Returns a unmodifiable map of all loaded and compiled scripts archived
+	 * under the given script key.
+	 * 
+	 * @return Map with the SCRIPTKEY and {@link CompiledScript}.
+	 */
 	public Map<String, CompiledScript> getCompiledScripts() {
 		return Collections.unmodifiableMap(compiledScripts);
 	}
 
+	/**
+	 * Loads a script with a given script key.
+	 * 
+	 * @param scriptKey
+	 * @param scriptFile
+	 * @throws IOException
+	 */
 	public void load(String scriptKey, File scriptFile) throws IOException {
-		
+
 		if (engine == null) {
 			throw new IOException("Can not create script engine.");
 		}
 		
+		if(scriptKey == null || scriptKey.isEmpty()) {
+			throw new IllegalArgumentException("ScriptKey can not be null or empty.");
+		}
+		
+		if(scriptFile == null) {
+			throw new IllegalArgumentException("ScriptFile can not be null.");
+		}
+
 		log.debug("Compiling script: {}", scriptFile.getCanonicalPath());
 
 		final Reader scriptReader = new FileReader(scriptFile);
-		
+
 		try {
 			final CompiledScript script = ((Compilable) engine).compile(scriptReader);
 			compiledScripts.put(scriptKey, script);

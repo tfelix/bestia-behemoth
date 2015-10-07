@@ -20,15 +20,23 @@ public class PortalMapTriggerScript extends MapTriggerScript {
 		this.destination = new Location(dest);
 	}
 
+	/**
+	 * Std. Ctor. for conforming to the {@link Script} interface. Objects
+	 * created via this ctor can only be used to generate script keys.
+	 */
+	public PortalMapTriggerScript() {
+		this.destination = null;
+	}
+
 	@Override
 	public void onEnter(BestiaManager entity) {
 
 		// Currently we check if the entity is a player bestia. Maybe this is
 		// removed in the future.
-		if(!(entity instanceof PlayerBestiaManager)) {
+		if (!(entity instanceof PlayerBestiaManager)) {
 			return;
 		}
-		
+
 		entity.getLocation().setMapDbName(destination.getMapDbName());
 		entity.getLocation().setX(destination.getX());
 		entity.getLocation().setY(destination.getY());

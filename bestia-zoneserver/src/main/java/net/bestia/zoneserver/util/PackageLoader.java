@@ -100,6 +100,7 @@ public class PackageLoader<BaseT> {
 			try {
 				clazz.getConstructor();
 			} catch (NoSuchMethodException | SecurityException e) {
+				LOG.warn("Class {} has no accessable std. ctor.", clazz.getSimpleName(), e);
 				return false;
 			}
 

@@ -1,4 +1,0 @@
-
-test = {
-	println "Hello World";
-}

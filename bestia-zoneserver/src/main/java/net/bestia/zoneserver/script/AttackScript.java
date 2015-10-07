@@ -10,6 +10,9 @@ public class AttackScript extends Script {
 		addBinding("owner", owner);
 	}
 
+	/**
+	 * 
+	 */
 	public AttackScript() {
 		// no op.
 	}

@@ -3,41 +3,49 @@ package net.bestia.zoneserver.script;
 import java.io.File;
 import java.io.IOException;
 
+import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.util.Assert;
+
 
 public class ScriptCompilerTest {
+	
+	private File scriptFaulty = new File(getClass().getResource("/data/script/item_faulty/apple.groovy").getFile());
+	private File scriptOk = new File(getClass().getResource("/data/script/item/apple.groovy").getFile());
 
 	@Test
-	public void load_scripts_from_folder() throws IOException {
+	public void load_existing_ok() throws IOException {
 		ScriptCompiler compiler = new ScriptCompiler();
-		
-		File folder = new File(getClass().getResource("/data/script/item").getFile());
-		
-		compiler.load(folder);
-		
-		Assert.notNull(compiler.getScript("apple"));
+		String key = "test";
+		compiler.load(key, scriptOk);
+
+		Assert.assertNotNull(compiler.getCompiledScripts().get(key));
+	}
+
+	@Test
+	public void load_faulty_fails() throws IOException {
+		ScriptCompiler compiler = new ScriptCompiler();
+		String key = "test";
+		compiler.load(key, scriptFaulty);
+		Assert.assertFalse(compiler.getCompiledScripts().containsKey(key));
+	}
+
+	@Test(expected = IOException.class)
+	public void load_nonexisting_exception() throws IOException {
+		ScriptCompiler compiler = new ScriptCompiler();
+		String key = "test";
+		File folder = new File("blubber.file");
+		compiler.load(key, folder);
 	}
 	
-	@Test
-	public void log_on_faulty_script() throws IOException {
+	@Test(expected = IllegalArgumentException.class)
+	public void load_key_null_exception() throws IOException {
 		ScriptCompiler compiler = new ScriptCompiler();
-		
-		File folder = new File(getClass().getResource("/data/script/item_faulty").getFile());
-		
-		compiler.load(folder);
-		
-		Assert.isNull(compiler.getScript("apple"));
+		compiler.load("test", null);
 	}
 	
-	@Test
-	public void null_on_unknown_script() throws IOException {
+	@Test(expected = IllegalArgumentException.class)
+	public void load_null_file_exception() throws IOException {
 		ScriptCompiler compiler = new ScriptCompiler();
-		
-		File folder = new File(getClass().getResource("/data/script/item").getFile());
-		
-		compiler.load(folder);
-		
-		Assert.isNull(compiler.getScript("apple123"));
+		compiler.load(null, scriptOk);
 	}
 }

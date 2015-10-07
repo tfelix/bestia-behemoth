@@ -5,6 +5,7 @@ import java.util.Map;
 
 import javax.script.Bindings;
 import javax.script.CompiledScript;
+import javax.script.SimpleBindings;
 
 /**
  * This class loads directories of scripts. And saves them in a compiled form to
@@ -16,7 +17,7 @@ import javax.script.CompiledScript;
 public class ScriptManager {
 
 	private final Map<String, CompiledScript> cachedScripts = new HashMap<>();
-	private Bindings bindings;
+	private Bindings bindings = new SimpleBindings();
 
 	public ScriptManager() {
 		// no op.
