@@ -1,5 +1,8 @@
 package net.bestia.zoneserver.script;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.script.Bindings;
 import javax.script.CompiledScript;
 
@@ -12,24 +15,11 @@ import javax.script.CompiledScript;
  */
 public class ScriptManager {
 
-	private final ScriptCompiler compiler;
+	private final Map<String, CompiledScript> cachedScripts = new HashMap<>();
 	private Bindings bindings;
 
-	public ScriptManager(ScriptCompiler compiler) {
-		if (compiler == null) {
-			throw new IllegalArgumentException("Compiler can not be null.");
-		}
-
-		this.compiler = compiler;
-	}
-
-	/**
-	 * Returns the underlying {@link ScriptCompiler}.
-	 * 
-	 * @return The {@link ScriptCompiler}.
-	 */
-	public ScriptCompiler getCompiler() {
-		return compiler;
+	public ScriptManager() {
+		// no op.
 	}
 
 	public void setStdBindings(Bindings bindings) {
@@ -39,6 +29,10 @@ public class ScriptManager {
 		}
 
 		this.bindings = bindings;
+	}
+
+	public void addScripts(Map<String, CompiledScript> newCachedScripts) {
+		cachedScripts.putAll(newCachedScripts);
 	}
 
 	/**
@@ -52,12 +46,13 @@ public class ScriptManager {
 	public boolean execute(Script script) {
 		// get the right script from the cache.
 		final String scriptKey = script.getScriptKey();
-		final CompiledScript compScript = compiler.getScript(scriptKey);
 
 		// Probably was not loaded.
-		if (compScript == null) {
+		if (!cachedScripts.containsKey(scriptKey)) {
 			return false;
 		}
+
+		final CompiledScript compScript = cachedScripts.get(scriptKey);
 
 		// Combine custom and std. bindings.
 		final Bindings customBindings = script.getBindings();

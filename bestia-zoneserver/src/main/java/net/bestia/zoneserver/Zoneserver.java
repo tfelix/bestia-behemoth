@@ -12,6 +12,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import net.bestia.interserver.InterserverConnectionFactory;
 import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
@@ -26,18 +35,8 @@ import net.bestia.zoneserver.ecs.BestiaRegister;
 import net.bestia.zoneserver.ecs.BestiaRegister.InputControllerCallback;
 import net.bestia.zoneserver.loader.ScriptLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
-import net.bestia.zoneserver.script.ScriptCompiler;
 import net.bestia.zoneserver.script.ScriptManager;
 import net.bestia.zoneserver.zone.Zone;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * This is the central game server instance. Upon start it will read all
@@ -117,7 +116,7 @@ public class Zoneserver {
 	private final Map<String, Zone> zones = new HashMap<>();
 	private final Set<String> responsibleZones;
 
-	private final ScriptManager scriptManager = new ScriptManager(new ScriptCompiler());
+	private final ScriptManager scriptManager = new ScriptManager();
 
 	private final BestiaRegister ecsInputController = new BestiaRegister();
 

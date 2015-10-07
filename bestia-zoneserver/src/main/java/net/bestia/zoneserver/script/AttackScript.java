@@ -10,8 +10,14 @@ public class AttackScript extends Script {
 		addBinding("owner", owner);
 	}
 
+	public AttackScript() {
+		// no op.
+	}
+
 	@Override
-	public String getScriptKey() {
+	protected String getScriptPreKey() {
 		return "attack";
 	}
+
+
 }

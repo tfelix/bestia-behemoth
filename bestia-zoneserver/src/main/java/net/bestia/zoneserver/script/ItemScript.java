@@ -11,11 +11,12 @@ public class ItemScript extends Script {
 		addBinding("inventory", inventory);
 	}
 	
-	/* (non-Javadoc)
-	 * @see net.bestia.zoneserver.script.Script#getScriptKey()
-	 */
+	public ItemScript() {
+		// no op.
+	}
+
 	@Override
-	public String getScriptKey() {
-		return String.format("item.%s", getName());
+	protected String getScriptPreKey() {
+		return "item";
 	}
 }

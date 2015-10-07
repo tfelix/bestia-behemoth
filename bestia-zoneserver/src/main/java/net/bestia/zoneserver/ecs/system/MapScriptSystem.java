@@ -73,7 +73,8 @@ public class MapScriptSystem extends EntityProcessingSystem {
 			// Collision occured. Check if we entered of have left the script.
 			if (scriptComp.lastTriggeredEntities.contains(collisionEntity.id)) {
 				// We still touch the script.
-				script.onInside();
+				final BestiaManager bm = bestiaMapper.get(collisionEntity).bestiaManager;
+				script.onInside(bm);
 			} else {
 				// We are newly touching/entering it.
 				final BestiaManager bm = bestiaMapper.get(collisionEntity).bestiaManager;
