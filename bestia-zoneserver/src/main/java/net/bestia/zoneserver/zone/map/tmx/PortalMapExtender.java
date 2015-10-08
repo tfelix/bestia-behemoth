@@ -33,6 +33,9 @@ class PortalMapExtender implements TMXMapExtender {
 	public void extendMap(Map tiledMap, MapBuilder builder) {
 
 		log.trace("Extend map {} with portals...", builder.mapDbName);
+		
+		final int tileHeight = tiledMap.getTileHeight();
+		final int tileWidth = tiledMap.getTileWidth();
 
 		final Vector<MapLayer> layers = tiledMap.getLayers();
 		for (MapLayer layer : layers) {
@@ -52,12 +55,13 @@ class PortalMapExtender implements TMXMapExtender {
 			// Create the portal scripts.
 			final Iterator<MapObject> objIter = objLayer.getObjects();
 			int createdPortals = 0;
+			
 			while (objIter.hasNext()) {
 				final MapObject mapObj = objIter.next();
 				final Rectangle bb = mapObj.getBounds();
 
 				// Translate the bb to shape.
-				final CollisionShape rect = new Rect(bb.x, bb.y, bb.width, bb.height);
+				final CollisionShape rect = new Rect(bb.x / tileWidth, bb.y / tileHeight, bb.width / tileWidth, bb.height / tileHeight);
 				final Location dest = parseDestination(mapObj.getName());
 
 				if (dest == null) {
@@ -67,7 +71,7 @@ class PortalMapExtender implements TMXMapExtender {
 
 				final MapTriggerScript portal = new PortalMapTriggerScript(dest);
 				final net.bestia.zoneserver.zone.map.Map.Script mapscript = new Script(portal, rect);
-				builder.mapscripts.add(mapscript);
+				builder.portals.add(mapscript);
 				createdPortals++;
 			}
 

@@ -41,5 +41,15 @@ public class PortalMapTriggerScript extends MapTriggerScript {
 		entity.getLocation().setX(destination.getX());
 		entity.getLocation().setY(destination.getY());
 	}
+	
+	@Override
+	public void onExit(BestiaManager entity) {
+		// no op.
+	}
+	
+	@Override
+	public void onInside(BestiaManager entity) {
+		// no op.
+	}
 
 }

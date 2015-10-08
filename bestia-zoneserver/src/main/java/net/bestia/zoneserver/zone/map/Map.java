@@ -31,7 +31,7 @@ public class Map {
 		public Set<Vector2> collisions = new HashSet<>();
 		public java.util.Map<Vector2, Tile> tiles = new HashMap<>();
 		public String mapDbName;
-		public List<Script> mapscripts = new ArrayList<>();
+		public List<Script> portals = new ArrayList<>();
 		public List<String> globalMapscripts = new ArrayList<>();
 
 		public MapBuilder load(Maploader loader) throws IOException {
@@ -43,12 +43,12 @@ public class Map {
 			return new Map(this);
 		}
 	}
-	
+
 	public static class Script {
-		
+
 		private CollisionShape shape;
 		private MapTriggerScript script;
-		
+
 		public Script(MapTriggerScript script, CollisionShape shape) {
 			this.shape = shape;
 			this.script = script;
@@ -66,10 +66,10 @@ public class Map {
 	private String mapDbName;
 	private String tileset;
 	private Rect dimensions;
-	
-	private final List<String> globalMapscripts;	
-	private final List<Script> mapscripts;
-	
+
+	private final List<String> globalMapscripts;
+	private final List<Script> portals;
+
 	private java.util.Map<Vector2, Tile> tiles = new HashMap<>();
 
 	/**
@@ -84,7 +84,7 @@ public class Map {
 		mapDbName = builder.mapDbName;
 		tiles = Collections.unmodifiableMap(builder.tiles);
 		globalMapscripts = builder.globalMapscripts;
-		mapscripts = builder.mapscripts;
+		portals = builder.portals;
 	}
 
 	/**
@@ -104,14 +104,18 @@ public class Map {
 	}
 
 	public int getWalkspeed(Vector2 cords) {
-		if (cords.x > dimensions.getWidth() || cords.y > dimensions.getHeight()
-				|| cords.x < 0 || cords.y < 0) {
+		if (cords.x > dimensions.getWidth() || cords.y > dimensions.getHeight() || cords.x < 0 || cords.y < 0) {
 			return 0;
 		}
 
 		return tiles.get(cords).getWalkspeed();
 	}
 
+	/**
+	 * The map db name.
+	 * 
+	 * @return The map db name.
+	 */
 	public String getMapDbName() {
 		return mapDbName;
 	}
@@ -142,6 +146,15 @@ public class Map {
 	 */
 	public List<String> getMapscripts() {
 		return globalMapscripts;
+	}
+
+	/**
+	 * The map portals on this map.
+	 * 
+	 * @return A list with the parsed map portals.
+	 */
+	public List<Script> getPortals() {
+		return portals;
 	}
 
 }

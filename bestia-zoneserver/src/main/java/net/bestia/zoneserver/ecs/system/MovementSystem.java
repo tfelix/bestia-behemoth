@@ -2,6 +2,7 @@ package net.bestia.zoneserver.ecs.system;
 
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.ecs.component.Bestia;
+import net.bestia.zoneserver.ecs.component.Collision;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.manager.BestiaManager;
 import net.bestia.zoneserver.zone.shape.Vector2;
@@ -29,9 +30,10 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 
 	private ComponentMapper<Bestia> bestiaMapper;
 	private ComponentMapper<Movement> movementMapper;
+	private ComponentMapper<Collision> collisionMapper;
 
 	public MovementSystem() {
-		super(Aspect.all(Bestia.class, Movement.class));
+		super(Aspect.all(Bestia.class, Movement.class, Collision.class));
 	}
 
 	@Override
@@ -70,6 +72,9 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 
 		manager.getLocation().setX(pos.x);
 		manager.getLocation().setY(pos.y);
+		
+		// TODO das hier besser lösen. Update the collision.
+		collisionMapper.get(e).shape = new Vector2(pos.x, pos.y);
 
 		log.trace("Moved to: {}", pos.toString());
 

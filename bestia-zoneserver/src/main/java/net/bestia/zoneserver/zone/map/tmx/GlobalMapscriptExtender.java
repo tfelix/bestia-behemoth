@@ -27,7 +27,7 @@ class GlobalMapscriptExtender implements TMXMapExtender {
 		final String scriptStr = tiledMap.getProperties().getProperty("globalScripts");
 
 		if (scriptStr == null) {
-			builder.mapscripts = new ArrayList<>();
+			builder.portals = new ArrayList<>();
 			return;
 		}
 

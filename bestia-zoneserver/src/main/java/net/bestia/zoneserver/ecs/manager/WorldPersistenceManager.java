@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.artemis.Entity;
 import com.artemis.Manager;
-import com.artemis.utils.Bag;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
