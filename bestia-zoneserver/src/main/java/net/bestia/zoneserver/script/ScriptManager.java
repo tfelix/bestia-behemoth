@@ -23,6 +23,12 @@ public class ScriptManager {
 		// no op.
 	}
 
+	/**
+	 * Adds a set of bindings which will be used with all triggered scripts.
+	 * 
+	 * @param bindings
+	 *            THe bindings to set as standard bindings.
+	 */
 	public void setStdBindings(Bindings bindings) {
 
 		if (bindings == null) {
@@ -32,6 +38,12 @@ public class ScriptManager {
 		this.bindings = bindings;
 	}
 
+	/**
+	 * Adds new scripts into the manager for later use.
+	 * 
+	 * @param newCachedScripts
+	 *            The new scripts.
+	 */
 	public void addScripts(Map<String, CompiledScript> newCachedScripts) {
 		cachedScripts.putAll(newCachedScripts);
 	}

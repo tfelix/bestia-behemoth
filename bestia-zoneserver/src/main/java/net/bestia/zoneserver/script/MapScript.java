@@ -4,17 +4,35 @@ import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
 
+/**
+ * A simple map script is triggered when a map loads. Also known as a
+ * "global map script".
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class MapScript extends Script {
 
 	private String mapDbName;
-	
+
+	/**
+	 * Std. Ctor for allowing the use of getScriptKeyFile().
+	 */
 	public MapScript() {
 		super();
 	}
-	
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param mapDbName
+	 *            Name of the map.
+	 * @param name
+	 *            Name of the script.
+	 */
 	public MapScript(String mapDbName, String name) {
 		super(name);
-		
+
 		this.mapDbName = mapDbName;
 	}
 
@@ -27,13 +45,12 @@ public class MapScript extends Script {
 	public String getScriptKey() {
 		return String.format("map.%s.%s", mapDbName, getName());
 	}
-	
+
 	@Override
 	public String getScriptKey(File scriptFile) {
 		final String mapName = scriptFile.getParentFile().getName();
 		final String name = FilenameUtils.getBaseName(scriptFile.getName());
 		return String.format("map.%s.%s", mapName, name);
 	}
-	
 
 }
