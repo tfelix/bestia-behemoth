@@ -5049,6 +5049,6 @@
   <object name="mapscript1" type="script" x="416" y="256" width="96" height="96"/>
  </objectgroup>
  <objectgroup color="#ff00ff" name="portals" width="0" height="0">
-  <object name="dungeon1,5,10" type="portal" x="416" y="128" width="64" height="32"/>
+  <object name="test-zone1,10,10" type="portal" x="416" y="128" width="64" height="32"/>
  </objectgroup>
 </map>
