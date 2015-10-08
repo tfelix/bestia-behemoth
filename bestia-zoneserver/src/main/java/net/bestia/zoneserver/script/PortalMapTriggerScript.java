@@ -9,7 +9,7 @@ import net.bestia.zoneserver.manager.PlayerBestiaManager;
  * implementation is needed. This script is used as the main portal script to
  * move a bestia/entity when entering a portal to a new location.
  * 
- * @author Thomas Felix
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class PortalMapTriggerScript extends MapTriggerScript {
