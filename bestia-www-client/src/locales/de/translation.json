@@ -1,6 +1,7 @@
 {
 	"app": {
-		"name": "Hello World"
+		"name": "Hello World",
+		"search": "Suche"
 	},
 	
 	"nav": {

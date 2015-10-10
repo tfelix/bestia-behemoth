@@ -14,9 +14,11 @@ Bestia.ItemViewModel = function(data) {
 	 * Name of the item. Must be translated via i18n and item db name.
 	 * @property
 	 */
-	this.name = ko.observable("Lalal");
-
+	this.name = ko.observable("");
 	
+	/**
+	 * The type of this item.
+	 */
 	this.type = ko.observable();
 	this.amount = ko.observable(0);
 	this.playerItemId = ko.observable();
@@ -37,7 +39,7 @@ Bestia.ItemViewModel = function(data) {
  */
 Bestia.ItemViewModel.prototype.update = function(data) {
 	
-	//this.name(data.idbn);
+	this.name(data.i.idbn);
 	
 	this.type(data.i.t);
 	this.amount(data.a);
