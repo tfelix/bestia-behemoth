@@ -110,7 +110,6 @@ module.exports = function(grunt) {
 		// Start server and watch tasks.
 		grunt.task.run(['connect', 'watch']);
 	});
-
 	
 	grunt.registerTask('prod', 'Compiles the client for production.', function() {
 		grunt.log.writeln("====================================================================");
@@ -139,5 +138,30 @@ module.exports = function(grunt) {
 		grunt.task.run([ 'preprocess:prod', 'jsonlint', 'jshint', 'jasmine' ]);
 
 		grunt.task.run([ 'concat', 'uglify' ]);
+	});
+	
+	grunt.registerTask('test', 'Compiles the client in order to perform a full testrun.', function() {
+		grunt.log.writeln("====================================================================");
+		grunt.log.writeln("Performing Unittests: bestia-www-client: " + version);
+		grunt.log.writeln("====================================================================");
+
+		// Prepare build
+		grunt.task.run('test:config');
+		grunt.task.run('clean');
+
+		// Compile HTML
+		grunt.task.run('preprocess:htmlprod');
+		
+		// Prepare Assets
+		grunt.task.run('copy:dist');
+		grunt.task.run('copy:gamedata');
+		
+		// Compile CSS
+		grunt.task.run('less');
+
+		// Compile JS
+		grunt.task.run('bower_concat');
+
+		grunt.task.run([ 'preprocess:prod', 'jsonlint', 'jshint', 'jasmine' ]);
 	});
 };
