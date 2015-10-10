@@ -53,7 +53,11 @@ function main() {
 	$('#btn-request').click(function() {
 		game.attacks.request();
 	});
-
+	
+	// +++ Export game to global if dev.
+	// @ifdef DEVELOPMENT
+	window.bestiaGame = game;
+	// @endif
 }
 
 i18n.init({
