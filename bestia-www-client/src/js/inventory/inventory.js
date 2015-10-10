@@ -13,12 +13,22 @@
  * @class Bestia.Inventory
  * @param {Bestia.PubSub}
  *            pubsub - Publish/Subscriber interface.
+ * @param {Bestia.I18n}
+ *            i18n - Translation interface for translating items.
  */
-Bestia.Inventory = function(pubsub) {
+Bestia.Inventory = function(pubsub, i18n) {
 
 	var self = this;
 
 	this._pubsub = pubsub;
+
+	/**
+	 * i18n interface to translate items.
+	 * 
+	 * @property
+	 * @private
+	 */
+	this._i18n = i18n;
 
 	/**
 	 * <p>
@@ -67,9 +77,29 @@ Bestia.Inventory = function(pubsub) {
 	 * Handler if the server advises to re-render the inventory.
 	 */
 	var listHandler = function(_, data) {
+		//var i18nPrefix = 'item.';
 		self.allItems.removeAll();
+		
 		data.pis.forEach(function(val) {
-			self.allItems.push(new Bestia.ItemViewModel(val));
+			var item = new Bestia.ItemViewModel(val);
+			self.allItems.push(item);
+		});
+		
+		/*
+		data.pis.forEach(function(val) {
+			var item = new Bestia.ItemViewModel(val);
+			
+			newItems.push(item);
+			self.allItems.push(item);
+		}, this);
+		
+		var i18nKeys = newItem.map(function(el){
+			return i18nPrefix + el.itemDatabaseName();
+		}, this);*/
+		
+		// Translate the item names.
+		self._i18n.t('item.apple', function(t) {
+			alert(t('item.apple'));
 		});
 	};
 

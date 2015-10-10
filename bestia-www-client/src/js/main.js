@@ -1,8 +1,9 @@
 Bestia.Game = function() {
 	this.pubsub = new Bestia.PubSub();
 	this.config = new Bestia.Config(this.pubsub);
+	this.i18n = new Bestia.I18n(this.pubsub);
 
-	this.inventory = new Bestia.Inventory(this.pubsub);
+	this.inventory = new Bestia.Inventory(this.pubsub, this.i18n);
 	this.bestias = new Bestia.BestiaInfoViewModel(this.pubsub);
 	this.attacks = new Bestia.BestiaAttacks(this.pubsub);
 	
