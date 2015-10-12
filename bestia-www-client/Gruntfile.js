@@ -3,11 +3,22 @@ module.exports = function(grunt) {
 
 	var loadConfig = require('load-grunt-config');
 
+	/**
+	 * Full version of the app (e.g. beta-1.2.4).
+	 */
 	var version = function() {
 		var str = grunt.file.read('../pom.xml').toString();
 		var matcher = /<version>(.*?)<\/version>/;
 		var data = matcher.exec(str);
 		return data[1];
+	}();
+	
+	/**
+	 * Short, number version only without alpha-, beta- etc.
+	 * Some plugins crash on non numeric versions.
+	 */
+	var versionOnly = function() {
+		return version.replace(/([^0-9\.]+)/gi, '');
 	}();
 	
 	var appFiles = [ '<%= tempDir %>/js/behemoth.js', '<%= tempDir %>/js/util/*.js',
@@ -67,12 +78,12 @@ module.exports = function(grunt) {
 		
 		grunt.log.writeln("Updating bower.json version...");
 		var filedata = grunt.file.read('bower.json', opt);
-		filedata = filedata.replace(/"version":\s?".+?",/, '"version": "'+version+'",');
+		filedata = filedata.replace(/"version":\s?".+?",/, '"version": "'+versionOnly+'",');
 		grunt.file.write('bower.json', filedata, opt);
 		
 		grunt.log.writeln("Updating package.json version...");
 		filedata = grunt.file.read('package.json', opt);
-		filedata = filedata.replace(/"version":\s?".+?",/, '"version": "'+version+'",');
+		filedata = filedata.replace(/"version":\s?".+?",/, '"version": "'+versionOnly+'",');
 		grunt.file.write('package.json', filedata, opt);
 		
 		grunt.log.writeln("Updating src/js/behemoth.js version...");
