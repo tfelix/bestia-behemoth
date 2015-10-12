@@ -296,7 +296,7 @@
 						data-i18n="[placeholder]app.search" data-bind="textInput: searchFilter" placeholder="">
 					<h4 class="modal-title" data-i18n="nav.inventory">nav.inventar</h4>
 				</div>
-				<div class="modal-body" style="height: 400px; width: 600px;"
+				<div class="modal-body" style="height: 400px; width: 800px;"
 					data-bind="foreach: items">
 					<div class="item tooltip" data-bind="click: $parent.useItem"
 						data-tooltip="+7 Anales Breitschwert">
@@ -304,6 +304,15 @@
 						<span class="amount" data-bind="text: amount"></span>
 					</div>
 				</div>
+				<!-- ITEM DETAILS -->
+				<div data-bind="visible:selectedItem() !== undefined" class="item-details">
+					<img data-bind="attr: {src: selectedItem.imageSrc, alt: selectedItem.name}" src="" alt="">
+					<h5 data-bind="selectedItem.name"></h5>
+					<p data-bind="selectedItem.description"></p>
+					
+					<button data-i18n="inv.drop">inv.drop</button>
+				</div>
+				<!-- /ITEM DETAILS -->
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal"
 						data-i18n="ui.close">ui.close</button>

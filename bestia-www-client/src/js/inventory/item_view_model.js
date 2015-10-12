@@ -24,6 +24,7 @@ Bestia.ItemViewModel = function(data) {
 	this.playerItemId = ko.observable();
 	this.itemId = ko.observable();
 	this.itemDatabaseName = '';
+	this.description = ko.observable('');
 	this.imageSrc = ko.observable();
 	
 	if(data !== undefined) {

@@ -54,17 +54,42 @@ Bestia.Inventory = function(pubsub, i18n) {
 	this.searchFilter = ko.observable('');
 
 	/**
+	 * If this filter is set to a certain category ('usable', 'quest', 'etc',
+	 * 'equip') only items of this category is displayed. Can be used together
+	 * with the searchFilter property.
+	 */
+	this.categoryFilter = ko.observable('');
+
+	/**
+	 * The item on which was clicked will be displayed in detail to perform
+	 * certain activities with if (display description, drop menu etc.)
+	 */
+	this.selectedItem = ko.observable();
+
+	/**
 	 * Holds all items delivered from the server.
 	 * 
 	 * @property
 	 */
 	this.items = ko.pureComputed(function() {
+		var items = self.allItems();
+		
+		// Filter categories.
+		var catFilter = this.categoryFilter();
+		
+		if(catFilter !== '') {
+			items = items.filter(function(el) {
+				return el.type().toLowerCase() === catFilter;
+			});
+		}
+		
 		// Filter the item names in side the array with the set filter.
 		var searchTxt = this.searchFilter();
-		var items = self.allItems();
+		
 		items = items.filter(function(el) {
 			return el.name().startsWith(searchTxt);
 		});
+		
 		return items;
 	}, this);
 
@@ -77,26 +102,24 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * Handler if the server advises to re-render the inventory.
 	 */
 	var listHandler = function(_, data) {
-		//var i18nPrefix = 'item.';
+		// var i18nPrefix = 'item.';
 		self.allItems.removeAll();
-		
+
 		data.pis.forEach(function(val) {
 			var item = new Bestia.ItemViewModel(val);
 			self.allItems.push(item);
 		});
-		
+
 		/*
-		data.pis.forEach(function(val) {
-			var item = new Bestia.ItemViewModel(val);
-			
-			newItems.push(item);
-			self.allItems.push(item);
-		}, this);
-		
-		var i18nKeys = newItem.map(function(el){
-			return i18nPrefix + el.itemDatabaseName();
-		}, this);*/
-		
+		 * data.pis.forEach(function(val) { var item = new
+		 * Bestia.ItemViewModel(val);
+		 * 
+		 * newItems.push(item); self.allItems.push(item); }, this);
+		 * 
+		 * var i18nKeys = newItem.map(function(el){ return i18nPrefix +
+		 * el.itemDatabaseName(); }, this);
+		 */
+
 		// Translate the item names.
 		self._i18n.t('item.apple', function(t) {
 			alert(t('item.apple'));
@@ -112,6 +135,14 @@ Bestia.Inventory = function(pubsub, i18n) {
 
 	pubsub.subscribe('bestia.info', bestiaSelectHandler);
 	pubsub.subscribe('engine.selectBestia', bestiaSelectHandler);
+
+	/**
+	 * Selects the clicked/touched item. Further details and options regarding
+	 * this item are displayed.
+	 */
+	this.clickItem = function(item) {
+		this.selectedItem(item);
+	};
 
 	/**
 	 * This function will try to use an item. In order to do this some sanity
