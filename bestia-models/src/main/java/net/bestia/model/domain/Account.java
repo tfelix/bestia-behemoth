@@ -63,6 +63,7 @@ public class Account implements Serializable {
 
 	private String remarks = "";
 	
+	@Column(nullable = false)
 	private String language = "en";
 
 	@Temporal(TemporalType.DATE)
