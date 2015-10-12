@@ -30,7 +30,7 @@ describe("Bestia.I18n", function() {
 		for (var i = 0; i < sendItems.length; i++) {
 			var sendItem = sendItems[i];
 			msg.is.push({
-				c : sendItem.c,
+				c : sendItem.c.toUpperCase(),
 				k : sendItem.k,
 				v : TRANSLATED
 			});
@@ -46,17 +46,17 @@ describe("Bestia.I18n", function() {
 		};
 
 		msg.is.push({
-			c : sendItems[0].c,
+			c : sendItems[0].c.toUpperCase(),
 			k : sendItems[0].k,
 			v : TRANSLATED
 		});
 		msg.is.push({
-			c : sendItems[1].c,
+			c : sendItems[1].c.toUpperCase(),
 			k : sendItems[1].k,
 			v : TRANSLATED2
 		});
 		msg.is.push({
-			c : sendItems[2].c,
+			c : sendItems[2].c.toUpperCase(),
 			k : sendItems[2].k,
 			v : TRANSLATED3
 		});
@@ -133,9 +133,9 @@ describe("Bestia.I18n", function() {
 		var i18n = new Bestia.I18n(pubsub);
 
 		i18n.t(['cat.key', 'cat.key2', 'cat.key3'], function(t) {
-			expect(t(['cat.key'])).toEqual(TRANSLATED);
-			expect(t(['cat.key2'])).toEqual(TRANSLATED2);
-			expect(t(['cat.key3'])).toEqual(TRANSLATED3);
+			expect(t('cat.key')).toEqual(TRANSLATED);
+			expect(t('cat.key2')).toEqual(TRANSLATED2);
+			expect(t('cat.key3')).toEqual(TRANSLATED3);
 		});
 
 		sendResponse2();

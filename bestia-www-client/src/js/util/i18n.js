@@ -39,7 +39,20 @@ Bestia.I18n = function(pubsub) {
 	 */
 	this._translator = function(arg) {
 		var catKey = self.getCatAndKey(arg);
-		return self._cache[catKey[0]][catKey[1]];
+		
+		var cat = self._cache[catKey[0]];
+		
+		if(cat === undefined) {
+			return '';
+		}
+		
+		var value = cat[catKey[1]];
+		
+		if(value === undefined) {
+			return '';
+		}
+		
+		return value;
 	};
 
 	/**
@@ -130,7 +143,7 @@ Bestia.I18n.prototype.t = function(key, fn) {
 	// Generate a cat and key from the input.
 	if (Array.isArray(key)) {
 		for (var i = 0; i < key.length; i++) {
-			var catKey = this.getCatAndKey(key);
+			var catKey = this.getCatAndKey(key[i]);
 			if (catKey == null) {
 				continue;
 			}
@@ -221,7 +234,7 @@ Bestia.I18n.prototype.getCatAndKey = function(val) {
 		return null;
 	}
 
-	var cat = val.substring(0, i);
+	var cat = val.substring(0, i).toUpperCase();
 	var key = val.substring(i + 1);
 
 	return [ cat, key ];

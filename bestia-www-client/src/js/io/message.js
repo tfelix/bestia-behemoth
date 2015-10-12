@@ -141,7 +141,7 @@ Bestia.Message = {
 			if(!items[i].hasOwnProperty('cat') || !items[i].hasOwnProperty('key')) {
 				continue;
 			}
-			this.is.push({c: items[i].cat, k: items[i].key});
+			this.is.push({c: items[i].cat.toUpperCase(), k: items[i].key});
 		}
 	}
 };
