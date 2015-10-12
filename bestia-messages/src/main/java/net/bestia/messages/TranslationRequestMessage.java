@@ -33,7 +33,9 @@ public class TranslationRequestMessage extends Message {
 		private String value;
 
 		public TranslationItem() {
-			// no op.
+			category = TranslationCategory.ITEM;
+			key = "UNKNOWN";
+			value = "NOT-SET";
 		}
 
 		public TranslationItem(TranslationCategory category, String key) {
@@ -67,7 +69,7 @@ public class TranslationRequestMessage extends Message {
 
 		@Override
 		public String toString() {
-			return String.format("TranslationItem[type: {}, key: {}]", category.toString(), key);
+			return String.format("TranslationItem[type: %s, key: %s, value: %s]", category.toString(), key, value);
 		}
 	}
 
@@ -123,6 +125,6 @@ public class TranslationRequestMessage extends Message {
 
 	@Override
 	public String toString() {
-		return String.format("TranslationRequestMessage[items: {}]", items.toString());
+		return String.format("TranslationRequestMessage[items: %s]", items.toString());
 	}
 }

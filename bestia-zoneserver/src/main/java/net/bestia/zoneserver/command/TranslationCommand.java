@@ -9,8 +9,9 @@ import net.bestia.model.dao.I18nDAO;
 import net.bestia.model.domain.I18n;
 
 /**
- * This method awaits a translation request message. It will then send this request to the database and try to gather
- * all translations inside a {@link TranslationResponseMessage}.
+ * This method awaits a translation request message. It will then send this
+ * request to the database and try to gather all translations inside a
+ * {@link TranslationResponseMessage}.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -33,6 +34,9 @@ public class TranslationCommand extends Command {
 		// Find the language of the account.
 		final String lang = accDao.find(request.getAccountId()).getLanguage().getLanguage();
 
+		// Response.
+		final TranslationResponseMessage response = new TranslationResponseMessage(request);
+
 		// We are setting the values inside the request objects. Not immutable.
 		for (TranslationItem item : request.getItems()) {
 			// Translate the item.
@@ -42,10 +46,9 @@ public class TranslationCommand extends Command {
 			} else {
 				item.setValue("NOT-TRANSLATED");
 			}
+			
+			response.getItems().add(item);
 		}
-
-		// Response.
-		final TranslationResponseMessage response = new TranslationResponseMessage(request);
 
 		ctx.getServer().sendMessage(response);
 	}

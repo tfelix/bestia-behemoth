@@ -122,7 +122,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 
 		// Translate the item names.
 		self._i18n.t('item.apple', function(t) {
-			alert(t('item.apple'));
+			console.log(t('item.apple'));
 		});
 	};
 

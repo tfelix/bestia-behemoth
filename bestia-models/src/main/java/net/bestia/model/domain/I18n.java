@@ -34,13 +34,16 @@ public class I18n implements Serializable {
 
 		@Transient
 		private static final long serialVersionUID = 1L;
+		
+		@Column(name="translation_key", nullable = false)
 		protected String key;
 
 		@Enumerated(EnumType.STRING)
+		@Column(nullable = false)
 		protected TranslationCategory category;
 
 		@JsonIgnore
-		@Column(length = 5)
+		@Column(length = 5, nullable = false)
 		protected String lang;
 
 		/**

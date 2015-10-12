@@ -19,4 +19,8 @@ describe("Bestia.Inventory", function() {
 	it("Does not send item uses when clicked on non usable item.", function() {
 
 	});
+	
+	it("Does filter for category.", function() {
+
+	});
 });

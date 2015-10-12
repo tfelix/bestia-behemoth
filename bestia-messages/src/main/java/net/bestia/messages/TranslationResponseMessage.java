@@ -39,6 +39,7 @@ public class TranslationResponseMessage extends Message {
 	}
 	
 	public TranslationResponseMessage(TranslationRequestMessage msg) {
+		super(msg);
 		this.items.addAll(msg.getItems());
 		this.token = msg.getToken();
 	}
@@ -72,7 +73,7 @@ public class TranslationResponseMessage extends Message {
 
 	@Override
 	public String toString() {
-		return String.format("TranslationResponseMessage[items: {}]",
+		return String.format("TranslationResponseMessage[items: %s]",
 				items.toString());
 	}
 }

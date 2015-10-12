@@ -45,7 +45,7 @@ public abstract class Message implements Serializable {
 	 * 
 	 * @param isBroadcast
 	 */
-	public Message(int accountId) {
+	public Message(long accountId) {
 		this.accountId = accountId;
 	}
 
