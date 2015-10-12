@@ -62,7 +62,7 @@ public class Account implements Serializable {
 	private boolean isActivated = false;
 
 	private String remarks = "";
-	
+
 	@Column(nullable = false)
 	private String language = "en";
 
@@ -145,34 +145,33 @@ public class Account implements Serializable {
 
 	public void setGold(int gold) {
 		if (gold < 0) {
-			throw new IllegalArgumentException(
-					"Gold value can not be negative.");
+			throw new IllegalArgumentException("Gold value can not be negative.");
 		}
 		this.gold = gold;
 	}
 
 	public Date getBannedUntilDate() {
-		return bannedUntilDate;
+		return (Date) bannedUntilDate.clone();
 	}
 
 	public void setBannedUntilDate(Date bannedUntilDate) {
-		this.bannedUntilDate = bannedUntilDate;
+		this.bannedUntilDate = (Date) bannedUntilDate.clone();
 	}
 
 	public Date getRegisterDate() {
-		return registerDate;
+		return (Date) registerDate.clone();
 	}
 
 	public void setRegisterDate(Date registerDate) {
-		this.registerDate = registerDate;
+		this.registerDate = (Date) registerDate.clone();
 	}
 
 	public Date getLastLogin() {
-		return lastLogin;
+		return (Date) lastLogin.clone();
 	}
 
 	public void setLastLogin(Date lastLogin) {
-		this.lastLogin = lastLogin;
+		this.lastLogin = (Date) lastLogin.clone();
 	}
 
 	public boolean isActivated() {
@@ -262,10 +261,8 @@ public class Account implements Serializable {
 
 	@Override
 	public String toString() {
-		final String dateStr = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-				.format(registerDate);
-		return String.format("Account[id: %d, email: %s, registerDate: %s]",
-				id, email, dateStr);
+		final String dateStr = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(registerDate);
+		return String.format("Account[id: %d, email: %s, registerDate: %s]", id, email, dateStr);
 	}
 
 	public Locale getLanguage() {

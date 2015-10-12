@@ -1,5 +1,7 @@
 package net.bestia.messages;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.bestia.model.domain.TranslationCategory;
@@ -17,20 +19,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class TranslationRequestMessage extends Message {
 
-	public class TranslationItem {
-		@JsonProperty("cat")
+	public static class TranslationItem implements Serializable {
+
+		private static final long serialVersionUID = 1L;
+
+		@JsonProperty("c")
 		private TranslationCategory category;
-		
+
 		@JsonProperty("k")
 		private String key;
-		
+
 		@JsonProperty("v")
 		private String value;
 
 		public TranslationItem() {
-
+			// no op.
 		}
-		
+
 		public TranslationItem(TranslationCategory category, String key) {
 			this.category = category;
 			this.key = key;
@@ -51,25 +56,24 @@ public class TranslationRequestMessage extends Message {
 		public void setKey(String key) {
 			this.key = key;
 		}
-		
+
 		public String getValue() {
 			return value;
 		}
-		
+
 		public void setValue(String value) {
 			this.value = value;
 		}
 
 		@Override
 		public String toString() {
-			return String.format("TranslationItem[type: {}, key: {}]",
-					category.toString(), key);
+			return String.format("TranslationItem[type: {}, key: {}]", category.toString(), key);
 		}
 	}
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;
-	
+
 	public static final String MESSAGE_ID = "translation.request";
 
 	@JsonProperty("is")
@@ -83,18 +87,26 @@ public class TranslationRequestMessage extends Message {
 	@JsonProperty("t")
 	private String token;
 
+	/**
+	 * Std. Ctor.
+	 */
+	public TranslationRequestMessage() {
+		items = new ArrayList<>();
+		token = "";
+	}
+
 	public List<TranslationItem> getItems() {
 		return items;
 	}
-	
+
 	public void setItems(List<TranslationItem> items) {
 		this.items = items;
 	}
-	
+
 	public void setToken(String token) {
 		this.token = token;
 	}
-	
+
 	public String getToken() {
 		return token;
 	}
@@ -111,7 +123,6 @@ public class TranslationRequestMessage extends Message {
 
 	@Override
 	public String toString() {
-		return String.format("TranslationRequestMessage[items: {}]",
-				items.toString());
+		return String.format("TranslationRequestMessage[items: {}]", items.toString());
 	}
 }
