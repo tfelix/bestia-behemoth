@@ -42,6 +42,8 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * the items array. Update rate is limited once per 50 ms to optimize
 	 * performance on big inventories.
 	 * </p>
+	 * 
+	 * @property {Bestia.ItemViewModel}
 	 */
 	this.allItems = ko.observableArray().extend({
 		rateLimit : 50
@@ -65,6 +67,24 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * certain activities with if (display description, drop menu etc.)
 	 */
 	this.selectedItem = ko.observable();
+	
+	/**
+	 * Show the current weight to carry.
+	 */
+	this.currentWeight = ko.pureComputed(function() {	
+		var weight = 0;	
+		self.allItems().forEach(function(el){
+			weight += el.totalWeight();
+		});
+		return weight;
+	});
+	
+	/**
+	 * Shows the maximum weight the bestia can carry.
+	 * 
+	 * @property {Number}
+	 */
+	this.maxWeight = ko.observable(0);
 
 	/**
 	 * Holds all items delivered from the server.
@@ -124,6 +144,8 @@ Bestia.Inventory = function(pubsub, i18n) {
 		self._i18n.t('item.apple', function(t) {
 			console.log(t('item.apple'));
 		});
+		
+		self.maxWeight(data.mw);
 	};
 
 	pubsub.subscribe('inventory.list', listHandler);

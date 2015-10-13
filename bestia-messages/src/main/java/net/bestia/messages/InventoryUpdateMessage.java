@@ -39,7 +39,11 @@ public class InventoryUpdateMessage extends Message {
 
 	public static final String MESSAGE_ID = "inventory.update";
 
+	@JsonProperty("pis")
 	private List<ItemAmount> playerItems = new ArrayList<>();
+	
+	@JsonProperty("cw")
+	private int currentWeight;
 
 	/**
 	 * Adds an item with an updated count to this message.

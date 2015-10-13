@@ -9,12 +9,14 @@
  * @class Bestia.ItemViewModel
  */
 Bestia.ItemViewModel = function(data) {
+	
+	var self = this;
 
 	/**
 	 * Name of the item. Must be translated via i18n and item db name.
 	 * @property
 	 */
-	this.name = ko.observable("");
+	this.name = ko.observable('');
 	
 	/**
 	 * The type of this item.
@@ -26,6 +28,14 @@ Bestia.ItemViewModel = function(data) {
 	this.itemDatabaseName = '';
 	this.description = ko.observable('');
 	this.imageSrc = ko.observable();
+	this.weight = ko.observable(0);
+	
+	/**
+	 * Total weight of the items.
+	 */
+	this.totalWeight = ko.pureComputed(function(){
+		return self.amount() * self.weight();
+	});
 	
 	if(data !== undefined) {
 		this.update(data);
@@ -40,10 +50,9 @@ Bestia.ItemViewModel = function(data) {
  */
 Bestia.ItemViewModel.prototype.update = function(data) {
 	
-	this.name(data.i.idbn);
-	
 	this.type(data.i.t);
 	this.amount(data.a);
+	this.weight(data.i.w);
 	
 	this.playerItemId(data.pid);
 	this.itemId(data.i.id);
