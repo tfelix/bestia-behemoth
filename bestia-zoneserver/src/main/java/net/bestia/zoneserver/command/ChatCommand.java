@@ -8,6 +8,7 @@ import net.bestia.messages.InputWrapperMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
+import net.bestia.zoneserver.command.chat.ChatCommandExecutor;
 import net.bestia.zoneserver.ecs.BestiaRegister;
 
 import org.apache.logging.log4j.LogManager;
@@ -25,6 +26,7 @@ import org.apache.logging.log4j.Logger;
 class ChatCommand extends Command {
 
 	private static final Logger log = LogManager.getLogger(ChatCommand.class);
+	private static final ChatCommandExecutor commandFactory = new ChatCommandExecutor();
 
 	@Override
 	public void execute(Message message, CommandContext ctx) {
@@ -56,7 +58,7 @@ class ChatCommand extends Command {
 		case COMMAND:
 			// Check which command the user wanted. If his user level is high
 			// enough execute the command.
-			log.warn("Commands not supported atm.");
+			commandFactory.execute(m, ctx);
 			break;
 		
 		case PUBLIC:

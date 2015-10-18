@@ -14,6 +14,10 @@ import net.bestia.zoneserver.manager.PlayerBestiaManager;
  */
 public class InputCommand extends Command {
 
+	/**
+	 * This command will not constructed via its ID but via class inheritance.
+	 * @see RoutedECSCommandFactory
+	 */
 	@Override
 	public String handlesMessageId() {
 		// Creation of this command not via its id but via class inheritance.

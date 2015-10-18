@@ -4,14 +4,15 @@ import net.bestia.messages.InputMessage;
 import net.bestia.messages.Message;
 
 /**
- * This {@link CommandFactory} will look into the type of the message. If it is an {@link InputMessage} the message will
- * be directed to the ECS via an InputCommand.
+ * This {@link CommandFactory} will look into the type of the message. If it is
+ * an {@link InputMessage} the message will be directed to the ECS via an
+ * {@link InputCommand}.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class RoutedECSCommandFactory extends CommandFactory {
-	
+
 	private CommandContext ctx;
 
 	public RoutedECSCommandFactory(CommandContext ctx) {
@@ -25,14 +26,14 @@ public class RoutedECSCommandFactory extends CommandFactory {
 	 */
 	@Override
 	public Command getCommand(Message message) {
-		
-		if(message instanceof InputMessage) {
+
+		if (message instanceof InputMessage) {
 			final InputCommand cmd = new InputCommand();
 			cmd.setCommandContext(ctx);
 			cmd.setMessage(message);
 			return cmd;
 		}
-		
+
 		// Return the normal message.
 		return super.getCommand(message);
 	}

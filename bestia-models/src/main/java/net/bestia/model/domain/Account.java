@@ -248,15 +248,8 @@ public class Account implements Serializable {
 			return false;
 		}
 
-		Account other = (Account) obj;
-
-		if (id != other.id) {
-			return false;
-		}
-
-		// TODO Alle anderen Felder prüfen.
-
-		return true;
+		final Account other = (Account) obj;
+		return email.equals(other.email);
 	}
 
 	@Override

@@ -27,7 +27,7 @@ import com.artemis.utils.EntityBuilder;
 /**
  * The Zone holds the static mapdata as well is responsible for managing
  * entities, actors, scripts etc. The entity management is done via an ECS. The
- * important data (player bestias etc.) is periodically persistet into the
+ * important data (player bestias etc.) is periodically persisted into the
  * database.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>

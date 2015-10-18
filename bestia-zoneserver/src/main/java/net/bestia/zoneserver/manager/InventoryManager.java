@@ -84,6 +84,9 @@ public class InventoryManager {
 	 */
 	public boolean addItem(String itemDbName, int amount) {
 		final Item item = inventoryService.getItem(itemDbName);
+		if(item == null) {
+			throw new IllegalArgumentException("Unknown item db name.");
+		}
 		return addItem(item.getId(), amount);
 	}
 
