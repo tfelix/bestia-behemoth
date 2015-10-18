@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import net.bestia.messages.InventoryItemUseMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.domain.Item;
+import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.manager.InventoryManager;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
@@ -25,14 +26,15 @@ public class UseItemCommand extends ECSCommand {
 
 		final InventoryItemUseMessage useMessage = (InventoryItemUseMessage) message;
 
-		final InventoryManager inventory = new InventoryManager(message.getAccountId(), ctx.getServiceLocator());
+		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);	
+		final InventoryManager inventory = new InventoryManager(message.getAccountId(), invService, ctx.getServer());
 
 		if (!inventory.hasItem(useMessage.getPlayerItemId(), 1)) {
 			// Can not use this item.
 			return;
 		}
 
-		final Item item = inventory.getItem(useMessage.getPlayerItemId());
+		final Item item = inventory.getItem(useMessage.getPlayerItemId()).getItem();
 		final PlayerBestiaManager owner = ctx.getServer().getBestiaRegister()
 				.getSpawnedBestia(useMessage.getAccountId(), useMessage.getPlayerBestiaId());
 

@@ -4,12 +4,17 @@ import net.bestia.model.ServiceLocator;
 import net.bestia.model.dao.ItemDAO;
 import net.bestia.model.dao.PlayerItemDAO;
 import net.bestia.model.domain.Item;
+import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.domain.PlayerItem;
 import net.bestia.model.service.InventoryService;
+import net.bestia.zoneserver.Zoneserver;
+import net.bestia.zoneserver.zone.Zone;
 
 /**
- * Wrapper around the {@link InventoryService}. It provides more or less the same methods but it generates translated
- * messages to be send to the user if something with his item changes. It also generates inventory update messages to be
- * send to the client.
+ * Wrapper around the {@link InventoryService}. It provides more or less the
+ * same methods but it generates translated messages to be send to the user if
+ * something with his item changes. It also generates inventory update messages
+ * to be send to the client.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -17,24 +22,22 @@ import net.bestia.model.service.InventoryService;
 public class InventoryManager {
 
 	private InventoryService inventoryService;
-	private ItemDAO itemDao;
-	private PlayerItemDAO playerItemDao;
+	private final Zoneserver server;
 	private long accId;
 
-	public InventoryManager(long accId, ServiceLocator service) {
+	public InventoryManager(long accId, InventoryService service, Zoneserver server) {
 		if (service == null) {
 			throw new IllegalArgumentException("Service can not be null.");
 		}
 
-		this.inventoryService = service.getBean(InventoryService.class);
-		this.itemDao = service.getBean(ItemDAO.class);
-		this.playerItemDao = service.getBean(PlayerItemDAO.class);
+		this.inventoryService = service;
+		this.server = server;
 		this.accId = accId;
 	}
 
 	/**
-	 * Adds an item to the users (accounts) inventory. If this is possible (not exeeding account inventory limit) true
-	 * is returned. Otherwise false.
+	 * Adds an item to the users (accounts) inventory. If this is possible (not
+	 * exeeding account inventory limit) true is returned. Otherwise false.
 	 * 
 	 * @param itemId
 	 * @return TRUE if the item could be added to the inventory. FALSE if not.
@@ -61,17 +64,6 @@ public class InventoryManager {
 		return true;
 	}
 
-	/**
-	 * Returns the item with the given ID from the database. Or null if the item was not found.
-	 * 
-	 * @param itemId
-	 *            Item ID.
-	 * @return The item or NULL of the item could not be found.
-	 */
-	public Item getItem(int itemId) {
-		return itemDao.find(itemId);
-	}
-
 	public boolean hasItem(int itemId, int amount) {
 		return inventoryService.hasItem(accId, itemId, amount);
 	}
@@ -92,5 +84,22 @@ public class InventoryManager {
 		// TODO if success send inventory update message.
 
 		return inventoryService.removeItem(accId, itemDbName, amount);
+	}
+
+	/**
+	 * Calculates the max weight of a bestia. The formula is:
+	 * <p>
+	 * Weight_max = 150 + ATK * 4 + 3 * Lv
+	 * </p>
+	 * 
+	 * @param bestia
+	 * @return
+	 */
+	public int getMaxWeight(PlayerBestia bestia) {
+		return 150 + bestia.getStatusPoints().getAtk() * 4 + bestia.getLevel() * 3;
+	}
+
+	public PlayerItem getItem(int playerItemId) {
+		return inventoryService.getPlayerItem(playerItemId);
 	}
 }

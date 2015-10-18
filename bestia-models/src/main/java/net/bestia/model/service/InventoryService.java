@@ -15,12 +15,13 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * This service kind of manages the user relationship with the inventory. Since access to the inventory might happen on
- * different server (user can have bestias on multiple servers at the same time) no items can be cached. They must be
- * returned from the server all the time.
+ * This service kind of manages the user relationship with the inventory. Since
+ * access to the inventory might happen on different server (user can have
+ * bestias on multiple servers at the same time) no items can be cached. They
+ * must be returned from the server all the time.
  * <p>
- * With the help of this class this is archived. When inventory changes notice messages will be generated which can
- * later be retrieved by the server.
+ * With the help of this class this is archived. When inventory changes notice
+ * messages will be generated which can later be retrieved by the server.
  * </p>
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
@@ -60,7 +61,8 @@ public class InventoryService {
 	 *            ID of the item to check.
 	 * @param amount
 	 *            Amount of the item the player should own.
-	 * @return TRUE if the item with the given amount is in the inventory. FALSE otherwise.
+	 * @return TRUE if the item with the given amount is in the inventory. FALSE
+	 *         otherwise.
 	 */
 	public boolean hasItem(long accId, int itemId, int amount) {
 
@@ -86,7 +88,8 @@ public class InventoryService {
 	 *            Name of the item to check.
 	 * @param amount
 	 *            Amount of the item the player should own.
-	 * @return TRUE if the item with the given amount is in the inventory. FALSE otherwise.
+	 * @return TRUE if the item with the given amount is in the inventory. FALSE
+	 *         otherwise.
 	 */
 	public boolean hasItem(long accId, String itemDbName, int amount) {
 		final Item item = itemDao.findItemByName(itemDbName);
@@ -163,8 +166,8 @@ public class InventoryService {
 	 *            Item id.
 	 * @param amount
 	 *            The amount to be removed.
-	 * @return TRUE if the item amount was on this account and the item(s) where removed. FALSE if no or not enough
-	 *         items where in this account.
+	 * @return TRUE if the item amount was on this account and the item(s) where
+	 *         removed. FALSE if no or not enough items where in this account.
 	 */
 	public boolean removeItem(long accId, int itemId, int amount) {
 		final PlayerItem item = playerItemDao.findPlayerItem(accId, itemId);
@@ -190,7 +193,8 @@ public class InventoryService {
 	}
 
 	/**
-	 * Like {@link removeItem()} but accepting the item database name instead of the item id.
+	 * Like {@link removeItem()} but accepting the item database name instead of
+	 * the item id.
 	 * 
 	 * @param accId
 	 *            Account id.
@@ -198,7 +202,8 @@ public class InventoryService {
 	 *            Item Database name.
 	 * @param amount
 	 *            Amount to be removed.
-	 * @return TRUE of the item (and the amount) could be removed. FALSE otherwise.
+	 * @return TRUE of the item (and the amount) could be removed. FALSE
+	 *         otherwise.
 	 */
 	public boolean removeItem(long accId, String itemDbName, int amount) {
 		final Item item = itemDao.findItemByName(itemDbName);
@@ -208,5 +213,17 @@ public class InventoryService {
 		}
 
 		return removeItem(accId, item.getId(), amount);
+	}
+
+	/**
+	 * Returns a {@link PlayerItem} if the accounts owns this item with the
+	 * given player item id.
+	 * 
+	 * @param playerItemId
+	 *            The player item id.
+	 * @return The {@link PlayerItem} or NULL if the ID did not exist.
+	 */
+	public PlayerItem getPlayerItem(int playerItemId) {
+		return playerItemDao.find(playerItemId);
 	}
 }

@@ -13,8 +13,10 @@ import net.bestia.model.dao.PlayerItemDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
+import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.BestiaRegister;
+import net.bestia.zoneserver.manager.InventoryManager;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 /*-
@@ -79,6 +81,9 @@ public class RequestLoginCommand extends Command {
 			return;
 		}
 		
+		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
+		final InventoryManager invManager = new InventoryManager(account.getId(), invService, ctx.getServer());
+		
 		// Master is here. It will be spawned by registerPlayerBestias anyways so only do the house keeping work.
 		final PlayerItemDAO playerItemDao = ctx.getServiceLocator().getBean(PlayerItemDAO.class);
 		
@@ -89,6 +94,7 @@ public class RequestLoginCommand extends Command {
 		final InventoryListMessage invMsg = new InventoryListMessage(message);
 		invMsg.setPlayerItems(items);
 		invMsg.setCurrentWeight(curWeight);
+		invMsg.setMaxWeight(invManager.getMaxWeight(master));
 		ctx.getServer().sendMessage(invMsg);
 		
 		// Calculate current status values.
