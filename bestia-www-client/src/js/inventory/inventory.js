@@ -151,7 +151,6 @@ Bestia.Inventory = function(pubsub, i18n) {
 	pubsub.subscribe('inventory.list', listHandler);
 
 	var bestiaSelectHandler = function(_, data) {
-		// TODO Hier die ID übdaten wenn eine neue Bestia selektiert wird.
 		self.currentBestiaId = data.bm.id;
 	};
 

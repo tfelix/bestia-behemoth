@@ -78,7 +78,6 @@ public class WorldExtender {
 		// Initialize ECS.
 		final WorldConfiguration worldConfig = new WorldConfiguration();
 		// Register all external helper objects.
-		worldConfig.register(this);
 		worldConfig.register(map);
 		worldConfig.register(ctx);
 		worldConfig.register(ctx.getServer().getBestiaRegister());

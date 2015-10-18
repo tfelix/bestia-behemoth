@@ -32,7 +32,7 @@ public class Map {
 		public java.util.Map<Vector2, Tile> tiles = new HashMap<>();
 		public String mapDbName;
 		public List<Script> portals = new ArrayList<>();
-		public List<String> globalMapscripts = new ArrayList<>();
+		public String globalMapscript = "";
 
 		public MapBuilder load(Maploader loader) throws IOException {
 			loader.loadMap(this);
@@ -67,7 +67,7 @@ public class Map {
 	private String tileset;
 	private Rect dimensions;
 
-	private final List<String> globalMapscripts;
+	private final String globalMapscript;
 	private final List<Script> portals;
 
 	private java.util.Map<Vector2, Tile> tiles = new HashMap<>();
@@ -83,7 +83,7 @@ public class Map {
 		tileset = builder.tileset;
 		mapDbName = builder.mapDbName;
 		tiles = Collections.unmodifiableMap(builder.tiles);
-		globalMapscripts = builder.globalMapscripts;
+		globalMapscript = builder.globalMapscript;
 		portals = builder.portals;
 	}
 
@@ -144,8 +144,8 @@ public class Map {
 	 * @return A list of names for the mapscripts which are attached to this
 	 *         map.
 	 */
-	public List<String> getMapscripts() {
-		return globalMapscripts;
+	public String getGlobalMapscript() {
+		return globalMapscript;
 	}
 
 	/**
