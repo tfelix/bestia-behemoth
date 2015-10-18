@@ -242,7 +242,7 @@ public class PlayerBestia implements Serializable {
 	}
 
 	@JsonProperty("sp")
-	public StatusPoints getStatusPoints() {
+	public StatusPoints getStatusPoints() {		
 		return statusPoints;
 	}
 	

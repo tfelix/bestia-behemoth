@@ -160,7 +160,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * this item are displayed.
 	 */
 	this.clickItem = function(item) {
-		this.selectedItem(item);
+		self.selectedItem(item);
 	};
 
 	/**

@@ -2,7 +2,6 @@ package net.bestia.zoneserver.manager;
 
 import net.bestia.messages.InventoryUpdateMessage;
 import net.bestia.model.domain.Item;
-import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.Zoneserver;
@@ -149,8 +148,8 @@ public class InventoryManager {
 	 * @return
 	 */
 	public int getMaxWeight() {
-		final PlayerBestia bestia = master.getPlayerBestia();
-		return 150 + bestia.getStatusPoints().getAtk() * 4 + bestia.getLevel() * 3;
+		final int atk = master.getStatusPoints().getAtk();
+		return 150 + atk * 4 + master.getLevel() * 3;
 	}
 
 	public PlayerItem getPlayerItem(int playerItemId) {
