@@ -49,6 +49,7 @@ public class Item implements Serializable {
 	 * Weight of the item. The rule is: 100gr = 1 weight unit.
 	 */
 	@Column(nullable = false)
+	@JsonProperty("w")
 	private int weight;
 
 	@Enumerated(EnumType.STRING)

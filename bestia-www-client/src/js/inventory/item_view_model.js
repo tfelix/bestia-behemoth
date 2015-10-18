@@ -25,7 +25,7 @@ Bestia.ItemViewModel = function(data) {
 	this.amount = ko.observable(0);
 	this.playerItemId = ko.observable();
 	this.itemId = ko.observable();
-	this.itemDatabaseName = '';
+	this.itemDatabaseName = ko.observable();
 	this.description = ko.observable('');
 	this.imageSrc = ko.observable();
 	this.weight = ko.observable(0);
@@ -56,7 +56,7 @@ Bestia.ItemViewModel.prototype.update = function(data) {
 	
 	this.playerItemId(data.pid);
 	this.itemId(data.i.id);
-	this.itemDatabaseName = data.i.idbn;
+	this.itemDatabaseName(data.i.idbn);
 	
 	this.imageSrc(Bestia.Urls.assetsItems + data.i.img);
 };

@@ -40,7 +40,6 @@ public class TranslationResponseMessage extends Message {
 	
 	public TranslationResponseMessage(TranslationRequestMessage msg) {
 		super(msg);
-		this.items.addAll(msg.getItems());
 		this.token = msg.getToken();
 	}
 	

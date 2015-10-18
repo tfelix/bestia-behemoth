@@ -5,7 +5,6 @@ import net.bestia.model.dao.ItemDAO;
 import net.bestia.model.dao.PlayerItemDAO;
 import net.bestia.model.domain.Item;
 import net.bestia.model.service.InventoryService;
-import net.bestia.zoneserver.zone.Zone;
 
 /**
  * Wrapper around the {@link InventoryService}. It provides more or less the same methods but it generates translated

@@ -67,18 +67,18 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * certain activities with if (display description, drop menu etc.)
 	 */
 	this.selectedItem = ko.observable();
-	
+
 	/**
 	 * Show the current weight to carry.
 	 */
-	this.currentWeight = ko.pureComputed(function() {	
-		var weight = 0;	
-		self.allItems().forEach(function(el){
+	this.currentWeight = ko.pureComputed(function() {
+		var weight = 0;
+		self.allItems().forEach(function(el) {
 			weight += el.totalWeight();
 		});
 		return weight;
 	});
-	
+
 	/**
 	 * Shows the maximum weight the bestia can carry.
 	 * 
@@ -93,23 +93,23 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 */
 	this.items = ko.pureComputed(function() {
 		var items = self.allItems();
-		
+
 		// Filter categories.
 		var catFilter = this.categoryFilter();
-		
-		if(catFilter !== '') {
+
+		if (catFilter !== '') {
 			items = items.filter(function(el) {
 				return el.type().toLowerCase() === catFilter;
 			});
 		}
-		
+
 		// Filter the item names in side the array with the set filter.
 		var searchTxt = this.searchFilter();
-		
+
 		items = items.filter(function(el) {
 			return el.name().startsWith(searchTxt);
 		});
-		
+
 		return items;
 	}, this);
 
@@ -122,29 +122,27 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * Handler if the server advises to re-render the inventory.
 	 */
 	var listHandler = function(_, data) {
-		// var i18nPrefix = 'item.';
+		var newItems = [];
 		self.allItems.removeAll();
 
 		data.pis.forEach(function(val) {
 			var item = new Bestia.ItemViewModel(val);
+			newItems.push(item);
 			self.allItems.push(item);
 		});
 
-		/*
-		 * data.pis.forEach(function(val) { var item = new
-		 * Bestia.ItemViewModel(val);
-		 * 
-		 * newItems.push(item); self.allItems.push(item); }, this);
-		 * 
-		 * var i18nKeys = newItem.map(function(el){ return i18nPrefix +
-		 * el.itemDatabaseName(); }, this);
-		 */
+		var buildTranslationKey = function(item) {
+			return 'item.' + item.itemDatabaseName();
+		};
 
-		// Translate the item names.
-		self._i18n.t('item.apple', function(t) {
-			console.log(t('item.apple'));
+		var i18nKeys = newItems.map(buildTranslationKey);
+
+		self._i18n.t(i18nKeys, function(t) {
+			newItems.forEach(function(val) {
+				val.name(t(buildTranslationKey(val)));
+			});
 		});
-		
+
 		self.maxWeight(data.mw);
 	};
 

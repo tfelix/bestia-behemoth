@@ -3,14 +3,8 @@ package net.bestia.zoneserver.zone.map.tmx;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
@@ -19,10 +13,6 @@ import org.reflections.Reflections;
 
 import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.map.Maploader;
-import net.bestia.zoneserver.zone.map.Tile;
-import net.bestia.zoneserver.zone.shape.Vector2;
-import tiled.core.MapLayer;
-import tiled.core.TileLayer;
 import tiled.io.TMXMapReader;
 
 /**
