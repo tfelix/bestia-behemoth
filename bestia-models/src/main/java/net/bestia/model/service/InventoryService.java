@@ -108,7 +108,7 @@ public class InventoryService {
 	 * @param amount
 	 * @return
 	 */
-	public void addItem(long accId, int itemId, int amount) {
+	public boolean addItem(long accId, int itemId, int amount) {
 
 		// Look if the account already has such an item.
 		PlayerItem pitem = playerItemDao.findPlayerItem(accId, itemId);
@@ -121,12 +121,12 @@ public class InventoryService {
 
 			if (acc == null) {
 				log.info("Could not find account {}", accId);
-				return;
+				return false;
 			}
 
 			if (item == null) {
 				log.info("Could not find item {}", itemId);
-				return;
+				return false;
 			}
 
 			pitem = new PlayerItem(item, acc, amount);
@@ -138,6 +138,8 @@ public class InventoryService {
 		}
 
 		log.info("Account {} received item {}, amount: {}", accId, itemId, amount);
+
+		return true;
 	}
 
 	/**
@@ -147,29 +149,34 @@ public class InventoryService {
 	 * @param itemDbName
 	 * @param amount
 	 */
-	public void addItem(long accId, String itemDbName, int amount) {
+	public boolean addItem(long accId, String itemDbName, int amount) {
 		final Item item = itemDao.findItemByName(itemDbName);
 
 		if (item == null) {
-			return;
+			return false;
 		}
 
-		addItem(accId, item.getId(), amount);
+		return addItem(accId, item.getId(), amount);
 	}
 
 	/**
-	 * Removes an item from the account of this user.
+	 * Removes an item from the account of this user. The amount must be
+	 * positive.
 	 * 
 	 * @param accId
 	 *            Account id.
 	 * @param itemId
 	 *            Item id.
 	 * @param amount
-	 *            The amount to be removed.
+	 *            The amount to be removed. Must be positive.
 	 * @return TRUE if the item amount was on this account and the item(s) where
 	 *         removed. FALSE if no or not enough items where in this account.
 	 */
 	public boolean removeItem(long accId, int itemId, int amount) {
+		if (amount < 0) {
+			throw new IllegalArgumentException("Amount must be positive.");
+		}
+
 		final PlayerItem item = playerItemDao.findPlayerItem(accId, itemId);
 		if (item == null) {
 			return false;
@@ -221,9 +228,72 @@ public class InventoryService {
 	 * 
 	 * @param playerItemId
 	 *            The player item id.
-	 * @return The {@link PlayerItem} or NULL if the ID did not exist.
+	 * @return The {@link PlayerItem} or NULL if the ID does not exist.
 	 */
 	public PlayerItem getPlayerItem(int playerItemId) {
 		return playerItemDao.find(playerItemId);
+	}
+
+	/**
+	 * Returns a {@link PlayerItem} with the given account id and item id. If
+	 * the item does not exist in the inventory for this given account, null is
+	 * returned.
+	 * 
+	 * @param accId
+	 *            Account ID
+	 * @param itemId
+	 *            Item ID
+	 * @return The {@link PlayerItem} or NULL if the item does not exist.
+	 */
+	public PlayerItem getPlayerItem(long accId, int itemId) {
+		return playerItemDao.findPlayerItem(accId, itemId);
+	}
+
+	/**
+	 * Returns a {@link Item} with the given item db name or NULL if no item
+	 * with this name was found.
+	 * 
+	 * @param itemDbName
+	 *            The item database name.
+	 * @return The {@link Item} or NULL.
+	 */
+	public Item getItem(String itemDbName) {
+		return itemDao.findItemByName(itemDbName);
+	}
+
+	/**
+	 * Returns the current item weight of the inventory for this account.
+	 * 
+	 * @param accId
+	 */
+	public int getTotalItemWeight(long accId) {
+		return playerItemDao.getTotalItemWeight(accId);
+	}
+
+	/**
+	 * The same as {@link #addItem(long, int, int)} but the item weight will be
+	 * considered before adding the item to the inventory. If the new item would
+	 * exceed the maxWeight of the inventory then FALSE will be returned.
+	 * 
+	 * @param accId
+	 * @param itemId
+	 * @param amount
+	 * @param maxWeight
+	 * @return
+	 */
+	public boolean addItem(long accId, int itemId, int amount, int maxWeight) {
+		final Item item = itemDao.find(itemId);
+
+		if (item == null) {
+			throw new IllegalArgumentException("Item with this ID was not found in the database.");
+		}
+
+		final int additionalWeight = item.getWeight() * amount;
+
+		if (getTotalItemWeight(accId) + additionalWeight > maxWeight) {
+			return false;
+		}
+
+		return addItem(accId, itemId, amount);
 	}
 }

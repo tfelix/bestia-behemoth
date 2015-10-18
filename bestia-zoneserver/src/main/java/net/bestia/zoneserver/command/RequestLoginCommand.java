@@ -81,20 +81,20 @@ public class RequestLoginCommand extends Command {
 			return;
 		}
 		
+		final PlayerBestiaManager masterManager = new PlayerBestiaManager(master, ctx.getServer());
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
-		final InventoryManager invManager = new InventoryManager(account.getId(), invService, ctx.getServer());
+		final InventoryManager invManager = new InventoryManager(masterManager, invService, ctx.getServer());
 		
 		// Master is here. It will be spawned by registerPlayerBestias anyways so only do the house keeping work.
 		final PlayerItemDAO playerItemDao = ctx.getServiceLocator().getBean(PlayerItemDAO.class);
 		
 		final List<PlayerItem> items = playerItemDao.findPlayerItemsForAccount(account.getId());
-		final int curWeight = playerItemDao.getTotalItemWeight(account.getId());
 		
 		// Generate a list of inventory items.
 		final InventoryListMessage invMsg = new InventoryListMessage(message);
 		invMsg.setPlayerItems(items);
-		invMsg.setCurrentWeight(curWeight);
-		invMsg.setMaxWeight(invManager.getMaxWeight(master));
+		invMsg.setCurrentWeight(invManager.getCurrentWeight());
+		invMsg.setMaxWeight(invManager.getMaxWeight());
 		ctx.getServer().sendMessage(invMsg);
 		
 		// Calculate current status values.

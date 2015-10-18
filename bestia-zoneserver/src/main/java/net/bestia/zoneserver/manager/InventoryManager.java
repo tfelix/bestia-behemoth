@@ -1,14 +1,11 @@
 package net.bestia.zoneserver.manager;
 
-import net.bestia.model.ServiceLocator;
-import net.bestia.model.dao.ItemDAO;
-import net.bestia.model.dao.PlayerItemDAO;
+import net.bestia.messages.InventoryUpdateMessage;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.Zoneserver;
-import net.bestia.zoneserver.zone.Zone;
 
 /**
  * Wrapper around the {@link InventoryService}. It provides more or less the
@@ -21,47 +18,74 @@ import net.bestia.zoneserver.zone.Zone;
  */
 public class InventoryManager {
 
-	private InventoryService inventoryService;
+	private final InventoryService inventoryService;
 	private final Zoneserver server;
-	private long accId;
+	private final long accId;
+	private final PlayerBestiaManager master;
 
-	public InventoryManager(long accId, InventoryService service, Zoneserver server) {
+	public InventoryManager(PlayerBestiaManager master, InventoryService service, Zoneserver server) {
 		if (service == null) {
 			throw new IllegalArgumentException("Service can not be null.");
 		}
 
 		this.inventoryService = service;
 		this.server = server;
-		this.accId = accId;
+		this.accId = master.getAccountId();
+		this.master = master;
 	}
 
 	/**
 	 * Adds an item to the users (accounts) inventory. If this is possible (not
-	 * exeeding account inventory limit) true is returned. Otherwise false.
+	 * exceeding account inventory limit) TRUE is returned. Otherwise FALSE.
 	 * 
 	 * @param itemId
+	 *            The item id.
+	 * @param amount
+	 *            Amount of the item to add. Must be positive.
 	 * @return TRUE if the item could be added to the inventory. FALSE if not.
 	 */
 	public boolean addItem(int itemId, int amount) {
+		if (amount < 0) {
+			throw new IllegalArgumentException("Amount can not be null.");
+		}
+		
+		final boolean success = inventoryService.addItem(accId, itemId, amount, getMaxWeight());
+		
+		if(success) {
+			final PlayerItem playerItem = inventoryService.getPlayerItem(accId, itemId);
+			final InventoryUpdateMessage updateMsg = new InventoryUpdateMessage(accId);
+			updateMsg.updateItem(playerItem, amount);
+			server.sendMessage(updateMsg);
+		} else {
+			// Item weight exceeded. Send message.
+			// TODO
+		}
 
-		// TODO Check if the item can be added.
-
-		// TODO Send a message.
-
-		inventoryService.addItem(amount, itemId, amount);
-
-		return true;
+		return success;
 	}
 
+	/**
+	 * The current weight of all items in this inventory.
+	 * 
+	 * @return Weight of all items.
+	 */
+	public int getCurrentWeight() {
+		return inventoryService.getTotalItemWeight(accId);
+	}
+
+	/**
+	 * @see InventoryManager#addItem(int, int).
+	 * 
+	 * @param itemDbName
+	 *            Item database name.
+	 * @param amount
+	 *            The amount of the item to add. Must be positive.
+	 * @return TRUE if the item could be added. FALSE otherwise (inventory
+	 *         weight exceeded for example).
+	 */
 	public boolean addItem(String itemDbName, int amount) {
-
-		// TODO Check if the item can be added.
-
-		// TODO Send a message.
-
-		inventoryService.addItem(amount, itemDbName, amount);
-
-		return true;
+		final Item item = inventoryService.getItem(itemDbName);
+		return addItem(item.getId(), amount);
 	}
 
 	public boolean hasItem(int itemId, int amount) {
@@ -72,18 +96,47 @@ public class InventoryManager {
 		return inventoryService.hasItem(accId, itemDbName, amount);
 	}
 
+	/**
+	 * Removes the given item with the item ID from the inventory of this
+	 * player. A {@link InventoryUpdateMessage} is then send to the player.
+	 * 
+	 * @param itemId
+	 *            Item ID of the item to be removed.
+	 * @param amount
+	 *            The mount of the item to remove. Must be positive.
+	 * @return TRUE if the item amount was removed. FALSE if the item could not
+	 *         be removed.
+	 */
 	public boolean removeItem(int itemId, int amount) {
+		final PlayerItem playerItem = getItemById(itemId);
+		final boolean success = inventoryService.removeItem(accId, itemId, amount);
 
-		// TODO if success send inventory update message.
+		if (success) {
+			final InventoryUpdateMessage updateMsg = new InventoryUpdateMessage(accId);
+			updateMsg.updateItem(playerItem, -1 * amount);
+			server.sendMessage(updateMsg);
+		}
 
-		return inventoryService.removeItem(accId, itemId, amount);
+		return success;
 	}
 
+	private PlayerItem getItemById(int itemId) {
+		return inventoryService.getPlayerItem(accId, itemId);
+	}
+
+	/**
+	 * @see InventoryManager#removeItem(int, int)
+	 * 
+	 * @param itemDbName
+	 *            Item Database name of the item to be removed.
+	 * @param amount
+	 *            The amount of the item to be removed. Must be positive.
+	 * @return TRUE if the item amount was removed. FALSE if the item could not
+	 *         be removed.
+	 */
 	public boolean removeItem(String itemDbName, int amount) {
-
-		// TODO if success send inventory update message.
-
-		return inventoryService.removeItem(accId, itemDbName, amount);
+		final Item item = inventoryService.getItem(itemDbName);
+		return removeItem(item.getId(), amount);
 	}
 
 	/**
@@ -95,11 +148,12 @@ public class InventoryManager {
 	 * @param bestia
 	 * @return
 	 */
-	public int getMaxWeight(PlayerBestia bestia) {
+	public int getMaxWeight() {
+		final PlayerBestia bestia = master.getPlayerBestia();
 		return 150 + bestia.getStatusPoints().getAtk() * 4 + bestia.getLevel() * 3;
 	}
 
-	public PlayerItem getItem(int playerItemId) {
+	public PlayerItem getPlayerItem(int playerItemId) {
 		return inventoryService.getPlayerItem(playerItemId);
 	}
 }
