@@ -54,7 +54,7 @@ Bestia.AttackViewModel = function(data) {
  * @param {Object}
  *            data - New attack data from the server.
  */
-Bestia.ItemViewModel.prototype.update = function(data) {
+Bestia.AttackViewModel.prototype.update = function(data) {
 
 	this.id(data.id);
 	this.attackDatabaseName(data.adbn);

@@ -33,11 +33,11 @@ import net.bestia.zoneserver.manager.PlayerBestiaManager;
  *
  */
 public class RequestLoginCommand extends Command {
-	
+
 	private PlayerBestiaDAO bestiaDao;
 	private AccountDAO accountDao;
 	private CommandContext ctx;
-	
+
 	private Account account;
 	private Set<PlayerBestia> bestias;
 	private Message message;
@@ -47,11 +47,11 @@ public class RequestLoginCommand extends Command {
 		return LoginBroadcastMessage.MESSAGE_ID;
 	}
 
-	
 	@Override
 	public void execute(Message message, CommandContext ctx) {
 
-		// Gather all the needed data for the client to completely display everything...
+		// Gather all the needed data for the client to completely display
+		// everything...
 		this.message = message;
 		this.ctx = ctx;
 
@@ -64,54 +64,55 @@ public class RequestLoginCommand extends Command {
 
 		// Add master as well since its not listed as a "player bestia".
 		bestias.add(account.getMaster());
-		
+
 		registerPlayerBestias(message.getAccountId(), bestias);
 		registerMaster(account.getMaster());
 	}
-	
+
 	private boolean isBestiaOnZone(PlayerBestia playerBestia) {
 		final Zoneserver server = ctx.getServer();
 		final Set<String> zones = server.getResponsibleZones();
 		return zones.contains(playerBestia.getCurrentPosition().getMapDbName());
 	}
-	
+
 	private void registerMaster(PlayerBestia master) {
-		if(!isBestiaOnZone(master)) {
+		if (!isBestiaOnZone(master)) {
 			// Master is not here. Puh. Not responsible.
 			return;
 		}
-		
+
 		final PlayerBestiaManager masterManager = new PlayerBestiaManager(master, ctx.getServer());
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
 		final InventoryManager invManager = new InventoryManager(masterManager, invService, ctx.getServer());
-		
-		// Master is here. It will be spawned by registerPlayerBestias anyways so only do the house keeping work.
+
+		// Master is here. It will be spawned by registerPlayerBestias anyways
+		// so only do the house keeping work.
 		final PlayerItemDAO playerItemDao = ctx.getServiceLocator().getBean(PlayerItemDAO.class);
-		
+
 		final List<PlayerItem> items = playerItemDao.findPlayerItemsForAccount(account.getId());
-		
+
 		// Generate a list of inventory items.
 		final InventoryListMessage invMsg = new InventoryListMessage(message);
 		invMsg.setPlayerItems(items);
 		invMsg.setCurrentWeight(invManager.getCurrentWeight());
 		invMsg.setMaxWeight(invManager.getMaxWeight());
 		ctx.getServer().sendMessage(invMsg);
-		
+
 		// Calculate current status values.
 		for (PlayerBestia playerBestia : bestias) {
 			final PlayerBestiaManager manager = new PlayerBestiaManager(playerBestia, ctx.getServer());
 			manager.updateStatusValues();
 		}
-		
+
 		// Generate a list of bestias for this account.
 		final BestiaInfoMessage msg = new BestiaInfoMessage(message, 1, master, bestias);
 		ctx.getServer().sendMessage(msg);
 	}
 
-
 	/**
-	 * Checks if a certain bestia is managed by this particular zone. If this is the case register the bestia in the ECS
-	 * of the server and then add the account to this server to it listens for incoming messages.
+	 * Checks if a certain bestia is managed by this particular zone. If this is
+	 * the case register the bestia in the ECS of the server and then add the
+	 * account to this server to it listens for incoming messages.
 	 * 
 	 */
 	private void registerPlayerBestias(Long accId, Set<PlayerBestia> bestias) {
@@ -120,7 +121,7 @@ public class RequestLoginCommand extends Command {
 		final BestiaRegister register = ctx.getServer().getBestiaRegister();
 
 		for (PlayerBestia playerBestia : bestias) {
-			if(!isBestiaOnZone(playerBestia)) {
+			if (!isBestiaOnZone(playerBestia)) {
 				continue;
 			}
 

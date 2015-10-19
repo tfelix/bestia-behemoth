@@ -10,7 +10,12 @@ Bestia.Game = function() {
 	this.chat = new Bestia.Chat($('#chat'), this);
 	this.engine = new Bestia.Engine(this.pubsub, this.config);
 	this.connection = new Bestia.Connection(this.pubsub);
+};
 
+/**
+ * Starts the connection procedure.
+ */
+Bestia.Game.prototype.init = function() {
 	this.connection.init();
 };
 
@@ -59,6 +64,11 @@ function main() {
 	// @ifdef DEVELOPMENT
 	window.bestiaGame = game;
 	// @endif
+	
+	
+	game.pubsub.subscribe('engine.loaded', function(){
+		game.init();
+	});
 }
 
 i18n.init({

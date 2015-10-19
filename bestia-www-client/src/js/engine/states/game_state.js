@@ -61,11 +61,12 @@ Bestia.Engine.States.GameState = function(engine) {
 	this.bestia = null;
 
 	// Setup the callbacks.
-	var entityCreateCallback = function(obj) {
+	var entityAppearCallback = function(obj) {
 
 		// Prepare callback function, since we might need it.
 		var completeEntityInsert = function() {
-			var entity = new Bestia.Engine.Entity(obj, self.game, self._bestiaWorld);
+			var entity = new Bestia.Engine.Entity(obj, self.game,
+					self._bestiaWorld);
 
 			// Check if we just created the player bestia. if so hold reference
 			// to it for the engine.
@@ -87,25 +88,17 @@ Bestia.Engine.States.GameState = function(engine) {
 			if (!self.game.cache.checkJSONKey(key)) {
 				// Preload the missing stuff and wait for completion.
 				self._demandLoader.loadMobSprite(name, function() {
-					
+
 					var entity = completeEntityInsert();
-					
+
 					self._entityUpdater.registerEntity(obj, entity);
 				});
 				return;
 			}
 		}
-
 		return completeEntityInsert();
 	};
-
-	/**
-	 * Entity updater for managing the adding and removal of entities.
-	 * 
-	 * @private
-	 * @property {Bestia.Engine.EntityUpdater}
-	 */
-	this._entityUpdater = new Bestia.Engine.EntityUpdater(this.pubsub, entityCreateCallback);
+	this.engine.entityUpdater.addHandler('onAppear', entityAppearCallback);
 
 	/**
 	 * Updates an entity if a change is incoming.
@@ -116,16 +109,25 @@ Bestia.Engine.States.GameState = function(engine) {
 			y : obj.y
 		} ]);
 	};
-	this._entityUpdater.addHandler('onUpdate', entityUpdateCallback);
+	this.engine.entityUpdater.addHandler('onUpdate', entityUpdateCallback);
 };
 
 Bestia.Engine.States.GameState.prototype = {
 
 	init : function(bestia) {
 		this.bestia = bestia;
-	},
 
-	preload : function() {
+		// Prepare the demandloader.
+		this._demandLoader = new Bestia.Engine.DemandLoader(this.load,
+				this.cache);
+
+		// Prepare the AStar plugin.
+		var astar = this.game.plugins.add(Phaser.Plugin.AStar);
+
+		// Load the tilemap and display it.
+		this._bestiaWorld = new Bestia.Engine.World(this.game, astar);
+		this._bestiaWorld.loadMap(this.bestia.location());
+
 		// Timing for FPS.
 		this.game.time.advancedTiming = true;
 	},
@@ -133,20 +135,6 @@ Bestia.Engine.States.GameState.prototype = {
 	create : function() {
 
 		var game = this.game;
-
-		// In development run in the background.
-		// TODO in production das entfernen.
-		game.stage.disableVisibilityChange = true;
-
-		// Prepare the AStar plugin.
-		var astar = this.game.plugins.add(Phaser.Plugin.AStar);
-
-		// Load the tilemap and display it.
-		this._bestiaWorld = new Bestia.Engine.World(game, astar);
-		this._bestiaWorld.loadMap(this.bestia.location());
-
-		// Prepare the demandloader.
-		this._demandLoader = new Bestia.Engine.DemandLoader(this.load, this.cache);
 
 		this.cursors = this.game.input.keyboard.createCursorKeys();
 
@@ -163,7 +151,8 @@ Bestia.Engine.States.GameState.prototype = {
 		game.input.onDown.add(function() {
 
 			var start = this.player.pos;
-			var goal = this._bestiaWorld.getTileXY(this.game.input.worldX, this.game.input.worldY);
+			var goal = this._bestiaWorld.getTileXY(this.game.input.worldX,
+					this.game.input.worldY);
 
 			var path = this._bestiaWorld.findPath(start, goal).nodes;
 
@@ -172,7 +161,8 @@ Bestia.Engine.States.GameState.prototype = {
 			}
 
 			var path = path.reverse();
-			var msg = new Bestia.Message.BestiaMove(this.player.pbid, path, this.player.walkspeed);
+			var msg = new Bestia.Message.BestiaMove(this.player.pbid, path,
+					this.player.walkspeed);
 			this.pubsub.publish('io.sendMessage', msg);
 
 			// Start movement locally aswell.
@@ -181,8 +171,13 @@ Bestia.Engine.States.GameState.prototype = {
 		}, this);
 
 		// Activate the selected bestia which triggered the mapload.
-		var msg = new Bestia.Message.BestiaActivate(this.bestia.playerBestiaId());
+		var msg = new Bestia.Message.BestiaActivate(this.bestia
+				.playerBestiaId());
 		this.pubsub.publish('io.sendMessage', msg);
+
+		// After we have created everything release the hold of the update
+		// messages.
+		this.engine.entityUpdater.releaseHold();
 	},
 
 	update : function() {
@@ -235,7 +230,8 @@ Bestia.Engine.States.GameState.prototype = {
 
 	updateMarker : function() {
 
-		var cords = this._bestiaWorld.getTileXY(this.game.input.activePointer.worldX,
+		var cords = this._bestiaWorld.getTileXY(
+				this.game.input.activePointer.worldX,
 				this.game.input.activePointer.worldY);
 		this._bestiaWorld.getPxXY(cords.x, cords.y, cords);
 

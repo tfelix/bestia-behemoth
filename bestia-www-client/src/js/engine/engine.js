@@ -23,6 +23,14 @@ Bestia.Engine = function(pubsub, config) {
 	 * publish/subscribe interface allowing game engine objects to subscribe to events.
 	 */
 	this.pubsub = pubsub;
+	
+	/**
+	 * Entity updater for managing the adding and removal of entities.
+	 * 
+	 * @public
+	 * @property {Bestia.Engine.EntityUpdater}
+	 */
+	this.entityUpdater = new Bestia.Engine.EntityUpdater(pubsub);
 
 	this.options = {
 		enableMusic : ko.observable('true'),
@@ -44,15 +52,10 @@ Bestia.Engine = function(pubsub, config) {
 	this.game = new Phaser.Game(width, height, Phaser.AUTO, 'bestia-canvas');
 
 	this.game.state.add('game', new Bestia.Engine.States.GameState(this));
+	this.game.state.add('connecting', new Bestia.Engine.States.ConnectingState(this));
 	this.game.state.add('load', new Bestia.Engine.States.LoadingState(this));
 	this.game.state.add('boot', new Bestia.Engine.States.BootState(this));
 	this.game.state.start('boot');
-
-	// React on bestia selection changes. We need to re-trigger the map loading.
-	var onSelectBestiaHandler = function(_, data) {
-		console.debug('New bestia selected. Starting loading process.');
-		self.loadMap(data);
-	};
 
 	// Subscribe for the first info messages until we gathered information about
 	// the master bestia to trigger initial map load.
@@ -63,8 +66,13 @@ Bestia.Engine = function(pubsub, config) {
 		// Remove handler again since we only trigger this once.
 		self.pubsub.unsubscribe('bestia.info', onInitHandler);
 	};
-
 	pubsub.subscribe('bestia.info', onInitHandler);
+	
+	// React on bestia selection changes. We need to re-trigger the map loading.
+	var onSelectBestiaHandler = function(_, data) {
+		console.debug('New bestia selected. Starting loading process.');
+		self.loadMap(data);
+	};
 	pubsub.subscribe('engine.selectBestia', onSelectBestiaHandler);
 };
 

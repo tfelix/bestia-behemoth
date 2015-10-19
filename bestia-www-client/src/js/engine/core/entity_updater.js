@@ -4,22 +4,21 @@
  * translating this change message to commands for the bestia engine. If updates
  * to entities are detected this will be communicated "upstream" via the use of
  * callback function. The engine/state can hook into the updater via them.
+ * <p>
+ * The updates of the entities are hold back until releaseHold is called.
+ * </p>
  * 
- * @param {Function}
- *            onAppearFn - An onAppear-Handler when an entity is added to the
- *            system. This handler should return some kind of entity which will
- *            be used to be stored inside the cache.
  * @param {Bestia.PubSub}
  *            pubsub - Reference to the bestia publish/subscriber system for
  *            hooking into update calls.
  */
-Bestia.Engine.EntityUpdater = function(pubsub, onAppearFn) {
-
-	if (onAppearFn === undefined) {
-		throw "onAppear callback can not be null.";
-	}
-
+Bestia.Engine.EntityUpdater = function(pubsub) {
 	var self = this;
+
+	/**
+	 * Temporary buffer to hold all the data until releaseHold is called.
+	 */
+	this._buffer = [];
 
 	/**
 	 * Holds all spawned or managed entities.
@@ -40,7 +39,11 @@ Bestia.Engine.EntityUpdater = function(pubsub, onAppearFn) {
 	 */
 	this._callbacks = {};
 
-	var onMessageHandler = function(_, msg) {
+	this._onMessageHandler = function(_, msg) {
+		if(self._buffer !== undefined) {
+			self._buffer.push(msg);
+			return;
+		}
 
 		var entities = msg.e;
 
@@ -48,19 +51,17 @@ Bestia.Engine.EntityUpdater = function(pubsub, onAppearFn) {
 			self._update(entities[i]);
 		}
 	};
-	pubsub.subscribe('map.entites', onMessageHandler);
-
-	this.addHandler('onAppear', onAppearFn);
+	pubsub.subscribe('map.entites', this._onMessageHandler);
 };
 
 /**
  * Adds a callback handler to the entity events on this updates. Use this to get
- * recognized and react upon changes in the updater. The callbackfunction will
- * get the JSON data of the offending entity aswell as a reference to this
+ * recognized and react upon changes in the updater. The callback function will
+ * get the JSON data of the offending entity as well as a reference to this
  * updater.
  * <p>
  * Attention: The onAppear Handler should return some kind of object which
- * should be persistet inside the cache as this entity. Usually this would be an
+ * should be persisted inside the cache as this entity. Usually this would be an
  * instance of Bestia.Engine.Entity.
  * </p>
  * 
@@ -169,6 +170,22 @@ Bestia.Engine.EntityUpdater.prototype.registerEntity = function(obj, entity) {
 	}
 };
 
+/**
+ * Holds the entity updates in a cache until the engine has loaded the map. When
+ * this method is called all updates are forwarded to the engine.
+ */
+Bestia.Engine.EntityUpdater.prototype.releaseHold = function() {
+	if(this._buffer === undefined) {
+		return;
+	}
+	
+	var temp = this._buffer;
+	this._buffer = undefined;
+	temp.forEach(function(msg){
+		this._onMessageHandler('ignorethis', msg);
+	}, this);
+};
+
 Bestia.Engine.EntityUpdater.prototype._removeGameEntity = function(obj) {
 
 	// Safeguard if UUID is already inside.
@@ -251,4 +268,16 @@ Bestia.Engine.EntityUpdater.prototype.getEntityByBestiaId = function(pbid) {
 	} else {
 		return this._pbidCache[pbid];
 	}
+};
+
+/**
+ * Clears all entities inside this cache.
+ * 
+ * @public
+ */
+Bestia.Engine.EntityUpdater.prototype.clearAll = function() {
+	this._cache = {};
+	this._pbidCache = {};
+	this._buffer = [];
+	this.pubsub.unsubscribe('map.entites', this._onMessageHandler);
 };

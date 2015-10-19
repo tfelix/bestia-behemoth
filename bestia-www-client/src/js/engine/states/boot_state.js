@@ -15,16 +15,7 @@ Bestia.Engine.States.BootState.prototype = {
 	},
 
 	create : function() {
-		this.logo = this.add.sprite(300, 300, 'logo');
-		this.logo.anchor.setTo(0.5, 0.5);
-		var tween = this.game.add.tween(this.logo.scale).to({
-			x : 3,
-			y : 3
-		}, 2000, Phaser.Easing.Linear.None);
-		tween.start();
-
 		this.game.stateTransition = this.game.plugins.add(Phaser.Plugin.StateTransition);
-
 		this.game.stateTransition.configure({
 			duration : Phaser.Timer.SECOND * 0.8,
 			ease : Phaser.Easing.Exponential.InOut,
@@ -36,6 +27,20 @@ Bestia.Engine.States.BootState.prototype = {
 				}
 			}
 		});
+		
+		this.logo = this.add.sprite(300, 300, 'logo');
+		this.logo.anchor.setTo(0.5, 0.5);
+		var tween = this.game.add.tween(this.logo.scale).to({
+			x : 3,
+			y : 3
+		}, 2000, Phaser.Easing.Linear.None);
+		
+		// Start the connecting state.
+		tween.onComplete.addOnce(function(){
+			this.game.state.start('connecting');
+		}, this);
+		
+		tween.start();
 	}
 };
 

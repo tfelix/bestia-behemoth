@@ -274,7 +274,7 @@
 					<div data-bind="visible:selectedItem() !== undefined" 
 						class="item-details">
 						<img
-							data-bind="attr: {src: imageSrc, alt: name}"
+							data-bind="attr: {src: selectedItem.imageSrc, alt: selectedItem.name}"
 							src="" alt="">
 						<h5 data-bind="text: name"></h5>
 						<p data-bind="text: selectedItem.description"></p>

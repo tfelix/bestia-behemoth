@@ -25,7 +25,9 @@ Bestia.Connection = function(pubsub) {
 	// Sends a message while listening to this channel.
 	pubsub.subscribe('io.sendMessage', function(_, msg) {
 		var message = JSON.stringify(msg);
+		// @ifdef DEVELOPMENT
 		console.trace('Sending Message: ' + message);
+		// @endif
 		self.socket.push(message);
 	});
 };
