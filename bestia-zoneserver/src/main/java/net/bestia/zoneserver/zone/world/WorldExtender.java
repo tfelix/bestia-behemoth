@@ -19,14 +19,16 @@ import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
 import net.bestia.zoneserver.ecs.system.AISystem;
-import net.bestia.zoneserver.ecs.system.ActiveSpawnSystem;
+import net.bestia.zoneserver.ecs.system.ActiveSpawnUpdateSystem;
+import net.bestia.zoneserver.ecs.system.ChangedNetworkUpdateSystem;
 import net.bestia.zoneserver.ecs.system.ChatSystem;
 import net.bestia.zoneserver.ecs.system.DelayedRemoveSystem;
 import net.bestia.zoneserver.ecs.system.InputSystem;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
 import net.bestia.zoneserver.ecs.system.MapScriptSystem;
-import net.bestia.zoneserver.ecs.system.VisibleSpawnSystem;
+import net.bestia.zoneserver.ecs.system.MobSpawnSystem;
+import net.bestia.zoneserver.ecs.system.VisibleSpawnUpdateSystem;
 import net.bestia.zoneserver.zone.map.Map;
 
 /**
@@ -48,10 +50,8 @@ public class WorldExtender {
 	public WorldExtender(BestiaConfiguration config) {
 		this.config = config;
 
-		final Reflections reflections = new Reflections(
-				"net.bestia.zoneserver.zone.world");
-		final Set<Class<? extends WorldExtend>> subTypes = reflections
-				.getSubTypesOf(WorldExtend.class);
+		final Reflections reflections = new Reflections("net.bestia.zoneserver.zone.world");
+		final Set<Class<? extends WorldExtend>> subTypes = reflections.getSubTypesOf(WorldExtend.class);
 
 		for (Class<? extends WorldExtend> clazz : subTypes) {
 
@@ -64,16 +64,14 @@ public class WorldExtender {
 				final WorldExtend extra = clazz.newInstance();
 				extras.add(extra);
 			} catch (InstantiationException | IllegalAccessException e) {
-				log.error("Can not instanciate command handler: {}",
-						clazz.toString(), e);
+				log.error("Can not instanciate command handler: {}", clazz.toString(), e);
 			}
 		}
 	}
 
 	public World createWorld(CommandContext ctx, Map map) {
 
-		final File saveFolder = new File(
-				config.getProperty("zone.persistFolder"));
+		final File saveFolder = new File(config.getProperty("zone.persistFolder"));
 
 		// Initialize ECS.
 		final WorldConfiguration worldConfig = new WorldConfiguration();
@@ -83,26 +81,30 @@ public class WorldExtender {
 		worldConfig.register(ctx.getServer().getBestiaRegister());
 
 		// Set all the systems.
+		worldConfig.setSystem(new MobSpawnSystem());
 		worldConfig.setSystem(new InputSystem());
 		worldConfig.setSystem(new MovementSystem());
 		worldConfig.setSystem(new AISystem());
 		worldConfig.setSystem(new ChatSystem());
-		worldConfig.setSystem(new ActiveSpawnSystem());
-		worldConfig.setSystem(new VisibleSpawnSystem());
-		worldConfig.setSystem(new PersistSystem(10000));
+		worldConfig.setSystem(new ActiveSpawnUpdateSystem());
+		worldConfig.setSystem(new VisibleSpawnUpdateSystem());
 		worldConfig.setSystem(new MapScriptSystem());
 		worldConfig.setSystem(new DelayedRemoveSystem());
+		worldConfig.setSystem(new PersistSystem(10000));
+		// ChangedNetworkUpdateSystem must be last because it removes the
+		// Changed component.
+		worldConfig.setSystem(new ChangedNetworkUpdateSystem());
 
 		// Set all the managers.
 		worldConfig.setManager(new PlayerManager());
 		worldConfig.setManager(new TagManager());
 		worldConfig.setManager(new UuidEntityManager());
 		worldConfig.setManager(new WorldPersistenceManager(saveFolder, map.getMapDbName()));
-		
+
 		final World world = new World(worldConfig);
-		
+
 		extend(world, map);
-		
+
 		return world;
 	}
 
