@@ -48,6 +48,7 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 	 */
 	//@Override
 	protected void removed(Entity e) {
+		log.trace("PlayerBestia Entity id: {} removed. Persisting.", e.id);
 		synchronizeAndSaveEntity(e);
 	}
 

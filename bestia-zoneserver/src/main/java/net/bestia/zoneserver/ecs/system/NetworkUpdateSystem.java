@@ -20,9 +20,9 @@ import com.artemis.managers.UuidEntityManager;
 import com.artemis.systems.EntityProcessingSystem;
 
 /**
- * Should be abstract. Does not work with @Wire dependency injection.
+ * Should be abstract.
  * 
- * @author Thomas
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 @Wire
@@ -40,15 +40,6 @@ public abstract class NetworkUpdateSystem extends EntityProcessingSystem {
 
 	public NetworkUpdateSystem(Builder aspect) {
 		super(aspect);
-	}
-
-	/**
-	 * Workaround since the wireing of artemis does not work here. Must be set by child class.
-	 * 
-	 * @param ctx
-	 */
-	protected void setCommandContext(CommandContext ctx) {
-		this.ctx = ctx;
 	}
 
 	@Override

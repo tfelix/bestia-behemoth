@@ -17,53 +17,48 @@ import com.artemis.EntitySubscription.SubscriptionListener;
 import com.artemis.annotations.Wire;
 import com.artemis.utils.IntBag;
 
-@Wire
-public class VisibleSpawnSystem extends NetworkUpdateSystem {
+@Wire(injectInherited = true)
+public class ActiveSpawnUpdateSystem extends NetworkUpdateSystem {
 
-	public VisibleSpawnSystem() {
-		super(Aspect.all(Visible.class));
+	public ActiveSpawnUpdateSystem() {
+		super(Aspect.all(Active.class, PlayerBestia.class));
 		setPassive(true);
 	}
 
-	private static final Logger log = LogManager.getLogger(VisibleSpawnSystem.class);
+	private static final Logger log = LogManager.getLogger(ActiveSpawnUpdateSystem.class);
+
+	private AspectSubscriptionManager asm;
 
 	@Wire
 	private CommandContext ctx;
 
-	private EntitySubscription playerSubscription;
+	private EntitySubscription visibleSubscription;
 
 	@Override
 	protected void initialize() {
 		super.initialize();
-		
-		// Workaround must be set since parent gets no wireing.
-		setCommandContext(ctx);
 
-		final AspectSubscriptionManager asm = world.getManager(AspectSubscriptionManager.class);
-
-		playerSubscription = asm.get(Aspect.all(Active.class, PlayerBestia.class));
+		visibleSubscription = asm.get(Aspect.all(Visible.class));
 
 		subscription.addSubscriptionListener(new SubscriptionListener() {
 
 			@Override
 			public void inserted(IntBag entities) {
+				final IntBag visibleEntities = visibleSubscription.getEntities();
 
-				final IntBag playersBag = playerSubscription.getEntities();
-
-				log.trace("### {} NEW VISIBLE, UPDATING {} PLAYERS ###", entities.size(), playersBag.size());
+				log.trace("{} New active player, sending {} entities.", entities.size(), visibleEntities.size());
 
 				for (int i = 0; i < entities.size(); i++) {
-					final Entity visibleEntity = world.getEntity(entities.get(i));
-					for (int j = 0; j < playersBag.size(); j++) {
-						final int id = playersBag.get(j);
-						final Entity playerEntity = world.getEntity(id);
+					final int newEntityId = entities.get(i);
+					final Entity newActiveEntity = world.getEntity(newEntityId);
 
-						// Is this player in sight of entity? If not continue.
-						if (!isInSightDistance(playerEntity, visibleEntity)) {
-							continue;
-						}
-
-						sendUpdate(playerEntity, visibleEntity, EntityAction.APPEAR);
+					for(int j = 0; j < visibleEntities.size(); j++) {
+						final int visibleEntityId = visibleEntities.get(j);
+						final Entity visibleEntity = world.getEntity(visibleEntityId);
+						
+						// TODO Do a range check.
+						
+						sendUpdate(newActiveEntity, visibleEntity, EntityAction.APPEAR);
 					}
 				}
 			}
@@ -73,7 +68,6 @@ public class VisibleSpawnSystem extends NetworkUpdateSystem {
 				// no op.
 			}
 		});
-
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package net.bestia.zoneserver.ecs.system;
 
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.ecs.component.Bestia;
+import net.bestia.zoneserver.ecs.component.Changed;
 import net.bestia.zoneserver.ecs.component.Collision;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.manager.BestiaManager;
@@ -72,6 +73,9 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 
 		manager.getLocation().setX(pos.x);
 		manager.getLocation().setY(pos.y);
+		
+		// Mark entity as changed.
+		e.edit().create(Changed.class);
 		
 		// TODO das hier besser lösen. Update the collision.
 		collisionMapper.get(e).shape = new Vector2(pos.x, pos.y);
