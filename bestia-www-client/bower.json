@@ -24,7 +24,8 @@
     "html5shiv": "~3.7.2",
     "phaser-state-transition-plugin": "~0.1.5",
     "js-cookie": "~1.5.1",
-    "jquery-atmosphere": "~2.2.7"
+    "jquery-atmosphere": "~2.2.7",
+    "interact": "~1.2.6"
   },
   "devDependencies": {
     "jasmine-jquery": "~2.1.0"

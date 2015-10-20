@@ -130,6 +130,8 @@ Bestia.Engine.States.GameState.prototype = {
 
 		// Timing for FPS.
 		this.game.time.advancedTiming = true;
+		
+		this.game.stage.disableVisibilityChange = true;
 	},
 
 	create : function() {
