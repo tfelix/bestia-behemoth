@@ -47,7 +47,7 @@ public class Bestia implements Serializable {
 	private int expGained;
 	@JsonIgnore
 	private int level;
-	
+
 	private boolean isBoss;
 
 	/*-
@@ -66,29 +66,32 @@ public class Bestia implements Serializable {
 	private BaseValues effortValues;
 
 	/**
-	 * The status points are calculated based on the base stats and the level aswell. But in contrast to the players
-	 * wild bestias gain a small boost in their stat calculation in order to compensate for missing equipment. Their
-	 * armor and special armor is also saved as a fixed value in the database.
+	 * The status points are calculated based on the base stats and the level
+	 * aswell. But in contrast to the players wild bestias gain a small boost in
+	 * their stat calculation in order to compensate for missing equipment.
+	 * Their armor and special armor is also saved as a fixed value in the
+	 * database.
 	 */
 	@Transient
 	@JsonIgnore
 	private StatusPoints statusValues;
 
 	/**
-	 * Override the names because the are the same like in status points. Both entities are embedded so we need
-	 * individual column names. This values is added to each bestia when it kill another bestia from this kind.
+	 * Override the names because the are the same like in status points. Both
+	 * entities are embedded so we need individual column names. This values is
+	 * added to each bestia when it kill another bestia from this kind.
 	 */
 	@Embedded
-	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "bHp")),
-			@AttributeOverride(name = "mana", column = @Column(name = "bMana")),
-			@AttributeOverride(name = "atk", column = @Column(name = "bAtk")),
-			@AttributeOverride(name = "def", column = @Column(name = "bDef")),
-			@AttributeOverride(name = "spAtk", column = @Column(name = "bSpAtk")),
-			@AttributeOverride(name = "spDef", column = @Column(name = "bSpDef")),
-			@AttributeOverride(name = "spd", column = @Column(name = "bSpd")) })
+	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "bHp") ),
+			@AttributeOverride(name = "mana", column = @Column(name = "bMana") ),
+			@AttributeOverride(name = "atk", column = @Column(name = "bAtk") ),
+			@AttributeOverride(name = "def", column = @Column(name = "bDef") ),
+			@AttributeOverride(name = "spAtk", column = @Column(name = "bSpAtk") ),
+			@AttributeOverride(name = "spDef", column = @Column(name = "bSpDef") ),
+			@AttributeOverride(name = "spd", column = @Column(name = "bSpd") ) })
 	@JsonIgnore
 	private BaseValues baseValues;
-	
+
 	/**
 	 * Script which will be attached to this bestia.
 	 */
@@ -144,6 +147,15 @@ public class Bestia implements Serializable {
 		return baseValues;
 	}
 
+	/**
+	 * The database name.
+	 * 
+	 * @return The database name.
+	 */
+	public String getDatabaseName() {
+		return databaseName;
+	}
+
 	public String getImage() {
 		return image;
 	}
@@ -163,7 +175,7 @@ public class Bestia implements Serializable {
 	public int getLevel() {
 		return level;
 	}
-	
+
 	@JsonIgnore
 	public int getId() {
 		return id;
@@ -179,7 +191,8 @@ public class Bestia implements Serializable {
 	}
 
 	/**
-	 * Returns the NPC bestias effort values which will be granted if the bestia was killed by a player.
+	 * Returns the NPC bestias effort values which will be granted if the bestia
+	 * was killed by a player.
 	 * 
 	 * @return The earned effort values if a bestia was killed by a player.
 	 */
