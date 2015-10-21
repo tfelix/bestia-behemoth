@@ -46,9 +46,9 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 	/**
 	 * Persist an entity the system is interested immediately if it was removed from the world.
 	 */
-	//@Override
-	protected void removed(Entity e) {
-		log.trace("PlayerBestia Entity id: {} removed. Persisting.", e.id);
+	@Override
+	public void removed(Entity e) {
+		log.trace("PlayerBestia Entity id: {} removed. Persisting.", e.getId());
 		synchronizeAndSaveEntity(e);
 	}
 

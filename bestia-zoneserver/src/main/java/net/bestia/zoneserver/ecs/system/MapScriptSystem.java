@@ -44,7 +44,7 @@ public class MapScriptSystem extends EntityProcessingSystem {
 	protected void initialize() {
 		super.initialize();
 
-		final AspectSubscriptionManager asm = world.getManager(AspectSubscriptionManager.class);
+		final AspectSubscriptionManager asm = world.getAspectSubscriptionManager();
 		collidableEntitySubscription = asm.get(Aspect.all(Bestia.class, Collision.class));
 	}
 
@@ -71,7 +71,7 @@ public class MapScriptSystem extends EntityProcessingSystem {
 			}
 
 			// Collision occured. Check if we entered of have left the script.
-			if (scriptComp.lastTriggeredEntities.contains(collisionEntity.id)) {
+			if (scriptComp.lastTriggeredEntities.contains(collisionEntity.getId())) {
 				// We still touch the script.
 				final BestiaManager bm = bestiaMapper.get(collisionEntity).bestiaManager;
 				script.onInside(bm);
@@ -79,7 +79,7 @@ public class MapScriptSystem extends EntityProcessingSystem {
 				// We are newly touching/entering it.
 				final BestiaManager bm = bestiaMapper.get(collisionEntity).bestiaManager;
 				script.onEnter(bm);
-				newCollisions.add(collisionEntity.id);
+				newCollisions.add(collisionEntity.getId());
 			}
 		}
 

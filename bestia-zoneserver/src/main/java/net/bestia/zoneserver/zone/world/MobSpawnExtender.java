@@ -15,8 +15,15 @@ public class MobSpawnExtender implements WorldExtend {
 
 	@Override
 	public void extend(World world, Map map) {
-		// TODO Auto-generated method stub
-
+		
+		// Create the SpawnLocations from the map.
+		
+		// Parse the spawn strings into a spawner.
+		
+		// Attach all the locations with a given ID to the spawner.
+		
+		
+		
 	}
 
 }

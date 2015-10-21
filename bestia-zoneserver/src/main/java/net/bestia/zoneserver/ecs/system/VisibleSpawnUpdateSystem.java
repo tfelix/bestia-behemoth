@@ -22,7 +22,6 @@ public class VisibleSpawnUpdateSystem extends NetworkUpdateSystem {
 
 	public VisibleSpawnUpdateSystem() {
 		super(Aspect.all(Visible.class));
-		setPassive(true);
 	}
 
 	private static final Logger log = LogManager.getLogger(VisibleSpawnUpdateSystem.class);
@@ -36,7 +35,7 @@ public class VisibleSpawnUpdateSystem extends NetworkUpdateSystem {
 	protected void initialize() {
 		super.initialize();
 
-		final AspectSubscriptionManager asm = world.getManager(AspectSubscriptionManager.class);
+		final AspectSubscriptionManager asm = world.getSystem(AspectSubscriptionManager.class);
 
 		playerSubscription = asm.get(Aspect.all(Active.class, PlayerBestia.class));
 
@@ -71,10 +70,5 @@ public class VisibleSpawnUpdateSystem extends NetworkUpdateSystem {
 			}
 		});
 
-	}
-
-	@Override
-	protected void process(Entity e) {
-		// no op.
 	}
 }

@@ -68,7 +68,7 @@ public class WorldPersistenceManager extends Manager {
 			// Dont persist player or script entities which can be regenerated
 			// from database or during startup.
 
-			final String filename = String.format("entity-%d", e.id);
+			final String filename = String.format("entity-%d", e.getId());
 			final File saveFile = new File(saveSubfolder, filename);
 
 			try {
@@ -90,12 +90,12 @@ public class WorldPersistenceManager extends Manager {
 	}
 
 	@Override
-	public void added(int entityId) {
-		trackedEntities.put(entityId, world.getEntity(entityId));
+	public void added(Entity e) {
+		trackedEntities.put(e.getId(), e);
 	}
 
 	@Override
-	public void deleted(int entityId) {
-		trackedEntities.remove(entityId);
+	public void deleted(Entity e) {
+		trackedEntities.remove(e.getId());
 	}
 }

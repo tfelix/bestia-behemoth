@@ -33,7 +33,7 @@ public class ChatSystem extends EntityProcessingSystem {
 
 	@Override
 	protected void initialize() {
-		final AspectSubscriptionManager asm = world.getManager(AspectSubscriptionManager.class);
+		final AspectSubscriptionManager asm = world.getSystem(AspectSubscriptionManager.class);
 		activePlayerEntities = asm.get(Aspect.all(Active.class, PlayerBestia.class));
 	}
 

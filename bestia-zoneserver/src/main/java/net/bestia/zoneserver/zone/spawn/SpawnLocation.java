@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.zone;
+package net.bestia.zoneserver.zone.spawn;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import net.bestia.zoneserver.zone.shape.Vector2;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class SpawnLocationFinder {
+public class SpawnLocation {
 
 	private class PossibleSpawn {
 		public final int value;

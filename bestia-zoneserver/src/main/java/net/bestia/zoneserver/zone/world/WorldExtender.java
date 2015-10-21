@@ -11,6 +11,7 @@ import org.reflections.Reflections;
 
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
+import com.artemis.managers.GroupManager;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
 import com.artemis.managers.UuidEntityManager;
@@ -96,10 +97,11 @@ public class WorldExtender {
 		worldConfig.setSystem(new ChangedNetworkUpdateSystem());
 
 		// Set all the managers.
-		worldConfig.setManager(new PlayerManager());
-		worldConfig.setManager(new TagManager());
-		worldConfig.setManager(new UuidEntityManager());
-		worldConfig.setManager(new WorldPersistenceManager(saveFolder, map.getMapDbName()));
+		worldConfig.setSystem(new PlayerManager());
+		worldConfig.setSystem(new TagManager());
+		worldConfig.setSystem(new GroupManager());
+		worldConfig.setSystem(new UuidEntityManager());
+		worldConfig.setSystem(new WorldPersistenceManager(saveFolder, map.getMapDbName()));
 
 		final World world = new World(worldConfig);
 

@@ -17,12 +17,19 @@ import com.artemis.EntitySubscription.SubscriptionListener;
 import com.artemis.annotations.Wire;
 import com.artemis.utils.IntBag;
 
+/**
+ * As soon as an active player bestia is spawned into the world it gets updated
+ * with all entities in its sight.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 @Wire(injectInherited = true)
 public class ActiveSpawnUpdateSystem extends NetworkUpdateSystem {
 
 	public ActiveSpawnUpdateSystem() {
 		super(Aspect.all(Active.class, PlayerBestia.class));
-		setPassive(true);
+		setEnabled(false);
 	}
 
 	private static final Logger log = LogManager.getLogger(ActiveSpawnUpdateSystem.class);
@@ -52,12 +59,12 @@ public class ActiveSpawnUpdateSystem extends NetworkUpdateSystem {
 					final int newEntityId = entities.get(i);
 					final Entity newActiveEntity = world.getEntity(newEntityId);
 
-					for(int j = 0; j < visibleEntities.size(); j++) {
+					for (int j = 0; j < visibleEntities.size(); j++) {
 						final int visibleEntityId = visibleEntities.get(j);
 						final Entity visibleEntity = world.getEntity(visibleEntityId);
-						
+
 						// TODO Do a range check.
-						
+
 						sendUpdate(newActiveEntity, visibleEntity, EntityAction.APPEAR);
 					}
 				}
@@ -68,10 +75,5 @@ public class ActiveSpawnUpdateSystem extends NetworkUpdateSystem {
 				// no op.
 			}
 		});
-	}
-
-	@Override
-	protected void process(Entity e) {
-		// no op.
 	}
 }

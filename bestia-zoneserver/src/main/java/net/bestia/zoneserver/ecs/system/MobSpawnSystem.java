@@ -1,7 +1,10 @@
 package net.bestia.zoneserver.ecs.system;
 
-import com.artemis.Aspect.Builder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.artemis.Aspect;
+import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.DelayedEntityProcessingSystem;
@@ -16,6 +19,10 @@ import net.bestia.zoneserver.ecs.component.MobSpawn;
  */
 @Wire
 public class MobSpawnSystem extends DelayedEntityProcessingSystem {
+	
+	private final static Logger LOG = LogManager.getLogger(MobSpawnSystem.class);
+	
+	private ComponentMapper<MobSpawn> spawnMapper;
 
 	public MobSpawnSystem() {
 		super(Aspect.all(MobSpawn.class));
@@ -24,20 +31,22 @@ public class MobSpawnSystem extends DelayedEntityProcessingSystem {
 
 	@Override
 	protected float getRemainingDelay(Entity e) {
-		// TODO Auto-generated method stub
-		return 0;
+		return spawnMapper.get(e).delay;
 	}
 
 	@Override
 	protected void processDelta(Entity e, float accumulatedDelta) {
-		// TODO Auto-generated method stub
-
+		final MobSpawn spawn = spawnMapper.get(e);
+		spawn.delay -= accumulatedDelta;
 	}
 
 	@Override
 	protected void processExpired(Entity e) {
-		// TODO Auto-generated method stub
+		final MobSpawn spawn = spawnMapper.get(e);
 
+		// TODO Create the NPC entity.
+		
+		LOG.trace("Spawned: ");
 	}
 
 }

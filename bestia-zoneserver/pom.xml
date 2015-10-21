@@ -12,8 +12,7 @@
 	</parent>
 
 	<properties>
-		<artemis.version>0.12.1</artemis.version>
-		<artemis-contrib.version>0.9.1</artemis-contrib.version>
+		<artemis.version>1.0.1</artemis.version>
 	</properties>
 
 	<dependencies>
@@ -31,6 +30,12 @@
 			<groupId>net.onedaybeard.artemis</groupId>
 			<artifactId>artemis-odb</artifactId>
 			<version>${artemis.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.onedaybeard.artemis</groupId>
+			<artifactId>artemis-odb-processor</artifactId>
+			<version>0.9.0</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>map-tmxloader</groupId>
@@ -56,12 +61,6 @@
 			<groupId>net.bestia</groupId>
 			<artifactId>bestia-interserver</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.onedaybeard.artemis</groupId>
-			<artifactId>artemis-odb-processor</artifactId>
-			<version>0.9.0</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
@@ -111,6 +110,23 @@
 			</plugins>
 		</pluginManagement>
 		<plugins>
+			<plugin>
+				<groupId>net.onedaybeard.artemis</groupId>
+				<artifactId>artemis-odb-maven-plugin</artifactId>
+				<version>${artemis.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>artemis</goal>
+						</goals>
+						<configuration>
+							<!-- configuration section can be omitted, -->
+							<!-- optimizeEntitySystems defaults to true -->
+							<optimizeEntitySystems>true</optimizeEntitySystems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>

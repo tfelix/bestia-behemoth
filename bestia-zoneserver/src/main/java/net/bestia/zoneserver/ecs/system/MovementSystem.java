@@ -45,7 +45,7 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 
 	@Override
 	protected void processDelta(Entity e, float accumulatedDelta) {
-		Movement m = movementMapper.get(e);
+		final Movement m = movementMapper.get(e);
 		m.nextMove -= accumulatedDelta;
 	}
 

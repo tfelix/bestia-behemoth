@@ -2,22 +2,22 @@ package net.bestia.zoneserver.ecs.system;
 
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.artemis.Aspect.Builder;
+import com.artemis.BaseEntitySystem;
+import com.artemis.ComponentMapper;
+import com.artemis.Entity;
+import com.artemis.annotations.Wire;
+import com.artemis.managers.UuidEntityManager;
+
 import net.bestia.messages.MapEntitiesMessage;
 import net.bestia.messages.MapEntitiesMessage.EntityAction;
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Visible;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.artemis.Aspect.Builder;
-import com.artemis.ComponentMapper;
-import com.artemis.Entity;
-import com.artemis.annotations.Wire;
-import com.artemis.managers.UuidEntityManager;
-import com.artemis.systems.EntityProcessingSystem;
 
 /**
  * Should be abstract.
@@ -26,7 +26,7 @@ import com.artemis.systems.EntityProcessingSystem;
  *
  */
 @Wire
-public abstract class NetworkUpdateSystem extends EntityProcessingSystem {
+public abstract class NetworkUpdateSystem extends BaseEntitySystem {
 
 	private static final Logger log = LogManager.getLogger(NetworkUpdateSystem.class);
 
@@ -40,17 +40,12 @@ public abstract class NetworkUpdateSystem extends EntityProcessingSystem {
 
 	public NetworkUpdateSystem(Builder aspect) {
 		super(aspect);
+		setEnabled(false);
 	}
 
 	@Override
 	protected void initialize() {
 		super.initialize();
-
-		// Autowiring does not work.
-		uuidManager = world.getManager(UuidEntityManager.class);
-
-		playerMapper = world.getMapper(PlayerBestia.class);
-		visibleMapper = world.getMapper(Visible.class);
 	}
 
 	/**
@@ -117,6 +112,11 @@ public abstract class NetworkUpdateSystem extends EntityProcessingSystem {
 		}
 
 		return msg;
+	}
+
+	@Override
+	protected void processSystem() {
+		// is not processed (enabled: false)
 	}
 
 }
