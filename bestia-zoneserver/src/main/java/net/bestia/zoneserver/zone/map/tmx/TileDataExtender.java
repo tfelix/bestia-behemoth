@@ -13,6 +13,10 @@ import tiled.core.MapLayer;
 import tiled.core.TileLayer;
 
 class TileDataExtender implements TMXMapExtender {
+	
+	public TileDataExtender() {
+		// no op.
+	}
 
 	@Override
 	public void extendMap(Map tiledMap, MapBuilder builder) {

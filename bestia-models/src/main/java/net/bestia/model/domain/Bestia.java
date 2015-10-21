@@ -28,7 +28,7 @@ public class Bestia implements Serializable {
 	@Id
 	private int id;
 
-	@Column(name = "bestia_db_name")
+	@Column(name = "bestia_db_name", unique = true, nullable = false, length = 100)
 	@JsonProperty("bdbn")
 	private String databaseName;
 

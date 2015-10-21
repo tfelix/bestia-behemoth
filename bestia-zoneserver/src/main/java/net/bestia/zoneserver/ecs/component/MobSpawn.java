@@ -27,4 +27,13 @@ public class MobSpawn extends Component {
 		this.mob = mob;
 		this.coordinates = coordinates;
 	}
+
+	/**
+	 * Returns the group name of this particular mob.
+	 * 
+	 * @return
+	 */
+	public String getGroup() {
+		return String.format("group-%s", mob.getDatabaseName());
+	}
 }

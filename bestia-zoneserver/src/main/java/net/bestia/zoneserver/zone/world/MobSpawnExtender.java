@@ -18,6 +18,7 @@ public class MobSpawnExtender implements WorldExtend {
 		
 		// Create the SpawnLocations from the map.
 		
+		
 		// Parse the spawn strings into a spawner.
 		
 		// Attach all the locations with a given ID to the spawner.

@@ -24,6 +24,10 @@ import tiled.core.ObjectGroup;
 class ScriptMapExtender implements TMXMapExtender {
 
 	private final static Logger log = LogManager.getLogger(ScriptMapExtender.class);
+	
+	public ScriptMapExtender() {
+		// no op.
+	}
 
 	@Override
 	public void extendMap(Map tiledMap, MapBuilder builder) {

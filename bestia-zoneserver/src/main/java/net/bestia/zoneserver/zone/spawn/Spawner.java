@@ -2,7 +2,6 @@ package net.bestia.zoneserver.zone.spawn;
 
 import java.util.Random;
 
-import net.bestia.model.domain.Bestia;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
@@ -14,13 +13,14 @@ import net.bestia.zoneserver.zone.shape.Vector2;
  */
 public class Spawner {
 
-	private final Bestia mob;
+	private final String mobDbName;
 	private final int minDelay;
 	private final int deltaDelay;
 	private final SpawnLocation location;
+	private final int mobCount;
 	private final Random rand = new Random();
 
-	public Spawner(Bestia mob, SpawnLocation location, int minDelay, int maxDelay) {
+	public Spawner(String mobDbName, SpawnLocation location, int minDelay, int maxDelay, int count) {
 		if (minDelay > maxDelay) {
 			throw new IllegalArgumentException("minDelay must be smaller than maxDelay");
 		}
@@ -29,18 +29,19 @@ public class Spawner {
 			throw new IllegalArgumentException("minDelay and maxDelay must be positive.");
 		}
 
-		if (mob == null) {
-			throw new IllegalArgumentException("Mob can not be null.");
+		if (mobDbName == null || mobDbName.isEmpty()) {
+			throw new IllegalArgumentException("MobDbName can not be null or empty.");
 		}
 
 		if (location == null) {
 			throw new IllegalArgumentException("Location can not be null.");
 		}
 
-		this.mob = mob;
+		this.mobDbName = mobDbName;
 		this.minDelay = minDelay;
 		this.deltaDelay = maxDelay - minDelay;
 		this.location = location;
+		this.mobCount = count;
 	}
 
 	/**
@@ -49,16 +50,7 @@ public class Spawner {
 	 * @return The mob database name.
 	 */
 	public String getMobName() {
-		return mob.getDatabaseName();
-	}
-
-	/**
-	 * The id of the mob bestia.
-	 * 
-	 * @return The id of the mob.
-	 */
-	public int getMobId() {
-		return mob.getId();
+		return mobDbName;
 	}
 
 	/**
@@ -77,5 +69,14 @@ public class Spawner {
 	 */
 	public Vector2 getNextSpawnLocation() {
 		return location.getSpawn();
+	}
+
+	/**
+	 * The designated number of this mob on this map.
+	 * 
+	 * @return The designated mob entity number.
+	 */
+	public int getMobCount() {
+		return mobCount;
 	}
 }

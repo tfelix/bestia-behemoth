@@ -12,6 +12,7 @@ import net.bestia.zoneserver.script.MapTriggerScript;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
 import net.bestia.zoneserver.zone.shape.Rect;
 import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.spawn.Spawner;
 
 /**
  * Representation of a map used by the bestia zone server. The map holds all
@@ -33,6 +34,7 @@ public class Map {
 		public String mapDbName;
 		public List<Script> portals = new ArrayList<>();
 		public String globalMapscript = "";
+		public List<Spawner> spawns;
 
 		public MapBuilder load(Maploader loader) throws IOException {
 			loader.loadMap(this);
@@ -69,6 +71,7 @@ public class Map {
 
 	private final String globalMapscript;
 	private final List<Script> portals;
+	public List<Spawner> spawns;
 
 	private java.util.Map<Vector2, Tile> tiles = new HashMap<>();
 
@@ -85,6 +88,7 @@ public class Map {
 		tiles = Collections.unmodifiableMap(builder.tiles);
 		globalMapscript = builder.globalMapscript;
 		portals = builder.portals;
+		spawns = builder.spawns;
 	}
 
 	/**
@@ -155,6 +159,15 @@ public class Map {
 	 */
 	public List<Script> getPortals() {
 		return portals;
+	}
+
+	/**
+	 * Returns the spawn list for mobs on this map.
+	 * 
+	 * @return The spawn list.
+	 */
+	public List<Spawner> getSpawnlist() {
+		return spawns;
 	}
 
 }

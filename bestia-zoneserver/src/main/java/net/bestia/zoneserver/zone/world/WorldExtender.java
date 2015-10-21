@@ -11,7 +11,6 @@ import org.reflections.Reflections;
 
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
-import com.artemis.managers.GroupManager;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
 import com.artemis.managers.UuidEntityManager;
@@ -25,10 +24,10 @@ import net.bestia.zoneserver.ecs.system.ChangedNetworkUpdateSystem;
 import net.bestia.zoneserver.ecs.system.ChatSystem;
 import net.bestia.zoneserver.ecs.system.DelayedRemoveSystem;
 import net.bestia.zoneserver.ecs.system.InputSystem;
-import net.bestia.zoneserver.ecs.system.MovementSystem;
-import net.bestia.zoneserver.ecs.system.PersistSystem;
 import net.bestia.zoneserver.ecs.system.MapScriptSystem;
 import net.bestia.zoneserver.ecs.system.MobSpawnSystem;
+import net.bestia.zoneserver.ecs.system.MovementSystem;
+import net.bestia.zoneserver.ecs.system.PersistSystem;
 import net.bestia.zoneserver.ecs.system.VisibleSpawnUpdateSystem;
 import net.bestia.zoneserver.zone.map.Map;
 
@@ -99,7 +98,6 @@ public class WorldExtender {
 		// Set all the managers.
 		worldConfig.setSystem(new PlayerManager());
 		worldConfig.setSystem(new TagManager());
-		worldConfig.setSystem(new GroupManager());
 		worldConfig.setSystem(new UuidEntityManager());
 		worldConfig.setSystem(new WorldPersistenceManager(saveFolder, map.getMapDbName()));
 

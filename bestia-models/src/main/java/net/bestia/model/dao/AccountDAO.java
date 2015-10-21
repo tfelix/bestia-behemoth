@@ -5,7 +5,7 @@ import net.bestia.model.domain.Account;
 public interface AccountDAO extends GenericDAO<Account, Long> {
 
 	/**
-	 * Searches an account for a provided email address. Since emails are unique only one {@link Account} is returned or
+	 * Searches an account for a provided email address. Since e-mails are unique only one {@link Account} is returned or
 	 * {@code null}.
 	 * 
 	 * @param email

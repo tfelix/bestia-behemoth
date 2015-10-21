@@ -85,7 +85,7 @@ public class AccountService {
 		int starterId = 1;
 
 		// Depending on the master get the offspring bestia.
-		Bestia origin = bestiaDao.find(starterId);
+		final Bestia origin = bestiaDao.findOne(starterId);
 		if(origin == null) {
 			log.error("Starter bestia with id {} could not been found.", starterId);
 			return false;
