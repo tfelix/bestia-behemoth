@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataset>
-    <I18ns key="apple.desc" category="ITEM" lang="de" value="Das ist eine Beschreibung."/>
-    <I18ns key="apple.desc" category="ITEM" lang="en" value="This is a description."/>
-    <I18ns key="apple.name" category="ITEM" lang="de" value="Apfel"/>
+    <I18ns translation_key="apple.desc" category="ITEM" lang="de" value="Das ist eine Beschreibung."/>
+    <I18ns translation_key="apple.desc" category="ITEM" lang="en" value="This is a description."/>
+    <I18ns translation_key="apple.name" category="ITEM" lang="de" value="Apfel"/>
 </dataset>

@@ -95,12 +95,16 @@ public class Account implements Serializable {
 		this.email = "";
 		this.password = new Password();
 		setRegisterDate(new Date());
+		setLastLogin(new Date());
+		setBannedUntilDate(new Date());
 	}
 
 	public Account(String email, String password) {
 		this.email = email;
 		this.password = new Password(password);
 		setRegisterDate(new Date());
+		setLastLogin(new Date());
+		setBannedUntilDate(new Date());
 	}
 
 	public long getId() {
