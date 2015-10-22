@@ -36,9 +36,10 @@ public class MobSpawnSystem extends DelayedEntityProcessingSystem {
 
 	private ComponentMapper<MobGroup> groupMapper;
 	private ComponentMapper<Collision> collisionMapper;
-	//private ComponentMapper<AI> aiMapper;
+	// private ComponentMapper<AI> aiMapper;
 	private ComponentMapper<Bestia> bestiaMapper;
 	private ComponentMapper<Position> positionMapper;
+	private ComponentMapper<Visible> visibleMapper;
 
 	private Archetype npcBestiaArchtype;
 
@@ -79,14 +80,19 @@ public class MobSpawnSystem extends DelayedEntityProcessingSystem {
 		final int mob = world.create(npcBestiaArchtype);
 
 		groupMapper.get(mob).groupName = spawn.getGroup();
-		
+
+		// TODO Collision and position can be come one.
 		final Position pos = positionMapper.get(mob);
 		pos.x = spawn.coordinates.x;
 		pos.y = spawn.coordinates.y;
-		
+
 		bestiaMapper.get(mob).bestiaManager = new NPCBestiaManager(spawn.mob);
-		
+
+		// Set the collision.
 		collisionMapper.get(mob).shape = new Vector2(spawn.coordinates.x, spawn.coordinates.y);
+
+		// Set the sprite name.
+		visibleMapper.get(mob).sprite = spawn.mob.getDatabaseName();
 
 		LOG.trace("Spawned mob: {}, entity id: {}", spawn.mob.getDatabaseName(), mob);
 	}

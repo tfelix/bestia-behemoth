@@ -1,34 +1,14 @@
 package net.bestia.zoneserver.zone.world;
 
-import java.io.File;
-import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.reflections.Reflections;
-
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
-import com.artemis.managers.PlayerManager;
-import com.artemis.managers.TagManager;
-import com.artemis.managers.UuidEntityManager;
 
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
-import net.bestia.zoneserver.ecs.system.AISystem;
-import net.bestia.zoneserver.ecs.system.ActiveSpawnUpdateSystem;
-import net.bestia.zoneserver.ecs.system.ChangedNetworkUpdateSystem;
-import net.bestia.zoneserver.ecs.system.ChatSystem;
-import net.bestia.zoneserver.ecs.system.DelayedRemoveSystem;
-import net.bestia.zoneserver.ecs.system.InputSystem;
-import net.bestia.zoneserver.ecs.system.MapScriptSystem;
-import net.bestia.zoneserver.ecs.system.MobSpawnSystem;
-import net.bestia.zoneserver.ecs.system.MovementSystem;
-import net.bestia.zoneserver.ecs.system.PersistSystem;
-import net.bestia.zoneserver.ecs.system.VisibleSpawnUpdateSystem;
+import net.bestia.zoneserver.util.PackageLoader;
 import net.bestia.zoneserver.zone.map.Map;
 
 /**
@@ -42,70 +22,43 @@ import net.bestia.zoneserver.zone.map.Map;
  */
 public class WorldExtender {
 
-	private static final Logger log = LogManager.getLogger(WorldExtender.class);
-
-	private final BestiaConfiguration config;
 	private final Set<WorldExtend> extras = new HashSet<>();
 
-	public WorldExtender(BestiaConfiguration config) {
-		this.config = config;
-
-		final Reflections reflections = new Reflections("net.bestia.zoneserver.zone.world");
-		final Set<Class<? extends WorldExtend>> subTypes = reflections.getSubTypesOf(WorldExtend.class);
-
-		for (Class<? extends WorldExtend> clazz : subTypes) {
-
-			// Dont instance abstract classes.
-			if (Modifier.isAbstract(clazz.getModifiers())) {
-				continue;
-			}
-
-			try {
-				final WorldExtend extra = clazz.newInstance();
-				extras.add(extra);
-			} catch (InstantiationException | IllegalAccessException e) {
-				log.error("Can not instanciate command handler: {}", clazz.toString(), e);
-			}
-		}
+	public WorldExtender(BestiaConfiguration config) {		
+		final PackageLoader<WorldExtend> extendLoader = new PackageLoader<>(WorldExtend.class, "net.bestia.zoneserver.zone.world");
+		final Set<WorldExtend> loadedExtras = extendLoader.getSubObjects();
+		
+		extras.addAll(loadedExtras);
 	}
 
 	public World createWorld(CommandContext ctx, Map map) {
 
-		final File saveFolder = new File(config.getProperty("zone.persistFolder"));
-
 		// Initialize ECS.
 		final WorldConfiguration worldConfig = new WorldConfiguration();
-		// Register all external helper objects.
-		worldConfig.register(map);
-		worldConfig.register(ctx);
-		worldConfig.register(ctx.getServer().getBestiaRegister());
 
-		// Set all the systems.
-		worldConfig.setSystem(new MobSpawnSystem());
-		worldConfig.setSystem(new InputSystem());
-		worldConfig.setSystem(new MovementSystem());
-		worldConfig.setSystem(new AISystem());
-		worldConfig.setSystem(new ChatSystem());
-		worldConfig.setSystem(new ActiveSpawnUpdateSystem());
-		worldConfig.setSystem(new VisibleSpawnUpdateSystem());
-		worldConfig.setSystem(new MapScriptSystem());
-		worldConfig.setSystem(new DelayedRemoveSystem());
-		worldConfig.setSystem(new PersistSystem(10000));
-		// ChangedNetworkUpdateSystem must be last because it removes the
-		// Changed component.
-		worldConfig.setSystem(new ChangedNetworkUpdateSystem());
-
-		// Set all the managers.
-		worldConfig.setSystem(new PlayerManager());
-		worldConfig.setSystem(new TagManager());
-		worldConfig.setSystem(new UuidEntityManager());
-		worldConfig.setSystem(new WorldPersistenceManager(saveFolder, map.getMapDbName()));
+		// Pre-configure the world.
+		configure(worldConfig, map, ctx);
 
 		final World world = new World(worldConfig);
 
 		extend(world, map);
 
 		return world;
+	}
+
+	/**
+	 * Configures the world config before creating the world from it.
+	 * 
+	 * @param worldConfig
+	 *            The artemis configuration.
+	 * @param map
+	 *            The map object.
+	 * @param ctx 
+	 */
+	private void configure(WorldConfiguration worldConfig, Map map, CommandContext ctx) {
+		for (WorldExtend extra : extras) {
+			extra.configure(worldConfig, map, ctx);
+		}
 	}
 
 	/**

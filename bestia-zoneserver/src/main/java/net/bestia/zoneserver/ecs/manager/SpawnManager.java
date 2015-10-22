@@ -110,26 +110,8 @@ public class SpawnManager extends BaseEntitySystem {
 		}
 
 		counter.get(groupName).dec();
-		final Spawner spawner = spawners.get(groupName);
 
-		// Get the difference between the should and is value. Create
-		// spawn-entities.
-		int diff = spawner.getMobCount() - counter.get(groupName).get();
-		
-		while(diff-- > 0) {
-			// Check if we have a bestia ready.
-			final Bestia bestia = getCachedBestia(spawner.getMobName());
-			if(bestia == null) {
-				return;
-			}
-			
-			// Create the spawn entities.
-			final MobSpawn mobSpawn = world.createEntity().edit().create(MobSpawn.class);
-			mobSpawn.coordinates = spawner.getNextSpawnLocation();
-			// in ms not in seconds.
-			mobSpawn.delay = spawner.getNextSpawnDelay() * 1000;	
-			mobSpawn.mob = bestia;
-		}
+		spawnMob(groupName, true);
 	}
 
 	/**
@@ -154,6 +136,55 @@ public class SpawnManager extends BaseEntitySystem {
 		}
 
 		return mobCache.get(mobDbName);
+	}
+
+	/**
+	 * Can be called in order to instantly spawn all entities managed by this
+	 * manager. There will be no delay to the spawned entities.
+	 */
+	public void spawnAll() {
+		// Iterate over all spawner.
+		for (Map.Entry<String, Spawner> entry : spawners.entrySet()) {
+			spawnMob(entry.getKey(), false);
+		}
+	}
+
+	private void spawnMob(String groupName, boolean withDelay) {
+		final Spawner spawner = spawners.get(groupName);
+		if (spawner == null) {
+			return;
+		}
+
+		// Get the difference between the should and is value. Create
+		// spawn-entities.
+		final IntCounter mobCount = counter.get(groupName);
+		
+		int diff = 0;
+		
+		if(mobCount == null) {
+			diff = spawner.getMobCount();
+		} else {
+			diff = spawner.getMobCount() - counter.get(groupName).get();
+		}
+
+		while (diff-- > 0) {
+			// Check if we have a bestia ready.
+			final Bestia bestia = getCachedBestia(spawner.getMobName());
+			if (bestia == null) {
+				return;
+			}
+
+			// Create the spawn entities.
+			final MobSpawn mobSpawn = world.createEntity().edit().create(MobSpawn.class);
+			mobSpawn.coordinates = spawner.getNextSpawnLocation();
+			// in ms not in seconds.
+			if (withDelay) {
+				mobSpawn.delay = spawner.getNextSpawnDelay() * 1000;
+			} else {
+				mobSpawn.delay = 100;
+			}
+			mobSpawn.mob = bestia;
+		}
 	}
 
 	@Override

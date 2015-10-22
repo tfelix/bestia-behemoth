@@ -24,17 +24,23 @@ import tiled.core.ObjectGroup;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class SpawnMapExtender extends TMXMapHelper implements TMXMapExtender {
+public class SpawnTMXMapExtender extends TMXMapHelper implements TMXMapExtender {
 
-	private static final Logger LOG = LogManager.getLogger(SpawnMapExtender.class);
+	private static final Logger LOG = LogManager.getLogger(SpawnTMXMapExtender.class);
 
 	private java.util.Map<Integer, SpawnLocation> spawnLocations = new HashMap<>();
-	
+	private int tileSize = 1;
 
 	@Override
 	public void extendMap(Map tiledMap, MapBuilder builder) {
 
 		final Properties mapProps = tiledMap.getProperties();
+		
+		if(tiledMap.getTileHeight() != tiledMap.getTileWidth()) {
+			throw new IllegalStateException("Tiled map tile sizes must be qudratic!");
+		}
+		
+		tileSize = tiledMap.getTileHeight();
 
 		final String spawnStr = mapProps.getProperty("spawn");
 		final String spawns[] = spawnStr.split(";");
@@ -76,11 +82,11 @@ public class SpawnMapExtender extends TMXMapHelper implements TMXMapExtender {
 			}
 
 			final Rectangle box = mapObj.getBounds();
+			final Rect newArea = new Rect(box.x / tileSize, box.y / tileSize, box.width / tileSize, box.height / tileSize);
 
 			if (!spawnLocations.containsKey(id)) {
-				spawnLocations.put(id, new SpawnLocation());
+				spawnLocations.put(id, new SpawnLocation(newArea));
 			} else {
-				final Rect newArea = new Rect(box.x, box.y, box.width, box.height);
 				spawnLocations.get(id).addArea(newArea);
 			}
 		}
@@ -105,6 +111,13 @@ public class SpawnMapExtender extends TMXMapHelper implements TMXMapExtender {
 		}
 	}
 
+	/**
+	 * Creates a spawner who holds all information to manage bestias spawns.
+	 * 
+	 * @param str
+	 * @param tiledMap
+	 * @return
+	 */
 	private Spawner createSpawner(String str, Map tiledMap) {
 
 		if (!str.matches("\\d+,\\w+,\\d+,(\\d+-\\d+|\\d+)")) {
@@ -135,14 +148,14 @@ public class SpawnMapExtender extends TMXMapHelper implements TMXMapExtender {
 			} else {
 				minDelay = maxDelay = Integer.parseInt(tokens[3]);
 			}
-			
+
 			final SpawnLocation location = spawnLocations.get(spawnLocationId);
-			
-			if(location == null) {
-				LOG.warn("Not existing area id: {}. Map: {}",  spawnLocationId, getMapName(tiledMap));
+
+			if (location == null) {
+				LOG.warn("Not existing area id: {}. Map: {}", spawnLocationId, getMapName(tiledMap));
 				return null;
 			}
-			
+
 			return new Spawner(mobName, location, minDelay, maxDelay, count);
 
 		} catch (NumberFormatException ex) {

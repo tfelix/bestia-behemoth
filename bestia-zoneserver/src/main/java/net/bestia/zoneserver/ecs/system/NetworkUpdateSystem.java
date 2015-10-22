@@ -17,6 +17,7 @@ import net.bestia.messages.MapEntitiesMessage.EntityAction;
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
+import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 
 /**
@@ -35,6 +36,8 @@ public abstract class NetworkUpdateSystem extends BaseEntitySystem {
 
 	private ComponentMapper<PlayerBestia> playerMapper;
 	private ComponentMapper<Visible> visibleMapper;
+	
+	private ComponentMapper<Position> positionMapper;
 
 	private UuidEntityManager uuidManager;
 
@@ -71,11 +74,11 @@ public abstract class NetworkUpdateSystem extends BaseEntitySystem {
 	protected void sendUpdate(Entity playerEntity, Entity visibleEntity, EntityAction action) {
 
 		final PlayerBestia playerControlled = playerMapper.getSafe(playerEntity);
-		
-		if(playerControlled == null) {
+
+		if (playerControlled == null) {
 			return;
 		}
-		
+
 		final long accId = playerControlled.playerBestiaManager.getAccountId();
 
 		final MapEntitiesMessage.Entity msg = getMessageFromEntity(visibleEntity, action);
@@ -90,24 +93,36 @@ public abstract class NetworkUpdateSystem extends BaseEntitySystem {
 	}
 
 	/**
-	 * Converts a simple "map entity" from the ECS to a {@link MapEntitiesMessage.Entity}.
+	 * Converts a simple "map entity" from the ECS to a
+	 * {@link MapEntitiesMessage.Entity}.
 	 * 
 	 * @param e
 	 *            Entity to convert to a message for the client.
-	 * @return A message containing all needed information about this entity for the client.
+	 * @return A message containing all needed information about this entity for
+	 *         the client.
 	 */
 	protected MapEntitiesMessage.Entity getMessageFromEntity(Entity e, EntityAction action) {
 		final UUID uuid = uuidManager.getUuid(e);
 		final Visible visible = visibleMapper.get(e);
-		
-		final PlayerBestia playerControlled = playerMapper.getSafe(e);
-		final Location loc = playerControlled.playerBestiaManager.getLocation();
 
-		final MapEntitiesMessage.Entity msg = new MapEntitiesMessage.Entity(uuid.toString(), loc.getX(), loc.getY());
-		msg.setAction(action);
-		msg.addSprite(visible.sprite);
-		
-		if(playerControlled != null) {
+		final PlayerBestia playerControlled = playerMapper.getSafe(e);
+		final MapEntitiesMessage.Entity msg;
+		// TODO Das hier ist ein billiger Workaround. Wenn die Systeme feiner
+		// granulieren und nicht mehr zwischen Player/Nichtplayer unterscheiden
+		// das hier entfernen.
+		if (playerControlled != null) {
+			final Location loc = playerControlled.playerBestiaManager.getLocation();
+			msg = new MapEntitiesMessage.Entity(uuid.toString(), loc.getX(), loc.getY());
+			msg.setAction(action);
+			msg.addSprite(visible.sprite);
+		} else {
+			final Position pos = positionMapper.get(e);
+			msg = new MapEntitiesMessage.Entity(uuid.toString(), pos.x, pos.y);
+			msg.setAction(action);
+			msg.addSprite(visible.sprite);
+		}	
+
+		if (playerControlled != null) {
 			msg.setPlayerBestiaId(playerControlled.playerBestiaManager.getPlayerBestiaId());
 		}
 

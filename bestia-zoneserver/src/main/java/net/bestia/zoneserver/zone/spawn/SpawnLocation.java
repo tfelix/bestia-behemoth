@@ -31,6 +31,10 @@ public class SpawnLocation {
 
 	private List<PossibleSpawn> areas = new ArrayList<>();
 
+	public SpawnLocation(Rect rect) {
+		addArea(rect);
+	}
+
 	/**
 	 * Adds an area to the possible spawn locations.
 	 * 
@@ -52,6 +56,7 @@ public class SpawnLocation {
 	public Vector2 getSpawn() {
 
 		int i = rand.nextInt(maxValue);
+		// We execute the loop at least once.
 		int j = 0;
 
 		while (i >= 0) {
@@ -60,7 +65,8 @@ public class SpawnLocation {
 			j++;
 		}
 
-		final PossibleSpawn ps = areas.get(j);
+		// Reduce j by one because the loop was executed once too much.
+		final PossibleSpawn ps = areas.get(--j);
 		final int y = rand.nextInt(ps.rect.getHeight());
 		final int x = rand.nextInt(ps.rect.getWidth());
 

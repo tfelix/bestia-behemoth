@@ -1,8 +1,10 @@
 package net.bestia.zoneserver.zone.world;
 
+import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.zone.map.Map;
 
 import com.artemis.World;
+import com.artemis.WorldConfiguration;
 
 /**
  * Classes implementing this interface are automagically picked up by the
@@ -24,4 +26,17 @@ interface WorldExtend {
 	 *            The Bestia map world.
 	 */
 	public void extend(World world, Map map);
+
+	/**
+	 * This is called before the world is created and the extend method is
+	 * called. Can be used to alter the configuration of the world to be
+	 * created.
+	 * 
+	 * @param worldConfig
+	 *            Artemis {@link WorldConfiguration} can be changed and altered.
+	 * @param map
+	 *            The map of the bestia game.
+	 * @param ctx 
+	 */
+	public void configure(WorldConfiguration worldConfig, Map map, CommandContext ctx);
 }

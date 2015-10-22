@@ -13,7 +13,14 @@ import com.artemis.Component;
 public class Bestia extends Component {
 
 	public BestiaManager bestiaManager;
-	
+
+	/**
+	 * Std. Ctor for artemis.
+	 */
+	public Bestia() {
+		// no op.
+	}
+
 	public Bestia(BestiaManager manager) {
 		this.bestiaManager = manager;
 	}
