@@ -25,7 +25,7 @@ import tiled.core.ObjectGroup;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-class PortalMapExtender implements TMXMapExtender {
+public class PortalMapExtender implements TMXMapExtender {
 
 	private final static Logger log = LogManager.getLogger(PortalMapExtender.class);
 

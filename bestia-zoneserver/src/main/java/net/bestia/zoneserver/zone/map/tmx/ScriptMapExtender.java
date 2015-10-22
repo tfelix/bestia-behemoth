@@ -21,7 +21,7 @@ import tiled.core.ObjectGroup;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-class ScriptMapExtender implements TMXMapExtender {
+public class ScriptMapExtender implements TMXMapExtender {
 
 	private final static Logger log = LogManager.getLogger(ScriptMapExtender.class);
 	

@@ -24,7 +24,7 @@ import tiled.core.ObjectGroup;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-class SpawnMapExtender extends TMXMapHelper implements TMXMapExtender {
+public class SpawnMapExtender extends TMXMapHelper implements TMXMapExtender {
 
 	private static final Logger LOG = LogManager.getLogger(SpawnMapExtender.class);
 

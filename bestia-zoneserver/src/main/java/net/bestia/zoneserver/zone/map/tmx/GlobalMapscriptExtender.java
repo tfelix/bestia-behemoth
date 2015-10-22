@@ -9,7 +9,7 @@ import tiled.core.Map;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-class GlobalMapscriptExtender implements TMXMapExtender {
+public class GlobalMapscriptExtender implements TMXMapExtender {
 
 	/**
 	 * Reads the map scripts, parses them into the right format and fills the

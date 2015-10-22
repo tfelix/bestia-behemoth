@@ -12,7 +12,7 @@ import tiled.core.Map;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-interface TMXMapExtender {
+public interface TMXMapExtender {
 
 	/**
 	 * The method must extend the map builder with the given feature.

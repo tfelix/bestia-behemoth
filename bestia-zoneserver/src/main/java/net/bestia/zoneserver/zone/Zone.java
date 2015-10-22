@@ -125,7 +125,7 @@ public class Zone {
 			// Persist the dying world.
 			messageQueue.clear();
 			try {
-				world.getManager(WorldPersistenceManager.class).save();
+				world.getSystem(WorldPersistenceManager.class).save();
 			} catch (IOException e) {
 				log.error("Could not persist the zone entities. %s", e.getMessage(), e);
 			}

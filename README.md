@@ -9,7 +9,7 @@ Um die Module auf eine neue Version upzudaten:
 
 mvn release:update-versions -DautoVersionSubmodules=true
 
-==== Release durchführen ====
+===Release durchführen===
 
 Um einen Release durchzuführen vorher sicherstelle:
 

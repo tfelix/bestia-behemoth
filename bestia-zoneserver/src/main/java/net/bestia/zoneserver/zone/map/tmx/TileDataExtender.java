@@ -12,7 +12,7 @@ import tiled.core.Map;
 import tiled.core.MapLayer;
 import tiled.core.TileLayer;
 
-class TileDataExtender implements TMXMapExtender {
+public class TileDataExtender implements TMXMapExtender {
 	
 	public TileDataExtender() {
 		// no op.
