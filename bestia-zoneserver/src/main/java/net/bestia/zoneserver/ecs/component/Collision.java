@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.ecs.component;
+ package net.bestia.zoneserver.ecs.component;
 
 import com.artemis.Component;
 

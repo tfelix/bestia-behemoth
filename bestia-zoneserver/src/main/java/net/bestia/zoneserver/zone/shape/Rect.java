@@ -16,7 +16,8 @@ public class Rect implements CollisionShape {
 	private final int width;
 	private final int height;
 
-	private final Vector2 anchor;
+	private final int anchorX;
+	private final int anchorY;
 
 	/**
 	 * Ctor. Createa a bounding box at x and y equals 0. The anchor is set
@@ -27,34 +28,36 @@ public class Rect implements CollisionShape {
 	 * @param height
 	 *            Height
 	 */
+	/*
 	public Rect(int width, int height) {
 		this.x = 0;
 		this.y = 0;
 		this.width = width;
 		this.height = height;
 
-		this.anchor = new Vector2(width / 2, height / 2);
-	}
+		this.anchorX = width / 2;
+		this.anchorY = height / 2;
+	}*/
 
-	public Rect(int x, int y, int width, int height, float anchorX, float anchorY) {
+	public Rect(int x, int y, int width, int height, int anchorX, int anchorY) {
 		this.x = x;
 		this.y = y;
+		this.width = width;
+		this.height = height;
 
 		checkNotNegative(width, height);
 		checkAnchor(anchorX, anchorY);
 
-		this.width = width;
-		this.height = height;
-
-		this.anchor = new Vector2(x + (int) (width * anchorX), y + (int) (height * anchorY));
+		this.anchorX = anchorX;
+		this.anchorY = anchorY;
 	}
 	
-	private void checkAnchor(float x, float y) {
-		if (x < 0f || x > 1.0f) {
-			throw new IllegalArgumentException("X must be betweeen 0.0 and 1.0");
+	private void checkAnchor(int aX, int aY) {
+		if (aX < x || aX > x + width) {
+			throw new IllegalArgumentException("X must be inside the rectangle.");
 		}
-		if (y < 0f || y > 1.0f) {
-			throw new IllegalArgumentException("Y must be betweeen 0.0 and 1.0");
+		if (aY < y || aY > y + height) {
+			throw new IllegalArgumentException("Y must be inside the rectangle.");
 		}
 	}
 
@@ -75,7 +78,8 @@ public class Rect implements CollisionShape {
 		this.width = width;
 		this.height = height;
 
-		this.anchor = new Vector2(x + width / 2, y + height / 2);
+		this.anchorX = x + width / 2;
+		this.anchorY = y + height / 2;
 	}
 
 	/*
@@ -185,6 +189,18 @@ public class Rect implements CollisionShape {
 
 	@Override
 	public Vector2 getAnchor() {
-		return anchor;
+		return new Vector2(anchorX, anchorY);
+	}
+
+	@Override
+	public CollisionShape moveByAnchor(int x, int y) {
+		final int dX = x - getAnchor().x;
+		final int dY = y - getAnchor().y;
+
+		final int cX = getX() + dX;
+		final int cY = getY() + dY;
+
+		final Rect r = new Rect(cX, cY, getWidth(), getHeight(), x, y);
+		return r;
 	}
 }

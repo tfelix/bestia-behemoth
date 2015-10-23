@@ -138,22 +138,18 @@ public class CircleTest {
 		Assert.assertEquals(5, a.y);
 	}
 
-	@Test
-	public void getAnchor_set_topleft() {
-		Circle c = new Circle(5, 5, 3, 0f, 0f);
-		Vector2 a = c.getAnchor();
+	@Test(expected = IllegalArgumentException.class)
+	public void getAnchor_leftFromCircle_exception() {
+		new Circle(5, 5, 2, 2, 2);
+	}
 
-		Assert.assertEquals(2, a.x);
-		Assert.assertEquals(2, a.y);
+	@Test(expected = IllegalArgumentException.class)
+	public void ctor_anchoroutside_exception() {
+		new Circle(5, 5, 2, 6, 8);
 	}
 	
-	@Test(expected=IllegalArgumentException.class)
-	public void getAnchor_negative_exception() {
-		new Circle(5,5, 2, -1.4f, 0f);
-	}
-	
-	@Test(expected=IllegalArgumentException.class)
-	public void getAnchor_biggerone_exception() {
-		new Circle(5,5, 2, 0.4f, 1.3f);
+	@Test
+	public void ctor_inside_ok() {
+		new Circle(5, 5, 2, 7, 7);
 	}
 }

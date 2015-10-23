@@ -39,7 +39,6 @@ public class RectTest {
 		Assert.assertTrue(r1.equals(r1));
 		Rect r2 = new Rect(7, 7, 5, 5);
 		Assert.assertTrue(r1.equals(r2));
-		
 	}
 
 	@Test
@@ -97,7 +96,7 @@ public class RectTest {
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void ctor_negativeAnchor_exception() {
-		new Rect(10, 10, 4, 4, -0.2f, 0.8f);
+		new Rect(10, 10, 4, 4, 5, 12);
 	}
 	
 	@Test
@@ -109,7 +108,7 @@ public class RectTest {
 	}
 	
 	public void getAnchor_setAnchor_bottomRight() {
-		Rect r = new Rect(10, 10, 4, 4, 1f, 1f);
+		Rect r = new Rect(10, 10, 4, 4, 14, 14);
 		Vector2 a = r.getAnchor();
 		Assert.assertEquals(14, a.x);
 		Assert.assertEquals(14, a.y);
@@ -117,6 +116,23 @@ public class RectTest {
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void ctor_biggerOneAnchor_exception() {
-		new Rect(10, 10, 4, 4, 0.4f, 1.8f);
+		new Rect(10, 10, 4, 4, 12, 18);
+	}
+	
+	@Test
+	public void moveByAnchor() {
+		// Anchor ist bottom middle.
+		Rect r = new Rect(4, 4, 4, 4, 6, 8);
+		// Move 2 to the left.
+		Rect r2 = (Rect) r.moveByAnchor(4, 8);
+		
+		Assert.assertEquals(2, r2.getX());
+		Assert.assertEquals(4, r2.getY());
+		
+		Assert.assertEquals(4, r2.getWidth());
+		Assert.assertEquals(4, r2.getHeight());
+		
+		Assert.assertEquals(4, r2.getAnchor().x);
+		Assert.assertEquals(8, r2.getAnchor().y);
 	}
 }

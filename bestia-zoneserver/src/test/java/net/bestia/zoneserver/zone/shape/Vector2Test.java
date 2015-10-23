@@ -105,4 +105,12 @@ public class Vector2Test {
 		Assert.assertEquals(10, v.getAnchor().x);
 		Assert.assertEquals(12, v.getAnchor().y);
 	}
+	
+	@Test
+	public void moveByAnchor() {
+		Vector2 v = new Vector2(10, 10);
+		Vector2 v2 = (Vector2) v.moveByAnchor(13, 15);
+		Assert.assertEquals(13, v2.x);
+		Assert.assertEquals(15, v2.y);
+	}
 }

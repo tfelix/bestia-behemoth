@@ -12,13 +12,16 @@ public class Vector2 implements CollisionShape {
 
 	public final int x;
 	public final int y;
-	private final Vector2 anchor;
+	
+	private final int anchorX;
+	private final int anchorY;
 
 	public Vector2(int x, int y) {
 		this.x = x;
 		this.y = y;
 		
-		this.anchor = new Vector2(x, y);
+		this.anchorX = x;
+		this.anchorY = y;
 	}
 
 	public String toString() {
@@ -68,7 +71,12 @@ public class Vector2 implements CollisionShape {
 
 	@Override
 	public Vector2 getAnchor() {
-		return anchor;
+		return new Vector2(anchorX, anchorY);
+	}
+
+	@Override
+	public CollisionShape moveByAnchor(int x, int y) {
+		return new Vector2(x, y);
 	}
 
 }

@@ -61,4 +61,16 @@ public interface CollisionShape {
 	 * @return The anchor coordiantes in world space.
 	 */
 	public Vector2 getAnchor();
+
+	/**
+	 * Moves the whole {@link CollisionShape} to the new coordiantes relative to
+	 * its anchor whose absolute coordiantes are set by this method.
+	 * 
+	 * @param x
+	 *            New absolute x coordinate.
+	 * @param y
+	 *            New absolute y coordinate.
+	 * @return A new collision shape which is move
+	 */
+	public CollisionShape moveByAnchor(int x, int y);
 }
