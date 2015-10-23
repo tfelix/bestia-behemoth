@@ -4,7 +4,6 @@ import net.bestia.messages.Message;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Bestia;
-import net.bestia.zoneserver.ecs.component.Collision;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
@@ -51,14 +50,9 @@ public class SpawnPlayerBestiaCommand extends ECSCommand {
 		
 		playerEdit.create(Visible.class).sprite = pbm.getPlayerBestia().getOrigin().getSprite();
 		playerEdit.create(PlayerBestia.class).playerBestiaManager = pbm;
+		
 		final Position pos = playerEdit.create(Position.class);
-		pos.x = pbm.getLocation().getX();
-		pos.y = pbm.getLocation().getY();
-		
-		// Lets see a better solution for this maybe. for now on just a vector.
-		final Collision collision = playerEdit.create(Collision.class);
-		collision.shape = new Vector2(pos.x, pos.y);
-		
+		pos.position = new Vector2(pbm.getLocation().getX(), pbm.getLocation().getY());		
 		
 		if(pbm.getPlayerBestiaId() == 2) {
 			playerEdit.create(Active.class);

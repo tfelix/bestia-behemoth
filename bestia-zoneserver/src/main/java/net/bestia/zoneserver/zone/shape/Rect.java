@@ -28,7 +28,6 @@ public class Rect implements CollisionShape {
 	 * @param height
 	 *            Height
 	 */
-	/*
 	public Rect(int width, int height) {
 		this.x = 0;
 		this.y = 0;
@@ -37,7 +36,7 @@ public class Rect implements CollisionShape {
 
 		this.anchorX = width / 2;
 		this.anchorY = height / 2;
-	}*/
+	}
 
 	public Rect(int x, int y, int width, int height, int anchorX, int anchorY) {
 		this.x = x;

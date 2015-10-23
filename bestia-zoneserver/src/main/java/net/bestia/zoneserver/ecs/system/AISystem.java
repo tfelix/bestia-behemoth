@@ -40,7 +40,9 @@ public class AISystem extends IntervalEntityProcessingSystem {
 	@Override
 	protected void process(Entity e) {
 
-		Position pos = positionMapper.get(e);
+		final Position positionComponent = positionMapper.get(e);
+		final Vector2 pos = positionComponent.position.getAnchor();
+		
 
 		// Convert the strange JSON format to a path array.
 		final List<Vector2> path = new ArrayList<>(1);

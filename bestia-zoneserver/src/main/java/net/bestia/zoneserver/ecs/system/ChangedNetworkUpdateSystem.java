@@ -21,7 +21,6 @@ import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Changed;
-import net.bestia.zoneserver.ecs.component.Collision;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Visible;
 
@@ -48,7 +47,7 @@ public class ChangedNetworkUpdateSystem extends EntityProcessingSystem {
 	private EntitySubscription activePlayerEntities;
 
 	public ChangedNetworkUpdateSystem() {
-		super(Aspect.all(Visible.class, Changed.class, Collision.class));
+		super(Aspect.all(Visible.class, Changed.class));
 	
 	}
 
