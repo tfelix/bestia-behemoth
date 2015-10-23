@@ -24,7 +24,7 @@ public class PlayerBestiaManager extends BestiaManager {
 	private final static int MAX_LEVEL = 40;
 	public final static int MAX_ATK_SLOTS = 5;
 
-	final PlayerBestia bestia;
+	private final PlayerBestia bestia;
 	private final Zoneserver server;
 
 	/**
@@ -321,8 +321,6 @@ public class PlayerBestiaManager extends BestiaManager {
 			throw new IllegalStateException("This attack slot does not exist: "
 					+ slot);
 		}
-
-		hasChanged = true;
 	}
 
 	/**

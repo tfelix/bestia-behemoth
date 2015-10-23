@@ -9,7 +9,6 @@ import net.bestia.model.domain.StatusPoints;
 
 public abstract class BestiaManager {
 
-	protected boolean hasChanged = false;
 	private Map<Integer, Long> attackUsageTimer = new HashMap<>();
 
 	public abstract StatusPoints getStatusPoints();
@@ -30,16 +29,6 @@ public abstract class BestiaManager {
 
 	}
 
-	public boolean hasChanged() {
-		return hasChanged || getLocation().hasChanged()
-				|| getStatusPoints().hasChanged();
-	}
-
-	public void resetChanged() {
-		hasChanged = false;
-		getLocation().resetChanged();
-		getStatusPoints().resetChanged();
-	}
 
 	/**
 	 * Tries to use this attack. The usage of the attack will fail if there is
