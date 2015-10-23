@@ -4,6 +4,7 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -20,7 +21,7 @@ import javax.persistence.Transient;
  *
  */
 @Entity
-@Table(name="guilds")
+@Table(name = "guilds")
 public class Guild {
 
 	@Transient
@@ -42,7 +43,7 @@ public class Guild {
 	@JoinColumn(nullable = false, unique = true)
 	private GuildMember leader;
 
-	@OneToMany(mappedBy = "guild")
+	@OneToMany(mappedBy = "guild", fetch = FetchType.EAGER)
 	private Set<GuildMember> members;
 
 	/**
@@ -149,5 +150,14 @@ public class Guild {
 	 */
 	public void setMembers(Set<GuildMember> members) {
 		this.members = members;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("Guild[id: %d, name: %s, lv: %d, #member: %d]",
+				id,
+				name,
+				level,
+				members.size());
 	}
 }
