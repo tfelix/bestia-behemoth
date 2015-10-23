@@ -12,10 +12,13 @@ public class Vector2 implements CollisionShape {
 
 	public final int x;
 	public final int y;
+	private final Vector2 anchor;
 
 	public Vector2(int x, int y) {
 		this.x = x;
 		this.y = y;
+		
+		this.anchor = new Vector2(x, y);
 	}
 
 	public String toString() {
@@ -33,6 +36,7 @@ public class Vector2 implements CollisionShape {
 			return false;
 		}
 
+		// No need to check for anchor since it should be the same as x and y.
 		Vector2 p = (Vector2) o;
 		return x == p.x && y == p.y;
 	}
@@ -60,6 +64,11 @@ public class Vector2 implements CollisionShape {
 	@Override
 	public boolean collide(CollisionShape s) {
 		return s.collide(this);
+	}
+
+	@Override
+	public Vector2 getAnchor() {
+		return anchor;
 	}
 
 }

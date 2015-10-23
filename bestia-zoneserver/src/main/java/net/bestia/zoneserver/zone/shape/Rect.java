@@ -3,7 +3,8 @@ package net.bestia.zoneserver.zone.shape;
 import java.util.Objects;
 
 /**
- * Rectangle. Immutable. Can be used as collision bounding box shape and other things.
+ * Rectangle. Immutable. Can be used as collision bounding box shape and other
+ * things.
  * 
  * @author Thomas Felix <thoams.felix@tfelix.de>
  *
@@ -15,8 +16,11 @@ public class Rect implements CollisionShape {
 	private final int width;
 	private final int height;
 
+	private final Vector2 anchor;
+
 	/**
-	 * Ctor. Createa a bounding box at x and y equals 0.
+	 * Ctor. Createa a bounding box at x and y equals 0. The anchor is set
+	 * default to the middle.
 	 * 
 	 * @param width
 	 *            Width
@@ -28,6 +32,20 @@ public class Rect implements CollisionShape {
 		this.y = 0;
 		this.width = width;
 		this.height = height;
+
+		this.anchor = new Vector2(width / 2, height / 2);
+	}
+
+	public Rect(int x, int y, int width, int height, float anchorX, float anchorY) {
+		this.x = x;
+		this.y = y;
+
+		checkNotNegative(width, height);
+
+		this.width = width;
+		this.height = height;
+
+		this.anchor = new Vector2(x + (int) (width * anchorX), y + (int) (height * anchorY));
 	}
 
 	/**
@@ -41,28 +59,28 @@ public class Rect implements CollisionShape {
 	public Rect(int x, int y, int width, int height) {
 		this.x = x;
 		this.y = y;
-		
+
 		checkNotNegative(width, height);
-		
+
 		this.width = width;
 		this.height = height;
+
+		this.anchor = new Vector2(x + width / 2, y + height / 2);
 	}
 
-	public Rect(Vector2 s, Vector2 size) {
-		this.x = s.x;
-		this.y = s.y;
-		
-		checkNotNegative(size.x, size.y);
-		
-		this.width = size.x;
-		this.height = size.y;
-	}
-	
+	/*
+	 * public Rect(Vector2 s, Vector2 size) { this.x = s.x; this.y = s.y;
+	 * 
+	 * checkNotNegative(size.x, size.y);
+	 * 
+	 * this.width = size.x; this.height = size.y; }
+	 */
+
 	private void checkNotNegative(int width, int height) {
-		if(width < 0) {
+		if (width < 0) {
 			throw new IllegalArgumentException("Width can not be null.");
 		}
-		if(height < 0) {
+		if (height < 0) {
 			throw new IllegalArgumentException("Height can not be null.");
 		}
 	}
@@ -74,7 +92,7 @@ public class Rect implements CollisionShape {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(width, height, x ,y);
+		return Objects.hash(width, height, x, y);
 	}
 
 	@Override
@@ -144,7 +162,7 @@ public class Rect implements CollisionShape {
 	public boolean collide(Rect s) {
 		return CollisionHelper.collide(s, this);
 	}
-	
+
 	@Override
 	public boolean collide(CollisionShape s) {
 		return s.collide(this);
@@ -153,5 +171,10 @@ public class Rect implements CollisionShape {
 	@Override
 	public Rect getBoundingBox() {
 		return this;
+	}
+
+	@Override
+	public Vector2 getAnchor() {
+		return anchor;
 	}
 }

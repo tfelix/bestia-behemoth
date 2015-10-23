@@ -98,4 +98,11 @@ public class Vector2Test {
 		Assert.assertEquals(3, r.getX());
 		Assert.assertEquals(6, r.getY());
 	}
+	
+	@Test
+	public void getAnchor_sameAsXY() {
+		Vector2 v = new Vector2(10, 12);
+		Assert.assertEquals(10, v.getAnchor().x);
+		Assert.assertEquals(12, v.getAnchor().y);
+	}
 }

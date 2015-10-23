@@ -94,4 +94,29 @@ public class RectTest {
 
 		Assert.assertEquals(bb, d);
 	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void ctor_negativeAnchor_exception() {
+		new Rect(10, 10, 4, 4, -0.2f, 0.8f);
+	}
+	
+	@Test
+	public void getAnchor_std_middle() {
+		Rect r = new Rect(10, 10, 4, 4);
+		Vector2 a = r.getAnchor();
+		Assert.assertEquals(12, a.x);
+		Assert.assertEquals(12, a.y);
+	}
+	
+	public void getAnchor_setAnchor_bottomRight() {
+		Rect r = new Rect(10, 10, 4, 4, 1f, 1f);
+		Vector2 a = r.getAnchor();
+		Assert.assertEquals(14, a.x);
+		Assert.assertEquals(14, a.y);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void ctor_biggerOneAnchor_exception() {
+		new Rect(10, 10, 4, 4, 0.4f, 1.8f);
+	}
 }

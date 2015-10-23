@@ -3,24 +3,46 @@ package net.bestia.zoneserver.zone.shape;
 import com.google.common.base.Objects;
 
 public class Circle implements CollisionShape {
-	
+
 	private final Vector2 center;
+	private Vector2 anchor;
 	private final int radius;
-	
+
 	public Circle(int x, int y, int radius) {
-		
-		if(radius < 0) {
+
+		if (radius < 0) {
 			throw new IllegalArgumentException("Radius can not be negative.");
 		}
-		
+
 		this.center = new Vector2(x, y);
 		this.radius = radius;
+		this.anchor = this.center;
 	}
-	
+
+	public Circle(int x, int y, int radius, float anchorX, float anchorY) {
+		if (radius < 0) {
+			throw new IllegalArgumentException("Radius can not be negative.");
+		}
+		checkAnchor(anchorX, anchorY);
+
+		this.center = new Vector2(x, y);
+		this.radius = radius;
+		this.anchor = new Vector2(x - (int) (2 * radius * anchorX), y - (int) (2 * radius * anchorY));
+	}
+
+	private void checkAnchor(float x, float y) {
+		if (x < 0f || x > 1.0f) {
+			throw new IllegalArgumentException("X must be betweeen 0.0 and 1.0");
+		}
+		if (y < 0f || y > 1.0f) {
+			throw new IllegalArgumentException("Y must be betweeen 0.0 and 1.0");
+		}
+	}
+
 	public int getRadius() {
 		return radius;
 	}
-	
+
 	public Vector2 getCenter() {
 		return center;
 	}
@@ -45,10 +67,10 @@ public class Circle implements CollisionShape {
 		final int leftX = center.x - radius;
 		final int rightX = center.x + radius;
 		final int topY = center.y - radius;
-		final int bottomY = center.y + radius;	
+		final int bottomY = center.y + radius;
 		return new Rect(leftX, topY, rightX - leftX, bottomY - topY);
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("Circle[x: %d, y: %d, r: %d]", center.x, center.y, radius);
@@ -56,9 +78,9 @@ public class Circle implements CollisionShape {
 
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(center, radius);
+		return Objects.hashCode(center, radius, anchor);
 	}
-	
+
 	@Override
 	public boolean collide(CollisionShape s) {
 		return s.collide(this);
@@ -80,6 +102,14 @@ public class Circle implements CollisionShape {
 			return false;
 		if (radius != other.radius)
 			return false;
+		if (anchor.equals(other.anchor)) {
+			return false;
+		}
 		return true;
+	}
+
+	@Override
+	public Vector2 getAnchor() {
+		return anchor;
 	}
 }
