@@ -16,12 +16,20 @@ public abstract class BestiaManager {
 	public abstract Location getLocation();
 
 	public abstract int getLevel();
+	
+	public float getHpRegenerationRate() {
+		final StatusPoints statusPoints = getStatusPoints();
+		final int level = getLevel();
+		final float regen = (statusPoints.getDef() * 4
+				+ statusPoints.getSpDef() * 1.5f + level) / 100.0f;
+		return regen;
+	}
 
 	public float getManaRegenerationRate() {
 		final StatusPoints statusPoints = getStatusPoints();
 		final int level = getLevel();
-		final float regen = (statusPoints.getDef() * 2
-				+ statusPoints.getSpDef() * 4 + level / 2) / 100.0f;
+		final float regen = (statusPoints.getDef() * 1.5f
+				+ statusPoints.getSpDef() * 3 + level) / 100.0f;
 		return regen;
 	}
 
