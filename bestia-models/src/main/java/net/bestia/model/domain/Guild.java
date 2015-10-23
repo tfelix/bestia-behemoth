@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 
 /**
@@ -19,6 +20,7 @@ import javax.persistence.Transient;
  *
  */
 @Entity
+@Table(name="guilds")
 public class Guild {
 
 	@Transient

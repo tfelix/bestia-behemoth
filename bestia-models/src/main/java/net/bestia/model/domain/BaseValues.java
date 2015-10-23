@@ -18,6 +18,7 @@ public class BaseValues implements Serializable {
 	@Transient
 	private static final long serialVersionUID = 1L;
 
+	@Transient
 	private static final int MAX_IV_VALUE = 15;
 
 	private int hp;
@@ -152,5 +153,4 @@ public class BaseValues implements Serializable {
 		}
 		this.spd = spd;
 	}
-
 }

@@ -5,7 +5,6 @@ import java.io.Serializable;
 import javax.persistence.Embeddable;
 import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -61,14 +60,6 @@ public class StatusPoints implements Serializable {
 	@Transient
 	private int spd;
 
-	/**
-	 * Flag to see if data in this class has changed and need to be
-	 * retransmitted to the client.
-	 */
-	@JsonIgnore
-	@Transient
-	private boolean hasChanged = false;
-
 	public int getCurrentHp() {
 		return currentHp;
 	}
@@ -76,7 +67,6 @@ public class StatusPoints implements Serializable {
 	public void setCurrentHp(int hp) {
 		this.currentHp = hp;
 		checkInvalidStatusValue();
-		hasChanged = true;
 	}
 
 	public int getMaxHp() {
@@ -86,7 +76,6 @@ public class StatusPoints implements Serializable {
 	public void setMaxHp(int maxHp) {
 		this.maxHp = maxHp;
 		checkInvalidStatusValue();
-		hasChanged = true;
 	}
 
 	public int getCurrentMana() {
@@ -96,13 +85,11 @@ public class StatusPoints implements Serializable {
 	public void setCurrentMana(int mana) {
 		this.currentMana = mana;
 		checkInvalidStatusValue();
-		hasChanged = true;
 	}
 
 	public void setMaxMana(int maxMana) {
 		this.maxMana = maxMana;
 		checkInvalidStatusValue();
-		hasChanged = true;
 	}
 
 	public int getMaxMana() {
@@ -116,7 +103,6 @@ public class StatusPoints implements Serializable {
 	public void setArmorDef(int armorDef) {
 		this.armorDef = armorDef;
 		checkInvalidStatusValue();
-		hasChanged = true;
 	}
 
 	public int getArmorSpDef() {
@@ -126,7 +112,6 @@ public class StatusPoints implements Serializable {
 	public void setArmorSpDef(int armorSpDef) {
 		this.armorSpDef = armorSpDef;
 		checkInvalidStatusValue();
-		hasChanged = true;
 	}
 
 	public int getAtk() {
@@ -136,7 +121,6 @@ public class StatusPoints implements Serializable {
 	public void setAtk(int atk) {
 		this.atk = atk;
 		checkInvalidStatusValue();
-		hasChanged = true;
 	}
 
 	public int getDef() {
@@ -146,7 +130,6 @@ public class StatusPoints implements Serializable {
 	public void setDef(int def) {
 		this.def = def;
 		checkInvalidStatusValue();
-		hasChanged = true;
 	}
 
 	public int getSpAtk() {
@@ -156,7 +139,6 @@ public class StatusPoints implements Serializable {
 	public void setSpAtk(int spAtk) {
 		this.spAtk = spAtk;
 		checkInvalidStatusValue();
-		hasChanged = true;
 	}
 
 	public int getSpDef() {
@@ -166,7 +148,6 @@ public class StatusPoints implements Serializable {
 	public void setSpDef(int spDef) {
 		this.spDef = spDef;
 		checkInvalidStatusValue();
-		hasChanged = true;
 	}
 
 	public int getSpd() {
@@ -176,7 +157,6 @@ public class StatusPoints implements Serializable {
 	public void setSpd(int spd) {
 		this.spd = spd;
 		checkInvalidStatusValue();
-		hasChanged = true;
 	}
 
 	/**
@@ -215,7 +195,6 @@ public class StatusPoints implements Serializable {
 		this.armorDef += rhs.getArmorDef();
 		this.armorSpDef += rhs.getArmorSpDef();
 		checkInvalidStatusValue();
-		hasChanged = true;
 	}
 
 	/**
@@ -291,19 +270,16 @@ public class StatusPoints implements Serializable {
 		}
 	}
 
-	/**
-	 * Returns the flag if underlying data in this object has been changed.
-	 * 
-	 * @return TRUE if data has changed. FALSE otherwise.
-	 */
-	public boolean hasChanged() {
-		return hasChanged;
-	}
-
-	/**
-	 * Resets the changed flag back to false.
-	 */
-	public void resetChanged() {
-		hasChanged = false;
+	@Override
+	public String toString() {
+		return String.format("SP: [atk: %d def: %d, spAtk: %d,"
+				+ " spDef: %d, spd: %d, armDef: %d, armSpDef: %d]",
+				atk,
+				def,
+				spAtk,
+				spDef,
+				spd,
+				armorDef,
+				armorSpDef);
 	}
 }
