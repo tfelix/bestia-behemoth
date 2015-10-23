@@ -5,7 +5,6 @@ import java.io.Serializable;
 import javax.persistence.Embeddable;
 import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -24,15 +23,6 @@ public class Location implements Serializable {
 	private String mapDbName;
 	private int x;
 	private int y;
-
-	/**
-	 * Flag which is used to check if the properties have changed for this
-	 * entity. This is used in order to check if changes need to be send to the
-	 * client.
-	 */
-	@Transient
-	@JsonIgnore
-	private boolean hasChanged = false;
 
 	/**
 	 * Ctor. Parameterless ctor which is needed for JPA.
@@ -57,7 +47,6 @@ public class Location implements Serializable {
 		this.setMapDbName(mapDbName);
 		this.setX(x);
 		this.setY(y);
-		resetChanged();
 	}
 
 	/**
@@ -81,7 +70,6 @@ public class Location implements Serializable {
 			throw new IllegalArgumentException("MapDbName can not be null.");
 		}
 		this.mapDbName = mapDbName;
-		hasChanged = true;
 	}
 
 	public int getX() {
@@ -94,7 +82,6 @@ public class Location implements Serializable {
 					"Coordinates can not be negative.");
 		}
 		this.x = x;
-		hasChanged = true;
 	}
 
 	public int getY() {
@@ -107,29 +94,11 @@ public class Location implements Serializable {
 					"Coordinates can not be negative.");
 		}
 		this.y = y;
-		hasChanged = true;
 	}
 
 	@Override
 	public String toString() {
 		return String.format("Location[x: %d, y: %d, mabDbName: %s]", x, y,
 				mapDbName);
-	}
-
-	/**
-	 * Returns the flag if the entity has had changing data operations performed
-	 * on its data.
-	 * 
-	 * @return TRUE if data has been changed or FALSE otherwise.
-	 */
-	public boolean hasChanged() {
-		return hasChanged;
-	}
-
-	/**
-	 * Resets the flag back to unchanged again.
-	 */
-	public void resetChanged() {
-		hasChanged = false;
 	}
 }

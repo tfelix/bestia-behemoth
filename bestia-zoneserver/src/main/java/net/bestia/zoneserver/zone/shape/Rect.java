@@ -41,11 +41,21 @@ public class Rect implements CollisionShape {
 		this.y = y;
 
 		checkNotNegative(width, height);
+		checkAnchor(anchorX, anchorY);
 
 		this.width = width;
 		this.height = height;
 
 		this.anchor = new Vector2(x + (int) (width * anchorX), y + (int) (height * anchorY));
+	}
+	
+	private void checkAnchor(float x, float y) {
+		if (x < 0f || x > 1.0f) {
+			throw new IllegalArgumentException("X must be betweeen 0.0 and 1.0");
+		}
+		if (y < 0f || y > 1.0f) {
+			throw new IllegalArgumentException("Y must be betweeen 0.0 and 1.0");
+		}
 	}
 
 	/**

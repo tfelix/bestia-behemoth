@@ -1,8 +1,18 @@
 package net.bestia.model.domain;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.PrimaryKeyJoinColumn;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Describes a member of a guild. This needs to be an extra entity because we
@@ -12,24 +22,50 @@ import javax.persistence.PrimaryKeyJoinColumn;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * 
  */
-//@Entity
-//@IdClass(GuildMemberId.class)
+@Entity
+@Table(name = "guild_player", uniqueConstraints = { @UniqueConstraint(columnNames = {
+		"GUILD_ID", "ACCOUNT_ID" }) })
 public class GuildMember {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(unique = true, nullable = false)
+	@JsonProperty("gid")
 	private int guildId;
 
-	@Id
-	private int accountId;
-	@ManyToOne
-	@PrimaryKeyJoinColumn(name = "ACCOUNTID", referencedColumnName = "ID")
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "ACCOUNT_ID", nullable = false)
+	@JsonProperty("a")
 	private Account account;
-	@ManyToOne
-	@PrimaryKeyJoinColumn(name = "GUILDID", referencedColumnName = "ID")
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "GUILD_ID", nullable = false)
+	@JsonIgnore
 	private Guild guild;
-	private int tax;
+
 	private int expEarned;
-	private int rank;
+
+	/**
+	 * Std. ctor for Hibernate.
+	 */
+	public GuildMember() {
+		// no op.
+	}
+
+	/**
+	 * Ctor.
+	 */
+	public GuildMember(Guild guild, Account accont) {
+		if (guild == null) {
+			throw new IllegalArgumentException("Guild can not be null.");
+		}
+		if (account == null) {
+			throw new IllegalArgumentException("Account can not be null.");
+		}
+
+		this.guild = guild;
+		this.account = accont;
+	}
 
 	/**
 	 * @return the guild
@@ -62,21 +98,6 @@ public class GuildMember {
 	}
 
 	/**
-	 * @return the tax
-	 */
-	public int getTax() {
-		return tax;
-	}
-
-	/**
-	 * @param tax
-	 *            the tax to set
-	 */
-	public void setTax(int tax) {
-		this.tax = tax;
-	}
-
-	/**
 	 * @return the expEarned
 	 */
 	public int getExpEarned() {
@@ -89,20 +110,5 @@ public class GuildMember {
 	 */
 	public void setExpEarned(int expEarned) {
 		this.expEarned = expEarned;
-	}
-
-	/**
-	 * @return the rank
-	 */
-	public int getRank() {
-		return rank;
-	}
-
-	/**
-	 * @param rank
-	 *            the rank to set
-	 */
-	public void setRank(int rank) {
-		this.rank = rank;
 	}
 }

@@ -2,30 +2,74 @@ package net.bestia.model.domain;
 
 import java.util.Set;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
-// Checken ob eine Gilde nur einen Member haben kann bzw. 
-//@Entity
+/**
+ * Representation of a guild for the bestia game.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
+@Entity
 public class Guild {
-	
+
 	@Transient
-	final public int MAX_LEVEL = 100;
-	
+	public static final int MAX_LEVEL = 10;
+
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private int id;
+
+	@Column(nullable = false, unique = true, length = 40)
 	private String name;
+
+	@Column(nullable = true)
 	private String emblem;
-	private int level;
+
+	private int level = 1;
+
 	@OneToOne
+	@JoinColumn(nullable = false, unique = true)
 	private GuildMember leader;
-	@OneToMany(mappedBy="guild")
+
+	@OneToMany(mappedBy = "guild")
 	private Set<GuildMember> members;
+
+	/**
+	 * Std. ctor. for Hibernate.
+	 */
+	public Guild() {
+
+	}
+
+	/**
+	 * Ctor.
+	 * 
+	 * @param name
+	 *            The name of the guild. Must be between 1 and 40 characters.
+	 * @param leader
+	 *            The leader of this guild.
+	 */
+	public Guild(String name, GuildMember leader) {
+		if (name == null || name.isEmpty() || name.length() > 40) {
+			throw new IllegalArgumentException("Guild name can not be null or empty or longer then 40 character.");
+		}
+
+		if (leader == null) {
+			throw new IllegalArgumentException("Guildleader can not be null.");
+		}
+
+		this.name = name;
+		this.leader = leader;
+	}
 
 	/**
 	 * @return the name
@@ -69,7 +113,7 @@ public class Guild {
 	 *            the level to set
 	 */
 	public void setLevel(int level) {
-		if(level > MAX_LEVEL || level < 0) {
+		if (level > MAX_LEVEL || level < 0) {
 			throw new IllegalArgumentException("Guild level must be between 0 and " + MAX_LEVEL);
 		}
 		this.level = level;

@@ -41,10 +41,23 @@ public class PlayerItem implements Serializable {
 	@JsonIgnore
 	private Account account;
 
+	/**
+	 * Std. ctor for Hibernate.
+	 */
 	public PlayerItem() {
-
+		// no op.
 	}
 
+	/**
+	 * Ctor.
+	 * 
+	 * @param item
+	 *            Item to add to the player inventory.
+	 * @param account
+	 *            The player account to add the item.
+	 * @param amount
+	 *            The amount of the item to be added.
+	 */
 	public PlayerItem(Item item, Account account, int amount) {
 		setItem(item);
 		setAccount(account);
@@ -77,7 +90,9 @@ public class PlayerItem implements Serializable {
 
 		if (item.getType() == ItemType.EQUIP) {
 			throw new IllegalArgumentException(
-					"Items which are equipment can not be set without and equipment item info object. Please use setItem(Item, EquipItemInfo) instead.");
+					"Items which are equipment can not be set without and "
+							+ "equipment item info object. Please use setItem(Item, "
+							+ "EquipItemInfo) instead.");
 		}
 
 		this.item = item;
@@ -89,6 +104,11 @@ public class PlayerItem implements Serializable {
 	 * }
 	 */
 
+	/**
+	 * The account to whom the item belongs.
+	 * 
+	 * @return Account who owns the item.
+	 */
 	public Account getAccount() {
 		return account;
 	}
@@ -107,6 +127,11 @@ public class PlayerItem implements Serializable {
 		this.account = account;
 	}
 
+	/**
+	 * The amount of the item in the inventory.
+	 * 
+	 * @return The amount of the item.
+	 */
 	public int getAmount() {
 		return amount;
 	}
@@ -117,6 +142,7 @@ public class PlayerItem implements Serializable {
 	 * not be different then 1.
 	 * 
 	 * @param amount
+	 *            The amount to set. Must be bigger then 0.
 	 */
 	public void setAmount(int amount) {
 		if (amount <= 0) {
