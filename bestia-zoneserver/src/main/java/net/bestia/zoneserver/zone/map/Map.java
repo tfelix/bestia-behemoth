@@ -24,6 +24,11 @@ import net.bestia.zoneserver.zone.spawn.Spawner;
  */
 public class Map {
 
+	/**
+	 * The {@link MapBuilder} should be used to construct a {@link Map}. Must be
+	 * filled by a {@link Maploader} and then construct a map out of it.
+	 *
+	 */
 	public static class MapBuilder {
 
 		public int width;
@@ -71,7 +76,7 @@ public class Map {
 
 	private final String globalMapscript;
 	private final List<Script> portals;
-	public List<Spawner> spawns;
+	private final List<Spawner> spawns;
 
 	private java.util.Map<Vector2, Tile> tiles = new HashMap<>();
 
@@ -88,7 +93,7 @@ public class Map {
 		tiles = Collections.unmodifiableMap(builder.tiles);
 		globalMapscript = builder.globalMapscript;
 		portals = builder.portals;
-		spawns = builder.spawns;
+		spawns = Collections.unmodifiableList(builder.spawns);
 	}
 
 	/**
@@ -107,6 +112,13 @@ public class Map {
 		return tiles.get(cords).isWalkable();
 	}
 
+	/**
+	 * Returns the walkspeed for a given tile.
+	 * 
+	 * @param cords
+	 *            The coordinates for the tile to get the walkspeed.
+	 * @return The walkspeed.
+	 */
 	public int getWalkspeed(Vector2 cords) {
 		if (cords.x > dimensions.getWidth() || cords.y > dimensions.getHeight() || cords.x < 0 || cords.y < 0) {
 			return 0;
@@ -168,6 +180,11 @@ public class Map {
 	 */
 	public List<Spawner> getSpawnlist() {
 		return spawns;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("Map[mapDbName: %s, dim: %s]", mapDbName, dimensions.toString());
 	}
 
 }
