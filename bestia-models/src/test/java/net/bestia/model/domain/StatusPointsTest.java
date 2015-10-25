@@ -63,9 +63,8 @@ public class StatusPointsTest {
 
 	@Test
 	public void check_add() {
-
 		StatusPoints sp1 = new StatusPointsBasic();
-		
+
 		sp1.setArmorDef(10);
 		sp1.setArmorSpDef(10);
 		sp1.setAtk(10);
@@ -100,6 +99,7 @@ public class StatusPointsTest {
 	@Test
 	public void test_instanciation() {
 		StatusPoints sp = new StatusPointsBasic();
+
 		Assert.assertEquals(0, sp.getAtk());
 		Assert.assertEquals(0, sp.getDef());
 		Assert.assertEquals(0, sp.getCurrentHp());
@@ -112,6 +112,7 @@ public class StatusPointsTest {
 	@Test
 	public void test_CriticalValues() {
 		StatusPoints sp = new StatusPointsBasic();
+
 		sp.setMaxHp(110);
 		sp.setCurrentHp(100);
 		Assert.assertEquals(100, sp.getCurrentHp());
@@ -128,6 +129,7 @@ public class StatusPointsTest {
 	@Test
 	public void test_IllegalMana() {
 		StatusPoints sp = new StatusPointsBasic();
+
 		sp.setCurrentMana(-10);
 		Assert.assertEquals(0, sp.getCurrentMana());
 	}
@@ -135,6 +137,7 @@ public class StatusPointsTest {
 	@Test
 	public void illegal_low_hp() {
 		StatusPoints sp = new StatusPointsBasic();
+
 		sp.setCurrentHp(-10);
 		Assert.assertEquals(0, sp.getCurrentHp());
 	}
@@ -142,6 +145,7 @@ public class StatusPointsTest {
 	@Test
 	public void illegal_low_maxHp() {
 		StatusPoints sp = new StatusPointsBasic();
+
 		sp.setMaxHp(-10);
 		Assert.assertEquals(1, sp.getMaxHp());
 	}
@@ -152,85 +156,4 @@ public class StatusPointsTest {
 		sp.setMaxMana(-10);
 		Assert.assertEquals(1, sp.getMaxMana());
 	}
-	
-	@Test
-	public void unchanged_on_create() {
-		StatusPoints sp = new StatusPointsBasic();
-		Assert.assertFalse(sp.hasChanged());
-	}
-	
-	@Test
-	public void changed_on_armordef() {
-		StatusPoints sp = new StatusPointsBasic();
-		sp.setArmorDef(10);
-		Assert.assertTrue(sp.hasChanged());
-	}
-	
-	@Test
-	public void changed_on_armorspdef() {
-		StatusPoints sp = new StatusPointsBasic();
-		sp.setArmorSpDef(10);
-		Assert.assertTrue(sp.hasChanged());
-	}
-	
-	@Test
-	public void changed_on_atk() {
-		StatusPoints sp = new StatusPointsBasic();
-		sp.setAtk(10);
-		Assert.assertTrue(sp.hasChanged());
-	}
-	
-	@Test
-	public void changed_on_hp() {
-		StatusPoints sp = new StatusPointsBasic();
-		sp.setMaxHp(10);
-		sp.setCurrentHp(10);
-		Assert.assertTrue(sp.hasChanged());
-	}
-	
-	@Test
-	public void changed_on_mana() {
-		StatusPoints sp = new StatusPointsBasic();
-		sp.setMaxMana(10);
-		sp.setCurrentMana(10);
-		Assert.assertTrue(sp.hasChanged());
-	}
-	
-	@Test
-	public void changed_on_def() {
-		StatusPoints sp = new StatusPointsBasic();
-		sp.setDef(10);
-		Assert.assertTrue(sp.hasChanged());
-	}
-	
-	@Test
-	public void changed_on_spatk() {
-		StatusPoints sp = new StatusPointsBasic();
-		sp.setSpAtk(10);
-		Assert.assertTrue(sp.hasChanged());
-	}
-	
-	@Test
-	public void changed_on_spd() {
-		StatusPoints sp = new StatusPointsBasic();
-		sp.setSpd(10);
-		Assert.assertTrue(sp.hasChanged());
-	}
-	
-	@Test
-	public void changed_on_spdef() {
-		StatusPoints sp = new StatusPointsBasic();
-		sp.setSpDef(10);
-		Assert.assertTrue(sp.hasChanged());
-	}
-	
-	@Test
-	public void changed_reset() {
-		StatusPoints sp = new StatusPointsBasic();
-		sp.setSpDef(10);
-		Assert.assertTrue(sp.hasChanged());
-		sp.resetChanged();
-		Assert.assertFalse(sp.hasChanged());
-	}
-
 }

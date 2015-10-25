@@ -2,6 +2,7 @@ package net.bestia.zoneserver.ecs.system;
 
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.component.Changed;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 
 import org.apache.logging.log4j.LogManager;
@@ -35,11 +36,7 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 	}
 
 	@Override
-	protected void process(Entity e) {
-		if(!playerMapper.get(e).playerBestiaManager.hasChanged()) {
-			return;
-		}
-		
+	protected void process(Entity e) {		
 		synchronizeAndSaveEntity(e);
 	}
 
@@ -61,8 +58,6 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 		log.trace("Persisting entity: {}", pb.toString());
 
 		dao.update(pb);
-		
-		playerControlled.playerBestiaManager.resetChanged();
 	}
 
 }

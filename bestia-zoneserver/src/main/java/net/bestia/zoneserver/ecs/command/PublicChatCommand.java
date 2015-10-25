@@ -14,6 +14,7 @@ import net.bestia.zoneserver.ecs.component.Chat;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.system.ChatSystem;
+import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
  * Spawns an Chat entity in the system which will by the {@link ChatSystem} be transmitted to all active player bestias
@@ -53,8 +54,7 @@ public class PublicChatCommand extends ECSCommand {
 		final Location loc = playerMapper.get(player).playerBestiaManager.getLocation();
 
 		chat.chatMessage = msg;
-		position.x = loc.getX();
-		position.y = loc.getY();
+		position.position = new Vector2(loc.getX(), loc.getY());
 	}
 
 }

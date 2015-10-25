@@ -19,23 +19,23 @@ public class Circle implements CollisionShape {
 		this.anchor = this.center;
 	}
 
-	public Circle(int x, int y, int radius, float anchorX, float anchorY) {
+	public Circle(int x, int y, int radius, int anchorX, int anchorY) {
 		if (radius < 0) {
 			throw new IllegalArgumentException("Radius can not be negative.");
 		}
-		checkAnchor(anchorX, anchorY);
-
 		this.center = new Vector2(x, y);
 		this.radius = radius;
-		this.anchor = new Vector2(x - (int) (2 * radius * anchorX), y - (int) (2 * radius * anchorY));
+		
+		checkAnchor(anchorX, anchorY);
+
+		this.anchor = new Vector2(anchorX, anchorY);
 	}
 
-	private void checkAnchor(float x, float y) {
-		if (x < 0f || x > 1.0f) {
-			throw new IllegalArgumentException("X must be betweeen 0.0 and 1.0");
-		}
-		if (y < 0f || y > 1.0f) {
-			throw new IllegalArgumentException("Y must be betweeen 0.0 and 1.0");
+	private void checkAnchor(int x, int y) {
+		final int dX = center.x - x;
+		final int dY = center.y - y;
+		if(Math.sqrt(dX * dX + dY * dY) > radius + 1) {
+			throw new IllegalArgumentException("Anchor must be inside the circle.");
 		}
 	}
 
@@ -102,7 +102,7 @@ public class Circle implements CollisionShape {
 			return false;
 		if (radius != other.radius)
 			return false;
-		if (anchor.equals(other.anchor)) {
+		if (!anchor.equals(other.anchor)) {
 			return false;
 		}
 		return true;
@@ -111,5 +111,17 @@ public class Circle implements CollisionShape {
 	@Override
 	public Vector2 getAnchor() {
 		return anchor;
+	}
+
+	@Override
+	public CollisionShape moveByAnchor(int x, int y) {
+		final int dX = x - getAnchor().x;
+		final int dY = y - getAnchor().y;
+
+		final int cX = center.x + dX;
+		final int cY = center.y + dY;
+
+		final Circle c = new Circle(cX, cY, radius, dX, dY);
+		return c;
 	}
 }

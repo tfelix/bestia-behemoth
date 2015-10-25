@@ -19,6 +19,7 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
+import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
  * Should be abstract.
@@ -116,7 +117,7 @@ public abstract class NetworkUpdateSystem extends BaseEntitySystem {
 			msg.setAction(action);
 			msg.addSprite(visible.sprite);
 		} else {
-			final Position pos = positionMapper.get(e);
+			final Vector2 pos = positionMapper.get(e).position.getAnchor();
 			msg = new MapEntitiesMessage.Entity(uuid.toString(), pos.x, pos.y);
 			msg.setAction(action);
 			msg.addSprite(visible.sprite);

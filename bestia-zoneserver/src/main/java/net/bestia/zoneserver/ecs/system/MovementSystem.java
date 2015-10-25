@@ -3,8 +3,8 @@ package net.bestia.zoneserver.ecs.system;
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Changed;
-import net.bestia.zoneserver.ecs.component.Collision;
 import net.bestia.zoneserver.ecs.component.Movement;
+import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.manager.BestiaManager;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
@@ -31,10 +31,10 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 
 	private ComponentMapper<Bestia> bestiaMapper;
 	private ComponentMapper<Movement> movementMapper;
-	private ComponentMapper<Collision> collisionMapper;
+	private ComponentMapper<Position> positionMapper;
 
 	public MovementSystem() {
-		super(Aspect.all(Bestia.class, Movement.class, Collision.class));
+		super(Aspect.all(Bestia.class, Movement.class, Position.class));
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 	protected void processExpired(Entity e) {
 		final Movement m = movementMapper.get(e);
 
-		Vector2 pos = m.path.poll();
+		final Vector2 pos = m.path.poll();
 		if (pos == null) {
 			e.edit().remove(Movement.class);
 			return;
@@ -77,8 +77,8 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 		// Mark entity as changed.
 		e.edit().create(Changed.class);
 		
-		// TODO das hier besser lösen. Update the collision.
-		collisionMapper.get(e).shape = new Vector2(pos.x, pos.y);
+		final Position posComp = positionMapper.get(e);
+		posComp.position = posComp.position.moveByAnchor(pos.x, pos.y);
 
 		log.trace("Moved to: {}", pos.toString());
 

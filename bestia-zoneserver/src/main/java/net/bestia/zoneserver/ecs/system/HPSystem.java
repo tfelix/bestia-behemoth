@@ -19,14 +19,14 @@ import com.artemis.systems.IntervalEntityProcessingSystem;
  *
  */
 @Wire
-public class ManaSystem extends IntervalEntityProcessingSystem {
+public class HPSystem extends IntervalEntityProcessingSystem {
 
 	private static final int TICK_RATE_MS = 5000;
 
 	private ComponentMapper<Bestia> bestiaMapper;
 	private ComponentMapper<PlayerBestia> playerMapper;
 
-	public ManaSystem() {
+	public HPSystem() {
 		super(Aspect.all(Bestia.class), TICK_RATE_MS);
 		// No op.
 	}
@@ -37,10 +37,10 @@ public class ManaSystem extends IntervalEntityProcessingSystem {
 		final Bestia bestia = bestiaMapper.get(e);
 		final BestiaManager bestiaManager = bestia.bestiaManager;
 
-		final int addMana = (int) Math.ceil((bestiaManager.getManaRegenerationRate() * TICK_RATE_MS / 1000));
+		final int addHp = (int) Math.ceil((bestiaManager.getHpRegenerationRate() * TICK_RATE_MS / 1000));
 
-		final int curMana = bestiaManager.getStatusPoints().getCurrentMana();
-		bestiaManager.getStatusPoints().setCurrentMana(curMana + addMana);
+		final int curHp = bestiaManager.getStatusPoints().getCurrentMana();
+		bestiaManager.getStatusPoints().setCurrentMana(curHp + addHp);
 
 		// Sync with the player if it is a player entity.
 		if (playerMapper.has(e)) {

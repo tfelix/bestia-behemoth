@@ -2,18 +2,21 @@ package net.bestia.zoneserver.ecs.component;
 
 import com.artemis.Component;
 
+import net.bestia.zoneserver.zone.shape.CollisionShape;
+
 public class Position extends Component {
 	
-	public int x;
-	public int y;
+	public CollisionShape position;
 	
 	public Position() {
 		
 	}
 	
 	public Position(int x, int y) {
-		this.x = x;
-		this.y = y;
+		setPosition(x, y);
 	}
-
+	
+	public void setPosition(int x, int y) {
+		position = position.moveByAnchor(x, y);
+	}
 }

@@ -13,7 +13,6 @@ import com.artemis.systems.DelayedEntityProcessingSystem;
 
 import net.bestia.zoneserver.ecs.component.AI;
 import net.bestia.zoneserver.ecs.component.Bestia;
-import net.bestia.zoneserver.ecs.component.Collision;
 import net.bestia.zoneserver.ecs.component.MobGroup;
 import net.bestia.zoneserver.ecs.component.MobSpawn;
 import net.bestia.zoneserver.ecs.component.Position;
@@ -35,7 +34,6 @@ public class MobSpawnSystem extends DelayedEntityProcessingSystem {
 	private ComponentMapper<MobSpawn> spawnMapper;
 
 	private ComponentMapper<MobGroup> groupMapper;
-	private ComponentMapper<Collision> collisionMapper;
 	// private ComponentMapper<AI> aiMapper;
 	private ComponentMapper<Bestia> bestiaMapper;
 	private ComponentMapper<Position> positionMapper;
@@ -53,7 +51,6 @@ public class MobSpawnSystem extends DelayedEntityProcessingSystem {
 		super.initialize();
 
 		npcBestiaArchtype = new ArchetypeBuilder()
-				.add(Collision.class)
 				.add(Visible.class)
 				.add(AI.class)
 				.add(Bestia.class)
@@ -80,16 +77,11 @@ public class MobSpawnSystem extends DelayedEntityProcessingSystem {
 		final int mob = world.create(npcBestiaArchtype);
 
 		groupMapper.get(mob).groupName = spawn.getGroup();
-
-		// TODO Collision and position can be come one.
+		
 		final Position pos = positionMapper.get(mob);
-		pos.x = spawn.coordinates.x;
-		pos.y = spawn.coordinates.y;
+		pos.position = new Vector2(spawn.coordinates.x, spawn.coordinates.y);
 
 		bestiaMapper.get(mob).bestiaManager = new NPCBestiaManager(spawn.mob);
-
-		// Set the collision.
-		collisionMapper.get(mob).shape = new Vector2(spawn.coordinates.x, spawn.coordinates.y);
 
 		// Set the sprite name.
 		visibleMapper.get(mob).sprite = spawn.mob.getDatabaseName();
