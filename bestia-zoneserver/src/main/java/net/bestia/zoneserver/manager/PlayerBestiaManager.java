@@ -5,7 +5,7 @@ import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
-import net.bestia.model.domain.StatusPointsBasic;
+import net.bestia.model.domain.StatusPoints;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.util.I18n;
 
@@ -176,7 +176,7 @@ public class PlayerBestiaManager extends BestiaManager {
 						/ 100
 				+ 10 + bestia.getLevel() * 2;
 
-		final StatusPoints points = new StatusPointsBasic();
+		final StatusPoints points = new StatusPoints();
 
 		points.setMaxValues(maxHp, maxMana);
 		points.setAtk(atk);
@@ -282,7 +282,7 @@ public class PlayerBestiaManager extends BestiaManager {
 						/ 100
 				+ 10 + bestia.getLevel() * 2;
 
-		final StatusPoints statusPoints = new StatusPointsBasic();
+		final StatusPoints statusPoints = new StatusPoints();
 
 		statusPoints.setMaxValues(maxHp, maxMana);
 		statusPoints.setAtk(atk);

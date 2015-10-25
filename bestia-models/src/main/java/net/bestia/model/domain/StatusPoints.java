@@ -1,67 +1,347 @@
 package net.bestia.model.domain;
 
-public interface StatusPoints {
+import java.io.Serializable;
 
-	int getCurrentHp();
+import javax.persistence.Embeddable;
+import javax.persistence.Transient;
 
-	void setCurrentHp(int hp);
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-	int getMaxHp();
+/**
+ * Status values for bestia entities.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
+@Embeddable
+public class StatusPoints implements Serializable {
 
-	void setMaxHp(int maxHp);
+	private static final long serialVersionUID = 1L;
 
-	int getCurrentMana();
+	@JsonProperty("chp")
+	private int currentHp;
 
-	void setCurrentMana(int mana);
+	@JsonProperty("mhp")
+	@Transient
+	private int maxHp;
 
-	void setMaxMana(int maxMana);
+	@JsonProperty("cmana")
+	private int currentMana;
 
-	int getMaxMana();
+	@JsonProperty("mmana")
+	@Transient
+	private int maxMana;
 
-	int getArmorDef();
+	@JsonProperty("adef")
+	@Transient
+	private int armorDef;
 
-	void setArmorDef(int armorDef);
+	@JsonProperty("aspdef")
+	@Transient
+	private int armorSpDef;
 
-	int getArmorSpDef();
+	@JsonProperty("atk")
+	@Transient
+	private int atk;
 
-	void setArmorSpDef(int armorSpDef);
+	@JsonProperty("def")
+	@Transient
+	private int def;
 
-	int getAtk();
+	@JsonProperty("spatk")
+	@Transient
+	private int spAtk;
 
-	void setAtk(int atk);
+	@JsonProperty("spdef")
+	@Transient
+	private int spDef;
 
-	int getDef();
+	@JsonProperty("spd")
+	@Transient
+	private int spd;
 
-	void setDef(int def);
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#getCurrentHp()
+	 */
+	
+	public int getCurrentHp() {
+		return currentHp;
+	}
 
-	int getSpAtk();
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#setCurrentHp(int)
+	 */
+	
+	public void setCurrentHp(int hp) {
+		this.currentHp = hp;
+		checkInvalidStatusValue();
+	}
 
-	void setSpAtk(int spAtk);
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#getMaxHp()
+	 */
+	
+	public int getMaxHp() {
+		return maxHp;
+	}
 
-	int getSpDef();
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#setMaxHp(int)
+	 */
+	
+	public void setMaxHp(int maxHp) {
+		this.maxHp = maxHp;
+		checkInvalidStatusValue();
+	}
 
-	void setSpDef(int spDef);
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#getCurrentMana()
+	 */
+	
+	public int getCurrentMana() {
+		return currentMana;
+	}
 
-	int getSpd();
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#setCurrentMana(int)
+	 */
+	
+	public void setCurrentMana(int mana) {
+		this.currentMana = mana;
+		checkInvalidStatusValue();
+	}
 
-	void setSpd(int spd);
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#setMaxMana(int)
+	 */
+	
+	public void setMaxMana(int maxMana) {
+		this.maxMana = maxMana;
+		checkInvalidStatusValue();
+	}
+
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#getMaxMana()
+	 */
+	
+	public int getMaxMana() {
+		return maxMana;
+	}
+
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#getArmorDef()
+	 */
+	
+	public int getArmorDef() {
+		return armorDef;
+	}
+
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#setArmorDef(int)
+	 */
+	
+	public void setArmorDef(int armorDef) {
+		this.armorDef = armorDef;
+		checkInvalidStatusValue();
+	}
+
+	public int getArmorSpDef() {
+		return armorSpDef;
+	}
+
+	public void setArmorSpDef(int armorSpDef) {
+		this.armorSpDef = armorSpDef;
+		checkInvalidStatusValue();
+	}
+
+	public int getAtk() {
+		return atk;
+	}
+	
+	public void setAtk(int atk) {
+		this.atk = atk;
+		checkInvalidStatusValue();
+	}
+
+	public int getDef() {
+		return def;
+	}
+
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#setDef(int)
+	 */
+	
+	public void setDef(int def) {
+		this.def = def;
+		checkInvalidStatusValue();
+	}
+
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#getSpAtk()
+	 */
+	
+	public int getSpAtk() {
+		return spAtk;
+	}
+
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#setSpAtk(int)
+	 */
+	
+	public void setSpAtk(int spAtk) {
+		this.spAtk = spAtk;
+		checkInvalidStatusValue();
+	}
+
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#getSpDef()
+	 */
+	
+	public int getSpDef() {
+		return spDef;
+	}
+
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#setSpDef(int)
+	 */
+	
+	public void setSpDef(int spDef) {
+		this.spDef = spDef;
+		checkInvalidStatusValue();
+	}
+
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#getSpd()
+	 */
+	
+	public int getSpd() {
+		return spd;
+	}
+
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#setSpd(int)
+	 */
+	
+	public void setSpd(int spd) {
+		this.spd = spd;
+		checkInvalidStatusValue();
+	}
+
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#setMaxValues(int, int)
+	 */
+	
+	public void setMaxValues(int maxHp, int maxMana) {
+
+		this.maxHp = maxHp;
+		this.maxMana = maxMana;
+		checkInvalidStatusValue();
+	}
+
+	/* (non-Javadoc)
+	 * @see net.bestia.model.domain.StatusPoints#add(net.bestia.model.domain.StatusPoints)
+	 */
+	
+	public void add(StatusPoints rhs) {
+
+		this.maxHp += rhs.getMaxHp();
+		this.maxMana += rhs.getMaxMana();
+		this.currentHp += rhs.getCurrentHp();
+		this.currentMana += rhs.getCurrentMana();
+
+		this.atk += rhs.getAtk();
+		this.def += rhs.getDef();
+		this.spAtk += rhs.getSpAtk();
+		this.spd += rhs.getSpd();
+		this.spDef += rhs.getSpDef();
+		this.armorDef += rhs.getArmorDef();
+		this.armorSpDef += rhs.getArmorSpDef();
+		checkInvalidStatusValue();
+	}
 
 	/**
-	 * Special setter to avoid the clearance of any of the current mana or
-	 * current hp value wich will occure if one set a single value but the other
-	 * value has not yet been set. Either one of the values will get reset. To
-	 * avoid this use this method and set the limiting values at the same time.
+	 * Überprüft ob sich ein Statuswert im "illegalen" Bereich aufhält, zb das
+	 * die cur_hp immer niedriger sind als die max_hp. Bei änderungen an
+	 * kritischen Stati wird diese Methode gecalled um evtl Berichtigungen
+	 * durchzuführen.
 	 * 
-	 * @param maxHp
-	 * @param maxMana
+	 * @param $changed_stat
+	 * @return void
 	 */
-	void setMaxValues(int maxHp, int maxMana);
+	private void checkInvalidStatusValue() {
 
-	/**
-	 * Adds some other status points to this object.
-	 * 
-	 * @param rhs
-	 */
-	void add(StatusPoints rhs);
+		// MAX HP & MANA TEST
+		if (maxHp < 1) {
+			maxHp = 1;
+		}
 
+		if (maxMana < 1) {
+			maxMana = 1;
+		}
+
+		if (currentHp > maxHp) {
+			currentHp = maxHp;
+		}
+
+		if (currentMana > maxMana) {
+			currentMana = maxMana;
+		}
+
+		if (currentHp < 0) {
+			currentHp = 0;
+		}
+
+		if (currentMana < 0) {
+			currentMana = 0;
+		}
+
+		// ARMOR TEST
+		if (armorDef < 1) {
+			armorDef = 1;
+		}
+		if (armorDef > 100) {
+			armorDef = 100;
+		}
+
+		// SP ARMOR TEST
+		if (armorSpDef < 1) {
+			armorSpDef = 1;
+		}
+		if (armorSpDef > 100) {
+			armorSpDef = 100;
+		}
+
+		if (atk < 0) {
+			atk = 0;
+		}
+
+		if (def < 0) {
+			def = 0;
+		}
+
+		if (spd < 0) {
+			spd = 0;
+		}
+
+		if (spAtk < 0) {
+			spAtk = 0;
+		}
+
+		if (spDef < 0) {
+			spDef = 0;
+		}
+	}
+
+	@Override
+	public String toString() {
+		return String.format("SP[atk: %d def: %d, spAtk: %d,"
+				+ " spDef: %d, spd: %d, armDef: %d, armSpDef: %d]",
+				atk,
+				def,
+				spAtk,
+				spDef,
+				spd,
+				armorDef,
+				armorSpDef);
+	}
 }

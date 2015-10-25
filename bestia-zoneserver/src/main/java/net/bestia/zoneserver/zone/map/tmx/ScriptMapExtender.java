@@ -7,7 +7,11 @@ import java.util.Vector;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.bestia.zoneserver.script.MapScript;
+import net.bestia.zoneserver.script.MapTriggerScript;
+import net.bestia.zoneserver.script.PortalMapTriggerScript;
 import net.bestia.zoneserver.zone.map.Map.MapBuilder;
+import net.bestia.zoneserver.zone.map.Map.Script;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
 import net.bestia.zoneserver.zone.shape.Rect;
 import tiled.core.Map;
@@ -41,9 +45,6 @@ public class ScriptMapExtender implements TMXMapExtender {
 			}
 
 			final ObjectGroup objLayer = (ObjectGroup) layer;
-
-			// Basically we are looking for two layers: the portal layer and the
-			// "normal" script layer.
 			final String layerName = objLayer.getName().toLowerCase();
 			if (!layerName.equals("scripts")) {
 				continue;
@@ -59,7 +60,9 @@ public class ScriptMapExtender implements TMXMapExtender {
 				// Translate the bb to shape.
 				final CollisionShape rect = new Rect(bb.x, bb.y, bb.width, bb.height);
 
-				// TODO Hier noch die MapScripte hinzufügen.
+				//final MapScript mapScript = new MapTriggerScript(builder.mapDbName, mapObj.getName());
+				//final net.bestia.zoneserver.zone.map.Map.Script mapscript = new Script(mapScript, rect);
+				//builder.scripts.add(mapscript);
 				
 				createdScripts++;
 			}

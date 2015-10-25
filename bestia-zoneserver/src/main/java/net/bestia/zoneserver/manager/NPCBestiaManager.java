@@ -3,7 +3,7 @@ package net.bestia.zoneserver.manager;
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.StatusPoints;
-import net.bestia.model.domain.StatusPointsBasic;
+import net.bestia.model.domain.StatusPoints;
 
 public class NPCBestiaManager extends BestiaManager {
 	// private final static Logger log =
@@ -44,7 +44,7 @@ public class NPCBestiaManager extends BestiaManager {
 		final int maxMana = bestia.getBaseValues().getMana() * 2 + 5
 				+ bestia.getEffortValues().getMana() / 4 * bestia.getLevel() / 100 + 10 + bestia.getLevel() * 2;
 
-		final StatusPoints statusPoints = new StatusPointsBasic();
+		final StatusPoints statusPoints = new StatusPoints();
 
 		statusPoints.setMaxValues(maxHp, maxMana);
 		statusPoints.setAtk(atk);

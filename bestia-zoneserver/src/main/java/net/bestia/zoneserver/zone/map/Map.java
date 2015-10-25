@@ -38,6 +38,7 @@ public class Map {
 		public java.util.Map<Vector2, Tile> tiles = new HashMap<>();
 		public String mapDbName;
 		public List<Script> portals = new ArrayList<>();
+		public List<Script> scripts = new ArrayList<>();
 		public String globalMapscript = "";
 		public List<Spawner> spawns;
 
