@@ -26,6 +26,7 @@ import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.messages.Message;
+import net.bestia.model.dao.I18nDAO;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
@@ -36,6 +37,7 @@ import net.bestia.zoneserver.ecs.BestiaRegister.InputControllerCallback;
 import net.bestia.zoneserver.loader.ScriptLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
 import net.bestia.zoneserver.script.ScriptManager;
+import net.bestia.zoneserver.util.I18n;
 import net.bestia.zoneserver.zone.Zone;
 
 /**
@@ -167,6 +169,9 @@ public class Zoneserver {
 		this.responsibleZones = Collections.unmodifiableSet(zones);
 
 		this.ecsInputController.addCallback(new InputControllerCallbackImpl());
+		
+		// Prepare the translator.
+		I18n.setDao(commandContext.getServiceLocator().getBean(I18nDAO.class));
 	}
 
 	/**
