@@ -43,6 +43,12 @@ public class SpawnTMXMapExtender extends TMXMapHelper implements TMXMapExtender 
 		tileSize = tiledMap.getTileHeight();
 
 		final String spawnStr = mapProps.getProperty("spawn");
+		
+		// Check if we have something to spawn.
+		if(spawnStr == null || spawnStr.isEmpty()) {
+			return;
+		}
+		
 		final String spawns[] = spawnStr.split(";");
 
 		// Create the locations.

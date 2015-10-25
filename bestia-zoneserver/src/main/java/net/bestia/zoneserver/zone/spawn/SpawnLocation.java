@@ -32,6 +32,10 @@ public class SpawnLocation {
 	private List<PossibleSpawn> areas = new ArrayList<>();
 
 	public SpawnLocation(Rect rect) {
+		if(rect == null) {
+			throw new IllegalArgumentException("Rect can not be null.");
+		}
+		
 		addArea(rect);
 	}
 
