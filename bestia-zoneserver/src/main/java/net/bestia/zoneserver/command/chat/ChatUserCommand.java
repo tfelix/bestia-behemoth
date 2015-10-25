@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.command.chat;
 
 import net.bestia.messages.ChatMessage;
+import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.zoneserver.command.CommandContext;
 
 /**
@@ -32,5 +33,12 @@ interface ChatUserCommand {
 	 * @return The token of the command to be executed with this implementation.
 	 */
 	String getChatToken();
+
+	/**
+	 * The minimum needed {@link UserLevel} in order to execute this command.
+	 * 
+	 * @return
+	 */
+	UserLevel getNeededUserLevel();
 
 }

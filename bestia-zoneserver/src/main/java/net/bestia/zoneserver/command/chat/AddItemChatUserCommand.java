@@ -35,13 +35,6 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 		final Account acc = accDAO.find(m.getAccountId());
 		final long accId = acc.getId();
 
-		if (acc.getUserLevel().compareTo(UserLevel.SUPER_GM) < 0) {
-
-			// User level not high enough.
-
-			return;
-		}
-
 		final PlayerBestiaManager masterManager = new PlayerBestiaManager(acc.getMaster(), ctx.getServer());
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
 		final InventoryManager invManager = new InventoryManager(masterManager, invService, ctx.getServer());
@@ -97,5 +90,10 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 	@Override
 	public String getChatToken() {
 		return "/item";
+	}
+
+	@Override
+	public UserLevel getNeededUserLevel() {
+		return UserLevel.SUPER_GM;
 	}
 }

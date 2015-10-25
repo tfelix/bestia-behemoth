@@ -4,7 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import net.bestia.messages.ChatMessage;
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.util.PackageLoader;
 
@@ -19,6 +25,7 @@ import net.bestia.zoneserver.util.PackageLoader;
  */
 public class ChatCommandExecutor {
 
+	private final static Logger LOG = LogManager.getLogger(ChatCommandExecutor.class);
 	private final static Map<String, ChatUserCommand> commands = new HashMap<>();
 
 	static {
@@ -45,11 +52,25 @@ public class ChatCommandExecutor {
 
 		final String key = getCommandKey(m.getText());
 
-		if (!commands.containsKey(key)) {
+		final ChatUserCommand cmd = commands.get(key);
+		if (cmd == null) {
+			LOG.debug("Chat command: {} not found.", key);
 			return;
 		}
 
-		commands.get(key).execute(m, ctx);
+		final AccountDAO accDAO = ctx.getServiceLocator().getBean(AccountDAO.class);
+
+		// Find the player who send the message.
+		final Account acc = accDAO.find(m.getAccountId());
+
+		if (acc.getUserLevel().compareTo(cmd.getNeededUserLevel()) < 0) {
+
+			// User level not high enough.
+			LOG.debug("User level not high enough for command: {}, accId: {}", key, acc.getId());
+			return;
+		}
+
+		cmd.execute(m, ctx);
 
 	}
 
