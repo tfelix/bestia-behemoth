@@ -1,15 +1,20 @@
 package net.bestia.model.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -49,6 +54,10 @@ public class Bestia implements Serializable {
 	private int level;
 
 	private boolean isBoss;
+	
+	@JsonIgnore
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "bestia", fetch = FetchType.EAGER)
+	private List<DropItem> dropItems = new ArrayList<>();
 
 	/*-
 	 * This values is added to each player bestia when it kill another bestia from this kind until the maximum amount
@@ -188,6 +197,10 @@ public class Bestia implements Serializable {
 
 	public String getScriptExec() {
 		return scriptExec;
+	}
+	
+	public List<DropItem> getDropItems() {
+		return dropItems;
 	}
 
 	/**

@@ -156,4 +156,14 @@ public class BestiaConfiguration {
 		return version;
 	}
 
+	/**
+	 * Sets the given value.
+	 * 
+	 * @param key
+	 * @param value
+	 */
+	public void setValue(String key, Object value) {
+		prop.setProperty(key, value.toString());
+	}
+
 }

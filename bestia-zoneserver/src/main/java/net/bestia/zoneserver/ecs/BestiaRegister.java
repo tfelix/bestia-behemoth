@@ -16,9 +16,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Manages the communication towards the ECS system. Since this communication must somehow work asynchronously we store
- * messages inside this {@link BestiaRegister} and the ECS will fetch them as its ticking. It will question the
- * InputController if it holds messages regarding a particular bestia and execute it in ECS world.
+ * Manages the communication towards the ECS system. Since this communication
+ * must somehow work asynchronously we store messages inside this
+ * {@link BestiaRegister} and the ECS will fetch them as its ticking. It will
+ * question the InputController if it holds messages regarding a particular
+ * bestia and execute it in ECS world.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -52,7 +54,8 @@ public class BestiaRegister {
 	}
 
 	/**
-	 * Adds a callback to the {@link BestiaRegister}. These callback are called if the according events are triggered.
+	 * Adds a callback to the {@link BestiaRegister}. These callback are called
+	 * if the according events are triggered.
 	 * 
 	 * @param callback
 	 *            Callback to be added.
@@ -118,8 +121,8 @@ public class BestiaRegister {
 	}
 
 	/**
-	 * Removes an account an all currently registered bestias from the system. Outstanding input messages not yet
-	 * processed are lost.
+	 * Removes an account an all currently registered bestias from the system.
+	 * Outstanding input messages not yet processed are lost.
 	 * 
 	 * @param accId
 	 *            Account ID of the account to be removed.
@@ -146,8 +149,8 @@ public class BestiaRegister {
 	}
 
 	/**
-	 * Removes a bestia from the input system. If the last bestia of an account is removed the account will be removed
-	 * itself.
+	 * Removes a bestia from the input system. If the last bestia of an account
+	 * is removed the account will be removed itself.
 	 * 
 	 * @param accId
 	 *            Account id where the bestia belongs to.
@@ -178,13 +181,14 @@ public class BestiaRegister {
 	}
 
 	/**
-	 * Adds an bestia to an active account into this system. If the account was not set as active before it will be set
-	 * active by calling this method.
+	 * Adds an bestia to an active account into this system. If the account was
+	 * not set as active before it will be set active by calling this method.
 	 * 
 	 * @param accId
 	 *            Account ID to add the active bestia too.
 	 * @param pbm
-	 *            The {@link PlayerBestiaManager} to add as active to this account.
+	 *            The {@link PlayerBestiaManager} to add as active to this
+	 *            account.
 	 */
 	public void addPlayerBestia(long accId, PlayerBestiaManager pbm) {
 
@@ -203,7 +207,8 @@ public class BestiaRegister {
 	}
 
 	/**
-	 * Returns a set with all currently active bestias for a given account id on this server.
+	 * Returns a set with all currently active bestias for a given account id on
+	 * this server.
 	 * 
 	 * @param accId
 	 *            Account id.
@@ -216,8 +221,8 @@ public class BestiaRegister {
 	}
 
 	/**
-	 * Returns the {@link PlayerBestiaManager} of the given bestiaId. If no bestia is active with this id null is
-	 * returned.
+	 * Returns the {@link PlayerBestiaManager} of the given bestiaId. If no
+	 * bestia is active with this id null is returned.
 	 * 
 	 * @param accId
 	 *            The account id which holds the requested bestia.
@@ -244,8 +249,8 @@ public class BestiaRegister {
 	}
 
 	/**
-	 * Returns the id of the active bestia for this account id. If no active bestia was found 0 is returned (which is no
-	 * valid bestia id).
+	 * Returns the id of the active bestia for this account id. If no active
+	 * bestia was found 0 is returned (which is no valid bestia id).
 	 * 
 	 * @param accId
 	 *            Account id too look up the active bestia.

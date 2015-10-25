@@ -74,8 +74,11 @@ public class Zone {
 
 		@Override
 		public void run() {
-			
-			// TODO Check if the should load persisted entities while loading the map. 
+
+			// Load the persisted entities if it was desired.
+			if(ctx.getConfiguration().getIntProperty("zone.cleanLoad") == 1) {
+				world.getSystem(WorldPersistenceManager.class).load();
+			}
 
 			lastRun = System.currentTimeMillis();
 
@@ -152,7 +155,8 @@ public class Zone {
 		public void addedBestia(long accId, int bestiaId) {
 			// Check if this bestia belongs to this zone if so create a
 			// responsible spawn command.
-			final PlayerBestiaManager pbm = ctx.getServer().getBestiaRegister()
+			final PlayerBestiaManager pbm = ctx.getServer()
+					.getBestiaRegister()
 					.getSpawnedBestia(accId, bestiaId);
 
 			if (!pbm.getLocation().getMapDbName().equals(name)) {
@@ -218,16 +222,16 @@ public class Zone {
 		if (hasStarted.get()) {
 			throw new IllegalStateException("Zone can not be started twice.");
 		}
-		
+
 		// Create and prepare the thread.
 		final WorldExtender worldExtender = new WorldExtender(cmdContext.getConfiguration());
 		final World world = worldExtender.createWorld(cmdContext, map);
 		zoneTicker = new ZoneTicker(world, cmdContext);
 		zoneTickerThread = new Thread(null, zoneTicker, "zoneECS-" + name);
-		
+
 		hasStarted.set(true);
 		zoneTickerThread.start();
-		
+
 		// Add the ticker thread of the ECS so newly spawned bestias will be
 		// created to the zone.
 		cmdContext.getServer().getBestiaRegister().addCallback(zoneTicker);

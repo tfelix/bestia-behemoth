@@ -16,27 +16,24 @@ public abstract class BestiaManager {
 	public abstract Location getLocation();
 
 	public abstract int getLevel();
-	
+
 	public float getHpRegenerationRate() {
 		final StatusPoints statusPoints = getStatusPoints();
 		final int level = getLevel();
-		final float regen = (statusPoints.getDef() * 4
-				+ statusPoints.getSpDef() * 1.5f + level) / 100.0f;
+		final float regen = (statusPoints.getDef() * 4 + statusPoints.getSpDef() * 1.5f + level) / 100.0f;
 		return regen;
 	}
 
 	public float getManaRegenerationRate() {
 		final StatusPoints statusPoints = getStatusPoints();
 		final int level = getLevel();
-		final float regen = (statusPoints.getDef() * 1.5f
-				+ statusPoints.getSpDef() * 3 + level) / 100.0f;
+		final float regen = (statusPoints.getDef() * 1.5f + statusPoints.getSpDef() * 3 + level) / 100.0f;
 		return regen;
 	}
 
 	public BestiaManager() {
 
 	}
-
 
 	/**
 	 * Tries to use this attack. The usage of the attack will fail if there is
@@ -67,8 +64,7 @@ public abstract class BestiaManager {
 		final long curTime = System.currentTimeMillis();
 		final long attackCooldownTime;
 		if (attackUsageTimer.containsKey(atk.getId())) {
-			attackCooldownTime = attackUsageTimer.get(atk.getId())
-					+ atk.getCooldown();
+			attackCooldownTime = attackUsageTimer.get(atk.getId()) + atk.getCooldown();
 		} else {
 			attackCooldownTime = 0;
 		}

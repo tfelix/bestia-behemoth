@@ -355,17 +355,24 @@ public class Zoneserver {
 	public static void main(String[] args) {
 
 		// Create cmd line arguments.
-		Options options = new Options();
+		final Options options = new Options();
 
-		Option configOpt = Option.builder("cf").longOpt("configFile").hasArg().desc("path to an external config file.")
-				.build();
-
-		options.addOption(configOpt);
+		options.addOption(Option.builder("cf")
+				.longOpt("configFile")
+				.hasArg()
+				.desc("path to an external config file.")
+				.build());
+		
+		options.addOption(Option.builder("cl")
+				.longOpt("clean")
+				.hasArg()
+				.desc("Zones are started without loading persisted entities.")
+				.build());
 
 		CommandLineParser parser = new DefaultParser();
 		final BestiaConfiguration config = new BestiaConfiguration();
 		try {
-			CommandLine cmd = parser.parse(options, args);
+			final CommandLine cmd = parser.parse(options, args);
 
 			if (cmd.hasOption("cf")) {
 				final String configFile = cmd.getOptionValue("cf");
@@ -373,6 +380,10 @@ public class Zoneserver {
 				config.load(new File(configFile));
 			} else {
 				config.load();
+			}
+			
+			if(cmd.hasOption("cl")) {
+				config.setValue("zone.cleanLoad", 1);
 			}
 		} catch (ParseException e) {
 			log.fatal("Could not parse the commandline. Exit.");

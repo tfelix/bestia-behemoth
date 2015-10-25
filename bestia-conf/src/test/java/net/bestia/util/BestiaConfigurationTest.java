@@ -59,4 +59,12 @@ public class BestiaConfigurationTest {
 		Assert.assertTrue(bc.getVersion().equals("ALLHAILTHECAT"));
 	}
 	
+	@Test
+	public void set_value_ok() throws IOException {
+		BestiaConfiguration bc = new BestiaConfiguration();
+		bc.load(configFile);
+		bc.setValue("test", 1);
+		Assert.assertTrue(bc.getIntProperty("test") == 1);
+	}
+	
 }
