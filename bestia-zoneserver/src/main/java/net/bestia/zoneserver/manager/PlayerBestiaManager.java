@@ -5,7 +5,9 @@ import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.domain.StatusPointsBasic;
 import net.bestia.zoneserver.Zoneserver;
+import net.bestia.zoneserver.util.I18n;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,13 +20,13 @@ import org.apache.logging.log4j.Logger;
  *
  */
 public class PlayerBestiaManager extends BestiaManager {
-	private final static Logger log = LogManager
-			.getLogger(PlayerBestiaManager.class);
+	private final static Logger log = LogManager.getLogger(PlayerBestiaManager.class);
 
 	private final static int MAX_LEVEL = 40;
 	public final static int MAX_ATK_SLOTS = 5;
 
 	private final PlayerBestia bestia;
+	private final String language;
 	private final Zoneserver server;
 
 	/**
@@ -41,6 +43,9 @@ public class PlayerBestiaManager extends BestiaManager {
 
 		this.server = server;
 		this.bestia = bestia;
+
+		// Shortcut to the acc. language.
+		this.language = bestia.getOwner().getLanguage().toString();
 	}
 
 	/**
@@ -57,8 +62,7 @@ public class PlayerBestiaManager extends BestiaManager {
 		}
 
 		// Send system message for chat.
-		sendSystemMessage(String.format("TRANS: Bestia gained %d experience.",
-				exp));
+		sendSystemMessage(I18n.t(language, "msg.bestia gained exp", exp));
 
 		bestia.setExp(bestia.getExp() + exp);
 		checkLevelUp();
@@ -77,8 +81,7 @@ public class PlayerBestiaManager extends BestiaManager {
 	}
 
 	/**
-	 * Sends a system message to the owner of this bestia. TODO Hier die
-	 * Übersetzung kären.
+	 * Sends a system message to the owner of this bestia.
 	 * 
 	 * @param text
 	 */
@@ -105,8 +108,7 @@ public class PlayerBestiaManager extends BestiaManager {
 		bestia.setExp(bestia.getExp() - neededExp);
 
 		// Send system message for chat.
-		sendSystemMessage(String.format("TRANS: Bestia reached level %d.",
-				bestia.getLevel()));
+		sendSystemMessage(I18n.t(language, "msg.bestia reached level", bestia.getLevel()));
 
 		// Check recursivly for other level ups until all level ups are done.
 		checkLevelUp();
@@ -136,40 +138,45 @@ public class PlayerBestiaManager extends BestiaManager {
 
 		final int atk = (bestia.getBaseValues().getAtk() * 2
 				+ bestia.getIndividualValue().getAtk() + bestia
-				.getEffortValues().getAtk() / 4) * bestia.getLevel() / 100 + 5;
+						.getEffortValues().getAtk() / 4)
+				* bestia.getLevel() / 100 + 5;
 
 		final int def = (bestia.getBaseValues().getDef() * 2
 				+ bestia.getIndividualValue().getDef() + bestia
-				.getEffortValues().getDef() / 4) * bestia.getLevel() / 100 + 5;
+						.getEffortValues().getDef() / 4)
+				* bestia.getLevel() / 100 + 5;
 
 		final int spatk = (bestia.getBaseValues().getSpAtk() * 2
 				+ bestia.getIndividualValue().getSpAtk() + bestia
-				.getEffortValues().getSpAtk() / 4)
+						.getEffortValues().getSpAtk() / 4)
 				* bestia.getLevel()
 				/ 100
 				+ 5;
 
 		final int spdef = (bestia.getBaseValues().getSpDef() * 2
 				+ bestia.getIndividualValue().getSpDef() + bestia
-				.getEffortValues().getSpDef() / 4)
+						.getEffortValues().getSpDef() / 4)
 				* bestia.getLevel()
 				/ 100
 				+ 5;
 
 		int spd = (bestia.getBaseValues().getSpd() * 2
 				+ bestia.getIndividualValue().getSpd() + bestia
-				.getEffortValues().getSpd() / 4) * bestia.getLevel() / 100 + 5;
+						.getEffortValues().getSpd() / 4)
+				* bestia.getLevel() / 100 + 5;
 
 		final int maxHp = bestia.getBaseValues().getHp() * 2
 				+ bestia.getIndividualValue().getHp()
 				+ bestia.getEffortValues().getHp() / 4 * bestia.getLevel()
-				/ 100 + 10 + bestia.getLevel();
+						/ 100
+				+ 10 + bestia.getLevel();
 		final int maxMana = bestia.getBaseValues().getMana() * 2
 				+ bestia.getIndividualValue().getMana()
 				+ bestia.getEffortValues().getMana() / 4 * bestia.getLevel()
-				/ 100 + 10 + bestia.getLevel() * 2;
+						/ 100
+				+ 10 + bestia.getLevel() * 2;
 
-		final StatusPoints points = new StatusPoints();
+		final StatusPoints points = new StatusPointsBasic();
 
 		points.setMaxValues(maxHp, maxMana);
 		points.setAtk(atk);
@@ -268,12 +275,14 @@ public class PlayerBestiaManager extends BestiaManager {
 
 		final int maxHp = bestia.getBaseValues().getHp() * 2 + 5
 				+ bestia.getEffortValues().getHp() / 4 * bestia.getLevel()
-				/ 100 + 10 + bestia.getLevel();
+						/ 100
+				+ 10 + bestia.getLevel();
 		final int maxMana = bestia.getBaseValues().getMana() * 2 + 5
 				+ bestia.getEffortValues().getMana() / 4 * bestia.getLevel()
-				/ 100 + 10 + bestia.getLevel() * 2;
+						/ 100
+				+ 10 + bestia.getLevel() * 2;
 
-		final StatusPoints statusPoints = new StatusPoints();
+		final StatusPoints statusPoints = new StatusPointsBasic();
 
 		statusPoints.setMaxValues(maxHp, maxMana);
 		statusPoints.setAtk(atk);
