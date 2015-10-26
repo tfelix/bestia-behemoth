@@ -114,18 +114,25 @@ public class BestiaConfiguration {
 	}
 
 	public String getProperty(String key) {
-		checkProperty(key);
+		if(!checkProperty(key)) {
+			return null;
+		}
 		return prop.getProperty(key);
 	}
 
-	public int getIntProperty(String key) {
-		checkProperty(key);
+	public Integer getIntProperty(String key) {
+		if(!checkProperty(key)) {
+			return null;
+		}
 		return Integer.parseInt(prop.getProperty(key));
 	}
 
-	private void checkProperty(String key) {
+	private boolean checkProperty(String key) {
 		if (!prop.containsKey(key)) {
 			LOG.warn("Key: {} was not found in the config file!", key);
+			return false;
+		} else {
+			return true;
 		}
 	}
 

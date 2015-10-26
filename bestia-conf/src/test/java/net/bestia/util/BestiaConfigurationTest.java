@@ -50,7 +50,7 @@ public class BestiaConfigurationTest {
 	public void get_int_property() throws IOException {
 		BestiaConfiguration bc = new BestiaConfiguration();
 		bc.load(configFile);
-		Assert.assertEquals(4, bc.getIntProperty("initThreads"));
+		Assert.assertEquals(4, bc.getIntProperty("initThreads").intValue());
 	}
 	
 	@Test
@@ -65,6 +65,13 @@ public class BestiaConfigurationTest {
 		bc.load(configFile);
 		bc.setValue("test", 1);
 		Assert.assertTrue(bc.getIntProperty("test") == 1);
+	}
+	
+	@Test
+	public void get_value_nok() throws IOException {
+		BestiaConfiguration bc = new BestiaConfiguration();
+		bc.load(configFile);
+		Assert.assertNull(bc.getIntProperty("test"));
 	}
 	
 }
