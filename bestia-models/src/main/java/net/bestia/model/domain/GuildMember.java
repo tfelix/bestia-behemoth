@@ -1,5 +1,7 @@
 package net.bestia.model.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -25,7 +27,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Entity
 @Table(name = "guild_player", uniqueConstraints = { @UniqueConstraint(columnNames = {
 		"GUILD_ID", "ACCOUNT_ID" }) })
-public class GuildMember {
+public class GuildMember implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

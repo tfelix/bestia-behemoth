@@ -1,5 +1,6 @@
 package net.bestia.model.domain;
 
+import java.io.Serializable;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -22,7 +23,9 @@ import javax.persistence.Transient;
  */
 @Entity
 @Table(name = "guilds")
-public class Guild {
+public class Guild implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Transient
 	public static final int MAX_LEVEL = 10;
