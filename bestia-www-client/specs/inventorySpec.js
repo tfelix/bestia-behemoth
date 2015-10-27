@@ -93,7 +93,7 @@ describe("Bestia.Inventory", function() {
 		expect(inv.items()[0].itemDatabaseName()).toEqual('empty_bottle');
 	});
 	
-	it("Does filter text.", function() {
+	it("does filter text.", function() {
 		var inv = new Bestia.Inventory(pubsub, i18n);
 		pubsub.publish(listMsg.mid, listMsg);
 		

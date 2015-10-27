@@ -1,6 +1,6 @@
 describe("Bestia.PubSub", function() {
 
-	it("Can subscribe and publish.", function() {
+	it("can subscribe and publish.", function() {
 
 		var pubsub = new Bestia.PubSub();
 
@@ -14,11 +14,11 @@ describe("Bestia.PubSub", function() {
 
 		pubsub.publish('test', 'hello');
 
-		expect(call1).toEqual('test');
-		expect(call2).toEqual('hello');
+		expect(call1).toMatch('test');
+		expect(call2).toMatch('hello');
 	});
 
-	it("Can unsubscribe one function.", function() {
+	it("can unsubscribe one function.", function() {
 
 		var pubsub = new Bestia.PubSub();
 
@@ -35,11 +35,11 @@ describe("Bestia.PubSub", function() {
 
 		pubsub.publish('test', 'hello');
 
-		expect(call1).toEqual(null);
-		expect(call2).toEqual(null);
+		expect(call1).toBeNull();
+		expect(call2).toBeNull();
 	});
 	
-	it("Can unsubscribe all functions.", function() {
+	it("can unsubscribe all functions.", function() {
 
 		var pubsub = new Bestia.PubSub();
 
@@ -62,7 +62,7 @@ describe("Bestia.PubSub", function() {
 
 		pubsub.publish('test', 'hello');
 
-		expect(call1).toEqual(null);
-		expect(call2).toEqual(null);
+		expect(call1).toBeNull();
+		expect(call2).toBeNull();
 	});
 });

@@ -107,6 +107,9 @@ Bestia.Inventory = function(pubsub, i18n) {
 		var searchTxt = this.searchFilter();
 
 		items = items.filter(function(el) {
+			if(el.name === undefined) {
+				return false;
+			}
 			return el.name().startsWith(searchTxt);
 		});
 

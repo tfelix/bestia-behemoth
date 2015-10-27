@@ -21,13 +21,13 @@ Bestia.ItemViewModel = function(data) {
 	/**
 	 * The type of this item.
 	 */
-	this.type = ko.observable();
+	this.type = ko.observable('');
 	this.amount = ko.observable(0);
-	this.playerItemId = ko.observable();
-	this.itemId = ko.observable();
-	this.itemDatabaseName = ko.observable();
+	this.playerItemId = ko.observable(0);
+	this.itemId = ko.observable(0);
+	this.itemDatabaseName = ko.observable('');
 	this.description = ko.observable('');
-	this.imageSrc = ko.observable();
+	this.imageSrc = ko.observable('');
 	this.weight = ko.observable(0);
 	
 	/**

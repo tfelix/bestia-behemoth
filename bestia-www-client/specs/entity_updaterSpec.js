@@ -4,11 +4,6 @@ describe("Bestia.Engine.EntityUpdater", function() {
 		
 	};
 	
-	it("Throws for no onAppear callback.", function(){
-		var pubsub = new Bestia.PubSub();
-		expect(function(){ new Bestia.Engine.EntityUpdater(pubsub) }).toThrow();
-	});
-	
 	it("Throws error when unknown callback is bound.", function() {
 		var pubsub = new Bestia.PubSub();
 		var updater = new Bestia.Engine.EntityUpdater(pubsub, onAppearHandler);
