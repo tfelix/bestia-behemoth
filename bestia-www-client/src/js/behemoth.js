@@ -29,7 +29,7 @@ var Bestia = Bestia || {
 	 *           endpoint.
 	 */
 	Urls : {
-		// @ifdef DEVELOPMENT
+		/* @ifdef DEVELOPMENT **
 		loginHtml : 'http://localhost/login.html',
 		gameHtml : 'http://localhost/index.html',
 		bestiaWebAPI : 'http://localhost:8090',	
@@ -39,8 +39,8 @@ var Bestia = Bestia || {
 		assetsItems : 'http://localhost/assets/img/items/',
 		assetsMobIcon : 'http://localhost/assets/img/mob-icon/',
 		assetsMobSprite : 'http://localhost/assets/img/sprite/mob/'
-		// @endif
-		// @ifdef PRODUCTION
+		/* @endif */
+		/* @ifdef PRODUCTION **
 		loginHtml : 'http://www.bestia-game.net/login.html',
 		gameHtml : 'http://www.bestia-game.net/index.html',
 		bestiaWebAPI : 'http://login1.bestia-game.net',
@@ -50,7 +50,7 @@ var Bestia = Bestia || {
 		assetsItems : 'http://www.bestia-game.net/assets/img/items/',
 		assetsMobIcon : 'http://www.bestia-game.net/assets/img/mob-icon/',
 		assetsMobSprite : 'http://www.bestia-game.net/assets/img/sprite/mob/'
-		// @endif
+		/* @endif */
 	}
 };
 
