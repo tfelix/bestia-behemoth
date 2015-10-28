@@ -5,7 +5,7 @@ Bestia.Game = function() {
 
 	this.inventory = new Bestia.Inventory(this.pubsub, this.i18n);
 	this.bestias = new Bestia.BestiaInfoViewModel(this.pubsub);
-	this.attacks = new Bestia.BestiaAttacks(this.pubsub);
+	this.attacks = new Bestia.BestiaAttacks(this.pubsub, this.i18n);
 	
 	this.chat = new Bestia.Chat($('#chat'), this);
 	this.engine = new Bestia.Engine(this.pubsub, this.config);

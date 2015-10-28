@@ -14,7 +14,7 @@
  * @param {Bestia.PubSub}
  *            pubsub - Handle to the pubsub system.
  */
-Bestia.BestiaAttacks = function(pubsub) {
+Bestia.BestiaAttacks = function(pubsub, i18n) {
 
 	var self = this;
 
@@ -27,83 +27,66 @@ Bestia.BestiaAttacks = function(pubsub) {
 	this._pubsub = pubsub;
 
 	/**
-	 * Boolean flag if the attacklist is cached and can be displayed. Nice for
+	 * Private handle to the i18n module to use it for translations.
+	 * 
+	 * @private
+	 * @property {Bestia.I18n}
+	 */
+	this._i18n = i18n;
+
+	/**
+	 * Boolean flag if the attack list is cached and can be displayed. Nice for
 	 * layouts.
 	 * 
 	 * @property
 	 */
-	this.hasAttackList = ko.observable(false);
-
-	this.attackList = ko.observableArray();
+	this.hasAttacks = ko.observable(false);
 
 	/**
-	 * Private cache which will hold ALL translated attacks. Resetting the
-	 * language will invalidate it.
+	 * Holds the array with all known attacks currently requested from the
+	 * server.
 	 * 
-	 * @private
-	 * @property
+	 * @property Array[{Bestia.BestiaAttack}]
 	 */
-	this.attackCache = {};
-
-	this.currentLang = '';
-
-	this._translationToken = '';
-	this._requestedAttacks = [];
-
-	/**
-	 * Invalidates all caches if new language is different then the old one.
-	 */
-	this.invalidateCacheHandle = function(_, data) {
-		if (self.currentLang === data.lang) {
-			return;
-		}
-
-		self.currentLang = data.lang;
-
-		// Reset all caches.
-		self.attackCache = {};
-		// Reset attack list.
-		self.invalidateListHandle();
-	};
-	pubsub.subscribe('i18n.lang', this.invalidateCacheHandle);
-
-	/*
-	 * this.receivedTranslation = function(_, data) { // First check if this is
-	 * the translation we have requested via its // token. if
-	 * (self._translationToken !== data.t) { return; }
-	 * 
-	 * var translatedAttacks = []; // The translation will contain attack names
-	 * and descriptions. Fill the // waiting objects. };
-	 * path.subscribe('translation.response', this.receivedTranslation);
-	 */
+	this.attacks = ko.observableArray();
 
 	/**
 	 * Handles newly arriving list of attacks. It will check if we have a
-	 * completly translated list of attacks for the list. If so it will simplay
+	 * completly translated list of attacks for the list. If so it will simply
 	 * display it. If not it will fetch the remaining attack translations and
 	 * wait for the async handle to return.
 	 */
 	this.updateHandle = function(_, data) {
 
-		self.attackList.removeAll();
-		
-		//var untranslatedAttacks = [];
+		self.attacks.removeAll();
 
-		// TODO For now simplay display the attacks.
+		var attackTranslationList = [];
+
 		data.atks.forEach(function(val) {
-			self.attackList.push(new Bestia.BestiaAttack(val));
+			var attack = new Bestia.BestiaAttack(val);
+			self.attacks.push(attack);
+			attackTranslationList.push(attack);
 		});
-		self.hasAttackList(true);
+		self.hasAttacks(true);
 
-		/*
-		 * for (var i = 0; i < data.is.length; i++) { var attack = data.is[i];
-		 * 
-		 * if (!(attack.id in self.attackCache)) {
-		 * untranslatedAttacks.push(attack); } } // Check if we can simply
-		 * display the attacklist. if (untranslatedAttacks.length === 0) { }
-		 * else { // Request an translation for the missing attacks from the
-		 * server. }
-		 */
+		var buildTranslationKey = function(atk) {
+			return 'attack.' + atk.attackDatabaseName();
+		};
+		
+		var buildTranslationKeyDesc = function(atk) {
+			return 'attack.' + atk.attackDatabaseName() + '_desc';
+		};
+
+		var i18nKeys = attackTranslationList.map(buildTranslationKey);
+		// Add the keys with for the description.
+		i18nKeys = i18nKeys.concat(attackTranslationList.map(buildTranslationKeyDesc));
+
+		self._i18n.t(i18nKeys, function(t) {
+			attackTranslationList.forEach(function(val) {
+				val.name(t(buildTranslationKey(val)));
+				val.description(t(buildTranslationKeyDesc(val)));
+			});
+		});
 
 	};
 	pubsub.subscribe('attack.list.response', this.updateHandle);
@@ -112,10 +95,14 @@ Bestia.BestiaAttacks = function(pubsub) {
 	 * Resets the current list if for example a new bestia was selected.
 	 */
 	this.invalidateListHandle = function() {
-		this.hasAttackList(false);
-		this.attackList.removeAll();
+		this.hasAttacks(false);
+		this.attacks.removeAll();
 	};
 	pubsub.subscribe('engine.selectBestia', this.invalidateListHandle);
+	/**
+	 * Invalidates all caches if new language is different then the old one.
+	 */
+	pubsub.subscribe('i18n.lang', this.invalidateListHandle);
 };
 
 /**
@@ -123,7 +110,7 @@ Bestia.BestiaAttacks = function(pubsub) {
  * If the caches or not dirty this method call will do nothing and just return.
  */
 Bestia.BestiaAttacks.prototype.request = function() {
-	if (this.hasAttackList()) {
+	if (this.hasAttacks()) {
 		return;
 	}
 
@@ -145,7 +132,7 @@ Bestia.BestiaAttack = function(data) {
 
 	// These values must be translated via our translation service.
 	this.name = ko.observable('');
-	this.desc = ko.observable('');
+	this.description = ko.observable('');
 
 	if (data !== undefined) {
 		this.update(data);

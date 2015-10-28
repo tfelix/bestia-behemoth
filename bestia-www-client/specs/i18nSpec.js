@@ -69,7 +69,7 @@ describe("Bestia.I18n", function() {
 		hasSend = false;
 	});
 
-	it("Sends a message to the server if receives unknown single key.",
+	it("sends a message to the server if receives unknown single key.",
 			function(done) {
 
 				var i18n = new Bestia.I18n(pubsub);
@@ -85,7 +85,7 @@ describe("Bestia.I18n", function() {
 				expect(called).toBe(true);
 			});
 
-	it("It sends no message if all keys are already cached.", function(done) {
+	it("it sends no message if all keys are already cached.", function(done) {
 
 		var i18n = new Bestia.I18n(pubsub);
 
@@ -105,7 +105,7 @@ describe("Bestia.I18n", function() {
 		expect(hasSend).toBe(false);
 	});
 
-	it("It resets cache if language changes.", function(done) {
+	it("it resets cache if language changes.", function(done) {
 
 		var i18n = new Bestia.I18n(pubsub);
 
@@ -128,7 +128,7 @@ describe("Bestia.I18n", function() {
 	});
 	
 
-	it("It can translate multiple items and access them via callback.", function() {
+	it("it can translate multiple items and access them via callback.", function() {
 
 		var i18n = new Bestia.I18n(pubsub);
 

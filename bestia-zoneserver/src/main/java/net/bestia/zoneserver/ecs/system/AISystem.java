@@ -83,7 +83,7 @@ public class AISystem extends IntervalEntityProcessingSystem {
 
 		path.add(newPos);
 
-		Movement movement = e.edit().create(Movement.class);
+		final Movement movement = e.edit().create(Movement.class);
 		movement.path.addAll(path);
 	}
 

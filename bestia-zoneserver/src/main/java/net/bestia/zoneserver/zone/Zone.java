@@ -76,7 +76,7 @@ public class Zone {
 		public void run() {
 
 			// Load the persisted entities if it was desired.
-			if(ctx.getConfiguration().getIntProperty("zone.cleanLoad") == 1) {
+			if(ctx.getConfiguration().getIntProperty("zone.cleanLoad") != null) {
 				world.getSystem(WorldPersistenceManager.class).load();
 			}
 

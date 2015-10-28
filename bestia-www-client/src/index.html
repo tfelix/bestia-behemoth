@@ -309,12 +309,12 @@
 				<div class="modal-body">
 
 					<div data-bind="with: attacks">
-						<div style="width: 300px; float: left; background: brown;">
-							<div data-bind="if: hasAttackList">
-								<div data-bind="foreach: attackList">
+						<div style="width: 300px; height: 500px; float: left; background: brown;">
+							<div data-bind="if: hasAttacks">
+								<div data-bind="foreach: attacks">
 									<div>
 										<p>
-											<b data-bind="text: attackDatabaseName">Tackle</b>
+											<b data-bind="text: name">Tackle</b>
 										</p>
 										<p>
 											<span data-i18n="attack.element">attack.element</span>: <span
@@ -331,7 +331,7 @@
 									</div>
 								</div>
 							</div>
-							<div data-bind="ifnot: hasAttackList">
+							<div data-bind="ifnot: hasAttacks">
 								<!-- TODO Das hier austauschen -->
 								<p>
 									<b>Loading...</b>

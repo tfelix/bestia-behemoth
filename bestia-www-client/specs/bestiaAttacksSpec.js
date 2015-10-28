@@ -32,6 +32,7 @@ describe("Bestia.BestiaAttacks", function() {
 	};
 
 	var pubsub = new Bestia.PubSub();
+	var i18n = new Bestia.I18n(pubsub);
 
 	var lastTopic = '';
 	var lastData = {};
@@ -48,38 +49,36 @@ describe("Bestia.BestiaAttacks", function() {
 		lastData = {};
 	});
 
-	it("Requests attack list from the server upon method invocation.",
-			function() {
-				var attacks = new Bestia.BestiaAttacks(pubsub);
+	it("requests attack list from the server upon method invocation.", function() {
+		var attacks = new Bestia.BestiaAttacks(pubsub, i18n);
 
-				attacks.request();
+		attacks.request();
 
-				expect(lastTopic).toEqual('io.sendMessage');
-				expect(lastData.mid).toEqual('attack.list.request');
-			});
+		expect(lastTopic).toEqual('io.sendMessage');
+		expect(lastData.mid).toEqual('attack.list.request');
+	});
 
-	it("Wont requests attack list again after the attacks are cached.",
-			function() {
-				var attacks = new Bestia.BestiaAttacks(pubsub);
+	it("wont requests attack list again after the attacks are cached.", function() {
+		var attacks = new Bestia.BestiaAttacks(pubsub, i18n);
 
-				attacks.request();	
-				pubsub.publish(responseMsg.mid, responseMsg);
+		attacks.request();
+		pubsub.publish(responseMsg.mid, responseMsg);
 
-				expect(attacks.attackList().length).toEqual(2);
-				expect(attacks.attackList()[0].attackDatabaseName()).toEqual('tackle');
-				expect(attacks.attackList()[1].attackDatabaseName()).toEqual('ember');
-				
-				lastTopic =  '';
-				attacks.request();	
-				expect(lastTopic).toEqual('');
-			});
+		expect(attacks.attackList().length).toEqual(2);
+		expect(attacks.attackList()[0].attackDatabaseName()).toEqual('tackle');
+		expect(attacks.attackList()[1].attackDatabaseName()).toEqual('ember');
 
-	/*
-	 * it("Requests again after setting of language.", function() {
-	 * 
-	 * 
-	 * });
-	 */
+		lastTopic = '';
+		attacks.request();
+		expect(lastTopic).toMatch('');
+	});
 
-	// Sends translation request for uncached attack desc and names.
+	it("sets the flag hasAttacks to true when attacks are loaded.", function() {
+		var attacks = new Bestia.BestiaAttacks(pubsub, i18n);
+
+		attacks.request();
+		pubsub.publish(responseMsg.mid, responseMsg);
+
+		expect(attacks.hasAttacks()).toBeTruthy();
+	});
 });
