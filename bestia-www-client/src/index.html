@@ -178,11 +178,8 @@
 			<!-- GAME CANVAS -->
 			<div id="bestia-canvas"></div>
 			<!-- /GAME CANVAS -->
-			
-			<div id="controls">
-				
-			
-			</div>
+
+			<div id="controls"></div>
 
 		</div>
 	</div>
@@ -271,7 +268,7 @@
 				<div style="background: green; width: 200px; float: left;">
 
 					<!-- ITEM DETAILS -->
-					<div data-bind="visible:selectedItem() !== undefined" 
+					<div data-bind="visible:selectedItem() !== undefined"
 						class="item-details">
 						<img
 							data-bind="attr: {src: selectedItem.imageSrc, alt: selectedItem.name}"
@@ -300,82 +297,98 @@
 	<!-- /INVENTORY -->
 
 	<!-- ATTACKS -->
-	<div id="modal-attacks" class="modal fade">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<h4 class="modal-title" data-i18n="nav.attacks">nav.attacks</h4>
-				</div>
-				<div class="modal-body">
+	<div id="attacks" class="atk-slider">
+		<div class="header">
+			<button>Schließen</button>
+		</div>
 
-					<div data-bind="with: attacks">
-						<div style="width: 300px; height: 500px; float: left; background: brown;">
-							<div data-bind="if: hasAttacks">
-								<div data-bind="foreach: attacks">
-									<div>
-										<p>
-											<b data-bind="text: name">Tackle</b>
-										</p>
-										<p>
-											<span data-i18n="attack.element">attack.element</span>: <span
-												data-bind="text: element">-</span> <span
-												data-i18n="attack.strength">attack.strength</span>: <span
-												data-bind="text: strength">-</span>
-										</p>
-										<p>
-											<span data-i18n="attack.minlv">attack.minlv</span>: <span
-												data-bind="text: minLevel">-</span> <span
-												data-i18n="attack.mana">attack.mana</span>: <span
-												data-bind="text: manaCost">-</span>
-										</p>
-									</div>
-								</div>
-							</div>
-							<div data-bind="ifnot: hasAttacks">
-								<!-- TODO Das hier austauschen -->
-								<p>
-									<b>Loading...</b>
-								</p>
-							</div>
-							<div style="text-align: center;">
-								<button class="btn btn-small">1</button>
-								<button class="btn btn-small">2</button>
-								<button class="btn btn-small">3</button>
-								<button class="btn btn-small">4</button>
-								<button class="btn btn-small">5</button>
-							</div>
-						</div>
-						<div style="width: 300px; float: left; background: green;">
-							<div class="attack-short">
-								<div
-									style="width: 20px; font-size: 1.5em; font-weight: bold; float: left;">1</div>
-								<div style="float: left;">
-									<p>
-										<b>ATK NAME</b>
-									</p>
-									<p>
-										<span data-i18n="attack.element">attack.element</span>: <span>-</span>
-										<span data-i18n="attack.strength">attack.strength</span>: <span>-</span>
-									</p>
-									<p>
-										<span data-i18n="attack.type">attack.type</span>: <span>-</span>
-										<span data-i18n="attack.mana">attack.mana</span>: <span>-</span>
-									</p>
+		<div class="atk-picker" data-bind="with: attacks">
+			<div class="atk-list">
+				<input type="text">
+				<!-- ATTACKENLISTE -->
+				<div data-bind="foreach: attacks">
+					<div class="atk-slot" class="atk-drag">
+						<div class="atk-container draggable">
+							<img data-bind="attr: {src: imageUrl, alt: name}" src="" alt="">
+							<div class="atk-detail">
+								<div data-bind="text: name"></div>
+								<div>
+									Mana: <span data-bind="text: manaCost"></span>
 								</div>
 							</div>
 						</div>
-						<div style="clear: both;"></div>
 					</div>
-
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal"
-						data-i18n="ui.close">ui.close</button>
 				</div>
 			</div>
-			<!-- /.modal-content -->
+			<div class="atk-learned">
+				<!-- SLOTS -->
+				<div class="atk-slot">
+					<div class="key">Q</div>
+					<div class="atk-container dropzone">
+						<img src="http://placehold.it/32x32" alt="">
+						<div class="atk-detail">
+							<div>Glut</div>
+							<div>Mana: 5 Normal</div>
+						</div>
+					</div>
+					<div class="atk-delete">
+						<img src="img/ic_delete.png" alt="ATK NAME">
+					</div>
+				</div>
+				<div class="atk-slot">
+					<div class="key">W</div>
+					<div class="atk-container">
+						<img src="http://placehold.it/32x32" alt="ATK NAME">
+						<div class="atk-detail">
+							<div>Glut</div>
+							<div>Mana: 5 Normal</div>
+						</div>
+					</div>
+					<div class="atk-delete">
+						<img src="img/ic_delete.png" alt="ATK NAME">
+					</div>
+				</div>
+				<div class="atk-slot">
+					<div class="key">E</div>
+					<div class="atk-container">
+						<img src="http://placehold.it/32x32" alt="ATK NAME">
+						<div class="atk-detail">
+							<div>Glut</div>
+							<div>Mana: 5 Normal</div>
+						</div>
+					</div>
+					<div class="atk-delete">
+						<img src="img/ic_delete.png" alt="ATK NAME">
+					</div>
+				</div>
+				<div class="atk-slot">
+					<div class="key">R</div>
+					<div class="atk-container">
+						<img src="http://placehold.it/32x32" alt="ATK NAME">
+						<div class="atk-detail">
+							<div>Glut</div>
+							<div>Mana: 5 Normal</div>
+						</div>
+					</div>
+					<div class="atk-delete">
+						<img src="img/ic_delete.png" alt="ATK NAME">
+					</div>
+				</div>
+				<div class="atk-slot">
+					<div class="key">T</div>
+					<div class="atk-container">
+						<img src="http://placehold.it/32x32" alt="ATK NAME">
+						<div class="atk-detail">
+							<div>Glut</div>
+							<div>Mana: 5 Normal</div>
+						</div>
+					</div>
+					<div class="atk-delete">
+						<img src="img/ic_delete.png" alt="ATK NAME">
+					</div>
+				</div>
+			</div>
 		</div>
-		<!-- /.modal-dialog -->
 	</div>
 	<!-- /ATTACKS -->
 

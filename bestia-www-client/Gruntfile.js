@@ -30,6 +30,8 @@ module.exports = function(grunt) {
 	         		'<%= tempDir %>/js/io/*.js',
 	         		// === INVENTORY ===
 	         		'<%= tempDir %>/js/inventory/*.js',
+	         		// === ATTACKS ===
+	         		'<%= tempDir %>/js/attack/*.js',
 	         		// === ENGINE ===
 	         		'<%= tempDir %>/js/engine/engine.js', '<%= tempDir %>/js/engine/core/*.js',
 	         		'<%= tempDir %>/js/engine/entities/*.js', '<%= tempDir %>/js/engine/plugins/*.js',

@@ -1,0 +1,106 @@
+
+.atk-slider {
+	padding: 10px 10px 0 10px;
+	background: #E4E4E4;
+	width: 600px;
+	height: 320px;
+	position: absolute;
+	bottom: -320px;
+	opacity: 0;
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+	
+	color: black;
+	
+	/* The transitions */
+	transition: bottom 0.5s, opacity 0.3s;
+}
+
+.active {
+	bottom: 0px;
+	opacity: 1;
+}
+
+.atk-slot {
+	margin: 2px 0;
+	
+	.key {
+		width: 40px;
+		height: 40px;
+		font-size: 18pt;
+		font-weight: bold;
+		border: 1px solid black;
+		text-align: center;
+		margin: 0 1px;
+		display: inline-block;
+		vertical-align: top;
+	}
+	
+	.atk-container {
+		border: 1px solid black;
+		width: 180px;
+		height: 40px;
+		font-size: 0.8em;
+		display: inline-block;
+	
+		img {
+			margin: 4px 2px;
+			width: 32px;
+			height: 32px;
+		}
+	}
+
+	.atk-delete {
+		width: 40px;
+		height: 40px;
+		border: 1px solid black;
+		margin: 0 1px;
+		display: inline-block;
+		vertical-align: top;
+		img {
+			margin: 2px 0 0 2px;
+		}
+	}
+
+	.atk-detail {
+		margin: 3px 2px;
+		vertical-align: top;
+		display: inline-block;
+	}
+}
+
+.atk-picker {
+		width: 522px;
+		height: 300px;
+		margin: 0 auto;
+		background-color: #F7E7B0;
+		padding: 10px;
+		border: 1px solid #FFF8E3;
+		
+		.atk-list {
+			width: 185px;
+			display: inline-block;
+			vertical-align: top;
+
+		input {
+			width: 180px;
+			broder: none;
+			padding: 0;
+			margin: 0;
+		}
+	}
+}
+
+
+.atk-learned {
+	margin-left: 40px;
+	display: inline-block;
+}
+
+.header {
+	text-align: right;
+	button {
+		margin: 4px 4px;
+	}
+}

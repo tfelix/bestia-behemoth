@@ -41,26 +41,13 @@ function main() {
 	});
 	
 	$('#btn-attacks').click(function() {
-		$('#modal-attacks').modal('show');
-		game.attacks.request();
-	});
-
-	// Add click handler.
-	$('#btn-playground').click(function() {
-		$('#modal-playground').modal('show');
+		$('#attacks').toggleClass('active');
+		if(!game.attacks.isLoaded()) {
+			game.attacks.request();
+		}
 	});
 	
-	// +++ PLAYGROUND
-	$('#btn-useattack').click(function() {
-		var msg = new Bestia.Message.AttackUse(1, 10, 10);
-		game.pubsub.publish('io.sendMessage', msg);
-	});
-	
-	$('#btn-request').click(function() {
-		game.attacks.request();
-	});
-	
-	// +++ Export game to global if dev.
+	// Export game to global if dev.
 	// @ifdef DEVELOPMENT
 	window.bestiaGame = game;
 	// @endif
