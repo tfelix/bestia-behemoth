@@ -58,32 +58,32 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 	 * @property{Bestia.BestiaAttack}
 	 */
 	this.attackSlot1 = ko.observable();
-	
+
 	/**
 	 * Attack slot 2 of the current bestia.
 	 * 
 	 * @property{Bestia.BestiaAttack}
 	 */
 	this.attackSlot2 = ko.observable();
-	
+
 	/**
 	 * Attack slot 3 of the current bestia.
 	 * 
 	 * @property{Bestia.BestiaAttack}
 	 */
 	this.attackSlot3 = ko.observable();
-	
+
 	/**
 	 * Attack slot 4 of the current bestia.
 	 * 
 	 * @property{Bestia.BestiaAttack}
 	 */
 	this.attackSlot4 = ko.observable();
-	
+
 	/**
 	 * Attack slot 5 of the current bestia.
 	 * 
-	 * @property{Bestia.BestiaAttack}
+	 * @property {Bestia.BestiaAttack}
 	 */
 	this.attackSlot5 = ko.observable();
 
@@ -224,6 +224,92 @@ Bestia.BestiaAttacks.prototype.request = function() {
 
 	var msg = new Bestia.Message.AttackListRequest();
 	this._pubsub.publish('io.sendMessage', msg);
+};
+
+/**
+ * Attacks can only occupy one slot. If the attack was set on another spot
+ * nothing will be done.
+ * 
+ * @param {Number}
+ *            slot - Number of the slot to use. Must be between 1 and 5
+ *            (inclusive).
+ * @param attackId -
+ *            The id of the attack to be used.
+ */
+Bestia.BestiaAttacks.prototype.setAttack = function(slot, attackId) {
+	if (this.isLoaded()) {
+		return;
+	}
+
+	// Check if the bestia can learn this attack.
+	var learnedAtk = this.attacks().filter(function(val) {
+		return val.id() === attackId;
+	});
+
+	if (learnedAtk.length != 1) {
+		throw "Attack was not known.";
+	}
+
+	var atk = learnedAtk[0];
+
+	switch (slot) {
+	case 1:
+		this.attackSlot1(atk);
+		break;
+	case 2:
+		this.attackSlot2(atk);
+		break;
+	case 3:
+		this.attackSlot3(atk);
+		break;
+	case 4:
+		this.attackSlot4(atk);
+		break;
+	case 5:
+		this.attackSlot5(atk);
+		break;
+	default:
+		throw "Slot must be between 1 and 5.";
+	}
+
+	// Delete the same attack from all other slots.
+	for (var i = 1; i <= 5; i++) {
+
+		if (i === slot) {
+			continue;
+		}
+
+		switch (i) {
+		case 1:
+			if (this.attackSlot1().id() === atk.id()) {
+				this.attackSlot1(undefined);
+			}
+			break;
+		case 2:
+			if (this.attackSlot2().id() === atk.id()) {
+				this.attackSlot2(undefined);
+			}
+			break;
+		case 3:
+			if (this.attackSlot3().id() === atk.id()) {
+				this.attackSlot3(undefined);
+			}
+			break;
+		case 4:
+			if (this.attackSlot4().id() === atk.id()) {
+				this.attackSlot4(undefined);
+			}
+			break;
+		case 5:
+			if (this.attackSlot5().id() === atk.id()) {
+				this.attackSlot5(undefined);
+			}
+			break;
+		}
+	}
+	
+	// Save the new attacks.
+	this.saveAttacks();
 };
 
 /**
