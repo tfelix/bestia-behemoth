@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+
+<style>
+.item {
+	width: 32px;
+	height: 32px;
+	display: inline-block;
+	cursor: pointer;
+	position: relative;
+	background: white;
+}
+
+span.amount {
+	background: fade(@ darkGray, 70%);
+	padding: 2px 2px 1px 2px;
+	border-radius: 2px;
+	color: white;
+	line-height: 1;
+	font-size: 7pt;
+	position: absolute;
+	right: 0px;
+	bottom: 0px;
+}
+
+.inventory {
+	height: 500px;
+	width: 800px;
+	background: green;
+	position: absolute;
+	bottom: 0;
+	padding: 10px;
+}
+
+.item img {
+	position: absolute;
+}
+
+.inventory .header {
+	height: 20px;
+	background: yellow;
+}
+
+.left {
+	height: 100%;
+	display: inline-block;
+	vertical-align: top;
+}
+
+.spacer {
+	box-flex: 1;
+}
+
+.right {
+	display: inline-block;
+	vertical-align: top;
+	margin-left: 100px;
+}
+
+.fixed {
+	width: 400px;
+	background: gray;
+	display: inline-block;
+	vertical-align: top;
+}
+
+.items {
+	height: 300px;
+}
+
+.footer {
+	text-align: right;
+	padding-right: 10px;
+}
+
+.flex {
+	width: 300px;
+	background: blue;
+	min-height: 100px; display : inline-block;
+	vertical-align: top;
+	display: inline-block;
+}
+</style>
+
+</head>
+<body>
+
+	<div class="inventory">
+
+		<div class="header">
+			<div class="left">
+				<input type="text">
+				<button>Usable</button>
+				<button>Equipment</button>
+				<button>Quest</button>
+				<button>Etc</button>
+			</div>
+			<div class="right">
+				<button>Craft</button>
+				<button>Trade</button>
+				<button>Equip</button>
+			</div>
+		</div>
+
+		<div class="fixed">
+			<div class="items">
+				<div class="item">
+					<img src="http://placehold.it/32x32" alt=""> <span
+						class="amount">5</span>
+				</div>
+			</div>
+			<div class="footer">67 / 123 Gewicht</div>
+		</div>
+
+		<div class="flex"></div>
+
+	</div>
+
+</body>
+</html>
