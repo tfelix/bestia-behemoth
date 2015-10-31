@@ -171,7 +171,7 @@ public class Zone implements MessageProcessor {
 		}
 
 		// Create and prepare the thread.
-		final WorldExtender worldExtender = new WorldExtender(cmdContext.getConfiguration());
+		final WorldExtender worldExtender = new WorldExtender(cmdContext.getConfiguration(), this);
 		final World world = worldExtender.createWorld(cmdContext, map);
 		zoneTicker = new ZoneTicker(world, cmdContext);
 		zoneTickerThread = new Thread(null, zoneTicker, "zoneECS-" + name);

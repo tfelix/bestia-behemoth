@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.zone.world;
 
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.zone.Zone;
 import net.bestia.zoneserver.zone.map.Map;
 
 import com.artemis.World;
@@ -24,8 +25,10 @@ interface WorldExtend {
 	 *            The ECS world to extend.
 	 * @param map
 	 *            The Bestia map world.
+	 * @param zone
+	 *            The zone which the world instance belongs to.
 	 */
-	public void extend(World world, Map map);
+	public void extend(World world, Map map, Zone zone);
 
 	/**
 	 * This is called before the world is created and the extend method is
@@ -36,7 +39,9 @@ interface WorldExtend {
 	 *            Artemis {@link WorldConfiguration} can be changed and altered.
 	 * @param map
 	 *            The map of the bestia game.
-	 * @param ctx 
+	 * @param ctx
+	 * @param zoneThe
+	 *            zone which the worldConfig instance belongs to.
 	 */
-	public void configure(WorldConfiguration worldConfig, Map map, CommandContext ctx);
+	public void configure(WorldConfiguration worldConfig, Map map, CommandContext ctx, Zone zone);
 }

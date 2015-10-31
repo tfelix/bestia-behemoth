@@ -46,7 +46,7 @@ public class AttackListRequestCommand extends Command {
 		final AttackListResponseMessage response = new AttackListResponseMessage(message);		
 		response.setAttacks(attacks);
 		
-		ctx.getServer().sendMessage(response);
+		ctx.getServer().processMessage(response);
 	}
 
 }

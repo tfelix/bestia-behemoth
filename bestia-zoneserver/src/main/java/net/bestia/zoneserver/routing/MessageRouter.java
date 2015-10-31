@@ -1,16 +1,52 @@
 package net.bestia.zoneserver.routing;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import net.bestia.messages.Message;
 
+/**
+ * The new central way of interprocess message routing. The messages which are
+ * fed into the router will be checked againt the filter. Each filter who wants
+ * to process a certain message will get the message delivered.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class MessageRouter implements MessageProcessor {
-	
+
+	private class FilterTuple {
+		public final MessageFilter filter;
+		public final MessageProcessor processor;
+
+		public FilterTuple(MessageFilter filter, MessageProcessor processor) {
+
+			if (filter == null) {
+				throw new IllegalArgumentException("MessageFilter can not be null.");
+			}
+			if (processor == null) {
+				throw new IllegalArgumentException("MessageProcessor can not be null.");
+			}
+
+			this.processor = processor;
+			this.filter = filter;
+		}
+	}
+
+	private final List<FilterTuple> filterList = new ArrayList<>();
+
 	public void registerFilter(MessageFilter filter, MessageProcessor processor) {
-		
+		final FilterTuple tuple = new FilterTuple(filter, processor);
+		filterList.add(tuple);
 	}
 
 	@Override
 	public void processMessage(Message msg) {
-		// TODO Auto-generated method stub
-		
+		for(FilterTuple tuple : filterList) {
+			if(tuple.filter.handlesMessage(msg)) {
+				tuple.processor.processMessage(msg);
+			}
+		}
 	}
 
 }

@@ -33,10 +33,12 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
 import net.bestia.zoneserver.command.ServerCommandFactory;
 import net.bestia.zoneserver.ecs.BestiaRegister;
-import net.bestia.zoneserver.ecs.BestiaRegister.InputControllerCallback;
 import net.bestia.zoneserver.loader.ScriptLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
+import net.bestia.zoneserver.routing.MessageDirectDescandantFilter;
+import net.bestia.zoneserver.routing.MessageFilter;
 import net.bestia.zoneserver.routing.MessageProcessor;
+import net.bestia.zoneserver.routing.MessageRouter;
 import net.bestia.zoneserver.script.ScriptManager;
 import net.bestia.zoneserver.util.I18n;
 import net.bestia.zoneserver.zone.Zone;
@@ -54,41 +56,25 @@ public class Zoneserver implements MessageProcessor {
 
 	private final static Logger log = LogManager.getLogger(Zoneserver.class);
 
-	private class InputControllerCallbackImpl implements InputControllerCallback {
-
-		@Override
-		public void removedBestia(long accId, int bestiaId) {
-			// no op.
-		}
-
-		@Override
-		public void removedAccount(long accountId) {
-			unsubscribe("zone/account/" + accountId);
-			log.trace("Unregistered account {} from zone {}.", accountId, name);
-		}
-
-		/**
-		 * New account added to this input controller. Register it with this
-		 * server.
-		 */
-		@Override
-		public void addedAccount(long accountId) {
-			subscribe("zone/account/" + accountId);
-			log.trace("Registered account {} on zone {}.", accountId, name);
-		}
-
-		@Override
-		public void addedBestia(long accId, int bestiaId) {
-			// no op.
-		}
-	}
-
 	private class InterserverHandler implements InterserverMessageHandler {
 
 		@Override
 		public void onMessage(Message msg) {
 			log.trace("Zoneserver {} received: {}", name, msg.toString());
 
+			// Route the message.
+			messageRouter.processMessage(msg);
+		}
+	}
+
+	/**
+	 * Handles the messages which are directed to the server itself.
+	 *
+	 */
+	private class IncomingMessageProcessor implements MessageProcessor {
+
+		@Override
+		public void processMessage(Message msg) {
 			// Create command out of the message and deliver it to the executor.
 			final Command cmd = commandFactory.getCommand(msg);
 
@@ -99,6 +85,7 @@ public class Zoneserver implements MessageProcessor {
 
 			commandExecutor.execute(cmd);
 		}
+
 	}
 
 	private final String name;
@@ -108,6 +95,8 @@ public class Zoneserver implements MessageProcessor {
 	private final InterserverHandler interserverHandler = new InterserverHandler();
 	private final InterserverSubscriber interserverSubscriber;
 	private final InterserverPublisher interserverPublisher;
+
+	private final MessageRouter messageRouter = new MessageRouter();
 
 	private final CommandFactory commandFactory;
 	private final ExecutorService commandExecutor;
@@ -156,21 +145,25 @@ public class Zoneserver implements MessageProcessor {
 		final int subscribePort = config.getIntProperty("inter.listenPort");
 		final int listenPort = config.getIntProperty("inter.publishPort");
 
-		InterserverConnectionFactory conFactory = new InterserverConnectionFactory(1, interUrl, listenPort,
+		final InterserverConnectionFactory conFactory = new InterserverConnectionFactory(1,
+				interUrl,
+				listenPort,
 				subscribePort);
 
-		interserverSubscriber = conFactory.getSubscriber(interserverHandler);
-		interserverPublisher = conFactory.getPublisher();
+		this.interserverSubscriber = conFactory.getSubscriber(interserverHandler);
+		this.interserverPublisher = conFactory.getPublisher();
 
 		// Generate the list of zones for this server.
-		String[] zoneStrings = config.getProperty("zone.zones").split(",");
-		Set<String> zones = new HashSet<String>();
+		final String[] zoneStrings = config.getProperty("zone.zones").split(",");
+		final Set<String> zones = new HashSet<String>();
 		zones.addAll(Arrays.asList(zoneStrings));
 		this.responsibleZones = Collections.unmodifiableSet(zones);
 
-		this.ecsInputController.addCallback(new InputControllerCallbackImpl());
+		// Setup the message routing.
+		final MessageFilter filter = new MessageDirectDescandantFilter(Message.class);
+		messageRouter.registerFilter(filter, new IncomingMessageProcessor());
 
-		// Prepare the translator.
+		// Prepare the (static) translator.
 		I18n.setDao(commandContext.getServiceLocator().getBean(I18nDAO.class));
 	}
 
@@ -228,7 +221,7 @@ public class Zoneserver implements MessageProcessor {
 		// Subscribe to zone broadcast messages.
 		interserverSubscriber.subscribe("zone/all");
 
-		// Subscribe to messages explicity for this zone.
+		// Subscribe to messages directed for this zone.
 		interserverSubscriber.subscribe("zone/" + name);
 
 		log.info("Bestia Behemoth Zone [{}] has started.", name);
@@ -264,30 +257,14 @@ public class Zoneserver implements MessageProcessor {
 	 * process this message.
 	 * 
 	 * @param message
+	 * @deprecated Use processMessage
 	 */
 	public void sendMessage(final Message message) {
-		log.trace("Sending: {}", message.toString());
-		try {
-			interserverPublisher.publish(message);
-		} catch (IOException e) {
-			log.trace("Error: Could not deliver message: {}", message.toString(), e);
-		}
+		processMessage(message);
 	}
 
 	/**
-	 * This will schedule a command for execution. Since the commands receive a
-	 * {@link CommandContext} which in turn holds a reference to a
-	 * {@link Zoneserver} commands can trigger new commands on their own.
-	 * 
-	 * @param cmd
-	 *            {@link Command} implementation to be executed.
-	 */
-	public void executeCommand(Command cmd) {
-		commandExecutor.execute(cmd);
-	}
-
-	/**
-	 * Returns the name of this zoneserver instance.
+	 * Returns the name of this {@link Zoneserver} instance.
 	 * 
 	 * @return Name of this zoneserver.
 	 */
@@ -399,9 +376,38 @@ public class Zoneserver implements MessageProcessor {
 		}
 	}
 
+	/**
+	 * Gets the {@link MessageRouter} who can be used to re-route messages. If
+	 * some messages lead to other messages then feeding them back to this
+	 * router will gurantee delivery.
+	 * <p>
+	 * NOTE: A bit unpleasent to split the re-routing and sending/processing
+	 * into two methods. Maybe it should be possible with a clean routing
+	 * interface to unify the methods. Must be done in the future.
+	 * </p>
+	 * 
+	 * @return
+	 */
+	public MessageRouter getMessageRouter() {
+		return messageRouter;
+	}
+
+	/**
+	 * Process/Sends the message to the interserver.
+	 * <p>
+	 * NOTE: I know this is a bit unclean. Using one single method for internal
+	 * rerouting and external messaging would be cleaner. Maybe the router can
+	 * be improved to archive this. Nether the less access to the router is
+	 * always needed in order to dynamically subscribe new message filter.
+	 * </p>
+	 */
 	@Override
-	public void processMessage(Message msg) {
-		// Currently a workaround. Later switch to processMessage.
-		sendMessage(msg);
+	public void processMessage(Message message) {
+		log.trace("Sending: {}", message.toString());
+		try {
+			interserverPublisher.publish(message);
+		} catch (IOException e) {
+			log.trace("Error: Could not deliver message: {}", message.toString(), e);
+		}
 	}
 }

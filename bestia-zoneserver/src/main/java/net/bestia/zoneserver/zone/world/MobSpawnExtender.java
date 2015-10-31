@@ -8,6 +8,7 @@ import com.artemis.WorldConfiguration;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.SpawnManager;
 import net.bestia.zoneserver.ecs.system.MobSpawnSystem;
+import net.bestia.zoneserver.zone.Zone;
 import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.spawn.Spawner;
 
@@ -21,14 +22,14 @@ import net.bestia.zoneserver.zone.spawn.Spawner;
 public class MobSpawnExtender implements WorldExtend {
 
 	@Override
-	public void extend(World world, Map map) {
+	public void extend(World world, Map map, Zone zone) {
 
 		final SpawnManager manager = world.getSystem(SpawnManager.class);
 		manager.spawnAll();
 	}
 
 	@Override
-	public void configure(WorldConfiguration worldConfig, Map map, CommandContext ctx) {
+	public void configure(WorldConfiguration worldConfig, Map map, CommandContext ctx, Zone zone) {
 		
 		worldConfig.setSystem(new MobSpawnSystem());
 

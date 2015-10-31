@@ -9,6 +9,7 @@ import com.artemis.WorldConfiguration;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.util.PackageLoader;
+import net.bestia.zoneserver.zone.Zone;
 import net.bestia.zoneserver.zone.map.Map;
 
 /**
@@ -23,12 +24,21 @@ import net.bestia.zoneserver.zone.map.Map;
 public class WorldExtender {
 
 	private final Set<WorldExtend> extras = new HashSet<>();
+	private final Zone zone;
 
-	public WorldExtender(BestiaConfiguration config) {		
+	public WorldExtender(BestiaConfiguration config, Zone zone) {		
+		if(config ==  null) {
+			throw new IllegalArgumentException("Config can not be null.");
+		}
+		if(zone == null) {
+			throw new IllegalArgumentException("Zone can not be null.");
+		}
+		
 		final PackageLoader<WorldExtend> extendLoader = new PackageLoader<>(WorldExtend.class, "net.bestia.zoneserver.zone.world");
 		final Set<WorldExtend> loadedExtras = extendLoader.getSubObjects();
-		
 		extras.addAll(loadedExtras);
+		
+		this.zone = zone;
 	}
 
 	public World createWorld(CommandContext ctx, Map map) {
@@ -57,7 +67,7 @@ public class WorldExtender {
 	 */
 	private void configure(WorldConfiguration worldConfig, Map map, CommandContext ctx) {
 		for (WorldExtend extra : extras) {
-			extra.configure(worldConfig, map, ctx);
+			extra.configure(worldConfig, map, ctx, zone);
 		}
 	}
 
@@ -73,7 +83,7 @@ public class WorldExtender {
 	 */
 	private void extend(World world, Map map) {
 		for (WorldExtend extra : extras) {
-			extra.extend(world, map);
+			extra.extend(world, map, zone);
 		}
 	}
 }

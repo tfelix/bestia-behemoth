@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import net.bestia.messages.ChatMessage;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.util.PackageLoader;
 

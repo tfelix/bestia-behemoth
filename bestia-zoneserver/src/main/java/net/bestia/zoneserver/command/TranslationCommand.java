@@ -50,7 +50,7 @@ public class TranslationCommand extends Command {
 			response.getItems().add(item);
 		}
 
-		ctx.getServer().sendMessage(response);
+		ctx.getServer().processMessage(response);
 	}
 
 }

@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.TriggerScript;
+import net.bestia.zoneserver.zone.Zone;
 import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.map.Map.Script;
 
@@ -27,7 +28,7 @@ public class WorldPortalExtend implements WorldExtend {
 	private static final Logger log = LogManager.getLogger(WorldPortalExtend.class);
 
 	@Override
-	public void extend(World world, Map map) {
+	public void extend(World world, Map map, Zone zone) {
 		log.trace("Generating map extras: Portals...");
 		
 		// Get all the portals and build portal script entities.
@@ -48,7 +49,7 @@ public class WorldPortalExtend implements WorldExtend {
 	}
 
 	@Override
-	public void configure(WorldConfiguration worldConfig, Map map, CommandContext ctx) {
+	public void configure(WorldConfiguration worldConfig, Map map, CommandContext ctx, Zone zone) {
 		// no op.
 	}
 

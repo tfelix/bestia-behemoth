@@ -30,7 +30,7 @@ public class ServerInfoCommand extends Command {
 		final ServerInfoMessage reply = new ServerInfoMessage(message,
 				zoneNames, ctx.getServer().getName(), 0,
 				conf.getProperty("resourceUrl"));
-		ctx.getServer().sendMessage(reply);
+		ctx.getServer().processMessage(reply);
 	}
 
 }

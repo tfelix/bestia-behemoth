@@ -1,23 +1,12 @@
 package net.bestia.zoneserver.command.ecs;
 
-import net.bestia.messages.Message;
-import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.Active;
-import net.bestia.zoneserver.ecs.component.Bestia;
-import net.bestia.zoneserver.ecs.component.PlayerBestia;
-import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
-import net.bestia.zoneserver.manager.BestiaManager;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
-import net.bestia.zoneserver.zone.shape.Vector2;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.artemis.Entity;
-import com.artemis.EntityEdit;
-import com.artemis.utils.EntityBuilder;
+import net.bestia.messages.Message;
+import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 public class SpawnPlayerBestiaCommand extends ECSCommand {
 	

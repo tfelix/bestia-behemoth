@@ -59,6 +59,8 @@ public class ECSCommandFactory extends CommandFactory {
 			return null;
 		}
 
+		// TODO Oh oh... hier aber lieber mal neue Instancen erzeugen... 
+		// Dann kann ich auch den Ctor der ECSCommands anpassen direkt den ctx und msg zu bekommen.
 		// These commands should be ECSCommands.
 		final ECSCommand cmd = (ECSCommand) commandLibrary.get(msgId);
 		cmd.setCommandContext(ctx);

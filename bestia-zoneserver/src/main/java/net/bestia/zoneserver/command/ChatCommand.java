@@ -65,15 +65,12 @@ class ChatCommand extends Command {
 			// Send the message to all active player in the range so send to the ecs 
 			// since we must make sight tests.
 			final InputMessage pcm = new InputWrapperMessage<ChatMessage>(m, activeBestiaId);
-			
-			String activeZone = register.getSpawnedBestia(pcm.getAccountId(), activeBestiaId).getLocation().getMapDbName();	
-			ctx.getServer().getZone(activeZone).sendInput(pcm);
+			ctx.getServer().getMessageRouter().processMessage(pcm);
 			
 			// Echo the message back to the user.
 			replyMsg = ChatEchoMessage.getEchoMessage(m);
 			replyMsg.setEchoCode(EchoCode.OK);
-			
-			ctx.getServer().sendMessage(replyMsg);
+			ctx.getServer().processMessage(replyMsg);
 			break;
 		
 		case PARTY:
