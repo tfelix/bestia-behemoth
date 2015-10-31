@@ -41,7 +41,7 @@ function main() {
 	});
 	
 	$('#btn-attacks').click(function() {
-		$('#attacks').toggleClass('active');
+		$('#attacks').toggleClass('slider-active');
 		if(!game.attacks.isLoaded()) {
 			game.attacks.request();
 		}

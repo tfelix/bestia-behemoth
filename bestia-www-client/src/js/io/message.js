@@ -80,7 +80,7 @@ Bestia.Message = {
 
 		this.pbid = playerBestiaId;
 	},
-	
+
 	/**
 	 * Uses an attack.
 	 */
@@ -88,6 +88,32 @@ Bestia.Message = {
 		this.aid = attackId;
 		this.x = x;
 		this.y = y;
+	},
+
+	/**
+	 * Advices the server to change the attacks of the currently active bestia
+	 * to the given values.
+	 * 
+	 * @param {Number}
+	 *            playerBestiaId - The id of the player bestia.
+	 * @param {Number}
+	 *            atk1 - The id of the attack in slot 1.
+	 * @param {Number}
+	 *            atk2 - The id of the attack in slot 2.
+	 * @param {Number}
+	 *            atk3 - The id of the attack in slot 3.
+	 * @param {Number}
+	 *            atk4 - The id of the attack in slot 4.
+	 * @param {Number}
+	 *            atk5 - The id of the attack in slot 5.
+	 */
+	AttackSet : function(playerBestiaId, atk1, atk2, atk3, atk4, atk5) {
+		this.pbid = playerBestiaId;
+		this.s1 = atk1;
+		this.s2 = atk2;
+		this.s3 = atk3;
+		this.s4 = atk4;
+		this.s5 = atk5;
 	},
 
 	/**
@@ -115,33 +141,36 @@ Bestia.Message = {
 		this.pid = playerItemId;
 		this.pbid = playerBestiaId;
 	},
-	
+
 	/**
 	 * Requests to the server to list all available attacks for this bestia.
 	 */
 	AttackListRequest : function() {
 		this.mid = 'attack.list.request';
 	},
-	
+
 	/**
-	 * Sends a translation request to the server. Category and 
+	 * Sends a translation request to the server. Category and
 	 */
 	TranslationRequest : function(items, token) {
 		this.mid = 'translation.request';
-		
+
 		this.is = [];
 		this.t = token;
-		
+
 		// Translate the items.
-		if(!Array.isArray(items)) {
+		if (!Array.isArray(items)) {
 			return;
 		}
-		
-		for(var i = 0; i < items.length; i++) {
-			if(!items[i].hasOwnProperty('cat') || !items[i].hasOwnProperty('key')) {
+
+		for (var i = 0; i < items.length; i++) {
+			if (!items[i].hasOwnProperty('cat') || !items[i].hasOwnProperty('key')) {
 				continue;
 			}
-			this.is.push({c: items[i].cat.toUpperCase(), k: items[i].key});
+			this.is.push({
+				c : items[i].cat.toUpperCase(),
+				k : items[i].key
+			});
 		}
 	}
 };
