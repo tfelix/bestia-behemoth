@@ -11,6 +11,7 @@ import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.manager.InventoryManager;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaManagerInterface;
 
 /**
  * Chat commands which will spawn and item and adds it to the inventory.
@@ -35,7 +36,7 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 		final Account acc = accDAO.find(m.getAccountId());
 		final long accId = acc.getId();
 
-		final PlayerBestiaManager masterManager = new PlayerBestiaManager(acc.getMaster(), ctx.getServer());
+		final PlayerBestiaManagerInterface masterManager = new PlayerBestiaManager(acc.getMaster(), ctx.getServer());
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
 		final InventoryManager invManager = new InventoryManager(masterManager, invService, ctx.getServer());
 

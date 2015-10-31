@@ -13,6 +13,7 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.BestiaRegister;
 import net.bestia.zoneserver.manager.InventoryManager;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaManagerInterface;
 import net.bestia.zoneserver.script.ItemScript;
 
 public class UseItemCommand extends ECSCommand {
@@ -38,7 +39,7 @@ public class UseItemCommand extends ECSCommand {
 		final AccountDAO dao = ctx.getServiceLocator().getBean(AccountDAO.class);
 		final PlayerBestia masterBestia = dao.find(accId).getMaster();
 		
-		final PlayerBestiaManager master = new PlayerBestiaManager(masterBestia, ctx.getServer());
+		final PlayerBestiaManagerInterface master = new PlayerBestiaManager(masterBestia, ctx.getServer());
 		
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
 		final InventoryManager inventory = new InventoryManager(master, invService, ctx.getServer());

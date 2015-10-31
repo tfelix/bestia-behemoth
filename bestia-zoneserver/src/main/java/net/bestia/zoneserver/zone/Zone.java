@@ -12,7 +12,7 @@ import net.bestia.zoneserver.ecs.component.Input;
 import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
 import net.bestia.zoneserver.ecs.message.DespawnPlayerBestiaMessage;
 import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaManagerInterface;
 import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.world.WorldExtender;
 
@@ -155,7 +155,7 @@ public class Zone {
 		public void addedBestia(long accId, int bestiaId) {
 			// Check if this bestia belongs to this zone if so create a
 			// responsible spawn command.
-			final PlayerBestiaManager pbm = ctx.getServer()
+			final PlayerBestiaManagerInterface pbm = ctx.getServer()
 					.getBestiaRegister()
 					.getSpawnedBestia(accId, bestiaId);
 

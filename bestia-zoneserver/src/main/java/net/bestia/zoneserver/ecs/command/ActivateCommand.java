@@ -7,7 +7,7 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.BestiaRegister;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaManagerInterface;
 
 import com.artemis.ComponentMapper;
 
@@ -35,7 +35,7 @@ public class ActivateCommand extends ECSCommand {
 		final BestiaActivateMessage msg = ((InputWrapperMessage<BestiaActivateMessage>) message).getMessage();
 		final BestiaRegister register = ctx.getServer().getBestiaRegister();
 		
-		final PlayerBestiaManager playerBestia = playerMapper.get(player).playerBestiaManager;
+		final PlayerBestiaManagerInterface playerBestia = playerMapper.get(player).playerBestiaManager;
 		final int pbId = playerBestia.getPlayerBestiaId();
 		final long accId = msg.getAccountId();
 

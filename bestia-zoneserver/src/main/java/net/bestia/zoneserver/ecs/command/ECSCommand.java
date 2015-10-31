@@ -3,6 +3,7 @@ package net.bestia.zoneserver.ecs.command;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaManagerInterface;
 
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
@@ -28,10 +29,10 @@ public abstract class ECSCommand extends Command {
 	 * @return The {@link PlayerBestiaManager} of the player currently
 	 *         responsible for triggering this command.
 	 */
-	protected PlayerBestiaManager getPlayerBestiaManager() {
+	protected PlayerBestiaManagerInterface getPlayerBestiaManager() {
 		final ComponentMapper<PlayerBestia> playerMapper = world
 				.getMapper(PlayerBestia.class);
-		final PlayerBestiaManager pbm = playerMapper.get(player).playerBestiaManager;
+		final PlayerBestiaManagerInterface pbm = playerMapper.get(player).playerBestiaManager;
 		return pbm;
 	}
 }

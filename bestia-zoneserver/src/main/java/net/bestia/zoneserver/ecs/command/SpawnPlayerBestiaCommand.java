@@ -9,7 +9,7 @@ import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
 import net.bestia.zoneserver.manager.BestiaManager;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaManagerInterface;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 import org.apache.logging.log4j.LogManager;
@@ -35,7 +35,7 @@ public class SpawnPlayerBestiaCommand extends ECSCommand {
 		final long accId = spawnMsg.getAccountId();
 		final int bestiaId = spawnMsg.getPlayerBestiaId();
 
-		final PlayerBestiaManager pbm = ctx.getServer().getBestiaRegister().getSpawnedBestia(accId, bestiaId);
+		final PlayerBestiaManagerInterface pbm = ctx.getServer().getBestiaRegister().getSpawnedBestia(accId, bestiaId);
 		log.debug("Adding {} to ecs.", pbm.toString());
 
 		// Spawn the entity.

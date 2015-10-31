@@ -19,12 +19,10 @@ import org.apache.logging.log4j.Logger;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class PlayerBestiaManager extends BestiaManager {
+public class PlayerBestiaManager extends BestiaManager implements PlayerBestiaManagerInterface {
 	private final static Logger log = LogManager.getLogger(PlayerBestiaManager.class);
 
 	private final static int MAX_LEVEL = 40;
-	public final static int MAX_ATK_SLOTS = 5;
-
 	private final PlayerBestia bestia;
 	private final String language;
 	private final Zoneserver server;
@@ -48,13 +46,10 @@ public class PlayerBestiaManager extends BestiaManager {
 		this.language = bestia.getOwner().getLanguage().toString();
 	}
 
-	/**
-	 * Adds a certain amount of experience to the bestia. After this it checks
-	 * if a levelup has occured. Experience must be positive.
-	 * 
-	 * @param exp
-	 *            Experience to be added.
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.manager.PlayerBestiaManagerInterface#addExp(int)
 	 */
+	@Override
 	public void addExp(int exp) {
 		if (exp < 0) {
 			log.warn("Exp can not be smaller then 0. Cancelling.");
@@ -68,13 +63,10 @@ public class PlayerBestiaManager extends BestiaManager {
 		checkLevelUp();
 	}
 
-	/**
-	 * Returns the maximum item weight the current bestia could carry. Plase
-	 * note: only the bestia master will be used to calculate the inventory max
-	 * weight.
-	 * 
-	 * @return
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.manager.PlayerBestiaManagerInterface#getMaxItemWeight()
 	 */
+	@Override
 	public int getMaxItemWeight() {
 		StatusPoints sp = getStatusPoints();
 		return 100 + 100 * sp.getAtk() * 3 + bestia.getLevel();
@@ -188,35 +180,34 @@ public class PlayerBestiaManager extends BestiaManager {
 		return points;
 	}
 
-	/**
-	 * Calculates and sets the status values to the PlayerBestia connected with
-	 * this manager. This is handy if the current status values must be send to
-	 * the client.
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.manager.PlayerBestiaManagerInterface#updateStatusValues()
 	 */
+	@Override
 	public void updateStatusValues() {
 		bestia.setStatusPoints(getStatusPoints());
 	}
 
-	/**
-	 * Returns the domain models controlled by this manager. Please use this
-	 * only to persist it to databse or for reading access since sync with the
-	 * ECS might get compromised otherwise.
-	 * 
-	 * @return The managed {@link PlayerBestia} domain model.
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.manager.PlayerBestiaManagerInterface#getPlayerBestia()
 	 */
+	@Override
 	public PlayerBestia getPlayerBestia() {
 		return bestia;
 	}
 
-	/**
-	 * Shortcut to get the id of the wrapped bestia.
-	 * 
-	 * @return The id of the wrapped bestia.
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.manager.PlayerBestiaManagerInterface#getPlayerBestiaId()
 	 */
+	@Override
 	public int getPlayerBestiaId() {
 		return bestia.getId();
 	}
 
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.manager.PlayerBestiaManagerInterface#getAccountId()
+	 */
+	@Override
 	public long getAccountId() {
 		return bestia.getOwner().getId();
 	}
@@ -250,6 +241,9 @@ public class PlayerBestiaManager extends BestiaManager {
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.manager.PlayerBestiaManagerInterface#getStatusPoints()
+	 */
 	@Override
 	public StatusPoints getStatusPoints() {
 		final int atk = (bestia.getBaseValues().getAtk() * 2 + 5 + bestia
@@ -294,16 +288,26 @@ public class PlayerBestiaManager extends BestiaManager {
 		return statusPoints;
 	}
 
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.manager.PlayerBestiaManagerInterface#getLocation()
+	 */
 	@Override
 	public Location getLocation() {
 		return bestia.getCurrentPosition();
 	}
 
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.manager.PlayerBestiaManagerInterface#getLevel()
+	 */
 	@Override
 	public int getLevel() {
 		return bestia.getLevel();
 	}
 
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.manager.PlayerBestiaManagerInterface#setAttack(int, net.bestia.model.domain.Attack)
+	 */
+	@Override
 	public void setAttack(int slot, Attack atk) {
 		if (slot <= MAX_ATK_SLOTS || slot < 0) {
 			throw new IllegalArgumentException(String.format(
@@ -332,28 +336,19 @@ public class PlayerBestiaManager extends BestiaManager {
 		}
 	}
 
-	/**
-	 * Uses an attack in a given slot. If the slot is not set then it will do
-	 * nothing. Also if the requisites for execution of an attack (mana,
-	 * cooldown etc.) are not met there will also be no effect. If the slot
-	 * number is invalid an {@link IllegalArgumentException} will be thrown.
-	 * Slot numbering starts with 0 for the first slot.
-	 * 
-	 * @param slot
-	 *            Number of the slot attack to be used. Starts with 0.
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.manager.PlayerBestiaManagerInterface#useAttackInSlot(int)
 	 */
+	@Override
 	public boolean useAttackInSlot(int slot) {
 		final Attack atk = getAttackInSlot(slot);
 		return useAttack(atk);
 	}
 
-	/**
-	 * Returns the attack for a given slot number.
-	 * 
-	 * @param slot
-	 * @return The {@link Attack} in the given slot or {@code NULL} if no attack
-	 *         was saved in this slot.
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.manager.PlayerBestiaManagerInterface#getAttackInSlot(int)
 	 */
+	@Override
 	public Attack getAttackInSlot(int slot) {
 		if (slot < 0 || slot >= MAX_ATK_SLOTS) {
 			throw new IllegalArgumentException(

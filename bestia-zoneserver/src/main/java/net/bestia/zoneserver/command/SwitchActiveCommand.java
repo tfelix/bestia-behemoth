@@ -8,6 +8,7 @@ import net.bestia.messages.InputWrapperMessage;
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.ecs.BestiaRegister;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaManagerInterface;
 
 /**
  * This command will switch between active bestias. Since it is not known on which zone the bestia resides, this command
@@ -30,7 +31,7 @@ public class SwitchActiveCommand extends Command {
 		final BestiaRegister controller = ctx.getServer().getBestiaRegister();
 
 		Set<PlayerBestiaManager> pbms = controller.getSpawnedBestias(message.getAccountId());
-		for (PlayerBestiaManager pbm : pbms) {
+		for (PlayerBestiaManagerInterface pbm : pbms) {
 			final int pbId = pbm.getPlayerBestiaId();
 			final String zoneName = pbm.getLocation().getMapDbName();
 			

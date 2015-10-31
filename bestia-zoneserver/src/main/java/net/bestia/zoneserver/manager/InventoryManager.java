@@ -20,9 +20,9 @@ public class InventoryManager {
 	private final InventoryService inventoryService;
 	private final Zoneserver server;
 	private final long accId;
-	private final PlayerBestiaManager master;
+	private final PlayerBestiaManagerInterface master;
 
-	public InventoryManager(PlayerBestiaManager master, InventoryService service, Zoneserver server) {
+	public InventoryManager(PlayerBestiaManagerInterface master, InventoryService service, Zoneserver server) {
 		if (service == null) {
 			throw new IllegalArgumentException("Service can not be null.");
 		}
