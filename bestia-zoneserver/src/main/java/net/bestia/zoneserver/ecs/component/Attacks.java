@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.ecs.component;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import com.artemis.Component;
@@ -52,6 +53,15 @@ public class Attacks extends Component {
 	 */
 	public boolean hasAttack(Integer id) {
 		return attackIds.contains(id);
+	}
+
+	/**
+	 * Adds all the given attack IDs to the component.
+	 * 
+	 * @param atkIds
+	 */
+	public void addAll(Collection<Integer> atkIds) {
+		attackIds.addAll(attackIds);
 	}
 
 }

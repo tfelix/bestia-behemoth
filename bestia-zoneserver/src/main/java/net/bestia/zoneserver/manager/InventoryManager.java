@@ -20,17 +20,17 @@ public class InventoryManager {
 	private final InventoryService inventoryService;
 	private final Zoneserver server;
 	private final long accId;
-	private final PlayerBestiaManagerInterface master;
+	private final PlayerBestiaManager owner;
 
-	public InventoryManager(PlayerBestiaManagerInterface master, InventoryService service, Zoneserver server) {
+	public InventoryManager(PlayerBestiaManager owner, InventoryService service, Zoneserver server) {
 		if (service == null) {
 			throw new IllegalArgumentException("Service can not be null.");
 		}
 
 		this.inventoryService = service;
 		this.server = server;
-		this.accId = master.getAccountId();
-		this.master = master;
+		this.accId = owner.getAccountId();
+		this.owner = owner;
 	}
 
 	/**
@@ -151,8 +151,10 @@ public class InventoryManager {
 	 * @return
 	 */
 	public int getMaxWeight() {
-		final int atk = master.getStatusPoints().getAtk();
-		return 150 + atk * 4 + master.getLevel() * 3;
+		// TODO Das muss anders gelöst werden, da jede Bestia später ihr eigenes inventar haben wird.
+		return 250;
+		//final int atk = master.getStatusPoints().getAtk();
+		//return 150 + atk * 4 + master.getLevel() * 3;
 	}
 
 	public PlayerItem getPlayerItem(int playerItemId) {

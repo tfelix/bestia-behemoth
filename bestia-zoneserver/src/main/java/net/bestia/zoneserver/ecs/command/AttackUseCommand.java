@@ -3,7 +3,7 @@ package net.bestia.zoneserver.ecs.command;
 import net.bestia.messages.AttackUseMessage;
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.manager.PlayerBestiaManagerInterface;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 /**
  * This command will try to use an attack on the current zone a bestia is on. It
@@ -24,9 +24,9 @@ public class AttackUseCommand extends ECSCommand {
 	protected void execute(Message message, CommandContext ctx) {
 
 		final AttackUseMessage atkMsg = (AttackUseMessage) message;
-		final PlayerBestiaManagerInterface pbm = getPlayerBestiaManager();
+		final PlayerBestiaManager pbm = getPlayerBestiaManager();
 		
-		if(pbm.useAttackInSlot(atkMsg.getSlot())) {
+		if(pbm.useAttack(atkMsg.getAttackId())) {
 			
 			// TODO Trigger the attack effects. This is done by invoking a script.
 			

@@ -11,7 +11,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
-import net.bestia.zoneserver.manager.PlayerBestiaManagerInterface;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -141,7 +140,7 @@ public class BestiaRegister {
 		final Set<PlayerBestiaManager> removalSet = new HashSet<>();
 		removalSet.addAll(bestias);
 
-		for (PlayerBestiaManagerInterface bestia : removalSet) {
+		for (PlayerBestiaManager bestia : removalSet) {
 			removePlayerBestia(accId, bestia);
 		}
 
@@ -158,7 +157,7 @@ public class BestiaRegister {
 	 * @param bestia
 	 *            The {@link PlayerBestiaManager} to remove.
 	 */
-	public void removePlayerBestia(long accId, PlayerBestiaManagerInterface bestia) {
+	public void removePlayerBestia(long accId, PlayerBestiaManager bestia) {
 
 		final int bestiaId = bestia.getPlayerBestiaId();
 

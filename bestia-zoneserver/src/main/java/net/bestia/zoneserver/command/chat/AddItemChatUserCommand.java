@@ -11,7 +11,6 @@ import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.manager.InventoryManager;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
-import net.bestia.zoneserver.manager.PlayerBestiaManagerInterface;
 
 /**
  * Chat commands which will spawn and item and adds it to the inventory.
@@ -35,10 +34,11 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 		// Find the player who send the message.
 		final Account acc = accDAO.find(m.getAccountId());
 		final long accId = acc.getId();
+		final int activeBestiaId = ctx.getServer().getBestiaRegister().getActiveBestia(accId);
 
-		final PlayerBestiaManagerInterface masterManager = new PlayerBestiaManager(acc.getMaster(), ctx.getServer());
+		final PlayerBestiaManager bestiaManager = ctx.getServer().getBestiaRegister().getSpawnedBestia(accId, activeBestiaId);
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
-		final InventoryManager invManager = new InventoryManager(masterManager, invService, ctx.getServer());
+		final InventoryManager invManager = new InventoryManager(bestiaManager, invService, ctx.getServer());
 
 		// Get the item name and the amount.
 		final String[] tokens = m.getText().split(" ");
@@ -64,8 +64,7 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 				final boolean success = invManager.addItem(itemId, amount);
 				if(success) {
 					LOG.info("GM: Spawning item: {}, amount: {} for account: {}.", accId);
-				}
-				
+				}				
 				
 			} catch (IllegalArgumentException ex) {
 				// TODO MSG
@@ -86,7 +85,7 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 	}
 	
 	/* (non-Javadoc)
-	 * @see net.bestia.zoneserver.command.chat.ChatUserCommand2#getChatToken()
+	 * @see net.bestia.zoneserver.command.chat.ChatUserCommand#getChatToken()
 	 */
 	@Override
 	public String getChatToken() {

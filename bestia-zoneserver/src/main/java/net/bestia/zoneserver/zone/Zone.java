@@ -6,13 +6,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import net.bestia.messages.InputMessage;
+import net.bestia.messages.Message;
+import net.bestia.zoneserver.MessageProcessor;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.BestiaRegister.InputControllerCallback;
 import net.bestia.zoneserver.ecs.component.Input;
 import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
 import net.bestia.zoneserver.ecs.message.DespawnPlayerBestiaMessage;
 import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
-import net.bestia.zoneserver.manager.PlayerBestiaManagerInterface;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.world.WorldExtender;
 
@@ -33,7 +35,7 @@ import com.artemis.utils.EntityBuilder;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class Zone {
+public class Zone implements MessageProcessor {
 
 	private static final Logger log = LogManager.getLogger(Zone.class);
 
@@ -76,7 +78,7 @@ public class Zone {
 		public void run() {
 
 			// Load the persisted entities if it was desired.
-			if(ctx.getConfiguration().getIntProperty("zone.cleanLoad") != null) {
+			if (ctx.getConfiguration().getIntProperty("zone.cleanLoad") != null) {
 				world.getSystem(WorldPersistenceManager.class).load();
 			}
 
@@ -138,7 +140,7 @@ public class Zone {
 		public void removedBestia(long accId, int bestiaId) {
 			final DespawnPlayerBestiaMessage despawnMsg = new DespawnPlayerBestiaMessage(
 					accId, bestiaId);
-			sendInput(despawnMsg);
+			processMessage(despawnMsg);
 		}
 
 		@Override
@@ -155,17 +157,14 @@ public class Zone {
 		public void addedBestia(long accId, int bestiaId) {
 			// Check if this bestia belongs to this zone if so create a
 			// responsible spawn command.
-			final PlayerBestiaManagerInterface pbm = ctx.getServer()
-					.getBestiaRegister()
-					.getSpawnedBestia(accId, bestiaId);
+			final PlayerBestiaManager pbm = ctx.getServer().getBestiaRegister().getSpawnedBestia(accId, bestiaId);
 
 			if (!pbm.getLocation().getMapDbName().equals(name)) {
 				return;
 			}
 
-			final SpawnPlayerBestiaMessage spawnMsg = new SpawnPlayerBestiaMessage(
-					accId, bestiaId);
-			sendInput(spawnMsg);
+			final SpawnPlayerBestiaMessage spawnMsg = new SpawnPlayerBestiaMessage(accId, bestiaId);
+			processMessage(spawnMsg);
 		}
 	}
 
@@ -203,14 +202,6 @@ public class Zone {
 	 */
 	public String getName() {
 		return name;
-	}
-
-	public void sendInput(InputMessage msg) {
-		if (!hasStarted.get()) {
-			log.warn("Zone already stopped. Does not process messages anymore.");
-			return;
-		}
-		messageQueue.add(msg);
 	}
 
 	/**
@@ -257,5 +248,19 @@ public class Zone {
 	public String toString() {
 		return String.format("Zone[name: %s, hasStarted: %s]", name,
 				hasStarted.toString());
+	}
+
+	@Override
+	public void processMessage(Message msg) {
+
+		if (!(msg instanceof InputMessage)) {
+			throw new IllegalArgumentException("Message is not of type InputMessage.");
+		}
+
+		if (!hasStarted.get()) {
+			log.warn("Zone already stopped. Does not process messages anymore.");
+			return;
+		}
+		messageQueue.add((InputMessage) msg);
 	}
 }

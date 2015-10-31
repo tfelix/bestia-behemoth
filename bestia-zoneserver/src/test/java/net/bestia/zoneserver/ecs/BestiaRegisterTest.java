@@ -94,7 +94,7 @@ public class BestiaRegisterTest {
 		PlayerBestiaManager pbm = mock(PlayerBestiaManager.class);
 		
 		when(pb.getId()).thenReturn(1);
-		when(pbm.getPlayerBestia()).thenReturn(pb);
+		//when(pbm.getPlayerBestia()).thenReturn(pb);
 		
 		return pbm;
 	}

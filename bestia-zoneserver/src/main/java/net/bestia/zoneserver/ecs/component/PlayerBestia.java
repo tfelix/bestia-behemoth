@@ -1,8 +1,6 @@
 package net.bestia.zoneserver.ecs.component;
 
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
-import net.bestia.zoneserver.manager.PlayerBestiaManagerInterface;
-
 import com.artemis.Component;
 
 /**
@@ -13,13 +11,13 @@ import com.artemis.Component;
  */
 public class PlayerBestia extends Component {
 
-	public PlayerBestiaManagerInterface playerBestiaManager;
+	public PlayerBestiaManager playerBestiaManager;
 	
 	public PlayerBestia() {
 		
 	}
 	
-	public PlayerBestia(PlayerBestiaManagerInterface manager) {
+	public PlayerBestia(PlayerBestiaManager manager) {
 		this.playerBestiaManager = manager;
 	}
 

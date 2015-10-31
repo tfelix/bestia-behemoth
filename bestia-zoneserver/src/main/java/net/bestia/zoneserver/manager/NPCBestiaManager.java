@@ -3,7 +3,6 @@ package net.bestia.zoneserver.manager;
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.StatusPoints;
-import net.bestia.model.domain.StatusPoints;
 
 public class NPCBestiaManager extends BestiaManager {
 	// private final static Logger log =

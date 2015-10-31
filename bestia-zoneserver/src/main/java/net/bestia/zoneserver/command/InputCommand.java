@@ -3,7 +3,7 @@ package net.bestia.zoneserver.command;
 import net.bestia.messages.InputMessage;
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.ecs.BestiaRegister;
-import net.bestia.zoneserver.manager.PlayerBestiaManagerInterface;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 /**
  * Sends a {@link InputMessage} directly to the ECS where a own command infrastructure will take care about the
@@ -30,7 +30,7 @@ public class InputCommand extends Command {
 		InputMessage msg = (InputMessage) message;
 		
 		final BestiaRegister register = ctx.getServer().getBestiaRegister();
-		final PlayerBestiaManagerInterface pb = register.getSpawnedBestia(msg.getAccountId(), msg.getPlayerBestiaId());
+		final PlayerBestiaManager pb = register.getSpawnedBestia(msg.getAccountId(), msg.getPlayerBestiaId());
 		
 		// Sanity check if the account actually has the given bestia id.
 		if(pb == null) {

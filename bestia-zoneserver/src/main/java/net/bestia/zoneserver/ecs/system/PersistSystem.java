@@ -12,6 +12,7 @@ import com.artemis.systems.IntervalEntityProcessingSystem;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 /**
  * System to periodically persist (player) entities which have changed into the database.
@@ -50,13 +51,11 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 
 	private void synchronizeAndSaveEntity(Entity e) {
 		final PlayerBestiaDAO dao = cmdContext.getServiceLocator().getBean(PlayerBestiaDAO.class);
+		final PlayerBestiaManager pbm = playerMapper.get(e).playerBestiaManager;
+		
+		dao.update(pbm.getPlayerBestia());
 
-		final PlayerBestia playerControlled = playerMapper.get(e);
-		final net.bestia.model.domain.PlayerBestia pb = playerControlled.playerBestiaManager.getPlayerBestia();
-
-		log.trace("Persisting entity: {}", pb.toString());
-
-		dao.update(pb);
+		log.trace("Persisting entity: {}", pbm.toString());
 	}
 
 }

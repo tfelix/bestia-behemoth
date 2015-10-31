@@ -5,17 +5,20 @@ import org.apache.logging.log4j.Logger;
 
 import net.bestia.messages.InventoryItemUseMessage;
 import net.bestia.messages.Message;
-import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Item;
-import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.BestiaRegister;
 import net.bestia.zoneserver.manager.InventoryManager;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
-import net.bestia.zoneserver.manager.PlayerBestiaManagerInterface;
 import net.bestia.zoneserver.script.ItemScript;
 
+/**
+ * Tries to use the given item in the context of the currently active bestia.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class UseItemCommand extends ECSCommand {
 
 	private final static Logger log = LogManager.getLogger(UseItemCommand.class);
@@ -35,14 +38,9 @@ public class UseItemCommand extends ECSCommand {
 		final int userBestiaId = useMessage.getPlayerBestiaId();
 
 		final PlayerBestiaManager owner = register.getSpawnedBestia(accId, userBestiaId);
-		
-		final AccountDAO dao = ctx.getServiceLocator().getBean(AccountDAO.class);
-		final PlayerBestia masterBestia = dao.find(accId).getMaster();
-		
-		final PlayerBestiaManagerInterface master = new PlayerBestiaManager(masterBestia, ctx.getServer());
-		
+
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
-		final InventoryManager inventory = new InventoryManager(master, invService, ctx.getServer());
+		final InventoryManager inventory = new InventoryManager(owner, invService, ctx.getServer());
 
 		if (!inventory.hasItem(useMessage.getPlayerItemId(), 1)) {
 			// Can not use this item.

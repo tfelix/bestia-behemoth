@@ -35,9 +35,11 @@ interface ChatUserCommand {
 	String getChatToken();
 
 	/**
-	 * The minimum needed {@link UserLevel} in order to execute this command.
+	 * Implement this method to set the at least needed userlevel in order to
+	 * perform this command on the server.
 	 * 
-	 * @return
+	 * @return The minimum needed {@link UserLevel} in order to execute this
+	 *         command.
 	 */
 	UserLevel getNeededUserLevel();
 

@@ -9,7 +9,7 @@ import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
 import net.bestia.zoneserver.manager.BestiaManager;
-import net.bestia.zoneserver.manager.PlayerBestiaManagerInterface;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 import org.apache.logging.log4j.LogManager;
@@ -30,33 +30,14 @@ public class SpawnPlayerBestiaCommand extends ECSCommand {
 
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
+		// TODO Wird die bestia nun noch richtig gespawned?
 		final SpawnPlayerBestiaMessage spawnMsg = (SpawnPlayerBestiaMessage) message;
 		
 		final long accId = spawnMsg.getAccountId();
 		final int bestiaId = spawnMsg.getPlayerBestiaId();
 
-		final PlayerBestiaManagerInterface pbm = ctx.getServer().getBestiaRegister().getSpawnedBestia(accId, bestiaId);
+		final PlayerBestiaManager pbm = ctx.getServer().getBestiaRegister().getSpawnedBestia(accId, bestiaId);
 		log.debug("Adding {} to ecs.", pbm.toString());
-
-		// Spawn the entity.
-		final EntityBuilder builder = new EntityBuilder(world);
-		
-		final Entity playerBestia = builder.player(Long.toString(accId)).tag(Integer.toString(bestiaId)).build();
-		final EntityEdit playerEdit = playerBestia.edit();
-		
-		playerEdit.add(new Visible());
-		playerEdit.add(new PlayerBestia(pbm));
-		playerEdit.add(new Bestia((BestiaManager) pbm));
-		
-		playerEdit.create(Visible.class).sprite = pbm.getPlayerBestia().getOrigin().getSprite();
-		playerEdit.create(PlayerBestia.class).playerBestiaManager = pbm;
-		
-		final Position pos = playerEdit.create(Position.class);
-		pos.position = new Vector2(pbm.getLocation().getX(), pbm.getLocation().getY());		
-		
-		if(pbm.getPlayerBestiaId() == 2) {
-			playerEdit.create(Active.class);
-		}
 	}
 	
 	@Override

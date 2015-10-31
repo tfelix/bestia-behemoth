@@ -18,7 +18,6 @@ import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.BestiaRegister;
 import net.bestia.zoneserver.manager.InventoryManager;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
-import net.bestia.zoneserver.manager.PlayerBestiaManagerInterface;
 
 /*-
  * This command will be executed if a new user wants to join. He needs a few information in order to boot the client
@@ -82,7 +81,7 @@ public class RequestLoginCommand extends Command {
 			return;
 		}
 
-		final PlayerBestiaManagerInterface masterManager = new PlayerBestiaManager(master, ctx.getServer());
+		final PlayerBestiaManager masterManager = new PlayerBestiaManager(master, ctx.getServer());
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
 		final InventoryManager invManager = new InventoryManager(masterManager, invService, ctx.getServer());
 
@@ -101,7 +100,7 @@ public class RequestLoginCommand extends Command {
 
 		// Calculate current status values.
 		for (PlayerBestia playerBestia : bestias) {
-			final PlayerBestiaManagerInterface manager = new PlayerBestiaManager(playerBestia, ctx.getServer());
+			final PlayerBestiaManager manager = new PlayerBestiaManager(playerBestia, ctx.getServer());
 			manager.updateStatusValues();
 		}
 

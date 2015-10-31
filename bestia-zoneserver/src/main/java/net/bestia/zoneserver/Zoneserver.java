@@ -49,7 +49,7 @@ import net.bestia.zoneserver.zone.Zone;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class Zoneserver {
+public class Zoneserver implements MessageProcessor {
 
 	private final static Logger log = LogManager.getLogger(Zoneserver.class);
 
@@ -169,7 +169,7 @@ public class Zoneserver {
 		this.responsibleZones = Collections.unmodifiableSet(zones);
 
 		this.ecsInputController.addCallback(new InputControllerCallbackImpl());
-		
+
 		// Prepare the translator.
 		I18n.setDao(commandContext.getServiceLocator().getBean(I18nDAO.class));
 	}
@@ -362,7 +362,7 @@ public class Zoneserver {
 				.hasArg()
 				.desc("path to an external config file.")
 				.build());
-		
+
 		options.addOption(Option.builder("cl")
 				.longOpt("clean")
 				.hasArg()
@@ -381,8 +381,8 @@ public class Zoneserver {
 			} else {
 				config.load();
 			}
-			
-			if(cmd.hasOption("cl")) {
+
+			if (cmd.hasOption("cl")) {
 				config.setValue("zone.cleanLoad", 1);
 			}
 		} catch (ParseException e) {
@@ -397,5 +397,11 @@ public class Zoneserver {
 		if (!zone.start()) {
 			System.exit(1);
 		}
+	}
+
+	@Override
+	public void processMessage(Message msg) {
+		// Currently a workaround. Later switch to processMessage.
+		sendMessage(msg);
 	}
 }
