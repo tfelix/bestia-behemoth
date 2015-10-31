@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.ecs.command;
+package net.bestia.zoneserver.command.ecs;
 
 import java.util.ArrayList;
 import java.util.List;

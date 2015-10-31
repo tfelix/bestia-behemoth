@@ -19,7 +19,7 @@ public class RoutedECSCommandFactoryTest {
 
 	@Test
 	public void return_input_command_on_input_msg() {
-		RoutedECSCommandFactory fac = new RoutedECSCommandFactory(ctx);
+		ECSCommandFactory fac = new ECSCommandFactory(ctx);
 		
 		final Message msg = new BestiaMoveMessage();
 		final Command cmd = fac.getCommand(msg);
@@ -28,7 +28,7 @@ public class RoutedECSCommandFactoryTest {
 	
 	@Test
 	public void return_real_command() {
-		RoutedECSCommandFactory fac = new RoutedECSCommandFactory(ctx);
+		ECSCommandFactory fac = new ECSCommandFactory(ctx);
 		
 		Message msg = new LoginBroadcastMessage(1L);
 		

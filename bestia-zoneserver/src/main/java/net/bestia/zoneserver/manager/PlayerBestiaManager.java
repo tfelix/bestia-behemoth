@@ -16,11 +16,11 @@ import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.service.PlayerBestiaService;
-import net.bestia.zoneserver.MessageProcessor;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
+import net.bestia.zoneserver.routing.MessageProcessor;
 import net.bestia.zoneserver.util.I18n;
 import net.bestia.zoneserver.zone.shape.Vector2;
 

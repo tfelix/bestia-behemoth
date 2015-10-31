@@ -15,7 +15,6 @@ import net.bestia.zoneserver.ecs.system.ActiveSpawnUpdateSystem;
 import net.bestia.zoneserver.ecs.system.ChangedNetworkUpdateSystem;
 import net.bestia.zoneserver.ecs.system.ChatSystem;
 import net.bestia.zoneserver.ecs.system.DelayedRemoveSystem;
-import net.bestia.zoneserver.ecs.system.InputSystem;
 import net.bestia.zoneserver.ecs.system.MapScriptSystem;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
@@ -37,7 +36,6 @@ public class BaseWorldExtender implements WorldExtend {
 		worldConfig.register(ctx.getServer().getBestiaRegister());
 
 		// Set all the systems.
-		worldConfig.setSystem(new InputSystem());
 		worldConfig.setSystem(new MovementSystem());
 		worldConfig.setSystem(new AISystem());
 		worldConfig.setSystem(new ChatSystem());

@@ -31,11 +31,12 @@ import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
-import net.bestia.zoneserver.command.RoutedECSCommandFactory;
+import net.bestia.zoneserver.command.ServerCommandFactory;
 import net.bestia.zoneserver.ecs.BestiaRegister;
 import net.bestia.zoneserver.ecs.BestiaRegister.InputControllerCallback;
 import net.bestia.zoneserver.loader.ScriptLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
+import net.bestia.zoneserver.routing.MessageProcessor;
 import net.bestia.zoneserver.script.ScriptManager;
 import net.bestia.zoneserver.util.I18n;
 import net.bestia.zoneserver.zone.Zone;
@@ -147,8 +148,7 @@ public class Zoneserver implements MessageProcessor {
 
 		// Create a command context.
 		this.commandContext = new CommandContext(config, this, scriptManager);
-
-		this.commandFactory = new RoutedECSCommandFactory(commandContext);
+		this.commandFactory = new ServerCommandFactory(commandContext);
 		this.commandExecutor = Executors.newFixedThreadPool(1);
 
 		final String interUrl = config.getProperty("inter.domain");

@@ -5,26 +5,20 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import net.bestia.messages.InputMessage;
-import net.bestia.messages.Message;
-import net.bestia.zoneserver.MessageProcessor;
-import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.BestiaRegister.InputControllerCallback;
-import net.bestia.zoneserver.ecs.component.Input;
-import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
-import net.bestia.zoneserver.ecs.message.DespawnPlayerBestiaMessage;
-import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
-import net.bestia.zoneserver.zone.map.Map;
-import net.bestia.zoneserver.zone.world.WorldExtender;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.artemis.Entity;
-import com.artemis.EntityEdit;
 import com.artemis.World;
-import com.artemis.utils.EntityBuilder;
+
+import net.bestia.messages.InputMessage;
+import net.bestia.messages.Message;
+import net.bestia.zoneserver.command.Command;
+import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.command.ECSCommandFactory;
+import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
+import net.bestia.zoneserver.routing.MessageProcessor;
+import net.bestia.zoneserver.zone.map.Map;
+import net.bestia.zoneserver.zone.world.WorldExtender;
 
 /**
  * The Zone holds the static mapdata as well is responsible for managing
@@ -39,7 +33,7 @@ public class Zone implements MessageProcessor {
 
 	private static final Logger log = LogManager.getLogger(Zone.class);
 
-	private class ZoneTicker implements Runnable, InputControllerCallback {
+	private class ZoneTicker implements Runnable {
 
 		private long lastRun = 0;
 
@@ -57,21 +51,13 @@ public class Zone implements MessageProcessor {
 		private static final int MAX_PROCESSED_MSGS = 10;
 
 		private final World world;
-
 		private final CommandContext ctx;
+		private final ECSCommandFactory commandFactory;
 
 		public ZoneTicker(World world, CommandContext ctx) {
 			this.world = world;
 			this.ctx = ctx;
-		}
-
-		private void createInputEntity(InputMessage msg) {
-			final EntityBuilder builder = new EntityBuilder(world);
-			final Entity e = builder.build();
-			final EntityEdit ee = e.edit();
-			final Input input = ee.create(Input.class);
-			input.inputMessage = msg;
-			log.trace("Creating input entity: {}", msg.toString());
+			this.commandFactory = new ECSCommandFactory(ctx, world);
 		}
 
 		@Override
@@ -96,8 +82,9 @@ public class Zone implements MessageProcessor {
 				int i = 0;
 				while (msg != null) {
 
-					// Create entity with input message.
-					createInputEntity(msg);
+					// Create a ECS command and immediately run it.
+					final Command cmd = commandFactory.getCommand(msg);
+					cmd.run();
 
 					if (i++ >= MAX_PROCESSED_MSGS) {
 						log.warn("Too much input messages queued. Slowing processing to avoid starvation of zone.");
@@ -135,42 +122,11 @@ public class Zone implements MessageProcessor {
 				log.error("Could not persist the zone entities. %s", e.getMessage(), e);
 			}
 		}
-
-		@Override
-		public void removedBestia(long accId, int bestiaId) {
-			final DespawnPlayerBestiaMessage despawnMsg = new DespawnPlayerBestiaMessage(
-					accId, bestiaId);
-			processMessage(despawnMsg);
-		}
-
-		@Override
-		public void removedAccount(long accountId) {
-			// no op.
-		}
-
-		@Override
-		public void addedAccount(long accountId) {
-			// no op.
-		}
-
-		@Override
-		public void addedBestia(long accId, int bestiaId) {
-			// Check if this bestia belongs to this zone if so create a
-			// responsible spawn command.
-			final PlayerBestiaManager pbm = ctx.getServer().getBestiaRegister().getSpawnedBestia(accId, bestiaId);
-
-			if (!pbm.getLocation().getMapDbName().equals(name)) {
-				return;
-			}
-
-			final SpawnPlayerBestiaMessage spawnMsg = new SpawnPlayerBestiaMessage(accId, bestiaId);
-			processMessage(spawnMsg);
-		}
 	}
 
 	private final String name;
 	private final Map map;
-	private AtomicBoolean hasStarted = new AtomicBoolean(false);
+	private final AtomicBoolean hasStarted = new AtomicBoolean(false);
 	private final Queue<InputMessage> messageQueue = new ConcurrentLinkedQueue<>();
 	private final CommandContext cmdContext;
 
@@ -223,9 +179,6 @@ public class Zone implements MessageProcessor {
 		hasStarted.set(true);
 		zoneTickerThread.start();
 
-		// Add the ticker thread of the ECS so newly spawned bestias will be
-		// created to the zone.
-		cmdContext.getServer().getBestiaRegister().addCallback(zoneTicker);
 		log.debug("Zone {} has started.", name);
 	}
 

@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.ecs.command;
+package net.bestia.zoneserver.command.ecs;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

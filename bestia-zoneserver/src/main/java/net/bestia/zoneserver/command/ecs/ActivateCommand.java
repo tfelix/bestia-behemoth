@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.ecs.command;
+package net.bestia.zoneserver.command.ecs;
 
 import net.bestia.messages.BestiaActivateMessage;
 import net.bestia.messages.InputWrapperMessage;
