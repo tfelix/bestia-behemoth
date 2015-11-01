@@ -12,19 +12,19 @@ import net.bestia.messages.Message;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MessageIDFilter implements MessageFilter {
+public class MessageIdFilter implements MessageFilter {
 
 	private Set<String> messageIDs = new HashSet<>();
 	
-	public MessageIDFilter() {
+	public MessageIdFilter() {
 		// no op.
 	}
 
-	public MessageIDFilter(String msgID) {
-		addMessageID(msgID);
+	public MessageIdFilter(String msgID) {
+		addMessageId(msgID);
 	}
 	
-	public void addMessageID(String id) {
+	public void addMessageId(String id) {
 		messageIDs.add(id);
 	}
 

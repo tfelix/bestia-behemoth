@@ -24,7 +24,7 @@ import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class RequestLoginCommand extends Command {
+public class LoginBroadcastCommand extends Command {
 
 	private PlayerBestiaDAO bestiaDao;
 	private AccountDAO accountDao;

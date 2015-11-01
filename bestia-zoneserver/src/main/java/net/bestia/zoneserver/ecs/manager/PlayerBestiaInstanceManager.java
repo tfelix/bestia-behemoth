@@ -1,6 +1,10 @@
 package net.bestia.zoneserver.ecs.manager;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.logging.log4j.LogManager;
@@ -14,6 +18,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 
+import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.zoneserver.command.CommandContext;
@@ -29,9 +34,9 @@ import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.routing.DynamicMessageFilter;
-import net.bestia.zoneserver.routing.MessageFilter;
-import net.bestia.zoneserver.routing.MessageIDFilter;
+import net.bestia.zoneserver.routing.MessageIdFilter;
 import net.bestia.zoneserver.routing.MessageProcessor;
+import net.bestia.zoneserver.routing.ServerSubscriptionManager;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 @Wire
@@ -41,6 +46,7 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 
 	@Wire
 	private CommandContext ctx;
+	private ServerSubscriptionManager subscriptionManager;
 
 	private ComponentMapper<Position> positionMapper;
 	private ComponentMapper<Attacks> attacksMapper;
@@ -55,11 +61,16 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 	private ComponentMapper<PlayerBestia> playerMapper;
 	private final MessageProcessor processor;
 
-	private final MessageFilter spawnMessageFilter = new MessageIDFilter(SpawnPlayerBestiaMessage.MESSAGE_ID);
+	private final MessageIdFilter spawnMessageFilter = new MessageIdFilter();
 
 	private final DynamicMessageFilter messageFilter = new DynamicMessageFilter();
-	private final Queue<SpawnPlayerBestiaMessage> msgQueue = new ConcurrentLinkedQueue<>();
+	private final Queue<Message> msgQueue = new ConcurrentLinkedQueue<>();
 	private Archetype playerBestiaArchetype;
+
+	/**
+	 * Holds the reference between account id and bestia entity ids.
+	 */
+	private final Map<Long, Set<Integer>> bestiaRegister = new HashMap<>();
 
 	public PlayerBestiaInstanceManager(MessageProcessor zone) {
 		super(Aspect.all(PlayerBestia.class));
@@ -71,9 +82,14 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 	protected void initialize() {
 		super.initialize();
 
+		spawnMessageFilter.addMessageId(SpawnPlayerBestiaMessage.MESSAGE_ID);
+		spawnMessageFilter.addMessageId(LogoutBroadcastMessage.MESSAGE_ID);
+
 		// Prepare the message filter.
 		ctx.getServer().getMessageRouter().registerFilter(messageFilter, processor);
 		ctx.getServer().getMessageRouter().registerFilter(spawnMessageFilter, this);
+
+		subscriptionManager = ctx.getServer().getSubscriptionManager();
 
 		playerBestiaArchetype = new ArchetypeBuilder()
 				.add(Position.class)
@@ -97,6 +113,7 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 		final PlayerBestiaManager pbm = playerMapper.get(entityId).playerBestiaManager;
 		final int playerBestiaId = pbm.getPlayerBestiaId();
 		messageFilter.subscribeId(playerBestiaId);
+		subscriptionManager.setOnline(pbm.getAccountId());
 	}
 
 	/**
@@ -105,8 +122,10 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 	 */
 	@Override
 	protected void removed(int entityId) {
-		final int playerBestiaId = playerMapper.get(entityId).playerBestiaManager.getPlayerBestiaId();
+		final PlayerBestiaManager pbm = playerMapper.get(entityId).playerBestiaManager;
+		final int playerBestiaId = pbm.getPlayerBestiaId();
 		messageFilter.removeId(playerBestiaId);
+		subscriptionManager.setOffline(pbm.getAccountId());
 	}
 
 	@Override
@@ -117,52 +136,77 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 	@Override
 	protected void processSystem() {
 
-		final PlayerBestiaDAO pbDao = ctx.getServiceLocator().getBean(PlayerBestiaDAO.class);
-
 		while (msgQueue.peek() != null) {
 			// We spawn the bestia.
-			final SpawnPlayerBestiaMessage msg = msgQueue.poll();
+			final Message msg = msgQueue.poll();
 
-			final net.bestia.model.domain.PlayerBestia pb = pbDao.find(msg.getPlayerBestiaId());
+			switch (msg.getMessageId()) {
+			case SpawnPlayerBestiaMessage.MESSAGE_ID:
+				spawnBestia((SpawnPlayerBestiaMessage) msg);
+				break;
+			case LogoutBroadcastMessage.MESSAGE_ID:
+				despawnBestia((LogoutBroadcastMessage) msg);
+				break;
+			default:
+				// no op.
+				break;
+			}
+		}
+	}
 
-			final Entity pbEntity = world.createEntity(playerBestiaArchetype);
+	private void spawnBestia(SpawnPlayerBestiaMessage msg) {
+		final Long accId = msg.getAccountId();
+		final PlayerBestiaDAO pbDao = ctx.getServiceLocator().getBean(PlayerBestiaDAO.class);
+		final net.bestia.model.domain.PlayerBestia pb = pbDao.find(msg.getPlayerBestiaId());
 
-			final PlayerBestiaManager pbm = new PlayerBestiaManager(pb, 
-					world,
-					pbEntity, 
-					ctx.getServer(),
-					ctx.getServiceLocator());
-			
-			playerBestiaMapper.get(pbEntity).playerBestiaManager = pbm;
-			positionMapper.get(pbEntity).position = new Vector2(pbm.getLocation().getX(), pbm.getLocation().getY());
-			attacksMapper.get(pbEntity).addAll(pbm.getAttackIds());
-			bestiaMapper.get(pbEntity).bestiaManager = pbm;
-			
-			final HP hp = hpMapper.get(pbEntity);
-			hp.currentHP = pbm.getStatusPoints().getCurrentHp();
-			hp.maxHP = pbm.getStatusPoints().getMaxHp();
-			
-			final Mana mana = manaMapper.get(pbEntity);
-			mana.currentMana = pbm.getStatusPoints().getCurrentMana();
-			mana.maxMana = pbm.getStatusPoints().getMaxMana();
-			
-			hpRegenMapper.get(pbEntity).rate = pbm.getHpRegenerationRate();
-			manaRegenMapper.get(pbEntity).rate = pbm.getManaRegenerationRate();
-			visibleMapper.get(pbEntity).sprite = pbm.getPlayerBestia().getOrigin().getSprite();
+		final Entity pbEntity = world.createEntity(playerBestiaArchetype);
+		
+		// Add the entity to the register so it can be deleted.
+		if(!bestiaRegister.containsKey(accId)) {
+			bestiaRegister.put(accId, new HashSet<>());
+		}		
+		bestiaRegister.get(accId).add(pbEntity.getId());
 
-			// Now set all the needed values.
-			LOG.trace("Spawning bestia.");
+		final PlayerBestiaManager pbm = new PlayerBestiaManager(pb,
+				world,
+				pbEntity,
+				ctx.getServer(),
+				ctx.getServiceLocator());
+
+		playerBestiaMapper.get(pbEntity).playerBestiaManager = pbm;
+		positionMapper.get(pbEntity).position = new Vector2(pbm.getLocation().getX(), pbm.getLocation().getY());
+		attacksMapper.get(pbEntity).addAll(pbm.getAttackIds());
+		bestiaMapper.get(pbEntity).bestiaManager = pbm;
+
+		final HP hp = hpMapper.get(pbEntity);
+		hp.currentHP = pbm.getStatusPoints().getCurrentHp();
+		hp.maxHP = pbm.getStatusPoints().getMaxHp();
+
+		final Mana mana = manaMapper.get(pbEntity);
+		mana.currentMana = pbm.getStatusPoints().getCurrentMana();
+		mana.maxMana = pbm.getStatusPoints().getMaxMana();
+
+		hpRegenMapper.get(pbEntity).rate = pbm.getHpRegenerationRate();
+		manaRegenMapper.get(pbEntity).rate = pbm.getManaRegenerationRate();
+		visibleMapper.get(pbEntity).sprite = pbm.getPlayerBestia().getOrigin().getSprite();
+
+		// Now set all the needed values.
+		LOG.trace("Spawning player bestia: {}.", pb);
+	}
+
+	private void despawnBestia(LogoutBroadcastMessage msg) {
+		final long accId = msg.getAccountId();
+		final Set<Integer> entityIds = bestiaRegister.get(accId);
+		for(Integer id : entityIds) {
+			final Entity entity = world.getEntity(id.intValue());
+			entity.deleteFromWorld();
+			LOG.trace("Despawning player bestia (entity id: {})", id);
 		}
 	}
 
 	@Override
 	public void processMessage(Message msg) {
-
-		if (!(msg instanceof SpawnPlayerBestiaMessage)) {
-			return;
-		}
-
-		msgQueue.add((SpawnPlayerBestiaMessage) msg);
+		msgQueue.add(msg);
 	}
 
 }

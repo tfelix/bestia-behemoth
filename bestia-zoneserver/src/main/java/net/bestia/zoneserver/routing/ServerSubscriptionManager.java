@@ -100,12 +100,12 @@ public class ServerSubscriptionManager {
 		// Subscribe the server to message for this account.
 		final String subStr = String.format("zone/account/%d", accId);
 		server.subscribe(subStr);
-		LOG.trace("Registered account {} on zone {}.", accId);
+		LOG.trace("Registered account {} on zone {}.", accId, server.getName());
 	}
 
 	private void unsubscribe(long accId) {
-		final String subStr = String.format("zone/account/%d", accId, server.getName());
-		server.subscribe(subStr);
+		final String subStr = String.format("zone/account/%d", accId);
+		server.unsubscribe(subStr);
 		LOG.trace("Unregistered account {} from zone {}.", accId, server.getName());
 	}
 }

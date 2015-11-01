@@ -84,7 +84,9 @@ public class Zone implements MessageProcessor {
 
 					// Create a ECS command and immediately run it.
 					final Command cmd = commandFactory.getCommand(msg);
-					cmd.run();
+					if(cmd!= null) {
+						cmd.run();
+					}
 
 					if (i++ >= MAX_PROCESSED_MSGS) {
 						log.warn("Too much input messages queued. Slowing processing to avoid starvation of zone.");
