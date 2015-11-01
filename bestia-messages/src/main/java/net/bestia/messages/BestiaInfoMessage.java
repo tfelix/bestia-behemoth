@@ -1,5 +1,6 @@
 package net.bestia.messages;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.model.domain.PlayerBestia;
@@ -60,6 +61,20 @@ public class BestiaInfoMessage extends Message {
 		this.bestia = bestia;
 	}
 
+	/**
+	 * 
+	 * @param bestia
+	 */
+	public BestiaInfoMessage(PlayerBestia bestia) {
+		if (bestia == null) {
+			throw new IllegalArgumentException("Bestia can not be null.");
+		}
+		
+		setAccountId(bestia.getOwner().getId());
+		this.bestia = bestia;
+	}
+
+	@JsonIgnore
 	public boolean isMaster() {
 		return isMaster;
 	}

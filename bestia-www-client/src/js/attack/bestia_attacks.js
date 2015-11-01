@@ -88,6 +88,11 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 	this.attackSlot5 = ko.observable();
 
 	/**
+	 * Flag if the window of the attack management should be shown.
+	 */
+	this.showWindow = ko.observable(false);
+
+	/**
 	 * Handles newly arriving list of attacks. It will check if we have a
 	 * completly translated list of attacks for the list. If so it will simply
 	 * display it. If not it will fetch the remaining attack translations and
@@ -307,9 +312,13 @@ Bestia.BestiaAttacks.prototype.setAttack = function(slot, attackId) {
 			break;
 		}
 	}
-	
+
 	// Save the new attacks.
 	this.saveAttacks();
+};
+
+Bestia.BestiaAttacks.prototype.close = function() {
+	this.showWindow(false);
 };
 
 /**

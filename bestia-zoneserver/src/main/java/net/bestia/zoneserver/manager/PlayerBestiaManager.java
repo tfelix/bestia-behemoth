@@ -347,7 +347,10 @@ public class PlayerBestiaManager extends BestiaManager {
 		bestia.setCurrentMana(mana.currentMana);
 		
 		// Update status values.
-		bestia.setStatusPoints(getStatusPoints());
+		final StatusPoints statusPoints = getStatusPoints();
+		statusPoints.setCurrentHp(hp.currentHP);
+		statusPoints.setCurrentMana(mana.currentMana);
+		bestia.setStatusPoints(statusPoints);
 
 		// Update attacks.
 		final Attacks attacksComp = attacksMapper.get(entity);

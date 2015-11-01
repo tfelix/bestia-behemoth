@@ -82,8 +82,6 @@
 				<div class="ui-buttons">
 					<button id="btn-inventory" class="btn btn-sm btn-block"
 						data-i18n="nav.inventory">nav.inventory</button>
-					<button id="btn-equip" class="btn btn-sm btn-block"
-						data-i18n="nav.equip">nav.equip</button>
 					<button id="btn-attacks" class="btn btn-sm btn-block"
 						data-i18n="nav.attacks">nav.attacks</button>
 				</div>
@@ -295,17 +293,17 @@
 	<!-- /INVENTORY -->
 
 	<!-- ATTACKS -->
-	<div id="attacks" class="atk-slider slider">
+	<div id="attacks" data-bind="with: attacks, css: {slider_active: attacks.showWindow()}" class="atk_slider slider">
 		<div class="header">
-			<button>Schließen</button>
+			<button data-bind="click: close">Schließen</button>
 		</div>
 
-		<div class="atk-picker" data-bind="with: attacks">
+		<div class="atk-picker" >
 			<div class="atk-list">
 				<input type="text">
 				<!-- ATTACKENLISTE -->
 				<div data-bind="foreach: attacks">
-					<div class="atk-slot" class="atk-drag">
+					<div class="atk_slot" class="atk-drag">
 						<div class="atk-container draggable">
 							<img data-bind="attr: {src: imageUrl, alt: name}" src="" alt="">
 							<div class="atk-detail">
@@ -320,7 +318,7 @@
 			</div>
 			<div class="atk-learned">
 				<!-- SLOTS -->
-				<div class="atk-slot">
+				<div class="atk_slot">
 					<div class="key">Q</div>
 					<div class="atk-container dropzone">
 						<img src="http://placehold.it/32x32" alt="">
@@ -333,7 +331,7 @@
 						<img src="img/ic_delete.png" alt="ATK NAME">
 					</div>
 				</div>
-				<div class="atk-slot">
+				<div class="atk_slot">
 					<div class="key">W</div>
 					<div class="atk-container">
 						<img src="http://placehold.it/32x32" alt="ATK NAME">
@@ -346,7 +344,7 @@
 						<img src="img/ic_delete.png" alt="ATK NAME">
 					</div>
 				</div>
-				<div class="atk-slot">
+				<div class="atk_slot">
 					<div class="key">E</div>
 					<div class="atk-container">
 						<img src="http://placehold.it/32x32" alt="ATK NAME">
@@ -359,7 +357,7 @@
 						<img src="img/ic_delete.png" alt="ATK NAME">
 					</div>
 				</div>
-				<div class="atk-slot">
+				<div class="atk_slot">
 					<div class="key">R</div>
 					<div class="atk-container">
 						<img src="http://placehold.it/32x32" alt="ATK NAME">
@@ -372,7 +370,7 @@
 						<img src="img/ic_delete.png" alt="ATK NAME">
 					</div>
 				</div>
-				<div class="atk-slot">
+				<div class="atk_slot">
 					<div class="key">T</div>
 					<div class="atk-container">
 						<img src="http://placehold.it/32x32" alt="ATK NAME">
