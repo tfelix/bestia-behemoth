@@ -70,23 +70,15 @@ Bestia.BestiaInfoViewModel = function(pubsub) {
  *            msg - New message object from the server.
  */
 Bestia.BestiaInfoViewModel.prototype.update = function(msg) {
-	this.selectedBestia.update(msg.bm);
-
-	var self = this;
 	
-	// Sort the bestias into slot order.
-	msg.b.sort(function(a, b){
-		if(a.sl == b.sl) {
-			return 0;
-		}
-		
-		return (a.sl > b.sl) ? 1 : -1;		
-	});
+	if(msg.im === true) {
+		// The bestia is a bestia master.
+		this.selectedBestia.update(msg.b);
+		this._pubsub.publish('client.selectedBestia', this.selectedBesita);
+	}
 	
-	$(msg.b).each(function(_, val ) {
-		var model = new Bestia.BestiaViewModel(self._pubsub, val);
-		self.bestias.push(model);
-	});
+	var model = new Bestia.BestiaViewModel(this._pubsub, msg.b);
+	this.bestias.push(model);
 
-	this.slots(msg.s);
+	this.slots(4);
 };

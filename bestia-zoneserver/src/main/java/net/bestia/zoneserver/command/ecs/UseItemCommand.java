@@ -8,7 +8,8 @@ import net.bestia.messages.Message;
 import net.bestia.model.domain.Item;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.BestiaRegister;
+import net.bestia.zoneserver.ecs.BestiaActiveRegister;
+import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 import net.bestia.zoneserver.manager.InventoryManager;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.script.ItemScript;
@@ -31,13 +32,15 @@ public class UseItemCommand extends ECSCommand {
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
 
+		final PlayerBestiaSpawnManager spawnManager = world.getSystem(PlayerBestiaSpawnManager.class);
+		
 		final InventoryItemUseMessage useMessage = (InventoryItemUseMessage) message;
 
-		final BestiaRegister register = ctx.getServer().getBestiaRegister();
+		final BestiaActiveRegister register = ctx.getServer().getBestiaRegister();
 		final long accId = useMessage.getAccountId();
-		final int userBestiaId = useMessage.getPlayerBestiaId();
 
-		final PlayerBestiaManager owner = register.getSpawnedBestia(accId, userBestiaId);
+		final int activeBestiaId = register.getActiveBestia(accId);
+		final PlayerBestiaManager owner = spawnManager.getPlayerBestiaManager(activeBestiaId);
 
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
 		final InventoryManager inventory = new InventoryManager(owner, invService, ctx.getServer());

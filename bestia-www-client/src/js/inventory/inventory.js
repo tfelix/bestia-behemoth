@@ -151,12 +151,15 @@ Bestia.Inventory = function(pubsub, i18n) {
 
 	pubsub.subscribe('inventory.list', listHandler);
 
+	/**
+	 * Saves the new bestia id of the currently selected bestia.
+	 */
 	var bestiaSelectHandler = function(_, data) {
-		self.currentBestiaId = data.bm.id;
+		self.currentBestiaId = data.playerBestiaId();
 	};
 
-	pubsub.subscribe('bestia.info', bestiaSelectHandler);
-	pubsub.subscribe('engine.selectBestia', bestiaSelectHandler);
+	//pubsub.subscribe('bestia.info', bestiaSelectHandler);
+	pubsub.subscribe('client.selectBestia', bestiaSelectHandler);
 
 	/**
 	 * Selects the clicked/touched item. Further details and options regarding

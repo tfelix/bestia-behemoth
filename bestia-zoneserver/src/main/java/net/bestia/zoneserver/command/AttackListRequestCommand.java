@@ -7,8 +7,8 @@ import net.bestia.messages.AttackListResponseMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.dao.AttackLevelDAO;
 import net.bestia.model.domain.AttackLevel;
-import net.bestia.model.domain.Bestia;
-import net.bestia.zoneserver.ecs.BestiaRegister;
+import net.bestia.model.service.PlayerBestiaService;
+import net.bestia.zoneserver.ecs.BestiaActiveRegister;
 
 /**
  * Lists the attacks of the currently active bestia and returns it to the
@@ -27,10 +27,10 @@ public class AttackListRequestCommand extends Command {
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
 		
-		final AttackLevelDAO attackLvDao = ctx.getServiceLocator().getBean(AttackLevelDAO.class);
+		final PlayerBestiaService pbService = ctx.getServiceLocator().getBean(PlayerBestiaService.class);
 		
 		// Get the bestia id of the currently selected bestia.
-		final BestiaRegister register = ctx.getServer().getBestiaRegister();
+		final BestiaActiveRegister register = ctx.getServer().getBestiaRegister();
 		final long accId = message.getAccountId();
 		final int activePbId = register.getActiveBestia(accId);		
 		
@@ -39,9 +39,7 @@ public class AttackListRequestCommand extends Command {
 			return;
 		}
 		
-		final Bestia bestia = register.getSpawnedBestia(accId, activePbId).getPlayerBestia().getOrigin();
-		
-		final List<AttackLevel> attacks = attackLvDao.getAllAttacksForBestia(bestia);
+		final List<AttackLevel> attacks = pbService.getAllAttacksForPlayerBestia(activePbId);
 		
 		final AttackListResponseMessage response = new AttackListResponseMessage(message);		
 		response.setAttacks(attacks);
@@ -49,4 +47,8 @@ public class AttackListRequestCommand extends Command {
 		ctx.getServer().processMessage(response);
 	}
 
+	@Override
+	public String toString() {
+		return "AttackListRequestCommand[]";
+	}
 }

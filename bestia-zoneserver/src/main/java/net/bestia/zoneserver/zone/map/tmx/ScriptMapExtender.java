@@ -7,11 +7,7 @@ import java.util.Vector;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.bestia.zoneserver.script.MapScript;
-import net.bestia.zoneserver.script.MapTriggerScript;
-import net.bestia.zoneserver.script.PortalMapTriggerScript;
 import net.bestia.zoneserver.zone.map.Map.MapBuilder;
-import net.bestia.zoneserver.zone.map.Map.Script;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
 import net.bestia.zoneserver.zone.shape.Rect;
 import tiled.core.Map;

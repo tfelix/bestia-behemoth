@@ -9,7 +9,9 @@ import com.artemis.managers.TagManager;
 import com.artemis.managers.UuidEntityManager;
 
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.manager.PlayerBestiaInstanceManager;
+import net.bestia.zoneserver.ecs.manager.ActiveManager;
+import net.bestia.zoneserver.ecs.manager.PlayerAttackSetManager;
+import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
 import net.bestia.zoneserver.ecs.system.AISystem;
 import net.bestia.zoneserver.ecs.system.ActiveSpawnUpdateSystem;
@@ -54,7 +56,9 @@ public class BaseWorldExtender implements WorldExtend {
 		worldConfig.setSystem(new ChangedNetworkUpdateSystem());
 
 		// Set all the managers.
-		worldConfig.setSystem(new PlayerBestiaInstanceManager(zone));
+		worldConfig.setSystem(new PlayerBestiaSpawnManager(zone));
+		worldConfig.setSystem(new PlayerAttackSetManager());
+		worldConfig.setSystem(new ActiveManager());
 		worldConfig.setSystem(new PlayerManager());
 		worldConfig.setSystem(new TagManager());
 		worldConfig.setSystem(new UuidEntityManager());

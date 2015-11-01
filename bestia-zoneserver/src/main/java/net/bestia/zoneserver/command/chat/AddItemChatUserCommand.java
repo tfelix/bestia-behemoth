@@ -10,7 +10,6 @@ import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.manager.InventoryManager;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 /**
  * Chat commands which will spawn and item and adds it to the inventory.
@@ -36,9 +35,8 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 		final long accId = acc.getId();
 		final int activeBestiaId = ctx.getServer().getBestiaRegister().getActiveBestia(accId);
 
-		final PlayerBestiaManager bestiaManager = ctx.getServer().getBestiaRegister().getSpawnedBestia(accId, activeBestiaId);
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
-		final InventoryManager invManager = new InventoryManager(bestiaManager, invService, ctx.getServer());
+		final InventoryManager invManager = new InventoryManager(null, invService, ctx.getServer());
 
 		// Get the item name and the amount.
 		final String[] tokens = m.getText().split(" ");

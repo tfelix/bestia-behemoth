@@ -3,7 +3,6 @@ package net.bestia.model.dao;
 import java.util.List;
 
 import net.bestia.model.domain.AttackLevel;
-import net.bestia.model.domain.Bestia;
 
 public interface AttackLevelDAO extends GenericDAO<AttackLevel, Integer> {
 
@@ -15,7 +14,8 @@ public interface AttackLevelDAO extends GenericDAO<AttackLevel, Integer> {
 	 *            Return all attacks for this bestia and its requirements.
 	 * @return All attacks of this bestia.
 	 */
-	public List<AttackLevel> getAllAttacksForBestia(Bestia bestia);
+	public List<AttackLevel> getAllAttacksForBestia(int bestiaId);
+	
 
 	/**
 	 * Returns a list of AttackLevel for a bestia with the level specified. It

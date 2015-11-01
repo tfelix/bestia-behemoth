@@ -4,7 +4,7 @@ import net.bestia.messages.BestiaActivateMessage;
 import net.bestia.messages.InputWrapperMessage;
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.BestiaRegister;
+import net.bestia.zoneserver.ecs.BestiaActiveRegister;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
@@ -33,7 +33,7 @@ public class ActivateCommand extends ECSCommand {
 		
 		@SuppressWarnings("unchecked")
 		final BestiaActivateMessage msg = ((InputWrapperMessage<BestiaActivateMessage>) message).getMessage();
-		final BestiaRegister register = ctx.getServer().getBestiaRegister();
+		final BestiaActiveRegister register = ctx.getServer().getBestiaRegister();
 		
 		final PlayerBestiaManager playerBestia = playerMapper.get(player).playerBestiaManager;
 		final int pbId = playerBestia.getPlayerBestiaId();

@@ -27,7 +27,7 @@ public class PlayerBestiaService {
 	public void setPlayerBestiaDao(PlayerBestiaDAO playerBestiaDao) {
 		this.playerBestiaDao = playerBestiaDao;
 	}
-	
+
 	@Autowired
 	public void setAttackLevelDao(AttackLevelDAO attackLevelDao) {
 		this.attackLevelDao = attackLevelDao;
@@ -47,11 +47,11 @@ public class PlayerBestiaService {
 		if (attackIds.size() > 5) {
 			throw new IllegalArgumentException("Attacks can not exceed the length of 5 slots.");
 		}
-		
+
 		final PlayerBestia playerBestia = playerBestiaDao.find(playerBestiaId);
 
 		// Get list of attacks for this bestia.
-		final List<AttackLevel> knownAttacks = attackLevelDao.getAllAttacksForBestia(playerBestia.getOrigin());
+		final List<AttackLevel> knownAttacks = attackLevelDao.getAllAttacksForBestia(playerBestia.getId());
 
 		final List<Integer> knownAttackIds = knownAttacks.stream()
 				.map((x) -> x.getAttack().getId())
@@ -100,6 +100,18 @@ public class PlayerBestiaService {
 
 			slot++;
 		}
+	}
+
+	/**
+	 * Returns all attacks for a certain player bestia with the given player
+	 * bestia id.
+	 * 
+	 * @param playerBestiaId
+	 * @return
+	 */
+	public List<AttackLevel> getAllAttacksForPlayerBestia(int playerBestiaId) {
+		final PlayerBestia pb = playerBestiaDao.find(playerBestiaId);
+		return attackLevelDao.getAllAttacksForBestia(pb.getOrigin().getId());
 	}
 
 }

@@ -32,7 +32,7 @@ import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
 import net.bestia.zoneserver.command.ServerCommandFactory;
-import net.bestia.zoneserver.ecs.BestiaRegister;
+import net.bestia.zoneserver.ecs.BestiaActiveRegister;
 import net.bestia.zoneserver.loader.ScriptLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
 import net.bestia.zoneserver.routing.MessageDirectDescandantFilter;
@@ -113,7 +113,7 @@ public class Zoneserver implements MessageProcessor {
 
 	private final ScriptManager scriptManager = new ScriptManager();
 
-	private final BestiaRegister ecsInputController = new BestiaRegister();
+	private final BestiaActiveRegister ecsInputController = new BestiaActiveRegister();
 
 	/**
 	 * Ctor. The server needs a connection to its clients so it can use the
@@ -306,13 +306,13 @@ public class Zoneserver implements MessageProcessor {
 	}
 
 	/**
-	 * Returns a {@link BestiaRegister}. It will be used by the ECS to fetch the
+	 * Returns a {@link BestiaActiveRegister}. It will be used by the ECS to fetch the
 	 * player input async aswell as the commands to pipe the player input for
 	 * the different bestias to the ECS.
 	 * 
 	 * @return
 	 */
-	public BestiaRegister getBestiaRegister() {
+	public BestiaActiveRegister getBestiaRegister() {
 		return ecsInputController;
 	}
 

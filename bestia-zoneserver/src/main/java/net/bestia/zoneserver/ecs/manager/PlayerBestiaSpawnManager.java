@@ -18,6 +18,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 
+import net.bestia.messages.BestiaInfoMessage;
 import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.dao.PlayerBestiaDAO;
@@ -41,9 +42,9 @@ import net.bestia.zoneserver.routing.ServerSubscriptionManager;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 @Wire
-public class PlayerBestiaInstanceManager extends BaseEntitySystem implements MessageProcessor {
+public class PlayerBestiaSpawnManager extends BaseEntitySystem implements MessageProcessor {
 
-	private final static Logger LOG = LogManager.getLogger(PlayerBestiaInstanceManager.class);
+	private final static Logger LOG = LogManager.getLogger(PlayerBestiaSpawnManager.class);
 
 	@Wire
 	private CommandContext ctx;
@@ -58,37 +59,42 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 	private ComponentMapper<Mana> manaMapper;
 	private ComponentMapper<ManaRegenerationRate> manaRegenMapper;
 	private ComponentMapper<Visible> visibleMapper;
-
 	private ComponentMapper<PlayerBestia> playerMapper;
-	private final MessageProcessor processor;
+
+	private final MessageProcessor zoneProcessor;
 
 	private final MessageIdFilter spawnMessageFilter = new MessageIdFilter();
 
-	private final DynamicMessageFilter messageFilter = new DynamicMessageFilter();
+	private final DynamicMessageFilter zoneMessageFilter = new DynamicMessageFilter();
 	private final Queue<Message> msgQueue = new ConcurrentLinkedQueue<>();
 	private Archetype playerBestiaArchetype;
 
 	/**
 	 * Holds the reference between account id and bestia entity ids.
 	 */
-	private final Map<Long, Set<Integer>> bestiaRegister = new HashMap<>();
+	private final Map<Long, Set<Integer>> accountBestiaRegister = new HashMap<>();
+	private final Map<Integer, Integer> bestiaEntityRegister = new HashMap<>();
 
-	public PlayerBestiaInstanceManager(MessageProcessor zone) {
+	public PlayerBestiaSpawnManager(MessageProcessor zone) {
 		super(Aspect.all(PlayerBestia.class));
 
-		this.processor = zone;
+		this.zoneProcessor = zone;
 	}
 
 	@Override
 	protected void initialize() {
 		super.initialize();
 
+		// This manager needs to know about these two messages to create and
+		// delete entities.
 		spawnMessageFilter.addMessageId(SpawnPlayerBestiaMessage.MESSAGE_ID);
 		spawnMessageFilter.addMessageId(LogoutBroadcastMessage.MESSAGE_ID);
-
-		// Prepare the message filter.
-		ctx.getServer().getMessageRouter().registerFilter(messageFilter, processor);
 		ctx.getServer().getMessageRouter().registerFilter(spawnMessageFilter, this);
+
+		// Prepare the message filter for the different zones. Depending on
+		// active bestias on this zone messages can be re-routed to this
+		// instance.
+		ctx.getServer().getMessageRouter().registerFilter(zoneMessageFilter, zoneProcessor);
 
 		subscriptionManager = ctx.getServer().getSubscriptionManager();
 
@@ -113,7 +119,8 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 	protected void inserted(int entityId) {
 		final PlayerBestiaManager pbm = playerMapper.get(entityId).playerBestiaManager;
 		final int playerBestiaId = pbm.getPlayerBestiaId();
-		messageFilter.subscribeId(playerBestiaId);
+		bestiaEntityRegister.put(playerBestiaId, entityId);
+		zoneMessageFilter.subscribeId(playerBestiaId);
 		subscriptionManager.setOnline(pbm.getAccountId());
 	}
 
@@ -125,7 +132,8 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 	protected void removed(int entityId) {
 		final PlayerBestiaManager pbm = playerMapper.get(entityId).playerBestiaManager;
 		final int playerBestiaId = pbm.getPlayerBestiaId();
-		messageFilter.removeId(playerBestiaId);
+		bestiaEntityRegister.remove(playerBestiaId);
+		zoneMessageFilter.removeId(playerBestiaId);
 		subscriptionManager.setOffline(pbm.getAccountId());
 	}
 
@@ -163,10 +171,10 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 		final Entity pbEntity = world.createEntity(playerBestiaArchetype);
 
 		// Add the entity to the register so it can be deleted.
-		if (!bestiaRegister.containsKey(accId)) {
-			bestiaRegister.put(accId, new HashSet<>());
+		if (!accountBestiaRegister.containsKey(accId)) {
+			accountBestiaRegister.put(accId, new HashSet<>());
 		}
-		bestiaRegister.get(accId).add(pbEntity.getId());
+		accountBestiaRegister.get(accId).add(pbEntity.getId());
 
 		final PlayerBestiaManager pbm = new PlayerBestiaManager(pb,
 				world,
@@ -194,9 +202,18 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 		// We need to check the bestia if its the master bestia. It will get
 		// marked as active initially.
 		final net.bestia.model.domain.PlayerBestia master = pb.getOwner().getMaster();
-		if (master.equals(pb)) {
+		final boolean isMaster = master.equals(pb);
+		if (isMaster) {
 			pbEntity.edit().create(Active.class);
 		}
+
+		// Send a update to client so he can pick up the new bestia.
+		final BestiaInfoMessage infoMsg = new BestiaInfoMessage();
+		infoMsg.setAccountId(accId);
+		// Use the updated bestia.
+		infoMsg.setBestia(pbm.getPlayerBestia());
+		infoMsg.setMaster(isMaster);
+		ctx.getServer().processMessage(infoMsg);
 
 		// Now set all the needed values.
 		LOG.trace("Spawning player bestia: {}.", pb);
@@ -204,7 +221,7 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 
 	private void despawnBestia(LogoutBroadcastMessage msg) {
 		final long accId = msg.getAccountId();
-		final Set<Integer> entityIds = bestiaRegister.get(accId);
+		final Set<Integer> entityIds = accountBestiaRegister.get(accId);
 
 		// Might happen if a connection is dropped too late/message arriving too
 		// late and the bestias where already all deleted. In this case do
@@ -214,19 +231,42 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 		}
 
 		for (Integer id : entityIds) {
-			final Entity entity = world.getEntity(id.intValue());
+			final Entity entity = world.getEntity(id.intValue());			
 			entity.deleteFromWorld();
 			LOG.trace("Despawning player bestia (entity id: {})", id);
 		}
 
-		if (bestiaRegister.get(accId).size() == 0) {
-			bestiaRegister.remove(accId);
+		if (accountBestiaRegister.get(accId).size() == 0) {
+			accountBestiaRegister.remove(accId);
 		}
 	}
 
 	@Override
 	public void processMessage(Message msg) {
 		msgQueue.add(msg);
+	}
+
+	/**
+	 * Gets the entity id for the given player bestia id in this system. If the
+	 * bestia is not spawned/unknown a 0 is returned.
+	 * 
+	 * @param playerBestiaId
+	 *            The player bestia id.
+	 * @return The entity id in the ECS or 0 if the bestia is not known.
+	 */
+	public int getEntityIdFromBestia(int playerBestiaId) {
+		final Integer id = bestiaEntityRegister.get(playerBestiaId);
+		if(id == null) {
+			return 0;
+		} else {
+			return id.intValue();
+		}
+	}
+	
+	public PlayerBestiaManager getPlayerBestiaManager(int playerBestiaId) {
+		final int entityId = getEntityIdFromBestia(playerBestiaId);
+		final Entity entity = world.getEntity(entityId);
+		return playerBestiaMapper.get(entity).playerBestiaManager;
 	}
 
 }
