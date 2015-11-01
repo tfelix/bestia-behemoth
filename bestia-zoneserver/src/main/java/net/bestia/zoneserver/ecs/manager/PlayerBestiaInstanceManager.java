@@ -22,6 +22,7 @@ import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.HP;
@@ -160,11 +161,11 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 		final net.bestia.model.domain.PlayerBestia pb = pbDao.find(msg.getPlayerBestiaId());
 
 		final Entity pbEntity = world.createEntity(playerBestiaArchetype);
-		
+
 		// Add the entity to the register so it can be deleted.
-		if(!bestiaRegister.containsKey(accId)) {
+		if (!bestiaRegister.containsKey(accId)) {
 			bestiaRegister.put(accId, new HashSet<>());
-		}		
+		}
 		bestiaRegister.get(accId).add(pbEntity.getId());
 
 		final PlayerBestiaManager pbm = new PlayerBestiaManager(pb,
@@ -190,6 +191,13 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 		manaRegenMapper.get(pbEntity).rate = pbm.getManaRegenerationRate();
 		visibleMapper.get(pbEntity).sprite = pbm.getPlayerBestia().getOrigin().getSprite();
 
+		// We need to check the bestia if its the master bestia. It will get
+		// marked as active initially.
+		final net.bestia.model.domain.PlayerBestia master = pb.getOwner().getMaster();
+		if(master.equals(pb)) {
+			pbEntity.edit().create(Active.class);
+		}
+
 		// Now set all the needed values.
 		LOG.trace("Spawning player bestia: {}.", pb);
 	}
@@ -197,10 +205,15 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 	private void despawnBestia(LogoutBroadcastMessage msg) {
 		final long accId = msg.getAccountId();
 		final Set<Integer> entityIds = bestiaRegister.get(accId);
-		for(Integer id : entityIds) {
+		
+		for (Integer id : entityIds) {
 			final Entity entity = world.getEntity(id.intValue());
 			entity.deleteFromWorld();
 			LOG.trace("Despawning player bestia (entity id: {})", id);
+		}
+		
+		if(bestiaRegister.get(accId).size() == 0) {
+			bestiaRegister.remove(accId);
 		}
 	}
 

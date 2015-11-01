@@ -65,9 +65,7 @@ public class ChangedNetworkUpdateSystem extends EntityProcessingSystem {
 
 		for (int i = 0; i < entityIds.size(); i++) {
 			final Entity receiverEntity = world.getEntity(entityIds.get(i));
-
-			// TODO Are they in sight range of e?
-			
+			// TODO In sight range?	
 			sendUpdate(receiverEntity, e, EntityAction.UPDATE);
 		}
 		
