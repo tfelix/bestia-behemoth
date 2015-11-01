@@ -22,7 +22,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Entity for the PlayerBestias these are bestias which are directly controlled by the player.
+ * Entity for the PlayerBestias these are bestias which are directly controlled
+ * by the player.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * 
@@ -44,16 +45,30 @@ public class PlayerBestia implements Serializable {
 	@JsonProperty("cn")
 	private String name = "";
 
-	@AttributeOverrides({ @AttributeOverride(name = "mapDbName", column = @Column(name = "saveMapDbName")),
-			@AttributeOverride(name = "x", column = @Column(name = "saveX")),
-			@AttributeOverride(name = "y", column = @Column(name = "saveY")), })
+	@AttributeOverrides({ @AttributeOverride(name = "mapDbName", column = @Column(name = "saveMapDbName") ),
+			@AttributeOverride(name = "x", column = @Column(name = "saveX") ),
+			@AttributeOverride(name = "y", column = @Column(name = "saveY") ), })
 	@Embedded
 	@JsonProperty("sl")
 	private Location savePosition;
 
 	/**
-	 * StatusPoints must be calculates because the depend upon status effects and equipments. PlayerBestiaManager will
-	 * do this.
+	 * The current hp value must be persisted inside the db. Since the status
+	 * points are not persisted at all we need a certain field for it.
+	 */
+	@JsonIgnore
+	private int currentHp;
+
+	/**
+	 * The current mana value must be persisted inside the db. Since the status
+	 * points are not persisted at all we need a certain field for it.
+	 */
+	@JsonIgnore
+	private int currentMana;
+
+	/**
+	 * StatusPoints must be calculates because the depend upon status effects
+	 * and equipments. PlayerBestiaManager will do this.
 	 */
 	@Transient
 	private StatusPoints statusPoints;
@@ -100,28 +115,29 @@ public class PlayerBestia implements Serializable {
 	private Attack attack5;
 
 	/**
-	 * Override the names because the are the same like in status points. Both entities are embedded so we need
-	 * individual column names. This values is added to each bestia when it kill another bestia from this kind.
+	 * Override the names because the are the same like in status points. Both
+	 * entities are embedded so we need individual column names. This values is
+	 * added to each bestia when it kill another bestia from this kind.
 	 */
 	@Embedded
-	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "evHp")),
-			@AttributeOverride(name = "mana", column = @Column(name = "evMana")),
-			@AttributeOverride(name = "atk", column = @Column(name = "evAtk")),
-			@AttributeOverride(name = "def", column = @Column(name = "evDef")),
-			@AttributeOverride(name = "spAtk", column = @Column(name = "evSpAtk")),
-			@AttributeOverride(name = "spDef", column = @Column(name = "evSpDef")),
-			@AttributeOverride(name = "spd", column = @Column(name = "evSpd")) })
+	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "evHp") ),
+			@AttributeOverride(name = "mana", column = @Column(name = "evMana") ),
+			@AttributeOverride(name = "atk", column = @Column(name = "evAtk") ),
+			@AttributeOverride(name = "def", column = @Column(name = "evDef") ),
+			@AttributeOverride(name = "spAtk", column = @Column(name = "evSpAtk") ),
+			@AttributeOverride(name = "spDef", column = @Column(name = "evSpDef") ),
+			@AttributeOverride(name = "spd", column = @Column(name = "evSpd") ) })
 	@JsonIgnore
 	private BaseValues effortValues;
 
 	@Embedded
-	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "ivHp")),
-			@AttributeOverride(name = "mana", column = @Column(name = "ivMana")),
-			@AttributeOverride(name = "atk", column = @Column(name = "ivAtk")),
-			@AttributeOverride(name = "def", column = @Column(name = "ivDef")),
-			@AttributeOverride(name = "spAtk", column = @Column(name = "ivSpAtk")),
-			@AttributeOverride(name = "spDef", column = @Column(name = "ivSpDef")),
-			@AttributeOverride(name = "spd", column = @Column(name = "ivSpd")) })
+	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "ivHp") ),
+			@AttributeOverride(name = "mana", column = @Column(name = "ivMana") ),
+			@AttributeOverride(name = "atk", column = @Column(name = "ivAtk") ),
+			@AttributeOverride(name = "def", column = @Column(name = "ivDef") ),
+			@AttributeOverride(name = "spAtk", column = @Column(name = "ivSpAtk") ),
+			@AttributeOverride(name = "spDef", column = @Column(name = "ivSpDef") ),
+			@AttributeOverride(name = "spd", column = @Column(name = "ivSpd") ) })
 	@JsonIgnore
 	private BaseValues individualValue;
 
@@ -242,12 +258,12 @@ public class PlayerBestia implements Serializable {
 	}
 
 	@JsonProperty("sp")
-	public StatusPoints getStatusPoints() {		
+	public StatusPoints getStatusPoints() {
 		return statusPoints;
 	}
-	
+
 	public void setStatusPoints(StatusPoints points) {
-		if(points == null) {
+		if (points == null) {
 			throw new IllegalArgumentException("Points can not be null.");
 		}
 		this.statusPoints = points;
@@ -255,22 +271,20 @@ public class PlayerBestia implements Serializable {
 
 	@JsonIgnore
 	public int getCurrentHp() {
-		return statusPoints.getCurrentHp();
+		return currentHp;
 	}
 
-	@JsonIgnore
 	public void setCurrentHp(int curHp) {
-		this.statusPoints.setCurrentHp(curHp);
+		this.currentHp = curHp;
 	}
 
 	@JsonIgnore
 	public int getCurrentMana() {
-		return statusPoints.getCurrentMana();
+		return currentMana;
 	}
 
-	@JsonIgnore
 	public void setCurrentMana(int curMana) {
-		statusPoints.setCurrentMana(curMana);
+		this.currentMana = curMana;
 	}
 
 	public Attack getAttack1() {

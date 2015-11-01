@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class BestiaActivateMessage extends Message {
+public class BestiaActivateMessage extends InputMessage {
 
 	private static final long serialVersionUID = 1L;
 	public final static String MESSAGE_ID = "bestia.activate";
@@ -22,18 +22,6 @@ public class BestiaActivateMessage extends Message {
 	 */
 	public BestiaActivateMessage() {
 
-	}
-
-	/**
-	 * Ctor. Will create a copy of the given message.
-	 * 
-	 * @param message
-	 *            Message to copy its parameter from.
-	 */
-	public BestiaActivateMessage(BestiaActivateMessage message) {
-		super(message);
-		
-		activatePlayerBestiaId = message.getActivatePlayerBestiaId();
 	}
 
 	public int getActivatePlayerBestiaId() {

@@ -1,25 +1,26 @@
 package net.bestia.zoneserver.manager;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
-import com.artemis.EntityEdit;
 import com.artemis.World;
 
 import net.bestia.messages.ChatMessage;
 import net.bestia.model.ServiceLocator;
+import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.ecs.component.Attacks;
-import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.routing.MessageProcessor;
 import net.bestia.zoneserver.util.I18n;
 import net.bestia.zoneserver.zone.shape.Vector2;
@@ -49,35 +50,17 @@ public class PlayerBestiaManager extends BestiaManager {
 
 	private final ServiceLocator serviceLocator;
 
-	public PlayerBestiaManager(PlayerBestia bestia, World world, MessageProcessor sender, ServiceLocator locator) {
+	public PlayerBestiaManager(PlayerBestia bestia, World world, Entity entity, MessageProcessor sender,
+			ServiceLocator locator) {
 		this.attacksMapper = world.getMapper(Attacks.class);
 		this.positionMapper = world.getMapper(Position.class);
 		this.server = sender;
 		this.bestia = bestia;
+		this.entity = entity;
 		this.serviceLocator = locator;
 
 		// Shortcut to the acc. language.
 		this.language = bestia.getOwner().getLanguage().toString();
-
-		this.entity = spawnEntity(world);
-	}
-
-	private Entity spawnEntity(World world) {
-		// Könnte man auch über einen Archtype lösen. Aber dieser müsste
-		// irgendwo zentral vorgehalten werden.
-
-		final Entity entity = world.createEntity();
-		final EntityEdit playerEdit = entity.edit();
-
-		// final Entity playerBestia =
-		// builder.player(Long.toString(accId)).tag(Integer.toString(bestiaId)).build();
-		playerEdit.create(Visible.class).sprite = bestia.getOrigin().getSprite();
-		playerEdit.create(net.bestia.zoneserver.ecs.component.PlayerBestia.class).playerBestiaManager = this;
-		playerEdit.create(Bestia.class).bestiaManager = this;
-		final Location loc = bestia.getCurrentPosition();
-		playerEdit.create(Position.class).position = new Vector2(loc.getX(), loc.getY());
-
-		return entity;
 	}
 
 	/**
@@ -172,6 +155,8 @@ public class PlayerBestiaManager extends BestiaManager {
 	 * BaseValues. Must be called after the level of a bestia has changed.
 	 */
 	protected void calculateStatusValues() {
+		
+		statusPoints = new StatusPoints();
 
 		final int atk = (bestia.getBaseValues().getAtk() * 2 + bestia.getIndividualValue().getAtk()
 				+ bestia.getEffortValues().getAtk() / 4) * bestia.getLevel() / 100 + 5;
@@ -212,6 +197,8 @@ public class PlayerBestiaManager extends BestiaManager {
 				+ 10 + bestia.getLevel() * 2;
 
 		statusPoints.setMaxValues(maxHp, maxMana);
+		statusPoints.setCurrentHp(bestia.getCurrentHp());
+		statusPoints.setCurrentMana(bestia.getCurrentMana());
 		statusPoints.setAtk(atk);
 		statusPoints.setDef(def);
 		statusPoints.setSpAtk(spatk);
@@ -347,7 +334,7 @@ public class PlayerBestiaManager extends BestiaManager {
 		try {
 			final PlayerBestiaService service = serviceLocator.getBean(PlayerBestiaService.class);
 			service.saveAttacks(bestia.getId(), atkIds);
-			
+
 			final Attacks attacksComp = attacksMapper.get(entity);
 			attacksComp.clear();
 			attacksComp.addAll(atkIds);
@@ -356,6 +343,44 @@ public class PlayerBestiaManager extends BestiaManager {
 			// Attack can not be learned. Hacking?
 			// no op.
 		}
+	}
+
+	/**
+	 * Returns a list of attacks of the currently wrapped bestia.
+	 * 
+	 * @return
+	 */
+	public Collection<Integer> getAttackIds() {
+		final Set<Integer> atks = new HashSet<>();
+
+		for (int i = 1; i <= 5; i++) {
+			Attack atk = null;
+			switch (i) {
+			case 1:
+				atk = bestia.getAttack1();
+				break;
+			case 2:
+				atk = bestia.getAttack2();
+				break;
+			case 3:
+				atk = bestia.getAttack3();
+				break;
+			case 4:
+				atk = bestia.getAttack4();
+				break;
+
+			case 5:
+				atk = bestia.getAttack5();
+				break;
+			}
+
+			if (atk == null) {
+				continue;
+			} else {
+				atks.add(atk.getId());
+			}
+		}
+		return atks;
 	}
 
 }
