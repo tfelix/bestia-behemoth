@@ -54,7 +54,7 @@ public class InventoryManager {
 			final PlayerItem playerItem = inventoryService.getPlayerItem(accId, itemId);
 			final InventoryUpdateMessage updateMsg = new InventoryUpdateMessage(accId);
 			updateMsg.updateItem(playerItem, amount);
-			server.sendMessage(updateMsg);
+			server.processMessage(updateMsg);
 		} else {
 			// Item weight exceeded. Send message.
 			// TODO
@@ -116,7 +116,7 @@ public class InventoryManager {
 		if (success) {
 			final InventoryUpdateMessage updateMsg = new InventoryUpdateMessage(accId);
 			updateMsg.updateItem(playerItem, -1 * amount);
-			server.sendMessage(updateMsg);
+			server.processMessage(updateMsg);
 		}
 
 		return success;

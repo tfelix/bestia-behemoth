@@ -97,10 +97,6 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 		final PlayerBestiaManager pbm = playerMapper.get(entityId).playerBestiaManager;
 		final int playerBestiaId = pbm.getPlayerBestiaId();
 		messageFilter.subscribeId(playerBestiaId);
-
-		// Subscribe the server to message for this account.
-		// ctx.getServer().subscribe("zone/account/" + pbm.getAccountId());
-		// LOG.trace("Registered account {} on zone {}.", pbm.getAccountId());
 	}
 
 	/**
@@ -111,9 +107,6 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 	protected void removed(int entityId) {
 		final int playerBestiaId = playerMapper.get(entityId).playerBestiaManager.getPlayerBestiaId();
 		messageFilter.removeId(playerBestiaId);
-
-		// unsubscribe("zone/account/" + accountId);
-		// log.trace("Unregistered account {} from zone {}.", accountId, name);
 	}
 
 	@Override

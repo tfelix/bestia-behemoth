@@ -101,7 +101,7 @@ public class ChangedNetworkUpdateSystem extends EntityProcessingSystem {
 
 		LOG.trace("Sending update for entity: {} to accId: {}", msg.getUuid(), accId);
 
-		ctx.getServer().sendMessage(updateMsg);
+		ctx.getServer().processMessage(updateMsg);
 	}
 	
 	/**

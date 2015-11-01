@@ -39,6 +39,7 @@ import net.bestia.zoneserver.routing.MessageDirectDescandantFilter;
 import net.bestia.zoneserver.routing.MessageFilter;
 import net.bestia.zoneserver.routing.MessageProcessor;
 import net.bestia.zoneserver.routing.MessageRouter;
+import net.bestia.zoneserver.routing.ServerSubscriptionManager;
 import net.bestia.zoneserver.script.ScriptManager;
 import net.bestia.zoneserver.util.I18n;
 import net.bestia.zoneserver.zone.Zone;
@@ -96,7 +97,9 @@ public class Zoneserver implements MessageProcessor {
 	private final InterserverSubscriber interserverSubscriber;
 	private final InterserverPublisher interserverPublisher;
 
+	// Routing and subscriptions
 	private final MessageRouter messageRouter = new MessageRouter();
+	private final ServerSubscriptionManager subscriptionManager;
 
 	private final CommandFactory commandFactory;
 	private final ExecutorService commandExecutor;
@@ -162,6 +165,7 @@ public class Zoneserver implements MessageProcessor {
 		// Setup the message routing.
 		final MessageFilter filter = new MessageDirectDescandantFilter(Message.class);
 		messageRouter.registerFilter(filter, new IncomingMessageProcessor());
+		subscriptionManager = new ServerSubscriptionManager(this);
 
 		// Prepare the (static) translator.
 		I18n.setDao(commandContext.getServiceLocator().getBean(I18nDAO.class));
@@ -252,18 +256,6 @@ public class Zoneserver implements MessageProcessor {
 	}
 
 	/**
-	 * Sends the message back to the interserver. One must make sure the message
-	 * path is now correct since this basically tells the interserver how to
-	 * process this message.
-	 * 
-	 * @param message
-	 * @deprecated Use processMessage
-	 */
-	public void sendMessage(final Message message) {
-		processMessage(message);
-	}
-
-	/**
 	 * Returns the name of this {@link Zoneserver} instance.
 	 * 
 	 * @return Name of this zoneserver.
@@ -322,6 +314,17 @@ public class Zoneserver implements MessageProcessor {
 	 */
 	public BestiaRegister getBestiaRegister() {
 		return ecsInputController;
+	}
+
+	/**
+	 * The subscription manager to change and count how many active user are
+	 * currently online on this server.
+	 * 
+	 * @return The {@link ServerSubscriptionManager} to track the online
+	 *         accounts and users.
+	 */
+	public ServerSubscriptionManager getSubscriptionManager() {
+		return subscriptionManager;
 	}
 
 	/**
