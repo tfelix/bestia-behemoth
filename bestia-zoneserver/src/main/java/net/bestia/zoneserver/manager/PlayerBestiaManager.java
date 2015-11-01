@@ -14,12 +14,15 @@ import com.artemis.World;
 
 import net.bestia.messages.ChatMessage;
 import net.bestia.model.ServiceLocator;
+import net.bestia.model.dao.AttackDAO;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.ecs.component.Attacks;
+import net.bestia.zoneserver.ecs.component.HP;
+import net.bestia.zoneserver.ecs.component.Mana;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.routing.MessageProcessor;
 import net.bestia.zoneserver.util.I18n;
@@ -43,6 +46,8 @@ public class PlayerBestiaManager extends BestiaManager {
 
 	private final ComponentMapper<Attacks> attacksMapper;
 	private final ComponentMapper<Position> positionMapper;
+	private final ComponentMapper<Mana> manaMapper;
+	private final ComponentMapper<HP> hpMapper;
 
 	private final Entity entity;
 
@@ -54,6 +59,9 @@ public class PlayerBestiaManager extends BestiaManager {
 			ServiceLocator locator) {
 		this.attacksMapper = world.getMapper(Attacks.class);
 		this.positionMapper = world.getMapper(Position.class);
+		this.manaMapper = world.getMapper(Mana.class);
+		this.hpMapper = world.getMapper(HP.class);
+
 		this.server = sender;
 		this.bestia = bestia;
 		this.entity = entity;
@@ -155,7 +163,7 @@ public class PlayerBestiaManager extends BestiaManager {
 	 * BaseValues. Must be called after the level of a bestia has changed.
 	 */
 	protected void calculateStatusValues() {
-		
+
 		statusPoints = new StatusPoints();
 
 		final int atk = (bestia.getBaseValues().getAtk() * 2 + bestia.getIndividualValue().getAtk()
@@ -319,19 +327,68 @@ public class PlayerBestiaManager extends BestiaManager {
 
 	/**
 	 * Update the underlying {@link PlayerBestia} with all the data from the ECS
-	 * and return it.
+	 * and return it. This should not be called very often. Retrieving and
+	 * updating the player bestia triggers a few database requests and should be
+	 * done only to sync back to the database.
 	 * 
 	 * @return
 	 */
 	public PlayerBestia getPlayerBestia() {
 
-		// TODO Update the player bestia with the ECS data.
+		// Update location.
+		final Vector2 pos = positionMapper.get(entity).position.getAnchor();
+		bestia.getCurrentPosition().setX(pos.x);
+		bestia.getCurrentPosition().setY(pos.y);
+
+		// Update cur hp and mana.
+		final HP hp = hpMapper.get(entity);
+		final Mana mana = manaMapper.get(entity);
+		bestia.setCurrentHp(hp.currentHP);
+		bestia.setCurrentMana(mana.currentMana);
+
+		// Update attacks.
+		final Attacks attacksComp = attacksMapper.get(entity);
+		final AttackDAO atkDao = serviceLocator.getBean(AttackDAO.class);
+
+		final Integer[] attackIds = attacksComp.getAttacks();
+		int i = 0;
+		for (Integer id : attackIds) {
+
+			// Get the attack.
+			final Attack attack;
+			if (id == null) {
+				attack = null;
+			} else {
+				attack = atkDao.find(id);
+			}
+
+			switch (i) {
+			case 0:
+				bestia.setAttack1(attack);
+				break;
+			case 1:
+				bestia.setAttack2(attack);
+				break;
+			case 2:
+				bestia.setAttack3(attack);
+				break;
+			case 3:
+				bestia.setAttack4(attack);
+				break;
+			case 4:
+				bestia.setAttack5(attack);
+				break;
+			}
+			i++;
+		}
 
 		return bestia;
 	}
 
 	public void setAttacks(List<Integer> atkIds) {
 		try {
+			// TODO das ist sehr ungeschickt da hier die DB schon beschrieben
+			// werden muss. Und beim persistieren noch mal.
 			final PlayerBestiaService service = serviceLocator.getBean(PlayerBestiaService.class);
 			service.saveAttacks(bestia.getId(), atkIds);
 

@@ -1,8 +1,6 @@
 package net.bestia.zoneserver.ecs.component;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import com.artemis.Component;
 
@@ -22,15 +20,23 @@ import com.artemis.Component;
  *
  */
 public class Attacks extends Component {
+	
+	private static final int NUM_ATTACKS = 5;
 
-	private final List<Integer> attackIds = new ArrayList<>();
+	private final Integer[] attackIds = new Integer[NUM_ATTACKS];
 
 	public Attacks() {
 
 	}
 
 	public void clear() {
-		attackIds.clear();
+		for(int i = 0; i < NUM_ATTACKS; i++) {
+			attackIds[i] = null;
+		}
+	}
+	
+	public Integer[] getAttacks() {
+		return attackIds;
 	}
 
 	/**
@@ -39,8 +45,12 @@ public class Attacks extends Component {
 	 * @param id
 	 *            Attack ID to add to this list.
 	 */
-	public void add(Integer id) {
-		attackIds.add(id);
+	public void add(int slot, Integer id) {
+		if(slot < 0 || slot >= NUM_ATTACKS) {
+			throw new IllegalArgumentException("Slot must be between 0 and "+ NUM_ATTACKS);
+		}
+		
+		attackIds[slot] = id;
 	}
 
 	/**
@@ -52,7 +62,12 @@ public class Attacks extends Component {
 	 *         otherwise.
 	 */
 	public boolean hasAttack(Integer id) {
-		return attackIds.contains(id);
+		for(int i = 0; i < NUM_ATTACKS; i++) {
+			if(attackIds[i] == id) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -61,7 +76,15 @@ public class Attacks extends Component {
 	 * @param atkIds
 	 */
 	public void addAll(Collection<Integer> atkIds) {
-		attackIds.addAll(attackIds);
+		if(atkIds.size() > NUM_ATTACKS) {
+			throw new IllegalArgumentException("Number of attacks can not exceed " + NUM_ATTACKS);
+		}
+		
+		int i = 0;
+		for(Integer id : atkIds) {
+			attackIds[i] = id;
+			i++;
+		}
 	}
 
 }

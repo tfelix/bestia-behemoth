@@ -30,12 +30,13 @@ public class MobSpawnExtender implements WorldExtend {
 
 	@Override
 	public void configure(WorldConfiguration worldConfig, Map map, CommandContext ctx, Zone zone) {
-		
-		worldConfig.setSystem(new MobSpawnSystem());
 
 		// Create the SpawnLocations from the map.
 		final List<Spawner> spawns = map.getSpawnlist();
 		worldConfig.setSystem(new SpawnManager(spawns));
+
+		// The spawn system needs to create the actual spawns after a timeout.
+		worldConfig.setSystem(new MobSpawnSystem());
 	}
 
 }

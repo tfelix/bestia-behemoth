@@ -194,7 +194,7 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 		// We need to check the bestia if its the master bestia. It will get
 		// marked as active initially.
 		final net.bestia.model.domain.PlayerBestia master = pb.getOwner().getMaster();
-		if(master.equals(pb)) {
+		if (master.equals(pb)) {
 			pbEntity.edit().create(Active.class);
 		}
 
@@ -205,14 +205,21 @@ public class PlayerBestiaInstanceManager extends BaseEntitySystem implements Mes
 	private void despawnBestia(LogoutBroadcastMessage msg) {
 		final long accId = msg.getAccountId();
 		final Set<Integer> entityIds = bestiaRegister.get(accId);
-		
+
+		// Might happen if a connection is dropped too late/message arriving too
+		// late and the bestias where already all deleted. In this case do
+		// nothing.
+		if (entityIds == null) {
+			return;
+		}
+
 		for (Integer id : entityIds) {
 			final Entity entity = world.getEntity(id.intValue());
 			entity.deleteFromWorld();
 			LOG.trace("Despawning player bestia (entity id: {})", id);
 		}
-		
-		if(bestiaRegister.get(accId).size() == 0) {
+
+		if (bestiaRegister.get(accId).size() == 0) {
 			bestiaRegister.remove(accId);
 		}
 	}
