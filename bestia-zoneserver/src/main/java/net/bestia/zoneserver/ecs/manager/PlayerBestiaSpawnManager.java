@@ -183,7 +183,10 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem implements Messag
 				ctx.getServiceLocator());
 
 		playerBestiaMapper.get(pbEntity).playerBestiaManager = pbm;
-		positionMapper.get(pbEntity).position = new Vector2(pbm.getLocation().getX(), pbm.getLocation().getY());
+		// Need to use bestia since PBM reads information only from the entity
+		// position which is obviously not set yet.
+		positionMapper.get(pbEntity).position = new Vector2(pb.getCurrentPosition().getX(),
+				pb.getCurrentPosition().getY());
 		attacksMapper.get(pbEntity).addAll(pbm.getAttackIds());
 		bestiaMapper.get(pbEntity).bestiaManager = pbm;
 
@@ -231,7 +234,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem implements Messag
 		}
 
 		for (Integer id : entityIds) {
-			final Entity entity = world.getEntity(id.intValue());			
+			final Entity entity = world.getEntity(id.intValue());
 			entity.deleteFromWorld();
 			LOG.trace("Despawning player bestia (entity id: {})", id);
 		}
@@ -256,13 +259,13 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem implements Messag
 	 */
 	public int getEntityIdFromBestia(int playerBestiaId) {
 		final Integer id = bestiaEntityRegister.get(playerBestiaId);
-		if(id == null) {
+		if (id == null) {
 			return 0;
 		} else {
 			return id.intValue();
 		}
 	}
-	
+
 	public PlayerBestiaManager getPlayerBestiaManager(int playerBestiaId) {
 		final int entityId = getEntityIdFromBestia(playerBestiaId);
 		final Entity entity = world.getEntity(entityId);

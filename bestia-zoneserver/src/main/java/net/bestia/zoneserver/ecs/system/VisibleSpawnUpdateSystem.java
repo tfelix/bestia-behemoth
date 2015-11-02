@@ -4,6 +4,7 @@ import net.bestia.messages.MapEntitiesMessage.EntityAction;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
+import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 
 import org.apache.logging.log4j.LogManager;
@@ -21,7 +22,7 @@ import com.artemis.utils.IntBag;
 public class VisibleSpawnUpdateSystem extends NetworkUpdateSystem {
 
 	public VisibleSpawnUpdateSystem() {
-		super(Aspect.all(Visible.class));
+		super(Aspect.all(Visible.class, Position.class));
 	}
 
 	private static final Logger log = LogManager.getLogger(VisibleSpawnUpdateSystem.class);

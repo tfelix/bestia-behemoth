@@ -5,11 +5,11 @@ import org.apache.logging.log4j.Logger;
 
 import com.artemis.Entity;
 import com.artemis.World;
-import com.artemis.managers.TagManager;
 
 import net.bestia.messages.InputMessage;
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.command.ecs.ECSCommand;
+import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 
 /**
  * This {@link ServerCommandFactory} will look into the type of the message. If
@@ -25,11 +25,10 @@ public class ECSCommandFactory extends CommandFactory {
 
 	private final CommandContext ctx;
 	private final World world;
-
-	private final TagManager tagManager;
+	private final PlayerBestiaSpawnManager playerSpawnManager;
 
 	public ECSCommandFactory(CommandContext ctx, World world) {
-		super("netb.bestia.zoneserver.command.ecs");
+		super("net.bestia.zoneserver.command.ecs");
 
 		if (ctx == null) {
 			throw new IllegalArgumentException("CommandContext can not be null.");
@@ -42,7 +41,7 @@ public class ECSCommandFactory extends CommandFactory {
 		this.ctx = ctx;
 		this.world = world;
 
-		this.tagManager = world.getSystem(TagManager.class);
+		this.playerSpawnManager = world.getSystem(PlayerBestiaSpawnManager.class);
 	}
 
 	/**
@@ -73,9 +72,9 @@ public class ECSCommandFactory extends CommandFactory {
 
 		if (message instanceof InputMessage) {
 			// Find the player entity for this command/message. If the bestia id
-			// is
-			// invalid null should be returned.
-			final Entity player = tagManager.getEntity(Integer.toString(((InputMessage) message).getPlayerBestiaId()));
+			// is invalid null should be returned.
+			final int entityId = playerSpawnManager.getEntityIdFromBestia(((InputMessage) message).getPlayerBestiaId());
+			final Entity player = world.getEntity(entityId);
 			cmd.setPlayer(player);
 		}
 

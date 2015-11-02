@@ -143,7 +143,7 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 		this.attacks.removeAll();
 	};
 
-	pubsub.subscribe('engine.selectBestia', invalidateListHandle);
+	pubsub.subscribe('client.selectBestia', invalidateListHandle);
 	pubsub.subscribe('i18n.lang', invalidateListHandle);
 
 	// Prepare the drag and drop of the elements.

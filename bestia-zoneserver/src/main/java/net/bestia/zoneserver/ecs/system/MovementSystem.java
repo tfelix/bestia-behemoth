@@ -31,7 +31,6 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 
 	private ComponentMapper<Bestia> bestiaMapper;
 	private ComponentMapper<Movement> movementMapper;
-	private ComponentMapper<Position> positionMapper;
 
 	public MovementSystem() {
 		super(Aspect.all(Bestia.class, Movement.class, Position.class));
@@ -76,9 +75,6 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 		
 		// Mark entity as changed.
 		e.edit().create(Changed.class);
-		
-		final Position posComp = positionMapper.get(e);
-		posComp.position = posComp.position.moveByAnchor(pos.x, pos.y);
 
 		log.trace("Moved to: {}", pos.toString());
 

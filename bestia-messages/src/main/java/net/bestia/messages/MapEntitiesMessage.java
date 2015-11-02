@@ -39,7 +39,7 @@ public class MapEntitiesMessage extends Message {
 	/**
 	 * Describes an entity on the map for the engine to display.
 	 */
-	@JsonInclude(Include.NON_EMPTY)
+	@JsonInclude(Include.ALWAYS)
 	public static class Entity implements Serializable {
 
 		private static final long serialVersionUID = 1L;
@@ -47,7 +47,9 @@ public class MapEntitiesMessage extends Message {
 		private String uuid;
 		@JsonProperty("s")
 		private List<String> sprites = new ArrayList<>();
+		@JsonProperty("x")
 		private int x;
+		@JsonProperty("y")
 		private int y;
 		@JsonProperty("t")
 		private EntityType type = EntityType.NONE;

@@ -38,6 +38,40 @@ import net.bestia.zoneserver.zone.shape.Vector2;
 public class PlayerBestiaManager extends BestiaManager {
 	private final static Logger log = LogManager.getLogger(PlayerBestiaManager.class);
 
+	private class ECSLocation extends Location {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public int getX() {
+			return positionMapper.get(entity).position.getAnchor().x;
+		}
+
+		@Override
+		public int getY() {
+			return positionMapper.get(entity).position.getAnchor().y;
+		}
+
+		@Override
+		public void setX(int x) {
+			
+			final Position pos = positionMapper.get(entity);
+			final Vector2 posAnchor =  pos.position.getAnchor();
+			final int y = posAnchor.getAnchor().x;
+			pos.position =  pos.position.moveByAnchor(x, y);
+		}
+
+		@Override
+		public void setY(int y) {
+			
+			final Position pos = positionMapper.get(entity);
+			final Vector2 posAnchor =  pos.position.getAnchor();
+			final int x = posAnchor.getAnchor().x;
+			pos.position =  pos.position.moveByAnchor(x, y);
+		}
+
+	}
+
 	private final static int MAX_LEVEL = 40;
 
 	private final PlayerBestia bestia;
@@ -285,11 +319,12 @@ public class PlayerBestiaManager extends BestiaManager {
 	 */
 	@Override
 	public Location getLocation() {
-
-		final Vector2 vec = positionMapper.get(entity).position.getAnchor();
 		final String curMap = bestia.getCurrentPosition().getMapDbName();
-
-		return new Location(curMap, vec.x, vec.y);
+	
+		final Location wrapperLoc = new ECSLocation();
+		wrapperLoc.setMapDbName(curMap);
+		
+		return wrapperLoc;
 	}
 
 	/*
@@ -336,16 +371,16 @@ public class PlayerBestiaManager extends BestiaManager {
 	public PlayerBestia getPlayerBestia() {
 
 		// Update location.
-		final Vector2 pos = positionMapper.get(entity).position.getAnchor();
-		bestia.getCurrentPosition().setX(pos.x);
-		bestia.getCurrentPosition().setY(pos.y);
+		//final Vector2 pos = positionMapper.get(entity).position.getAnchor();
+		//bestia.getCurrentPosition().setX(pos.x);
+		//bestia.getCurrentPosition().setY(pos.y);
 
 		// Update cur hp and mana.
 		final HP hp = hpMapper.get(entity);
 		final Mana mana = manaMapper.get(entity);
 		bestia.setCurrentHp(hp.currentHP);
 		bestia.setCurrentMana(mana.currentMana);
-		
+
 		// Update status values.
 		final StatusPoints statusPoints = getStatusPoints();
 		statusPoints.setCurrentHp(hp.currentHP);
