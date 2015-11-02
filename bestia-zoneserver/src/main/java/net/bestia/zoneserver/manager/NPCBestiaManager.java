@@ -1,7 +1,9 @@
 package net.bestia.zoneserver.manager;
 
+import com.artemis.Entity;
+import com.artemis.World;
+
 import net.bestia.model.domain.Bestia;
-import net.bestia.model.domain.Location;
 import net.bestia.model.domain.StatusPoints;
 
 public class NPCBestiaManager extends BestiaManager {
@@ -10,9 +12,9 @@ public class NPCBestiaManager extends BestiaManager {
 
 	private final Bestia bestia;
 	private StatusPoints statusPoints = null;
-	private Location location = new Location();
 
-	public NPCBestiaManager(Bestia bestia) {
+	public NPCBestiaManager(Bestia bestia, World world, Entity entity) {
+		super(world, entity);
 		this.bestia = bestia;
 	}
 
@@ -54,11 +56,7 @@ public class NPCBestiaManager extends BestiaManager {
 
 		return statusPoints;
 	}
-
-	@Override
-	public Location getLocation() {
-		return location;
-	}
+	
 
 	@Override
 	public StatusPoints getStatusPoints() {

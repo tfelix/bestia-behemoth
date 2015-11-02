@@ -21,9 +21,11 @@ import net.bestia.messages.MapEntitiesMessage.EntityAction;
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
+import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Changed;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Visible;
+import net.bestia.zoneserver.manager.BestiaManager;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 /**
@@ -42,6 +44,7 @@ public class ChangedNetworkUpdateSystem extends EntityProcessingSystem {
 	@Wire
 	private CommandContext ctx;
 	private ComponentMapper<PlayerBestia> playerMapper;
+	private ComponentMapper<Bestia> bestiaMapper;
 	private ComponentMapper<Visible> visibleMapper;
 	private UuidEntityManager uuidManager;
 	// END
@@ -124,16 +127,17 @@ public class ChangedNetworkUpdateSystem extends EntityProcessingSystem {
 	protected MapEntitiesMessage.Entity getMessageFromEntity(Entity e, EntityAction action) {
 		final UUID uuid = uuidManager.getUuid(e);
 		final Visible visible = visibleMapper.get(e);
-
-		final PlayerBestia playerControlled = playerMapper.getSafe(e);
-		final Location loc = playerControlled.playerBestiaManager.getLocation();
+		
+		final BestiaManager manager = bestiaMapper.get(e).bestiaManager;
+		final Location loc = manager.getLocation();
 
 		final MapEntitiesMessage.Entity msg = new MapEntitiesMessage.Entity(uuid.toString(), loc.getX(), loc.getY());
 		msg.setAction(action);
 		msg.addSprite(visible.sprite);
 
-		if (playerControlled != null) {
-			msg.setPlayerBestiaId(playerControlled.playerBestiaManager.getPlayerBestiaId());
+		final PlayerBestia playerManager = playerMapper.getSafe(e);
+		if (playerManager != null) {
+			msg.setPlayerBestiaId(playerManager.playerBestiaManager.getPlayerBestiaId());
 		}
 
 		return msg;

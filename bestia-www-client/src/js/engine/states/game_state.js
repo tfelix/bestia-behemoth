@@ -91,7 +91,7 @@ Bestia.Engine.States.GameState = function(engine) {
 
 					var entity = completeEntityInsert();
 
-					self._entityUpdater.registerEntity(obj, entity);
+					self.engine.entityUpdater.registerEntity(obj, entity);
 				});
 				return;
 			}

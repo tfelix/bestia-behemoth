@@ -23,10 +23,8 @@ import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.HP;
 import net.bestia.zoneserver.ecs.component.Mana;
-import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.routing.MessageProcessor;
 import net.bestia.zoneserver.util.I18n;
-import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
  * The PlayerBestiaManager is responsible for executing the "business logic" to
@@ -38,40 +36,6 @@ import net.bestia.zoneserver.zone.shape.Vector2;
 public class PlayerBestiaManager extends BestiaManager {
 	private final static Logger log = LogManager.getLogger(PlayerBestiaManager.class);
 
-	private class ECSLocation extends Location {
-
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public int getX() {
-			return positionMapper.get(entity).position.getAnchor().x;
-		}
-
-		@Override
-		public int getY() {
-			return positionMapper.get(entity).position.getAnchor().y;
-		}
-
-		@Override
-		public void setX(int x) {
-			
-			final Position pos = positionMapper.get(entity);
-			final Vector2 posAnchor =  pos.position.getAnchor();
-			final int y = posAnchor.getAnchor().x;
-			pos.position =  pos.position.moveByAnchor(x, y);
-		}
-
-		@Override
-		public void setY(int y) {
-			
-			final Position pos = positionMapper.get(entity);
-			final Vector2 posAnchor =  pos.position.getAnchor();
-			final int x = posAnchor.getAnchor().x;
-			pos.position =  pos.position.moveByAnchor(x, y);
-		}
-
-	}
-
 	private final static int MAX_LEVEL = 40;
 
 	private final PlayerBestia bestia;
@@ -79,11 +43,8 @@ public class PlayerBestiaManager extends BestiaManager {
 	private final MessageProcessor server;
 
 	private final ComponentMapper<Attacks> attacksMapper;
-	private final ComponentMapper<Position> positionMapper;
 	private final ComponentMapper<Mana> manaMapper;
 	private final ComponentMapper<HP> hpMapper;
-
-	private final Entity entity;
 
 	private StatusPoints statusPoints;
 
@@ -91,14 +52,13 @@ public class PlayerBestiaManager extends BestiaManager {
 
 	public PlayerBestiaManager(PlayerBestia bestia, World world, Entity entity, MessageProcessor sender,
 			ServiceLocator locator) {
+		super(world, entity);
 		this.attacksMapper = world.getMapper(Attacks.class);
-		this.positionMapper = world.getMapper(Position.class);
 		this.manaMapper = world.getMapper(Mana.class);
 		this.hpMapper = world.getMapper(HP.class);
 
 		this.server = sender;
 		this.bestia = bestia;
-		this.entity = entity;
 		this.serviceLocator = locator;
 
 		// Shortcut to the acc. language.
@@ -311,20 +271,19 @@ public class PlayerBestiaManager extends BestiaManager {
 		return statusPoints;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * net.bestia.zoneserver.manager.PlayerBestiaManagerInterface#getLocation()
+	/**
+	 * Enrich the location with the map on which the bestia currently resides.
+	 * This information is not known for at the general level.
 	 */
 	@Override
 	public Location getLocation() {
+
+		final Location loc = super.getLocation();
+
 		final String curMap = bestia.getCurrentPosition().getMapDbName();
-	
-		final Location wrapperLoc = new ECSLocation();
-		wrapperLoc.setMapDbName(curMap);
+		loc.setMapDbName(curMap);
 		
-		return wrapperLoc;
+		return loc;
 	}
 
 	/*
@@ -371,9 +330,9 @@ public class PlayerBestiaManager extends BestiaManager {
 	public PlayerBestia getPlayerBestia() {
 
 		// Update location.
-		//final Vector2 pos = positionMapper.get(entity).position.getAnchor();
-		//bestia.getCurrentPosition().setX(pos.x);
-		//bestia.getCurrentPosition().setY(pos.y);
+		// final Vector2 pos = positionMapper.get(entity).position.getAnchor();
+		// bestia.getCurrentPosition().setX(pos.x);
+		// bestia.getCurrentPosition().setY(pos.y);
 
 		// Update cur hp and mana.
 		final HP hp = hpMapper.get(entity);

@@ -15,6 +15,7 @@ import net.bestia.zoneserver.ecs.component.AI;
 import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.MobGroup;
 import net.bestia.zoneserver.ecs.component.MobSpawn;
+import net.bestia.zoneserver.ecs.component.NPCBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.manager.NPCBestiaManager;
@@ -38,6 +39,7 @@ public class MobSpawnSystem extends DelayedEntityProcessingSystem {
 	private ComponentMapper<Bestia> bestiaMapper;
 	private ComponentMapper<Position> positionMapper;
 	private ComponentMapper<Visible> visibleMapper;
+	private ComponentMapper<NPCBestia> npcBestiaMapper;
 
 	private Archetype npcBestiaArchtype;
 
@@ -54,6 +56,7 @@ public class MobSpawnSystem extends DelayedEntityProcessingSystem {
 				.add(Visible.class)
 				.add(AI.class)
 				.add(Bestia.class)
+				.add(NPCBestia.class)
 				.add(MobGroup.class)
 				.add(Position.class)
 				.build(world);
@@ -75,13 +78,17 @@ public class MobSpawnSystem extends DelayedEntityProcessingSystem {
 		final MobSpawn spawn = spawnMapper.get(e);
 
 		final int mob = world.create(npcBestiaArchtype);
+		final Entity mobEntity = world.getEntity(mob);
 
 		groupMapper.get(mob).groupName = spawn.getGroup();
 		
 		final Position pos = positionMapper.get(mob);
 		pos.position = new Vector2(spawn.coordinates.x, spawn.coordinates.y);
 
-		bestiaMapper.get(mob).bestiaManager = new NPCBestiaManager(spawn.mob);
+		final NPCBestiaManager npcManager =  new NPCBestiaManager(spawn.mob, world, mobEntity);
+		bestiaMapper.get(mob).bestiaManager = npcManager;
+		npcBestiaMapper.get(mob).manager = npcManager;
+		
 
 		// Set the sprite name.
 		visibleMapper.get(mob).sprite = spawn.mob.getDatabaseName();

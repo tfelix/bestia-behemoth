@@ -4,16 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import net.bestia.zoneserver.ecs.component.AI;
-import net.bestia.zoneserver.ecs.component.Movement;
-import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.zone.shape.Vector2;
-
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IntervalEntityProcessingSystem;
+
+import net.bestia.model.domain.Location;
+import net.bestia.zoneserver.ecs.component.AI;
+import net.bestia.zoneserver.ecs.component.Movement;
+import net.bestia.zoneserver.ecs.component.NPCBestia;
+import net.bestia.zoneserver.manager.NPCBestiaManager;
+import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
  * The AI system will manage the current state of an entity, be responsible for evaluating the environment and if
@@ -30,18 +32,18 @@ public class AISystem extends IntervalEntityProcessingSystem {
 
 	private Random random = new Random();
 
-	private ComponentMapper<Position> positionMapper;
+	private ComponentMapper<NPCBestia> bestiaMapper;
 
 	public AISystem() {
-		super(Aspect.all(AI.class, Position.class), 7000);
+		super(Aspect.all(AI.class, NPCBestia.class), 7000);
 		// No op.
 	}
 
 	@Override
 	protected void process(Entity e) {
 
-		final Position positionComponent = positionMapper.get(e);
-		final Vector2 pos = positionComponent.position.getAnchor();
+		final NPCBestiaManager npcManager = bestiaMapper.get(e).manager;
+		final Location pos = npcManager.getLocation();
 		
 
 		// Convert the strange JSON format to a path array.
@@ -50,34 +52,35 @@ public class AISystem extends IntervalEntityProcessingSystem {
 		switch (random.nextInt(4)) {
 		case 0:
 			// Go top.
-			if (pos.y == 0) {
+			if (pos.getY() == 0) {
 				return;
 			}
-			newPos = new Vector2(pos.x, pos.y - 1);
+			newPos = new Vector2(pos.getX(), pos.getY() - 1);
 			break;
 		case 1:
 			// go right.
-			if (pos.x >= 50) {
+			if (pos.getX() >= 50) {
 				return;
 			}
-			newPos = new Vector2(pos.x + 1, pos.y);
+			newPos = new Vector2(pos.getX() + 1, pos.getY());
 			break;
 		case 2:
 			// go bottom.
-			if (pos.y >= 50) {
+			if (pos.getY() >= 50) {
 				return;
 			}
-			newPos = new Vector2(pos.x, pos.y + 1);
+			newPos = new Vector2(pos.getX(), pos.getY() + 1);
+			pos.setY(pos.getY() + 1);
 			break;
 		case 3:
 			// go left
-			if (pos.x == 0) {
+			if (pos.getX() == 0) {
 				return;
 			}
-			newPos = new Vector2(pos.x - 1, pos.y);
+			newPos = new Vector2(pos.getX() - 1, pos.getY());
 			break;
 		default:
-			newPos = new Vector2(pos.x, pos.y);
+			newPos = new Vector2(pos.getX(), pos.getY());
 			break;
 		}
 

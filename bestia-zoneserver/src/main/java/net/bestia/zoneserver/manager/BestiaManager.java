@@ -3,17 +3,75 @@ package net.bestia.zoneserver.manager;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.artemis.ComponentMapper;
+import com.artemis.Entity;
+import com.artemis.World;
+
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.zone.shape.CollisionShape;
+import net.bestia.zoneserver.zone.shape.Vector2;
 
 public abstract class BestiaManager {
 
+	private class ECSLocation extends Location {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public int getX() {
+
+			final CollisionShape pos = positionMapper.get(entity).position;
+			return pos.getAnchor().x;
+		}
+
+		@Override
+		public int getY() {
+			
+			final CollisionShape pos = positionMapper.get(entity).position;
+			return pos.getAnchor().y;
+		}
+
+		@Override
+		public void setX(int x) {
+
+			final Position pos = positionMapper.get(entity);
+			final Vector2 posAnchor = pos.position.getAnchor();
+			final int y = posAnchor.getAnchor().x;
+			pos.position = pos.position.moveByAnchor(x, y);
+		}
+
+		@Override
+		public void setY(int y) {
+
+			final Position pos = positionMapper.get(entity);
+			final Vector2 posAnchor = pos.position.getAnchor();
+			final int x = posAnchor.getAnchor().x;
+			pos.position = pos.position.moveByAnchor(x, y);
+		}
+
+	}
+
+	protected final Entity entity;
+
+	private final ComponentMapper<Position> positionMapper;
+	private final Location proxyLocation = new ECSLocation();
+
 	private Map<Integer, Long> attackUsageTimer = new HashMap<>();
+
+	public BestiaManager(World world, Entity entity) {
+		
+		this.positionMapper = world.getMapper(Position.class);
+		this.entity = entity;
+	}
 
 	public abstract StatusPoints getStatusPoints();
 
-	public abstract Location getLocation();
+	public Location getLocation() {
+		return proxyLocation;
+	}
 
 	public abstract int getLevel();
 
@@ -29,10 +87,6 @@ public abstract class BestiaManager {
 		final int level = getLevel();
 		final float regen = (statusPoints.getDef() * 1.5f + statusPoints.getSpDef() * 3 + level) / 100.0f;
 		return regen;
-	}
-
-	public BestiaManager() {
-
 	}
 
 	/**

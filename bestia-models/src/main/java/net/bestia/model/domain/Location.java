@@ -98,7 +98,7 @@ public class Location implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("Location[x: %d, y: %d, mabDbName: %s]", x, y,
-				mapDbName);
+		return String.format("Location[x: %d, y: %d, mabDbName: %s]", getX(), getY(),
+				getMapDbName());
 	}
 }
