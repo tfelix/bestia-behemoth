@@ -19,9 +19,23 @@ Bestia.BestiaAttack = function(data) {
 	this.strength = ko.observable(0);
 	this.range = ko.observable(0);
 	this.basedStatus = ko.observable('');
-	this.element = ko.observable('');
-	this.casttime = ko.observable(0);
 	
+	/**
+	 * Element of this attacks.
+	 * 
+	 * @property {String}
+	 */
+	this.element = ko.observable('');
+
+	/**
+	 * Base cast time for this attack in ms. The actual cast time might be
+	 * different and will be determined by the server if the attack is beeing
+	 * cast.
+	 * 
+	 * @property {Number}
+	 */
+	this.casttime = ko.observable(0);
+
 	/**
 	 * Cooldown time of this attack.
 	 * 
@@ -34,7 +48,7 @@ Bestia.BestiaAttack = function(data) {
 	 * 
 	 * @property {String}
 	 */
-	this.imageUrl = ko.pureComputed(function(){
+	this.imageUrl = ko.pureComputed(function() {
 		return Bestia.Urls.assetsRoot + 'img/icons/attack/unicorn.png';
 	});
 

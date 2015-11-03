@@ -293,14 +293,16 @@
 	<!-- /INVENTORY -->
 
 	<!-- ATTACKS -->
-	<div id="attacks" data-bind="with: attacks, css: {slider_active: attacks.showWindow()}" class="atk_slider slider">
+	<div id="attacks"
+		data-bind="with: attacks, css: {slider_active: attacks.showWindow()}"
+		class="atk_slider slider">
 		<div class="header">
 			<button data-bind="click: close">Schließen</button>
 		</div>
 
-		<div class="atk-picker" >
+		<div class="atk-picker">
 			<div class="atk-list">
-				<input type="text">
+				<input type="text" placeholder="Suche...">
 				<!-- ATTACKENLISTE -->
 				<div data-bind="foreach: attacks">
 					<div class="atk_slot" class="atk-drag">
@@ -310,6 +312,7 @@
 								<div data-bind="text: name"></div>
 								<div>
 									Mana: <span data-bind="text: manaCost"></span>
+									<span data-bind="text: element"></span>
 								</div>
 							</div>
 						</div>
@@ -321,65 +324,20 @@
 				<div class="atk_slot">
 					<div class="key">Q</div>
 					<div class="atk-container dropzone">
-						<img src="http://placehold.it/32x32" alt="">
-						<div class="atk-detail">
-							<div>Glut</div>
-							<div>Mana: 5 Normal</div>
+						<div data-bind="if: attackSlot1" >
+							<img data-bind="attr: {src: imageUrl, alt: name}" src="" alt="">
+							<div class="atk-detail">
+								<div data-bind="text: name"></div>
+								<div>
+									Mana: <span data-bind="text: manaCost"></span>
+								</div>
+							</div>
+						</div>
+						<div data-bind="ifnot: attackSlot1" class="empty">
+							<i>Nicht benutzt</i>
 						</div>
 					</div>
-					<div class="atk-delete">
-						<img src="img/ic_delete.png" alt="ATK NAME">
-					</div>
-				</div>
-				<div class="atk_slot">
-					<div class="key">W</div>
-					<div class="atk-container">
-						<img src="http://placehold.it/32x32" alt="ATK NAME">
-						<div class="atk-detail">
-							<div>Glut</div>
-							<div>Mana: 5 Normal</div>
-						</div>
-					</div>
-					<div class="atk-delete">
-						<img src="img/ic_delete.png" alt="ATK NAME">
-					</div>
-				</div>
-				<div class="atk_slot">
-					<div class="key">E</div>
-					<div class="atk-container">
-						<img src="http://placehold.it/32x32" alt="ATK NAME">
-						<div class="atk-detail">
-							<div>Glut</div>
-							<div>Mana: 5 Normal</div>
-						</div>
-					</div>
-					<div class="atk-delete">
-						<img src="img/ic_delete.png" alt="ATK NAME">
-					</div>
-				</div>
-				<div class="atk_slot">
-					<div class="key">R</div>
-					<div class="atk-container">
-						<img src="http://placehold.it/32x32" alt="ATK NAME">
-						<div class="atk-detail">
-							<div>Glut</div>
-							<div>Mana: 5 Normal</div>
-						</div>
-					</div>
-					<div class="atk-delete">
-						<img src="img/ic_delete.png" alt="ATK NAME">
-					</div>
-				</div>
-				<div class="atk_slot">
-					<div class="key">T</div>
-					<div class="atk-container">
-						<img src="http://placehold.it/32x32" alt="ATK NAME">
-						<div class="atk-detail">
-							<div>Glut</div>
-							<div>Mana: 5 Normal</div>
-						</div>
-					</div>
-					<div class="atk-delete">
+					<div class="atk-delete" data-bind="click: removeAttack.bind(1)">
 						<img src="img/ic_delete.png" alt="ATK NAME">
 					</div>
 				</div>
@@ -387,33 +345,6 @@
 		</div>
 	</div>
 	<!-- /ATTACKS -->
-
-	<!-- PLAYGROUND -->
-	<div id="modal-playground" class="modal fade"
-		data-bind="with: inventory">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-					<h4 class="modal-title">Spielwiese</h4>
-				</div>
-				<div class="modal-body">
-					<button id="btn-request">Request Attacks</button>
-					<button id="btn-useattack">Use Attack</button>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal"
-						data-i18n="ui.close">ui.close</button>
-				</div>
-			</div>
-			<!-- /.modal-content -->
-		</div>
-		<!-- /.modal-dialog -->
-	</div>
-	<!-- /PLAYGROUND -->
 
 </body>
 </html>

@@ -317,6 +317,10 @@ Bestia.BestiaAttacks.prototype.setAttack = function(slot, attackId) {
 	this.saveAttacks();
 };
 
+/**
+ * Function handler which sets the show flag to false in order to hide the
+ * window.
+ */
 Bestia.BestiaAttacks.prototype.close = function() {
 	this.showWindow(false);
 };
@@ -327,4 +331,32 @@ Bestia.BestiaAttacks.prototype.close = function() {
  */
 Bestia.BestiaAttacks.prototype.saveAttacks = function() {
 	console.log("TODO: SENDEN");
+};
+
+/**
+ * Removes an attack from a given slot. The slot will be set to null and the
+ * change will be send to the server.
+ * 
+ * @param slot
+ *            Number of the slot. Between 1 and 4.
+ */
+Bestia.BestiaAttacks.prototype.removeAttack = function(slot) {
+
+	switch (slot) {
+	case 1:
+		this.attackSlot1(null);
+		break;
+	case 2:
+		this.attackSlot1(null);
+		break;
+	case 3:
+		this.attackSlot1(null);
+		break;
+	case 4:
+		this.attackSlot1(null);
+		break;
+	default:
+		throw "Slotnumber must be between 1 and 4.";
+	}
+	this.saveAttacks();
 };
