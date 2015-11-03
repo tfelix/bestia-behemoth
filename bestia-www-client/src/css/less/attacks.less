@@ -1,8 +1,10 @@
 
+@lightBackground: #f9f2db;
+
 .atk_slider {
-	padding: 10px 10px 0 10px;
+	padding: 10px 5px 0 5px;
 	background: #E4E4E4;
-	width: 600px;
+	width: 700px;
 	height: 320px;
 	position: absolute;
 	bottom: -320px;
@@ -12,14 +14,90 @@
 	color: black;
 }
 
-.atk_slot {
-	margin: 2px 0;
+.atk-toplevel {
+	vertical-align: top;
+	display: inline-block;
+}
+
+.header {
+	text-align: right;
+	button {
+		margin: 4px 4px;
+	}
+}
+
+.main {
+		height: 300px;
+		margin: 0 auto;
+		background-color: #F7E7B0;
+		padding: 10px;
+		border: 1px solid #FFF8E3;
+}
+
+.atk-description {
+	.atk-toplevel;
 	
-	div {
+	width: 180px;
+	background: @lightBackground;
+	height: 250px;
+	padding: 4px;
+	line-height: 1.5em;
+	font-size: 0.9em;
+	
+	h1 {
+		font-size: 1.1em;
+		font-weight: bold;
+		margin: 5px 0;
+		border-bottom: 1px solid black;
+	}
+	
+	p {
+		margin-top: 8px;
+		padding-top: 5px;
+		border-top: 1px solid grey;
+		line-height: 1.5em;
+	}
+	
+	.empty {
+		padding-top: 50px;
+		text-align: center;
+	}
+}
+
+.atk-list {
+	width: 180px;
+	background: @lightBackground;
+	.atk-toplevel;
+	
+	input {
+		width: 180px;
+		broder: none;
+		padding: 0;
+		margin: 0;
+	}
+}
+
+
+.atk-learned {
+	.atk-toplevel;
+	background: @lightBackground;
+	width: 272px;
+	
+	& > div {
+		display: inline-block;
 		vertical-align: top;
 	}
 	
+	.atk-container {
+		.atk-toplevel;
+		border: 1px solid black;
+		width: 180px;
+		height: 40px;
+		font-size: 0.9em;
+	}
+	
 	.key {
+		.clickable;
 		width: 40px;
 		height: 40px;
 		font-size: 18pt;
@@ -30,22 +108,9 @@
 		display: inline-block;
 	}
 	
-	.atk-container {
-		border: 1px solid black;
-		width: 180px;
-		height: 40px;
-		font-size: 0.8em;
-		display: inline-block;
-	
-		img {
-			margin: 4px 2px;
-			width: 32px;
-			height: 32px;
-		}
-	}
-
 	.atk-delete {
 		.clickable;
+		.atk-toplevel;
 		width: 40px;
 		height: 40px;
 		border: 1px solid black;
@@ -55,52 +120,59 @@
 			margin: 2px 0 0 2px;
 		}
 	}
+	
+	.empty i {	
+		display: block;
+		margin-top: 10px;
+		text-align: center;
+	}
+}
 
-	.atk-detail {
-		margin: 3px 2px;
+.atk_slot {
+	margin: 2px 0;
+}
+
+.atk {
+	.clickable;
+	display: inline-block;
+	border: 1px solid black;
+	width: 180px;
+	height: 40px;
+	font-size: 0.9em;
+	margin: 2px 0;
+		
+	.atk_detail {
 		display: inline-block;
 	}
 	
-	.empty {
-		i {
-			display: block;
-			margin-top: 10px;
-			text-align: center;
-		}
+	img {
+		margin: 4px 2px;
+		width: 32px;
+		height: 32px;
+		vertical-align: top;
 	}
 }
 
-.atk-picker {
-		width: 522px;
-		height: 300px;
-		margin: 0 auto;
-		background-color: #F7E7B0;
-		padding: 10px;
-		border: 1px solid #FFF8E3;
-		
-		.atk-list {
-			width: 185px;
-			display: inline-block;
-			vertical-align: top;
-
-		input {
-			width: 180px;
-			broder: none;
-			padding: 0;
-			margin: 0;
-		}
-	}
-}
-
-
-.atk-learned {
-	margin-left: 40px;
+.atk_learned {
 	display: inline-block;
-}
-
-.header {
-	text-align: right;
-	button {
-		margin: 4px 4px;
+	width: 180px;
+	height: 40px;
+	font-size: 0.9em;
+	margin: 2px 0;
+		
+	.atk_detail {
+		display: inline-block;
+	}
+	
+	img {
+		margin: 4px 2px;
+		width: 32px;
+		height: 32px;
+		vertical-align: top;
+		display: inline-block;
 	}
 }
+
+
+
+

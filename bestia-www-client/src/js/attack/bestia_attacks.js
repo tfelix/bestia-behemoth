@@ -88,6 +88,13 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 	this.attackSlot5 = ko.observable();
 
 	/**
+	 * The attack the user has currently selected.
+	 * 
+	 * @property {Bestia.Attack}
+	 */
+	this.selectedAttack = ko.observable(null);
+
+	/**
 	 * Flag if the window of the attack management should be shown.
 	 */
 	this.showWindow = ko.observable(false);
@@ -146,76 +153,76 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 	pubsub.subscribe('client.selectBestia', invalidateListHandle);
 	pubsub.subscribe('i18n.lang', invalidateListHandle);
 
-	// Prepare the drag and drop of the elements.
-	var dragMoveListener = function(event) {
-		var target = event.target;
-		// keep the dragged position in the data-x/data-y attributes
-		var x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
-		var y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
-
-		// translate the element
-		target.style.webkitTransform = target.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
-
-		// update the posiion attributes
-		target.setAttribute('data-x', x);
-		target.setAttribute('data-y', y);
+	/**
+	 * Selects the attack.
+	 * 
+	 * @param attack
+	 */
+	this.selectAttack = function(attack) {
+		self.selectedAttack(attack);
+	};
+	
+	/**
+	 * Binds the currently selected attack on a given slot.
+	 */
+	this.useSelectedAttack = function(slot) {
+		
+		if(!self.selectedAttack()) {
+			return;
+		}
+		
+		switch (slot) {
+		case 1:
+			self.attackSlot1(self.selectedAttack());
+			break;
+		case 2:
+			self.attackSlot2(self.selectedAttack());
+			break;
+		case 3:
+			self.attackSlot3(self.selectedAttack());
+			break;
+		case 4:
+			self.attackSlot4(self.selectedAttack());
+			break;
+		case 5:
+			self.attackSlot5(self.selectedAttack());
+			break;
+		default:
+			throw "Slotnumber must be between 1 and 5.";
+		}
+		self.saveAttacks();
 	};
 
-	interact('.draggable').draggable({
-		inertia : false,
-		restrict : {
-			restriction : "parent",
-			endOnly : true,
-			elementRect : {
-				top : 0,
-				left : 0,
-				bottom : 1,
-				right : 1
-			}
-		},
-		// enable autoScroll
-		autoScroll : true,
+	/**
+	 * Removes an attack from a given slot. The slot will be set to null and the
+	 * change will be send to the server.
+	 * 
+	 * @param slot
+	 *            Number of the slot. Between 1 and 4.
+	 */
+	this.removeAttack = function(slot) {
 
-		// call this function on every dragmove event
-		onmove : dragMoveListener,
-		// call this function on every dragend event
-		onend : function(event) {
-
+		switch (slot) {
+		case 1:
+			this.attackSlot1(null);
+			break;
+		case 2:
+			this.attackSlot2(null);
+			break;
+		case 3:
+			this.attackSlot3(null);
+			break;
+		case 4:
+			this.attackSlot4(null);
+			break;
+		case 5:
+			this.attackSlot5(null);
+			break;
+		default:
+			throw "Slotnumber must be between 1 and 4.";
 		}
-	});
-
-	// enable draggables to be dropped into this
-	interact('.dropzone').dropzone({
-		accept : '.draggable',
-		// Require a 75% element overlap for a drop to be possible
-		overlap : 0.75,
-		ondropactivate : function(event) {
-			// add active dropzone feedback
-			event.target.classList.add('drop-active');
-		},
-		ondragenter : function(event) {
-			var draggableElement = event.relatedTarget, dropzoneElement = event.target;
-
-			// feedback the possibility of a drop
-			dropzoneElement.classList.add('drop-target');
-			draggableElement.classList.add('can-drop');
-			draggableElement.textContent = 'Dragged in';
-		},
-		ondragleave : function(event) {
-			// remove the drop feedback style
-			event.target.classList.remove('drop-target');
-			event.relatedTarget.classList.remove('can-drop');
-			event.relatedTarget.textContent = 'Dragged out';
-		},
-		ondrop : function(event) {
-			event.relatedTarget.textContent = 'Dropped';
-		},
-		ondropdeactivate : function(event) {
-			// remove active dropzone feedback
-			event.target.classList.remove('drop-active');
-			event.target.classList.remove('drop-target');
-		}
-	});
+		self.saveAttacks();
+	};
 };
 
 /**
@@ -331,32 +338,4 @@ Bestia.BestiaAttacks.prototype.close = function() {
  */
 Bestia.BestiaAttacks.prototype.saveAttacks = function() {
 	console.log("TODO: SENDEN");
-};
-
-/**
- * Removes an attack from a given slot. The slot will be set to null and the
- * change will be send to the server.
- * 
- * @param slot
- *            Number of the slot. Between 1 and 4.
- */
-Bestia.BestiaAttacks.prototype.removeAttack = function(slot) {
-
-	switch (slot) {
-	case 1:
-		this.attackSlot1(null);
-		break;
-	case 2:
-		this.attackSlot1(null);
-		break;
-	case 3:
-		this.attackSlot1(null);
-		break;
-	case 4:
-		this.attackSlot1(null);
-		break;
-	default:
-		throw "Slotnumber must be between 1 and 4.";
-	}
-	this.saveAttacks();
 };
