@@ -9,9 +9,11 @@
 	width: 32px;
 	height: 32px;
 	display: inline-block;
-	cursor: pointer;
+	vertical-align: top;
+	cursor : pointer;
 	position: relative;
 	background: white;
+	cursor: pointer;
 }
 
 span.amount {
@@ -20,7 +22,7 @@ span.amount {
 	border-radius: 2px;
 	color: white;
 	line-height: 1;
-	font-size: 7pt;
+	font-size: 10pt;
 	position: absolute;
 	right: 0px;
 	bottom: 0px;
@@ -36,11 +38,12 @@ span.amount {
 }
 
 .item img {
+	margin: 0;
 	position: absolute;
 }
 
 .inventory .header {
-	height: 20px;
+	padding: 5px 0;
 	background: yellow;
 }
 
@@ -48,10 +51,6 @@ span.amount {
 	height: 100%;
 	display: inline-block;
 	vertical-align: top;
-}
-
-.spacer {
-	box-flex: 1;
 }
 
 .right {
@@ -69,6 +68,8 @@ span.amount {
 
 .items {
 	height: 300px;
+	background: blue;
+	padding: 4px;
 }
 
 .footer {
@@ -77,11 +78,19 @@ span.amount {
 }
 
 .flex {
+	min-width: 300px;
+	flex: 1;
+}
+
+.flex-container {
+	display: flex;
+	flex-direction: row;
+}
+
+.equipment {
 	width: 300px;
-	background: blue;
-	min-height: 100px; display : inline-block;
-	vertical-align: top;
-	display: inline-block;
+	background: pink;
+	
 }
 </style>
 
@@ -105,17 +114,26 @@ span.amount {
 			</div>
 		</div>
 
-		<div class="fixed">
-			<div class="items">
-				<div class="item">
-					<img src="http://placehold.it/32x32" alt=""> <span
-						class="amount">5</span>
+		<div class="flex-container">
+				<div class="flex items">
+					<div class="item">
+						<img src="http://placehold.it/32x32" alt=""> <span
+							class="amount">5</span>
+					</div>
+					<div class="item">
+						<img src="http://placehold.it/32x32" alt=""> <span
+							class="amount">125</span>
+					</div>
+					<div class="item">
+						<img src="http://placehold.it/32x32" alt="">
+					</div>
 				</div>
+			<div class="equipment">
+				Das hier ist das<br> Equipment Fenster.
 			</div>
-			<div class="footer">67 / 123 Gewicht</div>
 		</div>
-
-		<div class="flex"></div>
+		
+		<div class="footer">67 / 123 Gewicht</div>
 
 	</div>
 
