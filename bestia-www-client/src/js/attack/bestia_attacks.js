@@ -100,6 +100,15 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 	this.showWindow = ko.observable(false);
 
 	/**
+	 * Holds the reference to the currently active bestia. We need this in order
+	 * to obtain its id for the send out message.
+	 * 
+	 * @private
+	 * @property
+	 */
+	this._selectedBestia = null;
+
+	/**
 	 * Handles newly arriving list of attacks. It will check if we have a
 	 * completly translated list of attacks for the list. If so it will simply
 	 * display it. If not it will fetch the remaining attack translations and
@@ -145,12 +154,14 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 	 * Resets the current list if for example a new bestia was selected or the
 	 * language was set.
 	 */
-	var invalidateListHandle = function() {
-		this.isLoaded(false);
-		this.attacks.removeAll();
+	var invalidateListHandle = function(_, selectedBestia) {
+		self.isLoaded(false);
+		self.attacks.removeAll();
+
+		self._selectedBestia = selectedBestia;
 	};
 
-	pubsub.subscribe('client.selectBestia', invalidateListHandle);
+	pubsub.subscribe('client.selectedBestia', invalidateListHandle);
 	pubsub.subscribe('i18n.lang', invalidateListHandle);
 
 	/**
@@ -161,16 +172,16 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 	this.selectAttack = function(attack) {
 		self.selectedAttack(attack);
 	};
-	
+
 	/**
 	 * Binds the currently selected attack on a given slot.
 	 */
 	this.useSelectedAttack = function(slot) {
-		
-		if(!self.selectedAttack()) {
+
+		if (!self.selectedAttack()) {
 			return;
 		}
-		
+
 		switch (slot) {
 		case 1:
 			self.attackSlot1(self.selectedAttack());
@@ -333,9 +344,23 @@ Bestia.BestiaAttacks.prototype.close = function() {
 };
 
 /**
+ * It sets the showWindow flag so the window is displayed.
+ */
+Bestia.BestiaAttacks.prototype.show = function() {
+	this.showWindow(true);
+};
+
+/**
  * Sends the new attacks inside the slots to the server where it is persisted to
  * the currently selected bestia.
  */
 Bestia.BestiaAttacks.prototype.saveAttacks = function() {
-	console.log("TODO: SENDEN");
+	var atk1 = this.attackSlot1() ? this.attackSlot1().id() : null;
+	var atk2 = this.attackSlot2() ? this.attackSlot2().id() : null;
+	var atk3 = this.attackSlot3() ? this.attackSlot3().id() : null;
+	var atk4 = this.attackSlot4() ? this.attackSlot4().id() : null;
+	var atk5 = this.attackSlot5() ? this.attackSlot5().id() : null;
+	var bestiaId = this._selectedBestia.playerBestiaId();
+	var msg = new Bestia.Message.AttackSet(bestiaId, atk1, atk2, atk3, atk4, atk5);
+	this._pubsub.publish('io.sendMessage', msg);
 };

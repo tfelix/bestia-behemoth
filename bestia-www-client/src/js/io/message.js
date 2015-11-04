@@ -108,6 +108,7 @@ Bestia.Message = {
 	 *            atk5 - The id of the attack in slot 5.
 	 */
 	AttackSet : function(playerBestiaId, atk1, atk2, atk3, atk4, atk5) {
+		this.mid = 'attack.set';
 		this.pbid = playerBestiaId;
 		this.s1 = atk1;
 		this.s2 = atk2;

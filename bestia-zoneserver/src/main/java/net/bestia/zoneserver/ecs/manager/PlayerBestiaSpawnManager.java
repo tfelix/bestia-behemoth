@@ -244,6 +244,10 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem implements Messag
 		}
 	}
 
+	/**
+	 * Consumes the incoming messages for later execution when the system is
+	 * processed.
+	 */
 	@Override
 	public void processMessage(Message msg) {
 		msgQueue.add(msg);
@@ -266,9 +270,21 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem implements Messag
 		}
 	}
 
+	/**
+	 * Returns the player bestia manager for a given id of this bestia.
+	 * 
+	 * @param playerBestiaId
+	 * @return
+	 */
 	public PlayerBestiaManager getPlayerBestiaManager(int playerBestiaId) {
 		final int entityId = getEntityIdFromBestia(playerBestiaId);
 		final Entity entity = world.getEntity(entityId);
+
+		if (entity == null) {
+			// Should not happen i guess.
+			return null;
+		}
+
 		return playerBestiaMapper.get(entity).playerBestiaManager;
 	}
 

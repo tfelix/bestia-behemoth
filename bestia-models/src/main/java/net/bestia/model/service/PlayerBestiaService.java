@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import net.bestia.model.dao.AttackLevelDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;
+import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.AttackLevel;
 import net.bestia.model.domain.PlayerBestia;
 
@@ -51,7 +52,7 @@ public class PlayerBestiaService {
 		final PlayerBestia playerBestia = playerBestiaDao.find(playerBestiaId);
 
 		// Get list of attacks for this bestia.
-		final List<AttackLevel> knownAttacks = attackLevelDao.getAllAttacksForBestia(playerBestia.getId());
+		final List<AttackLevel> knownAttacks = attackLevelDao.getAllAttacksForBestia(playerBestia.getOrigin().getId());
 
 		final List<Integer> knownAttackIds = knownAttacks.stream()
 				.map((x) -> x.getAttack().getId())
@@ -61,6 +62,14 @@ public class PlayerBestiaService {
 		// them.
 		int slot = 1;
 		for (Integer atkId : attackIds) {
+
+			// Just delete the attack.
+			if (atkId == 0) {
+				setPlayerBestiaAttack(playerBestia, null, slot);
+				slot++;
+				continue;
+			}
+
 			if (!knownAttackIds.contains(atkId)) {
 				log.error("PlayerBestia {} can not learn the attack id: {}.", playerBestiaId, atkId);
 				throw new IllegalArgumentException("Bestia can not learn the attack.");
@@ -76,29 +85,41 @@ public class PlayerBestiaService {
 						atk.getMinLevel(), playerBestia.getLevel());
 				throw new IllegalArgumentException("Bestia can not learn the attack.");
 			}
-
-			switch (slot) {
-			case 1:
-				playerBestia.setAttack1(atk.getAttack());
-				break;
-			case 2:
-				playerBestia.setAttack2(atk.getAttack());
-				break;
-			case 3:
-				playerBestia.setAttack3(atk.getAttack());
-				break;
-			case 4:
-				playerBestia.setAttack4(atk.getAttack());
-				break;
-			case 5:
-				playerBestia.setAttack5(atk.getAttack());
-				break;
-			default:
-				// no op.
-				break;
-			}
-
+			setPlayerBestiaAttack(playerBestia, atk.getAttack(), slot);
 			slot++;
+		}
+	}
+
+	/**
+	 * Helper method to set the attack.
+	 * 
+	 * @param playerBestia
+	 *            The bestia whose attacks to be set.
+	 * @param atk
+	 *            The attack to set.
+	 * @param slot
+	 *            The slot to set the attack into.
+	 */
+	private void setPlayerBestiaAttack(PlayerBestia playerBestia, Attack atk, int slot) {
+		switch (slot) {
+		case 1:
+			playerBestia.setAttack1(atk);
+			break;
+		case 2:
+			playerBestia.setAttack2(atk);
+			break;
+		case 3:
+			playerBestia.setAttack3(atk);
+			break;
+		case 4:
+			playerBestia.setAttack4(atk);
+			break;
+		case 5:
+			playerBestia.setAttack5(atk);
+			break;
+		default:
+			// no op.
+			break;
 		}
 	}
 

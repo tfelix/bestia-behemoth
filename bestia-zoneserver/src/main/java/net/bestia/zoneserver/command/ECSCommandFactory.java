@@ -10,6 +10,7 @@ import net.bestia.messages.InputMessage;
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.command.ecs.ECSCommand;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 /**
  * This {@link ServerCommandFactory} will look into the type of the message. If
@@ -56,7 +57,7 @@ public class ECSCommandFactory extends CommandFactory {
 		if (!commandLibrary.containsKey(msgId)) {
 			LOG.error("No command found for message id: {}", msgId);
 			return null;
-		}
+		}	
 
 		// TODO Oh oh... hier aber lieber mal neue Instancen erzeugen... 
 		// Dann kann ich auch den Ctor der ECSCommands anpassen direkt den ctx und msg zu bekommen.
@@ -71,9 +72,18 @@ public class ECSCommandFactory extends CommandFactory {
 		cmd.setWorld(world);
 
 		if (message instanceof InputMessage) {
+			final InputMessage inputMsg = (InputMessage) message;
+			
+			// Sanity check if the given account really owns this player bestia.
+			PlayerBestiaManager pbManager = playerSpawnManager.getPlayerBestiaManager(inputMsg.getPlayerBestiaId());
+			if(pbManager == null || pbManager.getAccountId() != message.getAccountId()) {
+				LOG.warn("HACKING: PlayerBestiaMessage id not consistent with account id: {}", inputMsg.toString());
+				return null;
+			}
+			
 			// Find the player entity for this command/message. If the bestia id
 			// is invalid null should be returned.
-			final int entityId = playerSpawnManager.getEntityIdFromBestia(((InputMessage) message).getPlayerBestiaId());
+			final int entityId = playerSpawnManager.getEntityIdFromBestia(inputMsg.getPlayerBestiaId());
 			final Entity player = world.getEntity(entityId);
 			cmd.setPlayer(player);
 		}

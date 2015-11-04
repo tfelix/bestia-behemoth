@@ -5,7 +5,6 @@ import java.util.List;
 import net.bestia.messages.AttackListRequestMessage;
 import net.bestia.messages.AttackListResponseMessage;
 import net.bestia.messages.Message;
-import net.bestia.model.dao.AttackLevelDAO;
 import net.bestia.model.domain.AttackLevel;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.ecs.BestiaActiveRegister;
