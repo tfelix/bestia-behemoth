@@ -110,7 +110,8 @@ Bestia.Inventory = function(pubsub, i18n) {
 			if(el.name === undefined) {
 				return false;
 			}
-			return el.name().startsWith(searchTxt);
+			
+			return el.name().lastIndexOf(searchTxt, 0) === 0;
 		});
 
 		return items;
@@ -142,7 +143,9 @@ Bestia.Inventory = function(pubsub, i18n) {
 
 		self._i18n.t(i18nKeys, function(t) {
 			newItems.forEach(function(val) {
-				val.name(t(buildTranslationKey(val)));
+				var transKey = buildTranslationKey(val);
+				var trans = t(transKey);
+				val.name(trans);
 			});
 		});
 
@@ -186,3 +189,4 @@ Bestia.Inventory = function(pubsub, i18n) {
 		self._pubsub.publish('io.sendMessage', msg);
 	};
 };
+

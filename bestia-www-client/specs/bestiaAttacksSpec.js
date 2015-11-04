@@ -64,9 +64,9 @@ describe("Bestia.BestiaAttacks", function() {
 		attacks.request();
 		pubsub.publish(responseMsg.mid, responseMsg);
 
-		expect(attacks.attackList().length).toEqual(2);
-		expect(attacks.attackList()[0].attackDatabaseName()).toEqual('tackle');
-		expect(attacks.attackList()[1].attackDatabaseName()).toEqual('ember');
+		expect(attacks.attacks().length).toEqual(2);
+		expect(attacks.attacks()[0].attackDatabaseName()).toEqual('tackle');
+		expect(attacks.attacks()[1].attackDatabaseName()).toEqual('ember');
 
 		lastTopic = '';
 		attacks.request();
@@ -79,6 +79,6 @@ describe("Bestia.BestiaAttacks", function() {
 		attacks.request();
 		pubsub.publish(responseMsg.mid, responseMsg);
 
-		expect(attacks.hasAttacks()).toBeTruthy();
+		expect(attacks.isLoaded()).toBeTruthy();
 	});
 });
