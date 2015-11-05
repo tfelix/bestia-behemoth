@@ -8,33 +8,77 @@
  * receive them and rebroadcast them into the client.
  * 
  * @class Bestia.Connection
- * @param {Bestia.PubSub} pubsub - Publish/Subscriber interface.
+ * @param {Bestia.PubSub}
+ *            pubsub - Publish/Subscriber interface.
  */
 Bestia.Connection = function(pubsub) {
 	var self = this;
-	
+
 	this.socket = null;
-	
+
 	/**
 	 * Pubsub interface.
+	 * 
 	 * @property {Bestia.PubSub}
 	 * @private
 	 */
 	this._pubsub = pubsub;
+
+	// @ifdef DEVELOPMENT
+	this.debugBytesSend = ko.observable(0);
+	this.debugBytesReceived = ko.observable(0);
+	this._debugData = {};
+	// @endif
 
 	// Sends a message while listening to this channel.
 	pubsub.subscribe('io.sendMessage', function(_, msg) {
 		var message = JSON.stringify(msg);
 		// @ifdef DEVELOPMENT
 		console.trace('Sending Message: ' + message);
+		self._debug('send', message, msg);
 		// @endif
 		self.socket.push(message);
 	});
 };
 
 /**
- * Checks if logindata is ok or otherwise not complete. Returns true if everything
- * is looking good. Otherwise false.
+ * Creates the debug statistics. Should be called when receiving or sending
+ * messages. Since this is a quite consuming process it should only be done in a
+ * developing state.
+ * 
+ * @private
+ * @param {String}
+ *            direction - ['send' | 'receive'] direction of the message.
+ * @param {String}
+ *            msgString - Stringified JSON of the message.
+ * @param {Object}
+ *            msgObj - Message object.
+ * 
+ */
+Bestia.Connection.prototype._debug = function(direction, msgString, msgObj) {
+	if (direction === 'send') {
+		this.debugBytesSend += msgString.length;
+	} else {
+		this.debugBytesReceived += msgString.length;
+	}
+
+	// Check if debug data struct exists. Or create it.
+	if (!this._debugData.hasOwnProperty(msgObj.mid)) {
+		this._debugData[msgObj.mid] = {
+			count : 0,
+			last : 0,
+			bytes : 0
+		};
+	}
+
+	this._debugData[msgObj.mid].count++;
+	this._debugData[msgObj.mid].last = (new Date()).getTime();
+	this._debugData[msgObj.mid].bytes += msgString.length;
+};
+
+/**
+ * Checks if logindata is ok or otherwise not complete. Returns true if
+ * everything is looking good. Otherwise false.
  * 
  * @private
  * @param {Object}
@@ -44,51 +88,51 @@ Bestia.Connection = function(pubsub) {
  *          missing or an error.
  */
 Bestia.Connection.prototype.checkLoginData = function(data) {
-	
+
 	var state = true;
-	
+
 	if (!data) {
 		state = false;
 	}
-	
-	if(!state || data.token === undefined) {
+
+	if (!state || data.token === undefined) {
 		console.error("Login: token missing.");
 		state = false;
-	} else if(!state | data.accId === undefined) {
+	} else if (!state | data.accId === undefined) {
 		console.error("Login:account id missing.");
 		state = false;
-	} else if(!state | data.username === undefined) {
+	} else if (!state | data.username === undefined) {
 		console.error("Login: username missing.");
 		state = false;
 	}
-	
-	if(state === false) {
+
+	if (state === false) {
 		window.location.replace(Bestia.Urls.loginHtml);
 		return false;
 	}
-	
+
 	return true;
 };
 
-/**-
- * Initializes a connection to the server using the login data present in a cookie which must be acquired 
- * via the login process before trying to establish this connection.
+/**
+ * - Initializes a connection to the server using the login data present in a
+ * cookie which must be acquired via the login process before trying to
+ * establish this connection.
  * 
- * Publishes: 
- * system.auth - Containing the auth data (bestia name, user id) if a successful connection to the 
- * server has been established.
+ * Publishes: system.auth - Containing the auth data (bestia name, user id) if a
+ * successful connection to the server has been established.
  * 
  * @method Bestia.Connection#init
  */
 Bestia.Connection.prototype.init = function() {
-	
+
 	var self = this;
 
 	// Prepare the request.
 	var store = new Bestia.Storage();
 	var authData = store.getAuth();
 
-	if(!this.checkLoginData(authData)) {
+	if (!this.checkLoginData(authData)) {
 		return;
 	}
 
@@ -131,19 +175,20 @@ Bestia.Connection.prototype.init = function() {
 			return;
 		}
 
-		console.debug('Received Message: ' + message);
-
-		// Is it a valid server message? 
+		// Is it a valid server message?
 		try {
 			var json = jQuery.parseJSON(message);
-		} catch (e) {
-			console.log('No valid JSON: ', message.data);
-			return;
-		}
-		
-		// If yes send it to the engine.
-		if(json !== undefined) {
+
+			// @ifdef DEVELOPMENT
+			console.debug('Received Message: ' + message);
+			self._debug('receive', json, message);
+			// @endif
+
 			self._pubsub.publish(json.mid, json);
+
+		} catch (e) {
+			console.error('No valid JSON: ', message.data);
+			return;
 		}
 	};
 
