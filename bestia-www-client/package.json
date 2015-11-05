@@ -2,7 +2,7 @@
   "name": "bestia-behemoth-web_alpha",
   "description": "Website Client of Bestia - Browsergame.",
   "author": "Thomas Felix (http://www.tfelix.de)",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "dependencies": {
     "bower": "^1.4.1",
