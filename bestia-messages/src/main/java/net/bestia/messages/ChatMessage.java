@@ -3,7 +3,6 @@ package net.bestia.messages;
 import net.bestia.model.I18n;
 import net.bestia.model.domain.Account;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -14,11 +13,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 public class ChatMessage extends Message {
-	
+
 	private static final long serialVersionUID = 1L;
 	private static final String CLIENT_PATH = "account/%d";
 	private static final String SERVER_PATH = "zone/account/%d";
-	
+
 	public final static String MESSAGE_ID = "chat.message";
 
 	public enum Mode {
@@ -37,7 +36,7 @@ public class ChatMessage extends Message {
 	private int chatMessageId;
 	@JsonProperty("t")
 	private long time;
-	
+
 	@JsonIgnore
 	private String currentPath = SERVER_PATH;
 
@@ -47,11 +46,11 @@ public class ChatMessage extends Message {
 	public ChatMessage() {
 		// no op.
 	}
-	
+
 	public static ChatMessage getSystemMessage(Account account, String translationKey, Object... args) {
-		
+
 		final String text = I18n.t(account, translationKey, args);
-		
+
 		ChatMessage msg = new ChatMessage();
 		msg.setAccountId(account.getId());
 		msg.setText(text);
@@ -61,13 +60,14 @@ public class ChatMessage extends Message {
 	}
 
 	/**
-	 * @deprecated  Use getSystemmessage(Account account, String translationKey, Object... args)
 	 * @param account
 	 * @param text
 	 * @return
 	 */
-	@Deprecated
-	public static ChatMessage getSystemMessage(Account account, String text) {
+	public static ChatMessage getSystemMessage(Account account, String translationKey) {
+		
+		final String text = I18n.t(account, translationKey);
+
 		ChatMessage msg = new ChatMessage();
 		msg.setAccountId(account.getId());
 		msg.setText(text);
@@ -130,7 +130,7 @@ public class ChatMessage extends Message {
 
 	public static ChatMessage getForwardMessage(long receiverAccountId, ChatMessage msg) {
 		ChatMessage forwardMsg = new ChatMessage();
-		
+
 		forwardMsg.currentPath = CLIENT_PATH;
 
 		forwardMsg.senderNickname = msg.senderNickname;

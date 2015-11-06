@@ -163,7 +163,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem implements Messag
 		}
 	}
 
-	private void spawnBestia(SpawnPlayerBestiaMessage msg) {
+	public void spawnBestia(SpawnPlayerBestiaMessage msg) {
 		final Long accId = msg.getAccountId();
 		final PlayerBestiaDAO pbDao = ctx.getServiceLocator().getBean(PlayerBestiaDAO.class);
 		final net.bestia.model.domain.PlayerBestia pb = pbDao.find(msg.getPlayerBestiaId());

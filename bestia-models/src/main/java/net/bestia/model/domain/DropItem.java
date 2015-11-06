@@ -29,7 +29,7 @@ public class DropItem implements Serializable {
 	@JoinColumn(name = "ITEM_ID", nullable = false)
 	private Item item;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "BESTIA_ID", nullable = false)
 	private Bestia bestia;
 
@@ -88,13 +88,6 @@ public class DropItem implements Serializable {
 			throw new IllegalArgumentException("Item can not be null.");
 		}
 
-		if (item.getType() == ItemType.EQUIP) {
-			throw new IllegalArgumentException(
-					"Items which are equipment can not be set without and "
-							+ "equipment item info object. Please use setItem(Item, "
-							+ "EquipItemInfo) instead.");
-		}
-
 		this.item = item;
 	}
 
@@ -103,7 +96,7 @@ public class DropItem implements Serializable {
 		return String.format("DropItem[bestiaId: %d, itemId: %d, prob: %f]",
 				bestia.getId(),
 				item.getId(),
-				probability);
+				getProbability());
 	}
 
 	/**
