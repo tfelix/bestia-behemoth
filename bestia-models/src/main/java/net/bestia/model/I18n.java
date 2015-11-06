@@ -1,9 +1,10 @@
-package net.bestia.zoneserver.util;
+package net.bestia.model;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.model.dao.I18nDAO;
+import net.bestia.model.domain.Account;
 import net.bestia.model.domain.TranslationCategory;
 
 /**
@@ -33,6 +34,26 @@ public class I18n {
 			throw new IllegalArgumentException("I18nDAO can not be null.");
 		}
 		I18n.i18nDao = dao;
+	}
+
+	/**
+	 * Translates the given string with the given arguments. Extracts the set
+	 * language from the given account.
+	 * 
+	 * @param acc
+	 *            Account receiving the translation.
+	 * @param key
+	 *            String key to translate.
+	 * @param args
+	 *            Arguments to be filled into the translated string.
+	 * @return The translated string.
+	 */
+	public static String t(Account acc, String key, Object... args) {
+		if (acc == null) {
+			throw new IllegalArgumentException("Account can not be null.");
+		}
+
+		return t(acc.getLanguage().toString(), key, args);
 	}
 
 	public static String t(String lang, String key, Object... args) {

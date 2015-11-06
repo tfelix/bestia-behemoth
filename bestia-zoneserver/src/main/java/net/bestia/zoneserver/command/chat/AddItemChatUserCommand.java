@@ -33,6 +33,8 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 		// Find the player who send the message.
 		final Account acc = accDAO.find(m.getAccountId());
 		final long accId = acc.getId();
+		
+		// TODO Das hier macht probleme.
 		final int activeBestiaId = ctx.getServer().getBestiaRegister().getActiveBestia(accId);
 
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);

@@ -13,6 +13,7 @@ import com.artemis.Entity;
 import com.artemis.World;
 
 import net.bestia.messages.ChatMessage;
+import net.bestia.model.I18n;
 import net.bestia.model.ServiceLocator;
 import net.bestia.model.dao.AttackDAO;
 import net.bestia.model.domain.Attack;
@@ -24,7 +25,6 @@ import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.HP;
 import net.bestia.zoneserver.ecs.component.Mana;
 import net.bestia.zoneserver.routing.MessageProcessor;
-import net.bestia.zoneserver.util.I18n;
 
 /**
  * The PlayerBestiaManager is responsible for executing the "business logic" to

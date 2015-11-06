@@ -26,6 +26,7 @@ import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.messages.Message;
+import net.bestia.model.I18n;
 import net.bestia.model.dao.I18nDAO;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
@@ -41,7 +42,6 @@ import net.bestia.zoneserver.routing.MessageProcessor;
 import net.bestia.zoneserver.routing.MessageRouter;
 import net.bestia.zoneserver.routing.ServerSubscriptionManager;
 import net.bestia.zoneserver.script.ScriptManager;
-import net.bestia.zoneserver.util.I18n;
 import net.bestia.zoneserver.zone.Zone;
 
 /**

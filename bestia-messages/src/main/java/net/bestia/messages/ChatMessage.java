@@ -1,6 +1,8 @@
 package net.bestia.messages;
 
+import net.bestia.model.I18n;
 import net.bestia.model.domain.Account;
+
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -45,7 +47,26 @@ public class ChatMessage extends Message {
 	public ChatMessage() {
 		// no op.
 	}
+	
+	public static ChatMessage getSystemMessage(Account account, String translationKey, Object... args) {
+		
+		final String text = I18n.t(account, translationKey, args);
+		
+		ChatMessage msg = new ChatMessage();
+		msg.setAccountId(account.getId());
+		msg.setText(text);
+		msg.setTime(System.currentTimeMillis() / 1000L);
+		msg.setChatMode(Mode.SYSTEM);
+		return msg;
+	}
 
+	/**
+	 * @deprecated  Use getSystemmessage(Account account, String translationKey, Object... args)
+	 * @param account
+	 * @param text
+	 * @return
+	 */
+	@Deprecated
 	public static ChatMessage getSystemMessage(Account account, String text) {
 		ChatMessage msg = new ChatMessage();
 		msg.setAccountId(account.getId());
