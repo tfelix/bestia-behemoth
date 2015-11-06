@@ -54,10 +54,10 @@ public class Zone implements MessageProcessor {
 		private final CommandContext ctx;
 		private final ECSCommandFactory commandFactory;
 
-		public ZoneTicker(World world, CommandContext ctx) {
+		public ZoneTicker(World world, CommandContext ctx, Map map) {
 			this.world = world;
 			this.ctx = ctx;
-			this.commandFactory = new ECSCommandFactory(ctx, world);
+			this.commandFactory = new ECSCommandFactory(ctx, world, map);
 		}
 
 		@Override
@@ -175,7 +175,7 @@ public class Zone implements MessageProcessor {
 		// Create and prepare the thread.
 		final WorldExtender worldExtender = new WorldExtender(cmdContext.getConfiguration(), this);
 		final World world = worldExtender.createWorld(cmdContext, map);
-		zoneTicker = new ZoneTicker(world, cmdContext);
+		zoneTicker = new ZoneTicker(world, cmdContext, map);
 		zoneTickerThread = new Thread(null, zoneTicker, "zoneECS-" + name);
 
 		hasStarted.set(true);

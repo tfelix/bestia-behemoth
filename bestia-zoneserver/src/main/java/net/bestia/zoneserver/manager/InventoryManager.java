@@ -47,10 +47,10 @@ public class InventoryManager {
 		if (amount < 0) {
 			throw new IllegalArgumentException("Amount can not be null.");
 		}
-		
+
 		final boolean success = inventoryService.addItem(accId, itemId, amount, getMaxWeight());
-		
-		if(success) {
+
+		if (success) {
 			final PlayerItem playerItem = inventoryService.getPlayerItem(accId, itemId);
 			final InventoryUpdateMessage updateMsg = new InventoryUpdateMessage(accId);
 			updateMsg.updateItem(playerItem, amount);
@@ -84,7 +84,7 @@ public class InventoryManager {
 	 */
 	public boolean addItem(String itemDbName, int amount) {
 		final Item item = inventoryService.getItem(itemDbName);
-		if(item == null) {
+		if (item == null) {
 			throw new IllegalArgumentException("Unknown item db name.");
 		}
 		return addItem(item.getId(), amount);
@@ -110,7 +110,7 @@ public class InventoryManager {
 	 *         be removed.
 	 */
 	public boolean removeItem(int itemId, int amount) {
-		final PlayerItem playerItem = getItemById(itemId);
+		final PlayerItem playerItem = getPLayerItemById(itemId);
 		final boolean success = inventoryService.removeItem(accId, itemId, amount);
 
 		if (success) {
@@ -122,7 +122,15 @@ public class InventoryManager {
 		return success;
 	}
 
-	private PlayerItem getItemById(int itemId) {
+	/**
+	 * Returns the {@link PlayerItem} by an item ID. NULL if the player does not
+	 * own this item.
+	 * 
+	 * @param itemId
+	 *            Item ID.
+	 * @return {@link PlayerItem} or NULL if the player does not own the item.
+	 */
+	private PlayerItem getPLayerItemById(int itemId) {
 		return inventoryService.getPlayerItem(accId, itemId);
 	}
 
@@ -151,10 +159,11 @@ public class InventoryManager {
 	 * @return
 	 */
 	public int getMaxWeight() {
-		// TODO Das muss anders gelöst werden, da jede Bestia später ihr eigenes inventar haben wird.
+		// TODO Das muss anders gelöst werden, da jede Bestia später ihr eigenes
+		// inventar haben wird.
 		return 250;
-		//final int atk = master.getStatusPoints().getAtk();
-		//return 150 + atk * 4 + master.getLevel() * 3;
+		// final int atk = master.getStatusPoints().getAtk();
+		// return 150 + atk * 4 + master.getLevel() * 3;
 	}
 
 	public PlayerItem getPlayerItem(int playerItemId) {

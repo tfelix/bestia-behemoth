@@ -67,8 +67,8 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 				}				
 				
 			} catch (IllegalArgumentException ex) {
-				// TODO MSG
-
+				final ChatMessage responseMsg = ChatMessage.getSystemMessage(acc, "etc.unknown_item", itemDbNameStr);
+				ctx.getServer().processMessage(responseMsg);
 			}
 		} else {
 			try {
@@ -78,8 +78,8 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 				}
 				
 			} catch (IllegalArgumentException ex) {
-				// TODO MSG
-
+				final ChatMessage responseMsg = ChatMessage.getSystemMessage(acc, "etc.unknown_item", itemDbNameStr);
+				ctx.getServer().processMessage(responseMsg);
 			}
 		}
 	}
