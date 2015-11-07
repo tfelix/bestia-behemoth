@@ -78,6 +78,9 @@ public class I18n {
 			return errMsg;
 		}
 
+		// Replace the _ from java.Lang with the - version.
+		lang = lang.replace('_', '-');
+		
 		final net.bestia.model.domain.I18n trans = I18n.i18nDao.findOne(cat, keyClean, lang);
 		if (trans == null) {
 			final String errMsg = String.format("%s-%s", NO_TRANSLATION, key);
@@ -97,9 +100,9 @@ public class I18n {
 	 * @return The category removed from the key.
 	 */
 	private static String removeCategory(String key) {
-		final String[] keySplit = key.split(".");
+		final String[] keySplit = key.split("\\.");
 		if (keySplit.length < 2) {
-			return key;
+			return null;
 		} else {
 			return keySplit[1];
 		}
@@ -115,10 +118,17 @@ public class I18n {
 	 *         could be found.
 	 */
 	private static TranslationCategory getCategory(String key) {
-		final String[] cat = key.split(".");
-		final TranslationCategory tCat = TranslationCategory.valueOf(cat[0]);
+		final String[] cat = key.split("\\.");
 
-		return tCat;
+		if (cat.length < 2) {
+			return null;
+		}
+		try {
+			final TranslationCategory tCat = TranslationCategory.valueOf(cat[0].toUpperCase());
+			return tCat;
+		} catch (IllegalArgumentException ex) {
+			return null;
+		}
 	}
 
 }
