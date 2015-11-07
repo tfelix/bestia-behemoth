@@ -69,6 +69,11 @@ Bestia.Inventory = function(pubsub, i18n) {
 	this.selectedItem = ko.observable();
 
 	/**
+	 * Flag to show and hide the inventory window.
+	 */
+	this.showWindow = ko.observable(false);
+
+	/**
 	 * Show the current weight to carry.
 	 */
 	this.currentWeight = ko.pureComputed(function() {
@@ -107,10 +112,10 @@ Bestia.Inventory = function(pubsub, i18n) {
 		var searchTxt = this.searchFilter();
 
 		items = items.filter(function(el) {
-			if(el.name === undefined) {
+			if (el.name === undefined) {
 				return false;
 			}
-			
+
 			return el.name().lastIndexOf(searchTxt, 0) === 0;
 		});
 
@@ -161,7 +166,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 		self.currentBestiaId = data.playerBestiaId();
 	};
 
-	//pubsub.subscribe('bestia.info', bestiaSelectHandler);
+	// pubsub.subscribe('bestia.info', bestiaSelectHandler);
 	pubsub.subscribe('client.selectBestia', bestiaSelectHandler);
 
 	/**
@@ -184,9 +189,36 @@ Bestia.Inventory = function(pubsub, i18n) {
 			return;
 		}
 
-		var msg = new Bestia.Message.InventoryItemUse(item.playerItemId(),
-				self.currentBestiaId);
-		self._pubsub.publish('io.sendMessage', msg);
+		var msg = new Bestia.Message.InventoryItemUse(item.playerItemId(), self.currentBestiaId);
+		self._pubsub.send(msg);
+	};
+
+	/**
+	 * This will send a drop request for this particular item and its amount to
+	 * the server.
+	 * 
+	 * @param {Bestia.ItemVoewModel}
+	 *            item - Item to be dropped.
+	 * @param {Number}
+	 *            amount - Amount wished to be dropped.
+	 */
+	this.dropItem = function(item, amount) {
+		var msg = Bestia.Message.InventoryItemDrop(item.id(), amount);
+		self._pubsub.send(msg);
+		
 	};
 };
 
+/**
+ * Shows the inventory window.
+ */
+Bestia.Inventory.prototype.show = function() {
+	this.showWindow(true);
+};
+
+/**
+ * Hides the inventory window.
+ */
+Bestia.Inventory.prototype.close = function() {
+	this.showWindow(false);
+};

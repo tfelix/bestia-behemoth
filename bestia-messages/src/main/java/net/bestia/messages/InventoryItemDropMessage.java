@@ -16,7 +16,7 @@ public class InventoryItemDropMessage extends InputMessage {
 
 	public final static String MESSAGE_ID = "inventory.item.drop";
 
-	@JsonProperty("id")
+	@JsonProperty("iid")
 	private int itemId;
 
 	@JsonProperty("a")

@@ -226,76 +226,7 @@
 	<!-- /.modal -->
 
 	<!-- INVENTORY -->
-	<div id="modal-inventory" class="modal fade"
-		data-bind="with: inventory">
-		<div class="modal-dialog" style="width: 800px;">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-					<input
-						style="border: 1px solid; display: inline-block; float: right; margin-right: 20px;"
-						data-i18n="[placeholder]app.search"
-						data-bind="textInput: searchFilter" placeholder="">
-					<h4 class="modal-title" data-i18n="nav.inventory">nav.inventar</h4>
-				</div>
-
-				<div class="modal-body"
-					style="height: 400px; width: 550px; float: left;">
-					<div>
-						<button>All</button>
-						<button>Equip</button>
-						<button>Usable</button>
-						<button>Etc</button>
-					</div>
-					<div class="items" data-bind="foreach: items">
-						<div class="item tooltip" data-bind="click: $parent.clickItem"
-							data-tooltip="+7 Anales Breitschwert">
-							<img data-bind="attr: {src: imageSrc, alt: name}" src="" alt="">
-							<span class="amount" data-bind="text: amount"></span>
-						</div>
-					</div>
-
-				</div>
-
-				<!--  -->
-				<div style="background: green; width: 200px; float: left;">
-
-					<!-- ITEM DETAILS -->
-					<div data-bind="visible:selectedItem() !== undefined"
-						class="item-details">
-						<img
-							data-bind="attr: {src: selectedItem.imageSrc, alt: selectedItem.name}"
-							src="" alt="">
-						<h5 data-bind="text: name"></h5>
-						<p data-bind="text: selectedItem.description"></p>
-
-						<button data-i18n="inv.drop">inv.drop</button>
-					</div>
-					<!-- /ITEM DETAILS -->
-
-				</div>
-
-				<div class="modal-footer" style="clear: both;">
-					<span data-i18n="inv.weight">inv.weight</span>: <span
-						data-bind="text: currentWeight">0</span>/<span
-						data-bind="text: maxWeight">0</span>
-					<button type="button" class="btn btn-default" data-dismiss="modal"
-						data-i18n="ui.close">ui.close</button>
-				</div>
-			</div>
-			<!-- /.modal-content -->
-		</div>
-		<!-- /.modal-dialog -->
-	</div>
-	<!-- /INVENTORY -->
-
-	<!-- INVENTORY_NEW -->
-
-	<div id="inventory2">
-
+	<div id="inventory">
 		<div class="inventory">
 
 			<div class="header">
@@ -333,12 +264,9 @@
 			</div>
 
 			<div class="footer">67 / 123 Gewicht</div>
-
 		</div>
-
 	</div>
-
-	<!-- /INVENTORY_NEW -->
+	<!-- /INVENTORY -->
 
 	<!-- ATTACKS -->
 	<div id="attacks"

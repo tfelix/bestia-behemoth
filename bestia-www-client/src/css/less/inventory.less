@@ -3,14 +3,13 @@
 	width: 32px;
 	height: 32px;
 	display: inline-block;
-	
 	cursor: pointer;
-	
 	position: relative;
-	
 	background: white;
+	vertical-align: top;
 	
 	img {
+		margin: 0;
 		position: absolute;
 	}
 	
@@ -19,13 +18,71 @@
 		padding: 2px 2px 1px 2px;
 		border-radius: 2px;
 		color: white;
-		
 		line-height: 1;
-		
-		font-size: 7pt;
-		
+		font-size: 10pt;
 		position: absolute;
 		right: 0px;
 		bottom: 0px;
 	}
+	
+	.items {
+		height: 300px;
+		background: blue;
+		padding: 4px;
+	}
+}
+
+
+.inventory {
+	height: 500px;
+	width: 800px;
+	background: green;
+	position: absolute;
+	bottom: 0;
+	padding: 10px;
+	
+	.header {
+		padding: 5px 0;
+		background: yellow;
+	}
+}
+
+.left {
+	height: 100%;
+	display: inline-block;
+	vertical-align: top;
+}
+
+.right {
+	display: inline-block;
+	vertical-align: top;
+	margin-left: 100px;
+}
+
+.fixed {
+	width: 400px;
+	background: gray;
+	display: inline-block;
+	vertical-align: top;
+}
+
+.footer {
+	text-align: right;
+	padding-right: 10px;
+}
+
+.flex {
+	min-width: 300px;
+	flex: 1;
+}
+
+.flex-container {
+	display: flex;
+	flex-direction: row;
+}
+
+.equipment {
+	width: 300px;
+	background: pink;
+	
 }

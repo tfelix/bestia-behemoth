@@ -144,6 +144,21 @@ Bestia.Message = {
 	},
 
 	/**
+	 * Requests to the server to drop an item to the ground.
+	 * 
+	 * @param itemId
+	 *            The item to be dropped.
+	 * @param amount
+	 *            The amount of the item to be dropped.
+	 */
+	InventoryItemDrop : function(itemId, amount) {
+		this.mid = 'inventory.item.drop';
+
+		this.iid = itemId;
+		this.a = amount;
+	},
+
+	/**
 	 * Requests to the server to list all available attacks for this bestia.
 	 */
 	AttackListRequest : function() {
