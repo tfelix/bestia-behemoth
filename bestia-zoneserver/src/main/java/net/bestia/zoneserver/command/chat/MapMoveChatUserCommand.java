@@ -18,9 +18,6 @@ public class MapMoveChatUserCommand implements ChatUserCommand {
 	
 	private static final Logger LOG = LogManager.getLogger(MapMoveChatUserCommand.class);
 	
-	Pattern p = Pattern.compile("(\\D+) (\\d+) (\\d+)");
-	Matcher m = p.matcher("Testing123Testing");
-	
 	private final Pattern mapPattern= Pattern.compile("(\\D+) (\\d+) (\\d+)");
 	private final Pattern cordsPattern = Pattern.compile("(\\d+) (\\d+)");
 
@@ -35,13 +32,13 @@ public class MapMoveChatUserCommand implements ChatUserCommand {
 		
 		Location target = null;
 		if(m1.find()) {
-			final String loc = m.group(1);
-			final int x = Integer.parseInt(m.group(2));
-			final int y = Integer.parseInt(m.group(3));
+			final String loc = m1.group(1);
+			final int x = Integer.parseInt(m1.group(2));
+			final int y = Integer.parseInt(m1.group(3));
 			target = new Location(loc, x, y);
 		} else if(m2.find()) {
-			final int x = Integer.parseInt(m.group(1));
-			final int y = Integer.parseInt(m.group(2));		
+			final int x = Integer.parseInt(m2.group(1));
+			final int y = Integer.parseInt(m2.group(2));		
 			target = new Location("", x, y);
 		} else {
 			// Command not understood.

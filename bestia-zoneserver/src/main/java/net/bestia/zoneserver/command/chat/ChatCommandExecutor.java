@@ -80,10 +80,10 @@ public class ChatCommandExecutor {
 			return null;
 		}
 
-		if (!tokens[1].startsWith("/")) {
+		if (!tokens[0].startsWith("/")) {
 			return null;
 		}
 
-		return tokens[1];
+		return tokens[0];
 	}
 }

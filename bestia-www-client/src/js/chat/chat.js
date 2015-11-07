@@ -32,7 +32,7 @@ Bestia.Chat = function(domEle, game) {
 	 * @constant
 	 */
 	this.MAX_MESSAGES = 50;
-	
+
 	/**
 	 * Name of the bestia master. Is extracted from the game config which is set
 	 * during login process.
@@ -120,7 +120,7 @@ Bestia.Chat = function(domEle, game) {
 	game.pubsub.subscribe('chat.message', function(_, msg) {
 		self.addMessage(msg);
 	});
-	
+
 	// Handle authentication to set username.
 	game.pubsub.subscribe('system.auth', function(_, data) {
 		self.LOCAL_NICKNAME = data.username;
@@ -150,8 +150,17 @@ Bestia.Chat.prototype.sendChat = function() {
 
 	// Prepare and send the message to the server and add it to the local chat.
 	var msg = new Bestia.Message.Chat(this.mode(), msgText, this.whisperNick(), this.LOCAL_NICKNAME);
+
+	// Check if this was a command to be executed on the server and set the
+	// message flag accordingly.
+	if (msgText.slice(0, 1) === "/") {
+		msg.m = 'COMMAND';
+	} else {
+		// Only add when its no command.
+		this.addMessage(msg);
+	}
+
 	this.game.pubsub.publish('io.sendMessage', msg);
-	this.addMessage(msg);
 };
 
 /**
