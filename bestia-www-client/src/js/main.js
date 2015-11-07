@@ -37,7 +37,7 @@ function main() {
 
 	// Add click handler.
 	$('#btn-inventory').click(function() {
-		$('#modal-inventory').modal('show');
+		game.inventory.showWindow(!game.inventory.showWindow());
 	});
 	
 	$('#btn-attacks').click(function() {
