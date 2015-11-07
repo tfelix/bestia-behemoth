@@ -32,7 +32,7 @@ import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
-import net.bestia.zoneserver.command.ServerCommandFactory;
+import net.bestia.zoneserver.command.server.ServerCommandFactory;
 import net.bestia.zoneserver.ecs.BestiaActiveRegister;
 import net.bestia.zoneserver.loader.ScriptLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
@@ -57,6 +57,10 @@ public class Zoneserver implements MessageProcessor {
 
 	private final static Logger log = LogManager.getLogger(Zoneserver.class);
 
+	/**
+	 * Handles messages coming from the external interserver.
+	 *
+	 */
 	private class InterserverHandler implements InterserverMessageHandler {
 
 		@Override
@@ -66,27 +70,6 @@ public class Zoneserver implements MessageProcessor {
 			// Route the message.
 			messageRouter.processMessage(msg);
 		}
-	}
-
-	/**
-	 * Handles the messages which are directed to the server itself.
-	 *
-	 */
-	private class IncomingMessageProcessor implements MessageProcessor {
-
-		@Override
-		public void processMessage(Message msg) {
-			// Create command out of the message and deliver it to the executor.
-			final Command cmd = commandFactory.getCommand(msg);
-
-			if (cmd == null) {
-				// No command was found.
-				return;
-			}
-
-			commandExecutor.execute(cmd);
-		}
-
 	}
 
 	private final String name;
@@ -164,7 +147,7 @@ public class Zoneserver implements MessageProcessor {
 
 		// Setup the message routing.
 		final MessageFilter filter = new MessageDirectDescandantFilter(Message.class);
-		messageRouter.registerFilter(filter, new IncomingMessageProcessor());
+		messageRouter.registerFilter(filter, this);
 		subscriptionManager = new ServerSubscriptionManager(this);
 
 		// Prepare the (static) translator.
@@ -306,9 +289,9 @@ public class Zoneserver implements MessageProcessor {
 	}
 
 	/**
-	 * Returns a {@link BestiaActiveRegister}. It will be used by the ECS to fetch the
-	 * player input async aswell as the commands to pipe the player input for
-	 * the different bestias to the ECS.
+	 * Returns a {@link BestiaActiveRegister}. It will be used by the ECS to
+	 * fetch the player input async aswell as the commands to pipe the player
+	 * input for the different bestias to the ECS.
 	 * 
 	 * @return
 	 */
@@ -404,13 +387,29 @@ public class Zoneserver implements MessageProcessor {
 	 * always needed in order to dynamically subscribe new message filter.
 	 * </p>
 	 */
-	@Override
-	public void processMessage(Message message) {
+	public void sendMessage(Message message) {
 		log.trace("Sending: {}", message.toString());
 		try {
 			interserverPublisher.publish(message);
 		} catch (IOException e) {
 			log.trace("Error: Could not deliver message: {}", message.toString(), e);
 		}
+	}
+
+	/**
+	 * Messages arriving here should be executed on the server.
+	 */
+	@Override
+	public void processMessage(Message msg) {
+
+		// Create command out of the message and deliver it to the executor.
+		final Command cmd = commandFactory.getCommand(msg);
+
+		if (cmd == null) {
+			// No command was found.
+			return;
+		}
+
+		commandExecutor.execute(cmd);
 	}
 }

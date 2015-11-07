@@ -6,6 +6,7 @@ import java.util.List;
 import net.bestia.messages.TranslationRequestMessage;
 import net.bestia.messages.TranslationRequestMessage.TranslationItem;
 import net.bestia.model.domain.TranslationCategory;
+import net.bestia.zoneserver.command.server.TranslationCommand;
 
 public class TranslationCommandTest {
 

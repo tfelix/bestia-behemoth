@@ -70,7 +70,7 @@ public class ChangedNetworkUpdateSystem extends EntityProcessingSystem {
 		if(playerMapper.has(e)) {
 			final PlayerBestiaManager pbm = playerMapper.get(e).playerBestiaManager;
 			final BestiaInfoMessage bestiaInfoMsg = new BestiaInfoMessage(pbm.getPlayerBestia());
-			ctx.getServer().processMessage(bestiaInfoMsg);
+			ctx.getServer().sendMessage(bestiaInfoMsg);
 		}
 		
 
@@ -113,7 +113,7 @@ public class ChangedNetworkUpdateSystem extends EntityProcessingSystem {
 
 		LOG.trace("Sending update for entity: {} to accId: {}", msg.getUuid(), accId);
 
-		ctx.getServer().processMessage(updateMsg);
+		ctx.getServer().sendMessage(updateMsg);
 	}
 
 	/**

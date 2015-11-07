@@ -1,10 +1,12 @@
-package net.bestia.zoneserver.command;
+package net.bestia.zoneserver.command.server;
 
 import java.util.Set;
 
 import net.bestia.messages.Message;
 import net.bestia.messages.ServerInfoMessage;
 import net.bestia.util.BestiaConfiguration;
+import net.bestia.zoneserver.command.Command;
+import net.bestia.zoneserver.command.CommandContext;
 
 /**
  * Returns information about this zone server which is requested and needed for
@@ -30,7 +32,7 @@ public class ServerInfoCommand extends Command {
 		final ServerInfoMessage reply = new ServerInfoMessage(message,
 				zoneNames, ctx.getServer().getName(), 0,
 				conf.getProperty("resourceUrl"));
-		ctx.getServer().processMessage(reply);
+		ctx.getServer().sendMessage(reply);
 	}
 
 }

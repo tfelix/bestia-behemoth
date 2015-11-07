@@ -64,7 +64,7 @@ public class PublicChatCommand extends ECSCommand {
 			}
 
 			final ChatMessage forwardMsg = ChatMessage.getForwardMessage(receiverAccId, msg);
-			ctx.getServer().processMessage(forwardMsg);
+			ctx.getServer().sendMessage(forwardMsg);
 
 		}
 	}

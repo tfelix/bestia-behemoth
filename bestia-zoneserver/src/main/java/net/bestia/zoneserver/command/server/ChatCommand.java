@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.command;
+package net.bestia.zoneserver.command.server;
 
 import net.bestia.messages.ChatEchoMessage;
 import net.bestia.messages.ChatEchoMessage.EchoCode;
@@ -8,6 +8,8 @@ import net.bestia.messages.InputWrapperMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
+import net.bestia.zoneserver.command.Command;
+import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.chat.ChatCommandExecutor;
 import net.bestia.zoneserver.ecs.BestiaActiveRegister;
 
@@ -70,7 +72,7 @@ class ChatCommand extends Command {
 			// Echo the message back to the user.
 			replyMsg = ChatEchoMessage.getEchoMessage(m);
 			replyMsg.setEchoCode(EchoCode.OK);
-			ctx.getServer().processMessage(replyMsg);
+			ctx.getServer().sendMessage(replyMsg);
 			break;
 		
 		case PARTY:

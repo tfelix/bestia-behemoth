@@ -228,7 +228,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem implements Messag
 		// Use the updated bestia.
 		infoMsg.setBestia(pbm.getPlayerBestia());
 		infoMsg.setMaster(isMaster);
-		ctx.getServer().processMessage(infoMsg);
+		ctx.getServer().sendMessage(infoMsg);
 
 		// Now set all the needed values.
 		LOG.trace("Spawning player bestia: {}.", pb);

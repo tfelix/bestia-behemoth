@@ -83,7 +83,7 @@ public abstract class NetworkUpdateSystem extends BaseEntitySystem {
 
 		log.trace("Sending update for entity: {} to accId: {}", msg.getUuid(), accId);
 
-		ctx.getServer().processMessage(updateMsg);
+		ctx.getServer().sendMessage(updateMsg);
 	}
 
 	/**

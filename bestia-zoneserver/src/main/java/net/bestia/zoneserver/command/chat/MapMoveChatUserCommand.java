@@ -46,7 +46,7 @@ public class MapMoveChatUserCommand implements ChatUserCommand {
 			final AccountDAO accDao = ctx.getServiceLocator().getBean(AccountDAO.class);
 			final Account acc = accDao.find(message.getAccountId());
 			final ChatMessage reply = ChatMessage.getSystemMessage(acc, "etc.unknown_command");
-			ctx.getServer().processMessage(reply);
+			ctx.getServer().sendMessage(reply);
 			return;
 		}
 		

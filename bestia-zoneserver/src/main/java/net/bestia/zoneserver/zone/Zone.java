@@ -13,7 +13,7 @@ import com.artemis.World;
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.command.ECSCommandFactory;
+import net.bestia.zoneserver.command.ecs.ECSCommandFactory;
 import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
 import net.bestia.zoneserver.routing.MessageProcessor;
 import net.bestia.zoneserver.zone.map.Map;

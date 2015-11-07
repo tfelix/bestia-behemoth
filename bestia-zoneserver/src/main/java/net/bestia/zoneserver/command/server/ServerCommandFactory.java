@@ -1,9 +1,12 @@
-package net.bestia.zoneserver.command;
+package net.bestia.zoneserver.command.server;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.messages.Message;
+import net.bestia.zoneserver.command.Command;
+import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.command.CommandFactory;
 
 /**
  * Creates commands from incoming messages. Please bear in mind that not each message creates a command for execution on

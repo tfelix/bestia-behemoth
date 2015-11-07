@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.command;
+package net.bestia.zoneserver.command.server;
 
 import java.util.List;
 
@@ -7,6 +7,8 @@ import net.bestia.messages.AttackListResponseMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.domain.AttackLevel;
 import net.bestia.model.service.PlayerBestiaService;
+import net.bestia.zoneserver.command.Command;
+import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.BestiaActiveRegister;
 
 /**
@@ -43,7 +45,7 @@ public class AttackListRequestCommand extends Command {
 		final AttackListResponseMessage response = new AttackListResponseMessage(message);		
 		response.setAttacks(attacks);
 		
-		ctx.getServer().processMessage(response);
+		ctx.getServer().sendMessage(response);
 	}
 
 	@Override

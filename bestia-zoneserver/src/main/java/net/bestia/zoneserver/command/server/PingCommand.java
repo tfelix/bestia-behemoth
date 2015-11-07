@@ -1,8 +1,10 @@
-package net.bestia.zoneserver.command;
+package net.bestia.zoneserver.command.server;
 
 import net.bestia.messages.Message;
 import net.bestia.messages.PingMessage;
 import net.bestia.messages.PongMessage;
+import net.bestia.zoneserver.command.Command;
+import net.bestia.zoneserver.command.CommandContext;
 
 /**
  * Creates a Pong message which is echoed to the client. This is the answer of a
@@ -27,7 +29,7 @@ class PingCommand extends Command {
 	public void execute(Message message, CommandContext ctx) {
 		// Nothing is done here. Just a message will be returned.
 		final PongMessage msg = new PongMessage(message);
-		ctx.getServer().processMessage(msg);
+		ctx.getServer().sendMessage(msg);
 	}
 
 }

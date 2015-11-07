@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.command;
+package net.bestia.zoneserver.command.server;
 
 import java.util.Set;
 
@@ -9,6 +9,8 @@ import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.Zoneserver;
+import net.bestia.zoneserver.command.Command;
+import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
 
 /*-

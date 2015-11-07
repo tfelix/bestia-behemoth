@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.command;
+package net.bestia.zoneserver.command.ecs;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -8,7 +8,10 @@ import com.artemis.World;
 
 import net.bestia.messages.InputMessage;
 import net.bestia.messages.Message;
-import net.bestia.zoneserver.command.ecs.ECSCommand;
+import net.bestia.zoneserver.command.Command;
+import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.command.CommandFactory;
+import net.bestia.zoneserver.command.server.ServerCommandFactory;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.zone.map.Map;

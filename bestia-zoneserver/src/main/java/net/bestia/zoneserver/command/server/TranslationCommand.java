@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.command;
+package net.bestia.zoneserver.command.server;
 
 import net.bestia.messages.Message;
 import net.bestia.messages.TranslationRequestMessage;
@@ -7,6 +7,8 @@ import net.bestia.messages.TranslationResponseMessage;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.I18nDAO;
 import net.bestia.model.domain.I18n;
+import net.bestia.zoneserver.command.Command;
+import net.bestia.zoneserver.command.CommandContext;
 
 /**
  * This method awaits a translation request message. It will then send this
@@ -50,7 +52,7 @@ public class TranslationCommand extends Command {
 			response.getItems().add(item);
 		}
 
-		ctx.getServer().processMessage(response);
+		ctx.getServer().sendMessage(response);
 	}
 
 }

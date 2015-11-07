@@ -51,7 +51,7 @@ public class ActivateCommand extends ECSCommand {
 			final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
 			final InventoryManager invManager = new InventoryManager(playerBestia, invService, ctx.getServer());
 			final Message invListMessage = invManager.getInventoryListMessage();
-			ctx.getServer().processMessage(invListMessage);
+			ctx.getServer().sendMessage(invListMessage);
 		} else {
 			if (activeMapper.has(player)) {
 				// This bestia should not be active anymore.

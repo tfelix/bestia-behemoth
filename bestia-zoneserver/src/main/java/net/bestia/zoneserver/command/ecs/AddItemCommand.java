@@ -42,7 +42,7 @@ public class AddItemCommand extends ECSCommand {
 				}
 			} catch (IllegalArgumentException ex) {
 				final ChatMessage responseMsg = ChatMessage.getSystemMessage(acc, "etc.unknown_item", msg.getItemId());
-				ctx.getServer().processMessage(responseMsg);
+				ctx.getServer().sendMessage(responseMsg);
 			}
 		} else {
 			try {
@@ -53,7 +53,7 @@ public class AddItemCommand extends ECSCommand {
 
 			} catch (IllegalArgumentException ex) {
 				final ChatMessage responseMsg = ChatMessage.getSystemMessage(acc, "etc.unknown_item", msg.getItemId());
-				ctx.getServer().processMessage(responseMsg);
+				ctx.getServer().sendMessage(responseMsg);
 			}
 		}
 	}
