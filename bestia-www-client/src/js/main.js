@@ -51,6 +51,8 @@ function main() {
 		}
 	});
 	
+	game.inventory.show();
+	
 	// Export game to global if dev.
 	// @ifdef DEVELOPMENT
 	window.bestiaGame = game;

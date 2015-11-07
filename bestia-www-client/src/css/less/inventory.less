@@ -1,15 +1,21 @@
 .inventory {
-	height: 500px;
+	.slider;
+	height: 300px;
 	width: 800px;
-	background: green;
-	position: absolute;
-	bottom: 0;
-	padding: 10px;
-	z-index: 200;
 	
-	.header {
-		padding: 5px 0;
-		background: yellow;
+	.items {
+		min-height: 300px;
+		background: @lightBackground;
+		border: 1px solid black;
+		padding: 4px;
+	}
+	
+	.left {
+		float: left;
+	}
+
+	.right {
+		float: right;
 	}
 }
 
@@ -38,25 +44,6 @@
 		right: 0px;
 		bottom: 0px;
 	}
-	
-	.items {
-		height: 300px;
-		background: blue;
-		padding: 4px;
-	}
-}
-
-
-.left {
-	height: 100%;
-	display: inline-block;
-	vertical-align: top;
-}
-
-.right {
-	display: inline-block;
-	vertical-align: top;
-	margin-left: 100px;
 }
 
 .fixed {
