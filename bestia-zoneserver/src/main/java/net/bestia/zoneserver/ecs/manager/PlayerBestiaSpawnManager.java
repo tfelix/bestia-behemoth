@@ -19,6 +19,7 @@ import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 
 import net.bestia.messages.BestiaInfoMessage;
+import net.bestia.messages.InputMessage;
 import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.dao.PlayerBestiaDAO;
@@ -35,9 +36,12 @@ import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
-import net.bestia.zoneserver.routing.DynamicMessageFilter;
+import net.bestia.zoneserver.routing.DynamicBestiaIdMessageFilter;
+import net.bestia.zoneserver.routing.MessageCombineFilter;
+import net.bestia.zoneserver.routing.MessageDirectDescandantFilter;
 import net.bestia.zoneserver.routing.MessageIdFilter;
 import net.bestia.zoneserver.routing.MessageProcessor;
+import net.bestia.zoneserver.routing.MessageRouter;
 import net.bestia.zoneserver.routing.ServerSubscriptionManager;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
@@ -63,9 +67,11 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem implements Messag
 
 	private final MessageProcessor zoneProcessor;
 
-	private final MessageIdFilter spawnMessageFilter = new MessageIdFilter();
-
-	private final DynamicMessageFilter zoneMessageFilter = new DynamicMessageFilter();
+	/**
+	 * This filter is to let the 
+	 */
+	private final DynamicBestiaIdMessageFilter zoneMessageFilter = new DynamicBestiaIdMessageFilter();
+	
 	private final Queue<Message> msgQueue = new ConcurrentLinkedQueue<>();
 	private Archetype playerBestiaArchetype;
 
@@ -84,17 +90,23 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem implements Messag
 	@Override
 	protected void initialize() {
 		super.initialize();
+		
+		final MessageRouter router = ctx.getServer().getMessageRouter();
 
 		// This manager needs to know about these two messages to create and
 		// delete entities.
+		final MessageIdFilter spawnMessageFilter = new MessageIdFilter();
 		spawnMessageFilter.addMessageId(SpawnPlayerBestiaMessage.MESSAGE_ID);
 		spawnMessageFilter.addMessageId(LogoutBroadcastMessage.MESSAGE_ID);
-		ctx.getServer().getMessageRouter().registerFilter(spawnMessageFilter, this);
+		router.registerFilter(spawnMessageFilter, this);
 
 		// Prepare the message filter for the different zones. Depending on
 		// active bestias on this zone messages can be re-routed to this
 		// instance.
-		ctx.getServer().getMessageRouter().registerFilter(zoneMessageFilter, zoneProcessor);
+		final MessageCombineFilter combineFilter = new MessageCombineFilter();
+		combineFilter.addFilter(new MessageDirectDescandantFilter(InputMessage.class));
+		combineFilter.addFilter(zoneMessageFilter);
+		router.registerFilter(combineFilter, zoneProcessor);
 
 		subscriptionManager = ctx.getServer().getSubscriptionManager();
 

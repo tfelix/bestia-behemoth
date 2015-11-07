@@ -77,7 +77,6 @@ Bestia.Message = {
 	 */
 	BestiaActivate : function(playerBestiaId) {
 		this.mid = 'bestia.activate';
-
 		this.pbid = playerBestiaId;
 	},
 

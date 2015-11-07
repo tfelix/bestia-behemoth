@@ -1,5 +1,8 @@
 package net.bestia.zoneserver.manager;
 
+import java.util.List;
+
+import net.bestia.messages.InventoryListMessage;
 import net.bestia.messages.InventoryUpdateMessage;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerItem;
@@ -23,6 +26,10 @@ public class InventoryManager {
 	private final PlayerBestiaManager owner;
 
 	public InventoryManager(PlayerBestiaManager owner, InventoryService service, Zoneserver server) {
+		if (owner == null) {
+			throw new IllegalArgumentException("The owner of the inventory can not be null.");
+		}
+
 		if (service == null) {
 			throw new IllegalArgumentException("Service can not be null.");
 		}
@@ -110,7 +117,7 @@ public class InventoryManager {
 	 *         be removed.
 	 */
 	public boolean removeItem(int itemId, int amount) {
-		final PlayerItem playerItem = getPLayerItemById(itemId);
+		final PlayerItem playerItem = getPlayerItemById(itemId);
 		final boolean success = inventoryService.removeItem(accId, itemId, amount);
 
 		if (success) {
@@ -123,6 +130,26 @@ public class InventoryManager {
 	}
 
 	/**
+	 * Creates a {@link InventoryListMessage} from the current inventory
+	 * contents.
+	 * 
+	 * @return
+	 */
+	public InventoryListMessage getInventoryListMessage() {
+		final List<PlayerItem> items = inventoryService.findPlayerItemsForAccount(accId);
+		final int curWeight = inventoryService.getTotalItemWeight(accId);
+
+		// Generate a list of inventory items.
+		final InventoryListMessage invMsg = new InventoryListMessage();
+		invMsg.setPlayerItems(items);
+		invMsg.setCurrentWeight(curWeight);
+		
+		invMsg.setAccountId(accId);
+
+		return invMsg;
+	}
+
+	/**
 	 * Returns the {@link PlayerItem} by an item ID. NULL if the player does not
 	 * own this item.
 	 * 
@@ -130,7 +157,7 @@ public class InventoryManager {
 	 *            Item ID.
 	 * @return {@link PlayerItem} or NULL if the player does not own the item.
 	 */
-	private PlayerItem getPLayerItemById(int itemId) {
+	private PlayerItem getPlayerItemById(int itemId) {
 		return inventoryService.getPlayerItem(accId, itemId);
 	}
 
@@ -159,11 +186,10 @@ public class InventoryManager {
 	 * @return
 	 */
 	public int getMaxWeight() {
-		// TODO Das muss anders gelöst werden, da jede Bestia später ihr eigenes
-		// inventar haben wird.
-		return 250;
-		// final int atk = master.getStatusPoints().getAtk();
-		// return 150 + atk * 4 + master.getLevel() * 3;
+		final int baseWeight = 300; // Currently we can not distinguesh between
+									// bestia classes.
+		final int weight = (int)(baseWeight + 200.0 / owner.getLevel() + 5 * owner.getStatusPoints().getAtk());
+		return weight;
 	}
 
 	public PlayerItem getPlayerItem(int playerItemId) {

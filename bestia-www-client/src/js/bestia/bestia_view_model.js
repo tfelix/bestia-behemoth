@@ -54,7 +54,7 @@ Bestia.BestiaViewModel = function(pubsub, msg) {
 	 */
 	this.selectBestia = function() {
 		var activeMsg = new Bestia.Message.BestiaActivate(this.playerBestiaId());
-		this._pubsub.publish('io.sendMessage', activeMsg);
+		this._pubsub.send(activeMsg);
 	};
 };
 

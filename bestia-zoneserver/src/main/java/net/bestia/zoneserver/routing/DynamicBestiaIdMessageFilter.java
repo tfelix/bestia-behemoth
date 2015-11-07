@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.bestia.messages.InputMessage;
 import net.bestia.messages.Message;
 
-public class DynamicMessageFilter implements MessageFilter {
+public class DynamicBestiaIdMessageFilter implements MessageFilter {
 
 	// There is nos concurrent set, we must build it from map.
 	private final Set<Integer> interestedBestiaIds = Collections.newSetFromMap(new ConcurrentHashMap<>());

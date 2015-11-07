@@ -3,6 +3,7 @@ package net.bestia.zoneserver.command.chat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.bestia.messages.AddItemMessage;
 import net.bestia.messages.ChatMessage;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
@@ -19,7 +20,7 @@ import net.bestia.zoneserver.manager.InventoryManager;
  */
 public class AddItemChatUserCommand implements ChatUserCommand {
 
-	private static final Logger LOG = LogManager.getLogger(AddItemChatUserCommand.class);
+	//private static final Logger LOG = LogManager.getLogger(AddItemChatUserCommand.class);
 
 	/* (non-Javadoc)
 	 * @see net.bestia.zoneserver.command.chat.ChatUserCommand2#execute(net.bestia.messages.Message, net.bestia.zoneserver.command.CommandContext)
@@ -34,11 +35,7 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 		final Account acc = accDAO.find(m.getAccountId());
 		final long accId = acc.getId();
 		
-		// TODO Das hier macht probleme.
-		final int activeBestiaId = ctx.getServer().getBestiaRegister().getActiveBestia(accId);
-
-		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
-		final InventoryManager invManager = new InventoryManager(null, invService, ctx.getServer());
+		final int pbId = ctx.getServer().getBestiaRegister().getActiveBestia(accId);
 
 		// Get the item name and the amount.
 		final String[] tokens = m.getText().split(" ");
@@ -57,31 +54,9 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 		} catch (NumberFormatException ex) {
 			return;
 		}
-
-		if (itemDbNameStr.matches("\\d+")) {
-			try {
-				final int itemId = Integer.parseInt(itemDbNameStr);
-				final boolean success = invManager.addItem(itemId, amount);
-				if(success) {
-					LOG.info("GM: Spawning item: {}, amount: {} for account: {}.", accId);
-				}				
-				
-			} catch (IllegalArgumentException ex) {
-				final ChatMessage responseMsg = ChatMessage.getSystemMessage(acc, "etc.unknown_item", itemDbNameStr);
-				ctx.getServer().processMessage(responseMsg);
-			}
-		} else {
-			try {
-				final boolean success = invManager.addItem(itemDbNameStr, amount);
-				if(success) {
-				LOG.info("GM: Spawning item: {}, amount: {} for account: {}.", accId);
-				}
-				
-			} catch (IllegalArgumentException ex) {
-				final ChatMessage responseMsg = ChatMessage.getSystemMessage(acc, "etc.unknown_item", itemDbNameStr);
-				ctx.getServer().processMessage(responseMsg);
-			}
-		}
+		
+		final AddItemMessage addMsg = new AddItemMessage(accId, pbId, itemDbNameStr, amount);
+		ctx.getServer().getMessageRouter().processMessage(addMsg);
 	}
 	
 	/* (non-Javadoc)

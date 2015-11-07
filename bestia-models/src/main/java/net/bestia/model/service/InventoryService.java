@@ -7,6 +7,8 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerItem;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -295,5 +297,17 @@ public class InventoryService {
 		}
 
 		return addItem(accId, itemId, amount);
+	}
+
+	/**
+	 * Delegates down to the DAO to find all items for the current account.
+	 * Note: This will and must change when we switch to bestia based
+	 * inventories.
+	 * 
+	 * @param accId
+	 * @return
+	 */
+	public List<PlayerItem> findPlayerItemsForAccount(long accId) {
+		return playerItemDao.findPlayerItemsForAccount(accId);
 	}
 }

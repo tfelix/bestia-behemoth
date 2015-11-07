@@ -15,7 +15,8 @@ import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
  * This command will be executed if a new user wants to join. He needs a few information in order to boot the client
  * properly. First of all we need to check if this zone is responsible for this account in any way, this means if at
  * least one bestia is present on one of the responsible zones. If this is the case we will spawn all this bestias to
- * the ECS.
+ * the ECS. This is also the reason we dont let the zone handle the command which would be possible. But we avoid all
+ * zones checking if they are responsible for the to be spanwed bestia. Instead we handle it in a centralized manner.
  * If the bestia master is currently active on one of our responsible zones we act as the "main zoneserver" for this
  * account sending additional information to boot up the client (inventory list for example).
  * As soon as the bestia master has become active. This will send all changes of entities inside his view to the client.
@@ -54,10 +55,10 @@ public class LoginBroadcastCommand extends Command {
 
 		// Add master as well since its not listed as a "player bestia".
 		bestias.add(account.getMaster());
-		
+
 		registerPlayerBestias(message.getAccountId(), bestias);
 	}
-	
+
 	/**
 	 * Checks if a certain bestia is managed by this particular zone. If this is
 	 * the case register the bestia in the ECS of the server and then add the

@@ -113,7 +113,7 @@ public class Zoneserver implements MessageProcessor {
 
 	private final ScriptManager scriptManager = new ScriptManager();
 
-	private final BestiaActiveRegister ecsInputController = new BestiaActiveRegister();
+	private final BestiaActiveRegister activeBestiaRegistry = new BestiaActiveRegister();
 
 	/**
 	 * Ctor. The server needs a connection to its clients so it can use the
@@ -313,7 +313,7 @@ public class Zoneserver implements MessageProcessor {
 	 * @return
 	 */
 	public BestiaActiveRegister getBestiaRegister() {
-		return ecsInputController;
+		return activeBestiaRegistry;
 	}
 
 	/**

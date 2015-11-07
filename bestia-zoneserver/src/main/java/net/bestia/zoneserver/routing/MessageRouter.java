@@ -9,9 +9,14 @@ import org.apache.logging.log4j.Logger;
 import net.bestia.messages.Message;
 
 /**
+ * <p>
  * The new central way of interprocess message routing. The messages which are
  * fed into the router will be checked againt the filter. Each filter who wants
  * to process a certain message will get the message delivered.
+ * </p>
+ * <p>
+ * The router is threadsafe.
+ * </p>
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -48,7 +53,7 @@ public class MessageRouter implements MessageProcessor {
 	 * @param processor
 	 *            The processor who will process the matching messages.
 	 */
-	public void registerFilter(MessageFilter filter, MessageProcessor processor) {
+	public synchronized void registerFilter(MessageFilter filter, MessageProcessor processor) {
 		final FilterTuple tuple = new FilterTuple(filter, processor);
 		filterList.add(tuple);
 	}
