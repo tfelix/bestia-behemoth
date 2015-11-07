@@ -37,11 +37,15 @@ function main() {
 
 	// Add click handler.
 	$('#btn-inventory').click(function() {
+		game.attacks.close();
 		game.inventory.showWindow(!game.inventory.showWindow());
 	});
 	
 	$('#btn-attacks').click(function() {
+		// Hide all others.
+		game.inventory.close();	
 		game.attacks.showWindow(!game.attacks.showWindow());
+		
 		if(!game.attacks.isLoaded()) {
 			game.attacks.request();
 		}
