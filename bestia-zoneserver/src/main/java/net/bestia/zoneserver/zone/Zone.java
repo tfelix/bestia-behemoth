@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.artemis.World;
 
-import net.bestia.messages.InputMessage;
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
@@ -78,7 +77,7 @@ public class Zone implements MessageProcessor {
 
 				// We now pipe the messages into the zone as entities in order
 				// to let the system process them.
-				InputMessage msg = messageQueue.poll();
+				Message msg = messageQueue.poll();
 				int i = 0;
 				while (msg != null) {
 
@@ -129,7 +128,7 @@ public class Zone implements MessageProcessor {
 	private final String name;
 	private final Map map;
 	private final AtomicBoolean hasStarted = new AtomicBoolean(false);
-	private final Queue<InputMessage> messageQueue = new ConcurrentLinkedQueue<>();
+	private final Queue<Message> messageQueue = new ConcurrentLinkedQueue<>();
 	private final CommandContext cmdContext;
 
 	private ZoneTicker zoneTicker;
@@ -208,14 +207,10 @@ public class Zone implements MessageProcessor {
 	@Override
 	public void processMessage(Message msg) {
 
-		if (!(msg instanceof InputMessage)) {
-			throw new IllegalArgumentException("Message is not of type InputMessage.");
-		}
-
 		if (!hasStarted.get()) {
 			log.warn("Zone already stopped. Does not process messages anymore.");
 			return;
 		}
-		messageQueue.add((InputMessage) msg);
+		messageQueue.add(msg);
 	}
 }

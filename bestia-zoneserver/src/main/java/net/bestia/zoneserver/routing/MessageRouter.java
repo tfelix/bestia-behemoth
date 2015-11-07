@@ -3,6 +3,9 @@ package net.bestia.zoneserver.routing;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import net.bestia.messages.Message;
 
 /**
@@ -14,6 +17,8 @@ import net.bestia.messages.Message;
  *
  */
 public class MessageRouter implements MessageProcessor {
+
+	private static final Logger LOG = LogManager.getLogger(MessageRouter.class);
 
 	private class FilterTuple {
 		public final MessageFilter filter;
@@ -35,6 +40,14 @@ public class MessageRouter implements MessageProcessor {
 
 	private final List<FilterTuple> filterList = new ArrayList<>();
 
+	/**
+	 * Registers a filter to subscribe to incoming messages.
+	 * 
+	 * @param filter
+	 *            The filter to check the incoming messages.
+	 * @param processor
+	 *            The processor who will process the matching messages.
+	 */
 	public void registerFilter(MessageFilter filter, MessageProcessor processor) {
 		final FilterTuple tuple = new FilterTuple(filter, processor);
 		filterList.add(tuple);
@@ -42,10 +55,15 @@ public class MessageRouter implements MessageProcessor {
 
 	@Override
 	public void processMessage(Message msg) {
-		for(FilterTuple tuple : filterList) {
-			if(tuple.filter.handlesMessage(msg)) {
+		boolean wasProcessed = false;
+		for (FilterTuple tuple : filterList) {
+			if (tuple.filter.handlesMessage(msg)) {
 				tuple.processor.processMessage(msg);
+				wasProcessed = true;
 			}
+		}
+		if (!wasProcessed) {
+			LOG.warn("Message had no rule to be processed: {}", msg);
 		}
 	}
 
