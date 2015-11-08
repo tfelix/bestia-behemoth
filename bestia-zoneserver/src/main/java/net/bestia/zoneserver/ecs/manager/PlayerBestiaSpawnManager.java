@@ -256,8 +256,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		}
 
 		for (Integer id : entityIds) {
-			final Entity entity = world.getEntity(id.intValue());
-			entity.deleteFromWorld();
+			world.delete(id);
 			LOG.trace("Despawning player bestia (entity id: {})", id);
 		}
 

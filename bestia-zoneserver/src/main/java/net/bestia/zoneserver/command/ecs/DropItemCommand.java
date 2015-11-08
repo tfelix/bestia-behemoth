@@ -16,22 +16,22 @@ import net.bestia.zoneserver.zone.shape.Vector2;
 public class DropItemCommand extends ECSCommand {
 	
 	private final Random rand = new Random();
+	private ItemController itemCtrl;
 
 	@Override
 	public String handlesMessageId() {
 		return InventoryItemDropMessage.MESSAGE_ID;
 	}
+	
+	@Override
+	protected void initialize() {
+		super.initialize();
+		
+		 itemCtrl = new ItemController(world);
+	}
 
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
-
-		// TODO Das hier irgendwie sinnvoller nicht bei jedem Command neu
-		// erzeugen sondern durch eine geschicktere Architektur dauerhaft
-		// erzeugt lassen. Commands die vielleicht schon gespawned werden? Dann
-		// muss aber eine Init methode vorgesehen werden um die initialisierung
-		// zu machen wenn world und command context gesetzt sind. Oder beides
-		// über einen Ctor bereitstellen. Prinzipiell sauberer.
-		final ItemController itemCtrl = new ItemController(world);
 
 		final InventoryItemDropMessage msg = (InventoryItemDropMessage) message;
 

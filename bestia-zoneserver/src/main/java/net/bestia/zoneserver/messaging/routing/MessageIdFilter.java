@@ -27,7 +27,7 @@ public class MessageIdFilter implements MessageFilter {
 	 *            All the message IDs this filter should be allow.
 	 */
 	public MessageIdFilter(Set<String> messageIDs) {
-		messageIDs.addAll(messageIDs);
+		this.messageIDs.addAll(messageIDs);
 	}
 
 	public MessageIdFilter(String msgID) {
