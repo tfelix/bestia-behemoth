@@ -65,7 +65,7 @@ public class ChatMessage extends Message {
 	 * @return
 	 */
 	public static ChatMessage getSystemMessage(Account account, String translationKey) {
-		
+
 		final String text = I18n.t(account, translationKey);
 
 		ChatMessage msg = new ChatMessage();
@@ -128,7 +128,15 @@ public class ChatMessage extends Message {
 				getAccountId(), chatMode, senderNickname, receiverNickname, text, time, getMessagePath());
 	}
 
-	public static ChatMessage getForwardMessage(long receiverAccountId, ChatMessage msg) {
+	/**
+	 * This message has a different path so it gets delivered back to the client
+	 * given in the receiver account id.
+	 * 
+	 * @param receiverAccountId
+	 * @param msg
+	 * @return
+	 */
+	public static ChatMessage getEchoMessage(long receiverAccountId, ChatMessage msg) {
 		ChatMessage forwardMsg = new ChatMessage();
 
 		forwardMsg.currentPath = CLIENT_PATH;
@@ -141,6 +149,18 @@ public class ChatMessage extends Message {
 		forwardMsg.setChatMode(msg.chatMode);
 		forwardMsg.setText(msg.text);
 		forwardMsg.setTime(msg.time);
+
+		return forwardMsg;
+	}
+	
+	public static ChatMessage getEchoRawMessage(long receiverAccoundId, String text) {
+		ChatMessage forwardMsg = new ChatMessage();
+
+		forwardMsg.currentPath = CLIENT_PATH;
+
+		forwardMsg.setAccountId(receiverAccoundId);
+		forwardMsg.setChatMode(Mode.SYSTEM);
+		forwardMsg.setText(text);
 
 		return forwardMsg;
 	}

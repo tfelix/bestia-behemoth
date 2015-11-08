@@ -18,7 +18,7 @@ public class ChatMessageTest {
 		msg.setSenderNickname("max");
 		
 		// We get "returned" messages to the client.
-		ChatMessage msg2 = ChatMessage.getForwardMessage(2L, msg);
+		ChatMessage msg2 = ChatMessage.getEchoMessage(2L, msg);
 		Assert.assertEquals("account/2", msg2.getMessagePath());
 		
 		// Must be up to date.

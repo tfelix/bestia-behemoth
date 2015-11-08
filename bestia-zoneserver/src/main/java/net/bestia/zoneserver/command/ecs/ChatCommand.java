@@ -11,42 +11,54 @@ import net.bestia.messages.ChatMessage;
 import net.bestia.messages.InputWrapperMessage;
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.command.chat.ChatCommandExecutor;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 
-/**
- * Spawns an Chat entity in the system which will by the {@link ChatSystem} be
- * transmitted to all active player bestias in sight.
- * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
- *
- */
-public class PublicChatCommand extends ECSCommand {
+public class ChatCommand extends ECSCommand {
 
+	private ChatCommandExecutor chatCommandExecutor;
 	private ComponentMapper<PlayerBestia> playerMapper;
 	private EntitySubscription activePlayerEntities;
 
 	@Override
-	public String handlesMessageId() {
-		return ChatMessage.MESSAGE_ID;
-	}
-
-	@Override
 	protected void initialize() {
+		super.initialize();
+
+		chatCommandExecutor = new ChatCommandExecutor();
+
 		playerMapper = world.getMapper(PlayerBestia.class);
 		final AspectSubscriptionManager asm = world.getSystem(AspectSubscriptionManager.class);
 		activePlayerEntities = asm.get(Aspect.all(Active.class, PlayerBestia.class));
 	}
 
 	@Override
+	public String handlesMessageId() {
+		return InputWrapperMessage.getWrappedMessageId(ChatMessage.MESSAGE_ID);
+	}
+
+	@Override
 	protected void execute(Message message, CommandContext ctx) {
-
-		// Unwrap the message.
 		@SuppressWarnings("unchecked")
-		ChatMessage msg = ((InputWrapperMessage<ChatMessage>) message).getMessage();
+		final InputWrapperMessage<ChatMessage> wrappedMsg = (InputWrapperMessage<ChatMessage>) message;
+		final ChatMessage msg = wrappedMsg.getMessage();
 
-		//final Location loc = playerMapper.get(player).playerBestiaManager.getLocation();
+		switch (msg.getChatMode()) {
+		case COMMAND:
+			chatCommandExecutor.execute(msg, ctx);
+			break;
+		case PUBLIC:
+			// Send the message to all active player in the range so send to the
+			// ecs since we must make sight tests.
+			handlePublicChat(msg, ctx);
+			break;
+		default:
+			// no op.
+			break;
+		}
+	}
 
+	private void handlePublicChat(ChatMessage msg, CommandContext ctx) {
 		// All active bestias on this zone.
 		final IntBag entityIds = activePlayerEntities.getEntities();
 
@@ -63,9 +75,8 @@ public class PublicChatCommand extends ECSCommand {
 				continue;
 			}
 
-			final ChatMessage forwardMsg = ChatMessage.getForwardMessage(receiverAccId, msg);
+			final ChatMessage forwardMsg = ChatMessage.getEchoMessage(receiverAccId, msg);
 			ctx.getServer().sendMessage(forwardMsg);
-
 		}
 	}
 }

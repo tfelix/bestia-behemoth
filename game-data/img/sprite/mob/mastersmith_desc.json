@@ -11,5 +11,6 @@
 				{"name": "walk_left", "from": 1, "to": 8, "fps": 7 },
 				{"name": "walk_left_up", "from": 1, "to": 8, "fps": 7 },
 				{"name": "walk_up", "from": 1, "to": 8, "fps": 7 }
-			]
+			],
+	"anchor": {"x": 10, "y": 10}
 }
