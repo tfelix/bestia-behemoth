@@ -7,7 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.messages.Message;
-import net.bestia.zoneserver.command.CommandContext;
 
 /**
  * The message routing is a very complex topic. Some message need more
@@ -24,19 +23,6 @@ public class MessagePreprocessorController {
 	private static final Logger LOG = LogManager.getLogger(MessagePreprocessorController.class);
 
 	private List<MessagePreprocessor> preprocessors = new ArrayList<>();
-
-	private final CommandContext context;
-
-	/**
-	 * 
-	 * @param context
-	 */
-	public MessagePreprocessorController(CommandContext context) {
-		if (context == null) {
-			throw new IllegalArgumentException("CommandContext can not be null.");
-		}
-		this.context = context;
-	}
 
 	/**
 	 * Adds a new preprocessor to the controller.

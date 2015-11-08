@@ -157,7 +157,7 @@ public class Zoneserver implements MessageProcessor {
 		this.responsibleZones = Collections.unmodifiableSet(zones);
 		
 		// ### Setup the message preprocessing.
-		this.messagePreprocessor = new MessagePreprocessorController(commandContext);
+		this.messagePreprocessor = new MessagePreprocessorController();
 		this.messagePreprocessor.addProcessor(new ChatMessagePreprocessor(commandContext));
 
 		// ### Setup the message routing.
