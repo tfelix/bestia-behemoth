@@ -2,6 +2,7 @@ package net.bestia.zoneserver.command;
 
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,7 +64,7 @@ public abstract class CommandFactory {
 	 * @return The registered message ids for which commands will be returned.
 	 */
 	public Set<String> getRegisteredMessageIds() {
-		return commandLibrary.keySet();
+		return new HashSet<String>(commandLibrary.keySet());
 	}
 
 	/**

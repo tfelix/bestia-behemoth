@@ -25,7 +25,7 @@ import org.apache.logging.log4j.Logger;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * 
  */
-class ChatCommand extends Command {
+public class ChatCommand extends Command {
 
 	private static final Logger log = LogManager.getLogger(ChatCommand.class);
 	private static final ChatCommandExecutor commandFactory = new ChatCommandExecutor();

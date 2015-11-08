@@ -13,7 +13,7 @@ import net.bestia.zoneserver.command.CommandContext;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * 
  */
-class PingCommand extends Command {
+public class PingCommand extends Command {
 
 	@Override
 	public String toString() {

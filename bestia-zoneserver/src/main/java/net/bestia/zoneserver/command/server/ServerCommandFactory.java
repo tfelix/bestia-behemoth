@@ -40,7 +40,7 @@ public class ServerCommandFactory extends CommandFactory {
 	}
 
 	public ServerCommandFactory(CommandContext ctx) {
-		super("net.bestia.zoneserver.command");
+		super("net.bestia.zoneserver.command.server");
 		if (ctx == null) {
 			throw new IllegalArgumentException("Context can not be null.");
 		}

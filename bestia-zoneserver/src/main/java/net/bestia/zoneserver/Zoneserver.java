@@ -38,6 +38,7 @@ import net.bestia.zoneserver.loader.ScriptLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
 import net.bestia.zoneserver.messaging.UserRegistry;
 import net.bestia.zoneserver.messaging.preprocess.ChatMessagePreprocessor;
+import net.bestia.zoneserver.messaging.preprocess.LoginMessagePreprocessor;
 import net.bestia.zoneserver.messaging.preprocess.MessagePreprocessorController;
 import net.bestia.zoneserver.messaging.preprocess.MessageProcessor;
 import net.bestia.zoneserver.messaging.routing.MessageFilter;
@@ -156,10 +157,11 @@ public class Zoneserver implements MessageProcessor {
 		zones.addAll(Arrays.asList(zoneStrings));
 		this.responsibleZones = Collections.unmodifiableSet(zones);
 		
+		
 		// ### Setup the message preprocessing.
 		this.messagePreprocessor = new MessagePreprocessorController();
-		this.messagePreprocessor.addProcessor(new ChatMessagePreprocessor(commandContext));
-
+		setupMessagePreprocessing();
+		
 		// ### Setup the message routing.
 		final Set<String> messageIDs = commandFactory.getRegisteredMessageIds();
 		final MessageFilter filter = new MessageIdFilter(messageIDs);
@@ -169,6 +171,11 @@ public class Zoneserver implements MessageProcessor {
 
 		// Prepare the (static) translator.
 		I18n.setDao(commandContext.getServiceLocator().getBean(I18nDAO.class));
+	}
+	
+	private void setupMessagePreprocessing() {
+		this.messagePreprocessor.addProcessor(new ChatMessagePreprocessor(commandContext));
+		this.messagePreprocessor.addProcessor(new LoginMessagePreprocessor(commandContext));
 	}
 
 	/**
