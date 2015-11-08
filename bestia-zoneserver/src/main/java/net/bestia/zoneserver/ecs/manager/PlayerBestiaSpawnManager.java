@@ -3,9 +3,7 @@ package net.bestia.zoneserver.ecs.manager;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,8 +19,6 @@ import com.artemis.annotations.Wire;
 import net.bestia.messages.BestiaInfoMessage;
 import net.bestia.messages.InputMessage;
 import net.bestia.messages.LogoutBroadcastMessage;
-import net.bestia.messages.Message;
-import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Attacks;
@@ -34,7 +30,6 @@ import net.bestia.zoneserver.ecs.component.ManaRegenerationRate;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.messaging.UserRegistry;
 import net.bestia.zoneserver.messaging.preprocess.MessageProcessor;
@@ -46,7 +41,7 @@ import net.bestia.zoneserver.messaging.routing.MessageRouter;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 @Wire
-public class PlayerBestiaSpawnManager extends BaseEntitySystem implements MessageProcessor {
+public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 
 	private final static Logger LOG = LogManager.getLogger(PlayerBestiaSpawnManager.class);
 
@@ -72,7 +67,6 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem implements Messag
 	 */
 	private final DynamicBestiaIdMessageFilter zoneMessageFilter = new DynamicBestiaIdMessageFilter();
 	
-	private final Queue<Message> msgQueue = new ConcurrentLinkedQueue<>();
 	private Archetype playerBestiaArchetype;
 
 	/**
@@ -85,6 +79,9 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem implements Messag
 		super(Aspect.all(PlayerBestia.class));
 
 		this.zoneProcessor = zone;
+		
+		// We dont tick. We are passiv.
+		setEnabled(false);
 	}
 
 	@Override
@@ -96,9 +93,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem implements Messag
 		// This manager needs to know about these two messages to create and
 		// delete entities.
 		final MessageIdFilter spawnMessageFilter = new MessageIdFilter();
-		spawnMessageFilter.addMessageId(SpawnPlayerBestiaMessage.MESSAGE_ID);
 		spawnMessageFilter.addMessageId(LogoutBroadcastMessage.MESSAGE_ID);
-		router.registerFilter(spawnMessageFilter, this);
 
 		// Prepare the message filter for the different zones. Depending on
 		// active bestias on this zone messages can be re-routed to this
@@ -150,36 +145,13 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem implements Messag
 	}
 
 	@Override
-	protected boolean checkProcessing() {
-		return !msgQueue.isEmpty();
-	}
-
-	@Override
 	protected void processSystem() {
 
-		while (msgQueue.peek() != null) {
-			// We spawn the bestia.
-			final Message msg = msgQueue.poll();
 
-			switch (msg.getMessageId()) {
-			case SpawnPlayerBestiaMessage.MESSAGE_ID:
-				spawnBestia((SpawnPlayerBestiaMessage) msg);
-				break;
-			case LogoutBroadcastMessage.MESSAGE_ID:
-				despawnBestia((LogoutBroadcastMessage) msg);
-				break;
-			default:
-				// no op.
-				break;
-			}
-		}
 	}
 
-	public void spawnBestia(SpawnPlayerBestiaMessage msg) {
-		final Long accId = msg.getAccountId();
-		final PlayerBestiaDAO pbDao = ctx.getServiceLocator().getBean(PlayerBestiaDAO.class);
-		final net.bestia.model.domain.PlayerBestia pb = pbDao.find(msg.getPlayerBestiaId());
-
+	public void spawnBestia(net.bestia.model.domain.PlayerBestia pb) {
+		final Long accId = pb.getOwner().getId();
 		final Entity pbEntity = world.createEntity(playerBestiaArchetype);
 
 		// Add the entity to the register so it can be deleted.
@@ -254,15 +226,6 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem implements Messag
 		if (accountBestiaRegister.get(accId).size() == 0) {
 			accountBestiaRegister.remove(accId);
 		}
-	}
-
-	/**
-	 * Consumes the incoming messages for later execution when the system is
-	 * processed.
-	 */
-	@Override
-	public void processMessage(Message msg) {
-		msgQueue.add(msg);
 	}
 
 	/**

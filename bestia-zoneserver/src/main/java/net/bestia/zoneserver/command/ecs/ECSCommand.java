@@ -3,6 +3,7 @@ package net.bestia.zoneserver.command.ecs;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.zone.Zone;
 import net.bestia.zoneserver.zone.map.Map;
 
 import com.artemis.ComponentMapper;
@@ -11,10 +12,15 @@ import com.artemis.World;
 
 public abstract class ECSCommand extends Command {
 
+	protected Zone zone;
 	protected World world;
 	protected Map map;
 	protected Entity player;
 
+	public void setZone(Zone zone) {
+		this.zone = zone;
+	}
+	
 	public void setWorld(World world) {
 		this.world = world;
 	}

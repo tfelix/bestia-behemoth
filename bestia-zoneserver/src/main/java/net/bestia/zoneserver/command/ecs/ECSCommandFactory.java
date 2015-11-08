@@ -13,7 +13,7 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
 import net.bestia.zoneserver.command.server.ServerCommandFactory;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.zone.Zone;
 import net.bestia.zoneserver.zone.map.Map;
 
 /**
@@ -32,8 +32,9 @@ public class ECSCommandFactory extends CommandFactory {
 	private final World world;
 	private final Map map;
 	private final PlayerBestiaSpawnManager playerSpawnManager;
+	private final Zone zone;
 
-	public ECSCommandFactory(CommandContext ctx, World world, Map map) {
+	public ECSCommandFactory(CommandContext ctx, World world, Map map, Zone zone) {
 		super("net.bestia.zoneserver.command.ecs");
 
 		if (ctx == null) {
@@ -43,10 +44,15 @@ public class ECSCommandFactory extends CommandFactory {
 		if (world == null) {
 			throw new IllegalArgumentException("World can not be null.");
 		}
+		
+		if(zone == null) {
+			throw new IllegalArgumentException("Zone can not be null.");
+		}
 
 		this.ctx = ctx;
 		this.map = map;
 		this.world = world;
+		this.zone = zone;
 
 		this.playerSpawnManager = world.getSystem(PlayerBestiaSpawnManager.class);
 	}
@@ -65,9 +71,6 @@ public class ECSCommandFactory extends CommandFactory {
 			return null;
 		}
 
-		// TODO Oh oh... hier aber lieber mal neue Instancen erzeugen...
-		// Dann kann ich auch den Ctor der ECSCommands anpassen direkt den ctx
-		// und msg zu bekommen.
 		// These commands should be ECSCommands.
 		final ECSCommand cmd = (ECSCommand) commandLibrary.get(msgId);
 		cmd.setCommandContext(ctx);
@@ -77,24 +80,22 @@ public class ECSCommandFactory extends CommandFactory {
 
 		// Set the world instance.
 		cmd.setWorld(world);
+		cmd.setZone(zone);
+		cmd.setMap(map);
 
 		if (message instanceof InputMessage) {
 			final InputMessage inputMsg = (InputMessage) message;
 
-			// Sanity check if the given account really owns this player bestia.
-			final PlayerBestiaManager pbManager = playerSpawnManager
-					.getPlayerBestiaManager(inputMsg.getPlayerBestiaId());
-			if (pbManager == null || pbManager.getAccountId() != message.getAccountId()) {
-				LOG.warn("HACKING: PlayerBestiaMessage id not consistent with account id: {}", inputMsg.toString());
-				return null;
-			}
-
 			// Find the player entity for this command/message. If the bestia id
 			// is invalid null should be returned.
 			final int entityId = playerSpawnManager.getEntityIdFromBestia(inputMsg.getPlayerBestiaId());
+			
+			if(entityId == 0) {
+				return cmd;
+			}
+			
 			final Entity player = world.getEntity(entityId);
 			cmd.setPlayer(player);
-			cmd.setMap(map);
 		}
 
 		// Return the normal message.

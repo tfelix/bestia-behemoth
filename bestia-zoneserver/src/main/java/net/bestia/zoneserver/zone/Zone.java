@@ -16,6 +16,8 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.ecs.ECSCommandFactory;
 import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
 import net.bestia.zoneserver.messaging.preprocess.MessageProcessor;
+import net.bestia.zoneserver.messaging.routing.MessageRouter;
+import net.bestia.zoneserver.messaging.routing.ZoneWrapperFilter;
 import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.world.WorldExtender;
 
@@ -45,7 +47,7 @@ public class Zone implements MessageProcessor {
 		/**
 		 * How many input messages are piped into the zone at each tick. Limit
 		 * this to a reasonable number in order to avoid starvation of the zone
-		 * on massive massge input.
+		 * on massive massage input.
 		 */
 		private static final int MAX_PROCESSED_MSGS = 10;
 
@@ -56,7 +58,7 @@ public class Zone implements MessageProcessor {
 		public ZoneTicker(World world, CommandContext ctx, Map map) {
 			this.world = world;
 			this.ctx = ctx;
-			this.commandFactory = new ECSCommandFactory(ctx, world, map);
+			this.commandFactory = new ECSCommandFactory(ctx, world, map, Zone.this);
 		}
 
 		@Override
@@ -150,6 +152,16 @@ public class Zone implements MessageProcessor {
 			throw new IllegalArgumentException(
 					"Zone name can not be null or empty.");
 		}
+		
+		setupMessageFilter(ctx.getServer().getMessageRouter());
+	}
+
+	/**
+	 * Used to subscribe to messages from the zoneserver instance.
+	 * @param messageRouter
+	 */
+	private void setupMessageFilter(MessageRouter router) {
+		router.registerFilter(new ZoneWrapperFilter(getName()), this);
 	}
 
 	/**
