@@ -45,7 +45,7 @@ public class ChatCommand extends ECSCommand {
 
 		switch (msg.getChatMode()) {
 		case COMMAND:
-			chatCommandExecutor.execute(msg, ctx);
+			chatCommandExecutor.execute(msg, getPlayerBestiaManager(), ctx);
 			break;
 		case PUBLIC:
 			// Send the message to all active player in the range so send to the

@@ -71,7 +71,7 @@ public class DropItemCommand extends ECSCommand {
 			loc = new Vector2(playerLoc.getX(), playerLoc.getY());
 		}
 		
-		final Item item = itemDao.find(msg.getItemId());
+		final Item item = itemDao.findOne(msg.getItemId());
 
 		// Item was dropped. Now drop it onto the world.
 		itemCtrl.spawnItem(loc, item, msg.getAmount());

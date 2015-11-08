@@ -11,6 +11,7 @@ import net.bestia.messages.ChatMessage;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.util.PackageLoader;
 
 /**
@@ -47,7 +48,7 @@ public class ChatCommandExecutor {
 
 	}
 
-	public void execute(ChatMessage m, CommandContext ctx) {
+	public void execute(ChatMessage m, PlayerBestiaManager player, CommandContext ctx) {
 
 		final String key = getCommandKey(m.getText());
 
@@ -69,7 +70,7 @@ public class ChatCommandExecutor {
 			return;
 		}
 
-		cmd.execute(m, ctx);
+		cmd.execute(m, player, ctx);
 
 	}
 

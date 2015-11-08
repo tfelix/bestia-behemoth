@@ -1,8 +1,12 @@
 package net.bestia.model.dao;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
+
 import net.bestia.model.domain.Item;
 
-public interface ItemDAO extends GenericDAO<Item, Integer> {
+public interface ItemDAO extends CrudRepository<Item, Integer> {
 
 	/**
 	 * Returns an item by its item database name. The name is unique. Returns null if the item was not found.
@@ -11,5 +15,6 @@ public interface ItemDAO extends GenericDAO<Item, Integer> {
 	 *            Unique database name of an item.
 	 * @return The found item. Or null if the item was not found.
 	 */
-	public Item findItemByName(String itemDbName);
+	@Query("SELECT i FROM Item i where i.itemDbName = :name")
+	public Item findItemByName(@Param("name") String itemDbName);
 }

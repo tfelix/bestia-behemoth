@@ -119,7 +119,7 @@ public class InventoryService {
 			// New item.
 
 			final Account acc = accountDao.find(accId);
-			final Item item = itemDao.find(itemId);
+			final Item item = itemDao.findOne(itemId);
 
 			if (acc == null) {
 				log.info("Could not find account {}", accId);
@@ -284,7 +284,7 @@ public class InventoryService {
 	 * @return
 	 */
 	public boolean addItem(long accId, int itemId, int amount, int maxWeight) {
-		final Item item = itemDao.find(itemId);
+		final Item item = itemDao.findOne(itemId);
 
 		if (item == null) {
 			throw new IllegalArgumentException("Item with this ID was not found in the database.");
