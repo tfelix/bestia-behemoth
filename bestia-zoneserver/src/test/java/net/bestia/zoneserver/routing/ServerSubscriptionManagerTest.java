@@ -7,12 +7,13 @@ import org.mockito.Mockito;
 import static org.mockito.Mockito.*;
 
 import net.bestia.zoneserver.Zoneserver;
+import net.bestia.zoneserver.messaging.UserRegistry;
 
 public class ServerSubscriptionManagerTest {
 
 	@Test
 	public void countUser_ok() {
-		ServerSubscriptionManager ssm = new ServerSubscriptionManager(getServerMock());
+		UserRegistry ssm = new UserRegistry(getServerMock());
 
 		ssm.setOnline(1L);
 		ssm.setOnline(1L);
@@ -29,7 +30,7 @@ public class ServerSubscriptionManagerTest {
 
 	@Test
 	public void setOffline_nok() {
-		ServerSubscriptionManager ssm = new ServerSubscriptionManager(getServerMock());
+		UserRegistry ssm = new UserRegistry(getServerMock());
 		
 		ssm.setOffline(5L);
 		
@@ -40,7 +41,7 @@ public class ServerSubscriptionManagerTest {
 	@Test
 	public void setOnline_callback_ok() {
 		final Zoneserver server = getServerMock();
-		ServerSubscriptionManager ssm = new ServerSubscriptionManager(server);
+		UserRegistry ssm = new UserRegistry(server);
 		
 		ssm.setOnline(5L);
 		
@@ -50,7 +51,7 @@ public class ServerSubscriptionManagerTest {
 	@Test
 	public void setOffline_callback_ok() {
 		final Zoneserver server = getServerMock();
-		ServerSubscriptionManager ssm = new ServerSubscriptionManager(server);
+		UserRegistry ssm = new UserRegistry(server);
 		
 		ssm.setOnline(5L);
 		ssm.setOffline(5L);
@@ -60,7 +61,7 @@ public class ServerSubscriptionManagerTest {
 
 	@Test
 	public void countBestias_ok() {
-		ServerSubscriptionManager ssm = new ServerSubscriptionManager(getServerMock());
+		UserRegistry ssm = new UserRegistry(getServerMock());
 
 		ssm.setOnline(1L);
 		ssm.setOnline(1L);

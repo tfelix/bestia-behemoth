@@ -38,7 +38,7 @@ public class BaseWorldExtender implements WorldExtend {
 		// Register all external helper objects.
 		worldConfig.register(map);
 		worldConfig.register(ctx);
-		worldConfig.register(ctx.getServer().getBestiaRegister());
+		worldConfig.register(ctx.getServer().getActiveBestiaRegistry());
 
 		// Set all the systems.
 		worldConfig.setSystem(new MovementSystem());

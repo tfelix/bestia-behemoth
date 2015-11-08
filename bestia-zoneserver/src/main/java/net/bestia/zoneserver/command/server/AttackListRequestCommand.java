@@ -9,7 +9,7 @@ import net.bestia.model.domain.AttackLevel;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.BestiaActiveRegister;
+import net.bestia.zoneserver.ecs.ActiveBestiaRegistry;
 
 /**
  * Lists the attacks of the currently active bestia and returns it to the
@@ -31,7 +31,7 @@ public class AttackListRequestCommand extends Command {
 		final PlayerBestiaService pbService = ctx.getServiceLocator().getBean(PlayerBestiaService.class);
 		
 		// Get the bestia id of the currently selected bestia.
-		final BestiaActiveRegister register = ctx.getServer().getBestiaRegister();
+		final ActiveBestiaRegistry register = ctx.getServer().getActiveBestiaRegistry();
 		final long accId = message.getAccountId();
 		final int activePbId = register.getActiveBestia(accId);		
 		

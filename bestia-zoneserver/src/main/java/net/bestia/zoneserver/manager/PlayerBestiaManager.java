@@ -24,7 +24,7 @@ import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.HP;
 import net.bestia.zoneserver.ecs.component.Mana;
-import net.bestia.zoneserver.routing.MessageProcessor;
+import net.bestia.zoneserver.messaging.preprocess.MessageProcessor;
 
 /**
  * The PlayerBestiaManager is responsible for executing the "business logic" to

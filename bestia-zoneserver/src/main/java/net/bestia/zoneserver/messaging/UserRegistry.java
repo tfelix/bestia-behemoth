@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.routing;
+package net.bestia.zoneserver.messaging;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,9 +18,9 @@ import net.bestia.zoneserver.Zoneserver;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class ServerSubscriptionManager {
+public class UserRegistry {
 
-	private static final Logger LOG = LogManager.getLogger(ServerSubscriptionManager.class);
+	private static final Logger LOG = LogManager.getLogger(UserRegistry.class);
 
 	private class Counter {
 		private int count = 1;
@@ -41,7 +41,7 @@ public class ServerSubscriptionManager {
 	private final Map<Long, Counter> onlineUser = new HashMap<>();
 	private final Zoneserver server;
 
-	public ServerSubscriptionManager(Zoneserver server) {
+	public UserRegistry(Zoneserver server) {
 		if (server == null) {
 			throw new IllegalArgumentException("Server can not be null.");
 		}

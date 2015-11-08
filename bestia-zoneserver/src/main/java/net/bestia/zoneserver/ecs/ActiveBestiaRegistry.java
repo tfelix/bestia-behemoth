@@ -9,7 +9,7 @@ import java.util.Map;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class BestiaActiveRegister {
+public class ActiveBestiaRegistry {
 
 	private Map<Long, Integer> activeBestias = new HashMap<>();
 

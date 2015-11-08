@@ -36,13 +36,13 @@ import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.message.SpawnPlayerBestiaMessage;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
-import net.bestia.zoneserver.routing.DynamicBestiaIdMessageFilter;
-import net.bestia.zoneserver.routing.MessageCombineFilter;
-import net.bestia.zoneserver.routing.MessageDirectDescandantFilter;
-import net.bestia.zoneserver.routing.MessageIdFilter;
-import net.bestia.zoneserver.routing.MessageProcessor;
-import net.bestia.zoneserver.routing.MessageRouter;
-import net.bestia.zoneserver.routing.ServerSubscriptionManager;
+import net.bestia.zoneserver.messaging.UserRegistry;
+import net.bestia.zoneserver.messaging.preprocess.MessageProcessor;
+import net.bestia.zoneserver.messaging.routing.DynamicBestiaIdMessageFilter;
+import net.bestia.zoneserver.messaging.routing.MessageCombineFilter;
+import net.bestia.zoneserver.messaging.routing.MessageDirectDescandantFilter;
+import net.bestia.zoneserver.messaging.routing.MessageIdFilter;
+import net.bestia.zoneserver.messaging.routing.MessageRouter;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 @Wire
@@ -52,7 +52,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem implements Messag
 
 	@Wire
 	private CommandContext ctx;
-	private ServerSubscriptionManager subscriptionManager;
+	private UserRegistry subscriptionManager;
 
 	private ComponentMapper<Position> positionMapper;
 	private ComponentMapper<Attacks> attacksMapper;
@@ -108,7 +108,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem implements Messag
 		combineFilter.addFilter(zoneMessageFilter);
 		router.registerFilter(combineFilter, zoneProcessor);
 
-		subscriptionManager = ctx.getServer().getSubscriptionManager();
+		subscriptionManager = ctx.getServer().getUserRegistry();
 
 		playerBestiaArchetype = new ArchetypeBuilder()
 				.add(Position.class)

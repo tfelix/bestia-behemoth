@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.routing;
+package net.bestia.zoneserver.messaging.routing;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.messages.Message;
+import net.bestia.zoneserver.messaging.preprocess.MessageProcessor;
 
 /**
  * <p>

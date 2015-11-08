@@ -6,7 +6,7 @@ import net.bestia.messages.BestiaActivateMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.BestiaActiveRegister;
+import net.bestia.zoneserver.ecs.ActiveBestiaRegistry;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.manager.InventoryManager;
@@ -33,7 +33,7 @@ public class ActivateCommand extends ECSCommand {
 	protected void execute(Message message, CommandContext ctx) {
 		
 		final BestiaActivateMessage msg = (BestiaActivateMessage) message;
-		final BestiaActiveRegister register = ctx.getServer().getBestiaRegister();
+		final ActiveBestiaRegistry register = ctx.getServer().getActiveBestiaRegistry();
 		
 		final PlayerBestiaManager playerBestia = playerMapper.get(player).playerBestiaManager;
 		final int pbId = playerBestia.getPlayerBestiaId();

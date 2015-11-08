@@ -35,7 +35,7 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 		final Account acc = accDAO.find(m.getAccountId());
 		final long accId = acc.getId();
 		
-		final int pbId = ctx.getServer().getBestiaRegister().getActiveBestia(accId);
+		final int pbId = ctx.getServer().getActiveBestiaRegistry().getActiveBestia(accId);
 
 		// Get the item name and the amount.
 		final String[] tokens = m.getText().split(" ");

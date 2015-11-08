@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.routing;
+package net.bestia.zoneserver.messaging.routing;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,16 +14,26 @@ import net.bestia.messages.Message;
  */
 public class MessageIdFilter implements MessageFilter {
 
-	private Set<String> messageIDs = new HashSet<>();
-	
+	private final Set<String> messageIDs = new HashSet<>();
+
 	public MessageIdFilter() {
 		// no op.
+	}
+
+	/**
+	 * Initialize the filter with all the message IDs given in the set.
+	 * 
+	 * @param messageIDs
+	 *            All the message IDs this filter should be allow.
+	 */
+	public MessageIdFilter(Set<String> messageIDs) {
+		messageIDs.addAll(messageIDs);
 	}
 
 	public MessageIdFilter(String msgID) {
 		addMessageId(msgID);
 	}
-	
+
 	public void addMessageId(String id) {
 		messageIDs.add(id);
 	}

@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.routing;
+package net.bestia.zoneserver.messaging.routing;
 
 import java.util.ArrayList;
 

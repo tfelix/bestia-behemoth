@@ -15,7 +15,7 @@ import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.ecs.ECSCommandFactory;
 import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
-import net.bestia.zoneserver.routing.MessageProcessor;
+import net.bestia.zoneserver.messaging.preprocess.MessageProcessor;
 import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.world.WorldExtender;
 

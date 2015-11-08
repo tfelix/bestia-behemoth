@@ -8,7 +8,7 @@ import com.artemis.annotations.Wire;
 import net.bestia.messages.AttackSetMessage;
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
-import net.bestia.zoneserver.routing.MessageIdFilter;
+import net.bestia.zoneserver.messaging.routing.MessageIdFilter;
 
 /**
  * Manages attacks.

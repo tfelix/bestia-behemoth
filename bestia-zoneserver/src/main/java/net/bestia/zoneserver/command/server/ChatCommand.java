@@ -11,7 +11,7 @@ import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.chat.ChatCommandExecutor;
-import net.bestia.zoneserver.ecs.BestiaActiveRegister;
+import net.bestia.zoneserver.ecs.ActiveBestiaRegistry;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,7 +43,7 @@ class ChatCommand extends Command {
 		// Set the username of the message to this player.
 		m.setSenderNickname(acc.getName());
 
-		final BestiaActiveRegister register = ctx.getServer().getBestiaRegister();
+		final ActiveBestiaRegistry register = ctx.getServer().getActiveBestiaRegistry();
 		final int activeBestiaId = register.getActiveBestia(accId);
 
 		if (activeBestiaId == 0) {

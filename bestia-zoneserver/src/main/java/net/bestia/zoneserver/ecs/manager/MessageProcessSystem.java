@@ -8,7 +8,7 @@ import com.artemis.annotations.Wire;
 
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.routing.MessageProcessor;
+import net.bestia.zoneserver.messaging.preprocess.MessageProcessor;
 
 /**
  * This system hooks into the ECS and into the bestia messaging system. It will

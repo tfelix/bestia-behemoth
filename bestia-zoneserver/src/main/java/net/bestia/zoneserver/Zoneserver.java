@@ -33,14 +33,16 @@ import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
 import net.bestia.zoneserver.command.server.ServerCommandFactory;
-import net.bestia.zoneserver.ecs.BestiaActiveRegister;
+import net.bestia.zoneserver.ecs.ActiveBestiaRegistry;
 import net.bestia.zoneserver.loader.ScriptLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
-import net.bestia.zoneserver.routing.MessageDirectDescandantFilter;
-import net.bestia.zoneserver.routing.MessageFilter;
-import net.bestia.zoneserver.routing.MessageProcessor;
-import net.bestia.zoneserver.routing.MessageRouter;
-import net.bestia.zoneserver.routing.ServerSubscriptionManager;
+import net.bestia.zoneserver.messaging.UserRegistry;
+import net.bestia.zoneserver.messaging.preprocess.ChatMessagePreprocessor;
+import net.bestia.zoneserver.messaging.preprocess.MessagePreprocessorController;
+import net.bestia.zoneserver.messaging.preprocess.MessageProcessor;
+import net.bestia.zoneserver.messaging.routing.MessageFilter;
+import net.bestia.zoneserver.messaging.routing.MessageIdFilter;
+import net.bestia.zoneserver.messaging.routing.MessageRouter;
 import net.bestia.zoneserver.script.ScriptManager;
 import net.bestia.zoneserver.zone.Zone;
 
@@ -66,6 +68,14 @@ public class Zoneserver implements MessageProcessor {
 		@Override
 		public void onMessage(Message msg) {
 			log.trace("Zoneserver {} received: {}", name, msg.toString());
+			
+			// Preprocess the message.
+			msg = messagePreprocessor.preprocess(msg);
+			
+			if(msg == null) {
+				// Msg was not intended for this server.
+				return;
+			}
 
 			// Route the message.
 			messageRouter.processMessage(msg);
@@ -82,7 +92,7 @@ public class Zoneserver implements MessageProcessor {
 
 	// Routing and subscriptions
 	private final MessageRouter messageRouter = new MessageRouter();
-	private final ServerSubscriptionManager subscriptionManager;
+	private final MessagePreprocessorController messagePreprocessor;
 
 	private final CommandFactory commandFactory;
 	private final ExecutorService commandExecutor;
@@ -96,7 +106,8 @@ public class Zoneserver implements MessageProcessor {
 
 	private final ScriptManager scriptManager = new ScriptManager();
 
-	private final BestiaActiveRegister activeBestiaRegistry = new BestiaActiveRegister();
+	private final ActiveBestiaRegistry activeBestiaRegistry = new ActiveBestiaRegistry();
+	private final UserRegistry userRegistry;
 
 	/**
 	 * Ctor. The server needs a connection to its clients so it can use the
@@ -144,11 +155,17 @@ public class Zoneserver implements MessageProcessor {
 		final Set<String> zones = new HashSet<String>();
 		zones.addAll(Arrays.asList(zoneStrings));
 		this.responsibleZones = Collections.unmodifiableSet(zones);
+		
+		// ### Setup the message preprocessing.
+		this.messagePreprocessor = new MessagePreprocessorController(commandContext);
+		this.messagePreprocessor.addProcessor(new ChatMessagePreprocessor(commandContext));
 
-		// Setup the message routing.
-		final MessageFilter filter = new MessageDirectDescandantFilter(Message.class);
+		// ### Setup the message routing.
+		final Set<String> messageIDs = commandFactory.getRegisteredMessageIds();
+		final MessageFilter filter = new MessageIdFilter(messageIDs);
 		messageRouter.registerFilter(filter, this);
-		subscriptionManager = new ServerSubscriptionManager(this);
+		
+		this.userRegistry = new UserRegistry(this);
 
 		// Prepare the (static) translator.
 		I18n.setDao(commandContext.getServiceLocator().getBean(I18nDAO.class));
@@ -289,13 +306,13 @@ public class Zoneserver implements MessageProcessor {
 	}
 
 	/**
-	 * Returns a {@link BestiaActiveRegister}. It will be used by the ECS to
+	 * Returns a {@link ActiveBestiaRegistry}. It will be used by the ECS to
 	 * fetch the player input async aswell as the commands to pipe the player
 	 * input for the different bestias to the ECS.
 	 * 
 	 * @return
 	 */
-	public BestiaActiveRegister getBestiaRegister() {
+	public ActiveBestiaRegistry getActiveBestiaRegistry() {
 		return activeBestiaRegistry;
 	}
 
@@ -303,11 +320,11 @@ public class Zoneserver implements MessageProcessor {
 	 * The subscription manager to change and count how many active user are
 	 * currently online on this server.
 	 * 
-	 * @return The {@link ServerSubscriptionManager} to track the online
+	 * @return The {@link UserRegistry} to track the online
 	 *         accounts and users.
 	 */
-	public ServerSubscriptionManager getSubscriptionManager() {
-		return subscriptionManager;
+	public UserRegistry getUserRegistry() {
+		return userRegistry;
 	}
 
 	/**

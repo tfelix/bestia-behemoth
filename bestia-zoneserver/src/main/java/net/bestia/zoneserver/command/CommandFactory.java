@@ -12,12 +12,13 @@ import org.reflections.Reflections;
 import net.bestia.messages.Message;
 
 public abstract class CommandFactory {
-	
+
 	private static final Logger LOG = LogManager.getLogger(CommandFactory.class);
 	protected final Map<String, Command> commandLibrary = new HashMap<String, Command>();
 
 	/**
-	 * Scans the package for commands to instanciate if a message with the given ID is incoming.
+	 * Scans the package for commands to instanciate if a message with the given
+	 * ID is incoming.
 	 * 
 	 * @param packageName
 	 */
@@ -26,12 +27,12 @@ public abstract class CommandFactory {
 		final Set<Class<? extends Command>> subTypes = reflections.getSubTypesOf(Command.class);
 
 		for (Class<? extends Command> clazz : subTypes) {
-			
+
 			// Dont instance abstract classes.
-			if(Modifier.isAbstract(clazz.getModifiers())) {
+			if (Modifier.isAbstract(clazz.getModifiers())) {
 				continue;
 			}
-			
+
 			try {
 				final Command cmd = clazz.newInstance();
 
@@ -48,7 +49,7 @@ public abstract class CommandFactory {
 			}
 		}
 	}
-	
+
 	public CommandFactory(String packageToScan) {
 		if (packageToScan == null || packageToScan.isEmpty()) {
 			throw new IllegalArgumentException("PackageToScan can not be null or empty.");
@@ -57,8 +58,17 @@ public abstract class CommandFactory {
 	}
 
 	/**
-	 * Creates a command from the messages. Do some sanity checking as well to see if the message is ok and applying to
-	 * the specifications.
+	 * Creates a set of message IDs for which this factory will create commands.
+	 * 
+	 * @return The registered message ids for which commands will be returned.
+	 */
+	public Set<String> getRegisteredMessageIds() {
+		return commandLibrary.keySet();
+	}
+
+	/**
+	 * Creates a command from the messages. Do some sanity checking as well to
+	 * see if the message is ok and applying to the specifications.
 	 * 
 	 * @param message
 	 * @return

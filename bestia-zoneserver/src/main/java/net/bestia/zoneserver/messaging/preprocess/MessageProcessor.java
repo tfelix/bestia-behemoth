@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.routing;
+package net.bestia.zoneserver.messaging.preprocess;
 
 import net.bestia.messages.Message;
 
