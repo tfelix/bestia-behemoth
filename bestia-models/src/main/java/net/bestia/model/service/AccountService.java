@@ -8,6 +8,8 @@ import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.PlayerBestia;
 
+import java.util.Set;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +18,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Generates all the needed account services. Please be careful: This factory is not threadsafe. Therefore each thread
- * should have its own AccountService.
+ * Generates all the needed account services. Please be careful: This factory is
+ * not threadsafe. Therefore each thread should have its own AccountService.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -36,14 +38,12 @@ public class AccountService {
 		/**
 		 * DPS starter class.
 		 */
-		FIGHTER,
-		/**
-		 * Tank starter class.
-		 */
-		KNIGHT,
-		/**
-		 * Support class.
-		 */
+		FIGHTER, /**
+					 * Tank starter class.
+					 */
+		KNIGHT, /**
+				 * Support class.
+				 */
 		SPIRITUAL
 	}
 
@@ -73,20 +73,23 @@ public class AccountService {
 	 *            Password for the account.
 	 * @param starter
 	 *            Choosen starter bestia.
-	 * @return {@code TRUE} if the new account coule be created. {@code FALSE} otherwise.
+	 * @return {@code TRUE} if the new account coule be created. {@code FALSE}
+	 *         otherwise.
 	 */
 	@Transactional
 	public boolean createNewAccount(String email, String mastername, String password, Master starter) {
 		Account account = new Account(email, password);
-		// TODO das hier noch auslagern. Die aktivierung soll nur per username/password anmeldung notwendig sein.
+		// TODO das hier noch auslagern. Die aktivierung soll nur per
+		// username/password anmeldung notwendig sein.
 		account.setActivated(true);
-		
-		// TODO Starter ID durch ein Script ? bestimmen lassen. Außerdem Eventcodes berücksichtigen.
+
+		// TODO Starter ID durch ein Script ? bestimmen lassen. Außerdem
+		// Eventcodes berücksichtigen.
 		int starterId = 1;
 
 		// Depending on the master get the offspring bestia.
 		final Bestia origin = bestiaDao.findOne(starterId);
-		if(origin == null) {
+		if (origin == null) {
 			log.error("Starter bestia with id {} could not been found.", starterId);
 			return false;
 		}
@@ -94,7 +97,7 @@ public class AccountService {
 		// Create the bestia.
 		PlayerBestia masterBestia = new PlayerBestia(account, origin, BaseValues.getStarterIndividualValues());
 		masterBestia.setName(mastername);
-		
+
 		account.setMaster(masterBestia);
 
 		// Generate ID.
@@ -102,8 +105,25 @@ public class AccountService {
 		playerBestiaDao.save(masterBestia);
 		// Save account again to set master id.
 		accountDao.save(account);
-		
+
 		return true;
+	}
+
+	/**
+	 * Returns all the bestias under a given account id. This includes the
+	 * bestia master aswell as "normal" bestias.
+	 * 
+	 * @param accId
+	 * @return
+	 */
+	public Set<PlayerBestia> getAllBestias(long accId) {
+		final Account account = accountDao.find(accId);
+		final Set<PlayerBestia> bestias = playerBestiaDao.findPlayerBestiasForAccount(accId);
+
+		// Add master as well since its not listed as a "player bestia".
+		bestias.add(account.getMaster());
+		
+		return bestias;
 	}
 
 }

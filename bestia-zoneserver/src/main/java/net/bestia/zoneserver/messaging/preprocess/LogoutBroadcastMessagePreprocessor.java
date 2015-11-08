@@ -2,7 +2,7 @@ package net.bestia.zoneserver.messaging.preprocess;
 
 import java.util.Set;
 
-import net.bestia.messages.LoginBroadcastMessage;
+import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
 import net.bestia.messages.ZoneWrapperMessage;
 import net.bestia.model.dao.AccountDAO;
@@ -13,25 +13,25 @@ import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.command.CommandContext;
 
 /**
- * Check if this server is responsible for at least one login.
- * 
+ *  * TODO Das hier zusammen mit LogoutBroadcastMessage in eine gemeinsame,
+ * allgemeine Broadcast Classe refactoren.
  * @author Thomas
  *
  */
-public class LoginMessagePreprocessor extends MessagePreprocessor {
+public class LogoutBroadcastMessagePreprocessor extends MessagePreprocessor {
 
-	public LoginMessagePreprocessor(CommandContext ctx) {
+	public LogoutBroadcastMessagePreprocessor(CommandContext ctx) {
 		super(ctx);
 		// no op.
 	}
 
 	@Override
 	public Message process(Message message) {
-		if (!(message instanceof LoginBroadcastMessage)) {
+		if (!(message instanceof LogoutBroadcastMessage)) {
 			return message;
 		}
 
-		LoginBroadcastMessage msg = (LoginBroadcastMessage) message;
+		LogoutBroadcastMessage msg = (LogoutBroadcastMessage) message;
 
 		// gather bestias.
 		PlayerBestiaDAO bestiaDao = ctx.getServiceLocator().getBean(PlayerBestiaDAO.class);
@@ -44,7 +44,7 @@ public class LoginMessagePreprocessor extends MessagePreprocessor {
 		bestias.add(account.getMaster());
 
 		// Prepare wrapped message.
-		ZoneWrapperMessage<LoginBroadcastMessage> wrappedMsg = new ZoneWrapperMessage<LoginBroadcastMessage>(msg);
+		ZoneWrapperMessage<LogoutBroadcastMessage> wrappedMsg = new ZoneWrapperMessage<LogoutBroadcastMessage>(msg);
 
 		boolean atLeastOne = false;
 		for (PlayerBestia playerBestia : bestias) {
@@ -59,9 +59,8 @@ public class LoginMessagePreprocessor extends MessagePreprocessor {
 		} else {
 			return null;
 		}
-
 	}
-
+	
 	private boolean isBestiaOnZone(PlayerBestia playerBestia) {
 		final Zoneserver server = ctx.getServer();
 		final Set<String> zones = server.getResponsibleZones();

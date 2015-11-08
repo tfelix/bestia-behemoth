@@ -21,10 +21,10 @@ import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.service.PlayerBestiaService;
+import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.HP;
 import net.bestia.zoneserver.ecs.component.Mana;
-import net.bestia.zoneserver.messaging.preprocess.MessageProcessor;
 
 /**
  * The PlayerBestiaManager is responsible for executing the "business logic" to
@@ -40,7 +40,7 @@ public class PlayerBestiaManager extends BestiaManager {
 
 	private final PlayerBestia bestia;
 	private final String language;
-	private final MessageProcessor server;
+	private final Zoneserver server;
 
 	private final ComponentMapper<Attacks> attacksMapper;
 	private final ComponentMapper<Mana> manaMapper;
@@ -50,7 +50,7 @@ public class PlayerBestiaManager extends BestiaManager {
 
 	private final ServiceLocator serviceLocator;
 
-	public PlayerBestiaManager(PlayerBestia bestia, World world, Entity entity, MessageProcessor sender,
+	public PlayerBestiaManager(PlayerBestia bestia, World world, Entity entity, Zoneserver sender,
 			ServiceLocator locator) {
 		super(world, entity);
 		this.attacksMapper = world.getMapper(Attacks.class);
@@ -108,7 +108,7 @@ public class PlayerBestiaManager extends BestiaManager {
 			return;
 		}
 		final ChatMessage msg = ChatMessage.getSystemMessage(bestia.getOwner(), text);
-		server.processMessage(msg);
+		server.sendMessage(msg);
 
 	}
 

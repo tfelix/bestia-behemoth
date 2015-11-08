@@ -3,7 +3,7 @@ package net.bestia.zoneserver.command.chat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.bestia.messages.AddItemMessage;
+
 import net.bestia.messages.ChatMessage;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
@@ -55,8 +55,8 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 			return;
 		}
 		
-		final AddItemMessage addMsg = new AddItemMessage(accId, pbId, itemDbNameStr, amount);
-		ctx.getServer().getMessageRouter().processMessage(addMsg);
+		//final AddItemMessage addMsg = new AddItemMessage(accId, pbId, itemDbNameStr, amount);
+		//ctx.getServer().getMessageRouter().processMessage(addMsg);
 	}
 	
 	/* (non-Javadoc)

@@ -206,28 +206,6 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		LOG.trace("Spawning player bestia: {}.", pb);
 	}
 
-	private void despawnBestia(LogoutBroadcastMessage msg) {
-		final long accId = msg.getAccountId();
-		final Set<Integer> entityIds = accountBestiaRegister.get(accId);
-
-		// Might happen if a connection is dropped too late/message arriving too
-		// late and the bestias where already all deleted. In this case do
-		// nothing.
-		if (entityIds == null) {
-			return;
-		}
-
-		for (Integer id : entityIds) {
-			final Entity entity = world.getEntity(id.intValue());
-			entity.deleteFromWorld();
-			LOG.trace("Despawning player bestia (entity id: {})", id);
-		}
-
-		if (accountBestiaRegister.get(accId).size() == 0) {
-			accountBestiaRegister.remove(accId);
-		}
-	}
-
 	/**
 	 * Gets the entity id for the given player bestia id in this system. If the
 	 * bestia is not spawned/unknown a 0 is returned.
@@ -261,6 +239,31 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		}
 
 		return playerBestiaMapper.get(entity).playerBestiaManager;
+	}
+
+	/**
+	 * Removes all bestia for a given account.
+	 * @param accountId
+	 */
+	public void despawnAllBestias(long accountId) {
+		final Set<Integer> entityIds = accountBestiaRegister.get(accountId);
+
+		// Might happen if a connection is dropped too late/message arriving too
+		// late and the bestias where already all deleted. In this case do
+		// nothing.
+		if (entityIds == null) {
+			return;
+		}
+
+		for (Integer id : entityIds) {
+			final Entity entity = world.getEntity(id.intValue());
+			entity.deleteFromWorld();
+			LOG.trace("Despawning player bestia (entity id: {})", id);
+		}
+
+		if (accountBestiaRegister.get(accountId).size() == 0) {
+			accountBestiaRegister.remove(accountId);
+		}
 	}
 
 }

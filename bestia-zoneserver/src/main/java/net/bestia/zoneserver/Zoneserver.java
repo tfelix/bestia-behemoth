@@ -38,7 +38,8 @@ import net.bestia.zoneserver.loader.ScriptLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
 import net.bestia.zoneserver.messaging.UserRegistry;
 import net.bestia.zoneserver.messaging.preprocess.ChatMessagePreprocessor;
-import net.bestia.zoneserver.messaging.preprocess.LoginMessagePreprocessor;
+import net.bestia.zoneserver.messaging.preprocess.LoginBroadcastMessagePreprocessor;
+import net.bestia.zoneserver.messaging.preprocess.LogoutBroadcastMessagePreprocessor;
 import net.bestia.zoneserver.messaging.preprocess.MessagePreprocessorController;
 import net.bestia.zoneserver.messaging.preprocess.MessageProcessor;
 import net.bestia.zoneserver.messaging.routing.MessageFilter;
@@ -56,7 +57,7 @@ import net.bestia.zoneserver.zone.Zone;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class Zoneserver implements MessageProcessor {
+public class Zoneserver {
 
 	private final static Logger log = LogManager.getLogger(Zoneserver.class);
 
@@ -81,6 +82,18 @@ public class Zoneserver implements MessageProcessor {
 			// Route the message.
 			messageRouter.processMessage(msg);
 		}
+	}
+	
+	private class ZoneserverMessageProcessor implements MessageProcessor {
+
+		@Override
+		public void processMessage(Message msg) {
+			final Command cmd = commandFactory.getCommand(msg);
+			if(cmd != null) {
+				commandExecutor.submit(cmd);
+			}
+		}
+		
 	}
 
 	private final String name;
@@ -165,7 +178,7 @@ public class Zoneserver implements MessageProcessor {
 		// ### Setup the message routing.
 		final Set<String> messageIDs = commandFactory.getRegisteredMessageIds();
 		final MessageFilter filter = new MessageIdFilter(messageIDs);
-		messageRouter.registerFilter(filter, this);
+		messageRouter.registerFilter(filter, new ZoneserverMessageProcessor());
 		
 		this.userRegistry = new UserRegistry(this);
 
@@ -175,7 +188,8 @@ public class Zoneserver implements MessageProcessor {
 	
 	private void setupMessagePreprocessing() {
 		this.messagePreprocessor.addProcessor(new ChatMessagePreprocessor(commandContext));
-		this.messagePreprocessor.addProcessor(new LoginMessagePreprocessor(commandContext));
+		this.messagePreprocessor.addProcessor(new LoginBroadcastMessagePreprocessor(commandContext));
+		this.messagePreprocessor.addProcessor(new LogoutBroadcastMessagePreprocessor(commandContext));
 	}
 
 	/**
@@ -418,22 +432,5 @@ public class Zoneserver implements MessageProcessor {
 		} catch (IOException e) {
 			log.trace("Error: Could not deliver message: {}", message.toString(), e);
 		}
-	}
-
-	/**
-	 * Messages arriving here should be executed on the server.
-	 */
-	@Override
-	public void processMessage(Message msg) {
-
-		// Create command out of the message and deliver it to the executor.
-		final Command cmd = commandFactory.getCommand(msg);
-
-		if (cmd == null) {
-			// No command was found.
-			return;
-		}
-
-		commandExecutor.execute(cmd);
 	}
 }
