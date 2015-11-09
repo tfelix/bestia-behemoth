@@ -156,8 +156,32 @@ Bestia.Inventory = function(pubsub, i18n) {
 
 		self.maxWeight(data.mw);
 	};
-
 	pubsub.subscribe('inventory.list', listHandler);
+
+	/**
+	 * Updates the item via an update message from the server.
+	 */
+	var updateHandler = function(_, data) {
+		data.pis.forEach(function(val) {
+			var item = self._findItem(val.i.i.id);
+			
+			if(item === null) {
+				// Add the new item to the inventory.
+				var newItem = new Bestia.ItemViewModel(val);
+				self.allItems.push(newItem);
+			} else {
+				var newAmount = item.amount() + val.a;
+				if(newAmount <= 0) {
+					// Remove item.
+					self.allItems.remove(item);
+				} else {
+					// Update amount.
+					item.amount(newAmount);
+				}	
+			}
+		});
+	};
+	pubsub.subscribe('inventory.update', updateHandler);
 
 	/**
 	 * Saves the new bestia id of the currently selected bestia.
@@ -205,8 +229,26 @@ Bestia.Inventory = function(pubsub, i18n) {
 	this.dropItem = function(item, amount) {
 		var msg = Bestia.Message.InventoryItemDrop(item.id(), amount);
 		self._pubsub.send(msg);
-		
+
 	};
+};
+
+/**
+ * Looks for the item in the current items array. If it is found the
+ * {Bestia.Inventory.ItemViewModel} is returned. Null otherwise.
+ * 
+ * @private
+ * @param itemId
+ * @returns The {Bestia.Inventory.ItemViewModel} if found or null otherwise.
+ */
+Bestia.Inventory.prototype._findItem = function(itemId) {
+	var items = this.allItems();
+	for(var i = 0; i < items.length; i++) {
+		if(items[i].itemId() == itemId) {
+			return items[i];
+		}
+	}
+	return null;
 };
 
 /**

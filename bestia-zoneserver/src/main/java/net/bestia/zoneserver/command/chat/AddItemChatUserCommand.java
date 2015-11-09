@@ -1,5 +1,8 @@
 package net.bestia.zoneserver.command.chat;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import net.bestia.messages.ChatMessage;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.service.InventoryService;
@@ -24,8 +27,7 @@ import net.bestia.zoneserver.manager.PlayerBestiaManager;
  */
 public class AddItemChatUserCommand implements ChatUserCommand {
 
-	// private static final Logger LOG =
-	// LogManager.getLogger(AddItemChatUserCommand.class);
+	private static final Logger LOG = LogManager.getLogger(AddItemChatUserCommand.class);
 
 	private class ItemDesc {
 		public String itemDbName;
@@ -40,35 +42,50 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 
 		final ItemDesc desc = parseCommand(m.getText());
 
+		if (desc == null) {
+			final ChatMessage reply = ChatMessage.getEchoRawMessage(message.getAccountId(),
+					"Wrong format. Use /item <NAME> <AMOUNT>");
+			ctx.getServer().sendMessage(reply);
+		}
+
 		// Find the player who send the message.
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
 		final InventoryManager invManager = new InventoryManager(player, invService, ctx.getServer());
-		
-		if(desc.itemdId != -1) {
-			invManager.addItem(desc.itemdId, desc.amount);
-		} else {
-			invManager.addItem(desc.itemDbName, desc.amount);
+
+		try {
+			if (desc.itemdId != -1) {
+				invManager.addItem(desc.itemdId, desc.amount);
+			} else {
+				invManager.addItem(desc.itemDbName, desc.amount);
+			}
+		} catch (IllegalArgumentException ex) {
+			LOG.warn("Could not add item to account: {}. Reason: {}", player.getAccountId(), ex.getMessage());
 		}
 	}
 
 	private ItemDesc parseCommand(String text) {
 		// Get the item name and the amount.
 		final String[] tokens = text.split(" ");
-		
+
 		final ItemDesc desc = new ItemDesc();
 
+		// Wrong format.
+		if (tokens.length < 2) {
+			return null;
+		}
+
 		// Check if the item is a id or a string.
-		final String itemDbNameStr = tokens[1];
-		
-		if(itemDbNameStr.matches("\\d+")) {
+		desc.itemDbName = tokens[1];
+
+		if (desc.itemDbName.matches("\\d+")) {
 			try {
-				desc.itemdId = Integer.parseInt(itemDbNameStr);
-			} catch(NumberFormatException ex) {
+				desc.itemdId = Integer.parseInt(desc.itemDbName);
+			} catch (NumberFormatException ex) {
 				desc.itemdId = -1;
 			}
 		}
-		
-		if(tokens.length == 3) {
+
+		if (tokens.length == 3) {
 			final String amountStr = tokens[2];
 			try {
 				desc.amount = Integer.parseInt(amountStr);
@@ -76,7 +93,7 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 				desc.amount = 1;
 			}
 		}
-		
+
 		return desc;
 	}
 

@@ -15,24 +15,25 @@ import org.reflections.Reflections;
 public class MessageTest {
 
 	private static Reflections reflections = new Reflections("net.bestia.messages");
-	
+
 	private Set<Class<? extends Message>> getMessageSubtypes() {
 		Set<Class<? extends Message>> subTypes = reflections.getSubTypesOf(Message.class);
 		Set<Class<? extends Message>> finalTypes = new HashSet<>();
 		for (Class<? extends Message> clazz : subTypes) {
-			
+
 			// Avoid abstract classes.
-			if(Modifier.isAbstract(clazz.getModifiers())) {
+			if (Modifier.isAbstract(clazz.getModifiers())) {
 				continue;
 			}
-			
+
 			finalTypes.add(clazz);
 		}
 		return finalTypes;
 	}
 
 	/**
-	 * Look if every message class has an std. ctor and can be instantiated. Important for jackson serialization.
+	 * Look if every message class has an std. ctor and can be instantiated.
+	 * Important for jackson serialization.
 	 */
 	@Test
 	public void std_ctor_present_test() {
@@ -41,7 +42,7 @@ public class MessageTest {
 
 		List<String> notInstances = new ArrayList<>();
 
-		for (Class<? extends Message> clazz : subTypes) {			
+		for (Class<? extends Message> clazz : subTypes) {
 			try {
 				clazz.newInstance();
 			} catch (Exception ex) {
@@ -52,17 +53,16 @@ public class MessageTest {
 		String msg = "Could not instanciated: " + notInstances.toString();
 		Assert.assertTrue(msg, notInstances.isEmpty());
 	}
-	
+
 	@Test
 	public void msg_id_present() throws InstantiationException, IllegalAccessException {
 
 		Set<Class<? extends Message>> subTypes = getMessageSubtypes();
-		for (Class<? extends Message> clazz : subTypes) {			
+		for (Class<? extends Message> clazz : subTypes) {
 			Message msg = clazz.newInstance();
 			Assert.assertNotNull(msg.getMessageId());
 			Assert.assertFalse(msg.getMessageId().isEmpty());
 		}
-		
 	}
 
 	@Test
@@ -79,14 +79,14 @@ public class MessageTest {
 
 			Constructor<? extends Message> cons = msg.getConstructor();
 			String key = cons.newInstance().getMessageId();
-			
-			if(ids.contains(key)) {
+
+			if (ids.contains(key)) {
 				duplicates.add(key);
 			} else {
 				ids.add(key);
 			}
 		}
-		
+
 		String msg = "Duplicate Message IDs found: " + duplicates.toString();
 		Assert.assertTrue(msg, duplicates.isEmpty());
 	}

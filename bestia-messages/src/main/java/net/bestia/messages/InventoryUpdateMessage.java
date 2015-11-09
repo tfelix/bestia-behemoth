@@ -1,5 +1,6 @@
 package net.bestia.messages;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,10 @@ public class InventoryUpdateMessage extends Message {
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;
 
-	public class ItemAmount {
+	public class ItemAmount implements Serializable {
+
+		private static final long serialVersionUID = 1L;
+
 		@JsonProperty("i")
 		public PlayerItem item;
 
@@ -35,6 +39,11 @@ public class InventoryUpdateMessage extends Message {
 		public ItemAmount(PlayerItem item, int amount) {
 			this.item = item;
 			this.amount = amount;
+		}
+		
+		@Override
+		public String toString() {
+			return String.format("ItemAmount[PlayerItem: %s, amount: %d]", item.toString(), amount);
 		}
 	}
 	
