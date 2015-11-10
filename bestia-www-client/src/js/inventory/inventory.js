@@ -163,7 +163,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 */
 	var updateHandler = function(_, data) {
 		data.pis.forEach(function(val) {
-			var item = self._findItem(val.i.i.id);
+			var item = self._findItem(val.i.id);
 			
 			if(item === null) {
 				// Add the new item to the inventory.
@@ -177,6 +177,8 @@ Bestia.Inventory = function(pubsub, i18n) {
 				} else {
 					// Update amount.
 					item.amount(newAmount);
+					// Send notifications.
+					pubsub.publish('client.inventory.addItem', item);
 				}	
 			}
 		});

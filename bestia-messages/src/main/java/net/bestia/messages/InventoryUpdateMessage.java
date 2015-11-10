@@ -7,7 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.model.domain.PlayerItem;
+import net.bestia.model.domain.Item;
 
 /**
  * This message is send from a {@link InventoryManager} to the client. It
@@ -21,31 +21,35 @@ public class InventoryUpdateMessage extends Message {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;
-
-	public class ItemAmount implements Serializable {
+	
+	public class UpdateItem implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
-		@JsonProperty("i")
-		public PlayerItem item;
-
 		@JsonProperty("a")
-		public int amount;
-
-		public ItemAmount() {
-
-		}
-
-		public ItemAmount(PlayerItem item, int amount) {
-			this.item = item;
-			this.amount = amount;
+		private int amount;
+		
+		@JsonProperty("i")
+		private Item item;
+		
+		public int getAmount() {
+			return amount;
 		}
 		
-		@Override
-		public String toString() {
-			return String.format("ItemAmount[PlayerItem: %s, amount: %d]", item.toString(), amount);
+		public Item getItem() {
+			return item;
+		}
+		
+		public UpdateItem() {
+			
+		}
+		
+		public UpdateItem(Item item, int amount) {
+			this.amount = amount;
+			this.item = item;
 		}
 	}
+
 	
 	public InventoryUpdateMessage() {
 		
@@ -58,10 +62,7 @@ public class InventoryUpdateMessage extends Message {
 	public static final String MESSAGE_ID = "inventory.update";
 
 	@JsonProperty("pis")
-	private List<ItemAmount> playerItems = new ArrayList<>();
-
-	@JsonProperty("cw")
-	private int currentWeight;
+	private List<UpdateItem> playerItems = new ArrayList<>();
 
 	/**
 	 * Adds an item with an updated count to this message. If the amount is
@@ -74,8 +75,8 @@ public class InventoryUpdateMessage extends Message {
 	 * @param amount
 	 *            Amount of the item to be added or removed.
 	 */
-	public void updateItem(PlayerItem item, int amount) {
-		playerItems.add(new ItemAmount(item, amount));
+	public void updateItem(Item item, int amount) {	
+		playerItems.add(new UpdateItem(item, amount));
 	}
 
 	@Override
