@@ -4,8 +4,10 @@
  * 
  * @constructor
  * @class Bestia.Engine
- * @param {Bestia.PubSub} pubsub - Publish/Subscriber interface.
- * @param {Bestia.Config} config - Bestia Configuration object.
+ * @param {Bestia.PubSub}
+ *            pubsub - Publish/Subscriber interface.
+ * @param {Bestia.Config}
+ *            config - Bestia Configuration object.
  */
 Bestia.Engine = function(pubsub, config) {
 
@@ -17,20 +19,13 @@ Bestia.Engine = function(pubsub, config) {
 	 *           an used.
 	 */
 	this.config = config;
-	
+
 	/**
-	 * @property {Bestia.PubSub} pubsub - Holds a reference to the bestia 
-	 * publish/subscribe interface allowing game engine objects to subscribe to events.
+	 * @property {Bestia.PubSub} pubsub - Holds a reference to the bestia
+	 *           publish/subscribe interface allowing game engine objects to
+	 *           subscribe to events.
 	 */
 	this.pubsub = pubsub;
-	
-	/**
-	 * Entity updater for managing the adding and removal of entities.
-	 * 
-	 * @public
-	 * @property {Bestia.Engine.EntityUpdater}
-	 */
-	this.entityUpdater = new Bestia.Engine.EntityUpdater(pubsub);
 
 	this.options = {
 		enableMusic : ko.observable('true'),
@@ -44,18 +39,28 @@ Bestia.Engine = function(pubsub, config) {
 	});
 
 	this.bestia = undefined;
+	
+	this.world = undefined;
 
 	// Determine the size of the canvas.
-	var height = $(document).height();
+	var height = $(window).height();
 	var width = $('#canvas-container').width();
-
 	this.game = new Phaser.Game(width, height, Phaser.AUTO, 'bestia-canvas');
 
 	this.game.state.add('game', new Bestia.Engine.States.GameState(this));
 	this.game.state.add('connecting', new Bestia.Engine.States.ConnectingState(this));
 	this.game.state.add('load', new Bestia.Engine.States.LoadingState(this));
-	this.game.state.add('boot', new Bestia.Engine.States.BootState(this));
-	this.game.state.start('boot');
+	this.game.state.start('connecting');
+
+	this.entityCache = new Bestia.Engine.EntityCacheManager();
+	
+	/**
+	 * Entity updater for managing the adding and removal of entities.
+	 * 
+	 * @public
+	 * @property {Bestia.Engine.EntityUpdater}
+	 */
+	this.entityUpdater = new Bestia.Engine.EntityUpdater(pubsub, this.entityCache);
 
 	// Subscribe for the first info messages until we gathered information about
 	// the master bestia to trigger initial map load.
@@ -66,7 +71,7 @@ Bestia.Engine = function(pubsub, config) {
 		self.pubsub.unsubscribe('client.selectedBestia', onInitHandler);
 	};
 	pubsub.subscribe('client.selectedBestia', onInitHandler);
-	
+
 	// React on bestia selection changes. We need to re-trigger the map loading.
 	var onSelectBestiaHandler = function(_, data) {
 		console.debug('New bestia selected. Starting loading process.');
@@ -88,7 +93,7 @@ Bestia.Engine.prototype.loadMap = function(bestia) {
 	console.debug('Loading map.');
 
 	// See if we can do a partial mapload or a full map reload.
-	if (undefined === this.bestia || this.bestia.location() !== bestia.location()) {
+	if (this.world === undefined || this.world.name !== bestia.location()) {
 		// We need to do a full load.
 		this.game.state.start('load', true, false, bestia);
 	}
@@ -102,34 +107,3 @@ Bestia.Engine.prototype.loadMap = function(bestia) {
  * the engine to the phaser.js system.
  */
 Bestia.Engine.States = {};
-
-/**
- * Holds static and constant configuration data for the bestia engine.
- * 
- * @constant
- */
-Bestia.Engine.Config = {
-	TILE_SIZE : 32
-};
-
-/**
- * Returns the tile coordinates when a pixel koordinate is given. TODO Phaser
- * kann das wohl auch. Entfernen.
- * 
- * @static
- * @depricated Mit Bestia.World machen.
- */
-Bestia.Engine.px2cords = function(px) {
-	return Math.floor(px / Bestia.Engine.Config.TILE_SIZE);
-};
-
-/**
- * Returns the px coordinates if a tile coordinate is given. TODO Phaser kann
- * das wohl auch. Entfernen.
- * 
- * @static
- * @depricated Mit Bestia.World machen.
- */
-Bestia.Engine.cords2px = function(cords) {
-	return cords * Bestia.Engine.Config.TILE_SIZE;
-};

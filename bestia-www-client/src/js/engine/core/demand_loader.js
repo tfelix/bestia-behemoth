@@ -102,3 +102,29 @@ Bestia.Engine.DemandLoader.prototype.loadMobSprite = function(key, fnOnComplete)
 	//this._loader.pack(key, packUrl);
 	this._loader.start();
 };
+
+/**
+ * 
+ * @param {Function}
+ *            fnOnComplete - Callback function which will be called if the
+ *            file(s) have been loaded.
+ */
+Bestia.Engine.DemandLoader.prototype.loadItemSprite = function(key, fnOnComplete) {
+
+	// Check if a load is running. If this is the case only add the callback function
+	// to be executed when the load completes.	
+	if(this._cache.hasOwnProperty(key)) {
+		this._cache[key].callbackFns.push(fnOnComplete);
+		return;
+	}
+	
+	var countObj = {key: key, callbackFns: [fnOnComplete], toLoad: 0, items: []};
+	
+	this._cache[key] = countObj;
+	this._keyCache.push(key);
+
+	var packUrl = Bestia.Urls.assetsRoot + 'img/items/ '+ key + '.png';
+
+	this._loader.image(key, packUrl);
+	this._loader.start();
+};

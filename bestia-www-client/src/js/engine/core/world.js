@@ -32,6 +32,8 @@ Bestia.Engine.World = function(game, astar) {
 	 * @private
 	 */
 	this._groundLayer = null;
+	
+	this.name = "";
 };
 
 /**
@@ -158,16 +160,14 @@ Bestia.Engine.World.prototype.findPath = function(start, goal) {
  * @return {Object} - X and Y px coordiantes in the form
  * @{code {x: INT, y: INT}}.
  */
-Bestia.Engine.World.prototype.getPxXY = function(tileX, tileY, obj) {
-	if (obj === undefined) {
-		obj = {
-			x : 0,
-			y : 0
-		};
-	}
+Bestia.Engine.World.getPxXY = function(tileX, tileY, obj) {
+	obj = obj || {
+		x : 0,
+		y : 0
+	};
 
-	obj.x = (tileX) * this.properties.tileSize;
-	obj.y = (tileY) * this.properties.tileSize;
+	obj.x = tileX * Bestia.Engine.World.TILE_SIZE;
+	obj.y = tileY * Bestia.Engine.World.TILE_SIZE;
 
 	return obj;
 };
@@ -182,14 +182,17 @@ Bestia.Engine.World.prototype.getPxXY = function(tileX, tileY, obj) {
  * @return {Object} - X and Y tile coordiantes in px in the form
  * @{code {x: INT, y: INT}}.
  */
-Bestia.Engine.World.prototype.getTileXY = function(pxX, pxY, obj) {
-	if (obj === undefined) {
-		obj = {
-			x : 0,
-			y : 0
-		};
-	}
+Bestia.Engine.World.getTileXY = function(pxX, pxY, obj) {
+	obj = obj || {
+		x : 0,
+		y : 0
+	};
+	
+	obj.x = Math.floor(pxX / Bestia.Engine.World.TILE_SIZE);
+	obj.y = Math.floor(pxY / Bestia.Engine.World.TILE_SIZE);
 
-	this._groundLayer.getTileXY(pxX, pxY, obj);
 	return obj;
 };
+
+// Constants.
+Bestia.Engine.World.TILE_SIZE = 32;

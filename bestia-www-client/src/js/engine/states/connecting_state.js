@@ -15,19 +15,22 @@ Bestia.Engine.States.ConnectingState = function(engine) {
 	this._engine = engine;
 };
 
-Bestia.Engine.States.ConnectingState.prototype = {
-	create : function() {
-		var style = {
-			font : "bold 32px Arial",
-			fill : "#fff",
-			boundsAlignH : "center",
-			boundsAlignV : "middle"
-		};
-		this.game.add.text(40, 40, 'Connecting...', style);
-		
-		// Signal that the engine has loaded. Triggers connect.
-		this._engine.pubsub.publish('engine.loaded');
-	}
-};
+Bestia.Engine.States.ConnectingState.prototype.create = function() {
+	var style = {
+		font : "bold 32px Arial",
+		fill : "#fff",
+		boundsAlignH : "center",
+		boundsAlignV : "middle"
+	};
 
-Bestia.Engine.States.ConnectingState.prototype.constructor = Bestia.Engine.States.ConnectingState;
+	var bar = this.game.add.graphics();
+	bar.beginFill(0xFFFFFF, 0.2);
+	bar.drawRect(0, this.game.world.centerY - 80, this.game.world.width, 160);
+
+	var txt = this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'Connecting...', style);
+	txt.anchor.set(0.5);
+	txt.align = 'center';
+
+	// Signal that the engine has loaded. Triggers connect.
+	this._engine.pubsub.publish('engine.loaded');
+};

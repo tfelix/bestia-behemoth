@@ -12,7 +12,15 @@
  *            pubsub - Reference to the bestia publish/subscriber system for
  *            hooking into update calls.
  */
-Bestia.Engine.EntityUpdater = function(pubsub) {
+Bestia.Engine.EntityUpdater = function(pubsub, cache) {
+	if (pubsub === undefined) {
+		throw "PubSub can not be undefined";
+	}
+
+	if (cache === undefined) {
+		throw "Cache can not be undefined.";
+	}
+
 	var self = this;
 
 	/**
@@ -20,27 +28,14 @@ Bestia.Engine.EntityUpdater = function(pubsub) {
 	 */
 	this._buffer = [];
 
-	/**
-	 * Holds all spawned or managed entities.
-	 * 
-	 * @private
-	 */
-	this._cache = {};
+	this._cache = cache;
 
-	/**
-	 * The cache for the entities with player bestia ids.
-	 * 
-	 * @private
-	 */
-	this._pbidCache = {};
-
-	/**
-	 * Holds references to callback function.
-	 */
-	this._callbacks = {};
+	this._pubsub = pubsub;
+	
+	this._factory = undefined;
 
 	this._onMessageHandler = function(_, msg) {
-		if(self._buffer !== undefined) {
+		if (self._buffer !== undefined) {
 			self._buffer.push(msg);
 			return;
 		}
@@ -55,36 +50,6 @@ Bestia.Engine.EntityUpdater = function(pubsub) {
 };
 
 /**
- * Adds a callback handler to the entity events on this updates. Use this to get
- * recognized and react upon changes in the updater. The callback function will
- * get the JSON data of the offending entity as well as a reference to this
- * updater.
- * <p>
- * Attention: The onAppear Handler should return some kind of object which
- * should be persisted inside the cache as this entity. Usually this would be an
- * instance of Bestia.Engine.Entity.
- * </p>
- * 
- * @param {String}
- *            type - Type of the callback. [onAppear|onVanish|onUpdate]
- * @param {Function}
- *            fx - Callback function. Upon invocation it gets two arguments. The
- *            JSON entity object as well as a reference to his updater.
- */
-Bestia.Engine.EntityUpdater.prototype.addHandler = function(type, fn) {
-	type = type.toLowerCase();
-	switch (type) {
-	case 'onappear':
-	case 'onvanish':
-	case 'onupdate':
-		this._callbacks[type] = fn;
-		break;
-	default:
-		throw "Unknown function handler! Use onAppear, onVanish or onUpdate only.";
-	}
-};
-
-/**
  * Decides which action to take for a given entity from the server.
  * 
  * @method Bestia.Engine.EntityUpdater#_update
@@ -93,81 +58,18 @@ Bestia.Engine.EntityUpdater.prototype.addHandler = function(type, fn) {
 Bestia.Engine.EntityUpdater.prototype._update = function(obj) {
 	console.trace('Updating entity: ' + JSON.stringify(obj));
 
-	if (obj.a === 'APPEAR') {
+	switch (obj.t) {
+	case "ITEM":
+		this._factory.createItemEntity(obj);
+		break;
+	case "BESTIA":
+		this._factory.createBestiaEntity(obj);
+		break;
+	default:
 
-		this._addGameEntity(obj);
-
-	} else if (obj.a === 'VANISH') {
-
-		this._removeGameEntity(obj);
-
-	} else if (obj.a === 'UPDATE') {
-
-		this._updateGameEntity(obj);
-
-	}
-};
-
-/**
- * Look up the cache to see if the entity is already inside it.
- */
-Bestia.Engine.EntityUpdater.prototype._getGameEntity = function(obj) {
-	if (this._cache.hasOwnProperty(obj.uuid)) {
-		return this._cache[obj.uuid];
+		break;
 	}
 
-	// Create a new entity.
-	this._addGameEntity(obj);
-};
-
-/**
- * Adds a new entity/game object to the game itself.
- * 
- * @private
- * @method Bestia.Engine.EntityUpdater#_addGameEntity
- */
-Bestia.Engine.EntityUpdater.prototype._addGameEntity = function(obj) {
-	// Safeguard if UUID is already inside.
-	if (this.getEntityByUuid(obj.uuid) !== null) {
-		// Update instead.
-		this._updateGameEntity(obj);
-		return;
-	}
-
-	if (this._callbacks['onappear']) {
-		var entity = this._callbacks['onappear'](obj, this);
-
-		if (entity === undefined) {
-			return;
-		}
-
-		// Add to cache.
-		this._cache[obj.uuid] = entity;
-
-		if (obj.pbid !== undefined) {
-			this._pbidCache[obj.pbid] = entity;
-		}
-	}
-};
-
-/**
- * The EntityUpdater upon apearance of a new entity will use the callback to
- * initiate a call to the engine to fullfill this task. However: Adding an
- * entity might not be a blocking but an asyncronous call. Thus we can not
- * directly return any information about the entity. This method can come in
- * handy. The entity can (and MUST) registered with this method.
- * 
- * @param {Object}
- *            obj - Object containing the update information from the server.
- *            The callback function gets this as an argument.
- */
-Bestia.Engine.EntityUpdater.prototype.registerEntity = function(obj, entity) {
-	// Add to cache.
-	this._cache[obj.uuid] = entity;
-
-	if (obj.pbid !== undefined) {
-		this._pbidCache[obj.pbid] = entity;
-	}
 };
 
 /**
@@ -175,99 +77,15 @@ Bestia.Engine.EntityUpdater.prototype.registerEntity = function(obj, entity) {
  * this method is called all updates are forwarded to the engine.
  */
 Bestia.Engine.EntityUpdater.prototype.releaseHold = function() {
-	if(this._buffer === undefined) {
+	if (this._buffer === undefined) {
 		return;
 	}
-	
+
 	var temp = this._buffer;
 	this._buffer = undefined;
-	temp.forEach(function(msg){
+	temp.forEach(function(msg) {
 		this._onMessageHandler('ignorethis', msg);
 	}, this);
-};
-
-Bestia.Engine.EntityUpdater.prototype._removeGameEntity = function(obj) {
-
-	// Safeguard if UUID is already inside.
-	if (this.getEntityByUuid(obj.uuid) === null) {
-		return;
-	}
-
-	// Remove the entity from the game.
-	this._cache[obj.uuid].remove();
-	delete this._cache[obj.uuid];
-
-	if (obj.pbid !== undefined) {
-		delete this._pbidCache[obj.pbid];
-	}
-
-	if (this._callbacks['onvanish']) {
-		this._callbacks['onvanish'](obj, this);
-	}
-};
-
-/**
- * <p>
- * Updates an existing entity. The method will do some pretty tricky stuff. It
- * will validate the current client position with the position which the server
- * has send. It will correct differences in a subtle way.
- * </p>
- * If the positions are equal nothing will be done. If the server requests a
- * special animation this will be shown as well.
- * 
- * @private
- * @method Bestia.Engine.EntityUpdater#_updateGameEntity
- * @param {Object}
- *            obj - Object holding a bestia update message.
- */
-Bestia.Engine.EntityUpdater.prototype._updateGameEntity = function(obj) {
-
-	// If no entity with this id is in the cache. Abort.
-	if (obj.uuid === undefined || this._cache[obj.uuid] === undefined) {
-		return;
-	}
-
-	var entity = this._cache[obj.uuid];
-
-	if (this._callbacks['onupdate']) {
-		this._callbacks['onupdate'](entity, obj, this);
-	}
-};
-
-/**
- * Returns the entity with the given uuid.
- * 
- * @public
- * @method Bestia.Engine.EntityUpdate#getEntityByUuid
- * @param {String}
- *            uuid - Unique id of the entity which is requested.
- * @return {Bestia.Engine.Entity} The entity which was found or null.
- */
-Bestia.Engine.EntityUpdater.prototype.getEntityByUuid = function(uuid) {
-	// If no entity with this id is in the cache. Abort.
-	if (this._cache[uuid] === undefined) {
-		return null;
-	} else {
-		return this._cache[uuid];
-	}
-};
-
-/**
- * Returns the entity with the given player bestia id.
- * 
- * @public
- * @method Bestia.Engine.EntityUpdate#getEntityByBestiaId
- * @param {Number}
- *            pbid - Player bestia id of the entity which is requested.
- * @return {Bestia.Engine.Entity} The entity which was found or null.
- */
-Bestia.Engine.EntityUpdater.prototype.getEntityByBestiaId = function(pbid) {
-	// If no entity with this id is in the cache. Abort.
-	if (this._pbidCache[pbid] === undefined) {
-		return null;
-	} else {
-		return this._pbidCache[pbid];
-	}
 };
 
 /**
@@ -276,8 +94,7 @@ Bestia.Engine.EntityUpdater.prototype.getEntityByBestiaId = function(pbid) {
  * @public
  */
 Bestia.Engine.EntityUpdater.prototype.clearAll = function() {
-	this._cache = {};
-	this._pbidCache = {};
+	this._cache.clear();
 	this._buffer = [];
-	this.pubsub.unsubscribe('map.entites', this._onMessageHandler);
+	this._pubsub.unsubscribe('map.entites', this._onMessageHandler);
 };
