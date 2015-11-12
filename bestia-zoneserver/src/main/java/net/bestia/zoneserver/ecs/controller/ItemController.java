@@ -6,6 +6,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.World;
 
 import net.bestia.model.domain.Item;
+import net.bestia.model.domain.PlayerItem;
 import net.bestia.zoneserver.ecs.component.DelayedRemove;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
@@ -29,6 +30,7 @@ public class ItemController {
 	private final ComponentMapper<Position> positionMapper;
 	private final ComponentMapper<Visible> visibleMapper;
 	private final ComponentMapper<DelayedRemove> removeMapper;
+	private final ComponentMapper<net.bestia.zoneserver.ecs.component.Item> itemMapper;
 
 	public ItemController(World world) {
 
@@ -42,6 +44,7 @@ public class ItemController {
 		this.positionMapper = world.getMapper(Position.class);
 		this.visibleMapper = world.getMapper(Visible.class);
 		this.removeMapper = world.getMapper(DelayedRemove.class);
+		this.itemMapper = world.getMapper(net.bestia.zoneserver.ecs.component.Item.class);
 	}
 
 	/**
@@ -58,6 +61,31 @@ public class ItemController {
 	}
 
 	/**
+	 * Spawning a {@link PlayerItem} is needed if it is a EQUIPMENT type item
+	 * which has additional information attached to it. Its reference inside the
+	 * database must not be broken. Amount is always 1 since it can not stack.
+	 * 
+	 * @param loc
+	 * @param item
+	 */
+	public void spawnItem(Vector2 loc, PlayerItem item) {
+		final int entityId = world.create(itemArchetype);
+
+		positionMapper.get(entityId).position = loc;
+
+		final Visible visible = visibleMapper.get(entityId);
+		visible.sprite = item.getItem().getImage();
+
+		final net.bestia.zoneserver.ecs.component.Item itemC = itemMapper.get(entityId);
+		itemC.amount = 1;
+		itemC.itemId = item.getItem().getId();
+		itemC.playerItemId = item.getId();
+
+		// Remove after time out.
+		removeMapper.get(entityId).removeDelay = ITEM_VANISH_DELAY;
+	}
+
+	/**
 	 * Spawns an visible item on the map at the given coordiantes. The items are
 	 * stacked with the given amount.
 	 * 
@@ -69,8 +97,14 @@ public class ItemController {
 		final int entityId = world.create(itemArchetype);
 
 		positionMapper.get(entityId).position = loc;
+
 		final Visible visible = visibleMapper.get(entityId);
 		visible.sprite = item.getImage();
+
+		final net.bestia.zoneserver.ecs.component.Item itemC = itemMapper.get(entityId);
+		itemC.amount = amount;
+		itemC.itemId = item.getId();
+		itemC.playerItemId = -1; // no player item.
 
 		// Remove after time out.
 		removeMapper.get(entityId).removeDelay = ITEM_VANISH_DELAY;

@@ -98,11 +98,9 @@ public class PlayerItem implements Serializable {
 		this.item = item;
 	}
 
-	/*
-	 * public void setEquipItem(Item equip, EquipmentItemInfo equipItemInfo) {
-	 * 
-	 * }
-	 */
+	public int getId() {
+		return id;
+	}
 
 	/**
 	 * The account to whom the item belongs.
