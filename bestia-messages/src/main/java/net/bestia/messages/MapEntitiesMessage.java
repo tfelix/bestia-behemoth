@@ -24,7 +24,7 @@ public class MapEntitiesMessage extends Message {
 	 *
 	 */
 	public enum EntityType {
-		NONE, LOOT, INTERACT, ATTACK
+		NONE, LOOT, BESTIA
 	}
 
 	/**
