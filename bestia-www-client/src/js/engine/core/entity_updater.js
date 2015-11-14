@@ -56,10 +56,11 @@ Bestia.Engine.EntityUpdater = function(pubsub, cache) {
  * @private
  */
 Bestia.Engine.EntityUpdater.prototype._update = function(obj) {
+	
 	console.trace('Updating entity: ' + JSON.stringify(obj));
 
 	switch (obj.t) {
-	case "ITEM":
+	case "LOOT":
 		this._factory.createItemEntity(obj);
 		break;
 	case "BESTIA":

@@ -9,6 +9,14 @@ Bestia.Engine.EntityCache = function() {
 
 };
 
+/**
+ * Adds an entity to the cache with the given identifier.
+ * 
+ * @param {String|Number}
+ *            id - Identifier of the entity.
+ * @param {Bestia.Engine.BasicEntity}
+ *            entity - The entity to add to the cache.
+ */
 Bestia.Engine.EntityCache.prototype.addEntity = function(id, entity) {
 
 	this._cache[id] = entity;
@@ -19,8 +27,9 @@ Bestia.Engine.EntityCache.prototype.addEntity = function(id, entity) {
  * Returns the entity which is registered for the given id. Or NULL if no entity
  * was registered with this ID.
  * 
- * @param id
- *            The unique ID of this entity.
+ * @param {String|Number}
+ *            id - The unique ID of this entity.
+ * @return The entity from the cache or NULL if none was found.
  */
 Bestia.Engine.EntityCache.prototype.getEntity = function(id) {
 	if (!this._cache.hasOwnProperty(id)) {
@@ -41,6 +50,9 @@ Bestia.Engine.EntityCache.prototype.removeEntity = function(id) {
 
 };
 
+/**
+ * Clears the complete cache.
+ */
 Bestia.Engine.EntityCache.prototype.clear = function() {
 	this._cache = {};
 };
