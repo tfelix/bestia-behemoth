@@ -1,9 +1,10 @@
-Bestia.Engine.ItemEntity = function(world, game, uuid, x, y, spriteName) {
+Bestia.Engine.ItemEntity = function(game, uuid, x, y, spriteName) {
+	Bestia.Engine.BasicEntity.call(this, game, x, y);
 
 	this.uuid = uuid;
 	this._game = game;
 
-	var pos = Bestia.World.getPxXY(x, y);
+	var pos = Bestia.Engine.World.getPxXY(x, y);
 	this._sprite = this._game.add.sprite(pos.x, pos.y, spriteName);
 	this._sprite.alpha = 0;
 
@@ -13,7 +14,7 @@ Bestia.Engine.ItemEntity = function(world, game, uuid, x, y, spriteName) {
 
 
 Bestia.Engine.ItemEntity.prototype = Object.create(Bestia.Engine.BasicEntity.prototype);
-Bestia.Engine.ItemEntity.prototype.constructor = Bestia.Engine.SpriteEntity;
+Bestia.Engine.ItemEntity.prototype.constructor = Bestia.Engine.ItemEntity;
 
 Bestia.Engine.ItemEntity.prototype.show = function() {
 
@@ -28,7 +29,7 @@ Bestia.Engine.ItemEntity.prototype.show = function() {
 Bestia.Engine.ItemEntity.prototype.appear = function() {
 
 	// Set the start position.
-	var pos = Bestia.World.getPxXY(this._position.x, this._position.y - 1.5);
+	var pos = Bestia.Engine.World.getPxXY(this._position.x, this._position.y - 1.5);
 	var endY = this._sprite.y;
 	this._sprite.y = pos.y;
 

@@ -32,16 +32,14 @@ Bestia.Engine.EntityFactory.prototype.createItemEntity = function(data) {
 	
 	var self = this;
 	
-	var key = "apple";
-	var spriteName = "apple.png";
-	var uuid = "123";
-	
+	var key = "empty_bottle";
+	var spriteName = "empty_bottle.png";
+
 	this._demandLoader.loadItemSprite(key, spriteName, function(){
-		var x = 10;
-		var y = 10;
-		var itemEntity = new Bestia.Engine.ItemEntity(uuid, x, y, spriteName);
 		
-		self._entityCache.addEntity(itemEntity);
+		var entity = new Bestia.Engine.ItemEntity(self._game, data.uuid, data.x, data.y, key);
+		self._entityCache.addEntity(entity);
+		entity.appear();
 	});
 	
 	

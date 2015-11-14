@@ -258,7 +258,11 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		}
 
 		for (Integer id : entityIds) {
-			world.delete(id);
+			try {
+				world.delete(id);
+			} catch(RuntimeException ex) {
+				LOG.error("Could not delete. FIXIT", ex);
+			}
 			LOG.trace("Despawning player bestia (entity id: {})", id);
 		}
 

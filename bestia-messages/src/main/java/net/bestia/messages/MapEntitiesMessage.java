@@ -90,7 +90,7 @@ public class MapEntitiesMessage extends Message {
 			this.uuid = uuid;
 		}
 
-		public String getSprites() {
+		public String getSprite() {
 			return sprite;
 		}
 
