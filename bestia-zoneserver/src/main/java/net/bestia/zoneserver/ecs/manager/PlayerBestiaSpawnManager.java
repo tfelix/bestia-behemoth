@@ -19,6 +19,8 @@ import com.artemis.annotations.Wire;
 import net.bestia.messages.BestiaInfoMessage;
 import net.bestia.messages.InputMessage;
 import net.bestia.messages.LogoutBroadcastMessage;
+import net.bestia.messages.Message;
+import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Attacks;
@@ -30,6 +32,7 @@ import net.bestia.zoneserver.ecs.component.ManaRegenerationRate;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
+import net.bestia.zoneserver.manager.InventoryManager;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.messaging.UserRegistry;
 import net.bestia.zoneserver.messaging.preprocess.MessageProcessor;
@@ -193,6 +196,11 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		if (isMaster) {
 			
 			pbEntity.edit().create(Active.class);
+			
+			final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
+			final InventoryManager invManager = new InventoryManager(pbm, invService, ctx.getServer());
+			final Message invListMessage = invManager.getInventoryListMessage();
+			ctx.getServer().sendMessage(invListMessage);
 			
 		}
 
