@@ -9,7 +9,7 @@ Bestia.Engine.EntityFactory = function(game, demandLoader, entityCache) {
 	
 };
 
-Bestia.Engine.EntityFactory.createBestiaEntity = function(data) {
+Bestia.Engine.EntityFactory.prototype.createBestiaEntity = function(data) {
 	
 	console.log("### CREATE BESTIA ###");
 	console.log(data);
@@ -18,7 +18,7 @@ Bestia.Engine.EntityFactory.createBestiaEntity = function(data) {
 };
 
 
-Bestia.Engine.EntityFactory.createItemEntity = function(data) {
+Bestia.Engine.EntityFactory.prototype.createItemEntity = function(data) {
 	
 	console.log("### CREATE ITEM ###");
 	console.log(data);

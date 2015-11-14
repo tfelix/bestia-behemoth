@@ -1,5 +1,4 @@
-
-Bestia.Engine.BasicEntity = function(game) {
+Bestia.Engine.BasicEntity = function(game, x, y) {
 
 	/**
 	 * Position in tile coordinates.
@@ -30,9 +29,13 @@ Bestia.Engine.BasicEntity = function(game) {
 	 * @public
 	 * @property {String}
 	 */
-	this.sprite = null;
-};
+	this._sprite = null;
 
+	this.position = {
+		x : x,
+		y : y
+	};
+};
 
 Bestia.Engine.BasicEntity.prototype.appear = function() {
 	// no op.
@@ -45,7 +48,6 @@ Bestia.Engine.BasicEntity.prototype.show = function() {
 Bestia.Engine.BasicEntity.prototype.update = function() {
 	// no op.
 };
-
 
 /**
  * Removes an entity from the game.
@@ -71,10 +73,11 @@ Object.defineProperty(Bestia.Engine.BasicEntity.prototype, 'position', {
 		value.y = value.y || 0;
 
 		this._position = value;
-		var pos = this._world.getPxXY(value.x, value.y);
-		this._sprite.x = pos.x;
-		this._sprite.y = pos.y;
-
+		if (this._sprite !== null) {
+			var pos = this._world.getPxXY(value.x, value.y);
+			this._sprite.x = pos.x;
+			this._sprite.y = pos.y;
+		}
 	}
 
 });
