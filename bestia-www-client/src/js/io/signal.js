@@ -8,5 +8,7 @@ Bestia.Signal = {
 		INVENTORY_NOTICE : 'inventory.notice',
 		INVENTORY_ITEM_ADD : 'inventory.itemAdd',
 		
-		IO_SEND_MESSAGE : 'io.sendMessage'
+		IO_SEND_MESSAGE : 'io.sendMessage',
+		
+		CHAT_RECEIVED : 'client.chat.received'
 };

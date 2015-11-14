@@ -61,6 +61,7 @@ public class ChatCommand extends ECSCommand {
 	private void handlePublicChat(ChatMessage msg, CommandContext ctx) {
 		// All active bestias on this zone.
 		final IntBag entityIds = activePlayerEntities.getEntities();
+		final int senderPlayerBestiaId = getPlayerBestiaManager().getPlayerBestiaId();
 
 		for (int i = 0; i < entityIds.size(); i++) {
 			final Entity receiverEntity = world.getEntity(entityIds.get(i));
@@ -68,6 +69,7 @@ public class ChatCommand extends ECSCommand {
 			// TODO Are they in sight range?
 
 			final PlayerBestia player = playerMapper.get(receiverEntity);
+			
 			final long receiverAccId = player.playerBestiaManager.getAccountId();
 
 			// Skip the same owner of the bestia.
@@ -76,6 +78,7 @@ public class ChatCommand extends ECSCommand {
 			}
 
 			final ChatMessage forwardMsg = ChatMessage.getEchoMessage(receiverAccId, msg);
+			forwardMsg.setPlayerBestiaId(senderPlayerBestiaId);
 			ctx.getServer().sendMessage(forwardMsg);
 		}
 	}

@@ -32,6 +32,8 @@ Bestia.Chat = function(domEle, game) {
 	 * @constant
 	 */
 	this.MAX_MESSAGES = 50;
+	
+	this._pubsub = game.pubsub;
 
 	/**
 	 * Name of the bestia master. Is extracted from the game config which is set
@@ -192,7 +194,8 @@ Bestia.Chat.prototype.addMessage = function(msg) {
 		scrollBottom = true;
 	}
 
-	this.messages.push(new Bestia.ChatMessage(msg));
+	var chatMsg = new Bestia.ChatMessage(msg);
+	this.messages.push(chatMsg);
 
 	if (this.messages().length > this.MAX_MESSAGES) {
 		this.messages.shift();
@@ -203,6 +206,9 @@ Bestia.Chat.prototype.addMessage = function(msg) {
 	} else {
 		this.hasUnreadMessages(true);
 	}
+	
+	// Publish the message.
+	this._pubsub.publish(Bestia.Signal.CHAT_RECEIVED, chatMsg);
 };
 
 /**

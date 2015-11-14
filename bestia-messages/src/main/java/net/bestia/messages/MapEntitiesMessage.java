@@ -46,7 +46,7 @@ public class MapEntitiesMessage extends Message {
 
 		private String uuid;
 		@JsonProperty("s")
-		private List<String> sprites = new ArrayList<>();
+		private String sprite;
 		@JsonProperty("x")
 		private int x;
 		@JsonProperty("y")
@@ -90,16 +90,12 @@ public class MapEntitiesMessage extends Message {
 			this.uuid = uuid;
 		}
 
-		public List<String> getSprites() {
-			return sprites;
+		public String getSprites() {
+			return sprite;
 		}
 
 		public void addSprite(String sprite) {
-			this.sprites.add(sprite);
-		}
-
-		public void setSprites(List<String> sprites) {
-			this.sprites = sprites;
+			this.sprite = sprite;
 		}
 
 		public int getX() {
@@ -144,8 +140,8 @@ public class MapEntitiesMessage extends Message {
 
 		@Override
 		public String toString() {
-			return String.format("Entity[uuid: %s, x: %d, y: %d, sprites: %s, type: %s, action: %s]", uuid, x, y,
-					sprites.toString(), type.toString(), action.toString());
+			return String.format("Entity[uuid: %s, x: %d, y: %d, sprite: %s, type: %s, action: %s]", uuid, x, y,
+					sprite, type.toString(), action.toString());
 		}
 
 	}

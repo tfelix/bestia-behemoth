@@ -23,17 +23,25 @@ public class ChatMessage extends Message {
 	public enum Mode {
 		PUBLIC, PARTY, GUILD, WHISPER, SYSTEM, GM_BROADCAST, ERROR, COMMAND
 	}
+	
+	@JsonProperty("pbid")
+	private int playerBestiaId = 0;
 
 	@JsonProperty("m")
 	private Mode chatMode;
+	
 	@JsonProperty("txt")
 	private String text;
+	
 	@JsonProperty("sn")
 	private String senderNickname;
+	
 	@JsonProperty("rxn")
 	private String receiverNickname;
+	
 	@JsonProperty("cmid")
 	private int chatMessageId;
+	
 	@JsonProperty("t")
 	private long time;
 
@@ -111,6 +119,14 @@ public class ChatMessage extends Message {
 
 	public void setTime(long time) {
 		this.time = time;
+	}
+	
+	public int getPlayerBestiaId() {
+		return playerBestiaId;
+	}
+	
+	public void setPlayerBestiaId(int pbid) {
+		this.playerBestiaId = pbid;
 	}
 
 	public void setSenderNickname(String senderNickname) {
