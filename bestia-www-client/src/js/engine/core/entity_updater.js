@@ -88,14 +88,3 @@ Bestia.Engine.EntityUpdater.prototype.releaseHold = function() {
 		this._onMessageHandler('ignorethis', msg);
 	}, this);
 };
-
-/**
- * Clears all entities inside this cache.
- * 
- * @public
- */
-Bestia.Engine.EntityUpdater.prototype.clearAll = function() {
-	this._cache.clear();
-	this._buffer = [];
-	this._pubsub.unsubscribe('map.entites', this._onMessageHandler);
-};

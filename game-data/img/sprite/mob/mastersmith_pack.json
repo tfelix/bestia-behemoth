@@ -11,6 +11,13 @@
             "type": "json",
             "key": "mastersmith_desc",
             "url": "assets/img/sprite/mob/mastersmith_desc.json"
+        },
+		{
+            "type": "atlasJSONHash",
+            "key": "female_01",
+            "textureURL": "assets/sprite/head/female_01.png",
+            "atlasURL": "assets/sprite/head/female_01.json",
+            "atlasData": null
         }
     ],
     "meta": {

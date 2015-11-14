@@ -55,11 +55,12 @@ Bestia.Engine.States.GameState.prototype = {
 		// Load the tilemap and display it.
 		this._bestiaWorld = new Bestia.Engine.World(this.game, astar);
 		this._bestiaWorld.loadMap(this.bestia.location());
-		
+
 		this.demandLoader = new Bestia.Engine.DemandLoader(this.game.load, this.game.cache);
+
+		// Workaround: The factory must be created here because only now we have
+		// the game instance. This is ugly.
 		var entityFactory = new Bestia.Engine.EntityFactory(this.game, this.demandLoader, this.engine.entityCache);
-		
-		// Set the factory to the updater.
 		this.engine.entityUpdater._factory = entityFactory;
 
 		// DEBUG

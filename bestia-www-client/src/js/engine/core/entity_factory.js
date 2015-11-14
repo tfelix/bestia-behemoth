@@ -11,8 +11,17 @@ Bestia.Engine.EntityFactory = function(game, demandLoader, entityCache) {
 
 Bestia.Engine.EntityFactory.prototype.createBestiaEntity = function(data) {
 	
-	console.log("### CREATE BESTIA ###");
-	console.log(data);
+	console.trace("### CREATE BESTIA ###");
+	
+	var self = this;
+	
+	this._demandLoader.loadMobSprite(data.s, function(){
+
+		var entity = new Bestia.Engine.SpriteEntity(self._game, data.uuid, data.x, data.y, data.s);		
+		self._entityCache.addEntity(entity);
+		entity.appear();
+		
+	});
 	
 	
 };
@@ -31,7 +40,7 @@ Bestia.Engine.EntityFactory.prototype.createItemEntity = function(data) {
 	this._demandLoader.loadItemSprite(spriteName, function(){
 		var x = 10;
 		var y = 10;
-		var itemEntity = Bestia.Engine.EntityItem(uuid, x, y, spriteName);
+		var itemEntity = new Bestia.Engine.EntityItem(uuid, x, y, spriteName);
 		
 		self._entityCache.addEntity(itemEntity);
 	});

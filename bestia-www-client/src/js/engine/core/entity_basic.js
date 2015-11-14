@@ -61,6 +61,22 @@ Bestia.Engine.BasicEntity.prototype.remove = function() {
 
 };
 
+Bestia.Engine.BasicEntity.prototype._syncSpritePosition = function() {
+	// Correct the sprite position.
+	if (this._sprite !== null) {
+		var pos = Bestia.Engine.World.getPxXY(this._position.x, this._position.y);
+		this._sprite.x = pos.x + Bestia.Engine.World.TILE_SIZE / 2;
+		this._sprite.y = pos.y + Bestia.Engine.World.TILE_SIZE - 7;
+	}
+};
+
+Bestia.Engine.BasicEntity.prototype.setPosition = function(x, y) {
+	this._position.x = x;
+	this._position.y = y;
+	
+	this._syncSpritePosition();
+};
+
 Object.defineProperty(Bestia.Engine.BasicEntity.prototype, 'position', {
 
 	get : function() {
@@ -73,11 +89,7 @@ Object.defineProperty(Bestia.Engine.BasicEntity.prototype, 'position', {
 		value.y = value.y || 0;
 
 		this._position = value;
-		if (this._sprite !== null) {
-			var pos = this._world.getPxXY(value.x, value.y);
-			this._sprite.x = pos.x;
-			this._sprite.y = pos.y;
-		}
+		this._syncSpritePosition();
 	}
 
 });

@@ -3,29 +3,28 @@ Bestia.Engine.SpriteEntity = function(game, uuid, x, y, spriteName) {
 	
 	this.uuid = uuid;
 
-	this._sprite = this._game.add.sprite(0, 0, spriteName);
-	this._sprite.alpha = 0;
-
-	// bottom left of the item.
-	this._sprite.anchor.setTo(0.5);
-	
-	this.setPos(x, y);
-
-	this.data = this.game.cache.getJSON(spriteName + '_desc');
+	this.data = this._game.cache.getJSON(spriteName + '_desc');
 	this._sprite = this._game.add.sprite(0, 0, spriteName, 'walk_down/001.png');
-
-
-	// Add it invisible first.
-	this._sprite.alpha = 1;
-
 	// Set anchor to the middle of the sprite to the bottom.
 	this._sprite.anchor.setTo(0.5, 1);
-	this._sprite.scale.setTo(this.desc.scale);
+	this._sprite.scale.setTo(this.data.scale);
+	this._sprite.alpha = 0;
+	
+	// Add the head
+	var head = this._sprite.addChild(game.make.sprite(0, -66, 'female_01'));
+	head.anchor.setTo(0.5, 1);
+	head.scale.setTo(1.2);
+	head.frameName = 'bottom.png';
+
+	// bottom left of the item.
+	this._sprite.anchor.setTo(0.5, 1);
+	
+	this.setPosition(x, y);	
 
 	// Register all the animations of the sprite.
 	this.data.animations.forEach(function(anim) {
 		var frames = Phaser.Animation.generateFrameNames(anim.name + '/', anim.from, anim.to, '.png', 3);
-		this.sprite.animations.add(anim.name, frames, anim.fps, true, false);
+		this._sprite.animations.add(anim.name, frames, anim.fps, true, false);
 	}, this);
 
 	this._sprite.frameName = 'walk_down/001.png';
@@ -65,6 +64,7 @@ Bestia.Engine.SpriteEntity.prototype.remove = function() {
 	this._sprite.destroy();
 
 };
+
 
 /**
  * Plays a specific animation. If it is a walk animation then by the name of the
