@@ -42,6 +42,8 @@ Bestia.Engine.States.GameState = function(engine) {
 	 * @property {Bestia.BestiaViewModel}
 	 */
 	this.bestia = null;
+
+	this._publicChatController = null;
 };
 
 Bestia.Engine.States.GameState.prototype = {
@@ -62,6 +64,9 @@ Bestia.Engine.States.GameState.prototype = {
 		// the game instance. This is ugly.
 		var entityFactory = new Bestia.Engine.EntityFactory(this.game, this.demandLoader, this.engine.entityCache);
 		this.engine.entityUpdater._factory = entityFactory;
+
+		this._publicChatController = new Bestia.Engine.ChatEntityController(this.engine.pubsub,
+				this.engine.entityCache, this.game);
 
 		// DEBUG
 		this.game.stage.disableVisibilityChange = true;

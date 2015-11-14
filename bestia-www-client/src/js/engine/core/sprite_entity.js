@@ -1,4 +1,4 @@
-Bestia.Engine.SpriteEntity = function(game, uuid, x, y, spriteName) {
+Bestia.Engine.SpriteEntity = function(game, uuid, x, y, spriteName, playerBestiaId) {
 	Bestia.Engine.BasicEntity.call(this, game, x, y);
 	
 	this.uuid = uuid;
@@ -28,6 +28,10 @@ Bestia.Engine.SpriteEntity = function(game, uuid, x, y, spriteName) {
 	}, this);
 
 	this._sprite.frameName = 'walk_down/001.png';
+	
+	if(playerBestiaId !== undefined) {
+		this.playerBestiaId = playerBestiaId;
+	}
 };
 
 Bestia.Engine.SpriteEntity.prototype = Object.create(Bestia.Engine.BasicEntity.prototype);

@@ -44,6 +44,7 @@ Bestia.Message = {
 		this.mid = 'chat.message';
 		this.m = mode;
 		this.txt = text;
+		this.pbid = 0;
 		this.rxn = nick;
 		this.sn = senderNick || '';
 		this.cmid = Bestia.Message._localMessageId++;

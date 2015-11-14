@@ -63,5 +63,7 @@ Bestia.BestiaInfoViewModel = function(pubsub) {
 
 Bestia.BestiaInfoViewModel.prototype.selectBestia = function(bestia) {
 	this.selectedBestia(bestia);
+	// TODO das ist depricated und wird bald entfernt.
 	this._pubsub.publish('client.selectedBestia', this.selectedBestia());
+	this._pubsub.publish(Bestia.Signal.BESTIA_SELECTED, this.selectedBestia());
 };

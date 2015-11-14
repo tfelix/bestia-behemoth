@@ -4,6 +4,8 @@
  * messaging via a Bestia.PubSub interface.
  */
 Bestia.Signal = {
+		
+		BESTIA_SELECTED : 'client.bestia.selected',
 
 		INVENTORY_NOTICE : 'inventory.notice',
 		INVENTORY_ITEM_ADD : 'inventory.itemAdd',

@@ -43,6 +43,8 @@ Bestia.Chat = function(domEle, game) {
 	 * @constant
 	 */
 	this.LOCAL_NICKNAME = '';
+	
+	this._currentBestiaId = 0;
 
 	this.domEle = domEle;
 	this.chatEle = $(domEle).find('.chat-msgs:first').get(0);
@@ -57,6 +59,7 @@ Bestia.Chat = function(domEle, game) {
 	 * @property
 	 */
 	this._localCommands = [];
+	
 	this.whisperRegex = /^\/[wW] (\w.+) /;
 	this.game = game;
 
@@ -127,6 +130,10 @@ Bestia.Chat = function(domEle, game) {
 	game.pubsub.subscribe('system.auth', function(_, data) {
 		self.LOCAL_NICKNAME = data.username;
 	});
+	
+	game.pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, function(_, bestia){
+		self._currentBestiaId = bestia.playerBestiaId();
+	});
 };
 
 /**
@@ -159,6 +166,7 @@ Bestia.Chat.prototype.sendChat = function() {
 		msg.m = 'COMMAND';
 	} else {
 		// Only add when its no command.
+		msg.pbid = this._currentBestiaId;
 		this.addMessage(msg);
 	}
 
