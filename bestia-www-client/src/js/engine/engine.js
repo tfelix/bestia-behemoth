@@ -68,16 +68,16 @@ Bestia.Engine = function(pubsub, config) {
 		console.debug('Engine.onInitHandler called. Starting initial load and remove handler.');
 		self.loadMap(bestia);
 		// Remove handler again since we only trigger this once.
-		self.pubsub.unsubscribe('client.selectedBestia', onInitHandler);
+		self.pubsub.unsubscribe(Bestia.Signal.BESTIA_SELECTED, onInitHandler);
 	};
-	pubsub.subscribe('client.selectedBestia', onInitHandler);
+	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, onInitHandler);
 
 	// React on bestia selection changes. We need to re-trigger the map loading.
 	var onSelectBestiaHandler = function(_, data) {
 		console.debug('New bestia selected. Starting loading process.');
 		self.loadMap(data);
 	};
-	pubsub.subscribe('client.selectedBestia', onSelectBestiaHandler);
+	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, onSelectBestiaHandler);
 };
 
 /**

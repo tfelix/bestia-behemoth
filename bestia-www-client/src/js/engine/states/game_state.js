@@ -84,9 +84,10 @@ Bestia.Engine.States.GameState.prototype = {
 		this.game.input.addMoveCallback(this.updateMarker, this);
 		this.game.input.onDown.add(this.clickHandler, this);
 
+		// Avoid infinite recursion
 		// Activate the selected bestia which triggered the mapload.
-		var msg = new Bestia.Message.BestiaActivate(this.bestia.playerBestiaId());
-		this.pubsub.publish('io.sendMessage', msg);
+		// var msg = new Bestia.Message.BestiaActivate(this.bestia.playerBestiaId());
+		// this.pubsub.publish('io.sendMessage', msg);
 
 		// After we have created everything release the hold of the update
 		// messages.

@@ -72,17 +72,30 @@ Bestia.BestiaInfoViewModel = function(pubsub) {
 		// Check if we have unselected master.
 		if (self.masterBestia() === undefined && msg.im === true) {
 			self.masterBestia(bestia);
-			self.selectBestia(bestia);
+			self._selectBestia(bestia);
 		}
 	};
 
 	// Register for messages from the server.
 	pubsub.subscribe('bestia.info', onMessageHandler);
+	
+	var onActivateHandler = function(_, msg) {
+		console.debug('New bestia was selected.');
+		
+		// Check if the bestia is already inside our cache.
+		for (var i = 0; i < self.bestias().length; i++) {
+			if (self.bestias()[i].playerBestiaId() === msg.pbid) {
+				var bestia = self.bestias()[i];
+				self._selectBestia(bestia);
+			}
+		}
+	};
+	pubsub.subscribe('bestia.activated', onActivateHandler);
 };
 
-Bestia.BestiaInfoViewModel.prototype.selectBestia = function(bestia) {
+Bestia.BestiaInfoViewModel.prototype._selectBestia = function(bestia) {
 	this.selectedBestia(bestia);
 	// TODO das ist depricated und wird bald entfernt.
-	this._pubsub.publish('client.selectedBestia', this.selectedBestia());
+	//this._pubsub.publish('client.selectedBestia', this.selectedBestia());
 	this._pubsub.publish(Bestia.Signal.BESTIA_SELECTED, this.selectedBestia());
 };

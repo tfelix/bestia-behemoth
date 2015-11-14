@@ -191,7 +191,9 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		final net.bestia.model.domain.PlayerBestia master = pb.getOwner().getMaster();
 		final boolean isMaster = master.equals(pb);
 		if (isMaster) {
+			
 			pbEntity.edit().create(Active.class);
+			
 		}
 
 		// Send a update to client so he can pick up the new bestia.

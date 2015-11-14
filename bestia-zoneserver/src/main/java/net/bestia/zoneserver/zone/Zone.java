@@ -85,7 +85,7 @@ public class Zone implements MessageProcessor {
 
 					// Create a ECS command and immediately run it.
 					final Command cmd = commandFactory.getCommand(msg);
-					if(cmd!= null) {
+					if (cmd != null) {
 						cmd.run();
 					}
 
@@ -149,15 +149,15 @@ public class Zone implements MessageProcessor {
 		this.cmdContext = ctx;
 
 		if (this.name == null || this.name.isEmpty()) {
-			throw new IllegalArgumentException(
-					"Zone name can not be null or empty.");
+			throw new IllegalArgumentException("Zone name can not be null or empty.");
 		}
-		
+
 		setupMessageFilter(ctx.getServer().getMessageRouter());
 	}
 
 	/**
 	 * Used to subscribe to messages from the zoneserver instance.
+	 * 
 	 * @param messageRouter
 	 */
 	private void setupMessageFilter(MessageRouter router) {
@@ -212,8 +212,7 @@ public class Zone implements MessageProcessor {
 
 	@Override
 	public String toString() {
-		return String.format("Zone[name: %s, hasStarted: %s]", name,
-				hasStarted.toString());
+		return String.format("Zone[name: %s, hasStarted: %s]", name, hasStarted.toString());
 	}
 
 	@Override

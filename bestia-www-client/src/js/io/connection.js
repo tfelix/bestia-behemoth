@@ -187,7 +187,7 @@ Bestia.Connection.prototype.init = function() {
 			self._pubsub.publish(json.mid, json);
 
 		} catch (e) {
-			console.error('No valid JSON: ', message.data);
+			console.error('No valid JSON: ', e);
 			return;
 		}
 	};
