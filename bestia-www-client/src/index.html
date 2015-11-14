@@ -252,13 +252,16 @@
 
 		<div class="flex-container">
 			<div class="flex items" data-bind="foreach: items">
-				<div class="item" data-bind="click: $parent.clickItem">
+				<div class="item" data-bind="click: $parent.clickItem, attr: {'data-itemid': itemId}">
 					<img data-bind="attr: {src: imageSrc, alt: name}" src="" alt="">
 					<span class="amount" data-bind="text: amount"></span>
 				</div>
 			</div>
-			<div class="equipment">
-				Das hier ist das<br> Equipment Fenster.
+			<div id="slider-info" data-bind="if: selectedItem" class="equipment">
+				<p data-bind="text: selectedItem.name"></p>
+				<p data-bind="text: selectedItem.description"></p>
+				<input data-bind="textInput: dropAmount" type="text">
+				<button data-bind="click: dropItem">Abwerfen</button>
 			</div>
 		</div>
 

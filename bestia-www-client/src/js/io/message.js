@@ -151,9 +151,10 @@ Bestia.Message = {
 	 * @param amount
 	 *            The amount of the item to be dropped.
 	 */
-	InventoryItemDrop : function(itemId, amount) {
+	InventoryItemDrop : function(itemId, amount, playerBestiaId) {
 		this.mid = 'inventory.item.drop';
 
+		this.pbid = playerBestiaId || 0;
 		this.iid = itemId;
 		this.a = amount;
 	},

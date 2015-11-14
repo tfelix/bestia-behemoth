@@ -11,8 +11,6 @@ Bestia.Engine.EntityFactory = function(game, demandLoader, entityCache) {
 
 Bestia.Engine.EntityFactory.prototype.createBestiaEntity = function(data) {
 	
-	console.trace("### CREATE BESTIA ###");
-	
 	var self = this;
 	
 	this._demandLoader.loadMobSprite(data.s, function(){
@@ -34,13 +32,14 @@ Bestia.Engine.EntityFactory.prototype.createItemEntity = function(data) {
 	
 	var self = this;
 	
-	var spriteName = "apple";
+	var key = "apple";
+	var spriteName = "apple.png";
 	var uuid = "123";
 	
-	this._demandLoader.loadItemSprite(spriteName, function(){
+	this._demandLoader.loadItemSprite(key, spriteName, function(){
 		var x = 10;
 		var y = 10;
-		var itemEntity = new Bestia.Engine.EntityItem(uuid, x, y, spriteName);
+		var itemEntity = new Bestia.Engine.ItemEntity(uuid, x, y, spriteName);
 		
 		self._entityCache.addEntity(itemEntity);
 	});

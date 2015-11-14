@@ -16,6 +16,7 @@
  * @param {Bestia.I18n}
  *            i18n - Translation interface for translating items.
  */
+
 Bestia.Inventory = function(pubsub, i18n) {
 
 	var self = this;
@@ -66,7 +67,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * The item on which was clicked will be displayed in detail to perform
 	 * certain activities with if (display description, drop menu etc.)
 	 */
-	this.selectedItem = ko.observable();
+	this.selectedItem = ko.observable(null);
 
 	/**
 	 * Flag to show and hide the inventory window.
@@ -164,14 +165,14 @@ Bestia.Inventory = function(pubsub, i18n) {
 	var updateHandler = function(_, data) {
 		data.pis.forEach(function(val) {
 			var item = self._findItem(val.i.id);
-			
-			if(item === null) {
+
+			if (item === null) {
 				// Add the new item to the inventory.
 				var newItem = new Bestia.ItemViewModel(val);
 				self.allItems.push(newItem);
 			} else {
 				var newAmount = item.amount() + val.a;
-				if(newAmount <= 0) {
+				if (newAmount <= 0) {
 					// Remove item.
 					self.allItems.remove(item);
 				} else {
@@ -179,7 +180,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 					item.amount(newAmount);
 					// Send notifications.
 					pubsub.publish('client.inventory.addItem', item);
-				}	
+				}
 			}
 		});
 	};
@@ -191,9 +192,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 	var bestiaSelectHandler = function(_, data) {
 		self.currentBestiaId = data.playerBestiaId();
 	};
-
-	// pubsub.subscribe('bestia.info', bestiaSelectHandler);
-	pubsub.subscribe('client.selectBestia', bestiaSelectHandler);
+	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, bestiaSelectHandler);
 
 	/**
 	 * Selects the clicked/touched item. Further details and options regarding
@@ -201,6 +200,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 */
 	this.clickItem = function(item) {
 		self.selectedItem(item);
+		self.dropAmount(item.amount());
 	};
 
 	/**
@@ -219,20 +219,23 @@ Bestia.Inventory = function(pubsub, i18n) {
 		self._pubsub.send(msg);
 	};
 
+	this.dropAmount = ko.observable(1);
+
 	/**
-	 * This will send a drop request for this particular item and its amount to
-	 * the server.
+	 * This will send a drop request for the selected item and the server.
 	 * 
 	 * @param {Bestia.ItemVoewModel}
 	 *            item - Item to be dropped.
 	 * @param {Number}
 	 *            amount - Amount wished to be dropped.
 	 */
-	this.dropItem = function(item, amount) {
-		var msg = Bestia.Message.InventoryItemDrop(item.id(), amount);
+	this.dropItem = function() {
+		var msg = new Bestia.Message.InventoryItemDrop(self.selectedItem().itemId(), self.dropAmount(),
+				self.currentBestiaId);
 		self._pubsub.send(msg);
 
 	};
+
 };
 
 /**
@@ -245,8 +248,8 @@ Bestia.Inventory = function(pubsub, i18n) {
  */
 Bestia.Inventory.prototype._findItem = function(itemId) {
 	var items = this.allItems();
-	for(var i = 0; i < items.length; i++) {
-		if(items[i].itemId() == itemId) {
+	for (var i = 0; i < items.length; i++) {
+		if (items[i].itemId() == itemId) {
 			return items[i];
 		}
 	}

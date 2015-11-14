@@ -38,6 +38,7 @@ public class ItemController {
 		this.itemArchetype = new ArchetypeBuilder()
 				.add(Visible.class)
 				.add(Position.class)
+				.add(net.bestia.zoneserver.ecs.component.Item.class)
 				.add(DelayedRemove.class)
 				.build(world);
 
