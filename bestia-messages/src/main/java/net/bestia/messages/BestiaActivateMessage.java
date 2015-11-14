@@ -18,6 +18,11 @@ public class BestiaActivateMessage extends InputMessage {
 	public BestiaActivateMessage() {
 
 	}
+	
+	public BestiaActivateMessage(Message msg, int playerBestiaId) {
+		super(msg, playerBestiaId);
+		// no op.
+	}
 
 	@Override
 	public String getMessageId() {
@@ -27,6 +32,11 @@ public class BestiaActivateMessage extends InputMessage {
 	@Override
 	public String getMessagePath() {
 		return getZoneMessagePath();
+	}
+	
+	public static BestiaActivateMessage getClientActivateMessage(Message msg, int playerBestiaId) {
+		final BestiaActivateMessage responseMsg = new BestiaActivateMessage(msg, playerBestiaId);
+		return responseMsg;
 	}
 
 }
