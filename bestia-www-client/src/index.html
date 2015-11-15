@@ -233,7 +233,8 @@
 
 		<div class="header">
 			<div class="left">
-				<input type="text" data-bind="textInput: searchFilter" placeholder="Suche">
+				<input type="text" data-bind="textInput: searchFilter"
+					placeholder="Suche">
 				<!-- 
 				<button>All</button>
 				<button>Usable</button>
@@ -244,24 +245,33 @@
 				<button>Craft</button>
 				<button>Trade</button>
 				<button>Equip</button>
-				<button type="button" class="btn btn-default" data-bind="click: close" data-i18n="ui.close">ui.close</button>
+				<button type="button" class="btn btn-default"
+					data-bind="click: close" data-i18n="ui.close">ui.close</button>
 			</div>
 		</div>
-		
+
 		<div style="clear: both"></div>
 
 		<div class="flex-container">
 			<div class="flex items" data-bind="foreach: items">
-				<div class="item" data-bind="click: $parent.clickItem, attr: {'data-itemid': itemId}">
+				<div class="item"
+					data-bind="click: $parent.clickItem, attr: {'data-itemid': itemId}">
 					<img data-bind="attr: {src: imageSrc, alt: name}" src="" alt="">
 					<span class="amount" data-bind="text: amount"></span>
 				</div>
 			</div>
+
 			<div id="slider-info" data-bind="if: selectedItem" class="equipment">
-				<p data-bind="text: selectedItem.name"></p>
-				<p data-bind="text: selectedItem.description"></p>
-				<input data-bind="textInput: dropAmount" type="text">
-				<button data-bind="click: dropItem">Abwerfen</button>
+				<p data-bind="text: selectedItem().name"></p>
+				<p data-bind="text: selectedItem().description"></p>
+				<div>
+					<input data-bind="textInput: dropAmount" type="text">
+					<button data-bind="click: dropItem">Abwerfen</button>
+				</div>
+				<div>
+					<button>Benutzen</button>
+				</div>
+
 			</div>
 		</div>
 

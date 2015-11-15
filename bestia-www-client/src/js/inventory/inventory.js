@@ -141,28 +141,18 @@ Bestia.Inventory = function(pubsub, i18n) {
 			self.allItems.push(item);
 		});
 
-		var buildTranslationKey = function(item) {
-			return 'item.' + item.itemDatabaseName();
-		};
-
-		var i18nKeys = newItems.map(buildTranslationKey);
-
-		self._i18n.t(i18nKeys, function(t) {
-			newItems.forEach(function(val) {
-				var transKey = buildTranslationKey(val);
-				var trans = t(transKey);
-				val.name(trans);
-			});
-		});
+		self._translateItems(newItems);
 
 		self.maxWeight(data.mw);
 	};
 	pubsub.subscribe('inventory.list', listHandler);
+	
 
 	/**
 	 * Updates the item via an update message from the server.
 	 */
 	var updateHandler = function(_, data) {
+		var newItems = [];
 		data.pis.forEach(function(val) {
 			var item = self._findItem(val.i.id);
 
@@ -170,6 +160,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 				// Add the new item to the inventory.
 				var newItem = new Bestia.ItemViewModel(val);
 				self.allItems.push(newItem);
+				newItems.push(newItem);
 			} else {
 				var newAmount = item.amount() + val.a;
 				if (newAmount <= 0) {
@@ -179,10 +170,14 @@ Bestia.Inventory = function(pubsub, i18n) {
 					// Update amount.
 					item.amount(newAmount);
 					// Send notifications.
-					pubsub.publish('client.inventory.addItem', item);
+					pubsub.publish(Bestia.Signal.INVENTORY_ITEM_ADD, item);
 				}
 			}
 		});
+		
+		if(newItems.length > 0) {
+			self._translateItems(newItems);
+		}
 	};
 	pubsub.subscribe('inventory.update', updateHandler);
 
@@ -236,6 +231,31 @@ Bestia.Inventory = function(pubsub, i18n) {
 
 	};
 
+};
+
+Bestia.Inventory.prototype._translateItems = function(items) {
+	var buildTranslationKeyName = function(item) {
+		return 'item.' + item.itemDatabaseName();
+	};
+	
+	var buildTranslationKeyDesc = function(item) {
+		return 'item.' + item.itemDatabaseName() + '_desc';
+	};
+		
+		
+	var i18nKeys = items.map(buildTranslationKeyName);
+	i18nKeys = i18nKeys.concat(items.map(buildTranslationKeyDesc));
+	
+	this._i18n.t(i18nKeys, function(t) {
+		items.forEach(function(val) {
+
+			var nameTrans = t(buildTranslationKeyName(val));
+			var descTrans = t(buildTranslationKeyDesc(val));
+			
+			val.name(nameTrans);
+			val.description(descTrans);
+		});
+	});
 };
 
 /**

@@ -36,6 +36,6 @@ Bestia.Engine.ItemEntity.prototype.appear = function() {
 	this._sprite.alpha = 1;
 	this._game.add.tween(this._sprite).to({
 		y : endY
-	}, 300, Phaser.Easing.Linear.None, true);
+	}, 250, Phaser.Easing.Linear.None, true);
 };
 

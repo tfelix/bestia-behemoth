@@ -67,6 +67,8 @@ Bestia.Engine.DemandLoader.prototype._fileLoadedCallback = function(progress, ke
 				x();
 			});
 			delete this._cache[key];
+			// Restart to fetch queued stuff.
+			this._loader.start();
 		}
 	}
 	
