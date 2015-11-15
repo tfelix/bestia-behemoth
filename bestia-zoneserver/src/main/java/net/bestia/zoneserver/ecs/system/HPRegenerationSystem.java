@@ -38,7 +38,7 @@ public class HPRegenerationSystem extends IntervalEntityProcessingSystem {
 
 		int addHp = (int) Math.ceil(rate.rate * TICK_RATE_MS / 1000);
 		
-		if(currentHp.currentHP > currentHp.maxHP) {
+		if(currentHp.currentHP >= currentHp.maxHP) {
 			currentHp.currentHP = currentHp.maxHP;
 			return;
 		}

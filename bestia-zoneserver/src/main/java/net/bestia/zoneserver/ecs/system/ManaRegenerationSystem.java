@@ -38,7 +38,7 @@ public class ManaRegenerationSystem extends IntervalEntityProcessingSystem {
 
 		int addMana = (int) Math.ceil(rate.rate * TICK_RATE_MS / 1000);
 		
-		if(currentMana.currentMana > currentMana.maxMana) {
+		if(currentMana.currentMana >= currentMana.maxMana) {
 			currentMana.currentMana = currentMana.maxMana;
 			return;
 		}

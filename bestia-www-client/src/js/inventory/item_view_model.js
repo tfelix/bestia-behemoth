@@ -58,7 +58,7 @@ Bestia.ItemViewModel.prototype.update = function(data) {
 	this.itemId(data.i.id);
 	this.itemDatabaseName(data.i.idbn);
 	
-	this.imageSrc(Bestia.Urls.assetsItems + data.i.img);
+	this.imageSrc(Bestia.Urls.assetsItems + data.i.img + '.png');
 };
 
 /**

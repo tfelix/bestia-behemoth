@@ -59,7 +59,7 @@ Bestia.Engine.DemandLoader.prototype._fileLoadedCallback = function(progress, ke
 
 		// Start to load all data in this pack.
 		this._loader.pack(key, undefined, pack);
-		this._loader.start();
+		//this._loader.start();
 	} else {
 		cacheData.toLoad--;
 		if (cacheData.toLoad === 0) {
@@ -100,7 +100,7 @@ Bestia.Engine.DemandLoader.prototype.loadMobSprite = function(key, fnOnComplete)
 	var packUrl = Bestia.Urls.assetsMobSprite + key + '_pack.json';
 
 	this._loader.json(key, packUrl);
-	this._loader.start();
+	//this._loader.start();
 };
 
 /**
@@ -109,11 +109,16 @@ Bestia.Engine.DemandLoader.prototype.loadMobSprite = function(key, fnOnComplete)
  *            fnOnComplete - Callback function which will be called if the
  *            file(s) have been loaded.
  */
-Bestia.Engine.DemandLoader.prototype.loadItemSprite = function(key, image, fnOnComplete) {
+Bestia.Engine.DemandLoader.prototype.loadItemSprite = function(key, fnOnComplete) {
+	
+	// First check if we actually have not yet loaded the assets.
+	if(this._phaserCache.checkImageKey(key)) {
+		fnOnComplete();
+		return;
+	}
 
 	// Check if a load is running. If this is the case only add the callback
-	// function
-	// to be executed when the load completes.
+	// function to be executed when the load completes.
 	if (this._cache.hasOwnProperty(key)) {
 		this._cache[key].callbackFns.push(fnOnComplete);
 		return;
@@ -127,7 +132,7 @@ Bestia.Engine.DemandLoader.prototype.loadItemSprite = function(key, image, fnOnC
 	};
 	this._cache[key] = countObj;
 
-	var imageUrl = Bestia.Urls.assetsRoot + 'img/items/' + image;
+	var imageUrl = Bestia.Urls.assetsRoot + 'img/items/' + key + '.png';
 	this._loader.image(key, imageUrl);
 	this._loader.start();
 };

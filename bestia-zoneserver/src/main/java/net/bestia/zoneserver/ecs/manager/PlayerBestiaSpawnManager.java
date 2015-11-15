@@ -129,9 +129,17 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	protected void inserted(int entityId) {
 		final PlayerBestiaManager pbm = playerMapper.get(entityId).playerBestiaManager;
 		final int playerBestiaId = pbm.getPlayerBestiaId();
+		final Long accountId = pbm.getAccountId();
+		
 		bestiaEntityRegister.put(playerBestiaId, entityId);
 		zoneMessageFilter.subscribeId(playerBestiaId);
 		subscriptionManager.setOnline(pbm.getAccountId());
+		
+		// Add the entity to the register so it can be deleted.
+		if (!accountBestiaRegister.containsKey(accountId)) {
+			accountBestiaRegister.put(accountId, new HashSet<>());
+		}
+		accountBestiaRegister.get(accountId).add(entityId);
 	}
 
 	/**
@@ -142,9 +150,16 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	protected void removed(int entityId) {
 		final PlayerBestiaManager pbm = playerMapper.get(entityId).playerBestiaManager;
 		final int playerBestiaId = pbm.getPlayerBestiaId();
+		final Long accountId = pbm.getAccountId();
+		
 		bestiaEntityRegister.remove(playerBestiaId);
 		zoneMessageFilter.removeId(playerBestiaId);
 		subscriptionManager.setOffline(pbm.getAccountId());
+		
+		accountBestiaRegister.get(accountId).remove(entityId);
+		if (accountBestiaRegister.get(accountId).size() == 0) {
+			accountBestiaRegister.remove(accountId);
+		}
 	}
 
 	@Override
@@ -156,12 +171,6 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	public void spawnBestia(net.bestia.model.domain.PlayerBestia pb) {
 		final Long accId = pb.getOwner().getId();
 		final Entity pbEntity = world.createEntity(playerBestiaArchetype);
-
-		// Add the entity to the register so it can be deleted.
-		if (!accountBestiaRegister.containsKey(accId)) {
-			accountBestiaRegister.put(accId, new HashSet<>());
-		}
-		accountBestiaRegister.get(accId).add(pbEntity.getId());
 
 		final PlayerBestiaManager pbm = new PlayerBestiaManager(pb,
 				world,
@@ -272,10 +281,6 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 				LOG.error("Could not delete. FIXIT", ex);
 			}
 			LOG.trace("Despawning player bestia (entity id: {})", id);
-		}
-
-		if (accountBestiaRegister.get(accountId).size() == 0) {
-			accountBestiaRegister.remove(accountId);
 		}
 	}
 

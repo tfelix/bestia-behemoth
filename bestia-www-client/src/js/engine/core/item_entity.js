@@ -4,7 +4,7 @@ Bestia.Engine.ItemEntity = function(game, uuid, x, y, spriteName) {
 	this.uuid = uuid;
 	this._game = game;
 
-	var pos = Bestia.Engine.World.getPxXY(x, y);
+	var pos = Bestia.Engine.World.getPxXY(x + 0.5, y + 0.5);
 	this._sprite = this._game.add.sprite(pos.x, pos.y, spriteName);
 	this._sprite.alpha = 0;
 
@@ -36,6 +36,6 @@ Bestia.Engine.ItemEntity.prototype.appear = function() {
 	this._sprite.alpha = 1;
 	this._game.add.tween(this._sprite).to({
 		y : endY
-	}, 550, Phaser.Easing.Linear.None, true);
+	}, 300, Phaser.Easing.Linear.None, true);
 };
 

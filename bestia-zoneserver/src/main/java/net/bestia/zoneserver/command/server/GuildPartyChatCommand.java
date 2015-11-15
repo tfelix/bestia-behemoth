@@ -10,18 +10,14 @@ import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 
 /**
- * Process a chat message from the user. It checks which kind of chat is wished
- * for. The command checks if the chat is valid and if so processes the message
- * if not answers the user with an error. The chat command checks the type of
- * the message depending on the type of the message sending the data back to all
- * receivers in sight (public) all in the same party or all in the same guild.
+ * Processes inter-server chat commands like party or guild chats.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * 
  */
-public class ChatCommand extends Command {
+public class GuildPartyChatCommand extends Command {
 
-	private static final Logger log = LogManager.getLogger(ChatCommand.class);
+	private static final Logger log = LogManager.getLogger(GuildPartyChatCommand.class);
 
 	@Override
 	public void execute(Message message, CommandContext ctx) {
@@ -53,7 +49,7 @@ public class ChatCommand extends Command {
 
 	@Override
 	public String toString() {
-		return "ChatCommand[]";
+		return "GuildPartyChatCommand[]";
 	}
 
 	@Override

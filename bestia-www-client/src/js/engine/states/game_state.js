@@ -31,7 +31,7 @@ Bestia.Engine.States.GameState = function(engine) {
 	 * @property {Bestia.Engine.World}
 	 * @private
 	 */
-	this._bestiaWorld = null;
+	this.bestiaWorld = null;
 
 	/**
 	 * Holds the player bestia which should be used as the current player
@@ -55,8 +55,8 @@ Bestia.Engine.States.GameState.prototype = {
 		var astar = this.game.plugins.add(Phaser.Plugin.AStar);
 
 		// Load the tilemap and display it.
-		this._bestiaWorld = new Bestia.Engine.World(this.game, astar);
-		this._bestiaWorld.loadMap(this.bestia.location());
+		this.bestiaWorld = new Bestia.Engine.World(this.game, astar);
+		this.bestiaWorld.loadMap(this.bestia.location());
 
 		this.demandLoader = new Bestia.Engine.DemandLoader(this.game.load, this.game.cache);
 
@@ -108,9 +108,9 @@ Bestia.Engine.States.GameState.prototype = {
 
 	clickHandler : function() {
 		var start = this.player.pos;
-		var goal = this._bestiaWorld.getTileXY(this.game.input.worldX, this.game.input.worldY);
+		var goal = this.bestiaWorld.getTileXY(this.game.input.worldX, this.game.input.worldY);
 
-		var path = this._bestiaWorld.findPath(start, goal).nodes;
+		var path = this.bestiaWorld.findPath(start, goal).nodes;
 
 		if (path.length === 0) {
 			return;

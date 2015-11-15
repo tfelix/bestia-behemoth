@@ -22,7 +22,7 @@ import net.bestia.zoneserver.zone.shape.Vector2;
  */
 public class ItemController {
 
-	public static final int ITEM_VANISH_DELAY = 48 * 60 * 60; // 48h.
+	public static final int ITEM_VANISH_DELAY = 48 * 60 * 60 * 1000; // 48h.
 
 	private final World world;
 	private final Archetype itemArchetype;

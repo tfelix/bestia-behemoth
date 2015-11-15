@@ -27,17 +27,11 @@ Bestia.Engine.EntityFactory.prototype.createBestiaEntity = function(data) {
 
 Bestia.Engine.EntityFactory.prototype.createItemEntity = function(data) {
 	
-	console.log("### CREATE ITEM ###");
-	console.log(data);
-	
 	var self = this;
-	
-	var key = "empty_bottle";
-	var spriteName = "empty_bottle.png";
 
-	this._demandLoader.loadItemSprite(key, spriteName, function(){
+	this._demandLoader.loadItemSprite(data.s, function(){
 		
-		var entity = new Bestia.Engine.ItemEntity(self._game, data.uuid, data.x, data.y, key);
+		var entity = new Bestia.Engine.ItemEntity(self._game, data.uuid, data.x, data.y, data.s);
 		self._entityCache.addEntity(entity);
 		entity.appear();
 	});

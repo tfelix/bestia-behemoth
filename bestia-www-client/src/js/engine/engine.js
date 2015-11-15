@@ -39,15 +39,14 @@ Bestia.Engine = function(pubsub, config) {
 	});
 
 	this.bestia = undefined;
-	
-	this.world = undefined;
 
 	// Determine the size of the canvas.
 	var height = $(window).height();
 	var width = $('#canvas-container').width();
-	this.game = new Phaser.Game(width, height, Phaser.AUTO, 'bestia-canvas');
+	this.game = new Phaser.Game(width, height, Phaser.AUTO, 'bestia-canvas', null, false, false);
 
-	this.game.state.add('game', new Bestia.Engine.States.GameState(this));
+	this.gameState = new Bestia.Engine.States.GameState(this);
+	this.game.state.add('game', this.gameState);
 	this.game.state.add('connecting', new Bestia.Engine.States.ConnectingState(this));
 	this.game.state.add('load', new Bestia.Engine.States.LoadingState(this));
 	this.game.state.start('connecting');
@@ -93,7 +92,8 @@ Bestia.Engine.prototype.loadMap = function(bestia) {
 	console.debug('Loading map.');
 
 	// See if we can do a partial mapload or a full map reload.
-	if (this.world === undefined || this.world.name !== bestia.location()) {
+	var world = this.gameState.bestiaWorld;
+	if (world === null || world.name !== bestia.location()) {
 		// We need to do a full load.
 		this.game.state.start('load', true, false, bestia);
 	}

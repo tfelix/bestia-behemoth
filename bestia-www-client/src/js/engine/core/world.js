@@ -97,6 +97,8 @@ Bestia.Engine.World.prototype.displayMapName = function() {
 Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 
 	this.map = this._game.add.tilemap(mapDbName);
+	
+	this.name = mapDbName;
 
 	// Do some sanity checks.
 	if (this.map.tileHeight !== this.map.tileWidth) {

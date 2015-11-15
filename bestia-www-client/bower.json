@@ -14,7 +14,7 @@
     "src/js/vendor"
   ],
   "dependencies": {
-    "phaser": "~2.3.0",
+    "phaser": "~2.4.4",
     "jquery": "~2.1.4",
     "less": "~2.5.0",
     "i18next": "~1.8.2",
