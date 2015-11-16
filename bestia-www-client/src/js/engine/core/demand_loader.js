@@ -59,7 +59,7 @@ Bestia.Engine.DemandLoader.prototype._fileLoadedCallback = function(progress, ke
 
 		// Start to load all data in this pack.
 		this._loader.pack(key, undefined, pack);
-		//this._loader.start();
+		this._loader.start();
 	} else {
 		cacheData.toLoad--;
 		if (cacheData.toLoad === 0) {
@@ -102,7 +102,7 @@ Bestia.Engine.DemandLoader.prototype.loadMobSprite = function(key, fnOnComplete)
 	var packUrl = Bestia.Urls.assetsMobSprite + key + '_pack.json';
 
 	this._loader.json(key, packUrl);
-	//this._loader.start();
+	this._loader.start();
 };
 
 /**

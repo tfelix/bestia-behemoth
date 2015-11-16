@@ -6,13 +6,11 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
 
-import net.bestia.model.DomainAwareBase;
-import net.bestia.model.dao.AccountDAO;
-import net.bestia.model.domain.Account;
-
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import net.bestia.model.DomainAwareBase;
+import net.bestia.model.domain.Account;
 
 public class AccountDAOTest extends DomainAwareBase {
 
