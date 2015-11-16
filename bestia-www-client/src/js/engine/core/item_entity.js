@@ -18,7 +18,7 @@ Bestia.Engine.ItemEntity.prototype.constructor = Bestia.Engine.ItemEntity;
 
 Bestia.Engine.ItemEntity.prototype.show = function() {
 
-	this._sprite.apha = 1;
+	this._sprite.alpha = 1;
 	
 };
 

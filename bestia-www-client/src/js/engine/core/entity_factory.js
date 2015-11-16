@@ -33,7 +33,12 @@ Bestia.Engine.EntityFactory.prototype.createItemEntity = function(data) {
 		
 		var entity = new Bestia.Engine.ItemEntity(self._game, data.uuid, data.x, data.y, data.s);
 		self._entityCache.addEntity(entity);
-		entity.appear();
+		
+		if(data.a === "APPEAR") {
+			entity.appear();
+		} else {
+			entity.show();
+		}
 	});
 	
 	

@@ -65,7 +65,7 @@ public class ActiveSpawnUpdateSystem extends NetworkUpdateSystem {
 
 						// TODO Do a range check.
 
-						sendUpdate(newActiveEntity, visibleEntity, EntityAction.APPEAR);
+						sendUpdate(newActiveEntity, visibleEntity, EntityAction.UPDATE);
 					}
 				}
 			}
