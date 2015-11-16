@@ -6,6 +6,11 @@ module.exports = {
 			cwd : '<%= sourceDir %>',
 			src : [ 'img/**', 'locales/**' ],
 			dest : 'build'
+		}, {
+			expand : true,
+			cwd : '<%= sourceDir %>',
+			src : [ 'phaser.js' ],
+			dest : 'build'
 		}]
 	},
 
