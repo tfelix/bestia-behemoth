@@ -19,7 +19,7 @@ Bestia.BestiaAttack = function(data) {
 	this.strength = ko.observable(0);
 	this.range = ko.observable(0);
 	this.basedStatus = ko.observable('');
-	
+
 	/**
 	 * Element of this attacks.
 	 * 
@@ -62,7 +62,8 @@ Bestia.BestiaAttack = function(data) {
 };
 
 Bestia.BestiaAttack.prototype.update = function(data) {
-	var atk = data.a;
+	// Used to accept regular attacks or lernable attacks.
+	var atk = data.a || data;
 	this.minLevel(data.mlv || 0);
 	this.id(atk.id);
 	this.attackDatabaseName(atk.adbn);

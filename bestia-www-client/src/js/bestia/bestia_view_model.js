@@ -40,6 +40,13 @@ Bestia.BestiaViewModel = function(pubsub, msg) {
 	this.level = ko.observable(1);
 	this.slot = ko.observable();
 	this.statusPoints = new Bestia.StatusPointViewModel();
+	
+	this.attack1 = ko.observable(null);
+	this.attack2 = ko.observable(null);
+	this.attack3 = ko.observable(null);
+	this.attack4 = ko.observable(null);
+	this.attack5 = ko.observable(null);
+	this.attack6 = ko.observable(null);
 
 	if (msg !== undefined) {
 		this.update(msg);
@@ -78,4 +85,30 @@ Bestia.BestiaViewModel.prototype.update = function(msg) {
 	// this.statusEffects = [];
 	// this.slot(msg.sl);
 	this.statusPoints.update(msg.sp);
+	
+	// Update the attacks.
+	if(msg.atk1) {
+		this.attack1(new Bestia.BestiaAttack(msg.atk1));
+	}
+	
+	if(msg.atk2) {
+		this.attack2(new Bestia.BestiaAttack(msg.atk2));
+	}
+	
+	if(msg.atk3) {
+		this.attack3(new Bestia.BestiaAttack(msg.atk3));
+	}
+	
+	if(msg.atk4) {
+		this.attack4(new Bestia.BestiaAttack(msg.atk4));
+	}
+	
+	if(msg.atk5) {
+		this.attack5(new Bestia.BestiaAttack(msg.atk5));
+	}
+	
+	if(msg.atk6) {
+		this.attack6(new Bestia.BestiaAttack(msg.atk6));
+	}
+
 };

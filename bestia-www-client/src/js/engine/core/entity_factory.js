@@ -17,8 +17,12 @@ Bestia.Engine.EntityFactory.prototype.createBestiaEntity = function(data) {
 
 		var entity = new Bestia.Engine.SpriteEntity(self._game, data.uuid, data.x, data.y, data.s, data.pbid);		
 		self._entityCache.addEntity(entity);
-		entity.appear();
 		
+		if(data.a === "APPEAR") {
+			entity.appear();
+		} else {
+			entity.show();
+		}		
 	});
 	
 	

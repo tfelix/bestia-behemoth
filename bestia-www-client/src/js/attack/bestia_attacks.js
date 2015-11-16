@@ -159,9 +159,17 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 		self.attacks.removeAll();
 
 		self._selectedBestia = selectedBestia;
+		
+		// Reset the attack slots to the attacks of the bestia.
+		self.attackSlot1(selectedBestia.attack1());
+		self.attackSlot2(selectedBestia.attack2());
+		self.attackSlot3(selectedBestia.attack3());
+		self.attackSlot4(selectedBestia.attack4());
+		self.attackSlot5(selectedBestia.attack5());
+		self.attackSlot6(selectedBestia.attack6());
 	};
 
-	pubsub.subscribe('client.selectedBestia', invalidateListHandle);
+	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, invalidateListHandle);
 	pubsub.subscribe('i18n.lang', invalidateListHandle);
 
 	/**
