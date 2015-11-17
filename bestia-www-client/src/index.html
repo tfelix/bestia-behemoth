@@ -88,6 +88,77 @@
 				</div>
 				<!-- /UI BUTTONS -->
 
+				<div data-bind="with: selectedBestia">
+					<div class="shortcut-row">
+						<div class="shortcut-entity">
+							<div class="shortcut">
+								<img
+									data-bind="attr: {src: attack1().imageUrl, alt: attack1().name}"
+									src="" alt="">
+							</div>
+							<div class="key">Q</div>
+						</div>
+						<div class="shortcut-entity">
+							<div class="shortcut">
+								<img
+									data-bind="attr: {src: attack2().imageUrl, alt: attack2().name}"
+									src="" alt="">
+							</div>
+							<div class="key">W</div>
+						</div>
+						<div class="shortcut-entity">
+							<div data-bind="if: attack3" class="shortcut">
+								<img
+									data-bind="attr: {src: attack3().imageUrl, alt: attack3().name}"
+									src="" alt="">
+							</div>
+							<div data-bind="ifnot: attack3" class="shortcut">
+								X
+							</div>
+							<div class="key">E</div>
+						</div>
+						<div class="shortcut-entity">
+							<div class="shortcut">
+								<img
+									data-bind="attr: {src: attack4().imageUrl, alt: attack4().name}"
+									src="" alt="">
+							</div>
+							<div class="key">R</div>
+						</div>
+						<div class="shortcut-entity">
+							<div class="shortcut">
+								<img
+									data-bind="attr: {src: attack5().imageUrl, alt: attack5().name}"
+									src="" alt="">
+							</div>
+							<div class="key">T</div>
+						</div>
+					</div>
+
+					<div class="shortcut-row">
+						<div class="shortcut-entity">
+							<div class="shortcut"></div>
+							<div class="key">1</div>
+						</div>
+						<div class="shortcut-entity">
+							<div class="shortcut"></div>
+							<div class="key">2</div>
+						</div>
+						<div class="shortcut-entity">
+							<div class="shortcut"></div>
+							<div class="key">3</div>
+						</div>
+						<div class="shortcut-entity">
+							<div class="shortcut"></div>
+							<div class="key">4</div>
+						</div>
+						<div class="shortcut-entity">
+							<div class="shortcut"></div>
+							<div class="key">5</div>
+						</div>
+					</div>
+				</div>
+
 				<div id="bestia-slots" data-bind="foreach: bestias">
 					<div class="bestia-slot" data-bind="click: selectBestia">
 						<img data-bind="attr: {src: iconUrl}" alt="Bestia Icon"
@@ -273,6 +344,33 @@
 					<button>Benutzen</button>
 				</div>
 
+				<div class="shortcut-row">
+					<div class="shortcut-entity">
+						<button>v</button>
+						<div class="shortcut"></div>
+						<div class="key">1</div>
+					</div>
+					<div class="shortcut-entity">
+						<button>v</button>
+						<div class="shortcut"></div>
+						<div class="key">2</div>
+					</div>
+					<div class="shortcut-entity">
+						<button>v</button>
+						<div class="shortcut"></div>
+						<div class="key">3</div>
+					</div>
+					<div class="shortcut-entity">
+						<button>v</button>
+						<div class="shortcut"></div>
+						<div class="key">4</div>
+					</div>
+					<div class="shortcut-entity">
+						<button>v</button>
+						<div class="shortcut"></div>
+						<div class="key">5</div>
+					</div>
+				</div>
 			</div>
 		</div>
 
@@ -471,7 +569,6 @@
 						<img src="img/ic_delete.png" alt="Remove">
 					</div>
 				</div>
-
 			</div>
 		</div>
 	</div>

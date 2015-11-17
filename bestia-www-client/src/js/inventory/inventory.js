@@ -146,7 +146,6 @@ Bestia.Inventory = function(pubsub, i18n) {
 		self.maxWeight(data.mw);
 	};
 	pubsub.subscribe('inventory.list', listHandler);
-	
 
 	/**
 	 * Updates the item via an update message from the server.
@@ -174,8 +173,8 @@ Bestia.Inventory = function(pubsub, i18n) {
 				}
 			}
 		});
-		
-		if(newItems.length > 0) {
+
+		if (newItems.length > 0) {
 			self._translateItems(newItems);
 		}
 	};
@@ -233,25 +232,32 @@ Bestia.Inventory = function(pubsub, i18n) {
 
 };
 
+/**
+ * Internal method to translate item names and desciptions. Awaits an array with
+ * item models to translate.
+ * 
+ * @private
+ * @param {Array[Bestia.ItemViewModel]}
+ *            items - Array of item view models to translate.
+ */
 Bestia.Inventory.prototype._translateItems = function(items) {
 	var buildTranslationKeyName = function(item) {
 		return 'item.' + item.itemDatabaseName();
 	};
-	
+
 	var buildTranslationKeyDesc = function(item) {
 		return 'item.' + item.itemDatabaseName() + '_desc';
 	};
-		
-		
+
 	var i18nKeys = items.map(buildTranslationKeyName);
 	i18nKeys = i18nKeys.concat(items.map(buildTranslationKeyDesc));
-	
+
 	this._i18n.t(i18nKeys, function(t) {
 		items.forEach(function(val) {
 
 			var nameTrans = t(buildTranslationKeyName(val));
 			var descTrans = t(buildTranslationKeyDesc(val));
-			
+
 			val.name(nameTrans);
 			val.description(descTrans);
 		});

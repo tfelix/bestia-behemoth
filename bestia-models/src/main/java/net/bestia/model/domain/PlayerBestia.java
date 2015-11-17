@@ -95,23 +95,23 @@ public class PlayerBestia implements Serializable {
 	private PlayerItem item1;
 	
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "ITEM_1", nullable = true)
-	@JsonProperty("item1")
+	@JoinColumn(name = "ITEM_2", nullable = true)
+	@JsonProperty("item2")
 	private PlayerItem item2;
 	
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "ITEM_1", nullable = true)
-	@JsonProperty("item1")
+	@JoinColumn(name = "ITEM_3", nullable = true)
+	@JsonProperty("item3")
 	private PlayerItem item3;
 	
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "ITEM_1", nullable = true)
-	@JsonProperty("item1")
+	@JoinColumn(name = "ITEM_4", nullable = true)
+	@JsonProperty("item4")
 	private PlayerItem item4;
 	
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "ITEM_1", nullable = true)
-	@JsonProperty("item1")
+	@JoinColumn(name = "ITEM_5", nullable = true)
+	@JsonProperty("item5")
 	private PlayerItem item5;
 
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)

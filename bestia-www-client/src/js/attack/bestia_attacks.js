@@ -140,6 +140,7 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 		self.isLoaded(false);
 		self.attacks.removeAll();
 
+		// Set reference to selected bestia.
 		self._selectedBestia = selectedBestia;
 		
 		// Prepare the attacks for translation.
@@ -185,18 +186,23 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 		switch (slot) {
 		case 1:
 			self.attackSlot1(self.selectedAttack());
+			self._selectedBestia.attack1(self.selectedAttack());
 			break;
 		case 2:
 			self.attackSlot2(self.selectedAttack());
+			self._selectedBestia.attack2(self.selectedAttack());
 			break;
 		case 3:
 			self.attackSlot3(self.selectedAttack());
+			self._selectedBestia.attack3(self.selectedAttack());
 			break;
 		case 4:
 			self.attackSlot4(self.selectedAttack());
+			self._selectedBestia.attack4(self.selectedAttack());
 			break;
 		case 5:
 			self.attackSlot5(self.selectedAttack());
+			self._selectedBestia.attack5(self.selectedAttack());
 			break;
 		default:
 			throw "Slotnumber must be between 1 and 5.";
@@ -216,18 +222,23 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 		switch (slot) {
 		case 1:
 			this.attackSlot1(null);
+			self._selectedBestia.attack1(null);
 			break;
 		case 2:
 			this.attackSlot2(null);
+			self._selectedBestia.attack2(null);
 			break;
 		case 3:
 			this.attackSlot3(null);
+			self._selectedBestia.attack3(null);
 			break;
 		case 4:
 			this.attackSlot4(null);
+			self._selectedBestia.attack4(null);
 			break;
 		case 5:
 			this.attackSlot5(null);
+			self._selectedBestia.attack5(null);
 			break;
 		default:
 			throw "Slotnumber must be between 1 and 4.";

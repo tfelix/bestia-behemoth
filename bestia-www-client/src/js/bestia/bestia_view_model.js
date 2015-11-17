@@ -46,7 +46,12 @@ Bestia.BestiaViewModel = function(pubsub, msg) {
 	this.attack3 = ko.observable(null);
 	this.attack4 = ko.observable(null);
 	this.attack5 = ko.observable(null);
-	this.attack6 = ko.observable(null);
+	
+	this.item1 = ko.observable(null);
+	this.item2 = ko.observable(null);
+	this.item3 = ko.observable(null);
+	this.item4 = ko.observable(null);
+	this.item5 = ko.observable(null);
 
 	if (msg !== undefined) {
 		this.update(msg);
