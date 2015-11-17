@@ -40,7 +40,23 @@
 		"strength": "Stärke",
 		"element": "Element",
 		"mana": "Mana",
-		"minlv": "Min. Lv."
+		"minlv": "Min. Lv.",
+		"special": "Special",
+		"normal": "Normal",
+		"no_damage": "Sonstig"
+	},
+	
+	"element": {
+		"normal": "Normal",
+		"water": "Wasser",
+		"earth": "Erde",
+		"fire": "Feuer",
+		"wind": "Wind",
+		"poison": "Gift",
+		"holy": "Heilig",
+		"shadow": "Schatten",
+		"ghost": "Geist",
+		"undead": "Untot"	
 	},
 	
 	"map": {
