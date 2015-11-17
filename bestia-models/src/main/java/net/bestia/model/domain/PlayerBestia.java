@@ -88,6 +88,31 @@ public class PlayerBestia implements Serializable {
 
 	@JsonProperty("lv")
 	private int level;
+	
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "ITEM_1", nullable = true)
+	@JsonProperty("item1")
+	private PlayerItem item1;
+	
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "ITEM_1", nullable = true)
+	@JsonProperty("item1")
+	private PlayerItem item2;
+	
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "ITEM_1", nullable = true)
+	@JsonProperty("item1")
+	private PlayerItem item3;
+	
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "ITEM_1", nullable = true)
+	@JsonProperty("item1")
+	private PlayerItem item4;
+	
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "ITEM_1", nullable = true)
+	@JsonProperty("item1")
+	private PlayerItem item5;
 
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ATTACK_1", nullable = true)
@@ -325,6 +350,65 @@ public class PlayerBestia implements Serializable {
 
 	public void setAttack5(Attack attack5) {
 		this.attack5 = attack5;
+	}
+
+	public PlayerItem getItem1() {
+		return item1;
+	}
+
+	public void setItem1(PlayerItem item1) {
+		this.item1 = item1;
+	}
+
+	public PlayerItem getItem2() {
+		return item2;
+	}
+
+	public void setItem2(PlayerItem item2) {
+		this.item2 = item2;
+	}
+
+	public PlayerItem getItem3() {
+		return item3;
+	}
+
+	public void setItem3(PlayerItem item3) {
+		this.item3 = item3;
+	}
+
+	public PlayerItem getItem4() {
+		return item4;
+	}
+
+	public void setItem4(PlayerItem item4) {
+		this.item4 = item4;
+	}
+
+	public PlayerItem getItem5() {
+		return item5;
+	}
+
+	public void setItem5(PlayerItem item5) {
+		this.item5 = item5;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Integer.hashCode(id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PlayerBestia other = (PlayerBestia) obj;
+		if (id != other.id)
+			return false;
+		return true;
 	}
 
 	@Override
