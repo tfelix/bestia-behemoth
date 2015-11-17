@@ -127,25 +127,7 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 		});
 		self.isLoaded(true);
 
-		var buildTranslationKey = function(atk) {
-			return 'attack.' + atk.attackDatabaseName();
-		};
-
-		var buildTranslationKeyDesc = function(atk) {
-			return 'attack.' + atk.attackDatabaseName() + '_desc';
-		};
-
-		var i18nKeys = attackTranslationList.map(buildTranslationKey);
-		// Add the keys with for the description.
-		i18nKeys = i18nKeys.concat(attackTranslationList.map(buildTranslationKeyDesc));
-
-		self._i18n.t(i18nKeys, function(t) {
-			attackTranslationList.forEach(function(val) {
-				val.name(t(buildTranslationKey(val)));
-				val.description(t(buildTranslationKeyDesc(val)));
-			});
-		});
-
+		self._translateAttacks(attackTranslationList);
 	};
 
 	pubsub.subscribe('attack.list.response', updateHandle);
@@ -160,13 +142,23 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 
 		self._selectedBestia = selectedBestia;
 		
+		// Prepare the attacks for translation.
+		var translateAtks = [];
+		translateAtks.push(selectedBestia.attack1());
+		translateAtks.push(selectedBestia.attack2());
+		translateAtks.push(selectedBestia.attack3());
+		translateAtks.push(selectedBestia.attack4());
+		translateAtks.push(selectedBestia.attack5());
+		
+		translateAtks = translateAtks.filter(function(x) { return x !== null; });
+		self._translateAttacks(translateAtks);
+
 		// Reset the attack slots to the attacks of the bestia.
 		self.attackSlot1(selectedBestia.attack1());
 		self.attackSlot2(selectedBestia.attack2());
 		self.attackSlot3(selectedBestia.attack3());
 		self.attackSlot4(selectedBestia.attack4());
 		self.attackSlot5(selectedBestia.attack5());
-		self.attackSlot6(selectedBestia.attack6());
 	};
 
 	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, invalidateListHandle);
@@ -356,6 +348,33 @@ Bestia.BestiaAttacks.prototype.close = function() {
  */
 Bestia.BestiaAttacks.prototype.show = function() {
 	this.showWindow(true);
+};
+
+/**
+ * Internal helper function to translate attacks.
+ * 
+ * @param {Array}
+ *            attacks - Array of attacks to translate.
+ */
+Bestia.BestiaAttacks.prototype._translateAttacks = function(attacks) {
+	var buildTranslationKey = function(atk) {
+		return 'attack.' + atk.attackDatabaseName();
+	};
+
+	var buildTranslationKeyDesc = function(atk) {
+		return 'attack.' + atk.attackDatabaseName() + '_desc';
+	};
+
+	var i18nKeys = attacks.map(buildTranslationKey);
+	// Add the keys with for the description.
+	i18nKeys = i18nKeys.concat(attacks.map(buildTranslationKeyDesc));
+
+	this._i18n.t(i18nKeys, function(t) {
+		attacks.forEach(function(val) {
+			val.name(t(buildTranslationKey(val)));
+			val.description(t(buildTranslationKeyDesc(val)));
+		});
+	});
 };
 
 /**
