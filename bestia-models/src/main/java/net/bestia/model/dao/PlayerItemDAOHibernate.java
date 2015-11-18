@@ -1,6 +1,8 @@
 package net.bestia.model.dao;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import net.bestia.model.domain.PlayerItem;
 
@@ -8,7 +10,7 @@ import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository("playerItemDao")
-public class PlayerItemDAOHibernate extends GenericDAOHibernate<PlayerItem, Integer> implements PlayerItemDAO {
+public class PlayerItemDAOHibernate extends GenericDAOHibernate<PlayerItem, Integer>implements PlayerItemDAO {
 
 	/**
 	 * @inheritDoc
@@ -18,12 +20,13 @@ public class PlayerItemDAOHibernate extends GenericDAOHibernate<PlayerItem, Inte
 	public List<PlayerItem> findPlayerItemsForAccount(long accId) {
 		final Query query = currentSession().createQuery("from PlayerItem pi where pi.account.id = :accId");
 		query.setParameter("accId", accId);
-		return (List<PlayerItem>)query.list();
+		return (List<PlayerItem>) query.list();
 	}
 
 	@Override
 	public PlayerItem findPlayerItem(long accId, int itemId) {
-		final Query query = currentSession().createQuery("from PlayerItem pi where pi.account.id = :accId and pi.item.id = :itemId");
+		final Query query = currentSession()
+				.createQuery("from PlayerItem pi where pi.account.id = :accId and pi.item.id = :itemId");
 		query.setParameter("accId", accId);
 		query.setParameter("itemId", itemId);
 		return (PlayerItem) query.uniqueResult();
@@ -31,10 +34,19 @@ public class PlayerItemDAOHibernate extends GenericDAOHibernate<PlayerItem, Inte
 
 	@Override
 	public int getTotalItemWeight(long accId) {
-		final Query query = currentSession().createQuery("select sum(item.weight * pi.amount) from PlayerItem pi where pi.account.id = :accId");
+		final Query query = currentSession()
+				.createQuery("select sum(item.weight * pi.amount) from PlayerItem pi where pi.account.id = :accId");
 		query.setParameter("accId", accId);
 		final int weight = ((Long) query.uniqueResult()).intValue();
 		return weight;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Collection<PlayerItem> findAllPlayerItemsForIds(Set<Integer> itemIds) {
+		final Query query = currentSession().createQuery("from PlayerItem pi where pi.id IN :idList");
+		query.setParameter("idList", itemIds);
+		return (Collection<PlayerItem>) query.list();
 	}
 
 }

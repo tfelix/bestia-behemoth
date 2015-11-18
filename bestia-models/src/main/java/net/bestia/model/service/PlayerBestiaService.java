@@ -1,7 +1,9 @@
 package net.bestia.model.service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,9 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import net.bestia.model.dao.AttackLevelDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;
+import net.bestia.model.dao.PlayerItemDAO;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.AttackLevel;
 import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.domain.PlayerItem;
 
 @Transactional
 @Service("PlayerBestiaService")
@@ -23,6 +27,7 @@ public class PlayerBestiaService {
 
 	private PlayerBestiaDAO playerBestiaDao;
 	private AttackLevelDAO attackLevelDao;
+	private PlayerItemDAO playerItemDao;
 
 	@Autowired
 	public void setPlayerBestiaDao(PlayerBestiaDAO playerBestiaDao) {
@@ -32,6 +37,11 @@ public class PlayerBestiaService {
 	@Autowired
 	public void setAttackLevelDao(AttackLevelDAO attackLevelDao) {
 		this.attackLevelDao = attackLevelDao;
+	}
+
+	@Autowired
+	public void setPlayerItemDao(PlayerItemDAO playerItemDao) {
+		this.playerItemDao = playerItemDao;
 	}
 
 	/**
@@ -133,6 +143,58 @@ public class PlayerBestiaService {
 	public List<AttackLevel> getAllAttacksForPlayerBestia(int playerBestiaId) {
 		final PlayerBestia pb = playerBestiaDao.find(playerBestiaId);
 		return attackLevelDao.getAllAttacksForBestia(pb.getOrigin().getId());
+	}
+
+	/**
+	 * The item ids are looked up and a reference is saved for the bestia. The
+	 * player must have this item in his inventory.
+	 * 
+	 * @param playerBestiaId
+	 * @param itemIds
+	 */
+	public void saveItemShortcuts(int playerBestiaId, List<Integer> itemIds) {
+
+		if (itemIds.size() != 5) {
+			throw new IllegalArgumentException(
+					"The size of the item slot array must be 5. Fill empty slots with null.");
+		}
+
+		final PlayerBestia bestia = playerBestiaDao.find(playerBestiaId);
+		final Set<Integer> nonNullIds = itemIds.stream().filter((x) -> x != null).collect(Collectors.toSet());
+		final Stream<PlayerItem> foundItems = playerItemDao.findAllPlayerItemsForIds(nonNullIds).stream();
+
+		for (int i = 0; i < 5; i++) {
+
+			final Integer id = itemIds.get(i);
+			final PlayerItem item;
+
+			if (id == null) {
+				item = null;
+			} else {
+				item = foundItems.filter((x) -> x.getItem().getId() == id).findFirst().orElse(null);
+			}
+
+			switch (i) {
+			case 0:
+				bestia.setItem1(item);
+				break;
+			case 1:
+				bestia.setItem2(item);
+				break;
+			case 2:
+				bestia.setItem3(item);
+				break;
+			case 3:
+				bestia.setItem4(item);
+				break;
+			case 4:
+				bestia.setItem4(item);
+				break;
+			default:
+				// no op.
+				break;
+			}
+		}
 	}
 
 }

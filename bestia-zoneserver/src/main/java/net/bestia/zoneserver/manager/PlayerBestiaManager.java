@@ -282,7 +282,7 @@ public class PlayerBestiaManager extends BestiaManager {
 
 		final String curMap = bestia.getCurrentPosition().getMapDbName();
 		loc.setMapDbName(curMap);
-		
+
 		return loc;
 	}
 
@@ -438,6 +438,24 @@ public class PlayerBestiaManager extends BestiaManager {
 			}
 		}
 		return atks;
+	}
+
+	/**
+	 * Sets the item shortcuts for this bestia.
+	 * 
+	 * @param itemIds
+	 */
+	public void setItems(List<Integer> itemIds) {
+
+		try {
+			final PlayerBestiaService service = serviceLocator.getBean(PlayerBestiaService.class);
+			service.saveItemShortcuts(bestia.getId(), itemIds);
+
+		} catch (IllegalArgumentException ex) {
+			// Attack can not be learned. Hacking?
+			// no op.
+		}
+
 	}
 
 }
