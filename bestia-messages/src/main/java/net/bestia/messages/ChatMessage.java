@@ -21,7 +21,7 @@ public class ChatMessage extends Message {
 	public final static String MESSAGE_ID = "chat.message";
 
 	public enum Mode {
-		PUBLIC, PARTY, GUILD, WHISPER, SYSTEM, GM_BROADCAST, ERROR, COMMAND
+		PUBLIC, PARTY, GUILD, WHISPER, SYSTEM, GM_BROADCAST, ERROR, COMMAND, BATTLE
 	}
 	
 	@JsonProperty("pbid")
