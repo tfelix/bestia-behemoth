@@ -90,47 +90,30 @@
 
 				<div data-bind="with: selectedBestia">
 					<div class="shortcut-row">
+<script id="tmpl-shortcut" type="text/html">
+<div class="shortcut">
+<img data-bind="attr: {src: imageUrl, alt: name}" src="" alt="">
+</div>
+</script>	
+
 						<div class="shortcut-entity">
-							<div class="shortcut">
-								<img
-									data-bind="attr: {src: attack1().imageUrl, alt: attack1().name}"
-									src="" alt="">
-							</div>
+							<div class="shortcut-wrapper" data-bind="template: { name: 'tmpl-shortcut', data: attack1 }"></div>
 							<div class="key">Q</div>
 						</div>
 						<div class="shortcut-entity">
-							<div class="shortcut">
-								<img
-									data-bind="attr: {src: attack2().imageUrl, alt: attack2().name}"
-									src="" alt="">
-							</div>
+							<div class="shortcut-wrapper" data-bind="if: attack2, template: { name: 'tmpl-shortcut', data: attack2 }"></div>
 							<div class="key">W</div>
 						</div>
 						<div class="shortcut-entity">
-							<div data-bind="if: attack3" class="shortcut">
-								<img
-									data-bind="attr: {src: attack3().imageUrl, alt: attack3().name}"
-									src="" alt="">
-							</div>
-							<div data-bind="ifnot: attack3" class="shortcut">
-								X
-							</div>
+							<div class="shortcut-wrapper" data-bind="template: { name: 'tmpl-shortcut', data: attack3 }"></div>
 							<div class="key">E</div>
 						</div>
 						<div class="shortcut-entity">
-							<div class="shortcut">
-								<img
-									data-bind="attr: {src: attack4().imageUrl, alt: attack4().name}"
-									src="" alt="">
-							</div>
+							<div class="shortcut-wrapper" data-bind="template: { name: 'tmpl-shortcut', data: attack4 }"></div>
 							<div class="key">R</div>
 						</div>
 						<div class="shortcut-entity">
-							<div class="shortcut">
-								<img
-									data-bind="attr: {src: attack5().imageUrl, alt: attack5().name}"
-									src="" alt="">
-							</div>
+							<div class="shortcut-wrapper" data-bind="template: { name: 'tmpl-shortcut', data: attack5 }"></div>
 							<div class="key">T</div>
 						</div>
 					</div>
