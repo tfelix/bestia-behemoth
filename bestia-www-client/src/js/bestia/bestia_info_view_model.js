@@ -27,7 +27,7 @@ Bestia.BestiaInfoViewModel = function(pubsub) {
 	 * @public
 	 * @property {Bestia.BestiaViewModel}
 	 */
-	this.selectedBestia = ko.observable();
+	this.selectedBestia = ko.observable(null);
 
 	/**
 	 * Holds a reference to the master bestia.
@@ -35,7 +35,7 @@ Bestia.BestiaInfoViewModel = function(pubsub) {
 	 * @public
 	 * @property {Bestia.BestiaViewModel}
 	 */
-	this.masterBestia = ko.observable();
+	this.masterBestia = ko.observable(null);
 
 	/**
 	 * Holds the currently available bestias for this bestia master.
@@ -78,10 +78,10 @@ Bestia.BestiaInfoViewModel = function(pubsub) {
 
 	// Register for messages from the server.
 	pubsub.subscribe('bestia.info', onMessageHandler);
-	
+
 	var onActivateHandler = function(_, msg) {
 		console.debug('New bestia was selected.');
-		
+
 		// Check if the bestia is already inside our cache.
 		for (var i = 0; i < self.bestias().length; i++) {
 			if (self.bestias()[i].playerBestiaId() === msg.pbid) {
@@ -93,9 +93,13 @@ Bestia.BestiaInfoViewModel = function(pubsub) {
 	pubsub.subscribe('bestia.activated', onActivateHandler);
 };
 
+/**
+ * Selects the given bestia and announces the selection to the world.
+ * 
+ * @param bestia
+ * @private
+ */
 Bestia.BestiaInfoViewModel.prototype._selectBestia = function(bestia) {
 	this.selectedBestia(bestia);
-	// TODO das ist depricated und wird bald entfernt.
-	//this._pubsub.publish('client.selectedBestia', this.selectedBestia());
 	this._pubsub.publish(Bestia.Signal.BESTIA_SELECTED, this.selectedBestia());
 };

@@ -1,3 +1,5 @@
+Bestia.Engine.CG = {} || Bestia.Engine.CG;
+
 /**
  * Spawns and displays the entities damage in the engine. Object pooling should
  * be used in order to speed up the performance. The underlying sprites are not
@@ -60,7 +62,7 @@ Bestia.Engine.CG.Damage.destroy = function() {
  * @private
  * @method Bestia.Engine.Entity.Damage#_display
  */
-Bestia.Engine.Entity.Damage.prototype._createVisual = function(dmg, bCritical, posX, posY) {
+Bestia.Engine.CG.Damage.prototype._createVisual = function(dmg, bCritical, posX, posY) {
 	var style = this.normalStyle;
 	if (bCritical === true) {
 		style = this.critStyle;
@@ -77,7 +79,7 @@ Bestia.Engine.Entity.Damage.prototype._createVisual = function(dmg, bCritical, p
  * @private
  * @method Bestia.Engine.Entity.Damage#_animateVisual
  */
-Bestia.Engine.Entity.Damage.prototype._show = function(visual) {
+Bestia.Engine.CG.Damage.prototype._show = function(visual) {
 
 	var tween = this.game.add.tween(visual).to({
 		x : [ visual.x - 10, visual.x - 75 ],

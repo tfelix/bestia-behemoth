@@ -112,8 +112,25 @@ Bestia.BestiaViewModel.prototype.update = function(msg) {
 		this.attack5(new Bestia.BestiaAttack(msg.atk5));
 	}
 	
-	if(msg.atk6) {
-		this.attack6(new Bestia.BestiaAttack(msg.atk6));
+	// Update the items.
+	if(msg.item1) {
+		this.item1(new Bestia.ItemViewModel(msg.item1));
+	}
+	
+	if(msg.item2) {
+		this.attack2(new Bestia.ItemViewModel(msg.item2));
+	}
+	
+	if(msg.item3) {
+		this.attack3(new Bestia.ItemViewModel(msg.item3));
+	}
+	
+	if(msg.item4) {
+		this.attack4(new Bestia.ItemViewModel(msg.item4));
+	}
+	
+	if(msg.item5) {
+		this.attack5(new Bestia.ItemViewModel(msg.item5));
 	}
 
 };

@@ -88,60 +88,6 @@
 				</div>
 				<!-- /UI BUTTONS -->
 
-				<div data-bind="with: selectedBestia">
-					<div class="shortcut-row">
-<script id="tmpl-shortcut" type="text/html">
-<div class="shortcut">
-<img data-bind="attr: {src: imageUrl, alt: name}" src="" alt="">
-</div>
-</script>	
-
-						<div class="shortcut-entity">
-							<div class="shortcut-wrapper" data-bind="template: { name: 'tmpl-shortcut', data: attack1 }"></div>
-							<div class="key">Q</div>
-						</div>
-						<div class="shortcut-entity">
-							<div class="shortcut-wrapper" data-bind="template: { name: 'tmpl-shortcut', data: attack2 }"></div>
-							<div class="key">W</div>
-						</div>
-						<div class="shortcut-entity">
-							<div class="shortcut-wrapper" data-bind="template: { name: 'tmpl-shortcut', data: attack3 }"></div>
-							<div class="key">E</div>
-						</div>
-						<div class="shortcut-entity">
-							<div class="shortcut-wrapper" data-bind="template: { name: 'tmpl-shortcut', data: attack4 }"></div>
-							<div class="key">R</div>
-						</div>
-						<div class="shortcut-entity">
-							<div class="shortcut-wrapper" data-bind="template: { name: 'tmpl-shortcut', data: attack5 }"></div>
-							<div class="key">T</div>
-						</div>
-					</div>
-
-					<div class="shortcut-row">
-						<div class="shortcut-entity">
-							<div class="shortcut"></div>
-							<div class="key">1</div>
-						</div>
-						<div class="shortcut-entity">
-							<div class="shortcut"></div>
-							<div class="key">2</div>
-						</div>
-						<div class="shortcut-entity">
-							<div class="shortcut"></div>
-							<div class="key">3</div>
-						</div>
-						<div class="shortcut-entity">
-							<div class="shortcut"></div>
-							<div class="key">4</div>
-						</div>
-						<div class="shortcut-entity">
-							<div class="shortcut"></div>
-							<div class="key">5</div>
-						</div>
-					</div>
-				</div>
-
 				<div id="bestia-slots" data-bind="foreach: bestias">
 					<div class="bestia-slot" data-bind="click: selectBestia">
 						<img data-bind="attr: {src: iconUrl}" alt="Bestia Icon"
@@ -181,12 +127,6 @@
 		</div>
 
 		<div id="canvas-container">
-			<div id="canvas-overlay" style="display: none;">
-				<div id="loading-content"></div>
-				<div class="loading-bar-wrap">
-					<div style="width: 0px;" class="loading-bar"></div>
-				</div>
-			</div>
 
 			<!-- CHAT -->
 			<div id="chat" data-bind="with: chat">
@@ -226,11 +166,70 @@
 			</div>
 			<!-- /CHAT -->
 
+			<!-- SHORTCUTS -->
+			<div id="shortcuts" style="position: absolute; bottom: 10px; right: 10px;" data-bind="with: bestias.selectedBestia">
+				<script id="tmpl-atk-shortcut" type="text/html">
+<div class="shortcut">
+<img data-bind="attr: {src: imageUrl, alt: name}" src="" alt="">
+</div>
+</script>
+
+				<div class="shortcut-row">
+					<div class="shortcut-entity">
+						<div class="shortcut-wrapper"
+							data-bind="template: {if: attack1(), name: 'tmpl-atk-shortcut', data: attack1 }"></div>
+						<div class="key">Q</div>
+					</div>
+					<div class="shortcut-entity">
+						<div class="shortcut-wrapper"
+							data-bind="template: {if: attack2(), name: 'tmpl-atk-shortcut', data: attack2 }"></div>
+						<div class="key">W</div>
+					</div>
+					<div class="shortcut-entity">
+						<div class="shortcut-wrapper"
+							data-bind="template: {if: attack3(), name: 'tmpl-atk-shortcut', data: attack3 }"></div>
+						<div class="key">E</div>
+					</div>
+					<div class="shortcut-entity">
+						<div class="shortcut-wrapper"
+							data-bind="template: {if: attack4(), name: 'tmpl-atk-shortcut', data: attack4 }"></div>
+						<div class="key">R</div>
+					</div>
+					<div class="shortcut-entity">
+						<div class="shortcut-wrapper"
+							data-bind="template: {if: attack5(), name: 'tmpl-atk-shortcut', data: attack5 }"></div>
+						<div class="key">T</div>
+					</div>
+				</div>
+
+				<div class="shortcut-row">
+					<div class="shortcut-entity">
+						<div class="shortcut"></div>
+						<div class="key">1</div>
+					</div>
+					<div class="shortcut-entity">
+						<div class="shortcut"></div>
+						<div class="key">2</div>
+					</div>
+					<div class="shortcut-entity">
+						<div class="shortcut"></div>
+						<div class="key">3</div>
+					</div>
+					<div class="shortcut-entity">
+						<div class="shortcut"></div>
+						<div class="key">4</div>
+					</div>
+					<div class="shortcut-entity">
+						<div class="shortcut"></div>
+						<div class="key">5</div>
+					</div>
+				</div>
+			</div>
+			<!-- /SHORTCUTS -->
+
 			<!-- GAME CANVAS -->
 			<div id="bestia-canvas"></div>
 			<!-- /GAME CANVAS -->
-
-			<div id="controls"></div>
 
 		</div>
 	</div>
