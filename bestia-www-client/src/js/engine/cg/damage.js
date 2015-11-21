@@ -1,43 +1,30 @@
 /**
- * Spawns and displays the entitys damage in the engine.
+ * Spawns and displays the entities damage in the engine. Object pooling should
+ * be used in order to speed up the performance. The underlying sprites are not
+ * destroyed if not specified so the damage can be reused later.
  * 
  * @class Bestia.Engine.Entity.Damage
  */
-Bestia.Engine.Entity.Damage = function(game, entity, dmg) {
-	
+Bestia.Engine.CG.Damage = function(game, entity, dmg) {
+
 	var self = this;
 	this.game = game;
 
-	this.normalStyle = {
-		font : "18px Arial",
-		fill : "#ffffff",
-		align : "center",
-		stroke : '#000000',
-		strokeThickness : 3
-	};
-
-	this.critStyle = {
-		font : "18px Arial",
-		fill : "#ffffff",
-		align : "center",
-		stroke : '#000000',
-		strokeThickness : 3
-	};
-
-	this.healStyle = {
-		font : "18px Arial",
-		fill : "#ffffff",
-		align : "center",
-		stroke : '#000000',
-		strokeThickness : 3
-	};
+	/**
+	 * Holds the engine sprite object to later reference it again and possibly
+	 * redisplay it.
+	 * 
+	 * @property
+	 * @private
+	 */
+	this._sprites = [];
 
 	// get the position of the entity to which the damage display will be
 	// attached.
 	var posX = entity.centerX - entity.getSizeX / 2 - 10;
 	var posY = entity.centerY;
-	
-	if(dmg.dmgs === null) {
+
+	if (dmg.dmgs === null) {
 		var visual = this._createVisual(dmg.t, dmg.bc, posX, posY);
 		this._animateVisual(visual);
 	} else {
@@ -47,6 +34,20 @@ Bestia.Engine.Entity.Damage = function(game, entity, dmg) {
 			this._animateVisual(visual);
 		});
 	}
+};
+
+/**
+ * Re-displays the damage object on the given world entity.
+ */
+Bestia.Engine.CG.Damage.restart = function() {
+
+};
+
+/**
+ * 
+ */
+Bestia.Engine.CG.Damage.destroy = function() {
+
 };
 
 /**
@@ -61,12 +62,12 @@ Bestia.Engine.Entity.Damage = function(game, entity, dmg) {
  */
 Bestia.Engine.Entity.Damage.prototype._createVisual = function(dmg, bCritical, posX, posY) {
 	var style = this.normalStyle;
-	if(bCritical === true) {
+	if (bCritical === true) {
 		style = this.critStyle;
-	} else if(dmg < 0) {
+	} else if (dmg < 0) {
 		style = this.healStyle;
 	}
-	
+
 	return this.game.add.text(posX, posY, dmg, style);
 };
 
@@ -76,8 +77,8 @@ Bestia.Engine.Entity.Damage.prototype._createVisual = function(dmg, bCritical, p
  * @private
  * @method Bestia.Engine.Entity.Damage#_animateVisual
  */
-Bestia.Engine.Entity.Damage.prototype._animateVisual = function(visual) {
-	
+Bestia.Engine.Entity.Damage.prototype._show = function(visual) {
+
 	var tween = this.game.add.tween(visual).to({
 		x : [ visual.x - 10, visual.x - 75 ],
 		y : [ visual.y + 150, visual.y - 10 ]
@@ -88,6 +89,30 @@ Bestia.Engine.Entity.Damage.prototype._animateVisual = function(visual) {
 	this.game.add.tween(visual).to({
 		alpha : 0
 	}, 100, Phaser.Easing.Linear.None, true, 900).start();
-	
+
 	tween.start();
+};
+
+Bestia.Engine.CG.Damage.STYLE_NORMAL = {
+	font : "18px Arial",
+	fill : "#ffffff",
+	align : "center",
+	stroke : '#000000',
+	strokeThickness : 3
+};
+
+Bestia.Engine.CG.Damage.STYLE_CRIT = {
+	font : "18px Arial",
+	fill : "#ffffff",
+	align : "center",
+	stroke : '#000000',
+	strokeThickness : 3
+};
+
+Bestia.Engine.CG.Damage.STYLE_HEAL = {
+	font : "18px Arial",
+	fill : "#ffffff",
+	align : "center",
+	stroke : '#000000',
+	strokeThickness : 3
 };
