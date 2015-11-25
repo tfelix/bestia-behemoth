@@ -27,4 +27,5 @@ public interface MapEntitiesDAO extends Repository<MapEntity, Integer> {
 	 * @param zoneName
 	 */
 	public void deleteAllByZoneName(String zoneName);
+	
 }

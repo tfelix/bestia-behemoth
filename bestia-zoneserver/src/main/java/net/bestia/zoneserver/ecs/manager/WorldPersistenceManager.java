@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.ecs.manager;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,13 +13,17 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import net.bestia.model.dao.MapEntitiesDAO;
+
 public class WorldPersistenceManager extends Manager {
 
 	private final static Logger log = LogManager
 			.getLogger(WorldPersistenceManager.class);
 	private final ObjectMapper mapper = new ObjectMapper();
-	private File saveSubfolder;
 	private final Map<Integer, Entity> trackedEntities = new HashMap<>();
+
+	private final String zoneName;
+	private final MapEntitiesDAO entitiesDAO;
 
 	/**
 	 * 
@@ -30,61 +33,36 @@ public class WorldPersistenceManager extends Manager {
 	 *            subfolder which will be created for the entities to be
 	 *            persisted.
 	 */
-	public WorldPersistenceManager(File saveFolder, String zoneName) {
-		if (saveFolder == null) {
-			log.warn("SaveFolder is null. Loading and persisting of entities disabled.");
-			saveSubfolder = null;
-		} else {
-			if (!saveFolder.isDirectory() || !saveFolder.canRead()) {
-				log.warn(
-						"SaveFolder {} is not a directory or can not be read. Loading and persisting of entities disabled.",
-						saveFolder.getAbsolutePath());
-				saveSubfolder = null;
-			} else {
-				createSubfolder(saveFolder, zoneName);
-			}
-		}
-	}
+	public WorldPersistenceManager(String zoneName, MapEntitiesDAO entitiesDao) {
 
-	private void createSubfolder(File saveFolder, String zoneName) {
-		this.saveSubfolder = new File(saveFolder, zoneName);
-
-		if (!this.saveSubfolder.exists()) {
-			if (!this.saveSubfolder.mkdir()) {
-				throw new IllegalArgumentException("Can not create subfolder: "
-						+ saveSubfolder.getAbsolutePath());
-			}
+		if (zoneName == null || zoneName.isEmpty()) {
+			throw new IllegalArgumentException("ZoneName can not be null or empty.");
 		}
+
+		if (entitiesDao == null) {
+			throw new IllegalArgumentException("EntitiesDao can not be null.");
+		}
+
+		this.entitiesDAO = entitiesDao;
+		this.zoneName = zoneName;
 	}
 
 	public void save() throws IOException {
-
-		if (saveSubfolder == null) {
-			return;
-		}
 
 		for (Entity e : trackedEntities.values()) {
 			// TODO Check if this entity should be persisted.
 			// Dont persist player or script entities which can be regenerated
 			// from database or during startup.
 
-			final String filename = String.format("entity-%d", e.getId());
-			final File saveFile = new File(saveSubfolder, filename);
-
 			try {
-				mapper.writeValue(saveFile, e);
+				final String entityStr = mapper.writeValueAsString(e);
 			} catch (JsonGenerationException | JsonMappingException e1) {
-				log.error("Can not write entity %s to file: %s", e.toString(),
-						saveFile.getAbsolutePath());
+
 			}
 		}
 	}
 
 	public void load() {
-
-		if (saveSubfolder == null) {
-			return;
-		}
 
 		// TODO Schreiben.
 	}

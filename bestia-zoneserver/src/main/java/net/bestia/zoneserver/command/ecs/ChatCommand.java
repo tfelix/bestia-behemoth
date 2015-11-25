@@ -16,7 +16,7 @@ import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 
 public class ChatCommand extends ECSCommand {
-
+	
 	private ChatCommandExecutor chatCommandExecutor;
 	private ComponentMapper<PlayerBestia> playerMapper;
 	private EntitySubscription activePlayerEntities;
