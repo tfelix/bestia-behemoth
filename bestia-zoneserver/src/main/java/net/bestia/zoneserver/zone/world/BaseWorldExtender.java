@@ -1,13 +1,12 @@
 package net.bestia.zoneserver.zone.world;
 
-import java.io.File;
-
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
 import com.artemis.managers.UuidEntityManager;
 
+import net.bestia.model.dao.MapEntitiesDAO;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.ActiveManager;
 import net.bestia.zoneserver.ecs.manager.PlayerAttackSetManager;
@@ -63,8 +62,8 @@ public class BaseWorldExtender implements WorldExtend {
 		worldConfig.setSystem(new TagManager());
 		worldConfig.setSystem(new UuidEntityManager());
 		
-		final File saveFolder = new File(ctx.getConfiguration().getProperty("zone.persistFolder"));
-		worldConfig.setSystem(new WorldPersistenceManager(saveFolder, map.getMapDbName()));
+		final MapEntitiesDAO mapEntityDao = ctx.getServiceLocator().getBean(MapEntitiesDAO.class);
+		worldConfig.setSystem(new WorldPersistenceManager(map.getMapDbName(), mapEntityDao));
 	}
 
 }
