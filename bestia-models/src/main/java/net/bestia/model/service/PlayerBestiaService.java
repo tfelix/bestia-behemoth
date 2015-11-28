@@ -3,7 +3,6 @@ package net.bestia.model.service;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -23,6 +22,7 @@ import net.bestia.model.domain.PlayerItem;
 @Service("PlayerBestiaService")
 public class PlayerBestiaService {
 
+	private final static int NUM_ITEM_SLOTS = 5;
 	private final static Logger log = LogManager.getLogger(InventoryService.class);
 
 	private PlayerBestiaDAO playerBestiaDao;
@@ -151,8 +151,11 @@ public class PlayerBestiaService {
 	 * 
 	 * @param playerBestiaId
 	 * @param itemIds
+	 * @return Returns the checked item shortcut slot array. If the bestia does
+	 *         not own this item the slot will be null otherwise it will contain
+	 *         the item.
 	 */
-	public void saveItemShortcuts(int playerBestiaId, List<Integer> itemIds) {
+	public PlayerItem[] saveItemShortcuts(int playerBestiaId, List<Integer> itemIds) {
 
 		if (itemIds.size() != 5) {
 			throw new IllegalArgumentException(
@@ -161,9 +164,13 @@ public class PlayerBestiaService {
 
 		final PlayerBestia bestia = playerBestiaDao.find(playerBestiaId);
 		final Set<Integer> nonNullIds = itemIds.stream().filter((x) -> x != null).collect(Collectors.toSet());
-		final Stream<PlayerItem> foundItems = playerItemDao.findAllPlayerItemsForIds(nonNullIds).stream();
+		final List<PlayerItem> foundItems = playerItemDao.findAllPlayerItemsForIds(nonNullIds);
+		
+		
+		
+		final PlayerItem[] checkedItems = new PlayerItem[NUM_ITEM_SLOTS];
 
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < NUM_ITEM_SLOTS; i++) {
 
 			final Integer id = itemIds.get(i);
 			final PlayerItem item;
@@ -171,30 +178,40 @@ public class PlayerBestiaService {
 			if (id == null) {
 				item = null;
 			} else {
-				item = foundItems.filter((x) -> x.getItem().getId() == id).findFirst().orElse(null);
+				item = foundItems.stream().filter((x) -> x.getItem().getId() == id).findFirst().orElse(null);
 			}
 
 			switch (i) {
 			case 0:
 				bestia.setItem1(item);
+				checkedItems[0] = item;
 				break;
 			case 1:
 				bestia.setItem2(item);
+				checkedItems[1] = item;
 				break;
 			case 2:
 				bestia.setItem3(item);
+				checkedItems[2] = item;
 				break;
 			case 3:
 				bestia.setItem4(item);
+				checkedItems[3] = item;
 				break;
 			case 4:
-				bestia.setItem4(item);
+				bestia.setItem5(item);
+				checkedItems[4] = item;
 				break;
 			default:
 				// no op.
 				break;
 			}
 		}
+
+		// Save.
+		playerBestiaDao.update(bestia);
+		
+		return checkedItems;
 	}
 
 }

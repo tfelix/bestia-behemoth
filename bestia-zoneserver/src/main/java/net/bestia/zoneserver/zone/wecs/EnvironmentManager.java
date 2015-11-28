@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 
  * @formatter:on
  * 
- * @author Thomas
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class EnvironmentManager {

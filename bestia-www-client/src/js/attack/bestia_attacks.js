@@ -37,8 +37,8 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 	this._i18n = i18n;
 
 	/**
-	 * Boolean flag if the attack list is cached and can be displayed. Nice for
-	 * layouts.
+	 * Boolean flag if the attack list is cached and ready to be displayed. Nice
+	 * for layouts.
 	 * 
 	 * @property
 	 */
@@ -142,7 +142,7 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 
 		// Set reference to selected bestia.
 		self._selectedBestia = selectedBestia;
-		
+
 		// Prepare the attacks for translation.
 		var translateAtks = [];
 		translateAtks.push(selectedBestia.attack1());
@@ -150,8 +150,10 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 		translateAtks.push(selectedBestia.attack3());
 		translateAtks.push(selectedBestia.attack4());
 		translateAtks.push(selectedBestia.attack5());
-		
-		translateAtks = translateAtks.filter(function(x) { return x !== null; });
+
+		translateAtks = translateAtks.filter(function(x) {
+			return x !== null;
+		});
 		self._translateAttacks(translateAtks);
 
 		// Reset the attack slots to the attacks of the bestia.
@@ -166,7 +168,7 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 	pubsub.subscribe('i18n.lang', invalidateListHandle);
 
 	/**
-	 * Selects the attack.
+	 * Selects the given attack.
 	 * 
 	 * @param attack
 	 */

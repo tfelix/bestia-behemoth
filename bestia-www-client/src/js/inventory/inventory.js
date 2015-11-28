@@ -32,6 +32,21 @@ Bestia.Inventory = function(pubsub, i18n) {
 	this._i18n = i18n;
 
 	/**
+	 * Holds the reference to the currently active bestia. We need this in order
+	 * to obtain its id for the send out message and to set the item shortcuts.
+	 * 
+	 * @private
+	 * @property
+	 */
+	this._selectedBestia = null;
+
+	this.itemSlot1 = ko.observable(null);
+	this.itemSlot2 = ko.observable(null);
+	this.itemSlot3 = ko.observable(null);
+	this.itemSlot4 = ko.observable(null);
+	this.itemSlot5 = ko.observable(null);
+
+	/**
 	 * <p>
 	 * This property contains all items regardles of the set filter for the
 	 * inventory. It is strongly discouraged to bind against this variable. It
@@ -75,7 +90,10 @@ Bestia.Inventory = function(pubsub, i18n) {
 	this.showWindow = ko.observable(false);
 
 	/**
-	 * Show the current weight to carry.
+	 * Show the current weight of all items inside the inventory.
+	 * 
+	 * @property {Number}
+	 * @public
 	 */
 	this.currentWeight = ko.pureComputed(function() {
 		var weight = 0;
@@ -89,6 +107,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * Shows the maximum weight the bestia can carry.
 	 * 
 	 * @property {Number}
+	 * @public
 	 */
 	this.maxWeight = ko.observable(0);
 
@@ -122,11 +141,6 @@ Bestia.Inventory = function(pubsub, i18n) {
 
 		return items;
 	}, this);
-
-	/**
-	 * Id of the currently selected bestia.
-	 */
-	this.currentBestiaId = 0;
 
 	/**
 	 * Handler if the server advises to re-render the inventory.
@@ -168,7 +182,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 				} else {
 					// Update amount.
 					item.amount(newAmount);
-					// Send notifications.
+					// Send notifications for other sub systems.
 					pubsub.publish(Bestia.Signal.INVENTORY_ITEM_ADD, item);
 				}
 			}
@@ -182,9 +196,19 @@ Bestia.Inventory = function(pubsub, i18n) {
 
 	/**
 	 * Saves the new bestia id of the currently selected bestia.
+	 * 
+	 * @param {Bestia.BestiaViewModel}
+	 *            bestia - The newly selected bestia.
 	 */
-	var bestiaSelectHandler = function(_, data) {
-		self.currentBestiaId = data.playerBestiaId();
+	var bestiaSelectHandler = function(_, bestia) {
+		self._selectedBestia = bestia;
+		
+		// Set the item shortcuts by the ones of the newly selected bestia.
+		self.itemSlot1(bestia.item1());
+		self.itemSlot2(bestia.item2());
+		self.itemSlot3(bestia.item3());
+		self.itemSlot4(bestia.item4());
+		self.itemSlot5(bestia.item5());
 	};
 	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, bestiaSelectHandler);
 
@@ -228,6 +252,81 @@ Bestia.Inventory = function(pubsub, i18n) {
 				self.currentBestiaId);
 		self._pubsub.send(msg);
 
+	};
+
+	/**
+	 * Deletes an item from the shortcut list and saves this list to the server.
+	 * 
+	 * @param {Numeric}
+	 *            slot - The slot to be deleted.
+	 */
+	this.removeItem = function(slot) {
+		switch (slot) {
+		case 1:
+			self.itemSlot1(null);
+			self._selectedBestia.item1(null);
+			break;
+		case 2:
+			self.itemSlot2(null);
+			self._selectedBestia.item2(null);
+			break;
+		case 3:
+			self.itemSlot3(null);
+			self._selectedBestia.item3(null);
+			break;
+		case 4:
+			self.itemSlot4(null);
+			self._selectedBestia.item4(null);
+			break;
+		case 5:
+			self.itemSlot5(null);
+			self._selectedBestia.item5(null);
+			break;
+		}
+	};
+
+	/**
+	 * Binds the item to use as a shortcut.
+	 * 
+	 * @param {Numeric}
+	 *            slot - Between 1 and 6.
+	 * @param {Bestia.ItemViewModel}
+	 *            item - The item to be selected.
+	 */
+	this.bindItem = function(slot) {
+
+		var item = self.selectedItem();
+
+		if (!item) {
+			throw "Item can not be undefined.";
+		}
+
+		switch (slot) {
+		case 1:
+			self.itemSlot1(item);
+			self._selectedBestia.item1(item);
+			break;
+		case 2:
+			self.itemSlot2(item);
+			self._selectedBestia.item2(item);
+			break;
+		case 3:
+			self.itemSlot3(item);
+			self._selectedBestia.item3(item);
+			break;
+		case 4:
+			self.itemSlot4(item);
+			self._selectedBestia.item4(item);
+			break;
+		case 5:
+			self.itemSlot5(item);
+			self._selectedBestia.item5(item);
+			break;
+		default:
+			throw "Slot must be between 1 and 5.";
+		}
+
+		self.saveItemBindings();
 	};
 
 };
@@ -294,4 +393,18 @@ Bestia.Inventory.prototype.show = function() {
  */
 Bestia.Inventory.prototype.close = function() {
 	this.showWindow(false);
+};
+
+/**
+ * Sends the item bindings of the currently selected bestia to the server.
+ */
+Bestia.Inventory.prototype.saveItemBindings = function() {
+	var piId1 = this.itemSlot1() ? this.itemSlot1().playerItemId() : null;
+	var piId2 = this.itemSlot2() ? this.itemSlot2().playerItemId() : null;
+	var piId3 = this.itemSlot3() ? this.itemSlot3().playerItemId() : null;
+	var piId4 = this.itemSlot4() ? this.itemSlot4().playerItemId() : null;
+	var piId5 = this.itemSlot5() ? this.itemSlot5().playerItemId() : null;
+	var bestiaId = this._selectedBestia.playerBestiaId();
+	var msg = new Bestia.Message.ItemSet(bestiaId, piId1, piId2, piId3, piId4, piId5);
+	this._pubsub.publish('io.sendMessage', msg);
 };

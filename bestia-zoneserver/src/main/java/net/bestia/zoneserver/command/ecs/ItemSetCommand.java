@@ -35,5 +35,10 @@ public class ItemSetCommand extends ECSCommand {
 		itemIds.add(itemSetMsg.getItemSlotId5());
 		pbm.setItems(itemIds);
 	}
+	
+	@Override
+	public String toString() {
+		return "ItemSetCommand[]";
+	}
 
 }

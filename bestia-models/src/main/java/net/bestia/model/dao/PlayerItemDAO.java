@@ -1,6 +1,5 @@
 package net.bestia.model.dao;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -47,5 +46,5 @@ public interface PlayerItemDAO extends GenericDAO<PlayerItem, Integer> {
 	 *            Set of item ids.
 	 * @return The found player items with these item IDs.
 	 */
-	public Collection<PlayerItem> findAllPlayerItemsForIds(Set<Integer> itemIds);
+	public List<PlayerItem> findAllPlayerItemsForIds(Set<Integer> itemIds);
 }

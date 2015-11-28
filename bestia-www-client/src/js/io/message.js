@@ -118,6 +118,33 @@ Bestia.Message = {
 	},
 
 	/**
+	 * Sends a message to the server to set the current item bindings of the
+	 * given bestia.
+	 * 
+	 * @param playerBestiaId -
+	 *            The id of the player bestia.
+	 * @param piId1 -
+	 *            The player item id of the item in slot 1.
+	 * @param piId2 -
+	 *            The player item id of the item in slot 2.
+	 * @param piId3 -
+	 *            The player item id of the item in slot 2.
+	 * @param piId4 -
+	 *            The player item id of the item in slot 2.
+	 * @param piId5 -
+	 *            The player item id of the item in slot 2.
+	 */
+	ItemSet : function(playerBestiaId, piId1, piId2, piId3, piId4, piId5) {
+		this.mid = 'inventory.item.set';
+		this.pbid = playerBestiaId;
+		this.s1 = piId1;
+		this.s2 = piId2;
+		this.s3 = piId3;
+		this.s4 = piId4;
+		this.s5 = piId5;
+	},
+
+	/**
 	 * Requests a complete sync with the inventory from the server.
 	 */
 	InventoryRequest : function() {

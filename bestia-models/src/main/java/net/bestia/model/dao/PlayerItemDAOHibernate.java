@@ -1,13 +1,12 @@
 package net.bestia.model.dao;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import net.bestia.model.domain.PlayerItem;
-
 import org.hibernate.Query;
 import org.springframework.stereotype.Repository;
+
+import net.bestia.model.domain.PlayerItem;
 
 @Repository("playerItemDao")
 public class PlayerItemDAOHibernate extends GenericDAOHibernate<PlayerItem, Integer>implements PlayerItemDAO {
@@ -43,10 +42,10 @@ public class PlayerItemDAOHibernate extends GenericDAOHibernate<PlayerItem, Inte
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Collection<PlayerItem> findAllPlayerItemsForIds(Set<Integer> itemIds) {
-		final Query query = currentSession().createQuery("from PlayerItem pi where pi.id IN :idList");
-		query.setParameter("idList", itemIds);
-		return (Collection<PlayerItem>) query.list();
+	public List<PlayerItem> findAllPlayerItemsForIds(Set<Integer> itemIds) {
+		final Query query = currentSession().createQuery("from PlayerItem pi where pi.id IN (:idList)");
+		query.setParameterList("idList", itemIds);
+		return (List<PlayerItem>) query.list();
 	}
 
 }

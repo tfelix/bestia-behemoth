@@ -19,6 +19,7 @@ import net.bestia.model.dao.AttackDAO;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.domain.PlayerItem;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.Zoneserver;
@@ -425,7 +426,6 @@ public class PlayerBestiaManager extends BestiaManager {
 			case 4:
 				atk = bestia.getAttack4();
 				break;
-
 			case 5:
 				atk = bestia.getAttack5();
 				break;
@@ -449,7 +449,13 @@ public class PlayerBestiaManager extends BestiaManager {
 
 		try {
 			final PlayerBestiaService service = serviceLocator.getBean(PlayerBestiaService.class);
-			service.saveItemShortcuts(bestia.getId(), itemIds);
+			final PlayerItem[] itemShortcuts = service.saveItemShortcuts(bestia.getId(), itemIds);
+			
+			bestia.setItem1(itemShortcuts[0]);
+			bestia.setItem2(itemShortcuts[1]);
+			bestia.setItem3(itemShortcuts[2]);
+			bestia.setItem4(itemShortcuts[3]);
+			bestia.setItem5(itemShortcuts[4]);
 
 		} catch (IllegalArgumentException ex) {
 			// Attack can not be learned. Hacking?
