@@ -24,4 +24,8 @@ public class MessageDirectDescandantFilter implements MessageFilter {
 		return msg.getClass().getSuperclass().equals(clazz);
 	}
 
+	@Override
+	public String toString() {
+		return String.format("MessageDirectDescandantFilter[handelsChildsOf: %s]", clazz.toGenericString());
+	}
 }

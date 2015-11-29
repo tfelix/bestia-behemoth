@@ -29,5 +29,10 @@ public class DynamicBestiaIdMessageFilter implements MessageFilter {
 		final InputMessage inputMsg = (InputMessage) msg;
 		return interestedBestiaIds.contains(inputMsg.getPlayerBestiaId());
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("DynamicBestiaIdMessageFilter[ids: %s]", interestedBestiaIds.toString());
+	}
 
 }

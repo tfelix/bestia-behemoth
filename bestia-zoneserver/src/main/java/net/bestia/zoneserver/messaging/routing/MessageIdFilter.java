@@ -42,5 +42,10 @@ public class MessageIdFilter implements MessageFilter {
 	public boolean handlesMessage(Message msg) {
 		return messageIDs.contains(msg.getMessageId());
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("MessageIdFilter[handlesMessageIds: %s]", messageIDs.toString());
+	}
 
 }

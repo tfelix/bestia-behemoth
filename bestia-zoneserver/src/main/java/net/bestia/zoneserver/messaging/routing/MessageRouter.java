@@ -42,6 +42,11 @@ public class MessageRouter implements MessageProcessor {
 			this.processor = processor;
 			this.filter = filter;
 		}
+		
+		@Override
+		public String toString() {
+			return String.format("[%s, %s]", filter.toString(), processor.toString());
+		}
 	}
 
 	private final List<FilterTuple> filterList = new ArrayList<>();
