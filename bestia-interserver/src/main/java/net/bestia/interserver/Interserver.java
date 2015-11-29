@@ -2,14 +2,14 @@ package net.bestia.interserver;
 
 import java.io.IOException;
 
-import net.bestia.util.BestiaConfiguration;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMQException;
+
+import net.bestia.util.BestiaConfiguration;
 
 /**
  * The Interserver builds the bestia system backbone. It will receive messages
@@ -23,12 +23,6 @@ import org.zeromq.ZMQException;
 public class Interserver {
 
 	private static final Logger LOG = LogManager.getLogger(Interserver.class);
-
-	// Read later for metrics.
-	@SuppressWarnings("unused")
-	private long messagesReceived;
-	@SuppressWarnings("unused")
-	private long bytesReceived;
 
 	/**
 	 * This thread processes incoming messages from the zone or the webserver
@@ -67,10 +61,6 @@ public class Interserver {
 					final byte[] data = subscriber.recv();
 
 					LOG.trace("Received message[topic: {}, size {} byte]", topic, data.length);
-
-					// Count the metrics.
-					messagesReceived++;
-					bytesReceived += data.length;
 
 					publisher.sendMore(topic);
 					publisher.send(data);
@@ -147,6 +137,7 @@ public class Interserver {
 			stop();
 			return false;
 		}
+
 
 		LOG.info("Interserver started.");
 		return true;

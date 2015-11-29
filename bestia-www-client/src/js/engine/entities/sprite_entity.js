@@ -1,25 +1,34 @@
-Bestia.Engine.SpriteEntity = function(game, uuid, x, y, spriteName, playerBestiaId) {
-	Bestia.Engine.BasicEntity.call(this, game, x, y);
+Bestia.Engine.SpriteEntity = function(game, uuid, x, y, playerBestiaId) {
+	Bestia.Engine.BasicEntity.call(this, game);
 
 	this.uuid = uuid;
+	this.setPosition(x, y);
 
+	if (playerBestiaId !== undefined) {
+		this.playerBestiaId = playerBestiaId;
+	}
+};
+
+Bestia.Engine.SpriteEntity.prototype = Object.create(Bestia.Engine.BasicEntity.prototype);
+Bestia.Engine.SpriteEntity.prototype.constructor = Bestia.Engine.SpriteEntity;
+
+Bestia.Engine.SpriteEntity.prototype.setSprite = function(spriteName) {
 	this.data = this._game.cache.getJSON(spriteName + '_desc');
 	this._sprite = this._game.add.sprite(0, 0, spriteName, 'walk_down/001.png');
+
 	// Set anchor to the middle of the sprite to the bottom.
 	this._sprite.anchor.setTo(0.5, 1);
 	this._sprite.scale.setTo(this.data.scale);
 	this._sprite.alpha = 0;
 
 	// Add the head
-	var head = this._sprite.addChild(game.make.sprite(0, -66, 'female_01'));
+	var head = this._sprite.addChild(this._game.make.sprite(0, -66, 'female_01'));
 	head.anchor.setTo(0.5, 1);
 	head.scale.setTo(1.2);
 	head.frameName = 'bottom.png';
 
 	// bottom left of the item.
 	this._sprite.anchor.setTo(0.5, 1);
-
-	this.setPosition(x, y);
 
 	// Register all the animations of the sprite.
 	this.data.animations.forEach(function(anim) {
@@ -29,13 +38,10 @@ Bestia.Engine.SpriteEntity = function(game, uuid, x, y, spriteName, playerBestia
 
 	this._sprite.frameName = 'walk_down/001.png';
 
-	if (playerBestiaId !== undefined) {
-		this.playerBestiaId = playerBestiaId;
-	}
+	// Re-set position so the sprite gets now postioned.
+	var pos = this.position;
+	this.setPosition(pos.x, pos.y);
 };
-
-Bestia.Engine.SpriteEntity.prototype = Object.create(Bestia.Engine.BasicEntity.prototype);
-Bestia.Engine.SpriteEntity.prototype.constructor = Bestia.Engine.SpriteEntity;
 
 /**
  * Calculates the duration in ms of the total walk of the given path. Depends
@@ -82,44 +88,20 @@ Bestia.Engine.SpriteEntity.prototype.remove = function() {
  */
 Bestia.Engine.SpriteEntity.prototype.playAnimation = function(name) {
 
-	// Check if its a stand animation or still image.
-	var prefix = name.substring(0, 5);
-	var isSingle = false;
-
-	if (prefix === 'stand') {
-		// var isStand = true;
-		if (name === 'stand_right' || name === 'stand_right_up' || name === 'stand_down_right') {
-			this._sprite.scale.x = -1 * this.desc.scale;
-			// Show the left variant animation.
-			name = name.replace('right', 'left');
-		} else {
-			this._sprite.scale.x = this.desc.scale;
-		}
+	// If the animation is the same. Just let it run.
+	if (name === this._sprite.animations.name) {
+		return;
+	}
+	
+	// We need to mirror the sprite for right sprites.
+	if (name.indexOf("right") !== -1) {
+		this._sprite.scale.x = -1 * this.data.scale;
+		name = name.replace('right', 'left');
 	} else {
-		if (name === 'walk_left' || name === 'walk_left_back') {
-			this._sprite.animations.play(name);
-		}
-
-		if (name === 'walk_right' || name === 'walk_down_right' || name == 'walk_right_up') {
-			// for the right versions we must flip the sprite.
-			this._sprite.scale.x = -1 * this.desc.scale;
-			// Show the left variant animation.
-			name = name.replace('right', 'left');
-		} else {
-			this._sprite.scale.x = this.data.scale;
-		}
+		this._sprite.scale.x = this.data.scale;
 	}
 
-	// Stop the current animation.
-	if (name !== this._sprite.animations.name) {
-		this._sprite.animations.stop();
-	}
-
-	if (isSingle) {
-		this._sprite.frameName = this.desc[name];
-	} else {
-		this._sprite.animations.play(name);
-	}
+	this._sprite.animations.play(name);
 };
 
 /**
@@ -143,7 +125,7 @@ Bestia.Engine.SpriteEntity.prototype.stopMove = function() {
  */
 Bestia.Engine.SpriteEntity.prototype.moveTo = function(path) {
 
-	this.tween = this._game.add.tween(this.sprite);
+	this.tween = this._game.add.tween(this._sprite);
 
 	// Push current position of the entity (start) to the path aswell.
 	path.unshift(this.position);
@@ -155,7 +137,7 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(path) {
 			return;
 		}
 
-		var cords = Bestia.Engine.World.getPxXY(ele.x, ele.y);
+		var cords = Bestia.Engine.World.getSpritePxXY(ele.x, ele.y);
 
 		// We go single tile steps.
 		var duration = this._getWalkDuration(1, 1);
@@ -171,32 +153,32 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(path) {
 		// Calculate total amount of speed.
 		this.tween.to({
 			x : cords.x,
-			y : cords.y + this._tileSize
+			y : cords.y
 		}, duration, Phaser.Easing.Linear.None, false);
 	}, this);
 
 	this.tween.onChildComplete.addOnce(function(a, b) {
 
-		this.pos = path[b.current - 1];
+		var pos = path[b.current - 1];
 		var isLast = path.length === (b.current - 1);
-		var nextAnim = this._getWalkAnimationName(path[b.current], this.pos);
+		var nextAnim = this._getWalkAnimationName(pos, path[b.current]);
 		this.playAnimation(nextAnim, isLast);
-		console.log("Moved to: " + this.pos.x + " - " + this.pos.y);
+		console.log("Moved to: " + pos.x + " - " + pos.y);
 
 	}, this);
 
 	this.tween.onComplete.addOnce(function() {
 
 		var size = path.length;
-		this.pos = path[size - 1];
-		var nextAnim = this._getWalkAnimationName(this.pos, path[size - 2], true);
+		var pos = path[size - 1];
+		var nextAnim = this._getStandAnimationName(path[size - 2], pos, true);
 		this.playAnimation(nextAnim);
-		console.log("Moved to: " + this.pos.x + " - " + this.pos.y);
+		console.log("Moved to: " + pos.x + " - " + pos.y);
 
 	}, this);
 
 	// Start first animation immediately.
-	this.playAnimation(this._getWalkAnimationName(path[1], path[0]));
+	this.playAnimation(this._getWalkAnimationName(path[0], path[1]));
 	this.tween.start();
 };
 
@@ -207,6 +189,54 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(path) {
  * @param oldPos
  * @param newPos
  */
-Bestia.Engine.SpriteEntity.prototype._getWalkAnimationName = function() {
-	return "walk_left";
+Bestia.Engine.SpriteEntity.prototype._getWalkAnimationName = function(oldTile, newTile) {
+	var x = newTile.x - oldTile.x;
+	var y = newTile.y - oldTile.y;
+
+	if (x === 0 && y === -1) {
+		return "walk_up";
+	} else if (x === 1 && y === -1) {
+		return "walk_right_up";
+	} else if (x === 1 && y === 0) {
+		return "walk_right";
+	} else if (x === 1 && y === 1) {
+		return "walk_down_right";
+	} else if (x === 0 && y === 1) {
+		return "walk_down";
+	} else if (x === -1 && y === 1) {
+		return "walk_down_left";
+	} else if (x === -1 && y === 0) {
+		return "walk_left";
+	} else {
+		return "walk_left_up";
+	}
+};
+
+/**
+ * Returns the animation name for standing to this position.
+ * 
+ * @param oldPos
+ * @param newPos
+ */
+Bestia.Engine.SpriteEntity.prototype._getStandAnimationName = function(oldTile, newTile) {
+	var x = newTile.x - oldTile.x;
+	var y = newTile.y - oldTile.y;
+
+	if (x === 0 && y === -1) {
+		return "stand_up";
+	} else if (x === 1 && y === -1) {
+		return "stand_right_up";
+	} else if (x === 1 && y === 0) {
+		return "stand_right";
+	} else if (x === 1 && y === 1) {
+		return "stand_down_right";
+	} else if (x === 0 && y === 1) {
+		return "stand_down";
+	} else if (x === -1 && y === 1) {
+		return "stand_down_left";
+	} else if (x === -1 && y === 0) {
+		return "stand_left";
+	} else {
+		return "stand_left_up";
+	}
 };

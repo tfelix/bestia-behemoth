@@ -11,6 +11,9 @@
  */
 Bestia.PubSub = function() {
 	this.cache = {};
+
+	this._holdUnsubscribeCalls = [];
+	this._currentlyActive = 0;
 };
 
 /**
@@ -42,6 +45,13 @@ Bestia.PubSub.prototype.subscribe = function(e, fn) {
  * @returns {boolean} TRUE upon success, FALSE otherwise.
  */
 Bestia.PubSub.prototype.unsubscribe = function(e, fn) {
+	
+	// Hold the calls until we are finished iterating.
+	if(this._currentlyActive > 0) {
+		this._holdUnsubscribeCalls.push(this.unsubscribe.bind(this, e, fn));
+		return;
+	}
+	
 	if (!this.cache[e]) {
 		return false;
 	}
@@ -61,6 +71,23 @@ Bestia.PubSub.prototype.unsubscribe = function(e, fn) {
 };
 
 /**
+ * Private function which will modify the cache. This must be done this way
+ * because we need a mechanism to wait for updating the cache when we are
+ * currently iterating over it.
+ */
+Bestia.PubSub.prototype._updateCache = function() {
+	// Guard. If there are still active iterations, avoid infinte loop.
+	if(this._currentlyActive > 0) {
+		return;
+	}
+	
+	this._holdUnsubscribeCalls.forEach(function(fn){
+		fn();
+	}, this);
+	this._holdUnsubscribeCalls = [];
+};
+
+/**
  * Publishes a message to the subscribed listener.
  * 
  * @param {String}
@@ -70,10 +97,14 @@ Bestia.PubSub.prototype.publish = function(e, data) {
 	if (!this.cache[e]) {
 		return;
 	}
+	this._currentlyActive++;
 	var fns = this.cache[e];
-	for (var i = 0; i < fns.length; ++i) {
+	var fnsCount = fns.length;
+	for (var i = 0; i < fnsCount; ++i) {
 		fns[i](e, data);
 	}
+	this._currentlyActive--;
+	this._updateCache();
 };
 
 /**

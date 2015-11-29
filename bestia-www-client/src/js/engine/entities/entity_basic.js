@@ -1,4 +1,4 @@
-Bestia.Engine.BasicEntity = function(game, x, y) {
+Bestia.Engine.BasicEntity = function(game) {
 
 	/**
 	 * Position in tile coordinates.
@@ -30,11 +30,6 @@ Bestia.Engine.BasicEntity = function(game, x, y) {
 	 * @property {String}
 	 */
 	this._sprite = null;
-
-	this.position = {
-		x : x,
-		y : y
-	};
 };
 
 Bestia.Engine.BasicEntity.prototype.appear = function() {
@@ -64,9 +59,10 @@ Bestia.Engine.BasicEntity.prototype.remove = function() {
 Bestia.Engine.BasicEntity.prototype._syncSpritePosition = function() {
 	// Correct the sprite position.
 	if (this._sprite !== null) {
-		var pos = Bestia.Engine.World.getPxXY(this._position.x, this._position.y);
-		this._sprite.x = pos.x + Bestia.Engine.World.TILE_SIZE / 2;
-		this._sprite.y = pos.y + Bestia.Engine.World.TILE_SIZE - 7;
+		var pos = Bestia.Engine.World.getSpritePxXY(this._position.x, this._position.y);
+		
+		this._sprite.x = pos.x;
+		this._sprite.y = pos.y;
 	}
 };
 

@@ -32,7 +32,7 @@ Bestia.Engine.World = function(game, astar) {
 	 * @private
 	 */
 	this._groundLayer = null;
-	
+
 	this.name = "";
 };
 
@@ -97,7 +97,7 @@ Bestia.Engine.World.prototype.displayMapName = function() {
 Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 
 	this.map = this._game.add.tilemap(mapDbName);
-	
+
 	this.name = mapDbName;
 
 	// Do some sanity checks.
@@ -175,6 +175,23 @@ Bestia.Engine.World.getPxXY = function(tileX, tileY, obj) {
 };
 
 /**
+ * Similar to getPxXY, but this time we take in regard the anchor of the
+ * sprites. The sprites are anchored to the bottom center. So the need to get
+ * the pixel coordiantes in the middle of the given tile in order to place the
+ * sprite correctly in the middle of the tile.
+ */
+Bestia.Engine.World.getSpritePxXY = function(tileX, tileY, obj) {
+	obj = obj || {
+		x : 0,
+		y : 0
+	};
+	Bestia.Engine.World.getPxXY(tileX, tileY, obj);
+	obj.x = obj.x + Bestia.Engine.World.TILE_SIZE / 2;
+	obj.y = obj.y + Bestia.Engine.World.TILE_SIZE - 7;
+	return obj;
+};
+
+/**
  * Returns the tile coordinates if world pixel are given.
  * 
  * @method Bestia.Engine.World#getTileXY
@@ -189,7 +206,7 @@ Bestia.Engine.World.getTileXY = function(pxX, pxY, obj) {
 		x : 0,
 		y : 0
 	};
-	
+
 	obj.x = Math.floor(pxX / Bestia.Engine.World.TILE_SIZE);
 	obj.y = Math.floor(pxY / Bestia.Engine.World.TILE_SIZE);
 

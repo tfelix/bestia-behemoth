@@ -62,16 +62,6 @@ Bestia.Engine = function(pubsub, config) {
 	 */
 	this.entityUpdater = new Bestia.Engine.EntityUpdater(pubsub, this.entityCache);
 
-	// Subscribe for the first info messages until we gathered information about
-	// the master bestia to trigger initial map load.
-	var onInitHandler = function(_, bestia) {
-		console.debug('Engine.onInitHandler called. Starting initial load and remove handler.');
-		self.loadMap(bestia);
-		// Remove handler again since we only trigger this once.
-		self.pubsub.unsubscribe(Bestia.Signal.BESTIA_SELECTED, onInitHandler);
-	};
-	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, onInitHandler);
-
 	// React on bestia selection changes. We need to re-trigger the map loading.
 	var onSelectBestiaHandler = function(_, data) {
 		console.debug('New bestia selected. Starting loading process.');

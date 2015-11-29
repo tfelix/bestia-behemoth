@@ -12,11 +12,12 @@ Bestia.Engine.EntityFactory = function(game, demandLoader, entityCache) {
 Bestia.Engine.EntityFactory.prototype.createBestiaEntity = function(data) {
 	
 	var self = this;
+	var entity = new Bestia.Engine.SpriteEntity(self._game, data.uuid, data.x, data.y, data.pbid);
+	self._entityCache.addEntity(entity);
 	
 	this._demandLoader.loadMobSprite(data.s, function(){
-
-		var entity = new Bestia.Engine.SpriteEntity(self._game, data.uuid, data.x, data.y, data.s, data.pbid);		
-		self._entityCache.addEntity(entity);
+		
+		entity.setSprite(data.s);
 		
 		if(data.a === "APPEAR") {
 			entity.appear();

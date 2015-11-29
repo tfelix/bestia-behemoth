@@ -70,7 +70,7 @@ Bestia.BestiaInfoViewModel = function(pubsub) {
 		self.bestias.push(bestia);
 
 		// Check if we have unselected master.
-		if (self.masterBestia() === undefined && msg.im === true) {
+		if (self.masterBestia() === null && msg.im === true) {
 			self.masterBestia(bestia);
 			self._selectBestia(bestia);
 		}
