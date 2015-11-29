@@ -32,12 +32,6 @@ Bestia.Engine = function(pubsub, config) {
 		musicVolume : ko.observable(100)
 	};
 
-	this.info = {};
-	this.info.fps = ko.observable(0);
-	this.info.fps.extend({
-		rateLimit : 1000
-	});
-
 	this.bestia = undefined;
 
 	// Determine the size of the canvas.
