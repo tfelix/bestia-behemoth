@@ -12,8 +12,9 @@ import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMQException;
 
 /**
- * The Interserver builds the bestia system backbone. It will receive messages from the webserver and will relay this
- * information to the zone server. These are able to subscribe to account topics which will then receive all
+ * The Interserver builds the bestia system backbone. It will receive messages
+ * from the webserver and will relay this information to the zone server. These
+ * are able to subscribe to account topics which will then receive all
  * communication from this account.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
@@ -23,10 +24,17 @@ public class Interserver {
 
 	private static final Logger LOG = LogManager.getLogger(Interserver.class);
 
+	// Read later for metrics.
+	@SuppressWarnings("unused")
+	private long messagesReceived;
+	@SuppressWarnings("unused")
+	private long bytesReceived;
+
 	/**
-	 * This thread processes incoming messages from the zone or the webserver and puts them into the message queue. The
-	 * messages will be published again under a certain path depending on the kind of message so subscriber can react to
-	 * the messages.
+	 * This thread processes incoming messages from the zone or the webserver
+	 * and puts them into the message queue. The messages will be published
+	 * again under a certain path depending on the kind of message so subscriber
+	 * can react to the messages.
 	 *
 	 */
 	private class MessageSubscriberThread extends Thread {
@@ -60,6 +68,10 @@ public class Interserver {
 
 					LOG.trace("Received message[topic: {}, size {} byte]", topic, data.length);
 
+					// Count the metrics.
+					messagesReceived++;
+					bytesReceived += data.length;
+
 					publisher.sendMore(topic);
 					publisher.send(data);
 
@@ -80,10 +92,11 @@ public class Interserver {
 
 	private final String publishUrl;
 	private final String subscriberUrl;
-	
+
 	private final BestiaConfiguration config;
 
 	/**
+	 * Ctor.
 	 * 
 	 * @param config
 	 *            Loaded BestiaConfiguration.
@@ -96,12 +109,15 @@ public class Interserver {
 		context = ZMQ.context(config.getIntProperty("inter.threads"));
 		publishUrl = "tcp://" + config.getProperty("inter.domain") + ":" + config.getProperty("inter.publishPort");
 		subscriberUrl = "tcp://*:" + config.getProperty("inter.listenPort");
-		
+
 		this.config = config;
 	}
 
 	/**
-	 * Starts the interserver.
+	 * Starts the interserver. Will return true upon success or false if the
+	 * server could not be started.
+	 * 
+	 * @return TRUE if the server has started. FALSE if there was a problem.
 	 */
 	public boolean start() {
 
@@ -126,8 +142,8 @@ public class Interserver {
 		} catch (InterruptedException e) {
 			// no op.
 		}
-		
-		if(!subscriberThread.isAlive()) {
+
+		if (!subscriberThread.isAlive()) {
 			stop();
 			return false;
 		}
@@ -147,7 +163,8 @@ public class Interserver {
 
 		context.term();
 
-		// We have to do all the null checks since we may have an stop call during the start and may not have
+		// We have to do all the null checks since we may have an stop call
+		// during the start and may not have
 		// initialized everything.
 		if (subscriberThread != null) {
 			try {
