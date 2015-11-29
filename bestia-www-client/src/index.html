@@ -68,15 +68,6 @@
 								data-bind="text: maxMana">0</span>
 						</div>
 					</div>
-
-					<div>
-						<!-- STATUS VALUES -->
-						<!-- 
-						<img src="http://placehold.it/32x32/ffed23/000000" alt="Pest"> <img
-							src="http://placehold.it/32x32/abc078/000000" alt="Pest"> <img
-							src="http://placehold.it/32x32/ad2923/000000" alt="Pest">
-							-->
-					</div>
 				</div>
 
 				<!-- UI BUTTONS -->
@@ -168,9 +159,17 @@
 
 			<!-- SHORTCUTS -->
 			<div id="shortcuts" data-bind="with: bestias.selectedBestia">
-				<script id="tmpl-atk-shortcut" type="text/html">
+<script id="tmpl-atk-shortcut" type="text/html">
 <div class="shortcut">
 <img data-bind="attr: {src: imageUrl, alt: name}" src="" alt="">
+</div>
+</script>
+<script id="tmpl-item-shortcut" type="text/html">
+<div class="shortcut">
+	<div class="item">
+		<img data-bind="attr: {src: imageSrc, alt: name}" src="" alt="">
+		<span class="amount" data-bind="text: amount"></span>
+	</div>
 </div>
 </script>
 
@@ -204,23 +203,28 @@
 
 				<div class="shortcut-row">
 					<div class="shortcut-entity">
-						<div class="shortcut"></div>
+						<div class="shortcut-wrapper"
+							data-bind="template: {if: item1(), name: 'tmpl-item-shortcut', data: item1 }"></div>
 						<div class="key">1</div>
 					</div>
 					<div class="shortcut-entity">
-						<div class="shortcut"></div>
+						<div class="shortcut-wrapper"
+							data-bind="template: {if: item2(), name: 'tmpl-item-shortcut', data: item2 }"></div>
 						<div class="key">2</div>
 					</div>
 					<div class="shortcut-entity">
-						<div class="shortcut"></div>
+						<div class="shortcut-wrapper"
+							data-bind="template: {if: item3(), name: 'tmpl-item-shortcut', data: item3 }"></div>
 						<div class="key">3</div>
 					</div>
 					<div class="shortcut-entity">
-						<div class="shortcut"></div>
+						<div class="shortcut-wrapper"
+							data-bind="template: {if: item4(), name: 'tmpl-item-shortcut', data: item4 }"></div>
 						<div class="key">4</div>
 					</div>
 					<div class="shortcut-entity">
-						<div class="shortcut"></div>
+						<div class="shortcut-wrapper"
+							data-bind="template: {if: item5(), name: 'tmpl-item-shortcut', data: item5 }"></div>
 						<div class="key">5</div>
 					</div>
 				</div>
@@ -325,15 +329,6 @@
 				<div>
 					<button>Benutzen</button>
 				</div>
-
-				<script id="tmpl-item-shortcut" type="text/html">
-<div class="shortcut">
-	<div class="item">
-		<img data-bind="attr: {src: imageSrc, alt: name}" src="" alt="">
-		<span class="amount" data-bind="text: amount"></span>
-	</div>
-</div>
-				</script>
 
 				<div class="shortcut-row">
 					<div class="shortcut-entity">
