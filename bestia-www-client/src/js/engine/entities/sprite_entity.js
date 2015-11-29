@@ -1,6 +1,6 @@
 Bestia.Engine.SpriteEntity = function(game, uuid, x, y, spriteName, playerBestiaId) {
 	Bestia.Engine.BasicEntity.call(this, game, x, y);
-	
+
 	this.uuid = uuid;
 
 	this.data = this._game.cache.getJSON(spriteName + '_desc');
@@ -9,7 +9,7 @@ Bestia.Engine.SpriteEntity = function(game, uuid, x, y, spriteName, playerBestia
 	this._sprite.anchor.setTo(0.5, 1);
 	this._sprite.scale.setTo(this.data.scale);
 	this._sprite.alpha = 0;
-	
+
 	// Add the head
 	var head = this._sprite.addChild(game.make.sprite(0, -66, 'female_01'));
 	head.anchor.setTo(0.5, 1);
@@ -18,8 +18,8 @@ Bestia.Engine.SpriteEntity = function(game, uuid, x, y, spriteName, playerBestia
 
 	// bottom left of the item.
 	this._sprite.anchor.setTo(0.5, 1);
-	
-	this.setPosition(x, y);	
+
+	this.setPosition(x, y);
 
 	// Register all the animations of the sprite.
 	this.data.animations.forEach(function(anim) {
@@ -28,8 +28,8 @@ Bestia.Engine.SpriteEntity = function(game, uuid, x, y, spriteName, playerBestia
 	}, this);
 
 	this._sprite.frameName = 'walk_down/001.png';
-	
-	if(playerBestiaId !== undefined) {
+
+	if (playerBestiaId !== undefined) {
 		this.playerBestiaId = playerBestiaId;
 	}
 };
@@ -59,7 +59,7 @@ Bestia.Engine.SpriteEntity.prototype.appear = function() {
 };
 
 Bestia.Engine.SpriteEntity.prototype.update = function() {
-	
+
 };
 
 Bestia.Engine.SpriteEntity.prototype.remove = function() {
@@ -68,7 +68,6 @@ Bestia.Engine.SpriteEntity.prototype.remove = function() {
 	this._sprite.destroy();
 
 };
-
 
 /**
  * Plays a specific animation. If it is a walk animation then by the name of the
@@ -88,38 +87,38 @@ Bestia.Engine.SpriteEntity.prototype.playAnimation = function(name) {
 	var isSingle = false;
 
 	if (prefix === 'stand') {
-		//var isStand = true;
+		// var isStand = true;
 		if (name === 'stand_right' || name === 'stand_right_up' || name === 'stand_down_right') {
-			this.sprite.scale.x = -1 * this.desc.scale;
+			this._sprite.scale.x = -1 * this.desc.scale;
 			// Show the left variant animation.
 			name = name.replace('right', 'left');
 		} else {
-			this.sprite.scale.x = this.desc.scale;
+			this._sprite.scale.x = this.desc.scale;
 		}
 	} else {
 		if (name === 'walk_left' || name === 'walk_left_back') {
-			this.sprite.animations.play(name);
+			this._sprite.animations.play(name);
 		}
 
 		if (name === 'walk_right' || name === 'walk_down_right' || name == 'walk_right_up') {
 			// for the right versions we must flip the sprite.
-			this.sprite.scale.x = -1 * this.desc.scale;
+			this._sprite.scale.x = -1 * this.desc.scale;
 			// Show the left variant animation.
 			name = name.replace('right', 'left');
 		} else {
-			this.sprite.scale.x = this.desc.scale;
+			this._sprite.scale.x = this.data.scale;
 		}
 	}
 
 	// Stop the current animation.
-	if (name !== this.sprite.animations.name) {
-		this.sprite.animations.stop();
+	if (name !== this._sprite.animations.name) {
+		this._sprite.animations.stop();
 	}
 
 	if (isSingle) {
-		this.sprite.frameName = this.desc[name];
+		this._sprite.frameName = this.desc[name];
 	} else {
-		this.sprite.animations.play(name);
+		this._sprite.animations.play(name);
 	}
 };
 
@@ -143,12 +142,11 @@ Bestia.Engine.SpriteEntity.prototype.stopMove = function() {
  *            path - Array of coordinate objects {x: INT, y: INT}.
  */
 Bestia.Engine.SpriteEntity.prototype.moveTo = function(path) {
-	var self = this;
 
-	this.tween = this.game.add.tween(this.sprite);
+	this.tween = this._game.add.tween(this.sprite);
 
 	// Push current position of the entity (start) to the path aswell.
-	path.unshift(this.pos);
+	path.unshift(this.position);
 
 	// Calculate coordinate arrays from path.
 	path.forEach(function(ele, i) {
@@ -157,7 +155,7 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(path) {
 			return;
 		}
 
-		var cords = self.world.getPxXY(ele.x, ele.y);
+		var cords = Bestia.Engine.World.getPxXY(ele.x, ele.y);
 
 		// We go single tile steps.
 		var duration = this._getWalkDuration(1, 1);
@@ -172,30 +170,43 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(path) {
 
 		// Calculate total amount of speed.
 		this.tween.to({
-			// x : cords.x + Math.abs(this.sprite.width) / 2,
-			x : cords.x + 20,
+			x : cords.x,
 			y : cords.y + this._tileSize
 		}, duration, Phaser.Easing.Linear.None, false);
 	}, this);
 
 	this.tween.onChildComplete.addOnce(function(a, b) {
+
 		this.pos = path[b.current - 1];
 		var isLast = path.length === (b.current - 1);
-		var nextAnim = this.getAnimationName(path[b.current], this.pos);
-		this.playAnim(nextAnim, isLast);
-
+		var nextAnim = this._getWalkAnimationName(path[b.current], this.pos);
+		this.playAnimation(nextAnim, isLast);
 		console.log("Moved to: " + this.pos.x + " - " + this.pos.y);
+
 	}, this);
 
 	this.tween.onComplete.addOnce(function() {
+
 		var size = path.length;
 		this.pos = path[size - 1];
-		var nextAnim = this.getAnimationName(this.pos, path[size - 2], true);
-		this.playAnim(nextAnim);
+		var nextAnim = this._getWalkAnimationName(this.pos, path[size - 2], true);
+		this.playAnimation(nextAnim);
 		console.log("Moved to: " + this.pos.x + " - " + this.pos.y);
+
 	}, this);
 
 	// Start first animation immediately.
-	this.playAnim(this.getAnimationName(path[1], path[0]));
+	this.playAnimation(this._getWalkAnimationName(path[1], path[0]));
 	this.tween.start();
+};
+
+/**
+ * Returns the animation name for walking to this position, from the old
+ * position.
+ * 
+ * @param oldPos
+ * @param newPos
+ */
+Bestia.Engine.SpriteEntity.prototype._getWalkAnimationName = function() {
+	return "walk_left";
 };

@@ -1,8 +1,12 @@
 package net.bestia.model.misc;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Sprite {
+public class Sprite implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public enum SpriteType {
 		SINGLE, PACK, ITEM

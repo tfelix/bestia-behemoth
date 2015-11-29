@@ -26,6 +26,8 @@ public class Layer {
 	private final int width;
 	private final int height;
 
+	private float[][] kernel;
+
 	public Layer(int width, int height) {
 
 		// We need a fixed border with clamped values. Thus increasing the
@@ -73,6 +75,25 @@ public class Layer {
 	public void setValue(float v, int x, int y) {
 		final int offset = getOffset(x, y);
 		data[offset] = v;
+	}
+
+	public void tick() {
+		final int kSize = (kernel.length - 1) / 2;
+		
+		final float[] source = Arrays.copyOf(data, data.length);
+
+		for (int i = kSize; i < width - kSize; i++) {
+			for (int j = kSize; j < height - kSize; j++) {
+				
+				for(int k = 0; k < kernel.length; k++) {
+					for(int m = 0; m < kernel.length; m++) {
+						
+						data[getOffset(i, j)] += source[getOffset(i + k - kSize, j + m - kSize)] * kernel[k][m];
+						
+					}
+				}
+			}
+		}
 	}
 
 	public void setValue(float[] area, int areaWidth, int areaHeight, int x, int y) {

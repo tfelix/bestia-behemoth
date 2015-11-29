@@ -46,10 +46,11 @@ Bestia.Engine = function(pubsub, config) {
 	this.game = new Phaser.Game(width, height, Phaser.AUTO, 'bestia-canvas', null, false, false);
 
 	this.gameState = new Bestia.Engine.States.GameState(this);
+	this.game.state.add('boot', new Bestia.Engine.States.BootState());
 	this.game.state.add('game', this.gameState);
 	this.game.state.add('connecting', new Bestia.Engine.States.ConnectingState(this));
 	this.game.state.add('load', new Bestia.Engine.States.LoadingState(this));
-	this.game.state.start('connecting');
+	this.game.state.start('boot');
 
 	this.entityCache = new Bestia.Engine.EntityCacheManager();
 	
@@ -74,6 +75,7 @@ Bestia.Engine = function(pubsub, config) {
 	// React on bestia selection changes. We need to re-trigger the map loading.
 	var onSelectBestiaHandler = function(_, data) {
 		console.debug('New bestia selected. Starting loading process.');
+		self.bestia = data;
 		self.loadMap(data);
 	};
 	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, onSelectBestiaHandler);

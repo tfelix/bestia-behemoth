@@ -13,5 +13,7 @@
 				{"name": "walk_up", "from": 1, "to": 8, "fps": 7 }
 			],
 	"anchor": {"x": 0.5, "y": 1},
-	"head_anchor": {"x": 0, "y": -30}
+	"sprite_anchors" : [
+				{"id": "head", "default": {"x": 0, "y": -30}}
+			]
 }

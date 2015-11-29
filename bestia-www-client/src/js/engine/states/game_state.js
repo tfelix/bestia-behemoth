@@ -21,27 +21,12 @@ Bestia.Engine.States.GameState = function(engine) {
 	this.pubsub = this.engine.pubsub;
 
 	/**
-	 * Sprite of the player.
-	 */
-	this.player = null;
-
-	/**
 	 * World object holding all features and functions regarding to the "world".
 	 * 
 	 * @property {Bestia.Engine.World}
 	 * @private
 	 */
 	this.bestiaWorld = null;
-
-	/**
-	 * Holds the player bestia which should be used as the current player
-	 * object. Some information like the current position will be extracted from
-	 * it.
-	 * 
-	 * @private
-	 * @property {Bestia.BestiaViewModel}
-	 */
-	this.bestia = null;
 
 	this._publicChatController = null;
 };
@@ -84,11 +69,6 @@ Bestia.Engine.States.GameState.prototype = {
 		this.game.input.addMoveCallback(this.updateMarker, this);
 		this.game.input.onDown.add(this.clickHandler, this);
 
-		// Avoid infinite recursion
-		// Activate the selected bestia which triggered the mapload.
-		// var msg = new Bestia.Message.BestiaActivate(this.bestia.playerBestiaId());
-		// this.pubsub.publish('io.sendMessage', msg);
-
 		// After we have created everything release the hold of the update
 		// messages.
 		this.engine.entityUpdater.releaseHold();
@@ -105,10 +85,19 @@ Bestia.Engine.States.GameState.prototype = {
 		// no op.
 
 	},
+	
+	_getPlayerEntity : function() {
+		var pbid = this.engine.bestia.playerBestiaId();
+		var entity = this.engine.entityCache.getByPlayerBestiaId(pbid);
+		return entity;
+	},
 
 	clickHandler : function() {
-		var start = this.player.pos;
-		var goal = this.bestiaWorld.getTileXY(this.game.input.worldX, this.game.input.worldY);
+		
+		var player = this._getPlayerEntity();
+		
+		var start = player.position;
+		var goal = Bestia.Engine.World.getTileXY(this.game.input.worldX, this.game.input.worldY);
 
 		var path = this.bestiaWorld.findPath(start, goal).nodes;
 
@@ -117,11 +106,11 @@ Bestia.Engine.States.GameState.prototype = {
 		}
 
 		var path = path.reverse();
-		var msg = new Bestia.Message.BestiaMove(this.player.pbid, path, this.player.walkspeed);
+		var msg = new Bestia.Message.BestiaMove(player.pbid, path, player.walkspeed);
 		this.pubsub.publish('io.sendMessage', msg);
 
 		// Start movement locally aswell.
-		this.player.moveTo(path);
+		player.moveTo(path);
 	},
 
 	updateMarker : function() {
