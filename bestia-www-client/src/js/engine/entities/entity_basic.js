@@ -45,6 +45,15 @@ Bestia.Engine.BasicEntity.prototype.update = function() {
 };
 
 /**
+ * This function is called every tick in the animation loop and can be used to
+ * update internal sprite information. Especially in a multipart sprite object
+ * this can be useful.
+ */
+Bestia.Engine.BasicEntity.prototype.tickAnimation = function() {
+	// no op.
+};
+
+/**
  * Removes an entity from the game.
  * 
  * @public
@@ -60,7 +69,7 @@ Bestia.Engine.BasicEntity.prototype._syncSpritePosition = function() {
 	// Correct the sprite position.
 	if (this._sprite !== null) {
 		var pos = Bestia.Engine.World.getSpritePxXY(this._position.x, this._position.y);
-		
+
 		this._sprite.x = pos.x;
 		this._sprite.y = pos.y;
 	}
@@ -69,7 +78,7 @@ Bestia.Engine.BasicEntity.prototype._syncSpritePosition = function() {
 Bestia.Engine.BasicEntity.prototype.setPosition = function(x, y) {
 	this._position.x = x;
 	this._position.y = y;
-	
+
 	this._syncSpritePosition();
 };
 

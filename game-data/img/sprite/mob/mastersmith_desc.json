@@ -13,10 +13,11 @@
 				{"name": "stand_left_up", "from": 1, "to": 1, "fps": 0 }
 			],
 	"anchor": {"x": 0.5, "y": 1},
-	"sprite_anchors" : [
+	"multiSpriteAnchors" : [
 				{
-				"id": "head",
-				"default": {"x": 0, "y": -30}, 
+				"id": "female_01",
+				"scale": 1.2,
+				"defaultAnchor": {"x": 0, "y": -66}, 
 				"walk_left": [{"x": 0, "y": -30}, {"x": 0, "y": -30}]
 				}
 			]

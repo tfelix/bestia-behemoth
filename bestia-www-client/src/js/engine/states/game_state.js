@@ -76,7 +76,11 @@ Bestia.Engine.States.GameState.prototype = {
 
 	update : function() {
 
-		// no op.
+		// Update the animation frame groups of all multi sprite entities.
+		var entities = this.engine.entityCache.getAllEntities();
+		entities.forEach(function(entity){
+			entity.tickAnimation();
+		});
 
 	},
 

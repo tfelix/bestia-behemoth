@@ -46,6 +46,9 @@ Bestia.Engine = function(pubsub, config) {
 	this.game.state.add('load', new Bestia.Engine.States.LoadingState(this));
 	this.game.state.start('boot');
 
+	/**
+	 * Holds the central cache for all entities displayed in the game.
+	 */
 	this.entityCache = new Bestia.Engine.EntityCacheManager();
 	
 	/**

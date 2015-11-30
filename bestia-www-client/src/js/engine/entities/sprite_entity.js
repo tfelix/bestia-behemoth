@@ -13,7 +13,9 @@ Bestia.Engine.SpriteEntity.prototype = Object.create(Bestia.Engine.BasicEntity.p
 Bestia.Engine.SpriteEntity.prototype.constructor = Bestia.Engine.SpriteEntity;
 
 Bestia.Engine.SpriteEntity.prototype.setSprite = function(spriteName) {
+	// Save the description data for reference.
 	this.data = this._game.cache.getJSON(spriteName + '_desc');
+	
 	this._sprite = this._game.add.sprite(0, 0, spriteName, 'walk_down/001.png');
 
 	// Set anchor to the middle of the sprite to the bottom.
@@ -21,14 +23,16 @@ Bestia.Engine.SpriteEntity.prototype.setSprite = function(spriteName) {
 	this._sprite.scale.setTo(this.data.scale);
 	this._sprite.alpha = 0;
 
-	// Add the head
-	var head = this._sprite.addChild(this._game.make.sprite(0, -66, 'female_01'));
-	head.anchor.setTo(0.5, 1);
-	head.scale.setTo(1.2);
-	head.frameName = 'bottom.png';
-
-	// bottom left of the item.
-	this._sprite.anchor.setTo(0.5, 1);
+	// Add the multi sprites.
+	var multisprites = this.data.multiSpriteAnchors;
+	for(var i = 0; i < multisprites.length; i++) {
+		var ms = multisprites[i];
+		
+		var sprite = this._sprite.addChild(this._game.make.sprite(ms.defaultAnchor.x, ms.defaultAnchor.y, ms.id));
+		sprite.anchor.setTo(0.5, 1);
+		sprite.scale.setTo(ms.scale);
+		sprite.frameName = 'bottom.png';
+	}
 
 	// Register all the animations of the sprite.
 	this.data.animations.forEach(function(anim) {
@@ -41,6 +45,7 @@ Bestia.Engine.SpriteEntity.prototype.setSprite = function(spriteName) {
 	// Re-set position so the sprite gets now postioned.
 	var pos = this.position;
 	this.setPosition(pos.x, pos.y);
+
 };
 
 /**
@@ -68,6 +73,10 @@ Bestia.Engine.SpriteEntity.prototype.update = function() {
 
 };
 
+Bestia.Engine.SpriteEntity.prototype.tickAnimation = function() {
+	
+};
+
 Bestia.Engine.SpriteEntity.prototype.remove = function() {
 
 	this._tween.stop();
@@ -92,7 +101,7 @@ Bestia.Engine.SpriteEntity.prototype.playAnimation = function(name) {
 	if (name === this._sprite.animations.name) {
 		return;
 	}
-	
+
 	// We need to mirror the sprite for right sprites.
 	if (name.indexOf("right") !== -1) {
 		this._sprite.scale.x = -1 * this.data.scale;
