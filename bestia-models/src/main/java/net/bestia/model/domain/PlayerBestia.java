@@ -51,7 +51,15 @@ public class PlayerBestia implements Serializable {
 	@Embedded
 	@JsonProperty("sl")
 	private Location savePosition;
+	
+	
+	//private Direction facing;
 
+	/**
+	 * The facing of the head sprite.
+	 */
+	//private Direction headFacing;
+	
 	/**
 	 * The current hp value must be persisted inside the db. Since the status
 	 * points are not persisted at all we need a certain field for it.
