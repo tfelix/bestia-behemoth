@@ -26,6 +26,8 @@ import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.HP;
 import net.bestia.zoneserver.ecs.component.Mana;
+import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
  * The PlayerBestiaManager is responsible for executing the "business logic" to
@@ -43,6 +45,7 @@ public class PlayerBestiaManager extends BestiaManager {
 	private final String language;
 	private final Zoneserver server;
 
+	private final ComponentMapper<Position> positionMapper;
 	private final ComponentMapper<Attacks> attacksMapper;
 	private final ComponentMapper<Mana> manaMapper;
 	private final ComponentMapper<HP> hpMapper;
@@ -57,6 +60,7 @@ public class PlayerBestiaManager extends BestiaManager {
 		this.attacksMapper = world.getMapper(Attacks.class);
 		this.manaMapper = world.getMapper(Mana.class);
 		this.hpMapper = world.getMapper(HP.class);
+		this.positionMapper = world.getMapper(Position.class);
 
 		this.server = sender;
 		this.bestia = bestia;
@@ -331,9 +335,13 @@ public class PlayerBestiaManager extends BestiaManager {
 	public PlayerBestia getPlayerBestia() {
 
 		// Update location.
-		// final Vector2 pos = positionMapper.get(entity).position.getAnchor();
-		// bestia.getCurrentPosition().setX(pos.x);
-		// bestia.getCurrentPosition().setY(pos.y);
+		// TODO hier auch den Mapnamen handlen.
+		final Vector2 pos = positionMapper.get(entity).position.getAnchor();
+		bestia.getCurrentPosition().setX(pos.x);
+		bestia.getCurrentPosition().setY(pos.y);
+		
+		// TODO Das hier mit den HP und der Mana wird wirklich komisch gelöst.
+		// Checken welche Angaben hier wichtiger sind und entweder es von den Status Punkten machen lassen oder von der Bestia.
 
 		// Update cur hp and mana.
 		final HP hp = hpMapper.get(entity);
@@ -450,7 +458,7 @@ public class PlayerBestiaManager extends BestiaManager {
 		try {
 			final PlayerBestiaService service = serviceLocator.getBean(PlayerBestiaService.class);
 			final PlayerItem[] itemShortcuts = service.saveItemShortcuts(bestia.getId(), itemIds);
-			
+
 			bestia.setItem1(itemShortcuts[0]);
 			bestia.setItem2(itemShortcuts[1]);
 			bestia.setItem3(itemShortcuts[2]);
