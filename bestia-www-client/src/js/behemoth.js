@@ -14,7 +14,7 @@ var Bestia = Bestia || {
 	 * @constant
 	 * @type {string}
 	 */
-	VERSION: 'alpha-0.2.4',
+	VERSION: 'alpha-0.2.5-SNAPSHOT',
 	
 
 	/**
