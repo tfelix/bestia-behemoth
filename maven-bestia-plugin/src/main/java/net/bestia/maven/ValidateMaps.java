@@ -81,7 +81,7 @@ public class ValidateMaps extends AbstractMojo {
 			}
 
 			getLog().info("Checking map: " + file.getName() + "...");
-			
+
 			final File mapFile = getMapFile(file);
 
 			final Map map = parseMap(mapFile);
@@ -111,7 +111,7 @@ public class ValidateMaps extends AbstractMojo {
 		Path mapFile = null;
 		try (DirectoryStream<Path> fileStream = Files.newDirectoryStream(folder.toPath())) {
 			for (Path path : fileStream) {
-				if (path.endsWith(".tmx")) {
+				if (path.toString().endsWith(".tmx")) {
 					if (mapFile != null) {
 						throw new MojoFailureException(
 								"Directory contains more then one .tmx file: " + folder.getAbsolutePath());
@@ -131,15 +131,21 @@ public class ValidateMaps extends AbstractMojo {
 		return mapFile.toFile();
 	}
 
+	/**
+	 * Checks if every map property is set as needed.
+	 * 
+	 * @param map
+	 * @throws MojoFailureException
+	 */
 	private void checkMapProperties(Map map) throws MojoFailureException {
 		final Properties mapProps = map.getProperties();
 
 		String errorMsgs = "";
 
 		for (Entry<String, String> neededProp : NEEDED_MAP_PROPERTIES.entrySet()) {
-			final String neededValue = neededProp.getValue();
+			final String neededValue = neededProp.getKey();
 
-			if (!mapProps.contains(neededValue)) {
+			if (!mapProps.containsKey(neededValue)) {
 				errorMsgs += neededProp.getValue() + "\n";
 			}
 		}
@@ -153,6 +159,12 @@ public class ValidateMaps extends AbstractMojo {
 		checkSpawnStrings(spawnStr);
 	}
 
+	/**
+	 * Checks if the spawn (complete) spawn string is correct.
+	 * 
+	 * @param spawnStr
+	 * @throws MojoFailureException
+	 */
 	private void checkSpawnStrings(String spawnStr) throws MojoFailureException {
 		if (spawnStr == null) {
 			throw new MojoFailureException("Map property 'spawn' must be present (at least empty).");
