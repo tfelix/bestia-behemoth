@@ -54,15 +54,19 @@ public class PlayerBestiaManager extends BestiaManager {
 
 	private final ServiceLocator serviceLocator;
 
-	public PlayerBestiaManager(PlayerBestia bestia, World world, Entity entity, Zoneserver sender,
+	public PlayerBestiaManager(PlayerBestia bestia, 
+			World world, 
+			Entity entity, 
+			Zoneserver server,
 			ServiceLocator locator) {
 		super(world, entity);
+		
 		this.attacksMapper = world.getMapper(Attacks.class);
 		this.manaMapper = world.getMapper(Mana.class);
 		this.hpMapper = world.getMapper(HP.class);
 		this.positionMapper = world.getMapper(Position.class);
 
-		this.server = sender;
+		this.server = server;
 		this.bestia = bestia;
 		this.serviceLocator = locator;
 
@@ -84,7 +88,7 @@ public class PlayerBestiaManager extends BestiaManager {
 		}
 
 		// Send system message for chat.
-		sendSystemMessage(I18n.t(language, "msg.bestia gained exp", exp));
+		sendSystemMessage(I18n.t(language, "MSG.bestia_gained_exp", bestia.getName(), exp));
 
 		bestia.setExp(bestia.getExp() + exp);
 		checkLevelUp();

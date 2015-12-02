@@ -147,9 +147,14 @@ Bestia.Chat = function(domEle, game) {
 	var handleAuthEvent = function(_, data) {
 		self.LOCAL_NICKNAME = data.username;
 		self.game.pubsub.unsubscribe('system.auth', handleAuthEvent);
-	}
+	};
 	game.pubsub.subscribe('system.auth', handleAuthEvent);
-
+	
+	var handleItemObtainedEvent = function() {
+		self.addLocalMessage("Du erhälst den Gegenstand: [Apfel] (10x).", "SYSTEM");
+	};
+	game.pubsub.subscribe(Bestia.Signal.INVENTORY_ITEM_ADD, handleItemObtainedEvent);
+	
 	// Handle the selection of a new bestia for the bestia id (chat messages are
 	// input messages).
 	game.pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, function(_, bestia) {

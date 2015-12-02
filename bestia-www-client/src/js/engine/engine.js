@@ -41,9 +41,10 @@ Bestia.Engine = function(pubsub, config) {
 
 	this.gameState = new Bestia.Engine.States.GameState(this);
 	this.game.state.add('boot', new Bestia.Engine.States.BootState());
-	this.game.state.add('game', this.gameState);
 	this.game.state.add('connecting', new Bestia.Engine.States.ConnectingState(this));
 	this.game.state.add('load', new Bestia.Engine.States.LoadingState(this));
+	this.game.state.add('game', this.gameState);
+	
 	this.game.state.start('boot');
 
 	/**
@@ -84,7 +85,7 @@ Bestia.Engine.prototype.loadMap = function(bestia) {
 	var world = this.gameState.bestiaWorld;
 	if (world === null || world.name !== bestia.location()) {
 		// We need to do a full load.
-		this.game.state.start('load', true, false, bestia);
+		this.game.state.start('load', bestia);
 	}
 	// else: Partial load only (just switch view to active bestia).
 	// TODO

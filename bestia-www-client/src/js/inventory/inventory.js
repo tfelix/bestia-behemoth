@@ -228,12 +228,15 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * to account for the changed item count. This function will do some sanity
 	 * checks:
 	 */
-	this.useItem = function(item) {
+	this.useItem = function() {
+		
+		var item = this.selectedItem();
+		
 		if (item.type() !== 'USABLE') {
 			return;
 		}
 
-		var msg = new Bestia.Message.InventoryItemUse(item.playerItemId(), self.currentBestiaId);
+		var msg = new Bestia.Message.InventoryItemUse(item.playerItemId(), self._selectedBestia.playerBestiaId());
 		self._pubsub.send(msg);
 	};
 

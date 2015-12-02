@@ -20,9 +20,9 @@ import net.bestia.zoneserver.script.ItemScript;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class UseItemCommand extends ECSCommand {
+public class ItemUseCommand extends ECSCommand {
 
-	private final static Logger log = LogManager.getLogger(UseItemCommand.class);
+	private final static Logger log = LogManager.getLogger(ItemUseCommand.class);
 
 	@Override
 	public String handlesMessageId() {
@@ -45,7 +45,8 @@ public class UseItemCommand extends ECSCommand {
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
 		final InventoryManager inventory = new InventoryManager(owner, invService, ctx.getServer());
 
-		if (!inventory.hasItem(useMessage.getPlayerItemId(), 1)) {
+		// TODO Das von PLayer Item ID auf Item ID ändern!
+		if (!inventory.hasPlayerItem(useMessage.getPlayerItemId(), 1)) {
 			// Can not use this item.
 			return;
 		}

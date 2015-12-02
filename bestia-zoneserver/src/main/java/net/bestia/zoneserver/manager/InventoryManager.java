@@ -96,6 +96,10 @@ public class InventoryManager {
 		}
 		return addItem(item.getId(), amount);
 	}
+	
+	public boolean hasPlayerItem(int playerItemId, int amount) {
+		return inventoryService.hasPlayerItem(playerItemId, amount);
+	}
 
 	public boolean hasItem(int itemId, int amount) {
 		return inventoryService.hasItem(accId, itemId, amount);

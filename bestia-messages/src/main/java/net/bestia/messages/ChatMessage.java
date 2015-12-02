@@ -23,25 +23,25 @@ public class ChatMessage extends Message {
 	public enum Mode {
 		PUBLIC, PARTY, GUILD, WHISPER, SYSTEM, GM_BROADCAST, ERROR, COMMAND, BATTLE
 	}
-	
+
 	@JsonProperty("pbid")
 	private int playerBestiaId = 0;
 
 	@JsonProperty("m")
 	private Mode chatMode;
-	
+
 	@JsonProperty("txt")
 	private String text;
-	
+
 	@JsonProperty("sn")
 	private String senderNickname;
-	
+
 	@JsonProperty("rxn")
 	private String receiverNickname;
-	
+
 	@JsonProperty("cmid")
 	private int chatMessageId;
-	
+
 	@JsonProperty("t")
 	private long time;
 
@@ -76,6 +76,8 @@ public class ChatMessage extends Message {
 
 		final String text = I18n.t(account, translationKey);
 
+		// TODO Hier ist der Message Path falsch, nachricht geht wieder an den
+		// Server.
 		ChatMessage msg = new ChatMessage();
 		msg.setAccountId(account.getId());
 		msg.setText(text);
@@ -120,11 +122,11 @@ public class ChatMessage extends Message {
 	public void setTime(long time) {
 		this.time = time;
 	}
-	
+
 	public int getPlayerBestiaId() {
 		return playerBestiaId;
 	}
-	
+
 	public void setPlayerBestiaId(int pbid) {
 		this.playerBestiaId = pbid;
 	}
@@ -168,7 +170,7 @@ public class ChatMessage extends Message {
 
 		return forwardMsg;
 	}
-	
+
 	public static ChatMessage getEchoRawMessage(long receiverAccoundId, String text) {
 		ChatMessage forwardMsg = new ChatMessage();
 
