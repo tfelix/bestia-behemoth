@@ -4,6 +4,13 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Holds basic informations about the display of a sprite. The class will not be
+ * saved into the database but it must be send to the client from the server.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class Sprite implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -48,13 +55,13 @@ public class Sprite implements Serializable {
 
 	@JsonProperty("n")
 	private String name;
-	
+
 	@JsonProperty("a")
 	private String animation;
-	
+
 	@JsonProperty("st")
 	private SpriteType spriteType;
-	
+
 	@JsonProperty("it")
 	private InteractionType interactionType;
 
