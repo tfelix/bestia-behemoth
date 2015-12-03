@@ -42,7 +42,7 @@ Bestia.Engine.States.LoadingState.prototype.preload = function() {
 	// Load all the server suggested files.
 	// TODO
 
-	this.load.onFileComplete.add(this.fileComplete, this);
+	this.load.onFileComplete.add(this.fileCompleted, this);
 };
 
 Bestia.Engine.States.LoadingState.prototype.loadUpdate = function() {
