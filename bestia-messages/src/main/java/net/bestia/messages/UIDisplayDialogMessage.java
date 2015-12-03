@@ -30,4 +30,12 @@ public class UIDisplayDialogMessage extends Message {
 		return getClientMessagePath();
 	}
 
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
 }

@@ -16,8 +16,8 @@ public class InventoryItemUseMessage extends InputMessage {
 
 	public final static String MESSAGE_ID = "inventory.item.use";
 
-	@JsonProperty("pid")
-	private int playerItemId;
+	@JsonProperty("iid")
+	private int itemId;
 
 	/**
 	 * Std. Ctor.
@@ -35,8 +35,8 @@ public class InventoryItemUseMessage extends InputMessage {
 		super(msg, pbid);
 	}
 
-	public int getPlayerItemId() {
-		return playerItemId;
+	public int getItemId() {
+		return itemId;
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class InventoryItemUseMessage extends InputMessage {
 	@Override
 	public String toString() {
 		return String.format("InventoryItemUseMessage[accId: %d, bestiaId: %d, itemId: %d]", getAccountId(),
-				getPlayerBestiaId(), playerItemId);
+				getPlayerBestiaId(), itemId);
 	}
 
 }

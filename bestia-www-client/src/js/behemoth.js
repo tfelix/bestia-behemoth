@@ -53,5 +53,3 @@ var Bestia = Bestia || {
 		/* @endif */
 	}
 };
-
-

@@ -149,12 +149,15 @@ Bestia.Chat = function(domEle, game) {
 		self.game.pubsub.unsubscribe('system.auth', handleAuthEvent);
 	};
 	game.pubsub.subscribe('system.auth', handleAuthEvent);
-	
-	var handleItemObtainedEvent = function() {
-		self.addLocalMessage("Du erhälst den Gegenstand: [Apfel] (10x).", "SYSTEM");
+
+	var handleItemObtainedEvent = function(_, item) {
+		i18n.t('chat.item_optained', function(t) {
+			var text = t('chat.item_optained').format(item.name(), item.amount());
+			self.addLocalMessage(text, "SYSTEM");
+		});
 	};
 	game.pubsub.subscribe(Bestia.Signal.INVENTORY_ITEM_ADD, handleItemObtainedEvent);
-	
+
 	// Handle the selection of a new bestia for the bestia id (chat messages are
 	// input messages).
 	game.pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, function(_, bestia) {

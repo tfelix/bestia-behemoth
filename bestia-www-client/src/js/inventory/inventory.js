@@ -236,7 +236,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 			return;
 		}
 
-		var msg = new Bestia.Message.InventoryItemUse(item.playerItemId(), self._selectedBestia.playerBestiaId());
+		var msg = new Bestia.Message.InventoryItemUse(item.itemId(), self._selectedBestia.playerBestiaId());
 		self._pubsub.send(msg);
 	};
 

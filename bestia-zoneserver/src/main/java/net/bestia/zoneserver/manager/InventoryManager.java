@@ -161,7 +161,7 @@ public class InventoryManager {
 	 *            Item ID.
 	 * @return {@link PlayerItem} or NULL if the player does not own the item.
 	 */
-	private PlayerItem getPlayerItemById(int itemId) {
+	public PlayerItem getPlayerItemById(int itemId) {
 		return inventoryService.getPlayerItem(accId, itemId);
 	}
 

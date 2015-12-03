@@ -172,7 +172,7 @@ Bestia.Message = {
 		}
 		
 		this.mid = 'inventory.item.use';
-		this.pid = playerItemId;
+		this.iid = playerItemId;
 		this.pbid = playerBestiaId;
 	},
 
