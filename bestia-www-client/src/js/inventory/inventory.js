@@ -165,31 +165,45 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * Updates the item via an update message from the server.
 	 */
 	var updateHandler = function(_, data) {
+
 		var newItems = [];
+
 		data.pis.forEach(function(val) {
+
 			var item = self._findItem(val.i.id);
 
-			if (item === null) {
-				// Add the new item to the inventory.
-				var newItem = new Bestia.ItemViewModel(val);
-				self.allItems.push(newItem);
-				newItems.push(newItem);
-			} else {
-				var newAmount = item.amount() + val.a;
-				if (newAmount <= 0) {
-					// Remove item.
-					self.allItems.remove(item);
+			if (val.a > 0) {
+				// Item is added to the inventory.
+				if (item == null) {
+					// Add the item to the inventory.
+					var newItem = new Bestia.ItemViewModel(val);
+					self.allItems.push(newItem);
+					newItems.push(newItem);
 				} else {
-					// Update amount.
-					item.amount(newAmount);
-					// Send notifications for other sub systems.
-					pubsub.publish(Bestia.Signal.INVENTORY_ITEM_ADD, item);
+					item.amount(item.amount() + val.a);
+				}
+			} else {
+				// Item must be removed.
+				if (item != null) {
+					// Amount is negative. so add.
+					var newAmount = item.amount() + val.a;
+					if (newAmount > 0) {
+						item.amount(newAmount);
+					} else {
+						self._removeItem(item.itemId());
+					}
 				}
 			}
 		});
 
+		// Bulk translate all new items.
 		if (newItems.length > 0) {
-			self._translateItems(newItems);
+			self._translateItems(newItems, function() {
+				newItems.forEach(function(item) {
+					// Send notifications for other sub systems.
+					pubsub.publish(Bestia.Signal.INVENTORY_ITEM_ADD, item);
+				});
+			});
 		}
 	};
 	pubsub.subscribe('inventory.update', updateHandler);
@@ -202,13 +216,20 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 */
 	var bestiaSelectHandler = function(_, bestia) {
 		self._selectedBestia = bestia;
-		
+
 		// Set the item shortcuts by the ones of the newly selected bestia.
-		self.itemSlot1(bestia.item1());
-		self.itemSlot2(bestia.item2());
-		self.itemSlot3(bestia.item3());
-		self.itemSlot4(bestia.item4());
-		self.itemSlot5(bestia.item5());
+		// But these items are not the same instance then the ones from the
+		// inventory. We must replace them with the inventory instances.
+		var item = self._findItem(bestia.item1().itemId());
+		self.itemSlot1(item);
+		var item = self._findItem(bestia.item2().itemId());
+		self.itemSlot2(item);
+		var item = self._findItem(bestia.item3().itemId());
+		self.itemSlot3(item);
+		var item = self._findItem(bestia.item4().itemId());
+		self.itemSlot4(item);
+		var item = self._findItem(bestia.item5().itemId());
+		self.itemSlot5(item);
 	};
 	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, bestiaSelectHandler);
 
@@ -229,9 +250,9 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * checks:
 	 */
 	this.useItem = function() {
-		
+
 		var item = this.selectedItem();
-		
+
 		if (item.type() !== 'USABLE') {
 			return;
 		}
@@ -240,6 +261,12 @@ Bestia.Inventory = function(pubsub, i18n) {
 		self._pubsub.send(msg);
 	};
 
+	/**
+	 * Amount of the item to be dropped.
+	 * 
+	 * @public
+	 * @property {Number}
+	 */
 	this.dropAmount = ko.observable(1);
 
 	/**
@@ -263,7 +290,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * @param {Numeric}
 	 *            slot - The slot to be deleted.
 	 */
-	this.removeItem = function(slot) {
+	this.unbindItem = function(slot) {
 		switch (slot) {
 		case 1:
 			self.itemSlot1(null);
@@ -286,6 +313,8 @@ Bestia.Inventory = function(pubsub, i18n) {
 			self._selectedBestia.item5(null);
 			break;
 		}
+		
+		self.saveItemBindings();
 	};
 
 	/**
@@ -341,8 +370,10 @@ Bestia.Inventory = function(pubsub, i18n) {
  * @private
  * @param {Array[Bestia.ItemViewModel]}
  *            items - Array of item view models to translate.
+ * @param {Function}
+ *            fn - Callback function. Is fired when all items are translated.
  */
-Bestia.Inventory.prototype._translateItems = function(items) {
+Bestia.Inventory.prototype._translateItems = function(items, fn) {
 	var buildTranslationKeyName = function(item) {
 		return 'item.' + item.itemDatabaseName();
 	};
@@ -363,7 +394,45 @@ Bestia.Inventory.prototype._translateItems = function(items) {
 			val.name(nameTrans);
 			val.description(descTrans);
 		});
+
+		// Trigger callback.
+		if (fn !== undefined) {
+			fn();
+		}
 	});
+};
+
+/**
+ * The item is cleanly removed and deleted from all binding lists etc. This
+ * method should always be used to completly remove an item from the inventory.
+ * 
+ * @private
+ * @param itemId
+ */
+Bestia.Inventory.prototype._removeItem = function(item) {
+	// Check if it is the selected item.
+	if(this.selectedItem().playerItemId() === item.playerItemId()) {
+		this.selectedItem(null);
+	}
+	
+	if(this.itemSlot1.playerItemId() === item.playerItemId()) {
+		this.unbindItem(1);
+	}
+	if(this.itemSlot2.playerItemId() === item.playerItemId()) {
+		this.unbindItem(2);
+	}
+	if(this.itemSlot3.playerItemId() === item.playerItemId()) {
+		this.unbindItem(3);
+	}
+	if(this.itemSlot4.playerItemId() === item.playerItemId()) {
+		this.unbindItem(4);
+	}
+	if(this.itemSlot5.playerItemId() === item.playerItemId()) {
+		this.unbindItem(5);
+	}
+	
+	// Remove the item.
+	this.allItems.remove(item);
 };
 
 /**
