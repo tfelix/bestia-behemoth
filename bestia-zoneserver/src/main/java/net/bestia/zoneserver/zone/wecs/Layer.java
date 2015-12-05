@@ -6,10 +6,10 @@ import java.util.Arrays;
  * The {@link Layer} is responsible for defining a finite element layer for
  * calculations. It has a own update rate which is maintained by the
  * {@link EnvironmentManager}. Calculations performed on this layer are subject
- * to a hugh performance cost. So the operations must as be as effiecient as
+ * to a hugh performance cost. So the operations must as be as efficient as
  * possible.
  * 
- * @author Thomas
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class Layer {
@@ -104,6 +104,15 @@ public class Layer {
 		switch (border) {
 		case NORTH:
 			Arrays.fill(data, 0, width + 2, value);
+			break;
+		case EAST:
+			
+			break;
+		case SOUTH:
+			Arrays.fill(data, getOffset(0, height), width + 2, value);
+			break;
+		case WEST:
+			
 			break;
 		}
 	}
