@@ -26,7 +26,7 @@ public interface ScriptVarDAO extends CrudRepository<ScriptVar, Long> {
 	 *            The account linked to this script.
 	 * @return The found {@link ScriptVar} or null if none was found.
 	 */
-	@Query("SELECT sv FROM ScriptVar sv WHERE sv.nameId = :key AND sv.accound = :acc")
+	@Query("SELECT sv FROM ScriptVar sv WHERE sv.nameId = :key AND sv.account = :acc")
 	public ScriptVar findByNameId(@Param("key") String key, @Param("acc") Account account);
 
 	/**
@@ -41,7 +41,7 @@ public interface ScriptVarDAO extends CrudRepository<ScriptVar, Long> {
 	 *            The {@link PlayerBestia} linked to the script var.
 	 * @return
 	 */
-	@Query("SELECT sv FROM ScriptVar sv WHERE sv.nameId = :key AND sv.accound = :acc AND sv.playerBestia.id = :pb")
+	@Query("SELECT sv FROM ScriptVar sv WHERE sv.nameId = :key AND sv.account = :acc AND sv.playerBestia.id = :pb")
 	public ScriptVar findByNameId(@Param("key") String key, @Param("acc") Account account,
 			@Param("pb") PlayerBestia bestia);
 
