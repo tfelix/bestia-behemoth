@@ -170,7 +170,6 @@ Bestia.Inventory = function(pubsub, i18n) {
 
 		self._translateItems(newItems, function() {
 			// Flag that all items are sucessfully loaded.
-			self.hasLoaded(true);
 			self._setupItemBindings();
 		});
 	};
@@ -237,8 +236,17 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 */
 	var bestiaSelectHandler = function(_, bestia) {
 		self.hasLoaded(false);
+
 		self._selectedBestia = bestia;
 
+		// Clear all item shortcuts.
+		self.itemSlot1(null);
+		self.itemSlot2(null);
+		self.itemSlot3(null);
+		self.itemSlot4(null);
+		self.itemSlot5(null);
+
+		self._setupItemBindings();
 	};
 	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, bestiaSelectHandler);
 
@@ -495,18 +503,35 @@ Bestia.Inventory.prototype.saveItemBindings = function() {
  * until the bestia is selected AND the items have been loaded.
  */
 Bestia.Inventory.prototype._setupItemBindings = function() {
+	if (this.hasLoaded()) {
+		return;
+	}
+
 	// Set the item shortcuts by the ones of the newly selected bestia.
 	// But these items are not the same instance then the ones from the
 	// inventory. We must replace them with the inventory instances.
 	var bestia = this._selectedBestia;
-	var item = this._findItem(bestia.item1().itemId());
-	this.itemSlot1(item);
-	var item = this._findItem(bestia.item2().itemId());
-	this.itemSlot2(item);
-	var item = this._findItem(bestia.item3().itemId());
-	this.itemSlot3(item);
-	var item = this._findItem(bestia.item4().itemId());
-	this.itemSlot4(item);
-	var item = this._findItem(bestia.item5().itemId());
-	this.itemSlot5(item);
+
+	if (bestia.item1() !== null) {
+		var item = this._findItem(bestia.item1().itemId());
+		this.itemSlot1(item);
+	}
+	if (bestia.item2() !== null) {
+		var item = this._findItem(bestia.item2().itemId());
+		this.itemSlot2(item);
+	}
+	if (bestia.item3() !== null) {
+		var item = this._findItem(bestia.item3().itemId());
+		this.itemSlot3(item);
+	}
+	if (bestia.item4() !== null) {
+		var item = this._findItem(bestia.item4().itemId());
+		this.itemSlot4(item);
+	}
+	if (bestia.item5() !== null) {
+		var item = this._findItem(bestia.item5().itemId());
+		this.itemSlot5(item);
+	}
+
+	this.hasLoaded(true);
 };
