@@ -19,13 +19,13 @@ import com.github.springtestdbunit.annotation.DatabaseSetup;
 @ContextConfiguration(locations = {"/spring-config.xml"})
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class,
         DbUnitTestExecutionListener.class })
+@DatabaseSetup("/db/i18ns.xml")
 public class I18nDAOTest {
 
 	@Autowired
 	private I18nDAO i18nDAO;
 	
 	@Test
-	@DatabaseSetup("/db/i18ns.xml")
 	public void findById_existingId_dataset() {
 		I18n result = i18nDAO.findOne(TranslationCategory.ITEM, "apple.name", "de");
 		Assert.assertNotNull(result);

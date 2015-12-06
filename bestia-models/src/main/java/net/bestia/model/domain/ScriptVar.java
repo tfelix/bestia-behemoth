@@ -8,6 +8,7 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -31,7 +32,7 @@ import javax.persistence.Transient;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-//@Entity
+@Entity
 @Table(name = "script_vars", indexes = { @Index(name = "entity_id_key", columnList = "entity_id", unique = false) })
 public class ScriptVar implements Serializable {
 
@@ -41,21 +42,21 @@ public class ScriptVar implements Serializable {
 	@Id
 	private long id;
 
-	@OneToMany(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(nullable = true)
 	private Account account;
 
-	@OneToMany(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(nullable = true)
 	private PlayerBestia playerBestia;
 
 	@Column(name = "entity_id", nullable = false)
 	private String entityId;
-	
+
 	private String data;
-	
+
 	public ScriptVar() {
-		
+
 	}
 
 	public long getId() {
