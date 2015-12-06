@@ -32,6 +32,14 @@ Bestia.Inventory = function(pubsub, i18n) {
 	this._i18n = i18n;
 
 	/**
+	 * Flag if the inventory has been loaded with new items.
+	 * 
+	 * @property {boolean}
+	 * @public
+	 */
+	this.hasLoaded = ko.observable(false);
+
+	/**
 	 * Holds the reference to the currently active bestia. We need this in order
 	 * to obtain its id for the send out message and to set the item shortcuts.
 	 * 
@@ -147,7 +155,9 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 */
 	var listHandler = function(_, data) {
 		var newItems = [];
+
 		self.allItems.removeAll();
+		self.dropAmount(0);
 
 		data.pis.forEach(function(val) {
 			var item = new Bestia.ItemViewModel(val);
@@ -155,9 +165,14 @@ Bestia.Inventory = function(pubsub, i18n) {
 			self.allItems.push(item);
 		});
 
-		self._translateItems(newItems);
-
+		// Update the weight display.
 		self.maxWeight(data.mw);
+
+		self._translateItems(newItems, function() {
+			// Flag that all items are sucessfully loaded.
+			self.hasLoaded(true);
+			self._setupItemBindings();
+		});
 	};
 	pubsub.subscribe('inventory.list', listHandler);
 
@@ -205,31 +220,25 @@ Bestia.Inventory = function(pubsub, i18n) {
 				});
 			});
 		}
+
+		// If the amount of the selected item has changed, change the drop
+		// amount to the current number if it matches.
+		if (self.selectedItem().amount() + 1 === self.dropAmount()) {
+			self.dropAmount(self.selectedItem().amount());
+		}
 	};
 	pubsub.subscribe('inventory.update', updateHandler);
 
 	/**
-	 * Saves the new bestia id of the currently selected bestia.
+	 * Saves bestia reference of the currently selected bestia.
 	 * 
 	 * @param {Bestia.BestiaViewModel}
 	 *            bestia - The newly selected bestia.
 	 */
 	var bestiaSelectHandler = function(_, bestia) {
+		self.hasLoaded(false);
 		self._selectedBestia = bestia;
 
-		// Set the item shortcuts by the ones of the newly selected bestia.
-		// But these items are not the same instance then the ones from the
-		// inventory. We must replace them with the inventory instances.
-		var item = self._findItem(bestia.item1().itemId());
-		self.itemSlot1(item);
-		var item = self._findItem(bestia.item2().itemId());
-		self.itemSlot2(item);
-		var item = self._findItem(bestia.item3().itemId());
-		self.itemSlot3(item);
-		var item = self._findItem(bestia.item4().itemId());
-		self.itemSlot4(item);
-		var item = self._findItem(bestia.item5().itemId());
-		self.itemSlot5(item);
 	};
 	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, bestiaSelectHandler);
 
@@ -313,7 +322,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 			self._selectedBestia.item5(null);
 			break;
 		}
-		
+
 		self.saveItemBindings();
 	};
 
@@ -411,26 +420,26 @@ Bestia.Inventory.prototype._translateItems = function(items, fn) {
  */
 Bestia.Inventory.prototype._removeItem = function(item) {
 	// Check if it is the selected item.
-	if(this.selectedItem().playerItemId() === item.playerItemId()) {
+	if (this.selectedItem().playerItemId() === item.playerItemId()) {
 		this.selectedItem(null);
 	}
-	
-	if(this.itemSlot1.playerItemId() === item.playerItemId()) {
+
+	if (this.itemSlot1.playerItemId() === item.playerItemId()) {
 		this.unbindItem(1);
 	}
-	if(this.itemSlot2.playerItemId() === item.playerItemId()) {
+	if (this.itemSlot2.playerItemId() === item.playerItemId()) {
 		this.unbindItem(2);
 	}
-	if(this.itemSlot3.playerItemId() === item.playerItemId()) {
+	if (this.itemSlot3.playerItemId() === item.playerItemId()) {
 		this.unbindItem(3);
 	}
-	if(this.itemSlot4.playerItemId() === item.playerItemId()) {
+	if (this.itemSlot4.playerItemId() === item.playerItemId()) {
 		this.unbindItem(4);
 	}
-	if(this.itemSlot5.playerItemId() === item.playerItemId()) {
+	if (this.itemSlot5.playerItemId() === item.playerItemId()) {
 		this.unbindItem(5);
 	}
-	
+
 	// Remove the item.
 	this.allItems.remove(item);
 };
@@ -479,4 +488,25 @@ Bestia.Inventory.prototype.saveItemBindings = function() {
 	var bestiaId = this._selectedBestia.playerBestiaId();
 	var msg = new Bestia.Message.ItemSet(bestiaId, piId1, piId2, piId3, piId4, piId5);
 	this._pubsub.publish('io.sendMessage', msg);
+};
+
+/**
+ * Setup the item bindings with the proper items. We need to derefer this call
+ * until the bestia is selected AND the items have been loaded.
+ */
+Bestia.Inventory.prototype._setupItemBindings = function() {
+	// Set the item shortcuts by the ones of the newly selected bestia.
+	// But these items are not the same instance then the ones from the
+	// inventory. We must replace them with the inventory instances.
+	var bestia = this._selectedBestia;
+	var item = this._findItem(bestia.item1().itemId());
+	this.itemSlot1(item);
+	var item = this._findItem(bestia.item2().itemId());
+	this.itemSlot2(item);
+	var item = this._findItem(bestia.item3().itemId());
+	this.itemSlot3(item);
+	var item = this._findItem(bestia.item4().itemId());
+	this.itemSlot4(item);
+	var item = this._findItem(bestia.item5().itemId());
+	this.itemSlot5(item);
 };

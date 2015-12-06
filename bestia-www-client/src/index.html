@@ -158,7 +158,7 @@
 			<!-- /CHAT -->
 
 			<!-- SHORTCUTS -->
-			<div id="shortcuts" data-bind="with: bestias.selectedBestia">
+			<div id="shortcuts">
 <script id="tmpl-atk-shortcut" type="text/html">
 <div class="shortcut">
 <img data-bind="attr: {src: imageUrl, alt: name}" src="" alt="">
@@ -173,7 +173,7 @@
 </div>
 </script>
 
-				<div class="shortcut-row">
+				<div class="shortcut-row" data-bind="with: bestias.selectedBestia">
 					<div class="shortcut-entity">
 						<div class="shortcut-wrapper"
 							data-bind="template: {if: attack1(), name: 'tmpl-atk-shortcut', data: attack1 }"></div>
@@ -201,30 +201,30 @@
 					</div>
 				</div>
 
-				<div class="shortcut-row">
+				<div class="shortcut-row" data-bind="with: inventory">
 					<div class="shortcut-entity">
 						<div class="shortcut-wrapper"
-							data-bind="template: {if: item1(), name: 'tmpl-item-shortcut', data: item1 }"></div>
+							data-bind="template: {if: itemSlot1(), name: 'tmpl-item-shortcut', data: itemSlot1 }"></div>
 						<div class="key">1</div>
 					</div>
 					<div class="shortcut-entity">
 						<div class="shortcut-wrapper"
-							data-bind="template: {if: item2(), name: 'tmpl-item-shortcut', data: item2 }"></div>
+							data-bind="template: {if: itemSlot2(), name: 'tmpl-item-shortcut', data: itemSlot2 }"></div>
 						<div class="key">2</div>
 					</div>
 					<div class="shortcut-entity">
 						<div class="shortcut-wrapper"
-							data-bind="template: {if: item3(), name: 'tmpl-item-shortcut', data: item3 }"></div>
+							data-bind="template: {if: itemSlot3(), name: 'tmpl-item-shortcut', data: itemSlot3 }"></div>
 						<div class="key">3</div>
 					</div>
 					<div class="shortcut-entity">
 						<div class="shortcut-wrapper"
-							data-bind="template: {if: item4(), name: 'tmpl-item-shortcut', data: item4 }"></div>
+							data-bind="template: {if: itemSlot4(), name: 'tmpl-item-shortcut', data: itemSlot4 }"></div>
 						<div class="key">4</div>
 					</div>
 					<div class="shortcut-entity">
 						<div class="shortcut-wrapper"
-							data-bind="template: {if: item5(), name: 'tmpl-item-shortcut', data: item5 }"></div>
+							data-bind="template: {if: itemSlot5(), name: 'tmpl-item-shortcut', data: itemSlot5 }"></div>
 						<div class="key">5</div>
 					</div>
 				</div>

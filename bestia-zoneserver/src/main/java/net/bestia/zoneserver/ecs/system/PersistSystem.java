@@ -53,7 +53,7 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 		final PlayerBestiaDAO dao = cmdContext.getServiceLocator().getBean(PlayerBestiaDAO.class);
 		final PlayerBestiaManager pbm = playerMapper.get(e).playerBestiaManager;
 		
-		dao.update(pbm.getPlayerBestia());
+		//dao.update(pbm.getPlayerBestia());
 
 		log.trace("Persisting entity: {}", pbm.toString());
 	}
