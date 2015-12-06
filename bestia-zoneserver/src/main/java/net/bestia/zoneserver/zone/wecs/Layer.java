@@ -1,13 +1,18 @@
 package net.bestia.zoneserver.zone.wecs;
 
 import java.util.Arrays;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * The {@link Layer} is responsible for defining a finite element layer for
  * calculations. It has a own update rate which is maintained by the
  * {@link EnvironmentManager}. Calculations performed on this layer are subject
  * to a hugh performance cost. So the operations must as be as efficient as
- * possible.
+ * possible. The access to the layer must be threadsafe since the layer data is
+ * usually worked upon in a background thread. Nether the less another thread
+ * might access the data so there need to be marshalling.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -21,6 +26,10 @@ public class Layer {
 	public enum Border {
 		NORTH, EAST, SOUTH, WEST
 	}
+
+	private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+	private final Lock readLock = readWriteLock.readLock();
+	private final Lock writeLock = readWriteLock.writeLock();
 
 	private final float[] data;
 	private final int width;
@@ -45,7 +54,13 @@ public class Layer {
 	 * @param value
 	 */
 	public void fillLayer(float value) {
-		Arrays.fill(data, value);
+		writeLock.lock();
+		try {
+			Arrays.fill(data, value);
+		} finally {
+			writeLock.unlock();
+		}
+
 	}
 
 	/**
@@ -74,30 +89,60 @@ public class Layer {
 	 * @param y
 	 */
 	public void setValue(float v, int x, int y) {
-		final int offset = getOffset(x, y);
-		data[offset] = v;
+		writeLock.lock();
+		try {
+			final int offset = getOffset(x, y);
+			data[offset] = v;
+		} finally {
+			writeLock.unlock();
+		}
+	}
+
+	/**
+	 * Returns the value for the given point.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return The value at this coordiantes.
+	 */
+	public float getValue(int x, int y) {
+		readLock.lock();
+		try {
+			final int offset = getOffset(x, y);
+			return data[offset];
+		} finally {
+			readLock.unlock();
+		}
 	}
 
 	public void tick() {
 		final int kSize = (kernel.length - 1) / 2;
-		
-		final float[] source = Arrays.copyOf(data, data.length);
 
-		for (int i = kSize; i < width - kSize; i++) {
-			for (int j = kSize; j < height - kSize; j++) {
-				
-				for(int k = 0; k < kernel.length; k++) {
-					for(int m = 0; m < kernel.length; m++) {
-						
-						final float deltaChange = source[getOffset(i + k - kSize, j + m - kSize)] * kernel[k][m];
-						data[getOffset(i, j)] += deltaChange;
-						
-						if(Math.abs(deltaChange) > Math.abs(maxDelta)) {
-							maxDelta = deltaChange;
+		writeLock.lock();
+		try {
+			final float[] source = Arrays.copyOf(data, data.length);
+
+			for (int i = kSize; i < width - kSize; i++) {
+				for (int j = kSize; j < height - kSize; j++) {
+
+					for (int k = 0; k < kernel.length; k++) {
+						for (int m = 0; m < kernel.length; m++) {
+
+							final float deltaChange = source[getOffset(i + k - kSize, j + m - kSize)] * kernel[k][m];
+
+							writeLock.lock();
+							data[getOffset(i, j)] += deltaChange;
+							writeLock.unlock();
+
+							if (Math.abs(deltaChange) > Math.abs(maxDelta)) {
+								maxDelta = deltaChange;
+							}
 						}
 					}
 				}
 			}
+		} finally {
+			writeLock.unlock();
 		}
 	}
 
@@ -106,19 +151,32 @@ public class Layer {
 	}
 
 	public void setBorderValue(Border border, float value) {
-		switch (border) {
-		case NORTH:
-			Arrays.fill(data, 0, width + 2, value);
-			break;
-		case EAST:
-			
-			break;
-		case SOUTH:
-			Arrays.fill(data, getOffset(0, height), width + 2, value);
-			break;
-		case WEST:
-			
-			break;
+		writeLock.lock();
+		try {
+			switch (border) {
+			case NORTH:
+				Arrays.fill(data, 0, width + 2, value);
+				break;
+			case EAST:
+
+				break;
+			case SOUTH:
+				Arrays.fill(data, getOffset(0, height), width + 2, value);
+				break;
+			case WEST:
+
+				break;
+			}
+		} finally {
+			writeLock.unlock();
 		}
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
 	}
 }
