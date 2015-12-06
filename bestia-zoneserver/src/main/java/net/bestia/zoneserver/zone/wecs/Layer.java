@@ -26,6 +26,7 @@ public class Layer {
 	private final int width;
 	private final int height;
 
+	private float maxDelta = 0.f;
 	private float[][] kernel;
 
 	public Layer(int width, int height) {
@@ -88,15 +89,19 @@ public class Layer {
 				for(int k = 0; k < kernel.length; k++) {
 					for(int m = 0; m < kernel.length; m++) {
 						
-						data[getOffset(i, j)] += source[getOffset(i + k - kSize, j + m - kSize)] * kernel[k][m];
+						final float deltaChange = source[getOffset(i + k - kSize, j + m - kSize)] * kernel[k][m];
+						data[getOffset(i, j)] += deltaChange;
 						
+						if(Math.abs(deltaChange) > Math.abs(maxDelta)) {
+							maxDelta = deltaChange;
+						}
 					}
 				}
 			}
 		}
 	}
 
-	public void setValue(float[] area, int areaWidth, int areaHeight, int x, int y) {
+	public void setValue(float[] area, int areaWidth, int areaHeight, int offsetX, int offsetY) {
 
 	}
 

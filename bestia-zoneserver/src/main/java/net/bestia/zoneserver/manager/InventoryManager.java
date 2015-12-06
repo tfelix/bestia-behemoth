@@ -33,6 +33,10 @@ public class InventoryManager {
 		if (service == null) {
 			throw new IllegalArgumentException("Service can not be null.");
 		}
+		
+		if(server == null) {
+			throw new IllegalArgumentException("Server can not be null.");
+		}
 
 		this.inventoryService = service;
 		this.server = server;

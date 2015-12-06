@@ -1,6 +1,8 @@
 package net.bestia.zoneserver.zone.wecs;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -12,7 +14,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * interactions. After each tick of each layer is done and they are in an
  * equilibrium the layer interaction will and can change layer according to
  * their values.
- * <p>These layers are currently in use:</p>
+ * <p>
+ * These layers are currently in use:
+ * </p>
  * <ul>
  * <li>humidity_sky</li>
  * <li>humidity_ground</li>
@@ -21,6 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <li>waterlevel</li>
  * <li>noise</li>
  * </ul>
+ * 
  * @formatter:off
  * 
  * @formatter:on
@@ -31,6 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class EnvironmentManager {
 
 	private Map<String, Layer> layers = new HashMap<>();
+	private List<Exchanger> exchangers = new ArrayList<>();
 
 	private AtomicBoolean hasSimulationStarted = new AtomicBoolean(false);
 
@@ -51,6 +57,26 @@ public class EnvironmentManager {
 		layers.put(layerName, layer);
 	}
 
+	public void tick() {
+		for (Layer l : layers.values()) {
+			l.tick();
+		}
+		for (Exchanger e : exchangers) {
+			e.calculateExchange(this);
+		}
+	}
+
+	/**
+	 * Returns the layer with the given name.
+	 * 
+	 * @param layerName
+	 *            The name of the layer.
+	 * @return The found {@link Layer} or NULL.
+	 */
+	public Layer getLayer(String layerName) {
+		return layers.get(layerName);
+	}
+
 	/**
 	 * Starts the simulation of the environment.
 	 */
@@ -58,6 +84,13 @@ public class EnvironmentManager {
 		if (!hasSimulationStarted.getAndSet(true)) {
 			throw new IllegalStateException("Simulation can only be started once.");
 		}
+	}
 
+	public void addExchanger(Exchanger exchanger) {
+		if (exchangers.contains(exchanger)) {
+			throw new IllegalArgumentException("Exchanger was already included in the manager.");
+		}
+
+		exchangers.add(exchanger);
 	}
 }
