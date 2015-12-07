@@ -18,8 +18,6 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.hibernate.annotations.DynamicUpdate;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -53,15 +51,7 @@ public class PlayerBestia implements Serializable {
 	@Embedded
 	@JsonProperty("sl")
 	private Location savePosition;
-	
-	
-	//private Direction facing;
 
-	/**
-	 * The facing of the head sprite.
-	 */
-	//private Direction headFacing;
-	
 	/**
 	 * The current hp value must be persisted inside the db. Since the status
 	 * points are not persisted at all we need a certain field for it.
@@ -78,7 +68,10 @@ public class PlayerBestia implements Serializable {
 
 	/**
 	 * StatusPoints must be calculates because the depend upon status effects
-	 * and equipments. PlayerBestiaManager will do this.
+	 * and equipments. PlayerBestiaManager will do this. It is left here so it
+	 * can easily be transmitted via JSON/Jackson. The problem it causes is that
+	 * set currentMana and HP must be done twice and its not cleat which value
+	 * to set.
 	 */
 	@Transient
 	private StatusPoints statusPoints;
@@ -98,27 +91,27 @@ public class PlayerBestia implements Serializable {
 
 	@JsonProperty("lv")
 	private int level;
-	
+
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ITEM_1", nullable = true)
 	@JsonProperty("item1")
 	private PlayerItem item1;
-	
+
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ITEM_2", nullable = true)
 	@JsonProperty("item2")
 	private PlayerItem item2;
-	
+
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ITEM_3", nullable = true)
 	@JsonProperty("item3")
 	private PlayerItem item3;
-	
+
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ITEM_4", nullable = true)
 	@JsonProperty("item4")
 	private PlayerItem item4;
-	
+
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ITEM_5", nullable = true)
 	@JsonProperty("item5")
@@ -401,7 +394,7 @@ public class PlayerBestia implements Serializable {
 	public void setItem5(PlayerItem item5) {
 		this.item5 = item5;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Integer.hashCode(id);

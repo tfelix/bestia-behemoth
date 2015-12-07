@@ -8,6 +8,7 @@ import com.artemis.Entity;
 import com.artemis.World;
 
 import net.bestia.model.domain.Attack;
+import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Position;
@@ -29,7 +30,7 @@ public abstract class BestiaManager {
 
 		@Override
 		public int getY() {
-			
+
 			final CollisionShape pos = positionMapper.get(entity).position;
 			return pos.getAnchor().y;
 		}
@@ -60,11 +61,13 @@ public abstract class BestiaManager {
 	private final Location proxyLocation = new ECSLocation();
 
 	private Map<Integer, Long> attackUsageTimer = new HashMap<>();
+	private Direction facing;
 
 	public BestiaManager(World world, Entity entity) {
-		
+
 		this.positionMapper = world.getMapper(Position.class);
 		this.entity = entity;
+		this.setFacing(Direction.SOUTH);
 	}
 
 	public abstract StatusPoints getStatusPoints();
@@ -75,6 +78,11 @@ public abstract class BestiaManager {
 
 	public abstract int getLevel();
 
+	/**
+	 * Calculates the current HP regeneration rate based on stats and per tick.
+	 * 
+	 * @return The current HP regeneration rate per tick.
+	 */
 	public float getHpRegenerationRate() {
 		final StatusPoints statusPoints = getStatusPoints();
 		final int level = getLevel();
@@ -82,6 +90,12 @@ public abstract class BestiaManager {
 		return regen;
 	}
 
+	/**
+	 * Calculates the current Mana regeneration rate based on stats and per
+	 * tick.
+	 * 
+	 * @return The current Mana regeneration rate per tick.
+	 */
 	public float getManaRegenerationRate() {
 		final StatusPoints statusPoints = getStatusPoints();
 		final int level = getLevel();
@@ -132,5 +146,13 @@ public abstract class BestiaManager {
 		attackUsageTimer.put(atk.getId(), curTime);
 
 		return true;
+	}
+
+	public Direction getFacing() {
+		return facing;
+	}
+
+	public void setFacing(Direction facing) {
+		this.facing = facing;
 	}
 }

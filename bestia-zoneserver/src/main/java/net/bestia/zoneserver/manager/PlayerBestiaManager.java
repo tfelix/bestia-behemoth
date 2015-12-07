@@ -17,6 +17,7 @@ import net.bestia.model.I18n;
 import net.bestia.model.ServiceLocator;
 import net.bestia.model.dao.AttackDAO;
 import net.bestia.model.domain.Attack;
+import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
@@ -51,16 +52,18 @@ public class PlayerBestiaManager extends BestiaManager {
 	private final ComponentMapper<HP> hpMapper;
 
 	private StatusPoints statusPoints;
+	private Direction headFacing;
 
 	private final ServiceLocator serviceLocator;
 
-	public PlayerBestiaManager(PlayerBestia bestia, 
-			World world, 
-			Entity entity, 
+	public PlayerBestiaManager(PlayerBestia bestia,
+			World world,
+			Entity entity,
 			Zoneserver server,
 			ServiceLocator locator) {
 		super(world, entity);
-		
+
+		// Get all the mapper to extract and set ECS components.
 		this.attacksMapper = world.getMapper(Attacks.class);
 		this.manaMapper = world.getMapper(Mana.class);
 		this.hpMapper = world.getMapper(HP.class);
@@ -69,6 +72,7 @@ public class PlayerBestiaManager extends BestiaManager {
 		this.server = server;
 		this.bestia = bestia;
 		this.serviceLocator = locator;
+		this.headFacing = Direction.SOUTH;
 
 		// Shortcut to the acc. language.
 		this.language = bestia.getOwner().getLanguage().toString();
@@ -128,16 +132,17 @@ public class PlayerBestiaManager extends BestiaManager {
 	 * 
 	 */
 	private void checkLevelUp() {
-		int neededExp = getNeededExp();
+		final int neededExp = getNeededExp();
 
 		if (bestia.getExp() < neededExp || bestia.getLevel() >= MAX_LEVEL) {
 			return;
 		}
 
 		bestia.setExp(bestia.getExp() - neededExp);
+		bestia.setLevel(bestia.getLevel() + 1);
 
 		// Send system message for chat.
-		sendSystemMessage(I18n.t(language, "msg.bestia reached level", bestia.getLevel()));
+		sendSystemMessage(I18n.t(language, "msg.bestia_reached_level", bestia.getName(), bestia.getLevel()));
 
 		// Check recursivly for other level ups until all level ups are done.
 		checkLevelUp();
@@ -158,7 +163,7 @@ public class PlayerBestiaManager extends BestiaManager {
 	 * @return Exp needed for next levelup.
 	 */
 	private int getNeededExp() {
-		return (int) (Math.ceil(Math.exp(bestia.getLevel() / 7)) + 10);
+		return (int) (Math.ceil(Math.exp(bestia.getLevel()) / 3) + 15);
 	}
 
 	/**
@@ -343,9 +348,10 @@ public class PlayerBestiaManager extends BestiaManager {
 		final Vector2 pos = positionMapper.get(entity).position.getAnchor();
 		bestia.getCurrentPosition().setX(pos.x);
 		bestia.getCurrentPosition().setY(pos.y);
-		
+
 		// TODO Das hier mit den HP und der Mana wird wirklich komisch gelöst.
-		// Checken welche Angaben hier wichtiger sind und entweder es von den Status Punkten machen lassen oder von der Bestia.
+		// Checken welche Angaben hier wichtiger sind und entweder es von den
+		// Status Punkten machen lassen oder von der Bestia.
 
 		// Update cur hp and mana.
 		final HP hp = hpMapper.get(entity);
@@ -474,6 +480,14 @@ public class PlayerBestiaManager extends BestiaManager {
 			// no op.
 		}
 
+	}
+
+	public Direction getHeadFacing() {
+		return headFacing;
+	}
+
+	public void setHeadFacing(Direction headFacing) {
+		this.headFacing = headFacing;
 	}
 
 }

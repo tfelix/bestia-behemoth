@@ -72,17 +72,16 @@ public class ChatMessage extends Message {
 	 * @param text
 	 * @return
 	 */
-	public static ChatMessage getSystemMessage(Account account, String translationKey) {
+	public static ChatMessage getSystemMessage(Account account, String text) {
 
-		final String text = I18n.t(account, translationKey);
-
-		// TODO Hier ist der Message Path falsch, nachricht geht wieder an den
-		// Server.
 		ChatMessage msg = new ChatMessage();
 		msg.setAccountId(account.getId());
 		msg.setText(text);
 		msg.setTime(System.currentTimeMillis() / 1000L);
 		msg.setChatMode(Mode.SYSTEM);
+		
+		setClientReceive(msg);
+		
 		return msg;
 	}
 
@@ -169,6 +168,17 @@ public class ChatMessage extends Message {
 		forwardMsg.setTime(msg.time);
 
 		return forwardMsg;
+	}
+
+	/**
+	 * This sets the chat message path so it is send out to the client and not
+	 * received by the server.
+	 * 
+	 * @param msg
+	 *            The message to be directed to the client.
+	 */
+	public static void setClientReceive(ChatMessage msg) {
+		msg.currentPath = CLIENT_PATH;
 	}
 
 	public static ChatMessage getEchoRawMessage(long receiverAccoundId, String text) {
