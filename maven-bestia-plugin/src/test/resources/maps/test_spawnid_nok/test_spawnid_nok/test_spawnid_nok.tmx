@@ -5,7 +5,7 @@
   <property name="globalScripts" value="global"/>
   <property name="isPVP" value="false"/>
   <property name="mapDbName" value="testmap1"/>
-  <property name="spawn" value="1,0,0-10"/>
+  <property name="spawn" value="2,beissblatt,0,0-10;1,poring,0-1,0-10"/>
  </properties>
  <tileset firstgid="1" name="Berge" tilewidth="32" tileheight="32">
   <image source="tilemap1.png" width="512" height="512"/>
@@ -1254,7 +1254,7 @@
   <object name="test-zone1,10,10" type="portal" x="64" y="32" width="64" height="32"/>
  </objectgroup>
  <objectgroup color="#00aa00" name="spawn" width="20" height="20">
-  <object name="id:1" x="160" y="32" width="64" height="64"/>
+  <object name="id:2" x="160" y="32" width="64" height="64"/>
   <object name="id:1" x="160" y="128" width="64" height="64"/>
  </objectgroup>
 </map>

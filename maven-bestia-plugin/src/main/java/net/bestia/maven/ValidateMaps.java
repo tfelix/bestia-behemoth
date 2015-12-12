@@ -12,6 +12,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -31,31 +33,24 @@ import tiled.io.TMXMapReader;
 @Mojo(name = "validate-maps", defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
 public class ValidateMaps extends AbstractMojo {
 
-	private static final String SPAWN_PATTERN = "\\d+,\\w+,\\d+,\\d+-\\d+";
+	private static final Pattern SPAWN_PATTERN = Pattern.compile("(\\d+),\\w+,\\d+,\\d+-\\d+");
 
 	private static final Set<String> NEEDED_LAYERS;
-
-	static {
-		final HashSet<String> neededLayers = new HashSet<>();
-
-		neededLayers.add("spawn");
-		neededLayers.add("portals");
-		neededLayers.add("scripts");
-
-		NEEDED_LAYERS = Collections.unmodifiableSet(neededLayers);
-	}
-
 	private static final java.util.Map<String, String> NEEDED_MAP_PROPERTIES;
 
 	static {
-		final HashMap<String, String> neededMapProperties = new HashMap<>();
+		final HashSet<String> neededLayers = new HashSet<>();
+		neededLayers.add("spawn");
+		neededLayers.add("portals");
+		neededLayers.add("scripts");
+		NEEDED_LAYERS = Collections.unmodifiableSet(neededLayers);
 
+		final HashMap<String, String> neededMapProperties = new HashMap<>();
 		neededMapProperties.put("ambientSound", "No map property for 'ambientSound' (string) given.");
 		neededMapProperties.put("globalScripts", "No map property for 'globalScripts' (string) given.");
 		neededMapProperties.put("isPVP", "No map property for 'isPVP' (bool) given.");
 		neededMapProperties.put("mapDbName", "No map property for 'mapDbName' given.");
 		neededMapProperties.put("spawn", "No map property for 'spawn' given.");
-
 		NEEDED_MAP_PROPERTIES = Collections.unmodifiableMap(neededMapProperties);
 	}
 
@@ -64,6 +59,13 @@ public class ValidateMaps extends AbstractMojo {
 	 */
 	@Parameter(property = "mapsDir", required = true, defaultValue = "map")
 	private File mapsDirectory;
+
+	/**
+	 * Ctor. Primarly used for testing.
+	 */
+	public ValidateMaps(File mapsDirectory) {
+		this.mapsDirectory = mapsDirectory;
+	}
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
 
@@ -77,6 +79,9 @@ public class ValidateMaps extends AbstractMojo {
 
 		for (File file : listing) {
 			if (!file.isDirectory()) {
+				getLog().warn(String.format(
+						"A file is found inside the map directory: %s. There should be only folders containing the map assets.",
+						file.getAbsolutePath()));
 				continue;
 			}
 
@@ -171,12 +176,25 @@ public class ValidateMaps extends AbstractMojo {
 		}
 
 		final String[] spawnStrs = spawnStr.split(";");
+		
+		final Set<Integer> foundIds = new HashSet<>();
 
 		for (String singleSpawnStr : spawnStrs) {
 			// Check if the strings match the pattern.
-			if (!singleSpawnStr.matches(SPAWN_PATTERN)) {
+			final Matcher m = SPAWN_PATTERN.matcher(singleSpawnStr);
+			
+			if(!m.matches()) {
 				throw new MojoFailureException("Spawn string does not match the recognized pattern: " + singleSpawnStr);
 			}
+			
+			final Integer id = Integer.parseInt(m.group(1));
+			
+			if(foundIds.contains(id)) {
+				final String errMsg = String.format("Mob ID: %d is present twice inside the mob spawn list.", id);
+				throw new MojoFailureException(errMsg);
+			}
+			
+			foundIds.add(id);
 		}
 	}
 
