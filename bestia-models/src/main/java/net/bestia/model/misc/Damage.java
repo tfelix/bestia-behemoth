@@ -14,6 +14,9 @@ public class Damage implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
+	@JsonProperty("uuid")
+	private String entityUUID;
+	
 	@JsonProperty("dmg")
 	private int damage;
 	
@@ -26,25 +29,26 @@ public class Damage implements Serializable {
 	 * @param damage
 	 * @param type
 	 */
-	public Damage(int damage, DamageType type) {
+	public Damage(String uuid, int damage, DamageType type) {
 		if(damage < 0) {
 			throw new IllegalArgumentException("Damage can not be negative.");
 		}
 		
 		this.setDamage(damage);
 		this.setType(type);
+		this.entityUUID = uuid;
 	}
 	
-	public static Damage getHit(int hitAmount) {
-		return new Damage(hitAmount, DamageType.HIT);
+	public static Damage getHit(String uuid, int hitAmount) {
+		return new Damage(uuid, hitAmount, DamageType.HIT);
 	}
 	
-	public static Damage getHeal(int healAmount) {
-		return new Damage(healAmount, DamageType.HEAL);
+	public static Damage getHeal(String uuid, int healAmount) {
+		return new Damage(uuid, healAmount, DamageType.HEAL);
 	}
 	
-	public static Damage getMiss() {
-		return new Damage(0, DamageType.MISS);
+	public static Damage getMiss(String uuid) {
+		return new Damage(uuid, 0, DamageType.MISS);
 	}
 
 	public int getDamage() {
@@ -61,6 +65,14 @@ public class Damage implements Serializable {
 
 	public void setType(DamageType type) {
 		this.type = type;
+	}
+	
+	public String getEntityUUID() {
+		return entityUUID;
+	}
+	
+	public void setEntityUUID(String entityUUID) {
+		this.entityUUID = entityUUID;
 	}
 	
 	@Override

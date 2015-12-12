@@ -5,17 +5,22 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.artemis.Aspect;
 import com.artemis.Aspect.Builder;
+import com.artemis.AspectSubscriptionManager;
 import com.artemis.BaseEntitySystem;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
+import com.artemis.EntitySubscription;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.UuidEntityManager;
+import com.artemis.utils.IntBag;
 
 import net.bestia.messages.MapEntitiesMessage;
 import net.bestia.messages.MapEntitiesMessage.EntityAction;
 import net.bestia.messages.MapEntitiesMessage.EntityType;
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Item;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
@@ -44,10 +49,20 @@ public class NetworkUpdateManager extends BaseEntitySystem {
 	private ComponentMapper<Item> itemMapper;
 
 	private UuidEntityManager uuidManager;
+	private EntitySubscription activePlayers;
 
 	public NetworkUpdateManager(Builder aspect) {
 		super(aspect);
 		setEnabled(false);
+	}
+
+	@Override
+	protected void initialize() {
+		super.initialize();
+
+		// Get the active player subscription.
+		final AspectSubscriptionManager subManager = world.getAspectSubscriptionManager();
+		activePlayers = subManager.get(Aspect.all(Active.class, PlayerBestia.class));
 	}
 
 	/**
@@ -60,6 +75,51 @@ public class NetworkUpdateManager extends BaseEntitySystem {
 	public boolean isInSightDistance(Entity playerEntity, Entity visibleEntity) {
 		// TODO
 		return true;
+	}
+
+	/**
+	 * Checks if one entity is in sight of another.
+	 * 
+	 * @param playerEntity
+	 * @param visibleEntity
+	 * @return
+	 */
+	public boolean isInSightDistance(int playerEntity, int visibleEntity) {
+		// TODO
+		return true;
+	}
+
+	/**
+	 * Returns all player in sight (network receive range) denoted by a
+	 * entityId. This id must have at least a {@link Position} component in
+	 * order to be located inside the ECS. Only active players are located.
+	 * 
+	 * @param entityId
+	 * @return
+	 */
+	public IntBag getActivePlayerInSight(int entityId) {
+		final Position pos = positionMapper.getSafe(entityId);
+		if (pos == null) {
+			LOG.warn("Entity id {} has no position component.", entityId);
+			return new IntBag(0);
+		}
+		
+		final IntBag result = new IntBag();
+		
+		// TODO Das hier später über einen Quadtree abfragen statt pauschal alle
+		// entities holen.
+		final IntBag actives = activePlayers.getEntities();
+		for (int i = 0; i < actives.size(); i++) {
+			final int activeId = actives.get(i);
+			
+			if(!isInSightDistance(activeId, entityId)) {
+				continue;
+			}
+			
+			result.add(activeId);
+		}
+		
+		return result;
 	}
 
 	/**
@@ -105,7 +165,7 @@ public class NetworkUpdateManager extends BaseEntitySystem {
 		msg.setAction(action);
 		msg.addSprite(visible.sprite);
 		msg.setType(getTypeFromEntity(e));
-		
+
 		if (playerControlled != null) {
 			msg.setPlayerBestiaId(playerControlled.playerBestiaManager.getPlayerBestiaId());
 		}
@@ -121,15 +181,15 @@ public class NetworkUpdateManager extends BaseEntitySystem {
 	 * @return
 	 */
 	protected MapEntitiesMessage.EntityType getTypeFromEntity(Entity e) {
-		
-		if(bestiaMapper.has(e)) {
+
+		if (bestiaMapper.has(e)) {
 			return EntityType.BESTIA;
-		} else if(itemMapper.has(e)) {
+		} else if (itemMapper.has(e)) {
 			return EntityType.LOOT;
 		} else {
 			return EntityType.NONE;
 		}
-		
+
 	}
 
 	@Override

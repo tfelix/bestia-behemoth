@@ -5048,6 +5048,11 @@
  </layer>
  <objectgroup name="scripts" width="0" height="0">
   <object name="mapscript1" type="script" x="416" y="256" width="96" height="96"/>
+  <object name="fire" x="640" y="224" width="128" height="128">
+   <properties>
+    <property name="tickDelay" value="1000"/>
+   </properties>
+  </object>
  </objectgroup>
  <objectgroup color="#ff00ff" name="portals" width="0" height="0">
   <object name="test-zone1,10,10" type="portal" x="416" y="128" width="64" height="32"/>

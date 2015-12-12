@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.World;
+import com.artemis.managers.UuidEntityManager;
 
 import net.bestia.messages.ChatMessage;
 import net.bestia.model.I18n;
@@ -22,12 +23,14 @@ import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.misc.Damage;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.HP;
 import net.bestia.zoneserver.ecs.component.Mana;
 import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.manager.DamageManager;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
@@ -52,6 +55,8 @@ public class PlayerBestiaManager extends BestiaManager {
 	private final ComponentMapper<Attacks> attacksMapper;
 	private final ComponentMapper<Mana> manaMapper;
 	private final ComponentMapper<HP> hpMapper;
+	private final DamageManager dmgManager;
+	private final String entityUUID;
 
 	private Direction headFacing;
 
@@ -69,6 +74,8 @@ public class PlayerBestiaManager extends BestiaManager {
 		this.manaMapper = world.getMapper(Mana.class);
 		this.hpMapper = world.getMapper(HP.class);
 		this.positionMapper = world.getMapper(Position.class);
+		this.dmgManager = world.getSystem(DamageManager.class);
+		this.entityUUID = world.getSystem(UuidEntityManager.class).getUuid(entity).toString();
 
 		this.server = server;
 		this.bestia = bestia;
@@ -98,6 +105,41 @@ public class PlayerBestiaManager extends BestiaManager {
 
 		bestia.setExp(bestia.getExp() + exp);
 		checkLevelUp();
+	}
+
+	/**
+	 * Adds the damage to the player bestia and sends an update to the owner of
+	 * it.
+	 * 
+	 * @param dmg
+	 *            Simple amount of damage to be taken.
+	 */
+	public void takeDamage(int dmgValue) {
+
+		// Spawn the damage display indicator in the ECS to let it get send to
+		// all player in range.
+		final Damage damage = Damage.getHit(entityUUID, dmgValue);
+		dmgManager.spawnDamage(damage);
+
+		// Update our current hp.
+		final int newHp = statusPoints.getCurrentHp() - dmgValue;
+
+		if (newHp <= 0) {
+			kill();
+			statusPoints.setCurrentHp(0);
+			return;
+		}
+
+		statusPoints.setCurrentHp(newHp);
+
+	}
+
+	/**
+	 * Kills a player bestia.
+	 */
+	private void kill() {
+		log.debug("Player bestia {} was killed.", getPlayerBestiaId());
+		// TODO Auto-generated method stub
 	}
 
 	/**
