@@ -9,10 +9,9 @@ import java.util.List;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.bestia.model.DomainAwareBase;
 import net.bestia.model.domain.Account;
 
-public class AccountDAOTest extends DomainAwareBase {
+public class AccountDAOTest {
 
 	private int accounts = 0;
 
