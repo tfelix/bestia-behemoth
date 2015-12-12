@@ -1,3 +1,3 @@
 // Give the user 10k EXP.
 
-owner.addExp(10000);
+target.addExp(10000);
