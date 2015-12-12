@@ -67,12 +67,11 @@ public class ChangedNetworkUpdateSystem extends EntityProcessingSystem {
 
 		// First of all check if this is a player bestia entity. And if so send
 		// the update to the corresponding player.
-		if(playerMapper.has(e)) {
+		if (playerMapper.has(e)) {
 			final PlayerBestiaManager pbm = playerMapper.get(e).playerBestiaManager;
-			final BestiaInfoMessage bestiaInfoMsg = new BestiaInfoMessage(pbm.getPlayerBestia());
+			final BestiaInfoMessage bestiaInfoMsg = new BestiaInfoMessage(pbm.getPlayerBestia(), pbm.getStatusPoints());
 			ctx.getServer().sendMessage(bestiaInfoMsg);
 		}
-		
 
 		// All active bestias on this zone.
 		final IntBag entityIds = activePlayerEntities.getEntities();
@@ -127,7 +126,7 @@ public class ChangedNetworkUpdateSystem extends EntityProcessingSystem {
 	protected MapEntitiesMessage.Entity getMessageFromEntity(Entity e, EntityAction action) {
 		final UUID uuid = uuidManager.getUuid(e);
 		final Visible visible = visibleMapper.get(e);
-		
+
 		final BestiaManager manager = bestiaMapper.get(e).bestiaManager;
 		final Location loc = manager.getLocation();
 

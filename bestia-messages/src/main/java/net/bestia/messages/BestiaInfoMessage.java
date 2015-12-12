@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.domain.StatusPoints;
 
 /**
  * This message is send to the client to trigger a initial synchronization about
@@ -25,17 +26,20 @@ public class BestiaInfoMessage extends Message {
 	@JsonProperty("b")
 	private PlayerBestia bestia;
 
+	@JsonProperty("sp")
+	private StatusPoints statusPoints;
+
 	/**
 	 * 
 	 * @param message
+	 *            Message to initialize the message with.
 	 */
 	public BestiaInfoMessage(Message message) {
 		super(message);
 	}
 
 	/**
-	 * 
-	 * @param message
+	 * Std. ctor.
 	 */
 	public BestiaInfoMessage() {
 
@@ -65,13 +69,17 @@ public class BestiaInfoMessage extends Message {
 	 * 
 	 * @param bestia
 	 */
-	public BestiaInfoMessage(PlayerBestia bestia) {
+	public BestiaInfoMessage(PlayerBestia bestia, StatusPoints status) {
 		if (bestia == null) {
 			throw new IllegalArgumentException("Bestia can not be null.");
 		}
-		
+		if (status == null) {
+			throw new IllegalArgumentException("Status can not be null.");
+		}
+
 		setAccountId(bestia.getOwner().getId());
 		this.bestia = bestia;
+		this.statusPoints = status;
 	}
 
 	@JsonIgnore
@@ -99,5 +107,13 @@ public class BestiaInfoMessage extends Message {
 	@Override
 	public String getMessagePath() {
 		return getClientMessagePath();
+	}
+
+	public StatusPoints getStatusPoints() {
+		return statusPoints;
+	}
+
+	public void setStatusPoints(StatusPoints statusPoints) {
+		this.statusPoints = statusPoints;
 	}
 }

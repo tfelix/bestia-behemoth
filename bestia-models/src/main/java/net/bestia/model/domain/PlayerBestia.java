@@ -66,16 +66,6 @@ public class PlayerBestia implements Serializable {
 	@JsonIgnore
 	private int currentMana;
 
-	/**
-	 * StatusPoints must be calculates because the depend upon status effects
-	 * and equipments. PlayerBestiaManager will do this. It is left here so it
-	 * can easily be transmitted via JSON/Jackson. The problem it causes is that
-	 * set currentMana and HP must be done twice and its not cleat which value
-	 * to set.
-	 */
-	@Transient
-	private StatusPoints statusPoints;
-
 	@Embedded
 	@JsonProperty("cl")
 	private Location currentPosition;
@@ -283,18 +273,6 @@ public class PlayerBestia implements Serializable {
 
 	public int getId() {
 		return id;
-	}
-
-	@JsonProperty("sp")
-	public StatusPoints getStatusPoints() {
-		return statusPoints;
-	}
-
-	public void setStatusPoints(StatusPoints points) {
-		if (points == null) {
-			throw new IllegalArgumentException("Points can not be null.");
-		}
-		this.statusPoints = points;
 	}
 
 	@JsonIgnore

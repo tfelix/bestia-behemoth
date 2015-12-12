@@ -63,7 +63,6 @@ public class StatusPoints implements Serializable {
 	/* (non-Javadoc)
 	 * @see net.bestia.model.domain.StatusPoints#getCurrentHp()
 	 */
-	
 	public int getCurrentHp() {
 		return currentHp;
 	}

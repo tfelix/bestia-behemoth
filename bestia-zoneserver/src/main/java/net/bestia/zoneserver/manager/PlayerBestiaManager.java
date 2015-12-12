@@ -43,6 +43,8 @@ public class PlayerBestiaManager extends BestiaManager {
 	private final static int MAX_LEVEL = 40;
 
 	private final PlayerBestia bestia;
+	private final StatusPoints statusPoints;
+
 	private final String language;
 	private final Zoneserver server;
 
@@ -51,7 +53,6 @@ public class PlayerBestiaManager extends BestiaManager {
 	private final ComponentMapper<Mana> manaMapper;
 	private final ComponentMapper<HP> hpMapper;
 
-	private StatusPoints statusPoints;
 	private Direction headFacing;
 
 	private final ServiceLocator serviceLocator;
@@ -71,6 +72,7 @@ public class PlayerBestiaManager extends BestiaManager {
 
 		this.server = server;
 		this.bestia = bestia;
+		this.statusPoints = new StatusPoints();
 		this.serviceLocator = locator;
 		this.headFacing = Direction.SOUTH;
 
@@ -151,10 +153,8 @@ public class PlayerBestiaManager extends BestiaManager {
 		calculateStatusValues();
 
 		// Refill HP and Mana.
-		bestia.getStatusPoints().setCurrentHp(
-				bestia.getStatusPoints().getMaxHp());
-		bestia.getStatusPoints().setCurrentMana(
-				bestia.getStatusPoints().getMaxMana());
+		statusPoints.setCurrentHp(statusPoints.getCurrentHp());
+		statusPoints.setCurrentMana(statusPoints.getCurrentMana());
 	}
 
 	/**
@@ -172,45 +172,26 @@ public class PlayerBestiaManager extends BestiaManager {
 	 */
 	protected void calculateStatusValues() {
 
-		statusPoints = new StatusPoints();
-
 		final int atk = (bestia.getBaseValues().getAtk() * 2 + bestia.getIndividualValue().getAtk()
 				+ bestia.getEffortValues().getAtk() / 4) * bestia.getLevel() / 100 + 5;
 
-		final int def = (bestia.getBaseValues().getDef() * 2
-				+ bestia.getIndividualValue().getDef() + bestia
-						.getEffortValues().getDef() / 4)
-				* bestia.getLevel() / 100 + 5;
+		final int def = (bestia.getBaseValues().getDef() * 2 + bestia.getIndividualValue().getDef()
+				+ bestia.getEffortValues().getDef() / 4) * bestia.getLevel() / 100 + 5;
 
-		final int spatk = (bestia.getBaseValues().getSpAtk() * 2
-				+ bestia.getIndividualValue().getSpAtk() + bestia
-						.getEffortValues().getSpAtk() / 4)
-				* bestia.getLevel()
-				/ 100
-				+ 5;
+		final int spatk = (bestia.getBaseValues().getSpAtk() * 2 + bestia.getIndividualValue().getSpAtk()
+				+ bestia.getEffortValues().getSpAtk() / 4) * bestia.getLevel() / 100 + 5;
 
-		final int spdef = (bestia.getBaseValues().getSpDef() * 2
-				+ bestia.getIndividualValue().getSpDef() + bestia
-						.getEffortValues().getSpDef() / 4)
-				* bestia.getLevel()
-				/ 100
-				+ 5;
+		final int spdef = (bestia.getBaseValues().getSpDef() * 2 + bestia.getIndividualValue().getSpDef()
+				+ bestia.getEffortValues().getSpDef() / 4) * bestia.getLevel() / 100 + 5;
 
-		int spd = (bestia.getBaseValues().getSpd() * 2
-				+ bestia.getIndividualValue().getSpd() + bestia
-						.getEffortValues().getSpd() / 4)
-				* bestia.getLevel() / 100 + 5;
+		int spd = (bestia.getBaseValues().getSpd() * 2 + bestia.getIndividualValue().getSpd()
+				+ bestia.getEffortValues().getSpd() / 4) * bestia.getLevel() / 100 + 5;
 
-		final int maxHp = bestia.getBaseValues().getHp() * 2
-				+ bestia.getIndividualValue().getHp()
-				+ bestia.getEffortValues().getHp() / 4 * bestia.getLevel()
-						/ 100
-				+ 10 + bestia.getLevel();
-		final int maxMana = bestia.getBaseValues().getMana() * 2
-				+ bestia.getIndividualValue().getMana()
-				+ bestia.getEffortValues().getMana() / 4 * bestia.getLevel()
-						/ 100
-				+ 10 + bestia.getLevel() * 2;
+		final int maxHp = bestia.getBaseValues().getHp() * 2 + bestia.getIndividualValue().getHp()
+				+ bestia.getEffortValues().getHp() / 4 * bestia.getLevel() / 100 + 10 + bestia.getLevel();
+
+		final int maxMana = bestia.getBaseValues().getMana() * 2 + bestia.getIndividualValue().getMana()
+				+ bestia.getEffortValues().getMana() / 4 * bestia.getLevel() / 100 + 10 + bestia.getLevel() * 2;
 
 		statusPoints.setMaxValues(maxHp, maxMana);
 		statusPoints.setCurrentHp(bestia.getCurrentHp());
@@ -344,26 +325,15 @@ public class PlayerBestiaManager extends BestiaManager {
 	public PlayerBestia getPlayerBestia() {
 
 		// Update location.
-		// TODO hier auch den Mapnamen handlen.
 		final Vector2 pos = positionMapper.get(entity).position.getAnchor();
 		bestia.getCurrentPosition().setX(pos.x);
 		bestia.getCurrentPosition().setY(pos.y);
-
-		// TODO Das hier mit den HP und der Mana wird wirklich komisch gelöst.
-		// Checken welche Angaben hier wichtiger sind und entweder es von den
-		// Status Punkten machen lassen oder von der Bestia.
 
 		// Update cur hp and mana.
 		final HP hp = hpMapper.get(entity);
 		final Mana mana = manaMapper.get(entity);
 		bestia.setCurrentHp(hp.currentHP);
 		bestia.setCurrentMana(mana.currentMana);
-
-		// Update status values.
-		final StatusPoints statusPoints = getStatusPoints();
-		statusPoints.setCurrentHp(hp.currentHP);
-		statusPoints.setCurrentMana(mana.currentMana);
-		bestia.setStatusPoints(statusPoints);
 
 		// Update attacks.
 		final Attacks attacksComp = attacksMapper.get(entity);
