@@ -6,23 +6,27 @@ import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
+import net.bestia.zoneserver.ecs.manager.NetworkUpdateManager;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.artemis.Aspect;
 import com.artemis.AspectSubscriptionManager;
+import com.artemis.BaseEntitySystem;
 import com.artemis.Entity;
 import com.artemis.EntitySubscription;
 import com.artemis.EntitySubscription.SubscriptionListener;
 import com.artemis.annotations.Wire;
 import com.artemis.utils.IntBag;
 
-@Wire(injectInherited = true)
-public class VisibleSpawnUpdateSystem extends NetworkUpdateSystem {
+@Wire
+public class VisibleSpawnUpdateSystem extends BaseEntitySystem {
 
 	public VisibleSpawnUpdateSystem() {
 		super(Aspect.all(Visible.class, Position.class));
+		
+		setEnabled(false);
 	}
 
 	private static final Logger log = LogManager.getLogger(VisibleSpawnUpdateSystem.class);
@@ -30,6 +34,7 @@ public class VisibleSpawnUpdateSystem extends NetworkUpdateSystem {
 	@Wire
 	private CommandContext ctx;
 
+	private NetworkUpdateManager updateManager;
 	private EntitySubscription playerSubscription;
 
 	@Override
@@ -56,11 +61,11 @@ public class VisibleSpawnUpdateSystem extends NetworkUpdateSystem {
 						final Entity playerEntity = world.getEntity(id);
 
 						// Is this player in sight of entity? If not continue.
-						if (!isInSightDistance(playerEntity, visibleEntity)) {
+						if (!updateManager.isInSightDistance(playerEntity, visibleEntity)) {
 							continue;
 						}
 
-						sendUpdate(playerEntity, visibleEntity, EntityAction.APPEAR);
+						updateManager.sendUpdate(playerEntity, visibleEntity, EntityAction.APPEAR);
 					}
 				}
 			}
@@ -71,5 +76,11 @@ public class VisibleSpawnUpdateSystem extends NetworkUpdateSystem {
 			}
 		});
 
+	}
+
+	@Override
+	protected void processSystem() {
+		// TODO Auto-generated method stub
+		
 	}
 }

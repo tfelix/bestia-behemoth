@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.ecs.system;
+package net.bestia.zoneserver.ecs.manager;
 
 import java.util.UUID;
 
@@ -30,9 +30,9 @@ import net.bestia.zoneserver.zone.shape.Vector2;
  *
  */
 @Wire
-public abstract class NetworkUpdateSystem extends BaseEntitySystem {
+public class NetworkUpdateManager extends BaseEntitySystem {
 
-	private static final Logger LOG = LogManager.getLogger(NetworkUpdateSystem.class);
+	private static final Logger LOG = LogManager.getLogger(NetworkUpdateManager.class);
 
 	@Wire
 	private CommandContext ctx;
@@ -45,14 +45,9 @@ public abstract class NetworkUpdateSystem extends BaseEntitySystem {
 
 	private UuidEntityManager uuidManager;
 
-	public NetworkUpdateSystem(Builder aspect) {
+	public NetworkUpdateManager(Builder aspect) {
 		super(aspect);
 		setEnabled(false);
-	}
-
-	@Override
-	protected void initialize() {
-		super.initialize();
 	}
 
 	/**
@@ -62,7 +57,7 @@ public abstract class NetworkUpdateSystem extends BaseEntitySystem {
 	 * @param visibleEntity
 	 * @return
 	 */
-	protected boolean isInSightDistance(Entity playerEntity, Entity visibleEntity) {
+	public boolean isInSightDistance(Entity playerEntity, Entity visibleEntity) {
 		// TODO
 		return true;
 	}
@@ -75,7 +70,7 @@ public abstract class NetworkUpdateSystem extends BaseEntitySystem {
 	 * @param action
 	 *            {@link EntityAction} of the message.
 	 */
-	protected void sendUpdate(Entity playerEntity, Entity visibleEntity, EntityAction action) {
+	public void sendUpdate(Entity playerEntity, Entity visibleEntity, EntityAction action) {
 
 		final PlayerBestia playerControlled = playerMapper.getSafe(playerEntity);
 		final long accId = playerControlled.playerBestiaManager.getAccountId();
