@@ -333,8 +333,12 @@ public class StatusPoints implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("SP[atk: %d def: %d, spAtk: %d,"
+		return String.format("SP[curHp: %d, maxHp: %d, curMana: %d, maxMana: %d, atk: %d def: %d, spAtk: %d,"
 				+ " spDef: %d, spd: %d, armDef: %d, armSpDef: %d]",
+				currentHp,
+				maxHp,
+				currentMana,
+				maxMana,
 				atk,
 				def,
 				spAtk,

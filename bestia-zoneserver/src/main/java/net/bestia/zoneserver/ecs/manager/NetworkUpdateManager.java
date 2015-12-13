@@ -6,9 +6,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.artemis.Aspect;
-import com.artemis.Aspect.Builder;
 import com.artemis.AspectSubscriptionManager;
-import com.artemis.BaseEntitySystem;
+import com.artemis.BaseSystem;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.EntitySubscription;
@@ -35,7 +34,7 @@ import net.bestia.zoneserver.zone.shape.Vector2;
  *
  */
 @Wire
-public class NetworkUpdateManager extends BaseEntitySystem {
+public class NetworkUpdateManager extends BaseSystem {
 
 	private static final Logger LOG = LogManager.getLogger(NetworkUpdateManager.class);
 
@@ -51,8 +50,7 @@ public class NetworkUpdateManager extends BaseEntitySystem {
 	private UuidEntityManager uuidManager;
 	private EntitySubscription activePlayers;
 
-	public NetworkUpdateManager(Builder aspect) {
-		super(aspect);
+	public NetworkUpdateManager() {
 		setEnabled(false);
 	}
 

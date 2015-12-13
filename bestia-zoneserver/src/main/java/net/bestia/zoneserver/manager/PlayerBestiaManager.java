@@ -85,6 +85,8 @@ public class PlayerBestiaManager extends BestiaManager {
 
 		// Shortcut to the acc. language.
 		this.language = bestia.getOwner().getLanguage().toString();
+		
+		calculateStatusValues();
 	}
 
 	/**
@@ -294,17 +296,13 @@ public class PlayerBestiaManager extends BestiaManager {
 	}
 
 	/**
-	 * Calculates the status values depending on equipment and current bestia
+	 * Gets the status values depending on equipment and current bestia
 	 * level.
 	 * 
 	 * @return The current status points.
 	 */
 	@Override
 	public StatusPoints getStatusPoints() {
-		if (statusPoints == null) {
-			calculateStatusValues();
-		}
-
 		return statusPoints;
 	}
 

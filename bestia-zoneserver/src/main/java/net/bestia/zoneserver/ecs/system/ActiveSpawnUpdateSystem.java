@@ -54,6 +54,7 @@ public class ActiveSpawnUpdateSystem extends BaseEntitySystem {
 
 			@Override
 			public void inserted(IntBag entities) {
+				
 				final IntBag visibleEntities = visibleSubscription.getEntities();
 
 				log.trace("{} New active player, sending {} entities.", entities.size(), visibleEntities.size());
@@ -66,7 +67,7 @@ public class ActiveSpawnUpdateSystem extends BaseEntitySystem {
 						final int visibleEntityId = visibleEntities.get(j);
 						final Entity visibleEntity = world.getEntity(visibleEntityId);
 
-						if (updateManager.isInSightDistance(newActiveEntity, visibleEntity)) {
+						if (!updateManager.isInSightDistance(newActiveEntity, visibleEntity)) {
 							continue;
 						}
 

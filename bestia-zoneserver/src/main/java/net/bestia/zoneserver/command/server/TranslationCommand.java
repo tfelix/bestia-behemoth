@@ -55,4 +55,8 @@ public class TranslationCommand extends Command {
 		ctx.getServer().sendMessage(response);
 	}
 
+	@Override
+	public String toString() {
+		return "TranslationCommand[]";
+	}
 }

@@ -16,7 +16,7 @@ Bestia.Engine.States.LoadingState = function() {
 Bestia.Engine.States.LoadingState.prototype.init = function(bestia) {
 	this.bestia = bestia;
 
-	console.debug("LoadState: Loading for bestia: " + this.bestia);
+	console.debug("LoadState: Loading for bestia: " + this.bestia.playerBestiaId());
 
 	// Prepare the loading screen.
 	this.gfx = this.add.graphics(0, 0);

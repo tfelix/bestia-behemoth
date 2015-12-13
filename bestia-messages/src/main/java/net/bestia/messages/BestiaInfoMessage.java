@@ -95,8 +95,15 @@ public class BestiaInfoMessage extends Message {
 		return bestia;
 	}
 
-	public void setBestia(PlayerBestia bestia) {
+	public void setBestia(PlayerBestia bestia, StatusPoints statusPoints) {
+		if(bestia == null) {
+			throw new IllegalArgumentException("bestia can not be null.");
+		}
+		if(statusPoints == null) {
+			throw new IllegalArgumentException("statusPoints can not be null.");
+		}
 		this.bestia = bestia;
+		this.statusPoints = statusPoints;
 	}
 
 	@Override
