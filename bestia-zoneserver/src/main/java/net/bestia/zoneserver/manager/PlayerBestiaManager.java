@@ -31,7 +31,6 @@ import net.bestia.zoneserver.ecs.component.HP;
 import net.bestia.zoneserver.ecs.component.Mana;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.manager.DamageManager;
-import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
  * The PlayerBestiaManager is responsible for executing the "business logic" to
@@ -51,7 +50,6 @@ public class PlayerBestiaManager extends BestiaManager {
 	private final String language;
 	private final Zoneserver server;
 
-	private final ComponentMapper<Position> positionMapper;
 	private final ComponentMapper<Attacks> attacksMapper;
 	private final ComponentMapper<Mana> manaMapper;
 	private final ComponentMapper<HP> hpMapper;
@@ -73,7 +71,6 @@ public class PlayerBestiaManager extends BestiaManager {
 		this.attacksMapper = world.getMapper(Attacks.class);
 		this.manaMapper = world.getMapper(Mana.class);
 		this.hpMapper = world.getMapper(HP.class);
-		this.positionMapper = world.getMapper(Position.class);
 		this.dmgManager = world.getSystem(DamageManager.class);
 		this.entityUUID = world.getSystem(UuidEntityManager.class).getUuid(entity).toString();
 
@@ -365,9 +362,9 @@ public class PlayerBestiaManager extends BestiaManager {
 	public PlayerBestia getPlayerBestia() {
 
 		// Update location.
-		final Vector2 pos = positionMapper.get(entity).position.getAnchor();
-		bestia.getCurrentPosition().setX(pos.x);
-		bestia.getCurrentPosition().setY(pos.y);
+		final Location loc = getLocation();
+		bestia.getCurrentPosition().setX(loc.getX());
+		bestia.getCurrentPosition().setY(loc.getY());
 
 		// Update cur hp and mana.
 		final HP hp = hpMapper.get(entity);

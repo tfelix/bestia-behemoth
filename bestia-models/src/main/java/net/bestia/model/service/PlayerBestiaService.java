@@ -18,8 +18,9 @@ import net.bestia.model.domain.AttackLevel;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
 
-@Transactional
+
 @Service("PlayerBestiaService")
+@Transactional
 public class PlayerBestiaService {
 
 	private final static int NUM_ITEM_SLOTS = 5;

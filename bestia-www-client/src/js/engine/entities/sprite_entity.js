@@ -250,7 +250,7 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(path) {
 
 	// Calculate coordinate arrays from path.
 	path.forEach(function(ele, i) {
-		// This is our current position. No need to move TO this positon.
+		// This is our current position. No need to move TO this position.
 		if (i === 0) {
 			return;
 		}

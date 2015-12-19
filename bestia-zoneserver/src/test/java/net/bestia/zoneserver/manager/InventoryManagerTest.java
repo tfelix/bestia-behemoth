@@ -18,7 +18,7 @@ import com.github.springtestdbunit.annotation.DatabaseSetup;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring-config.xml" })
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class, DbUnitTestExecutionListener.class })
-@DatabaseSetup("/db/items.xml")
+@DatabaseSetup("db/items.xml")
 public class InventoryManagerTest {
 
 	@Autowired

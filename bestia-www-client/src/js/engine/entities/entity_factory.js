@@ -16,6 +16,12 @@ Bestia.Engine.EntityFactory = function(game, demandLoader, entityCache) {
 
 };
 
+/**
+ * Creates a bestia entity.
+ * 
+ * @param data
+ *            The update data for this (bestia) entity.
+ */
 Bestia.Engine.EntityFactory.prototype.createBestiaEntity = function(data) {
 
 	var self = this;
@@ -35,6 +41,12 @@ Bestia.Engine.EntityFactory.prototype.createBestiaEntity = function(data) {
 
 };
 
+/**
+ * Creates an item entity on the map for the given update data.
+ * 
+ * @param data
+ *            The update data for this (item) entity.
+ */
 Bestia.Engine.EntityFactory.prototype.createItemEntity = function(data) {
 
 	var self = this;
