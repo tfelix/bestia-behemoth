@@ -43,7 +43,11 @@
 			<artifactId>jetty-servlets</artifactId>
 			<version>9.3.1.v20150714</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.netflix.servo</groupId>
+			<artifactId>servo-core</artifactId>
+			<version>0.8.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
