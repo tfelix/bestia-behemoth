@@ -49,25 +49,25 @@ public class RestServer {
 			jettyServer.setStopAtShutdown(true);
 
 			// HTTP Configuration.
-			HttpConfiguration config = new HttpConfiguration();
+			final HttpConfiguration config = new HttpConfiguration();
 			config.setSendServerVersion(false);
 
 			// Server connector.
-			ServerConnector http = new ServerConnector(jettyServer,
+			final ServerConnector http = new ServerConnector(jettyServer,
 					new HttpConnectionFactory(config));
 			http.setPort(PORT);
 			jettyServer.addConnector(http);
 
 			// Handler structure.
-			HandlerCollection handlers = new HandlerCollection();
-			ContextHandlerCollection contexts = new ContextHandlerCollection();
+			final HandlerCollection handlers = new HandlerCollection();
+			final ContextHandlerCollection contexts = new ContextHandlerCollection();
 			handlers.setHandlers(new Handler[] { contexts, new DefaultHandler() });
 
-			ServletContextHandler servletContext = new ServletContextHandler(
+			final ServletContextHandler servletContext = new ServletContextHandler(
 					ServletContextHandler.SESSIONS);
 			servletContext.setContextPath("/");
 
-			ServletHolder jerseyServlet = servletContext.addServlet(
+			final ServletHolder jerseyServlet = servletContext.addServlet(
 					ServletContainer.class, "/*");
 			jerseyServlet.setInitOrder(0);
 			// Tells the Jersey Servlet which REST service/class to load.
@@ -94,7 +94,8 @@ public class RestServer {
 	}
 
 	private URI getURI() {
-		return UriBuilder.fromUri("http://" + HOSTNAME + "/").port(PORT)
+		return UriBuilder.fromUri("http://" + HOSTNAME + "/")
+				.port(PORT)
 				.build();
 	}
 

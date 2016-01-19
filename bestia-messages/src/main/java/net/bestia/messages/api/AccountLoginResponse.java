@@ -1,7 +1,8 @@
-package net.bestia.loginserver.rest.response;
+package net.bestia.messages.api;
 
 /**
- * Used as a response to send login response data to a successful logged in account.
+ * Used as a HTTP response to send login response data as JSON to a successful
+ * logged in account.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
