@@ -19,6 +19,9 @@ import net.bestia.util.BestiaConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.netflix.servo.monitor.Counter;
+import com.netflix.servo.monitor.Monitors;
+
 /**
  * The loginserver connects to the interserver and listens for auth.login messages. With these messages the webserver
  * will authenticate new incoming connections. For this purpose the loginserver also access the database and checks the
@@ -30,6 +33,11 @@ import org.apache.logging.log4j.Logger;
 public final class Loginserver implements InterserverMessageHandler {
 
 	private static final Logger LOG = LogManager.getLogger(Loginserver.class);
+	
+	// Metrics
+	private final Counter loginMessageMetric = Monitors.newCounter("LoginMessages");
+	private final Counter acceptedLoginMessageMetric = Monitors.newCounter("AcceptedLoginMessages");
+	private final Counter deniedLoginMessageMetric = Monitors.newCounter("DeniedLoginMessages");
 	
 	private final RestServer restServer;
 
@@ -65,6 +73,8 @@ public final class Loginserver implements InterserverMessageHandler {
 		this.subscriber = conFactory.getSubscriber(this);
 		
 		this.restServer = new RestServer();
+		
+		Monitors.registerObject("Loginserver", this);
 	}
 
 	/**
@@ -88,6 +98,8 @@ public final class Loginserver implements InterserverMessageHandler {
 		}
 		
 		if(!restServer.start()) {
+			LOG.error("Loginserver (web/rest) could not start.");
+			stop();
 			return false;
 		}
 
@@ -121,19 +133,25 @@ public final class Loginserver implements InterserverMessageHandler {
 		if (!(msg instanceof LoginAuthMessage)) {
 			return;
 		}
-		LoginAuthMessage loginMsg = (LoginAuthMessage) msg;
+		
+		final LoginAuthMessage loginMsg = (LoginAuthMessage) msg;
 		LOG.debug("Received login auth request: {}", loginMsg.toString());
+		loginMessageMetric.increment();
 
-		Authenticator tokenAuth = new LoginTokenAuthenticator(loginMsg.getAccountId(), loginMsg.getToken());
+		final Authenticator tokenAuth = new LoginTokenAuthenticator(loginMsg.getAccountId(), loginMsg.getToken());
 
 		final LoginAuthReplyMessage loginReplyMsg = new LoginAuthReplyMessage(loginMsg);
 		loginReplyMsg.setAccountId(msg.getAccountId());
 		if (tokenAuth.authenticate() == AuthState.AUTHENTICATED) {
 			LOG.info("Connection with account id: {}, token: {}, state: AUTHORIZED", loginMsg.getAccountId(), loginMsg.getToken());
 			loginReplyMsg.setLoginState(LoginState.AUTHORIZED);
+			
+			acceptedLoginMessageMetric.increment();
 		} else {
 			LOG.info("Connection with account id: {}, token: {}, state: DENIED", loginMsg.getAccountId(), loginMsg.getToken());
 			loginReplyMsg.setLoginState(LoginState.DENIED);
+			
+			deniedLoginMessageMetric.increment();
 		}
 
 		try {
@@ -141,31 +159,5 @@ public final class Loginserver implements InterserverMessageHandler {
 		} catch (IOException e) {
 			LOG.error("Could not send LoginReplyMessage", e);
 		}
-	}
-
-	public static void main(String[] args) {
-
-		final BestiaConfiguration config = new BestiaConfiguration();
-		try {
-			config.load();
-		} catch (IOException ex) {
-			LOG.fatal("Could not load configuration file. Exiting.", ex);
-			System.exit(1);
-		}
-
-		final Loginserver server = new Loginserver(config);
-
-		if (!server.start()) {
-			LOG.fatal("Server could not start. Exiting.");
-			System.exit(1);
-		}
-
-		// Cancel the loginserver gracefully when the VM shuts down. Does not
-		// work properly on windows machines.
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
-				server.stop();
-			}
-		});
 	}
 }

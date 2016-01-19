@@ -1,9 +1,9 @@
 package net.bestia.loginserver.rest;
 
-import net.bestia.loginserver.rest.response.AccountLoginResponse;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import net.bestia.messages.api.AccountLoginResponse;
 
 public class AccountLoginResponseTest {
 
