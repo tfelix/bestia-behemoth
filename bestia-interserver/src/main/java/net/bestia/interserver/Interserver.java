@@ -1,8 +1,6 @@
 package net.bestia.interserver;
 
-import java.io.IOException;
-
-import net.bestia.util.BestiaConfiguration;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,6 +8,11 @@ import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMQException;
+
+import com.netflix.servo.annotations.DataSourceType;
+import com.netflix.servo.annotations.Monitor;
+
+import net.bestia.util.BestiaConfiguration;
 
 /**
  * The Interserver builds the bestia system backbone. It will receive messages
@@ -24,11 +27,11 @@ public class Interserver {
 
 	private static final Logger LOG = LogManager.getLogger(Interserver.class);
 
-	// Read later for metrics.
-	@SuppressWarnings("unused")
-	private long messagesReceived;
-	@SuppressWarnings("unused")
-	private long bytesReceived;
+	@Monitor(name="MessagesReceived", type=DataSourceType.COUNTER)
+	private AtomicLong messagesReceived = new AtomicLong(0);
+	
+	@Monitor(name="BytesReceived", type=DataSourceType.COUNTER)
+	private AtomicLong bytesReceived = new AtomicLong(0);
 
 	/**
 	 * This thread processes incoming messages from the zone or the webserver
@@ -69,8 +72,8 @@ public class Interserver {
 					LOG.trace("Received message[topic: {}, size {} byte]", topic, data.length);
 
 					// Count the metrics.
-					messagesReceived++;
-					bytesReceived += data.length;
+					messagesReceived.incrementAndGet();
+					bytesReceived.getAndAdd(data.length);
 
 					publisher.sendMore(topic);
 					publisher.send(data);
@@ -177,31 +180,4 @@ public class Interserver {
 
 		LOG.info("Interserver has gone down.");
 	}
-
-	public static void main(String[] args) {
-
-		final BestiaConfiguration config = new BestiaConfiguration();
-		try {
-			config.load();
-		} catch (IOException ex) {
-			LOG.fatal("Could not load config file. Exiting.", ex);
-			return;
-		}
-
-		final Interserver interserver = new Interserver(config);
-
-		if (!interserver.start()) {
-			LOG.fatal("Server could not start. Exiting.");
-			return;
-		}
-
-		// Cancel the interserver gracefully when the VM shuts down. Does not
-		// work properly on windows machines.
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
-				interserver.stop();
-			}
-		});
-	}
-
 }
