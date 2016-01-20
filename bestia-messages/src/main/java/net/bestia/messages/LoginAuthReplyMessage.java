@@ -1,5 +1,7 @@
 package net.bestia.messages;
 
+import java.util.Objects;
+
 /**
  * Message is replied from the login server after a {@link LoginAuthMessage}.
  * 
@@ -51,6 +53,11 @@ public class LoginAuthReplyMessage extends LoginAuthMessage {
 	@Override
 	public String getMessagePath() {
 		return MESSAGE_PATH;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(state, getAccountId(), getRequestId());
 	}
 
 	@Override

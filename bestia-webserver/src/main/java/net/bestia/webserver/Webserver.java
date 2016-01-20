@@ -2,25 +2,28 @@ package net.bestia.webserver;
 
 import java.io.IOException;
 
-import net.bestia.interserver.InterserverConnectionFactory;
-import net.bestia.interserver.InterserverPublisher;
-import net.bestia.interserver.InterserverSubscriber;
-import net.bestia.util.BestiaConfiguration;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.atmosphere.nettosphere.Config;
 import org.atmosphere.nettosphere.Nettosphere;
 
+import net.bestia.interserver.InterserverConnectionFactory;
+import net.bestia.interserver.InterserverPublisher;
+import net.bestia.interserver.InterserverSubscriber;
+import net.bestia.util.BestiaConfiguration;
+
 public final class Webserver {
 
 	private static final Logger log = LogManager.getLogger(Webserver.class);
 
+	private final InterserverConnectionFactory interConnectionFactory;
 	private final InterserverPublisher publisher;
 	private final InterserverSubscriber subscriber;
+
 	private final String name;
 	private final BestiaConfiguration config;
-	private final int PORT = 8080;
+	private final int port;
+	private Nettosphere server;
 
 	/**
 	 * Class which starts and runs the bestia web front server.
@@ -36,6 +39,7 @@ public final class Webserver {
 
 		this.name = config.getProperty("web.name");
 		this.config = config;
+		this.port = config.getIntProperty("web.port");
 
 		BestiaConnectionProvider.create();
 
@@ -43,11 +47,10 @@ public final class Webserver {
 		final int publishPort = config.getIntProperty("inter.publishPort");
 		final String domain = config.getProperty("inter.domain");
 
-		InterserverConnectionFactory interservConnectionFactory = new InterserverConnectionFactory(1, domain,
-				publishPort, listenPort);
+		this.interConnectionFactory = new InterserverConnectionFactory(1, domain, publishPort, listenPort);
 
-		this.publisher = interservConnectionFactory.getPublisher();
-		this.subscriber = interservConnectionFactory.getSubscriber(BestiaConnectionProvider.getInstance());
+		this.publisher = interConnectionFactory.getPublisher();
+		this.subscriber = interConnectionFactory.getSubscriber(BestiaConnectionProvider.getInstance());
 
 		// Subscribe to special topics.
 		subscriber.subscribe("web/all");
@@ -55,7 +58,7 @@ public final class Webserver {
 		BestiaConnectionProvider.getInstance().setup(publisher, subscriber);
 	}
 
-	public void start() throws Exception {
+	public void start() throws IOException {
 		log.info(config.getVersion());
 		log.info("Starting the Bestia Websocket Server [{}]...", name);
 
@@ -63,44 +66,20 @@ public final class Webserver {
 		publisher.connect();
 		subscriber.connect();
 
-		// TODO das hier per config steuerbar machen.
-		Config.Builder b = new Config.Builder();
-		b.host("0.0.0.0").port(PORT);
+		final Config.Builder b = new Config.Builder();
+		b.host("0.0.0.0").port(port);
 
-		Nettosphere server = new Nettosphere.Builder().config(b.build()).build();
+		server = new Nettosphere.Builder().config(b.build()).build();
 		server.start();
-		log.info("Webserver [{}] started. Listening on port: {}", name, PORT);
+		log.info("Webserver [{}] started. Listening on port: {}", name, port);
 	}
-	
+
 	public void stop() {
 		log.info("Stopping the Bestia Websocket Server [{}]...", name);
+		server.stop();
+		
+		interConnectionFactory.shutdown();
+
 		log.info("Websocket Server [{}] stopped.", name);
-	}
-
-	public static void main(String[] args) {
-
-		final BestiaConfiguration config = new BestiaConfiguration();
-		try {
-			config.load();
-		} catch (IOException ex) {
-			log.fatal("Could not load configuration file. Exiting.", ex);
-			System.exit(1);
-		}
-
-		final Webserver server = new Webserver(config);
-		try {
-			server.start();
-		} catch (Exception ex) {
-			log.fatal("Server could not start.", ex);
-			System.exit(1);
-		}
-
-		// Cancel the loginserver gracefully when the VM shuts down. Does not
-		// work properly on windows machines.
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			public void run() {
-				server.stop();
-			}
-		});
 	}
 }

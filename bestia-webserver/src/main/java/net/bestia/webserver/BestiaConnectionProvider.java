@@ -17,9 +17,11 @@ import net.bestia.messages.LoginAuthReplyMessage;
 import net.bestia.messages.Message;
 
 /**
- * Helper class to provide a centralized storage for all opend websocket connections and filter the incoming interserver
- * messages for accounts and deliver them via websocket. Basically all shared objects between the webserver threads
- * should be here. Be aware that calling to methods inside this must be threadsafe.
+ * Helper class to provide a centralized storage for all opend websocket
+ * connections and filter the incoming interserver messages for accounts and
+ * deliver them via websocket. Basically all shared objects between the
+ * webserver threads should be here. Be aware that calling to methods inside
+ * this must be threadsafe.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -38,17 +40,20 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	private final Map<Long, WebSocket> connections = new ConcurrentHashMap<>();
 
 	/**
-	 * Publishes a message to the interserver.
+	 * Publishes a raw string message to the interserver. The string must be
+	 * parsed (it should be JSON) into a realy java message. It will then be
+	 * send
 	 * 
 	 * @param accountId
 	 *            Account id of the accound sending this message.
 	 * @param message
-	 *            String representation of the message. Must be parsed to an object.
+	 *            String representation of the message. Must be parsed to an
+	 *            object.
 	 * @throws IOException
 	 */
 	public void publishInterserver(long accountId, String message) throws IOException {
 		log.trace("Publish message to interserver: {}", message);
-		
+
 		final Message msg = mapper.readValue(message, Message.class);
 
 		// Regenerate the account id from the server connection.
@@ -86,7 +91,8 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	}
 
 	/**
-	 * Unsubscribes from the topic from the zone/interserver and removes this account from our saved connection list.
+	 * Unsubscribes from the topic from the zone/interserver and removes this
+	 * account from our saved connection list.
 	 * 
 	 * @param accountId
 	 *            Account ID to be removed.
@@ -111,7 +117,8 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	}
 
 	/**
-	 * Static getter of the InterserverConnectionProvider so it can be retrieved for the socket handler.
+	 * Static getter of the InterserverConnectionProvider so it can be retrieved
+	 * for the socket handler.
 	 * 
 	 * @return Instance of the InterserverConnectionProvider
 	 */
@@ -136,10 +143,11 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	 */
 	@Override
 	public void onMessage(Message msg) {
-		
+
 		log.trace("Received message from interserver: {}", msg.toString());
-		
-		// Special case: If the message is a LoginAuthReply message we must route it to the blocker for further
+
+		// Special case: If the message is a LoginAuthReply message we must
+		// route it to the blocker for further
 		// processing.
 		if (msg.getMessageId().equals(LoginAuthReplyMessage.MESSAGE_ID)) {
 			loginChecker.receivedAuthReplayMessage((LoginAuthReplyMessage) msg);
