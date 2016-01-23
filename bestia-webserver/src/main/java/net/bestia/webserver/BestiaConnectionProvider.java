@@ -30,14 +30,33 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 
 	private static final Logger log = LogManager.getLogger(BestiaConnectionProvider.class);
 
-	private static BestiaConnectionProvider instance = null;
 	private final ObjectMapper mapper = new ObjectMapper();
 
-	private InterserverPublisher publisher;
-	private InterserverSubscriber subscriber;
+	private final InterserverPublisher publisher;
+	private final InterserverSubscriber subscriber;
+
 	private final LoginCheckBlocker loginChecker = new LoginCheckBlocker(this);
 
 	private final Map<Long, WebSocket> connections = new ConcurrentHashMap<>();
+
+	/**
+	 * Ctor. Must have handler to send and receive messages from the
+	 * interserver.
+	 * 
+	 * @param publisher
+	 * @param subscriber
+	 */
+	public BestiaConnectionProvider(InterserverPublisher publisher, InterserverSubscriber subscriber) {
+		if (publisher == null) {
+			throw new IllegalArgumentException("Publisher can not be null.");
+		}
+		if (subscriber == null) {
+			throw new IllegalArgumentException("Subscriber can not be null.");
+		}
+
+		this.publisher = publisher;
+		this.subscriber = subscriber;
+	}
 
 	/**
 	 * Publishes a raw string message to the interserver. The string must be
@@ -103,32 +122,6 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 		connections.remove(accountId);
 	}
 
-	public static void create() {
-		instance = new BestiaConnectionProvider();
-	}
-
-	public void setup(InterserverPublisher publisher, InterserverSubscriber subscriber) {
-		if (instance == null) {
-			throw new IllegalStateException("setup() must be called bevor invoking these method.");
-		}
-
-		this.publisher = publisher;
-		this.subscriber = subscriber;
-	}
-
-	/**
-	 * Static getter of the InterserverConnectionProvider so it can be retrieved
-	 * for the socket handler.
-	 * 
-	 * @return Instance of the InterserverConnectionProvider
-	 */
-	public static BestiaConnectionProvider getInstance() {
-		if (instance == null) {
-			throw new IllegalStateException("create() must be called bevor invoking these method.");
-		}
-		return instance;
-	}
-
 	/**
 	 * Returns the login check blocker.
 	 * 
@@ -147,8 +140,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 		log.trace("Received message from interserver: {}", msg.toString());
 
 		// Special case: If the message is a LoginAuthReply message we must
-		// route it to the blocker for further
-		// processing.
+		// route it to the blocker for further processing.
 		if (msg.getMessageId().equals(LoginAuthReplyMessage.MESSAGE_ID)) {
 			loginChecker.receivedAuthReplayMessage((LoginAuthReplyMessage) msg);
 			return;

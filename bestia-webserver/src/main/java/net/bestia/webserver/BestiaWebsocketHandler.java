@@ -21,10 +21,11 @@ import org.atmosphere.websocket.WebSocketProcessor.WebSocketException;
 public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 
 	private final static Logger log = LogManager.getLogger(BestiaWebsocketHandler.class);
-	private final BestiaConnectionProvider provider = BestiaConnectionProvider.getInstance();
+	private final BestiaConnectionProvider provider = Webserver.provider;
 
 	@Inject
 	private AtmosphereResourceFactory resourceFactory;
+	
 
 	@Override
 	public void onOpen(WebSocket webSocket) throws IOException {
@@ -41,6 +42,7 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 			final String token = resource.getRequest().getHeader("X-Bestia-Token");
 
 			if (provider.getLoginCheckBlocker().isAuthenticated(accountId, token)) {
+				
 				// Since login is ok we must now be prepared to receive zone messages for this account connection.
 				provider.addConnection(accountId, webSocket);
 				// if so announce a new login to the zones.

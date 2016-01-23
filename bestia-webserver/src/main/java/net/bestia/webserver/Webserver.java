@@ -8,8 +8,10 @@ import org.atmosphere.nettosphere.Config;
 import org.atmosphere.nettosphere.Nettosphere;
 
 import net.bestia.interserver.InterserverConnectionFactory;
+import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
+import net.bestia.messages.Message;
 import net.bestia.util.BestiaConfiguration;
 
 public final class Webserver {
@@ -24,6 +26,8 @@ public final class Webserver {
 	private final BestiaConfiguration config;
 	private final int port;
 	private Nettosphere server;
+	
+	public static BestiaConnectionProvider provider;
 
 	/**
 	 * Class which starts and runs the bestia web front server.
@@ -41,8 +45,6 @@ public final class Webserver {
 		this.config = config;
 		this.port = config.getIntProperty("web.port");
 
-		BestiaConnectionProvider.create();
-
 		final int listenPort = config.getIntProperty("inter.listenPort");
 		final int publishPort = config.getIntProperty("inter.publishPort");
 		final String domain = config.getProperty("inter.domain");
@@ -50,12 +52,18 @@ public final class Webserver {
 		this.interConnectionFactory = new InterserverConnectionFactory(1, domain, publishPort, listenPort);
 
 		this.publisher = interConnectionFactory.getPublisher();
-		this.subscriber = interConnectionFactory.getSubscriber(BestiaConnectionProvider.getInstance());
-
+		this.subscriber = interConnectionFactory.getSubscriber(new InterserverMessageHandler() {
+			
+			@Override
+			public void onMessage(Message msg) {
+				provider.onMessage(msg);
+			}
+		});
+		
+		Webserver.provider = new BestiaConnectionProvider(publisher, subscriber);
+		
 		// Subscribe to special topics.
 		subscriber.subscribe("web/all");
-
-		BestiaConnectionProvider.getInstance().setup(publisher, subscriber);
 	}
 
 	public void start() throws IOException {
