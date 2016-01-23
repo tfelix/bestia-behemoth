@@ -24,16 +24,6 @@
         "generated": "1401380327373",
         "app": "Handmade",
         "version": "1.0",
-        "copyright": "Thomas Felix 2015",
-		"mob_db_id": "mastersmith",
-		"sprite": {
-			"animations": [
-				{"name": "walk_down", "from": 1, "to": 8, "fps": 5 },
-				{"name": "walk_down_left", "from": 1, "to": 8, "fps": 5 },
-				{"name": "walk_left", "from": 1, "to": 8, "fps": 5 },
-				{"name": "walk_left_up", "from": 1, "to": 8, "fps": 5 },
-				{"name": "walk_up", "from": 1, "to": 8, "fps": 5 }
-			]
-		}
+        "copyright": "Thomas Felix 2015"
     }
 }

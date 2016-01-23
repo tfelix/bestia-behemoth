@@ -18,6 +18,7 @@ import com.artemis.annotations.Wire;
 
 import net.bestia.messages.BestiaInfoMessage;
 import net.bestia.messages.InputMessage;
+import net.bestia.messages.LoginBroadcastMessage;
 import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.service.InventoryService;
@@ -43,6 +44,16 @@ import net.bestia.zoneserver.messaging.routing.MessageIdFilter;
 import net.bestia.zoneserver.messaging.routing.MessageRouter;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
+/**
+ * The {@link PlayerBestiaSpawnManager} hooks itself into the message processing
+ * and listens to {@link LoginBroadcastMessage}s. If it receives such a message
+ * it will check if there are any player bestias from this account located on
+ * its managed map and if so it will spawn them and send the player a info
+ * message about the bestia which is now possibly under his command.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 @Wire
 public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 
@@ -66,10 +77,10 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	private final MessageProcessor zoneProcessor;
 
 	/**
-	 * This filter is to let the 
+	 * This filter is to let the
 	 */
 	private final DynamicBestiaIdMessageFilter zoneMessageFilter = new DynamicBestiaIdMessageFilter();
-	
+
 	private Archetype playerBestiaArchetype;
 
 	/**
@@ -82,7 +93,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		super(Aspect.all(PlayerBestia.class));
 
 		this.zoneProcessor = zone;
-		
+
 		// We dont tick. We are passiv.
 		setEnabled(false);
 	}
@@ -90,7 +101,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	@Override
 	protected void initialize() {
 		super.initialize();
-		
+
 		final MessageRouter router = ctx.getServer().getMessageRouter();
 
 		// This manager needs to know about these two messages to create and
@@ -130,11 +141,11 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		final PlayerBestiaManager pbm = playerMapper.get(entityId).playerBestiaManager;
 		final int playerBestiaId = pbm.getPlayerBestiaId();
 		final Long accountId = pbm.getAccountId();
-		
+
 		bestiaEntityRegister.put(playerBestiaId, entityId);
 		zoneMessageFilter.subscribeId(playerBestiaId);
 		subscriptionManager.setOnline(pbm.getAccountId());
-		
+
 		// Add the entity to the register so it can be deleted.
 		if (!accountBestiaRegister.containsKey(accountId)) {
 			accountBestiaRegister.put(accountId, new HashSet<>());
@@ -151,11 +162,11 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		final PlayerBestiaManager pbm = playerMapper.get(entityId).playerBestiaManager;
 		final int playerBestiaId = pbm.getPlayerBestiaId();
 		final Long accountId = pbm.getAccountId();
-		
+
 		bestiaEntityRegister.remove(playerBestiaId);
 		zoneMessageFilter.removeId(playerBestiaId);
 		subscriptionManager.setOffline(pbm.getAccountId());
-		
+
 		accountBestiaRegister.get(accountId).remove(entityId);
 		if (accountBestiaRegister.get(accountId).size() == 0) {
 			accountBestiaRegister.remove(accountId);
@@ -164,7 +175,6 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 
 	@Override
 	protected void processSystem() {
-
 
 	}
 
@@ -181,19 +191,23 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		playerBestiaMapper.get(pbEntity).playerBestiaManager = pbm;
 		// Need to use bestia since PBM reads information only from the entity
 		// position which is obviously not set yet.
+		// TODO Der PlayerBestiaManager sollte für das Updaten verantwortlich sein.
 		positionMapper.get(pbEntity).position = new Vector2(pb.getCurrentPosition().getX(),
 				pb.getCurrentPosition().getY());
 		attacksMapper.get(pbEntity).addAll(pbm.getAttackIds());
 		bestiaMapper.get(pbEntity).bestiaManager = pbm;
 
+		// TODO Der PlayerBestiaManager sollte für das Updaten verantwortlich sein.
 		final HP hp = hpMapper.get(pbEntity);
 		hp.currentHP = pbm.getStatusPoints().getCurrentHp();
 		hp.maxHP = pbm.getStatusPoints().getMaxHp();
 
+		// TODO Der PlayerBestiaManager sollte für das Updaten verantwortlich sein.
 		final Mana mana = manaMapper.get(pbEntity);
 		mana.currentMana = pbm.getStatusPoints().getCurrentMana();
 		mana.maxMana = pbm.getStatusPoints().getMaxMana();
 
+		// TODO Der PlayerBestiaManager sollte für das Updaten verantwortlich sein.
 		hpRegenMapper.get(pbEntity).rate = pbm.getHpRegenerationRate();
 		manaRegenMapper.get(pbEntity).rate = pbm.getManaRegenerationRate();
 		visibleMapper.get(pbEntity).sprite = pbm.getPlayerBestia().getOrigin().getSprite();
@@ -202,22 +216,23 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		// marked as active initially.
 		final net.bestia.model.domain.PlayerBestia master = pb.getOwner().getMaster();
 		final boolean isMaster = master.equals(pb);
+		
 		if (isMaster) {
-			
+
 			pbEntity.edit().create(Active.class);
-			
+
 			final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
 			final InventoryManager invManager = new InventoryManager(pbm, invService, ctx.getServer());
 			final Message invListMessage = invManager.getInventoryListMessage();
 			ctx.getServer().sendMessage(invListMessage);
-			
+
 		}
 
 		// Send a update to client so he can pick up the new bestia.
 		final BestiaInfoMessage infoMsg = new BestiaInfoMessage();
 		infoMsg.setAccountId(accId);
 		// Use the updated bestia.
-		infoMsg.setBestia(pbm.getPlayerBestia());
+		infoMsg.setBestia(pbm.getPlayerBestia(), pbm.getStatusPoints());
 		infoMsg.setMaster(isMaster);
 		ctx.getServer().sendMessage(infoMsg);
 
@@ -262,6 +277,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 
 	/**
 	 * Removes all bestia for a given account.
+	 * 
 	 * @param accountId
 	 */
 	public void despawnAllBestias(long accountId) {
@@ -277,7 +293,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		for (Integer id : entityIds) {
 			try {
 				world.delete(id);
-			} catch(RuntimeException ex) {
+			} catch (RuntimeException ex) {
 				LOG.error("Could not delete. FIXIT", ex);
 			}
 			LOG.trace("Despawning player bestia (entity id: {})", id);

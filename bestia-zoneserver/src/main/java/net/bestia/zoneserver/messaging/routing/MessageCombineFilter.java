@@ -8,12 +8,12 @@ import net.bestia.messages.Message;
  * Multiple filder can be combined in a AND fashion. Incoming messages must
  * match all filters listed here to be accepted for the designated consumer.
  * 
- * @author Thomas
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class MessageCombineFilter implements MessageFilter {
 
-	private ArrayList<MessageFilter> filters = new ArrayList<>();
+	private final ArrayList<MessageFilter> filters = new ArrayList<>();
 
 	public void addFilter(MessageFilter filter) {
 		filters.add(filter);
@@ -29,4 +29,8 @@ public class MessageCombineFilter implements MessageFilter {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("MessageCombineFilter[contains: %s]", filters.toString());
+	}
 }

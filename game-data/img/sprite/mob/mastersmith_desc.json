@@ -1,19 +1,24 @@
 { 
 	"scale" : 0.68,
-	"stand_up" : "walk_up/001.png",
-	"stand_down" : "walk_down/001.png",
-	"stand_down_left": "walk_down_left/001.png",
-	"stand_left": "walk_left/001.png",
-	"stand_left_up": "walk_left_up/001.png",
     "animations": [
 				{"name": "walk_down", "from": 1, "to": 8, "fps": 7 },
 				{"name": "walk_down_left", "from": 1, "to": 8, "fps": 7 },
 				{"name": "walk_left", "from": 1, "to": 8, "fps": 7 },
 				{"name": "walk_left_up", "from": 1, "to": 8, "fps": 7 },
-				{"name": "walk_up", "from": 1, "to": 8, "fps": 7 }
+				{"name": "walk_up", "from": 1, "to": 8, "fps": 7 },
+				{"name": "stand_up", "from": 1, "to": 1, "fps": 0 },
+				{"name": "stand_down", "from": 1, "to": 1, "fps": 0 },
+				{"name": "stand_down_left", "from": 1, "to": 1, "fps": 0 },
+				{"name": "stand_left", "from": 1, "to": 1, "fps": 0 },
+				{"name": "stand_left_up", "from": 1, "to": 1, "fps": 0 }
 			],
 	"anchor": {"x": 0.5, "y": 1},
-	"sprite_anchors" : [
-				{"id": "head", "default": {"x": 0, "y": -30}}
+	"multiSpriteAnchors" : [
+				{
+				"id": "female_01",
+				"scale": 1.2,
+				"defaultAnchor": {"x": 0, "y": -66}, 
+				"walk_left": [{"x": 0, "y": -30}, {"x": 0, "y": -30}]
+				}
 			]
 }

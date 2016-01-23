@@ -2,15 +2,17 @@ package net.bestia.model.domain;
 
 import java.io.Serializable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.persistence.UniqueConstraint;
 
 /**
  * This will save script variables to the database. These variables can be used
@@ -31,8 +33,13 @@ import javax.persistence.Transient;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-//@Entity
-@Table(name = "script_vars", indexes = { @Index(name = "entity_id_key", columnList = "entity_id", unique = false) })
+@Entity
+@Table(name = "script_vars",
+		uniqueConstraints = {
+			@UniqueConstraint(columnNames = { "id", "ACCOUNT", "name_id" }), 
+			@UniqueConstraint(columnNames = { "id", "ACCOUNT", "PLAYER_BESTIA", "name_id" })
+		},
+		indexes = { @Index(name = "name_id_key", columnList = "name_id", unique = false) })
 public class ScriptVar implements Serializable {
 
 	@Transient
@@ -41,21 +48,50 @@ public class ScriptVar implements Serializable {
 	@Id
 	private long id;
 
-	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(nullable = true)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(nullable = true, name="ACCOUNT")
 	private Account account;
 
-	@OneToMany(fetch = FetchType.LAZY)
-	@JoinColumn(nullable = true)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+	@JoinColumn(nullable = true, name="PLAYER_BESTIA")
 	private PlayerBestia playerBestia;
 
-	@Column(name = "entity_id", nullable = false)
-	private String entityId;
-	
+	@Column(name = "name_id", nullable = false)
+	private String nameId;
+
 	private String data;
-	
+
 	public ScriptVar() {
-		
+
+	}
+
+	public ScriptVar(String key, String data, Account acc) {
+		if (data == null || data.isEmpty()) {
+			throw new IllegalArgumentException("Data can not be null or empty.");
+		}
+		if (acc == null) {
+			throw new IllegalArgumentException("Account can not be null.");
+		}
+
+		this.data = data;
+		this.account = acc;
+	}
+
+	public ScriptVar(String key, String data, Account acc, PlayerBestia playerBestia) {
+		if (data == null || data.isEmpty()) {
+			throw new IllegalArgumentException("Data can not be null or empty.");
+		}
+		if (acc == null) {
+			throw new IllegalArgumentException("Account can not be null.");
+		}
+
+		if (playerBestia == null) {
+			throw new IllegalArgumentException("PlayerBestia can not be null.");
+		}
+
+		this.data = data;
+		this.account = acc;
+		this.playerBestia = playerBestia;
 	}
 
 	public long getId() {
@@ -71,6 +107,10 @@ public class ScriptVar implements Serializable {
 	}
 
 	public void setAccount(Account account) {
+		if (account == null) {
+			throw new IllegalArgumentException("Account can not be set to null.");
+		}
+
 		this.account = account;
 	}
 
@@ -82,12 +122,15 @@ public class ScriptVar implements Serializable {
 		this.playerBestia = playerBestia;
 	}
 
-	public String getEntityId() {
-		return entityId;
+	public String getNameId() {
+		return nameId;
 	}
 
-	public void setEntityId(String entityId) {
-		this.entityId = entityId;
+	public void setNameKey(String key) {
+		if (key == null || key.isEmpty()) {
+			throw new IllegalArgumentException("NameKey can not be set to null or empty.");
+		}
+		this.nameId = key;
 	}
 
 	public String getData() {
@@ -95,6 +138,9 @@ public class ScriptVar implements Serializable {
 	}
 
 	public void setData(String data) {
+		if (data == null || data.isEmpty()) {
+			throw new IllegalArgumentException("Data can not be set to null or empty. Delte the scriptvar instead.");
+		}
 		this.data = data;
 	}
 }

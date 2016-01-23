@@ -23,5 +23,10 @@ public class ZoneWrapperFilter implements MessageFilter {
 		final ZoneWrapperMessage<?> wrapperMsg = (ZoneWrapperMessage<?>) msg;
 		return wrapperMsg.getReceiverZones().contains(zonename);
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("ZoneWrapperFilter[zoneName: %s]", zonename);
+	}
 
 }

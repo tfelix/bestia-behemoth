@@ -62,7 +62,8 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 		final BestiaManager manager = bestiaMapper.get(e).bestiaManager;
 		
 		// Check that the next move position is only one tile away.
-		final int distance = getDistance(manager.getLocation(), pos);
+		final Location loc = manager.getLocation();
+		final int distance = getDistance(loc, pos);
 		if(distance > 1) {
 			// Something is wrong. Path is no longer valid.
 			m.path.clear();
@@ -70,8 +71,8 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 			return;
 		}
 
-		manager.getLocation().setX(pos.x);
-		manager.getLocation().setY(pos.y);
+		loc.setX(pos.x);
+		loc.setY(pos.y);
 		
 		// Mark entity as changed.
 		e.edit().create(Changed.class);

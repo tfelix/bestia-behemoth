@@ -32,12 +32,6 @@ Bestia.Engine = function(pubsub, config) {
 		musicVolume : ko.observable(100)
 	};
 
-	this.info = {};
-	this.info.fps = ko.observable(0);
-	this.info.fps.extend({
-		rateLimit : 1000
-	});
-
 	this.bestia = undefined;
 
 	// Determine the size of the canvas.
@@ -47,11 +41,13 @@ Bestia.Engine = function(pubsub, config) {
 
 	this.gameState = new Bestia.Engine.States.GameState(this);
 	this.game.state.add('boot', new Bestia.Engine.States.BootState());
-	this.game.state.add('game', this.gameState);
 	this.game.state.add('connecting', new Bestia.Engine.States.ConnectingState(this));
 	this.game.state.add('load', new Bestia.Engine.States.LoadingState(this));
-	this.game.state.start('boot');
+	this.game.state.add('game', this.gameState);
 
+	/**
+	 * Holds the central cache for all entities displayed in the game.
+	 */
 	this.entityCache = new Bestia.Engine.EntityCacheManager();
 	
 	/**
@@ -62,16 +58,6 @@ Bestia.Engine = function(pubsub, config) {
 	 */
 	this.entityUpdater = new Bestia.Engine.EntityUpdater(pubsub, this.entityCache);
 
-	// Subscribe for the first info messages until we gathered information about
-	// the master bestia to trigger initial map load.
-	var onInitHandler = function(_, bestia) {
-		console.debug('Engine.onInitHandler called. Starting initial load and remove handler.');
-		self.loadMap(bestia);
-		// Remove handler again since we only trigger this once.
-		self.pubsub.unsubscribe(Bestia.Signal.BESTIA_SELECTED, onInitHandler);
-	};
-	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, onInitHandler);
-
 	// React on bestia selection changes. We need to re-trigger the map loading.
 	var onSelectBestiaHandler = function(_, data) {
 		console.debug('New bestia selected. Starting loading process.');
@@ -79,6 +65,9 @@ Bestia.Engine = function(pubsub, config) {
 		self.loadMap(data);
 	};
 	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, onSelectBestiaHandler);
+	
+	// When everything is setup. Start the engine.
+	this.game.state.start('boot');
 };
 
 /**

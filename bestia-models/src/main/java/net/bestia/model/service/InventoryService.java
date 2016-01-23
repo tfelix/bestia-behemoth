@@ -68,7 +68,7 @@ public class InventoryService {
 	 */
 	public boolean hasItem(long accId, int itemId, int amount) {
 
-		PlayerItem item = playerItemDao.findPlayerItem(accId, itemId);
+		final PlayerItem item = playerItemDao.findPlayerItem(accId, itemId);
 
 		if (item == null) {
 			return false;
@@ -309,5 +309,22 @@ public class InventoryService {
 	 */
 	public List<PlayerItem> findPlayerItemsForAccount(long accId) {
 		return playerItemDao.findPlayerItemsForAccount(accId);
+	}
+
+	/**
+	 * Checks if the user has the given player item with the wanted amount.
+	 * 
+	 * @param playerItemId
+	 * @param amount
+	 * @return
+	 */
+	public boolean hasPlayerItem(int playerItemId, int amount) {
+		final PlayerItem item = playerItemDao.find(playerItemId);
+
+		if (item == null) {
+			return false;
+		}
+
+		return item.getAmount() >= amount;
 	}
 }

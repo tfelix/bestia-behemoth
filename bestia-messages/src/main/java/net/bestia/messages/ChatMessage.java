@@ -23,25 +23,25 @@ public class ChatMessage extends Message {
 	public enum Mode {
 		PUBLIC, PARTY, GUILD, WHISPER, SYSTEM, GM_BROADCAST, ERROR, COMMAND, BATTLE
 	}
-	
+
 	@JsonProperty("pbid")
 	private int playerBestiaId = 0;
 
 	@JsonProperty("m")
 	private Mode chatMode;
-	
+
 	@JsonProperty("txt")
 	private String text;
-	
+
 	@JsonProperty("sn")
 	private String senderNickname;
-	
+
 	@JsonProperty("rxn")
 	private String receiverNickname;
-	
+
 	@JsonProperty("cmid")
 	private int chatMessageId;
-	
+
 	@JsonProperty("t")
 	private long time;
 
@@ -72,15 +72,16 @@ public class ChatMessage extends Message {
 	 * @param text
 	 * @return
 	 */
-	public static ChatMessage getSystemMessage(Account account, String translationKey) {
-
-		final String text = I18n.t(account, translationKey);
+	public static ChatMessage getSystemMessage(Account account, String text) {
 
 		ChatMessage msg = new ChatMessage();
 		msg.setAccountId(account.getId());
 		msg.setText(text);
 		msg.setTime(System.currentTimeMillis() / 1000L);
 		msg.setChatMode(Mode.SYSTEM);
+		
+		setClientReceive(msg);
+		
 		return msg;
 	}
 
@@ -120,11 +121,11 @@ public class ChatMessage extends Message {
 	public void setTime(long time) {
 		this.time = time;
 	}
-	
+
 	public int getPlayerBestiaId() {
 		return playerBestiaId;
 	}
-	
+
 	public void setPlayerBestiaId(int pbid) {
 		this.playerBestiaId = pbid;
 	}
@@ -168,7 +169,18 @@ public class ChatMessage extends Message {
 
 		return forwardMsg;
 	}
-	
+
+	/**
+	 * This sets the chat message path so it is send out to the client and not
+	 * received by the server.
+	 * 
+	 * @param msg
+	 *            The message to be directed to the client.
+	 */
+	public static void setClientReceive(ChatMessage msg) {
+		msg.currentPath = CLIENT_PATH;
+	}
+
 	public static ChatMessage getEchoRawMessage(long receiverAccoundId, String text) {
 		ChatMessage forwardMsg = new ChatMessage();
 

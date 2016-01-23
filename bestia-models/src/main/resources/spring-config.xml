@@ -15,13 +15,13 @@
     http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
 
 	<!-- we will manage transactions with annotations -->
-	<tx:annotation-driven />
+	<tx:annotation-driven transaction-manager="transactionManager" />
 
 	<!-- we can use annotations -->
 	<context:annotation-config />
 
 	<!-- package to look for annotated classes -->
-	<context:component-scan base-package="net.bestia.model" />
+	<context:component-scan base-package="net.bestia.model.*" />
 
 	<jpa:repositories base-package="net.bestia.model.dao" />
 
@@ -55,7 +55,7 @@
 
 	<bean id="jpaVendorAdapter"
 		class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-		<property name="showSql" value="true" />
+		<property name="showSql" value="false" />
 		<property name="generateDdl" value="true" />
 		<property name="database" value="MYSQL" />
 	</bean>
@@ -69,7 +69,7 @@
 	</bean>
 
 	<bean id="transactionManager"
-		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-		<property name="sessionFactory" ref="sessionFactory" />
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
 	</bean>
 </beans>

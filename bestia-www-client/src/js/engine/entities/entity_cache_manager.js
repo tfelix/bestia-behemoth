@@ -58,3 +58,7 @@ Bestia.Engine.EntityCacheManager.prototype.clear = function() {
 	this._pbIdCache.clear();
 	this._uuidCache.clear();
 };
+
+Bestia.Engine.EntityCacheManager.prototype.getAllEntities = function() {
+	return this._uuidCache.getAllEntities();
+};

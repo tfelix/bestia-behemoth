@@ -11,21 +11,26 @@ import org.apache.logging.log4j.Logger;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.World;
+import com.artemis.managers.UuidEntityManager;
 
 import net.bestia.messages.ChatMessage;
 import net.bestia.model.I18n;
 import net.bestia.model.ServiceLocator;
 import net.bestia.model.dao.AttackDAO;
 import net.bestia.model.domain.Attack;
+import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.misc.Damage;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.HP;
 import net.bestia.zoneserver.ecs.component.Mana;
+import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.manager.DamageManager;
 
 /**
  * The PlayerBestiaManager is responsible for executing the "business logic" to
@@ -40,30 +45,45 @@ public class PlayerBestiaManager extends BestiaManager {
 	private final static int MAX_LEVEL = 40;
 
 	private final PlayerBestia bestia;
+	private final StatusPoints statusPoints;
+
 	private final String language;
 	private final Zoneserver server;
 
 	private final ComponentMapper<Attacks> attacksMapper;
 	private final ComponentMapper<Mana> manaMapper;
 	private final ComponentMapper<HP> hpMapper;
+	private final DamageManager dmgManager;
+	private final String entityUUID;
 
-	private StatusPoints statusPoints;
+	private Direction headFacing;
 
 	private final ServiceLocator serviceLocator;
 
-	public PlayerBestiaManager(PlayerBestia bestia, World world, Entity entity, Zoneserver sender,
+	public PlayerBestiaManager(PlayerBestia bestia,
+			World world,
+			Entity entity,
+			Zoneserver server,
 			ServiceLocator locator) {
 		super(world, entity);
+
+		// Get all the mapper to extract and set ECS components.
 		this.attacksMapper = world.getMapper(Attacks.class);
 		this.manaMapper = world.getMapper(Mana.class);
 		this.hpMapper = world.getMapper(HP.class);
+		this.dmgManager = world.getSystem(DamageManager.class);
+		this.entityUUID = world.getSystem(UuidEntityManager.class).getUuid(entity).toString();
 
-		this.server = sender;
+		this.server = server;
 		this.bestia = bestia;
+		this.statusPoints = new StatusPoints();
 		this.serviceLocator = locator;
+		this.headFacing = Direction.SOUTH;
 
 		// Shortcut to the acc. language.
 		this.language = bestia.getOwner().getLanguage().toString();
+		
+		calculateStatusValues();
 	}
 
 	/**
@@ -80,10 +100,45 @@ public class PlayerBestiaManager extends BestiaManager {
 		}
 
 		// Send system message for chat.
-		sendSystemMessage(I18n.t(language, "msg.bestia gained exp", exp));
+		sendSystemMessage(I18n.t(language, "MSG.bestia_gained_exp", bestia.getName(), exp));
 
 		bestia.setExp(bestia.getExp() + exp);
 		checkLevelUp();
+	}
+
+	/**
+	 * Adds the damage to the player bestia and sends an update to the owner of
+	 * it.
+	 * 
+	 * @param dmg
+	 *            Simple amount of damage to be taken.
+	 */
+	public void takeDamage(int dmgValue) {
+
+		// Spawn the damage display indicator in the ECS to let it get send to
+		// all player in range.
+		final Damage damage = Damage.getHit(entityUUID, dmgValue);
+		dmgManager.spawnDamage(damage);
+
+		// Update our current hp.
+		final int newHp = statusPoints.getCurrentHp() - dmgValue;
+
+		if (newHp <= 0) {
+			kill();
+			statusPoints.setCurrentHp(0);
+			return;
+		}
+
+		statusPoints.setCurrentHp(newHp);
+
+	}
+
+	/**
+	 * Kills a player bestia.
+	 */
+	private void kill() {
+		log.debug("Player bestia {} was killed.", getPlayerBestiaId());
+		// TODO Auto-generated method stub
 	}
 
 	/**
@@ -120,16 +175,17 @@ public class PlayerBestiaManager extends BestiaManager {
 	 * 
 	 */
 	private void checkLevelUp() {
-		int neededExp = getNeededExp();
+		final int neededExp = getNeededExp();
 
 		if (bestia.getExp() < neededExp || bestia.getLevel() >= MAX_LEVEL) {
 			return;
 		}
 
 		bestia.setExp(bestia.getExp() - neededExp);
+		bestia.setLevel(bestia.getLevel() + 1);
 
 		// Send system message for chat.
-		sendSystemMessage(I18n.t(language, "msg.bestia reached level", bestia.getLevel()));
+		sendSystemMessage(I18n.t(language, "msg.bestia_reached_level", bestia.getName(), bestia.getLevel()));
 
 		// Check recursivly for other level ups until all level ups are done.
 		checkLevelUp();
@@ -138,10 +194,8 @@ public class PlayerBestiaManager extends BestiaManager {
 		calculateStatusValues();
 
 		// Refill HP and Mana.
-		bestia.getStatusPoints().setCurrentHp(
-				bestia.getStatusPoints().getMaxHp());
-		bestia.getStatusPoints().setCurrentMana(
-				bestia.getStatusPoints().getMaxMana());
+		statusPoints.setCurrentHp(statusPoints.getCurrentHp());
+		statusPoints.setCurrentMana(statusPoints.getCurrentMana());
 	}
 
 	/**
@@ -150,7 +204,7 @@ public class PlayerBestiaManager extends BestiaManager {
 	 * @return Exp needed for next levelup.
 	 */
 	private int getNeededExp() {
-		return (int) (Math.ceil(Math.exp(bestia.getLevel() / 7)) + 10);
+		return (int) (Math.ceil(Math.exp(bestia.getLevel()) / 3) + 15);
 	}
 
 	/**
@@ -159,45 +213,26 @@ public class PlayerBestiaManager extends BestiaManager {
 	 */
 	protected void calculateStatusValues() {
 
-		statusPoints = new StatusPoints();
-
 		final int atk = (bestia.getBaseValues().getAtk() * 2 + bestia.getIndividualValue().getAtk()
 				+ bestia.getEffortValues().getAtk() / 4) * bestia.getLevel() / 100 + 5;
 
-		final int def = (bestia.getBaseValues().getDef() * 2
-				+ bestia.getIndividualValue().getDef() + bestia
-						.getEffortValues().getDef() / 4)
-				* bestia.getLevel() / 100 + 5;
+		final int def = (bestia.getBaseValues().getDef() * 2 + bestia.getIndividualValue().getDef()
+				+ bestia.getEffortValues().getDef() / 4) * bestia.getLevel() / 100 + 5;
 
-		final int spatk = (bestia.getBaseValues().getSpAtk() * 2
-				+ bestia.getIndividualValue().getSpAtk() + bestia
-						.getEffortValues().getSpAtk() / 4)
-				* bestia.getLevel()
-				/ 100
-				+ 5;
+		final int spatk = (bestia.getBaseValues().getSpAtk() * 2 + bestia.getIndividualValue().getSpAtk()
+				+ bestia.getEffortValues().getSpAtk() / 4) * bestia.getLevel() / 100 + 5;
 
-		final int spdef = (bestia.getBaseValues().getSpDef() * 2
-				+ bestia.getIndividualValue().getSpDef() + bestia
-						.getEffortValues().getSpDef() / 4)
-				* bestia.getLevel()
-				/ 100
-				+ 5;
+		final int spdef = (bestia.getBaseValues().getSpDef() * 2 + bestia.getIndividualValue().getSpDef()
+				+ bestia.getEffortValues().getSpDef() / 4) * bestia.getLevel() / 100 + 5;
 
-		int spd = (bestia.getBaseValues().getSpd() * 2
-				+ bestia.getIndividualValue().getSpd() + bestia
-						.getEffortValues().getSpd() / 4)
-				* bestia.getLevel() / 100 + 5;
+		int spd = (bestia.getBaseValues().getSpd() * 2 + bestia.getIndividualValue().getSpd()
+				+ bestia.getEffortValues().getSpd() / 4) * bestia.getLevel() / 100 + 5;
 
-		final int maxHp = bestia.getBaseValues().getHp() * 2
-				+ bestia.getIndividualValue().getHp()
-				+ bestia.getEffortValues().getHp() / 4 * bestia.getLevel()
-						/ 100
-				+ 10 + bestia.getLevel();
-		final int maxMana = bestia.getBaseValues().getMana() * 2
-				+ bestia.getIndividualValue().getMana()
-				+ bestia.getEffortValues().getMana() / 4 * bestia.getLevel()
-						/ 100
-				+ 10 + bestia.getLevel() * 2;
+		final int maxHp = bestia.getBaseValues().getHp() * 2 + bestia.getIndividualValue().getHp()
+				+ bestia.getEffortValues().getHp() / 4 * bestia.getLevel() / 100 + 10 + bestia.getLevel();
+
+		final int maxMana = bestia.getBaseValues().getMana() * 2 + bestia.getIndividualValue().getMana()
+				+ bestia.getEffortValues().getMana() / 4 * bestia.getLevel() / 100 + 10 + bestia.getLevel() * 2;
 
 		statusPoints.setMaxValues(maxHp, maxMana);
 		statusPoints.setCurrentHp(bestia.getCurrentHp());
@@ -258,17 +293,13 @@ public class PlayerBestiaManager extends BestiaManager {
 	}
 
 	/**
-	 * Calculates the status values depending on equipment and current bestia
+	 * Gets the status values depending on equipment and current bestia
 	 * level.
 	 * 
 	 * @return The current status points.
 	 */
 	@Override
 	public StatusPoints getStatusPoints() {
-		if (statusPoints == null) {
-			calculateStatusValues();
-		}
-
 		return statusPoints;
 	}
 
@@ -331,21 +362,15 @@ public class PlayerBestiaManager extends BestiaManager {
 	public PlayerBestia getPlayerBestia() {
 
 		// Update location.
-		// final Vector2 pos = positionMapper.get(entity).position.getAnchor();
-		// bestia.getCurrentPosition().setX(pos.x);
-		// bestia.getCurrentPosition().setY(pos.y);
+		final Location loc = getLocation();
+		bestia.getCurrentPosition().setX(loc.getX());
+		bestia.getCurrentPosition().setY(loc.getY());
 
 		// Update cur hp and mana.
 		final HP hp = hpMapper.get(entity);
 		final Mana mana = manaMapper.get(entity);
 		bestia.setCurrentHp(hp.currentHP);
 		bestia.setCurrentMana(mana.currentMana);
-
-		// Update status values.
-		final StatusPoints statusPoints = getStatusPoints();
-		statusPoints.setCurrentHp(hp.currentHP);
-		statusPoints.setCurrentMana(mana.currentMana);
-		bestia.setStatusPoints(statusPoints);
 
 		// Update attacks.
 		final Attacks attacksComp = attacksMapper.get(entity);
@@ -450,7 +475,7 @@ public class PlayerBestiaManager extends BestiaManager {
 		try {
 			final PlayerBestiaService service = serviceLocator.getBean(PlayerBestiaService.class);
 			final PlayerItem[] itemShortcuts = service.saveItemShortcuts(bestia.getId(), itemIds);
-			
+
 			bestia.setItem1(itemShortcuts[0]);
 			bestia.setItem2(itemShortcuts[1]);
 			bestia.setItem3(itemShortcuts[2]);
@@ -462,6 +487,14 @@ public class PlayerBestiaManager extends BestiaManager {
 			// no op.
 		}
 
+	}
+
+	public Direction getHeadFacing() {
+		return headFacing;
+	}
+
+	public void setHeadFacing(Direction headFacing) {
+		this.headFacing = headFacing;
 	}
 
 }

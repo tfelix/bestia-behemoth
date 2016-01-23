@@ -109,8 +109,8 @@ public class Bestia implements Serializable {
 
 	public Bestia() {
 
-		// calculateEffortValues();
 	}
+	
 
 	/**
 	 * Calculates the effort values depending on its level and the base values.

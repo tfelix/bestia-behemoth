@@ -64,13 +64,23 @@ Bestia.Engine.EntityUpdater.prototype._update = function(obj) {
 		this._factory.createItemEntity(obj);
 		break;
 	case "BESTIA":
-		this._factory.createBestiaEntity(obj);
+		this._updateBestiaEntity(obj);
 		break;
 	default:
 
 		break;
 	}
 
+};
+
+Bestia.Engine.EntityUpdater.prototype._updateBestiaEntity = function(obj) {
+	var entity = this._cache.getByUuid(obj.uuid);
+	
+	if(entity !== null) {
+		entity.update(obj);
+	} else {
+		this._factory.createBestiaEntity(obj);
+	}
 };
 
 /**

@@ -1,4 +1,3 @@
-
 Bestia.Chat.Commands = Bestia.Chat.Commands || {};
 
 /**
@@ -8,6 +7,12 @@ Bestia.Chat.Commands = Bestia.Chat.Commands || {};
  * @class Bestia.Chat.Commands.BestiaCommand
  */
 Bestia.Chat.Commands.BasicCommand = function() {
+	/**
+	 * Regex to detect the command itself.
+	 * 
+	 * @public
+	 * @constant
+	 */
 	this.cmdRegex = new RegExp();
 	this.paramRegex = new RegExp();
 
@@ -79,6 +84,11 @@ Bestia.Chat.Commands.BasicCommand.prototype._help = function(chat) {
 	chat.addLocalMessage(i18n.t('chat.commands.' + this.cmdHandle), 'SYSTEM');
 };
 
+/**
+ * Overwrite in child implementations to execute the command.
+ * 
+ * @private
+ */
 Bestia.Chat.Commands.BasicCommand.prototype._doCommand = function() {
 	// no op.
 };

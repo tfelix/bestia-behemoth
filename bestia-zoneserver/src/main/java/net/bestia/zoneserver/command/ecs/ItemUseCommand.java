@@ -20,9 +20,9 @@ import net.bestia.zoneserver.script.ItemScript;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class UseItemCommand extends ECSCommand {
+public class ItemUseCommand extends ECSCommand {
 
-	private final static Logger log = LogManager.getLogger(UseItemCommand.class);
+	private final static Logger log = LogManager.getLogger(ItemUseCommand.class);
 
 	@Override
 	public String handlesMessageId() {
@@ -45,20 +45,21 @@ public class UseItemCommand extends ECSCommand {
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
 		final InventoryManager inventory = new InventoryManager(owner, invService, ctx.getServer());
 
-		if (!inventory.hasItem(useMessage.getPlayerItemId(), 1)) {
+		// TODO Das von PLayer Item ID auf Item ID ändern!
+		if (!inventory.hasItem(useMessage.getItemId(), 1)) {
 			// Can not use this item.
 			return;
 		}
 
-		final Item item = inventory.getPlayerItem(useMessage.getPlayerItemId()).getItem();
+		final Item item = inventory.getPlayerItemById(useMessage.getItemId()).getItem();
 		final ItemScript iScript = new ItemScript(item.getItemDbName(), owner, inventory);
 		final boolean success = ctx.getScriptManager().execute(iScript);
 
 		if (success) {
-			inventory.removeItem(useMessage.getPlayerItemId(), 1);
-			log.info("Used item: {}, accId: {}", useMessage.getPlayerItemId(), useMessage.getAccountId());
+			inventory.removeItem(useMessage.getItemId(), 1);
+			log.info("Used item: {}, accId: {}", useMessage.getItemId(), useMessage.getAccountId());
 		} else {
-			log.debug("Could not use item: {}, accId: {}", useMessage.getPlayerItemId(), useMessage.getAccountId());
+			log.debug("Could not use item: {}, accId: {}", useMessage.getItemId(), useMessage.getAccountId());
 		}
 	}
 

@@ -7,6 +7,12 @@ Bestia.Engine.EntityCache = function() {
 
 	this._cache = {};
 
+	/**
+	 * Holds an array with all entities in the cache. The array itself is cached
+	 * for higher performance.
+	 */
+	this._entityCache = null;
+
 };
 
 /**
@@ -19,6 +25,7 @@ Bestia.Engine.EntityCache = function() {
  */
 Bestia.Engine.EntityCache.prototype.addEntity = function(id, entity) {
 
+	this._entityCache = null;
 	this._cache[id] = entity;
 
 };
@@ -45,7 +52,8 @@ Bestia.Engine.EntityCache.prototype.getEntity = function(id) {
  * @param entity
  */
 Bestia.Engine.EntityCache.prototype.removeEntity = function(id) {
-
+	
+	this._entityCache = null;
 	delete this._cache[id];
 
 };
@@ -54,5 +62,18 @@ Bestia.Engine.EntityCache.prototype.removeEntity = function(id) {
  * Clears the complete cache.
  */
 Bestia.Engine.EntityCache.prototype.clear = function() {
+	this._entityCache = null;
 	this._cache = {};
+};
+
+Bestia.Engine.EntityCache.prototype.getAllEntities = function() {
+	if (this._entityCache === null) {
+		// Populate cache.
+		this._entityCache = [];
+		for ( var key in this._cache) {
+			this._entityCache.push(this._cache[key]);
+		}
+	}
+
+	return this._entityCache;
 };

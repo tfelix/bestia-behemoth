@@ -8,10 +8,8 @@ import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMQException;
-
 import com.netflix.servo.annotations.DataSourceType;
 import com.netflix.servo.annotations.Monitor;
-
 import net.bestia.util.BestiaConfiguration;
 
 /**
@@ -150,6 +148,7 @@ public class Interserver {
 			stop();
 			return false;
 		}
+
 
 		LOG.info("Interserver started.");
 		return true;

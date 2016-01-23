@@ -76,7 +76,11 @@ Bestia.Engine.States.GameState.prototype = {
 
 	update : function() {
 
-		// no op.
+		// Update the animation frame groups of all multi sprite entities.
+		var entities = this.engine.entityCache.getAllEntities();
+		entities.forEach(function(entity){
+			entity.tickAnimation();
+		});
 
 	},
 
@@ -106,7 +110,7 @@ Bestia.Engine.States.GameState.prototype = {
 		}
 
 		var path = path.reverse();
-		var msg = new Bestia.Message.BestiaMove(player.pbid, path, player.walkspeed);
+		var msg = new Bestia.Message.BestiaMove(this.bestia.playerBestiaId(), path, player.walkspeed);
 		this.pubsub.publish('io.sendMessage', msg);
 
 		// Start movement locally aswell.

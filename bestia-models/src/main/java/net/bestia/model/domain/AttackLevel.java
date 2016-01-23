@@ -29,7 +29,7 @@ public class AttackLevel implements Serializable {
 
 	@Transient
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(unique = true, nullable = false)
@@ -45,7 +45,7 @@ public class AttackLevel implements Serializable {
 	@JoinColumn(name = "BESTIA_ID", nullable = false)
 	@JsonIgnore
 	private Bestia bestia;
-	
+
 	@JsonProperty("mlv")
 	private int minLevel;
 
@@ -53,9 +53,9 @@ public class AttackLevel implements Serializable {
 	 * Std. Ctor.
 	 */
 	public AttackLevel() {
-		
+
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("AttackLevel[attack_db_name: %s, minLevel: %d]", attack.getDatabaseName(), minLevel);

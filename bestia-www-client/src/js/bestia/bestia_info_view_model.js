@@ -54,13 +54,13 @@ Bestia.BestiaInfoViewModel = function(pubsub) {
 	var onMessageHandler = function(_, msg) {
 		console.debug('Update bestia model with data.');
 
-		var bestia = new Bestia.BestiaViewModel(self._pubsub, msg.b);
+		var bestia = new Bestia.BestiaViewModel(self._pubsub, msg.b, msg.sp);
 
 		// Check if the bestia is already inside our cache.
 		for (var i = 0; i < self.bestias().length; i++) {
 			if (self.bestias()[i].playerBestiaId() === bestia.playerBestiaId()) {
 				// Just update it.
-				self.bestias()[i].update(msg.b);
+				self.bestias()[i].update(msg.b, msg.sp);
 				return;
 			}
 		}
@@ -70,7 +70,7 @@ Bestia.BestiaInfoViewModel = function(pubsub) {
 		self.bestias.push(bestia);
 
 		// Check if we have unselected master.
-		if (self.masterBestia() === undefined && msg.im === true) {
+		if (self.masterBestia() === null && msg.im === true) {
 			self.masterBestia(bestia);
 			self._selectBestia(bestia);
 		}

@@ -202,11 +202,6 @@ public class Account implements Serializable {
 		this.remarks = remarks;
 	}
 
-	/**
-	 * The bestia master.
-	 * 
-	 * @return Bestia master.
-	 */
 	@JsonIgnore
 	public PlayerBestia getMaster() {
 		return master;
