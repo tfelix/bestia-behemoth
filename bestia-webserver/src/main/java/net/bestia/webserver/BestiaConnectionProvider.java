@@ -2,6 +2,7 @@ package net.bestia.webserver;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.LogManager;
@@ -9,6 +10,11 @@ import org.apache.logging.log4j.Logger;
 import org.atmosphere.websocket.WebSocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.servo.monitor.BasicGauge;
+import com.netflix.servo.monitor.Counter;
+import com.netflix.servo.monitor.Gauge;
+import com.netflix.servo.monitor.MonitorConfig;
+import com.netflix.servo.monitor.Monitors;
 
 import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
@@ -29,6 +35,14 @@ import net.bestia.messages.Message;
 public class BestiaConnectionProvider implements InterserverMessageHandler {
 
 	private static final Logger log = LogManager.getLogger(BestiaConnectionProvider.class);
+	
+	private final Gauge<Integer> loginQueueSize = new BasicGauge<>(MonitorConfig.builder("LoginQueueSize").build(), new Callable<Integer>() {
+		@Override
+		public Integer call() throws Exception {
+			return connections.size();
+		}
+	});
+	private final Counter loginMessageMetric = Monitors.newCounter("LoginMessages");
 
 	private final ObjectMapper mapper = new ObjectMapper();
 
@@ -60,7 +74,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 
 	/**
 	 * Publishes a raw string message to the interserver. The string must be
-	 * parsed (it should be JSON) into a realy java message. It will then be
+	 * parsed (it should be JSON) into a real java message. It will then be
 	 * send
 	 * 
 	 * @param accountId
