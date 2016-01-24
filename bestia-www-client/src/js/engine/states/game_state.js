@@ -29,6 +29,12 @@ Bestia.Engine.States.GameState = function(engine) {
 	this.bestiaWorld = null;
 
 	this._publicChatController = null;
+
+	/**
+	 * Manager to control special displays of small effects (damage, sprite
+	 * animations e.g.) which are triggered by the server or by the client.
+	 */
+	this._fxManager = null;
 };
 
 Bestia.Engine.States.GameState.prototype = {
@@ -55,6 +61,8 @@ Bestia.Engine.States.GameState.prototype = {
 
 		// DEBUG
 		this.game.stage.disableVisibilityChange = true;
+		
+		this._fxManager = new Bestia.Engine.FX.EffectsManager(this.engine.pubsub, this.game, this.engine.entityCache);
 	},
 
 	create : function() {
@@ -78,7 +86,7 @@ Bestia.Engine.States.GameState.prototype = {
 
 		// Update the animation frame groups of all multi sprite entities.
 		var entities = this.engine.entityCache.getAllEntities();
-		entities.forEach(function(entity){
+		entities.forEach(function(entity) {
 			entity.tickAnimation();
 		});
 
@@ -89,7 +97,7 @@ Bestia.Engine.States.GameState.prototype = {
 		// no op.
 
 	},
-	
+
 	_getPlayerEntity : function() {
 		var pbid = this.engine.bestia.playerBestiaId();
 		var entity = this.engine.entityCache.getByPlayerBestiaId(pbid);
@@ -97,9 +105,9 @@ Bestia.Engine.States.GameState.prototype = {
 	},
 
 	clickHandler : function() {
-		
+
 		var player = this._getPlayerEntity();
-		
+
 		var start = player.position;
 		var goal = Bestia.Engine.World.getTileXY(this.game.input.worldX, this.game.input.worldY);
 
