@@ -49,7 +49,7 @@ Bestia.Engine = function(pubsub, config) {
 	 * Holds the central cache for all entities displayed in the game.
 	 */
 	this.entityCache = new Bestia.Engine.EntityCacheManager();
-	
+
 	/**
 	 * Entity updater for managing the adding and removal of entities.
 	 * 
@@ -65,7 +65,7 @@ Bestia.Engine = function(pubsub, config) {
 		self.loadMap(data);
 	};
 	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, onSelectBestiaHandler);
-	
+
 	// When everything is setup. Start the engine.
 	this.game.state.start('boot');
 };
