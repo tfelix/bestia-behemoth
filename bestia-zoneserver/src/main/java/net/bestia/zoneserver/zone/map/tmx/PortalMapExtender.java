@@ -8,10 +8,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.model.domain.Location;
-import net.bestia.zoneserver.script.MapTriggerScript;
-import net.bestia.zoneserver.script.PortalMapTriggerScript;
 import net.bestia.zoneserver.zone.map.Map.MapBuilder;
-import net.bestia.zoneserver.zone.map.Map.Script;
+import net.bestia.zoneserver.zone.map.MapPortalScript;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
 import net.bestia.zoneserver.zone.shape.Rect;
 import tiled.core.Map;
@@ -68,10 +66,10 @@ public class PortalMapExtender implements TMXMapExtender {
 					log.warn("Malformed portal name: {}. Should be: MAP_DB_NAME,X,Y", mapObj.getName());
 					continue;
 				}
-
-				final MapTriggerScript portal = new PortalMapTriggerScript(dest);
-				final net.bestia.zoneserver.zone.map.Map.Script mapscript = new Script(portal, rect);
-				builder.portals.add(mapscript);
+				
+				final MapPortalScript portalScript = new MapPortalScript(dest, rect);
+				builder.portals.add(portalScript);
+				
 				createdPortals++;
 			}
 

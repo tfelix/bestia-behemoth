@@ -9,7 +9,8 @@ public class Damage implements Serializable {
 	public enum DamageType {
 		HEAL,
 		MISS,
-		HIT
+		HIT,
+		CRITICAL
 	}
 	
 	private static final long serialVersionUID = 1L;

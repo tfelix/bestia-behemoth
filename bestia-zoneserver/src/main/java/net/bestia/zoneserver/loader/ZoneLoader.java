@@ -13,16 +13,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.zone.Zone;
 import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.map.Map.MapBuilder;
-import net.bestia.zoneserver.zone.map.tmx.TMXMaploader;
 import net.bestia.zoneserver.zone.map.Maploader;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.bestia.zoneserver.zone.map.tmx.TMXMaploader;
 
 /**
  * This class is responsible for taking the configuration, parsing the zone data
@@ -113,6 +113,15 @@ public class ZoneLoader implements Loader {
 	private final File mapDataDir;
 	private final CommandContext context;
 
+	/**
+	 * Ctor.
+	 * 
+	 * @param ctx
+	 *            General CommandContext of the Zoneserver.
+	 * @param zones
+	 *            A map containing the names of the soon to be loaded zones. The
+	 *            zones will be fit into the "slots" of the given map.
+	 */
 	public ZoneLoader(CommandContext ctx, java.util.Map<String, Zone> zones) {
 		if (ctx == null) {
 			throw new IllegalArgumentException("Context can not be null.");

@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 import net.bestia.zoneserver.Zoneserver;
 
 /**
- * This class keeps track on how many subscriptions are currenty online for a
+ * This class keeps track on how many subscriptions are currently online for a
  * single account. If more then one bestia is there it will subscribe the server
  * for messages from this very account. If all bestias go offline it will
  * unsubscribe the server again. This router is therefore crucial for receiving

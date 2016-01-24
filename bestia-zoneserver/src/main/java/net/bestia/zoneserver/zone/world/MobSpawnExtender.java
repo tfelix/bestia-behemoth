@@ -20,22 +20,25 @@ import net.bestia.zoneserver.zone.spawn.Spawner;
  *
  */
 public class MobSpawnExtender implements WorldExtend {
+	
+	private SpawnManager manager;
 
 	@Override
 	public void extend(World world, Map map, Zone zone) {
 
-		final SpawnManager manager = world.getSystem(SpawnManager.class);
 		manager.spawnAll();
 	}
 
 	@Override
 	public void configure(WorldConfiguration worldConfig, Map map, CommandContext ctx, Zone zone) {
 
-		// Create the SpawnLocations from the map.
+		// Create the SpawnLocations from the map. Keeps track of active bestias
+		// and sets timeouts to re-spawn them.
 		final List<Spawner> spawns = map.getSpawnlist();
-		worldConfig.setSystem(new SpawnManager(spawns));
+		manager = new SpawnManager(spawns);
+		worldConfig.setSystem(manager);
 
-		// The spawn system needs to create the actual spawns after a timeout.
+		// The MobSpawnSystem actually spawns entities.
 		worldConfig.setSystem(new MobSpawnSystem());
 	}
 

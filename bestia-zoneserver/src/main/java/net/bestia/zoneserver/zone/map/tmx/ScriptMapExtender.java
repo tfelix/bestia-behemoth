@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.zoneserver.zone.map.Map.MapBuilder;
+import net.bestia.zoneserver.zone.map.MapTriggerScript;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
 import net.bestia.zoneserver.zone.shape.Rect;
 import tiled.core.Map;
@@ -46,19 +47,18 @@ public class ScriptMapExtender implements TMXMapExtender {
 				continue;
 			}
 
-			// Create the portal scripts.
+			// Iterate over all triggered scripts and create them.
 			final Iterator<MapObject> objIter = objLayer.getObjects();
 			int createdScripts = 0;
 			while (objIter.hasNext()) {
-				final MapObject mapObj = objIter.next();
-				final Rectangle bb = mapObj.getBounds();
+				final MapObject scriptObj = objIter.next();
+				final Rectangle bb = scriptObj.getBounds();
 
 				// Translate the bb to shape.
 				final CollisionShape rect = new Rect(bb.x, bb.y, bb.width, bb.height);
-
-				//final MapScript mapScript = new MapTriggerScript(builder.mapDbName, mapObj.getName());
-				//final net.bestia.zoneserver.zone.map.Map.Script mapscript = new Script(mapScript, rect);
-				//builder.scripts.add(mapscript);
+				
+				final MapTriggerScript mapScript = new MapTriggerScript(scriptObj.getName(), rect);
+				builder.scripts.add(mapScript);
 				
 				createdScripts++;
 			}

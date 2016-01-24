@@ -65,8 +65,12 @@ public class ScriptLoader implements Loader {
 		 *            The script key (e.g. item) to save them.
 		 */
 		public ScriptWorker(Script keyGenerator, File scriptFolder) {
-
-			// TODO Checks.
+			if(keyGenerator == null) {
+				throw new IllegalArgumentException("KeyGenerator can not be null.");
+			}
+			if(scriptFolder == null || !scriptFolder.exists()) {
+				throw new IllegalArgumentException("Script folder is null or does not exist.");
+			}
 
 			this.scriptFolder = scriptFolder;
 			this.keyGenerator = keyGenerator;

@@ -7,10 +7,10 @@ import org.apache.logging.log4j.Logger;
 
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.TriggerScript;
+import net.bestia.zoneserver.ecs.component.Script;
 import net.bestia.zoneserver.zone.Zone;
 import net.bestia.zoneserver.zone.map.Map;
-import net.bestia.zoneserver.zone.map.Map.Script;
+import net.bestia.zoneserver.zone.map.MapPortalScript;
 
 import com.artemis.Entity;
 import com.artemis.EntityEdit;
@@ -32,17 +32,19 @@ public class WorldPortalExtend implements WorldExtend {
 		log.trace("Generating map extras: Portals...");
 		
 		// Get all the portals and build portal script entities.
-		final List<Script> portals = map.getPortals();
+		final List<MapPortalScript> portals = map.getPortals();
 		
 		// Add entities for each map portal to the ECS.
-		for(Script portal : portals) {
+		for(MapPortalScript portal : portals) {
 			final Entity e = world.createEntity();
 			final EntityEdit ee = e.edit();
 			
 			final Position position = ee.create(Position.class);
 			position.position = portal.getShape();
-			final TriggerScript trigger = ee.create(TriggerScript.class);
-			trigger.script = portal.getMapScript();
+			
+			final Script script = ee.create(Script.class);
+		
+			
 		}
 		
 		log.trace("Added {} portal(s).", portals.size());

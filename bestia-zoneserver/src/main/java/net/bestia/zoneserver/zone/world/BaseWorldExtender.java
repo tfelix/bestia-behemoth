@@ -19,7 +19,7 @@ import net.bestia.zoneserver.ecs.system.ChangedNetworkUpdateSystem;
 import net.bestia.zoneserver.ecs.system.DelayedRemoveSystem;
 import net.bestia.zoneserver.ecs.system.HPRegenerationSystem;
 import net.bestia.zoneserver.ecs.system.ManaRegenerationSystem;
-import net.bestia.zoneserver.ecs.system.MapScriptSystem;
+import net.bestia.zoneserver.ecs.system.TriggerScriptSystem;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
 import net.bestia.zoneserver.ecs.system.VisibleSpawnUpdateSystem;
@@ -38,6 +38,7 @@ public class BaseWorldExtender implements WorldExtend {
 		// Register all external helper objects.
 		worldConfig.register(map);
 		worldConfig.register(ctx);
+		worldConfig.register(zone);
 		worldConfig.register(ctx.getServer().getActiveBestiaRegistry());
 
 		// Set all the systems.
@@ -45,12 +46,11 @@ public class BaseWorldExtender implements WorldExtend {
 		worldConfig.setSystem(new AISystem());
 		worldConfig.setSystem(new ActiveSpawnUpdateSystem());
 		worldConfig.setSystem(new VisibleSpawnUpdateSystem());
-		worldConfig.setSystem(new MapScriptSystem());
+		worldConfig.setSystem(new TriggerScriptSystem());
 		worldConfig.setSystem(new DelayedRemoveSystem());
 		worldConfig.setSystem(new PersistSystem(10000));
 		worldConfig.setSystem(new HPRegenerationSystem());
 		worldConfig.setSystem(new ManaRegenerationSystem());
-		//worldConfig.setSystem(new MobSpawnSystem());
 		// ChangedNetworkUpdateSystem must be last because it removes the
 		// Changed component.
 		worldConfig.setSystem(new ChangedNetworkUpdateSystem());

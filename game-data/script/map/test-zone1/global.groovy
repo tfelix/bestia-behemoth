@@ -1,5 +1,5 @@
 
-log("Hello World.");
+log.info("Hello World.");
 
 def callback = { 
 	println "Callback Hello World!"

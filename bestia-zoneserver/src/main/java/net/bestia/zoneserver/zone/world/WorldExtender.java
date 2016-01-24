@@ -26,64 +26,48 @@ public class WorldExtender {
 	private final Set<WorldExtend> extras = new HashSet<>();
 	private final Zone zone;
 
-	public WorldExtender(BestiaConfiguration config, Zone zone) {		
-		if(config ==  null) {
+	public WorldExtender(BestiaConfiguration config, Zone zone) {
+		if (config == null) {
 			throw new IllegalArgumentException("Config can not be null.");
 		}
-		if(zone == null) {
+		if (zone == null) {
 			throw new IllegalArgumentException("Zone can not be null.");
 		}
-		
-		final PackageLoader<WorldExtend> extendLoader = new PackageLoader<>(WorldExtend.class, "net.bestia.zoneserver.zone.world");
+
+		final PackageLoader<WorldExtend> extendLoader = new PackageLoader<>(WorldExtend.class,
+				"net.bestia.zoneserver.zone.world");
 		final Set<WorldExtend> loadedExtras = extendLoader.getSubObjects();
 		extras.addAll(loadedExtras);
-		
+
 		this.zone = zone;
 	}
 
+	/**
+	 * Creates a world. Therefore it extends the map with all the extra entities
+	 * described in the map..
+	 * 
+	 * @param CommandContext
+	 *            Context to access general API of the zoneserver.
+	 * @param map
+	 *            The map is used to determine all the extras for the entity
+	 *            world.
+	 */
 	public World createWorld(CommandContext ctx, Map map) {
 
 		// Initialize ECS.
 		final WorldConfiguration worldConfig = new WorldConfiguration();
 
 		// Pre-configure the world.
-		configure(worldConfig, map, ctx);
-
-		final World world = new World(worldConfig);
-
-		extend(world, map);
-
-		return world;
-	}
-
-	/**
-	 * Configures the world config before creating the world from it.
-	 * 
-	 * @param worldConfig
-	 *            The artemis configuration.
-	 * @param map
-	 *            The map object.
-	 * @param ctx 
-	 */
-	private void configure(WorldConfiguration worldConfig, Map map, CommandContext ctx) {
 		for (WorldExtend extra : extras) {
 			extra.configure(worldConfig, map, ctx, zone);
 		}
-	}
+		
+		final World world = new World(worldConfig);
 
-	/**
-	 * Extends the given world with all the extra entities described in the
-	 * given map.
-	 * 
-	 * @param world
-	 *            The entity world to extend with the extras of the given map.
-	 * @param map
-	 *            The map is used to determine all the extras for the entity
-	 *            world.
-	 */
-	private void extend(World world, Map map) {
 		for (WorldExtend extra : extras) {
 			extra.extend(world, map, zone);
 		}
+
+		return world;
 	}
 }

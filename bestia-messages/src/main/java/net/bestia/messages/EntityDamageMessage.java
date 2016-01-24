@@ -1,5 +1,8 @@
 package net.bestia.messages;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.model.misc.Damage;
@@ -18,8 +21,8 @@ public class EntityDamageMessage extends Message {
 
 	private static final String MESSAGE_ID = "entity.damage";
 
-	@JsonProperty("dmg")
-	private Damage damage;
+	@JsonProperty("d")
+	private List<Damage> damage = new ArrayList<>();
 
 	/**
 	 * Std. Ctor for Jackson.
@@ -42,7 +45,7 @@ public class EntityDamageMessage extends Message {
 			throw new IllegalArgumentException("Damage can not be null.");
 		}
 
-		this.damage = dmg;
+		this.damage.add(dmg);
 	}
 
 	@Override
