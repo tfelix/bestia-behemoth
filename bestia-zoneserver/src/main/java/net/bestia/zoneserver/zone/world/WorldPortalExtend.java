@@ -5,17 +5,17 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.Script;
-import net.bestia.zoneserver.zone.Zone;
-import net.bestia.zoneserver.zone.map.Map;
-import net.bestia.zoneserver.zone.map.MapPortalScript;
-
 import com.artemis.Entity;
 import com.artemis.EntityEdit;
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
+
+import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.component.Portal;
+import net.bestia.zoneserver.ecs.system.PortalSystem;
+import net.bestia.zoneserver.zone.Zone;
+import net.bestia.zoneserver.zone.map.Map;
+import net.bestia.zoneserver.zone.map.MapPortalScript;
 
 /**
  * Extends the ECS system with world map portals.
@@ -39,12 +39,9 @@ public class WorldPortalExtend implements WorldExtend {
 			final Entity e = world.createEntity();
 			final EntityEdit ee = e.edit();
 			
-			final Position position = ee.create(Position.class);
-			position.position = portal.getShape();
-			
-			final Script script = ee.create(Script.class);
-		
-			
+			final Portal portalComp = ee.create(Portal.class);
+			portalComp.area = portal.getShape();
+			portalComp.destination = portal.getDestination();
 		}
 		
 		log.trace("Added {} portal(s).", portals.size());
@@ -52,7 +49,7 @@ public class WorldPortalExtend implements WorldExtend {
 
 	@Override
 	public void configure(WorldConfiguration worldConfig, Map map, CommandContext ctx, Zone zone) {
-		// no op.
+		worldConfig.setSystem(new PortalSystem());
 	}
 
 }
