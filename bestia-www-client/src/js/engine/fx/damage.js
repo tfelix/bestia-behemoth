@@ -1,4 +1,4 @@
-Bestia.Engine.FX = {} || Bestia.Engine.FX;
+Bestia.Engine.FX = Bestia.Engine.FX || {};
 
 /**
  * Spawns and displays the entities damage in the engine. Object pooling should
@@ -105,4 +105,88 @@ Bestia.Engine.FX.Damage.STYLE_HEAL = {
 	align : "center",
 	stroke : '#000000',
 	strokeThickness : 3
+};
+
+
+Bestia.Engine.FX.MissDamage = function(game, pos, dmg) {
+	Bestia.Engine.FX.Damage.call(this, game, pos, dmg);
+
+	// no op.
+
+};
+
+Bestia.Engine.FX.MissDamage.prototype = Object.create(Bestia.Engine.FX.Damage.prototype);
+Bestia.Engine.FX.MissDamage.prototype.constructor = Bestia.Engine.FX.MissDamage;
+
+/**
+ * Adds an animation to the newly created visual of the damage.
+ * 
+ * @private
+ * @method Bestia.Engine.Entity.Damage#_animateVisual
+ */
+Bestia.Engine.FX.MissDamage.prototype._show = function() {
+
+	var tween = this.game.add.tween(this._sprite).to({
+		y : this._sprite.y - 200
+	}, 1000);
+
+	this.game.add.tween(this._sprite).to({
+		alpha : 0
+	}, 100, Phaser.Easing.Linear.None, true, 800).start();
+
+	tween.start();
+};
+
+/**
+ * 
+ * @param {Number}
+ *            dmg - Number to be displayed.
+ * @private
+ * @method Bestia.Engine.Entity.Damage#_display
+ */
+Bestia.Engine.FX.MissDamage.prototype._createVisual = function(posX, posY) {
+	this._sprite = this.game.add.text(posX, posY, '', Bestia.Engine.FX.Damage.STYLE_NORMAL);
+};
+
+Bestia.Engine.FX.HealDamage = function(game, pos, dmg) {
+	Bestia.Engine.FX.MissDamage.call(this, game, pos, dmg);
+
+	// no op.
+
+};
+
+Bestia.Engine.FX.HealDamage.prototype = Object.create(Bestia.Engine.FX.MissDamage.prototype);
+Bestia.Engine.FX.HealDamage.prototype.constructor = Bestia.Engine.FX.HealDamage;
+
+/**
+ * 
+ * @param {Number}
+ *            dmg - Number to be displayed.
+ * @private
+ * @method Bestia.Engine.Entity.Damage#_display
+ */
+Bestia.Engine.FX.HealDamage.prototype._createVisual = function(posX, posY) {
+	this._sprite = this.game.add.text(posX, posY, '', Bestia.Engine.FX.Damage.STYLE_HEAL);
+};
+
+Bestia.Engine.FX.CriticalDamage = function(game, pos, dmg) {
+	Bestia.Engine.FX.Damage.call(this, game, pos, dmg);
+
+	// no op.
+	
+};
+
+Bestia.Engine.FX.CriticalDamage.prototype = Object.create(Bestia.Engine.FX.Damage.prototype);
+Bestia.Engine.FX.CriticalDamage.prototype.constructor = Bestia.Engine.FX.CriticalDamage;
+
+
+/**
+ * 
+ * @param {Number}
+ *            dmg - Number to be displayed.
+ * @private
+ * @method Bestia.Engine.Entity.Damage#_display
+ */
+Bestia.Engine.FX.CriticalDamage.prototype._createVisual = function(posX, posY) {
+	this._sprite = this.game.add.text(posX, posY, '', Bestia.Engine.FX.Damage.STYLE_CRIT);
 };

@@ -77,7 +77,8 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	private final MessageProcessor zoneProcessor;
 
 	/**
-	 * This filter is to let the
+	 * This filter used to route information for newly spawned bestias
+	 * dynamically to this ECS zone system in order to process it.
 	 */
 	private final DynamicBestiaIdMessageFilter zoneMessageFilter = new DynamicBestiaIdMessageFilter();
 
@@ -191,23 +192,27 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		playerBestiaMapper.get(pbEntity).playerBestiaManager = pbm;
 		// Need to use bestia since PBM reads information only from the entity
 		// position which is obviously not set yet.
-		// TODO Der PlayerBestiaManager sollte für das Updaten verantwortlich sein.
+		// TODO Der PlayerBestiaManager sollte für das Updaten verantwortlich
+		// sein.
 		positionMapper.get(pbEntity).position = new Vector2(pb.getCurrentPosition().getX(),
 				pb.getCurrentPosition().getY());
 		attacksMapper.get(pbEntity).addAll(pbm.getAttackIds());
 		bestiaMapper.get(pbEntity).bestiaManager = pbm;
 
-		// TODO Der PlayerBestiaManager sollte für das Updaten verantwortlich sein.
+		// TODO Der PlayerBestiaManager sollte für das Updaten verantwortlich
+		// sein.
 		final HP hp = hpMapper.get(pbEntity);
 		hp.currentHP = pbm.getStatusPoints().getCurrentHp();
 		hp.maxHP = pbm.getStatusPoints().getMaxHp();
 
-		// TODO Der PlayerBestiaManager sollte für das Updaten verantwortlich sein.
+		// TODO Der PlayerBestiaManager sollte für das Updaten verantwortlich
+		// sein.
 		final Mana mana = manaMapper.get(pbEntity);
 		mana.currentMana = pbm.getStatusPoints().getCurrentMana();
 		mana.maxMana = pbm.getStatusPoints().getMaxMana();
 
-		// TODO Der PlayerBestiaManager sollte für das Updaten verantwortlich sein.
+		// TODO Der PlayerBestiaManager sollte für das Updaten verantwortlich
+		// sein.
 		hpRegenMapper.get(pbEntity).rate = pbm.getHpRegenerationRate();
 		manaRegenMapper.get(pbEntity).rate = pbm.getManaRegenerationRate();
 		visibleMapper.get(pbEntity).sprite = pbm.getPlayerBestia().getOrigin().getSprite();
@@ -216,7 +221,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		// marked as active initially.
 		final net.bestia.model.domain.PlayerBestia master = pb.getOwner().getMaster();
 		final boolean isMaster = master.equals(pb);
-		
+
 		if (isMaster) {
 
 			pbEntity.edit().create(Active.class);

@@ -30,7 +30,7 @@ Bestia.Engine.FX.EffectsManager = function(pubsub, game, entityCache) {
 /**
  * Handles damage FX messages.
  */
-Bestia.Engine.FX.EffectsManager.prototype._onEntityDmgMsgHandler = this._onMessageHandler = function(_, msg) {
+Bestia.Engine.FX.EffectsManager.prototype._onEntityDmgMsgHandler = function(_, msg) {
 	// TODO Caching implementieren.
 
 	var dmgs = msg.d;

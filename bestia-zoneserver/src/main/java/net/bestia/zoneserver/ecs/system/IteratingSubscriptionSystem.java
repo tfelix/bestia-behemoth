@@ -61,8 +61,9 @@ public abstract class IteratingSubscriptionSystem extends IteratingSystem {
 	protected IntBag getEntities(String subscriptionIdent) {
 		return subscriptions.get(subscriptionIdent).getEntities();
 	}
-	
-	@Override
-	abstract protected void process(int entityId);
 
+	@Override
+	protected void process(int entityId) {
+		// no op.
+	}
 }

@@ -1,5 +1,8 @@
 package net.bestia.zoneserver.ecs.system;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
@@ -11,8 +14,16 @@ import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
 
+/**
+ * Teleports a player if he is in contact with a portal.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 @Wire
 public class PortalSystem extends IteratingSubscriptionSystem {
+	
+	private static final Logger LOG = LogManager.getLogger(PortalSystem.class);
 	
 	private ComponentMapper<Portal> portalMapper;
 	private ComponentMapper<PlayerBestia> playerMapper;
@@ -30,7 +41,7 @@ public class PortalSystem extends IteratingSubscriptionSystem {
 		subscribeActivePlayers();
 	}
 
-	@Override
+	//@Override
 	protected void process(int entityId) {
 		final Portal portal = portalMapper.get(entityId);
 		
@@ -44,6 +55,7 @@ public class PortalSystem extends IteratingSubscriptionSystem {
 			if(portal.area.collide(shape)) {
 				final PlayerBestiaManager pbm = playerMapper.get(players.get(i)).playerBestiaManager;
 				//TODO das hier umsetzen. pbm.setLocation(portal.destination);
+				LOG.info("Bestia {} moved to {}.", pbm.toString(), portal.destination.toString());
 			}
 		}
 	}

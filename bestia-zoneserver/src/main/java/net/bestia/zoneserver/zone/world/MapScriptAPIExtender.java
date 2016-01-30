@@ -4,6 +4,7 @@ import com.artemis.World;
 import com.artemis.WorldConfiguration;
 
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.system.ScriptIntervalSystem;
 import net.bestia.zoneserver.script.MapScriptAPI;
 import net.bestia.zoneserver.script.MapScriptFactory;
 import net.bestia.zoneserver.zone.Zone;
@@ -30,12 +31,12 @@ public class MapScriptAPIExtender implements WorldExtend {
 	public void configure(WorldConfiguration worldConfig, Map map, CommandContext ctx, Zone zone) {
 
 		api.initContext(ctx);
-
 		worldConfig.register(api);
 
-		final MapScriptFactory factory = new MapScriptFactory(zone.getName(), api);
-		
+		final MapScriptFactory factory = new MapScriptFactory(zone.getName(), api);	
 		worldConfig.register(factory);
+		
+		worldConfig.setSystem(new ScriptIntervalSystem());
 	}
 
 }

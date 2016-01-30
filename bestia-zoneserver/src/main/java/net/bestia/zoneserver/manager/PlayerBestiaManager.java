@@ -29,7 +29,6 @@ import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.HP;
 import net.bestia.zoneserver.ecs.component.Mana;
-import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.manager.DamageManager;
 
 /**

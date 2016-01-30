@@ -16,6 +16,11 @@
 			<version>0.3.4</version>
 		</dependency>
 		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-nop</artifactId>
+			<version>1.7.14</version>
+		</dependency>
+		<dependency>
 			<groupId>net.bestia</groupId>
 			<artifactId>bestia-config</artifactId>
 			<version>${project.version}</version>

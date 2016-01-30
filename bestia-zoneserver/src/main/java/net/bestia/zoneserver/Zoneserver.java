@@ -70,11 +70,11 @@ public class Zoneserver {
 		@Override
 		public void onMessage(Message msg) {
 			log.trace("Zoneserver {} received: {}", name, msg.toString());
-			
+
 			// Preprocess the message.
 			msg = messagePreprocessor.preprocess(msg);
-			
-			if(msg == null) {
+
+			if (msg == null) {
 				// Msg was not intended for this server.
 				return;
 			}
@@ -83,17 +83,17 @@ public class Zoneserver {
 			messageRouter.processMessage(msg);
 		}
 	}
-	
+
 	private class ZoneserverMessageProcessor implements MessageProcessor {
 
 		@Override
 		public void processMessage(Message msg) {
 			final Command cmd = commandFactory.getCommand(msg);
-			if(cmd != null) {
+			if (cmd != null) {
 				commandExecutor.submit(cmd);
 			}
 		}
-		
+
 	}
 
 	private final String name;
@@ -169,23 +169,22 @@ public class Zoneserver {
 		final Set<String> zones = new HashSet<String>();
 		zones.addAll(Arrays.asList(zoneStrings));
 		this.responsibleZones = Collections.unmodifiableSet(zones);
-		
-		
+
 		// ### Setup the message preprocessing.
 		this.messagePreprocessor = new MessagePreprocessorController();
 		setupMessagePreprocessing();
-		
+
 		// ### Setup the message routing.
 		final Set<String> messageIDs = commandFactory.getRegisteredMessageIds();
 		final MessageFilter filter = new MessageIdFilter(messageIDs);
 		messageRouter.registerFilter(filter, new ZoneserverMessageProcessor());
-		
+
 		this.userRegistry = new UserRegistry(this);
 
 		// Prepare the (static) translator.
 		I18n.setDao(commandContext.getServiceLocator().getBean(I18nDAO.class));
 	}
-	
+
 	private void setupMessagePreprocessing() {
 		this.messagePreprocessor.addProcessor(new ChatMessagePreprocessor(commandContext));
 		this.messagePreprocessor.addProcessor(new LoginBroadcastMessagePreprocessor(commandContext));
@@ -230,8 +229,15 @@ public class Zoneserver {
 		}
 
 		// Create ActorInitWorker: Spawning and initializing all Actors.
-		log.info("Initializing: actors...");
-		zones.values().forEach((x) -> x.start());
+		log.info("Initializing: zones...");
+		try {
+			zones.values().forEach((x) -> x.start());
+		} catch (Exception ex) {
+			// Whatever could go wrong...
+			log.fatal("Could not start zones.", ex);
+			stop();
+			return false;
+		}
 
 		log.info("Registering with Interserver...");
 		try {
@@ -341,8 +347,7 @@ public class Zoneserver {
 	 * The subscription manager to change and count how many active user are
 	 * currently online on this server.
 	 * 
-	 * @return The {@link UserRegistry} to track the online
-	 *         accounts and users.
+	 * @return The {@link UserRegistry} to track the online accounts and users.
 	 */
 	public UserRegistry getUserRegistry() {
 		return userRegistry;

@@ -78,6 +78,7 @@ public class TriggerScriptSystem extends EntityProcessingSystem {
 		final CollisionShape scriptShape = positionMapper.get(e).position;
 		final String zoneName = zone.getName();
 
+		// TODO Das hier über den Quadtree lösen.
 		// Usually we would use our bounding box and a manager (?) to find all
 		// possible colliding entities.
 		// manager.findPossibleColliding(shape.getBoundingBox());

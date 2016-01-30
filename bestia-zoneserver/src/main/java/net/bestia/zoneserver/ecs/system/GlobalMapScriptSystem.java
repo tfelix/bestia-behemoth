@@ -11,6 +11,13 @@ import net.bestia.zoneserver.script.MapScript;
 import net.bestia.zoneserver.script.MapScriptAPI;
 import net.bestia.zoneserver.zone.Zone;
 
+/**
+ * Executes the global mapscript once at startup of the zone. It then disables
+ * itself.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 @Wire
 public class GlobalMapScriptSystem extends IteratingSystem {
 
@@ -21,7 +28,7 @@ public class GlobalMapScriptSystem extends IteratingSystem {
 
 	@Wire
 	private CommandContext ctx;
-	
+
 	@Wire
 	private Zone zone;
 

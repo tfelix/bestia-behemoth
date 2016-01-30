@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.artemis.Aspect;
-import com.artemis.Aspect.Builder;
 import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.DelayedIteratingSystem;
@@ -26,7 +25,7 @@ public class ScriptIntervalSystem extends DelayedIteratingSystem {
 	private ComponentMapper<ScriptCallable> callableMapper;
 	private ComponentMapper<Delay> delayMapper;
 
-	public ScriptIntervalSystem(Builder aspect) {
+	public ScriptIntervalSystem() {
 		super(Aspect.all(Delay.class, ScriptCallable.class));
 		
 	}
