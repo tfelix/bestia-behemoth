@@ -41,7 +41,7 @@
 		<property name="hibernateProperties">
 			<props>
 				<prop key="hibernate.dialect">${db.dialect}</prop>
-				<prop key="hibernate.show_sql">false</prop>
+				<prop key="hibernate.show_sql">true</prop>
 				<prop key="hibernate.hbm2ddl.auto">${db.hbm2ddl}</prop>
 			</props>
 		</property>
@@ -55,7 +55,7 @@
 
 	<bean id="jpaVendorAdapter"
 		class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-		<property name="showSql" value="false" />
+		<property name="showSql" value="true" />
 		<property name="generateDdl" value="true" />
 		<property name="database" value="MYSQL" />
 	</bean>

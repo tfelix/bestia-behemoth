@@ -25,7 +25,7 @@ public class AccountServiceTest {
 
 	}
 
-	@Test
+	//@Test
 	public void createNewAccount_ok_success() {
 		boolean flag = accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "test123", Master.KNIGHT);
 		Assert.assertTrue(flag);

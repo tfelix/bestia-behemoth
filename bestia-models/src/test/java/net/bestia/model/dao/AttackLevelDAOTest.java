@@ -20,7 +20,7 @@ import net.bestia.model.domain.AttackLevel;
 @ContextConfiguration(locations = {"/spring-config.xml"})
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class,
         DbUnitTestExecutionListener.class })
-@DatabaseSetup("/db/attack_level.xml")
+@DatabaseSetup("/db/attack_levels.xml")
 public class AttackLevelDAOTest {
 	
 	@Autowired

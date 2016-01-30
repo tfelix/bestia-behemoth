@@ -222,6 +222,10 @@ public class PlayerBestiaService {
 	 * @param playerBestia
 	 */
 	public void savePlayerBestiaECS(PlayerBestia playerBestia) {
+		if(playerBestia == null) {
+			throw new IllegalArgumentException("PlayerBestia can not be null.");
+		}
+		
 		final PlayerBestia dbPlayerBestia = playerBestiaDao.findOne(playerBestia.getId());
 		
 		if(dbPlayerBestia == null) {
@@ -230,6 +234,7 @@ public class PlayerBestiaService {
 		
 		// Update its values from the ECS.
 		dbPlayerBestia.setCurrentPosition(playerBestia.getCurrentPosition());
+		
 		dbPlayerBestia.setCurrentHp(playerBestia.getCurrentHp());
 		dbPlayerBestia.setCurrentMana(playerBestia.getCurrentMana());
 		dbPlayerBestia.setLevel(playerBestia.getLevel());
