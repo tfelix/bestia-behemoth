@@ -71,8 +71,7 @@ public class NetworkUpdateManager extends BaseSystem {
 	 * @return
 	 */
 	public boolean isInSightDistance(Entity playerEntity, Entity visibleEntity) {
-		// TODO
-		return true;
+		return isInSightDistance(playerEntity.getId(), visibleEntity.getId());
 	}
 
 	/**

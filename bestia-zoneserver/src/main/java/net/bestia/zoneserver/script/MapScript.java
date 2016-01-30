@@ -65,5 +65,10 @@ public class MapScript extends Script {
 		final String name = FilenameUtils.getBaseName(scriptFile.getName());
 		return String.format("map.%s.%s", mapName, name);
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("MapScript[name: %s, identKey: %s]", getName(), getScriptKey());
+	}
 
 }

@@ -25,7 +25,7 @@ import tiled.core.ObjectGroup;
 public class ScriptMapExtender implements TMXMapExtender {
 
 	private final static Logger log = LogManager.getLogger(ScriptMapExtender.class);
-	
+
 	public ScriptMapExtender() {
 		// no op.
 	}
@@ -34,6 +34,9 @@ public class ScriptMapExtender implements TMXMapExtender {
 	public void extendMap(Map tiledMap, MapBuilder builder) {
 
 		log.trace("Extend map {} with scripts...", builder.mapDbName);
+
+		// Tiles must be quadratic.
+		final int tileSize = tiledMap.getTileHeight();
 
 		final Vector<MapLayer> layers = tiledMap.getLayers();
 		for (MapLayer layer : layers) {
@@ -55,11 +58,12 @@ public class ScriptMapExtender implements TMXMapExtender {
 				final Rectangle bb = scriptObj.getBounds();
 
 				// Translate the bb to shape.
-				final CollisionShape rect = new Rect(bb.x, bb.y, bb.width, bb.height);
-				
+				final CollisionShape rect = new Rect(bb.x / tileSize, bb.y / tileSize, bb.width / tileSize,
+						bb.height / tileSize);
+
 				final MapTriggerScript mapScript = new MapTriggerScript(scriptObj.getName(), rect);
 				builder.scripts.add(mapScript);
-				
+
 				createdScripts++;
 			}
 

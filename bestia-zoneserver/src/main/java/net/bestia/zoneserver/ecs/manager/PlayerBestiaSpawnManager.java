@@ -14,7 +14,9 @@ import com.artemis.Aspect;
 import com.artemis.BaseEntitySystem;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
+import com.artemis.EntitySubscription;
 import com.artemis.annotations.Wire;
+import com.artemis.utils.IntBag;
 
 import net.bestia.messages.BestiaInfoMessage;
 import net.bestia.messages.InputMessage;
@@ -85,6 +87,11 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	private Archetype playerBestiaArchetype;
 
 	/**
+	 * Subscribes to all active players.
+	 */
+	private EntitySubscription activePlayerSubscription;
+
+	/**
 	 * Holds the reference between account id and bestia entity ids.
 	 */
 	private final Map<Long, Set<Integer>> accountBestiaRegister = new HashMap<>();
@@ -131,6 +138,8 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 				.add(ManaRegenerationRate.class)
 				.add(Visible.class)
 				.build(world);
+
+		activePlayerSubscription = world.getAspectSubscriptionManager().get(Aspect.all(Visible.class, Active.class));
 	}
 
 	/**
@@ -176,7 +185,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 
 	@Override
 	protected void processSystem() {
-
+		// no op (disabled)
 	}
 
 	public void spawnBestia(net.bestia.model.domain.PlayerBestia pb) {
@@ -303,6 +312,15 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 			}
 			LOG.trace("Despawning player bestia (entity id: {})", id);
 		}
+	}
+
+	/**
+	 * Returns a list with all active player bestia entities.
+	 * 
+	 * @return
+	 */
+	public IntBag getActivePlayerEntities() {
+		return activePlayerSubscription.getEntities();
 	}
 
 }

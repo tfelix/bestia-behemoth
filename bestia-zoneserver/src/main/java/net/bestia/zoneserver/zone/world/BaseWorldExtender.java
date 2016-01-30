@@ -16,10 +16,10 @@ import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
 import net.bestia.zoneserver.ecs.system.AISystem;
 import net.bestia.zoneserver.ecs.system.ActiveSpawnUpdateSystem;
 import net.bestia.zoneserver.ecs.system.ChangedNetworkUpdateSystem;
+import net.bestia.zoneserver.ecs.system.DamageSystem;
 import net.bestia.zoneserver.ecs.system.DelayedRemoveSystem;
 import net.bestia.zoneserver.ecs.system.HPRegenerationSystem;
 import net.bestia.zoneserver.ecs.system.ManaRegenerationSystem;
-import net.bestia.zoneserver.ecs.system.TriggerScriptSystem;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
 import net.bestia.zoneserver.ecs.system.VisibleSpawnUpdateSystem;
@@ -46,7 +46,7 @@ public class BaseWorldExtender implements WorldExtend {
 		worldConfig.setSystem(new AISystem());
 		worldConfig.setSystem(new ActiveSpawnUpdateSystem());
 		worldConfig.setSystem(new VisibleSpawnUpdateSystem());
-		worldConfig.setSystem(new TriggerScriptSystem());
+
 		worldConfig.setSystem(new DelayedRemoveSystem());
 		worldConfig.setSystem(new PersistSystem(10000));
 		worldConfig.setSystem(new HPRegenerationSystem());
@@ -54,6 +54,7 @@ public class BaseWorldExtender implements WorldExtend {
 		// ChangedNetworkUpdateSystem must be last because it removes the
 		// Changed component.
 		worldConfig.setSystem(new ChangedNetworkUpdateSystem());
+		worldConfig.setSystem(new DamageSystem());
 
 		// Set all the managers.
 		worldConfig.setSystem(new PlayerBestiaSpawnManager(zone));

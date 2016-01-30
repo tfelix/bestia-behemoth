@@ -20,12 +20,18 @@ import com.artemis.EntitySubscription.SubscriptionListener;
 import com.artemis.annotations.Wire;
 import com.artemis.utils.IntBag;
 
+/**
+ * Updates all active player bestias if a new visible spawns.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 @Wire
 public class VisibleSpawnUpdateSystem extends BaseEntitySystem {
 
 	public VisibleSpawnUpdateSystem() {
 		super(Aspect.all(Visible.class, Position.class));
-		
+
 		setEnabled(false);
 	}
 
@@ -81,6 +87,6 @@ public class VisibleSpawnUpdateSystem extends BaseEntitySystem {
 	@Override
 	protected void processSystem() {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

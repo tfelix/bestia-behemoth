@@ -29,7 +29,7 @@ import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.HP;
 import net.bestia.zoneserver.ecs.component.Mana;
-import net.bestia.zoneserver.ecs.manager.DamageManager;
+import net.bestia.zoneserver.ecs.system.DamageSystem;
 
 /**
  * The PlayerBestiaManager is responsible for executing the "business logic" to
@@ -52,7 +52,7 @@ public class PlayerBestiaManager extends BestiaManager {
 	private final ComponentMapper<Attacks> attacksMapper;
 	private final ComponentMapper<Mana> manaMapper;
 	private final ComponentMapper<HP> hpMapper;
-	private final DamageManager dmgManager;
+	private final DamageSystem dmgManager;
 	private final String entityUUID;
 
 	private Direction headFacing;
@@ -70,7 +70,7 @@ public class PlayerBestiaManager extends BestiaManager {
 		this.attacksMapper = world.getMapper(Attacks.class);
 		this.manaMapper = world.getMapper(Mana.class);
 		this.hpMapper = world.getMapper(HP.class);
-		this.dmgManager = world.getSystem(DamageManager.class);
+		this.dmgManager = world.getSystem(DamageSystem.class);
 		this.entityUUID = world.getSystem(UuidEntityManager.class).getUuid(entity).toString();
 
 		this.server = server;

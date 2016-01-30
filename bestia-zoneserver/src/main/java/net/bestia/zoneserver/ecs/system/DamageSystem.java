@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.ecs.manager;
+package net.bestia.zoneserver.ecs.system;
 
 import java.util.UUID;
 
@@ -20,6 +20,7 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Damage;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.manager.NetworkUpdateManager;
 
 /**
  * This system is responsible for spawning damage entities. These will be send
@@ -29,9 +30,9 @@ import net.bestia.zoneserver.ecs.component.Position;
  *
  */
 @Wire
-public class DamageManager extends IteratingSystem {
+public class DamageSystem extends IteratingSystem {
 
-	private static final Logger LOG = LogManager.getLogger(DamageManager.class);
+	private static final Logger LOG = LogManager.getLogger(DamageSystem.class);
 
 	private ComponentMapper<Damage> damageMapper;
 	private ComponentMapper<PlayerBestia> playerMapper;
@@ -45,7 +46,7 @@ public class DamageManager extends IteratingSystem {
 	@Wire
 	private CommandContext ctx;
 
-	public DamageManager() {
+	public DamageSystem() {
 		super(Aspect.all(Damage.class));
 		// no op.
 	}
