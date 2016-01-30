@@ -18,9 +18,10 @@ Bestia.Engine.FX.Damage = function(game, pos, dmg) {
 	 * @property
 	 * @private
 	 */
-	this._sprite;
+	this._sprite = null;
 	
 	this._createVisual(pos.x, pos.y);
+	
 	this._sprite.text = dmg;
 	
 	this._show();
@@ -75,7 +76,7 @@ Bestia.Engine.FX.Damage.prototype._show = function() {
 	tween.interpolation(function(v, k) {
 		return Phaser.Math.bezierInterpolation(v, k);
 	});
-	this.game.add.tween(visual).to({
+	this.game.add.tween(this._sprite).to({
 		alpha : 0
 	}, 100, Phaser.Easing.Linear.None, true, 900).start();
 

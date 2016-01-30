@@ -1,8 +1,7 @@
 
-log.info("Hello World.");
 
 def callback = { 
-	println "Callback Hello World!"
+	log.info("Hello World.");
 }
 
 apiZone.setTimer(5000, callback)

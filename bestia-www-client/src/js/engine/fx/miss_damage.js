@@ -22,7 +22,7 @@ Bestia.Engine.FX.MissDamage.prototype._show = function() {
 		y : this._sprite.y - 200
 	}, 1000);
 
-	this.game.add.tween(visual).to({
+	this.game.add.tween(this._sprite).to({
 		alpha : 0
 	}, 100, Phaser.Easing.Linear.None, true, 800).start();
 
