@@ -9,14 +9,13 @@ import com.artemis.managers.UuidEntityManager;
 import net.bestia.model.dao.MapEntitiesDAO;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.ActiveManager;
+import net.bestia.zoneserver.ecs.manager.MessageManager;
 import net.bestia.zoneserver.ecs.manager.NetworkUpdateManager;
-import net.bestia.zoneserver.ecs.manager.PlayerAttackSetManager;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
 import net.bestia.zoneserver.ecs.system.AISystem;
 import net.bestia.zoneserver.ecs.system.ActiveSpawnUpdateSystem;
 import net.bestia.zoneserver.ecs.system.ChangedNetworkUpdateSystem;
-import net.bestia.zoneserver.ecs.system.DamageSystem;
 import net.bestia.zoneserver.ecs.system.DelayedRemoveSystem;
 import net.bestia.zoneserver.ecs.system.HPRegenerationSystem;
 import net.bestia.zoneserver.ecs.system.ManaRegenerationSystem;
@@ -54,16 +53,14 @@ public class BaseWorldExtender implements WorldExtend {
 		// ChangedNetworkUpdateSystem must be last because it removes the
 		// Changed component.
 		worldConfig.setSystem(new ChangedNetworkUpdateSystem());
-		worldConfig.setSystem(new DamageSystem());
-
 		// Set all the managers.
 		worldConfig.setSystem(new PlayerBestiaSpawnManager(zone));
-		worldConfig.setSystem(new PlayerAttackSetManager());
 		worldConfig.setSystem(new ActiveManager());
 		worldConfig.setSystem(new PlayerManager());
 		worldConfig.setSystem(new TagManager());
 		worldConfig.setSystem(new UuidEntityManager());
 		worldConfig.setSystem(new NetworkUpdateManager());
+		worldConfig.setSystem(new MessageManager());
 		
 		final MapEntitiesDAO mapEntityDao = ctx.getServiceLocator().getBean(MapEntitiesDAO.class);
 		worldConfig.setSystem(new WorldPersistenceManager(map.getMapDbName(), mapEntityDao));

@@ -30,6 +30,8 @@ import net.bestia.zoneserver.zone.shape.Vector2;
 /**
  * Should be abstract.
  * 
+ * @deprecated In zukunft den MessageManager verwenden.
+ * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */

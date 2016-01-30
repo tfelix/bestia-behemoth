@@ -14,6 +14,7 @@ import com.artemis.World;
 import com.artemis.managers.UuidEntityManager;
 
 import net.bestia.messages.ChatMessage;
+import net.bestia.messages.EntityDamageMessage;
 import net.bestia.model.I18n;
 import net.bestia.model.ServiceLocator;
 import net.bestia.model.dao.AttackDAO;
@@ -29,7 +30,7 @@ import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.HP;
 import net.bestia.zoneserver.ecs.component.Mana;
-import net.bestia.zoneserver.ecs.system.DamageSystem;
+import net.bestia.zoneserver.ecs.manager.MessageManager;
 
 /**
  * The PlayerBestiaManager is responsible for executing the "business logic" to
@@ -52,7 +53,7 @@ public class PlayerBestiaManager extends BestiaManager {
 	private final ComponentMapper<Attacks> attacksMapper;
 	private final ComponentMapper<Mana> manaMapper;
 	private final ComponentMapper<HP> hpMapper;
-	private final DamageSystem dmgManager;
+	private final MessageManager messageManager;
 	private final String entityUUID;
 
 	private Direction headFacing;
@@ -70,7 +71,7 @@ public class PlayerBestiaManager extends BestiaManager {
 		this.attacksMapper = world.getMapper(Attacks.class);
 		this.manaMapper = world.getMapper(Mana.class);
 		this.hpMapper = world.getMapper(HP.class);
-		this.dmgManager = world.getSystem(DamageSystem.class);
+		this.messageManager = world.getSystem(MessageManager.class);
 		this.entityUUID = world.getSystem(UuidEntityManager.class).getUuid(entity).toString();
 
 		this.server = server;
@@ -117,7 +118,9 @@ public class PlayerBestiaManager extends BestiaManager {
 		// Spawn the damage display indicator in the ECS to let it get send to
 		// all player in range.
 		final Damage damage = Damage.getHit(entityUUID, dmgValue);
-		dmgManager.spawnDamage(damage);
+		
+		final EntityDamageMessage dmgMsg = new EntityDamageMessage(0, damage);
+		messageManager.sendMessageToSightrange(getEntityId(), dmgMsg);
 
 		// Update our current hp.
 		final int newHp = statusPoints.getCurrentHp() - dmgValue;
@@ -129,7 +132,6 @@ public class PlayerBestiaManager extends BestiaManager {
 		}
 
 		statusPoints.setCurrentHp(newHp);
-
 	}
 
 	/**

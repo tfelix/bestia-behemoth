@@ -319,7 +319,17 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	 * 
 	 * @return
 	 */
-	public IntBag getActivePlayerEntities() {
+	public IntBag getActivePlayers() {
+		return activePlayerSubscription.getEntities();
+	}
+
+	/**
+	 * Tracks all active players in sight.
+	 * 
+	 * @param pos
+	 * @return
+	 */
+	public IntBag getActivePlayersInSight(Position pos) {
 		return activePlayerSubscription.getEntities();
 	}
 

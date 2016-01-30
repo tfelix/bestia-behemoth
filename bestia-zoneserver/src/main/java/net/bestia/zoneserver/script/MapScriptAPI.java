@@ -6,9 +6,7 @@ import com.artemis.Entity;
 import com.artemis.EntityEdit;
 import com.artemis.World;
 
-import net.bestia.model.misc.Damage.DamageType;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.Damage;
 import net.bestia.zoneserver.ecs.component.Delay;
 import net.bestia.zoneserver.ecs.component.ScriptCallable;
 
@@ -37,12 +35,6 @@ public class MapScriptAPI {
 		
 		ee.create(Delay.class).setDelay(delay);
 		ee.create(ScriptCallable.class).fn = fn;
-	}
-	
-	public void spawnDamage(int value, String uuid) {
-		final EntityEdit ee = world.createEntity().edit();
-		final Damage dmg = ee.create(Damage.class);
-		dmg.damage = new net.bestia.model.misc.Damage(uuid, value, DamageType.HIT);
 	}
 
 	public void initWorld(World world) {

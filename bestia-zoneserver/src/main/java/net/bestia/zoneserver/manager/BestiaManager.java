@@ -155,4 +155,8 @@ public abstract class BestiaManager {
 	public void setFacing(Direction facing) {
 		this.facing = facing;
 	}
+	
+	public int getEntityId() {
+		return entity.getId();
+	}
 }
