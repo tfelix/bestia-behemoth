@@ -43,7 +43,7 @@ public class ChatMessagePreprocessor extends MessagePreprocessor {
 			final AccountDAO accDAO = ctx.getServiceLocator().getBean(AccountDAO.class);
 
 			// Find the player who send the message.
-			final Account acc = accDAO.find(msg.getAccountId());
+			final Account acc = accDAO.findOne(msg.getAccountId());
 			msg.setSenderNickname(acc.getName());
 			break;
 		default:

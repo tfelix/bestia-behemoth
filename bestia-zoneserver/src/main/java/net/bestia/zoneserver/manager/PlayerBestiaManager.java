@@ -386,7 +386,7 @@ public class PlayerBestiaManager extends BestiaManager {
 			if (id == null) {
 				attack = null;
 			} else {
-				attack = atkDao.find(id);
+				attack = atkDao.findOne(id);
 			}
 
 			switch (i) {

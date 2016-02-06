@@ -4,12 +4,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import net.bestia.model.dao.AttackLevelDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.dao.PlayerItemDAO;
@@ -17,6 +11,12 @@ import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.AttackLevel;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service("PlayerBestiaService")

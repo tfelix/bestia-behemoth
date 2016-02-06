@@ -54,33 +54,9 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 
 	private void synchronizeAndSaveEntity(Entity e) {
 		final PlayerBestiaService pbService = ctx.getServiceLocator().getBean(PlayerBestiaService.class);
-		final PlayerBestiaDAO dao = ctx.getServiceLocator().getBean(PlayerBestiaDAO.class);
-
 		final PlayerBestiaManager pbm = playerMapper.get(e).playerBestiaManager;
 
-		final net.bestia.model.domain.PlayerBestia dbPlayerBestia = dao.findOne(pbm.getPlayerBestia().getId());
-
-		if (dbPlayerBestia == null) {
-			return;
-		}
-
-		// Update its values from the ECS.
-		// dbPlayerBestia.setCurrentPosition(playerBestia.getCurrentPosition());
-
-		dbPlayerBestia.getCurrentPosition().setX(6);
-		dbPlayerBestia.getCurrentPosition().setY(6);
-
-		/*
-		 * dbPlayerBestia.setCurrentHp(playerBestia.getCurrentHp());
-		 * dbPlayerBestia.setCurrentMana(playerBestia.getCurrentMana());
-		 * dbPlayerBestia.setLevel(playerBestia.getLevel());
-		 * dbPlayerBestia.setExp(playerBestia.getExp());
-		 */
-		// TODO set EVs.
-
-		dao.save(dbPlayerBestia);
-
-		//pbService.savePlayerBestiaECS(pbm.getPlayerBestia());
+		pbService.savePlayerBestiaECS(pbm.getPlayerBestia());
 
 		log.trace("Persisting entity: {}", pbm.toString());
 	}

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
+@org.springframework.stereotype.Repository("i18nDao")
 public interface I18nDAO extends Repository<I18n, I18n.I18nPK> {
 
 	@Query("SELECT i FROM I18n i where i.id.category = :cat AND i.id.lang = :lang AND i.id.key = :key")

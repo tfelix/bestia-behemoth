@@ -118,7 +118,7 @@ public class InventoryService {
 		if (pitem == null) {
 			// New item.
 
-			final Account acc = accountDao.find(accId);
+			final Account acc = accountDao.findOne(accId);
 			final Item item = itemDao.findOne(itemId);
 
 			if (acc == null) {
@@ -136,7 +136,7 @@ public class InventoryService {
 		} else {
 			// Update existing item.
 			pitem.setAmount(pitem.getAmount() + amount);
-			playerItemDao.update(pitem);
+			playerItemDao.save(pitem);
 		}
 
 		log.info("Account {} received item {}, amount: {}", accId, itemId, amount);
@@ -192,7 +192,7 @@ public class InventoryService {
 
 		if (item.getAmount() > amount) {
 			item.setAmount(item.getAmount() - amount);
-			playerItemDao.update(item);
+			playerItemDao.save(item);
 		} else {
 			// can only be equal amounts.
 			playerItemDao.delete(item);
@@ -233,7 +233,7 @@ public class InventoryService {
 	 * @return The {@link PlayerItem} or NULL if the ID does not exist.
 	 */
 	public PlayerItem getPlayerItem(int playerItemId) {
-		return playerItemDao.find(playerItemId);
+		return playerItemDao.findOne(playerItemId);
 	}
 
 	/**
@@ -319,7 +319,7 @@ public class InventoryService {
 	 * @return
 	 */
 	public boolean hasPlayerItem(int playerItemId, int amount) {
-		final PlayerItem item = playerItemDao.find(playerItemId);
+		final PlayerItem item = playerItemDao.findOne(playerItemId);
 
 		if (item == null) {
 			return false;

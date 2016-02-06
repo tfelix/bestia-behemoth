@@ -15,7 +15,7 @@
     http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
 
 	<!-- we will manage transactions with annotations -->
-	<tx:annotation-driven transaction-manager="transactionManager" />
+	<tx:annotation-driven />
 
 	<!-- we can use annotations -->
 	<context:annotation-config />
@@ -24,52 +24,72 @@
 	<context:component-scan base-package="net.bestia.model.*" />
 
 	<jpa:repositories base-package="net.bestia.model.dao" />
+	
+	<!-- Configure ConnectionPool Hikari -->
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+        <property name="driverClassName" value="${db.driver}"/>
+        <property name="jdbcUrl" value="${db.url}"/>
+        <property name="username" value="${db.username}"/>
+        <property name="password" value="${db.password}"/>
+    </bean>
 
 	<!-- data source for our database -->
-	<bean id="dataSource"
-		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="${db.driver}" />
-		<property name="url" value="${db.url}" />
-		<property name="username" value="${db.username}" />
-		<property name="password" value="${db.password}" />
-	</bean>
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
+        <constructor-arg index="0" ref="hikariConfig"/>
+    </bean>
 
-	<!-- configure hibernate session factory -->
-	<bean id="sessionFactory"
-		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-		<property name="dataSource" ref="dataSource" />
-		<property name="hibernateProperties">
-			<props>
-				<prop key="hibernate.dialect">${db.dialect}</prop>
-				<prop key="hibernate.show_sql">true</prop>
-				<prop key="hibernate.hbm2ddl.auto">${db.hbm2ddl}</prop>
-			</props>
-		</property>
-
-		<property name="packagesToScan">
-			<list>
-				<value>net.bestia.model.domain</value>
-			</list>
-		</property>
-	</bean>
-
+	<!--
+        Specifies the default settings that are compatible with Hibernate.
+    -->
 	<bean id="jpaVendorAdapter"
 		class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
 		<property name="showSql" value="true" />
 		<property name="generateDdl" value="true" />
 		<property name="database" value="MYSQL" />
 	</bean>
-
-	<bean id="entityManagerFactory"
-		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-		<property name="dataSource" ref="dataSource" />
-		<property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
-		<!-- spring based scanning for entity classes> -->
+	
+	<!-- Creates the bean that creates the JPA entity manager factory. -->
+    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="jpaVendorAdapter" ref="jpaVendorAdapter"/>
+        <!-- spring based scanning for entity classes> -->
 		<property name="packagesToScan" value="net.bestia.model" />
-	</bean>
+        <property name="jpaProperties">
+            <props>
+                <!--
+                    Configures the used database dialect. This allows Hibernate to create SQL
+                    that is optimized for the used database.
+                -->
+                <prop key="hibernate.dialect">${db.dialect}</prop>
 
-	<bean id="transactionManager"
-		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<property name="dataSource" ref="dataSource" />
-	</bean>
+                <!--
+                    Specifies the action that is invoked to the database when the Hibernate
+                    SessionFactory is created or closed.
+                -->
+                <prop key="hibernate.hbm2ddl.auto">${db.hbm2ddl}</prop>
+
+                <!--
+                    Configures the naming strategy that is used when Hibernate creates
+                    new database objects and schema elements
+                
+                <prop key="hibernate.ejb.naming_strategy">${hibernate.ejb.naming_strategy}</prop>
+-->
+                <!--
+                    If the value of this property is true, Hibernate writes all SQL
+                    statements to the console.
+                -->
+                <prop key="hibernate.show_sql">true</prop>
+
+                <!--
+                    If the value of this property is true, Hibernate will use prettyprint
+                    when it writes SQL to the console.
+                -->
+                <prop key="hibernate.format_sql">true</prop>
+            </props>
+        </property>
+    </bean>
+
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
+    </bean>
 </beans>

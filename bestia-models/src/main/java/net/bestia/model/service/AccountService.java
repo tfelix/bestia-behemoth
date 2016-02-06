@@ -117,7 +117,7 @@ public class AccountService {
 	 * @return
 	 */
 	public Set<PlayerBestia> getAllBestias(long accId) {
-		final Account account = accountDao.find(accId);
+		final Account account = accountDao.findOne(accId);
 		final Set<PlayerBestia> bestias = playerBestiaDao.findPlayerBestiasForAccount(accId);
 
 		// Add master as well since its not listed as a "player bestia".

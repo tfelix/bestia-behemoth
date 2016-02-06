@@ -108,7 +108,7 @@ public class AccountApi {
 		}
 
 		// Check username.
-		if (accountDao.findByNickname(username) != null) {
+		if (accountDao.findByUsername(username) != null) {
 			answer.nameUsed = true;
 		}
 

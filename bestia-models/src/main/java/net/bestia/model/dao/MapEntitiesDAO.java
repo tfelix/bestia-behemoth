@@ -12,6 +12,7 @@ import net.bestia.model.domain.MapEntity;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@org.springframework.stereotype.Repository("mapEntitiesDao")
 public interface MapEntitiesDAO extends Repository<MapEntity, Integer> {
 
 	/**

@@ -38,7 +38,7 @@ public class LoginTokenAuthenticator implements Authenticator {
 	public AuthState authenticate() {
 
 		// Get the account from the database.
-		Account account = accountDao.find(accountId);
+		final Account account = accountDao.findOne(accountId);
 
 		if (account == null) {
 			return AuthState.NO_ACCOUNT;
