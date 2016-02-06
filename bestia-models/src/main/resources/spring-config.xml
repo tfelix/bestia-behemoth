@@ -67,24 +67,18 @@
                     SessionFactory is created or closed.
                 -->
                 <prop key="hibernate.hbm2ddl.auto">${db.hbm2ddl}</prop>
-
-                <!--
-                    Configures the naming strategy that is used when Hibernate creates
-                    new database objects and schema elements
                 
-                <prop key="hibernate.ejb.naming_strategy">${hibernate.ejb.naming_strategy}</prop>
--->
                 <!--
                     If the value of this property is true, Hibernate writes all SQL
                     statements to the console.
                 -->
-                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.show_sql">false</prop>
 
                 <!--
                     If the value of this property is true, Hibernate will use prettyprint
                     when it writes SQL to the console.
                 -->
-                <prop key="hibernate.format_sql">true</prop>
+                <prop key="hibernate.format_sql">false</prop>
             </props>
         </property>
     </bean>

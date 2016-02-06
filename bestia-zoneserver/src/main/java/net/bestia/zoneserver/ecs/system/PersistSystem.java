@@ -1,5 +1,10 @@
 package net.bestia.zoneserver.ecs.system;
 
+import net.bestia.model.service.PlayerBestiaService;
+import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.component.PlayerBestia;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -8,12 +13,6 @@ import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IntervalEntityProcessingSystem;
-
-import net.bestia.model.dao.PlayerBestiaDAO;
-import net.bestia.model.service.PlayerBestiaService;
-import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.PlayerBestia;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
 /**
  * System to periodically persist (player) entities which have changed into the
