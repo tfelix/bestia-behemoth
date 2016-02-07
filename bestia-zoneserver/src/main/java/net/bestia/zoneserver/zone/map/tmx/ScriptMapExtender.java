@@ -8,7 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.zoneserver.zone.map.Map.MapBuilder;
-import net.bestia.zoneserver.zone.map.MapTriggerScript;
+import net.bestia.zoneserver.zone.map.MapEventScript;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
 import net.bestia.zoneserver.zone.shape.Rect;
 import tiled.core.Map;
@@ -25,6 +25,8 @@ import tiled.core.ObjectGroup;
 public class ScriptMapExtender implements TMXMapExtender {
 
 	private final static Logger log = LogManager.getLogger(ScriptMapExtender.class);
+
+	private final static String PROP_TICKRATE = "tickRate";
 
 	public ScriptMapExtender() {
 		// no op.
@@ -53,16 +55,26 @@ public class ScriptMapExtender implements TMXMapExtender {
 			// Iterate over all triggered scripts and create them.
 			final Iterator<MapObject> objIter = objLayer.getObjects();
 			int createdScripts = 0;
+
 			while (objIter.hasNext()) {
 				final MapObject scriptObj = objIter.next();
 				final Rectangle bb = scriptObj.getBounds();
 
 				// Translate the bb to shape.
-				final CollisionShape rect = new Rect(bb.x / tileSize, bb.y / tileSize, bb.width / tileSize,
+				final CollisionShape rect = new Rect(bb.x / tileSize,
+						bb.y / tileSize,
+						bb.width / tileSize,
 						bb.height / tileSize);
 
-				final MapTriggerScript mapScript = new MapTriggerScript(scriptObj.getName(), rect);
-				builder.scripts.add(mapScript);
+				final String tickRateStr = scriptObj.getProperties().getProperty(PROP_TICKRATE);
+				if (tickRateStr != null) {
+					final int tickRate = Integer.parseInt(tickRateStr);
+					final MapEventScript mapScript = new MapEventScript(scriptObj.getName(), rect, tickRate);
+					builder.scripts.add(mapScript);
+				} else {
+					final MapEventScript mapScript = new MapEventScript(scriptObj.getName(), rect);
+					builder.scripts.add(mapScript);
+				}
 
 				createdScripts++;
 			}
