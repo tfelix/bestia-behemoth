@@ -25,12 +25,12 @@ import tiled.core.ObjectGroup;
  */
 public class PortalMapExtender implements TMXMapExtender {
 
-	private final static Logger log = LogManager.getLogger(PortalMapExtender.class);
+	private final static Logger LOG = LogManager.getLogger(PortalMapExtender.class);
 
 	@Override
 	public void extendMap(Map tiledMap, MapBuilder builder) {
 
-		log.trace("Extend map {} with portals...", builder.mapDbName);
+		LOG.trace("Extend map {} with portals...", builder.mapDbName);
 		
 		final int tileHeight = tiledMap.getTileHeight();
 		final int tileWidth = tiledMap.getTileWidth();
@@ -63,7 +63,7 @@ public class PortalMapExtender implements TMXMapExtender {
 				final Location dest = parseDestination(mapObj.getName());
 
 				if (dest == null) {
-					log.warn("Malformed portal name: {}. Should be: MAP_DB_NAME,X,Y", mapObj.getName());
+					LOG.warn("Malformed portal name: {}. Should be: MAP_DB_NAME,X,Y", mapObj.getName());
 					continue;
 				}
 				
@@ -73,7 +73,7 @@ public class PortalMapExtender implements TMXMapExtender {
 				createdPortals++;
 			}
 
-			log.trace("Extended map {} with {} portal(s).", builder.mapDbName, createdPortals);
+			LOG.trace("Extended map {} with {} portal(s).", builder.mapDbName, createdPortals);
 		}
 	}
 

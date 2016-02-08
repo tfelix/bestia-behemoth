@@ -36,7 +36,7 @@ public class Map {
 		public java.util.Map<Vector2, Tile> tiles = new HashMap<>();
 		public String mapDbName;
 		public final List<MapPortalScript> portals = new ArrayList<>();
-		public final List<MapEventScript> scripts = new ArrayList<>();
+		public final List<MapScriptTemplate> scripts = new ArrayList<>();
 		public String globalMapscript = "";
 		public List<Spawner> spawns;
 
@@ -55,7 +55,7 @@ public class Map {
 	private Rect dimensions;
 
 	private final String globalMapscript;
-	private final List<MapEventScript> scripts;
+	private final List<MapScriptTemplate> scripts;
 	private final List<MapPortalScript> portals;
 	private final List<Spawner> spawns;
 
@@ -160,7 +160,7 @@ public class Map {
 	 * 
 	 * @return A read-only list with trigger scripts.
 	 */
-	public List<MapEventScript> getScripts() {
+	public List<MapScriptTemplate> getScripts() {
 		return scripts;
 	}
 

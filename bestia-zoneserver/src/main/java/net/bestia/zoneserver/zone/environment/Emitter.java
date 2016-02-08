@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.zone.wecs;
+package net.bestia.zoneserver.zone.environment;
 
 /**
  * This is a single point emitter. After a tick it will set the value of one or

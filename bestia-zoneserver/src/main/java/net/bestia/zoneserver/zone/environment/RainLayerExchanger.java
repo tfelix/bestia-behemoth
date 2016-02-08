@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.zone.wecs;
+package net.bestia.zoneserver.zone.environment;
 
 /**
  * Responsible for reading the temperature and sky humidity layer in order to

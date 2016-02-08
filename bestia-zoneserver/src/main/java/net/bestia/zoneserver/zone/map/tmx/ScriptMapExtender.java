@@ -8,7 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.zoneserver.zone.map.Map.MapBuilder;
-import net.bestia.zoneserver.zone.map.MapEventScript;
+import net.bestia.zoneserver.zone.map.MapScriptTemplate;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
 import net.bestia.zoneserver.zone.shape.Rect;
 import tiled.core.Map;
@@ -69,10 +69,10 @@ public class ScriptMapExtender implements TMXMapExtender {
 				final String tickRateStr = scriptObj.getProperties().getProperty(PROP_TICKRATE);
 				if (tickRateStr != null) {
 					final int tickRate = Integer.parseInt(tickRateStr);
-					final MapEventScript mapScript = new MapEventScript(scriptObj.getName(), rect, tickRate);
+					final MapScriptTemplate mapScript = new MapScriptTemplate(scriptObj.getName(), rect, tickRate);
 					builder.scripts.add(mapScript);
 				} else {
-					final MapEventScript mapScript = new MapEventScript(scriptObj.getName(), rect);
+					final MapScriptTemplate mapScript = new MapScriptTemplate(scriptObj.getName(), rect);
 					builder.scripts.add(mapScript);
 				}
 

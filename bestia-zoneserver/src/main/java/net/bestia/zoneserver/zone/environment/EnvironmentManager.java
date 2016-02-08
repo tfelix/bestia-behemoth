@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.zone.wecs;
+package net.bestia.zoneserver.zone.environment;
 
 import java.util.ArrayList;
 import java.util.HashMap;

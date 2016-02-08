@@ -11,27 +11,27 @@ public class MapEventScriptTest {
 
 	@Test
 	public void ctor_nullName_execption() {
-		new MapEventScript(null, shape, 10);
+		new MapScriptTemplate(null, shape, 10);
 	}
 
 	@Test
 	public void ctor_emptyName_execption() {
-		new MapEventScript("", shape, 10);
+		new MapScriptTemplate("", shape, 10);
 	}
 
 	@Test
 	public void ctor_nullShape_execption() {
-		new MapEventScript("test", null, 10);
+		new MapScriptTemplate("test", null, 10);
 	}
 
 	@Test
 	public void ctor_negativeTick_execption() {
-		new MapEventScript("test", shape, -10);
+		new MapScriptTemplate("test", shape, -10);
 	}
 	
 	@Test
 	public void ctor_correct() {
-		new MapEventScript("test", shape, 10);
-		new MapEventScript("test", shape);
+		new MapScriptTemplate("test", shape, 10);
+		new MapScriptTemplate("test", shape);
 	}
 }

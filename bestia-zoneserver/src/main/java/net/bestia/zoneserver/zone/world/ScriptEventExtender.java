@@ -8,7 +8,7 @@ import net.bestia.zoneserver.ecs.system.ScriptEventSystem;
 import net.bestia.zoneserver.ecs.system.ScriptTickSystem;
 import net.bestia.zoneserver.zone.Zone;
 import net.bestia.zoneserver.zone.map.Map;
-import net.bestia.zoneserver.zone.map.MapEventScript;
+import net.bestia.zoneserver.zone.map.MapScriptTemplate;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
 
 /**
@@ -25,7 +25,7 @@ public class ScriptEventExtender implements WorldExtend {
 	@Override
 	public void extend(World world, Map map, Zone zone) {
 
-		for (MapEventScript script : map.getScripts()) {
+		for (MapScriptTemplate script : map.getScripts()) {
 
 			final String name = script.getScriptName();
 			final CollisionShape shape = script.getShape();

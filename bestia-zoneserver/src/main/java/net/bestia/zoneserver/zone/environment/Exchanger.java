@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.zone.wecs;
+package net.bestia.zoneserver.zone.environment;
 
 public interface Exchanger {
 

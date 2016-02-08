@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.zone.wecs;
+package net.bestia.zoneserver.zone.environment;
 
 import java.util.Arrays;
 import java.util.concurrent.locks.Lock;
