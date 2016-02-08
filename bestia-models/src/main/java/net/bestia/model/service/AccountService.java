@@ -38,12 +38,14 @@ public class AccountService {
 		/**
 		 * DPS starter class.
 		 */
-		FIGHTER, /**
-					 * Tank starter class.
-					 */
-		KNIGHT, /**
-				 * Support class.
-				 */
+		FIGHTER,
+		/**
+		 * Tank starter class.
+		 */
+		KNIGHT,
+		/**
+		 * Support class.
+		 */
 		SPIRITUAL
 	}
 
@@ -76,9 +78,9 @@ public class AccountService {
 	 * @return {@code TRUE} if the new account coule be created. {@code FALSE}
 	 *         otherwise.
 	 */
-	@Transactional
 	public boolean createNewAccount(String email, String mastername, String password, Master starter) {
 		Account account = new Account(email, password);
+		
 		// TODO das hier noch auslagern. Die aktivierung soll nur per
 		// username/password anmeldung notwendig sein.
 		account.setActivated(true);
@@ -95,7 +97,7 @@ public class AccountService {
 		}
 
 		// Create the bestia.
-		PlayerBestia masterBestia = new PlayerBestia(account, origin, BaseValues.getStarterIndividualValues());
+		final PlayerBestia masterBestia = new PlayerBestia(account, origin, BaseValues.getStarterIndividualValues());
 		masterBestia.setName(mastername);
 
 		account.setMaster(masterBestia);
@@ -114,15 +116,21 @@ public class AccountService {
 	 * bestia master aswell as "normal" bestias.
 	 * 
 	 * @param accId
-	 * @return
+	 * @return Returns the set of player bestia for a given account id or NULL
+	 *         if this account does not exist.
 	 */
 	public Set<PlayerBestia> getAllBestias(long accId) {
 		final Account account = accountDao.findOne(accId);
+
+		if (account == null) {
+			return null;
+		}
+
 		final Set<PlayerBestia> bestias = playerBestiaDao.findPlayerBestiasForAccount(accId);
 
 		// Add master as well since its not listed as a "player bestia".
 		bestias.add(account.getMaster());
-		
+
 		return bestias;
 	}
 
