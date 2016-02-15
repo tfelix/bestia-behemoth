@@ -1,4 +1,4 @@
-package net.bestia.maven;
+package net.bestia.maven.map;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +22,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import net.bestia.maven.util.MapHelper;
 import tiled.core.Map;
 import tiled.core.MapLayer;
 import tiled.io.TMXMapReader;
@@ -86,54 +87,20 @@ public class ValidateMaps extends AbstractMojo {
 			}
 
 			getLog().info("Checking map: " + file.getName() + "...");
+			
+			final MapHelper mapHelper = new MapHelper(file);
 
-			final File mapFile = getMapFile(file);
+			final Map map = mapHelper.parseMap();
 
-			final Map map = parseMap(mapFile);
-
+			// Check if all map properties are set.
 			checkMapProperties(map);
+			
+			// Check if all layers are there and named as needed.
 			checkAllNecessairyLayers(map);
+			
+			// Checks if all referenced and needed files are in place.
+			checkMapReferencedFile(map);
 		}
-	}
-
-	private Map parseMap(File mapFile) throws MojoFailureException {
-		try {
-			final TMXMapReader reader = new TMXMapReader();
-			return reader.readMap(mapFile.getAbsolutePath());
-		} catch (Exception e) {
-			throw new MojoFailureException("Could not parse map: " + e.getMessage());
-		}
-	}
-
-	/**
-	 * Returns the found map. If something is fishy (e.g. none or more then one
-	 * .TMX file) it will throw an exception.
-	 * 
-	 * @param folder
-	 * @return The .TMX mapfile in this folder.
-	 */
-	private File getMapFile(File folder) throws MojoFailureException {
-		Path mapFile = null;
-		try (DirectoryStream<Path> fileStream = Files.newDirectoryStream(folder.toPath())) {
-			for (Path path : fileStream) {
-				if (path.toString().endsWith(".tmx")) {
-					if (mapFile != null) {
-						throw new MojoFailureException(
-								"Directory contains more then one .tmx file: " + folder.getAbsolutePath());
-					} else {
-						mapFile = path;
-					}
-				}
-			}
-		} catch (IOException e) {
-			throw new MojoFailureException(e.getMessage());
-		}
-
-		if (mapFile == null) {
-			throw new MojoFailureException("Directory contains no .tmx file: " + folder.getAbsolutePath());
-		}
-
-		return mapFile.toFile();
 	}
 
 	/**
@@ -196,6 +163,10 @@ public class ValidateMaps extends AbstractMojo {
 			
 			foundIds.add(id);
 		}
+	}
+	
+	private void checkMapReferencedFiles(Map map) {
+		// Gather all mapfiles referenced by this map.
 	}
 
 	/**
