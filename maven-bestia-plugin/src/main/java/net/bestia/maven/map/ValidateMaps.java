@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,6 +23,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import net.bestia.maven.util.FilePathHelper;
 import net.bestia.maven.util.MapHelper;
 import tiled.core.Map;
 import tiled.core.MapLayer;
@@ -58,8 +60,13 @@ public class ValidateMaps extends AbstractMojo {
 	/**
 	 * Directory which contains the map directories e.g. ./map
 	 */
-	@Parameter(property = "mapsDir", required = true, defaultValue = "map")
 	private File mapsDirectory;
+
+	/**
+	 * Root asset directory.
+	 */
+	@Parameter(property = "assetRootDir", required = true)
+	private File assetDirectory;
 
 	/**
 	 * Ctor. Primarly used for testing.
@@ -69,6 +76,9 @@ public class ValidateMaps extends AbstractMojo {
 	}
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
+
+		// Generate maps directory.
+		mapsDirectory = Paths.get(assetDirectory.toString(), "map").toFile();
 
 		getLog().info("Maps directory is: " + mapsDirectory.getPath());
 
@@ -87,17 +97,17 @@ public class ValidateMaps extends AbstractMojo {
 			}
 
 			getLog().info("Checking map: " + file.getName() + "...");
-			
+
 			final MapHelper mapHelper = new MapHelper(file);
 
 			final Map map = mapHelper.parseMap();
 
 			// Check if all map properties are set.
 			checkMapProperties(map);
-			
+
 			// Check if all layers are there and named as needed.
 			checkAllNecessairyLayers(map);
-			
+
 			// Checks if all referenced and needed files are in place.
 			checkMapReferencedFile(map);
 		}
@@ -143,30 +153,60 @@ public class ValidateMaps extends AbstractMojo {
 		}
 
 		final String[] spawnStrs = spawnStr.split(";");
-		
+
 		final Set<Integer> foundIds = new HashSet<>();
 
 		for (String singleSpawnStr : spawnStrs) {
 			// Check if the strings match the pattern.
 			final Matcher m = SPAWN_PATTERN.matcher(singleSpawnStr);
-			
-			if(!m.matches()) {
+
+			if (!m.matches()) {
 				throw new MojoFailureException("Spawn string does not match the recognized pattern: " + singleSpawnStr);
 			}
-			
+
 			final Integer id = Integer.parseInt(m.group(1));
-			
-			if(foundIds.contains(id)) {
+
+			if (foundIds.contains(id)) {
 				final String errMsg = String.format("Mob ID: %d is present twice inside the mob spawn list.", id);
 				throw new MojoFailureException(errMsg);
 			}
-			
+
 			foundIds.add(id);
 		}
 	}
-	
-	private void checkMapReferencedFiles(Map map) {
+
+	/**
+	 * Check if the references of the map are existing.
+	 * 
+	 * @param map
+	 */
+	private void checkMapReferencedFiles(Map map) throws MojoFailureException {
 		// Gather all mapfiles referenced by this map.
+		final Properties mapProps = map.getProperties();
+
+		final String mapName = mapProps.getProperty("mapDbName");
+		final String globalScript = mapProps.getProperty("globalScripts");
+		final String bgm = mapProps.getProperty("ambientSound");
+
+		final FilePathHelper fileHelper = new FilePathHelper(assetDirectory);
+
+		// Global Script.
+		final File globScriptFile = fileHelper.getMapScript(mapName, globalScript);
+		if (!globScriptFile.exists()) {
+			throw new MojoExecutionException(String.format("Global script file %s is missing. Referenced by map: %s",
+					globScriptFile.getAbsolutePath(), mapName));
+		}
+
+		// Music.
+		final File ambientMusicFile = fileHelper.getMapSound(bgm);
+		if (!ambientMusicFile.exists()) {
+			throw new MojoFailureException(
+					String.format("Ambient music sound is missing: %s, referenced by map: %s",
+							ambientMusicFile.getAbsolutePath(), mapName));
+		}
+		
+		// TODO Map scripts.
+		
 	}
 
 	/**

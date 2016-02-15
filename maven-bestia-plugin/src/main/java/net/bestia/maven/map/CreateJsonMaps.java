@@ -9,6 +9,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import net.bestia.maven.util.MapHelper;
+
 /**
  * This class re-creates the JSON maps from the TMX reference maps. The JSON
  * maps are used by the clients in order to render the maps. TMX format is used
@@ -47,23 +49,11 @@ public class CreateJsonMaps extends AbstractMojo {
 			}
 
 			getLog().info("Creating JSON map: " + file.getName() + ".");
-
-			final File mapFile = getMapFile(file);
-
-			final Map map = parseMap(mapFile);
-
-			// Check if all map properties are set.
-			checkMapProperties(map);
 			
-			// Check if all layers are there and named as needed.
-			checkAllNecessairyLayers(map);
-			
-			// Checks if all referenced and needed files are in place.
-			checkMapFiles(map);
+			final MapHelper helper = new MapHelper(file);
+
+			// Parse all TMX mapfiles and write JSON files into the subfolder.
+			// TODO JSON Datei schreiben.
 		}
-		
-		// Parse all TMX mapfiles and write JSON files into the subfolder.
-		
 	}
-
 }
