@@ -6,11 +6,8 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Parameter;
-
-import net.bestia.maven.Map;
-import net.bestia.maven.TMXMapReader;
+import tiled.core.Map;
+import tiled.io.TMXMapReader;
 
 /**
  * Helps to extract certain map files from map directories.
@@ -19,18 +16,17 @@ import net.bestia.maven.TMXMapReader;
  *
  */
 public class MapHelper {
-	
+
 	private final File mapDir;
 
-	
 	public MapHelper(File mapDir) {
-		if(mapDir == null) {
+		if (mapDir == null) {
 			throw new IllegalArgumentException("mapDir can not be null.");
 		}
-		
+
 		this.mapDir = mapDir;
 	}
-	
+
 	/**
 	 * Returns the found map. If something is fishy (e.g. none or more then one
 	 * .TMX file) it will throw an exception.
@@ -59,9 +55,15 @@ public class MapHelper {
 
 		return mapFile.toFile();
 	}
-	
+
+	/**
+	 * Parses a TMX map and returns the parsed data.
+	 * 
+	 * @return
+	 * @throws IOException
+	 */
 	public Map parseMap() throws IOException {
-		final File mapeFile = getMapfile();
+		final File mapFile = getMapfile();
 		try {
 			final TMXMapReader reader = new TMXMapReader();
 			return reader.readMap(mapFile.getAbsolutePath());

@@ -53,7 +53,10 @@ public class FilePathHelper {
 	 * @return Path to the sound file.
 	 */
 	public File getMapSound(String name) {
-		return getBasicFile(name + "mp3", relMapSound);
+		if(name == null || name.isEmpty()) {
+			throw new IllegalArgumentException("Name can not be null or empty.");
+		}
+		return getBasicFile(name, relMapSound);
 	}
 
 	/**
@@ -64,6 +67,9 @@ public class FilePathHelper {
 	 * @return Path to the attack file.
 	 */
 	public File getAttackScript(String name) {
+		if(name == null || name.isEmpty()) {
+			throw new IllegalArgumentException("Name can not be null or empty.");
+		}
 		return getBasicFile(name + ".groovy", relAttackScript);
 	}
 
@@ -75,6 +81,9 @@ public class FilePathHelper {
 	 * @return Path to the item script.
 	 */
 	public File getItemScript(String name) {
+		if(name == null || name.isEmpty()) {
+			throw new IllegalArgumentException("Name can not be null or empty.");
+		}
 		return getBasicFile(name + ".groovy", relItemScript);
 	}
 

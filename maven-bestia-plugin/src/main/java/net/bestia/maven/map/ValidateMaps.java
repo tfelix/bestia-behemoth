@@ -2,9 +2,6 @@ package net.bestia.maven.map;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,7 +24,6 @@ import net.bestia.maven.util.FilePathHelper;
 import net.bestia.maven.util.MapHelper;
 import tiled.core.Map;
 import tiled.core.MapLayer;
-import tiled.io.TMXMapReader;
 
 /**
  * Validates all the maps in the configured directory.
@@ -70,9 +66,12 @@ public class ValidateMaps extends AbstractMojo {
 
 	/**
 	 * Ctor. Primarly used for testing.
+	 * 
+	 * @param assetDirectory
+	 *            Base directory for the assets.
 	 */
-	public ValidateMaps(File mapsDirectory) {
-		this.mapsDirectory = mapsDirectory;
+	public ValidateMaps(File assetDirectory) {
+		this.assetDirectory = assetDirectory;
 	}
 
 	public void execute() throws MojoExecutionException, MojoFailureException {
@@ -100,7 +99,13 @@ public class ValidateMaps extends AbstractMojo {
 
 			final MapHelper mapHelper = new MapHelper(file);
 
-			final Map map = mapHelper.parseMap();
+			Map map;
+			try {
+				map = mapHelper.parseMap();
+			} catch (IOException e) {
+				final String longMsg = String.format("Can not parse the map file %s.", file.getName());
+				throw new MojoFailureException(longMsg);
+			}
 
 			// Check if all map properties are set.
 			checkMapProperties(map);
@@ -179,8 +184,9 @@ public class ValidateMaps extends AbstractMojo {
 	 * Check if the references of the map are existing.
 	 * 
 	 * @param map
+	 * @throws MojoExecutionException
 	 */
-	private void checkMapReferencedFiles(Map map) throws MojoFailureException {
+	private void checkMapReferencedFile(Map map) throws MojoFailureException {
 		// Gather all mapfiles referenced by this map.
 		final Properties mapProps = map.getProperties();
 
@@ -193,7 +199,7 @@ public class ValidateMaps extends AbstractMojo {
 		// Global Script.
 		final File globScriptFile = fileHelper.getMapScript(mapName, globalScript);
 		if (!globScriptFile.exists()) {
-			throw new MojoExecutionException(String.format("Global script file %s is missing. Referenced by map: %s",
+			throw new MojoFailureException(String.format("Global script file %s is missing. Referenced by map: %s",
 					globScriptFile.getAbsolutePath(), mapName));
 		}
 
@@ -204,9 +210,9 @@ public class ValidateMaps extends AbstractMojo {
 					String.format("Ambient music sound is missing: %s, referenced by map: %s",
 							ambientMusicFile.getAbsolutePath(), mapName));
 		}
-		
+
 		// TODO Map scripts.
-		
+
 	}
 
 	/**

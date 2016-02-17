@@ -15,7 +15,7 @@ public class ValidateMapsTest {
 	
 	@Test(expected=MojoFailureException.class)
 	public void mobdesc_nok_test() throws URISyntaxException, MojoExecutionException, MojoFailureException {
-		final URL resource = getClass().getResource("/maps/map_mobsdesc_nok");
+		final URL resource = getClass().getResource("/");
 		final File mapFolder = Paths.get(resource.toURI()).toFile();
 		
 		final ValidateMaps plugin = new ValidateMaps(mapFolder);
@@ -24,7 +24,7 @@ public class ValidateMapsTest {
 	
 	@Test(expected=MojoFailureException.class)
 	public void test_layer_nok_test() throws URISyntaxException, MojoExecutionException, MojoFailureException {
-		final URL resource = getClass().getResource("/maps/map_test_layer_nok");
+		final URL resource = getClass().getResource("/");
 		final File mapFolder = Paths.get(resource.toURI()).toFile();
 		
 		final ValidateMaps plugin = new ValidateMaps(mapFolder);
@@ -33,7 +33,7 @@ public class ValidateMapsTest {
 	
 	@Test(expected=MojoFailureException.class)
 	public void map_property_nok_test() throws URISyntaxException, MojoExecutionException, MojoFailureException {
-		final URL resource = getClass().getResource("/maps/map_property_nok");
+		final URL resource = getClass().getResource("/");
 		final File mapFolder = Paths.get(resource.toURI()).toFile();
 		
 		final ValidateMaps plugin = new ValidateMaps(mapFolder);
@@ -42,16 +42,17 @@ public class ValidateMapsTest {
 	
 	@Test
 	public void layer_more_test() throws URISyntaxException, MojoExecutionException, MojoFailureException {
-		final URL resource = getClass().getResource("/maps/test_layer_more");
+		final URL resource = getClass().getResource("/");
 		final File mapFolder = Paths.get(resource.toURI()).toFile();
 		
 		final ValidateMaps plugin = new ValidateMaps(mapFolder);
 		plugin.execute();
 	}
 	
+	// TODO Mapstruktur für die verschiedenen maps nachbilden.
 	@Test
 	public void map_ok_test() throws URISyntaxException, MojoExecutionException, MojoFailureException {
-		final URL resource = getClass().getResource("/maps/test_ok");
+		final URL resource = getClass().getResource("/");
 		final File mapFolder = Paths.get(resource.toURI()).toFile();
 		
 		final ValidateMaps plugin = new ValidateMaps(mapFolder);
@@ -60,7 +61,7 @@ public class ValidateMapsTest {
 	
 	@Test(expected=MojoFailureException.class)
 	public void spawnid_nok_test() throws URISyntaxException, MojoExecutionException, MojoFailureException {
-		final URL resource = getClass().getResource("/maps/test_spawnid_nok");
+		final URL resource = getClass().getResource("/");
 		final File mapFolder = Paths.get(resource.toURI()).toFile();
 		
 		final ValidateMaps plugin = new ValidateMaps(mapFolder);
@@ -69,7 +70,7 @@ public class ValidateMapsTest {
 	
 	@Test(expected=MojoFailureException.class)
 	public void spawnid_twice_test() throws URISyntaxException, MojoExecutionException, MojoFailureException {
-		final URL resource = getClass().getResource("/maps/test_spawnid_twice");
+		final URL resource = getClass().getResource("/");
 		final File mapFolder = Paths.get(resource.toURI()).toFile();
 		
 		final ValidateMaps plugin = new ValidateMaps(mapFolder);

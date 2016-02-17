@@ -1,15 +1,17 @@
 package net.bestia.maven.util;
 
+
 import java.io.File;
 
-import org.apache.logging.log4j.core.util.Assert;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class FilePathHelperTest {
 	
 	private static File rootDir = new File("\\assets");
 	
 	@Test(expected=IllegalArgumentException.class)
-	public void ctor_nullBaseDir_exception {
+	public void ctor_nullBaseDir_exception() {
 		new FilePathHelper(null);
 	}
 	
@@ -35,7 +37,8 @@ public class FilePathHelperTest {
 	public void getItemScript_ok_file() {
 		final FilePathHelper fph = new FilePathHelper(rootDir);
 		final File f = fph.getItemScript("apple");
-		Assert.assertTrue(f.getAbsolutePath().equals("\\assets\\script\\item\\apple.groovy"));
+		final String path = f.getPath();
+		Assert.assertTrue(path.equals("\\assets\\script\\item\\apple.groovy"));
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
@@ -47,8 +50,9 @@ public class FilePathHelperTest {
 	@Test
 	public void getAttackScript_ok_file() {
 		final FilePathHelper fph = new FilePathHelper(rootDir);
-		final File f = fph.getAttackScript("tackle")
-		Assert.assertTrue(f.getAbsolutePath().equals("\\assets\\script\\attack\\tackle.groovy"));
+		final File f = fph.getAttackScript("tackle");
+		final String path = f.getPath();
+		Assert.assertTrue(path.equals("\\assets\\script\\attack\\tackle.groovy"));
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
@@ -61,7 +65,8 @@ public class FilePathHelperTest {
 	public void getMapSound_ok_file() {
 		final FilePathHelper fph = new FilePathHelper(rootDir);
 		final File f = fph.getMapSound("hello.mp3");
-		Assert.assertTrue(f.getAbsolutePath().equals("\\assets\\sound\\bgm\\hello.mp3"));
+		final String path = f.getPath();
+		Assert.assertTrue(path.equals("\\assets\\sound\\bgm\\hello.mp3"));
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
