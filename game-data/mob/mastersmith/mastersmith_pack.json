@@ -3,14 +3,14 @@
         {
             "type": "atlasJSONHash",
             "key": "mastersmith",
-            "textureURL": "assets/img/sprite/mob/mastersmith.png",
-            "atlasURL": "assets/img/sprite/mob/mastersmith.json",
+            "textureURL": "assets/mob/mastersmith/mastersmith.png",
+            "atlasURL": "assets/mob/mastersmith/mastersmith.json",
             "atlasData": null
         },
 		{
             "type": "json",
             "key": "mastersmith_desc",
-            "url": "assets/img/sprite/mob/mastersmith_desc.json"
+            "url": "assets/mob/mastersmith/mastersmith_desc.json"
         },
 		{
             "type": "atlasJSONHash",

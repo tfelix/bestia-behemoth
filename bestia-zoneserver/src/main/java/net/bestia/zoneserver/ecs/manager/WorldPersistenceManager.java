@@ -17,8 +17,7 @@ import net.bestia.model.dao.MapEntitiesDAO;
 
 public class WorldPersistenceManager extends Manager {
 
-	private final static Logger log = LogManager
-			.getLogger(WorldPersistenceManager.class);
+	private final static Logger LOG = LogManager.getLogger(WorldPersistenceManager.class);
 	private final ObjectMapper mapper = new ObjectMapper();
 	private final Map<Integer, Entity> trackedEntities = new HashMap<>();
 

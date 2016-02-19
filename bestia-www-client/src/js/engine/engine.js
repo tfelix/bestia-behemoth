@@ -34,7 +34,7 @@ Bestia.Engine = function(pubsub, config) {
 
 	this.bestia = undefined;
 
-	// Determine the size of the canvas.
+	// Determine the size of the canvas. And create the game object.
 	var height = $(window).height();
 	var width = $('#canvas-container').width();
 	this.game = new Phaser.Game(width, height, Phaser.AUTO, 'bestia-canvas', null, false, false);
@@ -57,6 +57,16 @@ Bestia.Engine = function(pubsub, config) {
 	 * @property {Bestia.Engine.EntityUpdater}
 	 */
 	this.entityUpdater = new Bestia.Engine.EntityUpdater(pubsub, this.entityCache);
+
+	/**
+	 * Effects manager will subscribe itself to messages from the server which
+	 * trigger a special effect for an entity or a stand alone effect which must
+	 * be displayed by whatever means.
+	 * 
+	 * @public
+	 * @property {Bestia.Engine.FX.EffectsManager}
+	 */
+	this.effectsManager = new Bestia.Engine.FX.EffectsManager(pubsub, this.game, this.entityCache);
 
 	// React on bestia selection changes. We need to re-trigger the map loading.
 	var onSelectBestiaHandler = function(_, data) {

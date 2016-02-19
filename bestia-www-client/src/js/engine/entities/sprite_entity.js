@@ -25,6 +25,11 @@ Bestia.Engine.SpriteEntity.prototype.setSprite = function(spriteName) {
 	// Save the description data for reference. This is done here because now we
 	// are sure all the data has been loaded.
 	this.data = this._game.cache.getJSON(spriteName + '_desc');
+	
+	if(!this.data) {
+		console.warn("Could finde sprite inside cache: " + spriteName);
+		return;
+	}
 
 	// Generate the animation names.
 	this._availableAnimationNames = this.data.animations.map(function(val) {

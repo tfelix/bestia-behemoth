@@ -35,9 +35,10 @@ Bestia.Engine.States.LoadingState.prototype.preload = function() {
 	var packUrl = Bestia.Urls.assetsMap + mapDbName + '/assetpack.json';
 	this.load.pack(mapDbName, packUrl);
 
+	// TODO Das hier irgendwie über den offiziellen Loader machen lassen?
 	// Load the player bestia sprite.
-	packUrl = Bestia.Urls.assetsMobSprite + this.bestia.sprite() + '_pack.json';
-	this.load.pack(this.bestia.sprite(), packUrl);
+	//packUrl = Bestia.Urls.assetsMobSprite + '/'+ this.bestia.sprite() + '/' + this.bestia.sprite() + '_pack.json';
+	//this.load.pack(this.bestia.sprite(), packUrl);
 	
 	// Load all the server suggested files.
 	// TODO

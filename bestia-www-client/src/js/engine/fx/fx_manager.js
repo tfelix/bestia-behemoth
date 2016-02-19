@@ -44,20 +44,20 @@ Bestia.Engine.FX.EffectsManager.prototype._onEntityDmgMsgHandler = function(_, m
 			return;
 		}
 		
-		var dmg = null;
+		var dmgFx = null;
 		
 		switch (x.t) {
 		case 'HEAL':
-			dmg = new Bestia.Engine.FX.HealDamage(this._game, entity.position, dmg);
+			dmgFx = new Bestia.Engine.FX.HealDamage(this._game, entity.positionPixel, x.dmg);
 			break;
 		case 'HIT':
-			dmg = new Bestia.Engine.FX.Damage(this._game, entity.position, dmg);
+			dmgFx = new Bestia.Engine.FX.Damage(this._game, entity.positionPixel, x.dmg);
 			break;
 		case 'CRITICAL':
-			dmg = new Bestia.Engine.FX.CriticalDamage(this._game, entity.position, dmg);
+			dmgFx = new Bestia.Engine.FX.CriticalDamage(this._game, entity.positionPixel, x.dmg);
 			break;
 		case 'MISS':
-			dmg = new Bestia.Engine.FX.MissDamage(this._game, entity.position, dmg);
+			dmgFx = new Bestia.Engine.FX.MissDamage(this._game, entity.positionPixel, x.dmg);
 			break;
 		default:
 			console.debug('Unknown damage type: ' + x.t);

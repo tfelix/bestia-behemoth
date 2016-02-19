@@ -58,7 +58,7 @@ Bestia.Engine.FX.Damage.destroy = function() {
  * @method Bestia.Engine.Entity.Damage#_display
  */
 Bestia.Engine.FX.Damage.prototype._createVisual = function(posX, posY) {
-	this._sprite = this.game.add.text(posX, posY, '', Bestia.Engine.FX.Damage.STYLE_NORMAL);
+	this._sprite = this._game.add.text(posX, posY - 50, '', Bestia.Engine.FX.Damage.STYLE_NORMAL);
 };
 
 /**
@@ -69,14 +69,14 @@ Bestia.Engine.FX.Damage.prototype._createVisual = function(posX, posY) {
  */
 Bestia.Engine.FX.Damage.prototype._show = function() {
 
-	var tween = this.game.add.tween(this._sprite).to({
-		x : [ this._sprite.x - 10, this._sprite.x - 75 ],
-		y : [ this._sprite.y + 150, this._sprite.y - 10 ]
+	var tween = this._game.add.tween(this._sprite).to({
+		x : [ this._sprite.x, this._sprite.x - 85 ],
+		y : [ this._sprite.y - 60, this._sprite.y - 120 ]
 	}, 1000);
 	tween.interpolation(function(v, k) {
 		return Phaser.Math.bezierInterpolation(v, k);
 	});
-	this.game.add.tween(this._sprite).to({
+	this._game.add.tween(this._sprite).to({
 		alpha : 0
 	}, 100, Phaser.Easing.Linear.None, true, 900).start();
 
@@ -126,11 +126,11 @@ Bestia.Engine.FX.MissDamage.prototype.constructor = Bestia.Engine.FX.MissDamage;
  */
 Bestia.Engine.FX.MissDamage.prototype._show = function() {
 
-	var tween = this.game.add.tween(this._sprite).to({
+	var tween = this._game.add.tween(this._sprite).to({
 		y : this._sprite.y - 200
 	}, 1000);
 
-	this.game.add.tween(this._sprite).to({
+	this._game.add.tween(this._sprite).to({
 		alpha : 0
 	}, 100, Phaser.Easing.Linear.None, true, 800).start();
 
@@ -145,7 +145,7 @@ Bestia.Engine.FX.MissDamage.prototype._show = function() {
  * @method Bestia.Engine.Entity.Damage#_display
  */
 Bestia.Engine.FX.MissDamage.prototype._createVisual = function(posX, posY) {
-	this._sprite = this.game.add.text(posX, posY, '', Bestia.Engine.FX.Damage.STYLE_NORMAL);
+	this._sprite = this._game.add.text(posX, posY, '', Bestia.Engine.FX.Damage.STYLE_NORMAL);
 };
 
 Bestia.Engine.FX.HealDamage = function(game, pos, dmg) {
@@ -166,7 +166,7 @@ Bestia.Engine.FX.HealDamage.prototype.constructor = Bestia.Engine.FX.HealDamage;
  * @method Bestia.Engine.Entity.Damage#_display
  */
 Bestia.Engine.FX.HealDamage.prototype._createVisual = function(posX, posY) {
-	this._sprite = this.game.add.text(posX, posY, '', Bestia.Engine.FX.Damage.STYLE_HEAL);
+	this._sprite = this._game.add.text(posX, posY, '', Bestia.Engine.FX.Damage.STYLE_HEAL);
 };
 
 Bestia.Engine.FX.CriticalDamage = function(game, pos, dmg) {
@@ -188,5 +188,5 @@ Bestia.Engine.FX.CriticalDamage.prototype.constructor = Bestia.Engine.FX.Critica
  * @method Bestia.Engine.Entity.Damage#_display
  */
 Bestia.Engine.FX.CriticalDamage.prototype._createVisual = function(posX, posY) {
-	this._sprite = this.game.add.text(posX, posY, '', Bestia.Engine.FX.Damage.STYLE_CRIT);
+	this._sprite = this._game.add.text(posX, posY, '', Bestia.Engine.FX.Damage.STYLE_CRIT);
 };

@@ -115,7 +115,7 @@ public class BestiaConfiguration {
 
 	public String getProperty(String key) {
 		if(!checkProperty(key)) {
-			return null;
+			throw new IllegalArgumentException("The key does not exist.");
 		}
 		return prop.getProperty(key);
 	}

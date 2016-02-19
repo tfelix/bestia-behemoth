@@ -3,14 +3,14 @@
         {
             "type": "atlasJSONHash",
             "key": "poring",
-            "textureURL": "assets/img/sprite/mob/poring.png",
-            "atlasURL": "assets/img/sprite/mob/poring.json",
+            "textureURL": "assets/mob/poring/poring.png",
+            "atlasURL": "assets/mob/poring/poring.json",
             "atlasData": null
         },
 		{
             "type": "json",
             "key": "poring_desc",
-            "url": "assets/img/sprite/mob/poring_desc.json"
+            "url": "assets/mob/poring/poring_desc.json"
         }
     ],
     "meta": {

@@ -98,3 +98,22 @@ Object.defineProperty(Bestia.Engine.BasicEntity.prototype, 'position', {
 	}
 
 });
+
+/**
+ * Returns the position in pixel in the world space.
+ */
+Object.defineProperty(Bestia.Engine.BasicEntity.prototype, 'positionPixel', {
+
+	get : function() {
+		return this._sprite.position;
+	},
+
+	set : function(value) {
+
+		value.x = value.x || 0;
+		value.y = value.y || 0;
+
+		this._sprite.postion = value;
+	}
+
+});

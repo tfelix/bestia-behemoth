@@ -39,18 +39,18 @@ public class ScriptTickSystem extends DelayedIteratingSystem {
 	private ComponentMapper<Script> scriptMapper;
 	private ComponentMapper<Bestia> bestiaMapper;
 	private ComponentMapper<Delay> delayMapper;
-	
+
 	@Wire
 	private MapScriptFactory scriptFactory;
-	
+
 	/**
 	 * Just needed to extract script manager as a shortcut.
 	 */
 	@Wire
 	private CommandContext ctx;
-	
+
 	private ScriptManager scriptManager;
-	
+
 	private final Bindings onInsideBinding = new SimpleBindings();
 
 	public ScriptTickSystem() {
@@ -58,11 +58,11 @@ public class ScriptTickSystem extends DelayedIteratingSystem {
 
 		onInsideBinding.put("event", "onInside");
 	}
-	
+
 	@Override
 	protected void initialize() {
 		super.initialize();
-		
+
 		scriptManager = ctx.getScriptManager();
 	}
 
@@ -80,23 +80,25 @@ public class ScriptTickSystem extends DelayedIteratingSystem {
 
 	@Override
 	protected void processExpired(int scriptId) {
-		
+
 		final Script script = scriptMapper.get(scriptId);
 		final Set<Integer> touchingEntities = script.lastTriggeredEntities;
-		
-		LOG.trace("Script {} touched by entities: {}", script.script, touchingEntities);
-		
-		for(Integer id : touchingEntities) {
+
+		if (touchingEntities.size() > 0) {
+			LOG.trace("Script {} touched by entities: {}", script.script, touchingEntities);
+		}
+
+		for (Integer id : touchingEntities) {
 			final Entity e = world.getEntity(id);
-			if(e == null) {
+			if (e == null) {
 				// Entity seems deleted... just remove it.
 				touchingEntities.remove(id);
 				continue;
 			}
-			
+
 			// We still touch the script.
 			final BestiaManager bm = bestiaMapper.get(id).bestiaManager;
-			
+
 			onInsideBinding.put("target", bm);
 
 			final MapScript mapScript = scriptFactory.getScript(script.script, bm);
@@ -105,7 +107,7 @@ public class ScriptTickSystem extends DelayedIteratingSystem {
 			if (!success) {
 				LOG.warn("Script {} was not executed. Was removed from the world.", script.script);
 				world.delete(scriptId);
-			}		
+			}
 		}
 
 		// Setup new delay.

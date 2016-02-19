@@ -20,7 +20,7 @@ import net.bestia.zoneserver.zone.shape.CollisionShape;
  */
 public class ScriptEventExtender implements WorldExtend {
 
-	private ScriptEventSystem system = new ScriptEventSystem();
+	private final ScriptEventSystem system = new ScriptEventSystem();
 
 	@Override
 	public void extend(World world, Map map, Zone zone) {
