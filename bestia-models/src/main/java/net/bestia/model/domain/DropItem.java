@@ -13,6 +13,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+/**
+ * Contains a list with items which are dropped by a bestia for a certain
+ * probability. The probability ranges from 0.01% to 100%. The probability is
+ * saved as a fixed point decimal.
+ * 
+ * @author Thomas
+ *
+ */
 @Entity
 @Table(name = "drop_items")
 public class DropItem implements Serializable {
@@ -33,7 +41,7 @@ public class DropItem implements Serializable {
 	@JoinColumn(name = "BESTIA_ID", nullable = false)
 	private Bestia bestia;
 
-	private float probability;
+	private int probability;
 
 	/**
 	 * Std. ctor for Hibernate.
@@ -50,7 +58,7 @@ public class DropItem implements Serializable {
 	 * @param bestia
 	 *            The bestia who drops this item.
 	 * @param probability
-	 *            The probability of the item drop.
+	 *            The probability of the item drop. Can be between 0.01 and 100.
 	 */
 	public DropItem(Item item, Bestia bestia, float probability) {
 		setItem(item);
@@ -105,7 +113,7 @@ public class DropItem implements Serializable {
 	 * @return The probability from 0 to 100.
 	 */
 	public float getProbability() {
-		return probability;
+		return probability / 100.0f;
 	}
 
 	/**
@@ -118,6 +126,6 @@ public class DropItem implements Serializable {
 		if (probability < 0 || probability > 100) {
 			throw new IllegalArgumentException("Probability must be between 0 and 100.");
 		}
-		this.probability = probability;
+		this.probability = (int)(probability * 100);
 	}
 }

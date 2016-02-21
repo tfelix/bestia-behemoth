@@ -13,21 +13,25 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+
+import com.github.springtestdbunit.DbUnitTestExecutionListener;
+import com.github.springtestdbunit.annotation.DatabaseSetup;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring-config.xml" })
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class,
+    DbUnitTestExecutionListener.class })
+@DatabaseSetup("/db/accounts.xml")
 public class AccountDAOTest {
-
-	private int accounts = 0;
 
 	@Autowired
 	private AccountDAO accountDao;
 
 	public Account getNewAccount() {
-		accounts++;
-		String email = "thomas.felix" + accounts + "@tfelix.de";
-		Account a = new Account(email, "test123");
+		final Account a = new Account("thomas.felix@tfelix.de", "test123");
 		return a;
 	}
 

@@ -103,7 +103,7 @@ public class FilePathHelper {
 		}
 
 		Path temp = Paths.get(baseDir.toString(), relMapScript);
-		temp = Paths.get(temp.toString(), scriptName + ".groovy");
+		temp = Paths.get(temp.toString(), mapName, scriptName + ".groovy");
 		return temp.toFile();
 	}
 

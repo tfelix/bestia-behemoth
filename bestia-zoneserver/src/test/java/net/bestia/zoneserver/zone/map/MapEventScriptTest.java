@@ -24,7 +24,7 @@ public class MapEventScriptTest {
 		new MapScriptTemplate("test", null, 10);
 	}
 
-	@Test
+	@Test(expected=IllegalArgumentException.class)
 	public void ctor_negativeTick_execption() {
 		new MapScriptTemplate("test", shape, -10);
 	}

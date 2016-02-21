@@ -15,10 +15,12 @@ public class FilePathHelperTest {
 		new FilePathHelper(null);
 	}
 	
+	@Test
 	public void getMapScript_ok_file() {
 		final FilePathHelper fph = new FilePathHelper(rootDir);
 		final File f = fph.getMapScript("test", "hello");
-		Assert.assertTrue(f.getAbsolutePath().equals("\\assets\\script\\map\\test\\hello.groovy"));
+		final String path = f.getPath();
+		Assert.assertTrue(path.equals("\\assets\\script\\map\\test\\hello.groovy"));
 	}
 	
 	@Test(expected=IllegalArgumentException.class)

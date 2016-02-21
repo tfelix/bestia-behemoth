@@ -4,7 +4,7 @@
   <property name="ambientSound" value="prontera_fields.mp3"/>
   <property name="globalScripts" value="global"/>
   <property name="isPVP" value="false"/>
-  <property name="mapDbName" value="testmap1"/>
+  <property name="mapDbName" value="layer_more"/>
   <property name="spawn" value="1,poring,0,0-10"/>
  </properties>
  <tileset firstgid="1" name="Berge" tilewidth="32" tileheight="32">

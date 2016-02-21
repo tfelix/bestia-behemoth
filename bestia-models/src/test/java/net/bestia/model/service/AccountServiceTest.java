@@ -12,6 +12,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
+import com.github.springtestdbunit.annotation.DatabaseSetup;
 
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.service.AccountService.Master;
@@ -20,6 +21,7 @@ import net.bestia.model.service.AccountService.Master;
 @ContextConfiguration(locations = {"/spring-config.xml"})
 @TestExecutionListeners({ DependencyInjectionTestExecutionListener.class,
         DbUnitTestExecutionListener.class })
+@DatabaseSetup("/db/accounts.xml")
 public class AccountServiceTest {
 
 	@Autowired

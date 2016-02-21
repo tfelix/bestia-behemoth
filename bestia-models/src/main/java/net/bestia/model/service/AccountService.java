@@ -65,7 +65,8 @@ public class AccountService {
 	}
 
 	/**
-	 * Creates a completely new account.
+	 * Creates a completely new account. The username will be given to the
+	 * bestia master. No other bestia mastia can have this name.
 	 * 
 	 * @param email
 	 *            E-Mail to use.
@@ -80,7 +81,7 @@ public class AccountService {
 	 */
 	public boolean createNewAccount(String email, String mastername, String password, Master starter) {
 		Account account = new Account(email, password);
-		
+
 		// TODO das hier noch auslagern. Die aktivierung soll nur per
 		// username/password anmeldung notwendig sein.
 		account.setActivated(true);
@@ -105,6 +106,7 @@ public class AccountService {
 		// Generate ID.
 		accountDao.save(account);
 		playerBestiaDao.save(masterBestia);
+		
 		// Save account again to set master id.
 		accountDao.save(account);
 
