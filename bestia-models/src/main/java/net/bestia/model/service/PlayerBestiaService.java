@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import net.bestia.model.dao.AttackLevelDAO;
+import net.bestia.model.dao.BestiaAttackDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.dao.PlayerItemDAO;
 import net.bestia.model.domain.Attack;
-import net.bestia.model.domain.AttackLevel;
+import net.bestia.model.domain.BestiaAttack;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
 
@@ -27,7 +27,7 @@ public class PlayerBestiaService {
 	private final static Logger log = LogManager.getLogger(InventoryService.class);
 
 	private PlayerBestiaDAO playerBestiaDao;
-	private AttackLevelDAO attackLevelDao;
+	private BestiaAttackDAO attackLevelDao;
 	private PlayerItemDAO playerItemDao;
 
 	@Autowired
@@ -36,7 +36,7 @@ public class PlayerBestiaService {
 	}
 
 	@Autowired
-	public void setAttackLevelDao(AttackLevelDAO attackLevelDao) {
+	public void setAttackLevelDao(BestiaAttackDAO attackLevelDao) {
 		this.attackLevelDao = attackLevelDao;
 	}
 
@@ -63,7 +63,7 @@ public class PlayerBestiaService {
 		final PlayerBestia playerBestia = playerBestiaDao.findOne(playerBestiaId);
 
 		// Get list of attacks for this bestia.
-		final List<AttackLevel> knownAttacks = attackLevelDao.getAllAttacksForBestia(playerBestia.getOrigin().getId());
+		final List<BestiaAttack> knownAttacks = attackLevelDao.getAllAttacksForBestia(playerBestia.getOrigin().getId());
 
 		final List<Integer> knownAttackIds = knownAttacks.stream()
 				.map((x) -> x.getAttack().getId())
@@ -86,7 +86,7 @@ public class PlayerBestiaService {
 				throw new IllegalArgumentException("Bestia can not learn the attack.");
 			}
 
-			final AttackLevel atk = knownAttacks.stream()
+			final BestiaAttack atk = knownAttacks.stream()
 					.filter((x) -> x.getAttack().getId() == atkId)
 					.findFirst()
 					.get();
@@ -141,7 +141,7 @@ public class PlayerBestiaService {
 	 * @param playerBestiaId
 	 * @return
 	 */
-	public List<AttackLevel> getAllAttacksForPlayerBestia(int playerBestiaId) {
+	public List<BestiaAttack> getAllAttacksForPlayerBestia(int playerBestiaId) {
 		final PlayerBestia pb = playerBestiaDao.findOne(playerBestiaId);
 		return attackLevelDao.getAllAttacksForBestia(pb.getOrigin().getId());
 	}

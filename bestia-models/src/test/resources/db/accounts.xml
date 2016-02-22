@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataset>
 	<Bestias id="2" bAtk="5" bDef="5" bHp="5" bMana="5" bSpAtk="5" bSpDef="5" bSpd="5" bestia_db_name="doom" element="NORMAL" expGained="10" image="test.png" isBoss="0" level="1" sprite="mastersmith" />
-	<Player_Bestias id="1" mapDbName="testmap0" x="10" y="10" evAtk="1" evDef="1" evHp="1" evMana="1" evSpAtk="1" evSpDef="1" evSpd="1" exp="10" ivAtk="1" ivDef="1" ivHp="1" ivMana="1" ivSpAtk="1" ivSpDef="1" ivSpd="1" level="1" name="BlaBlub" saveMapDbName="testmap1" saveX="10" saveY="10" bestia_id="2" account_id="1" currentHp="10" currentMana="10" />
-    <Accounts id="1" additionalBestiaSlots="0"  email="test@test.de" gold="10" isActivated="1" lastLogin="2015-10-27 00:00:00" loginToken="145b7309-243e-4108-9b94-e3a9d4898733" password="z4NivVn/lr5C7hwzhn7kq7INsuPZ20eogHFSqb+b03mZIa+m2YzOCfOsWm5dJC/NzGXomkFQjpz+vgMHhnDEsNMm1eWDbykjmD5cq8Jo8lCCM7sXUzobu1Qc49xX2RmQpIgWr05WNh/GEWkmINYgWhGP+m/mauaTnfh05tRr9Wg=$YCF+Rx68/Sd69WzMSFCXeqGG+mIpq9Q3ySiDz/xg4YQ=" userLevel="3" master_id="2" language="de-DE" />
+	<Bestias id="1" bAtk="5" bDef="5" bHp="5" bMana="5" bSpAtk="5" bSpDef="5" bSpd="5" bestia_db_name="test" element="NORMAL" expGained="10" image="test.png" isBoss="0" level="1" sprite="mastersmith" />
+	<Accounts id="1" additionalBestiaSlots="0"  email="test@test.de" gold="10" isActivated="1" lastLogin="2015-10-27 00:00:00" loginToken="145b7309-243e-4108-9b94-e3a9d4898733" password="z4NivVn/lr5C7hwzhn7kq7INsuPZ20eogHFSqb+b03mZIa+m2YzOCfOsWm5dJC/NzGXomkFQjpz+vgMHhnDEsNMm1eWDbykjmD5cq8Jo8lCCM7sXUzobu1Qc49xX2RmQpIgWr05WNh/GEWkmINYgWhGP+m/mauaTnfh05tRr9Wg=$YCF+Rx68/Sd69WzMSFCXeqGG+mIpq9Q3ySiDz/xg4YQ=" userLevel="3" language="de-DE" />
+	<Player_Bestias id="1" mapDbName="testmap0" x="10" y="10" evAtk="1" evDef="1" evHp="1" evMana="1" evSpAtk="1" evSpDef="1" evSpd="1" exp="10" ivAtk="1" ivDef="1" ivHp="1" ivMana="1" ivSpAtk="1" ivSpDef="1" ivSpd="1" level="1" name="BlaBlub" saveMapDbName="testmap1" saveX="10" saveY="10" bestia_id="2" account_id="1" currentHp="10" currentMana="10" master_id="1" />
+   
 </dataset>

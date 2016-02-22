@@ -7,6 +7,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Iterator;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
+
 import net.bestia.model.domain.Account;
 
 import org.junit.Test;
@@ -37,13 +41,14 @@ public class AccountDAOTest {
 
 	@Test
 	public void update_test() {
-		Account a = getNewAccount();
+		final Account a = getNewAccount();
+		a.setId(1L);
 		accountDao.save(a);
 		a.setEmail("max.muser@mann.de");
 		accountDao.save(a);
 
-		Account found = accountDao.findOne(a.getId());
-		assertEquals("max.muser@mann.de", found.getEmail());
+		Account found = accountDao.findByEmail("max.muser@mann.de");
+		assertNotNull(found);
 	}
 
 	@Test

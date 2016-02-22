@@ -27,63 +27,51 @@ public class AccountServiceTest {
 	@Autowired
 	private AccountService accService;
 
-	@Test
+	@Test(expected=IllegalArgumentException.class)
 	public void createNewAccount_noMail_fail() {
-		boolean flag = accService.createNewAccount("", "Ignatz", "test123", Master.KNIGHT);
-		Assert.assertFalse(flag);
+		accService.createNewAccount("", "Ignatz", "test123", Master.KNIGHT);
 	}
 	
-	@Test
+	@Test(expected=IllegalArgumentException.class)
 	public void createNewAccount_nullMail_fail() {
-		boolean flag = accService.createNewAccount(null, "Ignatz", "test123", Master.KNIGHT);
-		Assert.assertFalse(flag);
+		accService.createNewAccount(null, "Ignatz", "test123", Master.KNIGHT);
 	}
 
-	@Test
+	@Test(expected=IllegalArgumentException.class)
 	public void createNewAccount_duplicateMail_fail() {
-		boolean flag = accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "test123", Master.KNIGHT);
-		Assert.assertTrue(flag);
-		flag = accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz2", "test123", Master.KNIGHT);
-		Assert.assertFalse(flag);
+		accService.createNewAccount("thomas.new123@tfelix.de", "Ignatz", "test123", Master.KNIGHT);
+		accService.createNewAccount("thomas.new123@tfelix.de", "Ignatz2", "test123", Master.KNIGHT);
 	}
 
-	// TODO Bestia DB anlegen.
 	@Test
 	public void createNewAccount_ok_success() {
-		boolean flag = accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "test123", Master.KNIGHT);
-		Assert.assertTrue(flag);
+		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "test123", Master.KNIGHT);
 	}
 
-	@Test
+	@Test(expected=IllegalArgumentException.class)
 	public void createNewAccount_noMasterName_fail() {
-		boolean flag = accService.createNewAccount("thomas.felix@tfelix.de", "", "test123", Master.KNIGHT);
-		Assert.assertFalse(flag);
+		accService.createNewAccount("thomas.felix@tfelix.de", "", "test123", Master.KNIGHT);
 	}
 	
-	@Test
+	@Test(expected=IllegalArgumentException.class)
 	public void createNewAccount_nullMasterName_fail() {
-		boolean flag = accService.createNewAccount("thomas.felix@tfelix.de", null, "test123", Master.KNIGHT);
-		Assert.assertFalse(flag);
+		accService.createNewAccount("thomas.felix@tfelix.de", null, "test123", Master.KNIGHT);
 	}
 
-	@Test
+	@Test(expected=IllegalArgumentException.class)
 	public void createNewAccount_duplicateMasterName_fail() {
-		boolean flag = accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "test123", Master.KNIGHT);
-		Assert.assertTrue(flag);
-		flag = accService.createNewAccount("thomas.felix2@tfelix.de", "Ignatz", "test123", Master.KNIGHT);
-		Assert.assertFalse(flag);
+		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "test123", Master.KNIGHT);
+		accService.createNewAccount("thomas.felix2@tfelix.de", "Ignatz", "test123", Master.KNIGHT);
 	}
 
-	@Test
+	@Test(expected=IllegalArgumentException.class)
 	public void createNewAccount_nullPassword_fail() {
-		boolean flag = accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", null, Master.KNIGHT);
-		Assert.assertFalse(flag);
+		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", null, Master.KNIGHT);
 	}
 
-	@Test
+	@Test(expected=IllegalArgumentException.class)
 	public void createNewAccount_emptyPassword_fail() {
-		boolean flag = accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "", Master.KNIGHT);
-		Assert.assertFalse(flag);
+		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "", Master.KNIGHT);
 	}
 
 	@Test

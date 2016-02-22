@@ -5,7 +5,7 @@ import java.util.List;
 import net.bestia.messages.AttackListRequestMessage;
 import net.bestia.messages.AttackListResponseMessage;
 import net.bestia.messages.Message;
-import net.bestia.model.domain.AttackLevel;
+import net.bestia.model.domain.BestiaAttack;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
@@ -40,7 +40,7 @@ public class AttackListRequestCommand extends Command {
 			return;
 		}
 		
-		final List<AttackLevel> attacks = pbService.getAllAttacksForPlayerBestia(activePbId);
+		final List<BestiaAttack> attacks = pbService.getAllAttacksForPlayerBestia(activePbId);
 		
 		final AttackListResponseMessage response = new AttackListResponseMessage(message);		
 		response.setAttacks(attacks);

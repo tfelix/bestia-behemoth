@@ -21,7 +21,7 @@
 	<context:annotation-config />
 
 	<!-- package to look for annotated classes -->
-	<context:component-scan base-package="net.bestia.model.*" />
+	<context:component-scan base-package="net.bestia.model" />
 
 	<jpa:repositories base-package="net.bestia.model.dao" />
 	

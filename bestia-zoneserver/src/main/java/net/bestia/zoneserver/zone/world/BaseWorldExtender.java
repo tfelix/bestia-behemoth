@@ -6,7 +6,7 @@ import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
 import com.artemis.managers.UuidEntityManager;
 
-import net.bestia.model.dao.MapEntitiesDAO;
+import net.bestia.model.dao.MapEntityDAO;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.ActiveManager;
 import net.bestia.zoneserver.ecs.manager.MessageManager;
@@ -62,7 +62,7 @@ public class BaseWorldExtender implements WorldExtend {
 		worldConfig.setSystem(new NetworkUpdateManager());
 		worldConfig.setSystem(new MessageManager());
 		
-		final MapEntitiesDAO mapEntityDao = ctx.getServiceLocator().getBean(MapEntitiesDAO.class);
+		final MapEntityDAO mapEntityDao = ctx.getServiceLocator().getBean(MapEntityDAO.class);
 		worldConfig.setSystem(new WorldPersistenceManager(map.getMapDbName(), mapEntityDao));
 	}
 

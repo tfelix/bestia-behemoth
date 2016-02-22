@@ -14,7 +14,7 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 
-import net.bestia.model.domain.AttackLevel;
+import net.bestia.model.domain.BestiaAttack;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"/spring-config.xml"})
@@ -24,19 +24,19 @@ import net.bestia.model.domain.AttackLevel;
 public class AttackLevelDAOTest {
 	
 	@Autowired
-	private AttackLevelDAO attackLevelDao;
+	private BestiaAttackDAO attackLevelDao;
 	
 	@Test
 	public void getAllAttacksForBestia_existingId_list() {
-		final List<AttackLevel> atks = attackLevelDao.getAllAttacksForBestia(1);
+		final List<BestiaAttack> atks = attackLevelDao.getAllAttacksForBestia(1);
 		Assert.assertNotNull(atks);
 		Assert.assertEquals(1, atks.size());
 	}
 	
 	@Test
 	public void getAllAttacksForBestia_notExistingId_null() {
-		final List<AttackLevel> atks = attackLevelDao.getAllAttacksForBestia(1337);
-		Assert.assertNull(atks);
+		final List<BestiaAttack> atks = attackLevelDao.getAllAttacksForBestia(1337);
+		Assert.assertTrue(atks.isEmpty());
 		
 	}
 

@@ -73,6 +73,10 @@ public class PlayerBestia implements Serializable {
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "ACCOUNT_ID", nullable = false)
 	private Account owner;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="MASTER_ID", nullable = true, unique=true)
+	private Account master;
 
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)
 	@JoinColumn(name = "BESTIA_ID", nullable = false)
@@ -371,6 +375,14 @@ public class PlayerBestia implements Serializable {
 
 	public void setItem5(PlayerItem item5) {
 		this.item5 = item5;
+	}
+	
+	public Account getMaster() {
+		return master;
+	}
+	
+	public void setMaster(Account master) {
+		this.master = master;
 	}
 
 	@Override

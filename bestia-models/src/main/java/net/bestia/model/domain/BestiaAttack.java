@@ -25,7 +25,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Entity
 @Table(name = "bestia_attacks", uniqueConstraints = { @UniqueConstraint(columnNames = {
 		"ATTACK_ID", "BESTIA_ID" }) })
-public class AttackLevel implements Serializable {
+public class BestiaAttack implements Serializable {
 
 	@Transient
 	private static final long serialVersionUID = 1L;
@@ -52,7 +52,7 @@ public class AttackLevel implements Serializable {
 	/**
 	 * Std. Ctor.
 	 */
-	public AttackLevel() {
+	public BestiaAttack() {
 
 	}
 

@@ -13,7 +13,7 @@ import net.bestia.model.domain.MapEntity;
  *
  */
 @org.springframework.stereotype.Repository("mapEntitiesDao")
-public interface MapEntitiesDAO extends Repository<MapEntity, Integer> {
+public interface MapEntityDAO extends Repository<MapEntity, Integer> {
 
 	/**
 	 * Finds all entities for the given zone.

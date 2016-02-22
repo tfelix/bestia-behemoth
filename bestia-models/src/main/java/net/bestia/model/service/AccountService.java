@@ -1,5 +1,15 @@
 package net.bestia.model.service;
 
+import java.util.Set;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.jpa.JpaSystemException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.BestiaDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;
@@ -7,15 +17,6 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.PlayerBestia;
-
-import java.util.Set;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Generates all the needed account services. Please be careful: This factory is
@@ -79,8 +80,12 @@ public class AccountService {
 	 * @return {@code TRUE} if the new account coule be created. {@code FALSE}
 	 *         otherwise.
 	 */
-	public boolean createNewAccount(String email, String mastername, String password, Master starter) {
-		Account account = new Account(email, password);
+	public void createNewAccount(String email, String mastername, String password, Master starter) {
+		if(mastername == null || mastername.isEmpty()) {
+			throw new IllegalArgumentException("Mastername can not be null or empty.");
+		}
+		
+		final Account account = new Account(email, password);
 
 		// TODO das hier noch auslagern. Die aktivierung soll nur per
 		// username/password anmeldung notwendig sein.
@@ -94,23 +99,32 @@ public class AccountService {
 		final Bestia origin = bestiaDao.findOne(starterId);
 		if (origin == null) {
 			log.error("Starter bestia with id {} could not been found.", starterId);
-			return false;
+			throw new IllegalArgumentException("Starter bestia was not found.");
 		}
 
+		// Check if there is a bestia master with this name.
+		final PlayerBestia existingMaster = playerBestiaDao.findMasterBestiaWithName(mastername);
+		
+		if(existingMaster != null) {
+			log.warn("Can not create account. Master name already exists: {}", mastername);
+			throw new IllegalArgumentException("A master with this name does already exist.");
+		}
+		
 		// Create the bestia.
 		final PlayerBestia masterBestia = new PlayerBestia(account, origin, BaseValues.getStarterIndividualValues());
-		masterBestia.setName(mastername);
 
-		account.setMaster(masterBestia);
+		masterBestia.setName(mastername);
+		masterBestia.setMaster(account);
 
 		// Generate ID.
-		accountDao.save(account);
-		playerBestiaDao.save(masterBestia);
-		
-		// Save account again to set master id.
-		accountDao.save(account);
+		try {
+			accountDao.save(account);
+			playerBestiaDao.save(masterBestia);
 
-		return true;
+		} catch (JpaSystemException ex) {
+			log.warn("Could not create account because of duplicate mail: {}", ex.getMessage(), ex);
+			throw new IllegalArgumentException("Could not create account. Duplicate mail.", ex);
+		}
 	}
 
 	/**

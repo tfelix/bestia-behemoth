@@ -13,7 +13,7 @@ import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import net.bestia.model.dao.MapEntitiesDAO;
+import net.bestia.model.dao.MapEntityDAO;
 
 public class WorldPersistenceManager extends Manager {
 
@@ -22,7 +22,7 @@ public class WorldPersistenceManager extends Manager {
 	private final Map<Integer, Entity> trackedEntities = new HashMap<>();
 
 	private final String zoneName;
-	private final MapEntitiesDAO entitiesDAO;
+	private final MapEntityDAO entitiesDAO;
 
 	/**
 	 * 
@@ -32,7 +32,7 @@ public class WorldPersistenceManager extends Manager {
 	 *            subfolder which will be created for the entities to be
 	 *            persisted.
 	 */
-	public WorldPersistenceManager(String zoneName, MapEntitiesDAO entitiesDao) {
+	public WorldPersistenceManager(String zoneName, MapEntityDAO entitiesDao) {
 
 		if (zoneName == null || zoneName.isEmpty()) {
 			throw new IllegalArgumentException("ZoneName can not be null or empty.");
