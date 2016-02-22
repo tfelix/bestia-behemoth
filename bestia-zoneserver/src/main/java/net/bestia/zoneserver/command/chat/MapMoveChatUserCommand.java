@@ -45,7 +45,7 @@ public class MapMoveChatUserCommand implements ChatUserCommand {
 			// Command not understood.
 			LOG.info("Chatinput not understood: {}", message.toString());
 			final AccountDAO accDao = ctx.getServiceLocator().getBean(AccountDAO.class);
-			final Account acc = accDao.find(message.getAccountId());
+			final Account acc = accDao.findOne(message.getAccountId());
 			final ChatMessage reply = ChatMessage.getSystemMessage(acc, "etc.unknown_command");
 			ctx.getServer().sendMessage(reply);
 			return;

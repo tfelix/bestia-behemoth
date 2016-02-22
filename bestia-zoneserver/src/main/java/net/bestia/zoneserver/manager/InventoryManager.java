@@ -33,6 +33,10 @@ public class InventoryManager {
 		if (service == null) {
 			throw new IllegalArgumentException("Service can not be null.");
 		}
+		
+		if(server == null) {
+			throw new IllegalArgumentException("Server can not be null.");
+		}
 
 		this.inventoryService = service;
 		this.server = server;
@@ -96,6 +100,10 @@ public class InventoryManager {
 		}
 		return addItem(item.getId(), amount);
 	}
+	
+	public boolean hasPlayerItem(int playerItemId, int amount) {
+		return inventoryService.hasPlayerItem(playerItemId, amount);
+	}
 
 	public boolean hasItem(int itemId, int amount) {
 		return inventoryService.hasItem(accId, itemId, amount);
@@ -157,7 +165,7 @@ public class InventoryManager {
 	 *            Item ID.
 	 * @return {@link PlayerItem} or NULL if the player does not own the item.
 	 */
-	private PlayerItem getPlayerItemById(int itemId) {
+	public PlayerItem getPlayerItemById(int itemId) {
 		return inventoryService.getPlayerItem(accId, itemId);
 	}
 

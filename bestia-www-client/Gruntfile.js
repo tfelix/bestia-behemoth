@@ -36,7 +36,8 @@ module.exports = function(grunt) {
 	         		'<%= tempDir %>/js/engine/engine.js', '<%= tempDir %>/js/engine/core/*.js',
 	         		'<%= tempDir %>/js/engine/entities/*.js', '<%= tempDir %>/js/engine/plugins/*.js',
 	         		'<%= tempDir %>/js/engine/controller/*.js', '<%= tempDir %>/js/engine/cg/*.js',
-	         		'<%= tempDir %>/js/engine/states/*.js' ];
+	         		'<%= tempDir %>/js/engine/states/*.js',
+	         		'<%= tempDir %>/js/engine/fx/*.js'];
 	
 	// Add the intro, outro 
 	var appFilelistShimed = appFiles.slice();

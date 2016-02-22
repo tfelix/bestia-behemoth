@@ -3,13 +3,19 @@ package net.bestia.zoneserver.ecs;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
- * Manages the currently active bestias.
+ * Keeps track of the currently active bestias of a certain account. Can be used
+ * to get the latest active bestia ID. This class is threadsafe.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class ActiveBestiaRegistry {
+
+	private static final Logger LOG = LogManager.getLogger(ActiveBestiaRegistry.class);
 
 	private Map<Long, Integer> activeBestias = new HashMap<>();
 
@@ -35,11 +41,14 @@ public class ActiveBestiaRegistry {
 	/**
 	 * Sets a active bestia for this account.
 	 * 
-	 * @param accId
-	 * @param bestiaId
+	 * @param accountId
+	 *            Account ID to set the active bestia.
+	 * @param playerBestiaId
+	 *            The player bestia ID to set active for this certain account.
 	 */
-	public synchronized void setActiveBestia(long accId, int bestiaId) {
-		activeBestias.put(accId, bestiaId);
+	public synchronized void setActiveBestia(long accountId, int playerBestiaId) {
+		LOG.trace("Account {} has active bestia {}", accountId, playerBestiaId);
+		activeBestias.put(accountId, playerBestiaId);
 	}
 
 	/**
@@ -48,16 +57,19 @@ public class ActiveBestiaRegistry {
 	 * bestia, this will avoid problems.
 	 * 
 	 * @param accountId
-	 * @param i
+	 *            The account ID to set the new active bestia.
+	 * @param playerBestiaId
+	 *            The player bestia ID to set inactive for this account.
 	 */
 	public synchronized void unsetActiveBestia(long accountId, int playerBestiaId) {
-		
 		final Integer id = activeBestias.get(accountId);
-		
-		if(id == null || id != playerBestiaId) {
+
+		if (id == null || id != playerBestiaId) {
 			return;
 		}
 		
+		LOG.trace("Account {} bestia {} is set inactive.", accountId, playerBestiaId);
+
 		activeBestias.remove(accountId);
 	}
 }

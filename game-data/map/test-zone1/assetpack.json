@@ -16,7 +16,7 @@
         {
             "type": "audio",
             "key": "boden",
-            "urls": ["assets/sound/theme/prontera_fields.mp3", "assets/sound/theme/prontera_fields.ogg"],
+            "urls": ["assets/sound/bgm/prontera_fields.mp3", "assets/sound/bgm/prontera_fields.ogg"],
             "autoDecode": true
         }
     ],

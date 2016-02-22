@@ -8,10 +8,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.model.domain.Location;
-import net.bestia.zoneserver.script.MapTriggerScript;
-import net.bestia.zoneserver.script.PortalMapTriggerScript;
 import net.bestia.zoneserver.zone.map.Map.MapBuilder;
-import net.bestia.zoneserver.zone.map.Map.Script;
+import net.bestia.zoneserver.zone.map.MapPortalScript;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
 import net.bestia.zoneserver.zone.shape.Rect;
 import tiled.core.Map;
@@ -27,12 +25,12 @@ import tiled.core.ObjectGroup;
  */
 public class PortalMapExtender implements TMXMapExtender {
 
-	private final static Logger log = LogManager.getLogger(PortalMapExtender.class);
+	private final static Logger LOG = LogManager.getLogger(PortalMapExtender.class);
 
 	@Override
 	public void extendMap(Map tiledMap, MapBuilder builder) {
 
-		log.trace("Extend map {} with portals...", builder.mapDbName);
+		LOG.trace("Extend map {} with portals...", builder.mapDbName);
 		
 		final int tileHeight = tiledMap.getTileHeight();
 		final int tileWidth = tiledMap.getTileWidth();
@@ -65,17 +63,17 @@ public class PortalMapExtender implements TMXMapExtender {
 				final Location dest = parseDestination(mapObj.getName());
 
 				if (dest == null) {
-					log.warn("Malformed portal name: {}. Should be: MAP_DB_NAME,X,Y", mapObj.getName());
+					LOG.warn("Malformed portal name: {}. Should be: MAP_DB_NAME,X,Y", mapObj.getName());
 					continue;
 				}
-
-				final MapTriggerScript portal = new PortalMapTriggerScript(dest);
-				final net.bestia.zoneserver.zone.map.Map.Script mapscript = new Script(portal, rect);
-				builder.portals.add(mapscript);
+				
+				final MapPortalScript portalScript = new MapPortalScript(dest, rect);
+				builder.portals.add(portalScript);
+				
 				createdPortals++;
 			}
 
-			log.trace("Extended map {} with {} portal(s).", builder.mapDbName, createdPortals);
+			LOG.trace("Extended map {} with {} portal(s).", builder.mapDbName, createdPortals);
 		}
 	}
 

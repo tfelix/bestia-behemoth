@@ -2,7 +2,7 @@ package net.bestia.messages;
 
 import java.util.List;
 
-import net.bestia.model.domain.AttackLevel;
+import net.bestia.model.domain.BestiaAttack;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -23,7 +23,7 @@ public class AttackListResponseMessage extends Message {
 	public static final String MESSAGE_ID = "attack.list.response";
 
 	@JsonProperty("atks")
-	private List<AttackLevel> attacks;
+	private List<BestiaAttack> attacks;
 	
 	public AttackListResponseMessage() {
 		// no op.
@@ -48,11 +48,11 @@ public class AttackListResponseMessage extends Message {
 		return String.format("AttackListResponseMessage[attacks: %s]", attacks.toString());
 	}
 
-	public List<AttackLevel> getAttacks() {
+	public List<BestiaAttack> getAttacks() {
 		return attacks;
 	}
 
-	public void setAttacks(List<AttackLevel> attacks) {
+	public void setAttacks(List<BestiaAttack> attacks) {
 		this.attacks = attacks;
 	}
 }

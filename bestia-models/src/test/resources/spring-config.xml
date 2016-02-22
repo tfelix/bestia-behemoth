@@ -25,53 +25,45 @@
 
 	<jpa:repositories base-package="net.bestia.model.dao" />
 
-	<!-- data source for our database -->
-	<bean id="dataSource"
-		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+	<!-- Configure ConnectionPool Hikari -->
+	<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
 		<property name="driverClassName" value="org.hsqldb.jdbcDriver" />
-		<property name="url" value="jdbc:hsqldb:mem:testdb" />
+		<property name="jdbcUrl" value="jdbc:hsqldb:mem:testdb" />
 		<property name="username" value="sa" />
 		<property name="password" value="" />
 	</bean>
 
-	<!-- configure hibernate session factory -->
-	<bean id="sessionFactory"
-		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
-		<property name="dataSource" ref="dataSource" />
-		<property name="hibernateProperties">
-			<props>
-				<prop key="hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
-				<prop key="hibernate.show_sql">true</prop>
-				<prop key="hibernate.hbm2ddl.auto">create-drop</prop>
-			</props>
-		</property>
-
-		<property name="packagesToScan">
-			<list>
-				<value>net.bestia.model.domain</value>
-			</list>
-		</property>
+	<!-- data source for our database -->
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
+		<constructor-arg index="0" ref="hikariConfig" />
 	</bean>
 
 	<bean id="jpaVendorAdapter"
 		class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
 		<property name="showSql" value="true" />
 		<property name="generateDdl" value="true" />
-		<property name="database" value="MYSQL" />
+		<property name="database" value="HSQL" />
 	</bean>
 
+	<!-- Creates the bean that creates the JPA entity manager factory. -->
 	<bean id="entityManagerFactory"
 		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
 		<property name="dataSource" ref="dataSource" />
 		<property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
 		<!-- spring based scanning for entity classes> -->
 		<property name="packagesToScan" value="net.bestia.model" />
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.HSQLDialect</prop>
+				<prop key="hibernate.hbm2ddl.auto">create-drop</prop>
+				<prop key="hibernate.show_sql">false</prop>
+				<prop key="hibernate.format_sql">false</prop>
+			</props>
+		</property>
 	</bean>
 
-	<bean id="transactionManager"
-		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-		<property name="sessionFactory" ref="sessionFactory" />
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
 	</bean>
-
 
 </beans>

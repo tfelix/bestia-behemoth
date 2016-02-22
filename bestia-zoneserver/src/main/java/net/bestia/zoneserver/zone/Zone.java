@@ -34,7 +34,7 @@ public class Zone implements MessageProcessor {
 
 	private static final Logger log = LogManager.getLogger(Zone.class);
 
-	private class ZoneTicker implements Runnable {
+	private class ZoneRunnable implements Runnable {
 
 		private long lastRun = 0;
 
@@ -55,7 +55,7 @@ public class Zone implements MessageProcessor {
 		private final CommandContext ctx;
 		private final ECSCommandFactory commandFactory;
 
-		public ZoneTicker(World world, CommandContext ctx, Map map) {
+		public ZoneRunnable(World world, CommandContext ctx, Map map) {
 			this.world = world;
 			this.ctx = ctx;
 			this.commandFactory = new ECSCommandFactory(ctx, world, map, Zone.this);
@@ -133,7 +133,7 @@ public class Zone implements MessageProcessor {
 	private final Queue<Message> messageQueue = new ConcurrentLinkedQueue<>();
 	private final CommandContext cmdContext;
 
-	private ZoneTicker zoneTicker;
+	private ZoneRunnable zoneTicker;
 	private Thread zoneTickerThread;
 
 	public Zone(CommandContext ctx, Map map) {
@@ -186,7 +186,8 @@ public class Zone implements MessageProcessor {
 		// Create and prepare the thread.
 		final WorldExtender worldExtender = new WorldExtender(cmdContext.getConfiguration(), this);
 		final World world = worldExtender.createWorld(cmdContext, map);
-		zoneTicker = new ZoneTicker(world, cmdContext, map);
+		
+		zoneTicker = new ZoneRunnable(world, cmdContext, map);
 		zoneTickerThread = new Thread(null, zoneTicker, "zoneECS-" + name);
 
 		hasStarted.set(true);

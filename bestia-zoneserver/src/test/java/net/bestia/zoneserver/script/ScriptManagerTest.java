@@ -26,13 +26,13 @@ public class ScriptManagerTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void setStdBindings_null_exception() {
 		final ScriptManager manager = new ScriptManager();
-		manager.setStdBindings(null);
+		manager.setStandardBindings(null);
 	}
 
 	@Test
 	public void setStdBindings_notnull_noexception() {
 		final ScriptManager manager = new ScriptManager();
-		manager.setStdBindings(new SimpleBindings());
+		manager.setStandardBindings(new SimpleBindings());
 	}
 
 	@Test

@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.zoneserver.zone.map.Map.MapBuilder;
+import net.bestia.zoneserver.zone.map.MapScriptTemplate;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
 import net.bestia.zoneserver.zone.shape.Rect;
 import tiled.core.Map;
@@ -24,7 +25,9 @@ import tiled.core.ObjectGroup;
 public class ScriptMapExtender implements TMXMapExtender {
 
 	private final static Logger log = LogManager.getLogger(ScriptMapExtender.class);
-	
+
+	private final static String PROP_TICKRATE = "tickRate";
+
 	public ScriptMapExtender() {
 		// no op.
 	}
@@ -33,6 +36,9 @@ public class ScriptMapExtender implements TMXMapExtender {
 	public void extendMap(Map tiledMap, MapBuilder builder) {
 
 		log.trace("Extend map {} with scripts...", builder.mapDbName);
+
+		// Tiles must be quadratic.
+		final int tileSize = tiledMap.getTileHeight();
 
 		final Vector<MapLayer> layers = tiledMap.getLayers();
 		for (MapLayer layer : layers) {
@@ -46,20 +52,30 @@ public class ScriptMapExtender implements TMXMapExtender {
 				continue;
 			}
 
-			// Create the portal scripts.
+			// Iterate over all triggered scripts and create them.
 			final Iterator<MapObject> objIter = objLayer.getObjects();
 			int createdScripts = 0;
+
 			while (objIter.hasNext()) {
-				final MapObject mapObj = objIter.next();
-				final Rectangle bb = mapObj.getBounds();
+				final MapObject scriptObj = objIter.next();
+				final Rectangle bb = scriptObj.getBounds();
 
 				// Translate the bb to shape.
-				final CollisionShape rect = new Rect(bb.x, bb.y, bb.width, bb.height);
+				final CollisionShape rect = new Rect(bb.x / tileSize,
+						bb.y / tileSize,
+						bb.width / tileSize,
+						bb.height / tileSize);
 
-				//final MapScript mapScript = new MapTriggerScript(builder.mapDbName, mapObj.getName());
-				//final net.bestia.zoneserver.zone.map.Map.Script mapscript = new Script(mapScript, rect);
-				//builder.scripts.add(mapscript);
-				
+				final String tickRateStr = scriptObj.getProperties().getProperty(PROP_TICKRATE);
+				if (tickRateStr != null) {
+					final int tickRate = Integer.parseInt(tickRateStr);
+					final MapScriptTemplate mapScript = new MapScriptTemplate(scriptObj.getName(), rect, tickRate);
+					builder.scripts.add(mapScript);
+				} else {
+					final MapScriptTemplate mapScript = new MapScriptTemplate(scriptObj.getName(), rect);
+					builder.scripts.add(mapScript);
+				}
+
 				createdScripts++;
 			}
 

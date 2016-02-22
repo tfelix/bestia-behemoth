@@ -34,7 +34,7 @@ public class TranslationCommand extends Command {
 		final AccountDAO accDao = ctx.getServiceLocator().getBean(AccountDAO.class);
 
 		// Find the language of the account.
-		final String lang = accDao.find(request.getAccountId()).getLanguage().getLanguage();
+		final String lang = accDao.findOne(request.getAccountId()).getLanguage().getLanguage();
 
 		// Response.
 		final TranslationResponseMessage response = new TranslationResponseMessage(request);
@@ -55,4 +55,8 @@ public class TranslationCommand extends Command {
 		ctx.getServer().sendMessage(response);
 	}
 
+	@Override
+	public String toString() {
+		return "TranslationCommand[]";
+	}
 }

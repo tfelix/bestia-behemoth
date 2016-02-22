@@ -32,8 +32,8 @@ Bestia.Engine.DemandLoader = function(loader, cache) {
 Bestia.Engine.DemandLoader.prototype._fileLoadedCallback = function(progress, key) {
 
 	var cacheData = null;
-	
-	if(this._cache.hasOwnProperty(key)) {
+
+	if (this._cache.hasOwnProperty(key)) {
 		cacheData = this._cache[key];
 	} else {
 		// Go the indirection.
@@ -49,8 +49,8 @@ Bestia.Engine.DemandLoader.prototype._fileLoadedCallback = function(progress, ke
 		var keyList = pack[key].map(function(x) {
 			return x.key;
 		});
-		
-		keyList.forEach(function(x){
+
+		keyList.forEach(function(x) {
 			this._keyCache[x] = key;
 		}, this);
 
@@ -71,8 +71,7 @@ Bestia.Engine.DemandLoader.prototype._fileLoadedCallback = function(progress, ke
 			this._loader.start();
 		}
 	}
-	
-	
+
 };
 
 /**
@@ -99,7 +98,7 @@ Bestia.Engine.DemandLoader.prototype.loadMobSprite = function(key, fnOnComplete)
 	};
 	this._cache[key] = countObj;
 
-	var packUrl = Bestia.Urls.assetsMobSprite + key + '_pack.json';
+	var packUrl = Bestia.Urls.assetsMobSprite + '/' + key + '/' + key + '_pack.json';
 
 	this._loader.json(key, packUrl);
 	this._loader.start();
@@ -112,9 +111,9 @@ Bestia.Engine.DemandLoader.prototype.loadMobSprite = function(key, fnOnComplete)
  *            file(s) have been loaded.
  */
 Bestia.Engine.DemandLoader.prototype.loadItemSprite = function(key, fnOnComplete) {
-	
+
 	// First check if we actually have not yet loaded the assets.
-	if(this._phaserCache.checkImageKey(key)) {
+	if (this._phaserCache.checkImageKey(key)) {
 		fnOnComplete();
 		return;
 	}

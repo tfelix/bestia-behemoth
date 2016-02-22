@@ -2,6 +2,7 @@ package net.bestia.webserver;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.LogManager;
@@ -9,6 +10,11 @@ import org.apache.logging.log4j.Logger;
 import org.atmosphere.websocket.WebSocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.servo.monitor.BasicGauge;
+import com.netflix.servo.monitor.Counter;
+import com.netflix.servo.monitor.Gauge;
+import com.netflix.servo.monitor.MonitorConfig;
+import com.netflix.servo.monitor.Monitors;
 
 import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
@@ -17,9 +23,11 @@ import net.bestia.messages.LoginAuthReplyMessage;
 import net.bestia.messages.Message;
 
 /**
- * Helper class to provide a centralized storage for all opend websocket connections and filter the incoming interserver
- * messages for accounts and deliver them via websocket. Basically all shared objects between the webserver threads
- * should be here. Be aware that calling to methods inside this must be threadsafe.
+ * Helper class to provide a centralized storage for all opend websocket
+ * connections and filter the incoming interserver messages for accounts and
+ * deliver them via websocket. Basically all shared objects between the
+ * webserver threads should be here. Be aware that calling to methods inside
+ * this must be threadsafe.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -27,28 +35,58 @@ import net.bestia.messages.Message;
 public class BestiaConnectionProvider implements InterserverMessageHandler {
 
 	private static final Logger log = LogManager.getLogger(BestiaConnectionProvider.class);
+	
+	private final Gauge<Integer> loginQueueSize = new BasicGauge<>(MonitorConfig.builder("LoginQueueSize").build(), new Callable<Integer>() {
+		@Override
+		public Integer call() throws Exception {
+			return connections.size();
+		}
+	});
+	private final Counter loginMessageMetric = Monitors.newCounter("LoginMessages");
 
-	private static BestiaConnectionProvider instance = null;
 	private final ObjectMapper mapper = new ObjectMapper();
 
-	private InterserverPublisher publisher;
-	private InterserverSubscriber subscriber;
+	private final InterserverPublisher publisher;
+	private final InterserverSubscriber subscriber;
+
 	private final LoginCheckBlocker loginChecker = new LoginCheckBlocker(this);
 
 	private final Map<Long, WebSocket> connections = new ConcurrentHashMap<>();
 
 	/**
-	 * Publishes a message to the interserver.
+	 * Ctor. Must have handler to send and receive messages from the
+	 * interserver.
+	 * 
+	 * @param publisher
+	 * @param subscriber
+	 */
+	public BestiaConnectionProvider(InterserverPublisher publisher, InterserverSubscriber subscriber) {
+		if (publisher == null) {
+			throw new IllegalArgumentException("Publisher can not be null.");
+		}
+		if (subscriber == null) {
+			throw new IllegalArgumentException("Subscriber can not be null.");
+		}
+
+		this.publisher = publisher;
+		this.subscriber = subscriber;
+	}
+
+	/**
+	 * Publishes a raw string message to the interserver. The string must be
+	 * parsed (it should be JSON) into a real java message. It will then be
+	 * send
 	 * 
 	 * @param accountId
 	 *            Account id of the accound sending this message.
 	 * @param message
-	 *            String representation of the message. Must be parsed to an object.
+	 *            String representation of the message. Must be parsed to an
+	 *            object.
 	 * @throws IOException
 	 */
 	public void publishInterserver(long accountId, String message) throws IOException {
 		log.trace("Publish message to interserver: {}", message);
-		
+
 		final Message msg = mapper.readValue(message, Message.class);
 
 		// Regenerate the account id from the server connection.
@@ -86,7 +124,8 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	}
 
 	/**
-	 * Unsubscribes from the topic from the zone/interserver and removes this account from our saved connection list.
+	 * Unsubscribes from the topic from the zone/interserver and removes this
+	 * account from our saved connection list.
 	 * 
 	 * @param accountId
 	 *            Account ID to be removed.
@@ -95,31 +134,6 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 		log.debug("Removed connection to account id: {}", accountId);
 		subscriber.unsubscribe("account/" + accountId);
 		connections.remove(accountId);
-	}
-
-	public static void create() {
-		instance = new BestiaConnectionProvider();
-	}
-
-	public void setup(InterserverPublisher publisher, InterserverSubscriber subscriber) {
-		if (instance == null) {
-			throw new IllegalStateException("setup() must be called bevor invoking these method.");
-		}
-
-		this.publisher = publisher;
-		this.subscriber = subscriber;
-	}
-
-	/**
-	 * Static getter of the InterserverConnectionProvider so it can be retrieved for the socket handler.
-	 * 
-	 * @return Instance of the InterserverConnectionProvider
-	 */
-	public static BestiaConnectionProvider getInstance() {
-		if (instance == null) {
-			throw new IllegalStateException("create() must be called bevor invoking these method.");
-		}
-		return instance;
 	}
 
 	/**
@@ -136,11 +150,11 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	 */
 	@Override
 	public void onMessage(Message msg) {
-		
+
 		log.trace("Received message from interserver: {}", msg.toString());
-		
-		// Special case: If the message is a LoginAuthReply message we must route it to the blocker for further
-		// processing.
+
+		// Special case: If the message is a LoginAuthReply message we must
+		// route it to the blocker for further processing.
 		if (msg.getMessageId().equals(LoginAuthReplyMessage.MESSAGE_ID)) {
 			loginChecker.receivedAuthReplayMessage((LoginAuthReplyMessage) msg);
 			return;

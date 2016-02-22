@@ -17,8 +17,9 @@ import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
 /**
- * Custom TypeId Resolver for message objects. Upon start it looks for all messages which inherit from Message and
- * determine their id. It stores it and uses this serialize the messages.
+ * Custom TypeId Resolver for message objects. Upon start it looks for all
+ * messages which inherit from Message and determine their id. It stores it and
+ * uses this serialize the messages.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -34,7 +35,8 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 	private JavaType baseType;
 
 	/**
-	 * Finds all IDs of the messages and registers them for later identification.
+	 * Finds all IDs of the messages and registers them for later
+	 * identification.
 	 */
 	@Override
 	public void init(JavaType bt) {
@@ -44,7 +46,8 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 		// Find all classes implementing the message interface.
 		Reflections reflections = new Reflections("net.bestia.messages");
 		Set<Class<? extends Message>> messages = reflections.getSubTypesOf(Message.class);
-		// Instantiate the message classes to get their message id from the method and store
+		// Instantiate the message classes to get their message id from the
+		// method and store
 		// it for later serialization and deserialization.
 		for (Class<? extends Message> msg : messages) {
 

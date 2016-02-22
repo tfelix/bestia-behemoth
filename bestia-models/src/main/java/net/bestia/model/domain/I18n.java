@@ -61,8 +61,26 @@ public class I18n implements Serializable {
 
 		@Override
 		public boolean equals(Object obj) {
-			// TODO Auto-generated method stub
-			return super.equals(obj);
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			I18nPK other = (I18nPK) obj;
+			if (category != other.category)
+				return false;
+			if (key == null) {
+				if (other.key != null)
+					return false;
+			} else if (!key.equals(other.key))
+				return false;
+			if (lang == null) {
+				if (other.lang != null)
+					return false;
+			} else if (!lang.equals(other.lang))
+				return false;
+			return true;
 		}
 
 		@Override

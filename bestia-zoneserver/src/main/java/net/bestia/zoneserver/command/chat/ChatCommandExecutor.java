@@ -61,7 +61,7 @@ public class ChatCommandExecutor {
 		final AccountDAO accDAO = ctx.getServiceLocator().getBean(AccountDAO.class);
 
 		// Find the player who send the message.
-		final Account acc = accDAO.find(m.getAccountId());
+		final Account acc = accDAO.findOne(m.getAccountId());
 
 		if (acc.getUserLevel().compareTo(cmd.getNeededUserLevel()) < 0) {
 

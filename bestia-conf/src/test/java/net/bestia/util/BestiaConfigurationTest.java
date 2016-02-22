@@ -74,4 +74,10 @@ public class BestiaConfigurationTest {
 		Assert.assertNull(bc.getIntProperty("test"));
 	}
 	
+	@Test(expected=IllegalArgumentException.class)
+	public void getValue_dontExist_exception() throws IOException {
+		BestiaConfiguration bc = new BestiaConfiguration();
+		bc.load(configFile);
+		bc.getProperty("thiskeydoesnotexist1234");
+	}
 }

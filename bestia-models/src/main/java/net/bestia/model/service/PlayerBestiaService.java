@@ -4,29 +4,30 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import net.bestia.model.dao.BestiaAttackDAO;
+import net.bestia.model.dao.PlayerBestiaDAO;
+import net.bestia.model.dao.PlayerItemDAO;
+import net.bestia.model.domain.Attack;
+import net.bestia.model.domain.BestiaAttack;
+import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.domain.PlayerItem;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import net.bestia.model.dao.AttackLevelDAO;
-import net.bestia.model.dao.PlayerBestiaDAO;
-import net.bestia.model.dao.PlayerItemDAO;
-import net.bestia.model.domain.Attack;
-import net.bestia.model.domain.AttackLevel;
-import net.bestia.model.domain.PlayerBestia;
-import net.bestia.model.domain.PlayerItem;
 
-@Transactional
 @Service("PlayerBestiaService")
+@Transactional
 public class PlayerBestiaService {
 
 	private final static int NUM_ITEM_SLOTS = 5;
 	private final static Logger log = LogManager.getLogger(InventoryService.class);
 
 	private PlayerBestiaDAO playerBestiaDao;
-	private AttackLevelDAO attackLevelDao;
+	private BestiaAttackDAO attackLevelDao;
 	private PlayerItemDAO playerItemDao;
 
 	@Autowired
@@ -35,7 +36,7 @@ public class PlayerBestiaService {
 	}
 
 	@Autowired
-	public void setAttackLevelDao(AttackLevelDAO attackLevelDao) {
+	public void setAttackLevelDao(BestiaAttackDAO attackLevelDao) {
 		this.attackLevelDao = attackLevelDao;
 	}
 
@@ -59,10 +60,10 @@ public class PlayerBestiaService {
 			throw new IllegalArgumentException("Attacks can not exceed the length of 5 slots.");
 		}
 
-		final PlayerBestia playerBestia = playerBestiaDao.find(playerBestiaId);
+		final PlayerBestia playerBestia = playerBestiaDao.findOne(playerBestiaId);
 
 		// Get list of attacks for this bestia.
-		final List<AttackLevel> knownAttacks = attackLevelDao.getAllAttacksForBestia(playerBestia.getOrigin().getId());
+		final List<BestiaAttack> knownAttacks = attackLevelDao.getAllAttacksForBestia(playerBestia.getOrigin().getId());
 
 		final List<Integer> knownAttackIds = knownAttacks.stream()
 				.map((x) -> x.getAttack().getId())
@@ -85,7 +86,7 @@ public class PlayerBestiaService {
 				throw new IllegalArgumentException("Bestia can not learn the attack.");
 			}
 
-			final AttackLevel atk = knownAttacks.stream()
+			final BestiaAttack atk = knownAttacks.stream()
 					.filter((x) -> x.getAttack().getId() == atkId)
 					.findFirst()
 					.get();
@@ -140,8 +141,8 @@ public class PlayerBestiaService {
 	 * @param playerBestiaId
 	 * @return
 	 */
-	public List<AttackLevel> getAllAttacksForPlayerBestia(int playerBestiaId) {
-		final PlayerBestia pb = playerBestiaDao.find(playerBestiaId);
+	public List<BestiaAttack> getAllAttacksForPlayerBestia(int playerBestiaId) {
+		final PlayerBestia pb = playerBestiaDao.findOne(playerBestiaId);
 		return attackLevelDao.getAllAttacksForBestia(pb.getOrigin().getId());
 	}
 
@@ -162,12 +163,10 @@ public class PlayerBestiaService {
 					"The size of the item slot array must be 5. Fill empty slots with null.");
 		}
 
-		final PlayerBestia bestia = playerBestiaDao.find(playerBestiaId);
+		final PlayerBestia bestia = playerBestiaDao.findOne(playerBestiaId);
 		final Set<Integer> nonNullIds = itemIds.stream().filter((x) -> x != null).collect(Collectors.toSet());
 		final List<PlayerItem> foundItems = playerItemDao.findAllPlayerItemsForIds(nonNullIds);
-		
-		
-		
+
 		final PlayerItem[] checkedItems = new PlayerItem[NUM_ITEM_SLOTS];
 
 		for (int i = 0; i < NUM_ITEM_SLOTS; i++) {
@@ -209,9 +208,40 @@ public class PlayerBestiaService {
 		}
 
 		// Save.
-		playerBestiaDao.update(bestia);
-		
+		playerBestiaDao.save(bestia);
+
 		return checkedItems;
+	}
+
+	/**
+	 * Special method for saving bestia coming from the ECS. Since not all
+	 * attributes need saving and the bestia entity is in a detached state we
+	 * will look up the entity, update its needed vaulues and save it to the
+	 * database.
+	 * 
+	 * @param playerBestia
+	 */
+	public void savePlayerBestiaECS(PlayerBestia playerBestia) {
+		if(playerBestia == null) {
+			throw new IllegalArgumentException("PlayerBestia can not be null.");
+		}
+		
+		final PlayerBestia dbPlayerBestia = playerBestiaDao.findOne(playerBestia.getId());
+		
+		if(dbPlayerBestia == null) {
+			return;
+		}
+		
+		// Update its values from the ECS.
+		dbPlayerBestia.setCurrentPosition(playerBestia.getCurrentPosition());
+		
+		dbPlayerBestia.setCurrentHp(playerBestia.getCurrentHp());
+		dbPlayerBestia.setCurrentMana(playerBestia.getCurrentMana());
+		dbPlayerBestia.setLevel(playerBestia.getLevel());
+		dbPlayerBestia.setExp(playerBestia.getExp());
+		// TODO set EVs.
+		
+		playerBestiaDao.save(dbPlayerBestia);
 	}
 
 }

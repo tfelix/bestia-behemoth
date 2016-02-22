@@ -8,8 +8,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.bestia.zoneserver.script.MapTriggerScript;
-import net.bestia.zoneserver.zone.shape.CollisionShape;
 import net.bestia.zoneserver.zone.shape.Rect;
 import net.bestia.zoneserver.zone.shape.Vector2;
 import net.bestia.zoneserver.zone.spawn.Spawner;
@@ -37,8 +35,8 @@ public class Map {
 		public Set<Vector2> collisions = new HashSet<>();
 		public java.util.Map<Vector2, Tile> tiles = new HashMap<>();
 		public String mapDbName;
-		public List<Script> portals = new ArrayList<>();
-		public List<Script> scripts = new ArrayList<>();
+		public final List<MapPortalScript> portals = new ArrayList<>();
+		public final List<MapScriptTemplate> scripts = new ArrayList<>();
 		public String globalMapscript = "";
 		public List<Spawner> spawns;
 
@@ -52,31 +50,13 @@ public class Map {
 		}
 	}
 
-	public static class Script {
-
-		private CollisionShape shape;
-		private MapTriggerScript script;
-
-		public Script(MapTriggerScript script, CollisionShape shape) {
-			this.shape = shape;
-			this.script = script;
-		}
-
-		public CollisionShape getShape() {
-			return shape;
-		}
-
-		public MapTriggerScript getMapScript() {
-			return script;
-		}
-	}
-
 	private String mapDbName;
 	private String tileset;
 	private Rect dimensions;
 
 	private final String globalMapscript;
-	private final List<Script> portals;
+	private final List<MapScriptTemplate> scripts;
+	private final List<MapPortalScript> portals;
 	private final List<Spawner> spawns;
 
 	private java.util.Map<Vector2, Tile> tiles = new HashMap<>();
@@ -93,7 +73,8 @@ public class Map {
 		mapDbName = builder.mapDbName;
 		tiles = Collections.unmodifiableMap(builder.tiles);
 		globalMapscript = builder.globalMapscript;
-		portals = builder.portals;
+		portals = Collections.unmodifiableList(builder.portals);
+		scripts = Collections.unmodifiableList(builder.scripts);
 		spawns = Collections.unmodifiableList(builder.spawns);
 	}
 
@@ -170,8 +151,17 @@ public class Map {
 	 * 
 	 * @return A list with the parsed map portals.
 	 */
-	public List<Script> getPortals() {
+	public List<MapPortalScript> getPortals() {
 		return portals;
+	}
+
+	/**
+	 * Returns the list with trigger scripts on this map.
+	 * 
+	 * @return A read-only list with trigger scripts.
+	 */
+	public List<MapScriptTemplate> getScripts() {
+		return scripts;
 	}
 
 	/**

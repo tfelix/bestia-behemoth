@@ -51,15 +51,7 @@ public class PlayerBestia implements Serializable {
 	@Embedded
 	@JsonProperty("sl")
 	private Location savePosition;
-	
-	
-	//private Direction facing;
 
-	/**
-	 * The facing of the head sprite.
-	 */
-	//private Direction headFacing;
-	
 	/**
 	 * The current hp value must be persisted inside the db. Since the status
 	 * points are not persisted at all we need a certain field for it.
@@ -74,13 +66,6 @@ public class PlayerBestia implements Serializable {
 	@JsonIgnore
 	private int currentMana;
 
-	/**
-	 * StatusPoints must be calculates because the depend upon status effects
-	 * and equipments. PlayerBestiaManager will do this.
-	 */
-	@Transient
-	private StatusPoints statusPoints;
-
 	@Embedded
 	@JsonProperty("cl")
 	private Location currentPosition;
@@ -88,6 +73,10 @@ public class PlayerBestia implements Serializable {
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "ACCOUNT_ID", nullable = false)
 	private Account owner;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="MASTER_ID", nullable = true, unique=true)
+	private Account master;
 
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)
 	@JoinColumn(name = "BESTIA_ID", nullable = false)
@@ -96,27 +85,27 @@ public class PlayerBestia implements Serializable {
 
 	@JsonProperty("lv")
 	private int level;
-	
+
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ITEM_1", nullable = true)
 	@JsonProperty("item1")
 	private PlayerItem item1;
-	
+
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ITEM_2", nullable = true)
 	@JsonProperty("item2")
 	private PlayerItem item2;
-	
+
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ITEM_3", nullable = true)
 	@JsonProperty("item3")
 	private PlayerItem item3;
-	
+
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ITEM_4", nullable = true)
 	@JsonProperty("item4")
 	private PlayerItem item4;
-	
+
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ITEM_5", nullable = true)
 	@JsonProperty("item5")
@@ -290,18 +279,6 @@ public class PlayerBestia implements Serializable {
 		return id;
 	}
 
-	@JsonProperty("sp")
-	public StatusPoints getStatusPoints() {
-		return statusPoints;
-	}
-
-	public void setStatusPoints(StatusPoints points) {
-		if (points == null) {
-			throw new IllegalArgumentException("Points can not be null.");
-		}
-		this.statusPoints = points;
-	}
-
 	@JsonIgnore
 	public int getCurrentHp() {
 		return currentHp;
@@ -400,6 +377,14 @@ public class PlayerBestia implements Serializable {
 		this.item5 = item5;
 	}
 	
+	public Account getMaster() {
+		return master;
+	}
+	
+	public void setMaster(Account master) {
+		this.master = master;
+	}
+
 	@Override
 	public int hashCode() {
 		return Integer.hashCode(id);

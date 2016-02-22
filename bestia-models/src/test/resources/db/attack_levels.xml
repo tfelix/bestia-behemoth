@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+	<Bestias id="1" bAtk="5" bDef="5" bHp="5" bMana="5" bSpAtk="5" bSpDef="5" bSpd="5" bestia_db_name="test" element="NORMAL" expGained="10" image="test.png" isBoss="0" level="1" sprite="mastersmith" />
+    <Attacks id="1" attack_db_name="tackle" strength="10" element="NORMAL" manaCost="4" range="3" basedStatus="SPECIAL" casttime="1500" cooldown="700" />
+    
+    <Bestia_Attacks id="1" minLevel="5" bestia_id="1" attack_id="1" />
+
+</dataset>

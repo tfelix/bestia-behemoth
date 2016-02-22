@@ -32,6 +32,14 @@ Bestia.Inventory = function(pubsub, i18n) {
 	this._i18n = i18n;
 
 	/**
+	 * Flag if the inventory has been loaded with new items.
+	 * 
+	 * @property {boolean}
+	 * @public
+	 */
+	this.hasLoaded = ko.observable(false);
+
+	/**
 	 * Holds the reference to the currently active bestia. We need this in order
 	 * to obtain its id for the send out message and to set the item shortcuts.
 	 * 
@@ -147,7 +155,9 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 */
 	var listHandler = function(_, data) {
 		var newItems = [];
+
 		self.allItems.removeAll();
+		self.dropAmount(0);
 
 		data.pis.forEach(function(val) {
 			var item = new Bestia.ItemViewModel(val);
@@ -155,9 +165,13 @@ Bestia.Inventory = function(pubsub, i18n) {
 			self.allItems.push(item);
 		});
 
-		self._translateItems(newItems);
-
+		// Update the weight display.
 		self.maxWeight(data.mw);
+
+		self._translateItems(newItems, function() {
+			// Flag that all items are sucessfully loaded.
+			self._setupItemBindings();
+		});
 	};
 	pubsub.subscribe('inventory.list', listHandler);
 
@@ -165,50 +179,74 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * Updates the item via an update message from the server.
 	 */
 	var updateHandler = function(_, data) {
+
 		var newItems = [];
+
 		data.pis.forEach(function(val) {
+
 			var item = self._findItem(val.i.id);
 
-			if (item === null) {
-				// Add the new item to the inventory.
-				var newItem = new Bestia.ItemViewModel(val);
-				self.allItems.push(newItem);
-				newItems.push(newItem);
-			} else {
-				var newAmount = item.amount() + val.a;
-				if (newAmount <= 0) {
-					// Remove item.
-					self.allItems.remove(item);
+			if (val.a > 0) {
+				// Item is added to the inventory.
+				if (item == null) {
+					// Add the item to the inventory.
+					var newItem = new Bestia.ItemViewModel(val);
+					self.allItems.push(newItem);
+					newItems.push(newItem);
 				} else {
-					// Update amount.
-					item.amount(newAmount);
-					// Send notifications for other sub systems.
-					pubsub.publish(Bestia.Signal.INVENTORY_ITEM_ADD, item);
+					item.amount(item.amount() + val.a);
+				}
+			} else {
+				// Item must be removed.
+				if (item != null) {
+					// Amount is negative. so add.
+					var newAmount = item.amount() + val.a;
+					if (newAmount > 0) {
+						item.amount(newAmount);
+					} else {
+						self._removeItem(item.itemId());
+					}
 				}
 			}
 		});
 
+		// Bulk translate all new items.
 		if (newItems.length > 0) {
-			self._translateItems(newItems);
+			self._translateItems(newItems, function() {
+				newItems.forEach(function(item) {
+					// Send notifications for other sub systems.
+					pubsub.publish(Bestia.Signal.INVENTORY_ITEM_ADD, item);
+				});
+			});
+		}
+
+		// If the amount of the selected item has changed, change the drop
+		// amount to the current number if it matches.
+		if (self.selectedItem().amount() + 1 === self.dropAmount()) {
+			self.dropAmount(self.selectedItem().amount());
 		}
 	};
 	pubsub.subscribe('inventory.update', updateHandler);
 
 	/**
-	 * Saves the new bestia id of the currently selected bestia.
+	 * Saves bestia reference of the currently selected bestia.
 	 * 
 	 * @param {Bestia.BestiaViewModel}
 	 *            bestia - The newly selected bestia.
 	 */
 	var bestiaSelectHandler = function(_, bestia) {
+		self.hasLoaded(false);
+
 		self._selectedBestia = bestia;
-		
-		// Set the item shortcuts by the ones of the newly selected bestia.
-		self.itemSlot1(bestia.item1());
-		self.itemSlot2(bestia.item2());
-		self.itemSlot3(bestia.item3());
-		self.itemSlot4(bestia.item4());
-		self.itemSlot5(bestia.item5());
+
+		// Clear all item shortcuts.
+		self.itemSlot1(null);
+		self.itemSlot2(null);
+		self.itemSlot3(null);
+		self.itemSlot4(null);
+		self.itemSlot5(null);
+
+		self._setupItemBindings();
 	};
 	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, bestiaSelectHandler);
 
@@ -228,15 +266,24 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * to account for the changed item count. This function will do some sanity
 	 * checks:
 	 */
-	this.useItem = function(item) {
+	this.useItem = function() {
+
+		var item = this.selectedItem();
+
 		if (item.type() !== 'USABLE') {
 			return;
 		}
 
-		var msg = new Bestia.Message.InventoryItemUse(item.playerItemId(), self.currentBestiaId);
+		var msg = new Bestia.Message.InventoryItemUse(item.itemId(), self._selectedBestia.playerBestiaId());
 		self._pubsub.send(msg);
 	};
 
+	/**
+	 * Amount of the item to be dropped.
+	 * 
+	 * @public
+	 * @property {Number}
+	 */
 	this.dropAmount = ko.observable(1);
 
 	/**
@@ -260,7 +307,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * @param {Numeric}
 	 *            slot - The slot to be deleted.
 	 */
-	this.removeItem = function(slot) {
+	this.unbindItem = function(slot) {
 		switch (slot) {
 		case 1:
 			self.itemSlot1(null);
@@ -283,6 +330,8 @@ Bestia.Inventory = function(pubsub, i18n) {
 			self._selectedBestia.item5(null);
 			break;
 		}
+
+		self.saveItemBindings();
 	};
 
 	/**
@@ -338,8 +387,10 @@ Bestia.Inventory = function(pubsub, i18n) {
  * @private
  * @param {Array[Bestia.ItemViewModel]}
  *            items - Array of item view models to translate.
+ * @param {Function}
+ *            fn - Callback function. Is fired when all items are translated.
  */
-Bestia.Inventory.prototype._translateItems = function(items) {
+Bestia.Inventory.prototype._translateItems = function(items, fn) {
 	var buildTranslationKeyName = function(item) {
 		return 'item.' + item.itemDatabaseName();
 	};
@@ -360,7 +411,45 @@ Bestia.Inventory.prototype._translateItems = function(items) {
 			val.name(nameTrans);
 			val.description(descTrans);
 		});
+
+		// Trigger callback.
+		if (fn !== undefined) {
+			fn();
+		}
 	});
+};
+
+/**
+ * The item is cleanly removed and deleted from all binding lists etc. This
+ * method should always be used to completly remove an item from the inventory.
+ * 
+ * @private
+ * @param itemId
+ */
+Bestia.Inventory.prototype._removeItem = function(item) {
+	// Check if it is the selected item.
+	if (this.selectedItem().playerItemId() === item.playerItemId()) {
+		this.selectedItem(null);
+	}
+
+	if (this.itemSlot1.playerItemId() === item.playerItemId()) {
+		this.unbindItem(1);
+	}
+	if (this.itemSlot2.playerItemId() === item.playerItemId()) {
+		this.unbindItem(2);
+	}
+	if (this.itemSlot3.playerItemId() === item.playerItemId()) {
+		this.unbindItem(3);
+	}
+	if (this.itemSlot4.playerItemId() === item.playerItemId()) {
+		this.unbindItem(4);
+	}
+	if (this.itemSlot5.playerItemId() === item.playerItemId()) {
+		this.unbindItem(5);
+	}
+
+	// Remove the item.
+	this.allItems.remove(item);
 };
 
 /**
@@ -407,4 +496,42 @@ Bestia.Inventory.prototype.saveItemBindings = function() {
 	var bestiaId = this._selectedBestia.playerBestiaId();
 	var msg = new Bestia.Message.ItemSet(bestiaId, piId1, piId2, piId3, piId4, piId5);
 	this._pubsub.publish('io.sendMessage', msg);
+};
+
+/**
+ * Setup the item bindings with the proper items. We need to derefer this call
+ * until the bestia is selected AND the items have been loaded.
+ */
+Bestia.Inventory.prototype._setupItemBindings = function() {
+	if (this.hasLoaded()) {
+		return;
+	}
+
+	// Set the item shortcuts by the ones of the newly selected bestia.
+	// But these items are not the same instance then the ones from the
+	// inventory. We must replace them with the inventory instances.
+	var bestia = this._selectedBestia;
+
+	if (bestia.item1() !== null) {
+		var item = this._findItem(bestia.item1().itemId());
+		this.itemSlot1(item);
+	}
+	if (bestia.item2() !== null) {
+		var item = this._findItem(bestia.item2().itemId());
+		this.itemSlot2(item);
+	}
+	if (bestia.item3() !== null) {
+		var item = this._findItem(bestia.item3().itemId());
+		this.itemSlot3(item);
+	}
+	if (bestia.item4() !== null) {
+		var item = this._findItem(bestia.item4().itemId());
+		this.itemSlot4(item);
+	}
+	if (bestia.item5() !== null) {
+		var item = this._findItem(bestia.item5().itemId());
+		this.itemSlot5(item);
+	}
+
+	this.hasLoaded(true);
 };

@@ -3,9 +3,15 @@ package net.bestia.model.dao;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
 import net.bestia.model.domain.PlayerItem;
 
-public interface PlayerItemDAO extends GenericDAO<PlayerItem, Integer> {
+@Repository("playerItemDao")
+public interface PlayerItemDAO extends CrudRepository<PlayerItem, Integer> {
 
 	/**
 	 * Returns all PlayerItems for a particular account id.
@@ -14,7 +20,8 @@ public interface PlayerItemDAO extends GenericDAO<PlayerItem, Integer> {
 	 *            All items of this account are found.
 	 * @return A set of the player items.
 	 */
-	public List<PlayerItem> findPlayerItemsForAccount(long accId);
+	@Query("SELECT item FROM PlayerItem pi WHERE pi.account.id = :accId")
+	public List<PlayerItem> findPlayerItemsForAccount(@Param("accId") long accId);
 
 	/**
 	 * Searches if a given account has a particular item. If found it returns
@@ -26,7 +33,8 @@ public interface PlayerItemDAO extends GenericDAO<PlayerItem, Integer> {
 	 *            The item id.
 	 * @return The found PlayerItem, null otherwise.
 	 */
-	public PlayerItem findPlayerItem(long accId, int itemId);
+	@Query("SELECT item FROM PlayerItem pi where pi.account.id = :accId and pi.item.id = :itemId")
+	public PlayerItem findPlayerItem(@Param("accId") long accId, @Param("itemId") int itemId);
 
 	/**
 	 * Returns the total weight of all items inside the inventory of the given
@@ -36,7 +44,8 @@ public interface PlayerItemDAO extends GenericDAO<PlayerItem, Integer> {
 	 *            Account ID
 	 * @return The summed weight of all items.
 	 */
-	public int getTotalItemWeight(long accId);
+	@Query("select sum(item.weight * pi.amount) from PlayerItem pi where pi.account.id = :accId")
+	public int getTotalItemWeight(@Param("accId") long accId);
 
 	/**
 	 * Returns a list of all player items whose id is in the set given as
@@ -46,5 +55,6 @@ public interface PlayerItemDAO extends GenericDAO<PlayerItem, Integer> {
 	 *            Set of item ids.
 	 * @return The found player items with these item IDs.
 	 */
-	public List<PlayerItem> findAllPlayerItemsForIds(Set<Integer> itemIds);
+	@Query("SELECT item FROM PlayerItem pi WHERE pi.id IN (:idList)")
+	public List<PlayerItem> findAllPlayerItemsForIds(@Param("idList") Set<Integer> itemIds);
 }

@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>net.bestia</groupId>
 		<artifactId>behemoth</artifactId>
-		<version>alpha-0.2.4</version>
+		<version>alpha-0.2.5-SNAPSHOT</version>
 	</parent>
 
 	<properties>
@@ -72,6 +72,23 @@
 			<artifactId>gdx-ai</artifactId>
 			<version>1.6.0</version>
 		</dependency>
+		<dependency>
+			<groupId>com.netflix.servo</groupId>
+			<artifactId>servo-core</artifactId>
+			<version>0.8.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+            <groupId>com.github.springtestdbunit</groupId>
+            <artifactId>spring-test-dbunit</artifactId>
+            <version>1.2.0</version>
+            <scope>test</scope>
+        </dependency>
 	</dependencies>
 
 	<build>

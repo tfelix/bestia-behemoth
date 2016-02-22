@@ -7,7 +7,7 @@ public class ItemScript extends Script {
 
 	public ItemScript(String name, BestiaManager owner, InventoryManager inventory) {
 		super(name);
-		addBinding("owner", owner);
+		addBinding("target", owner);
 		addBinding("inventory", inventory);
 	}
 	

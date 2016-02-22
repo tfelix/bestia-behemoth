@@ -8,6 +8,12 @@ import net.bestia.messages.Message;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 
+/**
+ * Sets the attacks of the currently active bestia.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class AttackSetCommand extends ECSCommand {
 
 	@Override

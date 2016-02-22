@@ -1,0 +1,13 @@
+{ 
+	"scale" : 1,
+    "animations": [
+				{"name": "walk_down", "from": 1, "to": 8, "fps": 16 },
+				{"name": "walk_down_left", "from": 1, "to": 8, "fps": 16 },
+				{"name": "walk_left", "from": 1, "to": 8, "fps": 16 },
+				{"name": "walk_left_up", "from": 1, "to": 8, "fps": 16 },
+				{"name": "walk_up", "from": 1, "to": 8, "fps": 16 },
+				{"name": "stand_up", "from": 1, "to": 4, "fps": 6 },
+				{"name": "stand_down", "from": 1, "to": 4, "fps": 6 }
+			],
+	"anchor": {"x": 0.5, "y": 1}
+}

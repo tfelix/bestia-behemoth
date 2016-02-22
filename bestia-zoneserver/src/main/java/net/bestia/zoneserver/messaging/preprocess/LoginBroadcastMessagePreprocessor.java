@@ -40,7 +40,7 @@ public class LoginBroadcastMessagePreprocessor extends MessagePreprocessor {
 		PlayerBestiaDAO bestiaDao = ctx.getServiceLocator().getBean(PlayerBestiaDAO.class);
 		AccountDAO accountDao = ctx.getServiceLocator().getBean(AccountDAO.class);
 
-		Account account = accountDao.find(message.getAccountId());
+		Account account = accountDao.findOne(message.getAccountId());
 		Set<PlayerBestia> bestias = bestiaDao.findPlayerBestiasForAccount(message.getAccountId());
 
 		// Add master as well since its not listed as a "player bestia".

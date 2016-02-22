@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.bestia</groupId>
 	<artifactId>behemoth</artifactId>
-	<version>alpha-0.2.4</version>
+	<version>alpha-0.2.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>bestia</name>
 
@@ -16,6 +16,7 @@
 		<module>bestia-webserver</module>
 		<module>bestia-loginserver</module>
 		<module>bestia-www-client</module>
+		<module>bestia-gmserver</module>
 		<module>map-tmxloader</module>
 	</modules>
 
@@ -147,6 +148,11 @@
 		<pluginManagement>
 			<plugins>
 				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.19.1</version>
+				</plugin>
+				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
 					<version>2.3</version>
@@ -172,7 +178,8 @@
 						</archive>
 					</configuration>
 				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>

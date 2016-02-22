@@ -39,19 +39,19 @@ Bestia.I18n = function(pubsub) {
 	 */
 	this._translator = function(arg) {
 		var catKey = self.getCatAndKey(arg);
-		
+
 		var cat = self._cache[catKey[0]];
-		
-		if(cat === undefined) {
+
+		if (cat === undefined) {
 			return '';
 		}
-		
+
 		var value = cat[catKey[1]];
-		
-		if(value === undefined) {
+
+		if (value === undefined) {
 			return '';
 		}
-		
+
 		return value;
 	};
 
@@ -80,8 +80,8 @@ Bestia.I18n = function(pubsub) {
 		// Add the returned items to our cache.
 		for (var i = 0; i < data.is.length; i++) {
 			var item = data.is[i];
-			
-			if(!self._existsCatKey(item.c, item.k)) {
+
+			if (!self._existsCatKey(item.c, item.k)) {
 				self._cache[item.c] = self._cache[item.c] || {};
 				self._cache[item.c][item.k] = item.v;
 			}
@@ -121,12 +121,11 @@ Bestia.I18n.prototype._getValue = function(cat, key) {
 
 Bestia.I18n.prototype._guid = function() {
 	var d = new Date().getTime();
-	var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
-			function(c) {
-				var r = (d + Math.random() * 16) % 16 | 0;
-				d = Math.floor(d / 16);
-				return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-			});
+	var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		var r = (d + Math.random() * 16) % 16 | 0;
+		d = Math.floor(d / 16);
+		return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+	});
 	return uuid;
 };
 
@@ -208,8 +207,8 @@ Bestia.I18n.prototype._translationRequested = function(_, data, fn) {
 			newDataItems.push(data[i]);
 		}
 	}
-	
-	if(newDataItems.length === 0) {
+
+	if (newDataItems.length === 0) {
 		self._triggerCallback(uuid);
 	}
 
@@ -239,3 +238,12 @@ Bestia.I18n.prototype.getCatAndKey = function(val) {
 
 	return [ cat, key ];
 };
+
+if (!String.format) {
+	String.format = function(format) {
+		var args = Array.prototype.slice.call(arguments, 1);
+		return format.replace(/{(\d+)}/g, function(match, number) {
+			return typeof args[number] != 'undefined' ? args[number] : match;
+		});
+	};
+}

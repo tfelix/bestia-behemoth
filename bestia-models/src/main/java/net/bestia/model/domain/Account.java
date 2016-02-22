@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -17,7 +19,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -35,6 +36,9 @@ public class Account implements Serializable {
 		USER, GM, SUPER_GM, ADMIN
 	}
 
+	@Transient
+	private static final Pattern EMAIL_PATTERN = Pattern
+			.compile("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$");
 	@Transient
 	private static final long serialVersionUID = 1L;
 
@@ -77,15 +81,7 @@ public class Account implements Serializable {
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "account", fetch = FetchType.LAZY)
 	private Set<PlayerItem> items = new HashSet<>(0);
 
-	/**
-	 * Master id must sadly be optional because otherwise we get a cycle
-	 * dependency with player_bestias. These must always have a account as
-	 * foreign key so we must make this optional to allow account creation.
-	 * 
-	 * TODO: Kann man das nicht in einer Transaction machen?
-	 */
-	@OneToOne(cascade = CascadeType.ALL, optional = true)
-	@JoinColumn(name = "MASTER_ID", nullable = true)
+	@OneToOne(cascade = CascadeType.ALL, mappedBy = "master")
 	private PlayerBestia master;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
@@ -100,6 +96,17 @@ public class Account implements Serializable {
 	}
 
 	public Account(String email, String password) {
+		if (email == null || email.isEmpty()) {
+			throw new IllegalArgumentException("Email can not be null or empty.");
+		}
+		if (password == null || password.isEmpty()) {
+			throw new IllegalArgumentException("Password can not be null or empty.");
+		}
+		final Matcher m = EMAIL_PATTERN.matcher(email);
+		if (!m.matches()) {
+			throw new IllegalArgumentException("Email is not valid: " + email);
+		}
+
 		this.email = email;
 		this.password = new Password(password);
 		setRegisterDate(new Date());

@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>net.bestia</groupId>
 		<artifactId>behemoth</artifactId>
-		<version>alpha-0.2.4</version>
+		<version>alpha-0.2.5-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
@@ -14,6 +14,11 @@
 			<groupId>org.zeromq</groupId>
 			<artifactId>jeromq</artifactId>
 			<version>0.3.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-nop</artifactId>
+			<version>1.7.14</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bestia</groupId>
@@ -29,6 +34,11 @@
 			<groupId>net.bestia</groupId>
 			<artifactId>bestia-models</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.netflix.servo</groupId>
+			<artifactId>servo-core</artifactId>
+			<version>0.8.0</version>
 		</dependency>
 	</dependencies>
 

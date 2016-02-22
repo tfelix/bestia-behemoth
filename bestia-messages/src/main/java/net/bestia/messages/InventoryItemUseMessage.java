@@ -15,28 +15,28 @@ public class InventoryItemUseMessage extends InputMessage {
 	private static final long serialVersionUID = 1L;
 
 	public final static String MESSAGE_ID = "inventory.item.use";
-	
-	@JsonProperty("pid")
-	private int playerItemId;
-	
+
+	@JsonProperty("iid")
+	private int itemId;
+
 	/**
 	 * Std. Ctor.
 	 */
 	public InventoryItemUseMessage() {
 
 	}
-	
+
 	public InventoryItemUseMessage(long accId, int pbid) {
 		this.setAccountId(accId);
 		this.setPlayerBestiaId(pbid);
 	}
-	
+
 	public InventoryItemUseMessage(Message msg, int pbid) {
 		super(msg, pbid);
 	}
-	
-	public int getPlayerItemId() {
-		return playerItemId;
+
+	public int getItemId() {
+		return itemId;
 	}
 
 	@Override
@@ -48,10 +48,11 @@ public class InventoryItemUseMessage extends InputMessage {
 	public String getMessagePath() {
 		return getZoneMessagePath();
 	}
-	
+
 	@Override
 	public String toString() {
-		return String.format("InventoryItemUseMessage[accId: %d, items: %d]", getAccountId(), playerItemId);
+		return String.format("InventoryItemUseMessage[accId: %d, bestiaId: %d, itemId: %d]", getAccountId(),
+				getPlayerBestiaId(), itemId);
 	}
 
 }

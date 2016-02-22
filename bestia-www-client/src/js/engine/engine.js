@@ -34,23 +34,22 @@ Bestia.Engine = function(pubsub, config) {
 
 	this.bestia = undefined;
 
-	// Determine the size of the canvas.
+	// Determine the size of the canvas. And create the game object.
 	var height = $(window).height();
 	var width = $('#canvas-container').width();
 	this.game = new Phaser.Game(width, height, Phaser.AUTO, 'bestia-canvas', null, false, false);
 
 	this.gameState = new Bestia.Engine.States.GameState(this);
 	this.game.state.add('boot', new Bestia.Engine.States.BootState());
-	this.game.state.add('game', this.gameState);
 	this.game.state.add('connecting', new Bestia.Engine.States.ConnectingState(this));
 	this.game.state.add('load', new Bestia.Engine.States.LoadingState(this));
-	this.game.state.start('boot');
+	this.game.state.add('game', this.gameState);
 
 	/**
 	 * Holds the central cache for all entities displayed in the game.
 	 */
 	this.entityCache = new Bestia.Engine.EntityCacheManager();
-	
+
 	/**
 	 * Entity updater for managing the adding and removal of entities.
 	 * 
@@ -59,6 +58,16 @@ Bestia.Engine = function(pubsub, config) {
 	 */
 	this.entityUpdater = new Bestia.Engine.EntityUpdater(pubsub, this.entityCache);
 
+	/**
+	 * Effects manager will subscribe itself to messages from the server which
+	 * trigger a special effect for an entity or a stand alone effect which must
+	 * be displayed by whatever means.
+	 * 
+	 * @public
+	 * @property {Bestia.Engine.FX.EffectsManager}
+	 */
+	this.effectsManager = new Bestia.Engine.FX.EffectsManager(pubsub, this.game, this.entityCache);
+
 	// React on bestia selection changes. We need to re-trigger the map loading.
 	var onSelectBestiaHandler = function(_, data) {
 		console.debug('New bestia selected. Starting loading process.');
@@ -66,6 +75,9 @@ Bestia.Engine = function(pubsub, config) {
 		self.loadMap(data);
 	};
 	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, onSelectBestiaHandler);
+
+	// When everything is setup. Start the engine.
+	this.game.state.start('boot');
 };
 
 /**

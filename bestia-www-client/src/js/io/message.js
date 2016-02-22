@@ -164,9 +164,15 @@ Bestia.Message = {
 	 *            playerBestiaId - The id of the currently selected bestia.
 	 */
 	InventoryItemUse : function(playerItemId, playerBestiaId) {
+		if(playerItemId === undefined) {
+			throw "PlayerItemId can not be undefined.";
+		}
+		if(playerBestiaId === undefined) {
+			throw "PlayerBestiaId can not be undefined.";
+		}
+		
 		this.mid = 'inventory.item.use';
-
-		this.pid = playerItemId;
+		this.iid = playerItemId;
 		this.pbid = playerBestiaId;
 	},
 

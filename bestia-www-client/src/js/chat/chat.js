@@ -32,7 +32,7 @@ Bestia.Chat = function(domEle, game) {
 	 * @constant
 	 */
 	this.MAX_MESSAGES = 50;
-	
+
 	this._pubsub = game.pubsub;
 
 	/**
@@ -43,10 +43,11 @@ Bestia.Chat = function(domEle, game) {
 	 * @constant
 	 */
 	this.LOCAL_NICKNAME = '';
-	
+
 	this._currentBestiaId = 0;
 
 	this.domEle = domEle;
+
 	this.chatEle = $(domEle).find('.chat-msgs:first').get(0);
 
 	/**
@@ -59,11 +60,24 @@ Bestia.Chat = function(domEle, game) {
 	 * @property
 	 */
 	this._localCommands = [];
-	
+
 	this.whisperRegex = /^\/[wW] (\w.+) /;
 	this.game = game;
 
+	/**
+	 * Current chat mode. Possible values are PUBLIC, PARTY or GUILD.
+	 * 
+	 * @public
+	 * @property {String}
+	 */
 	this.mode = ko.observable('PUBLIC');
+
+	/**
+	 * The translated text for the chat mode. Depends upon mode.
+	 * 
+	 * @public
+	 * @property {String}
+	 */
 	this.modeText = ko.computed(function() {
 		if (self.mode() == 'PUBLIC') {
 			return i18n.t('chat.public');
@@ -77,17 +91,18 @@ Bestia.Chat = function(domEle, game) {
 
 		return i18n.t('chat.public');
 	});
+
 	/**
 	 * Holds the nickname which is used to whisper someone.
 	 * 
-	 * @property
+	 * @property {String}
 	 */
 	this.whisperNick = ko.observable('');
 
 	/**
 	 * Holds all the messages for the chat.
 	 * 
-	 * @property
+	 * @property {Array}
 	 */
 	this.messages = ko.observableArray();
 
@@ -95,6 +110,7 @@ Bestia.Chat = function(domEle, game) {
 	 * Flag if the chat as unread messages for the user at the bottom of the
 	 * display.
 	 * 
+	 * @public
 	 * @property {boolean}
 	 */
 	this.hasUnreadMessages = ko.observable(false);
@@ -126,12 +142,25 @@ Bestia.Chat = function(domEle, game) {
 		self.addMessage(msg);
 	});
 
-	// Handle authentication to set username.
-	game.pubsub.subscribe('system.auth', function(_, data) {
+	// Catch authentication to set username for the chat. We can remove ourself
+	// once this is done.
+	var handleAuthEvent = function(_, data) {
 		self.LOCAL_NICKNAME = data.username;
-	});
-	
-	game.pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, function(_, bestia){
+		self.game.pubsub.unsubscribe('system.auth', handleAuthEvent);
+	};
+	game.pubsub.subscribe('system.auth', handleAuthEvent);
+
+	var handleItemObtainedEvent = function(_, item) {
+		i18n.t('chat.item_optained', function(t) {
+			var text = t('chat.item_optained').format(item.name(), item.amount());
+			self.addLocalMessage(text, "SYSTEM");
+		});
+	};
+	game.pubsub.subscribe(Bestia.Signal.INVENTORY_ITEM_ADD, handleItemObtainedEvent);
+
+	// Handle the selection of a new bestia for the bestia id (chat messages are
+	// input messages).
+	game.pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, function(_, bestia) {
 		self._currentBestiaId = bestia.playerBestiaId();
 	});
 };
@@ -214,7 +243,7 @@ Bestia.Chat.prototype.addMessage = function(msg) {
 	} else {
 		this.hasUnreadMessages(true);
 	}
-	
+
 	// Publish the message.
 	this._pubsub.publish(Bestia.Signal.CHAT_RECEIVED, chatMsg);
 };
@@ -240,9 +269,10 @@ Bestia.Chat.prototype.scrollToBottom = function() {
  * @param {String}
  *            mode - Mode/Type of the message to add. Possible types are:
  *            PUBLIC, PARTY, GUILD, WHISPER, SYSTEM, GM_BROADCAST, ERROR,
- *            COMMAND.
+ *            COMMAND, BATTLE.
  */
 Bestia.Chat.prototype.addLocalMessage = function(msg, mode) {
+	mode = mode || "SYSTEM";
 	var msgObj = new Bestia.Message.Chat(mode, msg);
 	this.addMessage(msgObj);
 };

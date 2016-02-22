@@ -74,8 +74,7 @@ Bestia.Engine.EntityUpdater.prototype._update = function(obj) {
 };
 
 Bestia.Engine.EntityUpdater.prototype._updateBestiaEntity = function(obj) {
-	var pbid = obj.pbid;
-	var entity = this._cache.getByPlayerBestiaId(pbid);
+	var entity = this._cache.getByUuid(obj.uuid);
 	
 	if(entity !== null) {
 		entity.update(obj);

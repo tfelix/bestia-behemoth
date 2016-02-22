@@ -50,6 +50,30 @@ public class CommandContext {
 		this.serviceLocator = ServiceLocator.getInstance();
 		this.scriptManager = scriptManager;
 	}
+	
+	public CommandContext(BestiaConfiguration config, Zoneserver zoneserver, ScriptManager scriptManager, ServiceLocator locator) {
+
+		if (config == null) {
+			throw new IllegalArgumentException("config can not be null.");
+		}
+
+		if (zoneserver == null) {
+			throw new IllegalArgumentException("zoneserver can not be null.");
+		}
+		
+		if(scriptManager == null) {
+			throw new IllegalArgumentException("scriptManager can not be null.");
+		}
+		
+		if(locator == null) {
+			throw new IllegalArgumentException("Locator can not be null.");
+		}
+
+		this.configuration = config;
+		this.server = zoneserver;
+		this.serviceLocator = locator;
+		this.scriptManager = scriptManager;
+	}
 
 	/**
 	 * Returns the server configuration.

@@ -1,6 +1,7 @@
 package net.bestia.model.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -42,6 +43,18 @@ public class Guild implements Serializable {
 
 	private int level = 1;
 
+	/**
+	 * Last time the leader of this guild was changed. If it is null then the
+	 * leader was never changed.
+	 */
+	@Column(nullable = true)
+	private Date lastLeaderChangeDate;
+
+	/**
+	 * Date when the guild was created.
+	 */
+	private Date creationDate;
+
 	@OneToOne
 	@JoinColumn(nullable = false, unique = true)
 	private GuildMember leader;
@@ -53,7 +66,7 @@ public class Guild implements Serializable {
 	 * Std. ctor. for Hibernate.
 	 */
 	public Guild() {
-
+		creationDate = new Date();
 	}
 
 	/**
@@ -162,5 +175,14 @@ public class Guild implements Serializable {
 				name,
 				level,
 				members.size());
+	}
+
+	/**
+	 * Returns the date when the guild was created.
+	 * 
+	 * @return The creation date of the guild.
+	 */
+	public Date getCreationDate() {
+		return creationDate;
 	}
 }

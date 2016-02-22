@@ -43,13 +43,13 @@ public class Bestia implements Serializable {
 
 	@JsonProperty("img")
 	private String image = "";
+	
 	@JsonProperty("s")
 	private String sprite = "";
 
 	@JsonIgnore
-	private int gold;
-	@JsonIgnore
 	private int expGained;
+	
 	@JsonIgnore
 	private int level;
 
@@ -76,8 +76,8 @@ public class Bestia implements Serializable {
 
 	/**
 	 * The status points are calculated based on the base stats and the level
-	 * aswell. But in contrast to the players wild bestias gain a small boost in
-	 * their stat calculation in order to compensate for missing equipment.
+	 * as well. But in contrast to the players wild bestias gain a small boost in
+	 * their status calculation in order to compensate for missing equipment.
 	 * Their armor and special armor is also saved as a fixed value in the
 	 * database.
 	 */
@@ -109,8 +109,8 @@ public class Bestia implements Serializable {
 
 	public Bestia() {
 
-		// calculateEffortValues();
 	}
+	
 
 	/**
 	 * Calculates the effort values depending on its level and the base values.
@@ -171,10 +171,6 @@ public class Bestia implements Serializable {
 
 	public String getSprite() {
 		return sprite;
-	}
-
-	public int getGold() {
-		return gold;
 	}
 
 	public int getExpGained() {

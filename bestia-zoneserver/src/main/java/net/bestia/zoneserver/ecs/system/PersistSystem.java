@@ -1,5 +1,10 @@
 package net.bestia.zoneserver.ecs.system;
 
+import net.bestia.model.service.PlayerBestiaService;
+import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.component.PlayerBestia;
+import net.bestia.zoneserver.manager.PlayerBestiaManager;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,13 +14,9 @@ import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IntervalEntityProcessingSystem;
 
-import net.bestia.model.dao.PlayerBestiaDAO;
-import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.PlayerBestia;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
-
 /**
- * System to periodically persist (player) entities which have changed into the database.
+ * System to periodically persist (player) entities which have changed into the
+ * database.
  * 
  * @author Thomas Felix
  *
@@ -26,7 +27,7 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 	private static final Logger log = LogManager.getLogger(PersistSystem.class);
 
 	@Wire
-	private CommandContext cmdContext;
+	private CommandContext ctx;
 
 	private ComponentMapper<PlayerBestia> playerMapper;
 
@@ -36,12 +37,13 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 	}
 
 	@Override
-	protected void process(Entity e) {		
+	protected void process(Entity e) {
 		synchronizeAndSaveEntity(e);
 	}
 
 	/**
-	 * Persist an entity the system is interested immediately if it was removed from the world.
+	 * Persist an entity the system is interested immediately if it was removed
+	 * from the world.
 	 */
 	@Override
 	public void removed(Entity e) {
@@ -50,10 +52,10 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 	}
 
 	private void synchronizeAndSaveEntity(Entity e) {
-		final PlayerBestiaDAO dao = cmdContext.getServiceLocator().getBean(PlayerBestiaDAO.class);
+		final PlayerBestiaService pbService = ctx.getServiceLocator().getBean(PlayerBestiaService.class);
 		final PlayerBestiaManager pbm = playerMapper.get(e).playerBestiaManager;
-		
-		dao.update(pbm.getPlayerBestia());
+
+		pbService.savePlayerBestiaECS(pbm.getPlayerBestia());
 
 		log.trace("Persisting entity: {}", pbm.toString());
 	}

@@ -5,12 +5,14 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Visible;
+import net.bestia.zoneserver.ecs.manager.NetworkUpdateManager;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.artemis.Aspect;
 import com.artemis.AspectSubscriptionManager;
+import com.artemis.BaseEntitySystem;
 import com.artemis.Entity;
 import com.artemis.EntitySubscription;
 import com.artemis.EntitySubscription.SubscriptionListener;
@@ -25,7 +27,7 @@ import com.artemis.utils.IntBag;
  *
  */
 @Wire(injectInherited = true)
-public class ActiveSpawnUpdateSystem extends NetworkUpdateSystem {
+public class ActiveSpawnUpdateSystem extends BaseEntitySystem {
 
 	public ActiveSpawnUpdateSystem() {
 		super(Aspect.all(Active.class, PlayerBestia.class));
@@ -39,6 +41,7 @@ public class ActiveSpawnUpdateSystem extends NetworkUpdateSystem {
 	@Wire
 	private CommandContext ctx;
 
+	private NetworkUpdateManager updateManager;
 	private EntitySubscription visibleSubscription;
 
 	@Override
@@ -51,6 +54,7 @@ public class ActiveSpawnUpdateSystem extends NetworkUpdateSystem {
 
 			@Override
 			public void inserted(IntBag entities) {
+				
 				final IntBag visibleEntities = visibleSubscription.getEntities();
 
 				log.trace("{} New active player, sending {} entities.", entities.size(), visibleEntities.size());
@@ -63,9 +67,11 @@ public class ActiveSpawnUpdateSystem extends NetworkUpdateSystem {
 						final int visibleEntityId = visibleEntities.get(j);
 						final Entity visibleEntity = world.getEntity(visibleEntityId);
 
-						// TODO Do a range check.
+						if (!updateManager.isInSightDistance(newActiveEntity, visibleEntity)) {
+							continue;
+						}
 
-						sendUpdate(newActiveEntity, visibleEntity, EntityAction.UPDATE);
+						updateManager.sendUpdate(newActiveEntity, visibleEntity, EntityAction.UPDATE);
 					}
 				}
 			}
@@ -75,5 +81,11 @@ public class ActiveSpawnUpdateSystem extends NetworkUpdateSystem {
 				// no op.
 			}
 		});
+	}
+
+	@Override
+	protected void processSystem() {
+		// no op. Disabled.
+
 	}
 }

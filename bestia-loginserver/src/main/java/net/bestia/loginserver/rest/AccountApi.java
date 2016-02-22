@@ -12,22 +12,24 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netflix.servo.monitor.Counter;
+import com.netflix.servo.monitor.Monitors;
+
 import net.bestia.loginserver.authenticator.AuthState;
 import net.bestia.loginserver.authenticator.PasswordAuthenticator;
-import net.bestia.loginserver.rest.response.AccountLoginResponse;
 import net.bestia.messages.api.AccountCheckJson;
+import net.bestia.messages.api.AccountLoginResponse;
 import net.bestia.model.ServiceLocator;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Password;
 import net.bestia.model.service.AccountService;
 import net.bestia.model.service.AccountService.Master;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Path("v1/account")
 public class AccountApi {
@@ -36,14 +38,19 @@ public class AccountApi {
 	private final static int FORBIDDEN_STATUS = 403;
 
 	private static final ObjectMapper mapper = new ObjectMapper();
+	
+	private final Counter accountCreationMetric = Monitors.newCounter("AccountCreations");
+	private final Counter loginMetric = Monitors.newCounter("Logins");
 
 	private final AccountDAO accountDao;
 	private final AccountService accountService;
 
 	public AccountApi() {
-		ServiceLocator daoLocator = ServiceLocator.getInstance();
+		final ServiceLocator daoLocator = ServiceLocator.getInstance();
 		this.accountDao = daoLocator.getBean(AccountDAO.class);
 		this.accountService = daoLocator.getBean(AccountService.class);
+		
+		Monitors.registerObject("AccountApi", this);
 	}
 
 	@GET
@@ -93,7 +100,7 @@ public class AccountApi {
 		
 		
 		// Check if there is already an account.
-		AccountCheckJson answer = new AccountCheckJson();
+		final AccountCheckJson answer = new AccountCheckJson();
 
 		// Check email.
 		if (accountDao.findByEmail(email) != null) {
@@ -101,7 +108,7 @@ public class AccountApi {
 		}
 
 		// Check username.
-		if (accountDao.findByNickname(username) != null) {
+		if (accountDao.findByUsername(username) != null) {
 			answer.nameUsed = true;
 		}
 
@@ -156,6 +163,8 @@ public class AccountApi {
 		accountService.createNewAccount(email, username, password, master);
 
 		log.info("Create new account: email: {}, username: {}, master_id: {}", email, username, masterId);
+		
+		accountCreationMetric.increment();
 
 		return Response.ok().build();
 	}
@@ -180,7 +189,7 @@ public class AccountApi {
 			return Response.serverError().build();
 		}
 
-		PasswordAuthenticator auth = new PasswordAuthenticator(ident, password);
+		final PasswordAuthenticator auth = new PasswordAuthenticator(ident, password);
 
 		if (auth.authenticate() == AuthState.AUTHENTICATED) {
 			// Set new login token.
@@ -194,6 +203,8 @@ public class AccountApi {
 
 			final AccountLoginResponse loginResponse = new AccountLoginResponse(acc.getId(), acc.getName(), token);
 			log.debug("Login request accepted: Ident: {}, token: {}", ident, loginResponse.getToken());
+			
+			loginMetric.increment();
 
 			try {
 				final String answer = mapper.writeValueAsString(loginResponse);
