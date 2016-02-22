@@ -22,6 +22,14 @@
 					<url><![CDATA[${db.url}]]></url>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<reuseForks>false</reuseForks>
+					<forkCount>1</forkCount>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
@@ -117,7 +125,7 @@
 			<version>2.3.3</version>
 			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
+
 	<description>This project holds all of bestias pojo database model classes. These are used by hibernate to persist into a database. But they are also annotated and partly used for serializing into messages to and from the webclient.</description>
 </project>
