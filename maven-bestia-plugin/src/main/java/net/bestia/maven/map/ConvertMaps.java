@@ -9,7 +9,9 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import net.bestia.maven.util.FilePathHelper;
 import net.bestia.maven.util.MapHelper;
+import tiled.io.TMXMapWriter;
 
 /**
  * This class re-creates the JSON maps from the TMX reference maps. The JSON
@@ -20,17 +22,26 @@ import net.bestia.maven.util.MapHelper;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-@Mojo(name = "create-json-maps", defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
-public class CreateJsonMaps extends AbstractMojo {
+@Mojo(name = "convert-maps", defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
+public class ConvertMaps extends AbstractMojo {
 	
 	/**
-	 * Directory which contains the map directories e.g. ./map
+	 * Root asset directory.
 	 */
-	@Parameter(property = "mapsDir", required = true, defaultValue = "map")
-	private File mapsDirectory;
+	@Parameter(property = "assetRootDir", required = true)
+	private File assetDirectory;
 
+	public ConvertMaps(File assetDirectory) {
+		this.assetDirectory = assetDirectory;
+	}
+	
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
+		
+		final FilePathHelper fileHelper = new FilePathHelper(assetDirectory);
+		
+		final File mapsDirectory = fileHelper.getMapDirectory();
+		
 		getLog().debug("Maps directory is: " + mapsDirectory.getPath());
 		
 		// Read all TMX mapfiles in subfolder.
@@ -53,7 +64,7 @@ public class CreateJsonMaps extends AbstractMojo {
 			final MapHelper helper = new MapHelper(file);
 
 			// Parse all TMX mapfiles and write JSON files into the subfolder.
-			// TODO JSON Datei schreiben.
+			// TODO Es gibt keinen JSON Writer. :(
 		}
 	}
 }

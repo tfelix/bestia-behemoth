@@ -14,10 +14,12 @@ public class FilePathHelper {
 
 	private final Path baseDir;
 
-	private final String[] relMapSound = new String[] { "sound", "bgm" };
-	private final String[] relMapScript = new String[] { "script", "map" };
-	private final String[] relAttackScript = new String[] { "script", "attack" };
-	private final String[] relItemScript = new String[] { "script", "item" };
+	private static final String MAP_FOLDER = "map";
+
+	private static final String[] relMapSound = new String[] { "sound", "bgm" };
+	private static final String[] relMapScript = new String[] { "script", "map" };
+	private static final String[] relAttackScript = new String[] { "script", "attack" };
+	private static final String[] relItemScript = new String[] { "script", "item" };
 
 	/**
 	 * Ctor. Creates a helper for resolving paths to the assets subfolder
@@ -53,7 +55,7 @@ public class FilePathHelper {
 	 * @return Path to the sound file.
 	 */
 	public File getMapSound(String name) {
-		if(name == null || name.isEmpty()) {
+		if (name == null || name.isEmpty()) {
 			throw new IllegalArgumentException("Name can not be null or empty.");
 		}
 		return getBasicFile(name, relMapSound);
@@ -67,7 +69,7 @@ public class FilePathHelper {
 	 * @return Path to the attack file.
 	 */
 	public File getAttackScript(String name) {
-		if(name == null || name.isEmpty()) {
+		if (name == null || name.isEmpty()) {
 			throw new IllegalArgumentException("Name can not be null or empty.");
 		}
 		return getBasicFile(name + ".groovy", relAttackScript);
@@ -81,7 +83,7 @@ public class FilePathHelper {
 	 * @return Path to the item script.
 	 */
 	public File getItemScript(String name) {
-		if(name == null || name.isEmpty()) {
+		if (name == null || name.isEmpty()) {
 			throw new IllegalArgumentException("Name can not be null or empty.");
 		}
 		return getBasicFile(name + ".groovy", relItemScript);
@@ -105,6 +107,15 @@ public class FilePathHelper {
 		Path temp = Paths.get(baseDir.toString(), relMapScript);
 		temp = Paths.get(temp.toString(), mapName, scriptName + ".groovy");
 		return temp.toFile();
+	}
+
+	/**
+	 * Returns the map directory under the base directory.
+	 * 
+	 * @return The map directory in the game asset directory.
+	 */
+	public File getMapDirectory() {
+		return Paths.get(baseDir.toString(), MAP_FOLDER).toFile();
 	}
 
 }
