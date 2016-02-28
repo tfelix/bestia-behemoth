@@ -6,7 +6,7 @@ Bestia.Engine.States = Bestia.Engine.States || {};
  * @constructor
  * @class Bestia.Engine.States.BootState
  */
-Bestia.Engine.States.LoadingState = function(engine) {
+Bestia.Engine.States.LoadingState = function(engine, urlHelper) {
 
 	this.bestia = null;
 	
@@ -30,6 +30,8 @@ Bestia.Engine.States.LoadingState = function(engine) {
 	 * @private
 	 */
 	this._pubsub = engine.pubsub;
+	
+	this._urlHelper = urlHelper;
 };
 
 Bestia.Engine.States.LoadingState.prototype.init = function(bestia) {
@@ -49,7 +51,7 @@ Bestia.Engine.States.LoadingState.prototype.preload = function() {
 	
 	// Load the mapfile itself.
 	var mapDbName = this.bestia.location();
-	var packUrl = Bestia.Urls.assetsMap + mapDbName + '/assetpack.json';
+	var packUrl = this._urlHelper.getMapPackUrl(mapDbName);
 	this.load.pack(mapDbName, packUrl);
 	
 

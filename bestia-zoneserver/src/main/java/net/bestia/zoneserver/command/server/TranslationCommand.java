@@ -48,7 +48,7 @@ public class TranslationCommand extends Command {
 			} else {
 				item.setValue("NOT-TRANSLATED");
 			}
-			
+
 			response.getItems().add(item);
 		}
 

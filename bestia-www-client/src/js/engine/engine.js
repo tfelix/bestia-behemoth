@@ -6,10 +6,8 @@
  * @class Bestia.Engine
  * @param {Bestia.PubSub}
  *            pubsub - Publish/Subscriber interface.
- * @param {Bestia.Config}
- *            config - Bestia Configuration object.
  */
-Bestia.Engine = function(pubsub, config) {
+Bestia.Engine = function(pubsub, urlHelper) {
 
 	var self = this;
 
@@ -18,7 +16,7 @@ Bestia.Engine = function(pubsub, config) {
 	 *           config object for the bestia game. So User options can be read
 	 *           an used.
 	 */
-	this.config = config;
+	//this.config = config;
 
 	/**
 	 * @property {Bestia.PubSub} pubsub - Holds a reference to the bestia
@@ -42,7 +40,7 @@ Bestia.Engine = function(pubsub, config) {
 	this.gameState = new Bestia.Engine.States.GameState(this);
 	this.game.state.add('boot', new Bestia.Engine.States.BootState());
 	this.game.state.add('connecting', new Bestia.Engine.States.ConnectingState(this));
-	this.game.state.add('load', new Bestia.Engine.States.LoadingState(this));
+	this.game.state.add('load', new Bestia.Engine.States.LoadingState(this, urlHelper));
 	this.game.state.add('game', this.gameState);
 
 	/**

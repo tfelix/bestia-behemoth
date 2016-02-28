@@ -30,8 +30,6 @@ Bestia.Engine.States.GameState = function(engine) {
 	 */
 	this.bestiaWorld = null;
 
-	this._publicChatController = null;
-
 	/**
 	 * Manager to control special displays of small effects (damage, sprite
 	 * animations e.g.) which are triggered by the server or by the client.
@@ -55,9 +53,6 @@ Bestia.Engine.States.GameState.prototype.init = function(bestia) {
 	// the game instance. This is ugly.
 	var entityFactory = new Bestia.Engine.EntityFactory(this.game, this.demandLoader, this.engine.entityCache);
 	this.engine.entityUpdater._factory = entityFactory;
-
-	this._publicChatController = new Bestia.Engine.ChatEntityController(this.engine.pubsub, this.engine.entityCache,
-			this.game);
 
 	// DEBUG
 	this.game.stage.disableVisibilityChange = true;
@@ -115,7 +110,7 @@ Bestia.Engine.States.GameState.prototype.clickHandler = function() {
 
 	var path = path.reverse();
 	var msg = new Bestia.Message.BestiaMove(this.bestia.playerBestiaId(), path, player.walkspeed);
-	this.pubsub.publish('io.sendMessage', msg);
+	this.pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 
 	// Start movement locally aswell.
 	player.moveTo(path);

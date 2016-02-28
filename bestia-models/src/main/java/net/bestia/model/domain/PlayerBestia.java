@@ -76,6 +76,7 @@ public class PlayerBestia implements Serializable {
 	
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name="MASTER_ID", nullable = true, unique=true)
+	@JsonIgnore
 	private Account master;
 
 	@ManyToOne(optional = false, fetch = FetchType.EAGER)

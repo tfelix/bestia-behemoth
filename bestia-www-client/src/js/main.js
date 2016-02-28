@@ -9,7 +9,7 @@ Bestia.Game = function() {
 	this.attacks = new Bestia.BestiaAttacks(this.pubsub, this.i18n);
 	
 	this.chat = new Bestia.Chat($('#chat'), this);
-	this.engine = new Bestia.Engine(this.pubsub, this.config);
+	this.engine = new Bestia.Engine(this.pubsub, this.urlHelper);
 	this.connection = new Bestia.Connection(this.pubsub);
 };
 

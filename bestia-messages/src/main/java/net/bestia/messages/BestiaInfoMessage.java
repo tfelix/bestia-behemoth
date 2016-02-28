@@ -96,10 +96,10 @@ public class BestiaInfoMessage extends Message {
 	}
 
 	public void setBestia(PlayerBestia bestia, StatusPoints statusPoints) {
-		if(bestia == null) {
+		if (bestia == null) {
 			throw new IllegalArgumentException("bestia can not be null.");
 		}
-		if(statusPoints == null) {
+		if (statusPoints == null) {
 			throw new IllegalArgumentException("statusPoints can not be null.");
 		}
 		this.bestia = bestia;
@@ -122,5 +122,11 @@ public class BestiaInfoMessage extends Message {
 
 	public void setStatusPoints(StatusPoints statusPoints) {
 		this.statusPoints = statusPoints;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("BestiaInfoMessage[accId: %d, isMaster: %b, bestia: %s, statusPoints: %s]", getAccountId(),
+				isMaster, bestia.toString(), statusPoints.toString());
 	}
 }

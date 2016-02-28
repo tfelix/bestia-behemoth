@@ -10,7 +10,7 @@ import java.util.Set;
  * responsible for and the zone will get notified about this message by a
  * specialized message filter in the router.
  * 
- * @author Thomas
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  * @param <T>
  */
