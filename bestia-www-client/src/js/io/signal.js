@@ -12,5 +12,15 @@ Bestia.Signal = {
 
 		IO_SEND_MESSAGE : 'io.sendMessage',
 		
-		CHAT_RECEIVED : 'client.chat.received'
+		CHAT_RECEIVED : 'client.chat.received',
+		
+		ENGINE_LOADED : 'engine.loaded',
+		ENGINE_PREPARE_MAPLOAD: 'engine.prepareMapload',
+		ENGINE_FINISHED_MAPLOAD: 'engine.finishMapload',
+		
+		/**
+		 * Emitted when the game has loaded and is being displayed.
+		 */
+		ENGINE_GAME_STARTED: 'engine.gameStarted'
+			
 };

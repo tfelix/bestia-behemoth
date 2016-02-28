@@ -116,6 +116,14 @@ Bestia.Chat = function(domEle, game) {
 	this.hasUnreadMessages = ko.observable(false);
 
 	/**
+	 * Chat an be made visible or invisible.
+	 * 
+	 * @public
+	 * @property {boolean}
+	 */
+	this.isVisible = ko.observable(false);
+	
+	/**
 	 * Holds the text of the chat.
 	 */
 	this.text = ko.observable('');
@@ -158,10 +166,20 @@ Bestia.Chat = function(domEle, game) {
 	};
 	game.pubsub.subscribe(Bestia.Signal.INVENTORY_ITEM_ADD, handleItemObtainedEvent);
 
-	// Handle the selection of a new bestia for the bestia id (chat messages are
-	// input messages).
+	// Handle the selection of a new bestia for the bestia id 
+	// (chat messages are input messages).
 	game.pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, function(_, bestia) {
 		self._currentBestiaId = bestia.playerBestiaId();
+	});
+	
+	// When the game enters the loading menu hide the chat.
+	game.pubsub.subscribe(Bestia.Signal.ENGINE_PREPARE_MAPLOAD, function(){
+		self.isVisible(false);
+	});
+	
+	// When the game is displayed also display the chat.
+	game.pubsub.subscribe(Bestia.Signal.ENGINE_FINISHED_MAPLOAD, function(){
+		self.isVisible(true);
 	});
 };
 
