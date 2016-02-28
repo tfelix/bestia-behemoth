@@ -32,7 +32,7 @@ import net.bestia.zoneserver.zone.world.WorldExtender;
  */
 public class Zone implements MessageProcessor {
 
-	private static final Logger log = LogManager.getLogger(Zone.class);
+	private static final Logger LOG = LogManager.getLogger(Zone.class);
 
 	private class ZoneRunnable implements Runnable {
 
@@ -86,11 +86,15 @@ public class Zone implements MessageProcessor {
 					// Create a ECS command and immediately run it.
 					final Command cmd = commandFactory.getCommand(msg);
 					if (cmd != null) {
-						cmd.run();
+						try {
+							cmd.run();
+						} catch(Exception e) {
+							LOG.error("Error while executing command: {}", cmd.toString(), e);
+						}
 					}
 
 					if (i++ >= MAX_PROCESSED_MSGS) {
-						log.warn("Too much input messages queued. Slowing processing to avoid starvation of zone.");
+						LOG.warn("Too much input messages queued. Slowing processing to avoid starvation of zone.");
 						break;
 					}
 
@@ -104,7 +108,7 @@ public class Zone implements MessageProcessor {
 					world.process();
 
 				} catch (Exception e) {
-					log.error("Exception in zone: {}.", getName(), e);
+					LOG.error("Exception in zone: {}.", getName(), e);
 				}
 
 				try {
@@ -122,7 +126,7 @@ public class Zone implements MessageProcessor {
 			try {
 				world.getSystem(WorldPersistenceManager.class).save();
 			} catch (IOException e) {
-				log.error("Could not persist the zone entities. %s", e.getMessage(), e);
+				LOG.error("Could not persist the zone entities. %s", e.getMessage(), e);
 			}
 		}
 	}
@@ -193,7 +197,7 @@ public class Zone implements MessageProcessor {
 		hasStarted.set(true);
 		zoneTickerThread.start();
 
-		log.debug("Zone {} has started.", name);
+		LOG.debug("Zone {} has started.", name);
 	}
 
 	/**
@@ -208,7 +212,7 @@ public class Zone implements MessageProcessor {
 
 		hasStarted.set(false);
 
-		log.debug("Zone {} has stopped.", name);
+		LOG.debug("Zone {} has stopped.", name);
 	}
 
 	@Override
@@ -220,7 +224,7 @@ public class Zone implements MessageProcessor {
 	public void processMessage(Message msg) {
 
 		if (!hasStarted.get()) {
-			log.warn("Zone already stopped. Does not process messages anymore.");
+			LOG.warn("Zone already stopped. Does not process messages anymore.");
 			return;
 		}
 		messageQueue.add(msg);

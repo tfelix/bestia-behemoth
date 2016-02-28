@@ -24,7 +24,7 @@ Bestia.Engine.FX.EffectsManager = function(pubsub, game, entityCache) {
 	this._entityCache = entityCache;
 	this._game = game;
 
-	pubsub.subscribe('entity.damage', this._onEntityDmgMsgHandler.bind(this));
+	pubsub.subscribe(Bestia.MID.ENTITY_DAMAGE, this._onEntityDmgMsgHandler.bind(this));
 };
 
 /**
