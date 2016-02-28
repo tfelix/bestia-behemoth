@@ -17,3 +17,7 @@ Bestia.UrlHelper = function(assetUrl) {
 Bestia.UrlHelper.prototype.getMobIconUrl = function(mobName) {
 	return this._assetRoot + 'img/icons/mob/' + mobName + '.png';
 };
+
+Bestia.UrlHelper.prototype.getMapPackUrl = function(mapName) {
+	return this._assetRoot + 'map/' + mapName + '/assetpack.json';
+};

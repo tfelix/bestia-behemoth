@@ -34,22 +34,14 @@ var Bestia = Bestia || {
 		gameHtml : 'http://localhost/index.html',
 		bestiaWebAPI : 'http://localhost:8090',	
 		bestiaWebsocket: 'http://localhost:8080/api',	
-		assetsRoot : 'http://localhost/assets/',
-		assetsMap : 'http://localhost/assets/map/',
-		assetsItems : 'http://localhost/assets/img/items/',
-		assetsMobIcon : 'http://localhost/assets/img/icons/mob/',
-		assetsMobSprite : 'http://localhost/assets/mob/'
+		assetsRoot : 'http://localhost/assets/'		
 		/* @endif */
 		/* @ifdef PRODUCTION **
 		loginHtml : 'http://www.bestia-game.net/login.html',
 		gameHtml : 'http://www.bestia-game.net/index.html',
 		bestiaWebAPI : 'http://login.bestia-game.net',
 		bestiaWebsocket : 'http://socket.bestia-game.net/api',
-		assetsRoot : 'http://www.bestia-game.net/assets/',
-		assetsMap : 'http://www.bestia-game.net/assets/map/',
-		assetsItems : 'http://www.bestia-game.net/assets/img/items/',
-		assetsMobIcon : 'http://www.bestia-game.net/assets/img/icons/mob/',
-		assetsMobSprite : 'http://www.bestia-game.net/assets/mob/'
+		assetsRoot : 'http://www.bestia-game.net/assets/'
 		/* @endif */
 	}
 };

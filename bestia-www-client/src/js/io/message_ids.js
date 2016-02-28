@@ -5,5 +5,8 @@
  */
 Bestia.MID = {
 	ENTITY_DAMAGE: 'entity.damage',
-	UI_DIALOG : 'ui.dialog'
+	UI_DIALOG : 'ui.dialog',
+	
+	INVENTORY_UPDATE : 'inventory.update',
+	INVENTORY_LIST: 'inventory.list'
 };

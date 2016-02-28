@@ -173,7 +173,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 			self._setupItemBindings();
 		});
 	};
-	pubsub.subscribe('inventory.list', listHandler);
+	pubsub.subscribe(Bestia.MID.INVENTORY_LIST, listHandler);
 
 	/**
 	 * Updates the item via an update message from the server.
@@ -226,7 +226,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 			self.dropAmount(self.selectedItem().amount());
 		}
 	};
-	pubsub.subscribe('inventory.update', updateHandler);
+	pubsub.subscribe(Bestia.MID.INVENTORY_UPDATE, updateHandler);
 
 	/**
 	 * Saves bestia reference of the currently selected bestia.
@@ -275,7 +275,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 		}
 
 		var msg = new Bestia.Message.InventoryItemUse(item.itemId(), self._selectedBestia.playerBestiaId());
-		self._pubsub.send(msg);
+		self._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 	};
 
 	/**
@@ -297,7 +297,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 	this.dropItem = function() {
 		var msg = new Bestia.Message.InventoryItemDrop(self.selectedItem().itemId(), self.dropAmount(),
 				self.currentBestiaId);
-		self._pubsub.send(msg);
+		self._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 
 	};
 
@@ -495,7 +495,7 @@ Bestia.Inventory.prototype.saveItemBindings = function() {
 	var piId5 = this.itemSlot5() ? this.itemSlot5().playerItemId() : null;
 	var bestiaId = this._selectedBestia.playerBestiaId();
 	var msg = new Bestia.Message.ItemSet(bestiaId, piId1, piId2, piId3, piId4, piId5);
-	this._pubsub.publish('io.sendMessage', msg);
+	this._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 };
 
 /**

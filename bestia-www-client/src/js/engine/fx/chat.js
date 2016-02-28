@@ -22,7 +22,7 @@ Bestia.Engine.FX.Chat = function(pubsub, cache, game) {
 /**
  * Chat message handler.
  */
-Bestia.Engine.ChatEntityController.prototype._onChatMsgHandler = function(_, data) {
+Bestia.Engine.FX.Chat.prototype._onChatMsgHandler = function(_, data) {
 	if (data.mode() !== 'PUBLIC') {
 		return;
 	}
@@ -35,6 +35,6 @@ Bestia.Engine.ChatEntityController.prototype._onChatMsgHandler = function(_, dat
 	}
 };
 
-Bestia.Engine.ChatEntityController.prototype.destroy = function() {
+Bestia.Engine.FX.Chat.prototype.destroy = function() {
 	this._pubsub.unsubscribe(Bestia.Signal.CHAT_RECEIVED, this._onChatMsgHandler);
 };

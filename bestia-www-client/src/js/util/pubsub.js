@@ -106,14 +106,3 @@ Bestia.PubSub.prototype.publish = function(e, data) {
 	this._currentlyActive--;
 	this._updateCache();
 };
-
-/**
- * Shortcut method. It will publish/send the message directly to the server.
- * Shortcut for publish('io.sendMessage', msg)
- * 
- * @param {Bestia.Message}
- *            msg - Message object to be send to the server.
- */
-Bestia.PubSub.prototype.send = function(msg) {
-	this.publish('io.sendMessage', msg);
-};
