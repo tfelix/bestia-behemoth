@@ -8,7 +8,7 @@ Bestia.Engine.States = Bestia.Engine.States || {};
  * @param {Bestia.Engine}
  *            engine - Reference to the bestia engine.
  */
-Bestia.Engine.States.GameState = function(engine) {
+Bestia.Engine.States.GameState = function(engine, urlHelper) {
 
 	this.marker = null;
 
@@ -35,6 +35,8 @@ Bestia.Engine.States.GameState = function(engine) {
 	 * animations e.g.) which are triggered by the server or by the client.
 	 */
 	this._fxManager = null;
+	
+	this._urlHelper = urlHelper;
 };
 
 Bestia.Engine.States.GameState.prototype.init = function(bestia) {
@@ -47,7 +49,7 @@ Bestia.Engine.States.GameState.prototype.init = function(bestia) {
 	this.bestiaWorld = new Bestia.Engine.World(this.game, astar);
 	this.bestiaWorld.loadMap(this.bestia.location());
 
-	this.demandLoader = new Bestia.Engine.DemandLoader(this.game.load, this.game.cache);
+	this.demandLoader = new Bestia.Engine.DemandLoader(this.game.load, this.game.cache, this._urlHelper);
 
 	// Workaround: The factory must be created here because only now we have
 	// the game instance. This is ugly.

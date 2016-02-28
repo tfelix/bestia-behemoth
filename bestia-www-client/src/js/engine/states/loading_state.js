@@ -40,7 +40,7 @@ Bestia.Engine.States.LoadingState.prototype.init = function(bestia) {
 	// Announce loading.
 	this._pubsub.publish(Bestia.Signal.ENGINE_PREPARE_MAPLOAD);
 
-	console.debug("Loading map: " + this.bestia.playerBestiaId());
+	console.debug("Loading map: " + this.bestia.location());
 
 	// Prepare the loading screen.
 	this.gfx = this.add.graphics(0, 0);

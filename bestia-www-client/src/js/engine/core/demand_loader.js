@@ -9,7 +9,7 @@
  *            loader - Reference to the phaser loader since we must hook into
  *            that one.
  */
-Bestia.Engine.DemandLoader = function(loader, cache) {
+Bestia.Engine.DemandLoader = function(loader, cache, urlHelper) {
 
 	if (!(loader instanceof Phaser.Loader)) {
 		throw "DemandLoader: Loader is not a Phaser.Loader";
@@ -18,9 +18,14 @@ Bestia.Engine.DemandLoader = function(loader, cache) {
 	if (!(cache instanceof Phaser.Cache)) {
 		throw "DemandLoader: Cache is not a Phaser.Cache";
 	}
+	
+	if(!urlHelper) {
+		throw "UrlHelper: Can not be null";
+	}
 
 	this._loader = loader;
 	this._phaserCache = cache;
+	this._urlHelper = urlHelper;
 
 	this._cache = {};
 	this._keyCache = {};
@@ -98,8 +103,8 @@ Bestia.Engine.DemandLoader.prototype.loadMobSprite = function(key, fnOnComplete)
 	};
 	this._cache[key] = countObj;
 
-	var packUrl = Bestia.Urls.assetsMobSprite + '/' + key + '/' + key + '_pack.json';
-
+	var packUrl = this._urlHelper.getMobPackUrl(key);
+	
 	this._loader.json(key, packUrl);
 	this._loader.start();
 };
@@ -133,7 +138,7 @@ Bestia.Engine.DemandLoader.prototype.loadItemSprite = function(key, fnOnComplete
 	};
 	this._cache[key] = countObj;
 
-	var imageUrl = Bestia.Urls.assetsRoot + 'img/items/' + key + '.png';
+	var imageUrl = this._urlHelper.getItemIconUrl(key);
 	this._loader.image(key, imageUrl);
 	this._loader.start();
 };

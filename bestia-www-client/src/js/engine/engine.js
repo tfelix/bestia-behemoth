@@ -31,13 +31,15 @@ Bestia.Engine = function(pubsub, urlHelper) {
 	};
 
 	this.bestia = undefined;
+	
+	this.urlHelper = urlHelper;
 
 	// Determine the size of the canvas. And create the game object.
 	var height = $(window).height();
 	var width = $('#canvas-container').width();
 	this.game = new Phaser.Game(width, height, Phaser.AUTO, 'bestia-canvas', null, false, false);
 
-	this.gameState = new Bestia.Engine.States.GameState(this);
+	this.gameState = new Bestia.Engine.States.GameState(this, this.urlHelper);
 	this.game.state.add('boot', new Bestia.Engine.States.BootState());
 	this.game.state.add('connecting', new Bestia.Engine.States.ConnectingState(this));
 	this.game.state.add('load', new Bestia.Engine.States.LoadingState(this, urlHelper));
