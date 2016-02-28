@@ -60,6 +60,7 @@ function main() {
 	
 	
 	game.pubsub.subscribe('engine.loaded', function(){
+		console.debug("Engine has loaded. Start connecting.");
 		game.init();
 	});
 }

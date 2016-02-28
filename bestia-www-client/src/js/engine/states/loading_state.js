@@ -1,3 +1,5 @@
+Bestia.Engine.States = Bestia.Engine.States || {};
+
 /**
  * Displays while the engine is loading files to display the next map. 
  * 

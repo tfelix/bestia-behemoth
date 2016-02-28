@@ -102,9 +102,3 @@ Bestia.Engine.prototype.loadMap = function(bestia) {
 	// TODO
 
 };
-
-/**
- * Static holder for the different engine states. will be added in the ctor of
- * the engine to the phaser.js system.
- */
-Bestia.Engine.States = {};

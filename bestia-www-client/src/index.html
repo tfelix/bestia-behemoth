@@ -120,7 +120,7 @@
 		<div id="canvas-container">
 
 			<!-- CHAT -->
-			<div id="chat" data-bind="with: chat">
+			<div id="chat" data-bind="with: chat, visible: chat.isVisible">
 				<div data-bind="visible: hasUnreadMessages"
 					style="position: absolute; bottom: 25px; right: 20px; text-align: right;">
 					<button data-bind="click: scrollToBottom">Neu</button>
@@ -159,12 +159,12 @@
 
 			<!-- SHORTCUTS -->
 			<div id="shortcuts">
-<script id="tmpl-atk-shortcut" type="text/html">
+				<script id="tmpl-atk-shortcut" type="text/html">
 <div class="shortcut">
 <img data-bind="attr: {src: imageUrl, alt: name}" src="" alt="">
 </div>
 </script>
-<script id="tmpl-item-shortcut" type="text/html">
+				<script id="tmpl-item-shortcut" type="text/html">
 <div class="shortcut">
 	<div class="item">
 		<img data-bind="attr: {src: imageSrc, alt: name}" src="" alt="">
@@ -235,6 +235,9 @@
 			<div id="bestia-canvas"></div>
 			<!-- /GAME CANVAS -->
 
+			<div class="ui-dialog">Test Test</div>
+			<img style="position: relative; bottom: 0px" src="assets/img/sprites/npc1.png">
+
 		</div>
 	</div>
 
@@ -266,7 +269,6 @@
 	<div id="inventory"
 		data-bind="with: inventory, css: {slider_active: inventory.showWindow()}"
 		class="inventory slider">
-
 
 		<div class="header">
 			<div class="left">
@@ -349,7 +351,6 @@
 				data-bind="text: maxWeight">0</span><span data-i18n="inv.weight">inv.weight</span>
 		</div>
 	</div>
-
 	<!-- /INVENTORY -->
 
 	<!-- ATTACKS -->

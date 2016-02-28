@@ -1,3 +1,5 @@
+Bestia.Engine.States = Bestia.Engine.States || {};
+
 /**
  * Central game state for controlling the games logic.
  * 

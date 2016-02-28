@@ -1,3 +1,5 @@
+Bestia.Engine.States = Bestia.Engine.States || {};
+
 /**
  * State is established if the connection is lost. It will wait for a
  * reconnection event to occure and start the loading phase.

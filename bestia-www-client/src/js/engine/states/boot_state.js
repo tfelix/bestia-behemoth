@@ -1,3 +1,5 @@
+Bestia.Engine.States = Bestia.Engine.States || {};
+
 /**
  * State is triggered once when the game starts. It will preload all the really 
  * needed assets in order to to a proper loading screen and do some basic game setup.
