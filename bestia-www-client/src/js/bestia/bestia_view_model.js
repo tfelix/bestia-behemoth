@@ -66,7 +66,7 @@ Bestia.BestiaViewModel = function(pubsub, msg, statusPoints, urlHelper) {
 	 */
 	this.selectBestia = function() {
 		var activeMsg = new Bestia.Message.BestiaActivate(this.playerBestiaId());
-		this._pubsub.send(activeMsg);
+		this._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, activeMsg);
 	};
 };
 
