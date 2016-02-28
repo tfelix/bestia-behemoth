@@ -18,7 +18,7 @@
  *            information about the current stats.
  * @constructor
  */
-Bestia.BestiaViewModel = function(pubsub, msg, statusPoints) {
+Bestia.BestiaViewModel = function(pubsub, msg, statusPoints, urlHelper) {
 	if (!(pubsub instanceof Bestia.PubSub)) {
 		throw "Bestia.BestiaViewModel: PubSub must be given.";
 	}
@@ -38,7 +38,7 @@ Bestia.BestiaViewModel = function(pubsub, msg, statusPoints) {
 	this.sprite = ko.observable('');
 	this.statusEffects = [];
 	this.iconUrl = ko.pureComputed(function() {
-		return Bestia.Urls.assetsMobIcon + self.databaseName() + '.png';
+		return urlHelper.getMobIconUrl(self.databaseName());
 	});
 	this.level = ko.observable(1);
 	this.slot = ko.observable();

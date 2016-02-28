@@ -44,7 +44,7 @@ public interface PlayerItemDAO extends CrudRepository<PlayerItem, Integer> {
 	 *            Account ID
 	 * @return The summed weight of all items.
 	 */
-	@Query("select sum(item.weight * pi.amount) from PlayerItem pi where pi.account.id = :accId")
+	@Query("SELECT sum(item.weight * pi.amount) from PlayerItem pi WHERE pi.account.id = :accId")
 	public int getTotalItemWeight(@Param("accId") long accId);
 
 	/**
@@ -57,4 +57,12 @@ public interface PlayerItemDAO extends CrudRepository<PlayerItem, Integer> {
 	 */
 	@Query("SELECT item FROM PlayerItem pi WHERE pi.id IN (:idList)")
 	public List<PlayerItem> findAllPlayerItemsForIds(@Param("idList") Set<Integer> itemIds);
+
+	/**
+	 * Returns the number of items owned by the player.
+	 * 
+	 * @return The number of items owned by this account id.
+	 */
+	@Query("SELECT COUNT(pi) FROM PlayerItem pi WHERE pi.account.id = :accId")
+	public int countPlayerItemsForAccount(@Param("accId") long accId);
 }

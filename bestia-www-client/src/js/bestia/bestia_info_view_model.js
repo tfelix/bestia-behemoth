@@ -10,16 +10,23 @@
  * @constructor
  * @param {Bestia.PubSub}
  *            pubsub - Publish/Subscriber interface.
+ * @param {Bestia.UrlHelper}
+ *            urlHelper - Helper for resolving URLs.
  */
-Bestia.BestiaInfoViewModel = function(pubsub) {
+Bestia.BestiaInfoViewModel = function(pubsub, urlHelper) {
 
 	if (!(pubsub instanceof Bestia.PubSub)) {
 		throw "Bestia.BestiaInfoViewModel: Pubsub is not optional.";
+	}
+	if(!urlHelper) {
+		throw "UrlHelper can not be null.";
 	}
 
 	var self = this;
 
 	this._pubsub = pubsub;
+
+	this._urlHelper = urlHelper;
 
 	/**
 	 * Holds the currently selected bestia.
@@ -54,7 +61,7 @@ Bestia.BestiaInfoViewModel = function(pubsub) {
 	var onMessageHandler = function(_, msg) {
 		console.debug('Update bestia model with data.');
 
-		var bestia = new Bestia.BestiaViewModel(self._pubsub, msg.b, msg.sp);
+		var bestia = new Bestia.BestiaViewModel(self._pubsub, msg.b, msg.sp, self._urlHelper);
 
 		// Check if the bestia is already inside our cache.
 		for (var i = 0; i < self.bestias().length; i++) {

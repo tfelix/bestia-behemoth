@@ -269,6 +269,10 @@ public class InventoryService {
 	 * @param accId
 	 */
 	public int getTotalItemWeight(long accId) {
+		if (playerItemDao.countPlayerItemsForAccount(accId) == 0) {
+			return 0;
+		}
+
 		return playerItemDao.getTotalItemWeight(accId);
 	}
 
