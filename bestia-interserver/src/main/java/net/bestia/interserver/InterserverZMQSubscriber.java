@@ -42,6 +42,8 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 			subscriber.connect(url);
 			log.debug("Connected to interserver on {}.", url);
 			
+			subscribeDefaultTopics();
+			
 			while (!Thread.currentThread().isInterrupted()) {
 				try {
 					// Receive the topic name. Throw it away we only need data.
@@ -63,6 +65,11 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 			subscriber.close();
 			
 			log.trace("MessageConsumerThread has ended.");
+		}
+
+		private void subscribeDefaultTopics() {
+			// Default server channel.
+			subscribe("servers");
 		}
 	}
 

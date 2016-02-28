@@ -6,7 +6,7 @@ import net.bestia.messages.ZoneWrapperMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 
-public class LogoutPlayerBestiaCommand extends ECSCommand {
+public class LogoutBroadcastCommand extends ECSCommand {
 
 	private PlayerBestiaSpawnManager spawnManager;
 

@@ -23,6 +23,7 @@ public abstract class Message implements Serializable {
 
 	private long accountId;
 
+	private final static String MSG_PATH_SERVER_ALL = "servers";
 	private final static String MSG_PATH_ZONE_ALL = "zone/all";
 	private final static String MSG_PATH_NULL = "";
 
@@ -116,6 +117,14 @@ public abstract class Message implements Serializable {
 	 */
 	protected String getNullMessagePath() {
 		return MSG_PATH_NULL;
+	}
+	
+	/**
+	 * The message will get delivered to all servers.
+	 * @return
+	 */
+	protected String getServerBroadcastPath() {
+		return MSG_PATH_SERVER_ALL;
 	}
 
 	/**

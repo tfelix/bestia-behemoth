@@ -10,7 +10,7 @@ import net.bestia.model.service.AccountService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 
-public class LoginPlayerBestiaCommand extends ECSCommand {
+public class LoginBroadcastCommand extends ECSCommand {
 
 	private PlayerBestiaSpawnManager spawnManager;
 
