@@ -1,4 +1,6 @@
-package net.bestia.messages;
+package net.bestia.messages.ui;
+
+import net.bestia.messages.Message;
 
 /**
  * This message can be used to display a message in the client. Currently there
