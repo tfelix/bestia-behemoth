@@ -27,7 +27,6 @@ public class Attack implements Serializable {
 	private String databaseName;
 
 	@JsonProperty("str")
-	@Column(nullable = false)
 	private int strength;
 
 	@Enumerated(EnumType.STRING)
@@ -36,24 +35,23 @@ public class Attack implements Serializable {
 	private Element element;
 
 	@JsonProperty("m")
-	@Column(nullable = false)
 	private int manaCost;
 
+	/**
+	 * Range of the attack. Range is a mysql reserved word, so quots are needed.
+	 */
 	@JsonProperty("r")
-	@Column(nullable = false)
+	@Column(name = "[range]")
 	private int range;
 
 	@Enumerated(EnumType.STRING)
 	@JsonProperty("bs")
-	@Column(nullable = false)
 	private AttackBasedStatus basedStatus;
 
 	@JsonProperty("ct")
-	@Column(nullable = false)
 	private int casttime;
 
 	@JsonProperty("cd")
-	@Column(nullable = false)
 	private int cooldown;
 
 	public Attack() {

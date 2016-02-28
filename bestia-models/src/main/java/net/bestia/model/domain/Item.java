@@ -1,16 +1,12 @@
 package net.bestia.model.domain;
 
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -18,7 +14,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Items can be added to a players inventory. They can be used, traded, sold, dropped etc.
+ * Items can be added to a players inventory. They can be used, traded, sold,
+ * dropped etc.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -56,14 +53,18 @@ public class Item implements Serializable {
 	@JsonProperty("t")
 	private ItemType type;
 
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "item")
-	@JsonIgnore
-	private Set<PlayerItem> playerItems = new HashSet<>(0);
+	private int usableRange = 0;
+
+	/**
+	 * There are 3 default cast indicator: big, medium, small. If another name
+	 * is defined the engine will try to look up the given castindicator.
+	 */
+	private String castIndicator;
 
 	public int getId() {
 		return id;
 	}
-	
+
 	public String getItemDbName() {
 		return itemDbName;
 	}
@@ -82,5 +83,13 @@ public class Item implements Serializable {
 
 	public int getWeight() {
 		return weight;
+	}
+	
+	public int getUsableRange() {
+		return usableRange;
+	}
+	
+	public String getCastIndicator() {
+		return castIndicator;
 	}
 }
