@@ -507,11 +507,17 @@ Bestia.Inventory.prototype._setupItemBindings = function() {
 		return;
 	}
 
+	var bestia = this._selectedBestia;
+	// If we still have no bestia selected via a server message we will stop
+	// here and wait until this has happened. The method will then be called
+	// again.
+	if (bestia == null) {
+		return;
+	}
+
 	// Set the item shortcuts by the ones of the newly selected bestia.
 	// But these items are not the same instance then the ones from the
 	// inventory. We must replace them with the inventory instances.
-	var bestia = this._selectedBestia;
-
 	if (bestia.item1() !== null) {
 		var item = this._findItem(bestia.item1().itemId());
 		this.itemSlot1(item);
