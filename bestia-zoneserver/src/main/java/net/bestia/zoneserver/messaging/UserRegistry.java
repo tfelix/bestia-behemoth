@@ -10,7 +10,7 @@ import net.bestia.zoneserver.Zoneserver;
 
 /**
  * This class keeps track on how many subscriptions are currently online for a
- * single account. If more then one bestia is there it will subscribe the server
+ * single account. If one bestia or more is online it will subscribe the server
  * for messages from this very account. If all bestias go offline it will
  * unsubscribe the server again. This router is therefore crucial for receiving
  * data from the clients. Can also be used to count the concurrent online user.

@@ -1,5 +1,6 @@
 package net.bestia.loginserver.rest;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
 
@@ -20,8 +21,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.servo.monitor.Counter;
 import com.netflix.servo.monitor.Monitors;
 
+import net.bestia.interserver.InterserverPublisher;
 import net.bestia.loginserver.authenticator.AuthState;
 import net.bestia.loginserver.authenticator.PasswordAuthenticator;
+import net.bestia.messages.LogoutBroadcastMessage;
+import net.bestia.messages.Message;
 import net.bestia.messages.api.AccountCheckJson;
 import net.bestia.messages.api.AccountLoginResponse;
 import net.bestia.model.ServiceLocator;
@@ -44,6 +48,7 @@ public class AccountApi {
 
 	private final AccountDAO accountDao;
 	private final AccountService accountService;
+	private final InterserverPublisher interserverPublisher;
 
 	public AccountApi() {
 		final ServiceLocator daoLocator = ServiceLocator.getInstance();
@@ -51,6 +56,8 @@ public class AccountApi {
 		this.accountService = daoLocator.getBean(AccountService.class);
 		
 		Monitors.registerObject("AccountApi", this);
+		
+		this.interserverPublisher = RestServer.getInsterserverPublisher();
 	}
 
 	@GET
@@ -62,7 +69,7 @@ public class AccountApi {
 			return Response.serverError().build();
 		}
 
-		Account acc = accountDao.findByEmail(ident);
+		final Account acc = accountDao.findByEmail(ident);
 
 		if (acc == null) {
 			return Response.status(404).build();
@@ -195,6 +202,14 @@ public class AccountApi {
 			// Set new login token.
 			final String token = UUID.randomUUID().toString();
 			final Account acc = auth.getFoundAccount();
+			
+			final String oldTolken = acc.getLoginToken();
+			try {
+				final Message forceLogoutMsg = new LogoutBroadcastMessage(acc.getId(), oldTolken);
+				interserverPublisher.publish(forceLogoutMsg);
+			} catch (IOException e) {
+				log.error("Could not send force logout message.", e);
+			}
 
 			acc.setLoginToken(token);
 			acc.setLastLogin(new Date());

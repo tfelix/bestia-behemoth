@@ -20,6 +20,7 @@ import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.messages.LoginAuthReplyMessage;
+import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
 
 /**
@@ -33,6 +34,16 @@ import net.bestia.messages.Message;
  *
  */
 public class BestiaConnectionProvider implements InterserverMessageHandler {
+	
+	private class WebConnection {
+		public final WebSocket socket;
+		public final String token;
+		
+		public WebConnection(WebSocket socket, String token) {
+			this.socket = socket;
+			this.token = token;
+		}
+	}
 
 	private static final Logger log = LogManager.getLogger(BestiaConnectionProvider.class);
 	
@@ -51,7 +62,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 
 	private final LoginCheckBlocker loginChecker = new LoginCheckBlocker(this);
 
-	private final Map<Long, WebSocket> connections = new ConcurrentHashMap<>();
+	private final Map<Long, WebConnection> connections = new ConcurrentHashMap<>();
 
 	/**
 	 * Ctor. Must have handler to send and receive messages from the
@@ -110,14 +121,14 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 		try {
 			final String data = mapper.writeValueAsString(msg);
 			log.trace("Sending message: {}", data);
-			connections.get(accountId).write(data);
+			connections.get(accountId).socket.write(data);
 		} catch (NoSuchMethodError ex) {
 			log.error("Error while serializing this message.", ex);
 		}
 	}
 
-	public void addConnection(long accountId, WebSocket socket) {
-		connections.put(accountId, socket);
+	public void addConnection(long accountId, WebSocket socket, String token) {
+		connections.put(accountId, new WebConnection(socket, token));
 
 		// Subscribe to the messages.
 		subscriber.subscribe("account/" + accountId);
@@ -155,8 +166,32 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 
 		// Special case: If the message is a LoginAuthReply message we must
 		// route it to the blocker for further processing.
-		if (msg.getMessageId().equals(LoginAuthReplyMessage.MESSAGE_ID)) {
+		final String messageId = msg.getMessageId();
+		if (messageId.equals(LoginAuthReplyMessage.MESSAGE_ID)) {
 			loginChecker.receivedAuthReplayMessage((LoginAuthReplyMessage) msg);
+			return;
+		} else if(messageId.equals(LogoutBroadcastMessage.MESSAGE_ID)) {
+			
+			// Are we responsible for this account?
+			if(!connections.containsKey(msg.getAccountId())) {
+				return;
+			}
+			
+			// Log out the client if the token matches or is null.
+			final LogoutBroadcastMessage logoutMsg = (LogoutBroadcastMessage) msg;
+			
+			if(logoutMsg.getToken() != null) {
+				// Logout the connection if token matches.
+				final String usedToken = connections.get(logoutMsg.getAccountId()).token;
+				if(usedToken.equals(logoutMsg.getToken())) {
+					connections.get(logoutMsg.getAccountId()).socket.close();
+					removeConnection(logoutMsg.getAccountId());
+				}
+			} else {
+				// Just cancel the connection.
+				connections.get(logoutMsg.getAccountId()).socket.close();
+				removeConnection(logoutMsg.getAccountId());
+			}
 			return;
 		}
 

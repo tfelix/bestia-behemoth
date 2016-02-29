@@ -20,6 +20,9 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.servlet.ServletContainer;
 
+import net.bestia.interserver.InterserverPublisher;
+import net.bestia.util.BestiaConfiguration;
+
 /**
  * Provides RESTful services for the bestia game. Can and should be used to
  * interact externally with the game. Could be extended to access game
@@ -32,20 +35,30 @@ import org.glassfish.jersey.servlet.ServletContainer;
 public class RestServer {
 
 	// TODO Das hier noch konfiguruerbar machen!
-	private static final Logger log = LogManager.getLogger(RestServer.class);
-	private static final int PORT = 8090;
+	private static final Logger LOG = LogManager.getLogger(RestServer.class);
+	private final int port;
 	private static final String HOSTNAME = "localhost";
+
+	private static InterserverPublisher insterserverPublisher;
 
 	private Server jettyServer;
 
+	public RestServer(BestiaConfiguration config, InterserverPublisher publisher) {
+		if (config == null) {
+			throw new IllegalArgumentException("Config can not be null.");
+		}
+
+		port = config.getIntProperty("login.restPort");
+
+		RestServer.insterserverPublisher = publisher;
+	}
+
 	public boolean start() {
-		log.info("Starting Bestia RESTful Server API...");
+		LOG.info("Starting Bestia RESTful Server API...");
 		try {
 			jettyServer = new Server();
 
 			// Server options.
-			jettyServer.setDumpAfterStart(true);
-			jettyServer.setDumpBeforeStop(true);
 			jettyServer.setStopAtShutdown(true);
 
 			// HTTP Configuration.
@@ -53,9 +66,8 @@ public class RestServer {
 			config.setSendServerVersion(false);
 
 			// Server connector.
-			final ServerConnector http = new ServerConnector(jettyServer,
-					new HttpConnectionFactory(config));
-			http.setPort(PORT);
+			final ServerConnector http = new ServerConnector(jettyServer, new HttpConnectionFactory(config));
+			http.setPort(port);
 			jettyServer.addConnector(http);
 
 			// Handler structure.
@@ -63,39 +75,44 @@ public class RestServer {
 			final ContextHandlerCollection contexts = new ContextHandlerCollection();
 			handlers.setHandlers(new Handler[] { contexts, new DefaultHandler() });
 
-			final ServletContextHandler servletContext = new ServletContextHandler(
-					ServletContextHandler.SESSIONS);
+			final ServletContextHandler servletContext = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
 			servletContext.setContextPath("/");
 
-			final ServletHolder jerseyServlet = servletContext.addServlet(
-					ServletContainer.class, "/*");
-			jerseyServlet.setInitOrder(0);
+			final ServletHolder jerseyServlet = servletContext.addServlet(ServletContainer.class, "/*");
+			// jerseyServlet.setInitOrder(0);
 			// Tells the Jersey Servlet which REST service/class to load.
-			jerseyServlet.setInitParameter(
-					"jersey.config.server.provider.classnames",
+			jerseyServlet.setInitParameter("jersey.config.server.provider.classnames",
 					AccountApi.class.getCanonicalName());
 
 			contexts.addHandler(servletContext);
 
-			servletContext.addFilter(AddCORSFilter.class, "/*",
-					EnumSet.of(DispatcherType.REQUEST));
+			servletContext.addFilter(AddCORSFilter.class, "/*", EnumSet.of(DispatcherType.REQUEST));
 
 			jettyServer.setHandler(handlers);
 
 			jettyServer.start();
 
-			log.info("Bestia RESTful Server API started.");
-			log.info("WADL available at: {}application.wadl", getURI());
+			LOG.info("Bestia RESTful server API started.");
+			LOG.debug("WADL available at: {}application.wadl", getURI());
 		} catch (Exception ex) {
-			log.warn("Could not start RESTful Server: ", ex);
+			LOG.warn("Could not start RESTful Server: ", ex);
 			return false;
 		}
 		return true;
 	}
 
+	/**
+	 * Gets the interserver publisher. It is static so the servlets can get it.
+	 * 
+	 * @return
+	 */
+	static InterserverPublisher getInsterserverPublisher() {
+		return insterserverPublisher;
+	}
+
 	private URI getURI() {
 		return UriBuilder.fromUri("http://" + HOSTNAME + "/")
-				.port(PORT)
+				.port(port)
 				.build();
 	}
 
@@ -104,7 +121,7 @@ public class RestServer {
 			jettyServer.stop();
 			jettyServer.join();
 		} catch (Exception e) {
-			log.error("Error while stopping Jetty:", e);
+			LOG.error("Error while stopping Jetty:", e);
 		}
 		jettyServer.destroy();
 	}

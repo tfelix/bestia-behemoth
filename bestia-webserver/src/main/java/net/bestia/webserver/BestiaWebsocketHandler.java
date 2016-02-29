@@ -25,7 +25,6 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 
 	@Inject
 	private AtmosphereResourceFactory resourceFactory;
-	
 
 	@Override
 	public void onOpen(WebSocket webSocket) throws IOException {
@@ -33,7 +32,8 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 
 		// New connection incoming. Check if login is ok.
 
-		final String uuid = (String) webSocket.resource().getRequest()
+		final String uuid = (String) webSocket.resource()
+				.getRequest()
 				.getAttribute(ApplicationConfig.SUSPENDED_ATMOSPHERE_RESOURCE_UUID);
 		final AtmosphereResource resource = resourceFactory.find(uuid);
 
@@ -42,11 +42,12 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 			final String token = resource.getRequest().getHeader("X-Bestia-Token");
 
 			if (provider.getLoginCheckBlocker().isAuthenticated(accountId, token)) {
-				
-				// Since login is ok we must now be prepared to receive zone messages for this account connection.
-				provider.addConnection(accountId, webSocket);
+
+				// Since login is ok we must now be prepared to receive zone
+				// messages for this account connection.
+				provider.addConnection(accountId, webSocket, token);
 				// if so announce a new login to the zones.
-				final LoginBroadcastMessage msg = new LoginBroadcastMessage(accountId);
+				final LoginBroadcastMessage msg = new LoginBroadcastMessage(accountId, token);
 				provider.publishInterserver(msg);
 
 				log.debug("Websocket connection accepted. account id: {}, token: {}", accountId, token);
@@ -66,10 +67,10 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 	@Override
 	public void onTextMessage(WebSocket webSocket, String message) throws IOException {
 		log.trace("MSG received: {}", message);
-		
+
 		final long accountId = getAccountId(webSocket);
-		
-		if(accountId == 0) {
+
+		if (accountId == 0) {
 			return;
 		}
 
@@ -84,7 +85,8 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 	 */
 	private long getAccountId(WebSocket socket) {
 		// Get the ID from this websocket connection.
-		final String uuid = (String) socket.resource().getRequest()
+		final String uuid = (String) socket.resource()
+				.getRequest()
 				.getAttribute(ApplicationConfig.SUSPENDED_ATMOSPHERE_RESOURCE_UUID);
 		final AtmosphereResource resource = resourceFactory.find(uuid);
 		try {
@@ -102,15 +104,15 @@ public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {
 
 		// Get the ID from this websocket connection.
 		long accountId = getAccountId(webSocket);
-		
-		if(accountId == 0) {
+
+		if (accountId == 0) {
 			return;
 		}
-		
+
 		// Remove connection from the provider.
 		provider.removeConnection(accountId);
 		log.debug("Connection closed. Account id: {}", accountId);
-		
+
 		try {
 			LogoutBroadcastMessage logoutMsg = new LogoutBroadcastMessage(accountId);
 			provider.publishInterserver(logoutMsg);

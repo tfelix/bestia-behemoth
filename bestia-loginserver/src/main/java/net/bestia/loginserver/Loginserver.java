@@ -72,7 +72,7 @@ public final class Loginserver implements InterserverMessageHandler {
 		this.publisher = conFactory.getPublisher();
 		this.subscriber = conFactory.getSubscriber(this);
 		
-		this.restServer = new RestServer();
+		this.restServer = new RestServer(config, this.publisher);
 		
 		Monitors.registerObject("Loginserver", this);
 	}
