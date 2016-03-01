@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.messaging.preprocess;
+package net.bestia.zoneserver.messaging;
 
 import net.bestia.messages.Message;
 
@@ -9,7 +9,7 @@ import net.bestia.messages.Message;
  * @author Thomas Felix <thomas.felix.de>
  *
  */
-public interface MessageProcessor {
+public interface MessageHandler {
 
 	/**
 	 * Process the incoming message. This means either process them directly by
@@ -19,6 +19,6 @@ public interface MessageProcessor {
 	 * @param msg
 	 *            The message to be processed.
 	 */
-	public void processMessage(Message msg);
+	public void handleMessage(Message msg);
 
 }

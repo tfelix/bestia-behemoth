@@ -37,8 +37,8 @@ import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.manager.InventoryManager;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.messaging.MessageHandler;
 import net.bestia.zoneserver.messaging.UserRegistry;
-import net.bestia.zoneserver.messaging.preprocess.MessageProcessor;
 import net.bestia.zoneserver.messaging.routing.DynamicBestiaIdMessageFilter;
 import net.bestia.zoneserver.messaging.routing.MessageCombineFilter;
 import net.bestia.zoneserver.messaging.routing.MessageDirectDescandantFilter;
@@ -76,7 +76,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	private ComponentMapper<Visible> visibleMapper;
 	private ComponentMapper<PlayerBestia> playerMapper;
 
-	private final MessageProcessor zoneProcessor;
+	private final MessageHandler zoneProcessor;
 
 	/**
 	 * This filter used to route information for newly spawned bestias
@@ -97,7 +97,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	private final Map<Long, Set<Integer>> accountBestiaRegister = new HashMap<>();
 	private final Map<Integer, Integer> bestiaEntityRegister = new HashMap<>();
 
-	public PlayerBestiaSpawnManager(MessageProcessor zone) {
+	public PlayerBestiaSpawnManager(MessageHandler zone) {
 		super(Aspect.all(PlayerBestia.class));
 
 		this.zoneProcessor = zone;
@@ -110,7 +110,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	protected void initialize() {
 		super.initialize();
 
-		final MessageRouter router = ctx.getServer().getMessageRouter();
+		final MessageRouter router = ctx.getMessageRouter();
 
 		// This manager needs to know about these two messages to create and
 		// delete entities.

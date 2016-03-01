@@ -7,7 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.messages.Message;
-import net.bestia.zoneserver.messaging.preprocess.MessageProcessor;
+import net.bestia.zoneserver.messaging.MessageHandler;
 
 /**
  * <p>
@@ -22,15 +22,15 @@ import net.bestia.zoneserver.messaging.preprocess.MessageProcessor;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MessageRouter implements MessageProcessor {
+public class MessageRouter implements MessageHandler {
 
 	private static final Logger LOG = LogManager.getLogger(MessageRouter.class);
 
 	private class FilterTuple {
 		public final MessageFilter filter;
-		public final MessageProcessor processor;
+		public final MessageHandler processor;
 
-		public FilterTuple(MessageFilter filter, MessageProcessor processor) {
+		public FilterTuple(MessageFilter filter, MessageHandler processor) {
 
 			if (filter == null) {
 				throw new IllegalArgumentException("MessageFilter can not be null.");
@@ -59,17 +59,17 @@ public class MessageRouter implements MessageProcessor {
 	 * @param processor
 	 *            The processor who will process the matching messages.
 	 */
-	public synchronized void registerFilter(MessageFilter filter, MessageProcessor processor) {
+	public synchronized void registerFilter(MessageFilter filter, MessageHandler processor) {
 		final FilterTuple tuple = new FilterTuple(filter, processor);
 		filterList.add(tuple);
 	}
 
 	@Override
-	public void processMessage(Message msg) {
+	public void handleMessage(Message msg) {
 		boolean wasProcessed = false;
 		for (FilterTuple tuple : filterList) {
 			if (tuple.filter.handlesMessage(msg)) {
-				tuple.processor.processMessage(msg);
+				tuple.processor.handleMessage(msg);
 				wasProcessed = true;
 			}
 		}

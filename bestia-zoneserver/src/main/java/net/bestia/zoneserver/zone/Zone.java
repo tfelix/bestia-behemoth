@@ -15,7 +15,7 @@ import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.ecs.ECSCommandFactory;
 import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
-import net.bestia.zoneserver.messaging.preprocess.MessageProcessor;
+import net.bestia.zoneserver.messaging.MessageHandler;
 import net.bestia.zoneserver.messaging.routing.MessageRouter;
 import net.bestia.zoneserver.messaging.routing.ZoneWrapperFilter;
 import net.bestia.zoneserver.zone.map.Map;
@@ -30,7 +30,7 @@ import net.bestia.zoneserver.zone.world.WorldExtender;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class Zone implements MessageProcessor {
+public class Zone implements MessageHandler {
 
 	private static final Logger LOG = LogManager.getLogger(Zone.class);
 
@@ -156,7 +156,7 @@ public class Zone implements MessageProcessor {
 			throw new IllegalArgumentException("Zone name can not be null or empty.");
 		}
 
-		setupMessageFilter(ctx.getServer().getMessageRouter());
+		setupMessageFilter(ctx.getMessageRouter());
 	}
 
 	/**
@@ -221,7 +221,7 @@ public class Zone implements MessageProcessor {
 	}
 
 	@Override
-	public void processMessage(Message msg) {
+	public void handleMessage(Message msg) {
 
 		if (!hasStarted.get()) {
 			LOG.warn("Zone already stopped. Does not process messages anymore.");

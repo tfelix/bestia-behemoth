@@ -53,7 +53,7 @@ public class MapMoveChatUserCommand implements ChatUserCommand {
 		
 		final MapMoveMessage mmMessage = new MapMoveMessage(message.getAccountId(), activeBestia);
 		mmMessage.setTarget(target);	
-		ctx.getServer().getMessageRouter().processMessage(mmMessage);
+		ctx.getMessageRouter().handleMessage(mmMessage);
 	}
 
 	@Override

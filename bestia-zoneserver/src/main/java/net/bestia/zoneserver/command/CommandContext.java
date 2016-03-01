@@ -3,76 +3,77 @@ package net.bestia.zoneserver.command;
 import net.bestia.model.ServiceLocator;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.Zoneserver;
+import net.bestia.zoneserver.messaging.routing.MessageRouter;
 import net.bestia.zoneserver.script.ScriptManager;
 
 /**
- * Facade class to cover the needed information context for a {@link Command} class. It contains references to database
- * access and messaging API. The context itself is immutable because multi-thread access will happen. All the member of
- * this class must therefore be thread safe as well.
+ * Facade class to cover the needed information context for a {@link Command}
+ * class. It contains references to database access and messaging API. The
+ * context itself is immutable because multi-thread access will happen. All the
+ * member of this class must therefore be thread safe as well.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class CommandContext {
 
+	public static class CommandContextBuilder {
+
+		private BestiaConfiguration configuration;
+		private Zoneserver server;
+		private ServiceLocator serviceLocator;
+		private ScriptManager scriptManager;
+		private MessageRouter messageRouter;
+
+		public CommandContextBuilder setConfiguration(BestiaConfiguration configuration) {
+			this.configuration = configuration;
+			return this;
+		}
+
+		public CommandContextBuilder setServer(Zoneserver server) {
+			this.server = server;
+			return this;
+		}
+
+		public CommandContextBuilder setServiceLocator(ServiceLocator serviceLocator) {
+			this.serviceLocator = serviceLocator;
+			return this;
+		}
+
+		public CommandContextBuilder setScriptManager(ScriptManager scriptManager) {
+			this.scriptManager = scriptManager;
+			return this;
+		}
+
+		public CommandContext build() {
+			final CommandContext ctx = new CommandContext(this);
+			return ctx;
+		}
+
+		public CommandContextBuilder setMessageRouter(MessageRouter messageRouter) {
+			this.messageRouter = messageRouter;
+			return this;
+		}
+	}
+
 	private final BestiaConfiguration configuration;
 	private final Zoneserver server;
 	private final ServiceLocator serviceLocator;
 	private final ScriptManager scriptManager;
+	private final MessageRouter messageRouter;
 
 	/**
 	 * Ctor. Creates the CommandContext.
 	 * 
-	 * @param config
-	 *            Configuration of the currently running zoneserver.
-	 * @param zoneserver
-	 *            Handle to the zoneserver to retrieve various information about it.
-	 * @param scriptManager
-	 *            Handle to the central instance of the script manager to call scripts.
 	 * 
 	 */
-	public CommandContext(BestiaConfiguration config, Zoneserver zoneserver, ScriptManager scriptManager) {
+	private CommandContext(CommandContextBuilder builder) {
 
-		if (config == null) {
-			throw new IllegalArgumentException("config can not be null.");
-		}
-
-		if (zoneserver == null) {
-			throw new IllegalArgumentException("zoneserver can not be null.");
-		}
-		
-		if(scriptManager == null) {
-			throw new IllegalArgumentException("scriptManager can not be null.");
-		}
-
-		this.configuration = config;
-		this.server = zoneserver;
-		this.serviceLocator = ServiceLocator.getInstance();
-		this.scriptManager = scriptManager;
-	}
-	
-	public CommandContext(BestiaConfiguration config, Zoneserver zoneserver, ScriptManager scriptManager, ServiceLocator locator) {
-
-		if (config == null) {
-			throw new IllegalArgumentException("config can not be null.");
-		}
-
-		if (zoneserver == null) {
-			throw new IllegalArgumentException("zoneserver can not be null.");
-		}
-		
-		if(scriptManager == null) {
-			throw new IllegalArgumentException("scriptManager can not be null.");
-		}
-		
-		if(locator == null) {
-			throw new IllegalArgumentException("Locator can not be null.");
-		}
-
-		this.configuration = config;
-		this.server = zoneserver;
-		this.serviceLocator = locator;
-		this.scriptManager = scriptManager;
+		this.configuration = builder.configuration;
+		this.server = builder.server;
+		this.serviceLocator = builder.serviceLocator;
+		this.scriptManager = builder.scriptManager;
+		this.messageRouter = builder.messageRouter;
 	}
 
 	/**
@@ -82,6 +83,15 @@ public class CommandContext {
 	 */
 	public BestiaConfiguration getConfiguration() {
 		return configuration;
+	}
+
+	/**
+	 * Returns the {@link MessageRouter} of the bestia zone server.
+	 * 
+	 * @return MessageRouter of the server.
+	 */
+	public MessageRouter getMessageRouter() {
+		return messageRouter;
 	}
 
 	/**

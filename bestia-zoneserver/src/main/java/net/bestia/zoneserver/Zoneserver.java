@@ -27,21 +27,20 @@ import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.messages.Message;
 import net.bestia.model.I18n;
+import net.bestia.model.ServiceLocator;
 import net.bestia.model.dao.I18nDAO;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.command.CommandContext.CommandContextBuilder;
 import net.bestia.zoneserver.command.CommandFactory;
 import net.bestia.zoneserver.command.server.ServerCommandFactory;
 import net.bestia.zoneserver.ecs.ActiveBestiaRegistry;
 import net.bestia.zoneserver.loader.ScriptLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
+import net.bestia.zoneserver.messaging.MessageHandler;
 import net.bestia.zoneserver.messaging.UserRegistry;
-import net.bestia.zoneserver.messaging.preprocess.ChatMessagePreprocessor;
-import net.bestia.zoneserver.messaging.preprocess.LoginBroadcastMessagePreprocessor;
-import net.bestia.zoneserver.messaging.preprocess.LogoutBroadcastMessagePreprocessor;
 import net.bestia.zoneserver.messaging.preprocess.MessagePreprocessorController;
-import net.bestia.zoneserver.messaging.preprocess.MessageProcessor;
 import net.bestia.zoneserver.messaging.routing.MessageFilter;
 import net.bestia.zoneserver.messaging.routing.MessageIdFilter;
 import net.bestia.zoneserver.messaging.routing.MessageRouter;
@@ -80,14 +79,14 @@ public class Zoneserver {
 			}
 
 			// Route the message.
-			messageRouter.processMessage(msg);
+			messageRouter.handleMessage(msg);
 		}
 	}
 
-	private class ZoneserverMessageProcessor implements MessageProcessor {
+	private class ZoneserverMessageProcessor implements MessageHandler {
 
 		@Override
-		public void processMessage(Message msg) {
+		public void handleMessage(Message msg) {
 			final Command cmd = commandFactory.getCommand(msg);
 			if (cmd != null) {
 				commandExecutor.submit(cmd);
@@ -147,7 +146,13 @@ public class Zoneserver {
 		this.name = config.getProperty("zone.name");
 
 		// Create a command context.
-		this.commandContext = new CommandContext(config, this, scriptManager);
+		final CommandContextBuilder ctxBuilder = new CommandContextBuilder();
+		ctxBuilder.setConfiguration(config)
+				.setServer(this)
+				.setScriptManager(scriptManager)
+				.setServiceLocator(ServiceLocator.getInstance())
+				.setMessageRouter(messageRouter);
+		this.commandContext = ctxBuilder.build();
 		this.commandFactory = new ServerCommandFactory(commandContext);
 		this.commandExecutor = Executors.newFixedThreadPool(1);
 
@@ -171,8 +176,7 @@ public class Zoneserver {
 		this.responsibleZones = Collections.unmodifiableSet(zones);
 
 		// ### Setup the message preprocessing.
-		this.messagePreprocessor = new MessagePreprocessorController();
-		setupMessagePreprocessing();
+		this.messagePreprocessor = new MessagePreprocessorController(commandContext);
 
 		// ### Setup the message routing.
 		final Set<String> messageIDs = commandFactory.getRegisteredMessageIds();
@@ -183,12 +187,6 @@ public class Zoneserver {
 
 		// Prepare the (static) translator.
 		I18n.setDao(commandContext.getServiceLocator().getBean(I18nDAO.class));
-	}
-
-	private void setupMessagePreprocessing() {
-		this.messagePreprocessor.addProcessor(new ChatMessagePreprocessor(commandContext));
-		this.messagePreprocessor.addProcessor(new LoginBroadcastMessagePreprocessor(commandContext));
-		this.messagePreprocessor.addProcessor(new LogoutBroadcastMessagePreprocessor(commandContext));
 	}
 
 	/**
@@ -403,22 +401,6 @@ public class Zoneserver {
 		if (!zone.start()) {
 			System.exit(1);
 		}
-	}
-
-	/**
-	 * Gets the {@link MessageRouter} who can be used to re-route messages. If
-	 * some messages lead to other messages then feeding them back to this
-	 * router will gurantee delivery.
-	 * <p>
-	 * NOTE: A bit unpleasent to split the re-routing and sending/processing
-	 * into two methods. Maybe it should be possible with a clean routing
-	 * interface to unify the methods. Must be done in the future.
-	 * </p>
-	 * 
-	 * @return
-	 */
-	public MessageRouter getMessageRouter() {
-		return messageRouter;
 	}
 
 	/**
