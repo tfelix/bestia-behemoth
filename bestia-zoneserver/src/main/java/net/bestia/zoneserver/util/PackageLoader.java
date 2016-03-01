@@ -9,7 +9,10 @@ import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
 
 /**
- * This class can load instances of subtypes of a given base-type.
+ * This class can load instances of sub types of a given base-type. Because of
+ * type erasure using this class is a bit cumbersome. Instance it with the type
+ * of the base class as well as the variant of the base class. To search for the
+ * classes then call the appropriate method.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *

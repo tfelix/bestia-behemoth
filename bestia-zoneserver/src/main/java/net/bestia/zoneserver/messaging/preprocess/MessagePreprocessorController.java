@@ -1,13 +1,16 @@
 package net.bestia.zoneserver.messaging.preprocess;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.util.PackageLoader;
 
 /**
  * The message routing is a very complex topic. Some message need more
@@ -23,12 +26,28 @@ public class MessagePreprocessorController {
 
 	private static final Logger LOG = LogManager.getLogger(MessagePreprocessorController.class);
 
-	private List<MessagePreprocessor> preprocessors = new ArrayList<>();
+	private final List<MessagePreprocessor> preprocessors = new ArrayList<>();
 
 	public MessagePreprocessorController(CommandContext commandContext) {
-		addProcessor(new ChatMessagePreprocessor(commandContext));
-		addProcessor(new LoginBroadcastMessagePreprocessor(commandContext));
-		addProcessor(new LogoutBroadcastMessagePreprocessor(commandContext));
+
+		// Automatically add the class instancing MessageProprocessor.
+		final PackageLoader<MessagePreprocessor> loader = new PackageLoader<>(MessagePreprocessor.class,
+				"net.bestia.zoneserver.messaging.preprocess");
+		
+		final Set<Class<? extends MessagePreprocessor>> clazzes = loader.getSubClasses();
+		for(Class<? extends MessagePreprocessor> clazz : clazzes) {
+			try {
+				final MessagePreprocessor mp = clazz.getDeclaredConstructor(CommandContext.class).newInstance(commandContext);
+				addProcessor(mp);
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				LOG.error("Could not automagically add instance of {}", clazz.toGenericString(), e);
+			}
+		}
+
+		//addProcessor(new ChatMessagePreprocessor(commandContext));
+		//addProcessor(new LoginBroadcastMessagePreprocessor(commandContext));
+		//addProcessor(new LogoutBroadcastMessagePreprocessor(commandContext));
 	}
 
 	/**
@@ -48,7 +67,7 @@ public class MessagePreprocessorController {
 	 * @return
 	 */
 	public Message preprocess(Message message) {
-		if(message == null) {
+		if (message == null) {
 			throw new IllegalArgumentException("Message can not be null.");
 		}
 		LOG.trace("Preprocessing: {}", message.toString());
