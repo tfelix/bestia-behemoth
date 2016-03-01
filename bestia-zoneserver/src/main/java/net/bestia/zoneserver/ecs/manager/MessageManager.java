@@ -13,17 +13,26 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 
+/**
+ * Das in den PlayerBestiaSpawnManager integrieren. PlayerBestiaSpawnManager in
+ * PlayerBestiaManager umbennen. und für PlayerBestiaManager (ECS) einen anderen
+ * Namen finden.
+ * 
+ * @deprecated
+ * @author Thomas
+ *
+ */
 @Wire
 public class MessageManager extends BaseSystem {
-	
+
 	private static final Logger LOG = LogManager.getLogger(MessageManager.class);
-	
+
 	private ComponentMapper<PlayerBestia> playerBestiaMapper;
 	private ComponentMapper<Position> posMapper;
 
 	@Wire
 	private PlayerBestiaSpawnManager playerBestiaSpawnManager;
-	
+
 	@Wire
 	private CommandContext ctx;
 
@@ -36,28 +45,28 @@ public class MessageManager extends BaseSystem {
 	 */
 	public void sendMessageToSightrange(int source, Message msg) {
 		final Position pos = posMapper.getSafe(source);
-		
-		if(pos == null) {
+
+		if (pos == null) {
 			LOG.warn("Entity has no position. Can not send messages.");
 			return;
 		}
-		
+
 		final IntBag receivers = playerBestiaSpawnManager.getActivePlayersInSight(pos);
-		
-		for(int i = 0; i < receivers.size(); i++) {
+
+		for (int i = 0; i < receivers.size(); i++) {
 			final int receiverId = receivers.get(i);
-			
+
 			final PlayerBestia pb = playerBestiaMapper.get(receiverId);
 			final long accId = pb.playerBestiaManager.getAccountId();
 			msg.setAccountId(accId);
-			
+
 			ctx.getServer().sendMessage(msg);
 		}
 	}
 
 	@Override
 	protected void initialize() {
-		
+
 		setEnabled(false);
 	}
 

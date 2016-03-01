@@ -67,6 +67,8 @@ public class ChatCommand extends ECSCommand {
 			final Entity receiverEntity = world.getEntity(entityIds.get(i));
 
 			// TODO Are they in sight range?
+			
+			// TODO MessageManager verwenden.
 
 			final PlayerBestia player = playerMapper.get(receiverEntity);
 			

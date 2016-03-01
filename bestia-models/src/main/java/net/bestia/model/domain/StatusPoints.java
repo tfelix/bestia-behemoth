@@ -52,61 +52,57 @@ public class StatusPoints implements Serializable {
 
 	@JsonProperty("spd")
 	private int spd;
+	
+	@Transient
+	private float hpRegenRate;
+	
+	@Transient
+	private float manaRegenRate;
 
-	/* (non-Javadoc)
-	 * @see net.bestia.model.domain.StatusPoints#getCurrentHp()
-	 */
+
 	public int getCurrentHp() {
 		return currentHp;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.bestia.model.domain.StatusPoints#setCurrentHp(int)
-	 */
-	
 	public void setCurrentHp(int hp) {
 		this.currentHp = hp;
 		checkInvalidStatusValue();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.bestia.model.domain.StatusPoints#getMaxHp()
-	 */
+	public float getHpRegenerationRate() {
+		return hpRegenRate;
+	}
+	
+	public void setHpRegenerationRate(float hpRegenRate) {
+		this.hpRegenRate = hpRegenRate;
+	}
 	
 	public int getMaxHp() {
 		return maxHp;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.bestia.model.domain.StatusPoints#setMaxHp(int)
-	 */
-	
 	public void setMaxHp(int maxHp) {
 		this.maxHp = maxHp;
 		checkInvalidStatusValue();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.bestia.model.domain.StatusPoints#getCurrentMana()
-	 */
-	
 	public int getCurrentMana() {
 		return currentMana;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.bestia.model.domain.StatusPoints#setCurrentMana(int)
-	 */
-	
 	public void setCurrentMana(int mana) {
 		this.currentMana = mana;
 		checkInvalidStatusValue();
 	}
-
-	/* (non-Javadoc)
-	 * @see net.bestia.model.domain.StatusPoints#setMaxMana(int)
-	 */
 	
+	public float getManaRegenerationRate() {
+		return manaRegenRate;
+	}
+	
+	public void setManaRegenenerationRate(float manaRegenRate) {
+		this.manaRegenRate = manaRegenRate;
+	}
+
 	public void setMaxMana(int maxMana) {
 		this.maxMana = maxMana;
 		checkInvalidStatusValue();

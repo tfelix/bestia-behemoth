@@ -29,7 +29,7 @@ import net.bestia.zoneserver.zone.spawn.Spawner;
  *
  */
 @Wire
-public class SpawnManager extends BaseEntitySystem {
+public class MobSpawnManager extends BaseEntitySystem {
 
 	/**
 	 * Helper class in oder to avoid re-creation of ints. We need a mutable
@@ -56,7 +56,7 @@ public class SpawnManager extends BaseEntitySystem {
 		}
 	}
 
-	private final static Logger LOG = LogManager.getLogger(SpawnManager.class);
+	private final static Logger LOG = LogManager.getLogger(MobSpawnManager.class);
 
 	private ComponentMapper<MobGroup> mobGroupMapper;
 
@@ -67,7 +67,7 @@ public class SpawnManager extends BaseEntitySystem {
 	private final Map<String, IntCounter> counter = new HashMap<>();
 	private final Map<String, Bestia> mobCache = new HashMap<>();
 
-	public SpawnManager(List<Spawner> spawners) {
+	public MobSpawnManager(List<Spawner> spawners) {
 		super(Aspect.all(MobGroup.class));
 
 		// Dont process this system. Only react passiv.

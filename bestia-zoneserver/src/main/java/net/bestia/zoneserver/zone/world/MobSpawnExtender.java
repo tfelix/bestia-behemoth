@@ -6,7 +6,7 @@ import com.artemis.World;
 import com.artemis.WorldConfiguration;
 
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.manager.SpawnManager;
+import net.bestia.zoneserver.ecs.manager.MobSpawnManager;
 import net.bestia.zoneserver.ecs.system.MobSpawnSystem;
 import net.bestia.zoneserver.zone.Zone;
 import net.bestia.zoneserver.zone.map.Map;
@@ -21,7 +21,7 @@ import net.bestia.zoneserver.zone.spawn.Spawner;
  */
 public class MobSpawnExtender implements WorldExtend {
 	
-	private SpawnManager manager;
+	private MobSpawnManager manager;
 
 	@Override
 	public void extend(World world, Map map, Zone zone) {
@@ -35,7 +35,7 @@ public class MobSpawnExtender implements WorldExtend {
 		// Create the SpawnLocations from the map. Keeps track of active bestias
 		// and sets timeouts to re-spawn them.
 		final List<Spawner> spawns = map.getSpawnlist();
-		manager = new SpawnManager(spawns);
+		manager = new MobSpawnManager(spawns);
 		worldConfig.setSystem(manager);
 
 		// The MobSpawnSystem actually spawns entities.
