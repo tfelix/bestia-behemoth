@@ -32,7 +32,7 @@ public class ActiveManager extends EntityProcessingSystem {
 		}
 		
 		final PlayerBestiaManager pbm = playerBestiaMapper.get(e).playerBestiaManager;
-		ctx.getServer().getActiveBestiaRegistry().setActiveBestia(pbm.getAccountId(), pbm.getPlayerBestiaId());
+		ctx.getAccountRegistry().setActiveBestia(pbm.getAccountId(), pbm.getPlayerBestiaId());
 	}
 	
 	@Override
@@ -42,7 +42,7 @@ public class ActiveManager extends EntityProcessingSystem {
 		}
 		
 		final PlayerBestiaManager pbm = playerBestiaMapper.get(e).playerBestiaManager;
-		ctx.getServer().getActiveBestiaRegistry().unsetActiveBestia(pbm.getAccountId(), pbm.getPlayerBestiaId());
+		ctx.getAccountRegistry().unsetActiveBestia(pbm.getAccountId(), pbm.getPlayerBestiaId());
 	}
 
 	@Override

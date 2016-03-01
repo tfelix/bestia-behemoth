@@ -3,6 +3,7 @@ package net.bestia.zoneserver.command;
 import net.bestia.model.ServiceLocator;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.Zoneserver;
+import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.messaging.routing.MessageRouter;
 import net.bestia.zoneserver.script.ScriptManager;
 
@@ -24,6 +25,7 @@ public class CommandContext {
 		private ServiceLocator serviceLocator;
 		private ScriptManager scriptManager;
 		private MessageRouter messageRouter;
+		private AccountRegistry accountRegistry;
 
 		public CommandContextBuilder setConfiguration(BestiaConfiguration configuration) {
 			this.configuration = configuration;
@@ -54,6 +56,11 @@ public class CommandContext {
 			this.messageRouter = messageRouter;
 			return this;
 		}
+
+		public CommandContextBuilder setAccountRegistry(AccountRegistry accountRegistry) {
+			this.accountRegistry = accountRegistry;
+			return this;
+		}
 	}
 
 	private final BestiaConfiguration configuration;
@@ -61,6 +68,7 @@ public class CommandContext {
 	private final ServiceLocator serviceLocator;
 	private final ScriptManager scriptManager;
 	private final MessageRouter messageRouter;
+	private final AccountRegistry accountRegistry;
 
 	/**
 	 * Ctor. Creates the CommandContext.
@@ -74,6 +82,7 @@ public class CommandContext {
 		this.serviceLocator = builder.serviceLocator;
 		this.scriptManager = builder.scriptManager;
 		this.messageRouter = builder.messageRouter;
+		this.accountRegistry = builder.accountRegistry;
 	}
 
 	/**
@@ -119,6 +128,14 @@ public class CommandContext {
 	 */
 	public ScriptManager getScriptManager() {
 		return scriptManager;
+	}
+	
+	/**
+	 * Returns the account registry. TODO hier überlegen ob das nicht besser an die passenden stellen soll.
+	 * @return
+	 */
+	public AccountRegistry getAccountRegistry() {
+		return accountRegistry;
 	}
 
 }

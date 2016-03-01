@@ -38,7 +38,7 @@ public class BaseWorldExtender implements WorldExtend {
 		worldConfig.register(map);
 		worldConfig.register(ctx);
 		worldConfig.register(zone);
-		worldConfig.register(ctx.getServer().getActiveBestiaRegistry());
+		worldConfig.register(ctx.getAccountRegistry());
 
 		// Set all the systems.
 		worldConfig.setSystem(new MovementSystem());

@@ -53,7 +53,7 @@ public class ChatMessagePreprocessor extends MessagePreprocessor {
 
 		if (mode == Mode.COMMAND || mode == Mode.PUBLIC) {
 			// Find the currently active player bestia and send the message to the ECS handling.
-			final int playerBestiaId = ctx.getServer().getActiveBestiaRegistry().getActiveBestia(msg.getAccountId());
+			final int playerBestiaId = ctx.getAccountRegistry().getActiveBestia(msg.getAccountId());
 			final EcsMessageDecorator<ChatMessage> wrappedMsg = new EcsMessageDecorator<ChatMessage>(msg, playerBestiaId);
 			return wrappedMsg;
 		} else {

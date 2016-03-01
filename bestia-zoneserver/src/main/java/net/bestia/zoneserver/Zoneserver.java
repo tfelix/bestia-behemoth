@@ -32,11 +32,10 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandContext.CommandContextBuilder;
 import net.bestia.zoneserver.command.CommandFactory;
 import net.bestia.zoneserver.command.server.ServerCommandFactory;
-import net.bestia.zoneserver.ecs.ActiveBestiaRegistry;
 import net.bestia.zoneserver.loader.ScriptLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
+import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.messaging.MessageLoop;
-import net.bestia.zoneserver.messaging.UserRegistry;
 import net.bestia.zoneserver.messaging.preprocess.MessagePreprocessor;
 import net.bestia.zoneserver.messaging.preprocess.MessagePreprocessorController;
 import net.bestia.zoneserver.messaging.routing.MessageRouter;
@@ -56,25 +55,24 @@ public class Zoneserver {
 
 	private final static Logger log = LogManager.getLogger(Zoneserver.class);
 
-
 	private final String name;
 	private final BestiaConfiguration config;
 	private final AtomicBoolean isRunning = new AtomicBoolean(false);
 
 	private final InterserverMessageHandler interserverHandler = new InterserverMessageHandler() {
-		
+
 		@Override
 		public void onMessage(Message msg) {
 			log.trace("Zoneserver {} received: {}", name, msg.toString());
 			messageLoop.handleMessage(msg);
 		}
 	};
-	
+
 	private final InterserverSubscriber interserverSubscriber;
 	private final InterserverPublisher interserverPublisher;
 
 	private final MessageLoop messageLoop;
-	
+
 	private final CommandContext commandContext;
 
 	/**
@@ -85,8 +83,7 @@ public class Zoneserver {
 
 	private final ScriptManager scriptManager = new ScriptManager();
 
-	private final ActiveBestiaRegistry activeBestiaRegistry = new ActiveBestiaRegistry();
-	private final UserRegistry userRegistry;
+	private final AccountRegistry accountRegistry;
 
 	/**
 	 * Ctor. The server needs a connection to its clients so it can use the
@@ -111,21 +108,9 @@ public class Zoneserver {
 		// Name of the zoneserver.
 		this.name = config.getProperty("zone.name");
 
-		// Create a command context.
-		final CommandContextBuilder ctxBuilder = new CommandContextBuilder();
-		ctxBuilder.setConfiguration(config)
-				.setServer(this)
-				.setScriptManager(scriptManager)
-				.setServiceLocator(ServiceLocator.getInstance())
-				.setMessageRouter(new MessageRouter());
-		this.commandContext = ctxBuilder.build();
-		
-		final MessagePreprocessor preprocessor = new MessagePreprocessorController(commandContext);
-		final CommandFactory serverCommandFactory = new ServerCommandFactory(commandContext);
-		this.messageLoop = new MessageLoop(preprocessor, serverCommandFactory, commandContext.getMessageRouter());
-
 		final String interUrl = config.getProperty("inter.domain");
-		// We receive where the interserver publishes and vice versa.
+		// We receive where the interserver publishes and vice versa, thats why
+		// its in the wrong order.
 		final int subscribePort = config.getIntProperty("inter.listenPort");
 		final int listenPort = config.getIntProperty("inter.publishPort");
 
@@ -137,13 +122,27 @@ public class Zoneserver {
 		this.interserverSubscriber = conFactory.getSubscriber(interserverHandler);
 		this.interserverPublisher = conFactory.getPublisher();
 
+		this.accountRegistry = new AccountRegistry(interserverSubscriber);
+
+		// Create a command context.
+		final CommandContextBuilder ctxBuilder = new CommandContextBuilder();
+		ctxBuilder.setConfiguration(config)
+				.setServer(this)
+				.setScriptManager(scriptManager)
+				.setServiceLocator(ServiceLocator.getInstance())
+				.setMessageRouter(new MessageRouter())
+				.setAccountRegistry(accountRegistry);
+		this.commandContext = ctxBuilder.build();
+
+		final MessagePreprocessor preprocessor = new MessagePreprocessorController(commandContext);
+		final CommandFactory serverCommandFactory = new ServerCommandFactory(commandContext);
+		this.messageLoop = new MessageLoop(preprocessor, serverCommandFactory, commandContext.getMessageRouter());
+
 		// Generate the list of zones for this server.
 		final String[] zoneStrings = config.getProperty("zone.zones").split(",");
 		final Set<String> zones = new HashSet<String>();
 		zones.addAll(Arrays.asList(zoneStrings));
 		this.responsibleZones = Collections.unmodifiableSet(zones);
-
-		this.userRegistry = new UserRegistry(this);
 
 		// Prepare the (static) translator.
 		I18n.setDao(commandContext.getServiceLocator().getBean(I18nDAO.class));
@@ -276,7 +275,7 @@ public class Zoneserver {
 	 * @param topic
 	 *            Topic to subscribe to.
 	 */
-	
+
 	public void subscribe(String topic) {
 		interserverSubscriber.subscribe(topic);
 	}
@@ -287,30 +286,9 @@ public class Zoneserver {
 	 * @param topic
 	 *            Topic to unsubscribe from.
 	 */
-	
+
 	public void unsubscribe(String topic) {
 		interserverSubscriber.unsubscribe(topic);
-	}
-
-	/**
-	 * Returns a {@link ActiveBestiaRegistry}. It will be used by the ECS to
-	 * fetch the player input async aswell as the commands to pipe the player
-	 * input for the different bestias to the ECS.
-	 * 
-	 * @return
-	 */
-	public ActiveBestiaRegistry getActiveBestiaRegistry() {
-		return activeBestiaRegistry;
-	}
-
-	/**
-	 * The subscription manager to change and count how many active user are
-	 * currently online on this server.
-	 * 
-	 * @return The {@link UserRegistry} to track the online accounts and users.
-	 */
-	public UserRegistry getUserRegistry() {
-		return userRegistry;
 	}
 
 	/**

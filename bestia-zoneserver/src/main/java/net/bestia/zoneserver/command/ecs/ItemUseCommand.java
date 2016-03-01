@@ -8,10 +8,10 @@ import net.bestia.messages.Message;
 import net.bestia.model.domain.Item;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.ActiveBestiaRegistry;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 import net.bestia.zoneserver.manager.InventoryManager;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.script.ItemScript;
 
 /**
@@ -36,7 +36,7 @@ public class ItemUseCommand extends ECSCommand {
 		
 		final InventoryItemUseMessage useMessage = (InventoryItemUseMessage) message;
 
-		final ActiveBestiaRegistry register = ctx.getServer().getActiveBestiaRegistry();
+		final AccountRegistry register = ctx.getAccountRegistry();
 		final long accId = useMessage.getAccountId();
 
 		final int activeBestiaId = register.getActiveBestia(accId);

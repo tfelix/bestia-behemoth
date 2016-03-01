@@ -25,7 +25,7 @@ public class MapMoveChatUserCommand implements ChatUserCommand {
 	@Override
 	public void execute(ChatMessage message, PlayerBestiaManager player, CommandContext ctx) {
 		
-		final int activeBestia = ctx.getServer().getActiveBestiaRegistry().getActiveBestia(message.getAccountId());
+		final int activeBestia = ctx.getAccountRegistry().getActiveBestia(message.getAccountId());
 		
 		final String text = message.getText().substring(3).trim();
 		final Matcher m1 = mapPattern.matcher(text);

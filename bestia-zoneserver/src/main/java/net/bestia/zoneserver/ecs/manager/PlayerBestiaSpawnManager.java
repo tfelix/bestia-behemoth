@@ -37,8 +37,8 @@ import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.manager.InventoryManager;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.messaging.MessageHandler;
-import net.bestia.zoneserver.messaging.UserRegistry;
 import net.bestia.zoneserver.messaging.routing.DynamicBestiaIdMessageFilter;
 import net.bestia.zoneserver.messaging.routing.MessageAndFilter;
 import net.bestia.zoneserver.messaging.routing.MessageDirectDescandantFilter;
@@ -63,7 +63,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 
 	@Wire
 	private CommandContext ctx;
-	private UserRegistry subscriptionManager;
+	private AccountRegistry accountRegistry;
 
 	private ComponentMapper<Position> positionMapper;
 	private ComponentMapper<Attacks> attacksMapper;
@@ -125,7 +125,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		combineFilter.addFilter(bestiaIdMessageFilter);
 		router.registerFilter(combineFilter, zoneProcessor);
 
-		subscriptionManager = ctx.getServer().getUserRegistry();
+		accountRegistry = ctx.getAccountRegistry();
 
 		playerBestiaArchetype = new ArchetypeBuilder()
 				.add(Position.class)
@@ -154,7 +154,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 
 		bestiaEntityRegister.put(playerBestiaId, entityId);
 		bestiaIdMessageFilter.addPlayerBestiaId(playerBestiaId);
-		subscriptionManager.setOnline(pbm.getAccountId());
+		accountRegistry.incrementBestiaOnline(accountId);
 
 		// Add the entity to the register so it can be deleted.
 		if (!accountBestiaRegister.containsKey(accountId)) {
@@ -175,7 +175,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 
 		bestiaEntityRegister.remove(playerBestiaId);
 		bestiaIdMessageFilter.removePlayerBestiaId(playerBestiaId);
-		subscriptionManager.setOffline(pbm.getAccountId());
+		accountRegistry.decrementBestiaOnline(accountId);
 
 		accountBestiaRegister.get(accountId).remove(entityId);
 		if (accountBestiaRegister.get(accountId).size() == 0) {
