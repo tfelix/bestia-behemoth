@@ -2,6 +2,7 @@ package net.bestia.zoneserver.messaging.preprocess;
 
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.messaging.routing.MessageRouter;
 
 /**
  * Message preprocessor implementations are used for transforming or changing
@@ -31,10 +32,13 @@ public abstract class MessagePreprocessor {
 	}
 
 	/**
-	 * Process
+	 * Process the given message. A modified, different message or even null
+	 * (throwing this message away) can be returned. The altered message will
+	 * get delivered via an {@link MessageRouter}.
 	 * 
 	 * @param message
-	 * @return
+	 *            Message to be processed.
+	 * @return A modified or different message or null.
 	 */
 	public abstract Message process(Message message);
 

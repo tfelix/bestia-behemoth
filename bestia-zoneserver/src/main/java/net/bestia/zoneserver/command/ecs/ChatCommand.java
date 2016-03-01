@@ -8,7 +8,7 @@ import com.artemis.EntitySubscription;
 import com.artemis.utils.IntBag;
 
 import net.bestia.messages.ChatMessage;
-import net.bestia.messages.InputWrapperMessage;
+import net.bestia.messages.EcsMessageDecorator;
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.chat.ChatCommandExecutor;
@@ -34,13 +34,13 @@ public class ChatCommand extends ECSCommand {
 
 	@Override
 	public String handlesMessageId() {
-		return InputWrapperMessage.getWrappedMessageId(ChatMessage.MESSAGE_ID);
+		return EcsMessageDecorator.getWrappedMessageId(ChatMessage.MESSAGE_ID);
 	}
 
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
 		@SuppressWarnings("unchecked")
-		final InputWrapperMessage<ChatMessage> wrappedMsg = (InputWrapperMessage<ChatMessage>) message;
+		final EcsMessageDecorator<ChatMessage> wrappedMsg = (EcsMessageDecorator<ChatMessage>) message;
 		final ChatMessage msg = wrappedMsg.getMessage();
 
 		switch (msg.getChatMode()) {

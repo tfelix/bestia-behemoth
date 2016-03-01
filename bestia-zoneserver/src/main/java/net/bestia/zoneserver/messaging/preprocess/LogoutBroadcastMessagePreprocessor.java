@@ -4,7 +4,7 @@ import java.util.Set;
 
 import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
-import net.bestia.messages.ZoneWrapperMessage;
+import net.bestia.messages.ZoneMessageDecorator;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.Account;
@@ -44,7 +44,7 @@ public class LogoutBroadcastMessagePreprocessor extends MessagePreprocessor {
 		bestias.add(account.getMaster());
 
 		// Prepare wrapped message.
-		ZoneWrapperMessage<LogoutBroadcastMessage> wrappedMsg = new ZoneWrapperMessage<LogoutBroadcastMessage>(msg);
+		ZoneMessageDecorator<LogoutBroadcastMessage> wrappedMsg = new ZoneMessageDecorator<LogoutBroadcastMessage>(msg);
 
 		boolean atLeastOne = false;
 		for (PlayerBestia playerBestia : bestias) {

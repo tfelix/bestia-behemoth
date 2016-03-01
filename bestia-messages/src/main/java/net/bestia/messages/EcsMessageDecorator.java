@@ -1,24 +1,32 @@
 package net.bestia.messages;
 
-// TODO kommentiern.
-public class InputWrapperMessage<T extends Message> extends InputMessage {
+/**
+ * By wrapping a generic message class with thisdecorator pattern it will get
+ * redirected to the responsible EC zone system. Ideally this is done inside a
+ * {@link MessagePreprocessor} so the router then can deliver the message.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ * @param <T>
+ */
+public class EcsMessageDecorator<T extends Message> extends InputMessage {
 
 	private static final long serialVersionUID = 1L;
 
 	private static final String MESSAGE_ID = "inputwrapper";
-	
+
 	private final T message;
-	
-	public InputWrapperMessage() {
+
+	public EcsMessageDecorator() {
 		message = null;
 	}
 
-	public InputWrapperMessage(T msg, int playerBestiaId) {
+	public EcsMessageDecorator(T msg, int playerBestiaId) {
 		super(msg, playerBestiaId);
 
 		this.message = msg;
 	}
-	
+
 	/**
 	 * Returns the message ID the wrapped message will return. By using this
 	 * method we can check for message IDs which will get returned by this
@@ -31,7 +39,7 @@ public class InputWrapperMessage<T extends Message> extends InputMessage {
 	public static String getWrappedMessageId(String originalMessageId) {
 		return String.format("%s-%s", MESSAGE_ID, originalMessageId);
 	}
-	
+
 	@Override
 	public String getMessageId() {
 		return (message == null) ? MESSAGE_ID : String.format("%s-%s", MESSAGE_ID, message.getMessageId());

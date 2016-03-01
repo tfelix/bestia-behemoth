@@ -4,7 +4,7 @@ import java.util.Set;
 
 import net.bestia.messages.LoginBroadcastMessage;
 import net.bestia.messages.Message;
-import net.bestia.messages.ZoneWrapperMessage;
+import net.bestia.messages.ZoneMessageDecorator;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.service.AccountService;
 import net.bestia.zoneserver.command.CommandContext;
@@ -19,7 +19,7 @@ public class LoginBroadcastCommand extends ECSCommand {
 	 */
 	@Override
 	public String handlesMessageId() {
-		return ZoneWrapperMessage.getWrappedMessageId(LoginBroadcastMessage.MESSAGE_ID);
+		return ZoneMessageDecorator.getWrappedMessageId(LoginBroadcastMessage.MESSAGE_ID);
 	}
 
 	@Override

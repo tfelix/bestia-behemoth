@@ -11,7 +11,7 @@ import net.bestia.messages.Message;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MessageCombineFilter implements MessageFilter {
+public class MessageAndFilter implements MessageFilter {
 
 	private final ArrayList<MessageFilter> filters = new ArrayList<>();
 

@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.messaging.preprocess;
 
 import net.bestia.messages.ChatMessage;
-import net.bestia.messages.InputWrapperMessage;
+import net.bestia.messages.EcsMessageDecorator;
 import net.bestia.messages.ChatMessage.Mode;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.messages.Message;
@@ -52,9 +52,9 @@ public class ChatMessagePreprocessor extends MessagePreprocessor {
 		}
 
 		if (mode == Mode.COMMAND || mode == Mode.PUBLIC) {
-			// Find the currently active player bestia.
+			// Find the currently active player bestia and send the message to the ECS handling.
 			final int playerBestiaId = ctx.getServer().getActiveBestiaRegistry().getActiveBestia(msg.getAccountId());
-			InputWrapperMessage<ChatMessage> wrappedMsg = new InputWrapperMessage<ChatMessage>(msg, playerBestiaId);
+			final EcsMessageDecorator<ChatMessage> wrappedMsg = new EcsMessageDecorator<ChatMessage>(msg, playerBestiaId);
 			return wrappedMsg;
 		} else {
 			return message;

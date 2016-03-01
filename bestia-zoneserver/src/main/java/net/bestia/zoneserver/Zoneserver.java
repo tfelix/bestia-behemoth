@@ -83,6 +83,11 @@ public class Zoneserver {
 		}
 	}
 
+	/**
+	 * Internal handler so we dont need to expose the {@link MessageHandler}
+	 * interface on the {@link Zoneserver}. Handles the messages directly for
+	 * the zone.
+	 */
 	private class ZoneserverMessageProcessor implements MessageHandler {
 
 		@Override

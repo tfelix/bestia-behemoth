@@ -14,7 +14,7 @@ import java.util.Set;
  *
  * @param <T>
  */
-public class ZoneWrapperMessage<T extends Message> extends Message {
+public class ZoneMessageDecorator<T extends Message> extends Message {
 
 	private static final long serialVersionUID = 1L;
 
@@ -24,11 +24,11 @@ public class ZoneWrapperMessage<T extends Message> extends Message {
 
 	private Set<String> receiverZones = new HashSet<>();
 
-	public ZoneWrapperMessage() {
+	public ZoneMessageDecorator() {
 		message = null;
 	}
 
-	public ZoneWrapperMessage(T msg) {
+	public ZoneMessageDecorator(T msg) {
 		super(msg);
 
 		this.message = msg;

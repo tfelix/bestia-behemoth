@@ -2,7 +2,7 @@ package net.bestia.zoneserver.command.ecs;
 
 import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
-import net.bestia.messages.ZoneWrapperMessage;
+import net.bestia.messages.ZoneMessageDecorator;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 
@@ -15,7 +15,7 @@ public class LogoutBroadcastCommand extends ECSCommand {
 	 */
 	@Override
 	public String handlesMessageId() {
-		return ZoneWrapperMessage.getWrappedMessageId(LogoutBroadcastMessage.MESSAGE_ID);
+		return ZoneMessageDecorator.getWrappedMessageId(LogoutBroadcastMessage.MESSAGE_ID);
 	}
 
 	@Override

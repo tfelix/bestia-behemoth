@@ -44,10 +44,6 @@ public class MessagePreprocessorController {
 				LOG.error("Could not automagically add instance of {}", clazz.toGenericString(), e);
 			}
 		}
-
-		//addProcessor(new ChatMessagePreprocessor(commandContext));
-		//addProcessor(new LoginBroadcastMessagePreprocessor(commandContext));
-		//addProcessor(new LogoutBroadcastMessagePreprocessor(commandContext));
 	}
 
 	/**

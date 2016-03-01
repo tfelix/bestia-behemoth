@@ -40,7 +40,7 @@ import net.bestia.zoneserver.manager.PlayerBestiaManager;
 import net.bestia.zoneserver.messaging.MessageHandler;
 import net.bestia.zoneserver.messaging.UserRegistry;
 import net.bestia.zoneserver.messaging.routing.DynamicBestiaIdMessageFilter;
-import net.bestia.zoneserver.messaging.routing.MessageCombineFilter;
+import net.bestia.zoneserver.messaging.routing.MessageAndFilter;
 import net.bestia.zoneserver.messaging.routing.MessageDirectDescandantFilter;
 import net.bestia.zoneserver.messaging.routing.MessageIdFilter;
 import net.bestia.zoneserver.messaging.routing.MessageRouter;
@@ -82,7 +82,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	 * This filter used to route information for newly spawned bestias
 	 * dynamically to this ECS zone system in order to process it.
 	 */
-	private final DynamicBestiaIdMessageFilter zoneMessageFilter = new DynamicBestiaIdMessageFilter();
+	private final DynamicBestiaIdMessageFilter bestiaIdMessageFilter = new DynamicBestiaIdMessageFilter();
 
 	private Archetype playerBestiaArchetype;
 
@@ -120,9 +120,9 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		// Prepare the message filter for the different zones. Depending on
 		// active bestias on this zone messages can be re-routed to this
 		// instance.
-		final MessageCombineFilter combineFilter = new MessageCombineFilter();
+		final MessageAndFilter combineFilter = new MessageAndFilter();
 		combineFilter.addFilter(new MessageDirectDescandantFilter(InputMessage.class));
-		combineFilter.addFilter(zoneMessageFilter);
+		combineFilter.addFilter(bestiaIdMessageFilter);
 		router.registerFilter(combineFilter, zoneProcessor);
 
 		subscriptionManager = ctx.getServer().getUserRegistry();
@@ -153,7 +153,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		final Long accountId = pbm.getAccountId();
 
 		bestiaEntityRegister.put(playerBestiaId, entityId);
-		zoneMessageFilter.subscribeId(playerBestiaId);
+		bestiaIdMessageFilter.subscribeId(playerBestiaId);
 		subscriptionManager.setOnline(pbm.getAccountId());
 
 		// Add the entity to the register so it can be deleted.
@@ -174,7 +174,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		final Long accountId = pbm.getAccountId();
 
 		bestiaEntityRegister.remove(playerBestiaId);
-		zoneMessageFilter.removeId(playerBestiaId);
+		bestiaIdMessageFilter.removeId(playerBestiaId);
 		subscriptionManager.setOffline(pbm.getAccountId());
 
 		accountBestiaRegister.get(accountId).remove(entityId);
