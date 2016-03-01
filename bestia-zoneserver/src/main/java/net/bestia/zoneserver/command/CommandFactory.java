@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.command;
 
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -8,9 +7,9 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.reflections.Reflections;
 
 import net.bestia.messages.Message;
+import net.bestia.zoneserver.util.PackageLoader;
 
 public abstract class CommandFactory {
 
@@ -24,15 +23,11 @@ public abstract class CommandFactory {
 	 * @param packageName
 	 */
 	private void scanPackage(String packageName) {
-		final Reflections reflections = new Reflections(packageName);
-		final Set<Class<? extends Command>> subTypes = reflections.getSubTypesOf(Command.class);
+		
+		final PackageLoader<Command> loader = new PackageLoader<>(Command.class, packageName);
+		final Set<Class<? extends Command>> subTypes = loader.getSubClasses();
 
 		for (Class<? extends Command> clazz : subTypes) {
-
-			// Dont instance abstract classes.
-			if (Modifier.isAbstract(clazz.getModifiers())) {
-				continue;
-			}
 
 			try {
 				final Command cmd = clazz.newInstance();
