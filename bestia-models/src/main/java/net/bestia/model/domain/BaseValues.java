@@ -3,6 +3,7 @@ package net.bestia.model.domain;
 import java.io.Serializable;
 import java.util.concurrent.ThreadLocalRandom;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Transient;
 
@@ -21,12 +22,25 @@ public class BaseValues implements Serializable {
 	@Transient
 	private static final int MAX_IV_VALUE = 15;
 
+	@Column(name = "bHp")
 	private int hp;
+	
+	@Column(name = "bMana")
 	private int mana;
+	
+	@Column(name = "bAtk")
 	private int atk;
+	
+	@Column(name = "bDef")
 	private int def;
+	
+	@Column(name = "bSpAtk")
 	private int spAtk;
+	
+	@Column(name = "bSpDef")
 	private int spDef;
+	
+	@Column(name = "bSpd")
 	private int spd;
 
 	public BaseValues() {

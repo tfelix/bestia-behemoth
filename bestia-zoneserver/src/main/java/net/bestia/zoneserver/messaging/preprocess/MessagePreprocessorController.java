@@ -34,15 +34,23 @@ public class MessagePreprocessorController extends MessagePreprocessor {
 		// Automatically add the class instancing MessageProprocessor.
 		final PackageLoader<MessagePreprocessor> loader = new PackageLoader<>(MessagePreprocessor.class,
 				"net.bestia.zoneserver.messaging.preprocess");
-		
-		final Set<Class<? extends MessagePreprocessor>> clazzes = loader.getSubClasses();
-		for(Class<? extends MessagePreprocessor> clazz : clazzes) {
+
+		final Set<Class<? extends MessagePreprocessor>> clazzes = loader.getConcreteSubClasses();
+		for (Class<? extends MessagePreprocessor> clazz : clazzes) {
+
+			// We get this class since we implement the MessagePreprocessor
+			// interface. Skip us!
+			if(clazz.equals(MessagePreprocessorController.class)) {
+				continue;
+			}
+
 			try {
-				final MessagePreprocessor mp = clazz.getDeclaredConstructor(CommandContext.class).newInstance(commandContext);
+				final MessagePreprocessor mp = clazz.getDeclaredConstructor(CommandContext.class)
+						.newInstance(commandContext);
 				addProcessor(mp);
 			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				LOG.error("Could not automagically add instance of {}", clazz.toGenericString(), e);
+				LOG.error("Could not automagically add instance.", e);
 			}
 		}
 	}
@@ -56,7 +64,6 @@ public class MessagePreprocessorController extends MessagePreprocessor {
 		preprocessors.add(processor);
 	}
 
-	
 	/**
 	 * Preprocess the incoming message. If null is returned the message got
 	 * thrown out.

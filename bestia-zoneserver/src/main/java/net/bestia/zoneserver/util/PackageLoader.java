@@ -3,6 +3,7 @@ package net.bestia.zoneserver.util;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,6 +35,7 @@ public class PackageLoader<BaseT> {
 
 	/**
 	 * Returns a Set of all the subclasses for the given super-type and package.
+	 * This will return ALL subtypes (even abstract ones).
 	 * 
 	 * @return The set of subclasses.
 	 */
@@ -44,6 +46,21 @@ public class PackageLoader<BaseT> {
 		}
 
 		return subclasses;
+	}
+
+	/**
+	 * Returns only concrete subsclasses which can be instantiated.
+	 * 
+	 * @return
+	 */
+	public Set<Class<? extends BaseT>> getConcreteSubClasses() {
+		if (!hasLoaded) {
+			load();
+		}
+
+		return subclasses.stream()
+				.filter(x -> !Modifier.isAbstract(x.getModifiers()))
+				.collect(Collectors.toSet());
 	}
 
 	private void load() {

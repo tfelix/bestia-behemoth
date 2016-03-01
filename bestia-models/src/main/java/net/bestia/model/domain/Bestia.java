@@ -43,18 +43,18 @@ public class Bestia implements Serializable {
 
 	@JsonProperty("img")
 	private String image = "";
-	
+
 	@JsonProperty("s")
 	private String sprite = "";
 
 	@JsonIgnore
 	private int expGained;
-	
+
 	@JsonIgnore
 	private int level;
 
 	private boolean isBoss;
-	
+
 	@JsonIgnore
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "bestia", fetch = FetchType.EAGER)
 	private List<DropItem> dropItems = new ArrayList<>();
@@ -70,18 +70,17 @@ public class Bestia implements Serializable {
 	 * Level 76 - 100: Totel EVs: 4
 	 * 
 	 */
-	@Transient
+	@Embedded
 	@JsonIgnore
+	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "evHp") ),
+		@AttributeOverride(name = "mana", column = @Column(name = "evMana") ),
+		@AttributeOverride(name = "atk", column = @Column(name = "evAtk") ),
+		@AttributeOverride(name = "def", column = @Column(name = "evDef") ),
+		@AttributeOverride(name = "spAtk", column = @Column(name = "evSpAtk") ),
+		@AttributeOverride(name = "spDef", column = @Column(name = "evSpDef") ),
+		@AttributeOverride(name = "spd", column = @Column(name = "evSpd") ) })
 	private BaseValues effortValues;
 
-	/**
-	 * The status points are calculated based on the base stats and the level
-	 * as well. But in contrast to the players wild bestias gain a small boost in
-	 * their status calculation in order to compensate for missing equipment.
-	 * Their armor and special armor is also saved as a fixed value in the
-	 * database.
-	 */
-	@Transient
 	@JsonIgnore
 	private StatusPoints statusValues;
 
@@ -91,13 +90,6 @@ public class Bestia implements Serializable {
 	 * added to each bestia when it kill another bestia from this kind.
 	 */
 	@Embedded
-	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "bHp") ),
-			@AttributeOverride(name = "mana", column = @Column(name = "bMana") ),
-			@AttributeOverride(name = "atk", column = @Column(name = "bAtk") ),
-			@AttributeOverride(name = "def", column = @Column(name = "bDef") ),
-			@AttributeOverride(name = "spAtk", column = @Column(name = "bSpAtk") ),
-			@AttributeOverride(name = "spDef", column = @Column(name = "bSpDef") ),
-			@AttributeOverride(name = "spd", column = @Column(name = "bSpd") ) })
 	@JsonIgnore
 	private BaseValues baseValues;
 
@@ -110,7 +102,6 @@ public class Bestia implements Serializable {
 	public Bestia() {
 
 	}
-	
 
 	/**
 	 * Calculates the effort values depending on its level and the base values.
@@ -173,6 +164,11 @@ public class Bestia implements Serializable {
 		return sprite;
 	}
 
+	/**
+	 * Experience points gained if bestia was defeated.
+	 * 
+	 * @return
+	 */
 	public int getExpGained() {
 		return expGained;
 	}
@@ -194,7 +190,7 @@ public class Bestia implements Serializable {
 	public String getScriptExec() {
 		return scriptExec;
 	}
-	
+
 	public List<DropItem> getDropItems() {
 		return dropItems;
 	}

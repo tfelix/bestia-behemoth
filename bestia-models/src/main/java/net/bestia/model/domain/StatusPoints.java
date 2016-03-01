@@ -19,45 +19,38 @@ public class StatusPoints implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@JsonProperty("chp")
+	@Transient
 	private int currentHp;
 
 	@JsonProperty("mhp")
-	@Transient
 	private int maxHp;
 
 	@JsonProperty("cmana")
+	@Transient
 	private int currentMana;
 
 	@JsonProperty("mmana")
-	@Transient
 	private int maxMana;
 
 	@JsonProperty("adef")
-	@Transient
 	private int armorDef;
 
 	@JsonProperty("aspdef")
-	@Transient
 	private int armorSpDef;
 
 	@JsonProperty("atk")
-	@Transient
 	private int atk;
 
 	@JsonProperty("def")
-	@Transient
 	private int def;
 
 	@JsonProperty("spatk")
-	@Transient
 	private int spAtk;
 
 	@JsonProperty("spdef")
-	@Transient
 	private int spDef;
 
 	@JsonProperty("spd")
-	@Transient
 	private int spd;
 
 	/* (non-Javadoc)

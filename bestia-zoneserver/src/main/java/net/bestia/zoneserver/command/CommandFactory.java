@@ -23,26 +23,20 @@ public abstract class CommandFactory {
 	 * @param packageName
 	 */
 	private void scanPackage(String packageName) {
-		
+
 		final PackageLoader<Command> loader = new PackageLoader<>(Command.class, packageName);
-		final Set<Class<? extends Command>> subTypes = loader.getSubClasses();
+		final Set<Command> subObjs = loader.getSubObjects();
 
-		for (Class<? extends Command> clazz : subTypes) {
+		for (Command cmd : subObjs) {
 
-			try {
-				final Command cmd = clazz.newInstance();
-
-				// Dont put a command handler in the library twice.
-				if (commandLibrary.containsKey(cmd.handlesMessageId())) {
-					LOG.warn("Handler for message {} already registered. Can not add command {}.",
-							cmd.handlesMessageId(), clazz.toString());
-					continue;
-				}
-
-				commandLibrary.put(cmd.handlesMessageId(), cmd);
-			} catch (InstantiationException | IllegalAccessException e) {
-				LOG.error("Can not instanciate command handler: {}", clazz.toString(), e);
+			// Dont put a command handler in the library twice.
+			if (commandLibrary.containsKey(cmd.handlesMessageId())) {
+				LOG.warn("Handler for message {} already registered. Can not add command {}.",
+						cmd.handlesMessageId(), cmd.getClass().getName());
+				continue;
 			}
+
+			commandLibrary.put(cmd.handlesMessageId(), cmd);
 		}
 	}
 
