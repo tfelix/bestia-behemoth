@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.cli.CommandLine;
@@ -30,7 +28,6 @@ import net.bestia.model.I18n;
 import net.bestia.model.ServiceLocator;
 import net.bestia.model.dao.I18nDAO;
 import net.bestia.util.BestiaConfiguration;
-import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandContext.CommandContextBuilder;
 import net.bestia.zoneserver.command.CommandFactory;
@@ -38,11 +35,10 @@ import net.bestia.zoneserver.command.server.ServerCommandFactory;
 import net.bestia.zoneserver.ecs.ActiveBestiaRegistry;
 import net.bestia.zoneserver.loader.ScriptLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
-import net.bestia.zoneserver.messaging.MessageHandler;
+import net.bestia.zoneserver.messaging.MessageLoop;
 import net.bestia.zoneserver.messaging.UserRegistry;
+import net.bestia.zoneserver.messaging.preprocess.MessagePreprocessor;
 import net.bestia.zoneserver.messaging.preprocess.MessagePreprocessorController;
-import net.bestia.zoneserver.messaging.routing.MessageFilter;
-import net.bestia.zoneserver.messaging.routing.MessageIdFilter;
 import net.bestia.zoneserver.messaging.routing.MessageRouter;
 import net.bestia.zoneserver.script.ScriptManager;
 import net.bestia.zoneserver.zone.Zone;
@@ -60,60 +56,25 @@ public class Zoneserver {
 
 	private final static Logger log = LogManager.getLogger(Zoneserver.class);
 
-	/**
-	 * Handles messages coming from the external interserver.
-	 *
-	 */
-	private class InterserverHandler implements InterserverMessageHandler {
-
-		@Override
-		public void onMessage(Message msg) {
-			log.trace("Zoneserver {} received: {}", name, msg.toString());
-
-			// Preprocess the message.
-			msg = messagePreprocessor.preprocess(msg);
-
-			if (msg == null) {
-				// Msg was not intended for this server.
-				return;
-			}
-
-			// Route the message.
-			messageRouter.handleMessage(msg);
-		}
-	}
-
-	/**
-	 * Internal handler so we dont need to expose the {@link MessageHandler}
-	 * interface on the {@link Zoneserver}. Handles the messages directly for
-	 * the zone.
-	 */
-	private class ZoneserverMessageProcessor implements MessageHandler {
-
-		@Override
-		public void handleMessage(Message msg) {
-			final Command cmd = commandFactory.getCommand(msg);
-			if (cmd != null) {
-				commandExecutor.submit(cmd);
-			}
-		}
-
-	}
 
 	private final String name;
 	private final BestiaConfiguration config;
 	private final AtomicBoolean isRunning = new AtomicBoolean(false);
 
-	private final InterserverHandler interserverHandler = new InterserverHandler();
+	private final InterserverMessageHandler interserverHandler = new InterserverMessageHandler() {
+		
+		@Override
+		public void onMessage(Message msg) {
+			log.trace("Zoneserver {} received: {}", name, msg.toString());
+			messageLoop.handleMessage(msg);
+		}
+	};
+	
 	private final InterserverSubscriber interserverSubscriber;
 	private final InterserverPublisher interserverPublisher;
 
-	// Routing and subscriptions
-	private final MessageRouter messageRouter = new MessageRouter();
-	private final MessagePreprocessorController messagePreprocessor;
-
-	private final CommandFactory commandFactory;
-	private final ExecutorService commandExecutor;
+	private final MessageLoop messageLoop;
+	
 	private final CommandContext commandContext;
 
 	/**
@@ -156,10 +117,12 @@ public class Zoneserver {
 				.setServer(this)
 				.setScriptManager(scriptManager)
 				.setServiceLocator(ServiceLocator.getInstance())
-				.setMessageRouter(messageRouter);
+				.setMessageRouter(new MessageRouter());
 		this.commandContext = ctxBuilder.build();
-		this.commandFactory = new ServerCommandFactory(commandContext);
-		this.commandExecutor = Executors.newFixedThreadPool(1);
+		
+		final MessagePreprocessor preprocessor = new MessagePreprocessorController(commandContext);
+		final CommandFactory serverCommandFactory = new ServerCommandFactory(commandContext);
+		this.messageLoop = new MessageLoop(preprocessor, serverCommandFactory, commandContext.getMessageRouter());
 
 		final String interUrl = config.getProperty("inter.domain");
 		// We receive where the interserver publishes and vice versa.
@@ -179,14 +142,6 @@ public class Zoneserver {
 		final Set<String> zones = new HashSet<String>();
 		zones.addAll(Arrays.asList(zoneStrings));
 		this.responsibleZones = Collections.unmodifiableSet(zones);
-
-		// ### Setup the message preprocessing.
-		this.messagePreprocessor = new MessagePreprocessorController(commandContext);
-
-		// ### Setup the message routing.
-		final Set<String> messageIDs = commandFactory.getRegisteredMessageIds();
-		final MessageFilter filter = new MessageIdFilter(messageIDs);
-		messageRouter.registerFilter(filter, new ZoneserverMessageProcessor());
 
 		this.userRegistry = new UserRegistry(this);
 
@@ -274,7 +229,7 @@ public class Zoneserver {
 
 		// Shut down all the msg queues.
 		log.info("Shutting down: command and messaging system...");
-		commandExecutor.shutdown();
+		messageLoop.shutdown();
 
 		log.info("Shutting down: zones entity subsystem...");
 		zones.values().forEach((x) -> {
@@ -321,6 +276,7 @@ public class Zoneserver {
 	 * @param topic
 	 *            Topic to subscribe to.
 	 */
+	
 	public void subscribe(String topic) {
 		interserverSubscriber.subscribe(topic);
 	}
@@ -331,6 +287,7 @@ public class Zoneserver {
 	 * @param topic
 	 *            Topic to unsubscribe from.
 	 */
+	
 	public void unsubscribe(String topic) {
 		interserverSubscriber.unsubscribe(topic);
 	}

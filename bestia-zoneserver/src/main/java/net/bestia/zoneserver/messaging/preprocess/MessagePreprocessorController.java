@@ -22,13 +22,14 @@ import net.bestia.zoneserver.util.PackageLoader;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MessagePreprocessorController {
+public class MessagePreprocessorController extends MessagePreprocessor {
 
 	private static final Logger LOG = LogManager.getLogger(MessagePreprocessorController.class);
 
 	private final List<MessagePreprocessor> preprocessors = new ArrayList<>();
 
 	public MessagePreprocessorController(CommandContext commandContext) {
+		super(commandContext);
 
 		// Automatically add the class instancing MessageProprocessor.
 		final PackageLoader<MessagePreprocessor> loader = new PackageLoader<>(MessagePreprocessor.class,
@@ -55,6 +56,7 @@ public class MessagePreprocessorController {
 		preprocessors.add(processor);
 	}
 
+	
 	/**
 	 * Preprocess the incoming message. If null is returned the message got
 	 * thrown out.
@@ -62,7 +64,8 @@ public class MessagePreprocessorController {
 	 * @param message
 	 * @return
 	 */
-	public Message preprocess(Message message) {
+	@Override
+	public Message process(Message message) {
 		if (message == null) {
 			throw new IllegalArgumentException("Message can not be null.");
 		}

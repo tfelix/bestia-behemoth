@@ -7,16 +7,23 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.bestia.messages.InputMessage;
 import net.bestia.messages.Message;
 
+/**
+ * This filter allows to dynamically subscribe to bestia ids and messages (most
+ * likly {@link InputMessage}s) for this bestias.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class DynamicBestiaIdMessageFilter implements MessageFilter {
 
-	// There is nos concurrent set, we must build it from map.
+	// There is no concurrent set, we must build it from map.
 	private final Set<Integer> interestedBestiaIds = Collections.newSetFromMap(new ConcurrentHashMap<>());
-	
-	public void subscribeId(Integer id) {
+
+	public void addPlayerBestiaId(Integer id) {
 		interestedBestiaIds.add(id);
 	}
-	
-	public void removeId(Integer id) {
+
+	public void removePlayerBestiaId(Integer id) {
 		interestedBestiaIds.remove(id);
 	}
 
@@ -29,7 +36,7 @@ public class DynamicBestiaIdMessageFilter implements MessageFilter {
 		final InputMessage inputMsg = (InputMessage) msg;
 		return interestedBestiaIds.contains(inputMsg.getPlayerBestiaId());
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("DynamicBestiaIdMessageFilter[ids: %s]", interestedBestiaIds.toString());

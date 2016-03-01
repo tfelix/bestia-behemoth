@@ -13,8 +13,9 @@ import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.command.CommandContext;
 
 /**
- *  * TODO Das hier zusammen mit LogoutBroadcastMessage in eine gemeinsame,
+ * * TODO Das hier zusammen mit LogoutBroadcastMessage in eine gemeinsame,
  * allgemeine Broadcast Classe refactoren.
+ * 
  * @author Thomas
  *
  */
@@ -44,7 +45,8 @@ public class LogoutBroadcastMessagePreprocessor extends MessagePreprocessor {
 		bestias.add(account.getMaster());
 
 		// Prepare wrapped message.
-		ZoneMessageDecorator<LogoutBroadcastMessage> wrappedMsg = new ZoneMessageDecorator<LogoutBroadcastMessage>(msg);
+		final ZoneMessageDecorator<LogoutBroadcastMessage> wrappedMsg = new ZoneMessageDecorator<LogoutBroadcastMessage>(
+				msg);
 
 		boolean atLeastOne = false;
 		for (PlayerBestia playerBestia : bestias) {
@@ -60,7 +62,7 @@ public class LogoutBroadcastMessagePreprocessor extends MessagePreprocessor {
 			return null;
 		}
 	}
-	
+
 	private boolean isBestiaOnZone(PlayerBestia playerBestia) {
 		final Zoneserver server = ctx.getServer();
 		final Set<String> zones = server.getResponsibleZones();

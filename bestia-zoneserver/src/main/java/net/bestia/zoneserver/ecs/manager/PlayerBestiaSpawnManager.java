@@ -153,7 +153,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		final Long accountId = pbm.getAccountId();
 
 		bestiaEntityRegister.put(playerBestiaId, entityId);
-		bestiaIdMessageFilter.subscribeId(playerBestiaId);
+		bestiaIdMessageFilter.addPlayerBestiaId(playerBestiaId);
 		subscriptionManager.setOnline(pbm.getAccountId());
 
 		// Add the entity to the register so it can be deleted.
@@ -174,7 +174,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		final Long accountId = pbm.getAccountId();
 
 		bestiaEntityRegister.remove(playerBestiaId);
-		bestiaIdMessageFilter.removeId(playerBestiaId);
+		bestiaIdMessageFilter.removePlayerBestiaId(playerBestiaId);
 		subscriptionManager.setOffline(pbm.getAccountId());
 
 		accountBestiaRegister.get(accountId).remove(entityId);

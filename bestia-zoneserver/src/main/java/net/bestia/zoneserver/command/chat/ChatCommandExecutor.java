@@ -20,6 +20,9 @@ import net.bestia.zoneserver.util.PackageLoader;
  * {@link ChatUserCommand} are statically saved the instances must be immutable
  * in order to be thread safe.
  * 
+ * TODO Kann das jetzt nicht eleganter mit Filtern/Routing gelöst werden statt
+ * diese Klasse hier zu erzeugen?
+ * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */

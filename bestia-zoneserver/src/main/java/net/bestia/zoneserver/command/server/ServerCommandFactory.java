@@ -9,8 +9,9 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandFactory;
 
 /**
- * Creates commands from incoming messages. Please bear in mind that not each message creates a command for execution on
- * the server. Only a subset of all available messages have an associated command. (All the INCOMING messages).
+ * Creates commands from incoming messages. Please bear in mind that not each
+ * message creates a command for execution on the server. Only a subset of all
+ * available messages have an associated command. (All the INCOMING messages).
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -21,14 +22,14 @@ public class ServerCommandFactory extends CommandFactory {
 
 	private final CommandContext commandContext;
 
-
 	/**
 	 * Ctor.
 	 * 
 	 * @param ctx
 	 *            The CommandContext to be used for executing these commands.
 	 * @param packageToScan
-	 *            Path to the package to be scanned for {@link Command} implementations.
+	 *            Path to the package to be scanned for {@link Command}
+	 *            implementations.
 	 */
 	public ServerCommandFactory(CommandContext ctx, String packageToScan) {
 		super(packageToScan);
@@ -39,6 +40,12 @@ public class ServerCommandFactory extends CommandFactory {
 		this.commandContext = ctx;
 	}
 
+	/**
+	 * Scanns the default package "net.bestia.zoneserver.command.server" for
+	 * {@link Command}s to add.
+	 * 
+	 * @param ctx
+	 */
 	public ServerCommandFactory(CommandContext ctx) {
 		super("net.bestia.zoneserver.command.server");
 		if (ctx == null) {
@@ -48,8 +55,12 @@ public class ServerCommandFactory extends CommandFactory {
 		this.commandContext = ctx;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.bestia.zoneserver.command.CommandFactoryInterf#getCommand(net.bestia.messages.Message)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.bestia.zoneserver.command.CommandFactoryInterf#getCommand(net.bestia.
+	 * messages.Message)
 	 */
 	@Override
 	public Command getCommand(Message message) {
