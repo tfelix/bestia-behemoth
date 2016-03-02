@@ -1,6 +1,6 @@
 package net.bestia.messages.entity;
 
-public enum EntityType {
+public enum SpriteType {
 	NONE, 
 	ITEM, 
 	BESTIA_SINGLE_SPRITE,

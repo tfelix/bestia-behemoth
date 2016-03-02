@@ -10,7 +10,7 @@ import com.artemis.utils.IntBag;
 
 import net.bestia.messages.MapEntitiesMessage;
 import net.bestia.messages.MapEntitiesMessage.EntityAction;
-import net.bestia.messages.entity.EntityType;
+import net.bestia.messages.entity.SpriteType;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
@@ -83,7 +83,7 @@ public class EntityUpdateMessageFactory {
 		final Visible visible = visibleMapper.get(entityId);
 		final Vector2 pos = positionMapper.get(e).position.getAnchor();
 		final PlayerBestia playerControlled = playerMapper.getSafe(e);
-		final EntityType entityType = visible.spriteType;
+		final SpriteType entityType = visible.spriteType;
 
 		final MapEntitiesMessage.Entity msg = new MapEntitiesMessage.Entity(uuid.toString(), pos.x, pos.y);
 		msg.addSprite(visible.sprite);

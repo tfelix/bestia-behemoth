@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.entity.EntityType;
+import net.bestia.messages.entity.SpriteType;
 
 /**
  * This message contains a list of (visible) entities around a player. These
@@ -48,7 +48,7 @@ public class MapEntitiesMessage extends Message {
 		@JsonProperty("y")
 		private int y;
 		@JsonProperty("t")
-		private EntityType type = EntityType.NONE;
+		private SpriteType type = SpriteType.NONE;
 		@JsonProperty("a")
 		private EntityAction action = null;
 		@JsonProperty("pbid")
@@ -110,11 +110,11 @@ public class MapEntitiesMessage extends Message {
 			this.y = y;
 		}
 
-		public EntityType getType() {
+		public SpriteType getType() {
 			return type;
 		}
 
-		public void setType(EntityType type) {
+		public void setType(SpriteType type) {
 			this.type = type;
 		}
 
