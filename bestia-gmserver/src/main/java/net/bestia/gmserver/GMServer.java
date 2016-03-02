@@ -6,7 +6,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import net.bestia.gmserver.handler.HelloWorld;
+import net.bestia.gmserver.servlets.LoginServlet;
+import net.bestia.gmserver.servlets.MyVaadinServlet;
 
 /**
  * The GM Server will provide an way to access the bestia game database to add,
@@ -17,32 +18,32 @@ import net.bestia.gmserver.handler.HelloWorld;
  *
  */
 public final class GMServer {
-	
+
 	private static final Logger LOG = LogManager.getLogger(GMServer.class);
 
-	
 	public boolean start() {
-		
+
 		final Server server = new Server(8080);
-		
+
 		final ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        context.setContextPath("/");
-        server.setHandler(context);
- 
-        context.addServlet(new ServletHolder(new MyVaadinServlet()),"/*");
- 
-        try {
+		context.setContextPath("/");
+		server.setHandler(context);
+
+		context.addServlet(new ServletHolder(new MyVaadinServlet()), "/*");
+		context.addServlet(new ServletHolder(new LoginServlet()), "/login/*");
+
+		try {
 			server.start();
 		} catch (Exception e) {
 			LOG.fatal("Could not start GM-Server.", e);
 			stop();
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	public void stop() {
-		
+
 	}
 }
