@@ -28,8 +28,6 @@ import net.bestia.model.misc.Damage;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.component.Attacks;
-import net.bestia.zoneserver.ecs.component.HP;
-import net.bestia.zoneserver.ecs.component.Mana;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 
 /**
@@ -51,8 +49,6 @@ public class PlayerBestiaManager extends BestiaManager {
 	private final Zoneserver server;
 
 	private final ComponentMapper<Attacks> attacksMapper;
-	private final ComponentMapper<Mana> manaMapper;
-	private final ComponentMapper<HP> hpMapper;
 	private final PlayerBestiaSpawnManager playerBestiaSpawnManager;
 	private final String entityUUID;
 
@@ -69,8 +65,6 @@ public class PlayerBestiaManager extends BestiaManager {
 
 		// Get all the mapper to extract and set ECS components.
 		this.attacksMapper = world.getMapper(Attacks.class);
-		this.manaMapper = world.getMapper(Mana.class);
-		this.hpMapper = world.getMapper(HP.class);
 		this.playerBestiaSpawnManager = world.getSystem(PlayerBestiaSpawnManager.class);
 		this.entityUUID = world.getSystem(UuidEntityManager.class).getUuid(entity).toString();
 

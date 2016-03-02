@@ -52,13 +52,12 @@ public class StatusPoints implements Serializable {
 
 	@JsonProperty("spd")
 	private int spd;
-	
+
 	@Transient
 	private float hpRegenRate;
-	
+
 	@Transient
 	private float manaRegenRate;
-
 
 	public int getCurrentHp() {
 		return currentHp;
@@ -72,11 +71,11 @@ public class StatusPoints implements Serializable {
 	public float getHpRegenerationRate() {
 		return hpRegenRate;
 	}
-	
+
 	public void setHpRegenerationRate(float hpRegenRate) {
 		this.hpRegenRate = hpRegenRate;
 	}
-	
+
 	public int getMaxHp() {
 		return maxHp;
 	}
@@ -94,11 +93,11 @@ public class StatusPoints implements Serializable {
 		this.currentMana = mana;
 		checkInvalidStatusValue();
 	}
-	
+
 	public float getManaRegenerationRate() {
 		return manaRegenRate;
 	}
-	
+
 	public void setManaRegenenerationRate(float manaRegenRate) {
 		this.manaRegenRate = manaRegenRate;
 	}
@@ -108,26 +107,32 @@ public class StatusPoints implements Serializable {
 		checkInvalidStatusValue();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.StatusPoints#getMaxMana()
 	 */
-	
+
 	public int getMaxMana() {
 		return maxMana;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.StatusPoints#getArmorDef()
 	 */
-	
+
 	public int getArmorDef() {
 		return armorDef;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.StatusPoints#setArmorDef(int)
 	 */
-	
+
 	public void setArmorDef(int armorDef) {
 		this.armorDef = armorDef;
 		checkInvalidStatusValue();
@@ -145,7 +150,7 @@ public class StatusPoints implements Serializable {
 	public int getAtk() {
 		return atk;
 	}
-	
+
 	public void setAtk(int atk) {
 		this.atk = atk;
 		checkInvalidStatusValue();
@@ -155,70 +160,86 @@ public class StatusPoints implements Serializable {
 		return def;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.StatusPoints#setDef(int)
 	 */
-	
+
 	public void setDef(int def) {
 		this.def = def;
 		checkInvalidStatusValue();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.StatusPoints#getSpAtk()
 	 */
-	
+
 	public int getSpAtk() {
 		return spAtk;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.StatusPoints#setSpAtk(int)
 	 */
-	
+
 	public void setSpAtk(int spAtk) {
 		this.spAtk = spAtk;
 		checkInvalidStatusValue();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.StatusPoints#getSpDef()
 	 */
-	
+
 	public int getSpDef() {
 		return spDef;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.StatusPoints#setSpDef(int)
 	 */
-	
+
 	public void setSpDef(int spDef) {
 		this.spDef = spDef;
 		checkInvalidStatusValue();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.StatusPoints#getSpd()
 	 */
-	
+
 	public int getSpd() {
 		return spd;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.StatusPoints#setSpd(int)
 	 */
-	
+
 	public void setSpd(int spd) {
 		this.spd = spd;
 		checkInvalidStatusValue();
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.StatusPoints#setMaxValues(int, int)
 	 */
-	
+
 	public void setMaxValues(int maxHp, int maxMana) {
 
 		this.maxHp = maxHp;
@@ -226,10 +247,13 @@ public class StatusPoints implements Serializable {
 		checkInvalidStatusValue();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.bestia.model.domain.StatusPoints#add(net.bestia.model.domain.StatusPoints)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.bestia.model.domain.StatusPoints#add(net.bestia.model.domain.
+	 * StatusPoints)
 	 */
-	
+
 	public void add(StatusPoints rhs) {
 
 		this.maxHp += rhs.getMaxHp();
@@ -335,5 +359,29 @@ public class StatusPoints implements Serializable {
 				spd,
 				armorDef,
 				armorSpDef);
+	}
+
+	/**
+	 * Adds this amount of HP to the current HP. A negative amount is also
+	 * allowed. It will then get subtracted.
+	 * 
+	 * @param addHp
+	 *            Amount of HP to add or subtract to or from currentHp.
+	 */
+	public void addHp(int addHp) {
+		setCurrentHp(getCurrentHp() + addHp);
+		checkInvalidStatusValue();
+	}
+	
+	/**
+	 * Adds this amount of Mana to the current Mana. A negative amount is also
+	 * allowed. It will then get subtracted.
+	 * 
+	 * @param addMana
+	 *            Amount of Mana to add or subtract to or from currentMana.
+	 */
+	public void addMana(int addMana) {
+		setCurrentMana(getCurrentMana() + addMana);
+		checkInvalidStatusValue();
 	}
 }

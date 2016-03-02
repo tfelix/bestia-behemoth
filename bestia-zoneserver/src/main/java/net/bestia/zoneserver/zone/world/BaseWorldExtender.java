@@ -16,8 +16,7 @@ import net.bestia.zoneserver.ecs.system.AISystem;
 import net.bestia.zoneserver.ecs.system.ActiveSpawnUpdateSystem;
 import net.bestia.zoneserver.ecs.system.ChangedNetworkUpdateSystem;
 import net.bestia.zoneserver.ecs.system.DelayedRemoveSystem;
-import net.bestia.zoneserver.ecs.system.HPRegenerationSystem;
-import net.bestia.zoneserver.ecs.system.ManaRegenerationSystem;
+import net.bestia.zoneserver.ecs.system.RegenerationSystem;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
 import net.bestia.zoneserver.ecs.system.VisibleSpawnUpdateSystem;
@@ -47,8 +46,7 @@ public class BaseWorldExtender implements WorldExtend {
 
 		worldConfig.setSystem(new DelayedRemoveSystem());
 		worldConfig.setSystem(new PersistSystem(10000));
-		worldConfig.setSystem(new HPRegenerationSystem());
-		worldConfig.setSystem(new ManaRegenerationSystem());
+		worldConfig.setSystem(new RegenerationSystem());
 		// ChangedNetworkUpdateSystem must be last because it removes the
 		// Changed component.
 		worldConfig.setSystem(new ChangedNetworkUpdateSystem());

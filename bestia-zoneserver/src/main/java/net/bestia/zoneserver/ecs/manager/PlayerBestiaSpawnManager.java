@@ -28,12 +28,9 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.Bestia;
-import net.bestia.zoneserver.ecs.component.HP;
-import net.bestia.zoneserver.ecs.component.HPRegenerationRate;
-import net.bestia.zoneserver.ecs.component.Mana;
-import net.bestia.zoneserver.ecs.component.ManaRegenerationRate;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.manager.InventoryManager;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
@@ -69,10 +66,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	private ComponentMapper<Attacks> attacksMapper;
 	private ComponentMapper<Bestia> bestiaMapper;
 	private ComponentMapper<PlayerBestia> playerBestiaMapper;
-	private ComponentMapper<HP> hpMapper;
-	private ComponentMapper<HPRegenerationRate> hpRegenMapper;
-	private ComponentMapper<Mana> manaMapper;
-	private ComponentMapper<ManaRegenerationRate> manaRegenMapper;
+	private ComponentMapper<StatusPoints> statusPointMapper;
 	private ComponentMapper<Visible> visibleMapper;
 	private ComponentMapper<PlayerBestia> playerMapper;
 
@@ -132,10 +126,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 				.add(Attacks.class)
 				.add(Bestia.class)
 				.add(PlayerBestia.class)
-				.add(HP.class)
-				.add(HPRegenerationRate.class)
-				.add(Mana.class)
-				.add(ManaRegenerationRate.class)
+				.add(StatusPoints.class)
 				.add(Visible.class)
 				.build(world);
 
@@ -208,22 +199,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		attacksMapper.get(pbEntity).addAll(pbm.getAttackIds());
 		bestiaMapper.get(pbEntity).bestiaManager = pbm;
 
-		// TODO Der PlayerBestiaManager sollte für das Updaten verantwortlich
-		// sein.
-		final HP hp = hpMapper.get(pbEntity);
-		hp.currentHP = pbm.getStatusPoints().getCurrentHp();
-		hp.maxHP = pbm.getStatusPoints().getMaxHp();
 
-		// TODO Der PlayerBestiaManager sollte für das Updaten verantwortlich
-		// sein.
-		final Mana mana = manaMapper.get(pbEntity);
-		mana.currentMana = pbm.getStatusPoints().getCurrentMana();
-		mana.maxMana = pbm.getStatusPoints().getMaxMana();
-
-		// TODO Der PlayerBestiaManager sollte für das Updaten verantwortlich
-		// sein.
-		hpRegenMapper.get(pbEntity).rate = pbm.getHpRegenerationRate();
-		manaRegenMapper.get(pbEntity).rate = pbm.getManaRegenerationRate();
 		visibleMapper.get(pbEntity).sprite = pbm.getPlayerBestia().getOrigin().getSprite();
 
 		// We need to check the bestia if its the master bestia. It will get
@@ -245,9 +221,8 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		// Send a update to client so he can pick up the new bestia.
 		final BestiaInfoMessage infoMsg = new BestiaInfoMessage();
 		infoMsg.setAccountId(accId);
-		// Use the updated bestia.
 		infoMsg.setBestia(pbm.getPlayerBestia(), pbm.getStatusPoints());
-		infoMsg.setMaster(isMaster);
+		infoMsg.setIsMaster(isMaster);
 		ctx.getServer().sendMessage(infoMsg);
 
 		// Now set all the needed values.

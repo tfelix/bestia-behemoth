@@ -87,7 +87,7 @@ public class BestiaInfoMessage extends Message {
 		return isMaster;
 	}
 
-	public void setMaster(boolean isMaster) {
+	public void setIsMaster(boolean isMaster) {
 		this.isMaster = isMaster;
 	}
 
