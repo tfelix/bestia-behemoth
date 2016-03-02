@@ -1,23 +1,23 @@
 package net.bestia.zoneserver.ecs.system;
 
-import net.bestia.messages.MapEntitiesMessage.EntityAction;
-import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.Active;
-import net.bestia.zoneserver.ecs.component.PlayerBestia;
-import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.ecs.manager.NetworkUpdateManager;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.artemis.Aspect;
 import com.artemis.AspectSubscriptionManager;
 import com.artemis.BaseEntitySystem;
-import com.artemis.Entity;
+import com.artemis.ComponentMapper;
 import com.artemis.EntitySubscription;
-import com.artemis.EntitySubscription.SubscriptionListener;
 import com.artemis.annotations.Wire;
 import com.artemis.utils.IntBag;
+
+import net.bestia.messages.MapEntitiesMessage;
+import net.bestia.messages.MapEntitiesMessage.EntityAction;
+import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.EntityUpdateMessageFactory;
+import net.bestia.zoneserver.ecs.component.Active;
+import net.bestia.zoneserver.ecs.component.PlayerBestia;
+import net.bestia.zoneserver.ecs.component.Visible;
 
 /**
  * As soon as an active player bestia is spawned into the world it gets updated
@@ -34,15 +34,15 @@ public class ActiveSpawnUpdateSystem extends BaseEntitySystem {
 		setEnabled(false);
 	}
 
-	private static final Logger log = LogManager.getLogger(ActiveSpawnUpdateSystem.class);
+	private static final Logger LOG = LogManager.getLogger(ActiveSpawnUpdateSystem.class);
 
 	private AspectSubscriptionManager asm;
 
 	@Wire
 	private CommandContext ctx;
-
-	private NetworkUpdateManager updateManager;
 	private EntitySubscription visibleSubscription;
+	private EntityUpdateMessageFactory updateMessageFactory;
+	private ComponentMapper<PlayerBestia> playerMapper;
 
 	@Override
 	protected void initialize() {
@@ -50,42 +50,30 @@ public class ActiveSpawnUpdateSystem extends BaseEntitySystem {
 
 		visibleSubscription = asm.get(Aspect.all(Visible.class));
 
-		subscription.addSubscriptionListener(new SubscriptionListener() {
+		updateMessageFactory = new EntityUpdateMessageFactory(getWorld());
+	}
 
-			@Override
-			public void inserted(IntBag entities) {
-				
-				final IntBag visibleEntities = visibleSubscription.getEntities();
+	@Override
+	protected void inserted(int entityId) {
+		// TODO Get the Visible Entities in range of this new player. Currently
+		// send all.
+		final IntBag visibleEntities = visibleSubscription.getEntities();
+		final long accId = playerMapper.get(entityId).playerBestiaManager.getAccountId();
 
-				log.trace("{} New active player, sending {} entities.", entities.size(), visibleEntities.size());
+		LOG.trace("New active player, sending {} entities.", visibleEntities.size());
 
-				for (int i = 0; i < entities.size(); i++) {
-					final int newEntityId = entities.get(i);
-					final Entity newActiveEntity = world.getEntity(newEntityId);
+		final MapEntitiesMessage msg = updateMessageFactory.createMessage(visibleEntities);
 
-					for (int j = 0; j < visibleEntities.size(); j++) {
-						final int visibleEntityId = visibleEntities.get(j);
-						final Entity visibleEntity = world.getEntity(visibleEntityId);
+		msg.setAccountId(accId);
+		msg.setAction(EntityAction.APPEAR);
 
-						if (!updateManager.isInSightDistance(newActiveEntity, visibleEntity)) {
-							continue;
-						}
+		LOG.trace("Sending update for entities: {} to accId: {}", msg.getEntities().size(), accId);
 
-						updateManager.sendUpdate(newActiveEntity, visibleEntity, EntityAction.UPDATE);
-					}
-				}
-			}
-
-			@Override
-			public void removed(IntBag entities) {
-				// no op.
-			}
-		});
+		ctx.getServer().sendMessage(msg);
 	}
 
 	@Override
 	protected void processSystem() {
 		// no op. Disabled.
-
 	}
 }

@@ -9,10 +9,11 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * This message contains a list of (visible) entities around a player. These entities consist out of a sprite, a
- * position and additional data that should be preloaded and is associated with an entity. For example existing sounds
- * or attack animations which can be triggered spontaneously. These should be loaded as soon as possible from the client
- * engine.
+ * This message contains a list of (visible) entities around a player. These
+ * entities consist out of a sprite, a position and additional data that should
+ * be preloaded and is associated with an entity. For example existing sounds or
+ * attack animations which can be triggered spontaneously. These should be
+ * loaded as soon as possible from the client engine.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -28,8 +29,9 @@ public class MapEntitiesMessage extends Message {
 	}
 
 	/**
-	 * Certain actions can not be told to the client via an entity message alone. Some actions like a disappearing
-	 * entity must be send via this special action marker.
+	 * Certain actions can not be told to the client via an entity message
+	 * alone. Some actions like a disappearing entity must be send via this
+	 * special action marker.
 	 *
 	 */
 	public enum EntityAction {
@@ -173,6 +175,19 @@ public class MapEntitiesMessage extends Message {
 	@Override
 	public String toString() {
 		return String.format("MapEntityMessage[accId: %d, entities: %s]", getAccountId(), entities.toString());
+	}
+
+	/**
+	 * Sets the action for all included entities in this message. The action is
+	 * used by the client how to react to a new entity (how to handle its
+	 * animation).
+	 * 
+	 * @param action
+	 */
+	public void setAction(EntityAction action) {
+		for (Entity e : entities) {
+			e.setAction(action);
+		}
 	}
 
 }

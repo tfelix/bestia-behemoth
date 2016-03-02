@@ -8,7 +8,7 @@ package net.bestia.messages;
  * @author Thomas
  *
  */
-public class EntityUpdateMessage extends Message {
+public class EntityPositionUpdateMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.update";
@@ -17,11 +17,11 @@ public class EntityUpdateMessage extends Message {
 	private int y;
 	private String entityId;
 
-	public EntityUpdateMessage() {
+	public EntityPositionUpdateMessage() {
 
 	}
 
-	public EntityUpdateMessage(String entityId, long accId, int pbid, int x, int y) {
+	public EntityPositionUpdateMessage(String entityId, long accId, int pbid, int x, int y) {
 		this.setX(x);
 		this.setY(y);
 		this.setEntityId(entityId);
