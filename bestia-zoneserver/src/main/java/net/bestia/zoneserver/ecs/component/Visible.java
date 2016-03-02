@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.artemis.Component;
 
+import net.bestia.messages.entity.EntityType;
 import net.bestia.model.misc.Sprite;
 import net.bestia.model.misc.Sprite.InteractionType;
 
@@ -21,7 +22,8 @@ public class Visible extends Component {
 
 	public List<Sprite> sprites = new ArrayList<>();
 	public String sprite = "";
-	public InteractionType type = InteractionType.GENERIC;
+	public EntityType spriteType = EntityType.NONE;
+	public InteractionType interactionType = InteractionType.GENERIC;
 
 	public Visible() {
 

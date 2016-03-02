@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import net.bestia.messages.entity.EntityType;
+
 /**
  * This message contains a list of (visible) entities around a player. These
  * entities consist out of a sprite, a position and additional data that should
@@ -19,14 +21,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 public class MapEntitiesMessage extends Message {
-
-	/**
-	 * Describes how the client can interact with the entity as a guideline.
-	 *
-	 */
-	public enum EntityType {
-		NONE, LOOT, BESTIA
-	}
 
 	/**
 	 * Certain actions can not be told to the client via an entity message

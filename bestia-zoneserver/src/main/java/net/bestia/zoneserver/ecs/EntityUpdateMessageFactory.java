@@ -10,9 +10,7 @@ import com.artemis.utils.IntBag;
 
 import net.bestia.messages.MapEntitiesMessage;
 import net.bestia.messages.MapEntitiesMessage.EntityAction;
-import net.bestia.messages.MapEntitiesMessage.EntityType;
-import net.bestia.zoneserver.ecs.component.Bestia;
-import net.bestia.zoneserver.ecs.component.Item;
+import net.bestia.messages.entity.EntityType;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
@@ -28,20 +26,16 @@ public class EntityUpdateMessageFactory {
 
 	private final World world;
 	private final UuidEntityManager uuidManager;
-	private final ComponentMapper<Bestia> bestiaMapper;
 	private final ComponentMapper<Visible> visibleMapper;
 	private final ComponentMapper<Position> positionMapper;
-	private final ComponentMapper<Item> itemMapper;
 	private final ComponentMapper<PlayerBestia> playerMapper;
 	private final IntBag helperBag = new IntBag(1);
 
 	public EntityUpdateMessageFactory(World world) {
 		this.world = world;
 		this.uuidManager = world.getSystem(UuidEntityManager.class);
-		this.bestiaMapper = world.getMapper(Bestia.class);
 		this.visibleMapper = world.getMapper(Visible.class);
 		this.positionMapper = world.getMapper(Position.class);
-		this.itemMapper = world.getMapper(Item.class);
 		this.playerMapper = world.getMapper(PlayerBestia.class);
 	}
 
@@ -89,7 +83,7 @@ public class EntityUpdateMessageFactory {
 		final Visible visible = visibleMapper.get(entityId);
 		final Vector2 pos = positionMapper.get(e).position.getAnchor();
 		final PlayerBestia playerControlled = playerMapper.getSafe(e);
-		final MapEntitiesMessage.EntityType entityType = getTypeFromEntity(entityId);
+		final EntityType entityType = visible.spriteType;
 
 		final MapEntitiesMessage.Entity msg = new MapEntitiesMessage.Entity(uuid.toString(), pos.x, pos.y);
 		msg.addSprite(visible.sprite);
@@ -100,28 +94,5 @@ public class EntityUpdateMessageFactory {
 		}
 
 		return msg;
-	}
-
-	// TODO Das hier sollte VISIBLE Bestimmen um welchen Typ von Sprite es sich
-	// handelt.
-
-	/**
-	 * Tries to guess the type of the entity which is represented with this
-	 * entity. By this the client determines which kind of sprite system should
-	 * be used. This is better suited for the visible.class compoenent.
-	 * 
-	 * @param e
-	 * @return
-	 */
-	private MapEntitiesMessage.EntityType getTypeFromEntity(int entityId) {
-
-		if (bestiaMapper.has(entityId)) {
-			return EntityType.BESTIA;
-		} else if (itemMapper.has(entityId)) {
-			return EntityType.LOOT;
-		} else {
-			return EntityType.NONE;
-		}
-
 	}
 }
