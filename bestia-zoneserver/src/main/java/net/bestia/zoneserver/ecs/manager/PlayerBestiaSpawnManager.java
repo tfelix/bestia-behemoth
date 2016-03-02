@@ -253,6 +253,34 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		// Now set all the needed values.
 		LOG.trace("Spawning player bestia: {}.", pb);
 	}
+	
+	/**
+	 * Sends the given message to all active bestias in sight.
+	 * 
+	 * @param source
+	 *            The entity from which the sight range will be calculated.
+	 * @param msg
+	 */
+	public void sendMessageToSightrange(int source, Message msg) {
+		final Position sourcePosition = positionMapper.getSafe(source);
+
+		if (sourcePosition == null) {
+			LOG.warn("Entity has no position. Can not send messages.");
+			return;
+		}
+
+		final IntBag receivers = getActivePlayersInSight(sourcePosition);
+
+		for (int i = 0; i < receivers.size(); i++) {
+			final int receiverId = receivers.get(i);
+
+			final PlayerBestia pb = playerBestiaMapper.get(receiverId);
+			final long accId = pb.playerBestiaManager.getAccountId();
+			msg.setAccountId(accId);
+
+			ctx.getServer().sendMessage(msg);
+		}
+	}
 
 	/**
 	 * Gets the entity id for the given player bestia id in this system. If the

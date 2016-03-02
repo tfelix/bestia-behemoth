@@ -10,37 +10,46 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.messaging.AccountRegistry;
 
+/**
+ * This system keeps track of the active bestia. If a new player bestia is added
+ * the thread safe central {@link AccountRegistry} will get notified by the
+ * change.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 @Wire
 public class ActiveManager extends EntityProcessingSystem {
-	
+
 	private ComponentMapper<PlayerBestia> playerBestiaMapper;
-	
+
 	@Wire
 	private CommandContext ctx;
 
 	public ActiveManager() {
 		super(Aspect.all(Active.class));
-		
+
 		setEnabled(false);
 	}
-	
+
 	@Override
 	public void inserted(Entity e) {
-		if(!playerBestiaMapper.has(e)) {
+		if (!playerBestiaMapper.has(e)) {
 			return;
 		}
-		
+
 		final PlayerBestiaManager pbm = playerBestiaMapper.get(e).playerBestiaManager;
 		ctx.getAccountRegistry().setActiveBestia(pbm.getAccountId(), pbm.getPlayerBestiaId());
 	}
-	
+
 	@Override
 	public void removed(Entity e) {
-		if(!playerBestiaMapper.has(e)) {
+		if (!playerBestiaMapper.has(e)) {
 			return;
 		}
-		
+
 		final PlayerBestiaManager pbm = playerBestiaMapper.get(e).playerBestiaManager;
 		ctx.getAccountRegistry().unsetActiveBestia(pbm.getAccountId(), pbm.getPlayerBestiaId());
 	}

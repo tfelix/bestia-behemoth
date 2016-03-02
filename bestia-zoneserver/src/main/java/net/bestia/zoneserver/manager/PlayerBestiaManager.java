@@ -30,7 +30,7 @@ import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.HP;
 import net.bestia.zoneserver.ecs.component.Mana;
-import net.bestia.zoneserver.ecs.manager.MessageManager;
+import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 
 /**
  * The PlayerBestiaManager is responsible for executing the "business logic" to
@@ -53,7 +53,7 @@ public class PlayerBestiaManager extends BestiaManager {
 	private final ComponentMapper<Attacks> attacksMapper;
 	private final ComponentMapper<Mana> manaMapper;
 	private final ComponentMapper<HP> hpMapper;
-	private final MessageManager messageManager;
+	private final PlayerBestiaSpawnManager playerBestiaSpawnManager;
 	private final String entityUUID;
 
 	private Direction headFacing;
@@ -71,7 +71,7 @@ public class PlayerBestiaManager extends BestiaManager {
 		this.attacksMapper = world.getMapper(Attacks.class);
 		this.manaMapper = world.getMapper(Mana.class);
 		this.hpMapper = world.getMapper(HP.class);
-		this.messageManager = world.getSystem(MessageManager.class);
+		this.playerBestiaSpawnManager = world.getSystem(PlayerBestiaSpawnManager.class);
 		this.entityUUID = world.getSystem(UuidEntityManager.class).getUuid(entity).toString();
 
 		this.server = server;
@@ -120,7 +120,7 @@ public class PlayerBestiaManager extends BestiaManager {
 		final Damage damage = Damage.getHit(entityUUID, dmgValue);
 		
 		final EntityDamageMessage dmgMsg = new EntityDamageMessage(0, damage);
-		messageManager.sendMessageToSightrange(getEntityId(), dmgMsg);
+		playerBestiaSpawnManager.sendMessageToSightrange(getEntityId(), dmgMsg);
 
 		// Update our current hp.
 		final int newHp = statusPoints.getCurrentHp() - dmgValue;
