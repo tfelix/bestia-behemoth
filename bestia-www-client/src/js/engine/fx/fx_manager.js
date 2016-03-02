@@ -21,48 +21,16 @@ Bestia.Engine.FX.EffectsManager = function(pubsub, game, entityCache) {
 		throw "Cache can not be undefined.";
 	}
 
+	/**
+	 * Holds reference to all added effect instances.
+	 * 
+	 * @private
+	 */
+	this._effectInstances = [];
 	this._entityCache = entityCache;
 	this._game = game;
 
-	pubsub.subscribe(Bestia.MID.ENTITY_DAMAGE, this._onEntityDmgMsgHandler.bind(this));
-};
-
-/**
- * Handles damage FX messages.
- */
-Bestia.Engine.FX.EffectsManager.prototype._onEntityDmgMsgHandler = function(_, msg) {
-	// TODO Caching implementieren.
-
-	var dmgs = msg.d;
-	dmgs.forEach(function(x) {
-		
-		// See if there is an entity existing to display this damage.
-		var entity = this._entityCache.getByUuid(x.uuid);
-		
-		// No entity, no dmg.
-		if(entity == null) {
-			return;
-		}
-		
-		var dmgFx = null;
-		
-		switch (x.t) {
-		case 'HEAL':
-			dmgFx = new Bestia.Engine.FX.HealDamage(this._game, entity.positionPixel, x.dmg);
-			break;
-		case 'HIT':
-			dmgFx = new Bestia.Engine.FX.Damage(this._game, entity.positionPixel, x.dmg);
-			break;
-		case 'CRITICAL':
-			dmgFx = new Bestia.Engine.FX.CriticalDamage(this._game, entity.positionPixel, x.dmg);
-			break;
-		case 'MISS':
-			dmgFx = new Bestia.Engine.FX.MissDamage(this._game, entity.positionPixel, x.dmg);
-			break;
-		default:
-			console.debug('Unknown damage type: ' + x.t);
-			return;
-		}
-		
-	}, this);
+	this._effectInstances.push(new Bestia.Engine.FX.Damage(pubsub, entityCache, game));
+	this._effectInstances.push(new Bestia.Engine.FX.Chat(pubsub, entityCache, game));
+	this._effectInstances.push(new Bestia.Engine.FX.Dialog(pubsub, game));
 };

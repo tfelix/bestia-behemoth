@@ -1,0 +1,30 @@
+{
+  "ecmaVersion": 6,
+  "plugins": {
+    "guess-types": {
+      
+    },
+    "outline": {
+      
+    },
+    "jscs": {
+      "config": {
+        
+      }
+    },
+    "jshint": {
+      "config": {
+        "maxerr": 50
+      }
+    },
+    "es_modules": {
+      
+    },
+    "phaser": {
+      
+    }
+  },
+  "libs": [
+    "browser"
+  ]
+}

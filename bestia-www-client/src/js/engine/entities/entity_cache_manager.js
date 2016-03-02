@@ -1,6 +1,8 @@
 /**
  * Managing the entities must be done via two ways: entites can have an pbId and
  * they can have only a uuid. Entities must be accesable both ways.
+ * 
+ * @class Bestia.Engine.EntityCacheManager
  */
 Bestia.Engine.EntityCacheManager = function() {
 
@@ -59,6 +61,11 @@ Bestia.Engine.EntityCacheManager.prototype.clear = function() {
 	this._uuidCache.clear();
 };
 
+/**
+ * Returns all entities inside this cache.
+ * 
+ * @returns
+ */
 Bestia.Engine.EntityCacheManager.prototype.getAllEntities = function() {
 	return this._uuidCache.getAllEntities();
 };

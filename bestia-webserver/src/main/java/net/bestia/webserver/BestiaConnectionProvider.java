@@ -47,12 +47,15 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 
 	private static final Logger log = LogManager.getLogger(BestiaConnectionProvider.class);
 	
+	
+	@SuppressWarnings("unused")
 	private final Gauge<Integer> loginQueueSize = new BasicGauge<>(MonitorConfig.builder("LoginQueueSize").build(), new Callable<Integer>() {
 		@Override
 		public Integer call() throws Exception {
 			return connections.size();
 		}
 	});
+	@SuppressWarnings("unused")
 	private final Counter loginMessageMetric = Monitors.newCounter("LoginMessages");
 
 	private final ObjectMapper mapper = new ObjectMapper();

@@ -12,7 +12,7 @@ public class LogoutBroadcastMessage extends Message {
 	private static final long serialVersionUID = 1L;
 
 	public static final String MESSAGE_ID = "system.logoutbroadcast";
-	
+
 	private final String token;
 
 	public LogoutBroadcastMessage() {
@@ -21,13 +21,13 @@ public class LogoutBroadcastMessage extends Message {
 
 	public LogoutBroadcastMessage(Message message) {
 		setAccountId(message.getAccountId());
-		
+
 		token = null;
 	}
 
 	public LogoutBroadcastMessage(long accountId) {
 		setAccountId(accountId);
-		
+
 		token = null;
 	}
 
@@ -40,10 +40,10 @@ public class LogoutBroadcastMessage extends Message {
 	 */
 	public LogoutBroadcastMessage(long accountId, String token) {
 		setAccountId(accountId);
-		
+
 		this.token = token;
 	}
-	
+
 	public String getToken() {
 		return token;
 	}
@@ -60,6 +60,7 @@ public class LogoutBroadcastMessage extends Message {
 
 	@Override
 	public String toString() {
-		return String.format("LogoutBroadcastMessage[messageId: %s, path: %s]", getMessageId(), getMessagePath());
+		return String.format("LogoutBroadcastMessage[accId: %d, path: %s, token: %s]", getAccountId(),
+				getMessagePath(), getToken());
 	}
 }

@@ -15,7 +15,7 @@ import net.bestia.zoneserver.messaging.routing.MessageRouter;
 public class MessageLoop implements MessageHandler {
 
 	private final MessagePreprocessor preprocessor;
-	private final MessageRouter router = new MessageRouter();
+	private final MessageRouter router;
 	private final CommandFactory commandFactory;
 	private final ExecutorService commandExecutor = Executors.newFixedThreadPool(1);
 
@@ -37,6 +37,7 @@ public class MessageLoop implements MessageHandler {
 	public MessageLoop(MessagePreprocessor preprocessor) {
 		this.preprocessor = preprocessor;
 		this.commandFactory = null;
+		this.router = new MessageRouter();
 	}
 
 	/**
@@ -51,6 +52,7 @@ public class MessageLoop implements MessageHandler {
 
 		this.preprocessor = preprocessor;
 		this.commandFactory = commandFactory;
+		this.router = messageRouter;
 
 		// Register all message ids which the factory can handle to the router.
 		final Set<String> messageIDs = commandFactory.getRegisteredMessageIds();

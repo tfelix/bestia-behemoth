@@ -13,11 +13,11 @@ public class LoginBroadcastMessage extends Message {
 
 	public LoginBroadcastMessage(long accountId, String token) {
 		setAccountId(accountId);
-		
-		if(token == null || token.isEmpty()) {
+
+		if (token == null || token.isEmpty()) {
 			throw new IllegalArgumentException("Token can not be null or empty.");
 		}
-		
+
 		this.token = token;
 	}
 
@@ -28,13 +28,13 @@ public class LoginBroadcastMessage extends Message {
 
 	@Override
 	public String getMessagePath() {
-		return getZoneMessagePath();
+		return getZoneBroadcastMessagePath();
 	}
 
 	@Override
 	public String toString() {
-		return String.format("LoginBroadcastMessage[messageId: %s, path: %s, account_id: %d]", getMessageId(),
-				getMessagePath(), getAccountId());
+		return String.format("LoginBroadcastMessage[accId: %d, path: %s, token: %s]",
+				getAccountId(), getMessagePath(), getToken());
 	}
 
 	/**

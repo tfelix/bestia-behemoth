@@ -130,7 +130,7 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 	 * @see net.bestia.interserver.InterserverSubscriber#subscribe(java.lang.String)
 	 */
 	@Override
-	public void subscribe(String topic) {
+	public synchronized void subscribe(String topic) {
 		log.trace("Subscribing to topic: {}", topic);
 		subscriber.subscribe(topic.getBytes());
 	}
@@ -141,7 +141,7 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 	 * @see net.bestia.interserver.InterserverSubscriber#unsubscribe(java.lang.String)
 	 */
 	@Override
-	public void unsubscribe(String topic) {
+	public synchronized void unsubscribe(String topic) {
 		log.trace("Unsubscribing from topic: {}", topic);
 		subscriber.unsubscribe(topic.getBytes());
 	}

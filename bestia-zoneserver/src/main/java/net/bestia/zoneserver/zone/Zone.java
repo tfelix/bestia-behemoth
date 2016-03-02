@@ -121,8 +121,10 @@ public class Zone implements MessageHandler {
 				}
 			}
 
-			// Persist the dying world.
+			
 			messageQueue.clear();
+			
+			// Persist the dying world.
 			try {
 				world.getSystem(WorldPersistenceManager.class).save();
 			} catch (IOException e) {
@@ -156,16 +158,8 @@ public class Zone implements MessageHandler {
 			throw new IllegalArgumentException("Zone name can not be null or empty.");
 		}
 
-		setupMessageFilter(ctx.getMessageRouter());
-	}
-
-	/**
-	 * Used to subscribe to messages from the zoneserver instance.
-	 * 
-	 * @param messageRouter
-	 */
-	private void setupMessageFilter(MessageRouter router) {
-		router.registerFilter(new ZoneWrapperFilter(getName()), this);
+		final MessageRouter router = ctx.getMessageRouter();
+		router.registerFilter(new ZoneWrapperFilter(name), this);
 	}
 
 	/**
