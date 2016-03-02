@@ -25,6 +25,8 @@ import net.bestia.zoneserver.zone.spawn.Spawner;
  * below the number of the spawned bestias for this map a new spawning entity is
  * created.
  * 
+ * TODO Das irgendwie mit MobSpawnSystem kombinieren?
+ * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
