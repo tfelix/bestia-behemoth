@@ -88,7 +88,7 @@ public class Zone implements MessageHandler {
 					if (cmd != null) {
 						try {
 							cmd.run();
-						} catch(Exception e) {
+						} catch (Exception e) {
 							LOG.error("Error while executing command: {}", cmd.toString(), e);
 						}
 					}
@@ -119,11 +119,12 @@ public class Zone implements MessageHandler {
 				} catch (InterruptedException e) {
 					// no op.
 				}
+				
+				//hasStarted.set(false);
 			}
 
-			
 			messageQueue.clear();
-			
+
 			// Persist the dying world.
 			try {
 				world.getSystem(WorldPersistenceManager.class).save();
@@ -184,7 +185,7 @@ public class Zone implements MessageHandler {
 		// Create and prepare the thread.
 		final WorldExtender worldExtender = new WorldExtender(cmdContext.getConfiguration(), this);
 		final World world = worldExtender.createWorld(cmdContext, map);
-		
+
 		zoneTicker = new ZoneRunnable(world, cmdContext, map);
 		zoneTickerThread = new Thread(null, zoneTicker, "zoneECS-" + name);
 

@@ -19,7 +19,7 @@ import net.bestia.zoneserver.zone.shape.Vector2;
 /**
  * Generates update messages from an entity.
  * 
- * @author Thomas
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class EntityUpdateMessageFactory {
@@ -40,7 +40,8 @@ public class EntityUpdateMessageFactory {
 	}
 
 	/**
-	 * Creates a update message from a visible entity for a given player entity.
+	 * Creates a update message for several visible entities for a given player
+	 * entity.
 	 * 
 	 * @param playerEntity
 	 * @param visibleEntit
@@ -60,6 +61,12 @@ public class EntityUpdateMessageFactory {
 		return updateMsg;
 	}
 
+	/**
+	 * Creates a single update message for an visible entity.
+	 * 
+	 * @param visibleEntity
+	 * @return
+	 */
 	public MapEntitiesMessage createMessage(int visibleEntity) {
 
 		helperBag.clear();
@@ -77,7 +84,7 @@ public class EntityUpdateMessageFactory {
 	 * @return A message containing all needed information about this entity for
 	 *         the client.
 	 */
-	protected MapEntitiesMessage.Entity getMessageFromEntity(int entityId) {
+	private MapEntitiesMessage.Entity getMessageFromEntity(int entityId) {
 		final Entity e = world.getEntity(entityId);
 		final UUID uuid = uuidManager.getUuid(e);
 		final Visible visible = visibleMapper.get(entityId);

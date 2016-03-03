@@ -15,8 +15,8 @@ import javax.persistence.Table;
  *
  */
 @Entity
-@Table(name = "map_entities")
-public class MapEntity implements Serializable {
+@Table(name = "zone_entities")
+public class ZoneEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -29,7 +29,7 @@ public class MapEntity implements Serializable {
 	@Column(nullable = false)
 	private String data;
 
-	public MapEntity() {
+	public ZoneEntity() {
 
 	}
 
@@ -41,7 +41,7 @@ public class MapEntity implements Serializable {
 	 * @param data
 	 *            The serialized data.
 	 */
-	public MapEntity(String zoneName, String data) {
+	public ZoneEntity(String zoneName, String data) {
 		if (zoneName == null || zoneName.isEmpty()) {
 			throw new IllegalArgumentException("ZoneName can not be null or empty.");
 		}

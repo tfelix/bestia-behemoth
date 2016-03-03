@@ -2,11 +2,13 @@ package net.bestia.zoneserver.zone.world;
 
 import com.artemis.World;
 import com.artemis.WorldConfiguration;
+import com.artemis.io.JsonArtemisSerializer;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
 import com.artemis.managers.UuidEntityManager;
+import com.artemis.managers.WorldSerializationManager;
 
-import net.bestia.model.dao.MapEntityDAO;
+import net.bestia.model.dao.ZoneEntityDao;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.ActiveManager;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
@@ -23,10 +25,12 @@ import net.bestia.zoneserver.zone.Zone;
 import net.bestia.zoneserver.zone.map.Map;
 
 public class BaseWorldExtender implements WorldExtend {
+	
+	final WorldSerializationManager serializationManager = new WorldSerializationManager();
 
 	@Override
 	public void extend(World world, Map map, Zone zone) {
-		// no op.
+		serializationManager.setSerializer(new JsonArtemisSerializer(world));
 	}
 
 	@Override
@@ -56,7 +60,11 @@ public class BaseWorldExtender implements WorldExtend {
 		worldConfig.setSystem(new TagManager());
 		worldConfig.setSystem(new UuidEntityManager());
 		
-		final MapEntityDAO mapEntityDao = ctx.getServiceLocator().getBean(MapEntityDAO.class);
+		// Prepare for serialization.
+		worldConfig.setSystem(serializationManager);
+		
+		
+		final ZoneEntityDao mapEntityDao = ctx.getServiceLocator().getBean(ZoneEntityDao.class);
 		worldConfig.setSystem(new WorldPersistenceManager(map.getMapDbName(), mapEntityDao));
 	}
 
