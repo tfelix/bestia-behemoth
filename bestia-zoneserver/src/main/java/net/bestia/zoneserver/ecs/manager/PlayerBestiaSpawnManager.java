@@ -23,6 +23,7 @@ import net.bestia.messages.InputMessage;
 import net.bestia.messages.LoginBroadcastMessage;
 import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
+import net.bestia.messages.entity.SpriteType;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
@@ -199,8 +200,9 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		attacksMapper.get(pbEntity).addAll(pbm.getAttackIds());
 		bestiaMapper.get(pbEntity).bestiaManager = pbm;
 
-
-		visibleMapper.get(pbEntity).sprite = pbm.getPlayerBestia().getOrigin().getSprite();
+		final Visible visible = visibleMapper.get(pbEntity);
+		visible.sprite = pbm.getPlayerBestia().getOrigin().getSprite();
+		visible.spriteType = SpriteType.MOB_MULTI;
 
 		// We need to check the bestia if its the master bestia. It will get
 		// marked as active initially.
