@@ -7,14 +7,9 @@ Bestia.Engine.States = Bestia.Engine.States || {};
  * @constructor
  * @class Bestia.Engine.States.BootState
  */
-Bestia.Engine.States.ConnectingState = function(engine) {
+Bestia.Engine.States.ConnectingState = function(pubsub) {
 
-	/**
-	 * Engine reference.
-	 * 
-	 * @property {Bestia.Engine}
-	 */
-	this._engine = engine;
+	this._pubsub = pubsub;
 };
 
 Bestia.Engine.States.ConnectingState.prototype.create = function() {
@@ -34,5 +29,5 @@ Bestia.Engine.States.ConnectingState.prototype.create = function() {
 	txt.align = 'center';
 
 	// Signal that the engine has loaded. Triggers connect.
-	this._engine.pubsub.publish('engine.loaded');
+	this.pubsub.publish(Bestia.Signal.IO_CONNECT);
 };

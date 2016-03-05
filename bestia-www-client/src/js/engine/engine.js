@@ -16,8 +16,7 @@ Bestia.Engine = function(pubsub, urlHelper) {
 	 *           config object for the bestia game. So User options can be read
 	 *           an used.
 	 */
-	//this.config = config;
-
+	// this.config = config;
 	/**
 	 * @property {Bestia.PubSub} pubsub - Holds a reference to the bestia
 	 *           publish/subscribe interface allowing game engine objects to
@@ -31,7 +30,7 @@ Bestia.Engine = function(pubsub, urlHelper) {
 	};
 
 	this.bestia = undefined;
-	
+
 	this.urlHelper = urlHelper;
 
 	// Determine the size of the canvas. And create the game object.
@@ -41,7 +40,7 @@ Bestia.Engine = function(pubsub, urlHelper) {
 
 	this.gameState = new Bestia.Engine.States.GameState(this, this.urlHelper);
 	this.game.state.add('boot', new Bestia.Engine.States.BootState());
-	this.game.state.add('connecting', new Bestia.Engine.States.ConnectingState(this));
+	this.game.state.add('connecting', new Bestia.Engine.States.ConnectingState(pubsub));
 	this.game.state.add('load', new Bestia.Engine.States.LoadingState(this, urlHelper));
 	this.game.state.add('game', this.gameState);
 
@@ -68,13 +67,27 @@ Bestia.Engine = function(pubsub, urlHelper) {
 	 */
 	this.effectsManager = new Bestia.Engine.FX.EffectsManager(pubsub, this.game, this.entityCache);
 
+	// ==== PREPARE HANDLER ====
+
 	// React on bestia selection changes. We need to re-trigger the map loading.
-	var onSelectBestiaHandler = function(_, data) {
+	// This event will fire if we have established a connection.
+	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, function(_, data) {
 		console.debug('New bestia selected. Starting loading process.');
 		self.bestia = data;
 		self.loadMap(data);
-	};
-	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, onSelectBestiaHandler);
+	});
+
+	/**
+	 * Bring the engine in the connecting screen.
+	 */
+	pubsub.subscribe(Bestia.Signal.IO_CONNECTION_LOST, function() {
+		self.game.state.start('connecting');
+	});
+
+	// Switch the state to the game state.
+	pubsub.subscribe(Bestia.Signal.ENGINE_FINISHED_MAPLOAD, function() {
+		self.game.state.start('game', true, false, self.bestia);
+	});
 
 	// When everything is setup. Start the engine.
 	this.game.state.start('boot');
@@ -101,4 +114,8 @@ Bestia.Engine.prototype.loadMap = function(bestia) {
 	// else: Partial load only (just switch view to active bestia).
 	// TODO
 
+};
+
+Bestia.Engine.prototype.test = function() {
+	this.game.state.start('load', true, false, this.bestia);
 };

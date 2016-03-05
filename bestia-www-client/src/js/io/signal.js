@@ -11,10 +11,17 @@ Bestia.Signal = {
 		INVENTORY_ITEM_ADD : 'client.inventory.itemAdd',
 
 		IO_SEND_MESSAGE : 'io.sendMessage',
+		IO_CONNECT : 'io.conncted',
+		IO_DISCONNECT : 'io.disconnect',
+		
+		IO_DISCONNECTED : 'io.disconnected',
+		IO_CONNECTED : 'io.connected',
 		
 		CHAT_RECEIVED : 'client.chat.received',
 		
 		ENGINE_LOADED : 'engine.loaded',
+		ENGINE_CONNECTED : 'engine.connected',
+		ENGINE_DISCONNECTED : 'engine.disconnected',
 		ENGINE_PREPARE_MAPLOAD: 'engine.prepareMapload',
 		ENGINE_FINISHED_MAPLOAD: 'engine.finishMapload',
 		

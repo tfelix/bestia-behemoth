@@ -1,6 +1,7 @@
 Bestia.Engine.States = Bestia.Engine.States || {};
 
 /**
+ * The state is triggered if a new map is loaded.
  * Displays while the engine is loading files to display the next map. 
  * 
  * @constructor
@@ -70,8 +71,6 @@ Bestia.Engine.States.LoadingState.prototype.create = function() {
 	
 	this._pubsub.publish(Bestia.Signal.ENGINE_FINISHED_MAPLOAD);
 
-	// Switch the state to the game state.
-	this.game.state.start('game', true, false, this.bestia);
 };
 
 Bestia.Engine.States.LoadingState.prototype.fileCompleted = function(progress) {

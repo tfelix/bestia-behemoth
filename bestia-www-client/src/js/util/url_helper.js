@@ -29,3 +29,7 @@ Bestia.UrlHelper.prototype.getMobPackUrl = function(mobName) {
 Bestia.UrlHelper.prototype.getItemIconUrl = function(itemName) {
 	return this._assetRoot + 'img/items/' + itemName + '.png';
 };
+
+Bestia.UrlHelper.prototype.getImageUrl = function(imgName) {
+	return this._assetRoot + 'img/' + imgName + '.png';
+};
