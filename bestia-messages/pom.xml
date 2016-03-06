@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>net.bestia</groupId>
 		<artifactId>behemoth</artifactId>
-		<version>alpha-0.2.6</version>
+		<version>alpha-0.2.7-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
