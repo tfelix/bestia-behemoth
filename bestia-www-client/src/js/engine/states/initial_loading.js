@@ -8,9 +8,8 @@ Bestia.Engine.States = Bestia.Engine.States || {};
  * @constructor
  * @class Bestia.Engine.States.InitialLoadingState
  */
-Bestia.Engine.States.InitialLoadingState = function(bestia, urlHelper) {
+Bestia.Engine.States.InitialLoadingState = function(urlHelper) {
 
-	this.bestia = bestia;
 	this.url = urlHelper;
 
 };

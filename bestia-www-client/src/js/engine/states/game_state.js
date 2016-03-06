@@ -110,7 +110,7 @@ Bestia.Engine.States.GameState.prototype.clickHandler = function() {
 		return;
 	}
 
-	var path = path.reverse();
+	path = path.reverse();
 	var msg = new Bestia.Message.BestiaMove(this.bestia.playerBestiaId(), path, player.walkspeed);
 	this.pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 
