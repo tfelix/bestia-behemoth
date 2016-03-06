@@ -4,9 +4,11 @@ module.exports = {
 		files : [ {
 			expand : true,
 			cwd : '<%= sourceDir %>',
-			src : [ '**/*', '!css/**', '!js/**' ],
-			dest : 'build'
-		}]
+			// Exclude HTML files copy them again will conflict with the
+			// preprocess task.
+			src : [ '**/*', '!css/**', '!js/**', '!*.html'],
+			dest : '<%= buildDir %>'
+		} ]
 	},
 
 	gamedata : {
