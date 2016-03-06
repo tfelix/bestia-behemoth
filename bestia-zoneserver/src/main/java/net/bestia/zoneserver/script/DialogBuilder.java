@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.bestia.messages.dialog.DialogMessage;
 import net.bestia.messages.dialog.DialogNode;
-import net.bestia.messages.dialog.DialogType;
+import net.bestia.messages.dialog.DialogAction;
 
 /**
  * The {@link DialogBuilder} can be used in order to construct NPC dialogs which
@@ -18,19 +18,35 @@ import net.bestia.messages.dialog.DialogType;
 public class DialogBuilder {
 
 	private final List<DialogNode> nodes = new ArrayList<>();
-	
+
 	public DialogBuilder() {
 		// no op.
 	}
 
 	public void text(String txt) {
-		final DialogNode n = new DialogNode(DialogType.TEXT, txt);
+		final DialogNode n = new DialogNode(DialogAction.TEXT, txt);
 		nodes.add(n);
 	}
-	
+
 	public void name(String name) {
-		final DialogNode n = new DialogNode(DialogType.NAME, name);
+		final DialogNode n = new DialogNode(DialogAction.NAME, name);
 		nodes.add(n);
+	}
+
+	/**
+	 * Closes the dialog with the given message.
+	 * 
+	 * @param dialogId
+	 *            ID of the dialog to be closed.
+	 * @return Message for closing the dialog.
+	 */
+	public DialogMessage close(String dialogId) {
+		nodes.add(new DialogNode(DialogAction.CLOSE, dialogId));
+		final DialogMessage msg = new DialogMessage(nodes);
+
+		clear();
+
+		return msg;
 	}
 
 	/**
@@ -38,12 +54,14 @@ public class DialogBuilder {
 	 * previously entered data. The internal state will be resetted upon calling
 	 * this method.
 	 * 
+	 * @param dialogId
+	 *            The ID of the dialog. Each dialog must be identified by an
+	 *            unique id.
 	 * @return The build {@link DialogMessage}.
 	 */
-	public DialogMessage build() {
-		
+	public DialogMessage build(String dialogId) {
 		final DialogMessage msg = new DialogMessage(nodes);
-		
+
 		clear();
 
 		return msg;

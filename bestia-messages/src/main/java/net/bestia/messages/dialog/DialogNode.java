@@ -12,10 +12,10 @@ import java.io.Serializable;
 public class DialogNode implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private final DialogType type;
+	private final DialogAction type;
 	private final String data;
 
-	public DialogNode(DialogType type, String data) {
+	public DialogNode(DialogAction type, String data) {
 		this.type = type;
 		this.data = data;
 	}
@@ -24,7 +24,7 @@ public class DialogNode implements Serializable {
 		return data;
 	}
 
-	public DialogType getType() {
+	public DialogAction getType() {
 		return type;
 	}
 }

@@ -8,14 +8,20 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.Message;
 
+/**
+ * This message will trigger the client to open a dialog NPC box.
+ * 
+ * @author Thomas
+ *
+ */
 public class DialogMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "ui.dialog";
-	
+
 	@JsonProperty("n")
 	private final List<DialogNode> nodes;
-	
+
 	public DialogMessage(List<DialogNode> nodes) {
 		this.nodes = Collections.unmodifiableList(new ArrayList<>(nodes));
 	}
