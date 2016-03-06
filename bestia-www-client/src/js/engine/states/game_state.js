@@ -26,27 +26,45 @@ Bestia.Engine.States.GameState = function(engine, urlHelper) {
 	 * World object holding all features and functions regarding to the "world".
 	 * 
 	 * @property {Bestia.Engine.World}
-	 * @private
+	 * @public
 	 */
 	this.bestiaWorld = null;
 
 	/**
-	 * Manager to control special displays of small effects (damage, sprite
-	 * animations e.g.) which are triggered by the server or by the client.
+	 * Effects manager will subscribe itself to messages from the server which
+	 * trigger a special effect for an entity or a stand alone effect which must
+	 * be displayed by whatever means.
+	 * 
+	 * @public
+	 * @property {Bestia.Engine.FX.EffectsManager}
 	 */
 	this._fxManager = null;
 	
+	/**
+	 * Holds the central cache for all entities displayed in the game.
+	 */
+	this._entityCache = null;
+	
+	/**
+	 * Entity updater for managing the adding and removal of entities.
+	 * 
+	 * @public
+	 * @property {Bestia.Engine.EntityUpdater}
+	 */
+	this._entityUpdater = null;
+
 	this._urlHelper = urlHelper;
+
+	this._cursor = null;
 };
 
 Bestia.Engine.States.GameState.prototype.init = function(bestia) {
 	this.bestia = bestia;
 
 	// ==== PLUGINS ====
-	//AStar
+	// AStar
 	var astar = this.game.plugins.add(Phaser.Plugin.AStar);
-	
-	// Debug
+
 	// @ifdef DEVELOPMENT
 	this.game.plugins.add(Phaser.Plugin.Debug);
 	// @endif
@@ -56,34 +74,14 @@ Bestia.Engine.States.GameState.prototype.init = function(bestia) {
 	this.bestiaWorld = new Bestia.Engine.World(this.game, astar);
 	this.bestiaWorld.loadMap(this.bestia.location());
 
-	this.demandLoader = new Bestia.Engine.DemandLoader(this.game.load, this.game.cache, this._urlHelper);
+	this._demandLoader = new Bestia.Engine.DemandLoader(this.game.load, this.game.cache, this._urlHelper);
+	this._entityCache = new Bestia.Engine.EntityCacheManager();
+	this._fxManager = new Bestia.Engine.FX.EffectsManager(this.pubsub, this.game, this._entityCache);
+	this._entityUpdater = new Bestia.Engine.EntityUpdater(this.pubsub, this._entityCache);
 
-	// Workaround: The factory must be created here because only now we have
-	// the game instance. This is ugly.
-	var entityFactory = new Bestia.Engine.EntityFactory(this.game, this.demandLoader, this.engine.entityCache);
-	this.engine.entityUpdater._factory = entityFactory;
-
-	// DEBUG
+	// @ifdef DEVELOPMENT
 	this.game.stage.disableVisibilityChange = true;
-
-	this._fxManager = new Bestia.Engine.FX.EffectsManager(this.engine.pubsub, this.game, this.engine.entityCache);
-};
-
-Bestia.Engine.States.GameState.prototype.create = function() {
-
-	this.cursors = this.game.input.keyboard.createCursorKeys();
-
-	// Our cursor marker
-	this.marker = this.game.add.graphics();
-	this.marker.lineStyle(2, 0xffffff, 1);
-	this.marker.drawRect(0, 0, 32, 32);
-
-	this.game.input.addMoveCallback(this.updateMarker, this);
-	this.game.input.onDown.add(this.clickHandler, this);
-
-	// After we have created everything release the hold of the update
-	// messages.
-	this.engine.entityUpdater.releaseHold();
+	// @endif
 
 	this.pubsub.publish(Bestia.Signal.ENGINE_GAME_STARTED);
 };
@@ -96,43 +94,18 @@ Bestia.Engine.States.GameState.prototype.update = function() {
 		entity.tickAnimation();
 	});
 
+	// Update the marker.
+	if (this.marker !== null) {
+		this.marker.onUpdate();
+
+		if (this.game.input.activePointer.leftButton.isDown) {
+			this.marker.onClick();
+		}
+	}
 };
 
-Bestia.Engine.States.GameState.prototype._getPlayerEntity = function() {
+Bestia.Engine.States.GameState.prototype.getPlayerEntity = function() {
 	var pbid = this.engine.bestia.playerBestiaId();
 	var entity = this.engine.entityCache.getByPlayerBestiaId(pbid);
 	return entity;
-};
-
-Bestia.Engine.States.GameState.prototype.clickHandler = function() {
-
-	var player = this._getPlayerEntity();
-
-	var start = player.position;
-	var goal = Bestia.Engine.World.getTileXY(this.game.input.worldX, this.game.input.worldY);
-
-	var path = this.bestiaWorld.findPath(start, goal).nodes;
-
-	if (path.length === 0) {
-		return;
-	}
-
-	path = path.reverse();
-	var msg = new Bestia.Message.BestiaMove(this.bestia.playerBestiaId(), path, player.walkspeed);
-	this.pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
-
-	// Start movement locally aswell.
-	player.moveTo(path);
-};
-
-Bestia.Engine.States.GameState.prototype.updateMarker = function() {
-
-	var pointer = this.game.input.activePointer;
-
-	var cords = Bestia.Engine.World.getTileXY(pointer.worldX, pointer.worldY);
-	Bestia.Engine.World.getPxXY(cords.x, cords.y, cords);
-
-	this.marker.x = cords.x;
-	this.marker.y = cords.y;
-
 };

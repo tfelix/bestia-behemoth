@@ -12,12 +12,6 @@ Bestia.Engine = function(pubsub, urlHelper) {
 	var self = this;
 
 	/**
-	 * @property {Bestia.Config} config - Holds a reference to the central
-	 *           config object for the bestia game. So User options can be read
-	 *           an used.
-	 */
-	// this.config = config;
-	/**
 	 * @property {Bestia.PubSub} pubsub - Holds a reference to the bestia
 	 *           publish/subscribe interface allowing game engine objects to
 	 *           subscribe to events.
@@ -36,6 +30,7 @@ Bestia.Engine = function(pubsub, urlHelper) {
 	// Determine the size of the canvas. And create the game object.
 	var height = $(window).height();
 	var width = $('#canvas-container').width();
+	
 	this.game = new Phaser.Game(width, height, Phaser.AUTO, 'bestia-canvas', null, false, false);
 
 	this.gameState = new Bestia.Engine.States.GameState(this, this.urlHelper);
@@ -44,29 +39,6 @@ Bestia.Engine = function(pubsub, urlHelper) {
 	this.game.state.add('init_load', new Bestia.Engine.States.InitialLoadingState(urlHelper));
 	this.game.state.add('load', new Bestia.Engine.States.LoadingState(this, urlHelper));
 	this.game.state.add('game', this.gameState);
-
-	/**
-	 * Holds the central cache for all entities displayed in the game.
-	 */
-	this.entityCache = new Bestia.Engine.EntityCacheManager();
-
-	/**
-	 * Entity updater for managing the adding and removal of entities.
-	 * 
-	 * @public
-	 * @property {Bestia.Engine.EntityUpdater}
-	 */
-	this.entityUpdater = new Bestia.Engine.EntityUpdater(pubsub, this.entityCache);
-
-	/**
-	 * Effects manager will subscribe itself to messages from the server which
-	 * trigger a special effect for an entity or a stand alone effect which must
-	 * be displayed by whatever means.
-	 * 
-	 * @public
-	 * @property {Bestia.Engine.FX.EffectsManager}
-	 */
-	this.effectsManager = new Bestia.Engine.FX.EffectsManager(pubsub, this.game, this.entityCache);
 
 	// ==== PREPARE HANDLER ====
 
@@ -90,6 +62,12 @@ Bestia.Engine = function(pubsub, urlHelper) {
 		self.game.state.start('game', true, false, self.bestia);
 	});
 
+	pubsub.subscribe(Bestia.Signal.ENGINE_GAME_STARTED, function() {
+		// After engine is ready release the hold of the update
+		// messages.
+		self.entityUpdater.releaseHold();
+	});
+
 	// When everything is setup. Start the engine.
 	this.game.state.start('boot');
 };
@@ -106,7 +84,7 @@ Bestia.Engine = function(pubsub, urlHelper) {
 Bestia.Engine.prototype.loadMap = function(bestia) {
 	console.debug('Loading map.');
 
-	// See if we can do a partial mapload or a full map reload.
+	// Check if we can do a partial mapload or a full map reload.
 	var world = this.gameState.bestiaWorld;
 	if (world === null || world.name !== bestia.location()) {
 		// We need to do a full load.
@@ -117,6 +95,3 @@ Bestia.Engine.prototype.loadMap = function(bestia) {
 
 };
 
-Bestia.Engine.prototype.test = function() {
-	this.game.state.start('load', true, false, this.bestia);
-};

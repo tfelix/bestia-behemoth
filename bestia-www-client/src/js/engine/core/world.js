@@ -88,7 +88,7 @@ Bestia.Engine.World.prototype.displayMapName = function() {
 
 /**
  * Initializes a new map (all map data like tilesets and must have been already
- * loaded!) for the engine to display.
+ * loaded and need to be inside the cache) for the engine to display.
  * 
  * @method Bestia.Engine.World#loadMap
  * @param {String}
@@ -113,6 +113,8 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 
 	// Set tile size.
 	this.properties.tileSize = this.map.tileHeight;
+	
+	// TODO Das hier verallgemeinern.
 
 	this.map.addTilesetImage('Berge', 'tiles-' + mapDbName);
 	// Namen der layer und tilesets der map einfügen.
@@ -135,6 +137,7 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 		this.map.createLayer(curLayer);
 	}
 
+	// Print the name of the map.
 	this.displayMapName();
 };
 
