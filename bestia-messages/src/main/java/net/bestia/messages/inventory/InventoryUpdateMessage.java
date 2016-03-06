@@ -1,4 +1,4 @@
-package net.bestia.messages;
+package net.bestia.messages.inventory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -7,6 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import net.bestia.messages.Message;
 import net.bestia.model.domain.Item;
 
 /**

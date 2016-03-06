@@ -1,7 +1,9 @@
-package net.bestia.messages;
+package net.bestia.messages.attack;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.InputMessage;
 
 /**
  * A message from the client to the server to use an attack.

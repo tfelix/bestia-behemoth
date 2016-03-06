@@ -2,9 +2,9 @@ package net.bestia.zoneserver.command.server;
 
 import java.util.List;
 
-import net.bestia.messages.AttackListRequestMessage;
-import net.bestia.messages.AttackListResponseMessage;
 import net.bestia.messages.Message;
+import net.bestia.messages.attack.AttackListRequestMessage;
+import net.bestia.messages.attack.AttackListResponseMessage;
 import net.bestia.model.domain.BestiaAttack;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.command.Command;

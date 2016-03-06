@@ -1,8 +1,9 @@
-package net.bestia.messages;
+package net.bestia.messages.bestia;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import net.bestia.messages.Message;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 

@@ -2,8 +2,8 @@ package net.bestia.zoneserver.command.ecs;
 
 import java.util.Random;
 
-import net.bestia.messages.InventoryItemDropMessage;
 import net.bestia.messages.Message;
+import net.bestia.messages.inventory.InventoryItemDropMessage;
 import net.bestia.model.dao.ItemDAO;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.Location;

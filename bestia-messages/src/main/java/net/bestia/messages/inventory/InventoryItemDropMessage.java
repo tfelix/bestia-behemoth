@@ -1,7 +1,9 @@
-package net.bestia.messages;
+package net.bestia.messages.inventory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.InputMessage;
 
 /**
  * Send if the player wants to drop an item to the ground.

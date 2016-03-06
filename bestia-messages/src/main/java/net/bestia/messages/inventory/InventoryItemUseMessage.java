@@ -1,7 +1,10 @@
-package net.bestia.messages;
+package net.bestia.messages.inventory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.InputMessage;
+import net.bestia.messages.Message;
 
 /**
  * Advises the server to use an item from the inventory of the player

@@ -6,8 +6,8 @@ import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.EntityProcessingSystem;
 
-import net.bestia.messages.BestiaInfoMessage;
 import net.bestia.messages.EntityPositionUpdateMessage;
+import net.bestia.messages.bestia.BestiaInfoMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Changed;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;

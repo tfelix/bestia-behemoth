@@ -3,8 +3,8 @@ package net.bestia.zoneserver.command.ecs;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.bestia.messages.AttackSetMessage;
 import net.bestia.messages.Message;
+import net.bestia.messages.attack.AttackSetMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 

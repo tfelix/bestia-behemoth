@@ -11,11 +11,13 @@ package net.bestia.model.domain;
  * ETC:		Simple item with no effect. Can just be sold or used up by 
  * 			other effects.
  * QUEST:	Special quest item. Can not be sold nor dropped or destroyed.
+ * CASTABLE: Item can be used for casting. A map/cast indicator will be 
+ * 			shown upon usage. The item cast script will then be executed.
  * 
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public enum ItemType {
-	USABLE, EQUIP, ETC, QUEST
+	USABLE, EQUIP, ETC, QUEST, CASTABLE
 }

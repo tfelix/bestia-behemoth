@@ -18,11 +18,11 @@ import com.artemis.EntitySubscription;
 import com.artemis.annotations.Wire;
 import com.artemis.utils.IntBag;
 
-import net.bestia.messages.BestiaInfoMessage;
 import net.bestia.messages.InputMessage;
 import net.bestia.messages.LoginBroadcastMessage;
 import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
+import net.bestia.messages.bestia.BestiaInfoMessage;
 import net.bestia.messages.entity.SpriteType;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;

@@ -1,6 +1,8 @@
-package net.bestia.messages;
+package net.bestia.messages.inventory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.InputMessage;
 
 /**
  * Sets the item shortcuts for the currently selected bestias. The shortcuts can

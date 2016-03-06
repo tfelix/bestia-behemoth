@@ -2,9 +2,9 @@ package net.bestia.zoneserver.command.ecs;
 
 import com.artemis.ComponentMapper;
 
-import net.bestia.messages.BestiaActivateMessage;
-import net.bestia.messages.BestiaActivatedMessage;
 import net.bestia.messages.Message;
+import net.bestia.messages.bestia.BestiaActivateMessage;
+import net.bestia.messages.bestia.BestiaActivatedMessage;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;

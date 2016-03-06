@@ -2,8 +2,8 @@ package net.bestia.zoneserver.manager;
 
 import java.util.List;
 
-import net.bestia.messages.InventoryListMessage;
-import net.bestia.messages.InventoryUpdateMessage;
+import net.bestia.messages.inventory.InventoryListMessage;
+import net.bestia.messages.inventory.InventoryUpdateMessage;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerItem;
 import net.bestia.model.service.InventoryService;

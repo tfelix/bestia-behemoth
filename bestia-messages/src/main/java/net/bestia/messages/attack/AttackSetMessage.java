@@ -1,7 +1,9 @@
-package net.bestia.messages;
+package net.bestia.messages.attack;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.InputMessage;
 
 /**
  * Sets the attacks of the currently active bestia.

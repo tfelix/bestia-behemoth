@@ -1,8 +1,10 @@
-package net.bestia.messages;
+package net.bestia.messages.bestia;
 
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.InputMessage;
 
 public class BestiaMoveMessage extends InputMessage {
 

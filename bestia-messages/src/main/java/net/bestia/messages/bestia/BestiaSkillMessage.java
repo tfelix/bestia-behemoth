@@ -1,6 +1,8 @@
-package net.bestia.messages;
+package net.bestia.messages.bestia;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.InputMessage;
 
 /**
  * This message is used if the bestia uses a skill. The skill can have a target

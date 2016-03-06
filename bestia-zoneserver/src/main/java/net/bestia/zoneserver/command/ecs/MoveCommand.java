@@ -3,8 +3,8 @@ package net.bestia.zoneserver.command.ecs;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.bestia.messages.BestiaMoveMessage;
 import net.bestia.messages.Message;
+import net.bestia.messages.bestia.BestiaMoveMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.zone.shape.Vector2;

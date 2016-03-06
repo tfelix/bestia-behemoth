@@ -1,4 +1,6 @@
-package net.bestia.messages;
+package net.bestia.messages.bestia;
+
+import net.bestia.messages.InputMessage;
 
 /**
  * Client sends this message if it wants to switch to another active bestia.

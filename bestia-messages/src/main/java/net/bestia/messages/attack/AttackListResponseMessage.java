@@ -1,7 +1,8 @@
-package net.bestia.messages;
+package net.bestia.messages.attack;
 
 import java.util.List;
 
+import net.bestia.messages.Message;
 import net.bestia.model.domain.BestiaAttack;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

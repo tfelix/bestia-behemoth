@@ -1,6 +1,8 @@
-package net.bestia.messages;
+package net.bestia.messages.attack;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import net.bestia.messages.Message;
 
 /**
  * Lists the current learned attacks of an bestia. The attacks are sorted in the

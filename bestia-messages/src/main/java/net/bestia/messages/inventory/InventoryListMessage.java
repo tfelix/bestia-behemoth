@@ -1,8 +1,9 @@
-package net.bestia.messages;
+package net.bestia.messages.inventory;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bestia.messages.Message;
 import net.bestia.model.domain.PlayerItem;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;

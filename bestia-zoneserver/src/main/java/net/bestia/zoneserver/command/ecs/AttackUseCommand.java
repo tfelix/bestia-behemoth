@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.command.ecs;
 
-import net.bestia.messages.AttackUseMessage;
 import net.bestia.messages.Message;
+import net.bestia.messages.attack.AttackUseMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.manager.PlayerBestiaManager;
 

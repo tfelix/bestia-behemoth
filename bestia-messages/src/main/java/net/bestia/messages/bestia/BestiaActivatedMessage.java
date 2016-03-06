@@ -1,4 +1,6 @@
-package net.bestia.messages;
+package net.bestia.messages.bestia;
+
+import net.bestia.messages.InputMessage;
 
 /**
  * Message returned to the client if it should set a selected bestia.
