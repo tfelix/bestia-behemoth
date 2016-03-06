@@ -42,7 +42,7 @@ Bestia.Engine.World = function(game, astar) {
  * @static
  * @property {Object}
  */
-Bestia.Engine.World.config = {};
+//Bestia.Engine.World.config = {};
 
 /**
  * Displays the map name of the game to the user. Should be called after a map
@@ -113,12 +113,16 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 
 	// Set tile size.
 	this.properties.tileSize = this.map.tileHeight;
-	
-	// TODO Das hier verallgemeinern.
 
-	this.map.addTilesetImage('Berge', 'tiles-' + mapDbName);
-	// Namen der layer und tilesets der map einfügen.
-	this._astar.setAStarMap(this.map, 'Berge');
+	// Find the first name of the tilemaps specified.
+	if (this.map.tilesets.length > 1) {
+		console.warn("Map " + mapDbName + " contains more then one tileset. Using the first one.");
+	}
+	
+	var tilesetName = this.map.tilesets[0].name;
+
+	this.map.addTilesetImage(tilesetName, 'tiles-' + mapDbName, this.properties.tileSize, this.properties.tileSize);
+	this._astar.setAStarMap(this.map, tilesetName);
 
 	// Ground layer MUST be present.
 	this._groundLayer = this.map.createLayer('layer_0');

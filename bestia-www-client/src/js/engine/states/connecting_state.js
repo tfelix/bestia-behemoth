@@ -29,5 +29,5 @@ Bestia.Engine.States.ConnectingState.prototype.create = function() {
 	txt.align = 'center';
 
 	// Signal that the engine has loaded. Triggers connect.
-	this.pubsub.publish(Bestia.Signal.IO_CONNECT);
+	this._pubsub.publish(Bestia.Signal.IO_CONNECT);
 };

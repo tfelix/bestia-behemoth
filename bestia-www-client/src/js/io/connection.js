@@ -31,7 +31,7 @@ Bestia.Connection = function(pubsub) {
 	// @endif
 
 	// Sends a message while listening to this channel.
-	pubsub.subscribe('io.sendMessage', function(_, msg) {
+	pubsub.subscribe(Bestia.Signal.IO_SEND_MESSAGE, function(_, msg) {
 		var message = JSON.stringify(msg);
 		// @ifdef DEVELOPMENT
 		console.trace('Sending Message: ' + message);
@@ -92,6 +92,7 @@ Bestia.Connection.prototype.checkLoginData = function(data) {
 	var state = true;
 
 	if (!data) {
+		console.error("No login data present.");
 		state = false;
 	}
 
@@ -99,7 +100,7 @@ Bestia.Connection.prototype.checkLoginData = function(data) {
 		console.error("Login: token missing.");
 		state = false;
 	} else if (!state | data.accId === undefined) {
-		console.error("Login:account id missing.");
+		console.error("Login: account id missing.");
 		state = false;
 	} else if (!state | data.username === undefined) {
 		console.error("Login: username missing.");
@@ -107,7 +108,7 @@ Bestia.Connection.prototype.checkLoginData = function(data) {
 	}
 
 	if (state === false) {
-		window.location.replace(Bestia.Urls.loginHtml);
+		this._pubsub.publish(Bestia.Signal.AUTH_ERROR);
 		return false;
 	}
 
@@ -137,7 +138,7 @@ Bestia.Connection.prototype.init = function() {
 	}
 
 	// Emit the auth data signal so other parts of the app can react to it.
-	this._pubsub.publish('system.auth', authData);
+	this._pubsub.publish(Bestia.Signal.AUTH, authData);
 
 	var request = {
 		url : Bestia.Urls.bestiaWebsocket,
@@ -155,7 +156,7 @@ Bestia.Connection.prototype.init = function() {
 
 	request.onOpen = function(response) {
 		console.log('Connection to established via ' + response.transport);
-		self._pubsub.publish('io.onConnected', {});
+		self._pubsub.publish(Bestia.Signal.IO_CONNECTED, {});
 	};
 
 	request.onTransportFailure = function(errorMsg) {
@@ -207,10 +208,10 @@ Bestia.Connection.prototype.init = function() {
 	request.onError = function() {
 		console.error('Server error. Can not create connection.');
 		// Most likly we are not authenticated. Back to login.
-		self._pubsub.publish('system.logout', {});
+		self._pubsub.publish(Bestia.Signal.LOGOUT);
 	};
 
-	this._pubsub.publish('io.onConnecting', {});
+	this._pubsub.publish(Bestia.Signal.IO_CONNECTING);
 	this.socket = $.atmosphere.subscribe(request);
 };
 
