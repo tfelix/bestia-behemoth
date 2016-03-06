@@ -42,8 +42,15 @@ Bestia.Engine.States.GameState = function(engine, urlHelper) {
 Bestia.Engine.States.GameState.prototype.init = function(bestia) {
 	this.bestia = bestia;
 
-	// Prepare the AStar plugin.
+	// ==== PLUGINS ====
+	//AStar
 	var astar = this.game.plugins.add(Phaser.Plugin.AStar);
+	
+	// Debug
+	// @ifdef DEVELOPMENT
+	this.game.plugins.add(Phaser.Plugin.Debug);
+	// @endif
+	// ==== /PLUGINS ====
 
 	// Load the tilemap and display it.
 	this.bestiaWorld = new Bestia.Engine.World(this.game, astar);

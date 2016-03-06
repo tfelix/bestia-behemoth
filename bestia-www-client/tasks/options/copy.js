@@ -4,12 +4,7 @@ module.exports = {
 		files : [ {
 			expand : true,
 			cwd : '<%= sourceDir %>',
-			src : [ 'img/**', 'locales/**' ],
-			dest : 'build'
-		}, {
-			expand : true,
-			cwd : '<%= sourceDir %>',
-			src : [ 'phaser.js' ],
+			src : [ '**/*', '!css/**', '!js/**' ],
 			dest : 'build'
 		}]
 	},

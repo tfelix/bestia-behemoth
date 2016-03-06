@@ -26,7 +26,7 @@
     "jquery-atmosphere": "~2.2.7",
     "interact": "~1.2.6",
     "nanoscroller": "~0.8.7",
-    "phaser-debug": "https://github.com/englercj/phaser-debug.git#1.1.8"
+    "phaser": "^2.4.6"
   },
   "devDependencies": {
     "jasmine-jquery": "~2.1.0"
