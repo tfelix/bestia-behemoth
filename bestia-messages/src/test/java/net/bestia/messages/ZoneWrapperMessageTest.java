@@ -7,7 +7,7 @@ public class ZoneWrapperMessageTest {
 	
 	private static final String MESSAGE_TEST_ID = "message.id";
 
-	@Test
+	@Test(expected=IllegalArgumentException.class)
 	public void ctor_null_ok() {
 		new ZoneMessageDecorator<PingMessage>(null);
 	}

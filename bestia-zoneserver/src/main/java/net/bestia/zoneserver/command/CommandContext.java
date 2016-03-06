@@ -76,6 +76,25 @@ public class CommandContext {
 	 * 
 	 */
 	private CommandContext(CommandContextBuilder builder) {
+		
+		if(builder.configuration == null) {
+			throw new IllegalArgumentException("Configuration can not be null.");
+		}
+		if(builder.server == null) {
+			throw new IllegalArgumentException("Server can not be null.");
+		}
+		if(builder.serviceLocator == null) {
+			throw new IllegalArgumentException("ServiceLocator can not be null.");
+		}
+		if(builder.scriptManager == null) {
+			throw new IllegalArgumentException("ScriptManager can not be null.");
+		}
+		if(builder.messageRouter == null) {
+			throw new IllegalArgumentException("MessageRouter can not be null.");
+		}
+		if(builder.accountRegistry == null) {
+			throw new IllegalArgumentException("AccountRegistry can not be null.");
+		}
 
 		this.configuration = builder.configuration;
 		this.server = builder.server;

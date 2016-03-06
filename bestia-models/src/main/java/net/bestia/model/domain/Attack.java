@@ -41,7 +41,7 @@ public class Attack implements Serializable {
 	 * Range of the attack. Range is a mysql reserved word, so quots are needed.
 	 */
 	@JsonProperty("r")
-	@Column(name = "[range]")
+	@Column(name = "atkRange")
 	private int range;
 
 	@Enumerated(EnumType.STRING)

@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import net.bestia.model.ServiceLocator;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.command.CommandContext.CommandContextBuilder;
@@ -18,7 +19,8 @@ public class CommandContextTest {
 	private ScriptManager scriptManager = Mockito.mock(ScriptManager.class);
 	private MessageRouter router = Mockito.mock(MessageRouter.class);
 	private AccountRegistry registry = Mockito.mock(AccountRegistry.class);
-
+	private ServiceLocator serviceLocator = Mockito.mock(ServiceLocator.class);
+	
 	/*
 	 * 
 	 * private BestiaConfiguration configuration; private Zoneserver server;
@@ -75,6 +77,7 @@ public class CommandContextTest {
 				.setConfiguration(config)
 				.setScriptManager(scriptManager)
 				.setMessageRouter(router)
+				.setServiceLocator(serviceLocator)
 				.setServer(server);
 
 		return b;

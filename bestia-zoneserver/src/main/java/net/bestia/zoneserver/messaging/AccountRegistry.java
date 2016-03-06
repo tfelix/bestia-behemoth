@@ -2,7 +2,6 @@ package net.bestia.zoneserver.messaging;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +23,7 @@ public class AccountRegistry {
 	private static final Logger LOG = LogManager.getLogger(AccountRegistry.class);
 
 	private class Counter {
-		private int count = 1;
+		private int count = 0;
 
 		public int get() {
 			return count;
@@ -54,6 +53,10 @@ public class AccountRegistry {
 	}
 
 	public synchronized void registerLogin(long accId, String token) {
+		if (token == null || token.isEmpty()) {
+			throw new IllegalArgumentException("Token can not be null or empty.");
+		}
+
 		tokenRegistry.put(accId, token);
 		onlineEntityCountRegistry.put(accId, new Counter());
 		subscribe(accId);
@@ -83,9 +86,25 @@ public class AccountRegistry {
 		return (savedToken == null) ? false : savedToken.equals(token);
 	}
 
+	/**
+	 * Sets the active bestia for the given account. If the account does not
+	 * exist prior before calling this method and exception is thrown.
+	 * 
+	 * @param accId
+	 *            Account ID for which the active bestia should be set.
+	 * @param bestiaId
+	 *            The bestia ID to set as active bestia.
+	 */
 	public synchronized void setActiveBestia(long accId, int bestiaId) {
+		// Is account existing?
+		if (!tokenRegistry.containsKey(accId)) {
+			throw new IllegalArgumentException(
+					String.format("Account with ID %d was not registered. Call registerLogin() first.", accId));
+		}
+
 		LOG.trace("Account {} has active bestia {}", accId, bestiaId);
 		activeBestiaRegistry.put(accId, bestiaId);
+		incrementBestiaOnline(accId);
 	}
 
 	/**
@@ -108,6 +127,7 @@ public class AccountRegistry {
 		LOG.trace("Account {} bestia {} is set inactive.", accountId, playerBestiaId);
 
 		activeBestiaRegistry.remove(accountId);
+		decrementBestiaOnline(accountId);
 	}
 
 	/**
@@ -134,10 +154,8 @@ public class AccountRegistry {
 
 	public synchronized void incrementBestiaOnline(Long accId) {
 
-		if (!onlineEntityCountRegistry.containsKey(accId)) {
-			// The account was not logged in. Just do it now with random token.
-			registerLogin(accId, UUID.randomUUID().toString());
-
+		if (!tokenRegistry.containsKey(accId)) {
+			return;
 		}
 
 		onlineEntityCountRegistry.get(accId).inc();
@@ -147,15 +165,26 @@ public class AccountRegistry {
 
 		final Counter counter = onlineEntityCountRegistry.get(accId);
 
-		if (counter != null) {
-			counter.dec();
-			if (counter.get() <= 0) {
-				unregisterLogin(accId);
-			}
-		} else {
+		if (counter == null) {
 			LOG.warn("decrementBestiaOnline was called even though there was no bestia anymore for the account {}!",
 					accId);
+			return;
+
 		}
+
+		if (counter.count == 0) {
+			LOG.warn("decrementBestiaOnline was called and account {} had already 0 actives.",
+					accId);
+			return;
+		}
+		
+		// If active bestia still set, can not decrement under 1.
+		if(getActiveBestia(accId) != 0 && counter.count == 1) {
+			return;
+		}
+		
+		
+		counter.dec();
 	}
 
 	/**

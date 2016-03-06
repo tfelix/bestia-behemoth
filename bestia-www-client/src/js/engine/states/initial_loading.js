@@ -14,7 +14,7 @@ Bestia.Engine.States.InitialLoadingState = function(urlHelper) {
 
 };
 
-Bestia.Engine.States.InitialLoadingState.prototype.init = function(bestia) {
+Bestia.Engine.States.InitialLoadingState.prototype.init = function() {
 
 };
 

@@ -7,6 +7,8 @@ Bestia.Engine.FX = Bestia.Engine.FX || {};
  * some dialogs it might be needed to access the game and find the entity to
  * which it belongs in order to position it correctly.
  * 
+ * Sample JSON: [{type: name, text: 'john'}, {type: 'text', text: 'lalalalalalall'}]
+ * 
  * @class Bestia.Engine.FX.Dialog
  */
 Bestia.Engine.FX.Dialog = function(pubsub, game, parentEle) {

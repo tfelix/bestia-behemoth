@@ -38,6 +38,10 @@ public abstract class Message implements Serializable {
 	 * @param msg
 	 */
 	public Message(Message msg) {
+		if(msg == null) {
+			throw new IllegalArgumentException("Message can not be null.");
+		}
+		
 		this.accountId = msg.getAccountId();
 	}
 
