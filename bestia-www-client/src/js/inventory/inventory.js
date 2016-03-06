@@ -188,7 +188,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 
 			if (val.a > 0) {
 				// Item is added to the inventory.
-				if (item == null) {
+				if (item === null) {
 					// Add the item to the inventory.
 					var newItem = new Bestia.ItemViewModel(val);
 					self.allItems.push(newItem);
@@ -198,7 +198,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 				}
 			} else {
 				// Item must be removed.
-				if (item != null) {
+				if (item !== null) {
 					// Amount is negative. so add.
 					var newAmount = item.amount() + val.a;
 					if (newAmount > 0) {
@@ -270,12 +270,14 @@ Bestia.Inventory = function(pubsub, i18n) {
 
 		var item = this.selectedItem();
 
-		if (item.type() !== 'USABLE') {
-			return;
+		if (item.type() === 'USABLE') {
+			// Just send the server the message to directly use this item.
+			var msg = new Bestia.Message.InventoryItemUse(item.itemId(), self._selectedBestia.playerBestiaId());
+			self._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
+		} else if(item.type() === 'CASTABLE') {
+			// Item is "castable". Notify the engine about displaying a indicator how to use this item.
+			self._pubsub.publish(Bestia.Signal.ENGINE_CAST_ITEM, item);
 		}
-
-		var msg = new Bestia.Message.InventoryItemUse(item.itemId(), self._selectedBestia.playerBestiaId());
-		self._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 	};
 
 	/**
@@ -511,31 +513,33 @@ Bestia.Inventory.prototype._setupItemBindings = function() {
 	// If we still have no bestia selected via a server message we will stop
 	// here and wait until this has happened. The method will then be called
 	// again.
-	if (bestia == null) {
+	if (bestia === null) {
 		return;
 	}
+
+	var item = null;
 
 	// Set the item shortcuts by the ones of the newly selected bestia.
 	// But these items are not the same instance then the ones from the
 	// inventory. We must replace them with the inventory instances.
 	if (bestia.item1() !== null) {
-		var item = this._findItem(bestia.item1().itemId());
+		item = this._findItem(bestia.item1().itemId());
 		this.itemSlot1(item);
 	}
 	if (bestia.item2() !== null) {
-		var item = this._findItem(bestia.item2().itemId());
+		item = this._findItem(bestia.item2().itemId());
 		this.itemSlot2(item);
 	}
 	if (bestia.item3() !== null) {
-		var item = this._findItem(bestia.item3().itemId());
+		item = this._findItem(bestia.item3().itemId());
 		this.itemSlot3(item);
 	}
 	if (bestia.item4() !== null) {
-		var item = this._findItem(bestia.item4().itemId());
+		item = this._findItem(bestia.item4().itemId());
 		this.itemSlot4(item);
 	}
 	if (bestia.item5() !== null) {
-		var item = this._findItem(bestia.item5().itemId());
+		item = this._findItem(bestia.item5().itemId());
 		this.itemSlot5(item);
 	}
 

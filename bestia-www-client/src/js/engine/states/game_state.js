@@ -82,8 +82,21 @@ Bestia.Engine.States.GameState.prototype.init = function(bestia) {
 	// @ifdef DEVELOPMENT
 	this.game.stage.disableVisibilityChange = true;
 	// @endif
+	
+	// ==== Subscriptions ====
+	this.pubsub.subscribe(Bestia.Signal.ENGINE_CAST_ITEM, this._onCastItem.bind(this));
+	// ==== /Subscriptions ====
 
 	this.pubsub.publish(Bestia.Signal.ENGINE_GAME_STARTED);
+};
+
+/**
+ * Callback which is called if the user wants to use a castable item from the inventory.
+ */
+Bestia.Engine.States.GameState.prototype._onCastItem = function(item) {
+	
+	console.info("Cast item: " + item.name());
+	
 };
 
 Bestia.Engine.States.GameState.prototype.update = function() {
@@ -102,6 +115,14 @@ Bestia.Engine.States.GameState.prototype.update = function() {
 			this.marker.onClick();
 		}
 	}
+};
+
+Bestia.Engine.States.GameState.prototype.shutdown = function() {
+
+	// We need to UNSUBSCRIBE from all subscriptions to avoid leakage.
+	// TODO Ich weiß nicht ob das hier funktioniert oder ob referenz zu callback benötigt wird.
+	this.pubsub.unsubscribe(Bestia.Signal.ENGINE_CAST_ITEM, this._onCastItem.bind(this));
+	
 };
 
 Bestia.Engine.States.GameState.prototype.getPlayerEntity = function() {

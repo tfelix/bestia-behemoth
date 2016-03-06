@@ -25,6 +25,8 @@ Bestia.Signal = {
 		ENGINE_PREPARE_MAPLOAD: 'engine.prepareMapload',
 		ENGINE_FINISHED_MAPLOAD: 'engine.finishMapload',
 		
+		ENGINE_CAST_ITEM: 'engine.castItem',
+		
 		/**
 		 * Emitted when the game has loaded and is being displayed.
 		 */
