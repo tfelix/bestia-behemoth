@@ -73,16 +73,16 @@ public class Bestia implements Serializable {
 	@Embedded
 	@JsonIgnore
 	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "evHp") ),
-		@AttributeOverride(name = "mana", column = @Column(name = "evMana") ),
-		@AttributeOverride(name = "atk", column = @Column(name = "evAtk") ),
-		@AttributeOverride(name = "def", column = @Column(name = "evDef") ),
-		@AttributeOverride(name = "spAtk", column = @Column(name = "evSpAtk") ),
-		@AttributeOverride(name = "spDef", column = @Column(name = "evSpDef") ),
-		@AttributeOverride(name = "spd", column = @Column(name = "evSpd") ) })
+			@AttributeOverride(name = "mana", column = @Column(name = "evMana") ),
+			@AttributeOverride(name = "atk", column = @Column(name = "evAtk") ),
+			@AttributeOverride(name = "def", column = @Column(name = "evDef") ),
+			@AttributeOverride(name = "spAtk", column = @Column(name = "evSpAtk") ),
+			@AttributeOverride(name = "spDef", column = @Column(name = "evSpDef") ),
+			@AttributeOverride(name = "spd", column = @Column(name = "evSpd") ) })
 	private BaseValues effortValues;
 
 	@JsonIgnore
-	private StatusPoints statusValues;
+	private StatusPoints statusPoints;
 
 	/**
 	 * Override the names because the are the same like in status points. Both
@@ -191,8 +191,23 @@ public class Bestia implements Serializable {
 		return scriptExec;
 	}
 
+	/**
+	 * Returns a list with the items being dropped by this bestia upon its
+	 * death.
+	 * 
+	 * @return
+	 */
 	public List<DropItem> getDropItems() {
 		return dropItems;
+	}
+
+	/**
+	 * Returns the status points of this bestia.
+	 * 
+	 * @return The status points.
+	 */
+	public StatusPoints getStatusPoints() {
+		return statusPoints;
 	}
 
 	/**

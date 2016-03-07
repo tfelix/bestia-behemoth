@@ -14,6 +14,7 @@ import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.MobGroup;
 import net.bestia.zoneserver.ecs.component.NPCBestia;
 import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.manager.NPCBestiaManager;
 import net.bestia.zoneserver.zone.shape.Vector2;
@@ -34,6 +35,7 @@ public class MobEntityFactory {
 	private final ComponentMapper<Position> positionMapper;
 	private final ComponentMapper<Visible> visibleMapper;
 	private final ComponentMapper<NPCBestia> npcBestiaMapper;
+	private final ComponentMapper<StatusPoints> statusMapper;
 	private final Archetype npcBestiaArchtype;
 
 	private final World world;
@@ -54,6 +56,7 @@ public class MobEntityFactory {
 		this.positionMapper = world.getMapper(Position.class);
 		this.visibleMapper = world.getMapper(Visible.class);
 		this.npcBestiaMapper = world.getMapper(NPCBestia.class);
+		this.statusMapper = world.getMapper(StatusPoints.class);
 		this.groupMapper = world.getMapper(MobGroup.class);
 	}
 
@@ -75,6 +78,7 @@ public class MobEntityFactory {
 		final NPCBestiaManager npcManager = new NPCBestiaManager(bestia, world, mobEntity);
 		bestiaMapper.get(mob).bestiaManager = npcManager;
 		npcBestiaMapper.get(mob).manager = npcManager;
+		statusMapper.get(mob).statusPoints = npcManager.getStatusPoints();
 
 		// Set the sprite name.
 		visibleMapper.get(mob).sprite = bestia.getDatabaseName();
