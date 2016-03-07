@@ -11,13 +11,11 @@ import org.apache.logging.log4j.Logger;
 import com.artemis.World;
 
 import net.bestia.messages.Message;
-import net.bestia.messages.system.ShutdownMessage;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.ecs.ECSCommandFactory;
 import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
 import net.bestia.zoneserver.messaging.MessageHandler;
-import net.bestia.zoneserver.messaging.routing.MessageIdFilter;
 import net.bestia.zoneserver.messaging.routing.MessageRouter;
 import net.bestia.zoneserver.messaging.routing.ZoneWrapperFilter;
 import net.bestia.zoneserver.zone.map.Map;
@@ -163,7 +161,6 @@ public class Zone implements MessageHandler {
 
 		final MessageRouter router = ctx.getMessageRouter();
 		router.registerFilter(new ZoneWrapperFilter(name), this);
-		router.registerFilter(new MessageIdFilter(ShutdownMessage.MESSAGE_ID), this);
 	}
 
 	/**

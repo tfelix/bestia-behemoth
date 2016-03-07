@@ -50,6 +50,7 @@ public class MobEntityFactory {
 				.add(NPCBestia.class)
 				.add(MobGroup.class)
 				.add(Position.class)
+				.add(StatusPoints.class)
 				.build(world);
 
 		this.bestiaMapper = world.getMapper(Bestia.class);

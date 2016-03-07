@@ -270,28 +270,6 @@ public class Zoneserver {
 	}
 
 	/**
-	 * Subscribes to a topic on the subscriber from the interserver.
-	 * 
-	 * @param topic
-	 *            Topic to subscribe to.
-	 */
-
-	public void subscribe(String topic) {
-		interserverSubscriber.subscribe(topic);
-	}
-
-	/**
-	 * Unsubscribes from a topic on the subscriber from the interserver.
-	 * 
-	 * @param topic
-	 *            Topic to unsubscribe from.
-	 */
-
-	public void unsubscribe(String topic) {
-		interserverSubscriber.unsubscribe(topic);
-	}
-
-	/**
 	 * Entry point. Starts the server.
 	 * 
 	 * @param args
@@ -313,7 +291,7 @@ public class Zoneserver {
 				.desc("Zones are started without loading persisted entities.")
 				.build());
 
-		CommandLineParser parser = new DefaultParser();
+		final CommandLineParser parser = new DefaultParser();
 		final BestiaConfiguration config = new BestiaConfiguration();
 		try {
 			final CommandLine cmd = parser.parse(options, args);
