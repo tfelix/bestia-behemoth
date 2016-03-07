@@ -1,12 +1,10 @@
 package net.bestia.zoneserver.messaging.preprocess;
 
 import net.bestia.messages.ChatMessage;
-import net.bestia.messages.EcsMessageDecorator;
-import net.bestia.messages.ChatMessage.Mode;
-import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.messages.Message;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
+import net.bestia.zoneserver.command.CommandContext;
 
 /**
  * If a chat message needs the knowledge of a besta (public chat message for
@@ -41,7 +39,6 @@ public class ChatMessagePreprocessor extends MessagePreprocessor {
 		case GUILD:
 		case PARTY:
 			final AccountDAO accDAO = ctx.getServiceLocator().getBean(AccountDAO.class);
-
 			// Find the player who send the message.
 			final Account acc = accDAO.findOne(msg.getAccountId());
 			msg.setSenderNickname(acc.getName());
@@ -51,14 +48,7 @@ public class ChatMessagePreprocessor extends MessagePreprocessor {
 			break;
 		}
 
-		if (mode == Mode.COMMAND || mode == Mode.PUBLIC) {
-			// Find the currently active player bestia and send the message to the ECS handling.
-			final int playerBestiaId = ctx.getAccountRegistry().getActiveBestia(msg.getAccountId());
-			final EcsMessageDecorator<ChatMessage> wrappedMsg = new EcsMessageDecorator<ChatMessage>(msg, playerBestiaId);
-			return wrappedMsg;
-		} else {
-			return message;
-		}
+		return message;
 	}
 
 }

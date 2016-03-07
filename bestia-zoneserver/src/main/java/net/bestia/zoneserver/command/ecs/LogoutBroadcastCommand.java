@@ -27,8 +27,9 @@ public class LogoutBroadcastCommand extends ECSCommand {
 
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
-		
-		spawnManager.despawnAllBestias(message.getAccountId());
+		@SuppressWarnings("unchecked")
+		final LogoutBroadcastMessage logoutMsg = ((ZoneMessageDecorator<LogoutBroadcastMessage>) message).getMessage();
+		spawnManager.despawnAllBestias(logoutMsg.getAccountId());
 		
 	}
 	

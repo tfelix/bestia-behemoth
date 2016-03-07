@@ -32,10 +32,11 @@ public class LoginBroadcastCommand extends ECSCommand {
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
 		
-		//LoginBroadcastMessage lbMsg = (LoginBroadcastMessage) message.
+		@SuppressWarnings("unchecked")
+		final LoginBroadcastMessage lbMsg = ((ZoneMessageDecorator<LoginBroadcastMessage>) message).getMessage();
 		
 		final AccountService accService = ctx.getServiceLocator().getBean(AccountService.class);
-		final Set<PlayerBestia> bestias = accService.getAllBestias(message.getAccountId());
+		final Set<PlayerBestia> bestias = accService.getAllBestias(lbMsg.getAccountId());
 
 		for (PlayerBestia playerBestia : bestias) {
 			final String mapname = playerBestia.getCurrentPosition().getMapDbName();
