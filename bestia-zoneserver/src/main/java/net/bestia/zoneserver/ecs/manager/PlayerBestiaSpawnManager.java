@@ -248,6 +248,8 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		}
 
 		final IntBag receivers = getActivePlayersInSight(sourcePosition);
+		
+		LOG.trace("Sending msg: {} to players: {}", msg.toString(), receivers.toString());
 
 		for (int i = 0; i < receivers.size(); i++) {
 			final int receiverId = receivers.get(i);

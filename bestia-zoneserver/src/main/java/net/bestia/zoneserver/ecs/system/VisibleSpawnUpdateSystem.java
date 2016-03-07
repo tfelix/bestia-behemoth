@@ -15,7 +15,7 @@ import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 
 /**
- * Updates all active player bestias if a new visible spawns.
+ * Send updates to all active players if a new visible entity spawns.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -47,7 +47,7 @@ public class VisibleSpawnUpdateSystem extends BaseEntitySystem {
 	@Override
 	protected void inserted(int entityId) {
 		
-		log.trace("### {} NEW VISIBLE, UPDATING PLAYERS ###", entityId);
+		log.trace("### NEW VISIBLE ID: {}, UPDATING PLAYERS ###", entityId);
 
 		final MapEntitiesMessage msg = updateMassageFactory.createMessage(entityId);
 		

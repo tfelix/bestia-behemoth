@@ -1,6 +1,8 @@
-package net.bestia.messages;
+package net.bestia.messages.system;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.AccountMessage;
 
 public class PingMessage extends AccountMessage {
 

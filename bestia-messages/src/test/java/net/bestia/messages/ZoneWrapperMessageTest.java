@@ -3,6 +3,8 @@ package net.bestia.messages;
 import org.junit.Assert;
 import org.junit.Test;
 
+import net.bestia.messages.system.PingMessage;
+
 public class ZoneWrapperMessageTest {
 	
 	private static final String MESSAGE_TEST_ID = "message.id";

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bestia.messages.Message;
-import net.bestia.messages.PingMessage;
+import net.bestia.messages.system.PingMessage;
 import net.bestia.util.BestiaConfiguration;
 
 import org.junit.After;

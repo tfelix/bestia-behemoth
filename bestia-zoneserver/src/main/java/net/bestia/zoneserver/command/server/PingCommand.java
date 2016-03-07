@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.command.server;
 
 import net.bestia.messages.Message;
-import net.bestia.messages.PingMessage;
-import net.bestia.messages.PongMessage;
+import net.bestia.messages.system.PingMessage;
+import net.bestia.messages.system.PongMessage;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 
