@@ -40,8 +40,9 @@ Bestia.Message = {
 	 * 
 	 * @constructor
 	 */
-	Chat : function(mode, text, nick, senderNick) {
+	Chat : function(mode, text, nick, senderNick, playerBestiaId) {
 		this.mid = 'chat.message';
+		this.pbid = playerBestiaId;
 		this.m = mode;
 		this.txt = text;
 		this.pbid = 0;

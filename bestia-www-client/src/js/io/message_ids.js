@@ -6,5 +6,7 @@ Bestia.MID = {
 	UI_DIALOG : 'ui.dialog',
 	
 	INVENTORY_UPDATE : 'inventory.update',
-	INVENTORY_LIST: 'inventory.list'
+	INVENTORY_LIST: 'inventory.list',
+	
+	CHAT_MESSAGE: 'chat.message'
 };

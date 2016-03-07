@@ -146,7 +146,7 @@ Bestia.Chat = function(domEle, game) {
 	});
 
 	// Finally subscribe to chat messages.
-	game.pubsub.subscribe('chat.message', function(_, msg) {
+	game.pubsub.subscribe(Bestia.MID.CHAT_MESSAGE, function(_, msg) {
 		self.addMessage(msg);
 	});
 
@@ -154,9 +154,9 @@ Bestia.Chat = function(domEle, game) {
 	// once this is done.
 	var handleAuthEvent = function(_, data) {
 		self.LOCAL_NICKNAME = data.username;
-		self.game.pubsub.unsubscribe('system.auth', handleAuthEvent);
+		self.game.pubsub.unsubscribe(Bestia.Signal.AUTH, handleAuthEvent);
 	};
-	game.pubsub.subscribe('system.auth', handleAuthEvent);
+	game.pubsub.subscribe(Bestia.Signal.AUTH, handleAuthEvent);
 
 	var handleItemObtainedEvent = function(_, item) {
 		i18n.t('chat.item_optained', function(t) {
@@ -205,7 +205,7 @@ Bestia.Chat.prototype.sendChat = function() {
 	}
 
 	// Prepare and send the message to the server and add it to the local chat.
-	var msg = new Bestia.Message.Chat(this.mode(), msgText, this.whisperNick(), this.LOCAL_NICKNAME);
+	var msg = new Bestia.Message.Chat(this.mode(), msgText, this.whisperNick(), this.LOCAL_NICKNAME, self._currentBestiaId);
 
 	// Check if this was a command to be executed on the server and set the
 	// message flag accordingly.
@@ -217,7 +217,7 @@ Bestia.Chat.prototype.sendChat = function() {
 		this.addMessage(msg);
 	}
 
-	this.game.pubsub.publish('io.sendMessage', msg);
+	this.game.pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 };
 
 /**

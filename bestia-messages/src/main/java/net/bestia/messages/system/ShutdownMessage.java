@@ -4,6 +4,7 @@ import net.bestia.messages.Message;
 
 public class ShutdownMessage extends Message {
 	
+	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "system.shutdown";
 
 	@Override
