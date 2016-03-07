@@ -11,14 +11,31 @@ Bestia.Game = function() {
 	this.chat = new Bestia.Chat($('#chat'), this);
 	this.engine = new Bestia.Engine(this.pubsub, this.urlHelper);
 	this.connection = new Bestia.Connection(this.pubsub);
+	
+	var self = this;
+	
+	/**
+	 * Start the connection process.
+	 */
+	this.pubsub.subscribe(Bestia.Signal.IO_CONNECT, function(){
+		self.connection.connect();
+	});
+	
+	/**
+	 * Disconnect from the server.
+	 */
+	this.pubsub.subscribe(Bestia.Signal.IO_DISCONNECT, function(){
+		self.connection.disconnect();
+	});
+	
+	/**
+	 * Authentication error. Go to logout.
+	 */
+	this.pubsub.subscribe(Bestia.Signal.AUTH_ERROR, function(){
+		window.location.replace(Bestia.Urls.loginHtml);
+	});
 };
 
-/**
- * Starts the connection procedure.
- */
-Bestia.Game.prototype.init = function() {
-	this.connection.init();
-};
 
 function main() {
 
@@ -56,12 +73,6 @@ function main() {
 	// @ifdef DEVELOPMENT
 	window.bestiaGame = game;
 	// @endif
-	
-	
-	game.pubsub.subscribe('engine.loaded', function(){
-		console.debug("Engine has loaded. Start connecting.");
-		game.init();
-	});
 }
 
 i18n.init({

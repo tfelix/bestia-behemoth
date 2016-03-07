@@ -5,8 +5,6 @@
  */
 Bestia.Signal = {
 
-	LOGOUT : 'system.logout',
-	
 	/**
 	 * Emitted when the system tries to authenticate.
 	 */
@@ -34,15 +32,18 @@ Bestia.Signal = {
 	CHAT_RECEIVED : 'client.chat.received',
 
 	ENGINE_LOADED : 'engine.loaded',
-	ENGINE_CONNECTED : 'engine.connected',
-	ENGINE_DISCONNECTED : 'engine.disconnected',
 	ENGINE_PREPARE_MAPLOAD : 'engine.prepareMapload',
+
+	/**
+	 * Emitted when map data has loaded and we can now switch to the game state.
+	 */
 	ENGINE_FINISHED_MAPLOAD : 'engine.finishMapload',
 
 	ENGINE_CAST_ITEM : 'engine.castItem',
 
 	/**
-	 * Emitted when the game has loaded and is being displayed.
+	 * Emitted when the map and the game state has loaded and is being
+	 * displayed.
 	 */
 	ENGINE_GAME_STARTED : 'engine.gameStarted'
 

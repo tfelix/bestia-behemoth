@@ -20,16 +20,6 @@ import net.bestia.zoneserver.ecs.component.MobGroup;
 import net.bestia.zoneserver.ecs.component.MobSpawn;
 import net.bestia.zoneserver.zone.spawn.Spawner;
 
-/**
- * This manager keeps track about the dying NPC mob bestias. If the number is
- * below the number of the spawned bestias for this map a new spawning entity is
- * created.
- * 
- * TODO Das irgendwie mit MobSpawnSystem kombinieren?
- * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
- *
- */
 @Wire
 public class MobSpawnManager extends BaseEntitySystem {
 

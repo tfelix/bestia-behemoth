@@ -115,6 +115,23 @@ Bestia.Connection.prototype.checkLoginData = function(data) {
 	return true;
 };
 
+Bestia.Connection.prototype.connect = function() {
+	var socketRequest = this._init();
+	this._pubsub.publish(Bestia.Signal.IO_CONNECTING);
+	this.socket = $.atmosphere.subscribe(socketRequest);
+};
+
+/**
+ * Disconnects the socket from the server.
+ */
+Bestia.Connection.prototype.disconnect = function() {
+	if (this.socket === null) {
+		return;
+	}
+	this.socket.close();
+	this.socket = null;
+};
+
 /**
  * - Initializes a connection to the server using the login data present in a
  * cookie which must be acquired via the login process before trying to
@@ -123,9 +140,9 @@ Bestia.Connection.prototype.checkLoginData = function(data) {
  * Publishes: system.auth - Containing the auth data (bestia name, user id) if a
  * successful connection to the server has been established.
  * 
- * @method Bestia.Connection#init
+ * @method Bestia.Connection#_init
  */
-Bestia.Connection.prototype.init = function() {
+Bestia.Connection.prototype._init = function() {
 
 	var self = this;
 
@@ -143,13 +160,13 @@ Bestia.Connection.prototype.init = function() {
 	var request = {
 		url : Bestia.Urls.bestiaWebsocket,
 		contentType : "application/json",
-		logLevel : 'debug',
+		logLevel : 'info',
 		transport : 'websocket',
 		headers : {
 			'X-Bestia-Token' : authData.token,
 			'X-Bestia-Account' : authData.accId
 		},
-		maxReconnectOnClose : 0,
+		maxReconnectOnClose : 5,
 		trackMessageLength : true,
 		enableProtocol : true
 	};
@@ -199,7 +216,7 @@ Bestia.Connection.prototype.init = function() {
 	request.onClose = function() {
 		console.log('Server has closed the connection.');
 		// Most likly we are not authenticated. Back to login.
-		self._pubsub.publish('system.logout', {});
+		self._pubsub.publish(Bestia.Signal.IO_DISCONNECTED);
 	};
 
 	/**
@@ -208,11 +225,10 @@ Bestia.Connection.prototype.init = function() {
 	request.onError = function() {
 		console.error('Server error. Can not create connection.');
 		// Most likly we are not authenticated. Back to login.
-		self._pubsub.publish(Bestia.Signal.LOGOUT);
+		self._pubsub.publish(Bestia.Signal.IO_DISCONNECTED);
 	};
-
-	this._pubsub.publish(Bestia.Signal.IO_CONNECTING);
-	this.socket = $.atmosphere.subscribe(request);
+	
+	return request;
 };
 
 Bestia.Connection.prototype.sendPing = function() {
