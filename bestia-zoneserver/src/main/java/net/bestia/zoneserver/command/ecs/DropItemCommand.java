@@ -9,14 +9,14 @@ import net.bestia.model.domain.Item;
 import net.bestia.model.domain.Location;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.controller.ItemController;
+import net.bestia.zoneserver.ecs.entity.ItemEntityFactory;
 import net.bestia.zoneserver.manager.InventoryManager;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 public class DropItemCommand extends ECSCommand {
 	
 	private final Random rand = new Random();
-	private ItemController itemCtrl;
+	private ItemEntityFactory itemCtrl;
 
 	@Override
 	public String handlesMessageId() {
@@ -27,7 +27,7 @@ public class DropItemCommand extends ECSCommand {
 	protected void initialize() {
 		super.initialize();
 		
-		 itemCtrl = new ItemController(world);
+		 itemCtrl = new ItemEntityFactory(world);
 	}
 
 	@Override

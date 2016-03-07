@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.ecs.controller;
+package net.bestia.zoneserver.ecs.entity;
 
 import com.artemis.Archetype;
 import com.artemis.ArchetypeBuilder;
@@ -20,7 +20,7 @@ import net.bestia.zoneserver.zone.shape.Vector2;
  * @author Thomas
  *
  */
-public class ItemController {
+public class ItemEntityFactory {
 
 	public static final int ITEM_VANISH_DELAY = 48 * 60 * 60 * 1000; // 48h.
 
@@ -32,7 +32,7 @@ public class ItemController {
 	private final ComponentMapper<DelayedRemove> removeMapper;
 	private final ComponentMapper<net.bestia.zoneserver.ecs.component.Item> itemMapper;
 
-	public ItemController(World world) {
+	public ItemEntityFactory(World world) {
 
 		this.world = world;
 		this.itemArchetype = new ArchetypeBuilder()

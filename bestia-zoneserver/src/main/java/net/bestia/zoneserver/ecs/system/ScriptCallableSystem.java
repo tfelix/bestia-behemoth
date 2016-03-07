@@ -12,7 +12,7 @@ import net.bestia.zoneserver.ecs.component.Delay;
 import net.bestia.zoneserver.ecs.component.ScriptCallable;
 
 /**
- * Triggers script functions on a basic interval.
+ * Triggers registered script functions on a basic interval.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
