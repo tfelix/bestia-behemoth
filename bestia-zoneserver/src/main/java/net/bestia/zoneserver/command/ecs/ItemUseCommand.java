@@ -9,8 +9,8 @@ import net.bestia.model.domain.Item;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
-import net.bestia.zoneserver.manager.InventoryManager;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.InventoryProxy;
+import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
 import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.script.ItemScript;
 
@@ -40,10 +40,10 @@ public class ItemUseCommand extends ECSCommand {
 		final long accId = useMessage.getAccountId();
 
 		final int activeBestiaId = register.getActiveBestia(accId);
-		final PlayerBestiaManager owner = spawnManager.getPlayerBestiaManager(activeBestiaId);
+		final PlayerBestiaEntityProxy owner = spawnManager.getPlayerBestiaManager(activeBestiaId);
 
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
-		final InventoryManager inventory = new InventoryManager(owner, invService, ctx.getServer());
+		final InventoryProxy inventory = new InventoryProxy(owner, invService, ctx.getServer());
 
 		// TODO Das von PLayer Item ID auf Item ID ändern!
 		if (!inventory.hasItem(useMessage.getItemId(), 1)) {

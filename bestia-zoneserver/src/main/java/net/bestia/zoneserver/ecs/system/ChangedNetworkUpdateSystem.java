@@ -13,7 +13,7 @@ import net.bestia.zoneserver.ecs.component.Changed;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
 
 /**
  * This system looks for changed and visible entities and transmit the changes
@@ -42,7 +42,7 @@ public class ChangedNetworkUpdateSystem extends EntityProcessingSystem {
 		// First of all check if this is a player bestia entity. And if so send
 		// the update to the corresponding player.
 		if (playerMapper.has(e)) {
-			final PlayerBestiaManager pbm = playerMapper.get(e).playerBestiaManager;
+			final PlayerBestiaEntityProxy pbm = playerMapper.get(e).playerBestiaManager;
 			final BestiaInfoMessage bestiaInfoMsg = new BestiaInfoMessage(pbm.getPlayerBestia(), pbm.getStatusPoints());
 			ctx.getServer().sendMessage(bestiaInfoMsg);
 		}

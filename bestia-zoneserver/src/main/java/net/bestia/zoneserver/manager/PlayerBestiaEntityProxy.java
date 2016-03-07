@@ -37,8 +37,8 @@ import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class PlayerBestiaManager extends BestiaManager {
-	private final static Logger log = LogManager.getLogger(PlayerBestiaManager.class);
+public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
+	private final static Logger log = LogManager.getLogger(PlayerBestiaEntityProxy.class);
 
 	private final static int MAX_LEVEL = 40;
 
@@ -56,7 +56,7 @@ public class PlayerBestiaManager extends BestiaManager {
 
 	private final ServiceLocator serviceLocator;
 
-	public PlayerBestiaManager(PlayerBestia bestia,
+	public PlayerBestiaEntityProxy(PlayerBestia bestia,
 			World world,
 			Entity entity,
 			Zoneserver server,
@@ -277,7 +277,7 @@ public class PlayerBestiaManager extends BestiaManager {
 		if (getClass() != obj.getClass())
 			return false;
 
-		PlayerBestiaManager other = (PlayerBestiaManager) obj;
+		PlayerBestiaEntityProxy other = (PlayerBestiaEntityProxy) obj;
 
 		if (bestia == null) {
 			if (other.bestia != null)

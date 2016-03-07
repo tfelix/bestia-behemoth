@@ -18,14 +18,14 @@ import net.bestia.zoneserver.Zoneserver;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class InventoryManager {
+public class InventoryProxy {
 
 	private final InventoryService inventoryService;
 	private final Zoneserver server;
 	private final long accId;
-	private final PlayerBestiaManager owner;
+	private final PlayerBestiaEntityProxy owner;
 
-	public InventoryManager(PlayerBestiaManager owner, InventoryService service, Zoneserver server) {
+	public InventoryProxy(PlayerBestiaEntityProxy owner, InventoryService service, Zoneserver server) {
 		if (owner == null) {
 			throw new IllegalArgumentException("The owner of the inventory can not be null.");
 		}
@@ -170,7 +170,7 @@ public class InventoryManager {
 	}
 
 	/**
-	 * @see InventoryManager#removeItem(int, int)
+	 * @see InventoryProxy#removeItem(int, int)
 	 * 
 	 * @param itemDbName
 	 *            Item Database name of the item to be removed.

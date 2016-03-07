@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.script;
 
-import net.bestia.zoneserver.manager.BestiaManager;
+import net.bestia.zoneserver.manager.BestiaEntityProxy;
 
 public class MapScriptFactory {
 
@@ -13,7 +13,7 @@ public class MapScriptFactory {
 		this.api = api;
 	}
 	
-	public MapScript getScript(String name, BestiaManager bestiaManager) {
+	public MapScript getScript(String name, BestiaEntityProxy bestiaManager) {
 		return new MapScript(mapDbName, name, api, bestiaManager);
 	}
 	

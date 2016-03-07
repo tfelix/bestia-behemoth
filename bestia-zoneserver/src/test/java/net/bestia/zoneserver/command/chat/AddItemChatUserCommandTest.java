@@ -6,7 +6,7 @@ import org.mockito.Mockito;
 import net.bestia.messages.ChatMessage;
 import net.bestia.messages.ChatMessage.Mode;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
 
 public class AddItemChatUserCommandTest {
 
@@ -19,7 +19,7 @@ public class AddItemChatUserCommandTest {
 		msg.setText("/item blablablub");
 
 		final CommandContext ctx = getMockedContext();
-		final PlayerBestiaManager player = getMockedPlayerManager();
+		final PlayerBestiaEntityProxy player = getMockedPlayerManager();
 
 		cmd.execute(msg, player, ctx);
 	}
@@ -41,7 +41,7 @@ public class AddItemChatUserCommandTest {
 		msg.setText("/item apple 10");
 
 		final CommandContext ctx = getMockedContext();
-		final PlayerBestiaManager player = getMockedPlayerManager();
+		final PlayerBestiaEntityProxy player = getMockedPlayerManager();
 
 		cmd.execute(msg, player, ctx);
 		
@@ -59,7 +59,7 @@ public class AddItemChatUserCommandTest {
 		msg.setText("/sdfjkh");
 
 		final CommandContext ctx = getMockedContext();
-		final PlayerBestiaManager player = getMockedPlayerManager();
+		final PlayerBestiaEntityProxy player = getMockedPlayerManager();
 
 		cmd.execute(msg, player, ctx);
 	}
@@ -81,8 +81,8 @@ public class AddItemChatUserCommandTest {
 		return ctx;
 	}
 
-	public PlayerBestiaManager getMockedPlayerManager() {
-		final PlayerBestiaManager manager = Mockito.mock(PlayerBestiaManager.class);
+	public PlayerBestiaEntityProxy getMockedPlayerManager() {
+		final PlayerBestiaEntityProxy manager = Mockito.mock(PlayerBestiaEntityProxy.class);
 
 		return manager;
 	}

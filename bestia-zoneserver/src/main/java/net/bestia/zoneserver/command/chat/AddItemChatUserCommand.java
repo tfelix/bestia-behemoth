@@ -7,8 +7,8 @@ import net.bestia.messages.ChatMessage;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.manager.InventoryManager;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.InventoryProxy;
+import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
 
 /*-
  * Chat commands which will spawn and item and adds it to the inventory.
@@ -36,7 +36,7 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 	}
 
 	@Override
-	public void execute(ChatMessage message, PlayerBestiaManager player, CommandContext ctx) {
+	public void execute(ChatMessage message, PlayerBestiaEntityProxy player, CommandContext ctx) {
 
 		final ChatMessage m = (ChatMessage) message;
 
@@ -50,7 +50,7 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 
 		// Find the player who send the message.
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
-		final InventoryManager invManager = new InventoryManager(player, invService, ctx.getServer());
+		final InventoryProxy invManager = new InventoryProxy(player, invService, ctx.getServer());
 
 		try {
 			if (desc.itemdId != -1) {

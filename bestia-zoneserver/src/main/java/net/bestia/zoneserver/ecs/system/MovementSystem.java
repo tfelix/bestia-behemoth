@@ -5,7 +5,7 @@ import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Changed;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.manager.BestiaManager;
+import net.bestia.zoneserver.manager.BestiaEntityProxy;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 import org.apache.logging.log4j.LogManager;
@@ -59,7 +59,7 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 		}
 		
 		// Check if we handle a bestia or a generic position only entity.
-		final BestiaManager manager = bestiaMapper.get(e).bestiaManager;
+		final BestiaEntityProxy manager = bestiaMapper.get(e).bestiaManager;
 		
 		// Check that the next move position is only one tile away.
 		final Location loc = manager.getLocation();

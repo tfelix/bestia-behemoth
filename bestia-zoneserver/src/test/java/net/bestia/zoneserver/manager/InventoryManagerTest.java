@@ -26,17 +26,17 @@ public class InventoryManagerTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void ctor_nullOwner_throws() {
-		new InventoryManager(null, inventoryService, getServer());
+		new InventoryProxy(null, inventoryService, getServer());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void ctor_nullService_throws() {
-		new InventoryManager(getPlayerBestiaManager(), null, getServer());
+		new InventoryProxy(getPlayerBestiaManager(), null, getServer());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void ctor_nullServer_throws() {
-		new InventoryManager(getPlayerBestiaManager(), inventoryService, null);
+		new InventoryProxy(getPlayerBestiaManager(), inventoryService, null);
 	}
 
 	public void addItem_knownItemId_true() {
@@ -113,8 +113,8 @@ public class InventoryManagerTest {
 		return server;
 	}
 
-	private PlayerBestiaManager getPlayerBestiaManager() {
-		final PlayerBestiaManager manager = Mockito.mock(PlayerBestiaManager.class);
+	private PlayerBestiaEntityProxy getPlayerBestiaManager() {
+		final PlayerBestiaEntityProxy manager = Mockito.mock(PlayerBestiaEntityProxy.class);
 
 		return manager;
 	}

@@ -8,7 +8,7 @@ import net.bestia.messages.Message;
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
 
 public class ChatMapMoveCommand extends ECSCommand {
 
@@ -24,7 +24,7 @@ public class ChatMapMoveCommand extends ECSCommand {
 		final MapMoveMessage msg = (MapMoveMessage) message;
 
 		final PlayerBestiaSpawnManager pbsManager = world.getSystem(PlayerBestiaSpawnManager.class);
-		final PlayerBestiaManager pbManager = pbsManager.getPlayerBestiaManager(msg.getPlayerBestiaId());
+		final PlayerBestiaEntityProxy pbManager = pbsManager.getPlayerBestiaManager(msg.getPlayerBestiaId());
 		
 		final Location target = msg.getTarget();
 

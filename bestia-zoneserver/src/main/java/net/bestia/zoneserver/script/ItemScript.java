@@ -1,11 +1,11 @@
 package net.bestia.zoneserver.script;
 
-import net.bestia.zoneserver.manager.BestiaManager;
-import net.bestia.zoneserver.manager.InventoryManager;
+import net.bestia.zoneserver.manager.BestiaEntityProxy;
+import net.bestia.zoneserver.manager.InventoryProxy;
 
 public class ItemScript extends Script {
 
-	public ItemScript(String name, BestiaManager owner, InventoryManager inventory) {
+	public ItemScript(String name, BestiaEntityProxy owner, InventoryProxy inventory) {
 		super(name);
 		addBinding("target", owner);
 		addBinding("inventory", inventory);

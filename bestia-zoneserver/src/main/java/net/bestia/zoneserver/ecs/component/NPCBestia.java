@@ -1,24 +1,24 @@
 package net.bestia.zoneserver.ecs.component;
 
-import net.bestia.zoneserver.manager.NPCBestiaManager;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.NpcBestiaEntityProxy;
+import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
 import com.artemis.Component;
 
 /**
- * Entity contains a {@link PlayerBestiaManager}.
+ * Entity contains a {@link PlayerBestiaEntityProxy}.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class NPCBestia extends Component {
 
-	public NPCBestiaManager manager;
+	public NpcBestiaEntityProxy manager;
 	
 	public NPCBestia() {
 		
 	}
 	
-	public NPCBestia(NPCBestiaManager manager) {
+	public NPCBestia(NpcBestiaEntityProxy manager) {
 		this.manager = manager;
 	}
 

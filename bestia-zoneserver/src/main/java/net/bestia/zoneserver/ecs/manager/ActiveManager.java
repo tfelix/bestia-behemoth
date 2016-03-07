@@ -9,7 +9,7 @@ import com.artemis.systems.EntityProcessingSystem;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
 import net.bestia.zoneserver.messaging.AccountRegistry;
 
 /**
@@ -40,7 +40,7 @@ public class ActiveManager extends EntityProcessingSystem {
 			return;
 		}
 
-		final PlayerBestiaManager pbm = playerBestiaMapper.get(e).playerBestiaManager;
+		final PlayerBestiaEntityProxy pbm = playerBestiaMapper.get(e).playerBestiaManager;
 		ctx.getAccountRegistry().setActiveBestia(pbm.getAccountId(), pbm.getPlayerBestiaId());
 	}
 
@@ -50,7 +50,7 @@ public class ActiveManager extends EntityProcessingSystem {
 			return;
 		}
 
-		final PlayerBestiaManager pbm = playerBestiaMapper.get(e).playerBestiaManager;
+		final PlayerBestiaEntityProxy pbm = playerBestiaMapper.get(e).playerBestiaManager;
 		ctx.getAccountRegistry().unsetActiveBestia(pbm.getAccountId(), pbm.getPlayerBestiaId());
 	}
 

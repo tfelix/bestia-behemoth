@@ -16,7 +16,7 @@ import net.bestia.zoneserver.ecs.component.NPCBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.manager.NPCBestiaManager;
+import net.bestia.zoneserver.manager.NpcBestiaEntityProxy;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
@@ -75,7 +75,7 @@ public class MobEntityFactory {
 		final Position pos = positionMapper.get(mob);
 		pos.position = new Vector2(position.x, position.y);
 
-		final NPCBestiaManager npcManager = new NPCBestiaManager(bestia, world, mobEntity);
+		final NpcBestiaEntityProxy npcManager = new NpcBestiaEntityProxy(bestia, world, mobEntity);
 		bestiaMapper.get(mob).bestiaManager = npcManager;
 		npcBestiaMapper.get(mob).manager = npcManager;
 		statusMapper.get(mob).statusPoints = npcManager.getStatusPoints();

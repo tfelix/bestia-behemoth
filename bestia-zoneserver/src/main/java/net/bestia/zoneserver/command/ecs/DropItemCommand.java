@@ -10,7 +10,7 @@ import net.bestia.model.domain.Location;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.entity.ItemEntityFactory;
-import net.bestia.zoneserver.manager.InventoryManager;
+import net.bestia.zoneserver.manager.InventoryProxy;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 public class DropItemCommand extends ECSCommand {
@@ -38,7 +38,7 @@ public class DropItemCommand extends ECSCommand {
 		// We need an inventory manager.
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
 		final ItemDAO itemDao = ctx.getServiceLocator().getBean(ItemDAO.class);
-		final InventoryManager invManager = new InventoryManager(getPlayerBestiaManager(), invService, ctx.getServer());
+		final InventoryProxy invManager = new InventoryProxy(getPlayerBestiaManager(), invService, ctx.getServer());
 
 		if (!invManager.removeItem(msg.getItemId(), msg.getAmount())) {
 			// Either player did not own the item or not enough.

@@ -6,14 +6,14 @@ import com.artemis.World;
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.StatusPoints;
 
-public class NPCBestiaManager extends BestiaManager {
+public class NpcBestiaEntityProxy extends BestiaEntityProxy {
 	// private final static Logger log =
 	// LogManager.getLogger(BestiaManager.class);
 
 	private final Bestia bestia;
 	private StatusPoints statusPoints = null;
 
-	public NPCBestiaManager(Bestia bestia, World world, Entity entity) {
+	public NpcBestiaEntityProxy(Bestia bestia, World world, Entity entity) {
 		super(world, entity);
 		this.bestia = bestia;
 	}

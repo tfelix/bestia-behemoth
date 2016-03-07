@@ -15,7 +15,7 @@ import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
-public abstract class BestiaManager {
+public abstract class BestiaEntityProxy {
 
 	private class ECSLocation extends Location {
 
@@ -63,7 +63,7 @@ public abstract class BestiaManager {
 	private Map<Integer, Long> attackUsageTimer = new HashMap<>();
 	private Direction facing;
 
-	public BestiaManager(World world, Entity entity) {
+	public BestiaEntityProxy(World world, Entity entity) {
 
 		this.positionMapper = world.getMapper(Position.class);
 		this.entity = entity;

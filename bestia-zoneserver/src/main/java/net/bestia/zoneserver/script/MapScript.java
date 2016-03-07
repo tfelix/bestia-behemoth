@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
 
-import net.bestia.zoneserver.manager.BestiaManager;
+import net.bestia.zoneserver.manager.BestiaEntityProxy;
 
 /**
  * A simple map script is triggered when a map loads. Also known as a
@@ -40,7 +40,7 @@ public class MapScript extends Script {
 	 * @param name
 	 *            Name of the script.
 	 */
-	public MapScript(String mapDbName, String name, MapScriptAPI api, BestiaManager bestia) {
+	public MapScript(String mapDbName, String name, MapScriptAPI api, BestiaEntityProxy bestia) {
 		super(name);
 		
 		addBinding("apiZone", api);

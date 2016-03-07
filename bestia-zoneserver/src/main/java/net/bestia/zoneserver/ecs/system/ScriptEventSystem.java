@@ -27,7 +27,7 @@ import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Delay;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Script;
-import net.bestia.zoneserver.manager.BestiaManager;
+import net.bestia.zoneserver.manager.BestiaEntityProxy;
 import net.bestia.zoneserver.script.MapScript;
 import net.bestia.zoneserver.script.MapScriptFactory;
 import net.bestia.zoneserver.script.ScriptManager;
@@ -180,7 +180,7 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 				.forEach(id -> {
 					// We are newly touching/entering it.
 						final Entity collisionEntity = world.getEntity(id);
-						final BestiaManager bm = bestiaMapper.get(collisionEntity).bestiaManager;
+						final BestiaEntityProxy bm = bestiaMapper.get(collisionEntity).bestiaManager;
 
 						onEnterBinding.put("target", bm);
 
@@ -202,7 +202,7 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 							return;
 						}
 
-						final BestiaManager bm = bestiaMapper.get(exitEntity).bestiaManager;
+						final BestiaEntityProxy bm = bestiaMapper.get(exitEntity).bestiaManager;
 
 						onExitBinding.put("target", bm);
 

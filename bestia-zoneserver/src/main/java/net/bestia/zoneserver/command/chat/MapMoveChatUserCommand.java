@@ -13,7 +13,7 @@ import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
 
 public class MapMoveChatUserCommand implements ChatUserCommand {
 	
@@ -23,7 +23,7 @@ public class MapMoveChatUserCommand implements ChatUserCommand {
 	private final Pattern cordsPattern = Pattern.compile("(\\d+) (\\d+)");
 
 	@Override
-	public void execute(ChatMessage message, PlayerBestiaManager player, CommandContext ctx) {
+	public void execute(ChatMessage message, PlayerBestiaEntityProxy player, CommandContext ctx) {
 		
 		final int activeBestia = ctx.getAccountRegistry().getActiveBestia(message.getAccountId());
 		

@@ -6,7 +6,7 @@ import java.util.List;
 import net.bestia.messages.Message;
 import net.bestia.messages.attack.AttackSetMessage;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
 
 /**
  * Sets the attacks of the currently active bestia.
@@ -26,7 +26,7 @@ public class AttackSetCommand extends ECSCommand {
 		final AttackSetMessage atkSetMsg = (AttackSetMessage) message;
 		
 		// Set the attacks.
-		final PlayerBestiaManager pbm = getPlayerBestiaManager();
+		final PlayerBestiaEntityProxy pbm = getPlayerBestiaManager();
 		final List<Integer> attackIds = new ArrayList<>();
 		attackIds.add(atkSetMsg.getAtkSlotId1());
 		attackIds.add(atkSetMsg.getAtkSlotId2());

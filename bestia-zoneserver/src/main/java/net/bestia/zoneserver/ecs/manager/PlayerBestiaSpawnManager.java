@@ -33,8 +33,8 @@ import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.manager.InventoryManager;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.InventoryProxy;
+import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
 import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.messaging.MessageHandler;
 import net.bestia.zoneserver.messaging.routing.DynamicBestiaIdMessageFilter;
@@ -140,7 +140,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	 */
 	@Override
 	protected void inserted(int entityId) {
-		final PlayerBestiaManager pbm = playerMapper.get(entityId).playerBestiaManager;
+		final PlayerBestiaEntityProxy pbm = playerMapper.get(entityId).playerBestiaManager;
 		final int playerBestiaId = pbm.getPlayerBestiaId();
 		final Long accountId = pbm.getAccountId();
 
@@ -161,7 +161,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	 */
 	@Override
 	protected void removed(int entityId) {
-		final PlayerBestiaManager pbm = playerMapper.get(entityId).playerBestiaManager;
+		final PlayerBestiaEntityProxy pbm = playerMapper.get(entityId).playerBestiaManager;
 		final int playerBestiaId = pbm.getPlayerBestiaId();
 		final Long accountId = pbm.getAccountId();
 
@@ -184,7 +184,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		final Long accId = pb.getOwner().getId();
 		final Entity pbEntity = world.createEntity(playerBestiaArchetype);
 
-		final PlayerBestiaManager pbm = new PlayerBestiaManager(pb,
+		final PlayerBestiaEntityProxy pbm = new PlayerBestiaEntityProxy(pb,
 				world,
 				pbEntity,
 				ctx.getServer(),
@@ -214,7 +214,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 			pbEntity.edit().create(Active.class);
 
 			final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
-			final InventoryManager invManager = new InventoryManager(pbm, invService, ctx.getServer());
+			final InventoryProxy invManager = new InventoryProxy(pbm, invService, ctx.getServer());
 			final Message invListMessage = invManager.getInventoryListMessage();
 			ctx.getServer().sendMessage(invListMessage);
 
@@ -282,7 +282,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	 * @param playerBestiaId
 	 * @return
 	 */
-	public PlayerBestiaManager getPlayerBestiaManager(int playerBestiaId) {
+	public PlayerBestiaEntityProxy getPlayerBestiaManager(int playerBestiaId) {
 		final int entityId = getEntityIdFromBestia(playerBestiaId);
 		final Entity entity = world.getEntity(entityId);
 

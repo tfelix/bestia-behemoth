@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.script;
 
-import net.bestia.zoneserver.manager.BestiaManager;
+import net.bestia.zoneserver.manager.BestiaEntityProxy;
 
 /**
  * The attack scripts are triggered and executed as soon as an attack is
@@ -20,7 +20,7 @@ public class AttackScript extends Script {
 	 * @param owner
 	 *            The bestia manager of the one who uses the attack.
 	 */
-	public AttackScript(String name, BestiaManager owner) {
+	public AttackScript(String name, BestiaEntityProxy owner) {
 		super(name);
 
 		addBinding("owner", owner);

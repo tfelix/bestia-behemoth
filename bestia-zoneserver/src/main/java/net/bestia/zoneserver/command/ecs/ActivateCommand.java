@@ -9,8 +9,8 @@ import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
-import net.bestia.zoneserver.manager.InventoryManager;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.InventoryProxy;
+import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
 import net.bestia.zoneserver.messaging.AccountRegistry;
 
 public class ActivateCommand extends ECSCommand {
@@ -35,7 +35,7 @@ public class ActivateCommand extends ECSCommand {
 		final BestiaActivateMessage msg = (BestiaActivateMessage) message;
 		final AccountRegistry register = ctx.getAccountRegistry();
 
-		final PlayerBestiaManager playerBestia = playerMapper.get(player).playerBestiaManager;
+		final PlayerBestiaEntityProxy playerBestia = playerMapper.get(player).playerBestiaManager;
 		final int pbId = playerBestia.getPlayerBestiaId();
 		final long accId = msg.getAccountId();
 
@@ -51,7 +51,7 @@ public class ActivateCommand extends ECSCommand {
 
 			// Send the current inventory of this bestia to the client.
 			final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
-			final InventoryManager invManager = new InventoryManager(playerBestia, invService, ctx.getServer());
+			final InventoryProxy invManager = new InventoryProxy(playerBestia, invService, ctx.getServer());
 			final Message invListMessage = invManager.getInventoryListMessage();
 			ctx.getServer().sendMessage(invListMessage);
 			

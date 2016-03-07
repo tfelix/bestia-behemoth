@@ -3,7 +3,7 @@ package net.bestia.zoneserver.command.ecs;
 import net.bestia.messages.Message;
 import net.bestia.messages.attack.AttackUseMessage;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.manager.PlayerBestiaManager;
+import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
 
 /**
  * This command will try to use an attack on the current zone a bestia is on. It
@@ -24,7 +24,7 @@ public class AttackUseCommand extends ECSCommand {
 	protected void execute(Message message, CommandContext ctx) {
 
 		final AttackUseMessage atkMsg = (AttackUseMessage) message;
-		final PlayerBestiaManager pbm = getPlayerBestiaManager();
+		final PlayerBestiaEntityProxy pbm = getPlayerBestiaManager();
 		
 		if(pbm.useAttack(atkMsg.getAttackId())) {
 			
