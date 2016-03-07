@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class TranslationResponseMessage extends Message {
+public class TranslationResponseMessage extends AccountMessage {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;

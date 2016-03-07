@@ -14,7 +14,7 @@ import java.util.Set;
  *
  * @param <T>
  */
-public class ZoneMessageDecorator<T extends Message> extends Message {
+public class ZoneMessageDecorator<T extends Message> extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 
@@ -29,8 +29,6 @@ public class ZoneMessageDecorator<T extends Message> extends Message {
 	}
 
 	public ZoneMessageDecorator(T msg) {
-		super(msg);
-
 		this.message = msg;
 	}
 

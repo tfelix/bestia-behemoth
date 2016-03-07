@@ -18,6 +18,7 @@ import com.artemis.EntitySubscription;
 import com.artemis.annotations.Wire;
 import com.artemis.utils.IntBag;
 
+import net.bestia.messages.AccountMessage;
 import net.bestia.messages.InputMessage;
 import net.bestia.messages.LoginBroadcastMessage;
 import net.bestia.messages.LogoutBroadcastMessage;
@@ -238,7 +239,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	 *            The entity from which the sight range will be calculated.
 	 * @param msg
 	 */
-	public void sendMessageToSightrange(int source, Message msg) {
+	public void sendMessageToSightrange(int source, AccountMessage msg) {
 		final Position sourcePosition = positionMapper.getSafe(source);
 
 		if (sourcePosition == null) {

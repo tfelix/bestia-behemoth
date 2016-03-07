@@ -32,6 +32,8 @@ public class LoginBroadcastCommand extends ECSCommand {
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
 		
+		//LoginBroadcastMessage lbMsg = (LoginBroadcastMessage) message.
+		
 		final AccountService accService = ctx.getServiceLocator().getBean(AccountService.class);
 		final Set<PlayerBestia> bestias = accService.getAllBestias(message.getAccountId());
 

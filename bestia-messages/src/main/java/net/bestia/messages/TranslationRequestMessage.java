@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class TranslationRequestMessage extends Message {
+public class TranslationRequestMessage extends AccountMessage {
 
 	public static class TranslationItem implements Serializable {
 

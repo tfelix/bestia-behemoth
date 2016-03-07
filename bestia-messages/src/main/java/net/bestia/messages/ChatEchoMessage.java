@@ -2,7 +2,7 @@ package net.bestia.messages;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class ChatEchoMessage extends Message {
+public class ChatEchoMessage extends AccountMessage {
 	
 	private static final long serialVersionUID = 1L;
 

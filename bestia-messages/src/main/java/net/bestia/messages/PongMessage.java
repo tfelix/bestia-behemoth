@@ -2,7 +2,7 @@ package net.bestia.messages;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class PongMessage extends Message {
+public class PongMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 	private static final String message = "Hello User.";
@@ -15,7 +15,7 @@ public class PongMessage extends Message {
 		// no op.
 	}
 	
-	public PongMessage(Message msg) {
+	public PongMessage(AccountMessage msg) {
 		super(msg);
 	}
 	

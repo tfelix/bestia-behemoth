@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public final class ServerInfoMessage extends Message {
+public final class ServerInfoMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 
@@ -38,11 +38,11 @@ public final class ServerInfoMessage extends Message {
 		// no op.
 	}
 
-	public ServerInfoMessage(Message msg) {
+	public ServerInfoMessage(AccountMessage msg) {
 		super(msg);
 	}
 
-	public ServerInfoMessage(Message msg, Collection<String> zones, String zoneName, int connectedPlayer, String resUrl) {
+	public ServerInfoMessage(AccountMessage msg, Collection<String> zones, String zoneName, int connectedPlayer, String resUrl) {
 		super(msg);
 		this.zones = zones;
 		this.connectedPlayer = connectedPlayer;

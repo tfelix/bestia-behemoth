@@ -2,11 +2,11 @@ package net.bestia.messages.attack;
 
 import java.util.List;
 
-import net.bestia.messages.Message;
-import net.bestia.model.domain.BestiaAttack;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.AccountMessage;
+import net.bestia.model.domain.BestiaAttack;
 
 /**
  * Lists the current learned attacks of an bestia. The attacks are sorted in the
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class AttackListResponseMessage extends Message {
+public class AttackListResponseMessage extends AccountMessage {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;
@@ -30,7 +30,7 @@ public class AttackListResponseMessage extends Message {
 		// no op.
 	}
 	
-	public AttackListResponseMessage(Message message) {
+	public AttackListResponseMessage(AccountMessage message) {
 		super(message);
 	}
 

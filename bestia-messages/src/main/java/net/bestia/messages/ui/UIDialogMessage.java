@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.Message;
+import net.bestia.messages.AccountMessage;
 
 /**
  * This message is send to the client in order to display a dialog to the user.
@@ -13,7 +13,7 @@ import net.bestia.messages.Message;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class UIDialogMessage extends Message {
+public class UIDialogMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 

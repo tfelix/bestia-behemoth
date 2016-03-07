@@ -3,11 +3,11 @@ package net.bestia.messages.inventory;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.bestia.messages.Message;
-import net.bestia.model.domain.PlayerItem;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.AccountMessage;
+import net.bestia.model.domain.PlayerItem;
 
 /**
  * This will send a complete list with all items in the inventory to the client.
@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class InventoryListMessage extends Message {
+public class InventoryListMessage extends AccountMessage {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;
@@ -45,7 +45,7 @@ public class InventoryListMessage extends Message {
 	 * 
 	 * @param message
 	 */
-	public InventoryListMessage(Message message) {
+	public InventoryListMessage(AccountMessage message) {
 		super(message);
 	}
 	

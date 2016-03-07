@@ -1,6 +1,6 @@
 package net.bestia.messages.entity;
 
-import net.bestia.messages.Message;
+import net.bestia.messages.AccountMessage;
 
 /**
  * By sending this message to the server the client indicates that it want to
@@ -11,7 +11,7 @@ import net.bestia.messages.Message;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class EntityInteractionRequestMessage extends Message {
+public class EntityInteractionRequestMessage extends AccountMessage {
 	
 	private static final long serialVersionUID = 1L;
 	

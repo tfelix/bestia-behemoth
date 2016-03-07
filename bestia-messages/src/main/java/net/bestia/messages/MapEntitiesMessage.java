@@ -20,7 +20,7 @@ import net.bestia.messages.entity.SpriteType;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MapEntitiesMessage extends Message {
+public class MapEntitiesMessage extends AccountMessage {
 
 	/**
 	 * Certain actions can not be told to the client via an entity message

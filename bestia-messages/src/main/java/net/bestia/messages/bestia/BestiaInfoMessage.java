@@ -3,7 +3,7 @@ package net.bestia.messages.bestia;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.Message;
+import net.bestia.messages.AccountMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 
@@ -15,7 +15,7 @@ import net.bestia.model.domain.StatusPoints;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class BestiaInfoMessage extends Message {
+public class BestiaInfoMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 
@@ -35,7 +35,7 @@ public class BestiaInfoMessage extends Message {
 	 * @param message
 	 *            Message to initialize the message with.
 	 */
-	public BestiaInfoMessage(Message message) {
+	public BestiaInfoMessage(AccountMessage message) {
 		super(message);
 	}
 
@@ -53,7 +53,7 @@ public class BestiaInfoMessage extends Message {
 	 * @param masterBestia
 	 * @param bestias
 	 */
-	public BestiaInfoMessage(Message msg, PlayerBestia bestia, boolean isMaster) {
+	public BestiaInfoMessage(AccountMessage msg, PlayerBestia bestia, boolean isMaster) {
 		super(msg);
 		if (msg == null) {
 			throw new IllegalArgumentException("Message can not be null.");

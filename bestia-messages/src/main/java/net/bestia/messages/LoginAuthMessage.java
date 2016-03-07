@@ -9,7 +9,7 @@ import java.util.UUID;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class LoginAuthMessage extends Message {
+public class LoginAuthMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 

@@ -1,6 +1,6 @@
 package net.bestia.messages;
 
-public class LoginBroadcastMessage extends Message {
+public class LoginBroadcastMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 	public final static String MESSAGE_ID = "system.loginbroadcast";

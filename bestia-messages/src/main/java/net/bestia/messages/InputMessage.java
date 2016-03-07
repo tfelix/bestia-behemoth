@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public abstract class InputMessage extends Message {
+public abstract class InputMessage extends AccountMessage {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;
@@ -35,7 +35,7 @@ public abstract class InputMessage extends Message {
 	 * @param pbid
 	 *            The player bestia to which this input message shall be addressed.
 	 */
-	public InputMessage(Message msg, int pbid) {
+	public InputMessage(AccountMessage msg, int pbid) {
 		super(msg);
 		setPlayerBestiaId(pbid);
 	}

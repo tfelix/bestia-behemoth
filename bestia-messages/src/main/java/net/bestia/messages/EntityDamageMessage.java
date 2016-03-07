@@ -15,7 +15,7 @@ import net.bestia.model.misc.Damage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class EntityDamageMessage extends Message {
+public class EntityDamageMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 

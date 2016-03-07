@@ -2,7 +2,7 @@ package net.bestia.messages;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class PingMessage extends Message {
+public class PingMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 	private final static String message = "Hello Bestia.";

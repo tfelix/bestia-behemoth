@@ -8,7 +8,7 @@ package net.bestia.messages;
  * @author Thomas
  *
  */
-public class EntityPositionUpdateMessage extends Message {
+public class EntityPositionUpdateMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.update";

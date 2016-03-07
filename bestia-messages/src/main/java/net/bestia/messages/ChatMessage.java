@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class ChatMessage extends Message {
+public class ChatMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 	private static final String CLIENT_PATH = "account/%d";

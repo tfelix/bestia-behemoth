@@ -1,7 +1,7 @@
 package net.bestia.messages;
 
 /**
- * By wrapping a generic message class with thisdecorator pattern it will get
+ * By wrapping a generic message class with this decorator pattern it will get
  * redirected to the responsible EC zone system. Ideally this is done inside a
  * {@link MessagePreprocessor} so the router then can deliver the message.
  * 
@@ -22,7 +22,7 @@ public class EcsMessageDecorator<T extends Message> extends InputMessage {
 	}
 
 	public EcsMessageDecorator(T msg, int playerBestiaId) {
-		super(msg, playerBestiaId);
+		//super(msg, playerBestiaId);
 
 		this.message = msg;
 	}

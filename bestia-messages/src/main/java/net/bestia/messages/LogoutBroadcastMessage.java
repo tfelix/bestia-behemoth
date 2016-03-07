@@ -7,7 +7,7 @@ package net.bestia.messages;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class LogoutBroadcastMessage extends Message {
+public class LogoutBroadcastMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 
@@ -19,7 +19,7 @@ public class LogoutBroadcastMessage extends Message {
 		this.token = null;
 	}
 
-	public LogoutBroadcastMessage(Message message) {
+	public LogoutBroadcastMessage(AccountMessage message) {
 		setAccountId(message.getAccountId());
 
 		token = null;

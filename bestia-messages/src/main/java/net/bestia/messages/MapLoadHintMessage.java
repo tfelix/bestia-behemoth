@@ -16,7 +16,7 @@ import net.bestia.model.misc.Sprite;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MapLoadHintMessage extends Message {
+public class MapLoadHintMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "map.loadhint";

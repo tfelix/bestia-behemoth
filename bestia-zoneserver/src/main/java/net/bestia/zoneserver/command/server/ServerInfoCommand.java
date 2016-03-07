@@ -29,7 +29,7 @@ public class ServerInfoCommand extends Command {
 
 		final Set<String> zoneNames = ctx.getServer().getResponsibleZones();
 
-		final ServerInfoMessage reply = new ServerInfoMessage(message,
+		final ServerInfoMessage reply = new ServerInfoMessage((ServerInfoMessage) message,
 				zoneNames, ctx.getServer().getName(), 0,
 				conf.getProperty("resourceUrl"));
 		ctx.getServer().sendMessage(reply);

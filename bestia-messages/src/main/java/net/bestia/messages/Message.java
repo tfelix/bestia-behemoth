@@ -21,37 +21,12 @@ public abstract class Message implements Serializable {
 
 	private static final long serialVersionUID = 2015052401L;
 
-	private long accountId;
-
 	private final static String MSG_PATH_SERVER_ALL = "servers";
 	private final static String MSG_PATH_ZONE_ALL = "zone/all";
 	private final static String MSG_PATH_NULL = "";
 
 	public Message() {
 		// no op.
-	}
-
-	/**
-	 * Creates a message out of a previous message. Informations like the account id and the uuid for connection
-	 * identification are reused.
-	 * 
-	 * @param msg
-	 */
-	public Message(Message msg) {
-		if(msg == null) {
-			throw new IllegalArgumentException("Message can not be null.");
-		}
-		
-		this.accountId = msg.getAccountId();
-	}
-
-	/**
-	 * Ctor. The broadcast flag can be set to send this message to all connected players.
-	 * 
-	 * @param isBroadcast
-	 */
-	public Message(long accountId) {
-		this.accountId = accountId;
 	}
 
 	/**
@@ -63,24 +38,10 @@ public abstract class Message implements Serializable {
 	@JsonTypeId
 	public abstract String getMessageId();
 
-	/**
-	 * Returns the account id for this message. Note: Not everytime this id is set. If the user is not logged in this
-	 * might not reflect the true id of the connected account until he has authenticated.
-	 * 
-	 * @return
-	 */
-	@JsonIgnore
-	public long getAccountId() {
-		return accountId;
-	}
-
-	public void setAccountId(long accountId) {
-		this.accountId = accountId;
-	}
 
 	@Override
 	public String toString() {
-		return String.format("Message[message id: %s, account id: %d]", getMessageId(), accountId);
+		return String.format("Message[message id: %s]", getMessageId());
 	}
 
 	/**
@@ -92,26 +53,6 @@ public abstract class Message implements Serializable {
 	@JsonIgnore
 	public abstract String getMessagePath();
 
-	/**
-	 * Helper method. Might be used as getMessagePath() implementation if the message is directed to the client which is
-	 * quite often the case.
-	 * 
-	 * @return A message path designated to reach a user connected to a webserver.
-	 */
-	protected String getClientMessagePath() {
-		return String.format("account/%d", getAccountId());
-	}
-
-	/**
-	 * Helper method. Might be used as getMessagePath() implementation if the message is intended to be received by the
-	 * zones on which a client as spawned bestias (all zones will listen to account messages if they have a bestia
-	 * alive).
-	 * 
-	 * @return A message path designated to reach zoneserver on which a certain user is connected.
-	 */
-	protected String getZoneMessagePath() {
-		return String.format("zone/account/%d", getAccountId());
-	}
 
 	/**
 	 * Returns a null value for the message path. This can be used for internal messages to the ECS system for example

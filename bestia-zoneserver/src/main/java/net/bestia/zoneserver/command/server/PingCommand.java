@@ -28,7 +28,8 @@ public class PingCommand extends Command {
 	@Override
 	public void execute(Message message, CommandContext ctx) {
 		// Nothing is done here. Just a message will be returned.
-		final PongMessage msg = new PongMessage(message);
+		final PingMessage pingMsg = (PingMessage) message;
+		final PongMessage msg = new PongMessage(pingMsg);
 		ctx.getServer().sendMessage(msg);
 	}
 

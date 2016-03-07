@@ -141,7 +141,7 @@ public final class Loginserver implements InterserverMessageHandler {
 		final Authenticator tokenAuth = new LoginTokenAuthenticator(loginMsg.getAccountId(), loginMsg.getToken());
 
 		final LoginAuthReplyMessage loginReplyMsg = new LoginAuthReplyMessage(loginMsg);
-		loginReplyMsg.setAccountId(msg.getAccountId());
+		loginReplyMsg.setAccountId(loginMsg.getAccountId());
 		if (tokenAuth.authenticate() == AuthState.AUTHENTICATED) {
 			LOG.info("Connection with account id: {}, token: {}, state: AUTHORIZED", loginMsg.getAccountId(), loginMsg.getToken());
 			loginReplyMsg.setLoginState(LoginState.AUTHORIZED);

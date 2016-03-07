@@ -27,10 +27,12 @@ public class AttackListRequestCommand extends Command {
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
 		
+		final AttackListRequestMessage msg = (AttackListRequestMessage) message;
+		
 		final PlayerBestiaService pbService = ctx.getServiceLocator().getBean(PlayerBestiaService.class);
 		
 		// Get the bestia id of the currently selected bestia.
-		final long accId = message.getAccountId();
+		final long accId = msg.getAccountId();
 		final int activePbId = ctx.getAccountRegistry().getActiveBestia(accId);		
 		
 		// Might have no selected bestia.
@@ -40,7 +42,7 @@ public class AttackListRequestCommand extends Command {
 		
 		final List<BestiaAttack> attacks = pbService.getAllAttacksForPlayerBestia(activePbId);
 		
-		final AttackListResponseMessage response = new AttackListResponseMessage(message);		
+		final AttackListResponseMessage response = new AttackListResponseMessage(msg);		
 		response.setAttacks(attacks);
 		
 		ctx.getServer().sendMessage(response);

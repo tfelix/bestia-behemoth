@@ -19,6 +19,7 @@ import com.netflix.servo.monitor.Monitors;
 import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
+import net.bestia.messages.AccountMessage;
 import net.bestia.messages.LoginAuthReplyMessage;
 import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
@@ -101,7 +102,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	public void publishInterserver(long accountId, String message) throws IOException {
 		log.trace("Publish message to interserver: {}", message);
 
-		final Message msg = mapper.readValue(message, Message.class);
+		final AccountMessage msg = mapper.readValue(message, AccountMessage.class);
 
 		// Regenerate the account id from the server connection.
 		msg.setAccountId(accountId);
@@ -114,7 +115,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 		publisher.publish(message);
 	}
 
-	private void publishClient(Message msg) throws IOException {
+	private void publishClient(AccountMessage msg) throws IOException {
 		final long accountId = msg.getAccountId();
 		if (!connections.containsKey(accountId)) {
 			throw new IOException(String.format("No existing connection to account id %d", accountId));
@@ -176,7 +177,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 		} else if(messageId.equals(LogoutBroadcastMessage.MESSAGE_ID)) {
 			
 			// Are we responsible for this account?
-			if(!connections.containsKey(msg.getAccountId())) {
+			if(!connections.containsKey(((AccountMessage) msg).getAccountId())) {
 				return;
 			}
 			
@@ -202,7 +203,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 		if (msg.getMessagePath().startsWith("account/")) {
 			try {
 				// Send the message to the client.
-				publishClient(msg);
+				publishClient((AccountMessage) msg);
 			} catch (IOException e) {
 				log.error("Could not send message to client.", e);
 			}

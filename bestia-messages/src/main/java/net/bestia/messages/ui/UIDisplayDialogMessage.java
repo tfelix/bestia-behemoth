@@ -1,6 +1,6 @@
 package net.bestia.messages.ui;
 
-import net.bestia.messages.Message;
+import net.bestia.messages.AccountMessage;
 
 /**
  * This message can be used to display a message in the client. Currently there
@@ -14,7 +14,7 @@ import net.bestia.messages.Message;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class UIDisplayDialogMessage extends Message {
+public class UIDisplayDialogMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 
