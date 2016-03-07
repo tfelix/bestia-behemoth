@@ -15,7 +15,7 @@ import net.bestia.zoneserver.zone.shape.Vector2;
  */
 public class Position extends Component {
 
-	public CollisionShape position;
+	private CollisionShape position;
 
 	/**
 	 * Ctd. Ctor.
@@ -35,5 +35,13 @@ public class Position extends Component {
 	 */
 	public void setPosition(int x, int y) {
 		position = position.moveByAnchor(x, y);
+	}
+	
+	public CollisionShape getPosition() {
+		return position;
+	}
+
+	public void setPosition(CollisionShape shape) {
+		this.position = shape;
 	}
 }

@@ -7,7 +7,7 @@ import com.artemis.annotations.Wire;
 import com.artemis.systems.DelayedEntityProcessingSystem;
 
 import net.bestia.zoneserver.ecs.component.MobSpawn;
-import net.bestia.zoneserver.ecs.entity.MobEntityFactory;
+import net.bestia.zoneserver.proxy.NpcBestiaEntityProxy;
 
 /**
  * Converts spawn entities to real mob entities after the spawn delay. It also
@@ -24,8 +24,6 @@ public class MobSpawnSystem extends DelayedEntityProcessingSystem {
 
 	private ComponentMapper<MobSpawn> spawnMapper;
 
-	private MobEntityFactory mobFactory;
-
 	public MobSpawnSystem() {
 		super(Aspect.all(MobSpawn.class));
 		// no op.
@@ -34,8 +32,6 @@ public class MobSpawnSystem extends DelayedEntityProcessingSystem {
 	@Override
 	protected void initialize() {
 		super.initialize();
-
-		mobFactory = new MobEntityFactory(world);
 	}
 
 	@Override
@@ -52,6 +48,7 @@ public class MobSpawnSystem extends DelayedEntityProcessingSystem {
 	@Override
 	protected void processExpired(Entity e) {
 		final MobSpawn spawn = spawnMapper.get(e);
-		mobFactory.create(spawn.mob, spawn.getGroup(), spawn.coordinates);
+		
+		new NpcBestiaEntityProxy(spawn.mob, world, spawn.getGroup(), spawn.coordinates);
 	}
 }

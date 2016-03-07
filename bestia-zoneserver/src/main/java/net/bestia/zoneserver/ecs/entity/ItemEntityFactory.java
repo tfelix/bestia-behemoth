@@ -20,11 +20,10 @@ import net.bestia.zoneserver.zone.shape.Vector2;
  * @author Thomas
  *
  */
-public class ItemEntityFactory {
+public class ItemEntityFactory extends EntityFactory {
 
 	public static final int ITEM_VANISH_DELAY = 48 * 60 * 60 * 1000; // 48h.
 
-	private final World world;
 	private final Archetype itemArchetype;
 
 	private final ComponentMapper<Position> positionMapper;
@@ -33,8 +32,8 @@ public class ItemEntityFactory {
 	private final ComponentMapper<net.bestia.zoneserver.ecs.component.Item> itemMapper;
 
 	public ItemEntityFactory(World world) {
+		super(world);
 
-		this.world = world;
 		this.itemArchetype = new ArchetypeBuilder()
 				.add(Visible.class)
 				.add(Position.class)
@@ -72,7 +71,7 @@ public class ItemEntityFactory {
 	public void spawnItem(Vector2 loc, PlayerItem item) {
 		final int entityId = world.create(itemArchetype);
 
-		positionMapper.get(entityId).position = loc;
+		positionMapper.get(entityId).setPosition(loc.x, loc.y);
 
 		final Visible visible = visibleMapper.get(entityId);
 		visible.sprite = item.getItem().getImage();
@@ -97,7 +96,7 @@ public class ItemEntityFactory {
 	public void spawnItem(Vector2 loc, Item item, int amount) {
 		final int entityId = world.create(itemArchetype);
 
-		positionMapper.get(entityId).position = loc;
+		positionMapper.get(entityId).setPosition(loc.x, loc.y);
 
 		final Visible visible = visibleMapper.get(entityId);
 		visible.sprite = item.getImage();

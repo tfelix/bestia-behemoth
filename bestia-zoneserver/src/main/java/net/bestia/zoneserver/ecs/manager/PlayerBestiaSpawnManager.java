@@ -8,8 +8,6 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.artemis.Archetype;
-import com.artemis.ArchetypeBuilder;
 import com.artemis.Aspect;
 import com.artemis.BaseEntitySystem;
 import com.artemis.ComponentMapper;
@@ -24,15 +22,11 @@ import net.bestia.messages.LoginBroadcastMessage;
 import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
 import net.bestia.messages.bestia.BestiaInfoMessage;
-import net.bestia.messages.entity.SpriteType;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
-import net.bestia.zoneserver.ecs.component.Attacks;
-import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.messaging.MessageHandler;
@@ -43,7 +37,6 @@ import net.bestia.zoneserver.messaging.routing.MessageIdFilter;
 import net.bestia.zoneserver.messaging.routing.MessageRouter;
 import net.bestia.zoneserver.proxy.InventoryProxy;
 import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
-import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
  * The {@link PlayerBestiaSpawnManager} hooks itself into the message processing
@@ -64,23 +57,17 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	private CommandContext ctx;
 	private AccountRegistry accountRegistry;
 
-	private ComponentMapper<Position> positionMapper;
-	private ComponentMapper<Attacks> attacksMapper;
-	private ComponentMapper<Bestia> bestiaMapper;
-	private ComponentMapper<PlayerBestia> playerBestiaMapper;
-	private ComponentMapper<StatusPoints> statusPointMapper;
-	private ComponentMapper<Visible> visibleMapper;
-	private ComponentMapper<PlayerBestia> playerMapper;
-
 	private final MessageHandler zoneProcessor;
+
+	private ComponentMapper<PlayerBestia> playerMapper;
+	private ComponentMapper<Position> positionMapper;
+	private ComponentMapper<PlayerBestia> playerBestiaMapper;
 
 	/**
 	 * This filter used to route information for newly spawned bestias
 	 * dynamically to this ECS zone system in order to process it.
 	 */
 	private final DynamicBestiaIdMessageFilter bestiaIdMessageFilter = new DynamicBestiaIdMessageFilter();
-
-	private Archetype playerBestiaArchetype;
 
 	/**
 	 * Subscribes to all active players.
@@ -122,16 +109,6 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		router.registerFilter(combineFilter, zoneProcessor);
 
 		accountRegistry = ctx.getAccountRegistry();
-
-		playerBestiaArchetype = new ArchetypeBuilder()
-				.add(Position.class)
-				.add(Attacks.class)
-				.add(Bestia.class)
-				.add(PlayerBestia.class)
-				.add(StatusPoints.class)
-				.add(Visible.class)
-				.build(world);
-
 		activePlayerSubscription = world.getAspectSubscriptionManager().get(Aspect.all(Visible.class, Active.class));
 	}
 
@@ -182,56 +159,40 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	}
 
 	public void spawnBestia(net.bestia.model.domain.PlayerBestia pb) {
-		final Long accId = pb.getOwner().getId();
-		final Entity pbEntity = world.createEntity(playerBestiaArchetype);
-
-		final PlayerBestiaEntityProxy pbm = new PlayerBestiaEntityProxy(pb,
-				world,
-				pbEntity,
-				ctx.getServer(),
-				ctx.getServiceLocator());
-
-		playerBestiaMapper.get(pbEntity).playerBestiaManager = pbm;
-		// Need to use bestia since PBM reads information only from the entity
-		// position which is obviously not set yet.
-		// TODO Der PlayerBestiaManager sollte für das Updaten verantwortlich
-		// sein.
-		positionMapper.get(pbEntity).position = new Vector2(pb.getCurrentPosition().getX(),
-				pb.getCurrentPosition().getY());
-		attacksMapper.get(pbEntity).addAll(pbm.getAttackIds());
-		bestiaMapper.get(pbEntity).bestiaManager = pbm;
-
-		final Visible visible = visibleMapper.get(pbEntity);
-		visible.sprite = pbm.getPlayerBestia().getOrigin().getSprite();
-		visible.spriteType = SpriteType.MOB_MULTI;
-
+		
+		final PlayerBestiaEntityProxy pbProxy = new PlayerBestiaEntityProxy(pb, world, ctx.getServer(), ctx.getServiceLocator());
+		final int entityId = pbProxy.getEntityId();
+		final Entity entity = world.getEntity(entityId);
+		
 		// We need to check the bestia if its the master bestia. It will get
 		// marked as active initially.
 		final net.bestia.model.domain.PlayerBestia master = pb.getOwner().getMaster();
 		final boolean isMaster = master.equals(pb);
 
 		if (isMaster) {
-
-			pbEntity.edit().create(Active.class);
+			// Spawn the master as active bestia.
+			// TODO Das gibt probleme wenn der master die map wechselt und als
+			// aktiv neu markiert wird. Dies sollte nur mit einer LoginMessage
+			// passieren.
+			entity.edit().create(Active.class);
 
 			final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
-			final InventoryProxy invManager = new InventoryProxy(pbm, invService, ctx.getServer());
+			final InventoryProxy invManager = new InventoryProxy(pbProxy, invService, ctx.getServer());
 			final Message invListMessage = invManager.getInventoryListMessage();
 			ctx.getServer().sendMessage(invListMessage);
-
 		}
 
 		// Send a update to client so he can pick up the new bestia.
 		final BestiaInfoMessage infoMsg = new BestiaInfoMessage();
-		infoMsg.setAccountId(accId);
-		infoMsg.setBestia(pbm.getPlayerBestia(), pbm.getStatusPoints());
+		infoMsg.setAccountId(pbProxy.getAccountId());
+		infoMsg.setBestia(pbProxy.getPlayerBestia(), pbProxy.getStatusPoints());
 		infoMsg.setIsMaster(isMaster);
 		ctx.getServer().sendMessage(infoMsg);
-
+		
 		// Now set all the needed values.
-		LOG.trace("Spawning player bestia: {}.", pb);
+				LOG.trace("Spawning player bestia: {}.", pb);
 	}
-	
+
 	/**
 	 * Sends the given message to all active bestias in sight.
 	 * 
@@ -248,7 +209,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		}
 
 		final IntBag receivers = getActivePlayersInSight(sourcePosition);
-		
+
 		LOG.trace("Sending msg: {} to players: {}", msg.toString(), receivers.toString());
 
 		for (int i = 0; i < receivers.size(); i++) {

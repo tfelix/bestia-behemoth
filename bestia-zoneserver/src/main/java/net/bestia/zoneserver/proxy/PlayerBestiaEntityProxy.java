@@ -8,6 +8,8 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.artemis.Archetype;
+import com.artemis.ArchetypeBuilder;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.World;
@@ -28,6 +30,9 @@ import net.bestia.model.misc.Damage;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.component.Attacks;
+import net.bestia.zoneserver.ecs.component.Bestia;
+import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 
 /**
@@ -38,17 +43,26 @@ import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
  *
  */
 public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
-	private final static Logger log = LogManager.getLogger(PlayerBestiaEntityProxy.class);
-
+	private final static Logger LOG = LogManager.getLogger(PlayerBestiaEntityProxy.class);
 	private final static int MAX_LEVEL = 40;
+	private static Archetype playerBestiaArchetype = null;
 
 	private final PlayerBestia bestia;
-	private final StatusPoints statusPoints;
 
+	private final StatusPoints statusPoints;
 	private final String language;
 	private final Zoneserver server;
 
 	private final ComponentMapper<Attacks> attacksMapper;
+	// private final ComponentMapper<Bestia> bestiaMapper;
+	// private final
+	// ComponentMapper<net.bestia.zoneserver.ecs.component.PlayerBestia>
+	// playerMapper;
+	// private final
+	// ComponentMapper<net.bestia.zoneserver.ecs.component.StatusPoints>
+	// statusPointMapper;
+	private final ComponentMapper<Visible> visibleMapper;
+
 	private final PlayerBestiaSpawnManager playerBestiaSpawnManager;
 	private final String entityUUID;
 
@@ -58,14 +72,16 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 
 	public PlayerBestiaEntityProxy(PlayerBestia bestia,
 			World world,
-			Entity entity,
 			Zoneserver server,
 			ServiceLocator locator) {
-		super(world, entity);
+		super(world);
 
-		// Get all the mapper to extract and set ECS components.
+		// Get all the mapper.
 		this.attacksMapper = world.getMapper(Attacks.class);
+		this.visibleMapper = world.getMapper(Visible.class);
+
 		this.playerBestiaSpawnManager = world.getSystem(PlayerBestiaSpawnManager.class);
+		final Entity entity = world.getEntity(entityID);
 		this.entityUUID = world.getSystem(UuidEntityManager.class).getUuid(entity).toString();
 
 		this.server = server;
@@ -76,137 +92,48 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 
 		// Shortcut to the acc. language.
 		this.language = bestia.getOwner().getLanguage().toString();
-		
-		calculateStatusValues();
 	}
 
-	/**
-	 * Adds a certain amount of experience to the bestia. After this it checks
-	 * if a levelup has occured. Experience must be positive.
-	 * 
-	 * @param exp
-	 *            Experience to be added.
-	 */
-	public void addExp(int exp) {
-		if (exp < 0) {
-			log.warn("Exp can not be smaller then 0. Cancelling.");
-			return;
+	@Override
+	protected Archetype getArchetype() {
+		if (playerBestiaArchetype == null) {
+			playerBestiaArchetype = new ArchetypeBuilder()
+					.add(Position.class)
+					.add(Attacks.class)
+					.add(Bestia.class)
+					.add(net.bestia.zoneserver.ecs.component.PlayerBestia.class)
+					.add(net.bestia.zoneserver.ecs.component.StatusPoints.class)
+					.add(Visible.class)
+					.build(world);
 		}
 
-		// Send system message for chat.
-		sendSystemMessage(I18n.t(language, "MSG.bestia_gained_exp", bestia.getName(), exp));
-
-		bestia.setExp(bestia.getExp() + exp);
-		checkLevelUp();
+		return playerBestiaArchetype;
 	}
 
 	/**
-	 * Adds the damage to the player bestia and sends an update to the owner of
-	 * it.
+	 * Gets the status values depending on equipment and current bestia level.
 	 * 
-	 * @param dmg
-	 *            Simple amount of damage to be taken.
+	 * @return The current status points.
 	 */
-	public void takeDamage(int dmgValue) {
-
-		// Spawn the damage display indicator in the ECS to let it get send to
-		// all player in range.
-		final Damage damage = Damage.getHit(entityUUID, dmgValue);
-		
-		final EntityDamageMessage dmgMsg = new EntityDamageMessage(0, damage);
-		playerBestiaSpawnManager.sendMessageToSightrange(getEntityId(), dmgMsg);
-
-		// Update our current hp.
-		final int newHp = statusPoints.getCurrentHp() - dmgValue;
-
-		if (newHp <= 0) {
-			kill();
-			statusPoints.setCurrentHp(0);
-			return;
+	@Override
+	public StatusPoints getStatusPoints() {
+		if (statusPoints == null) {
+			calculateStatusPoints();
 		}
 
-		statusPoints.setCurrentHp(newHp);
+		return statusPoints;
 	}
 
-	/**
-	 * Kills a player bestia.
-	 */
-	private void kill() {
-		log.debug("Player bestia {} was killed.", getPlayerBestiaId());
-		// TODO Auto-generated method stub
-	}
-
-	/**
-	 * Returns the maximum item weight the current bestia could carry. Plase
-	 * note: only the bestia master will be used to calculate the inventory max
-	 * weight.
-	 * 
-	 * @return
-	 */
-	public int getMaxItemWeight() {
-		StatusPoints sp = getStatusPoints();
-		return 100 + 100 * sp.getAtk() * 3 + bestia.getLevel();
-	}
-
-	/**
-	 * Sends a system message to the owner of this bestia.
-	 * 
-	 * @param text
-	 */
-	private void sendSystemMessage(String text) {
-		if (server == null) {
-			// When null dont send any messages.
-			return;
-		}
-		final ChatMessage msg = ChatMessage.getSystemMessage(bestia.getOwner(), text);
-		server.sendMessage(msg);
-
-	}
-
-	/**
-	 * Checks if a level up has occured. If this is the case it will recalculate
-	 * all the stats messages the user and recursively calls itself to check for
-	 * multiple level ups at once.
-	 * 
-	 */
-	private void checkLevelUp() {
-		final int neededExp = getNeededExp();
-
-		if (bestia.getExp() < neededExp || bestia.getLevel() >= MAX_LEVEL) {
-			return;
-		}
-
-		bestia.setExp(bestia.getExp() - neededExp);
-		bestia.setLevel(bestia.getLevel() + 1);
-
-		// Send system message for chat.
-		sendSystemMessage(I18n.t(language, "msg.bestia_reached_level", bestia.getName(), bestia.getLevel()));
-
-		// Check recursivly for other level ups until all level ups are done.
-		checkLevelUp();
-
-		// Recalculate the new status values.
-		calculateStatusValues();
-
-		// Refill HP and Mana.
-		statusPoints.setCurrentHp(statusPoints.getCurrentHp());
-		statusPoints.setCurrentMana(statusPoints.getCurrentMana());
-	}
-
-	/**
-	 * Calculates the needed experience until the next levelup.
-	 * 
-	 * @return Exp needed for next levelup.
-	 */
-	private int getNeededExp() {
-		return (int) (Math.ceil(Math.exp(bestia.getLevel()) / 3) + 15);
+	@Override
+	public int getLevel() {
+		return bestia.getLevel();
 	}
 
 	/**
 	 * Recalculates the status values of a bestia. It uses the EVs, IVs and
 	 * BaseValues. Must be called after the level of a bestia has changed.
 	 */
-	protected void calculateStatusValues() {
+	protected void calculateStatusPoints() {
 
 		final int atk = (bestia.getBaseValues().getAtk() * 2 + bestia.getIndividualValue().getAtk()
 				+ bestia.getEffortValues().getAtk() / 4) * bestia.getLevel() / 100 + 5;
@@ -239,13 +166,226 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 		statusPoints.setSpd(spd);
 	}
 
+	public void setAttacks(List<Integer> atkIds) {
+		try {
+			// TODO das ist sehr ungeschickt da hier die DB schon beschrieben
+			// werden muss. Und beim persistieren noch mal.
+			final PlayerBestiaService service = serviceLocator.getBean(PlayerBestiaService.class);
+			service.saveAttacks(bestia.getId(), atkIds);
+
+			final Attacks attacksComp = attacksMapper.get(entityID);
+			attacksComp.clear();
+			attacksComp.addAll(atkIds);
+
+		} catch (IllegalArgumentException ex) {
+			// Attack can not be learned. Hacking?
+			// no op.
+		}
+	}
+
 	/**
-	 * Shortcut to get the id of the wrapped bestia.
+	 * Uses an attack in a given slot. If the slot is not set then it will do
+	 * nothing. Also if the requisites for execution of an attack (mana,
+	 * cooldown etc.) are not met there will also be no effect. If the slot
+	 * number is invalid an {@link IllegalArgumentException} will be thrown.
+	 * Slot numbering starts with 0 for the first slot.
 	 * 
-	 * @return The id of the wrapped bestia.
+	 * @param slot
+	 *            Number of the slot attack to be used. Starts with 0.
 	 */
-	public int getPlayerBestiaId() {
-		return bestia.getId();
+	public boolean useAttack(int atkId) {
+
+		final Attacks atks = attacksMapper.get(entityID);
+
+		if (atks.hasAttack(atkId)) {
+			// FIXME
+			return useAttack(atkId);
+		} else {
+			// Attack ID not learned. Hacking?
+			return false;
+		}
+	}
+
+	/**
+	 * Sends a system message to the owner of this bestia.
+	 * 
+	 * @param text
+	 */
+	private void sendSystemMessage(String text) {
+		if (server == null) {
+			// When null dont send any messages.
+			return;
+		}
+		final ChatMessage msg = ChatMessage.getSystemMessage(bestia.getOwner(), text);
+		server.sendMessage(msg);
+	}
+
+	/**
+	 * Adds a certain amount of experience to the bestia. After this it checks
+	 * if a levelup has occured. Experience must be positive.
+	 * 
+	 * @param exp
+	 *            Experience to be added.
+	 */
+	public void addExp(int exp) {
+		if (exp < 0) {
+			LOG.warn("Exp can not be smaller then 0. Cancelling.");
+			return;
+		}
+
+		// Send system message for chat.
+		sendSystemMessage(I18n.t(language, "MSG.bestia_gained_exp", bestia.getName(), exp));
+
+		bestia.setExp(bestia.getExp() + exp);
+		checkLevelUp();
+	}
+
+	/**
+	 * Checks if a level up has occured. If this is the case it will recalculate
+	 * all the stats messages the user and recursively calls itself to check for
+	 * multiple level ups at once.
+	 * 
+	 */
+	private void checkLevelUp() {
+		final int neededExp = getNeededExp();
+
+		if (bestia.getExp() < neededExp || bestia.getLevel() >= MAX_LEVEL) {
+			return;
+		}
+
+		bestia.setExp(bestia.getExp() - neededExp);
+		bestia.setLevel(bestia.getLevel() + 1);
+
+		// Send system message for chat.
+		sendSystemMessage(I18n.t(language, "msg.bestia_reached_level", bestia.getName(), bestia.getLevel()));
+
+		// Check recursivly for other level ups until all level ups are done.
+		checkLevelUp();
+
+		// Recalculate the new status values.
+		calculateStatusPoints();
+
+		// Refill HP and Mana.
+		statusPoints.setCurrentHp(statusPoints.getCurrentHp());
+		statusPoints.setCurrentMana(statusPoints.getCurrentMana());
+	}
+
+	/**
+	 * Adds the damage to the player bestia and sends an update to the owner of
+	 * it.
+	 * 
+	 * @param dmg
+	 *            Simple amount of damage to be taken.
+	 */
+	public void takeDamage(int dmgValue) {
+
+		// Spawn the damage display indicator in the ECS to let it get send to
+		// all player in range.
+		final Damage damage = Damage.getHit(entityUUID, dmgValue);
+
+		final EntityDamageMessage dmgMsg = new EntityDamageMessage(0, damage);
+		playerBestiaSpawnManager.sendMessageToSightrange(getEntityId(), dmgMsg);
+
+		// Update our current hp.
+		final int newHp = statusPoints.getCurrentHp() - dmgValue;
+
+		if (newHp <= 0) {
+			kill();
+			statusPoints.setCurrentHp(0);
+			return;
+		}
+
+		statusPoints.setCurrentHp(newHp);
+	}
+
+	/**
+	 * Kills a player bestia.
+	 */
+	public void kill() {
+		LOG.debug("Player bestia {} was killed.", getPlayerBestiaId());
+	}
+
+	/**
+	 * Enrich the location with the map on which the bestia currently resides.
+	 * This information is not known for at the general level.
+	 */
+	@Override
+	public Location getLocation() {
+
+		final Location loc = super.getLocation();
+
+		final String curMap = bestia.getCurrentPosition().getMapDbName();
+		loc.setMapDbName(curMap);
+
+		return loc;
+	}
+
+	/**
+	 * Sets the item shortcuts for this bestia.
+	 * 
+	 * @param itemIds
+	 */
+	public void setItems(List<Integer> itemIds) {
+
+		try {
+			final PlayerBestiaService service = serviceLocator.getBean(PlayerBestiaService.class);
+			final PlayerItem[] itemShortcuts = service.saveItemShortcuts(bestia.getId(), itemIds);
+
+			bestia.setItem1(itemShortcuts[0]);
+			bestia.setItem2(itemShortcuts[1]);
+			bestia.setItem3(itemShortcuts[2]);
+			bestia.setItem4(itemShortcuts[3]);
+			bestia.setItem5(itemShortcuts[4]);
+
+		} catch (IllegalArgumentException ex) {
+			// Attack can not be learned. Hacking?
+			// no op.
+		}
+	}
+
+	public Direction getHeadFacing() {
+		return headFacing;
+	}
+
+	public void setHeadFacing(Direction headFacing) {
+		this.headFacing = headFacing;
+	}
+
+	/**
+	 * Returns a list of attacks of the currently wrapped bestia.
+	 * 
+	 * @return
+	 */
+	public Collection<Integer> getAttackIds() {
+		final Set<Integer> atks = new HashSet<>();
+
+		for (int i = 1; i <= 5; i++) {
+			Attack atk = null;
+			switch (i) {
+			case 1:
+				atk = bestia.getAttack1();
+				break;
+			case 2:
+				atk = bestia.getAttack2();
+				break;
+			case 3:
+				atk = bestia.getAttack3();
+				break;
+			case 4:
+				atk = bestia.getAttack4();
+				break;
+			case 5:
+				atk = bestia.getAttack5();
+				break;
+			}
+
+			if (atk == null) {
+				continue;
+			} else {
+				atks.add(atk.getId());
+			}
+		}
+		return atks;
 	}
 
 	/*
@@ -288,64 +428,14 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 	}
 
 	/**
-	 * Gets the status values depending on equipment and current bestia
-	 * level.
+	 * Shortcut to get the id of the wrapped bestia.
 	 * 
-	 * @return The current status points.
+	 * @return The id of the wrapped bestia.
 	 */
-	@Override
-	public StatusPoints getStatusPoints() {
-		return statusPoints;
+	public int getPlayerBestiaId() {
+		return bestia.getId();
 	}
-
-	/**
-	 * Enrich the location with the map on which the bestia currently resides.
-	 * This information is not known for at the general level.
-	 */
-	@Override
-	public Location getLocation() {
-
-		final Location loc = super.getLocation();
-
-		final String curMap = bestia.getCurrentPosition().getMapDbName();
-		loc.setMapDbName(curMap);
-
-		return loc;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * net.bestia.zoneserver.manager.PlayerBestiaManagerInterface#getLevel()
-	 */
-	@Override
-	public int getLevel() {
-		return bestia.getLevel();
-	}
-
-	/**
-	 * Uses an attack in a given slot. If the slot is not set then it will do
-	 * nothing. Also if the requisites for execution of an attack (mana,
-	 * cooldown etc.) are not met there will also be no effect. If the slot
-	 * number is invalid an {@link IllegalArgumentException} will be thrown.
-	 * Slot numbering starts with 0 for the first slot.
-	 * 
-	 * @param slot
-	 *            Number of the slot attack to be used. Starts with 0.
-	 */
-	public boolean useAttack(int atkId) {
-
-		final Attacks atks = attacksMapper.get(entity);
-
-		if (atks.hasAttack(atkId)) {
-			return useAttack(atkId);
-		} else {
-			// Attack ID not learned. Hacking?
-			return false;
-		}
-	}
-
+	
 	/**
 	 * Update the underlying {@link PlayerBestia} with all the data from the ECS
 	 * and return it. This should not be called very often. Retrieving and
@@ -355,7 +445,7 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 	 * @return
 	 */
 	public PlayerBestia getPlayerBestia() {
-
+/*
 		// Update location.
 		final Location loc = getLocation();
 		bestia.getCurrentPosition().setX(loc.getX());
@@ -399,93 +489,29 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 			i++;
 		}
 
-		return bestia;
+		return bestia;*/
+		
+		return null;
 	}
-
-	public void setAttacks(List<Integer> atkIds) {
-		try {
-			// TODO das ist sehr ungeschickt da hier die DB schon beschrieben
-			// werden muss. Und beim persistieren noch mal.
-			final PlayerBestiaService service = serviceLocator.getBean(PlayerBestiaService.class);
-			service.saveAttacks(bestia.getId(), atkIds);
-
-			final Attacks attacksComp = attacksMapper.get(entity);
-			attacksComp.clear();
-			attacksComp.addAll(atkIds);
-
-		} catch (IllegalArgumentException ex) {
-			// Attack can not be learned. Hacking?
-			// no op.
-		}
-	}
-
+	
 	/**
-	 * Returns a list of attacks of the currently wrapped bestia.
+	 * Returns the maximum item weight the current bestia could carry. Plase
+	 * note: only the bestia master will be used to calculate the inventory max
+	 * weight.
 	 * 
 	 * @return
 	 */
-	public Collection<Integer> getAttackIds() {
-		final Set<Integer> atks = new HashSet<>();
-
-		for (int i = 1; i <= 5; i++) {
-			Attack atk = null;
-			switch (i) {
-			case 1:
-				atk = bestia.getAttack1();
-				break;
-			case 2:
-				atk = bestia.getAttack2();
-				break;
-			case 3:
-				atk = bestia.getAttack3();
-				break;
-			case 4:
-				atk = bestia.getAttack4();
-				break;
-			case 5:
-				atk = bestia.getAttack5();
-				break;
-			}
-
-			if (atk == null) {
-				continue;
-			} else {
-				atks.add(atk.getId());
-			}
-		}
-		return atks;
+	public int getMaxItemWeight() {
+		StatusPoints sp = getStatusPoints();
+		return 100 + 100 * sp.getAtk() * 3 + bestia.getLevel();
 	}
 
 	/**
-	 * Sets the item shortcuts for this bestia.
+	 * Calculates the needed experience until the next levelup.
 	 * 
-	 * @param itemIds
+	 * @return Exp needed for next levelup.
 	 */
-	public void setItems(List<Integer> itemIds) {
-
-		try {
-			final PlayerBestiaService service = serviceLocator.getBean(PlayerBestiaService.class);
-			final PlayerItem[] itemShortcuts = service.saveItemShortcuts(bestia.getId(), itemIds);
-
-			bestia.setItem1(itemShortcuts[0]);
-			bestia.setItem2(itemShortcuts[1]);
-			bestia.setItem3(itemShortcuts[2]);
-			bestia.setItem4(itemShortcuts[3]);
-			bestia.setItem5(itemShortcuts[4]);
-
-		} catch (IllegalArgumentException ex) {
-			// Attack can not be learned. Hacking?
-			// no op.
-		}
-
+	private int getNeededExp() {
+		return (int) (Math.ceil(Math.exp(bestia.getLevel()) / 3) + 15);
 	}
-
-	public Direction getHeadFacing() {
-		return headFacing;
-	}
-
-	public void setHeadFacing(Direction headFacing) {
-		this.headFacing = headFacing;
-	}
-
 }

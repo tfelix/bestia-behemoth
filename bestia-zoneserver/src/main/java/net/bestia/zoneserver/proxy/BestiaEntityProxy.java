@@ -3,78 +3,36 @@ package net.bestia.zoneserver.proxy;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.artemis.ComponentMapper;
-import com.artemis.Entity;
+import com.artemis.Archetype;
 import com.artemis.World;
 
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.StatusPoints;
-import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.zone.shape.CollisionShape;
-import net.bestia.zoneserver.zone.shape.Vector2;
 
 public abstract class BestiaEntityProxy {
 
-	private class ECSLocation extends Location {
-
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		public int getX() {
-
-			final CollisionShape pos = positionMapper.get(entity).position;
-			return pos.getAnchor().x;
-		}
-
-		@Override
-		public int getY() {
-
-			final CollisionShape pos = positionMapper.get(entity).position;
-			return pos.getAnchor().y;
-		}
-
-		@Override
-		public void setX(int x) {
-
-			final Position pos = positionMapper.get(entity);
-			final Vector2 posAnchor = pos.position.getAnchor();
-			final int y = posAnchor.getAnchor().x;
-			pos.position = pos.position.moveByAnchor(x, y);
-		}
-
-		@Override
-		public void setY(int y) {
-
-			final Position pos = positionMapper.get(entity);
-			final Vector2 posAnchor = pos.position.getAnchor();
-			final int x = posAnchor.getAnchor().x;
-			pos.position = pos.position.moveByAnchor(x, y);
-		}
-
-	}
-
-	protected final Entity entity;
-
-	private final ComponentMapper<Position> positionMapper;
-	private final Location proxyLocation = new ECSLocation();
+	protected final int entityID;
+	protected final World world;
 
 	private Map<Integer, Long> attackUsageTimer = new HashMap<>();
 	private Direction facing;
 
-	public BestiaEntityProxy(World world, Entity entity) {
-
-		this.positionMapper = world.getMapper(Position.class);
-		this.entity = entity;
+	public BestiaEntityProxy(World world) {
+		
+		// Create the entity.
+		entityID = world.create(getArchetype());
+		
+		this.world = world;
 		this.setFacing(Direction.SOUTH);
 	}
 
 	public abstract StatusPoints getStatusPoints();
 
-	public Location getLocation() {
-		return proxyLocation;
-	}
+	public abstract Location getLocation();
+	
+	protected abstract Archetype getArchetype();
 
 	public abstract int getLevel();
 
@@ -157,6 +115,6 @@ public abstract class BestiaEntityProxy {
 	}
 	
 	public int getEntityId() {
-		return entity.getId();
+		return entityID;
 	}
 }

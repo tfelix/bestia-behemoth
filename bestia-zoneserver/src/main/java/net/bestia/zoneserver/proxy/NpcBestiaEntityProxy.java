@@ -1,21 +1,61 @@
 package net.bestia.zoneserver.proxy;
 
+import com.artemis.Archetype;
+import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.World;
 
 import net.bestia.model.domain.Bestia;
+import net.bestia.model.domain.Location;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.zoneserver.ecs.component.MobGroup;
+import net.bestia.zoneserver.ecs.component.NPCBestia;
+import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
+import net.bestia.zoneserver.ecs.component.Visible;
+import net.bestia.zoneserver.zone.shape.Vector2;
 
 public class NpcBestiaEntityProxy extends BestiaEntityProxy {
-	// private final static Logger log =
-	// LogManager.getLogger(BestiaManager.class);
+	
+	private final ComponentMapper<MobGroup> groupMapper;
+	private final ComponentMapper<net.bestia.zoneserver.ecs.component.Bestia> bestiaMapper;
+	private final ComponentMapper<Visible> visibleMapper;
+	private final ComponentMapper<NPCBestia> npcBestiaMapper;
+	private final ComponentMapper<net.bestia.zoneserver.ecs.component.StatusPoints> statusMapper;
+	private final ComponentMapper<PositionDomainProxy> positionMapper;
 
 	private final Bestia bestia;
 	private StatusPoints statusPoints = null;
+	
+	private final EcsLocationProxy locationProxy;
 
-	public NpcBestiaEntityProxy(Bestia bestia, World world, Entity entity) {
-		super(world, entity);
+	public NpcBestiaEntityProxy(Bestia bestia, World world, String groupName, Vector2 position) {
+		super(world);
+		
 		this.bestia = bestia;
+		
+		visibleMapper = world.getMapper(Visible.class);
+		statusMapper = world.getMapper(net.bestia.zoneserver.ecs.component.StatusPoints.class);
+		positionMapper = world.getMapper(PositionDomainProxy.class);
+		npcBestiaMapper = world.getMapper(NPCBestia.class);
+		bestiaMapper = world.getMapper(net.bestia.zoneserver.ecs.component.Bestia.class);
+		groupMapper = world.getMapper(MobGroup.class);
+
+		groupMapper.get(entityID).groupName = groupName;
+
+		final PositionDomainProxy pos = positionMapper.get(entityID);
+		pos.setDomainPosition(bestia.get);
+		locationProxy = new EcsLocationProxy(pos);
+
+
+		bestiaMapper.get(entityID).bestiaManager = this;
+		npcBestiaMapper.get(entityID).manager = this;
+		statusMapper.get(entityID).statusPoints = getStatusPoints();
+
+		// Set the sprite name.
+		visibleMapper.get(entityID).sprite = bestia.getDatabaseName();
+
+		//LOG.trace("Spawned mob: {}, entity id: {}", bestia.getDatabaseName(), mob);
 	}
 
 	/**
@@ -70,5 +110,16 @@ public class NpcBestiaEntityProxy extends BestiaEntityProxy {
 	@Override
 	public int getLevel() {
 		return bestia.getLevel();
+	}
+
+	@Override
+	protected Archetype getArchetype() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Location getLocation() {
+		return locationProxy;
 	}
 }

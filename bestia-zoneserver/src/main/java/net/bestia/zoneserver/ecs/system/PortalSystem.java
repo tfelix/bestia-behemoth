@@ -49,7 +49,7 @@ public class PortalSystem extends IteratingSubscriptionSystem {
 		final IntBag players = getEntities(ACTIVE_PLAYER_SUBSCRIPTION);
 		
 		for(int i = 0; i < players.size(); i++) {
-			final CollisionShape shape = positionMapper.get(players.get(i)).position;
+			final CollisionShape shape = positionMapper.get(players.get(i)).getPosition();
 			
 			// Do we collide? Then teleport bestia.
 			if(portal.area.collide(shape)) {
