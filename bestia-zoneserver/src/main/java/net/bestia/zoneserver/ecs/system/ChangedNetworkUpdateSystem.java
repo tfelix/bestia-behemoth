@@ -13,7 +13,7 @@ import net.bestia.zoneserver.ecs.component.Changed;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
-import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 
 /**
  * This system looks for changed and visible entities and transmit the changes

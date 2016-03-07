@@ -9,9 +9,9 @@ import net.bestia.model.domain.Item;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
-import net.bestia.zoneserver.manager.InventoryProxy;
-import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
 import net.bestia.zoneserver.messaging.AccountRegistry;
+import net.bestia.zoneserver.proxy.InventoryProxy;
+import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 import net.bestia.zoneserver.script.ItemScript;
 
 /**

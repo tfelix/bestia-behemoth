@@ -2,6 +2,8 @@ package net.bestia.zoneserver.manager;
 
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.Zoneserver;
+import net.bestia.zoneserver.proxy.InventoryProxy;
+import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

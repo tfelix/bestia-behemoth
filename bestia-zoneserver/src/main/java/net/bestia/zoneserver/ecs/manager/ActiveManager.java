@@ -9,8 +9,8 @@ import com.artemis.systems.EntityProcessingSystem;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
-import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
 import net.bestia.zoneserver.messaging.AccountRegistry;
+import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 
 /**
  * This system keeps track of the active bestia. If a new player bestia is added

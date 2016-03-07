@@ -11,7 +11,7 @@ import net.bestia.messages.ChatMessage;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 import net.bestia.zoneserver.util.PackageLoader;
 
 /**

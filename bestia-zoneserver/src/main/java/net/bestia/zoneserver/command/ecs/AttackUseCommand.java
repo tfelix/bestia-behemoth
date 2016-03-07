@@ -3,7 +3,7 @@ package net.bestia.zoneserver.command.ecs;
 import net.bestia.messages.Message;
 import net.bestia.messages.attack.AttackUseMessage;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 
 /**
  * This command will try to use an attack on the current zone a bestia is on. It

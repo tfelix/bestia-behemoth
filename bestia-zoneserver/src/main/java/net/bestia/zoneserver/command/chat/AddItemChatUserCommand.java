@@ -7,8 +7,8 @@ import net.bestia.messages.ChatMessage;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.manager.InventoryProxy;
-import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.InventoryProxy;
+import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 
 /*-
  * Chat commands which will spawn and item and adds it to the inventory.

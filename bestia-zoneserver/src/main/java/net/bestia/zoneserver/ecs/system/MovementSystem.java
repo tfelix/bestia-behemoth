@@ -5,7 +5,7 @@ import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Changed;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.manager.BestiaEntityProxy;
+import net.bestia.zoneserver.proxy.BestiaEntityProxy;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 import org.apache.logging.log4j.LogManager;

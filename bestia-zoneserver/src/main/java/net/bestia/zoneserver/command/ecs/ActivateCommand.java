@@ -9,9 +9,9 @@ import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
-import net.bestia.zoneserver.manager.InventoryProxy;
-import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
 import net.bestia.zoneserver.messaging.AccountRegistry;
+import net.bestia.zoneserver.proxy.InventoryProxy;
+import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 
 public class ActivateCommand extends ECSCommand {
 

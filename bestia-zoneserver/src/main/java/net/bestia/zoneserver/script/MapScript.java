@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
 
-import net.bestia.zoneserver.manager.BestiaEntityProxy;
+import net.bestia.zoneserver.proxy.BestiaEntityProxy;
 
 /**
  * A simple map script is triggered when a map loads. Also known as a

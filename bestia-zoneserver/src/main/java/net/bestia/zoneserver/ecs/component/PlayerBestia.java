@@ -1,7 +1,8 @@
 package net.bestia.zoneserver.ecs.component;
 
-import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
 import com.artemis.Component;
+
+import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 
 /**
  * Entity contains a {@link PlayerBestiaEntityProxy}.

@@ -9,7 +9,7 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Delay;
 import net.bestia.zoneserver.ecs.component.Script;
-import net.bestia.zoneserver.manager.BestiaEntityProxy;
+import net.bestia.zoneserver.proxy.BestiaEntityProxy;
 import net.bestia.zoneserver.script.MapScript;
 import net.bestia.zoneserver.script.MapScriptFactory;
 import net.bestia.zoneserver.script.ScriptManager;

@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.manager;
+package net.bestia.zoneserver.proxy;
 
 import com.artemis.Entity;
 import com.artemis.World;

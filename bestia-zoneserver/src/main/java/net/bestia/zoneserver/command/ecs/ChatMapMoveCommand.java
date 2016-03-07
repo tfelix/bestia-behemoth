@@ -8,7 +8,7 @@ import net.bestia.messages.Message;
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
-import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 
 public class ChatMapMoveCommand extends ECSCommand {
 

@@ -6,7 +6,7 @@ import org.mockito.Mockito;
 import net.bestia.messages.ChatMessage;
 import net.bestia.messages.ChatMessage.Mode;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 
 public class AddItemChatUserCommandTest {
 

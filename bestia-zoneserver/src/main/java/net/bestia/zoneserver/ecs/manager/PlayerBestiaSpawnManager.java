@@ -33,8 +33,6 @@ import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.manager.InventoryProxy;
-import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
 import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.messaging.MessageHandler;
 import net.bestia.zoneserver.messaging.routing.DynamicBestiaIdMessageFilter;
@@ -42,6 +40,8 @@ import net.bestia.zoneserver.messaging.routing.MessageAndFilter;
 import net.bestia.zoneserver.messaging.routing.MessageDirectDescandantFilter;
 import net.bestia.zoneserver.messaging.routing.MessageIdFilter;
 import net.bestia.zoneserver.messaging.routing.MessageRouter;
+import net.bestia.zoneserver.proxy.InventoryProxy;
+import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**

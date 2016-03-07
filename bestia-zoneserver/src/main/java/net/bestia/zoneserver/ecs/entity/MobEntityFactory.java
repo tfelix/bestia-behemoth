@@ -16,7 +16,7 @@ import net.bestia.zoneserver.ecs.component.NPCBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.manager.NpcBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.NpcBestiaEntityProxy;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**

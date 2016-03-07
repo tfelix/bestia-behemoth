@@ -11,7 +11,7 @@ import com.artemis.utils.IntBag;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Portal;
 import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
 
 /**

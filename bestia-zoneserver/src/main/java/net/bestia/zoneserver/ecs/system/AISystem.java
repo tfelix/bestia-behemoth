@@ -14,7 +14,7 @@ import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.ecs.component.AI;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.NPCBestia;
-import net.bestia.zoneserver.manager.NpcBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.NpcBestiaEntityProxy;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**

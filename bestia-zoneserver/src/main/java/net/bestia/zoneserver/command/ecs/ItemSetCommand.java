@@ -6,7 +6,7 @@ import java.util.List;
 import net.bestia.messages.Message;
 import net.bestia.messages.inventory.InventoryItemSetMessage;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.manager.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 
 /**
  * Sets the item shortcuts for this bestia to the database.

@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.ecs.component;
 
-import net.bestia.zoneserver.manager.BestiaEntityProxy;
-
 import com.artemis.Component;
+
+import net.bestia.zoneserver.proxy.BestiaEntityProxy;
 
 /**
  * The entity contains a bestia component.

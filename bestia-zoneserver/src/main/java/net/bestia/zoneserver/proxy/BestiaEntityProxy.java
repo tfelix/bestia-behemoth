@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.manager;
+package net.bestia.zoneserver.proxy;
 
 import java.util.HashMap;
 import java.util.Map;

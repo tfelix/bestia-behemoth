@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.script;
 
-import net.bestia.zoneserver.manager.BestiaEntityProxy;
-import net.bestia.zoneserver.manager.InventoryProxy;
+import net.bestia.zoneserver.proxy.BestiaEntityProxy;
+import net.bestia.zoneserver.proxy.InventoryProxy;
 
 public class ItemScript extends Script {
 

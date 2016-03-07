@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.script;
 
-import net.bestia.zoneserver.manager.BestiaEntityProxy;
+import net.bestia.zoneserver.proxy.BestiaEntityProxy;
 
 /**
  * The attack scripts are triggered and executed as soon as an attack is
