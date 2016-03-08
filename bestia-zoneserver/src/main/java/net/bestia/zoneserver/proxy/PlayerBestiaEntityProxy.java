@@ -19,7 +19,6 @@ import net.bestia.messages.ChatMessage;
 import net.bestia.messages.EntityDamageMessage;
 import net.bestia.model.I18n;
 import net.bestia.model.ServiceLocator;
-import net.bestia.model.dao.AttackDAO;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Location;
@@ -34,6 +33,7 @@ import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
+import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
  * The PlayerBestiaManager is responsible for executing the "business logic" to
@@ -54,14 +54,7 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 	private final Zoneserver server;
 
 	private final ComponentMapper<Attacks> attacksMapper;
-	// private final ComponentMapper<Bestia> bestiaMapper;
-	// private final
-	// ComponentMapper<net.bestia.zoneserver.ecs.component.PlayerBestia>
-	// playerMapper;
-	// private final
-	// ComponentMapper<net.bestia.zoneserver.ecs.component.StatusPoints>
-	// statusPointMapper;
-	private final ComponentMapper<Visible> visibleMapper;
+	//private final ComponentMapper<Visible> visibleMapper;
 
 	private final PlayerBestiaSpawnManager playerBestiaSpawnManager;
 	private final String entityUUID;
@@ -74,11 +67,11 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 			World world,
 			Zoneserver server,
 			ServiceLocator locator) {
-		super(world);
+		super(world, new Vector2(bestia.getCurrentPosition().getX(), bestia.getCurrentPosition().getX()));
 
 		// Get all the mapper.
 		this.attacksMapper = world.getMapper(Attacks.class);
-		this.visibleMapper = world.getMapper(Visible.class);
+		//this.visibleMapper = world.getMapper(Visible.class);
 
 		this.playerBestiaSpawnManager = world.getSystem(PlayerBestiaSpawnManager.class);
 		final Entity entity = world.getEntity(entityID);
@@ -435,7 +428,7 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 	public int getPlayerBestiaId() {
 		return bestia.getId();
 	}
-	
+
 	/**
 	 * Update the underlying {@link PlayerBestia} with all the data from the ECS
 	 * and return it. This should not be called very often. Retrieving and
@@ -445,55 +438,34 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 	 * @return
 	 */
 	public PlayerBestia getPlayerBestia() {
-/*
-		// Update location.
-		final Location loc = getLocation();
-		bestia.getCurrentPosition().setX(loc.getX());
-		bestia.getCurrentPosition().setY(loc.getY());
+		/*
+		 * // Update location. final Location loc = getLocation();
+		 * bestia.getCurrentPosition().setX(loc.getX());
+		 * bestia.getCurrentPosition().setY(loc.getY());
+		 * 
+		 * // TODO Das Statuspunkte HANDLING MACHEN.
+		 * 
+		 * // Update attacks. final Attacks attacksComp =
+		 * attacksMapper.get(entity); final AttackDAO atkDao =
+		 * serviceLocator.getBean(AttackDAO.class);
+		 * 
+		 * final Integer[] attackIds = attacksComp.getAttacks(); int i = 0; for
+		 * (Integer id : attackIds) {
+		 * 
+		 * // Get the attack. final Attack attack; if (id == null) { attack =
+		 * null; } else { attack = atkDao.findOne(id); }
+		 * 
+		 * switch (i) { case 0: bestia.setAttack1(attack); break; case 1:
+		 * bestia.setAttack2(attack); break; case 2: bestia.setAttack3(attack);
+		 * break; case 3: bestia.setAttack4(attack); break; case 4:
+		 * bestia.setAttack5(attack); break; } i++; }
+		 * 
+		 * return bestia;
+		 */
 
-		// TODO Das Statuspunkte HANDLING MACHEN.
-
-		// Update attacks.
-		final Attacks attacksComp = attacksMapper.get(entity);
-		final AttackDAO atkDao = serviceLocator.getBean(AttackDAO.class);
-
-		final Integer[] attackIds = attacksComp.getAttacks();
-		int i = 0;
-		for (Integer id : attackIds) {
-
-			// Get the attack.
-			final Attack attack;
-			if (id == null) {
-				attack = null;
-			} else {
-				attack = atkDao.findOne(id);
-			}
-
-			switch (i) {
-			case 0:
-				bestia.setAttack1(attack);
-				break;
-			case 1:
-				bestia.setAttack2(attack);
-				break;
-			case 2:
-				bestia.setAttack3(attack);
-				break;
-			case 3:
-				bestia.setAttack4(attack);
-				break;
-			case 4:
-				bestia.setAttack5(attack);
-				break;
-			}
-			i++;
-		}
-
-		return bestia;*/
-		
 		return null;
 	}
-	
+
 	/**
 	 * Returns the maximum item weight the current bestia could carry. Plase
 	 * note: only the bestia master will be used to calculate the inventory max

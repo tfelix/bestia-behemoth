@@ -36,12 +36,27 @@ public class Position extends Component {
 	public void setPosition(int x, int y) {
 		position = position.moveByAnchor(x, y);
 	}
-	
+
+	public void setX(int x) {
+		final int y = position.getAnchor().y;
+		setPosition(x, y);
+	}
+
+	public void setY(int y) {
+		final int x = position.getAnchor().x;
+		setPosition(x, y);
+	}
+
 	public CollisionShape getPosition() {
 		return position;
 	}
 
 	public void setPosition(CollisionShape shape) {
 		this.position = shape;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("Position[shape: %s]", position.toString());
 	}
 }

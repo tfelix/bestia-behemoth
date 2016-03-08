@@ -4,34 +4,62 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.artemis.Archetype;
+import com.artemis.ComponentMapper;
 import com.artemis.World;
 
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Location;
+import net.bestia.model.domain.LocationDomain;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
+import net.bestia.zoneserver.zone.shape.Vector2;
 
 public abstract class BestiaEntityProxy {
 
 	protected final int entityID;
 	protected final World world;
+	
+	private final ComponentMapper<PositionDomainProxy> positionProxyMapper;
+	private final ComponentMapper<Position> positionMapper;
 
 	private Map<Integer, Long> attackUsageTimer = new HashMap<>();
 	private Direction facing;
+	private final Location location;
 
-	public BestiaEntityProxy(World world) {
+	public BestiaEntityProxy(World world, Vector2 position) {
+
+		this.world = world;
 		
 		// Create the entity.
 		entityID = world.create(getArchetype());
+
+		this.positionProxyMapper = world.getMapper(PositionDomainProxy.class);
+		this.positionMapper = world.getMapper(Position.class);
 		
-		this.world = world;
 		this.setFacing(Direction.SOUTH);
+
+		final Position pos = positionMapper.get(entityID);
+		final PositionDomainProxy posProxy = positionProxyMapper.get(entityID);
+		// Create a placeholder location and proxy pos and location with the loc
+		// proxy.	
+		final Location domLocation = new LocationDomain();
+		location = new EcsLocationProxy(pos, domLocation);
+
+		// Set the ESC proxy.
+		posProxy.setDomainPosition(location);
+		location.setMapDbName("");
+		location.setX(position.x);
+		location.setY(position.y);
 	}
 
 	public abstract StatusPoints getStatusPoints();
 
-	public abstract Location getLocation();
-	
+	public Location getLocation() {
+		return location;
+	}
+
 	protected abstract Archetype getArchetype();
 
 	public abstract int getLevel();
@@ -113,7 +141,7 @@ public abstract class BestiaEntityProxy {
 	public void setFacing(Direction facing) {
 		this.facing = facing;
 	}
-	
+
 	public int getEntityId() {
 		return entityID;
 	}

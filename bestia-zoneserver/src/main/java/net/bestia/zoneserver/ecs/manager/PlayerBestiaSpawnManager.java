@@ -201,6 +201,10 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	 * @param msg
 	 */
 	public void sendMessageToSightrange(int source, AccountMessage msg) {
+		if(msg == null) {
+			throw new IllegalArgumentException("Msg can not be null.");
+		}
+		
 		final Position sourcePosition = positionMapper.getSafe(source);
 
 		if (sourcePosition == null) {
@@ -209,6 +213,9 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		}
 
 		final IntBag receivers = getActivePlayersInSight(sourcePosition);
+		
+		final String t1 = msg.toString();
+		final String t2 = receivers.toString();
 
 		LOG.trace("Sending msg: {} to players: {}", msg.toString(), receivers.toString());
 

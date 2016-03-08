@@ -1,54 +1,74 @@
 package net.bestia.zoneserver.proxy;
 
-import net.bestia.model.domain.LocationDomain;
-import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
+import java.io.Serializable;
+
+import net.bestia.model.domain.Location;
+import net.bestia.zoneserver.ecs.component.Position;
 
 /**
- * This class wrapps an domain {@link LocationDomain} as well as an
+ * This class wraps an domain {@link Location} as well as a {@link Position}
+ * component. Calling the methods will keep both location objects in sync.
  * 
- * @author Thomas
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class EcsLocationProxy extends LocationDomain {
+public class EcsLocationProxy implements Location, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private final PositionDomainProxy positionProxy;
+	private final Position ecsPosition;
+	private final Location location;
 
-	public EcsLocationProxy(PositionDomainProxy positionProxy) {
-		if (positionProxy == null) {
-			throw new IllegalArgumentException("PositionProxy can not be null.");
+	public EcsLocationProxy(Position ecsPosition, Location location) {
+		if (ecsPosition == null) {
+			throw new IllegalArgumentException("ecsPosition can not be null.");
+		}
+		if (location == null) {
+			throw new IllegalArgumentException("Location can not be null.");
 		}
 
-		this.positionProxy = positionProxy;
+		this.ecsPosition = ecsPosition;
+		this.location = location;
 	}
 
 	@Override
 	public int getX() {
 
-		return positionProxy.getPosition().getAnchor().x;
+		return ecsPosition.getPosition().getAnchor().x;
 
 	}
 
 	@Override
 	public int getY() {
 
-		return positionProxy.getPosition().getAnchor().y;
+		return ecsPosition.getPosition().getAnchor().y;
 
 	}
 
 	@Override
 	public void setX(int x) {
 
-		positionProxy.setX(x);
+		location.setX(x);
+		ecsPosition.setX(x);
 
 	}
 
 	@Override
 	public void setY(int y) {
 
-		positionProxy.setX(y);
+		location.setY(y);
+		ecsPosition.setY(y);
 
+	}
+
+	@Override
+	public String getMapDbName() {
+		return location.getMapDbName();
+	}
+
+	@Override
+	public void setMapDbName(String mapDbName) {
+		location.setMapDbName(mapDbName);
 	}
 
 }

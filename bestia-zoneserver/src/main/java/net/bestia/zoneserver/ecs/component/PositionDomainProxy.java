@@ -1,9 +1,7 @@
 package net.bestia.zoneserver.ecs.component;
 
-import net.bestia.model.domain.LocationDomain;
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
-import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
  * This class wraps an domain location object. So each change to the position in
@@ -14,17 +12,15 @@ import net.bestia.zoneserver.zone.shape.Vector2;
  */
 public class PositionDomainProxy extends Position {
 
-	private CollisionShape position;
-	private Location domainPosition;
+	private Location domainPosition = null;
 
 	/**
 	 * Ctd. Ctor.
 	 */
 	public PositionDomainProxy() {
-		position = new Vector2(0, 0);
-		domainPosition = new LocationDomain();
+
 	}
-	
+
 	public void setDomainPosition(Location domainPosition) {
 		this.domainPosition = domainPosition;
 	}
@@ -39,18 +35,24 @@ public class PositionDomainProxy extends Position {
 	 *            New y coordinate.
 	 */
 	public void setPosition(int x, int y) {
-		position = position.moveByAnchor(x, y);
-		domainPosition.setX(x);
-		domainPosition.setY(y);
+		super.setPosition(x, y);
+		if (domainPosition != null) {
+			domainPosition.setX(x);
+			domainPosition.setY(y);
+		}
 	}
 
 	public void setX(int x) {
-		position = position.moveByAnchor(x, position.getAnchor().y);
-		domainPosition.setX(x);
+		super.setX(x);
+		if (domainPosition != null) {
+			domainPosition.setX(x);
+		}
 	}
-	
+
 	public void setY(int y) {
-		position = position.moveByAnchor(position.getAnchor().x, y);
-		domainPosition.setY(y);
+		super.setY(y);
+		if(domainPosition != null) {
+			domainPosition.setY(y);
+		}	
 	}
 }

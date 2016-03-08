@@ -50,7 +50,7 @@ public class MapEntitiesMessage extends AccountMessage {
 		@JsonProperty("t")
 		private SpriteType type = SpriteType.NONE;
 		@JsonProperty("a")
-		private EntityAction action = null;
+		private EntityAction action = EntityAction.UPDATE;
 		@JsonProperty("pbid")
 		private Integer playerBestiaId;
 
