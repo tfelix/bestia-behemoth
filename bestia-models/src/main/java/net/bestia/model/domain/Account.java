@@ -74,6 +74,8 @@ public class Account implements Serializable {
 	private Date bannedUntilDate;
 
 	private UserLevel userLevel = UserLevel.USER;
+	
+	private Hairstyle hairstyle = Hairstyle.female_01;
 
 	// @OneToMany(mappedBy="account")
 	// private List<GuildMember> guild;
@@ -148,6 +150,14 @@ public class Account implements Serializable {
 
 	public void setAdditionalBestiaSlots(int additionalBestiaSlots) {
 		this.additionalBestiaSlots = additionalBestiaSlots;
+	}
+	
+	public Hairstyle getHairstyle() {
+		return hairstyle;
+	}
+	
+	public void setHairstyle(Hairstyle hairstyle) {
+		this.hairstyle = hairstyle;
 	}
 
 	public int getGold() {
