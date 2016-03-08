@@ -11,6 +11,7 @@ import net.bestia.messages.MapMoveMessage;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
+import net.bestia.model.domain.LocationDomain;
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
@@ -36,11 +37,11 @@ public class MapMoveChatUserCommand implements ChatUserCommand {
 			final String loc = m1.group(1);
 			final int x = Integer.parseInt(m1.group(2));
 			final int y = Integer.parseInt(m1.group(3));
-			target = new Location(loc, x, y);
+			target = new LocationDomain(loc, x, y);
 		} else if(m2.find()) {
 			final int x = Integer.parseInt(m2.group(1));
 			final int y = Integer.parseInt(m2.group(2));		
-			target = new Location("", x, y);
+			target = new LocationDomain("", x, y);
 		} else {
 			// Command not understood.
 			LOG.info("Chatinput not understood: {}", message.toString());

@@ -7,6 +7,7 @@ import java.util.Vector;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.bestia.model.domain.LocationDomain;
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.zone.map.Map.MapBuilder;
 import net.bestia.zoneserver.zone.map.MapPortalScript;
@@ -87,7 +88,7 @@ public class PortalMapExtender implements TMXMapExtender {
 		try {
 			final int x = Integer.parseInt(tokens[1]);
 			final int y = Integer.parseInt(tokens[2]);
-			return new Location(tokens[0], x, y);
+			return new LocationDomain(tokens[0], x, y);
 		} catch (NumberFormatException ex) {
 			return null;
 		}

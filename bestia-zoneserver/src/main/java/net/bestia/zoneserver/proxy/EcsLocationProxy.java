@@ -1,15 +1,15 @@
 package net.bestia.zoneserver.proxy;
 
-import net.bestia.model.domain.Location;
+import net.bestia.model.domain.LocationDomain;
 import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
 
 /**
- * This class wrapps an domain {@link Location} as well as an
+ * This class wrapps an domain {@link LocationDomain} as well as an
  * 
  * @author Thomas
  *
  */
-public class EcsLocationProxy extends Location {
+public class EcsLocationProxy extends LocationDomain {
 
 	private static final long serialVersionUID = 1L;
 

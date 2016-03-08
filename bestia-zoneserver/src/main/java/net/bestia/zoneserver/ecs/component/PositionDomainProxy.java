@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.ecs.component;
 
+import net.bestia.model.domain.LocationDomain;
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
 import net.bestia.zoneserver.zone.shape.Vector2;
@@ -21,7 +22,7 @@ public class PositionDomainProxy extends Position {
 	 */
 	public PositionDomainProxy() {
 		position = new Vector2(0, 0);
-		domainPosition = new Location();
+		domainPosition = new LocationDomain();
 	}
 	
 	public void setDomainPosition(Location domainPosition) {

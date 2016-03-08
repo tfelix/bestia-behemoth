@@ -203,7 +203,7 @@ public class PlayerBestia implements Serializable {
 	}
 
 	private void initialize() {
-		final Location defaultLocation = new Location("", 0, 0);
+		final Location defaultLocation = new LocationDomain("", 0, 0);
 		setCurrentPosition(defaultLocation);
 		setSavePosition(defaultLocation);
 
