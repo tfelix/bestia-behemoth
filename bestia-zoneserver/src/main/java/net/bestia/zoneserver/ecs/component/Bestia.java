@@ -12,7 +12,7 @@ import net.bestia.zoneserver.proxy.BestiaEntityProxy;
  */
 public class Bestia extends Component {
 
-	public BestiaEntityProxy bestiaManager;
+	public BestiaEntityProxy manager;
 
 	/**
 	 * Std. Ctor for artemis.
@@ -22,6 +22,6 @@ public class Bestia extends Component {
 	}
 
 	public Bestia(BestiaEntityProxy manager) {
-		this.bestiaManager = manager;
+		this.manager = manager;
 	}
 }

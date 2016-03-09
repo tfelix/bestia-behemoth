@@ -45,62 +45,45 @@ import net.bestia.zoneserver.zone.shape.Vector2;
 public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 	private final static Logger LOG = LogManager.getLogger(PlayerBestiaEntityProxy.class);
 	private final static int MAX_LEVEL = 40;
-	private static Archetype playerBestiaArchetype = null;
 
 	private final PlayerBestia bestia;
 
 	private final StatusPoints statusPoints;
 	private final String language;
-	private final Zoneserver server;
 
 	private final ComponentMapper<Attacks> attacksMapper;
-	//private final ComponentMapper<Visible> visibleMapper;
-
 	private final PlayerBestiaSpawnManager playerBestiaSpawnManager;
 	private final String entityUUID;
 
 	private Direction headFacing;
 
+	private final PlayerBestiaMapper mapper;
+	
 	private final ServiceLocator serviceLocator;
+	private final Zoneserver server;
 
-	public PlayerBestiaEntityProxy(PlayerBestia bestia,
-			World world,
-			Zoneserver server,
-			ServiceLocator locator) {
-		super(world, new Vector2(bestia.getCurrentPosition().getX(), bestia.getCurrentPosition().getX()));
+	public PlayerBestiaEntityProxy(int entityID, 
+			PlayerBestia playerBestia, 
+			PlayerBestiaMapper mapper) {
+		super(entityID, mapper);
+		
+		this.mapper = mapper;
 
 		// Get all the mapper.
-		this.attacksMapper = world.getMapper(Attacks.class);
-		//this.visibleMapper = world.getMapper(Visible.class);
+		this.attacksMapper = mapper.getAttacksMapper();
 
-		this.playerBestiaSpawnManager = world.getSystem(PlayerBestiaSpawnManager.class);
+		this.playerBestiaSpawnManager = mapper.getPlayerBestiaSpawnManager();
 		final Entity entity = world.getEntity(entityID);
 		this.entityUUID = world.getSystem(UuidEntityManager.class).getUuid(entity).toString();
 
-		this.server = server;
-		this.bestia = bestia;
+		this.server = mapper.getServer();
+		this.bestia = playerBestia;
 		this.statusPoints = new StatusPoints();
-		this.serviceLocator = locator;
+		this.serviceLocator = mapper.getLocator();
 		this.headFacing = Direction.SOUTH;
 
 		// Shortcut to the acc. language.
 		this.language = bestia.getOwner().getLanguage().toString();
-	}
-
-	@Override
-	protected Archetype getArchetype() {
-		if (playerBestiaArchetype == null) {
-			playerBestiaArchetype = new ArchetypeBuilder()
-					.add(Position.class)
-					.add(Attacks.class)
-					.add(Bestia.class)
-					.add(net.bestia.zoneserver.ecs.component.PlayerBestia.class)
-					.add(net.bestia.zoneserver.ecs.component.StatusPoints.class)
-					.add(Visible.class)
-					.build(world);
-		}
-
-		return playerBestiaArchetype;
 	}
 
 	/**

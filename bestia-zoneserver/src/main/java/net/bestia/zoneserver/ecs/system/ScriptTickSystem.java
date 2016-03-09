@@ -97,7 +97,7 @@ public class ScriptTickSystem extends DelayedIteratingSystem {
 			}
 
 			// We still touch the script.
-			final BestiaEntityProxy bm = bestiaMapper.get(id).bestiaManager;
+			final BestiaEntityProxy bm = bestiaMapper.get(id).manager;
 
 			onInsideBinding.put("target", bm);
 

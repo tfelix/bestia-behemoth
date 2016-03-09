@@ -125,4 +125,10 @@ public class LocationDomain implements Serializable, Location {
 		return String.format("Location[x: %d, y: %d, mabDbName: %s]", getX(), getY(),
 				getMapDbName());
 	}
+
+	@Override
+	public void setPos(int x, int y) {
+		setX(x);
+		setY(y);
+	}
 }

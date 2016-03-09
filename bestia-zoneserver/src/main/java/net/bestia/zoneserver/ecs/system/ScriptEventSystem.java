@@ -180,7 +180,7 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 				.forEach(id -> {
 					// We are newly touching/entering it.
 						final Entity collisionEntity = world.getEntity(id);
-						final BestiaEntityProxy bm = bestiaMapper.get(collisionEntity).bestiaManager;
+						final BestiaEntityProxy bm = bestiaMapper.get(collisionEntity).manager;
 
 						onEnterBinding.put("target", bm);
 
@@ -202,7 +202,7 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 							return;
 						}
 
-						final BestiaEntityProxy bm = bestiaMapper.get(exitEntity).bestiaManager;
+						final BestiaEntityProxy bm = bestiaMapper.get(exitEntity).manager;
 
 						onExitBinding.put("target", bm);
 

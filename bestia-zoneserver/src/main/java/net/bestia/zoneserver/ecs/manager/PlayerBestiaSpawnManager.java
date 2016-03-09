@@ -36,6 +36,7 @@ import net.bestia.zoneserver.messaging.routing.MessageDirectDescandantFilter;
 import net.bestia.zoneserver.messaging.routing.MessageIdFilter;
 import net.bestia.zoneserver.messaging.routing.MessageRouter;
 import net.bestia.zoneserver.proxy.InventoryProxy;
+import net.bestia.zoneserver.proxy.PlayerBestiaEntityFactory;
 import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 
 /**
@@ -62,6 +63,8 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	private ComponentMapper<PlayerBestia> playerMapper;
 	private ComponentMapper<Position> positionMapper;
 	private ComponentMapper<PlayerBestia> playerBestiaMapper;
+	
+	private PlayerBestiaEntityFactory playerBestiaFactory;
 
 	/**
 	 * This filter used to route information for newly spawned bestias
@@ -94,6 +97,8 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		super.initialize();
 
 		final MessageRouter router = ctx.getMessageRouter();
+		
+		playerBestiaFactory = new PlayerBestiaEntityFactory();
 
 		// This manager needs to know about these two messages to create and
 		// delete entities.

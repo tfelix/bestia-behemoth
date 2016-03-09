@@ -54,4 +54,10 @@ public interface Location {
 	 */
 	void setY(int y);
 
+	/**
+	 * Sets both: X and Y at the same time.
+	 * @param x
+	 * @param y
+	 */
+	void setPos(int x, int y);
 }

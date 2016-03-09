@@ -3,9 +3,7 @@ package net.bestia.zoneserver.proxy;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.artemis.Archetype;
 import com.artemis.ComponentMapper;
-import com.artemis.World;
 
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Direction;
@@ -14,12 +12,10 @@ import net.bestia.model.domain.LocationDomain;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
-import net.bestia.zoneserver.zone.shape.Vector2;
 
 public abstract class BestiaEntityProxy {
 
 	protected final int entityID;
-	protected final World world;
 	
 	private final ComponentMapper<PositionDomainProxy> positionProxyMapper;
 	private final ComponentMapper<Position> positionMapper;
@@ -28,15 +24,13 @@ public abstract class BestiaEntityProxy {
 	private Direction facing;
 	private final Location location;
 
-	public BestiaEntityProxy(World world, Vector2 position) {
-
-		this.world = world;
+	public BestiaEntityProxy(int entityID, BestiaMapper mappers) {
 		
 		// Create the entity.
-		entityID = world.create(getArchetype());
+		this.entityID = entityID;
 
-		this.positionProxyMapper = world.getMapper(PositionDomainProxy.class);
-		this.positionMapper = world.getMapper(Position.class);
+		this.positionProxyMapper = mappers.getPositionProxyMapper();
+		this.positionMapper = mappers.getPositionMapper();
 		
 		this.setFacing(Direction.SOUTH);
 
@@ -50,8 +44,8 @@ public abstract class BestiaEntityProxy {
 		// Set the ESC proxy.
 		posProxy.setDomainPosition(location);
 		location.setMapDbName("");
-		location.setX(position.x);
-		location.setY(position.y);
+		location.setX(0);
+		location.setY(0);
 	}
 
 	public abstract StatusPoints getStatusPoints();
@@ -59,8 +53,6 @@ public abstract class BestiaEntityProxy {
 	public Location getLocation() {
 		return location;
 	}
-
-	protected abstract Archetype getArchetype();
 
 	public abstract int getLevel();
 

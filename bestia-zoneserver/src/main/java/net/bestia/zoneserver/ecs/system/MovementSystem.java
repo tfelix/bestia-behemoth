@@ -59,7 +59,7 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 		}
 		
 		// Check if we handle a bestia or a generic position only entity.
-		final BestiaEntityProxy manager = bestiaMapper.get(e).bestiaManager;
+		final BestiaEntityProxy manager = bestiaMapper.get(e).manager;
 		
 		// Check that the next move position is only one tile away.
 		final Location loc = manager.getLocation();
