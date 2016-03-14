@@ -8,12 +8,8 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.artemis.Archetype;
-import com.artemis.ArchetypeBuilder;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
-import com.artemis.World;
-import com.artemis.managers.UuidEntityManager;
 
 import net.bestia.messages.ChatMessage;
 import net.bestia.messages.EntityDamageMessage;
@@ -29,11 +25,7 @@ import net.bestia.model.misc.Damage;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.component.Attacks;
-import net.bestia.zoneserver.ecs.component.Bestia;
-import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
-import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
  * The PlayerBestiaManager is responsible for executing the "business logic" to
@@ -56,25 +48,19 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 	private final String entityUUID;
 
 	private Direction headFacing;
-
-	private final PlayerBestiaMapper mapper;
 	
 	private final ServiceLocator serviceLocator;
 	private final Zoneserver server;
 
-	public PlayerBestiaEntityProxy(int entityID, 
+	public PlayerBestiaEntityProxy(Entity entity, 
 			PlayerBestia playerBestia, 
 			PlayerBestiaMapper mapper) {
-		super(entityID, mapper);
-		
-		this.mapper = mapper;
+		super(entity.getId(), mapper);
 
 		// Get all the mapper.
 		this.attacksMapper = mapper.getAttacksMapper();
-
 		this.playerBestiaSpawnManager = mapper.getPlayerBestiaSpawnManager();
-		final Entity entity = world.getEntity(entityID);
-		this.entityUUID = world.getSystem(UuidEntityManager.class).getUuid(entity).toString();
+		this.entityUUID = mapper.getUuidManager().getUuid(entity).toString();
 
 		this.server = mapper.getServer();
 		this.bestia = playerBestia;

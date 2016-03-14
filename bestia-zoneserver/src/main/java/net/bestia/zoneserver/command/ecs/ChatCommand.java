@@ -72,7 +72,7 @@ public class ChatCommand extends ECSCommand {
 
 			final PlayerBestia player = playerMapper.get(receiverEntity);
 			
-			final long receiverAccId = player.playerBestiaManager.getAccountId();
+			final long receiverAccId = player.playerBestia.getAccountId();
 
 			// Skip the same owner of the bestia.
 			if (msg.getAccountId() == receiverAccId) {

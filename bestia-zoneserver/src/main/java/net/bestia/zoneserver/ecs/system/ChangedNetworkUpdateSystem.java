@@ -42,7 +42,7 @@ public class ChangedNetworkUpdateSystem extends EntityProcessingSystem {
 		// First of all check if this is a player bestia entity. And if so send
 		// the update to the corresponding player.
 		if (playerMapper.has(e)) {
-			final PlayerBestiaEntityProxy pbm = playerMapper.get(e).playerBestiaManager;
+			final PlayerBestiaEntityProxy pbm = playerMapper.get(e).playerBestia;
 			final BestiaInfoMessage bestiaInfoMsg = new BestiaInfoMessage(pbm.getPlayerBestia(), pbm.getStatusPoints());
 			ctx.getServer().sendMessage(bestiaInfoMsg);
 		}

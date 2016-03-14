@@ -53,7 +53,7 @@ public class PortalSystem extends IteratingSubscriptionSystem {
 			
 			// Do we collide? Then teleport bestia.
 			if(portal.area.collide(shape)) {
-				final PlayerBestiaEntityProxy pbm = playerMapper.get(players.get(i)).playerBestiaManager;
+				final PlayerBestiaEntityProxy pbm = playerMapper.get(players.get(i)).playerBestia;
 				//TODO das hier umsetzen. pbm.setLocation(portal.destination);
 				LOG.info("Bestia {} moved to {}.", pbm.toString(), portal.destination.toString());
 			}

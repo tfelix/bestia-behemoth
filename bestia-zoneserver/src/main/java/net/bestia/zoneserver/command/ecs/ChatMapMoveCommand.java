@@ -24,7 +24,7 @@ public class ChatMapMoveCommand extends ECSCommand {
 		final MapMoveMessage msg = (MapMoveMessage) message;
 
 		final PlayerBestiaSpawnManager pbsManager = world.getSystem(PlayerBestiaSpawnManager.class);
-		final PlayerBestiaEntityProxy pbManager = pbsManager.getPlayerBestiaManager(msg.getPlayerBestiaId());
+		final PlayerBestiaEntityProxy pbManager = pbsManager.getPlayerBestiaProxy(msg.getPlayerBestiaId());
 		
 		final Location target = msg.getTarget();
 

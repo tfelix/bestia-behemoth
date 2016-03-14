@@ -35,7 +35,7 @@ public class ActivateCommand extends ECSCommand {
 		final BestiaActivateMessage msg = (BestiaActivateMessage) message;
 		final AccountRegistry register = ctx.getAccountRegistry();
 
-		final PlayerBestiaEntityProxy playerBestia = playerMapper.get(player).playerBestiaManager;
+		final PlayerBestiaEntityProxy playerBestia = playerMapper.get(player).playerBestia;
 		final int pbId = playerBestia.getPlayerBestiaId();
 		final long accId = msg.getAccountId();
 

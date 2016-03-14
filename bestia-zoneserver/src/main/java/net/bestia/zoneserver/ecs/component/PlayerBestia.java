@@ -12,14 +12,14 @@ import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
  */
 public class PlayerBestia extends Component {
 
-	public PlayerBestiaEntityProxy playerBestiaManager;
+	public PlayerBestiaEntityProxy playerBestia;
 	
 	public PlayerBestia() {
 		
 	}
 	
-	public PlayerBestia(PlayerBestiaEntityProxy manager) {
-		this.playerBestiaManager = manager;
+	public PlayerBestia(PlayerBestiaEntityProxy playerBestia) {
+		this.playerBestia = playerBestia;
 	}
 
 }

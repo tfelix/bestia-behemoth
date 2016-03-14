@@ -40,7 +40,7 @@ public class ItemUseCommand extends ECSCommand {
 		final long accId = useMessage.getAccountId();
 
 		final int activeBestiaId = register.getActiveBestia(accId);
-		final PlayerBestiaEntityProxy owner = spawnManager.getPlayerBestiaManager(activeBestiaId);
+		final PlayerBestiaEntityProxy owner = spawnManager.getPlayerBestiaProxy(activeBestiaId);
 
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
 		final InventoryProxy inventory = new InventoryProxy(owner, invService, ctx.getServer());

@@ -58,7 +58,7 @@ public class ActiveSpawnUpdateSystem extends BaseEntitySystem {
 		// TODO Get the Visible Entities in range of this new player. Currently
 		// send all.
 		final IntBag visibleEntities = visibleSubscription.getEntities();
-		final long accId = playerMapper.get(entityId).playerBestiaManager.getAccountId();
+		final long accId = playerMapper.get(entityId).playerBestia.getAccountId();
 
 		LOG.trace("New active player, sending {} entities.", visibleEntities.size());
 

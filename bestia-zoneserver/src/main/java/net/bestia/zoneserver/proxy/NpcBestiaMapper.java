@@ -2,24 +2,18 @@ package net.bestia.zoneserver.proxy;
 
 import com.artemis.ComponentMapper;
 
-import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.MobGroup;
 import net.bestia.zoneserver.ecs.component.NPCBestia;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
-import net.bestia.zoneserver.ecs.component.Visible;
 
 public class NpcBestiaMapper extends BestiaMapper {
 
 	private final ComponentMapper<MobGroup> groupMapper;
-	private final ComponentMapper<Bestia> bestiaMapper;
-	
 	private final ComponentMapper<NPCBestia> npcBestiaMapper;
 	private final ComponentMapper<StatusPoints> statusMapper;
 
 	public static class Builder extends BestiaMapper.Builder {
 		private ComponentMapper<MobGroup> groupMapper;
-		private ComponentMapper<Bestia> bestiaMapper;
-		private ComponentMapper<Visible> visibleMapper;
 		private ComponentMapper<NPCBestia> npcBestiaMapper;
 		private ComponentMapper<StatusPoints> statusMapper;
 
@@ -31,14 +25,6 @@ public class NpcBestiaMapper extends BestiaMapper {
 			this.groupMapper = groupMapper;
 		}
 
-		public void setBestiaMapper(ComponentMapper<Bestia> bestiaMapper) {
-			this.bestiaMapper = bestiaMapper;
-		}
-
-		public void setVisibleMapper(ComponentMapper<Visible> visibleMapper) {
-			this.visibleMapper = visibleMapper;
-		}
-
 		public void setNpcBestiaMapper(ComponentMapper<NPCBestia> npcBestiaMapper) {
 			this.npcBestiaMapper = npcBestiaMapper;
 		}
@@ -47,7 +33,22 @@ public class NpcBestiaMapper extends BestiaMapper {
 			this.statusMapper = statusMapper;
 		}
 
+		/**
+		 * Creates the {@link BestiaMapper} from the set mapper. All mappers
+		 * must be set.
+		 * 
+		 * @return The created {@link NpcBestiaMapper}.
+		 */
 		public NpcBestiaMapper build() {
+			if (groupMapper == null) {
+				throw new IllegalArgumentException("GroupMapper can not be null.");
+			}
+			if (npcBestiaMapper == null) {
+				throw new IllegalArgumentException("NpcBestiaMapper can not be null.");
+			}
+			if (statusMapper == null) {
+				throw new IllegalArgumentException("StatusMapper can not be null.");
+			}
 			return new NpcBestiaMapper(this);
 		}
 
@@ -57,22 +58,12 @@ public class NpcBestiaMapper extends BestiaMapper {
 		super(builder);
 
 		this.groupMapper = builder.groupMapper;
-		this.bestiaMapper = builder.bestiaMapper;
-		this.visibleMapper = builder.visibleMapper;
 		this.npcBestiaMapper = builder.npcBestiaMapper;
 		this.statusMapper = builder.statusMapper;
 	}
 
 	public ComponentMapper<MobGroup> getGroupMapper() {
 		return groupMapper;
-	}
-
-	public ComponentMapper<Bestia> getBestiaMapper() {
-		return bestiaMapper;
-	}
-
-	public ComponentMapper<Visible> getVisibleMapper() {
-		return visibleMapper;
 	}
 
 	public ComponentMapper<NPCBestia> getNpcBestiaMapper() {

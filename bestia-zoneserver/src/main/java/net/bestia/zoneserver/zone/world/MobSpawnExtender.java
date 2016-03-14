@@ -7,7 +7,7 @@ import com.artemis.WorldConfiguration;
 
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.MobSpawnManager;
-import net.bestia.zoneserver.ecs.system.MobSpawnSystem;
+import net.bestia.zoneserver.ecs.system.MobDelaySpawnSystem;
 import net.bestia.zoneserver.zone.Zone;
 import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.spawn.Spawner;
@@ -39,7 +39,7 @@ public class MobSpawnExtender implements WorldExtend {
 		worldConfig.setSystem(manager);
 
 		// The MobSpawnSystem actually spawns entities.
-		worldConfig.setSystem(new MobSpawnSystem());
+		worldConfig.setSystem(new MobDelaySpawnSystem());
 	}
 
 }

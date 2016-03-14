@@ -2,20 +2,24 @@ package net.bestia.zoneserver.proxy;
 
 import com.artemis.ComponentMapper;
 
+import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
 import net.bestia.zoneserver.ecs.component.Visible;
+
 
 class BestiaMapper {
 
 	private final ComponentMapper<PositionDomainProxy> positionProxyMapper;
 	private final ComponentMapper<Position> positionMapper;
 	private final ComponentMapper<Visible> visibleMapper;
+	private final ComponentMapper<Bestia> bestiaMapper;
 
 	static class Builder {
 		private ComponentMapper<PositionDomainProxy> positionProxyMapper;
 		private ComponentMapper<Position> positionMapper;
 		private ComponentMapper<Visible> visibleMapper;
+		private ComponentMapper<Bestia> bestiaMapper;
 		
 		public Builder() {
 			
@@ -33,7 +37,24 @@ class BestiaMapper {
 			this.visibleMapper = visibleMapper;
 		}
 		
+		public void setBestiaMapper(ComponentMapper<Bestia> bestiaMapper) {
+			this.bestiaMapper = bestiaMapper;
+		}
+		
 		public BestiaMapper build() {
+			if(positionProxyMapper == null) {
+				throw new IllegalArgumentException("PositionProxyMapper can not be null.");
+			}
+			if(positionMapper == null) {
+				throw new IllegalArgumentException("PositionMapper can not be null.");
+			}
+			if(visibleMapper == null) {
+				throw new IllegalArgumentException("VisibleMapper can not be null.");
+			}
+			if(bestiaMapper == null) {
+				throw new IllegalArgumentException("BestiaMapper can not be null.");
+			}
+			
 			return new BestiaMapper(this);
 		}
 	}
@@ -42,6 +63,11 @@ class BestiaMapper {
 		this.positionMapper = builder.positionMapper;
 		this.positionProxyMapper = builder.positionProxyMapper;
 		this.visibleMapper = builder.visibleMapper;
+		this.bestiaMapper = builder.bestiaMapper;
+	}
+	
+	public ComponentMapper<Bestia> getBestiaMapper() {
+		return bestiaMapper;
 	}
 	
 	public ComponentMapper<Position> getPositionMapper() {

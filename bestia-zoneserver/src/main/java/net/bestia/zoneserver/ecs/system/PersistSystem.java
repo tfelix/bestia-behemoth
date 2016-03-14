@@ -53,7 +53,7 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 
 	private void synchronizeAndSaveEntity(Entity e) {
 		final PlayerBestiaService pbService = ctx.getServiceLocator().getBean(PlayerBestiaService.class);
-		final PlayerBestiaEntityProxy pbm = playerMapper.get(e).playerBestiaManager;
+		final PlayerBestiaEntityProxy pbm = playerMapper.get(e).playerBestia;
 
 		pbService.savePlayerBestiaECS(pbm.getPlayerBestia());
 

@@ -97,7 +97,7 @@ public class EntityUpdateMessageFactory {
 		msg.setType(entityType);
 
 		if (playerControlled != null) {
-			msg.setPlayerBestiaId(playerControlled.playerBestiaManager.getPlayerBestiaId());
+			msg.setPlayerBestiaId(playerControlled.playerBestia.getPlayerBestiaId());
 		}
 
 		return msg;

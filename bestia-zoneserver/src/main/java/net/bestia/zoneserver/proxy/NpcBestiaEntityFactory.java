@@ -18,18 +18,23 @@ import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
+/**
+ * Factory for the creation of {@link NpcBestiaEntityProxy}s.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class NpcBestiaEntityFactory {
-	
+
 	private static final Logger LOG = LogManager.getLogger(NpcBestiaEntityFactory.class);
-	
+
 	private final Archetype npcBestiaArchetype;
 	private final NpcBestiaMapper mapper;
 	private final World world;
 	private final String zoneName;
 
-
 	public NpcBestiaEntityFactory(String zoneName, World world, NpcBestiaMapper mapper) {
-		
+
 		this.zoneName = zoneName;
 		this.world = world;
 
@@ -52,7 +57,7 @@ public class NpcBestiaEntityFactory {
 		final Bestia spawnBestia = mobSpawn.mob;
 		final String group = mobSpawn.getGroup();
 		final Vector2 pos = mobSpawn.coordinates;
-		
+
 		return create(spawnBestia, pos, group);
 	}
 
@@ -61,17 +66,26 @@ public class NpcBestiaEntityFactory {
 		return create(bestia, position, "none");
 	}
 
+	/**
+	 * Creates an {@link NpcBestiaEntityProxy} and spawns it directly to the
+	 * given position in the responsible zone.
+	 * 
+	 * @param bestia
+	 * @param position
+	 * @param groupName
+	 * @return
+	 */
 	public NpcBestiaEntityProxy create(Bestia bestia, Vector2 position, String groupName) {
-		
+
 		final int entityID = world.create(npcBestiaArchetype);
 
 		final NpcBestiaEntityProxy mobBestia = new NpcBestiaEntityProxy(entityID, bestia, mapper);
 		mobBestia.getLocation().setMapDbName(zoneName);
 		mobBestia.getLocation().setPos(position.x, position.y);
 		mapper.getGroupMapper().get(entityID).groupName = groupName;
-		
+
 		LOG.debug("Spawned mob: {}", mobBestia.toString());
-		
+
 		return mobBestia;
 	}
 }

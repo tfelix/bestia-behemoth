@@ -40,7 +40,7 @@ public class ActiveManager extends EntityProcessingSystem {
 			return;
 		}
 
-		final PlayerBestiaEntityProxy pbm = playerBestiaMapper.get(e).playerBestiaManager;
+		final PlayerBestiaEntityProxy pbm = playerBestiaMapper.get(e).playerBestia;
 		ctx.getAccountRegistry().setActiveBestia(pbm.getAccountId(), pbm.getPlayerBestiaId());
 	}
 
@@ -50,7 +50,7 @@ public class ActiveManager extends EntityProcessingSystem {
 			return;
 		}
 
-		final PlayerBestiaEntityProxy pbm = playerBestiaMapper.get(e).playerBestiaManager;
+		final PlayerBestiaEntityProxy pbm = playerBestiaMapper.get(e).playerBestia;
 		ctx.getAccountRegistry().unsetActiveBestia(pbm.getAccountId(), pbm.getPlayerBestiaId());
 	}
 
