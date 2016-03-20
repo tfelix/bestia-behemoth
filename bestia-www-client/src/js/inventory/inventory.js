@@ -47,6 +47,11 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * @property
 	 */
 	this._selectedBestia = null;
+	
+	/**
+	 * This slot holds the item to be prepared to be cast.
+	 */
+	this._preparedCastItem = null;
 
 	this.itemSlot1 = ko.observable(null);
 	this.itemSlot2 = ko.observable(null);
@@ -228,6 +233,11 @@ Bestia.Inventory = function(pubsub, i18n) {
 	};
 	pubsub.subscribe(Bestia.MID.INVENTORY_UPDATE, updateHandler);
 
+	// 
+	pubsub.subscribe(Bestia.Signal.INVENTORY_CAST_SLOT_1, function() {
+
+	});
+
 	/**
 	 * Saves bestia reference of the currently selected bestia.
 	 * 
@@ -274,11 +284,45 @@ Bestia.Inventory = function(pubsub, i18n) {
 			// Just send the server the message to directly use this item.
 			var msg = new Bestia.Message.InventoryItemUse(item.itemId(), self._selectedBestia.playerBestiaId());
 			self._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
-		} else if(item.type() === 'CASTABLE') {
-			// Item is "castable". Notify the engine about displaying a indicator how to use this item.
+		} else if (item.type() === 'CASTABLE') {
+			// Item is "castable". Notify the engine about displaying a
+			// indicator how to use this item.
 			self._pubsub.publish(Bestia.Signal.ENGINE_CAST_ITEM, item);
 		}
 	};
+
+	/**
+	 * Casts the item which is selected at the given slot. The indicator of the
+	 * engine will get notified about the change. If the engine confirms the
+	 * usage of this castable item the item will be used and the server be
+	 * notified.
+	 */
+	this.castItemSlot = function(slot) {
+		var item = null;
+		switch(slot) {
+		case 0:
+			item = this.itemSlot0();
+			break;
+		case 1:
+			item = this.itemSlot1();
+			break;
+		case 2:
+			item = this.itemSlot2();
+			break;
+		case 3:
+			item = this.itemSlot3();
+			break;
+		case 4:
+			item = this.itemSlot4();
+			break;
+		}
+		
+		this._preparedCastItem = item;
+		
+		this._pubsub.publish(Bestia.Signal.ENGINE_CAST_ITEM, item);
+	};
+	
+	
 
 	/**
 	 * Amount of the item to be dropped.
