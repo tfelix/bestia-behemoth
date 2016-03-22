@@ -92,7 +92,7 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 
 		log.trace("Moved to: {}", pos.toString());
 
-		m.nextMove = 1000 / (m.walkspeed * Movement.TILES_PER_SECOND);
+		m.nextMove = 1000 / (m.getWalkspeed() * Movement.TILES_PER_SECOND);
 		offerDelay(m.nextMove);
 	}
 

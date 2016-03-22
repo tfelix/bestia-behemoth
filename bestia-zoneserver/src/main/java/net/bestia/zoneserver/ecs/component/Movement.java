@@ -20,7 +20,7 @@ public class Movement extends Component {
 	public static final float TILES_PER_SECOND = 3f;
 
 	public Queue<Vector2> path = new LinkedList<>();
-	public float walkspeed;
+	private float walkspeed;
 	public float nextMove;
 	
 	private boolean hasSendPredictions;
@@ -53,6 +53,16 @@ public class Movement extends Component {
 	
 	public void setSendPredictions(boolean flag) {
 		this.hasSendPredictions = flag;
+	}
+	
+	public float getWalkspeed() {
+		return walkspeed;
+	}
+	
+	public void setWalkspeed(float walkspeed) {
+		this.walkspeed = walkspeed;
+		// Invalidate predictions.
+		hasSendPredictions = false;
 	}
 
 }

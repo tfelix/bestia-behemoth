@@ -5,6 +5,8 @@ import com.artemis.Component;
 /**
  * Component to hold a delay after which it shall be executed.
  * 
+ * Das ist eine doofe Komponent. Zu unaussagekräftig.
+ * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */

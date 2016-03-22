@@ -152,4 +152,15 @@ public abstract class BestiaEntityProxy {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	/**
+	 * Calculates the current walkspeed based on the current stats. A walkspeed
+	 * of 1.0 means normal speed. The walkspeed is currently capped between 0
+	 * and 3.
+	 * 
+	 * @return
+	 */
+	public float getWalkspeed() {
+		return 1.0f;
+	}
 }
