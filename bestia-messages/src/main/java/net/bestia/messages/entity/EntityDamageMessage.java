@@ -48,6 +48,23 @@ public class EntityDamageMessage extends AccountMessage {
 
 		this.damage.add(dmg);
 	}
+	
+	/**
+	 * Ctor.
+	 * 
+	 * @param uuid
+	 *            UUID of the entity receiving this damage.
+	 * @param dmg
+	 *            The amount of damage to receive.s
+	 */
+	public EntityDamageMessage(long receiverAccId, List<Damage> dmg) {
+		super(receiverAccId);
+		if (dmg == null) {
+			throw new IllegalArgumentException("Damage can not be null.");
+		}
+
+		this.damage.addAll(dmg);
+	}
 
 	@Override
 	public String getMessageId() {

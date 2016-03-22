@@ -15,7 +15,7 @@ import net.bestia.messages.AccountMessage;
 public class EntityPositionMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
-	public static final String MESSAGE_ID = "entity.update";
+	public static final String MESSAGE_ID = "entity.posupdate";
 
 	private int x;
 	private int y;

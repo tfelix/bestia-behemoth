@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.ecs.system;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -11,8 +13,8 @@ import com.artemis.EntitySubscription;
 import com.artemis.annotations.Wire;
 import com.artemis.utils.IntBag;
 
-import net.bestia.messages.MapEntitiesMessage;
 import net.bestia.messages.entity.EntityAction;
+import net.bestia.messages.entity.EntityUpdateMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.EntityUpdateMessageFactory;
 import net.bestia.zoneserver.ecs.component.Active;
@@ -62,14 +64,15 @@ public class ActiveSpawnUpdateSystem extends BaseEntitySystem {
 
 		LOG.trace("New active player, sending {} entities.", visibleEntities.size());
 
-		final MapEntitiesMessage msg = updateMessageFactory.createMessage(visibleEntities);
+		final List<EntityUpdateMessage> msgs = updateMessageFactory.createMessages(visibleEntities);
+		
+		LOG.trace("Sending update for entities: {} to accId: {}", msgs.size(), accId);
 
-		msg.setAccountId(accId);
-		msg.setAction(EntityAction.APPEAR);
-
-		LOG.trace("Sending update for entities: {} to accId: {}", msg.getEntities().size(), accId);
-
-		ctx.getServer().sendMessage(msg);
+		msgs.stream().forEach(x -> {
+			x.setAccountId(accId);
+			x.setAction(EntityAction.APPEAR);
+			ctx.getServer().sendMessage(x);
+		});
 	}
 
 	@Override

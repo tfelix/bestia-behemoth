@@ -2,15 +2,13 @@ package net.bestia.zoneserver.ecs.system;
 
 import com.artemis.Aspect;
 import com.artemis.ComponentMapper;
-import com.artemis.Entity;
 import com.artemis.annotations.Wire;
-import com.artemis.systems.EntityProcessingSystem;
-import com.artemis.systems.IntervalIteratingSystem;
 import com.artemis.systems.IteratingSystem;
 
+import net.bestia.messages.AccountMessage;
 import net.bestia.messages.bestia.BestiaInfoMessage;
-import net.bestia.messages.entity.EntityPositionMessage;
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Changed;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Visible;
@@ -32,6 +30,8 @@ public class ChangedNetworkUpdateSystem extends IteratingSystem {
 
 	private PlayerBestiaSpawnManager playerSpawnManager;
 	private ComponentMapper<PlayerBestia> playerMapper;
+	private ComponentMapper<Bestia> bestiaMapper;
+	
 	@Wire
 	private CommandContext ctx;
 
@@ -61,8 +61,14 @@ public class ChangedNetworkUpdateSystem extends IteratingSystem {
 
 		// We need to create the update message via different means. If it is a
 		// bestia it can create the message itself.
+		final AccountMessage updateMsg;
+		if(bestiaMapper.has(entityId)) {
+			updateMsg = bestiaMapper.get(entityId).manager.getUpdateMessage();
+		} else {
+			// If it is something different we might to create the update message by hand.
+			throw new UnsupportedOperationException("Currently only bestia entities are allowed.");
+		}
 		
-		final EntityPositionMessage updateMsg = getUpdateMessage(entityId);
 		playerSpawnManager.sendMessageToSightrange(entityId, updateMsg);
 
 		// Remove changed.

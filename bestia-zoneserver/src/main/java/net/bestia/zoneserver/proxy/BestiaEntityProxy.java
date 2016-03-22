@@ -5,6 +5,8 @@ import java.util.Map;
 
 import com.artemis.ComponentMapper;
 
+import net.bestia.messages.AccountMessage;
+import net.bestia.messages.entity.EntityPositionMessage;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Location;
@@ -16,7 +18,7 @@ import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
 public abstract class BestiaEntityProxy {
 
 	protected final int entityID;
-	
+
 	private final ComponentMapper<PositionDomainProxy> positionProxyMapper;
 	private final ComponentMapper<Position> positionMapper;
 
@@ -25,19 +27,19 @@ public abstract class BestiaEntityProxy {
 	private final Location location;
 
 	public BestiaEntityProxy(int entityID, BestiaMapper mappers) {
-		
+
 		// Create the entity.
 		this.entityID = entityID;
 
 		this.positionProxyMapper = mappers.getPositionProxyMapper();
 		this.positionMapper = mappers.getPositionMapper();
-		
+
 		this.setFacing(Direction.SOUTH);
 
 		final Position pos = positionMapper.get(entityID);
 		final PositionDomainProxy posProxy = positionProxyMapper.get(entityID);
 		// Create a placeholder location and proxy pos and location with the loc
-		// proxy.	
+		// proxy.
 		final Location domLocation = new LocationDomain();
 		location = new EcsLocationProxy(pos, domLocation);
 
@@ -136,5 +138,18 @@ public abstract class BestiaEntityProxy {
 
 	public int getEntityId() {
 		return entityID;
+	}
+
+	/**
+	 * Depending on the changed since the last call to this method a different
+	 * update message will be generated in order to efficently use the bandwith.
+	 * If only the position has changed an {@link EntityPositionMessage} will be
+	 * generated otherwise a full update might be used.
+	 * 
+	 * @return An update message with all the changed for the client.
+	 */
+	public AccountMessage getUpdateMessage() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

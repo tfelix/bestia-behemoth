@@ -50,6 +50,7 @@ public class MoveCommand extends ECSCommand {
 		}
 
 		final Movement movement = player.edit().create(Movement.class);
+		movement.clear();
 		movement.path.addAll(path);
 	}
 	
