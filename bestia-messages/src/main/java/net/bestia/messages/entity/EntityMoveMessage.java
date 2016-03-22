@@ -1,6 +1,8 @@
-package net.bestia.messages;
+package net.bestia.messages.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.AccountMessage;
 
 /**
  * Message is send to the client in order to update a entity which is currently

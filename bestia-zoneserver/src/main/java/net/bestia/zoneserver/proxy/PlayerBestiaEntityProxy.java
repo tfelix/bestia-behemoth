@@ -12,7 +12,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 
 import net.bestia.messages.ChatMessage;
-import net.bestia.messages.EntityDamageMessage;
+import net.bestia.messages.entity.EntityDamageMessage;
 import net.bestia.model.I18n;
 import net.bestia.model.ServiceLocator;
 import net.bestia.model.domain.Attack;

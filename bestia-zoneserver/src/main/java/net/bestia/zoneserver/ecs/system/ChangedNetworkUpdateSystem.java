@@ -5,9 +5,11 @@ import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.EntityProcessingSystem;
+import com.artemis.systems.IntervalIteratingSystem;
+import com.artemis.systems.IteratingSystem;
 
-import net.bestia.messages.EntityPositionUpdateMessage;
 import net.bestia.messages.bestia.BestiaInfoMessage;
+import net.bestia.messages.entity.EntityPositionMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Changed;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
@@ -23,9 +25,10 @@ import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
  *
  */
 @Wire
-public class ChangedNetworkUpdateSystem extends EntityProcessingSystem {
+public class ChangedNetworkUpdateSystem extends IteratingSystem {
 
-	//private static final Logger LOG = LogManager.getLogger(ChangedNetworkUpdateSystem.class);
+	// private static final Logger LOG =
+	// LogManager.getLogger(ChangedNetworkUpdateSystem.class);
 
 	private PlayerBestiaSpawnManager playerSpawnManager;
 	private ComponentMapper<PlayerBestia> playerMapper;
@@ -36,25 +39,34 @@ public class ChangedNetworkUpdateSystem extends EntityProcessingSystem {
 		super(Aspect.all(Visible.class, Changed.class));
 	}
 
+	/**
+	 * If the visible tag is removed and thus the entity does not get matched
+	 * with this system anymore we need to notify the system immediately.
+	 */
 	@Override
-	protected void process(Entity e) {
+	protected void removed(int entityId) {
+
+	}
+
+	@Override
+	protected void process(int entityId) {
 
 		// First of all check if this is a player bestia entity. And if so send
 		// the update to the corresponding player.
-		if (playerMapper.has(e)) {
-			final PlayerBestiaEntityProxy pbm = playerMapper.get(e).playerBestia;
+		if (playerMapper.has(entityId)) {
+			final PlayerBestiaEntityProxy pbm = playerMapper.get(entityId).playerBestia;
 			final BestiaInfoMessage bestiaInfoMsg = new BestiaInfoMessage(pbm.getPlayerBestia(), pbm.getStatusPoints());
 			ctx.getServer().sendMessage(bestiaInfoMsg);
 		}
+
+		// We need to create the update message via different means. If it is a
+		// bestia it can create the message itself.
 		
-		// TODO HIER MESSAGE ERZEUGEN.
-		final EntityPositionUpdateMessage updateMsg = null;
-		playerSpawnManager.sendMessageToSightrange(e.getId(), updateMsg);
+		final EntityPositionMessage updateMsg = getUpdateMessage(entityId);
+		playerSpawnManager.sendMessageToSightrange(entityId, updateMsg);
 
 		// Remove changed.
-		e.edit().remove(Changed.class);
+		world.getEntity(entityId).edit().remove(Changed.class);
 	}
-
-
 
 }

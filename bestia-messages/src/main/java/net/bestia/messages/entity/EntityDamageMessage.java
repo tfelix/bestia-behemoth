@@ -1,10 +1,11 @@
-package net.bestia.messages;
+package net.bestia.messages.entity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import net.bestia.messages.AccountMessage;
 import net.bestia.model.misc.Damage;
 
 /**

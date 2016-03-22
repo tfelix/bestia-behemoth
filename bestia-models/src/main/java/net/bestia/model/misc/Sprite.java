@@ -30,7 +30,7 @@ public class Sprite implements Serializable {
 		MOB,
 
 		/**
-		 * NPCs who is primerly friendly.
+		 * NPCs who is usually friendly.
 		 */
 		NPC,
 

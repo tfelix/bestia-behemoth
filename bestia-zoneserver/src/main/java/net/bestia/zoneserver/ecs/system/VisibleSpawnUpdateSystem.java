@@ -7,7 +7,7 @@ import com.artemis.Aspect;
 import com.artemis.BaseEntitySystem;
 import com.artemis.annotations.Wire;
 
-import net.bestia.messages.MapEntitiesMessage;
+import net.bestia.messages.entity.EntityUpdateMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.EntityUpdateMessageFactory;
 import net.bestia.zoneserver.ecs.component.Position;
@@ -49,7 +49,7 @@ public class VisibleSpawnUpdateSystem extends BaseEntitySystem {
 		
 		log.trace("### NEW VISIBLE ID: {}, UPDATING PLAYERS ###", entityId);
 
-		final MapEntitiesMessage msg = updateMassageFactory.createMessage(entityId);
+		final EntityUpdateMessage msg = updateMassageFactory.createMessage(entityId);
 		
 		playerSpawnManager.sendMessageToSightrange(entityId, msg);		
 	}

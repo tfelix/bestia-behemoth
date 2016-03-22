@@ -1,14 +1,18 @@
-package net.bestia.messages;
+package net.bestia.messages.entity;
+
+import net.bestia.messages.AccountMessage;
 
 /**
- * This message is send to the clients whenever an entity changes during the calculation of the zone system. Changes in
- * movement, animation etc are send to the client. However not all animation changes for example are propagated to the
- * client. Its up to him to decide which animation to play (a damage animation for example).
+ * This message is purely for position changes. It will be send to the client
+ * and the client will check the entity position agains the position given
+ * inside this message. If they deviate too much a hard set to the coordinates
+ * will be performed. Otherwise only a validation or a little adjustment will
+ * happen by the client.
  * 
- * @author Thomas
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class EntityPositionUpdateMessage extends AccountMessage {
+public class EntityPositionMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.update";
@@ -17,11 +21,11 @@ public class EntityPositionUpdateMessage extends AccountMessage {
 	private int y;
 	private String entityId;
 
-	public EntityPositionUpdateMessage() {
+	public EntityPositionMessage() {
 
 	}
 
-	public EntityPositionUpdateMessage(String entityId, long accId, int pbid, int x, int y) {
+	public EntityPositionMessage(String entityId, long accId, int pbid, int x, int y) {
 		this.setX(x);
 		this.setY(y);
 		this.setEntityId(entityId);

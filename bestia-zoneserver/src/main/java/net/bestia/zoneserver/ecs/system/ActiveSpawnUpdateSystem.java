@@ -12,7 +12,7 @@ import com.artemis.annotations.Wire;
 import com.artemis.utils.IntBag;
 
 import net.bestia.messages.MapEntitiesMessage;
-import net.bestia.messages.MapEntitiesMessage.EntityAction;
+import net.bestia.messages.entity.EntityAction;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.EntityUpdateMessageFactory;
 import net.bestia.zoneserver.ecs.component.Active;
