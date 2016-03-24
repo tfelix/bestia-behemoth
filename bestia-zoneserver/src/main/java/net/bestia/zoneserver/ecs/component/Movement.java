@@ -59,6 +59,10 @@ public class Movement extends Component {
 		return walkspeed;
 	}
 	
+	public int getWalkspeedInt() {
+		return (int) (100 * walkspeed);
+	}
+	
 	public void setWalkspeed(float walkspeed) {
 		this.walkspeed = walkspeed;
 		// Invalidate predictions.

@@ -142,7 +142,7 @@ public abstract class BestiaEntityProxy {
 
 	/**
 	 * Depending on the changed since the last call to this method a different
-	 * update message will be generated in order to efficently use the bandwith.
+	 * update message will be generated in order to efficiently use the bandwidth.
 	 * If only the position has changed an {@link EntityPositionMessage} will be
 	 * generated otherwise a full update might be used.
 	 * 
@@ -162,5 +162,14 @@ public abstract class BestiaEntityProxy {
 	 */
 	public float getWalkspeed() {
 		return 1.0f;
+	}
+	
+	/**
+	 * Returns the walkspeed normalized to an integer between 0 and 300.
+	 * @return
+	 */
+	public int getWalkspeedInt() {
+		final float speed = getWalkspeed();
+		return (int) (100 * speed);
 	}
 }

@@ -1,15 +1,5 @@
 package net.bestia.zoneserver.ecs.system;
 
-import net.bestia.messages.entity.EntityMoveMessage;
-import net.bestia.model.domain.Location;
-import net.bestia.zoneserver.ecs.component.Bestia;
-import net.bestia.zoneserver.ecs.component.Changed;
-import net.bestia.zoneserver.ecs.component.Movement;
-import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
-import net.bestia.zoneserver.proxy.BestiaEntityProxy;
-import net.bestia.zoneserver.zone.shape.Vector2;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -19,6 +9,15 @@ import com.artemis.Entity;
 import com.artemis.annotations.Wire;
 import com.artemis.managers.UuidEntityManager;
 import com.artemis.systems.DelayedEntityProcessingSystem;
+
+import net.bestia.messages.entity.EntityMoveMessage;
+import net.bestia.model.domain.Location;
+import net.bestia.zoneserver.ecs.component.Bestia;
+import net.bestia.zoneserver.ecs.component.Changed;
+import net.bestia.zoneserver.ecs.component.Movement;
+import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
+import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
  * Process linear movement along a given path. Calculates the delay until the
@@ -57,13 +56,6 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 	@Override
 	protected void processExpired(Entity e) {
 		final Movement m = movementMapper.get(e);
-		
-		if(!m.hasSendPredictions()) {
-			final String uuid = uuidManager.getUuid(e).toString();
-			final EntityMoveMessage movePredictMsg = EntityMoveMessage.fromPath(m.path, uuid);
-			m.setSendPredictions(true);
-			pbSpawnManager.sendMessageToSightrange(e.getId(), movePredictMsg);
-		}
 
 		final Vector2 pos = m.path.poll();
 		if (pos == null) {
@@ -72,25 +64,47 @@ public class MovementSystem extends DelayedEntityProcessingSystem {
 		}
 
 		// Check if we handle a bestia or a generic position only entity.
-		final BestiaEntityProxy manager = bestiaMapper.get(e).manager;
-
-		// Check that the next move position is only one tile away.
-		final Location loc = manager.getLocation();
-		final int distance = getDistance(loc, pos);
-		if (distance > 1) {
-			// Something is wrong. Path is no longer valid.
-			m.path.clear();
-			e.edit().remove(Movement.class);
-			return;
+		final Bestia manager = bestiaMapper.getSafe(e);
+		final int walkspeed;
+		
+		if(manager == null) {
+			// Generic movement.
+			walkspeed = m.getWalkspeedInt();
+		} else {
+			// Bestia movement.
+			walkspeed = manager.manager.getWalkspeedInt();
+		}
+		
+		if(!m.hasSendPredictions()) {
+			final String uuid = uuidManager.getUuid(e).toString();
+			
+			final EntityMoveMessage movePredictMsg = new EntityMoveMessage(uuid, walkspeed);
+			
+			m.setSendPredictions(true);
+			pbSpawnManager.sendMessageToSightrange(e.getId(), movePredictMsg);
 		}
 
-		loc.setX(pos.x);
-		loc.setY(pos.y);
+
+		if(manager != null) {
+			// Check that the next move position is only one tile away.
+			final Location loc = manager.manager.getLocation();
+			final int distance = getDistance(loc, pos);
+			if (distance > 1) {
+				// Something is wrong. Path is no longer valid.
+				m.path.clear();
+				e.edit().remove(Movement.class);
+				return;
+			}
+			
+			loc.setX(pos.x);
+			loc.setY(pos.y);
+		}
+		
 
 		// Mark entity as changed.
 		e.edit().create(Changed.class);
 
-		log.trace("Moved to: {}", pos.toString());
+		log.trace("Entity {} moved to: {}", e.getId(), pos.toString());
 
 		m.nextMove = 1000 / (m.getWalkspeed() * Movement.TILES_PER_SECOND);
 		offerDelay(m.nextMove);
