@@ -7,6 +7,7 @@ Bestia.MID = {
 	
 	INVENTORY_UPDATE : 'inventory.update',
 	INVENTORY_LIST: 'inventory.list',
+	INVENTORY_ITEM_CAST: 'inventory.item.cast',
 	
 	CHAT_MESSAGE: 'chat.message'
 };

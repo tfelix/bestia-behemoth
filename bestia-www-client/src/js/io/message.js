@@ -176,6 +176,27 @@ Bestia.Message = {
 		this.iid = playerItemId;
 		this.pbid = playerBestiaId;
 	},
+	
+	/**
+	 * Requests the server to cast an item onto the map at the given coordinates.
+	 */
+	InventoryItemCast : function(playerItemId, playerBestiaId, x, y) {
+		if(playerItemId === undefined) {
+			throw "PlayerItemId can not be undefined.";
+		}
+		if(x === undefined || y === undefined) {
+			throw "X and Y can not be undefined.";
+		}
+		if(playerBestiaId === undefined) {
+			throw "PlayerBestiaId can not be undefined.";
+		}
+		
+		this.mid = Bestia.MID.INVENTORY_ITEM_CAST;
+		this.piid = playerItemId;
+		this.pbid = playerBestiaId;
+		this.x = x;
+		this.y = y;
+	},
 
 	/**
 	 * Requests to the server to drop an item to the ground.

@@ -20,12 +20,15 @@ Bestia.Signal = {
 
 	INVENTORY_NOTICE : 'inventory.notice',
 	INVENTORY_ITEM_ADD : 'client.inventory.itemAdd',
-	INVENTORY_CAST_SLOT_1: 'client.inventory.cast.1',
-	INVENTORY_CAST_SLOT_2: 'client.inventory.cast.2',
-	INVENTORY_CAST_SLOT_3: 'client.inventory.cast.3',
-	INVENTORY_CAST_SLOT_4: 'client.inventory.cast.4',
-	INVENTORY_CAST_SLOT_5: 'client.inventory.cast.5',
-	INVENTORY_CONFIRM_CAST: 'client.inventory.confirmcast',
+	/**
+	 * The slot number is given as data in the first argument.
+	 */
+	INVENTORY_CAST_SLOT: 'client.inventory.cast',
+	
+	/**
+	 * Engine has decided where to cast the item.
+	 */
+	INVENTORY_PERFORM_CAST: 'client.inventory.performcast',
 
 	IO_SEND_MESSAGE : 'io.sendMessage',
 	IO_CONNECT : 'io.connect',
