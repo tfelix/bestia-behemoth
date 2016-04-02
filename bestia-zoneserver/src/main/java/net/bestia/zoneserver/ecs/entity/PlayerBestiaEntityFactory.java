@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.proxy;
+package net.bestia.zoneserver.ecs.entity;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,6 +19,9 @@ import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
+import net.bestia.zoneserver.proxy.InventoryProxy;
+import net.bestia.zoneserver.proxy.NpcBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 
 /**
  * This factory is responsible for spawning player bestias into the ECS.

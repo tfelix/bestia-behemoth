@@ -30,6 +30,9 @@ import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
 import net.bestia.zoneserver.ecs.component.Visible;
+import net.bestia.zoneserver.ecs.entity.PlayerBestiaEntityFactory;
+import net.bestia.zoneserver.ecs.entity.PlayerBestiaMapper;
+import net.bestia.zoneserver.ecs.entity.PlayerBestiaMapper.Builder;
 import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.messaging.MessageHandler;
 import net.bestia.zoneserver.messaging.routing.DynamicBestiaIdMessageFilter;
@@ -37,10 +40,7 @@ import net.bestia.zoneserver.messaging.routing.MessageAndFilter;
 import net.bestia.zoneserver.messaging.routing.MessageDirectDescandantFilter;
 import net.bestia.zoneserver.messaging.routing.MessageIdFilter;
 import net.bestia.zoneserver.messaging.routing.MessageRouter;
-import net.bestia.zoneserver.proxy.PlayerBestiaEntityFactory;
 import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
-import net.bestia.zoneserver.proxy.PlayerBestiaMapper;
-import net.bestia.zoneserver.proxy.PlayerBestiaMapper.Builder;
 
 /**
  * The {@link PlayerBestiaSpawnManager} hooks itself into the message processing

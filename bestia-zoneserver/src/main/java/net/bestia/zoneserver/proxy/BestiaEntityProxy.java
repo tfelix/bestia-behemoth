@@ -11,6 +11,7 @@ import net.bestia.model.domain.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
+import net.bestia.zoneserver.ecs.entity.BestiaMapper;
 
 public abstract class BestiaEntityProxy {
 

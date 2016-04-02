@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.proxy;
+package net.bestia.zoneserver.ecs.entity;
 
 import com.artemis.ComponentMapper;
 

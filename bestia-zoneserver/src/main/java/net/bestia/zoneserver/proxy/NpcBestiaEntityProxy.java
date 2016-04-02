@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.zoneserver.ecs.entity.NpcBestiaMapper;
 
 public class NpcBestiaEntityProxy extends BestiaEntityProxy {
 	

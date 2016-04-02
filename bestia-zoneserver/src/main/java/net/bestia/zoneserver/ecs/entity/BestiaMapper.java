@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.proxy;
+package net.bestia.zoneserver.ecs.entity;
 
 import com.artemis.ComponentMapper;
 
@@ -21,7 +21,7 @@ import net.bestia.zoneserver.ecs.component.Visible;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-class BestiaMapper {
+public class BestiaMapper {
 
 	private final ComponentMapper<PositionDomainProxy> positionProxyMapper;
 	private final ComponentMapper<Position> positionMapper;

@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.proxy;
+package net.bestia.zoneserver.ecs.entity;
 
 import com.artemis.ComponentMapper;
 import com.artemis.managers.UuidEntityManager;
@@ -7,6 +7,7 @@ import net.bestia.model.ServiceLocator;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
+import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 
 /**
  * Mapper holder for the creation of {@link PlayerBestiaEntityProxy} objects.

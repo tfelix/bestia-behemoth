@@ -25,6 +25,7 @@ import net.bestia.model.misc.Damage;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.component.Attacks;
+import net.bestia.zoneserver.ecs.entity.PlayerBestiaMapper;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 
 /**
