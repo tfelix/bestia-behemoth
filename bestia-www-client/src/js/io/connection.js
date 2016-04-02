@@ -198,7 +198,7 @@ Bestia.Connection.prototype._init = function() {
 			var json = jQuery.parseJSON(message);
 
 			// @ifdef DEVELOPMENT
-			console.debug('Received Message: ' + message);
+			console.trace('Received Message: ' + message);
 			self._debug('receive', json, message);
 			// @endif
 

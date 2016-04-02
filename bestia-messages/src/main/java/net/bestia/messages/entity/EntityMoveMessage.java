@@ -1,5 +1,6 @@
 package net.bestia.messages.entity;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +21,10 @@ import net.bestia.messages.AccountMessage;
  */
 public class EntityMoveMessage extends AccountMessage {
 	
-	private class Cords {
+	private class Cords implements Serializable {
+
+		private static final long serialVersionUID = 1L;
+
 		@JsonProperty("x")
 		int x;
 		

@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.command.ecs;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import net.bestia.messages.LoginBroadcastMessage;
@@ -37,15 +39,24 @@ public class LoginBroadcastCommand extends ECSCommand {
 		
 		final AccountService accService = ctx.getServiceLocator().getBean(AccountService.class);
 		final Set<PlayerBestia> bestias = accService.getAllBestias(lbMsg.getAccountId());
+		
+		final List<PlayerBestia> zoneBestias = new ArrayList<>();
 
 		for (PlayerBestia playerBestia : bestias) {
 			final String mapname = playerBestia.getCurrentPosition().getMapDbName();
-			final boolean isOnZone = mapname.equals(zone.getName());
-			
-			if (isOnZone) {
-				spawnManager.spawnBestia(playerBestia);
+
+			if (mapname.equals(zone.getName())) {
+				zoneBestias.add(playerBestia);
 			}
-		}		
+		}
+		
+		// No bestias on this zone do nothing.
+		if(zoneBestias.size() == 0) {
+			return;
+		}
+		
+		ctx.getAccountRegistry().registerLogin(lbMsg.getAccountId(), lbMsg.getToken());
+		zoneBestias.stream().forEach(pb -> spawnManager.spawnBestia(pb));
 	}
 	
 	@Override

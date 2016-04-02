@@ -8,17 +8,15 @@ import com.artemis.managers.TagManager;
 import com.artemis.managers.UuidEntityManager;
 import com.artemis.managers.WorldSerializationManager;
 
-import net.bestia.model.dao.ZoneEntityDao;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.AccountRegistryManager;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
-import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
 import net.bestia.zoneserver.ecs.system.AISystem;
 import net.bestia.zoneserver.ecs.system.ActiveSpawnUpdateSystem;
 import net.bestia.zoneserver.ecs.system.DelayedRemoveSystem;
-import net.bestia.zoneserver.ecs.system.RegenerationSystem;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
+import net.bestia.zoneserver.ecs.system.RegenerationSystem;
 import net.bestia.zoneserver.ecs.system.VisibleSpawnUpdateSystem;
 import net.bestia.zoneserver.zone.Zone;
 import net.bestia.zoneserver.zone.map.Map;
@@ -59,9 +57,9 @@ public class BaseWorldExtender implements WorldExtend {
 		// Prepare for serialization.
 		worldConfig.setSystem(serializationManager);
 		
-		
-		final ZoneEntityDao mapEntityDao = ctx.getServiceLocator().getBean(ZoneEntityDao.class);
-		worldConfig.setSystem(new WorldPersistenceManager(map.getMapDbName(), mapEntityDao));
+		// TODO Temporär abgeschaltet.
+		//final ZoneEntityDao mapEntityDao = ctx.getServiceLocator().getBean(ZoneEntityDao.class);
+		//worldConfig.setSystem(new WorldPersistenceManager(map.getMapDbName(), mapEntityDao));
 	}
 
 }
