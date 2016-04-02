@@ -28,6 +28,10 @@ public class EntityUpdateMessage extends AccountMessage {
 	
 	@JsonProperty("pbid")
 	public Integer playerBestiaId;
+	
+	public EntityUpdateMessage() {
+		// no op.
+	}
 
 	public EntityUpdateMessage(SpriteType type, EntityAction action) {
 		this.type = type;

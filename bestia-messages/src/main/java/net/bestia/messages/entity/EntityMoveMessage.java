@@ -48,6 +48,10 @@ public class EntityMoveMessage extends AccountMessage {
 
 	@JsonProperty("uuid")
 	private String entityId;
+	
+	public EntityMoveMessage() {
+		// no op.
+	}
 
 	public EntityMoveMessage(String entityId, int speed) {
 		super(0);

@@ -68,6 +68,7 @@ public class Zoneserver {
 		}
 	};
 
+	private final InterserverConnectionFactory connectionFactory;
 	private final InterserverSubscriber interserverSubscriber;
 	private final InterserverPublisher interserverPublisher;
 
@@ -114,13 +115,13 @@ public class Zoneserver {
 		final int subscribePort = config.getIntProperty("inter.listenPort");
 		final int listenPort = config.getIntProperty("inter.publishPort");
 
-		final InterserverConnectionFactory conFactory = new InterserverConnectionFactory(1,
+		connectionFactory = new InterserverConnectionFactory(1,
 				interUrl,
 				listenPort,
 				subscribePort);
 
-		this.interserverSubscriber = conFactory.getSubscriber(interserverHandler);
-		this.interserverPublisher = conFactory.getPublisher();
+		this.interserverSubscriber = connectionFactory.getSubscriber(interserverHandler);
+		this.interserverPublisher = connectionFactory.getPublisher();
 
 		this.accountRegistry = new AccountRegistry(interserverSubscriber);
 
@@ -223,8 +224,7 @@ public class Zoneserver {
 		log.info("Bestia Behemoth Server is stopping...");
 
 		log.info("Unsubscribe from Interserver...");
-		interserverSubscriber.disconnect();
-		interserverPublisher.disconnect();
+		connectionFactory.shutdown();
 
 		// Shut down all the msg queues.
 		log.info("Shutting down: command and messaging system...");

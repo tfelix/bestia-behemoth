@@ -14,6 +14,13 @@ public class ShutdownMessage extends ZoneserverMessage {
 	public static final String MESSAGE_ID = "system.shutdown";
 
 	private String messagePath = null;
+	
+	/**
+	 * Ctd. Ctor.
+	 */
+	public ShutdownMessage() {
+		
+	}
 
 	public ShutdownMessage(String receiverServerName, String senderServerName) {
 		super(receiverServerName, senderServerName);
