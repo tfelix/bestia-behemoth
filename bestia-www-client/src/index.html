@@ -202,27 +202,27 @@
 				</div>
 
 				<div class="shortcut-row" data-bind="with: inventory">
-					<div class="shortcut-entity">
+					<div class="shortcut-entity" data-bind="click: useItemShortcut.bind(itemSlot1())">
 						<div class="shortcut-wrapper"
 							data-bind="template: {if: itemSlot1(), name: 'tmpl-item-shortcut', data: itemSlot1 }"></div>
 						<div class="key">1</div>
 					</div>
-					<div class="shortcut-entity">
+					<div class="shortcut-entity" data-bind="click: useItemShortcut.bind(itemSlot2())">
 						<div class="shortcut-wrapper"
 							data-bind="template: {if: itemSlot2(), name: 'tmpl-item-shortcut', data: itemSlot2 }"></div>
 						<div class="key">2</div>
 					</div>
-					<div class="shortcut-entity">
+					<div class="shortcut-entity" data-bind="click: useItemShortcut.bind(itemSlot3())">
 						<div class="shortcut-wrapper"
 							data-bind="template: {if: itemSlot3(), name: 'tmpl-item-shortcut', data: itemSlot3 }"></div>
 						<div class="key">3</div>
 					</div>
-					<div class="shortcut-entity">
+					<div class="shortcut-entity" data-bind="click: useItemShortcut.bind(itemSlot4())">
 						<div class="shortcut-wrapper"
 							data-bind="template: {if: itemSlot4(), name: 'tmpl-item-shortcut', data: itemSlot4 }"></div>
 						<div class="key">4</div>
 					</div>
-					<div class="shortcut-entity">
+					<div class="shortcut-entity" data-bind="click: useItemShortcut.bind(itemSlot5())">
 						<div class="shortcut-wrapper"
 							data-bind="template: {if: itemSlot5(), name: 'tmpl-item-shortcut', data: itemSlot5 }"></div>
 						<div class="key">5</div>
@@ -294,7 +294,7 @@
 		<div class="flex-container">
 			<div class="flex items" data-bind="foreach: items">
 				<div class="item"
-					data-bind="click: $parent.clickItem, attr: {'data-itemid': itemId}">
+					data-bind="click: $parent.selectItem, attr: {'data-itemid': itemId}">
 					<img data-bind="attr: {src: imageSrc, alt: name}" src="" alt="">
 					<span class="amount" data-bind="text: amount"></span>
 				</div>

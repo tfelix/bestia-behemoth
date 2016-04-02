@@ -158,7 +158,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * Selects the clicked/touched item. Further details and options regarding
 	 * this item are displayed.
 	 */
-	this.clickItem = function(item) {
+	this.selectItem = function(item) {
 		self.selectedItem(item);
 		self.dropAmount(item.amount());
 	};
@@ -170,9 +170,14 @@ Bestia.Inventory = function(pubsub, i18n) {
 	 * to account for the changed item count. This function will do some sanity
 	 * checks:
 	 */
-	this.useItem = function() {
+	this.useItem = function(item) {
 
-		var item = this.selectedItem();
+		item = item || this.selectedItem();
+
+		if (item === undefined) {
+			console.debug("No item selected.");
+			return;
+		}
 
 		if (item.type() === 'USABLE') {
 			// Just send the server the message to directly use this item.
@@ -554,6 +559,21 @@ Bestia.Inventory.prototype.saveItemBindings = function() {
 	var msg = new Bestia.Message.ItemSet(bestiaId, piId1, piId2, piId3, piId4, piId5);
 	this._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 };
+
+/**
+ * Handler function if an item shortcut is clicked. The handling of the to be
+ * used item is somehow different as the useItem function: If the item does not
+ * exist (is undefined) it means the slot is empty and therefore no item usage
+ * should be executed.
+ */
+Bestia.Inventory.prototype.useItemShortcut = function(item) {
+	if(item === undefined) {
+		return;
+	}
+	
+	// Only use the item if it does exist.
+	this.useItem(item);
+}
 
 /**
  * Setup the item bindings with the proper items. We need to derefer this call
