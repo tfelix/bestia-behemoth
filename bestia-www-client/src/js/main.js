@@ -4,7 +4,7 @@ Bestia.Game = function() {
 	this.i18n = new Bestia.I18n(this.pubsub);
 	this.urlHelper = new Bestia.UrlHelper(Bestia.Urls.assetsRoot);
 
-	this.inventory = new Bestia.Inventory(this.pubsub, this.i18n);
+	this.inventory = new Bestia.Inventory(this.pubsub, this.i18n, this.urlHelper);
 	this.bestias = new Bestia.BestiaInfoViewModel(this.pubsub, this.urlHelper);
 	this.attacks = new Bestia.BestiaAttacks(this.pubsub, this.i18n);
 	

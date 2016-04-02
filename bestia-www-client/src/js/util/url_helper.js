@@ -27,7 +27,7 @@ Bestia.UrlHelper.prototype.getMobPackUrl = function(mobName) {
 };
 
 Bestia.UrlHelper.prototype.getItemIconUrl = function(itemName) {
-	return this._assetRoot + 'img/items/' + itemName + '.png';
+	return this._assetRoot + 'img/items/' + itemName;
 };
 
 Bestia.UrlHelper.prototype.getImageUrl = function(imgName) {

@@ -20,7 +20,7 @@ public interface PlayerItemDAO extends CrudRepository<PlayerItem, Integer> {
 	 *            All items of this account are found.
 	 * @return A set of the player items.
 	 */
-	@Query("SELECT item FROM PlayerItem pi WHERE pi.account.id = :accId")
+	@Query("SELECT pi FROM PlayerItem pi WHERE pi.account.id = :accId")
 	public List<PlayerItem> findPlayerItemsForAccount(@Param("accId") long accId);
 
 	/**
@@ -33,7 +33,7 @@ public interface PlayerItemDAO extends CrudRepository<PlayerItem, Integer> {
 	 *            The item id.
 	 * @return The found PlayerItem, null otherwise.
 	 */
-	@Query("SELECT item FROM PlayerItem pi where pi.account.id = :accId and pi.item.id = :itemId")
+	@Query("SELECT pi FROM PlayerItem pi where pi.account.id = :accId and pi.item.id = :itemId")
 	public PlayerItem findPlayerItem(@Param("accId") long accId, @Param("itemId") int itemId);
 
 	/**
@@ -55,7 +55,7 @@ public interface PlayerItemDAO extends CrudRepository<PlayerItem, Integer> {
 	 *            Set of item ids.
 	 * @return The found player items with these item IDs.
 	 */
-	@Query("SELECT item FROM PlayerItem pi WHERE pi.id IN (:idList)")
+	@Query("SELECT pi FROM PlayerItem pi WHERE pi.id IN (:idList)")
 	public List<PlayerItem> findAllPlayerItemsForIds(@Param("idList") Set<Integer> itemIds);
 
 	/**

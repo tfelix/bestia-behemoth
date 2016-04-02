@@ -145,12 +145,10 @@ public class InventoryProxy {
 	 */
 	public InventoryListMessage getInventoryListMessage() {
 		final List<PlayerItem> items = inventoryService.findPlayerItemsForAccount(accId);
-		final int curWeight = inventoryService.getTotalItemWeight(accId);
 
 		// Generate a list of inventory items.
 		final InventoryListMessage invMsg = new InventoryListMessage();
 		invMsg.setPlayerItems(items);
-		invMsg.setCurrentWeight(curWeight);
 		
 		invMsg.setAccountId(accId);
 

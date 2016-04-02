@@ -7,10 +7,19 @@
  * ItemViewModel displays an item for the user.
  * 
  * @class Bestia.ItemViewModel
+ * 
+ * @param {Bestia.UrlHelper}
+ *            urlHelper - Helper to resolve URLs.
  */
-Bestia.ItemViewModel = function(data) {
+Bestia.ItemViewModel = function(data, urlHelper) {
+	
+	if(urlHelper === undefined) {
+		throw "UrlHelper can not be null.";
+	}
 
 	var self = this;
+	
+	this._urlHelper = urlHelper;
 
 	/**
 	 * Name of the item. Must be translated via i18n and item db name.
@@ -111,6 +120,6 @@ Bestia.ItemViewModel.prototype.update = function(data) {
 	this.playerItemId(data.pid);
 	this.itemId(data.i.id);
 	this.itemDatabaseName(data.i.idbn);
-
-	this.imageSrc(Bestia.Urls.assetsItems + data.i.img);
+	
+	this.imageSrc(this._urlHelper.getItemIconUrl(data.i.img));
 };

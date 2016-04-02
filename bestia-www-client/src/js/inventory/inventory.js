@@ -15,11 +15,25 @@
  *            pubsub - Publish/Subscriber interface.
  * @param {Bestia.I18n}
  *            i18n - Translation interface for translating items.
+ * @param {Bestia.UrlHelper}
+ *            urlHelper - Helper to resolve urls into the bestia asset storage.
  */
 
-Bestia.Inventory = function(pubsub, i18n) {
+Bestia.Inventory = function(pubsub, i18n, urlHelper) {
+	
+	if(pubsub === undefined) {
+		throw "pubsub can not be null.";
+	}
+	if(i18n === undefined) {
+		throw "i18n can not be null.";
+	}
+	if(urlHelper === undefined) {
+		throw "urlHelper can not be null.";
+	}
 
 	var self = this;
+	
+	this._urlHelper = urlHelper;
 
 	/**
 	 * 
@@ -57,7 +71,7 @@ Bestia.Inventory = function(pubsub, i18n) {
 	this.itemSlot3 = ko.observable(null);
 	this.itemSlot4 = ko.observable(null);
 	this.itemSlot5 = ko.observable(null);
-	
+
 	/**
 	 * Highlight class for the item slots.
 	 */
@@ -300,83 +314,8 @@ Bestia.Inventory = function(pubsub, i18n) {
 	};
 
 	// ######## PUBSUB HANDLER ########
-
-	/**
-	 * Handler if the server advises to re-render the inventory.
-	 */
-	var listHandler = function(_, data) {
-		var newItems = [];
-
-		self.allItems.removeAll();
-		self.dropAmount(0);
-
-		data.pis.forEach(function(val) {
-			var item = new Bestia.ItemViewModel(val);
-			newItems.push(item);
-			self.allItems.push(item);
-		});
-
-		// Update the weight display.
-		self.maxWeight(data.mw);
-
-		self._translateItems(newItems, function() {
-			// Flag that all items are sucessfully loaded.
-			self._setupItemBindings();
-		});
-	};
-	pubsub.subscribe(Bestia.MID.INVENTORY_LIST, listHandler);
-
-	/**
-	 * Updates the item via an update message from the server.
-	 */
-	pubsub.subscribe(Bestia.MID.INVENTORY_UPDATE, function(_, data) {
-
-		var newItems = [];
-
-		data.pis.forEach(function(val) {
-
-			var item = self._findItem(val.i.id);
-
-			if (val.a > 0) {
-				// Item is added to the inventory.
-				if (item === null) {
-					// Add the item to the inventory.
-					var newItem = new Bestia.ItemViewModel(val);
-					self.allItems.push(newItem);
-					newItems.push(newItem);
-				} else {
-					item.amount(item.amount() + val.a);
-				}
-			} else {
-				// Item must be removed.
-				if (item !== null) {
-					// Amount is negative. so add.
-					var newAmount = item.amount() + val.a;
-					if (newAmount > 0) {
-						item.amount(newAmount);
-					} else {
-						self._removeItem(item.itemId());
-					}
-				}
-			}
-		});
-
-		// Bulk translate all new items.
-		if (newItems.length > 0) {
-			self._translateItems(newItems, function() {
-				newItems.forEach(function(item) {
-					// Send notifications for other sub systems.
-					pubsub.publish(Bestia.Signal.INVENTORY_ITEM_ADD, item);
-				});
-			});
-		}
-
-		// If the amount of the selected item has changed, change the drop
-		// amount to the current number if it matches.
-		if (self.selectedItem().amount() + 1 === self.dropAmount()) {
-			self.dropAmount(self.selectedItem().amount());
-		}
-	});
+	pubsub.subscribe(Bestia.MID.INVENTORY_LIST, this._handleList.bind(this));
+	pubsub.subscribe(Bestia.MID.INVENTORY_UPDATE, this._handleUpdate.bind(this));
 
 	/**
 	 * Received event probably from the input controller to perform a casting of
@@ -385,7 +324,6 @@ Bestia.Inventory = function(pubsub, i18n) {
 	pubsub.subscribe(Bestia.Signal.INVENTORY_CAST_SLOT, function(_, slotN) {
 		self.castItemSlot(slotN);
 	});
-
 	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, this._handlerBestiaSelected.bind(this));
 	pubsub.subscribe(Bestia.Signal.INVENTORY_PERFORM_CAST, this._handlerDoCast.bind(this));
 };
@@ -401,6 +339,82 @@ Bestia.Inventory = function(pubsub, i18n) {
  */
 Bestia.Inventory.prototype._handlerDoCast = function() {
 
+};
+
+/**
+ * Handler if the server advises to re-render the inventory.
+ */
+Bestia.Inventory.prototype._handleList = function(_, data) {
+	var newItems = [];
+
+	this.allItems.removeAll();
+	this.dropAmount(0);
+
+	data.pis.forEach(function(val) {
+		var item = new Bestia.ItemViewModel(val, this._urlHelper);
+		newItems.push(item);
+		this.allItems.push(item);
+	}, this);
+
+	// Update the weight display.
+	this.maxWeight(data.mw);
+
+	this._translateItems(newItems, function() {
+		// Flag that all items are sucessfully loaded.
+		this._setupItemBindings();
+	}.bind(this));
+};
+
+/**
+ * Updates the item via an update message from the server.
+ */
+Bestia.Inventory.prototype._handleUpdate = function(_, data) {
+
+	var newItems = [];
+
+	data.pis.forEach(function(val) {
+
+		var item = this._findItem(val.i.id);
+
+		if (val.a > 0) {
+			// Item is added to the inventory.
+			if (item === null) {
+				// Add the item to the inventory.
+				var newItem = new Bestia.ItemViewModel(val);
+				this.allItems.push(newItem);
+				newItems.push(newItem);
+			} else {
+				item.amount(item.amount() + val.a);
+			}
+		} else {
+			// Item must be removed.
+			if (item !== null) {
+				// Amount is negative. so add.
+				var newAmount = item.amount() + val.a;
+				if (newAmount > 0) {
+					item.amount(newAmount);
+				} else {
+					this._removeItem(item.itemId());
+				}
+			}
+		}
+	});
+
+	// Bulk translate all new items.
+	if (newItems.length > 0) {
+		this._translateItems(newItems, function() {
+			newItems.forEach(function(item) {
+				// Send notifications for other sub systems.
+				this._pubsub.publish(Bestia.Signal.INVENTORY_ITEM_ADD, item);
+			}, this);
+		});
+	}
+
+	// If the amount of the selected item has changed, change the drop
+	// amount to the current number if it matches.
+	if (this.selectedItem().amount() + 1 === this.dropAmount()) {
+		this.dropAmount(this.selectedItem().amount());
+	}
 };
 
 /**
@@ -543,11 +557,11 @@ Bestia.Inventory.prototype.saveItemBindings = function() {
 };
 
 /**
- * This function will handle usages of item shortcut slots. Either if they
- * are clicked directly or if they are invoked via an key press event. The
- * function will decide if the item has rather to be used (usable) or if it
- * will get casted (castable). It is also responsible for making visual fx
- * like flashing the shortcut binding etc.
+ * This function will handle usages of item shortcut slots. Either if they are
+ * clicked directly or if they are invoked via an key press event. The function
+ * will decide if the item has rather to be used (usable) or if it will get
+ * casted (castable). It is also responsible for making visual fx like flashing
+ * the shortcut binding etc.
  * 
  * @param slotN
  *            Number of the slot to be used.
@@ -576,8 +590,8 @@ Bestia.Inventory.prototype.useItemSlot = function(slotN) {
 	if (item === null) {
 		return;
 	}
-	
-	this.useItem(item);		
+
+	this.useItem(item);
 };
 
 /**

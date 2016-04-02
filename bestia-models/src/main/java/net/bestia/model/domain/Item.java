@@ -92,4 +92,9 @@ public class Item implements Serializable {
 	public String getCastIndicator() {
 		return castIndicator;
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("Item[dbName: %s, id: %d, type: %s]", itemDbName, id, type);
+	}
 }
