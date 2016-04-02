@@ -64,3 +64,13 @@ Bestia.Engine.EntityFactory.prototype.createItemEntity = function(data) {
 	});
 
 };
+
+
+Bestia.Engine.EntityFactory.prototype.createPlayerEntity = function(data) {
+
+	var self = this;
+
+	console.error("Not implemented");
+
+};
+

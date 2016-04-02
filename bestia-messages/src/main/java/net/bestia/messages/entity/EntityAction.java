@@ -7,5 +7,11 @@ package net.bestia.messages.entity;
  *
  */
 public enum EntityAction {
-	APPEAR, DIE, VANISH, UPDATE
+	/**
+	 * Object just spawned. 
+	 */
+	APPEAR, 
+	DIE, 
+	VANISH, 
+	UPDATE
 }

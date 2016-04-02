@@ -25,8 +25,8 @@ Bestia.Engine.SpriteEntity.prototype.setSprite = function(spriteName) {
 	// Save the description data for reference. This is done here because now we
 	// are sure all the data has been loaded.
 	this.data = this._game.cache.getJSON(spriteName + '_desc');
-	
-	if(!this.data) {
+
+	if (!this.data) {
 		console.warn("Could finde sprite inside cache: " + spriteName);
 		return;
 	}
@@ -145,7 +145,7 @@ Bestia.Engine.SpriteEntity.prototype.playAnimation = function(name) {
 	if (name === this._sprite.animations.name) {
 		return;
 	}
-	
+
 	// We need to mirror the sprite for right sprites.
 	if (name.indexOf("right") !== -1) {
 		this._sprite.scale.x = -1 * this.data.scale;
@@ -158,7 +158,7 @@ Bestia.Engine.SpriteEntity.prototype.playAnimation = function(name) {
 	// fallback strategys to test before we fail.
 	if (!this._hasAnimationName(name)) {
 		name = this._getAnimationFallback(name);
-		
+
 		if (name === null) {
 			console.warn("Could not found alternate animation solution for: " + name);
 			return;
@@ -209,8 +209,8 @@ Bestia.Engine.SpriteEntity.prototype._getAnimationFallback = function(name) {
 			return "stand_up";
 		}
 	}
-	
-	if(name == "stand_right") {
+
+	if (name == "stand_right") {
 		// Try to replace it with stand down.
 		if (this._availableAnimationNames.indexOf("stand_up") === -1) {
 			return null;
@@ -218,7 +218,7 @@ Bestia.Engine.SpriteEntity.prototype._getAnimationFallback = function(name) {
 			return "stand_up";
 		}
 	}
-	
+
 	return null;
 };
 
@@ -230,10 +230,10 @@ Bestia.Engine.SpriteEntity.prototype._getAnimationFallback = function(name) {
  */
 Bestia.Engine.SpriteEntity.prototype.stopMove = function() {
 
-	if(this.tween) {
+	if (this.tween) {
 		this.tween.stop();
 	}
-	
+
 };
 
 /**
@@ -245,7 +245,7 @@ Bestia.Engine.SpriteEntity.prototype.stopMove = function() {
  *            path - Array of coordinate objects {x: INT, y: INT}.
  */
 Bestia.Engine.SpriteEntity.prototype.moveTo = function(path) {
-	
+
 	this.stopMove();
 
 	this.tween = this._game.add.tween(this._sprite);
@@ -306,6 +306,16 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(path) {
 };
 
 /**
+ * This will check the current position with the given position. If the bestia
+ * is currently moving this will blend the movement towards the given position
+ * by a certain algorithm. If the distance is too big it will hard set the
+ * position.
+ */
+Bestia.Engine.SpriteEntity.prototype.checkPosition = function(x, y) {
+	console.error("Not implemented.");
+};
+
+/**
  * Returns the animation name for walking to this position, from the old
  * position.
  * 
@@ -344,7 +354,7 @@ Bestia.Engine.SpriteEntity.prototype._getWalkAnimationName = function(oldTile, n
 Bestia.Engine.SpriteEntity.prototype._getStandAnimationName = function(oldTile, newTile) {
 	var x = newTile.x - oldTile.x;
 	var y = newTile.y - oldTile.y;
-	
+
 	if (x === 0 && y === -1) {
 		return "stand_up";
 	} else if (x === 1 && y === -1) {

@@ -3,8 +3,11 @@ package net.bestia.zoneserver.proxy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.bestia.messages.entity.SpriteType;
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.misc.Sprite.InteractionType;
+import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.entity.NpcBestiaMapper;
 
 public class NpcBestiaEntityProxy extends BestiaEntityProxy {
@@ -29,7 +32,11 @@ public class NpcBestiaEntityProxy extends BestiaEntityProxy {
 		mappers.getStatusMapper().get(entityID).statusPoints = getStatusPoints();
 
 		// Set the sprite name.
-		mappers.getVisibleMapper().get(entityID).sprite = bestia.getDatabaseName();
+		final Visible visible = mappers.getVisibleMapper().get(entityID);
+		
+		visible.sprite = bestia.getDatabaseName();
+		visible.interactionType = InteractionType.MOB;
+		visible.spriteType = SpriteType.MOB_ANIM;
 
 		LOG.trace("Spawned mob: {}, entity id: {}", bestia.getDatabaseName(), entityID);
 	}

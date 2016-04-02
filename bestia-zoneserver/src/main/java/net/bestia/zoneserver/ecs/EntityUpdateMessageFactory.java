@@ -51,11 +51,16 @@ public class EntityUpdateMessageFactory {
 	 */
 	public List<EntityUpdateMessage> createMessages(IntBag visibleEntities) {
 
+		// List all visible entities and then get the corresponding update
+		// messages.
 		final List<EntityUpdateMessage> msgs = new ArrayList<>(visibleEntities.size());
-		
+
 		for (int i = 0; i < visibleEntities.size(); i++) {
 			final int entityId = visibleEntities.get(i);
 			final EntityUpdateMessage msg = createMessage(entityId);
+			if (msg == null) {
+				continue;
+			}
 			msgs.add(msg);
 		}
 
@@ -64,7 +69,9 @@ public class EntityUpdateMessageFactory {
 
 	/**
 	 * Converts a simple "map entity" from the ECS to a
-	 * {@link MapEntitiesMessage.Entity}.
+	 * {@link EntityUpdateMessage}. This is not as easy as one might think. We
+	 * must test for several criterion. If the entity is not visible or its
+	 * identity can not be determined null will be returned.
 	 * 
 	 * @param e
 	 *            Entity to convert to a message for the client.
@@ -72,7 +79,7 @@ public class EntityUpdateMessageFactory {
 	 *         the client.
 	 */
 	public EntityUpdateMessage createMessage(int entityId) {
-
+		
 		final Entity e = world.getEntity(entityId);
 		final UUID uuid = uuidManager.getUuid(e);
 		final Visible visible = visibleMapper.get(entityId);

@@ -62,12 +62,6 @@ Bestia.Engine = function(pubsub, urlHelper) {
 		self.game.state.start('game', true, false, self.bestia);
 	});
 
-	pubsub.subscribe(Bestia.Signal.ENGINE_GAME_STARTED, function() {
-		// After engine is ready release the hold of the update
-		// messages.
-		self.entityUpdater.releaseHold();
-	});
-
 	// When everything is setup. Start the engine.
 	this.game.state.start('boot');
 };

@@ -12,8 +12,8 @@ Bestia.Engine.FX.EffectsManager = function(pubsub, game, entityCache) {
 	if (pubsub === undefined) {
 		throw "PubSub can not be undefined";
 	}
-	
-	if(game === undefined) {
+
+	if (game === undefined) {
 		throw "Game can not be null.";
 	}
 
@@ -30,6 +30,8 @@ Bestia.Engine.FX.EffectsManager = function(pubsub, game, entityCache) {
 	this._entityCache = entityCache;
 	this._game = game;
 
+	// Add the instances to control certain effects depending on incoming
+	// messages.
 	this._effectInstances.push(new Bestia.Engine.FX.Damage(pubsub, entityCache, game));
 	this._effectInstances.push(new Bestia.Engine.FX.Chat(pubsub, entityCache, game));
 	this._effectInstances.push(new Bestia.Engine.FX.Dialog(pubsub, game));

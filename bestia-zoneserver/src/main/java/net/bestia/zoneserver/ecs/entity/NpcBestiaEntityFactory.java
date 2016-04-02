@@ -26,20 +26,19 @@ import net.bestia.zoneserver.zone.shape.Vector2;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class NpcBestiaEntityFactory {
+public class NpcBestiaEntityFactory extends EntityFactory {
 
 	private static final Logger LOG = LogManager.getLogger(NpcBestiaEntityFactory.class);
 
 	private final Archetype npcBestiaArchetype;
 	private final NpcBestiaMapper mapper;
-	private final World world;
 	private final String zoneName;
 
 	public NpcBestiaEntityFactory(String zoneName, World world, NpcBestiaMapper mapper) {
+		super(world);
 
 		this.zoneName = zoneName;
-		this.world = world;
-
+		
 		npcBestiaArchetype = new ArchetypeBuilder()
 				.add(Position.class)
 				.add(MobGroup.class)

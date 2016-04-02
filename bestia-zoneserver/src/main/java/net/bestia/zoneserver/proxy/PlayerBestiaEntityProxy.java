@@ -13,6 +13,7 @@ import com.artemis.Entity;
 
 import net.bestia.messages.ChatMessage;
 import net.bestia.messages.entity.EntityDamageMessage;
+import net.bestia.messages.entity.SpriteType;
 import net.bestia.model.I18n;
 import net.bestia.model.ServiceLocator;
 import net.bestia.model.domain.Attack;
@@ -22,9 +23,11 @@ import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.misc.Damage;
+import net.bestia.model.misc.Sprite.InteractionType;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.component.Attacks;
+import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.entity.PlayerBestiaMapper;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 
@@ -76,6 +79,11 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 		mapper.getStatusMapper().get(entityID).statusPoints = this.statusPoints;
 		mapper.getBestiaMapper().get(entityID).manager = this;
 		mapper.getPlayerBestiaMapper().get(entityID).playerBestia = this;
+		
+		final Visible visible = mapper.getVisibleMapper().get(entityID);
+		visible.sprite = playerBestia.getOrigin().getSprite();
+		visible.interactionType = InteractionType.GENERIC;
+		visible.spriteType = SpriteType.PLAYER_ANIM;
 		
 		calculateStatusPoints();
 	}

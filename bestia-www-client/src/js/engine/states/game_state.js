@@ -88,6 +88,7 @@ Bestia.Engine.States.GameState.prototype.init = function(bestia) {
 	// ==== /Subscriptions ====
 
 	this.pubsub.publish(Bestia.Signal.ENGINE_GAME_STARTED);
+	this._entityUpdater.releaseHold();
 };
 
 /**
@@ -97,12 +98,14 @@ Bestia.Engine.States.GameState.prototype._onCastItem = function(item) {
 	
 	console.info("Cast item: " + item.name());
 	
+	// Switch the indicator to the cast indicator used by this item.
+	
 };
 
 Bestia.Engine.States.GameState.prototype.update = function() {
 
 	// Update the animation frame groups of all multi sprite entities.
-	var entities = this.engine.entityCache.getAllEntities();
+	var entities = this._entityCache.getAllEntities();
 	entities.forEach(function(entity) {
 		entity.tickAnimation();
 	});

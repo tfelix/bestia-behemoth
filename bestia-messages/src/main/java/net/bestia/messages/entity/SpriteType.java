@@ -13,6 +13,7 @@ package net.bestia.messages.entity;
 public enum SpriteType {
 	NONE, 
 	ITEM, 
-	MOB_STATIC,
-	MOB_MULTI
+	STATIC,
+	MOB_ANIM,
+	PLAYER_ANIM
 }

@@ -28,17 +28,15 @@ import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class PlayerBestiaEntityFactory {
+public class PlayerBestiaEntityFactory extends EntityFactory {
 
 	private final static Logger LOG = LogManager.getLogger(PlayerBestiaEntityFactory.class);
 
 	private final Archetype playerBestiaArchetype;
 	private final PlayerBestiaMapper mapper;
-	private final World world;
 
 	public PlayerBestiaEntityFactory(World world, PlayerBestiaMapper mapper) {
-
-		this.world = world;
+		super(world);
 
 		playerBestiaArchetype = new ArchetypeBuilder()
 				.add(Position.class)

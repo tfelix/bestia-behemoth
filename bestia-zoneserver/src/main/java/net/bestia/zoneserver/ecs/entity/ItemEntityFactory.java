@@ -5,8 +5,10 @@ import com.artemis.ArchetypeBuilder;
 import com.artemis.ComponentMapper;
 import com.artemis.World;
 
+import net.bestia.messages.entity.SpriteType;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerItem;
+import net.bestia.model.misc.Sprite.InteractionType;
 import net.bestia.zoneserver.ecs.component.DelayedRemove;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
@@ -75,6 +77,8 @@ public class ItemEntityFactory extends EntityFactory {
 
 		final Visible visible = visibleMapper.get(entityId);
 		visible.sprite = item.getItem().getImage();
+		visible.interactionType = InteractionType.ITEM;
+		visible.spriteType = SpriteType.ITEM;
 
 		final net.bestia.zoneserver.ecs.component.Item itemC = itemMapper.get(entityId);
 		itemC.amount = 1;

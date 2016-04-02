@@ -31,55 +31,107 @@ Bestia.Engine.EntityUpdater = function(pubsub, cache) {
 	this._cache = cache;
 
 	this._pubsub = pubsub;
-	
+
 	this._factory = undefined;
 
-	this._onMessageHandler = function(_, msg) {
-		if (self._buffer !== undefined) {
-			self._buffer.push(msg);
-			return;
-		}
-
-		var entities = msg.e;
-
-		for (var i = 0; i < entities.length; i++) {
-			self._update(entities[i]);
-		}
-	};
-	pubsub.subscribe('map.entites', this._onMessageHandler);
+	// === SUBSCRIBE ===
+	pubsub.subscribe(Bestia.MID.ENTITY_UPDATE, this._onUpdateHandler.bind(this));
+	pubsub.subscribe(Bestia.MID.ENTITY_MOVE, this._onMoveHandler.bind(this));
+	pubsub.subscribe(Bestia.MID.ENTITY_POSITION, this._onPositionHandler.bind(this));
 };
 
 /**
- * Decides which action to take for a given entity from the server.
- * 
- * @method Bestia.Engine.EntityUpdater#_update
- * @private
+ * Makes a complete update of the entity. Which can be a vanish, create or
+ * simple update.
  */
-Bestia.Engine.EntityUpdater.prototype._update = function(obj) {
-	
-	console.trace('Updating entity: ' + JSON.stringify(obj));
-
-	switch (obj.t) {
-	case "LOOT":
-		this._factory.createItemEntity(obj);
-		break;
-	case "BESTIA":
-		this._updateBestiaEntity(obj);
-		break;
-	default:
-
-		break;
+Bestia.Engine.EntityUpdater.prototype._onUpdateHandler = function(_, msg) {
+	if (this._isBuffered(msg)) {
+		return;
 	}
 
+	switch (msg.a) {
+	case 'APPEAR':
+		// The entity must not exist.
+		var entity = this._cache.getByUuid(msg.uuid);
+		if(entity !== null) {
+			// Strange.
+			return;
+		}
+		
+		switch (msg.t) {
+		case 'ITEM':
+			// let an item appear.
+			this._factory.createItemEntity(msg);
+			break;
+		case 'STATIC':
+			// Static sprite appear.
+			//this._factory.createStaticEntity(msg);
+			break;
+		case 'MOB_ANIM':
+			// Normal bestia.
+			this._factory.createBestiaEntity(msg);
+			break;
+		case 'PLAYER_ANIM':
+			// Player animation sprite.
+			this._factory.createPlayerEntity(msg);
+			break;
+		}
+		break;
+	}
 };
 
-Bestia.Engine.EntityUpdater.prototype._updateBestiaEntity = function(obj) {
-	var entity = this._cache.getByUuid(obj.uuid);
-	
-	if(entity !== null) {
-		entity.update(obj);
+/**
+ * A movement prediction update was send. Plan the animation path to predict the
+ * movement of the entity.
+ */
+Bestia.Engine.EntityUpdater.prototype._onMoveHandler = function(_, msg) {
+	if (this._isBuffered(msg)) {
+		return;
+	}
+
+	var entity = this._cache.getByUuid(msg.uuid);
+	// Entity not in cache. We cant do anything.
+	if (entity === null) {
+		return;
+	}
+
+	entity.moveTo(msg);
+};
+
+/**
+ * A position update was send. Check if the entity is on this place or at least
+ * near it. If distance is too far away hard correct it.
+ */
+Bestia.Engine.EntityUpdater.prototype._onPositionHandler = function(_, msg) {
+	if (this._isBuffered(msg)) {
+		return;
+	}
+
+	var entity = this._cache.getByUuid(msg.uuid);
+	// Entity not in cache. We cant do anything.
+	if (entity === null) {
+		return;
+	}
+
+	entity.checkPosition(msg);
+};
+
+/**
+ * Checks if the buffering is still active. If this is the case buffer the
+ * message and return true else return false.
+ * 
+ * @param msg
+ * @returns {Boolean}
+ */
+Bestia.Engine.EntityUpdater.prototype._isBuffered = function(msg) {
+	if (self._buffer !== undefined) {
+		self._buffer.push({
+			topic : msg.mid,
+			msg : msg
+		});
+		return true;
 	} else {
-		this._factory.createBestiaEntity(obj);
+		return false;
 	}
 };
 
@@ -94,7 +146,19 @@ Bestia.Engine.EntityUpdater.prototype.releaseHold = function() {
 
 	var temp = this._buffer;
 	this._buffer = undefined;
-	temp.forEach(function(msg) {
-		this._onMessageHandler('ignorethis', msg);
+	temp.forEach(function(d) {
+		switch (d.topic) {
+		case Bestia.MID.ENTITY_UPDATE:
+			this._onUpdateHandler(d.topic, d.msg);
+			break;
+		case Bestia.MID.ENTITY_MOVE:
+			this._onMoveHandler(d.topic, d.msg);
+			break;
+		case Bestia.MID.ENTITY_POSITION:
+			this._onPositionHandler(d.topic, d.msg);
+			break;
+		default:
+			break;
+		}
 	}, this);
 };
