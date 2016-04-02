@@ -6,6 +6,7 @@ import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
+import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
 
 /**
@@ -28,6 +29,7 @@ public class BestiaMapper {
 	private final ComponentMapper<Visible> visibleMapper;
 	private final ComponentMapper<Bestia> bestiaMapper;
 	private final ComponentMapper<Movement> movementMapper;
+	private final ComponentMapper<StatusPoints> statusMapper;
 
 	static class Builder {
 		private ComponentMapper<PositionDomainProxy> positionProxyMapper;
@@ -35,9 +37,14 @@ public class BestiaMapper {
 		private ComponentMapper<Visible> visibleMapper;
 		private ComponentMapper<Bestia> bestiaMapper;
 		private ComponentMapper<Movement> movementMapper;
+		private ComponentMapper<StatusPoints> statusMapper;
 
 		public Builder() {
 
+		}
+		
+		public void setStatusMapper(ComponentMapper<StatusPoints> statusMapper) {
+			this.statusMapper = statusMapper;
 		}
 
 		public void setMovementMapper(ComponentMapper<Movement> movementMapper) {
@@ -87,12 +94,16 @@ public class BestiaMapper {
 		if (builder.movementMapper == null) {
 			throw new IllegalArgumentException("MovementMapper can not be null.");
 		}
+		if(builder.statusMapper == null) {
+			throw new IllegalArgumentException("StatusMapper can not be null.");
+		}
 
 		this.positionMapper = builder.positionMapper;
 		this.positionProxyMapper = builder.positionProxyMapper;
 		this.visibleMapper = builder.visibleMapper;
 		this.bestiaMapper = builder.bestiaMapper;
 		this.movementMapper = builder.movementMapper;
+		this.statusMapper = builder.statusMapper;
 	}
 
 	public ComponentMapper<Bestia> getBestiaMapper() {
@@ -113,6 +124,10 @@ public class BestiaMapper {
 
 	public ComponentMapper<Movement> getMovementMapper() {
 		return movementMapper;
+	}
+	
+	public ComponentMapper<StatusPoints> getStatusMapper() {
+		return statusMapper;
 	}
 
 }

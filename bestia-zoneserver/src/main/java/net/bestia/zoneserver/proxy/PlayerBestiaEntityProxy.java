@@ -65,12 +65,19 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 
 		this.server = mapper.getServer();
 		this.bestia = playerBestia;
-		this.statusPoints = new StatusPoints();
 		this.serviceLocator = mapper.getLocator();
 		this.headFacing = Direction.SOUTH;
 
 		// Shortcut to the acc. language.
-		this.language = bestia.getOwner().getLanguage().toString();
+		this.language = bestia.getOwner().getLanguage().toString();	
+		this.statusPoints = new StatusPoints();
+		
+		// Setup all the references.
+		mapper.getStatusMapper().get(entityID).statusPoints = this.statusPoints;
+		mapper.getBestiaMapper().get(entityID).manager = this;
+		mapper.getPlayerBestiaMapper().get(entityID).playerBestia = this;
+		
+		calculateStatusPoints();
 	}
 
 	/**
@@ -80,10 +87,6 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 	 */
 	@Override
 	public StatusPoints getStatusPoints() {
-		if (statusPoints == null) {
-			calculateStatusPoints();
-		}
-
 		return statusPoints;
 	}
 

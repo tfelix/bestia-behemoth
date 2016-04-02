@@ -14,7 +14,6 @@ import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Attacks;
-import net.bestia.zoneserver.ecs.component.NPCBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
@@ -46,7 +45,7 @@ public class PlayerBestiaEntityFactory {
 				.add(PositionDomainProxy.class)
 				.add(Attacks.class)
 				.add(net.bestia.zoneserver.ecs.component.Bestia.class)
-				.add(NPCBestia.class)
+				.add(net.bestia.zoneserver.ecs.component.PlayerBestia.class)
 				.add(StatusPoints.class)
 				.add(Visible.class)
 				.build(world);

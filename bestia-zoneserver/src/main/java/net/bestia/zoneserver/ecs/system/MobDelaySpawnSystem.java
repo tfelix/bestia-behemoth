@@ -53,6 +53,7 @@ public class MobDelaySpawnSystem extends DelayedEntityProcessingSystem {
 		builder.setVisibleMapper(world.getMapper(Visible.class));
 		builder.setMovementMapper(world.getMapper(Movement.class));
 		builder.setBestiaMapper(world.getMapper(Bestia.class));
+		builder.setStatusMapper(world.getMapper(StatusPoints.class));
 		final NpcBestiaMapper mapper = builder.build();
 		
 		// TODO Zone namen festlegen.

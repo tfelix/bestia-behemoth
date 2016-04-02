@@ -11,7 +11,7 @@ import net.bestia.messages.AccountMessage;
 /**
  * This message will trigger the client to open a dialog NPC box.
  * 
- * @author Thomas
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class DialogMessage extends AccountMessage {
@@ -21,6 +21,13 @@ public class DialogMessage extends AccountMessage {
 
 	@JsonProperty("n")
 	private final List<DialogNode> nodes;
+
+	/**
+	 * Std. ctor.
+	 */
+	public DialogMessage() {
+		this.nodes = Collections.unmodifiableList(new ArrayList<>());
+	}
 
 	public DialogMessage(List<DialogNode> nodes) {
 		this.nodes = Collections.unmodifiableList(new ArrayList<>(nodes));

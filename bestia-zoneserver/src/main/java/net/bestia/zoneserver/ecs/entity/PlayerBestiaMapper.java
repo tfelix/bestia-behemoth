@@ -6,6 +6,7 @@ import com.artemis.managers.UuidEntityManager;
 import net.bestia.model.ServiceLocator;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.ecs.component.Attacks;
+import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 
@@ -23,6 +24,7 @@ public class PlayerBestiaMapper extends BestiaMapper {
 		private UuidEntityManager uuidManager;
 		private ComponentMapper<Attacks> attacksMapper;
 		private PlayerBestiaSpawnManager spawnManager;
+		private ComponentMapper<PlayerBestia> playerBestiaMapper;
 		
 		public PlayerBestiaMapper build() {			
 			return new PlayerBestiaMapper(this);
@@ -47,6 +49,10 @@ public class PlayerBestiaMapper extends BestiaMapper {
 		public void setSpawnManager(PlayerBestiaSpawnManager spawnManager) {
 			this.spawnManager = spawnManager;
 		}
+		
+		public void setPlayerBestiaMapper(ComponentMapper<PlayerBestia> playerBestiaMapper) {
+			this.playerBestiaMapper = playerBestiaMapper;
+		}
 	}
 	
 	private final Zoneserver server;
@@ -54,6 +60,7 @@ public class PlayerBestiaMapper extends BestiaMapper {
 	private final UuidEntityManager uuidManager;
 	private final PlayerBestiaSpawnManager spawnManager;
 	private final ComponentMapper<Attacks> attacksMapper;
+	private final ComponentMapper<PlayerBestia> playerBestiaMapper;
 
 	protected PlayerBestiaMapper(Builder builder) {
 		super(builder);
@@ -73,12 +80,16 @@ public class PlayerBestiaMapper extends BestiaMapper {
 		if(builder.spawnManager == null) {
 			throw new IllegalArgumentException("SpawnManager can not be null.");
 		}
+		if(builder.playerBestiaMapper == null) {
+			throw new IllegalArgumentException("PlayerBestiaMapper can not be null.");
+		}
 
 		this.locator = builder.locator;
 		this.server = builder.server;
 		this.uuidManager = builder.uuidManager;
 		this.attacksMapper = builder.attacksMapper;
 		this.spawnManager = builder.spawnManager;
+		this.playerBestiaMapper = builder.playerBestiaMapper;
 
 	}
 
@@ -88,6 +99,10 @@ public class PlayerBestiaMapper extends BestiaMapper {
 
 	public Zoneserver getServer() {
 		return server;
+	}
+	
+	public ComponentMapper<PlayerBestia> getPlayerBestiaMapper() {
+		return playerBestiaMapper;
 	}
 
 	public PlayerBestiaSpawnManager getPlayerBestiaSpawnManager() {
