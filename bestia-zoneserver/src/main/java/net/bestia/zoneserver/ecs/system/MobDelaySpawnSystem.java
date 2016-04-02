@@ -10,6 +10,7 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.MobGroup;
 import net.bestia.zoneserver.ecs.component.MobSpawn;
+import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.NPCBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
@@ -34,8 +35,6 @@ public class MobDelaySpawnSystem extends DelayedEntityProcessingSystem {
 	@Wire
 	private CommandContext ctx;
 
-	private ComponentMapper<Bestia> bestiaMapper;
-
 	public MobDelaySpawnSystem() {
 		super(Aspect.all(MobSpawn.class));
 		// no op.
@@ -52,7 +51,8 @@ public class MobDelaySpawnSystem extends DelayedEntityProcessingSystem {
 		builder.setPositionProxyMapper(world.getMapper(PositionDomainProxy.class));
 		builder.setStatusMapper(world.getMapper(StatusPoints.class));
 		builder.setVisibleMapper(world.getMapper(Visible.class));
-		builder.setBestiaMapper(bestiaMapper);
+		builder.setMovementMapper(world.getMapper(Movement.class));
+		builder.setBestiaMapper(world.getMapper(Bestia.class));
 		final NpcBestiaMapper mapper = builder.build();
 		
 		// TODO Zone namen festlegen.

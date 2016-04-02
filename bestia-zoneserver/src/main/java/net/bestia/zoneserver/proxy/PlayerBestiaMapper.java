@@ -23,23 +23,7 @@ public class PlayerBestiaMapper extends BestiaMapper {
 		private ComponentMapper<Attacks> attacksMapper;
 		private PlayerBestiaSpawnManager spawnManager;
 		
-		public PlayerBestiaMapper build() {
-			if(server == null) {
-				throw new IllegalArgumentException("Server can not be null.");
-			}
-			if(locator == null) {
-				throw new IllegalArgumentException("Locator can not be null.");
-			}
-			if(uuidManager == null) {
-				throw new IllegalArgumentException("UuidManager can not be null.");
-			}
-			if(attacksMapper == null) {
-				throw new IllegalArgumentException("AttacksMapper can not be null.");
-			}
-			if(spawnManager == null) {
-				throw new IllegalArgumentException("SpawnManager can not be null.");
-			}
-			
+		public PlayerBestiaMapper build() {			
 			return new PlayerBestiaMapper(this);
 		}
 		
@@ -72,6 +56,22 @@ public class PlayerBestiaMapper extends BestiaMapper {
 
 	protected PlayerBestiaMapper(Builder builder) {
 		super(builder);
+		
+		if(builder.server == null) {
+			throw new IllegalArgumentException("Server can not be null.");
+		}
+		if(builder.locator == null) {
+			throw new IllegalArgumentException("Locator can not be null.");
+		}
+		if(builder.uuidManager == null) {
+			throw new IllegalArgumentException("UuidManager can not be null.");
+		}
+		if(builder.attacksMapper == null) {
+			throw new IllegalArgumentException("AttacksMapper can not be null.");
+		}
+		if(builder.spawnManager == null) {
+			throw new IllegalArgumentException("SpawnManager can not be null.");
+		}
 
 		this.locator = builder.locator;
 		this.server = builder.server;

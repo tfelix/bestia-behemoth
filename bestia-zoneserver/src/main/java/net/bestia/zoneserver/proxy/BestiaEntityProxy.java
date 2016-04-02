@@ -3,13 +3,12 @@ package net.bestia.zoneserver.proxy;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.artemis.ComponentMapper;
-
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.LocationDomain;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
 
@@ -17,27 +16,30 @@ public abstract class BestiaEntityProxy {
 
 	protected final int entityID;
 
-	private final ComponentMapper<PositionDomainProxy> positionProxyMapper;
-	private final ComponentMapper<Position> positionMapper;
+	private final BestiaMapper mappers;
 
 	private Map<Integer, Long> attackUsageTimer = new HashMap<>();
 	private Direction facing;
 	private final Location location;
+
+	/**
+	 * The walkspeed is based upon status, equipments and status effects.
+	 */
+	private float walkspeed = 1.0f;
 
 	public BestiaEntityProxy(int entityID, BestiaMapper mappers) {
 
 		// Create the entity.
 		this.entityID = entityID;
 
-		this.positionProxyMapper = mappers.getPositionProxyMapper();
-		this.positionMapper = mappers.getPositionMapper();
+		this.mappers = mappers;
 
 		this.setFacing(Direction.SOUTH);
 
-		final Position pos = positionMapper.get(entityID);
-		final PositionDomainProxy posProxy = positionProxyMapper.get(entityID);
 		// Create a placeholder location and proxy pos and location with the loc
 		// proxy.
+		final Position pos = mappers.getPositionMapper().get(entityID);
+		final PositionDomainProxy posProxy = mappers.getPositionProxyMapper().get(entityID);
 		final Location domLocation = new LocationDomain();
 		location = new EcsLocationProxy(pos, domLocation);
 
@@ -139,19 +141,43 @@ public abstract class BestiaEntityProxy {
 	}
 
 	/**
-	 * Calculates the current walkspeed based on the current stats. A walkspeed
-	 * of 1.0 means normal speed. The walkspeed is currently capped between 0
-	 * and 3.
+	 * If something has changed on which walkspeed depends then call this method
+	 * to re-evaluate the current walkspeed.
+	 */
+	protected void calculateWalkspeed() {
+		final StatusPoints sp = getStatusPoints();		
+		final int spd = sp.getSpd();	
+		double ws = Math.sqrt(spd / 2.0) / 10;
+		if(ws > 1.2) {
+			ws = 1.2;
+		}
+		
+		setWalkspeed((float)(1.0 + ws));
+	}
+
+	protected void setWalkspeed(float walkspeed) {
+		this.walkspeed = walkspeed;
+		final Movement m = mappers.getMovementMapper().getSafe(entityID);
+		if (m != null) {
+			m.setWalkspeed(walkspeed);
+		}
+	}
+
+	/**
+	 * Returns the current walkspeed based on the current stats, status effects
+	 * and equipment. A walkspeed of 1.0 means normal speed. The walkspeed is
+	 * currently capped between 0 and 3.
 	 * 
-	 * @return
+	 * @return The current walkspeed between 0 and 3.
 	 */
 	public float getWalkspeed() {
-		return 1.0f;
+		return walkspeed;
 	}
-	
+
 	/**
 	 * Returns the walkspeed normalized to an integer between 0 and 300.
-	 * @return
+	 * 
+	 * @return The current walkspeed as an integer between 0 and 300.
 	 */
 	public int getWalkspeedInt() {
 		final float speed = getWalkspeed();

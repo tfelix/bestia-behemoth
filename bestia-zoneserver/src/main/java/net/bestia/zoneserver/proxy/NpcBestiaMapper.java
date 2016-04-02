@@ -40,15 +40,6 @@ public class NpcBestiaMapper extends BestiaMapper {
 		 * @return The created {@link NpcBestiaMapper}.
 		 */
 		public NpcBestiaMapper build() {
-			if (groupMapper == null) {
-				throw new IllegalArgumentException("GroupMapper can not be null.");
-			}
-			if (npcBestiaMapper == null) {
-				throw new IllegalArgumentException("NpcBestiaMapper can not be null.");
-			}
-			if (statusMapper == null) {
-				throw new IllegalArgumentException("StatusMapper can not be null.");
-			}
 			return new NpcBestiaMapper(this);
 		}
 
@@ -56,6 +47,16 @@ public class NpcBestiaMapper extends BestiaMapper {
 
 	private NpcBestiaMapper(Builder builder) {
 		super(builder);
+		
+		if (builder.groupMapper == null) {
+			throw new IllegalArgumentException("GroupMapper can not be null.");
+		}
+		if (builder.npcBestiaMapper == null) {
+			throw new IllegalArgumentException("NpcBestiaMapper can not be null.");
+		}
+		if (builder.statusMapper == null) {
+			throw new IllegalArgumentException("StatusMapper can not be null.");
+		}
 
 		this.groupMapper = builder.groupMapper;
 		this.npcBestiaMapper = builder.npcBestiaMapper;

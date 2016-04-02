@@ -3,6 +3,7 @@ package net.bestia.zoneserver.proxy;
 import com.artemis.ComponentMapper;
 
 import net.bestia.zoneserver.ecs.component.Bestia;
+import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
 import net.bestia.zoneserver.ecs.component.Visible;
@@ -26,15 +27,21 @@ class BestiaMapper {
 	private final ComponentMapper<Position> positionMapper;
 	private final ComponentMapper<Visible> visibleMapper;
 	private final ComponentMapper<Bestia> bestiaMapper;
+	private final ComponentMapper<Movement> movementMapper;
 
 	static class Builder {
 		private ComponentMapper<PositionDomainProxy> positionProxyMapper;
 		private ComponentMapper<Position> positionMapper;
 		private ComponentMapper<Visible> visibleMapper;
 		private ComponentMapper<Bestia> bestiaMapper;
+		private ComponentMapper<Movement> movementMapper;
 
 		public Builder() {
 
+		}
+
+		public void setMovementMapper(ComponentMapper<Movement> movementMapper) {
+			this.movementMapper = movementMapper;
 		}
 
 		public void setPositionMapper(ComponentMapper<Position> positionMapper) {
@@ -59,28 +66,33 @@ class BestiaMapper {
 		 * @return A BestiaMapper.
 		 */
 		public BestiaMapper build() {
-			if (positionProxyMapper == null) {
-				throw new IllegalArgumentException("PositionProxyMapper can not be null.");
-			}
-			if (positionMapper == null) {
-				throw new IllegalArgumentException("PositionMapper can not be null.");
-			}
-			if (visibleMapper == null) {
-				throw new IllegalArgumentException("VisibleMapper can not be null.");
-			}
-			if (bestiaMapper == null) {
-				throw new IllegalArgumentException("BestiaMapper can not be null.");
-			}
-
 			return new BestiaMapper(this);
 		}
 	}
 
 	protected BestiaMapper(Builder builder) {
+
+		if (builder.positionProxyMapper == null) {
+			throw new IllegalArgumentException("PositionProxyMapper can not be null.");
+		}
+		if (builder.positionMapper == null) {
+			throw new IllegalArgumentException("PositionMapper can not be null.");
+		}
+		if (builder.visibleMapper == null) {
+			throw new IllegalArgumentException("VisibleMapper can not be null.");
+		}
+		if (builder.bestiaMapper == null) {
+			throw new IllegalArgumentException("BestiaMapper can not be null.");
+		}
+		if (builder.movementMapper == null) {
+			throw new IllegalArgumentException("MovementMapper can not be null.");
+		}
+
 		this.positionMapper = builder.positionMapper;
 		this.positionProxyMapper = builder.positionProxyMapper;
 		this.visibleMapper = builder.visibleMapper;
 		this.bestiaMapper = builder.bestiaMapper;
+		this.movementMapper = builder.movementMapper;
 	}
 
 	public ComponentMapper<Bestia> getBestiaMapper() {
@@ -97,6 +109,10 @@ class BestiaMapper {
 
 	public ComponentMapper<Visible> getVisibleMapper() {
 		return visibleMapper;
+	}
+
+	public ComponentMapper<Movement> getMovementMapper() {
+		return movementMapper;
 	}
 
 }

@@ -222,5 +222,10 @@ public class Bestia implements Serializable {
 		}
 		return effortValues;
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("Bestia[dbName: %s, id: %d, level: %d]", databaseName, id, level);
+	}
 
 }

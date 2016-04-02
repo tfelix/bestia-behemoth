@@ -11,7 +11,9 @@ public class NpcBestiaEntityProxy extends BestiaEntityProxy {
 	private static final Logger LOG = LogManager.getLogger(NpcBestiaEntityProxy.class);
 
 	private StatusPoints statusPoints = null;
+	
 	private final Bestia bestia;
+	
 	@SuppressWarnings("unused")
 	private final NpcBestiaMapper mappers;
 
@@ -82,5 +84,10 @@ public class NpcBestiaEntityProxy extends BestiaEntityProxy {
 	@Override
 	public int getLevel() {
 		return bestia.getLevel();
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("NpcBestiaEntityProxy[entityID: %d, bestia: %s]", entityID, bestia.toString());
 	}
 }
