@@ -57,6 +57,15 @@ Bestia.Inventory = function(pubsub, i18n) {
 	this.itemSlot3 = ko.observable(null);
 	this.itemSlot4 = ko.observable(null);
 	this.itemSlot5 = ko.observable(null);
+	
+	/**
+	 * Highlight class for the item slots.
+	 */
+	this.itemSlot1Css = ko.observable(null);
+	this.itemSlot2Css = ko.observable(null);
+	this.itemSlot3Css = ko.observable(null);
+	this.itemSlot4Css = ko.observable(null);
+	this.itemSlot5Css = ko.observable(null);
 
 	/**
 	 * <p>
@@ -188,35 +197,6 @@ Bestia.Inventory = function(pubsub, i18n) {
 			// indicator how to use this item.
 			self._pubsub.publish(Bestia.Signal.ENGINE_CAST_ITEM, item);
 		}
-	};
-
-	/**
-	 * Casts the item which is selected at the given slot. The indicator of the
-	 * engine will get notified about the change. If the engine confirms the
-	 * usage of this castable item the item will be used and the server be
-	 * notified.
-	 */
-	this.castItemSlot = function(slot) {
-		var item = null;
-		switch (slot) {
-		case 0:
-			item = this.itemSlot0();
-			break;
-		case 1:
-			item = this.itemSlot1();
-			break;
-		case 2:
-			item = this.itemSlot2();
-			break;
-		case 3:
-			item = this.itemSlot3();
-			break;
-		case 4:
-			item = this.itemSlot4();
-			break;
-		}
-
-		this._pubsub.publish(Bestia.Signal.ENGINE_CAST_ITEM, item);
 	};
 
 	/**
@@ -399,34 +379,15 @@ Bestia.Inventory = function(pubsub, i18n) {
 	});
 
 	/**
-	 * Received event probably from the input controller.
+	 * Received event probably from the input controller to perform a casting of
+	 * the item.
 	 */
 	pubsub.subscribe(Bestia.Signal.INVENTORY_CAST_SLOT, function(_, slotN) {
 		self.castItemSlot(slotN);
 	});
 
-	/**
-	 * Saves bestia reference of the currently selected bestia.
-	 * 
-	 * @param {Bestia.BestiaViewModel}
-	 *            bestia - The newly selected bestia.
-	 */
-	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, function(_, bestia) {
-		self.hasLoaded(false);
-
-		self._selectedBestia = bestia;
-
-		// Clear all item shortcuts.
-		self.itemSlot1(null);
-		self.itemSlot2(null);
-		self.itemSlot3(null);
-		self.itemSlot4(null);
-		self.itemSlot5(null);
-
-		self._setupItemBindings();
-	});
-
-	pubsub.subscribe(Bestia.Signal.INVENTORY_PERFORM_CAST, this._handlerConfirmCast);
+	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, this._handlerBestiaSelected.bind(this));
+	pubsub.subscribe(Bestia.Signal.INVENTORY_PERFORM_CAST, this._handlerDoCast.bind(this));
 };
 
 /**
@@ -440,6 +401,27 @@ Bestia.Inventory = function(pubsub, i18n) {
  */
 Bestia.Inventory.prototype._handlerDoCast = function(_, data) {
 
+};
+
+/**
+ * Saves bestia reference of the currently selected bestia.
+ * 
+ * @param {Bestia.BestiaViewModel}
+ *            bestia - The newly selected bestia.
+ */
+Bestia.Inventory.prototype._handlerBestiaSelected = function(_, bestia) {
+	this.hasLoaded(false);
+
+	this._selectedBestia = bestia;
+
+	// Clear all item shortcuts.
+	this.itemSlot1(null);
+	this.itemSlot2(null);
+	this.itemSlot3(null);
+	this.itemSlot4(null);
+	this.itemSlot5(null);
+
+	this._setupItemBindings();
 };
 
 /**
@@ -561,18 +543,41 @@ Bestia.Inventory.prototype.saveItemBindings = function() {
 };
 
 /**
- * Handler function if an item shortcut is clicked. The handling of the to be
- * used item is somehow different as the useItem function: If the item does not
- * exist (is undefined) it means the slot is empty and therefore no item usage
- * should be executed.
+ * This function will handle usages of item shortcut slots. Either if they
+ * are clicked directly or if they are invoked via an key press event. The
+ * function will decide if the item has rather to be used (usable) or if it
+ * will get casted (castable). It is also responsible for making visual fx
+ * like flashing the shortcut binding etc.
+ * 
+ * @param slotN
+ *            Number of the slot to be used.
  */
-Bestia.Inventory.prototype.useItemShortcut = function(item) {
-	if(item === undefined) {
+Bestia.Inventory.prototype.useItemSlot = function(slotN) {
+	var item = null;
+	switch (slot) {
+	case 0:
+		item = this.itemSlot0();
+		break;
+	case 1:
+		item = this.itemSlot1();
+		break;
+	case 2:
+		item = this.itemSlot2();
+		break;
+	case 3:
+		item = this.itemSlot3();
+		break;
+	case 4:
+		item = this.itemSlot4();
+		break;
+	}
+
+	// Was slot empty?
+	if (item === null) {
 		return;
 	}
 	
-	// Only use the item if it does exist.
-	this.useItem(item);
+	this.useItem(item);		
 }
 
 /**
