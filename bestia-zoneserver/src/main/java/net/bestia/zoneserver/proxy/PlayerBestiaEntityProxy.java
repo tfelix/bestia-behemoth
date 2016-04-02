@@ -48,12 +48,12 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 	private final String entityUUID;
 
 	private Direction headFacing;
-	
+
 	private final ServiceLocator serviceLocator;
 	private final Zoneserver server;
 
-	public PlayerBestiaEntityProxy(Entity entity, 
-			PlayerBestia playerBestia, 
+	public PlayerBestiaEntityProxy(Entity entity,
+			PlayerBestia playerBestia,
 			PlayerBestiaMapper mapper) {
 		super(entity.getId(), mapper);
 
@@ -379,7 +379,7 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 		if (getClass() != obj.getClass())
 			return false;
 
-		PlayerBestiaEntityProxy other = (PlayerBestiaEntityProxy) obj;
+		final PlayerBestiaEntityProxy other = (PlayerBestiaEntityProxy) obj;
 
 		if (bestia == null) {
 			if (other.bestia != null)
@@ -399,40 +399,16 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 	}
 
 	/**
-	 * Update the underlying {@link PlayerBestia} with all the data from the ECS
-	 * and return it. This should not be called very often. Retrieving and
-	 * updating the player bestia triggers a few database requests and should be
-	 * done only to sync back to the database.
+	 * Returns the underling {@link PlayerBestia} in order to persist the data
+	 * etc. This should be used with care since directly changing values inside
+	 * the PlayerBestia might not get into the ECS and thus setting the data
+	 * between the ECS (the PlayerBesitaEntityProxy) and the data model out of
+	 * sync.
 	 * 
-	 * @return
+	 * @return The {@link PlayerBestia} backed by this proxy.
 	 */
 	public PlayerBestia getPlayerBestia() {
-		/*
-		 * // Update location. final Location loc = getLocation();
-		 * bestia.getCurrentPosition().setX(loc.getX());
-		 * bestia.getCurrentPosition().setY(loc.getY());
-		 * 
-		 * // TODO Das Statuspunkte HANDLING MACHEN.
-		 * 
-		 * // Update attacks. final Attacks attacksComp =
-		 * attacksMapper.get(entity); final AttackDAO atkDao =
-		 * serviceLocator.getBean(AttackDAO.class);
-		 * 
-		 * final Integer[] attackIds = attacksComp.getAttacks(); int i = 0; for
-		 * (Integer id : attackIds) {
-		 * 
-		 * // Get the attack. final Attack attack; if (id == null) { attack =
-		 * null; } else { attack = atkDao.findOne(id); }
-		 * 
-		 * switch (i) { case 0: bestia.setAttack1(attack); break; case 1:
-		 * bestia.setAttack2(attack); break; case 2: bestia.setAttack3(attack);
-		 * break; case 3: bestia.setAttack4(attack); break; case 4:
-		 * bestia.setAttack5(attack); break; } i++; }
-		 * 
-		 * return bestia;
-		 */
-
-		return null;
+		return bestia;
 	}
 
 	/**
@@ -443,7 +419,7 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 	 * @return
 	 */
 	public int getMaxItemWeight() {
-		StatusPoints sp = getStatusPoints();
+		final StatusPoints sp = getStatusPoints();
 		return 100 + 100 * sp.getAtk() * 3 + bestia.getLevel();
 	}
 

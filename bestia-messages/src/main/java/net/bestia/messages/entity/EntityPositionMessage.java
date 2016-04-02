@@ -15,7 +15,7 @@ import net.bestia.messages.AccountMessage;
 public class EntityPositionMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
-	public static final String MESSAGE_ID = "entity.posupdate";
+	public static final String MESSAGE_ID = "entity.position";
 
 	private int x;
 	private int y;
@@ -24,14 +24,13 @@ public class EntityPositionMessage extends AccountMessage {
 	public EntityPositionMessage() {
 
 	}
-
-	public EntityPositionMessage(String entityId, long accId, int pbid, int x, int y) {
+	
+	public EntityPositionMessage(String entityId, int x, int y) {
 		this.setX(x);
 		this.setY(y);
 		this.setEntityId(entityId);
-
-		setAccountId(accId);
 	}
+
 
 	@Override
 	public String getMessageId() {

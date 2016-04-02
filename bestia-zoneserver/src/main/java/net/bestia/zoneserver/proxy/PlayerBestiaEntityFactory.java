@@ -20,10 +20,16 @@ import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
 
+/**
+ * This factory is responsible for spawning player bestias into the ECS.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class PlayerBestiaEntityFactory {
-	
+
 	private final static Logger LOG = LogManager.getLogger(PlayerBestiaEntityFactory.class);
-	
+
 	private final Archetype playerBestiaArchetype;
 	private final PlayerBestiaMapper mapper;
 	private final World world;
@@ -55,13 +61,14 @@ public class PlayerBestiaEntityFactory {
 	 * @return
 	 */
 	public PlayerBestiaEntityProxy create(PlayerBestia bestia) {
-		
+
 		final int entityId = world.create(playerBestiaArchetype);
 		final Entity entity = world.getEntity(entityId);
 
 		final PlayerBestiaEntityProxy pbProxy = new PlayerBestiaEntityProxy(entity, bestia, mapper);
-		
-		// We need to check the bestia if its the master bestia. It will get marked as active initially.
+
+		// We need to check the bestia if its the master bestia. It will get
+		// marked as active initially.
 		final PlayerBestia master = bestia.getOwner().getMaster();
 		final boolean isMaster = master.equals(bestia);
 
@@ -84,10 +91,10 @@ public class PlayerBestiaEntityFactory {
 		infoMsg.setBestia(pbProxy.getPlayerBestia(), pbProxy.getStatusPoints());
 		infoMsg.setIsMaster(isMaster);
 		mapper.getServer().sendMessage(infoMsg);
-		
+
 		// Now set all the needed values.
 		LOG.trace("Spawning player bestia: {}.", bestia);
-		
+
 		return pbProxy;
 	}
 }

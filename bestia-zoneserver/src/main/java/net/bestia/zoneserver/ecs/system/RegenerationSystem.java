@@ -5,7 +5,6 @@ import com.artemis.ComponentMapper;
 import com.artemis.annotations.Wire;
 import com.artemis.systems.IntervalIteratingSystem;
 
-import net.bestia.zoneserver.ecs.component.Changed;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
 
 /**
@@ -39,9 +38,6 @@ public class RegenerationSystem extends IntervalIteratingSystem {
 
 		sp.addHp(addHp);
 		sp.addMana(addMana);
-
-		// Entity has changed.
-		world.getEntity(entityId).edit().create(Changed.class);
 	}
 
 }

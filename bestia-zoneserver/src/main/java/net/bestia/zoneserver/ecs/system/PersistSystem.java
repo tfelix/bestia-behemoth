@@ -24,13 +24,20 @@ import com.artemis.systems.IntervalEntityProcessingSystem;
 @Wire
 public class PersistSystem extends IntervalEntityProcessingSystem {
 
-	private static final Logger log = LogManager.getLogger(PersistSystem.class);
+	private static final Logger LOG = LogManager.getLogger(PersistSystem.class);
 
 	@Wire
 	private CommandContext ctx;
 
 	private ComponentMapper<PlayerBestia> playerMapper;
 
+	/**
+	 * Ctor.
+	 * 
+	 * @param interval
+	 *            The interval in ms in which to persist the player bestias into
+	 *            database.
+	 */
 	public PersistSystem(float interval) {
 		super(Aspect.all(PlayerBestia.class), interval);
 
@@ -47,7 +54,7 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 	 */
 	@Override
 	public void removed(Entity e) {
-		log.trace("PlayerBestia Entity id: {} removed. Persisting.", e.getId());
+		LOG.trace("PlayerBestia Entity id: {} removed. Persisting.", e.getId());
 		synchronizeAndSaveEntity(e);
 	}
 
@@ -57,7 +64,7 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 
 		pbService.savePlayerBestiaECS(pbm.getPlayerBestia());
 
-		log.trace("Persisting entity: {}", pbm.toString());
+		LOG.trace("Persisting entity: {}", pbm.toString());
 	}
 
 }

@@ -21,14 +21,14 @@ import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
  *
  */
 @Wire
-public class ActiveManager extends EntityProcessingSystem {
+public class AccountRegistryManager extends EntityProcessingSystem {
 
 	private ComponentMapper<PlayerBestia> playerBestiaMapper;
 
 	@Wire
 	private CommandContext ctx;
 
-	public ActiveManager() {
+	public AccountRegistryManager() {
 		super(Aspect.all(Active.class));
 
 		setEnabled(false);

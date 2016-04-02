@@ -10,16 +10,22 @@ public class EntityUpdateMessage extends AccountMessage {
 	public static final String MESSAGE_ID = "entity.update";
 
 	public String uuid;
+	
 	@JsonProperty("s")
 	public String sprite;
+	
 	@JsonProperty("x")
 	public int x;
+	
 	@JsonProperty("y")
 	public int y;
+	
 	@JsonProperty("t")
 	public SpriteType type;
+	
 	@JsonProperty("a")
 	public EntityAction action;
+	
 	@JsonProperty("pbid")
 	public Integer playerBestiaId;
 
@@ -32,6 +38,7 @@ public class EntityUpdateMessage extends AccountMessage {
 		this.uuid = uuid;
 		this.x = x;
 		this.y = y;
+		this.action = EntityAction.APPEAR;
 	}
 
 	/**

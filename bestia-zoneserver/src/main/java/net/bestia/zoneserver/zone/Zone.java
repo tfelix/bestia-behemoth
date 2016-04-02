@@ -101,15 +101,9 @@ public class Zone implements MessageHandler {
 					msg = messageQueue.poll();
 				}
 
-				try {
-
-					// Let the world tick.
-					world.setDelta(delta);
-					world.process();
-
-				} catch (Exception e) {
-					LOG.error("Exception in zone: {}.", getName(), e);
-				}
+				// Let the world tick.
+				world.setDelta(delta);
+				world.process();
 
 				try {
 					if (delta > DELAY_MS) {
@@ -119,8 +113,8 @@ public class Zone implements MessageHandler {
 				} catch (InterruptedException e) {
 					// no op.
 				}
-				
-				//hasStarted.set(false);
+
+				// hasStarted.set(false);
 			}
 
 			messageQueue.clear();

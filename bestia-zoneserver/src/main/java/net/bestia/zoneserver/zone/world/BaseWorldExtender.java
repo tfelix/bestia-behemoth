@@ -10,12 +10,11 @@ import com.artemis.managers.WorldSerializationManager;
 
 import net.bestia.model.dao.ZoneEntityDao;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.manager.ActiveManager;
+import net.bestia.zoneserver.ecs.manager.AccountRegistryManager;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
 import net.bestia.zoneserver.ecs.system.AISystem;
 import net.bestia.zoneserver.ecs.system.ActiveSpawnUpdateSystem;
-import net.bestia.zoneserver.ecs.system.ChangedNetworkUpdateSystem;
 import net.bestia.zoneserver.ecs.system.DelayedRemoveSystem;
 import net.bestia.zoneserver.ecs.system.RegenerationSystem;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
@@ -50,12 +49,9 @@ public class BaseWorldExtender implements WorldExtend {
 		worldConfig.setSystem(new DelayedRemoveSystem());
 		worldConfig.setSystem(new PersistSystem(10000));
 		worldConfig.setSystem(new RegenerationSystem());
-		// ChangedNetworkUpdateSystem must be last because it removes the
-		// Changed component.
-		worldConfig.setSystem(new ChangedNetworkUpdateSystem());
 		// Set all the managers.
 		worldConfig.setSystem(new PlayerBestiaSpawnManager(zone));
-		worldConfig.setSystem(new ActiveManager());
+		worldConfig.setSystem(new AccountRegistryManager());
 		worldConfig.setSystem(new PlayerManager());
 		worldConfig.setSystem(new TagManager());
 		worldConfig.setSystem(new UuidEntityManager());
