@@ -8,6 +8,7 @@ import com.artemis.ArchetypeBuilder;
 import com.artemis.World;
 
 import net.bestia.model.domain.Bestia;
+import net.bestia.zoneserver.ecs.component.AI;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.MobGroup;
 import net.bestia.zoneserver.ecs.component.MobSpawn;
@@ -47,6 +48,7 @@ public class NpcBestiaEntityFactory {
 				.add(NPCBestia.class)
 				.add(StatusPoints.class)
 				.add(Visible.class)
+				.add(AI.class)
 				.build(world);
 
 		this.mapper = mapper;

@@ -102,8 +102,14 @@ public class Zone implements MessageHandler {
 				}
 
 				// Let the world tick.
-				world.setDelta(delta);
-				world.process();
+				try {
+					world.setDelta(delta);
+					world.process();
+				} catch (Exception ex) {
+					// Stop the server.
+					LOG.fatal("Exception in zone: {}. Stopping.", name, ex);
+					ctx.getServer().stop();
+				}
 
 				try {
 					if (delta > DELAY_MS) {

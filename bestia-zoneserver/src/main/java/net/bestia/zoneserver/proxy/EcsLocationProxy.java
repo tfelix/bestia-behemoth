@@ -77,4 +77,10 @@ public class EcsLocationProxy implements Location, Serializable {
 		setY(y);
 	}
 
+	@Override
+	public void set(Location loc) {
+		setMapDbName(loc.getMapDbName());
+		setPos(loc.getX(), loc.getY());
+	}
+
 }

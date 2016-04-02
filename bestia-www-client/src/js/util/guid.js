@@ -3,8 +3,8 @@
  */
 Bestia.Guid = function() {
 	
-	return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4();
+	return Bestia.Guid._s4 + Bestia.Guid._s4 + '-' + Bestia.Guid._s4 + '-' + Bestia.Guid._s4 + '-' +
+	Bestia.Guid._s4 + '-' + Bestia.Guid._s4 + Bestia.Guid._s4 + Bestia.Guid._s4;
 	
 };
 

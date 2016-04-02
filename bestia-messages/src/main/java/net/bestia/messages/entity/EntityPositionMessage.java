@@ -68,6 +68,6 @@ public class EntityPositionMessage extends AccountMessage {
 
 	@Override
 	public String toString() {
-		return String.format("EntityUpdateMessage[uuid: %s, accId: %d, x: %d, y: %d]", entityId, getAccountId(), x, y);
+		return String.format("EntityPositionMessage[uuid: %s, accId: %d, x: %d, y: %d]", entityId, getAccountId(), x, y);
 	}
 }

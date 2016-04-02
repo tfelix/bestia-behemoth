@@ -399,7 +399,7 @@ Bestia.Inventory = function(pubsub, i18n) {
  *            data - Containt the item to be cast as well as the map coordinates
  *            e.g.: {item: ITEM, cords: {x: X, y: Y}}.
  */
-Bestia.Inventory.prototype._handlerDoCast = function(_, data) {
+Bestia.Inventory.prototype._handlerDoCast = function() {
 
 };
 
@@ -554,7 +554,7 @@ Bestia.Inventory.prototype.saveItemBindings = function() {
  */
 Bestia.Inventory.prototype.useItemSlot = function(slotN) {
 	var item = null;
-	switch (slot) {
+	switch (slotN) {
 	case 0:
 		item = this.itemSlot0();
 		break;
@@ -578,7 +578,7 @@ Bestia.Inventory.prototype.useItemSlot = function(slotN) {
 	}
 	
 	this.useItem(item);		
-}
+};
 
 /**
  * Setup the item bindings with the proper items. We need to derefer this call

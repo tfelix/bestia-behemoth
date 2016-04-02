@@ -56,8 +56,17 @@ public interface Location {
 
 	/**
 	 * Sets both: X and Y at the same time.
+	 * 
 	 * @param x
 	 * @param y
 	 */
 	void setPos(int x, int y);
+
+	/**
+	 * Sets to the same location and map as the given location object.
+	 * 
+	 * @param loc
+	 *            Sets to this coordinates and map.
+	 */
+	void set(Location loc);
 }

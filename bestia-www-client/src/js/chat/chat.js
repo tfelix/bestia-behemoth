@@ -205,7 +205,7 @@ Bestia.Chat.prototype.sendChat = function() {
 	}
 
 	// Prepare and send the message to the server and add it to the local chat.
-	var msg = new Bestia.Message.Chat(this.mode(), msgText, this.whisperNick(), this.LOCAL_NICKNAME, self._currentBestiaId);
+	var msg = new Bestia.Message.Chat(this.mode(), msgText, this.whisperNick(), this.LOCAL_NICKNAME, this._currentBestiaId);
 
 	// Check if this was a command to be executed on the server and set the
 	// message flag accordingly.

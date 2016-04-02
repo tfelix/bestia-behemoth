@@ -131,4 +131,10 @@ public class LocationDomain implements Serializable, Location {
 		setX(x);
 		setY(y);
 	}
+
+	@Override
+	public void set(Location loc) {
+		setPos(loc.getX(), loc.getY());
+		setMapDbName(loc.getMapDbName());
+	}
 }
