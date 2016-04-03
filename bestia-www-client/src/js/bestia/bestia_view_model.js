@@ -22,10 +22,15 @@ Bestia.BestiaViewModel = function(pubsub, msg, statusPoints, urlHelper) {
 	if (!(pubsub instanceof Bestia.PubSub)) {
 		throw "Bestia.BestiaViewModel: PubSub must be given.";
 	}
+	if (!(urlHelper instanceof Bestia.UrlHelper)) {
+		throw "Bestia.BestiaViewModel: UrlHelper must be given.";
+	}
 
 	var self = this;
 
 	this._pubsub = pubsub;
+	
+	this._urlHelper = urlHelper;
 
 	this.playerBestiaId = ko.observable();
 	this.databaseName = ko.observable('');
@@ -114,23 +119,23 @@ Bestia.BestiaViewModel.prototype.update = function(msg, sp) {
 
 		// Update the items.
 		if (msg.item1) {
-			this.item1(new Bestia.ItemViewModel(msg.item1));
+			this.item1(new Bestia.ItemViewModel(msg.item1, this._urlHelper));
 		}
 
 		if (msg.item2) {
-			this.item2(new Bestia.ItemViewModel(msg.item2));
+			this.item2(new Bestia.ItemViewModel(msg.item2, this._urlHelper));
 		}
 
 		if (msg.item3) {
-			this.item3(new Bestia.ItemViewModel(msg.item3));
+			this.item3(new Bestia.ItemViewModel(msg.item3, this._urlHelper));
 		}
 
 		if (msg.item4) {
-			this.item4(new Bestia.ItemViewModel(msg.item4));
+			this.item4(new Bestia.ItemViewModel(msg.item4, this._urlHelper));
 		}
 
 		if (msg.item5) {
-			this.item5(new Bestia.ItemViewModel(msg.item5));
+			this.item5(new Bestia.ItemViewModel(msg.item5, this._urlHelper));
 		}
 	}
 	

@@ -12,7 +12,7 @@
  *            pubsub - Reference to the bestia publish/subscriber system for
  *            hooking into update calls.
  */
-Bestia.Engine.EntityUpdater = function(pubsub, cache) {
+Bestia.Engine.EntityUpdater = function(pubsub, cache, entityFactory) {
 	if (pubsub === undefined) {
 		throw "PubSub can not be undefined";
 	}
@@ -32,7 +32,7 @@ Bestia.Engine.EntityUpdater = function(pubsub, cache) {
 
 	this._pubsub = pubsub;
 
-	this._factory = undefined;
+	this._factory = entityFactory;
 
 	// === SUBSCRIBE ===
 	pubsub.subscribe(Bestia.MID.ENTITY_UPDATE, this._onUpdateHandler.bind(this));

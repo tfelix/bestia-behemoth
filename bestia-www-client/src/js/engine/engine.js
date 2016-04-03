@@ -33,10 +33,10 @@ Bestia.Engine = function(pubsub, urlHelper) {
 	
 	this.game = new Phaser.Game(width, height, Phaser.AUTO, 'bestia-canvas', null, false, false);
 
-	this.gameState = new Bestia.Engine.States.GameState(this, this.urlHelper);
-	this.game.state.add('boot', new Bestia.Engine.States.BootState());
+	this.gameState = new Bestia.Engine.States.GameState(this, this.urlHelper, this.game);
+	this.game.state.add('boot', new Bestia.Engine.States.BootState(pubsub));
 	this.game.state.add('connecting', new Bestia.Engine.States.ConnectingState(pubsub));
-	this.game.state.add('init_load', new Bestia.Engine.States.InitialLoadingState(urlHelper));
+	this.game.state.add('initial_loading', new Bestia.Engine.States.InitialLoadingState(urlHelper));
 	this.game.state.add('load', new Bestia.Engine.States.LoadingState(this, urlHelper));
 	this.game.state.add('game', this.gameState);
 

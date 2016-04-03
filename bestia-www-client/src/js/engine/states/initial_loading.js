@@ -20,14 +20,14 @@ Bestia.Engine.States.InitialLoadingState.prototype.init = function() {
 
 Bestia.Engine.States.InitialLoadingState.prototype.preload = function() {
 
-	this.game.load.image('castindicator_small', this.url.getImageUrl('cast_marker_s.png'));
-	this.game.load.image('castindicator_medium', this.url.getImageUrl('cast_marker_m.png'));
-	this.game.load.image('castindicator_big', this.url.getImageUrl('cast_marker_l.png'));
+	this.game.load.image('castindicator_small', this.url.getIndicatorUrl('_big'));
+	this.game.load.image('castindicator_medium', this.url.getIndicatorUrl('_medium'));
+	this.game.load.image('castindicator_big', this.url.getIndicatorUrl('_small'));
 
 };
 
 Bestia.Engine.States.InitialLoadingState.prototype.create = function() {
 
 	// / / Switch the loading state of the game state.
-	this.game.state.start('game', true, false, this.bestia);
+	this.game.state.start('connecting');
 };

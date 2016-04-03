@@ -85,6 +85,9 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 		visible.interactionType = InteractionType.GENERIC;
 		visible.spriteType = SpriteType.PLAYER_ANIM;
 		
+		// Set the current position.
+		getLocation().set(playerBestia.getCurrentPosition());
+		
 		calculateStatusPoints();
 	}
 

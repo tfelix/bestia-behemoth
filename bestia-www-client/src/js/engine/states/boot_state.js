@@ -7,9 +7,9 @@ Bestia.Engine.States = Bestia.Engine.States || {};
  * @constructor
  * @class Bestia.Engine.States.BootState
  */
-Bestia.Engine.States.BootState = function() {
+Bestia.Engine.States.BootState = function(pubsub) {
 
-	// no op.
+	this._pubsub = pubsub;
 	
 };
 
@@ -21,9 +21,7 @@ Bestia.Engine.States.BootState.prototype.preload = function() {
 };
 
 Bestia.Engine.States.BootState.prototype.create = function() {
-	/* @ifdef DEVELOPMENT **
-	//this.game.add.plugin(Phaser.Plugin.Debug);	
-	/* @endif */
 	
-	this.game.state.start('connecting');
+	this._pubsub.publish(Bestia.Signal.ENGINE_BOOTED);
+	this.game.state.start('initial_loading');
 };

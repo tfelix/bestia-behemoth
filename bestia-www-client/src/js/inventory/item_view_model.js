@@ -13,8 +13,8 @@
  */
 Bestia.ItemViewModel = function(data, urlHelper) {
 	
-	if(urlHelper === undefined) {
-		throw "UrlHelper can not be null.";
+	if(!(urlHelper instanceof Bestia.UrlHelper)) {
+		throw "Bestia.ItemViewModel: UrlHelper can not be null.";
 	}
 
 	var self = this;

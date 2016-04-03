@@ -8,7 +8,9 @@ Bestia.Engine.States = Bestia.Engine.States || {};
  * @param {Bestia.Engine}
  *            engine - Reference to the bestia engine.
  */
-Bestia.Engine.States.GameState = function(engine, urlHelper) {
+Bestia.Engine.States.GameState = function(engine, urlHelper, game) {
+
+	var self = this;
 
 	this.marker = null;
 
@@ -31,21 +33,6 @@ Bestia.Engine.States.GameState = function(engine, urlHelper) {
 	this.bestiaWorld = null;
 
 	/**
-	 * Effects manager will subscribe itself to messages from the server which
-	 * trigger a special effect for an entity or a stand alone effect which must
-	 * be displayed by whatever means.
-	 * 
-	 * @public
-	 * @property {Bestia.Engine.FX.EffectsManager}
-	 */
-	this._fxManager = null;
-	
-	/**
-	 * Holds the central cache for all entities displayed in the game.
-	 */
-	this._entityCache = null;
-	
-	/**
 	 * Entity updater for managing the adding and removal of entities.
 	 * 
 	 * @public
@@ -56,6 +43,41 @@ Bestia.Engine.States.GameState = function(engine, urlHelper) {
 	this._urlHelper = urlHelper;
 
 	this._cursor = null;
+
+	this._demandLoader = null; // new
+								// Bestia.Engine.DemandLoader(this.game.load,
+								// this.game.cache, this._urlHelper);
+
+	/**
+	 * Holds the central cache for all entities displayed in the game.
+	 */
+	this._entityCache = null; // new Bestia.Engine.EntityCacheManager();
+
+	/**
+	 * Effects manager will subscribe itself to messages from the server which
+	 * trigger a special effect for an entity or a stand alone effect which must
+	 * be displayed by whatever means.
+	 * 
+	 * @public
+	 * @property {Bestia.Engine.FX.EffectsManager}
+	 */
+	this._fxManager = null; // new Bestia.Engine.FX.EffectsManager(this.pubsub,
+							// this.game, this._entityCache);
+
+	// ==== Subscriptions ====
+	this.pubsub.subscribe(Bestia.Signal.ENGINE_CAST_ITEM, this._onCastItem.bind(this));
+
+	/**
+	 * When the connect signal is given this is the sign that the engine as
+	 * initialized. I know this is a bit hacky but before we dont have access to
+	 * the game instance which we need to further initialize this objects.
+	 */
+	this.pubsub.subscribe(Bestia.Signal.ENGINE_BOOTED, function() {
+		self._demandLoader = new Bestia.Engine.DemandLoader(self.game.load, self.game.cache, self._urlHelper);
+		self._entityCache = new Bestia.Engine.EntityCacheManager();
+		self._fxManager = new Bestia.Engine.FX.EffectsManager(self.pubsub, self.game, self._entityCache);
+	});
+	// ==== /Subscriptions ====
 };
 
 Bestia.Engine.States.GameState.prototype.init = function(bestia) {
@@ -74,32 +96,27 @@ Bestia.Engine.States.GameState.prototype.init = function(bestia) {
 	this.bestiaWorld = new Bestia.Engine.World(this.game, astar);
 	this.bestiaWorld.loadMap(this.bestia.location());
 
-	this._demandLoader = new Bestia.Engine.DemandLoader(this.game.load, this.game.cache, this._urlHelper);
-	this._entityCache = new Bestia.Engine.EntityCacheManager();
-	this._fxManager = new Bestia.Engine.FX.EffectsManager(this.pubsub, this.game, this._entityCache);
-	this._entityUpdater = new Bestia.Engine.EntityUpdater(this.pubsub, this._entityCache);
+	this._entityFactory = new Bestia.Engine.EntityFactory(this.game, this._demandLoader, this._entityCache)
+	this._entityUpdater = new Bestia.Engine.EntityUpdater(this.pubsub, this._entityCache, this._entityFactory);
 
 	// @ifdef DEVELOPMENT
 	this.game.stage.disableVisibilityChange = true;
 	// @endif
-	
-	// ==== Subscriptions ====
-	this.pubsub.subscribe(Bestia.Signal.ENGINE_CAST_ITEM, this._onCastItem.bind(this));
-	// ==== /Subscriptions ====
 
 	this.pubsub.publish(Bestia.Signal.ENGINE_GAME_STARTED);
 	this._entityUpdater.releaseHold();
 };
 
 /**
- * Callback which is called if the user wants to use a castable item from the inventory.
+ * Callback which is called if the user wants to use a castable item from the
+ * inventory.
  */
 Bestia.Engine.States.GameState.prototype._onCastItem = function(item) {
-	
+
 	console.info("Cast item: " + item.name());
-	
+
 	// Switch the indicator to the cast indicator used by this item.
-	
+
 };
 
 Bestia.Engine.States.GameState.prototype.update = function() {
@@ -123,9 +140,10 @@ Bestia.Engine.States.GameState.prototype.update = function() {
 Bestia.Engine.States.GameState.prototype.shutdown = function() {
 
 	// We need to UNSUBSCRIBE from all subscriptions to avoid leakage.
-	// TODO Ich weiß nicht ob das hier funktioniert oder ob referenz zu callback benötigt wird.
+	// TODO Ich weiß nicht ob das hier funktioniert oder ob referenz zu callback
+	// benötigt wird.
 	this.pubsub.unsubscribe(Bestia.Signal.ENGINE_CAST_ITEM, this._onCastItem.bind(this));
-	
+
 };
 
 Bestia.Engine.States.GameState.prototype.getPlayerEntity = function() {

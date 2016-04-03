@@ -40,10 +40,14 @@ Bestia.Engine.DemandLoader.prototype._fileLoadedCallback = function(progress, ke
 
 	if (this._cache.hasOwnProperty(key)) {
 		cacheData = this._cache[key];
-	} else {
+	} else if(this._keyCache.hasOwnProperty(key)) {
 		// Go the indirection.
 		cacheData = this._cache[this._keyCache[key]];
 		delete this._keyCache[key];
+	} else {
+		// No cache entry found. Propably the file was directly loaded without the use of the demand loader.
+		// Skip the callback search.
+		return;
 	}
 
 	if (cacheData.type === 'pack' && cacheData.toLoad === 0) {

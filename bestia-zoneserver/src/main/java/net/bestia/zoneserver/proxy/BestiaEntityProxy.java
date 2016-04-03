@@ -46,9 +46,6 @@ public abstract class BestiaEntityProxy {
 
 		// Set the ESC proxy.
 		posProxy.setDomainPosition(location);
-		location.setMapDbName("");
-		location.setX(0);
-		location.setY(0);
 	}
 
 	public abstract StatusPoints getStatusPoints();

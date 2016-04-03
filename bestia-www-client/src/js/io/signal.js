@@ -40,6 +40,10 @@ Bestia.Signal = {
 
 	CHAT_RECEIVED : 'client.chat.received',
 
+	/**
+	 * Engine is ready and can be used.
+	 */
+	ENGINE_BOOTED : 'engine.bootet',
 	ENGINE_LOADED : 'engine.loaded',
 	ENGINE_PREPARE_MAPLOAD : 'engine.prepareMapload',
 

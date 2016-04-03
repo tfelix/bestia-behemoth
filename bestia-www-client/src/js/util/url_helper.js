@@ -26,6 +26,10 @@ Bestia.UrlHelper.prototype.getMobPackUrl = function(mobName) {
 	return this._assetRoot + 'mob/' + mobName + '/' + mobName + '_pack.json';
 };
 
+Bestia.UrlHelper.prototype.getIndicatorUrl = function(indicator) {
+	return this._assetRoot + 'cast_indicators/' + indicator + '/' + indicator + '.png';
+};
+
 Bestia.UrlHelper.prototype.getItemIconUrl = function(itemName) {
 	return this._assetRoot + 'img/items/' + itemName;
 };
