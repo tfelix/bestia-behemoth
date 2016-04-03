@@ -292,7 +292,8 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg) {
 
 		this.playAnimation(nextAnim, isLast);
 
-		console.log("Moved to: " + pos.x + " - " + pos.y);
+		this.position = {x: pos.x, y: pos.y};
+		//console.log("Moved to: " + pos.x + " - " + pos.y);
 
 	}, this);
 
@@ -305,7 +306,8 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg) {
 
 		this.playAnimation(nextAnim);
 
-		console.log("Moved to: " + currentPos.x + " - " + currentPos.y);
+		this.position = {x: currentPos.x, y: currentPos.y};
+		//console.log("Moved to: " + currentPos.x + " - " + currentPos.y);
 
 	}, this);
 

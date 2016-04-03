@@ -21,6 +21,10 @@ Bestia.Engine.EntityUpdater = function(pubsub, cache, entityFactory) {
 		throw "Cache can not be undefined.";
 	}
 
+	if (entityFactory === undefined) {
+		throw "EntityFactory can not be null.";
+	}
+
 	var self = this;
 
 	/**
@@ -53,11 +57,11 @@ Bestia.Engine.EntityUpdater.prototype._onUpdateHandler = function(_, msg) {
 	case 'APPEAR':
 		// The entity must not exist.
 		var entity = this._cache.getByUuid(msg.uuid);
-		if(entity !== null) {
-			// Strange.
+		if (entity !== null) {
+			// Exists already. Strange.
 			return;
 		}
-		
+
 		switch (msg.t) {
 		case 'ITEM':
 			// let an item appear.
@@ -65,7 +69,7 @@ Bestia.Engine.EntityUpdater.prototype._onUpdateHandler = function(_, msg) {
 			break;
 		case 'STATIC':
 			// Static sprite appear.
-			//this._factory.createStaticEntity(msg);
+			// this._factory.createStaticEntity(msg);
 			break;
 		case 'MOB_ANIM':
 			// Normal bestia.
@@ -124,8 +128,8 @@ Bestia.Engine.EntityUpdater.prototype._onPositionHandler = function(_, msg) {
  * @returns {Boolean}
  */
 Bestia.Engine.EntityUpdater.prototype._isBuffered = function(msg) {
-	if (self._buffer !== undefined) {
-		self._buffer.push({
+	if (this._buffer !== undefined) {
+		this._buffer.push({
 			topic : msg.mid,
 			msg : msg
 		});

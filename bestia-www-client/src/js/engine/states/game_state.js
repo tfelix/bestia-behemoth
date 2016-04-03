@@ -76,6 +76,8 @@ Bestia.Engine.States.GameState = function(engine, urlHelper, game) {
 		self._demandLoader = new Bestia.Engine.DemandLoader(self.game.load, self.game.cache, self._urlHelper);
 		self._entityCache = new Bestia.Engine.EntityCacheManager();
 		self._fxManager = new Bestia.Engine.FX.EffectsManager(self.pubsub, self.game, self._entityCache);
+		self._entityFactory = new Bestia.Engine.EntityFactory(self.game, self._demandLoader, self._entityCache)
+		self._entityUpdater = new Bestia.Engine.EntityUpdater(self.pubsub, self._entityCache, self._entityFactory);
 	});
 	// ==== /Subscriptions ====
 };
@@ -96,8 +98,6 @@ Bestia.Engine.States.GameState.prototype.init = function(bestia) {
 	this.bestiaWorld = new Bestia.Engine.World(this.game, astar);
 	this.bestiaWorld.loadMap(this.bestia.location());
 
-	this._entityFactory = new Bestia.Engine.EntityFactory(this.game, this._demandLoader, this._entityCache)
-	this._entityUpdater = new Bestia.Engine.EntityUpdater(this.pubsub, this._entityCache, this._entityFactory);
 
 	// @ifdef DEVELOPMENT
 	this.game.stage.disableVisibilityChange = true;
