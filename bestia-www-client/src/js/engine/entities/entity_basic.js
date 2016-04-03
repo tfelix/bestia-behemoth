@@ -65,6 +65,19 @@ Bestia.Engine.BasicEntity.prototype.remove = function() {
 
 };
 
+Bestia.Engine.BasicEntity.prototype.addToGroup = function(group) {
+	if(!(group instanceof Phaser.Group)) {
+		throw "Group must be instance of Phaser.Group";
+	}
+	
+	if(this._sprite === null) {
+		console.warn('addToGroup: Sprite is still null. Was not loaded/set yet.');
+		return;
+	}
+	
+	group.add(this._sprite);
+};
+
 Bestia.Engine.BasicEntity.prototype._syncSpritePosition = function() {
 	// Correct the sprite position.
 	if (this._sprite !== null) {

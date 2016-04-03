@@ -37,3 +37,7 @@ Bestia.UrlHelper.prototype.getItemIconUrl = function(itemName) {
 Bestia.UrlHelper.prototype.getImageUrl = function(imgName) {
 	return this._assetRoot + 'img/' + imgName + '.png';
 };
+
+Bestia.UrlHelper.prototype.getFilterUrl = function(filter) {
+	return this._assetRoot + 'filter/' + filter + '.js';
+};

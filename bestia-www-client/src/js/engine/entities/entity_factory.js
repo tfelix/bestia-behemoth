@@ -6,13 +6,15 @@
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  */
-Bestia.Engine.EntityFactory = function(game, demandLoader, entityCache) {
+Bestia.Engine.EntityFactory = function(game, demandLoader, entityCache, spriteGroup) {
 
 	this._game = game;
 
 	this._demandLoader = demandLoader;
 
 	this._entityCache = entityCache;
+	
+	this._spriteGroup = spriteGroup;
 
 };
 
@@ -26,11 +28,13 @@ Bestia.Engine.EntityFactory.prototype.createBestiaEntity = function(data) {
 
 	var self = this;
 	var entity = new Bestia.Engine.SpriteEntity(self._game, data.uuid, data.x, data.y, data.pbid);
+	
 	self._entityCache.addEntity(entity);
 
 	this._demandLoader.loadMobSprite(data.s, function() {
 
 		entity.setSprite(data.s);
+		entity.addToGroup(self._spriteGroup);
 
 		if (data.a === "APPEAR") {
 			entity.appear();
@@ -54,6 +58,8 @@ Bestia.Engine.EntityFactory.prototype.createItemEntity = function(data) {
 	this._demandLoader.loadItemSprite(data.s, function() {
 
 		var entity = new Bestia.Engine.ItemEntity(self._game, data.uuid, data.x, data.y, data.s);
+		
+		entity.addToGroup(this._spriteGroup);
 		self._entityCache.addEntity(entity);
 
 		if (data.a === "APPEAR") {

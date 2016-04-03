@@ -6,7 +6,7 @@
  * @constructor
  * @class Bestia.Engine.World
  */
-Bestia.Engine.World = function(game, astar) {
+Bestia.Engine.World = function(game, astar, spriteGroup) {
 
 	/**
 	 * Reference to a phaser game.
@@ -33,26 +33,17 @@ Bestia.Engine.World = function(game, astar) {
 	 */
 	this._groundLayer = null;
 
-	/**
-	 * This holds the render layer of the world. Usually there should be only a
-	 * very few layers, like the ground layer and maybe one layer above the
-	 * sprite entities. However for development purposes there might me more
-	 * layer.
-	 */
-	this._layers = [];
-
 	this.name = "";
+
+	this._spriteGroup = spriteGroup;
 	
-	this._spriteGroup = null;
+	this._mapGroup = game.add.group();
+	this._mapGroup.name = 'map';
+	
+	this._mapGroup.add(this._spriteGroup);
 };
 
-/**
- * Holds static configuration of the engine world.
- * 
- * @static
- * @property {Object}
- */
-// Bestia.Engine.World.config = {};
+
 /**
  * Displays the map name of the game to the user. Should be called after a map
  * change has occured.
@@ -104,9 +95,10 @@ Bestia.Engine.World.prototype.displayMapName = function() {
  *            mapDbName - The mapDbName of the map to load into the engine.
  */
 Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
-	
+
 	// Reset layers.
 	this._layers = [];
+	//this._spriteGroup.sendToBack();
 
 	this.map = this._game.add.tilemap(mapDbName);
 
@@ -139,59 +131,52 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 	// Ground layer MUST be present via definition.
 	var layer0 = this.map.createLayer('layer_0');
 	layer0.resizeWorld();
-	this._layers.push(layer0);
-	
-	this._spriteGroup = this._game.add.group();
-	this._spriteGroup.name = 'sprites';
-	
+	this._mapGroup.add(layer0);
+	this._mapGroup.sendToBack(layer0);
+
+
 	var iLayer = 0;
 	var jLayer = 1;
-	
+
 	// Now check how many layer there are and then create them.
 	// Get the names of all layer.
 	var layerNames = this.map.layers.map(function(x) {
 		return x.name;
 	});
-	
-	while(true) {
-		
+
+	while (true) {
+
 		var layerName = 'layer_' + iLayer;
-		
-		if(jLayer > 0) {
+
+		if (jLayer > 0) {
 			layerName += '_' + jLayer;
 		}
-		
+
 		// Iterate over all layers of the map if there is such a name.
 		// Check if the layers exists.
 		if (layerNames.indexOf(layerName) === -1) {
 			// Layer does not exist anymore.
-			
-			if(jLayer > 0) {
+
+			if (jLayer > 0) {
 				jLayer = 0;
 				iLayer++;
 				continue;
 			}
-			
-			if(jLayer == 0) {
+
+			if (jLayer == 0) {
 				break;
 			}
 		}
-		
+
 		// Create the layer.
-		this.map.createLayer(layerName);
-		
+		var layer = this.map.createLayer(layerName);
+		this._mapGroup.add(layer);
+
 		jLayer++;
 	}
 
 	// Print the name of the map.
 	this.displayMapName();
-};
-
-/**
- * Returns the group in which the sprites can be rendered.
- */
-Bestia.Engine.World.prototype.getSpriteGroup = function() {
-	return this._spriteGroup;
 };
 
 /**

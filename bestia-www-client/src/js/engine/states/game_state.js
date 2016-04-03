@@ -44,14 +44,12 @@ Bestia.Engine.States.GameState = function(engine, urlHelper, game) {
 
 	this._cursor = null;
 
-	this._demandLoader = null; // new
-								// Bestia.Engine.DemandLoader(this.game.load,
-								// this.game.cache, this._urlHelper);
+	this._demandLoader = null;
 
 	/**
 	 * Holds the central cache for all entities displayed in the game.
 	 */
-	this._entityCache = null; // new Bestia.Engine.EntityCacheManager();
+	this._entityCache = null;
 
 	/**
 	 * Effects manager will subscribe itself to messages from the server which
@@ -61,22 +59,27 @@ Bestia.Engine.States.GameState = function(engine, urlHelper, game) {
 	 * @public
 	 * @property {Bestia.Engine.FX.EffectsManager}
 	 */
-	this._fxManager = null; // new Bestia.Engine.FX.EffectsManager(this.pubsub,
-							// this.game, this._entityCache);
+	this._fxManager = null;
+	
+	this._spriteGroup = null;
 
 	// ==== Subscriptions ====
 	this.pubsub.subscribe(Bestia.Signal.ENGINE_CAST_ITEM, this._onCastItem.bind(this));
+	
 
 	/**
 	 * When the connect signal is given this is the sign that the engine as
 	 * initialized. I know this is a bit hacky but before we dont have access to
 	 * the game instance which we need to further initialize this objects.
 	 */
-	this.pubsub.subscribe(Bestia.Signal.ENGINE_BOOTED, function() {
+	this.pubsub.subscribe(Bestia.Signal.ENGINE_BOOTED, function() {	
+		self._spriteGroup = self.game.add.group();
+		self._spriteGroup.name = 'sprites';
+		
 		self._demandLoader = new Bestia.Engine.DemandLoader(self.game.load, self.game.cache, self._urlHelper);
 		self._entityCache = new Bestia.Engine.EntityCacheManager();
 		self._fxManager = new Bestia.Engine.FX.EffectsManager(self.pubsub, self.game, self._entityCache);
-		self._entityFactory = new Bestia.Engine.EntityFactory(self.game, self._demandLoader, self._entityCache)
+		self._entityFactory = new Bestia.Engine.EntityFactory(self.game, self._demandLoader, self._entityCache, self._spriteGroup);
 		self._entityUpdater = new Bestia.Engine.EntityUpdater(self.pubsub, self._entityCache, self._entityFactory);
 	});
 	// ==== /Subscriptions ====
@@ -95,7 +98,7 @@ Bestia.Engine.States.GameState.prototype.init = function(bestia) {
 	// ==== /PLUGINS ====
 
 	// Load the tilemap and display it.
-	this.bestiaWorld = new Bestia.Engine.World(this.game, astar);
+	this.bestiaWorld = new Bestia.Engine.World(this.game, astar, this._spriteGroup);
 	this.bestiaWorld.loadMap(this.bestia.location());
 
 
@@ -105,6 +108,10 @@ Bestia.Engine.States.GameState.prototype.init = function(bestia) {
 
 	this.pubsub.publish(Bestia.Signal.ENGINE_GAME_STARTED);
 	this._entityUpdater.releaseHold();
+};
+
+Bestia.Engine.States.GameState.prototype.create = function() {
+	//var blur = this.game.add.filter('filter_blur');
 };
 
 /**

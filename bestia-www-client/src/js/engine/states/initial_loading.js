@@ -23,6 +23,8 @@ Bestia.Engine.States.InitialLoadingState.prototype.preload = function() {
 	this.game.load.image('castindicator_small', this.url.getIndicatorUrl('_big'));
 	this.game.load.image('castindicator_medium', this.url.getIndicatorUrl('_medium'));
 	this.game.load.image('castindicator_big', this.url.getIndicatorUrl('_small'));
+	
+	this.game.load.script('filter_blur', this.url.getFilterUrl('BlurX'));
 
 };
 

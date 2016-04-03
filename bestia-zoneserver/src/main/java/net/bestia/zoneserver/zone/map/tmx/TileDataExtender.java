@@ -39,7 +39,8 @@ public class TileDataExtender implements TMXMapExtender {
 
 			// Ignore non bottom/ground layers. (Like special sound layer, event
 			// trigger etc.)
-			if (!layer.getName().toLowerCase().startsWith("layer_")) {
+			final String layerName = layer.getName().toLowerCase();
+			if (!layerName.matches("layer_\\d+")) {
 				continue;
 			}
 
