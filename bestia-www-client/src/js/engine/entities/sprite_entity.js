@@ -241,10 +241,14 @@ Bestia.Engine.SpriteEntity.prototype.stopMove = function() {
  * INT} components. The path must not contain the current position of the
  * entity.
  * 
- * @param {Array}
- *            path - Array of coordinate objects {x: INT, y: INT}.
+ * @param {Object}
+ *            msg - Containing the path of the predicted movement as well as the
+ *            movement speed. {cords: [{x: INT, y: INT}], s: 100}.
  */
-Bestia.Engine.SpriteEntity.prototype.moveTo = function(path) {
+Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg) {
+	
+	var speed = msg.s / 100.0;
+	var path = msg.cords;
 
 	this.stopMove();
 
@@ -263,7 +267,7 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(path) {
 		var cords = Bestia.Engine.World.getSpritePxXY(ele.x, ele.y);
 
 		// We go single tile steps.
-		var duration = this._getWalkDuration(1, 1);
+		var duration = this._getWalkDuration(1, speed);
 		var lastTile = path[i - 1];
 
 		// Check if we go diagonal to adjust speed.
