@@ -26,7 +26,7 @@ public class ItemSetCommand extends ECSCommand {
 		final InventoryItemSetMessage itemSetMsg = (InventoryItemSetMessage) message;
 
 		// Set the attacks.
-		final PlayerBestiaEntityProxy pbm = getPlayerBestiaManager();
+		final PlayerBestiaEntityProxy pbm = getPlayerBestiaProxy();
 		final List<Integer> itemIds = new ArrayList<>();
 		itemIds.add(itemSetMsg.getItemSlotId1());
 		itemIds.add(itemSetMsg.getItemSlotId2());

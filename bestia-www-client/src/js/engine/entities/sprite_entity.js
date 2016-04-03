@@ -246,7 +246,7 @@ Bestia.Engine.SpriteEntity.prototype.stopMove = function() {
  *            movement speed. {cords: [{x: INT, y: INT}], s: 100}.
  */
 Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg) {
-	
+
 	var speed = msg.s / 100.0;
 	var path = msg.cords;
 
@@ -289,7 +289,9 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg) {
 		var pos = path[b.current - 1];
 		var isLast = path.length === (b.current - 1);
 		var nextAnim = this._getWalkAnimationName(pos, path[b.current]);
+
 		this.playAnimation(nextAnim, isLast);
+
 		console.log("Moved to: " + pos.x + " - " + pos.y);
 
 	}, this);
@@ -297,15 +299,19 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg) {
 	this.tween.onComplete.addOnce(function() {
 
 		var size = path.length;
-		var pos = path[size - 1];
-		var nextAnim = this._getStandAnimationName(path[size - 2], pos, true);
+		var currentPos = path[size - 1];
+		var lastPos = path[size - 2];
+		var nextAnim = this._getStandAnimationName(lastPos, currentPos);
+
 		this.playAnimation(nextAnim);
-		console.log("Moved to: " + pos.x + " - " + pos.y);
+
+		console.log("Moved to: " + currentPos.x + " - " + currentPos.y);
 
 	}, this);
 
 	// Start first animation immediately.
-	this.playAnimation(this._getWalkAnimationName(path[0], path[1]));
+	var animName = this._getWalkAnimationName(path[0], path[1])
+	this.playAnimation(animName);
 	this.tween.start();
 };
 
@@ -327,26 +333,34 @@ Bestia.Engine.SpriteEntity.prototype.checkPosition = function(x, y) {
  * @param newPos
  */
 Bestia.Engine.SpriteEntity.prototype._getWalkAnimationName = function(oldTile, newTile) {
+
 	var x = newTile.x - oldTile.x;
 	var y = newTile.y - oldTile.y;
+
+	var animName = '';
 
 	if (x === 0 && y === -1) {
 		return "walk_up";
 	} else if (x === 1 && y === -1) {
-		return "walk_right_up";
+		animName = "walk_right_up";
 	} else if (x === 1 && y === 0) {
-		return "walk_right";
+		animName = "walk_right";
 	} else if (x === 1 && y === 1) {
-		return "walk_down_right";
+		animName = "walk_down_right";
 	} else if (x === 0 && y === 1) {
-		return "walk_down";
+		animName = "walk_down";
 	} else if (x === -1 && y === 1) {
-		return "walk_down_left";
+		animName = "walk_down_left";
 	} else if (x === -1 && y === 0) {
-		return "walk_left";
+		animName = "walk_left";
 	} else {
-		return "walk_left_up";
+		animName = "walk_left_up";
 	}
+
+	console.trace('old Tile: ' + JSON.stringify(oldTile) + ' newTile: ' + JSON.stringify(newTile) + ' Direction x: '
+			+ x + ', y: ' + y + ' anim: ' + animName);
+
+	return animName;
 };
 
 /**

@@ -36,7 +36,7 @@ public abstract class ECSCommand extends Command {
 	 * @return The {@link PlayerBestiaEntityProxy} of the player currently
 	 *         responsible for triggering this command.
 	 */
-	protected PlayerBestiaEntityProxy getPlayerBestiaManager() {
+	protected PlayerBestiaEntityProxy getPlayerBestiaProxy() {
 		final ComponentMapper<PlayerBestia> playerMapper = world.getMapper(PlayerBestia.class);
 		final PlayerBestiaEntityProxy pbm = playerMapper.get(player).playerBestia;
 		return pbm;

@@ -24,7 +24,7 @@ public class AttackUseCommand extends ECSCommand {
 	protected void execute(Message message, CommandContext ctx) {
 
 		final AttackUseMessage atkMsg = (AttackUseMessage) message;
-		final PlayerBestiaEntityProxy pbm = getPlayerBestiaManager();
+		final PlayerBestiaEntityProxy pbm = getPlayerBestiaProxy();
 		
 		if(pbm.useAttack(atkMsg.getAttackId())) {
 			

@@ -45,7 +45,7 @@ public class ChatCommand extends ECSCommand {
 
 		switch (msg.getChatMode()) {
 		case COMMAND:
-			chatCommandExecutor.execute(msg, getPlayerBestiaManager(), ctx);
+			chatCommandExecutor.execute(msg, getPlayerBestiaProxy(), ctx);
 			break;
 		case PUBLIC:
 			// Send the message to all active player in the range so send to the
@@ -61,7 +61,7 @@ public class ChatCommand extends ECSCommand {
 	private void handlePublicChat(ChatMessage msg, CommandContext ctx) {
 		// All active bestias on this zone.
 		final IntBag entityIds = activePlayerEntities.getEntities();
-		final int senderPlayerBestiaId = getPlayerBestiaManager().getPlayerBestiaId();
+		final int senderPlayerBestiaId = getPlayerBestiaProxy().getPlayerBestiaId();
 
 		for (int i = 0; i < entityIds.size(); i++) {
 			final Entity receiverEntity = world.getEntity(entityIds.get(i));

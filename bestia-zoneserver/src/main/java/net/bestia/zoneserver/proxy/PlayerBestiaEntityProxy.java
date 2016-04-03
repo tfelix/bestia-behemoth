@@ -26,6 +26,8 @@ import net.bestia.model.misc.Damage;
 import net.bestia.model.misc.Sprite.InteractionType;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.Zoneserver;
+import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.entity.PlayerBestiaMapper;
@@ -47,9 +49,12 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 	private final StatusPoints statusPoints;
 	private final String language;
 
+	private final Entity entity;
+
 	private final ComponentMapper<Attacks> attacksMapper;
 	private final PlayerBestiaSpawnManager playerBestiaSpawnManager;
 	private final String entityUUID;
+	private final CommandContext ctx;
 
 	private Direction headFacing;
 
@@ -58,8 +63,12 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 
 	public PlayerBestiaEntityProxy(Entity entity,
 			PlayerBestia playerBestia,
-			PlayerBestiaMapper mapper) {
+			PlayerBestiaMapper mapper, 
+			CommandContext ctx) {
 		super(entity.getId(), mapper);
+
+		this.entity = entity;
+		this.ctx = ctx;
 
 		// Get all the mapper.
 		this.attacksMapper = mapper.getAttacksMapper();
@@ -72,22 +81,22 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 		this.headFacing = Direction.SOUTH;
 
 		// Shortcut to the acc. language.
-		this.language = bestia.getOwner().getLanguage().toString();	
+		this.language = bestia.getOwner().getLanguage().toString();
 		this.statusPoints = new StatusPoints();
-		
+
 		// Setup all the references.
 		mapper.getStatusMapper().get(entityID).statusPoints = this.statusPoints;
 		mapper.getBestiaMapper().get(entityID).manager = this;
 		mapper.getPlayerBestiaMapper().get(entityID).playerBestia = this;
-		
+
 		final Visible visible = mapper.getVisibleMapper().get(entityID);
 		visible.sprite = playerBestia.getOrigin().getSprite();
 		visible.interactionType = InteractionType.GENERIC;
 		visible.spriteType = SpriteType.PLAYER_ANIM;
-		
+
 		// Set the current position.
 		getLocation().set(playerBestia.getCurrentPosition());
-		
+
 		calculateStatusPoints();
 	}
 
@@ -445,5 +454,21 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 	 */
 	private int getNeededExp() {
 		return (int) (Math.ceil(Math.exp(bestia.getLevel()) / 3) + 15);
+	}
+
+	/**
+	 * Sets the current bestia active for receiving commands.
+	 * 
+	 * @param isActive
+	 */
+	public void setActive(boolean isActive) {
+		if (isActive) {
+			ctx.getAccountRegistry().setActiveBestia(getAccountId(), getPlayerBestiaId());
+			entity.edit().create(Active.class);
+
+		} else {
+			ctx.getAccountRegistry().unsetActiveBestia(getAccountId(), getPlayerBestiaId());
+			entity.edit().remove(Active.class);
+		}
 	}
 }

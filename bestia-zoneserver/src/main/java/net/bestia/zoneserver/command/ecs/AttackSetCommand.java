@@ -26,7 +26,7 @@ public class AttackSetCommand extends ECSCommand {
 		final AttackSetMessage atkSetMsg = (AttackSetMessage) message;
 		
 		// Set the attacks.
-		final PlayerBestiaEntityProxy pbm = getPlayerBestiaManager();
+		final PlayerBestiaEntityProxy pbm = getPlayerBestiaProxy();
 		final List<Integer> attackIds = new ArrayList<>();
 		attackIds.add(atkSetMsg.getAtkSlotId1());
 		attackIds.add(atkSetMsg.getAtkSlotId2());

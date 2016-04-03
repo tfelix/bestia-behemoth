@@ -12,6 +12,7 @@ import net.bestia.messages.Message;
 import net.bestia.messages.bestia.BestiaInfoMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.service.InventoryService;
+import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.Position;
@@ -34,9 +35,17 @@ public class PlayerBestiaEntityFactory extends EntityFactory {
 
 	private final Archetype playerBestiaArchetype;
 	private final PlayerBestiaMapper mapper;
+	private final CommandContext ctx;
 
-	public PlayerBestiaEntityFactory(World world, PlayerBestiaMapper mapper) {
+	public PlayerBestiaEntityFactory(World world, PlayerBestiaMapper mapper, CommandContext ctx) {
 		super(world);
+		
+		if(mapper == null) {
+			throw new IllegalArgumentException("PlayerBestiaMapper can not be null.");
+		}
+		if(ctx == null) {
+			throw new IllegalArgumentException("CommandContext cant not be null.");
+		}
 
 		playerBestiaArchetype = new ArchetypeBuilder()
 				.add(Position.class)
@@ -49,6 +58,7 @@ public class PlayerBestiaEntityFactory extends EntityFactory {
 				.build(world);
 
 		this.mapper = mapper;
+		this.ctx = ctx;
 	}
 
 	/**
@@ -65,7 +75,7 @@ public class PlayerBestiaEntityFactory extends EntityFactory {
 		final int entityId = world.create(playerBestiaArchetype);
 		final Entity entity = world.getEntity(entityId);
 
-		final PlayerBestiaEntityProxy pbProxy = new PlayerBestiaEntityProxy(entity, bestia, mapper);
+		final PlayerBestiaEntityProxy pbProxy = new PlayerBestiaEntityProxy(entity, bestia, mapper, ctx);
 
 		// We need to check the bestia if its the master bestia. It will get
 		// marked as active initially.
@@ -77,7 +87,7 @@ public class PlayerBestiaEntityFactory extends EntityFactory {
 			// TODO Das gibt probleme wenn der master die map wechselt und als
 			// aktiv neu markiert wird. Dies sollte nur mit einer LoginMessage
 			// passieren.
-			entity.edit().create(Active.class);
+			pbProxy.setActive(true);
 
 			final InventoryService invService = mapper.getLocator().getBean(InventoryService.class);
 			final InventoryProxy invManager = new InventoryProxy(pbProxy, invService, mapper.getServer());

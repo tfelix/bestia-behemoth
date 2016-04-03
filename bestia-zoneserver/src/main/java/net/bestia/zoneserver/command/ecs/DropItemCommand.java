@@ -38,7 +38,7 @@ public class DropItemCommand extends ECSCommand {
 		// We need an inventory manager.
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
 		final ItemDAO itemDao = ctx.getServiceLocator().getBean(ItemDAO.class);
-		final InventoryProxy invManager = new InventoryProxy(getPlayerBestiaManager(), invService, ctx.getServer());
+		final InventoryProxy invManager = new InventoryProxy(getPlayerBestiaProxy(), invService, ctx.getServer());
 
 		if (!invManager.removeItem(msg.getItemId(), msg.getAmount())) {
 			// Either player did not own the item or not enough.
@@ -46,7 +46,7 @@ public class DropItemCommand extends ECSCommand {
 		}
 		
 		// Get position where to drop the item.
-		final Location playerLoc = getPlayerBestiaManager().getLocation();
+		final Location playerLoc = getPlayerBestiaProxy().getLocation();
 		Vector2 loc = null;
 		int maxTries = 10;
 		while(maxTries-- > 0) {

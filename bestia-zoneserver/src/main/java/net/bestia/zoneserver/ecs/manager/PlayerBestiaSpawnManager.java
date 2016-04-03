@@ -118,7 +118,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 
 		final PlayerBestiaMapper mapper = mapperBuilder.build();
 
-		playerBestiaFactory = new PlayerBestiaEntityFactory(world, mapper);
+		playerBestiaFactory = new PlayerBestiaEntityFactory(world, mapper, ctx);
 
 		// This manager needs to know about these two messages to create and
 		// delete entities.

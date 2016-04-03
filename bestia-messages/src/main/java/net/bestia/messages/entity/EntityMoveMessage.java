@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
@@ -87,6 +88,20 @@ public class EntityMoveMessage extends AccountMessage {
 
 	public List<Cords> getCords() {
 		return cords;
+	}
+	
+	@JsonIgnore
+	public int getPathDistance() {
+		int d = 0;
+		
+		for(int i = 1; i < cords.size(); i++) {
+			final Cords x1 = cords.get(i);
+			final Cords x0 = cords.get(i-1);
+			
+			d += (int)Math.sqrt((x1.x - x0.x) * (x1.x - x0.x) + (x1.y - x0.y) * (x1.y - x0.y));
+		}
+		
+		return d;
 	}
 
 	@Override
