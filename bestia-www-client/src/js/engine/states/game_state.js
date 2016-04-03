@@ -110,9 +110,6 @@ Bestia.Engine.States.GameState.prototype.init = function(bestia) {
 	this._entityUpdater.releaseHold();
 };
 
-Bestia.Engine.States.GameState.prototype.create = function() {
-	//var blur = this.game.add.filter('filter_blur');
-};
 
 /**
  * Callback which is called if the user wants to use a castable item from the
