@@ -11,7 +11,6 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 import net.bestia.maven.util.FilePathHelper;
 import net.bestia.maven.util.MapHelper;
-import tiled.io.TMXMapWriter;
 
 /**
  * This class re-creates the JSON maps from the TMX reference maps. The JSON

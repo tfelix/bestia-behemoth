@@ -21,6 +21,23 @@ Dabei werden alle Maps auf ihre korrekten Angaben überprüft. Folgende Eigensch
    Namen der Spawn Layer Einträge: id:n
    n muss in den Map-Eigenschaften vorhanden sein.
    Eintrag in den Map-Eigenschaften für jeden Spawn: ID,MOB_DB_NAME,COUNT,MIN_DELAY-MAX_DELAY z.B.:1,poring,0,0-10
+   
+### Rolle der Maplayer
+
+Der Layer 0 ist der Grundlegende Layer der so auch von der Engine als Grundlayer gerendert wird. Es kann jedoch noch weitere übergeordnete Layer geben um im Spiel eine gewisse Tiefe darstellen zu können. Im Editor Tiled können Sublayer durch eine weitere Numerierung dargestellt werden zum Beispiel:
+
+* layer\_0_0
+* layer\_0_1
+* layer\_0_2 usw.
+
+Durch das Maven Plugin werden die Sub-Layer im verarbeitungsprozess zu einem Layer, in diesem Fall dann Layer 0 zusammen gefasst. Die Sprites liegen über Layer 0 aber unter den weiteren Layern:
+
+* layer\_2
+* layer\_1
+* Sprites
+* layer\_0
+
+
 
 ## validate-references - Validieren der Referenzen (TODO)
 
