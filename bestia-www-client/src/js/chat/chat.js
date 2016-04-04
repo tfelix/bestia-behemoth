@@ -172,6 +172,9 @@ Bestia.Chat = function(domEle, game) {
 	this._handleRegisterCommand(null, new Bestia.Chat.Commands.HelpCommand());
 	
 	this._localRealtimeCommands.push(new Bestia.Chat.Commands.ModePublicCommand());
+	this._localRealtimeCommands.push(new Bestia.Chat.Commands.ModePartyCommand());
+	this._localRealtimeCommands.push(new Bestia.Chat.Commands.ModeGuildCommand());
+	this._localRealtimeCommands.push(new Bestia.Chat.Commands.ModeWhisperCommand());
 };
 
 /**
