@@ -1,3 +1,5 @@
+Bestia.Chat.Commands = Bestia.Chat.Commands || {};
+
 /**
  * Clears the chat when the command gets executed.
  * 
@@ -6,6 +8,7 @@
  */
 Bestia.Chat.Commands.ClearCommand = function() {
 	this.paramRegex = /\/clear/i;
+	
 	this.cmdRegex = /\/clear/i;
 
 	this.cmdHandle = 'clear';

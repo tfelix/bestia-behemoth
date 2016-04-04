@@ -17,6 +17,11 @@ Bestia.Signal = {
 	AUTH_ERROR : 'system.autherror',
 
 	BESTIA_SELECTED : 'client.bestia.selected',
+	
+	/**
+	 * Advises the chat to register an command.
+	 */
+	CHAT_REGISTER_CMD : 'c.chat.register_cmd',
 
 	INVENTORY_NOTICE : 'inventory.notice',
 	INVENTORY_ITEM_ADD : 'client.inventory.itemAdd',

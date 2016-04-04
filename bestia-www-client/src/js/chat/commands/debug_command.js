@@ -1,3 +1,5 @@
+Bestia.Chat.Commands = Bestia.Chat.Commands || {};
+
 /**
  * Toggles between the debug mode of the game.
  * 

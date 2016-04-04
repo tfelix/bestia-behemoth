@@ -1,3 +1,8 @@
+Bestia.Chat.Commands = Bestia.Chat.Commands || {};
+
+/**
+ * Prints the help of all registered commands.
+ */
 Bestia.Chat.Commands.HelpCommand = function() {
 	this.paramRegex = /\/help/i;
 	this.cmdRegex = /\/help/i;

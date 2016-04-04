@@ -122,7 +122,7 @@ Bestia.Chat = function(domEle, game) {
 	 * @property {boolean}
 	 */
 	this.isVisible = ko.observable(false);
-	
+
 	/**
 	 * Holds the text of the chat.
 	 */
@@ -134,19 +134,8 @@ Bestia.Chat = function(domEle, game) {
 		self._identifyLocalCommandTyping(newValue);
 	});
 
-	// Register all local command handler.
-
-	$.each(Bestia.Chat.Commands, function(key, Command) {
-		// BasicCommand is kind of a abstract placeholder. It has no use. Skip
-		// it.
-		if (key === 'BasicCommand') {
-			return;
-		}
-		self._localCommands.push(new Command());
-	});
-
 	// Finally subscribe to chat messages.
-	game.pubsub.subscribe(Bestia.MID.CHAT_MESSAGE, function(_, msg) {
+	this._pubsub.subscribe(Bestia.MID.CHAT_MESSAGE, function(_, msg) {
 		self.addMessage(msg);
 	});
 
@@ -156,31 +145,30 @@ Bestia.Chat = function(domEle, game) {
 		self.LOCAL_NICKNAME = data.username;
 		self.game.pubsub.unsubscribe(Bestia.Signal.AUTH, handleAuthEvent);
 	};
-	game.pubsub.subscribe(Bestia.Signal.AUTH, handleAuthEvent);
+	this._pubsub.subscribe(Bestia.Signal.AUTH, handleAuthEvent);
 
-	var handleItemObtainedEvent = function(_, item) {
-		i18n.t('chat.item_optained', function(t) {
-			var text = t('chat.item_optained').format(item.name(), item.amount());
-			self.addLocalMessage(text, "SYSTEM");
-		});
-	};
-	game.pubsub.subscribe(Bestia.Signal.INVENTORY_ITEM_ADD, handleItemObtainedEvent);
-
-	// Handle the selection of a new bestia for the bestia id 
+	// Handle the selection of a new bestia for the bestia id
 	// (chat messages are input messages).
-	game.pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, function(_, bestia) {
+	this._pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, function(_, bestia) {
 		self._currentBestiaId = bestia.playerBestiaId();
 	});
-	
+
 	// When the game enters the loading menu hide the chat.
-	game.pubsub.subscribe(Bestia.Signal.ENGINE_PREPARE_MAPLOAD, function(){
+	this._pubsub.subscribe(Bestia.Signal.ENGINE_PREPARE_MAPLOAD, function() {
 		self.isVisible(false);
 	});
-	
+
 	// When the game is displayed also display the chat.
-	game.pubsub.subscribe(Bestia.Signal.ENGINE_FINISHED_MAPLOAD, function(){
+	this._pubsub.subscribe(Bestia.Signal.ENGINE_FINISHED_MAPLOAD, function() {
 		self.isVisible(true);
 	});
+
+	this._pubsub.subscribe(Bestia.Signal.INVENTORY_ITEM_ADD, this._handleItemObtainedMsg.bind(this));
+	this._pubsub.subscribe(Bestia.Signal.CHAT_REGISTER_CMD, this._handleRegisterCommand.bind(this));
+	
+	// Register the chat specific local commands.
+	this._handleRegisterCommand(null, new Bestia.Chat.Commands.ClearCommand());
+	this._handleRegisterCommand(null, new Bestia.Chat.Commands.HelpCommand());
 };
 
 /**
@@ -205,7 +193,8 @@ Bestia.Chat.prototype.sendChat = function() {
 	}
 
 	// Prepare and send the message to the server and add it to the local chat.
-	var msg = new Bestia.Message.Chat(this.mode(), msgText, this.whisperNick(), this.LOCAL_NICKNAME, this._currentBestiaId);
+	var msg = new Bestia.Message.Chat(this.mode(), msgText, this.whisperNick(), this.LOCAL_NICKNAME,
+			this._currentBestiaId);
 
 	// Check if this was a command to be executed on the server and set the
 	// message flag accordingly.
@@ -267,6 +256,42 @@ Bestia.Chat.prototype.addMessage = function(msg) {
 };
 
 /**
+ * Translates the message when an item was added to the inventory and displays
+ * it in the chat.
+ * 
+ * @param _
+ * @param item
+ */
+Bestia.Chat.prototype._handleItemObtainedMsg = function(_, item) {
+
+	this._i18n.t('chat.item_optained', function(t) {
+		var text = t('chat.item_optained').format(item.name(), item.amount());
+		self.addLocalMessage(text, "SYSTEM");
+	});
+
+};
+
+/**
+ * Registers an incoming command into the chat system so it can be used as a
+ * local command.
+ * 
+ * @param _
+ *            {String} Topic.
+ * @param cmd
+ *            {Bestia.Chat.Commands.BasicCommand} The new command to be
+ *            registered.
+ */
+Bestia.Chat.prototype._handleRegisterCommand = function(_, cmd) {
+	if (!(cmd instanceof Bestia.Chat.Commands.BasicCommand)) {
+		console.warn('Bestia.Chat#_handleRegisterCommand: Command is not an instance of BasicCommand.');
+	}
+
+	console.debug('Registering Chat command: ' + cmd.cmdHandle);
+
+	this._localCommands.push(cmd);
+};
+
+/**
  * Scrolls to the latest messages in the chat and sets the flag
  * {@code hasUnreadMessages} to false.
  * 
@@ -323,10 +348,3 @@ Bestia.Chat.prototype._identifyLocalCommandTyping = function(str) {
 		this.text(str.replace(this.whisperRegex, ''));
 	}
 };
-
-/**
- * Holds all objects for defined local chat commands.
- * 
- * @namespace Bestia.Chat.Commands
- */
-Bestia.Chat.Commands = {};
