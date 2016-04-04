@@ -144,7 +144,7 @@ Bestia.Chat = function(domEle, game) {
 	// once this is done.
 	var handleAuthEvent = function(_, data) {
 		self.LOCAL_NICKNAME = data.username;
-		self.game.pubsub.unsubscribe(Bestia.Signal.AUTH, handleAuthEvent);
+		self._pubsub.unsubscribe(Bestia.Signal.AUTH, handleAuthEvent);
 	};
 	this._pubsub.subscribe(Bestia.Signal.AUTH, handleAuthEvent);
 

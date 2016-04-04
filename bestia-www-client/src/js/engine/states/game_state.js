@@ -110,6 +110,33 @@ Bestia.Engine.States.GameState.prototype.init = function(bestia) {
 	this._entityUpdater.releaseHold();
 };
 
+var emitter;
+
+Bestia.Engine.States.GameState.prototype.create = function() {
+	// Start rain.
+	emitter = this.game.add.emitter(this.game.world.centerX, 0, 600);
+	emitter.width = this.game.world.width;
+	
+	emitter.makeParticles('rain');
+
+	emitter.minParticleScale = 0.1;
+	emitter.maxParticleScale = 0.4;
+	
+	//emitter.angle = 30; // uncomment to set an angle for the rain.
+
+	emitter.setYSpeed(300, 500);
+	emitter.setXSpeed(-5, 5);
+
+	emitter.minRotation = 0;
+	emitter.maxRotation = 0;
+
+	emitter.start(false, 1600, 1, 0);
+
+	var nightLayer = this.game.add.graphics(0, 0);
+	nightLayer.lineStyle(0);
+	nightLayer.beginFill(0x000000, 0.4);
+	nightLayer.drawRect(0, 0, this.game.world.width, this.game.world.height);
+};
 
 /**
  * Callback which is called if the user wants to use a castable item from the
@@ -139,6 +166,11 @@ Bestia.Engine.States.GameState.prototype.update = function() {
 			this.marker.onClick();
 		}
 	}
+};
+
+Bestia.Engine.States.GameState.prototype.render = function() {
+
+	this.game.debug.text(emitter.total, 32, 32);
 };
 
 Bestia.Engine.States.GameState.prototype.shutdown = function() {

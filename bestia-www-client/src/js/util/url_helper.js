@@ -41,3 +41,7 @@ Bestia.UrlHelper.prototype.getImageUrl = function(imgName) {
 Bestia.UrlHelper.prototype.getFilterUrl = function(filter) {
 	return this._assetRoot + 'filter/' + filter + '.js';
 };
+
+Bestia.UrlHelper.prototype.getSpriteUrl = function(sprite) {
+	return this._assetRoot + 'img/sprite/' + sprite + '.png';
+};

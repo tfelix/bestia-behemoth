@@ -163,7 +163,7 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 				continue;
 			}
 
-			if (jLayer == 0) {
+			if (jLayer === 0) {
 				break;
 			}
 		}

@@ -25,6 +25,8 @@ Bestia.Engine.States.InitialLoadingState.prototype.preload = function() {
 	this.game.load.image('castindicator_big', this.url.getIndicatorUrl('_small'));
 	
 	this.game.load.script('filter_blur', this.url.getFilterUrl('BlurX'));
+	
+	this.game.load.spritesheet('rain', this.url.getSpriteUrl('rain'), 17, 17);
 
 };
 

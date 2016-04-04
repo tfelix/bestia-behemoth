@@ -23,7 +23,16 @@ module.exports = function(grunt) {
 	
 	var appFiles = [ '<%= tempDir %>/js/behemoth.js', '<%= tempDir %>/js/util/*.js',
 	         		// === CHAT ===
-	         		'<%= tempDir %>/js/chat/*.js', '<%= tempDir %>/js/chat/commands/*.js',
+	         		'<%= tempDir %>/js/chat/*.js', 
+	         		'<%= tempDir %>/js/chat/commands/realtime_command.js',
+	         		'<%= tempDir %>/js/chat/commands/basic_command.js',
+	         		'<%= tempDir %>/js/chat/commands/clear_command.js',
+	         		'<%= tempDir %>/js/chat/commands/debug_command.js',
+	         		'<%= tempDir %>/js/chat/commands/help_command.js',
+	         		'<%= tempDir %>/js/chat/commands/mode_guild_command.js',
+	         		'<%= tempDir %>/js/chat/commands/mode_party_command.js',
+	         		'<%= tempDir %>/js/chat/commands/mode_public_command.js',
+	         		'<%= tempDir %>/js/chat/commands/mode_whisper_command.js',
 	         		// === BESTIAS ===
 	         		'<%= tempDir %>/js/bestia/*.js',
 	         		// === IO ===
