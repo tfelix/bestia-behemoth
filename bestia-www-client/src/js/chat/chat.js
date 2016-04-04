@@ -3,10 +3,6 @@
  * @copyright 2015 Thomas Felix
  */
 
-function strStartsWith(str, start) {
-	return str.slice(0, start.length) == start;
-}
-
 /**
  * Chat for the bestia client. It subscribes to the necessairy messages to get
  * informed if new messages arrive. Updates and displays the messages. Will
@@ -61,8 +57,15 @@ Bestia.Chat = function(domEle, game) {
 	 */
 	this._localCommands = [];
 
-	this.whisperRegex = /^\/[wW] (\w.+) /;
-	this.game = game;
+	/**
+	 * Commands which will be checked at each keystroke if the must be invoked.
+	 * 
+	 * @private
+	 */
+	this._localRealtimeCommands = [];
+
+
+	this._game = game;
 
 	/**
 	 * Current chat mode. Possible values are PUBLIC, PARTY or GUILD.
@@ -130,9 +133,7 @@ Bestia.Chat = function(domEle, game) {
 
 	// Check for constant updates to this value e.g. if the user is typing
 	// to this property. react to certain inputs on the fly.
-	this.text.subscribe(function(newValue) {
-		self._identifyLocalCommandTyping(newValue);
-	});
+	this.text.subscribe(this._identifyLocalCommandTyping.bind(this));
 
 	// Finally subscribe to chat messages.
 	this._pubsub.subscribe(Bestia.MID.CHAT_MESSAGE, function(_, msg) {
@@ -165,10 +166,12 @@ Bestia.Chat = function(domEle, game) {
 
 	this._pubsub.subscribe(Bestia.Signal.INVENTORY_ITEM_ADD, this._handleItemObtainedMsg.bind(this));
 	this._pubsub.subscribe(Bestia.Signal.CHAT_REGISTER_CMD, this._handleRegisterCommand.bind(this));
-	
+
 	// Register the chat specific local commands.
 	this._handleRegisterCommand(null, new Bestia.Chat.Commands.ClearCommand());
 	this._handleRegisterCommand(null, new Bestia.Chat.Commands.HelpCommand());
+	
+	this._localRealtimeCommands.push(new Bestia.Chat.Commands.ModePublicCommand());
 };
 
 /**
@@ -186,7 +189,7 @@ Bestia.Chat.prototype.sendChat = function() {
 
 	var localCmd = this._localCommands;
 	for (var i = 0; i < localCmd.length; i++) {
-		if (localCmd[i].executeCommand(msgText, this, this.game) === true) {
+		if (localCmd[i].executeCommand(msgText, this, this._game) === true) {
 			// Command was handled.
 			return;
 		}
@@ -206,7 +209,7 @@ Bestia.Chat.prototype.sendChat = function() {
 		this.addMessage(msg);
 	}
 
-	this.game.pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
+	this._game.pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 };
 
 /**
@@ -263,6 +266,8 @@ Bestia.Chat.prototype.addMessage = function(msg) {
  * @param item
  */
 Bestia.Chat.prototype._handleItemObtainedMsg = function(_, item) {
+	
+	var self = this;
 
 	this._i18n.t('chat.item_optained', function(t) {
 		var text = t('chat.item_optained').format(item.name(), item.amount());
@@ -326,25 +331,9 @@ Bestia.Chat.prototype.addLocalMessage = function(msg, mode) {
  * class.
  */
 Bestia.Chat.prototype._identifyLocalCommandTyping = function(str) {
+	
+	this._localRealtimeCommands.each(function(val){
+		val.isCommand(str, this);
+	}, this);
 
-	// TODO Das hier kann auch noch ausgelagert werden wenn ich eine performante
-	// lösung habe.
-	// TODO hier kann man unterscheiden zwischen einem live command und einem
-	// normalen command welches erst nach dem absenden überprüft wird.
-	if (strStartsWith(str, '/s ')) { // Public chat.
-		this.mode('PUBLIC');
-		this.text(str.replace('/s ', ''));
-		this.whisperNick('');
-	} else if (strStartsWith(str, '/p ')) { // Party chat.
-		this.mode('PARTY');
-		this.text(str.replace('/p ', ''));
-		this.whisperNick('');
-	} else if (strStartsWith(str, '/g ')) { // Guild chat.
-		this.mode('GUILD');
-		this.text(str.replace('/g ', ''));
-		this.whisperNick('');
-	} else if (this.whisperRegex.test(str)) { // Whisper chat.
-		this.whisperNick(RegExp.$1);
-		this.text(str.replace(this.whisperRegex, ''));
-	}
 };
