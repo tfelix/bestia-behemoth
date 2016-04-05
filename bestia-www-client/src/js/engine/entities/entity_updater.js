@@ -77,7 +77,7 @@ Bestia.Engine.EntityUpdater.prototype._onUpdateHandler = function(_, msg) {
 			break;
 		case 'PLAYER_ANIM':
 			// Player animation sprite.
-			this._factory.createPlayerEntity(msg);
+			//this._factory.createPlayerEntity(msg);
 			break;
 		}
 		break;
@@ -99,7 +99,7 @@ Bestia.Engine.EntityUpdater.prototype._onMoveHandler = function(_, msg) {
 		return;
 	}
 
-	entity.moveTo(msg);
+	//entity.moveTo(msg);
 };
 
 /**
@@ -117,7 +117,7 @@ Bestia.Engine.EntityUpdater.prototype._onPositionHandler = function(_, msg) {
 		return;
 	}
 
-	entity.checkPosition(msg);
+	//entity.checkPosition(msg);
 };
 
 /**

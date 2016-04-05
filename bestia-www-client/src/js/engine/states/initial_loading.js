@@ -27,6 +27,9 @@ Bestia.Engine.States.InitialLoadingState.prototype.preload = function() {
 	this.game.load.script('filter_blur', this.url.getFilterUrl('BlurX'));
 	
 	this.game.load.spritesheet('rain', this.url.getSpriteUrl('rain'), 17, 17);
+	
+	// DBUG
+	this.game.load.atlas('mastersmith', 'assets/mob/mastersmith/mastersmith.png', 'assets/mob/mastersmith/mastersmith.json');
 
 };
 

@@ -114,6 +114,7 @@ var emitter;
 
 Bestia.Engine.States.GameState.prototype.create = function() {
 	// Start rain.
+	/*
 	emitter = this.game.add.emitter(this.game.world.centerX, 0, 600);
 	emitter.width = this.game.world.width;
 	
@@ -135,7 +136,11 @@ Bestia.Engine.States.GameState.prototype.create = function() {
 	var nightLayer = this.game.add.graphics(0, 0);
 	nightLayer.lineStyle(0);
 	nightLayer.beginFill(0x000000, 0.4);
-	nightLayer.drawRect(0, 0, this.game.world.width, this.game.world.height);
+	nightLayer.drawRect(0, 0, this.game.world.width, this.game.world.height);*/
+	
+	var test = this.game.add.sprite(100, 100, 'mastersmith');
+	test.animations.add('walk', ["walk_down/001.png", "walk_down/002.png", "walk_down/003.png"]);
+	test.animations.play('walk');
 };
 
 /**
@@ -170,7 +175,7 @@ Bestia.Engine.States.GameState.prototype.update = function() {
 
 Bestia.Engine.States.GameState.prototype.render = function() {
 
-	this.game.debug.text(emitter.total, 32, 32);
+	//this.game.debug.text(emitter.total, 32, 32);
 };
 
 Bestia.Engine.States.GameState.prototype.shutdown = function() {
