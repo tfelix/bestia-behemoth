@@ -6,7 +6,7 @@
  * @constructor
  * @class Bestia.Engine.World
  */
-Bestia.Engine.World = function(game, astar, spriteGroup) {
+Bestia.Engine.World = function(game, astar, groups) {
 
 	/**
 	 * Reference to a phaser game.
@@ -35,12 +35,7 @@ Bestia.Engine.World = function(game, astar, spriteGroup) {
 
 	this.name = "";
 
-	this._spriteGroup = spriteGroup;
-	
-	this._mapGroup = game.add.group();
-	this._mapGroup.name = 'map';
-	
-	this._mapGroup.add(this._spriteGroup);
+	this._groups = groups;
 };
 
 
@@ -60,6 +55,9 @@ Bestia.Engine.World.prototype.displayMapName = function() {
 
 	// Spawn a centered text.
 	var text = this._game.add.text(this._game._width / 2, this._game._height / 2 - 100, mapName);
+	
+	this._groups.gui.add(text);
+	
 	text.align = 'center';
 	text.anchor.setTo(0.5);
 
@@ -98,7 +96,6 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 
 	// Reset layers.
 	this._layers = [];
-	//this._spriteGroup.sendToBack();
 
 	this.map = this._game.add.tilemap(mapDbName);
 
@@ -130,9 +127,9 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 
 	// Ground layer MUST be present via definition.
 	var layer0 = this.map.createLayer('layer_0');
+	layer0.name = 'layer_0';
 	layer0.resizeWorld();
-	this._mapGroup.add(layer0);
-	this._mapGroup.sendToBack(layer0);
+	this._groups.map_ground.add(layer0);
 
 
 	var iLayer = 0;
@@ -170,7 +167,8 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 
 		// Create the layer.
 		var layer = this.map.createLayer(layerName);
-		this._mapGroup.add(layer);
+		layer.name = layerName;
+		this._groups.map_overlay.add(layer);
 
 		jLayer++;
 	}
