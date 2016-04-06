@@ -57,26 +57,22 @@ Bestia.Engine.SpriteEntity.prototype.setSprite = function(spriteName) {
 	}
 
 	// Register all the animations of the sprite.
-	/*this.data.animations.forEach(function(anim) {
+	this.data.animations.forEach(function(anim) {
 		var frames = Phaser.Animation.generateFrameNames(anim.name + '/', anim.from, anim.to, '.png', 3);
 		this._sprite.animations.add(anim.name, frames, anim.fps, true, false);
-	}, this);*/
+	}, this);
 	
 	this._sprite.animations.add('walk_down', ["walk_down/001.png", "walk_down/002.png", "walk_down/003.png"], 2, true, false);
 	this._sprite.play('walk_down');
 	
-	/*
+
 	// Find all animations which stands.
 	var standAnimations = this.data.animations.filter(function(anim){
 		return anim.name.indexOf('stand') !== -1;
 	});
 	
 	var i = Math.floor(Math.random() * standAnimations.length);
-	//this.playAnimation(standAnimations[i].name);
-	
-	//this._sprite.play('stand_down', 5, true);
-
-	//this._sprite.frameName = 'walk_down/006.png';*/
+	this.playAnimation(standAnimations[i].name);
 
 	// Re-set position so the sprite gets now postioned.
 	this.setPosition(this.position.x, this.position.y);

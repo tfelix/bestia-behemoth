@@ -97,7 +97,7 @@ Bestia.Engine.EntityUpdater.prototype._onMoveHandler = function(_, msg) {
 		return;
 	}
 
-	//entity.moveTo(msg);
+	entity.moveTo(msg);
 };
 
 /**
