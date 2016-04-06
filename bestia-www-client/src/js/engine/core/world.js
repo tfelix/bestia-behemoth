@@ -177,6 +177,10 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 	this.displayMapName();
 };
 
+Bestia.Engine.World.prototype.calculateCollisionMap = function() {
+	
+};
+
 /**
  * Finds a path between a start and a goal coordinate. The coordiantes must be
  * given in tile space coordiantes.

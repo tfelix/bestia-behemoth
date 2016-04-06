@@ -5,10 +5,8 @@
  */
 /*
 Bestia.Engine.PlayerSpriteEntity = function(game, uuid, x, y, playerBestiaId) {
-	Bestia.Engine.SpriteEntity.call(this, game, uuid, x, y, playerBestiaId);
+	//Bestia.Engine.SpriteEntity.call(this, game, uuid, x, y, playerBestiaId);
 	
-	
-
 	
 };
 

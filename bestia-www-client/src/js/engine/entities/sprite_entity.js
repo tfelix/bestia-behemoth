@@ -62,7 +62,6 @@ Bestia.Engine.SpriteEntity.prototype.setSprite = function(spriteName) {
 		this._sprite.animations.add(anim.name, frames, anim.fps, true, false);
 	}, this);
 	
-	this._sprite.animations.add('walk_down', ["walk_down/001.png", "walk_down/002.png", "walk_down/003.png"], 2, true, false);
 	this._sprite.play('walk_down');
 	
 
@@ -123,7 +122,7 @@ Bestia.Engine.SpriteEntity.prototype.update = function(msg) {
  * Can be used to position related child sprites (like weapons or a head) frame
  * by frame.
  */
-Bestia.Engine.SpriteEntity.prototype.tickAnimation = function() {
+Bestia.Engine.SpriteEntity.prototype.update = function() {
 
 };
 
