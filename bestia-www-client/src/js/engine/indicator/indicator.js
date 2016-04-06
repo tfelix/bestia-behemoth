@@ -5,7 +5,7 @@ Bestia.Engine.Indicator = Bestia.Engine.Indicator || {};
  * 
  * @class Bestia.Engine.Indicator
  */
-Bestia.Engine.Indicator.Basic = function() {
+Bestia.Engine.Indicator.Basic = function(game) {
 
 	this._game = game;
 

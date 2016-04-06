@@ -72,9 +72,9 @@ Bestia.Engine.EntityFactory.prototype.createItemEntity = function(data) {
 };
 
 
-Bestia.Engine.EntityFactory.prototype.createPlayerEntity = function(data) {
+Bestia.Engine.EntityFactory.prototype.createPlayerEntity = function() {
 
-	var self = this;
+	//var self = this;
 
 	console.error("Not implemented");
 

@@ -129,7 +129,7 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 	var layer0 = this.map.createLayer('layer_0');
 	layer0.name = 'layer_0';
 	layer0.resizeWorld();
-	this._groups.map_ground.add(layer0);
+	this._groups.mapGround.add(layer0);
 
 
 	var iLayer = 0;
@@ -168,7 +168,7 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 		// Create the layer.
 		var layer = this.map.createLayer(layerName);
 		layer.name = layerName;
-		this._groups.map_overlay.add(layer);
+		this._groups.mapOverlay.add(layer);
 
 		jLayer++;
 	}

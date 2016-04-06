@@ -65,6 +65,7 @@ Bestia.Engine.SpriteEntity.prototype.setSprite = function(spriteName) {
 	this._sprite.animations.add('walk_down', ["walk_down/001.png", "walk_down/002.png", "walk_down/003.png"], 2, true, false);
 	this._sprite.play('walk_down');
 	
+	/*
 	// Find all animations which stands.
 	var standAnimations = this.data.animations.filter(function(anim){
 		return anim.name.indexOf('stand') !== -1;
@@ -75,7 +76,7 @@ Bestia.Engine.SpriteEntity.prototype.setSprite = function(spriteName) {
 	
 	//this._sprite.play('stand_down', 5, true);
 
-	//this._sprite.frameName = 'walk_down/006.png';
+	//this._sprite.frameName = 'walk_down/006.png';*/
 
 	// Re-set position so the sprite gets now postioned.
 	this.setPosition(this.position.x, this.position.y);
@@ -324,7 +325,7 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg) {
 	}, this);
 
 	// Start first animation immediately.
-	var animName = this._getWalkAnimationName(path[0], path[1])
+	var animName = this._getWalkAnimationName(path[0], path[1]);
 	this.playAnimation(animName);
 	this.tween.start();
 };
@@ -370,9 +371,6 @@ Bestia.Engine.SpriteEntity.prototype._getWalkAnimationName = function(oldTile, n
 	} else {
 		animName = "walk_left_up";
 	}
-
-	console.trace('old Tile: ' + JSON.stringify(oldTile) + ' newTile: ' + JSON.stringify(newTile) + ' Direction x: '
-			+ x + ', y: ' + y + ' anim: ' + animName);
 
 	return animName;
 };

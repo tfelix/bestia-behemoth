@@ -8,7 +8,7 @@ Bestia.Engine.States = Bestia.Engine.States || {};
  * @param {Bestia.Engine}
  *            engine - Reference to the bestia engine.
  */
-Bestia.Engine.States.GameState = function(engine, urlHelper, game) {
+Bestia.Engine.States.GameState = function(engine, urlHelper) {
 
 	var self = this;
 
@@ -88,12 +88,12 @@ Bestia.Engine.States.GameState.prototype.init = function(bestia) {
 
 	// ==== GROUPS ====
 	var self = this;
-	self._groups.map_ground = self.game.add.group();
-	self._groups.map_ground.name = 'map_ground';
+	self._groups.mapGround = self.game.add.group();
+	self._groups.mapGround.name = 'map_ground';
 	self._groups.sprites = self.game.add.group();
 	self._groups.sprites.name = 'sprites';
-	self._groups.map_overlay = self.game.add.group();
-	self._groups.map_overlay.name = 'map_overlay';
+	self._groups.mapOverlay = self.game.add.group();
+	self._groups.mapOverlay.name = 'map_overlay';
 	self._groups.effects = self.game.add.group();
 	self._groups.effects.name = 'fx';
 	self._groups.overlay = self.game.add.group();

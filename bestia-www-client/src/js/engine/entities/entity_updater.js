@@ -25,8 +25,6 @@ Bestia.Engine.EntityUpdater = function(pubsub, cache, entityFactory) {
 		throw "EntityFactory can not be null.";
 	}
 
-	var self = this;
-
 	/**
 	 * Temporary buffer to hold all the data until releaseHold is called.
 	 */
