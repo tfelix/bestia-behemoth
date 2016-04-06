@@ -1,4 +1,4 @@
-Bestia.Engine.SpriteEntity = function(game, uuid, x, y, playerBestiaId) {
+Bestia.Engine.SpriteEntity = function(game, uuid, x, y) {
 	Bestia.Engine.BasicEntity.call(this, game);
 
 	this.uuid = uuid;
@@ -12,10 +12,6 @@ Bestia.Engine.SpriteEntity = function(game, uuid, x, y, playerBestiaId) {
 	 * @property {Array}
 	 */
 	this._availableAnimationNames = [];
-
-	if (playerBestiaId !== undefined) {
-		this.playerBestiaId = playerBestiaId;
-	}
 };
 
 Bestia.Engine.SpriteEntity.prototype = Object.create(Bestia.Engine.BasicEntity.prototype);

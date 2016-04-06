@@ -4,8 +4,17 @@
     "guess-types": {
       
     },
+    "es_modules": {
+      
+    },
     "outline": {
       
+    },
+    "doc_comment": {
+      "strong": true
     }
-  }
+  },
+  "libs": [
+    
+  ]
 }

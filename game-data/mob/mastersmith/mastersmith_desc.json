@@ -1,4 +1,5 @@
-{ 
+{
+	"type" : "multisprite",
 	"scale" : 0.68,
     "animations": [
 				{"name": "walk_down", "from": 1, "to": 8, "fps": 7 },
@@ -12,7 +13,14 @@
 				{"name": "stand_left", "from": 1, "to": 1, "fps": 0 },
 				{"name": "stand_left_up", "from": 1, "to": 1, "fps": 0 }
 			],
+	// Ist der Multisprite animiert? Ja/Nein?
+	// Wie bildet man das ab?
 	"anchor": {"x": 0.5, "y": 1},
+	"multiAnimationOffset" : {
+			"animation": "walk_down", "spriteAnimation": "look_down", 
+			"name": "walk_down", "offset": [{"x": 0, "y": 0},{"x": 0, "y": 0},{"x": 0, "y": 0},{"x": 0, "y": 0},
+			{"x": 0, "y": 0},{"x": 0, "y": 0},{"x": 0, "y": 0},{"x": 0, "y": 0}]
+		}
 	"multiSpriteAnchors" : [
 				{
 				"id": "female_01",

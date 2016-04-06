@@ -1,4 +1,5 @@
 { 
+	"type": "sprite",
 	"scale" : 1,
     "animations": [
 				{"name": "walk_down", "from": 1, "to": 8, "fps": 16 },
