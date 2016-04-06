@@ -36,6 +36,13 @@ Bestia.Engine.World = function(game, astar, groups) {
 	this.name = "";
 
 	this._groups = groups;
+	
+	/**
+	 * Tilemap.
+	 */
+	this._map = null;
+	
+	this._collisionMap;
 };
 
 
@@ -97,36 +104,37 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 	// Reset layers.
 	this._layers = [];
 
-	this.map = this._game.add.tilemap(mapDbName);
+	this._map = this._game.add.tilemap(mapDbName);
 
 	this.name = mapDbName;
 
 	// Do some sanity checks.
-	if (this.map.tileHeight !== this.map.tileWidth) {
+	if (this._map.tileHeight !== this._map.tileWidth) {
 		throw "Engine does not support maps with different width and heights. Tiles must be square.";
 	}
 
 	// Extract map properties, and typecast them since they are all strings!
-	var props = this.map.properties;
+	var props = this._map.properties;
 	props.isPVP = (props.isPVP === "true");
 
 	this.properties = props;
 
 	// Set tile size.
-	this.properties.tileSize = this.map.tileHeight;
+	this.properties.tileSize = this._map.tileHeight;
 
 	// Find the first name of the tilemaps specified.
-	if (this.map.tilesets.length > 1) {
+	if (this._map.tilesets.length > 1) {
 		console.warn("Map " + mapDbName + " contains more then one tileset. Using the first one.");
 	}
 
-	var tilesetName = this.map.tilesets[0].name;
+	// There should be only one tileset! (specification)
+	var tilesetName = this._map.tilesets[0].name;
 
-	this.map.addTilesetImage(tilesetName, 'tiles-' + mapDbName, this.properties.tileSize, this.properties.tileSize);
-	this._astar.setAStarMap(this.map, tilesetName);
+	this._map.addTilesetImage(tilesetName, 'tiles-' + mapDbName, this.properties.tileSize, this.properties.tileSize);
+	this._astar.setAStarMap(this._map, tilesetName);
 
 	// Ground layer MUST be present via definition.
-	var layer0 = this.map.createLayer('layer_0');
+	var layer0 = this._map.createLayer('layer_0');
 	layer0.name = 'layer_0';
 	layer0.resizeWorld();
 	this._groups.mapGround.add(layer0);
@@ -137,7 +145,7 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 
 	// Now check how many layer there are and then create them.
 	// Get the names of all layer.
-	var layerNames = this.map.layers.map(function(x) {
+	var layerNames = this._map.layers.map(function(x) {
 		return x.name;
 	});
 
@@ -166,7 +174,7 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 		}
 
 		// Create the layer.
-		var layer = this.map.createLayer(layerName);
+		var layer = this._map.createLayer(layerName);
 		layer.name = layerName;
 		this._groups.mapOverlay.add(layer);
 
@@ -178,6 +186,11 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 };
 
 Bestia.Engine.World.prototype.calculateCollisionMap = function() {
+	// Calculate the number of tiles visible.
+	var tilesWidth = this.game.width / this.properties.tileSize + 5;
+	var tilesHeight = this.game.height / this.properties.tileSize + 5;
+	
+	// Calculate a static collision map.
 	
 };
 
