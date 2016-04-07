@@ -3,7 +3,7 @@
  * these defined constant signals when sending and subscribing to inter app
  * messaging via a Bestia.PubSub interface.
  */
-Bestia.Signal = {
+var Signal = {
 
 	/**
 	 * Emitted when the system tries to authenticate.
@@ -68,3 +68,5 @@ Bestia.Signal = {
 	ENGINE_GAME_STARTED : 'engine.gameStarted'
 
 };
+
+export default Signal;

@@ -1,7 +1,7 @@
 /**
  * Constants with message IDs from the bestia server.
  */
-Bestia.MID = {
+export const MID = {
 	ENTITY_DAMAGE: 'entity.damage',
 	ENTITY_UPDATE: 'entity.update',
 	ENTITY_POSITION: 'entity.position',

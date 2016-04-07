@@ -6,12 +6,12 @@ module.exports = {
 	
 	js: {
 		files : ['<%= sourceDir %>/js/**/*.js', '!<%= sourceDir %>/js/pages/**'],
-		tasks : [ 'preprocess:dev', 'jsonlint', 'jshint', 'concat']
+		tasks : [ 'preprocess:dev', 'jsonlint', 'jshint', 'systemjs']
 	},
 	
 	jsPages: {
 		files : ['<%= sourceDir %>/js/pages/**/*.js'],
-		tasks : [ 'preprocess:dev', 'jsonlint', 'jshint', 'concat']
+		tasks : [ 'preprocess:dev', 'jsonlint', 'jshint', 'systemjs']
 	},
 	
 	html: {

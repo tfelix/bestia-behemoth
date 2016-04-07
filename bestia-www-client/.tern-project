@@ -11,12 +11,10 @@
       
     },
     "doc_comment": {
-      "strong": true
+      
     },
     "eslint": {
-      "config": {
-        
-      }
+      "configFile": "eslint.json"
     },
     "phaser": {
       

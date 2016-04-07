@@ -21,58 +21,6 @@ module.exports = function(grunt) {
 		return version.replace(/([^0-9\.]+)/gi, '');
 	}();
 	
-	var appFiles = [ '<%= tempDir %>/js/behemoth.js', '<%= tempDir %>/js/util/*.js',
-	         		// === CHAT ===
-	         		'<%= tempDir %>/js/chat/*.js', 
-	         		'<%= tempDir %>/js/chat/commands/realtime_command.js',
-	         		'<%= tempDir %>/js/chat/commands/basic_command.js',
-	         		'<%= tempDir %>/js/chat/commands/clear_command.js',
-	         		'<%= tempDir %>/js/chat/commands/debug_command.js',
-	         		'<%= tempDir %>/js/chat/commands/help_command.js',
-	         		'<%= tempDir %>/js/chat/commands/mode_guild_command.js',
-	         		'<%= tempDir %>/js/chat/commands/mode_party_command.js',
-	         		'<%= tempDir %>/js/chat/commands/mode_public_command.js',
-	         		'<%= tempDir %>/js/chat/commands/mode_whisper_command.js',
-	         		// === BESTIAS ===
-	         		'<%= tempDir %>/js/bestia/*.js',
-	         		// === IO ===
-	         		'<%= tempDir %>/js/io/*.js',
-	         		// === INVENTORY ===
-	         		'<%= tempDir %>/js/inventory/*.js',
-	         		// === ATTACKS ===
-	         		'<%= tempDir %>/js/attack/*.js',
-	         		// === ENGINE ===
-	         		'<%= tempDir %>/js/engine/engine.js', 
-	         		'<%= tempDir %>/js/engine/core/*.js',
-	         		'<%= tempDir %>/js/engine/entities/entity_basic.js', 
-	         		'<%= tempDir %>/js/engine/entities/entity_cache.js', 
-	         		'<%= tempDir %>/js/engine/entities/chat_text_entity.js', 
-	         		'<%= tempDir %>/js/engine/entities/damage_entity.js', 
-	         		'<%= tempDir %>/js/engine/entities/entity_cache_manager.js', 
-	         		'<%= tempDir %>/js/engine/entities/entity_factory.js', 
-	         		'<%= tempDir %>/js/engine/entities/entity_updater.js', 
-	         		'<%= tempDir %>/js/engine/entities/item_entity.js', 
-	         		'<%= tempDir %>/js/engine/entities/sprite_entity.js',
-	         		'<%= tempDir %>/js/engine/entities/player_sprite_entity.js',
-	         		'<%= tempDir %>/js/engine/controller/*.js', 
-	         		'<%= tempDir %>/js/engine/plugins/*.js', 
-	         		'<%= tempDir %>/js/engine/cg/*.js',
-	         		'<%= tempDir %>/js/engine/states/*.js',
-	         		'<%= tempDir %>/js/engine/fx/*.js',
-	         		// === LIBS ===
-	         		'<%= tempDir %>/lib/js/visibility_polygon.js'];
-	
-	// Add the intro, outro 
-	var appFilelistShimed = appFiles.slice();
-	appFilelistShimed.unshift('<%= tempDir %>/js/intro.js');
-	appFilelistShimed.push('<%= tempDir %>/js/pages/app.js');
-	appFilelistShimed.push('<%= tempDir %>/js/main.js');
-	appFilelistShimed.push('<%= tempDir %>/js/outro.js');
-	
-	var pageFilelistShimed = ['<%= tempDir %>/js/intro.js', 
-	                          '<%= tempDir %>/js/behemoth.js',
-	                          '<%= tempDir %>/js/util/storage.js',
-	                          '<%= tempDir %>/js/outro.js'];
 
 	loadConfig(grunt, {
 		configPath : __dirname + '/tasks/options',
@@ -82,9 +30,6 @@ module.exports = function(grunt) {
 			buildDir : 'build',
 			distDir : 'dist',
 			sourcemap : true,
-			appFilelist : appFiles,
-			appFilelistShimed : appFilelistShimed,
-			pageFilelistShimed : pageFilelistShimed,
 			version : version
 		}
 	});
@@ -143,7 +88,7 @@ module.exports = function(grunt) {
 		grunt.task.run('bower_concat');
 
 		// Compile JS (Main application)
-		grunt.task.run([ 'preprocess:dev', 'jsonlint', 'jshint', 'concat']);
+		grunt.task.run([ 'preprocess:dev', 'jsonlint', 'jshint', 'systemjs']);
 		
 		// Start server and watch tasks.
 		grunt.task.run(['connect', 'watch']);
