@@ -1,4 +1,4 @@
-package net.bestia.maven.map;
+package net.bestia.maven.api;
 
 import java.io.File;
 
@@ -9,21 +9,22 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import net.bestia.maven.map.MapHelper;
 import net.bestia.maven.util.FilePathHelper;
-import net.bestia.maven.util.MapHelper;
 
 /**
  * This class re-creates the JSON maps from the TMX reference maps. The JSON
  * maps are used by the clients in order to render the maps. TMX format is used
  * to keep the maps in sync with the server. Thus it is crucial to keep both
- * versions ins sync with each other.
+ * versions ins sync with each other. All information which is not crucial for
+ * the clients is stripped away from the JSON maps as spawn locations etc.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 @Mojo(name = "convert-maps", defaultPhase = LifecyclePhase.GENERATE_RESOURCES)
 public class ConvertMaps extends AbstractMojo {
-	
+
 	/**
 	 * Root asset directory.
 	 */
@@ -33,16 +34,16 @@ public class ConvertMaps extends AbstractMojo {
 	public ConvertMaps(File assetDirectory) {
 		this.assetDirectory = assetDirectory;
 	}
-	
+
 	@Override
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		
+
 		final FilePathHelper fileHelper = new FilePathHelper(assetDirectory);
-		
+
 		final File mapsDirectory = fileHelper.getMapDirectory();
-		
+
 		getLog().debug("Maps directory is: " + mapsDirectory.getPath());
-		
+
 		// Read all TMX mapfiles in subfolder.
 		final File[] listing = mapsDirectory.listFiles();
 
@@ -59,7 +60,7 @@ public class ConvertMaps extends AbstractMojo {
 			}
 
 			getLog().info("Creating JSON map: " + file.getName() + ".");
-			
+
 			final MapHelper helper = new MapHelper(file);
 
 			// Parse all TMX mapfiles and write JSON files into the subfolder.

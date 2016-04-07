@@ -1,4 +1,4 @@
-package net.bestia.maven.map;
+package net.bestia.maven.api;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
