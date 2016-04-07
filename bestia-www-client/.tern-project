@@ -12,9 +12,17 @@
     },
     "doc_comment": {
       "strong": true
+    },
+    "eslint": {
+      "config": {
+        
+      }
+    },
+    "phaser": {
+      
     }
   },
   "libs": [
-    
+    "browser"
   ]
 }
