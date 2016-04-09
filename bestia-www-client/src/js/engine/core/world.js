@@ -42,7 +42,7 @@ Bestia.Engine.World = function(game, astar, groups) {
 	 */
 	this._map = null;
 	
-	this._collisionMap;
+	//this._collisionMap;
 };
 
 

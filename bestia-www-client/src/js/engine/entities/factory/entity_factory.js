@@ -13,9 +13,57 @@ Bestia.Engine.EntityFactory = function(game, demandLoader, entityCache, groups) 
 	this._demandLoader = demandLoader;
 
 	this._entityCache = entityCache;
-	
+
 	this._groups = groups;
 
+	/**
+	 * Registry for the builder to register themselfes.
+	 */
+	this.builder = {};
+	
+	this._register(new Bestia.Engine.MultispriteBuilder());
+	this._register(new Bestia.Engine.SimpleObjectBuilder());
+	this._register(new Bestia.Engine.ItemBuilder(game, demandLoader));
+};
+
+Bestia.Engine.EntityFactory.prototype._register = function(b) {
+	this.builder[b.type] = b;
+};
+
+Bestia.Engine.EntityFactory.prototype.build = function(data) {
+	var type = '';
+	
+	switch (data.t) {
+	case 'ITEM':
+		// let an item appear.
+		type = 'item';
+		break;
+	case 'STATIC':
+		// Static sprite appear.
+		type = 'static';
+		break;
+	case 'MOB_ANIM':
+		// Normal bestia.
+		
+		break;
+	case 'PLAYER_ANIM':
+		// Player animation sprite.
+		type = 'multisprite';
+		break;
+	}
+	
+	var b = this.builder[data.type];
+	var entity = null;
+	
+	if(b === undefined) {
+		return entity;
+	} 
+	
+	entity = b.build(data);
+	entity.addToGroup(self._groups.sprites);
+	this._entityCache.addEntity(entity);
+	
+	return entity;
 };
 
 /**
@@ -28,7 +76,7 @@ Bestia.Engine.EntityFactory.prototype.createBestiaEntity = function(data) {
 
 	var self = this;
 	var entity = new Bestia.Engine.SpriteEntity(self._game, data.uuid, data.x, data.y, data.pbid);
-	
+
 	self._entityCache.addEntity(entity);
 
 	this._demandLoader.loadMobSprite(data.s, function() {
@@ -45,38 +93,10 @@ Bestia.Engine.EntityFactory.prototype.createBestiaEntity = function(data) {
 
 };
 
-/**
- * Creates an item entity on the map for the given update data.
- * 
- * @param data
- *            The update data for this (item) entity.
- */
-Bestia.Engine.EntityFactory.prototype.createItemEntity = function(data) {
-
-	var self = this;
-
-	this._demandLoader.loadItemSprite(data.s, function() {
-
-		var entity = new Bestia.Engine.ItemEntity(self._game, data.uuid, data.x, data.y, data.s);
-		
-		entity.addToGroup(self._groups.sprites);
-		self._entityCache.addEntity(entity);
-
-		if (data.a === "APPEAR") {
-			entity.appear();
-		} else {
-			entity.show();
-		}
-	});
-
-};
-
-
 Bestia.Engine.EntityFactory.prototype.createPlayerEntity = function() {
 
-	//var self = this;
+	// var self = this;
 
 	console.error("Not implemented");
 
 };
-

@@ -146,15 +146,40 @@ Bestia.Engine.States.GameState.prototype.create = function() {
 	emitter.maxRotation = 0;
 
 	emitter.start(false, 1600, 1, 0);
-
-	var nightLayer = this.game.add.graphics(0, 0);
-
-	this._groups.overlay.add(nightLayer);
-
-	nightLayer.lineStyle(0);
-	nightLayer.beginFill(0x000000, 0.4);
-
-	nightLayer.drawRect(0, 0, this.game.world.width, this.game.world.height);
+	
+	// We need two layers. One for shadow, one for color informations. Both must be updated by the objects.
+	var shadowMap = this.game.add.bitmapData(this.game.width, this.game.height);
+	var shadowImg = this.game.add.image(0, 0, shadowMap);   
+	
+	shadowImg.blendMode = Phaser.blendModes.MULTIPLY;
+	
+	shadowMap.ctx.fillStyle = '#000000';
+	shadowMap.ctx.beginPath();
+	shadowMap.ctx.fillRect(0, 0, this.game.width, this.game.height);
+	shadowMap.ctx.closePath();
+	
+	//shadowMap.ctx.beginFill(0xFFFFFF, 0.5);
+	
+	var gradient =  shadowMap.ctx.createRadialGradient(700, 260, 100 * 0.75, 700, 260, 200);  
+	gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');    
+	gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');  
+	
+	shadowMap.context.beginPath();    
+	shadowMap.context.fillStyle = gradient;    
+	shadowMap.context.arc(700, 260, 200, 0, Math.PI*2, false);    
+	shadowMap.context.fill(); 
+    
+	shadowMap.dirty = true;
+	
+	shadowImg.alpha = 0.8;
+	
+	/*var blurX = this.game.add.filter('BlurX');
+	var blurY = this.game.add.filter('BlurY');
+	
+	blurX.blur = 50;
+	blurY.blur = 50;
+	
+	//shadowImg.filters = [blurX, blurY];*/
 };
 
 /**

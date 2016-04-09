@@ -73,6 +73,10 @@ Bestia.Engine.SpriteEntity.prototype.setSprite = function(spriteName) {
 	this.setPosition(this.position.x, this.position.y);
 };
 
+Bestia.Engine.SpriteEntity.prototype.setTexture = function(name) {
+	this._sprite.loadTexture(name, 0);
+};
+
 /**
  * Calculates the duration in ms of the total walk of the given path. Depends
  * upon the relative walkspeed of the entity.

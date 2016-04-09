@@ -1,10 +1,13 @@
 Bestia.Engine.ItemEntity = function(game, uuid, x, y, spriteName) {
 	Bestia.Engine.BasicEntity.call(this, game, x, y);
+	
+	spriteName = spriteName || 'default_item';
 
 	this.uuid = uuid;
 	this._game = game;
 
 	var pos = Bestia.Engine.World.getPxXY(x + 0.5, y + 0.5);
+	
 	this._sprite = this._game.add.sprite(pos.x, pos.y, spriteName);
 	this._sprite.alpha = 0;
 

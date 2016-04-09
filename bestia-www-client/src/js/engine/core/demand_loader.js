@@ -18,8 +18,8 @@ Bestia.Engine.DemandLoader = function(loader, cache, urlHelper) {
 	if (!(cache instanceof Phaser.Cache)) {
 		throw "DemandLoader: Cache is not a Phaser.Cache";
 	}
-	
-	if(!urlHelper) {
+
+	if (!urlHelper) {
 		throw "UrlHelper: Can not be null";
 	}
 
@@ -40,12 +40,13 @@ Bestia.Engine.DemandLoader.prototype._fileLoadedCallback = function(progress, ke
 
 	if (this._cache.hasOwnProperty(key)) {
 		cacheData = this._cache[key];
-	} else if(this._keyCache.hasOwnProperty(key)) {
+	} else if (this._keyCache.hasOwnProperty(key)) {
 		// Go the indirection.
 		cacheData = this._cache[this._keyCache[key]];
 		delete this._keyCache[key];
 	} else {
-		// No cache entry found. Propably the file was directly loaded without the use of the demand loader.
+		// No cache entry found. Propably the file was directly loaded without
+		// the use of the demand loader.
 		// Skip the callback search.
 		return;
 	}
@@ -84,6 +85,44 @@ Bestia.Engine.DemandLoader.prototype._fileLoadedCallback = function(progress, ke
 };
 
 /**
+ * Checks if all the given keys are already inside the cache. Keys can be a
+ * single string or an array of strings containing the the key names.
+ * 
+ * @param keys
+ *            {string|array}
+ */
+Bestia.Engine.DemandLoader.prototype.has = function(keys, type) {
+	if(Array.isArray(keys)) {
+		
+		var hasCache = true;
+		
+		keys.forEach(function(val){
+			hasCache = hasCache & this._hasType(val.key, val.type);
+		}.bind(this));
+		
+		return hasCache;
+		
+	} else {
+		if(type === undefined) {
+			return false;
+		}
+		
+		return this._hasType(keys, type);
+	}
+};
+
+Bestia.Engine.DemandLoader.prototype._hasType = function(key, type) {
+	switch (type) {
+	case 'item':
+		return this._phaserCache.checkImageKey(key);
+	default:
+		console.warn("_hasType: Unknown type.");
+		return false;
+
+	}
+};
+
+/**
  * 
  * @param {Function}
  *            fnOnComplete - Callback function which will be called if the
@@ -108,7 +147,7 @@ Bestia.Engine.DemandLoader.prototype.loadMobSprite = function(key, fnOnComplete)
 	this._cache[key] = countObj;
 
 	var packUrl = this._urlHelper.getMobPackUrl(key);
-	
+
 	this._loader.json(key, packUrl);
 	this._loader.start();
 };

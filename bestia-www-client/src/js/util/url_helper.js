@@ -31,6 +31,9 @@ Bestia.UrlHelper.prototype.getIndicatorUrl = function(indicator) {
 };
 
 Bestia.UrlHelper.prototype.getItemIconUrl = function(itemName) {
+	if(!itemName.endsWith('.png')) {
+		itemName += '.png';
+	}
 	return this._assetRoot + 'img/items/' + itemName;
 };
 
