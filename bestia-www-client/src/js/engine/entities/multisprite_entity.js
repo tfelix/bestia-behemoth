@@ -9,14 +9,12 @@
  *            playerBestiaId The ID of the player bestia represented by this
  *            sprite.
  */
-Bestia.Engine.MultispriteEntity = function(game, uuid, x, y, data) {
-	Bestia.Engine.SpriteEntity.call(this, game, uuid, x, y, data);
+Bestia.Engine.MultispriteEntity = function(game, uuid, desc) {
+	Bestia.Engine.SpriteEntity.call(this, game, uuid, -100, -100, desc);
 
 	this._animOffset = {};
 
-	this._multispriteData = data.multiSprite;
-
-	this._generateAnimationOffetData(data);
+	this._multispriteData = desc.multiSprite;
 
 };
 
@@ -43,12 +41,13 @@ Bestia.Engine.MultispriteEntity.prototype._getSubspriteAnimation = function(subs
 };
 
 Bestia.Engine.MultispriteEntity.prototype.setSprite = function(spriteName) {
-	super.setSprite(spriteName);
+	Bestia.Engine.SpriteEntity.prototype.setSprite.call(this, spriteName);
 	
 	// Add the multi sprites if there are some of them.
-	var multisprites = this._data.multiSpriteAnchors;
+	var multisprites = this._data.multiSprite;
 	if (Array.isArray(multisprites)) {
 		for (var i = 0; i < multisprites.length; i++) {
+			
 			var ms = multisprites[i];
 
 			var sprite = this._sprite.addChild(this._game.make.sprite(ms.defaultAnchor.x, ms.defaultAnchor.y, ms.id));

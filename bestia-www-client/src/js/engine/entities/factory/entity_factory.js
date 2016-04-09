@@ -33,7 +33,7 @@ Bestia.Engine.EntityFactory.prototype._register = function(b) {
 };
 
 Bestia.Engine.EntityFactory.prototype.build = function(data, fnOnComplete) {
-	fnOnComplete = fnOnComplete || function() { };
+	fnOnComplete = fnOnComplete || Bestia.NOOP;
 
 	// Do we already have the desc file?
 	var descFile = this.descLoader.getDescription(data);
