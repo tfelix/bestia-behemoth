@@ -19,19 +19,14 @@ Bestia.Engine.FX.Brightness = function(pubsub, cache, game, groups) {
 	
 	this._groups = groups;
 
-	this._pubsub.subscribe(Bestia.Signal.CHAT_RECEIVED, this._onChatMsgHandler.bind(this));
-
 	/**
 	 * 1 if max. brigthness and 0 total darkness.
 	 */
-	this._currentBrightness = 0.5;
+	this.brightness = 1;
 	
 	pubsub.publish(Bestia.Signal.CHAT_REGISTER_CMD, new Bestia.Chat.Commands.EngineCommand(this));
 };
 
-Bestia.Engine.FX.Brightness.prototype._onChatMsgHandler = function(_, data) {
-
-};
 
 Bestia.Engine.FX.Brightness.prototype.destroy = function() {
 	this._pubsub.unsubscribe(Bestia.Signal.CHAT_RECEIVED, this._onChatMsgHandler);
@@ -49,15 +44,6 @@ Bestia.Engine.FX.Brightness.prototype.create = function() {
 	this.shadowMap.ctx.beginPath();
 	this.shadowMap.ctx.fillRect(0, 0, this._game.width, this._game.height);
 	this.shadowMap.ctx.closePath();
-
-	var gradient = this.shadowMap.ctx.createRadialGradient(700, 260, 100 * 0.75, 700, 260, 200);
-	gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');
-	gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
-
-	this.shadowMap.context.beginPath();
-	this.shadowMap.context.fillStyle = gradient;
-	this.shadowMap.context.arc(700, 260, 200, 0, Math.PI * 2, false);
-	this.shadowMap.context.fill();
 
 	this.shadowMap.dirty = true;
 	
@@ -100,7 +86,7 @@ Object.defineProperty(Bestia.Engine.FX.Brightness.prototype, 'brightness', {
 			value = 1;
 		}
 
-		this._currentBrightness = value;
+		this._currentBrightness = 1 - value;
 	}
 
 });

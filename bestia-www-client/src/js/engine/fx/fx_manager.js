@@ -36,6 +36,7 @@ Bestia.Engine.FX.EffectsManager = function(pubsub, game, entityCache, groups) {
 	this._effectInstances.push(new Bestia.Engine.FX.Chat(pubsub, entityCache, game));
 	this._effectInstances.push(new Bestia.Engine.FX.Dialog(pubsub, game));
 	this._effectInstances.push(new Bestia.Engine.FX.Brightness(pubsub, entityCache, game, groups));
+	this._effectInstances.push(new Bestia.Engine.FX.Rain(pubsub, game, groups));
 };
 
 Bestia.Engine.FX.EffectsManager.prototype.create = function() {
@@ -50,6 +51,14 @@ Bestia.Engine.FX.EffectsManager.prototype.update = function() {
 	this._effectInstances.forEach(function(fx){
 		if(fx.update !== undefined) {
 			fx.update();
+		}
+	});
+};
+
+Bestia.Engine.FX.EffectsManager.prototype.load = function() {
+	this._effectInstances.forEach(function(fx){
+		if(fx.load !== undefined) {
+			fx.load();
 		}
 	});
 };

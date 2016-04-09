@@ -123,28 +123,6 @@ Bestia.Engine.States.GameState.prototype.init = function(bestia) {
 };
 
 Bestia.Engine.States.GameState.prototype.create = function() {
-
-	// Start rain.
-	var emitter = this.game.add.emitter(this.game.world.centerX, 0, 600);
-
-	this._groups.effects.add(emitter);
-
-	emitter.width = this.game.world.width;
-
-	emitter.makeParticles('rain');
-
-	emitter.minParticleScale = 0.1;
-	emitter.maxParticleScale = 0.4;
-
-	// emitter.angle = 30; // uncomment to set an angle for the rain.
-
-	emitter.setYSpeed(300, 500);
-	emitter.setXSpeed(-5, 5);
-
-	emitter.minRotation = 0;
-	emitter.maxRotation = 0;
-
-	emitter.start(false, 1600, 1, 0);
 	
 	// Trigger fx create effects.
 	this._fxManager.create();
