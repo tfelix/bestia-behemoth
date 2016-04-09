@@ -29,6 +29,7 @@ module.exports = function(grunt) {
 	         		'<%= tempDir %>/js/chat/commands/clear_command.js',
 	         		'<%= tempDir %>/js/chat/commands/debug_command.js',
 	         		'<%= tempDir %>/js/chat/commands/help_command.js',
+	         		'<%= tempDir %>/js/chat/commands/engine_command.js',
 	         		'<%= tempDir %>/js/chat/commands/mode_guild_command.js',
 	         		'<%= tempDir %>/js/chat/commands/mode_party_command.js',
 	         		'<%= tempDir %>/js/chat/commands/mode_public_command.js',

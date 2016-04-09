@@ -8,7 +8,7 @@
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  */
-Bestia.Engine.FX.EffectsManager = function(pubsub, game, entityCache) {
+Bestia.Engine.FX.EffectsManager = function(pubsub, game, entityCache, groups) {
 	if (pubsub === undefined) {
 		throw "PubSub can not be undefined";
 	}
@@ -35,4 +35,21 @@ Bestia.Engine.FX.EffectsManager = function(pubsub, game, entityCache) {
 	this._effectInstances.push(new Bestia.Engine.FX.Damage(pubsub, entityCache, game));
 	this._effectInstances.push(new Bestia.Engine.FX.Chat(pubsub, entityCache, game));
 	this._effectInstances.push(new Bestia.Engine.FX.Dialog(pubsub, game));
+	this._effectInstances.push(new Bestia.Engine.FX.Brightness(pubsub, entityCache, game, groups));
+};
+
+Bestia.Engine.FX.EffectsManager.prototype.create = function() {
+	this._effectInstances.forEach(function(fx){
+		if(fx.create !== undefined) {
+			fx.create();
+		}
+	});
+};
+
+Bestia.Engine.FX.EffectsManager.prototype.update = function() {
+	this._effectInstances.forEach(function(fx){
+		if(fx.update !== undefined) {
+			fx.update();
+		}
+	});
 };

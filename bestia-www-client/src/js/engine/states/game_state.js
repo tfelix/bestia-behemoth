@@ -74,12 +74,10 @@ Bestia.Engine.States.GameState = function(engine, urlHelper) {
 	this.pubsub.subscribe(Bestia.Signal.ENGINE_BOOTED, function() {
 
 		self._demandLoader = new Bestia.Engine.DemandLoader(self.game.load, self.game.cache, self._urlHelper);
-		self._fxManager = new Bestia.Engine.FX.EffectsManager(self.pubsub, self.game, self._entityCache);
+		self._fxManager = new Bestia.Engine.FX.EffectsManager(self.pubsub, self.game, self._entityCache, self._groups);
 		self._entityFactory = new Bestia.Engine.EntityFactory(self.game, self._demandLoader, self._entityCache,
 				self._groups, self._urlHelper);
 		self._entityUpdater = new Bestia.Engine.EntityUpdater(self.pubsub, self._entityCache, self._entityFactory);
-				
-
 	});
 	// ==== /Subscriptions ====
 };
@@ -148,41 +146,8 @@ Bestia.Engine.States.GameState.prototype.create = function() {
 
 	emitter.start(false, 1600, 1, 0);
 	
-	// We need two layers. One for shadow, one for color informations. Both must be updated by the objects.
-	var shadowMap = this.game.add.bitmapData(this.game.width, this.game.height);
-	var shadowImg = this.game.add.image(0, 0, shadowMap);   
-	
-	shadowImg.blendMode = Phaser.blendModes.MULTIPLY;
-	
-	shadowMap.ctx.fillStyle = '#000000';
-	shadowMap.ctx.beginPath();
-	shadowMap.ctx.fillRect(0, 0, this.game.width, this.game.height);
-	shadowMap.ctx.closePath();
-	
-	//shadowMap.ctx.beginFill(0xFFFFFF, 0.5);
-	
-	var gradient =  shadowMap.ctx.createRadialGradient(700, 260, 100 * 0.75, 700, 260, 200);  
-	gradient.addColorStop(0, 'rgba(255, 255, 255, 1.0)');    
-	gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');  
-	
-	shadowMap.context.beginPath();    
-	shadowMap.context.fillStyle = gradient;    
-	shadowMap.context.arc(700, 260, 200, 0, Math.PI*2, false);    
-	shadowMap.context.fill(); 
-    
-	shadowMap.dirty = true;
-	
-	shadowImg.alpha = 0.8;
-	
-	this._entityFactory.build({mid:"entity.update",uuid:"d8cb0e86-ba0b-4a08-809d-6637e83c37b5",s:"poring",x:35,y:7,t:"MOB_ANIM",a:"APPEAR","pbid":null});
-
-	/*var blurX = this.game.add.filter('BlurX');
-	var blurY = this.game.add.filter('BlurY');
-	
-	blurX.blur = 50;
-	blurY.blur = 50;
-	
-	//shadowImg.filters = [blurX, blurY];*/
+	// Trigger fx create effects.
+	this._fxManager.create();
 };
 
 /**
@@ -198,6 +163,9 @@ Bestia.Engine.States.GameState.prototype._onCastItem = function(item) {
 };
 
 Bestia.Engine.States.GameState.prototype.update = function() {
+	
+	// Trigger the update effects.
+	this._fxManager.update();
 
 	// Update the animation frame groups of all multi sprite entities.
 
@@ -205,12 +173,18 @@ Bestia.Engine.States.GameState.prototype.update = function() {
 	entities.forEach(function(entity) {
 		entity.tickAnimation();
 	}); // Update the marker.
+	
+	
 	if (this.marker !== null) {
 		
 		this.marker.onUpdate();
 
 		if (this.game.input.activePointer.leftButton.isDown) {
-			this.marker.onClick();
+			this.marker.onLeftClick();
+		}
+		
+		if (this.game.input.activePointer.rightButton.isDown) {
+			this.marker.onRightClick();
 		}
 	}
 

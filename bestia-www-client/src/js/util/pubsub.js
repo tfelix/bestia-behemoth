@@ -96,7 +96,7 @@ Bestia.PubSub.prototype._updateCache = function() {
 Bestia.PubSub.prototype.publish = function(e, data) {
 
 	// @ifdef DEVELOPMENT
-	console.debug('Published: ' + e + ', data: ' + JSON.stringify(data));
+	//console.debug('Published: ' + e + ', data: ' + JSON.stringify(data));
 	// @endif
 
 	if (!this.cache[e]) {
