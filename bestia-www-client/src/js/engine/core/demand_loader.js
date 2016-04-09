@@ -191,6 +191,13 @@ Bestia.Engine.DemandLoader.prototype.loadPackData = function(pack, fnOnComplete)
 		key = a;
 		break;
 	}
+	
+	// Check if a load is running. If this is the case only add the callback
+	// function to be executed when the load completes.
+	if (this._cache.hasOwnProperty(key)) {
+		this._cache[key].callbackFns.push(fnOnComplete);
+		return;
+	}
 
 	// Add all files of this pack to our file list.
 	var keyList = pack[key].map(function(x) {
