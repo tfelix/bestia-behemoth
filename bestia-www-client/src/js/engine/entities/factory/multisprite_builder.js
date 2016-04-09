@@ -7,10 +7,12 @@ Bestia.Engine.MultispriteBuilder = function(factory) {
 	// Register with factory.
 	this.type = 'multisprite';
 	this.version = 1;
-
 };
 
-Bestia.Engine.MultispriteBuilder.prototype.build = function(data) {
+Bestia.Engine.MultispriteBuilder.prototype = Object.create(Bestia.Engine.Builder.prototype);
+Bestia.Engine.MultispriteBuilder.prototype.constructor = Bestia.Engine.MultispriteBuilder;
+
+Bestia.Engine.MultispriteBuilder.prototype._build = function(data) {
 	
 	var self = this;
 	var entity = new Bestia.Engine.MultispriteEntity(self._game, data.uuid, data.x, data.y, data);

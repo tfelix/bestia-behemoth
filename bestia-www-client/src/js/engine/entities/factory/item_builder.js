@@ -13,7 +13,10 @@ Bestia.Engine.ItemBuilder = function(game, loader) {
 
 };
 
-Bestia.Engine.ItemBuilder.prototype.build = function(data) {
+Bestia.Engine.ItemBuilder.prototype = Object.create(Bestia.Engine.Builder.prototype);
+Bestia.Engine.ItemBuilder.prototype.constructor = Bestia.Engine.ItemBuilder;
+
+Bestia.Engine.ItemBuilder.prototype._build = function(data) {
 	
 	var entity;
 	

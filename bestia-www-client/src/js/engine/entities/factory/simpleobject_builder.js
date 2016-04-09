@@ -9,15 +9,12 @@ Bestia.Engine.SimpleObjectBuilder = function(factory, game) {
 
 	this._game = game;
 	this._data = null;
-
 };
 
-Bestia.Engine.SimpleObjectBuilder.prototype.build = function(data) {
+Bestia.Engine.SimpleObjectBuilder.prototype = Object.create(Bestia.Engine.Builder.prototype);
+Bestia.Engine.SimpleObjectBuilder.prototype.constructor = Bestia.Engine.SimpleObjectBuilder;
 
-	if (!this._isSane(data)) {
-		// Can not build.
-		return;
-	}
+Bestia.Engine.SimpleObjectBuilder.prototype._build = function(data) {
 
 	this._data = data;
 
@@ -59,6 +56,3 @@ Bestia.Engine.SimpleObjectBuilder.prototype._createNode = function(template) {
 	}
 };
 
-Bestia.Engine.SimpleObjectBuilder.prototype._isSane = function(data) {
-	return data.type === this.type && data.version === this.version;
-};
