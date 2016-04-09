@@ -22,6 +22,14 @@ Bestia.UrlHelper.prototype.getMapPackUrl = function(mapName) {
 	return this._assetRoot + 'map/' + mapName + '/assetpack.json';
 };
 
+Bestia.UrlHelper.prototype.getMobDescUrl = function(mobName) {
+	return this._assetRoot + 'sprite/mob/' + mobName + '/' + mobName + '_desc.json';
+};
+
+Bestia.UrlHelper.prototype.getObjectDescUrl = function(objectName) {
+	return this._assetRoot + 'sprite/object/' + objectName + '/' + objectName + '_desc.json';
+};
+
 Bestia.UrlHelper.prototype.getMobPackUrl = function(mobName) {
 	return this._assetRoot + 'mob/' + mobName + '/' + mobName + '_pack.json';
 };

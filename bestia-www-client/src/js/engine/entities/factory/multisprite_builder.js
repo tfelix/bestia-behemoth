@@ -1,12 +1,15 @@
 /**
  * Responsible for building the multisprites entities.
  */
-Bestia.Engine.MultispriteBuilder = function(factory) {
+Bestia.Engine.MultispriteBuilder = function(game, loader) {
 	
 	
 	// Register with factory.
 	this.type = 'multisprite';
 	this.version = 1;
+	
+	this._loader = loader;
+	this._game = game;
 };
 
 Bestia.Engine.MultispriteBuilder.prototype = Object.create(Bestia.Engine.Builder.prototype);
@@ -14,22 +17,19 @@ Bestia.Engine.MultispriteBuilder.prototype.constructor = Bestia.Engine.Multispri
 
 Bestia.Engine.MultispriteBuilder.prototype._build = function(data) {
 	
-	var self = this;
-	var entity = new Bestia.Engine.MultispriteEntity(self._game, data.uuid, data.x, data.y, data);
+	var entity = new Bestia.Engine.MultispriteEntity(this._game, data.uuid, data.x, data.y, data);
 
-	self._entityCache.addEntity(entity);
-
-	this._demandLoader.loadMobSprite(data.s, function() {
+	this._loader.loadMobSprite(data.s, function() {
 
 		entity.setSprite(data.s);
-		entity.addToGroup(self._groups.sprites);
+		//entity.addToGroup(this._groups.sprites);
 
 		if (data.a === "APPEAR") {
 			entity.appear();
 		} else {
 			entity.show();
 		}
-	});
+	}.bind(this));
 	
 
 };

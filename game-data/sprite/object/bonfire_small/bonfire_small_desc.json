@@ -10,7 +10,7 @@
 	],
 	"template": [
 		{"id": "fire", "name": "bonfire_small", "animation": "burning"},
-		{"name": "filter", "target": "fire", "params": {size: 10}},
-		{"name": "particle", "target": "fire", x: 10, y: 15}
+		{"name": "filter", "target": "fire", "params": {"size": 10}},
+		{"name": "particle", "target": "fire", "x": 10, "y": 15}
 	]
 }

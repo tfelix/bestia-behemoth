@@ -76,8 +76,9 @@ Bestia.Engine.States.GameState = function(engine, urlHelper) {
 		self._demandLoader = new Bestia.Engine.DemandLoader(self.game.load, self.game.cache, self._urlHelper);
 		self._fxManager = new Bestia.Engine.FX.EffectsManager(self.pubsub, self.game, self._entityCache);
 		self._entityFactory = new Bestia.Engine.EntityFactory(self.game, self._demandLoader, self._entityCache,
-				self._groups);
+				self._groups, self._urlHelper);
 		self._entityUpdater = new Bestia.Engine.EntityUpdater(self.pubsub, self._entityCache, self._entityFactory);
+				
 
 	});
 	// ==== /Subscriptions ====
@@ -173,6 +174,8 @@ Bestia.Engine.States.GameState.prototype.create = function() {
 	
 	shadowImg.alpha = 0.8;
 	
+	this._entityFactory.build({mid:"entity.update",uuid:"d8cb0e86-ba0b-4a08-809d-6637e83c37b5",s:"poring",x:35,y:7,t:"MOB_ANIM",a:"APPEAR","pbid":null});
+
 	/*var blurX = this.game.add.filter('BlurX');
 	var blurY = this.game.add.filter('BlurY');
 	

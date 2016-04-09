@@ -28,5 +28,23 @@
 					]}],
 				"defaultAnchor": {"x": 0, "y": -66}
 				}
-			]
+			],
+	"assetpack" : { 
+		"mastersmith": [
+			{
+				"type": "atlasJSONHash",
+				"key": "mastersmith",
+				"textureURL": "assets/mob/mastersmith/mastersmith.png",
+				"atlasURL": "assets/mob/mastersmith/mastersmith.json",
+				"atlasData": null
+			},
+			{
+				"type": "atlasJSONHash",
+				"key": "female_01",
+				"textureURL": "assets/sprite/head/female_01.png",
+				"atlasURL": "assets/sprite/head/female_01.json",
+				"atlasData": null
+			}
+		]
+	}
 }

@@ -6,14 +6,14 @@ Bestia.Engine.Builder = function() {
 
 };
 
-Bestia.Engine.Builder.prototype.build = function(data) {
+Bestia.Engine.Builder.prototype.build = function(data, desc) {
 	
-	if (!this._isSane(data)) {
+	if (!this._isSane(desc)) {
 		// Can not build.
 		return;
 	}
 	
-	this._build(data);
+	return this._build(data, desc);
 	
 };
 

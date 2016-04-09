@@ -7,30 +7,31 @@ Bestia.Engine.SpriteBuilder = function(factory) {
 	// Register with factory.
 	this.type = 'sprite';
 	this.version = 1;
+	
+	this._factory = factory;
 
 };
 
 Bestia.Engine.SpriteBuilder.prototype = Object.create(Bestia.Engine.Builder.prototype);
 Bestia.Engine.SpriteBuilder.prototype.constructor = Bestia.Engine.SpriteBuilder;
 
-Bestia.Engine.SpriteBuilder.prototype._build = function(data) {
+Bestia.Engine.SpriteBuilder.prototype._build = function(data, desc) {
 	
-	var self = this;
-	var entity = new Bestia.Engine.SpriteEntity(self._game, data.uuid, data.x, data.y, data.pbid);
+	var entity = new Bestia.Engine.SpriteEntity(this._factory.game, data.uuid, data.x, data.y, data.pbid);
 
-	self._entityCache.addEntity(entity);
-
-	this._demandLoader.loadMobSprite(data.s, function() {
+	/*
+	this._factory.loader.loadMobSprite(data.s, function() {
 
 		entity.setSprite(data.s);
-		entity.addToGroup(self._groups.sprites);
+		
+		entity.addToGroup(this._factory.groups.sprites);
 
 		if (data.a === "APPEAR") {
 			entity.appear();
 		} else {
 			entity.show();
 		}
-	});
-	
-
+	}.bind(this));
+	*/
+	return entity;
 };
