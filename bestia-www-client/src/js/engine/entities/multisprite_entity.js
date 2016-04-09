@@ -14,16 +14,17 @@ Bestia.Engine.MultispriteEntity = function(game, uuid, desc) {
 
 	this._animOffset = {};
 
-	this._multispriteData = desc.multiSprite;
-
+	this._multiSprites = [];
 };
+
+Bestia.Engine.MultispriteEntity.NULL_POS = {x: 0, y: 0};
 
 Bestia.Engine.MultispriteEntity.prototype = Object.create(Bestia.Engine.SpriteEntity.prototype);
 Bestia.Engine.MultispriteEntity.prototype.constructor = Bestia.Engine.MultispriteEntity;
 
 Bestia.Engine.MultispriteEntity.prototype._getSubspriteAnimation = function(subsprite, currentAnim) {
-	for (var i = 0; i < this._multispriteData.length; i++) {
-		var ms = this._multispriteData[i];
+	for (var i = 0; i < this._data.multiSprite.length; i++) {
+		var ms = this._data.multiSprite[i];
 		if (ms.id !== subsprite) {
 			continue;
 		}
@@ -51,45 +52,74 @@ Bestia.Engine.MultispriteEntity.prototype.setSprite = function(spriteName) {
 			var ms = multisprites[i];
 
 			var sprite = this._sprite.addChild(this._game.make.sprite(ms.defaultAnchor.x, ms.defaultAnchor.y, ms.id));
+			
+			sprite.bestiaDefaultAnchor = ms.defaultAnchor;
+			
+			sprite.name = ms.id;
 			sprite.anchor.setTo(0.5, 1);
 			sprite.scale.setTo(ms.scale);
 			sprite.frameName = 'bottom.png';
+			
+			this._multiSprites.push(sprite);
 		}
 	}
 	
 	
 };
 
+/**
+ * 
+ * @param subsprite Name of the subsprite to look for its anchor offset.
+ * @param currentAnim Currently running animation of the main sprite.
+ * @param currentFrame The current frame of the main sprite.
+ * @returns
+ */
 Bestia.Engine.MultispriteEntity.prototype._getSubspriteOffset = function(subsprite, currentAnim, currentFrame) {
 
-	for (var i = 0; i < this._multispriteData.length; i++) {
-		var ms = this._multispriteData[i];
+	for (var i = 0; i < this._data.multiSprite.length; i++) {
+		var ms = this._data.multiSprite[i];
 		if (ms.id !== subsprite) {
 			continue;
 		}
 		
 		// Look for the name.
 		for(var j = 0; j < ms.animations.length; j++) {
-			if(ms.animations[j].name === currentAnim) {
+			if(ms.animations[j].triggered === currentAnim) {
+				
+				// Safety check.
+				if(ms.animations[j].offsets.length < currentFrame) {
+					return Bestia.Engine.MultispriteEntity.NULL_POS;
+				}
+				
 				return ms.animations[j].offsets[currentFrame];
 			}
 		}
 	}
 	
-	return {x: 0, y: 0};
+	return Bestia.Engine.MultispriteEntity.NULL_POS;
 };
 
 /**
  * Depending on current animation update the sprite offset.
  */
-Bestia.Engine.MultispriteEntity.prototype.update = function() {
+Bestia.Engine.MultispriteEntity.prototype.tickAnimation = function() {
 	if (this._sprite === null) {
 		return;
 	}
 
 	var curAnim = this._sprite.animations.name;
-	var curFrame = this._sprite.animations.currentFrame;
-
-	var offset = this._animOffset[curAnim][curFrame];
-	var subSpriteName = this._animationLookup[curAnim];
+	var curFrame = this._sprite.animations.currentFrame.index;
+	
+	this._multiSprites.forEach(function(ms){
+		
+		// Get the current sub sprite anim name.	
+		var subPos = this._getSubspriteOffset(ms.name, curAnim, curFrame);
+		
+		//subPos.x = ms.bestiaDefaultAnchor.x + subPos.x;
+		//subPos.y = ms.bestiaDefaultAnchor.y + subPos.y;
+		
+		//ms.position = subPos;
+		ms.position = {x: ms.bestiaDefaultAnchor.x - 5, y: ms.bestiaDefaultAnchor.y};
+		
+	}, this);
 };

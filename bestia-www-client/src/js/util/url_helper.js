@@ -35,6 +35,10 @@ Bestia.UrlHelper.prototype.getMobPackUrl = function(mobName) {
 };
 
 Bestia.UrlHelper.prototype.getIndicatorUrl = function(indicator) {
+	if(indicator === 'cursor') {
+		// Special treatmen for default cursor.
+		return this._assetRoot + 'cast_indicators/' + indicator + '.png';
+	} 
 	return this._assetRoot + 'cast_indicators/' + indicator + '/' + indicator + '.png';
 };
 

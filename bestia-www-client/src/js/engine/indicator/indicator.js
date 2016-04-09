@@ -8,25 +8,29 @@ Bestia.Engine.Indicator = Bestia.Engine.Indicator || {};
 Bestia.Engine.Indicator.Basic = function(game) {
 
 	this._game = game;
-
-};
-
-Bestia.Engine.Indicator.Basic.prototype.initialize = function() {
-
-	this.marker = this._game.add.graphics();
-	this.marker.lineStyle(2, 0xffffff, 1);
-	this.marker.drawRect(0, 0, 32, 32);
 	
-	this.game.input.addMoveCallback(this.updateMarker, this);
-	this.game.input.onDown.add(this.clickHandler, this);
+	this.marker = this._game.add.sprite(0, 0, 'cursor');
+	this.marker.animations.add('blink');
+	this.marker.animations.play('blink', 1, true);
 	
+	this._game.input.addMoveCallback(this._onMouseMove, this);
+	//this._game.input.onDown.add(this._onClick, this);
 };
 
 /**
  * Callback is called if the engine 
  */
-Bestia.Engine.Indicator.Basic.prototype.onMouseMove = function() {
+Bestia.Engine.Indicator.Basic.prototype._onMouseMove = function() {
+	var pointer = this._game.input.activePointer;
 
+	// From px to tiles and back.
+	var cords = Bestia.Engine.World.getTileXY(pointer.worldX, pointer.worldY);
+	Bestia.Engine.World.getPxXY(cords.x, cords.y, cords);
+
+	this.marker.x = cords.x;
+	this.marker.y = cords.y;
+	
+	// TODO Check if we are on an non walkable tile. Hide cursor here.
 };
 
 Bestia.Engine.Indicator.Basic.prototype.onClick = function() {
@@ -49,17 +53,4 @@ Bestia.Engine.Indicator.Basic.prototype.onClick = function() {
 	// Start movement locally as well.
 	player.moveTo(path);
 	
-};
-
-/**
- * Called when the engine renders the indicator each tick.
- */
-Bestia.Engine.Indicator.Basic.prototype.onUpdate = function() {
-
-	var pointer = this._game.input.activePointer;
-
-	var cords = Bestia.Engine.World.getTileXY(pointer.worldX, pointer.worldY);
-
-	this.marker.x = cords.x;
-	this.marker.y = cords.y;	
 };

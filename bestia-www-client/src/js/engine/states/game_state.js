@@ -126,6 +126,9 @@ Bestia.Engine.States.GameState.prototype.create = function() {
 	
 	// Trigger fx create effects.
 	this._fxManager.create();
+	
+	// Set the move indicator.
+	this._cursor = new Bestia.Engine.Indicator.Basic(this.game);
 };
 
 /**
@@ -152,10 +155,10 @@ Bestia.Engine.States.GameState.prototype.update = function() {
 		entity.tickAnimation();
 	}); // Update the marker.
 	
-	
-	if (this.marker !== null) {
+	/*
+	if (this._cursor !== null) {
 		
-		this.marker.onUpdate();
+		this._cursor.onUpdate();
 
 		if (this.game.input.activePointer.leftButton.isDown) {
 			this.marker.onLeftClick();
@@ -164,7 +167,7 @@ Bestia.Engine.States.GameState.prototype.update = function() {
 		if (this.game.input.activePointer.rightButton.isDown) {
 			this.marker.onRightClick();
 		}
-	}
+	}*/
 
 };
 

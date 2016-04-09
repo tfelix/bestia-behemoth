@@ -30,6 +30,8 @@ Bestia.Engine.States.InitialLoadingState.prototype.preload = function() {
 	this.game.load.script('filter_blur_y', this.url.getFilterUrl('BlurY'));
 	
 	this.game.load.spritesheet('rain', this.url.getSpriteUrl('rain'), 17, 17);
+	
+	this.game.load.spritesheet('cursor', this.url.getIndicatorUrl('cursor'), 32, 32);
 
 };
 
