@@ -57,7 +57,7 @@ public class PortalMapExtender implements TMXMapExtender {
 			
 			while (objIter.hasNext()) {
 				final MapObject mapObj = objIter.next();
-				final Rectangle bb = mapObj.getBounds();
+				final Rectangle bb = mapObj.getBounds().getBounds();
 
 				// Translate the bb to shape.
 				final CollisionShape rect = new Rect(bb.x / tileWidth, bb.y / tileHeight, bb.width / tileWidth, bb.height / tileHeight);

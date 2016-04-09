@@ -87,7 +87,7 @@ public class SpawnTMXMapExtender extends TMXMapHelper implements TMXMapExtender 
 				continue;
 			}
 
-			final Rectangle box = mapObj.getBounds();
+			final Rectangle box = mapObj.getBounds().getBounds();
 			final Rect newArea = new Rect(box.x / tileSize, box.y / tileSize, box.width / tileSize, box.height / tileSize);
 
 			if (!spawnLocations.containsKey(id)) {

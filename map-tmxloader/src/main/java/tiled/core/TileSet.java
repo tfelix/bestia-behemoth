@@ -85,8 +85,17 @@ public class TileSet implements Iterable<Tile>
             throws IOException
     {
         setTilesetImageFilename(imgFilename);
+        
+        final File imgFile = new File(imgFilename);
+        String t = imgFile.getAbsolutePath();
+        t= imgFile.getCanonicalPath();
+       // t = imgFile.
+        
+        if(imgFile.exists()) {
+        	throw new IOException("wtf.");
+        }
 
-        Image image = ImageIO.read(new File(imgFilename));
+        Image image = ImageIO.read(imgFile);
         if (image == null) {
             throw new IOException("Failed to load " + tilebmpFile);
         }
