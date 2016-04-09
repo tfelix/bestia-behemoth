@@ -87,7 +87,7 @@ Bestia.Engine.MultispriteEntity.prototype._getSubspriteOffset = function(subspri
 			if(ms.animations[j].triggered === currentAnim) {
 				
 				// Safety check.
-				if(ms.animations[j].offsets.length < currentFrame) {
+				if(ms.animations[j].offsets.length <= currentFrame) {
 					return Bestia.Engine.MultispriteEntity.NULL_POS;
 				}
 				
@@ -108,18 +108,18 @@ Bestia.Engine.MultispriteEntity.prototype.tickAnimation = function() {
 	}
 
 	var curAnim = this._sprite.animations.name;
-	var curFrame = this._sprite.animations.currentFrame.index;
+	
+	// The frame names are ???/001.png etc.
+	var start = this._sprite.frameName.length - 7;
+	var frameNumber = this._sprite.frameName.substring(start, start + 3);
+	var curFrame = parseInt(frameNumber);
 	
 	this._multiSprites.forEach(function(ms){
 		
 		// Get the current sub sprite anim name.	
 		var subPos = this._getSubspriteOffset(ms.name, curAnim, curFrame);
 		
-		//subPos.x = ms.bestiaDefaultAnchor.x + subPos.x;
-		//subPos.y = ms.bestiaDefaultAnchor.y + subPos.y;
-		
-		//ms.position = subPos;
-		ms.position = {x: ms.bestiaDefaultAnchor.x - 5, y: ms.bestiaDefaultAnchor.y};
+		ms.position = {x: ms.bestiaDefaultAnchor.x + subPos.x, y: ms.bestiaDefaultAnchor.y + subPos.y};
 		
 	}, this);
 };
