@@ -90,10 +90,7 @@ public class TileSet implements Iterable<Tile>
         String t = imgFile.getAbsolutePath();
         t= imgFile.getCanonicalPath();
        // t = imgFile.
-        
-        if(imgFile.exists()) {
-        	throw new IOException("wtf.");
-        }
+
 
         Image image = ImageIO.read(imgFile);
         if (image == null) {
