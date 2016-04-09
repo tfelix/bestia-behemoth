@@ -8,7 +8,7 @@
  */
 Bestia.Engine.EntityFactory = function(game, loader, entityCache, groups, urlHelper) {
 
-	this._game = game;
+	this.game = game;
 
 	this.loader = loader;
 	this.descLoader = new Bestia.Engine.DescriptionLoader(loader, urlHelper);
@@ -75,7 +75,6 @@ Bestia.Engine.EntityFactory.prototype._build = function(data, descFile, fnOnComp
 		return;
 	}
 
-	entity.addToGroup(self._groups.sprites);
 	this._entityCache.addEntity(entity);
 
 	// Call the callback handler.

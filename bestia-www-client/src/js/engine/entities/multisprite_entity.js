@@ -42,6 +42,25 @@ Bestia.Engine.MultispriteEntity.prototype._getSubspriteAnimation = function(subs
 	return null;
 };
 
+Bestia.Engine.MultispriteEntity.prototype.setSprite = function(spriteName) {
+	super.setSprite(spriteName);
+	
+	// Add the multi sprites if there are some of them.
+	var multisprites = this._data.multiSpriteAnchors;
+	if (Array.isArray(multisprites)) {
+		for (var i = 0; i < multisprites.length; i++) {
+			var ms = multisprites[i];
+
+			var sprite = this._sprite.addChild(this._game.make.sprite(ms.defaultAnchor.x, ms.defaultAnchor.y, ms.id));
+			sprite.anchor.setTo(0.5, 1);
+			sprite.scale.setTo(ms.scale);
+			sprite.frameName = 'bottom.png';
+		}
+	}
+	
+	
+};
+
 Bestia.Engine.MultispriteEntity.prototype._getSubspriteOffset = function(subsprite, currentAnim, currentFrame) {
 
 	for (var i = 0; i < this._multispriteData.length; i++) {

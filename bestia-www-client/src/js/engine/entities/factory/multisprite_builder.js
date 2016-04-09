@@ -18,18 +18,13 @@ Bestia.Engine.MultispriteBuilder.prototype.constructor = Bestia.Engine.Multispri
 Bestia.Engine.MultispriteBuilder.prototype._build = function(data) {
 	
 	var entity = new Bestia.Engine.MultispriteEntity(this._game, data.uuid, data.x, data.y, data);
+	entity.setSprite(data.s);
 
-	this._loader.loadMobSprite(data.s, function() {
-
-		entity.setSprite(data.s);
-		//entity.addToGroup(this._groups.sprites);
-
-		if (data.a === "APPEAR") {
-			entity.appear();
-		} else {
-			entity.show();
-		}
-	}.bind(this));
+	if (data.a === "APPEAR") {
+		entity.appear();
+	} else {
+		entity.show();
+	}
 	
-
+	return entity;
 };
