@@ -3,6 +3,7 @@
   "description": "Website Client of Bestia - Browsergame.",
   "author": "Thomas Felix (http://www.tfelix.de)",
   "version": "0.2.7",
+  "jsnext:main": "build/bundle.js",
   "private": true,
   "dependencies": {
     "bower": "^1.4.1",
@@ -22,13 +23,13 @@
     "grunt-contrib-watch": "^1.0.0",
     "grunt-jsonlint": "^1.0.4",
     "grunt-preprocess": "^5.0.1",
-    "grunt-systemjs-builder": "^0.2.6",
     "load-grunt-config": "^0.19.1",
     "load-grunt-tasks": "^3.1.0",
     "process-nextick-args": "^1.0.3",
-    "time-grunt": "^1.2.0"
-  },
-  "devDependencies": {
-    "grunt-jsdoc": "^1.1.0"
+    "time-grunt": "^1.2.0",
+	"babel-preset-es2015-rollup": "^1.1.1",
+    "grunt-jsdoc": "^1.1.0",
+    "grunt-rollup": "^0.7.1",
+    "rollup-plugin-babel": "^2.4.0"
   }
 }

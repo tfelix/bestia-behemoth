@@ -3,7 +3,7 @@
  * @copyright 2015 Thomas Felix
  */
 
-import Signal from 'io/Signal.js';
+import Signal from './Signal.js';
 
 /**
  * Main message module. Responsible for sending messages to the server and to

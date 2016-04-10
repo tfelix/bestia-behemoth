@@ -1,8 +1,6 @@
 module.exports = function(grunt) {
 	"use strict";
 
-	var loadConfig = require('load-grunt-config');
-
 	/**
 	 * Full version of the app (e.g. beta-1.2.4).
 	 */
@@ -22,6 +20,7 @@ module.exports = function(grunt) {
 	}();
 	
 
+	var loadConfig = require('load-grunt-config');
 	loadConfig(grunt, {
 		configPath : __dirname + '/tasks/options',
 		config : {
@@ -35,6 +34,7 @@ module.exports = function(grunt) {
 	});
 
 	grunt.loadTasks('tasks');
+
 
 	grunt.registerTask('default', 'Builds the project and packages it for distribution.', [ 'prod' ]);
 
@@ -88,7 +88,7 @@ module.exports = function(grunt) {
 		grunt.task.run('bower_concat');
 
 		// Compile JS (Main application)
-		grunt.task.run([ 'preprocess:dev', 'jsonlint', 'jshint', 'systemjs']);
+		grunt.task.run([ 'preprocess:dev', 'jsonlint', 'jshint', 'rollup']);
 		
 		// Start server and watch tasks.
 		grunt.task.run(['connect', 'watch']);

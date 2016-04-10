@@ -1,8 +1,8 @@
-import PubSub from 'util/Pubsub.js';
-import Config from 'util/Config.js';
-import UrlHelper from 'util/UrlHelper.js';
-import Connection from 'io/connection.js';
-import Signal from 'io/Signal.js';
+import PubSub from './util/Pubsub.js';
+import Config from './util/Config.js';
+import UrlHelper from './util/UrlHelper.js';
+import Connection from './io/connection.js';
+import Signal from './io/Signal.js';
 
 /**
  * @author Thomas Felix <thomas.felix@tfelix.de>
@@ -38,13 +38,7 @@ export const Bestia = {
 		bestiaWebsocket: 'http://localhost:8080/api', 
 		assetsRoot : 'http://localhost/assets/'
 		// @endif
-		// @ifdef PRODUCTION 
-		loginHtml : 'http://www.bestia-game.net/login.html', 
-		gameHtml : 'http://www.bestia-game.net/index.html', 
-		bestiaWebAPI : 'http://login.bestia-game.net', 
-		bestiaWebsocket : 'http://socket.bestia-game.net/api', 
-		assetsRoot : 'http://www.bestia-game.net/assets/' 
-		// @endif
+		
 	}
 };
 
