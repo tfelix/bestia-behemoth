@@ -40,6 +40,9 @@ Bestia.Chat.Commands.BasicCommand.prototype._checkCommand = function(cmdStr) {
  *          otherwise.
  */
 Bestia.Chat.Commands.BasicCommand.prototype._checkParameter = function(cmdStr) {
+	if(this.paramRegex === null) {
+		return true;
+	}
 	this.matches = this.paramRegex.exec(cmdStr);
 	return this.matches !== null;
 };

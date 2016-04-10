@@ -74,11 +74,10 @@ Bestia.Engine.States.GameState = function(engine, urlHelper) {
 	this.pubsub.subscribe(Bestia.Signal.ENGINE_BOOTED, function() {
 
 		self._demandLoader = new Bestia.Engine.DemandLoader(self.game.load, self.game.cache, self._urlHelper);
-		self._fxManager = new Bestia.Engine.FX.EffectsManager(self.pubsub, self.game, self._entityCache);
+		self._fxManager = new Bestia.Engine.FX.EffectsManager(self.pubsub, self.game, self._entityCache, self._groups);
 		self._entityFactory = new Bestia.Engine.EntityFactory(self.game, self._demandLoader, self._entityCache,
-				self._groups);
+				self._groups, self._urlHelper);
 		self._entityUpdater = new Bestia.Engine.EntityUpdater(self.pubsub, self._entityCache, self._entityFactory);
-
 	});
 	// ==== /Subscriptions ====
 };
@@ -124,37 +123,14 @@ Bestia.Engine.States.GameState.prototype.init = function(bestia) {
 };
 
 Bestia.Engine.States.GameState.prototype.create = function() {
-
-	// Start rain.
-	var emitter = this.game.add.emitter(this.game.world.centerX, 0, 600);
-
-	this._groups.effects.add(emitter);
-
-	emitter.width = this.game.world.width;
-
-	emitter.makeParticles('rain');
-
-	emitter.minParticleScale = 0.1;
-	emitter.maxParticleScale = 0.4;
-
-	// emitter.angle = 30; // uncomment to set an angle for the rain.
-
-	emitter.setYSpeed(300, 500);
-	emitter.setXSpeed(-5, 5);
-
-	emitter.minRotation = 0;
-	emitter.maxRotation = 0;
-
-	emitter.start(false, 1600, 1, 0);
-
-	var nightLayer = this.game.add.graphics(0, 0);
-
-	this._groups.overlay.add(nightLayer);
-
-	nightLayer.lineStyle(0);
-	nightLayer.beginFill(0x000000, 0.4);
-
-	nightLayer.drawRect(0, 0, this.game.world.width, this.game.world.height);
+	
+	// Trigger fx create effects.
+	this._fxManager.create();
+	
+	// Das ist temporär hier einen Indicator manager nutzen.
+	// Set the move indicator.
+	this._cursor = new Bestia.Engine.Indicator.Basic(this.game, this.pubsub, this.bestiaWorld, this);
+	
 };
 
 /**
@@ -170,21 +146,15 @@ Bestia.Engine.States.GameState.prototype._onCastItem = function(item) {
 };
 
 Bestia.Engine.States.GameState.prototype.update = function() {
+	
+	// Trigger the update effects.
+	this._fxManager.update();
 
 	// Update the animation frame groups of all multi sprite entities.
-
 	var entities = this._entityCache.getAllEntities();
 	entities.forEach(function(entity) {
 		entity.tickAnimation();
-	}); // Update the marker.
-	if (this.marker !== null) {
-		
-		this.marker.onUpdate();
-
-		if (this.game.input.activePointer.leftButton.isDown) {
-			this.marker.onClick();
-		}
-	}
+	});
 
 };
 
@@ -204,6 +174,6 @@ Bestia.Engine.States.GameState.prototype.shutdown = function() {
 
 Bestia.Engine.States.GameState.prototype.getPlayerEntity = function() {
 	var pbid = this.engine.bestia.playerBestiaId();
-	var entity = this.engine.entityCache.getByPlayerBestiaId(pbid);
+	var entity = this._entityCache.getByPlayerBestiaId(pbid);
 	return entity;
 };

@@ -17,8 +17,7 @@ module.exports = function(grunt) {
 	 */
 	var versionOnly = function() {
 		return version.replace(/([^0-9\.]+)/gi, '');
-	}();
-	
+	}();	
 
 	var loadConfig = require('load-grunt-config');
 	loadConfig(grunt, {

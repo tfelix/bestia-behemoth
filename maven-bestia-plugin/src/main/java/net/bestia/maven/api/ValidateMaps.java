@@ -1,4 +1,4 @@
-package net.bestia.maven.map;
+package net.bestia.maven.api;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,8 +20,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import net.bestia.maven.map.MapHelper;
 import net.bestia.maven.util.FilePathHelper;
-import net.bestia.maven.util.MapHelper;
 import tiled.core.Map;
 import tiled.core.MapLayer;
 

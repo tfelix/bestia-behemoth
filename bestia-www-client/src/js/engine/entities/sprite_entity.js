@@ -1,8 +1,10 @@
-Bestia.Engine.SpriteEntity = function(game, uuid, x, y) {
+Bestia.Engine.SpriteEntity = function(game, uuid, x, y, desc) {
 	Bestia.Engine.BasicEntity.call(this, game);
 
 	this.uuid = uuid;
 	this.setPosition(x, y);
+
+	this._data = desc;
 
 	/**
 	 * Holds a list with names of supported animations. This is a cache and is
@@ -18,59 +20,55 @@ Bestia.Engine.SpriteEntity.prototype = Object.create(Bestia.Engine.BasicEntity.p
 Bestia.Engine.SpriteEntity.prototype.constructor = Bestia.Engine.SpriteEntity;
 
 Bestia.Engine.SpriteEntity.prototype.setSprite = function(spriteName) {
-	// Save the description data for reference. This is done here because now we
-	// are sure all the data has been loaded.
-	this.data = this._game.cache.getJSON(spriteName + '_desc');
-
-	if (!this.data) {
-		console.warn("Could finde sprite inside cache: " + spriteName);
-		return;
-	}
 
 	// Generate the animation names.
-	this._availableAnimationNames = this.data.animations.map(function(val) {
+	this._availableAnimationNames = this._data.animations.map(function(val) {
 		return val.name;
 	});
 
 	this._sprite = this._game.add.sprite(0, 0, spriteName);
 
-	// Set anchor to the middle of the sprite to the bottom.
-	this._sprite.anchor = this.data.anchor;
-	this._sprite.scale.setTo(this.data.scale);
-	this._sprite.alpha = 0;
-
-	// Add the multi sprites if there are some of them.
-	var multisprites = this.data.multiSpriteAnchors;
-	if (Array.isArray(multisprites)) {
-		for (var i = 0; i < multisprites.length; i++) {
-			var ms = multisprites[i];
-
-			var sprite = this._sprite.addChild(this._game.make.sprite(ms.defaultAnchor.x, ms.defaultAnchor.y, ms.id));
-			sprite.anchor.setTo(0.5, 1);
-			sprite.scale.setTo(ms.scale);
-			sprite.frameName = 'bottom.png';
-		}
-	}
-
-	// Register all the animations of the sprite.
-	this.data.animations.forEach(function(anim) {
-		var frames = Phaser.Animation.generateFrameNames(anim.name + '/', anim.from, anim.to, '.png', 3);
-		this._sprite.animations.add(anim.name, frames, anim.fps, true, false);
-	}, this);
-	
-	this._sprite.play('walk_down');
-	
+	this._setupSprite(this._sprite, this._data);
 
 	// Find all animations which stands.
-	var standAnimations = this.data.animations.filter(function(anim){
+	var standAnimations = this._data.animations.filter(function(anim) {
 		return anim.name.indexOf('stand') !== -1;
 	});
-	
+
 	var i = Math.floor(Math.random() * standAnimations.length);
+	// var i = 0;
 	this.playAnimation(standAnimations[i].name);
 
 	// Re-set position so the sprite gets now postioned.
 	this.setPosition(this.position.x, this.position.y);
+};
+
+/**
+ * Helper function to setup a sprite with all the information contained inside a
+ * description object.
+ * 
+ * @param sprite
+ * @param descObj
+ */
+Bestia.Engine.SpriteEntity.prototype._setupSprite = function(sprite, descObj) {
+	
+	// Setup the normal data.
+	sprite.anchor = descObj.anchor || {x: 0.5, y: 0.5};
+	sprite.scale.setTo(descObj.scale || 1);
+	// Sprite is invisible at first.
+	sprite.alpha = 0;
+	
+	var anims = descObj.animations || [];
+
+	// Register all the animations of the sprite.
+	anims.forEach(function(anim) {
+		var frames = Phaser.Animation.generateFrameNames(anim.name + '/', anim.from, anim.to, '.png', 3);
+		sprite.animations.add(anim.name, frames, anim.fps, true, false);
+	}, this);
+};
+
+Bestia.Engine.SpriteEntity.prototype.setTexture = function(name) {
+	this._sprite.loadTexture(name, 0);
 };
 
 /**
@@ -152,10 +150,10 @@ Bestia.Engine.SpriteEntity.prototype.playAnimation = function(name) {
 
 	// We need to mirror the sprite for right sprites.
 	if (name.indexOf("right") !== -1) {
-		this._sprite.scale.x = -1 * this.data.scale;
+		this._sprite.scale.x = -1 * this._data.scale;
 		name = name.replace('right', 'left');
 	} else {
-		this._sprite.scale.x = this.data.scale;
+		this._sprite.scale.x = this._data.scale;
 	}
 
 	// Check if the sprite "knows" this animation. If not we have several
@@ -169,7 +167,7 @@ Bestia.Engine.SpriteEntity.prototype.playAnimation = function(name) {
 		}
 	}
 
-	//this._sprite.animations.play(name);
+	this._sprite.play(name);
 };
 
 /**
@@ -296,8 +294,11 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg) {
 
 		this.playAnimation(nextAnim, isLast);
 
-		this.position = {x: pos.x, y: pos.y};
-		//console.log("Moved to: " + pos.x + " - " + pos.y);
+		this.position = {
+			x : pos.x,
+			y : pos.y
+		};
+		// console.log("Moved to: " + pos.x + " - " + pos.y);
 
 	}, this);
 
@@ -310,8 +311,11 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg) {
 
 		this.playAnimation(nextAnim);
 
-		this.position = {x: currentPos.x, y: currentPos.y};
-		//console.log("Moved to: " + currentPos.x + " - " + currentPos.y);
+		this.position = {
+			x : currentPos.x,
+			y : currentPos.y
+		};
+		// console.log("Moved to: " + currentPos.x + " - " + currentPos.y);
 
 	}, this);
 

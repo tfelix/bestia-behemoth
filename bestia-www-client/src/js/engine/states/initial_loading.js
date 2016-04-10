@@ -24,12 +24,15 @@ Bestia.Engine.States.InitialLoadingState.prototype.preload = function() {
 	this.game.load.image('castindicator_medium', this.url.getIndicatorUrl('_medium'));
 	this.game.load.image('castindicator_big', this.url.getIndicatorUrl('_small'));
 	
-	this.game.load.script('filter_blur', this.url.getFilterUrl('BlurX'));
+	this.game.load.image('default_item', this.url.getItemIconUrl('_default'));
+	
+	// #### Filters
+	this.game.load.script('filter_blur_x', this.url.getFilterUrl('BlurX'));
+	this.game.load.script('filter_blur_y', this.url.getFilterUrl('BlurY'));
 	
 	this.game.load.spritesheet('rain', this.url.getSpriteUrl('rain'), 17, 17);
 	
-	// DBUG
-	this.game.load.atlas('mastersmith', 'assets/mob/mastersmith/mastersmith.png', 'assets/mob/mastersmith/mastersmith.json');
+	this.game.load.spritesheet('cursor', this.url.getIndicatorUrl('cursor'), 32, 32);
 
 };
 

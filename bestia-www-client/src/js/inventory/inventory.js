@@ -104,7 +104,7 @@ Bestia.Inventory = function(pubsub, i18n, urlHelper) {
 	 * If text is present in this variable the display of items inside the
 	 * inventory is hidden if they dont start with this item name prefix.
 	 */
-	this.searchFilter = ko.observable('');
+	this.searchFilter = ko.observable('').extend({ throttle: 100 });
 
 	/**
 	 * If this filter is set to a certain category ('usable', 'quest', 'etc',
@@ -175,7 +175,7 @@ Bestia.Inventory = function(pubsub, i18n, urlHelper) {
 		});
 
 		return items;
-	}, this);
+	}, this).extend({throttle: 1});
 
 	/**
 	 * Selects the clicked/touched item. Further details and options regarding

@@ -31,15 +31,30 @@ export default class UrlHelper {
 		return this._assetRoot + 'map/' + mapName + '/assetpack.json';
 	}
 
+	getMobDescUrl(mobName) {
+		return this._assetRoot + 'sprite/mob/' + mobName + '/' + mobName + '_desc.json';
+	}
+
+	getObjectDescUrl(objectName) {
+		return this._assetRoot + 'sprite/object/' + objectName + '/' + objectName + '_desc.json';
+	}
+
 	getMobPackUrl(mobName) {
 		return this._assetRoot + 'mob/' + mobName + '/' + mobName + '_pack.json';
 	}
 
 	getIndicatorUrl(indicator) {
+		if(indicator === 'cursor') {
+			// Special treatmen for default cursor.
+			return this._assetRoot + 'cast_indicators/' + indicator + '.png';
+		} 
 		return this._assetRoot + 'cast_indicators/' + indicator + '/' + indicator + '.png';
 	}
 
 	getItemIconUrl(itemName) {
+		if(!itemName.endsWith('.png')) {
+			itemName += '.png';
+		}
 		return this._assetRoot + 'img/items/' + itemName;
 	}
 

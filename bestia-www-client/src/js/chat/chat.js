@@ -335,7 +335,7 @@ Bestia.Chat.prototype.addLocalMessage = function(msg, mode) {
  */
 Bestia.Chat.prototype._identifyLocalCommandTyping = function(str) {
 	
-	this._localRealtimeCommands.each(function(val){
+	this._localRealtimeCommands.forEach(function(val){
 		val.isCommand(str, this);
 	}, this);
 

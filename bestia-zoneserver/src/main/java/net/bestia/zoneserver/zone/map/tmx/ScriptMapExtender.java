@@ -58,7 +58,7 @@ public class ScriptMapExtender implements TMXMapExtender {
 
 			while (objIter.hasNext()) {
 				final MapObject scriptObj = objIter.next();
-				final Rectangle bb = scriptObj.getBounds();
+				final Rectangle bb = scriptObj.getBounds().getBounds();
 
 				// Translate the bb to shape.
 				final CollisionShape rect = new Rect(bb.x / tileSize,

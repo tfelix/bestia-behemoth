@@ -59,26 +59,8 @@ Bestia.Engine.EntityUpdater.prototype._onUpdateHandler = function(_, msg) {
 			// Exists already. Strange.
 			return;
 		}
-
-		switch (msg.t) {
-		case 'ITEM':
-			// let an item appear.
-			this._factory.createItemEntity(msg);
-			break;
-		case 'STATIC':
-			// Static sprite appear.
-			// this._factory.createStaticEntity(msg);
-			break;
-		case 'MOB_ANIM':
-			// Normal bestia.
-			this._factory.createBestiaEntity(msg);
-			break;
-		case 'PLAYER_ANIM':
-			// Player animation sprite.
-			//this._factory.createPlayerEntity(msg);
-			break;
-		}
-		break;
+		
+		this._factory.build(msg);
 	}
 };
 

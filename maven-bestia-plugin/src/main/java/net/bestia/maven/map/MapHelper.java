@@ -1,4 +1,4 @@
-package net.bestia.maven.util;
+package net.bestia.maven.map;
 
 import java.io.File;
 import java.io.IOException;

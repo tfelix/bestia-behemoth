@@ -42,7 +42,7 @@ Bestia.Engine.World = function(game, astar, groups) {
 	 */
 	this._map = null;
 	
-	this._collisionMap;
+	//this._collisionMap;
 };
 
 
@@ -187,8 +187,8 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 
 Bestia.Engine.World.prototype.calculateCollisionMap = function() {
 	// Calculate the number of tiles visible.
-	var tilesWidth = this.game.width / this.properties.tileSize + 5;
-	var tilesHeight = this.game.height / this.properties.tileSize + 5;
+	//var tilesWidth = this.game.width / this.properties.tileSize + 5;
+	//var tilesHeight = this.game.height / this.properties.tileSize + 5;
 	
 	// Calculate a static collision map.
 	

@@ -9,7 +9,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.junit.Test;
 
-import net.bestia.maven.map.ValidateMaps;
+import net.bestia.maven.api.ValidateMaps;
 
 public class ValidateMapsTest {
 	

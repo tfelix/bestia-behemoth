@@ -1,5 +1,7 @@
 {
 	"type" : "multisprite",
+	"version": 1,
+	"name": "mastersmith",
 	"scale" : 0.68,
     "animations": [
 				{"name": "walk_down", "from": 1, "to": 8, "fps": 7 },
@@ -14,17 +16,16 @@
 				{"name": "stand_left_up", "from": 1, "to": 1, "fps": 0 }
 			],
 	"anchor": {"x": 0.5, "y": 1},
-	"multiAnimationOffset" : {
-			"animation": "walk_down", "spriteAnimation": "look_down", 
-			"name": "walk_down", "offset": [{"x": 0, "y": 0},{"x": 0, "y": 0},{"x": 0, "y": 0},{"x": 0, "y": 0},
-			{"x": 0, "y": 0},{"x": 0, "y": 0},{"x": 0, "y": 0},{"x": 0, "y": 0}]
-		},
-	"multiSpriteAnchors" : [
-				{
-				"id": "female_01",
-				"scale": 1.2,
-				"defaultAnchor": {"x": 0, "y": -66}, 
-				"walk_left": [{"x": 0, "y": -30}, {"x": 0, "y": -30}]
-				}
-			]
+	"multiSprite" : ["female_01"],
+	"assetpack" : { 
+		"mastersmith": [
+			{
+				"type": "atlasJSONHash",
+				"key": "mastersmith",
+				"textureURL": "assets/sprite/mob/mastersmith/mastersmith.png",
+				"atlasURL": "assets/sprite/mob/mastersmith/mastersmith.json",
+				"atlasData": null
+			}
+		]
+	}
 }

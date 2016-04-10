@@ -22,6 +22,11 @@
 			<version>1.0</version>
 		</dependency>
 		<dependency>
+			<groupId>net.bestia</groupId>
+			<artifactId>bestia-config</artifactId>
+			<version>alpha-0.2.7-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-plugin-api</artifactId>
 			<version>2.0</version>
@@ -31,6 +36,11 @@
 			<artifactId>maven-plugin-annotations</artifactId>
 			<version>3.2</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.7.3</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -66,6 +76,16 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+			<resource>
+				<directory>src/test/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 	</build>
 	<description>Maven Plugin for validating, checking and creating the bestia game ressources.</description>
 </project>
