@@ -3,6 +3,9 @@
  * @copyright    2015 Thomas Felix
  */
 
+import Signal from '../io/Signal.js';
+import PubSub from '../util/PubSub.js';
+
 /**
  * Holds complete overview of all selected bestias.
  * 
@@ -13,9 +16,11 @@
  * @param {Bestia.UrlHelper}
  *            urlHelper - Helper for resolving URLs.
  */
-Bestia.BestiaInfoViewModel = function(pubsub, urlHelper) {
+export default class BestiaInfoViewModel {
+	
+	constructor(pubsub, urlHelper) {
 
-	if (!(pubsub instanceof Bestia.PubSub)) {
+	if (!(pubsub instanceof PubSub)) {
 		throw "Bestia.BestiaInfoViewModel: Pubsub is not optional.";
 	}
 	if(!urlHelper) {
@@ -61,7 +66,7 @@ Bestia.BestiaInfoViewModel = function(pubsub, urlHelper) {
 	var onMessageHandler = function(_, msg) {
 		console.debug('Update bestia model with data.');
 
-		var bestia = new Bestia.BestiaViewModel(self._pubsub, msg.b, msg.sp, self._urlHelper);
+		var bestia = new BestiaViewModel(self._pubsub, msg.b, msg.sp, self._urlHelper);
 
 		// Check if the bestia is already inside our cache.
 		for (var i = 0; i < self.bestias().length; i++) {
@@ -98,15 +103,17 @@ Bestia.BestiaInfoViewModel = function(pubsub, urlHelper) {
 		}
 	};
 	pubsub.subscribe('bestia.activated', onActivateHandler);
-};
+	}
+	
 
-/**
- * Selects the given bestia and announces the selection to the world.
- * 
- * @param bestia
- * @private
- */
-Bestia.BestiaInfoViewModel.prototype._selectBestia = function(bestia) {
-	this.selectedBestia(bestia);
-	this._pubsub.publish(Bestia.Signal.BESTIA_SELECTED, this.selectedBestia());
-};
+	/**
+	 * Selects the given bestia and announces the selection to the world.
+	 * 
+	 * @param bestia
+	 * @private
+	 */
+	_selectBestia(bestia) {
+		this.selectedBestia(bestia);
+		this._pubsub.publish(Signal.BESTIA_SELECTED, this.selectedBestia());
+	}
+}
