@@ -1,13 +1,15 @@
+/**
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @copyright 2015 Thomas Felix
+ */
+
 import PubSub from './util/Pubsub.js';
 import Config from './util/Config.js';
 import UrlHelper from './util/UrlHelper.js';
 import Connection from './io/connection.js';
 import Signal from './io/Signal.js';
+import Inventory from './inventory/Inventory.js';
 
-/**
- * @author Thomas Felix <thomas.felix@tfelix.de>
- * @copyright 2015 Thomas Felix
- */
 
 export const Bestia = {
 	/**
@@ -50,11 +52,11 @@ export class BestiaGame {
 		//this.i18n = new Bestia.I18n(this.pubsub);
 		this.urlHelper = new UrlHelper(Bestia.Urls.assetsRoot);
 	
-		//this.inventory = new Bestia.Inventory(this.pubsub, this.i18n, this.urlHelper);
+		this.inventory = new Inventory(this.pubsub, this.i18n, this.urlHelper);
 		//this.bestias = new Bestia.BestiaInfoViewModel(this.pubsub, this.urlHelper);
 		//this.attacks = new Bestia.BestiaAttacks(this.pubsub, this.i18n);
 		
-		//this.chat = new Bestia.Chat($('#chat'), this);
+		this.chat = new Chat($('#chat'), this);
 		//this.engine = new Bestia.Engine(this.pubsub, this.urlHelper);
 		this.connection = new Connection(this.pubsub);
 		

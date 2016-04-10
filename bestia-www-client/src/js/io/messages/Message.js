@@ -3,13 +3,16 @@
  * @copyright 2015 Thomas Felix
  */
 
+import MID from './Ids.js';
+
+
 /**
  * Main message module. This module collects all message constructors so that a
  * massage can be easily created within the app.
  * 
  * @class Bestia.Message
  */
-Bestia.Message = {
+var Message = {
 
 	// Static counter for local message id which is needed if the server
 	// gives an error about a send message and the client needs to
@@ -22,7 +25,7 @@ Bestia.Message = {
 	 * @constructor
 	 */
 	ServerInfo : function() {
-		this.mid = 'server.info';
+		this.mid = MID.SERVER_INFO;
 	},
 
 	/**
@@ -32,7 +35,7 @@ Bestia.Message = {
 	 * @constructor
 	 */
 	BestiaInfo : function() {
-		this.mid = 'bestia.info';
+		this.mid = MID.BESTIA_INFO;
 	},
 
 	/**
@@ -41,21 +44,21 @@ Bestia.Message = {
 	 * @constructor
 	 */
 	Chat : function(mode, text, nick, senderNick, playerBestiaId) {
-		this.mid = 'chat.message';
+		this.mid = MID.CHAT_MESSAGE;
 		this.pbid = playerBestiaId;
 		this.m = mode;
 		this.txt = text;
 		this.pbid = 0;
 		this.rxn = nick;
 		this.sn = senderNick || '';
-		this.cmid = Bestia.Message._localMessageId++;
+		this.cmid = Message._localMessageId++;
 	},
 
 	/**
 	 * Tells the server to move the bestia to a certain spot on the map.
 	 */
 	BestiaMove : function(playerBestiaId, path, walkspeed) {
-		this.mid = 'bestia.move';
+		this.mid = MID.BESTIA_MOVE;
 
 		this.pbid = playerBestiaId;
 
@@ -78,7 +81,7 @@ Bestia.Message = {
 	 * client updates now from it.
 	 */
 	BestiaActivate : function(playerBestiaId) {
-		this.mid = 'bestia.activate';
+		this.mid = MID.BESTIA_ACTIVATE;
 		this.pbid = playerBestiaId;
 	},
 
@@ -109,7 +112,7 @@ Bestia.Message = {
 	 *            atk5 - The id of the attack in slot 5.
 	 */
 	AttackSet : function(playerBestiaId, atk1, atk2, atk3, atk4, atk5) {
-		this.mid = 'attack.set';
+		this.mid = MID.ATTACK_SET;
 		this.pbid = playerBestiaId;
 		this.s1 = atk1;
 		this.s2 = atk2;
@@ -136,7 +139,7 @@ Bestia.Message = {
 	 *            The player item id of the item in slot 2.
 	 */
 	ItemSet : function(playerBestiaId, piId1, piId2, piId3, piId4, piId5) {
-		this.mid = 'inventory.item.set';
+		this.mid = MID.INVENTORY_ITEM_SET;
 		this.pbid = playerBestiaId;
 		this.s1 = piId1;
 		this.s2 = piId2;
@@ -149,7 +152,7 @@ Bestia.Message = {
 	 * Requests a complete sync with the inventory from the server.
 	 */
 	InventoryRequest : function() {
-		this.mid = 'inventory.request';
+		this.mid = MID.INVENTORY_REQUEST;
 	},
 
 	/**
@@ -172,7 +175,7 @@ Bestia.Message = {
 			throw "PlayerBestiaId can not be undefined.";
 		}
 		
-		this.mid = 'inventory.item.use';
+		this.mid = MID.INVENTORY_ITEM_USE;
 		this.iid = playerItemId;
 		this.pbid = playerBestiaId;
 	},
@@ -191,7 +194,7 @@ Bestia.Message = {
 			throw "PlayerBestiaId can not be undefined.";
 		}
 		
-		this.mid = Bestia.MID.INVENTORY_ITEM_CAST;
+		this.mid = MID.INVENTORY_ITEM_CAST;
 		this.piid = playerItemId;
 		this.pbid = playerBestiaId;
 		this.x = x;
@@ -207,7 +210,7 @@ Bestia.Message = {
 	 *            The amount of the item to be dropped.
 	 */
 	InventoryItemDrop : function(itemId, amount, playerBestiaId) {
-		this.mid = 'inventory.item.drop';
+		this.mid = MID.INVENTORY_ITEM_DROP;
 
 		this.pbid = playerBestiaId || 0;
 		this.iid = itemId;
@@ -218,14 +221,14 @@ Bestia.Message = {
 	 * Requests to the server to list all available attacks for this bestia.
 	 */
 	AttackListRequest : function() {
-		this.mid = 'attack.list.request';
+		this.mid = MID.ATTACK_LIST_REQUEST;
 	},
 
 	/**
 	 * Sends a translation request to the server. Category and
 	 */
 	TranslationRequest : function(items, token) {
-		this.mid = 'translation.request';
+		this.mid = MID.TRANSLATION_REQUEST;
 
 		this.is = [];
 		this.t = token;
@@ -246,3 +249,5 @@ Bestia.Message = {
 		}
 	}
 };
+
+export default { Message };

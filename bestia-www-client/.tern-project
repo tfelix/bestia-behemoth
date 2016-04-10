@@ -13,6 +13,9 @@
     "eslint": {
       "configFile": "eslint.json"
     },
+    "es_modules": {
+      
+    },
     "phaser": {
       
     }

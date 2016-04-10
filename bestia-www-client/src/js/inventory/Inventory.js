@@ -3,6 +3,12 @@
  * @copyright 2015 Thomas Felix
  */
 
+import Signal from '../io/Signal.js';
+import Message from '../io/Message.js';
+import ItemViewModel from './ItemViewModel.js';
+import MID from '../io/messages/Ids.js';
+
+
 /**
  * Inventory is hooking into inventory messages from the server and manages item
  * management. It lists items, updates the amount or removes them. It is also
@@ -18,8 +24,9 @@
  * @param {Bestia.UrlHelper}
  *            urlHelper - Helper to resolve urls into the bestia asset storage.
  */
-
-Bestia.Inventory = function(pubsub, i18n, urlHelper) {
+export default class Inventory {
+	
+	constructor(pubsub, i18n, urlHelper) {
 	
 	if(pubsub === undefined) {
 		throw "pubsub can not be null.";
@@ -204,12 +211,12 @@ Bestia.Inventory = function(pubsub, i18n, urlHelper) {
 
 		if (item.type() === 'USABLE') {
 			// Just send the server the message to directly use this item.
-			var msg = new Bestia.Message.InventoryItemUse(item.itemId(), self._selectedBestia.playerBestiaId());
-			self._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
+			var msg = new Message.InventoryItemUse(item.itemId(), self._selectedBestia.playerBestiaId());
+			self._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 		} else if (item.type() === 'CASTABLE') {
 			// Item is "castable". Notify the engine about displaying a
 			// indicator how to use this item.
-			self._pubsub.publish(Bestia.Signal.ENGINE_CAST_ITEM, item);
+			self._pubsub.publish(Signal.ENGINE_CAST_ITEM, item);
 		}
 	};
 
@@ -230,9 +237,9 @@ Bestia.Inventory = function(pubsub, i18n, urlHelper) {
 	 *            amount - Amount wished to be dropped.
 	 */
 	this.dropItem = function() {
-		var msg = new Bestia.Message.InventoryItemDrop(self.selectedItem().itemId(), self.dropAmount(),
+		var msg = new Message.InventoryItemDrop(self.selectedItem().itemId(), self.dropAmount(),
 				self.currentBestiaId);
-		self._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
+		self._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 
 	};
 
@@ -314,19 +321,19 @@ Bestia.Inventory = function(pubsub, i18n, urlHelper) {
 	};
 
 	// ######## PUBSUB HANDLER ########
-	pubsub.subscribe(Bestia.MID.INVENTORY_LIST, this._handleList.bind(this));
-	pubsub.subscribe(Bestia.MID.INVENTORY_UPDATE, this._handleUpdate.bind(this));
+	pubsub.subscribe(MID.INVENTORY_LIST, this._handleList.bind(this));
+	pubsub.subscribe(MID.INVENTORY_UPDATE, this._handleUpdate.bind(this));
 
 	/**
 	 * Received event probably from the input controller to perform a casting of
 	 * the item.
 	 */
-	pubsub.subscribe(Bestia.Signal.INVENTORY_CAST_SLOT, function(_, slotN) {
+	pubsub.subscribe(Signal.INVENTORY_CAST_SLOT, function(_, slotN) {
 		self.castItemSlot(slotN);
 	});
-	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, this._handlerBestiaSelected.bind(this));
-	pubsub.subscribe(Bestia.Signal.INVENTORY_PERFORM_CAST, this._handlerDoCast.bind(this));
-};
+	pubsub.subscribe(Signal.BESTIA_SELECTED, this._handlerBestiaSelected.bind(this));
+	pubsub.subscribe(Signal.INVENTORY_PERFORM_CAST, this._handlerDoCast.bind(this));
+}
 
 /**
  * This event will get triggered if the engine has decided to let an item be
@@ -337,21 +344,21 @@ Bestia.Inventory = function(pubsub, i18n, urlHelper) {
  *            data - Containt the item to be cast as well as the map coordinates
  *            e.g.: {item: ITEM, cords: {x: X, y: Y}}.
  */
-Bestia.Inventory.prototype._handlerDoCast = function() {
+_handlerDoCast() {
 
-};
+}
 
 /**
  * Handler if the server advises to re-render the inventory.
  */
-Bestia.Inventory.prototype._handleList = function(_, data) {
+_handleList(_, data) {
 	var newItems = [];
 
 	this.allItems.removeAll();
 	this.dropAmount(0);
 
 	data.pis.forEach(function(val) {
-		var item = new Bestia.ItemViewModel(val, this._urlHelper);
+		var item = new ItemViewModel(val, this._urlHelper);
 		newItems.push(item);
 		this.allItems.push(item);
 	}, this);
@@ -363,12 +370,12 @@ Bestia.Inventory.prototype._handleList = function(_, data) {
 		// Flag that all items are sucessfully loaded.
 		this._setupItemBindings();
 	}.bind(this));
-};
+}
 
 /**
  * Updates the item via an update message from the server.
  */
-Bestia.Inventory.prototype._handleUpdate = function(_, data) {
+_handleUpdate(_, data) {
 
 	var newItems = [];
 
@@ -380,7 +387,7 @@ Bestia.Inventory.prototype._handleUpdate = function(_, data) {
 			// Item is added to the inventory.
 			if (item === null) {
 				// Add the item to the inventory.
-				var newItem = new Bestia.ItemViewModel(val);
+				var newItem = new ItemViewModel(val);
 				this.allItems.push(newItem);
 				newItems.push(newItem);
 			} else {
@@ -405,7 +412,7 @@ Bestia.Inventory.prototype._handleUpdate = function(_, data) {
 		this._translateItems(newItems, function() {
 			newItems.forEach(function(item) {
 				// Send notifications for other sub systems.
-				this._pubsub.publish(Bestia.Signal.INVENTORY_ITEM_ADD, item);
+				this._pubsub.publish(Signal.INVENTORY_ITEM_ADD, item);
 			}, this);
 		});
 	}
@@ -415,7 +422,7 @@ Bestia.Inventory.prototype._handleUpdate = function(_, data) {
 	if (this.selectedItem().amount() + 1 === this.dropAmount()) {
 		this.dropAmount(this.selectedItem().amount());
 	}
-};
+}
 
 /**
  * Saves bestia reference of the currently selected bestia.
@@ -423,7 +430,7 @@ Bestia.Inventory.prototype._handleUpdate = function(_, data) {
  * @param {Bestia.BestiaViewModel}
  *            bestia - The newly selected bestia.
  */
-Bestia.Inventory.prototype._handlerBestiaSelected = function(_, bestia) {
+_handlerBestiaSelected(_, bestia) {
 	this.hasLoaded(false);
 
 	this._selectedBestia = bestia;
@@ -436,7 +443,7 @@ Bestia.Inventory.prototype._handlerBestiaSelected = function(_, bestia) {
 	this.itemSlot5(null);
 
 	this._setupItemBindings();
-};
+}
 
 /**
  * Internal method to translate item names and desciptions. Awaits an array with
@@ -448,7 +455,7 @@ Bestia.Inventory.prototype._handlerBestiaSelected = function(_, bestia) {
  * @param {Function}
  *            fn - Callback function. Is fired when all items are translated.
  */
-Bestia.Inventory.prototype._translateItems = function(items, fn) {
+_translateItems(items, fn) {
 	var buildTranslationKeyName = function(item) {
 		return 'item.' + item.itemDatabaseName();
 	};
@@ -475,7 +482,7 @@ Bestia.Inventory.prototype._translateItems = function(items, fn) {
 			fn();
 		}
 	});
-};
+}
 
 /**
  * The item is cleanly removed and deleted from all binding lists etc. This
@@ -484,7 +491,7 @@ Bestia.Inventory.prototype._translateItems = function(items, fn) {
  * @private
  * @param itemId
  */
-Bestia.Inventory.prototype._removeItem = function(item) {
+_removeItem(item) {
 	// Check if it is the selected item.
 	if (this.selectedItem().playerItemId() === item.playerItemId()) {
 		this.selectedItem(null);
@@ -508,7 +515,7 @@ Bestia.Inventory.prototype._removeItem = function(item) {
 
 	// Remove the item.
 	this.allItems.remove(item);
-};
+}
 
 /**
  * Looks for the item in the current items array. If it is found the
@@ -518,7 +525,7 @@ Bestia.Inventory.prototype._removeItem = function(item) {
  * @param itemId
  * @returns The {Bestia.Inventory.ItemViewModel} if found or null otherwise.
  */
-Bestia.Inventory.prototype._findItem = function(itemId) {
+_findItem(itemId) {
 	var items = this.allItems();
 	for (var i = 0; i < items.length; i++) {
 		if (items[i].itemId() == itemId) {
@@ -526,35 +533,35 @@ Bestia.Inventory.prototype._findItem = function(itemId) {
 		}
 	}
 	return null;
-};
+}
 
 /**
  * Shows the inventory window.
  */
-Bestia.Inventory.prototype.show = function() {
+show() {
 	this.showWindow(true);
-};
+}
 
 /**
  * Hides the inventory window.
  */
-Bestia.Inventory.prototype.close = function() {
+close() {
 	this.showWindow(false);
-};
+}
 
 /**
  * Sends the item bindings of the currently selected bestia to the server.
  */
-Bestia.Inventory.prototype.saveItemBindings = function() {
+saveItemBindings() {
 	var piId1 = this.itemSlot1() ? this.itemSlot1().playerItemId() : null;
 	var piId2 = this.itemSlot2() ? this.itemSlot2().playerItemId() : null;
 	var piId3 = this.itemSlot3() ? this.itemSlot3().playerItemId() : null;
 	var piId4 = this.itemSlot4() ? this.itemSlot4().playerItemId() : null;
 	var piId5 = this.itemSlot5() ? this.itemSlot5().playerItemId() : null;
 	var bestiaId = this._selectedBestia.playerBestiaId();
-	var msg = new Bestia.Message.ItemSet(bestiaId, piId1, piId2, piId3, piId4, piId5);
-	this._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
-};
+	var msg = new Message.ItemSet(bestiaId, piId1, piId2, piId3, piId4, piId5);
+	this._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
+}
 
 /**
  * This function will handle usages of item shortcut slots. Either if they are
@@ -566,7 +573,7 @@ Bestia.Inventory.prototype.saveItemBindings = function() {
  * @param slotN
  *            Number of the slot to be used.
  */
-Bestia.Inventory.prototype.useItemSlot = function(slotN) {
+useItemSlot(slotN) {
 	var item = null;
 	switch (slotN) {
 	case 0:
@@ -592,13 +599,13 @@ Bestia.Inventory.prototype.useItemSlot = function(slotN) {
 	}
 
 	this.useItem(item);
-};
+}
 
 /**
  * Setup the item bindings with the proper items. We need to derefer this call
  * until the bestia is selected AND the items have been loaded.
  */
-Bestia.Inventory.prototype._setupItemBindings = function() {
+_setupItemBindings() {
 	if (this.hasLoaded()) {
 		return;
 	}
@@ -638,4 +645,5 @@ Bestia.Inventory.prototype._setupItemBindings = function() {
 	}
 
 	this.hasLoaded(true);
-};
+}
+}
