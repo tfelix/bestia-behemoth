@@ -1,5 +1,6 @@
 {
 	"targetSprite": "mastersmith",
+	"defaultCords": {"x": 0, "y": -66},
 	"offsets":[  
     {  
       "name":"bottom.png",

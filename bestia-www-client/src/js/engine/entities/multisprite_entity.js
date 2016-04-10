@@ -40,17 +40,12 @@ Bestia.Engine.MultispriteEntity.getOffsetFilename = function(multispriteName, ma
  * @returns Name of the subsprite animation.
  */
 Bestia.Engine.MultispriteEntity.prototype._getSubspriteAnimation = function(subspriteName, currentAnim) {
-	for (var i = 0; i < this._data.multiSprite.length; i++) {
-		var ms = this._data.multiSprite[i];
-		if (ms.id !== subspriteName) {
-			continue;
-		}
 
-		// Look for the name.
-		for (var j = 0; j < ms.animations.length; j++) {
-			if (ms.animations[j].triggered === currentAnim) {
-				return ms.animations[j].name;
-			}
+	// TODO This works currnetly only if there is only one subsprite. Extend
+	// this for true multi sprite support.
+	for (var i = 0; i < this._animOffset.length; i++) {
+		if (this._animOffset[i].triggered === currentAnim) {
+			return this._animOffset[i].name;
 		}
 	}
 
@@ -82,23 +77,40 @@ Bestia.Engine.MultispriteEntity.prototype.setSprite = function(spriteName) {
 			return;
 		}
 
-		var anchor = msDesc.anchor || {
-			x : 0.5,
-			y : 0.5
-		};
+		var anchor = msDesc.anchor;
 
-		var sprite = this._game.make.sprite(anchor.x, anchor.y, msDesc);
+		var sprite = this._game.make.sprite(anchor.x, anchor.y, msName);
 		this._sprite.addChild(sprite);
+		
+		sprite.anchor = anchor;
 
 		// Register all the animations.
-		this._setupSprite(sprite, msDesc);
+		// TODO The head animation names are currently not in the default
+		// nameing scheme. need to do this "by hand".
+		// this._setupSprite(sprite, msDesc);
+		// setupSrite did alpha 0
+		// TODO Overwriting appear an letting appear all subsprites would be
+		// better.
+		// sprite.alpha = 1;
+
+		// Setup the normal data.
+		sprite.scale.setTo(msDesc.scale || 1);
+		sprite.animations.add("bottom.png", [ "bottom.png" ], 0, true, false);
+		sprite.animations.add("bottom_left.png", [ "bottom_left.png" ], 0, true, false);
+		sprite.animations.add("left.png", [ "left.png" ], 0, true, false);
+		sprite.animations.add("left.png", [ "left.png" ], 0, true, false);
+		sprite.animations.add("top.png", [ "top.png" ], 0, true, false);
+		sprite.animations.add("top_left.png", [ "top_left.png" ], 0, true, false);
 
 		// Generate offset information.
 		var offsetFileName = Bestia.Engine.MultispriteEntity.getOffsetFilename(msName, this._data.name);
 		var offsets = this._game.cache.getJSON(offsetFileName) || {};
 		this._animOffset = offsets.offsets || [];
-		
-		sprite.bestiaDefaultAnchor = msDesc.defaultAnchor;
+
+		sprite.bestiaDefaultAnchor = offsets.defaultCords || {
+			x : 0,
+			y : 0
+		};
 
 		sprite.name = msName;
 
@@ -171,6 +183,7 @@ Bestia.Engine.MultispriteEntity.prototype._playSubspriteAnimation = function(mai
 			return;
 		}
 		s.play(subAnim);
+
 	}, this);
 };
 

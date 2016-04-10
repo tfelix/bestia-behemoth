@@ -52,16 +52,11 @@ Bestia.Engine.MultispriteBuilder.prototype.load = function(descFile, fnOnComplet
  * @returns
  */
 Bestia.Engine.MultispriteBuilder.prototype._extendPack = function(descFile, additionalSprites) {
-	
+
 	additionalSprites = additionalSprites || [];
 
 	var pack = descFile.assetpack;
-	var key = '';
-
-	for ( var k in pack) {
-		key = k;
-		break;
-	}
+	var key = descFile.name;
 
 	var packArray = pack[key];
 
@@ -69,25 +64,29 @@ Bestia.Engine.MultispriteBuilder.prototype._extendPack = function(descFile, addi
 
 	msprites.concat(additionalSprites).forEach(function(msName) {
 
-		var entry = {
+		// Load the sprite.
+		packArray.push({
 			type : "atlasJSONHash",
 			key : msName,
 			textureURL : "assets/sprite/multi/" + msName + "/" + msName + ".png",
 			atlasURL : "assets/sprite/multi/" + msName + "/" + msName + ".json",
 			atlasData : null
-		};
+		});
 
-		packArray.push(entry);
-		
+		// Load the description.
+		packArray.push({
+			type : "json",
+			key : msName + '_desc',
+			url : "assets/sprite/multi/" + msName + "/" + msName + '_desc.json'
+		});
+
 		// Also include the offset file for this combination.
 		var offsetFileName = Bestia.Engine.MultispriteEntity.getOffsetFilename(msName, key);
-		entry = {
-				type : "json",
-				key : offsetFileName,
-				url : "assets/sprite/multi/" + msName + "/" + offsetFileName + ".json"
-			};
-
-		packArray.push(entry);
+		packArray.push({
+			type : "json",
+			key : offsetFileName,
+			url : "assets/sprite/multi/" + msName + "/" + offsetFileName + ".json"
+		});
 
 	}, this);
 
