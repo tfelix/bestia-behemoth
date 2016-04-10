@@ -17,6 +17,17 @@ export default class UrlHelper {
 	}
 	
 	/**
+	 * Returns the url to the attack icon.
+	 * 
+	 * @param {string}
+	 *            atkName - Name of the attack icon (attack db name).
+	 * @returns {string} URL of the attack icon.
+	 */
+	getAttackIconUrl(atkName) {
+		return this._assetRoot + 'img/icons/attack/' + atkName + '.png';
+	}
+	
+	/**
 	 * Returns the URL inside the asset folder for the mob icon.
 	 * 
 	 * @param mobName

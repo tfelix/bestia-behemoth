@@ -11,6 +11,7 @@ import Signal from './io/Signal.js';
 import Inventory from './inventory/Inventory.js';
 import Chat from './chat/Chat.js';
 import I18n from './util/I18n.js';
+import BestiaAttacks from './attack/BestiaAttacks.js';
 
 
 export const Bestia = {
@@ -56,7 +57,7 @@ export class BestiaGame {
 	
 		this.inventory = new Inventory(this.pubsub, this.i18n, this.urlHelper);
 		//this.bestias = new Bestia.BestiaInfoViewModel(this.pubsub, this.urlHelper);
-		//this.attacks = new Bestia.BestiaAttacks(this.pubsub, this.i18n);
+		this.attacks = new BestiaAttacks(this.pubsub, this.i18n, this.urlHelper);
 		
 		this.chat = new Chat($('#chat'), this);
 		//this.engine = new Bestia.Engine(this.pubsub, this.urlHelper);
