@@ -4,7 +4,7 @@
  */
 
 import Signal from '../io/Signal.js';
-import Message from '../io/Message.js';
+import Message from '../io/messages/Message.js';
 import ItemViewModel from './ItemViewModel.js';
 import MID from '../io/messages/Ids.js';
 

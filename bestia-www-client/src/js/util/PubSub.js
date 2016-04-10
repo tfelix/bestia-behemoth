@@ -7,7 +7,7 @@
  * Publish/Subscriber object. Central object for the game inter communucation.
  * 
  * @constructor
- * @class Bestia.PubSub
+ * @class PubSub
  */
 export default class PubSub {
 	

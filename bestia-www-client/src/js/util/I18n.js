@@ -5,7 +5,7 @@
 
 import Message from '../io/messages/Message.js';
 import Signal from '../io/Signal.js';
-// import guid from './Guid.js';
+import guid from './Guid.js';
 
 /**
  * This class can be used to send translation requests to the server. Responses
@@ -14,8 +14,8 @@ import Signal from '../io/Signal.js';
  * callbacks.
  * 
  * @constructor
- * @class Bestia.I18N
- * @param {Bestia.PubSub}
+ * @class I18N
+ * @param {PubSub}
  *            pubsub - Publish/Subscriber reference.
  */
 export default class I18n {
@@ -169,7 +169,7 @@ export default class I18n {
 	_translationRequested(_, data, fn) {
 
 		var self = this;
-		var uuid = this._guid();
+		var uuid = guid();
 
 		// Switch the case. If the returned items are only one then return a
 		// simple translator function.
@@ -234,10 +234,3 @@ export default class I18n {
 		return [ cat, key ];
 	}
 }
-
-/*
- * if (!String.format) { String.format = function(format) { var args =
- * Array.prototype.slice.call(arguments, 1); return format.replace(/{(\d+)}/g,
- * function(match, number) { return typeof args[number] != 'undefined' ?
- * args[number] : match; }); }; }
- */

@@ -7,6 +7,13 @@ import Signal from '../io/Signal.js';
 import MID from '../io/messages/Ids.js';
 import Message from '../io/messages/Message.js';
 import ChatMessage from './ChatMessage.js';
+import BasicCommand from './commands/BasicCommand.js';
+import ClearCommand from './commands/ClearCommand.js';
+import HelpCommand from './commands/HelpCommand.js';
+import ModeGuildCommand from './commands/ModeGuildCommand.js';
+import ModePartyCommand from './commands/ModePartyCommand.js';
+import ModeWhisperCommand from './commands/ModeWhisperCommand.js';
+import ModePublicCommand from './commands/ModePublicCommand.js';
 
 /**
  * Chat for the bestia client. It subscribes to the necessairy messages to get
@@ -175,13 +182,13 @@ export default class Chat {
 	this._pubsub.subscribe(Signal.CHAT_REGISTER_CMD, this._handleRegisterCommand.bind(this));
 
 	// Register the chat specific local commands.
-	this._handleRegisterCommand(null, new Bestia.Chat.Commands.ClearCommand());
-	this._handleRegisterCommand(null, new Bestia.Chat.Commands.HelpCommand());
+	this._handleRegisterCommand(null, new ClearCommand());
+	this._handleRegisterCommand(null, new HelpCommand());
 	
-	this._localRealtimeCommands.push(new Bestia.Chat.Commands.ModePublicCommand());
-	this._localRealtimeCommands.push(new Bestia.Chat.Commands.ModePartyCommand());
-	this._localRealtimeCommands.push(new Bestia.Chat.Commands.ModeGuildCommand());
-	this._localRealtimeCommands.push(new Bestia.Chat.Commands.ModeWhisperCommand());
+	this._localRealtimeCommands.push(new ModePublicCommand());
+	this._localRealtimeCommands.push(new ModePartyCommand());
+	this._localRealtimeCommands.push(new ModeGuildCommand());
+	this._localRealtimeCommands.push(new ModeWhisperCommand());
 }
 	/**
 	 * Triggers if a chat is about to be send. Create a chat message of all the
@@ -296,7 +303,7 @@ export default class Chat {
 	 *            registered.
 	 */
 	_handleRegisterCommand(_, cmd) {
-		if (!(cmd instanceof Bestia.Chat.Commands.BasicCommand)) {
+		if (!(cmd instanceof BasicCommand)) {
 			console.warn('Bestia.Chat#_handleRegisterCommand: Command is not an instance of BasicCommand.');
 		}
 

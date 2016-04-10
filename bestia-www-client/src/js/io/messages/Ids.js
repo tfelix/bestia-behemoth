@@ -1,7 +1,9 @@
 /**
  * Constants with message IDs from the bestia server.
+ * 
+ * @constant
  */
-export const MID = {
+var MID = {
 	SERVER_INFO : 'server.info',
 	
 	BESTIA_INFO : 'bestia.info',
@@ -31,3 +33,5 @@ export const MID = {
 		
 	TRANSLATION_REQUEST: 'translation.request'
 };
+
+export default {MID};

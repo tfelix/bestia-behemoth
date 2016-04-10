@@ -9,6 +9,8 @@ import UrlHelper from './util/UrlHelper.js';
 import Connection from './io/connection.js';
 import Signal from './io/Signal.js';
 import Inventory from './inventory/Inventory.js';
+import Chat from './chat/Chat.js';
+import I18n from './util/I18n.js';
 
 
 export const Bestia = {
@@ -49,7 +51,7 @@ export class BestiaGame {
 	constructor() {
 		this.pubsub = new PubSub();
 		this.config = new Config(this.pubsub);
-		//this.i18n = new Bestia.I18n(this.pubsub);
+		this.i18n = new I18n(this.pubsub);
 		this.urlHelper = new UrlHelper(Bestia.Urls.assetsRoot);
 	
 		this.inventory = new Inventory(this.pubsub, this.i18n, this.urlHelper);
