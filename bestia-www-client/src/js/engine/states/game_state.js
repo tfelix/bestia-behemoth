@@ -42,8 +42,6 @@ Bestia.Engine.States.GameState = function(engine, urlHelper) {
 
 	this._urlHelper = urlHelper;
 
-	this._cursor = null;
-
 	this._demandLoader = null;
 
 	/**
@@ -64,7 +62,6 @@ Bestia.Engine.States.GameState = function(engine, urlHelper) {
 	this._groups = {};
 
 	// ==== Subscriptions ====
-	this.pubsub.subscribe(Bestia.Signal.ENGINE_CAST_ITEM, this._onCastItem.bind(this));
 
 	/**
 	 * When the connect signal is given this is the sign that the engine as
@@ -127,10 +124,6 @@ Bestia.Engine.States.GameState.prototype.create = function() {
 	// Trigger fx create effects.
 	this._fxManager.create();
 	
-	// Das ist temporär hier einen Indicator manager nutzen.
-	// Set the move indicator.
-	this._cursor = new Bestia.Engine.Indicator.Basic(this.game, this.pubsub, this.bestiaWorld, this);
-	
 };
 
 /**
@@ -172,6 +165,7 @@ Bestia.Engine.States.GameState.prototype.shutdown = function() {
 
 };
 
+// TODO In die Engine überführen.
 Bestia.Engine.States.GameState.prototype.getPlayerEntity = function() {
 	var pbid = this.engine.bestia.playerBestiaId();
 	var entity = this._entityCache.getByPlayerBestiaId(pbid);
