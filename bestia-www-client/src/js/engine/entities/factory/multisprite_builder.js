@@ -43,7 +43,17 @@ Bestia.Engine.MultispriteBuilder.prototype.load = function(descFile, fnOnComplet
 
 };
 
-Bestia.Engine.MultispriteBuilder.prototype._extendPack = function(descFile) {
+/**
+ * Extends the given pack with multisprite data. Also dynamic multisprites can
+ * be requested by setting the additional sprite array.
+ * 
+ * @param descFile
+ * @param additionalSprites
+ * @returns
+ */
+Bestia.Engine.MultispriteBuilder.prototype._extendPack = function(descFile, additionalSprites) {
+	
+	additionalSprites = additionalSprites || [];
 
 	var pack = descFile.assetpack;
 	var key = '';
@@ -57,7 +67,7 @@ Bestia.Engine.MultispriteBuilder.prototype._extendPack = function(descFile) {
 
 	var msprites = descFile.multiSprite;
 
-	msprites.forEach(function(msName) {
+	msprites.concat(additionalSprites).forEach(function(msName) {
 
 		var entry = {
 			type : "atlasJSONHash",
@@ -66,6 +76,16 @@ Bestia.Engine.MultispriteBuilder.prototype._extendPack = function(descFile) {
 			atlasURL : "assets/sprite/multi/" + msName + "/" + msName + ".json",
 			atlasData : null
 		};
+
+		packArray.push(entry);
+		
+		// Also include the offset file for this combination.
+		var offsetFileName = Bestia.Engine.MultispriteEntity.getOffsetFilename(msName, key);
+		entry = {
+				type : "json",
+				key : offsetFileName,
+				url : "assets/sprite/multi/" + msName + "/" + offsetFileName + ".json"
+			};
 
 		packArray.push(entry);
 

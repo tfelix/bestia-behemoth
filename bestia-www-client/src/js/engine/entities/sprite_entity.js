@@ -3,7 +3,7 @@ Bestia.Engine.SpriteEntity = function(game, uuid, x, y, desc) {
 
 	this.uuid = uuid;
 	this.setPosition(x, y);
-	
+
 	this._data = desc;
 
 	/**
@@ -28,30 +28,43 @@ Bestia.Engine.SpriteEntity.prototype.setSprite = function(spriteName) {
 
 	this._sprite = this._game.add.sprite(0, 0, spriteName);
 
-	// Set anchor to the middle of the sprite to the bottom.
-	this._sprite.anchor = this._data.anchor;
-	this._sprite.scale.setTo(this._data.scale);
-	this._sprite.alpha = 0;
-
-	// Register all the animations of the sprite.
-	this._data.animations.forEach(function(anim) {
-		var frames = Phaser.Animation.generateFrameNames(anim.name + '/', anim.from, anim.to, '.png', 3);
-		this._sprite.animations.add(anim.name, frames, anim.fps, true, false);
-	}, this);
-	
-	//this._sprite.play('stand_down');
+	this._setupSprite(this._sprite, this._data);
 
 	// Find all animations which stands.
-	var standAnimations = this._data.animations.filter(function(anim){
+	var standAnimations = this._data.animations.filter(function(anim) {
 		return anim.name.indexOf('stand') !== -1;
 	});
-	
+
 	var i = Math.floor(Math.random() * standAnimations.length);
-	//var i = 0;
+	// var i = 0;
 	this.playAnimation(standAnimations[i].name);
 
 	// Re-set position so the sprite gets now postioned.
 	this.setPosition(this.position.x, this.position.y);
+};
+
+/**
+ * Helper function to setup a sprite with all the information contained inside a
+ * description object.
+ * 
+ * @param sprite
+ * @param descObj
+ */
+Bestia.Engine.SpriteEntity.prototype._setupSprite = function(sprite, descObj) {
+	
+	// Setup the normal data.
+	sprite.anchor = descObj.anchor || {x: 0.5, y: 0.5};
+	sprite.scale.setTo(descObj.scale || 1);
+	// Sprite is invisible at first.
+	sprite.alpha = 0;
+	
+	var anims = descObj.animations || [];
+
+	// Register all the animations of the sprite.
+	anims.forEach(function(anim) {
+		var frames = Phaser.Animation.generateFrameNames(anim.name + '/', anim.from, anim.to, '.png', 3);
+		sprite.animations.add(anim.name, frames, anim.fps, true, false);
+	}, this);
 };
 
 Bestia.Engine.SpriteEntity.prototype.setTexture = function(name) {
@@ -281,8 +294,11 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg) {
 
 		this.playAnimation(nextAnim, isLast);
 
-		this.position = {x: pos.x, y: pos.y};
-		//console.log("Moved to: " + pos.x + " - " + pos.y);
+		this.position = {
+			x : pos.x,
+			y : pos.y
+		};
+		// console.log("Moved to: " + pos.x + " - " + pos.y);
 
 	}, this);
 
@@ -295,8 +311,11 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg) {
 
 		this.playAnimation(nextAnim);
 
-		this.position = {x: currentPos.x, y: currentPos.y};
-		//console.log("Moved to: " + currentPos.x + " - " + currentPos.y);
+		this.position = {
+			x : currentPos.x,
+			y : currentPos.y
+		};
+		// console.log("Moved to: " + currentPos.x + " - " + currentPos.y);
 
 	}, this);
 

@@ -25,6 +25,10 @@ Bestia.Engine.MultispriteEntity.NULL_POS = {
 Bestia.Engine.MultispriteEntity.prototype = Object.create(Bestia.Engine.SpriteEntity.prototype);
 Bestia.Engine.MultispriteEntity.prototype.constructor = Bestia.Engine.MultispriteEntity;
 
+Bestia.Engine.MultispriteEntity.getOffsetFilename = function(multispriteName, mainspriteName) {
+	return 'offset_' + multispriteName + '_' + mainspriteName;
+};
+
 /**
  * Returns the name of the subsprite animation depending of the current "main"
  * animation running on the main sprite. Can be used to set the subsprite
@@ -55,7 +59,8 @@ Bestia.Engine.MultispriteEntity.prototype._getSubspriteAnimation = function(subs
 };
 
 /**
- * Sets the sprite of the entity.
+ * Sets the sprite of the entity. TODO Das hier alles in die Factory auslagern.
+ * Das Bauen der Sprites.
  * 
  * @param {string}
  *            spriteName - New name of the sprite.
@@ -64,31 +69,41 @@ Bestia.Engine.MultispriteEntity.prototype.setSprite = function(spriteName) {
 	Bestia.Engine.SpriteEntity.prototype.setSprite.call(this, spriteName);
 
 	// Add the multi sprites if there are some of them.
-	var multisprites = this._data.multiSprite;
-	if (Array.isArray(multisprites)) {
-		for (var i = 0; i < multisprites.length; i++) {
+	var multisprites = this._data.multiSprite || [];
 
-			var ms = multisprites[i];
+	multisprites.forEach(function(msName) {
 
-			var sprite = this._game.make.sprite(ms.defaultAnchor.x, ms.defaultAnchor.y, ms.id);
-			this._sprite.addChild(sprite);
-			
-			// Register all the animations.
-			this._data.animations.forEach(function(anim) {
-				var frames = Phaser.Animation.generateFrameNames(anim.name + '/', anim.from, anim.to, '.png', 3);
-				this._sprite.animations.add(anim.name, frames, anim.fps, true, false);
-			}, this);
+		// Get the desc file of the multisprite.
+		// TODO Das hier vielleicht in die factory auslagern.
+		var msDesc = this._game.cache.getJSON(msName + '_desc');
 
-			sprite.bestiaDefaultAnchor = ms.defaultAnchor;
-
-			sprite.name = ms.id;
-			sprite.anchor.setTo(0.5, 1);
-			sprite.scale.setTo(ms.scale);
-			sprite.frameName = 'bottom.png';
-
-			this._multiSprites.push(sprite);
+		// Was not loaded. Should not happen.
+		if (msDesc == null) {
+			return;
 		}
-	}
+
+		var anchor = msDesc.anchor || {
+			x : 0.5,
+			y : 0.5
+		};
+
+		var sprite = this._game.make.sprite(anchor.x, anchor.y, msDesc);
+		this._sprite.addChild(sprite);
+
+		// Register all the animations.
+		this._setupSprite(sprite, msDesc);
+
+		// Generate offset information.
+		var offsetFileName = Bestia.Engine.MultispriteEntity.getOffsetFilename(msName, key);
+		var offsets = this._game.cache.getJSON(offsetFileName) || {};
+		this._animOffset = offsets.offsets || [];
+		
+		sprite.bestiaDefaultAnchor = msDesc.defaultAnchor;
+
+		sprite.name = msName;
+
+		this._multiSprites.push(sprite);
+	}, this);
 
 	// After setting the subsprites we must manually call set
 	this._playSubspriteAnimation(this._sprite.animations.currentAnim.name);
@@ -151,7 +166,7 @@ Bestia.Engine.MultispriteEntity.prototype._playSubspriteAnimation = function(mai
 	// Iterate over all subsprites an set their animations.
 	this._multiSprites.forEach(function(s) {
 		var subAnim = this._getSubspriteAnimation(s.name, mainAnimName);
-		if(subAnim === null) {
+		if (subAnim === null) {
 			// no suitable sub animation found. Do nothing.
 			return;
 		}
