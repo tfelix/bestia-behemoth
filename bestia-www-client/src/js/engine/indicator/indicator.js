@@ -5,16 +5,22 @@ Bestia.Engine.Indicator = Bestia.Engine.Indicator || {};
  * 
  * @class Bestia.Engine.Indicator
  */
-Bestia.Engine.Indicator.Basic = function(game) {
+Bestia.Engine.Indicator.Basic = function(game, pubsub, bestiaWorld, state) {
 
 	this._game = game;
+	
+	this._pubsub = pubsub;
+	
+	this._world = bestiaWorld;
+	
+	this._state = state;
 	
 	this.marker = this._game.add.sprite(0, 0, 'cursor');
 	this.marker.animations.add('blink');
 	this.marker.animations.play('blink', 1, true);
 	
 	this._game.input.addMoveCallback(this._onMouseMove, this);
-	//this._game.input.onDown.add(this._onClick, this);
+	this._game.input.onDown.add(this._onClick, this);
 };
 
 /**
@@ -33,14 +39,18 @@ Bestia.Engine.Indicator.Basic.prototype._onMouseMove = function() {
 	// TODO Check if we are on an non walkable tile. Hide cursor here.
 };
 
-Bestia.Engine.Indicator.Basic.prototype.onClick = function() {
+Bestia.Engine.Indicator.Basic.prototype._onClick = function(pointer) {
 
-	var player = this._getPlayerEntity();
+	var player = this._state.getPlayerEntity();
+	
+	if(player === null) {
+		return;
+	}
 
 	var start = player.position;
-	var goal = Bestia.Engine.World.getTileXY(this.game.input.worldX, this.game.input.worldY);
+	var goal = Bestia.Engine.World.getTileXY(pointer.worldX, pointer.worldY);
 
-	var path = this.bestiaWorld.findPath(start, goal).nodes;
+	var path = this._world.findPath(start, goal).nodes;
 
 	if (path.length === 0) {
 		return;
@@ -48,9 +58,8 @@ Bestia.Engine.Indicator.Basic.prototype.onClick = function() {
 
 	path = path.reverse();
 	var msg = new Bestia.Message.BestiaMove(this.bestia.playerBestiaId(), path, player.walkspeed);
-	this.pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
+	this._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 
 	// Start movement locally as well.
 	player.moveTo(path);
-	
 };

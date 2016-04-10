@@ -1,0 +1,32 @@
+{  
+  "type":"multipart",
+  "version":1,
+  "scale":1.2,
+  "animations": [
+		{"name": "walk_down", "from": 1, "to": 8, "fps": 7 },
+		{"name": "walk_down_left", "from": 1, "to": 8, "fps": 7 },
+		{"name": "walk_left", "from": 1, "to": 8, "fps": 7 },
+		{"name": "walk_left_up", "from": 1, "to": 8, "fps": 7 },
+		{"name": "walk_up", "from": 1, "to": 8, "fps": 7 },
+		{"name": "stand_up", "from": 1, "to": 1, "fps": 0 },
+		{"name": "stand_down", "from": 1, "to": 1, "fps": 0 },
+		{"name": "stand_down_left", "from": 1, "to": 1, "fps": 0 },
+		{"name": "stand_left", "from": 1, "to": 1, "fps": 0 },
+		{"name": "stand_left_up", "from": 1, "to": 1, "fps": 0 }
+	],
+  "anchor":{  
+    "x":0.5,
+    "y":1
+  },
+  "assetpack":{  
+    "female_01":[  
+      {  
+        "type":"atlasJSONHash",
+        "key":"female_01",
+        "textureURL":"assets/sprite/multi/female_01.png",
+        "atlasURL":"assets/sprite/multi/female_01.json",
+        "atlasData":null
+      }
+    ]
+  }
+}

@@ -46,11 +46,9 @@ Bestia.Engine.SpriteEntity.prototype.setSprite = function(spriteName) {
 		return anim.name.indexOf('stand') !== -1;
 	});
 	
-	//var i = Math.floor(Math.random() * standAnimations.length);
-	var i = 0;
-	//this.playAnimation(standAnimations[i].name);
-	
-	this._sprite.play(standAnimations[i].name);
+	var i = Math.floor(Math.random() * standAnimations.length);
+	//var i = 0;
+	this.playAnimation(standAnimations[i].name);
 
 	// Re-set position so the sprite gets now postioned.
 	this.setPosition(this.position.x, this.position.y);

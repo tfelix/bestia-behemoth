@@ -15,20 +15,7 @@
 				{"name": "stand_left_up", "from": 1, "to": 1, "fps": 0 }
 			],
 	"anchor": {"x": 0.5, "y": 1},
-	"multiSprite" : [
-				{
-				"id": "female_01",
-				"scale": 1.2,
-				"animations": [{
-					"name": "look_down", 
-					"triggered": "walk_down",
-					"offsets": [
-						{"x": 0, "y": 1},{"x": 0, "y": 2},{"x": 0, "y": 3},{"x": 0, "y": 4},
-						{"x": 0, "y": 3},{"x": 0, "y": 2},{"x": 0, "y": 1},{"x": 0, "y": 0}
-					]}],
-				"defaultAnchor": {"x": 0, "y": -66}
-				}
-			],
+	"multiSprite" : ["female_01"],
 	"assetpack" : { 
 		"mastersmith": [
 			{

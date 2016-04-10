@@ -127,8 +127,9 @@ Bestia.Engine.States.GameState.prototype.create = function() {
 	// Trigger fx create effects.
 	this._fxManager.create();
 	
+	// Das ist temporär hier einen Indicator manager nutzen.
 	// Set the move indicator.
-	this._cursor = new Bestia.Engine.Indicator.Basic(this.game);
+	this._cursor = new Bestia.Engine.Indicator.Basic(this.game, this.pubsub, this.bestiaWorld, this);
 	
 };
 
@@ -188,6 +189,6 @@ Bestia.Engine.States.GameState.prototype.shutdown = function() {
 
 Bestia.Engine.States.GameState.prototype.getPlayerEntity = function() {
 	var pbid = this.engine.bestia.playerBestiaId();
-	var entity = this.engine.entityCache.getByPlayerBestiaId(pbid);
+	var entity = this._entityCache.getByPlayerBestiaId(pbid);
 	return entity;
 };
