@@ -129,6 +129,7 @@ Bestia.Engine.States.GameState.prototype.create = function() {
 	
 	// Set the move indicator.
 	this._cursor = new Bestia.Engine.Indicator.Basic(this.game);
+	
 };
 
 /**

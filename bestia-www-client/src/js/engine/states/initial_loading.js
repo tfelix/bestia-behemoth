@@ -26,6 +26,7 @@ Bestia.Engine.States.InitialLoadingState.prototype.preload = function() {
 	
 	this.game.load.image('default_item', this.url.getItemIconUrl('_default'));
 	
+	// #### Filters
 	this.game.load.script('filter_blur_x', this.url.getFilterUrl('BlurX'));
 	this.game.load.script('filter_blur_y', this.url.getFilterUrl('BlurY'));
 	
