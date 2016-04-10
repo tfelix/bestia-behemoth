@@ -17,61 +17,82 @@ Bestia.Engine.MultispriteEntity = function(game, uuid, desc) {
 	this._multiSprites = [];
 };
 
-Bestia.Engine.MultispriteEntity.NULL_POS = {x: 0, y: 0};
+Bestia.Engine.MultispriteEntity.NULL_POS = {
+	x : 0,
+	y : 0
+};
 
 Bestia.Engine.MultispriteEntity.prototype = Object.create(Bestia.Engine.SpriteEntity.prototype);
 Bestia.Engine.MultispriteEntity.prototype.constructor = Bestia.Engine.MultispriteEntity;
 
-Bestia.Engine.MultispriteEntity.prototype._getSubspriteAnimation = function(subsprite, currentAnim) {
+/**
+ * Returns the name of the subsprite animation depending of the current "main"
+ * animation running on the main sprite. Can be used to set the subsprite
+ * animations after the animation of the main sprite has changed.
+ * 
+ * @param {string}
+ *            subspriteName Name of the current subsprite.
+ * @param currentAnim
+ * @returns Name of the subsprite animation.
+ */
+Bestia.Engine.MultispriteEntity.prototype._getSubspriteAnimation = function(subspriteName, currentAnim) {
 	for (var i = 0; i < this._data.multiSprite.length; i++) {
 		var ms = this._data.multiSprite[i];
-		if (ms.id !== subsprite) {
+		if (ms.id !== subspriteName) {
 			continue;
 		}
-		
+
 		// Look for the name.
-		for(var j = 0; j < ms.animations.length; j++) {
-			if(ms.animations[j].triggered === currentAnim) {
+		for (var j = 0; j < ms.animations.length; j++) {
+			if (ms.animations[j].triggered === currentAnim) {
 				return ms.animations[j].name;
 			}
 		}
 	}
-	
+
 	// No anim found.
 	return null;
 };
 
+/**
+ * Sets the sprite of the entity.
+ * 
+ * @param {string}
+ *            spriteName - New name of the sprite.
+ */
 Bestia.Engine.MultispriteEntity.prototype.setSprite = function(spriteName) {
 	Bestia.Engine.SpriteEntity.prototype.setSprite.call(this, spriteName);
-	
+
 	// Add the multi sprites if there are some of them.
 	var multisprites = this._data.multiSprite;
 	if (Array.isArray(multisprites)) {
 		for (var i = 0; i < multisprites.length; i++) {
-			
+
 			var ms = multisprites[i];
 
 			var sprite = this._sprite.addChild(this._game.make.sprite(ms.defaultAnchor.x, ms.defaultAnchor.y, ms.id));
-			
+
 			sprite.bestiaDefaultAnchor = ms.defaultAnchor;
-			
+
 			sprite.name = ms.id;
 			sprite.anchor.setTo(0.5, 1);
 			sprite.scale.setTo(ms.scale);
 			sprite.frameName = 'bottom.png';
-			
+
 			this._multiSprites.push(sprite);
 		}
 	}
-	
-	
+
 };
 
 /**
  * 
- * @param subsprite Name of the subsprite to look for its anchor offset.
- * @param currentAnim Currently running animation of the main sprite.
- * @param currentFrame The current frame of the main sprite.
+ * @param subsprite
+ *            Name of the subsprite to look for its anchor offset.
+ * @param currentAnim
+ *            Currently running animation of the main sprite.
+ * @param currentFrame
+ *            The current frame of the main sprite.
  * @returns
  */
 Bestia.Engine.MultispriteEntity.prototype._getSubspriteOffset = function(subsprite, currentAnim, currentFrame) {
@@ -81,22 +102,39 @@ Bestia.Engine.MultispriteEntity.prototype._getSubspriteOffset = function(subspri
 		if (ms.id !== subsprite) {
 			continue;
 		}
-		
+
 		// Look for the name.
-		for(var j = 0; j < ms.animations.length; j++) {
-			if(ms.animations[j].triggered === currentAnim) {
-				
+		for (var j = 0; j < ms.animations.length; j++) {
+			if (ms.animations[j].triggered === currentAnim) {
+
 				// Safety check.
-				if(ms.animations[j].offsets.length <= currentFrame) {
+				if (ms.animations[j].offsets.length <= currentFrame) {
 					return Bestia.Engine.MultispriteEntity.NULL_POS;
 				}
-				
+
 				return ms.animations[j].offsets[currentFrame];
 			}
 		}
 	}
-	
+
 	return Bestia.Engine.MultispriteEntity.NULL_POS;
+};
+
+/**
+ * It will keep all the subsprites with their animation in sync when the parent
+ * animation was set.
+ * 
+ * @param name
+ *            Name of the new animation to play.
+ */
+Bestia.Engine.MultispriteEntity.prototype.playAnimation = function(name) {
+	Bestia.Engine.SpriteEntity.prototype.playAnimation.call(this, name);
+
+	// Iterate over all subsprites an set their animations.
+	this._multiSprites.forEach(function(s) {
+		var subAnim = this._getSubspriteAnimation(s.name, name);
+		s.play(subAnim);
+	}, this);
 };
 
 /**
@@ -108,18 +146,21 @@ Bestia.Engine.MultispriteEntity.prototype.tickAnimation = function() {
 	}
 
 	var curAnim = this._sprite.animations.name;
-	
+
 	// The frame names are ???/001.png etc.
 	var start = this._sprite.frameName.length - 7;
 	var frameNumber = this._sprite.frameName.substring(start, start + 3);
 	var curFrame = parseInt(frameNumber);
-	
-	this._multiSprites.forEach(function(ms){
-		
-		// Get the current sub sprite anim name.	
+
+	this._multiSprites.forEach(function(ms) {
+
+		// Get the current sub sprite anim name.
 		var subPos = this._getSubspriteOffset(ms.name, curAnim, curFrame);
-		
-		ms.position = {x: ms.bestiaDefaultAnchor.x + subPos.x, y: ms.bestiaDefaultAnchor.y + subPos.y};
-		
+
+		ms.position = {
+			x : ms.bestiaDefaultAnchor.x + subPos.x,
+			y : ms.bestiaDefaultAnchor.y + subPos.y
+		};
+
 	}, this);
 };

@@ -39,15 +39,18 @@ Bestia.Engine.SpriteEntity.prototype.setSprite = function(spriteName) {
 		this._sprite.animations.add(anim.name, frames, anim.fps, true, false);
 	}, this);
 	
-	this._sprite.play('walk_down');
+	//this._sprite.play('stand_down');
 
 	// Find all animations which stands.
 	var standAnimations = this._data.animations.filter(function(anim){
 		return anim.name.indexOf('stand') !== -1;
 	});
 	
-	var i = Math.floor(Math.random() * standAnimations.length);
-	this.playAnimation(standAnimations[i].name);
+	//var i = Math.floor(Math.random() * standAnimations.length);
+	var i = 0;
+	//this.playAnimation(standAnimations[i].name);
+	
+	this._sprite.play(standAnimations[i].name);
 
 	// Re-set position so the sprite gets now postioned.
 	this.setPosition(this.position.x, this.position.y);
@@ -153,7 +156,7 @@ Bestia.Engine.SpriteEntity.prototype.playAnimation = function(name) {
 		}
 	}
 
-	//this._sprite.animations.play(name);
+	this._sprite.play(name);
 };
 
 /**
