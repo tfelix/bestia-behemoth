@@ -94,7 +94,7 @@ Bestia.Engine.MultispriteEntity.prototype.setSprite = function(spriteName) {
 		this._setupSprite(sprite, msDesc);
 
 		// Generate offset information.
-		var offsetFileName = Bestia.Engine.MultispriteEntity.getOffsetFilename(msName, key);
+		var offsetFileName = Bestia.Engine.MultispriteEntity.getOffsetFilename(msName, this._data.name);
 		var offsets = this._game.cache.getJSON(offsetFileName) || {};
 		this._animOffset = offsets.offsets || [];
 		
@@ -187,7 +187,7 @@ Bestia.Engine.MultispriteEntity.prototype.tickAnimation = function() {
 	// The frame names are ???/001.png etc.
 	var start = this._sprite.frameName.length - 7;
 	var frameNumber = this._sprite.frameName.substring(start, start + 3);
-	var curFrame = parseInt(frameNumber);
+	var curFrame = parseInt(frameNumber, 10);
 
 	this._multiSprites.forEach(function(ms) {
 

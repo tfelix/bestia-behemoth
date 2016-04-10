@@ -51,7 +51,6 @@ Bestia.Engine.DescriptionLoader.prototype._getUrlFromData = function(data) {
 	default:
 		// its an object.
 		return this._url.getObjectDescUrl(data.s);
-		break;
 	}
 };
 
