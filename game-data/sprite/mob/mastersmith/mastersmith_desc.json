@@ -24,13 +24,6 @@
 				"textureURL": "assets/sprite/mob/mastersmith/mastersmith.png",
 				"atlasURL": "assets/sprite/mob/mastersmith/mastersmith.json",
 				"atlasData": null
-			},
-			{
-				"type": "atlasJSONHash",
-				"key": "female_01",
-				"textureURL": "assets/sprite/head/female_01.png",
-				"atlasURL": "assets/sprite/head/female_01.json",
-				"atlasData": null
 			}
 		]
 	}

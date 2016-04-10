@@ -16,7 +16,7 @@ Bestia.Engine.EntityFactory = function(game, loader, entityCache, groups, urlHel
 	this.groups = groups;
 
 	this._entityCache = entityCache;
-	
+
 	/**
 	 * Registry for the builder to register themselfes.
 	 */
@@ -40,15 +40,15 @@ Bestia.Engine.EntityFactory.prototype.build = function(data, fnOnComplete) {
 
 	if (descFile === null) {
 		// We must first load this file because we dont know anything about the
-		// entity. Hand over the now loaded description file aswell as the callback.
-		this.descLoader.loadDescription(data, function(descFile){
-			
-			var pack = descFile.assetpack;
+		// entity. Hand over the now loaded description file as well as the
+		// callback.
+		this.descLoader.loadDescription(data, function(descFile) {
 
-			this.loader.loadPackData(pack, function() {
+			var b = this.builder[descFile.type];
+			b.load(descFile, function() {
 				this._build(data, descFile, fnOnComplete);
 			}.bind(this));
-			
+
 		}.bind(this));
 	} else {
 		this._build(descFile, fnOnComplete);
@@ -56,8 +56,8 @@ Bestia.Engine.EntityFactory.prototype.build = function(data, fnOnComplete) {
 };
 
 Bestia.Engine.EntityFactory.prototype._build = function(data, descFile, fnOnComplete) {
-	
-	if(descFile === null) {
+
+	if (descFile === null) {
 		// Could not load desc file.
 		return;
 	}

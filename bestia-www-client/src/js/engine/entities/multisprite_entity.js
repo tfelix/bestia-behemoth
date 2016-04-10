@@ -70,7 +70,8 @@ Bestia.Engine.MultispriteEntity.prototype.setSprite = function(spriteName) {
 
 			var ms = multisprites[i];
 
-			var sprite = this._sprite.addChild(this._game.make.sprite(ms.defaultAnchor.x, ms.defaultAnchor.y, ms.id));
+			var sprite = this._game.make.sprite(ms.defaultAnchor.x, ms.defaultAnchor.y, ms.id);
+			this._sprite.addChild(sprite);
 			
 			// Register all the animations.
 			this._data.animations.forEach(function(anim) {

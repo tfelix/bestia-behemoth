@@ -151,25 +151,10 @@ Bestia.Engine.States.GameState.prototype.update = function() {
 	this._fxManager.update();
 
 	// Update the animation frame groups of all multi sprite entities.
-
 	var entities = this._entityCache.getAllEntities();
 	entities.forEach(function(entity) {
 		entity.tickAnimation();
-	}); // Update the marker.
-	
-	/*
-	if (this._cursor !== null) {
-		
-		this._cursor.onUpdate();
-
-		if (this.game.input.activePointer.leftButton.isDown) {
-			this.marker.onLeftClick();
-		}
-		
-		if (this.game.input.activePointer.rightButton.isDown) {
-			this.marker.onRightClick();
-		}
-	}*/
+	});
 
 };
 
