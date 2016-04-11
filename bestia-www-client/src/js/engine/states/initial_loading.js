@@ -16,11 +16,9 @@ Bestia.Engine.States.InitialLoadingState = function(engine) {
 
 };
 
-Bestia.Engine.States.InitialLoadingState.prototype.init = function() {
-
-};
 
 Bestia.Engine.States.InitialLoadingState.prototype.preload = function() {
+	
 	// TODO hier auch schon einen loading screen anzeigen.
 	this.game.load.image('castindicator_small', this.url.getIndicatorUrl('_big'));
 	this.game.load.image('castindicator_medium', this.url.getIndicatorUrl('_medium'));

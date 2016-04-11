@@ -25,7 +25,7 @@ Bestia.Engine.IndicatorManager.prototype.showStandardIndicator = function() {
 
 Bestia.Engine.IndicatorManager.prototype.load = function() {
 	this._indicators.forEach(function(x){
-		x.preLoadAssets();
+		x.load();
 	}, this);
 };
 
@@ -44,5 +44,5 @@ Bestia.Engine.IndicatorManager.prototype.requestActive = function(indicator) {
 	}
 	
 	this._active = indicator;
-	this._activa.activate();
+	this._active.activate();
 };

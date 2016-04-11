@@ -18,15 +18,15 @@ Bestia.Engine.Indicator.Basic = function(manager, ctx) {
 };
 
 Bestia.Engine.Indicator.Basic.prototype.activate = function() {
-	this._game.input.addMoveCallback(this._onMouseMove, this);
-	this._game.input.onDown.add(this._onClick, this);
-	this._game.world.add(this._marker);
+	this._ctx.game.input.addMoveCallback(this._onMouseMove, this);
+	this._ctx.game.input.onDown.add(this._onClick, this);
+	this._ctx.game.world.add(this._marker);
 };
 
 Bestia.Engine.Indicator.Basic.prototype.deactivate = function() {
-	this._game.input.deleteMoveCallback(this._onMouseMove, this);
-	this._game.input.onDown.remove(this._onClick, this);
-	this._game.world.remove(this._marker);
+	this._ctx.game.input.deleteMoveCallback(this._onMouseMove, this);
+	this._ctx.game.input.onDown.remove(this._onClick, this);
+	this._ctx.game.world.remove(this._marker);
 };
 
 /**
@@ -61,14 +61,14 @@ Bestia.Engine.Indicator.Basic.prototype._onMouseMove = function() {
 		return;
 	}
 
-	var pointer = this._game.input.activePointer;
+	var pointer = this._ctx.game.input.activePointer;
 
 	// From px to tiles and back.
 	var cords = Bestia.Engine.World.getTileXY(pointer.worldX, pointer.worldY);
 	Bestia.Engine.World.getPxXY(cords.x, cords.y, cords);
 
-	this.marker.x = cords.x;
-	this.marker.y = cords.y;
+	this._marker.x = cords.x;
+	this._marker.y = cords.y;
 
 	// TODO Check if we are on an non walkable tile. Hide cursor here.
 };

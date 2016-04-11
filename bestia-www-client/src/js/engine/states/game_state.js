@@ -49,6 +49,9 @@ Bestia.Engine.States.GameState.prototype.create = function() {
 
 	this.ctx.pubsub.publish(Bestia.Signal.ENGINE_GAME_STARTED);
 	this.ctx.entityUpdater.releaseHold();	
+	
+	// Activate move handler.
+	this.ctx.indicatorManager.showStandardIndicator();
 };
 
 /**

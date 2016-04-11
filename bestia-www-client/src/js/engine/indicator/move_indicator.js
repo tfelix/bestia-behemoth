@@ -16,7 +16,7 @@ Bestia.Engine.Indicator.Move.prototype.constructor = Bestia.Engine.Indicator.Mov
 
 Bestia.Engine.Indicator.Basic.prototype._onClick = function(pointer) {
 
-	var player = this._state.getPlayerEntity();
+	var player = this._ctx.getPlayerEntity();
 	
 	if(player === null) {
 		return;
