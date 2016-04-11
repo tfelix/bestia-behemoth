@@ -14,10 +14,8 @@ Bestia.Engine.FX.Brightness = function(ctx) {
 	this._pubsub = ctx.pubsub;
 
 	this._game = ctx.game;
-
-	this._cache = ctx.entityCache;
 	
-	this._groups = ctx.groups;
+	this._ctx = ctx;
 
 	/**
 	 * 1 if max. brigthness and 0 total darkness.
@@ -35,8 +33,8 @@ Bestia.Engine.FX.Brightness.prototype.destroy = function() {
 Bestia.Engine.FX.Brightness.prototype.create = function() {
 	// We need two layers. One for shadow, one for color informations. Both must
 	// be updated by the objects.
-	this.shadowMap = this._game.add.bitmapData(this._game.width, this._game.height);
-	this.shadowImg = this._game.add.image(0, 0, this.shadowMap);
+	this.shadowMap = this._ctx.game.add.bitmapData(this._game.width, this._game.height);
+	this.shadowImg = this._ctx.game.add.image(0, 0, this.shadowMap);
 
 	this.shadowImg.blendMode = Phaser.blendModes.MULTIPLY;
 
@@ -47,7 +45,7 @@ Bestia.Engine.FX.Brightness.prototype.create = function() {
 
 	this.shadowMap.dirty = true;
 	
-	this._groups.overlay.add(this.shadowImg);
+	this._ctx.groups.overlay.add(this.shadowImg);
 };
 
 Bestia.Engine.FX.Brightness.prototype.update = function() {

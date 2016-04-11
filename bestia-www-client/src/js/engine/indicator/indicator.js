@@ -7,17 +7,13 @@ Bestia.Engine.Indicator = Bestia.Engine.Indicator || {};
  */
 Bestia.Engine.Indicator.Basic = function(manager, ctx) {
 
-	if(manager === null) {
+	if (!manager) {
 		throw new Error("Manager can not be null.");
 	}
-	
-	if(ctx === null) {
-		throw new Error("EngineContext can not be null.");
-	}
-	
-	this._ctx = ctx;
+
+	this._ctx = manager.ctx;
 	this._manager = manager;
-	
+
 	this._marker = null;
 };
 
@@ -33,6 +29,12 @@ Bestia.Engine.Indicator.Basic.prototype.deactivate = function() {
 	this._game.world.remove(this._marker);
 };
 
+/**
+ * Override an create all needed game objects here.
+ */
+Bestia.Engine.Indicator.Basic.prototype.create = function() {
+	// no op.
+};
 
 Bestia.Engine.Indicator.Basic.prototype.loadAssets = function() {
 	// no op.

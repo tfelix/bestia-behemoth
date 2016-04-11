@@ -18,14 +18,14 @@ Bestia.Engine.FX.EffectsManager = function(ctx) {
 	if (!ctx.game) {
 		throw  new Error("Game can not be null.");
 	}
-
+/*
 	if (!ctx.entityCache) {
 		throw new Error("Cache can not be undefined.");
-	}
-	
+	}*/
+	/*
 	if (!ctx.groups) {
 		throw new Error("Groups an not be undefined.");
-	}
+	}*/
 	
 	if (!ctx.loader) {
 		throw new Error("Loader can not be undefined.");

@@ -37,6 +37,7 @@ Bestia.Engine.States.GameState.prototype.create = function() {
 	
 	// Trigger fx create effects.
 	this.ctx.fxManager.create();
+	this.ctx.indicatorManager.create();
 
 	// Load the tilemap and display it.
 	this.ctx.zone = new Bestia.Engine.World(this.game, astar, this.ctx.groups);

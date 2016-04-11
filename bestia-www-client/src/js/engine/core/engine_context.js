@@ -21,7 +21,7 @@ Bestia.Engine.EngineContext = function(_pubsub, _engine, _urlHelper) {
 	 * @property {Phaser.Game}
 	 * @private
 	 */
-	this.game = null;
+	this._game = null;
 
 	/**
 	 * Bestia engine.
@@ -56,6 +56,8 @@ Bestia.Engine.EngineContext = function(_pubsub, _engine, _urlHelper) {
 
 	this.loader = null;
 
+	this.indicatorManager = null;
+
 	/**
 	 * Bestia Zone Data.
 	 */
@@ -73,15 +75,27 @@ Bestia.Engine.EngineContext = function(_pubsub, _engine, _urlHelper) {
 /**
  * Trigger all the stuff which can be done after an valie game object was set.
  */
+Bestia.Engine.EngineContext.prototype._initStateLoaded = function() {
+
+	// The order here is very important, since we set internal objects on which
+	// some of the ctors of the objects depend. Please check twice when changing
+	// this order if this will work!
+	
+	this.entityFactory = new Bestia.Engine.EntityFactory(this);
+	this.entityUpdater = new Bestia.Engine.EntityUpdater(this);
+};
+
+/**
+ * Trigger all the stuff which can be done after an valie game object was set.
+ */
 Bestia.Engine.EngineContext.prototype._initGameSet = function() {
 
 	// The order here is very important, since we set internal objects on which
 	// some of the ctors of the objects depend. Please check twice when changing
 	// this order if this will work!
 	this.loader = new Bestia.Engine.DemandLoader(this.game.load, this.game.cache, this.url);
+	this.indicatorManager = new Bestia.Engine.IndicatorManager(this);
 	this.fxManager = new Bestia.Engine.FX.EffectsManager(this);
-	this.entityFactory = new Bestia.Engine.EntityFactory(this);
-	this.entityUpdater = new Bestia.Engine.EntityUpdater(this);
 };
 
 Bestia.Engine.EngineContext.prototype.getPlayerEntity = function() {
@@ -95,12 +109,12 @@ Bestia.Engine.EngineContext.prototype.getPlayerEntity = function() {
  * groups when the final (game_state) is started.
  */
 Bestia.Engine.EngineContext.prototype.createGroups = function() {
-	
-	if(!this.game) {
+
+	if (!this.game) {
 		console.warn("Game is not set. Can not create groups.");
 		return;
 	}
-	
+
 	// Groups can be created.
 	this.groups = {};
 	this.groups.mapGround = this.game.add.group();
@@ -115,6 +129,18 @@ Bestia.Engine.EngineContext.prototype.createGroups = function() {
 	this.groups.overlay.name = 'overlay';
 	this.groups.gui = this.game.add.group();
 	this.groups.gui.name = 'gui';
-	
-	this._initGameSet();
+
+	this._initStateLoaded();
 };
+
+Object.defineProperty(Bestia.Engine.EngineContext.prototype, 'game', {
+	get : function() {
+		return this._game
+	},
+	set : function(value) {
+		this._game = value;
+		if (this._game) {
+			this._initGameSet();
+		}
+	}
+});

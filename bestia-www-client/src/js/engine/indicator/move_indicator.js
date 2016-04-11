@@ -8,9 +8,6 @@ Bestia.Engine.Indicator = Bestia.Engine.Indicator || {};
 Bestia.Engine.Indicator.Move = function(manager) {
 	Bestia.Engine.Indicator.Basic.call(this, manager);
 	
-	this._marker = this._game.make.sprite(0, 0, 'cursor');
-	this._marker.animations.add('blink');
-	this._marker.animations.play('blink', 1, true);
 };
 
 Bestia.Engine.Indicator.Move.prototype = Object.create(Bestia.Engine.Indicator.Basic.prototype);
@@ -41,3 +38,20 @@ Bestia.Engine.Indicator.Basic.prototype._onClick = function(pointer) {
 	// Start movement locally as well.
 	player.moveTo(path);
 };
+
+/**
+ * Override an create all needed game objects here.
+ */
+Bestia.Engine.Indicator.Basic.prototype.load = function() {
+	this._ctx.game.load.spritesheet('cursor', this._ctx.url.getIndicatorUrl('cursor'), 32, 32);
+};
+
+/**
+ * Override an create all needed game objects here.
+ */
+Bestia.Engine.Indicator.Basic.prototype.create = function() {
+	this._marker = this._ctx.game.make.sprite(0, 0, 'cursor');
+	this._marker.animations.add('blink');
+	this._marker.animations.play('blink', 1, true);
+};
+
