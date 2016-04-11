@@ -12,16 +12,16 @@
  *            pubsub - Reference to the bestia publish/subscriber system for
  *            hooking into update calls.
  */
-Bestia.Engine.EntityUpdater = function(pubsub, cache, entityFactory) {
-	if (pubsub === undefined) {
+Bestia.Engine.EntityUpdater = function(ctx) {
+	if (!ctx.pubsub) {
 		throw "PubSub can not be undefined";
 	}
 
-	if (cache === undefined) {
+	if (!ctx.entityCache) {
 		throw "Cache can not be undefined.";
 	}
 
-	if (entityFactory === undefined) {
+	if (!ctx.entityFactory) {
 		throw "EntityFactory can not be null.";
 	}
 
@@ -30,16 +30,16 @@ Bestia.Engine.EntityUpdater = function(pubsub, cache, entityFactory) {
 	 */
 	this._buffer = [];
 
-	this._cache = cache;
+	this._cache = ctx.entityCache;
 
-	this._pubsub = pubsub;
+	this._pubsub = ctx.pubsub;
 
-	this._factory = entityFactory;
+	this._factory = ctx.entityFactory;
 
 	// === SUBSCRIBE ===
-	pubsub.subscribe(Bestia.MID.ENTITY_UPDATE, this._onUpdateHandler.bind(this));
-	pubsub.subscribe(Bestia.MID.ENTITY_MOVE, this._onMoveHandler.bind(this));
-	pubsub.subscribe(Bestia.MID.ENTITY_POSITION, this._onPositionHandler.bind(this));
+	this._pubsub.subscribe(Bestia.MID.ENTITY_UPDATE, this._onUpdateHandler.bind(this));
+	this._pubsub.subscribe(Bestia.MID.ENTITY_MOVE, this._onMoveHandler.bind(this));
+	this._pubsub.subscribe(Bestia.MID.ENTITY_POSITION, this._onPositionHandler.bind(this));
 };
 
 /**

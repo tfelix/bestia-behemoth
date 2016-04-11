@@ -5,9 +5,19 @@ Bestia.Engine.Indicator = Bestia.Engine.Indicator || {};
  * 
  * @class Bestia.Engine.Indicator
  */
-Bestia.Engine.Indicator.Basic = function(manager) {
+Bestia.Engine.Indicator.Basic = function(manager, ctx) {
 
+	if(manager === null) {
+		throw new Error("Manager can not be null.");
+	}
+	
+	if(ctx === null) {
+		throw new Error("EngineContext can not be null.");
+	}
+	
+	this._ctx = ctx;
 	this._manager = manager;
+	
 	this._marker = null;
 };
 
@@ -23,12 +33,17 @@ Bestia.Engine.Indicator.Basic.prototype.deactivate = function() {
 	this._game.world.remove(this._marker);
 };
 
+
+Bestia.Engine.Indicator.Basic.prototype.loadAssets = function() {
+	// no op.
+};
+
 /**
  * If there are static assets which the indicator needs one can load them in
  * here. The method is called by the system before the general operation of the
  * engine starts.
  */
-Bestia.Engine.Indicator.Basic.prototype.loadAssets = function(loader) {
+Bestia.Engine.Indicator.Basic.prototype.preLoadAssets = function() {
 	// no op.
 };
 

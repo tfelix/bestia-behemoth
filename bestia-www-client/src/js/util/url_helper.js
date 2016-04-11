@@ -58,5 +58,8 @@ Bestia.UrlHelper.prototype.getFilterUrl = function(filter) {
 };
 
 Bestia.UrlHelper.prototype.getSpriteUrl = function(sprite) {
-	return this._assetRoot + 'img/sprite/' + sprite + '.png';
+	if(!sprite.endsWith('.png')) {
+		sprite += '.png';
+	}
+	return this._assetRoot + 'sprite/single/' + sprite;
 };

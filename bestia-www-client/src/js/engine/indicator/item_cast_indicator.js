@@ -5,20 +5,21 @@ Bestia.Engine.Indicator = Bestia.Engine.Indicator || {};
  * 
  * @class Bestia.Engine.Indicator
  */
-Bestia.Engine.Indicator.ItemCast = function(manager) {
-	Bestia.Engine.Indicator.Basic.call(this, manager);
+Bestia.Engine.Indicator.ItemCast = function(manager, ctx) {
+	Bestia.Engine.Indicator.Basic.call(this, manager, ctx);
 
 	// TODO Marker vorbereiten.
 	this._marker = null;
 
 	// Listen for activation signal.
-	this.pubsub.subscribe(Bestia.Signal.ENGINE_CAST_ITEM, this._onCastItem.bind(this));
+	this._ctx.pubsub.subscribe(Bestia.Signal.ENGINE_CAST_ITEM, this._onCastItem.bind(this));
 };
 
 Bestia.Engine.Indicator.ItemCast.prototype = Object.create(Bestia.Engine.Indicator.Basic.prototype);
 Bestia.Engine.Indicator.ItemCast.prototype.constructor = Bestia.Engine.Indicator.ItemCast;
 
-Bestia.Engine.Indicator.ItemCast.prototype._onClick = function(pointer) {
+Bestia.Engine.Indicator.ItemCast.prototype._onClick = function() {
+	// pointer
 	// TODO Cast the item on the given spot.
 	alert("Gecasted");
 	
@@ -26,7 +27,9 @@ Bestia.Engine.Indicator.ItemCast.prototype._onClick = function(pointer) {
 	this._manager.showStandardIndicator();
 };
 
-Bestia.Engine.Indicator.ItemCast.prototype._onCastItem = function(_, item) {
+Bestia.Engine.Indicator.ItemCast.prototype._onCastItem = function() {
+	// _, item
+	
 	// Asks to get activated.
 	this._requestActive();
 
@@ -34,4 +37,11 @@ Bestia.Engine.Indicator.ItemCast.prototype._onCastItem = function(_, item) {
 	
 	// Aktivieren.
 	this._requestActive();
+};
+
+/**
+ * Preload all needed assets.
+ */
+Bestia.Engine.Indicator.ItemCast.prototype.preLoadAssets = function() {
+	this._ctx.loader.load({key: 'cast_indicator', url: this._ctx.url.getSpriteUrl('cast_indicator'), type: 'image'});
 };

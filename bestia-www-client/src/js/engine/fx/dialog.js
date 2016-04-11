@@ -11,18 +11,18 @@ Bestia.Engine.FX = Bestia.Engine.FX || {};
  * 
  * @class Bestia.Engine.FX.Dialog
  */
-Bestia.Engine.FX.Dialog = function(pubsub, game, parentEle) {
+Bestia.Engine.FX.Dialog = function(ctx, parentEle) {
 
-	this._game = game;
+	this._game = ctx.game;
 
-	this._pubsub = pubsub;
+	this._pubsub = ctx.pubsub;
 
 	this._domEle = $('<div id="ui-dialog"></div>');
 	this._domEle.hide().addClass('ui-dialog');
 
 	$(parentEle).append(this._domEle);
 
-	pubsub.subscribe(Bestia.MID.UI_DIALOG, this.handleMessage.bind(this));
+	ctx.pubsub.subscribe(Bestia.MID.UI_DIALOG, this.handleMessage.bind(this));
 };
 
 /**

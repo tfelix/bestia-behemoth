@@ -6,16 +6,36 @@
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  */
-Bestia.Engine.EntityFactory = function(game, loader, entityCache, groups, urlHelper) {
+Bestia.Engine.EntityFactory = function(ctx) {
+	
+	if(!ctx.game) {
+		throw new Error("Game can not be null.");
+	}
+	
+	if(!ctx.loader) {
+		throw new Error("Loader can not be null.");
+	}
+	
+	if(!ctx.entityCache) {
+		throw new Error("EntityCache can not be null.");
+	}
+	
+	if(!ctx.groups) {
+		throw new Error("Groups can not be null.");
+	}
+	
+	if(!ctx.url) {
+		throw new Error("Url can not be null.");
+	}
 
-	this.game = game;
+	this.game = ctx.game;
 
-	this.loader = loader;
-	this.descLoader = new Bestia.Engine.DescriptionLoader(loader, urlHelper);
+	this.loader = ctx.loader;
+	this.descLoader = new Bestia.Engine.DescriptionLoader(ctx.loader, ctx.url);
 
-	this.groups = groups;
+	this.groups = ctx.groups;
 
-	this._entityCache = entityCache;
+	this._entityCache = ctx.entityCache;
 
 	/**
 	 * Registry for the builder to register themselfes.
@@ -25,7 +45,7 @@ Bestia.Engine.EntityFactory = function(game, loader, entityCache, groups, urlHel
 	this._register(new Bestia.Engine.MultispriteBuilder(this));
 	this._register(new Bestia.Engine.SpriteBuilder(this));
 	this._register(new Bestia.Engine.SimpleObjectBuilder(this));
-	this._register(new Bestia.Engine.ItemBuilder(game, loader));
+	this._register(new Bestia.Engine.ItemBuilder(ctx));
 };
 
 Bestia.Engine.EntityFactory.prototype._register = function(b) {

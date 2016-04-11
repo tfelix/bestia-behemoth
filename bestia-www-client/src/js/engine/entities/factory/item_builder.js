@@ -1,15 +1,15 @@
 /**
  * Responsible for building the multisprites entities.
  */
-Bestia.Engine.ItemBuilder = function(game, loader) {
+Bestia.Engine.ItemBuilder = function(ctx) {
 	
 	
 	// Register with factory.
 	this.type = 'item';
 	this.version = 1;
 	
-	this._loader = loader;
-	this._game = game;
+	this._loader = ctx.loader;
+	this._game = ctx.game;
 
 };
 

@@ -17,7 +17,7 @@ Bestia.Engine.IndicatorManager = function() {
 	this._active = null;
 
 	this._moveIndicator = new Bestia.Engine.Indicator.Move(this);
-	this._indicators.push(moveIndicator);
+	this._indicators.push(this._moveIndicator);
 	this._indicators.push(new Bestia.Engine.Indicator.ItemCast(this));
 	this._indicators.push(new Bestia.Engine.Indicator.AttackCast(this));
 };

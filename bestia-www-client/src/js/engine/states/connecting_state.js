@@ -7,9 +7,9 @@ Bestia.Engine.States = Bestia.Engine.States || {};
  * @constructor
  * @class Bestia.Engine.States.BootState
  */
-Bestia.Engine.States.ConnectingState = function(pubsub) {
+Bestia.Engine.States.ConnectingState = function(engine) {
 
-	this._pubsub = pubsub;
+	this._pubsub = engine.ctx.pubsub;
 };
 
 Bestia.Engine.States.ConnectingState.prototype.create = function() {

@@ -9,22 +9,22 @@ Bestia.Engine.FX = Bestia.Engine.FX || {};
  * @param {Bestia.Engine.EntityCacheManager}
  *            cache
  */
-Bestia.Engine.FX.Brightness = function(pubsub, cache, game, groups) {
+Bestia.Engine.FX.Brightness = function(ctx) {
 
-	this._pubsub = pubsub;
+	this._pubsub = ctx.pubsub;
 
-	this._game = game;
+	this._game = ctx.game;
 
-	this._cache = cache;
+	this._cache = ctx.entityCache;
 	
-	this._groups = groups;
+	this._groups = ctx.groups;
 
 	/**
 	 * 1 if max. brigthness and 0 total darkness.
 	 */
 	this.brightness = 1;
 	
-	pubsub.publish(Bestia.Signal.CHAT_REGISTER_CMD, new Bestia.Chat.Commands.EngineCommand(this));
+	ctx.pubsub.publish(Bestia.Signal.CHAT_REGISTER_CMD, new Bestia.Chat.Commands.EngineCommand(this));
 };
 
 
@@ -59,7 +59,7 @@ Bestia.Engine.FX.Brightness.prototype.update = function() {
 	}
 	
 	// Gather all entities in sight with a light emitting trait and let them add to the shadow map.
-	var entities = [];
+	//var entities = [];
 	
 	// Clear the map.
 	this.shadowMap.ctx.fillStyle = '#000000';

@@ -8,122 +8,46 @@ Bestia.Engine.States = Bestia.Engine.States || {};
  * @param {Bestia.Engine}
  *            engine - Reference to the bestia engine.
  */
-Bestia.Engine.States.GameState = function(engine, urlHelper) {
-
-	var self = this;
+Bestia.Engine.States.GameState = function(engine) {
 
 	this.marker = null;
 
-	/**
-	 * @property {Bestia.Engine} Reference to the central bestia engine object.
-	 */
-	this.engine = engine;
+	this.ctx = engine.ctx;
 
-	/**
-	 * @property {Bestia.PubSub} Shortcut to the publish subscriber interface.
-	 */
-	this.pubsub = this.engine.pubsub;
-
-	/**
-	 * World object holding all features and functions regarding to the "world".
-	 * 
-	 * @property {Bestia.Engine.World}
-	 * @public
-	 */
-	this.bestiaWorld = null;
-
-	/**
-	 * Entity updater for managing the adding and removal of entities.
-	 * 
-	 * @public
-	 * @property {Bestia.Engine.EntityUpdater}
-	 */
-	this._entityUpdater = null;
-
-	this._urlHelper = urlHelper;
-
-	this._demandLoader = null;
-
-	/**
-	 * Holds the central cache for all entities displayed in the game.
-	 */
-	this._entityCache = new Bestia.Engine.EntityCacheManager();
-
-	/**
-	 * Effects manager will subscribe itself to messages from the server which
-	 * trigger a special effect for an entity or a stand alone effect which must
-	 * be displayed by whatever means.
-	 * 
-	 * @public
-	 * @property {Bestia.Engine.FX.EffectsManager}
-	 */
-	this._fxManager = null;
-
-	this._groups = {};
-
-	// ==== Subscriptions ====
-
-	/**
-	 * When the connect signal is given this is the sign that the engine as
-	 * initialized. I know this is a bit hacky but before we dont have access to
-	 * the game instance which we need to further initialize this objects.
-	 */
-	this.pubsub.subscribe(Bestia.Signal.ENGINE_BOOTED, function() {
-
-		self._demandLoader = new Bestia.Engine.DemandLoader(self.game.load, self.game.cache, self._urlHelper);
-		self._fxManager = new Bestia.Engine.FX.EffectsManager(self.pubsub, self.game, self._entityCache, self._groups);
-		self._entityFactory = new Bestia.Engine.EntityFactory(self.game, self._demandLoader, self._entityCache,
-				self._groups, self._urlHelper);
-		self._entityUpdater = new Bestia.Engine.EntityUpdater(self.pubsub, self._entityCache, self._entityFactory);
-	});
-	// ==== /Subscriptions ====
 };
 
 Bestia.Engine.States.GameState.prototype.init = function(bestia) {
+	
 	this.bestia = bestia;
 
-	// ==== GROUPS ====
-	var self = this;
-	self._groups.mapGround = self.game.add.group();
-	self._groups.mapGround.name = 'map_ground';
-	self._groups.sprites = self.game.add.group();
-	self._groups.sprites.name = 'sprites';
-	self._groups.mapOverlay = self.game.add.group();
-	self._groups.mapOverlay.name = 'map_overlay';
-	self._groups.effects = self.game.add.group();
-	self._groups.effects.name = 'fx';
-	self._groups.overlay = self.game.add.group();
-	self._groups.overlay.name = 'overlay';
-	self._groups.gui = self.game.add.group();
-	self._groups.gui.name = 'gui';
-	// ==== /GROUPS ====
+	
+};
 
+Bestia.Engine.States.GameState.prototype.create = function() {
+	
 	// ==== PLUGINS ====
-	// AStar
 	var astar = this.game.plugins.add(Phaser.Plugin.AStar);
 
 	// @ifdef DEVELOPMENT
 	this.game.plugins.add(Phaser.Plugin.Debug);
 	// @endif
 	// ==== /PLUGINS ====
+	
+	this.ctx.createGroups();
+	
+	// Trigger fx create effects.
+	this.ctx.fxManager.create();
 
 	// Load the tilemap and display it.
-	this.bestiaWorld = new Bestia.Engine.World(this.game, astar, this._groups);
-	this.bestiaWorld.loadMap(this.bestia.location());
+	this.ctx.zone = new Bestia.Engine.World(this.game, astar, this.ctx.groups);
+	this.ctx.zone.loadMap(this.bestia.location());
 
 	// @ifdef DEVELOPMENT
 	this.game.stage.disableVisibilityChange = true;
 	// @endif
 
-	this.pubsub.publish(Bestia.Signal.ENGINE_GAME_STARTED);
-	this._entityUpdater.releaseHold();
-};
-
-Bestia.Engine.States.GameState.prototype.create = function() {
-	
-	// Trigger fx create effects.
-	this._fxManager.create();
-	
+	this.ctx.pubsub.publish(Bestia.Signal.ENGINE_GAME_STARTED);
+	this.ctx.entityUpdater.releaseHold();	
 };
 
 /**
@@ -141,10 +65,10 @@ Bestia.Engine.States.GameState.prototype._onCastItem = function(item) {
 Bestia.Engine.States.GameState.prototype.update = function() {
 	
 	// Trigger the update effects.
-	this._fxManager.update();
+	this.ctx.fxManager.update();
 
 	// Update the animation frame groups of all multi sprite entities.
-	var entities = this._entityCache.getAllEntities();
+	var entities = this.ctx.entityCache.getAllEntities();
 	entities.forEach(function(entity) {
 		entity.tickAnimation();
 	});
@@ -161,13 +85,6 @@ Bestia.Engine.States.GameState.prototype.shutdown = function() {
 	// We need to UNSUBSCRIBE from all subscriptions to avoid leakage.
 	// TODO Ich weiß nicht ob das hier funktioniert oder ob referenz zu callback
 	// benötigt wird.
-	this.pubsub.unsubscribe(Bestia.Signal.ENGINE_CAST_ITEM, this._onCastItem.bind(this));
+	//this.pubsub.unsubscribe(Bestia.Signal.ENGINE_CAST_ITEM, this._onCastItem.bind(this));
 
-};
-
-// TODO In die Engine überführen.
-Bestia.Engine.States.GameState.prototype.getPlayerEntity = function() {
-	var pbid = this.engine.bestia.playerBestiaId();
-	var entity = this._entityCache.getByPlayerBestiaId(pbid);
-	return entity;
 };

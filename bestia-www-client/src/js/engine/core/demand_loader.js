@@ -30,11 +30,11 @@ Bestia.Engine.DemandLoader = function(loader, cache, urlHelper) {
 	this._cache = {};
 	this._keyCache = {};
 
-	//this._loadPackCallBuffer = [];
+	// this._loadPackCallBuffer = [];
 
 	// Add the callbacks.
 	loader.onFileComplete.add(this._fileLoadedCallback, this);
-	//loader.onLoadComplete.add(this._checkPackCallBufferCallback, this);
+	// loader.onLoadComplete.add(this._checkPackCallBufferCallback, this);
 };
 
 /**
@@ -42,18 +42,15 @@ Bestia.Engine.DemandLoader = function(loader, cache, urlHelper) {
  * loading process. We must therefore wait and call when loading has stopped.
  */
 /*
-Bestia.Engine.DemandLoader.prototype._checkPackCallBufferCallback = function() {
-	
-	if(this._loadPackCallBuffer.length == 0) {
-		// Nothing to do.
-		return;
-	}
-	   
-	
-	var fn = this._loadPackCallBuffer.pop();
-	// Calling the callback will start the load. Thus we need to wait again.
-	fn();
-};*/
+ * Bestia.Engine.DemandLoader.prototype._checkPackCallBufferCallback =
+ * function() {
+ * 
+ * if(this._loadPackCallBuffer.length == 0) { // Nothing to do. return; }
+ * 
+ * 
+ * var fn = this._loadPackCallBuffer.pop(); // Calling the callback will start
+ * the load. Thus we need to wait again. fn(); };
+ */
 
 Bestia.Engine.DemandLoader.prototype._fileLoadedCallback = function(progress, key) {
 
@@ -174,12 +171,9 @@ Bestia.Engine.DemandLoader.prototype.loadPackData = function(pack, fnOnComplete)
 	// data. This will mess up the Phaser Loader. We MUST wait until the loading
 	// has finished. DOES NOT WORK.
 	/*
-	if (this._loader.isLoading) {
-		this._loadPackCallBuffer.push(function() {
-			this.loadPackData(pack, fnOnComplete);
-		}.bind(this));
-		return;
-	}*/
+	 * if (this._loader.isLoading) { this._loadPackCallBuffer.push(function() {
+	 * this.loadPackData(pack, fnOnComplete); }.bind(this)); return; }
+	 */
 
 	fnOnComplete = fnOnComplete || Bestia.NOOP;
 
@@ -191,7 +185,7 @@ Bestia.Engine.DemandLoader.prototype.loadPackData = function(pack, fnOnComplete)
 		key = a;
 		break;
 	}
-	
+
 	// Check if a load is running. If this is the case only add the callback
 	// function to be executed when the load completes.
 	if (this._cache.hasOwnProperty(key)) {
@@ -256,8 +250,8 @@ Bestia.Engine.DemandLoader.prototype.load = function(data, fnOnComplete) {
 		this._loader.json(data.key, data.url);
 		break;
 	default:
-		// no op.
-		break;
+		console.warn("Loading this type not supported: " + data.type);
+		return;
 	}
 
 	this._loader.start();

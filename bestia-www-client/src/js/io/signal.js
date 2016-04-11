@@ -49,6 +49,7 @@ Bestia.Signal = {
 	 * Engine is ready and can be used.
 	 */
 	ENGINE_BOOTED : 'engine.bootet',
+	ENGINE_INIT_LOADED : 'engine.initloaded',
 	ENGINE_LOADED : 'engine.loaded',
 	ENGINE_PREPARE_MAPLOAD : 'engine.prepareMapload',
 
