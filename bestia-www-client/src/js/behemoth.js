@@ -7,7 +7,7 @@
 /**
  * @namespace Bestia
  */
-var Bestia = Bestia || {
+var Bestia = {
 	/**
 	 * Bestia client version number.
 	 * 

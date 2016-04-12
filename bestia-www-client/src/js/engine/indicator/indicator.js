@@ -5,7 +5,7 @@ Bestia.Engine.Indicator = Bestia.Engine.Indicator || {};
  * 
  * @class Bestia.Engine.Indicator
  */
-Bestia.Engine.Indicator.Basic = function(manager, ctx) {
+Bestia.Engine.Indicator.Basic = function(manager) {
 
 	if (!manager) {
 		throw new Error("Manager can not be null.");

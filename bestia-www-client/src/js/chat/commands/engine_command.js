@@ -18,7 +18,7 @@ Bestia.Chat.Commands.EngineCommand = function(brightnessFx) {
 Bestia.Chat.Commands.EngineCommand.prototype = new Bestia.Chat.Commands.BasicCommand();
 Bestia.Chat.Commands.EngineCommand.prototype.constructor = Bestia.Chat.Commands.EngineCommand;
 
-Bestia.Chat.Commands.EngineCommand.prototype._doCommand = function(cmdStr, chat, game) {
+Bestia.Chat.Commands.EngineCommand.prototype._doCommand = function(cmdStr) {
 	
 	var strs = cmdStr.split(' ');
 	

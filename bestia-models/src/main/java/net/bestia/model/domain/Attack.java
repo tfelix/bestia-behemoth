@@ -53,6 +53,9 @@ public class Attack implements Serializable {
 
 	@JsonProperty("cd")
 	private int cooldown;
+	
+	@JsonProperty("i")
+	private String indicator;
 
 	public Attack() {
 		// no op.
@@ -158,5 +161,9 @@ public class Attack implements Serializable {
 
 	public Integer getId() {
 		return id;
+	}
+	
+	public String getIndicator() {
+		return indicator;
 	}
 }

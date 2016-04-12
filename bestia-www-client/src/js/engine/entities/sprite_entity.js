@@ -331,7 +331,8 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg) {
  * by a certain algorithm. If the distance is too big it will hard set the
  * position.
  */
-Bestia.Engine.SpriteEntity.prototype.checkPosition = function(x, y) {
+Bestia.Engine.SpriteEntity.prototype.checkPosition = function() {
+	// x, y
 	console.error("Not implemented.");
 };
 

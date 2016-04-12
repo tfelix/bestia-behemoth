@@ -52,6 +52,9 @@ public class Item implements Serializable {
 	@Enumerated(EnumType.STRING)
 	@JsonProperty("t")
 	private ItemType type;
+	
+	@JsonProperty("i")
+	private String indicator;
 
 	private int usableRange = 0;
 
@@ -81,6 +84,10 @@ public class Item implements Serializable {
 		return type;
 	}
 
+	public String getIndicator() {
+		return indicator;
+	}
+	
 	public int getWeight() {
 		return weight;
 	}

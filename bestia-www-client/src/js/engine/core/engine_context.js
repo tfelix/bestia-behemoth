@@ -135,7 +135,7 @@ Bestia.Engine.EngineContext.prototype.createGroups = function() {
 
 Object.defineProperty(Bestia.Engine.EngineContext.prototype, 'game', {
 	get : function() {
-		return this._game
+		return this._game;
 	},
 	set : function(value) {
 		this._game = value;
