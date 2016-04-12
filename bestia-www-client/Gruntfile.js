@@ -49,6 +49,7 @@ module.exports = function(grunt) {
 	         		'<%= tempDir %>/js/engine/entities/factory/builder.js',
 	         		'<%= tempDir %>/js/engine/entities/factory/item_builder.js',
 	         		'<%= tempDir %>/js/engine/entities/factory/multisprite_builder.js',
+	         		'<%= tempDir %>/js/engine/entities/factory/player_multisprite_builder.js',
 	         		'<%= tempDir %>/js/engine/entities/factory/simpleobject_builder.js',
 	         		'<%= tempDir %>/js/engine/entities/factory/sprite_builder.js',
 	         		'<%= tempDir %>/js/engine/entities/factory/entity_factory.js',
