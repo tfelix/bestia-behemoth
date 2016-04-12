@@ -1,13 +1,13 @@
 /**
  * Responsible for building simple objects.
  */
-Bestia.Engine.SimpleObjectBuilder = function(game) {
+Bestia.Engine.SimpleObjectBuilder = function(factory, ctx) {
+	Bestia.Engine.Builder.call(this, factory, ctx);
 
 	// Register with factory.
 	this.type = 'simpleobject';
 	this.version = 1;
 
-	this._game = game;
 	this._data = null;
 };
 

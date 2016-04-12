@@ -1,7 +1,8 @@
 /**
  * Responsible for building the multisprites entities.
  */
-Bestia.Engine.ItemBuilder = function(ctx) {
+Bestia.Engine.ItemBuilder = function(factory, ctx) {
+	Bestia.Engine.Builder.call(this, factory, ctx);
 	
 	
 	// Register with factory.

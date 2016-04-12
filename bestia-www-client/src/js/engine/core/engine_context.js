@@ -75,19 +75,6 @@ Bestia.Engine.EngineContext = function(_pubsub, _engine, _urlHelper) {
 /**
  * Trigger all the stuff which can be done after an valie game object was set.
  */
-Bestia.Engine.EngineContext.prototype._initStateLoaded = function() {
-
-	// The order here is very important, since we set internal objects on which
-	// some of the ctors of the objects depend. Please check twice when changing
-	// this order if this will work!
-	
-	this.entityFactory = new Bestia.Engine.EntityFactory(this);
-	this.entityUpdater = new Bestia.Engine.EntityUpdater(this);
-};
-
-/**
- * Trigger all the stuff which can be done after an valie game object was set.
- */
 Bestia.Engine.EngineContext.prototype._initGameSet = function() {
 
 	// The order here is very important, since we set internal objects on which
@@ -96,6 +83,8 @@ Bestia.Engine.EngineContext.prototype._initGameSet = function() {
 	this.loader = new Bestia.Engine.DemandLoader(this.game.load, this.game.cache, this.url);
 	this.indicatorManager = new Bestia.Engine.IndicatorManager(this);
 	this.fxManager = new Bestia.Engine.FX.EffectsManager(this);
+	this.entityFactory = new Bestia.Engine.EntityFactory(this);
+	this.entityUpdater = new Bestia.Engine.EntityUpdater(this);
 };
 
 Bestia.Engine.EngineContext.prototype.getPlayerEntity = function() {
@@ -129,8 +118,6 @@ Bestia.Engine.EngineContext.prototype.createGroups = function() {
 	this.groups.overlay.name = 'overlay';
 	this.groups.gui = this.game.add.group();
 	this.groups.gui.name = 'gui';
-
-	this._initStateLoaded();
 };
 
 Object.defineProperty(Bestia.Engine.EngineContext.prototype, 'game', {

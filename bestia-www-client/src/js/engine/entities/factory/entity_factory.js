@@ -8,44 +8,23 @@
  */
 Bestia.Engine.EntityFactory = function(ctx) {
 	
-	if(!ctx.game) {
-		throw new Error("Game can not be null.");
+	if(!ctx) {
+		throw new Error("Context can not be null.");
 	}
 	
-	if(!ctx.loader) {
-		throw new Error("Loader can not be null.");
-	}
+	this._ctx = ctx;
 	
-	if(!ctx.entityCache) {
-		throw new Error("EntityCache can not be null.");
-	}
-	
-	if(!ctx.groups) {
-		throw new Error("Groups can not be null.");
-	}
-	
-	if(!ctx.url) {
-		throw new Error("Url can not be null.");
-	}
-
-	this.game = ctx.game;
-
-	this.loader = ctx.loader;
 	this.descLoader = new Bestia.Engine.DescriptionLoader(ctx.loader, ctx.url);
-
-	this.groups = ctx.groups;
-
-	this._entityCache = ctx.entityCache;
 
 	/**
 	 * Registry for the builder to register themselfes.
 	 */
 	this.builder = {};
 
-	this._register(new Bestia.Engine.MultispriteBuilder(this));
-	this._register(new Bestia.Engine.SpriteBuilder(this));
-	this._register(new Bestia.Engine.SimpleObjectBuilder(this));
-	this._register(new Bestia.Engine.ItemBuilder(ctx));
+	this._register(new Bestia.Engine.MultispriteBuilder(this, ctx));
+	this._register(new Bestia.Engine.SpriteBuilder(this, ctx));
+	this._register(new Bestia.Engine.SimpleObjectBuilder(this, ctx));
+	this._register(new Bestia.Engine.ItemBuilder(this, ctx));
 };
 
 Bestia.Engine.EntityFactory.prototype._register = function(b) {
@@ -95,7 +74,7 @@ Bestia.Engine.EntityFactory.prototype._build = function(data, descFile, fnOnComp
 		return;
 	}
 
-	this._entityCache.addEntity(entity);
+	this._ctx.entityCache.addEntity(entity);
 
 	// Call the callback handler.
 	fnOnComplete(entity);
