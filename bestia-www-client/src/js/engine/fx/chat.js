@@ -8,13 +8,13 @@ Bestia.Engine.FX = Bestia.Engine.FX || {};
  * @param {Bestia.Engine.EntityCacheManager}
  *            cache
  */
-Bestia.Engine.FX.Chat = function(pubsub, cache, game) {
+Bestia.Engine.FX.Chat = function(ctx) {
 
-	this._pubsub = pubsub;
+	this._pubsub = ctx.pubsub;
 
-	this._game = game;
+	this._game = ctx.game;
 
-	this._cache = cache;
+	this._cache = ctx.entityCache;
 
 	this._pubsub.subscribe(Bestia.Signal.CHAT_RECEIVED, this._onChatMsgHandler.bind(this));
 };

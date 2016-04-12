@@ -1,9 +1,11 @@
 /**
  * Baseclass of the builder.
  */
-Bestia.Engine.Builder = function(factory) {
+Bestia.Engine.Builder = function(factory, ctx) {
 	
 	this._factory = factory;
+	
+	this._ctx = ctx;
 
 };
 
@@ -29,6 +31,6 @@ Bestia.Engine.Builder.prototype._isSane = function(data) {
 Bestia.Engine.Builder.prototype.load = function(descFile, fnOnComplete) {
 	
 	var pack = descFile.assetpack;
-	this._factory.loader.loadPackData(pack, fnOnComplete);
+	this._ctx.loader.loadPackData(pack, fnOnComplete);
 
 };

@@ -12,17 +12,9 @@
  *            pubsub - Reference to the bestia publish/subscriber system for
  *            hooking into update calls.
  */
-Bestia.Engine.EntityUpdater = function(pubsub, cache, entityFactory) {
-	if (pubsub === undefined) {
-		throw "PubSub can not be undefined";
-	}
-
-	if (cache === undefined) {
-		throw "Cache can not be undefined.";
-	}
-
-	if (entityFactory === undefined) {
-		throw "EntityFactory can not be null.";
+Bestia.Engine.EntityUpdater = function(ctx) {
+	if (!ctx) {
+		throw "Context can not be undefined.";
 	}
 
 	/**
@@ -30,16 +22,12 @@ Bestia.Engine.EntityUpdater = function(pubsub, cache, entityFactory) {
 	 */
 	this._buffer = [];
 
-	this._cache = cache;
-
-	this._pubsub = pubsub;
-
-	this._factory = entityFactory;
+	this._ctx = ctx;
 
 	// === SUBSCRIBE ===
-	pubsub.subscribe(Bestia.MID.ENTITY_UPDATE, this._onUpdateHandler.bind(this));
-	pubsub.subscribe(Bestia.MID.ENTITY_MOVE, this._onMoveHandler.bind(this));
-	pubsub.subscribe(Bestia.MID.ENTITY_POSITION, this._onPositionHandler.bind(this));
+	this._ctx.pubsub.subscribe(Bestia.MID.ENTITY_UPDATE, this._onUpdateHandler.bind(this));
+	this._ctx.pubsub.subscribe(Bestia.MID.ENTITY_MOVE, this._onMoveHandler.bind(this));
+	this._ctx.pubsub.subscribe(Bestia.MID.ENTITY_POSITION, this._onPositionHandler.bind(this));
 };
 
 /**
@@ -54,13 +42,13 @@ Bestia.Engine.EntityUpdater.prototype._onUpdateHandler = function(_, msg) {
 	switch (msg.a) {
 	case 'APPEAR':
 		// The entity must not exist.
-		var entity = this._cache.getByUuid(msg.uuid);
+		var entity = this._ctx.entityCache.getByUuid(msg.uuid);
 		if (entity !== null) {
 			// Exists already. Strange.
 			return;
 		}
 		
-		this._factory.build(msg);
+		this._ctx.entityFactory.build(msg);
 	}
 };
 
@@ -73,7 +61,7 @@ Bestia.Engine.EntityUpdater.prototype._onMoveHandler = function(_, msg) {
 		return;
 	}
 
-	var entity = this._cache.getByUuid(msg.uuid);
+	var entity = this._ctx.entityCache.getByUuid(msg.uuid);
 	// Entity not in cache. We cant do anything.
 	if (entity === null) {
 		return;
@@ -91,13 +79,13 @@ Bestia.Engine.EntityUpdater.prototype._onPositionHandler = function(_, msg) {
 		return;
 	}
 
-	var entity = this._cache.getByUuid(msg.uuid);
+	var entity = this._ctx.entityCache.getByUuid(msg.uuid);
 	// Entity not in cache. We cant do anything.
 	if (entity === null) {
 		return;
 	}
 
-	//entity.checkPosition(msg);
+	entity.checkPosition(msg);
 };
 
 /**

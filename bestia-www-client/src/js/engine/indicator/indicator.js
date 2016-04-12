@@ -5,61 +5,70 @@ Bestia.Engine.Indicator = Bestia.Engine.Indicator || {};
  * 
  * @class Bestia.Engine.Indicator
  */
-Bestia.Engine.Indicator.Basic = function(game, pubsub, bestiaWorld, state) {
+Bestia.Engine.Indicator.Basic = function(manager) {
 
-	this._game = game;
-	
-	this._pubsub = pubsub;
-	
-	this._world = bestiaWorld;
-	
-	this._state = state;
-	
-	this.marker = this._game.add.sprite(0, 0, 'cursor');
-	this.marker.animations.add('blink');
-	this.marker.animations.play('blink', 1, true);
-	
-	this._game.input.addMoveCallback(this._onMouseMove, this);
-	this._game.input.onDown.add(this._onClick, this);
+	if (!manager) {
+		throw new Error("Manager can not be null.");
+	}
+
+	this._ctx = manager.ctx;
+	this._manager = manager;
+
+	this._marker = null;
+};
+
+Bestia.Engine.Indicator.Basic.prototype.activate = function() {
+	this._ctx.game.input.addMoveCallback(this._onMouseMove, this);
+	this._ctx.game.input.onDown.add(this._onClick, this);
+	this._ctx.game.world.add(this._marker);
+};
+
+Bestia.Engine.Indicator.Basic.prototype.deactivate = function() {
+	this._ctx.game.input.deleteMoveCallback(this._onMouseMove, this);
+	this._ctx.game.input.onDown.remove(this._onClick, this);
+	this._ctx.game.world.remove(this._marker);
 };
 
 /**
- * Callback is called if the engine 
+ * Override an create all needed game objects here.
+ */
+Bestia.Engine.Indicator.Basic.prototype.create = function() {
+	// no op.
+};
+
+Bestia.Engine.Indicator.Basic.prototype.loadAssets = function() {
+	// no op.
+};
+
+/**
+ * If there are static assets which the indicator needs one can load them in
+ * here. The method is called by the system before the general operation of the
+ * engine starts.
+ */
+Bestia.Engine.Indicator.Basic.prototype.preLoadAssets = function() {
+	// no op.
+};
+
+Bestia.Engine.Indicator.Basic.prototype._requestActive = function() {
+	return this._manager.requestActive(this);
+};
+
+/**
+ * Callback is called if the engine
  */
 Bestia.Engine.Indicator.Basic.prototype._onMouseMove = function() {
-	var pointer = this._game.input.activePointer;
+	if (this._marker === null) {
+		return;
+	}
+
+	var pointer = this._ctx.game.input.activePointer;
 
 	// From px to tiles and back.
 	var cords = Bestia.Engine.World.getTileXY(pointer.worldX, pointer.worldY);
 	Bestia.Engine.World.getPxXY(cords.x, cords.y, cords);
 
-	this.marker.x = cords.x;
-	this.marker.y = cords.y;
-	
+	this._marker.x = cords.x;
+	this._marker.y = cords.y;
+
 	// TODO Check if we are on an non walkable tile. Hide cursor here.
-};
-
-Bestia.Engine.Indicator.Basic.prototype._onClick = function(pointer) {
-
-	var player = this._state.getPlayerEntity();
-	
-	if(player === null) {
-		return;
-	}
-
-	var start = player.position;
-	var goal = Bestia.Engine.World.getTileXY(pointer.worldX, pointer.worldY);
-
-	var path = this._world.findPath(start, goal).nodes;
-
-	if (path.length === 0) {
-		return;
-	}
-
-	path = path.reverse();
-	var msg = new Bestia.Message.BestiaMove(this.bestia.playerBestiaId(), path, player.walkspeed);
-	this._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
-
-	// Start movement locally as well.
-	player.moveTo(path);
 };

@@ -1,8 +1,8 @@
 /**
  * Responsible for building the multisprites entities.
  */
-Bestia.Engine.MultispriteBuilder = function(factory) {
-	Bestia.Engine.Builder.call(this, factory);
+Bestia.Engine.MultispriteBuilder = function(factory, ctx) {
+	Bestia.Engine.Builder.call(this, factory, ctx);
 
 	// Register with factory.
 	this.type = 'multisprite';
@@ -14,7 +14,7 @@ Bestia.Engine.MultispriteBuilder.prototype.constructor = Bestia.Engine.Multispri
 
 Bestia.Engine.MultispriteBuilder.prototype._build = function(data, desc) {
 
-	var entity = new Bestia.Engine.MultispriteEntity(this._factory.game, data.uuid, desc);
+	var entity = new Bestia.Engine.MultispriteEntity(this._ctx.game, data.uuid, desc);
 
 	// Position
 	entity.setPosition(data.x, data.y);
@@ -39,7 +39,7 @@ Bestia.Engine.MultispriteBuilder.prototype._build = function(data, desc) {
 Bestia.Engine.MultispriteBuilder.prototype.load = function(descFile, fnOnComplete) {
 
 	var pack = this._extendPack(descFile);
-	this._factory.loader.loadPackData(pack, fnOnComplete);
+	this._ctx.loader.loadPackData(pack, fnOnComplete);
 
 };
 

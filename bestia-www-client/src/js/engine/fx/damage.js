@@ -4,13 +4,13 @@ Bestia.Engine.FX = Bestia.Engine.FX || {};
  * 
  * @class Bestia.Engine.FX.Damage
  */
-Bestia.Engine.FX.Damage = function(pubsub, entityCache, game) {
+Bestia.Engine.FX.Damage = function(ctx) {
 
-	this._game = game;
-	this._entityCache = entityCache;
-	this._pubsub = pubsub;
+	this._game = ctx.game;
+	this._entityCache = ctx.entityCache;
+	this._pubsub = ctx.pubsub;
 
-	pubsub.subscribe(Bestia.MID.ENTITY_DAMAGE, this._onEntityDamageHandler.bind(this));
+	ctx.pubsub.subscribe(Bestia.MID.ENTITY_DAMAGE, this._onEntityDamageHandler.bind(this));
 };
 
 /**

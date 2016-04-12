@@ -9,22 +9,20 @@ Bestia.Engine.FX = Bestia.Engine.FX || {};
  * @param {Bestia.Engine.EntityCacheManager}
  *            cache
  */
-Bestia.Engine.FX.Brightness = function(pubsub, cache, game, groups) {
+Bestia.Engine.FX.Brightness = function(ctx) {
 
-	this._pubsub = pubsub;
+	this._pubsub = ctx.pubsub;
 
-	this._game = game;
-
-	this._cache = cache;
+	this._game = ctx.game;
 	
-	this._groups = groups;
+	this._ctx = ctx;
 
 	/**
 	 * 1 if max. brigthness and 0 total darkness.
 	 */
 	this.brightness = 1;
 	
-	pubsub.publish(Bestia.Signal.CHAT_REGISTER_CMD, new Bestia.Chat.Commands.EngineCommand(this));
+	ctx.pubsub.publish(Bestia.Signal.CHAT_REGISTER_CMD, new Bestia.Chat.Commands.EngineCommand(this));
 };
 
 
@@ -35,8 +33,8 @@ Bestia.Engine.FX.Brightness.prototype.destroy = function() {
 Bestia.Engine.FX.Brightness.prototype.create = function() {
 	// We need two layers. One for shadow, one for color informations. Both must
 	// be updated by the objects.
-	this.shadowMap = this._game.add.bitmapData(this._game.width, this._game.height);
-	this.shadowImg = this._game.add.image(0, 0, this.shadowMap);
+	this.shadowMap = this._ctx.game.add.bitmapData(this._game.width, this._game.height);
+	this.shadowImg = this._ctx.game.add.image(0, 0, this.shadowMap);
 
 	this.shadowImg.blendMode = Phaser.blendModes.MULTIPLY;
 
@@ -47,7 +45,7 @@ Bestia.Engine.FX.Brightness.prototype.create = function() {
 
 	this.shadowMap.dirty = true;
 	
-	this._groups.overlay.add(this.shadowImg);
+	this._ctx.groups.overlay.add(this.shadowImg);
 };
 
 Bestia.Engine.FX.Brightness.prototype.update = function() {
@@ -59,7 +57,7 @@ Bestia.Engine.FX.Brightness.prototype.update = function() {
 	}
 	
 	// Gather all entities in sight with a light emitting trait and let them add to the shadow map.
-	var entities = [];
+	//var entities = [];
 	
 	// Clear the map.
 	this.shadowMap.ctx.fillStyle = '#000000';
