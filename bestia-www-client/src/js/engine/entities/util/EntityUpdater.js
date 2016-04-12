@@ -1,3 +1,5 @@
+import MID from '../../../io/messages/Ids';
+
 /**
  * The updater will hook into the messaging system and listen for entity update
  * messages. If such a message is received it is responsible for updating and
@@ -12,29 +14,31 @@
  *            pubsub - Reference to the bestia publish/subscriber system for
  *            hooking into update calls.
  */
-Bestia.Engine.EntityUpdater = function(ctx) {
-	if (!ctx) {
-		throw "Context can not be undefined.";
+export default class EntityUpdater{
+	
+	constructor(ctx) {
+		if (!ctx) {
+			throw "Context can not be undefined.";
+		}
+	
+		/**
+		 * Temporary buffer to hold all the data until releaseHold is called.
+		 */
+		this._buffer = [];
+	
+		this._ctx = ctx;
+	
+		// === SUBSCRIBE ===
+		this._ctx.pubsub.subscribe(MID.ENTITY_UPDATE, this._onUpdateHandler.bind(this));
+		this._ctx.pubsub.subscribe(MID.ENTITY_MOVE, this._onMoveHandler.bind(this));
+		this._ctx.pubsub.subscribe(MID.ENTITY_POSITION, this._onPositionHandler.bind(this));
 	}
-
-	/**
-	 * Temporary buffer to hold all the data until releaseHold is called.
-	 */
-	this._buffer = [];
-
-	this._ctx = ctx;
-
-	// === SUBSCRIBE ===
-	this._ctx.pubsub.subscribe(Bestia.MID.ENTITY_UPDATE, this._onUpdateHandler.bind(this));
-	this._ctx.pubsub.subscribe(Bestia.MID.ENTITY_MOVE, this._onMoveHandler.bind(this));
-	this._ctx.pubsub.subscribe(Bestia.MID.ENTITY_POSITION, this._onPositionHandler.bind(this));
-};
 
 /**
  * Makes a complete update of the entity. Which can be a vanish, create or
  * simple update.
  */
-Bestia.Engine.EntityUpdater.prototype._onUpdateHandler = function(_, msg) {
+_onUpdateHandler(_, msg) {
 	if (this._isBuffered(msg)) {
 		return;
 	}
@@ -50,13 +54,13 @@ Bestia.Engine.EntityUpdater.prototype._onUpdateHandler = function(_, msg) {
 		
 		this._ctx.entityFactory.build(msg);
 	}
-};
+}
 
 /**
  * A movement prediction update was send. Plan the animation path to predict the
  * movement of the entity.
  */
-Bestia.Engine.EntityUpdater.prototype._onMoveHandler = function(_, msg) {
+_onMoveHandler(_, msg) {
 	if (this._isBuffered(msg)) {
 		return;
 	}
@@ -68,13 +72,13 @@ Bestia.Engine.EntityUpdater.prototype._onMoveHandler = function(_, msg) {
 	}
 
 	entity.moveTo(msg);
-};
+}
 
 /**
  * A position update was send. Check if the entity is on this place or at least
  * near it. If distance is too far away hard correct it.
  */
-Bestia.Engine.EntityUpdater.prototype._onPositionHandler = function(_, msg) {
+_onPositionHandler(_, msg) {
 	if (this._isBuffered(msg)) {
 		return;
 	}
@@ -86,7 +90,7 @@ Bestia.Engine.EntityUpdater.prototype._onPositionHandler = function(_, msg) {
 	}
 
 	entity.checkPosition(msg);
-};
+}
 
 /**
  * Checks if the buffering is still active. If this is the case buffer the
@@ -95,7 +99,7 @@ Bestia.Engine.EntityUpdater.prototype._onPositionHandler = function(_, msg) {
  * @param msg
  * @returns {Boolean}
  */
-Bestia.Engine.EntityUpdater.prototype._isBuffered = function(msg) {
+_isBuffered(msg) {
 	if (this._buffer !== undefined) {
 		this._buffer.push({
 			topic : msg.mid,
@@ -105,13 +109,13 @@ Bestia.Engine.EntityUpdater.prototype._isBuffered = function(msg) {
 	} else {
 		return false;
 	}
-};
+}
 
 /**
  * Holds the entity updates in a cache until the engine has loaded the map. When
  * this method is called all updates are forwarded to the engine.
  */
-Bestia.Engine.EntityUpdater.prototype.releaseHold = function() {
+releaseHold() {
 	if (this._buffer === undefined) {
 		return;
 	}
@@ -120,17 +124,18 @@ Bestia.Engine.EntityUpdater.prototype.releaseHold = function() {
 	this._buffer = undefined;
 	temp.forEach(function(d) {
 		switch (d.topic) {
-		case Bestia.MID.ENTITY_UPDATE:
+		case MID.ENTITY_UPDATE:
 			this._onUpdateHandler(d.topic, d.msg);
 			break;
-		case Bestia.MID.ENTITY_MOVE:
+		case MID.ENTITY_MOVE:
 			this._onMoveHandler(d.topic, d.msg);
 			break;
-		case Bestia.MID.ENTITY_POSITION:
+		case MID.ENTITY_POSITION:
 			this._onPositionHandler(d.topic, d.msg);
 			break;
 		default:
 			break;
 		}
 	}, this);
-};
+}
+}

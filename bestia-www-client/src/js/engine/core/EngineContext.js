@@ -1,3 +1,5 @@
+import EntityCacheManager from '../entities/util/EntityCacheManager.js';
+
 /**
  * This class simply holds the reference to multiple important structures used
  * throughout the engine. Some of this structures might change during engine
@@ -31,7 +33,7 @@ export default class EngineContext {
 		 */
 		this.engine = _engine;
 
-		this.entityCache = new Bestia.Engine.EntityCacheManager();
+		this.entityCache = new EntityCacheManager();
 
 		this.entityFactory = null;
 
