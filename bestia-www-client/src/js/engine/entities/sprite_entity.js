@@ -12,12 +12,12 @@ Bestia.Engine.SpriteEntity = function(game, uuid, x, y, desc) {
 	 * @property {Array}
 	 */
 	this._availableAnimationNames = [];
-	
+
 	this.setPosition(x, y);
-	
+
 	this._currentPathCounter = 0;
 	this._currentPath = null;
-	
+
 	this._tween = null;
 };
 
@@ -269,14 +269,14 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg, s) {
 		speed = msg.s / 100.0;
 		path = msg.cords;
 	}
-
-	this.stopMove();
 	
 	// Push current position of the entity (start) to the path aswell.
 	path.unshift(this.position);
 
+	this.stopMove();
+
 	this._tween = this._game.add.tween(this._sprite);
-	
+
 	this._currentPathCounter = 0;
 	this._currentPath = path;
 
@@ -307,21 +307,16 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg, s) {
 		}, duration, Phaser.Easing.Linear.None, false);
 	}, this);
 
-	this._tween.onChildComplete.addOnce(function(a, b) {
-
+	this._tween.onChildComplete.add(function() {
 		this._currentPathCounter++;
-		
-		var pos = path[b.current - 1];
-		var isLast = path.length === (b.current - 1);
-		
-		var nextAnim = this._getWalkAnimationName(pos, path[b.current]);
+
+		var pos = this._currentPath[this._currentPathCounter];
+		var isLast = this._currentPath.length === (this._currentPathCounter - 1);
+		this.setPosition(pos.x, pos.y, true);
+
+		var nextAnim = this._getWalkAnimationName(pos, path[this._currentPathCounter + 1]);
 
 		this.playAnimation(nextAnim, isLast);
-
-		this.position = {
-			x : pos.x,
-			y : pos.y
-		};
 
 	}, this);
 
@@ -334,11 +329,7 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg, s) {
 
 		this.playAnimation(nextAnim);
 
-		this.position = {
-			x : currentPos.x,
-			y : currentPos.y
-		};
-		// console.log("Moved to: " + currentPos.x + " - " + currentPos.y);
+		this.position = currentPos;
 
 	}, this);
 

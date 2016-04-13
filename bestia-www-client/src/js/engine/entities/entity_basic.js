@@ -88,11 +88,13 @@ Bestia.Engine.BasicEntity.prototype._syncSpritePosition = function() {
 	}
 };
 
-Bestia.Engine.BasicEntity.prototype.setPosition = function(x, y) {
+Bestia.Engine.BasicEntity.prototype.setPosition = function(x, y, noSync) {
 	this._position.x = x;
 	this._position.y = y;
 
-	this._syncSpritePosition();
+	if(!noSync) {
+		this._syncSpritePosition();
+	}
 };
 
 Bestia.Engine.BasicEntity.prototype._getDistance = function(pos1, pos2) {
