@@ -48,6 +48,9 @@ Bestia.BestiaViewModel = function(pubsub, msg, statusPoints, urlHelper) {
 	this.level = ko.observable(1);
 	this.slot = ko.observable();
 	this.statusPoints = new Bestia.StatusPointViewModel();
+	
+	// TODO Das hier noch ins system einbinden.
+	this.walkspeed = ko.observable(1.0);
 
 	this.attack1 = ko.observable(null);
 	this.attack2 = ko.observable(null);

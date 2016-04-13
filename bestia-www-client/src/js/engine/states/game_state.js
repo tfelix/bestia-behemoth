@@ -16,13 +16,6 @@ Bestia.Engine.States.GameState = function(engine) {
 
 };
 
-Bestia.Engine.States.GameState.prototype.init = function(bestia) {
-	
-	this.bestia = bestia;
-
-	
-};
-
 Bestia.Engine.States.GameState.prototype.create = function() {
 	
 	// ==== PLUGINS ====
@@ -41,7 +34,7 @@ Bestia.Engine.States.GameState.prototype.create = function() {
 
 	// Load the tilemap and display it.
 	this.ctx.zone = new Bestia.Engine.World(this.game, astar, this.ctx.groups);
-	this.ctx.zone.loadMap(this.bestia.location());
+	this.ctx.zone.loadMap(this.ctx.playerBestia.location());
 
 	// @ifdef DEVELOPMENT
 	this.game.stage.disableVisibilityChange = true;
@@ -54,18 +47,6 @@ Bestia.Engine.States.GameState.prototype.create = function() {
 	this.ctx.indicatorManager.showStandardIndicator();
 };
 
-/**
- * Callback which is called if the user wants to use a castable item from the
- * inventory.
- */
-Bestia.Engine.States.GameState.prototype._onCastItem = function(item) {
-
-	console.info("Cast item: " + item.name());
-
-	// Switch the indicator to the cast indicator used by this item.
-
-};
-
 Bestia.Engine.States.GameState.prototype.update = function() {
 	
 	// Trigger the update effects.
@@ -76,11 +57,9 @@ Bestia.Engine.States.GameState.prototype.update = function() {
 	entities.forEach(function(entity) {
 		entity.tickAnimation();
 	});
-
-};
-
-Bestia.Engine.States.GameState.prototype.render = function() {
-
+	
+	// Group sort the sprite layer.
+	this.ctx.groups.sprites.sort('y', Phaser.Group.SORT_ASCENDING);
 
 };
 

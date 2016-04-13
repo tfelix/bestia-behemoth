@@ -53,4 +53,6 @@ Bestia.Engine.Indicator.ItemCast.prototype.create = function() {
 	this._marker.angle = 0;
 	this._marker.alpha = 0.7;
 	this._ctx.game.add.tween(this._marker).to( { angle: 360 }, 1500, Phaser.Easing.Linear.None, true, 0).loop(true);
+	
+	//this._requestActive();
 };

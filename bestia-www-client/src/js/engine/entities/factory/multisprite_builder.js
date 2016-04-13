@@ -19,6 +19,8 @@ Bestia.Engine.MultispriteBuilder.prototype.build = function(data, desc) {
 	entity.setPosition(data.x, data.y);
 
 	entity.setSprite(data.s);
+	
+	entity.addToGroup(this._ctx.groups.sprites);
 
 	if (data.a === "APPEAR") {
 		entity.appear();

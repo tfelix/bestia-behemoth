@@ -66,15 +66,15 @@ Bestia.Engine.BasicEntity.prototype.remove = function() {
 };
 
 Bestia.Engine.BasicEntity.prototype.addToGroup = function(group) {
-	if(!(group instanceof Phaser.Group)) {
+	if (!(group instanceof Phaser.Group)) {
 		throw "Group must be instance of Phaser.Group";
 	}
-	
-	if(this._sprite === null) {
+
+	if (this._sprite === null) {
 		console.warn('addToGroup: Sprite is still null. Was not loaded/set yet.');
 		return;
 	}
-	
+
 	group.add(this._sprite);
 };
 
@@ -93,6 +93,13 @@ Bestia.Engine.BasicEntity.prototype.setPosition = function(x, y) {
 	this._position.y = y;
 
 	this._syncSpritePosition();
+};
+
+Bestia.Engine.BasicEntity.prototype._getDistance = function(pos1, pos2) {
+	var x = pos1.x - pos2.x;
+	var y = pos1.y - pos2.y;
+
+	return Math.sqrt(x * x + y * y);
 };
 
 Object.defineProperty(Bestia.Engine.BasicEntity.prototype, 'position', {

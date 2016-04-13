@@ -74,7 +74,7 @@ Bestia.Engine.prototype._onBooted = function() {
 };
 
 Bestia.Engine.prototype._onFinishedMapload = function() {
-	this.game.state.start('game', true, false, this.bestia);
+	this.game.state.start('game');
 };
 
 /**
@@ -86,14 +86,14 @@ Bestia.Engine.prototype._onFinishedMapload = function() {
  *            bestia - Bestia to use as the player character.
  * @method Bestia.Engine#loadMap
  */
-Bestia.Engine.prototype.loadMap = function(bestia) {
+Bestia.Engine.prototype.loadMap = function() {
 	console.debug('Loading map.');
 
 	// Check if we can do a partial mapload or a full map reload.
 	var world = this.ctx.zone;
-	if (world === null || world.name !== bestia.location()) {
+	if (world === null || world.name !== this.bestia.location()) {
 		// We need to do a full load.
-		this.game.state.start('load', true, false, bestia);
+		this.game.state.start('load');
 	}
 	// else: Partial load only (just switch view to active bestia).
 	// TODO

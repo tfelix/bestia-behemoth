@@ -18,6 +18,8 @@ Bestia.Engine.States.LoadingState = function(engine) {
 	 */
 	this._currentProgress = 0;
 	
+	this._ctx = engine.ctx;
+	
 	/**
 	 * Reference to the bestia engine.
 	 * 
@@ -35,13 +37,11 @@ Bestia.Engine.States.LoadingState = function(engine) {
 	this._urlHelper = engine.ctx.url;
 };
 
-Bestia.Engine.States.LoadingState.prototype.init = function(bestia) {
-	this.bestia = bestia;
-	
+Bestia.Engine.States.LoadingState.prototype.init = function() {
 	// Announce loading.
 	this._pubsub.publish(Bestia.Signal.ENGINE_PREPARE_MAPLOAD);
 
-	console.debug("Loading map: " + this.bestia.location());
+	console.debug("Loading map: " + this._ctx.playerBestia.location());
 
 	// Prepare the loading screen.
 	this.gfx = this.add.graphics(0, 0);
@@ -51,7 +51,7 @@ Bestia.Engine.States.LoadingState.prototype.init = function(bestia) {
 Bestia.Engine.States.LoadingState.prototype.preload = function() {
 	
 	// Load the mapfile itself.
-	var mapDbName = this.bestia.location();
+	var mapDbName = this._ctx.playerBestia.location();
 	var packUrl = this._urlHelper.getMapPackUrl(mapDbName);
 	this.load.pack(mapDbName, packUrl);
 	

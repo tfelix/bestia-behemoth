@@ -42,7 +42,7 @@ Bestia.Engine.Indicator.Basic.prototype._onClick = function(pointer) {
 	this._ctx.pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 
 	// Start movement locally as well.
-	player.moveTo(path);
+	player.moveTo(path, this._ctx.playerBestia.walkspeed());
 };
 
 /**

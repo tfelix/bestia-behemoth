@@ -2,8 +2,6 @@ Bestia.Engine.SpriteEntity = function(game, uuid, x, y, desc) {
 	Bestia.Engine.BasicEntity.call(this, game);
 
 	this.uuid = uuid;
-	this.setPosition(x, y);
-
 	this._data = desc;
 
 	/**
@@ -14,6 +12,13 @@ Bestia.Engine.SpriteEntity = function(game, uuid, x, y, desc) {
 	 * @property {Array}
 	 */
 	this._availableAnimationNames = [];
+	
+	this.setPosition(x, y);
+	
+	this._currentPathCounter = 0;
+	this._currentPath = null;
+	
+	this._tween = null;
 };
 
 Bestia.Engine.SpriteEntity.prototype = Object.create(Bestia.Engine.BasicEntity.prototype);
@@ -235,8 +240,8 @@ Bestia.Engine.SpriteEntity.prototype._getAnimationFallback = function(name) {
  */
 Bestia.Engine.SpriteEntity.prototype.stopMove = function() {
 
-	if (this.tween) {
-		this.tween.stop();
+	if (this._tween) {
+		this._tween.stop();
 	}
 
 };
@@ -256,22 +261,24 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg, s) {
 
 	var speed = 1;
 	var path = [];
-	
-	if(Array.isArray(msg) && s) {
+
+	if (Array.isArray(msg) && s) {
 		speed = s;
 		path = msg;
 	} else {
 		speed = msg.s / 100.0;
 		path = msg.cords;
 	}
-	
 
 	this.stopMove();
-
-	this.tween = this._game.add.tween(this._sprite);
-
+	
 	// Push current position of the entity (start) to the path aswell.
 	path.unshift(this.position);
+
+	this._tween = this._game.add.tween(this._sprite);
+	
+	this._currentPathCounter = 0;
+	this._currentPath = path;
 
 	// Calculate coordinate arrays from path.
 	path.forEach(function(ele, i) {
@@ -287,23 +294,26 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg, s) {
 		var lastTile = path[i - 1];
 
 		// Check if we go diagonal to adjust speed.
-		var distance = (lastTile.x - ele.x) * (lastTile.x - ele.x) + (lastTile.y - ele.y) * (lastTile.y - ele.y);
+		var distance = this._getDistance(lastTile, ele);
 		if (distance > 1) {
 			// diagonal move. Multi with sqrt(2).
 			duration *= 1.414;
 		}
 
-		// Calculate total amount of speed.
-		this.tween.to({
+		// Start the animation.
+		this._tween.to({
 			x : cords.x,
 			y : cords.y
 		}, duration, Phaser.Easing.Linear.None, false);
 	}, this);
 
-	this.tween.onChildComplete.addOnce(function(a, b) {
+	this._tween.onChildComplete.addOnce(function(a, b) {
 
+		this._currentPathCounter++;
+		
 		var pos = path[b.current - 1];
 		var isLast = path.length === (b.current - 1);
+		
 		var nextAnim = this._getWalkAnimationName(pos, path[b.current]);
 
 		this.playAnimation(nextAnim, isLast);
@@ -312,11 +322,10 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg, s) {
 			x : pos.x,
 			y : pos.y
 		};
-		// console.log("Moved to: " + pos.x + " - " + pos.y);
 
 	}, this);
 
-	this.tween.onComplete.addOnce(function() {
+	this._tween.onComplete.addOnce(function() {
 
 		var size = path.length;
 		var currentPos = path[size - 1];
@@ -336,7 +345,7 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg, s) {
 	// Start first animation immediately.
 	var animName = this._getWalkAnimationName(path[0], path[1]);
 	this.playAnimation(animName);
-	this.tween.start();
+	this._tween.start();
 };
 
 /**
@@ -346,8 +355,45 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg, s) {
  * position.
  */
 Bestia.Engine.SpriteEntity.prototype.checkPosition = function(x, y) {
-	// x, y
-	console.error("Not implemented.");
+
+	var newPos = {
+		x : x,
+		y : y
+	};
+
+	// Compare the current position with the NOW position.
+	var d = this._getDistance(this.position, newPos);
+
+	// Now we decide, are we moving?
+	if (this.isMoving) {
+		// Check the distance.
+		if (d < 2) {
+			// Are we approaching the target?
+			if (true) {
+				// if so speed up the movement.
+			} else if (false) {
+				// if we are heading away from the target but we once passed it,
+				// slow down.
+			} else {
+				// If the point was not even found in movement list we cancel
+				// movement and calc path towards goal.
+			}
+		} else {
+			// Set to the target.
+			this.stopMove();
+			this.position = newPos;
+		}
+	} else {
+		// We stand. So we MUST move to the target position.
+		if (d < 1.5) {
+			// Move to target.
+			this.moveTo([ newPos ], 1.5);
+		} else {
+			// Set target.
+			this.position = newPos;
+		}
+	}
+
 };
 
 /**
@@ -413,3 +459,13 @@ Bestia.Engine.SpriteEntity.prototype._getStandAnimationName = function(oldTile, 
 		return "stand_left_up";
 	}
 };
+
+/**
+ * Returns the position in pixel in the world space.
+ */
+Object.defineProperty(Bestia.Engine.BasicEntity.prototype, 'isMoving', {
+
+	get : function() {
+		return this._tween !== null && this._tween.isRunning;
+	}
+});
