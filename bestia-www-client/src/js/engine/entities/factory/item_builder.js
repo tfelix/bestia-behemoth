@@ -17,7 +17,7 @@ Bestia.Engine.ItemBuilder = function(factory, ctx) {
 Bestia.Engine.ItemBuilder.prototype = Object.create(Bestia.Engine.Builder.prototype);
 Bestia.Engine.ItemBuilder.prototype.constructor = Bestia.Engine.ItemBuilder;
 
-Bestia.Engine.ItemBuilder.prototype._build = function(data) {
+Bestia.Engine.ItemBuilder.prototype.build = function(data) {
 	
 	var entity;
 	
@@ -40,4 +40,8 @@ Bestia.Engine.ItemBuilder.prototype._build = function(data) {
 	}
 	
 	return entity;
+};
+
+Bestia.Engine.ItemBuilder.prototype.canBuild = function(data, desc) {
+	return data.type === this.type && data.version === this.version;
 };

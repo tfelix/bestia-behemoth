@@ -51,13 +51,16 @@ Bestia.Engine.SpriteEntity.prototype.setSprite = function(spriteName) {
  * @param descObj
  */
 Bestia.Engine.SpriteEntity.prototype._setupSprite = function(sprite, descObj) {
-	
+
 	// Setup the normal data.
-	sprite.anchor = descObj.anchor || {x: 0.5, y: 0.5};
+	sprite.anchor = descObj.anchor || {
+		x : 0.5,
+		y : 0.5
+	};
 	sprite.scale.setTo(descObj.scale || 1);
 	// Sprite is invisible at first.
 	sprite.alpha = 0;
-	
+
 	var anims = descObj.animations || [];
 
 	// Register all the animations of the sprite.
@@ -241,16 +244,27 @@ Bestia.Engine.SpriteEntity.prototype.stopMove = function() {
 /**
  * Moves the entity along a certain path. The path is an array with {x: INT, y:
  * INT} components. The path must not contain the current position of the
- * entity.
+ * entity. It might happen that the method is called directly just giving the
+ * path and a walkspeed. So we need to determine if we received a message from
+ * the server or a direct call from the framework.
  * 
  * @param {Object}
  *            msg - Containing the path of the predicted movement as well as the
  *            movement speed. {cords: [{x: INT, y: INT}], s: 100}.
  */
-Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg) {
+Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg, s) {
 
-	var speed = msg.s / 100.0;
-	var path = msg.cords;
+	var speed = 1;
+	var path = [];
+	
+	if(Array.isArray(msg) && s) {
+		speed = s;
+		path = msg;
+	} else {
+		speed = msg.s / 100.0;
+		path = msg.cords;
+	}
+	
 
 	this.stopMove();
 
@@ -331,7 +345,7 @@ Bestia.Engine.SpriteEntity.prototype.moveTo = function(msg) {
  * by a certain algorithm. If the distance is too big it will hard set the
  * position.
  */
-Bestia.Engine.SpriteEntity.prototype.checkPosition = function() {
+Bestia.Engine.SpriteEntity.prototype.checkPosition = function(x, y) {
 	// x, y
 	console.error("Not implemented.");
 };

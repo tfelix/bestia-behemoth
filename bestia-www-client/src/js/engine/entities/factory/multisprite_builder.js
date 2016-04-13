@@ -5,14 +5,13 @@ Bestia.Engine.MultispriteBuilder = function(factory, ctx) {
 	Bestia.Engine.Builder.call(this, factory, ctx);
 
 	// Register with factory.
-	this.type = 'multisprite';
 	this.version = 1;
 };
 
 Bestia.Engine.MultispriteBuilder.prototype = Object.create(Bestia.Engine.Builder.prototype);
 Bestia.Engine.MultispriteBuilder.prototype.constructor = Bestia.Engine.MultispriteBuilder;
 
-Bestia.Engine.MultispriteBuilder.prototype._build = function(data, desc) {
+Bestia.Engine.MultispriteBuilder.prototype.build = function(data, desc) {
 
 	var entity = new Bestia.Engine.MultispriteEntity(this._ctx.game, data.uuid, desc);
 
@@ -91,4 +90,8 @@ Bestia.Engine.MultispriteBuilder.prototype._extendPack = function(descFile, addi
 	}, this);
 
 	return pack;
+};
+
+Bestia.Engine.MultispriteBuilder.prototype.canBuild = function(data, desc) {
+	return false;
 };

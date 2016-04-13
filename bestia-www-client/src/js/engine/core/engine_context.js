@@ -131,3 +131,9 @@ Object.defineProperty(Bestia.Engine.EngineContext.prototype, 'game', {
 		}
 	}
 });
+
+Object.defineProperty(Bestia.Engine.EngineContext.prototype, 'playerBestia', {
+	get : function() {
+		return this._game.bestia;
+	}
+});

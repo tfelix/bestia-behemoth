@@ -19,17 +19,13 @@ Bestia.Engine.EntityFactory = function(ctx) {
 	/**
 	 * Registry for the builder to register themselfes.
 	 */
-	this.builder = {};
+	this.builder = [];
 
-	this._register(new Bestia.Engine.MultispriteBuilder(this, ctx));
-	this._register(new Bestia.Engine.PlayerMultispriteBuilder(this, ctx));
-	this._register(new Bestia.Engine.SpriteBuilder(this, ctx));
-	this._register(new Bestia.Engine.SimpleObjectBuilder(this, ctx));
-	this._register(new Bestia.Engine.ItemBuilder(this, ctx));
-};
-
-Bestia.Engine.EntityFactory.prototype._register = function(b) {
-	this.builder[b.type] = b;
+	//this.builder.push(new Bestia.Engine.MultispriteBuilder(this, ctx));
+	this.builder.push(new Bestia.Engine.PlayerMultispriteBuilder(this, ctx));
+	this.builder.push(new Bestia.Engine.SpriteBuilder(this, ctx));
+	this.builder.push(new Bestia.Engine.SimpleObjectBuilder(this, ctx));
+	this.builder.push(new Bestia.Engine.ItemBuilder(this, ctx));
 };
 
 Bestia.Engine.EntityFactory.prototype.build = function(data, fnOnComplete) {
@@ -46,6 +42,11 @@ Bestia.Engine.EntityFactory.prototype.build = function(data, fnOnComplete) {
 
 			var b = this._getBuilder(data, descFile);
 			
+			if (!b) {
+				console.warn("Could not build entity. From data: " + JSON.stringify(data));
+				return;
+			}
+			
 			b.load(descFile, function() {
 				
 				if (descFile === null) {
@@ -54,11 +55,6 @@ Bestia.Engine.EntityFactory.prototype.build = function(data, fnOnComplete) {
 				}
 
 				var entity = b.build(data, descFile);
-
-				if (!entity) {
-					console.warn("Could not build entity. From data: " + JSON.stringify(data));
-					return;
-				}
 
 				this._ctx.entityCache.addEntity(entity);
 
@@ -78,37 +74,11 @@ Bestia.Engine.EntityFactory.prototype.build = function(data, fnOnComplete) {
  * Das müsste auch an die Builder ausgelagert werden.
  */
 Bestia.Engine.EntityFactory.prototype._getBuilder = function(data, descFile) {
-	if(data.t === 'PLAYER_ANIM' && data.pbid) {
-		return this.builder['playermultisprite'];
+	for(var i = 0; i < this.builder.length; i++) {
+		if(this.builder[i].canBuild(data, descFile)) {
+			return this.builder[i];
+		}
 	}
-	return this.builder[descFile.type];
-};
-
-
-Bestia.Engine.EntityFactory.prototype._getType = function(data) {
-	// TODO Das hier durch die Builder automatisieren.
-	var type = '';
-	switch (data.t) {
-	case 'ITEM':
-		// let an item appear.
-		type = 'item';
-		break;
-	case 'STATIC':
-		// Static sprite appear.
-		type = 'static';
-		break;
-	case 'MOB_ANIM':
-		// Normal bestia.
-		type = 'sprite';
-		break;
-	case 'PLAYER_ANIM':
-		// Player animation sprite.
-		type = 'playermultisprite';
-		break;
-	default:
-		// no op.
-		break;
-	}
-
-	return type;
+	
+	return null;
 };

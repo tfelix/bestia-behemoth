@@ -6,7 +6,6 @@ Bestia.Engine.SpriteBuilder = function(factory, ctx) {
 	
 	
 	// Register with factory.
-	this.type = 'sprite';
 	this.version = 1;
 
 
@@ -15,7 +14,7 @@ Bestia.Engine.SpriteBuilder = function(factory, ctx) {
 Bestia.Engine.SpriteBuilder.prototype = Object.create(Bestia.Engine.Builder.prototype);
 Bestia.Engine.SpriteBuilder.prototype.constructor = Bestia.Engine.SpriteBuilder;
 
-Bestia.Engine.SpriteBuilder.prototype._build = function(data, desc) {
+Bestia.Engine.SpriteBuilder.prototype.build = function(data, desc) {
 	
 
 	var entity = new Bestia.Engine.SpriteEntity(this._ctx.game, data.uuid, data.x, data.y, desc);
@@ -31,4 +30,8 @@ Bestia.Engine.SpriteBuilder.prototype._build = function(data, desc) {
 	}
 
 	return entity;
+};
+
+Bestia.Engine.SpriteBuilder.prototype.canBuild = function(data, desc) {
+	return data.t === 'MOB_ANIM' && desc.version === this.version;
 };
