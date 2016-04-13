@@ -47,8 +47,8 @@ Bestia.Engine.Indicator.ItemCast.prototype.load = function() {
  * Preload all needed assets.
  */
 Bestia.Engine.Indicator.ItemCast.prototype.create = function() {
-	this._marker = this._ctx.game.add.sprite(500, 500, 'cast_indicator');
-	this._ctx.groups.overlay.add(this._marker);
+	this._marker = this._ctx.game.make.sprite(500, 500, 'cast_indicator');
+	//this._ctx.groups.overlay.add(this._marker);
 	this._marker.anchor.setTo(0.5, 0.5);
 	this._marker.angle = 0;
 	this._marker.alpha = 0.7;
