@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Spielwiese</title>
+
+<link rel="stylesheet" type="text/css"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+<style>
+body {
+	font-size: 10pt;
+	background:
+		url('http://img09.deviantart.net/d044/i/2014/062/2/2/tree_swing_by_t1na-d78qocc.jpg')
+		no-repeat;
+	background-size: cover;
+}
+
+.box {
+	border: 1px solid #141824;
+	display: inline-block;
+	background: rgba(30, 50, 100, 0.7);
+	box-shadow: 0 0 6px #202020, inset 0 0 3px #546bae;
+	padding: 30px 25px;
+	border-radius: 3px;
+}
+
+input {
+	padding: 5px;
+	font-size: 15pt;
+	width: 100%;
+}
+
+button {
+	background: white;
+	border: 1px solid black;
+	font-size: 13pt;
+	width: 100px;
+	padding: 5px;
+	width: 100px;
+}
+
+.centered {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	/* bring your own prefixes */
+	transform: translate(-50%, -50%);
+}
+
+.txt-center {
+	text-align: center;
+}
+
+.login>div {
+	float: left;
+	width: 50%;
+	padding: 10px;
+	box-sizing: border-box;
+}
+
+.footer {
+	display: inline-block; 
+	height: 80px;
+	line-height: 80px;
+	width: 100%;
+	background: rgba(0, 0, 0, 0.6);
+	border-top: solid black 1px;
+	bottom: 0px;
+	color: #c4c4c4;
+	font-size: 1.0em;
+	vertical-align: middle;
+	position: absolute;
+	
+	letter-spacing: 0.15em;
+}
+</style>
+
+</head>
+<body>
+
+	<div class="box centered login" style="width: 800px;">
+		<div>
+			<form>
+				<p>
+					<input placeholder="E-Mail">
+				</p>
+				<p>
+					<input placeholder="Password">
+				</p>
+
+				<p class="txt-center" style="margin-top: 20px;">
+					<button>Login</button>
+					<button>Anmelden</button>
+				</p>
+			</form>
+		</div>
+		<div>
+			<p>Login mit...</p>
+			<img alt="Login Facebook" style="width: 60px; height: 60px;"
+				src="https://www.facebook.com/images/fb_icon_325x325.png"> <img
+				alt="Login Goolge" style="width: 60px; height: 60px;"
+				src="http://4.bp.blogspot.com/-Nyfdpymc_Lo/VkQw-nJ79mI/AAAAAAAARYg/6o9VeoTvu-I/s1600-r/logo_chrome.png">
+		</div>
+	</div>
+
+	<div class="footer txt-center">
+		tfelix SOFTWARE &#8231; Bestia - The Browsergame &#8231;
+			Impressum &#8231; Datenschutz
+	</div>
+</body>
+</html>
