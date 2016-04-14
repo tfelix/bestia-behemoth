@@ -404,7 +404,7 @@ Bestia.Engine.SpriteEntity.prototype._getWalkAnimationName = function(oldTile, n
 	if (x === 0 && y === -1) {
 		return "walk_up";
 	} else if (x === 1 && y === -1) {
-		animName = "walk_right_up";
+		animName = "walk_up_right";
 	} else if (x === 1 && y === 0) {
 		animName = "walk_right";
 	} else if (x === 1 && y === 1) {
@@ -416,7 +416,7 @@ Bestia.Engine.SpriteEntity.prototype._getWalkAnimationName = function(oldTile, n
 	} else if (x === -1 && y === 0) {
 		animName = "walk_left";
 	} else {
-		animName = "walk_left_up";
+		animName = "walk_up_left";
 	}
 
 	return animName;
@@ -435,7 +435,7 @@ Bestia.Engine.SpriteEntity.prototype._getStandAnimationName = function(oldTile, 
 	if (x === 0 && y === -1) {
 		return "stand_up";
 	} else if (x === 1 && y === -1) {
-		return "stand_right_up";
+		return "stand_up_right";
 	} else if (x === 1 && y === 0) {
 		return "stand_right";
 	} else if (x === 1 && y === 1) {
@@ -447,7 +447,7 @@ Bestia.Engine.SpriteEntity.prototype._getStandAnimationName = function(oldTile, 
 	} else if (x === -1 && y === 0) {
 		return "stand_left";
 	} else {
-		return "stand_left_up";
+		return "stand_up_left";
 	}
 };
 
