@@ -69,6 +69,8 @@ function main() {
 		}
 	});
 	
+	var input = new Bestia.Input.KeyboardReceiver(game.pubsub);
+	
 	// Export game to global if dev.
 	// @ifdef DEVELOPMENT
 	window.bestiaGame = game;

@@ -17,7 +17,7 @@ Bestia.Signal = {
 	AUTH_ERROR : 'system.autherror',
 
 	BESTIA_SELECTED : 'client.bestia.selected',
-	
+
 	/**
 	 * Advises the chat to register an command.
 	 */
@@ -28,12 +28,12 @@ Bestia.Signal = {
 	/**
 	 * The slot number is given as data in the first argument.
 	 */
-	INVENTORY_CAST_SLOT: 'client.inventory.cast',
-	
+	INVENTORY_CAST_SLOT : 'client.inventory.cast',
+
 	/**
 	 * Engine has decided where to cast the item.
 	 */
-	INVENTORY_PERFORM_CAST: 'client.inventory.performcast',
+	INVENTORY_PERFORM_CAST : 'client.inventory.performcast',
 
 	IO_SEND_MESSAGE : 'io.sendMessage',
 	IO_CONNECT : 'io.connect',
@@ -44,6 +44,14 @@ Bestia.Signal = {
 	IO_CONNECTED : 'io.connected',
 
 	CHAT_RECEIVED : 'client.chat.received',
+
+	/**
+	 * Controls if an input controller will listen for inputs or ignor them for
+	 * a while.
+	 */
+	INPUT_LISTEN : 'input.listen',
+	INPUT_USE_ATTACK : 'input.attack',
+	INPUT_USE_ITEM : 'input.item',
 
 	/**
 	 * Engine is ready and can be used.
@@ -59,8 +67,6 @@ Bestia.Signal = {
 	ENGINE_FINISHED_MAPLOAD : 'engine.finishMapload',
 
 	ENGINE_CAST_ITEM : 'engine.castItem',
-	
-	
 
 	/**
 	 * Emitted when the map and the game state has loaded and is being

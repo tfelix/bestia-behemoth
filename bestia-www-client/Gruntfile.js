@@ -69,6 +69,7 @@ module.exports = function(grunt) {
 	         		'<%= tempDir %>/js/engine/indicator/indicator_manager.js',
 	         		'<%= tempDir %>/js/engine/states/*.js',
 	         		'<%= tempDir %>/js/engine/fx/*.js',
+	         		'<%= tempDir %>/js/input/*.js', 
 	         		// === LIBS ===
 	         		'<%= tempDir %>/lib/js/visibility_polygon.js'];
 	
