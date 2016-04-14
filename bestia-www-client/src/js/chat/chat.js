@@ -64,7 +64,6 @@ Bestia.Chat = function(domEle, game) {
 	 */
 	this._localRealtimeCommands = [];
 
-
 	this._game = game;
 
 	/**
@@ -159,6 +158,13 @@ Bestia.Chat = function(domEle, game) {
 		self.isVisible(false);
 	});
 
+	// Check the focus and blur events on inputs to notify input ctrl.
+	$(this.domEle).find('input').focusin(function() {
+		this._pubsub.publish(Bestia.Signal.INPUT_LISTEN, false);
+	}.bind(this)).focusout(function() {
+		this._pubsub.publish(Bestia.Signal.INPUT_LISTEN, true);
+	}.bind(this));
+
 	// When the game is displayed also display the chat.
 	this._pubsub.subscribe(Bestia.Signal.ENGINE_FINISHED_MAPLOAD, function() {
 		self.isVisible(true);
@@ -170,7 +176,7 @@ Bestia.Chat = function(domEle, game) {
 	// Register the chat specific local commands.
 	this._handleRegisterCommand(null, new Bestia.Chat.Commands.ClearCommand());
 	this._handleRegisterCommand(null, new Bestia.Chat.Commands.HelpCommand());
-	
+
 	this._localRealtimeCommands.push(new Bestia.Chat.Commands.ModePublicCommand());
 	this._localRealtimeCommands.push(new Bestia.Chat.Commands.ModePartyCommand());
 	this._localRealtimeCommands.push(new Bestia.Chat.Commands.ModeGuildCommand());
@@ -269,7 +275,7 @@ Bestia.Chat.prototype.addMessage = function(msg) {
  * @param item
  */
 Bestia.Chat.prototype._handleItemObtainedMsg = function(_, item) {
-	
+
 	var self = this;
 
 	this._i18n.t('chat.item_optained', function(t) {
@@ -334,8 +340,8 @@ Bestia.Chat.prototype.addLocalMessage = function(msg, mode) {
  * class.
  */
 Bestia.Chat.prototype._identifyLocalCommandTyping = function(str) {
-	
-	this._localRealtimeCommands.forEach(function(val){
+
+	this._localRealtimeCommands.forEach(function(val) {
 		val.isCommand(str, this);
 	}, this);
 

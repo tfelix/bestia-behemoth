@@ -80,7 +80,7 @@ Bestia.Input.KeyboardReceiver = function(pubsub) {
 	this._pubsub.subscribe(Bestia.Signal.INPUT_LISTEN, this._handleListenControl.bind(this));
 };
 
-Bestia.Input.KeyboardReceiver.prototype._handleListenControl = function(flag) {
+Bestia.Input.KeyboardReceiver.prototype._handleListenControl = function(_, flag) {
 	this._listen = flag;
 };
 
