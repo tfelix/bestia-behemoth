@@ -20,19 +20,19 @@
  */
 
 Bestia.Inventory = function(pubsub, i18n, urlHelper) {
-	
-	if(pubsub === undefined) {
+
+	if (pubsub === undefined) {
 		throw "pubsub can not be null.";
 	}
-	if(i18n === undefined) {
+	if (i18n === undefined) {
 		throw "i18n can not be null.";
 	}
-	if(urlHelper === undefined) {
+	if (urlHelper === undefined) {
 		throw "urlHelper can not be null.";
 	}
 
 	var self = this;
-	
+
 	this._urlHelper = urlHelper;
 
 	/**
@@ -104,7 +104,9 @@ Bestia.Inventory = function(pubsub, i18n, urlHelper) {
 	 * If text is present in this variable the display of items inside the
 	 * inventory is hidden if they dont start with this item name prefix.
 	 */
-	this.searchFilter = ko.observable('').extend({ throttle: 100 });
+	this.searchFilter = ko.observable('').extend({
+		throttle : 100
+	});
 
 	/**
 	 * If this filter is set to a certain category ('usable', 'quest', 'etc',
@@ -175,7 +177,9 @@ Bestia.Inventory = function(pubsub, i18n, urlHelper) {
 		});
 
 		return items;
-	}, this).extend({throttle: 1});
+	}, this).extend({
+		throttle : 1
+	});
 
 	/**
 	 * Selects the clicked/touched item. Further details and options regarding
@@ -321,11 +325,34 @@ Bestia.Inventory = function(pubsub, i18n, urlHelper) {
 	 * Received event probably from the input controller to perform a casting of
 	 * the item.
 	 */
-	pubsub.subscribe(Bestia.Signal.INVENTORY_CAST_SLOT, function(_, slotN) {
-		self.castItemSlot(slotN);
-	});
+	pubsub.subscribe(Bestia.Signal.INPUT_USE_ITEM, this._handlerInputCastItem.bind(this));
 	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, this._handlerBestiaSelected.bind(this));
 	pubsub.subscribe(Bestia.Signal.INVENTORY_PERFORM_CAST, this._handlerDoCast.bind(this));
+};
+
+Bestia.Inventory.prototype._handlerInputCastItem = function(_, slotN) {
+
+	switch (slotN) {
+	case Bestia.Input.Event.ITEM_1_USE:
+		this.useItemSlot(1);
+		break;
+	case Bestia.Input.Event.ITEM_2_USE:
+		this.useItemSlot(2);
+		break;
+	case Bestia.Input.Event.ITEM_3_USE:
+		this.useItemSlot(3);
+		break;
+	case Bestia.Input.Event.ITEM_4_USE:
+		this.useItemSlot(4);
+		break;
+	case Bestia.Input.Event.ITEM_5_USE:
+		this.useItemSlot(5);
+		break;
+	default:
+		// Unknown slot.
+		console.warn('Unknown slot to cast.');
+		break;
+	}
 };
 
 /**
@@ -337,8 +364,11 @@ Bestia.Inventory = function(pubsub, i18n, urlHelper) {
  *            data - Containt the item to be cast as well as the map coordinates
  *            e.g.: {item: ITEM, cords: {x: X, y: Y}}.
  */
-Bestia.Inventory.prototype._handlerDoCast = function() {
-
+Bestia.Inventory.prototype._handlerDoCast = function(_, data) {
+	// We have now all data in place to create a server message to use this item.
+	var msg = null;
+	
+	this._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 };
 
 /**
@@ -569,9 +599,6 @@ Bestia.Inventory.prototype.saveItemBindings = function() {
 Bestia.Inventory.prototype.useItemSlot = function(slotN) {
 	var item = null;
 	switch (slotN) {
-	case 0:
-		item = this.itemSlot0();
-		break;
 	case 1:
 		item = this.itemSlot1();
 		break;
@@ -583,6 +610,9 @@ Bestia.Inventory.prototype.useItemSlot = function(slotN) {
 		break;
 	case 4:
 		item = this.itemSlot4();
+		break;
+	case 5:
+		item = this.itemSlot5();
 		break;
 	}
 

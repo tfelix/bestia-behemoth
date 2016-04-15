@@ -17,6 +17,11 @@ Bestia.Engine.Indicator.Move.prototype.constructor = Bestia.Engine.Indicator.Mov
 
 Bestia.Engine.Indicator.Basic.prototype._onClick = function(pointer) {
 	
+	// Only left button.
+	if(pointer.button !== Phaser.Mouse.LEFT_BUTTON) {
+		return;
+	}
+	
 	// Display fx.
 	this._effect.alpha = 1;
 	this._ctx.game.add.tween(this._effect).to({alpha: 0}, 500, Phaser.Easing.Cubic.Out, true);

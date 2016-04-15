@@ -15,10 +15,13 @@ Bestia.Engine.Indicator.ItemCast = function(manager) {
 Bestia.Engine.Indicator.ItemCast.prototype = Object.create(Bestia.Engine.Indicator.Basic.prototype);
 Bestia.Engine.Indicator.ItemCast.prototype.constructor = Bestia.Engine.Indicator.ItemCast;
 
-Bestia.Engine.Indicator.ItemCast.prototype._onClick = function() {
-	// pointer
-	// TODO Cast the item on the given spot.
-	alert("Gecasted");
+Bestia.Engine.Indicator.ItemCast.prototype._onClick = function(pointer) {
+
+	if(pointer.mouse.button === Phaser.Mouse.RIGHT_BUTTON) {
+		// Was canceled.
+		this._manager.showDefault();
+		return;
+	}
 
 	// Forfeit control.
 	this._manager.showStandardIndicator();

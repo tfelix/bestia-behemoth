@@ -44,7 +44,7 @@ Bestia.Engine.States.GameState.prototype.create = function() {
 	this.ctx.entityUpdater.releaseHold();	
 	
 	// Activate move handler.
-	this.ctx.indicatorManager.showStandardIndicator();
+	this.ctx.indicatorManager.showDefault();
 };
 
 Bestia.Engine.States.GameState.prototype.update = function() {

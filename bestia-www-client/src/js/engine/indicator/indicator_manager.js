@@ -18,7 +18,7 @@ Bestia.Engine.IndicatorManager = function(ctx) {
 	//this._indicators.push(new Bestia.Engine.Indicator.AttackCast(this));
 };
 
-Bestia.Engine.IndicatorManager.prototype.showStandardIndicator = function() {
+Bestia.Engine.IndicatorManager.prototype.showDefault = function() {
 	this.requestActive(this._moveIndicator);
 };
 

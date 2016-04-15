@@ -8,7 +8,7 @@
  *            pubsub - Publish/Subscriber interface.
  */
 Bestia.Engine = function(pubsub, urlHelper) {
-	
+
 	this.options = {
 		enableMusic : ko.observable('true'),
 		musicVolume : ko.observable(100)
@@ -47,6 +47,11 @@ Bestia.Engine = function(pubsub, urlHelper) {
 
 	// When everything is setup. Start the engine.
 	this.game.state.start('boot');
+	
+	// We need right click. So hide it.	
+	$('#bestia-canvas').bind('contextmenu', function(e){
+		e.preventDefault();
+	}); 
 };
 
 /**
