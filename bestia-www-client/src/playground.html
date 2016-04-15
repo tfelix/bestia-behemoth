@@ -16,12 +16,18 @@ body {
 	background-size: cover;
 }
 
+.login {
+	width: 350px;
+}
+
 .box {
 	border: 1px solid #141824;
+	box-shadow: 0 0 6px #202020, inset 0 0 3px #546bae;
+	
 	display: inline-block;
 	background: rgba(30, 50, 100, 0.7);
-	box-shadow: 0 0 6px #202020, inset 0 0 3px #546bae;
-	padding: 30px 25px;
+	
+	padding: 30px 25px 20px 25px;
 	border-radius: 3px;
 }
 
@@ -29,15 +35,31 @@ input {
 	padding: 5px;
 	font-size: 15pt;
 	width: 100%;
+	
+	background: rgba(9, 14, 76, 0.7);
+	color: #c8caea;
+	
+	border: 1px solid #141824;
+	box-shadow: 0 0 3px #202020, inset 0 0 2px #546bae;
+}
+
+button:hover {
+	color: #ffffff;
+	box-shadow: 0 0 3px #202020, inset 0 0 4px #95a4d1;
 }
 
 button {
-	background: white;
-	border: 1px solid black;
+	background: rgba(9, 14, 76, 0.7);
+	color: #c8caea;
+	/*border: 1px solid #141627;*/
 	font-size: 13pt;
 	width: 100px;
+	margin: 0 6px;
 	padding: 5px;
 	width: 100px;
+	
+	border: 1px solid #141824;
+	box-shadow: 0 0 3px #202020, inset 0 0 2px #546bae;
 }
 
 .centered {
@@ -60,7 +82,7 @@ button {
 }
 
 .footer {
-	display: inline-block; 
+	display: inline-block;
 	height: 80px;
 	line-height: 80px;
 	width: 100%;
@@ -71,7 +93,6 @@ button {
 	font-size: 1.0em;
 	vertical-align: middle;
 	position: absolute;
-	
 	letter-spacing: 0.15em;
 }
 </style>
@@ -79,6 +100,27 @@ button {
 </head>
 <body>
 
+	<img style="display: block; margin: 30px auto;"
+		src="./img/bestia_logo_big.png">
+
+	<div class="box box-border centered login">
+		<form>
+			<p>
+				<input type="email" placeholder="E-Mail">
+			</p>
+			<p>
+				<input type="password" placeholder="Password">
+			</p>
+
+			<p class="txt-center" style="margin-top: 20px;">
+				<button>Login</button>
+				<button>Anmelden</button>
+			</p>
+		</form>
+	</div>
+
+	<!-- 
+	
 	<div class="box centered login" style="width: 800px;">
 		<div>
 			<form>
@@ -103,10 +145,10 @@ button {
 				src="http://4.bp.blogspot.com/-Nyfdpymc_Lo/VkQw-nJ79mI/AAAAAAAARYg/6o9VeoTvu-I/s1600-r/logo_chrome.png">
 		</div>
 	</div>
+	
+	 -->
 
-	<div class="footer txt-center">
-		tfelix SOFTWARE &#8231; Bestia - The Browsergame &#8231;
-			Impressum &#8231; Datenschutz
-	</div>
+	<div class="footer txt-center">tfelix SOFTWARE &#8231; Bestia -
+		The Browsergame &#8231; Impressum &#8231; Datenschutz</div>
 </body>
 </html>
