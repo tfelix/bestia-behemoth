@@ -88,7 +88,16 @@ Bestia.ItemViewModel = function(data, urlHelper) {
 	 * @public
 	 */
 	this.weight = ko.observable(0);
+	
+	/**
+	 * Holds the indicator string of the item.
+	 * 
+	 * @property {string}
+	 * @public
+	 */
+	this.indicator;
 
+	
 	/**
 	 * Total weight of the items (by amount).
 	 * 
@@ -120,6 +129,8 @@ Bestia.ItemViewModel.prototype.update = function(data) {
 	this.playerItemId(data.pid);
 	this.itemId(data.i.id);
 	this.itemDatabaseName(data.i.idbn);
+	
+	this.indicator = data.i.i;
 	
 	this.imageSrc(this._urlHelper.getItemIconUrl(data.i.img));
 };

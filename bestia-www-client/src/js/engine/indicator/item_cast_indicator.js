@@ -17,7 +17,7 @@ Bestia.Engine.Indicator.ItemCast.prototype.constructor = Bestia.Engine.Indicator
 
 Bestia.Engine.Indicator.ItemCast.prototype._onClick = function(pointer) {
 
-	if(pointer.mouse.button === Phaser.Mouse.RIGHT_BUTTON) {
+	if(pointer.button === Phaser.Mouse.RIGHT_BUTTON) {
 		// Was canceled.
 		this._manager.showDefault();
 		return;
@@ -27,16 +27,18 @@ Bestia.Engine.Indicator.ItemCast.prototype._onClick = function(pointer) {
 	this._manager.showStandardIndicator();
 };
 
-Bestia.Engine.Indicator.ItemCast.prototype._onCastItem = function() {
-	// _, item
+Bestia.Engine.Indicator.ItemCast.prototype._onCastItem = function(_, item) {
+	// Change the size of the indicator based on the item size.
+	this._parseIndicator(item.indicator);
 
 	// Asks to get activated.
 	this._requestActive();
 
 	// Prepare the needed dynamic cast indicator.
+};
 
-	// Aktivieren.
-	this._requestActive();
+Bestia.Engine.Indicator.ItemCast.prototype._parseIndicator = function(indicatorStr) {
+	
 };
 
 /**
