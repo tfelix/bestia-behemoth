@@ -16,6 +16,7 @@ public class Vector2 implements CollisionShape {
 	private final int anchorX;
 	private final int anchorY;
 
+
 	public Vector2(int x, int y) {
 		this.x = x;
 		this.y = y;

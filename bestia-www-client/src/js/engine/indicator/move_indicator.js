@@ -43,7 +43,7 @@ Bestia.Engine.Indicator.Basic.prototype._onClick = function(pointer) {
 	}
 
 	path = path.reverse();
-	var msg = new Bestia.Message.BestiaMove(player.playerBestiaId, path, this._ctx.playerBestia);
+	var msg = new Bestia.Message.BestiaMove(player.playerBestiaId, path, this._ctx.playerBestia.walkspeed());
 	this._ctx.pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 
 	// Start movement locally as well.

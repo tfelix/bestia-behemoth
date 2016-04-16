@@ -47,4 +47,9 @@ public class InventoryItemCastConfirmMessage extends InventoryItemCastMessage {
 	public void setSuccess(boolean success) {
 		this.success = success;
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("CastConfirmMessage[accId: %d, success: %b]", getAccountId(), success);
+	}
 }

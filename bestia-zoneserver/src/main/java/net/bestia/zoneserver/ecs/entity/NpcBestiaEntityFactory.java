@@ -88,4 +88,16 @@ public class NpcBestiaEntityFactory extends EntityFactory {
 
 		return mobBestia;
 	}
+
+	@Override
+	public void spawn(EntityBuilder builder) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean canSpawn(EntityBuilder builder) {
+		// TODO Ersetzen.
+		return false;
+	}
 }

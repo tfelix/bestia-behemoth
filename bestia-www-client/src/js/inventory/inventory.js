@@ -328,6 +328,8 @@ Bestia.Inventory = function(pubsub, i18n, urlHelper) {
 	pubsub.subscribe(Bestia.Signal.INPUT_USE_ITEM, this._handlerInputCastItem.bind(this));
 	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, this._handlerBestiaSelected.bind(this));
 	pubsub.subscribe(Bestia.Signal.INVENTORY_PERFORM_CAST, this._handlerDoCast.bind(this));
+	// pubsub.subscribe(Bestia.Signal.INVENTORY_CAST_CONFIRM,
+	// this._handlerCastServerConfirm.bind(this));
 };
 
 Bestia.Inventory.prototype._handlerInputCastItem = function(_, slotN) {
@@ -365,9 +367,11 @@ Bestia.Inventory.prototype._handlerInputCastItem = function(_, slotN) {
  *            e.g.: {item: ITEM, cords: {x: X, y: Y}}.
  */
 Bestia.Inventory.prototype._handlerDoCast = function(_, data) {
-	// We have now all data in place to create a server message to use this item.
-	var msg = null;
-	
+	// We have now all data in place to create a server message to use this
+	// item.
+	var msg = new Bestia.Message.InventoryItemCast(data.item.playerItemId(), this._selectedBestia.playerBestiaId(),
+			data.cords.x, data.cords.y);
+
 	this._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 };
 

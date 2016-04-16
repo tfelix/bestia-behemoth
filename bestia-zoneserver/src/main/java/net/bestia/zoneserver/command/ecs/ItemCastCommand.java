@@ -3,6 +3,8 @@ package net.bestia.zoneserver.command.ecs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.artemis.annotations.Wire;
+
 import net.bestia.messages.Message;
 import net.bestia.messages.inventory.InventoryItemCastConfirmMessage;
 import net.bestia.messages.inventory.InventoryItemCastMessage;
@@ -15,6 +17,7 @@ import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.proxy.InventoryProxy;
 import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 import net.bestia.zoneserver.script.ItemScript;
+import net.bestia.zoneserver.script.MapScriptAPI;
 
 /**
  * This will handle all messages for casting an item onto the map. It will then
@@ -23,15 +26,23 @@ import net.bestia.zoneserver.script.ItemScript;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@Wire
 public class ItemCastCommand extends ECSCommand {
-	
+
 	private final static Logger LOG = LogManager.getLogger(ItemCastCommand.class);
-	
+
+	@Wire
 	private PlayerBestiaSpawnManager playerBestiaManager;
-	
+
+	@Wire
+	private MapScriptAPI mapScriptApi;
+
 	@Override
 	protected void initialize() {
-		playerBestiaManager = world.getSystem(PlayerBestiaSpawnManager.class);
+		// playerBestiaManager =
+		// world.getSystem(PlayerBestiaSpawnManager.class);
+
+		world.inject(this);
 	}
 
 	@Override
@@ -43,7 +54,7 @@ public class ItemCastCommand extends ECSCommand {
 	protected void execute(Message message, CommandContext ctx) {
 		// Cast msg.
 		final InventoryItemCastMessage castMsg = (InventoryItemCastMessage) message;
-		
+
 		final AccountRegistry register = ctx.getAccountRegistry();
 		final long accId = castMsg.getAccountId();
 
@@ -52,38 +63,38 @@ public class ItemCastCommand extends ECSCommand {
 
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
 		final InventoryProxy inventory = new InventoryProxy(owner, invService, ctx.getServer());
-		
-		
+
 		// Has the use the item in inventory? No? Abort and notify the user.
-		if(!inventory.hasPlayerItem(castMsg.getPlayerItemId(), 1)) {
+		if (!inventory.hasPlayerItem(castMsg.getPlayerItemId(), 1)) {
 			final InventoryItemCastConfirmMessage confirmMsg = new InventoryItemCastConfirmMessage(castMsg, false);
 			ctx.getServer().sendMessage(confirmMsg);
 			return;
 		}
-		
+
 		final Item item = inventory.getPlayerItem(castMsg.getPlayerItemId()).getItem();
 		boolean success = true;
-		
+
 		// Can the item be cast onto the given coordinates (range check?)
 		// Yes: do the casting (execute item script) and notify the user.
-		if(item.getType() != ItemType.CASTABLE) {
+		if (item.getType() != ItemType.CASTABLE) {
 			LOG.trace("Item not castable.");
 			success = false;
 		}
-		
-		if(!isInRange(item, castMsg.getX(), castMsg.getY(), owner)) {
+
+		if (!isInRange(item, castMsg.getX(), castMsg.getY(), owner)) {
 			LOG.trace("Item not in castrange.");
 			success = false;
 		}
-		
-		if(!success) {
+
+		if (!success) {
 			final InventoryItemCastConfirmMessage confirmMsg = new InventoryItemCastConfirmMessage(castMsg, false);
 			ctx.getServer().sendMessage(confirmMsg);
 			return;
 		}
-		
-		// TODO Hier ggf. ein anderes Script verwenden bzw checken ob das so okay it (bezug zur map per binding benötigt?).
-		final ItemScript iScript = new ItemScript(item.getItemDbName(), owner, inventory);
+
+		// TODO Hier ggf. ein anderes Script verwenden bzw checken ob das so
+		// okay it (bezug zur map per binding benötigt?).
+		final ItemScript iScript = new ItemScript(item.getItemDbName(), owner, mapScriptApi, inventory);
 		success = ctx.getScriptManager().execute(iScript);
 
 		if (success) {
@@ -97,7 +108,7 @@ public class ItemCastCommand extends ECSCommand {
 			LOG.info("Could not cast item: {}, accId: {},  x: {}, y: {}", item, accId, castMsg.getX(), castMsg.getY());
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		return "ItemCastCommand[]";
@@ -105,13 +116,13 @@ public class ItemCastCommand extends ECSCommand {
 
 	private boolean isInRange(Item item, int targetX, int targetY, PlayerBestiaEntityProxy caster) {
 		final int range = item.getUsableRange();
-		
+
 		final int x = caster.getLocation().getX();
 		final int y = caster.getLocation().getY();
-		
+
 		final int dX = targetX - x;
 		final int dY = targetY - y;
-		
-		return Math.sqrt(dX * dX + dY * dY) < range;	
+
+		return Math.sqrt(dX * dX + dY * dY) < range;
 	}
 }

@@ -105,4 +105,16 @@ public class PlayerBestiaEntityFactory extends EntityFactory {
 
 		return pbProxy;
 	}
+
+	@Override
+	public void spawn(EntityBuilder builder) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean canSpawn(EntityBuilder builder) {
+		// TODO Ersetzen.
+		return false;
+	}
 }

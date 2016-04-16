@@ -1,0 +1,1 @@
+Contains only data which the server needs. This directory must NOT be accessible for the clients.

@@ -43,7 +43,7 @@ public class MapScript extends Script {
 	public MapScript(String mapDbName, String name, MapScriptAPI api, BestiaEntityProxy bestia) {
 		super(name);
 		
-		addBinding("apiZone", api);
+		addBinding("api", api);
 		addBinding("bestia", bestia);
 
 		this.mapDbName = mapDbName;

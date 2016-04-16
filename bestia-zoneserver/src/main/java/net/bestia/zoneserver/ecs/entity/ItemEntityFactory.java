@@ -114,4 +114,16 @@ public class ItemEntityFactory extends EntityFactory {
 		removeMapper.get(entityId).removeDelay = ITEM_VANISH_DELAY;
 	}
 
+	@Override
+	public void spawn(EntityBuilder builder) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean canSpawn(EntityBuilder builder) {
+		// TODO Ersetzen.
+		return false;
+	}
+
 }

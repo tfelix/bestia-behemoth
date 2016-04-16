@@ -19,6 +19,8 @@ import org.apache.logging.log4j.Logger;
  */
 public class ScriptManager {
 	
+	private final Logger LOG = LogManager.getLogger(ScriptManager.class);
+	
 	/**
 	 * Facade providing scripts with access to our logger.
 	 *
@@ -101,6 +103,7 @@ public class ScriptManager {
 
 		// Probably was not loaded.
 		if (!cachedScripts.containsKey(scriptKey)) {
+			LOG.warn("Script {} was not found.", scriptKey);
 			return false;
 		}
 

@@ -5,8 +5,9 @@ import net.bestia.zoneserver.proxy.InventoryProxy;
 
 public class ItemScript extends Script {
 
-	public ItemScript(String name, BestiaEntityProxy owner, InventoryProxy inventory) {
+	public ItemScript(String name, BestiaEntityProxy owner, MapScriptAPI mapApi, InventoryProxy inventory) {
 		super(name);
+		addBinding("api", mapApi);
 		addBinding("target", owner);
 		addBinding("inventory", inventory);
 	}
