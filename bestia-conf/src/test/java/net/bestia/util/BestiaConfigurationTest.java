@@ -56,7 +56,7 @@ public class BestiaConfigurationTest {
 	@Test
 	public void get_version() {
 		BestiaConfiguration bc = new BestiaConfiguration();
-		Assert.assertTrue(bc.getVersion().equals("ALLHAILTHECAT"));
+		Assert.assertTrue(bc.getVersion().equals("alpha-0.2.7"));
 	}
 	
 	@Test

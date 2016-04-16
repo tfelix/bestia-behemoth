@@ -25,7 +25,7 @@ import org.apache.logging.log4j.Logger;
 public class VersionReader {
 
 	private static final Logger LOG = LogManager.getLogger(VersionReader.class);
-	private static final Properties properties = new Properties();
+	private final Properties properties = new Properties();
 
 	public VersionReader() {
 		init(null);
