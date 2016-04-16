@@ -5,6 +5,7 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Table;
 
 /**
@@ -15,7 +16,7 @@ import javax.persistence.Table;
  *
  */
 @Entity
-@Table(name = "zone_entities")
+@Table(name = "zone_entities", indexes = { @Index(unique = true, columnList = "zoneName") })
 public class ZoneEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;

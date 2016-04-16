@@ -12,10 +12,7 @@ import com.artemis.Aspect;
 import com.artemis.BaseEntitySystem;
 import com.artemis.Component;
 import com.artemis.Entity;
-import com.artemis.Manager;
 import com.artemis.annotations.Wire;
-import com.artemis.io.SaveFileFormat;
-import com.artemis.managers.WorldSerializationManager;
 import com.artemis.utils.Bag;
 import com.artemis.utils.IntBag;
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -23,7 +20,17 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.bestia.model.dao.ZoneEntityDao;
+import net.bestia.zoneserver.ecs.component.PlayerBestia;
 
+/**
+ * What will be persisted?
+ * <ul>
+ * <li>All visible entities (but {@link PlayerBestia}s)</li>
+ * </ul>
+ * 
+ * @author Thomas
+ *
+ */
 @Wire
 public class WorldPersistenceManager extends BaseEntitySystem {
 
@@ -55,29 +62,32 @@ public class WorldPersistenceManager extends BaseEntitySystem {
 
 		this.entitiesDAO = entitiesDao;
 		this.zoneName = zoneName;
-		
+
 		setEnabled(false);
 	}
 
 	public void save() throws IOException {
-		
+
 		final StringWriter writer = new StringWriter();
-		
+
 		final IntBag entities = getEntityIds();
 
-		//final WorldSerializationManager manager = world.getSystem(WorldSerializationManager.class);
-		//final SaveFileFormat save = new SaveFileFormat(entities);
-		
-		//manager.save(writer, save);
-		//String json = writer.toString();
+		// final WorldSerializationManager manager =
+		// world.getSystem(WorldSerializationManager.class);
+		// final SaveFileFormat save = new SaveFileFormat(entities);
+
+		// manager.save(writer, save);
+		// String json = writer.toString();
 
 		for (int i = 0; i < entities.size(); i++) {
 			final Bag<Component> components = new Bag<>();
 			final int entityId = entities.get(i);
-			
+
 			final Entity e = world.getEntity(entityId);
 			e.getComponents(components);
-			
+
+			// What
+
 			// TODO Check if this entity should be persisted.
 			// Dont persist player or script entities which can be regenerated
 			// from database or during startup.
@@ -101,5 +111,4 @@ public class WorldPersistenceManager extends BaseEntitySystem {
 		// no op.
 	}
 
-	
 }

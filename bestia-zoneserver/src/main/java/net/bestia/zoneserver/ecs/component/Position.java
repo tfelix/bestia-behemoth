@@ -63,15 +63,22 @@ public class Position extends Component implements Location {
 
 	@Override
 	public void setPos(int x, int y) {
-		shape.moveByAnchor(x, y);
+		shape = shape.moveByAnchor(x, y);
 		if (location != null) {
 			location.setPos(x, y);
 		}
 	}
+	
+	public void setLocationReference(Location loc) {
+		this.location = loc;
+		
+		// Synchronize position with the new location.
+		shape = shape.moveByAnchor(loc.getX(), loc.getY());
+	}
 
 	@Override
 	public void set(Location loc) {
-		shape.moveByAnchor(loc.getX(), loc.getY());
+		shape = shape.moveByAnchor(loc.getX(), loc.getY());
 		if (location != null) {
 			location.set(loc);
 		}
@@ -80,7 +87,7 @@ public class Position extends Component implements Location {
 	@Override
 	public void setX(int x) {
 		final int curY = getY();
-		shape.moveByAnchor(x, curY);
+		shape = shape.moveByAnchor(x, curY);
 		if (location != null) {
 			location.setX(x);
 		}
@@ -89,7 +96,7 @@ public class Position extends Component implements Location {
 	@Override
 	public void setY(int y) {
 		final int curY = getX();
-		shape.moveByAnchor(curY, y);
+		shape = shape.moveByAnchor(curY, y);
 		if (location != null) {
 			location.setY(y);
 		}

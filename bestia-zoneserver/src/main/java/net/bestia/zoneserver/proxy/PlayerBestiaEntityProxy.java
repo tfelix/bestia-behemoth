@@ -29,6 +29,7 @@ import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Attacks;
+import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.entity.PlayerBestiaMapper;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
@@ -95,7 +96,8 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 		visible.spriteType = SpriteType.PLAYER_ANIM;
 
 		// Set the current position.
-		getLocation().set(playerBestia.getCurrentPosition());
+		final Position ecsPos = mapper.getPositionMapper().get(entityID);
+		ecsPos.setLocationReference(bestia.getCurrentPosition());
 
 		calculateStatusPoints();
 	}
