@@ -1,4 +1,4 @@
-package net.bestia.messages.dialog;
+package net.bestia.messages.ui;
 
 /**
  * Different types of dialogs. Will be displayed differently on the client.

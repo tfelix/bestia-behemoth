@@ -1,5 +1,7 @@
 package net.bestia.messages.ui;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -7,30 +9,29 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import net.bestia.messages.AccountMessage;
 
 /**
- * This message is send to the client in order to display a dialog to the user.
- * There are different types of dialogs which are given by the dialog type.
+ * This message will trigger the client to open a dialog NPC box.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class UIDialogMessage extends AccountMessage {
+public class DialogMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
-
 	public static final String MESSAGE_ID = "ui.dialog";
 
-	@JsonProperty("did")
-	private String dialogId;
-
-	@JsonProperty("t")
-	private String text;
+	@JsonProperty("n")
+	private final List<DialogNode> nodes;
 
 	/**
-	 * A hint to preload this images since they are probably needed in this
-	 * conversation with the NPC.
+	 * Std. ctor.
 	 */
-	@JsonProperty("imgPre")
-	private List<String> imagePreload;
+	public DialogMessage() {
+		this.nodes = Collections.unmodifiableList(new ArrayList<>());
+	}
+
+	public DialogMessage(List<DialogNode> nodes) {
+		this.nodes = Collections.unmodifiableList(new ArrayList<>(nodes));
+	}
 
 	@Override
 	public String getMessageId() {

@@ -1,4 +1,4 @@
-package net.bestia.messages.dialog;
+package net.bestia.messages.ui;
 
 import java.io.Serializable;
 
