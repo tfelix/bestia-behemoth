@@ -29,6 +29,9 @@ public class ZoneMessageDecorator<T extends Message> extends AccountMessage {
 	}
 
 	public ZoneMessageDecorator(T msg) {
+		if(msg == null) {
+			throw new IllegalArgumentException("Message can not be null.");
+		}
 		this.message = msg;
 	}
 

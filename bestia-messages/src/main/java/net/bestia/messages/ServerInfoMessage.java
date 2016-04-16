@@ -37,11 +37,11 @@ public final class ServerInfoMessage extends AccountMessage {
 	public ServerInfoMessage() {
 		// no op.
 	}
-
+	
 	public ServerInfoMessage(AccountMessage msg) {
 		super(msg);
 	}
-
+	
 	public ServerInfoMessage(AccountMessage msg, Collection<String> zones, String zoneName, int connectedPlayer, String resUrl) {
 		super(msg);
 		this.zones = zones;
@@ -50,6 +50,7 @@ public final class ServerInfoMessage extends AccountMessage {
 		this.zoneName = zoneName;
 		this.serverTime = System.currentTimeMillis();
 	}
+
 
 	@Override
 	public String getMessageId() {
@@ -66,5 +67,4 @@ public final class ServerInfoMessage extends AccountMessage {
 	public String getMessagePath() {
 		return getClientMessagePath();
 	}
-
 }
