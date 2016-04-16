@@ -15,7 +15,6 @@ import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.proxy.InventoryProxy;
@@ -48,7 +47,7 @@ public class PlayerBestiaEntityFactory extends EntityFactory {
 
 		playerBestiaArchetype = new ArchetypeBuilder()
 				.add(Position.class)
-				.add(PositionDomainProxy.class)
+				//.add(PositionDomainProxy.class)
 				.add(Attacks.class)
 				.add(net.bestia.zoneserver.ecs.component.Bestia.class)
 				.add(net.bestia.zoneserver.ecs.component.PlayerBestia.class)

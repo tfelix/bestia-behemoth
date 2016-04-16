@@ -14,7 +14,6 @@ import net.bestia.zoneserver.ecs.component.MobGroup;
 import net.bestia.zoneserver.ecs.component.MobSpawn;
 import net.bestia.zoneserver.ecs.component.NPCBestia;
 import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.proxy.NpcBestiaEntityProxy;
@@ -42,7 +41,6 @@ public class NpcBestiaEntityFactory extends EntityFactory {
 		npcBestiaArchetype = new ArchetypeBuilder()
 				.add(Position.class)
 				.add(MobGroup.class)
-				.add(PositionDomainProxy.class)
 				.add(Attacks.class)
 				.add(net.bestia.zoneserver.ecs.component.Bestia.class)
 				.add(NPCBestia.class)

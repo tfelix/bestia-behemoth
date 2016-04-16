@@ -13,7 +13,6 @@ import net.bestia.zoneserver.ecs.component.MobSpawn;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.NPCBestia;
 import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.entity.NpcBestiaEntityFactory;
@@ -48,7 +47,6 @@ public class MobDelaySpawnSystem extends DelayedEntityProcessingSystem {
 		builder.setGroupMapper(world.getMapper(MobGroup.class));
 		builder.setNpcBestiaMapper(world.getMapper(NPCBestia.class));
 		builder.setPositionMapper(world.getMapper(Position.class));
-		builder.setPositionProxyMapper(world.getMapper(PositionDomainProxy.class));
 		builder.setStatusMapper(world.getMapper(StatusPoints.class));
 		builder.setVisibleMapper(world.getMapper(Visible.class));
 		builder.setMovementMapper(world.getMapper(Movement.class));

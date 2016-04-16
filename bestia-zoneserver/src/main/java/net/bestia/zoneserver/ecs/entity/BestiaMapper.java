@@ -5,7 +5,6 @@ import com.artemis.ComponentMapper;
 import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
 
@@ -24,7 +23,6 @@ import net.bestia.zoneserver.ecs.component.Visible;
  */
 public class BestiaMapper {
 
-	private final ComponentMapper<PositionDomainProxy> positionProxyMapper;
 	private final ComponentMapper<Position> positionMapper;
 	private final ComponentMapper<Visible> visibleMapper;
 	private final ComponentMapper<Bestia> bestiaMapper;
@@ -32,7 +30,6 @@ public class BestiaMapper {
 	private final ComponentMapper<StatusPoints> statusMapper;
 
 	static class Builder {
-		private ComponentMapper<PositionDomainProxy> positionProxyMapper;
 		private ComponentMapper<Position> positionMapper;
 		private ComponentMapper<Visible> visibleMapper;
 		private ComponentMapper<Bestia> bestiaMapper;
@@ -55,10 +52,6 @@ public class BestiaMapper {
 			this.positionMapper = positionMapper;
 		}
 
-		public void setPositionProxyMapper(ComponentMapper<PositionDomainProxy> positionProxyMapper) {
-			this.positionProxyMapper = positionProxyMapper;
-		}
-
 		public void setVisibleMapper(ComponentMapper<Visible> visibleMapper) {
 			this.visibleMapper = visibleMapper;
 		}
@@ -79,9 +72,6 @@ public class BestiaMapper {
 
 	protected BestiaMapper(Builder builder) {
 
-		if (builder.positionProxyMapper == null) {
-			throw new IllegalArgumentException("PositionProxyMapper can not be null.");
-		}
 		if (builder.positionMapper == null) {
 			throw new IllegalArgumentException("PositionMapper can not be null.");
 		}
@@ -99,7 +89,6 @@ public class BestiaMapper {
 		}
 
 		this.positionMapper = builder.positionMapper;
-		this.positionProxyMapper = builder.positionProxyMapper;
 		this.visibleMapper = builder.visibleMapper;
 		this.bestiaMapper = builder.bestiaMapper;
 		this.movementMapper = builder.movementMapper;
@@ -112,10 +101,6 @@ public class BestiaMapper {
 
 	public ComponentMapper<Position> getPositionMapper() {
 		return positionMapper;
-	}
-
-	public ComponentMapper<PositionDomainProxy> getPositionProxyMapper() {
-		return positionProxyMapper;
 	}
 
 	public ComponentMapper<Visible> getVisibleMapper() {

@@ -6,11 +6,8 @@ import java.util.Map;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Location;
-import net.bestia.model.domain.LocationDomain;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Movement;
-import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
 import net.bestia.zoneserver.ecs.entity.BestiaMapper;
 
 public abstract class BestiaEntityProxy {
@@ -39,13 +36,7 @@ public abstract class BestiaEntityProxy {
 
 		// Create a placeholder location and proxy pos and location with the loc
 		// proxy.
-		final Position pos = mappers.getPositionMapper().get(entityID);
-		final PositionDomainProxy posProxy = mappers.getPositionProxyMapper().get(entityID);
-		final Location domLocation = new LocationDomain();
-		location = new EcsLocationProxy(pos, domLocation);
-
-		// Set the ESC proxy.
-		posProxy.setDomainPosition(location);
+		location = mappers.getPositionMapper().get(entityID);
 	}
 
 	public abstract StatusPoints getStatusPoints();

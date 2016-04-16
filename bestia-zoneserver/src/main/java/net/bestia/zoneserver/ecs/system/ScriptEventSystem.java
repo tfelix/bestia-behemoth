@@ -113,7 +113,7 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 	public int createTriggerScript(String name, CollisionShape shape) {
 		final int id = world.create(eventScriptArch);
 
-		positionMapper.get(id).setPosition(shape);
+		positionMapper.get(id).setShape(shape);
 		triggerMapper.get(id).script = name;
 		triggerMapper.get(id).lastTriggeredEntities.clear();
 
@@ -151,7 +151,7 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 		newCollisions.clear();
 
 		final Script script = triggerMapper.get(e);
-		final CollisionShape scriptShape = positionMapper.get(e).getPosition();
+		final CollisionShape scriptShape = positionMapper.get(e).getShape();
 		final Set<Integer> lastCollisions = script.lastTriggeredEntities;
 
 		// TODO Das hier über den Quadtree lösen.
@@ -165,7 +165,7 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 		// Find all entities in this zone.
 		for (int i = 0; i < possibleCollisions.size(); i++) {
 			final Entity collisionEntity = world.getEntity(possibleCollisions.get(i));
-			final CollisionShape entityShape = positionMapper.get(collisionEntity).getPosition();
+			final CollisionShape entityShape = positionMapper.get(collisionEntity).getShape();
 
 			if (!entityShape.collide(scriptShape)) {
 				continue;

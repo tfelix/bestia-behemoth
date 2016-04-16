@@ -28,7 +28,6 @@ import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.entity.PlayerBestiaEntityFactory;
@@ -110,7 +109,6 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		mapperBuilder.setSpawnManager(this);
 		mapperBuilder.setUuidManager(world.getSystem(UuidEntityManager.class));
 		mapperBuilder.setVisibleMapper(world.getMapper(Visible.class));
-		mapperBuilder.setPositionProxyMapper(world.getMapper(PositionDomainProxy.class));
 		mapperBuilder.setBestiaMapper(world.getMapper(Bestia.class));
 		mapperBuilder.setMovementMapper(world.getMapper(Movement.class));
 		mapperBuilder.setStatusMapper(world.getMapper(StatusPoints.class));

@@ -73,7 +73,7 @@ public class ItemEntityFactory extends EntityFactory {
 	public void spawnItem(Vector2 loc, PlayerItem item) {
 		final int entityId = world.create(itemArchetype);
 
-		positionMapper.get(entityId).setPosition(loc.x, loc.y);
+		positionMapper.get(entityId).setPos(loc.x, loc.y);
 
 		final Visible visible = visibleMapper.get(entityId);
 		visible.sprite = item.getItem().getImage();
@@ -100,7 +100,7 @@ public class ItemEntityFactory extends EntityFactory {
 	public void spawnItem(Vector2 loc, Item item, int amount) {
 		final int entityId = world.create(itemArchetype);
 
-		positionMapper.get(entityId).setPosition(loc.x, loc.y);
+		positionMapper.get(entityId).setPos(loc.x, loc.y);
 
 		final Visible visible = visibleMapper.get(entityId);
 		visible.sprite = item.getImage();

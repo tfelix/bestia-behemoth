@@ -83,7 +83,7 @@ public class EntityUpdateMessageFactory {
 		final Entity e = world.getEntity(entityId);
 		final UUID uuid = uuidManager.getUuid(e);
 		final Visible visible = visibleMapper.get(entityId);
-		final Vector2 pos = positionMapper.get(e).getPosition().getAnchor();
+		final Vector2 pos = positionMapper.get(e).getShape().getAnchor();
 		final PlayerBestia playerControlled = playerMapper.getSafe(e);
 		final SpriteType entityType = visible.spriteType;
 

@@ -2,6 +2,7 @@ package net.bestia.zoneserver.ecs.component;
 
 import com.artemis.Component;
 
+import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
@@ -13,50 +14,94 @@ import net.bestia.zoneserver.zone.shape.Vector2;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class Position extends Component {
+public class Position extends Component implements Location {
 
-	private CollisionShape position;
+	private CollisionShape shape;
+	private Location location;
 
 	/**
 	 * Ctd. Ctor.
 	 */
 	public Position() {
-		position = new Vector2(0, 0);
-	}
-
-	/**
-	 * Helper method to set the anchor/position of the {@link CollisionShape} to
-	 * the desired location.
-	 * 
-	 * @param x
-	 *            New x coordinate.
-	 * @param y
-	 *            New y coordinate.
-	 */
-	public void setPosition(int x, int y) {
-		position = position.moveByAnchor(x, y);
-	}
-
-	public void setX(int x) {
-		final int y = position.getAnchor().y;
-		setPosition(x, y);
-	}
-
-	public void setY(int y) {
-		final int x = position.getAnchor().x;
-		setPosition(x, y);
-	}
-
-	public CollisionShape getPosition() {
-		return position;
-	}
-
-	public void setPosition(CollisionShape shape) {
-		this.position = shape;
+		shape = new Vector2(0, 0);
+		location = null;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("Position[shape: %s]", position.toString());
+		return String.format("Position[shape: %s]", shape.toString());
+	}
+
+	public CollisionShape getShape() {
+		return shape;
+	}
+
+	@Override
+	public String getMapDbName() {
+		if (location != null) {
+			return location.getMapDbName();
+		}
+		return "";
+	}
+
+	@Override
+	public void setMapDbName(String mapDbName) {
+		if (location != null) {
+			location.setMapDbName(mapDbName);
+		}
+	}
+
+	@Override
+	public int getX() {
+		return shape.getAnchor().x;
+	}
+
+	@Override
+	public int getY() {
+		return shape.getAnchor().y;
+	}
+
+	@Override
+	public void setPos(int x, int y) {
+		shape.moveByAnchor(x, y);
+		if (location != null) {
+			location.setPos(x, y);
+		}
+	}
+
+	@Override
+	public void set(Location loc) {
+		shape.moveByAnchor(loc.getX(), loc.getY());
+		if (location != null) {
+			location.set(loc);
+		}
+	}
+
+	@Override
+	public void setX(int x) {
+		final int curY = getY();
+		shape.moveByAnchor(x, curY);
+		if (location != null) {
+			location.setX(x);
+		}
+	}
+
+	@Override
+	public void setY(int y) {
+		final int curY = getX();
+		shape.moveByAnchor(curY, y);
+		if (location != null) {
+			location.setY(y);
+		}
+	}
+
+	public void setShape(CollisionShape shape) {
+		if (shape == null) {
+			throw new IllegalArgumentException("Shape can not be null.");
+		}
+		this.shape = shape;
+		if (location != null) {
+			location.setPos(shape.getAnchor().x, shape.getAnchor().y);
+		}
 	}
 }
