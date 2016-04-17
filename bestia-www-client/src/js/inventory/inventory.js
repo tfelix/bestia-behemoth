@@ -446,8 +446,10 @@ Bestia.Inventory.prototype._handleUpdate = function(_, data) {
 
 	// If the amount of the selected item has changed, change the drop
 	// amount to the current number if it matches.
-	if (this.selectedItem().amount() + 1 === this.dropAmount()) {
-		this.dropAmount(this.selectedItem().amount());
+	if (this.selectedItem() !== null) {
+		if (this.selectedItem().amount() + 1 === this.dropAmount()) {
+			this.dropAmount(this.selectedItem().amount());
+		}
 	}
 };
 
