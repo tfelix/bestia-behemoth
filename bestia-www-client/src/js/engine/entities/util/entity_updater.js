@@ -41,7 +41,7 @@ Bestia.Engine.EntityUpdater.prototype._onUpdateHandler = function(_, msg) {
 
 	switch (msg.a) {
 	case 'APPEAR':
-		// The entity must not exist.
+		// Entity should not exist.
 		var entity = this._ctx.entityCache.getByUuid(msg.uuid);
 		if (entity !== null) {
 			// Exists already. Strange.
@@ -49,6 +49,13 @@ Bestia.Engine.EntityUpdater.prototype._onUpdateHandler = function(_, msg) {
 		}
 		
 		this._ctx.entityFactory.build(msg);
+		break;
+	case 'VANISH':
+	case 'DIE':
+		var entity = this._ctx.entityCache.getByUuid(msg.uuid);
+		entity.remove();
+		this._ctx.entityCache.removeEntity(entity);
+		break;
 	}
 };
 

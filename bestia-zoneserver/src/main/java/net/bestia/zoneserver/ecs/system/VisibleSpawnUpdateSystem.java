@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import com.artemis.Aspect;
 import com.artemis.BaseEntitySystem;
 import com.artemis.annotations.Wire;
+import com.artemis.utils.IntBag;
 
 import net.bestia.messages.entity.EntityAction;
 import net.bestia.messages.entity.EntityUpdateMessage;
@@ -53,6 +54,19 @@ public class VisibleSpawnUpdateSystem extends BaseEntitySystem {
 		final EntityUpdateMessage msg = updateMassageFactory.createMessage(entityId);
 		
 		playerSpawnManager.sendMessageToSightrange(entityId, msg);		
+	}
+	
+	
+	@Override
+	public void removed(IntBag entities) {
+		super.removed(entities);
+		log.trace("### REMOVED VISIBLE ID: , UPDATING PLAYERS ###");
+
+		//final EntityUpdateMessage msg = updateMassageFactory.createMessage(entityId);
+		
+		//msg.setAction(EntityAction.VANISH);
+		
+		//playerSpawnManager.sendMessageToSightrange(entityId, msg);	
 	}
 	
 	@Override

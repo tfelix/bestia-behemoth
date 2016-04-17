@@ -30,7 +30,6 @@ public class MapScriptAPIExtender implements WorldExtend {
 	@Override
 	public void configure(WorldConfiguration worldConfig, Map map, CommandContext ctx, Zone zone) {
 
-		api.initContext(ctx);
 		worldConfig.register(api);
 		
 		worldConfig.setSystem(new ScriptCallableSystem());

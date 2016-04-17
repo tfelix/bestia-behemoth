@@ -9,7 +9,6 @@ import com.artemis.ComponentMapper;
 import com.artemis.EntitySubscription;
 import com.artemis.EntitySubscription.SubscriptionListener;
 import com.artemis.annotations.Wire;
-import com.artemis.managers.UuidEntityManager;
 import com.artemis.systems.DelayedIteratingSystem;
 import com.artemis.utils.IntBag;
 
@@ -20,6 +19,7 @@ import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
+import net.bestia.zoneserver.ecs.manager.UuidManager;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
@@ -38,7 +38,8 @@ public class MovementSystem extends DelayedIteratingSystem {
 	private ComponentMapper<Bestia> bestiaMapper;
 	private ComponentMapper<Movement> movementMapper;
 	private PlayerBestiaSpawnManager pbSpawnManager;
-	private UuidEntityManager uuidManager;
+	@Wire
+	private UuidManager uuidManager;
 
 	private EntitySubscription movementSubscription;
 	

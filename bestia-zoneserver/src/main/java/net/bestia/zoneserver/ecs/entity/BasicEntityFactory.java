@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.ecs.entity;
 
+import java.util.UUID;
+
 import com.artemis.Archetype;
 import com.artemis.ArchetypeBuilder;
 import com.artemis.ComponentMapper;
@@ -12,6 +14,7 @@ import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.ScriptEntityTicker;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.entity.EntityBuilder.EntityType;
+import net.bestia.zoneserver.ecs.manager.UuidManager;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 @Wire
@@ -37,6 +40,9 @@ class BasicEntityFactory extends EntityFactory {
 	private ComponentMapper<Position> positionMapper;
 	private ComponentMapper<Visible> visibleMapper;
 	private ComponentMapper<ScriptEntityTicker> scriptTickerMapper;
+	
+	@Wire
+	private UuidManager uuidManager;
 
 	public BasicEntityFactory(World world) {
 		super(world);
@@ -72,6 +78,8 @@ class BasicEntityFactory extends EntityFactory {
 		
 		visible.sprite = builder.sprite;
 		visible.spriteType = SpriteType.STATIC;
+		
+		final UUID uuid = uuidManager.getUuid(world.getEntity(entityId));
 		
 		EntityProxy prox = new EntityProxy(world, entityId);
 		

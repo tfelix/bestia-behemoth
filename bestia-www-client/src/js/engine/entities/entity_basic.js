@@ -61,7 +61,7 @@ Bestia.Engine.BasicEntity.prototype.tickAnimation = function() {
  */
 Bestia.Engine.BasicEntity.prototype.remove = function() {
 
-	this.sprite.destroy();
+	this._sprite.destroy();
 
 };
 

@@ -6,7 +6,6 @@ import com.artemis.Entity;
 import com.artemis.EntityEdit;
 import com.artemis.World;
 
-import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Delay;
 import net.bestia.zoneserver.ecs.component.ScriptCallable;
 import net.bestia.zoneserver.ecs.entity.EntityBuilder;
@@ -24,7 +23,6 @@ import net.bestia.zoneserver.ecs.entity.EntityFactory;
 public class ScriptApi {
 
 	private World world;
-	private CommandContext ctx;
 	private EntityFactory entityFactory;
 
 	/**
@@ -50,7 +48,4 @@ public class ScriptApi {
 		this.entityFactory = entityFactory;
 	}
 
-	public void initContext(CommandContext ctx) {
-		this.ctx = ctx;
-	}
 }

@@ -12,7 +12,6 @@ import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.World;
 import com.artemis.annotations.Wire;
-import com.artemis.managers.UuidEntityManager;
 
 import net.bestia.messages.ChatMessage;
 import net.bestia.messages.entity.EntityDamageMessage;
@@ -33,6 +32,7 @@ import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
+import net.bestia.zoneserver.ecs.manager.UuidManager;
 
 /**
  * The PlayerBestiaManager is responsible for executing the "business logic" to
@@ -53,7 +53,8 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 
 	private final Entity entity;
 
-	private UuidEntityManager uuidManager;
+	@Wire
+	private UuidManager uuidManager;
 	private ComponentMapper<Attacks> attacksMapper;
 	private ComponentMapper<net.bestia.zoneserver.ecs.component.PlayerBestia> playerBestiaMapper;
 	@Wire
