@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.ecs.component;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,8 +19,11 @@ import net.bestia.model.misc.Sprite.InteractionType;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class Visible extends Component {	
+public class Visible extends Component implements Serializable {	
 
+
+	private static final long serialVersionUID = 1L;
+	
 	public List<Sprite> sprites = new ArrayList<>();
 	public String sprite = "";
 	public SpriteType spriteType = SpriteType.NONE;

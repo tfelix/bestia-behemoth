@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.ecs.component;
 
+import java.io.Serializable;
+
 import com.artemis.Component;
 
 /**
@@ -10,8 +12,10 @@ import com.artemis.Component;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class Delay extends Component {
+public class Delay extends Component implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	private int delay;
 	private float timer;
 	

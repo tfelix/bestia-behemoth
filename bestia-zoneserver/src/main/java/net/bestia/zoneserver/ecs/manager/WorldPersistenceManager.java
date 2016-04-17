@@ -1,9 +1,8 @@
 package net.bestia.zoneserver.ecs.manager;
 
 import java.io.IOException;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.Serializable;
+import java.nio.ByteBuffer;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,14 +12,15 @@ import com.artemis.BaseEntitySystem;
 import com.artemis.Component;
 import com.artemis.Entity;
 import com.artemis.annotations.Wire;
+import com.artemis.managers.GroupManager;
 import com.artemis.utils.Bag;
-import com.artemis.utils.IntBag;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.artemis.utils.ImmutableBag;
 
+import net.bestia.interserver.ObjectSerializer;
 import net.bestia.model.dao.ZoneEntityDao;
+import net.bestia.model.domain.ZoneEntity;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
+import net.bestia.zoneserver.ecs.entity.EcsEntityFactory;
 
 /**
  * What will be persisted?
@@ -28,18 +28,19 @@ import net.bestia.zoneserver.ecs.component.PlayerBestia;
  * <li>All visible entities (but {@link PlayerBestia}s)</li>
  * </ul>
  * 
- * @author Thomas
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 @Wire
 public class WorldPersistenceManager extends BaseEntitySystem {
 
 	private final static Logger LOG = LogManager.getLogger(WorldPersistenceManager.class);
-	private final ObjectMapper mapper = new ObjectMapper();
-	private final Map<Integer, Entity> trackedEntities = new HashMap<>();
 
 	private final String zoneName;
 	private final ZoneEntityDao entitiesDAO;
+
+	@Wire
+	private GroupManager groupManager;
 
 	/**
 	 * 
@@ -68,36 +69,36 @@ public class WorldPersistenceManager extends BaseEntitySystem {
 
 	public void save() throws IOException {
 
-		final StringWriter writer = new StringWriter();
-
-		final IntBag entities = getEntityIds();
-
-		// final WorldSerializationManager manager =
-		// world.getSystem(WorldSerializationManager.class);
-		// final SaveFileFormat save = new SaveFileFormat(entities);
-
-		// manager.save(writer, save);
-		// String json = writer.toString();
+		// Persists the items.
+		final ImmutableBag<Entity> entities = groupManager.getEntities(EcsEntityFactory.ECS_ITEM_GROUP);
+		
+		final Bag<Component> components = new Bag<>();
 
 		for (int i = 0; i < entities.size(); i++) {
-			final Bag<Component> components = new Bag<>();
-			final int entityId = entities.get(i);
+			final Entity e = entities.get(i);
+			
+			LOG.trace("Serialized entity id: {}", e.getId());
 
-			final Entity e = world.getEntity(entityId);
 			e.getComponents(components);
 
-			// What
+			for (int j = 0; j < components.size(); j++) {
+				final Component c = components.get(i);
 
-			// TODO Check if this entity should be persisted.
-			// Dont persist player or script entities which can be regenerated
-			// from database or during startup.
+				if (!(c instanceof Serializable)) {
+					continue;
+				}
 
-			try {
-				final String json2 = mapper.writeValueAsString(components);
-				LOG.trace("Serialized entity: {}", json2);
-			} catch (JsonGenerationException | JsonMappingException e1) {
-				LOG.warn("Can not serialize.", e1);
+				final byte[] data = ObjectSerializer.serializeObject((Serializable) c);
+				
+				final ByteBuffer buffer = ByteBuffer.allocate(data.length + Integer.BYTES);
+				buffer.putInt(data.length);
+				buffer.put(data);
+				
+				// Create and save entity.
+				final ZoneEntity zoneEntity = new ZoneEntity(zoneName, buffer.array());
+				entitiesDAO.save(zoneEntity);			
 			}
+			components.clear();
 		}
 	}
 

@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.ecs.component;
 
+import java.io.Serializable;
+
 import com.artemis.Component;
 
 import net.bestia.model.domain.Location;
@@ -14,8 +16,9 @@ import net.bestia.zoneserver.zone.shape.Vector2;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class Position extends Component implements Location {
+public class Position extends Component implements Location, Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private CollisionShape shape;
 	private Location location;
 

@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.ecs.component;
 
+import java.io.Serializable;
+
 import com.artemis.Component;
 
 import net.bestia.model.domain.Bestia;
@@ -12,8 +14,10 @@ import net.bestia.zoneserver.zone.shape.Vector2;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MobSpawn extends Component {
+public class MobSpawn extends Component implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	public int delay;
 	public Bestia mob;
 	public Vector2 coordinates;

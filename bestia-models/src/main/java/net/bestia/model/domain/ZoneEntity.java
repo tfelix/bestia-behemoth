@@ -1,6 +1,7 @@
 package net.bestia.model.domain;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -28,7 +29,7 @@ public class ZoneEntity implements Serializable {
 	private String zoneName;
 
 	@Column(nullable = false)
-	private String data;
+	private byte[] data;
 
 	public ZoneEntity() {
 
@@ -42,17 +43,14 @@ public class ZoneEntity implements Serializable {
 	 * @param data
 	 *            The serialized data.
 	 */
-	public ZoneEntity(String zoneName, String data) {
+	public ZoneEntity(String zoneName, byte[] data) {
 		if (zoneName == null || zoneName.isEmpty()) {
 			throw new IllegalArgumentException("ZoneName can not be null or empty.");
 		}
 
-		if (data == null || data.isEmpty()) {
-			throw new IllegalArgumentException("Data can not be null or empty.");
-		}
 
 		this.zoneName = zoneName;
-		this.data = data;
+		this.data = Objects.requireNonNull(data, "Data can not be null.");
 	}
 
 	public int getId() {
@@ -68,14 +66,17 @@ public class ZoneEntity implements Serializable {
 	}
 
 	public void setZoneName(String zoneName) {
+		if (zoneName == null || zoneName.isEmpty()) {
+			throw new IllegalArgumentException("ZoneName can not be null or empty.");
+		}
 		this.zoneName = zoneName;
 	}
 
-	public String getData() {
+	public byte[] getData() {
 		return data;
 	}
 
-	public void setData(String data) {
-		this.data = data;
+	public void setData(byte[] data) {
+		this.data = Objects.requireNonNull(data, "Data can not be null.");
 	}
 }

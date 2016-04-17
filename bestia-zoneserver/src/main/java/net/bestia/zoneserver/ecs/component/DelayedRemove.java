@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.ecs.component;
 
+import java.io.Serializable;
+
 import com.artemis.Component;
 
 /**
@@ -9,8 +11,10 @@ import com.artemis.Component;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class DelayedRemove extends Component {
+public class DelayedRemove extends Component implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	public int removeDelay;
 
 	public DelayedRemove() {

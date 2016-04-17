@@ -1,7 +1,10 @@
 package net.bestia.zoneserver.ecs.component;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.artemis.Component;
 
 import net.bestia.zoneserver.proxy.BestiaEntityProxy;
 import net.bestia.zoneserver.script.InteractCallback;
@@ -12,8 +15,11 @@ import net.bestia.zoneserver.script.InteractCallback;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class ScriptInteract {
+public class ScriptInteract extends Component implements Serializable, InteractCallback {
 
+
+	private static final long serialVersionUID = 1L;
+	
 	private List<InteractCallback> callbacks = new ArrayList<>();
 
 	/**
@@ -33,6 +39,7 @@ public class ScriptInteract {
 		callbacks.add(fn);
 	}
 
+	@Override
 	public void call(BestiaEntityProxy owner, BestiaEntityProxy caller) {
 		callbacks.forEach(x -> {
 			try {

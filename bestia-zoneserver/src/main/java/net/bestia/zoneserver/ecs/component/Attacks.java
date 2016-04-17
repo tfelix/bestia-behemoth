@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.ecs.component;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import com.artemis.Component;
@@ -19,8 +20,10 @@ import com.artemis.Component;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class Attacks extends Component {
+public class Attacks extends Component implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
+
 	private static final int NUM_ATTACKS = 5;
 
 	private final Integer[] attackIds = new Integer[NUM_ATTACKS];
