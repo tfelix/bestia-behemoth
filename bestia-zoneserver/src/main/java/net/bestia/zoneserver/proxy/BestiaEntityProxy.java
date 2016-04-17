@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import com.artemis.ComponentMapper;
 import com.artemis.World;
+import com.artemis.annotations.Wire;
 
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Direction;
@@ -16,6 +17,7 @@ import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 
+@Wire
 public abstract class BestiaEntityProxy {
 
 	protected final int entityID;
@@ -37,6 +39,12 @@ public abstract class BestiaEntityProxy {
 
 	public BestiaEntityProxy(World world, int entityID) {
 		Objects.requireNonNull(world, "World must not be null.");
+		
+		positionMapper = world.getMapper(Position.class);
+		visibleMapper = world.getMapper(Visible.class);
+		bestiaMapper = world.getMapper(Bestia.class);
+		movementMapper = world.getMapper(Movement.class);
+		statusMapper = world.getMapper(net.bestia.zoneserver.ecs.component.StatusPoints.class);
 
 		// Create the entity.
 		this.entityID = entityID;
@@ -47,7 +55,7 @@ public abstract class BestiaEntityProxy {
 		// proxy.
 		location = positionMapper.get(entityID);
 
-		world.inject(this);
+		
 	}
 
 	public abstract StatusPoints getStatusPoints();

@@ -27,7 +27,6 @@ import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.misc.Damage;
 import net.bestia.model.misc.Sprite.InteractionType;
 import net.bestia.model.service.PlayerBestiaService;
-import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Attacks;
@@ -56,8 +55,8 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 
 	private UuidEntityManager uuidManager;
 	private ComponentMapper<Attacks> attacksMapper;
-	private Zoneserver server;
 	private ComponentMapper<net.bestia.zoneserver.ecs.component.PlayerBestia> playerBestiaMapper;
+	@Wire
 	private CommandContext ctx;	
 	private PlayerBestiaSpawnManager playerBestiaSpawnManager;
 	
@@ -199,12 +198,8 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 	 * @param text
 	 */
 	private void sendSystemMessage(String text) {
-		if (server == null) {
-			// When null dont send any messages.
-			return;
-		}
 		final ChatMessage msg = ChatMessage.getSystemMessage(bestia.getOwner(), text);
-		server.sendMessage(msg);
+		ctx.getServer().sendMessage(msg);
 	}
 
 	/**

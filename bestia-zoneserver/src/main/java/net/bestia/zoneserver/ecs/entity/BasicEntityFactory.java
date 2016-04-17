@@ -6,8 +6,10 @@ import com.artemis.ComponentMapper;
 import com.artemis.World;
 import com.artemis.annotations.Wire;
 
+import net.bestia.messages.entity.SpriteType;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
+import net.bestia.zoneserver.ecs.entity.EntityBuilder.EntityType;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 @Wire
@@ -26,7 +28,6 @@ class BasicEntityFactory extends EntityFactory {
 				.add(Position.class)
 				.build(world);
 
-		
 		world.inject(this);
 	}
 
@@ -41,15 +42,27 @@ class BasicEntityFactory extends EntityFactory {
 
 	}
 
+	/**
+	 * Generate a basic entity from the given builder object.
+	 */
 	@Override
 	public void spawn(EntityBuilder builder) {
-		// TODO Auto-generated method stub
+		
+		final int entityId = world.create(archetype);
+		
+		final Visible visible = visibleMapper.get(entityId);
+		
+		visible.sprite = builder.sprite;
+		visible.spriteType = SpriteType.STATIC;
+		
+		final Position position = positionMapper.get(entityId);
+		
+		position.setPos(builder.position.x, builder.position.y);
 		
 	}
 
 	@Override
 	public boolean canSpawn(EntityBuilder builder) {
-		// TODO Ersetzen.
-		return false;
+		return builder.type == EntityType.BASIC;
 	}
 }

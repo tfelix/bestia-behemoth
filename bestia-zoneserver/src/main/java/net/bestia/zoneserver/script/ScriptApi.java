@@ -9,8 +9,10 @@ import com.artemis.World;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Delay;
 import net.bestia.zoneserver.ecs.component.ScriptCallable;
+import net.bestia.zoneserver.ecs.entity.EcsEntityFactory;
 import net.bestia.zoneserver.ecs.entity.EntityBuilder;
 import net.bestia.zoneserver.ecs.entity.EntityBuilder.EntityType;
+import net.bestia.zoneserver.ecs.entity.EntityFactory;
 
 /**
  * This class is a facade which wraps different calls to the ECS system. It is
@@ -24,6 +26,7 @@ public class ScriptApi {
 
 	private World world;
 	private CommandContext ctx;
+	private EntityFactory entityFactory;
 
 	/**
 	 * Setup the entity which calls the callable.
@@ -40,11 +43,12 @@ public class ScriptApi {
 	}
 	
 	public EntityBuilder entity() {
-		return new EntityBuilder(EntityType.BASIC, null);
+		return new EntityBuilder(EntityType.BASIC, entityFactory);
 	}
 
-	public void initWorld(World world) {
+	public void initWorld(World world, EntityFactory entityFactory) {
 		this.world = world;
+		this.entityFactory = entityFactory;
 	}
 
 	public void initContext(CommandContext ctx) {

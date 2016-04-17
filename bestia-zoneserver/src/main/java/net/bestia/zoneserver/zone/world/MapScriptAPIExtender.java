@@ -4,6 +4,7 @@ import com.artemis.World;
 import com.artemis.WorldConfiguration;
 
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.entity.EcsEntityFactory;
 import net.bestia.zoneserver.ecs.system.ScriptCallableSystem;
 import net.bestia.zoneserver.script.ScriptApi;
 import net.bestia.zoneserver.zone.Zone;
@@ -23,7 +24,7 @@ public class MapScriptAPIExtender implements WorldExtend {
 	@Override
 	public void extend(World world, Map map, Zone zone) {
 
-		api.initWorld(world);
+		api.initWorld(world, new EcsEntityFactory(world));
 	}
 
 	@Override

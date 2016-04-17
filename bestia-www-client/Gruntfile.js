@@ -60,6 +60,7 @@ module.exports = function(grunt) {
 	         		'<%= tempDir %>/js/engine/entities/item_entity.js', 
 	         		'<%= tempDir %>/js/engine/entities/sprite_entity.js',
 	         		'<%= tempDir %>/js/engine/entities/multisprite_entity.js',
+	         		'<%= tempDir %>/js/engine/entities/image_entity.js',
 	         		'<%= tempDir %>/js/engine/controller/*.js', 
 	         		'<%= tempDir %>/js/engine/plugins/*.js', 
 	         		'<%= tempDir %>/js/engine/indicator/indicator.js',
