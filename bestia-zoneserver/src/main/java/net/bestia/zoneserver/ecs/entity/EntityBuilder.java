@@ -5,6 +5,7 @@ import java.util.concurrent.Callable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import groovy.lang.Closure;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
@@ -35,6 +36,9 @@ public class EntityBuilder {
 	Vector2 position;
 	EntityType type;
 	String sprite;
+	
+	int tickDelay;
+	Closure<Void> tickCallback;
 
 	public EntityBuilder() {
 		factory = null;
@@ -95,8 +99,9 @@ public class EntityBuilder {
 		return this;
 	}
 	
-	public EntityBuilder setTickCallback(int interval, Callable<Void> fn) {
-		
+	public EntityBuilder setTickCallback(int interval, Closure<Void> fn) {
+		this.tickDelay = interval;
+		this.tickCallback = fn;
 		return this;
 	}
 

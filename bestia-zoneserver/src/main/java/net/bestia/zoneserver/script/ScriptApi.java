@@ -9,7 +9,6 @@ import com.artemis.World;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Delay;
 import net.bestia.zoneserver.ecs.component.ScriptCallable;
-import net.bestia.zoneserver.ecs.entity.EcsEntityFactory;
 import net.bestia.zoneserver.ecs.entity.EntityBuilder;
 import net.bestia.zoneserver.ecs.entity.EntityBuilder.EntityType;
 import net.bestia.zoneserver.ecs.entity.EntityFactory;

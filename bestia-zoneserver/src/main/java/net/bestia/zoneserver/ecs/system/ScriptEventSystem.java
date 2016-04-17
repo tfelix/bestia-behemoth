@@ -25,6 +25,7 @@ import net.bestia.zoneserver.ecs.component.Delay;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Script;
 import net.bestia.zoneserver.proxy.BestiaEntityProxy;
+import net.bestia.zoneserver.script.ScriptApi;
 import net.bestia.zoneserver.script.ScriptBuilder;
 import net.bestia.zoneserver.script.ScriptManager;
 import net.bestia.zoneserver.zone.Zone;
@@ -58,6 +59,9 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 
 	@Wire
 	private CommandContext ctx;
+	
+	@Wire
+	private ScriptApi scriptApi;
 
 	private Archetype eventScriptArch;
 	private EntityTransmuter eventTickedTransmute;
@@ -164,7 +168,8 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 		// Prepare the script.
 		ScriptBuilder sb = new ScriptBuilder();
 		sb.setName(script.script)
-				.setScriptPrefix(net.bestia.zoneserver.script.Script.SCRIPT_PREFIX_MAP);
+				.setScriptPrefix(net.bestia.zoneserver.script.Script.SCRIPT_PREFIX_MAP)
+				.setApi(scriptApi);
 
 		// Now search for new collisions since the last time.
 		newCollisions.stream()

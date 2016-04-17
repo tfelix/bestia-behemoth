@@ -54,6 +54,8 @@ public abstract class BestiaEntityProxy {
 		// Create a placeholder location and proxy pos and location with the loc
 		// proxy.
 		location = positionMapper.get(entityID);
+		
+		bestiaMapper.get(entityID).manager = this;
 
 		
 	}

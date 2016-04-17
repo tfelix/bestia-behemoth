@@ -223,8 +223,9 @@ public class Zoneserver {
 	public void stop() {
 		log.info("Bestia Behemoth Server is stopping...");
 
-		log.info("Unsubscribe from Interserver...");
-		connectionFactory.shutdown();
+		// Can not do this since this will hang.
+		// log.info("Unsubscribe from Interserver...");
+		//connectionFactory.shutdown();
 
 		// Shut down all the msg queues.
 		log.info("Shutting down: command and messaging system...");
@@ -237,6 +238,8 @@ public class Zoneserver {
 
 		// Wait for all threads to cease operation.
 		log.info("Zone: [{}] went down.", name);
+		
+		System.exit(1);
 	}
 
 	/**

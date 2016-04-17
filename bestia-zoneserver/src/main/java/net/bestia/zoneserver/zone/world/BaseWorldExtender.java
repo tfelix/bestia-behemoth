@@ -16,6 +16,7 @@ import net.bestia.zoneserver.ecs.system.DelayedRemoveSystem;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
 import net.bestia.zoneserver.ecs.system.RegenerationSystem;
+import net.bestia.zoneserver.ecs.system.ScriptTickerSystem;
 import net.bestia.zoneserver.ecs.system.VisibleSpawnUpdateSystem;
 import net.bestia.zoneserver.zone.Zone;
 import net.bestia.zoneserver.zone.map.Map;
@@ -51,6 +52,7 @@ public class BaseWorldExtender implements WorldExtend {
 		worldConfig.setSystem(new PlayerManager());
 		worldConfig.setSystem(new TagManager());
 		worldConfig.setSystem(new UuidEntityManager());
+		worldConfig.setSystem(new ScriptTickerSystem());
 		
 		// Prepare for serialization.
 		worldConfig.setSystem(serializationManager);
