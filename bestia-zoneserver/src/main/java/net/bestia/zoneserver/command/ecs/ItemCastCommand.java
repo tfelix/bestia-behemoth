@@ -17,11 +17,13 @@ import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.proxy.InventoryProxy;
 import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 import net.bestia.zoneserver.script.ItemScript;
-import net.bestia.zoneserver.script.MapScriptAPI;
+import net.bestia.zoneserver.script.ScriptApi;
 
 /**
  * This will handle all messages for casting an item onto the map. It will then
  * send confirmation to the client if the cast has been successful.
+ * 
+ * Kann mit Item_Use zusammengelegt werden.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -35,12 +37,11 @@ public class ItemCastCommand extends ECSCommand {
 	private PlayerBestiaSpawnManager playerBestiaManager;
 
 	@Wire
-	private MapScriptAPI mapScriptApi;
+	private ScriptApi mapScriptApi;
 
 	@Override
 	protected void initialize() {
-		// playerBestiaManager =
-		// world.getSystem(PlayerBestiaSpawnManager.class);
+		super.initialize();
 
 		world.inject(this);
 	}
@@ -52,7 +53,6 @@ public class ItemCastCommand extends ECSCommand {
 
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
-		// Cast msg.
 		final InventoryItemCastMessage castMsg = (InventoryItemCastMessage) message;
 
 		final AccountRegistry register = ctx.getAccountRegistry();
@@ -72,41 +72,46 @@ public class ItemCastCommand extends ECSCommand {
 		}
 
 		final Item item = inventory.getPlayerItem(castMsg.getPlayerItemId()).getItem();
-		boolean success = true;
-
-		// Can the item be cast onto the given coordinates (range check?)
-		// Yes: do the casting (execute item script) and notify the user.
-		if (item.getType() != ItemType.CASTABLE) {
+		final ItemScript iScript;
+		
+		if(item.getType() == ItemType.USABLE) {
+			
+			iScript = new ItemScript(item.getItemDbName(), owner, mapScriptApi, inventory);
+			
+		} else if(item.getType() == ItemType.CASTABLE) {
+			if (!isInRange(item, castMsg.getX(), castMsg.getY(), owner)) {
+				LOG.trace("Item not in castrange.");
+				final InventoryItemCastConfirmMessage confirmMsg = new InventoryItemCastConfirmMessage(castMsg, false);
+				ctx.getServer().sendMessage(confirmMsg);
+				return;
+			}
+			
+			iScript = new ItemScript(item.getItemDbName(), owner, mapScriptApi, inventory);
+			
+			
+		} else {
+			// Item can not be used.
 			LOG.trace("Item not castable.");
-			success = false;
-		}
-
-		if (!isInRange(item, castMsg.getX(), castMsg.getY(), owner)) {
-			LOG.trace("Item not in castrange.");
-			success = false;
-		}
-
-		if (!success) {
 			final InventoryItemCastConfirmMessage confirmMsg = new InventoryItemCastConfirmMessage(castMsg, false);
 			ctx.getServer().sendMessage(confirmMsg);
 			return;
 		}
-
-		// TODO Hier ggf. ein anderes Script verwenden bzw checken ob das so
-		// okay it (bezug zur map per binding benötigt?).
-		final ItemScript iScript = new ItemScript(item.getItemDbName(), owner, mapScriptApi, inventory);
-		success = ctx.getScriptManager().execute(iScript);
+		
+		// Use the item.
+		final boolean success = ctx.getScriptManager().execute(iScript);
 
 		if (success) {
 			inventory.removeItem(item.getId(), 1);
 			final InventoryItemCastConfirmMessage confirmMsg = new InventoryItemCastConfirmMessage(castMsg, true);
 			ctx.getServer().sendMessage(confirmMsg);
-			LOG.info("Cast item: {}, accId: {}, x: {}, y: {}", item, accId, castMsg.getX(), castMsg.getY());
+			LOG.info("Cast/Use item: {}, accId: {}, x: {}, y: {}", item, accId, castMsg.getX(), castMsg.getY());
 		} else {
 			final InventoryItemCastConfirmMessage confirmMsg = new InventoryItemCastConfirmMessage(castMsg, false);
 			ctx.getServer().sendMessage(confirmMsg);
-			LOG.info("Could not cast item: {}, accId: {},  x: {}, y: {}", item, accId, castMsg.getX(), castMsg.getY());
+			LOG.info("Could not cast/use item: {}, accId: {},  x: {}, y: {}", item, accId, castMsg.getX(), castMsg.getY());
 		}
+
+	
 	}
 
 	@Override

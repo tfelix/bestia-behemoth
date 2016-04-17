@@ -9,6 +9,8 @@ import com.artemis.World;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Delay;
 import net.bestia.zoneserver.ecs.component.ScriptCallable;
+import net.bestia.zoneserver.ecs.entity.EntityBuilder;
+import net.bestia.zoneserver.ecs.entity.EntityBuilder.EntityType;
 
 /**
  * This class is a facade which wraps different calls to the ECS system. It is
@@ -18,7 +20,7 @@ import net.bestia.zoneserver.ecs.component.ScriptCallable;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MapScriptAPI {
+public class ScriptApi {
 
 	private World world;
 	private CommandContext ctx;
@@ -35,6 +37,10 @@ public class MapScriptAPI {
 		
 		ee.create(Delay.class).setDelay(delay);
 		ee.create(ScriptCallable.class).fn = fn;
+	}
+	
+	public EntityBuilder entity() {
+		return new EntityBuilder(EntityType.BASIC, null);
 	}
 
 	public void initWorld(World world) {
