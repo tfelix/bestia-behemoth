@@ -208,7 +208,7 @@ Bestia.Inventory = function(pubsub, i18n, urlHelper) {
 
 		if (item.type() === 'USABLE') {
 			// Just send the server the message to directly use this item.
-			var msg = new Bestia.Message.InventoryItemUse(item.itemId(), self._selectedBestia.playerBestiaId());
+			var msg = new Bestia.Message.InventoryItemCast(item.itemId(), self._selectedBestia.playerBestiaId());
 			self._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 		} else if (item.type() === 'CASTABLE') {
 			// Item is "castable". Notify the engine about displaying a

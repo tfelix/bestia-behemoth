@@ -151,7 +151,7 @@ Bestia.Message = {
 	InventoryRequest : function() {
 		this.mid = 'inventory.request';
 	},
-
+	
 	/**
 	 * Advises the server to use an item. The response depends on which item was
 	 * used. A simple consumable item will simply trigger its effect and apply
@@ -164,32 +164,15 @@ Bestia.Message = {
 	 * @param {Number}
 	 *            playerBestiaId - The id of the currently selected bestia.
 	 */
-	InventoryItemUse : function(playerItemId, playerBestiaId) {
-		if(playerItemId === undefined) {
-			throw "PlayerItemId can not be undefined.";
-		}
-		if(playerBestiaId === undefined) {
-			throw "PlayerBestiaId can not be undefined.";
-		}
-		
-		this.mid = 'inventory.item.use';
-		this.iid = playerItemId;
-		this.pbid = playerBestiaId;
-	},
-	
-	/**
-	 * Requests the server to cast an item onto the map at the given coordinates.
-	 */
 	InventoryItemCast : function(playerItemId, playerBestiaId, x, y) {
 		if(playerItemId === undefined) {
 			throw "PlayerItemId can not be undefined.";
 		}
-		if(x === undefined || y === undefined) {
-			throw "X and Y can not be undefined.";
-		}
 		if(playerBestiaId === undefined) {
 			throw "PlayerBestiaId can not be undefined.";
 		}
+		x = x || 0;
+		y = y || 0;
 		
 		this.mid = Bestia.MID.INVENTORY_ITEM_CAST;
 		this.piid = playerItemId;
