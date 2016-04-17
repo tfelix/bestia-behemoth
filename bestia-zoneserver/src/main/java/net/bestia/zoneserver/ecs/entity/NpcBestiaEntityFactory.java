@@ -5,7 +5,9 @@ import org.apache.logging.log4j.Logger;
 
 import com.artemis.Archetype;
 import com.artemis.ArchetypeBuilder;
+import com.artemis.ComponentMapper;
 import com.artemis.World;
+import com.artemis.annotations.Wire;
 
 import net.bestia.model.domain.Bestia;
 import net.bestia.zoneserver.ecs.component.AI;
@@ -25,18 +27,18 @@ import net.bestia.zoneserver.zone.shape.Vector2;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class NpcBestiaEntityFactory extends EntityFactory {
+@Wire
+class NpcBestiaEntityFactory extends EntityFactory {
 
 	private static final Logger LOG = LogManager.getLogger(NpcBestiaEntityFactory.class);
 
 	private final Archetype npcBestiaArchetype;
-	private final NpcBestiaMapper mapper;
-	private final String zoneName;
+	
+	@Wire
+	private ComponentMapper<MobGroup> mobGroupMapper;
 
-	public NpcBestiaEntityFactory(String zoneName, World world, NpcBestiaMapper mapper) {
+	public NpcBestiaEntityFactory( World world) {
 		super(world);
-
-		this.zoneName = zoneName;
 		
 		npcBestiaArchetype = new ArchetypeBuilder()
 				.add(Position.class)
@@ -48,8 +50,8 @@ public class NpcBestiaEntityFactory extends EntityFactory {
 				.add(Visible.class)
 				.add(AI.class)
 				.build(world);
-
-		this.mapper = mapper;
+		
+		world.inject(this);
 	}
 
 	public NpcBestiaEntityProxy create(MobSpawn mobSpawn) {
@@ -79,10 +81,9 @@ public class NpcBestiaEntityFactory extends EntityFactory {
 
 		final int entityID = world.create(npcBestiaArchetype);
 
-		final NpcBestiaEntityProxy mobBestia = new NpcBestiaEntityProxy(entityID, bestia, mapper);
-		mobBestia.getLocation().setMapDbName(zoneName);
+		final NpcBestiaEntityProxy mobBestia = new NpcBestiaEntityProxy(world, entityID, bestia);
 		mobBestia.getLocation().setPos(position.x, position.y);
-		mapper.getGroupMapper().get(entityID).groupName = groupName;
+		mobGroupMapper.get(entityID).groupName = groupName;
 
 		LOG.debug("Spawned mob: {}", mobBestia.toString());
 

@@ -4,17 +4,19 @@ import com.artemis.Archetype;
 import com.artemis.ArchetypeBuilder;
 import com.artemis.ComponentMapper;
 import com.artemis.World;
+import com.artemis.annotations.Wire;
 
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
-public class BasicEntityFactory extends EntityFactory {
+@Wire
+class BasicEntityFactory extends EntityFactory {
 
 	private final Archetype archetype;
 
-	private final ComponentMapper<Position> positionMapper;
-	private final ComponentMapper<Visible> visibleMapper;
+	private ComponentMapper<Position> positionMapper;
+	private ComponentMapper<Visible> visibleMapper;
 
 	public BasicEntityFactory(World world) {
 		super(world);
@@ -24,13 +26,8 @@ public class BasicEntityFactory extends EntityFactory {
 				.add(Position.class)
 				.build(world);
 
-		this.positionMapper = world.getMapper(Position.class);
-		this.visibleMapper = world.getMapper(Visible.class);
-
-	}
-
-	public void spawnBasicEntity(Vector2 pos, String sprite) {
-
+		
+		world.inject(this);
 	}
 
 	/**

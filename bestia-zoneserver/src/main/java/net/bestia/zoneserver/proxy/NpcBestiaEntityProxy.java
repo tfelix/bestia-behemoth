@@ -3,37 +3,41 @@ package net.bestia.zoneserver.proxy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.artemis.ComponentMapper;
+import com.artemis.World;
+
 import net.bestia.messages.entity.SpriteType;
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.misc.Sprite.InteractionType;
+import net.bestia.zoneserver.ecs.component.NPCBestia;
 import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.ecs.entity.NpcBestiaMapper;
 
 public class NpcBestiaEntityProxy extends BestiaEntityProxy {
-	
+
 	private static final Logger LOG = LogManager.getLogger(NpcBestiaEntityProxy.class);
 
 	private StatusPoints statusPoints = null;
-	
+
 	private final Bestia bestia;
-	
-	@SuppressWarnings("unused")
-	private final NpcBestiaMapper mappers;
 
-	public NpcBestiaEntityProxy(int entityID, Bestia bestia, NpcBestiaMapper mappers) {
-		super(entityID, mappers);
-		
+	// private ComponentMapper<MobGroup> groupMapper;
+	private ComponentMapper<NPCBestia> npcBestiaMapper;
+
+	public NpcBestiaEntityProxy(World world, int entityID, Bestia bestia) {
+		super(world, entityID);
+
 		this.bestia = bestia;
-		this.mappers = mappers;
 
-		mappers.getBestiaMapper().get(entityID).manager = this;
-		mappers.getNpcBestiaMapper().get(entityID).manager = this;
-		mappers.getStatusMapper().get(entityID).statusPoints = getStatusPoints();
+		world.inject(this);
+
+		bestiaMapper.get(entityID).manager = this;
+		npcBestiaMapper.get(entityID).manager = this;
+		statusMapper.get(entityID).statusPoints = getStatusPoints();
 
 		// Set the sprite name.
-		final Visible visible = mappers.getVisibleMapper().get(entityID);
-		
+		final Visible visible = visibleMapper.get(entityID);
+
 		visible.sprite = bestia.getDatabaseName();
 		visible.interactionType = InteractionType.MOB;
 		visible.spriteType = SpriteType.MOB_ANIM;
@@ -93,7 +97,7 @@ public class NpcBestiaEntityProxy extends BestiaEntityProxy {
 	public int getLevel() {
 		return bestia.getLevel();
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("NpcBestiaEntityProxy[entityID: %d, bestia: %s]", entityID, bestia.toString());

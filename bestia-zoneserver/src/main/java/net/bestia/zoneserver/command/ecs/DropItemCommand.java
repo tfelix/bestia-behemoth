@@ -9,14 +9,16 @@ import net.bestia.model.domain.Item;
 import net.bestia.model.domain.Location;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.entity.ItemEntityFactory;
+import net.bestia.zoneserver.ecs.entity.EcsEntityFactory;
+import net.bestia.zoneserver.ecs.entity.EntityFactory;
+import net.bestia.zoneserver.ecs.entity.ItemEntityBuilder;
 import net.bestia.zoneserver.proxy.InventoryProxy;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 public class DropItemCommand extends ECSCommand {
 	
 	private final Random rand = new Random();
-	private ItemEntityFactory itemCtrl;
+	private EntityFactory entityFactory;
 
 	@Override
 	public String handlesMessageId() {
@@ -27,7 +29,7 @@ public class DropItemCommand extends ECSCommand {
 	protected void initialize() {
 		super.initialize();
 		
-		 itemCtrl = new ItemEntityFactory(world);
+		entityFactory = new EcsEntityFactory(world);
 	}
 
 	@Override
@@ -72,9 +74,16 @@ public class DropItemCommand extends ECSCommand {
 		}
 		
 		final Item item = itemDao.findOne(msg.getItemId());
-
+		
+		// Create the entity description.
+		final ItemEntityBuilder eb = new ItemEntityBuilder();
+		eb.setPosition(loc);
+		eb.setAmount(msg.getAmount());
+		eb.setItemID(item.getId());		
+		//eb.setPlayerItemID(msg.get);
+		
 		// Item was dropped. Now drop it onto the world.
-		itemCtrl.spawnItem(loc, item, msg.getAmount());
+		entityFactory.spawn(eb);
 	}
 
 }

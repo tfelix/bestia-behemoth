@@ -14,7 +14,6 @@ import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.EntitySubscription;
 import com.artemis.annotations.Wire;
-import com.artemis.managers.UuidEntityManager;
 import com.artemis.utils.IntBag;
 
 import net.bestia.messages.AccountMessage;
@@ -23,16 +22,12 @@ import net.bestia.messages.LoginBroadcastMessage;
 import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
-import net.bestia.zoneserver.ecs.component.Attacks;
-import net.bestia.zoneserver.ecs.component.Bestia;
-import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.ecs.entity.PlayerBestiaEntityFactory;
-import net.bestia.zoneserver.ecs.entity.PlayerBestiaMapper;
-import net.bestia.zoneserver.ecs.entity.PlayerBestiaMapper.Builder;
+import net.bestia.zoneserver.ecs.entity.EcsEntityFactory;
+import net.bestia.zoneserver.ecs.entity.EntityFactory;
+import net.bestia.zoneserver.ecs.entity.PlayerEntityBuilder;
 import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.messaging.MessageHandler;
 import net.bestia.zoneserver.messaging.routing.DynamicBestiaIdMessageFilter;
@@ -67,7 +62,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	private ComponentMapper<Position> positionMapper;
 	private ComponentMapper<PlayerBestia> playerBestiaMapper;
 
-	private PlayerBestiaEntityFactory playerBestiaFactory;
+	private EntityFactory entityFactory;
 
 	/**
 	 * This filter used to route information for newly spawned bestias
@@ -101,22 +96,9 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 
 		final MessageRouter router = ctx.getMessageRouter();
 
-		final PlayerBestiaMapper.Builder mapperBuilder = new Builder();
-		mapperBuilder.setAttacksMapper(world.getMapper(Attacks.class));
-		mapperBuilder.setLocator(ctx.getServiceLocator());
-		mapperBuilder.setPositionMapper(positionMapper);
-		mapperBuilder.setServer(ctx.getServer());
-		mapperBuilder.setSpawnManager(this);
-		mapperBuilder.setUuidManager(world.getSystem(UuidEntityManager.class));
-		mapperBuilder.setVisibleMapper(world.getMapper(Visible.class));
-		mapperBuilder.setBestiaMapper(world.getMapper(Bestia.class));
-		mapperBuilder.setMovementMapper(world.getMapper(Movement.class));
-		mapperBuilder.setStatusMapper(world.getMapper(StatusPoints.class));
-		mapperBuilder.setPlayerBestiaMapper(playerBestiaMapper);
 
-		final PlayerBestiaMapper mapper = mapperBuilder.build();
 
-		playerBestiaFactory = new PlayerBestiaEntityFactory(world, mapper, ctx);
+		entityFactory = new EcsEntityFactory(world);
 
 		// This manager needs to know about these two messages to create and
 		// delete entities.
@@ -187,9 +169,10 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	 * @param pb
 	 */
 	public void spawnBestia(net.bestia.model.domain.PlayerBestia pb) {
+		
+		final PlayerEntityBuilder eb = new PlayerEntityBuilder(pb);
 
-		playerBestiaFactory.create(pb);
-
+		entityFactory.spawn(eb);
 	}
 
 	/**

@@ -7,6 +7,7 @@ import com.artemis.Archetype;
 import com.artemis.ArchetypeBuilder;
 import com.artemis.Entity;
 import com.artemis.World;
+import com.artemis.annotations.Wire;
 
 import net.bestia.messages.Message;
 import net.bestia.messages.bestia.BestiaInfoMessage;
@@ -27,36 +28,30 @@ import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class PlayerBestiaEntityFactory extends EntityFactory {
+@Wire
+class PlayerBestiaEntityFactory extends EntityFactory {
 
 	private final static Logger LOG = LogManager.getLogger(PlayerBestiaEntityFactory.class);
 
 	private final Archetype playerBestiaArchetype;
-	private final PlayerBestiaMapper mapper;
-	private final CommandContext ctx;
 
-	public PlayerBestiaEntityFactory(World world, PlayerBestiaMapper mapper, CommandContext ctx) {
+	@Wire
+	private CommandContext ctx;
+
+	public PlayerBestiaEntityFactory(World world) {
 		super(world);
-		
-		if(mapper == null) {
-			throw new IllegalArgumentException("PlayerBestiaMapper can not be null.");
-		}
-		if(ctx == null) {
-			throw new IllegalArgumentException("CommandContext cant not be null.");
-		}
+
+		world.inject(this);
 
 		playerBestiaArchetype = new ArchetypeBuilder()
 				.add(Position.class)
-				//.add(PositionDomainProxy.class)
+				// .add(PositionDomainProxy.class)
 				.add(Attacks.class)
 				.add(net.bestia.zoneserver.ecs.component.Bestia.class)
 				.add(net.bestia.zoneserver.ecs.component.PlayerBestia.class)
 				.add(StatusPoints.class)
 				.add(Visible.class)
 				.build(world);
-
-		this.mapper = mapper;
-		this.ctx = ctx;
 	}
 
 	/**
@@ -68,17 +63,19 @@ public class PlayerBestiaEntityFactory extends EntityFactory {
 	 * @param groupName
 	 * @return
 	 */
-	public PlayerBestiaEntityProxy create(PlayerBestia bestia) {
+	@Override
+	public void spawn(EntityBuilder builder) {
+		final PlayerEntityBuilder playerBuilder = (PlayerEntityBuilder) builder;
 
 		final int entityId = world.create(playerBestiaArchetype);
 		final Entity entity = world.getEntity(entityId);
 
-		final PlayerBestiaEntityProxy pbProxy = new PlayerBestiaEntityProxy(entity, bestia, mapper, ctx);
+		final PlayerBestiaEntityProxy pbProxy = new PlayerBestiaEntityProxy(world, entity, playerBuilder.playerBestia);
 
 		// We need to check the bestia if its the master bestia. It will get
 		// marked as active initially.
-		final PlayerBestia master = bestia.getOwner().getMaster();
-		final boolean isMaster = master.equals(bestia);
+		final PlayerBestia master = playerBuilder.playerBestia.getOwner().getMaster();
+		final boolean isMaster = master.equals(playerBuilder.playerBestia);
 
 		if (isMaster) {
 			// Spawn the master as active bestia.
@@ -87,10 +84,10 @@ public class PlayerBestiaEntityFactory extends EntityFactory {
 			// passieren.
 			pbProxy.setActive(true);
 
-			final InventoryService invService = mapper.getLocator().getBean(InventoryService.class);
-			final InventoryProxy invManager = new InventoryProxy(pbProxy, invService, mapper.getServer());
+			final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
+			final InventoryProxy invManager = new InventoryProxy(pbProxy, invService, ctx.getServer());
 			final Message invListMessage = invManager.getInventoryListMessage();
-			mapper.getServer().sendMessage(invListMessage);
+			ctx.getServer().sendMessage(invListMessage);
 		}
 
 		// Send a update to client so he can pick up the new bestia.
@@ -98,23 +95,14 @@ public class PlayerBestiaEntityFactory extends EntityFactory {
 		infoMsg.setAccountId(pbProxy.getAccountId());
 		infoMsg.setBestia(pbProxy.getPlayerBestia(), pbProxy.getStatusPoints());
 		infoMsg.setIsMaster(isMaster);
-		mapper.getServer().sendMessage(infoMsg);
+		ctx.getServer().sendMessage(infoMsg);
 
 		// Now set all the needed values.
-		LOG.trace("Spawning player bestia: {}.", bestia);
-
-		return pbProxy;
-	}
-
-	@Override
-	public void spawn(EntityBuilder builder) {
-		// TODO Auto-generated method stub
-		
+		LOG.trace("Spawning player bestia: {}.", playerBuilder.playerBestia);
 	}
 
 	@Override
 	public boolean canSpawn(EntityBuilder builder) {
-		// TODO Ersetzen.
-		return false;
+		return builder instanceof PlayerEntityBuilder;
 	}
 }

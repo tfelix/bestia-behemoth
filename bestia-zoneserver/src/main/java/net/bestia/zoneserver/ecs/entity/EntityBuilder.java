@@ -32,12 +32,18 @@ public class EntityBuilder {
 
 	private final EntityFactory factory;
 
-	private Vector2 position;
-	private EntityType type;
+	Vector2 position;
+	EntityType type;
+	String sprite;
 
 	public EntityBuilder() {
 		factory = null;
 		type = EntityType.BASIC;
+	}
+	
+	public EntityBuilder(EntityType type) {
+		this.factory = null;
+		this.type = type;
 	}
 
 	public EntityBuilder(EntityType type, EntityFactory factory) {
@@ -67,11 +73,18 @@ public class EntityBuilder {
 	 *            Name of the sprite to use.
 	 */
 	public EntityBuilder setSprite(String name) {
+		this.sprite = name;
 		return this;
 	}
 	
 	public EntityBuilder setPosition(int x, int y) {
 		position = new Vector2(x, y);
+		LOG.trace("Position was set: {}", position.toString());
+		return this;
+	}
+	
+	public EntityBuilder setPosition(Vector2 pos) {
+		position = pos;
 		LOG.trace("Position was set: {}", position.toString());
 		return this;
 	}

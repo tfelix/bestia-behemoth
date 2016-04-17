@@ -2,19 +2,29 @@ package net.bestia.zoneserver.proxy;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
+import com.artemis.ComponentMapper;
+import com.artemis.World;
 
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Movement;
-import net.bestia.zoneserver.ecs.entity.BestiaMapper;
+import net.bestia.zoneserver.ecs.component.Position;
+import net.bestia.zoneserver.ecs.component.Visible;
 
 public abstract class BestiaEntityProxy {
 
 	protected final int entityID;
 
-	private final BestiaMapper mappers;
+	protected ComponentMapper<Position> positionMapper;
+	protected ComponentMapper<Visible> visibleMapper;
+	protected ComponentMapper<Bestia> bestiaMapper;
+	protected ComponentMapper<Movement> movementMapper;
+	protected ComponentMapper<net.bestia.zoneserver.ecs.component.StatusPoints> statusMapper;
 
 	private Map<Integer, Long> attackUsageTimer = new HashMap<>();
 	private Direction facing;
@@ -25,18 +35,19 @@ public abstract class BestiaEntityProxy {
 	 */
 	private float walkspeed = 1.0f;
 
-	public BestiaEntityProxy(int entityID, BestiaMapper mappers) {
+	public BestiaEntityProxy(World world, int entityID) {
+		Objects.requireNonNull(world, "World must not be null.");
 
 		// Create the entity.
 		this.entityID = entityID;
-
-		this.mappers = mappers;
 
 		this.setFacing(Direction.SOUTH);
 
 		// Create a placeholder location and proxy pos and location with the loc
 		// proxy.
-		location = mappers.getPositionMapper().get(entityID);
+		location = positionMapper.get(entityID);
+
+		world.inject(this);
 	}
 
 	public abstract StatusPoints getStatusPoints();
@@ -134,19 +145,19 @@ public abstract class BestiaEntityProxy {
 	 * to re-evaluate the current walkspeed.
 	 */
 	protected void calculateWalkspeed() {
-		final StatusPoints sp = getStatusPoints();		
-		final int spd = sp.getSpd();	
+		final StatusPoints sp = getStatusPoints();
+		final int spd = sp.getSpd();
 		double ws = Math.sqrt(spd / 2.0) / 10;
-		if(ws > 1.2) {
+		if (ws > 1.2) {
 			ws = 1.2;
 		}
-		
-		setWalkspeed((float)(1.0 + ws));
+
+		setWalkspeed((float) (1.0 + ws));
 	}
 
 	protected void setWalkspeed(float walkspeed) {
 		this.walkspeed = walkspeed;
-		final Movement m = mappers.getMovementMapper().getSafe(entityID);
+		final Movement m = movementMapper.getSafe(entityID);
 		if (m != null) {
 			m.setWalkspeed(walkspeed);
 		}

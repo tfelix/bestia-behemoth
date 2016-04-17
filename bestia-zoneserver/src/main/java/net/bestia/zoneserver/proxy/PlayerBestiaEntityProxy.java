@@ -10,12 +10,14 @@ import org.apache.logging.log4j.Logger;
 
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
+import com.artemis.World;
+import com.artemis.annotations.Wire;
+import com.artemis.managers.UuidEntityManager;
 
 import net.bestia.messages.ChatMessage;
 import net.bestia.messages.entity.EntityDamageMessage;
 import net.bestia.messages.entity.SpriteType;
 import net.bestia.model.I18n;
-import net.bestia.model.ServiceLocator;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Location;
@@ -31,7 +33,6 @@ import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.ecs.entity.PlayerBestiaMapper;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 
 /**
@@ -41,6 +42,7 @@ import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@Wire
 public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 	private final static Logger LOG = LogManager.getLogger(PlayerBestiaEntityProxy.class);
 	private final static int MAX_LEVEL = 40;
@@ -52,33 +54,30 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 
 	private final Entity entity;
 
-	private final ComponentMapper<Attacks> attacksMapper;
-	private final PlayerBestiaSpawnManager playerBestiaSpawnManager;
+	private UuidEntityManager uuidManager;
+	private ComponentMapper<Attacks> attacksMapper;
+	private Zoneserver server;
+	private ComponentMapper<net.bestia.zoneserver.ecs.component.PlayerBestia> playerBestiaMapper;
+	private CommandContext ctx;	
+	private PlayerBestiaSpawnManager playerBestiaSpawnManager;
+	
 	private final String entityUUID;
-	private final CommandContext ctx;
 
 	private Direction headFacing;
 
-	private final ServiceLocator serviceLocator;
-	private final Zoneserver server;
-
-	public PlayerBestiaEntityProxy(Entity entity,
-			PlayerBestia playerBestia,
-			PlayerBestiaMapper mapper, 
-			CommandContext ctx) {
-		super(entity.getId(), mapper);
+	public PlayerBestiaEntityProxy(
+			World world,
+			Entity entity,
+			PlayerBestia playerBestia) {
+		super(world, entity.getId());
+		
+		world.inject(this);
 
 		this.entity = entity;
-		this.ctx = ctx;
 
 		// Get all the mapper.
-		this.attacksMapper = mapper.getAttacksMapper();
-		this.playerBestiaSpawnManager = mapper.getPlayerBestiaSpawnManager();
-		this.entityUUID = mapper.getUuidManager().getUuid(entity).toString();
-
-		this.server = mapper.getServer();
+		this.entityUUID = uuidManager.getUuid(entity).toString();
 		this.bestia = playerBestia;
-		this.serviceLocator = mapper.getLocator();
 		this.headFacing = Direction.SOUTH;
 
 		// Shortcut to the acc. language.
@@ -86,17 +85,17 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 		this.statusPoints = new StatusPoints();
 
 		// Setup all the references.
-		mapper.getStatusMapper().get(entityID).statusPoints = this.statusPoints;
-		mapper.getBestiaMapper().get(entityID).manager = this;
-		mapper.getPlayerBestiaMapper().get(entityID).playerBestia = this;
+		statusMapper.get(entityID).statusPoints = this.statusPoints;
+		//bestiaMapper.get(entityID).manager = this;
+		playerBestiaMapper.get(entityID).playerBestia = this;
 
-		final Visible visible = mapper.getVisibleMapper().get(entityID);
+		final Visible visible = visibleMapper.get(entityID);
 		visible.sprite = playerBestia.getOrigin().getSprite();
 		visible.interactionType = InteractionType.GENERIC;
 		visible.spriteType = SpriteType.PLAYER_ANIM;
 
 		// Set the current position.
-		final Position ecsPos = mapper.getPositionMapper().get(entityID);
+		final Position ecsPos = positionMapper.get(entityID);
 		ecsPos.setLocationReference(bestia.getCurrentPosition());
 
 		calculateStatusPoints();
@@ -158,7 +157,7 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 		try {
 			// TODO das ist sehr ungeschickt da hier die DB schon beschrieben
 			// werden muss. Und beim persistieren noch mal.
-			final PlayerBestiaService service = serviceLocator.getBean(PlayerBestiaService.class);
+			final PlayerBestiaService service = ctx.getServiceLocator().getBean(PlayerBestiaService.class);
 			service.saveAttacks(bestia.getId(), atkIds);
 
 			final Attacks attacksComp = attacksMapper.get(entityID);
@@ -316,7 +315,7 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 	public void setItems(List<Integer> itemIds) {
 
 		try {
-			final PlayerBestiaService service = serviceLocator.getBean(PlayerBestiaService.class);
+			final PlayerBestiaService service = ctx.getServiceLocator().getBean(PlayerBestiaService.class);
 			final PlayerItem[] itemShortcuts = service.saveItemShortcuts(bestia.getId(), itemIds);
 
 			bestia.setItem1(itemShortcuts[0]);

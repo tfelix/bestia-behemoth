@@ -55,6 +55,7 @@ public class BaseWorldExtender implements WorldExtend {
 		// Prepare for serialization.
 		worldConfig.setSystem(serializationManager);
 		
+		
 		// TODO Temporär abgeschaltet.
 		//final ZoneEntityDao mapEntityDao = ctx.getServiceLocator().getBean(ZoneEntityDao.class);
 		//worldConfig.setSystem(new WorldPersistenceManager(map.getMapDbName(), mapEntityDao));
