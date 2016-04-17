@@ -44,6 +44,9 @@ public class Attack implements Serializable {
 	@Column(name = "atkRange")
 	private int range;
 
+	@JsonProperty("los")
+	private boolean lineOfSight;
+
 	@Enumerated(EnumType.STRING)
 	@JsonProperty("bs")
 	private AttackBasedStatus basedStatus;
@@ -53,7 +56,7 @@ public class Attack implements Serializable {
 
 	@JsonProperty("cd")
 	private int cooldown;
-	
+
 	@JsonProperty("i")
 	private String indicator;
 
@@ -110,6 +113,16 @@ public class Attack implements Serializable {
 	}
 
 	/**
+	 * Returns if the attack requires a line of sight.
+	 * 
+	 * @return TRUE of the attack requires a line of sight to the enemy. FALSE
+	 *         otherwise.
+	 */
+	public boolean getLineOfSight() {
+		return lineOfSight;
+	}
+
+	/**
 	 * @param manaCost
 	 *            the manaCost to set
 	 */
@@ -162,7 +175,7 @@ public class Attack implements Serializable {
 	public Integer getId() {
 		return id;
 	}
-	
+
 	public String getIndicator() {
 		return indicator;
 	}

@@ -26,6 +26,9 @@ public class AttackUseMessage extends InputMessage {
 	
 	private int x;
 	private int y;
+	
+	@JsonProperty("tid")
+	private String targetEntityId;
 
 	public int getAttackId() {
 		return attackId;
@@ -57,6 +60,14 @@ public class AttackUseMessage extends InputMessage {
 
 	public void setY(int y) {
 		this.y = y;
+	}
+	
+	public String getTargetEntityId() {
+		return targetEntityId;
+	}
+	
+	public void setTargetEntityId(String targetEntityId) {
+		this.targetEntityId = targetEntityId;
 	}
 
 	@Override
