@@ -432,7 +432,7 @@ Bestia.Inventory.prototype._handleUpdate = function(_, data) {
 				}
 			}
 		}
-	});
+	}, this);
 
 	// Bulk translate all new items.
 	if (newItems.length > 0) {
