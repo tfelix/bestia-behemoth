@@ -1,32 +1,53 @@
 package net.bestia.zoneserver.script;
 
-import java.io.File;
+import java.util.Objects;
 
 import javax.script.Bindings;
 import javax.script.CompiledScript;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public abstract class Script {
+public class Script {
 
 	private final static Logger LOG = LogManager.getLogger(Script.class);
 
+	public static final String SCRIPT_PREFIX_ITEM = "item.";
+	public static final String SCRIPT_PREFIX_ATTACK = "attack.";
+	public static final String SCRIPT_PREFIX_MAP = "map.";
+
 	private final String name;
+	private final String prefix;
+	
 	private final Bindings bindings = new SimpleBindings();
 
-	public Script() {
-		name = "STD-CTOR";
-	}
+	/**
+	 * Creates a new script with the bindings defined by the script builder.
+	 * 
+	 * @param scriptBuilder
+	 */
+	Script(ScriptBuilder builder) {
 
-	public Script(String name) {
-		if (name == null || name.isEmpty()) {
+		name = builder.name;	
+		if(name == null || name.isEmpty()) {
 			throw new IllegalArgumentException("Name can not be null or empty.");
 		}
-		this.name = name;
+		
+		prefix = builder.scriptPrefix;
+		
+		addBinding("api", Objects.requireNonNull(builder.api, "Script API can not be null."));
+		
+		addBinding("targetX", builder.x);
+		addBinding("targetY", builder.y);
+		addBinding("targetEntity", builder.target);
+		
+		addBinding("owner", builder.owner);
+		addBinding("inventory", builder.inventory);
+		
+		addBinding("scriptName", name);
+
 	}
 
 	public String getName() {
@@ -42,41 +63,30 @@ public abstract class Script {
 	 * @param obj
 	 *            Data to bind to this name.
 	 */
-	protected void addBinding(String name, Object obj) {
+	private void addBinding(String name, Object obj) {
 		bindings.put(name, obj);
 	}
 
-	/**
-	 * Returns the temporary bindings of the script context to be executed.
-	 * 
-	 * @return The temporary script bindings.
-	 */
-	public Bindings getBindings() {
-		return bindings;
-	}
-
-	boolean execute(Bindings bindings, CompiledScript compScript) {
+	boolean execute(Bindings externalBindings, CompiledScript compScript) {
 		try {
+			
+			// Combine custom and std. bindings.
+			bindings.putAll(externalBindings);			
 			compScript.eval(bindings);
+			
 		} catch (ScriptException e) {
 			LOG.error("Could not execute script: {}", getName(), e);
 			return false;
 		}
 		return true;
 	}
-	
-	/**
-	 * 
-	 * @return
-	 */
-	protected abstract String getScriptPreKey();
-	
-	public String getScriptKey() {
-		return String.format("%s%s", getScriptPreKey(), getName());
+
+	@Override
+	public String toString() {
+		return String.format("Script[name: %s]", getName());
 	}
 
-	public String getScriptKey(File scriptFile) {
-		final String name = FilenameUtils.getBaseName(scriptFile.getName());
-		return String.format("%s%s", getScriptPreKey(), name);
+	public String getPrefix() {
+		return prefix;
 	}
 }

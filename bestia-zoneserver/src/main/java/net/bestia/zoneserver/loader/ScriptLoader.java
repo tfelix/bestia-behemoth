@@ -15,14 +15,12 @@ import java.util.concurrent.Future;
 
 import javax.script.CompiledScript;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.script.AttackScript;
-import net.bestia.zoneserver.script.ItemScript;
-import net.bestia.zoneserver.script.MapScript;
 import net.bestia.zoneserver.script.Script;
 import net.bestia.zoneserver.script.ScriptCompiler;
 import net.bestia.zoneserver.script.ScriptManager;
@@ -54,7 +52,7 @@ public class ScriptLoader implements Loader {
 	private class ScriptWorker implements Callable<Map<String, CompiledScript>> {
 
 		private final File scriptFolder;
-		private final Script keyGenerator;
+		private final String scriptPrefix;
 
 		/**
 		 * Ctor.
@@ -64,16 +62,16 @@ public class ScriptLoader implements Loader {
 		 * @param key
 		 *            The script key (e.g. item) to save them.
 		 */
-		public ScriptWorker(Script keyGenerator, File scriptFolder) {
-			if(keyGenerator == null) {
-				throw new IllegalArgumentException("KeyGenerator can not be null.");
+		public ScriptWorker(String prefix, File scriptFolder) {
+			if(prefix == null || prefix.isEmpty()) {
+				throw new IllegalArgumentException("Prefix can not be null or empty.");
 			}
 			if(scriptFolder == null || !scriptFolder.exists()) {
 				throw new IllegalArgumentException("Script folder is null or does not exist.");
 			}
 
 			this.scriptFolder = scriptFolder;
-			this.keyGenerator = keyGenerator;
+			this.scriptPrefix = prefix;
 		}
 
 		@Override
@@ -82,9 +80,9 @@ public class ScriptLoader implements Loader {
 			final ScriptCompiler cache = new ScriptCompiler();
 
 			log.info("Loading scripts: {}", scriptFolder.getCanonicalPath());
-
+			
 			for (File file : scriptFolder.listFiles(File::isFile)) {
-				final String scriptKey = keyGenerator.getScriptKey(file);
+				final String scriptKey = scriptPrefix + FilenameUtils.getBaseName(file.getName());
 				cache.load(scriptKey, file);
 			}
 
@@ -159,13 +157,13 @@ public class ScriptLoader implements Loader {
 	 */
 	private void buildScriptFolder(List<Callable<Map<String, CompiledScript>>> tasks) {
 
-		tasks.add(new ScriptWorker(new ItemScript(), Paths.get(baseDir.getAbsolutePath(),"script", "item").toFile()));
-		tasks.add(new ScriptWorker(new AttackScript(), Paths.get(baseDir.getAbsolutePath(),"script", "attack").toFile()));
+		tasks.add(new ScriptWorker(Script.SCRIPT_PREFIX_ITEM, Paths.get(baseDir.getAbsolutePath(),"script", "item").toFile()));
+		tasks.add(new ScriptWorker(Script.SCRIPT_PREFIX_ATTACK, Paths.get(baseDir.getAbsolutePath(),"script", "attack").toFile()));
 
-		// The maps are a bit trickier. Depending on the responsible zones.
+		// The maps are a bit trickier. Load scripts depending on the responsible zones.
 		for (String zone : zones) {
 			final File scriptFolder = Paths.get(baseDir.getAbsolutePath(),"script", "map", zone).toFile();		
-			tasks.add(new ScriptWorker(new MapScript(), scriptFolder));
+			tasks.add(new ScriptWorker(Script.SCRIPT_PREFIX_MAP, scriptFolder));
 		}
 	}
 }

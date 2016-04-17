@@ -16,8 +16,9 @@ import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.proxy.InventoryProxy;
 import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
-import net.bestia.zoneserver.script.ItemScript;
+import net.bestia.zoneserver.script.Script;
 import net.bestia.zoneserver.script.ScriptApi;
+import net.bestia.zoneserver.script.ScriptBuilder;
 
 /**
  * This will handle all messages for casting an item onto the map. It will then
@@ -72,33 +73,36 @@ public class ItemCastCommand extends ECSCommand {
 		}
 
 		final Item item = inventory.getPlayerItem(castMsg.getPlayerItemId()).getItem();
-		final ItemScript iScript;
-		
-		if(item.getType() == ItemType.USABLE) {
-			
-			iScript = new ItemScript(item.getItemDbName(), owner, mapScriptApi, inventory);
-			
-		} else if(item.getType() == ItemType.CASTABLE) {
-			if (!isInRange(item, castMsg.getX(), castMsg.getY(), owner)) {
-				LOG.trace("Item not in castrange.");
-				final InventoryItemCastConfirmMessage confirmMsg = new InventoryItemCastConfirmMessage(castMsg, false);
-				ctx.getServer().sendMessage(confirmMsg);
-				return;
-			}
-			
-			iScript = new ItemScript(item.getItemDbName(), owner, mapScriptApi, inventory);
-			
-			
-		} else {
+
+		if (item.getType() != ItemType.CASTABLE && item.getType() != ItemType.USABLE) {
 			// Item can not be used.
 			LOG.trace("Item not castable.");
 			final InventoryItemCastConfirmMessage confirmMsg = new InventoryItemCastConfirmMessage(castMsg, false);
 			ctx.getServer().sendMessage(confirmMsg);
 			return;
 		}
-		
+
+		if (item.getType() == ItemType.CASTABLE && !isInRange(item, castMsg.getX(), castMsg.getY(), owner)) {
+			// Target not in range.
+			LOG.trace("Item not in castrange.");
+			final InventoryItemCastConfirmMessage confirmMsg = new InventoryItemCastConfirmMessage(castMsg, false);
+			ctx.getServer().sendMessage(confirmMsg);
+			return;
+		}
+
+		// Prepare the script.
+		final ScriptBuilder scriptBuilder = new ScriptBuilder();
+		scriptBuilder.setApi(mapScriptApi)
+				.setName(item.getItemDbName())
+				.setInventory(inventory)
+				.setOwnerEntity(getPlayerBestiaProxy())
+				.setTargetCoordinates(castMsg.getX(), castMsg.getY())
+				.setTargetEntity(null)
+				.setScriptPrefix(Script.SCRIPT_PREFIX_ITEM);
+
 		// Use the item.
-		final boolean success = ctx.getScriptManager().execute(iScript);
+		final Script script = scriptBuilder.build();
+		final boolean success = ctx.getScriptManager().execute(script);
 
 		if (success) {
 			inventory.removeItem(item.getId(), 1);
@@ -108,10 +112,9 @@ public class ItemCastCommand extends ECSCommand {
 		} else {
 			final InventoryItemCastConfirmMessage confirmMsg = new InventoryItemCastConfirmMessage(castMsg, false);
 			ctx.getServer().sendMessage(confirmMsg);
-			LOG.info("Could not cast/use item: {}, accId: {},  x: {}, y: {}", item, accId, castMsg.getX(), castMsg.getY());
+			LOG.info("Could not cast/use item: {}, accId: {},  x: {}, y: {}", item, accId, castMsg.getX(),
+					castMsg.getY());
 		}
-
-	
 	}
 
 	@Override

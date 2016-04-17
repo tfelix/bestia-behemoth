@@ -74,17 +74,6 @@ public class ScriptManager {
 		cachedScripts.putAll(newCachedScripts);
 	}
 
-	/**
-	 * Executes a script with the given parameters.
-	 * 
-	 * @param script
-	 *            Script to be executed.
-	 * @return TRUE if the script was successfully executed. FALSE if an error
-	 *         had occurred.
-	 */
-	public boolean execute(Script script) {
-		return execute(script, null);
-	}
 
 	/**
 	 * Executes a script with the given parameters.
@@ -97,9 +86,9 @@ public class ScriptManager {
 	 * @return TRUE if the script was successfully executed. FALSE if an error
 	 *         had occurred.
 	 */
-	public boolean execute(Script script, Bindings localBindings) {
+	public boolean execute(Script script) {
 		// get the right script from the cache.
-		final String scriptKey = script.getScriptKey();
+		final String scriptKey = script.getPrefix() + script.getName();
 
 		// Probably was not loaded.
 		if (!cachedScripts.containsKey(scriptKey)) {
@@ -109,17 +98,9 @@ public class ScriptManager {
 
 		final CompiledScript compScript = cachedScripts.get(scriptKey);
 
-		// Combine custom and std. bindings.
-		final Bindings customBindings = script.getBindings();
-		customBindings.putAll(bindings);
-		
-		if(localBindings != null) {
-			customBindings.putAll(localBindings);
-		}
-
 		// Kinda do a double dispatch in order to customfy script execution if
 		// needed.
-		return script.execute(customBindings, compScript);
+		return script.execute(bindings, compScript);
 	}
 
 }

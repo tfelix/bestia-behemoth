@@ -1,3 +1,20 @@
-// Give the user 10k EXP.
+/**
+ DESC: Spawn a single attackable stone to the world.
+ */
+ 
+ inventory
+ 
+ api.entity()
+	.setSprite('emperium')
+	.setPosition(targetX, targetY)
+	.setHp(100)
+	.setTickCallback(5000, {})
+	.spawn();
 
-target.addExp(10000);
+/*	
+api.mob()
+	.setSprite('poring')
+	.setPosition(targetX, targetY)
+	.setHp(100)
+	.setTickCallback(5000, {})
+	*/

@@ -36,7 +36,7 @@ Bestia.Engine.Indicator.ItemCast.prototype._onClick = function(pointer) {
 	this._manager.ctx.pubsub.publish(Bestia.Signal.INVENTORY_PERFORM_CAST, {item: this._item, cords: pointerCords});
 
 	// Forfeit control.
-	this._manager.showStandardIndicator();
+	this._manager.showDefault();
 };
 
 Bestia.Engine.Indicator.ItemCast.prototype._onCastItem = function(_, item) {

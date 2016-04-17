@@ -7,8 +7,9 @@ import com.artemis.systems.IteratingSystem;
 
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.GlobalScript;
-import net.bestia.zoneserver.script.MapScript;
-import net.bestia.zoneserver.script.MapScriptAPI;
+import net.bestia.zoneserver.script.Script;
+import net.bestia.zoneserver.script.ScriptApi;
+import net.bestia.zoneserver.script.ScriptBuilder;
 import net.bestia.zoneserver.zone.Zone;
 
 /**
@@ -24,7 +25,7 @@ public class GlobalMapScriptSystem extends IteratingSystem {
 	private ComponentMapper<GlobalScript> scriptMapper;
 
 	@Wire
-	private MapScriptAPI mapScriptApi;
+	private ScriptApi mapScriptApi;
 
 	@Wire
 	private CommandContext ctx;
@@ -41,9 +42,13 @@ public class GlobalMapScriptSystem extends IteratingSystem {
 	protected void process(int entityId) {
 		final String scriptName = scriptMapper.get(entityId).globalScriptName;
 
-		final MapScript ms = new MapScript(zone.getName(), scriptName, mapScriptApi);
+		final ScriptBuilder sb = new ScriptBuilder();
+		final Script script = sb.setName(scriptName)
+				.setApi(mapScriptApi)
+				.setScriptPrefix(Script.SCRIPT_PREFIX_MAP)
+				.build();
 
-		ctx.getScriptManager().execute(ms);
+		ctx.getScriptManager().execute(script);
 
 		// Remove the entity.
 		world.delete(entityId);
