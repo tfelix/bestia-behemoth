@@ -79,8 +79,6 @@ class BasicEntityFactory extends EntityFactory {
 		visible.sprite = builder.sprite;
 		visible.spriteType = SpriteType.STATIC;
 		
-		final UUID uuid = uuidManager.getUuid(world.getEntity(entityId));
-		
 		EntityProxy prox = new EntityProxy(world, entityId);
 		
 		final Position position = positionMapper.get(entityId);	
