@@ -4,10 +4,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.messages.ChatMessage;
-import net.bestia.messages.ChatMessage.Mode;
 import net.bestia.messages.Message;
+import net.bestia.messages.MessageIdDecorator;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.messaging.preprocess.ChatMessagePreprocessor;
 
 /**
  * Processes inter-server chat commands like party or guild chats.
@@ -15,24 +16,21 @@ import net.bestia.zoneserver.command.CommandContext;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * 
  */
-public class GuildPartyChatCommand extends Command {
+public class ServerChatCommand extends Command {
 
-	private static final Logger log = LogManager.getLogger(GuildPartyChatCommand.class);
+	private static final Logger log = LogManager.getLogger(ServerChatCommand.class);
 
 	@Override
 	public void execute(Message message, CommandContext ctx) {
-		final ChatMessage m = (ChatMessage) message;
+		@SuppressWarnings("unchecked")
+		final ChatMessage m = ((MessageIdDecorator<ChatMessage>) message).getMessage();
 
-		// We are only interested in guild or party chats (global chats). The
-		// other chat modes must be handled by the ECS.
-		if (m.getChatMode() != Mode.GUILD && m.getChatMode() != Mode.PARTY) {
-			return;
-		}
 
 		// Check chat type.
 		switch (m.getChatMode()) {
 		case PARTY:
 		case GUILD:
+		case WHISPER:
 			// not supported atm.
 			log.warn("Guild or Party msg not supported atm.");
 			ChatMessage msg = ChatMessage.getEchoRawMessage(m.getAccountId(),
@@ -54,7 +52,7 @@ public class GuildPartyChatCommand extends Command {
 
 	@Override
 	public String handlesMessageId() {
-		return ChatMessage.MESSAGE_ID;
+		return ChatMessagePreprocessor.CHAT_MSG_ID_SERVER;
 	}
 
 }
