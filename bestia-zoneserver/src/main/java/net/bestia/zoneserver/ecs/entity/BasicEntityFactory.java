@@ -1,7 +1,5 @@
 package net.bestia.zoneserver.ecs.entity;
 
-import java.util.UUID;
-
 import com.artemis.Archetype;
 import com.artemis.ArchetypeBuilder;
 import com.artemis.ComponentMapper;

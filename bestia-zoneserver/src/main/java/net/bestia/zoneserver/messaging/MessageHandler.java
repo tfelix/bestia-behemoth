@@ -4,7 +4,9 @@ import net.bestia.messages.Message;
 
 /**
  * The MessageConsumer works with bestia {@link Message}s. It will take messages
- * and do something with them.
+ * and do something with them. Usually the message handler should have their own
+ * message queue in order to not cloque up the messaging system. There might be
+ * exceptions to this rule.
  * 
  * @author Thomas Felix <thomas.felix.de>
  *

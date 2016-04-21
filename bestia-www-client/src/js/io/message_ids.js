@@ -7,6 +7,8 @@ Bestia.MID = {
 	ENTITY_POSITION: 'entity.position',
 	ENTITY_MOVE: 'entity.move',
 	
+	ATTACK_LIST_RESPONSE: 'attack.list.response',
+	
 	
 	UI_DIALOG : 'ui.dialog',
 	

@@ -9,6 +9,8 @@ Bestia.Signal = {
 	 * Emitted when the system tries to authenticate.
 	 */
 	AUTH : 'system.auth',
+	
+	I18N_LANG_CHANGED : 'i18n.lang',
 
 	/**
 	 * Emitted when the server does not authenticate or auth data is not

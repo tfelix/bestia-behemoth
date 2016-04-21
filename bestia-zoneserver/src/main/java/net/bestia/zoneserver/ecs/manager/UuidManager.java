@@ -7,10 +7,7 @@ import java.util.UUID;
 import com.artemis.Aspect;
 import com.artemis.BaseEntitySystem;
 import com.artemis.Entity;
-import com.artemis.EntitySubscription;
-import com.artemis.EntitySubscription.SubscriptionListener;
 import com.artemis.utils.Bag;
-import com.artemis.utils.IntBag;
 
 /**
  * Own implementation of UuidManager since the native manager does get called

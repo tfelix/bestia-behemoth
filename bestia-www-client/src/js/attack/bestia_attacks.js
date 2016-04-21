@@ -109,65 +109,6 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 	this._selectedBestia = null;
 
 	/**
-	 * Handles newly arriving list of attacks. It will check if we have a
-	 * completly translated list of attacks for the list. If so it will simply
-	 * display it. If not it will fetch the remaining attack translations and
-	 * wait for the async handle to return.
-	 */
-	var updateHandle = function(_, data) {
-
-		self.attacks.removeAll();
-
-		var attackTranslationList = [];
-
-		data.atks.forEach(function(val) {
-			var attack = new Bestia.BestiaAttack(val);
-			self.attacks.push(attack);
-			attackTranslationList.push(attack);
-		});
-		self.isLoaded(true);
-
-		self._translateAttacks(attackTranslationList);
-	};
-
-	pubsub.subscribe('attack.list.response', updateHandle);
-
-	/**
-	 * Resets the current list if for example a new bestia was selected or the
-	 * language was set.
-	 */
-	var invalidateListHandle = function(_, selectedBestia) {
-		self.isLoaded(false);
-		self.attacks.removeAll();
-
-		// Set reference to selected bestia.
-		self._selectedBestia = selectedBestia;
-
-		// Prepare the attacks for translation.
-		var translateAtks = [];
-		translateAtks.push(selectedBestia.attack1());
-		translateAtks.push(selectedBestia.attack2());
-		translateAtks.push(selectedBestia.attack3());
-		translateAtks.push(selectedBestia.attack4());
-		translateAtks.push(selectedBestia.attack5());
-
-		translateAtks = translateAtks.filter(function(x) {
-			return x !== null;
-		});
-		self._translateAttacks(translateAtks);
-
-		// Reset the attack slots to the attacks of the bestia.
-		self.attackSlot1(selectedBestia.attack1());
-		self.attackSlot2(selectedBestia.attack2());
-		self.attackSlot3(selectedBestia.attack3());
-		self.attackSlot4(selectedBestia.attack4());
-		self.attackSlot5(selectedBestia.attack5());
-	};
-
-	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, invalidateListHandle);
-	pubsub.subscribe('i18n.lang', invalidateListHandle);
-
-	/**
 	 * Selects the given attack.
 	 * 
 	 * @param attack
@@ -247,6 +188,42 @@ Bestia.BestiaAttacks = function(pubsub, i18n) {
 		}
 		self.saveAttacks();
 	};
+	
+	pubsub.subscribe(Bestia.MID.ATTACK_LIST_RESPONSE, this._updateHandle.bind(this));
+	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, this._invalidateListHandle.bind(this));
+	pubsub.subscribe(Bestia.Signal.I18N_LANG_CHANGED, this._invalidateListHandle.bind(this));
+};
+
+/**
+ * Resets the current list if for example a new bestia was selected or the
+ * language was set.
+ */
+Bestia.BestiaAttacks.prototype._invalidateListHandle = function(_, selectedBestia) {
+	this.isLoaded(false);
+	this.attacks.removeAll();
+
+	// Set reference to selected bestia.
+	this._selectedBestia = selectedBestia;
+
+	// Prepare the attacks for translation.
+	var translateAtks = [];
+	translateAtks.push(selectedBestia.attack1());
+	translateAtks.push(selectedBestia.attack2());
+	translateAtks.push(selectedBestia.attack3());
+	translateAtks.push(selectedBestia.attack4());
+	translateAtks.push(selectedBestia.attack5());
+
+	translateAtks = translateAtks.filter(function(x) {
+		return x !== null;
+	});
+	this._translateAttacks(translateAtks);
+
+	// Reset the attack slots to the attacks of the bestia.
+	this.attackSlot1(selectedBestia.attack1());
+	this.attackSlot2(selectedBestia.attack2());
+	this.attackSlot3(selectedBestia.attack3());
+	this.attackSlot4(selectedBestia.attack4());
+	this.attackSlot5(selectedBestia.attack5());
 };
 
 /**
@@ -349,6 +326,28 @@ Bestia.BestiaAttacks.prototype.setAttack = function(slot, attackId) {
 };
 
 /**
+ * Handles newly arriving list of attacks. It will check if we have a
+ * completly translated list of attacks for the list. If so it will simply
+ * display it. If not it will fetch the remaining attack translations and
+ * wait for the async handle to return.
+ */
+Bestia.BestiaAttacks.prototype._updateHandle = function(_, data) {
+
+	this.attacks.removeAll();
+
+	var attackTranslationList = [];
+
+	data.atks.forEach(function(val) {
+		var attack = new Bestia.BestiaAttack(val);
+		this.attacks.push(attack);
+		attackTranslationList.push(attack);
+	}, this);
+	this.isLoaded(true);
+
+	this._translateAttacks(attackTranslationList);
+};
+
+/**
  * Function handler which sets the show flag to false in order to hide the
  * window.
  */
@@ -402,5 +401,5 @@ Bestia.BestiaAttacks.prototype.saveAttacks = function() {
 	var atk5 = this.attackSlot5() ? this.attackSlot5().id() : null;
 	var bestiaId = this._selectedBestia.playerBestiaId();
 	var msg = new Bestia.Message.AttackSet(bestiaId, atk1, atk2, atk3, atk4, atk5);
-	this._pubsub.publish('io.sendMessage', msg);
+	this._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 };
