@@ -56,8 +56,6 @@ public abstract class BestiaEntityProxy {
 		location = positionMapper.get(entityID);
 		
 		bestiaMapper.get(entityID).manager = this;
-
-		
 	}
 
 	public abstract StatusPoints getStatusPoints();

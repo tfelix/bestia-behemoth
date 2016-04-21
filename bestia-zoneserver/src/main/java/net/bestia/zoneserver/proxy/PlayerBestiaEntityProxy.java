@@ -86,7 +86,7 @@ public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
 
 		// Setup all the references.
 		statusMapper.get(entityID).statusPoints = this.statusPoints;
-		//bestiaMapper.get(entityID).manager = this;
+		bestiaMapper.get(entityID).manager = this;
 		playerBestiaMapper.get(entityID).playerBestia = this;
 
 		final Visible visible = visibleMapper.get(entityID);

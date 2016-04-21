@@ -59,7 +59,7 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 
 	@Wire
 	private CommandContext ctx;
-	
+
 	@Wire
 	private ScriptApi scriptApi;
 
@@ -194,12 +194,20 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 					// Trigger the onExit method for all entities not inside the
 					// script zone anymore.
 					final Entity exitEntity = world.getEntity(id);
+
 					if (exitEntity == null) {
 						// Entity was deleted. Nevermind its gone.
 						return;
 					}
 
-					final BestiaEntityProxy bm = bestiaMapper.get(exitEntity).manager;
+					final Bestia bestia = bestiaMapper.getSafe(exitEntity);
+
+					// Second check if the entity exists. Kinda workaround. But
+					// otherwise does not work.
+					if (bestia == null) {
+						return;
+					}
+					final BestiaEntityProxy bm = bestia.manager;
 
 					sb.setTargetEntity(bm).setBinding("event", "onExit");
 					final net.bestia.zoneserver.script.Script mapScript = sb.build();
