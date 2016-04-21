@@ -9,7 +9,6 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Delay;
 import net.bestia.zoneserver.ecs.component.Script;
-import net.bestia.zoneserver.proxy.BestiaEntityProxy;
 import net.bestia.zoneserver.script.ScriptApi;
 import net.bestia.zoneserver.script.ScriptBuilder;
 import net.bestia.zoneserver.script.ScriptManager;
@@ -102,7 +101,7 @@ public class ScriptTickSystem extends DelayedIteratingSystem {
 			}
 
 			// We still touch the script.
-			final BestiaEntityProxy bm = bestiaMapper.get(id).manager;
+			final net.bestia.zoneserver.proxy.Entity bm = bestiaMapper.get(id).manager;
 
 			sb.setTargetEntity(bm);
 

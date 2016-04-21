@@ -26,6 +26,17 @@ public class AttackUseCommand extends ECSCommand {
 		final AttackUseMessage atkMsg = (AttackUseMessage) message;
 		final PlayerBestiaEntityProxy pbm = getPlayerBestiaProxy();
 		
+		// Does the player have this attack? (Or is std. attack).
+		
+		// Is the attack on cooldown?
+		
+		// Is the attack in range?
+		
+		// If there a target enemy?
+			// If yes, is there a line of sight? (if needed)
+		
+		
+		
 		if(pbm.useAttack(atkMsg.getAttackId())) {
 			
 			// TODO Trigger the attack effects. This is done by invoking a script.

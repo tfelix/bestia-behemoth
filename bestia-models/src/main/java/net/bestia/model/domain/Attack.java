@@ -15,6 +15,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Entity
 @Table(name = "attacks")
 public class Attack implements Serializable {
+	
+	@Transient
+	private static Attack defaultMeleeAttack;
 
 	@Transient
 	private static final long serialVersionUID = 1L;
@@ -178,5 +181,28 @@ public class Attack implements Serializable {
 
 	public String getIndicator() {
 		return indicator;
+	}
+
+	/**
+	 * Each bestia has this one default attack which costs no mana and can be
+	 * used anytime.
+	 * 
+	 * @return Specialized default melee attack.
+	 */
+	public static Attack getDefaultMeleeAttack() {
+		if(defaultMeleeAttack == null) {
+			defaultMeleeAttack = new Attack();
+			defaultMeleeAttack.databaseName = "default_melee_attack";
+			defaultMeleeAttack.strength = 5;
+			defaultMeleeAttack.element = Element.NORMAL;
+			defaultMeleeAttack.manaCost = 0;
+			defaultMeleeAttack.range = 1;
+			defaultMeleeAttack.lineOfSight = true;
+			defaultMeleeAttack.basedStatus = AttackBasedStatus.NORMAL;
+			defaultMeleeAttack.casttime = 0;
+			defaultMeleeAttack.cooldown = 1500;			
+		}
+		
+		return defaultMeleeAttack;
 	}
 }

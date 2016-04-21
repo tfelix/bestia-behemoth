@@ -3,7 +3,7 @@ package net.bestia.zoneserver.script;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.bestia.zoneserver.proxy.BestiaEntityProxy;
+import net.bestia.zoneserver.proxy.Entity;
 import net.bestia.zoneserver.proxy.InventoryProxy;
 
 /**
@@ -15,8 +15,8 @@ public class ScriptBuilder {
 
 	int x;
 	int y;
-	BestiaEntityProxy target;
-	BestiaEntityProxy owner;
+	Entity target;
+	Entity owner;
 	InventoryProxy inventory;
 	ScriptApi api;
 	String name;
@@ -35,12 +35,12 @@ public class ScriptBuilder {
 		return this;
 	}
 
-	public ScriptBuilder setTargetEntity(BestiaEntityProxy target) {
+	public ScriptBuilder setTargetEntity(Entity target) {
 		this.target = target;
 		return this;
 	}
 
-	public ScriptBuilder setOwnerEntity(BestiaEntityProxy owner) {
+	public ScriptBuilder setOwnerEntity(Entity owner) {
 		this.owner = owner;
 		return this;
 	}

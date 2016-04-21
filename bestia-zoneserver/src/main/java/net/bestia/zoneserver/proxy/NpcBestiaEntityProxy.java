@@ -13,7 +13,7 @@ import net.bestia.model.misc.Sprite.InteractionType;
 import net.bestia.zoneserver.ecs.component.NPCBestia;
 import net.bestia.zoneserver.ecs.component.Visible;
 
-public class NpcBestiaEntityProxy extends BestiaEntityProxy {
+public class NpcBestiaEntityProxy extends EntityEcsProxy {
 
 	private static final Logger LOG = LogManager.getLogger(NpcBestiaEntityProxy.class);
 

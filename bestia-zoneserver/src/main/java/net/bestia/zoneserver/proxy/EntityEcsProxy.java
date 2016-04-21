@@ -12,13 +12,14 @@ import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.misc.Damage;
 import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 
 @Wire
-public abstract class BestiaEntityProxy {
+public abstract class EntityEcsProxy implements Entity {
 
 	protected final int entityID;
 
@@ -37,7 +38,7 @@ public abstract class BestiaEntityProxy {
 	 */
 	private float walkspeed = 1.0f;
 
-	public BestiaEntityProxy(World world, int entityID) {
+	public EntityEcsProxy(World world, int entityID) {
 		Objects.requireNonNull(world, "World must not be null.");
 		
 		positionMapper = world.getMapper(Position.class);
@@ -58,8 +59,16 @@ public abstract class BestiaEntityProxy {
 		bestiaMapper.get(entityID).manager = this;
 	}
 
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.proxy.Entity#getStatusPoints()
+	 */
+	@Override
 	public abstract StatusPoints getStatusPoints();
 
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.proxy.Entity#getLocation()
+	 */
+	@Override
 	public Location getLocation() {
 		return location;
 	}
@@ -136,6 +145,10 @@ public abstract class BestiaEntityProxy {
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.proxy.Entity#getFacing()
+	 */
+	@Override
 	public Direction getFacing() {
 		return facing;
 	}
@@ -144,6 +157,10 @@ public abstract class BestiaEntityProxy {
 		this.facing = facing;
 	}
 
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.proxy.Entity#getEntityId()
+	 */
+	@Override
 	public int getEntityId() {
 		return entityID;
 	}
@@ -190,5 +207,11 @@ public abstract class BestiaEntityProxy {
 	public int getWalkspeedInt() {
 		final float speed = getWalkspeed();
 		return (int) (100 * speed);
+	}
+	
+	@Override
+	public void takeDamage(Damage dmg) {
+		// TODO Auto-generated method stub
+		
 	}
 }

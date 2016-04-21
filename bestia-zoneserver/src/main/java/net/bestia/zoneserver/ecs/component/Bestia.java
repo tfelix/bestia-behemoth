@@ -2,7 +2,7 @@ package net.bestia.zoneserver.ecs.component;
 
 import com.artemis.Component;
 
-import net.bestia.zoneserver.proxy.BestiaEntityProxy;
+import net.bestia.zoneserver.proxy.EntityEcsProxy;
 
 /**
  * The entity contains a bestia component.
@@ -12,7 +12,7 @@ import net.bestia.zoneserver.proxy.BestiaEntityProxy;
  */
 public class Bestia extends Component {
 
-	public BestiaEntityProxy manager;
+	public EntityEcsProxy manager;
 
 	/**
 	 * Std. Ctor for artemis.
@@ -21,7 +21,7 @@ public class Bestia extends Component {
 		// no op.
 	}
 
-	public Bestia(BestiaEntityProxy manager) {
+	public Bestia(EntityEcsProxy manager) {
 		this.manager = manager;
 	}
 }

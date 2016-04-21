@@ -42,7 +42,7 @@ import net.bestia.zoneserver.ecs.manager.UuidManager;
  *
  */
 @Wire
-public class PlayerBestiaEntityProxy extends BestiaEntityProxy {
+public class PlayerBestiaEntityProxy extends EntityEcsProxy {
 	private final static Logger LOG = LogManager.getLogger(PlayerBestiaEntityProxy.class);
 	private final static int MAX_LEVEL = 40;
 
