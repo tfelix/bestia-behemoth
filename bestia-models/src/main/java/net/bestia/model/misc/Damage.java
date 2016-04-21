@@ -13,7 +13,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Damage implements Serializable {
 
 	public enum DamageType {
-		HEAL, MISS, HIT, CRITICAL
+		HEAL, MISS, HIT, CRITICAL,
+
+		/**
+		 * True damage will (in most cases) hit the bestia without modifications
+		 * of status effects or equipments.
+		 */
+		TRUE
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -105,7 +111,7 @@ public class Damage implements Serializable {
 	}
 
 	public void setDamage(int damage) {
-		if(damage < 0) {
+		if (damage < 0) {
 			throw new IllegalArgumentException("Damage must be postive. Was negative.");
 		}
 		this.damage = damage;

@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.proxy;
 
+import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.StatusPoints;
@@ -24,5 +25,18 @@ public interface Entity {
 	 * @param dmg
 	 */
 	void takeDamage(Damage dmg);
+
+	/**
+	 * Requests to use the attack. There will be no calculation of damage
+	 * whatsoever. This method ONLY asks the entity to use this attack. If the
+	 * entity knows this attack and also fullfills the requirements to use it
+	 * (most notably has enough mana to do so) the side effects will be given to
+	 * this entity (mana substraction, use of items etc.).
+	 * 
+	 * @param atk
+	 * @return If the attack was successful used a TRUE will be returned FALSE
+	 *         otherwise.
+	 */
+	boolean useAttack(Attack atk);
 
 }

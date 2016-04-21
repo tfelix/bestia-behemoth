@@ -113,6 +113,7 @@ public abstract class EntityEcsProxy implements Entity {
 	 * @param atk
 	 *            Attack to be used.
 	 */
+	/*
 	public boolean useAttack(Attack atk) {
 
 		if (atk == null) {
@@ -144,6 +145,7 @@ public abstract class EntityEcsProxy implements Entity {
 
 		return true;
 	}
+	*/
 
 	/* (non-Javadoc)
 	 * @see net.bestia.zoneserver.proxy.Entity#getFacing()
@@ -213,5 +215,13 @@ public abstract class EntityEcsProxy implements Entity {
 	public void takeDamage(Damage dmg) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	/**
+	 * A simple entity can not use any attack.
+	 */
+	@Override
+	public boolean useAttack(Attack atk) {
+		return false;
 	}
 }
