@@ -3,7 +3,7 @@ package net.bestia.zoneserver.command.chat;
 import net.bestia.messages.ChatMessage;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerEntityProxy;
 
 /**
  * Implements the various chat commands. In order to add a new command just
@@ -26,7 +26,7 @@ interface ChatUserCommand {
 	 *            The {@link CommandContext}.
 	 * @return TRUE if the command
 	 */
-	void execute(ChatMessage message, PlayerBestiaEntityProxy player, CommandContext ctx);
+	void execute(ChatMessage message, PlayerEntityProxy player, CommandContext ctx);
 
 	/**
 	 * The token of the command for which this implementation is responsible.

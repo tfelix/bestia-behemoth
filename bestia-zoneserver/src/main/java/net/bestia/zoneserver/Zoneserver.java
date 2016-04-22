@@ -36,7 +36,8 @@ import net.bestia.zoneserver.loader.ScriptLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
 import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.messaging.MessageCommandHandler;
-import net.bestia.zoneserver.messaging.MessageLooper;
+import net.bestia.zoneserver.messaging.MessageProvider;
+import net.bestia.zoneserver.messaging.SimpleMessageProvider;
 import net.bestia.zoneserver.script.ScriptManager;
 import net.bestia.zoneserver.zone.Zone;
 
@@ -80,7 +81,7 @@ public class Zoneserver {
 
 	private final ScriptManager scriptManager = new ScriptManager();
 	
-	private final MessageLooper messageLoop;
+	private final MessageProvider messageLoop;
 	private final MessageCommandHandler messageCommandHandler;
 
 	private final AccountRegistry accountRegistry;
@@ -124,7 +125,7 @@ public class Zoneserver {
 
 		this.accountRegistry = new AccountRegistry(interserverSubscriber);
 		
-		this.messageLoop = new MessageLooper();
+		this.messageLoop = new SimpleMessageProvider();
 
 		// Create a command context.
 		final CommandContextBuilder ctxBuilder = new CommandContextBuilder();

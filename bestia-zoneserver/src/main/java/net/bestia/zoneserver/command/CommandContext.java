@@ -4,7 +4,6 @@ import net.bestia.model.ServiceLocator;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.messaging.AccountRegistry;
-import net.bestia.zoneserver.messaging.MessageLooper;
 import net.bestia.zoneserver.messaging.MessageProvider;
 import net.bestia.zoneserver.script.ScriptManager;
 
@@ -53,7 +52,7 @@ public class CommandContext {
 			return ctx;
 		}
 
-		public CommandContextBuilder setMessageProvider(MessageLooper msgProvider) {
+		public CommandContextBuilder setMessageProvider(MessageProvider msgProvider) {
 			this.messageProvider = msgProvider;
 			return this;
 		}

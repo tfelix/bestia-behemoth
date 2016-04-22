@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.proxy;
 
+import java.util.Collection;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -7,15 +9,16 @@ import com.artemis.ComponentMapper;
 import com.artemis.World;
 
 import net.bestia.messages.entity.SpriteType;
+import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.misc.Sprite.InteractionType;
 import net.bestia.zoneserver.ecs.component.NPCBestia;
 import net.bestia.zoneserver.ecs.component.Visible;
 
-public class NpcBestiaEntityProxy extends EntityEcsProxy {
+public class NpcEntityProxy extends EntityProxy {
 
-	private static final Logger LOG = LogManager.getLogger(NpcBestiaEntityProxy.class);
+	private static final Logger LOG = LogManager.getLogger(NpcEntityProxy.class);
 
 	private StatusPoints statusPoints = null;
 
@@ -24,7 +27,7 @@ public class NpcBestiaEntityProxy extends EntityEcsProxy {
 	// private ComponentMapper<MobGroup> groupMapper;
 	private ComponentMapper<NPCBestia> npcBestiaMapper;
 
-	public NpcBestiaEntityProxy(World world, int entityID, Bestia bestia) {
+	public NpcEntityProxy(World world, int entityID, Bestia bestia) {
 		super(world, entityID);
 
 		this.bestia = bestia;
@@ -101,5 +104,29 @@ public class NpcBestiaEntityProxy extends EntityEcsProxy {
 	@Override
 	public String toString() {
 		return String.format("NpcBestiaEntityProxy[entityID: %d, bestia: %s]", entityID, bestia.toString());
+	}
+
+	@Override
+	public void kill() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public Collection<Attack> getAttacks() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public int getRemainingCooldown(int attackId) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void triggerCooldown(int attackId) {
+		// TODO Auto-generated method stub
+		
 	}
 }

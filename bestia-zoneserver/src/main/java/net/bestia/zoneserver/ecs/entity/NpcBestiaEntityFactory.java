@@ -18,11 +18,11 @@ import net.bestia.zoneserver.ecs.component.NPCBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.proxy.NpcBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.NpcEntityProxy;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
- * Factory for the creation of {@link NpcBestiaEntityProxy}s.
+ * Factory for the creation of {@link NpcEntityProxy}s.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -54,7 +54,7 @@ class NpcBestiaEntityFactory extends EntityFactory {
 		world.inject(this);
 	}
 
-	public NpcBestiaEntityProxy create(MobSpawn mobSpawn) {
+	public NpcEntityProxy create(MobSpawn mobSpawn) {
 
 		final Bestia spawnBestia = mobSpawn.mob;
 		final String group = mobSpawn.getGroup();
@@ -63,13 +63,13 @@ class NpcBestiaEntityFactory extends EntityFactory {
 		return create(spawnBestia, pos, group);
 	}
 
-	public NpcBestiaEntityProxy create(Bestia bestia, Vector2 position) {
+	public NpcEntityProxy create(Bestia bestia, Vector2 position) {
 
 		return create(bestia, position, "none");
 	}
 
 	/**
-	 * Creates an {@link NpcBestiaEntityProxy} and spawns it directly to the
+	 * Creates an {@link NpcEntityProxy} and spawns it directly to the
 	 * given position in the responsible zone.
 	 * 
 	 * @param bestia
@@ -77,11 +77,11 @@ class NpcBestiaEntityFactory extends EntityFactory {
 	 * @param groupName
 	 * @return
 	 */
-	public NpcBestiaEntityProxy create(Bestia bestia, Vector2 position, String groupName) {
+	public NpcEntityProxy create(Bestia bestia, Vector2 position, String groupName) {
 
 		final int entityID = world.create(npcBestiaArchetype);
 
-		final NpcBestiaEntityProxy mobBestia = new NpcBestiaEntityProxy(world, entityID, bestia);
+		final NpcEntityProxy mobBestia = new NpcEntityProxy(world, entityID, bestia);
 		mobBestia.getLocation().setPos(position.x, position.y);
 		mobGroupMapper.get(entityID).groupName = groupName;
 

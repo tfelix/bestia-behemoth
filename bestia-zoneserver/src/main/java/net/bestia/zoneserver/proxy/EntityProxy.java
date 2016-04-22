@@ -19,7 +19,7 @@ import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 
 @Wire
-public abstract class EntityEcsProxy implements Entity {
+public abstract class EntityProxy implements Entity {
 
 	protected final int entityID;
 
@@ -38,7 +38,7 @@ public abstract class EntityEcsProxy implements Entity {
 	 */
 	private float walkspeed = 1.0f;
 
-	public EntityEcsProxy(World world, int entityID) {
+	public EntityProxy(World world, int entityID) {
 		Objects.requireNonNull(world, "World must not be null.");
 		
 		positionMapper = world.getMapper(Position.class);

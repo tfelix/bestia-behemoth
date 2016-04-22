@@ -8,7 +8,7 @@ import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.proxy.InventoryProxy;
-import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerEntityProxy;
 
 /*-
  * Chat commands which will spawn and item and adds it to the inventory.
@@ -36,7 +36,7 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 	}
 
 	@Override
-	public void execute(ChatMessage message, PlayerBestiaEntityProxy player, CommandContext ctx) {
+	public void execute(ChatMessage message, PlayerEntityProxy player, CommandContext ctx) {
 
 		final ChatMessage m = (ChatMessage) message;
 

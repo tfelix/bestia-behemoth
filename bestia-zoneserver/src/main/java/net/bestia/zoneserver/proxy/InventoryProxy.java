@@ -23,9 +23,9 @@ public class InventoryProxy {
 	private final InventoryService inventoryService;
 	private final Zoneserver server;
 	private final long accId;
-	private final PlayerBestiaEntityProxy owner;
+	private final PlayerEntityProxy owner;
 
-	public InventoryProxy(PlayerBestiaEntityProxy owner, InventoryService service, Zoneserver server) {
+	public InventoryProxy(PlayerEntityProxy owner, InventoryService service, Zoneserver server) {
 		if (owner == null) {
 			throw new IllegalArgumentException("The owner of the inventory can not be null.");
 		}

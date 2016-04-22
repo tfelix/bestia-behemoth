@@ -11,7 +11,7 @@ import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.proxy.InventoryProxy;
-import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerEntityProxy;
 
 /**
  * Sets a bestia as the currently active bestia.
@@ -41,7 +41,7 @@ public class ActivateCommand extends ECSCommand {
 		final BestiaActivateMessage msg = (BestiaActivateMessage) message;
 		final AccountRegistry register = ctx.getAccountRegistry();
 
-		final PlayerBestiaEntityProxy playerBestia = playerMapper.get(player).playerBestia;
+		final PlayerEntityProxy playerBestia = playerMapper.get(player).playerBestia;
 		final long accId = msg.getAccountId();
 
 		final int activeBestiaId = register.getActiveBestia(accId);
@@ -52,7 +52,7 @@ public class ActivateCommand extends ECSCommand {
 		}
 
 		// Remove current active bestia.
-		final PlayerBestiaEntityProxy activePb = pbManager.getPlayerBestiaProxy(activeBestiaId);
+		final PlayerEntityProxy activePb = pbManager.getPlayerBestiaProxy(activeBestiaId);
 		if (activePb != null) {
 			activePb.setActive(false);
 		}

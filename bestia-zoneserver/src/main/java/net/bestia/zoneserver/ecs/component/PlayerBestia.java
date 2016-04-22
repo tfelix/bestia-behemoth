@@ -2,23 +2,23 @@ package net.bestia.zoneserver.ecs.component;
 
 import com.artemis.Component;
 
-import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerEntityProxy;
 
 /**
- * Entity contains a {@link PlayerBestiaEntityProxy}.
+ * Entity contains a {@link PlayerEntityProxy}.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class PlayerBestia extends Component {
 
-	public PlayerBestiaEntityProxy playerBestia;
+	public PlayerEntityProxy playerBestia;
 	
 	public PlayerBestia() {
 		
 	}
 	
-	public PlayerBestia(PlayerBestiaEntityProxy playerBestia) {
+	public PlayerBestia(PlayerEntityProxy playerBestia) {
 		this.playerBestia = playerBestia;
 	}
 

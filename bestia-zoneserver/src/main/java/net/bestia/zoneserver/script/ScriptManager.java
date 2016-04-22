@@ -88,7 +88,7 @@ public class ScriptManager {
 	 */
 	public boolean execute(Script script) {
 		// get the right script from the cache.
-		final String scriptKey = script.getPrefix() + script.getName();
+		final String scriptKey = getKey(script);
 
 		// Probably was not loaded.
 		if (!cachedScripts.containsKey(scriptKey)) {
@@ -101,6 +101,15 @@ public class ScriptManager {
 		// Kinda do a double dispatch in order to customfy script execution if
 		// needed.
 		return script.execute(bindings, compScript);
+	}
+
+	public boolean hasScript(Script script) {
+		final String key = getKey(script);
+		return cachedScripts.containsKey(key);
+	}
+	
+	private String getKey(Script script) {
+		return script.getPrefix() + script.getName();
 	}
 
 }

@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.zone;
+package net.bestia.zoneserver.zone.map;
 
 import java.util.Arrays;
 

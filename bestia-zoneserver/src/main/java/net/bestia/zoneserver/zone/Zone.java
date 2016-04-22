@@ -53,10 +53,10 @@ public class Zone implements MessageHandler {
 		private final CommandContext ctx;
 		private final ECSCommandFactory commandFactory;
 
-		public ZoneRunnable(World world, CommandContext ctx, Map map) {
+		public ZoneRunnable(World world, ECSCommandFactory cmdFactory, CommandContext ctx, Map map) {
 			this.world = world;
 			this.ctx = ctx;
-			this.commandFactory = new ECSCommandFactory(ctx, world, map, Zone.this);
+			this.commandFactory = cmdFactory;
 		}
 
 		@Override
@@ -164,6 +164,7 @@ public class Zone implements MessageHandler {
 		}
 		
 		// The zone must subscribe to certain messages in order to operate.
+		
 	}
 
 	/**
@@ -188,8 +189,13 @@ public class Zone implements MessageHandler {
 		// Create and prepare the thread.
 		final WorldExtender worldExtender = new WorldExtender(cmdContext.getConfiguration(), this);
 		final World world = worldExtender.createWorld(cmdContext, map);
+		
+		final ECSCommandFactory cmdFactory = new ECSCommandFactory(cmdContext, world, map, Zone.this);
+		for(String msgId : cmdFactory.getRegisteredMessageIds()) {
+			cmdContext.getMessageProvider().subscribe(msgId, this);
+		}
 
-		zoneTicker = new ZoneRunnable(world, cmdContext, map);
+		zoneTicker = new ZoneRunnable(world, cmdFactory, cmdContext, map);
 		zoneTickerThread = new Thread(null, zoneTicker, "zoneECS-" + name);
 
 		hasStarted.set(true);

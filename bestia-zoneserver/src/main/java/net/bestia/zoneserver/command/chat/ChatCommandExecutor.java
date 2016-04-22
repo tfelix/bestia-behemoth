@@ -11,7 +11,7 @@ import net.bestia.messages.ChatMessage;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerEntityProxy;
 import net.bestia.zoneserver.util.PackageLoader;
 
 /**
@@ -51,7 +51,7 @@ public class ChatCommandExecutor {
 
 	}
 
-	public void execute(ChatMessage m, PlayerBestiaEntityProxy player, CommandContext ctx) {
+	public void execute(ChatMessage m, PlayerEntityProxy player, CommandContext ctx) {
 
 		final String key = getCommandKey(m.getText());
 

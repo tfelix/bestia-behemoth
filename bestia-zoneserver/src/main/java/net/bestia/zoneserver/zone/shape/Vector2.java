@@ -2,6 +2,8 @@ package net.bestia.zoneserver.zone.shape;
 
 import java.util.Objects;
 
+import net.bestia.model.domain.Location;
+
 /**
  * 2D Point. Immutable. Used as coordinates in various systems.
  * 
@@ -12,15 +14,14 @@ public class Vector2 implements CollisionShape {
 
 	public final int x;
 	public final int y;
-	
+
 	private final int anchorX;
 	private final int anchorY;
-
 
 	public Vector2(int x, int y) {
 		this.x = x;
 		this.y = y;
-		
+
 		this.anchorX = x;
 		this.anchorY = y;
 	}
@@ -78,6 +79,18 @@ public class Vector2 implements CollisionShape {
 	@Override
 	public CollisionShape moveByAnchor(int x, int y) {
 		return new Vector2(x, y);
+	}
+
+	/**
+	 * Helper method to transform a {@link Location} into a Vector which is
+	 * often needed for calculations.
+	 * 
+	 * @param loc
+	 *            The position to generate a vector from.
+	 * @return A generated {@link Vector2} from the {@link Location}.
+	 */
+	public static Vector2 fromLocation(Location loc) {
+		return new Vector2(loc.getX(), loc.getY());
 	}
 
 }

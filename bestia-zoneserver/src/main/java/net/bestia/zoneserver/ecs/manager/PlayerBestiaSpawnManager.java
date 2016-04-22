@@ -28,7 +28,7 @@ import net.bestia.zoneserver.ecs.entity.EntityFactory;
 import net.bestia.zoneserver.ecs.entity.PlayerEntityBuilder;
 import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.messaging.MessageHandler;
-import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerEntityProxy;
 
 /**
  * The {@link PlayerBestiaSpawnManager} hooks itself into the message processing
@@ -88,7 +88,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	 */
 	@Override
 	protected void inserted(int entityId) {
-		final PlayerBestiaEntityProxy pbm = playerMapper.get(entityId).playerBestia;
+		final PlayerEntityProxy pbm = playerMapper.get(entityId).playerBestia;
 		final int playerBestiaId = pbm.getPlayerBestiaId();
 		final Long accountId = pbm.getAccountId();
 
@@ -108,7 +108,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	 */
 	@Override
 	protected void removed(int entityId) {
-		final PlayerBestiaEntityProxy pbm = playerMapper.get(entityId).playerBestia;
+		final PlayerEntityProxy pbm = playerMapper.get(entityId).playerBestia;
 		final int playerBestiaId = pbm.getPlayerBestiaId();
 		final Long accountId = pbm.getAccountId();
 
@@ -195,7 +195,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	 * @param playerBestiaId
 	 * @return
 	 */
-	public PlayerBestiaEntityProxy getPlayerBestiaProxy(int playerBestiaId) {
+	public PlayerEntityProxy getPlayerBestiaProxy(int playerBestiaId) {
 		final int entityId = getEntityIdFromBestia(playerBestiaId);
 		final Entity entity = world.getEntity(entityId);
 

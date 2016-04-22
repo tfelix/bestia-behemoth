@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import net.bestia.zoneserver.zone.shape.Rect;
@@ -60,6 +61,7 @@ public class Map {
 	private final List<Spawner> spawns;
 
 	private java.util.Map<Vector2, Tile> tiles = new HashMap<>();
+	private final CollisionMap collisions;
 
 	/**
 	 * Constructor must be invoked with a {@link MapBuilder}. All needed data
@@ -76,10 +78,26 @@ public class Map {
 		portals = Collections.unmodifiableList(builder.portals);
 		scripts = Collections.unmodifiableList(builder.scripts);
 		spawns = Collections.unmodifiableList(builder.spawns);
+
+		collisions = new CollisionMap(dimensions.getWidth(), dimensions.getHeight());
+
+		setupCollisions();
+	}
+
+	/**
+	 * Transfers the static map collisions into the collisoin map.
+	 */
+	private void setupCollisions() {
+		for(Entry<Vector2, Tile> t : tiles.entrySet()) {
+			final Vector2 v = t.getKey();
+			collisions.setCollision(v.x, v.y, t.getValue().isWalkable());
+		}
 	}
 
 	/**
 	 * Checks if a tile is walkable at all.
+	 * 
+	 * @deprecated Use getCollisions
 	 * 
 	 * @param cords
 	 *            Coordinate to check.
@@ -162,6 +180,10 @@ public class Map {
 	 */
 	public List<MapScriptTemplate> getScripts() {
 		return scripts;
+	}
+
+	public CollisionMap getCollisions() {
+		return collisions;
 	}
 
 	/**

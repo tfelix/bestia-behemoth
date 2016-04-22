@@ -14,7 +14,7 @@ import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.ecs.component.AI;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.NPCBestia;
-import net.bestia.zoneserver.proxy.NpcBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.NpcEntityProxy;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
@@ -42,7 +42,7 @@ public class AISystem extends IntervalEntityProcessingSystem {
 	@Override
 	protected void process(Entity e) {
 
-		final NpcBestiaEntityProxy npcManager = bestiaMapper.get(e).manager;
+		final NpcEntityProxy npcManager = bestiaMapper.get(e).manager;
 		final Location pos = npcManager.getLocation();
 		
 

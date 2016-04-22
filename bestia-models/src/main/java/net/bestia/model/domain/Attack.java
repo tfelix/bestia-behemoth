@@ -121,7 +121,7 @@ public class Attack implements Serializable {
 	 * @return TRUE of the attack requires a line of sight to the enemy. FALSE
 	 *         otherwise.
 	 */
-	public boolean getLineOfSight() {
+	public boolean needsLineOfSight() {
 		return lineOfSight;
 	}
 

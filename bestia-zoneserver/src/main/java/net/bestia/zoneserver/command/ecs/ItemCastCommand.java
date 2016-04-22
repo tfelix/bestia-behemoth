@@ -15,7 +15,7 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.proxy.InventoryProxy;
-import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerEntityProxy;
 import net.bestia.zoneserver.script.Script;
 import net.bestia.zoneserver.script.ScriptApi;
 import net.bestia.zoneserver.script.ScriptBuilder;
@@ -60,7 +60,7 @@ public class ItemCastCommand extends ECSCommand {
 		final long accId = castMsg.getAccountId();
 
 		final int activeBestiaId = register.getActiveBestia(accId);
-		final PlayerBestiaEntityProxy owner = playerBestiaManager.getPlayerBestiaProxy(activeBestiaId);
+		final PlayerEntityProxy owner = playerBestiaManager.getPlayerBestiaProxy(activeBestiaId);
 
 		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
 		final InventoryProxy inventory = new InventoryProxy(owner, invService, ctx.getServer());
@@ -122,7 +122,7 @@ public class ItemCastCommand extends ECSCommand {
 		return "ItemCastCommand[]";
 	}
 
-	private boolean isInRange(Item item, int targetX, int targetY, PlayerBestiaEntityProxy caster) {
+	private boolean isInRange(Item item, int targetX, int targetY, PlayerEntityProxy caster) {
 		final int range = item.getUsableRange();
 
 		final int x = caster.getLocation().getX();

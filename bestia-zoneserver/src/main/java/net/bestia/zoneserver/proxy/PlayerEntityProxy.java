@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.proxy;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -42,8 +43,8 @@ import net.bestia.zoneserver.ecs.manager.UuidManager;
  *
  */
 @Wire
-public class PlayerBestiaEntityProxy extends EntityEcsProxy {
-	private final static Logger LOG = LogManager.getLogger(PlayerBestiaEntityProxy.class);
+public class PlayerEntityProxy extends EntityProxy {
+	private final static Logger LOG = LogManager.getLogger(PlayerEntityProxy.class);
 	private final static int MAX_LEVEL = 40;
 
 	private final PlayerBestia bestia;
@@ -58,19 +59,21 @@ public class PlayerBestiaEntityProxy extends EntityEcsProxy {
 	private ComponentMapper<Attacks> attacksMapper;
 	private ComponentMapper<net.bestia.zoneserver.ecs.component.PlayerBestia> playerBestiaMapper;
 	@Wire
-	private CommandContext ctx;	
+	private CommandContext ctx;
 	private PlayerBestiaSpawnManager playerBestiaSpawnManager;
-	
+
 	private final String entityUUID;
 
 	private Direction headFacing;
 
-	public PlayerBestiaEntityProxy(
+	private List<Attack> attacksCache;
+
+	public PlayerEntityProxy(
 			World world,
 			Entity entity,
 			PlayerBestia playerBestia) {
 		super(world, entity.getId());
-		
+
 		world.inject(this);
 
 		this.entity = entity;
@@ -334,41 +337,40 @@ public class PlayerBestiaEntityProxy extends EntityEcsProxy {
 		this.headFacing = headFacing;
 	}
 
-	/**
-	 * Returns a list of attacks of the currently wrapped bestia.
-	 * 
-	 * @return
-	 */
-	public Collection<Integer> getAttackIds() {
-		final Set<Integer> atks = new HashSet<>();
+	@Override
+	public Collection<Attack> getAttacks() {
+		if(attacksCache == null) {
+			attacksCache = new ArrayList<>();
+			
+			for (int i = 1; i <= 5; i++) {
+				Attack atk = null;
+				switch (i) {
+				case 1:
+					atk = bestia.getAttack1();
+					break;
+				case 2:
+					atk = bestia.getAttack2();
+					break;
+				case 3:
+					atk = bestia.getAttack3();
+					break;
+				case 4:
+					atk = bestia.getAttack4();
+					break;
+				case 5:
+					atk = bestia.getAttack5();
+					break;
+				}
 
-		for (int i = 1; i <= 5; i++) {
-			Attack atk = null;
-			switch (i) {
-			case 1:
-				atk = bestia.getAttack1();
-				break;
-			case 2:
-				atk = bestia.getAttack2();
-				break;
-			case 3:
-				atk = bestia.getAttack3();
-				break;
-			case 4:
-				atk = bestia.getAttack4();
-				break;
-			case 5:
-				atk = bestia.getAttack5();
-				break;
-			}
-
-			if (atk == null) {
-				continue;
-			} else {
-				atks.add(atk.getId());
+				if (atk == null) {
+					continue;
+				} else {
+					attacksCache.add(atk);
+				}
 			}
 		}
-		return atks;
+		
+		return attacksCache;
 	}
 
 	/*
@@ -400,7 +402,7 @@ public class PlayerBestiaEntityProxy extends EntityEcsProxy {
 		if (getClass() != obj.getClass())
 			return false;
 
-		final PlayerBestiaEntityProxy other = (PlayerBestiaEntityProxy) obj;
+		final PlayerEntityProxy other = (PlayerEntityProxy) obj;
 
 		if (bestia == null) {
 			if (other.bestia != null)
@@ -467,5 +469,16 @@ public class PlayerBestiaEntityProxy extends EntityEcsProxy {
 			ctx.getAccountRegistry().unsetActiveBestia(getAccountId(), getPlayerBestiaId());
 			entity.edit().remove(Active.class);
 		}
+	}
+
+	@Override
+	public int getRemainingCooldown(int attackId) {
+		return 100;
+	}
+
+	@Override
+	public void triggerCooldown(int attackId) {
+		// TODO Auto-generated method stub
+		
 	}
 }

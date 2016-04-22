@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.proxy;
 
+import java.util.Collection;
+
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Location;
@@ -48,5 +50,35 @@ public interface Entity {
 	 *         otherwise.
 	 */
 	boolean useAttack(Attack atk);
+
+	/**
+	 * Destroys/Kills the entity.
+	 */
+	void kill();
+
+	/**
+	 * Gets a list of all possible attacks used by this entity.
+	 * 
+	 * @return
+	 */
+	Collection<Attack> getAttacks();
+
+	/**
+	 * Returns the remaining cooldown of the given attack ID. If the attack id
+	 * is unknown -1 will be returned as cooldown.
+	 * 
+	 * @param attackId
+	 *            The attack ID of which the cooldown is requested.
+	 * @return The remaining cooldown of the attack in ms or -1 if the attack is
+	 *         unknown.
+	 */
+	int getRemainingCooldown(int attackId);
+
+	/**
+	 * Triggers the cooldown for the given attack id.
+	 * 
+	 * @param attackId
+	 */
+	void triggerCooldown(int attackId);
 
 }

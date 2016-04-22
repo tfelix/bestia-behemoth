@@ -19,8 +19,8 @@ import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.proxy.InventoryProxy;
-import net.bestia.zoneserver.proxy.NpcBestiaEntityProxy;
-import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.NpcEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerEntityProxy;
 
 /**
  * This factory is responsible for spawning player bestias into the ECS.
@@ -55,7 +55,7 @@ class PlayerBestiaEntityFactory extends EntityFactory {
 	}
 
 	/**
-	 * Creates an {@link NpcBestiaEntityProxy} and spawns it directly to the
+	 * Creates an {@link NpcEntityProxy} and spawns it directly to the
 	 * given position in the responsible zone.
 	 * 
 	 * @param bestia
@@ -70,7 +70,7 @@ class PlayerBestiaEntityFactory extends EntityFactory {
 		final int entityId = world.create(playerBestiaArchetype);
 		final Entity entity = world.getEntity(entityId);
 
-		final PlayerBestiaEntityProxy pbProxy = new PlayerBestiaEntityProxy(world, entity, playerBuilder.playerBestia);
+		final PlayerEntityProxy pbProxy = new PlayerEntityProxy(world, entity, playerBuilder.playerBestia);
 
 		// We need to check the bestia if its the master bestia. It will get
 		// marked as active initially.

@@ -3,7 +3,7 @@ package net.bestia.zoneserver.manager;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.proxy.InventoryProxy;
-import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerEntityProxy;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -115,8 +115,8 @@ public class InventoryManagerTest {
 		return server;
 	}
 
-	private PlayerBestiaEntityProxy getPlayerBestiaManager() {
-		final PlayerBestiaEntityProxy manager = Mockito.mock(PlayerBestiaEntityProxy.class);
+	private PlayerEntityProxy getPlayerBestiaManager() {
+		final PlayerEntityProxy manager = Mockito.mock(PlayerEntityProxy.class);
 
 		return manager;
 	}
