@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.msg2;
+package net.bestia.zoneserver.messaging;
 
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -7,7 +7,6 @@ import java.util.concurrent.Executors;
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandFactory;
-import net.bestia.zoneserver.messaging.MessageHandler;
 
 /**
  * This handler statically takes and {@link CommandFactory} which turns messages

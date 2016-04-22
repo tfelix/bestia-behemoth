@@ -12,8 +12,18 @@ public interface Entity {
 
 	Location getLocation();
 
+	/**
+	 * Sets the current facing direction of the entity.
+	 * 
+	 * @return The current facing direction.
+	 */
 	Direction getFacing();
 
+	/**
+	 * The entity ID representing this entity in the syste.
+	 * 
+	 * @return The entity ID.
+	 */
 	int getEntityId();
 
 	/**

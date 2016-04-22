@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.msg2;
+package net.bestia.zoneserver.messaging;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,7 +10,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Predicate;
 
 import net.bestia.messages.Message;
-import net.bestia.zoneserver.messaging.MessageHandler;
 
 /**
  * A message provider will distribute messages. Message handler can register

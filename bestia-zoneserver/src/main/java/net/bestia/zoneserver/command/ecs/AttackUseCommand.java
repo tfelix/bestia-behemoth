@@ -4,7 +4,6 @@ import java.util.UUID;
 
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
-import com.artemis.annotations.Mapper;
 import com.artemis.annotations.Wire;
 
 import net.bestia.messages.Message;
@@ -15,7 +14,6 @@ import net.bestia.zoneserver.battle.DamageCalculator;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Bestia;
 import net.bestia.zoneserver.ecs.manager.UuidManager;
-import net.bestia.zoneserver.proxy.EntityEcsProxy;
 import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 
 /**

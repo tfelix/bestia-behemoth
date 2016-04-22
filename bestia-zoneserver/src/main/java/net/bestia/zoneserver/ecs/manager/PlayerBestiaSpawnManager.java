@@ -17,9 +17,7 @@ import com.artemis.annotations.Wire;
 import com.artemis.utils.IntBag;
 
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.InputMessage;
 import net.bestia.messages.LoginBroadcastMessage;
-import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
@@ -30,11 +28,6 @@ import net.bestia.zoneserver.ecs.entity.EntityFactory;
 import net.bestia.zoneserver.ecs.entity.PlayerEntityBuilder;
 import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.messaging.MessageHandler;
-import net.bestia.zoneserver.messaging.routing.DynamicBestiaIdMessageFilter;
-import net.bestia.zoneserver.messaging.routing.MessageAndFilter;
-import net.bestia.zoneserver.messaging.routing.MessageDirectDescandantFilter;
-import net.bestia.zoneserver.messaging.routing.MessageIdFilter;
-import net.bestia.zoneserver.messaging.routing.MessageRouter;
 import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
 
 /**
@@ -56,19 +49,11 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	private CommandContext ctx;
 	private AccountRegistry accountRegistry;
 
-	private final MessageHandler zoneProcessor;
-
 	private ComponentMapper<PlayerBestia> playerMapper;
 	private ComponentMapper<Position> positionMapper;
 	private ComponentMapper<PlayerBestia> playerBestiaMapper;
 
 	private EntityFactory entityFactory;
-
-	/**
-	 * This filter used to route information for newly spawned bestias
-	 * dynamically to this ECS zone system in order to process it.
-	 */
-	private final DynamicBestiaIdMessageFilter bestiaIdMessageFilter = new DynamicBestiaIdMessageFilter();
 
 	/**
 	 * Subscribes to all active players.
@@ -84,8 +69,6 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	public PlayerBestiaSpawnManager(MessageHandler zone) {
 		super(Aspect.all(PlayerBestia.class));
 
-		this.zoneProcessor = zone;
-
 		// We dont tick. We are passiv.
 		setEnabled(false);
 	}
@@ -94,25 +77,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	protected void initialize() {
 		super.initialize();
 
-		final MessageRouter router = ctx.getMessageRouter();
-
-
-
 		entityFactory = new EcsEntityFactory(world);
-
-		// This manager needs to know about these two messages to create and
-		// delete entities.
-		final MessageIdFilter spawnMessageFilter = new MessageIdFilter();
-		spawnMessageFilter.addMessageId(LogoutBroadcastMessage.MESSAGE_ID);
-
-		// Prepare the message filter for the different zones. Depending on
-		// active bestias on this zone messages can be re-routed to this
-		// instance.
-		final MessageAndFilter combineFilter = new MessageAndFilter();
-		combineFilter.addFilter(new MessageDirectDescandantFilter(InputMessage.class));
-		combineFilter.addFilter(bestiaIdMessageFilter);
-		router.registerFilter(combineFilter, zoneProcessor);
-
 		accountRegistry = ctx.getAccountRegistry();
 		activePlayerSubscription = world.getAspectSubscriptionManager().get(Aspect.all(Visible.class, Active.class));
 	}
@@ -128,7 +93,6 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		final Long accountId = pbm.getAccountId();
 
 		bestiaEntityRegister.put(playerBestiaId, entityId);
-		bestiaIdMessageFilter.addPlayerBestiaId(playerBestiaId);
 		accountRegistry.incrementBestiaOnline(accountId);
 
 		// Add the entity to the register so it can be deleted.
@@ -149,7 +113,6 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		final Long accountId = pbm.getAccountId();
 
 		bestiaEntityRegister.remove(playerBestiaId);
-		bestiaIdMessageFilter.removePlayerBestiaId(playerBestiaId);
 		accountRegistry.decrementBestiaOnline(accountId);
 
 		accountBestiaRegister.get(accountId).remove(entityId);
@@ -287,5 +250,4 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	public IntBag getActivePlayersInSight(Position pos) {
 		return activePlayerSubscription.getEntities();
 	}
-
 }

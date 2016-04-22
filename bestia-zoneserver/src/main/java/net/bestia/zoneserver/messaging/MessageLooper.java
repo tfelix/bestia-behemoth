@@ -1,9 +1,8 @@
-package net.bestia.zoneserver.msg2;
+package net.bestia.zoneserver.messaging;
 
 import java.util.function.Predicate;
 
 import net.bestia.messages.Message;
-import net.bestia.zoneserver.messaging.MessageHandler;
 
 /**
  * High level message handling. There will be some kind of priorization of
@@ -13,7 +12,7 @@ import net.bestia.zoneserver.messaging.MessageHandler;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MessageLooper {
+public class MessageLooper implements MessageProvider {
 
 	public void handleMessage(Message msg) {
 		// TODO Auto-generated method stub
@@ -43,7 +42,5 @@ public class MessageLooper {
 		// TODO Auto-generated method stub
 		
 	}
-	
-	
 
 }

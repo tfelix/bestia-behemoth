@@ -16,8 +16,6 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.ecs.ECSCommandFactory;
 import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
 import net.bestia.zoneserver.messaging.MessageHandler;
-import net.bestia.zoneserver.messaging.routing.MessageRouter;
-import net.bestia.zoneserver.messaging.routing.ZoneWrapperFilter;
 import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.world.WorldExtender;
 
@@ -143,6 +141,12 @@ public class Zone implements MessageHandler {
 	private ZoneRunnable zoneTicker;
 	private Thread zoneTickerThread;
 
+	/**
+	 * Ctor.
+	 * 
+	 * @param ctx
+	 * @param map
+	 */
 	public Zone(CommandContext ctx, Map map) {
 		if (ctx == null) {
 			throw new IllegalArgumentException("Context can not be null.");
@@ -158,9 +162,8 @@ public class Zone implements MessageHandler {
 		if (this.name == null || this.name.isEmpty()) {
 			throw new IllegalArgumentException("Zone name can not be null or empty.");
 		}
-
-		final MessageRouter router = ctx.getMessageRouter();
-		router.registerFilter(new ZoneWrapperFilter(name), this);
+		
+		// The zone must subscribe to certain messages in order to operate.
 	}
 
 	/**

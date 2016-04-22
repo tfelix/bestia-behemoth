@@ -8,7 +8,6 @@ import net.bestia.messages.Message;
 import net.bestia.messages.MessageIdDecorator;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.messaging.preprocess.ChatMessagePreprocessor;
 
 /**
  * Processes inter-server chat commands like party or guild chats.
@@ -52,7 +51,8 @@ public class ServerChatCommand extends Command {
 
 	@Override
 	public String handlesMessageId() {
-		return ChatMessagePreprocessor.CHAT_MSG_ID_SERVER;
+		return "";
+		//return ChatMessagePreprocessor.CHAT_MSG_ID_SERVER;
 	}
 
 }

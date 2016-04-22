@@ -35,10 +35,8 @@ import net.bestia.zoneserver.command.server.ServerCommandFactory;
 import net.bestia.zoneserver.loader.ScriptLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
 import net.bestia.zoneserver.messaging.AccountRegistry;
-import net.bestia.zoneserver.messaging.MessageLoop;
-import net.bestia.zoneserver.messaging.preprocess.MessagePreprocessor;
-import net.bestia.zoneserver.messaging.preprocess.MessagePreprocessorController;
-import net.bestia.zoneserver.messaging.routing.MessageRouter;
+import net.bestia.zoneserver.messaging.MessageCommandHandler;
+import net.bestia.zoneserver.messaging.MessageLooper;
 import net.bestia.zoneserver.script.ScriptManager;
 import net.bestia.zoneserver.zone.Zone;
 
@@ -72,8 +70,6 @@ public class Zoneserver {
 	private final InterserverSubscriber interserverSubscriber;
 	private final InterserverPublisher interserverPublisher;
 
-	private final MessageLoop messageLoop;
-
 	private final CommandContext commandContext;
 
 	/**
@@ -83,6 +79,9 @@ public class Zoneserver {
 	private final Set<String> responsibleZones;
 
 	private final ScriptManager scriptManager = new ScriptManager();
+	
+	private final MessageLooper messageLoop;
+	private final MessageCommandHandler messageCommandHandler;
 
 	private final AccountRegistry accountRegistry;
 
@@ -124,6 +123,8 @@ public class Zoneserver {
 		this.interserverPublisher = connectionFactory.getPublisher();
 
 		this.accountRegistry = new AccountRegistry(interserverSubscriber);
+		
+		this.messageLoop = new MessageLooper();
 
 		// Create a command context.
 		final CommandContextBuilder ctxBuilder = new CommandContextBuilder();
@@ -131,13 +132,13 @@ public class Zoneserver {
 				.setServer(this)
 				.setScriptManager(scriptManager)
 				.setServiceLocator(ServiceLocator.getInstance())
-				.setMessageRouter(new MessageRouter())
+				.setMessageProvider(messageLoop)
 				.setAccountRegistry(accountRegistry);
 		this.commandContext = ctxBuilder.build();
 
-		final MessagePreprocessor preprocessor = new MessagePreprocessorController(commandContext);
+		// Set the server messages.
 		final CommandFactory serverCommandFactory = new ServerCommandFactory(commandContext);
-		this.messageLoop = new MessageLoop(preprocessor, serverCommandFactory, commandContext.getMessageRouter());
+		this.messageCommandHandler = new MessageCommandHandler(1, serverCommandFactory, messageLoop);
 
 		// Generate the list of zones for this server.
 		final String[] zoneStrings = config.getProperty("zone.zones").split(",");
@@ -229,7 +230,7 @@ public class Zoneserver {
 
 		// Shut down all the msg queues.
 		log.info("Shutting down: command and messaging system...");
-		messageLoop.shutdown();
+		messageCommandHandler.shutdown();
 
 		log.info("Shutting down: zones entity subsystem...");
 		zones.values().forEach((x) -> {

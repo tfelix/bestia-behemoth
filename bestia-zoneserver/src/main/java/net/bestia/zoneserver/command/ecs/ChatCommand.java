@@ -14,7 +14,6 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.chat.ChatCommandExecutor;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
-import net.bestia.zoneserver.messaging.preprocess.ChatMessagePreprocessor;
 
 public class ChatCommand extends ECSCommand {
 	
@@ -35,7 +34,8 @@ public class ChatCommand extends ECSCommand {
 
 	@Override
 	public String handlesMessageId() {
-		return ZoneMessageDecorator.getWrappedMessageId(ChatMessagePreprocessor.CHAT_MSG_ID_ECS);
+		return "";
+		//return ZoneMessageDecorator.getWrappedMessageId(ChatMessagePreprocessor.CHAT_MSG_ID_ECS);
 	}
 
 	@Override

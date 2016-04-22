@@ -13,7 +13,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Damage implements Serializable {
 
 	public enum DamageType {
-		HEAL, MISS, HIT, CRITICAL,
+		HEAL, MISS,
+
+		/**
+		 * Normal hit damage.
+		 */
+		HIT,
+
+		/**
+		 * This was a critical damage.
+		 */
+		CRITICAL,
 
 		/**
 		 * True damage will (in most cases) hit the bestia without modifications

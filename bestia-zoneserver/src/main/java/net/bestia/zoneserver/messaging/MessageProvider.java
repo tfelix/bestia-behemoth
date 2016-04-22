@@ -1,9 +1,8 @@
-package net.bestia.zoneserver.msg2;
+package net.bestia.zoneserver.messaging;
 
 import java.util.function.Predicate;
 
 import net.bestia.messages.Message;
-import net.bestia.zoneserver.messaging.MessageHandler;
 
 public interface MessageProvider extends MessageHandler {
 
