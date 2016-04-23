@@ -22,9 +22,7 @@ public abstract class Message implements Serializable {
 	private static final long serialVersionUID = 2015052401L;
 
 	private final static String MSG_PATH_SERVER_BROADCAST = "servers";
-
-	private final static String MSG_PATH_ZONE_BROADCAST = "zone/all";
-
+	private final static String MSG_PATH_ZONE_BROADCAST = "zone";
 	private final static String MSG_PATH_LOGIN = "login";
 
 	public Message() {
@@ -43,7 +41,7 @@ public abstract class Message implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("Message[message id: %s]", getMessageId());
+		return String.format("Message[message id: %s, path: %s]", getMessageId(), getMessagePath());
 	}
 
 	/**

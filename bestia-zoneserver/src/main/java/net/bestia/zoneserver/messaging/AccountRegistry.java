@@ -202,12 +202,12 @@ public class AccountRegistry {
 
 	private void subscribe(long accId) {
 		// Subscribe the server to message for this account.
-		server.subscribe(AccountMessage.getZoneMessagePath(accId) + "/*");
+		server.subscribe(AccountMessage.getZoneMessagePath(accId) + ".*");
 		LOG.trace("Subscribed for account {}.", accId);
 	}
 
 	private void unsubscribe(long accId) {
-		server.subscribe(AccountMessage.getZoneMessagePath(accId) + "/*");
+		server.subscribe(AccountMessage.getZoneMessagePath(accId) + ".*");
 		LOG.trace("Unsubscribed for account {}.", accId);
 	}
 }

@@ -100,12 +100,12 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	 * @throws IOException
 	 */
 	public void publishInterserver(long accountId, String message) throws IOException {
-		log.trace("Publish message to interserver: {}", message);
-
 		final AccountMessage msg = mapper.readValue(message, AccountMessage.class);
 
 		// Regenerate the account id from the server connection.
 		msg.setAccountId(accountId);
+		
+		log.trace("Publish message to interserver: {}", msg.toString());
 
 		publisher.publish(msg);
 	}
@@ -201,7 +201,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 
 		// Check the kind of message.
 		// TODO Error prone check. Use different handler for non client directed messages.
-		if (msg.getMessagePath().startsWith("client/")) {
+		if (msg.getMessagePath().startsWith("client")) {
 			try {
 				// Send the message to the client.
 				publishClient((AccountMessage) msg);

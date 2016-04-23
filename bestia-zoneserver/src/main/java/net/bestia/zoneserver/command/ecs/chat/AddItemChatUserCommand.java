@@ -107,7 +107,10 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 				invManager.addItem(desc.itemDbName, desc.amount);
 			}
 		} catch (IllegalArgumentException ex) {
-			LOG.warn("Could not add item to account: {}. Reason: {}", player.getAccountId(), ex.getMessage());
+			LOG.warn("Could not add item {} to account: {}. Reason: {}", desc.itemDbName, player.getAccountId(), ex.getMessage());
+			final ChatMessage reply = ChatMessage.getEchoRawMessage(message.getAccountId(),
+					String.format("Item was not found in the database: %s", desc.itemDbName));
+			ctx.getServer().sendMessage(reply);
 		}
 	}
 }

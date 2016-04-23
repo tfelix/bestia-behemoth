@@ -18,7 +18,7 @@ public abstract class InputMessage extends AccountMessage {
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;
 	
-	private static final String MSG_PATH_ACCOUNT_BESTIA = "account/%d/bestia/%d"; 
+	private static final String MSG_PATH_ACCOUNT_BESTIA = "account.%d.bestia.%d"; 
 
 	@JsonProperty("pbid")
 	private int playerBestiaId = 0;

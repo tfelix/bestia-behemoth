@@ -31,6 +31,6 @@ public class AttackListRequestMessage extends AccountMessage {
 
 	@Override
 	public String toString() {
-		return "AttackListRequestMessage[]";
+		return String.format("AttackListRequestMessage[path: %s]", getMessagePath());
 	}
 }

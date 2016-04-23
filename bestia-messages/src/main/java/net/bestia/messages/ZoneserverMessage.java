@@ -12,7 +12,7 @@ public abstract class ZoneserverMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 
-	private final static String MSG_PATH_ZONE_NAME = "zone/%s";
+	private final static String MSG_PATH_ZONE_NAME = "zone.%s";
 
 	private String receiverServer = "";
 	private String senderServer = "";

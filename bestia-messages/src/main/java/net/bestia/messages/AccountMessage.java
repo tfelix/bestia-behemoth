@@ -13,8 +13,8 @@ public abstract class AccountMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String MSG_PATH_ACCOUNT = "zone/account/%d";
-	private static final String MSG_PATH_CLIENT = "client/%d";
+	private static final String MSG_PATH_ACCOUNT = "zone.account.%d";
+	private static final String MSG_PATH_CLIENT = "client.%d";
 
 	private long accountId;
 
