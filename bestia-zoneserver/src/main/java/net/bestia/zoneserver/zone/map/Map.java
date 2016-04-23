@@ -61,7 +61,7 @@ public class Map {
 	private final List<Spawner> spawns;
 
 	private java.util.Map<Vector2, Tile> tiles = new HashMap<>();
-	private final CollisionMap collisions;
+	private final ICollisionMap collisions;
 
 	/**
 	 * Constructor must be invoked with a {@link MapBuilder}. All needed data
@@ -182,7 +182,7 @@ public class Map {
 		return scripts;
 	}
 
-	public CollisionMap getCollisions() {
+	public ICollisionMap getCollisions() {
 		return collisions;
 	}
 

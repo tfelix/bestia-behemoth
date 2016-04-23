@@ -50,11 +50,16 @@ public class ThreadedMessageProvider implements MessageProvider {
 
 		@Override
 		public void run() {
+			final String msgId = msg.getMessageId();
+
 			// First check the ID locks.
 			idLock.readLock().lock();
 
-			for (MessageHandler handler : messageIdHandler.get(msg.getMessageId())) {
-				handler.handleMessage(msg);
+			final List<MessageHandler> handlers = messageIdHandler.get(msgId);
+			if (handlers != null) {
+				for (MessageHandler handler : handlers) {
+					handler.handleMessage(msg);
+				}
 			}
 
 			idLock.readLock().unlock();

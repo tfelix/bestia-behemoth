@@ -27,7 +27,7 @@ public class LogoutBroadcastCommand extends ECSCommand {
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
 		final LogoutBroadcastMessage logoutMsg = (LogoutBroadcastMessage) message;
-		spawnManager.despawnAllBestias(logoutMsg.getAccountId());
+		spawnManager.despawnAccountBestias(logoutMsg.getAccountId());
 		
 	}
 	

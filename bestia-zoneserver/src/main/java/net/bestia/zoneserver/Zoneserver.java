@@ -29,6 +29,7 @@ import net.bestia.model.I18n;
 import net.bestia.model.ServiceLocator;
 import net.bestia.model.dao.I18nDAO;
 import net.bestia.util.BestiaConfiguration;
+import net.bestia.util.BestiaVersion;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandContext.CommandContextBuilder;
 import net.bestia.zoneserver.command.CommandFactory;
@@ -56,6 +57,7 @@ public class Zoneserver {
 
 	private final String name;
 	private final BestiaConfiguration config;
+	private final BestiaVersion version = new BestiaVersion();
 	private final AtomicBoolean isRunning = new AtomicBoolean(false);
 
 	private final InterserverMessageHandler interserverHandler = new InterserverMessageHandler() {
@@ -80,7 +82,7 @@ public class Zoneserver {
 	private final Set<String> responsibleZones;
 
 	private final ScriptManager scriptManager = new ScriptManager();
-	
+
 	private final ThreadedMessageProvider messageLoop;
 
 	private final AccountRegistry accountRegistry;
@@ -123,7 +125,7 @@ public class Zoneserver {
 		this.interserverPublisher = connectionFactory.getPublisher();
 
 		this.accountRegistry = new AccountRegistry(interserverSubscriber);
-		
+
 		this.messageLoop = new ThreadedMessageProvider();
 
 		// Create a command context.
@@ -164,7 +166,7 @@ public class Zoneserver {
 		}
 
 		// Initializing all messaging components.
-		log.info(config.getVersion());
+		log.info(version.getName() + " - " + version.getVersion());
 		log.info("Zoneserver is starting...");
 
 		// Create ScriptCacheLoader: Reading and compiling all the scripts.
@@ -226,7 +228,7 @@ public class Zoneserver {
 
 		// Can not do this since this will hang.
 		// log.info("Unsubscribe from Interserver...");
-		//connectionFactory.shutdown();
+		// connectionFactory.shutdown();
 
 		// Shut down all the msg queues.
 		log.info("Shutting down: command and messaging system...");
@@ -239,7 +241,7 @@ public class Zoneserver {
 
 		// Wait for all threads to cease operation.
 		log.info("Zone: [{}] went down.", name);
-		
+
 		System.exit(1);
 	}
 

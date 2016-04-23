@@ -3,6 +3,7 @@ package net.bestia.zoneserver.ecs.manager;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
@@ -17,6 +18,7 @@ import com.artemis.annotations.Wire;
 import com.artemis.utils.IntBag;
 
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.InputMessage;
 import net.bestia.messages.login.LoginBroadcastMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
@@ -27,8 +29,9 @@ import net.bestia.zoneserver.ecs.entity.EcsEntityFactory;
 import net.bestia.zoneserver.ecs.entity.EntityFactory;
 import net.bestia.zoneserver.ecs.entity.PlayerEntityBuilder;
 import net.bestia.zoneserver.messaging.AccountRegistry;
-import net.bestia.zoneserver.messaging.MessageHandler;
+import net.bestia.zoneserver.messaging.DynamicPathPredicate;
 import net.bestia.zoneserver.proxy.PlayerEntityProxy;
+import net.bestia.zoneserver.zone.Zone;
 
 /**
  * The {@link PlayerBestiaSpawnManager} hooks itself into the message processing
@@ -65,9 +68,16 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	 */
 	private final Map<Long, Set<Integer>> accountBestiaRegister = new HashMap<>();
 	private final Map<Integer, Integer> bestiaEntityRegister = new HashMap<>();
+	
+	private final Zone zone;
+	private final DynamicPathPredicate pathFilter;
 
-	public PlayerBestiaSpawnManager(MessageHandler zone) {
+	public PlayerBestiaSpawnManager(Zone zone) {
 		super(Aspect.all(PlayerBestia.class));
+		
+		this.zone = Objects.requireNonNull(zone, "Zone can not be null");
+		
+		this.pathFilter = new DynamicPathPredicate();
 
 		// We dont tick. We are passiv.
 		setEnabled(false);
@@ -76,6 +86,9 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	@Override
 	protected void initialize() {
 		super.initialize();
+		
+		// Hook up the dynamic path filter to the zone.
+		ctx.getMessageProvider().subscribe(pathFilter, zone);
 
 		entityFactory = new EcsEntityFactory(world);
 		accountRegistry = ctx.getAccountRegistry();
@@ -100,6 +113,9 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 			accountBestiaRegister.put(accountId, new HashSet<>());
 		}
 		accountBestiaRegister.get(accountId).add(entityId);
+		
+		// Register the zone now to receive messages from this account.
+		pathFilter.subscribe(InputMessage.getInputMessagePath(accountId, playerBestiaId));
 	}
 
 	/**
@@ -119,6 +135,9 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		if (accountBestiaRegister.get(accountId).size() == 0) {
 			accountBestiaRegister.remove(accountId);
 		}
+		
+		// Un-register the zone now to receive messages from this account.
+		pathFilter.unsubscribe(InputMessage.getInputMessagePath(accountId, playerBestiaId));
 	}
 
 	@Override
@@ -212,7 +231,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	 * 
 	 * @param accountId
 	 */
-	public void despawnAllBestias(long accountId) {
+	public void despawnAccountBestias(long accountId) {
 		final Set<Integer> entityIds = accountBestiaRegister.get(accountId);
 
 		// Might happen if a connection is dropped too late/message arriving too

@@ -25,7 +25,7 @@ public class BestiaConfiguration {
 	private static final Logger LOG = LogManager.getLogger(BestiaConfiguration.class);
 
 	private final Properties prop;
-	private final VersionReader versionReader = new VersionReader();
+	private final BestiaVersion versionReader = new BestiaVersion();
 	private boolean isLoaded = false;
 
 	public BestiaConfiguration() {

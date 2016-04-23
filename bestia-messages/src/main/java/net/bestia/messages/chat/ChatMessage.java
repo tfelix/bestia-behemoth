@@ -4,7 +4,6 @@ import net.bestia.messages.InputMessage;
 import net.bestia.model.I18n;
 import net.bestia.model.domain.Account;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -14,19 +13,28 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 public class ChatMessage extends InputMessage {
+	
+	public static class ReplyChatMessage extends ChatMessage {
+
+		private static final long serialVersionUID = 1L;
+		
+		public ReplyChatMessage() {
+			// no op.
+		}
+
+		@Override
+		public String getMessagePath() {
+			return getClientMessagePath(getAccountId());
+		}
+	}
 
 	private static final long serialVersionUID = 1L;
-	private static final String CLIENT_PATH = "account/%d";
-	private static final String SERVER_PATH = "zone/account/%d";
 
 	public final static String MESSAGE_ID = "chat.message";
 
 	public enum Mode {
 		PUBLIC, PARTY, GUILD, WHISPER, SYSTEM, GM_BROADCAST, ERROR, COMMAND, BATTLE
 	}
-
-	@JsonProperty("pbid")
-	private int playerBestiaId = 0;
 
 	@JsonProperty("m")
 	private Mode chatMode;
@@ -45,9 +53,6 @@ public class ChatMessage extends InputMessage {
 
 	@JsonProperty("t")
 	private long time;
-
-	@JsonIgnore
-	private String currentPath = SERVER_PATH;
 
 	/**
 	 * Std. Ctor So the Jason Library can create this object.
@@ -75,13 +80,11 @@ public class ChatMessage extends InputMessage {
 	 */
 	public static ChatMessage getSystemMessage(Account account, String text) {
 
-		ChatMessage msg = new ChatMessage();
+		final ChatMessage msg = new ReplyChatMessage();
 		msg.setAccountId(account.getId());
 		msg.setText(text);
 		msg.setTime(System.currentTimeMillis() / 1000L);
 		msg.setChatMode(Mode.SYSTEM);
-		
-		setClientReceive(msg);
 		
 		return msg;
 	}
@@ -123,21 +126,13 @@ public class ChatMessage extends InputMessage {
 		this.time = time;
 	}
 
-	public int getPlayerBestiaId() {
-		return playerBestiaId;
-	}
-
-	public void setPlayerBestiaId(int pbid) {
-		this.playerBestiaId = pbid;
-	}
-
 	public void setSenderNickname(String senderNickname) {
 		this.senderNickname = senderNickname;
 	}
 
 	@Override
 	public String getMessagePath() {
-		return String.format(currentPath, getAccountId());
+		return getZoneMessagePath(getAccountId());
 	}
 
 	@Override
@@ -155,9 +150,7 @@ public class ChatMessage extends InputMessage {
 	 * @return
 	 */
 	public static ChatMessage getEchoMessage(long receiverAccountId, ChatMessage msg) {
-		ChatMessage forwardMsg = new ChatMessage();
-
-		forwardMsg.currentPath = CLIENT_PATH;
+		final ChatMessage forwardMsg = new ReplyChatMessage();
 
 		forwardMsg.senderNickname = msg.senderNickname;
 		forwardMsg.receiverNickname = msg.receiverNickname;
@@ -171,21 +164,8 @@ public class ChatMessage extends InputMessage {
 		return forwardMsg;
 	}
 
-	/**
-	 * This sets the chat message path so it is send out to the client and not
-	 * received by the server.
-	 * 
-	 * @param msg
-	 *            The message to be directed to the client.
-	 */
-	public static void setClientReceive(ChatMessage msg) {
-		msg.currentPath = CLIENT_PATH;
-	}
-
 	public static ChatMessage getEchoRawMessage(long receiverAccoundId, String text) {
-		ChatMessage forwardMsg = new ChatMessage();
-
-		forwardMsg.currentPath = CLIENT_PATH;
+		final ChatMessage forwardMsg = new ReplyChatMessage();
 
 		forwardMsg.setAccountId(receiverAccoundId);
 		forwardMsg.setChatMode(Mode.SYSTEM);

@@ -57,10 +57,10 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 					listener.onMessage(msg);
 				} catch (ClassNotFoundException | IOException ex) {
 					log.error("Could not create instance of message.", ex);
-					break;
+					continue;
 				} catch (ZMQException ex) {
 					if (ex.getErrorCode() == ZMQ.Error.ETERM.getCode()) {
-						break;
+						continue;
 					}
 				} catch(ClosedSelectorException ex) {
 					// Socket was closed.

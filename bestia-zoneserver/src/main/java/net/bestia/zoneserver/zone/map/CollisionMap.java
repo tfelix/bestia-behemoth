@@ -10,7 +10,7 @@ import java.util.Arrays;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class CollisionMap {
+public class CollisionMap implements ICollisionMap {
 	
 	private boolean[] collisionData;
 	
@@ -26,10 +26,18 @@ public class CollisionMap {
 		this.height = height;
 	}
 	
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.zone.map.ICollisionMap#setCollision(int, int, boolean)
+	 */
+	@Override
 	public void setCollision(int x, int y, boolean walkable) {
 		collisionData[getIndex(x, y)] = walkable;
 	}
 	
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.zone.map.ICollisionMap#isWalkable(int, int)
+	 */
+	@Override
 	public boolean isWalkable(int x, int y) {
 		return collisionData[getIndex(x, y)];
 	}
@@ -38,10 +46,18 @@ public class CollisionMap {
 		return y * width + x;
 	}
 	
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.zone.map.ICollisionMap#getWidth()
+	 */
+	@Override
 	public int getWidth() {
 		return width;
 	}
 	
+	/* (non-Javadoc)
+	 * @see net.bestia.zoneserver.zone.map.ICollisionMap#getHeight()
+	 */
+	@Override
 	public int getHeight() {
 		return height;
 	}

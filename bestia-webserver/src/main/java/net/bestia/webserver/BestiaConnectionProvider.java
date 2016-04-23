@@ -135,7 +135,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 		connections.put(accountId, new WebConnection(socket, token));
 
 		// Subscribe to the messages.
-		subscriber.subscribe("account/" + accountId);
+		subscriber.subscribe(AccountMessage.getClientMessagePath(accountId));
 	}
 
 	/**
@@ -147,7 +147,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	 */
 	public void removeConnection(long accountId) {
 		log.debug("Removed connection to account id: {}", accountId);
-		subscriber.unsubscribe("account/" + accountId);
+		subscriber.unsubscribe(AccountMessage.getClientMessagePath(accountId));
 		connections.remove(accountId);
 	}
 
@@ -200,7 +200,8 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 		}
 
 		// Check the kind of message.
-		if (msg.getMessagePath().startsWith("account/")) {
+		// TODO Error prone check. Use different handler for non client directed messages.
+		if (msg.getMessagePath().startsWith("client/")) {
 			try {
 				// Send the message to the client.
 				publishClient((AccountMessage) msg);

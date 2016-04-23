@@ -11,25 +11,25 @@ public class VersionReaderTest {
 
 	@Test
 	public void getVersion_stdFile_ok() {
-		VersionReader vr = new VersionReader();
+		BestiaVersion vr = new BestiaVersion();
 		Assert.assertEquals("alpha-0.2.7", vr.getVersion());
 	}
 
 	@Test
 	public void getName_stdFile_ok() {
-		VersionReader vr = new VersionReader();
+		BestiaVersion vr = new BestiaVersion();
 		Assert.assertEquals("bestia", vr.getName());
 	}
 
 	@Test
 	public void getVersion_extraFile_ok() {
-		VersionReader vr = new VersionReader(getFile());
+		BestiaVersion vr = new BestiaVersion(getFile());
 		Assert.assertEquals("1.0.0", vr.getVersion());
 	}
 
 	@Test
 	public void getName_extraFile_ok() {
-		VersionReader vr = new VersionReader(getFile());
+		BestiaVersion vr = new BestiaVersion(getFile());
 		Assert.assertEquals("bestia2", vr.getName());
 	}
 	

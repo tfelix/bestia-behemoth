@@ -12,6 +12,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public abstract class AccountMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
+
+	private static final String MSG_PATH_ACCOUNT = "zone/account/%d";
+	private static final String MSG_PATH_CLIENT = "client/%d";
+
 	private long accountId;
 
 	/**
@@ -75,7 +79,7 @@ public abstract class AccountMessage extends Message {
 	 *         webserver.
 	 */
 	public static String getClientMessagePath(long accountId) {
-		return String.format("client/%d", accountId);
+		return String.format(MSG_PATH_CLIENT, accountId);
 	}
 
 	/**
@@ -88,7 +92,7 @@ public abstract class AccountMessage extends Message {
 	 *         user is connected.
 	 */
 	public static String getZoneMessagePath(long accountId) {
-		return String.format("zone/account/%d", accountId);
+		return String.format(MSG_PATH_ACCOUNT, accountId);
 	}
 
 }

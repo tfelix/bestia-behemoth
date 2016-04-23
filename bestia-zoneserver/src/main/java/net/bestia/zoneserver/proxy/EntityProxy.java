@@ -40,14 +40,12 @@ public class EntityProxy implements Entity {
 	public EntityProxy(World world, int entityID) {
 		Objects.requireNonNull(world, "World must not be null.");
 		
-		world.inject(this);
-		
-		/*
+		// World inject does not work here dunno why.
 		positionMapper = world.getMapper(Position.class);
 		visibleMapper = world.getMapper(Visible.class);
 		bestiaMapper = world.getMapper(Bestia.class);
 		movementMapper = world.getMapper(Movement.class);
-		statusMapper = world.getMapper(net.bestia.zoneserver.ecs.component.StatusPoints.class);*/
+		statusMapper = world.getMapper(net.bestia.zoneserver.ecs.component.StatusPoints.class);
 
 		// Create the entity.
 		this.entityID = entityID;

@@ -12,6 +12,8 @@ import com.artemis.World;
 
 import net.bestia.messages.Message;
 import net.bestia.messages.chat.ChatMessage;
+import net.bestia.messages.login.LoginBroadcastMessage;
+import net.bestia.messages.login.LogoutBroadcastMessage;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.ecs.ECSCommandFactory;
@@ -172,6 +174,8 @@ public class Zone implements MessageHandler {
 		// ### The zone must subscribe to certain messages in order to operate.
 		// Listen to public chat messages and chat commands.
 		provider.subscribe(msg -> msg.getMessageId().equals(ChatMessage.MESSAGE_ID), this);
+		provider.subscribe(LoginBroadcastMessage.MESSAGE_ID, this);
+		provider.subscribe(LogoutBroadcastMessage.MESSAGE_ID, this);
 	}
 
 	/**
@@ -198,10 +202,6 @@ public class Zone implements MessageHandler {
 		final World world = worldExtender.createWorld(cmdContext, map);
 		
 		final ECSCommandFactory cmdFactory = new ECSCommandFactory(cmdContext, world, map, this);
-		for(String msgId : cmdFactory.getRegisteredMessageIds()) {
-			cmdContext.getMessageProvider().subscribe(msgId, this);
-		}
-
 		zoneTicker = new ZoneRunnable(world, cmdFactory, cmdContext, map);
 		zoneTickerThread = new Thread(null, zoneTicker, "zoneECS-" + name);
 
@@ -239,7 +239,7 @@ public class Zone implements MessageHandler {
 			return;
 		}
 		
-		LOG.trace("Message path {} received.", msg.getMessagePath());
+		LOG.trace("Message {} received. Path: {}.", msg.toString(), msg.getMessagePath());
 		
 		messageQueue.add(msg);
 	}

@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.interserver.InterserverSubscriber;
+import net.bestia.messages.AccountMessage;
 
 /**
  * Keeps track of the accounts and their online bestias. If there is an account
@@ -19,7 +20,7 @@ import net.bestia.interserver.InterserverSubscriber;
  *
  */
 public class AccountRegistry {
-	private static final String ACCOUNT_TOPIC = "zone/account/%d";
+
 	private static final Logger LOG = LogManager.getLogger(AccountRegistry.class);
 
 	private class Counter {
@@ -183,7 +184,6 @@ public class AccountRegistry {
 			return;
 		}
 		
-		
 		counter.dec();
 	}
 
@@ -202,14 +202,12 @@ public class AccountRegistry {
 
 	private void subscribe(long accId) {
 		// Subscribe the server to message for this account.
-		final String subStr = String.format(ACCOUNT_TOPIC, accId);
-		server.subscribe(subStr);
+		server.subscribe(AccountMessage.getZoneMessagePath(accId) + "/*");
 		LOG.trace("Subscribed for account {}.", accId);
 	}
 
 	private void unsubscribe(long accId) {
-		final String subStr = String.format(ACCOUNT_TOPIC, accId);
-		server.unsubscribe(subStr);
+		server.subscribe(AccountMessage.getZoneMessagePath(accId) + "/*");
 		LOG.trace("Unsubscribed for account {}.", accId);
 	}
 }

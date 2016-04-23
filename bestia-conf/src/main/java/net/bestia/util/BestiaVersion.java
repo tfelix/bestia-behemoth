@@ -22,16 +22,16 @@ import org.apache.logging.log4j.Logger;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class VersionReader {
+public class BestiaVersion {
 
-	private static final Logger LOG = LogManager.getLogger(VersionReader.class);
+	private static final Logger LOG = LogManager.getLogger(BestiaVersion.class);
 	private final Properties properties = new Properties();
 
-	public VersionReader() {
+	public BestiaVersion() {
 		init(null);
 	}
 
-	public VersionReader(File versionFile) {
+	public BestiaVersion(File versionFile) {
 		init(versionFile);
 	}
 
