@@ -12,6 +12,7 @@ import net.bestia.zoneserver.ecs.entity.EcsEntityFactory;
 import net.bestia.zoneserver.ecs.entity.EntityBuilder;
 import net.bestia.zoneserver.ecs.entity.EntityBuilder.EntityType;
 import net.bestia.zoneserver.ecs.entity.EntityFactory;
+import net.bestia.zoneserver.ecs.entity.MobEntityBuilder;
 
 /**
  * Converts spawn entities to real mob entities after the spawn delay.
@@ -55,11 +56,13 @@ public class MobDelaySpawnSystem extends DelayedEntityProcessingSystem {
 	protected void processExpired(Entity e) {
 		final MobSpawn spawn = spawnMapper.get(e);
 
-		final EntityBuilder eb = new EntityBuilder();
+		final MobEntityBuilder eb = new MobEntityBuilder();
 		
 		eb.setSprite(spawn.mob.getImage());
 		eb.setPosition(spawn.coordinates);
 		eb.setEntityType(EntityType.MOB);
+		
+		eb.setBestia(spawn.mob);
 		
 		entityFactory.spawn(eb);
 		

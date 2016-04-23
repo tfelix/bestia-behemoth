@@ -21,7 +21,7 @@ Bestia.Engine.EntityFactory = function(ctx) {
 	 */
 	this.builder = [];
 
-	// this.builder.push(new Bestia.Engine.MultispriteBuilder(this, ctx));
+	this.builder.push(new Bestia.Engine.MultispriteBuilder(this, ctx));
 	this.builder.push(new Bestia.Engine.PlayerMultispriteBuilder(this, ctx));
 	this.builder.push(new Bestia.Engine.SpriteBuilder(this, ctx));
 	this.builder.push(new Bestia.Engine.SimpleObjectBuilder(this, ctx));

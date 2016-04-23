@@ -24,7 +24,7 @@ public class EcsEntityFactory extends EntityFactory {
 		super(world);
 
 		factories.add(new ItemEntityFactory(world));
-		factories.add(new NpcBestiaEntityFactory(world));
+		factories.add(new MobEntityFactory(world));
 		factories.add(new PlayerBestiaEntityFactory(world));
 		factories.add(new BasicEntityFactory(world));
 	}

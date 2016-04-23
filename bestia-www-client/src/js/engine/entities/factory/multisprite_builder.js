@@ -61,7 +61,7 @@ Bestia.Engine.MultispriteBuilder.prototype._extendPack = function(descFile, addi
 
 	var packArray = pack[key];
 
-	var msprites = descFile.multiSprite;
+	var msprites = descFile.multiSprite || [];
 
 	msprites.concat(additionalSprites).forEach(function(msName) {
 
@@ -95,5 +95,5 @@ Bestia.Engine.MultispriteBuilder.prototype._extendPack = function(descFile, addi
 };
 
 Bestia.Engine.MultispriteBuilder.prototype.canBuild = function(data, desc) {
-	return false;
+	return data.t == 'MOB_ANIM';
 };

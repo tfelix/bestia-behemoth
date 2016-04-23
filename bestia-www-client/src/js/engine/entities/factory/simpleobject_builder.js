@@ -18,12 +18,6 @@ Bestia.Engine.SimpleObjectBuilder.prototype.build = function(data) {
 
 	this._data = data;
 
-	/*
-	for (var i = 0; i < data.template.length; i++) {
-		//var t = data.template[i];
-
-	}*/
-
 };
 
 Bestia.Engine.SimpleObjectBuilder.prototype.canBuild = function(data, desc) {

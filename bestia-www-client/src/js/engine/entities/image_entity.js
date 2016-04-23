@@ -14,11 +14,19 @@ Bestia.Engine.ImageEntity.prototype.constructor = Bestia.Engine.ImageEntity;
 Bestia.Engine.ImageEntity.prototype.setSprite = function(spriteName) {
 
 	this._sprite = this._game.add.image(0, 0, spriteName);
+	
+	// Enable input.
+	this._sprite.inputEnabled = true;
+	this._sprite.events.onInputDown.add(this._onClickHandler, this);
 
 	this._setupSprite(this._sprite, this._data);
 
 	// Re-set position so the sprite gets now postioned.
 	this.setPosition(this.position.x, this.position.y);
+};
+
+Bestia.Engine.ImageEntity.prototype._onClickHandler = function() {
+	alert("geht");
 };
 
 /**
