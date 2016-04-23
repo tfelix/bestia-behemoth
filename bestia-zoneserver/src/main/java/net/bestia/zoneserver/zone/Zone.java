@@ -11,14 +11,12 @@ import org.apache.logging.log4j.Logger;
 import com.artemis.World;
 
 import net.bestia.messages.Message;
-import net.bestia.messages.chat.ChatMessage;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.ecs.ECSCommandFactory;
 import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
 import net.bestia.zoneserver.messaging.MessageCommandHandler;
 import net.bestia.zoneserver.messaging.MessageHandler;
-import net.bestia.zoneserver.messaging.MessageProvider;
 import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.world.WorldExtender;
 
@@ -167,12 +165,6 @@ public class Zone implements MessageHandler {
 		if (this.name == null || this.name.isEmpty()) {
 			throw new IllegalArgumentException("Zone name can not be null or empty.");
 		}
-		
-		final MessageProvider provider = ctx.getMessageProvider();
-		
-		// ### The zone must subscribe to certain messages in order to operate.
-		// Listen to public chat messages and chat commands.
-		provider.subscribe(msg -> msg.getMessageId().equals(ChatMessage.MESSAGE_ID), this);
 	}
 
 	/**

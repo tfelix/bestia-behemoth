@@ -46,4 +46,9 @@ public class SparseCollisionMap implements ICollisionMap {
 		return height;
 	}
 
+	@Override
+	public boolean isWalkable(Vector2 v) {
+		return isWalkable(v.x, v.y);
+	}
+
 }

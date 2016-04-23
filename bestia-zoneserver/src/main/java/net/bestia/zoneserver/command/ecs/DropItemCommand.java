@@ -62,7 +62,7 @@ public class DropItemCommand extends ECSCommand {
 			
 			// Check if we dont drop onto a wall.
 			Vector2 tempLoc = new Vector2(playerLoc.getX() - x, playerLoc.getY() - y);
-			if(map.isWalkable(tempLoc)) {
+			if(map.getCollisions().isWalkable(tempLoc)) {
 				loc = tempLoc;
 				break;
 			}
