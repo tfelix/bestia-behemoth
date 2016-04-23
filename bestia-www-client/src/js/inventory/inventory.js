@@ -405,6 +405,7 @@ Bestia.Inventory.prototype._handleList = function(_, data) {
 Bestia.Inventory.prototype._handleUpdate = function(_, data) {
 
 	var newItems = [];
+	var announceItems = [];
 
 	data.pis.forEach(function(val) {
 
@@ -418,8 +419,14 @@ Bestia.Inventory.prototype._handleUpdate = function(_, data) {
 				this.allItems.push(newItem);
 				newItems.push(newItem);
 			} else {
+				// Otherwise update it.
 				item.amount(item.amount() + val.a);
 			}
+
+			announceItems.push({
+				item : item,
+				amount : val.a
+			});
 		} else {
 			// Item must be removed.
 			if (item !== null) {
@@ -437,11 +444,17 @@ Bestia.Inventory.prototype._handleUpdate = function(_, data) {
 	// Bulk translate all new items.
 	if (newItems.length > 0) {
 		this._translateItems(newItems, function() {
-			newItems.forEach(function(item) {
+			announceItems.forEach(function(val) {
 				// Send notifications for other sub systems.
-				this._pubsub.publish(Bestia.Signal.INVENTORY_ITEM_ADD, item);
+				this._pubsub.publish(Bestia.Signal.INVENTORY_ITEM_ADD, val.item, val.amount);
 			}, this);
 		});
+	} else {
+		// Just announce. Items already translated.
+		announceItems.forEach(function(val) {
+			// Send notifications for other sub systems.
+			this._pubsub.publish(Bestia.Signal.INVENTORY_ITEM_ADD, val.item, val.amount);
+		}, this);
 	}
 
 	// If the amount of the selected item has changed, change the drop

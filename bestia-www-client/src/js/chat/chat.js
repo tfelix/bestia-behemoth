@@ -18,7 +18,7 @@
  *            LOCAL_NICKNAME - How the players account is called to display the
  *            correct name in the echo messages.
  */
-Bestia.Chat = function(domEle, game) {
+Bestia.Chat = function(domEle, game, myI18n) {
 	var self = this;
 
 	/**
@@ -28,7 +28,7 @@ Bestia.Chat = function(domEle, game) {
 	 * @constant
 	 */
 	this.MAX_MESSAGES = 50;
-
+	
 	this._pubsub = game.pubsub;
 
 	/**
@@ -43,6 +43,8 @@ Bestia.Chat = function(domEle, game) {
 	this._currentBestiaId = 0;
 
 	this.domEle = domEle;
+	
+	this._myI18n = myI18n;
 
 	this.chatEle = $(domEle).find('.chat-msgs:first').get(0);
 
@@ -192,6 +194,10 @@ Bestia.Chat = function(domEle, game) {
  */
 Bestia.Chat.prototype.sendChat = function() {
 	var msgText = this.text();
+	
+	if(msgText.length == 0) {
+		return;
+	}
 
 	// Clear text.
 	this.text('');
@@ -218,7 +224,7 @@ Bestia.Chat.prototype.sendChat = function() {
 		this.addMessage(msg);
 	}
 
-	this._game.pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
+	this._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 };
 
 /**
@@ -274,12 +280,12 @@ Bestia.Chat.prototype.addMessage = function(msg) {
  * @param _
  * @param item
  */
-Bestia.Chat.prototype._handleItemObtainedMsg = function(_, item) {
+Bestia.Chat.prototype._handleItemObtainedMsg = function(_, item, newAmount) {
 
 	var self = this;
 
-	this._i18n.t('chat.item_optained', function(t) {
-		var text = t('chat.item_optained').format(item.name(), item.amount());
+	this._myI18n.t('chat.item_obtained', function(t) {
+		var text = t('chat.item_obtained').format(item.name(), newAmount);
 		self.addLocalMessage(text, "SYSTEM");
 	});
 

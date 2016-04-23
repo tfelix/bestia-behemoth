@@ -28,7 +28,7 @@ Bestia.I18n = function(pubsub) {
 	 * @property Holds the current language of the user.
 	 * @private
 	 */
-	this._lang = '';
+	this._lang = 'de-de';
 
 	/**
 	 * Private helper function which can access the cache via its argument. Will
@@ -131,8 +131,9 @@ Bestia.I18n.prototype._guid = function() {
 
 Bestia.I18n.prototype.t = function(key, fn) {
 
-	// No callback. no work.
-	if (fn === undefined) {
+	// No callback. We can only deliver if we have already a cached value.
+	// Because no callback.
+	if (fn === undefined) {	
 		return;
 	}
 
@@ -164,7 +165,7 @@ Bestia.I18n.prototype.t = function(key, fn) {
 		});
 	}
 
-	this._translationRequested('direct', data, fn);
+	this._translationRequested(null, data, fn);
 };
 
 /**
