@@ -33,7 +33,7 @@ public class LogoutMessage extends AccountMessage {
 
 	@Override
 	public String getMessagePath() {
-		return getClientMessagePath();
+		return getClientMessagePath(getAccountId());
 	}
 
 	@Override

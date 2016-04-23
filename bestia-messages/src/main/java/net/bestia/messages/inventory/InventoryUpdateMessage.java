@@ -91,7 +91,7 @@ public class InventoryUpdateMessage extends AccountMessage {
 
 	@Override
 	public String getMessagePath() {
-		return getClientMessagePath();
+		return getClientMessagePath(getAccountId());
 	}
 
 	@Override

@@ -33,7 +33,7 @@ public class BestiaSkillMessage extends InputMessage {
 
 	@Override
 	public String getMessagePath() {
-		return getZoneMessagePath();
+		return getZoneMessagePath(getAccountId());
 	}
 
 }

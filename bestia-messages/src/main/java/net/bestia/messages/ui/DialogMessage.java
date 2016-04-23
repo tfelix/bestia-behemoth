@@ -40,7 +40,7 @@ public class DialogMessage extends AccountMessage {
 
 	@Override
 	public String getMessagePath() {
-		return getClientMessagePath();
+		return getClientMessagePath(getAccountId());
 	}
 
 }

@@ -24,6 +24,7 @@ import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.messages.Message;
+import net.bestia.messages.ZoneserverMessage;
 import net.bestia.model.I18n;
 import net.bestia.model.ServiceLocator;
 import net.bestia.model.dao.I18nDAO;
@@ -36,8 +37,7 @@ import net.bestia.zoneserver.loader.ScriptLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
 import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.messaging.MessageCommandHandler;
-import net.bestia.zoneserver.messaging.MessageProvider;
-import net.bestia.zoneserver.messaging.SimpleMessageProvider;
+import net.bestia.zoneserver.messaging.ThreadedMessageProvider;
 import net.bestia.zoneserver.script.ScriptManager;
 import net.bestia.zoneserver.zone.Zone;
 
@@ -81,8 +81,7 @@ public class Zoneserver {
 
 	private final ScriptManager scriptManager = new ScriptManager();
 	
-	private final MessageProvider messageLoop;
-	private final MessageCommandHandler messageCommandHandler;
+	private final ThreadedMessageProvider messageLoop;
 
 	private final AccountRegistry accountRegistry;
 
@@ -125,7 +124,7 @@ public class Zoneserver {
 
 		this.accountRegistry = new AccountRegistry(interserverSubscriber);
 		
-		this.messageLoop = new SimpleMessageProvider();
+		this.messageLoop = new ThreadedMessageProvider();
 
 		// Create a command context.
 		final CommandContextBuilder ctxBuilder = new CommandContextBuilder();
@@ -139,7 +138,7 @@ public class Zoneserver {
 
 		// Set the server messages.
 		final CommandFactory serverCommandFactory = new ServerCommandFactory(commandContext);
-		this.messageCommandHandler = new MessageCommandHandler(1, serverCommandFactory, messageLoop);
+		new MessageCommandHandler(serverCommandFactory, messageLoop);
 
 		// Generate the list of zones for this server.
 		final String[] zoneStrings = config.getProperty("zone.zones").split(",");
@@ -210,10 +209,10 @@ public class Zoneserver {
 		}
 
 		// Subscribe to zone broadcast messages.
-		interserverSubscriber.subscribe("zone/all");
+		interserverSubscriber.subscribe(Message.getZoneBroadcastMessagePath());
 
 		// Subscribe to messages directed for this zone.
-		interserverSubscriber.subscribe("zone/" + name);
+		interserverSubscriber.subscribe(ZoneserverMessage.getZonePath(name));
 
 		log.info("Bestia Behemoth Zone [{}] has started.", name);
 		return true;
@@ -231,7 +230,7 @@ public class Zoneserver {
 
 		// Shut down all the msg queues.
 		log.info("Shutting down: command and messaging system...");
-		messageCommandHandler.shutdown();
+		messageLoop.shutdown();
 
 		log.info("Shutting down: zones entity subsystem...");
 		zones.values().forEach((x) -> {

@@ -24,7 +24,7 @@
 		<dependency>
 			<groupId>net.bestia</groupId>
 			<artifactId>bestia-config</artifactId>
-			<version>alpha-0.2.7-SNAPSHOT</version>
+			<version>alpha-0.3.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven</groupId>

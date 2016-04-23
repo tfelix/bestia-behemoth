@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Predicate;
@@ -22,7 +24,7 @@ import net.bestia.messages.Message;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class SimpleMessageProvider implements MessageProvider {
+public class ThreadedMessageProvider implements MessageProvider {
 
 	private class Tuple {
 		public final Predicate<Message> predicate;
@@ -34,6 +36,42 @@ public class SimpleMessageProvider implements MessageProvider {
 		}
 	}
 
+	private class MsgHandlerRunnable implements Runnable {
+
+		private Message msg;
+
+		public MsgHandlerRunnable(Message msg) {
+			setMessage(msg);
+		}
+
+		public void setMessage(Message msg) {
+			this.msg = msg;
+		}
+
+		@Override
+		public void run() {
+			// First check the ID locks.
+			idLock.readLock().lock();
+
+			for (MessageHandler handler : messageIdHandler.get(msg.getMessageId())) {
+				handler.handleMessage(msg);
+			}
+
+			idLock.readLock().unlock();
+
+			predicateLock.readLock().lock();
+
+			for (Tuple t : predicateHandler) {
+				if (t.predicate.test(msg)) {
+					t.handler.handleMessage(msg);
+				}
+			}
+
+			predicateLock.readLock().unlock();
+		}
+
+	}
+
 	private final ReadWriteLock idLock = new ReentrantReadWriteLock();
 	private final ReadWriteLock predicateLock = new ReentrantReadWriteLock();
 
@@ -41,8 +79,22 @@ public class SimpleMessageProvider implements MessageProvider {
 
 	private final List<Tuple> predicateHandler = new LinkedList<>();
 
-	/* (non-Javadoc)
-	 * @see net.bestia.zoneserver.msg2.IMessageProvider#subscribe(java.lang.String, net.bestia.zoneserver.messaging.MessageHandler)
+	private final ExecutorService commandExecutor;
+
+	public ThreadedMessageProvider() {
+		this.commandExecutor = Executors.newFixedThreadPool(1);
+	}
+
+	public ThreadedMessageProvider(int numThreads) {
+		this.commandExecutor = Executors.newFixedThreadPool(numThreads);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.bestia.zoneserver.msg2.IMessageProvider#subscribe(java.lang.String,
+	 * net.bestia.zoneserver.messaging.MessageHandler)
 	 */
 	@Override
 	public void subscribe(String messageId, MessageHandler handler) {
@@ -57,8 +109,12 @@ public class SimpleMessageProvider implements MessageProvider {
 		idLock.writeLock().unlock();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.bestia.zoneserver.msg2.IMessageProvider#unsubscribe(java.lang.String, net.bestia.zoneserver.messaging.MessageHandler)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.bestia.zoneserver.msg2.IMessageProvider#unsubscribe(java.lang.String,
+	 * net.bestia.zoneserver.messaging.MessageHandler)
 	 */
 	@Override
 	public void unsubscribe(String messageId, MessageHandler handler) {
@@ -71,8 +127,12 @@ public class SimpleMessageProvider implements MessageProvider {
 		idLock.writeLock().unlock();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.bestia.zoneserver.msg2.IMessageProvider#subscribe(java.util.function.Predicate, net.bestia.zoneserver.messaging.MessageHandler)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.bestia.zoneserver.msg2.IMessageProvider#subscribe(java.util.function.
+	 * Predicate, net.bestia.zoneserver.messaging.MessageHandler)
 	 */
 	@Override
 	public void subscribe(Predicate<Message> predicate, MessageHandler handler) {
@@ -85,8 +145,11 @@ public class SimpleMessageProvider implements MessageProvider {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see net.bestia.zoneserver.msg2.IMessageProvider#unsubscribe(java.util.function.Predicate, net.bestia.zoneserver.messaging.MessageHandler)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.bestia.zoneserver.msg2.IMessageProvider#unsubscribe(java.util.
+	 * function.Predicate, net.bestia.zoneserver.messaging.MessageHandler)
 	 */
 	@Override
 	public void unsubscribe(Predicate<Message> predicate, MessageHandler handler) {
@@ -99,28 +162,23 @@ public class SimpleMessageProvider implements MessageProvider {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see net.bestia.zoneserver.msg2.IMessageProvider#handleMessage(net.bestia.messages.Message)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.bestia.zoneserver.msg2.IMessageProvider#handleMessage(net.bestia.
+	 * messages.Message)
 	 */
 	@Override
 	public void handleMessage(Message msg) {
-		// First check the ID locks.
-		idLock.readLock().lock();
+		final MsgHandlerRunnable task = new MsgHandlerRunnable(msg);
+		commandExecutor.submit(task);
+	}
 
-		for (MessageHandler handler : messageIdHandler.get(msg.getMessageId())) {
-			handler.handleMessage(msg);
-		}
-
-		idLock.readLock().unlock();
-
-		predicateLock.readLock().lock();
-
-		for (Tuple t : predicateHandler) {
-			if (t.predicate.test(msg)) {
-				t.handler.handleMessage(msg);
-			}
-		}
-
-		predicateLock.readLock().unlock();
+	/**
+	 * Cleanly shutdown the messaging loop.
+	 */
+	public void shutdown() {
+		commandExecutor.shutdown();
 	}
 }

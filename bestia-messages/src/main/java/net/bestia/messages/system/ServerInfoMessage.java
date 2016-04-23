@@ -67,6 +67,6 @@ public final class ServerInfoMessage extends AccountMessage {
 
 	@Override
 	public String getMessagePath() {
-		return getClientMessagePath();
+		return getClientMessagePath(getAccountId());
 	}
 }

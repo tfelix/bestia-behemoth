@@ -77,7 +77,7 @@ public class AttackUseMessage extends InputMessage {
 
 	@Override
 	public String getMessagePath() {
-		return getZoneMessagePath();
+		return getZoneMessagePath(getAccountId());
 	}
 
 	@Override

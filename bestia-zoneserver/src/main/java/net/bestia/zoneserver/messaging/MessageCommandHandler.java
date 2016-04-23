@@ -1,8 +1,6 @@
 package net.bestia.zoneserver.messaging;
 
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.command.Command;
@@ -17,9 +15,7 @@ import net.bestia.zoneserver.command.CommandFactory;
  */
 public class MessageCommandHandler implements MessageHandler {
 
-	private final MessageProvider provider;
 	private final CommandFactory commandFactory;
-	private final ExecutorService commandExecutor;
 
 	/**
 	 * An external router can be provided. This can be usefull if an external
@@ -29,11 +25,9 @@ public class MessageCommandHandler implements MessageHandler {
 	 * @param commandFactory
 	 * @param messageRouter
 	 */
-	public MessageCommandHandler(int numThreads, CommandFactory commandFactory, MessageProvider provider) {
+	public MessageCommandHandler(CommandFactory commandFactory, MessageProvider provider) {
 
-		this.commandExecutor = Executors.newFixedThreadPool(numThreads);
 		this.commandFactory = commandFactory;
-		this.provider = provider;
 
 		// Register all message ids which the factory can handle to the router.
 		final Set<String> messageIDs = commandFactory.getRegisteredMessageIds();
@@ -48,19 +42,7 @@ public class MessageCommandHandler implements MessageHandler {
 		final Command cmd = commandFactory.getCommand(msg);
 
 		if (cmd != null) {
-			commandExecutor.submit(cmd);
+			cmd.run();
 		}
 	}
-
-	/**
-	 * Cleanly shutdown the messaging loop.
-	 */
-	public void shutdown() {
-		// Unsubscribe.
-		final Set<String> messageIDs = commandFactory.getRegisteredMessageIds();
-		messageIDs.forEach(id -> provider.unsubscribe(id, this));
-
-		commandExecutor.shutdown();
-	}
-
 }

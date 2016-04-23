@@ -68,7 +68,7 @@ public class TranslationResponseMessage extends AccountMessage {
 
 	@Override
 	public String getMessagePath() {
-		return getClientMessagePath();
+		return getClientMessagePath(getAccountId());
 	}
 
 	@Override

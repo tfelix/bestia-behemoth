@@ -74,8 +74,8 @@ public abstract class AccountMessage extends Message {
 	 * @return A message path designated to reach a user connected to a
 	 *         webserver.
 	 */
-	protected String getClientMessagePath() {
-		return String.format("account/%d", getAccountId());
+	public static String getClientMessagePath(long accountId) {
+		return String.format("client/%d", accountId);
 	}
 
 	/**
@@ -87,8 +87,8 @@ public abstract class AccountMessage extends Message {
 	 * @return A message path designated to reach zoneserver on which a certain
 	 *         user is connected.
 	 */
-	protected String getZoneMessagePath() {
-		return String.format("zone/account/%d", getAccountId());
+	public static String getZoneMessagePath(long accountId) {
+		return String.format("zone/account/%d", accountId);
 	}
 
 }

@@ -45,7 +45,7 @@ public class MapMoveMessage extends InputMessage {
 
 	@Override
 	public String getMessagePath() {
-		return getNullMessagePath();
+		return "";
 	}
 
 }

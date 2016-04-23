@@ -37,7 +37,7 @@ public class InventoryItemCastConfirmMessage extends InventoryItemCastMessage {
 	 */
 	@Override
 	public String getMessagePath() {
-		return getClientMessagePath();
+		return getClientMessagePath(getAccountId());
 	}
 	
 	public boolean getSuccess() {

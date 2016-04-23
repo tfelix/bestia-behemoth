@@ -26,7 +26,7 @@ public class EntityInteractionRequestMessage extends AccountMessage {
 
 	@Override
 	public String getMessagePath() {
-		return getZoneMessagePath();
+		return getZoneMessagePath(getAccountId());
 	}
 
 	

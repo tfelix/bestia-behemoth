@@ -29,7 +29,7 @@ public class BestiaActivateMessage extends InputMessage {
 
 	@Override
 	public String getMessagePath() {
-		return getZoneMessagePath();
+		return getZoneMessagePath(getAccountId());
 	}
 
 }

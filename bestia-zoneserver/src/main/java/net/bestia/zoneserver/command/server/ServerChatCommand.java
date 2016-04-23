@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.bestia.messages.Message;
-import net.bestia.messages.MessageIdDecorator;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
@@ -21,8 +20,7 @@ public class ServerChatCommand extends Command {
 
 	@Override
 	public void execute(Message message, CommandContext ctx) {
-		@SuppressWarnings("unchecked")
-		final ChatMessage m = ((MessageIdDecorator<ChatMessage>) message).getMessage();
+		final ChatMessage m = (ChatMessage) message;
 
 
 		// Check chat type.
@@ -51,8 +49,7 @@ public class ServerChatCommand extends Command {
 
 	@Override
 	public String handlesMessageId() {
-		return "";
-		//return ChatMessagePreprocessor.CHAT_MSG_ID_SERVER;
+		return ChatMessage.MESSAGE_ID;
 	}
 
 }

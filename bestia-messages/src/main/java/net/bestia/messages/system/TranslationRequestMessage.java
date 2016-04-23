@@ -121,7 +121,7 @@ public class TranslationRequestMessage extends AccountMessage {
 
 	@Override
 	public String getMessagePath() {
-		return getZoneMessagePath();
+		return getClientMessagePath(getAccountId());
 	}
 
 	@Override

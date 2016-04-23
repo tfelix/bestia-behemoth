@@ -26,7 +26,7 @@ public class AttackListRequestMessage extends AccountMessage {
 
 	@Override
 	public String getMessagePath() {
-		return getZoneMessagePath();
+		return getZoneMessagePath(getAccountId());
 	}
 
 	@Override
