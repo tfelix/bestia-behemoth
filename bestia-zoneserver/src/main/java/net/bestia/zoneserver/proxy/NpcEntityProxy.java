@@ -96,7 +96,6 @@ public class NpcEntityProxy extends EntityProxy {
 		return statusPoints;
 	}
 
-	@Override
 	public int getLevel() {
 		return bestia.getLevel();
 	}

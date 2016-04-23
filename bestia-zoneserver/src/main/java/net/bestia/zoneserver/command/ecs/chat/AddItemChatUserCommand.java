@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.command.chat;
+package net.bestia.zoneserver.command.ecs.chat;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,34 +33,6 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 		public String itemDbName;
 		public int itemdId = -1;
 		public int amount;
-	}
-
-	@Override
-	public void execute(ChatMessage message, PlayerEntityProxy player, CommandContext ctx) {
-
-		final ChatMessage m = (ChatMessage) message;
-
-		final ItemDesc desc = parseCommand(m.getText());
-
-		if (desc == null) {
-			final ChatMessage reply = ChatMessage.getEchoRawMessage(message.getAccountId(),
-					"Wrong format. Use /item <NAME> <AMOUNT>");
-			ctx.getServer().sendMessage(reply);
-		}
-
-		// Find the player who send the message.
-		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
-		final InventoryProxy invManager = new InventoryProxy(player, invService, ctx.getServer());
-
-		try {
-			if (desc.itemdId != -1) {
-				invManager.addItem(desc.itemdId, desc.amount);
-			} else {
-				invManager.addItem(desc.itemDbName, desc.amount);
-			}
-		} catch (IllegalArgumentException ex) {
-			LOG.warn("Could not add item to account: {}. Reason: {}", player.getAccountId(), ex.getMessage());
-		}
 	}
 
 	private ItemDesc parseCommand(String text) {
@@ -110,5 +82,32 @@ public class AddItemChatUserCommand implements ChatUserCommand {
 	@Override
 	public UserLevel getNeededUserLevel() {
 		return UserLevel.SUPER_GM;
+	}
+
+	@Override
+	public void execute(ChatMessage message, PlayerEntityProxy player, CommandContext ctx) {
+		final ChatMessage m = (ChatMessage) message;
+
+		final ItemDesc desc = parseCommand(m.getText());
+
+		if (desc == null) {
+			final ChatMessage reply = ChatMessage.getEchoRawMessage(message.getAccountId(),
+					"Wrong format. Use /item <NAME> <AMOUNT>");
+			ctx.getServer().sendMessage(reply);
+		}
+
+		// Find the player who send the message.
+		final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
+		final InventoryProxy invManager = new InventoryProxy(player, invService, ctx.getServer());
+
+		try {
+			if (desc.itemdId != -1) {
+				invManager.addItem(desc.itemdId, desc.amount);
+			} else {
+				invManager.addItem(desc.itemDbName, desc.amount);
+			}
+		} catch (IllegalArgumentException ex) {
+			LOG.warn("Could not add item to account: {}. Reason: {}", player.getAccountId(), ex.getMessage());
+		}
 	}
 }

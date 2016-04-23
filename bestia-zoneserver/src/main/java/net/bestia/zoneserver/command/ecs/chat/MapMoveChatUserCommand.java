@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.command.chat;
+package net.bestia.zoneserver.command.ecs.chat;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

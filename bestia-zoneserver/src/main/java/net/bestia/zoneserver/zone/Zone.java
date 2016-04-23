@@ -35,12 +35,14 @@ public class Zone implements MessageHandler {
 	private class ZoneRunnable implements Runnable {
 
 		private long lastRun = 0;
+		
+		private static final int ZONE_FPS = 50;
 
 		/**
 		 * Delay between ticks of the zone. Depending on the work on the zone
 		 * the sleep time is adjusted to hit the delay as good as possible.
 		 */
-		private static final int DELAY_MS = 10;
+		private static final int DELAY_MS = 1000 / ZONE_FPS;
 
 		/**
 		 * How many input messages are piped into the zone at each tick. Limit
@@ -190,7 +192,7 @@ public class Zone implements MessageHandler {
 		final WorldExtender worldExtender = new WorldExtender(cmdContext.getConfiguration(), this);
 		final World world = worldExtender.createWorld(cmdContext, map);
 		
-		final ECSCommandFactory cmdFactory = new ECSCommandFactory(cmdContext, world, map, Zone.this);
+		final ECSCommandFactory cmdFactory = new ECSCommandFactory(cmdContext, world, map, this);
 		for(String msgId : cmdFactory.getRegisteredMessageIds()) {
 			cmdContext.getMessageProvider().subscribe(msgId, this);
 		}
@@ -231,6 +233,9 @@ public class Zone implements MessageHandler {
 			LOG.warn("Zone already stopped. Does not process messages anymore.");
 			return;
 		}
+		
+		LOG.trace("Message path {} received.", msg.getMessagePath());
+		
 		messageQueue.add(msg);
 	}
 }

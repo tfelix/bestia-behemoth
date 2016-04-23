@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.command.chat;
+package net.bestia.zoneserver.command.ecs.chat;
 
 import net.bestia.messages.ChatMessage;
 import net.bestia.model.domain.Account.UserLevel;
@@ -13,7 +13,7 @@ import net.bestia.zoneserver.proxy.PlayerEntityProxy;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-interface ChatUserCommand {
+public interface ChatUserCommand {
 
 	/**
 	 * Will be executed when the chat token of this command is found. Must

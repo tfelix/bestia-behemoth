@@ -33,6 +33,6 @@ public class LogoutBroadcastCommand extends ECSCommand {
 	
 	@Override
 	public String toString() {
-		return "SpawnPlayerBestiaCommand[]";
+		return "DespawnPlayerBestiaCommand[]";
 	}
 }
