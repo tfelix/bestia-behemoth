@@ -61,7 +61,9 @@ public class LocationDomain implements Serializable, Location {
 		this.setY(dest.getY());
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.Location2#getMapDbName()
 	 */
 	@Override
@@ -69,7 +71,9 @@ public class LocationDomain implements Serializable, Location {
 		return mapDbName;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.Location2#setMapDbName(java.lang.String)
 	 */
 	@Override
@@ -80,7 +84,9 @@ public class LocationDomain implements Serializable, Location {
 		this.mapDbName = mapDbName;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.Location2#getX()
 	 */
 	@Override
@@ -88,7 +94,9 @@ public class LocationDomain implements Serializable, Location {
 		return x;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.Location2#setX(int)
 	 */
 	@Override
@@ -100,7 +108,9 @@ public class LocationDomain implements Serializable, Location {
 		this.x = x;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.Location2#getY()
 	 */
 	@Override
@@ -108,7 +118,9 @@ public class LocationDomain implements Serializable, Location {
 		return y;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.Location2#setY(int)
 	 */
 	@Override
@@ -135,6 +147,8 @@ public class LocationDomain implements Serializable, Location {
 	@Override
 	public void set(Location loc) {
 		setPos(loc.getX(), loc.getY());
-		setMapDbName(loc.getMapDbName());
+		if (!loc.getMapDbName().isEmpty()) {
+			setMapDbName(loc.getMapDbName());
+		}
 	}
 }

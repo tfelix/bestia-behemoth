@@ -5,7 +5,7 @@
   <property name="globalScripts" value="global"/>
   <property name="isPVP" value="false"/>
   <property name="mapDbName" value="testmap1"/>
-  <property name="spawn" value="1,poring,0,0-10"/>
+  <property name="spawn" value="1,poring,5,0-10"/>
  </properties>
  <tileset firstgid="1" name="Berge" tilewidth="32" tileheight="32">
   <image source="tilemap1.png" width="512" height="512"/>
