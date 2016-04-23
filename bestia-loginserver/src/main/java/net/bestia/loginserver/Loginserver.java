@@ -10,10 +10,10 @@ import net.bestia.loginserver.authenticator.AuthState;
 import net.bestia.loginserver.authenticator.Authenticator;
 import net.bestia.loginserver.authenticator.LoginTokenAuthenticator;
 import net.bestia.loginserver.rest.RestServer;
-import net.bestia.messages.LoginAuthMessage;
-import net.bestia.messages.LoginAuthReplyMessage;
-import net.bestia.messages.LoginAuthReplyMessage.LoginState;
 import net.bestia.messages.Message;
+import net.bestia.messages.login.LoginAuthMessage;
+import net.bestia.messages.login.LoginAuthReplyMessage;
+import net.bestia.messages.login.LoginAuthReplyMessage.LoginState;
 import net.bestia.util.BestiaConfiguration;
 
 import org.apache.logging.log4j.LogManager;

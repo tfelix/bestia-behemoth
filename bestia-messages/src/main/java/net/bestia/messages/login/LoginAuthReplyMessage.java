@@ -1,4 +1,4 @@
-package net.bestia.messages;
+package net.bestia.messages.login;
 
 import java.util.Objects;
 

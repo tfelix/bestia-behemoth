@@ -7,8 +7,8 @@ import com.artemis.Entity;
 import com.artemis.EntitySubscription;
 import com.artemis.utils.IntBag;
 
-import net.bestia.messages.ChatMessage;
 import net.bestia.messages.Message;
+import net.bestia.messages.chat.ChatMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.ecs.chat.ChatCommandExecutor;
 import net.bestia.zoneserver.ecs.component.Active;

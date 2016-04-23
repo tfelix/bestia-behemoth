@@ -17,7 +17,7 @@ import com.artemis.annotations.Wire;
 import com.artemis.utils.IntBag;
 
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.LoginBroadcastMessage;
+import net.bestia.messages.login.LoginBroadcastMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;

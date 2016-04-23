@@ -1,4 +1,6 @@
-package net.bestia.messages;
+package net.bestia.messages.login;
+
+import net.bestia.messages.AccountMessage;
 
 /**
  * This message is send to the player in order to signal a (forced) logout from

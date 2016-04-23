@@ -1,4 +1,6 @@
-package net.bestia.messages;
+package net.bestia.messages.login;
+
+import net.bestia.messages.AccountMessage;
 
 /**
  * Signals a logout from an account by whatsoever means. Zones can react then to

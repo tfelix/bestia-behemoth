@@ -12,7 +12,7 @@ import com.artemis.Entity;
 import com.artemis.World;
 import com.artemis.annotations.Wire;
 
-import net.bestia.messages.ChatMessage;
+import net.bestia.messages.chat.ChatMessage;
 import net.bestia.messages.entity.EntityDamageMessage;
 import net.bestia.messages.entity.SpriteType;
 import net.bestia.model.I18n;

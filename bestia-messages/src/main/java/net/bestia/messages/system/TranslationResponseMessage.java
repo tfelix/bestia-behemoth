@@ -1,12 +1,13 @@
-package net.bestia.messages;
+package net.bestia.messages.system;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import net.bestia.messages.TranslationRequestMessage.TranslationItem;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.AccountMessage;
+import net.bestia.messages.system.TranslationRequestMessage.TranslationItem;
 
 /**
  * This message requests a translation from the server. The data is fetched via

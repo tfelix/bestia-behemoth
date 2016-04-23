@@ -6,8 +6,8 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.bestia.messages.ChatMessage;
-import net.bestia.messages.MapMoveMessage;
+import net.bestia.messages.chat.ChatMessage;
+import net.bestia.messages.map.MapMoveMessage;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;

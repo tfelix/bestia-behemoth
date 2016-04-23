@@ -3,6 +3,8 @@ package net.bestia.messages;
 import org.junit.Assert;
 import org.junit.Test;
 
+import net.bestia.messages.chat.ChatMessage;
+
 public class ChatMessageTest {
 	
 	@Test

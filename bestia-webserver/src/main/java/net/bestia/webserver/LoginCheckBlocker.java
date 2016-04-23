@@ -7,12 +7,12 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import net.bestia.messages.LoginAuthMessage;
-import net.bestia.messages.LoginAuthReplyMessage;
-import net.bestia.messages.LoginAuthReplyMessage.LoginState;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import net.bestia.messages.login.LoginAuthMessage;
+import net.bestia.messages.login.LoginAuthReplyMessage;
+import net.bestia.messages.login.LoginAuthReplyMessage.LoginState;
 
 /**
  * Handles checks for login checks to the interserver in a blocking fashion.

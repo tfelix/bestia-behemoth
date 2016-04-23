@@ -1,6 +1,7 @@
-package net.bestia.messages;
+package net.bestia.messages.map;
 
 
+import net.bestia.messages.InputMessage;
 import net.bestia.model.domain.Location;
 
 /**

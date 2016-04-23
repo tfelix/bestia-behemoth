@@ -1,5 +1,6 @@
-package net.bestia.messages;
+package net.bestia.messages.chat;
 
+import net.bestia.messages.InputMessage;
 import net.bestia.model.I18n;
 import net.bestia.model.domain.Account;
 

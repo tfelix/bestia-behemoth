@@ -11,9 +11,9 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import net.bestia.messages.LoginAuthMessage;
-import net.bestia.messages.LoginAuthReplyMessage;
 import net.bestia.messages.Message;
+import net.bestia.messages.login.LoginAuthMessage;
+import net.bestia.messages.login.LoginAuthReplyMessage;
 
 public class LoginCheckBlockerTest {
 

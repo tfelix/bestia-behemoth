@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.command.ecs.chat;
 
-import net.bestia.messages.ChatMessage;
+import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.proxy.PlayerEntityProxy;

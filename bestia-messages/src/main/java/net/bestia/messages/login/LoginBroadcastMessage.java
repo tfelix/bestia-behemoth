@@ -1,4 +1,6 @@
-package net.bestia.messages;
+package net.bestia.messages.login;
+
+import net.bestia.messages.AccountMessage;
 
 public class LoginBroadcastMessage extends AccountMessage {
 

@@ -3,8 +3,8 @@ package net.bestia.zoneserver.command.chat;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import net.bestia.messages.ChatMessage;
-import net.bestia.messages.ChatMessage.Mode;
+import net.bestia.messages.chat.ChatMessage;
+import net.bestia.messages.chat.ChatMessage.Mode;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.ecs.chat.AddItemChatUserCommand;
 import net.bestia.zoneserver.proxy.PlayerEntityProxy;

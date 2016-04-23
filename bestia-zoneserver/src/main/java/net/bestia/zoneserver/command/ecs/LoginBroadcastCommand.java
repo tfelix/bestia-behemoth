@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import net.bestia.messages.LoginBroadcastMessage;
 import net.bestia.messages.Message;
+import net.bestia.messages.login.LoginBroadcastMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.service.AccountService;
 import net.bestia.zoneserver.command.CommandContext;

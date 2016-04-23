@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.command.ecs;
 
-import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
+import net.bestia.messages.login.LogoutBroadcastMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 

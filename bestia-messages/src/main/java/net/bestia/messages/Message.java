@@ -21,8 +21,28 @@ public abstract class Message implements Serializable {
 
 	private static final long serialVersionUID = 2015052401L;
 
-	private final static String MSG_PATH_SERVER_ALL = "servers";
-	private final static String MSG_PATH_ZONE_ALL = "zone/all";
+	/**
+	 * The message will get delivered to all servers.
+	 */
+	protected final static String MSG_PATH_SERVER_BROADCAST = "servers";
+	
+	/**
+	 * Helper method. Returns the message path for addressing a broadcast to all zones.
+	 * 
+	 */
+	protected final static String MSG_PATH_ZONE_BROADCAST = "zone/all";
+	
+	/**
+	 * Message is directed to the login server.
+	 */
+	protected final static String MSG_PATH_LOGIN = "login";
+	
+	/**
+	 * Returns a null value for the message path. This can be used for internal messages to the ECS system for example
+	 * which should not take part in inter-server communication.
+	 * 
+	 * @return
+	 */
 	private final static String MSG_PATH_NULL = "";
 
 	public Message() {
@@ -54,30 +74,18 @@ public abstract class Message implements Serializable {
 	public abstract String getMessagePath();
 
 
-	/**
-	 * Returns a null value for the message path. This can be used for internal messages to the ECS system for example
-	 * which should not take part in inter-server communication.
-	 * 
-	 * @return
-	 */
+	
 	protected String getNullMessagePath() {
 		return MSG_PATH_NULL;
 	}
 	
-	/**
-	 * The message will get delivered to all servers.
-	 * @return
-	 */
+	
 	protected String getServerBroadcastPath() {
-		return MSG_PATH_SERVER_ALL;
+		return MSG_PATH_SERVER_BROADCAST;
 	}
 
-	/**
-	 * Helper method. Returns the message path for addressing a broadcast to all zones.
-	 * 
-	 * @return A message path addressing a zone broadcast.
-	 */
+	
 	protected String getZoneBroadcastMessagePath() {
-		return MSG_PATH_ZONE_ALL;
+		return MSG_PATH_ZONE_BROADCAST;
 	}
 }

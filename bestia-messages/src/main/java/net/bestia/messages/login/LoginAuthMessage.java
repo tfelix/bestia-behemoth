@@ -1,6 +1,8 @@
-package net.bestia.messages;
+package net.bestia.messages.login;
 
 import java.util.UUID;
+
+import net.bestia.messages.AccountMessage;
 
 /**
  * Message is send if a webserver wants to authenticate a pending connection. It will send the given access token from

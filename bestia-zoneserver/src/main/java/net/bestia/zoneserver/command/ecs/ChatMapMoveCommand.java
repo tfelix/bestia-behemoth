@@ -3,8 +3,8 @@ package net.bestia.zoneserver.command.ecs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.bestia.messages.MapMoveMessage;
 import net.bestia.messages.Message;
+import net.bestia.messages.map.MapMoveMessage;
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;

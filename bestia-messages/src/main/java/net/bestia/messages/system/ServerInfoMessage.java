@@ -1,8 +1,10 @@
-package net.bestia.messages;
+package net.bestia.messages.system;
 
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.AccountMessage;
 
 /**
  * Returns basic information about this zoneserver for debugging purposes.

@@ -5,8 +5,8 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.bestia.messages.ChatMessage;
-import net.bestia.messages.ChatMessage.Mode;
+import net.bestia.messages.chat.ChatMessage;
+import net.bestia.messages.chat.ChatMessage.Mode;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.command.CommandContext;

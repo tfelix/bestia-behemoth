@@ -20,9 +20,9 @@ import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.LoginAuthReplyMessage;
-import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
+import net.bestia.messages.login.LoginAuthReplyMessage;
+import net.bestia.messages.login.LogoutBroadcastMessage;
 
 /**
  * Helper class to provide a centralized storage for all opend websocket

@@ -1,6 +1,8 @@
-package net.bestia.messages;
+package net.bestia.messages.chat;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.AccountMessage;
 
 public class ChatEchoMessage extends AccountMessage {
 	

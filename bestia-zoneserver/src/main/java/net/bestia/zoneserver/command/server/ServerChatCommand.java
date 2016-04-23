@@ -3,9 +3,9 @@ package net.bestia.zoneserver.command.server;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.bestia.messages.ChatMessage;
 import net.bestia.messages.Message;
 import net.bestia.messages.MessageIdDecorator;
+import net.bestia.messages.chat.ChatMessage;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;
 

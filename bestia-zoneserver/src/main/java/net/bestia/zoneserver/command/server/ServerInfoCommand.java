@@ -3,7 +3,7 @@ package net.bestia.zoneserver.command.server;
 import java.util.Set;
 
 import net.bestia.messages.Message;
-import net.bestia.messages.ServerInfoMessage;
+import net.bestia.messages.system.ServerInfoMessage;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.command.CommandContext;

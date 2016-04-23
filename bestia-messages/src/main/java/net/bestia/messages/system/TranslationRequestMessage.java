@@ -1,9 +1,10 @@
-package net.bestia.messages;
+package net.bestia.messages.system;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bestia.messages.AccountMessage;
 import net.bestia.model.domain.TranslationCategory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
