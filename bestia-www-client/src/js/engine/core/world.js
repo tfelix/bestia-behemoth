@@ -36,15 +36,14 @@ Bestia.Engine.World = function(game, astar, groups) {
 	this.name = "";
 
 	this._groups = groups;
-	
+
 	/**
 	 * Tilemap.
 	 */
 	this._map = null;
-	
-	//this._collisionMap;
-};
 
+	// this._collisionMap;
+};
 
 /**
  * Displays the map name of the game to the user. Should be called after a map
@@ -62,9 +61,9 @@ Bestia.Engine.World.prototype.displayMapName = function() {
 
 	// Spawn a centered text.
 	var text = this._game.add.text(this._game._width / 2, this._game._height / 2 - 100, mapName);
-	
+
 	this._groups.gui.add(text);
-	
+
 	text.align = 'center';
 	text.anchor.setTo(0.5);
 
@@ -139,7 +138,6 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 	layer0.resizeWorld();
 	this._groups.mapGround.add(layer0);
 
-
 	var iLayer = 0;
 	var jLayer = 1;
 
@@ -187,11 +185,11 @@ Bestia.Engine.World.prototype.loadMap = function(mapDbName) {
 
 Bestia.Engine.World.prototype.calculateCollisionMap = function() {
 	// Calculate the number of tiles visible.
-	//var tilesWidth = this.game.width / this.properties.tileSize + 5;
-	//var tilesHeight = this.game.height / this.properties.tileSize + 5;
-	
+	// var tilesWidth = this.game.width / this.properties.tileSize + 5;
+	// var tilesHeight = this.game.height / this.properties.tileSize + 5;
+
 	// Calculate a static collision map.
-	
+
 };
 
 /**
@@ -267,6 +265,13 @@ Bestia.Engine.World.getTileXY = function(pxX, pxY, obj) {
 	obj.y = Math.floor(pxY / Bestia.Engine.World.TILE_SIZE);
 
 	return obj;
+};
+
+Bestia.Engine.World.getDistance = function(c1, c2) {
+	var dX = c1.x - c2.x;
+	var dY = c1.y - c2.y;
+
+	return Math.floor(Math.sqrt(dX * dX + dY * dY));
 };
 
 // Constants.
