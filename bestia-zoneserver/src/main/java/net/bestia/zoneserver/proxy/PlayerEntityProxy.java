@@ -470,7 +470,7 @@ public class PlayerEntityProxy extends EntityProxy {
 
 	@Override
 	public int getRemainingCooldown(int attackId) {
-		return 100;
+		return 0;
 	}
 
 	@Override

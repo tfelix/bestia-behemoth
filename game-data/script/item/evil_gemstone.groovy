@@ -6,6 +6,6 @@
 	.setSprite('emperium')
 	.setPosition(targetX, targetY)
 	.setHp(100)
-	.setTickCallback(4000, { 
+	.setTickCallback(360000, { 
 		kill(); })
 	.spawn();

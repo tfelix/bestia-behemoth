@@ -1,4 +1,4 @@
-Bestia.Engine.BasicEntity = function(ctx) {
+Bestia.Engine.BasicEntity = function(ctx, uuid) {
 
 	/**
 	 * Position in tile coordinates.
@@ -19,10 +19,10 @@ Bestia.Engine.BasicEntity = function(ctx) {
 	 * @public
 	 * @property {String}
 	 */
-	this.uuid = "";
+	this._uuid = uuid;
 
 	this._game = ctx.game;
-	
+
 	this._ctx = ctx;
 
 	/**
@@ -94,7 +94,7 @@ Bestia.Engine.BasicEntity.prototype.setPosition = function(x, y, noSync) {
 	this._position.x = x;
 	this._position.y = y;
 
-	if(!noSync) {
+	if (!noSync) {
 		this._syncSpritePosition();
 	}
 };
@@ -121,6 +121,24 @@ Object.defineProperty(Bestia.Engine.BasicEntity.prototype, 'position', {
 		this._syncSpritePosition();
 	}
 
+});
+
+/**
+ * Give access to the underlying sprite phaser API.
+ */
+Object.defineProperty(Bestia.Engine.BasicEntity.prototype, 'sprite', {
+	get : function() {
+		return this._sprite;
+	}
+});
+
+/**
+ * Readonly access to the uuid.
+ */
+Object.defineProperty(Bestia.Engine.BasicEntity.prototype, 'uuid', {
+	get : function() {
+		return this._uuid;
+	}
 });
 
 /**

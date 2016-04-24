@@ -1,7 +1,6 @@
 Bestia.Engine.SpriteEntity = function(ctx, uuid, x, y, desc) {
-	Bestia.Engine.BasicEntity.call(this, ctx);
+	Bestia.Engine.BasicEntity.call(this, ctx, uuid);
 
-	this.uuid = uuid;
 	this._data = desc;
 
 	/**

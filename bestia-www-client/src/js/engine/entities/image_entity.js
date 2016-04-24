@@ -1,7 +1,6 @@
 Bestia.Engine.ImageEntity = function(ctx, uuid, x, y, desc) {
-	Bestia.Engine.BasicEntity.call(this, ctx);
+	Bestia.Engine.BasicEntity.call(this, ctx, uuid);
 
-	this.uuid = uuid;
 	this._data = desc;
 
 	this.setPosition(x, y);
@@ -28,11 +27,11 @@ Bestia.Engine.ImageEntity.prototype.setSprite = function(spriteName) {
 };
 
 Bestia.Engine.ImageEntity.prototype._onOverHandler = function() {
-	this._ctx.pubsub.publish(Bestia.Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_over', sprite: this._sprite});
+	this._ctx.pubsub.publish(Bestia.Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_over', entity: this});
 };
 
 Bestia.Engine.ImageEntity.prototype._onOutHandler = function() {
-	this._ctx.pubsub.publish(Bestia.Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_out', sprite: this._sprite});
+	this._ctx.pubsub.publish(Bestia.Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_out', entity: this});
 };
 
 /**

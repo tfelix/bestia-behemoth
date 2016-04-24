@@ -1,5 +1,6 @@
 package net.bestia.messages.system;
 
+import net.bestia.messages.Message;
 import net.bestia.messages.ZoneserverMessage;
 
 /**
@@ -35,7 +36,7 @@ public class ShutdownMessage extends ZoneserverMessage {
 	public static ShutdownMessage getShutdownBroadcast() {
 		// Create a new message but set the message path to the broadcast path.
 		final ShutdownMessage msg = new ShutdownMessage("broadcast", "behemoth");
-		msg.messagePath = msg.getServerBroadcastPath();
+		msg.messagePath = Message.getServerBroadcastPath();
 
 		return msg;
 	}

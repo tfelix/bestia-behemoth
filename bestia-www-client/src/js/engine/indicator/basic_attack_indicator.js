@@ -17,6 +17,7 @@ Bestia.Engine.Indicator.BasicAttack = function(manager) {
 	this._marker = null;
 
 	this._targetSprite = null;
+	this._targetEntity = null;
 
 	// Listen for activation signal.
 	this._ctx.pubsub.subscribe(Bestia.Signal.ENGINE_REQUEST_INDICATOR, this._handleIndicator.bind(this));
@@ -54,8 +55,10 @@ Bestia.Engine.Indicator.BasicAttack.prototype.create = function() {
 };
 
 Bestia.Engine.Indicator.BasicAttack.prototype._handleIndicator = function(_, data) {
+	
 	if (data.handle === 'basic_attack_over') {
-		this._targetSprite = data.sprite;
+		this._targetSprite = data.entity.sprite;
+		this._targetEntity = data.entity;
 		
 		// Do some wiring. If the sprite dies we need to give up controls.
 		this._targetSprite.events.onDestroy.add(function(){
@@ -83,10 +86,23 @@ Bestia.Engine.Indicator.BasicAttack.prototype._onClick = function(pointer) {
 	var d = Bestia.Engine.World.getDistance(player.position, pointerCords);
 	
 	if(d > this.RANGE) {
-		// Move to target.
-		alert("move" + d);
+		// Move to target.		
+		var path = this._ctx.zone.findPath(player.position, pointerCords).nodes;
+
+		// Path not found.
+		if (path.length === 0) {
+			return;
+		}
+
+		path = path.reverse();
+		var msg = new Bestia.Message.BestiaMove(player.playerBestiaId, path, this._ctx.playerBestia.walkspeed());
+		this._ctx.pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
+
+		// Start movement locally as well.
+		player.moveTo(path, this._ctx.playerBestia.walkspeed());
 	} else {
 		// Attack.
-		alert("Attack" + d);
+		var msg = new Bestia.Message.BasicMeleeAttackUse(this._targetEntity.uuid);
+		this._ctx.pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
 	}
 };

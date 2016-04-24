@@ -58,17 +58,25 @@ public class AttackUseCommand extends ECSCommand {
 		final AttackUseMessage atkMsg = (AttackUseMessage) message;
 		final PlayerEntityProxy pbm = getPlayerBestiaProxy();
 
-		final Optional<Attack> entityAtkOpt = pbm.getAttacks()
-				.stream()
-				.filter(x -> x.getId() == atkMsg.getAttackId())
-				.findAny();
+		final Attack entityAtk;
 
-		// Does the player have this attack? (Or is std. attack).
-		if (!entityAtkOpt.isPresent()) {
-			return;
+		// Determine the attack. If its a basic attack simply use it, all
+		// bestias have it.
+		if (atkMsg.getAttackId() == -1) {
+			entityAtk = Attack.getDefaultMeleeAttack();
+		} else {
+			final Optional<Attack> entityAtkOpt = pbm.getAttacks()
+					.stream()
+					.filter(x -> x.getId() == atkMsg.getAttackId())
+					.findAny();
+
+			// Does the player have this attack? (Or is std. attack).
+			if (!entityAtkOpt.isPresent()) {
+				return;
+			}
+
+			entityAtk = entityAtkOpt.get();
 		}
-
-		final Attack entityAtk = entityAtkOpt.get();
 
 		// Is the attack on cooldown?
 		final int cooldown = pbm.getRemainingCooldown(entityAtk.getId());

@@ -85,10 +85,23 @@ Bestia.Message = {
 	/**
 	 * Uses an attack.
 	 */
-	AttackUse : function(attackId, x, y) {
+	AttackUse : function(attackId, x, y, targetUUID) {
+		this.mid = Bestia.MID.ATTACK_USE;
 		this.aid = attackId;
-		this.x = x;
-		this.y = y;
+		this.x = x || 0;
+		this.y = y || 0;
+		this.tid = targetUUID || null;
+	},
+	
+	/**
+	 * Uses the basic (melee) attack to a given entity.
+	 */
+	BasicMeleeAttackUse : function(targetUUID) {
+		this.mid = Bestia.MID.ATTACK_USE;
+		this.aid = -1;
+		this.x = 0;
+		this.y = 0;
+		this.tid = targetUUID;
 	},
 
 	/**
