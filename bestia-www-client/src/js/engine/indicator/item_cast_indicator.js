@@ -52,6 +52,9 @@ Bestia.Engine.Indicator.ItemCast.prototype._onCastItem = function(_, item) {
 	this._requestActive();
 };
 
+/**
+ * Extract Upper.
+ */
 Bestia.Engine.Indicator.ItemCast.prototype._parseIndicator = function(indicatorStr) {
 	var tokens = indicatorStr.split(':');
 
@@ -89,6 +92,4 @@ Bestia.Engine.Indicator.ItemCast.prototype.create = function() {
 	this._ctx.game.add.tween(this._marker).to({
 		angle : 360
 	}, 1500, Phaser.Easing.Linear.None, true, 0).loop(true);
-
-	// this._requestActive();
 };

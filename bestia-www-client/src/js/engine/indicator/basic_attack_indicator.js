@@ -58,7 +58,7 @@ Bestia.Engine.Indicator.BasicAttack.prototype._handleIndicator = function(_, dat
 	}
 };
 
-Bestia.Engine.Indicator.ItemCast.prototype._onClick = function(pointer) {
+Bestia.Engine.Indicator.BasicAttack.prototype._onClick = function(pointer) {
 
 	if (pointer.button === Phaser.Mouse.RIGHT_BUTTON) {
 		// Was canceled.
