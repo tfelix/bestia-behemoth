@@ -152,4 +152,8 @@ public class AttackUseCommand extends ECSCommand {
 		getPlayerBestiaProxy().triggerCooldown(entityAtk);
 	}
 
+	@Override
+	public String toString() {
+		return "AttackUseCommand[]";
+	}
 }

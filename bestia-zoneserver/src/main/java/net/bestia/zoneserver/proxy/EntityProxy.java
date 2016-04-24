@@ -41,6 +41,7 @@ public class EntityProxy implements Entity {
 
 	private Direction facing;
 	private final Location location;
+	private final StatusPoints statusPoints = new StatusPoints();
 
 	private final Map<Integer, Long> cooldownCache = new HashMap<>();
 
@@ -82,7 +83,7 @@ public class EntityProxy implements Entity {
 	 */
 	@Override
 	public StatusPoints getStatusPoints() {
-		return new StatusPoints();
+		return statusPoints;
 	}
 
 	/*

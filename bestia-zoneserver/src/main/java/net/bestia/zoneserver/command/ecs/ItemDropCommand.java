@@ -15,7 +15,7 @@ import net.bestia.zoneserver.ecs.entity.ItemEntityBuilder;
 import net.bestia.zoneserver.proxy.InventoryProxy;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
-public class DropItemCommand extends ECSCommand {
+public class ItemDropCommand extends ECSCommand {
 
 	private final Random rand = new Random();
 	private EntityFactory entityFactory;
@@ -85,4 +85,8 @@ public class DropItemCommand extends ECSCommand {
 		entityFactory.spawn(eb);
 	}
 
+	@Override
+	public String toString() {
+		return "ItemDropCommand[]";
+	}
 }

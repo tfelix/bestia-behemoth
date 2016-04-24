@@ -35,6 +35,7 @@ public class EntityBuilder {
 	String mobName;
 	String mobGroup;
 	int tickDelay;
+	int hp;
 	Closure<Void> tickCallback;
 
 	public EntityBuilder() {
@@ -85,12 +86,14 @@ public class EntityBuilder {
 	 * 
 	 * @param mobName
 	 */
-	public void setMobName(String mobName) {
+	public EntityBuilder setMobName(String mobName) {
 		this.mobName = mobName;
+		return this;
 	}
 	
-	public void setMobGroup(String mobGroup) {
+	public EntityBuilder setMobGroup(String mobGroup) {
 		this.mobGroup = mobGroup;
+		return this;
 	}
 
 	/**
@@ -124,8 +127,11 @@ public class EntityBuilder {
 	 * @return
 	 */
 	public EntityBuilder setHp(int hp) {
+		if(hp < 0) {
+			hp = 0;
+		}
 		LOG.trace("HP was set: {}", hp);
-
+		this.hp = hp;
 		return this;
 	}
 

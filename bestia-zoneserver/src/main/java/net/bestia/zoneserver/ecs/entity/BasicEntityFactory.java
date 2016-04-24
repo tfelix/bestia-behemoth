@@ -74,6 +74,11 @@ class BasicEntityFactory extends EntityFactory {
 		final Position position = positionMapper.get(entityId);	
 		position.setPos(builder.position.x, builder.position.y);
 		
+		if(builder.hp > 0) {
+			prox.getStatusPoints().setMaxHp(builder.hp);
+			prox.getStatusPoints().setCurrentHp(builder.hp);
+		}
+		
 		if(builder.tickCallback != null && builder.tickDelay > 0) {
 			final EntityEdit edit = world.edit(entityId);
 			edit.create(ScriptEntityTicker.class);

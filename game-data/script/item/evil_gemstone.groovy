@@ -5,7 +5,7 @@
  api.entity()
 	.setSprite('emperium')
 	.setPosition(targetX, targetY)
-	.setHp(100)
+	.setHp(25)
 	.setTickCallback(360000, { 
 		kill(); })
 	.spawn();
