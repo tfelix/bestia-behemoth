@@ -50,10 +50,6 @@ public class Damage implements Serializable {
 	 * @param type
 	 */
 	public Damage(String uuid, int damage, DamageType type) {
-		if (uuid == null || uuid.isEmpty()) {
-			throw new IllegalArgumentException("Uuid can not be null or empty.");
-		}
-
 		if (damage < 0) {
 			throw new IllegalArgumentException("Damage can not be negative.");
 		}
@@ -149,6 +145,14 @@ public class Damage implements Serializable {
 	@Override
 	public String toString() {
 		return String.format("Damage[a: %d, t: %s]", damage, type.toString());
+	}
+
+	public static Damage fromDamage(int dmg) {
+		if(dmg <= 0) {
+			return Damage.getMiss("");
+		} else {
+			return Damage.getHit("", dmg);
+		}
 	}
 
 }

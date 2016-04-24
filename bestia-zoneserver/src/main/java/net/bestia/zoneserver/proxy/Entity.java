@@ -2,6 +2,8 @@ package net.bestia.zoneserver.proxy;
 
 import java.util.Collection;
 
+import net.bestia.model.domain.Element;
+
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Location;
@@ -27,6 +29,13 @@ public interface Entity {
 	 * @return The entity ID.
 	 */
 	int getEntityId();
+
+	/**
+	 * Returns the uuid of this entity.
+	 * 
+	 * @return The uuid of this entity.
+	 */
+	String getUUID();
 
 	/**
 	 * Apply this damage to the entity. Usually status effects or equipments
@@ -57,6 +66,14 @@ public interface Entity {
 	void kill();
 
 	/**
+	 * Returns the level of the entity. Several calculations (skill etc.) are
+	 * dependant if the level.
+	 * 
+	 * @return The current level of the entity.
+	 */
+	int getLevel();
+
+	/**
 	 * Gets a list of all possible attacks used by this entity.
 	 * 
 	 * @return
@@ -77,8 +94,18 @@ public interface Entity {
 	/**
 	 * Triggers the cooldown for the given attack id.
 	 * 
-	 * @param attackId
+	 * @param atk
+	 *            The attack which cooldown should be triggerd.
 	 */
-	void triggerCooldown(int attackId);
+	void triggerCooldown(Attack atk);
+
+	/**
+	 * Returns the current element of the entity. If the entity uses equipment
+	 * or is affected by a status effect the element might have changed from the
+	 * original element.
+	 * 
+	 * @return The current element of the entity.
+	 */
+	Element getElement();
 
 }

@@ -13,7 +13,6 @@ import com.artemis.World;
 import com.artemis.annotations.Wire;
 
 import net.bestia.messages.chat.ChatMessage;
-import net.bestia.messages.entity.EntityDamageMessage;
 import net.bestia.messages.entity.SpriteType;
 import net.bestia.model.I18n;
 import net.bestia.model.domain.Attack;
@@ -22,7 +21,6 @@ import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
 import net.bestia.model.domain.StatusPoints;
-import net.bestia.model.misc.Damage;
 import net.bestia.model.misc.Sprite.InteractionType;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.command.CommandContext;
@@ -30,7 +28,6 @@ import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 import net.bestia.zoneserver.ecs.manager.UuidManager;
 
 /**
@@ -58,9 +55,6 @@ public class PlayerEntityProxy extends EntityProxy {
 	private ComponentMapper<net.bestia.zoneserver.ecs.component.PlayerBestia> playerBestiaMapper;
 	@Wire
 	private CommandContext ctx;
-	private PlayerBestiaSpawnManager playerBestiaSpawnManager;
-
-	private final String entityUUID;
 
 	private Direction headFacing;
 
@@ -77,7 +71,6 @@ public class PlayerEntityProxy extends EntityProxy {
 		this.entity = entity;
 
 		// Get all the mapper.
-		this.entityUUID = uuidManager.getUuid(entity).toString();
 		this.bestia = playerBestia;
 		this.headFacing = Direction.SOUTH;
 
@@ -171,29 +164,6 @@ public class PlayerEntityProxy extends EntityProxy {
 	}
 
 	/**
-	 * Uses an attack in a given slot. If the slot is not set then it will do
-	 * nothing. Also if the requisites for execution of an attack (mana,
-	 * cooldown etc.) are not met there will also be no effect. If the slot
-	 * number is invalid an {@link IllegalArgumentException} will be thrown.
-	 * Slot numbering starts with 0 for the first slot.
-	 * 
-	 * @param slot
-	 *            Number of the slot attack to be used. Starts with 0.
-	 */
-	public boolean useAttack(int atkId) {
-
-		final Attacks atks = attacksMapper.get(entityID);
-
-		if (atks.hasAttack(atkId)) {
-			// FIXME
-			return useAttack(atkId);
-		} else {
-			// Attack ID not learned. Hacking?
-			return false;
-		}
-	}
-
-	/**
 	 * Sends a system message to the owner of this bestia.
 	 * 
 	 * @param text
@@ -253,38 +223,35 @@ public class PlayerEntityProxy extends EntityProxy {
 		statusPoints.setCurrentMana(statusPoints.getCurrentMana());
 	}
 
+
 	/**
-	 * Adds the damage to the player bestia and sends an update to the owner of
-	 * it.
+	 * Uses an attack in a given slot. If the slot is not set then it will do
+	 * nothing. Also if the requisites for execution of an attack (mana,
+	 * cooldown etc.).
 	 * 
-	 * @param dmg
-	 *            Simple amount of damage to be taken.
 	 */
-	public void takeDamage(int dmgValue) {
-
-		// Spawn the damage display indicator in the ECS to let it get send to
-		// all player in range.
-		final Damage damage = Damage.getHit(entityUUID, dmgValue);
-
-		final EntityDamageMessage dmgMsg = new EntityDamageMessage(0, damage);
-		playerBestiaSpawnManager.sendMessageToSightrange(getEntityId(), dmgMsg);
-
-		// Update our current hp.
-		final int newHp = statusPoints.getCurrentHp() - dmgValue;
-
-		if (newHp <= 0) {
-			kill();
-			statusPoints.setCurrentHp(0);
-			return;
+	@Override
+	public boolean useAttack(Attack atk) {
+		
+		if(atk.getId() == Attack.BASIC_MELEE_ATTACK_ID) {
+			return true;
 		}
 
-		statusPoints.setCurrentHp(newHp);
+		final Attacks atks = attacksMapper.get(entityID);
+
+		if (!atks.hasAttack(atk.getId())) {
+			// Attack ID not learned. Hacking?
+			return false;
+		}
+		
+		return getStatusPoints().subtractMana(atk.getManaCost());
 	}
 
 	/**
 	 * Kills a player bestia.
 	 */
 	public void kill() {
+		super.kill();
 		LOG.debug("Player bestia {} was killed.", getPlayerBestiaId());
 	}
 
@@ -336,9 +303,9 @@ public class PlayerEntityProxy extends EntityProxy {
 
 	@Override
 	public Collection<Attack> getAttacks() {
-		if(attacksCache == null) {
+		if (attacksCache == null) {
 			attacksCache = new ArrayList<>();
-			
+
 			for (int i = 1; i <= 5; i++) {
 				Attack atk = null;
 				switch (i) {
@@ -366,7 +333,7 @@ public class PlayerEntityProxy extends EntityProxy {
 				}
 			}
 		}
-		
+
 		return attacksCache;
 	}
 
@@ -471,11 +438,5 @@ public class PlayerEntityProxy extends EntityProxy {
 	@Override
 	public int getRemainingCooldown(int attackId) {
 		return 0;
-	}
-
-	@Override
-	public void triggerCooldown(int attackId) {
-		// TODO Auto-generated method stub
-		
 	}
 }

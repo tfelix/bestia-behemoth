@@ -9,35 +9,23 @@ import com.artemis.annotations.Wire;
 
 import net.bestia.messages.entity.SpriteType;
 import net.bestia.zoneserver.command.CommandContext;
+import net.bestia.zoneserver.ecs.component.EntityComponent;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.ScriptEntityTicker;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.entity.EntityBuilder.EntityType;
 import net.bestia.zoneserver.ecs.manager.UuidManager;
+import net.bestia.zoneserver.proxy.EntityProxy;
 
 @Wire
 class BasicEntityFactory extends EntityFactory {
-	
-	public class EntityProxy {
-		
-		private World world;
-		private int entityId;
-		
-		public EntityProxy(World world, int entityId) {
-			this.world = world;
-			this.entityId = entityId;
-		}
-		
-		public void kill() {
-			world.delete(entityId);
-		}
-	}
 
 	private final Archetype archetype;
 
 	private ComponentMapper<Position> positionMapper;
 	private ComponentMapper<Visible> visibleMapper;
 	private ComponentMapper<ScriptEntityTicker> scriptTickerMapper;
+	private ComponentMapper<EntityComponent> entityMapper;
 	
 	@Wire
 	private UuidManager uuidManager;
@@ -46,6 +34,7 @@ class BasicEntityFactory extends EntityFactory {
 		super(world, ctx);
 
 		this.archetype = new ArchetypeBuilder()
+				.add(EntityComponent.class)
 				.add(Visible.class)
 				.add(Position.class)
 				.build(world);
@@ -79,6 +68,8 @@ class BasicEntityFactory extends EntityFactory {
 		visible.spriteType = SpriteType.STATIC;
 		
 		final EntityProxy prox = new EntityProxy(world, entityId);
+		
+		entityMapper.get(entityId).manager = prox;
 		
 		final Position position = positionMapper.get(entityId);	
 		position.setPos(builder.position.x, builder.position.y);

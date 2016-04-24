@@ -6,7 +6,7 @@ import javax.script.Bindings;
 import javax.script.SimpleBindings;
 
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.Bestia;
+import net.bestia.zoneserver.ecs.component.EntityComponent;
 import net.bestia.zoneserver.ecs.component.Delay;
 import net.bestia.zoneserver.ecs.component.Script;
 import net.bestia.zoneserver.script.ScriptApi;
@@ -36,7 +36,7 @@ public class ScriptTickSystem extends DelayedIteratingSystem {
 	private static final Logger LOG = LogManager.getLogger(ScriptTickSystem.class);
 
 	private ComponentMapper<Script> scriptMapper;
-	private ComponentMapper<Bestia> bestiaMapper;
+	private ComponentMapper<EntityComponent> bestiaMapper;
 	private ComponentMapper<Delay> delayMapper;
 
 	/**

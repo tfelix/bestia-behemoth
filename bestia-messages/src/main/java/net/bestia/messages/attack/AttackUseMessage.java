@@ -82,7 +82,7 @@ public class AttackUseMessage extends InputMessage {
 
 	@Override
 	public String toString() {
-		return String.format("AttackUseMessage[accId: {}, bestiaId: {}, attackId: {}, x: {}, y: {}]", getAccountId(),
+		return String.format("AttackUseMessage[accId: %d, bestiaId: %d, attackId: %d, x: %d, y: %d]", getAccountId(),
 				getPlayerBestiaId(), attackId, x, y);
 	}
 }

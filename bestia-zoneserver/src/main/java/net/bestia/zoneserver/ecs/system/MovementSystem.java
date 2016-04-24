@@ -15,7 +15,7 @@ import com.artemis.utils.IntBag;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.messages.entity.EntityPositionMessage;
 import net.bestia.model.domain.Location;
-import net.bestia.zoneserver.ecs.component.Bestia;
+import net.bestia.zoneserver.ecs.component.EntityComponent;
 import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
@@ -35,7 +35,7 @@ public class MovementSystem extends DelayedIteratingSystem {
 
 	private final static Logger LOG = LogManager.getLogger(MovementSystem.class);
 
-	private ComponentMapper<Bestia> bestiaMapper;
+	private ComponentMapper<EntityComponent> bestiaMapper;
 	private ComponentMapper<Movement> movementMapper;
 	private PlayerBestiaSpawnManager pbSpawnManager;
 	@Wire
@@ -45,7 +45,7 @@ public class MovementSystem extends DelayedIteratingSystem {
 	
 
 	public MovementSystem() {
-		super(Aspect.all(Bestia.class, Movement.class, Position.class));
+		super(Aspect.all(EntityComponent.class, Movement.class, Position.class));
 	}
 
 	@Override
@@ -97,7 +97,7 @@ public class MovementSystem extends DelayedIteratingSystem {
 		}
 
 		// Check if we handle a bestia or a generic position only entity.
-		final Bestia manager = bestiaMapper.getSafe(e);
+		final EntityComponent manager = bestiaMapper.getSafe(e);
 
 		// Did something change and we need to resend prediction?
 		if (!m.hasSendPredictions()) {

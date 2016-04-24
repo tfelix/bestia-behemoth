@@ -13,7 +13,7 @@ import net.bestia.model.domain.Attack;
 import net.bestia.model.misc.Damage;
 import net.bestia.zoneserver.battle.DamageCalculator;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.Bestia;
+import net.bestia.zoneserver.ecs.component.EntityComponent;
 import net.bestia.zoneserver.ecs.manager.UuidManager;
 import net.bestia.zoneserver.proxy.EntityProxy;
 import net.bestia.zoneserver.proxy.PlayerEntityProxy;
@@ -35,7 +35,7 @@ public class AttackUseCommand extends ECSCommand {
 
 	@Wire
 	private UuidManager uuidManager;
-	private ComponentMapper<Bestia> entityMapper;
+	private ComponentMapper<EntityComponent> entityMapper;
 
 	@Wire
 	private ScriptApi mapScriptApi;
@@ -115,7 +115,7 @@ public class AttackUseCommand extends ECSCommand {
 		}
 
 		// This will trigger any attack specific effects.
-		if (!pbm.useAttack(atkMsg.getAttackId())) {
+		if (!pbm.useAttack(entityAtk)) {
 			return;
 		}
 
@@ -149,7 +149,7 @@ public class AttackUseCommand extends ECSCommand {
 		}
 
 		// Trigger the cd.
-		getPlayerBestiaProxy().triggerCooldown(entityAtk.getId());
+		getPlayerBestiaProxy().triggerCooldown(entityAtk);
 	}
 
 }

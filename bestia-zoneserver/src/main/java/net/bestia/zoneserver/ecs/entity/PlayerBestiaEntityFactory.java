@@ -47,7 +47,7 @@ class PlayerBestiaEntityFactory extends EntityFactory {
 				.add(Position.class)
 				// .add(PositionDomainProxy.class)
 				.add(Attacks.class)
-				.add(net.bestia.zoneserver.ecs.component.Bestia.class)
+				.add(net.bestia.zoneserver.ecs.component.EntityComponent.class)
 				.add(net.bestia.zoneserver.ecs.component.PlayerBestia.class)
 				.add(StatusPoints.class)
 				.add(Visible.class)

@@ -20,7 +20,7 @@ import com.artemis.systems.EntityProcessingSystem;
 import com.artemis.utils.IntBag;
 
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.Bestia;
+import net.bestia.zoneserver.ecs.component.EntityComponent;
 import net.bestia.zoneserver.ecs.component.Delay;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Script;
@@ -46,7 +46,7 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 	private EntitySubscription collidableEntitySubscription;
 
 	private ComponentMapper<Script> triggerMapper;
-	private ComponentMapper<Bestia> bestiaMapper;
+	private ComponentMapper<EntityComponent> bestiaMapper;
 	private ComponentMapper<Position> positionMapper;
 	private ComponentMapper<Delay> delayMapper;
 
@@ -76,7 +76,7 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 		super.initialize();
 
 		final AspectSubscriptionManager asm = world.getAspectSubscriptionManager();
-		collidableEntitySubscription = asm.get(Aspect.all(Bestia.class, Position.class));
+		collidableEntitySubscription = asm.get(Aspect.all(EntityComponent.class, Position.class));
 
 		eventScriptArch = new ArchetypeBuilder()
 				.add(Position.class)
@@ -200,7 +200,7 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 						return;
 					}
 
-					final Bestia bestia = bestiaMapper.getSafe(exitEntity);
+					final EntityComponent bestia = bestiaMapper.getSafe(exitEntity);
 
 					// Second check if the entity exists. Kinda workaround. But
 					// otherwise does not work.

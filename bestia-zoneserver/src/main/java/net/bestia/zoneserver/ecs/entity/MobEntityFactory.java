@@ -46,7 +46,7 @@ class MobEntityFactory extends EntityFactory {
 				.add(Position.class)
 				.add(MobGroup.class)
 				.add(Attacks.class)
-				.add(net.bestia.zoneserver.ecs.component.Bestia.class)
+				.add(net.bestia.zoneserver.ecs.component.EntityComponent.class)
 				.add(NPCBestia.class)
 				.add(StatusPoints.class)
 				.add(Visible.class)

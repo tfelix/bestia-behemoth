@@ -106,26 +106,8 @@ public class NpcEntityProxy extends EntityProxy {
 	}
 
 	@Override
-	public void kill() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public Collection<Attack> getAttacks() {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	@Override
-	public int getRemainingCooldown(int attackId) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void triggerCooldown(int attackId) {
-		// TODO Auto-generated method stub
-		
 	}
 }

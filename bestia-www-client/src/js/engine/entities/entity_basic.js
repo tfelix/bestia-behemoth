@@ -38,12 +38,25 @@ Bestia.Engine.BasicEntity.prototype.appear = function() {
 	// no op.
 };
 
+/**
+ * This will show and display the entity with the default appear animation.
+ */
 Bestia.Engine.BasicEntity.prototype.show = function() {
 	// no op.
 };
 
 Bestia.Engine.BasicEntity.prototype.update = function() {
 	// no op.
+};
+
+/**
+ * Shows death animation if any. The entity was killd/destroyed by whatsoever
+ * means.
+ */
+Bestia.Engine.BasicEntity.prototype.kill = function() {
+	// Placeholder death "animation".
+	this._sprite.tint = 0xffffff;
+	this._game.add.tween(this._sprite).to({alpha: 0}, 400, 'Linear', true);
 };
 
 /**

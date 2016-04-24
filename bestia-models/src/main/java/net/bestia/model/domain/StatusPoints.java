@@ -58,6 +58,10 @@ public class StatusPoints implements Serializable {
 
 	@Transient
 	private float manaRegenRate;
+	
+	public StatusPoints() {
+		checkInvalidStatusValue();
+	}
 
 	public int getCurrentHp() {
 		return currentHp;
@@ -66,6 +70,30 @@ public class StatusPoints implements Serializable {
 	public void setCurrentHp(int hp) {
 		this.currentHp = hp;
 		checkInvalidStatusValue();
+	}
+
+	/**
+	 * Small helper method. This will subtract HP from the current HP. Will
+	 * return TRUE if this does NOT lower the current HP below 1. False
+	 * otherwise.
+	 * 
+	 * @param subHp
+	 *            The value to subtract from current mana value. Must be
+	 *            positive.
+	 * @return TRUE if the value could be lowered without hitting a negative
+	 *         total HP value. FALSE otherwise.
+	 */
+	public boolean subtractHp(int subHp) {
+		if (subHp < 0) {
+			throw new IllegalArgumentException("SubHP must be postive.");
+		}
+
+		if (getCurrentHp() > subHp) {
+			setCurrentHp(getCurrentHp() - subHp);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public float getHpRegenerationRate() {
@@ -92,6 +120,30 @@ public class StatusPoints implements Serializable {
 	public void setCurrentMana(int mana) {
 		this.currentMana = mana;
 		checkInvalidStatusValue();
+	}
+
+	/**
+	 * Small helper method. This will subtract Mana from the current Mana. Will
+	 * return TRUE if this does NOT lower the current Mana below 0. FALSE
+	 * otherwise.
+	 * 
+	 * @param subMana
+	 *            The value to subtract from current mana value. Must be
+	 *            positive.
+	 * @return TRUE if the value could be lowered without hitting a negative
+	 *         total mana value. FALSE otherwise.
+	 */
+	public boolean subtractMana(int subMana) {
+		if (subMana < 0) {
+			throw new IllegalArgumentException("SubHP must be postive.");
+		}
+
+		if (getCurrentMana() >= subMana) {
+			setCurrentMana(getCurrentMana() - subMana);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public float getManaRegenerationRate() {
@@ -323,24 +375,24 @@ public class StatusPoints implements Serializable {
 			armorSpDef = 100;
 		}
 
-		if (atk < 0) {
-			atk = 0;
+		if (atk < 1) {
+			atk = 1;
 		}
 
-		if (def < 0) {
-			def = 0;
+		if (def < 1) {
+			def = 1;
 		}
 
-		if (spd < 0) {
-			spd = 0;
+		if (spd < 1) {
+			spd = 1;
 		}
 
-		if (spAtk < 0) {
-			spAtk = 0;
+		if (spAtk < 1) {
+			spAtk = 1;
 		}
 
-		if (spDef < 0) {
-			spDef = 0;
+		if (spDef < 1) {
+			spDef = 1;
 		}
 	}
 
@@ -372,7 +424,7 @@ public class StatusPoints implements Serializable {
 		setCurrentHp(getCurrentHp() + addHp);
 		checkInvalidStatusValue();
 	}
-	
+
 	/**
 	 * Adds this amount of Mana to the current Mana. A negative amount is also
 	 * allowed. It will then get subtracted.

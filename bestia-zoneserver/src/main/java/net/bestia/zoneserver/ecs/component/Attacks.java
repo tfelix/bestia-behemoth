@@ -90,4 +90,8 @@ public class Attacks extends Component implements Serializable {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return String.format("AttacksC[%s]", attackIds.toString());
+	};
 }
