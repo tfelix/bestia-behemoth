@@ -16,7 +16,6 @@ import net.bestia.messages.chat.ChatMessage;
 import net.bestia.messages.entity.SpriteType;
 import net.bestia.model.I18n;
 import net.bestia.model.domain.Attack;
-import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Location;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
@@ -38,7 +37,7 @@ import net.bestia.zoneserver.ecs.manager.UuidManager;
  *
  */
 @Wire
-public class PlayerEntityProxy extends EntityProxy {
+public class PlayerEntityProxy extends CreatureEntityProxy {
 	private final static Logger LOG = LogManager.getLogger(PlayerEntityProxy.class);
 	private final static int MAX_LEVEL = 40;
 
@@ -56,8 +55,6 @@ public class PlayerEntityProxy extends EntityProxy {
 	@Wire
 	private CommandContext ctx;
 
-	private Direction headFacing;
-
 	private List<Attack> attacksCache;
 
 	public PlayerEntityProxy(
@@ -72,7 +69,6 @@ public class PlayerEntityProxy extends EntityProxy {
 
 		// Get all the mapper.
 		this.bestia = playerBestia;
-		this.headFacing = Direction.SOUTH;
 
 		// Shortcut to the acc. language.
 		this.language = bestia.getOwner().getLanguage().toString();
@@ -221,6 +217,8 @@ public class PlayerEntityProxy extends EntityProxy {
 		// Refill HP and Mana.
 		statusPoints.setCurrentHp(statusPoints.getCurrentHp());
 		statusPoints.setCurrentMana(statusPoints.getCurrentMana());
+		
+		calculateRegenerationRates();
 	}
 
 
@@ -293,13 +291,7 @@ public class PlayerEntityProxy extends EntityProxy {
 		}
 	}
 
-	public Direction getHeadFacing() {
-		return headFacing;
-	}
 
-	public void setHeadFacing(Direction headFacing) {
-		this.headFacing = headFacing;
-	}
 
 	@Override
 	public Collection<Attack> getAttacks() {
@@ -398,17 +390,6 @@ public class PlayerEntityProxy extends EntityProxy {
 		return bestia;
 	}
 
-	/**
-	 * Returns the maximum item weight the current bestia could carry. Plase
-	 * note: only the bestia master will be used to calculate the inventory max
-	 * weight.
-	 * 
-	 * @return
-	 */
-	public int getMaxItemWeight() {
-		final StatusPoints sp = getStatusPoints();
-		return 100 + 100 * sp.getAtk() * 3 + bestia.getLevel();
-	}
 
 	/**
 	 * Calculates the needed experience until the next levelup.
@@ -433,10 +414,5 @@ public class PlayerEntityProxy extends EntityProxy {
 			ctx.getAccountRegistry().unsetActiveBestia(getAccountId(), getPlayerBestiaId());
 			entity.edit().remove(Active.class);
 		}
-	}
-
-	@Override
-	public int getRemainingCooldown(int attackId) {
-		return 0;
 	}
 }
