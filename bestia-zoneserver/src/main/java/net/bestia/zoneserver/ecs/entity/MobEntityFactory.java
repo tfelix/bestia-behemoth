@@ -9,6 +9,8 @@ import com.artemis.ComponentMapper;
 import com.artemis.World;
 import com.artemis.annotations.Wire;
 
+import net.bestia.model.dao.BestiaDAO;
+import net.bestia.model.domain.Bestia;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.AI;
 import net.bestia.zoneserver.ecs.component.Attacks;
@@ -34,6 +36,8 @@ class MobEntityFactory extends EntityFactory {
 
 	@Wire
 	private ComponentMapper<MobGroup> mobGroupMapper;
+	
+	private final BestiaDAO dao;
 
 	public MobEntityFactory(World world, CommandContext ctx) {
 		super(world, ctx);
@@ -50,6 +54,8 @@ class MobEntityFactory extends EntityFactory {
 				.build(world);
 
 		world.inject(this);
+		
+		dao = ctx.getServiceLocator().getBean(BestiaDAO.class);
 	}
 
 	/**
@@ -63,17 +69,15 @@ class MobEntityFactory extends EntityFactory {
 	 */
 	@Override
 	public void spawn(EntityBuilder builder) {
-		if(!(builder instanceof MobEntityBuilder)) {
-			return;
-		}
-		
-		MobEntityBuilder mobBuilder = (MobEntityBuilder) builder;
 		
 		final int entityID = world.create(npcBestiaArchetype);
-
-		final NpcEntityProxy mobBestia = new NpcEntityProxy(world, entityID, mobBuilder.bestia);
-		mobBestia.getLocation().setPos(mobBuilder.position.x, mobBuilder.position.y);
-		mobGroupMapper.get(entityID).groupName = mobBuilder.groupName;
+		
+		// Get the bestia from the name of the mob.
+		final Bestia bestia = dao.findByDatabaseName(builder.mobName);	
+		final NpcEntityProxy mobBestia = new NpcEntityProxy(world, entityID, bestia);
+		
+		mobBestia.getLocation().setPos(builder.position.x, builder.position.y);
+		mobGroupMapper.get(entityID).groupName = builder.mobGroup;
 
 		LOG.debug("Spawned mob: {}", mobBestia.toString());
 	}
@@ -85,7 +89,6 @@ class MobEntityFactory extends EntityFactory {
 			return false;
 		}
 		
-		return true;	
-		//return builder.type == EntityType.MOB;
+		return true;
 	}
 }

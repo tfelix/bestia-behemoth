@@ -9,9 +9,8 @@ import com.artemis.systems.DelayedEntityProcessingSystem;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.MobSpawn;
 import net.bestia.zoneserver.ecs.entity.EcsEntityFactory;
-import net.bestia.zoneserver.ecs.entity.EntityBuilder.EntityType;
+import net.bestia.zoneserver.ecs.entity.EntityBuilder;
 import net.bestia.zoneserver.ecs.entity.EntityFactory;
-import net.bestia.zoneserver.ecs.entity.MobEntityBuilder;
 
 /**
  * Converts spawn entities to real mob entities after the spawn delay.
@@ -55,13 +54,11 @@ public class MobDelaySpawnSystem extends DelayedEntityProcessingSystem {
 	protected void processExpired(Entity e) {
 		final MobSpawn spawn = spawnMapper.get(e);
 
-		final MobEntityBuilder eb = new MobEntityBuilder();
+		final EntityBuilder eb = new EntityBuilder();
 		
-		eb.setSprite(spawn.mob.getImage());
 		eb.setPosition(spawn.coordinates);
-		eb.setEntityType(EntityType.MOB);
-		
-		eb.setBestia(spawn.mob);
+		eb.setMobName(spawn.mob.getDatabaseName());
+		eb.setMobGroup(spawn.getGroup());
 		
 		entityFactory.spawn(eb);
 		
