@@ -67,6 +67,8 @@ Bestia.Engine.Indicator.ItemCast.prototype._parseIndicator = function(indicatorS
 	}*/
 	
 	// Adjust the scale to match the fields.
+	// Must scale back to 1 to get the right pixel width.
+	this._marker.scale.setTo(1);
 	var currentCells = this._marker.width / Bestia.Engine.World.TILE_SIZE;
 	var scale = tokens[1] / currentCells;
 	
