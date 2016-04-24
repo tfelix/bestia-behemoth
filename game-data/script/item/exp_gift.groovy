@@ -1,3 +1,7 @@
-// Give the user 10k EXP.
-
-target.addExp(10000);
+/**
+ DESC: Spawn a poring around the player.
+ */
+api.entity()
+	.setMobname('poring')
+	.setPosition(10, 10)
+	.spawn();

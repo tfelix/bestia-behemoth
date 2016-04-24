@@ -10,6 +10,8 @@ Bestia.Engine.Indicator.BasicAttack = function(manager) {
 
 	this._marker = null;
 	
+	this._targetSprite = null;
+	
 	// Listen for activation signal.
 	this._ctx.pubsub.subscribe(Bestia.Signal.ENGINE_REQUEST_INDICATOR, this._handleIndicator.bind(this));
 };
@@ -20,12 +22,14 @@ Bestia.Engine.Indicator.BasicAttack.prototype.constructor = Bestia.Engine.Indica
 
 Bestia.Engine.Indicator.BasicAttack.prototype.activate = function() {
 	this._ctx.game.input.onDown.add(this._onClick, this);
-	this._ctx.game.world.add(this._marker);
+	this._marker.reset();
+	this._targetSprite.addChild(this._marker);
 };
 
 Bestia.Engine.Indicator.BasicAttack.prototype.deactivate = function() {
 	this._ctx.game.input.onDown.remove(this._onClick, this);
-	this._ctx.game.world.remove(this._marker);
+	//this._ctx.game.world.remove(this._marker);
+	this._marker.kill();
 };
 
 /**
@@ -46,12 +50,7 @@ Bestia.Engine.Indicator.BasicAttack.prototype.create = function() {
 
 Bestia.Engine.Indicator.BasicAttack.prototype._handleIndicator = function(_, data) {
 	if(data.handle === 'basic_attack_over') {
-		
-		data.sprite.addChild(this._marker);
-		
-		this._marker.x = 0;
-		this._marker.y = 0;
-		
+		this._targetSprite = data.sprite;		
 		this._requestActive();
 	}else if(data.handle === 'basic_attack_out') {
 		this._manager.dismissActive();

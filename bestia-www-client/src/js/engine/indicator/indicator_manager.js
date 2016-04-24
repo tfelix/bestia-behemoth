@@ -54,10 +54,10 @@ Bestia.Engine.IndicatorManager.prototype.requestActive = function(indicator) {
 	if (this._active !== null) {
 		// Ask the active pointer if he allows to be overwritten by the new
 		// indicator.
-		if(!this._active.allowOverwrite(indicator)) {
+		if (!this._active.allowOverwrite(indicator)) {
 			return;
 		}
-		
+
 		this._indicatorStack.push(this._active);
 		this._active.deactivate();
 	}
@@ -67,14 +67,31 @@ Bestia.Engine.IndicatorManager.prototype.requestActive = function(indicator) {
 };
 
 /**
+ * No pushing to the indicator stack will occure when using this method.
+ * Otherwise its the same as requestActive.
+ */
+Bestia.Engine.IndicatorManager.prototype._setActive = function(indicator) {
+	if (this._active !== null) {
+		// Ask the active pointer if he allows to be overwritten by the new
+		// indicator.
+		if (!this._active.allowOverwrite(indicator)) {
+			return;
+		}
+		this._active.deactivate();
+	}
+	this._active = indicator;
+	this._active.activate();
+};
+
+/**
  * The indicator can request to get dismissed. It will be replaced with last
  * indicator.
  */
 Bestia.Engine.IndicatorManager.prototype.dismissActive = function() {
-	if(this._indicatorStack.length == 0) {
+	if (this._indicatorStack.length == 0) {
 		this._active = this._moveIndicator;
 	} else {
 		var indi = this._indicatorStack.pop();
-		this.requestActive(indi);
+		this._setActive(indi);
 	}
 };

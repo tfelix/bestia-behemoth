@@ -22,11 +22,9 @@ import net.bestia.zoneserver.zone.shape.Vector2;
 public class EntityBuilder {
 
 	private static final Logger LOG = LogManager.getLogger(EntityBuilder.class);
-	
+
 	public enum EntityType {
-		MOB,
-		BASIC,
-		ITEM
+		MOB, BASIC, ITEM
 	}
 
 	private final EntityFactory factory;
@@ -34,7 +32,7 @@ public class EntityBuilder {
 	Vector2 position;
 	EntityType type;
 	String sprite;
-	
+	String mobName;
 	int tickDelay;
 	Closure<Void> tickCallback;
 
@@ -42,7 +40,7 @@ public class EntityBuilder {
 		factory = null;
 		type = EntityType.BASIC;
 	}
-	
+
 	public EntityBuilder(EntityType type) {
 		this.factory = null;
 		this.type = type;
@@ -51,6 +49,18 @@ public class EntityBuilder {
 	public EntityBuilder(EntityType type, EntityFactory factory) {
 		this.factory = factory;
 		this.type = type;
+	}
+
+	/**
+	 * Resets the builder into a clean state.
+	 */
+	public void clear() {
+		position = null;
+		type = null;
+		sprite = null;
+		mobName = null;
+		tickCallback = null;
+		tickDelay = 0;
 	}
 
 	public void spawn() {
@@ -62,10 +72,19 @@ public class EntityBuilder {
 			factory.spawn(this);
 		}
 	}
-	
+
 	public EntityBuilder setEntityType(EntityType type) {
 		this.type = type;
 		return this;
+	}
+
+	/**
+	 * Sets the name of the mob to be spawned.
+	 * 
+	 * @param mobName
+	 */
+	public void setMobName(String mobName) {
+		this.mobName = mobName;
 	}
 
 	/**
@@ -78,25 +97,32 @@ public class EntityBuilder {
 		this.sprite = name;
 		return this;
 	}
-	
+
 	public EntityBuilder setPosition(int x, int y) {
 		position = new Vector2(x, y);
 		LOG.trace("Position was set: {}", position.toString());
 		return this;
 	}
-	
+
 	public EntityBuilder setPosition(Vector2 pos) {
 		position = pos;
 		LOG.trace("Position was set: {}", position.toString());
 		return this;
 	}
-	
+
+	/**
+	 * Sets the HP if an entity is build from scratch. This is not used if an
+	 * mob or an item is spawned.
+	 * 
+	 * @param hp
+	 * @return
+	 */
 	public EntityBuilder setHp(int hp) {
 		LOG.trace("HP was set: {}", hp);
-		
+
 		return this;
 	}
-	
+
 	public EntityBuilder setTickCallback(int interval, Closure<Void> fn) {
 		this.tickDelay = interval;
 		this.tickCallback = fn;
