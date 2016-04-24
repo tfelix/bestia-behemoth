@@ -90,7 +90,7 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 		// Hook up the dynamic path filter to the zone.
 		ctx.getMessageProvider().subscribe(pathFilter, zone);
 
-		entityFactory = new EcsEntityFactory(world);
+		entityFactory = new EcsEntityFactory(world, ctx);
 		accountRegistry = ctx.getAccountRegistry();
 		activePlayerSubscription = world.getAspectSubscriptionManager().get(Aspect.all(Visible.class, Active.class));
 	}

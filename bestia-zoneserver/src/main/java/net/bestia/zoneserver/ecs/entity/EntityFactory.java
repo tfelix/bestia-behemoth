@@ -4,6 +4,8 @@ import java.util.Objects;
 
 import com.artemis.World;
 
+import net.bestia.zoneserver.command.CommandContext;
+
 /**
  * Simple base class for all entity factories. Maybe it is possible in the
  * future to combine all these entity factories into a single one which will
@@ -16,9 +18,11 @@ import com.artemis.World;
 public abstract class EntityFactory {
 
 	protected final World world;
+	protected final CommandContext ctx;
 
-	public EntityFactory(World world) {
+	public EntityFactory(World world, CommandContext ctx) {
 		this.world = Objects.requireNonNull(world, "World can not be null.");
+		this.ctx = Objects.requireNonNull(ctx, "Context can not be null.");
 	}
 
 	/**

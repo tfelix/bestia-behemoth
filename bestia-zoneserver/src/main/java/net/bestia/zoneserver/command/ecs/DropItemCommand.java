@@ -16,7 +16,7 @@ import net.bestia.zoneserver.proxy.InventoryProxy;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 public class DropItemCommand extends ECSCommand {
-	
+
 	private final Random rand = new Random();
 	private EntityFactory entityFactory;
 
@@ -24,16 +24,15 @@ public class DropItemCommand extends ECSCommand {
 	public String handlesMessageId() {
 		return InventoryItemDropMessage.MESSAGE_ID;
 	}
-	
-	@Override
-	protected void initialize() {
-		super.initialize();
-		
-		entityFactory = new EcsEntityFactory(world);
-	}
 
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
+
+		// Small workaround since we dont have the CTX at initialize() yet.
+		// Might need refactor.
+		if (entityFactory == null) {
+			entityFactory = new EcsEntityFactory(world, ctx);
+		}
 
 		final InventoryItemDropMessage msg = (InventoryItemDropMessage) message;
 
@@ -46,42 +45,42 @@ public class DropItemCommand extends ECSCommand {
 			// Either player did not own the item or not enough.
 			return;
 		}
-		
+
 		// Get position where to drop the item.
 		final Location playerLoc = getPlayerBestiaProxy().getLocation();
 		Vector2 loc = null;
 		int maxTries = 10;
-		while(maxTries-- > 0) {
+		while (maxTries-- > 0) {
 			int x = rand.nextInt(3) - 1; // from -1 to 1.
 			int y = rand.nextInt(3) - 1; // aswell from -1 to 1.
-			
+
 			// Dont drop on player spot.
-			if(x == 0 && y == 0) {
+			if (x == 0 && y == 0) {
 				continue;
 			}
-			
+
 			// Check if we dont drop onto a wall.
 			Vector2 tempLoc = new Vector2(playerLoc.getX() - x, playerLoc.getY() - y);
-			if(map.getCollisions().isWalkable(tempLoc)) {
+			if (map.getCollisions().isWalkable(tempLoc)) {
 				loc = tempLoc;
 				break;
 			}
 		}
-		
-		if(loc == null) {
+
+		if (loc == null) {
 			// Just drop on player position
 			loc = new Vector2(playerLoc.getX(), playerLoc.getY());
 		}
-		
+
 		final Item item = itemDao.findOne(msg.getItemId());
-		
+
 		// Create the entity description.
 		final ItemEntityBuilder eb = new ItemEntityBuilder();
 		eb.setPosition(loc);
 		eb.setAmount(msg.getAmount());
-		eb.setItemID(item.getId());		
-		//eb.setPlayerItemID(msg.get);
-		
+		eb.setItemID(item.getId());
+		// eb.setPlayerItemID(msg.get);
+
 		// Item was dropped. Now drop it onto the world.
 		entityFactory.spawn(eb);
 	}

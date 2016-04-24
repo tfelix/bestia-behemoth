@@ -38,8 +38,8 @@ class PlayerBestiaEntityFactory extends EntityFactory {
 	@Wire
 	private CommandContext ctx;
 
-	public PlayerBestiaEntityFactory(World world) {
-		super(world);
+	public PlayerBestiaEntityFactory(World world, CommandContext ctx) {
+		super(world, ctx);
 
 		world.inject(this);
 

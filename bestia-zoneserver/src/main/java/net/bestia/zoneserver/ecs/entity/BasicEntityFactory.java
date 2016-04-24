@@ -8,12 +8,12 @@ import com.artemis.World;
 import com.artemis.annotations.Wire;
 
 import net.bestia.messages.entity.SpriteType;
+import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.ScriptEntityTicker;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.entity.EntityBuilder.EntityType;
 import net.bestia.zoneserver.ecs.manager.UuidManager;
-import net.bestia.zoneserver.zone.shape.Vector2;
 
 @Wire
 class BasicEntityFactory extends EntityFactory {
@@ -42,8 +42,8 @@ class BasicEntityFactory extends EntityFactory {
 	@Wire
 	private UuidManager uuidManager;
 
-	public BasicEntityFactory(World world) {
-		super(world);
+	public BasicEntityFactory(World world, CommandContext ctx) {
+		super(world, ctx);
 
 		this.archetype = new ArchetypeBuilder()
 				.add(Visible.class)
@@ -60,9 +60,10 @@ class BasicEntityFactory extends EntityFactory {
 	 * @param pos
 	 * @param descFileName
 	 */
+	/*
 	public void spawnBasicEntityByDescription(Vector2 pos, String descFileName) {
 
-	}
+	}*/
 
 	/**
 	 * Generate a basic entity from the given builder object.
@@ -77,7 +78,7 @@ class BasicEntityFactory extends EntityFactory {
 		visible.sprite = builder.sprite;
 		visible.spriteType = SpriteType.STATIC;
 		
-		EntityProxy prox = new EntityProxy(world, entityId);
+		final EntityProxy prox = new EntityProxy(world, entityId);
 		
 		final Position position = positionMapper.get(entityId);	
 		position.setPos(builder.position.x, builder.position.y);
@@ -97,6 +98,7 @@ class BasicEntityFactory extends EntityFactory {
 
 	@Override
 	public boolean canSpawn(EntityBuilder builder) {
+		// TODO Das hier ausbauen.
 		return builder.type == EntityType.BASIC;
 	}
 }

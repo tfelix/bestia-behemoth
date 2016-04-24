@@ -9,6 +9,7 @@ import com.artemis.ComponentMapper;
 import com.artemis.World;
 import com.artemis.annotations.Wire;
 
+import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.AI;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.MobGroup;
@@ -16,7 +17,6 @@ import net.bestia.zoneserver.ecs.component.NPCBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.ecs.entity.EntityBuilder.EntityType;
 import net.bestia.zoneserver.proxy.NpcEntityProxy;
 
 /**
@@ -35,8 +35,8 @@ class MobEntityFactory extends EntityFactory {
 	@Wire
 	private ComponentMapper<MobGroup> mobGroupMapper;
 
-	public MobEntityFactory(World world) {
-		super(world);
+	public MobEntityFactory(World world, CommandContext ctx) {
+		super(world, ctx);
 
 		npcBestiaArchetype = new ArchetypeBuilder()
 				.add(Position.class)
@@ -80,6 +80,12 @@ class MobEntityFactory extends EntityFactory {
 
 	@Override
 	public boolean canSpawn(EntityBuilder builder) {
-		return builder.type == EntityType.MOB;
+		// We need to check several data.
+		if(builder.mobName == null || builder.mobName.isEmpty()) {
+			return false;
+		}
+		
+		return true;	
+		//return builder.type == EntityType.MOB;
 	}
 }

@@ -10,6 +10,7 @@ import net.bestia.messages.entity.SpriteType;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerItem;
 import net.bestia.model.misc.Sprite.InteractionType;
+import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.DelayedRemove;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
@@ -36,8 +37,8 @@ class ItemEntityFactory extends EntityFactory {
 	private ComponentMapper<DelayedRemove> removeMapper;
 	private ComponentMapper<net.bestia.zoneserver.ecs.component.Item> itemMapper;
 
-	public ItemEntityFactory(World world) {
-		super(world);
+	public ItemEntityFactory(World world, CommandContext ctx) {
+		super(world, ctx);
 
 		this.itemArchetype = new ArchetypeBuilder()
 				.add(Visible.class)

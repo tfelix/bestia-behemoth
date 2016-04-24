@@ -9,7 +9,6 @@ import com.artemis.systems.DelayedEntityProcessingSystem;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.MobSpawn;
 import net.bestia.zoneserver.ecs.entity.EcsEntityFactory;
-import net.bestia.zoneserver.ecs.entity.EntityBuilder;
 import net.bestia.zoneserver.ecs.entity.EntityBuilder.EntityType;
 import net.bestia.zoneserver.ecs.entity.EntityFactory;
 import net.bestia.zoneserver.ecs.entity.MobEntityBuilder;
@@ -38,7 +37,7 @@ public class MobDelaySpawnSystem extends DelayedEntityProcessingSystem {
 	protected void initialize() {
 		super.initialize();
 		
-		entityFactory = new EcsEntityFactory(getWorld());
+		entityFactory = new EcsEntityFactory(getWorld(), ctx);
 	}
 
 	@Override

@@ -33,6 +33,7 @@ public class EntityBuilder {
 	EntityType type;
 	String sprite;
 	String mobName;
+	String mobGroup;
 	int tickDelay;
 	Closure<Void> tickCallback;
 
@@ -61,6 +62,7 @@ public class EntityBuilder {
 		mobName = null;
 		tickCallback = null;
 		tickDelay = 0;
+		mobGroup = null;
 	}
 
 	public void spawn() {
@@ -85,6 +87,10 @@ public class EntityBuilder {
 	 */
 	public void setMobName(String mobName) {
 		this.mobName = mobName;
+	}
+	
+	public void setMobGroup(String mobGroup) {
+		this.mobGroup = mobGroup;
 	}
 
 	/**

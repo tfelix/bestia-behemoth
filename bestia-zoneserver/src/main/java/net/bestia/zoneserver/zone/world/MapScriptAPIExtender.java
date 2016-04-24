@@ -20,15 +20,18 @@ import net.bestia.zoneserver.zone.map.Map;
 public class MapScriptAPIExtender implements WorldExtend {
 
 	private final ScriptApi api = new ScriptApi();
+	
+	private CommandContext ctx;
 
 	@Override
 	public void extend(World world, Map map, Zone zone) {
 
-		api.initWorld(world, new EcsEntityFactory(world));
+		api.initWorld(world, new EcsEntityFactory(world, ctx));
 	}
 
 	@Override
 	public void configure(WorldConfiguration worldConfig, Map map, CommandContext ctx, Zone zone) {
+		this.ctx = ctx;
 
 		worldConfig.register(api);
 		

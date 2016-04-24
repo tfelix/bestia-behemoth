@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import com.artemis.World;
 
+import net.bestia.zoneserver.command.CommandContext;
+
 /**
  * This class capsules all factories for entity in the ECS system. So a calling
  * API only needs to use an entity builder to create a description of the entity
@@ -20,13 +22,13 @@ public class EcsEntityFactory extends EntityFactory {
 	
 	private List<EntityFactory> factories = new ArrayList<>();
 
-	public EcsEntityFactory(World world) {
-		super(world);
+	public EcsEntityFactory(World world, CommandContext ctx) {
+		super(world, ctx);
 
-		factories.add(new ItemEntityFactory(world));
-		factories.add(new MobEntityFactory(world));
-		factories.add(new PlayerBestiaEntityFactory(world));
-		factories.add(new BasicEntityFactory(world));
+		factories.add(new ItemEntityFactory(world, ctx));
+		factories.add(new MobEntityFactory(world, ctx));
+		factories.add(new PlayerBestiaEntityFactory(world, ctx));
+		factories.add(new BasicEntityFactory(world, ctx));
 	}
 
 	@Override
