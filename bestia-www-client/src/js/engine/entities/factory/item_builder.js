@@ -22,9 +22,9 @@ Bestia.Engine.ItemBuilder.prototype.build = function(data) {
 	var entity;
 	
 	if(this._loader.has(data.s, 'item')) {
-		entity = new Bestia.Engine.ItemEntity(this._game, data.uuid, data.x, data.y, data.s);
+		entity = new Bestia.Engine.ItemEntity(this._ctx, data.uuid, data.x, data.y, data.s);
 	} else {
-		entity = new Bestia.Engine.ItemEntity(this._game, data.uuid, data.x, data.y);
+		entity = new Bestia.Engine.ItemEntity(this._ctx, data.uuid, data.x, data.y);
 		
 		this._demandLoader.loadItemSprite(data.s, function() {
 

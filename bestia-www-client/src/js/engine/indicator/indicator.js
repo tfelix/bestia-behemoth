@@ -20,7 +20,7 @@ Bestia.Engine.Indicator.Basic = function(manager) {
 Bestia.Engine.Indicator.Basic.prototype.activate = function() {
 	// Move the marker to the current active mouse position.
 	this._onMouseMove();
-	
+
 	this._ctx.game.input.addMoveCallback(this._onMouseMove, this);
 	this._ctx.game.input.onDown.add(this._onClick, this);
 	this._ctx.game.world.add(this._marker);
@@ -30,6 +30,13 @@ Bestia.Engine.Indicator.Basic.prototype.deactivate = function() {
 	this._ctx.game.input.deleteMoveCallback(this._onMouseMove, this);
 	this._ctx.game.input.onDown.remove(this._onClick, this);
 	this._ctx.game.world.remove(this._marker);
+};
+
+/**
+ * Checks if this indicator can be overwritten by the new one.
+ */
+Bestia.Engine.Indicator.Basic.prototype.allowOverwrite = function() {
+	return true;
 };
 
 /**
@@ -52,7 +59,7 @@ Bestia.Engine.Indicator.Basic.prototype.preLoadAssets = function() {
 	// no op.
 };
 
-Bestia.Engine.Indicator.Basic.prototype._requestActive = function() {	
+Bestia.Engine.Indicator.Basic.prototype._requestActive = function() {
 	return this._manager.requestActive(this);
 };
 

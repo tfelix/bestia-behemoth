@@ -14,7 +14,7 @@ Bestia.Engine.SpriteBuilder.prototype.constructor = Bestia.Engine.SpriteBuilder;
 
 Bestia.Engine.SpriteBuilder.prototype.build = function(data, desc) {
 
-	var entity = new Bestia.Engine.ImageEntity(this._ctx.game, data.uuid, data.x, data.y, desc);
+	var entity = new Bestia.Engine.ImageEntity(this._ctx, data.uuid, data.x, data.y, desc);
 
 	entity.setSprite(data.s);
 

@@ -1,5 +1,5 @@
-Bestia.Engine.SpriteEntity = function(game, uuid, x, y, desc) {
-	Bestia.Engine.BasicEntity.call(this, game);
+Bestia.Engine.SpriteEntity = function(ctx, uuid, x, y, desc) {
+	Bestia.Engine.BasicEntity.call(this, ctx);
 
 	this.uuid = uuid;
 	this._data = desc;

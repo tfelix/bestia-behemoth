@@ -1,5 +1,5 @@
-Bestia.Engine.ImageEntity = function(game, uuid, x, y, desc) {
-	Bestia.Engine.BasicEntity.call(this, game);
+Bestia.Engine.ImageEntity = function(ctx, uuid, x, y, desc) {
+	Bestia.Engine.BasicEntity.call(this, ctx);
 
 	this.uuid = uuid;
 	this._data = desc;
@@ -17,7 +17,9 @@ Bestia.Engine.ImageEntity.prototype.setSprite = function(spriteName) {
 	
 	// Enable input.
 	this._sprite.inputEnabled = true;
-	this._sprite.events.onInputDown.add(this._onClickHandler, this);
+	
+	this._sprite.events.onInputOver.add(this._onOverHandler, this);
+	this._sprite.events.onInputOut.add(this._onOutHandler, this);
 
 	this._setupSprite(this._sprite, this._data);
 
@@ -25,8 +27,12 @@ Bestia.Engine.ImageEntity.prototype.setSprite = function(spriteName) {
 	this.setPosition(this.position.x, this.position.y);
 };
 
-Bestia.Engine.ImageEntity.prototype._onClickHandler = function() {
-	alert("geht");
+Bestia.Engine.ImageEntity.prototype._onOverHandler = function() {
+	this._ctx.pubsub.publish(Bestia.Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_over', sprite: this._sprite});
+};
+
+Bestia.Engine.ImageEntity.prototype._onOutHandler = function() {
+	this._ctx.pubsub.publish(Bestia.Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_out', sprite: this._sprite});
 };
 
 /**

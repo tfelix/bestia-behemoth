@@ -1,5 +1,5 @@
 Bestia.Engine.ItemEntity = function(game, uuid, x, y, spriteName) {
-	Bestia.Engine.BasicEntity.call(this, game, x, y);
+	Bestia.Engine.BasicEntity.call(this, ctx);
 	
 	spriteName = spriteName || 'default_item';
 

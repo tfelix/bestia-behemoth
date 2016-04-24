@@ -1,4 +1,4 @@
-Bestia.Engine.BasicEntity = function(game) {
+Bestia.Engine.BasicEntity = function(ctx) {
 
 	/**
 	 * Position in tile coordinates.
@@ -21,7 +21,9 @@ Bestia.Engine.BasicEntity = function(game) {
 	 */
 	this.uuid = "";
 
-	this._game = game;
+	this._game = ctx.game;
+	
+	this._ctx = ctx;
 
 	/**
 	 * The underlying sprite for the engine.

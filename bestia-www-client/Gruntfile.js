@@ -66,6 +66,7 @@ module.exports = function(grunt) {
 	         		'<%= tempDir %>/js/engine/indicator/indicator.js',
 	         		'<%= tempDir %>/js/engine/indicator/attack_cast_indicator.js',
 	         		'<%= tempDir %>/js/engine/indicator/item_cast_indicator.js',
+	         		'<%= tempDir %>/js/engine/indicator/basic_attack_indicator.js',
 	         		'<%= tempDir %>/js/engine/indicator/move_indicator.js',
 	         		'<%= tempDir %>/js/engine/indicator/indicator_manager.js',
 	         		'<%= tempDir %>/js/engine/states/*.js',

@@ -13,7 +13,7 @@ Bestia.Engine.MultispriteBuilder.prototype.constructor = Bestia.Engine.Multispri
 
 Bestia.Engine.MultispriteBuilder.prototype.build = function(data, desc) {
 
-	var entity = new Bestia.Engine.MultispriteEntity(this._ctx.game, data.uuid, desc);
+	var entity = new Bestia.Engine.MultispriteEntity(this._ctx, data.uuid, desc);
 
 	// Position
 	entity.setPosition(data.x, data.y);

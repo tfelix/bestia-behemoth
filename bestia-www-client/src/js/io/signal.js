@@ -69,6 +69,7 @@ Bestia.Signal = {
 	ENGINE_FINISHED_MAPLOAD : 'engine.finishMapload',
 
 	ENGINE_CAST_ITEM : 'engine.castItem',
+	ENGINE_REQUEST_INDICATOR : 'engine.indicator',
 
 	/**
 	 * Emitted when the map and the game state has loaded and is being
