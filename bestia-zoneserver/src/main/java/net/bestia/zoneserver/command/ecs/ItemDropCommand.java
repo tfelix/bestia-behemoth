@@ -10,8 +10,8 @@ import net.bestia.model.domain.Location;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.entity.EcsEntityFactory;
+import net.bestia.zoneserver.ecs.entity.EntityBuilder;
 import net.bestia.zoneserver.ecs.entity.EntityFactory;
-import net.bestia.zoneserver.ecs.entity.ItemEntityBuilder;
 import net.bestia.zoneserver.proxy.InventoryProxy;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
@@ -75,10 +75,10 @@ public class ItemDropCommand extends ECSCommand {
 		final Item item = itemDao.findOne(msg.getItemId());
 
 		// Create the entity description.
-		final ItemEntityBuilder eb = new ItemEntityBuilder();
+		final EntityBuilder eb = new EntityBuilder();
 		eb.setPosition(loc);
-		eb.setAmount(msg.getAmount());
-		eb.setItemID(item.getId());
+		eb.setItemAmount(msg.getAmount());
+		eb.setItemId(item.getId());
 		// eb.setPlayerItemID(msg.get);
 
 		// Item was dropped. Now drop it onto the world.

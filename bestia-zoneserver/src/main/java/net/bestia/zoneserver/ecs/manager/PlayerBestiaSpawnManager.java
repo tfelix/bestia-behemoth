@@ -26,8 +26,8 @@ import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.entity.EcsEntityFactory;
+import net.bestia.zoneserver.ecs.entity.EntityBuilder;
 import net.bestia.zoneserver.ecs.entity.EntityFactory;
-import net.bestia.zoneserver.ecs.entity.PlayerEntityBuilder;
 import net.bestia.zoneserver.messaging.AccountRegistry;
 import net.bestia.zoneserver.messaging.DynamicPathPredicate;
 import net.bestia.zoneserver.proxy.PlayerEntityProxy;
@@ -152,7 +152,9 @@ public class PlayerBestiaSpawnManager extends BaseEntitySystem {
 	 */
 	public void spawnBestia(net.bestia.model.domain.PlayerBestia pb) {
 		
-		final PlayerEntityBuilder eb = new PlayerEntityBuilder(pb);
+		final EntityBuilder eb = new EntityBuilder();
+		
+		eb.setPlayerBestiaId(pb.getId());
 
 		entityFactory.spawn(eb);
 	}

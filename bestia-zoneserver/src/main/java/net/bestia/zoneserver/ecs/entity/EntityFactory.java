@@ -42,4 +42,16 @@ public abstract class EntityFactory {
 	 */
 	public abstract boolean canSpawn(EntityBuilder builder);
 
+	/**
+	 * Checks if the string is null or empty. If this is the case an
+	 * {@link IllegalArgumentException} will be thrown. Just a helper method to
+	 * check the strings of the builders.
+	 * 
+	 * @param str
+	 */
+	protected void requireNonNullEmpty(String str) {
+		if (str == null || str.isEmpty()) {
+			throw new IllegalArgumentException("String is null or empty.");
+		}
+	}
 }

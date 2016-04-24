@@ -11,6 +11,7 @@ import com.artemis.annotations.Wire;
 
 import net.bestia.messages.Message;
 import net.bestia.messages.bestia.BestiaInfoMessage;
+import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
@@ -38,6 +39,8 @@ class PlayerBestiaEntityFactory extends EntityFactory {
 	@Wire
 	private CommandContext ctx;
 
+	private final PlayerBestiaDAO dao;
+
 	public PlayerBestiaEntityFactory(World world, CommandContext ctx) {
 		super(world, ctx);
 
@@ -52,11 +55,13 @@ class PlayerBestiaEntityFactory extends EntityFactory {
 				.add(StatusPoints.class)
 				.add(Visible.class)
 				.build(world);
+
+		dao = ctx.getServiceLocator().getBean(PlayerBestiaDAO.class);
 	}
 
 	/**
-	 * Creates an {@link NpcEntityProxy} and spawns it directly to the
-	 * given position in the responsible zone.
+	 * Creates an {@link NpcEntityProxy} and spawns it directly to the given
+	 * position in the responsible zone.
 	 * 
 	 * @param bestia
 	 * @param position
@@ -65,17 +70,22 @@ class PlayerBestiaEntityFactory extends EntityFactory {
 	 */
 	@Override
 	public void spawn(EntityBuilder builder) {
-		final PlayerEntityBuilder playerBuilder = (PlayerEntityBuilder) builder;
 
 		final int entityId = world.create(playerBestiaArchetype);
 		final Entity entity = world.getEntity(entityId);
 
-		final PlayerEntityProxy pbProxy = new PlayerEntityProxy(world, entity, playerBuilder.playerBestia);
+		final PlayerBestia pb = dao.findOne(builder.playerBestiaId);
+
+		if (pb == null) {
+			return;
+		}
+
+		final PlayerEntityProxy pbProxy = new PlayerEntityProxy(world, entity, pb);
 
 		// We need to check the bestia if its the master bestia. It will get
 		// marked as active initially.
-		final PlayerBestia master = playerBuilder.playerBestia.getOwner().getMaster();
-		final boolean isMaster = master.equals(playerBuilder.playerBestia);
+		final PlayerBestia master = pb.getOwner().getMaster();
+		final boolean isMaster = master.equals(pb);
 
 		if (isMaster) {
 			// Spawn the master as active bestia.
@@ -98,11 +108,15 @@ class PlayerBestiaEntityFactory extends EntityFactory {
 		ctx.getServer().sendMessage(infoMsg);
 
 		// Now set all the needed values.
-		LOG.trace("Spawning player bestia: {}.", playerBuilder.playerBestia);
+		LOG.trace("Spawning player bestia: {}.", pb);
 	}
 
 	@Override
 	public boolean canSpawn(EntityBuilder builder) {
-		return builder instanceof PlayerEntityBuilder;
+		if(builder.playerBestiaId == 0) {
+			return false;
+		}
+		
+		return true;
 	}
 }

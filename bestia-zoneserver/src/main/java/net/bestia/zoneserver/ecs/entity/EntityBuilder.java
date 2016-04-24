@@ -23,34 +23,26 @@ public class EntityBuilder {
 
 	private static final Logger LOG = LogManager.getLogger(EntityBuilder.class);
 
-	public enum EntityType {
-		MOB, BASIC, ITEM
-	}
-
 	private final EntityFactory factory;
 
 	Vector2 position;
-	EntityType type;
 	String sprite;
 	String mobName;
 	String mobGroup;
 	int tickDelay;
-	int hp;
+	int hp = 0;
+	int playerItemId = 0;
+	int itemId = 0;
+	int itemAmount = 1;
 	Closure<Void> tickCallback;
+	int playerBestiaId = 0;
 
 	public EntityBuilder() {
 		factory = null;
-		type = EntityType.BASIC;
 	}
 
-	public EntityBuilder(EntityType type) {
-		this.factory = null;
-		this.type = type;
-	}
-
-	public EntityBuilder(EntityType type, EntityFactory factory) {
+	public EntityBuilder(EntityFactory factory) {
 		this.factory = factory;
-		this.type = type;
 	}
 
 	/**
@@ -58,12 +50,18 @@ public class EntityBuilder {
 	 */
 	public void clear() {
 		position = null;
-		type = null;
 		sprite = null;
 		mobName = null;
 		tickCallback = null;
 		tickDelay = 0;
 		mobGroup = null;
+		
+		hp = 0;
+		playerItemId = 0;
+		itemId = 0;
+		itemAmount = 1;
+		
+		playerBestiaId = 0;
 	}
 
 	public void spawn() {
@@ -75,9 +73,19 @@ public class EntityBuilder {
 			factory.spawn(this);
 		}
 	}
-
-	public EntityBuilder setEntityType(EntityType type) {
-		this.type = type;
+	
+	public EntityBuilder setPlayerBestiaId(int playerBestiaId) {
+		this.playerBestiaId = playerBestiaId;
+		return this;
+	}
+	
+	public EntityBuilder setItemAmount(int itemAmount) {
+		this.itemAmount = itemAmount;
+		return this;
+	}
+	
+	public EntityBuilder setItemId(int itemId) {
+		this.itemId = itemId;
 		return this;
 	}
 

@@ -14,7 +14,6 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.DelayedRemove;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.ecs.entity.EntityBuilder.EntityType;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
@@ -85,7 +84,6 @@ class ItemEntityFactory extends EntityFactory {
 	 */
 	@Override
 	public void spawn(EntityBuilder builder) {
-		final ItemEntityBuilder itemBuilder = (ItemEntityBuilder) builder;
 		
 		final int entityId = world.create(itemArchetype);
 
@@ -97,9 +95,9 @@ class ItemEntityFactory extends EntityFactory {
 		visible.spriteType = SpriteType.ITEM;
 
 		final net.bestia.zoneserver.ecs.component.Item itemC = itemMapper.get(entityId);
-		itemC.amount = itemBuilder.amount;
-		itemC.itemId = itemBuilder.itemId;
-		itemC.playerItemId = itemBuilder.playerItemId;
+		itemC.amount = builder.itemAmount;
+		itemC.itemId = builder.itemId;
+		itemC.playerItemId = builder.playerItemId;
 
 		// Remove after time out.
 		removeMapper.get(entityId).removeDelay = ITEM_VANISH_DELAY;
@@ -107,7 +105,17 @@ class ItemEntityFactory extends EntityFactory {
 
 	@Override
 	public boolean canSpawn(EntityBuilder builder) {
-		return builder.type == EntityType.ITEM;
+		if(builder.itemId == 0) {
+			return false;
+		}
+		if(builder.position == null) {
+			return false;
+		}
+		if(builder.itemAmount < 1) {
+			return false;
+		}
+		
+		return true;
 	}
 
 }

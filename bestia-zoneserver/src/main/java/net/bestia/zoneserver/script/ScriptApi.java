@@ -9,7 +9,6 @@ import com.artemis.World;
 import net.bestia.zoneserver.ecs.component.Delay;
 import net.bestia.zoneserver.ecs.component.ScriptCallable;
 import net.bestia.zoneserver.ecs.entity.EntityBuilder;
-import net.bestia.zoneserver.ecs.entity.EntityBuilder.EntityType;
 import net.bestia.zoneserver.ecs.entity.EntityFactory;
 
 /**
@@ -40,7 +39,7 @@ public class ScriptApi {
 	}
 	
 	public EntityBuilder entity() {
-		return new EntityBuilder(EntityType.BASIC, entityFactory);
+		return new EntityBuilder(entityFactory);
 	}
 
 	public void initWorld(World world, EntityFactory entityFactory) {

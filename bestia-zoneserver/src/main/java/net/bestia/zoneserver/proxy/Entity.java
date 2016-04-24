@@ -12,8 +12,18 @@ import net.bestia.model.misc.Damage;
 
 public interface Entity {
 
+	/**
+	 * Returns the current status values of the entity.
+	 * 
+	 * @return The current status values.
+	 */
 	StatusPoints getStatusPoints();
 
+	/**
+	 * Gets the current location/position of the bestia.
+	 * 
+	 * @return The current position of the entity.
+	 */
 	Location getLocation();
 
 	/**
