@@ -33,7 +33,10 @@ Bestia.Engine.Indicator.ItemCast.prototype._onClick = function(pointer) {
 
 	// Publish the cast information.
 	var pointerCords = Bestia.Engine.World.getTileXY(pointer.worldX, pointer.worldY);
-	this._manager.ctx.pubsub.publish(Bestia.Signal.INVENTORY_PERFORM_CAST, {item: this._item, cords: pointerCords});
+	this._manager.ctx.pubsub.publish(Bestia.Signal.INVENTORY_PERFORM_CAST, {
+		item : this._item,
+		cords : pointerCords
+	});
 
 	// Forfeit control.
 	this._manager.showDefault();
@@ -43,9 +46,6 @@ Bestia.Engine.Indicator.ItemCast.prototype._onCastItem = function(_, item) {
 	// Change the size of the indicator based on the item size.
 	this._parseIndicator(item.indicator);
 
-	// Adapt indicator to item requirements.
-	// TODO
-
 	this._item = item;
 
 	// Asks to get activated.
@@ -53,7 +53,21 @@ Bestia.Engine.Indicator.ItemCast.prototype._onCastItem = function(_, item) {
 };
 
 Bestia.Engine.Indicator.ItemCast.prototype._parseIndicator = function(indicatorStr) {
+	var tokens = indicatorStr.split(':');
 
+	/* Currently there is only the circle.
+	switch (tokens[0]) {
+	//case 'circle':
+	default:
+		// Currently there is only the circle.
+		break;
+	}*/
+	
+	// Adjust the scale to match the fields.
+	var currentCells = this._marker.width / Bestia.Engine.World.TILE_SIZE;
+	var scale = tokens[1] / currentCells;
+	
+	this._marker.scale.setTo(scale);
 };
 
 /**

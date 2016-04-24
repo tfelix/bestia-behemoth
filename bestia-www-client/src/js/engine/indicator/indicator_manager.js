@@ -27,8 +27,12 @@ Bestia.Engine.IndicatorManager = function(ctx) {
 	this._indicators.push(new Bestia.Engine.Indicator.BasicAttack(this));
 };
 
+/**
+ * Shows the default pointer. It will also clear the pointer stack.
+ */
 Bestia.Engine.IndicatorManager.prototype.showDefault = function() {
 	this.requestActive(this._moveIndicator);
+	this._indicatorStack = [];
 };
 
 Bestia.Engine.IndicatorManager.prototype.load = function() {
