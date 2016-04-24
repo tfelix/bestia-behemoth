@@ -30,13 +30,13 @@ Bestia.Engine.SpriteBuilder.prototype.build = function(data, desc) {
 };
 
 Bestia.Engine.SpriteBuilder.prototype.load = function(descFile, fnOnComplete) {
-	var pack = {};
-	pack[descFile.name] = [ {
-		type : "image",
-		key : descFile.name,
+
+	var data = {
+		key : 'emperium',
+		type : 'image',
 		url : this._ctx.url.getSpriteUrl(descFile.name)
-	} ]
-	this._ctx.loader.loadPackData(pack, fnOnComplete);
+	};
+	this._ctx.loader.load(data, fnOnComplete);
 };
 
 Bestia.Engine.SpriteBuilder.prototype.canBuild = function(data) {

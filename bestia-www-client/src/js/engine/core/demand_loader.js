@@ -226,33 +226,42 @@ Bestia.Engine.DemandLoader.prototype.load = function(data, fnOnComplete) {
 
 	fnOnComplete = fnOnComplete || Bestia.NOOP;
 
-	// Temp.
-	var key = data.key;
-
 	// Check if a load is running. If this is the case only add the callback
 	// function to be executed when the load completes.
-	if (this._cache.hasOwnProperty(key)) {
-		this._cache[key].callbackFns.push(fnOnComplete);
+	if (this._cache.hasOwnProperty(data.key)) {
+		this._cache[data.key].callbackFns.push(fnOnComplete);
 		return;
 	}
 
-	var countObj = {
-		key : key,
-		callbackFns : [ fnOnComplete ],
-		toLoad : 1,
-		type : 'file'
-	};
-
-	this._cache[key] = countObj;
-
 	switch (data.type) {
 	case 'json':
-		this._loader.json(data.key, data.url);
+		if (this._phaserCache.checkJSONKey(data.key)) {
+			fnOnComplete();
+			return;
+		} else {
+			this._loader.json(data.key, data.url);
+		}
+		break;
+	case 'image':
+		if (this._phaserCache.checkImageKey(data.key)) {
+			fnOnComplete();
+			return;
+		} else {
+			this._loader.image(data.key, data.url);
+		}
 		break;
 	default:
 		console.warn("Loading this type not supported: " + data.type);
 		return;
 	}
 
+	var countObj = {
+		key : data.key,
+		callbackFns : [ fnOnComplete ],
+		toLoad : 1,
+		type : 'file'
+	};
+
+	this._cache[data.key] = countObj;
 	this._loader.start();
 };
