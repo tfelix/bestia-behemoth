@@ -20,7 +20,7 @@ Bestia.Engine.SimpleObjectBuilder.prototype.build = function(data) {
 
 };
 
-Bestia.Engine.SimpleObjectBuilder.prototype.canBuild = function(data, desc) {
+Bestia.Engine.SimpleObjectBuilder.prototype.canBuild = function(data) {
 	return data.type === this.type && data.version === this.version;
 };
 

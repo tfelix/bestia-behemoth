@@ -95,7 +95,7 @@ Bestia.ItemViewModel = function(data, urlHelper) {
 	 * @property {string}
 	 * @public
 	 */
-	this.indicator;
+	this.indicator = "";
 
 	
 	/**

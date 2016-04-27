@@ -88,7 +88,7 @@ Bestia.Engine.IndicatorManager.prototype._setActive = function(indicator) {
  * indicator.
  */
 Bestia.Engine.IndicatorManager.prototype.dismissActive = function() {
-	if (this._indicatorStack.length == 0) {
+	if (this._indicatorStack.length === 0) {
 		this._active = this._moveIndicator;
 	} else {
 		var indi = this._indicatorStack.pop();

@@ -12,6 +12,8 @@ Bestia.Game = function() {
 	this.engine = new Bestia.Engine(this.pubsub, this.urlHelper);
 	this.connection = new Bestia.Connection(this.pubsub);
 
+	this.input = new Bestia.Input.KeyboardReceiver(this.pubsub);
+	
 	var self = this;
 
 	/**
@@ -66,8 +68,6 @@ function main() {
 			game.attacks.request();
 		}
 	});
-
-	var input = new Bestia.Input.KeyboardReceiver(game.pubsub);
 
 	// Export game to global if dev.
 	// @ifdef DEVELOPMENT

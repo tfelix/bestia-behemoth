@@ -23,6 +23,6 @@ Bestia.Engine.PlayerMultispriteBuilder.prototype.build = function(data, desc) {
 /**
  * The type of the entities does now not match the sane check. It must be corrected.
  */
-Bestia.Engine.PlayerMultispriteBuilder.prototype.canBuild = function(data, desc) {
+Bestia.Engine.PlayerMultispriteBuilder.prototype.canBuild = function(data) {
 	return data.t === 'PLAYER_ANIM';
 };

@@ -9,13 +9,13 @@ Bestia.Engine.Builder = function(factory, ctx) {
 
 };
 
-Bestia.Engine.Builder.prototype.build = function(data, desc) {
+Bestia.Engine.Builder.prototype.build = function() {
 	
 	throw new Error("Must be overwritten by child class.");
 	
 };
 
-Bestia.Engine.Builder.prototype.canBuild = function(data, desc) {
+Bestia.Engine.Builder.prototype.canBuild = function(data) {
 	return data.type === this.type && data.version === this.version;
 };
 

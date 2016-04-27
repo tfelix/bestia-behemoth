@@ -195,7 +195,7 @@ Bestia.Chat = function(domEle, game, myI18n) {
 Bestia.Chat.prototype.sendChat = function() {
 	var msgText = this.text();
 	
-	if(msgText.length == 0) {
+	if(msgText.length === 0) {
 		return;
 	}
 

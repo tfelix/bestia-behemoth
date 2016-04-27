@@ -42,6 +42,6 @@ Bestia.Engine.ItemBuilder.prototype.build = function(data) {
 	return entity;
 };
 
-Bestia.Engine.ItemBuilder.prototype.canBuild = function(data, desc) {
+Bestia.Engine.ItemBuilder.prototype.canBuild = function(data) {
 	return data.type === this.type && data.version === this.version;
 };

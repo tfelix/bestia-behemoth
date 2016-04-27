@@ -68,7 +68,7 @@ Bestia.Engine.EntityFactory.prototype._continueBuild = function(data, fnOnComple
 		// Call the callback handler.
 		fnOnComplete(entity);
 	}.bind(this));
-}
+};
 
 Bestia.Engine.EntityFactory.prototype._getDescriptionFile = function(data) {
 	if (data.t === 'STATIC') {
@@ -82,7 +82,7 @@ Bestia.Engine.EntityFactory.prototype._getDescriptionFile = function(data) {
 	} else {
 		return this.descLoader.getDescription(data);
 	}
-}
+};
 
 /**
  * Das müsste auch an die Builder ausgelagert werden.

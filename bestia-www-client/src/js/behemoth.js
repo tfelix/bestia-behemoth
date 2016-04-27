@@ -1,4 +1,6 @@
 /* global Bestia:true */
+/*jshint unused:false*/
+
 /**
  * @author       Thomas Felix <thomas.felix@tfelix.de>
  * @copyright    2015 Thomas Felix

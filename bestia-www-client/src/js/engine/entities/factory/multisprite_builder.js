@@ -94,6 +94,6 @@ Bestia.Engine.MultispriteBuilder.prototype._extendPack = function(descFile, addi
 	return pack;
 };
 
-Bestia.Engine.MultispriteBuilder.prototype.canBuild = function(data, desc) {
+Bestia.Engine.MultispriteBuilder.prototype.canBuild = function(data) {
 	return data.t == 'MOB_ANIM';
 };
