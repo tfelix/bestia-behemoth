@@ -207,7 +207,7 @@ public class AccountRegistry {
 	}
 
 	private void unsubscribe(long accId) {
-		server.subscribe(AccountMessage.getZoneMessagePath(accId) + ".*");
+		server.unsubscribe(AccountMessage.getZoneMessagePath(accId) + ".*");
 		LOG.trace("Unsubscribed for account {}.", accId);
 	}
 }
