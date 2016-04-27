@@ -23,9 +23,11 @@ import com.netflix.servo.monitor.Counter;
 import com.netflix.servo.monitor.Monitors;
 
 /**
- * The loginserver connects to the interserver and listens for auth.login messages. With these messages the webserver
- * will authenticate new incoming connections. For this purpose the loginserver also access the database and checks the
- * current token. But the loginserver also provides means of login methods for setting exactly this login token.
+ * The loginserver connects to the interserver and listens for auth.login
+ * messages. With these messages the webserver will authenticate new incoming
+ * connections. For this purpose the loginserver also access the database and
+ * checks the current token. But the loginserver also provides means of login
+ * methods for setting exactly this login token.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -33,18 +35,18 @@ import com.netflix.servo.monitor.Monitors;
 public final class Loginserver implements InterserverMessageHandler {
 
 	private static final Logger LOG = LogManager.getLogger(Loginserver.class);
-	
+
 	// Metrics
 	private final Counter loginMessageMetric = Monitors.newCounter("LoginMessages");
 	private final Counter acceptedLoginMessageMetric = Monitors.newCounter("AcceptedLoginMessages");
 	private final Counter deniedLoginMessageMetric = Monitors.newCounter("DeniedLoginMessages");
-	
-	private final RestServer restServer;
+
+	private RestServer restServer;
 
 	private final InterserverConnectionFactory conFactory;
-	private final InterserverPublisher publisher;
-	private final InterserverSubscriber subscriber;
-	
+	private InterserverPublisher publisher;
+	private InterserverSubscriber subscriber;
+
 	private final BestiaConfiguration config;
 
 	/**
@@ -54,26 +56,33 @@ public final class Loginserver implements InterserverMessageHandler {
 	 *            Loaded configuration file.
 	 */
 	public Loginserver(BestiaConfiguration config) {
-		
-		if(config == null || !config.isLoaded()) {
+
+		if (config == null || !config.isLoaded()) {
 			throw new IllegalArgumentException("Config was null or not loaded.");
 		}
-		
+
 		this.config = config;
 
 		// Create the publish url.
 		final String interUrl = config.getProperty("inter.domain");
-		// Since this is from "our" perspective, the listening port of the interserver is our publishing port.
+		// Since this is from "our" perspective, the listening port of the
+		// interserver is our publishing port.
 		final int listenPort = config.getIntProperty("inter.publishPort");
 		final int publishPort = config.getIntProperty("inter.listenPort");
 
 		this.conFactory = new InterserverConnectionFactory(1, interUrl, listenPort, publishPort);
 
-		this.publisher = conFactory.getPublisher();
-		this.subscriber = conFactory.getSubscriber(this);
-		
+		try {
+			this.publisher = conFactory.getPublisher();
+			this.subscriber = conFactory.getSubscriber(this);
+		} catch (IOException ex) {
+			// Fatal. Could not create sockets.
+			System.exit(1);
+
+		}
+
 		this.restServer = new RestServer(config, this.publisher);
-		
+
 		Monitors.registerObject("Loginserver", this);
 	}
 
@@ -96,8 +105,8 @@ public final class Loginserver implements InterserverMessageHandler {
 			stop();
 			return false;
 		}
-		
-		if(!restServer.start()) {
+
+		if (!restServer.start()) {
 			LOG.error("Loginserver (web/rest) could not start.");
 			stop();
 			return false;
@@ -114,7 +123,7 @@ public final class Loginserver implements InterserverMessageHandler {
 		LOG.info("Stopping the Bestia Loginserver...");
 		restServer.stop();
 		conFactory.shutdown();
-		
+
 		LOG.info("Loginserver stopped.");
 	}
 
@@ -124,7 +133,7 @@ public final class Loginserver implements InterserverMessageHandler {
 		if (!(msg instanceof LoginAuthMessage)) {
 			return;
 		}
-		
+
 		final LoginAuthMessage loginMsg = (LoginAuthMessage) msg;
 		LOG.debug("Received login auth request: {}", loginMsg.toString());
 		loginMessageMetric.increment();
@@ -134,14 +143,16 @@ public final class Loginserver implements InterserverMessageHandler {
 		final LoginAuthReplyMessage loginReplyMsg = new LoginAuthReplyMessage(loginMsg);
 		loginReplyMsg.setAccountId(loginMsg.getAccountId());
 		if (tokenAuth.authenticate() == AuthState.AUTHENTICATED) {
-			LOG.info("Connection with account id: {}, token: {}, state: AUTHORIZED", loginMsg.getAccountId(), loginMsg.getToken());
+			LOG.info("Connection with account id: {}, token: {}, state: AUTHORIZED", loginMsg.getAccountId(),
+					loginMsg.getToken());
 			loginReplyMsg.setLoginState(LoginState.AUTHORIZED);
-			
+
 			acceptedLoginMessageMetric.increment();
 		} else {
-			LOG.info("Connection with account id: {}, token: {}, state: DENIED", loginMsg.getAccountId(), loginMsg.getToken());
+			LOG.info("Connection with account id: {}, token: {}, state: DENIED", loginMsg.getAccountId(),
+					loginMsg.getToken());
 			loginReplyMsg.setLoginState(LoginState.DENIED);
-			
+
 			deniedLoginMessageMetric.increment();
 		}
 

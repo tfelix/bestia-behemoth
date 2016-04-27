@@ -70,22 +70,22 @@ public class Zoneserver {
 	};
 
 	private final InterserverConnectionFactory connectionFactory;
-	private final InterserverSubscriber interserverSubscriber;
-	private final InterserverPublisher interserverPublisher;
+	private InterserverSubscriber interserverSubscriber;
+	private InterserverPublisher interserverPublisher;
 
-	private final CommandContext commandContext;
+	private CommandContext commandContext;
 
 	/**
 	 * List of zones for which this server is responsible.
 	 */
 	private final Map<String, Zone> zones = new HashMap<>();
-	private final Set<String> responsibleZones;
+	private Set<String> responsibleZones;
 
 	private final ScriptManager scriptManager = new ScriptManager();
 
-	private final ThreadedMessageProvider messageLoop;
+	private ThreadedMessageProvider messageLoop;
 
-	private final AccountRegistry accountRegistry;
+	private AccountRegistry accountRegistry;
 
 	/**
 	 * Ctor. The server needs a connection to its clients so it can use the
@@ -121,35 +121,40 @@ public class Zoneserver {
 				listenPort,
 				subscribePort);
 
-		this.interserverSubscriber = connectionFactory.getSubscriber(interserverHandler);
-		this.interserverPublisher = connectionFactory.getPublisher();
+		try {
+			this.interserverSubscriber = connectionFactory.getSubscriber(interserverHandler);
+			this.interserverPublisher = connectionFactory.getPublisher();
 
-		this.accountRegistry = new AccountRegistry(interserverSubscriber);
+			this.accountRegistry = new AccountRegistry(interserverSubscriber);
 
-		this.messageLoop = new ThreadedMessageProvider();
+			this.messageLoop = new ThreadedMessageProvider();
 
-		// Create a command context.
-		final CommandContextBuilder ctxBuilder = new CommandContextBuilder();
-		ctxBuilder.setConfiguration(config)
-				.setServer(this)
-				.setScriptManager(scriptManager)
-				.setServiceLocator(ServiceLocator.getInstance())
-				.setMessageProvider(messageLoop)
-				.setAccountRegistry(accountRegistry);
-		this.commandContext = ctxBuilder.build();
+			// Create a command context.
+			final CommandContextBuilder ctxBuilder = new CommandContextBuilder();
+			ctxBuilder.setConfiguration(config)
+					.setServer(this)
+					.setScriptManager(scriptManager)
+					.setServiceLocator(ServiceLocator.getInstance())
+					.setMessageProvider(messageLoop)
+					.setAccountRegistry(accountRegistry);
+			this.commandContext = ctxBuilder.build();
 
-		// Set the server messages.
-		final CommandFactory serverCommandFactory = new ServerCommandFactory(commandContext);
-		new MessageCommandHandler(serverCommandFactory, messageLoop);
+			// Set the server messages.
+			final CommandFactory serverCommandFactory = new ServerCommandFactory(commandContext);
+			new MessageCommandHandler(serverCommandFactory, messageLoop);
 
-		// Generate the list of zones for this server.
-		final String[] zoneStrings = config.getProperty("zone.zones").split(",");
-		final Set<String> zones = new HashSet<String>();
-		zones.addAll(Arrays.asList(zoneStrings));
-		this.responsibleZones = Collections.unmodifiableSet(zones);
+			// Generate the list of zones for this server.
+			final String[] zoneStrings = config.getProperty("zone.zones").split(",");
+			final Set<String> zones = new HashSet<String>();
+			zones.addAll(Arrays.asList(zoneStrings));
+			this.responsibleZones = Collections.unmodifiableSet(zones);
 
-		// Prepare the (static) translator.
-		I18n.setDao(commandContext.getServiceLocator().getBean(I18nDAO.class));
+			// Prepare the (static) translator.
+			I18n.setDao(commandContext.getServiceLocator().getBean(I18nDAO.class));
+		} catch (IOException ex) {
+			// Fatal. Could not connect to sockets.
+			System.exit(1);
+		}
 	}
 
 	/**
@@ -227,8 +232,8 @@ public class Zoneserver {
 		log.info("Bestia Behemoth Server is stopping...");
 
 		// Can not do this since this will hang.
-		// log.info("Unsubscribe from Interserver...");
-		// connectionFactory.shutdown();
+		log.info("Unsubscribe from Interserver...");
+		connectionFactory.shutdown();
 
 		// Shut down all the msg queues.
 		log.info("Shutting down: command and messaging system...");

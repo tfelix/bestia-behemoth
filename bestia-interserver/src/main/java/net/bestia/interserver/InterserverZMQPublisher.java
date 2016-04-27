@@ -74,7 +74,7 @@ class InterserverZMQPublisher implements InterserverPublisher {
 	 * @see net.bestia.interserver.InterserverPublisher#publish(net.bestia.messages.Message)
 	 */
 	@Override
-	public void publish(Message msg) throws IOException {
+	public synchronized void publish(Message msg) throws IOException {
 		if (!isConnected.get()) {
 			throw new IOException("Socket was already closed.");
 		}

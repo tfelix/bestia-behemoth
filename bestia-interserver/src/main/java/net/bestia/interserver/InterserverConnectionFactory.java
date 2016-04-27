@@ -43,7 +43,7 @@ public class InterserverConnectionFactory {
 	 * @throws IOException
 	 *             If the connection could not be established.
 	 */
-	public InterserverSubscriber getSubscriber(InterserverMessageHandler handler) throws IOException {
+	public synchronized InterserverSubscriber getSubscriber(InterserverMessageHandler handler) throws IOException {
 
 		final InterserverSubscriber sub = new InterserverZMQSubscriber(handler, subscriberUrl, context);
 		spawnedSubsciber.add(sub);
@@ -59,7 +59,7 @@ public class InterserverConnectionFactory {
 	 * @return An publisher which is able to send data to the interserver.
 	 * @throws IOException 
 	 */
-	public InterserverPublisher getPublisher() throws IOException {
+	public synchronized InterserverPublisher getPublisher() throws IOException {
 
 		final InterserverPublisher pub = new InterserverZMQPublisher(publishUrl, context);
 		spawnedPublisher.add(pub);
