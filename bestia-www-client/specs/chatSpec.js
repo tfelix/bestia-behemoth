@@ -59,13 +59,6 @@ describe("Bestia.Chat", function() {
 		expect(chat.mode()).toEqual('GUILD');
 	});
 
-	it("Registers commands.", function() {
-		var chat = new Bestia.Chat(chatEle, game);
-
-		// Exclude the basic command.
-		expect(chat._localCommands.length).toBe(Object.keys(Bestia.Chat.Commands).length - 1);
-	});
-
 	it("Executes local commands.", function() {
 		var chat = new Bestia.Chat(chatEle, game);
 

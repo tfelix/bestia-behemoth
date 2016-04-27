@@ -2,6 +2,7 @@ describe("Bestia.Inventory", function() {
 	
 	var pubsub = null;
 	var i18n = null;
+	var urlHelper = null;
 
 	var listMsg = {
 		mid : "inventory.list",
@@ -75,10 +76,11 @@ describe("Bestia.Inventory", function() {
 		});
 		
 		i18n = new Bestia.I18n(pubsub);
+		urlHelper = new Bestia.UrlHelper('http://localhost/assets');
 	});
 
 	it("Does listen to inventory list messages.", function() {
-		var inv = new Bestia.Inventory(pubsub, i18n);
+		var inv = new Bestia.Inventory(pubsub, i18n, urlHelper);
 		pubsub.publish(listMsg.mid, listMsg);
 
 		expect(inv.items().length).toEqual(2);
@@ -97,7 +99,7 @@ describe("Bestia.Inventory", function() {
 	});*/
 
 	it("Calculate weight correctly.", function() {
-		var inv = new Bestia.Inventory(pubsub, i18n);
+		var inv = new Bestia.Inventory(pubsub, i18n, urlHelper);
 		pubsub.publish(listMsg.mid, listMsg);
 		expect(inv.currentWeight()).toEqual(140);
 	});
@@ -117,7 +119,7 @@ describe("Bestia.Inventory", function() {
 	 */
 
 	it("Does filter for category.", function() {
-		var inv = new Bestia.Inventory(pubsub, i18n);
+		var inv = new Bestia.Inventory(pubsub, i18n, urlHelper);
 		pubsub.publish(listMsg.mid, listMsg);
 
 		inv.categoryFilter('etc');
