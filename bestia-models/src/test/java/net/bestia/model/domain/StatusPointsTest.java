@@ -100,13 +100,13 @@ public class StatusPointsTest {
 	public void test_instanciation() {
 		StatusPoints sp = new StatusPoints();
 
-		Assert.assertEquals(0, sp.getAtk());
-		Assert.assertEquals(0, sp.getDef());
+		Assert.assertEquals(1, sp.getAtk());
+		Assert.assertEquals(1, sp.getDef());
 		Assert.assertEquals(0, sp.getCurrentHp());
 		Assert.assertEquals(0, sp.getCurrentMana());
-		Assert.assertEquals(0, sp.getSpAtk());
-		Assert.assertEquals(0, sp.getSpd());
-		Assert.assertEquals(0, sp.getSpDef());
+		Assert.assertEquals(1, sp.getSpAtk());
+		Assert.assertEquals(1, sp.getSpd());
+		Assert.assertEquals(1, sp.getSpDef());
 	}
 	
 	@Test

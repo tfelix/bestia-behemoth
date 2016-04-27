@@ -59,11 +59,6 @@ class InterserverZMQPublisher implements InterserverPublisher {
 		log.debug("Connected to interserver on {}.", url);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bestia.interserver.InterserverPublisher#disconnect()
-	 */
 	@Override
 	public void disconnect() {
 		// Close the queue so no more messages are accepted.

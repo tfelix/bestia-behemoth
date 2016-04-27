@@ -115,15 +115,6 @@ public final class Loginserver implements InterserverMessageHandler {
 		restServer.stop();
 		conFactory.shutdown();
 		
-		if (subscriber != null) {
-			subscriber.disconnect();
-		}
-
-		if (publisher != null) {
-			publisher.disconnect();
-		}
-
-		conFactory.shutdown();
 		LOG.info("Loginserver stopped.");
 	}
 

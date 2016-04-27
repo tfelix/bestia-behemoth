@@ -1,9 +1,7 @@
 package net.bestia.interserver;
 
 import java.io.IOException;
-import java.nio.channels.ClosedSelectorException;
-
-import net.bestia.messages.Message;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,6 +9,8 @@ import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Context;
 import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMQException;
+
+import net.bestia.messages.Message;
 
 /**
  * With the InterserverSubscriber it is possible to connect to the interserver
@@ -32,6 +32,8 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 	private class MessageConsumerThread extends Thread {
 
 		private final Socket subscriber;
+		
+		public final AtomicBoolean isRunning = new AtomicBoolean(true);
 
 		public MessageConsumerThread(Socket subscriber) {
 			this.setName("MessageConsumerThread");
@@ -47,7 +49,7 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 
 			subscribeDefaultTopics();
 
-			while (!Thread.currentThread().isInterrupted()) {
+			while (isRunning.get()) {
 				try {
 					// Receive the topic name. Throw it away we only need data.
 					subscriber.recvStr();
@@ -60,12 +62,9 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 					continue;
 				} catch (ZMQException ex) {
 					if (ex.getErrorCode() == ZMQ.Error.ETERM.getCode()) {
-						continue;
+						break;
 					}
-				} catch(ClosedSelectorException ex) {
-					// Socket was closed.
-					break;
-				}
+				} 
 			}
 
 			subscriber.close();
@@ -114,15 +113,10 @@ class InterserverZMQSubscriber implements InterserverSubscriber {
 		thread.start();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bestia.interserver.InterserverSubscriber#disconnect()
-	 */
 	@Override
 	public void disconnect() {
 		try {
-			thread.interrupt();
+			thread.isRunning.set(false);
 			thread.join();
 		} catch (InterruptedException e) {
 			log.warn("Could not properly close the socket.", e);

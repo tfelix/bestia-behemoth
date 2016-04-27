@@ -27,6 +27,7 @@ public class ZMQPubSubTest {
 
 	private List<Message> msgs = new ArrayList<>();
 
+
 	@Before
 	public void setUp() throws IOException {
 		config = new BestiaConfiguration();
@@ -51,14 +52,11 @@ public class ZMQPubSubTest {
 				msgs.add(msg);
 			}
 		});
-
-		pub.connect();
-		sub.connect();
 	}
 
 	@After
 	public void teardown() {				
-
+		sleep(200);
 		fac.shutdown();
 		server.stop();
 		
@@ -72,14 +70,6 @@ public class ZMQPubSubTest {
 		assertTrue("No received message since no subscribed topic.", msgs.size() == 0);
 
 		sleep(200);
-	}
-
-	private void sleep(long millis) {
-		try {
-			Thread.sleep(millis);
-		} catch (InterruptedException e) {
-			// no op.
-		}
 	}
 
 	@Test
@@ -123,5 +113,13 @@ public class ZMQPubSubTest {
 		sleep(200);
 
 		assertTrue("No Message should arrive via unsubscribed topic.", msgs.size() == 0);
+	}
+	
+	private void sleep(long millis) {
+		try {
+			Thread.sleep(millis);
+		} catch (InterruptedException e) {
+			// no op.
+		}
 	}
 }

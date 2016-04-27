@@ -163,7 +163,7 @@ public class Interserver {
 
 		LOG.trace("Stopping message processing...");
 
-		context.term();
+		context.close();
 
 		// We have to do all the null checks since we may have an stop call
 		// during the start and may not have
