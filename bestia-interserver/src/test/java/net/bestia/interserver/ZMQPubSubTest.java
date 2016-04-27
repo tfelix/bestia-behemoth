@@ -58,8 +58,7 @@ public class ZMQPubSubTest {
 	public void teardown() {				
 		sleep(200);
 		server.stop();
-		fac.shutdown();
-		
+		fac.shutdown();	
 	}
 
 	@Test

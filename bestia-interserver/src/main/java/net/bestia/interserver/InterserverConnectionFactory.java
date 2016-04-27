@@ -75,12 +75,13 @@ public class InterserverConnectionFactory {
 	 * cleanup.
 	 */
 	public void shutdown() {
-
-		context.term();
-
+		
 		for (InterserverPublisher p : spawnedPublisher) {
 			p.disconnect();
 		}
+
+		context.term();
+
 		for (InterserverSubscriber s : spawnedSubsciber) {
 			s.disconnect();
 		}
