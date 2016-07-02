@@ -1,41 +1,40 @@
-Bestia.Engine.Indicator = Bestia.Engine.Indicator || {};
+
+import Indicator from './Indicator.js';
+import Signal from '../../io/Signal.js';
 
 /**
  * Basic indicator for visualization of the mouse pointer.
  * 
  * @class Bestia.Engine.Indicator
  */
-Bestia.Engine.Indicator.AttackCast = function(manager) {
-	Bestia.Engine.Indicator.Basic.call(this, manager);
+export default class AttackCastIndicator extends Indicator {
+	constructor(manager) {
+		super(manager);
 
-	// TODO Marker vorbereiten.
-	this._marker = null;
+		// TODO Marker vorbereiten.
+		this._marker = null;
+		
+		// Listen for activation signal.
+		this.pubsub.subscribe(Signal.ENGINE_CAST_ITEM, this._onCastAttack.bind(this));
+	}
 	
-	// Listen for activation signal.
-	this.pubsub.subscribe(Bestia.Signal.ENGINE_CAST_ITEM, this._onCastAttack.bind(this));
+	_onClick() {
+		// pointer
+		// TODO Cast the item on the given spot.
+		alert("Attacke Gecasted");
+		
+		// Forfeit control.
+		this._manager.showStandardIndicator();
+	}
 
-};
+	_onCastAttack() {
+		// _, attack
+		// Asks to get activated.
+		this._requestActive();
 
-Bestia.Engine.Indicator.AttackCast.prototype = Object.create(Bestia.Engine.Indicator.Basic.prototype);
-Bestia.Engine.Indicator.AttackCast.prototype.constructor = Bestia.Engine.Indicator.AttackCast;
-
-
-Bestia.Engine.Indicator.Basic.prototype._onClick = function() {
-	// pointer
-	// TODO Cast the item on the given spot.
-	alert("Attacke Gecasted");
-	
-	// Forfeit control.
-	this._manager.showStandardIndicator();
-};
-
-Bestia.Engine.Indicator.AttackCast.prototype._onCastAttack = function() {
-	// _, attack
-	// Asks to get activated.
-	this._requestActive();
-
-	// Prepare the needed dynamic cast indicator.
-	
-	// Aktivieren.
-	this._requestActive();
-};
+		// Prepare the needed dynamic cast indicator.
+		
+		// Aktivieren.
+		this._requestActive();
+	}
+} 
