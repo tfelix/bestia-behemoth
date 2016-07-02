@@ -57,10 +57,10 @@ module.exports = function(grunt) {
 		filedata = filedata.replace(/"version":\s?".+?",/, '"version": "'+versionOnly+'",');
 		grunt.file.write('package.json', filedata, opt);
 		
-		grunt.log.writeln("Updating src/js/behemoth.js version...");
-		filedata = grunt.file.read('src/js/behemoth.js', opt);
+		grunt.log.writeln("Updating src/js/bestia.js version...");
+		filedata = grunt.file.read('src/js/bestia.js', opt);
 		filedata = filedata.replace(/VERSION[\s+]?:[\s+]?["'].+?["'],/, 'VERSION: \''+version+'\',');
-		grunt.file.write('src/js/behemoth.js', filedata, opt);
+		grunt.file.write('src/js/bestia.js', filedata, opt);
 	});
 
 	grunt.registerTask('dev', 'Compiles for local development of the client.', function() {
