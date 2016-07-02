@@ -2,12 +2,12 @@
 import Signal from '../../io/Signal.js';
 
 /**
- * State is triggered once when the game starts. It will preload all the really
+ * State is triggered once when the game starts. It will preload all the REALLY
  * needed assets in order to to a proper loading screen and do some basic (and
- * very important!) game setup.
+ * very important!) game setup. But other asset loadings should go into the
+ * InitializeState which will show the user a propoer loading screen.
  * 
  * @constructor
- * @class Bestia.Engine.States.BootState
  */
 export default class BootState {
 	

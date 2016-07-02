@@ -4,7 +4,8 @@ import Signal from '../../io/Signal.js';
 /**
  * The state is triggered for the first game loading. A real loading screen will
  * be shown but since we need to load more data then the normal loading screen
- * we need to load basic game assets.
+ * we still need to load basic game assets. Because of the really bootstrapping
+ * boot state we are able to display a loading indicator screen.
  * 
  * @constructor
  * @class Bestia.Engine.States.InitialLoadingState
