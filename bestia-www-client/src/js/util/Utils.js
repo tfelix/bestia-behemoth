@@ -1,4 +1,9 @@
 /**
+ * @author       Thomas Felix <thomas.felix@tfelix.de>
+ * @copyright    2015 Thomas Felix
+ */
+
+/**
  * Formats a string with the given arguments. Works similar to javas
  * String.format.
  */

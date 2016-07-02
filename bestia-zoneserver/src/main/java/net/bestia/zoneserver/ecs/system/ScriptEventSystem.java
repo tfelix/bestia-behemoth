@@ -3,9 +3,6 @@ package net.bestia.zoneserver.ecs.system;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.script.Bindings;
-import javax.script.SimpleBindings;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -23,13 +20,13 @@ import com.artemis.systems.EntityProcessingSystem;
 import com.artemis.utils.IntBag;
 
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.Bestia;
+import net.bestia.zoneserver.ecs.component.EntityComponent;
 import net.bestia.zoneserver.ecs.component.Delay;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Script;
-import net.bestia.zoneserver.proxy.BestiaEntityProxy;
-import net.bestia.zoneserver.script.MapScript;
-import net.bestia.zoneserver.script.MapScriptFactory;
+import net.bestia.zoneserver.proxy.EntityProxy;
+import net.bestia.zoneserver.script.ScriptApi;
+import net.bestia.zoneserver.script.ScriptBuilder;
 import net.bestia.zoneserver.script.ScriptManager;
 import net.bestia.zoneserver.zone.Zone;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
@@ -49,12 +46,9 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 	private EntitySubscription collidableEntitySubscription;
 
 	private ComponentMapper<Script> triggerMapper;
-	private ComponentMapper<Bestia> bestiaMapper;
+	private ComponentMapper<EntityComponent> bestiaMapper;
 	private ComponentMapper<Position> positionMapper;
 	private ComponentMapper<Delay> delayMapper;
-
-	private final Bindings onEnterBinding = new SimpleBindings();
-	private final Bindings onExitBinding = new SimpleBindings();
 
 	final Set<Integer> newCollisions = new HashSet<>();
 
@@ -67,17 +61,14 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 	private CommandContext ctx;
 
 	@Wire
-	private MapScriptFactory scriptFactory;
+	private ScriptApi scriptApi;
 
 	private Archetype eventScriptArch;
 	private EntityTransmuter eventTickedTransmute;
 
 	public ScriptEventSystem() {
 		super(Aspect.all(Position.class, Script.class));
-
-		// init the bindings.
-		onEnterBinding.put("event", "onEnter");
-		onExitBinding.put("event", "onExit");
+		// no op.
 	}
 
 	@Override
@@ -85,7 +76,7 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 		super.initialize();
 
 		final AspectSubscriptionManager asm = world.getAspectSubscriptionManager();
-		collidableEntitySubscription = asm.get(Aspect.all(Bestia.class, Position.class));
+		collidableEntitySubscription = asm.get(Aspect.all(EntityComponent.class, Position.class));
 
 		eventScriptArch = new ArchetypeBuilder()
 				.add(Position.class)
@@ -113,7 +104,7 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 	public int createTriggerScript(String name, CollisionShape shape) {
 		final int id = world.create(eventScriptArch);
 
-		positionMapper.get(id).setPosition(shape);
+		positionMapper.get(id).setShape(shape);
 		triggerMapper.get(id).script = name;
 		triggerMapper.get(id).lastTriggeredEntities.clear();
 
@@ -133,13 +124,13 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 	 * @return
 	 */
 	public int createTriggerScript(String name, CollisionShape shape, int tickRate) {
-		
+
 		final int id = createTriggerScript(name, shape);
-		
+
 		eventTickedTransmute.transmute(id);
-	
+
 		delayMapper.get(id).setDelay(tickRate);
-		
+
 		LOG.debug("Added tickRate: {} on script {}", tickRate, name);
 
 		return id;
@@ -151,7 +142,7 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 		newCollisions.clear();
 
 		final Script script = triggerMapper.get(e);
-		final CollisionShape scriptShape = positionMapper.get(e).getPosition();
+		final CollisionShape scriptShape = positionMapper.get(e).getShape();
 		final Set<Integer> lastCollisions = script.lastTriggeredEntities;
 
 		// TODO Das hier über den Quadtree lösen.
@@ -165,7 +156,7 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 		// Find all entities in this zone.
 		for (int i = 0; i < possibleCollisions.size(); i++) {
 			final Entity collisionEntity = world.getEntity(possibleCollisions.get(i));
-			final CollisionShape entityShape = positionMapper.get(collisionEntity).getPosition();
+			final CollisionShape entityShape = positionMapper.get(collisionEntity).getShape();
 
 			if (!entityShape.collide(scriptShape)) {
 				continue;
@@ -174,21 +165,27 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 			newCollisions.add(possibleCollisions.get(i));
 		}
 
+		// Prepare the script.
+		ScriptBuilder sb = new ScriptBuilder();
+		sb.setName(script.script)
+				.setScriptPrefix(net.bestia.zoneserver.script.Script.SCRIPT_PREFIX_MAP)
+				.setApi(scriptApi);
+
 		// Now search for new collisions since the last time.
 		newCollisions.stream()
 				.filter(x -> !lastCollisions.contains(x))
 				.forEach(id -> {
 					// We are newly touching/entering it.
-						final Entity collisionEntity = world.getEntity(id);
-						final BestiaEntityProxy bm = bestiaMapper.get(collisionEntity).manager;
+					final Entity collisionEntity = world.getEntity(id);
+					final EntityProxy bm = bestiaMapper.get(collisionEntity).manager;
 
-						onEnterBinding.put("target", bm);
+					sb.setTargetEntity(bm).setBinding("event", "onEnter");
 
-						final MapScript mapScript = scriptFactory.getScript(script.script, bm);
+					final net.bestia.zoneserver.script.Script mapScript = sb.build();
 
-						final boolean success = scriptManager.execute(mapScript, onEnterBinding);
-						checkSuccess(e.getId(), success);
-					});
+					final boolean success = scriptManager.execute(mapScript);
+					checkSuccess(e.getId(), success);
+				});
 
 		// Now search for entities which have left the colliding area.
 		lastCollisions.stream()
@@ -196,21 +193,28 @@ public class ScriptEventSystem extends EntityProcessingSystem {
 				.forEach(id -> {
 					// Trigger the onExit method for all entities not inside the
 					// script zone anymore.
-						final Entity exitEntity = world.getEntity(id);
-						if (exitEntity == null) {
-							// Entity was deleted. Nevermind its gone.
-							return;
-						}
+					final Entity exitEntity = world.getEntity(id);
 
-						final BestiaEntityProxy bm = bestiaMapper.get(exitEntity).manager;
+					if (exitEntity == null) {
+						// Entity was deleted. Nevermind its gone.
+						return;
+					}
 
-						onExitBinding.put("target", bm);
+					final EntityComponent bestia = bestiaMapper.getSafe(exitEntity);
 
-						final MapScript mapScript = scriptFactory.getScript(script.script, bm);
+					// Second check if the entity exists. Kinda workaround. But
+					// otherwise does not work.
+					if (bestia == null) {
+						return;
+					}
+					final EntityProxy bm = bestia.manager;
 
-						final boolean success = scriptManager.execute(mapScript, onExitBinding);
-						checkSuccess(e.getId(), success);
-					});
+					sb.setTargetEntity(bm).setBinding("event", "onExit");
+					final net.bestia.zoneserver.script.Script mapScript = sb.build();
+
+					final boolean success = scriptManager.execute(mapScript);
+					checkSuccess(e.getId(), success);
+				});
 
 		// Reset the current entities of the script.
 		script.lastTriggeredEntities.clear();

@@ -1,9 +1,9 @@
 package net.bestia.zoneserver.command.server;
 
 import net.bestia.messages.Message;
-import net.bestia.messages.TranslationRequestMessage;
-import net.bestia.messages.TranslationRequestMessage.TranslationItem;
-import net.bestia.messages.TranslationResponseMessage;
+import net.bestia.messages.system.TranslationRequestMessage;
+import net.bestia.messages.system.TranslationResponseMessage;
+import net.bestia.messages.system.TranslationRequestMessage.TranslationItem;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.I18nDAO;
 import net.bestia.model.domain.I18n;

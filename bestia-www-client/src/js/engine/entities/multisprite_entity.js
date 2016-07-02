@@ -198,6 +198,9 @@ Bestia.Engine.MultispriteEntity.prototype.tickAnimation = function() {
 	var curAnim = this._sprite.animations.name;
 
 	// The frame names are ???/001.png etc.
+	if(this._sprite.frameName === undefined) {
+		console.error("Soll nicht passieren");
+	}
 	var start = this._sprite.frameName.length - 7;
 	var frameNumber = this._sprite.frameName.substring(start, start + 3);
 	var curFrame = parseInt(frameNumber, 10);

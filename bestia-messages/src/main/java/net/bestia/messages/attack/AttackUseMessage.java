@@ -26,6 +26,9 @@ public class AttackUseMessage extends InputMessage {
 	
 	private int x;
 	private int y;
+	
+	@JsonProperty("tid")
+	private String targetEntityId;
 
 	public int getAttackId() {
 		return attackId;
@@ -58,6 +61,14 @@ public class AttackUseMessage extends InputMessage {
 	public void setY(int y) {
 		this.y = y;
 	}
+	
+	public String getTargetEntityId() {
+		return targetEntityId;
+	}
+	
+	public void setTargetEntityId(String targetEntityId) {
+		this.targetEntityId = targetEntityId;
+	}
 
 	@Override
 	public String getMessageId() {
@@ -66,12 +77,12 @@ public class AttackUseMessage extends InputMessage {
 
 	@Override
 	public String getMessagePath() {
-		return getZoneMessagePath();
+		return getZoneMessagePath(getAccountId());
 	}
 
 	@Override
 	public String toString() {
-		return String.format("AttackUseMessage[accId: {}, bestiaId: {}, attackId: {}, x: {}, y: {}]", getAccountId(),
+		return String.format("AttackUseMessage[accId: %d, bestiaId: %d, attackId: %d, x: %d, y: %d]", getAccountId(),
 				getPlayerBestiaId(), attackId, x, y);
 	}
 }

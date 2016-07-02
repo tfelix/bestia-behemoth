@@ -2,7 +2,7 @@ package net.bestia.zoneserver.command.ecs;
 
 import net.bestia.zoneserver.command.Command;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
-import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerEntityProxy;
 import net.bestia.zoneserver.zone.Zone;
 import net.bestia.zoneserver.zone.map.Map;
 
@@ -30,15 +30,15 @@ public abstract class ECSCommand extends Command {
 	}
 
 	/**
-	 * Returns the {@link PlayerBestiaEntityProxy} of the current player in the
+	 * Returns the {@link PlayerEntityProxy} of the current player in the
 	 * scope in whose context this command is executed.
 	 * 
-	 * @return The {@link PlayerBestiaEntityProxy} of the player currently
+	 * @return The {@link PlayerEntityProxy} of the player currently
 	 *         responsible for triggering this command.
 	 */
-	protected PlayerBestiaEntityProxy getPlayerBestiaProxy() {
+	protected PlayerEntityProxy getPlayerBestiaProxy() {
 		final ComponentMapper<PlayerBestia> playerMapper = world.getMapper(PlayerBestia.class);
-		final PlayerBestiaEntityProxy pbm = playerMapper.get(player).playerBestia;
+		final PlayerEntityProxy pbm = playerMapper.get(player).playerBestia;
 		return pbm;
 	}
 

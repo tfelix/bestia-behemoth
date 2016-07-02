@@ -4,9 +4,6 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
-import net.bestia.messages.LoginBroadcastMessage;
-import net.bestia.messages.LogoutBroadcastMessage;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.atmosphere.config.service.WebSocketHandlerService;
@@ -16,6 +13,9 @@ import org.atmosphere.cpr.AtmosphereResourceFactory;
 import org.atmosphere.websocket.WebSocket;
 import org.atmosphere.websocket.WebSocketHandlerAdapter;
 import org.atmosphere.websocket.WebSocketProcessor.WebSocketException;
+
+import net.bestia.messages.login.LoginBroadcastMessage;
+import net.bestia.messages.login.LogoutBroadcastMessage;
 
 @WebSocketHandlerService(path = "/api")
 public class BestiaWebsocketHandler extends WebSocketHandlerAdapter {

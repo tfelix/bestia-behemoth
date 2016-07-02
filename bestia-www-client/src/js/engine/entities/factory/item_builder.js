@@ -17,14 +17,14 @@ Bestia.Engine.ItemBuilder = function(factory, ctx) {
 Bestia.Engine.ItemBuilder.prototype = Object.create(Bestia.Engine.Builder.prototype);
 Bestia.Engine.ItemBuilder.prototype.constructor = Bestia.Engine.ItemBuilder;
 
-Bestia.Engine.ItemBuilder.prototype._build = function(data) {
+Bestia.Engine.ItemBuilder.prototype.build = function(data) {
 	
 	var entity;
 	
 	if(this._loader.has(data.s, 'item')) {
-		entity = new Bestia.Engine.ItemEntity(this._game, data.uuid, data.x, data.y, data.s);
+		entity = new Bestia.Engine.ItemEntity(this._ctx, data.uuid, data.x, data.y, data.s);
 	} else {
-		entity = new Bestia.Engine.ItemEntity(this._game, data.uuid, data.x, data.y);
+		entity = new Bestia.Engine.ItemEntity(this._ctx, data.uuid, data.x, data.y);
 		
 		this._demandLoader.loadItemSprite(data.s, function() {
 
@@ -40,4 +40,8 @@ Bestia.Engine.ItemBuilder.prototype._build = function(data) {
 	}
 	
 	return entity;
+};
+
+Bestia.Engine.ItemBuilder.prototype.canBuild = function(data) {
+	return data.type === this.type && data.version === this.version;
 };

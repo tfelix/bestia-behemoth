@@ -27,7 +27,7 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 
-import net.bestia.util.VersionReader;
+import net.bestia.util.BestiaVersion;
 import tiled.core.Map;
 import tiled.core.MapLayer;
 import tiled.core.Tile;
@@ -44,7 +44,7 @@ public class TmxJsonWriter {
 
 	private static final Logger LOG = LogManager.getLogger(TmxJsonWriter.class);
 
-	private static final VersionReader projectInfo = new VersionReader();
+	private static final BestiaVersion projectInfo = new BestiaVersion();
 	
 	private static final Pattern LAYER_PATTERN = Pattern.compile("layer_(?<index>\\d+)(_(?<subindex>\\d+))?");
 	private static final Pattern LAYER_SUB_PATTERN = Pattern.compile("_(\\d+)");

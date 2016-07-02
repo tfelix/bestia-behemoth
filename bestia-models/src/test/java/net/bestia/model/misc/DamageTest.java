@@ -15,11 +15,6 @@ public class DamageTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void getHit_noUUID_throw() {
-		Damage.getHit(null, 100);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
 	public void getHit_negAmount_throw() {
 		Damage.getHit(uuid1, -100);
 	}
@@ -28,20 +23,10 @@ public class DamageTest {
 	public void getHeal_ok() {
 		Damage.getHeal(uuid1, 100);
 	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void getHeal_noUUID_throw() {
-		Damage.getHeal(null, 100);
-	}
 	
 	@Test(expected = IllegalArgumentException.class)
 	public void getHeal_negAmount_throw() {
 		Damage.getHeal(uuid1, -100);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void getMiss_noUUID_throw() {
-		Damage.getMiss(null);
 	}
 
 	@Test

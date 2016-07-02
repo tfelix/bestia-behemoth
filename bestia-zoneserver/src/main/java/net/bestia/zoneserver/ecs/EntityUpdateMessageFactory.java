@@ -7,7 +7,6 @@ import java.util.UUID;
 import com.artemis.ComponentMapper;
 import com.artemis.Entity;
 import com.artemis.World;
-import com.artemis.managers.UuidEntityManager;
 import com.artemis.utils.IntBag;
 
 import net.bestia.messages.entity.EntityAction;
@@ -16,6 +15,7 @@ import net.bestia.messages.entity.SpriteType;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
+import net.bestia.zoneserver.ecs.manager.UuidManager;
 import net.bestia.zoneserver.zone.shape.Vector2;
 
 /**
@@ -27,14 +27,14 @@ import net.bestia.zoneserver.zone.shape.Vector2;
 public class EntityUpdateMessageFactory {
 
 	private final World world;
-	private final UuidEntityManager uuidManager;
+	private final UuidManager uuidManager;
 	private final ComponentMapper<Visible> visibleMapper;
 	private final ComponentMapper<Position> positionMapper;
 	private final ComponentMapper<PlayerBestia> playerMapper;
 
 	public EntityUpdateMessageFactory(World world) {
 		this.world = world;
-		this.uuidManager = world.getSystem(UuidEntityManager.class);
+		this.uuidManager = world.getSystem(UuidManager.class);
 		this.visibleMapper = world.getMapper(Visible.class);
 		this.positionMapper = world.getMapper(Position.class);
 		this.playerMapper = world.getMapper(PlayerBestia.class);
@@ -83,7 +83,7 @@ public class EntityUpdateMessageFactory {
 		final Entity e = world.getEntity(entityId);
 		final UUID uuid = uuidManager.getUuid(e);
 		final Visible visible = visibleMapper.get(entityId);
-		final Vector2 pos = positionMapper.get(e).getPosition().getAnchor();
+		final Vector2 pos = positionMapper.get(e).getShape().getAnchor();
 		final PlayerBestia playerControlled = playerMapper.getSafe(e);
 		final SpriteType entityType = visible.spriteType;
 
@@ -92,7 +92,8 @@ public class EntityUpdateMessageFactory {
 		msg.setType(entityType);
 
 		if (playerControlled != null) {
-			msg.setPlayerBestiaId(playerControlled.playerBestia.getPlayerBestiaId());
+			final int pbid = playerControlled.playerBestia.getPlayerBestiaId();
+			msg.setPlayerBestiaId(pbid);
 		}
 
 		return msg;

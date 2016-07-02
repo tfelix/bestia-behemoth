@@ -5,17 +5,18 @@ import com.artemis.WorldConfiguration;
 import com.artemis.io.JsonArtemisSerializer;
 import com.artemis.managers.PlayerManager;
 import com.artemis.managers.TagManager;
-import com.artemis.managers.UuidEntityManager;
 import com.artemis.managers.WorldSerializationManager;
 
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
+import net.bestia.zoneserver.ecs.manager.UuidManager;
 import net.bestia.zoneserver.ecs.system.AISystem;
 import net.bestia.zoneserver.ecs.system.ActiveSpawnUpdateSystem;
 import net.bestia.zoneserver.ecs.system.DelayedRemoveSystem;
 import net.bestia.zoneserver.ecs.system.MovementSystem;
 import net.bestia.zoneserver.ecs.system.PersistSystem;
 import net.bestia.zoneserver.ecs.system.RegenerationSystem;
+import net.bestia.zoneserver.ecs.system.ScriptTickerSystem;
 import net.bestia.zoneserver.ecs.system.VisibleSpawnUpdateSystem;
 import net.bestia.zoneserver.zone.Zone;
 import net.bestia.zoneserver.zone.map.Map;
@@ -36,6 +37,7 @@ public class BaseWorldExtender implements WorldExtend {
 		worldConfig.register(ctx);
 		worldConfig.register(zone);
 		worldConfig.register(ctx.getAccountRegistry());
+		
 
 		// Set all the systems.
 		worldConfig.setSystem(new MovementSystem());
@@ -50,10 +52,12 @@ public class BaseWorldExtender implements WorldExtend {
 		worldConfig.setSystem(new PlayerBestiaSpawnManager(zone));
 		worldConfig.setSystem(new PlayerManager());
 		worldConfig.setSystem(new TagManager());
-		worldConfig.setSystem(new UuidEntityManager());
+		worldConfig.setSystem(new ScriptTickerSystem());
+		worldConfig.setSystem(new UuidManager());
 		
 		// Prepare for serialization.
 		worldConfig.setSystem(serializationManager);
+		
 		
 		// TODO Temporär abgeschaltet.
 		//final ZoneEntityDao mapEntityDao = ctx.getServiceLocator().getBean(ZoneEntityDao.class);

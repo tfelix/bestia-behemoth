@@ -59,11 +59,6 @@ class InterserverZMQPublisher implements InterserverPublisher {
 		log.debug("Connected to interserver on {}.", url);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bestia.interserver.InterserverPublisher#disconnect()
-	 */
 	@Override
 	public void disconnect() {
 		// Close the queue so no more messages are accepted.
@@ -79,7 +74,7 @@ class InterserverZMQPublisher implements InterserverPublisher {
 	 * @see net.bestia.interserver.InterserverPublisher#publish(net.bestia.messages.Message)
 	 */
 	@Override
-	public void publish(Message msg) throws IOException {
+	public synchronized void publish(Message msg) throws IOException {
 		if (!isConnected.get()) {
 			throw new IOException("Socket was already closed.");
 		}

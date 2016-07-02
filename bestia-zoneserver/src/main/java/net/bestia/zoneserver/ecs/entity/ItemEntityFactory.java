@@ -4,11 +4,13 @@ import com.artemis.Archetype;
 import com.artemis.ArchetypeBuilder;
 import com.artemis.ComponentMapper;
 import com.artemis.World;
+import com.artemis.annotations.Wire;
 
 import net.bestia.messages.entity.SpriteType;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerItem;
 import net.bestia.model.misc.Sprite.InteractionType;
+import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.DelayedRemove;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
@@ -22,19 +24,20 @@ import net.bestia.zoneserver.zone.shape.Vector2;
  * @author Thomas
  *
  */
-public class ItemEntityFactory extends EntityFactory {
+@Wire
+class ItemEntityFactory extends EntityFactory {
 
 	public static final int ITEM_VANISH_DELAY = 48 * 60 * 60 * 1000; // 48h.
 
 	private final Archetype itemArchetype;
 
-	private final ComponentMapper<Position> positionMapper;
-	private final ComponentMapper<Visible> visibleMapper;
-	private final ComponentMapper<DelayedRemove> removeMapper;
-	private final ComponentMapper<net.bestia.zoneserver.ecs.component.Item> itemMapper;
+	private ComponentMapper<Position> positionMapper;
+	private ComponentMapper<Visible> visibleMapper;
+	private ComponentMapper<DelayedRemove> removeMapper;
+	private ComponentMapper<net.bestia.zoneserver.ecs.component.Item> itemMapper;
 
-	public ItemEntityFactory(World world) {
-		super(world);
+	public ItemEntityFactory(World world, CommandContext ctx) {
+		super(world, ctx);
 
 		this.itemArchetype = new ArchetypeBuilder()
 				.add(Visible.class)
@@ -43,50 +46,7 @@ public class ItemEntityFactory extends EntityFactory {
 				.add(DelayedRemove.class)
 				.build(world);
 
-		this.positionMapper = world.getMapper(Position.class);
-		this.visibleMapper = world.getMapper(Visible.class);
-		this.removeMapper = world.getMapper(DelayedRemove.class);
-		this.itemMapper = world.getMapper(net.bestia.zoneserver.ecs.component.Item.class);
-	}
-
-	/**
-	 * Spawns an visible item on the map at the given coordinates. The stacked
-	 * amount of this item will be 1.
-	 * 
-	 * @param loc
-	 *            Location to spawn the item.
-	 * @param item
-	 *            The item to spawn.
-	 */
-	public void spawnItem(Vector2 loc, Item item) {
-		spawnItem(loc, item, 1);
-	}
-
-	/**
-	 * Spawning a {@link PlayerItem} is needed if it is a EQUIPMENT type item
-	 * which has additional information attached to it. Its reference inside the
-	 * database must not be broken. Amount is always 1 since it can not stack.
-	 * 
-	 * @param loc
-	 * @param item
-	 */
-	public void spawnItem(Vector2 loc, PlayerItem item) {
-		final int entityId = world.create(itemArchetype);
-
-		positionMapper.get(entityId).setPosition(loc.x, loc.y);
-
-		final Visible visible = visibleMapper.get(entityId);
-		visible.sprite = item.getItem().getImage();
-		visible.interactionType = InteractionType.ITEM;
-		visible.spriteType = SpriteType.ITEM;
-
-		final net.bestia.zoneserver.ecs.component.Item itemC = itemMapper.get(entityId);
-		itemC.amount = 1;
-		itemC.itemId = item.getItem().getId();
-		itemC.playerItemId = item.getId();
-
-		// Remove after time out.
-		removeMapper.get(entityId).removeDelay = ITEM_VANISH_DELAY;
+		world.inject(this);
 	}
 
 	/**
@@ -100,7 +60,7 @@ public class ItemEntityFactory extends EntityFactory {
 	public void spawnItem(Vector2 loc, Item item, int amount) {
 		final int entityId = world.create(itemArchetype);
 
-		positionMapper.get(entityId).setPosition(loc.x, loc.y);
+		positionMapper.get(entityId).setPos(loc.x, loc.y);
 
 		final Visible visible = visibleMapper.get(entityId);
 		visible.sprite = item.getImage();
@@ -112,6 +72,50 @@ public class ItemEntityFactory extends EntityFactory {
 
 		// Remove after time out.
 		removeMapper.get(entityId).removeDelay = ITEM_VANISH_DELAY;
+	}
+
+	/**
+	 * Spawning a {@link PlayerItem} is needed if it is a EQUIPMENT type item
+	 * which has additional information attached to it. Its reference inside the
+	 * database must not be broken. Amount is always 1 since it can not stack.
+	 * 
+	 * @param loc
+	 * @param item
+	 */
+	@Override
+	public void spawn(EntityBuilder builder) {
+		
+		final int entityId = world.create(itemArchetype);
+
+		positionMapper.get(entityId).setPos(builder.position.x, builder.position.y);
+
+		final Visible visible = visibleMapper.get(entityId);
+		visible.sprite = builder.sprite;
+		visible.interactionType = InteractionType.ITEM;
+		visible.spriteType = SpriteType.ITEM;
+
+		final net.bestia.zoneserver.ecs.component.Item itemC = itemMapper.get(entityId);
+		itemC.amount = builder.itemAmount;
+		itemC.itemId = builder.itemId;
+		itemC.playerItemId = builder.playerItemId;
+
+		// Remove after time out.
+		removeMapper.get(entityId).removeDelay = ITEM_VANISH_DELAY;
+	}
+
+	@Override
+	public boolean canSpawn(EntityBuilder builder) {
+		if(builder.itemId == 0) {
+			return false;
+		}
+		if(builder.position == null) {
+			return false;
+		}
+		if(builder.itemAmount < 1) {
+			return false;
+		}
+		
+		return true;
 	}
 
 }

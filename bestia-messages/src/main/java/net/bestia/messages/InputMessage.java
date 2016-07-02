@@ -17,6 +17,8 @@ public abstract class InputMessage extends AccountMessage {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;
+	
+	private static final String MSG_PATH_ACCOUNT_BESTIA = "account.%d.bestia.%d"; 
 
 	@JsonProperty("pbid")
 	private int playerBestiaId = 0;
@@ -75,4 +77,13 @@ public abstract class InputMessage extends AccountMessage {
 		this.playerBestiaId = playerBestiaId;
 	}
 
+	/**
+	 * Helper method. Can be used to subscribe to messages which are directed 
+	 * 
+	 * @return A message path designated to reach zoneserver on which a certain
+	 *         user is connected.
+	 */
+	public static String getInputMessagePath(long accountId, int bestiaId) {
+		return String.format(MSG_PATH_ACCOUNT_BESTIA, accountId, bestiaId);
+	}
 }

@@ -43,10 +43,11 @@ Durch das Maven Plugin werden die Sub-Layer im verarbeitungsprozess zu einem Lay
 
 Vor allem Asset Packs besitzen interne URLs und verweise auf weitere Dateien die heruntergladen werden müssen. Diese und auch die Maps benötigen oft weitere Daten welche in den Game Assets vorhanden sein müssen. Diese referenzierten Dateien werden durch das Goal auf Vorhandensein überprüft.
 
-1. mob: Alle im Asset Pack beschriebenen ATLAS, Sprites, etc. vorhanden?
-2. map: Sind alle Tilemaps zugreifbar die von der Map referenziert werden? Sind alle Sounds/Assets vorhanden?
+1. mob: Alle im Asset Pack beschriebenen ATLAS, Sprites, etc. vorhanden? TBD
+	* Sind alle Sprite Animationen vorhanden? TBD
+2. map: Sind alle Tilemaps zugreifbar die von der Map referenziert werden? Sind alle Sounds/Assets vorhanden? TBD
 
-## convert-tmx - Erzeugt aus den TMX maps neue JSON maps.
+## convert-tmx - Erzeugt aus den TMX maps neue JSON maps. (TODO)
 
 Der Server verwendet TMX Daten da diese leichter zu handhaben sind als die JSON Dateien. Daher sind dies auch die master-files die es zu ändern gilt. JSON Maps werden automatisch ausgehend von den TMX maps neu erstellt durch dieses goal. Sie werden im gleichen Verzeichnis abgelegt wie die TMX map.
 
@@ -56,7 +57,6 @@ Sind für alle Mobs in der Datenbank alle notwendigen Daten im Asset vorhanden?
 Asset Packs vorhanden?
 
 
-Konvertieren der Map
 Kombinieren der Multi-Layer in eine gemeinsame Tilemap und Anpassung der entsprechenden Tile Spritesheets. Ausgabe der Datei in den dafür vorgesehenen Speicherort.
 
 Überprüfen der Mob Sprites

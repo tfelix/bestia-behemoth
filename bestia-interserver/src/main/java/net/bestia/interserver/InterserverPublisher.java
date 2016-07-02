@@ -5,7 +5,8 @@ import java.io.IOException;
 import net.bestia.messages.Message;
 
 /**
- * Used by classes able to connect to the interserver. They can be used to send messages to this server.
+ * Used by classes able to connect to the interserver. They can be used to send
+ * messages to this server.
  * 
  * @author Thomas
  *
@@ -21,13 +22,15 @@ public interface InterserverPublisher {
 	public void connect() throws IOException;
 
 	/**
-	 * Disconnects the publisher from the interserver.
+	 * Disconnects from the server. WARNING: This must only be called from
+	 * within the factory.
 	 */
 	public void disconnect();
 
 	/**
-	 * Sends a message to the interserver. The publisher will handle the topic of the message itself. If the Publisher
-	 * is not connected to a interserver instance publishing a message will throw an IOException.
+	 * Sends a message to the interserver. The publisher will handle the topic
+	 * of the message itself. If the Publisher is not connected to a interserver
+	 * instance publishing a message will throw an IOException.
 	 * 
 	 * @param msg
 	 *            Message to be send to the Interserver.

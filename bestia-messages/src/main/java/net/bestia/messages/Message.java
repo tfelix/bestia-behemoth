@@ -21,63 +21,60 @@ public abstract class Message implements Serializable {
 
 	private static final long serialVersionUID = 2015052401L;
 
-	private final static String MSG_PATH_SERVER_ALL = "servers";
-	private final static String MSG_PATH_ZONE_ALL = "zone/all";
-	private final static String MSG_PATH_NULL = "";
+	private final static String MSG_PATH_SERVER_BROADCAST = "servers";
+	private final static String MSG_PATH_ZONE_BROADCAST = "zone";
+	private final static String MSG_PATH_LOGIN = "login";
 
 	public Message() {
 		// no op.
 	}
 
 	/**
-	 * Returns the id of this message. The same id is used on the client to trigger events which have subscribed for the
-	 * arrival of this kind of messages.
+	 * Returns the id of this message. The same id is used on the client to
+	 * trigger events which have subscribed for the arrival of this kind of
+	 * messages.
 	 * 
 	 * @return Event name to be triggered on the client.
 	 */
 	@JsonTypeId
 	public abstract String getMessageId();
 
-
 	@Override
 	public String toString() {
-		return String.format("Message[message id: %s]", getMessageId());
+		return String.format("Message[message id: %s, path: %s]", getMessageId(), getMessagePath());
 	}
 
 	/**
-	 * Gets the designated message path e.g. "zone/all" if the messages are intended to be send to all zone servers. By
-	 * overwriting this getMessagePath method the message itself can decide for which server they are intended.
+	 * Gets the designated message path e.g. "zone/all" if the messages are
+	 * intended to be send to all zone servers. By overwriting this
+	 * getMessagePath method the message itself can decide for which server they
+	 * are intended.
 	 * 
 	 * @return The message path to which the message wants to be delivered.
 	 */
 	@JsonIgnore
 	public abstract String getMessagePath();
 
-
-	/**
-	 * Returns a null value for the message path. This can be used for internal messages to the ECS system for example
-	 * which should not take part in inter-server communication.
-	 * 
-	 * @return
-	 */
-	protected String getNullMessagePath() {
-		return MSG_PATH_NULL;
-	}
-	
 	/**
 	 * The message will get delivered to all servers.
-	 * @return
 	 */
-	protected String getServerBroadcastPath() {
-		return MSG_PATH_SERVER_ALL;
+	public static String getServerBroadcastPath() {
+		return MSG_PATH_SERVER_BROADCAST;
 	}
 
 	/**
-	 * Helper method. Returns the message path for addressing a broadcast to all zones.
+	 * Helper method. Returns the message path for addressing a broadcast to all
+	 * zones.
 	 * 
-	 * @return A message path addressing a zone broadcast.
 	 */
-	protected String getZoneBroadcastMessagePath() {
-		return MSG_PATH_ZONE_ALL;
+	public static String getZoneBroadcastMessagePath() {
+		return MSG_PATH_ZONE_BROADCAST;
+	}
+
+	/**
+	 * Message is directed to the login server.
+	 */
+	public static String getLoginMessagePath() {
+		return MSG_PATH_LOGIN;
 	}
 }

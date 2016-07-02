@@ -7,20 +7,21 @@ import com.artemis.Archetype;
 import com.artemis.ArchetypeBuilder;
 import com.artemis.Entity;
 import com.artemis.World;
+import com.artemis.annotations.Wire;
 
 import net.bestia.messages.Message;
 import net.bestia.messages.bestia.BestiaInfoMessage;
+import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Attacks;
 import net.bestia.zoneserver.ecs.component.Position;
-import net.bestia.zoneserver.ecs.component.PositionDomainProxy;
 import net.bestia.zoneserver.ecs.component.StatusPoints;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.proxy.InventoryProxy;
-import net.bestia.zoneserver.proxy.NpcBestiaEntityProxy;
-import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.NpcEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerEntityProxy;
 
 /**
  * This factory is responsible for spawning player bestias into the ECS.
@@ -28,58 +29,63 @@ import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class PlayerBestiaEntityFactory extends EntityFactory {
+@Wire
+class PlayerBestiaEntityFactory extends EntityFactory {
 
 	private final static Logger LOG = LogManager.getLogger(PlayerBestiaEntityFactory.class);
 
 	private final Archetype playerBestiaArchetype;
-	private final PlayerBestiaMapper mapper;
-	private final CommandContext ctx;
 
-	public PlayerBestiaEntityFactory(World world, PlayerBestiaMapper mapper, CommandContext ctx) {
-		super(world);
-		
-		if(mapper == null) {
-			throw new IllegalArgumentException("PlayerBestiaMapper can not be null.");
-		}
-		if(ctx == null) {
-			throw new IllegalArgumentException("CommandContext cant not be null.");
-		}
+	@Wire
+	private CommandContext ctx;
+
+	private final PlayerBestiaDAO dao;
+
+	public PlayerBestiaEntityFactory(World world, CommandContext ctx) {
+		super(world, ctx);
+
+		world.inject(this);
 
 		playerBestiaArchetype = new ArchetypeBuilder()
 				.add(Position.class)
-				.add(PositionDomainProxy.class)
+				// .add(PositionDomainProxy.class)
 				.add(Attacks.class)
-				.add(net.bestia.zoneserver.ecs.component.Bestia.class)
+				.add(net.bestia.zoneserver.ecs.component.EntityComponent.class)
 				.add(net.bestia.zoneserver.ecs.component.PlayerBestia.class)
 				.add(StatusPoints.class)
 				.add(Visible.class)
 				.build(world);
 
-		this.mapper = mapper;
-		this.ctx = ctx;
+		dao = ctx.getServiceLocator().getBean(PlayerBestiaDAO.class);
 	}
 
 	/**
-	 * Creates an {@link NpcBestiaEntityProxy} and spawns it directly to the
-	 * given position in the responsible zone.
+	 * Creates an {@link NpcEntityProxy} and spawns it directly to the given
+	 * position in the responsible zone.
 	 * 
 	 * @param bestia
 	 * @param position
 	 * @param groupName
 	 * @return
 	 */
-	public PlayerBestiaEntityProxy create(PlayerBestia bestia) {
+	@Override
+	public void spawn(EntityBuilder builder) {
 
 		final int entityId = world.create(playerBestiaArchetype);
 		final Entity entity = world.getEntity(entityId);
 
-		final PlayerBestiaEntityProxy pbProxy = new PlayerBestiaEntityProxy(entity, bestia, mapper, ctx);
+		final PlayerBestia pb = dao.findOne(builder.playerBestiaId);
+
+		if (pb == null) {
+			return;
+		}
+
+		final PlayerEntityProxy pbProxy = new PlayerEntityProxy(world, entity, pb);
 
 		// We need to check the bestia if its the master bestia. It will get
 		// marked as active initially.
-		final PlayerBestia master = bestia.getOwner().getMaster();
-		final boolean isMaster = master.equals(bestia);
+		final PlayerBestia master = pb.getOwner().getMaster();
+		final boolean isMaster = master.equals(pb);
 
 		if (isMaster) {
 			// Spawn the master as active bestia.
@@ -88,10 +94,10 @@ public class PlayerBestiaEntityFactory extends EntityFactory {
 			// passieren.
 			pbProxy.setActive(true);
 
-			final InventoryService invService = mapper.getLocator().getBean(InventoryService.class);
-			final InventoryProxy invManager = new InventoryProxy(pbProxy, invService, mapper.getServer());
+			final InventoryService invService = ctx.getServiceLocator().getBean(InventoryService.class);
+			final InventoryProxy invManager = new InventoryProxy(pbProxy, invService, ctx.getServer());
 			final Message invListMessage = invManager.getInventoryListMessage();
-			mapper.getServer().sendMessage(invListMessage);
+			ctx.getServer().sendMessage(invListMessage);
 		}
 
 		// Send a update to client so he can pick up the new bestia.
@@ -99,11 +105,18 @@ public class PlayerBestiaEntityFactory extends EntityFactory {
 		infoMsg.setAccountId(pbProxy.getAccountId());
 		infoMsg.setBestia(pbProxy.getPlayerBestia(), pbProxy.getStatusPoints());
 		infoMsg.setIsMaster(isMaster);
-		mapper.getServer().sendMessage(infoMsg);
+		ctx.getServer().sendMessage(infoMsg);
 
 		// Now set all the needed values.
-		LOG.trace("Spawning player bestia: {}.", bestia);
+		LOG.trace("Spawning player bestia: {}.", pb);
+	}
 
-		return pbProxy;
+	@Override
+	public boolean canSpawn(EntityBuilder builder) {
+		if(builder.playerBestiaId == 0) {
+			return false;
+		}
+		
+		return true;
 	}
 }

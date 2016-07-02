@@ -30,8 +30,7 @@
 			"clear_short" : "/clear - Löscht den Chat.",
 			"clear" : "Verwendung: /clear",
 			"debug_short" : "/debug - Aktiviert die Debugausgabe.",
-			"debug" : "Verwendung: /debug ON|OFF "
-				
+			"debug" : "Verwendung: /debug ON|OFF "	
 		}
 	},
 	

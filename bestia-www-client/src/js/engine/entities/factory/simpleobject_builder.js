@@ -14,16 +14,14 @@ Bestia.Engine.SimpleObjectBuilder = function(factory, ctx) {
 Bestia.Engine.SimpleObjectBuilder.prototype = Object.create(Bestia.Engine.Builder.prototype);
 Bestia.Engine.SimpleObjectBuilder.prototype.constructor = Bestia.Engine.SimpleObjectBuilder;
 
-Bestia.Engine.SimpleObjectBuilder.prototype._build = function(data) {
+Bestia.Engine.SimpleObjectBuilder.prototype.build = function(data) {
 
 	this._data = data;
 
-	/*
-	for (var i = 0; i < data.template.length; i++) {
-		//var t = data.template[i];
+};
 
-	}*/
-
+Bestia.Engine.SimpleObjectBuilder.prototype.canBuild = function(data) {
+	return data.type === this.type && data.version === this.version;
 };
 
 Bestia.Engine.SimpleObjectBuilder.prototype._getType = function(template) {

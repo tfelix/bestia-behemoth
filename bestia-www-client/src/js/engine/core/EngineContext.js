@@ -33,7 +33,7 @@ export default class EngineContext {
 		 */
 		this.engine = _engine;
 
-		this.entityCache = new EntityCacheManager();
+		this.entityCache = new Bestia.Engine.EntityCacheManager();
 
 		this.entityFactory = null;
 
@@ -46,9 +46,9 @@ export default class EngineContext {
 		this.entityUpdater = null;
 
 		/**
-		 * Effects manager will subscribe itself to messages from the server
-		 * which trigger a special effect for an entity or a stand alone effect
-		 * which must be displayed by whatever means.
+		 * Effects manager will subscribe itself to messages from the server which
+		 * trigger a special effect for an entity or a stand alone effect which must
+		 * be displayed by whatever means.
 		 * 
 		 * @public
 		 * @property {Bestia.Engine.FX.EffectsManager}
@@ -80,9 +80,9 @@ export default class EngineContext {
 	 */
 	_initGameSet() {
 
-		// The order here is very important, since we set internal objects on
-		// which some of the ctors of the objects depend. Please check twice when
-		// changing  this order if this will work!
+		// The order here is very important, since we set internal objects on which
+		// some of the ctors of the objects depend. Please check twice when changing
+		// this order if this will work!
 		this.loader = new Bestia.Engine.DemandLoader(this.game.load, this.game.cache, this.url);
 		this.indicatorManager = new Bestia.Engine.IndicatorManager(this);
 		this.fxManager = new Bestia.Engine.FX.EffectsManager(this);
@@ -90,6 +90,9 @@ export default class EngineContext {
 		this.entityUpdater = new Bestia.Engine.EntityUpdater(this);
 	}
 
+	/**
+	 * TODO Das zu einem getter setter machen.
+	 */
 	getPlayerEntity() {
 		var pbid = this.engine.bestia.playerBestiaId();
 		var entity = this.entityCache.getByPlayerBestiaId(pbid);
@@ -132,6 +135,13 @@ export default class EngineContext {
 			if (this._game) {
 				this._initGameSet();
 			}
+	}
+	
+	/**
+	 * Returns the currently selected player bestia.
+	 */
+	get playerBestia() {
+		return this.engine.bestia;
 	}
 }
 

@@ -40,8 +40,7 @@ public class EntityDamageMessage extends AccountMessage {
 	 * @param dmg
 	 *            The amount of damage to receive.s
 	 */
-	public EntityDamageMessage(long receiverAccId, Damage dmg) {
-		super(receiverAccId);
+	public EntityDamageMessage(Damage dmg) {
 		if (dmg == null) {
 			throw new IllegalArgumentException("Damage can not be null.");
 		}
@@ -57,8 +56,7 @@ public class EntityDamageMessage extends AccountMessage {
 	 * @param dmg
 	 *            The amount of damage to receive.s
 	 */
-	public EntityDamageMessage(long receiverAccId, List<Damage> dmg) {
-		super(receiverAccId);
+	public EntityDamageMessage(List<Damage> dmg) {
 		if (dmg == null) {
 			throw new IllegalArgumentException("Damage can not be null.");
 		}
@@ -73,7 +71,7 @@ public class EntityDamageMessage extends AccountMessage {
 
 	@Override
 	public String getMessagePath() {
-		return getClientMessagePath();
+		return getClientMessagePath(getAccountId());
 	}
 
 }

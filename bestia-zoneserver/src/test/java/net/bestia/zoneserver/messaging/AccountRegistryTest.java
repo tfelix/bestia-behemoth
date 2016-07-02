@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import net.bestia.interserver.InterserverSubscriber;
+import net.bestia.messages.AccountMessage;
 
 public class AccountRegistryTest {
 
@@ -33,7 +34,9 @@ public class AccountRegistryTest {
 		AccountRegistry ar = new AccountRegistry(sub);
 		ar.registerLogin(1, UUID.randomUUID().toString());
 		
-		Mockito.verify(sub).subscribe("zone/account/1");
+		final String msgPath = AccountMessage.getZoneMessagePath(1) + ".*";
+		
+		Mockito.verify(sub).subscribe(msgPath);
 	}
 
 	@Test
@@ -44,8 +47,10 @@ public class AccountRegistryTest {
 		ar.registerLogin(1, uuid);
 		ar.unregisterLogin(1);
 		
-		Mockito.verify(sub).subscribe("zone/account/1");
-		Mockito.verify(sub).unsubscribe("zone/account/1");
+		final String msgPath = AccountMessage.getZoneMessagePath(1) + ".*";
+		
+		Mockito.verify(sub).subscribe(msgPath);
+		Mockito.verify(sub).unsubscribe(AccountMessage.getZoneMessagePath(1) + ".*");
 	}
 
 	@Test

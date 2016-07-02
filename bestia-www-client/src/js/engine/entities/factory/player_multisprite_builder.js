@@ -12,8 +12,8 @@ Bestia.Engine.PlayerMultispriteBuilder = function(factory, ctx) {
 Bestia.Engine.PlayerMultispriteBuilder.prototype = Object.create(Bestia.Engine.MultispriteBuilder.prototype);
 Bestia.Engine.PlayerMultispriteBuilder.prototype.constructor = Bestia.Engine.PlayerMultispriteBuilder;
 
-Bestia.Engine.PlayerMultispriteBuilder.prototype._build = function(data, desc) {
-	var entity = Bestia.Engine.MultispriteBuilder.prototype._build.call(this, data, desc);
+Bestia.Engine.PlayerMultispriteBuilder.prototype.build = function(data, desc) {
+	var entity = Bestia.Engine.MultispriteBuilder.prototype.build.call(this, data, desc);
 	
 	entity.playerBestiaId = data.pbid;
 		
@@ -23,6 +23,6 @@ Bestia.Engine.PlayerMultispriteBuilder.prototype._build = function(data, desc) {
 /**
  * The type of the entities does now not match the sane check. It must be corrected.
  */
-Bestia.Engine.Builder.prototype._isSane = function(data) {
-	return data.type === 'multisprite' && data.version === this.version;
+Bestia.Engine.PlayerMultispriteBuilder.prototype.canBuild = function(data) {
+	return data.t === 'PLAYER_ANIM';
 };

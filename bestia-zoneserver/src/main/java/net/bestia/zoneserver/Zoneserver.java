@@ -24,10 +24,12 @@ import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.messages.Message;
+import net.bestia.messages.ZoneserverMessage;
 import net.bestia.model.I18n;
 import net.bestia.model.ServiceLocator;
 import net.bestia.model.dao.I18nDAO;
 import net.bestia.util.BestiaConfiguration;
+import net.bestia.util.BestiaVersion;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.CommandContext.CommandContextBuilder;
 import net.bestia.zoneserver.command.CommandFactory;
@@ -35,10 +37,8 @@ import net.bestia.zoneserver.command.server.ServerCommandFactory;
 import net.bestia.zoneserver.loader.ScriptLoader;
 import net.bestia.zoneserver.loader.ZoneLoader;
 import net.bestia.zoneserver.messaging.AccountRegistry;
-import net.bestia.zoneserver.messaging.MessageLoop;
-import net.bestia.zoneserver.messaging.preprocess.MessagePreprocessor;
-import net.bestia.zoneserver.messaging.preprocess.MessagePreprocessorController;
-import net.bestia.zoneserver.messaging.routing.MessageRouter;
+import net.bestia.zoneserver.messaging.MessageCommandHandler;
+import net.bestia.zoneserver.messaging.ThreadedMessageProvider;
 import net.bestia.zoneserver.script.ScriptManager;
 import net.bestia.zoneserver.zone.Zone;
 
@@ -57,6 +57,7 @@ public class Zoneserver {
 
 	private final String name;
 	private final BestiaConfiguration config;
+	private final BestiaVersion version = new BestiaVersion();
 	private final AtomicBoolean isRunning = new AtomicBoolean(false);
 
 	private final InterserverMessageHandler interserverHandler = new InterserverMessageHandler() {
@@ -69,22 +70,22 @@ public class Zoneserver {
 	};
 
 	private final InterserverConnectionFactory connectionFactory;
-	private final InterserverSubscriber interserverSubscriber;
-	private final InterserverPublisher interserverPublisher;
+	private InterserverSubscriber interserverSubscriber;
+	private InterserverPublisher interserverPublisher;
 
-	private final MessageLoop messageLoop;
-
-	private final CommandContext commandContext;
+	private CommandContext commandContext;
 
 	/**
 	 * List of zones for which this server is responsible.
 	 */
 	private final Map<String, Zone> zones = new HashMap<>();
-	private final Set<String> responsibleZones;
+	private Set<String> responsibleZones;
 
 	private final ScriptManager scriptManager = new ScriptManager();
 
-	private final AccountRegistry accountRegistry;
+	private ThreadedMessageProvider messageLoop;
+
+	private AccountRegistry accountRegistry;
 
 	/**
 	 * Ctor. The server needs a connection to its clients so it can use the
@@ -120,33 +121,40 @@ public class Zoneserver {
 				listenPort,
 				subscribePort);
 
-		this.interserverSubscriber = connectionFactory.getSubscriber(interserverHandler);
-		this.interserverPublisher = connectionFactory.getPublisher();
+		try {
+			this.interserverSubscriber = connectionFactory.getSubscriber(interserverHandler);
+			this.interserverPublisher = connectionFactory.getPublisher();
 
-		this.accountRegistry = new AccountRegistry(interserverSubscriber);
+			this.accountRegistry = new AccountRegistry(interserverSubscriber);
 
-		// Create a command context.
-		final CommandContextBuilder ctxBuilder = new CommandContextBuilder();
-		ctxBuilder.setConfiguration(config)
-				.setServer(this)
-				.setScriptManager(scriptManager)
-				.setServiceLocator(ServiceLocator.getInstance())
-				.setMessageRouter(new MessageRouter())
-				.setAccountRegistry(accountRegistry);
-		this.commandContext = ctxBuilder.build();
+			this.messageLoop = new ThreadedMessageProvider();
 
-		final MessagePreprocessor preprocessor = new MessagePreprocessorController(commandContext);
-		final CommandFactory serverCommandFactory = new ServerCommandFactory(commandContext);
-		this.messageLoop = new MessageLoop(preprocessor, serverCommandFactory, commandContext.getMessageRouter());
+			// Create a command context.
+			final CommandContextBuilder ctxBuilder = new CommandContextBuilder();
+			ctxBuilder.setConfiguration(config)
+					.setServer(this)
+					.setScriptManager(scriptManager)
+					.setServiceLocator(ServiceLocator.getInstance())
+					.setMessageProvider(messageLoop)
+					.setAccountRegistry(accountRegistry);
+			this.commandContext = ctxBuilder.build();
 
-		// Generate the list of zones for this server.
-		final String[] zoneStrings = config.getProperty("zone.zones").split(",");
-		final Set<String> zones = new HashSet<String>();
-		zones.addAll(Arrays.asList(zoneStrings));
-		this.responsibleZones = Collections.unmodifiableSet(zones);
+			// Set the server messages.
+			final CommandFactory serverCommandFactory = new ServerCommandFactory(commandContext);
+			new MessageCommandHandler(serverCommandFactory, messageLoop);
 
-		// Prepare the (static) translator.
-		I18n.setDao(commandContext.getServiceLocator().getBean(I18nDAO.class));
+			// Generate the list of zones for this server.
+			final String[] zoneStrings = config.getProperty("zone.zones").split(",");
+			final Set<String> zones = new HashSet<String>();
+			zones.addAll(Arrays.asList(zoneStrings));
+			this.responsibleZones = Collections.unmodifiableSet(zones);
+
+			// Prepare the (static) translator.
+			I18n.setDao(commandContext.getServiceLocator().getBean(I18nDAO.class));
+		} catch (IOException ex) {
+			// Fatal. Could not connect to sockets.
+			System.exit(1);
+		}
 	}
 
 	/**
@@ -163,7 +171,7 @@ public class Zoneserver {
 		}
 
 		// Initializing all messaging components.
-		log.info(config.getVersion());
+		log.info(version.getName() + " - " + version.getVersion());
 		log.info("Zoneserver is starting...");
 
 		// Create ScriptCacheLoader: Reading and compiling all the scripts.
@@ -208,10 +216,10 @@ public class Zoneserver {
 		}
 
 		// Subscribe to zone broadcast messages.
-		interserverSubscriber.subscribe("zone/all");
+		interserverSubscriber.subscribe(Message.getZoneBroadcastMessagePath());
 
 		// Subscribe to messages directed for this zone.
-		interserverSubscriber.subscribe("zone/" + name);
+		interserverSubscriber.subscribe(ZoneserverMessage.getZonePath(name));
 
 		log.info("Bestia Behemoth Zone [{}] has started.", name);
 		return true;
@@ -223,6 +231,7 @@ public class Zoneserver {
 	public void stop() {
 		log.info("Bestia Behemoth Server is stopping...");
 
+		// Can not do this since this will hang.
 		log.info("Unsubscribe from Interserver...");
 		connectionFactory.shutdown();
 
@@ -237,6 +246,8 @@ public class Zoneserver {
 
 		// Wait for all threads to cease operation.
 		log.info("Zone: [{}] went down.", name);
+
+		System.exit(1);
 	}
 
 	/**

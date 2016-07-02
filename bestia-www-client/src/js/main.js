@@ -10,8 +10,7 @@ function main() {
 	/*
 	// UI init must wait until dom is loaded and accessible.
 	Bestia.page = {
-		logoutDialog : new Bestia.Page.LogoutDialog('#modal-logout',
-				game.pubsub)
+		logoutDialog : new Bestia.Page.LogoutDialog('#modal-logout', game.pubsub)
 	};
 
 	// Bind the DOM to the game.
@@ -22,13 +21,13 @@ function main() {
 		game.attacks.close();
 		game.inventory.showWindow(!game.inventory.showWindow());
 	});
-	
+
 	$('#btn-attacks').click(function() {
 		// Hide all others.
-		game.inventory.close();	
+		game.inventory.close();
 		game.attacks.showWindow(!game.attacks.showWindow());
-		
-		if(!game.attacks.isLoaded()) {
+
+		if (!game.attacks.isLoaded()) {
 			game.attacks.request();
 		}
 	});*/
@@ -38,6 +37,7 @@ function main() {
 	window.bestiaGame = game;
 	// @endif
 }
+
 
 /*
 i18n.init({

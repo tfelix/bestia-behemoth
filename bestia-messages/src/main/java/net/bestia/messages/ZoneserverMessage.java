@@ -11,6 +11,9 @@ package net.bestia.messages;
 public abstract class ZoneserverMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
+
+	private final static String MSG_PATH_ZONE_NAME = "zone.%s";
+
 	private String receiverServer = "";
 	private String senderServer = "";
 
@@ -32,7 +35,7 @@ public abstract class ZoneserverMessage extends Message {
 
 	@Override
 	public String getMessagePath() {
-		return String.format("zone/%s", receiverServer);
+		return getZonePath(receiverServer);
 	}
 
 	@Override
@@ -46,5 +49,16 @@ public abstract class ZoneserverMessage extends Message {
 
 	public String getSenderServer() {
 		return senderServer;
+	}
+
+	/**
+	 * Helper method to get a properly formatted zone path (useful for
+	 * registering).
+	 * 
+	 * @param zoneName
+	 * @return
+	 */
+	public static String getZonePath(String zoneName) {
+		return String.format(MSG_PATH_ZONE_NAME, zoneName);
 	}
 }

@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-final class ObjectSerializer {
+final public class ObjectSerializer {
 
 	/**
 	 * Should not be used. Use it in a static fashion.
@@ -47,7 +47,8 @@ final class ObjectSerializer {
 	 * @throws IOException
 	 *             If something goes wrong during deserialization.
 	 * @throws ClassNotFoundException
-	 *             If the class of the object deserialized was not in the classpath.
+	 *             If the class of the object deserialized was not in the
+	 *             classpath.
 	 */
 	public static Object deserializeObject(byte[] data) throws IOException, ClassNotFoundException {
 		ByteArrayInputStream b = new ByteArrayInputStream(data);

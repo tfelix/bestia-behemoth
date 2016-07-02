@@ -39,7 +39,7 @@ public class InventoryItemCastMessage extends InputMessage {
 	}
 
 	public InventoryItemCastMessage(InventoryItemCastMessage msg) {
-		
+
 		this.playerItemId = msg.playerItemId;
 		this.token = msg.token;
 		this.x = msg.x;
@@ -53,7 +53,7 @@ public class InventoryItemCastMessage extends InputMessage {
 
 	@Override
 	public String getMessagePath() {
-		return getZoneMessagePath();
+		return getZoneMessagePath(getAccountId());
 	}
 
 	public int getPlayerItemId() {
@@ -79,12 +79,18 @@ public class InventoryItemCastMessage extends InputMessage {
 	public void setY(int y) {
 		this.y = y;
 	}
-	
+
 	public String getToken() {
 		return token;
 	}
-	
+
 	public void setToken(String token) {
 		this.token = token;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("InventoryItemCastMessage[accId: %d, piid: %d, x: %d, y: %d, token: %s]", getAccountId(),
+				playerItemId, x, y, token);
 	}
 }

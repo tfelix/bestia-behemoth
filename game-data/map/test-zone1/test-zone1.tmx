@@ -19,6 +19,16 @@
     <property name="bWalkable" value="false"/>
    </properties>
   </tile>
+  <tile id="249">
+   <properties>
+    <property name="bWalkable" value="false"/>
+   </properties>
+  </tile>
+  <tile id="250">
+   <properties>
+    <property name="bWalkable" value="false"/>
+   </properties>
+  </tile>
   <tile id="251">
    <properties>
     <property name="bWalkable" value="false"/>
@@ -3011,8 +3021,8 @@
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
-   <tile gid="0"/>
-   <tile gid="0"/>
+   <tile gid="250"/>
+   <tile gid="251"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
@@ -5518,8 +5528,8 @@
    <tile gid="198"/>
    <tile gid="199"/>
    <tile gid="0"/>
-   <tile gid="250"/>
-   <tile gid="251"/>
+   <tile gid="0"/>
+   <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>
    <tile gid="0"/>

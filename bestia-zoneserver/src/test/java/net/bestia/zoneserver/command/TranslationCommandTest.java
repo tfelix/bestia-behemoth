@@ -3,8 +3,8 @@ package net.bestia.zoneserver.command;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.bestia.messages.TranslationRequestMessage;
-import net.bestia.messages.TranslationRequestMessage.TranslationItem;
+import net.bestia.messages.system.TranslationRequestMessage;
+import net.bestia.messages.system.TranslationRequestMessage.TranslationItem;
 import net.bestia.model.domain.TranslationCategory;
 import net.bestia.zoneserver.command.server.TranslationCommand;
 

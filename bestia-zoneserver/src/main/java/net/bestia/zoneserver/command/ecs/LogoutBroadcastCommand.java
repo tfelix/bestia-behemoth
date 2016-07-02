@@ -1,8 +1,7 @@
 package net.bestia.zoneserver.command.ecs;
 
-import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
-import net.bestia.messages.ZoneMessageDecorator;
+import net.bestia.messages.login.LogoutBroadcastMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 
@@ -15,7 +14,7 @@ public class LogoutBroadcastCommand extends ECSCommand {
 	 */
 	@Override
 	public String handlesMessageId() {
-		return ZoneMessageDecorator.getWrappedMessageId(LogoutBroadcastMessage.MESSAGE_ID);
+		return LogoutBroadcastMessage.MESSAGE_ID;
 	}
 
 	@Override
@@ -27,14 +26,13 @@ public class LogoutBroadcastCommand extends ECSCommand {
 
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
-		@SuppressWarnings("unchecked")
-		final LogoutBroadcastMessage logoutMsg = ((ZoneMessageDecorator<LogoutBroadcastMessage>) message).getMessage();
-		spawnManager.despawnAllBestias(logoutMsg.getAccountId());
+		final LogoutBroadcastMessage logoutMsg = (LogoutBroadcastMessage) message;
+		spawnManager.despawnAccountBestias(logoutMsg.getAccountId());
 		
 	}
 	
 	@Override
 	public String toString() {
-		return "SpawnPlayerBestiaCommand[]";
+		return "DespawnPlayerBestiaCommand[]";
 	}
 }

@@ -19,14 +19,14 @@ public final class Webserver {
 	private static final Logger log = LogManager.getLogger(Webserver.class);
 
 	private final InterserverConnectionFactory interConnectionFactory;
-	private final InterserverPublisher publisher;
-	private final InterserverSubscriber subscriber;
+	private InterserverPublisher publisher;
+	private InterserverSubscriber subscriber;
 
 	private final String name;
 	private final BestiaConfiguration config;
 	private final int port;
 	private Nettosphere server;
-	
+
 	public static BestiaConnectionProvider provider;
 
 	/**
@@ -51,19 +51,25 @@ public final class Webserver {
 
 		this.interConnectionFactory = new InterserverConnectionFactory(1, domain, publishPort, listenPort);
 
-		this.publisher = interConnectionFactory.getPublisher();
-		this.subscriber = interConnectionFactory.getSubscriber(new InterserverMessageHandler() {
-			
-			@Override
-			public void onMessage(Message msg) {
-				provider.onMessage(msg);
-			}
-		});
-		
-		Webserver.provider = new BestiaConnectionProvider(publisher, subscriber);
-		
-		// Subscribe to special topics.
-		subscriber.subscribe("web/all");
+		try {
+			this.publisher = interConnectionFactory.getPublisher();
+			this.subscriber = interConnectionFactory.getSubscriber(new InterserverMessageHandler() {
+
+				@Override
+				public void onMessage(Message msg) {
+					provider.onMessage(msg);
+				}
+			});
+
+			Webserver.provider = new BestiaConnectionProvider(publisher, subscriber);
+
+			// Subscribe to special topics.
+			subscriber.subscribe("web/all");
+		} catch (IOException ex) {
+			// Fatal.
+			System.exit(1);
+		}
+
 	}
 
 	public void start() throws IOException {
@@ -85,7 +91,7 @@ public final class Webserver {
 	public void stop() {
 		log.info("Stopping the Bestia Websocket Server [{}]...", name);
 		server.stop();
-		
+
 		interConnectionFactory.shutdown();
 
 		log.info("Websocket Server [{}] stopped.", name);

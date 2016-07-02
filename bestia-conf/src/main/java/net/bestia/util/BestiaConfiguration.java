@@ -10,7 +10,6 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.apache.commons.io.Charsets;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,28 +24,14 @@ public class BestiaConfiguration {
 
 	private static final Logger LOG = LogManager.getLogger(BestiaConfiguration.class);
 
-	private Properties prop;
-	private final String version;
+	private final Properties prop;
+	private final BestiaVersion versionReader = new BestiaVersion();
 	private boolean isLoaded = false;
 
 	public BestiaConfiguration() {
+
 		prop = new Properties();
 
-		// Try to read the version string.
-		final ClassLoader loader = this.getClass().getClassLoader();
-		final InputStream inStream = loader.getResourceAsStream("version.properties");
-		if (inStream == null) {
-			this.version = "UNKNOWN (version.properties missing)";
-		} else {
-			String versionCode;
-			try {
-				versionCode = IOUtils.toString(inStream, "UTF-8");
-			} catch (IOException e) {
-				LOG.warn("Could not read version.properties file.", e);
-				versionCode = "UNKNOWN (version.properties missing)";
-			}
-			this.version = versionCode;
-		}
 	}
 
 	/**
@@ -114,14 +99,14 @@ public class BestiaConfiguration {
 	}
 
 	public String getProperty(String key) {
-		if(!checkProperty(key)) {
+		if (!checkProperty(key)) {
 			throw new IllegalArgumentException("The key does not exist.");
 		}
 		return prop.getProperty(key);
 	}
 
 	public Integer getIntProperty(String key) {
-		if(!checkProperty(key)) {
+		if (!checkProperty(key)) {
 			return null;
 		}
 		return Integer.parseInt(prop.getProperty(key));
@@ -143,24 +128,21 @@ public class BestiaConfiguration {
 	}
 
 	/**
+	 * Returns the current version of the bestia game.
+	 * 
+	 * @return The current version.
+	 */
+	public String getVersion() {
+		return versionReader.getVersion();
+	}
+
+	/**
 	 * Checks if a configuration file has been loaded.
 	 * 
 	 * @return TRUE if a configuration file has been loaded. FALSE otherwise.
 	 */
 	public boolean isLoaded() {
 		return isLoaded;
-	}
-
-	/**
-	 * Returns the version of the build and the name. The information is placed
-	 * during build process in version.properties in the class path and read
-	 * upon creation of this class. If the file is missing somehow a placeholder
-	 * text is inserted.
-	 * 
-	 * @return The version of this software.
-	 */
-	public String getVersion() {
-		return version;
 	}
 
 	/**

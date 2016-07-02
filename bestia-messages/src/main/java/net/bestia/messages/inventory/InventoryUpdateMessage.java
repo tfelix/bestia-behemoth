@@ -22,40 +22,44 @@ public class InventoryUpdateMessage extends AccountMessage {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;
-	
+
 	public class UpdateItem implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
 		@JsonProperty("a")
 		private int amount;
-		
+
 		@JsonProperty("i")
 		private Item item;
-		
+
 		public int getAmount() {
 			return amount;
 		}
-		
+
 		public Item getItem() {
 			return item;
 		}
-		
+
 		public UpdateItem() {
-			
+
 		}
-		
+
 		public UpdateItem(Item item, int amount) {
 			this.amount = amount;
 			this.item = item;
 		}
+
+		@Override
+		public String toString() {
+			return String.format("[item: %s, id: %d, amount: %d]", item.getItemDbName(), item.getId(), amount);
+		}
 	}
 
-	
 	public InventoryUpdateMessage() {
-		
+
 	}
-	
+
 	public InventoryUpdateMessage(long accId) {
 		super(accId);
 	}
@@ -76,7 +80,7 @@ public class InventoryUpdateMessage extends AccountMessage {
 	 * @param amount
 	 *            Amount of the item to be added or removed.
 	 */
-	public void updateItem(Item item, int amount) {	
+	public void updateItem(Item item, int amount) {
 		playerItems.add(new UpdateItem(item, amount));
 	}
 
@@ -87,7 +91,11 @@ public class InventoryUpdateMessage extends AccountMessage {
 
 	@Override
 	public String getMessagePath() {
-		return getClientMessagePath();
+		return getClientMessagePath(getAccountId());
 	}
 
+	@Override
+	public String toString() {
+		return String.format("InventoryUpdateMessage[accId: %d, updates: %s]", getAccountId(), playerItems.toString());
+	}
 }

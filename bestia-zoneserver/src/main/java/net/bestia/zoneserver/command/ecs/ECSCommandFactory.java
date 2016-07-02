@@ -44,8 +44,8 @@ public class ECSCommandFactory extends CommandFactory {
 		if (world == null) {
 			throw new IllegalArgumentException("World can not be null.");
 		}
-		
-		if(zone == null) {
+
+		if (zone == null) {
 			throw new IllegalArgumentException("Zone can not be null.");
 		}
 
@@ -86,14 +86,23 @@ public class ECSCommandFactory extends CommandFactory {
 		if (message instanceof InputMessage) {
 			final InputMessage inputMsg = (InputMessage) message;
 
+			final int pbid;
+
+			// Use the best bestia ID. If none is given use the active bestia.
+			if (inputMsg.getPlayerBestiaId() == 0) {
+				pbid = ctx.getAccountRegistry().getActiveBestia(inputMsg.getAccountId());
+			} else {
+				pbid = inputMsg.getPlayerBestiaId();
+			}
+
 			// Find the player entity for this command/message. If the bestia id
 			// is invalid null should be returned.
-			final int entityId = playerSpawnManager.getEntityIdFromBestia(inputMsg.getPlayerBestiaId());
-			
-			if(entityId == 0) {
+			final int entityId = playerSpawnManager.getEntityIdFromBestia(pbid);
+
+			if (entityId == 0) {
 				return cmd;
 			}
-			
+
 			final Entity player = world.getEntity(entityId);
 			cmd.setPlayer(player);
 		}

@@ -1,6 +1,10 @@
+/**
+ * @author       Thomas Felix <thomas.felix@tfelix.de>
+ * @copyright    2015 Thomas Felix
+ */
 
 /**
- * Generates and returns a random guid. Can be used for message referencing.
+ * Generates and returns a random GUID. Can be used for message referencing.
  */
 export default function guid() {
 	return _s4 + _s4 + '-' + _s4 + '-' + _s4 + '-' +

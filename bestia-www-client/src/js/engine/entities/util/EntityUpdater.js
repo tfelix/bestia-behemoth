@@ -20,122 +20,129 @@ export default class EntityUpdater{
 		if (!ctx) {
 			throw "Context can not be undefined.";
 		}
-	
+
 		/**
 		 * Temporary buffer to hold all the data until releaseHold is called.
 		 */
 		this._buffer = [];
-	
+
 		this._ctx = ctx;
-	
+
 		// === SUBSCRIBE ===
-		this._ctx.pubsub.subscribe(MID.ENTITY_UPDATE, this._onUpdateHandler.bind(this));
-		this._ctx.pubsub.subscribe(MID.ENTITY_MOVE, this._onMoveHandler.bind(this));
-		this._ctx.pubsub.subscribe(MID.ENTITY_POSITION, this._onPositionHandler.bind(this));
+		this._ctx.pubsub.subscribe(Bestia.MID.ENTITY_UPDATE, this._onUpdateHandler.bind(this));
+		this._ctx.pubsub.subscribe(Bestia.MID.ENTITY_MOVE, this._onMoveHandler.bind(this));
+		this._ctx.pubsub.subscribe(Bestia.MID.ENTITY_POSITION, this._onPositionHandler.bind(this));
 	}
 
-/**
- * Makes a complete update of the entity. Which can be a vanish, create or
- * simple update.
- */
-_onUpdateHandler(_, msg) {
-	if (this._isBuffered(msg)) {
-		return;
-	}
-
-	switch (msg.a) {
-	case 'APPEAR':
-		// The entity must not exist.
-		var entity = this._ctx.entityCache.getByUuid(msg.uuid);
-		if (entity !== null) {
-			// Exists already. Strange.
+	/**
+	 * Makes a complete update of the entity. Which can be a vanish, create or
+	 * simple update.
+	 */
+	_onUpdateHandler(_, msg) {
+		if (this._isBuffered(msg)) {
 			return;
 		}
-		
-		this._ctx.entityFactory.build(msg);
-	}
-}
 
-/**
- * A movement prediction update was send. Plan the animation path to predict the
- * movement of the entity.
- */
-_onMoveHandler(_, msg) {
-	if (this._isBuffered(msg)) {
-		return;
-	}
-
-	var entity = this._ctx.entityCache.getByUuid(msg.uuid);
-	// Entity not in cache. We cant do anything.
-	if (entity === null) {
-		return;
-	}
-
-	entity.moveTo(msg);
-}
-
-/**
- * A position update was send. Check if the entity is on this place or at least
- * near it. If distance is too far away hard correct it.
- */
-_onPositionHandler(_, msg) {
-	if (this._isBuffered(msg)) {
-		return;
-	}
-
-	var entity = this._ctx.entityCache.getByUuid(msg.uuid);
-	// Entity not in cache. We cant do anything.
-	if (entity === null) {
-		return;
-	}
-
-	entity.checkPosition(msg);
-}
-
-/**
- * Checks if the buffering is still active. If this is the case buffer the
- * message and return true else return false.
- * 
- * @param msg
- * @returns {Boolean}
- */
-_isBuffered(msg) {
-	if (this._buffer !== undefined) {
-		this._buffer.push({
-			topic : msg.mid,
-			msg : msg
-		});
-		return true;
-	} else {
-		return false;
-	}
-}
-
-/**
- * Holds the entity updates in a cache until the engine has loaded the map. When
- * this method is called all updates are forwarded to the engine.
- */
-releaseHold() {
-	if (this._buffer === undefined) {
-		return;
-	}
-
-	var temp = this._buffer;
-	this._buffer = undefined;
-	temp.forEach(function(d) {
-		switch (d.topic) {
-		case MID.ENTITY_UPDATE:
-			this._onUpdateHandler(d.topic, d.msg);
+		switch (msg.a) {
+		case 'APPEAR':
+			// Entity should not exist.
+			var entity = this._ctx.entityCache.getByUuid(msg.uuid);
+			if (entity !== null) {
+				// Exists already. Strange.
+				return;
+			}
+			
+			this._ctx.entityFactory.build(msg);
 			break;
-		case MID.ENTITY_MOVE:
-			this._onMoveHandler(d.topic, d.msg);
-			break;
-		case MID.ENTITY_POSITION:
-			this._onPositionHandler(d.topic, d.msg);
-			break;
-		default:
+		case 'VANISH':
+		case 'DIE':
+			var entity = this._ctx.entityCache.getByUuid(msg.uuid);
+			entity.remove();
+			this._ctx.entityCache.removeEntity(entity);
 			break;
 		}
-	}, this);
-}
+	}
+
+	/**
+	 * A movement prediction update was send. Plan the animation path to predict the
+	 * movement of the entity.
+	 */
+	_onMoveHandler(_, msg) {
+		if (this._isBuffered(msg)) {
+			return;
+		}
+
+		var entity = this._ctx.entityCache.getByUuid(msg.uuid);
+		// Entity not in cache. We cant do anything.
+		if (entity === null) {
+			return;
+		}
+
+		entity.moveTo(msg);
+	}
+
+	/**
+	 * A position update was send. Check if the entity is on this place or at least
+	 * near it. If distance is too far away hard correct it.
+	 */
+	_onPositionHandler(_, msg) {
+		if (this._isBuffered(msg)) {
+			return;
+		}
+
+		var entity = this._ctx.entityCache.getByUuid(msg.uuid);
+		// Entity not in cache. We cant do anything.
+		if (entity === null) {
+			return;
+		}
+
+		entity.checkPosition(msg);
+	}
+
+	/**
+	 * Checks if the buffering is still active. If this is the case buffer the
+	 * message and return true else return false.
+	 * 
+	 * @param msg
+	 * @returns {Boolean}
+	 */
+	_isBuffered(msg) {
+		if (this._buffer !== undefined) {
+			this._buffer.push({
+				topic : msg.mid,
+				msg : msg
+			});
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Holds the entity updates in a cache until the engine has loaded the map. When
+	 * this method is called all updates are forwarded to the engine.
+	 */
+	releaseHold() {
+		if (this._buffer === undefined) {
+			return;
+		}
+
+		var temp = this._buffer;
+		this._buffer = undefined;
+		temp.forEach(function(d) {
+			switch (d.topic) {
+			case Bestia.MID.ENTITY_UPDATE:
+				this._onUpdateHandler(d.topic, d.msg);
+				break;
+			case Bestia.MID.ENTITY_MOVE:
+				this._onMoveHandler(d.topic, d.msg);
+				break;
+			case Bestia.MID.ENTITY_POSITION:
+				this._onPositionHandler(d.topic, d.msg);
+				break;
+			default:
+				break;
+			}
+		}, this);
+	}
 }

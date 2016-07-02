@@ -66,6 +66,8 @@ export class BestiaGame {
 		
 		var self = this;
 		
+		// Wire the internal messaging structures.
+		
 		/**
 		 * Start the connection process.
 		 */

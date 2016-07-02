@@ -11,6 +11,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @Entity
 @Table(name = "items")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Item implements Serializable {
 
 	@Transient
@@ -58,12 +60,6 @@ public class Item implements Serializable {
 
 	private int usableRange = 0;
 
-	/**
-	 * There are 3 default cast indicator: big, medium, small. If another name
-	 * is defined the engine will try to look up the given castindicator.
-	 */
-	private String castIndicator;
-
 	public int getId() {
 		return id;
 	}
@@ -94,10 +90,6 @@ public class Item implements Serializable {
 	
 	public int getUsableRange() {
 		return usableRange;
-	}
-	
-	public String getCastIndicator() {
-		return castIndicator;
 	}
 	
 	@Override

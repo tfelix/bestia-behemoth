@@ -1,5 +1,6 @@
 package net.bestia.interserver;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,11 +40,16 @@ public class InterserverConnectionFactory {
 	 *            Callback which will be used if an message is incoming.
 	 * @return Subscriber which can be used to receive asyncrounous data from
 	 *         the interserver.
+	 * @throws IOException
+	 *             If the connection could not be established.
 	 */
-	public InterserverSubscriber getSubscriber(InterserverMessageHandler handler) {
+	public synchronized InterserverSubscriber getSubscriber(InterserverMessageHandler handler) throws IOException {
 
 		final InterserverSubscriber sub = new InterserverZMQSubscriber(handler, subscriberUrl, context);
 		spawnedSubsciber.add(sub);
+
+		sub.connect();
+
 		return sub;
 	}
 
@@ -51,11 +57,15 @@ public class InterserverConnectionFactory {
 	 * Returns a publisher to send data to the interserver.
 	 * 
 	 * @return An publisher which is able to send data to the interserver.
+	 * @throws IOException 
 	 */
-	public InterserverPublisher getPublisher() {
+	public synchronized InterserverPublisher getPublisher() throws IOException {
 
 		final InterserverPublisher pub = new InterserverZMQPublisher(publishUrl, context);
 		spawnedPublisher.add(pub);
+		
+		pub.connect();
+		
 		return pub;
 	}
 
@@ -65,17 +75,16 @@ public class InterserverConnectionFactory {
 	 * cleanup.
 	 */
 	public void shutdown() {
-/*
+		
 		for (InterserverPublisher p : spawnedPublisher) {
 			p.disconnect();
 		}
+
+		context.term();
+
 		for (InterserverSubscriber s : spawnedSubsciber) {
 			s.disconnect();
 		}
-*/
-		context.term();
-
-		
 
 		spawnedPublisher.clear();
 		spawnedSubsciber.clear();

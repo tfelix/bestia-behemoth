@@ -7,25 +7,23 @@ import com.artemis.Entity;
 import com.artemis.EntitySubscription;
 import com.artemis.utils.IntBag;
 
-import net.bestia.messages.ChatMessage;
 import net.bestia.messages.Message;
-import net.bestia.messages.ZoneMessageDecorator;
+import net.bestia.messages.chat.ChatMessage;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.command.chat.ChatCommandExecutor;
+import net.bestia.zoneserver.command.ecs.chat.ChatCommandExecutor;
 import net.bestia.zoneserver.ecs.component.Active;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
 
 public class ChatCommand extends ECSCommand {
 	
-	private ChatCommandExecutor chatCommandExecutor;
 	private ComponentMapper<PlayerBestia> playerMapper;
 	private EntitySubscription activePlayerEntities;
+	
+	private ChatCommandExecutor chatCmdExecutor = new ChatCommandExecutor();
 
 	@Override
 	protected void initialize() {
 		super.initialize();
-
-		chatCommandExecutor = new ChatCommandExecutor();
 
 		playerMapper = world.getMapper(PlayerBestia.class);
 		final AspectSubscriptionManager asm = world.getSystem(AspectSubscriptionManager.class);
@@ -34,18 +32,19 @@ public class ChatCommand extends ECSCommand {
 
 	@Override
 	public String handlesMessageId() {
-		return ZoneMessageDecorator.getWrappedMessageId(ChatMessage.MESSAGE_ID);
+		return ChatMessage.MESSAGE_ID;
 	}
 
 	@Override
 	protected void execute(Message message, CommandContext ctx) {
-		@SuppressWarnings("unchecked")
-		final ZoneMessageDecorator<ChatMessage> wrappedMsg = (ZoneMessageDecorator<ChatMessage>) message;
-		final ChatMessage msg = wrappedMsg.getMessage();
+		
+		final ChatMessage msg = (ChatMessage) message;
 
 		switch (msg.getChatMode()) {
 		case COMMAND:
-			chatCommandExecutor.execute(msg, getPlayerBestiaProxy(), ctx);
+			
+			chatCmdExecutor.execute(msg, getPlayerBestiaProxy(), ctx);
+			
 			break;
 		case PUBLIC:
 			// Send the message to all active player in the range so send to the

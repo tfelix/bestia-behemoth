@@ -75,7 +75,7 @@ public class EntityMoveMessage extends AccountMessage {
 
 	@Override
 	public String getMessagePath() {
-		return getClientMessagePath();
+		return getClientMessagePath(getAccountId());
 	}
 
 	public String getEntityId() {

@@ -1,4 +1,4 @@
-Bestia.Engine.BasicEntity = function(game) {
+Bestia.Engine.BasicEntity = function(ctx, uuid) {
 
 	/**
 	 * Position in tile coordinates.
@@ -19,9 +19,11 @@ Bestia.Engine.BasicEntity = function(game) {
 	 * @public
 	 * @property {String}
 	 */
-	this.uuid = "";
+	this._uuid = uuid;
 
-	this._game = game;
+	this._game = ctx.game;
+
+	this._ctx = ctx;
 
 	/**
 	 * The underlying sprite for the engine.
@@ -36,12 +38,25 @@ Bestia.Engine.BasicEntity.prototype.appear = function() {
 	// no op.
 };
 
+/**
+ * This will show and display the entity with the default appear animation.
+ */
 Bestia.Engine.BasicEntity.prototype.show = function() {
 	// no op.
 };
 
 Bestia.Engine.BasicEntity.prototype.update = function() {
 	// no op.
+};
+
+/**
+ * Shows death animation if any. The entity was killd/destroyed by whatsoever
+ * means.
+ */
+Bestia.Engine.BasicEntity.prototype.kill = function() {
+	// Placeholder death "animation".
+	this._sprite.tint = 0xffffff;
+	this._game.add.tween(this._sprite).to({alpha: 0}, 400, 'Linear', true);
 };
 
 /**
@@ -61,20 +76,20 @@ Bestia.Engine.BasicEntity.prototype.tickAnimation = function() {
  */
 Bestia.Engine.BasicEntity.prototype.remove = function() {
 
-	this.sprite.destroy();
+	this._sprite.destroy();
 
 };
 
 Bestia.Engine.BasicEntity.prototype.addToGroup = function(group) {
-	if(!(group instanceof Phaser.Group)) {
+	if (!(group instanceof Phaser.Group)) {
 		throw "Group must be instance of Phaser.Group";
 	}
-	
-	if(this._sprite === null) {
+
+	if (this._sprite === null) {
 		console.warn('addToGroup: Sprite is still null. Was not loaded/set yet.');
 		return;
 	}
-	
+
 	group.add(this._sprite);
 };
 
@@ -88,11 +103,20 @@ Bestia.Engine.BasicEntity.prototype._syncSpritePosition = function() {
 	}
 };
 
-Bestia.Engine.BasicEntity.prototype.setPosition = function(x, y) {
+Bestia.Engine.BasicEntity.prototype.setPosition = function(x, y, noSync) {
 	this._position.x = x;
 	this._position.y = y;
 
-	this._syncSpritePosition();
+	if (!noSync) {
+		this._syncSpritePosition();
+	}
+};
+
+Bestia.Engine.BasicEntity.prototype._getDistance = function(pos1, pos2) {
+	var x = pos1.x - pos2.x;
+	var y = pos1.y - pos2.y;
+
+	return Math.sqrt(x * x + y * y);
 };
 
 Object.defineProperty(Bestia.Engine.BasicEntity.prototype, 'position', {
@@ -110,6 +134,24 @@ Object.defineProperty(Bestia.Engine.BasicEntity.prototype, 'position', {
 		this._syncSpritePosition();
 	}
 
+});
+
+/**
+ * Give access to the underlying sprite phaser API.
+ */
+Object.defineProperty(Bestia.Engine.BasicEntity.prototype, 'sprite', {
+	get : function() {
+		return this._sprite;
+	}
+});
+
+/**
+ * Readonly access to the uuid.
+ */
+Object.defineProperty(Bestia.Engine.BasicEntity.prototype, 'uuid', {
+	get : function() {
+		return this._uuid;
+	}
 });
 
 /**

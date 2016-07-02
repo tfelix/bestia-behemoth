@@ -2,6 +2,7 @@ package net.bestia.zoneserver.zone;
 
 import java.io.IOException;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -16,8 +17,6 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.command.ecs.ECSCommandFactory;
 import net.bestia.zoneserver.ecs.manager.WorldPersistenceManager;
 import net.bestia.zoneserver.messaging.MessageHandler;
-import net.bestia.zoneserver.messaging.routing.MessageRouter;
-import net.bestia.zoneserver.messaging.routing.ZoneWrapperFilter;
 import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.world.WorldExtender;
 
@@ -38,11 +37,13 @@ public class Zone implements MessageHandler {
 
 		private long lastRun = 0;
 
+		private static final int ZONE_FPS = 50;
+
 		/**
 		 * Delay between ticks of the zone. Depending on the work on the zone
 		 * the sleep time is adjusted to hit the delay as good as possible.
 		 */
-		private static final int DELAY_MS = 10;
+		private static final int DELAY_MS = 1000 / ZONE_FPS;
 
 		/**
 		 * How many input messages are piped into the zone at each tick. Limit
@@ -55,10 +56,10 @@ public class Zone implements MessageHandler {
 		private final CommandContext ctx;
 		private final ECSCommandFactory commandFactory;
 
-		public ZoneRunnable(World world, CommandContext ctx, Map map) {
+		public ZoneRunnable(World world, ECSCommandFactory cmdFactory, CommandContext ctx, Map map) {
 			this.world = world;
 			this.ctx = ctx;
-			this.commandFactory = new ECSCommandFactory(ctx, world, map, Zone.this);
+			this.commandFactory = cmdFactory;
 		}
 
 		@Override
@@ -143,6 +144,12 @@ public class Zone implements MessageHandler {
 	private ZoneRunnable zoneTicker;
 	private Thread zoneTickerThread;
 
+	/**
+	 * Ctor.
+	 * 
+	 * @param ctx
+	 * @param map
+	 */
 	public Zone(CommandContext ctx, Map map) {
 		if (ctx == null) {
 			throw new IllegalArgumentException("Context can not be null.");
@@ -158,9 +165,6 @@ public class Zone implements MessageHandler {
 		if (this.name == null || this.name.isEmpty()) {
 			throw new IllegalArgumentException("Zone name can not be null or empty.");
 		}
-
-		final MessageRouter router = ctx.getMessageRouter();
-		router.registerFilter(new ZoneWrapperFilter(name), this);
 	}
 
 	/**
@@ -186,7 +190,15 @@ public class Zone implements MessageHandler {
 		final WorldExtender worldExtender = new WorldExtender(cmdContext.getConfiguration(), this);
 		final World world = worldExtender.createWorld(cmdContext, map);
 
-		zoneTicker = new ZoneRunnable(world, cmdContext, map);
+		final ECSCommandFactory cmdFactory = new ECSCommandFactory(cmdContext, world, map, this);
+
+		// A zone must handle the messages in their own thread so we need to
+		// direct ALL messages we need to know into our own threading system. We
+		// therefore can use a MessageCommandHelper.
+		final Set<String> messageIDs = cmdFactory.getRegisteredMessageIds();
+		messageIDs.forEach(id -> cmdContext.getMessageProvider().subscribe(id, this));
+
+		zoneTicker = new ZoneRunnable(world, cmdFactory, cmdContext, map);
 		zoneTickerThread = new Thread(null, zoneTicker, "zoneECS-" + name);
 
 		hasStarted.set(true);
@@ -222,6 +234,9 @@ public class Zone implements MessageHandler {
 			LOG.warn("Zone already stopped. Does not process messages anymore.");
 			return;
 		}
+
+		LOG.trace("Message {} received. Path: {}.", msg.toString(), msg.getMessagePath());
+
 		messageQueue.add(msg);
 	}
 }

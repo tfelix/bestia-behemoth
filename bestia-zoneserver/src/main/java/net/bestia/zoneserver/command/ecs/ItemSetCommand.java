@@ -6,7 +6,7 @@ import java.util.List;
 import net.bestia.messages.Message;
 import net.bestia.messages.inventory.InventoryItemSetMessage;
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerEntityProxy;
 
 /**
  * Sets the item shortcuts for this bestia to the database.
@@ -26,7 +26,7 @@ public class ItemSetCommand extends ECSCommand {
 		final InventoryItemSetMessage itemSetMsg = (InventoryItemSetMessage) message;
 
 		// Set the attacks.
-		final PlayerBestiaEntityProxy pbm = getPlayerBestiaProxy();
+		final PlayerEntityProxy pbm = getPlayerBestiaProxy();
 		final List<Integer> itemIds = new ArrayList<>();
 		itemIds.add(itemSetMsg.getItemSlotId1());
 		itemIds.add(itemSetMsg.getItemSlotId2());

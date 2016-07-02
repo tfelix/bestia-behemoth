@@ -3,7 +3,7 @@ package net.bestia.zoneserver.ecs.system;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.PlayerBestia;
-import net.bestia.zoneserver.proxy.PlayerBestiaEntityProxy;
+import net.bestia.zoneserver.proxy.PlayerEntityProxy;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,7 +60,7 @@ public class PersistSystem extends IntervalEntityProcessingSystem {
 
 	private void synchronizeAndSaveEntity(Entity e) {
 		final PlayerBestiaService pbService = ctx.getServiceLocator().getBean(PlayerBestiaService.class);
-		final PlayerBestiaEntityProxy pbm = playerMapper.get(e).playerBestia;
+		final PlayerEntityProxy pbm = playerMapper.get(e).playerBestia;
 
 		pbService.savePlayerBestiaECS(pbm.getPlayerBestia());
 

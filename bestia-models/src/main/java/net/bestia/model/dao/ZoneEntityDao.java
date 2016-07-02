@@ -2,7 +2,7 @@ package net.bestia.model.dao;
 
 import java.util.List;
 
-import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.CrudRepository;
 
 import net.bestia.model.domain.ZoneEntity;
 
@@ -13,7 +13,7 @@ import net.bestia.model.domain.ZoneEntity;
  *
  */
 @org.springframework.stereotype.Repository("mapEntitiesDao")
-public interface ZoneEntityDao extends Repository<ZoneEntity, Integer> {
+public interface ZoneEntityDao extends CrudRepository<ZoneEntity, Integer> {
 
 	/**
 	 * Finds all entities for the given zone.

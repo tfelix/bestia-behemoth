@@ -24,9 +24,7 @@ export default class BestiaAttacks {
 	constructor(pubsub, i18n, urlHelper) {
 
 		var self = this;
-		
-		this._url = urlHelper;
-	
+
 		/**
 		 * Handle to the Pub/Sub system.
 		 * 
@@ -34,7 +32,7 @@ export default class BestiaAttacks {
 		 * @property
 		 */
 		this._pubsub = pubsub;
-	
+
 		/**
 		 * Private handle to the i18n module to use it for translations.
 		 * 
@@ -42,7 +40,7 @@ export default class BestiaAttacks {
 		 * @property {Bestia.I18n}
 		 */
 		this._i18n = i18n;
-	
+
 		/**
 		 * Boolean flag if the attack list is cached and ready to be displayed. Nice
 		 * for layouts.
@@ -50,7 +48,7 @@ export default class BestiaAttacks {
 		 * @property
 		 */
 		this.isLoaded = ko.observable(false);
-	
+
 		/**
 		 * Holds the array with all known attacks currently requested from the
 		 * server.
@@ -58,54 +56,54 @@ export default class BestiaAttacks {
 		 * @property Array[{Bestia.BestiaAttack}]
 		 */
 		this.attacks = ko.observableArray();
-	
+
 		/**
 		 * Attack slot 1 of the current bestia.
 		 * 
 		 * @property{Bestia.BestiaAttack}
 		 */
 		this.attackSlot1 = ko.observable();
-	
+
 		/**
 		 * Attack slot 2 of the current bestia.
 		 * 
 		 * @property{Bestia.BestiaAttack}
 		 */
 		this.attackSlot2 = ko.observable();
-	
+
 		/**
 		 * Attack slot 3 of the current bestia.
 		 * 
 		 * @property{Bestia.BestiaAttack}
 		 */
 		this.attackSlot3 = ko.observable();
-	
+
 		/**
 		 * Attack slot 4 of the current bestia.
 		 * 
 		 * @property{Bestia.BestiaAttack}
 		 */
 		this.attackSlot4 = ko.observable();
-	
+
 		/**
 		 * Attack slot 5 of the current bestia.
 		 * 
 		 * @property {Bestia.BestiaAttack}
 		 */
 		this.attackSlot5 = ko.observable();
-	
+
 		/**
 		 * The attack the user has currently selected.
 		 * 
 		 * @property {Bestia.Attack}
 		 */
 		this.selectedAttack = ko.observable(null);
-	
+
 		/**
 		 * Flag if the window of the attack management should be shown.
 		 */
 		this.showWindow = ko.observable(false);
-	
+
 		/**
 		 * Holds the reference to the currently active bestia. We need this in order
 		 * to obtain its id for the send out message.
@@ -114,66 +112,7 @@ export default class BestiaAttacks {
 		 * @property
 		 */
 		this._selectedBestia = null;
-	
-		/**
-		 * Handles newly arriving list of attacks. It will check if we have a
-		 * completly translated list of attacks for the list. If so it will simply
-		 * display it. If not it will fetch the remaining attack translations and
-		 * wait for the async handle to return.
-		 */
-		var updateHandle = function(_, data) {
-	
-			self.attacks.removeAll();
-	
-			var attackTranslationList = [];
-	
-			data.atks.forEach(function(val) {
-				var attack = new Attack(val, self._url);
-				self.attacks.push(attack);
-				attackTranslationList.push(attack);
-			});
-			self.isLoaded(true);
-	
-			self._translateAttacks(attackTranslationList);
-		};
-	
-		pubsub.subscribe('attack.list.response', updateHandle);
-	
-		/**
-		 * Resets the current list if for example a new bestia was selected or the
-		 * language was set.
-		 */
-		var invalidateListHandle = function(_, selectedBestia) {
-			self.isLoaded(false);
-			self.attacks.removeAll();
-	
-			// Set reference to selected bestia.
-			self._selectedBestia = selectedBestia;
-	
-			// Prepare the attacks for translation.
-			var translateAtks = [];
-			translateAtks.push(selectedBestia.attack1());
-			translateAtks.push(selectedBestia.attack2());
-			translateAtks.push(selectedBestia.attack3());
-			translateAtks.push(selectedBestia.attack4());
-			translateAtks.push(selectedBestia.attack5());
-	
-			translateAtks = translateAtks.filter(function(x) {
-				return x !== null;
-			});
-			self._translateAttacks(translateAtks);
-	
-			// Reset the attack slots to the attacks of the bestia.
-			self.attackSlot1(selectedBestia.attack1());
-			self.attackSlot2(selectedBestia.attack2());
-			self.attackSlot3(selectedBestia.attack3());
-			self.attackSlot4(selectedBestia.attack4());
-			self.attackSlot5(selectedBestia.attack5());
-		};
-	
-		pubsub.subscribe(Signal.BESTIA_SELECTED, invalidateListHandle);
-		pubsub.subscribe('i18n.lang', invalidateListHandle);
-	
+
 		/**
 		 * Selects the given attack.
 		 * 
@@ -182,16 +121,16 @@ export default class BestiaAttacks {
 		this.selectAttack = function(attack) {
 			self.selectedAttack(attack);
 		};
-	
+
 		/**
 		 * Binds the currently selected attack on a given slot.
 		 */
 		this.useSelectedAttack = function(slot) {
-	
+
 			if (!self.selectedAttack()) {
 				return;
 			}
-	
+
 			switch (slot) {
 			case 1:
 				self.attackSlot1(self.selectedAttack());
@@ -218,7 +157,7 @@ export default class BestiaAttacks {
 			}
 			self.saveAttacks();
 		};
-	
+
 		/**
 		 * Removes an attack from a given slot. The slot will be set to null and the
 		 * change will be send to the server.
@@ -227,7 +166,7 @@ export default class BestiaAttacks {
 		 *            Number of the slot. Between 1 and 4.
 		 */
 		this.removeAttack = function(slot) {
-	
+
 			switch (slot) {
 			case 1:
 				this.attackSlot1(null);
@@ -254,8 +193,42 @@ export default class BestiaAttacks {
 			}
 			self.saveAttacks();
 		};
+		
+		pubsub.subscribe(Bestia.MID.ATTACK_LIST_RESPONSE, this._updateHandle.bind(this));
+		pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, this._invalidateListHandle.bind(this));
+		pubsub.subscribe(Bestia.Signal.I18N_LANG_CHANGED, this._invalidateListHandle.bind(this));
 	
 	}
+	
+	_invalidateListHandle(_, selectedBestia) {
+		this.isLoaded(false);
+		this.attacks.removeAll();
+
+		// Set reference to selected bestia.
+		this._selectedBestia = selectedBestia;
+
+		// Prepare the attacks for translation.
+		var translateAtks = [];
+		translateAtks.push(selectedBestia.attack1());
+		translateAtks.push(selectedBestia.attack2());
+		translateAtks.push(selectedBestia.attack3());
+		translateAtks.push(selectedBestia.attack4());
+		translateAtks.push(selectedBestia.attack5());
+
+		translateAtks = translateAtks.filter(function(x) {
+			return x !== null;
+		});
+		this._translateAttacks(translateAtks);
+
+		// Reset the attack slots to the attacks of the bestia.
+		this.attackSlot1(selectedBestia.attack1());
+		this.attackSlot2(selectedBestia.attack2());
+		this.attackSlot3(selectedBestia.attack3());
+		this.attackSlot4(selectedBestia.attack4());
+		this.attackSlot5(selectedBestia.attack5());
+	}
+	
+	
 	
 	/**
 	 * Requests the attack list from the server, only if it is not already display.
@@ -266,8 +239,8 @@ export default class BestiaAttacks {
 			return;
 		}
 
-		var msg = new Message.AttackListRequest();
-		this._pubsub.publish('io.sendMessage', msg);
+		var msg = new Bestia.Message.AttackListRequest();
+		this._pubsub.publish(Bestia.Signal.IO_SEND, msg);
 	}
 
 	/**
@@ -355,6 +328,28 @@ export default class BestiaAttacks {
 		// Save the new attacks.
 		this.saveAttacks();
 	}
+	
+	/**
+	 * Handles newly arriving list of attacks. It will check if we have a
+	 * completly translated list of attacks for the list. If so it will simply
+	 * display it. If not it will fetch the remaining attack translations and
+	 * wait for the async handle to return.
+	 */
+	_updateHandle(_, data) {
+
+		this.attacks.removeAll();
+
+		var attackTranslationList = [];
+
+		data.atks.forEach(function(val) {
+			var attack = new Bestia.BestiaAttack(val);
+			this.attacks.push(attack);
+			attackTranslationList.push(attack);
+		}, this);
+		this.isLoaded(true);
+
+		this._translateAttacks(attackTranslationList);
+	}
 
 	/**
 	 * Function handler which sets the show flag to false in order to hide the
@@ -410,6 +405,6 @@ export default class BestiaAttacks {
 		var atk5 = this.attackSlot5() ? this.attackSlot5().id() : null;
 		var bestiaId = this._selectedBestia.playerBestiaId();
 		var msg = new Message.AttackSet(bestiaId, atk1, atk2, atk3, atk4, atk5);
-		this._pubsub.publish('io.sendMessage', msg);
+		this._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 	}
 }

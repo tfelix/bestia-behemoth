@@ -20,9 +20,9 @@ import net.bestia.interserver.InterserverMessageHandler;
 import net.bestia.interserver.InterserverPublisher;
 import net.bestia.interserver.InterserverSubscriber;
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.LoginAuthReplyMessage;
-import net.bestia.messages.LogoutBroadcastMessage;
 import net.bestia.messages.Message;
+import net.bestia.messages.login.LoginAuthReplyMessage;
+import net.bestia.messages.login.LogoutBroadcastMessage;
 
 /**
  * Helper class to provide a centralized storage for all opend websocket
@@ -100,12 +100,12 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	 * @throws IOException
 	 */
 	public void publishInterserver(long accountId, String message) throws IOException {
-		log.trace("Publish message to interserver: {}", message);
-
 		final AccountMessage msg = mapper.readValue(message, AccountMessage.class);
 
 		// Regenerate the account id from the server connection.
 		msg.setAccountId(accountId);
+		
+		log.trace("Publish message to interserver: {}", msg.toString());
 
 		publisher.publish(msg);
 	}
@@ -135,7 +135,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 		connections.put(accountId, new WebConnection(socket, token));
 
 		// Subscribe to the messages.
-		subscriber.subscribe("account/" + accountId);
+		subscriber.subscribe(AccountMessage.getClientMessagePath(accountId));
 	}
 
 	/**
@@ -147,7 +147,7 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 	 */
 	public void removeConnection(long accountId) {
 		log.debug("Removed connection to account id: {}", accountId);
-		subscriber.unsubscribe("account/" + accountId);
+		subscriber.unsubscribe(AccountMessage.getClientMessagePath(accountId));
 		connections.remove(accountId);
 	}
 
@@ -200,7 +200,8 @@ public class BestiaConnectionProvider implements InterserverMessageHandler {
 		}
 
 		// Check the kind of message.
-		if (msg.getMessagePath().startsWith("account/")) {
+		// TODO Error prone check. Use different handler for non client directed messages.
+		if (msg.getMessagePath().startsWith("client")) {
 			try {
 				// Send the message to the client.
 				publishClient((AccountMessage) msg);

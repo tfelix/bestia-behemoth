@@ -1,10 +1,5 @@
 package net.bestia.zoneserver.ecs.component;
 
-import java.util.LinkedList;
-import java.util.Queue;
-
-import net.bestia.messages.ChatMessage;
-
 import com.artemis.Component;
 
 /**
@@ -15,5 +10,4 @@ import com.artemis.Component;
  */
 public class Active extends Component {
 
-	public Queue<ChatMessage> chatQueue = new LinkedList<>();
 }

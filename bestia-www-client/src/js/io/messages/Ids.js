@@ -12,6 +12,8 @@ var MID = {
 	
 	ATTACK_SET : 'attack.set',
 	ATTACK_LIST_REQUEST: 'attack.list.request',
+	ATTACK_LIST_RESPONSE: 'attack.list.response',
+	ATTACK_USE:	'attack.use',
 	
 	ENTITY_DAMAGE: 'entity.damage',
 	ENTITY_UPDATE: 'entity.update',
@@ -24,6 +26,7 @@ var MID = {
 	INVENTORY_UPDATE : 'inventory.update',
 	INVENTORY_LIST: 'inventory.list',
 	INVENTORY_ITEM_CAST: 'inventory.item.cast',
+	INVENTORY_ITEM_CAST_CONFIRM: 'inventory.item.castconfirm',
 	INVENTORY_ITEM_SET: 'inventory.item.set',
 	INVENTORY_REQUEST: 'inventory.request',
 	INVENTORY_ITEM_USE: 'inventory.item.use',

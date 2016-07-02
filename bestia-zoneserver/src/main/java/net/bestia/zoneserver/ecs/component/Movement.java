@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.ecs.component;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -15,7 +16,9 @@ import net.bestia.zoneserver.zone.shape.Vector2;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class Movement extends Component {
+public class Movement extends Component implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public static final float TILES_PER_SECOND = 3f;
 

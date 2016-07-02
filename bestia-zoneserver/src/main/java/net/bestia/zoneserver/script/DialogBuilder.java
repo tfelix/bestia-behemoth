@@ -3,9 +3,9 @@ package net.bestia.zoneserver.script;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.bestia.messages.dialog.DialogMessage;
-import net.bestia.messages.dialog.DialogNode;
-import net.bestia.messages.dialog.DialogAction;
+import net.bestia.messages.ui.DialogAction;
+import net.bestia.messages.ui.DialogMessage;
+import net.bestia.messages.ui.DialogNode;
 
 /**
  * The {@link DialogBuilder} can be used in order to construct NPC dialogs which

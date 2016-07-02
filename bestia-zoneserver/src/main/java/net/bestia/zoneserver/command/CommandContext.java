@@ -4,7 +4,7 @@ import net.bestia.model.ServiceLocator;
 import net.bestia.util.BestiaConfiguration;
 import net.bestia.zoneserver.Zoneserver;
 import net.bestia.zoneserver.messaging.AccountRegistry;
-import net.bestia.zoneserver.messaging.routing.MessageRouter;
+import net.bestia.zoneserver.messaging.MessageProvider;
 import net.bestia.zoneserver.script.ScriptManager;
 
 /**
@@ -24,7 +24,7 @@ public class CommandContext {
 		private Zoneserver server;
 		private ServiceLocator serviceLocator;
 		private ScriptManager scriptManager;
-		private MessageRouter messageRouter;
+		private MessageProvider messageProvider;
 		private AccountRegistry accountRegistry;
 
 		public CommandContextBuilder setConfiguration(BestiaConfiguration configuration) {
@@ -52,8 +52,8 @@ public class CommandContext {
 			return ctx;
 		}
 
-		public CommandContextBuilder setMessageRouter(MessageRouter messageRouter) {
-			this.messageRouter = messageRouter;
+		public CommandContextBuilder setMessageProvider(MessageProvider msgProvider) {
+			this.messageProvider = msgProvider;
 			return this;
 		}
 
@@ -67,7 +67,7 @@ public class CommandContext {
 	private final Zoneserver server;
 	private final ServiceLocator serviceLocator;
 	private final ScriptManager scriptManager;
-	private final MessageRouter messageRouter;
+	private final MessageProvider messageProvider;
 	private final AccountRegistry accountRegistry;
 
 	/**
@@ -76,23 +76,23 @@ public class CommandContext {
 	 * 
 	 */
 	private CommandContext(CommandContextBuilder builder) {
-		
-		if(builder.configuration == null) {
+
+		if (builder.configuration == null) {
 			throw new IllegalArgumentException("Configuration can not be null.");
 		}
-		if(builder.server == null) {
+		if (builder.server == null) {
 			throw new IllegalArgumentException("Server can not be null.");
 		}
-		if(builder.serviceLocator == null) {
+		if (builder.serviceLocator == null) {
 			throw new IllegalArgumentException("ServiceLocator can not be null.");
 		}
-		if(builder.scriptManager == null) {
+		if (builder.scriptManager == null) {
 			throw new IllegalArgumentException("ScriptManager can not be null.");
 		}
-		if(builder.messageRouter == null) {
+		if (builder.messageProvider == null) {
 			throw new IllegalArgumentException("MessageRouter can not be null.");
 		}
-		if(builder.accountRegistry == null) {
+		if (builder.accountRegistry == null) {
 			throw new IllegalArgumentException("AccountRegistry can not be null.");
 		}
 
@@ -100,7 +100,7 @@ public class CommandContext {
 		this.server = builder.server;
 		this.serviceLocator = builder.serviceLocator;
 		this.scriptManager = builder.scriptManager;
-		this.messageRouter = builder.messageRouter;
+		this.messageProvider = builder.messageProvider;
 		this.accountRegistry = builder.accountRegistry;
 	}
 
@@ -118,8 +118,8 @@ public class CommandContext {
 	 * 
 	 * @return MessageRouter of the server.
 	 */
-	public MessageRouter getMessageRouter() {
-		return messageRouter;
+	public MessageProvider getMessageProvider() {
+		return messageProvider;
 	}
 
 	/**
@@ -148,9 +148,10 @@ public class CommandContext {
 	public ScriptManager getScriptManager() {
 		return scriptManager;
 	}
-	
+
 	/**
-	 * Returns the account registry. TODO hier überlegen ob das nicht besser an die passenden stellen soll.
+	 * Returns the account registry.
+	 * 
 	 * @return
 	 */
 	public AccountRegistry getAccountRegistry() {

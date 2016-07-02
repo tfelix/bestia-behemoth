@@ -24,19 +24,19 @@ export default class ItemViewModel {
 		var self = this;
 		
 		this._urlHelper = urlHelper;
-	
+
 		/**
 		 * Name of the item. Must be translated via i18n and item db name.
 		 * 
 		 * @property
 		 */
 		this.name = ko.observable('');
-	
+
 		/**
 		 * The type of this item.
 		 */
 		this.type = ko.observable('');
-	
+
 		/**
 		 * The amount owned by the player of this item.
 		 * 
@@ -44,7 +44,7 @@ export default class ItemViewModel {
 		 * @public
 		 */
 		this.amount = ko.observable(0);
-	
+
 		/**
 		 * The player item id.
 		 * 
@@ -52,7 +52,7 @@ export default class ItemViewModel {
 		 * @public
 		 */
 		this.playerItemId = ko.observable(0);
-	
+
 		/**
 		 * Item id.
 		 * 
@@ -60,7 +60,7 @@ export default class ItemViewModel {
 		 * @public
 		 */
 		this.itemId = ko.observable(0);
-	
+
 		/**
 		 * The unqiue database item name.
 		 * 
@@ -68,16 +68,15 @@ export default class ItemViewModel {
 		 * @public
 		 */
 		this.itemDatabaseName = ko.observable('');
-	
+
 		/**
-		 * The description will be set when the item is translated by the
-		 * inventory.
+		 * The description will be set when the item is translated by the inventory.
 		 * 
 		 * @property
 		 * @public
 		 */
 		this.description = ko.observable('');
-	
+
 		/**
 		 * The image source URL of this item. Useful for layouts.
 		 * 
@@ -85,7 +84,7 @@ export default class ItemViewModel {
 		 * @public
 		 */
 		this.imageSrc = ko.observable('');
-	
+
 		/**
 		 * The weight of the item.
 		 * 
@@ -93,7 +92,16 @@ export default class ItemViewModel {
 		 * @public
 		 */
 		this.weight = ko.observable(0);
-	
+		
+		/**
+		 * Holds the indicator string of the item.
+		 * 
+		 * @property {string}
+		 * @public
+		 */
+		this.indicator = "";
+
+		
 		/**
 		 * Total weight of the items (by amount).
 		 * 
@@ -103,7 +111,7 @@ export default class ItemViewModel {
 		this.totalWeight = ko.pureComputed(function() {
 			return self.amount() * self.weight();
 		});
-	
+
 		if (data !== undefined) {
 			this.update(data);
 		}
@@ -126,7 +134,10 @@ export default class ItemViewModel {
 		this.itemId(data.i.id);
 		this.itemDatabaseName(data.i.idbn);
 		
+		this.indicator = data.i.i;
+		
 		this.imageSrc(this._urlHelper.getItemIconUrl(data.i.img));
+		
 	}	
 }
 

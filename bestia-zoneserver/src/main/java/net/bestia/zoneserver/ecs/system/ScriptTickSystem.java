@@ -6,12 +6,11 @@ import javax.script.Bindings;
 import javax.script.SimpleBindings;
 
 import net.bestia.zoneserver.command.CommandContext;
-import net.bestia.zoneserver.ecs.component.Bestia;
+import net.bestia.zoneserver.ecs.component.EntityComponent;
 import net.bestia.zoneserver.ecs.component.Delay;
 import net.bestia.zoneserver.ecs.component.Script;
-import net.bestia.zoneserver.proxy.BestiaEntityProxy;
-import net.bestia.zoneserver.script.MapScript;
-import net.bestia.zoneserver.script.MapScriptFactory;
+import net.bestia.zoneserver.script.ScriptApi;
+import net.bestia.zoneserver.script.ScriptBuilder;
 import net.bestia.zoneserver.script.ScriptManager;
 
 import org.apache.logging.log4j.LogManager;
@@ -37,17 +36,17 @@ public class ScriptTickSystem extends DelayedIteratingSystem {
 	private static final Logger LOG = LogManager.getLogger(ScriptTickSystem.class);
 
 	private ComponentMapper<Script> scriptMapper;
-	private ComponentMapper<Bestia> bestiaMapper;
+	private ComponentMapper<EntityComponent> bestiaMapper;
 	private ComponentMapper<Delay> delayMapper;
-
-	@Wire
-	private MapScriptFactory scriptFactory;
 
 	/**
 	 * Just needed to extract script manager as a shortcut.
 	 */
 	@Wire
 	private CommandContext ctx;
+
+	@Wire
+	private ScriptApi scriptApi;
 
 	private ScriptManager scriptManager;
 
@@ -88,6 +87,11 @@ public class ScriptTickSystem extends DelayedIteratingSystem {
 			LOG.trace("Script {} touched by entities: {}", script.script, touchingEntities);
 		}
 
+		// Prepare the script builder.
+		final ScriptBuilder sb = new ScriptBuilder();
+		sb.setApi(scriptApi)
+				.setScriptPrefix(net.bestia.zoneserver.script.Script.SCRIPT_PREFIX_MAP);
+
 		for (Integer id : touchingEntities) {
 			final Entity e = world.getEntity(id);
 			if (e == null) {
@@ -97,13 +101,13 @@ public class ScriptTickSystem extends DelayedIteratingSystem {
 			}
 
 			// We still touch the script.
-			final BestiaEntityProxy bm = bestiaMapper.get(id).manager;
+			final net.bestia.zoneserver.proxy.Entity bm = bestiaMapper.get(id).manager;
 
-			onInsideBinding.put("target", bm);
+			sb.setTargetEntity(bm);
 
-			final MapScript mapScript = scriptFactory.getScript(script.script, bm);
-
-			final boolean success = scriptManager.execute(mapScript, onInsideBinding);
+			final net.bestia.zoneserver.script.Script mapScript = sb.build();
+			final boolean success = scriptManager.execute(mapScript);
+			
 			if (!success) {
 				LOG.warn("Script {} was not executed. Was removed from the world.", script.script);
 				world.delete(scriptId);

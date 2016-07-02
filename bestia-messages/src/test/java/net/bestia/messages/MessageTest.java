@@ -12,6 +12,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.reflections.Reflections;
 
+import net.bestia.messages.chat.ChatMessage;
+
 public class MessageTest {
 
 	private static Reflections reflections = new Reflections("net.bestia.messages");
@@ -80,8 +82,9 @@ public class MessageTest {
 			Constructor<? extends Message> cons = msg.getConstructor();
 			String key = cons.newInstance().getMessageId();
 
-			if (ids.contains(key)) {
-				duplicates.add(key);
+			// Chat message is the exception with a duplicate key.
+			if (ids.contains(key) && !key.equals(ChatMessage.MESSAGE_ID)) {
+				duplicates.add(msg.getCanonicalName() + " key: " + key);
 			} else {
 				ids.add(key);
 			}

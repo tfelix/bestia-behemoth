@@ -131,8 +131,8 @@ public class Interserver {
 		LOG.info(config.getVersion());
 		LOG.info("Starting Bestia Interserver...");
 
-		Socket subscriber = context.socket(ZMQ.PULL);
-		Socket publisher = context.socket(ZMQ.PUB);
+		final Socket subscriber = context.socket(ZMQ.PULL);
+		final Socket publisher = context.socket(ZMQ.PUB);
 
 		// Start thread which will process all incoming messages.
 		subscriberThread = new MessageSubscriberThread(subscriber, publisher);

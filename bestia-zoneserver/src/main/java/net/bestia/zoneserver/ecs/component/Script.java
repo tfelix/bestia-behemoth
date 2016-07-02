@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.ecs.component;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,7 +12,9 @@ import com.artemis.Component;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class Script extends Component {
+public class Script extends Component implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * The script to be triggered when touched.

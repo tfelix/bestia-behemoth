@@ -5,21 +5,22 @@ Bestia.Engine.MultispriteBuilder = function(factory, ctx) {
 	Bestia.Engine.Builder.call(this, factory, ctx);
 
 	// Register with factory.
-	this.type = 'multisprite';
 	this.version = 1;
 };
 
 Bestia.Engine.MultispriteBuilder.prototype = Object.create(Bestia.Engine.Builder.prototype);
 Bestia.Engine.MultispriteBuilder.prototype.constructor = Bestia.Engine.MultispriteBuilder;
 
-Bestia.Engine.MultispriteBuilder.prototype._build = function(data, desc) {
+Bestia.Engine.MultispriteBuilder.prototype.build = function(data, desc) {
 
-	var entity = new Bestia.Engine.MultispriteEntity(this._ctx.game, data.uuid, desc);
+	var entity = new Bestia.Engine.MultispriteEntity(this._ctx, data.uuid, desc);
 
 	// Position
 	entity.setPosition(data.x, data.y);
 
 	entity.setSprite(data.s);
+	
+	entity.addToGroup(this._ctx.groups.sprites);
 
 	if (data.a === "APPEAR") {
 		entity.appear();
@@ -60,7 +61,7 @@ Bestia.Engine.MultispriteBuilder.prototype._extendPack = function(descFile, addi
 
 	var packArray = pack[key];
 
-	var msprites = descFile.multiSprite;
+	var msprites = descFile.multiSprite || [];
 
 	msprites.concat(additionalSprites).forEach(function(msName) {
 
@@ -91,4 +92,8 @@ Bestia.Engine.MultispriteBuilder.prototype._extendPack = function(descFile, addi
 	}, this);
 
 	return pack;
+};
+
+Bestia.Engine.MultispriteBuilder.prototype.canBuild = function(data) {
+	return data.t == 'MOB_ANIM';
 };

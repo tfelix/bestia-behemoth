@@ -15,27 +15,30 @@ export default class DemandLoader {
 	
 	constructor(loader, cache, urlHelper) {
 
-	if (!(loader instanceof Phaser.Loader)) {
-		throw "DemandLoader: Loader is not a Phaser.Loader";
-	}
+		if (!(loader instanceof Phaser.Loader)) {
+			throw "DemandLoader: Loader is not a Phaser.Loader";
+		}
+	
+		if (!(cache instanceof Phaser.Cache)) {
+			throw "DemandLoader: Cache is not a Phaser.Cache";
+		}
+	
+		if (!urlHelper) {
+			throw "UrlHelper: Can not be null";
+		}
+	
+		this._loader = loader;
+		this._phaserCache = cache;
+		this._urlHelper = urlHelper;
 
-	if (!(cache instanceof Phaser.Cache)) {
-		throw "DemandLoader: Cache is not a Phaser.Cache";
-	}
+		this._cache = {};
+		this._keyCache = {};
 
-	if (!urlHelper) {
-		throw "UrlHelper: Can not be null";
-	}
+		// this._loadPackCallBuffer = [];
 
-	this._loader = loader;
-	this._phaserCache = cache;
-	this._urlHelper = urlHelper;
-
-	this._cache = {};
-	this._keyCache = {};
-
-	// Add the callbacks.
-	loader.onFileComplete.add(this._fileLoadedCallback, this);
+		// Add the callbacks.
+		loader.onFileComplete.add(this._fileLoadedCallback, this);
+		// loader.onLoadComplete.add(this._checkPackCallBufferCallback, this);
 	}
 	
 	_fileLoadedCallback(progress, key) {
@@ -160,7 +163,7 @@ export default class DemandLoader {
 		 * this.loadPackData(pack, fnOnComplete); }.bind(this)); return; }
 		 */
 
-		fnOnComplete = fnOnComplete || NOOP;
+		fnOnComplete = fnOnComplete || Bestia.NOOP;
 
 		// Get the key. Keys in objects are not sorted but packs should contain only
 		// one key.
@@ -209,36 +212,45 @@ export default class DemandLoader {
 			return;
 		}
 
-		fnOnComplete = fnOnComplete || NOOP;
-
-		// Temp.
-		var key = data.key;
+		fnOnComplete = fnOnComplete || Bestia.NOOP;
 
 		// Check if a load is running. If this is the case only add the callback
 		// function to be executed when the load completes.
-		if (this._cache.hasOwnProperty(key)) {
-			this._cache[key].callbackFns.push(fnOnComplete);
+		if (this._cache.hasOwnProperty(data.key)) {
+			this._cache[data.key].callbackFns.push(fnOnComplete);
 			return;
 		}
 
-		var countObj = {
-			key : key,
-			callbackFns : [ fnOnComplete ],
-			toLoad : 1,
-			type : 'file'
-		};
-
-		this._cache[key] = countObj;
-
 		switch (data.type) {
 		case 'json':
-			this._loader.json(data.key, data.url);
+			if (this._phaserCache.checkJSONKey(data.key)) {
+				fnOnComplete();
+				return;
+			} else {
+				this._loader.json(data.key, data.url);
+			}
+			break;
+		case 'image':
+			if (this._phaserCache.checkImageKey(data.key)) {
+				fnOnComplete();
+				return;
+			} else {
+				this._loader.image(data.key, data.url);
+			}
 			break;
 		default:
 			console.warn("Loading this type not supported: " + data.type);
 			return;
 		}
 
+		var countObj = {
+			key : data.key,
+			callbackFns : [ fnOnComplete ],
+			toLoad : 1,
+			type : 'file'
+		};
+
+		this._cache[data.key] = countObj;
 		this._loader.start();
 	}
 

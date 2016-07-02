@@ -16,6 +16,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Table(name = "attacks")
 public class Attack implements Serializable {
 
+	/**
+	 * Basic attack id used for the default attack every bestia has.
+	 */
+	@Transient
+	public static final int BASIC_MELEE_ATTACK_ID = -1;
+
+	@Transient
+	private static Attack defaultMeleeAttack;
+
 	@Transient
 	private static final long serialVersionUID = 1L;
 
@@ -41,8 +50,11 @@ public class Attack implements Serializable {
 	 * Range of the attack. Range is a mysql reserved word, so quots are needed.
 	 */
 	@JsonProperty("r")
-	@Column(name = "atkRange")
+	@Column(name = "atkRange", nullable = false)
 	private int range;
+
+	@JsonProperty("los")
+	private boolean lineOfSight;
 
 	@Enumerated(EnumType.STRING)
 	@JsonProperty("bs")
@@ -53,7 +65,7 @@ public class Attack implements Serializable {
 
 	@JsonProperty("cd")
 	private int cooldown;
-	
+
 	@JsonProperty("i")
 	private String indicator;
 
@@ -110,6 +122,16 @@ public class Attack implements Serializable {
 	}
 
 	/**
+	 * Returns if the attack requires a line of sight.
+	 * 
+	 * @return TRUE of the attack requires a line of sight to the enemy. FALSE
+	 *         otherwise.
+	 */
+	public boolean needsLineOfSight() {
+		return lineOfSight;
+	}
+
+	/**
 	 * @param manaCost
 	 *            the manaCost to set
 	 */
@@ -162,8 +184,32 @@ public class Attack implements Serializable {
 	public Integer getId() {
 		return id;
 	}
-	
+
 	public String getIndicator() {
 		return indicator;
+	}
+
+	/**
+	 * Each bestia has this one default attack which costs no mana and can be
+	 * used anytime.
+	 * 
+	 * @return Specialized default melee attack.
+	 */
+	public static Attack getDefaultMeleeAttack() {
+		if (defaultMeleeAttack == null) {
+			defaultMeleeAttack = new Attack();
+			defaultMeleeAttack.id = BASIC_MELEE_ATTACK_ID;
+			defaultMeleeAttack.databaseName = "default_melee_attack";
+			defaultMeleeAttack.strength = 5;
+			defaultMeleeAttack.element = Element.NORMAL;
+			defaultMeleeAttack.manaCost = 0;
+			defaultMeleeAttack.range = 1;
+			defaultMeleeAttack.lineOfSight = true;
+			defaultMeleeAttack.basedStatus = AttackBasedStatus.NORMAL;
+			defaultMeleeAttack.casttime = 0;
+			defaultMeleeAttack.cooldown = 1500;
+		}
+
+		return defaultMeleeAttack;
 	}
 }
