@@ -1,4 +1,5 @@
-Bestia.Engine.States = Bestia.Engine.States || {};
+
+import Signal from '../../io/Signal.js';
 
 /**
  * The state is triggered for the first game loading. A real loading screen will
@@ -8,37 +9,38 @@ Bestia.Engine.States = Bestia.Engine.States || {};
  * @constructor
  * @class Bestia.Engine.States.InitialLoadingState
  */
-Bestia.Engine.States.InitialLoadingState = function(engine) {
-
-	this.ctx = engine.ctx;
-	this.url = engine.ctx.url;
-	this._pubsub = engine.ctx.pubsub;
-
-};
-
-
-Bestia.Engine.States.InitialLoadingState.prototype.preload = function() {
+export default class InitialLoadingState {
 	
-	// TODO hier auch schon einen loading screen anzeigen.
-	this.game.load.image('castindicator_small', this.url.getIndicatorUrl('_big'));
-	this.game.load.image('castindicator_medium', this.url.getIndicatorUrl('_medium'));
-	this.game.load.image('castindicator_big', this.url.getIndicatorUrl('_small'));
+	constructor(engine) {
+		this.ctx = engine.ctx;
+		this.url = engine.ctx.url;
+		this._pubsub = engine.ctx.pubsub;
+	}
 
-	this.game.load.image('default_item', this.url.getItemIconUrl('_default'));
+	preload() {
+		
+		// TODO hier auch schon einen loading screen anzeigen.
+		this.game.load.image('castindicator_small', this.url.getIndicatorUrl('_big'));
+		this.game.load.image('castindicator_medium', this.url.getIndicatorUrl('_medium'));
+		this.game.load.image('castindicator_big', this.url.getIndicatorUrl('_small'));
 
-	// #### Filters
-	this.game.load.script('filter_blur_x', this.url.getFilterUrl('BlurX'));
-	this.game.load.script('filter_blur_y', this.url.getFilterUrl('BlurY'));
+		this.game.load.image('default_item', this.url.getItemIconUrl('_default'));
 
-	this.game.load.spritesheet('rain', this.url.getSpriteUrl('rain'), 17, 17);
+		// #### Filters
+		this.game.load.script('filter_blur_x', this.url.getFilterUrl('BlurX'));
+		this.game.load.script('filter_blur_y', this.url.getFilterUrl('BlurY'));
 
-	// Load the static data from the manager.
-	this.ctx.indicatorManager.load();
-	this.ctx.fxManager.load();
+		this.game.load.spritesheet('rain', this.url.getSpriteUrl('rain'), 17, 17);
 
-};
+		// Load the static data from the manager.
+		this.ctx.indicatorManager.load();
+		this.ctx.fxManager.load();
 
-Bestia.Engine.States.InitialLoadingState.prototype.create = function() {
+	};
 
-	this._pubsub.publish(Bestia.Signal.ENGINE_INIT_LOADED);
+	create = function() {
+
+		this._pubsub.publish(Signal.ENGINE_INIT_LOADED);
+	};
+
 };

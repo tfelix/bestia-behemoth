@@ -1,83 +1,85 @@
-Bestia.Engine.States = Bestia.Engine.States || {};
+
+import Signal from '../../io/Signal.js';
 
 /**
- * The state is triggered if a new map is loaded.
- * Displays while the engine is loading files to display the next map. 
+ * The state is triggered if a new map is loaded. Displays while the engine is
+ * loading files to display the next map.
  * 
  * @constructor
- * @class Bestia.Engine.States.BootState
  */
-Bestia.Engine.States.LoadingState = function(engine) {
+export default class LoadingState  {
+	constructor(engine) {
+		this.bestia = null;
+		
+		/**
+		 * Current asset and map loading progress.
+		 * 
+		 * @private
+		 */
+		this._currentProgress = 0;
+		
+		this._ctx = engine.ctx;
+		
+		/**
+		 * Reference to the bestia engine.
+		 * 
+		 * @private
+		 */
+		this._engine = engine;
 
-	this.bestia = null;
+		/**
+		 * Reference to the pubsub system.
+		 * 
+		 * @private
+		 */
+		this._pubsub = engine.ctx.pubsub;
+		
+		this._urlHelper = engine.ctx.url;
+	}
 	
-	/**
-	 * Current asset and map loading progress.
-	 * 
-	 * @private
-	 */
-	this._currentProgress = 0;
-	
-	this._ctx = engine.ctx;
-	
-	/**
-	 * Reference to the bestia engine.
-	 * 
-	 * @private
-	 */
-	this._engine = engine;
+	init() {
+		// Announce loading.
+		this._pubsub.publish(Bestia.Signal.ENGINE_PREPARE_MAPLOAD);
 
-	/**
-	 * Reference to the pubsub system.
-	 * 
-	 * @private
-	 */
-	this._pubsub = engine.ctx.pubsub;
-	
-	this._urlHelper = engine.ctx.url;
-};
+		console.debug("Loading map: " + this._ctx.playerBestia.location());
 
-Bestia.Engine.States.LoadingState.prototype.init = function() {
-	// Announce loading.
-	this._pubsub.publish(Bestia.Signal.ENGINE_PREPARE_MAPLOAD);
+		// Prepare the loading screen.
+		this.gfx = this.add.graphics(0, 0);
+		this.gfx.beginFill(0xFF0000, 1);
+	}
 
-	console.debug("Loading map: " + this._ctx.playerBestia.location());
+	preload() {
+		
+		// Load the mapfile itself.
+		var mapDbName = this._ctx.playerBestia.location();
+		var packUrl = this._urlHelper.getMapPackUrl(mapDbName);
+		this.load.pack(mapDbName, packUrl);
+		
+		// TODO Pre load the map assoziated data (entities, sounds, etc)
+		
 
-	// Prepare the loading screen.
-	this.gfx = this.add.graphics(0, 0);
-	this.gfx.beginFill(0xFF0000, 1);
-};
+		this.load.onFileComplete.add(this.fileCompleted, this);
+	}
 
-Bestia.Engine.States.LoadingState.prototype.preload = function() {
-	
-	// Load the mapfile itself.
-	var mapDbName = this._ctx.playerBestia.location();
-	var packUrl = this._urlHelper.getMapPackUrl(mapDbName);
-	this.load.pack(mapDbName, packUrl);
-	
-	// TODO Pre load the map assoziated data (entities, sounds, etc)
-	
+	loadUpdate() {
 
-	this.load.onFileComplete.add(this.fileCompleted, this);
-};
+		this.game.debug.text("Loading", 10, 30, '#FFFFFF');
+		var maxWidth = this.game.width - 20;
+		this.gfx.drawRect(10, 60, (maxWidth * this._currentProgress / 100), 20);
 
-Bestia.Engine.States.LoadingState.prototype.loadUpdate = function() {
+	}
 
-	this.game.debug.text("Loading", 10, 30, '#FFFFFF');
-	var maxWidth = this.game.width - 20;
-	this.gfx.drawRect(10, 60, (maxWidth * this._currentProgress / 100), 20);
+	create() {
+		
+		this._pubsub.publish(Signal.ENGINE_FINISHED_MAPLOAD);
 
-};
+	}
 
-Bestia.Engine.States.LoadingState.prototype.create = function() {
-	
-	this._pubsub.publish(Bestia.Signal.ENGINE_FINISHED_MAPLOAD);
+	fileCompleted(progress) {
 
-};
+		this._currentProgress = progress;
+		this.text = "Complete: " + progress + "%";
 
-Bestia.Engine.States.LoadingState.prototype.fileCompleted = function(progress) {
+	}
+}
 
-	this._currentProgress = progress;
-	this.text = "Complete: " + progress + "%";
-
-};
