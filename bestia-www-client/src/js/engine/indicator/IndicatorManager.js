@@ -1,3 +1,7 @@
+import MoveIndicator from './MoveIndicator.js';
+import ItemCastIndicator from './ItemCastIndicator.js';
+import BasicAttackIndicator from './BasicAttackIndicator.js';
+
 /**
  * The manager is responsible for switching the indicator depending on the needs
  * of the engine. It listens to various events (usage of an item for example)
@@ -34,13 +38,13 @@ export default class IndicatorManager {
 		this._active = null;
 
 		this.ctx = ctx;
-
-		this._moveIndicator = new Bestia.Engine.Indicator.Move(this);
+		
+		this._moveIndicator = new MoveIndicator(this);
 		
 		// Register the available indicators.
 		this._indicators.push(this._moveIndicator);
-		this._indicators.push(new Bestia.Engine.Indicator.ItemCast(this));
-		this._indicators.push(new Bestia.Engine.Indicator.BasicAttack(this));
+		this._indicators.push(new ItemCastIndicator(this));
+		this._indicators.push(new BasicAttack(this));
 	}
 
 	/**
