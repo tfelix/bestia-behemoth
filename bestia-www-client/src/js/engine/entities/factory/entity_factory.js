@@ -1,3 +1,9 @@
+import MultispriteBuilder from './MultispriteBuilder.js';
+import PlayerMultispriteBuilder from './PlayerMultispriteBuilder.js';
+import SpriteBuilder from './SpriteBuilder.js';
+import SimpleObjectBuilder from './SimpleObjectBuilder.js';
+import ItemBuilder from './ItemBuilder.js';
+
 /**
  * The factory is responsible for loading all the needed assets to display a
  * certain entity. It resolves if it is a bestia, sprite, item etc. entity and
@@ -6,93 +12,96 @@
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  */
-Bestia.Engine.EntityFactory = function(ctx) {
+export default class EntityFactory {
+	
+	constructor(ctx) {
 
-	if (!ctx) {
-		throw new Error("Context can not be null.");
+		if (!ctx) {
+			throw new Error("Context can not be null.");
+		}
+	
+		this._ctx = ctx;
+	
+		this.descLoader = new Bestia.Engine.DescriptionLoader(ctx.loader, ctx.url);
+	
+		/**
+		 * Registry for the builder to register themselfes.
+		 */
+		this.builder = [];
+	
+		this.builder.push(new MultispriteBuilder(this, ctx));
+		this.builder.push(new PlayerMultispriteBuilder(this, ctx));
+		this.builder.push(new SpriteBuilder(this, ctx));
+		this.builder.push(new SimpleObjectBuilder(this, ctx));
+		this.builder.push(new ItemBuilder(this, ctx));
 	}
 
-	this._ctx = ctx;
+	build = function(data, fnOnComplete) {
+		fnOnComplete = fnOnComplete || Bestia.NOOP;
 
-	this.descLoader = new Bestia.Engine.DescriptionLoader(ctx.loader, ctx.url);
-
-	/**
-	 * Registry for the builder to register themselfes.
-	 */
-	this.builder = [];
-
-	this.builder.push(new Bestia.Engine.MultispriteBuilder(this, ctx));
-	this.builder.push(new Bestia.Engine.PlayerMultispriteBuilder(this, ctx));
-	this.builder.push(new Bestia.Engine.SpriteBuilder(this, ctx));
-	this.builder.push(new Bestia.Engine.SimpleObjectBuilder(this, ctx));
-	this.builder.push(new Bestia.Engine.ItemBuilder(this, ctx));
-};
-
-Bestia.Engine.EntityFactory.prototype.build = function(data, fnOnComplete) {
-	fnOnComplete = fnOnComplete || Bestia.NOOP;
-
-	// Do we already have the desc file?
-	var descFile = this._getDescriptionFile(data);
-
-	if (descFile === null) {
-		// We must first load this file because we dont know anything about the
-		// entity. Hand over the now loaded description file as well as the
-		// callback.
-		this.descLoader.loadDescription(data, this._continueBuild.bind(this, data, fnOnComplete));
-
-	} else {
-
-		this._continueBuild(data, fnOnComplete, descFile);
-	}
-};
-
-Bestia.Engine.EntityFactory.prototype._continueBuild = function(data, fnOnComplete, descFile) {
-	var b = this._getBuilder(data, descFile);
-
-	if (!b) {
-		console.warn("Could not build entity. From data: " + JSON.stringify(data));
-		return;
-	}
-
-	b.load(descFile, function() {
+		// Do we already have the desc file?
+		var descFile = this._getDescriptionFile(data);
 
 		if (descFile === null) {
-			// Could not load desc file.
+			// We must first load this file because we dont know anything about the
+			// entity. Hand over the now loaded description file as well as the
+			// callback.
+			this.descLoader.loadDescription(data, this._continueBuild.bind(this, data, fnOnComplete));
+
+		} else {
+
+			this._continueBuild(data, fnOnComplete, descFile);
+		}
+	};
+
+	_continueBuild(data, fnOnComplete, descFile) {
+		var b = this._getBuilder(data, descFile);
+
+		if (!b) {
+			console.warn("Could not build entity. From data: " + JSON.stringify(data));
 			return;
 		}
 
-		var entity = b.build(data, descFile);
+		b.load(descFile, function() {
 
-		this._ctx.entityCache.addEntity(entity);
+			if (descFile === null) {
+				// Could not load desc file.
+				return;
+			}
 
-		// Call the callback handler.
-		fnOnComplete(entity);
-	}.bind(this));
-};
+			var entity = b.build(data, descFile);
 
-Bestia.Engine.EntityFactory.prototype._getDescriptionFile = function(data) {
-	if (data.t === 'STATIC') {
-		// We can generate the description file on the fly.
-		// TODO This should be externalized.
-		return {
-			type : 'STATIC',
-			version : 1,
-			name : data.s
-		};
-	} else {
-		return this.descLoader.getDescription(data);
+			this._ctx.entityCache.addEntity(entity);
+
+			// Call the callback handler.
+			fnOnComplete(entity);
+		}.bind(this));
 	}
-};
 
-/**
- * Das müsste auch an die Builder ausgelagert werden.
- */
-Bestia.Engine.EntityFactory.prototype._getBuilder = function(data, descFile) {
-	for (var i = 0; i < this.builder.length; i++) {
-		if (this.builder[i].canBuild(data, descFile)) {
-			return this.builder[i];
+	_getDescriptionFile(data) {
+		if (data.t === 'STATIC') {
+			// We can generate the description file on the fly.
+			// TODO This should be externalized.
+			return {
+				type : 'STATIC',
+				version : 1,
+				name : data.s
+			};
+		} else {
+			return this.descLoader.getDescription(data);
 		}
 	}
 
-	return null;
-};
+	/**
+	 * Das müsste auch an die Builder ausgelagert werden.
+	 */
+	_getBuilder(data, descFile) {
+		for (var i = 0; i < this.builder.length; i++) {
+			if (this.builder[i].canBuild(data, descFile)) {
+				return this.builder[i];
+			}
+		}
+
+		return null;
+	}
+}

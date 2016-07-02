@@ -1,27 +1,38 @@
 /**
- * Baseclass of the builder.
+ * Baseclass of the builder. It is used automatically to create map entities
+ * (bestias, items etc.)
  */
-Bestia.Engine.Builder = function(factory, ctx) {
+export default class Builder {
 	
-	this._factory = factory;
+	constructor(factory, ctx) {
+		
+		this._factory = factory;
+		
+		this._ctx = ctx;
+
+	}
+
+	/**
+	 * Does the creation job of an delivered data message object.
+	 */
+	build() {
+		
+		throw new Error("Must be overwritten by child class.");
+		
+	}
+
+	/**
+	 * Checks wenever a concrete builder can generate/build a given dataset.
+	 */
+	canBuild = function(data) {
+		return data.type === this.type && data.version === this.version;
+	}
+
 	
-	this._ctx = ctx;
+	load(descFile, fnOnComplete) {
+		
+		var pack = descFile.assetpack;
+		this._ctx.loader.loadPackData(pack, fnOnComplete);
 
-};
-
-Bestia.Engine.Builder.prototype.build = function() {
-	
-	throw new Error("Must be overwritten by child class.");
-	
-};
-
-Bestia.Engine.Builder.prototype.canBuild = function(data) {
-	return data.type === this.type && data.version === this.version;
-};
-
-Bestia.Engine.Builder.prototype.load = function(descFile, fnOnComplete) {
-	
-	var pack = descFile.assetpack;
-	this._ctx.loader.loadPackData(pack, fnOnComplete);
-
-};
+	}
+}
