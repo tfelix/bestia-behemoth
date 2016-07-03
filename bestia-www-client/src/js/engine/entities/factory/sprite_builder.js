@@ -1,44 +1,47 @@
+import Builder from './Builder.js';
+import ImageEntity from '../ImageEntity.js';
+
 /**
- * Responsible for building the entities consisting of single sprites.
+ * Responsible for building the entities consisting of single sprites (NPC,
+ * trees, houses, decals etc.).
  */
-Bestia.Engine.SpriteBuilder = function(factory, ctx) {
-	Bestia.Engine.Builder.call(this, factory, ctx);
 
-	// Register with factory.
-	this.version = 1;
+export default class SpriteBuilder extends Builder {
+	constructor(factory, ctx) {
+		super(factory, ctx);
+		
+		// Register with factory.
+		this.version = 1;
+	}
+	
+	build(data, desc) {
 
-};
+		var entity = new ImageEntity(this._ctx, data.uuid, data.x, data.y, desc);
 
-Bestia.Engine.SpriteBuilder.prototype = Object.create(Bestia.Engine.Builder.prototype);
-Bestia.Engine.SpriteBuilder.prototype.constructor = Bestia.Engine.SpriteBuilder;
+		entity.setSprite(data.s);
 
-Bestia.Engine.SpriteBuilder.prototype.build = function(data, desc) {
+		entity.addToGroup(this._ctx.groups.sprites);
 
-	var entity = new Bestia.Engine.ImageEntity(this._ctx, data.uuid, data.x, data.y, desc);
+		if (data.a === "APPEAR") {
+			entity.appear();
+		} else {
+			entity.show();
+		}
 
-	entity.setSprite(data.s);
-
-	entity.addToGroup(this._ctx.groups.sprites);
-
-	if (data.a === "APPEAR") {
-		entity.appear();
-	} else {
-		entity.show();
+		return entity;
 	}
 
-	return entity;
-};
+	load(descFile, fnOnComplete) {
 
-Bestia.Engine.SpriteBuilder.prototype.load = function(descFile, fnOnComplete) {
+		var data = {
+			key : 'emperium',
+			type : 'image',
+			url : this._ctx.url.getSpriteUrl(descFile.name)
+		};
+		this._ctx.loader.load(data, fnOnComplete);
+	}
 
-	var data = {
-		key : 'emperium',
-		type : 'image',
-		url : this._ctx.url.getSpriteUrl(descFile.name)
-	};
-	this._ctx.loader.load(data, fnOnComplete);
-};
-
-Bestia.Engine.SpriteBuilder.prototype.canBuild = function(data) {
-	return data.t === 'STATIC';
-};
+	canBuild(data) {
+		return data.t === 'STATIC';
+	}
+}

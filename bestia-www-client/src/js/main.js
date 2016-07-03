@@ -1,4 +1,4 @@
-import {Bestia, BestiaGame} from './bestia.js';
+import BestiaGame from './bestia.js';
 
 function main() {
 
