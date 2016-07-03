@@ -49,7 +49,7 @@ export default class GameState {
 		
 		// Activate move handler.
 		this.ctx.indicatorManager.showDefault();
-	};
+	}
 
 	update() {
 		

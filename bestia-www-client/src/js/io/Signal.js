@@ -79,4 +79,4 @@ var Signal = {
 
 };
 
-export default {MID};
+export default {Signal};

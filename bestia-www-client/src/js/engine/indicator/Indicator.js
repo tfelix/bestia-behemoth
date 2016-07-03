@@ -10,7 +10,7 @@ import IndicatorManager from './IndicatorManager.js';
 export default class Indicator {
 
 	constructor(manager) {
-		if (!manager instanceof IndicatorManager) {
+		if (!(manager instanceof IndicatorManager)) {
 			throw new Error("Manager can not be null.");
 		}
 

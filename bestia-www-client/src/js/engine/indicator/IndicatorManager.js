@@ -44,7 +44,7 @@ export default class IndicatorManager {
 		// Register the available indicators.
 		this._indicators.push(this._moveIndicator);
 		this._indicators.push(new ItemCastIndicator(this));
-		this._indicators.push(new BasicAttack(this));
+		this._indicators.push(new BasicAttackIndicator(this));
 	}
 
 	/**

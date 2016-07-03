@@ -5,6 +5,7 @@
 
 import Signal from '../io/Signal.js';
 import PubSub from '../util/PubSub.js';
+import BestiaViewModel from './BestiaViewModel.js';
 
 /**
  * Holds complete overview of all selected bestias.

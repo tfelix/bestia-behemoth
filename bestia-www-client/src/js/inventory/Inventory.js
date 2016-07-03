@@ -3,6 +3,10 @@
  * @copyright 2015 Thomas Felix
  */
 
+import Signal from '../io/Signal.js';
+import MID from '../io/messages/MID.js';
+import Message from '../io/messages/Message.js';
+
 /**
  * Inventory is hooking into inventory messages from the server and manages item
  * management. It lists items, updates the amount or removes them. It is also
@@ -22,179 +26,188 @@ export default class Inventory {
 	
 	constructor(pubsub, i18n, urlHelper) {
 
-	if (pubsub === undefined) {
-		throw "pubsub can not be null.";
-	}
-	if (i18n === undefined) {
-		throw "i18n can not be null.";
-	}
-	if (urlHelper === undefined) {
-		throw "urlHelper can not be null.";
-	}
-
-	var self = this;
-
-	this._urlHelper = urlHelper;
-
-	/**
-	 * 
-	 * @param {Bestia.Pubsub}
-	 */
-	this._pubsub = pubsub;
-
-	/**
-	 * i18n interface to translate items.
-	 * 
-	 * @property
-	 * @private
-	 */
-	this._i18n = i18n;
-
-	/**
-	 * Flag if the inventory has been loaded with new items.
-	 * 
-	 * @property {boolean}
-	 * @public
-	 */
-	this.hasLoaded = ko.observable(false);
-
-	/**
-	 * Holds the reference to the currently active bestia. We need this in order
-	 * to obtain its id for the send out message and to set the item shortcuts.
-	 * 
-	 * @private
-	 * @property
-	 */
-	this._selectedBestia = null;
-
-	this.itemSlot1 = ko.observable(null);
-	this.itemSlot2 = ko.observable(null);
-	this.itemSlot3 = ko.observable(null);
-	this.itemSlot4 = ko.observable(null);
-	this.itemSlot5 = ko.observable(null);
-
-	/**
-	 * Highlight class for the item slots.
-	 */
-	this.itemSlot1Css = ko.observable(null);
-	this.itemSlot2Css = ko.observable(null);
-	this.itemSlot3Css = ko.observable(null);
-	this.itemSlot4Css = ko.observable(null);
-	this.itemSlot5Css = ko.observable(null);
-
-	/**
-	 * <p>
-	 * This property contains all items regardles of the set filter for the
-	 * inventory. It is strongly discouraged to bind against this variable. It
-	 * is kind of private but there may be uses. This property is more or less
-	 * use cases.
-	 * </p>
-	 * <p>
-	 * If a filter is set then the items in here are filtered and transfered to
-	 * the items array. Update rate is limited once per 50 ms to optimize
-	 * performance on big inventories.
-	 * </p>
-	 * 
-	 * @property {Bestia.ItemViewModel}
-	 */
-	this.allItems = ko.observableArray().extend({
-		rateLimit : 50
-	});
-
-	/**
-	 * If text is present in this variable the display of items inside the
-	 * inventory is hidden if they dont start with this item name prefix.
-	 */
-	this.searchFilter = ko.observable('').extend({
-		throttle : 100
-	});
-
-	/**
-	 * If this filter is set to a certain category ('usable', 'quest', 'etc',
-	 * 'equip') only items of this category is displayed. Can be used together
-	 * with the searchFilter property.
-	 */
-	this.categoryFilter = ko.observable('');
-
-	/**
-	 * The item on which was clicked will be displayed in detail to perform
-	 * certain activities with if (display description, drop menu etc.)
-	 */
-	this.selectedItem = ko.observable(null);
-
-	/**
-	 * Flag to show and hide the inventory window.
-	 */
-	this.showWindow = ko.observable(false);
-
-	/**
-	 * Show the current weight of all items inside the inventory.
-	 * 
-	 * @property {Number}
-	 * @public
-	 */
-	this.currentWeight = ko.pureComputed(function() {
-		var weight = 0;
-		self.allItems().forEach(function(el) {
-			weight += el.totalWeight();
-		});
-		return weight;
-	});
-
-	/**
-	 * Shows the maximum weight the bestia can carry.
-	 * 
-	 * @property {Number}
-	 * @public
-	 */
-	this.maxWeight = ko.observable(0);
-
-	/**
-	 * Holds all items delivered from the server.
-	 * 
-	 * @property
-	 */
-	this.items = ko.pureComputed(function() {
-		var items = self.allItems();
-
-		// Filter categories.
-		var catFilter = this.categoryFilter();
-
-		if (catFilter !== '') {
-			items = items.filter(function(el) {
-				return el.type().toLowerCase() === catFilter;
-			});
+		if (pubsub === undefined) {
+			throw "pubsub can not be null.";
 		}
-
-		// Filter the item names in side the array with the set filter.
-		var searchTxt = this.searchFilter();
-
-		items = items.filter(function(el) {
-			if (el.name === undefined) {
-				return false;
-			}
-
-			return el.name().lastIndexOf(searchTxt, 0) === 0;
+		if (i18n === undefined) {
+			throw "i18n can not be null.";
+		}
+		if (urlHelper === undefined) {
+			throw "urlHelper can not be null.";
+		}
+	
+		var self = this;
+	
+		this._urlHelper = urlHelper;
+	
+		/**
+		 * 
+		 * @param {Bestia.Pubsub}
+		 */
+		this._pubsub = pubsub;
+	
+		/**
+		 * i18n interface to translate items.
+		 * 
+		 * @property
+		 * @private
+		 */
+		this._i18n = i18n;
+	
+		/**
+		 * Flag if the inventory has been loaded with new items.
+		 * 
+		 * @property {boolean}
+		 * @public
+		 */
+		this.hasLoaded = ko.observable(false);
+	
+		/**
+		 * Holds the reference to the currently active bestia. We need this in
+		 * order to obtain its id for the send out message and to set the item
+		 * shortcuts.
+		 * 
+		 * @private
+		 * @property
+		 */
+		this._selectedBestia = null;
+		
+		/**
+		 * Amount of the item to be dropped.
+		 * 
+		 * @public
+		 * @property {Number}
+		 */
+		this.dropAmount = ko.observable(1);
+	
+		this.itemSlot1 = ko.observable(null);
+		this.itemSlot2 = ko.observable(null);
+		this.itemSlot3 = ko.observable(null);
+		this.itemSlot4 = ko.observable(null);
+		this.itemSlot5 = ko.observable(null);
+	
+		/**
+		 * Highlight class for the item slots.
+		 */
+		this.itemSlot1Css = ko.observable(null);
+		this.itemSlot2Css = ko.observable(null);
+		this.itemSlot3Css = ko.observable(null);
+		this.itemSlot4Css = ko.observable(null);
+		this.itemSlot5Css = ko.observable(null);
+	
+		/**
+		 * <p>
+		 * This property contains all items regardles of the set filter for the
+		 * inventory. It is strongly discouraged to bind against this variable.
+		 * It is kind of private but there may be uses. This property is more or
+		 * less use cases.
+		 * </p>
+		 * <p>
+		 * If a filter is set then the items in here are filtered and transfered
+		 * to the items array. Update rate is limited once per 50 ms to optimize
+		 * performance on big inventories.
+		 * </p>
+		 * 
+		 * @property {Bestia.ItemViewModel}
+		 */
+		this.allItems = ko.observableArray().extend({
+			rateLimit : 50
 		});
-
-		return items;
-	}, this).extend({
-		throttle : 1
-	});
-
-	// ######## PUBSUB HANDLER ########
-	pubsub.subscribe(Bestia.MID.INVENTORY_LIST, this._handleList.bind(this));
-	pubsub.subscribe(Bestia.MID.INVENTORY_UPDATE, this._handleUpdate.bind(this));
-
-	/**
-	 * Received event probably from the input controller to perform a casting of
-	 * the item.
-	 */
-	pubsub.subscribe(Bestia.Signal.INPUT_USE_ITEM, this._handlerInputCastItem.bind(this));
-	pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, this._handlerBestiaSelected.bind(this));
-	pubsub.subscribe(Bestia.Signal.INVENTORY_PERFORM_CAST, this._handlerDoCast.bind(this));
-	// pubsub.subscribe(Bestia.Signal.INVENTORY_CAST_CONFIRM,
-	// this._handlerCastServerConfirm.bind(this));
+	
+		/**
+		 * If text is present in this variable the display of items inside the
+		 * inventory is hidden if they dont start with this item name prefix.
+		 */
+		this.searchFilter = ko.observable('').extend({
+			throttle : 100
+		});
+	
+		/**
+		 * If this filter is set to a certain category ('usable', 'quest',
+		 * 'etc', 'equip') only items of this category is displayed. Can be used
+		 * together with the searchFilter property.
+		 */
+		this.categoryFilter = ko.observable('');
+	
+		/**
+		 * The item on which was clicked will be displayed in detail to perform
+		 * certain activities with if (display description, drop menu etc.)
+		 */
+		this.selectedItem = ko.observable(null);
+	
+		/**
+		 * Flag to show and hide the inventory window.
+		 */
+		this.showWindow = ko.observable(false);
+	
+		/**
+		 * Show the current weight of all items inside the inventory.
+		 * 
+		 * @property {Number}
+		 * @public
+		 */
+		this.currentWeight = ko.pureComputed(function() {
+			var weight = 0;
+			self.allItems().forEach(function(el) {
+				weight += el.totalWeight();
+			});
+			return weight;
+		});
+	
+		/**
+		 * Shows the maximum weight the bestia can carry.
+		 * 
+		 * @property {Number}
+		 * @public
+		 */
+		this.maxWeight = ko.observable(0);
+	
+		/**
+		 * Holds all items delivered from the server.
+		 * 
+		 * @property
+		 */
+		this.items = ko.pureComputed(function() {
+			var items = self.allItems();
+	
+			// Filter categories.
+			var catFilter = this.categoryFilter();
+	
+			if (catFilter !== '') {
+				items = items.filter(function(el) {
+					return el.type().toLowerCase() === catFilter;
+				});
+			}
+	
+			// Filter the item names in side the array with the set filter.
+			var searchTxt = this.searchFilter();
+	
+			items = items.filter(function(el) {
+				if (el.name === undefined) {
+					return false;
+				}
+	
+				return el.name().lastIndexOf(searchTxt, 0) === 0;
+			});
+	
+			return items;
+		}, this).extend({
+			throttle : 1
+		});
+	
+		// ######## PUBSUB HANDLER ########
+		pubsub.subscribe(MID.INVENTORY_LIST, this._handleList.bind(this));
+		pubsub.subscribe(MID.INVENTORY_UPDATE, this._handleUpdate.bind(this));
+	
+		/**
+		 * Received event probably from the input controller to perform a
+		 * casting of the item.
+		 */
+		pubsub.subscribe(Signal.INPUT_USE_ITEM, this._handlerInputCastItem.bind(this));
+		pubsub.subscribe(Signal.BESTIA_SELECTED, this._handlerBestiaSelected.bind(this));
+		pubsub.subscribe(Signal.INVENTORY_PERFORM_CAST, this._handlerDoCast.bind(this));
+		// pubsub.subscribe(Bestia.Signal.INVENTORY_CAST_CONFIRM,
+		// this._handlerCastServerConfirm.bind(this));
 	}
 	
 	/**
@@ -202,8 +215,8 @@ export default class Inventory {
 	 * this item are displayed.
 	 */
 	selectItem(item) {
-		self.selectedItem(item);
-		self.dropAmount(item.amount());
+		this.selectedItem(item);
+		this.dropAmount(item.amount());
 	}
 
 	/**
@@ -224,22 +237,14 @@ export default class Inventory {
 
 		if (item.type() === 'USABLE') {
 			// Just send the server the message to directly use this item.
-			var msg = new Bestia.Message.InventoryItemCast(item.itemId(), self._selectedBestia.playerBestiaId());
-			self._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
+			var msg = new Message.InventoryItemCast(item.itemId(), this._selectedBestia.playerBestiaId());
+			this._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 		} else if (item.type() === 'CASTABLE') {
 			// Item is "castable". Notify the engine about displaying a
 			// indicator how to use this item.
-			self._pubsub.publish(Bestia.Signal.ENGINE_CAST_ITEM, item);
+			this._pubsub.publish(Signal.ENGINE_CAST_ITEM, item);
 		}
 	}
-
-	/**
-	 * Amount of the item to be dropped.
-	 * 
-	 * @public
-	 * @property {Number}
-	 */
-	this.dropAmount = ko.observable(1);
 
 	/**
 	 * This will send a drop request for the selected item and the server.
@@ -250,9 +255,9 @@ export default class Inventory {
 	 *            amount - Amount wished to be dropped.
 	 */
 	dropItem() {
-		var msg = new Bestia.Message.InventoryItemDrop(self.selectedItem().itemId(), self.dropAmount(),
-				self.currentBestiaId);
-		self._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
+		var msg = new Message.InventoryItemDrop(this.selectedItem().itemId(), this.dropAmount(),
+				this.currentBestiaId);
+		this._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 
 	}
 
@@ -265,28 +270,28 @@ export default class Inventory {
 	unbindItem(slot) {
 		switch (slot) {
 		case 1:
-			self.itemSlot1(null);
-			self._selectedBestia.item1(null);
+			this.itemSlot1(null);
+			this._selectedBestia.item1(null);
 			break;
 		case 2:
-			self.itemSlot2(null);
-			self._selectedBestia.item2(null);
+			this.itemSlot2(null);
+			this._selectedBestia.item2(null);
 			break;
 		case 3:
-			self.itemSlot3(null);
-			self._selectedBestia.item3(null);
+			this.itemSlot3(null);
+			this._selectedBestia.item3(null);
 			break;
 		case 4:
-			self.itemSlot4(null);
-			self._selectedBestia.item4(null);
+			this.itemSlot4(null);
+			this._selectedBestia.item4(null);
 			break;
 		case 5:
-			self.itemSlot5(null);
-			self._selectedBestia.item5(null);
+			this.itemSlot5(null);
+			this._selectedBestia.item5(null);
 			break;
 		}
 
-		self.saveItemBindings();
+		this.saveItemBindings();
 	}
 
 	/**
@@ -299,7 +304,7 @@ export default class Inventory {
 	 */
 	bindItem(slot) {
 
-		var item = self.selectedItem();
+		var item = this.selectedItem();
 
 		if (!item) {
 			throw "Item can not be undefined.";
@@ -307,30 +312,30 @@ export default class Inventory {
 
 		switch (slot) {
 		case 1:
-			self.itemSlot1(item);
-			self._selectedBestia.item1(item);
+			this.itemSlot1(item);
+			this._selectedBestia.item1(item);
 			break;
 		case 2:
-			self.itemSlot2(item);
-			self._selectedBestia.item2(item);
+			this.itemSlot2(item);
+			this._selectedBestia.item2(item);
 			break;
 		case 3:
-			self.itemSlot3(item);
-			self._selectedBestia.item3(item);
+			this.itemSlot3(item);
+			this._selectedBestia.item3(item);
 			break;
 		case 4:
-			self.itemSlot4(item);
-			self._selectedBestia.item4(item);
+			this.itemSlot4(item);
+			this._selectedBestia.item4(item);
 			break;
 		case 5:
-			self.itemSlot5(item);
-			self._selectedBestia.item5(item);
+			this.itemSlot5(item);
+			this._selectedBestia.item5(item);
 			break;
 		default:
 			throw "Slot must be between 1 and 5.";
 		}
 
-		self.saveItemBindings();
+		this.saveItemBindings();
 	}
 	
 	_handlerInputCastItem(_, slotN) {
@@ -355,21 +360,23 @@ export default class Inventory {
 			// Unknown slot.
 			console.warn('Unknown slot to cast.');
 			break;
+		}
 	}
 		
 		/**
-		 * This event will get triggered if the engine has decided to let an item be
-		 * cast. It is now the inventories responsibility to give the server the item
-		 * cast command and if successful remove the item from the inventory.
+		 * This event will get triggered if the engine has decided to let an
+		 * item be cast. It is now the inventories responsibility to give the
+		 * server the item cast command and if successful remove the item from
+		 * the inventory.
 		 * 
 		 * @param {Object}
-		 *            data - Containt the item to be cast as well as the map coordinates
-		 *            e.g.: {item: ITEM, cords: {x: X, y: Y}}.
+		 *            data - Containt the item to be cast as well as the map
+		 *            coordinates e.g.: {item: ITEM, cords: {x: X, y: Y}}.
 		 */
 		_handlerDoCast(_, data) {
-			// We have now all data in place to create a server message to use this
-			// item.
-			var msg = new Bestia.Message.InventoryItemCast(data.item.playerItemId(), this._selectedBestia.playerBestiaId(),
+			// We have now all data in place to create a server message to use
+			// this item.
+			var msg = new Message.InventoryItemCast(data.item.playerItemId(), this._selectedBestia.playerBestiaId(),
 					data.cords.x, data.cords.y);
 
 			this._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
@@ -402,7 +409,7 @@ export default class Inventory {
 		/**
 		 * Updates the item via an update message from the server.
 		 */
-		_handleUpdate = function(_, data) {
+		_handleUpdate(_, data) {
 
 			var newItems = [];
 			var announceItems = [];
@@ -488,14 +495,15 @@ export default class Inventory {
 		}
 
 		/**
-		 * Internal method to translate item names and desciptions. Awaits an array with
-		 * item models to translate.
+		 * Internal method to translate item names and desciptions. Awaits an
+		 * array with item models to translate.
 		 * 
 		 * @private
 		 * @param {Array[Bestia.ItemViewModel]}
 		 *            items - Array of item view models to translate.
 		 * @param {Function}
-		 *            fn - Callback function. Is fired when all items are translated.
+		 *            fn - Callback function. Is fired when all items are
+		 *            translated.
 		 */
 		_translateItems(items, fn) {
 			var buildTranslationKeyName = function(item) {
@@ -527,8 +535,9 @@ export default class Inventory {
 		}
 
 		/**
-		 * The item is cleanly removed and deleted from all binding lists etc. This
-		 * method should always be used to completly remove an item from the inventory.
+		 * The item is cleanly removed and deleted from all binding lists etc.
+		 * This method should always be used to completly remove an item from
+		 * the inventory.
 		 * 
 		 * @private
 		 * @param itemId
@@ -557,7 +566,7 @@ export default class Inventory {
 
 			// Remove the item.
 			this.allItems.remove(item);
-		};
+		}
 
 		/**
 		 * Looks for the item in the current items array. If it is found the
@@ -565,7 +574,8 @@ export default class Inventory {
 		 * 
 		 * @private
 		 * @param itemId
-		 * @returns The {Bestia.Inventory.ItemViewModel} if found or null otherwise.
+		 * @returns The {Bestia.Inventory.ItemViewModel} if found or null
+		 *          otherwise.
 		 */
 		_findItem(itemId) {
 			var items = this.allItems();
@@ -587,12 +597,13 @@ export default class Inventory {
 		/**
 		 * Hides the inventory window.
 		 */
-		close = function() {
+		close() {
 			this.showWindow(false);
 		}
 
 		/**
-		 * Sends the item bindings of the currently selected bestia to the server.
+		 * Sends the item bindings of the currently selected bestia to the
+		 * server.
 		 */
 		saveItemBindings() {
 			var piId1 = this.itemSlot1() ? this.itemSlot1().playerItemId() : null;
@@ -606,11 +617,11 @@ export default class Inventory {
 		}
 
 		/**
-		 * This function will handle usages of item shortcut slots. Either if they are
-		 * clicked directly or if they are invoked via an key press event. The function
-		 * will decide if the item has rather to be used (usable) or if it will get
-		 * casted (castable). It is also responsible for making visual fx like flashing
-		 * the shortcut binding etc.
+		 * This function will handle usages of item shortcut slots. Either if
+		 * they are clicked directly or if they are invoked via an key press
+		 * event. The function will decide if the item has rather to be used
+		 * (usable) or if it will get casted (castable). It is also responsible
+		 * for making visual fx like flashing the shortcut binding etc.
 		 * 
 		 * @param slotN
 		 *            Number of the slot to be used.
@@ -644,8 +655,9 @@ export default class Inventory {
 		}
 
 		/**
-		 * Setup the item bindings with the proper items. We need to derefer this call
-		 * until the bestia is selected AND the items have been loaded.
+		 * Setup the item bindings with the proper items. We need to derefer
+		 * this call until the bestia is selected AND the items have been
+		 * loaded.
 		 */
 		_setupItemBindings() {
 			if (this.hasLoaded()) {
@@ -653,8 +665,10 @@ export default class Inventory {
 			}
 
 			var bestia = this._selectedBestia;
-			// If we still have no bestia selected via a server message we will stop
-			// here and wait until this has happened. The method will then be called
+			// If we still have no bestia selected via a server message we will
+			// stop
+			// here and wait until this has happened. The method will then be
+			// called
 			// again.
 			if (bestia === null) {
 				return;

@@ -5,11 +5,11 @@
 
 import PubSub from '../util/PubSub.js';
 import UrlHelper from '../util/UrlHelper.js';
-import Message from '../io/messages/Message.js';
-import Signal from '../io/Signal.js';
-import Attack from '../attack/Attack.js';
-import ItemViewModel from '../inventory/ItemViewModel.js';
-import StatusPointViewModel from './StatusPointViewModel.js';
+//import Message from '../io/messages/Message.js';
+//import Signal from '../io/Signal.js';
+//import Attack from '../attack/Attack.js';
+//import ItemViewModel from '../inventory/ItemViewModel.js';
+//import StatusPointViewModel from './StatusPointViewModel.js';
 
 /**
  * ViewModel of a Bestia.

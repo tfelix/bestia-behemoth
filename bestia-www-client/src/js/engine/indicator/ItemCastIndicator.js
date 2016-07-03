@@ -1,13 +1,13 @@
 
 import Indicator from './Indicator.js';
 import Signal from '../../io/Signal.js';
-import World form '../core/World.js';
+import World from '../core/World.js';
 
 /**
  * Visualize the casting of an item. If the position was determined it will
  * publish this information.
  */
-export default class ItemCast {
+export default class ItemCast extends Indicator {
 	constructor(manager) {
 		super(manager);
 

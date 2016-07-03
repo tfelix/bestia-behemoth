@@ -1,4 +1,8 @@
 import MID from '../../io/Signal.js';
+import DamageEntity from '../entities/DamageEntity.js';
+import HealEntity from '../entities/HealEntity.js';
+import DamageMissEntity from '../entities/DamageMissEntity.js';
+import DamageCriticalEntity from '../entities/CriticalDamageEntity.js';
 
 /**
  * 
@@ -12,7 +16,7 @@ export default class DamageFx {
 		this._entityCache = ctx.entityCache;
 		this._pubsub = ctx.pubsub;
 	
-		ctx.pubsub.subscribe(MID.ENTITY_DAMAGE, this._onEntityDamageHandler.bind(this));
+		ctx.pubsub.subscribe(MID.ENTITY_DAMAGE, this._handlerOnEntityDamage.bind(this));
 	}
 	
 	/**
@@ -22,7 +26,7 @@ export default class DamageFx {
 	 * @param _
 	 * @param msg
 	 */
-	_onEntityDamageHandler(_, msg) {
+	_handlerOnEntityDamage(_, msg) {
 		// TODO Caching implementieren.
 
 		var dmgs = msg.d;
@@ -38,16 +42,16 @@ export default class DamageFx {
 			
 			switch (x.t) {
 			case 'HEAL':
-				dmgFx = new Bestia.Engine.Entities.HealDamage(this._game, entity.positionPixel, x.dmg);
+				dmgFx = new HealEntity(this._game, entity.positionPixel, x.dmg);
 				break;
 			case 'HIT':
-				dmgFx = new Bestia.Engine.Entities.Damage(this._game, entity.positionPixel, x.dmg);
+				dmgFx = new DamageEntity(this._game, entity.positionPixel, x.dmg);
 				break;
 			case 'CRITICAL':
-				dmgFx = new Bestia.Engine.Entities.CriticalDamage(this._game, entity.positionPixel, x.dmg);
+				dmgFx = new DamageCriticalEntity(this._game, entity.positionPixel, x.dmg);
 				break;
 			case 'MISS':
-				dmgFx = new Bestia.Engine.Entities.MissDamage(this._game, entity.positionPixel, x.dmg);
+				dmgFx = new DamageMissEntity(this._game, entity.positionPixel, x.dmg);
 				break;
 			default:
 				console.debug('Unknown damage type: ' + x.t);

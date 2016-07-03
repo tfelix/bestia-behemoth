@@ -27,8 +27,8 @@ function strStartsWith(str, start) {
  * @return {float} Distance between the two points.
  */
 export
-function distance(d1, d1) {
-	var x = pos1.x - pos2.x;
-	var y = pos1.y - pos2.y;
+function distance(d1, d2) {
+	var x = d1.x - d2.x;
+	var y = d1.y - d2.y;
 	return Math.sqrt(x * x + y * y);
 }

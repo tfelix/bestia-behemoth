@@ -106,7 +106,7 @@ export default class World {
 	 * @param {String}
 	 *            mapDbName - The mapDbName of the map to load into the engine.
 	 */
-	loadMap = function(mapDbName) {
+	loadMap(mapDbName) {
 
 		// Reset layers.
 		this._layers = [];

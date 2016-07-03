@@ -4,7 +4,7 @@
  */
 
 import Signal from '../io/Signal.js';
-import '../util/Guid.js';
+import guid from '../util/Guid.js';
 
 /**
  * This class can be used to send translation requests to the server. Responses
@@ -17,7 +17,7 @@ import '../util/Guid.js';
  * @param {Bestia.PubSub}
  *            pubsub - Publish/Subscriber reference.
  */
-class I18n {
+export default class I18n {
 	
 	constructor(pubsub) {
 	
@@ -85,7 +85,7 @@ class I18n {
 	 * Handler which will reset the cache if the user has changed the language.
 	 */
 	_languageChangedHandler(_, data) {
-		if (self._lang === data) {
+		if (this._lang === data) {
 			return;
 		}
 	

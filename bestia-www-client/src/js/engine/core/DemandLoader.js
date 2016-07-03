@@ -163,7 +163,7 @@ export default class DemandLoader {
 		 * this.loadPackData(pack, fnOnComplete); }.bind(this)); return; }
 		 */
 
-		fnOnComplete = fnOnComplete || Bestia.NOOP;
+		fnOnComplete = fnOnComplete || NOOP;
 
 		// Get the key. Keys in objects are not sorted but packs should contain only
 		// one key.
@@ -212,7 +212,7 @@ export default class DemandLoader {
 			return;
 		}
 
-		fnOnComplete = fnOnComplete || Bestia.NOOP;
+		fnOnComplete = fnOnComplete || NOOP;
 
 		// Check if a load is running. If this is the case only add the callback
 		// function to be executed when the load completes.

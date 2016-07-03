@@ -37,11 +37,11 @@ export default class InitialLoadingState {
 		this.ctx.indicatorManager.load();
 		this.ctx.fxManager.load();
 
-	};
+	}
 
-	create = function() {
+	create() {
 
 		this._pubsub.publish(Signal.ENGINE_INIT_LOADED);
-	};
+	}
 
-};
+}

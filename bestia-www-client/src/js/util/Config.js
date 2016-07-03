@@ -48,14 +48,14 @@ export default class Config {
 		this.locale = ko.observable('de-DE');
 	
 		// Register for messages.
-		pubsub.subscribe('server.info', this._handle_onMessage.bind(this));
-		pubsub.subscribe('system.auth', this._handle_onAuth.bind(this));
+		pubsub.subscribe('server.info', this._handleOnMessage.bind(this));
+		pubsub.subscribe('system.auth', this._handleOnAuth.bind(this));
 	}
 	
 	/**
 	 * Handler for setting the config values emitted by the server.
 	 */
-	_handle_onMessage(_, msg) {
+	_handleOnMessage(_, msg) {
 		this.zones(msg.z);
 		this.version(msg.v);
 		this.connectedPlayer(msg.cp);
@@ -66,7 +66,7 @@ export default class Config {
 	/**
 	 * Handler for setting the auth values emit by the system during login.
 	 */
-	_handle_onAuth(_, msg) {
+	_handleOnAuth(_, msg) {
 		this.userName(msg.username);
 		this.accountId(msg.accId);
 	}

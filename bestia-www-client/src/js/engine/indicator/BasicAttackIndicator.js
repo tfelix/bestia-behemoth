@@ -8,7 +8,7 @@ import Signal from '../../io/Signal.js';
  */
 export default class BasicAttackIndicator extends Indicator {
 	
-	constructor() {
+	constructor(manager) {
 		super(manager);
 		
 		/**

@@ -47,7 +47,7 @@ export default class SpriteEntity {
 
 		// Re-set position so the sprite gets now postioned.
 		this.setPosition(this.position.x, this.position.y);
-	};
+	}
 
 	/**
 	 * Helper function to setup a sprite with all the information contained
@@ -169,7 +169,7 @@ export default class SpriteEntity {
 		}
 
 		this._sprite.play(name);
-	};
+	}
 
 	/**
 	 * Tests if the entity sprite supports a certain animation name. It gets a
@@ -184,7 +184,7 @@ export default class SpriteEntity {
 		}
 
 		return this._availableAnimationNames.indexOf(name) !== -1;
-	};
+	}
 
 	/**
 	 * Tries to find a alternate animation. If no supported animation could be
@@ -223,7 +223,7 @@ export default class SpriteEntity {
 		}
 
 		return null;
-	};
+	}
 
 	/**
 	 * Stops a current movement.

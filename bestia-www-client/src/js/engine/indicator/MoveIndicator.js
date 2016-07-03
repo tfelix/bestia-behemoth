@@ -1,4 +1,5 @@
 import Indicator from './Indicator.js';
+import Message from '../../io/messages/Message.js';
 import Signal from '../../io/Signal.js';
 
 /**
@@ -41,8 +42,8 @@ export default class MoveIndicator extends Indicator {
 		}
 
 		path = path.reverse();
-		var msg = new Bestia.Message.BestiaMove(player.playerBestiaId, path, this._ctx.playerBestia.walkspeed());
-		this._ctx.pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
+		var msg = new Message.BestiaMove(player.playerBestiaId, path, this._ctx.playerBestia.walkspeed());
+		this._ctx.pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 
 		// Start movement locally as well.
 		player.moveTo(path, this._ctx.playerBestia.walkspeed());
