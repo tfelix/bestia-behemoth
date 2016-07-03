@@ -3,7 +3,7 @@ import EngineContext from './core/EngineContext.js';
 import BootState from './states/BootState.js';
 import ConnectingState from './states/ConnectingState.js';
 import GameState from './states/GameState.js';
-import IntializeState from './states/InitializeState.js';
+import InitializeState from './states/InitializeState.js';
 import LoadingState from './states/LoadingState.js';
 
 /**
@@ -29,7 +29,7 @@ export default class Engine {
 		 * other classes. Note that this object is only fully initialized after the
 		 * engine has started (that means has passed the boot state).
 		 */
-		this.ctx = new EngineContext(pubsub, this, urlHelper);
+		this.ctx = new EngineContext(pubsub, this, url);
 
 		// Determine the size of the canvas. And create the game object.
 		var height = $(window).height();
@@ -39,7 +39,7 @@ export default class Engine {
 
 		this.game.state.add('boot', new BootState(this));
 		this.game.state.add('connecting', new ConnectingState(this));
-		this.game.state.add('initial_loading', new InitialLoadingState(this));
+		this.game.state.add('initial_loading', new InitializeState(this));
 		this.game.state.add('load', new LoadingState(this));
 		this.game.state.add('game', new GameState(this));
 
@@ -65,30 +65,30 @@ export default class Engine {
 	/**
 	 * Triggers a mapload if a bestia was selected.
 	 */
-	_handlerOnBestiaSelected = function(_, data) {
+	_handlerOnBestiaSelected(_, data) {
 		console.debug('New bestia selected. Starting loading process.');
 		this.bestia = data;
 		this.loadMap(data);
-	};
+	}
 
 	/**
 	 * Shows the "now connecting" screen to visualize connection lost.
 	 */
-	_handlerOnConnectionLost = function() {
+	_handlerOnConnectionLost() {
 		this.game.state.start('connecting');
-	};
+	}
 
-	_handlerOnInitLoaded = function() {
+	_handlerOnInitLoaded() {
 		this.game.state.start('connecting');
-	};
+	}
 
-	_handlerOnBooted = function() {
+	_handlerOnBooted() {
 		this.game.state.start('initial_loading');
-	};
+	}
 
-	_handlerOnFinishedMapload = function() {
+	_handlerOnFinishedMapload() {
 		this.game.state.start('game');
-	};
+	}
 
 	/**
 	 * Loads a certain map. If the map is different then the current map it will
@@ -110,6 +110,5 @@ export default class Engine {
 		}
 		// else: Partial load only (just switch view to active bestia).
 		// TODO
-
 	}
 }

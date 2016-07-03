@@ -3,8 +3,9 @@
  * etc. Maybe this will be broken down further.
  */
 export default class SimpleObjectBuilder extends Builder {
-	constructor(factory, ctx);
+	constructor(factory, ctx) {
 		super(factory, ctx);
+		
 		// Register with factory.
 		this.type = 'simpleobject';
 		this.version = 1;

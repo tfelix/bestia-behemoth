@@ -3,7 +3,7 @@ import Builder from './Builder.js';
 /**
  * Responsible for building items on the map.
  */
-export default class ItemBuilder extend Builder {
+export default class ItemBuilder extends Builder {
 	constructor(factory, ctx) {
 		super(factory, ctx);
 		

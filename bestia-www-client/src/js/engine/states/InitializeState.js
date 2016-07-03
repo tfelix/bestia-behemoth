@@ -10,7 +10,7 @@ import Signal from '../../io/Signal.js';
  * @constructor
  * @class Bestia.Engine.States.InitialLoadingState
  */
-export default class InitialLoadingState {
+export default class InitializeState {
 	
 	constructor(engine) {
 		this.ctx = engine.ctx;
