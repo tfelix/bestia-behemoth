@@ -9,7 +9,6 @@ export default class Builder {
 		this._factory = factory;
 		
 		this._ctx = ctx;
-
 	}
 
 	/**
@@ -24,15 +23,13 @@ export default class Builder {
 	/**
 	 * Checks wenever a concrete builder can generate/build a given dataset.
 	 */
-	canBuild = function(data) {
+	canBuild(data) {
 		return data.type === this.type && data.version === this.version;
 	}
 
 	
-	load(descFile, fnOnComplete) {
-		
+	load(descFile, fnOnComplete) {	
 		var pack = descFile.assetpack;
 		this._ctx.loader.loadPackData(pack, fnOnComplete);
-
 	}
 }

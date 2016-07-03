@@ -1,9 +1,9 @@
 import DamageEntity from './DamageEntity.js';
-import DamageStyle from '.DamageStyle.js';
+import DamageStyle from './DamageStyle.js';
 	
 export default class DamageCriticalEntity extends DamageEntity {
 	constructor(game, pos, dmg) {
-
+		super(game, pos, dmg);
 		// no op.
 
 	}

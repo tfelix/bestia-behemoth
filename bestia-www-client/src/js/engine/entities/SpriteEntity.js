@@ -1,7 +1,7 @@
 import Entity from './Entity.js';
 
 
-export default class SpriteEntity {
+export default class SpriteEntity extends Entity {
 	
 	constructor(ctx, uuid, x, y, desc) {
 		super(ctx, uuid);

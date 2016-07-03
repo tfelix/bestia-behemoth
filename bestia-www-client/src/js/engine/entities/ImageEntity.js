@@ -1,16 +1,16 @@
 import Entity from './Entity.js';
-import Signal form '../../io/Signal.js';
+import Signal from '../../io/Signal.js';
 
 export default class ImageEntity extends Entity {
 	constructor(ctx, uuid, x, y, desc) {
-		Bestia.Engine.BasicEntity.call(this, ctx, uuid);
+		super(ctx, uuid);
 
 		this._data = desc;
 
 		this.setPosition(x, y);
 	}
 	
-	setSprite = function(spriteName) {
+	setSprite(spriteName) {
 
 		this._sprite = this._game.add.image(0, 0, spriteName);
 		
@@ -24,7 +24,7 @@ export default class ImageEntity extends Entity {
 
 		// Re-set position so the sprite gets now postioned.
 		this.setPosition(this.position.x, this.position.y);
-	};
+	}
 
 	_onOverHandler() {
 		this._ctx.pubsub.publish(Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_over', entity: this});
@@ -76,14 +76,6 @@ export default class ImageEntity extends Entity {
 		}
 		
 		this.setPosition(msg.x, msg.y);
-	}
-
-	/**
-	 * Can be used to position related child sprites (like weapons or a head) frame
-	 * by frame.
-	 */
-	update() {
-		// TODO
 	}
 
 	/**

@@ -3,6 +3,8 @@ import PlayerMultispriteBuilder from './PlayerMultispriteBuilder.js';
 import SpriteBuilder from './SpriteBuilder.js';
 import SimpleObjectBuilder from './SimpleObjectBuilder.js';
 import ItemBuilder from './ItemBuilder.js';
+import NOOP from '../../../util/NOOP.js';
+
 
 /**
  * The factory is responsible for loading all the needed assets to display a
@@ -35,9 +37,18 @@ export default class EntityFactory {
 		this.builder.push(new SimpleObjectBuilder(this, ctx));
 		this.builder.push(new ItemBuilder(this, ctx));
 	}
+	
+	/**
+	 * Registers dynamically new builder objects which react upon incoming entity
+	 * update messages.
+	 */
+	register(builder) {
+		alert("Geht");
+		this.builder.push(builder);
+	}
 
-	build = function(data, fnOnComplete) {
-		fnOnComplete = fnOnComplete || Bestia.NOOP;
+	build(data, fnOnComplete) {
+		fnOnComplete = fnOnComplete || NOOP;
 
 		// Do we already have the desc file?
 		var descFile = this._getDescriptionFile(data);
@@ -49,10 +60,9 @@ export default class EntityFactory {
 			this.descLoader.loadDescription(data, this._continueBuild.bind(this, data, fnOnComplete));
 
 		} else {
-
 			this._continueBuild(data, fnOnComplete, descFile);
 		}
-	};
+	}
 
 	_continueBuild(data, fnOnComplete, descFile) {
 		var b = this._getBuilder(data, descFile);

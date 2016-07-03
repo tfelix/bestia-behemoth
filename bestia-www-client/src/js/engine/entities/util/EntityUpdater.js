@@ -29,16 +29,16 @@ export default class EntityUpdater{
 		this._ctx = ctx;
 
 		// === SUBSCRIBE ===
-		this._ctx.pubsub.subscribe(Bestia.MID.ENTITY_UPDATE, this._onUpdateHandler.bind(this));
-		this._ctx.pubsub.subscribe(Bestia.MID.ENTITY_MOVE, this._onMoveHandler.bind(this));
-		this._ctx.pubsub.subscribe(Bestia.MID.ENTITY_POSITION, this._onPositionHandler.bind(this));
+		this._ctx.pubsub.subscribe(MID.ENTITY_UPDATE, this._handlerOnUpdate.bind(this));
+		this._ctx.pubsub.subscribe(MID.ENTITY_MOVE, this._handlerOnMove.bind(this));
+		this._ctx.pubsub.subscribe(MID.ENTITY_POSITION, this._handlerOnPosition.bind(this));
 	}
 
 	/**
 	 * Makes a complete update of the entity. Which can be a vanish, create or
 	 * simple update.
 	 */
-	_onUpdateHandler(_, msg) {
+	_handlerOnUpdate(_, msg) {
 		if (this._isBuffered(msg)) {
 			return;
 		}
@@ -67,7 +67,7 @@ export default class EntityUpdater{
 	 * A movement prediction update was send. Plan the animation path to predict the
 	 * movement of the entity.
 	 */
-	_onMoveHandler(_, msg) {
+	_handlerOnMove(_, msg) {
 		if (this._isBuffered(msg)) {
 			return;
 		}
@@ -85,7 +85,7 @@ export default class EntityUpdater{
 	 * A position update was send. Check if the entity is on this place or at least
 	 * near it. If distance is too far away hard correct it.
 	 */
-	_onPositionHandler(_, msg) {
+	_handlerOnPosition(_, msg) {
 		if (this._isBuffered(msg)) {
 			return;
 		}

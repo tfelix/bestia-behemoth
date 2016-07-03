@@ -38,5 +38,5 @@ export default class MissDamageEntity extends DamageEntity {
 	 */
 	_createVisual(posX, posY) {
 		this._sprite = this._game.add.text(posX, posY, '', DamageStyle.STYLE_NORMAL);
-	};
+	}
 } 

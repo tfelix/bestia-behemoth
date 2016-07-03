@@ -1,4 +1,9 @@
 import EntityCacheManager from '../entities/util/EntityCacheManager.js';
+import DemandLoader from '../core/DemandLoader.js';
+import IndicatorManager from '../indicator/IndicatorManager.js';
+import EffectsManager from '../fx/EffectsManager.js';
+import EntityFactory from '../entities/EntityFactory.js';
+import EntityUpdater from '../util/EntityUpdater.js';
 
 /**
  * This class simply holds the reference to multiple important structures used
@@ -33,7 +38,7 @@ export default class EngineContext {
 		 */
 		this.engine = _engine;
 
-		this.entityCache = new Bestia.Engine.EntityCacheManager();
+		this.entityCache = new EntityCacheManager();
 
 		this.entityFactory = null;
 
@@ -83,11 +88,11 @@ export default class EngineContext {
 		// The order here is very important, since we set internal objects on which
 		// some of the ctors of the objects depend. Please check twice when changing
 		// this order if this will work!
-		this.loader = new Bestia.Engine.DemandLoader(this.game.load, this.game.cache, this.url);
-		this.indicatorManager = new Bestia.Engine.IndicatorManager(this);
-		this.fxManager = new Bestia.Engine.FX.EffectsManager(this);
-		this.entityFactory = new Bestia.Engine.EntityFactory(this);
-		this.entityUpdater = new Bestia.Engine.EntityUpdater(this);
+		this.loader = new DemandLoader(this.game.load, this.game.cache, this.url);
+		this.indicatorManager = new IndicatorManager(this);
+		this.fxManager = new EffectsManager(this);
+		this.entityFactory = new EntityFactory(this);
+		this.entityUpdater = new EntityUpdater(this);
 	}
 
 	/**

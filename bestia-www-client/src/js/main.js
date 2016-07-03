@@ -1,4 +1,4 @@
-import {Bestia, BestiaGame} from './behemoth.js';
+import {Bestia, BestiaGame} from './bestia.js';
 
 function main() {
 

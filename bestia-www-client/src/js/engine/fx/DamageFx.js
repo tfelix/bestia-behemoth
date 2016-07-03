@@ -1,4 +1,4 @@
-import MID from '../../io/Signal.js';
+import MID from '../../io/messages/Ids.js';
 import DamageEntity from '../entities/DamageEntity.js';
 import HealEntity from '../entities/HealEntity.js';
 import DamageMissEntity from '../entities/DamageMissEntity.js';
@@ -39,6 +39,8 @@ export default class DamageFx {
 			if(entity === null) {
 				return;
 			}
+			
+			var dmgFx = null;
 			
 			switch (x.t) {
 			case 'HEAL':

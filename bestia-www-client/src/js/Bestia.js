@@ -13,6 +13,7 @@ import Chat from './chat/Chat.js';
 import I18n from './util/I18n.js';
 import BestiaAttacks from './attack/BestiaAttacks.js';
 import BestiaInfoViewModel from './bestia/BestiaInfoViewModel.js';
+import Engine from './engine/Engine.js';
 
 
 export const Bestia = {
@@ -61,26 +62,20 @@ export class BestiaGame {
 		this.attacks = new BestiaAttacks(this.pubsub, this.i18n, this.urlHelper);
 		
 		this.chat = new Chat($('#chat'), this);
-		//this.engine = new Bestia.Engine(this.pubsub, this.urlHelper);
+		this.engine = new Engine(this.pubsub, this.urlHelper);
 		this.connection = new Connection(this.pubsub);
-		
-		var self = this;
 		
 		// Wire the internal messaging structures.
 		
 		/**
 		 * Start the connection process.
 		 */
-		this.pubsub.subscribe(Signal.IO_CONNECT, function(){
-			self.connection.connect();
-		});
+		this.pubsub.subscribe(Signal.IO_CONNECT, this.connection.connect);
 		
 		/**
 		 * Disconnect from the server.
 		 */
-		this.pubsub.subscribe(Signal.IO_DISCONNECT, function(){
-			self.connection.disconnect();
-		});
+		this.pubsub.subscribe(Signal.IO_DISCONNECT, this.connection.disconnect);
 		
 		/**
 		 * Authentication error. Go to logout.

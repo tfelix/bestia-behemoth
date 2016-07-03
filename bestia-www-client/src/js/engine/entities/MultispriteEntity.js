@@ -1,9 +1,5 @@
-import SpriteEntity from 'MultispriteEntity.js';
+import SpriteEntity from './SpriteEntity.js';
 
-var NULL_POS = {
-	x : 0,
-	y : 0
-};
 
 /**
  * This entity is a bit different. It supports a head sprite which can be moved
@@ -16,7 +12,7 @@ var NULL_POS = {
  *            playerBestiaId The ID of the player bestia represented by this
  *            sprite.
  */
-export default class MultispriteEntity extends SpriteEntity
+export default class MultispriteEntity extends SpriteEntity {
 	constrcutor(game, uuid, desc) {
 		super(game, uuid, -100, -100, desc);
 	
@@ -39,7 +35,7 @@ export default class MultispriteEntity extends SpriteEntity
 	 * @param currentAnim
 	 * @returns Name of the subsprite animation.
 	 */
-	_getSubspriteAnimation = function(subspriteName, currentAnim) {
+	_getSubspriteAnimation(subspriteName, currentAnim) {
 	
 		// TODO This works currnetly only if there is only one subsprite. Extend
 		// this for true multi sprite support.
@@ -60,7 +56,7 @@ export default class MultispriteEntity extends SpriteEntity
 	 * @param {string}
 	 *            spriteName - New name of the sprite.
 	 */
-	setSprite = function(spriteName) {
+	setSprite(spriteName) {
 		super.setSprite(spriteName);
 	
 		// Add the multi sprites if there are some of them.

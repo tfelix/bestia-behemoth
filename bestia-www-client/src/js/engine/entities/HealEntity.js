@@ -1,8 +1,8 @@
 import DamageEntity from './DamageEntity.js';
-import DamageStyle from '.DamageStyle.js';
+import DamageStyle from './DamageStyle.js';
 
 
-export default class HealDamage {
+export default class HealDamage extends DamageEntity {
 	constrcutor(game, pos, dmg) {
 		super(game, pos, dmg);
 

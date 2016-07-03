@@ -8,7 +8,8 @@ import DialogFx from './DialogFx.js';
 /**
  * FX Manager which is responsible for effect generation and display. Effects
  * are not so important to be tracked liked entities. In fact they can be
- * generated directly by the server or internally by the client if.
+ * generated directly by the server or also internally by the client if needed.
+ * This might be temporary effects like damage displays or particle effects.
  * 
  * TODO There must be a way to communicate with the effects.
  * 
