@@ -1,4 +1,4 @@
-
+import WorldHelper from '../core/WorldHelper.js';
 import Indicator from './Indicator.js';
 import Signal from '../../io/Signal.js';
 import World from '../core/World.js';
@@ -32,8 +32,8 @@ export default class ItemCast extends Indicator {
 		}
 
 		// Publish the cast information.
-		var pointerCords = Bestia.Engine.World.getTileXY(pointer.worldX, pointer.worldY);
-		this._manager.ctx.pubsub.publish(Bestia.Signal.INVENTORY_PERFORM_CAST, {
+		var pointerCords = WorldHelper.getTileXY(pointer.worldX, pointer.worldY);
+		this._manager.ctx.pubsub.publish(Signal.INVENTORY_PERFORM_CAST, {
 			item : this._item,
 			cords : pointerCords
 		});

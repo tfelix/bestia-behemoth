@@ -1,6 +1,8 @@
 
 import Indicator from './Indicator.js';
 import Signal from '../../io/Signal.js';
+import WorldHelper from '../core/WorldHelper.js';
+import Message from '../../io/messages/Message.js';
 
 /**
  * This indicator will manage the the snapping and colorization effect of an
@@ -81,9 +83,9 @@ export default class BasicAttackIndicator extends Indicator {
 
 		// Publish the cast information.
 		var player = this._ctx.getPlayerEntity();
-		var pointerCords = Bestia.Engine.World.getTileXY(pointer.worldX, pointer.worldY);
+		var pointerCords = WorldHelper.getTileXY(pointer.worldX, pointer.worldY);
 		
-		var d = Bestia.Engine.World.getDistance(player.position, pointerCords);
+		var d = WorldHelper.getDistance(player.position, pointerCords);
 		
 		if(d > this.RANGE) {
 			// Move to target.
@@ -95,15 +97,15 @@ export default class BasicAttackIndicator extends Indicator {
 			}
 
 			path = path.reverse();
-			var msg = new Bestia.Message.BestiaMove(player.playerBestiaId, path, this._ctx.playerBestia.walkspeed());
-			this._ctx.pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
+			let msg = new Message.BestiaMove(player.playerBestiaId, path, this._ctx.playerBestia.walkspeed());
+			this._ctx.pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 
 			// Start movement locally as well.
 			player.moveTo(path, this._ctx.playerBestia.walkspeed());
 		} else {
 			// Attack.
-			var msg = new Bestia.Message.BasicMeleeAttackUse(this._targetEntity.uuid);
-			this._ctx.pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
+			let msg = new Message.BasicMeleeAttackUse(this._targetEntity.uuid);
+			this._ctx.pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 		}
 	}	
 }

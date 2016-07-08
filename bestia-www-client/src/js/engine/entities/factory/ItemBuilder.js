@@ -1,4 +1,5 @@
 import Builder from './Builder.js';
+import ItemEntity from '../ItemEntity.js';
 
 /**
  * Responsible for building items on the map.
@@ -21,9 +22,9 @@ export default class ItemBuilder extends Builder {
 		var entity;
 		
 		if(this._loader.has(data.s, 'item')) {
-			entity = new Bestia.Engine.ItemEntity(this._ctx, data.uuid, data.x, data.y, data.s);
+			entity = new ItemEntity(this._ctx, data.uuid, data.x, data.y, data.s);
 		} else {
-			entity = new Bestia.Engine.ItemEntity(this._ctx, data.uuid, data.x, data.y);
+			entity = new ItemEntity(this._ctx, data.uuid, data.x, data.y);
 			
 			this._demandLoader.loadItemSprite(data.s, function() {
 

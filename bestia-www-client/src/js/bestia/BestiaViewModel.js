@@ -5,11 +5,11 @@
 
 import PubSub from '../util/PubSub.js';
 import UrlHelper from '../util/UrlHelper.js';
-//import Message from '../io/messages/Message.js';
-//import Signal from '../io/Signal.js';
-//import Attack from '../attack/Attack.js';
-//import ItemViewModel from '../inventory/ItemViewModel.js';
-//import StatusPointViewModel from './StatusPointViewModel.js';
+import Message from '../io/messages/Message.js';
+import Signal from '../io/Signal.js';
+import Attack from '../attack/Attack.js';
+import ItemViewModel from '../inventory/ItemViewModel.js';
+import StatusPointViewModel from './StatusPointViewModel.js';
 
 /**
  * ViewModel of a Bestia.
@@ -57,7 +57,7 @@ export default class BestiaViewModel {
 		});
 		this.level = ko.observable(1);
 		this.slot = ko.observable();
-		this.statusPoints = new Bestia.StatusPointViewModel();
+		this.statusPoints = new StatusPointViewModel();
 		
 		// TODO Das hier noch ins system einbinden.
 		this.walkspeed = ko.observable(1.0);
@@ -84,8 +84,8 @@ export default class BestiaViewModel {
 	 * @method Bestia.BestiaViewModel#selectBestia
 	 */
 	selectBestia() {
-		var activeMsg = new Bestia.Message.BestiaActivate(this.playerBestiaId());
-		this._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, activeMsg);
+		var activeMsg = new Message.BestiaActivate(this.playerBestiaId());
+		this._pubsub.publish(Signal.IO_SEND_MESSAGE, activeMsg);
 	}
 	
 
@@ -112,44 +112,44 @@ export default class BestiaViewModel {
 
 			// Update the attacks.
 			if (msg.atk1) {
-				this.attack1(new Bestia.BestiaAttack(msg.atk1));
+				this.attack1(new Attack(msg.atk1));
 			}
 
 			if (msg.atk2) {
-				this.attack2(new Bestia.BestiaAttack(msg.atk2));
+				this.attack2(new Attack(msg.atk2));
 			}
 
 			if (msg.atk3) {
-				this.attack3(new Bestia.BestiaAttack(msg.atk3));
+				this.attack3(new Attack(msg.atk3));
 			}
 
 			if (msg.atk4) {
-				this.attack4(new Bestia.BestiaAttack(msg.atk4));
+				this.attack4(new Attack(msg.atk4));
 			}
 
 			if (msg.atk5) {
-				this.attack5(new Bestia.BestiaAttack(msg.atk5));
+				this.attack5(new Attack(msg.atk5));
 			}
 
 			// Update the items.
 			if (msg.item1) {
-				this.item1(new Bestia.ItemViewModel(msg.item1, this._urlHelper));
+				this.item1(new ItemViewModel(msg.item1, this._urlHelper));
 			}
 
 			if (msg.item2) {
-				this.item2(new Bestia.ItemViewModel(msg.item2, this._urlHelper));
+				this.item2(new ItemViewModel(msg.item2, this._urlHelper));
 			}
 
 			if (msg.item3) {
-				this.item3(new Bestia.ItemViewModel(msg.item3, this._urlHelper));
+				this.item3(new ItemViewModel(msg.item3, this._urlHelper));
 			}
 
 			if (msg.item4) {
-				this.item4(new Bestia.ItemViewModel(msg.item4, this._urlHelper));
+				this.item4(new ItemViewModel(msg.item4, this._urlHelper));
 			}
 
 			if (msg.item5) {
-				this.item5(new Bestia.ItemViewModel(msg.item5, this._urlHelper));
+				this.item5(new ItemViewModel(msg.item5, this._urlHelper));
 			}
 		}
 		

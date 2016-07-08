@@ -4,6 +4,7 @@
  */
 
 import Signal from './Signal.js';
+import Storage from '../util/Storage.js';
 
 /**
  * Main message module. Responsible for sending messages to the server and to
@@ -156,7 +157,7 @@ export default class Connection {
 		var self = this;
 
 		// Prepare the request.
-		var store = new Bestia.Storage();
+		var store = new Storage();
 		var authData = store.getAuth();
 
 		if (!this.checkLoginData(authData)) {
@@ -164,7 +165,7 @@ export default class Connection {
 		}
 
 		// Emit the auth data signal so other parts of the app can react to it.
-		this._pubsub.publish(Bestia.Signal.AUTH, authData);
+		this._pubsub.publish(Signal.AUTH, authData);
 
 		var request = {
 			url : Bestia.Urls.bestiaWebsocket,

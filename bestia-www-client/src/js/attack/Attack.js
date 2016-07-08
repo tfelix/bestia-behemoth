@@ -11,7 +11,7 @@
  *            data - Optional: Data to initialize the attack. Otherwise default
  *            values are used.
  */
-export default class BestiaAttack {
+export default class Attack {
 	constructor(data, urlHelper) {
 		
 		var self = this;

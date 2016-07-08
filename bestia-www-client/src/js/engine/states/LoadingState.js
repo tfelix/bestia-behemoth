@@ -39,7 +39,7 @@ export default class LoadingState  {
 	
 	init() {
 		// Announce loading.
-		this._pubsub.publish(Bestia.Signal.ENGINE_PREPARE_MAPLOAD);
+		this._pubsub.publish(Signal.ENGINE_PREPARE_MAPLOAD);
 
 		console.debug("Loading map: " + this._ctx.playerBestia.location());
 

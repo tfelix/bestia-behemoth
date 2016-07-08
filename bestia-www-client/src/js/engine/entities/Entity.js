@@ -1,3 +1,4 @@
+import WorldHelper from '../core/WorldHelper.js';
 
 /**
  * Base entity for display via the bestia engine/phaser. The class contains all
@@ -104,7 +105,7 @@ export default class Entity {
 	_syncSpritePosition() {
 		// Correct the sprite position.
 		if (this._sprite !== null) {
-			var pos = Bestia.Engine.World.getSpritePxXY(this._position.x, this._position.y);
+			var pos = WorldHelper.getSpritePxXY(this._position.x, this._position.y);
 
 			this._sprite.x = pos.x;
 			this._sprite.y = pos.y;

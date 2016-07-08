@@ -2,11 +2,10 @@
 /**
  * This trait will extend an entity in a way that it will emit a certain 
  */
+/*
 Bestia.Engine.Traits.LightEmitter = function(entity) {
 	
-	/**
-	 * How fast the flicker of the fire will be.
-	 */
+
 	this._frequency = 1;
 	
 	this._min = 0.5;
@@ -33,4 +32,4 @@ Bestia.Engine.Traits.LightEmitter.prototype.drawLight = function(shadowMap) {
 	shadowMap.context.arc(700, 260, 200, 0, Math.PI * 2, false);
 	shadowMap.context.fill();
 	
-};
+};*/

@@ -1,3 +1,5 @@
+import I18n from '../../util/I18n.js';
+
 /**
  * The game world is represented by this class. It will provide a lot of helper
  * methods to do orientation, path finding and general display and management of
@@ -64,7 +66,7 @@ export default class World {
 	 */
 	displayMapName() {
 		// Translates the map db name.
-		var mapName = i18n.t('map.' + this.properties.mapDbName);
+		var mapName = I18n.t('map.' + this.properties.mapDbName);
 
 		// Spawn a centered text.
 		var text = this._game.add.text(this._game._width / 2, this._game._height / 2 - 100, mapName);
@@ -202,88 +204,6 @@ export default class World {
 
 		// Calculate a static collision map.
 
-	}
-
-	/**
-	 * Finds a path between a start and a goal coordinate. The coordiantes must
-	 * be given in tile space coordiantes.
-	 * 
-	 * @method Bestia.Engine.World#findPath
-	 * @public
-	 */
-	findPath(start, goal) {
-		return this._astar.findPath(start, goal);
-	}
-
-	/**
-	 * Returns the px coordiantes if tiles x and y coordiantes are given.
-	 * 
-	 * @method Bestia.Engine.World#getPxXY
-	 * @param {int}
-	 *            tileX - Tile x coordiantes.
-	 * @param {int}
-	 *            tileY - Tile y coordiantes.
-	 * @param {Object}
-	 *            obj - Optional: Object to update with the new coordiantes.
-	 * @return {Object} - X and Y px coordiantes in the form
-	 * @{code {x: INT, y: INT}}.
-	 */
-	getPxXY(tileX, tileY, obj) {
-		obj = obj || {
-			x : 0,
-			y : 0
-		};
-
-		obj.x = tileX * Bestia.Engine.World.TILE_SIZE;
-		obj.y = tileY * Bestia.Engine.World.TILE_SIZE;
-
-		return obj;
-	}
-
-	/**
-	 * Similar to getPxXY, but this time we take in regard the anchor of the
-	 * sprites. The sprites are anchored to the bottom center. So the need to
-	 * get the pixel coordiantes in the middle of the given tile in order to
-	 * place the sprite correctly in the middle of the tile.
-	 */
-	getSpritePxXY(tileX, tileY, obj) {
-		obj = obj || {
-			x : 0,
-			y : 0
-		};
-		this.getPxXY(tileX, tileY, obj);
-		obj.x = obj.x + Bestia.Engine.World.TILE_SIZE / 2;
-		obj.y = obj.y + Bestia.Engine.World.TILE_SIZE - 7;
-		return obj;
-	}
-
-	/**
-	 * Returns the tile coordinates if world pixel are given.
-	 * 
-	 * @method Bestia.Engine.World#getTileXY
-	 * @param {Object}
-	 *            obj - Optional: An object with gets updated with the new
-	 *            coordiantes.
-	 * @return {Object} - X and Y tile coordiantes in px in the form
-	 * @{code {x: INT, y: INT}}.
-	 */
-	getTileXY(pxX, pxY, obj) {
-		obj = obj || {
-			x : 0,
-			y : 0
-		};
-
-		obj.x = Math.floor(pxX / Bestia.Engine.World.TILE_SIZE);
-		obj.y = Math.floor(pxY / Bestia.Engine.World.TILE_SIZE);
-
-		return obj;
-	}
-
-	getDistance(c1, c2) {
-		var dX = c1.x - c2.x;
-		var dY = c1.y - c2.y;
-
-		return Math.floor(Math.sqrt(dX * dX + dY * dY));
 	}
 }
 

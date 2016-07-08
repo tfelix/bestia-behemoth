@@ -4,6 +4,7 @@ import SpriteBuilder from './SpriteBuilder.js';
 import SimpleObjectBuilder from './SimpleObjectBuilder.js';
 import ItemBuilder from './ItemBuilder.js';
 import NOOP from '../../../util/NOOP.js';
+import DescriptionLoader from '../core/DescriptionLoader.js';
 
 
 /**
@@ -24,7 +25,7 @@ export default class EntityFactory {
 	
 		this._ctx = ctx;
 	
-		this.descLoader = new Bestia.Engine.DescriptionLoader(ctx.loader, ctx.url);
+		this.descLoader = new DescriptionLoader(ctx.loader, ctx.url);
 	
 		/**
 		 * Registry for the builder to register themselfes.

@@ -1,6 +1,7 @@
 import Signal from '../io/Signal.js';
 import Message from '../io/messages/Message.js';
 import Attack from './Attack.js';
+import MID from '../io/messages/Ids.js';
 
 /**
  * <p>
@@ -194,9 +195,9 @@ export default class BestiaAttacks {
 			self.saveAttacks();
 		};
 		
-		pubsub.subscribe(Bestia.MID.ATTACK_LIST_RESPONSE, this._updateHandle.bind(this));
-		pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, this._invalidateListHandle.bind(this));
-		pubsub.subscribe(Bestia.Signal.I18N_LANG_CHANGED, this._invalidateListHandle.bind(this));
+		pubsub.subscribe(MID.ATTACK_LIST_RESPONSE, this._updateHandle.bind(this));
+		pubsub.subscribe(Signal.BESTIA_SELECTED, this._invalidateListHandle.bind(this));
+		pubsub.subscribe(Signal.I18N_LANG_CHANGED, this._invalidateListHandle.bind(this));
 	
 	}
 	
@@ -239,8 +240,8 @@ export default class BestiaAttacks {
 			return;
 		}
 
-		var msg = new Bestia.Message.AttackListRequest();
-		this._pubsub.publish(Bestia.Signal.IO_SEND, msg);
+		var msg = new Message.AttackListRequest();
+		this._pubsub.publish(Signal.IO_SEND, msg);
 	}
 
 	/**
@@ -342,7 +343,7 @@ export default class BestiaAttacks {
 		var attackTranslationList = [];
 
 		data.atks.forEach(function(val) {
-			var attack = new Bestia.BestiaAttack(val);
+			var attack = new Attack(val);
 			this.attacks.push(attack);
 			attackTranslationList.push(attack);
 		}, this);

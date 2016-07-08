@@ -6,6 +6,8 @@
 import Signal from '../io/Signal.js';
 import MID from '../io/messages/MID.js';
 import Message from '../io/messages/Message.js';
+import InputEvent from '../input/Input.js';
+import ItemViewModel from './ItemViewModel.js';
 
 /**
  * Inventory is hooking into inventory messages from the server and manages item
@@ -341,19 +343,19 @@ export default class Inventory {
 	_handlerInputCastItem(_, slotN) {
 
 		switch (slotN) {
-		case Bestia.Input.Event.ITEM_1_USE:
+		case InputEvent.ITEM_1_USE:
 			this.useItemSlot(1);
 			break;
-		case Bestia.Input.Event.ITEM_2_USE:
+		case InputEvent.ITEM_2_USE:
 			this.useItemSlot(2);
 			break;
-		case Bestia.Input.Event.ITEM_3_USE:
+		case InputEvent.ITEM_3_USE:
 			this.useItemSlot(3);
 			break;
-		case Bestia.Input.Event.ITEM_4_USE:
+		case InputEvent.ITEM_4_USE:
 			this.useItemSlot(4);
 			break;
-		case Bestia.Input.Event.ITEM_5_USE:
+		case InputEvent.ITEM_5_USE:
 			this.useItemSlot(5);
 			break;
 		default:
@@ -379,7 +381,7 @@ export default class Inventory {
 			var msg = new Message.InventoryItemCast(data.item.playerItemId(), this._selectedBestia.playerBestiaId(),
 					data.cords.x, data.cords.y);
 
-			this._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
+			this._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 		}
 
 		/**
@@ -392,7 +394,7 @@ export default class Inventory {
 			this.dropAmount(0);
 
 			data.pis.forEach(function(val) {
-				var item = new Bestia.ItemViewModel(val, this._urlHelper);
+				var item = new ItemViewModel(val, this._urlHelper);
 				newItems.push(item);
 				this.allItems.push(item);
 			}, this);
@@ -422,7 +424,7 @@ export default class Inventory {
 					// Item is added to the inventory.
 					if (item === null) {
 						// Add the item to the inventory.
-						var newItem = new Bestia.ItemViewModel(val);
+						var newItem = new ItemViewModel(val);
 						this.allItems.push(newItem);
 						newItems.push(newItem);
 					} else {
@@ -453,14 +455,14 @@ export default class Inventory {
 				this._translateItems(newItems, function() {
 					announceItems.forEach(function(val) {
 						// Send notifications for other sub systems.
-						this._pubsub.publish(Bestia.Signal.INVENTORY_ITEM_ADD, val.item, val.amount);
+						this._pubsub.publish(Signal.INVENTORY_ITEM_ADD, val.item, val.amount);
 					}, this);
 				});
 			} else {
 				// Just announce. Items already translated.
 				announceItems.forEach(function(val) {
 					// Send notifications for other sub systems.
-					this._pubsub.publish(Bestia.Signal.INVENTORY_ITEM_ADD, val.item, val.amount);
+					this._pubsub.publish(Signal.INVENTORY_ITEM_ADD, val.item, val.amount);
 				}, this);
 			}
 
@@ -612,8 +614,8 @@ export default class Inventory {
 			var piId4 = this.itemSlot4() ? this.itemSlot4().playerItemId() : null;
 			var piId5 = this.itemSlot5() ? this.itemSlot5().playerItemId() : null;
 			var bestiaId = this._selectedBestia.playerBestiaId();
-			var msg = new Bestia.Message.ItemSet(bestiaId, piId1, piId2, piId3, piId4, piId5);
-			this._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
+			var msg = new Message.ItemSet(bestiaId, piId1, piId2, piId3, piId4, piId5);
+			this._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 		}
 
 		/**

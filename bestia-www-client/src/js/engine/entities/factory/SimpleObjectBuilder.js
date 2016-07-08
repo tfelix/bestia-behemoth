@@ -1,3 +1,5 @@
+import Builder from './Builder.js';
+
 /**
  * Responsible for building simple objects. This consists of particle emitters
  * etc. Maybe this will be broken down further.
@@ -52,7 +54,4 @@ export default class SimpleObjectBuilder extends Builder {
 			return null;
 		}
 	}
-}
-
-
 }

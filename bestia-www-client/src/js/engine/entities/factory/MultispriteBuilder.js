@@ -84,7 +84,7 @@ export default class MultispriteBuilder extends Builder {
 			});
 
 			// Also include the offset file for this combination.
-			var offsetFileName = Bestia.Engine.MultispriteEntity.getOffsetFilename(msName, key);
+			var offsetFileName = MultispriteEntity.getOffsetFilename(msName, key);
 			packArray.push({
 				type : "json",
 				key : offsetFileName,

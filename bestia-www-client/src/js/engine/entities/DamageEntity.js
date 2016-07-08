@@ -1,4 +1,5 @@
 import Entity from './Entity.js';
+import DamageStyle from './DamageStyle.js';
 
 
 /**
@@ -59,7 +60,7 @@ export default class DamageEntity extends Entity {
 	 * @method Bestia.Engine.Entity.Damage#_display
 	 */
 	_createVisual(posX, posY) {
-		this._sprite = this._game.add.text(posX, posY - 50, '', Bestia.Engine.FX.Damage.STYLE_NORMAL);
+		this._sprite = this._game.add.text(posX, posY - 50, '', DamageStyle.STYLE_NORMAL);
 	}
 
 	/**

@@ -3,6 +3,19 @@
  * @copyright 2015 Thomas Felix
  */
 
+import Message from '../io/messages/Message.js';
+import Signal from '../io/Signal.js';
+import MID from '../io/messages/Ids.js';
+import ChatMessage from './ChatMessage.js';
+import BasicCommand from './commands/BasicCommand.js';
+import ClearCommand from './commands/ClearCommand.js';
+import HelpCommand from './commands/HelpCommand.js';
+import ModeGuildCommand from './commands/ModeGuildCommand.js';
+import ModePublicCommand from './commands/ModePublicCommand.js';
+import ModeWhisperCommand from './commands/ModeWhisperCommand.js';
+import ModePartyCommand from './commands/ModePartyCommand.js';
+import I18n from '../util/I18n.js';
+
 /**
  * Chat for the bestia client. It subscribes to the necessairy messages to get
  * informed if new messages arrive. Updates and displays the messages. Will
@@ -86,16 +99,16 @@ export default class Chat {
 		 */
 		this.modeText = ko.computed(function() {
 			if (self.mode() == 'PUBLIC') {
-				return i18n.t('chat.public');
+				return I18n.t('chat.public');
 			}
 			if (self.mode() == 'PARTY') {
-				return i18n.t('chat.party');
+				return I18n.t('chat.party');
 			}
 			if (self.mode() == 'GUILD') {
-				return i18n.t('chat.guild');
+				return I18n.t('chat.guild');
 			}
 	
-			return i18n.t('chat.public');
+			return I18n.t('chat.public');
 		});
 	
 		/**
@@ -139,7 +152,7 @@ export default class Chat {
 		this.text.subscribe(this._identifyLocalCommandTyping.bind(this));
 	
 		// Finally subscribe to chat messages.
-		this._pubsub.subscribe(Bestia.MID.CHAT_MESSAGE, function(_, msg) {
+		this._pubsub.subscribe(MID.CHAT_MESSAGE, function(_, msg) {
 			self.addMessage(msg);
 		});
 	
@@ -147,44 +160,44 @@ export default class Chat {
 		// once this is done.
 		var handleAuthEvent = function(_, data) {
 			self.LOCAL_NICKNAME = data.username;
-			self._pubsub.unsubscribe(Bestia.Signal.AUTH, handleAuthEvent);
+			self._pubsub.unsubscribe(Signal.AUTH, handleAuthEvent);
 		};
-		this._pubsub.subscribe(Bestia.Signal.AUTH, handleAuthEvent);
+		this._pubsub.subscribe(Signal.AUTH, handleAuthEvent);
 	
 		// Handle the selection of a new bestia for the bestia id
 		// (chat messages are input messages).
-		this._pubsub.subscribe(Bestia.Signal.BESTIA_SELECTED, function(_, bestia) {
+		this._pubsub.subscribe(Signal.BESTIA_SELECTED, function(_, bestia) {
 			self._currentBestiaId = bestia.playerBestiaId();
 		});
 	
 		// When the game enters the loading menu hide the chat.
-		this._pubsub.subscribe(Bestia.Signal.ENGINE_PREPARE_MAPLOAD, function() {
+		this._pubsub.subscribe(Signal.ENGINE_PREPARE_MAPLOAD, function() {
 			self.isVisible(false);
 		});
 	
 		// Check the focus and blur events on inputs to notify input ctrl.
 		$(this.domEle).find('input').focusin(function() {
-			this._pubsub.publish(Bestia.Signal.INPUT_LISTEN, false);
+			this._pubsub.publish(Signal.INPUT_LISTEN, false);
 		}.bind(this)).focusout(function() {
-			this._pubsub.publish(Bestia.Signal.INPUT_LISTEN, true);
+			this._pubsub.publish(Signal.INPUT_LISTEN, true);
 		}.bind(this));
 	
 		// When the game is displayed also display the chat.
-		this._pubsub.subscribe(Bestia.Signal.ENGINE_FINISHED_MAPLOAD, function() {
+		this._pubsub.subscribe(Signal.ENGINE_FINISHED_MAPLOAD, function() {
 			self.isVisible(true);
 		});
 	
-		this._pubsub.subscribe(Bestia.Signal.INVENTORY_ITEM_ADD, this._handleItemObtainedMsg.bind(this));
-		this._pubsub.subscribe(Bestia.Signal.CHAT_REGISTER_CMD, this._handleRegisterCommand.bind(this));
+		this._pubsub.subscribe(Signal.INVENTORY_ITEM_ADD, this._handleItemObtainedMsg.bind(this));
+		this._pubsub.subscribe(Signal.CHAT_REGISTER_CMD, this._handleRegisterCommand.bind(this));
 	
 		// Register the chat specific local commands.
-		this._handleRegisterCommand(null, new Bestia.Chat.Commands.ClearCommand());
-		this._handleRegisterCommand(null, new Bestia.Chat.Commands.HelpCommand());
+		this._handleRegisterCommand(null, new ClearCommand());
+		this._handleRegisterCommand(null, new HelpCommand());
 	
-		this._localRealtimeCommands.push(new Bestia.Chat.Commands.ModePublicCommand());
-		this._localRealtimeCommands.push(new Bestia.Chat.Commands.ModePartyCommand());
-		this._localRealtimeCommands.push(new Bestia.Chat.Commands.ModeGuildCommand());
-		this._localRealtimeCommands.push(new Bestia.Chat.Commands.ModeWhisperCommand());
+		this._localRealtimeCommands.push(new ModePublicCommand());
+		this._localRealtimeCommands.push(new ModePartyCommand());
+		this._localRealtimeCommands.push(new ModeGuildCommand());
+		this._localRealtimeCommands.push(new ModeWhisperCommand());
 	}
 	
 	/**
@@ -213,7 +226,7 @@ export default class Chat {
 		}
 
 		// Prepare and send the message to the server and add it to the local chat.
-		var msg = new Bestia.Message.Chat(this.mode(), msgText, this.whisperNick(), this.LOCAL_NICKNAME,
+		var msg = new Message.Chat(this.mode(), msgText, this.whisperNick(), this.LOCAL_NICKNAME,
 				this._currentBestiaId);
 
 		// Check if this was a command to be executed on the server and set the
@@ -226,7 +239,7 @@ export default class Chat {
 			this.addMessage(msg);
 		}
 
-		this._pubsub.publish(Bestia.Signal.IO_SEND_MESSAGE, msg);
+		this._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 	}
 
 	/**
@@ -258,7 +271,7 @@ export default class Chat {
 			scrollBottom = true;
 		}
 
-		var chatMsg = new Bestia.ChatMessage(msg);
+		var chatMsg = new ChatMessage(msg);
 		this.messages.push(chatMsg);
 
 		if (this.messages().length > this.MAX_MESSAGES) {
@@ -272,7 +285,7 @@ export default class Chat {
 		}
 
 		// Publish the message.
-		this._pubsub.publish(Bestia.Signal.CHAT_RECEIVED, chatMsg);
+		this._pubsub.publish(Signal.CHAT_RECEIVED, chatMsg);
 	}
 
 	/**
@@ -304,7 +317,7 @@ export default class Chat {
 	 *            registered.
 	 */
 	_handleRegisterCommand(_, cmd) {
-		if (!(cmd instanceof Bestia.Chat.Commands.BasicCommand)) {
+		if (!(cmd instanceof BasicCommand)) {
 			console.warn('Bestia.Chat#_handleRegisterCommand: Command is not an instance of BasicCommand.');
 		}
 
@@ -338,7 +351,7 @@ export default class Chat {
 	 */
 	addLocalMessage(msg, mode) {
 		mode = mode || "SYSTEM";
-		var msgObj = new Bestia.Message.Chat(mode, msg);
+		var msgObj = new Message.Chat(mode, msg);
 		this.addMessage(msgObj);
 	}
 

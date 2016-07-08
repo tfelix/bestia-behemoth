@@ -1,4 +1,4 @@
-import MID from '../../../io/messages/Ids';
+import MID from '../../../io/messages/Ids.js';
 
 /**
  * The updater will hook into the messaging system and listen for entity update
@@ -131,13 +131,13 @@ export default class EntityUpdater{
 		this._buffer = undefined;
 		temp.forEach(function(d) {
 			switch (d.topic) {
-			case Bestia.MID.ENTITY_UPDATE:
+			case MID.ENTITY_UPDATE:
 				this._onUpdateHandler(d.topic, d.msg);
 				break;
-			case Bestia.MID.ENTITY_MOVE:
+			case MID.ENTITY_MOVE:
 				this._onMoveHandler(d.topic, d.msg);
 				break;
-			case Bestia.MID.ENTITY_POSITION:
+			case MID.ENTITY_POSITION:
 				this._onPositionHandler(d.topic, d.msg);
 				break;
 			default:

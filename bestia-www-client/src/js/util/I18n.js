@@ -5,6 +5,7 @@
 
 import Signal from '../io/Signal.js';
 import guid from '../util/Guid.js';
+import Message from '../io/messages/Message.js';
 
 /**
  * This class can be used to send translation requests to the server. Responses
@@ -154,7 +155,7 @@ export default class I18n {
 	
 		} else {
 			// No array.
-			var catKey = this.getCatAndKey(key);
+			catKey = this.getCatAndKey(key);
 			if (catKey == null) {
 				return;
 			}
@@ -212,7 +213,7 @@ export default class I18n {
 			self._triggerCallback(uuid);
 		}
 	
-		var msg = new Bestia.Message.TranslationRequest(newDataItems, uuid);
+		var msg = new Message.TranslationRequest(newDataItems, uuid);
 		this._pubsub.publish(Signal.IO_SEND, msg);
 	}
 	

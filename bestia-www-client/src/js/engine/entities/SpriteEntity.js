@@ -1,4 +1,5 @@
 import Entity from './Entity.js';
+import WorldHelper from '../core/WorldHelper.js';
 
 
 export default class SpriteEntity extends Entity {
@@ -280,7 +281,7 @@ export default class SpriteEntity extends Entity {
 				return;
 			}
 
-			var cords = Bestia.Engine.World.getSpritePxXY(ele.x, ele.y);
+			var cords = WorldHelper.getSpritePxXY(ele.x, ele.y);
 
 			// We go single tile steps.
 			var duration = this._getWalkDuration(1, speed);

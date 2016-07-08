@@ -1,6 +1,6 @@
 /**
  * No operation function. Can be used to simplify callback checking.
  */
-Bestia.NOOP = function() {
+export default function NOOP() {
 	// no op.
-};
+}

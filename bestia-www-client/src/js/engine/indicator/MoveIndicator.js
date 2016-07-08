@@ -1,6 +1,7 @@
 import Indicator from './Indicator.js';
 import Message from '../../io/messages/Message.js';
 import Signal from '../../io/Signal.js';
+import WorldHelper from '../core/WorldHelper.js';
 
 /**
  * Basic indicator for visualization of the mouse pointer.
@@ -33,7 +34,7 @@ export default class MoveIndicator extends Indicator {
 		}
 
 		var start = player.position;
-		var goal = Bestia.Engine.World.getTileXY(pointer.worldX, pointer.worldY);
+		var goal = WorldHelper.getTileXY(pointer.worldX, pointer.worldY);
 
 		var path = this._ctx.zone.findPath(start, goal).nodes;
 
@@ -66,12 +67,10 @@ export default class MoveIndicator extends Indicator {
 		
 		var graphics = this._ctx.game.add.graphics(0, 0);
 		graphics.beginFill(0x42D65D);
-	    graphics.drawRect(6, 6, 20, 20);
-	    graphics.endFill();
-	    graphics.alpha = 0;
-	    
-	    this._effect = graphics;
-	    
-	    this._marker.addChild(this._effect);
+		graphics.drawRect(6, 6, 20, 20);
+		graphics.endFill();
+		graphics.alpha = 0;
+		this._effect = graphics;
+		this._marker.addChild(this._effect);
 	}
 }

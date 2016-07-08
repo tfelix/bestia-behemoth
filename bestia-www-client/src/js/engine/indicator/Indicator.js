@@ -1,4 +1,4 @@
-
+import WorldHelper from '../core/WorldHelper.js';
 import IndicatorManager from './IndicatorManager.js';
 
 /**
@@ -81,8 +81,7 @@ export default class Indicator {
 		var pointer = this._ctx.game.input.activePointer;
 
 		// From px to tiles and back.
-		var cords = Bestia.Engine.World.getTileXY(pointer.worldX, pointer.worldY);
-		Bestia.Engine.World.getPxXY(cords.x, cords.y, cords);
+		var cords = WorldHelper.getTileXY(pointer.worldX, pointer.worldY);
 
 		this._marker.x = cords.x;
 		this._marker.y = cords.y;

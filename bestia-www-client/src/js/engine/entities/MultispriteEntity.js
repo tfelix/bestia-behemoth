@@ -1,6 +1,7 @@
 import SpriteEntity from './SpriteEntity.js';
 
 
+
 /**
  * This entity is a bit different. It supports a head sprite which can be moved
  * async to the body sprite to give a certain more realistic look to the players
@@ -99,7 +100,7 @@ export default class MultispriteEntity extends SpriteEntity {
 			sprite.animations.add("top_left.png", [ "top_left.png" ], 0, true, false);
 	
 			// Generate offset information.
-			var offsetFileName = Bestia.Engine.MultispriteEntity.getOffsetFilename(msName, this._data.name);
+			var offsetFileName = this.getOffsetFilename(msName, this._data.name);
 			var offsets = this._game.cache.getJSON(offsetFileName) || {};
 			this._animOffset = offsets.offsets || [];
 	
@@ -141,7 +142,7 @@ export default class MultispriteEntity extends SpriteEntity {
 	
 					// Safety check.
 					if (ms.animations[j].offsets.length <= currentFrame) {
-						return Bestia.Engine.MultispriteEntity.NULL_POS;
+						return this.NULL_POS;
 					}
 	
 					return ms.animations[j].offsets[currentFrame];
@@ -149,7 +150,7 @@ export default class MultispriteEntity extends SpriteEntity {
 			}
 		}
 	
-		return Bestia.Engine.MultispriteEntity.NULL_POS;
+		return this.NULL_POS;
 	}
 
 	/**
@@ -160,8 +161,7 @@ export default class MultispriteEntity extends SpriteEntity {
 	 *            Name of the new animation to play.
 	 */
 	playAnimation(name) {
-		Bestia.Engine.SpriteEntity.prototype.playAnimation.call(this, name);
-	
+		super.playAnimation(name);
 		this._playSubspriteAnimation(name);
 	}
 
