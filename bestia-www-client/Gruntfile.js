@@ -57,9 +57,9 @@ module.exports = function(grunt) {
 		filedata = filedata.replace(/"version":\s?".+?",/, '"version": "'+versionOnly+'",');
 		grunt.file.write('package.json', filedata, opt);
 		
-		grunt.log.writeln("Updating src/js/bestia.js version...");
-		filedata = grunt.file.read('src/js/bestia.js', opt);
-		filedata = filedata.replace(/VERSION[\s+]?:[\s+]?["'].+?["'],/, 'VERSION: \''+version+'\',');
+		grunt.log.writeln("Updating src/js/Version.js version...");
+		filedata = grunt.file.read('src/js/Version.js', opt);
+		filedata = filedata.replace(/VERSION[\s+]?=[\s+]?["'].+?["'],/, 'VERSION: \''+version+'\',');
 		grunt.file.write('src/js/bestia.js', filedata, opt);
 	});
 
