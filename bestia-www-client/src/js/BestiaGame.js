@@ -17,7 +17,7 @@ import BestiaInfoViewModel from './bestia/BestiaInfoViewModel.js';
 import Engine from './engine/Engine.js';
 
 
-export class BestiaGame {
+export default class BestiaGame {
 	
 	constructor() {
 		this.pubsub = new PubSub();

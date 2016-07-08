@@ -3,11 +3,10 @@ import DamageStyle from './DamageStyle.js';
 
 
 export default class HealDamage extends DamageEntity {
-	constrcutor(game, pos, dmg) {
+	constructor(game, pos, dmg) {
 		super(game, pos, dmg);
 
 		// no op.
-
 	}
 
 	/**

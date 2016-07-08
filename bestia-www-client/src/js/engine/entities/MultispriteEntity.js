@@ -14,7 +14,7 @@ import SpriteEntity from './SpriteEntity.js';
  *            sprite.
  */
 export default class MultispriteEntity extends SpriteEntity {
-	constrcutor(game, uuid, desc) {
+	constructor(game, uuid, desc) {
 		super(game, uuid, -100, -100, desc);
 	
 		this._animOffset = {};

@@ -3,14 +3,14 @@
  * @copyright    2015 Thomas Felix
  */
 
+import Urls from '../Urls.js';
+
 /**
- * This object holds classes to manage the UI logic. They wire inside the event
+ * This file holds classes to manage the UI logic. They wire inside the event
  * system to listen for server messages and perform UI actions upon arrival of
  * these messages.
- * 
- * @namespace Bestia.Page
  */
-Bestia.Page = Bestia.Page || {};
+
 
 /**
  * Listens for 'system.logout' messages and perform a user notification and
@@ -24,26 +24,30 @@ Bestia.Page = Bestia.Page || {};
  * @param {Bestia.PubSub}
  *            pubsub - Publish/Subscriber interface.
  */
-Bestia.Page.LogoutDialog = function(domID, pubsub) {
+class LogoutDialog {
+	constructor(domID, pubsub) {
 
-	this.dialog = $(domID);
-	if (this.dialog.length === 0) {
-		throw "DOM node was not found.";
+		this.dialog = $(domID);
+		if (this.dialog.length === 0) {
+			throw "DOM node was not found.";
+		}
+
+		this.dialog.on('hide.bs.modal', function() {
+			window.location.replace(Urls.loginHtml);
+		});
+
+		pubsub.subscribe('system.logout', $.proxy(this._handleLogout, this));
 	}
+	
+	/**
+	 * Handler for the logout system message.
+	 * 
+	 * @private
+	 * @method Bestia.Page.LogoutDialog#_handleLogout
+	 */
+	_handleLogout() {
+		this.dialog.modal('show');
+	}
+}
 
-	this.dialog.on('hide.bs.modal', function() {
-		window.location.replace(Bestia.Urls.loginHtml);
-	});
-
-	pubsub.subscribe('system.logout', $.proxy(this._handleLogout, this));
-};
-
-/**
- * Handler for the logout system message.
- * 
- * @private
- * @method Bestia.Page.LogoutDialog#_handleLogout
- */
-Bestia.Page.LogoutDialog.prototype._handleLogout = function() {
-	this.dialog.modal('show');
-};
+export { LogoutDialog };

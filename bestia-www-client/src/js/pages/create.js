@@ -1,3 +1,5 @@
+import Urls from '../Urls.js';
+
 var CreateForm = function() {
 
 	var self = this;
@@ -23,7 +25,7 @@ var CreateForm = function() {
 	this.onSubmit = function() {
 
 		$.ajax({
-			url : Bestia.Urls.bestiaWebAPI + "/v1/account/create",
+			url : Urls.bestiaWebAPI + "/v1/account/create",
 			// TODO hier API austauschen wenn webserver PUT unterstützt.
 			type : 'GET',
 			data : {
@@ -33,7 +35,7 @@ var CreateForm = function() {
 				master : 1
 			},
 			success : function() {
-				window.location.href = Bestia.Urls.gameHtml;
+				window.location.href = Urls.gameHtml;
 			},
 			error : function() {
 				// Something went wrong. Display error.

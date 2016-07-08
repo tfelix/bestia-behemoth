@@ -7,18 +7,18 @@
 export default class BasicCommand {
 	
 	constructor() {
-	/**
-	 * Regex to detect the command itself.
-	 * 
-	 * @public
-	 * @constant
-	 */
-	this.cmdRegex = new RegExp();
-	this.paramRegex = new RegExp();
-
-	this.cmdHandle = '';
-	this.matches = null;
-}
+		/**
+		 * Regex to detect the command itself.
+		 * 
+		 * @public
+		 * @constant
+		 */
+		this.cmdRegex = new RegExp();
+		this.paramRegex = new RegExp();
+	
+		this.cmdHandle = '';
+		this.matches = null;
+	}
 	
 	/**
 	 * Checks if the command matches the input.

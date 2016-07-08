@@ -25,7 +25,4 @@ var Urls = {
 
 };
 
-export
-{
-	Urls
-};
+export default { Urls };

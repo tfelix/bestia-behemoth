@@ -11,7 +11,9 @@ import DamageStyle from './DamageStyle.js';
  */
 export default class DamageEntity extends Entity {
 	constructor(game, pos, dmg) {
-
+		// TODO Das hier fixen.
+		super(null, null);
+		
 		this._game = game;
 
 		/**

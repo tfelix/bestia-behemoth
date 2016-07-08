@@ -2,8 +2,8 @@ import EntityCacheManager from '../entities/util/EntityCacheManager.js';
 import DemandLoader from '../core/DemandLoader.js';
 import IndicatorManager from '../indicator/IndicatorManager.js';
 import EffectsManager from '../fx/EffectsManager.js';
-import EntityFactory from '../entities/EntityFactory.js';
-import EntityUpdater from '../util/EntityUpdater.js';
+import EntityFactory from '../entities/factory/EntityFactory.js';
+import EntityUpdater from '../entities/util/EntityUpdater.js';
 
 /**
  * This class simply holds the reference to multiple important structures used

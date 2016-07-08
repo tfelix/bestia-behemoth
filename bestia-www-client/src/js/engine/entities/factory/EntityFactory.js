@@ -4,7 +4,7 @@ import SpriteBuilder from './SpriteBuilder.js';
 import SimpleObjectBuilder from './SimpleObjectBuilder.js';
 import ItemBuilder from './ItemBuilder.js';
 import NOOP from '../../../util/NOOP.js';
-import DescriptionLoader from '../core/DescriptionLoader.js';
+import DescriptionLoader from '../../core/DescriptionLoader.js';
 
 
 /**

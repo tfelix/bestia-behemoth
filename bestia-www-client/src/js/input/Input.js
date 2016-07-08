@@ -139,4 +139,4 @@ class KeyboardListener {
 	}
 }
 
-export {InputEvent, KeyboardListener};
+export default {InputEvent, KeyboardListener};

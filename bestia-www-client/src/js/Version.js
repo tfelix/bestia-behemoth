@@ -6,6 +6,6 @@
 /**
  * Version of the bestia client software.
  */
-const VERSION = 'alpha-0.2.7-SNAPSHOT';
+var VERSION = 'alpha-0.2.7-SNAPSHOT';
 
-export { VERSION };
+export { VERSION as default };

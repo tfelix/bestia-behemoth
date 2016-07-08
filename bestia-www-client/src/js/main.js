@@ -1,8 +1,9 @@
-import BestiaGame from './bestia.js';
+import BestiaGame from './BestiaGame.js';
+import VERSION from './Version.js';
 
 function main() {
 
-	console.log("Starting Bestia Client V." + Bestia.VERSION);
+	console.log("Starting Bestia Client V." + VERSION);
 
 	// Creating the bestia game.
 	var game = new BestiaGame();
@@ -38,8 +39,6 @@ function main() {
 	// @endif
 }
 
-
-/*
 i18n.init({
 	lng : "de",
 	fallbackLng : false
@@ -49,6 +48,6 @@ i18n.init({
 
 	// Start game.
 	$(document).ready(main);
-});*/
+});
 
 $(document).ready(main);

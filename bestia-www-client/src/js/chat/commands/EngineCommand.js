@@ -9,6 +9,8 @@ import BasicCommand from './BasicCommand.js';
  */
 export default class EngineCommand extends BasicCommand {
 	constructor(brightnessFx) {
+		super();
+		
 		this.cmdRegex = /\/engine/i;
 		this.paramRegex = null;
 		this.cmdHandle = 'engine';

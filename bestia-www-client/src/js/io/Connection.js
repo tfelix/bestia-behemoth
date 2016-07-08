@@ -5,6 +5,7 @@
 
 import Signal from './Signal.js';
 import Storage from '../util/Storage.js';
+import Urls from '../Urls.js';
 
 /**
  * Main message module. Responsible for sending messages to the server and to
@@ -168,7 +169,7 @@ export default class Connection {
 		this._pubsub.publish(Signal.AUTH, authData);
 
 		var request = {
-			url : Bestia.Urls.bestiaWebsocket,
+			url : Urls.bestiaWebsocket,
 			contentType : "application/json",
 			logLevel : 'info',
 			transport : 'websocket',
