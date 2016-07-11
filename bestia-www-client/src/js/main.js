@@ -1,4 +1,5 @@
 import BestiaGame from './BestiaGame.js';
+import LogoutDialog from './dialog/LogoutDialog.js';
 import VERSION from './Version.js';
 
 function main() {
@@ -8,10 +9,10 @@ function main() {
 	// Creating the bestia game.
 	var game = new BestiaGame();
 
-	/*
+
 	// UI init must wait until dom is loaded and accessible.
-	Bestia.page = {
-		logoutDialog : new Bestia.Page.LogoutDialog('#modal-logout', game.pubsub)
+	var pages = {
+		logoutDialog : new LogoutDialog('#modal-logout', game.pubsub)
 	};
 
 	// Bind the DOM to the game.
@@ -31,11 +32,12 @@ function main() {
 		if (!game.attacks.isLoaded()) {
 			game.attacks.request();
 		}
-	});*/
+	});
 	
 	// Export game to global if dev.
 	// @ifdef DEVELOPMENT
 	window.bestiaGame = game;
+	window.bestiaPages = pages;
 	// @endif
 }
 

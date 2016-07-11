@@ -14,7 +14,6 @@ import ModeGuildCommand from './commands/ModeGuildCommand.js';
 import ModePublicCommand from './commands/ModePublicCommand.js';
 import ModeWhisperCommand from './commands/ModeWhisperCommand.js';
 import ModePartyCommand from './commands/ModePartyCommand.js';
-import I18n from '../util/I18n.js';
 
 /**
  * Chat for the bestia client. It subscribes to the necessairy messages to get
@@ -59,7 +58,7 @@ export default class Chat {
 	
 		this.domEle = domEle;
 		
-		this._myI18n = myI18n;
+		this._i18n = myI18n;
 	
 		this.chatEle = $(domEle).find('.chat-msgs:first').get(0);
 	
@@ -99,16 +98,16 @@ export default class Chat {
 		 */
 		this.modeText = ko.computed(function() {
 			if (self.mode() == 'PUBLIC') {
-				return I18n.t('chat.public');
+				return self._i18n.t('chat.public');
 			}
 			if (self.mode() == 'PARTY') {
-				return I18n.t('chat.party');
+				return self._i18n.t('chat.party');
 			}
 			if (self.mode() == 'GUILD') {
-				return I18n.t('chat.guild');
+				return self._i18n.t('chat.guild');
 			}
 	
-			return I18n.t('chat.public');
+			return self._i18n.t('chat.public');
 		});
 	
 		/**
@@ -299,7 +298,7 @@ export default class Chat {
 
 		var self = this;
 
-		this._myI18n.t('chat.item_obtained', function(t) {
+		this._i18n.t('chat.item_obtained', function(t) {
 			var text = t('chat.item_obtained').format(item.name(), newAmount);
 			self.addLocalMessage(text, "SYSTEM");
 		});

@@ -29,7 +29,7 @@ export default class BestiaGame {
 		this.bestias = new BestiaInfoViewModel(this.pubsub, this.urlHelper);
 		this.attacks = new BestiaAttacks(this.pubsub, this.i18n, this.urlHelper);
 		
-		this.chat = new Chat($('#chat'), this);
+		this.chat = new Chat($('#chat'), this, this.i18n);
 		this.engine = new Engine(this.pubsub, this.urlHelper);
 		this.connection = new Connection(this.pubsub);
 		

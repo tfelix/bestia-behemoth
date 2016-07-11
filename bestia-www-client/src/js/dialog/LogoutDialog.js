@@ -4,13 +4,7 @@
  */
 
 import Urls from '../Urls.js';
-
-/**
- * This file holds classes to manage the UI logic. They wire inside the event
- * system to listen for server messages and perform UI actions upon arrival of
- * these messages.
- */
-
+import Signal from '../io/Signal.js';
 
 /**
  * Listens for 'system.logout' messages and perform a user notification and
@@ -24,7 +18,7 @@ import Urls from '../Urls.js';
  * @param {Bestia.PubSub}
  *            pubsub - Publish/Subscriber interface.
  */
-class LogoutDialog {
+export default class LogoutDialog {
 	constructor(domID, pubsub) {
 
 		this.dialog = $(domID);
@@ -36,7 +30,7 @@ class LogoutDialog {
 			window.location.replace(Urls.loginHtml);
 		});
 
-		pubsub.subscribe('system.logout', $.proxy(this._handleLogout, this));
+		pubsub.subscribe(Signal.SYSTEM_LOGOUT, this._handleLogout.bind(this));
 	}
 	
 	/**
@@ -49,5 +43,3 @@ class LogoutDialog {
 		this.dialog.modal('show');
 	}
 }
-
-export { LogoutDialog };

@@ -4,7 +4,6 @@
  */
 
 import Signal from '../io/Signal.js';
-import PubSub from '../util/PubSub.js';
 import BestiaViewModel from './BestiaViewModel.js';
 
 /**
@@ -21,10 +20,10 @@ export default class BestiaInfoViewModel {
 	
 	constructor(pubsub, urlHelper) {
 
-	if (!(pubsub instanceof PubSub)) {
+	if (pubsub === null) {
 		throw "Bestia.BestiaInfoViewModel: Pubsub is not optional.";
 	}
-	if(!urlHelper) {
+	if(urlHelper === null) {
 		throw "UrlHelper can not be null.";
 	}
 

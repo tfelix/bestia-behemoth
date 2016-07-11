@@ -4,6 +4,11 @@
  * messaging via a Bestia.PubSub interface.
  */
 var Signal = {
+		
+	/**
+	 * Signal to logout the user.
+	 */
+	SYSTEM_LOGOUT: 'system.logout',
 
 	/**
 	 * Emitted when the system tries to authenticate.
