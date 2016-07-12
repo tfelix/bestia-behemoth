@@ -18,6 +18,9 @@
 		<module>bestia-www-client</module>
 		<module>bestia-gmserver</module>
 		<module>map-tmxloader</module>
+		<!-- Nextgen versions -->
+		<module>bestia-webserver-nextgen</module>
+		<module>bestia-zoneserver-nextgen</module>
 	</modules>
 
 	<properties>

@@ -1,0 +1,41 @@
+<html>
+<body>
+    <h1>Web Socket Sample</h1>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
+ 
+    <button onclick="connect()">Start</button>
+    <button onclick="close()">Stop!</button><br/><br/>
+    <textarea id="log" rows="20" cols="90"></textarea>
+	
+	<script>	
+	var sock = null;
+	
+		function connect() {
+			// defined a connection to a new socket endpoint
+			sock = new SockJS('/socket');
+		
+			
+			sock.onopen = function() {
+				console.log('open');
+				sock.send('test');
+			};
+			
+			sock.onmessage = function(e) {
+				console.log('message', e.data);
+			};
+				
+			sock.onclose = function() {
+				console.log('close');
+			};
+		}
+		
+		function close() {
+			if(sock == null) {
+				return;
+			}
+			sock.close();
+			console.log('closed');
+		}
+	</script>
+</body>
+</html>
