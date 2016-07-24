@@ -5,7 +5,7 @@ import java.io.Serializable;
 import com.artemis.Component;
 
 import net.bestia.model.domain.Bestia;
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 /**
  * Spawns the given mob after the given delay has passed on the defined
@@ -20,13 +20,13 @@ public class MobSpawn extends Component implements Serializable {
 	
 	public int delay;
 	public Bestia mob;
-	public Vector2 coordinates;
+	public Point coordinates;
 
 	public MobSpawn() {
 		// no op.
 	}
 
-	public MobSpawn(int delay, Bestia mob, Vector2 coordinates) {
+	public MobSpawn(int delay, Bestia mob, Point coordinates) {
 		this.delay = delay;
 		this.mob = mob;
 		this.coordinates = coordinates;

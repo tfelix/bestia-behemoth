@@ -7,7 +7,7 @@ import java.util.Queue;
 
 import com.artemis.Component;
 
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 /**
  * Allows an entity to be moved. It has can have a path and if it has a
@@ -22,7 +22,7 @@ public class Movement extends Component implements Serializable {
 
 	public static final float TILES_PER_SECOND = 3f;
 
-	public Queue<Vector2> path = new LinkedList<>();
+	public Queue<Point> path = new LinkedList<>();
 	private float walkspeed;
 	public float nextMove;
 	
@@ -36,7 +36,7 @@ public class Movement extends Component implements Serializable {
 		hasSendPredictions = false;
 	}
 
-	public Movement(float walkspeed, List<Vector2> path) {
+	public Movement(float walkspeed, List<Point> path) {
 		this.walkspeed = walkspeed;
 		// Clear it if artemis recycles an component.
 		this.path.clear();

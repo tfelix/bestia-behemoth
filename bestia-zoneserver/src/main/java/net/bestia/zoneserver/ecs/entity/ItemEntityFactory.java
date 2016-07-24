@@ -14,7 +14,7 @@ import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.DelayedRemove;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 /**
  * This is an experimental approach to interface with the ECS. Lets see if this
@@ -57,7 +57,7 @@ class ItemEntityFactory extends EntityFactory {
 	 * @param item
 	 * @param amount
 	 */
-	public void spawnItem(Vector2 loc, Item item, int amount) {
+	public void spawnItem(Point loc, Item item, int amount) {
 		final int entityId = world.create(itemArchetype);
 
 		positionMapper.get(entityId).setPos(loc.x, loc.y);

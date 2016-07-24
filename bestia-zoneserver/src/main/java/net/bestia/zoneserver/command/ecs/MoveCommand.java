@@ -7,7 +7,7 @@ import net.bestia.messages.Message;
 import net.bestia.messages.bestia.BestiaMoveMessage;
 import net.bestia.zoneserver.command.CommandContext;
 import net.bestia.zoneserver.ecs.component.Movement;
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,10 +43,10 @@ public class MoveCommand extends ECSCommand {
 		}
 
 		// Convert the strange JSON format to a path array.
-		final List<Vector2> path = new ArrayList<>(msg.getCordsX().size());
+		final List<Point> path = new ArrayList<>(msg.getCordsX().size());
 
 		for (int i = 0; i < msg.getCordsX().size(); i++) {
-			path.add(new Vector2(msg.getCordsX().get(i), msg.getCordsY().get(i)));
+			path.add(new Point(msg.getCordsX().get(i), msg.getCordsY().get(i)));
 		}
 
 		final Movement movement = player.edit().create(Movement.class);

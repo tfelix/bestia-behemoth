@@ -21,7 +21,7 @@ import net.bestia.zoneserver.script.Script;
 import net.bestia.zoneserver.script.ScriptApi;
 import net.bestia.zoneserver.script.ScriptBuilder;
 import net.bestia.zoneserver.zone.map.MapUtil;
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 /**
  * This command will try to use an attack on the current zone a bestia is on. It
@@ -86,8 +86,8 @@ public class AttackUseCommand extends ECSCommand {
 		}
 
 		// If there a target enemy? Or is it targeted on the ground.
-		final Vector2 targetPos;
-		final Vector2 playerPos = Vector2.fromLocation(getPlayerBestiaProxy().getLocation());
+		final Point targetPos;
+		final Point playerPos = Point.fromLocation(getPlayerBestiaProxy().getLocation());
 
 		final EntityProxy targetProxy;
 
@@ -95,7 +95,7 @@ public class AttackUseCommand extends ECSCommand {
 			// Get the target entity via UUID.
 			final Entity e = uuidManager.getEntity(UUID.fromString(atkMsg.getTargetEntityId()));
 			targetProxy = entityMapper.get(e).manager;
-			targetPos = Vector2.fromLocation(targetProxy.getLocation());
+			targetPos = Point.fromLocation(targetProxy.getLocation());
 
 			// If yes, is there a line of sight? (if needed)
 			if (entityAtk.needsLineOfSight()) {
@@ -104,7 +104,7 @@ public class AttackUseCommand extends ECSCommand {
 			}
 
 		} else {
-			targetPos = new Vector2(atkMsg.getX(), atkMsg.getY());
+			targetPos = new Point(atkMsg.getX(), atkMsg.getY());
 			targetProxy = null;
 		}
 

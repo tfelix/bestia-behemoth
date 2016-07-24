@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.zone.map;
 
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 public final class MapUtil {
 
@@ -11,7 +11,7 @@ public final class MapUtil {
 	 * @param p2
 	 * @return
 	 */
-	public static int getDistance(Vector2 p1, Vector2 p2) {
+	public static int getDistance(Point p1, Point p2) {
 		final int dX = p1.x - p2.x;
 		final int dY = p1.y - p2.y;
 		

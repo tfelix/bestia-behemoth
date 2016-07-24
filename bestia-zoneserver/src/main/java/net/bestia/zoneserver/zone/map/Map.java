@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import net.bestia.zoneserver.zone.shape.Rect;
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 import net.bestia.zoneserver.zone.spawn.Spawner;
 
 /**
@@ -33,8 +33,8 @@ public class Map {
 		public int width;
 		public int height;
 		public String tileset;
-		public Set<Vector2> collisions = new HashSet<>();
-		public java.util.Map<Vector2, Tile> tiles = new HashMap<>();
+		public Set<Point> collisions = new HashSet<>();
+		public java.util.Map<Point, Tile> tiles = new HashMap<>();
 		public String mapDbName;
 		public final List<MapPortalScript> portals = new ArrayList<>();
 		public final List<MapScriptTemplate> scripts = new ArrayList<>();
@@ -60,7 +60,7 @@ public class Map {
 	private final List<MapPortalScript> portals;
 	private final List<Spawner> spawns;
 
-	private java.util.Map<Vector2, Tile> tiles = new HashMap<>();
+	private java.util.Map<Point, Tile> tiles = new HashMap<>();
 	private final ICollisionMap collisions;
 
 	/**
@@ -88,8 +88,8 @@ public class Map {
 	 * Transfers the static map collisions into the collisoin map.
 	 */
 	private void setupCollisions() {
-		for(Entry<Vector2, Tile> t : tiles.entrySet()) {
-			final Vector2 v = t.getKey();
+		for(Entry<Point, Tile> t : tiles.entrySet()) {
+			final Point v = t.getKey();
 			collisions.setCollision(v.x, v.y, t.getValue().isWalkable());
 		}
 	}
@@ -103,7 +103,7 @@ public class Map {
 	 *            Coordinate to check.
 	 * @return TRUE if tile is walkable. FALSE otherwise.
 	 */
-	public boolean isWalkable(Vector2 cords) {
+	public boolean isWalkable(Point cords) {
 
 		if (!dimensions.collide(cords)) {
 			return false;
@@ -119,7 +119,7 @@ public class Map {
 	 *            The coordinates for the tile to get the walkspeed.
 	 * @return The walkspeed.
 	 */
-	public int getWalkspeed(Vector2 cords) {
+	public int getWalkspeed(Point cords) {
 		if (cords.x > dimensions.getWidth() || cords.y > dimensions.getHeight() || cords.x < 0 || cords.y < 0) {
 			return 0;
 		}

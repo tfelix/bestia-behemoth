@@ -162,7 +162,7 @@ public class Rect implements CollisionShape {
 	 * @return TRUE if it lies within, FALSE otherwise.
 	 */
 	@Override
-	public boolean collide(Vector2 s) {
+	public boolean collide(Point s) {
 		return CollisionHelper.collide(s, this);
 	}
 
@@ -187,8 +187,8 @@ public class Rect implements CollisionShape {
 	}
 
 	@Override
-	public Vector2 getAnchor() {
-		return new Vector2(anchorX, anchorY);
+	public Point getAnchor() {
+		return new Point(anchorX, anchorY);
 	}
 
 	@Override

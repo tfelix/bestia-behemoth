@@ -8,7 +8,7 @@ import java.util.PriorityQueue;
 import java.util.Set;
 
 import net.bestia.zoneserver.zone.map.Map;
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 /**
  * Uses the A* pathfinding algorithm to find a path.
@@ -27,13 +27,13 @@ class AStarPathfinder implements Pathfinder {
 	private class Node implements Comparable<Node> {
 
 		public final Node parent;
-		public final Vector2 p;
+		public final Point p;
 
 		public final double g; // g is distance from the source
 		public final double h; // h is the heuristic of destination.
 		public final double f; // f = g + h
 
-		public Node(Node parent, Vector2 p, Vector2 dest) {
+		public Node(Node parent, Point p, Point dest) {
 			this.parent = parent;
 			this.p = p;
 
@@ -120,15 +120,15 @@ class AStarPathfinder implements Pathfinder {
 	 * 
 	 * @param n
 	 */
-	private void addAdjacentNodesToQueue(Node n, Vector2 dest) {
-		final Vector2 last = n.p;
+	private void addAdjacentNodesToQueue(Node n, Point dest) {
+		final Point last = n.p;
 		for (int i = -1; i < 2; i++) {
 			for (int j = -1; j < 2; j++) {
 				if (i == 0 && j == 0) {
 					continue;
 				}
 
-				final Vector2 newP = new Vector2(last.x + i, last.y + j);
+				final Point newP = new Point(last.x + i, last.y + j);
 
 				if (newP.x < 0 || newP.y < 0) {
 					continue;
@@ -142,26 +142,26 @@ class AStarPathfinder implements Pathfinder {
 				// lest the upper or lower tile must be free aswell.
 				if (i == -1 && j == -1) {
 					// Top left.
-					if (!map.isWalkable(new Vector2(last.x, last.y - 1))
-							&& !map.isWalkable(new Vector2(last.x - 1, last.y))) {
+					if (!map.isWalkable(new Point(last.x, last.y - 1))
+							&& !map.isWalkable(new Point(last.x - 1, last.y))) {
 						continue;
 					}
 				} else if (i == 1 && j == -1) {
 					// top right
-					if (!map.isWalkable(new Vector2(last.x, last.y - 1))
-							&& !map.isWalkable(new Vector2(last.x + 1, last.y))) {
+					if (!map.isWalkable(new Point(last.x, last.y - 1))
+							&& !map.isWalkable(new Point(last.x + 1, last.y))) {
 						continue;
 					}
 				} else if (i == -1 && j == 1) {
 					// bottom left
-					if (!map.isWalkable(new Vector2(last.x - 1, last.y))
-							&& !map.isWalkable(new Vector2(last.x, last.y + 1))) {
+					if (!map.isWalkable(new Point(last.x - 1, last.y))
+							&& !map.isWalkable(new Point(last.x, last.y + 1))) {
 						continue;
 					}
 				} else if (i == 1 && j == 1) {
 					// bottom right.
-					if (!map.isWalkable(new Vector2(last.x + 1, last.y))
-							&& !map.isWalkable(new Vector2(last.x, last.y + 1))) {
+					if (!map.isWalkable(new Point(last.x + 1, last.y))
+							&& !map.isWalkable(new Point(last.x, last.y + 1))) {
 						continue;
 					}
 				}
@@ -180,7 +180,7 @@ class AStarPathfinder implements Pathfinder {
 	}
 
 	@Override
-	public List<Vector2> findPath(Vector2 start, Vector2 end) {
+	public List<Point> findPath(Point start, Point end) {
 		// Clear all queues.
 		openQueue.clear();
 		closedSet.clear();
@@ -221,8 +221,8 @@ class AStarPathfinder implements Pathfinder {
 		return null;
 	}
 
-	private List<Vector2> generatePath(Node n) {
-		final List<Vector2> path = new ArrayList<>();
+	private List<Point> generatePath(Node n) {
+		final List<Point> path = new ArrayList<>();
 		while (n != null) {
 			path.add(n.p);
 			n = n.parent;

@@ -19,7 +19,7 @@ final class CollisionHelper {
 	}
 
 	/**
-	 * Checks if a {@link Vector2} and a {@link Rect} collide.
+	 * Checks if a {@link Point} and a {@link Rect} collide.
 	 * 
 	 * @param s
 	 *            Vector.
@@ -27,7 +27,7 @@ final class CollisionHelper {
 	 *            Rect.
 	 * @return TRUE if they collide. FALSE otherwise.
 	 */
-	public static boolean collide(Vector2 s, Rect r) {
+	public static boolean collide(Point s, Rect r) {
 
 		final boolean xLeft = s.x < r.getX();
 		final boolean yTop = s.y < r.getY();
@@ -48,7 +48,7 @@ final class CollisionHelper {
 	 */
 	public static boolean collide(Circle s, Rect r) {
 
-		final Vector2 cc = s.getCenter();
+		final Point cc = s.getCenter();
 
 		if (r.collide(cc)) {
 			return true;
@@ -96,7 +96,7 @@ final class CollisionHelper {
 	}
 
 	/**
-	 * Checks if a {@link Circle} and a {@link Vector2} collide.
+	 * Checks if a {@link Circle} and a {@link Point} collide.
 	 * 
 	 * @param c
 	 *            Circle.
@@ -104,7 +104,7 @@ final class CollisionHelper {
 	 *            Vector.
 	 * @return TRUE if they collide. FALSE otherwise.
 	 */
-	public static boolean collide(Circle c, Vector2 v) {
+	public static boolean collide(Circle c, Point v) {
 		final int distance = Math.abs(c.getCenter().x - v.x) + Math.abs(c.getCenter().y - v.y);
 		return (distance <= c.getRadius());
 	}
@@ -143,7 +143,7 @@ final class CollisionHelper {
 	}
 
 	/**
-	 * Checks if two {@link Vector2} collide.
+	 * Checks if two {@link Point} collide.
 	 * 
 	 * @param s
 	 *            First vector.
@@ -151,7 +151,7 @@ final class CollisionHelper {
 	 *            Second vector.
 	 * @return TRUE if they collide. False otherwise.
 	 */
-	public static boolean collide(Vector2 s, Vector2 s2) {
+	public static boolean collide(Point s, Point s2) {
 		return s.x == s2.x && s.y == s2.y;
 	}
 

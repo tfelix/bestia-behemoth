@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import net.bestia.zoneserver.zone.shape.Rect;
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 /**
  * CLass holds reference to multiple areas (shapes) and provide a facility to
@@ -57,7 +57,7 @@ public class SpawnLocation {
 	 * 
 	 * @return A random coordinate from the spawn areas.
 	 */
-	public Vector2 getSpawn() {
+	public Point getSpawn() {
 
 		int i = rand.nextInt(maxValue);
 		// We execute the loop at least once.
@@ -74,7 +74,7 @@ public class SpawnLocation {
 		final int y = rand.nextInt(ps.rect.getHeight());
 		final int x = rand.nextInt(ps.rect.getWidth());
 
-		return new Vector2(ps.rect.getX() + x, ps.rect.getY() + y);
+		return new Point(ps.rect.getX() + x, ps.rect.getY() + y);
 	}
 
 	/**

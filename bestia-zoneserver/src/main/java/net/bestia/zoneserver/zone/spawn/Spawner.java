@@ -2,7 +2,7 @@ package net.bestia.zoneserver.zone.spawn;
 
 import java.util.Random;
 
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 /**
  * The {@link Spawner} manages data for the mob to spawn, the spawn delay and
@@ -67,7 +67,7 @@ public class Spawner {
 	 * 
 	 * @return The next spawn location for this mob.
 	 */
-	public Vector2 getNextSpawnLocation() {
+	public Point getNextSpawnLocation() {
 		return location.getSpawn();
 	}
 

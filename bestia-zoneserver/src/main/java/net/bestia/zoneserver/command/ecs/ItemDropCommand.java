@@ -13,7 +13,7 @@ import net.bestia.zoneserver.ecs.entity.EcsEntityFactory;
 import net.bestia.zoneserver.ecs.entity.EntityBuilder;
 import net.bestia.zoneserver.ecs.entity.EntityFactory;
 import net.bestia.zoneserver.proxy.InventoryProxy;
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 public class ItemDropCommand extends ECSCommand {
 
@@ -48,7 +48,7 @@ public class ItemDropCommand extends ECSCommand {
 
 		// Get position where to drop the item.
 		final Location playerLoc = getPlayerBestiaProxy().getLocation();
-		Vector2 loc = null;
+		Point loc = null;
 		int maxTries = 10;
 		while (maxTries-- > 0) {
 			int x = rand.nextInt(3) - 1; // from -1 to 1.
@@ -60,7 +60,7 @@ public class ItemDropCommand extends ECSCommand {
 			}
 
 			// Check if we dont drop onto a wall.
-			Vector2 tempLoc = new Vector2(playerLoc.getX() - x, playerLoc.getY() - y);
+			Point tempLoc = new Point(playerLoc.getX() - x, playerLoc.getY() - y);
 			if (map.getCollisions().isWalkable(tempLoc)) {
 				loc = tempLoc;
 				break;
@@ -69,7 +69,7 @@ public class ItemDropCommand extends ECSCommand {
 
 		if (loc == null) {
 			// Just drop on player position
-			loc = new Vector2(playerLoc.getX(), playerLoc.getY());
+			loc = new Point(playerLoc.getX(), playerLoc.getY());
 		}
 
 		final Item item = itemDao.findOne(msg.getItemId());

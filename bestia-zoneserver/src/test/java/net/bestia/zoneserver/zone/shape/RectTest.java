@@ -75,14 +75,14 @@ public class RectTest {
 	@Test
 	public void collide_vector2_true() {
 		Rect r1 = new Rect(5, 5, 3, 3);
-		Vector2 v1 = new Vector2(7, 8);
+		Point v1 = new Point(7, 8);
 		Assert.assertTrue(r1.collide(v1));
 	}
 	
 	@Test
 	public void collide_vector2_false() {
 		Rect r1 = new Rect(5, 5, 5, 3);
-		Vector2 v1 = new Vector2(17, 9);
+		Point v1 = new Point(17, 9);
 		Assert.assertFalse(r1.collide(v1));
 	}
 
@@ -102,14 +102,14 @@ public class RectTest {
 	@Test
 	public void getAnchor_std_middle() {
 		Rect r = new Rect(10, 10, 4, 4);
-		Vector2 a = r.getAnchor();
+		Point a = r.getAnchor();
 		Assert.assertEquals(12, a.x);
 		Assert.assertEquals(12, a.y);
 	}
 	
 	public void getAnchor_setAnchor_bottomRight() {
 		Rect r = new Rect(10, 10, 4, 4, 14, 14);
-		Vector2 a = r.getAnchor();
+		Point a = r.getAnchor();
 		Assert.assertEquals(14, a.x);
 		Assert.assertEquals(14, a.y);
 	}

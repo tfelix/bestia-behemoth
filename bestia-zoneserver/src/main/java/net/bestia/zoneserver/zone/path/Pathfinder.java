@@ -2,7 +2,7 @@ package net.bestia.zoneserver.zone.path;
 
 import java.util.List;
 
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 /**
  * Interface for path calculation algorithms used by the bestia game.
@@ -28,6 +28,6 @@ public interface Pathfinder {
 	 * @return List of Points representing the path. Or null if no path could be
 	 *         found.
 	 */
-	List<Vector2> findPath(Vector2 start, Vector2 end);
+	List<Point> findPath(Point start, Point end);
 
 }

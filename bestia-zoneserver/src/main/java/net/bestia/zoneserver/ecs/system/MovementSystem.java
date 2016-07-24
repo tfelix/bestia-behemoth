@@ -20,7 +20,7 @@ import net.bestia.zoneserver.ecs.component.Movement;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.manager.PlayerBestiaSpawnManager;
 import net.bestia.zoneserver.ecs.manager.UuidManager;
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 /**
  * Process linear movement along a given path. Calculates the delay until the
@@ -90,7 +90,7 @@ public class MovementSystem extends DelayedIteratingSystem {
 	protected void processExpired(int e) {
 		final Movement m = movementMapper.get(e);
 
-		final Vector2 pos = m.path.poll();
+		final Point pos = m.path.poll();
 		if (pos == null) {
 			world.getEntity(e).edit().remove(Movement.class);
 			return;
@@ -130,7 +130,7 @@ public class MovementSystem extends DelayedIteratingSystem {
 		offerDelay(m.nextMove);
 	}
 
-	private int getDistance(Location p1, Vector2 p2) {
+	private int getDistance(Location p1, Point p2) {
 		return (int) Math.sqrt(Math.pow(p1.getX() - p2.x, 2) + Math.pow(p1.getY() - p2.y, 2));
 	}
 	

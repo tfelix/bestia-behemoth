@@ -68,7 +68,7 @@ public class CircleTest {
 	@Test
 	public void collide_vector2_false() {
 		Circle c1 = new Circle(5, 5, 3);
-		Vector2 v = new Vector2(10, 14);
+		Point v = new Point(10, 14);
 
 		Assert.assertFalse(c1.collide(v));
 	}
@@ -76,7 +76,7 @@ public class CircleTest {
 	@Test
 	public void collide_vector2_true() {
 		Circle c1 = new Circle(5, 5, 3);
-		Vector2 v = new Vector2(7, 6);
+		Point v = new Point(7, 6);
 
 		Assert.assertTrue(c1.collide(v));
 	}
@@ -132,7 +132,7 @@ public class CircleTest {
 	@Test
 	public void getanchor_iscenter() {
 		Circle c = new Circle(5, 5, 3);
-		Vector2 a = c.getAnchor();
+		Point a = c.getAnchor();
 
 		Assert.assertEquals(5, a.x);
 		Assert.assertEquals(5, a.y);

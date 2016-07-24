@@ -7,7 +7,7 @@ import java.util.Properties;
 
 import net.bestia.zoneserver.zone.map.Map.MapBuilder;
 import net.bestia.zoneserver.zone.map.Tile;
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 import tiled.core.Map;
 import tiled.core.MapLayer;
 import tiled.core.TileLayer;
@@ -101,7 +101,7 @@ public class TileDataExtender implements TMXMapExtender {
 				}
 
 				final Tile mapTile = new Tile(isWalkable, walkspeed);
-				builder.tiles.put(new Vector2(x, y), mapTile);
+				builder.tiles.put(new Point(x, y), mapTile);
 			}
 		}
 	}

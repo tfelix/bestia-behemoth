@@ -5,7 +5,7 @@ import java.util.Map;
 
 import net.bestia.zoneserver.proxy.Entity;
 import net.bestia.zoneserver.proxy.InventoryProxy;
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 /**
  * TODO Vielleicht als interne Klasse von Script.
@@ -70,7 +70,7 @@ public class ScriptBuilder {
 		return new Script(this);
 	}
 
-	public void setTargetCoordinates(Vector2 target) {
+	public void setTargetCoordinates(Point target) {
 		setTargetCoordinates(target.x, target.y);
 	}
 }

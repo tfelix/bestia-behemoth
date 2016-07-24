@@ -1,13 +1,13 @@
 package net.bestia.zoneserver.zone.map;
 
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 public interface ICollisionMap {
 
 	void setCollision(int x, int y, boolean walkable);
 
 	boolean isWalkable(int x, int y);
-	boolean isWalkable(Vector2 v);
+	boolean isWalkable(Point v);
 
 	int getWidth();
 

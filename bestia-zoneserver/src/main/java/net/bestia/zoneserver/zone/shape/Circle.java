@@ -4,8 +4,8 @@ import com.google.common.base.Objects;
 
 public class Circle implements CollisionShape {
 
-	private final Vector2 center;
-	private Vector2 anchor;
+	private final Point center;
+	private Point anchor;
 	private final int radius;
 
 	public Circle(int x, int y, int radius) {
@@ -14,7 +14,7 @@ public class Circle implements CollisionShape {
 			throw new IllegalArgumentException("Radius can not be negative.");
 		}
 
-		this.center = new Vector2(x, y);
+		this.center = new Point(x, y);
 		this.radius = radius;
 		this.anchor = this.center;
 	}
@@ -23,12 +23,12 @@ public class Circle implements CollisionShape {
 		if (radius < 0) {
 			throw new IllegalArgumentException("Radius can not be negative.");
 		}
-		this.center = new Vector2(x, y);
+		this.center = new Point(x, y);
 		this.radius = radius;
 		
 		checkAnchor(anchorX, anchorY);
 
-		this.anchor = new Vector2(anchorX, anchorY);
+		this.anchor = new Point(anchorX, anchorY);
 	}
 
 	private void checkAnchor(int x, int y) {
@@ -43,12 +43,12 @@ public class Circle implements CollisionShape {
 		return radius;
 	}
 
-	public Vector2 getCenter() {
+	public Point getCenter() {
 		return center;
 	}
 
 	@Override
-	public boolean collide(Vector2 s) {
+	public boolean collide(Point s) {
 		return CollisionHelper.collide(this, s);
 	}
 
@@ -109,7 +109,7 @@ public class Circle implements CollisionShape {
 	}
 
 	@Override
-	public Vector2 getAnchor() {
+	public Point getAnchor() {
 		return anchor;
 	}
 

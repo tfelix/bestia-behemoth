@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 /**
  * The manager is responsible for controlling the added environment layer. The
@@ -48,11 +48,11 @@ public class EnvironmentManager {
 
 	private class EmitterKey {
 
-		private final Vector2 point;
+		private final Point point;
 		private final String layerName;
 
 		public EmitterKey(String layerName, int x, int y) {
-			this.point = new Vector2(x, y);
+			this.point = new Point(x, y);
 			this.layerName = layerName;
 		}
 

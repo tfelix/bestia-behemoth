@@ -2,11 +2,11 @@ package net.bestia.zoneserver.zone.map;
 
 import java.util.HashMap;
 
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 public class SparseCollisionMap implements ICollisionMap {
 	
-	private java.util.Map<Vector2, Boolean> collisionData = new HashMap<>();
+	private java.util.Map<Point, Boolean> collisionData = new HashMap<>();
 	
 	private final int width;
 	private final int height;
@@ -18,7 +18,7 @@ public class SparseCollisionMap implements ICollisionMap {
 
 	@Override
 	public void setCollision(int x, int y, boolean walkable) {
-		final Vector2 v = new Vector2(x, y);
+		final Point v = new Point(x, y);
 		if(collisionData.containsKey(v)) {
 			collisionData.put(v, walkable);
 		} else {
@@ -28,7 +28,7 @@ public class SparseCollisionMap implements ICollisionMap {
 
 	@Override
 	public boolean isWalkable(int x, int y) {
-		final Vector2 v = new Vector2(x, y);
+		final Point v = new Point(x, y);
 		if(!collisionData.containsKey(v)) {
 			return true;
 		} else {
@@ -47,7 +47,7 @@ public class SparseCollisionMap implements ICollisionMap {
 	}
 
 	@Override
-	public boolean isWalkable(Vector2 v) {
+	public boolean isWalkable(Point v) {
 		return isWalkable(v.x, v.y);
 	}
 

@@ -16,7 +16,7 @@ import net.bestia.zoneserver.ecs.component.PlayerBestia;
 import net.bestia.zoneserver.ecs.component.Position;
 import net.bestia.zoneserver.ecs.component.Visible;
 import net.bestia.zoneserver.ecs.manager.UuidManager;
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 /**
  * Generates update messages from an entity.
@@ -83,7 +83,7 @@ public class EntityUpdateMessageFactory {
 		final Entity e = world.getEntity(entityId);
 		final UUID uuid = uuidManager.getUuid(e);
 		final Visible visible = visibleMapper.get(entityId);
-		final Vector2 pos = positionMapper.get(e).getShape().getAnchor();
+		final Point pos = positionMapper.get(e).getShape().getAnchor();
 		final PlayerBestia playerControlled = playerMapper.getSafe(e);
 		final SpriteType entityType = visible.spriteType;
 

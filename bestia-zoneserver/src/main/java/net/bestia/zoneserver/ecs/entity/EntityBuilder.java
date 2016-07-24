@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import groovy.lang.Closure;
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 /**
  * <p>
@@ -25,7 +25,7 @@ public class EntityBuilder {
 
 	private final EntityFactory factory;
 
-	Vector2 position;
+	Point position;
 	String sprite;
 	String mobName;
 	String mobGroup;
@@ -116,12 +116,12 @@ public class EntityBuilder {
 	}
 
 	public EntityBuilder setPosition(int x, int y) {
-		position = new Vector2(x, y);
+		position = new Point(x, y);
 		LOG.trace("Position was set: {}", position.toString());
 		return this;
 	}
 
-	public EntityBuilder setPosition(Vector2 pos) {
+	public EntityBuilder setPosition(Point pos) {
 		position = pos;
 		LOG.trace("Position was set: {}", position.toString());
 		return this;

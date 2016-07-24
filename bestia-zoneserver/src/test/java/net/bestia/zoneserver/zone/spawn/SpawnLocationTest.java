@@ -5,7 +5,7 @@ import org.junit.Test;
 
 
 import net.bestia.zoneserver.zone.shape.Rect;
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 public class SpawnLocationTest {
 	
@@ -15,7 +15,7 @@ public class SpawnLocationTest {
 	public void getspawn_coordiantes() {
 		SpawnLocation loc = new SpawnLocation(rect);
 		
-		Vector2 p = loc.getSpawn();
+		Point p = loc.getSpawn();
 		Assert.assertEquals(5, p.x);
 		Assert.assertEquals(5, p.y);
 	}

@@ -10,7 +10,7 @@ import net.bestia.model.domain.Location;
  * @author Thomas Felix <thoams.felix@tfelix.de>
  *
  */
-public class Vector2 implements CollisionShape {
+public class Point implements CollisionShape {
 
 	public final int x;
 	public final int y;
@@ -18,7 +18,7 @@ public class Vector2 implements CollisionShape {
 	private final int anchorX;
 	private final int anchorY;
 
-	public Vector2(int x, int y) {
+	public Point(int x, int y) {
 		this.x = x;
 		this.y = y;
 
@@ -37,17 +37,17 @@ public class Vector2 implements CollisionShape {
 
 	@Override
 	public boolean equals(Object o) {
-		if (o == null || !(o instanceof Vector2)) {
+		if (o == null || !(o instanceof Point)) {
 			return false;
 		}
 
 		// No need to check for anchor since it should be the same as x and y.
-		Vector2 p = (Vector2) o;
+		Point p = (Point) o;
 		return x == p.x && y == p.y;
 	}
 
 	@Override
-	public boolean collide(Vector2 s) {
+	public boolean collide(Point s) {
 		return CollisionHelper.collide(this, s);
 	}
 
@@ -72,13 +72,13 @@ public class Vector2 implements CollisionShape {
 	}
 
 	@Override
-	public Vector2 getAnchor() {
-		return new Vector2(anchorX, anchorY);
+	public Point getAnchor() {
+		return new Point(anchorX, anchorY);
 	}
 
 	@Override
 	public CollisionShape moveByAnchor(int x, int y) {
-		return new Vector2(x, y);
+		return new Point(x, y);
 	}
 
 	/**
@@ -87,10 +87,10 @@ public class Vector2 implements CollisionShape {
 	 * 
 	 * @param loc
 	 *            The position to generate a vector from.
-	 * @return A generated {@link Vector2} from the {@link Location}.
+	 * @return A generated {@link Point} from the {@link Location}.
 	 */
-	public static Vector2 fromLocation(Location loc) {
-		return new Vector2(loc.getX(), loc.getY());
+	public static Point fromLocation(Location loc) {
+		return new Point(loc.getX(), loc.getY());
 	}
 
 }

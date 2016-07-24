@@ -2,7 +2,7 @@ package net.bestia.zoneserver.zone.map;
 
 import java.util.Arrays;
 
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 /**
  * This map will hold the collision data of a zone map. The collision data
@@ -74,7 +74,7 @@ public class CollisionMap implements ICollisionMap {
 	}
 
 	@Override
-	public boolean isWalkable(Vector2 v) {
+	public boolean isWalkable(Point v) {
 		return isWalkable(v.x, v.y);
 	}
 }

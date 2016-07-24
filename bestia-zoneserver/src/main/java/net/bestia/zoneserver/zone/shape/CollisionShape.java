@@ -16,7 +16,7 @@ public interface CollisionShape {
 	 *            Collding shape.
 	 * @return TRUE if it collides. FALSE otherwise.
 	 */
-	boolean collide(Vector2 s);
+	boolean collide(Point s);
 
 	/**
 	 * Checks if this shape collides with the given vector.
@@ -60,7 +60,7 @@ public interface CollisionShape {
 	 * 
 	 * @return The anchor coordiantes in world space.
 	 */
-	public Vector2 getAnchor();
+	public Point getAnchor();
 
 	/**
 	 * Moves the whole {@link CollisionShape} to the new coordiantes relative to

@@ -6,7 +6,7 @@ import com.artemis.Component;
 
 import net.bestia.model.domain.Location;
 import net.bestia.zoneserver.zone.shape.CollisionShape;
-import net.bestia.zoneserver.zone.shape.Vector2;
+import net.bestia.zoneserver.zone.shape.Point;
 
 /**
  * Represents the current position of the bestia on the map. We use a
@@ -26,7 +26,7 @@ public class Position extends Component implements Location, Serializable {
 	 * Ctd. Ctor.
 	 */
 	public Position() {
-		shape = new Vector2(0, 0);
+		shape = new Point(0, 0);
 		location = null;
 	}
 
