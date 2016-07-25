@@ -102,7 +102,9 @@ export default class PubSub {
 
 		// @ifdef DEVELOPMENT
 		console.debug('Published: ' + e + '.');
-		console.debug(data);
+		if(data) {
+			console.debug(data);
+		}
 		// @endif
 
 		if (!this.cache[e]) {
