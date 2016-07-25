@@ -127,7 +127,7 @@ export default class Connection {
 	}
 
 	connect() {
-		var socketRequest = this._init();
+		//var socketRequest = this._init();
 		this._pubsub.publish(Signal.IO_CONNECTING);
 		this.socket = $.atmosphere.subscribe(socketRequest);
 	}
