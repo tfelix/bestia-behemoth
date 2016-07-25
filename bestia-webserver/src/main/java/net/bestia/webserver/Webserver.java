@@ -78,7 +78,7 @@ public final class Webserver {
 
 		// Connect to the interserver.
 		publisher.connect();
-		subscriber.connect();
+		//subscriber.connect();
 
 		final Config.Builder b = new Config.Builder();
 		b.host("0.0.0.0").port(port);

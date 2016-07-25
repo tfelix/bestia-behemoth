@@ -98,7 +98,7 @@ public final class Loginserver implements InterserverMessageHandler {
 		// Connect to the interserver.
 		try {
 			publisher.connect();
-			subscriber.connect();
+			//subscriber.connect();
 			subscriber.subscribe("login");
 		} catch (IOException ex) {
 			LOG.error("Loginserver could not start.", ex);
