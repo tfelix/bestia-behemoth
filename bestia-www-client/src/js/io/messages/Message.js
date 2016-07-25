@@ -3,7 +3,7 @@
  * @copyright 2015 Thomas Felix
  */
 
-import MID from './Ids.js';
+import MID from './MID.js';
 
 
 /**
@@ -250,4 +250,4 @@ var Message = {
 	}
 };
 
-export default { Message };
+export default Message;

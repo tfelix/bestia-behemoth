@@ -8,7 +8,8 @@ var MID = {
 	
 	BESTIA_INFO : 'bestia.info',
 	BESTIA_MOVE : 'bestia.move',
-	BESTIA_ACTIVATE: 'bestia.move',
+	BESTIA_ACTIVATE: 'bestia.activate',
+	BESTIA_ACTIVATED: 'bestia.activated',
 	
 	ATTACK_SET : 'attack.set',
 	ATTACK_LIST_REQUEST: 'attack.list.request',

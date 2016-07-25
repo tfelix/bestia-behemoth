@@ -3,8 +3,6 @@
  * @copyright    2015 Thomas Felix
  */
 
-import PubSub from '../util/PubSub.js';
-import UrlHelper from '../util/UrlHelper.js';
 import Message from '../io/messages/Message.js';
 import Signal from '../io/Signal.js';
 import Attack from '../attack/Attack.js';
@@ -29,11 +27,11 @@ import StatusPointViewModel from './StatusPointViewModel.js';
 export default class BestiaViewModel {
 	
 	constructor(pubsub, msg, statusPoints, urlHelper) {
-		if (!(pubsub instanceof PubSub)) {
-			throw "Bestia.BestiaViewModel: PubSub must be given.";
+		if (!pubsub) {
+			throw "BestiaViewModel: PubSub must be given.";
 		}
-		if (!(urlHelper instanceof UrlHelper)) {
-			throw "Bestia.BestiaViewModel: UrlHelper must be given.";
+		if (!urlHelper) {
+			throw "BestiaViewModel: UrlHelper must be given.";
 		}
 	
 		var self = this;

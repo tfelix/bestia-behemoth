@@ -23,9 +23,8 @@ export default class Connection {
 	 * @constructor
 	 */
 	constructor(pubsub) {
-		var self = this;
 
-		this.socket = null;
+		this._socket = null;
 
 		/**
 		 * Pubsub interface.
@@ -42,14 +41,20 @@ export default class Connection {
 		// @endif
 
 		// Sends a message while listening to this channel.
-		pubsub.subscribe(Signal.IO_SEND_MESSAGE, function(_, msg) {
-			var message = JSON.stringify(msg);
-			// @ifdef DEVELOPMENT
-			console.trace('Sending Message: ' + message);
-			self._debug('send', message, msg);
-			// @endif
-			self.socket.push(message);
-		});
+		pubsub.subscribe(Signal.IO_SEND_MESSAGE, this._handleOnSendMessage.bind(this));
+		// wire connect.
+		pubsub.subscribe(Signal.IO_CONNECT, this.connect.bind(this));
+		// wire disconnect.
+		pubsub.subscribe(Signal.IO_DISCONNECT, this.disconnect.bind(this));
+	}
+	
+	_handleOnSendMessage(_, msg) {
+		var message = JSON.stringify(msg);
+		// @ifdef DEVELOPMENT
+		console.trace('Sending Message: ' + message);
+		this._debug('send', message, msg);
+		// @endif
+		this._socket.push(message);
 	}
 	
 	/**
@@ -127,20 +132,20 @@ export default class Connection {
 	}
 
 	connect() {
-		//var socketRequest = this._init();
+		var socketRequest = this._init();
 		this._pubsub.publish(Signal.IO_CONNECTING);
-		this.socket = $.atmosphere.subscribe(socketRequest);
+		this._socket = $.atmosphere.subscribe(socketRequest);
 	}
 
 	/**
 	 * Disconnects the socket from the server.
 	 */
 	disconnect() {
-		if (this.socket === null) {
+		if (this._socket === null) {
 			return;
 		}
-		this.socket.close();
-		this.socket = null;
+		this._socket.close();
+		this._socket = null;
 	}
 
 	/**
@@ -184,7 +189,7 @@ export default class Connection {
 
 		request.onOpen = function(response) {
 			console.log('Connection to established via ' + response.transport);
-			self._pubsub.publish(Signal.IO_CONNECTED, {});
+			self._pubsub.publish(Signal.IO_CONNECTED);
 		};
 
 		request.onTransportFailure = function(errorMsg) {
@@ -243,11 +248,10 @@ export default class Connection {
 	}
 
 	sendPing() {
-		this.socket.push(JSON.stringify({
+		this._socket.push(JSON.stringify({
 			mid : 'system.ping',
 			m : 'Hello Bestia.'
 		}));
 	}
-	
 }
 

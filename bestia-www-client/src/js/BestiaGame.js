@@ -33,17 +33,6 @@ export default class BestiaGame {
 		this.engine = new Engine(this.pubsub, this.urlHelper);
 		this.connection = new Connection(this.pubsub);
 		
-		// Wire the internal messaging structures.
-		
-		/**
-		 * Start the connection process.
-		 */
-		this.pubsub.subscribe(Signal.IO_CONNECT, this.connection.connect);
-		
-		/**
-		 * Disconnect from the server.
-		 */
-		this.pubsub.subscribe(Signal.IO_DISCONNECT, this.connection.disconnect);
 		
 		/**
 		 * Authentication error. Go to logout.

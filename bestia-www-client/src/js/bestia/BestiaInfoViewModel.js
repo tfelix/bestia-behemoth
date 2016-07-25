@@ -5,6 +5,7 @@
 
 import Signal from '../io/Signal.js';
 import BestiaViewModel from './BestiaViewModel.js';
+import MID from '../io/messages/MID.js';
 
 /**
  * Holds complete overview of all selected bestias.
@@ -20,89 +21,90 @@ export default class BestiaInfoViewModel {
 	
 	constructor(pubsub, urlHelper) {
 
-	if (pubsub === null) {
-		throw "Bestia.BestiaInfoViewModel: Pubsub is not optional.";
+		if (!pubsub) {
+			throw "Bestia.BestiaInfoViewModel: Pubsub is not optional.";
+		}
+		if(!urlHelper) {
+			throw "UrlHelper can not be null.";
+		}
+	
+		this._pubsub = pubsub;
+	
+		this._urlHelper = urlHelper;
+	
+		/**
+		 * Holds the currently selected bestia.
+		 * 
+		 * @public
+		 * @property {Bestia.BestiaViewModel}
+		 */
+		this.selectedBestia = ko.observable(null);
+	
+		/**
+		 * Holds a reference to the master bestia.
+		 * 
+		 * @public
+		 * @property {Bestia.BestiaViewModel}
+		 */
+		this.masterBestia = ko.observable(null);
+	
+		/**
+		 * Holds the currently available bestias for this bestia master.
+		 * 
+		 * @public
+		 * @property {Array}
+		 */
+		this.bestias = ko.observableArray([]);
+	
+		/**
+		 * Number of usable slots for bestias.
+		 */
+		this.slots = ko.observable(0);
+	
+		// Register for messages from the server.
+		pubsub.subscribe(MID.BESTIA_INFO, this._handleOnMessage.bind(this));
+		pubsub.subscribe(MID.BESTIA_ACTIVATED, this._handleOnActivate.bind(this));
 	}
-	if(urlHelper === null) {
-		throw "UrlHelper can not be null.";
+	
+	_handleOnActivate(_, msg) {
+		console.debug('New bestia was selected.');
+
+		// Check if the bestia is already inside our cache.
+		for (var i = 0; i < this.bestias().length; i++) {
+			if (this.bestias()[i].playerBestiaId() === msg.pbid) {
+				var bestia = this.bestias()[i];
+				this._selectBestia(bestia);
+			}
+		}
 	}
-
-	var self = this;
-
-	this._pubsub = pubsub;
-
-	this._urlHelper = urlHelper;
-
-	/**
-	 * Holds the currently selected bestia.
-	 * 
-	 * @public
-	 * @property {Bestia.BestiaViewModel}
-	 */
-	this.selectedBestia = ko.observable(null);
-
-	/**
-	 * Holds a reference to the master bestia.
-	 * 
-	 * @public
-	 * @property {Bestia.BestiaViewModel}
-	 */
-	this.masterBestia = ko.observable(null);
-
-	/**
-	 * Holds the currently available bestias for this bestia master.
-	 * 
-	 * @public
-	 * @property {Array}
-	 */
-	this.bestias = ko.observableArray([]);
-
-	this.slots = ko.observable(0);
-
+	
 	/**
 	 * Handler to fill out the data. We get this data from the bestia.update
 	 * messages.
 	 */
-	var onMessageHandler = function(_, msg) {
+	_handleOnMessage(_, msg) {
 		console.debug('Update bestia model with data.');
 
-		var bestia = new BestiaViewModel(self._pubsub, msg.b, msg.sp, self._urlHelper);
+		var bestia = new BestiaViewModel(this._pubsub, msg.b, msg.sp, this._urlHelper);
 
 		// Check if the bestia is already inside our cache.
-		for (var i = 0; i < self.bestias().length; i++) {
-			if (self.bestias()[i].playerBestiaId() === bestia.playerBestiaId()) {
+		for (var i = 0; i < this.bestias().length; i++) {
+			if (this.bestias()[i].playerBestiaId() === bestia.playerBestiaId()) {
 				// Just update it.
-				self.bestias()[i].update(msg.b, msg.sp);
+				this.bestias()[i].update(msg.b, msg.sp);
 				return;
 			}
 		}
 
 		// If the bestia was not found however to the extended logic. First add
 		// it.
-		self.bestias.push(bestia);
+		this.bestias.push(bestia);
 
 		// Check if we have unselected master.
-		if (self.masterBestia() === null && msg.im === true) {
-			self.masterBestia(bestia);
-			self._selectBestia(bestia);
+		if (this.masterBestia() === null && msg.im === true) {
+			this.masterBestia(bestia);
+			this._selectBestia(bestia);
 		}
-	};
-
-	// Register for messages from the server.
-	pubsub.subscribe('bestia.info', onMessageHandler);
-
-	var onActivateHandler = function(_, msg) {
-		console.debug('New bestia was selected.');
-
-		// Check if the bestia is already inside our cache.
-		for (var i = 0; i < self.bestias().length; i++) {
-			if (self.bestias()[i].playerBestiaId() === msg.pbid) {
-				var bestia = self.bestias()[i];
-				self._selectBestia(bestia);
-			}
-		}
-	};
-	pubsub.subscribe('bestia.activated', onActivateHandler);
 	}
 	
 
