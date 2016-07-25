@@ -4,6 +4,9 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -12,12 +15,17 @@ import de.bestia.next.zoneserver.actor.ZoneRouter;
 import de.bestia.next.zoneserver.component.ClusterConfig;
 import de.bestia.next.zoneserver.message.InputMessage;
 
-public class ZoneserverApplication {
+@SpringBootApplication
+public class ZoneserverApplication implements CommandLineRunner {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ClusterConfig.class);
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
+		SpringApplication.run(ZoneserverApplication.class, args);
+	}
 
+	@Override
+	public void run(String... args) throws Exception {
 		// Create the Akka system.
 		final ActorSystem system = ActorSystem.create("bestia");
 
