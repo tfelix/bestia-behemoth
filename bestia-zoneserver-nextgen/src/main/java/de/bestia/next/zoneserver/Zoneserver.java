@@ -11,7 +11,7 @@ import com.hazelcast.core.HazelcastInstance;
 import akka.actor.ActorSystem;
 import akka.actor.Address;
 import akka.cluster.Cluster;
-import de.bestia.next.zoneserver.config.ClusterConfig;
+import de.bestia.next.zoneserver.component.ClusterConfig;
 
 public class Zoneserver {
 	private static final Logger LOG = LoggerFactory.getLogger(Zoneserver.class);

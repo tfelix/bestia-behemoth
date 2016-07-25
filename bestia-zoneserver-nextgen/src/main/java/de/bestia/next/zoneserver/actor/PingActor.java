@@ -13,8 +13,6 @@ public class PingActor extends UntypedActor {
 			return;
 		}
 		
-		PingMessage pingMsg = (PingMessage) message;
-		
 		getSender().tell(new PongMessage(), getSelf());
 	}
 

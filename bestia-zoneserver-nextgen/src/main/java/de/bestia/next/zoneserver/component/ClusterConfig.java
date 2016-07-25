@@ -1,4 +1,4 @@
-package de.bestia.next.zoneserver.config;
+package de.bestia.next.zoneserver.component;
 
 import java.io.Serializable;
 import java.net.Inet4Address;

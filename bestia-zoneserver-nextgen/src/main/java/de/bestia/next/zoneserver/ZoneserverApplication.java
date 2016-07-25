@@ -9,7 +9,7 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.PoisonPill;
 import de.bestia.next.zoneserver.actor.ZoneRouter;
-import de.bestia.next.zoneserver.config.ClusterConfig;
+import de.bestia.next.zoneserver.component.ClusterConfig;
 import de.bestia.next.zoneserver.message.InputMessage;
 
 public class ZoneserverApplication {
