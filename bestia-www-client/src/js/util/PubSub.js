@@ -95,9 +95,14 @@ export default class PubSub {
 	 *            e - Name
 	 */
 	publish(e, data) {
+		
+		if(!e) {
+			throw "Topic can not be undefined.";
+		}
 
 		// @ifdef DEVELOPMENT
-		console.debug('Published: ' + e + ', data: ' + JSON.stringify(data));
+		console.debug('Published: ' + e + '.');
+		console.debug(data);
 		// @endif
 
 		if (!this.cache[e]) {

@@ -3,7 +3,7 @@
  * these defined constant signals when sending and subscribing to inter app
  * messaging via a Bestia.PubSub interface.
  */
-var Signal = {
+let Signal = {
 		
 	/**
 	 * Signal to logout the user.
@@ -24,11 +24,6 @@ var Signal = {
 	AUTH_ERROR : 'system.autherror',
 
 	BESTIA_SELECTED : 'client.bestia.selected',
-
-	/**
-	 * Advises the chat to register an command.
-	 */
-	CHAT_REGISTER_CMD : 'c.chat.register_cmd',
 
 	INVENTORY_NOTICE : 'inventory.notice',
 	INVENTORY_ITEM_ADD : 'client.inventory.itemAdd',
@@ -51,6 +46,10 @@ var Signal = {
 	IO_CONNECTED : 'io.connected',
 
 	CHAT_RECEIVED : 'client.chat.received',
+	/**
+	 * Advises the chat to register a new command.
+	 */
+	CHAT_REGISTER_CMD : 'chat.register_cmd',
 
 	/**
 	 * Controls if an input controller will listen for inputs or ignor them for
@@ -84,4 +83,4 @@ var Signal = {
 
 };
 
-export default {Signal};
+export default Signal;

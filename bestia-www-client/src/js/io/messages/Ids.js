@@ -37,4 +37,4 @@ var MID = {
 	TRANSLATION_REQUEST: 'translation.request'
 };
 
-export default {MID};
+export default MID;

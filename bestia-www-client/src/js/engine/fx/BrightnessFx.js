@@ -1,5 +1,5 @@
-import Signal from '../../io/Signal.js';
 import EngineCommand from '../../chat/commands/EngineCommand.js';
+import Signal from '../../io/Signal.js';
 
 /**
  * The brightness controller listens to messages containing the global
@@ -25,11 +25,11 @@ export default class BrightnessFx {
 		 */
 		this.brightness = 1;
 		
-		ctx.pubsub.publish(Signal.CHAT_REGISTER_CMD, new EngineCommand(this));
+		this._pubsub.publish(Signal.CHAT_REGISTER_CMD, new EngineCommand(this));
 	}
 	
 	destroy() {
-		this._pubsub.unsubscribe(Signal.CHAT_RECEIVED, this._onChatMsgHandler);
+		// no op.
 	}
 
 	create() {

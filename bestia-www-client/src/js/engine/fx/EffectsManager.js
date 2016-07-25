@@ -1,6 +1,6 @@
+import ChatFx from './ChatFx.js';
 import DamageFx from './DamageFx.js';
 import BrightnessFx from './BrightnessFx.js';
-import ChatFx from './ChatFx.js';
 import RainFx from './RainFx.js';
 import RangeMeasureFx from './RangeMeasureFx.js';
 import DialogFx from './DialogFx.js';
@@ -38,6 +38,8 @@ export default class EffectsManager {
 		 * @private
 		 */
 		this._effectInstances = [];
+		
+		this.test = [];
 		
 		this._ctx = ctx;
 	
@@ -84,3 +86,4 @@ export default class EffectsManager {
 		});
 	}
 }
+

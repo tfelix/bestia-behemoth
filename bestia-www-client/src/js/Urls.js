@@ -25,4 +25,4 @@ var Urls = {
 
 };
 
-export default { Urls };
+export default Urls;

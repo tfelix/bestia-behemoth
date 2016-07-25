@@ -51,5 +51,3 @@ i18n.init({
 	// Start game.
 	$(document).ready(main);
 });
-
-$(document).ready(main);
