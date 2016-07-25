@@ -27,7 +27,7 @@ public class Point implements CollisionShape {
 	}
 
 	public String toString() {
-		return String.format("Vec2[x: %d, y: %d]", x, y);
+		return String.format("Point[x: %d, y: %d]", x, y);
 	}
 
 	@Override
