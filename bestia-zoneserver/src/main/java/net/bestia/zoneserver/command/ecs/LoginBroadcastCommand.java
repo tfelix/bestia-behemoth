@@ -59,6 +59,6 @@ public class LoginBroadcastCommand extends ECSCommand {
 	
 	@Override
 	public String toString() {
-		return "SpawnPlayerBestiaCommand[]";
+		return "LoginBroadcastCommand[]";
 	}
 }

@@ -204,17 +204,17 @@ public class Zoneserver {
 			stop();
 			return false;
 		}
-
+/*
 		log.info("Registering with Interserver...");
 		try {
 			interserverSubscriber.connect();
 			interserverPublisher.connect();
-		} catch (IOException ex) {
+		} catch (Exception ex) {
 			log.error("Can not start zoneserver.", ex);
 			stop();
 			return false;
 		}
-
+*/
 		// Subscribe to zone broadcast messages.
 		interserverSubscriber.subscribe(Message.getZoneBroadcastMessagePath());
 
