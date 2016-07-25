@@ -1,4 +1,4 @@
-package net.bestia.next.webserver.akka.actor;
+package net.bestia.next.webserver.component.akka.actor;
 
 import java.util.Objects;
 

@@ -17,7 +17,7 @@ import akka.actor.ActorSystem;
 import akka.actor.PoisonPill;
 import net.bestia.next.messages.AccountMessage;
 import net.bestia.next.messages.LoginRequestMessage;
-import net.bestia.next.webserver.akka.actor.MessageHandlerActor;
+import net.bestia.next.webserver.component.akka.actor.MessageHandlerActor;
 
 /**
  * Handles the bestia websocket to the clients.

@@ -1,4 +1,4 @@
-package net.bestia.next.webserver.config;
+package net.bestia.next.webserver.component;
 
 import java.util.UUID;
 
@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ServerConfig {
+public class Server {
 
 	/**
 	 * Generates a unique name for this bestia webserver.
