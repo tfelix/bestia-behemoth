@@ -5,7 +5,7 @@
 
 import Message from '../io/messages/Message.js';
 import Signal from '../io/Signal.js';
-import MID from '../io/messages/Ids.js';
+import MID from '../io/messages/MID.js';
 import ChatMessage from './ChatMessage.js';
 import BasicCommand from './commands/BasicCommand.js';
 import ClearCommand from './commands/ClearCommand.js';

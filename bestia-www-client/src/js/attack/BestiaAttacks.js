@@ -1,7 +1,7 @@
 import Signal from '../io/Signal.js';
 import Message from '../io/messages/Message.js';
 import Attack from './Attack.js';
-import MID from '../io/messages/Ids.js';
+import MID from '../io/messages/MID.js';
 
 /**
  * <p>

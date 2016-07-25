@@ -1,4 +1,4 @@
-import MID from '../../../io/messages/Ids.js';
+import MID from '../../../io/messages/MID.js';
 
 /**
  * The updater will hook into the messaging system and listen for entity update

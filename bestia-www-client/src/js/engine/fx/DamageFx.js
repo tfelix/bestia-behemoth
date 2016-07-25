@@ -1,4 +1,4 @@
-import MID from '../../io/messages/Ids.js';
+import MID from '../../io/messages/MID.js';
 import DamageEntity from '../entities/DamageEntity.js';
 import HealEntity from '../entities/HealEntity.js';
 import DamageMissEntity from '../entities/DamageMissEntity.js';

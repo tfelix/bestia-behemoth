@@ -1,4 +1,4 @@
-import MID from './../../io/messages/Ids.js';
+import MID from './../../io/messages/MID.js';
 
 /**
  * The dialog manager will listen for dialog messages from the server and
