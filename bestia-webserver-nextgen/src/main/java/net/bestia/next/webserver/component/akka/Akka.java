@@ -19,7 +19,7 @@ import akka.actor.ActorSystem;
  *
  */
 @Component
-public class AkkaRemote {
+public class Akka {
 	
 	private static final String AKKA_CONFIG_NAME = "akka";
 	
@@ -33,6 +33,7 @@ public class AkkaRemote {
 	
 	@Bean
 	public ActorSelection remoteReceiver(ActorSystem system) {
+		// pattern: akka.<protocol>://<actorsystemname>@<hostname>:<port>/<actor path>
 		return system.actorSelection("akka.tcp://app@10.0.0.1:2552/user/serviceA/worker");
 	}
 

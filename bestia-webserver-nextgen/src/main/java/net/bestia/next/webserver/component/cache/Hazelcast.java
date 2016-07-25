@@ -8,7 +8,7 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
 
 @Component
-public class CacheConfig {
+public class Hazelcast {
 
 	@Bean
 	public ClientConfig clientConfig() {

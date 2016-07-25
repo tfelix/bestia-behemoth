@@ -1,4 +1,4 @@
-package de.bestia.akka.message;
+package de.bestia.next.zoneserver.message;
 
 public class InputMessage {
 	

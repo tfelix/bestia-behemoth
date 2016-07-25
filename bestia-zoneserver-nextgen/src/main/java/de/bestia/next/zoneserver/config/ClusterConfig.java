@@ -1,4 +1,4 @@
-package de.bestia.akka.config;
+package de.bestia.next.zoneserver.config;
 
 import java.io.Serializable;
 import java.net.Inet4Address;

@@ -1,11 +1,11 @@
-package de.bestia.akka.actor;
+package de.bestia.next.zoneserver.actor;
 
 import java.util.Objects;
 
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.japi.Creator;
-import de.bestia.akka.message.InputMessage;
+import de.bestia.next.zoneserver.message.InputMessage;
 
 public class ZoneActor extends UntypedActor {
 	

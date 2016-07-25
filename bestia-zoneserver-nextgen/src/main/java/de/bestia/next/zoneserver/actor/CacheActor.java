@@ -1,4 +1,4 @@
-package de.bestia.akka.actor;
+package de.bestia.next.zoneserver.actor;
 
 import java.util.Map;
 
@@ -9,8 +9,8 @@ import com.hazelcast.core.HazelcastInstance;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.japi.Creator;
-import de.bestia.akka.message.CacheAnswerMessage;
-import de.bestia.akka.message.CacheRequestMessage;
+import de.bestia.next.zoneserver.message.CacheAnswerMessage;
+import de.bestia.next.zoneserver.message.CacheRequestMessage;
 
 public class CacheActor extends UntypedActor {
 

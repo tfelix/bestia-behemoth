@@ -1,4 +1,4 @@
-package de.bestia.akka.akka;
+package de.bestia.next.zoneserver.actor;
 
 import akka.actor.UntypedActor;
 import akka.cluster.Cluster;
@@ -10,7 +10,7 @@ import akka.cluster.ClusterEvent.UnreachableMember;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
  
-public class SimpleClusterListener extends UntypedActor {
+public class SimpleClusterListenerActor extends UntypedActor {
   LoggingAdapter log = Logging.getLogger(getContext().system(), this);
   Cluster cluster = Cluster.get(getContext().system());
  

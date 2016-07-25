@@ -1,7 +1,5 @@
 package net.bestia.next.webserver.handler;
 
-import java.io.IOException;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +13,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.PoisonPill;
-import net.bestia.next.messages.AccountMessage;
-import net.bestia.next.messages.LoginRequestMessage;
 import net.bestia.next.webserver.component.akka.actor.MessageHandlerActor;
 
 /**
@@ -29,7 +25,6 @@ public class BestiaSocketHandler extends TextWebSocketHandler {
 
 	private static final Logger LOG = LogManager.getLogger(BestiaSocketHandler.class);
 
-	private static final String ATTRIBUTE_AUTH = "hasAuthenticated";
 	private static final String ATTRIBUTE_ACTOR_REF = "actorRef";
 	
 	private final ObjectMapper mapper = new ObjectMapper();
@@ -47,46 +42,8 @@ public class BestiaSocketHandler extends TextWebSocketHandler {
 		
 		final String payload = message.getPayload();
 
-		// First message must be a login message. If there is another message
-		// connection is killed.
-		if (!session.getAttributes().containsKey(ATTRIBUTE_AUTH)) {
-			try {
-				final LoginRequestMessage loginReqMsg = mapper.readValue(payload, LoginRequestMessage.class);
-				
-				final ActorRef actor = (ActorRef) session.getAttributes().get(ATTRIBUTE_ACTOR_REF);
-				
-				actor.tell(loginReqMsg, ActorRef.noSender());
-				
-			} catch (IOException e) {
-				// Wrong message.
-				LOG.warn("Client {} send wrong first auth message. Payload was: {}.", session.getRemoteAddress(), payload);
-				LOG.warn("Closing connection.");
-				try {
-					session.close();
-				} catch (IOException e1) {
-					// no op.
-				}
-				return;
-			}
-		}
-
-		try {
-			// Turn the text message into a bestia message.
-			final AccountMessage msg = mapper.readValue(message.getPayload(), AccountMessage.class);
-			
-			final ActorRef actor = (ActorRef) session.getAttributes().get(ATTRIBUTE_ACTOR_REF);
-			
-			actor.tell(msg, ActorRef.noSender());
-			
-		} catch (IOException e) {
-			LOG.warn("Malformed message. Client: {}. Payload: {}.", session.getRemoteAddress(), payload);
-			LOG.warn("Closing connection.");
-			try {
-				session.close();
-			} catch (IOException e1) {
-				// no op.
-			}
-		}
+		final ActorRef actor = (ActorRef) session.getAttributes().get(ATTRIBUTE_ACTOR_REF);
+		actor.tell(payload, ActorRef.noSender());
 	}
 
 	@Override

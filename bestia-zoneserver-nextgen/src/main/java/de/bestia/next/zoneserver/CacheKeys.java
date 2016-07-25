@@ -1,4 +1,4 @@
-package de.bestia.akka;
+package de.bestia.next.zoneserver;
 
 /**
  * Contains the key used for storing the in memory objects.
