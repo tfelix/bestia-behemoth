@@ -12,6 +12,7 @@
 		<module>bestia-models</module>
 		<module>bestia-messages</module>
 		<module>bestia-server-base</module>
+		<module>bestia-server-commons</module>
 		<module>bestia-zoneserver</module>
 		<module>bestia-webserver</module>
 		<module>bestia-www-client</module>

@@ -1,4 +1,4 @@
-package net.bestia.next.zoneserver.component;
+package net.bestia.zoneserver.component;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -18,9 +18,9 @@ import akka.actor.ActorSystem;
 import akka.actor.Address;
 import akka.cluster.Cluster;
 import net.bestia.model.dao.AccountDAO;
-import net.bestia.next.service.ClusterConfigurationService;
-import net.bestia.next.zoneserver.actor.LoginActor;
-import net.bestia.next.zoneserver.service.ConfigurationService;
+import net.bestia.server.ClusterConfigurationService;
+import net.bestia.zoneserver.actor.LoginActor;
+import net.bestia.zoneserver.service.ConfigurationService;
 
 /**
  * Generates the akka configuration file which is used to connect to the remote

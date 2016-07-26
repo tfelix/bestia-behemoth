@@ -1,4 +1,4 @@
-package net.bestia.next.zoneserver.actor;
+package net.bestia.zoneserver.actor;
 
 import java.util.Objects;
 
@@ -13,9 +13,9 @@ import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.next.messages.LoginRequestMessage;
-import net.bestia.next.messages.LoginResponseMessage;
-import net.bestia.next.messages.LoginState;
+import net.bestia.messages.LoginRequestMessage;
+import net.bestia.messages.LoginResponseMessage;
+import net.bestia.messages.LoginState;
 
 /**
  * This actor will take {@link LoginRequestMessage} and check the validity of

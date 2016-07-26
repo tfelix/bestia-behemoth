@@ -1,8 +1,8 @@
-package net.bestia.next.zoneserver.actor;
+package net.bestia.zoneserver.actor;
 
 import akka.actor.UntypedActor;
-import net.bestia.next.messages.PingMessage;
-import net.bestia.next.messages.PongMessage;
+import net.bestia.messages.PingMessage;
+import net.bestia.messages.PongMessage;
 
 public class PingActor extends UntypedActor {
 

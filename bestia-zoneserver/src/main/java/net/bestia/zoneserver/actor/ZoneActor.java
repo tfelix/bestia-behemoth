@@ -1,11 +1,11 @@
-package net.bestia.next.zoneserver.actor;
+package net.bestia.zoneserver.actor;
 
 import java.util.Objects;
 
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.japi.Creator;
-import net.bestia.next.messages.InputMessage;
+import net.bestia.messages.InputMessage;
 
 public class ZoneActor extends UntypedActor {
 	
@@ -37,6 +37,6 @@ public class ZoneActor extends UntypedActor {
 		
 		final InputMessage msg = (InputMessage) message;
 		
-		System.out.println(String.format("Zone %s received: %s", getZoneName(), msg.getPayload()));
+		System.out.println(String.format("Zone %s received: %s", getZoneName(), msg.toString()));
 	}
 }
