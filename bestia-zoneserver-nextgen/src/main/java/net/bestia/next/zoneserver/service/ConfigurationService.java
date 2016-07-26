@@ -1,4 +1,4 @@
-package de.bestia.next.zoneserver.service;
+package net.bestia.next.zoneserver.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package de.bestia.next.zoneserver.actor;
+package net.bestia.next.zoneserver.actor;
 
 import akka.actor.UntypedActor;
 import akka.cluster.Cluster;

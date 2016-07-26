@@ -1,4 +1,4 @@
-package de.bestia.next.zoneserver.component;
+package net.bestia.next.zoneserver.component;
 
 /**
  * Contains the key used for storing the in memory objects.

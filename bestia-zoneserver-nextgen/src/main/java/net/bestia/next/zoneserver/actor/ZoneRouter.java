@@ -1,4 +1,4 @@
-package de.bestia.next.zoneserver.actor;
+package net.bestia.next.zoneserver.actor;
 
 import java.util.HashMap;
 import java.util.Map;

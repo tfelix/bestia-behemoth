@@ -1,7 +1,8 @@
-package de.bestia.next.zoneserver;
+package net.bestia.next.zoneserver;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 public class ZoneserverApplication {

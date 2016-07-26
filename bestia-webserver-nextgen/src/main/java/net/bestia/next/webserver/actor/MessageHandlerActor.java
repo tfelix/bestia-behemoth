@@ -10,12 +10,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import akka.cluster.pubsub.DistributedPubSub;
+import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.next.actor.BestiaActorContext;
-import net.bestia.next.actor.LoginActor;
 import net.bestia.next.messages.AccountMessage;
 import net.bestia.next.messages.LoginRequestMessage;
 
@@ -35,6 +36,8 @@ public class MessageHandlerActor extends UntypedActor {
 	private final WebSocketSession session;
 	private final ObjectMapper mapper;
 	private final BestiaActorContext bestiaCtx;
+
+	private final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
 
 	private boolean isAuthenticated = false;
 
@@ -86,10 +89,9 @@ public class MessageHandlerActor extends UntypedActor {
 			try {
 				final LoginRequestMessage loginReqMsg = mapper.readValue(payload, LoginRequestMessage.class);
 
-				// TODO Send the LoginRequest to the cluster.
-				final AccountDAO accountDao = bestiaCtx.getSpringContext().getBean(AccountDAO.class);
-				final ActorRef loginActor = getContext().actorOf(LoginActor.props(accountDao));
-				loginActor.tell(loginReqMsg, getSelf());
+				// Send the LoginRequest to the cluster.
+				// Somehow centralize the names of the actors.
+				mediator.tell(new DistributedPubSubMediator.Send("/user/login", loginReqMsg), getSelf());
 
 			} catch (IOException e) {
 				// Wrong message. Terminate connection.

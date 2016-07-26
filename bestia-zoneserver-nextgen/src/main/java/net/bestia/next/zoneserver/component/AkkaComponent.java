@@ -1,4 +1,4 @@
-package de.bestia.next.zoneserver.component;
+package net.bestia.next.zoneserver.component;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +17,10 @@ import com.typesafe.config.ConfigFactory;
 import akka.actor.ActorSystem;
 import akka.actor.Address;
 import akka.cluster.Cluster;
-import de.bestia.next.zoneserver.service.ConfigurationService;
+import net.bestia.model.dao.AccountDAO;
 import net.bestia.next.service.ClusterConfigurationService;
+import net.bestia.next.zoneserver.actor.LoginActor;
+import net.bestia.next.zoneserver.service.ConfigurationService;
 
 /**
  * Generates the akka configuration file which is used to connect to the remote
@@ -35,6 +38,13 @@ public class AkkaComponent {
 
 	private static final String AKKA_CONFIG_NAME = "akka";
 	private static final String ACTOR_SYSTEM_NAME = "BehemothCluster";
+	
+	private AccountDAO accountDao;
+	
+	@Autowired
+	public void setAccountDao(AccountDAO accountDao) {
+		this.accountDao = accountDao;
+	}
 
 	@Bean
 	public ActorSystem actorSystem(Config akkaConfig, ConfigurationService config, HazelcastInstance hzInstance)
@@ -72,16 +82,22 @@ public class AkkaComponent {
 		// could use random port join which will alter the port defined in
 		// selfAddr.
 		clusterConfig.addClusterNode(myAddress);
+		
+		startActors(system);
 
 		return system;
 	}
-
+	
 	/**
-	 * TODO Config muss noch automatisch mit PORT und PFAD angepasst werden.
-	 * Aktuell statisch.
-	 * 
-	 * @return
+	 * Start the basic actor tree for beginning zone operation.
 	 */
+	private void startActors(ActorSystem system) {
+		LOG.info("Starting actor tree.");
+		system.actorOf(LoginActor.props(accountDao), "login");
+		
+	}
+
+
 	@Bean
 	public Config config() {
 		final Config config = ConfigFactory.load(AKKA_CONFIG_NAME);

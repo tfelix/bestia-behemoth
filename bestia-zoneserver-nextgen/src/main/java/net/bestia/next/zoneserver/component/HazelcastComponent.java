@@ -1,4 +1,4 @@
-package de.bestia.next.zoneserver.component;
+package net.bestia.next.zoneserver.component;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
