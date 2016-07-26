@@ -35,6 +35,11 @@
 			<artifactId>spring-context</artifactId>
 			<version>4.3.1.RELEASE</version>
 		</dependency>
+		<dependency>
+			<groupId>net.bestia</groupId>
+			<artifactId>bestia-models</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
 	</dependencies>
 </project>
