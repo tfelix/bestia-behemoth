@@ -7,11 +7,15 @@ import org.springframework.web.socket.WebSocketSession;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.next.actor.BestiaActorContext;
+import net.bestia.next.actor.LoginActor;
 import net.bestia.next.messages.AccountMessage;
 import net.bestia.next.messages.LoginRequestMessage;
 
@@ -30,6 +34,7 @@ public class MessageHandlerActor extends UntypedActor {
 
 	private final WebSocketSession session;
 	private final ObjectMapper mapper;
+	private final BestiaActorContext bestiaCtx;
 
 	private boolean isAuthenticated = false;
 
@@ -41,10 +46,11 @@ public class MessageHandlerActor extends UntypedActor {
 	 * @param mapper
 	 *            An jackson json mapper.
 	 */
-	public MessageHandlerActor(WebSocketSession session, ObjectMapper mapper) {
+	public MessageHandlerActor(WebSocketSession session, ObjectMapper mapper, BestiaActorContext bestiaCtx) {
 
 		this.session = Objects.requireNonNull(session, "Session can not be null.");
 		this.mapper = Objects.requireNonNull(mapper, "Mapper can not be null.");
+		this.bestiaCtx = Objects.requireNonNull(bestiaCtx, "BestiaCtx can not be null.");
 
 	}
 
@@ -55,12 +61,12 @@ public class MessageHandlerActor extends UntypedActor {
 	 * @param mapper
 	 * @return
 	 */
-	public static Props props(WebSocketSession session, ObjectMapper mapper) {
+	public static Props props(WebSocketSession session, ObjectMapper mapper, BestiaActorContext bestiaCtx) {
 		return Props.create(new Creator<MessageHandlerActor>() {
 			private static final long serialVersionUID = 1L;
 
 			public MessageHandlerActor create() throws Exception {
-				return new MessageHandlerActor(session, mapper);
+				return new MessageHandlerActor(session, mapper, bestiaCtx);
 			}
 		});
 	}
@@ -81,6 +87,9 @@ public class MessageHandlerActor extends UntypedActor {
 				final LoginRequestMessage loginReqMsg = mapper.readValue(payload, LoginRequestMessage.class);
 
 				// TODO Send the LoginRequest to the cluster.
+				final AccountDAO accountDao = bestiaCtx.getSpringContext().getBean(AccountDAO.class);
+				final ActorRef loginActor = getContext().actorOf(LoginActor.props(accountDao));
+				loginActor.tell(loginReqMsg, getSelf());
 
 			} catch (IOException e) {
 				// Wrong message. Terminate connection.

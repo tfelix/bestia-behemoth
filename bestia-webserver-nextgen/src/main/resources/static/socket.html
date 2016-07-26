@@ -7,7 +7,9 @@
     <button onclick="close()">Stop!</button><br/><br/>
     <textarea id="log" rows="20" cols="90"></textarea>
 	
-	<script>	
+	<script>
+	var loginMsg = {accId: 1, token: '04473c9f-65e9-4f59-9075-6da257a21826'};
+	
 	var sock = null;
 	
 		function connect() {
@@ -17,7 +19,7 @@
 			
 			sock.onopen = function() {
 				console.log('open');
-				sock.send('test');
+				sock.send(JSON.stringify(loginMsg));
 			};
 			
 			sock.onmessage = function(e) {
