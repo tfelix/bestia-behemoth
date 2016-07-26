@@ -1,9 +1,11 @@
 package net.bestia.messages;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class LoginResponseMessage {
+public class LoginResponseMessage implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private LoginState response;
 	private LoginRequestMessage requestMessage;
 

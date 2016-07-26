@@ -1,38 +1,72 @@
 <html>
 <body>
-    <h1>Web Socket Sample</h1>
-	<script type="text/javascript" src="https://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
- 
-    <button onclick="connect()">Start</button>
-    <button onclick="close()">Stop!</button><br/><br/>
-    <textarea id="log" rows="20" cols="90"></textarea>
-	
+	<h1>Web Socket Sample</h1>
+	<script type="text/javascript"
+		src="https://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
+
+	<button onclick="send1()">Send1</button>
+	<button onclick="send2()">Send2</button>
+	<button onclick="close()">Stop!</button>
+	<br />
+	<br />
+	<textarea id="log" rows="20" cols="90"></textarea>
+
 	<script>
-	var loginMsg = {accId: 1, token: '04473c9f-65e9-4f59-9075-6da257a21826'};
-	
-	var sock = null;
-	
-		function connect() {
+		var loginMsg = {
+			accId : 1,
+			token : '04473c9f-65e9-4f59-9075-6da257a21826'
+		};
+		var loginMsg2 = {
+			accId : 1,
+			token : '04473c9fgfhgfhg257a21826'
+		};
+
+		var isConnected = false;
+		var sock = null;
+
+		function send1() {
+
+			var sendFn = function() {
+				sock.send(JSON.stringify(loginMsg));
+			}
+
+			if (!isConnected) {
+				connect(sendFn);
+			} else {
+				sendFn();
+			}
+		}
+
+		function send2() {
+
+			var sendFn = function() {
+				sock.send(JSON.stringify(loginMsg2));
+			}
+
+			if (!isConnected) {
+				connect(sendFn);
+			} else {
+				sendFn();
+			}
+		}
+
+		function connect(fn) {
 			// defined a connection to a new socket endpoint
 			sock = new SockJS('/socket');
-		
-			
-			sock.onopen = function() {
-				console.log('open');
-				sock.send(JSON.stringify(loginMsg));
-			};
-			
+
+			sock.onopen = fn;
+
 			sock.onmessage = function(e) {
 				console.log('message', e.data);
 			};
-				
+
 			sock.onclose = function() {
 				console.log('close');
 			};
 		}
-		
+
 		function close() {
-			if(sock == null) {
+			if (sock == null) {
 				return;
 			}
 			sock.close();

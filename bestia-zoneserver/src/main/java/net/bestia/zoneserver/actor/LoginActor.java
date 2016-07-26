@@ -4,7 +4,6 @@ import java.util.Objects;
 
 import akka.actor.ActorRef;
 import akka.actor.Deploy;
-import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.cluster.pubsub.DistributedPubSub;
@@ -12,11 +11,11 @@ import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
-import net.bestia.model.dao.AccountDAO;
-import net.bestia.model.domain.Account;
 import net.bestia.messages.LoginRequestMessage;
 import net.bestia.messages.LoginResponseMessage;
 import net.bestia.messages.LoginState;
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
 
 /**
  * This actor will take {@link LoginRequestMessage} and check the validity of
@@ -41,7 +40,7 @@ public class LoginActor extends UntypedActor {
 		this.accountDao = Objects.requireNonNull(accountDao);
 
 		// Setup the mediator.
-		ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
+		final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
 
 		mediator.tell(new DistributedPubSubMediator.Put(getSelf()), getSelf());
 	}
@@ -90,7 +89,6 @@ public class LoginActor extends UntypedActor {
 	private void respond(LoginRequestMessage msg, LoginState state) {
 		final LoginResponseMessage response = new LoginResponseMessage(msg, state);
 		getSender().tell(response, getSelf());
-		self().tell(PoisonPill.getInstance(), getSelf());
 	}
 
 }

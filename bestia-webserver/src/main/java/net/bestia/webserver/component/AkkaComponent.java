@@ -14,6 +14,7 @@ import com.typesafe.config.ConfigFactory;
 import akka.actor.ActorSystem;
 import akka.actor.Address;
 import akka.cluster.Cluster;
+import net.bestia.server.AkkaCluster;
 import net.bestia.server.ClusterConfigurationService;
 import net.bestia.webserver.service.ConfigurationService;
 
@@ -36,7 +37,7 @@ public class AkkaComponent {
 	@Bean
 	public ActorSystem actorSystem(Config akkaConfig, ConfigurationService serverConfig, HazelcastInstance hzClient) {
 
-		final ActorSystem system = ActorSystem.create(serverConfig.getServerName(), akkaConfig);
+		final ActorSystem system = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
 
 		final ClusterConfigurationService clusterConfig = new ClusterConfigurationService(hzClient);
 		final List<Address> seedNodes = clusterConfig.getClusterNodes();
