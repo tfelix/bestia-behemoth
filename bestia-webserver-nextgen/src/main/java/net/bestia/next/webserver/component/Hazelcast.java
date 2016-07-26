@@ -1,4 +1,4 @@
-package net.bestia.next.webserver.component.cache;
+package net.bestia.next.webserver.component;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;

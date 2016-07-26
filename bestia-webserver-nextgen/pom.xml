@@ -75,7 +75,11 @@
 			<version>3.6.4</version>
 		</dependency>
 		<!-- BESTIA DEPENDENCIES -->
-
+		<dependency>
+			<groupId>net.bestia.next</groupId>
+			<artifactId>bestia-message-nextgen</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

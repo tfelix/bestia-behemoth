@@ -21,6 +21,7 @@
 		<!-- Nextgen versions -->
 		<module>bestia-webserver-nextgen</module>
 		<module>bestia-zoneserver-nextgen</module>
+		<module>bestia-messages-nextgen</module>
 	</modules>
 
 	<properties>
