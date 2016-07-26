@@ -8,19 +8,19 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.core.HazelcastInstance;
 
 @Component
-public class Hazelcast {
+public class HazelcastComponent {
 
 	@Bean
 	public ClientConfig clientConfig() {
+		
 		final ClientConfig clientConfig = new ClientConfig();
-
 		return clientConfig;
 	}
 
 	@Bean
 	public HazelcastInstance client(ClientConfig clientConfig) {
-		final HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
 		
+		final HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
 		return client;
 	}
 

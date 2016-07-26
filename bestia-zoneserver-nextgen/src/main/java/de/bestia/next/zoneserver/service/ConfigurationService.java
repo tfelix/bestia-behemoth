@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
- * Zentral configuration class for this server. Is backed up by the spring
+ * Central configuration class for this server. Is backed up by the spring
  * property and value framework. Zentral configurations belonging to this server
  * are found here.
  * 
