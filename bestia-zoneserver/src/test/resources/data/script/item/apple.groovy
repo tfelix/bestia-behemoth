@@ -1,1 +1,0 @@
-println 'Groovy world!'

@@ -10,8 +10,9 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 import org.apache.commons.io.Charsets;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Central configuration object it encapsulates a Properties object reads the
@@ -22,7 +23,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class BestiaConfiguration {
 
-	private static final Logger LOG = LogManager.getLogger(BestiaConfiguration.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BestiaConfiguration.class);
 
 	private final Properties prop;
 	private final BestiaVersion versionReader = new BestiaVersion();

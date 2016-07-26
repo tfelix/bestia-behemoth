@@ -7,9 +7,9 @@ import java.util.Set;
 
 import net.bestia.messages.Message;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.JavaType;
@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
  */
 public class MessageTypeIdResolver extends TypeIdResolverBase {
 
-	private final static Logger log = LogManager.getLogger(MessageTypeIdResolver.class);
+	private final static Logger log = LoggerFactory.getLogger(MessageTypeIdResolver.class);
 
 	private final TypeFactory typeFactory = TypeFactory.defaultInstance();
 	private final HashMap<String, Class<? extends Message>> idToClass = new HashMap<String, Class<? extends Message>>();
@@ -67,7 +67,7 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 				log.trace("Found Message.class: {} - {}", key, msg.toString());
 
 			} catch (Exception e) {
-				log.fatal("Could not initialize all message handler. Serialization and deserialization will fail.", e);
+				log.error("Could not initialize all message handler. Serialization and deserialization will fail.", e);
 				System.exit(1);
 			}
 		}

@@ -1,72 +1,76 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	
+	<parent>
+		<groupId>net.bestia</groupId>
+		<artifactId>bestia-server-base</artifactId>
+		<version>alpha-0.3.0-SNAPSHOT</version>
+		 <relativePath>../bestia-server-base/pom.xml</relativePath>
+	</parent>
+	
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>bestia-webserver</artifactId>
 	<name>bestia-webserver</name>
-	<parent>
-		<groupId>net.bestia</groupId>
-		<artifactId>behemoth</artifactId>
-		<version>alpha-0.3.0-SNAPSHOT</version>
-	</parent>
+
+	<description>Next generation bestia webserver for client connections.</description>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<!-- Import dependency management from Spring Boot -->
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>${spring.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
-			<groupId>org.atmosphere</groupId>
-			<artifactId>nettosphere</artifactId>
-			<version>2.3.1</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-websocket</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-			<version>1.7.7</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jetty</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-cluster_2.11</artifactId>
+			<version>${akka.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-cluster-tools_2.11</artifactId>
+			<version>${akka.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast-client</artifactId>
+			<version>3.5.5</version>
+		</dependency>
+		<!-- BESTIA DEPENDENCIES -->
 		<dependency>
 			<groupId>net.bestia</groupId>
-			<artifactId>bestia-interserver</artifactId>
+			<artifactId>bestia-message</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.bestia</groupId>
-			<artifactId>bestia-messages</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.zeromq</groupId>
-			<artifactId>jeromq</artifactId>
-			<version>0.3.4</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.inject</groupId>
-			<artifactId>javax.inject</artifactId>
-			<version>1</version>
-		</dependency>
-		<dependency>
-			<groupId>com.netflix.servo</groupId>
-			<artifactId>servo-core</artifactId>
-			<version>0.8.0</version>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.4.1</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<transformers>
-								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>net.bestia.webserver.Webserver</mainClass>
-								</transformer>
-							</transformers>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
 </project>

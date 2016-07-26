@@ -9,8 +9,8 @@ import net.bestia.model.domain.PlayerItem;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -33,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service("InventoryService")
 public class InventoryService {
 
-	private final static Logger log = LogManager.getLogger(InventoryService.class);
+	private final static Logger log = LoggerFactory.getLogger(InventoryService.class);
 
 	private PlayerItemDAO playerItemDao;
 	private AccountDAO accountDao;

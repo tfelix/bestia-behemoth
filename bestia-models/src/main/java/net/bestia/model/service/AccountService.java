@@ -2,8 +2,8 @@ package net.bestia.model.service;
 
 import java.util.Set;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ import net.bestia.model.domain.PlayerBestia;
 @Service("AccountService")
 public class AccountService {
 
-	private final static Logger log = LogManager.getLogger(AccountService.class);
+	private final static Logger log = LoggerFactory.getLogger(AccountService.class);
 
 	private AccountDAO accountDao;
 	private PlayerBestiaDAO playerBestiaDao;
@@ -81,10 +81,10 @@ public class AccountService {
 	 *         otherwise.
 	 */
 	public void createNewAccount(String email, String mastername, String password, Master starter) {
-		if(mastername == null || mastername.isEmpty()) {
+		if (mastername == null || mastername.isEmpty()) {
 			throw new IllegalArgumentException("Mastername can not be null or empty.");
 		}
-		
+
 		final Account account = new Account(email, password);
 
 		// TODO das hier noch auslagern. Die aktivierung soll nur per
@@ -104,12 +104,12 @@ public class AccountService {
 
 		// Check if there is a bestia master with this name.
 		final PlayerBestia existingMaster = playerBestiaDao.findMasterBestiaWithName(mastername);
-		
-		if(existingMaster != null) {
+
+		if (existingMaster != null) {
 			log.warn("Can not create account. Master name already exists: {}", mastername);
 			throw new IllegalArgumentException("A master with this name does already exist.");
 		}
-		
+
 		// Create the bestia.
 		final PlayerBestia masterBestia = new PlayerBestia(account, origin, BaseValues.getStarterIndividualValues());
 

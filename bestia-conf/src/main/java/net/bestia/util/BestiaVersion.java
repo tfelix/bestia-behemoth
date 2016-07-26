@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Reads the name and the version number of the bestia project. A
@@ -24,7 +24,7 @@ import org.apache.logging.log4j.Logger;
  */
 public class BestiaVersion {
 
-	private static final Logger LOG = LogManager.getLogger(BestiaVersion.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BestiaVersion.class);
 	private final Properties properties = new Properties();
 
 	public BestiaVersion() {

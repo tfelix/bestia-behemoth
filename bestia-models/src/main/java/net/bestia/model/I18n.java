@@ -1,7 +1,8 @@
 package net.bestia.model;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bestia.model.dao.I18nDAO;
 import net.bestia.model.domain.Account;
@@ -16,7 +17,7 @@ import net.bestia.model.domain.TranslationCategory;
  */
 public class I18n {
 
-	private static final Logger LOG = LogManager.getLogger(I18n.class);
+	private static final Logger LOG = LoggerFactory.getLogger(I18n.class);
 	private static I18nDAO i18nDao = null;
 
 	private static final String NO_CATEGORY = "NO CATEGORY";

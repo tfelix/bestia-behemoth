@@ -1,17 +1,10 @@
 package net.bestia.model.dao;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Iterator;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
-
-import net.bestia.model.domain.Account;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +16,8 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
+
+import net.bestia.model.domain.Account;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring-config.xml" })

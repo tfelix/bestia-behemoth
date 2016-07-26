@@ -1,8 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>bestia-messages</artifactId>
-	<name>bestia-messages</name>
-	
+	<groupId>net.bestia.next</groupId>
+	<artifactId>bestia-message</artifactId>
+	<name>bestia-message</name>
+
+	<description>Next generation bestia messages.</description>
+
 	<parent>
 		<groupId>net.bestia</groupId>
 		<artifactId>behemoth</artifactId>
@@ -11,14 +15,26 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.version}</version>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-actor_2.11</artifactId>
+			<version>${akka.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast</artifactId>
+			<version>${hazelcast.version}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>4.3.1.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bestia</groupId>
 			<artifactId>bestia-models</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+
 	</dependencies>
 </project>

@@ -12,8 +12,8 @@ import net.bestia.model.domain.BestiaAttack;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PlayerBestiaService {
 
 	private final static int NUM_ITEM_SLOTS = 5;
-	private final static Logger log = LogManager.getLogger(InventoryService.class);
+	private final static Logger log = LoggerFactory.getLogger(InventoryService.class);
 
 	private PlayerBestiaDAO playerBestiaDao;
 	private BestiaAttackDAO attackLevelDao;

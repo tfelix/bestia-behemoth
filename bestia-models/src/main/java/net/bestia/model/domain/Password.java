@@ -14,8 +14,10 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Transient;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -32,7 +34,8 @@ public class Password implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Transient
-	private final static Logger log = LogManager.getLogger(Password.class);
+	private final static Logger log = LoggerFactory.getLogger(Password.class);
+	private final static Marker marker = MarkerFactory.getMarker("FATAL");
 
 	@Transient
 	private final static String HASH_FUNCTION = "PBKDF2WithHmacSHA1";
@@ -51,7 +54,7 @@ public class Password implements Serializable {
 	 */
 	@Column(name = "password", length = 255, nullable = false)
 	private String passwordHash = "";
-	
+
 	/**
 	 * Paramless Ctor for Hibernate.
 	 */
@@ -71,7 +74,7 @@ public class Password implements Serializable {
 			final byte[] data = hash(password, salt);
 			setPasswordHash(data, salt);
 		} catch (Exception e) {
-			log.fatal("Encryption algorithm not supported on this VM! Passwords can not be hashed!");
+			log.error(marker, "Encryption algorithm not supported on this VM! Passwords can not be hashed!");
 		}
 
 	}
@@ -87,20 +90,18 @@ public class Password implements Serializable {
 			final byte[] data = hash(password, salt);
 			setPasswordHash(data, salt);
 		} catch (Exception e) {
-			log.fatal("Encryption algorithm not supported on this VM! Passwords can not be hashed!");
+			log.error(marker, "Encryption algorithm not supported on this VM! Passwords can not be hashed!");
 		}
 	}
 
-	
 	private void setPasswordHash(byte[] data, byte[] salt) {
 		final Base64.Encoder enc = Base64.getEncoder();
-		
+
 		final String dataStr = enc.encodeToString(data);
 		final String saltStr = enc.encodeToString(salt);
-		
-		passwordHash = dataStr  + "$" + saltStr;
-	}
 
+		passwordHash = dataStr + "$" + saltStr;
+	}
 
 	private byte[] getNewSalt() throws Exception {
 		final byte[] salt = SecureRandom.getInstance("SHA1PRNG").generateSeed(
@@ -131,7 +132,7 @@ public class Password implements Serializable {
 	 */
 	private byte[] hash(String str, byte[] salt)
 			throws NoSuchAlgorithmException {
-		
+
 		// KEY_LENGTH is in byte. Function awaits bits.
 		final KeySpec spec = new PBEKeySpec(str.toCharArray(), salt,
 				ITERATIONS, KEY_LENGTH * 8);
@@ -139,11 +140,11 @@ public class Password implements Serializable {
 		try {
 			final SecretKey key = f.generateSecret(spec);
 			final byte[] hash = key.getEncoded();
-			
+
 			return hash;
 		} catch (InvalidKeySpecException ex) {
 
-			log.fatal("Invalid key spec! Can not create hashed passwords!", ex);
+			log.error(marker, "Invalid key spec! Can not create hashed passwords!", ex);
 		}
 
 		return new byte[KEY_LENGTH];
@@ -184,7 +185,7 @@ public class Password implements Serializable {
 		Password that = (Password) o;
 		return this.passwordHash.equals(that.passwordHash);
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("Password[Hash: %s...]", passwordHash.subSequence(0, 12));

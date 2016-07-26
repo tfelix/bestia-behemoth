@@ -1,183 +1,91 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<groupId>net.bestia.next</groupId>
 	<artifactId>bestia-zoneserver</artifactId>
 	<name>bestia-zoneserver</name>
-	<packaging>jar</packaging>
-	<description>Bestia Zoneserver Gameserver</description>
+
+	<description>Next generation bestia zoneserver.</description>
+
 	<parent>
 		<groupId>net.bestia</groupId>
 		<artifactId>behemoth</artifactId>
 		<version>alpha-0.3.0-SNAPSHOT</version>
 	</parent>
 
-	<properties>
-		<artemis.version>1.3.1</artemis.version>
-	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<!-- Import dependency management from Spring Boot -->
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>${spring.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.codehaus.groovy</groupId>
-			<artifactId>groovy</artifactId>
-			<version>2.2.2</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.reflections</groupId>
-			<artifactId>reflections</artifactId>
-			<version>0.9.9</version>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-cluster_2.12.0-M4</artifactId>
+			<version>${akka.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.onedaybeard.artemis</groupId>
-			<artifactId>artemis-odb</artifactId>
-			<version>${artemis.version}</version>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-cluster-tools_2.11</artifactId>
+			<version>${akka.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.onedaybeard.artemis</groupId>
-			<artifactId>artemis-odb-serializer-json</artifactId>
-			<version>${artemis.version}</version>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>net.onedaybeard.artemis</groupId>
-			<artifactId>artemis-odb-processor</artifactId>
-			<version>0.9.0</version>
-			<scope>provided</scope>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>map-tmxloader</groupId>
-			<artifactId>map-tmxloader</artifactId>
-			<version>1.0</version>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>net.bestia</groupId>
-			<artifactId>bestia-config</artifactId>
-			<version>${project.version}</version>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>net.bestia</groupId>
-			<artifactId>bestia-models</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.bestia</groupId>
-			<artifactId>bestia-messages</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.bestia</groupId>
-			<artifactId>bestia-interserver</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.groovy</groupId>
-			<artifactId>groovy-jsr223</artifactId>
-			<version>2.4.4</version>
-		</dependency>
-		<dependency>
-			<groupId>com.badlogicgames.gdx</groupId>
-			<artifactId>gdx-ai</artifactId>
-			<version>1.6.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.netflix.servo</groupId>
-			<artifactId>servo-core</artifactId>
-			<version>0.8.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<version>${spring.version}</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- BESTIA DEPENDENCIES -->
 		<dependency>
-            <groupId>com.github.springtestdbunit</groupId>
-            <artifactId>spring-test-dbunit</artifactId>
-            <version>1.2.0</version>
-            <scope>test</scope>
-        </dependency>
+			<groupId>net.bestia.next</groupId>
+			<artifactId>bestia-message</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.mortbay.jetty</groupId>
-					<artifactId>maven-jetty-plugin</artifactId>
-					<version>6.1.26</version>
-					<dependencies>
-						<dependency>
-							<groupId>hsqldb</groupId>
-							<artifactId>hsqldb</artifactId>
-							<version>1.8.0.7</version>
-						</dependency>
-					</dependencies>
-				</plugin>
-				<plugin>
-					<groupId>de.juplo</groupId>
-					<artifactId>hibernate4-maven-plugin</artifactId>
-					<version>1.0.5</version>
-					<executions>
-						<execution>
-							<goals>
-								<goal>export</goal>
-							</goals>
-						</execution>
-					</executions>
-					<configuration>
-						<url><![CDATA[${db.url}]]></url>
-						<hibernateDialect>${db.dialect}</hibernateDialect>
-						<target>SCRIPT</target>
-						<outputFile>${project.build.directory}/mysql-schema.sql</outputFile>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 		<plugins>
 			<plugin>
-				<groupId>net.onedaybeard.artemis</groupId>
-				<artifactId>artemis-odb-maven-plugin</artifactId>
-				<version>${artemis.version}</version>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${spring.version}</version>
 				<executions>
 					<execution>
 						<goals>
-							<goal>artemis</goal>
+							<goal>repackage</goal>
 						</goals>
-						<configuration>
-							<!-- configuration section can be omitted, -->
-							<!-- optimizeEntitySystems defaults to true -->
-							<optimizeEntitySystems>true</optimizeEntitySystems>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.4.1</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<transformers>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>net.bestia.zoneserver.Zoneserver</mainClass>
-								</transformer>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-									<resource>META-INF/spring.handlers</resource>
-								</transformer>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-									<resource>META-INF/spring.schemas</resource>
-								</transformer>
-							</transformers>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 		</plugins>
 	</build>
+
 </project>

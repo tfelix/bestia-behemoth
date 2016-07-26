@@ -11,26 +11,23 @@
 		<module>bestia-conf</module>
 		<module>bestia-models</module>
 		<module>bestia-messages</module>
+		<module>bestia-server-base</module>
 		<module>bestia-zoneserver</module>
-		<module>bestia-interserver</module>
 		<module>bestia-webserver</module>
-		<module>bestia-loginserver</module>
 		<module>bestia-www-client</module>
 		<module>bestia-gmserver</module>
 		<module>map-tmxloader</module>
-		<!-- Nextgen versions -->
-		<module>bestia-webserver-nextgen</module>
-		<module>bestia-zoneserver-nextgen</module>
-		<module>bestia-messages-nextgen</module>
 	</modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jackson.version>2.6.0</jackson.version>
-		<!-- Define Spring version as a constant -->
-		<spring.version>4.2.1.RELEASE</spring.version>
-		<hibernate.version>4.3.4.Final</hibernate.version>
 		<findbugs.version>3.0.2</findbugs.version>
+		<spring.version>1.3.6.RELEASE</spring.version>
+		<akka.version>2.4.7</akka.version>
+		<hazelcast.version>3.6.4</hazelcast.version>
+		<jetty.version>9.3.10.v20160621</jetty.version>
+		<java.version>1.8</java.version>
 	</properties>
 
 	<!-- Profiles for the different builds. -->
@@ -72,26 +69,6 @@
 				</property>
 			</activation>
 		</profile>
-
-		<profile>
-			<id>sonar</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-			<properties>
-				<!-- Example for MySQL -->
-				<sonar.jdbc.url>
-					jdbc:mysql://dev.tfelix.de:3306/sonar
-				</sonar.jdbc.url>
-				<sonar.jdbc.username>sonar</sonar.jdbc.username>
-				<sonar.jdbc.password>Agcb2746fgTqdbcluH</sonar.jdbc.password>
-
-				<!-- Optional URL to server. Default value is http://localhost:9000 -->
-				<sonar.host.url>
-					http://dev.tfelix.de/sonar/
-				</sonar.host.url>
-			</properties>
-		</profile>
 	</profiles>
 
 	<build>
@@ -103,8 +80,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.0</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -158,29 +135,8 @@
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>sonar-maven-plugin</artifactId>
-					<version>2.3</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-assembly-plugin</artifactId>
-					<version>2.5.5</version>
-				</plugin>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>versions-maven-plugin</artifactId>
 					<version>2.2</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-jar-plugin</artifactId>
-					<configuration>
-						<archive>
-							<manifestEntries>
-								<Built-By />
-							</manifestEntries>
-						</archive>
-					</configuration>
 				</plugin>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
 					only. It has no influence on the Maven build itself. -->
@@ -222,6 +178,10 @@
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
 			</resource>
+			<resource>
+				<directory>src/test/resources</directory>
+				<filtering>true</filtering>
+			</resource>
 		</resources>
 	</build>
 
@@ -233,15 +193,15 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.21</version>
+		</dependency>
+		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<version>2.0.31-beta</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-core</artifactId>
-			<version>2.3</version>
 		</dependency>
 	</dependencies>
 
