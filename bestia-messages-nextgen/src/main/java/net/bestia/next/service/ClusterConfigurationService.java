@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
@@ -34,10 +35,7 @@ public class ClusterConfigurationService {
 
 	private final IMap<String, Object> data;
 
-	// Lokal IP
-	// Wer ist ein seed node?
-	//
-
+	@Autowired
 	public ClusterConfigurationService(HazelcastInstance hcInstance) {
 		
 		this.data = hcInstance.getMap(MAP_NAME);

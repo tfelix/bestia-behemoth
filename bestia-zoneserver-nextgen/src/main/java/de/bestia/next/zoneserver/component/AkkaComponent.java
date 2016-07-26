@@ -1,5 +1,7 @@
 package de.bestia.next.zoneserver.component;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -32,21 +34,43 @@ public class AkkaComponent {
 	private static final Logger LOG = LoggerFactory.getLogger(AkkaComponent.class);
 
 	private static final String AKKA_CONFIG_NAME = "akka";
-	private static final String ACTOR_SYSTEM_NAME = "BestiaZone";
+	private static final String ACTOR_SYSTEM_NAME = "BehemothCluster";
 
 	@Bean
-	public ActorSystem actorSystem(Config akkaConfig, ConfigurationService config, HazelcastInstance hzInstance) {
+	public ActorSystem actorSystem(Config akkaConfig, ConfigurationService config, HazelcastInstance hzInstance)
+			throws UnknownHostException {
 
 		final ActorSystem system = ActorSystem.create(ACTOR_SYSTEM_NAME, akkaConfig);
 
 		final ClusterConfigurationService clusterConfig = new ClusterConfigurationService(hzInstance);
 
-		final List<Address> clusterNodes = clusterConfig.getClusterNodes();
-		Cluster.get(system).joinSeedNodes(clusterNodes);
+		if (clusterConfig.shoudlJoinAsSeedNode()) {
+
+			// Check if there are at least some seeds or if we need to bootstrap
+			// the cluster.
+			final List<Address> seedNodes = clusterConfig.getClusterNodes();
+			
+			if(seedNodes.size() == 0) {
+				// Join as seed node since desired number of seeds is not reached.
+				final String hostAddr = InetAddress.getLocalHost().getHostAddress();
+				final Address selfAddr = Address.apply("akka.tcp", ACTOR_SYSTEM_NAME, hostAddr, 0);
+				Cluster.get(system).join(selfAddr);
+			} else {
+				Cluster.get(system).joinSeedNodes(seedNodes);
+			}
+			
+		} else {
+			// Only joind as normal node.
+			final List<Address> clusterNodes = clusterConfig.getClusterNodes();
+			Cluster.get(system).joinSeedNodes(clusterNodes);
+		}
 
 		final Address myAddress = Cluster.get(system).selfAddress();
 		LOG.info("Zoneserver Akka Address: {}", myAddress);
 
+		// Save the new generated address. Must be done here since we MIGHT
+		// could use random port join which will alter the port defined in
+		// selfAddr.
 		clusterConfig.addClusterNode(myAddress);
 
 		return system;
