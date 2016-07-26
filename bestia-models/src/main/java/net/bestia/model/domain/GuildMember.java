@@ -2,11 +2,9 @@ package net.bestia.model.domain;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -25,17 +23,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * 
  */
 @Entity
-@Table(name = "guild_player", uniqueConstraints = { @UniqueConstraint(columnNames = {
+@Table(name = "guild_member", uniqueConstraints = { @UniqueConstraint(columnNames = {
 		"GUILD_ID", "ACCOUNT_ID" }) })
 public class GuildMember implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(unique = true, nullable = false)
-	@JsonProperty("gid")
-	private int guildId;
+	@GeneratedValue
+	private int id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "ACCOUNT_ID", nullable = false)

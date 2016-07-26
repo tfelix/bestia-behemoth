@@ -10,7 +10,7 @@
 	</parent>
 
 	<properties>
-		<springtest.version>4.3.1.RELEASE</springtest.version>
+		<springtest.version>4.2.7.RELEASE</springtest.version>
 	</properties>
 
 	<dependencies>
@@ -23,7 +23,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
-			<version>4.3.1.RELEASE</version>
+			<version>4.2.7.RELEASE</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-jpa -->
 		<dependency>

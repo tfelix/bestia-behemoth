@@ -9,7 +9,6 @@
 	</parent>
 	
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>net.bestia.next</groupId>
 	<artifactId>bestia-zoneserver</artifactId>
 	<name>bestia-zoneserver</name>
 
@@ -36,5 +35,22 @@
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>${spring.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

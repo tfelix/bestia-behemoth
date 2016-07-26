@@ -3,6 +3,7 @@ package net.bestia.zoneserver.actor;
 import java.util.Objects;
 
 import akka.actor.ActorRef;
+import akka.actor.Deploy;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
@@ -41,18 +42,20 @@ public class LoginActor extends UntypedActor {
 
 		// Setup the mediator.
 		ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
-		
+
 		mediator.tell(new DistributedPubSubMediator.Put(getSelf()), getSelf());
 	}
 
 	public static Props props(final AccountDAO accountDao) {
+		// Props must be deployed locally since we contain a dao (non
+		// serializable)
 		return Props.create(new Creator<LoginActor>() {
 			private static final long serialVersionUID = 1L;
 
 			public LoginActor create() throws Exception {
 				return new LoginActor(accountDao);
 			}
-		});
+		}).withDeploy(Deploy.local());
 	}
 
 	@Override
