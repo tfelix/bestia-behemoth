@@ -53,7 +53,7 @@ public class AkkaComponent {
 			if(seedNodes.size() == 0) {
 				// Join as seed node since desired number of seeds is not reached.
 				final String hostAddr = InetAddress.getLocalHost().getHostAddress();
-				final Address selfAddr = Address.apply("akka.tcp", ACTOR_SYSTEM_NAME, hostAddr, 0);
+				final Address selfAddr = Address.apply("akka.tcp", ACTOR_SYSTEM_NAME, hostAddr, config.getServerPort());
 				Cluster.get(system).join(selfAddr);
 			} else {
 				Cluster.get(system).joinSeedNodes(seedNodes);
