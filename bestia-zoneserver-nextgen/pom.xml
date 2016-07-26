@@ -70,6 +70,12 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- BESTIA DEPENDENCIES -->
+		<dependency>
+			<groupId>net.bestia.next</groupId>
+			<artifactId>bestia-message-nextgen</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

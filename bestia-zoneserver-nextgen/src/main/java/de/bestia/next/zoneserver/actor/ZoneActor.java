@@ -5,7 +5,7 @@ import java.util.Objects;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.japi.Creator;
-import de.bestia.next.zoneserver.message.InputMessage;
+import net.bestia.next.messages.InputMessage;
 
 public class ZoneActor extends UntypedActor {
 	

@@ -8,9 +8,9 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.actor.UntypedActorContext;
 import akka.japi.Creator;
-import de.bestia.next.zoneserver.message.CacheAnswerMessage;
-import de.bestia.next.zoneserver.message.CacheRequestMessage;
-import de.bestia.next.zoneserver.message.InputMessage;
+import net.bestia.next.messages.CacheAnswerMessage;
+import net.bestia.next.messages.CacheRequestMessage;
+import net.bestia.next.messages.InputMessage;
 
 public class ZoneRouter extends UntypedActor {
 

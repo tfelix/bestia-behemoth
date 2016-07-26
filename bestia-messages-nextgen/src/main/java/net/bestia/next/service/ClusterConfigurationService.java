@@ -1,16 +1,11 @@
-package de.bestia.next.zoneserver.component;
+package net.bestia.next.service;
 
-import java.io.Serializable;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -18,16 +13,17 @@ import com.hazelcast.core.IMap;
 import akka.actor.Address;
 
 /**
- * The {@link ClusterConfig} can be used to extract the necessairy cluster
+ * The {@link ClusterConfigurationService} can be used to extract the necessairy cluster
  * information from a hazelcast instance and to use this information to setup
  * the akka cluster.
  * 
  * @author tbf
  *
  */
-public class ClusterConfig {
+@Service
+public class ClusterConfigurationService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ClusterConfig.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ClusterConfigurationService.class);
 
 	private static final int NUM_SEED_NODES = 3;
 
@@ -35,18 +31,15 @@ public class ClusterConfig {
 
 	private static final String CURRENT_NUM_SEED_NODES = "current_num_seed_node";
 	private static final String CLUSTER_NODES = "cluster_nodes";
-	private static final String SEED_NODES = "current_seed_nodes";
 
-	private final HazelcastInstance hcInstance;
 	private final IMap<String, Object> data;
 
 	// Lokal IP
 	// Wer ist ein seed node?
 	//
 
-	public ClusterConfig(HazelcastInstance hcInstance) {
-		this.hcInstance = Objects.requireNonNull(hcInstance, "hcInstance can not be null.");
-
+	public ClusterConfigurationService(HazelcastInstance hcInstance) {
+		
 		this.data = hcInstance.getMap(MAP_NAME);
 	}
 
@@ -88,13 +81,14 @@ public class ClusterConfig {
 	 * 
 	 * @return The list of current active seed nodes.
 	 */
-	public Set<Address> getClusterNodes() {
+	public List<Address> getClusterNodes() {
 		data.lock(CLUSTER_NODES);
 		try {
-			Set<Address> nodes = (Set<Address>) data.get(CLUSTER_NODES);
+			@SuppressWarnings("unchecked")
+			List<Address> nodes = (List<Address>) data.get(CLUSTER_NODES);
 			
 			if(nodes == null) {
-				nodes = new HashSet<Address>();
+				nodes = new ArrayList<Address>();
 				data.set(CLUSTER_NODES, nodes);
 			}
 			
@@ -107,9 +101,10 @@ public class ClusterConfig {
 	public void addClusterNode(Address address) {
 		data.lock(CLUSTER_NODES);
 		try {
-			Set<Address> nodes = (Set<Address>) data.get(CLUSTER_NODES);
+			@SuppressWarnings("unchecked")
+			List<Address> nodes = (List<Address>) data.get(CLUSTER_NODES);
 			if(nodes == null) {
-				nodes = new HashSet<Address>();
+				nodes = new ArrayList<Address>();
 			}
 			nodes.add(address);
 			data.set(CLUSTER_NODES, nodes);

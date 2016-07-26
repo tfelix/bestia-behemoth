@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
 
 /**
@@ -29,12 +28,6 @@ public class Akka {
 		final ActorSystem system = ActorSystem.create(serverName, akkaConfig);
 		
 		return system;
-	}
-	
-	@Bean
-	public ActorSelection remoteReceiver(ActorSystem system) {
-		// pattern: akka.<protocol>://<actorsystemname>@<hostname>:<port>/<actor path>
-		return system.actorSelection("akka.tcp://app@10.0.0.1:2552/user/serviceA/worker");
 	}
 
 	/**

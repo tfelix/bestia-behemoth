@@ -1,4 +1,4 @@
-package de.bestia.next.zoneserver.message;
+package net.bestia.next.messages;
 
 public class CacheRequestMessage {
 
