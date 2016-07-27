@@ -35,4 +35,9 @@ public class ClientRefLookup {
 		return refs.get(accountId);
 	}
 
+	public void removeActorRef(long accountId) {
+		final ConcurrentMap<Long, ActorRef> refs = cache.getMap(CLIENT_REF_KEY);
+		refs.remove(accountId);
+	}
+
 }
