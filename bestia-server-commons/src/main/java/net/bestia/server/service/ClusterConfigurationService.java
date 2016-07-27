@@ -1,4 +1,4 @@
-package net.bestia.server;
+package net.bestia.server.service;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -15,7 +15,7 @@ import akka.actor.ActorSystem;
 import akka.actor.Address;
 import akka.cluster.Cluster;
 import net.bestia.server.AkkaCluster;
-import net.bestia.server.ClusterConfigurationService;
+import net.bestia.server.service.ClusterConfigurationService;
 import net.bestia.webserver.service.ConfigurationService;
 
 

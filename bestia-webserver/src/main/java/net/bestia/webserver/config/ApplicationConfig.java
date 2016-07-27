@@ -5,6 +5,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import net.bestia.server.BestiaActorContext;
 
 
@@ -16,7 +18,7 @@ public class ApplicationConfig {
 	
 	@Bean
 	public BestiaActorContext bestiaActorContext() {
-		return new BestiaActorContext(springContext);
+		return new BestiaActorContext(springContext, new ObjectMapper());
 	}
 
 }
