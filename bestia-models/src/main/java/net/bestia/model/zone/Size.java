@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.zone.generation;
+package net.bestia.model.zone;
 
 /**
  * Immutable size object.

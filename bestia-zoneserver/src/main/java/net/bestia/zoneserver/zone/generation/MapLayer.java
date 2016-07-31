@@ -2,6 +2,8 @@ package net.bestia.zoneserver.zone.generation;
 
 import java.util.Objects;
 
+import net.bestia.model.zone.Size;
+
 /**
  * Temporary map layer containing map data for dynamic map generation. Note that
  * the data is not necessairy tied to tile data. This is mostly some kind of

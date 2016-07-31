@@ -52,13 +52,13 @@ public class EntityMoveMessage extends AccountMessage {
 	private int speed;
 
 	@JsonProperty("uuid")
-	private String entityId;
+	private long entityId;
 	
 	public EntityMoveMessage() {
 		// no op.
 	}
 
-	public EntityMoveMessage(String entityId, int speed) {
+	public EntityMoveMessage(long entityId, int speed) {
 		super(0);
 		this.entityId = entityId;
 		this.speed = speed;
@@ -73,11 +73,11 @@ public class EntityMoveMessage extends AccountMessage {
 		return MESSAGE_ID;
 	}
 
-	public String getEntityId() {
+	public long getEntityId() {
 		return entityId;
 	}
 
-	public void setEntityId(String entityId) {
+	public void setEntityId(long entityId) {
 		this.entityId = entityId;
 	}
 	
