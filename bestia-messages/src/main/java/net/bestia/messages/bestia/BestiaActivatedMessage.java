@@ -29,9 +29,4 @@ public class BestiaActivatedMessage extends InputMessage {
 	public String getMessageId() {
 		return MESSAGE_ID;
 	}
-
-	@Override
-	public String getMessagePath() {
-		return getClientMessagePath(getAccountId());
-	}
 }

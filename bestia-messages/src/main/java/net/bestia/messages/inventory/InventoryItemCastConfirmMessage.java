@@ -32,14 +32,6 @@ public class InventoryItemCastConfirmMessage extends InventoryItemCastMessage {
 		return MESSAGE_ID;
 	}
 	
-	/**
-	 * Message is delivered to the client.
-	 */
-	@Override
-	public String getMessagePath() {
-		return getClientMessagePath(getAccountId());
-	}
-	
 	public boolean getSuccess() {
 		return this.success;
 	}

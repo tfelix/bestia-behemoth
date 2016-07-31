@@ -21,11 +21,6 @@ public class ChatMessage extends InputMessage {
 		public ReplyChatMessage() {
 			// no op.
 		}
-
-		@Override
-		public String getMessagePath() {
-			return getClientMessagePath(getAccountId());
-		}
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -131,14 +126,9 @@ public class ChatMessage extends InputMessage {
 	}
 
 	@Override
-	public String getMessagePath() {
-		return getZoneMessagePath(getAccountId());
-	}
-
-	@Override
 	public String toString() {
-		return String.format("ChatMessage[accId: %d, mode: %s, txNick: %s, rxNick: %s, txt: %s, time: %d, path: %s]",
-				getAccountId(), chatMode, senderNickname, receiverNickname, text, time, getMessagePath());
+		return String.format("ChatMessage[accId: %d, mode: %s, txNick: %s, rxNick: %s, txt: %s, time: %d]",
+				getAccountId(), chatMode, senderNickname, receiverNickname, text, time);
 	}
 
 	/**

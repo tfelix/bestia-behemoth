@@ -34,9 +34,4 @@ public class MapLoadHintMessage extends AccountMessage {
 		return MESSAGE_ID;
 	}
 
-	@Override
-	public String getMessagePath() {
-		return getClientMessagePath(getAccountId());
-	}
-
 }

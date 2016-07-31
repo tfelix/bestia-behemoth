@@ -51,11 +51,6 @@ public class InventoryItemCastMessage extends InputMessage {
 		return MESSAGE_ID;
 	}
 
-	@Override
-	public String getMessagePath() {
-		return getZoneMessagePath(getAccountId());
-	}
-
 	public int getPlayerItemId() {
 		return playerItemId;
 	}

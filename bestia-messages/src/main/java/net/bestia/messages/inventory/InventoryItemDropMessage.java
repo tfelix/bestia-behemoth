@@ -45,11 +45,6 @@ public class InventoryItemDropMessage extends InputMessage {
 	}
 
 	@Override
-	public String getMessagePath() {
-		return getZoneMessagePath(getAccountId());
-	}
-
-	@Override
 	public String toString() {
 		return String.format("InventoryItemDropMessage[accId: %d, pbId: %d,  itemId: %d, amount: %d]", getAccountId(),
 				getPlayerBestiaId(), getItemId(), getAmount());

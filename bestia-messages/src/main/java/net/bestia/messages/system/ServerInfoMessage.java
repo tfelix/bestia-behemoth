@@ -64,9 +64,4 @@ public final class ServerInfoMessage extends AccountMessage {
 		return String.format("ServerInfoMessage[zoneName: %s, zones: %s, players: %d, ressourceURL: %s, version: %s, serverTime: %d]",
 				zoneName, zones.toString(), connectedPlayer, ressourceURL, version, serverTime);
 	}
-
-	@Override
-	public String getMessagePath() {
-		return getClientMessagePath(getAccountId());
-	}
 }

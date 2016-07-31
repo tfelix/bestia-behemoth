@@ -37,11 +37,6 @@ public class EntityPositionMessage extends AccountMessage {
 		return MESSAGE_ID;
 	}
 
-	@Override
-	public String getMessagePath() {
-		return getClientMessagePath(getAccountId());
-	}
-
 	public String getEntityId() {
 		return entityId;
 	}

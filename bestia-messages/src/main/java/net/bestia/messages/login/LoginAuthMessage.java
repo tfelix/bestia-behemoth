@@ -5,8 +5,9 @@ import java.util.UUID;
 import net.bestia.messages.AccountMessage;
 
 /**
- * Message is send if a webserver wants to authenticate a pending connection. It will send the given access token from
- * the request to the login server which must respond accordingly.
+ * Message is send if a webserver wants to authenticate a pending connection. It
+ * will send the given access token from the request to the login server which
+ * must respond accordingly.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -60,14 +61,9 @@ public class LoginAuthMessage extends AccountMessage {
 	}
 
 	@Override
-	public String getMessagePath() {
-		return MESSAGE_PATH;
-	}
-
-	@Override
 	public String toString() {
 		return String.format("LoginAuthMessage[accountId: %d, messageId: %s, path: %s, reqId: %s]", getAccountId(),
-				getMessageId(), getMessagePath(), getRequestId());
+				getMessageId(), getRequestId());
 	}
 
 }

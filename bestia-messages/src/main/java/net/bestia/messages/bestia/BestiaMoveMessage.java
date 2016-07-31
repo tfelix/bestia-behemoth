@@ -51,11 +51,6 @@ public class BestiaMoveMessage extends InputMessage {
 	}
 
 	@Override
-	public String getMessagePath() {
-		return getZoneMessagePath(getAccountId());
-	}
-
-	@Override
 	public String toString() {
 		return String.format(
 				"BestiaMoveMessage[pathX: %s, pathY: %s, walkspeed: %f]",

@@ -76,11 +76,6 @@ public class AttackUseMessage extends InputMessage {
 	}
 
 	@Override
-	public String getMessagePath() {
-		return getZoneMessagePath(getAccountId());
-	}
-
-	@Override
 	public String toString() {
 		return String.format("AttackUseMessage[accId: %d, bestiaId: %d, attackId: %d, x: %d, y: %d]", getAccountId(),
 				getPlayerBestiaId(), attackId, x, y);

@@ -40,11 +40,6 @@ public class AttackListResponseMessage extends AccountMessage {
 	}
 
 	@Override
-	public String getMessagePath() {
-		return getClientMessagePath(getAccountId());
-	}
-
-	@Override
 	public String toString() {
 		return String.format("AttackListResponseMessage[attacks: %s]", attacks.toString());
 	}

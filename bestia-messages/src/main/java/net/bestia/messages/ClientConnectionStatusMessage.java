@@ -35,11 +35,4 @@ public class ClientConnectionStatusMessage extends AccountMessage {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public String getMessagePath() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

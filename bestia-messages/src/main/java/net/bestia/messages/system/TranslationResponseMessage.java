@@ -67,11 +67,6 @@ public class TranslationResponseMessage extends AccountMessage {
 	}
 
 	@Override
-	public String getMessagePath() {
-		return getClientMessagePath(getAccountId());
-	}
-
-	@Override
 	public String toString() {
 		return String.format("TranslationResponseMessage[items: %s]",
 				items.toString());

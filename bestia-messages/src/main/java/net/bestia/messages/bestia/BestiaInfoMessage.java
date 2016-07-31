@@ -112,11 +112,6 @@ public class BestiaInfoMessage extends AccountMessage {
 		return MESSAGE_ID;
 	}
 
-	@Override
-	public String getMessagePath() {
-		return getClientMessagePath(getAccountId());
-	}
-
 	public StatusPoints getStatusPoints() {
 		return statusPoints;
 	}

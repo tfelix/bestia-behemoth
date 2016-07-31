@@ -90,11 +90,6 @@ public class InventoryUpdateMessage extends AccountMessage {
 	}
 
 	@Override
-	public String getMessagePath() {
-		return getClientMessagePath(getAccountId());
-	}
-
-	@Override
 	public String toString() {
 		return String.format("InventoryUpdateMessage[accId: %d, updates: %s]", getAccountId(), playerItems.toString());
 	}

@@ -25,12 +25,7 @@ public class AttackListRequestMessage extends AccountMessage {
 	}
 
 	@Override
-	public String getMessagePath() {
-		return getZoneMessagePath(getAccountId());
-	}
-
-	@Override
 	public String toString() {
-		return String.format("AttackListRequestMessage[path: %s]", getMessagePath());
+		return "AttackListRequestMessage[]";
 	}
 }

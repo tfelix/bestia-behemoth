@@ -29,9 +29,4 @@ public class PingMessage extends AccountMessage {
 			throw new IllegalArgumentException("Wrong message for ping message.");
 		}
 	}
-
-	@Override
-	public String getMessagePath() {
-		return getClientMessagePath(getAccountId());
-	}
 }

@@ -32,11 +32,6 @@ public class LogoutMessage extends AccountMessage {
 	}
 
 	@Override
-	public String getMessagePath() {
-		return getClientMessagePath(getAccountId());
-	}
-
-	@Override
 	public String toString() {
 		return "LogoutMessage[]";
 	}

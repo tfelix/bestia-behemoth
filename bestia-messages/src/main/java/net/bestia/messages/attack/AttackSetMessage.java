@@ -83,11 +83,6 @@ public class AttackSetMessage extends InputMessage {
 	}
 
 	@Override
-	public String getMessagePath() {
-		return getZoneMessagePath(getAccountId());
-	}
-
-	@Override
 	public String toString() {
 		return String.format("AttackSetMessage[slot1: %d, slot2: %d, slot3: %d, slot4: %d, slot5: %d]", atkSlotId1,
 				atkSlotId2, atkSlotId3, atkSlotId4, atkSlotId5);

@@ -17,11 +17,6 @@ public class LoginAuthReplyMessage extends LoginAuthMessage {
 		DENIED, AUTHORIZED
 	}
 
-	/**
-	 * This messages are subjected to ALL webserver since we dont know from who the request originated. But the messages
-	 * are tagged with a unique request ID so we are safe here.
-	 */
-	private static final String MESSAGE_PATH = "web/all";
 	public static final String MESSAGE_ID = "system.loginauthreply";
 	private static final long serialVersionUID = 1L;
 
@@ -49,11 +44,6 @@ public class LoginAuthReplyMessage extends LoginAuthMessage {
 	public String getMessageId() {
 		return MESSAGE_ID;
 	}
-
-	@Override
-	public String getMessagePath() {
-		return MESSAGE_PATH;
-	}
 	
 	@Override
 	public int hashCode() {
@@ -63,7 +53,7 @@ public class LoginAuthReplyMessage extends LoginAuthMessage {
 	@Override
 	public String toString() {
 		return String.format("LoginAuthReplyMessage[accountId: %d, messageId: %s, path: %s, reqId: %s, state: %s]",
-				getAccountId(), getMessageId(), getMessagePath(), getRequestId(), state.toString());
+				getAccountId(), getMessageId(), getRequestId(), state.toString());
 	}
 
 }

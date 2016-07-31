@@ -13,9 +13,6 @@ public abstract class AccountMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String MSG_PATH_ACCOUNT = "zone.account.%d";
-	private static final String MSG_PATH_CLIENT = "client.%d";
-
 	private long accountId;
 
 	/**
@@ -70,29 +67,4 @@ public abstract class AccountMessage extends Message {
 	public String toString() {
 		return String.format("Message[message id: %s, account id: %d]", getMessageId(), accountId);
 	}
-
-	/**
-	 * Helper method. Might be used as getMessagePath() implementation if the
-	 * message is directed to the client which is quite often the case.
-	 * 
-	 * @return A message path designated to reach a user connected to a
-	 *         webserver.
-	 */
-	public static String getClientMessagePath(long accountId) {
-		return String.format(MSG_PATH_CLIENT, accountId);
-	}
-
-	/**
-	 * Helper method. Might be used as getMessagePath() implementation if the
-	 * message is intended to be received by the zones on which a client as
-	 * spawned bestias (all zones will listen to account messages if they have a
-	 * bestia alive).
-	 * 
-	 * @return A message path designated to reach zoneserver on which a certain
-	 *         user is connected.
-	 */
-	public static String getZoneMessagePath(long accountId) {
-		return String.format(MSG_PATH_ACCOUNT, accountId);
-	}
-
 }
