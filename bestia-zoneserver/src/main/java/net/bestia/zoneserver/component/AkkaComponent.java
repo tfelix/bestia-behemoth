@@ -32,7 +32,7 @@ import net.bestia.zoneserver.service.ServerConfiguration;
  *
  */
 @Component
-public final class AkkaComponent {
+public class AkkaComponent {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AkkaComponent.class);
 

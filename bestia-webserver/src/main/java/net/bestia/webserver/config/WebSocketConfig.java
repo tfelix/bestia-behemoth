@@ -13,11 +13,14 @@ import net.bestia.webserver.handler.BestiaSocketHandler;
 public class WebSocketConfig implements WebSocketConfigurer {
 
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-		registry.addHandler(bestiaSocketHandler(), "/socket").withSockJS();
+		registry.addHandler(bestiaSocketHandler(), "/socket")
+				.setAllowedOrigins("*")
+				.withSockJS();
 	}
 
 	@Bean
 	public BestiaSocketHandler bestiaSocketHandler() {
 		return new BestiaSocketHandler();
 	}
+
 }

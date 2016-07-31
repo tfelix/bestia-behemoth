@@ -54,7 +54,9 @@ export default class Connection {
 		console.trace('Sending Message: ' + message);
 		this._debug('send', message, msg);
 		// @endif
-		this._socket.push(message);
+		if(this._socket !== null) {
+			this._socket.send(message);
+		}
 	}
 	
 	/**
@@ -132,9 +134,42 @@ export default class Connection {
 	}
 
 	connect() {
-		var socketRequest = this._init();
+		// defined a connection to a new socket endpoint
+		var self = this;
+		this._socket = new SockJS('http://localhost:8080/socket');
+		this._socket.onopen = function() {
+			// Prepare login message and send it.
+			var loginMsg = {
+					accId : 1,
+					token : '04473c9f-65e9-4f59-9075-6da257a21826'
+				};
+			self._socket.send(JSON.stringify(loginMsg));
+		};
+
+		this._socket.onmessage = function(e) {
+			// Is it a valid server message?
+			try {
+				var json = jQuery.parseJSON(e);
+
+				// @ifdef DEVELOPMENT
+				console.trace('Received Message: ' + e);
+				self._debug('receive', json, e);
+				// @endif
+
+				self._pubsub.publish(json.mid, json);
+			} catch (e) {
+				console.error('No valid JSON: ', e);
+				return;
+			}
+		};
+
+		this._socket.onclose = function() {
+			console.log('Server has closed the connection.');
+			// Most likly we are not authenticated. Back to login.
+			self._pubsub.publish(Signal.IO_DISCONNECTED);
+		};
+		
 		this._pubsub.publish(Signal.IO_CONNECTING);
-		this._socket = $.atmosphere.subscribe(socketRequest);
 	}
 
 	/**
@@ -148,104 +183,6 @@ export default class Connection {
 		this._socket = null;
 	}
 
-	/**
-	 * - Initializes a connection to the server using the login data present in
-	 * a cookie which must be acquired via the login process before trying to
-	 * establish this connection.
-	 * 
-	 * Publishes: system.auth - Containing the auth data (bestia name, user id)
-	 * if a successful connection to the server has been established.
-	 * 
-	 * @method Bestia.Connection#_init
-	 */
-	_init() {
-
-		var self = this;
-
-		// Prepare the request.
-		var store = new Storage();
-		var authData = store.getAuth();
-
-		if (!this.checkLoginData(authData)) {
-			return;
-		}
-
-		// Emit the auth data signal so other parts of the app can react to it.
-		this._pubsub.publish(Signal.AUTH, authData);
-
-		var request = {
-			url : Urls.bestiaWebsocket,
-			contentType : "application/json",
-			logLevel : 'info',
-			transport : 'websocket',
-			headers : {
-				'X-Bestia-Token' : authData.token,
-				'X-Bestia-Account' : authData.accId
-			},
-			maxReconnectOnClose : 5,
-			trackMessageLength : true,
-			enableProtocol : true
-		};
-
-		request.onOpen = function(response) {
-			console.log('Connection to established via ' + response.transport);
-			self._pubsub.publish(Signal.IO_CONNECTED);
-		};
-
-		request.onTransportFailure = function(errorMsg) {
-			console.log('Error while failing transport: ' + errorMsg);
-			jQuery.atmosphere.info(errorMsg);
-		};
-
-		/**
-		 * Handle an incoming message from the server. The message is filtered,
-		 * parsed to JSON and then delivered to the pub-sub mechanism.
-		 */
-		request.onMessage = function(response) {
-			var message = response.responseBody;
-
-			// Ignore keepalive.
-			if (message == 'X') {
-				return;
-			}
-
-			// Is it a valid server message?
-			try {
-				var json = jQuery.parseJSON(message);
-
-				// @ifdef DEVELOPMENT
-				console.trace('Received Message: ' + message);
-				self._debug('receive', json, message);
-				// @endif
-
-				self._pubsub.publish(json.mid, json);
-
-			} catch (e) {
-				console.error('No valid JSON: ', e);
-				return;
-			}
-		};
-
-		/**
-		 * Handle the close event.
-		 */
-		request.onClose = function() {
-			console.log('Server has closed the connection.');
-			// Most likly we are not authenticated. Back to login.
-			self._pubsub.publish(Signal.IO_DISCONNECTED);
-		};
-
-		/**
-		 * Handle the error event.
-		 */
-		request.onError = function() {
-			console.error('Server error. Can not create connection.');
-			// Most likly we are not authenticated. Back to login.
-			self._pubsub.publish(Signal.IO_DISCONNECTED);
-		};
-		
-		return request;
-	}
 
 	sendPing() {
 		this._socket.push(JSON.stringify({

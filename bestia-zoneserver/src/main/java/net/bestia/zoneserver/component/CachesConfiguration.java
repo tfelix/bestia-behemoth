@@ -10,7 +10,7 @@ import net.bestia.zoneserver.service.CacheManager;
 import net.bestia.zoneserver.zone.entity.Entity;
 
 @Configuration
-public final class CachesConfiguration {
+public class CachesConfiguration {
 	
 	public final static String ENTITY_CACHE = "entityCache";
 	
