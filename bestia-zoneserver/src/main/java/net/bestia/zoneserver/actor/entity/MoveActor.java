@@ -19,6 +19,7 @@ public class MoveActor extends UntypedActor {
 		if(message instanceof EntityMoveMessage) {
 			
 			final EntityMoveMessage msg = (EntityMoveMessage) message;
+			
 			final Entity entity = null;
 			
 			// TODO Was it a visible entity? If yes update all nearby entities.

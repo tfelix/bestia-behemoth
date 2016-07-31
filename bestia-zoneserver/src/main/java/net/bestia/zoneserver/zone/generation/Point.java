@@ -8,20 +8,20 @@ package net.bestia.zoneserver.zone.generation;
  */
 public class Point {
 
-	private final int x;
-	private final int y;
+	private final long x;
+	private final long y;
 
-	public Point(int x, int y) {
+	public Point(long x, long y) {
 
 		this.x = x;
 		this.y = y;
 	}
 
-	public int getX() {
+	public long getX() {
 		return x;
 	}
 	
-	public int getY() {
+	public long getY() {
 		return y;
 	}
 

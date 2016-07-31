@@ -35,6 +35,11 @@ public class MovingEntityManager {
 		refs.put(entityId, ref);
 	}
 	
+	public void removeMovingActorRef(long entityId) {
+		final Map<Long, ActorRef> refs = cache.getMap(MOVEMENT_KEY);
+		refs.remove(entityId);
+	}
+	
 	public ActorRef getMovingActorRef(long entityId) {
 		final Map<Long, ActorRef> refs = cache.getMap(MOVEMENT_KEY);
 		return refs.get(entityId);

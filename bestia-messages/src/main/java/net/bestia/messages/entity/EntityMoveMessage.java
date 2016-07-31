@@ -22,17 +22,17 @@ import net.bestia.messages.AccountMessage;
  */
 public class EntityMoveMessage extends AccountMessage {
 	
-	private class Cords implements Serializable {
+	public static class Point implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
 		@JsonProperty("x")
-		int x;
+		public final long x;
 		
 		@JsonProperty("y")
-		int y;
+		public final long y;
 		
-		public Cords(int x, int y) {
+		public Point(long x, long y) {
 			this.x = x;
 			this.y = y;
 		}
@@ -46,7 +46,7 @@ public class EntityMoveMessage extends AccountMessage {
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.move";
 
-	private List<Cords> cords = new ArrayList<>();
+	private List<Point> cords = new ArrayList<>();
 
 	@JsonProperty("s")
 	private int speed;
@@ -65,7 +65,7 @@ public class EntityMoveMessage extends AccountMessage {
 	}
 	
 	public void addCord(int x, int y) {
-		this.cords.add(new Cords(x, y));
+		this.cords.add(new Point(x, y));
 	}
 
 	@Override
@@ -80,18 +80,14 @@ public class EntityMoveMessage extends AccountMessage {
 	public void setEntityId(String entityId) {
 		this.entityId = entityId;
 	}
-
-	public List<Cords> getCords() {
-		return cords;
-	}
 	
 	@JsonIgnore
 	public int getPathDistance() {
 		int d = 0;
 		
 		for(int i = 1; i < cords.size(); i++) {
-			final Cords x1 = cords.get(i);
-			final Cords x0 = cords.get(i-1);
+			final Point x1 = cords.get(i);
+			final Point x0 = cords.get(i-1);
 			
 			d += (int)Math.sqrt((x1.x - x0.x) * (x1.x - x0.x) + (x1.y - x0.y) * (x1.y - x0.y));
 		}
@@ -102,5 +98,9 @@ public class EntityMoveMessage extends AccountMessage {
 	@Override
 	public String toString() {
 		return String.format("EntityMoveMessage[uuid: %s, accId: %d, cords: %s]", entityId, getAccountId(), cords);
+	}
+
+	public List<Point> getPath() {
+		return cords;
 	}
 }
