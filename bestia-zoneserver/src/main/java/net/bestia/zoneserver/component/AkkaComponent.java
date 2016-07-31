@@ -19,7 +19,7 @@ import akka.cluster.Cluster;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.service.ClusterConfigurationService;
-import net.bestia.zoneserver.actor.LoginActor;
+import net.bestia.zoneserver.actor.login.LoginActor;
 import net.bestia.zoneserver.service.ServerConfiguration;
 
 /**
