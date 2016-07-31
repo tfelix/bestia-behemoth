@@ -1,6 +1,13 @@
 package net.bestia.zoneserver.zone.generation;
 
-public class PerlinNoise {
+/**
+ * A SimplexNoise implementation for seeding generation maps for the map
+ * creation process.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
+public final class SimplexNoise {
 
 	private static class Grad {
 
@@ -44,8 +51,8 @@ public class PerlinNoise {
 	private static final double F2 = 0.5 * (Math.sqrt(3) - 1);
 	private static final double G2 = (3 - Math.sqrt(3)) / 6;
 
-	private static final double F3 = 1 / 3;
-	private static final double G3 = 1 / 6;
+	// private static final double F3 = 1 / 3;
+	// private static final double G3 = 1 / 6;
 
 	// This isn't a very good seeding function, but it works ok. It supports
 	// 2^16
@@ -66,7 +73,7 @@ public class PerlinNoise {
 
 		for (int i = 0; i < 256; i++) {
 			int v;
-			if (i & 1) {
+			if ((i & 1) == 1) {
 				v = p[i] ^ (seed & 255);
 			} else {
 				v = p[i] ^ ((seed >> 8) & 255);
@@ -82,16 +89,16 @@ public class PerlinNoise {
 		double n0, n1, n2; // Noise contributions from the three corners
 		// Skew the input space to determine which simplex cell we're in
 		double s = (xin + yin) * F2; // Hairy factor for 2D
-		double i = Math.floor(xin + s);
-		double j = Math.floor(yin + s);
+		int i = (int) Math.floor(xin + s);
+		int j = (int) Math.floor(yin + s);
 		double t = (i + j) * G2;
 		double x0 = xin - i + t; // The x,y distances from the cell origin,
 									// unskewed.
 		double y0 = yin - j + t;
 		// For the 2D case, the simplex shape is an equilateral triangle.
 		// Determine which simplex we are in.
-		double i1, j1; // Offsets for second (middle) corner of simplex in (i,j)
-						// coords
+		int i1, j1; // Offsets for second (middle) corner of simplex in (i,j)
+					// coords
 		if (x0 > y0) { // lower triangle, XY order: (0,0)->(1,0)->(1,1)
 			i1 = 1;
 			j1 = 0;
