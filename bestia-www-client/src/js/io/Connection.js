@@ -140,9 +140,9 @@ export default class Connection {
 		this._socket.onopen = function() {
 			// Prepare login message and send it.
 			var loginMsg = {
-					accId : 1,
-					token : '04473c9f-65e9-4f59-9075-6da257a21826'
-				};
+				accId : 1,
+				token : '04473c9f-65e9-4f59-9075-6da257a21826'
+			};
 			self._socket.send(JSON.stringify(loginMsg));
 		};
 

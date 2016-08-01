@@ -19,7 +19,7 @@ var Urls = {
 	loginHtml : 'http://localhost/login.html',
 	gameHtml : 'http://localhost/index.html',
 	bestiaWebAPI : 'http://localhost:8090',
-	bestiaWebsocket : 'http://localhost:8080/api',
+	bestiaWebsocket : 'http://localhost:8080/socket',
 	assetsRoot : 'http://localhost/assets/'
 	// @endif
 
