@@ -11,9 +11,9 @@ import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
-import net.bestia.messages.LoginRequestMessage;
-import net.bestia.messages.LoginResponseMessage;
-import net.bestia.messages.LoginState;
+import net.bestia.messages.login.LoginAuthMessage;
+import net.bestia.messages.login.LoginAuthReplyMessage;
+import net.bestia.messages.login.LoginState;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 
@@ -60,7 +60,7 @@ public class LoginActor extends UntypedActor {
 	@Override
 	public void onReceive(Object message) throws Exception {
 
-		if (!(message instanceof LoginRequestMessage)) {
+		if (!(message instanceof LoginAuthMessage)) {
 			unhandled(message);
 			return;
 		}
@@ -69,7 +69,7 @@ public class LoginActor extends UntypedActor {
 
 		// TODO Check if we are in maintenance mode.
 
-		final LoginRequestMessage msg = (LoginRequestMessage) message;
+		final LoginAuthMessage msg = (LoginAuthMessage) message;
 
 		// Check to see if the find the requested account.
 		final Account acc = accountDao.findOne(msg.getAccountId());
@@ -86,8 +86,8 @@ public class LoginActor extends UntypedActor {
 		}
 	}
 
-	private void respond(LoginRequestMessage msg, LoginState state) {
-		final LoginResponseMessage response = new LoginResponseMessage(msg, state);
+	private void respond(LoginAuthMessage msg, LoginState state) {
+		final LoginAuthReplyMessage response = new LoginAuthReplyMessage(state);
 		getSender().tell(response, getSelf());
 	}
 

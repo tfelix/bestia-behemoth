@@ -6,8 +6,8 @@ import akka.actor.Deploy;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.japi.Creator;
-import net.bestia.messages.ClientConnectionStatusMessage;
-import net.bestia.messages.ClientConnectionStatusMessage.ConnectionState;
+import net.bestia.messages.system.ClientConnectionStatusMessage;
+import net.bestia.messages.system.ClientConnectionStatusMessage.ConnectionState;
 import net.bestia.server.BestiaActorContext;
 import net.bestia.zoneserver.service.ClientRefLookup;
 

@@ -2,20 +2,17 @@ package net.bestia.messages.login;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.ClientMessage;
+
 /**
  * Message is replied from the login server after a {@link LoginAuthMessage}.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class LoginAuthReplyMessage extends LoginAuthMessage {
-
-	/**
-	 * State of the authorization.
-	 */
-	public enum LoginState {
-		DENIED, AUTHORIZED
-	}
+public class LoginAuthReplyMessage extends ClientMessage {
 
 	public static final String MESSAGE_ID = "system.loginauthreply";
 	private static final long serialVersionUID = 1L;
@@ -23,19 +20,18 @@ public class LoginAuthReplyMessage extends LoginAuthMessage {
 	private LoginState state;
 
 	public LoginAuthReplyMessage() {
-		super(0, "");
 		setLoginState(LoginState.DENIED);
 	}
 
-	public LoginAuthReplyMessage(LoginAuthMessage loginMsg) {
-		super(loginMsg.getToken(), loginMsg.getRequestId());
-		this.setAccountId(loginMsg.getAccountId());
+	public LoginAuthReplyMessage(LoginState state) {
+		this.state = state;
 	}
 
 	public void setLoginState(LoginState state) {
 		this.state = state;
 	}
 
+	@JsonProperty("s")
 	public LoginState getLoginState() {
 		return state;
 	}
@@ -47,13 +43,12 @@ public class LoginAuthReplyMessage extends LoginAuthMessage {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(state, getAccountId(), getRequestId());
+		return Objects.hash(state);
 	}
 
 	@Override
 	public String toString() {
-		return String.format("LoginAuthReplyMessage[accountId: %d, messageId: %s, path: %s, reqId: %s, state: %s]",
-				getAccountId(), getMessageId(), getRequestId(), state.toString());
+		return String.format("LoginAuthReplyMessage[state: %s]", state.toString());
 	}
 
 }

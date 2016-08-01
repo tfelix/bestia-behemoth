@@ -33,6 +33,10 @@ export default class BestiaGame {
 		this.engine = new Engine(this.pubsub, this.urlHelper);
 		this.connection = new Connection(this.pubsub);
 		
+		this.pubsub.subscribe(Signal.IO_CONNECTED, function(){
+			this.connection.sendPing();
+		}.bind(this));
+		
 		
 		/**
 		 * Authentication error. Go to logout.

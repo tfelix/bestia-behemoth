@@ -20,10 +20,10 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.ClientResponseMessage;
-import net.bestia.messages.LoginRequestMessage;
-import net.bestia.messages.LoginResponseMessage;
-import net.bestia.messages.LoginState;
+import net.bestia.messages.ClientMessage;
+import net.bestia.messages.login.LoginAuthMessage;
+import net.bestia.messages.login.LoginAuthReplyMessage;
+import net.bestia.messages.login.LoginState;
 import net.bestia.server.BestiaActorContext;
 
 /**
@@ -80,23 +80,24 @@ public class MessageHandlerActor extends UntypedActor {
 
 	@Override
 	public void onReceive(Object message) throws Exception {
-
-		if (message instanceof ClientResponseMessage) {
-
-			// Send the payload to the client.
-			final ClientResponseMessage msg = (ClientResponseMessage) message;
-			session.sendMessage(new TextMessage(msg.getPayload()));
-
-		} else if (message instanceof LoginResponseMessage) {
+		
+		if (message instanceof LoginAuthReplyMessage) {
 
 			// Check how the login state was given.
-			final LoginResponseMessage msg = (LoginResponseMessage) message;
+			final LoginAuthReplyMessage msg = (LoginAuthReplyMessage) message;
 
-			if (msg.getResponse() == LoginState.ACCEPTED) {
+			if (msg.getLoginState() == LoginState.ACCEPTED) {
 				isAuthenticated = true;
 			} else {
 				closeSession(CloseStatus.PROTOCOL_ERROR);
 			}
+		}
+
+		if (message instanceof ClientMessage) {
+
+			// Send the payload to the client.
+			final String payload = mapper.writeValueAsString(message);
+			session.sendMessage(new TextMessage(payload));
 
 		} else if (message instanceof String) {
 
@@ -105,7 +106,7 @@ public class MessageHandlerActor extends UntypedActor {
 			// We only accept auth messages.
 			if (!isAuthenticated) {
 				try {
-					final LoginRequestMessage loginReqMsg = mapper.readValue(payload, LoginRequestMessage.class);
+					final LoginAuthMessage loginReqMsg = mapper.readValue(payload, LoginAuthMessage.class);
 
 					// Send the LoginRequest to the cluster.
 					// Somehow centralize the names of the actors.
@@ -121,8 +122,8 @@ public class MessageHandlerActor extends UntypedActor {
 				try {
 					// Turn the text message into a bestia message.
 					final AccountMessage msg = mapper.readValue(payload, AccountMessage.class);
-
-					// TODO Send the Message to the cluster.
+					LOG.debug("Client sending: {}.", msg.toString());
+					mediator.tell(new DistributedPubSubMediator.Send("/user/behemoth", msg, false), getSelf());
 
 				} catch (IOException e) {
 					LOG.warning("Malformed message. Client: {}. Payload: {}.", session.getRemoteAddress(), payload);

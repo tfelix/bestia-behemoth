@@ -1,4 +1,4 @@
-package net.bestia.messages;
+package net.bestia.messages.login;
 
 public enum LoginState {
 

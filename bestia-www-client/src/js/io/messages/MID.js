@@ -6,6 +6,8 @@
 var MID = {
 	SERVER_INFO : 'server.info',
 	
+	SYSTEM_AUTHREPLY : 'system.loginauthreply',
+	
 	BESTIA_INFO : 'bestia.info',
 	BESTIA_MOVE : 'bestia.move',
 	BESTIA_ACTIVATE: 'bestia.activate',

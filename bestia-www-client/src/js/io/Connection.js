@@ -4,6 +4,7 @@
  */
 
 import Signal from './Signal.js';
+import MID from './messages/MID.js';
 import Storage from '../util/Storage.js';
 import Urls from '../Urls.js';
 
@@ -25,6 +26,8 @@ export default class Connection {
 	constructor(pubsub) {
 
 		this._socket = null;
+		
+		this._isAuthenticated = false;
 
 		/**
 		 * Pubsub interface.
@@ -49,11 +52,18 @@ export default class Connection {
 	}
 	
 	_handleOnSendMessage(_, msg) {
+		// Refuse to send to server until fully connected and authed.
+		if(!this._isAuthenticated) {
+			return;
+		}
+		
 		var message = JSON.stringify(msg);
+		
 		// @ifdef DEVELOPMENT
 		console.trace('Sending Message: ' + message);
 		this._debug('send', message, msg);
 		// @endif
+		
 		if(this._socket !== null) {
 			this._socket.send(message);
 		}
@@ -136,10 +146,11 @@ export default class Connection {
 	connect() {
 		// defined a connection to a new socket endpoint
 		var self = this;
-		this._socket = new SockJS('http://localhost:8080/socket');
+		this._socket = new SockJS(Urls.bestiaWebsocket);
 		this._socket.onopen = function() {
 			// Prepare login message and send it.
 			var loginMsg = {
+				mid: 'system.loginauth',
 				accId : 1,
 				token : '04473c9f-65e9-4f59-9075-6da257a21826'
 			};
@@ -149,11 +160,13 @@ export default class Connection {
 		this._socket.onmessage = function(e) {
 			// Is it a valid server message?
 			try {
-				var json = jQuery.parseJSON(e);
+				var json = jQuery.parseJSON(e.data);
+				
+				self._checkAuthReply(json);
 
 				// @ifdef DEVELOPMENT
-				console.trace('Received Message: ' + e);
-				self._debug('receive', json, e);
+				console.trace('Received Message: ' + e.data);
+				self._debug('receive', json, e.data);
 				// @endif
 
 				self._pubsub.publish(json.mid, json);
@@ -171,6 +184,17 @@ export default class Connection {
 		
 		this._pubsub.publish(Signal.IO_CONNECTING);
 	}
+	
+	_checkAuthReply(msg) {
+		if(this._isAuthenticated) {
+			return;
+		}
+		
+		if(msg.mid === MID.SYSTEM_AUTHREPLY && msg.s === 'ACCEPTED') {
+			this._isAuthenticated = true;
+			this._pubsub.publish(Signal.IO_CONNECTED);
+		}
+	}
 
 	/**
 	 * Disconnects the socket from the server.
@@ -185,7 +209,7 @@ export default class Connection {
 
 
 	sendPing() {
-		this._socket.push(JSON.stringify({
+		this._socket.send(JSON.stringify({
 			mid : 'system.ping',
 			m : 'Hello Bestia.'
 		}));

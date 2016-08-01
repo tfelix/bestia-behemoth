@@ -6,6 +6,9 @@ package net.bestia.messages;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class ClientMessage {
+public abstract class ClientMessage extends Message {
+
+	private static final long serialVersionUID = 1L;
+	
 
 }

@@ -1,6 +1,6 @@
 package net.bestia.messages.login;
 
-import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
 
@@ -16,35 +16,23 @@ public class LoginAuthMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 
-	private static final String MESSAGE_PATH = "login";
 	public static final String MESSAGE_ID = "system.loginauth";
 
-	private String requestId;
+	@JsonProperty("accId")
+	private long accountId;
+	
+	@JsonProperty("token")
 	private String token;
 
 	public LoginAuthMessage() {
-		requestId = UUID.randomUUID().toString();
+		
 	}
 
 	public LoginAuthMessage(long accountId, String token) {
 		setAccountId(accountId);
 		this.token = token;
-		this.requestId = UUID.randomUUID().toString();
 	}
 
-	public LoginAuthMessage(String token, String requestId) {
-		this.requestId = requestId;
-		this.token = token;
-	}
-
-	/**
-	 * The request id of this message.
-	 * 
-	 * @return Unique ID of this request.
-	 */
-	public String getRequestId() {
-		return requestId;
-	}
 
 	/**
 	 * User provided login token which will be checked against in the database.
@@ -62,8 +50,7 @@ public class LoginAuthMessage extends AccountMessage {
 
 	@Override
 	public String toString() {
-		return String.format("LoginAuthMessage[accountId: %d, messageId: %s, path: %s, reqId: %s]", getAccountId(),
-				getMessageId(), getRequestId());
+		return String.format("LoginAuthMessage[accountId: %d, token: %s]", getAccountId(), getToken());
 	}
 
 }

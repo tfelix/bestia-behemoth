@@ -2,8 +2,6 @@ package net.bestia.zoneserver.actor.server;
 
 import java.util.Objects;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import akka.actor.ActorRef;
 import akka.actor.Deploy;
 import akka.actor.Props;
@@ -12,7 +10,6 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.ClientResponseMessage;
 import net.bestia.server.BestiaActorContext;
 import net.bestia.zoneserver.service.ClientRefLookup;
 
@@ -28,14 +25,12 @@ public class RespondActor extends UntypedActor {
 	final private LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private final ClientRefLookup lookup;
-	private final ObjectMapper jsonMapper;
 
 	public RespondActor(BestiaActorContext ctx) {
 
 		Objects.requireNonNull(ctx);
 
 		this.lookup = ctx.getSpringContext().getBean(ClientRefLookup.class);
-		this.jsonMapper = ctx.getJsonMapper();
 	}
 
 	public static Props props(final BestiaActorContext ctx) {
@@ -63,10 +58,8 @@ public class RespondActor extends UntypedActor {
 				return;
 			}
 
-			// Prepare the client message.
-			final String payload = jsonMapper.writeValueAsString(message);
-			final ClientResponseMessage responseMsg = new ClientResponseMessage(accMsg.getAccountId(), payload);
-			origin.tell(responseMsg, getSelf());
+			// Send the client message.
+			origin.tell(message, getSelf());
 		} else {
 
 			unhandled(message);
