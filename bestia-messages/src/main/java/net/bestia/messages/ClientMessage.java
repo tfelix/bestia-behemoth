@@ -10,5 +10,4 @@ public abstract class ClientMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 	
-
 }

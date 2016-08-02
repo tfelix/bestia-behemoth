@@ -2,9 +2,9 @@ package net.bestia.messages.chat;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
+import net.bestia.messages.Message;
 
-public class ChatEchoMessage extends AccountMessage {
+public class ChatEchoMessage extends Message {
 	
 	private static final long serialVersionUID = 1L;
 
@@ -31,12 +31,8 @@ public class ChatEchoMessage extends AccountMessage {
 	 * @return
 	 */
 	public static ChatEchoMessage getEchoMessage(ChatMessage msg) {
-		if(msg.getAccountId() == 0) {
-			throw new IllegalArgumentException("AccountId can not be null.");
-		}
 		
 		ChatEchoMessage cem = new ChatEchoMessage();
-		cem.setAccountId(msg.getAccountId());
 		cem.setChatMessageId(msg.getChatMessageId());
 		
 		return cem;

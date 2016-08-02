@@ -13,6 +13,7 @@ import net.bestia.zoneserver.zone.entity.Entity;
 public class CachesConfiguration {
 	
 	public final static String ENTITY_CACHE = "entityCache";
+	public final static String CLIENT_CACHE = "clientCache";
 	
 	private HazelcastInstance cache;
 	
@@ -25,6 +26,13 @@ public class CachesConfiguration {
 	public CacheManager<Long, Entity> getEntityCache() {
 		
 		return new CacheManager<>("cache.entity", cache);
+		
+	}
+	
+	@Bean(name=CLIENT_CACHE)
+	public CacheManager<Long, Entity> getClientCache() {
+		
+		return new CacheManager<>("cache.client", cache);
 		
 	}
 }

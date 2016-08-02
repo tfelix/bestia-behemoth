@@ -1,7 +1,5 @@
 package net.bestia.zoneserver.actor.login;
 
-import java.util.Objects;
-
 import akka.actor.ActorRef;
 import akka.actor.Deploy;
 import akka.actor.Props;
@@ -10,12 +8,12 @@ import akka.cluster.pubsub.DistributedPubSub;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import akka.japi.Creator;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
+import net.bestia.server.BestiaActorContext;
 
 /**
  * This actor will take {@link LoginRequestMessage} and check the validity of
@@ -32,12 +30,12 @@ import net.bestia.model.domain.Account;
  */
 public class LoginActor extends UntypedActor {
 
-	final private LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private final AccountDAO accountDao;
 
-	public LoginActor(AccountDAO accountDao) {
-		this.accountDao = Objects.requireNonNull(accountDao);
+	public LoginActor(final BestiaActorContext ctx) {
+		this.accountDao = ctx.getSpringContext().getBean(AccountDAO.class);
 
 		// Setup the mediator.
 		final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
@@ -45,16 +43,10 @@ public class LoginActor extends UntypedActor {
 		mediator.tell(new DistributedPubSubMediator.Put(getSelf()), getSelf());
 	}
 
-	public static Props props(final AccountDAO accountDao) {
+	public static Props props(final BestiaActorContext ctx) {
 		// Props must be deployed locally since we contain a dao (non
 		// serializable)
-		return Props.create(new Creator<LoginActor>() {
-			private static final long serialVersionUID = 1L;
-
-			public LoginActor create() throws Exception {
-				return new LoginActor(accountDao);
-			}
-		}).withDeploy(Deploy.local());
+		return Props.create(LoginActor.class, ctx).withDeploy(Deploy.local());
 	}
 
 	@Override

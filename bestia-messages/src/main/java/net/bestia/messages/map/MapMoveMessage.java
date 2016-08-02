@@ -1,7 +1,7 @@
 package net.bestia.messages.map;
 
 
-import net.bestia.messages.InputMessage;
+import net.bestia.messages.Message;
 import net.bestia.model.domain.Location;
 
 /**
@@ -11,7 +11,7 @@ import net.bestia.model.domain.Location;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MapMoveMessage extends InputMessage {
+public class MapMoveMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 
@@ -24,7 +24,7 @@ public class MapMoveMessage extends InputMessage {
 	}
 	
 	public MapMoveMessage(long accId, int playerBestiaId) {
-		super(accId, playerBestiaId);
+		
 	}
 	
 	public void setTarget(Location target) {

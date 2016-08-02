@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -16,9 +16,10 @@ import com.typesafe.config.ConfigFactory;
 import akka.actor.ActorSystem;
 import akka.actor.Address;
 import akka.cluster.Cluster;
-import net.bestia.model.dao.AccountDAO;
 import net.bestia.server.AkkaCluster;
+import net.bestia.server.BestiaActorContext;
 import net.bestia.server.service.ClusterConfigurationService;
+import net.bestia.zoneserver.actor.ZoneActor;
 import net.bestia.zoneserver.actor.login.LoginActor;
 import net.bestia.zoneserver.service.ServerConfiguration;
 
@@ -38,15 +39,9 @@ public class AkkaComponent {
 
 	private static final String AKKA_CONFIG_NAME = "akka";
 	
-	private AccountDAO accountDao;
-	
-	@Autowired
-	public void setAccountDao(AccountDAO accountDao) {
-		this.accountDao = accountDao;
-	}
 
 	@Bean
-	public ActorSystem actorSystem(Config akkaConfig, ServerConfiguration config, HazelcastInstance hzInstance)
+	public ActorSystem actorSystem(Config akkaConfig, ServerConfiguration config, HazelcastInstance hzInstance, ApplicationContext appContext)
 			throws UnknownHostException {
 
 		final ActorSystem system = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
@@ -81,17 +76,12 @@ public class AkkaComponent {
 		// selfAddr.
 		clusterConfig.addClusterNode(selfAddr);
 		
-		startActors(system);
+		LOG.info("Starting actor tree.");
+		final BestiaActorContext ctx = new BestiaActorContext(appContext);
+		system.actorOf(ZoneActor.props(ctx), "zone");
+		system.actorOf(LoginActor.props(ctx), "login");
 
 		return system;
-	}
-	
-	/**
-	 * Start the basic actor tree for beginning zone operation.
-	 */
-	private void startActors(ActorSystem system) {
-		LOG.info("Starting actor tree.");
-		system.actorOf(LoginActor.props(accountDao), "login");
 	}
 
 

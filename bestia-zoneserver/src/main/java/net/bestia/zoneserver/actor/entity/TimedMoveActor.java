@@ -6,16 +6,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import akka.actor.Cancellable;
-import akka.actor.Deploy;
 import akka.actor.Props;
 import akka.actor.Scheduler;
-import akka.actor.StopChild;
 import akka.actor.UntypedActor;
-import akka.japi.Creator;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.model.zone.Point;
 import net.bestia.server.BestiaActorContext;
-import net.bestia.zoneserver.actor.server.RespondActor;
 import net.bestia.zoneserver.component.CachesConfiguration;
 import net.bestia.zoneserver.service.CacheManager;
 import net.bestia.zoneserver.service.MovingEntityManager;

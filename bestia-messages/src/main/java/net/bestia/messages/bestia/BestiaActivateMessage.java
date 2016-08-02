@@ -1,6 +1,6 @@
 package net.bestia.messages.bestia;
 
-import net.bestia.messages.InputMessage;
+import net.bestia.messages.Message;
 
 /**
  * Client sends this message if it wants to switch to another active bestia.
@@ -10,7 +10,7 @@ import net.bestia.messages.InputMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class BestiaActivateMessage extends InputMessage {
+public class BestiaActivateMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 	public final static String MESSAGE_ID = "bestia.activate";

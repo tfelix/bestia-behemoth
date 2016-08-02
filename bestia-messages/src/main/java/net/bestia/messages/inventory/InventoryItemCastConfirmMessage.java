@@ -42,6 +42,6 @@ public class InventoryItemCastConfirmMessage extends InventoryItemCastMessage {
 	
 	@Override
 	public String toString() {
-		return String.format("CastConfirmMessage[accId: %d, success: %b]", getAccountId(), success);
+		return String.format("CastConfirmMessage[success: %b]", success);
 	}
 }

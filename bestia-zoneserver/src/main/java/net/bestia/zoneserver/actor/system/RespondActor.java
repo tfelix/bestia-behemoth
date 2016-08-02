@@ -1,17 +1,15 @@
-package net.bestia.zoneserver.actor.server;
-
-import java.util.Objects;
+package net.bestia.zoneserver.actor.system;
 
 import akka.actor.ActorRef;
-import akka.actor.Deploy;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import akka.japi.Creator;
 import net.bestia.messages.AccountMessage;
 import net.bestia.server.BestiaActorContext;
-import net.bestia.zoneserver.service.ClientRefLookup;
+import net.bestia.zoneserver.actor.login.ConnectionManagerActor;
+import net.bestia.zoneserver.component.CachesConfiguration;
+import net.bestia.zoneserver.service.CacheManager;
 
 /**
  * The {@link RespondActor} will lookup the information (actor ref) of the
@@ -22,26 +20,18 @@ import net.bestia.zoneserver.service.ClientRefLookup;
  */
 public class RespondActor extends UntypedActor {
 
-	final private LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+	
+	private final CacheManager<Long, ActorRef> clientCache;
 
-	private final ClientRefLookup lookup;
-
+	@SuppressWarnings("unchecked")
 	public RespondActor(BestiaActorContext ctx) {
 
-		Objects.requireNonNull(ctx);
-
-		this.lookup = ctx.getSpringContext().getBean(ClientRefLookup.class);
+		this.clientCache = ctx.getSpringContext().getBean(CachesConfiguration.CLIENT_CACHE, CacheManager.class);
 	}
 
 	public static Props props(final BestiaActorContext ctx) {
-		// Props must be deployed locally since we contain a non serializable
-		return Props.create(new Creator<RespondActor>() {
-			private static final long serialVersionUID = 1L;
-
-			public RespondActor create() throws Exception {
-				return new RespondActor(ctx);
-			}
-		}).withDeploy(Deploy.local());
+		return Props.create(ConnectionManagerActor.class, ctx);
 	}
 
 	@Override
@@ -50,7 +40,7 @@ public class RespondActor extends UntypedActor {
 		if (message instanceof AccountMessage) {
 
 			final AccountMessage accMsg = (AccountMessage) message;
-			final ActorRef origin = lookup.getActorRef(accMsg.getAccountId());
+			final ActorRef origin = clientCache.get(accMsg.getAccountId());
 
 			if (origin == null) {
 				LOG.warning("Could not find origin ref for message: {}", message.toString());

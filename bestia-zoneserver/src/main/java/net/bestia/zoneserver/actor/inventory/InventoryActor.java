@@ -1,6 +1,9 @@
 package net.bestia.zoneserver.actor.inventory;
 
+import akka.actor.Props;
 import akka.actor.UntypedActor;
+import net.bestia.server.BestiaActorContext;
+
 
 /**
  * This base actor will manage all inventory related messages for the bestia
@@ -16,6 +19,10 @@ public class InventoryActor extends UntypedActor {
 	public void onReceive(Object message) throws Exception {
 		// TODO Auto-generated method stub
 
+	}
+
+	public static Props props(BestiaActorContext ctx) {
+		return Props.create(InventoryActor.class, ctx);
 	}
 
 }

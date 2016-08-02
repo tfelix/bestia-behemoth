@@ -1,6 +1,7 @@
 package net.bestia.messages.bestia;
 
-import net.bestia.messages.InputMessage;
+
+import net.bestia.messages.Message;
 
 /**
  * Message returned to the client if it should set a selected bestia.
@@ -8,7 +9,7 @@ import net.bestia.messages.InputMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class BestiaActivatedMessage extends InputMessage {
+public class BestiaActivatedMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 	public final static String MESSAGE_ID = "bestia.activated";
@@ -18,11 +19,6 @@ public class BestiaActivatedMessage extends InputMessage {
 	 */
 	public BestiaActivatedMessage() {
 
-	}
-
-	public BestiaActivatedMessage(BestiaActivateMessage msg) {
-		super(msg.getAccountId(), msg.getPlayerBestiaId());
-		// no op.
 	}
 
 	@Override

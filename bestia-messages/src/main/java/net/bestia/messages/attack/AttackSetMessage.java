@@ -3,7 +3,7 @@ package net.bestia.messages.attack;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.InputMessage;
+import net.bestia.messages.Message;
 
 /**
  * Sets the attacks of the currently active bestia.
@@ -11,7 +11,7 @@ import net.bestia.messages.InputMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class AttackSetMessage extends InputMessage {
+public class AttackSetMessage extends Message {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;

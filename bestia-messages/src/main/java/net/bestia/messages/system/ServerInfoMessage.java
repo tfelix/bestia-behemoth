@@ -22,7 +22,7 @@ public final class ServerInfoMessage extends AccountMessage {
 	private Collection<String> zones;
 
 	@JsonProperty("v")
-	private String version = "VERSIONEINFÜGEN";
+	private String version = "";
 
 	@JsonProperty("cp")
 	private int connectedPlayer;

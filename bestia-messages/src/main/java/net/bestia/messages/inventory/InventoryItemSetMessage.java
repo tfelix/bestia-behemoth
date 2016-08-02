@@ -2,7 +2,7 @@ package net.bestia.messages.inventory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.InputMessage;
+import net.bestia.messages.Message;
 
 /**
  * Sets the item shortcuts for the currently selected bestias. The shortcuts can
@@ -11,7 +11,7 @@ import net.bestia.messages.InputMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class InventoryItemSetMessage extends InputMessage {
+public class InventoryItemSetMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 

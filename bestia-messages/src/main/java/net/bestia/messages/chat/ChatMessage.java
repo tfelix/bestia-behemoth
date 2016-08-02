@@ -1,6 +1,6 @@
 package net.bestia.messages.chat;
 
-import net.bestia.messages.InputMessage;
+import net.bestia.messages.Message;
 import net.bestia.model.I18n;
 import net.bestia.model.domain.Account;
 
@@ -12,12 +12,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class ChatMessage extends InputMessage {
-	
+public class ChatMessage extends Message {
+
 	public static class ReplyChatMessage extends ChatMessage {
 
 		private static final long serialVersionUID = 1L;
-		
+
 		public ReplyChatMessage() {
 			// no op.
 		}
@@ -61,7 +61,6 @@ public class ChatMessage extends InputMessage {
 		final String text = I18n.t(account, translationKey, args);
 
 		ChatMessage msg = new ChatMessage();
-		msg.setAccountId(account.getId());
 		msg.setText(text);
 		msg.setTime(System.currentTimeMillis() / 1000L);
 		msg.setChatMode(Mode.SYSTEM);
@@ -76,11 +75,10 @@ public class ChatMessage extends InputMessage {
 	public static ChatMessage getSystemMessage(Account account, String text) {
 
 		final ChatMessage msg = new ReplyChatMessage();
-		msg.setAccountId(account.getId());
 		msg.setText(text);
 		msg.setTime(System.currentTimeMillis() / 1000L);
 		msg.setChatMode(Mode.SYSTEM);
-		
+
 		return msg;
 	}
 
@@ -127,8 +125,8 @@ public class ChatMessage extends InputMessage {
 
 	@Override
 	public String toString() {
-		return String.format("ChatMessage[accId: %d, mode: %s, txNick: %s, rxNick: %s, txt: %s, time: %d]",
-				getAccountId(), chatMode, senderNickname, receiverNickname, text, time);
+		return String.format("ChatMessage[mode: %s, txNick: %s, rxNick: %s, txt: %s, time: %d]",
+				chatMode, senderNickname, receiverNickname, text, time);
 	}
 
 	/**
@@ -145,7 +143,6 @@ public class ChatMessage extends InputMessage {
 		forwardMsg.senderNickname = msg.senderNickname;
 		forwardMsg.receiverNickname = msg.receiverNickname;
 
-		forwardMsg.setAccountId(receiverAccountId);
 		forwardMsg.setChatMessageId(msg.chatMessageId);
 		forwardMsg.setChatMode(msg.chatMode);
 		forwardMsg.setText(msg.text);
@@ -157,7 +154,6 @@ public class ChatMessage extends InputMessage {
 	public static ChatMessage getEchoRawMessage(long receiverAccoundId, String text) {
 		final ChatMessage forwardMsg = new ReplyChatMessage();
 
-		forwardMsg.setAccountId(receiverAccoundId);
 		forwardMsg.setChatMode(Mode.SYSTEM);
 		forwardMsg.setText(text);
 
