@@ -26,7 +26,7 @@ import net.bestia.model.domain.PlayerBestia;
  *
  */
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-@Service("AccountService")
+@Service
 public class AccountService {
 
 	private final static Logger log = LoggerFactory.getLogger(AccountService.class);

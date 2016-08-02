@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.actor.system;
 
 import akka.actor.ActorRef;
+import akka.actor.Deploy;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
@@ -31,7 +32,7 @@ public class RespondActor extends UntypedActor {
 	}
 
 	public static Props props(final BestiaActorContext ctx) {
-		return Props.create(ConnectionManagerActor.class, ctx);
+		return Props.create(ConnectionManagerActor.class, ctx).withDeploy(Deploy.local());
 	}
 
 	@Override

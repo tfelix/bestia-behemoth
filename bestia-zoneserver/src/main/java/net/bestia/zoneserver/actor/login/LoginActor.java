@@ -1,11 +1,8 @@
 package net.bestia.zoneserver.actor.login;
 
-import akka.actor.ActorRef;
 import akka.actor.Deploy;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
-import akka.cluster.pubsub.DistributedPubSub;
-import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.login.LoginAuthMessage;
@@ -35,12 +32,8 @@ public class LoginActor extends UntypedActor {
 	private final AccountDAO accountDao;
 
 	public LoginActor(final BestiaActorContext ctx) {
+		
 		this.accountDao = ctx.getSpringContext().getBean(AccountDAO.class);
-
-		// Setup the mediator.
-		final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
-
-		mediator.tell(new DistributedPubSubMediator.Put(getSelf()), getSelf());
 	}
 
 	public static Props props(final BestiaActorContext ctx) {

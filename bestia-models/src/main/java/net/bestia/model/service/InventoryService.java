@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  */
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
-@Service("InventoryService")
+@Service
 public class InventoryService {
 
 	private final static Logger log = LoggerFactory.getLogger(InventoryService.class);

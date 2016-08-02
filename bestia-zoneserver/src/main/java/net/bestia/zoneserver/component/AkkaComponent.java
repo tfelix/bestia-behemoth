@@ -78,8 +78,7 @@ public class AkkaComponent {
 		
 		LOG.info("Starting actor tree.");
 		final BestiaActorContext ctx = new BestiaActorContext(appContext);
-		system.actorOf(ZoneActor.props(ctx), "zone");
-		system.actorOf(LoginActor.props(ctx), "login");
+		system.actorOf(ZoneActor.props(ctx), "behemoth");
 
 		return system;
 	}

@@ -17,7 +17,7 @@ import net.bestia.zoneserver.service.CacheManager;
 import net.bestia.zoneserver.service.MovingEntityManager;
 import net.bestia.zoneserver.zone.Position;
 import net.bestia.zoneserver.zone.entity.Entity;
-import net.bestia.zoneserver.zone.entity.Moving;
+import net.bestia.zoneserver.zone.entity.traits.Moving;
 import scala.concurrent.duration.Duration;
 
 /**

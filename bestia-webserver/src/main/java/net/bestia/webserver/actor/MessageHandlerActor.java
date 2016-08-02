@@ -19,11 +19,12 @@ import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
-import net.bestia.messages.AccountMessage;
 import net.bestia.messages.ClientMessage;
+import net.bestia.messages.Message;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
+import net.bestia.server.AkkaCluster;
 import net.bestia.server.BestiaActorContext;
 
 /**
@@ -110,7 +111,7 @@ public class MessageHandlerActor extends UntypedActor {
 
 					// Send the LoginRequest to the cluster.
 					// Somehow centralize the names of the actors.
-					mediator.tell(new DistributedPubSubMediator.Send("/user/login", loginReqMsg, false), getSelf());
+					mediator.tell(new DistributedPubSubMediator.Publish(AkkaCluster.CLUSTER_PUBSUB_TOPIC, loginReqMsg), getSelf());
 
 				} catch (IOException e) {
 					// Wrong message. Terminate connection.
@@ -121,9 +122,9 @@ public class MessageHandlerActor extends UntypedActor {
 			} else {
 				try {
 					// Turn the text message into a bestia message.
-					final AccountMessage msg = mapper.readValue(payload, AccountMessage.class);
+					final Message msg = mapper.readValue(payload, Message.class);
 					LOG.debug("Client sending: {}.", msg.toString());
-					mediator.tell(new DistributedPubSubMediator.Send("/user/behemoth", msg, false), getSelf());
+					mediator.tell(new DistributedPubSubMediator.Publish(AkkaCluster.CLUSTER_PUBSUB_TOPIC, msg), getSelf());
 
 				} catch (IOException e) {
 					LOG.warning("Malformed message. Client: {}. Payload: {}.", session.getRemoteAddress(), payload);
