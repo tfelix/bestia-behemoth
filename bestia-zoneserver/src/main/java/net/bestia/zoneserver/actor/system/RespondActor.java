@@ -9,7 +9,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.AccountMessage;
 import net.bestia.server.BestiaActorContext;
 import net.bestia.zoneserver.actor.login.ConnectionManagerActor;
-import net.bestia.zoneserver.component.CachesConfiguration;
+import net.bestia.zoneserver.configuration.CachesConfiguration;
 import net.bestia.zoneserver.service.CacheManager;
 
 /**

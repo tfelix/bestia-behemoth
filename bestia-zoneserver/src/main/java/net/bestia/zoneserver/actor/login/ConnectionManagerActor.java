@@ -8,7 +8,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.system.ClientConnectionStatusMessage;
 import net.bestia.messages.system.ClientConnectionStatusMessage.ConnectionState;
 import net.bestia.server.BestiaActorContext;
-import net.bestia.zoneserver.component.CachesConfiguration;
+import net.bestia.zoneserver.configuration.CachesConfiguration;
 import net.bestia.zoneserver.service.CacheManager;
 
 /**

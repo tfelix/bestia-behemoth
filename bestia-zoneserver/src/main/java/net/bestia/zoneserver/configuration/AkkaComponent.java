@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.component;
+package net.bestia.zoneserver.configuration;
 
 import java.net.UnknownHostException;
 import java.util.List;
@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
 import com.hazelcast.core.HazelcastInstance;
@@ -15,12 +16,16 @@ import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorSystem;
 import akka.actor.Address;
+import akka.actor.PoisonPill;
 import akka.cluster.Cluster;
+import akka.cluster.singleton.ClusterSingletonManager;
+import akka.cluster.singleton.ClusterSingletonManagerSettings;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.BestiaActorContext;
 import net.bestia.server.service.ClusterConfigurationService;
+import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.ZoneActor;
-import net.bestia.zoneserver.actor.login.LoginActor;
+import net.bestia.zoneserver.actor.system.InitActor;
 import net.bestia.zoneserver.service.ServerConfiguration;
 
 /**
@@ -32,22 +37,28 @@ import net.bestia.zoneserver.service.ServerConfiguration;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-@Component
+@Configuration
 public class AkkaComponent {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AkkaComponent.class);
 
 	private static final String AKKA_CONFIG_NAME = "akka";
-	
 
 	@Bean
-	public ActorSystem actorSystem(Config akkaConfig, ServerConfiguration config, HazelcastInstance hzInstance, ApplicationContext appContext)
+	public ActorSystem actorSystem(ServerConfiguration config, 
+			HazelcastInstance hzInstance,
+			ApplicationContext appContext)
 			throws UnknownHostException {
+		
+		final Config akkaConfig = ConfigFactory.load(AKKA_CONFIG_NAME);
 
 		final ActorSystem system = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
+		
+		// initialize the application context in the Akka Spring extension.
+		//SpringExtension.SpringExtProvider.get(system).initialize(appContext);
 
 		final ClusterConfigurationService clusterConfig = new ClusterConfigurationService(hzInstance);
-		
+
 		final Address selfAddr = Cluster.get(system).selfAddress();
 
 		if (clusterConfig.shoudlJoinAsSeedNode()) {
@@ -55,14 +66,15 @@ public class AkkaComponent {
 			// Check if there are at least some seeds or if we need to bootstrap
 			// the cluster.
 			final List<Address> seedNodes = clusterConfig.getClusterNodes();
-			
-			if(seedNodes.size() == 0) {
-				// Join as seed node since desired number of seeds is not reached.			
+
+			if (seedNodes.size() == 0) {
+				// Join as seed node since desired number of seeds is not
+				// reached.
 				Cluster.get(system).join(selfAddr);
 			} else {
 				Cluster.get(system).joinSeedNodes(seedNodes);
 			}
-			
+
 		} else {
 			// Only join as normal node.
 			final List<Address> clusterNodes = clusterConfig.getClusterNodes();
@@ -75,18 +87,11 @@ public class AkkaComponent {
 		// could use random port join which will alter the port defined in
 		// selfAddr.
 		clusterConfig.addClusterNode(selfAddr);
-		
+
 		LOG.info("Starting actor tree.");
 		final BestiaActorContext ctx = new BestiaActorContext(appContext);
 		system.actorOf(ZoneActor.props(ctx), "behemoth");
 
 		return system;
-	}
-
-
-	@Bean
-	public Config config() {
-		final Config config = ConfigFactory.load(AKKA_CONFIG_NAME);
-		return config;
 	}
 }

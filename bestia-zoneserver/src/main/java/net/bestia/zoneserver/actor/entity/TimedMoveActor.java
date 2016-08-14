@@ -12,7 +12,7 @@ import akka.actor.UntypedActor;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.model.zone.Point;
 import net.bestia.server.BestiaActorContext;
-import net.bestia.zoneserver.component.CachesConfiguration;
+import net.bestia.zoneserver.configuration.CachesConfiguration;
 import net.bestia.zoneserver.service.CacheManager;
 import net.bestia.zoneserver.service.MovingEntityManager;
 import net.bestia.zoneserver.zone.Position;

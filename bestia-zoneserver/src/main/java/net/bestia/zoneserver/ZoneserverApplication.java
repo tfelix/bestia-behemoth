@@ -6,10 +6,16 @@ import org.springframework.boot.orm.jpa.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+/**
+ * Main application entry point. This will start the spring-boot application.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 @SpringBootApplication
 @EnableJpaRepositories("net.bestia.model")
 @EntityScan("net.bestia.model.domain")
-@ComponentScan(basePackages={"net.bestia.model.service", "net.bestia.zoneserver"})
+@ComponentScan(basePackages = { "net.bestia.model.service", "net.bestia.zoneserver" })
 public class ZoneserverApplication {
 
 	public static void main(String[] args) throws Exception {
