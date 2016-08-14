@@ -17,7 +17,7 @@ import net.bestia.messages.system.StartInitMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class InitActor extends UntypedActor {
+public class InitGlobalActor extends UntypedActor {
 	
 	public static final String NAME = "initActor";
 
@@ -36,7 +36,11 @@ public class InitActor extends UntypedActor {
 			hasInitialized = true;
 			
 			// Start the initialization process.
-			LOG.info("Start the server initialization...");
+			LOG.info("Start the global server initialization...");
+			
+			// Load the sample map into the server cache.
+			
+			// 
 			
 		} else {
 			unhandled(message);
@@ -45,7 +49,7 @@ public class InitActor extends UntypedActor {
 	}
 
 	public static Props props() {
-		return Props.create(InitActor.class);
+		return Props.create(InitGlobalActor.class);
 	}
 
 }

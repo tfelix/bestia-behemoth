@@ -25,7 +25,7 @@ import net.bestia.server.BestiaActorContext;
 import net.bestia.server.service.ClusterConfigurationService;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.ZoneActor;
-import net.bestia.zoneserver.actor.system.InitActor;
+import net.bestia.zoneserver.actor.system.InitGlobalActor;
 import net.bestia.zoneserver.service.ServerConfiguration;
 
 /**

@@ -7,7 +7,7 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
 @Component
-public class HazelcastComponent {
+public class HazelcastConfiguration {
 
 	@Bean
 	public HazelcastInstance getHazelcastInstance() {

@@ -17,11 +17,14 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.Message;
 import net.bestia.messages.inventory.InventoryListRequestMessage;
 import net.bestia.messages.login.LoginAuthMessage;
+import net.bestia.messages.system.StartInitMessage;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.BestiaActorContext;
 import net.bestia.zoneserver.actor.inventory.InventoryListActor;
 import net.bestia.zoneserver.actor.login.LoginActor;
-import net.bestia.zoneserver.actor.system.InitActor;
+import net.bestia.zoneserver.actor.system.InitGlobalActor;
+import net.bestia.zoneserver.actor.system.InitLocalActor;
+import net.bestia.zoneserver.actor.system.InitLocalActor.LocalInitDone;
 
 /**
  * Central actor for handling zone related messages. This actor will redirect
@@ -39,25 +42,26 @@ public class ZoneActor extends UntypedActor {
 	private final ActorRef loginActor;
 	private final ActorRef inventoryListActor;
 
+	private ActorRef localInitActor;
+
 	public ZoneActor(BestiaActorContext ctx) {
 
 		final ActorSystem system = getContext().system();
 
 		// Setup the init actor singelton for creation of the system.
 		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
-		system.actorOf(ClusterSingletonManager.props(InitActor.props(), PoisonPill.getInstance(), settings),
-				InitActor.NAME);
+		system.actorOf(ClusterSingletonManager.props(InitGlobalActor.props(), PoisonPill.getInstance(), settings),
+				InitGlobalActor.NAME);
 
 		loginActor = getContext().actorOf(LoginActor.props(ctx), "login");
 		inventoryListActor = getContext().actorOf(InventoryListActor.props(ctx), "inventory");
 
-		// Setup the mediator.
-		final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
-		mediator.tell(new DistributedPubSubMediator.Subscribe(AkkaCluster.CLUSTER_PUBSUB_TOPIC, getSelf()), getSelf());
-
 		// Get the reference to the init singelton.
 		final ClusterSingletonProxySettings proxySettings = ClusterSingletonProxySettings.create(system);
 		system.actorOf(ClusterSingletonProxy.props("/user/consumer", proxySettings), "initProxy");
+
+		localInitActor = getContext().actorOf(InitLocalActor.props());
+		localInitActor.tell(new StartInitMessage(), getSelf());
 	}
 
 	public static Props props(BestiaActorContext ctx) {
@@ -69,6 +73,19 @@ public class ZoneActor extends UntypedActor {
 
 		if (message instanceof DistributedPubSubMediator.SubscribeAck) {
 			LOG.info("subscribing");
+			return;
+		}
+
+		if (message instanceof LocalInitDone) {
+			
+			localInitActor = null;
+
+			// If we have finished loading setup the mediator to receive pub sub
+			// messages.
+			final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
+			mediator.tell(new DistributedPubSubMediator.Subscribe(AkkaCluster.CLUSTER_PUBSUB_TOPIC, getSelf()),
+					getSelf());
+			
 			return;
 		}
 

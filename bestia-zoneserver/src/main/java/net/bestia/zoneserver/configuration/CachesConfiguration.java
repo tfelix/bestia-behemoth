@@ -9,30 +9,37 @@ import com.hazelcast.core.HazelcastInstance;
 import net.bestia.zoneserver.service.CacheManager;
 import net.bestia.zoneserver.zone.entity.Entity;
 
+/**
+ * This class sets up the caches which are used inside hazelcast to hold the
+ * objects during runtime.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 @Configuration
 public class CachesConfiguration {
-	
+
 	public final static String ENTITY_CACHE = "entityCache";
 	public final static String CLIENT_CACHE = "clientCache";
-	
+
 	private HazelcastInstance cache;
-	
+
 	@Autowired
 	public void setCache(HazelcastInstance cache) {
 		this.cache = cache;
 	}
-	
-	@Bean(name=ENTITY_CACHE)
+
+	@Bean(name = ENTITY_CACHE)
 	public CacheManager<Long, Entity> getEntityCache() {
-		
+
 		return new CacheManager<>("cache.entity", cache);
-		
+
 	}
-	
-	@Bean(name=CLIENT_CACHE)
+
+	@Bean(name = CLIENT_CACHE)
 	public CacheManager<Long, Entity> getClientCache() {
-		
+
 		return new CacheManager<>("cache.client", cache);
-		
+
 	}
 }
