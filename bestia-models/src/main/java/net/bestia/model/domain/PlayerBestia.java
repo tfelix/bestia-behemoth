@@ -45,9 +45,10 @@ public class PlayerBestia implements Serializable {
 	@JsonProperty("cn")
 	private String name = "";
 
-	@AttributeOverrides({ @AttributeOverride(name = "mapDbName", column = @Column(name = "saveMapDbName") ),
-			@AttributeOverride(name = "x", column = @Column(name = "saveX") ),
-			@AttributeOverride(name = "y", column = @Column(name = "saveY") ), })
+	@AttributeOverrides({ @AttributeOverride(name = "map", column = @Column(name = "saveMapName")),
+			@AttributeOverride(name = "area", column = @Column(name = "saveArea")),
+			@AttributeOverride(name = "x", column = @Column(name = "saveX")),
+			@AttributeOverride(name = "y", column = @Column(name = "saveY")), })
 	@Embedded
 	@JsonProperty("sl")
 	private Position savePosition = new Position();
@@ -73,9 +74,9 @@ public class PlayerBestia implements Serializable {
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "ACCOUNT_ID", nullable = false)
 	private Account owner;
-	
+
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="MASTER_ID", nullable = true, unique=true)
+	@JoinColumn(name = "MASTER_ID", nullable = true, unique = true)
 	@JsonIgnore
 	private Account master;
 
@@ -143,24 +144,24 @@ public class PlayerBestia implements Serializable {
 	 * added to each bestia when it kill another bestia from this kind.
 	 */
 	@Embedded
-	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "evHp") ),
-			@AttributeOverride(name = "mana", column = @Column(name = "evMana") ),
-			@AttributeOverride(name = "atk", column = @Column(name = "evAtk") ),
-			@AttributeOverride(name = "def", column = @Column(name = "evDef") ),
-			@AttributeOverride(name = "spAtk", column = @Column(name = "evSpAtk") ),
-			@AttributeOverride(name = "spDef", column = @Column(name = "evSpDef") ),
-			@AttributeOverride(name = "spd", column = @Column(name = "evSpd") ) })
+	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "evHp")),
+			@AttributeOverride(name = "mana", column = @Column(name = "evMana")),
+			@AttributeOverride(name = "atk", column = @Column(name = "evAtk")),
+			@AttributeOverride(name = "def", column = @Column(name = "evDef")),
+			@AttributeOverride(name = "spAtk", column = @Column(name = "evSpAtk")),
+			@AttributeOverride(name = "spDef", column = @Column(name = "evSpDef")),
+			@AttributeOverride(name = "spd", column = @Column(name = "evSpd")) })
 	@JsonIgnore
 	private BaseValues effortValues;
 
 	@Embedded
-	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "ivHp") ),
-			@AttributeOverride(name = "mana", column = @Column(name = "ivMana") ),
-			@AttributeOverride(name = "atk", column = @Column(name = "ivAtk") ),
-			@AttributeOverride(name = "def", column = @Column(name = "ivDef") ),
-			@AttributeOverride(name = "spAtk", column = @Column(name = "ivSpAtk") ),
-			@AttributeOverride(name = "spDef", column = @Column(name = "ivSpDef") ),
-			@AttributeOverride(name = "spd", column = @Column(name = "ivSpd") ) })
+	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "ivHp")),
+			@AttributeOverride(name = "mana", column = @Column(name = "ivMana")),
+			@AttributeOverride(name = "atk", column = @Column(name = "ivAtk")),
+			@AttributeOverride(name = "def", column = @Column(name = "ivDef")),
+			@AttributeOverride(name = "spAtk", column = @Column(name = "ivSpAtk")),
+			@AttributeOverride(name = "spDef", column = @Column(name = "ivSpDef")),
+			@AttributeOverride(name = "spd", column = @Column(name = "ivSpd")) })
 	@JsonIgnore
 	private BaseValues individualValue;
 
@@ -377,11 +378,11 @@ public class PlayerBestia implements Serializable {
 	public void setItem5(PlayerItem item5) {
 		this.item5 = item5;
 	}
-	
+
 	public Account getMaster() {
 		return master;
 	}
-	
+
 	public void setMaster(Account master) {
 		this.master = master;
 	}

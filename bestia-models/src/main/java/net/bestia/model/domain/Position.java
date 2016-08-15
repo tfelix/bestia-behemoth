@@ -2,7 +2,7 @@ package net.bestia.model.domain;
 
 import java.util.Objects;
 
-import javax.persistence.Entity;
+import javax.persistence.Embeddable;
 
 /**
  * A location on the global map. None the less there might be different "maps"
@@ -11,7 +11,7 @@ import javax.persistence.Entity;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-@Entity
+@Embeddable
 public class Position {
 
 	public final static String WORLD_MAP = "wmap";
