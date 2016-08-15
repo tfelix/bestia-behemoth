@@ -5,7 +5,7 @@ import tiled.core.Map;
 
 /**
  * Classes implementing this interface will automagically be picked up by the
- * {@link TMXMaploader} and be used to extend the MapBuilder with certain
+ * {@link TMXMapGenerator} and be used to extend the MapBuilder with certain
  * (parsable) features from the TMX mapfile. Classes implementing this interface
  * MUST have a standard constructor in order for the auto-pickup to work.
  * 

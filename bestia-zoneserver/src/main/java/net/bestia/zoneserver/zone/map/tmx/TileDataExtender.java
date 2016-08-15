@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Properties;
 
 import net.bestia.zoneserver.zone.map.Map.MapBuilder;
-import net.bestia.zoneserver.zone.map.Tile;
-import net.bestia.zoneserver.zone.shape.Point;
 import tiled.core.Map;
 import tiled.core.MapLayer;
 import tiled.core.TileLayer;

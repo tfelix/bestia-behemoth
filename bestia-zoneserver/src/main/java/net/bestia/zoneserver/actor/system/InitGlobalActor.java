@@ -2,15 +2,16 @@ package net.bestia.zoneserver.actor.system;
 
 import java.util.Objects;
 
+import akka.actor.ActorRef;
 import akka.actor.Deploy;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.messages.system.LoadMapfileMessage;
 import net.bestia.messages.system.StartInitMessage;
 import net.bestia.server.BestiaActorContext;
-import net.bestia.zoneserver.service.MapService;
-import net.bestia.zoneserver.zone.map.Map;
+import net.bestia.zoneserver.actor.map.LoadMapFileActor;
 
 /**
  * Upon receiving the StartInit message the actor will start its work: Depending
@@ -51,10 +52,10 @@ public class InitGlobalActor extends UntypedActor {
 			LOG.info("Start the global server initialization...");
 
 			// Load the sample map into the server cache.
-			Map bestiaMap = new Map();
-
-			final MapService mapService = ctx.getSpringContext().getBean(MapService.class);
-			mapService.setMap(bestiaMap);
+			// @TODO Das hier austauschen gegen config?
+			final String mapFile = "C:\\Users\\Thomas\\workspace\\14BES-bestia-behemoth\\src\\game-data\\map\\test-zone1\\test-zone1.tmx";
+			ActorRef loadActor = getContext().actorOf(LoadMapFileActor.props(ctx));
+			loadActor.tell(new LoadMapfileMessage(mapFile), getSelf());
 
 		} else {
 			unhandled(message);

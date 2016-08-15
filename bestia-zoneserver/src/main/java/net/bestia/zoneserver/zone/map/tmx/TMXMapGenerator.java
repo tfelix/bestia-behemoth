@@ -10,8 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bestia.model.zone.Size;
+import net.bestia.zoneserver.service.MapService;
 import net.bestia.zoneserver.util.PackageLoader;
 import net.bestia.zoneserver.zone.map.Map;
+import net.bestia.zoneserver.zone.map.MapGenerator;
 import net.bestia.zoneserver.zone.map.Map.MapBuilder;
 import tiled.io.TMXMapReader;
 
@@ -21,9 +23,9 @@ import tiled.io.TMXMapReader;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class TMXMaploader {
+public class TMXMapGenerator implements MapGenerator {
 
-	private final static Logger LOG = LoggerFactory.getLogger(TMXMaploader.class);
+	private final static Logger LOG = LoggerFactory.getLogger(TMXMapGenerator.class);
 
 	private final TMXMapReader reader;
 	private String mapFile;
@@ -37,32 +39,9 @@ public class TMXMaploader {
 		}
 	}
 
-	public TMXMaploader(File tmxMapFile) {
+	public TMXMapGenerator(String tmxMapFile) {
 		this.reader = new TMXMapReader();
-		this.mapFile = tmxMapFile.getAbsolutePath();
-	}
-
-	public void loadMap() throws IOException {
-
-		LOG.debug("Loading mapfile: {}", mapFile);
-
-		tiled.core.Map tiledMap;
-		try {
-			tiledMap = reader.readMap(mapFile);
-		} catch (Exception e) {
-			throw new IOException(e);
-		}
-
-		// Prepare basic data.	
-		final Size mapSize = new Size(tiledMap.getHeight(), tiledMap.getWidth());
-		
-		final String baseName = FilenameUtils.getBaseName(mapFile);
-		final String mapDbName = FilenameUtils.removeExtension(baseName);
-		
-		Map bestiaMap = new Map(mapDbName, mapSize);
-
-		// Extend the map with all missing features.
-		extendMapBuilder(tiledMap, null);
+		this.mapFile = new File(tmxMapFile).getAbsolutePath();
 	}
 
 	/**
@@ -75,5 +54,28 @@ public class TMXMaploader {
 		for (TMXMapExtender extender : extras) {
 			extender.extendMap(tiledMap, builder);
 		}
+	}
+
+	@Override
+	public void generate(MapService service) {
+		LOG.debug("Loading mapfile: {}", mapFile);
+
+		tiled.core.Map tiledMap;
+		try {
+			tiledMap = reader.readMap(mapFile);
+		} catch (Exception e) {
+			//throw new IOException(e);
+		}
+
+		// Prepare basic data.	
+		final Size mapSize = new Size(tiledMap.getHeight(), tiledMap.getWidth());
+		
+		final String baseName = FilenameUtils.getBaseName(mapFile);
+		final String mapDbName = FilenameUtils.removeExtension(baseName);
+		
+		Map bestiaMap = new Map(mapDbName, mapSize);
+
+		// Extend the map with all missing features.
+		extendMapBuilder(tiledMap, null);
 	}
 }
