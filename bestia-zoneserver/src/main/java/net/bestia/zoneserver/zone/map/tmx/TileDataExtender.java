@@ -100,8 +100,8 @@ public class TileDataExtender implements TMXMapExtender {
 					}
 				}
 
-				final Tile mapTile = new Tile(isWalkable, walkspeed);
-				builder.tiles.put(new Point(x, y), mapTile);
+				//final Tile mapTile = new Tile(isWalkable, walkspeed);
+				//builder.tiles.put(new Point(x, y), mapTile);
 			}
 		}
 	}

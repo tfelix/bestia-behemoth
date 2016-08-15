@@ -27,7 +27,7 @@ import net.bestia.zoneserver.zone.shape.Rect;
  */
 @Service
 public class MapService {
-	
+
 	public final static String CACHE_KEY = "tiles";
 
 	private final HazelcastInstance hazelcastInstance;
@@ -47,24 +47,36 @@ public class MapService {
 	 */
 	@SuppressWarnings("rawtypes")
 	public Map getMap(Rect range) {
-		
-		IMap<Point, Tile> tileData = hazelcastInstance.getMap( "tiles" );
-		
+
+		IMap<Point, Tile> tileData = hazelcastInstance.getMap("tiles");
+
 		// Build the query.
 		final EntryObject e = new PredicateBuilder().getEntryObject();
-		
+
 		Predicate xPredicate = e.get("position.x").between(range.getX(), range.getX() + range.getWidth());
 		Predicate yPredicate = e.get("position.y").between(range.getY(), range.getY() + range.getHeight());
-		
+
 		final Predicate rangePredicate = Predicates.and(xPredicate, yPredicate);
-		
+
 		final Collection<Tile> tiles = tileData.values(rangePredicate);
 
 		// Find the tilesets to this tiles.
-		
+
 		// Build the map objects.
-		
+
 		return null;
+	}
+
+	/**
+	 * Takes the given map part (or whole map) and saves it into the cache for
+	 * later retrival by the system.
+	 * 
+	 * @param bestiaMap
+	 *            The map to be saved into the caches.
+	 */
+	public void setMap(Map bestiaMap) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

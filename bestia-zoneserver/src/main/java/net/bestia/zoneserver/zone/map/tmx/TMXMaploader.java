@@ -9,8 +9,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bestia.model.zone.Size;
 import net.bestia.zoneserver.util.PackageLoader;
 import net.bestia.zoneserver.zone.map.Map;
+import net.bestia.zoneserver.zone.map.Map.MapBuilder;
 import tiled.io.TMXMapReader;
 
 /**
@@ -40,11 +42,10 @@ public class TMXMaploader {
 		this.mapFile = tmxMapFile.getAbsolutePath();
 	}
 
-	public void loadMap(Map.MapBuilder builder) throws IOException {
+	public void loadMap() throws IOException {
 
 		LOG.debug("Loading mapfile: {}", mapFile);
 
-		this.builder = builder;
 		tiled.core.Map tiledMap;
 		try {
 			tiledMap = reader.readMap(mapFile);
@@ -52,15 +53,16 @@ public class TMXMaploader {
 			throw new IOException(e);
 		}
 
-		// Prepare basic data.
-		builder.height = tiledMap.getHeight();
-		builder.width = tiledMap.getWidth();
+		// Prepare basic data.	
+		final Size mapSize = new Size(tiledMap.getHeight(), tiledMap.getWidth());
+		
 		final String baseName = FilenameUtils.getBaseName(mapFile);
 		final String mapDbName = FilenameUtils.removeExtension(baseName);
-		builder.mapDbName = mapDbName;
+		
+		Map bestiaMap = new Map(mapDbName, mapSize);
 
 		// Extend the map with all missing features.
-		extendMapBuilder(tiledMap);
+		extendMapBuilder(tiledMap, null);
 	}
 
 	/**
@@ -69,7 +71,7 @@ public class TMXMaploader {
 	 * 
 	 * @param tiledMap
 	 */
-	private void extendMapBuilder(tiled.core.Map tiledMap) {
+	private void extendMapBuilder(tiled.core.Map tiledMap, MapBuilder builder) {
 		for (TMXMapExtender extender : extras) {
 			extender.extendMap(tiledMap, builder);
 		}

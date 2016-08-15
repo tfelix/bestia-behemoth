@@ -50,7 +50,7 @@ public class ZoneActor extends UntypedActor {
 
 		// Setup the init actor singelton for creation of the system.
 		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
-		system.actorOf(ClusterSingletonManager.props(InitGlobalActor.props(), PoisonPill.getInstance(), settings),
+		system.actorOf(ClusterSingletonManager.props(InitGlobalActor.props(ctx), PoisonPill.getInstance(), settings),
 				InitGlobalActor.NAME);
 
 		loginActor = getContext().actorOf(LoginActor.props(ctx), "login");
