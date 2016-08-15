@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.zone.entity.traits;
 
-import net.bestia.zoneserver.zone.Position;
+import net.bestia.model.domain.Position;
 
 public interface Locatable {
 	

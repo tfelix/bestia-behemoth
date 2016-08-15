@@ -50,7 +50,7 @@ public class PlayerBestia implements Serializable {
 			@AttributeOverride(name = "y", column = @Column(name = "saveY") ), })
 	@Embedded
 	@JsonProperty("sl")
-	private LocationDomain savePosition = new LocationDomain();
+	private Position savePosition = new Position();
 
 	/**
 	 * The current hp value must be persisted inside the db. Since the status
@@ -68,7 +68,7 @@ public class PlayerBestia implements Serializable {
 
 	@Embedded
 	@JsonProperty("cl")
-	private LocationDomain currentPosition = new LocationDomain();
+	private Position currentPosition = new Position();
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "ACCOUNT_ID", nullable = false)
@@ -203,7 +203,7 @@ public class PlayerBestia implements Serializable {
 	}
 
 	private void initialize() {
-		final LocationDomain defaultLocation = new LocationDomain("", 0, 0);
+		final Position defaultLocation = new Position(0, 0);
 		setCurrentPosition(defaultLocation);
 		setSavePosition(defaultLocation);
 
@@ -227,19 +227,19 @@ public class PlayerBestia implements Serializable {
 		this.name = name;
 	}
 
-	public Location getSavePosition() {
+	public Position getSavePosition() {
 		return savePosition;
 	}
 
-	public void setSavePosition(Location savePosition) {
+	public void setSavePosition(Position savePosition) {
 		this.savePosition.set(savePosition);
 	}
 
-	public Location getCurrentPosition() {
+	public Position getCurrentPosition() {
 		return currentPosition;
 	}
 
-	public void setCurrentPosition(Location currentPosition) {
+	public void setCurrentPosition(Position currentPosition) {
 		this.currentPosition.set(currentPosition);
 	}
 

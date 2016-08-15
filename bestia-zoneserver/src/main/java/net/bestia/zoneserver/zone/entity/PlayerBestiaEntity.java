@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.zone.entity;
 
+import net.bestia.model.domain.Position;
 import net.bestia.model.domain.StatusPoints;
-import net.bestia.zoneserver.zone.Position;
 import net.bestia.zoneserver.zone.entity.traits.Attackable;
 import net.bestia.zoneserver.zone.entity.traits.Collidable;
 import net.bestia.zoneserver.zone.entity.traits.Interactable;

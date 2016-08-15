@@ -6,7 +6,7 @@ import java.util.Set;
 
 /**
  * This class holds the connections of the map nodes of the bestia game. Will be
- * used by the AI rout planning behaviour. It need to have at least a rough
+ * used by the AI rout planning behavior. It need to have at least a rough
  * coordinate placement in order to generate a distance to the target. The node
  * weight is also given by the map diagonal as an estimation.
  * 

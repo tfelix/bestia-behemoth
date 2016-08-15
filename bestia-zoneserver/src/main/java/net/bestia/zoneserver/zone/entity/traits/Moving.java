@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.zone.entity.traits;
 
-import net.bestia.zoneserver.zone.Position;
+import net.bestia.model.domain.Position;
 
 /**
  * An entity which is capable of moving has the ability to manouver on its own.

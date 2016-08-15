@@ -1,4 +1,6 @@
-package net.bestia.zoneserver.zone;
+package net.bestia.model.domain;
+
+import javax.persistence.Entity;
 
 /**
  * A location on the global map. None the less there might be different "maps"
@@ -7,6 +9,7 @@ package net.bestia.zoneserver.zone;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@Entity
 public class Position {
 
 	public final static String WORLD_MAP = "wmap";
@@ -28,32 +31,60 @@ public class Position {
 		this.x = 0;
 		this.y = 0;
 	}
+	
+	public Position(String mapname, String area, long x, long y) {
+		
+		this.map = mapname;
+		this.area = area;
+		
+		setX(x);
+		setY(y);		
+	}
 
 	public Position(long x, long y) {
 		this.area = "";
 		this.map = WORLD_MAP;
 
-		if (x < 0 || y < 0) {
-			throw new IllegalArgumentException("Coordinates can not be negative. Use positive values.");
-		}
-
-		this.x = x;
-		this.y = y;
+		setX(x);
+		setY(y);
 	}
-	
+
 	public String getArea() {
 		return area;
 	}
-	
+
 	public String getMap() {
 		return map;
 	}
-	
+
+	public void setX(long x) {
+		if (x < 0) {
+			throw new IllegalArgumentException("X can not be negative. Use positive values.");
+		}
+
+		this.x = x;
+	}
+
+	public void setY(long y) {
+		if (x < 0) {
+			throw new IllegalArgumentException("Y can not be negative. Use positive values.");
+		}
+
+		this.y = y;
+	}
+
 	public long getX() {
 		return x;
 	}
-	
+
 	public long getY() {
 		return y;
+	}
+
+	public void set(Position pos) {
+		this.area = pos.getArea();
+		this.map = pos.getMap();
+		this.x = pos.getX();
+		this.y = pos.getY();
 	}
 }
