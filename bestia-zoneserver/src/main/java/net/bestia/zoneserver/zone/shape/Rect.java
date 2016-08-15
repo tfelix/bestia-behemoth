@@ -11,13 +11,13 @@ import java.util.Objects;
  */
 public class Rect implements CollisionShape {
 
-	private final int x;
-	private final int y;
-	private final int width;
-	private final int height;
+	private final long x;
+	private final long y;
+	private final long width;
+	private final long height;
 
-	private final int anchorX;
-	private final int anchorY;
+	private final long anchorX;
+	private final long anchorY;
 
 	/**
 	 * Ctor. Createa a bounding box at x and y equals 0. The anchor is set
@@ -28,7 +28,7 @@ public class Rect implements CollisionShape {
 	 * @param height
 	 *            Height
 	 */
-	public Rect(int width, int height) {
+	public Rect(long width, long height) {
 		this.x = 0;
 		this.y = 0;
 		this.width = width;
@@ -38,7 +38,7 @@ public class Rect implements CollisionShape {
 		this.anchorY = height / 2;
 	}
 
-	public Rect(int x, int y, int width, int height, int anchorX, int anchorY) {
+	public Rect(long x, long y, long width, long height, long anchorX, long anchorY) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
@@ -51,7 +51,7 @@ public class Rect implements CollisionShape {
 		this.anchorY = anchorY;
 	}
 	
-	private void checkAnchor(int aX, int aY) {
+	private void checkAnchor(long aX, long aY) {
 		if (aX < x || aX > x + width) {
 			throw new IllegalArgumentException("X must be inside the rectangle.");
 		}
@@ -68,7 +68,7 @@ public class Rect implements CollisionShape {
 	 * @param width
 	 * @param height
 	 */
-	public Rect(int x, int y, int width, int height) {
+	public Rect(long x, long y, long width, long height) {
 		this.x = x;
 		this.y = y;
 
@@ -89,7 +89,7 @@ public class Rect implements CollisionShape {
 	 * this.width = size.x; this.height = size.y; }
 	 */
 
-	private void checkNotNegative(int width, int height) {
+	private void checkNotNegative(long width, long height) {
 		if (width < 0) {
 			throw new IllegalArgumentException("Width can not be null.");
 		}
@@ -123,7 +123,7 @@ public class Rect implements CollisionShape {
 	 * 
 	 * @return Width.
 	 */
-	public int getWidth() {
+	public long getWidth() {
 		return width;
 	}
 
@@ -132,7 +132,7 @@ public class Rect implements CollisionShape {
 	 * 
 	 * @return Height.
 	 */
-	public int getHeight() {
+	public long getHeight() {
 		return height;
 	}
 
@@ -141,7 +141,7 @@ public class Rect implements CollisionShape {
 	 * 
 	 * @return x
 	 */
-	public int getX() {
+	public long getX() {
 		return x;
 	}
 
@@ -150,7 +150,7 @@ public class Rect implements CollisionShape {
 	 * 
 	 * @return y
 	 */
-	public int getY() {
+	public long getY() {
 		return y;
 	}
 
@@ -193,11 +193,11 @@ public class Rect implements CollisionShape {
 
 	@Override
 	public CollisionShape moveByAnchor(int x, int y) {
-		final int dX = x - getAnchor().x;
-		final int dY = y - getAnchor().y;
+		final long dX = x - getAnchor().x;
+		final long dY = y - getAnchor().y;
 
-		final int cX = getX() + dX;
-		final int cY = getY() + dY;
+		final long cX = getX() + dX;
+		final long cY = getY() + dY;
 
 		final Rect r = new Rect(cX, cY, getWidth(), getHeight(), x, y);
 		return r;

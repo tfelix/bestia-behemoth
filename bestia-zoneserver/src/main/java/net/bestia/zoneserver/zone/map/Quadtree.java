@@ -183,8 +183,8 @@ public class Quadtree {
 
 	private void subdivide() {
 		// Divide the boundry.
-		final int halfWidth = boundary.getWidth() / 2;
-		final int halfHeight = boundary.getHeight() / 2;
+		final long halfWidth = boundary.getWidth() / 2;
+		final long halfHeight = boundary.getHeight() / 2;
 
 		final Rect neb = new Rect(boundary.getX() + halfWidth + 1, boundary.getY(), halfWidth, halfHeight);
 		final Rect nwb = new Rect(boundary.getX(), boundary.getY(), halfWidth, halfHeight);

@@ -2,7 +2,7 @@ package net.bestia.messages.map;
 
 
 import net.bestia.messages.Message;
-import net.bestia.model.domain.Location;
+import net.bestia.model.zone.Point;
 
 /**
  * The ECS is adviced to move the given entity on the map. This is an internal
@@ -17,7 +17,7 @@ public class MapMoveMessage extends Message {
 
 	public final static String MESSAGE_ID = "map.move";
 	
-	private Location target;
+	private Point target;
 	
 	public MapMoveMessage() {
 		
@@ -27,14 +27,14 @@ public class MapMoveMessage extends Message {
 		
 	}
 	
-	public void setTarget(Location target) {
+	public void setTarget(Point target) {
 		if(target == null) {
 			throw new IllegalArgumentException("Target can not be null.");
 		}
 		this.target = target;
 	}
 	
-	public Location getTarget() {
+	public Point getTarget() {
 		return target;
 	}
 

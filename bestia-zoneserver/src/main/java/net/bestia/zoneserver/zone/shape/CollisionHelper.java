@@ -55,10 +55,10 @@ final class CollisionHelper {
 		}
 
 		// Check where the center of the circle is compared to the rectangle.
-		final int x = r.getX();
-		final int y = r.getY();
-		final int x2 = x + r.getWidth();
-		final int y2 = y + r.getHeight();
+		final long x = r.getX();
+		final long y = r.getY();
+		final long x2 = x + r.getWidth();
+		final long y2 = y + r.getHeight();
 
 		if (cc.x < x && cc.y < y) {
 			// Top left case.
@@ -66,7 +66,7 @@ final class CollisionHelper {
 			return d <= s.getRadius();
 		} else if (cc.x >= x && cc.x <= x2 && cc.y <= y) {
 			// Top case.
-			final int d = y - cc.y;
+			final long d = y - cc.y;
 			return d <= s.getRadius();
 		} else if (cc.x > x2 && cc.y < y) {
 			// Right top case.
@@ -74,7 +74,7 @@ final class CollisionHelper {
 			return d <= s.getRadius();
 		} else if (cc.x >= x2 && cc.y >= y && cc.y <= y2) {
 			// Right case.
-			final int d = cc.x - x2;
+			final long d = cc.x - x2;
 			return d <= s.getRadius();
 		} else if (cc.x > x2 && cc.y > y2) {
 			// Right bottom case.
@@ -82,7 +82,7 @@ final class CollisionHelper {
 			return d <= s.getRadius();
 		} else if (cc.x >= x && cc.x <= x2 && cc.y >= y2) {
 			// Bottom case.
-			final int d = cc.y - y2;
+			final long d = cc.y - y2;
 			return d <= s.getRadius();
 		} else if (cc.x < x && cc.y > y2) {
 			// Bottom left case.
@@ -90,7 +90,7 @@ final class CollisionHelper {
 			return d <= s.getRadius();
 		} else {
 			// Left case.
-			final int d = x - cc.x;
+			final long d = x - cc.x;
 			return d <= s.getRadius();
 		}
 	}
@@ -105,7 +105,7 @@ final class CollisionHelper {
 	 * @return TRUE if they collide. FALSE otherwise.
 	 */
 	public static boolean collide(Circle c, Point v) {
-		final int distance = Math.abs(c.getCenter().x - v.x) + Math.abs(c.getCenter().y - v.y);
+		final long distance = Math.abs(c.getCenter().x - v.x) + Math.abs(c.getCenter().y - v.y);
 		return (distance <= c.getRadius());
 	}
 
@@ -137,7 +137,7 @@ final class CollisionHelper {
 	 * @return TRUE if they collide. FALSE otherwise.
 	 */
 	public static boolean collide(Circle s, Circle s2) {
-		final int distance = Math.abs(s.getCenter().x - s2.getCenter().x)
+		final long distance = Math.abs(s.getCenter().x - s2.getCenter().x)
 				+ Math.abs(s.getCenter().y - s2.getCenter().y);
 		return (distance < s.getRadius() + s2.getRadius());
 	}

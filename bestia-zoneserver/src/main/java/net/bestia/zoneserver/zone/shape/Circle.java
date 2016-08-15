@@ -8,7 +8,7 @@ public class Circle implements CollisionShape {
 	private Point anchor;
 	private final int radius;
 
-	public Circle(int x, int y, int radius) {
+	public Circle(long x, long y, int radius) {
 
 		if (radius < 0) {
 			throw new IllegalArgumentException("Radius can not be negative.");
@@ -19,7 +19,7 @@ public class Circle implements CollisionShape {
 		this.anchor = this.center;
 	}
 
-	public Circle(int x, int y, int radius, int anchorX, int anchorY) {
+	public Circle(long x, long y, int radius, long anchorX, long anchorY) {
 		if (radius < 0) {
 			throw new IllegalArgumentException("Radius can not be negative.");
 		}
@@ -31,9 +31,9 @@ public class Circle implements CollisionShape {
 		this.anchor = new Point(anchorX, anchorY);
 	}
 
-	private void checkAnchor(int x, int y) {
-		final int dX = center.x - x;
-		final int dY = center.y - y;
+	private void checkAnchor(long x, long y) {
+		final long dX = center.x - x;
+		final long dY = center.y - y;
 		if(Math.sqrt(dX * dX + dY * dY) > radius + 1) {
 			throw new IllegalArgumentException("Anchor must be inside the circle.");
 		}
@@ -64,10 +64,10 @@ public class Circle implements CollisionShape {
 
 	@Override
 	public Rect getBoundingBox() {
-		final int leftX = center.x - radius;
-		final int rightX = center.x + radius;
-		final int topY = center.y - radius;
-		final int bottomY = center.y + radius;
+		final long leftX = center.x - radius;
+		final long rightX = center.x + radius;
+		final long topY = center.y - radius;
+		final long bottomY = center.y + radius;
 		return new Rect(leftX, topY, rightX - leftX, bottomY - topY);
 	}
 
@@ -115,11 +115,11 @@ public class Circle implements CollisionShape {
 
 	@Override
 	public CollisionShape moveByAnchor(int x, int y) {
-		final int dX = x - getAnchor().x;
-		final int dY = y - getAnchor().y;
+		final long dX = x - getAnchor().x;
+		final long dY = y - getAnchor().y;
 
-		final int cX = center.x + dX;
-		final int cY = center.y + dY;
+		final long cX = center.x + dX;
+		final long cY = center.y + dY;
 
 		final Circle c = new Circle(cX, cY, radius, dX, dY);
 		return c;
