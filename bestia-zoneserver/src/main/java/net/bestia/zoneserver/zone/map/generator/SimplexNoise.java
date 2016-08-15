@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.zone.generation;
+package net.bestia.zoneserver.zone.map.generator;
 
 /**
  * A SimplexNoise implementation for seeding generation maps for the map

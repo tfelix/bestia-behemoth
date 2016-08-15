@@ -16,6 +16,7 @@ import com.hazelcast.query.Predicates;
 import net.bestia.model.zone.Point;
 import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.map.Tile;
+import net.bestia.zoneserver.zone.map.Tileset;
 import net.bestia.zoneserver.zone.shape.Rect;
 
 /**
@@ -28,7 +29,8 @@ import net.bestia.zoneserver.zone.shape.Rect;
 @Service
 public class MapService {
 
-	public final static String CACHE_KEY = "tiles";
+	public final static String CACHE_KEY = "map.tiles";
+	private final static String TILESET_KEY = "map.tilesets";
 
 	private final HazelcastInstance hazelcastInstance;
 
@@ -66,7 +68,7 @@ public class MapService {
 
 		return null;
 	}
-
+	
 	/**
 	 * Takes the given map part (or whole map) and saves it into the cache for
 	 * later retrival by the system.
@@ -79,4 +81,44 @@ public class MapService {
 
 	}
 
+	/**
+	 * Returns a tileset via its name.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	public Tileset getTileset(String name) {
+		final IMap<String, Tileset> tilesetData = hazelcastInstance.getMap(TILESET_KEY);
+		return tilesetData.get(name);
+	}
+
+	/**
+	 * Returns the tileset depending on the gid of a tile. The system will
+	 * perform a lookup in order to find the correct tileset for the given guid.
+	 * 
+	 * @param gid
+	 *            The id of the tile to which the tileset should be found.
+	 * @return The found tileset containing the tile with the GID or null if not
+	 *         tileset could been found.
+	 */
+	public Tileset getTileset(int gid) {
+		final IMap<String, Tileset> tilesetData = hazelcastInstance.getMap(TILESET_KEY);
+		for(Tileset ts : tilesetData.values()) {
+			if(ts.contains(gid)) {
+				return ts;
+			}
+		}
+		
+		return null;
+	}
+
+	/**
+	 * Saves the given tileset into the memory cache for later retrival.
+	 * 
+	 * @param tileset
+	 */
+	public void saveTileset(Tileset tileset) {
+		final IMap<String, Tileset> tilesetData = hazelcastInstance.getMap(TILESET_KEY);
+		tilesetData.put(tileset.getName(), tileset);
+	}
 }

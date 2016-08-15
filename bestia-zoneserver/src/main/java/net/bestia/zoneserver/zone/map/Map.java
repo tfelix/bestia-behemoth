@@ -18,8 +18,7 @@ public class Map {
 	private final String name;
 	private final Size size;
 	
-	private java.util.Map<Integer, java.util.Map<Point, Tile>> tileLayer = new HashMap<>();
-	private boolean[] walkableData;
+	private java.util.Map<Integer, java.util.Map<Point, Integer>> tileLayer = new HashMap<>();
 	
 	public Map() {
 		name = "";
@@ -31,7 +30,6 @@ public class Map {
 		this.name = name;
 		this.size = Objects.requireNonNull(size);
 		
-		this.walkableData = new boolean[size.getHeight() * size.getWidth()];
 		
 	}
 

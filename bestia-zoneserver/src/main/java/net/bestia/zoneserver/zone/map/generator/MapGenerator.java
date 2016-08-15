@@ -1,6 +1,4 @@
-package net.bestia.zoneserver.zone.map;
-
-import net.bestia.zoneserver.service.MapService;
+package net.bestia.zoneserver.zone.map.generator;
 
 public interface MapGenerator {
 
@@ -9,6 +7,6 @@ public interface MapGenerator {
 	 * 
 	 * @param service
 	 */
-	void generate(MapService service);
+	void generate();
 
 }

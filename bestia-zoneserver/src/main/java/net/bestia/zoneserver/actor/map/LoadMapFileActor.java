@@ -2,6 +2,7 @@ package net.bestia.zoneserver.actor.map;
 
 import java.util.Objects;
 
+import akka.actor.Deploy;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
@@ -9,13 +10,14 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.system.LoadMapfileMessage;
 import net.bestia.server.BestiaActorContext;
 import net.bestia.zoneserver.service.MapService;
-import net.bestia.zoneserver.zone.map.Map;
+import net.bestia.zoneserver.zone.map.generator.MapGenerator;
+import net.bestia.zoneserver.zone.map.generator.TmxMapGenerator;
 
 /**
  * This actor will load the mapfile from a TMX file and put it into the game
  * cache. Useful for debugging.
  * 
- * @author Thomas
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class LoadMapFileActor extends UntypedActor {
@@ -23,7 +25,6 @@ public class LoadMapFileActor extends UntypedActor {
 	public static final String NAME = "loadMapfile";
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-
 	private final BestiaActorContext ctx;
 
 	public LoadMapFileActor(BestiaActorContext ctx) {
@@ -32,7 +33,7 @@ public class LoadMapFileActor extends UntypedActor {
 	}
 	
 	public static Props props(BestiaActorContext ctx) {
-		return Props.create(LoadMapFileActor.class, ctx);
+		return Props.create(LoadMapFileActor.class, ctx).withDeploy(Deploy.local());
 	}
 
 	@Override
@@ -52,11 +53,8 @@ public class LoadMapFileActor extends UntypedActor {
 		LOG.info("Loading the mapfile: {}", file);
 
 		// Load the sample map into the server cache.
-		Map bestiaMap = new Map();
-
-
-		mapService.setMap(bestiaMap);
-
+		MapGenerator tmxGenerator = new TmxMapGenerator(mapService, file);
+		tmxGenerator.generate();
 	}
 
 }

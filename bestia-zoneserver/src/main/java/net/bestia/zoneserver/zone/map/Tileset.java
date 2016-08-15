@@ -1,44 +1,107 @@
 package net.bestia.zoneserver.zone.map;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 import net.bestia.model.zone.Size;
 
+/**
+ * Data of a tileset which is used by the bestia map creation. It holds all
+ * needed data for each tile in this tileset. The information can be queried.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class Tileset {
 
 	private static final Size TILE_SIZE = new Size(32, 32);
 
-	private String name;
-	private int firstGID;
-	private Size tilesetSize;
+	private final String name;
+	private final int firstGID;
+	private final Size tilesetSize;
 	private final int tileCount;
 
 	private java.util.Map<Integer, TileProperties> tileProperties = new HashMap<>();
 
-	public Tileset() {
+	public Tileset(String name, Size size, int firstGID) {
+
+		this.name = Objects.requireNonNull(name);
+		this.tilesetSize = Objects.requireNonNull(size);
+		this.firstGID = firstGID;
+
 		final int tileCountX = tilesetSize.getWidth() / TILE_SIZE.getWidth();
 		final int tileCountY = tilesetSize.getHeight() / TILE_SIZE.getHeight();
 		tileCount = tileCountX * tileCountY;
 	}
 
+	/**
+	 * Returns the first gid of the tiles in this set. The GID are used to
+	 * identify the tiles it is a globally usable id which is connected to a
+	 * single tileset.
+	 * 
+	 * @return The first used GID of the tiles in this tileset.
+	 */
 	public int getFirstGID() {
 		return firstGID;
 	}
 
+	/**
+	 * Sets the properties of a given tile with a guid.
+	 * 
+	 * @param gid
+	 *            The gid of the tile.
+	 * @param props
+	 *            The properties of the tile.
+	 */
+	public void setProperties(int gid, TileProperties props) {
+		if (!contains(gid)) {
+			throw new IllegalArgumentException("Gid is not part of this tileset.");
+		}
+		tileProperties.put(gid, Objects.requireNonNull(props));
+	}
+
+	/**
+	 * Returns the {@link TileProperties} of the tile with the given gid. If the
+	 * tile has no properties then null is returned. If the tile is not
+	 * contained within this tileset {@link IllegalArgumentException} is thrown.
+	 * 
+	 * @param gid
+	 *            The GID of the tile.
+	 * @return The {@link TileProperties} of the tile or NULL if the tile had no
+	 *         properties.
+	 * @throws IllegalArgumentException
+	 *             if the gid is not part of this tileset.
+	 */
 	public TileProperties getProperties(int gid) {
+		if (!contains(gid)) {
+			throw new IllegalArgumentException("GID is not contained withing this tileset.");
+		}
 		return tileProperties.get(gid);
 	}
 
 	/**
-	 * Checks if this tile is contained withing this tileset. This is done via
-	 * gid compairson.
+	 * Checks if this tile is contained within this tileset. This is done via
+	 * gid comparison.
 	 * 
 	 * @param tile
 	 *            The tile to check if it is contained within this tileset.
-	 * @return TRUE if this tile blongs to this tileset. FALSE otherwise.
+	 * @return TRUE if this tile belongs to this tileset. FALSE otherwise.
 	 */
 	public boolean contains(Tile tile) {
-		return (firstGID + tileCount) <= tile.getGid() && tile.getGid() >= firstGID;
+		Objects.requireNonNull(tile);
+		return contains(tile.getGid());
+	}
+
+	/**
+	 * Checks if this tile is contained within this tileset. This is done via
+	 * gid comparison.
+	 * 
+	 * @param tile
+	 *            The tile to check if it is contained within this tileset.
+	 * @return TRUE if this tile belongs to this tileset. FALSE otherwise.
+	 */
+	public boolean contains(int gid) {
+		return (firstGID + tileCount) >= gid && gid >= firstGID;
 	}
 
 	/**

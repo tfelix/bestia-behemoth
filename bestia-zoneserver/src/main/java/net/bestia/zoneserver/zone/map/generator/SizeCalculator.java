@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.zone.generation;
+package net.bestia.zoneserver.zone.map.generator;
 
 import net.bestia.model.zone.Size;
 

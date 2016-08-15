@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.zone.map.tmx;
+package net.bestia.zoneserver.zone.map.generator;
 
 import java.io.File;
 import java.util.Vector;
@@ -13,9 +13,9 @@ import tiled.core.ObjectGroup;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class TMXMapHelper {
+public class TmxMapHelper {
 
-	public TMXMapHelper() {
+	public TmxMapHelper() {
 		super();
 	}
 
