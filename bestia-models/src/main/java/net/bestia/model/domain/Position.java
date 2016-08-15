@@ -1,5 +1,7 @@
 package net.bestia.model.domain;
 
+import java.util.Objects;
+
 import javax.persistence.Entity;
 
 /**
@@ -86,5 +88,9 @@ public class Position {
 		this.map = pos.getMap();
 		this.x = pos.getX();
 		this.y = pos.getY();
+	}
+
+	public void setMap(String mapname) {
+		this.map = Objects.requireNonNull(mapname);
 	}
 }
