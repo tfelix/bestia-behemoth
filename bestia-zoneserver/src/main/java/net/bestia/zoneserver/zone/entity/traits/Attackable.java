@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.zone.entity.traits;
 
+import net.bestia.model.domain.Element;
 import net.bestia.model.domain.StatusPoints;
 
 /**
@@ -17,6 +18,8 @@ public interface Attackable {
 	void addStatusEffect();
 
 	void removeStatusEffect();
+	
+	Element getElement();
 	
 	void kill();
 

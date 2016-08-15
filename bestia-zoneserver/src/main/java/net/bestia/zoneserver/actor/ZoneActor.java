@@ -56,11 +56,15 @@ public class ZoneActor extends UntypedActor {
 		loginActor = getContext().actorOf(LoginActor.props(ctx), "login");
 		inventoryListActor = getContext().actorOf(InventoryListActor.props(ctx), "inventory");
 
-		// Get the reference to the init singelton.
+		// Try to do the global init if it has not been done before.
 		final ClusterSingletonProxySettings proxySettings = ClusterSingletonProxySettings.create(system);
-		system.actorOf(ClusterSingletonProxy.props("/user/consumer", proxySettings), "initProxy");
+		final ActorRef initProxy = system.actorOf(ClusterSingletonProxy.props("/user/consumer", proxySettings),
+				"initProxy");
 
-		localInitActor = getContext().actorOf(InitLocalActor.props());
+		initProxy.tell(new StartInitMessage(), getSelf());
+
+		// Do the local init.
+		localInitActor = getContext().actorOf(InitLocalActor.props(), "init");
 		localInitActor.tell(new StartInitMessage(), getSelf());
 	}
 
@@ -77,7 +81,7 @@ public class ZoneActor extends UntypedActor {
 		}
 
 		if (message instanceof LocalInitDone) {
-			
+
 			localInitActor = null;
 
 			// If we have finished loading setup the mediator to receive pub sub
@@ -85,7 +89,7 @@ public class ZoneActor extends UntypedActor {
 			final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
 			mediator.tell(new DistributedPubSubMediator.Subscribe(AkkaCluster.CLUSTER_PUBSUB_TOPIC, getSelf()),
 					getSelf());
-			
+
 			return;
 		}
 

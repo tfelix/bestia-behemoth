@@ -7,7 +7,7 @@
 		<version>alpha-0.3.0-SNAPSHOT</version>
 		<relativePath>../bestia-server-base/pom.xml</relativePath>
 	</parent>
-	
+
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>bestia-zoneserver</artifactId>
 	<name>bestia-zoneserver</name>
@@ -23,6 +23,15 @@
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.5</version>
+		</dependency>
+
+
+
 		<!-- BESTIA DEPENDENCIES -->
 		<dependency>
 			<groupId>net.bestia</groupId>
@@ -34,8 +43,13 @@
 			<artifactId>bestia-server-commons</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>map-tmxloader</groupId>
+			<artifactId>map-tmxloader</artifactId>
+			<version>1.0</version>
+		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>

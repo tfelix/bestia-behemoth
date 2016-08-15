@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.zone.entity;
 
+import net.bestia.model.domain.Element;
 import net.bestia.model.domain.Position;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.zoneserver.zone.entity.traits.Attackable;
@@ -59,6 +60,12 @@ public class PlayerBestiaEntity implements Visible, Attackable, Collidable, Inte
 	public int getLevel() {
 		// TODO Auto-generated method stub
 		return 1;
+	}
+
+	@Override
+	public Element getElement() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
