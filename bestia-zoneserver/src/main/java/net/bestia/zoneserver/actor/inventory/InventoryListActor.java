@@ -21,6 +21,12 @@ public class InventoryListActor extends UntypedActor {
 
 	final InventoryService inventoryService;
 
+	/**
+	 * Ctor.
+	 * 
+	 * @param ctx
+	 *            The {@link BestiaActorContext}.
+	 */
 	public InventoryListActor(BestiaActorContext ctx) {
 
 		inventoryService = ctx.getSpringContext().getBean(InventoryService.class);

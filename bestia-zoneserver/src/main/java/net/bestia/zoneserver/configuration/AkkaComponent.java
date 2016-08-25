@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.typesafe.config.Config;
@@ -16,16 +15,11 @@ import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorSystem;
 import akka.actor.Address;
-import akka.actor.PoisonPill;
 import akka.cluster.Cluster;
-import akka.cluster.singleton.ClusterSingletonManager;
-import akka.cluster.singleton.ClusterSingletonManagerSettings;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.BestiaActorContext;
 import net.bestia.server.service.ClusterConfigurationService;
-import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.ZoneActor;
-import net.bestia.zoneserver.actor.system.InitGlobalActor;
 import net.bestia.zoneserver.service.ServerConfiguration;
 
 /**
