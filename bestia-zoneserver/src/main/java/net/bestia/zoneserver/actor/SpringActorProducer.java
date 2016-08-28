@@ -9,23 +9,23 @@ import akka.actor.IndirectActorProducer;
  * An actor producer that lets Spring create the Actor instances.
  */
 public class SpringActorProducer implements IndirectActorProducer {
-	final ApplicationContext applicationContext;
-	final String actorBeanName;
+
+	private final ApplicationContext applicationContext;
+	private final Class<? extends Actor> actorBeanClass;
 
 	public SpringActorProducer(ApplicationContext applicationContext,
-			String actorBeanName) {
+			Class<? extends Actor> actorBeanClass) {
 		this.applicationContext = applicationContext;
-		this.actorBeanName = actorBeanName;
+		this.actorBeanClass = actorBeanClass;
 	}
 
 	@Override
 	public Actor produce() {
-		return (Actor) applicationContext.getBean(actorBeanName);
+		return (Actor) applicationContext.getBean(actorBeanClass);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Class<? extends Actor> actorClass() {
-		return (Class<? extends Actor>) applicationContext.getType(actorBeanName);
+		return actorBeanClass;
 	}
 }

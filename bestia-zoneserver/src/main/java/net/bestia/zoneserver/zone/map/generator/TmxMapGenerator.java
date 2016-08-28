@@ -59,7 +59,7 @@ public class TmxMapGenerator implements MapGenerator {
 		final String baseName = FilenameUtils.getBaseName(mapFile);
 		final String mapDbName = FilenameUtils.removeExtension(baseName);
 
-		bestiaMap = new Map(mapDbName, mapSize);
+		//bestiaMap = new Map(mapDbName, mapSize);
 
 		// Read the tiles into the map builder.
 		readTilesets();

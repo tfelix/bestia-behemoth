@@ -17,9 +17,8 @@ import akka.actor.ActorSystem;
 import akka.actor.Address;
 import akka.cluster.Cluster;
 import net.bestia.server.AkkaCluster;
-import net.bestia.server.BestiaActorContext;
 import net.bestia.server.service.ClusterConfigurationService;
-import net.bestia.zoneserver.actor.ZoneActor;
+import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.service.ServerConfiguration;
 
 /**
@@ -32,9 +31,9 @@ import net.bestia.zoneserver.service.ServerConfiguration;
  *
  */
 @Configuration
-public class AkkaComponent {
+public class AkkaConfiguration {
 
-	private static final Logger LOG = LoggerFactory.getLogger(AkkaComponent.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AkkaConfiguration.class);
 
 	private static final String AKKA_CONFIG_NAME = "akka";
 
@@ -49,7 +48,7 @@ public class AkkaComponent {
 		final ActorSystem system = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
 		
 		// initialize the application context in the Akka Spring extension.
-		//SpringExtension.SpringExtProvider.get(system).initialize(appContext);
+		SpringExtension.SpringExtProvider.get(system).initialize(appContext);
 
 		final ClusterConfigurationService clusterConfig = new ClusterConfigurationService(hzInstance);
 
@@ -81,10 +80,6 @@ public class AkkaComponent {
 		// could use random port join which will alter the port defined in
 		// selfAddr.
 		clusterConfig.addClusterNode(selfAddr);
-
-		LOG.info("Starting actor tree.");
-		final BestiaActorContext ctx = new BestiaActorContext(appContext);
-		system.actorOf(ZoneActor.props(ctx), "behemoth");
 
 		return system;
 	}

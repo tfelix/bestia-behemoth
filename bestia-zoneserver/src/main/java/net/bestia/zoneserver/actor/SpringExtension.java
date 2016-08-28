@@ -1,8 +1,11 @@
 package net.bestia.zoneserver.actor;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractExtensionId;
+import akka.actor.Actor;
+import akka.actor.Deploy;
 import akka.actor.ExtendedActorSystem;
 import akka.actor.Extension;
 import akka.actor.Props;
@@ -13,11 +16,12 @@ import akka.actor.Props;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@Component
 public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringExt> {
 	/**
 	 * The identifier used to access the SpringExtension.
 	 */
-	public static SpringExtension SpringExtProvider = new SpringExtension();
+	public static final SpringExtension SpringExtProvider = new SpringExtension();
 
 	/**
 	 * Is used by Akka to instantiate the Extension identified by this
@@ -51,9 +55,9 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 		 *            The name of the actor bean to create Props for.
 		 * @return a Props that will create the named actor bean using Spring.
 		 */
-		public Props props(String actorBeanName) {
+		public Props props(Class<? extends Actor> actorBeanClass) {
 			return Props.create(SpringActorProducer.class,
-					applicationContext, actorBeanName);
+					applicationContext, actorBeanClass).withDeploy(Deploy.local());
 		}
 	}
 }

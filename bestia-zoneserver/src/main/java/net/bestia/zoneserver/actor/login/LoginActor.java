@@ -1,8 +1,12 @@
 package net.bestia.zoneserver.actor.login;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import akka.actor.Deploy;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.login.LoginAuthMessage;
@@ -25,15 +29,17 @@ import net.bestia.server.BestiaActorContext;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@Component("LoginActor")
+@Scope("prototype")
 public class LoginActor extends UntypedActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	private final AccountDAO accountDao;
+	private final AccountDAO accountDao = null;
 
-	public LoginActor(final BestiaActorContext ctx) {
+	public LoginActor() {
 		
-		this.accountDao = ctx.getSpringContext().getBean(AccountDAO.class);
+		//this.accountDao = ctx.getSpringContext().getBean(AccountDAO.class);
 	}
 
 	public static Props props(final BestiaActorContext ctx) {
