@@ -1,16 +1,16 @@
 package net.bestia.zoneserver.actor.zone;
 
-import java.util.Objects;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
-import akka.actor.Deploy;
-import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.system.LoadMapfileMessage;
 import net.bestia.messages.system.StartInitMessage;
-import net.bestia.server.BestiaActorContext;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
 import net.bestia.zoneserver.actor.map.LoadMapFileActor;
 
 /**
@@ -24,18 +24,18 @@ import net.bestia.zoneserver.actor.map.LoadMapFileActor;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@Component
+@Scope("prototype")
 public class InitGlobalActor extends UntypedActor {
-
-	public static final String NAME = "initActor";
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private boolean hasInitialized = false;
-	private final BestiaActorContext ctx;
+	
+	
 
-	public InitGlobalActor(BestiaActorContext ctx) {
+	public InitGlobalActor() {
 
-		this.ctx = Objects.requireNonNull(ctx);
 	}
 
 	@Override
@@ -45,6 +45,8 @@ public class InitGlobalActor extends UntypedActor {
 			if (hasInitialized) {
 				return;
 			}
+			
+			final SpringExt springExt = SpringExtension.Provider.get(getContext().system());
 
 			hasInitialized = true;
 
@@ -54,17 +56,13 @@ public class InitGlobalActor extends UntypedActor {
 			// Load the sample map into the server cache.
 			// @TODO Das hier austauschen gegen config?
 			final String mapFile = "C:\\Users\\Thomas\\workspace\\14BES-bestia-behemoth\\src\\game-data\\map\\test-zone1\\test-zone1.tmx";
-			ActorRef loadActor = getContext().actorOf(LoadMapFileActor.props(ctx));
+			final ActorRef loadActor = getContext().actorOf(springExt.props(LoadMapFileActor.class));
 			loadActor.tell(new LoadMapfileMessage(mapFile), getSelf());
 
 		} else {
 			unhandled(message);
 		}
 
-	}
-
-	public static Props props(BestiaActorContext ctx) {
-		return Props.create(InitGlobalActor.class, ctx).withDeploy(Deploy.local());
 	}
 
 }

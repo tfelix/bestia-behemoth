@@ -1,14 +1,13 @@
 package net.bestia.zoneserver.actor.map;
 
-import java.util.Objects;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-import akka.actor.Deploy;
-import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.system.LoadMapfileMessage;
-import net.bestia.server.BestiaActorContext;
 import net.bestia.zoneserver.service.MapService;
 import net.bestia.zoneserver.zone.map.generator.MapGenerator;
 import net.bestia.zoneserver.zone.map.generator.TmxMapGenerator;
@@ -20,21 +19,22 @@ import net.bestia.zoneserver.zone.map.generator.TmxMapGenerator;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@Component
+@Scope("prototype")
 public class LoadMapFileActor extends UntypedActor {
 
 	public static final String NAME = "loadMapfile";
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-	private final BestiaActorContext ctx;
 
-	public LoadMapFileActor(BestiaActorContext ctx) {
 
-		this.ctx = Objects.requireNonNull(ctx);
+	private final MapService mapService;
+	
+	@Autowired
+	public LoadMapFileActor(MapService mapService) {
+		this.mapService = mapService;
 	}
 	
-	public static Props props(BestiaActorContext ctx) {
-		return Props.create(LoadMapFileActor.class, ctx).withDeploy(Deploy.local());
-	}
 
 	@Override
 	public void onReceive(Object message) throws Exception {
@@ -45,8 +45,6 @@ public class LoadMapFileActor extends UntypedActor {
 		}
 
 		// Start the initialization process.
-		final MapService mapService = ctx.getSpringContext().getBean(MapService.class);
-
 		final String file = ((LoadMapfileMessage) message).getMapfile();
 
 		// Start the initialization process.

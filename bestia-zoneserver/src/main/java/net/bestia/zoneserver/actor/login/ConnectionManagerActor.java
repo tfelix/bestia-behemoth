@@ -8,7 +8,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.system.ClientConnectionStatusMessage;
 import net.bestia.messages.system.ClientConnectionStatusMessage.ConnectionState;
 import net.bestia.server.BestiaActorContext;
-import net.bestia.zoneserver.configuration.CachesConfiguration;
+import net.bestia.zoneserver.configuration.CacheConfiguration;
 import net.bestia.zoneserver.service.CacheManager;
 
 /**
@@ -27,7 +27,7 @@ public class ConnectionManagerActor extends UntypedActor {
 	@SuppressWarnings("unchecked")
 	public ConnectionManagerActor(BestiaActorContext ctx) {
 
-		this.clientCache = ctx.getSpringContext().getBean(CachesConfiguration.CLIENT_CACHE, CacheManager.class);
+		this.clientCache = ctx.getSpringContext().getBean(CacheConfiguration.CLIENT_CACHE, CacheManager.class);
 	}
 
 	public static Props props(final BestiaActorContext ctx) {

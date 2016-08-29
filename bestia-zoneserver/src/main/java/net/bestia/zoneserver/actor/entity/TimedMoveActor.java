@@ -13,7 +13,7 @@ import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.model.domain.Position;
 import net.bestia.model.zone.Point;
 import net.bestia.server.BestiaActorContext;
-import net.bestia.zoneserver.configuration.CachesConfiguration;
+import net.bestia.zoneserver.configuration.CacheConfiguration;
 import net.bestia.zoneserver.service.CacheManager;
 import net.bestia.zoneserver.service.MovingEntityManager;
 import net.bestia.zoneserver.zone.entity.Entity;
@@ -43,7 +43,7 @@ public class TimedMoveActor extends UntypedActor {
 	@SuppressWarnings("unchecked")
 	public TimedMoveActor(BestiaActorContext ctx) {
 
-		this.entityCache = ctx.getSpringContext().getBean(CachesConfiguration.ENTITY_CACHE, CacheManager.class);
+		this.entityCache = ctx.getSpringContext().getBean(CacheConfiguration.ENTITY_CACHE, CacheManager.class);
 		this.movingManager = ctx.getSpringContext().getBean(MovingEntityManager.class);
 	}
 

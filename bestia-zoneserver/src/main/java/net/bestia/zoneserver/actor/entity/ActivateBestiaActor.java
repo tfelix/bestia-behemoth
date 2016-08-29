@@ -1,33 +1,30 @@
 package net.bestia.zoneserver.actor.entity;
 
-import akka.actor.Deploy;
-import akka.actor.Props;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import akka.actor.UntypedActor;
 import net.bestia.messages.bestia.BestiaActivatedMessage;
-import net.bestia.server.BestiaActorContext;
-import net.bestia.zoneserver.service.ActiveBestiaManager;
+import net.bestia.zoneserver.configuration.CacheConfiguration;
+import net.bestia.zoneserver.service.CacheManager;
 
 /**
  * Upon receiving an activation request from this account we check if the
  * account is able to uses this bestia. It will then get activated and all
- * necessairy information is send to the client.
+ * needed information about the newly activated bestia is send to the client.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class ActivateBestiaActor extends UntypedActor {
 
-	private final ActiveBestiaManager activeBestias;
+	private final CacheManager<Long, Integer> activeBestias;
 
-	public ActivateBestiaActor(BestiaActorContext ctx) {
+	@Autowired
+	public ActivateBestiaActor(
+			@Qualifier(CacheConfiguration.ACTIVE_BESTIA_CACHE) CacheManager<Long, Integer> activeBestias) {
 
-		this.activeBestias = ctx.getSpringContext().getBean(ActiveBestiaManager.class);
-	}
-
-	public static Props props(final BestiaActorContext ctx) {
-		// Props must be deployed locally since we contain a dao (non
-		// serializable)
-		return Props.create(ActivateBestiaActor.class, ctx).withDeploy(Deploy.local());
+		this.activeBestias = activeBestias;
 	}
 
 	@Override
@@ -35,7 +32,7 @@ public class ActivateBestiaActor extends UntypedActor {
 
 		if (message instanceof BestiaActivatedMessage) {
 			final BestiaActivatedMessage msg = (BestiaActivatedMessage) message;
-			
+
 			// TODO Aus alter Logik übertragen und Entity aktivieren.
 
 		} else {

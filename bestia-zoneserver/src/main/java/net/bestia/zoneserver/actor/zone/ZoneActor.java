@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import akka.actor.Deploy;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
@@ -18,14 +17,11 @@ import akka.cluster.singleton.ClusterSingletonProxySettings;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.Message;
-import net.bestia.messages.inventory.InventoryListRequestMessage;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.messages.system.StartInitMessage;
 import net.bestia.server.AkkaCluster;
-import net.bestia.server.BestiaActorContext;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
-import net.bestia.zoneserver.actor.inventory.InventoryListActor;
 import net.bestia.zoneserver.actor.login.LoginActor;
 import net.bestia.zoneserver.actor.zone.InitLocalActor.LocalInitDone;
 
@@ -43,9 +39,7 @@ public class ZoneActor extends UntypedActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	private final ActorRef clientResponseActor = null;
 	private final ActorRef loginActor;
-	private final ActorRef inventoryListActor = null;
 	private ActorRef localInitActor;
 
 	public ZoneActor() {
@@ -54,29 +48,27 @@ public class ZoneActor extends UntypedActor {
 
 		final SpringExt springExt = SpringExtension.Provider.get(getContext().system());
 		final Props loginProps = springExt.props(LoginActor.class);
-		loginActor = getContext().actorOf(loginProps);
+		loginActor = getContext().actorOf(loginProps, "login");
 
 		// Setup the init actor singelton for creation of the system.
-		/*final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
-		system.actorOf(ClusterSingletonManager.props(InitGlobalActor.props(), PoisonPill.getInstance(), settings),
-				InitGlobalActor.NAME);
-
-		loginActor = getContext().actorOf(LoginActor.props(), "login");
-		inventoryListActor = getContext().actorOf(InventoryListActor.props(), "inventory");
+		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
+		final Props globalInitProps = springExt.props(InitGlobalActor.class);
+		system.actorOf(ClusterSingletonManager.props(globalInitProps, PoisonPill.getInstance(), settings),
+				"globalInit");
 
 		// Try to do the global init if it has not been done before. final
 		ClusterSingletonProxySettings proxySettings = ClusterSingletonProxySettings.create(system);
-		final ActorRef initProxy = system.actorOf(ClusterSingletonProxy.props("/user/" +
-				InitGlobalActor.NAME, proxySettings), "initGlobalProxy");
+		final ActorRef initProxy = system.actorOf(ClusterSingletonProxy.props("/user/initGlobalProxy", proxySettings),
+				"initGlobalProxy");
 
-		initProxy.tell(new StartInitMessage(), getSelf());*/
+		initProxy.tell(new StartInitMessage(), getSelf());
 
-		// Do the local init like loading scripts. When this is finished we can register ourselves
-		// with the messaging system.
+		// Do the local init like loading scripts. When this is finished we can
+		// register ourselves with the messaging system.
 		final Props initProps = springExt.props(InitLocalActor.class);
 		localInitActor = getContext().actorOf(initProps, "init");
 		localInitActor.tell(new StartInitMessage(), getSelf());
-		
+
 		// Some utility actors.
 		Props props = springExt.props(ClusterStatusListenerActor.class);
 		getContext().actorOf(props, "clusterStatusListener");
@@ -112,9 +104,6 @@ public class ZoneActor extends UntypedActor {
 		final Message msg = (Message) message;
 
 		switch (msg.getMessageId()) {
-		case InventoryListRequestMessage.MESSAGE_ID:
-			inventoryListActor.tell(msg, getSender());
-			break;
 		case LoginAuthMessage.MESSAGE_ID:
 			loginActor.tell(msg, getSender());
 			break;

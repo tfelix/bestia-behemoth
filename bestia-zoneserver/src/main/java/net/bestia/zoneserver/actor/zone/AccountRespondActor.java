@@ -9,7 +9,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.AccountMessage;
 import net.bestia.server.BestiaActorContext;
 import net.bestia.zoneserver.actor.login.ConnectionManagerActor;
-import net.bestia.zoneserver.configuration.CachesConfiguration;
+import net.bestia.zoneserver.configuration.CacheConfiguration;
 import net.bestia.zoneserver.service.CacheManager;
 
 /**
@@ -28,7 +28,7 @@ public class AccountRespondActor extends UntypedActor {
 	@SuppressWarnings("unchecked")
 	public AccountRespondActor(BestiaActorContext ctx) {
 
-		this.clientCache = ctx.getSpringContext().getBean(CachesConfiguration.CLIENT_CACHE, CacheManager.class);
+		this.clientCache = ctx.getSpringContext().getBean(CacheConfiguration.CLIENT_CACHE, CacheManager.class);
 	}
 
 	public static Props props(final BestiaActorContext ctx) {
