@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.inventory;
+package net.bestia.zoneserver.zone.entity.traits;
 
 import java.util.List;
 

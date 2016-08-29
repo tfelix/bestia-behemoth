@@ -24,28 +24,24 @@ public class InitLocalActor extends UntypedActor {
 	public static class LocalInitDone {
 	};
 
-	public static final String NAME = "initActor";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	@Override
 	public void onReceive(Object message) throws Exception {
 
-		if (message instanceof StartInitMessage) {
-			
-			
-			// Start the initialization process.
-			LOG.info("Starting local server initialization.");
-
-
-			// Parse the scripts.
-			
-			// Stop ourselves. Work is done.
-			sender().tell(new LocalInitDone(), getSelf());
-			getContext().stop(getSelf());
-			
-		} else {
+		if (!(message instanceof StartInitMessage)) {
 			unhandled(message);
+			return;
 		}
+
+		// Start the initialization process.
+		LOG.info("Starting local server initialization.");
+
+		// Parse the scripts.
+
+		// Stop ourselves. Work is done.
+		sender().tell(new LocalInitDone(), getSelf());
+		getContext().stop(getSelf());
 
 	}
 

@@ -5,5 +5,7 @@ import net.bestia.model.domain.Position;
 public interface Locatable {
 	
 	Position getPosition();
+	
+	void setPosition(long x, long y);
 
 }

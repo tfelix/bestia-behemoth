@@ -44,6 +44,13 @@
 			<artifactId>akka-cluster-tools_2.11</artifactId>
 			<version>${akka.version}</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-testkit_2.11 -->
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-testkit_2.11</artifactId>
+			<version>${akka.version}</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>com.hazelcast</groupId>
 			<artifactId>hazelcast</artifactId>
@@ -55,6 +62,6 @@
 		</dependency>
 	</dependencies>
 
-	
+
 
 </project>

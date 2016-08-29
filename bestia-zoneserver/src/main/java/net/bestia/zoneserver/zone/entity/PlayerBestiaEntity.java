@@ -68,4 +68,9 @@ public class PlayerBestiaEntity implements Visible, Attackable, Collidable, Inte
 		return null;
 	}
 
+	@Override
+	public void setPosition(long x, long y) {
+		// TODO Auto-generated method stub
+		
+	}
 }

@@ -1,14 +1,14 @@
 package net.bestia.zoneserver.zone.entity.traits;
 
-import net.bestia.model.domain.Position;
-
 /**
- * An entity which is capable of moving has the ability to manouver on its own.
+ * An entity which is capable of moving. It must have an position but
+ * additionally it will return a movement speed (which might be dependend on
+ * equiptment/status effects etc.
  * 
- * @author Thomas
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public interface Moving {
+public interface Moving extends Locatable {
 
 	/**
 	 * Returns the current movement speed. 1 is the nominal speed which is 1.4
@@ -17,8 +17,5 @@ public interface Moving {
 	 * @return
 	 */
 	float getMovementSpeed();
-	
-	Position getPosition();
-	void setPosition(long x, long y);
 
 }
