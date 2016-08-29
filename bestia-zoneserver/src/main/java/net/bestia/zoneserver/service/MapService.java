@@ -63,8 +63,8 @@ public class MapService {
 		// Build the query.
 		final EntryObject e = new PredicateBuilder().getEntryObject();
 
-		Predicate xPredicate = e.get("position.x").between(range.getX(), range.getX() + range.getWidth());
-		Predicate yPredicate = e.get("position.y").between(range.getY(), range.getY() + range.getHeight());
+		final Predicate xPredicate = e.get("position.x").between(range.getX(), range.getX() + range.getWidth());
+		final Predicate yPredicate = e.get("position.y").between(range.getY(), range.getY() + range.getHeight());
 
 		final Predicate rangePredicate = Predicates.and(xPredicate, yPredicate);
 
@@ -136,7 +136,7 @@ public class MapService {
 	}
 
 	/**
-	 * Saves the given tileset into the memory cache for later retrival.
+	 * Saves the given tileset into the memory cache for later retrieval.
 	 * 
 	 * @param tileset
 	 */

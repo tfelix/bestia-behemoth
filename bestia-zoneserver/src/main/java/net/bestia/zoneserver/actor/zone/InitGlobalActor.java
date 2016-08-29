@@ -7,7 +7,6 @@ import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.system.LoadMapfileMessage;
 import net.bestia.messages.system.StartInitMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
@@ -54,10 +53,8 @@ public class InitGlobalActor extends UntypedActor {
 			LOG.info("Start the global server initialization...");
 
 			// Load the sample map into the server cache.
-			// @TODO Das hier austauschen gegen config?
-			final String mapFile = "C:\\Users\\Thomas\\workspace\\14BES-bestia-behemoth\\src\\game-data\\map\\test-zone1\\test-zone1.tmx";
 			final ActorRef loadActor = getContext().actorOf(springExt.props(LoadMapFileActor.class));
-			loadActor.tell(new LoadMapfileMessage(mapFile), getSelf());
+			loadActor.tell(message, getSelf());
 
 		} else {
 			unhandled(message);

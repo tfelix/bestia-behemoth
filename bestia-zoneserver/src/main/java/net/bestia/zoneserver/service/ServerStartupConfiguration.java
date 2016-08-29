@@ -21,6 +21,13 @@ public class ServerStartupConfiguration {
 	@Value("${server.port}")
 	private int serverPort;
 
+	@Value("${map.file}")
+	private String mapfile;
+	
+	public ServerStartupConfiguration() {
+		// no op.
+	}
+
 	/**
 	 * Returns the name of this server. By default this is an auto generated
 	 * value.
@@ -40,4 +47,13 @@ public class ServerStartupConfiguration {
 		return serverPort;
 	}
 
+	/**
+	 * Returns the development mapfile which gets loaded by the system at
+	 * startup.
+	 * 
+	 * @return
+	 */
+	public String getMapfile() {
+		return mapfile;
+	}
 }

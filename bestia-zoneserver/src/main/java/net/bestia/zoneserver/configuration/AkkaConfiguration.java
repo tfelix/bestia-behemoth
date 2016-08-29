@@ -44,7 +44,6 @@ public class AkkaConfiguration {
 			throws UnknownHostException {
 		
 		final Config akkaConfig = ConfigFactory.load(AKKA_CONFIG_NAME);
-
 		final ActorSystem system = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
 		
 		// initialize the application context in the Akka Spring extension.

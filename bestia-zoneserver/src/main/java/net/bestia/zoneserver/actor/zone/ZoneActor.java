@@ -58,9 +58,8 @@ public class ZoneActor extends UntypedActor {
 
 		// Try to do the global init if it has not been done before. final
 		ClusterSingletonProxySettings proxySettings = ClusterSingletonProxySettings.create(system);
-		final ActorRef initProxy = system.actorOf(ClusterSingletonProxy.props("/user/initGlobalProxy", proxySettings),
-				"initGlobalProxy");
-
+		final ActorRef initProxy = system.actorOf(ClusterSingletonProxy.props("/user/globalInit", proxySettings),
+				"globalInitProxy");
 		initProxy.tell(new StartInitMessage(), getSelf());
 
 		// Do the local init like loading scripts. When this is finished we can

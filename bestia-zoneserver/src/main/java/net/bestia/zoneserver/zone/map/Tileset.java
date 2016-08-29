@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.zone.map;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -12,16 +13,17 @@ import net.bestia.model.zone.Size;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class Tileset {
+public class Tileset implements Serializable {
 
-	private static final Size TILE_SIZE = new Size(32, 32);
+	private static final long serialVersionUID = 1L;
+	public static final Size TILE_SIZE = new Size(32, 32);
 
 	private final String name;
 	private final int firstGID;
 	private final Size tilesetSize;
 	private final int tileCount;
 
-	private java.util.Map<Integer, TileProperties> tileProperties = new HashMap<>();
+	private final java.util.Map<Integer, TileProperties> tileProperties = new HashMap<>();
 
 	public Tileset(String name, Size size, int firstGID) {
 

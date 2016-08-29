@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
@@ -15,6 +16,7 @@ import com.hazelcast.core.HazelcastInstance;
 @Service
 public class ServerRuntimeConfiguration extends CacheManager<String, Object> {
 
+	@Autowired
 	public ServerRuntimeConfiguration(HazelcastInstance cache) {
 		super("server.config", cache);
 
