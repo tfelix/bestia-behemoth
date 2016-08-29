@@ -1,7 +1,5 @@
 package net.bestia.zoneserver.actor.zone;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -26,11 +24,10 @@ import net.bestia.messages.system.StartInitMessage;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.BestiaActorContext;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
 import net.bestia.zoneserver.actor.inventory.InventoryListActor;
 import net.bestia.zoneserver.actor.login.LoginActor;
-import net.bestia.zoneserver.actor.system.InitGlobalActor;
-import net.bestia.zoneserver.actor.system.InitLocalActor;
-import net.bestia.zoneserver.actor.system.InitLocalActor.LocalInitDone;
+import net.bestia.zoneserver.actor.zone.InitLocalActor.LocalInitDone;
 
 /**
  * Central actor for handling zone related messages. This actor will redirect
@@ -46,56 +43,43 @@ public class ZoneActor extends UntypedActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	// private final ActorRef clientResponseActor;
-	private ActorRef loginActor;
-	private ActorRef inventoryListActor;
+	private final ActorRef clientResponseActor = null;
+	private final ActorRef loginActor;
+	private final ActorRef inventoryListActor = null;
 	private ActorRef localInitActor;
-
-	// @Autowired
-	/*
-	 * public void setLoginActor(@Qualifier("LoginActor") ActorRef loginActor) {
-	 * this.loginActor = loginActor; }
-	 */
-
-	/*
-	 * @Autowired public void setLocalInitActor(ActorRef localInitActor) {
-	 * this.localInitActor = localInitActor; }
-	 */
 
 	public ZoneActor() {
 
 		final ActorSystem system = getContext().system();
 
-		final Props loginProps = SpringExtension.SpringExtProvider.get(getContext().system()).props(LoginActor.class);
+		final SpringExt springExt = SpringExtension.Provider.get(getContext().system());
+		final Props loginProps = springExt.props(LoginActor.class);
 		loginActor = getContext().actorOf(loginProps);
 
 		// Setup the init actor singelton for creation of the system.
-		/*
-		 * final ClusterSingletonManagerSettings settings =
-		 * ClusterSingletonManagerSettings.create(system);
-		 * system.actorOf(ClusterSingletonManager.props(InitGlobalActor.props(
-		 * ctx), PoisonPill.getInstance(), settings), InitGlobalActor.NAME);
-		 * 
-		 * loginActor = getContext().actorOf(LoginActor.props(ctx), "login");
-		 * inventoryListActor =
-		 * getContext().actorOf(InventoryListActor.props(ctx), "inventory");
-		 * 
-		 * // Try to do the global init if it has not been done before. final
-		 * ClusterSingletonProxySettings proxySettings =
-		 * ClusterSingletonProxySettings.create(system); final ActorRef
-		 * initProxy = system.actorOf(ClusterSingletonProxy.props("/user/" +
-		 * InitGlobalActor.NAME, proxySettings), "initGlobalProxy");
-		 * 
-		 * initProxy.tell(new StartInitMessage(), getSelf());
-		 * 
-		 * // Do the local init. localInitActor =
-		 * getContext().actorOf(InitLocalActor.props(), "init");
-		 * localInitActor.tell(new StartInitMessage(), getSelf());
-		 */
-	}
+		/*final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
+		system.actorOf(ClusterSingletonManager.props(InitGlobalActor.props(), PoisonPill.getInstance(), settings),
+				InitGlobalActor.NAME);
 
-	public static Props props(BestiaActorContext ctx) {
-		return Props.create(ZoneActor.class, ctx).withDeploy(Deploy.local());
+		loginActor = getContext().actorOf(LoginActor.props(), "login");
+		inventoryListActor = getContext().actorOf(InventoryListActor.props(), "inventory");
+
+		// Try to do the global init if it has not been done before. final
+		ClusterSingletonProxySettings proxySettings = ClusterSingletonProxySettings.create(system);
+		final ActorRef initProxy = system.actorOf(ClusterSingletonProxy.props("/user/" +
+				InitGlobalActor.NAME, proxySettings), "initGlobalProxy");
+
+		initProxy.tell(new StartInitMessage(), getSelf());*/
+
+		// Do the local init like loading scripts. When this is finished we can register ourselves
+		// with the messaging system.
+		final Props initProps = springExt.props(InitLocalActor.class);
+		localInitActor = getContext().actorOf(initProps, "init");
+		localInitActor.tell(new StartInitMessage(), getSelf());
+		
+		// Some utility actors.
+		Props props = springExt.props(ClusterStatusListenerActor.class);
+		getContext().actorOf(props, "clusterStatusListener");
 	}
 
 	@Override

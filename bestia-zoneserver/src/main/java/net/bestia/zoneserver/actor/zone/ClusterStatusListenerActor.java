@@ -1,4 +1,7 @@
-package net.bestia.zoneserver.actor.system;
+package net.bestia.zoneserver.actor.zone;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import akka.actor.UntypedActor;
 import akka.cluster.Cluster;
@@ -10,6 +13,14 @@ import akka.cluster.ClusterEvent.UnreachableMember;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 
+/**
+ * Logs information about the behemoth cluster.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
+@Component
+@Scope("prototype")
 public class ClusterStatusListenerActor extends UntypedActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);

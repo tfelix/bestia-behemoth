@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.system;
+package net.bestia.zoneserver.actor.zone;
 
 import akka.actor.ActorRef;
 import akka.actor.Deploy;

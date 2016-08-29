@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.system;
+package net.bestia.zoneserver.actor.zone;
 
 import java.util.Objects;
 

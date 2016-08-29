@@ -1,4 +1,7 @@
-package net.bestia.zoneserver.actor.system;
+package net.bestia.zoneserver.actor.zone;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import akka.actor.Props;
 import akka.actor.UntypedActor;
@@ -14,36 +17,32 @@ import net.bestia.messages.system.StartInitMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@Component
+@Scope("prototype")
 public class InitLocalActor extends UntypedActor {
 
 	public static class LocalInitDone {
 	};
 
 	public static final String NAME = "initActor";
-
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-
-	private boolean hasInitialized = false;
 
 	@Override
 	public void onReceive(Object message) throws Exception {
 
 		if (message instanceof StartInitMessage) {
-			if (hasInitialized) {
-				return;
-			}
-
-			hasInitialized = true;
-
+			
+			
 			// Start the initialization process.
-			LOG.info("Start the local server initialization...");
+			LOG.info("Starting local server initialization.");
+
 
 			// Parse the scripts.
 			
 			// Stop ourselves. Work is done.
 			sender().tell(new LocalInitDone(), getSelf());
 			getContext().stop(getSelf());
-
+			
 		} else {
 			unhandled(message);
 		}
