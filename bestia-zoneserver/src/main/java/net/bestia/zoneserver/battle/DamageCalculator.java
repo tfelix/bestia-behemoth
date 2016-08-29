@@ -28,7 +28,7 @@ public class DamageCalculator {
 	 * @param target
 	 * @return The damage the entity would take.
 	 */
-	public static Damage calculateDamage(Attack attack, Attackable user, Attackable target) {
+	public static Damage calculate(Attack attack, Attackable user, Attackable target) {
 
 		final float atkV;
 		final float defV;

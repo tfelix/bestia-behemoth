@@ -1,13 +1,12 @@
 package net.bestia.zoneserver.zone.map;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import net.bestia.model.zone.Point;
 import net.bestia.model.zone.Size;
-import net.bestia.zoneserver.zone.shape.Rect;
 
 public class Map {
 
@@ -46,6 +45,15 @@ public class Map {
 			// holes.
 
 			return new Map(this);
+		}
+
+		/**
+		 * Adds multiple tilesets to the builder.
+		 * 
+		 * @param tilesets
+		 */
+		public void addTilesets(Collection<Tileset> tilesets) {
+			this.tilesets.addAll(tilesets);
 		}
 
 	}

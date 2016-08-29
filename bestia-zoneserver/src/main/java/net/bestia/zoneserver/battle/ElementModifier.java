@@ -66,7 +66,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.NORMAL, Element.SHADOW), 100);
 		elementMap.put(new ElementKey(Element.NORMAL, Element.GHOST), 25);
 		elementMap.put(new ElementKey(Element.NORMAL, Element.UNDEAD), 100);
-		
+
 		elementMap.put(new ElementKey(Element.WATER, Element.NORMAL), 100);
 		elementMap.put(new ElementKey(Element.WATER, Element.WATER), 25);
 		elementMap.put(new ElementKey(Element.WATER, Element.EARTH), 100);
@@ -77,7 +77,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.WATER, Element.SHADOW), 100);
 		elementMap.put(new ElementKey(Element.WATER, Element.GHOST), 100);
 		elementMap.put(new ElementKey(Element.WATER, Element.UNDEAD), 100);
-		
+
 		elementMap.put(new ElementKey(Element.EARTH, Element.NORMAL), 100);
 		elementMap.put(new ElementKey(Element.EARTH, Element.WATER), 100);
 		elementMap.put(new ElementKey(Element.EARTH, Element.EARTH), 100);
@@ -88,7 +88,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.EARTH, Element.SHADOW), 100);
 		elementMap.put(new ElementKey(Element.EARTH, Element.GHOST), 100);
 		elementMap.put(new ElementKey(Element.EARTH, Element.UNDEAD), 100);
-		
+
 		elementMap.put(new ElementKey(Element.FIRE, Element.NORMAL), 100);
 		elementMap.put(new ElementKey(Element.FIRE, Element.WATER), 50);
 		elementMap.put(new ElementKey(Element.FIRE, Element.EARTH), 150);
@@ -99,7 +99,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.FIRE, Element.SHADOW), 100);
 		elementMap.put(new ElementKey(Element.FIRE, Element.GHOST), 100);
 		elementMap.put(new ElementKey(Element.FIRE, Element.UNDEAD), 125);
-		
+
 		elementMap.put(new ElementKey(Element.WIND, Element.NORMAL), 100);
 		elementMap.put(new ElementKey(Element.WIND, Element.WATER), 175);
 		elementMap.put(new ElementKey(Element.WIND, Element.EARTH), 50);
@@ -110,7 +110,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.WIND, Element.SHADOW), 100);
 		elementMap.put(new ElementKey(Element.WIND, Element.GHOST), 100);
 		elementMap.put(new ElementKey(Element.WIND, Element.UNDEAD), 100);
-		
+
 		elementMap.put(new ElementKey(Element.POISON, Element.NORMAL), 100);
 		elementMap.put(new ElementKey(Element.POISON, Element.WATER), 100);
 		elementMap.put(new ElementKey(Element.POISON, Element.EARTH), 125);
@@ -121,7 +121,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.POISON, Element.SHADOW), 50);
 		elementMap.put(new ElementKey(Element.POISON, Element.GHOST), 100);
 		elementMap.put(new ElementKey(Element.POISON, Element.UNDEAD), -25);
-		
+
 		elementMap.put(new ElementKey(Element.HOLY, Element.HOLY), 100);
 		elementMap.put(new ElementKey(Element.HOLY, Element.WATER), 100);
 		elementMap.put(new ElementKey(Element.HOLY, Element.EARTH), 100);
@@ -132,7 +132,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.HOLY, Element.SHADOW), 125);
 		elementMap.put(new ElementKey(Element.HOLY, Element.GHOST), 100);
 		elementMap.put(new ElementKey(Element.HOLY, Element.UNDEAD), 150);
-		
+
 		elementMap.put(new ElementKey(Element.SHADOW, Element.NORMAL), 100);
 		elementMap.put(new ElementKey(Element.SHADOW, Element.WATER), 100);
 		elementMap.put(new ElementKey(Element.SHADOW, Element.EARTH), 100);
@@ -143,7 +143,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.SHADOW, Element.SHADOW), 0);
 		elementMap.put(new ElementKey(Element.SHADOW, Element.GHOST), 100);
 		elementMap.put(new ElementKey(Element.SHADOW, Element.UNDEAD), -25);
-		
+
 		elementMap.put(new ElementKey(Element.GHOST, Element.NORMAL), 25);
 		elementMap.put(new ElementKey(Element.GHOST, Element.WATER), 100);
 		elementMap.put(new ElementKey(Element.GHOST, Element.EARTH), 100);
@@ -154,7 +154,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.GHOST, Element.SHADOW), 75);
 		elementMap.put(new ElementKey(Element.GHOST, Element.GHOST), 125);
 		elementMap.put(new ElementKey(Element.GHOST, Element.UNDEAD), 100);
-		
+
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.NORMAL), 100);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.WATER), 100);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.EARTH), 100);
@@ -165,7 +165,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.SHADOW), 0);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.GHOST), 100);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.UNDEAD), 0);
-		
+
 		// LEVEL 2
 		elementMap.put(new ElementKey(Element.NORMAL, Element.NORMAL_2), 100);
 		elementMap.put(new ElementKey(Element.NORMAL, Element.WATER_2), 100);
@@ -177,7 +177,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.NORMAL, Element.SHADOW_2), 100);
 		elementMap.put(new ElementKey(Element.NORMAL, Element.GHOST_2), 25);
 		elementMap.put(new ElementKey(Element.NORMAL, Element.UNDEAD_2), 100);
-		
+
 		elementMap.put(new ElementKey(Element.WATER, Element.NORMAL_2), 100);
 		elementMap.put(new ElementKey(Element.WATER, Element.WATER_2), 0);
 		elementMap.put(new ElementKey(Element.WATER, Element.EARTH_2), 100);
@@ -188,7 +188,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.WATER, Element.SHADOW_2), 75);
 		elementMap.put(new ElementKey(Element.WATER, Element.GHOST_2), 100);
 		elementMap.put(new ElementKey(Element.WATER, Element.UNDEAD_2), 100);
-		
+
 		elementMap.put(new ElementKey(Element.EARTH, Element.NORMAL_2), 100);
 		elementMap.put(new ElementKey(Element.EARTH, Element.WATER_2), 100);
 		elementMap.put(new ElementKey(Element.EARTH, Element.EARTH_2), 50);
@@ -199,7 +199,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.EARTH, Element.SHADOW_2), 75);
 		elementMap.put(new ElementKey(Element.EARTH, Element.GHOST_2), 100);
 		elementMap.put(new ElementKey(Element.EARTH, Element.UNDEAD_2), 100);
-		
+
 		elementMap.put(new ElementKey(Element.FIRE, Element.NORMAL_2), 100);
 		elementMap.put(new ElementKey(Element.FIRE, Element.WATER_2), 25);
 		elementMap.put(new ElementKey(Element.FIRE, Element.EARTH_2), 175);
@@ -210,7 +210,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.FIRE, Element.SHADOW_2), 75);
 		elementMap.put(new ElementKey(Element.FIRE, Element.GHOST_2), 100);
 		elementMap.put(new ElementKey(Element.FIRE, Element.UNDEAD_2), 150);
-		
+
 		elementMap.put(new ElementKey(Element.WIND, Element.NORMAL_2), 100);
 		elementMap.put(new ElementKey(Element.WIND, Element.WATER_2), 175);
 		elementMap.put(new ElementKey(Element.WIND, Element.EARTH_2), 25);
@@ -221,7 +221,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.WIND, Element.SHADOW_2), 75);
 		elementMap.put(new ElementKey(Element.WIND, Element.GHOST_2), 100);
 		elementMap.put(new ElementKey(Element.WIND, Element.UNDEAD_2), 100);
-		
+
 		elementMap.put(new ElementKey(Element.POISON, Element.NORMAL_2), 100);
 		elementMap.put(new ElementKey(Element.POISON, Element.WATER_2), 75);
 		elementMap.put(new ElementKey(Element.POISON, Element.EARTH_2), 125);
@@ -232,7 +232,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.POISON, Element.SHADOW_2), 25);
 		elementMap.put(new ElementKey(Element.POISON, Element.GHOST_2), 75);
 		elementMap.put(new ElementKey(Element.POISON, Element.UNDEAD_2), -50);
-		
+
 		elementMap.put(new ElementKey(Element.HOLY, Element.HOLY_2), 100);
 		elementMap.put(new ElementKey(Element.HOLY, Element.WATER_2), 100);
 		elementMap.put(new ElementKey(Element.HOLY, Element.EARTH_2), 100);
@@ -243,7 +243,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.HOLY, Element.SHADOW_2), 150);
 		elementMap.put(new ElementKey(Element.HOLY, Element.GHOST_2), 100);
 		elementMap.put(new ElementKey(Element.HOLY, Element.UNDEAD_2), 175);
-		
+
 		elementMap.put(new ElementKey(Element.SHADOW, Element.NORMAL_2), 100);
 		elementMap.put(new ElementKey(Element.SHADOW, Element.WATER_2), 100);
 		elementMap.put(new ElementKey(Element.SHADOW, Element.EARTH_2), 100);
@@ -254,7 +254,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.SHADOW, Element.SHADOW_2), -25);
 		elementMap.put(new ElementKey(Element.SHADOW, Element.GHOST_2), 100);
 		elementMap.put(new ElementKey(Element.SHADOW, Element.UNDEAD_2), -50);
-		
+
 		elementMap.put(new ElementKey(Element.GHOST, Element.NORMAL_2), 0);
 		elementMap.put(new ElementKey(Element.GHOST, Element.WATER_2), 75);
 		elementMap.put(new ElementKey(Element.GHOST, Element.EARTH_2), 75);
@@ -265,7 +265,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.GHOST, Element.SHADOW_2), 50);
 		elementMap.put(new ElementKey(Element.GHOST, Element.GHOST_2), 150);
 		elementMap.put(new ElementKey(Element.GHOST, Element.UNDEAD_2), 125);
-		
+
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.NORMAL_2), 100);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.WATER_2), 75);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.EARTH_2), 75);
@@ -276,7 +276,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.SHADOW_2), 0);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.GHOST_2), 100);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.UNDEAD_2), 0);
-		
+
 		// LEVEL 3
 		elementMap.put(new ElementKey(Element.NORMAL, Element.NORMAL_3), 100);
 		elementMap.put(new ElementKey(Element.NORMAL, Element.WATER_3), 100);
@@ -288,7 +288,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.NORMAL, Element.SHADOW_3), 100);
 		elementMap.put(new ElementKey(Element.NORMAL, Element.GHOST_3), 0);
 		elementMap.put(new ElementKey(Element.NORMAL, Element.UNDEAD_3), 100);
-		
+
 		elementMap.put(new ElementKey(Element.WATER, Element.NORMAL_3), 100);
 		elementMap.put(new ElementKey(Element.WATER, Element.WATER_3), -25);
 		elementMap.put(new ElementKey(Element.WATER, Element.EARTH_3), 100);
@@ -299,7 +299,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.WATER, Element.SHADOW_3), 50);
 		elementMap.put(new ElementKey(Element.WATER, Element.GHOST_3), 100);
 		elementMap.put(new ElementKey(Element.WATER, Element.UNDEAD_3), 125);
-		
+
 		elementMap.put(new ElementKey(Element.EARTH, Element.NORMAL_3), 100);
 		elementMap.put(new ElementKey(Element.EARTH, Element.WATER_3), 100);
 		elementMap.put(new ElementKey(Element.EARTH, Element.EARTH_3), 0);
@@ -310,7 +310,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.EARTH, Element.SHADOW_3), 50);
 		elementMap.put(new ElementKey(Element.EARTH, Element.GHOST_3), 100);
 		elementMap.put(new ElementKey(Element.EARTH, Element.UNDEAD_3), 75);
-		
+
 		elementMap.put(new ElementKey(Element.FIRE, Element.NORMAL_3), 100);
 		elementMap.put(new ElementKey(Element.FIRE, Element.WATER_3), 0);
 		elementMap.put(new ElementKey(Element.FIRE, Element.EARTH_3), 200);
@@ -321,7 +321,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.FIRE, Element.SHADOW_3), 50);
 		elementMap.put(new ElementKey(Element.FIRE, Element.GHOST_3), 100);
 		elementMap.put(new ElementKey(Element.FIRE, Element.UNDEAD_3), 175);
-		
+
 		elementMap.put(new ElementKey(Element.WIND, Element.NORMAL_3), 100);
 		elementMap.put(new ElementKey(Element.WIND, Element.WATER_3), 200);
 		elementMap.put(new ElementKey(Element.WIND, Element.EARTH_3), 0);
@@ -332,7 +332,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.WIND, Element.SHADOW_3), 50);
 		elementMap.put(new ElementKey(Element.WIND, Element.GHOST_3), 100);
 		elementMap.put(new ElementKey(Element.WIND, Element.UNDEAD_3), 100);
-		
+
 		elementMap.put(new ElementKey(Element.POISON, Element.NORMAL_3), 100);
 		elementMap.put(new ElementKey(Element.POISON, Element.WATER_3), 50);
 		elementMap.put(new ElementKey(Element.POISON, Element.EARTH_3), 100);
@@ -343,7 +343,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.POISON, Element.SHADOW_3), 0);
 		elementMap.put(new ElementKey(Element.POISON, Element.GHOST_3), 50);
 		elementMap.put(new ElementKey(Element.POISON, Element.UNDEAD_3), -75);
-		
+
 		elementMap.put(new ElementKey(Element.HOLY, Element.HOLY_3), 100);
 		elementMap.put(new ElementKey(Element.HOLY, Element.WATER_3), 100);
 		elementMap.put(new ElementKey(Element.HOLY, Element.EARTH_3), 100);
@@ -354,7 +354,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.HOLY, Element.SHADOW_3), 175);
 		elementMap.put(new ElementKey(Element.HOLY, Element.GHOST_3), 100);
 		elementMap.put(new ElementKey(Element.HOLY, Element.UNDEAD_3), 200);
-		
+
 		elementMap.put(new ElementKey(Element.SHADOW, Element.NORMAL_3), 100);
 		elementMap.put(new ElementKey(Element.SHADOW, Element.WATER_3), 100);
 		elementMap.put(new ElementKey(Element.SHADOW, Element.EARTH_3), 100);
@@ -365,7 +365,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.SHADOW, Element.SHADOW_3), -50);
 		elementMap.put(new ElementKey(Element.SHADOW, Element.GHOST_3), 100);
 		elementMap.put(new ElementKey(Element.SHADOW, Element.UNDEAD_3), -75);
-		
+
 		elementMap.put(new ElementKey(Element.GHOST, Element.NORMAL_3), 0);
 		elementMap.put(new ElementKey(Element.GHOST, Element.WATER_3), 50);
 		elementMap.put(new ElementKey(Element.GHOST, Element.EARTH_3), 50);
@@ -376,7 +376,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.GHOST, Element.SHADOW_3), 25);
 		elementMap.put(new ElementKey(Element.GHOST, Element.GHOST_3), 175);
 		elementMap.put(new ElementKey(Element.GHOST, Element.UNDEAD_3), 150);
-		
+
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.NORMAL_3), 100);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.WATER_3), 50);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.EARTH_3), 50);
@@ -387,7 +387,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.SHADOW_3), 0);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.GHOST_3), 100);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.UNDEAD_3), 0);
-		
+
 		// LEVEL 4
 		elementMap.put(new ElementKey(Element.NORMAL, Element.NORMAL_4), 100);
 		elementMap.put(new ElementKey(Element.NORMAL, Element.WATER_4), 100);
@@ -399,7 +399,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.NORMAL, Element.SHADOW_4), 100);
 		elementMap.put(new ElementKey(Element.NORMAL, Element.GHOST_4), 0);
 		elementMap.put(new ElementKey(Element.NORMAL, Element.UNDEAD_4), 100);
-		
+
 		elementMap.put(new ElementKey(Element.WATER, Element.NORMAL_4), 100);
 		elementMap.put(new ElementKey(Element.WATER, Element.WATER_4), -50);
 		elementMap.put(new ElementKey(Element.WATER, Element.EARTH_4), 100);
@@ -410,7 +410,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.WATER, Element.SHADOW_4), 25);
 		elementMap.put(new ElementKey(Element.WATER, Element.GHOST_4), 100);
 		elementMap.put(new ElementKey(Element.WATER, Element.UNDEAD_4), 150);
-		
+
 		elementMap.put(new ElementKey(Element.EARTH, Element.NORMAL_4), 100);
 		elementMap.put(new ElementKey(Element.EARTH, Element.WATER_4), 100);
 		elementMap.put(new ElementKey(Element.EARTH, Element.EARTH_4), -25);
@@ -421,7 +421,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.EARTH, Element.SHADOW_4), 25);
 		elementMap.put(new ElementKey(Element.EARTH, Element.GHOST_4), 100);
 		elementMap.put(new ElementKey(Element.EARTH, Element.UNDEAD_4), 50);
-		
+
 		elementMap.put(new ElementKey(Element.FIRE, Element.NORMAL_4), 100);
 		elementMap.put(new ElementKey(Element.FIRE, Element.WATER_4), 0);
 		elementMap.put(new ElementKey(Element.FIRE, Element.EARTH_4), 200);
@@ -432,7 +432,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.FIRE, Element.SHADOW_4), 25);
 		elementMap.put(new ElementKey(Element.FIRE, Element.GHOST_4), 100);
 		elementMap.put(new ElementKey(Element.FIRE, Element.UNDEAD_4), 200);
-		
+
 		elementMap.put(new ElementKey(Element.WIND, Element.NORMAL_4), 100);
 		elementMap.put(new ElementKey(Element.WIND, Element.WATER_4), 200);
 		elementMap.put(new ElementKey(Element.WIND, Element.EARTH_4), 0);
@@ -443,7 +443,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.WIND, Element.SHADOW_4), 25);
 		elementMap.put(new ElementKey(Element.WIND, Element.GHOST_4), 100);
 		elementMap.put(new ElementKey(Element.WIND, Element.UNDEAD_4), 100);
-		
+
 		elementMap.put(new ElementKey(Element.POISON, Element.NORMAL_4), 100);
 		elementMap.put(new ElementKey(Element.POISON, Element.WATER_4), 25);
 		elementMap.put(new ElementKey(Element.POISON, Element.EARTH_4), 75);
@@ -454,7 +454,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.POISON, Element.SHADOW_4), -25);
 		elementMap.put(new ElementKey(Element.POISON, Element.GHOST_4), 25);
 		elementMap.put(new ElementKey(Element.POISON, Element.UNDEAD_4), -100);
-		
+
 		elementMap.put(new ElementKey(Element.HOLY, Element.HOLY_4), 100);
 		elementMap.put(new ElementKey(Element.HOLY, Element.WATER_4), 75);
 		elementMap.put(new ElementKey(Element.HOLY, Element.EARTH_4), 75);
@@ -465,7 +465,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.HOLY, Element.SHADOW_4), 200);
 		elementMap.put(new ElementKey(Element.HOLY, Element.GHOST_4), 100);
 		elementMap.put(new ElementKey(Element.HOLY, Element.UNDEAD_4), 200);
-		
+
 		elementMap.put(new ElementKey(Element.SHADOW, Element.NORMAL_4), 100);
 		elementMap.put(new ElementKey(Element.SHADOW, Element.WATER_4), 75);
 		elementMap.put(new ElementKey(Element.SHADOW, Element.EARTH_4), 75);
@@ -476,7 +476,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.SHADOW, Element.SHADOW_4), -100);
 		elementMap.put(new ElementKey(Element.SHADOW, Element.GHOST_4), 100);
 		elementMap.put(new ElementKey(Element.SHADOW, Element.UNDEAD_4), -100);
-		
+
 		elementMap.put(new ElementKey(Element.GHOST, Element.NORMAL_4), 0);
 		elementMap.put(new ElementKey(Element.GHOST, Element.WATER_4), 25);
 		elementMap.put(new ElementKey(Element.GHOST, Element.EARTH_4), 25);
@@ -487,7 +487,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.GHOST, Element.SHADOW_4), 0);
 		elementMap.put(new ElementKey(Element.GHOST, Element.GHOST_4), 200);
 		elementMap.put(new ElementKey(Element.GHOST, Element.UNDEAD_4), 175);
-		
+
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.NORMAL_4), 100);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.WATER_4), 25);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.EARTH_4), 25);
@@ -498,7 +498,7 @@ public final class ElementModifier {
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.SHADOW_4), 0);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.GHOST_4), 100);
 		elementMap.put(new ElementKey(Element.UNDEAD, Element.UNDEAD_4), 0);
-		
+
 		// Define the legal attack elements.
 		legalAttackElements.add(Element.EARTH);
 		legalAttackElements.add(Element.FIRE);
@@ -523,12 +523,19 @@ public final class ElementModifier {
 	 * @return
 	 */
 	public static int getModifier(Element attacker, Element defender) {
-		
-		if(!legalAttackElements.contains(attacker)) {
+
+		if (!legalAttackElements.contains(attacker)) {
 			throw new IllegalArgumentException("Attack element must be level 1.");
 		}
-		
+
 		final ElementKey key = new ElementKey(attacker, defender);
 		return elementMap.get(key).intValue();
+	}
+
+	/**
+	 * Dont instantiate this class. Use static accessor methods.
+	 */
+	private ElementModifier() {
+		// no op.
 	}
 }

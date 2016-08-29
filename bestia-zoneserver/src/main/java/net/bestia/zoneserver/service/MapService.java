@@ -73,7 +73,7 @@ public class MapService {
 		// Find the highest map layer.
 		final int maxLevel = tiles.parallelStream().map(x -> x.size()).max(Integer::compare).get();
 
-		Set<Tileset> tilesets = new HashSet<>();
+		final Set<Tileset> tilesets = new HashSet<>();
 
 		// Find the tilesets to this tiles.
 		for (List<Tile> lt : tiles) {
@@ -87,7 +87,14 @@ public class MapService {
 		final MapBuilder mapBuilder = new MapBuilder();
 
 		mapBuilder.setSize(new Size((int) range.getWidth(), (int) range.getHeight()));
-		tilesets.forEach(mapBuilder::addTileset);
+		mapBuilder.addTilesets(tilesets);
+		
+		for(int i = 0; i < maxLevel; i++) {
+			// Find all tiles on this particular layer.
+			
+			// Add the tiles to the mapbuilder.
+			//mapBuilder.addTiles(i, tiles);
+		}
 
 		return mapBuilder.build();
 	}
