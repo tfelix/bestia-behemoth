@@ -1,10 +1,9 @@
 package net.bestia.zoneserver.actor.login;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.Deploy;
-import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
@@ -14,7 +13,7 @@ import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.server.BestiaActorContext;
+import net.bestia.zoneserver.service.ServerRuntimeConfiguration;
 
 /**
  * This actor will take {@link LoginRequestMessage} and check the validity of
@@ -35,17 +34,14 @@ public class LoginActor extends UntypedActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	private final AccountDAO accountDao = null;
+	private final AccountDAO accountDao;
+	private final ServerRuntimeConfiguration config;
 
-	public LoginActor() {
+	@Autowired
+	public LoginActor(AccountDAO accountDao, ServerRuntimeConfiguration config) {
 		
-		//this.accountDao = ctx.getSpringContext().getBean(AccountDAO.class);
-	}
-
-	public static Props props(final BestiaActorContext ctx) {
-		// Props must be deployed locally since we contain a dao (non
-		// serializable)
-		return Props.create(LoginActor.class, ctx).withDeploy(Deploy.local());
+		this.accountDao = accountDao;
+		this.config = config;
 	}
 
 	@Override
@@ -58,9 +54,13 @@ public class LoginActor extends UntypedActor {
 
 		LOG.debug("LoginRequestMessage received: {}", message.toString());
 
-		// TODO Check if we are in maintenance mode.
-
 		final LoginAuthMessage msg = (LoginAuthMessage) message;
+		
+		if(config.isMaintenanceMode()) {
+			// We only allow server admins to be online during a maintenance.
+			respond(msg, LoginState.DENIED);
+			return;
+		}
 
 		// Check to see if the find the requested account.
 		final Account acc = accountDao.findOne(msg.getAccountId());

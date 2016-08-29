@@ -19,7 +19,7 @@ import akka.cluster.Cluster;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.service.ClusterConfigurationService;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.service.ServerConfiguration;
+import net.bestia.zoneserver.service.ServerStartupConfiguration;
 
 /**
  * Generates the akka configuration file which is used to connect to the remote
@@ -38,7 +38,7 @@ public class AkkaConfiguration {
 	private static final String AKKA_CONFIG_NAME = "akka";
 
 	@Bean
-	public ActorSystem actorSystem(ServerConfiguration config, 
+	public ActorSystem actorSystem(ServerStartupConfiguration config, 
 			HazelcastInstance hzInstance,
 			ApplicationContext appContext)
 			throws UnknownHostException {

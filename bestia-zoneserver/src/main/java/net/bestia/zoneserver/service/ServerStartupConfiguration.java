@@ -5,14 +5,15 @@ import org.springframework.stereotype.Service;
 
 /**
  * Central configuration class for this server. Is backed up by the spring
- * property and value framework. Zentral configurations belonging to this server
- * are found here.
+ * property and value framework. This configuration values are set during
+ * startup of the server via spring configuration files or command line
+ * arguments.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 @Service
-public class ServerConfiguration {
+public class ServerStartupConfiguration {
 
 	@Value("${server.name}")
 	private String serverName;

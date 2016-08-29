@@ -1,9 +1,6 @@
 package net.bestia.zoneserver.actor.inventory;
 
-import akka.actor.Deploy;
-import akka.actor.Props;
 import akka.actor.UntypedActor;
-import net.bestia.server.BestiaActorContext;
 
 
 /**
@@ -16,7 +13,7 @@ import net.bestia.server.BestiaActorContext;
  */
 public class InventoryActor extends UntypedActor {
 	
-	public InventoryActor(BestiaActorContext ctx) {
+	public InventoryActor() {
 		// TODO Auto-generated constructor stub
 	}
 
@@ -24,10 +21,6 @@ public class InventoryActor extends UntypedActor {
 	public void onReceive(Object message) throws Exception {
 		// TODO Auto-generated method stub
 
-	}
-
-	public static Props props(BestiaActorContext ctx) {
-		return Props.create(InventoryActor.class, ctx).withDeploy(Deploy.local());
 	}
 
 }

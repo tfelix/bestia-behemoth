@@ -1,13 +1,15 @@
 package net.bestia.zoneserver.actor.login;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import akka.actor.ActorRef;
-import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.system.ClientConnectionStatusMessage;
 import net.bestia.messages.system.ClientConnectionStatusMessage.ConnectionState;
-import net.bestia.server.BestiaActorContext;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
 import net.bestia.zoneserver.service.CacheManager;
 
@@ -19,19 +21,17 @@ import net.bestia.zoneserver.service.CacheManager;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@Component
+@Scope("prototype")
 public class ConnectionManagerActor extends UntypedActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	private final CacheManager<Long, ActorRef> clientCache;
 
-	@SuppressWarnings("unchecked")
-	public ConnectionManagerActor(BestiaActorContext ctx) {
+	public ConnectionManagerActor(
+			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorRef> clientCache) {
 
-		this.clientCache = ctx.getSpringContext().getBean(CacheConfiguration.CLIENT_CACHE, CacheManager.class);
-	}
-
-	public static Props props(final BestiaActorContext ctx) {
-		return Props.create(ConnectionManagerActor.class, ctx);
+		this.clientCache = clientCache;
 	}
 
 	@Override
