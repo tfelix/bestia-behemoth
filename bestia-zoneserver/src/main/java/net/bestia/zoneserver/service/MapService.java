@@ -21,6 +21,7 @@ import net.bestia.model.zone.Point;
 import net.bestia.model.zone.Size;
 import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.map.Tile;
+import net.bestia.zoneserver.zone.map.TileProperties;
 import net.bestia.zoneserver.zone.map.Tileset;
 import net.bestia.zoneserver.zone.map.Map.MapBuilder;
 import net.bestia.zoneserver.zone.shape.Rect;
@@ -39,6 +40,7 @@ public class MapService {
 	public final static String CACHE_KEY = "map.tiles";
 	public final static String MAP_NAME_KEY = "map.name";
 	private final static String TILESET_KEY = "map.tilesets";
+	private final static String TILE_PROPS_KEY = "map.tileprops";
 
 	private final HazelcastInstance hazelcastInstance;
 
@@ -46,6 +48,30 @@ public class MapService {
 	public MapService(HazelcastInstance hz) {
 
 		this.hazelcastInstance = Objects.requireNonNull(hz);
+	}
+
+	/**
+	 * Returns the name of the current map/world.
+	 * 
+	 * @return The name of the map.
+	 */
+	public String getName() {
+		return "Aventerra";
+	}
+
+	/**
+	 * Returns the name of the area in which this point is lying.
+	 * 
+	 * @param p
+	 *            The coordinates of which the local name should be found.
+	 * @return The name of the local area.
+	 */
+	public String getAreaName(Point p) {
+		return "Kalarian";
+	}
+
+	public void setName(String name) {
+		// TODO das hier implementieren.
 	}
 
 	/**
@@ -100,18 +126,6 @@ public class MapService {
 	}
 
 	/**
-	 * Takes the given map part (or whole map) and saves it into the cache for
-	 * later retrival by the system.
-	 * 
-	 * @param bestiaMap
-	 *            The map to be saved into the caches.
-	 */
-	public void saveMap(Map bestiaMap) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
 	 * Returns a tileset via its name.
 	 * 
 	 * @param name
@@ -150,6 +164,7 @@ public class MapService {
 	 */
 	public void saveTiles(int layer, List<Tile> tiles) {
 
+		final IMap<Point, List<Tile>> tileData = hazelcastInstance.getMap(CACHE_KEY);
 	}
 
 	/**
@@ -160,5 +175,16 @@ public class MapService {
 	public void saveTileset(Tileset tileset) {
 		final IMap<String, Tileset> tilesetData = hazelcastInstance.getMap(TILESET_KEY);
 		tilesetData.put(tileset.getName(), tileset);
+	}
+
+	/**
+	 * Saves the given tile properties for this given tile.
+	 * 
+	 * @param gid Global tile id.
+	 * @param tileProps The properties of this tile.
+	 */
+	public void saveTileProperties(int gid, TileProperties tileProps) {
+		final IMap<Integer, TileProperties> props = hazelcastInstance.getMap(TILE_PROPS_KEY);
+		props.put(gid, tileProps);
 	}
 }

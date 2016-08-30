@@ -1,10 +1,13 @@
 package net.bestia.zoneserver.zone.map;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import net.bestia.model.zone.Point;
 
-public class Tile {
+public class Tile implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	
 	private final Point position;
 	private final int gid;

@@ -1,13 +1,16 @@
 package net.bestia.model.zone;
 
+import java.io.Serializable;
+
 /**
  * Immutable size object.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class Size {
+public class Size implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private final int width;
 	private final int height;
 

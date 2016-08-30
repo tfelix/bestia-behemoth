@@ -3,24 +3,19 @@ package net.bestia.zoneserver.generator.map;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
-import java.util.Set;
 import java.util.Vector;
 
-import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bestia.model.zone.Point;
 import net.bestia.model.zone.Size;
 import net.bestia.zoneserver.service.MapService;
-import net.bestia.zoneserver.util.PackageLoader;
-import net.bestia.zoneserver.zone.map.Map;
-import net.bestia.zoneserver.zone.map.Map.MapBuilder;
 import net.bestia.zoneserver.zone.map.Tile;
+import net.bestia.zoneserver.zone.map.TileProperties;
 import net.bestia.zoneserver.zone.map.Tileset;
 import tiled.core.MapLayer;
 import tiled.core.TileLayer;
@@ -36,7 +31,6 @@ public class TmxMapGenerator implements MapGenerator {
 	private String mapFile;
 
 	private tiled.core.Map tiledMap;
-	private Map bestiaMap;
 
 	public TmxMapGenerator(MapService mapService, String tmxMapFile) {
 		// Read also tile maps.
@@ -56,14 +50,7 @@ public class TmxMapGenerator implements MapGenerator {
 			LOG.error("Could not load mapfile.", e);
 			return;
 		}
-
-		// Prepare basic data.
-		final Size mapSize = new Size(tiledMap.getHeight(), tiledMap.getWidth());
-		final String baseName = FilenameUtils.getBaseName(mapFile);
-		final String mapDbName = FilenameUtils.removeExtension(baseName);
-
-		// bestiaMap = new Map(mapDbName, mapSize);
-
+		
 		// Read the tiles into the map builder.
 		readTilesets();
 		readTiles();
@@ -74,12 +61,41 @@ public class TmxMapGenerator implements MapGenerator {
 		for (TileSet ts : tilesets) {
 			int firstGid = ts.getFirstTile().getId();
 			String name = ts.getName();
-
-			Size size = new Size(320, 320);
-
-			Tileset bestiaTs = new Tileset(name, size, firstGid);
+			
+			// TODO This is hard coded just because.
+			int width = 320;
+			int height = 320;
+			
+			Tileset bestiaTs = new Tileset(name, new Size(width, height), firstGid);
 
 			mapService.saveTileset(bestiaTs);
+			
+			readTileproperties(ts);
+		}
+	}
+
+	/**
+	 * Reads the important properties of the tiles in a tileset and saves them
+	 * into the memory db.
+	 * 
+	 * @param ts
+	 */
+	private void readTileproperties(TileSet ts) {
+		for(int i = ts.getFirstTile().getId(); i < ts.getMaxTileId(); i++) {
+			final tiled.core.Tile t = ts.getTile(i);
+			final Properties props = t.getProperties();
+			
+			boolean isWalkable = true;
+			int walkspeed = 100;
+			if(props.getProperty("isWalkable") != null) {
+				isWalkable = Boolean.parseBoolean(props.getProperty("isWalkable"));
+			}
+			if(props.getProperty("walkspeed") != null) {
+				walkspeed = Integer.parseInt(props.getProperty("walkspeed"));
+			}
+			
+			final TileProperties tileProps = new TileProperties(isWalkable, walkspeed);
+			mapService.saveTileProperties(i, tileProps);
 		}
 	}
 
@@ -137,10 +153,11 @@ public class TmxMapGenerator implements MapGenerator {
 		// Iterate bottom up through tiles and layers.
 		final List<Tile> bestiaTiles = new ArrayList<>();
 		for (int i = 0; i < layers.size(); i++) {
+			
+			bestiaTiles.clear();
+			
 			for (int y = 0; y < height; y++) {
 				for (int x = 0; x < width; x++) {
-
-					bestiaTiles.clear();
 
 					final TileLayer layer = layers.get(i);
 					final tiled.core.Tile tile = layer.getTileAt(x, y);
@@ -152,7 +169,7 @@ public class TmxMapGenerator implements MapGenerator {
 					bestiaTiles.add(new Tile(i, new Point(x, y), tile.getId()));
 				}
 			}
-			
+
 			mapService.saveTiles(i, bestiaTiles);
 		}
 	}

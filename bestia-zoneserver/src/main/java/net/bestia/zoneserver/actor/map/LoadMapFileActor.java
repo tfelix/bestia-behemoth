@@ -47,8 +47,6 @@ public class LoadMapFileActor extends UntypedActor {
 		}
 
 		// Start the initialization process.
-
-		// Start the initialization process.
 		final String mapfile = serverConfig.getMapfile();
 		LOG.info("Loading the mapfile: {}", mapfile);
 

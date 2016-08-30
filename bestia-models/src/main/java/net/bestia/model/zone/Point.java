@@ -1,13 +1,16 @@
 package net.bestia.model.zone;
 
+import java.io.Serializable;
+
 /**
  * Immutable point object.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class Point {
+public class Point implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private final long x;
 	private final long y;
 

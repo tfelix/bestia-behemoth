@@ -13,15 +13,15 @@ public class TilesetTest {
 	@Test(expected=IllegalArgumentException.class)
 	public void setProperties_invalidGid_throws() {
 		Tileset set = getTileset();
-		set.setProperties(1234, new TileProperties());
+		set.setProperties(1234, new TileProperties(true, 100));
 	}
 
 	@Test
 	public void setProperties_validGid_ok() {
 		Tileset set = getTileset();
-		set.setProperties(145, new TileProperties());
-		set.setProperties(100, new TileProperties());
-		set.setProperties(200, new TileProperties());
+		set.setProperties(145, new TileProperties(true, 100));
+		set.setProperties(100, new TileProperties(true, 100));
+		set.setProperties(200, new TileProperties(true, 100));
 	}
 
 	@Test(expected=NullPointerException.class)
