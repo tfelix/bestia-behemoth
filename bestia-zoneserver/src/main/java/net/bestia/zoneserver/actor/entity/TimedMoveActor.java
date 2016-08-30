@@ -16,7 +16,7 @@ import net.bestia.server.BestiaActorContext;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
 import net.bestia.zoneserver.service.CacheManager;
 import net.bestia.zoneserver.service.MovingEntityManager;
-import net.bestia.zoneserver.zone.entity.Entity;
+import net.bestia.zoneserver.zone.entity.VisibleEntity;
 import net.bestia.zoneserver.zone.entity.traits.Moving;
 import scala.concurrent.duration.Duration;
 
@@ -35,7 +35,7 @@ public class TimedMoveActor extends UntypedActor {
 	private Cancellable tick;
 
 	private final MovingEntityManager movingManager;
-	private final CacheManager<Long, Entity> entityCache;
+	private final CacheManager<Long, VisibleEntity> entityCache;
 
 	private long entityId;
 	private Queue<Point> path;
@@ -87,7 +87,7 @@ public class TimedMoveActor extends UntypedActor {
 
 			entityId = msg.getEntityId();
 
-			final Entity e = entityCache.get(entityId);
+			final VisibleEntity e = entityCache.get(entityId);
 
 			// Check if the entity can move. If not stop.
 			if (e == null || !(e instanceof Moving)) {

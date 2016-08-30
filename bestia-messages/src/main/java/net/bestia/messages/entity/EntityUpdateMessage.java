@@ -3,6 +3,7 @@ package net.bestia.messages.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
+import net.bestia.model.misc.SpriteType;
 
 public class EntityUpdateMessage extends AccountMessage {
 

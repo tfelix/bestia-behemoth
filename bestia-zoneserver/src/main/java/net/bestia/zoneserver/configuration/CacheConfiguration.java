@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import com.hazelcast.core.HazelcastInstance;
 
 import net.bestia.zoneserver.service.CacheManager;
-import net.bestia.zoneserver.zone.entity.Entity;
+import net.bestia.zoneserver.zone.entity.VisibleEntity;
 
 /**
  * This class sets up all the caches which are used to hold various objects
@@ -32,13 +32,13 @@ public class CacheConfiguration {
 	}
 
 	@Bean(name = ENTITY_CACHE)
-	public CacheManager<Long, Entity> getEntityCache() {
+	public CacheManager<Long, VisibleEntity> getEntityCache() {
 
 		return new CacheManager<>("cache.entity", cache);
 	}
 
 	@Bean(name = CLIENT_CACHE)
-	public CacheManager<Long, Entity> getClientCache() {
+	public CacheManager<Long, VisibleEntity> getClientCache() {
 
 		return new CacheManager<>("cache.client", cache);
 	}

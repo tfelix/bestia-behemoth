@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.zone.entity.traits;
 
+import net.bestia.model.misc.Sprite;
+
 /**
  * The entity can be visualized by the engine. In order to do this some means of
  * information about the display visual art must be provided. Usually this is an
@@ -10,5 +12,19 @@ package net.bestia.zoneserver.zone.entity.traits;
  *
  */
 public interface Visible {
+
+	/**
+	 * Returns the sprite of the entity.
+	 * 
+	 * @return
+	 */
+	Sprite getSprite();
+
+	/**
+	 * Gives a flag if the entity is visible.
+	 * 
+	 * @return
+	 */
+	boolean isVisible();
 
 }

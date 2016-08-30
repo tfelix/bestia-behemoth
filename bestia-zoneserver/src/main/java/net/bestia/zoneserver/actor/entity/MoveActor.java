@@ -2,7 +2,7 @@ package net.bestia.zoneserver.actor.entity;
 
 import akka.actor.UntypedActor;
 import net.bestia.messages.entity.EntityMoveMessage;
-import net.bestia.zoneserver.zone.entity.Entity;
+import net.bestia.zoneserver.zone.entity.VisibleEntity;
 
 /**
  * Upon receiving of a move message we will lookup the movable entity and sets
@@ -20,7 +20,7 @@ public class MoveActor extends UntypedActor {
 			
 			final EntityMoveMessage msg = (EntityMoveMessage) message;
 			
-			final Entity entity = null;
+			final VisibleEntity entity = null;
 			
 			// TODO Was it a visible entity? If yes update all nearby entities.
 			

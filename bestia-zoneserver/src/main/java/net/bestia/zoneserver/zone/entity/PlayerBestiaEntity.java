@@ -1,76 +1,34 @@
 package net.bestia.zoneserver.zone.entity;
 
-import net.bestia.model.domain.Element;
-import net.bestia.model.domain.Position;
-import net.bestia.model.domain.StatusPoints;
-import net.bestia.zoneserver.zone.entity.traits.Attackable;
-import net.bestia.zoneserver.zone.entity.traits.Collidable;
-import net.bestia.zoneserver.zone.entity.traits.Interactable;
-import net.bestia.zoneserver.zone.entity.traits.Locatable;
-import net.bestia.zoneserver.zone.entity.traits.Visible;
-import net.bestia.zoneserver.zone.shape.Collision;
+import java.util.Objects;
 
-public class PlayerBestiaEntity implements Visible, Attackable, Collidable, Interactable, Locatable {
+import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.misc.Sprite;
+import net.bestia.model.misc.SpriteType;
+
+public class PlayerBestiaEntity extends VisibleEntity {
+	
+	private final PlayerBestia playerBestia;
+	
+	private Sprite sprite;
+	
+	public PlayerBestiaEntity(PlayerBestia pb) {
+		
+		this.playerBestia = Objects.requireNonNull(pb);
+		
+		this.sprite = new Sprite(pb.getOrigin().getDatabaseName(), SpriteType.PACK);
+	}
+	
+	public long getAccountId() {
+		return playerBestia.getOwner().getId();
+	}
 	
 	public PlayerClass getPlayerClass() {
 		return PlayerClass.WARRIOR;
 	}
 	
-	public long getAccountId() {
-		return 1;
-	}
-
 	@Override
-	public Position getPosition() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Collision getCollision() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public StatusPoints getStatusPoints() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void addStatusEffect() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void removeStatusEffect() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void kill() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public int getLevel() {
-		// TODO Auto-generated method stub
-		return 1;
-	}
-
-	@Override
-	public Element getElement() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setPosition(long x, long y) {
-		// TODO Auto-generated method stub
-		
+	public Sprite getSprite() {
+		return sprite;
 	}
 }
