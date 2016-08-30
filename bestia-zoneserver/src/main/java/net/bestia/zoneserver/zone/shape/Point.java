@@ -11,7 +11,7 @@ import net.bestia.model.domain.Position;
  * @author Thomas Felix <thoams.felix@tfelix.de>
  *
  */
-public class Point implements CollisionShape {
+public class Point implements Collision {
 
 	public final long x;
 	public final long y;
@@ -68,7 +68,7 @@ public class Point implements CollisionShape {
 	}
 
 	@Override
-	public boolean collide(CollisionShape s) {
+	public boolean collide(Collision s) {
 		return s.collide(this);
 	}
 
@@ -78,7 +78,7 @@ public class Point implements CollisionShape {
 	}
 
 	@Override
-	public CollisionShape moveByAnchor(int x, int y) {
+	public Collision moveByAnchor(int x, int y) {
 		return new Point(x, y);
 	}
 

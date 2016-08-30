@@ -8,7 +8,7 @@ import net.bestia.zoneserver.zone.entity.traits.Collidable;
 import net.bestia.zoneserver.zone.entity.traits.Interactable;
 import net.bestia.zoneserver.zone.entity.traits.Locatable;
 import net.bestia.zoneserver.zone.entity.traits.Visible;
-import net.bestia.zoneserver.zone.shape.CollisionShape;
+import net.bestia.zoneserver.zone.shape.Collision;
 
 public class PlayerBestiaEntity implements Visible, Attackable, Collidable, Interactable, Locatable {
 	
@@ -27,7 +27,7 @@ public class PlayerBestiaEntity implements Visible, Attackable, Collidable, Inte
 	}
 
 	@Override
-	public CollisionShape getCollision() {
+	public Collision getCollision() {
 		// TODO Auto-generated method stub
 		return null;
 	}

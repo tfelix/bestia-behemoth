@@ -7,7 +7,7 @@ package net.bestia.zoneserver.zone.shape;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public interface CollisionShape {
+public interface Collision {
 
 	/**
 	 * Checks if this shape collides with the given vector.
@@ -43,7 +43,7 @@ public interface CollisionShape {
 	 *            Collding shape.
 	 * @return TRUE if it collides. FALSE otherwise.
 	 */
-	boolean collide(CollisionShape s);
+	boolean collide(Collision s);
 
 	/**
 	 * Checks if this shape collides with the given vector.
@@ -63,7 +63,7 @@ public interface CollisionShape {
 	public Point getAnchor();
 
 	/**
-	 * Moves the whole {@link CollisionShape} to the new coordiantes relative to
+	 * Moves the whole {@link Collision} to the new coordiantes relative to
 	 * its anchor whose absolute coordiantes are set by this method.
 	 * 
 	 * @param x
@@ -72,5 +72,5 @@ public interface CollisionShape {
 	 *            New absolute y coordinate.
 	 * @return A new collision shape which is move
 	 */
-	public CollisionShape moveByAnchor(int x, int y);
+	public Collision moveByAnchor(int x, int y);
 }

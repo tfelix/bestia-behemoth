@@ -9,7 +9,7 @@ import java.util.Objects;
  * @author Thomas Felix <thoams.felix@tfelix.de>
  *
  */
-public class Rect implements CollisionShape {
+public class Rect implements Collision {
 
 	private final long x;
 	private final long y;
@@ -177,7 +177,7 @@ public class Rect implements CollisionShape {
 	}
 
 	@Override
-	public boolean collide(CollisionShape s) {
+	public boolean collide(Collision s) {
 		return s.collide(this);
 	}
 
@@ -192,7 +192,7 @@ public class Rect implements CollisionShape {
 	}
 
 	@Override
-	public CollisionShape moveByAnchor(int x, int y) {
+	public Collision moveByAnchor(int x, int y) {
 		final long dX = x - getAnchor().x;
 		final long dY = y - getAnchor().y;
 

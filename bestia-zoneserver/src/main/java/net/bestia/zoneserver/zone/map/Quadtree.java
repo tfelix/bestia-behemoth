@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import net.bestia.zoneserver.zone.entity.traits.Collidable;
-import net.bestia.zoneserver.zone.shape.CollisionShape;
+import net.bestia.zoneserver.zone.shape.Collision;
 import net.bestia.zoneserver.zone.shape.Rect;
 
 /**
@@ -78,7 +78,7 @@ public class Quadtree {
 	 * @return
 	 */
 	public boolean insert(Collidable c) {
-		final CollisionShape shape = c.getCollision();
+		final Collision shape = c.getCollision();
 
 		// if we have children, let them handle the insert.
 		if (northWest == null) {

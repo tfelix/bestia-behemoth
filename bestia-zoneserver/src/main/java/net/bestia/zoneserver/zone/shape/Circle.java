@@ -2,7 +2,7 @@ package net.bestia.zoneserver.zone.shape;
 
 import com.google.common.base.Objects;
 
-public class Circle implements CollisionShape {
+public class Circle implements Collision {
 
 	private final Point center;
 	private Point anchor;
@@ -82,7 +82,7 @@ public class Circle implements CollisionShape {
 	}
 
 	@Override
-	public boolean collide(CollisionShape s) {
+	public boolean collide(Collision s) {
 		return s.collide(this);
 	}
 
@@ -114,7 +114,7 @@ public class Circle implements CollisionShape {
 	}
 
 	@Override
-	public CollisionShape moveByAnchor(int x, int y) {
+	public Collision moveByAnchor(int x, int y) {
 		final long dX = x - getAnchor().x;
 		final long dY = y - getAnchor().y;
 

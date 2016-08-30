@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import net.bestia.zoneserver.zone.entity.traits.Collidable;
 import net.bestia.zoneserver.zone.map.Quadtree;
-import net.bestia.zoneserver.zone.shape.CollisionShape;
+import net.bestia.zoneserver.zone.shape.Collision;
 import net.bestia.zoneserver.zone.shape.Point;
 
 public class QuadtreeTest {
@@ -20,7 +20,7 @@ public class QuadtreeTest {
 		}
 
 		@Override
-		public CollisionShape getCollision() {
+		public Collision getCollision() {
 			return p;
 		}
 		
