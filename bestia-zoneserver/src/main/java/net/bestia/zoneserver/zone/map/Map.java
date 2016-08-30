@@ -58,22 +58,18 @@ public class Map {
 
 	}
 
-	private final String name;
 	private final Size size;
 
 	private boolean[][] walkable;
 	private java.util.Map<Integer, java.util.Map<Point, Integer>> tileLayer = new HashMap<>();
 
 	public Map() {
-		name = "";
 		size = new Size(1, 1);
 	}
 
 	public Map(MapBuilder builder) {
 
-		this.name = builder.name;
 		this.size = builder.size;
-
 		walkable = new boolean[size.getHeight()][size.getWidth()];
 
 	}

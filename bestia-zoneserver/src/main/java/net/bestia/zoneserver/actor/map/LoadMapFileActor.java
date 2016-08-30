@@ -8,10 +8,10 @@ import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.system.StartInitMessage;
+import net.bestia.zoneserver.generator.map.MapGenerator;
+import net.bestia.zoneserver.generator.map.TmxMapGenerator;
 import net.bestia.zoneserver.service.MapService;
 import net.bestia.zoneserver.service.ServerStartupConfiguration;
-import net.bestia.zoneserver.zone.map.generator.MapGenerator;
-import net.bestia.zoneserver.zone.map.generator.TmxMapGenerator;
 
 /**
  * This actor will load the mapfile from a TMX file and put it into the game
@@ -49,10 +49,11 @@ public class LoadMapFileActor extends UntypedActor {
 		// Start the initialization process.
 
 		// Start the initialization process.
-		LOG.info("Loading the mapfile: {}", serverConfig.getMapfile());
+		final String mapfile = serverConfig.getMapfile();
+		LOG.info("Loading the mapfile: {}", mapfile);
 
 		// Load the sample map into the server cache.
-		MapGenerator tmxGenerator = new TmxMapGenerator(mapService, serverConfig.getMapfile());
+		final MapGenerator tmxGenerator = new TmxMapGenerator(mapService, mapfile);
 		tmxGenerator.generate();
 	}
 

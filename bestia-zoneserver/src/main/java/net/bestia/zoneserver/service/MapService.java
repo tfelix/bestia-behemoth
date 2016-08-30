@@ -88,12 +88,12 @@ public class MapService {
 
 		mapBuilder.setSize(new Size((int) range.getWidth(), (int) range.getHeight()));
 		mapBuilder.addTilesets(tilesets);
-		
-		for(int i = 0; i < maxLevel; i++) {
+
+		for (int i = 0; i < maxLevel; i++) {
 			// Find all tiles on this particular layer.
-			
+
 			// Add the tiles to the mapbuilder.
-			//mapBuilder.addTiles(i, tiles);
+			// mapBuilder.addTiles(i, tiles);
 		}
 
 		return mapBuilder.build();
@@ -140,6 +140,16 @@ public class MapService {
 				.findAny();
 
 		return ts.isPresent() ? ts.get() : null;
+	}
+
+	/**
+	 * This will save all the tiles as the given layer to the database.
+	 * 
+	 * @param layer
+	 * @param tiles
+	 */
+	public void saveTiles(int layer, List<Tile> tiles) {
+
 	}
 
 	/**

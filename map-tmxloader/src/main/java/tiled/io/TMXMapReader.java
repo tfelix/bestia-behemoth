@@ -408,8 +408,7 @@ public class TMXMapReader {
 							set.setTransparentColor(color);
 						}
 
-						set.importTileBitmap(sourcePath, new BasicTileCutter(
-								tileWidth, tileHeight, tileSpacing, tileMargin));
+						//set.importTileBitmap(sourcePath, new BasicTileCutter(tileWidth, tileHeight, tileSpacing, tileMargin));
 					}
 				} else if (child.getNodeName().equalsIgnoreCase("tile")) {
 					Tile tile = unmarshalTile(set, child, tilesetBaseDir);

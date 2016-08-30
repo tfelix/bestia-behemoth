@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.zone.map.generator;
+package net.bestia.zoneserver.generator.map;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -14,11 +14,13 @@ import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bestia.model.zone.Point;
 import net.bestia.model.zone.Size;
 import net.bestia.zoneserver.service.MapService;
 import net.bestia.zoneserver.util.PackageLoader;
 import net.bestia.zoneserver.zone.map.Map;
 import net.bestia.zoneserver.zone.map.Map.MapBuilder;
+import net.bestia.zoneserver.zone.map.Tile;
 import net.bestia.zoneserver.zone.map.Tileset;
 import tiled.core.MapLayer;
 import tiled.core.TileLayer;
@@ -37,7 +39,8 @@ public class TmxMapGenerator implements MapGenerator {
 	private Map bestiaMap;
 
 	public TmxMapGenerator(MapService mapService, String tmxMapFile) {
-		this.reader = new TMXMapReader();
+		// Read also tile maps.
+		this.reader = new TMXMapReader(true);
 		this.mapFile = new File(tmxMapFile).getAbsolutePath();
 		this.mapService = Objects.requireNonNull(mapService);
 	}
@@ -59,28 +62,30 @@ public class TmxMapGenerator implements MapGenerator {
 		final String baseName = FilenameUtils.getBaseName(mapFile);
 		final String mapDbName = FilenameUtils.removeExtension(baseName);
 
-		//bestiaMap = new Map(mapDbName, mapSize);
+		// bestiaMap = new Map(mapDbName, mapSize);
 
 		// Read the tiles into the map builder.
 		readTilesets();
 		readTiles();
-
 	}
-	
+
 	private void readTilesets() {
 		final Vector<TileSet> tilesets = tiledMap.getTileSets();
-		for(TileSet ts : tilesets) {
+		for (TileSet ts : tilesets) {
 			int firstGid = ts.getFirstTile().getId();
 			String name = ts.getName();
-			
-			Size size = new Size(320, 320);			
-			
+
+			Size size = new Size(320, 320);
+
 			Tileset bestiaTs = new Tileset(name, size, firstGid);
-			
+
 			mapService.saveTileset(bestiaTs);
 		}
 	}
 
+	/**
+	 * Read the tiles and save it into the memory database.
+	 */
 	private void readTiles() {
 		int numLayer = tiledMap.getLayerCount();
 
@@ -123,7 +128,6 @@ public class TmxMapGenerator implements MapGenerator {
 				}
 				return (o1i < o2i) ? -1 : 1;
 			}
-
 		});
 
 		// Save the size of the map.
@@ -131,13 +135,12 @@ public class TmxMapGenerator implements MapGenerator {
 		final int width = layers.get(0).getWidth();
 
 		// Iterate bottom up through tiles and layers.
-		for (int y = 0; y < height; y++) {
-			for (int x = 0; x < width; x++) {
+		final List<Tile> bestiaTiles = new ArrayList<>();
+		for (int i = 0; i < layers.size(); i++) {
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
 
-				boolean isWalkable = true;
-				int walkspeed = 1000;
-
-				for (int i = 0; i < layers.size(); i++) {
+					bestiaTiles.clear();
 
 					final TileLayer layer = layers.get(i);
 					final tiled.core.Tile tile = layer.getTileAt(x, y);
@@ -146,25 +149,11 @@ public class TmxMapGenerator implements MapGenerator {
 						continue;
 					}
 
-					Properties p = tile.getProperties();
-
-					if (p == null) {
-						continue;
-					}
-
-					final String pWalkable = p.getProperty("bWalkable");
-					// final String pWalkspeed = p.getProperty("walkspeed");
-
-					if (pWalkable != null && pWalkable.equals("false")) {
-						isWalkable = false;
-					} else {
-						isWalkable = true;
-					}
+					bestiaTiles.add(new Tile(i, new Point(x, y), tile.getId()));
 				}
-
-				// final Tile mapTile = new Tile(isWalkable, walkspeed);
-				// builder.tiles.put(new Point(x, y), mapTile);
 			}
+			
+			mapService.saveTiles(i, bestiaTiles);
 		}
 	}
 

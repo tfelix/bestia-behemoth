@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.zone.map.generator;
+package net.bestia.zoneserver.generator.map;
 
 import java.util.Objects;
 

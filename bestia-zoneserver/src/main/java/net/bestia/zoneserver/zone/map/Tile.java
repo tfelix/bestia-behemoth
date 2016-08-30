@@ -1,48 +1,20 @@
 package net.bestia.zoneserver.zone.map;
 
+import java.util.Objects;
+
 import net.bestia.model.zone.Point;
 
 public class Tile {
-
-	public static class TileBuilder {
-		
-		private Point position;
-		private int layer;
-		private int tileGid;
-		
-		public TileBuilder() {
-			// TODO Auto-generated constructor stub
-		}
-		
-		public TileBuilder setTileGid(int gid) {
-			this.tileGid = gid;
-			return this;
-		}
-		
-		public TileBuilder setPosition(Point pos) {
-			this.position = pos;
-			return this;
-		}
-		
-		public TileBuilder setLayer(int layer) {
-			this.layer = layer;
-			return this;
-		}
-		
-		public Tile build() {
-			return new Tile(this);
-		}
-	}
 	
 	private final Point position;
 	private final int gid;
 	private final int layer;
 	
-	private Tile(TileBuilder builder) {
+	public Tile(int layer, Point pos, int gid) {
 		
-		this.position = builder.position;
-		this.layer = builder.layer;
-		this.gid = builder.tileGid;
+		this.position = Objects.requireNonNull(pos);
+		this.layer = layer;
+		this.gid = gid;
 	}
 	
 	public Point getPoint() {
