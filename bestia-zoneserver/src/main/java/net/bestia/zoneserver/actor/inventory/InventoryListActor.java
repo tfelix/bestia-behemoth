@@ -44,6 +44,7 @@ public class InventoryListActor extends UntypedActor {
 			return;
 		}
 
+		/*
 		final PlayerBestiaEntity pb = new PlayerBestiaEntity();
 
 		final Inventory invManager = new Inventory(pb, inventoryService);
@@ -51,6 +52,7 @@ public class InventoryListActor extends UntypedActor {
 		final Message invListMessage = invManager.getInventoryListMessage();
 
 		getSender().tell(invListMessage, getSelf());
+		*/
 	}
 
 }

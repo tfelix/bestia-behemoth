@@ -116,7 +116,7 @@ public class TimedMoveActor extends UntypedActor {
 	}
 
 	private int getMoveDelay(Point nextPos, Moving e) {
-		final Position p = e.getPosition();
+		final Point p = e.getPosition();
 		final long d = Math.abs(p.getX() - nextPos.getX()) + Math.abs(p.getY() - nextPos.getY());
 
 		float speed = e.getMovementSpeed();

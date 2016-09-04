@@ -13,20 +13,20 @@ import net.bestia.zoneserver.configuration.CacheConfiguration;
 import net.bestia.zoneserver.service.CacheManager;
 
 /**
- * The {@link AccountRespondActor} will lookup the information (actor ref) of the
+ * The {@link SendResponseActor} will lookup the information (actor ref) of the
  * current account, serialize the message and send it back to where it belongs.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class AccountRespondActor extends UntypedActor {
+public class SendResponseActor extends UntypedActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	
 	private final CacheManager<Long, ActorRef> clientCache;
 
 	@SuppressWarnings("unchecked")
-	public AccountRespondActor(BestiaActorContext ctx) {
+	public SendResponseActor(BestiaActorContext ctx) {
 
 		this.clientCache = ctx.getSpringContext().getBean(CacheConfiguration.CLIENT_CACHE, CacheManager.class);
 	}

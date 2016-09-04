@@ -5,6 +5,9 @@ import java.io.Serializable;
 /**
  * Immutable point object.
  * 
+ * TODO Es gibt noch das Point Object bei den Shapes. Hier müsste noch eine
+ * Vereinheitlichung stattfinden.
+ * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
@@ -23,12 +26,10 @@ public class Point implements Serializable {
 	public long getX() {
 		return x;
 	}
-	
+
 	public long getY() {
 		return y;
 	}
-	
-	
 
 	@Override
 	public int hashCode() {

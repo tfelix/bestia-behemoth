@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import com.hazelcast.core.HazelcastInstance;
 
 import net.bestia.zoneserver.service.CacheManager;
+import net.bestia.zoneserver.zone.entity.PlayerBestiaEntity;
 import net.bestia.zoneserver.zone.entity.VisibleEntity;
 
 /**
@@ -23,6 +24,7 @@ public class CacheConfiguration {
 	public final static String ENTITY_CACHE = "entityCache";
 	public final static String CLIENT_CACHE = "clientCache";
 	public final static String ACTIVE_BESTIA_CACHE = "bestia.active";
+	public final static String PLAYER_BESTIA_CACHE = "bestia.playerbestia";
 
 	private HazelcastInstance cache;
 
@@ -42,10 +44,21 @@ public class CacheConfiguration {
 
 		return new CacheManager<>("cache.client", cache);
 	}
-	
+
 	@Bean(name = ACTIVE_BESTIA_CACHE)
 	public CacheManager<Long, Integer> getActiveBestiaCache() {
-		
+
 		return new CacheManager<>("cache.activeBestia", cache);
+	}
+
+	/**
+	 * Returns the cache holding the {@link PlayerBestiaEntity}s of the players.
+	 * 
+	 * @return Cache of the {@link PlayerBestiaEntity}s.
+	 */
+	@Bean(name = PLAYER_BESTIA_CACHE)
+	public CacheManager<Integer, PlayerBestiaEntity> getPlayerBestiaCache() {
+
+		return new CacheManager<>("cache.playerBestia", cache);
 	}
 }

@@ -12,7 +12,6 @@ public class Map {
 
 	public static class MapBuilder {
 
-		private String name;
 		private List<Tileset> tilesets = new ArrayList<>();
 		private List<Tile> tiles = new ArrayList<>();
 		private Size size = new Size(1, 1);
@@ -59,7 +58,6 @@ public class Map {
 	}
 
 	private final Size size;
-
 	private boolean[][] walkable;
 	private java.util.Map<Integer, java.util.Map<Point, Integer>> tileLayer = new HashMap<>();
 
