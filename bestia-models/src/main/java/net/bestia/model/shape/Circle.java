@@ -1,8 +1,8 @@
-package net.bestia.zoneserver.zone.shape;
+package net.bestia.model.shape;
 
 import com.google.common.base.Objects;
 
-public class Circle implements Collision {
+public final class Circle implements Collision {
 
 	private final Point center;
 	private Point anchor;
@@ -25,16 +25,16 @@ public class Circle implements Collision {
 		}
 		this.center = new Point(x, y);
 		this.radius = radius;
-		
+
 		checkAnchor(anchorX, anchorY);
 
 		this.anchor = new Point(anchorX, anchorY);
 	}
 
 	private void checkAnchor(long x, long y) {
-		final long dX = center.x - x;
-		final long dY = center.y - y;
-		if(Math.sqrt(dX * dX + dY * dY) > radius + 1) {
+		final long dX = center.getX() - x;
+		final long dY = center.getY() - y;
+		if (Math.sqrt(dX * dX + dY * dY) > radius + 1) {
 			throw new IllegalArgumentException("Anchor must be inside the circle.");
 		}
 	}
@@ -64,16 +64,17 @@ public class Circle implements Collision {
 
 	@Override
 	public Rect getBoundingBox() {
-		final long leftX = center.x - radius;
-		final long rightX = center.x + radius;
-		final long topY = center.y - radius;
-		final long bottomY = center.y + radius;
+		final long leftX = center.getX() - radius;
+		final long rightX = center.getY() + radius;
+		final long topY = center.getX() - radius;
+		final long bottomY = center.getY() + radius;
 		return new Rect(leftX, topY, rightX - leftX, bottomY - topY);
 	}
 
 	@Override
 	public String toString() {
-		return String.format("Circle[x: %d, y: %d, r: %d]", center.x, center.y, radius);
+		return String.format("Circle[x: %d, y: %d, r: %d]",
+				center.getX(), center.getY(), radius);
 	}
 
 	@Override
@@ -115,11 +116,11 @@ public class Circle implements Collision {
 
 	@Override
 	public Collision moveByAnchor(int x, int y) {
-		final long dX = x - getAnchor().x;
-		final long dY = y - getAnchor().y;
+		final long dX = x - getAnchor().getX();
+		final long dY = y - getAnchor().getY();
 
-		final long cX = center.x + dX;
-		final long cY = center.y + dY;
+		final long cX = center.getX() + dX;
+		final long cY = center.getY() + dY;
 
 		final Circle c = new Circle(cX, cY, radius, dX, dY);
 		return c;

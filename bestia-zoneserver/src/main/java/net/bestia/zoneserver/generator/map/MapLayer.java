@@ -2,7 +2,7 @@ package net.bestia.zoneserver.generator.map;
 
 import java.util.Objects;
 
-import net.bestia.model.zone.Size;
+import net.bestia.model.shape.Size;
 
 /**
  * Temporary map layer containing map data for dynamic map generation. Note that
@@ -18,11 +18,11 @@ public class MapLayer {
 	private int data[][];
 
 	public MapLayer(Size size) {
-		
+
 		this.size = Objects.requireNonNull(size);
-		this.data = new int[size.getWidth()][size.getHeight()];
+		this.data = new int[(int) size.getWidth()][(int) size.getHeight()];
 	}
-	
+
 	public Size getSize() {
 		return size;
 	}

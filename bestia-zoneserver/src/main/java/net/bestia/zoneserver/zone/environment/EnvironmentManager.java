@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bestia.zoneserver.zone.shape.Point;
+import net.bestia.model.shape.Point;
 
 /**
  * The manager is responsible for controlling the added environment layer. The

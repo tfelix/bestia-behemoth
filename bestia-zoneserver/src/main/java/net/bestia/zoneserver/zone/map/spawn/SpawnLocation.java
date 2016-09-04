@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import net.bestia.zoneserver.zone.shape.Rect;
-import net.bestia.zoneserver.zone.shape.Point;
+import net.bestia.model.shape.Point;
+import net.bestia.model.shape.Rect;
 
 /**
  * CLass holds reference to multiple areas (shapes) and provide a facility to

@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import net.bestia.model.shape.Collision;
+import net.bestia.model.shape.Rect;
 import net.bestia.zoneserver.zone.entity.traits.Collidable;
-import net.bestia.zoneserver.zone.shape.Collision;
-import net.bestia.zoneserver.zone.shape.Rect;
 
 /**
  * This is a Quadtree implementation. It can hold objects which will have an

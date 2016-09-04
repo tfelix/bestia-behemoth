@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.zone.map;
+package net.bestia.model.map;
 
 import java.io.Serializable;
 

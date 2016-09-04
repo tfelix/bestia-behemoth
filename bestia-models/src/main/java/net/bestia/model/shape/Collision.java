@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.zone.shape;
+package net.bestia.model.shape;
 
 /**
  * The interface provides a common interface for the existing collision shapes.

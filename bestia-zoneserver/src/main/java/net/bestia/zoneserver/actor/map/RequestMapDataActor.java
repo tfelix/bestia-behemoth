@@ -13,16 +13,15 @@ import akka.actor.ActorRef;
 import net.bestia.messages.Message;
 import net.bestia.messages.map.MapDataMessage;
 import net.bestia.messages.map.RequestMapDataMessage;
-import net.bestia.messages.map.TilesetDataMassage;
-import net.bestia.model.zone.Point;
+import net.bestia.model.map.Map;
+import net.bestia.model.shape.Point;
+import net.bestia.model.shape.Rect;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.zone.SendResponseActor;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
 import net.bestia.zoneserver.service.CacheManager;
 import net.bestia.zoneserver.service.MapService;
 import net.bestia.zoneserver.zone.entity.PlayerBestiaEntity;
-import net.bestia.zoneserver.zone.map.Map;
-import net.bestia.zoneserver.zone.shape.Rect;
 
 /**
  * This actor generates a data message containing all the data needed for the
@@ -91,10 +90,8 @@ public class RequestMapDataActor extends BestiaRoutingActor {
 		final Map map = mapService.getMap(area);
 
 		// Assemble the answer message and find the actor with the ref.
-		final MapDataMessage mapData = null;
-		final TilesetDataMassage tileData = null;
-		responseActor.tell(msg, getSelf());
-		responseActor.tell(tileData, getSelf());
+		//final MapDataMessage mapData = new MapDataMessage(map.getSize(), );
+		//responseActor.tell(msg, getSelf());
 	}
 
 }

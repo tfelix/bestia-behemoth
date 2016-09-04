@@ -17,14 +17,14 @@ import com.hazelcast.query.Predicate;
 import com.hazelcast.query.PredicateBuilder;
 import com.hazelcast.query.Predicates;
 
-import net.bestia.model.zone.Point;
-import net.bestia.model.zone.Size;
-import net.bestia.zoneserver.zone.map.Map;
-import net.bestia.zoneserver.zone.map.Tile;
-import net.bestia.zoneserver.zone.map.TileProperties;
-import net.bestia.zoneserver.zone.map.Tileset;
-import net.bestia.zoneserver.zone.map.Map.MapBuilder;
-import net.bestia.zoneserver.zone.shape.Rect;
+import net.bestia.model.map.Map;
+import net.bestia.model.map.Map.MapBuilder;
+import net.bestia.model.map.Tile;
+import net.bestia.model.map.TileProperties;
+import net.bestia.model.map.Tileset;
+import net.bestia.model.shape.Point;
+import net.bestia.model.shape.Rect;
+import net.bestia.model.shape.Size;
 
 /**
  * The {@link MapService} is responsible for effectively querying the cache in

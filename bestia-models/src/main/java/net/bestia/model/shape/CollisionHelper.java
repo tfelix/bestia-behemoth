@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.zone.shape;
+package net.bestia.model.shape;
 
 /**
  * This class contains the shared collision code for the {@link Collision}
@@ -29,10 +29,10 @@ final class CollisionHelper {
 	 */
 	public static boolean collide(Point s, Rect r) {
 
-		final boolean xLeft = s.x < r.getX();
-		final boolean yTop = s.y < r.getY();
-		final boolean xRight = s.x > (r.getX() + r.getWidth());
-		final boolean yBottom = s.y > r.getY() + r.getHeight();
+		final boolean xLeft = s.getX() < r.getX();
+		final boolean yTop = s.getY() < r.getY();
+		final boolean xRight = s.getX() > (r.getX() + r.getWidth());
+		final boolean yBottom = s.getY() > r.getY() + r.getHeight();
 
 		return !xLeft && !yTop && !xRight && !yBottom;
 	}
@@ -60,37 +60,40 @@ final class CollisionHelper {
 		final long x2 = x + r.getWidth();
 		final long y2 = y + r.getHeight();
 
-		if (cc.x < x && cc.y < y) {
+		if (cc.getX() < x && cc.getY() < y) {
 			// Top left case.
-			final int d = (int) Math.sqrt((cc.x - x) * (cc.x - x) + (cc.y - y) * (cc.y - y));
+
+			final int d = (int) Math.sqrt((cc.getX() - x) * (cc.getX() - x) +
+					(cc.getY() - y) * (cc.getY() - y));
 			return d <= s.getRadius();
-		} else if (cc.x >= x && cc.x <= x2 && cc.y <= y) {
+		} else if (cc.getX() >= x && cc.getX() <= x2 && cc.getY() <= y) {
 			// Top case.
-			final long d = y - cc.y;
+			final long d = y - cc.getY();
 			return d <= s.getRadius();
-		} else if (cc.x > x2 && cc.y < y) {
+		} else if (cc.getX() > x2 && cc.getY() < y) {
 			// Right top case.
-			final int d = (int) Math.sqrt((x2 - cc.x) * (x2 - cc.x) + (y - cc.y) * (y - cc.y));
+			final int d = (int) Math.sqrt((x2 - cc.getX()) * (x2 - cc.getX()) + (y - cc.getY()) * (y - cc.getY()));
 			return d <= s.getRadius();
-		} else if (cc.x >= x2 && cc.y >= y && cc.y <= y2) {
+		} else if (cc.getX() >= x2 && cc.getY() >= y && cc.getY() <= y2) {
 			// Right case.
-			final long d = cc.x - x2;
+			final long d = cc.getX() - x2;
 			return d <= s.getRadius();
-		} else if (cc.x > x2 && cc.y > y2) {
+		} else if (cc.getX() > x2 && cc.getY() > y2) {
 			// Right bottom case.
-			final int d = (int) Math.sqrt((cc.x - x2) * (cc.x - x2) + (cc.y - y2) * (cc.y - y2));
+			final int d = (int) Math.sqrt((cc.getX() - x2) * (cc.getX() - x2) +
+					(cc.getY() - y2) * (cc.getY() - y2));
 			return d <= s.getRadius();
-		} else if (cc.x >= x && cc.x <= x2 && cc.y >= y2) {
+		} else if (cc.getX() >= x && cc.getX() <= x2 && cc.getY() >= y2) {
 			// Bottom case.
-			final long d = cc.y - y2;
+			final long d = cc.getY() - y2;
 			return d <= s.getRadius();
-		} else if (cc.x < x && cc.y > y2) {
+		} else if (cc.getX() < x && cc.getY() > y2) {
 			// Bottom left case.
-			final int d = (int) Math.sqrt((cc.x - x) * (cc.x - x) + (cc.y - y2) * (cc.y - y2));
+			final int d = (int) Math.sqrt((cc.getX() - x) * (cc.getX() - x) + (cc.getY() - y2) * (cc.getY() - y2));
 			return d <= s.getRadius();
 		} else {
 			// Left case.
-			final long d = x - cc.x;
+			final long d = x - cc.getX();
 			return d <= s.getRadius();
 		}
 	}
@@ -105,7 +108,8 @@ final class CollisionHelper {
 	 * @return TRUE if they collide. FALSE otherwise.
 	 */
 	public static boolean collide(Circle c, Point v) {
-		final long distance = Math.abs(c.getCenter().x - v.x) + Math.abs(c.getCenter().y - v.y);
+		final long distance = Math.abs(c.getCenter().getX() - v.getX()) +
+				Math.abs(c.getCenter().getY() - v.getY());
 		return (distance <= c.getRadius());
 	}
 
@@ -137,8 +141,7 @@ final class CollisionHelper {
 	 * @return TRUE if they collide. FALSE otherwise.
 	 */
 	public static boolean collide(Circle s, Circle s2) {
-		final long distance = Math.abs(s.getCenter().x - s2.getCenter().x)
-				+ Math.abs(s.getCenter().y - s2.getCenter().y);
+		final double distance = s.getCenter().getDistance(s2.getCenter());
 		return (distance < s.getRadius() + s2.getRadius());
 	}
 
@@ -152,7 +155,7 @@ final class CollisionHelper {
 	 * @return TRUE if they collide. False otherwise.
 	 */
 	public static boolean collide(Point s, Point s2) {
-		return s.x == s2.x && s.y == s2.y;
+		return s.equals(s2);
 	}
 
 }

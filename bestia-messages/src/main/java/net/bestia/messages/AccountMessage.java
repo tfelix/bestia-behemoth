@@ -65,6 +65,8 @@ public abstract class AccountMessage extends Message {
 
 	@Override
 	public String toString() {
-		return String.format("Message[message id: %s, account id: %d]", getMessageId(), accountId);
+		return String.format("AccountMessage[message id: %s, account id: %d]", 
+				getMessageId(), 
+				accountId);
 	}
 }

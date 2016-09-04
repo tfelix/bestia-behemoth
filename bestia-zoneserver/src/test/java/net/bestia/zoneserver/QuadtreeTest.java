@@ -4,10 +4,10 @@ package net.bestia.zoneserver;
 import org.junit.Assert;
 import org.junit.Test;
 
+import net.bestia.model.shape.Collision;
+import net.bestia.model.shape.Point;
 import net.bestia.zoneserver.zone.entity.traits.Collidable;
 import net.bestia.zoneserver.zone.map.Quadtree;
-import net.bestia.zoneserver.zone.shape.Collision;
-import net.bestia.zoneserver.zone.shape.Point;
 
 public class QuadtreeTest {
 	
@@ -30,7 +30,7 @@ public class QuadtreeTest {
 		
 		@Override
 		public String toString() {
-			return String.format("Point[%d-%d]", p.x, p.y);
+			return p.toString();
 		}
 	}
 	

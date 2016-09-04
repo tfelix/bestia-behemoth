@@ -3,9 +3,9 @@ package net.bestia.zoneserver;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.bestia.model.zone.Size;
-import net.bestia.zoneserver.zone.map.TileProperties;
-import net.bestia.zoneserver.zone.map.Tileset;
+import net.bestia.model.map.TileProperties;
+import net.bestia.model.map.Tileset;
+import net.bestia.model.shape.Size;
 
 
 public class TilesetTest {

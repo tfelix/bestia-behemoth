@@ -39,12 +39,21 @@ public class CacheConfiguration {
 		return new CacheManager<>("cache.entity", cache);
 	}
 
+	/**
+	 * 
+	 * @return
+	 */
 	@Bean(name = CLIENT_CACHE)
 	public CacheManager<Long, VisibleEntity> getClientCache() {
 
 		return new CacheManager<>("cache.client", cache);
 	}
 
+	/**
+	 * Returns the cache holding the active bestia ids.
+	 * 
+	 * @return Cache of the active bestias of the player.
+	 */
 	@Bean(name = ACTIVE_BESTIA_CACHE)
 	public CacheManager<Long, Integer> getActiveBestiaCache() {
 

@@ -1,22 +1,44 @@
 package net.bestia.zoneserver;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 import akka.actor.ActorSystem;
-import akka.actor.Props;
-import net.bestia.server.AkkaCluster;
+import net.bestia.messages.Message;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 
 public class BestiaRoutingActorTest {
 
 	private ActorSystem system;
+	
+	private static class TestMessage extends Message {
+		
+		public final static String MESSAGE_ID = "testmessage";
+
+		@Override
+		public String getMessageId() {
+			return MESSAGE_ID;
+		}
+		
+	}
 
 	private static class TestBestiaRoutingActor extends BestiaRoutingActor {
 
 		public void testNull() {
 			addActor(null);
+		}
+
+		@Override
+		protected List<Class<? extends Message>> getHandledMessages() {
+			return Arrays.asList(TestMessage.class);
+		}
+
+		@Override
+		protected void handleMessage(Message msg) {
+			// TODO 
 		}
 	}
 

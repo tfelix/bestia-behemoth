@@ -11,12 +11,12 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bestia.model.zone.Point;
-import net.bestia.model.zone.Size;
+import net.bestia.model.map.Tile;
+import net.bestia.model.map.TileProperties;
+import net.bestia.model.map.Tileset;
+import net.bestia.model.shape.Point;
+import net.bestia.model.shape.Size;
 import net.bestia.zoneserver.service.MapService;
-import net.bestia.zoneserver.zone.map.Tile;
-import net.bestia.zoneserver.zone.map.TileProperties;
-import net.bestia.zoneserver.zone.map.Tileset;
 import tiled.core.MapLayer;
 import tiled.core.TileLayer;
 import tiled.core.TileSet;

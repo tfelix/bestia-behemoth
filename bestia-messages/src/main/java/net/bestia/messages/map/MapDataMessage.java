@@ -1,11 +1,15 @@
 package net.bestia.messages.map;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
+import net.bestia.messages.ClientMessage;
 import net.bestia.messages.Message;
-import net.bestia.model.zone.Size;
+import net.bestia.model.shape.Point;
+import net.bestia.model.shape.Size;
 
 /**
  * This message contains all needed information for the client to load and
@@ -14,29 +18,47 @@ import net.bestia.model.zone.Size;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MapDataMessage extends Message {
+public class MapDataMessage extends ClientMessage {
 
 	private static final long serialVersionUID = 1L;
 
 	public static final String MESSAGE_ID = "map.mapdata";
 
-	private List<List<Integer>> layers = new ArrayList<>();
-	private List<Boolean> walkable = new ArrayList<>();
-	private Size size;
+	private final List<Map<Point, Integer>> layers;
+	private final List<Integer> groundLayer;
+	private final Map<Point, Boolean> walkable;
+	private final List<String> tilesets;
+	private final Size size;
 
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
 	}
 
-	public MapDataMessage(Size size, List<List<Integer>> layers) {
+	public MapDataMessage(net.bestia.model.map.Map map) {
 
-		this.size = Objects.requireNonNull(size);
+		Objects.requireNonNull(map);
 
-		// Copy the maplayers.
-		for(List<Integer> layer : layers) {
-			this.layers.add(new ArrayList<Integer>(layer));
-		}
+		this.size = map.getSize();
+
+		this.tilesets = new ArrayList<>(map.getTilesetNames());
+		this.groundLayer = new ArrayList<>(map.getGroundLayer());
+		this.layers = map.getSparseLayers();
+		this.walkable = map.getSparseCollisionLayer();
+
+	}
+
+	public List<String> getTilesets() {
+		return tilesets;
+	}
+
+	/**
+	 * Returns the ids of the ground layer of this map.
+	 * 
+	 * @return
+	 */
+	public List<Integer> getGroundLayer() {
+		return groundLayer;
 	}
 
 	/**
@@ -45,7 +67,7 @@ public class MapDataMessage extends Message {
 	 * 
 	 * @return The list
 	 */
-	public List<List<Integer>> getLayer() {
+	public List<Map<Point, Integer>> getLayers() {
 		return layers;
 	}
 
@@ -63,7 +85,7 @@ public class MapDataMessage extends Message {
 	 * 
 	 * @return The list with walkable tiles.
 	 */
-	public List<Boolean> getWalkable() {
+	public Map<Point, Boolean> getWalkable() {
 		return walkable;
 	}
 }

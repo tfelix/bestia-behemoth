@@ -7,12 +7,12 @@ import net.bestia.model.domain.Element;
 import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.misc.Sprite;
-import net.bestia.model.zone.Point;
+import net.bestia.model.shape.Collision;
+import net.bestia.model.shape.Point;
 import net.bestia.zoneserver.zone.entity.traits.Attackable;
 import net.bestia.zoneserver.zone.entity.traits.Collidable;
 import net.bestia.zoneserver.zone.entity.traits.Locatable;
 import net.bestia.zoneserver.zone.entity.traits.Visible;
-import net.bestia.zoneserver.zone.shape.Collision;
 
 /**
  * <p>

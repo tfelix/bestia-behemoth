@@ -1,8 +1,9 @@
 package net.bestia.messages.map;
 
+import java.util.Objects;
 
-import net.bestia.messages.Message;
-import net.bestia.model.zone.Point;
+import net.bestia.messages.AccountMessage;
+import net.bestia.model.shape.Point;
 
 /**
  * The ECS is adviced to move the given entity on the map. This is an internal
@@ -11,29 +12,49 @@ import net.bestia.model.zone.Point;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MapMoveMessage extends Message {
+public class MapMoveMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 
 	public final static String MESSAGE_ID = "map.move";
-	
+
 	private Point target;
-	
+
+	/**
+	 * Ctor.
+	 */
 	public MapMoveMessage() {
-		
+
 	}
-	
-	public MapMoveMessage(long accId, int playerBestiaId) {
-		
+
+	/**
+	 * Ctor. With account ID and target point to move the active bestia to.
+	 * 
+	 * @param accId
+	 *            Account id
+	 * @param target
+	 *            The target to move the active bestia from this account.
+	 */
+	public MapMoveMessage(long accId, Point target) {
+		super(accId);
+		this.target = Objects.requireNonNull(target);
 	}
-	
+
+	/**
+	 * Sets the position to which the bestia will be moved.
+	 * 
+	 * @param target
+	 *            The position to move the bestia to.
+	 */
 	public void setTarget(Point target) {
-		if(target == null) {
-			throw new IllegalArgumentException("Target can not be null.");
-		}
-		this.target = target;
+		this.target = Objects.requireNonNull(target);
 	}
-	
+
+	/**
+	 * Gets the point on which the bestia should be moved.
+	 * 
+	 * @return The point to which the bestia is moved.
+	 */
 	public Point getTarget() {
 		return target;
 	}

@@ -2,7 +2,7 @@ package net.bestia.zoneserver.zone.map.spawn;
 
 import java.util.Random;
 
-import net.bestia.zoneserver.zone.shape.Point;
+import net.bestia.model.shape.Point;
 
 /**
  * The {@link Spawner} manages data for the mob to spawn, the spawn delay and

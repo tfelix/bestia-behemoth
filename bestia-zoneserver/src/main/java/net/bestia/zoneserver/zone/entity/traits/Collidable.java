@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.zone.entity.traits;
 
-import net.bestia.zoneserver.zone.shape.Collision;
+import net.bestia.model.shape.Collision;
 
 public interface Collidable {
 	

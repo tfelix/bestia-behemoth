@@ -1,10 +1,10 @@
-package net.bestia.zoneserver.zone.map;
+package net.bestia.model.map;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Objects;
 
-import net.bestia.model.zone.Size;
+import net.bestia.model.shape.Size;
 
 /**
  * Data of a tileset which is used by the bestia map creation. It holds all
@@ -21,7 +21,7 @@ public class Tileset implements Serializable {
 	private final String name;
 	private final int firstGID;
 	private final Size tilesetSize;
-	private final int tileCount;
+	private final long tileCount;
 
 	private final java.util.Map<Integer, TileProperties> tileProperties = new HashMap<>();
 
@@ -31,8 +31,8 @@ public class Tileset implements Serializable {
 		this.tilesetSize = Objects.requireNonNull(size);
 		this.firstGID = firstGID;
 
-		final int tileCountX = tilesetSize.getWidth() / TILE_SIZE.getWidth();
-		final int tileCountY = tilesetSize.getHeight() / TILE_SIZE.getHeight();
+		final long tileCountX = tilesetSize.getWidth() / TILE_SIZE.getWidth();
+		final long tileCountY = tilesetSize.getHeight() / TILE_SIZE.getHeight();
 		tileCount = tileCountX * tileCountY;
 	}
 

@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.zone.shape;
+package net.bestia.model.shape;
 
 import java.util.Objects;
 
@@ -9,15 +9,11 @@ import java.util.Objects;
  * @author Thomas Felix <thoams.felix@tfelix.de>
  *
  */
-public class Rect implements Collision {
+public final class Rect implements Collision {
 
-	private final long x;
-	private final long y;
-	private final long width;
-	private final long height;
-
-	private final long anchorX;
-	private final long anchorY;
+	private final Point origin;
+	private final Size size;
+	private final Point anchor;
 
 	/**
 	 * Ctor. Createa a bounding box at x and y equals 0. The anchor is set
@@ -29,35 +25,20 @@ public class Rect implements Collision {
 	 *            Height
 	 */
 	public Rect(long width, long height) {
-		this.x = 0;
-		this.y = 0;
-		this.width = width;
-		this.height = height;
+		this.origin = new Point(0, 0);
+		checkNotNegative(width, height);
+		this.size = new Size(width, height);
 
-		this.anchorX = width / 2;
-		this.anchorY = height / 2;
+		this.anchor = new Point(width / 2, height / 2);
 	}
 
 	public Rect(long x, long y, long width, long height, long anchorX, long anchorY) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
-
 		checkNotNegative(width, height);
 		checkAnchor(anchorX, anchorY);
 
-		this.anchorX = anchorX;
-		this.anchorY = anchorY;
-	}
-	
-	private void checkAnchor(long aX, long aY) {
-		if (aX < x || aX > x + width) {
-			throw new IllegalArgumentException("X must be inside the rectangle.");
-		}
-		if (aY < y || aY > y + height) {
-			throw new IllegalArgumentException("Y must be inside the rectangle.");
-		}
+		this.origin = new Point(0, 0);
+		this.size = new Size(width, height);
+		this.anchor = new Point(anchorX, anchorY);
 	}
 
 	/**
@@ -69,25 +50,21 @@ public class Rect implements Collision {
 	 * @param height
 	 */
 	public Rect(long x, long y, long width, long height) {
-		this.x = x;
-		this.y = y;
-
 		checkNotNegative(width, height);
 
-		this.width = width;
-		this.height = height;
-
-		this.anchorX = x + width / 2;
-		this.anchorY = y + height / 2;
+		this.origin = new Point(0, 0);
+		this.size = new Size(width, height);
+		this.anchor = new Point(width / 2, height / 2);
 	}
 
-	/*
-	 * public Rect(Vector2 s, Vector2 size) { this.x = s.x; this.y = s.y;
-	 * 
-	 * checkNotNegative(size.x, size.y);
-	 * 
-	 * this.width = size.x; this.height = size.y; }
-	 */
+	private void checkAnchor(long aX, long aY) {
+		if (aX < origin.getX() || aX > origin.getX() + size.getWidth()) {
+			throw new IllegalArgumentException("X must be inside the rectangle.");
+		}
+		if (aY < origin.getY() || aY > origin.getY() + size.getHeight()) {
+			throw new IllegalArgumentException("Y must be inside the rectangle.");
+		}
+	}
 
 	private void checkNotNegative(long width, long height) {
 		if (width < 0) {
@@ -100,12 +77,12 @@ public class Rect implements Collision {
 
 	@Override
 	public String toString() {
-		return String.format("Dimension[x: %d, y: %d, width: %d, height: %d]", x, y, width, height);
+		return String.format("Rect[origin: %s, size: %s]", origin.toString(), size.toString());
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(width, height, x, y);
+		return Objects.hash(origin, size, anchor);
 	}
 
 	@Override
@@ -115,7 +92,7 @@ public class Rect implements Collision {
 		}
 
 		Rect p = (Rect) o;
-		return width == p.width && height == p.height && x == p.x && y == p.y;
+		return size.equals(p.size) && origin.equals(p.origin) && anchor.equals(p.anchor);
 	}
 
 	/**
@@ -124,7 +101,7 @@ public class Rect implements Collision {
 	 * @return Width.
 	 */
 	public long getWidth() {
-		return width;
+		return size.getWidth();
 	}
 
 	/**
@@ -133,7 +110,7 @@ public class Rect implements Collision {
 	 * @return Height.
 	 */
 	public long getHeight() {
-		return height;
+		return size.getHeight();
 	}
 
 	/**
@@ -142,7 +119,7 @@ public class Rect implements Collision {
 	 * @return x
 	 */
 	public long getX() {
-		return x;
+		return origin.getX();
 	}
 
 	/**
@@ -151,7 +128,7 @@ public class Rect implements Collision {
 	 * @return y
 	 */
 	public long getY() {
-		return y;
+		return origin.getY();
 	}
 
 	/**
@@ -188,13 +165,13 @@ public class Rect implements Collision {
 
 	@Override
 	public Point getAnchor() {
-		return new Point(anchorX, anchorY);
+		return anchor;
 	}
 
 	@Override
 	public Collision moveByAnchor(int x, int y) {
-		final long dX = x - getAnchor().x;
-		final long dY = y - getAnchor().y;
+		final long dX = x - getAnchor().getX();
+		final long dY = y - getAnchor().getY();
 
 		final long cX = getX() + dX;
 		final long cY = getY() + dY;

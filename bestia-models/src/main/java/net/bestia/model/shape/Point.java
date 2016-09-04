@@ -1,9 +1,9 @@
-package net.bestia.zoneserver.zone.shape;
+package net.bestia.model.shape;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import net.bestia.model.domain.Position;
-
 
 /**
  * 2D Point. Immutable. Used as coordinates in various systems.
@@ -11,20 +11,16 @@ import net.bestia.model.domain.Position;
  * @author Thomas Felix <thoams.felix@tfelix.de>
  *
  */
-public class Point implements Collision {
+public final class Point implements Collision, Serializable {
 
-	public final long x;
-	public final long y;
+	private static final long serialVersionUID = 1L;
 
-	private final long anchorX;
-	private final long anchorY;
+	private final long x;
+	private final long y;
 
 	public Point(long x, long y) {
 		this.x = x;
 		this.y = y;
-
-		this.anchorX = x;
-		this.anchorY = y;
 	}
 
 	public String toString() {
@@ -45,6 +41,24 @@ public class Point implements Collision {
 		// No need to check for anchor since it should be the same as x and y.
 		Point p = (Point) o;
 		return x == p.x && y == p.y;
+	}
+
+	/**
+	 * The X coordinate of this point.
+	 * 
+	 * @return X
+	 */
+	public long getX() {
+		return x;
+	}
+
+	/**
+	 * The Y coordinate of this point.
+	 * 
+	 * @return Y
+	 */
+	public long getY() {
+		return y;
 	}
 
 	@Override
@@ -74,7 +88,7 @@ public class Point implements Collision {
 
 	@Override
 	public Point getAnchor() {
-		return new Point(anchorX, anchorY);
+		return this;
 	}
 
 	@Override
@@ -92,6 +106,17 @@ public class Point implements Collision {
 	 */
 	public static Point fromPosition(Position loc) {
 		return new Point(loc.getX(), loc.getY());
+	}
+
+	/**
+	 * Returns the euclidian distance to the other point p.
+	 * 
+	 * @param p
+	 *            The other point to calculate the euclidian distance.
+	 * @return The distance from this point to the given point p.
+	 */
+	public double getDistance(Point p) {
+		return Math.sqrt(Math.abs(getX() - p.getX()) + Math.abs(getY() - p.getY()));
 	}
 
 }

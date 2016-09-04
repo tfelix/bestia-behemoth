@@ -2,7 +2,7 @@ package net.bestia.zoneserver.zone.map.path;
 
 import java.util.List;
 
-import net.bestia.zoneserver.zone.shape.Point;
+import net.bestia.model.shape.Point;
 
 /**
  * Interface for path calculation algorithms used by the bestia game.

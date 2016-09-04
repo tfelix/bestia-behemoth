@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.generator.map;
 
-import net.bestia.model.zone.Size;
+import net.bestia.model.shape.Size;
 
 /**
  * Calculates the size of the map depending on the average active user count.
