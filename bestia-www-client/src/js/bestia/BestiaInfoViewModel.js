@@ -1,11 +1,12 @@
 /**
- * @author       Thomas Felix <thomas.felix@tfelix.de>
- * @copyright    2015 Thomas Felix
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @copyright 2015 Thomas Felix
  */
 
 import Signal from '../io/Signal.js';
 import BestiaViewModel from './BestiaViewModel.js';
 import MID from '../io/messages/MID.js';
+import Message from '../io/messages/Message.js';
 
 /**
  * Holds complete overview of all selected bestias.
@@ -62,8 +63,18 @@ export default class BestiaInfoViewModel {
 		this.slots = ko.observable(0);
 	
 		// Register for messages from the server.
+		pubsub.subscribe(Signal.IO_CONNECTED, this._handleConnected.bind(this));
 		pubsub.subscribe(MID.BESTIA_INFO, this._handleOnMessage.bind(this));
 		pubsub.subscribe(MID.BESTIA_ACTIVATED, this._handleOnActivate.bind(this));
+	}
+	
+	/**
+	 * Is triggered when there is a new connection established. We must ask the
+	 * server for the bestias to display in here.
+	 */
+	_handleConnected() {
+		var msg = new Message.BestiaInfo();
+		this._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 	}
 	
 	_handleOnActivate(_, msg) {

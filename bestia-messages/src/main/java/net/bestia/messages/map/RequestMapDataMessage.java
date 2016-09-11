@@ -13,6 +13,32 @@ public class RequestMapDataMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "map.requestdata";
+	
+	private int patchX;
+	private int patchY;
+	
+	public RequestMapDataMessage() {
+		this.patchX = 0;
+		this.patchY = 0;
+	}
+	
+	public RequestMapDataMessage(int x, int y) {
+		this.patchX = x;
+		this.patchY = y;
+	}
+	
+	public int getPatchX() {
+		return patchX;
+	}
+	
+	public int getPatchY() {
+		return patchY;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("RequestMapDataMessage[patchX: %d, patchY: %d]", patchX, patchY);
+	}
 
 	@Override
 	public String getMessageId() {

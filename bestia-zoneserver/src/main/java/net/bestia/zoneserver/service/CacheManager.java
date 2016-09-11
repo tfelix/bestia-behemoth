@@ -48,6 +48,24 @@ public class CacheManager<K, V> {
 	}
 
 	/**
+	 * Returns the value V for the given key K. A default value can be given
+	 * which will be returned if the value was not found inside the cache.
+	 * 
+	 * @param key
+	 *            The key to retrive.
+	 * @return The object stored under this key, or null.
+	 */
+	public V get(K key, V def) {
+		final Map<K, V> objects = cache.getMap(cacheKey);
+		
+		if(!objects.containsKey(key)) {
+			return def;
+		}
+		
+		return objects.get(key);
+	}
+
+	/**
 	 * Removes a object with the key K.
 	 * 
 	 * @param key

@@ -193,12 +193,6 @@ export default class Connection {
 		if(msg.mid === MID.SYSTEM_AUTHREPLY && msg.s === 'ACCEPTED') {
 			this._isAuthenticated = true;
 			this._pubsub.publish(Signal.IO_CONNECTED);
-			
-			// TODO Entfernen.
-			var msg2 = {
-				mid: 'inventory.request.list'
-			};
-			this._socket.send(JSON.stringify(msg2));
 		}
 	}
 

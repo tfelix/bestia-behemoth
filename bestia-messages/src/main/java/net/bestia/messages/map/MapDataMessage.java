@@ -26,13 +26,18 @@ public class MapDataMessage extends ClientMessage {
 
 	private final List<Map<Point, Integer>> layers;
 	private final List<Integer> groundLayer;
-	private final Map<Point, Boolean> walkable;
-	private final List<String> tilesets;
 	private final Size size;
 
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
+	}
+	
+	public MapDataMessage() {
+
+		layers = Collections.emptyList();
+		groundLayer = Collections.emptyList();
+		size = new Size(0, 0);
 	}
 
 	public MapDataMessage(net.bestia.model.map.Map map) {
@@ -41,15 +46,8 @@ public class MapDataMessage extends ClientMessage {
 
 		this.size = map.getSize();
 
-		this.tilesets = new ArrayList<>(map.getTilesetNames());
 		this.groundLayer = new ArrayList<>(map.getGroundLayer());
 		this.layers = map.getSparseLayers();
-		this.walkable = map.getSparseCollisionLayer();
-
-	}
-
-	public List<String> getTilesets() {
-		return tilesets;
 	}
 
 	/**
@@ -78,14 +76,5 @@ public class MapDataMessage extends ClientMessage {
 	 */
 	public Size getSize() {
 		return size;
-	}
-
-	/**
-	 * Returns the list with walkable tiles.
-	 * 
-	 * @return The list with walkable tiles.
-	 */
-	public Map<Point, Boolean> getWalkable() {
-		return walkable;
 	}
 }

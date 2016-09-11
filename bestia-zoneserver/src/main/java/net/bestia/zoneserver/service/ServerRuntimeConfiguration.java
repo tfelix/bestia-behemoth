@@ -28,7 +28,7 @@ public class ServerRuntimeConfiguration extends CacheManager<String, Object> {
 	 * @return TRUE if the server is in maintenance mode. FALSE otherwise.
 	 */
 	public boolean isMaintenanceMode() {
-		return (Boolean) get("serverMaintenanceMode");
+		return (Boolean) get("serverMaintenanceMode", false);
 	}
 
 	/**
