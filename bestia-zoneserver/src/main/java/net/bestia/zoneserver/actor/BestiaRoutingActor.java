@@ -1,10 +1,12 @@
 package net.bestia.zoneserver.actor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -14,6 +16,7 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import net.bestia.messages.Message;
 import net.bestia.messages.MessageId;
+import net.bestia.messages.internal.ReportHandledMessages;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
 
 /**
@@ -28,27 +31,6 @@ import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
 @Component
 @Scope("prototype")
 public abstract class BestiaRoutingActor extends UntypedActor {
-
-	public static class ReportHandledMessages {
-	};
-
-	public static class HandledMessages {
-
-		private List<Class<? extends Message>> handledMessages = new ArrayList<>();
-
-		/**
-		 * 
-		 * @param handledMessages
-		 */
-		public HandledMessages(List<Class<? extends Message>> handledMessages) {
-			Objects.requireNonNull(handledMessages);
-			this.handledMessages.addAll(handledMessages);
-		}
-
-		public List<Class<? extends Message>> getHandledMessages() {
-			return handledMessages;
-		}
-	}
 
 	private Map<Class<? extends Message>, List<ActorRef>> messageRoutes = new HashMap<>();
 
@@ -66,82 +48,75 @@ public abstract class BestiaRoutingActor extends UntypedActor {
 		final SpringExt springExt = SpringExtension.Provider.get(getContext().system());
 		final Props props = springExt.props(clazz);
 		final ActorRef newActor = getContext().actorOf(props, name);
-		addActor(newActor);
 
 		return newActor;
 	}
 
 	/**
-	 * Must be called if a actor is created inside this actor. This method will
-	 * ask this actor which messages he can handle and save the router for later
-	 * processing.
-	 * 
-	 * @param actor
-	 */
-	protected void addActor(ActorRef actor) {
-		Objects.requireNonNull(actor);
-
-		// Ask the actor which messages he can handle.
-		actor.tell(new ReportHandledMessages(), getSelf());
-	}
-
-	/**
 	 * Returns a list of handled message ids by this actor. They will get routed
-	 * via its parent actor.
+	 * via its parent actor. Via default the {@link BestiaRoutingActor} does not
+	 * handle any messages on its own.
 	 * 
 	 * @return A list of message IDs handled by this actor.
 	 */
-	protected abstract List<Class<? extends Message>> getHandledMessages();
+	protected Set<Class<? extends Message>> getHandledMessages() {
+		return Collections.emptySet();
+	}
 
 	/**
-	 * If a message belongs to ourself
+	 * If a message is handled by this implementation of the routing actor the
+	 * method is getting called.
 	 * 
 	 * @param msg
 	 */
-	protected abstract void handleMessage(MessageId msg);
+	protected abstract void handleMessage(Object msg);
+
+	/**
+	 * Reports to the parent which messages are handled by us.
+	 */
+	@Override
+	public void postRestart(Throwable reason) throws Exception {
+		super.postRestart(reason);
+
+		final ReportHandledMessages msg = new ReportHandledMessages(getHandledMessages());
+		getContext().parent().tell(msg, getSelf());
+	}
 
 	@Override
 	public void onReceive(Object message) throws Exception {
+		
+		boolean handled = false;
 
 		if (message instanceof ReportHandledMessages) {
-			// Report back with all me messages we can handle. This means the
-			// message THIS actor can handle, as well as all the messages the
-			// child actor can handle.
-			final List<Class<? extends Message>> ownHandledMsgs = getHandledMessages();
-			ownHandledMsgs.addAll(messageRoutes.keySet());
-			getSender().tell(new HandledMessages(ownHandledMsgs), getSelf());
-
-		} else if (message instanceof HandledMessages) {
-			final HandledMessages msg = (HandledMessages) message;
-
-			// Add this actor ref to our routes.
-			msg.getHandledMessages().forEach(x -> {
-
-				if (!messageRoutes.containsKey(x)) {
-					messageRoutes.put(x, new ArrayList<>());
-				}
-
-				messageRoutes.get(x).add(getSender());
-			});
-		} else {
-			// Check if one of our routes can handle the message.
-			boolean wasHandled = false;
-
-			if (messageRoutes.containsKey(message.getClass())) {
-				wasHandled = true;
-				final List<ActorRef> refs = messageRoutes.get(message.getClass());
-				refs.forEach(x -> x.tell(message, getSender()));
-			}
-
-			// Check if WE can handle this message by ourself.
-			if (getHandledMessages().contains(message.getClass())) {
-				wasHandled = true;
-				handleMessage((MessageId) message);
-			}
-
-			if (!wasHandled) {
-				unhandled(message);
-			}
+			addHandledRoutes((ReportHandledMessages) message);
+			handled = true;
 		}
+		
+		if(getHandledMessages().contains(message.getClass())) {
+			handleMessage(message);
+			handled = true;
+		}
+
+		// Check if we have hild actor handling the incoming message.
+		if (messageRoutes.containsKey(message.getClass())) {
+			messageRoutes.get(message.getClass()).forEach(x -> x.tell(message, getSender()));
+			handled = true;
+		}
+		
+		if(!handled) {
+			unhandled(message);
+		}
+	}
+
+	/**
+	 * Adds the incoming message routes to the system.
+	 */
+	private void addHandledRoutes(ReportHandledMessages message) {
+		message.getHandledMessages().forEach(x -> {
+			if (!messageRoutes.containsKey(x)) {
+				messageRoutes.put(x, new ArrayList<>());
+			}
+			messageRoutes.get(x).add(getSender());
+		});
 	}
 }
