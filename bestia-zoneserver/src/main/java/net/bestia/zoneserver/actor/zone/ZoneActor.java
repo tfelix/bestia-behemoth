@@ -16,9 +16,9 @@ import akka.cluster.singleton.ClusterSingletonProxy;
 import akka.cluster.singleton.ClusterSingletonProxySettings;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.Message;
+import net.bestia.messages.MessageId;
+import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.messages.login.LoginAuthMessage;
-import net.bestia.messages.system.StartInitMessage;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
@@ -94,13 +94,13 @@ public class ZoneActor extends UntypedActor {
 			return;
 		}
 
-		if (!(message instanceof Message)) {
+		if (!(message instanceof MessageId)) {
 			unhandled(message);
 			LOG.warning("Zone received unknown message: {}", message);
 			return;
 		}
 
-		final Message msg = (Message) message;
+		final MessageId msg = (MessageId) message;
 
 		switch (msg.getMessageId()) {
 		case LoginAuthMessage.MESSAGE_ID:

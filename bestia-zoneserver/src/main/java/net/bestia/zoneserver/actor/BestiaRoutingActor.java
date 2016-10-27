@@ -13,6 +13,7 @@ import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import net.bestia.messages.Message;
+import net.bestia.messages.MessageId;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
 
 /**
@@ -97,7 +98,7 @@ public abstract class BestiaRoutingActor extends UntypedActor {
 	 * 
 	 * @param msg
 	 */
-	protected abstract void handleMessage(Message msg);
+	protected abstract void handleMessage(MessageId msg);
 
 	@Override
 	public void onReceive(Object message) throws Exception {
@@ -135,7 +136,7 @@ public abstract class BestiaRoutingActor extends UntypedActor {
 			// Check if WE can handle this message by ourself.
 			if (getHandledMessages().contains(message.getClass())) {
 				wasHandled = true;
-				handleMessage((Message) message);
+				handleMessage((MessageId) message);
 			}
 
 			if (!wasHandled) {

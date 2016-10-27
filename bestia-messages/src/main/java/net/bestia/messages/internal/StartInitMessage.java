@@ -1,6 +1,4 @@
-package net.bestia.messages.system;
-
-import net.bestia.messages.SystemMessage;
+package net.bestia.messages.internal;
 
 public class StartInitMessage extends SystemMessage {
 

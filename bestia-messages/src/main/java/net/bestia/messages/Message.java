@@ -16,7 +16,7 @@ import net.bestia.messages.jackson.MessageTypeIdResolver;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "mid")
 @JsonTypeIdResolver(MessageTypeIdResolver.class)
-public abstract class Message implements Serializable {
+public abstract class Message implements Serializable, MessageId {
 
 	private static final long serialVersionUID = 2015052401L;
 
@@ -24,13 +24,10 @@ public abstract class Message implements Serializable {
 		// no op.
 	}
 
-	/**
-	 * Returns the id of this message. The same id is used on the client to
-	 * trigger events which have subscribed for the arrival of this kind of
-	 * messages.
-	 * 
-	 * @return Event name to be triggered on the client.
+	/* (non-Javadoc)
+	 * @see net.bestia.messages.MessageId#getMessageId()
 	 */
+	@Override
 	@JsonTypeId
 	public abstract String getMessageId();
 

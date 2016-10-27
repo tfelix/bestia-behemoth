@@ -7,7 +7,7 @@ import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.system.StartInitMessage;
+import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
 import net.bestia.zoneserver.actor.map.LoadMapFileActor;

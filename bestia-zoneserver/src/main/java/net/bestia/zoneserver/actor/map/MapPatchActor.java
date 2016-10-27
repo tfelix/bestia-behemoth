@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
 import net.bestia.messages.Message;
+import net.bestia.messages.MessageId;
 import net.bestia.messages.map.MapDataMessage;
 import net.bestia.messages.map.RequestMapDataMessage;
 import net.bestia.model.map.Map;
@@ -70,7 +71,7 @@ public class MapPatchActor extends BestiaRoutingActor {
 	}
 
 	@Override
-	protected void handleMessage(Message msg) {
+	protected void handleMessage(MessageId msg) {
 
 		final RequestMapDataMessage req = (RequestMapDataMessage) msg;
 		final long accId = req.getAccountId();

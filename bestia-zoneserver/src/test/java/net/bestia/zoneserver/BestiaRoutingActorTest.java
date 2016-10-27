@@ -8,6 +8,7 @@ import org.junit.BeforeClass;
 
 import akka.actor.ActorSystem;
 import net.bestia.messages.Message;
+import net.bestia.messages.MessageId;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 
 public class BestiaRoutingActorTest {
@@ -37,7 +38,7 @@ public class BestiaRoutingActorTest {
 		}
 
 		@Override
-		protected void handleMessage(Message msg) {
+		protected void handleMessage(MessageId msg) {
 			// TODO 
 		}
 	}

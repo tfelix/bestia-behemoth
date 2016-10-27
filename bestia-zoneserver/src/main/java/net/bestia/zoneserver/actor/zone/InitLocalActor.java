@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.system.StartInitMessage;
+import net.bestia.messages.internal.StartInitMessage;
 
 /**
  * The {@link InitLocalActor} will only prepare the locally important data for

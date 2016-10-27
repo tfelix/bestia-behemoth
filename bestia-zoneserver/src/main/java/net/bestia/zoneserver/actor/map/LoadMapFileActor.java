@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.system.StartInitMessage;
+import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.zoneserver.generator.map.MapGenerator;
 import net.bestia.zoneserver.generator.map.TmxMapGenerator;
 import net.bestia.zoneserver.service.MapService;

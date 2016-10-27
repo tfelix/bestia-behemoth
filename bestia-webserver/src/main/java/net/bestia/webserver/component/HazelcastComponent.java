@@ -11,15 +11,8 @@ import com.hazelcast.core.HazelcastInstance;
 public class HazelcastComponent {
 
 	@Bean
-	public ClientConfig clientConfig() {
-		
+	public HazelcastInstance client() {
 		final ClientConfig clientConfig = new ClientConfig();
-		return clientConfig;
-	}
-
-	@Bean
-	public HazelcastInstance client(ClientConfig clientConfig) {
-		
 		final HazelcastInstance client = HazelcastClient.newHazelcastClient(clientConfig);
 		return client;
 	}
