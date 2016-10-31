@@ -168,16 +168,23 @@ public class MessageHandlerActor extends UntypedActor {
 		} catch (IOException e1) {
 			// no op.
 		}
-		
-		// If we were connected, disconnect from the server.
-		final ClientConnectionStatusMessage ccsmsg = new ClientConnectionStatusMessage(
-				accountId,
-				ConnectionState.DISCONNECTED,
-				getSelf());
-		mediator.tell(getClusterMessage(ccsmsg), getSelf());
-		
+
 		// Kill ourself.
 		getSelf().tell(PoisonPill.getInstance(), getSelf());
+	}
+
+	@Override
+	public void postStop() throws Exception {
+		super.postStop();
+
+		// If we were connected, disconnect from the server.
+		if (accountId != 0) {
+			final ClientConnectionStatusMessage ccsmsg = new ClientConnectionStatusMessage(
+					accountId,
+					ConnectionState.DISCONNECTED,
+					getSelf());
+			mediator.tell(getClusterMessage(ccsmsg), getSelf());
+		}
 	}
 
 	/**

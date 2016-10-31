@@ -53,8 +53,13 @@ public class LoginActor extends BestiaRoutingActor {
 		this.config = config;
 	}
 
-	private void respond(LoginAuthMessage msg, LoginState state) {
+	private void respond(LoginAuthMessage msg, LoginState state, Account acc) {
 		final LoginAuthReplyMessage response = new LoginAuthReplyMessage(state);
+		
+		if(acc != null) {
+			response.setAccountId(acc.getId());
+		}
+		
 		getSender().tell(response, getSelf());
 	}
 	
@@ -71,7 +76,7 @@ public class LoginActor extends BestiaRoutingActor {
 		
 		if(config.isMaintenanceMode()) {
 			// We only allow server admins to be online during a maintenance.
-			respond(loginMsg, LoginState.DENIED);
+			respond(loginMsg, LoginState.DENIED, null);
 			return;
 		}
 
@@ -79,14 +84,14 @@ public class LoginActor extends BestiaRoutingActor {
 		final Account acc = accountDao.findOne(loginMsg.getAccountId());
 
 		if (acc == null) {
-			respond(loginMsg, LoginState.DENIED);
+			respond(loginMsg, LoginState.DENIED, null);
 			return;
 		}
 
 		if (acc.getLoginToken().equals(loginMsg.getToken())) {
-			respond(loginMsg, LoginState.ACCEPTED);
+			respond(loginMsg, LoginState.ACCEPTED, acc);
 		} else {
-			respond(loginMsg, LoginState.DENIED);
+			respond(loginMsg, LoginState.DENIED, null);
 		}
 	}
 

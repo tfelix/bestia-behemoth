@@ -10,7 +10,7 @@ public class ClientConnectionStatusMessage extends AccountMessage {
 	private static final long serialVersionUID = 1L;
 
 	public static enum ConnectionState {
-		CONNECTED, DISCONNECTED
+		CONNECTED, DISCONNECTED, UNKNOWN
 	}
 
 	private final ConnectionState state;
@@ -20,7 +20,7 @@ public class ClientConnectionStatusMessage extends AccountMessage {
 	 * Std. ctor (necessairy for Jackson).
 	 */
 	public ClientConnectionStatusMessage() {
-		state = null;
+		state = ConnectionState.UNKNOWN;
 		webserverRef = null;
 	}
 
@@ -39,7 +39,7 @@ public class ClientConnectionStatusMessage extends AccountMessage {
 	}
 
 	@Override
-	public String getMessageId() {
+	public String toString() {
 		return String.format("ClientConnectionStatusMessage[status: %s]", state.toString());
 	}
 }
