@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class BestiaVersion {
+public final class BestiaVersion {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BestiaVersion.class);
 	private final Properties properties = new Properties();

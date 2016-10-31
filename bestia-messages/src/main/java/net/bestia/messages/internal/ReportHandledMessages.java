@@ -40,7 +40,7 @@ public class ReportHandledMessages {
 	 */
 	public ReportHandledMessages(ReportHandledMessages parent, Set<Class<? extends Message>> handledMessages) {
 		Objects.requireNonNull(handledMessages);
-		
+
 		this.handledMessages.addAll(handledMessages);
 		this.handledMessages.addAll(parent.getHandledMessages());
 	}
@@ -53,5 +53,10 @@ public class ReportHandledMessages {
 	 */
 	public Collection<Class<? extends Message>> getHandledMessages() {
 		return Collections.unmodifiableCollection(handledMessages);
+	}
+
+	@Override
+	public String toString() {
+		return String.format("ReportHandledMessages[handles: %s]", handledMessages.toString());
 	}
 }

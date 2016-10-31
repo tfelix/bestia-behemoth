@@ -9,5 +9,4 @@ public final class AkkaCluster {
 	private AkkaCluster() {
 		
 	}
-
 }

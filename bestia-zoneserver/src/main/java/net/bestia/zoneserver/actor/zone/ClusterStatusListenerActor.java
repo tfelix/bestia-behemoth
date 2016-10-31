@@ -14,7 +14,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 
 /**
- * Logs information about the behemoth cluster.
+ * Logs information about the whole behemoth cluster.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *

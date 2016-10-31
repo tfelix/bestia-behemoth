@@ -26,22 +26,7 @@ public class BestiaRoutingActorTest {
 		
 	}
 
-	private static class TestBestiaRoutingActor extends BestiaRoutingActor {
 
-		public void testNull() {
-			addActor(null);
-		}
-
-		@Override
-		protected List<Class<? extends Message>> getHandledMessages() {
-			return Arrays.asList(TestMessage.class);
-		}
-
-		@Override
-		protected void handleMessage(MessageId msg) {
-			// TODO 
-		}
-	}
 
 	@BeforeClass
 	public void setup() {

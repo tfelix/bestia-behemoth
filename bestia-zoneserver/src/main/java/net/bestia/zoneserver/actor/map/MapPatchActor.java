@@ -62,9 +62,16 @@ public class MapPatchActor extends BestiaRoutingActor {
 	public void preStart() throws Exception {
 		super.preStart();
 
-		this.responseActor = createAndRegisterActor(SendResponseActor.class, "responder");
+		this.responseActor = createActor(SendResponseActor.class, "responder");
 	}
 
+	@Override
+	protected void handleMessage(Object msg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/*
 	@Override
 	protected List<Class<? extends Message>> getHandledMessages() {
 		return Arrays.asList(RequestMapDataMessage.class);
@@ -94,5 +101,5 @@ public class MapPatchActor extends BestiaRoutingActor {
 		//final MapDataMessage mapData = new MapDataMessage(map.getSize(), );
 		//responseActor.tell(mapData, getSelf());
 	}
-
+*/
 }

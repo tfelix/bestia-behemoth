@@ -17,12 +17,14 @@ import akka.cluster.singleton.ClusterSingletonProxySettings;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.MessageId;
+import net.bestia.messages.chat.ChatMessage;
 import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
 import net.bestia.zoneserver.actor.login.LoginActor;
+import net.bestia.zoneserver.actor.test.RoutingRootTest;
 import net.bestia.zoneserver.actor.zone.InitLocalActor.LocalInitDone;
 
 /**
@@ -41,6 +43,8 @@ public class ZoneActor extends UntypedActor {
 
 	private final ActorRef loginActor;
 	private ActorRef localInitActor;
+	
+	private ActorRef testActor;
 
 	public ZoneActor() {
 
@@ -53,13 +57,13 @@ public class ZoneActor extends UntypedActor {
 		// Setup the init actor singelton for creation of the system.
 		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
 		final Props globalInitProps = springExt.props(InitGlobalActor.class);
-		system.actorOf(ClusterSingletonManager.props(globalInitProps, PoisonPill.getInstance(), settings),
-				"globalInit");
+		Props clusterProbs = ClusterSingletonManager.props(globalInitProps, PoisonPill.getInstance(), settings);
+		system.actorOf(clusterProbs, "globalInit");
 
-		// Try to do the global init if it has not been done before. final
-		ClusterSingletonProxySettings proxySettings = ClusterSingletonProxySettings.create(system);
-		final ActorRef initProxy = system.actorOf(ClusterSingletonProxy.props("/user/globalInit", proxySettings),
-				"globalInitProxy");
+		// Try to do the global init if it has not been done before.
+		final ClusterSingletonProxySettings proxySettings = ClusterSingletonProxySettings.create(system);
+		clusterProbs = ClusterSingletonProxy.props("/user/globalInit", proxySettings);
+		final ActorRef initProxy = system.actorOf(clusterProbs, "globalInitProxy");
 		initProxy.tell(new StartInitMessage(), getSelf());
 
 		// Do the local init like loading scripts. When this is finished we can
@@ -71,6 +75,17 @@ public class ZoneActor extends UntypedActor {
 		// Some utility actors.
 		Props props = springExt.props(ClusterStatusListenerActor.class);
 		getContext().actorOf(props, "clusterStatusListener");
+		
+		// This is for testing.
+		// === Test Actor ===
+		final Props testProps = springExt.props(RoutingRootTest.class);
+		testActor = getContext().actorOf(testProps, "test");
+		final ChatMessage chat = new ChatMessage();
+		chat.setChatMessageId(1);
+		chat.setChatMode(ChatMessage.Mode.PUBLIC);
+		chat.setSenderNickname("bla");
+		chat.setText("Hello World");
+		testActor.tell(chat, getSelf());
 	}
 
 	@Override

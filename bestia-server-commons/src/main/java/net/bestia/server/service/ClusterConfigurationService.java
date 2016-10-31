@@ -14,8 +14,8 @@ import com.hazelcast.core.IMap;
 import akka.actor.Address;
 
 /**
- * The {@link ClusterConfigurationService} can be used to extract the necessairy cluster
- * information from a hazelcast instance and to use this information to setup
+ * The {@link ClusterConfigurationService} can be used to extract the necessary cluster
+ * information from a Hazelcast instance and to use this information to setup
  * the akka cluster.
  * 
  * @author tbf

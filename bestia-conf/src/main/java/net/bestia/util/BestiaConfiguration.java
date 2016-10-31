@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class BestiaConfiguration {
+public final class BestiaConfiguration {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BestiaConfiguration.class);
 

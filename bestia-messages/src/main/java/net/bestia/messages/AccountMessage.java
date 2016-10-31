@@ -3,8 +3,9 @@ package net.bestia.messages;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * These messages carry an account information. Usually they are coming from a
- * client and are send towards a server.
+ * These messages carry additional account information (the account id). Usually
+ * they are coming from a client and are send towards a server. This account id
+ * can be used to generate messages originating back to the client.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -65,8 +66,8 @@ public abstract class AccountMessage extends Message {
 
 	@Override
 	public String toString() {
-		return String.format("AccountMessage[message id: %s, account id: %d]", 
-				getMessageId(), 
+		return String.format("AccountMessage[message id: %s, account id: %d]",
+				getMessageId(),
 				accountId);
 	}
 }
