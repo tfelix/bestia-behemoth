@@ -7,7 +7,6 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
-import akka.actor.UntypedActor;
 import akka.cluster.pubsub.DistributedPubSub;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.cluster.singleton.ClusterSingletonManager;
@@ -16,13 +15,10 @@ import akka.cluster.singleton.ClusterSingletonProxy;
 import akka.cluster.singleton.ClusterSingletonProxySettings;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.MessageId;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.messages.internal.StartInitMessage;
-import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.server.AkkaCluster;
-import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
+import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.login.LoginActor;
 import net.bestia.zoneserver.actor.test.RoutingRootTest;
 import net.bestia.zoneserver.actor.zone.InitLocalActor.LocalInitDone;
@@ -37,26 +33,21 @@ import net.bestia.zoneserver.actor.zone.InitLocalActor.LocalInitDone;
  */
 @Component("ZoneActor")
 @Scope("prototype")
-public class ZoneActor extends UntypedActor {
+public class ZoneActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-
-	private final ActorRef loginActor;
-	private ActorRef localInitActor;
 	
 	private ActorRef testActor;
 
 	public ZoneActor() {
 
 		final ActorSystem system = getContext().system();
-
-		final SpringExt springExt = SpringExtension.Provider.get(getContext().system());
-		final Props loginProps = springExt.props(LoginActor.class);
-		loginActor = getContext().actorOf(loginProps, "login");
+		
+		createActor(LoginActor.class, "login");
 
 		// Setup the init actor singelton for creation of the system.
 		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
-		final Props globalInitProps = springExt.props(InitGlobalActor.class);
+		final Props globalInitProps = getSpringProps(InitGlobalActor.class);
 		Props clusterProbs = ClusterSingletonManager.props(globalInitProps, PoisonPill.getInstance(), settings);
 		system.actorOf(clusterProbs, "globalInit");
 
@@ -68,18 +59,15 @@ public class ZoneActor extends UntypedActor {
 
 		// Do the local init like loading scripts. When this is finished we can
 		// register ourselves with the messaging system.
-		final Props initProps = springExt.props(InitLocalActor.class);
-		localInitActor = getContext().actorOf(initProps, "init");
+		ActorRef localInitActor = createActor(InitLocalActor.class, "localInit");
 		localInitActor.tell(new StartInitMessage(), getSelf());
 
 		// Some utility actors.
-		Props props = springExt.props(ClusterStatusListenerActor.class);
-		getContext().actorOf(props, "clusterStatusListener");
-		
+		createActor(ClusterStatusListenerActor.class, "clusterStatusListener");
+
 		// This is for testing.
 		// === Test Actor ===
-		final Props testProps = springExt.props(RoutingRootTest.class);
-		testActor = getContext().actorOf(testProps, "test");
+		testActor = createActor(RoutingRootTest.class, "test");
 		final ChatMessage chat = new ChatMessage();
 		chat.setChatMessageId(1);
 		chat.setChatMode(ChatMessage.Mode.PUBLIC);
@@ -88,40 +76,20 @@ public class ZoneActor extends UntypedActor {
 		testActor.tell(chat, getSelf());
 	}
 
-	@Override
-	public void onReceive(Object message) throws Exception {
 
-		if (message instanceof DistributedPubSubMediator.SubscribeAck) {
+	@Override
+	protected void handleMessage(Object msg) {
+		if (msg instanceof DistributedPubSubMediator.SubscribeAck) {
 			LOG.info("subscribing");
 			return;
 		}
 
-		if (message instanceof LocalInitDone) {
+		if (msg instanceof LocalInitDone) {
 
-			localInitActor = null;
-
-			// If we have finished loading setup the mediator to receive pub sub
-			// messages.
+			// If we have finished loading setup the mediator to receive pub sub messages.
 			final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
 			mediator.tell(new DistributedPubSubMediator.Subscribe(AkkaCluster.CLUSTER_PUBSUB_TOPIC, getSelf()),
 					getSelf());
-
-			return;
 		}
-
-		if (!(message instanceof MessageId)) {
-			unhandled(message);
-			LOG.warning("Zone received unknown message: {}", message);
-			return;
-		}
-
-		final MessageId msg = (MessageId) message;
-
-		switch (msg.getMessageId()) {
-		case LoginAuthMessage.MESSAGE_ID:
-			loginActor.tell(msg, getSender());
-			break;
-		}
-
 	}
 }

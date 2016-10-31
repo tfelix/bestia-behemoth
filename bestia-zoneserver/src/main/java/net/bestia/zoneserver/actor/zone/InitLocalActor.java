@@ -3,10 +3,10 @@ package net.bestia.zoneserver.actor.zone;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.StartInitMessage;
+import net.bestia.zoneserver.actor.BestiaActor;
 
 /**
  * The {@link InitLocalActor} will only prepare the locally important data for
@@ -18,7 +18,7 @@ import net.bestia.messages.internal.StartInitMessage;
  */
 @Component
 @Scope("prototype")
-public class InitLocalActor extends UntypedActor {
+public class InitLocalActor extends BestiaActor {
 
 	public static class LocalInitDone {
 	};

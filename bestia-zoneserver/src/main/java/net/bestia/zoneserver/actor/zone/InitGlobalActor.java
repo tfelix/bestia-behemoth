@@ -4,12 +4,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
-import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.StartInitMessage;
-import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
+import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.actor.map.LoadMapFileActor;
 
 /**
@@ -25,13 +23,11 @@ import net.bestia.zoneserver.actor.map.LoadMapFileActor;
  */
 @Component
 @Scope("prototype")
-public class InitGlobalActor extends UntypedActor {
+public class InitGlobalActor extends BestiaActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private boolean hasInitialized = false;
-	
-	
 
 	public InitGlobalActor() {
 
@@ -40,26 +36,22 @@ public class InitGlobalActor extends UntypedActor {
 	@Override
 	public void onReceive(Object message) throws Exception {
 
-		if (message instanceof StartInitMessage) {
-			if (hasInitialized) {
-				return;
-			}
-			
-			final SpringExt springExt = SpringExtension.Provider.get(getContext().system());
-
-			hasInitialized = true;
-
-			// Start the initialization process.
-			LOG.info("Start the global server initialization...");
-
-			// Load the sample map into the server cache.
-			final ActorRef loadActor = getContext().actorOf(springExt.props(LoadMapFileActor.class));
-			loadActor.tell(message, getSelf());
-
-		} else {
+		if (!(message instanceof StartInitMessage)) {
 			unhandled(message);
 		}
 
+		if (hasInitialized) {
+			return;
+		}
+		
+		hasInitialized = true;		
+
+		// Start the initialization process.
+		LOG.info("Start the global server initialization...");
+
+		// Load the sample map into the server cache.
+		final ActorRef loadActor = createActor(LoadMapFileActor.class, "mapFileLoad");
+		loadActor.tell(message, getSelf());
 	}
 
 }

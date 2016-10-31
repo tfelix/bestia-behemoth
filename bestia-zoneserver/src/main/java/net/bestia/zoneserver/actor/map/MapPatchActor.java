@@ -18,7 +18,7 @@ import net.bestia.model.map.Map;
 import net.bestia.model.shape.Point;
 import net.bestia.model.shape.Rect;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.actor.zone.SendResponseActor;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
 import net.bestia.zoneserver.service.CacheManager;
 import net.bestia.zoneserver.service.MapService;
@@ -62,7 +62,7 @@ public class MapPatchActor extends BestiaRoutingActor {
 	public void preStart() throws Exception {
 		super.preStart();
 
-		this.responseActor = createActor(SendResponseActor.class, "responder");
+		this.responseActor = createActor(SendClientActor.class, "responder");
 	}
 
 	@Override

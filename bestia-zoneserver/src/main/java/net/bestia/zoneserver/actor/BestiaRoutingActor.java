@@ -10,11 +10,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
-import akka.actor.Props;
-import akka.actor.UntypedActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import net.bestia.messages.Message;
 import net.bestia.messages.internal.ReportHandledMessages;
-import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
 
 /**
  * The routing actor implementation will provide a method to add child actors.
@@ -27,26 +26,11 @@ import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
  */
 @Component
 @Scope("prototype")
-public abstract class BestiaRoutingActor extends UntypedActor {
+public abstract class BestiaRoutingActor extends BestiaActor {
 
+	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+	
 	private Map<Class<? extends Message>, Set<ActorRef>> messageRoutes = new HashMap<>();
-
-	/**
-	 * Creates a new actor and already register it with this routing actor so it
-	 * is considered when receiving messages.
-	 * 
-	 * @param clazz
-	 *            The class of the {@link UntypedActor} to instantiate.
-	 * @param name
-	 *            The name under which the actor should be created.
-	 * @return The created and already registered new actor.
-	 */
-	protected ActorRef createActor(Class<? extends UntypedActor> clazz, String name) {
-
-		final Props props = getSpringProps(clazz);
-		final ActorRef newActor = getContext().actorOf(props, name);
-		return newActor;
-	}
 
 	/**
 	 * Returns a list of message classes which are handled by this actor. They
@@ -71,21 +55,6 @@ public abstract class BestiaRoutingActor extends UntypedActor {
 	 */
 	protected Set<Class<? extends Message>> getHandledMessages() {
 		return Collections.emptySet();
-	}
-
-	/**
-	 * Small helper method to get props via the spring extension (and thus can
-	 * use dependency injection).
-	 * 
-	 * @param clazz
-	 *            The Actor class to get the props object for.
-	 * @return The created props object.
-	 */
-	protected Props getSpringProps(Class<? extends UntypedActor> clazz) {
-
-		final SpringExt springExt = SpringExtension.Provider.get(getContext().system());
-		final Props props = springExt.props(clazz);
-		return props;
 	}
 
 	/**
@@ -127,6 +96,7 @@ public abstract class BestiaRoutingActor extends UntypedActor {
 		}
 
 		if (!handled) {
+			LOG.warning("Zone received unknown message: {}", message);
 			unhandled(message);
 		}
 	}

@@ -1,38 +1,38 @@
 package net.bestia.zoneserver.actor.zone;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import akka.actor.ActorRef;
-import akka.actor.Deploy;
-import akka.actor.Props;
-import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.AccountMessage;
-import net.bestia.server.BestiaActorContext;
-import net.bestia.zoneserver.actor.login.ConnectionManagerActor;
+import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
 import net.bestia.zoneserver.service.CacheManager;
 
 /**
- * The {@link SendResponseActor} will lookup the information (actor ref) of the
- * current account, serialize the message and send it back to where it belongs.
+ * The {@link SendClientActor} is responsible for the delivery of messages
+ * directed to clients. It will lookup the information (actor ref) of the the
+ * account given in the account message, serialize the message and send it back
+ * to the webserver the client is currently connected.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class SendResponseActor extends UntypedActor {
+@Component
+@Scope("prototype")
+public class SendClientActor extends BestiaActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-	
+
 	private final CacheManager<Long, ActorRef> clientCache;
 
-	@SuppressWarnings("unchecked")
-	public SendResponseActor(BestiaActorContext ctx) {
+	public SendClientActor(
+			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorRef> clientCache) {
 
-		this.clientCache = ctx.getSpringContext().getBean(CacheConfiguration.CLIENT_CACHE, CacheManager.class);
-	}
-
-	public static Props props(final BestiaActorContext ctx) {
-		return Props.create(ConnectionManagerActor.class, ctx).withDeploy(Deploy.local());
+		this.clientCache = clientCache;
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class SendResponseActor extends UntypedActor {
 			// Send the client message.
 			origin.tell(message, getSelf());
 		} else {
-
+			// We handle only account messages.
 			unhandled(message);
 		}
 
