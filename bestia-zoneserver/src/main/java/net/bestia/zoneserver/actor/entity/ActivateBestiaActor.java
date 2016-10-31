@@ -1,10 +1,19 @@
 package net.bestia.zoneserver.actor.entity;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-import akka.actor.UntypedActor;
+import net.bestia.messages.Message;
 import net.bestia.messages.bestia.BestiaActivatedMessage;
+import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
 import net.bestia.zoneserver.service.CacheManager;
 
@@ -16,7 +25,12 @@ import net.bestia.zoneserver.service.CacheManager;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class ActivateBestiaActor extends UntypedActor {
+@Component
+@Scope("prototype")
+public class ActivateBestiaActor extends BestiaRoutingActor {
+
+	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
+			Arrays.asList(BestiaActivatedMessage.class)));
 
 	private final CacheManager<Long, Integer> activeBestias;
 
@@ -24,20 +38,20 @@ public class ActivateBestiaActor extends UntypedActor {
 	public ActivateBestiaActor(
 			@Qualifier(CacheConfiguration.ACTIVE_BESTIA_CACHE) CacheManager<Long, Integer> activeBestias) {
 
-		this.activeBestias = activeBestias;
+		this.activeBestias = Objects.requireNonNull(activeBestias);
 	}
 
 	@Override
-	public void onReceive(Object message) throws Exception {
+	protected Set<Class<? extends Message>> getHandledMessages() {
+		return HANDLED_CLASSES;
+	}
 
-		if (message instanceof BestiaActivatedMessage) {
-			final BestiaActivatedMessage msg = (BestiaActivatedMessage) message;
+	@Override
+	protected void handleMessage(Object msg) {
 
-			// TODO Aus alter Logik übertragen und Entity aktivieren.
+		final BestiaActivatedMessage bestiaMsg = (BestiaActivatedMessage) msg;
 
-		} else {
-			unhandled(message);
-		}
+		// TODO Aus alter Logik übertragen und Entity aktivieren.
 	}
 
 }

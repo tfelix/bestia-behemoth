@@ -19,6 +19,7 @@ import net.bestia.messages.chat.ChatMessage;
 import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.actor.inventory.InventoryActor;
 import net.bestia.zoneserver.actor.login.LoginActor;
 import net.bestia.zoneserver.actor.test.RoutingRootTest;
 import net.bestia.zoneserver.actor.zone.InitLocalActor.LocalInitDone;
@@ -44,6 +45,7 @@ public class ZoneActor extends BestiaRoutingActor {
 		final ActorSystem system = getContext().system();
 		
 		createActor(LoginActor.class, "login");
+		createActor(InventoryActor.class, InventoryActor.NAME);
 
 		// Setup the init actor singelton for creation of the system.
 		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);

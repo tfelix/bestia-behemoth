@@ -1,8 +1,10 @@
 package net.bestia.zoneserver.actor.map;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -11,8 +13,6 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
 import net.bestia.messages.Message;
-import net.bestia.messages.MessageId;
-import net.bestia.messages.map.MapDataMessage;
 import net.bestia.messages.map.RequestMapDataMessage;
 import net.bestia.model.map.Map;
 import net.bestia.model.shape.Point;
@@ -34,6 +34,9 @@ import net.bestia.zoneserver.zone.entity.PlayerBestiaEntity;
 @Component
 @Scope("prototype")
 public class MapPatchActor extends BestiaRoutingActor {
+	
+	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
+			Arrays.asList(RequestMapDataMessage.class)));
 
 	/**
 	 * How many tiles are transmitted from the position of the player in each
@@ -44,7 +47,7 @@ public class MapPatchActor extends BestiaRoutingActor {
 	private final MapService mapService;
 	private final CacheManager<Long, Integer> activeBestiaCache;
 	private final CacheManager<Integer, PlayerBestiaEntity> playerBestiaCache;
-	private ActorRef responseActor;
+	private final ActorRef responseActor;
 
 	@Autowired
 	public MapPatchActor(
@@ -56,29 +59,16 @@ public class MapPatchActor extends BestiaRoutingActor {
 		this.mapService = Objects.requireNonNull(mapService);
 		this.playerBestiaCache = Objects.requireNonNull(playerBestiaCache);
 
+		this.responseActor = createActor(SendClientActor.class, SendClientActor.NAME);
 	}
 
 	@Override
-	public void preStart() throws Exception {
-		super.preStart();
-
-		this.responseActor = createActor(SendClientActor.class, "responder");
+	protected Set<Class<? extends Message>> getHandledMessages() {
+		return HANDLED_CLASSES;
 	}
 
 	@Override
 	protected void handleMessage(Object msg) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	/*
-	@Override
-	protected List<Class<? extends Message>> getHandledMessages() {
-		return Arrays.asList(RequestMapDataMessage.class);
-	}
-
-	@Override
-	protected void handleMessage(MessageId msg) {
 
 		final RequestMapDataMessage req = (RequestMapDataMessage) msg;
 		final long accId = req.getAccountId();
@@ -98,8 +88,7 @@ public class MapPatchActor extends BestiaRoutingActor {
 		final Map map = mapService.getMap(area);
 
 		// Assemble the answer message and find the actor with the ref.
-		//final MapDataMessage mapData = new MapDataMessage(map.getSize(), );
-		//responseActor.tell(mapData, getSelf());
+		// final MapDataMessage mapData = new MapDataMessage(map.getSize(), );
+		// responseActor.tell(mapData, getSelf());
 	}
-*/
 }

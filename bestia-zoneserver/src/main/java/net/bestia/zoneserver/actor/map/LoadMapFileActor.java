@@ -4,10 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.StartInitMessage;
+import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.generator.map.MapGenerator;
 import net.bestia.zoneserver.generator.map.TmxMapGenerator;
 import net.bestia.zoneserver.service.MapService;
@@ -22,7 +22,7 @@ import net.bestia.zoneserver.service.ServerStartupConfiguration;
  */
 @Component
 @Scope("prototype")
-public class LoadMapFileActor extends UntypedActor {
+public class LoadMapFileActor extends BestiaActor {
 
 	public static final String NAME = "loadMapfile";
 

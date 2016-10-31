@@ -1,17 +1,21 @@
 package net.bestia.zoneserver.actor.entity;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import akka.actor.Cancellable;
-import akka.actor.Props;
 import akka.actor.Scheduler;
-import akka.actor.UntypedActor;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.model.shape.Point;
-import net.bestia.server.BestiaActorContext;
+import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
 import net.bestia.zoneserver.service.CacheManager;
 import net.bestia.zoneserver.service.MovingEntityManager;
@@ -27,7 +31,9 @@ import scala.concurrent.duration.Duration;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class TimedMoveActor extends UntypedActor {
+@Component
+@Scope("prototype")
+public class TimedMoveActor extends BestiaActor {
 
 	private final static String TICK_MSG = "tick";
 
@@ -39,16 +45,13 @@ public class TimedMoveActor extends UntypedActor {
 	private long entityId;
 	private Queue<Point> path;
 
-	@SuppressWarnings("unchecked")
-	public TimedMoveActor(BestiaActorContext ctx) {
+	@Autowired
+	public TimedMoveActor(
+			@Qualifier(CacheConfiguration.ACTIVE_BESTIA_CACHE) CacheManager<Long, VisibleEntity> entityCache,
+			MovingEntityManager movingManager) {
 
-		this.entityCache = ctx.getSpringContext().getBean(CacheConfiguration.ENTITY_CACHE, CacheManager.class);
-		this.movingManager = ctx.getSpringContext().getBean(MovingEntityManager.class);
-	}
-
-	public static Props props(final BestiaActorContext ctx) {
-		// Props must be deployed locally since we contain a non serializable
-		return Props.create(TimedMoveActor.class, ctx);
+		this.entityCache = Objects.requireNonNull(entityCache);
+		this.movingManager = Objects.requireNonNull(movingManager);
 	}
 
 	@Override

@@ -26,6 +26,7 @@ import net.bestia.zoneserver.service.CacheManager;
 public class SendClientActor extends BestiaActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+	public static final String NAME = "sendClient";
 
 	private final CacheManager<Long, ActorRef> clientCache;
 

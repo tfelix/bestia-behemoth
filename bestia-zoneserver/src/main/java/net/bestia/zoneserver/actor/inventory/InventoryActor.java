@@ -1,6 +1,9 @@
 package net.bestia.zoneserver.actor.inventory;
 
-import akka.actor.UntypedActor;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import net.bestia.zoneserver.actor.BestiaRoutingActor;
 
 
 /**
@@ -11,16 +14,22 @@ import akka.actor.UntypedActor;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class InventoryActor extends UntypedActor {
+@Component
+@Scope("prototype")
+public class InventoryActor extends BestiaRoutingActor {
 	
+	public static final String NAME = "inventory";
+
 	public InventoryActor() {
-		// TODO Auto-generated constructor stub
+		
+		// Create all the sub actors.
+		createActor(DropItemActor.class, DropItemActor.NAME);
+		createActor(ListInventoryActor.class, ListInventoryActor.NAME);
 	}
 
 	@Override
-	public void onReceive(Object message) throws Exception {
-		// TODO Auto-generated method stub
-
+	protected void handleMessage(Object msg) {
+		// no op.
 	}
 
 }

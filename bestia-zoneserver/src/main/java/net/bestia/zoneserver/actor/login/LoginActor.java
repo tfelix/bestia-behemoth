@@ -1,18 +1,24 @@
 package net.bestia.zoneserver.actor.login;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.UntypedActor;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.messages.Message;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
+import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.service.ServerRuntimeConfiguration;
 
 /**
@@ -30,9 +36,11 @@ import net.bestia.zoneserver.service.ServerRuntimeConfiguration;
  */
 @Component("LoginActor")
 @Scope("prototype")
-public class LoginActor extends UntypedActor {
+public class LoginActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
+			Arrays.asList(LoginAuthMessage.class)));
 
 	private final AccountDAO accountDao;
 	private final ServerRuntimeConfiguration config;
@@ -44,42 +52,41 @@ public class LoginActor extends UntypedActor {
 		this.config = config;
 	}
 
+	private void respond(LoginAuthMessage msg, LoginState state) {
+		final LoginAuthReplyMessage response = new LoginAuthReplyMessage(state);
+		getSender().tell(response, getSelf());
+	}
+	
 	@Override
-	public void onReceive(Object message) throws Exception {
+	protected Set<Class<? extends Message>> getHandledMessages() {
+		return HANDLED_CLASSES;
+	}
 
-		if (!(message instanceof LoginAuthMessage)) {
-			unhandled(message);
-			return;
-		}
+	@Override
+	protected void handleMessage(Object msg) {
+		LOG.debug("LoginRequestMessage received: {}", msg.toString());
 
-		LOG.debug("LoginRequestMessage received: {}", message.toString());
-
-		final LoginAuthMessage msg = (LoginAuthMessage) message;
+		final LoginAuthMessage loginMsg = (LoginAuthMessage) msg;
 		
 		if(config.isMaintenanceMode()) {
 			// We only allow server admins to be online during a maintenance.
-			respond(msg, LoginState.DENIED);
+			respond(loginMsg, LoginState.DENIED);
 			return;
 		}
 
 		// Check to see if the find the requested account.
-		final Account acc = accountDao.findOne(msg.getAccountId());
+		final Account acc = accountDao.findOne(loginMsg.getAccountId());
 
 		if (acc == null) {
-			respond(msg, LoginState.DENIED);
+			respond(loginMsg, LoginState.DENIED);
 			return;
 		}
 
-		if (acc.getLoginToken().equals(msg.getToken())) {
-			respond(msg, LoginState.ACCEPTED);
+		if (acc.getLoginToken().equals(loginMsg.getToken())) {
+			respond(loginMsg, LoginState.ACCEPTED);
 		} else {
-			respond(msg, LoginState.DENIED);
+			respond(loginMsg, LoginState.DENIED);
 		}
-	}
-
-	private void respond(LoginAuthMessage msg, LoginState state) {
-		final LoginAuthReplyMessage response = new LoginAuthReplyMessage(state);
-		getSender().tell(response, getSelf());
 	}
 
 }

@@ -1,7 +1,16 @@
 package net.bestia.zoneserver.actor.entity;
 
-import akka.actor.UntypedActor;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import net.bestia.messages.Message;
 import net.bestia.messages.entity.EntityMoveMessage;
+import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.zone.entity.VisibleEntity;
 
 /**
@@ -11,24 +20,28 @@ import net.bestia.zoneserver.zone.entity.VisibleEntity;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MoveActor extends UntypedActor {
+@Component
+@Scope("prototype")
+public class MoveActor extends BestiaRoutingActor {
+
+	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
+			Arrays.asList(EntityMoveMessage.class)));
 
 	@Override
-	public void onReceive(Object message) throws Exception {
-		
-		if(message instanceof EntityMoveMessage) {
-			
-			final EntityMoveMessage msg = (EntityMoveMessage) message;
-			
-			final VisibleEntity entity = null;
-			
-			// TODO Was it a visible entity? If yes update all nearby entities.
-			
-			// TODO Was
-			
-		} else {
-			unhandled(message);
-		}
-		
+	protected Set<Class<? extends Message>> getHandledMessages() {
+		return HANDLED_CLASSES;
+	}
+
+	@Override
+	protected void handleMessage(Object msg) {
+
+		final EntityMoveMessage moveMsg = (EntityMoveMessage) msg;
+
+		final VisibleEntity entity = null;
+
+		// TODO Was it a visible entity? If yes update all nearby entities.
+
+		// TODO Was
+
 	}
 }
