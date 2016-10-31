@@ -90,6 +90,8 @@ public class MessageHandlerActor extends UntypedActor {
 			} else {
 				closeSession(CloseStatus.PROTOCOL_ERROR);
 			}
+			
+			return;
 		}
 
 		if (message instanceof AccountMessage) {
