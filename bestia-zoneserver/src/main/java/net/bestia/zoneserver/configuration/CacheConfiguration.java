@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.hazelcast.core.HazelcastInstance;
 
+import akka.actor.ActorRef;
 import net.bestia.zoneserver.service.CacheManager;
 import net.bestia.zoneserver.zone.entity.PlayerBestiaEntity;
 import net.bestia.zoneserver.zone.entity.VisibleEntity;
@@ -44,7 +45,7 @@ public class CacheConfiguration {
 	 * @return
 	 */
 	@Bean(name = CLIENT_CACHE)
-	public CacheManager<Long, VisibleEntity> getClientCache() {
+	public CacheManager<Long, ActorRef> getClientCache() {
 
 		return new CacheManager<>("cache.client", cache);
 	}

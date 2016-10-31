@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.actor.zone;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -30,6 +31,7 @@ public class SendClientActor extends BestiaActor {
 
 	private final CacheManager<Long, ActorRef> clientCache;
 
+	@Autowired
 	public SendClientActor(
 			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorRef> clientCache) {
 
