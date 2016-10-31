@@ -19,10 +19,6 @@ public class BestiaRoutingActorTest {
 		
 		public final static String MESSAGE_ID = "testmessage";
 
-		@Override
-		public String getMessageId() {
-			return MESSAGE_ID;
-		}
 		
 	}
 

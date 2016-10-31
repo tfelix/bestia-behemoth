@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import net.bestia.messages.ClientMessage;
+import net.bestia.messages.AccountMessage;
 import net.bestia.messages.Message;
 import net.bestia.model.shape.Point;
 import net.bestia.model.shape.Size;
@@ -18,7 +18,7 @@ import net.bestia.model.shape.Size;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MapDataMessage extends ClientMessage {
+public class MapDataMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 

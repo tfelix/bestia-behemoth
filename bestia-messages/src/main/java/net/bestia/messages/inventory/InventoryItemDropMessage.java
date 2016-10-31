@@ -3,7 +3,7 @@ package net.bestia.messages.inventory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.Message;
+import net.bestia.messages.AccountMessage;
 
 /**
  * Send if the player wants to drop an item to the ground.
@@ -11,7 +11,7 @@ import net.bestia.messages.Message;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class InventoryItemDropMessage extends Message {
+public class InventoryItemDropMessage extends AccountMessage {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;

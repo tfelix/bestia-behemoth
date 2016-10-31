@@ -5,6 +5,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Set;
 
+import net.bestia.messages.AccountMessage;
 import net.bestia.messages.Message;
 
 import org.reflections.Reflections;
@@ -45,11 +46,12 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 
 		// Find all classes implementing the message interface.
 		Reflections reflections = new Reflections("net.bestia.messages");
-		Set<Class<? extends Message>> messages = reflections.getSubTypesOf(Message.class);
+		// TODO Hier vielleicht nicht auf AccountMessages gehen sondern auf MesageId
+		Set<Class<? extends AccountMessage>> messages = reflections.getSubTypesOf(AccountMessage.class);
 		// Instantiate the message classes to get their message id from the
 		// method and store
 		// it for later serialization and deserialization.
-		for (Class<? extends Message> msg : messages) {
+		for (Class<? extends AccountMessage> msg : messages) {
 
 			// Avoid abstract classes.
 			if (Modifier.isAbstract(msg.getModifiers())) {
@@ -57,7 +59,7 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 			}
 
 			try {
-				Constructor<? extends Message> cons = msg.getConstructor();
+				Constructor<? extends AccountMessage> cons = msg.getConstructor();
 
 				final String key = cons.newInstance().getMessageId();
 

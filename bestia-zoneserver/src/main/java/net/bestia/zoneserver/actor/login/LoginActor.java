@@ -38,6 +38,7 @@ import net.bestia.zoneserver.service.ServerRuntimeConfiguration;
 @Scope("prototype")
 public class LoginActor extends BestiaRoutingActor {
 
+	public static final String NAME = "login";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
 			Arrays.asList(LoginAuthMessage.class)));

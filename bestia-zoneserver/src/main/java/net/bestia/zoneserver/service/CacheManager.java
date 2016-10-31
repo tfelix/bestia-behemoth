@@ -57,12 +57,24 @@ public class CacheManager<K, V> {
 	 */
 	public V get(K key, V def) {
 		final Map<K, V> objects = cache.getMap(cacheKey);
-		
-		if(!objects.containsKey(key)) {
+
+		if (!objects.containsKey(key)) {
 			return def;
 		}
-		
+
 		return objects.get(key);
+	}
+
+	/**
+	 * Checks if the cache contains an object with the given key.
+	 * 
+	 * @param key
+	 *            The key to check for.
+	 * @return TRUE if the key is contained otherwise FALSE.
+	 */
+	public boolean containsKey(K key) {
+		final Map<K, V> objects = cache.getMap(cacheKey);
+		return objects.containsKey(key);
 	}
 
 	/**

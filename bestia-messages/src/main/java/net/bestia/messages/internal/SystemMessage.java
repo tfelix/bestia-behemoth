@@ -1,6 +1,6 @@
 package net.bestia.messages.internal;
 
-import java.io.Serializable;
+import net.bestia.messages.Message;
 
 /**
  * The {@link SystemMessage} descendants are not meant to be send to the player.
@@ -10,7 +10,7 @@ import java.io.Serializable;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * 
  */
-public abstract class SystemMessage implements Serializable {
+public abstract class SystemMessage extends Message {
 
 	private static final long serialVersionUID = 2015052401L;
 

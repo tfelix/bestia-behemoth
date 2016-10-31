@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.actor;
 
+import java.lang.reflect.Field;
+
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
@@ -33,6 +35,33 @@ public abstract class BestiaActor extends UntypedActor {
 		final Props props = getSpringProps(clazz);
 		final ActorRef newActor = getContext().actorOf(props, name);
 		return newActor;
+	}
+
+	/**
+	 * Like {@link #createActor(Class, String)} but it will examine the given
+	 * class if it has a static public string field called NAME and will use
+	 * this name as actor name. If no such field exists the name "NONAME" will
+	 * be used.
+	 * 
+	 * @param clazz
+	 *            The class of the {@link UntypedActor} to instantiate.
+	 * @return The created and already registered new actor.
+	 */
+	protected ActorRef createActor(Class<? extends UntypedActor> clazz) {
+
+		final Props props = getSpringProps(clazz);
+
+		try {
+			final Field f = clazz.getField("NAME");
+			final Class<?> t = f.getType();
+			if (t == String.class) {
+				return getContext().actorOf(props, (String) f.get(null));
+			}
+		} catch (Exception e) {
+			// no op.
+		}
+		
+		return getContext().actorOf(props, "NONAME");
 	}
 
 	/**

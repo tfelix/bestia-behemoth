@@ -3,9 +3,9 @@ package net.bestia.messages.internal;
 import java.util.Objects;
 
 import akka.actor.ActorRef;
-import net.bestia.messages.Message;
+import net.bestia.messages.AccountMessage;
 
-public class ClientConnectionStatusMessage extends Message {
+public class ClientConnectionStatusMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 
@@ -13,7 +13,6 @@ public class ClientConnectionStatusMessage extends Message {
 		CONNECTED, DISCONNECTED
 	}
 
-	private final long accountId;
 	private final ConnectionState state;
 	private final ActorRef webserverRef;
 
@@ -24,11 +23,10 @@ public class ClientConnectionStatusMessage extends Message {
 	public ClientConnectionStatusMessage() {
 		state = null;
 		webserverRef = null;
-		accountId = 0;
 	}
 
 	public ClientConnectionStatusMessage(long accId, ConnectionState state, ActorRef webserverRef) {
-		this.accountId = accId;
+		super(accId);
 		this.state = state;
 		this.webserverRef = Objects.requireNonNull(webserverRef);
 	}
@@ -40,14 +38,9 @@ public class ClientConnectionStatusMessage extends Message {
 	public ActorRef getWebserverRef() {
 		return webserverRef;
 	}
-	
-	public long getAccountId() {
-		return accountId;
-	}
 
 	@Override
 	public String getMessageId() {
-		// TODO Auto-generated method stub
-		return null;
+		return String.format("ClientConnectionStatusMessage[status: %s]", state.toString());
 	}
 }

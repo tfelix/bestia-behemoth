@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.messages.internal.LocalInitDoneMessage;
 import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.zoneserver.actor.BestiaActor;
 
@@ -20,8 +21,6 @@ import net.bestia.zoneserver.actor.BestiaActor;
 @Scope("prototype")
 public class InitLocalActor extends BestiaActor {
 
-	public static class LocalInitDone {
-	};
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
@@ -39,7 +38,7 @@ public class InitLocalActor extends BestiaActor {
 		// Parse the scripts.
 
 		// Stop ourselves. Work is done.
-		sender().tell(new LocalInitDone(), getSelf());
+		sender().tell(new LocalInitDoneMessage(), getSelf());
 		getContext().stop(getSelf());
 
 	}

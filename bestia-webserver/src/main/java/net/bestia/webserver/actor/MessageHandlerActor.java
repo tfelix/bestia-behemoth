@@ -19,9 +19,7 @@ import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
-import net.bestia.messages.ClientMessage;
-import net.bestia.messages.Message;
-import net.bestia.messages.MessageId;
+import net.bestia.messages.AccountMessage;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
@@ -94,7 +92,7 @@ public class MessageHandlerActor extends UntypedActor {
 			}
 		}
 
-		if (message instanceof ClientMessage) {
+		if (message instanceof AccountMessage) {
 
 			// Send the payload to the client.
 			final String payload = mapper.writeValueAsString(message);
@@ -122,7 +120,7 @@ public class MessageHandlerActor extends UntypedActor {
 			} else {
 				try {
 					// Turn the text message into a bestia message.
-					final MessageId msg = mapper.readValue(payload, Message.class);
+					final AccountMessage msg = mapper.readValue(payload, AccountMessage.class);
 					LOG.debug("Client sending: {}.", msg.toString());
 					mediator.tell(new DistributedPubSubMediator.Publish(AkkaCluster.CLUSTER_PUBSUB_TOPIC, msg), getSelf());
 

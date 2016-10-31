@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -32,10 +33,13 @@ import net.bestia.zoneserver.service.CacheManager;
 public class ConnectionManagerActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+	public static final String NAME = "connectionManager";
+	
 	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
 			Arrays.asList(ClientConnectionStatusMessage.class)));
 	private final CacheManager<Long, ActorRef> clientCache;
 
+	@Autowired
 	public ConnectionManagerActor(
 			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorRef> clientCache) {
 

@@ -55,8 +55,7 @@ public final class SimplexNoise {
 	// private static final double G3 = 1 / 6;
 
 	// This isn't a very good seeding function, but it works ok. It supports
-	// 2^16
-	// different seed values. Write something better if you need more seeds.
+	// 2^16 different seed values. Write something better if you need more seeds.
 	public void seed(int seed) {
 		if (seed > 65536) {
 			// Scale the seed out

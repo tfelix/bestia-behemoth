@@ -1,5 +1,10 @@
 package net.bestia.zoneserver.actor.zone;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -15,14 +20,14 @@ import akka.cluster.singleton.ClusterSingletonProxy;
 import akka.cluster.singleton.ClusterSingletonProxySettings;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.chat.ChatMessage;
+import net.bestia.messages.Message;
+import net.bestia.messages.internal.LocalInitDoneMessage;
 import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.inventory.InventoryActor;
+import net.bestia.zoneserver.actor.login.ConnectionManagerActor;
 import net.bestia.zoneserver.actor.login.LoginActor;
-import net.bestia.zoneserver.actor.test.RoutingRootTest;
-import net.bestia.zoneserver.actor.zone.InitLocalActor.LocalInitDone;
 
 /**
  * Central actor for handling zone related messages. This actor will redirect
@@ -37,15 +42,20 @@ import net.bestia.zoneserver.actor.zone.InitLocalActor.LocalInitDone;
 public class ZoneActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-	
-	private ActorRef testActor;
+	public static final String NAME = "zoneRoot";
+	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
+			Arrays.asList(LocalInitDoneMessage.class)));
 
 	public ZoneActor() {
 
 		final ActorSystem system = getContext().system();
 		
-		createActor(LoginActor.class, "login");
-		createActor(InventoryActor.class, InventoryActor.NAME);
+		createActor(LoginActor.class);
+		createActor(InventoryActor.class);
+		createActor(ChatActor.class);
+		
+		// House keeping actors.
+		createActor(ConnectionManagerActor.class);
 
 		// Setup the init actor singelton for creation of the system.
 		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
@@ -69,13 +79,11 @@ public class ZoneActor extends BestiaRoutingActor {
 
 		// This is for testing.
 		// === Test Actor ===
-		testActor = createActor(RoutingRootTest.class, "test");
-		final ChatMessage chat = new ChatMessage();
-		chat.setChatMessageId(1);
-		chat.setChatMode(ChatMessage.Mode.PUBLIC);
-		chat.setSenderNickname("bla");
-		chat.setText("Hello World");
-		testActor.tell(chat, getSelf());
+	}
+	
+	@Override
+	protected Set<Class<? extends Message>> getHandledMessages() {
+		return HANDLED_CLASSES;
 	}
 
 
@@ -86,7 +94,7 @@ public class ZoneActor extends BestiaRoutingActor {
 			return;
 		}
 
-		if (msg instanceof LocalInitDone) {
+		if (msg instanceof LocalInitDoneMessage) {
 
 			// If we have finished loading setup the mediator to receive pub sub messages.
 			final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
