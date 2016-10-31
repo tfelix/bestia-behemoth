@@ -20,6 +20,8 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.internal.ClientConnectionStatusMessage;
+import net.bestia.messages.internal.ClientConnectionStatusMessage.ConnectionState;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
@@ -44,6 +46,12 @@ public class MessageHandlerActor extends UntypedActor {
 	private final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
 
 	private boolean isAuthenticated = false;
+
+	/**
+	 * Account id is set as soon as the connection gets confirmed from the
+	 * server.
+	 */
+	private long accountId = 0;
 
 	/**
 	 * Ctor.
@@ -79,73 +87,107 @@ public class MessageHandlerActor extends UntypedActor {
 
 	@Override
 	public void onReceive(Object message) throws Exception {
-		
+
 		if (message instanceof LoginAuthReplyMessage) {
 
-			// Check how the login state was given.
-			final LoginAuthReplyMessage msg = (LoginAuthReplyMessage) message;
+			handleLoginAuth((LoginAuthReplyMessage) message);
 
-			if (msg.getLoginState() == LoginState.ACCEPTED) {
-				isAuthenticated = true;
-			} else {
-				closeSession(CloseStatus.PROTOCOL_ERROR);
-			}
-			
-			return;
-		}
+		} else if (message instanceof AccountMessage) {
 
-		if (message instanceof AccountMessage) {
-
-			// Send the payload to the client.
-			final String payload = mapper.writeValueAsString(message);
-			session.sendMessage(new TextMessage(payload));
+			sendToClient((AccountMessage) message);
 
 		} else if (message instanceof String) {
 
-			final String payload = (String) message;
+			handlePayload((String) message);
 
-			// We only accept auth messages.
-			if (!isAuthenticated) {
-				try {
-					final LoginAuthMessage loginReqMsg = mapper.readValue(payload, LoginAuthMessage.class);
-
-					// Send the LoginRequest to the cluster.
-					// Somehow centralize the names of the actors.
-					mediator.tell(new DistributedPubSubMediator.Publish(AkkaCluster.CLUSTER_PUBSUB_TOPIC, loginReqMsg), getSelf());
-
-				} catch (IOException e) {
-					// Wrong message. Terminate connection.
-					LOG.warning("Client {} send wrong first auth message. Payload was: {}.", session.getRemoteAddress(),
-							payload);
-					closeSession(CloseStatus.PROTOCOL_ERROR);
-				}
-			} else {
-				try {
-					// Turn the text message into a bestia message.
-					final AccountMessage msg = mapper.readValue(payload, AccountMessage.class);
-					LOG.debug("Client sending: {}.", msg.toString());
-					mediator.tell(new DistributedPubSubMediator.Publish(AkkaCluster.CLUSTER_PUBSUB_TOPIC, msg), getSelf());
-
-				} catch (IOException e) {
-					LOG.warning("Malformed message. Client: {}. Payload: {}.", session.getRemoteAddress(), payload);
-					closeSession(CloseStatus.BAD_DATA);
-				}
-			}
 		} else {
 			unhandled(message);
 		}
 	}
 
+	private void sendToClient(AccountMessage message) throws Exception {
+		// Send the payload to the client.
+		final String payload = mapper.writeValueAsString(message);
+		session.sendMessage(new TextMessage(payload));
+	}
+
+	private void handlePayload(String payload) {
+		// We only accept auth messages.
+		if (!isAuthenticated) {
+			try {
+				final LoginAuthMessage loginReqMsg = mapper.readValue(payload, LoginAuthMessage.class);
+
+				// Send the LoginRequest to the cluster.
+				// Somehow centralize the names of the actors.
+				mediator.tell(getClusterMessage(loginReqMsg),
+						getSelf());
+
+			} catch (IOException e) {
+				// Wrong message. Terminate connection.
+				LOG.warning("Client {} send wrong auth message. Payload was: {}.",
+						session.getRemoteAddress(),
+						payload);
+				closeSession(CloseStatus.PROTOCOL_ERROR);
+			}
+		} else {
+			try {
+				// Turn the text message into a bestia message.
+				final AccountMessage msg = mapper.readValue(payload, AccountMessage.class);
+				LOG.debug("Client sending: {}.", msg.toString());
+				mediator.tell(getClusterMessage(msg), getSelf());
+
+			} catch (IOException e) {
+				LOG.warning("Malformed message. Client: {}. Payload: {}.", session.getRemoteAddress(), payload);
+				closeSession(CloseStatus.BAD_DATA);
+			}
+		}
+	}
+
+	private void handleLoginAuth(LoginAuthReplyMessage msg) {
+		// Check how the login state was given.
+		if (msg.getLoginState() == LoginState.ACCEPTED) {
+			isAuthenticated = true;
+			accountId = msg.getAccountId();
+			// Announce to the cluster that we have a new connected user.
+			// Welcome my friend. :)
+			final ClientConnectionStatusMessage ccsmsg = new ClientConnectionStatusMessage(
+					msg.getAccountId(),
+					ConnectionState.CONNECTED,
+					getSelf());
+			mediator.tell(getClusterMessage(ccsmsg), getSelf());
+		} else {
+			closeSession(CloseStatus.PROTOCOL_ERROR);
+		}
+	}
+
 	private void closeSession(CloseStatus status) {
-		LOG.warning("Closing connection.");
+		LOG.debug("Closing connection to {}.", session.getRemoteAddress().toString());
 
 		try {
 			session.close(status);
 		} catch (IOException e1) {
 			// no op.
 		}
-
+		
+		// If we were connected, disconnect from the server.
+		final ClientConnectionStatusMessage ccsmsg = new ClientConnectionStatusMessage(
+				accountId,
+				ConnectionState.DISCONNECTED,
+				getSelf());
+		mediator.tell(getClusterMessage(ccsmsg), getSelf());
+		
+		// Kill ourself.
 		getSelf().tell(PoisonPill.getInstance(), getSelf());
+	}
+
+	/**
+	 * Generates a clustered message to the pub sub mediator in the akka
+	 * cluster. (message gets send to the distributed cluster).
+	 * 
+	 * @return The message for the cluster.
+	 */
+	private Object getClusterMessage(Object msg) {
+		return new DistributedPubSubMediator.Publish(AkkaCluster.CLUSTER_PUBSUB_TOPIC, msg);
 	}
 
 }

@@ -9,7 +9,7 @@ public class ClientConnectionStatusMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 
-	public enum ConnectionState {
+	public static enum ConnectionState {
 		CONNECTED, DISCONNECTED
 	}
 
@@ -17,8 +17,7 @@ public class ClientConnectionStatusMessage extends AccountMessage {
 	private final ActorRef webserverRef;
 
 	/**
-	 * TODO Manche klassen müssen von JSON serialisierer ausgenommen werden
-	 * können.
+	 * Std. ctor (necessairy for Jackson).
 	 */
 	public ClientConnectionStatusMessage() {
 		state = null;
