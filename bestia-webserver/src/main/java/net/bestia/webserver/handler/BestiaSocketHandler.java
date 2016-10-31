@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.PoisonPill;
-import net.bestia.server.BestiaActorContext;
 import net.bestia.webserver.actor.MessageHandlerActor;
 
 /**
@@ -32,7 +31,6 @@ public class BestiaSocketHandler extends TextWebSocketHandler {
 
 	private final ObjectMapper mapper = new ObjectMapper();
 	private ActorSystem actorSystem;
-	private BestiaActorContext bestiaCtx;
 
 	/**
 	 * Sets the actor system.
@@ -43,11 +41,6 @@ public class BestiaSocketHandler extends TextWebSocketHandler {
 	@Autowired
 	public void setActorSystem(ActorSystem actorSystem) {
 		this.actorSystem = actorSystem;
-	}
-
-	@Autowired
-	public void setBestiaContext(BestiaActorContext bestiaCtx) {
-		this.bestiaCtx = bestiaCtx;
 	}
 
 	@Override
@@ -76,7 +69,7 @@ public class BestiaSocketHandler extends TextWebSocketHandler {
 		LOG.trace("New connection: {}.", session.getRemoteAddress().toString());
 
 		// Setup the actor to access the zone server cluster.
-		final ActorRef messageActor = actorSystem.actorOf(MessageHandlerActor.props(session, mapper, bestiaCtx));
+		final ActorRef messageActor = actorSystem.actorOf(MessageHandlerActor.props(session, mapper));
 		session.getAttributes().put(ATTRIBUTE_ACTOR_REF, messageActor);
 	}
 

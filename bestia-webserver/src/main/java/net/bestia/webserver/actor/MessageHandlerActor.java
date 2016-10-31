@@ -26,7 +26,6 @@ import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
 import net.bestia.server.AkkaCluster;
-import net.bestia.server.BestiaActorContext;
 
 /**
  * This actor will handle all the message exchange with the websockt. When a
@@ -56,7 +55,7 @@ public class MessageHandlerActor extends UntypedActor {
 	 * @param mapper
 	 *            An jackson json mapper.
 	 */
-	public MessageHandlerActor(WebSocketSession session, ObjectMapper mapper, BestiaActorContext bestiaCtx) {
+	public MessageHandlerActor(WebSocketSession session, ObjectMapper mapper) {
 
 		this.session = Objects.requireNonNull(session, "Session can not be null.");
 		this.mapper = Objects.requireNonNull(mapper, "Mapper can not be null.");
@@ -70,12 +69,12 @@ public class MessageHandlerActor extends UntypedActor {
 	 * @param mapper
 	 * @return
 	 */
-	public static Props props(WebSocketSession session, ObjectMapper mapper, BestiaActorContext bestiaCtx) {
+	public static Props props(WebSocketSession session, ObjectMapper mapper) {
 		return Props.create(new Creator<MessageHandlerActor>() {
 			private static final long serialVersionUID = 1L;
 
 			public MessageHandlerActor create() throws Exception {
-				return new MessageHandlerActor(session, mapper, bestiaCtx);
+				return new MessageHandlerActor(session, mapper);
 			}
 		}).withDeploy(Deploy.local());
 	}
