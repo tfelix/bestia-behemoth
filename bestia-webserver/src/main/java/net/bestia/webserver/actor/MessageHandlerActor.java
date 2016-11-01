@@ -20,6 +20,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.JacksonMessage;
 import net.bestia.messages.internal.ClientConnectionStatusMessage;
 import net.bestia.messages.internal.ClientConnectionStatusMessage.ConnectionState;
 import net.bestia.messages.login.LoginAuthMessage;
@@ -131,12 +132,15 @@ public class MessageHandlerActor extends UntypedActor {
 		} else {
 			try {
 				// Turn the text message into a bestia message.
-				final AccountMessage msg = mapper.readValue(payload, AccountMessage.class);
+				final JacksonMessage msg = mapper.readValue(payload, JacksonMessage.class);
 				LOG.debug("Client sending: {}.", msg.toString());
 				mediator.tell(getClusterMessage(msg), getSelf());
 
 			} catch (IOException e) {
-				LOG.warning("Malformed message. Client: {}. Payload: {}.", session.getRemoteAddress(), payload, e);
+				LOG.warning("Malformed message. Client: {}, Payload: {}, Error: {}.", 
+						session.getRemoteAddress(), 
+						payload, 
+						e.toString());
 				closeSession(CloseStatus.BAD_DATA);
 			}
 		}

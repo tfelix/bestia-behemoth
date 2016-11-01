@@ -3,6 +3,7 @@ package net.bestia.messages.login;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.JacksonMessage;
 import net.bestia.messages.MessageId;
 
 /**
@@ -13,7 +14,7 @@ import net.bestia.messages.MessageId;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class LoginAuthMessage extends AccountMessage implements MessageId {
+public class LoginAuthMessage extends JacksonMessage {
 
 	private static final long serialVersionUID = 1L;
 
