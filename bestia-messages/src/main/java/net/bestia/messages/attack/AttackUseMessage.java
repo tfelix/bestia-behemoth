@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 
 /**
  * A message from the client to the server to use an attack.
@@ -11,7 +12,7 @@ import net.bestia.messages.AccountMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class AttackUseMessage extends AccountMessage {
+public class AttackUseMessage extends AccountMessage implements MessageId {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;

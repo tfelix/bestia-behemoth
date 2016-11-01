@@ -1,6 +1,7 @@
 package net.bestia.messages.entity;
 
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 
 /**
  * This message is purely for position changes. It will be send to the client
@@ -12,7 +13,7 @@ import net.bestia.messages.AccountMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class EntityPositionMessage extends AccountMessage {
+public class EntityPositionMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.position";

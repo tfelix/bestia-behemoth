@@ -3,9 +3,10 @@ package net.bestia.messages.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 import net.bestia.model.misc.SpriteType;
 
-public class EntityUpdateMessage extends AccountMessage {
+public class EntityUpdateMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.update";

@@ -119,8 +119,7 @@ public class MessageHandlerActor extends UntypedActor {
 
 				// Send the LoginRequest to the cluster.
 				// Somehow centralize the names of the actors.
-				mediator.tell(getClusterMessage(loginReqMsg),
-						getSelf());
+				mediator.tell(getClusterMessage(loginReqMsg), getSelf());
 
 			} catch (IOException e) {
 				// Wrong message. Terminate connection.
@@ -137,13 +136,13 @@ public class MessageHandlerActor extends UntypedActor {
 				mediator.tell(getClusterMessage(msg), getSelf());
 
 			} catch (IOException e) {
-				LOG.warning("Malformed message. Client: {}. Payload: {}.", session.getRemoteAddress(), payload);
+				LOG.warning("Malformed message. Client: {}. Payload: {}.", session.getRemoteAddress(), payload, e);
 				closeSession(CloseStatus.BAD_DATA);
 			}
 		}
 	}
 
-	private void handleLoginAuth(LoginAuthReplyMessage msg) {
+	private void handleLoginAuth(LoginAuthReplyMessage msg) throws Exception {
 		// Check how the login state was given.
 		if (msg.getLoginState() == LoginState.ACCEPTED) {
 			isAuthenticated = true;
@@ -155,6 +154,10 @@ public class MessageHandlerActor extends UntypedActor {
 					ConnectionState.CONNECTED,
 					getSelf());
 			mediator.tell(getClusterMessage(ccsmsg), getSelf());
+			
+			// Also announce to client the login success.
+			sendToClient(msg);
+			
 		} else {
 			closeSession(CloseStatus.PROTOCOL_ERROR);
 		}

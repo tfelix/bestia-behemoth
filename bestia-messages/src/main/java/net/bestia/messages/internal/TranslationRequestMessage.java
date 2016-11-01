@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 import net.bestia.model.domain.TranslationCategory;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -18,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class TranslationRequestMessage extends AccountMessage {
+public class TranslationRequestMessage extends AccountMessage implements MessageId {
 
 	public static class TranslationItem implements Serializable {
 

@@ -1,11 +1,8 @@
 package net.bestia.messages;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeId;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
+import java.util.Objects;
 
-import net.bestia.messages.jackson.MessageTypeIdResolver;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * These messages carry additional account information (the account id). Usually
@@ -15,20 +12,17 @@ import net.bestia.messages.jackson.MessageTypeIdResolver;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "mid")
-@JsonTypeIdResolver(MessageTypeIdResolver.class)
-public abstract class AccountMessage extends Message implements MessageId {
+public abstract class AccountMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 
 	private long accountId;
 
 	/**
-	 * Std. Ctor. Note: This is here for deserialization purpose. Please specify
-	 * an account id if this ctor is used.
+	 * Std. ctor for deserialization purpose of child classes.
 	 */
 	public AccountMessage() {
-		// no op.
+
 	}
 
 	/**
@@ -38,10 +32,8 @@ public abstract class AccountMessage extends Message implements MessageId {
 	 * @param msg
 	 */
 	public AccountMessage(AccountMessage msg) {
-		if (msg == null) {
-			throw new IllegalArgumentException("Msg can not be null.");
-		}
 
+		Objects.requireNonNull(msg);
 		this.accountId = msg.getAccountId();
 	}
 
@@ -54,13 +46,6 @@ public abstract class AccountMessage extends Message implements MessageId {
 	public AccountMessage(long accountId) {
 		this.accountId = accountId;
 	}
-	
-	/* (non-Javadoc)
-	 * @see net.bestia.messages.MessageId#getMessageId()
-	 */
-	@Override
-	@JsonTypeId
-	public abstract String getMessageId();
 
 	/**
 	 * Returns the account id for this message. Note: Not everytime this id is
@@ -80,8 +65,6 @@ public abstract class AccountMessage extends Message implements MessageId {
 
 	@Override
 	public String toString() {
-		return String.format("AccountMessage[message id: %s, account id: %d]",
-				getMessageId(),
-				accountId);
+		return String.format("AccountMessage[account id: %d]", accountId);
 	}
 }

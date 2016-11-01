@@ -6,6 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 import net.bestia.model.misc.Damage;
 
 /**
@@ -16,7 +17,7 @@ import net.bestia.model.misc.Damage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class EntityDamageMessage extends AccountMessage {
+public class EntityDamageMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
 

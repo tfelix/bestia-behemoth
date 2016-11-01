@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 import net.bestia.messages.internal.TranslationRequestMessage.TranslationItem;
 
 /**
@@ -17,7 +18,7 @@ import net.bestia.messages.internal.TranslationRequestMessage.TranslationItem;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class TranslationResponseMessage extends AccountMessage {
+public class TranslationResponseMessage extends AccountMessage implements MessageId {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;

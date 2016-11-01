@@ -60,6 +60,9 @@ public class LoginActor extends BestiaRoutingActor {
 			response.setAccountId(acc.getId());
 		}
 		
+		// Special case. We can not use the SendClientActor because the connection
+		// was not yet registered by the webserver. Only after this trigger message
+		// it will be available by the SendClientActor.
 		getSender().tell(response, getSelf());
 	}
 	

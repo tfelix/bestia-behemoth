@@ -1,10 +1,9 @@
 package net.bestia.messages.login;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 
 /**
  * Message is replied from the login server after a {@link LoginAuthMessage}.
@@ -12,7 +11,7 @@ import net.bestia.messages.AccountMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class LoginAuthReplyMessage extends AccountMessage {
+public class LoginAuthReplyMessage extends AccountMessage implements MessageId {
 
 	public static final String MESSAGE_ID = "system.loginauthreply";
 	private static final long serialVersionUID = 1L;
@@ -40,15 +39,13 @@ public class LoginAuthReplyMessage extends AccountMessage {
 	public String getMessageId() {
 		return MESSAGE_ID;
 	}
-	
-	@Override
-	public int hashCode() {
-		return Objects.hash(state);
-	}
 
 	@Override
 	public String toString() {
-		return String.format("LoginAuthReplyMessage[state: %s]", state.toString());
+		return String.format(
+				"LoginAuthReplyMessage[accountId: %d, state: %s]", 
+				getAccountId(), 
+				state.toString());
 	}
 
 }

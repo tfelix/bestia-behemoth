@@ -5,9 +5,6 @@ import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Set;
 
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.Message;
-
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +13,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import com.fasterxml.jackson.databind.type.TypeFactory;
+
+import net.bestia.messages.MessageId;
 
 /**
  * Custom TypeId Resolver for message objects. Upon start it looks for all
@@ -30,8 +29,8 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 	private final static Logger log = LoggerFactory.getLogger(MessageTypeIdResolver.class);
 
 	private final TypeFactory typeFactory = TypeFactory.defaultInstance();
-	private final HashMap<String, Class<? extends Message>> idToClass = new HashMap<String, Class<? extends Message>>();
-	private final HashMap<Class<? extends Message>, String> classToId = new HashMap<Class<? extends Message>, String>();
+	private final HashMap<String, Class<? extends MessageId>> idToClass = new HashMap<>();
+	private final HashMap<Class<? extends MessageId>, String> classToId = new HashMap<>();
 
 	private JavaType baseType;
 
@@ -46,12 +45,11 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 
 		// Find all classes implementing the message interface.
 		Reflections reflections = new Reflections("net.bestia.messages");
-		// TODO Hier vielleicht nicht auf AccountMessages gehen sondern auf MesageId
-		Set<Class<? extends AccountMessage>> messages = reflections.getSubTypesOf(AccountMessage.class);
+		Set<Class<? extends MessageId>> messages = reflections.getSubTypesOf(MessageId.class);
+		
 		// Instantiate the message classes to get their message id from the
-		// method and store
-		// it for later serialization and deserialization.
-		for (Class<? extends AccountMessage> msg : messages) {
+		// method and store it for later serialization and deserialization.
+		for (Class<? extends MessageId> msg : messages) {
 
 			// Avoid abstract classes.
 			if (Modifier.isAbstract(msg.getModifiers())) {
@@ -59,7 +57,7 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 			}
 
 			try {
-				Constructor<? extends AccountMessage> cons = msg.getConstructor();
+				Constructor<? extends MessageId> cons = msg.getConstructor();
 
 				final String key = cons.newInstance().getMessageId();
 
@@ -92,8 +90,7 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 
 	@Override
 	public JavaType typeFromId(String key) {
-		Class<? extends Message> clazz = idToClass.get(key);
+		final Class<? extends MessageId> clazz = idToClass.get(key);
 		return typeFactory.constructSpecializedType(baseType, clazz);
 	}
-
 }

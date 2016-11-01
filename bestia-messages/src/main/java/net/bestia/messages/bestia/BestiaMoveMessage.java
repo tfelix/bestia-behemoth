@@ -5,8 +5,9 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 
-public class BestiaMoveMessage extends AccountMessage {
+public class BestiaMoveMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
 	public final static String MESSAGE_ID = "bestia.move";

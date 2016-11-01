@@ -3,6 +3,7 @@ package net.bestia.messages.inventory;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 
 /**
  * Signals the server to use an castable item on the map possibly spawning map
@@ -11,7 +12,7 @@ import net.bestia.messages.AccountMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class InventoryItemCastMessage extends AccountMessage {
+public class InventoryItemCastMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
 

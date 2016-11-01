@@ -1,6 +1,7 @@
 package net.bestia.messages.map;
 
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 
 /**
  * Asks the server to send the data of the map in the current viewport (with
@@ -9,7 +10,7 @@ import net.bestia.messages.AccountMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class RequestMapDataMessage extends AccountMessage {
+public class RequestMapDataMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "map.requestdata";

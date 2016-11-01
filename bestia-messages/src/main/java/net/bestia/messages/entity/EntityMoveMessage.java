@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 
 /**
  * This message is send from the server to all clients as soon as a movement is
@@ -20,7 +21,7 @@ import net.bestia.messages.AccountMessage;
  * @author Thomas Felix <thomas.felix@tfelix.>
  *
  */
-public class EntityMoveMessage extends AccountMessage {
+public class EntityMoveMessage extends AccountMessage implements MessageId {
 	
 	public static class Point implements Serializable {
 

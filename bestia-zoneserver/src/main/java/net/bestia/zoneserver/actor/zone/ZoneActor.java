@@ -76,9 +76,6 @@ public class ZoneActor extends BestiaRoutingActor {
 
 		// Some utility actors.
 		createActor(ClusterStatusListenerActor.class, "clusterStatusListener");
-
-		// This is for testing.
-		// === Test Actor ===
 	}
 	
 	@Override
@@ -90,7 +87,7 @@ public class ZoneActor extends BestiaRoutingActor {
 	@Override
 	protected void handleMessage(Object msg) {
 		if (msg instanceof DistributedPubSubMediator.SubscribeAck) {
-			LOG.info("subscribing");
+			LOG.info("Subscribed to the behemoth cluster.");
 			return;
 		}
 
@@ -98,7 +95,9 @@ public class ZoneActor extends BestiaRoutingActor {
 
 			// If we have finished loading setup the mediator to receive pub sub messages.
 			final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
-			mediator.tell(new DistributedPubSubMediator.Subscribe(AkkaCluster.CLUSTER_PUBSUB_TOPIC, getSelf()),
+			mediator.tell(new DistributedPubSubMediator.Subscribe(
+					AkkaCluster.CLUSTER_PUBSUB_TOPIC, 
+					getSelf()),
 					getSelf());
 		}
 	}

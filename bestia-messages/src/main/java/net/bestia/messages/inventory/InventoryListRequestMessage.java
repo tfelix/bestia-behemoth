@@ -1,6 +1,7 @@
 package net.bestia.messages.inventory;
 
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 
 /**
  * Client requests to list the inventory.
@@ -8,7 +9,7 @@ import net.bestia.messages.AccountMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class InventoryListRequestMessage extends AccountMessage {
+public class InventoryListRequestMessage extends AccountMessage implements MessageId {
 
 	public final static String MESSAGE_ID = "inventory.request.list";
 	

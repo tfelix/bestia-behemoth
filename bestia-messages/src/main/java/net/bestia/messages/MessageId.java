@@ -1,11 +1,18 @@
 package net.bestia.messages;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
+
+import net.bestia.messages.jackson.MessageTypeIdResolver;
+
 /**
  * Messages can be identified by returning a unique id.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "mid")
+@JsonTypeIdResolver(MessageTypeIdResolver.class)
 public interface MessageId {
 
 	/**

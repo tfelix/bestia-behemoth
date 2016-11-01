@@ -3,6 +3,7 @@ package net.bestia.messages.map;
 import java.util.Objects;
 
 import net.bestia.messages.AccountMessage;
+import net.bestia.messages.MessageId;
 import net.bestia.model.shape.Point;
 
 /**
@@ -12,7 +13,7 @@ import net.bestia.model.shape.Point;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MapMoveMessage extends AccountMessage {
+public class MapMoveMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
 

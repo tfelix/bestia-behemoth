@@ -5,6 +5,15 @@ import java.util.Objects;
 import akka.actor.ActorRef;
 import net.bestia.messages.AccountMessage;
 
+/**
+ * This message is send by the webserver frontend as soon as a client is fully
+ * connected and must be registered into the bestia system. As soon as this
+ * message arrives the client is authenticated and connected and must/can
+ * receive messages from now on.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class ClientConnectionStatusMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
