@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import net.bestia.messages.Message;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.zone.entity.VisibleEntity;
+import net.bestia.zoneserver.entity.VisibleEntity;
 
 /**
  * Upon receiving of a move message we will lookup the movable entity and sets

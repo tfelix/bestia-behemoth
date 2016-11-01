@@ -10,8 +10,8 @@ import net.bestia.messages.inventory.InventoryUpdateMessage;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerItem;
 import net.bestia.model.service.InventoryService;
-import net.bestia.zoneserver.zone.entity.PlayerBestiaEntity;
-import net.bestia.zoneserver.zone.entity.traits.Updateable;
+import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.entity.traits.Updateable;
 
 /**
  * Wrapper around the {@link InventoryService}. It provides more or less the

@@ -20,9 +20,9 @@ import net.bestia.model.shape.Rect;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
+import net.bestia.zoneserver.entity.PlayerBestiaEntity;
 import net.bestia.zoneserver.service.CacheManager;
 import net.bestia.zoneserver.service.MapService;
-import net.bestia.zoneserver.zone.entity.PlayerBestiaEntity;
 
 /**
  * This actor generates a data message containing all the data needed for the

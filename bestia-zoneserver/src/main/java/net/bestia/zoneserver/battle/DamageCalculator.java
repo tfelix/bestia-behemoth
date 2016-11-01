@@ -3,7 +3,7 @@ package net.bestia.zoneserver.battle;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.AttackBasedStatus;
 import net.bestia.model.misc.Damage;
-import net.bestia.zoneserver.zone.entity.traits.Attackable;
+import net.bestia.zoneserver.entity.traits.Attackable;
 
 public class DamageCalculator {
 

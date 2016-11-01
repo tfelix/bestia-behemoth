@@ -6,8 +6,8 @@ import org.junit.Test;
 
 import net.bestia.model.shape.Collision;
 import net.bestia.model.shape.Point;
-import net.bestia.zoneserver.zone.entity.traits.Collidable;
-import net.bestia.zoneserver.zone.map.Quadtree;
+import net.bestia.zoneserver.entity.traits.Collidable;
+import net.bestia.zoneserver.map.Quadtree;
 
 public class QuadtreeTest {
 	

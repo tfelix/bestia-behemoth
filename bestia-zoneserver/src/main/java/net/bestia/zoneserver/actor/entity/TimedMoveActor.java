@@ -17,10 +17,10 @@ import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.model.shape.Point;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
+import net.bestia.zoneserver.entity.VisibleEntity;
+import net.bestia.zoneserver.entity.traits.Moving;
 import net.bestia.zoneserver.service.CacheManager;
 import net.bestia.zoneserver.service.MovingEntityManager;
-import net.bestia.zoneserver.zone.entity.VisibleEntity;
-import net.bestia.zoneserver.zone.entity.traits.Moving;
 import scala.concurrent.duration.Duration;
 
 /**

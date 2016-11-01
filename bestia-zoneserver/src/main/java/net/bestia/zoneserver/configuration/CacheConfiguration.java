@@ -7,9 +7,9 @@ import org.springframework.context.annotation.Configuration;
 import com.hazelcast.core.HazelcastInstance;
 
 import akka.actor.ActorRef;
+import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.entity.VisibleEntity;
 import net.bestia.zoneserver.service.CacheManager;
-import net.bestia.zoneserver.zone.entity.PlayerBestiaEntity;
-import net.bestia.zoneserver.zone.entity.VisibleEntity;
 
 /**
  * This class sets up all the caches which are used to hold various objects

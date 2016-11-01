@@ -12,8 +12,10 @@ import org.springframework.stereotype.Component;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.messages.AccountMessage;
 import net.bestia.messages.Message;
 import net.bestia.messages.internal.ReportHandledMessages;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 
 /**
  * The routing actor implementation will provide a method to add child actors.
@@ -29,8 +31,9 @@ import net.bestia.messages.internal.ReportHandledMessages;
 public abstract class BestiaRoutingActor extends BestiaActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-	
+
 	private Map<Class<? extends Message>, Set<ActorRef>> messageRoutes = new HashMap<>();
+	private ActorRef responder;
 
 	/**
 	 * Returns a list of message classes which are handled by this actor. They
@@ -64,6 +67,21 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	 * @param msg
 	 */
 	protected abstract void handleMessage(Object msg);
+
+	/**
+	 * This will deliver the given message back to the account. In order to do
+	 * this a {@link SendClientActor} responder is used. The actor will be
+	 * created when necessary (this means the method is first invoked).
+	 * 
+	 * @param msg
+	 */
+	protected void sendClient(AccountMessage msg) {
+		if(responder == null) {
+			responder = createActor(SendClientActor.class);
+		}
+
+		responder.tell(msg, getSelf());
+	}
 
 	/**
 	 * Reports to the parent which messages are handled by us.
