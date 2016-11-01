@@ -1,7 +1,8 @@
 package net.bestia.messages.bestia;
 
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.JacksonMessage;
 
 /**
  * Client sends this message if it wants to switch to another active bestia.
@@ -11,16 +12,34 @@ import net.bestia.messages.MessageId;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class BestiaActivateMessage extends AccountMessage implements MessageId {
+public class BestiaActivateMessage extends JacksonMessage {
 
 	private static final long serialVersionUID = 1L;
 	public final static String MESSAGE_ID = "bestia.activate";
 
+	@JsonProperty("pbid")
+	private int playerBestiaId;
+	
 	/**
 	 * Ctor.
 	 */
 	public BestiaActivateMessage() {
 		
+	}
+	
+	/**
+	 * Ctor.
+	 */
+	public BestiaActivateMessage(int bestiaId) {
+		this.playerBestiaId = bestiaId;
+	}
+	
+	public int getPlayerBestiaId() {
+		return playerBestiaId;
+	}
+	
+	public void setPlayerBestiaId(int playerBestiaId) {
+		this.playerBestiaId = playerBestiaId;
 	}
 
 	@Override

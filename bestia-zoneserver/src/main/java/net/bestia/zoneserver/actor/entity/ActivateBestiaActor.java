@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import net.bestia.messages.Message;
-import net.bestia.messages.bestia.BestiaActivatedMessage;
+import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
 import net.bestia.zoneserver.service.CacheManager;
@@ -30,7 +30,7 @@ import net.bestia.zoneserver.service.CacheManager;
 public class ActivateBestiaActor extends BestiaRoutingActor {
 
 	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
-			Arrays.asList(BestiaActivatedMessage.class)));
+			Arrays.asList(BestiaActivateMessage.class)));
 
 	private final CacheManager<Long, Integer> activeBestias;
 
@@ -49,7 +49,7 @@ public class ActivateBestiaActor extends BestiaRoutingActor {
 	@Override
 	protected void handleMessage(Object msg) {
 
-		final BestiaActivatedMessage bestiaMsg = (BestiaActivatedMessage) msg;
+		final BestiaActivateMessage bestiaMsg = (BestiaActivateMessage) msg;
 
 		// TODO Aus alter Logik übertragen und Entity aktivieren.
 	}
