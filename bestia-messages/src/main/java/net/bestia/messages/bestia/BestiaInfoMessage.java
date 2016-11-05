@@ -1,5 +1,7 @@
 package net.bestia.messages.bestia;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -42,9 +44,18 @@ public class BestiaInfoMessage extends JacksonMessage {
 
 	/**
 	 * Std. ctor.
+	 * 
+	 * @param pb
+	 * @param rbimsg
 	 */
-	public BestiaInfoMessage() {
-
+	public BestiaInfoMessage(AccountMessage message, PlayerBestia pb, StatusPoints sp) {
+		super(message);
+		
+		Objects.requireNonNull(pb);
+		
+		isMaster = pb.getMaster().getId() == getAccountId();
+		bestia = pb;
+		statusPoints = Objects.requireNonNull(sp);
 	}
 
 	/**

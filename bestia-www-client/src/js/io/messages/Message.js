@@ -37,6 +37,16 @@ var Message = {
 	BestiaInfo : function() {
 		this.mid = MID.BESTIA_INFO;
 	},
+	
+	/**
+	 * Asks the server to provide information about the bestia which are in
+	 * posession.
+	 * 
+	 * @constructor
+	 */
+	ReqBestiaInfo : function() {
+		this.mid = MID.BESTIA_REQ_INFO;
+	},
 
 	/**
 	 * Creates a chat message.

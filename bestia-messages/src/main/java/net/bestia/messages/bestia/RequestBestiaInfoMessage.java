@@ -18,4 +18,9 @@ public class RequestBestiaInfoMessage extends JacksonMessage {
 	public String getMessageId() {
 		return MESSAGE_ID;
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("RequestBestiaInfoMessage[accId: %d]", getAccountId());
+	}
 }

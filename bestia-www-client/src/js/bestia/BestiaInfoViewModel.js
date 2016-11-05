@@ -73,7 +73,7 @@ export default class BestiaInfoViewModel {
 	 * server for the bestias to display in here.
 	 */
 	_handleConnected() {
-		var msg = new Message.BestiaInfo();
+		var msg = new Message.ReqBestiaInfo();
 		this._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 	}
 	

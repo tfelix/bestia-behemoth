@@ -13,9 +13,9 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.Message;
 import net.bestia.messages.bestia.BestiaInfoMessage;
 import net.bestia.messages.bestia.RequestBestiaInfoMessage;
-import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.service.AccountZoneService;
+import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.service.EntityService;
 
 /**
  * This actor gathers all needed information about the bestias in the players
@@ -31,12 +31,12 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
 			Arrays.asList(RequestBestiaInfoMessage.class)));
 	
-	private final AccountZoneService accountService;
+	private final EntityService entityService;
 
 	@Autowired
-	public BestiaInfoActor(AccountZoneService accService) {
+	public BestiaInfoActor(EntityService entityService) {
 		
-		this.accountService = Objects.requireNonNull(accService);
+		this.entityService = Objects.requireNonNull(entityService);
 	}
 	
 	@Override
@@ -46,13 +46,17 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 
 	@Override
 	protected void handleMessage(Object msg) {
-		LOG.debug("Sending bestia information.");
+		LOG.debug(String.format("Received: %s", msg.toString()));
 		
 		final RequestBestiaInfoMessage rbimsg = (RequestBestiaInfoMessage) msg;
-		final Set<PlayerBestia> bestias = accountService.getAllBestias(rbimsg.getAccountId());
+		final Set<PlayerBestiaEntity> bestias = entityService.getPlayerBestiaEntities(rbimsg.getAccountId());
 		
-		// We must send for each bestia a single message.
-		final BestiaInfoMessage bimsg = new BestiaInfoMessage(rbimsg);
-		
+		for(PlayerBestiaEntity bestia : bestias) {
+			// We must send for each bestia a single message.
+			final BestiaInfoMessage bimsg = new BestiaInfoMessage(rbimsg, 
+					bestia.getPlayerBestia(), 
+					bestia.getStatusPoints());
+			sendClient(bimsg);
+		}		
 	}
 }

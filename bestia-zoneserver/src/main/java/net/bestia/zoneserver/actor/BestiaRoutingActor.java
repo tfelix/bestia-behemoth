@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.AccountMessage;
+import net.bestia.messages.JacksonMessage;
 import net.bestia.messages.Message;
 import net.bestia.messages.internal.ReportHandledMessages;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
@@ -75,7 +75,8 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	 * 
 	 * @param msg
 	 */
-	protected void sendClient(AccountMessage msg) {
+	protected void sendClient(JacksonMessage msg) {
+		LOG.debug(String.format("Sending to client: %s", msg.toString()));
 		if(responder == null) {
 			responder = createActor(SendClientActor.class);
 		}

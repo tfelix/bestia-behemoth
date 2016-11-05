@@ -9,6 +9,7 @@ var MID = {
 	SYSTEM_AUTHREPLY : 'system.loginauthreply',
 	
 	BESTIA_INFO : 'bestia.info',
+	BESTIA_REQ_INFO : 'bestia.requestinfo',
 	BESTIA_MOVE : 'bestia.move',
 	BESTIA_ACTIVATE: 'bestia.activate',
 	BESTIA_ACTIVATED: 'bestia.activated',

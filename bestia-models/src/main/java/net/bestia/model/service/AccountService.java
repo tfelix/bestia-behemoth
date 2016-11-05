@@ -1,5 +1,6 @@
 package net.bestia.model.service;
 
+import java.util.Collections;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -129,17 +130,17 @@ public class AccountService {
 
 	/**
 	 * Returns all the bestias under a given account id. This includes the
-	 * bestia master aswell as "normal" bestias.
+	 * bestia master as well as "normal" bestias.
 	 * 
 	 * @param accId
-	 * @return Returns the set of player bestia for a given account id or NULL
-	 *         if this account does not exist.
+	 * @return Returns the set of player bestia for a given account id or an
+	 *         empty set if this account does not exist.
 	 */
 	public Set<PlayerBestia> getAllBestias(long accId) {
 		final Account account = accountDao.findOne(accId);
 
 		if (account == null) {
-			return null;
+			return Collections.emptySet();
 		}
 
 		final Set<PlayerBestia> bestias = playerBestiaDao.findPlayerBestiasForAccount(accId);

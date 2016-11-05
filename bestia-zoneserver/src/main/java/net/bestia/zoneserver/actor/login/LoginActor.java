@@ -3,12 +3,14 @@ package net.bestia.zoneserver.actor.login;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.ActorRef;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -19,6 +21,7 @@ import net.bestia.messages.login.LoginState;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.actor.entity.SpawnPlayerEntityActor;
 import net.bestia.zoneserver.service.ServerRuntimeConfiguration;
 
 /**
@@ -45,12 +48,14 @@ public class LoginActor extends BestiaRoutingActor {
 
 	private final AccountDAO accountDao;
 	private final ServerRuntimeConfiguration config;
+	private final ActorRef spawnPlayerBestiasActor;
 
 	@Autowired
 	public LoginActor(AccountDAO accountDao, ServerRuntimeConfiguration config) {
 		
-		this.accountDao = accountDao;
-		this.config = config;
+		this.accountDao = Objects.requireNonNull(accountDao);
+		this.config = Objects.requireNonNull(config);
+		this.spawnPlayerBestiasActor = createActor(SpawnPlayerEntityActor.class);
 	}
 
 	private void respond(LoginAuthMessage msg, LoginState state, Account acc) {
@@ -93,6 +98,7 @@ public class LoginActor extends BestiaRoutingActor {
 
 		if (acc.getLoginToken().equals(loginMsg.getToken())) {
 			respond(loginMsg, LoginState.ACCEPTED, acc);
+			spawnPlayerBestiasActor.tell(new Long(acc.getId()), getSelf());
 		} else {
 			respond(loginMsg, LoginState.DENIED, null);
 		}

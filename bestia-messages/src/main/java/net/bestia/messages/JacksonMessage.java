@@ -10,7 +10,7 @@ import net.bestia.messages.jackson.MessageTypeIdResolver;
  * for the clients. All messages meant to be send to the client via jackson
  * serialization and deserialization should use this base class.
  * 
- * @author Thomas
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "mid")

@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.zone;
+package net.bestia.zoneserver.actor.chat;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,6 +17,7 @@ import net.bestia.messages.Message;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.service.AccountZoneService;
 
 /**
