@@ -9,7 +9,7 @@ import net.bestia.model.shape.Point;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public interface Locatable {
+public interface Locatable extends IdEntity {
 
 	/**
 	 * The position of the entity in the world.

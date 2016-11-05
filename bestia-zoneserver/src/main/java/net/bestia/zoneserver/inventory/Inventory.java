@@ -10,7 +10,7 @@ import net.bestia.messages.inventory.InventoryUpdateMessage;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerItem;
 import net.bestia.model.service.InventoryService;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.entity.MasterBestiaEntity;
 import net.bestia.zoneserver.entity.traits.Updateable;
 
 /**
@@ -27,11 +27,11 @@ public class Inventory implements Updateable {
 	private final InventoryService inventoryService;
 	
 	private final long accountId;
-	private final PlayerBestiaEntity owner;
+	private final MasterBestiaEntity owner;
 	
 	private final List<Message> messageBuffer = new ArrayList<>();
 
-	public Inventory(PlayerBestiaEntity owner, InventoryService service) {
+	public Inventory(MasterBestiaEntity owner, InventoryService service) {
 
 		if (service == null) {
 			throw new IllegalArgumentException("Service can not be null.");

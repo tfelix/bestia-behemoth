@@ -18,7 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
+/**
+ * The service for managing and editing of the player bestias.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 @Service
 @Transactional
 public class PlayerBestiaService {
@@ -222,25 +227,25 @@ public class PlayerBestiaService {
 	 * @param playerBestia
 	 */
 	public void savePlayerBestiaECS(PlayerBestia playerBestia) {
-		if(playerBestia == null) {
+		if (playerBestia == null) {
 			throw new IllegalArgumentException("PlayerBestia can not be null.");
 		}
-		
+
 		final PlayerBestia dbPlayerBestia = playerBestiaDao.findOne(playerBestia.getId());
-		
-		if(dbPlayerBestia == null) {
+
+		if (dbPlayerBestia == null) {
 			return;
 		}
-		
+
 		// Update its values from the ECS.
 		dbPlayerBestia.setCurrentPosition(playerBestia.getCurrentPosition());
-		
+
 		dbPlayerBestia.setCurrentHp(playerBestia.getCurrentHp());
 		dbPlayerBestia.setCurrentMana(playerBestia.getCurrentMana());
 		dbPlayerBestia.setLevel(playerBestia.getLevel());
 		dbPlayerBestia.setExp(playerBestia.getExp());
 		// TODO set EVs.
-		
+
 		playerBestiaDao.save(dbPlayerBestia);
 	}
 

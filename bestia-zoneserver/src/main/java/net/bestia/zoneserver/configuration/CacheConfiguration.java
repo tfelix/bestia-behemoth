@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import com.hazelcast.core.HazelcastInstance;
 
 import akka.actor.ActorRef;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
-import net.bestia.zoneserver.entity.VisibleEntity;
+import net.bestia.zoneserver.entity.MasterBestiaEntity;
+import net.bestia.zoneserver.entity.LivingEntity;
 import net.bestia.zoneserver.service.CacheManager;
 
 /**
@@ -35,7 +35,7 @@ public class CacheConfiguration {
 	}
 
 	@Bean(name = ENTITY_CACHE)
-	public CacheManager<Long, VisibleEntity> getEntityCache() {
+	public CacheManager<Long, LivingEntity> getEntityCache() {
 
 		return new CacheManager<>("cache.entity", cache);
 	}
@@ -62,12 +62,12 @@ public class CacheConfiguration {
 	}
 
 	/**
-	 * Returns the cache holding the {@link PlayerBestiaEntity}s of the players.
+	 * Returns the cache holding the {@link MasterBestiaEntity}s of the players.
 	 * 
-	 * @return Cache of the {@link PlayerBestiaEntity}s.
+	 * @return Cache of the {@link MasterBestiaEntity}s.
 	 */
 	@Bean(name = PLAYER_BESTIA_CACHE)
-	public CacheManager<Integer, PlayerBestiaEntity> getPlayerBestiaCache() {
+	public CacheManager<Integer, MasterBestiaEntity> getPlayerBestiaCache() {
 
 		return new CacheManager<>("cache.playerBestia", cache);
 	}

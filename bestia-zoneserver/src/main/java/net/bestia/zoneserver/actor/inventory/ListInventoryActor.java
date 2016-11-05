@@ -20,7 +20,7 @@ import net.bestia.messages.inventory.InventoryListRequestMessage;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.entity.MasterBestiaEntity;
 import net.bestia.zoneserver.inventory.Inventory;
 
 /**

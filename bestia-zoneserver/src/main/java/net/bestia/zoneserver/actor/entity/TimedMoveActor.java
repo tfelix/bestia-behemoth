@@ -17,7 +17,7 @@ import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.model.shape.Point;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
-import net.bestia.zoneserver.entity.VisibleEntity;
+import net.bestia.zoneserver.entity.LivingEntity;
 import net.bestia.zoneserver.entity.traits.Moving;
 import net.bestia.zoneserver.service.CacheManager;
 import net.bestia.zoneserver.service.MovingEntityManager;
@@ -40,14 +40,14 @@ public class TimedMoveActor extends BestiaActor {
 	private Cancellable tick;
 
 	private final MovingEntityManager movingManager;
-	private final CacheManager<Long, VisibleEntity> entityCache;
+	private final CacheManager<Long, LivingEntity> entityCache;
 
 	private long entityId;
 	private Queue<Point> path;
 
 	@Autowired
 	public TimedMoveActor(
-			@Qualifier(CacheConfiguration.ACTIVE_BESTIA_CACHE) CacheManager<Long, VisibleEntity> entityCache,
+			@Qualifier(CacheConfiguration.ACTIVE_BESTIA_CACHE) CacheManager<Long, LivingEntity> entityCache,
 			MovingEntityManager movingManager) {
 
 		this.entityCache = Objects.requireNonNull(entityCache);
@@ -89,7 +89,7 @@ public class TimedMoveActor extends BestiaActor {
 
 			entityId = msg.getEntityId();
 
-			final VisibleEntity e = entityCache.get(entityId);
+			final LivingEntity e = entityCache.get(entityId);
 
 			// Check if the entity can move. If not stop.
 			if (e == null || !(e instanceof Moving)) {

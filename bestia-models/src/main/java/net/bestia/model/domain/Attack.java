@@ -212,4 +212,29 @@ public class Attack implements Serializable {
 
 		return defaultMeleeAttack;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((databaseName == null) ? 0 : databaseName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Attack other = (Attack) obj;
+		if (databaseName == null) {
+			if (other.databaseName != null)
+				return false;
+		} else if (!databaseName.equals(other.databaseName))
+			return false;
+		return true;
+	}
 }

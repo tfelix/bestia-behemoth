@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import net.bestia.messages.Message;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.VisibleEntity;
+import net.bestia.zoneserver.entity.LivingEntity;
 
 /**
  * Upon receiving of a move message we will lookup the movable entity and sets
@@ -37,7 +37,7 @@ public class MoveActor extends BestiaRoutingActor {
 
 		final EntityMoveMessage moveMsg = (EntityMoveMessage) msg;
 
-		final VisibleEntity entity = null;
+		final LivingEntity entity = null;
 
 		// TODO Was it a visible entity? If yes update all nearby entities.
 

@@ -20,7 +20,7 @@ import net.bestia.model.shape.Rect;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.entity.MasterBestiaEntity;
 import net.bestia.zoneserver.service.CacheManager;
 import net.bestia.zoneserver.service.MapService;
 
@@ -46,14 +46,14 @@ public class MapPatchActor extends BestiaRoutingActor {
 
 	private final MapService mapService;
 	private final CacheManager<Long, Integer> activeBestiaCache;
-	private final CacheManager<Integer, PlayerBestiaEntity> playerBestiaCache;
+	private final CacheManager<Integer, MasterBestiaEntity> playerBestiaCache;
 	private final ActorRef responseActor;
 
 	@Autowired
 	public MapPatchActor(
 			MapService mapService,
 			@Qualifier(CacheConfiguration.ACTIVE_BESTIA_CACHE) CacheManager<Long, Integer> activeBestiaCache,
-			@Qualifier(CacheConfiguration.PLAYER_BESTIA_CACHE) CacheManager<Integer, PlayerBestiaEntity> playerBestiaCache) {
+			@Qualifier(CacheConfiguration.PLAYER_BESTIA_CACHE) CacheManager<Integer, MasterBestiaEntity> playerBestiaCache) {
 
 		this.activeBestiaCache = Objects.requireNonNull(activeBestiaCache);
 		this.mapService = Objects.requireNonNull(mapService);
@@ -75,7 +75,7 @@ public class MapPatchActor extends BestiaRoutingActor {
 
 		// Find the currently active bestia for this account.
 		final Integer activeBestia = activeBestiaCache.get(accId);
-		final PlayerBestiaEntity pbe = playerBestiaCache.get(activeBestia);
+		final MasterBestiaEntity pbe = playerBestiaCache.get(activeBestia);
 
 		final Point pos = pbe.getPosition();
 		final Rect area = new Rect(

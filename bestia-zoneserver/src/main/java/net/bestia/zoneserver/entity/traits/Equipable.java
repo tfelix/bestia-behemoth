@@ -1,5 +1,8 @@
 package net.bestia.zoneserver.entity.traits;
 
+import java.util.Set;
+
+import net.bestia.model.domain.EquipmentSlot;
 import net.bestia.model.domain.Item;
 
 /**
@@ -37,6 +40,15 @@ public interface Equipable {
 	 * @param item
 	 *            The item to remove.
 	 */
-	void unquipItem(Item item);
+	void unequipItem(Item item);
+
+	/**
+	 * Returns the set of equipment slots which are available for equipping
+	 * items. Some items might have restrictions for equipping them into these
+	 * slots whatsoever.
+	 * 
+	 * @return A set of available equipment slots.
+	 */
+	Set<EquipmentSlot> getAvailableEquipmentSlots();
 
 }

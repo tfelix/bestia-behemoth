@@ -27,7 +27,7 @@ public class CacheManager<K, V> {
 	 * @param cacheKey
 	 *            The unique cache key of this item set.
 	 * @param cache
-	 *            The cache instance used to store and retrive the objects.
+	 *            The cache instance used to store and retrieve the objects.
 	 */
 	public CacheManager(String cacheKey, HazelcastInstance cache) {
 

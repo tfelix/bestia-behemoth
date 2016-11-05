@@ -1,6 +1,8 @@
 package net.bestia.model.domain;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -386,7 +388,12 @@ public class PlayerBestia implements Serializable {
 	public void setMaster(Account master) {
 		this.master = master;
 	}
+	
+	public List<Attack> getAttacks() {
+		return Arrays.asList(getAttack1(), getAttack2(), getAttack3(), getAttack4(), getAttack5());
+	}
 
+	
 	@Override
 	public int hashCode() {
 		return Integer.hashCode(id);
