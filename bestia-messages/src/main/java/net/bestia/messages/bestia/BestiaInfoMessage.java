@@ -32,6 +32,10 @@ public class BestiaInfoMessage extends JacksonMessage {
 
 	@JsonProperty("sp")
 	private StatusPoints statusPoints;
+	
+	public BestiaInfoMessage() {
+		// no op.
+	}
 
 	/**
 	 * 

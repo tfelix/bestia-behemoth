@@ -45,7 +45,7 @@ public class CacheConfiguration {
 	 * @return
 	 */
 	@Bean(name = CLIENT_CACHE)
-	public CacheManager<Long, ActorRef> getClientCache() {
+	public CacheManager<Long, String> getClientCache() {
 
 		return new CacheManager<>("cache.client", cache);
 	}

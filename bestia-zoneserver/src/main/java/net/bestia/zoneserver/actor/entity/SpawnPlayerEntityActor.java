@@ -8,15 +8,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.Message;
 import net.bestia.messages.internal.ClientConnectionStatusMessage;
 import net.bestia.messages.internal.ClientConnectionStatusMessage.ConnectionState;
-import net.bestia.model.service.AccountService;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.service.AccountZoneService;
 import net.bestia.zoneserver.service.EntityService;
 
 /**
@@ -26,18 +28,20 @@ import net.bestia.zoneserver.service.EntityService;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@Component
+@Scope("prototype")
 public class SpawnPlayerEntityActor extends BestiaRoutingActor {
 	
-	public static String NAME = "spawnPlayerBestias";
+	public static String NAME = "spawnPlayerEntities";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
 			Arrays.asList(ClientConnectionStatusMessage.class)));
 	
-	private final AccountService accService;
+	private final AccountZoneService accService;
 	private final EntityService entityService;
 	
 	@Autowired
-	public SpawnPlayerEntityActor(AccountService accService, EntityService entityService) {
+	public SpawnPlayerEntityActor(AccountZoneService accService, EntityService entityService) {
 		
 		this.accService = Objects.requireNonNull(accService);
 		this.entityService = Objects.requireNonNull(entityService);

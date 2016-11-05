@@ -29,11 +29,11 @@ public class SendClientActor extends BestiaActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "sendClient";
 
-	private final CacheManager<Long, ActorRef> clientCache;
+	private final CacheManager<Long, String> clientCache;
 
 	@Autowired
 	public SendClientActor(
-			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorRef> clientCache) {
+			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, String> clientCache) {
 
 		this.clientCache = clientCache;
 	}
@@ -44,7 +44,8 @@ public class SendClientActor extends BestiaActor {
 		if (message instanceof AccountMessage) {
 
 			final AccountMessage accMsg = (AccountMessage) message;
-			final ActorRef origin = clientCache.get(accMsg.getAccountId());
+			final String originStr = clientCache.get(accMsg.getAccountId());
+			final ActorRef origin = getContext().actorFor(originStr);
 
 			if (origin == null) {
 				LOG.warning("Could not find origin ref for message: {}", message.toString());

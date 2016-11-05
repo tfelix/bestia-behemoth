@@ -37,11 +37,11 @@ public class ConnectionManagerActor extends BestiaRoutingActor {
 	
 	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
 			Arrays.asList(ClientConnectionStatusMessage.class)));
-	private final CacheManager<Long, ActorRef> clientCache;
+	private final CacheManager<Long, String> clientCache;
 
 	@Autowired
 	public ConnectionManagerActor(
-			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorRef> clientCache) {
+			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, String> clientCache) {
 
 		this.clientCache = clientCache;
 	}
@@ -59,7 +59,8 @@ public class ConnectionManagerActor extends BestiaRoutingActor {
 		if (ccmsg.getState() == ConnectionState.CONNECTED) {
 			// Register.
 			LOG.debug("Client connected: {}.", ccmsg);
-			clientCache.set(ccmsg.getAccountId(), ccmsg.getWebserverRef());
+			final String actorRefStr = ccmsg.getWebserverRef().path().toSerializationFormat();
+			clientCache.set(ccmsg.getAccountId(), actorRefStr);
 		} else {
 			// Unregister.
 			LOG.debug("Client disconnected: {}.", ccmsg);
