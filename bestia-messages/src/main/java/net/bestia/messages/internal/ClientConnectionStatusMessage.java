@@ -49,6 +49,6 @@ public class ClientConnectionStatusMessage extends AccountMessage {
 
 	@Override
 	public String toString() {
-		return String.format("ClientConnectionStatusMessage[status: %s]", state.toString());
+		return String.format("ClientConnectionStatusMessage[accId: %d, status: %s]", getAccountId(), state.toString());
 	}
 }

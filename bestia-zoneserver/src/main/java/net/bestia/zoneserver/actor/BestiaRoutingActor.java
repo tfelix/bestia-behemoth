@@ -32,7 +32,7 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	private Map<Class<? extends Message>, Set<ActorRef>> messageRoutes = new HashMap<>();
+	private Map<Class<? extends Message>, Set<ActorRef>> childHandler = new HashMap<>();
 	private ActorRef responder;
 
 	/**
@@ -45,7 +45,7 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	private Set<Class<? extends Message>> getAllHandledMessages() {
 		final Set<Class<? extends Message>> mergedSet = new HashSet<>();
 		mergedSet.addAll(getHandledMessages());
-		mergedSet.addAll(messageRoutes.keySet());
+		mergedSet.addAll(childHandler.keySet());
 		return Collections.unmodifiableSet(mergedSet);
 	}
 
@@ -98,10 +98,11 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 
 		boolean handled = false;
 
+		// Internal status messages must be used to handle the routing.
 		if (message instanceof ReportHandledMessages) {
 			addHandledRoutes((ReportHandledMessages) message);
 			return;
-		}
+		}		
 
 		if (getHandledMessages().contains(message.getClass())) {
 			handleMessage(message);
@@ -109,8 +110,8 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 		}
 
 		// Check if we have child actor handling the incoming message.
-		if (messageRoutes.containsKey(message.getClass())) {
-			messageRoutes.get(message.getClass()).forEach(x -> x.tell(message, getSender()));
+		if (childHandler.containsKey(message.getClass())) {
+			childHandler.get(message.getClass()).forEach(x -> x.tell(message, getSender()));
 			handled = true;
 		}
 
@@ -135,16 +136,24 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	 * Adds the incoming message routes to the system.
 	 */
 	private void addHandledRoutes(ReportHandledMessages message) {
+		if(message.getHandledMessages().isEmpty()) {
+			return;
+		}
+		
 		message.getHandledMessages().forEach(x -> {
-			if (!messageRoutes.containsKey(x)) {
-				messageRoutes.put(x, new HashSet<>());
+			if (!childHandler.containsKey(x)) {
+				childHandler.put(x, new HashSet<>());
 			}
-			messageRoutes.get(x).add(getSender());
+			childHandler.get(x).add(getSender());
 		});
 
-		// Announce the changed routing table upstream.
-		final ReportHandledMessages reportMsg = new ReportHandledMessages(getAllHandledMessages());
-		getContext().parent().tell(reportMsg, getSelf());
+		// Announce the changed routing table upstream (only if we are not the sender).
+		if(!getContext().parent().equals(getSelf())) {
+			final ReportHandledMessages reportMsg = new ReportHandledMessages(getAllHandledMessages());
+			getContext().parent().tell(reportMsg, getSelf());
+		} else {
+			LOG.warning("Captured.");
+		}
 	}
 
 	@Override

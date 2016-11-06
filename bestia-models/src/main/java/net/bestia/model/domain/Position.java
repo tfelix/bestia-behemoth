@@ -1,5 +1,6 @@
 package net.bestia.model.domain;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import javax.persistence.Embeddable;
@@ -12,7 +13,9 @@ import javax.persistence.Embeddable;
  *
  */
 @Embeddable
-public class Position {
+public class Position implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	public final static String WORLD_MAP = "wmap";
 
@@ -33,14 +36,14 @@ public class Position {
 		this.x = 0;
 		this.y = 0;
 	}
-	
+
 	public Position(String mapname, String area, long x, long y) {
-		
+
 		this.map = mapname;
 		this.area = area;
-		
+
 		setX(x);
-		setY(y);		
+		setY(y);
 	}
 
 	public Position(long x, long y) {
@@ -93,5 +96,10 @@ public class Position {
 
 	public void setMap(String mapname) {
 		this.map = Objects.requireNonNull(mapname);
+	}
+
+	@Override
+	public String toString() {
+		return String.format("Position[x: %d, y: %d, map: %s]", getX(), getY(), getMap());
 	}
 }

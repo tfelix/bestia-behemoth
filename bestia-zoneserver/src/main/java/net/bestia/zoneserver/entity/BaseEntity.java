@@ -12,6 +12,7 @@ import net.bestia.zoneserver.entity.traits.IdEntity;
  */
 public abstract class BaseEntity implements IdEntity {
 
+	private static final long serialVersionUID = 1L;
 	private long id;
 
 	public BaseEntity() {

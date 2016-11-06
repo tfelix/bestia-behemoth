@@ -43,6 +43,8 @@ import net.bestia.zoneserver.entity.traits.Visible;
  */
 public class LivingEntity extends BaseEntity implements Locatable, Visible, Attackable, Collidable, Equipable {
 
+	private static final long serialVersionUID = 1L;
+
 	private final static Logger LOG = LoggerFactory.getLogger(LivingEntity.class);
 
 	/**

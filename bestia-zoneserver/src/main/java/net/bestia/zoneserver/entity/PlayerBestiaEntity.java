@@ -12,15 +12,18 @@ import net.bestia.model.domain.StatusPoints;
 
 public class PlayerBestiaEntity extends LivingEntity {
 
+	private static final long serialVersionUID = 1L;
 	private final static Logger LOG = LoggerFactory.getLogger(PlayerBestiaEntity.class);
 	private final static int MAX_LEVEL = 40;
 
+	private final long accountId;
 	private final PlayerBestia playerBestia;
 
 	public PlayerBestiaEntity(PlayerBestia pb) {
 		super(pb.getBaseValues(), pb.getIndividualValue(), pb.getEffortValues(), pb.getOrigin().getDatabaseName());
 
 		this.playerBestia = Objects.requireNonNull(pb);
+		this.accountId = pb.getOwner().getId();
 
 		// Set the current HP and Mana count to the bestias values.
 		getStatusPoints().setCurrentHp(playerBestia.getCurrentHp());
@@ -114,7 +117,7 @@ public class PlayerBestiaEntity extends LivingEntity {
 	}
 
 	public long getAccountId() {
-		return playerBestia.getOwner().getId();
+		return accountId;
 	}
 
 	@Override
