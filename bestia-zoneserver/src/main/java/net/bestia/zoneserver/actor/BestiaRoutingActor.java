@@ -77,7 +77,7 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	 */
 	protected void sendClient(JacksonMessage msg) {
 		LOG.debug(String.format("Sending to client: %s", msg.toString()));
-		if(responder == null) {
+		if (responder == null) {
 			responder = createActor(SendClientActor.class);
 		}
 
@@ -115,9 +115,20 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 		}
 
 		if (!handled) {
-			LOG.warning("Zone received unknown message: {}", message);
-			unhandled(message);
+			handleUnknownMessage(message);
 		}
+	}
+
+	/**
+	 * This method is called when there is no known message handler. Can be
+	 * overwritten to do a custom, non normal behaviour.
+	 * 
+	 * @param msg
+	 *            The unhandled message.
+	 */
+	protected void handleUnknownMessage(Object msg) {
+		LOG.warning("Zone received unknown message: {}", msg);
+		unhandled(msg);
 	}
 
 	/**

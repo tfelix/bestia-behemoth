@@ -62,7 +62,7 @@ public class ZoneActor extends BestiaRoutingActor {
 		// === Chat ===
 		createActor(ChatActor.class);
 		
-		// House keeping actors.
+		// === House keeping actors ===
 		createActor(ConnectionManagerActor.class);
 
 		// Setup the init actor singelton for creation of the system.
@@ -79,7 +79,7 @@ public class ZoneActor extends BestiaRoutingActor {
 
 		// Do the local init like loading scripts. When this is finished we can
 		// register ourselves with the messaging system.
-		ActorRef localInitActor = createActor(InitLocalActor.class, "localInit");
+		final ActorRef localInitActor = createActor(InitLocalActor.class, "localInit");
 		localInitActor.tell(new StartInitMessage(), getSelf());
 
 		// Some utility actors.

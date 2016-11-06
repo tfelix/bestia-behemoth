@@ -6,9 +6,9 @@ import org.springframework.context.annotation.Configuration;
 
 import com.hazelcast.core.HazelcastInstance;
 
-import akka.actor.ActorRef;
-import net.bestia.zoneserver.entity.MasterBestiaEntity;
+import akka.actor.ActorPath;
 import net.bestia.zoneserver.entity.LivingEntity;
+import net.bestia.zoneserver.entity.MasterBestiaEntity;
 import net.bestia.zoneserver.service.CacheManager;
 
 /**
@@ -45,7 +45,7 @@ public class CacheConfiguration {
 	 * @return
 	 */
 	@Bean(name = CLIENT_CACHE)
-	public CacheManager<Long, String> getClientCache() {
+	public CacheManager<Long, ActorPath> getClientCache() {
 
 		return new CacheManager<>("cache.client", cache);
 	}

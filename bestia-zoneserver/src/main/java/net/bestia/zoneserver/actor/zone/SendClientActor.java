@@ -5,7 +5,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.ActorRef;
+import akka.actor.ActorPath;
+import akka.actor.ActorSelection;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.AccountMessage;
@@ -29,11 +30,11 @@ public class SendClientActor extends BestiaActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "sendClient";
 
-	private final CacheManager<Long, String> clientCache;
+	private final CacheManager<Long, ActorPath> clientCache;
 
 	@Autowired
 	public SendClientActor(
-			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, String> clientCache) {
+			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorPath> clientCache) {
 
 		this.clientCache = clientCache;
 	}
@@ -44,8 +45,8 @@ public class SendClientActor extends BestiaActor {
 		if (message instanceof AccountMessage) {
 
 			final AccountMessage accMsg = (AccountMessage) message;
-			final String originStr = clientCache.get(accMsg.getAccountId());
-			final ActorRef origin = getContext().actorFor(originStr);
+			final ActorPath originPath = clientCache.get(accMsg.getAccountId());
+			final ActorSelection origin = getContext().actorSelection(originPath);
 
 			if (origin == null) {
 				LOG.warning("Could not find origin ref for message: {}", message.toString());

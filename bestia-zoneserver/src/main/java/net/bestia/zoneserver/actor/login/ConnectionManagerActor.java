@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.ActorRef;
+import akka.actor.ActorPath;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.Message;
@@ -37,11 +37,11 @@ public class ConnectionManagerActor extends BestiaRoutingActor {
 	
 	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
 			Arrays.asList(ClientConnectionStatusMessage.class)));
-	private final CacheManager<Long, String> clientCache;
+	private final CacheManager<Long, ActorPath> clientCache;
 
 	@Autowired
 	public ConnectionManagerActor(
-			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, String> clientCache) {
+			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorPath> clientCache) {
 
 		this.clientCache = clientCache;
 	}
@@ -59,8 +59,8 @@ public class ConnectionManagerActor extends BestiaRoutingActor {
 		if (ccmsg.getState() == ConnectionState.CONNECTED) {
 			// Register.
 			LOG.debug("Client connected: {}.", ccmsg);
-			final String actorRefStr = ccmsg.getWebserverRef().path().toSerializationFormat();
-			clientCache.set(ccmsg.getAccountId(), actorRefStr);
+			final ActorPath actorRef = ccmsg.getWebserverRef().path();
+			clientCache.set(ccmsg.getAccountId(), actorRef);
 		} else {
 			// Unregister.
 			LOG.debug("Client disconnected: {}.", ccmsg);
