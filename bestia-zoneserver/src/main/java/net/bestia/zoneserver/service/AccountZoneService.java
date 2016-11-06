@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import akka.actor.ActorPath;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.service.AccountService;
@@ -22,11 +23,11 @@ import net.bestia.zoneserver.configuration.CacheConfiguration;
 public class AccountZoneService extends AccountService {
 
 	private AccountDAO accountDao;
-	private CacheManager<Long, String> clientCache;
+	private CacheManager<Long, ActorPath> clientCache;
 
 	@Autowired
 	public void setClientCache(
-			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, String> clientCache) {
+			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorPath> clientCache) {
 		this.clientCache = clientCache;
 	}
 

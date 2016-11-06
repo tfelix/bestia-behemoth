@@ -94,13 +94,7 @@ public class ZoneActor extends BestiaRoutingActor {
 
 	@Override
 	protected void handleMessage(Object msg) {
-		if (msg instanceof DistributedPubSubMediator.SubscribeAck) {
-			LOG.info("Subscribed to the behemoth cluster.");
-			return;
-		}
-
 		if (msg instanceof LocalInitDoneMessage) {
-
 			// If we have finished loading setup the mediator to receive pub sub messages.
 			final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
 			mediator.tell(new DistributedPubSubMediator.Subscribe(
@@ -108,5 +102,15 @@ public class ZoneActor extends BestiaRoutingActor {
 					getSelf()),
 					getSelf());
 		}
+	}
+	
+	@Override
+	protected void handleUnknownMessage(Object msg) {	
+		if(msg instanceof DistributedPubSubMediator.SubscribeAck) {
+			LOG.info("Subscribed to the behemoth cluster.");
+			return;
+		}
+		
+		super.handleUnknownMessage(msg);
 	}
 }
