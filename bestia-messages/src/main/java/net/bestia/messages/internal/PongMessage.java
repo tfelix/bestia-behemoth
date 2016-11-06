@@ -3,9 +3,9 @@ package net.bestia.messages.internal;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
+import net.bestia.messages.JacksonMessage;
 
-public class PongMessage extends AccountMessage implements MessageId {
+public class PongMessage extends JacksonMessage {
 
 	private static final long serialVersionUID = 1L;
 	private static final String message = "Hello User.";
@@ -34,6 +34,6 @@ public class PongMessage extends AccountMessage implements MessageId {
 
 	@Override
 	public String toString() {
-		return String.format("PongMessage[mid: %s, account id: %d]", getMessageId(), getAccountId());
+		return String.format("PongMessage[account id: %d]", getAccountId());
 	}
 }

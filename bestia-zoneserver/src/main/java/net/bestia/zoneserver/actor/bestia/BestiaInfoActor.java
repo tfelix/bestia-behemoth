@@ -7,6 +7,8 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -24,6 +26,8 @@ import net.bestia.zoneserver.service.EntityService;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@Component
+@Scope("prototype")
 public class BestiaInfoActor extends BestiaRoutingActor {
 
 	public static final String NAME = "bestiaInfo";

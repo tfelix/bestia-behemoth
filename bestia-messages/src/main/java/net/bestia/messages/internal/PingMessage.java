@@ -29,4 +29,9 @@ public class PingMessage extends JacksonMessage {
 			throw new IllegalArgumentException("Wrong message for ping message.");
 		}
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("PingMessage[accId: %d]", getAccountId());
+	}
 }

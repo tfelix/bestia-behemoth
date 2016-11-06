@@ -48,6 +48,10 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 		mergedSet.addAll(childHandler.keySet());
 		return Collections.unmodifiableSet(mergedSet);
 	}
+	
+	protected void addHandledMessage(Class<? extends Object> handledClass) {
+		
+	}
 
 	/**
 	 * Implementing classes must (or can) overwrite this method in order to
