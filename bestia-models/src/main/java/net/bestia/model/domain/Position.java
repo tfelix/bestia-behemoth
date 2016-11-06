@@ -84,6 +84,7 @@ public class Position {
 	}
 
 	public void set(Position pos) {
+		Objects.requireNonNull(pos);
 		this.area = pos.getArea();
 		this.map = pos.getMap();
 		this.x = pos.getX();

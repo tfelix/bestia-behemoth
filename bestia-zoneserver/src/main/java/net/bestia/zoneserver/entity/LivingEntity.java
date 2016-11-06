@@ -13,6 +13,7 @@ import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Element;
 import net.bestia.model.domain.EquipmentSlot;
 import net.bestia.model.domain.Item;
+import net.bestia.model.domain.Position;
 import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.misc.Sprite;
@@ -48,8 +49,9 @@ public class LivingEntity extends BaseEntity implements Locatable, Visible, Atta
 	 * Contains all the applied status effects.
 	 */
 	private Set<StatusEffect> statusEffects = new HashSet<>();
-	
-	private Direction headFacing;
+	private Position position = new Position();
+
+	private Direction headFacing = Direction.SOUTH;
 	private Sprite sprite;
 	private boolean isVisible = true;
 
@@ -60,23 +62,30 @@ public class LivingEntity extends BaseEntity implements Locatable, Visible, Atta
 	/**
 	 * Contains the unmodified (by equip or effects) base status points.
 	 */
-	private final StatusPoints baseStatusPoints = new StatusPoints();
+	private StatusPoints baseStatusPoints;
 	/**
 	 * Contains the modified (by equip of effects) status points.
 	 */
-	private final StatusPoints modifiedStatusPoints = new StatusPoints();
+	private StatusPoints modifiedStatusPoints;
+
+	public LivingEntity(BaseValues baseValues, BaseValues effortValues, String spriteName) {
+
+		this.baseValues = Objects.requireNonNull(baseValues);
+		this.ivs = BaseValues.getNewIndividualValues();
+		this.effortValues = Objects.requireNonNull(effortValues);
+
+		this.sprite = new Sprite(spriteName, SpriteType.PACK);
+	}
 
 	public LivingEntity(BaseValues baseValues, BaseValues ivs, BaseValues effortValues, String spriteName) {
 
 		this.baseValues = Objects.requireNonNull(baseValues);
 		this.ivs = Objects.requireNonNull(ivs);
 		this.effortValues = Objects.requireNonNull(effortValues);
-		
-		this.sprite = new Sprite(spriteName, SpriteType.PACK);
 
-		calculateStatusPoints();
+		this.sprite = new Sprite(spriteName, SpriteType.PACK);
 	}
-	
+
 	public Direction getHeadFacing() {
 		return headFacing;
 	}
@@ -84,7 +93,7 @@ public class LivingEntity extends BaseEntity implements Locatable, Visible, Atta
 	public void setHeadFacing(Direction headFacing) {
 		this.headFacing = headFacing;
 	}
-	
+
 	/**
 	 * Returns the maximum item weight the current bestia could carry. Please
 	 * note: only the bestia master will be used to calculate the inventory max
@@ -96,19 +105,18 @@ public class LivingEntity extends BaseEntity implements Locatable, Visible, Atta
 		final StatusPoints sp = getStatusPoints();
 		return 100 + 100 * sp.getAtk() * 3 + getLevel();
 	}
-	
+
 	/**
 	 * Re-calculates the current HP and mana regeneration rate based on stats.
 	 */
 	protected void calculateRegenerationRates() {
 		final StatusPoints statusPoints = getStatusPoints();
-		
+
 		final int level = getLevel();
 		final float hpRegen = (statusPoints.getDef() * 4 + statusPoints.getSpDef() * 1.5f + level) / 100.0f;
-		
-		
+
 		final float manaRegen = (statusPoints.getDef() * 1.5f + statusPoints.getSpDef() * 3 + level) / 100.0f;
-		
+
 		statusPoints.setHpRegenerationRate(hpRegen);
 		statusPoints.setManaRegenenerationRate(manaRegen);
 	}
@@ -140,12 +148,18 @@ public class LivingEntity extends BaseEntity implements Locatable, Visible, Atta
 		final int maxMana = baseValues.getMana() * 2 + ivs.getMana()
 				+ effortValues.getMana() / 4 * getLevel() / 100 + 10 + getLevel() * 2;
 
+		baseStatusPoints = new StatusPoints();
 		baseStatusPoints.setMaxValues(maxHp, maxMana);
 		baseStatusPoints.setAtk(atk);
 		baseStatusPoints.setDef(def);
 		baseStatusPoints.setSpAtk(spatk);
 		baseStatusPoints.setSpDef(spdef);
 		baseStatusPoints.setSpd(spd);
+	}
+	
+	protected void calculateModifiedStatusPoints() {
+		calculateStatusPoints();
+		modifiedStatusPoints = baseStatusPoints;
 	}
 
 	@Override
@@ -160,14 +174,17 @@ public class LivingEntity extends BaseEntity implements Locatable, Visible, Atta
 
 	@Override
 	public Point getPosition() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Point(position.getX(), position.getY());
 	}
 
 	@Override
 	public void setPosition(long x, long y) {
-		// TODO Auto-generated method stub
+		this.position.setX(x);
+		this.position.setY(y);
+	}
 
+	public void setPosition(Position pos) {
+		this.position.set(pos);
 	}
 
 	@Override
@@ -177,30 +194,43 @@ public class LivingEntity extends BaseEntity implements Locatable, Visible, Atta
 
 	@Override
 	public StatusPoints getStatusPoints() {
+		// Dereferred calculate status points upon first request.
+		if(modifiedStatusPoints == null) {
+			calculateModifiedStatusPoints();
+		}
 		return modifiedStatusPoints;
 	}
 
 	@Override
 	public StatusPoints getOriginalStatusPoints() {
+		// Dereferred calculate status points upon first request.
+		if(baseStatusPoints == null) {
+			calculateStatusPoints();
+		}
+		
 		return baseStatusPoints;
 	}
 
 	@Override
 	public void addStatusEffect(StatusEffect effect) {
-		// TODO Auto-generated method stub
-
+		if(effect == null) {
+			return;
+		}
+		statusEffects.add(effect);
 	}
 
 	@Override
 	public void removeStatusEffect(StatusEffect effect) {
-		// TODO Auto-generated method stub
+		if (effect == null) {
+			return;
+		}
 
+		statusEffects.remove(effect);
 	}
 
 	@Override
 	public Element getElement() {
-		// TODO Auto-generated method stub
-		return null;
+		return Element.NORMAL;
 	}
 
 	@Override
@@ -211,26 +241,25 @@ public class LivingEntity extends BaseEntity implements Locatable, Visible, Atta
 
 	@Override
 	public Collision getCollision() {
-		// TODO Auto-generated method stub
-		return null;
+		return new Point(position.getX(), position.getY());
 	}
 
+	/**
+	 * Basic living entities can usually not equip anything.
+	 */
 	@Override
 	public boolean canEquip(Item item) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void equipItem(Item item) {
-		// TODO Auto-generated method stub
-
+		// no op.
 	}
 
 	@Override
 	public void unequipItem(Item item) {
-		// TODO Auto-generated method stub
-
+		// no op.
 	}
 
 	@Override

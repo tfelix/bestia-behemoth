@@ -69,7 +69,8 @@ public class BestiaSocketHandler extends TextWebSocketHandler {
 		LOG.trace("New connection: {}.", session.getRemoteAddress().toString());
 
 		// Setup the actor to access the zone server cluster.
-		final ActorRef messageActor = actorSystem.actorOf(MessageHandlerActor.props(session, mapper));
+		final String actorName = String.format("socket-%s", session.getId());
+		final ActorRef messageActor = actorSystem.actorOf(MessageHandlerActor.props(session, mapper), actorName);
 		session.getAttributes().put(ATTRIBUTE_ACTOR_REF, messageActor);
 	}
 
