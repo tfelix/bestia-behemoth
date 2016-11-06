@@ -1,9 +1,9 @@
 package net.bestia.zoneserver.service;
 
-import java.util.Map;
 import java.util.Objects;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 
 /**
  * This is a generic cache manager/helper. It can be used to save values inside
@@ -43,7 +43,7 @@ public class CacheManager<K, V> {
 	 * @return The object stored under this key, or null.
 	 */
 	public V get(K key) {
-		final Map<K, V> objects = cache.getMap(cacheKey);
+		final IMap<K, V> objects = cache.getMap(cacheKey);
 		return objects.get(key);
 	}
 
@@ -56,7 +56,7 @@ public class CacheManager<K, V> {
 	 * @return The object stored under this key, or null.
 	 */
 	public V get(K key, V def) {
-		final Map<K, V> objects = cache.getMap(cacheKey);
+		final IMap<K, V> objects = cache.getMap(cacheKey);
 
 		if (!objects.containsKey(key)) {
 			return def;
@@ -73,7 +73,7 @@ public class CacheManager<K, V> {
 	 * @return TRUE if the key is contained otherwise FALSE.
 	 */
 	public boolean containsKey(K key) {
-		final Map<K, V> objects = cache.getMap(cacheKey);
+		final IMap<K, V> objects = cache.getMap(cacheKey);
 		return objects.containsKey(key);
 	}
 
@@ -84,7 +84,7 @@ public class CacheManager<K, V> {
 	 *            The key under which the object will get removed.
 	 */
 	public void remove(K key) {
-		final Map<K, V> objects = cache.getMap(cacheKey);
+		final IMap<K, V> objects = cache.getMap(cacheKey);
 		objects.remove(key);
 	}
 
@@ -97,7 +97,7 @@ public class CacheManager<K, V> {
 	 *            The value to be saved under the key K.
 	 */
 	public void set(K key, V value) {
-		final Map<K, V> objects = cache.getMap(cacheKey);
+		final IMap<K, V> objects = cache.getMap(cacheKey);
 		objects.put(key, value);
 	}
 }

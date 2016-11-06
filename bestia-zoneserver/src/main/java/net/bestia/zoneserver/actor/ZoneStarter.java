@@ -32,7 +32,7 @@ public class ZoneStarter implements CommandLineRunner {
 	public void run(String... strings) throws Exception {
 		LOG.info("Starting actor system...");
 
-		final Props props = SpringExtension.Provider.get(system).props(ZoneActor.class);
+		final Props props = SpringExtension.PROVIDER.get(system).props(ZoneActor.class);
 		system.actorOf(props, "behemoth");
 	}
 }

@@ -25,6 +25,7 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
 @Scope("prototype")
 public class PingPongActor extends BestiaRoutingActor {
 
+	public final static String NAME = "pingpong";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
 			Arrays.asList(PingMessage.class)));

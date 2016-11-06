@@ -24,6 +24,7 @@ import net.bestia.zoneserver.entity.LivingEntity;
 @Scope("prototype")
 public class MoveActor extends BestiaRoutingActor {
 
+	public final static String NAME = "bestiaMove";
 	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
 			Arrays.asList(EntityMoveMessage.class)));
 

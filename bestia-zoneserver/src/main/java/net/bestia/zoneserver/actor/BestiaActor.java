@@ -2,6 +2,9 @@ package net.bestia.zoneserver.actor;
 
 import java.lang.reflect.Field;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
@@ -14,6 +17,8 @@ import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@Component
+@Scope("prototype")
 public abstract class BestiaActor extends UntypedActor {
 
 	public BestiaActor() {
@@ -74,7 +79,7 @@ public abstract class BestiaActor extends UntypedActor {
 	 */
 	protected Props getSpringProps(Class<? extends UntypedActor> clazz) {
 
-		final SpringExt springExt = SpringExtension.Provider.get(getContext().system());
+		final SpringExt springExt = SpringExtension.PROVIDER.get(getContext().system());
 		final Props props = springExt.props(clazz);
 		return props;
 	}

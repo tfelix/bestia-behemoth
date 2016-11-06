@@ -29,6 +29,7 @@ import net.bestia.zoneserver.service.CacheManager;
 @Scope("prototype")
 public class ActivateBestiaActor extends BestiaRoutingActor {
 
+	public final static String NAME = "activateBestia";
 	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
 			Arrays.asList(BestiaActivateMessage.class)));
 

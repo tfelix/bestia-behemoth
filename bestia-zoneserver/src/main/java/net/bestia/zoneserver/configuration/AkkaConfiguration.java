@@ -47,7 +47,7 @@ public class AkkaConfiguration {
 		final ActorSystem system = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
 		
 		// initialize the application context in the Akka Spring extension.
-		SpringExtension.Provider.get(system).initialize(appContext);
+		SpringExtension.PROVIDER.get(system).initialize(appContext);
 
 		final ClusterConfigurationService clusterConfig = new ClusterConfigurationService(hzInstance);
 

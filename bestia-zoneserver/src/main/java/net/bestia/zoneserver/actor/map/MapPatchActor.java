@@ -35,6 +35,7 @@ import net.bestia.zoneserver.service.MapService;
 @Scope("prototype")
 public class MapPatchActor extends BestiaRoutingActor {
 	
+	public final static String NAME = "mapPatch";
 	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
 			Arrays.asList(RequestMapDataMessage.class)));
 

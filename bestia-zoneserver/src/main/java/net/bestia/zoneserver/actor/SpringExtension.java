@@ -21,7 +21,7 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 	/**
 	 * The identifier used to access the SpringExtension.
 	 */
-	public static final SpringExtension Provider = new SpringExtension();
+	public static final SpringExtension PROVIDER = new SpringExtension();
 
 	/**
 	 * Is used by Akka to instantiate the Extension identified by this
