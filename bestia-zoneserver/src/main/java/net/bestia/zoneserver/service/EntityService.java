@@ -1,7 +1,10 @@
 package net.bestia.zoneserver.service;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,20 +51,32 @@ public class EntityService {
 	public Set<PlayerBestiaEntity> getPlayerBestiaEntities(long accId) {
 
 		final Set<Long> ids = playerBestiaEntitiesIds.get(accId);
+		if(ids == null) {
+			return Collections.emptySet();
+		}
 		return entities.getAll(ids).values().parallelStream()
 				.filter(x -> x instanceof PlayerBestiaEntity)
 				.map(x -> (PlayerBestiaEntity) x)
 				.collect(Collectors.toSet());
 	}
 
-	public void putPlayerBestias(PlayerBestiaEntity pb) {
+	public void putPlayerBestias(Collection<PlayerBestiaEntity> pb) {
 
-		if (!playerBestiaEntitiesIds.containsKey(pb.getAccountId())) {
-			playerBestiaEntitiesIds.set(pb.getAccountId(), new HashSet<>());
+		final Map<Long, List<PlayerBestiaEntity>> byAccId = pb.stream()
+				.collect(Collectors.groupingBy(PlayerBestiaEntity::getAccountId));
+		
+		for(Long accId : byAccId.keySet()) {
+			Set<Long> ids = playerBestiaEntitiesIds.get(accId);
+			if (ids == null) {
+				ids = new HashSet<>();
+			}
+
+			for(PlayerBestiaEntity entity : byAccId.get(accId)) {
+				ids.add(entity.getId());
+				save(entity);
+			}
+			playerBestiaEntitiesIds.set(accId, ids);
 		}
-
-		playerBestiaEntitiesIds.get(pb.getAccountId()).add(pb.getId());
-		save(pb);
 	}
 
 	public void removePlayerBestias(long accId) {

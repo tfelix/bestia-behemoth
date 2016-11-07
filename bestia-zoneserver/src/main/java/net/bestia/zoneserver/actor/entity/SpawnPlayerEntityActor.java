@@ -55,7 +55,7 @@ public class SpawnPlayerEntityActor extends BestiaRoutingActor {
 					.map(x -> new PlayerBestiaEntity(x))
 					.collect(Collectors.toSet());
 			LOG.debug(String.format("Spawning %d player bestias for acc id: %d", bestias.size(), ccsm.getAccountId()));
-			bestias.forEach(pbe -> entityService.putPlayerBestias(pbe));
+			entityService.putPlayerBestias(bestias);
 			
 			// TODO Test
 			Set<PlayerBestiaEntity> tests = entityService.getPlayerBestiaEntities(ccsm.getAccountId());
@@ -64,6 +64,8 @@ public class SpawnPlayerEntityActor extends BestiaRoutingActor {
 			// Remove all bestias entities for this account.
 			LOG.debug(String.format("DeSpawning bestias for acc id: %d", ccsm.getAccountId()));
 			entityService.removePlayerBestias(ccsm.getAccountId());
+			Set<PlayerBestiaEntity> tests = entityService.getPlayerBestiaEntities(ccsm.getAccountId());
+			LOG.debug(tests.toString());
 		}
 	}
 }
