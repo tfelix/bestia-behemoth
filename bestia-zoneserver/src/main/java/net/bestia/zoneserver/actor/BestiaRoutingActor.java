@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.actor;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,7 +14,6 @@ import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.JacksonMessage;
-import net.bestia.messages.Message;
 import net.bestia.messages.internal.ReportHandledMessages;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 
@@ -32,8 +32,17 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	private Map<Class<? extends Message>, Set<ActorRef>> childHandler = new HashMap<>();
+	private final Set<Class<? extends Object>> ownHandler;
+	private final Map<Class<? extends Object>, Set<ActorRef>> childHandler = new HashMap<>();
 	private ActorRef responder;
+	
+	public BestiaRoutingActor() {
+		ownHandler = Collections.unmodifiableSet(new HashSet<>());
+	}
+	
+	public BestiaRoutingActor(Collection<Class<? extends Object>> handledMessages) {
+		ownHandler = Collections.unmodifiableSet(new HashSet<>(handledMessages));
+	}
 
 	/**
 	 * Returns a list of message classes which are handled by this actor. They
@@ -42,26 +51,11 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	 * 
 	 * @return A unmodifiable set of message classes handled by this actor.
 	 */
-	private Set<Class<? extends Message>> getAllHandledMessages() {
-		final Set<Class<? extends Message>> mergedSet = new HashSet<>();
-		mergedSet.addAll(getHandledMessages());
+	private Set<Class<? extends Object>> getAllHandledMessages() {
+		final Set<Class<? extends Object>> mergedSet = new HashSet<>();
+		mergedSet.addAll(ownHandler);
 		mergedSet.addAll(childHandler.keySet());
 		return Collections.unmodifiableSet(mergedSet);
-	}
-	
-	protected void addHandledMessage(Class<? extends Object> handledClass) {
-		
-	}
-
-	/**
-	 * Implementing classes must (or can) overwrite this method in order to
-	 * announce own handled messages. These messages will be joined with the
-	 * rest of the messages this actor and all of its child are handling.
-	 * 
-	 * @return
-	 */
-	protected Set<Class<? extends Message>> getHandledMessages() {
-		return Collections.emptySet();
 	}
 
 	/**
@@ -93,7 +87,7 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	 */
 	@Override
 	public void preStart() throws Exception {
-		final ReportHandledMessages msg = new ReportHandledMessages(getHandledMessages());
+		final ReportHandledMessages msg = new ReportHandledMessages(ownHandler);
 		getContext().parent().tell(msg, getSelf());
 	}
 
@@ -108,7 +102,7 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 			return;
 		}		
 
-		if (getHandledMessages().contains(message.getClass())) {
+		if (ownHandler.contains(message.getClass())) {
 			handleMessage(message);
 			handled = true;
 		}
@@ -162,6 +156,6 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 
 	@Override
 	public String toString() {
-		return String.format("BestiaRoutingActor[handles: {%s}]", getHandledMessages().toString());
+		return String.format("BestiaRoutingActor[handles: {%s}]", ownHandler.toString());
 	}
 }

@@ -1,10 +1,7 @@
 package net.bestia.zoneserver.actor.login;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -13,7 +10,6 @@ import org.springframework.stereotype.Component;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.Message;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
@@ -41,14 +37,13 @@ public class LoginActor extends BestiaRoutingActor {
 
 	public static final String NAME = "login";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
-			Arrays.asList(LoginAuthMessage.class)));
 
 	private final AccountDAO accountDao;
 	private final ServerRuntimeConfiguration config;
 
 	@Autowired
 	public LoginActor(AccountDAO accountDao, ServerRuntimeConfiguration config) {
+		super(Arrays.asList(LoginAuthMessage.class));
 		
 		this.accountDao = Objects.requireNonNull(accountDao);
 		this.config = Objects.requireNonNull(config);
@@ -67,11 +62,6 @@ public class LoginActor extends BestiaRoutingActor {
 		getSender().tell(response, getSelf());
 	}
 	
-	@Override
-	protected Set<Class<? extends Message>> getHandledMessages() {
-		return HANDLED_CLASSES;
-	}
-
 	@Override
 	protected void handleMessage(Object msg) {
 		LOG.debug("LoginRequestMessage received: {}", msg.toString());

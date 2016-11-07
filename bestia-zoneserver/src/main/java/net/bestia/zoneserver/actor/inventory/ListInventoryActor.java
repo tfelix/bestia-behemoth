@@ -1,17 +1,13 @@
 package net.bestia.zoneserver.actor.inventory;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
-import net.bestia.messages.Message;
 import net.bestia.messages.inventory.InventoryListRequestMessage;
 import net.bestia.model.service.InventoryService;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
@@ -29,8 +25,6 @@ import net.bestia.zoneserver.actor.zone.SendClientActor;
 public class ListInventoryActor extends BestiaRoutingActor {
 
 	public static final String NAME = "listInventory";
-	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
-			Arrays.asList(InventoryListRequestMessage.class)));
 	
 	private final InventoryService inventoryService;
 	private final ActorRef responder;
@@ -44,14 +38,10 @@ public class ListInventoryActor extends BestiaRoutingActor {
 	 */
 	@Autowired
 	public ListInventoryActor(InventoryService inventoryService) {
-
+		super(Arrays.asList(InventoryListRequestMessage.class));
+		
 		this.inventoryService = Objects.requireNonNull(inventoryService);
 		this.responder = createActor(SendClientActor.class, SendClientActor.NAME);
-	}
-	
-	@Override
-	protected Set<Class<? extends Message>> getHandledMessages() {
-		return HANDLED_CLASSES;
 	}
 
 	@Override

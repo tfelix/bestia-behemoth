@@ -1,9 +1,6 @@
 package net.bestia.zoneserver.actor.zone;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -20,7 +17,6 @@ import akka.cluster.singleton.ClusterSingletonProxy;
 import akka.cluster.singleton.ClusterSingletonProxySettings;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.Message;
 import net.bestia.messages.internal.LocalInitDoneMessage;
 import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.server.AkkaCluster;
@@ -46,26 +42,25 @@ public class ZoneActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "zoneRoot";
-	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
-			Arrays.asList(LocalInitDoneMessage.class)));
 
 	public ZoneActor() {
+		super(Arrays.asList(LocalInitDoneMessage.class));
 
 		final ActorSystem system = getContext().system();
-		
+
 		// Login
 		createActor(LoginActor.class);
 		createActor(SpawnPlayerEntityActor.class);
-		
+
 		// === Inventory ===
 		createActor(InventoryActor.class);
-		
+
 		// === Bestias ===
 		createActor(BestiaInfoActor.class);
-		
+
 		// === Chat ===
 		createActor(ChatActor.class);
-		
+
 		// === House keeping actors ===
 		createActor(ConnectionManagerActor.class);
 
@@ -89,32 +84,27 @@ public class ZoneActor extends BestiaRoutingActor {
 		// Some utility actors.
 		createActor(ClusterStatusListenerActor.class, "clusterStatusListener");
 	}
-	
-	@Override
-	protected Set<Class<? extends Message>> getHandledMessages() {
-		return HANDLED_CLASSES;
-	}
-
 
 	@Override
 	protected void handleMessage(Object msg) {
 		if (msg instanceof LocalInitDoneMessage) {
-			// If we have finished loading setup the mediator to receive pub sub messages.
+			// If we have finished loading setup the mediator to receive pub sub
+			// messages.
 			final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
 			mediator.tell(new DistributedPubSubMediator.Subscribe(
-					AkkaCluster.CLUSTER_PUBSUB_TOPIC, 
+					AkkaCluster.CLUSTER_PUBSUB_TOPIC,
 					getSelf()),
 					getSelf());
 		}
 	}
-	
+
 	@Override
-	protected void handleUnknownMessage(Object msg) {	
-		if(msg instanceof DistributedPubSubMediator.SubscribeAck) {
+	protected void handleUnknownMessage(Object msg) {
+		if (msg instanceof DistributedPubSubMediator.SubscribeAck) {
 			LOG.info("Subscribed to the behemoth cluster.");
 			return;
 		}
-		
+
 		super.handleUnknownMessage(msg);
 	}
 }

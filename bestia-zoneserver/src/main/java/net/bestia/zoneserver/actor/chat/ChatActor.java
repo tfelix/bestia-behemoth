@@ -1,10 +1,7 @@
 package net.bestia.zoneserver.actor.chat;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -13,7 +10,6 @@ import org.springframework.stereotype.Component;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.Message;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
@@ -33,22 +29,15 @@ public class ChatActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "chat";
-	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
-			Arrays.asList(ChatMessage.class)));
 	
 	private final AccountZoneService accService;
 	private final ActorRef responder;
 	
 	@Autowired
 	public ChatActor(AccountZoneService accService) {
-		
+		super(Arrays.asList(ChatMessage.class));
 		this.accService = Objects.requireNonNull(accService);
 		this.responder = createActor(SendClientActor.class);
-	}
-
-	@Override
-	protected Set<Class<? extends Message>> getHandledMessages() {
-		return HANDLED_CLASSES;
 	}
 
 	@Override

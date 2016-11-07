@@ -1,8 +1,6 @@
 package net.bestia.zoneserver.actor.entity;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -13,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.Message;
 import net.bestia.messages.internal.ClientConnectionStatusMessage;
 import net.bestia.messages.internal.ClientConnectionStatusMessage.ConnectionState;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
@@ -34,22 +31,15 @@ public class SpawnPlayerEntityActor extends BestiaRoutingActor {
 	
 	public static String NAME = "spawnPlayerEntities";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
-			Arrays.asList(ClientConnectionStatusMessage.class)));
 	
 	private final AccountZoneService accService;
 	private final EntityService entityService;
 	
 	@Autowired
 	public SpawnPlayerEntityActor(AccountZoneService accService, EntityService entityService) {
-		
+		super(Arrays.asList(ClientConnectionStatusMessage.class));
 		this.accService = Objects.requireNonNull(accService);
 		this.entityService = Objects.requireNonNull(entityService);
-	}
-	
-	@Override
-	protected Set<Class<? extends Message>> getHandledMessages() {
-		return HANDLED_CLASSES;
 	}
 
 	@Override

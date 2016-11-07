@@ -10,6 +10,9 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
 public class DropItemActor extends BestiaRoutingActor {
 
 	public static final String NAME = "dropItem";
+	
+	public DropItemActor() {
+	}
 
 	@Override
 	protected void handleMessage(Object msg) {

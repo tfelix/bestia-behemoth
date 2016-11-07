@@ -1,10 +1,7 @@
 package net.bestia.zoneserver.actor.map;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,7 +9,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
-import net.bestia.messages.Message;
 import net.bestia.messages.map.RequestMapDataMessage;
 import net.bestia.model.map.Map;
 import net.bestia.model.shape.Point;
@@ -34,10 +30,8 @@ import net.bestia.zoneserver.service.MapService;
 @Component
 @Scope("prototype")
 public class MapPatchActor extends BestiaRoutingActor {
-	
+
 	public final static String NAME = "mapPatch";
-	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
-			Arrays.asList(RequestMapDataMessage.class)));
 
 	/**
 	 * How many tiles are transmitted from the position of the player in each
@@ -55,17 +49,13 @@ public class MapPatchActor extends BestiaRoutingActor {
 			MapService mapService,
 			@Qualifier(CacheConfiguration.ACTIVE_BESTIA_CACHE) CacheManager<Long, Integer> activeBestiaCache,
 			@Qualifier(CacheConfiguration.PLAYER_BESTIA_CACHE) CacheManager<Integer, MasterBestiaEntity> playerBestiaCache) {
+		super(Arrays.asList(RequestMapDataMessage.class));
 
 		this.activeBestiaCache = Objects.requireNonNull(activeBestiaCache);
 		this.mapService = Objects.requireNonNull(mapService);
 		this.playerBestiaCache = Objects.requireNonNull(playerBestiaCache);
 
 		this.responseActor = createActor(SendClientActor.class, SendClientActor.NAME);
-	}
-
-	@Override
-	protected Set<Class<? extends Message>> getHandledMessages() {
-		return HANDLED_CLASSES;
 	}
 
 	@Override

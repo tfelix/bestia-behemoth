@@ -18,13 +18,13 @@ import net.bestia.messages.Message;
  */
 public class ReportHandledMessages {
 
-	private Set<Class<? extends Message>> handledMessages = new HashSet<>();
+	private Set<Class<? extends Object>> handledMessages = new HashSet<>();
 
 	/**
 	 * 
 	 * @param handledMessages
 	 */
-	public ReportHandledMessages(Set<Class<? extends Message>> handledMessages) {
+	public ReportHandledMessages(Set<Class<? extends Object>> handledMessages) {
 		Objects.requireNonNull(handledMessages);
 		this.handledMessages.addAll(handledMessages);
 	}
@@ -51,7 +51,7 @@ public class ReportHandledMessages {
 	 * 
 	 * @return A unmodifiable collection of message class types.
 	 */
-	public Collection<Class<? extends Message>> getHandledMessages() {
+	public Collection<Class<? extends Object>> getHandledMessages() {
 		return Collections.unmodifiableCollection(handledMessages);
 	}
 

@@ -1,9 +1,6 @@
 package net.bestia.zoneserver.actor.login;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,7 +10,6 @@ import org.springframework.stereotype.Component;
 import akka.actor.ActorPath;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.Message;
 import net.bestia.messages.internal.ClientConnectionStatusMessage;
 import net.bestia.messages.internal.ClientConnectionStatusMessage.ConnectionState;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
@@ -35,21 +31,16 @@ public class ConnectionManagerActor extends BestiaRoutingActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "connectionManager";
 	
-	private final Set<Class<? extends Message>> HANDLED_CLASSES = Collections.unmodifiableSet(new HashSet<>(
-			Arrays.asList(ClientConnectionStatusMessage.class)));
 	private final CacheManager<Long, ActorPath> clientCache;
 
 	@Autowired
 	public ConnectionManagerActor(
 			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorPath> clientCache) {
-
+super(Arrays.asList(ClientConnectionStatusMessage.class));
+		
 		this.clientCache = clientCache;
 	}
 
-	@Override
-	protected Set<Class<? extends Message>> getHandledMessages() {
-		return HANDLED_CLASSES;
-	}
 
 	@Override
 	protected void handleMessage(Object msg) {
