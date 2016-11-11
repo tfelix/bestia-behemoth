@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.service;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
+import com.hazelcast.core.MultiMap;
 
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
 import net.bestia.zoneserver.entity.traits.IdEntity;
@@ -29,47 +29,44 @@ public class PlayerEntityService {
 
 	private final static String ACTIVE_ENTITIES_KEY = "active_entities";
 
-	private final CacheManager<Long, Set<Long>> playerBestiaEntitiesIds;
+	private final MultiMap<Long, Long> playerBestiaEntitiesIds;
 	private final IMap<Long, Long> activeEntities;
 	private final EntityService entityService;
-	
 
 	@Autowired
 	public PlayerEntityService(HazelcastInstance hz, EntityService entityService) {
 
 		this.activeEntities = hz.getMap(ACTIVE_ENTITIES_KEY);
-		this.playerBestiaEntitiesIds = new CacheManager<>("playerBestiaIds", hz);
+		this.playerBestiaEntitiesIds = hz.getMultiMap("playerBestiaIds");
 		this.entityService = Objects.requireNonNull(entityService);
 	}
-	
+
 	public void setActiveEntity(long accId, long activeEntityId) {
 		activeEntities.put(accId, activeEntityId);
 	}
-	
+
 	public PlayerBestiaEntity getActivePlayerEntity(long accId) {
 		final Long entityId = activeEntities.get(accId);
-		
-		if(entityId == null) {
+
+		if (entityId == null) {
 			return null;
 		}
-		
+
 		final IdEntity entity = entityService.getEntity(entityId);
-		
-		if(entity == null || !(entity instanceof PlayerBestiaEntity)) {
+
+		if (entity == null || !(entity instanceof PlayerBestiaEntity)) {
 			return null;
 		}
-		
+
 		return (PlayerBestiaEntity) entity;
 	}
 
 	public Set<PlayerBestiaEntity> getPlayerBestiaEntities(long accId) {
 
-		final Set<Long> ids = playerBestiaEntitiesIds.get(accId);
-		if(ids == null) {
-			return Collections.emptySet();
-		}
-		
-		return entityService.getAll(ids).values().parallelStream()
+		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
+		return entityService.getAll(new HashSet<>(ids))
+				.values()
+				.parallelStream()
 				.filter(x -> x instanceof PlayerBestiaEntity)
 				.map(x -> (PlayerBestiaEntity) x)
 				.collect(Collectors.toSet());
@@ -79,24 +76,21 @@ public class PlayerEntityService {
 
 		final Map<Long, List<PlayerBestiaEntity>> byAccId = pb.stream()
 				.collect(Collectors.groupingBy(PlayerBestiaEntity::getAccountId));
-		
-		for(Long accId : byAccId.keySet()) {
-			Set<Long> ids = playerBestiaEntitiesIds.get(accId);
-			if (ids == null) {
-				ids = new HashSet<>();
-			}
 
-			for(PlayerBestiaEntity entity : byAccId.get(accId)) {
-				ids.add(entity.getId());
-				entityService.save(entity);
-			}
-			playerBestiaEntitiesIds.set(accId, ids);
-		}
+		byAccId.forEach((accId, pbes) -> {
+			pbes.forEach(pbe -> playerBestiaEntitiesIds.put(accId, pbe.getId()));
+		});
 	}
 
+	/**
+	 * Deletes all player bestias for this given account id from the system.
+	 * 
+	 * @param accId
+	 *            The account id to delete all bestias from.
+	 */
 	public void removePlayerBestias(long accId) {
 		// First get all ids of player bestias.
-		final Set<Long> ids = playerBestiaEntitiesIds.get(accId);
+		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
 		ids.forEach(id -> entityService.delete(id));
 		playerBestiaEntitiesIds.remove(accId);
 	}

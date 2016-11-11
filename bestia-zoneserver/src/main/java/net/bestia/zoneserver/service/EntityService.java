@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.service;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,8 +15,11 @@ import com.hazelcast.query.Predicate;
 import com.hazelcast.query.PredicateBuilder;
 import com.hazelcast.query.Predicates;
 
+import net.bestia.model.map.Map;
+import net.bestia.model.shape.Point;
 import net.bestia.model.shape.Rect;
 import net.bestia.zoneserver.entity.traits.IdEntity;
+import net.bestia.zoneserver.entity.traits.Locatable;
 import net.bestia.zoneserver.entity.traits.Visible;
 
 /**
@@ -30,10 +32,9 @@ import net.bestia.zoneserver.entity.traits.Visible;
 public class EntityService {
 
 	private final static String ENTITIES_KEY = "entities";
-	
+
 	private HazelcastInstance hazelcastInstance;
 	private final IMap<Long, IdEntity> entities;
-	
 
 	@Autowired
 	public EntityService(HazelcastInstance hz) {
@@ -85,8 +86,23 @@ public class EntityService {
 		return entities.get(entityId);
 	}
 
-	public Map<Long, IdEntity> getAll(Set<Long> ids) {
+	public java.util.Map<Long, IdEntity> getAll(Set<Long> ids) {
 		return entities.getAll(ids);
+	}
+
+	/**
+	 * Finds all other entities which are in sight range of the given entity id.
+	 * 
+	 * @param pbe
+	 * @return
+	 */
+	public Collection<IdEntity> getEntitiesInSight(Locatable entity) {
+		final Point pos = entity.getPosition();
+		final Rect sightRect = new Rect(pos.getX() - Map.SIGHT_RANGE,
+				pos.getY() - Map.SIGHT_RANGE,
+				pos.getX() + Map.SIGHT_RANGE,
+				pos.getY() + Map.SIGHT_RANGE);
+		return getEntitiesInRange(sightRect);
 	}
 
 }

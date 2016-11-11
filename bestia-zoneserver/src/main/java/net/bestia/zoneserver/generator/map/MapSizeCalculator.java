@@ -8,11 +8,18 @@ import net.bestia.model.shape.Size;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public final class SizeCalculator {
+public final class MapSizeCalculator {
 
 	private final static double MAP_RATIO = 12 / 8.0;
 	private final static double LANDMASS_WATER_RATIO = 0.5;
 	private final static int MINIMUM_LANDMASS_SQUARE_KM = 40000;
+	
+	/**
+	 * Private ctor. Use in static fashon.
+	 */
+	private MapSizeCalculator() {
+		// no op.
+	}
 
 	/**
 	 * Calculates the map tile size of the worldmap depending on the number of
@@ -21,9 +28,8 @@ public final class SizeCalculator {
 	 * @param averageUserCount
 	 * @return
 	 */
-	public Size getSize(int averageUserCount) {
+	public static Size getSize(int averageUserCount) {
 
-		//
 		double area = averageUserCount * 0.5;
 		
 		if(area < MINIMUM_LANDMASS_SQUARE_KM) {

@@ -7,6 +7,7 @@ import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.messages.internal.DoneMessage;
 import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.zoneserver.actor.BestiaActor;
 
@@ -45,7 +46,7 @@ public class InitGlobalActor extends BestiaActor {
 			
 			actorWaiting--;
 			if(actorWaiting <= 0) {
-				getContext().parent().tell(msg, getSelf());
+				getContext().parent().tell(new DoneMessage("global"), getSelf());
 			}
 		}
 		
@@ -72,5 +73,4 @@ public class InitGlobalActor extends BestiaActor {
 		actorWaiting++;
 		return loadActor;
 	}
-
 }
