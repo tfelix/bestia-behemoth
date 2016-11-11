@@ -14,6 +14,8 @@ import net.bestia.model.shape.Size;
 
 public class Map {
 
+	public static int SIGHT_RANGE = 32;
+	
 	/**
 	 * A helper class which is used in order to construct maps for the bestia
 	 * system.

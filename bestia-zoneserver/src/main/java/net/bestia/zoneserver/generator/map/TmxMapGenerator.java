@@ -166,7 +166,7 @@ public class TmxMapGenerator implements MapGenerator {
 						continue;
 					}
 
-					bestiaTiles.add(new Tile(i, new Point(x, y), tile.getId()));
+					//bestiaTiles.add(new Tile(i, new Point(x, y), tile.getId()));
 				}
 			}
 

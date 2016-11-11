@@ -14,7 +14,7 @@ import net.bestia.messages.bestia.BestiaInfoMessage;
 import net.bestia.messages.bestia.RequestBestiaInfoMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
-import net.bestia.zoneserver.service.EntityService;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * This actor gathers all needed information about the bestias in the players
@@ -30,10 +30,10 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 	public static final String NAME = "bestiaInfo";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	
-	private final EntityService entityService;
+	private final PlayerEntityService entityService;
 
 	@Autowired
-	public BestiaInfoActor(EntityService entityService) {
+	public BestiaInfoActor(PlayerEntityService entityService) {
 		super(Arrays.asList(RequestBestiaInfoMessage.class));
 		this.entityService = Objects.requireNonNull(entityService);
 	}

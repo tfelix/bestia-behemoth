@@ -16,7 +16,7 @@ import net.bestia.messages.internal.ClientConnectionStatusMessage.ConnectionStat
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
 import net.bestia.zoneserver.service.AccountZoneService;
-import net.bestia.zoneserver.service.EntityService;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * This is a direct child of the login actor. He is responsible for spawning the
@@ -33,10 +33,10 @@ public class SpawnPlayerEntityActor extends BestiaRoutingActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	
 	private final AccountZoneService accService;
-	private final EntityService entityService;
+	private final PlayerEntityService entityService;
 	
 	@Autowired
-	public SpawnPlayerEntityActor(AccountZoneService accService, EntityService entityService) {
+	public SpawnPlayerEntityActor(AccountZoneService accService, PlayerEntityService entityService) {
 		super(Arrays.asList(ClientConnectionStatusMessage.class));
 		this.accService = Objects.requireNonNull(accService);
 		this.entityService = Objects.requireNonNull(entityService);
@@ -56,10 +56,6 @@ public class SpawnPlayerEntityActor extends BestiaRoutingActor {
 					.collect(Collectors.toSet());
 			LOG.debug(String.format("Spawning %d player bestias for acc id: %d", bestias.size(), ccsm.getAccountId()));
 			entityService.putPlayerBestias(bestias);
-			
-			// TODO Test
-			Set<PlayerBestiaEntity> tests = entityService.getPlayerBestiaEntities(ccsm.getAccountId());
-			LOG.debug(tests.toString());
 		} else {
 			// Remove all bestias entities for this account.
 			LOG.debug(String.format("DeSpawning bestias for acc id: %d", ccsm.getAccountId()));

@@ -18,6 +18,12 @@ public final class Point implements Collision, Serializable {
 	private final long x;
 	private final long y;
 
+	/**
+	 * Ctor. Creates a new point at the given x and y coordinates.
+	 * 
+	 * @param x The x-coordinate.
+	 * @param y The y-coordinate.
+	 */
 	public Point(long x, long y) {
 		this.x = x;
 		this.y = y;

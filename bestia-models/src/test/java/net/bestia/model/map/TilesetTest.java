@@ -3,7 +3,6 @@ package net.bestia.model.map;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.bestia.model.shape.Point;
 import net.bestia.model.shape.Size;
 
 public class TilesetTest {
@@ -23,14 +22,14 @@ public class TilesetTest {
 	@Test
 	public void contains_containingTile_true() {
 		Tileset ts = getTs();
-		Tile t = new Tile(2, new Point(1,1), 140);
+		Tile t = new Tile(2);
 		Assert.assertTrue(ts.contains(t));
 	}
 
 	@Test
 	public void contains_nonContainingTile_false() {
 		Tileset ts = getTs();
-		Tile t = new Tile(2, new Point(1,1), 300);
+		Tile t = new Tile(2);
 		Assert.assertFalse(ts.contains(t));
 	}
 

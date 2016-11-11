@@ -18,6 +18,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @ComponentScan(basePackages = { "net.bestia.model.service", "net.bestia.zoneserver" })
 public class ZoneserverApplication {
 
+	/**
+	 * Main entry point of the application.
+	 */
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(ZoneserverApplication.class, args);
 	}

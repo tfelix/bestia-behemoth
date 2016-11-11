@@ -2,6 +2,8 @@ package net.bestia.model.map;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Properties of a single tile.
  * 
@@ -11,9 +13,12 @@ import java.io.Serializable;
 public class TileProperties implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private final boolean isWalkable;
-	private final int walkspeed;
 	
+	@JsonProperty("iw")
+	private final boolean isWalkable;
+	
+	@JsonProperty("w")
+	private final int walkspeed;
 	
 	public TileProperties(boolean isWalkable, int walkspeed) {
 		this.isWalkable = isWalkable;
@@ -27,5 +32,4 @@ public class TileProperties implements Serializable {
 	public int getWalkspeed() {
 		return walkspeed;
 	}
-
 }

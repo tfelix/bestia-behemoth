@@ -1,9 +1,6 @@
 package net.bestia.zoneserver.service;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -20,7 +17,6 @@ import com.hazelcast.query.PredicateBuilder;
 import com.hazelcast.query.Predicates;
 
 import net.bestia.model.shape.Rect;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
 import net.bestia.zoneserver.entity.traits.IdEntity;
 import net.bestia.zoneserver.entity.traits.Visible;
 
@@ -34,56 +30,16 @@ import net.bestia.zoneserver.entity.traits.Visible;
 public class EntityService {
 
 	private final static String ENTITIES_KEY = "entities";
-
-	private final CacheManager<Long, Set<Long>> playerBestiaEntitiesIds;
-
+	
 	private HazelcastInstance hazelcastInstance;
 	private final IMap<Long, IdEntity> entities;
+	
 
 	@Autowired
 	public EntityService(HazelcastInstance hz) {
 
 		this.hazelcastInstance = Objects.requireNonNull(hz);
 		this.entities = hazelcastInstance.getMap(ENTITIES_KEY);
-		this.playerBestiaEntitiesIds = new CacheManager<>("playerBestiaIds", hz);
-	}
-
-	public Set<PlayerBestiaEntity> getPlayerBestiaEntities(long accId) {
-
-		final Set<Long> ids = playerBestiaEntitiesIds.get(accId);
-		if(ids == null) {
-			return Collections.emptySet();
-		}
-		return entities.getAll(ids).values().parallelStream()
-				.filter(x -> x instanceof PlayerBestiaEntity)
-				.map(x -> (PlayerBestiaEntity) x)
-				.collect(Collectors.toSet());
-	}
-
-	public void putPlayerBestias(Collection<PlayerBestiaEntity> pb) {
-
-		final Map<Long, List<PlayerBestiaEntity>> byAccId = pb.stream()
-				.collect(Collectors.groupingBy(PlayerBestiaEntity::getAccountId));
-		
-		for(Long accId : byAccId.keySet()) {
-			Set<Long> ids = playerBestiaEntitiesIds.get(accId);
-			if (ids == null) {
-				ids = new HashSet<>();
-			}
-
-			for(PlayerBestiaEntity entity : byAccId.get(accId)) {
-				ids.add(entity.getId());
-				save(entity);
-			}
-			playerBestiaEntitiesIds.set(accId, ids);
-		}
-	}
-
-	public void removePlayerBestias(long accId) {
-		// First get all ids of player bestias.
-		final Set<Long> ids = playerBestiaEntitiesIds.get(accId);
-		ids.forEach(id -> delete(id));
-		playerBestiaEntitiesIds.remove(accId);
 	}
 
 	public void save(IdEntity entity) {
@@ -123,6 +79,14 @@ public class EntityService {
 				.parallelStream()
 				.filter(x -> x instanceof Visible)
 				.collect(Collectors.toList());
+	}
+
+	public IdEntity getEntity(long entityId) {
+		return entities.get(entityId);
+	}
+
+	public Map<Long, IdEntity> getAll(Set<Long> ids) {
+		return entities.getAll(ids);
 	}
 
 }
