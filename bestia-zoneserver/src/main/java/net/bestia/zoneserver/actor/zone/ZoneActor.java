@@ -17,7 +17,7 @@ import akka.cluster.singleton.ClusterSingletonProxy;
 import akka.cluster.singleton.ClusterSingletonProxySettings;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.internal.LocalInitDoneMessage;
+import net.bestia.messages.internal.DoneMessage;
 import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
@@ -42,9 +42,11 @@ public class ZoneActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "zoneRoot";
+	
+	private ActorRef localInitActor;
 
 	public ZoneActor() {
-		super(Arrays.asList(LocalInitDoneMessage.class));
+		super(Arrays.asList(DoneMessage.class));
 
 		final ActorSystem system = getContext().system();
 
@@ -78,8 +80,7 @@ public class ZoneActor extends BestiaRoutingActor {
 
 		// Do the local init like loading scripts. When this is finished we can
 		// register ourselves with the messaging system.
-		final ActorRef localInitActor = createActor(InitLocalActor.class, "localInit");
-		localInitActor.tell(new StartInitMessage(), getSelf());
+		localInitActor = createActor(InitLocalActor.class, "localInit");
 
 		// Some utility actors.
 		createActor(ClusterStatusListenerActor.class, "clusterStatusListener");
@@ -87,14 +88,23 @@ public class ZoneActor extends BestiaRoutingActor {
 
 	@Override
 	protected void handleMessage(Object msg) {
-		if (msg instanceof LocalInitDoneMessage) {
-			// If we have finished loading setup the mediator to receive pub sub
-			// messages.
-			final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
-			mediator.tell(new DistributedPubSubMediator.Subscribe(
-					AkkaCluster.CLUSTER_PUBSUB_TOPIC,
-					getSelf()),
-					getSelf());
+		if(msg instanceof DoneMessage) {
+			final DoneMessage dm = (DoneMessage) msg;
+			if(dm.getTag().equals("global")) {
+				localInitActor.tell(new StartInitMessage(), getSelf());
+			} else {
+				// Local init done.
+				localInitActor.tell(PoisonPill.getInstance(), getSelf());
+				localInitActor = null;
+				
+				// If we have finished loading setup the mediator to receive pub sub
+				// messages.
+				final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
+				mediator.tell(new DistributedPubSubMediator.Subscribe(
+						AkkaCluster.CLUSTER_PUBSUB_TOPIC,
+						getSelf()),
+						getSelf());
+			}
 		}
 	}
 

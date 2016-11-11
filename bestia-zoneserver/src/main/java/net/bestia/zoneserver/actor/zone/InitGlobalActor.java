@@ -4,11 +4,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
+import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.actor.map.LoadMapFileActor;
 
 /**
  * Upon receiving the StartInit message the actor will start its work: Depending
@@ -28,6 +28,7 @@ public class InitGlobalActor extends BestiaActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private boolean hasInitialized = false;
+	private int actorWaiting;
 
 	public InitGlobalActor() {
 
@@ -36,8 +37,20 @@ public class InitGlobalActor extends BestiaActor {
 	@Override
 	public void onReceive(Object message) throws Exception {
 
+		if(message instanceof String) {
+			if(((String)message).equals("okay")) {
+				unhandled(message);
+				return;
+			}
+			
+			actorWaiting--;
+			if(actorWaiting <= 0) {
+				getContext().parent().tell(msg, getSelf());
+			}
+		}
+		
 		if (!(message instanceof StartInitMessage)) {
-			unhandled(message);
+			
 		}
 
 		if (hasInitialized) {
@@ -50,8 +63,14 @@ public class InitGlobalActor extends BestiaActor {
 		LOG.info("Start the global server initialization...");
 
 		// Load the sample map into the server cache.
-		final ActorRef loadActor = createActor(LoadMapFileActor.class, "mapFileLoad");
-		loadActor.tell(message, getSelf());
+		
+	}
+	
+	@Override
+	protected ActorRef createActor(Class<? extends UntypedActor> clazz) {
+		final ActorRef loadActor = super.createActor(clazz);
+		actorWaiting++;
+		return loadActor;
 	}
 
 }
