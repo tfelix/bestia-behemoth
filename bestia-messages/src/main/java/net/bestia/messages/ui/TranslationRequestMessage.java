@@ -1,15 +1,14 @@
-package net.bestia.messages.internal;
+package net.bestia.messages.ui;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
-import net.bestia.model.domain.TranslationCategory;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.JacksonMessage;
+import net.bestia.model.domain.TranslationCategory;
 
 /**
  * This message requests a translation from the server. The data is fetched via
@@ -19,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class TranslationRequestMessage extends AccountMessage implements MessageId {
+public class TranslationRequestMessage extends JacksonMessage {
 
 	public static class TranslationItem implements Serializable {
 

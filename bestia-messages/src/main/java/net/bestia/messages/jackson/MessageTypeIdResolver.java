@@ -1,5 +1,6 @@
 package net.bestia.messages.jackson;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import com.fasterxml.jackson.databind.type.TypeFactory;
@@ -87,10 +89,10 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 	public String idFromValueAndType(Object value, Class<?> suggestedType) {
 		return classToId.get(suggestedType);
 	}
-
+	
 	@Override
-	public JavaType typeFromId(String key) {
-		final Class<? extends MessageId> clazz = idToClass.get(key);
+	public JavaType typeFromId(DatabindContext context, String id) throws IOException {
+		final Class<? extends MessageId> clazz = idToClass.get(id);
 		return typeFactory.constructSpecializedType(baseType, clazz);
 	}
 }

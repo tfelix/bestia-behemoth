@@ -22,7 +22,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jackson.version>2.6.0</jackson.version>
+		<jackson.version>2.8.4</jackson.version>
 		<findbugs.version>3.0.2</findbugs.version>
 		<spring.version>1.4.2.RELEASE</spring.version>
 		<akka.version>2.4.12</akka.version>

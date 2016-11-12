@@ -43,11 +43,6 @@
 			<artifactId>bestia-server-commons</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>map-tmxloader</groupId>
-			<artifactId>map-tmxloader</artifactId>
-			<version>1.0</version>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -56,6 +51,10 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>${spring.version}</version>
+				<configuration>
+					<mainClass>net.bestia.zoneserver.ZoneserverApplication</mainClass>
+					<layout>ZIP</layout>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>

@@ -1,4 +1,4 @@
-package net.bestia.messages.internal;
+package net.bestia.messages.ui;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,9 +6,8 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
-import net.bestia.messages.internal.TranslationRequestMessage.TranslationItem;
+import net.bestia.messages.JacksonMessage;
+import net.bestia.messages.ui.TranslationRequestMessage.TranslationItem;
 
 /**
  * This message requests a translation from the server. The data is fetched via
@@ -18,7 +17,7 @@ import net.bestia.messages.internal.TranslationRequestMessage.TranslationItem;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class TranslationResponseMessage extends AccountMessage implements MessageId {
+public class TranslationResponseMessage extends JacksonMessage {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;
