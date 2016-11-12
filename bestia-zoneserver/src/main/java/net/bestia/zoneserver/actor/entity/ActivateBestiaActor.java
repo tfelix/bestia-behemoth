@@ -2,16 +2,16 @@ package net.bestia.zoneserver.actor.entity;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.configuration.CacheConfiguration;
-import net.bestia.zoneserver.service.CacheManager;
+import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * Upon receiving an activation request from this account we check if the
@@ -26,13 +26,13 @@ import net.bestia.zoneserver.service.CacheManager;
 public class ActivateBestiaActor extends BestiaRoutingActor {
 
 	public final static String NAME = "activateBestia";
-	private final CacheManager<Long, Integer> activeBestias;
+	private final PlayerEntityService playerService;
 
 	@Autowired
-	public ActivateBestiaActor(
-			@Qualifier(CacheConfiguration.ACTIVE_BESTIA_CACHE) CacheManager<Long, Integer> activeBestias) {
+	public ActivateBestiaActor(PlayerEntityService playerService) {
 		super(Arrays.asList(BestiaActivateMessage.class));
-		this.activeBestias = Objects.requireNonNull(activeBestias);
+
+		this.playerService = Objects.requireNonNull(playerService);
 	}
 
 	@Override
@@ -40,7 +40,18 @@ public class ActivateBestiaActor extends BestiaRoutingActor {
 
 		final BestiaActivateMessage bestiaMsg = (BestiaActivateMessage) msg;
 
-		// TODO Aus alter Logik übertragen und Entity aktivieren.
+		// Check if the user really owns this bestia.
+		final Optional<PlayerBestiaEntity> bestia = playerService.getPlayerBestiaEntities(bestiaMsg.getAccountId())
+				.parallelStream()
+				.filter(x -> x.getPlayerBestiaId() == bestiaMsg.getPlayerBestiaId())
+				.findAny();
+
+		// If he owns it then you we can make it active.
+		if (!bestia.isPresent()) {
+			return;
+		}
+
+		playerService.setActiveEntity(bestiaMsg.getAccountId(), bestia.get().getId());
 	}
 
 }

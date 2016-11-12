@@ -93,8 +93,10 @@ public class EntityService {
 	/**
 	 * Finds all other entities which are in sight range of the given entity id.
 	 * 
-	 * @param pbe
-	 * @return
+	 * @param entity
+	 *            The entity to get all entities in sight range from.
+	 * @return All {@link IdEntity} which are in sight range of the given
+	 *         entity.
 	 */
 	public Collection<IdEntity> getEntitiesInSight(Locatable entity) {
 		final Point pos = entity.getPosition();

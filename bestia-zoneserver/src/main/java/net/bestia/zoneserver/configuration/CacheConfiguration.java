@@ -51,12 +51,15 @@ public class CacheConfiguration {
 	}
 
 	/**
-	 * Returns the cache holding the active bestia ids.
+	 * Returns the cache holding the active bestia entity id.
+	 * <p>
+	 * Please note: In this cache the ENTITY ID not the bestia ID is saved.
+	 * </p>
 	 * 
 	 * @return Cache of the active bestias of the player.
 	 */
 	@Bean(name = ACTIVE_BESTIA_CACHE)
-	public CacheManager<Long, Integer> getActiveBestiaCache() {
+	public CacheManager<Long, Long> getActiveBestiaCache() {
 
 		return new CacheManager<>("cache.activeBestia", cache);
 	}
