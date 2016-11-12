@@ -161,13 +161,16 @@ export default class Connection {
 			// Is it a valid server message?
 			try {
 				var json = jQuery.parseJSON(e.data);
-				
-				self._checkAuthReply(json);
-
 				// @ifdef DEVELOPMENT
 				console.trace('Received Message: ' + e.data);
 				self._debug('receive', json, e.data);
 				// @endif
+				
+				if(!this._isAuthenticated) {
+					self._checkAuthReply(json);
+				} else {
+					return;
+				}
 
 				self._pubsub.publish(json.mid, json);
 			} catch (e) {
@@ -185,11 +188,7 @@ export default class Connection {
 		this._pubsub.publish(Signal.IO_CONNECTING);
 	}
 	
-	_checkAuthReply(msg) {
-		if(this._isAuthenticated) {
-			return;
-		}
-		
+	_checkAuthReply(msg) {		
 		if(msg.mid === MID.SYSTEM_AUTHREPLY && msg.s === 'ACCEPTED') {
 			this._isAuthenticated = true;
 			this._pubsub.publish(Signal.IO_CONNECTED);
