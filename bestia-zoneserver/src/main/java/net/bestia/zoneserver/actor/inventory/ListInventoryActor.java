@@ -7,15 +7,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.ActorRef;
+import net.bestia.messages.inventory.InventoryListMessage;
 import net.bestia.messages.inventory.InventoryListRequestMessage;
 import net.bestia.model.service.InventoryService;
+import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
+import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.inventory.Inventory;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * This actor will create a list of the currently owned inventory items and send
- * them to the client.
+ * them to the client. The inventory is dependend on the bestia which is
+ * currently active.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -25,10 +29,9 @@ import net.bestia.zoneserver.actor.zone.SendClientActor;
 public class ListInventoryActor extends BestiaRoutingActor {
 
 	public static final String NAME = "listInventory";
-	
+
 	private final InventoryService inventoryService;
-	private final ActorRef responder;
-	
+	private final PlayerEntityService entityService;
 
 	/**
 	 * Ctor.
@@ -37,22 +40,26 @@ public class ListInventoryActor extends BestiaRoutingActor {
 	 *            The {@link BestiaActorContext}.
 	 */
 	@Autowired
-	public ListInventoryActor(InventoryService inventoryService) {
+	public ListInventoryActor(InventoryService inventoryService,
+			PlayerEntityService entityService,
+			PlayerBestiaService bestiaService) {
 		super(Arrays.asList(InventoryListRequestMessage.class));
-		
+
 		this.inventoryService = Objects.requireNonNull(inventoryService);
-		this.responder = createActor(SendClientActor.class, SendClientActor.NAME);
+		this.entityService = Objects.requireNonNull(entityService);
 	}
 
 	@Override
 	protected void handleMessage(Object msg) {
-		// TODO Das hier implementieren.
-/*
-		final PlayerBestiaEntity pb = new PlayerBestiaEntity();
-		final Inventory invManager = new Inventory(pb, inventoryService);
-		final Message invListMessage = invManager.getInventoryListMessage();
+		
+		final InventoryListRequestMessage ilmsg = (InventoryListRequestMessage) msg;
+		
+		final PlayerBestiaEntity pbe = entityService.getActivePlayerEntity(ilmsg.getAccountId());
+		
+		final Inventory invManager = new Inventory(pbe, inventoryService);
+		final InventoryListMessage invListMessage = invManager.getInventoryListMessage();
 
-		responder.tell(invListMessage, getSelf());*/
+		sendClient(invListMessage);
 	}
 
 }

@@ -36,6 +36,10 @@ public class Bestia implements Serializable {
 	@Column(name = "bestia_db_name", unique = true, nullable = false, length = 100)
 	@JsonProperty("bdbn")
 	private String databaseName;
+	
+	@Column(name = "default_name", nullable = false, length = 100)
+	@JsonIgnore
+	private String defaultName;
 
 	@Enumerated(EnumType.STRING)
 	@JsonProperty("ele")
@@ -185,6 +189,14 @@ public class Bestia implements Serializable {
 	@JsonIgnore
 	public boolean isBoss() {
 		return isBoss;
+	}
+	
+	public String getDefaultName() {
+		return defaultName;
+	}
+	
+	public void setDefaultName(String defaultName) {
+		this.defaultName = defaultName;
 	}
 
 	public String getScriptExec() {

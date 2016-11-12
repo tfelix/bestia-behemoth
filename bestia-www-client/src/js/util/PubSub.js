@@ -3,6 +3,8 @@
  * @copyright 2015 Thomas Felix
  */
 
+import Signal from '../io/Signal';
+
 /**
  * Publish/Subscriber object. Central object for the game inter communucation.
  * 
@@ -86,6 +88,14 @@ export default class PubSub {
 			fn();
 		}, this);
 		this._holdUnsubscribeCalls = [];
+	}
+	
+	/**
+	 * This directly sends a message request to the server. It is shortcut for
+	 * publish(IO_SEND_MESSAGE, data);
+	 */
+	send(data) {
+		this.publish(Signal.IO_SEND_MESSAGE, data);
 	}
 
 	/**

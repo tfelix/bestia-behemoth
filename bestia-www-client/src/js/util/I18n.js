@@ -214,7 +214,7 @@ export default class I18n {
 		}
 	
 		var msg = new Message.TranslationRequest(newDataItems, uuid);
-		this._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
+		//this._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 	}
 	
 	/**

@@ -1,3 +1,5 @@
+/*global SockJS */
+
 /**
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * @copyright 2015 Thomas Felix
@@ -173,7 +175,7 @@ export default class Connection {
 				}
 
 				self._pubsub.publish(json.mid, json);
-			} catch (e) {
+			} catch (ex) {
 				console.error('No valid JSON: ', e);
 				return;
 			}

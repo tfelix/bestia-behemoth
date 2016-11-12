@@ -162,7 +162,7 @@ var Message = {
 	 * Requests a complete sync with the inventory from the server.
 	 */
 	InventoryRequest : function() {
-		this.mid = MID.INVENTORY_REQUEST;
+		this.mid = MID.INVENTORY_LIST_REQUEST;
 	},
 
 	/**

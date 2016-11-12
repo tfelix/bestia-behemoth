@@ -29,6 +29,7 @@ var MID = {
 	
 	INVENTORY_UPDATE : 'inventory.update',
 	INVENTORY_LIST: 'inventory.list',
+	INVENTORY_LIST_REQUEST: 'inventory.requestlist',
 	INVENTORY_ITEM_CAST: 'inventory.item.cast',
 	INVENTORY_ITEM_CAST_CONFIRM: 'inventory.item.castconfirm',
 	INVENTORY_ITEM_SET: 'inventory.item.set',

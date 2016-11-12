@@ -3,6 +3,7 @@ package net.bestia.model.domain;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -223,11 +224,15 @@ public class PlayerBestia implements Serializable {
 	}
 
 	public String getName() {
+		if(name == null || name.isEmpty()) {
+			return originBestia.getDefaultName();
+		}
+		
 		return name;
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		this.name = Objects.requireNonNull(name);
 	}
 
 	public Position getSavePosition() {

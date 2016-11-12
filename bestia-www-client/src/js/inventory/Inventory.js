@@ -208,9 +208,12 @@ export default class Inventory {
 		pubsub.subscribe(Signal.INPUT_USE_ITEM, this._handlerInputCastItem.bind(this));
 		pubsub.subscribe(Signal.BESTIA_SELECTED, this._handlerBestiaSelected.bind(this));
 		pubsub.subscribe(Signal.INVENTORY_PERFORM_CAST, this._handlerDoCast.bind(this));
+		pubsub.subscribe(Signal.IO_CONNECTED, this._handlerDoRequestInventory.bind(this));
 		// pubsub.subscribe(Bestia.Signal.INVENTORY_CAST_CONFIRM,
 		// this._handlerCastServerConfirm.bind(this));
 	}
+	
+	
 	
 	/**
 	 * Selects the clicked/touched item. Further details and options regarding
@@ -247,6 +250,14 @@ export default class Inventory {
 			this._pubsub.publish(Signal.ENGINE_CAST_ITEM, item);
 		}
 	}
+	
+	/**
+	 * Is triggered when a new connection is initialized. Now ask the server for
+	 * the inventory contents to display them.
+	 */
+	_handlerDoRequestInventory() {
+		this._pubsub.send(new Message.InventoryRequest());
+	}
 
 	/**
 	 * This will send a drop request for the selected item and the server.
@@ -259,8 +270,7 @@ export default class Inventory {
 	dropItem() {
 		var msg = new Message.InventoryItemDrop(this.selectedItem().itemId(), this.dropAmount(),
 				this.currentBestiaId);
-		this._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
-
+		this._pubsub.send(msg);
 	}
 
 	/**
