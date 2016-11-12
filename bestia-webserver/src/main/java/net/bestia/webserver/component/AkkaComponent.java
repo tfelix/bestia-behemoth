@@ -20,7 +20,6 @@ import akka.cluster.Cluster;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.service.ClusterConfigurationService;
 import net.bestia.webserver.actor.DeadLetterWatchActor;
-import net.bestia.webserver.service.ConfigurationService;
 
 
 /**
@@ -39,7 +38,7 @@ public class AkkaComponent {
 	private final static String AKKA_CONFIG_NAME = "akka";
 
 	@Bean
-	public ActorSystem actorSystem(Config akkaConfig, ConfigurationService serverConfig, HazelcastInstance hzClient) {
+	public ActorSystem actorSystem(Config akkaConfig, HazelcastInstance hzClient) {
 
 		final ActorSystem system = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
 		
