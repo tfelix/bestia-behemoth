@@ -18,4 +18,12 @@ public interface IdEntity extends Serializable {
 	 */
 	long getId();
 
+	/**
+	 * Sets the unique id for this entity.
+	 * 
+	 * @param id
+	 *            The entity id.
+	 */
+	void setId(long id);
+
 }

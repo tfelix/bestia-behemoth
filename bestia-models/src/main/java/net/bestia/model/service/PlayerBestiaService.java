@@ -1,9 +1,14 @@
 package net.bestia.model.service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.BestiaAttackDAO;
@@ -14,12 +19,6 @@ import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.BestiaAttack;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * The service for managing and editing of the player bestias.
@@ -53,7 +52,7 @@ public class PlayerBestiaService {
 	public void setPlayerItemDao(PlayerItemDAO playerItemDao) {
 		this.playerItemDao = playerItemDao;
 	}
-	
+
 	@Autowired
 	public void setAccountDao(AccountDAO accountDao) {
 		this.accountDao = accountDao;
@@ -257,7 +256,7 @@ public class PlayerBestiaService {
 
 		playerBestiaDao.save(dbPlayerBestia);
 	}
-	
+
 	/**
 	 * Returns all the bestias under a given account id. This includes the
 	 * bestia master as well as "normal" bestias.
@@ -267,16 +266,11 @@ public class PlayerBestiaService {
 	 *         empty set if this account does not exist.
 	 */
 	public Set<PlayerBestia> getAllBestias(long accId) {
-		final Account account = accountDao.findOne(accId);
-
-		if (account == null) {
-			return Collections.emptySet();
-		}
-
+		
 		final Set<PlayerBestia> bestias = playerBestiaDao.findPlayerBestiasForAccount(accId);
 
 		// Add master as well since its not listed as a "player bestia".
-		bestias.add(account.getMaster());
+		bestias.add(getMaster(accId));
 
 		return bestias;
 	}
@@ -289,5 +283,21 @@ public class PlayerBestiaService {
 	 */
 	public PlayerBestia getBestia(int playerBestiaId) {
 		return playerBestiaDao.findOne(playerBestiaId);
+	}
+
+	/**
+	 * Returns the master bestia for this given account id.
+	 * 
+	 * @param accountId
+	 * @return The master bestia or NULL if the account does not extist.
+	 */
+	public PlayerBestia getMaster(long accountId) {
+		final Account account = accountDao.findOne(accountId);
+
+		if (account == null) {
+			return null;
+		}
+
+		return account.getMaster();
 	}
 }

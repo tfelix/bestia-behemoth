@@ -22,8 +22,6 @@ public class PlayerBestiaEntity extends LivingEntity {
 	public PlayerBestiaEntity(PlayerBestia pb) {
 		super(pb.getBaseValues(), pb.getIndividualValue(), pb.getEffortValues(), pb.getOrigin().getDatabaseName());
 
-		setId(pb.getId());
-
 		this.playerBestia = Objects.requireNonNull(pb);
 		this.accountId = pb.getOwner().getId();
 

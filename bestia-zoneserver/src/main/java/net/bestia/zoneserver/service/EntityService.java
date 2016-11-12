@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IAtomicLong;
 import com.hazelcast.core.IMap;
 import com.hazelcast.query.EntryObject;
 import com.hazelcast.query.Predicate;
@@ -31,16 +32,16 @@ import net.bestia.zoneserver.entity.traits.Visible;
 @Service
 public class EntityService {
 
-	private final static String ENTITIES_KEY = "entities";
-
 	private HazelcastInstance hazelcastInstance;
 	private final IMap<Long, IdEntity> entities;
+	private final IAtomicLong idCounter;
 
 	@Autowired
 	public EntityService(HazelcastInstance hz) {
 
 		this.hazelcastInstance = Objects.requireNonNull(hz);
-		this.entities = hazelcastInstance.getMap(ENTITIES_KEY);
+		this.entities = hazelcastInstance.getMap("entities");
+		this.idCounter = hazelcastInstance.getAtomicLong("entityIdCounter");
 	}
 
 	/**
@@ -51,6 +52,11 @@ public class EntityService {
 	 *            The entity to put into the memory database.
 	 */
 	public void put(IdEntity entity) {
+		// Check if this id already exists.
+		if(!entities.containsKey(entity.getId())) {
+			long newId = idCounter.incrementAndGet();
+			entity.setId(newId);
+		}
 		entities.put(entity.getId(), entity);
 	}
 

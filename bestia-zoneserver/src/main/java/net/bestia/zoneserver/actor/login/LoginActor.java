@@ -2,6 +2,7 @@ package net.bestia.zoneserver.actor.login;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,6 +20,7 @@ import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
+import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
@@ -54,7 +56,7 @@ public class LoginActor extends BestiaRoutingActor {
 	private final PlayerEntityService entityService;
 
 	@Autowired
-	public LoginActor(AccountDAO accountDao, 
+	public LoginActor(AccountDAO accountDao,
 			ServerRuntimeConfiguration config,
 			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorPath> clientCache,
 			PlayerEntityService entityService,
@@ -77,7 +79,7 @@ public class LoginActor extends BestiaRoutingActor {
 
 		if (state == LoginState.ACCEPTED) {
 			// Announce to the cluster that we have a new connected user.
-			// Welcome my friend. :)	
+			// Welcome my friend. :)
 			spawnEntities(msg);
 		}
 
@@ -86,19 +88,30 @@ public class LoginActor extends BestiaRoutingActor {
 		// trigger message it will be available by the SendClientActor.
 		getSender().tell(response, getSelf());
 	}
-	
+
 	private void spawnEntities(LoginAuthMessage msg) {
 		LOG.debug("Client connected: {}.", msg);
-		
+
 		// Spawn all bestia entities for this account into the world.
-		final Set<PlayerBestiaEntity> bestias = playerBestiaService
-				.getAllBestias(msg.getAccountId())
+		final Set<PlayerBestia> pbs = playerBestiaService
+				.getAllBestias(msg.getAccountId());
+
+		final PlayerBestia master = playerBestiaService.getMaster(msg.getAccountId());
+
+		final Set<PlayerBestiaEntity> bestias = pbs
 				.parallelStream()
 				.map(x -> new PlayerBestiaEntity(x))
 				.collect(Collectors.toSet());
 		LOG.debug(String.format("Spawning %d player bestias for acc id: %d", bestias.size(), msg.getAccountId()));
-		entityService.putPlayerBestias(bestias);
+		entityService.putPlayerBestiaEntities(bestias);
+
+		// Extract master now again from bestias and get its entity id.
+		Optional<PlayerBestiaEntity> masterEntity = bestias.parallelStream()
+				.filter(x -> x.getPlayerBestiaId() == master.getId())
+				.findAny();
 		
+		entityService.setActiveEntity(msg.getAccountId(), masterEntity.get().getId());
+
 		final ActorPath actorRef = getSender().path();
 		clientCache.set(msg.getAccountId(), actorRef);
 	}

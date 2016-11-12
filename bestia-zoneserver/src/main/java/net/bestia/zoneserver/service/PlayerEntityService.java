@@ -60,7 +60,7 @@ public class PlayerEntityService {
 
 		return (PlayerBestiaEntity) entity;
 	}
-
+	
 	public Set<PlayerBestiaEntity> getPlayerBestiaEntities(long accId) {
 
 		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
@@ -72,7 +72,7 @@ public class PlayerEntityService {
 				.collect(Collectors.toSet());
 	}
 
-	public void putPlayerBestias(Collection<PlayerBestiaEntity> pb) {
+	public void putPlayerBestiaEntities(Collection<PlayerBestiaEntity> pb) {
 
 		final Map<Long, List<PlayerBestiaEntity>> byAccId = pb.stream()
 				.collect(Collectors.groupingBy(PlayerBestiaEntity::getAccountId));

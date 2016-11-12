@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
 import net.bestia.messages.JacksonMessage;
-import net.bestia.messages.MessageId;
 import net.bestia.model.domain.PlayerItem;
 
 /**
