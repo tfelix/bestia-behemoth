@@ -1,12 +1,15 @@
 package net.bestia.model.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.BestiaAttackDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.dao.PlayerItemDAO;
+import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.BestiaAttack;
 import net.bestia.model.domain.PlayerBestia;
@@ -31,6 +34,7 @@ public class PlayerBestiaService {
 	private final static int NUM_ITEM_SLOTS = 5;
 	private final static Logger log = LoggerFactory.getLogger(InventoryService.class);
 
+	private AccountDAO accountDao;
 	private PlayerBestiaDAO playerBestiaDao;
 	private BestiaAttackDAO attackLevelDao;
 	private PlayerItemDAO playerItemDao;
@@ -48,6 +52,11 @@ public class PlayerBestiaService {
 	@Autowired
 	public void setPlayerItemDao(PlayerItemDAO playerItemDao) {
 		this.playerItemDao = playerItemDao;
+	}
+	
+	@Autowired
+	public void setAccountDao(AccountDAO accountDao) {
+		this.accountDao = accountDao;
 	}
 
 	/**
@@ -248,5 +257,37 @@ public class PlayerBestiaService {
 
 		playerBestiaDao.save(dbPlayerBestia);
 	}
+	
+	/**
+	 * Returns all the bestias under a given account id. This includes the
+	 * bestia master as well as "normal" bestias.
+	 * 
+	 * @param accId
+	 * @return Returns the set of player bestia for a given account id or an
+	 *         empty set if this account does not exist.
+	 */
+	public Set<PlayerBestia> getAllBestias(long accId) {
+		final Account account = accountDao.findOne(accId);
 
+		if (account == null) {
+			return Collections.emptySet();
+		}
+
+		final Set<PlayerBestia> bestias = playerBestiaDao.findPlayerBestiasForAccount(accId);
+
+		// Add master as well since its not listed as a "player bestia".
+		bestias.add(account.getMaster());
+
+		return bestias;
+	}
+
+	/**
+	 * Returns the player bestia with the given id or null.
+	 * 
+	 * @param playerBestiaId
+	 * @return
+	 */
+	public PlayerBestia getBestia(int playerBestiaId) {
+		return playerBestiaDao.findOne(playerBestiaId);
+	}
 }

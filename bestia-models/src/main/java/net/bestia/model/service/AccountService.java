@@ -1,8 +1,5 @@
 package net.bestia.model.service;
 
-import java.util.Collections;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,28 +124,4 @@ public class AccountService {
 			throw new IllegalArgumentException("Could not create account. Duplicate mail.", ex);
 		}
 	}
-
-	/**
-	 * Returns all the bestias under a given account id. This includes the
-	 * bestia master as well as "normal" bestias.
-	 * 
-	 * @param accId
-	 * @return Returns the set of player bestia for a given account id or an
-	 *         empty set if this account does not exist.
-	 */
-	public Set<PlayerBestia> getAllBestias(long accId) {
-		final Account account = accountDao.findOne(accId);
-
-		if (account == null) {
-			return Collections.emptySet();
-		}
-
-		final Set<PlayerBestia> bestias = playerBestiaDao.findPlayerBestiasForAccount(accId);
-
-		// Add master as well since its not listed as a "player bestia".
-		bestias.add(account.getMaster());
-
-		return bestias;
-	}
-
 }

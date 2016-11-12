@@ -35,12 +35,16 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	private final Set<Class<? extends Object>> ownHandler;
 	private final Map<Class<? extends Object>, Set<ActorRef>> childHandler = new HashMap<>();
 	private ActorRef responder;
-	
+
 	public BestiaRoutingActor() {
 		ownHandler = Collections.unmodifiableSet(new HashSet<>());
 	}
-	
+
 	public BestiaRoutingActor(Collection<Class<? extends Object>> handledMessages) {
+		ownHandler = Collections.unmodifiableSet(new HashSet<>(handledMessages));
+	}
+
+	public BestiaRoutingActor(Collection<Class<? extends Object>> handledMessages, boolean announceRoute) {
 		ownHandler = Collections.unmodifiableSet(new HashSet<>(handledMessages));
 	}
 
@@ -63,6 +67,8 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	 * method is getting called.
 	 * 
 	 * @param msg
+	 * @return Flag if the message was consumed and successfully handled.
+	 *         Further message propagation is stopped.
 	 */
 	protected abstract void handleMessage(Object msg);
 
@@ -94,28 +100,26 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	@Override
 	public void onReceive(Object message) throws Exception {
 
-		boolean handled = false;
 
 		// Internal status messages must be used to handle the routing.
 		if (message instanceof ReportHandledMessages) {
 			addHandledRoutes((ReportHandledMessages) message);
 			return;
-		}		
+		}
 
 		if (ownHandler.contains(message.getClass())) {
 			handleMessage(message);
-			handled = true;
+			return;
 		}
 
 		// Check if we have child actor handling the incoming message.
 		if (childHandler.containsKey(message.getClass())) {
 			childHandler.get(message.getClass()).forEach(x -> x.tell(message, getSender()));
-			handled = true;
+			return;
 		}
 
-		if (!handled) {
-			handleUnknownMessage(message);
-		}
+		// Catch all remaining messages.
+		handleUnknownMessage(message);
 	}
 
 	/**
@@ -126,7 +130,7 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	 *            The unhandled message.
 	 */
 	protected void handleUnknownMessage(Object msg) {
-		LOG.warning("Zone received unknown message: {}", msg);
+		LOG.warning("Actor {} received unknown message: {}", getSelf().path().toString(), msg);
 		unhandled(msg);
 	}
 
@@ -134,10 +138,10 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	 * Adds the incoming message routes to the system.
 	 */
 	private void addHandledRoutes(ReportHandledMessages message) {
-		if(message.getHandledMessages().isEmpty()) {
+		if (message.getHandledMessages().isEmpty()) {
 			return;
 		}
-		
+
 		message.getHandledMessages().forEach(x -> {
 			if (!childHandler.containsKey(x)) {
 				childHandler.put(x, new HashSet<>());
@@ -145,12 +149,11 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 			childHandler.get(x).add(getSender());
 		});
 
-		// Announce the changed routing table upstream (only if we are not the sender).
-		if(!getContext().parent().equals(getSelf())) {
+		// Announce the changed routing table upstream (only if we are not the
+		// sender).
+		if (!getContext().parent().equals(getSelf())) {
 			final ReportHandledMessages reportMsg = new ReportHandledMessages(getAllHandledMessages());
 			getContext().parent().tell(reportMsg, getSelf());
-		} else {
-			LOG.warning("Captured.");
 		}
 	}
 

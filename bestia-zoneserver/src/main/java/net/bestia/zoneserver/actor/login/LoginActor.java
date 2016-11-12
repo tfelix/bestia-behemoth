@@ -2,11 +2,15 @@ package net.bestia.zoneserver.actor.login;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.ActorPath;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -15,7 +19,12 @@ import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
+import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.configuration.CacheConfiguration;
+import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.service.CacheManager;
+import net.bestia.zoneserver.service.PlayerEntityService;
 import net.bestia.zoneserver.service.ServerRuntimeConfiguration;
 
 /**
@@ -40,35 +49,67 @@ public class LoginActor extends BestiaRoutingActor {
 
 	private final AccountDAO accountDao;
 	private final ServerRuntimeConfiguration config;
+	private final CacheManager<Long, ActorPath> clientCache;
+	private final PlayerBestiaService playerBestiaService;
+	private final PlayerEntityService entityService;
 
 	@Autowired
-	public LoginActor(AccountDAO accountDao, ServerRuntimeConfiguration config) {
+	public LoginActor(AccountDAO accountDao, 
+			ServerRuntimeConfiguration config,
+			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorPath> clientCache,
+			PlayerEntityService entityService,
+			PlayerBestiaService pbService) {
 		super(Arrays.asList(LoginAuthMessage.class));
-		
+
 		this.accountDao = Objects.requireNonNull(accountDao);
 		this.config = Objects.requireNonNull(config);
+		this.clientCache = Objects.requireNonNull(clientCache);
+		this.playerBestiaService = Objects.requireNonNull(pbService);
+		this.entityService = Objects.requireNonNull(entityService);
 	}
 
 	private void respond(LoginAuthMessage msg, LoginState state, Account acc) {
 		final LoginAuthReplyMessage response = new LoginAuthReplyMessage(state);
-		
-		if(acc != null) {
+
+		if (acc != null) {
 			response.setAccountId(acc.getId());
 		}
-		
-		// Special case. We can not use the SendClientActor because the connection
-		// was not yet registered by the webserver. Only after this trigger message
-		// it will be available by the SendClientActor.
+
+		if (state == LoginState.ACCEPTED) {
+			// Announce to the cluster that we have a new connected user.
+			// Welcome my friend. :)	
+			spawnEntities(msg);
+		}
+
+		// Special case. We can not use the SendClientActor because the
+		// connection was not yet registered by the webserver. Only after this
+		// trigger message it will be available by the SendClientActor.
 		getSender().tell(response, getSelf());
 	}
 	
+	private void spawnEntities(LoginAuthMessage msg) {
+		LOG.debug("Client connected: {}.", msg);
+		
+		// Spawn all bestia entities for this account into the world.
+		final Set<PlayerBestiaEntity> bestias = playerBestiaService
+				.getAllBestias(msg.getAccountId())
+				.parallelStream()
+				.map(x -> new PlayerBestiaEntity(x))
+				.collect(Collectors.toSet());
+		LOG.debug(String.format("Spawning %d player bestias for acc id: %d", bestias.size(), msg.getAccountId()));
+		entityService.putPlayerBestias(bestias);
+		
+		final ActorPath actorRef = getSender().path();
+		clientCache.set(msg.getAccountId(), actorRef);
+	}
+
 	@Override
 	protected void handleMessage(Object msg) {
 		LOG.debug("LoginRequestMessage received: {}", msg.toString());
 
 		final LoginAuthMessage loginMsg = (LoginAuthMessage) msg;
-		
-		if(config.isMaintenanceMode()) {
+
+		if (config.isMaintenanceMode()) {
 			// We only allow server admins to be online during a maintenance.
 			respond(loginMsg, LoginState.DENIED, null);
 			return;

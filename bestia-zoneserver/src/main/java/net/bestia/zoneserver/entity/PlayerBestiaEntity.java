@@ -23,13 +23,17 @@ public class PlayerBestiaEntity extends LivingEntity {
 		super(pb.getBaseValues(), pb.getIndividualValue(), pb.getEffortValues(), pb.getOrigin().getDatabaseName());
 
 		setId(pb.getId());
-		
+
 		this.playerBestia = Objects.requireNonNull(pb);
 		this.accountId = pb.getOwner().getId();
 
 		// Set the current HP and Mana count to the bestias values.
 		getStatusPoints().setCurrentHp(playerBestia.getCurrentHp());
 		getStatusPoints().setCurrentMana(playerBestia.getCurrentMana());
+
+		// Modify the player bestia so it takes up less memory when inside the
+		// cache.
+		this.playerBestia.setOwner(null);
 	}
 
 	/**
@@ -99,8 +103,8 @@ public class PlayerBestiaEntity extends LivingEntity {
 			return true;
 		}
 
-		if(!playerBestia.getAttacks().contains(atk)) {
-			return false;			
+		if (!playerBestia.getAttacks().contains(atk)) {
+			return false;
 		}
 
 		return getStatusPoints().subtractMana(atk.getManaCost());
@@ -137,19 +141,6 @@ public class PlayerBestiaEntity extends LivingEntity {
 	}
 
 	/**
-	 * Returns the underling {@link PlayerBestia} in order to persist the data
-	 * etc. This should be used with care since directly changing values inside
-	 * the PlayerBestia might not get into the ECS and thus setting the data
-	 * between the ECS (the PlayerBesitaEntityProxy) and the data model out of
-	 * sync.
-	 * 
-	 * @return The {@link PlayerBestia} backed by this proxy.
-	 */
-	public PlayerBestia getPlayerBestia() {
-		return playerBestia;
-	}
-
-	/**
 	 * Calculates the needed experience until the next levelup.
 	 * 
 	 * @return Exp needed for next levelup.
@@ -157,9 +148,30 @@ public class PlayerBestiaEntity extends LivingEntity {
 	private int getNeededExp() {
 		return (int) (Math.ceil(Math.exp(playerBestia.getLevel()) / 3) + 15);
 	}
-	
+
 	@Override
 	public int getLevel() {
 		return playerBestia.getLevel();
+	}
+
+	/**
+	 * Updates the given player bestia model with the latest information from
+	 * the entity. The updated model can then be used to be send to the database
+	 * of to the client. The given {@link PlayerBestia} must match with the
+	 * wrapped player bestia. Otherwise an {@link IllegalArgumentException} is
+	 * thrown.
+	 * 
+	 * @param pb
+	 */
+	public void updateModel(PlayerBestia pb) {
+		Objects.requireNonNull(pb);
+		if(pb.getId() != getPlayerBestiaId()) {
+			throw new IllegalArgumentException("Wrong PlayerBestia object given for update.");
+		}
+		
+		// Perform the update process.
+		StatusPoints sp = getStatusPoints();
+		pb.setCurrentHp(sp.getCurrentHp());
+		pb.setCurrentMana(sp.getCurrentMana());
 	}
 }

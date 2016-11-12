@@ -1,8 +1,5 @@
 package net.bestia.model.service;
 
-import java.util.Set;
-
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +11,6 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 
-import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.service.AccountService.Master;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -73,11 +69,4 @@ public class AccountServiceTest {
 	public void createNewAccount_emptyPassword_fail() {
 		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "", Master.KNIGHT);
 	}
-
-	@Test
-	public void getAllBesitas_wrongId_null() {
-		final Set<PlayerBestia> result = accService.getAllBestias(1337);
-		Assert.assertNull(result);
-	}
-
 }

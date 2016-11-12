@@ -43,7 +43,14 @@ public class EntityService {
 		this.entities = hazelcastInstance.getMap(ENTITIES_KEY);
 	}
 
-	public void save(IdEntity entity) {
+	/**
+	 * Puts the entity into the memory database for access for the bestia
+	 * system.
+	 * 
+	 * @param entity
+	 *            The entity to put into the memory database.
+	 */
+	public void put(IdEntity entity) {
 		entities.put(entity.getId(), entity);
 	}
 

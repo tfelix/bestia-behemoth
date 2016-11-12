@@ -24,7 +24,6 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.entity.ActivateBestiaActor;
-import net.bestia.zoneserver.actor.entity.SpawnPlayerEntityActor;
 import net.bestia.zoneserver.actor.inventory.InventoryActor;
 import net.bestia.zoneserver.actor.login.ConnectionManagerActor;
 import net.bestia.zoneserver.actor.login.LoginActor;
@@ -53,7 +52,6 @@ public class ZoneActor extends BestiaRoutingActor {
 
 		// Login
 		createActor(LoginActor.class);
-		createActor(SpawnPlayerEntityActor.class);
 
 		// === Inventory ===
 		createActor(InventoryActor.class);
@@ -67,6 +65,7 @@ public class ZoneActor extends BestiaRoutingActor {
 
 		// === House keeping actors ===
 		createActor(ConnectionManagerActor.class);
+		createActor(PingPongActor.class);
 
 		// Setup the init actor singelton for creation of the system.
 		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
@@ -86,6 +85,13 @@ public class ZoneActor extends BestiaRoutingActor {
 
 		// Some utility actors.
 		createActor(ClusterStatusListenerActor.class, "clusterStatusListener");
+		
+		// Temporary register without init.
+		final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
+		mediator.tell(new DistributedPubSubMediator.Subscribe(
+				AkkaCluster.CLUSTER_PUBSUB_TOPIC,
+				getSelf()),
+				getSelf());
 	}
 
 	@Override

@@ -155,13 +155,6 @@ public class MessageHandlerActor extends UntypedActor {
 		if (msg.getLoginState() == LoginState.ACCEPTED) {
 			isAuthenticated = true;
 			accountId = msg.getAccountId();
-			// Announce to the cluster that we have a new connected user.
-			// Welcome my friend. :)
-			final ClientConnectionStatusMessage ccsmsg = new ClientConnectionStatusMessage(
-					msg.getAccountId(),
-					ConnectionState.CONNECTED,
-					getSelf());
-			mediator.tell(getClusterMessage(ccsmsg), getSelf());
 			
 			// Also announce to client the login success.
 			sendToClient(msg);

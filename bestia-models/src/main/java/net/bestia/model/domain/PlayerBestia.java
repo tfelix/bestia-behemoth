@@ -388,12 +388,11 @@ public class PlayerBestia implements Serializable {
 	public void setMaster(Account master) {
 		this.master = master;
 	}
-	
+
 	public List<Attack> getAttacks() {
 		return Arrays.asList(getAttack1(), getAttack2(), getAttack3(), getAttack4(), getAttack5());
 	}
 
-	
 	@Override
 	public int hashCode() {
 		return Integer.hashCode(id);
@@ -417,5 +416,18 @@ public class PlayerBestia implements Serializable {
 	public String toString() {
 		return String.format("PlayerBestia[id: %d, name: %s, lv: %d, pos: %s]", id, name, level,
 				currentPosition.toString());
+	}
+
+	/**
+	 * Owner can be set. It is as intended to allow setting of null as the
+	 * owner. Because of DB restrictions persisting such an entity is not
+	 * possible but setting the owner to null can be important to save memory
+	 * when transferring the player bestia as entity to the cache.
+	 * 
+	 * @param owner
+	 *            The new owner of this bestia.
+	 */
+	public void setOwner(Account owner) {
+		this.owner = owner;
 	}
 }

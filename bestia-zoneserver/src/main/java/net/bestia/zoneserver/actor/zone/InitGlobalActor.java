@@ -65,6 +65,8 @@ public class InitGlobalActor extends BestiaActor {
 
 		// Load the sample map into the server cache.
 		
+		// This signalling does not work.
+		getContext().parent().tell(new DoneMessage("global"), getSelf());
 	}
 	
 	@Override

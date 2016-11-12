@@ -1,10 +1,21 @@
 package net.bestia.zoneserver.generator.map;
 
-/**
- * A SimplexNoise implementation for seeding generation maps for the map
- * creation process.
+/*
+ * A speed-improved simplex noise algorithm for 2D, 3D and 4D in Java.
+ *
+ * Based on example code by Stefan Gustavson (stegu@itn.liu.se).
+ * Optimisations by Peter Eastman (peastman@drizzle.stanford.edu).
+ * Better rank ordering method by Stefan Gustavson in 2012.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * Adapted to the needs of bestia by me (thomas.felix@tfelix.de)
+ *
+ * This could be speeded up even further, but it's useful as it is.
+ *
+ * Version 2012-03-09
+ *
+ * This code was placed in the public domain by its original author,
+ * Stefan Gustavson. You may use it as you see fit, but
+ * attribution is appreciated.
  *
  */
 public final class SimplexNoise {
@@ -54,8 +65,15 @@ public final class SimplexNoise {
 	// private static final double F3 = 1 / 3;
 	// private static final double G3 = 1 / 6;
 
+	// This method is a *lot* faster than using (int)Math.floor(x)
+	private static int fastfloor(double x) {
+		int xi = (int) x;
+		return x < xi ? xi - 1 : xi;
+	}
+
 	// This isn't a very good seeding function, but it works ok. It supports
-	// 2^16 different seed values. Write something better if you need more seeds.
+	// 2^16 different seed values. Write something better if you need more
+	// seeds.
 	public void seed(int seed) {
 		if (seed > 65536) {
 			// Scale the seed out
@@ -88,8 +106,8 @@ public final class SimplexNoise {
 		double n0, n1, n2; // Noise contributions from the three corners
 		// Skew the input space to determine which simplex cell we're in
 		double s = (xin + yin) * F2; // Hairy factor for 2D
-		int i = (int) Math.floor(xin + s);
-		int j = (int) Math.floor(yin + s);
+		int i = fastfloor(xin + s);
+		int j = fastfloor(yin + s);
 		double t = (i + j) * G2;
 		double x0 = xin - i + t; // The x,y distances from the cell origin,
 									// unskewed.

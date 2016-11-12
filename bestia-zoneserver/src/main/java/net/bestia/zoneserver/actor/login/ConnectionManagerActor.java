@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.actor.login;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,6 +16,7 @@ import net.bestia.messages.internal.ClientConnectionStatusMessage.ConnectionStat
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
 import net.bestia.zoneserver.service.CacheManager;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * Manages the connection state of a client. This is needed to perform certain
@@ -30,32 +32,34 @@ public class ConnectionManagerActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "connectionManager";
-	
+
 	private final CacheManager<Long, ActorPath> clientCache;
+	private final PlayerEntityService entityService;
 
 	@Autowired
 	public ConnectionManagerActor(
-			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorPath> clientCache) {
-super(Arrays.asList(ClientConnectionStatusMessage.class));
-		
-		this.clientCache = clientCache;
-	}
+			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorPath> clientCache,
+			PlayerEntityService entityService) {
+		super(Arrays.asList(ClientConnectionStatusMessage.class));
 
+		this.clientCache = Objects.requireNonNull(clientCache);
+		this.entityService = Objects.requireNonNull(entityService);
+	}
 
 	@Override
 	protected void handleMessage(Object msg) {
 
 		final ClientConnectionStatusMessage ccmsg = (ClientConnectionStatusMessage) msg;
 
-		if (ccmsg.getState() == ConnectionState.CONNECTED) {
-			// Register.
-			LOG.debug("Client connected: {}.", ccmsg);
-			final ActorPath actorRef = ccmsg.getWebserverRef().path();
-			clientCache.set(ccmsg.getAccountId(), actorRef);
-		} else {
+		if (!(ccmsg.getState() == ConnectionState.CONNECTED)) {
 			// Unregister.
 			LOG.debug("Client disconnected: {}.", ccmsg);
 			clientCache.remove(ccmsg.getAccountId());
+
+			// Remove all bestias entities for this account.
+			LOG.debug(String.format("DeSpawning bestias for acc id: %d", ccmsg.getAccountId()));
+			entityService.removePlayerBestias(ccmsg.getAccountId());
+			
 		}
 	}
 }

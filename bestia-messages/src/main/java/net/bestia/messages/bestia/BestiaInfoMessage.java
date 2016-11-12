@@ -57,7 +57,7 @@ public class BestiaInfoMessage extends JacksonMessage {
 		
 		Objects.requireNonNull(pb);
 		
-		isMaster = pb.getMaster().getId() == getAccountId();
+		isMaster = pb.getMaster() != null;
 		bestia = pb;
 		statusPoints = Objects.requireNonNull(sp);
 	}

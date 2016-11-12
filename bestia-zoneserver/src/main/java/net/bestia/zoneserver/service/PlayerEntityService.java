@@ -78,7 +78,10 @@ public class PlayerEntityService {
 				.collect(Collectors.groupingBy(PlayerBestiaEntity::getAccountId));
 
 		byAccId.forEach((accId, pbes) -> {
-			pbes.forEach(pbe -> playerBestiaEntitiesIds.put(accId, pbe.getId()));
+			pbes.forEach(pbe -> {
+				entityService.put(pbe);
+				playerBestiaEntitiesIds.put(accId, pbe.getId());
+			});
 		});
 	}
 
