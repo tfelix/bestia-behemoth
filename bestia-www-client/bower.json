@@ -25,7 +25,7 @@
     "js-cookie": "~1.5.1",
     "interact": "~1.2.6",
     "nanoscroller": "~0.8.7",
-    "phaser": "^2.4.6",
+    "phaser": "~2.6.2",
     "sockjs-client": "~1.0.0"
   },
   "devDependencies": {
