@@ -1,3 +1,5 @@
+/*global Phaser */
+
 import I18n from '../../util/I18n.js';
 
 /**
@@ -50,8 +52,6 @@ export default class World {
 		 * The loaded raw tile data.
 		 */
 		this._map = null;
-
-		// this._collisionMap;
 	}
 	
 	/**
@@ -206,6 +206,3 @@ export default class World {
 
 	}
 }
-
-// Constants.
-World.TILE_SIZE = 32;

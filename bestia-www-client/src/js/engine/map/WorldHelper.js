@@ -6,8 +6,28 @@
  */
 let WorldHelper = Object.freeze({
 
-	// Constants.
+	// =================
+	// Constants
+	// =================
+	
+	/**
+	 * Size of the tiles in px.
+	 */
 	TILE_SIZE : 32,
+	/**
+	 * Size of the chunks in tiles.
+	 */
+	CHUNK_SIZE: 10,
+	
+	/**
+	 * Sight range of the player in tiles. X direction.
+	 */
+	SIGHT_RANGE_X: 32,
+	
+	/**
+	 * Sight range of the player in tiles. y direction.
+	 */
+	SIGHT_RANGE_Y: 32,
 
 	/**
 	 * Finds a path between a start and a goal coordinate. The coordiantes must
