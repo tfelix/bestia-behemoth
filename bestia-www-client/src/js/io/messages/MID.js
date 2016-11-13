@@ -24,6 +24,8 @@ var MID = {
 	ENTITY_POSITION: 'entity.position',
 	ENTITY_MOVE: 'entity.move',
 	
+	MAP_TILESET: 'map.tileset',
+	MAP_TILESET_REQUEST = 'map.tilesetrequest',
 	
 	UI_DIALOG : 'ui.dialog',
 	

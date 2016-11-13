@@ -19,7 +19,7 @@ public class MapTilesetMessage extends JacksonMessage {
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "map.tileset";
 
-	@JsonProperty("gid")
+	@JsonProperty("ts")
 	private final Tileset tileset;
 
 	public MapTilesetMessage() {

@@ -9,6 +9,8 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * The {@link Tileset} holds information about the concrete pack to load. It can
  * be queried for the GID in order to get the apropriate tileset information.
@@ -31,9 +33,11 @@ public class Tileset implements Serializable {
 	@Column(unique = true, nullable = false)
 	private String name;
 
+	@JsonProperty("mingid")
 	@Column(name = "min_gid")
 	private long minGid;
-
+	
+	@JsonProperty("maxgid")
 	@Column(name = "max_gid")
 	private long maxGid;
 

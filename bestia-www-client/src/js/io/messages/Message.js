@@ -191,7 +191,8 @@ var Message = {
 	},
 	
 	/**
-	 * Requests the server to cast an item onto the map at the given coordinates.
+	 * Requests the server to cast an item onto the map at the given
+	 * coordinates.
 	 */
 	InventoryItemCast : function(playerItemId, playerBestiaId, x, y) {
 		if(playerItemId === undefined) {
@@ -225,6 +226,15 @@ var Message = {
 		this.pbid = playerBestiaId || 0;
 		this.iid = itemId;
 		this.a = amount;
+	},
+	
+	/**
+	 * Requests a tileset information from the server.
+	 */
+	MapTilesetRequest : function(gid) {
+		this.mid = MID.MAP_TILESET_REQUEST;
+		
+		this.gid = gid;
 	},
 
 	/**
