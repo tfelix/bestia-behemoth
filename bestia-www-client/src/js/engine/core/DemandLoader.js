@@ -1,3 +1,5 @@
+/*global Phaser */
+
 import NOOP from '../../util/NOOP.js';
 
 /**
@@ -52,7 +54,8 @@ export default class DemandLoader {
 			cacheData = this._cache[this._keyCache[key]];
 			delete this._keyCache[key];
 		} else {
-			// No cache entry found. Propably the file was directly loaded without
+			// No cache entry found. Propably the file was directly loaded
+			// without
 			// the use of the demand loader.
 			// Skip the callback search.
 			return;
@@ -155,17 +158,21 @@ export default class DemandLoader {
 
 	loadPackData(pack, fnOnComplete) {
 
-		// If there is currently a loading in progress we can not insert our pack
-		// data. This will mess up the Phaser Loader. We MUST wait until the loading
+		// If there is currently a loading in progress we can not insert our
+		// pack
+		// data. This will mess up the Phaser Loader. We MUST wait until the
+		// loading
 		// has finished. DOES NOT WORK.
 		/*
-		 * if (this._loader.isLoading) { this._loadPackCallBuffer.push(function() {
-		 * this.loadPackData(pack, fnOnComplete); }.bind(this)); return; }
+		 * if (this._loader.isLoading) {
+		 * this._loadPackCallBuffer.push(function() { this.loadPackData(pack,
+		 * fnOnComplete); }.bind(this)); return; }
 		 */
 
 		fnOnComplete = fnOnComplete || NOOP;
 
-		// Get the key. Keys in objects are not sorted but packs should contain only
+		// Get the key. Keys in objects are not sorted but packs should contain
+		// only
 		// one key.
 		// So I guess we re safe.
 		var key = '';
@@ -206,6 +213,12 @@ export default class DemandLoader {
 		this._loader.start();
 	}
 
+	/**
+	 * Loads the data from the server. The data parameter must be like:
+	 * <p>
+	 * {key : name, type : 'json', url : url}
+	 * </p>.
+	 */
 	load(data, fnOnComplete) {
 		if (Array.isArray(data)) {
 			console.error("Loading of arrays not yet supported.");

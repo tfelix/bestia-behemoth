@@ -51,9 +51,9 @@ export default class EngineContext {
 		this.entityUpdater = null;
 
 		/**
-		 * Effects manager will subscribe itself to messages from the server which
-		 * trigger a special effect for an entity or a stand alone effect which must
-		 * be displayed by whatever means.
+		 * Effects manager will subscribe itself to messages from the server
+		 * which trigger a special effect for an entity or a stand alone effect
+		 * which must be displayed by whatever means.
 		 * 
 		 * @public
 		 * @property {Bestia.Engine.FX.EffectsManager}
@@ -85,9 +85,9 @@ export default class EngineContext {
 	 */
 	_initGameSet() {
 
-		// The order here is very important, since we set internal objects on which
-		// some of the ctors of the objects depend. Please check twice when changing
-		// this order if this will work!
+		// The order here is very important, since we set internal objects on
+		// which some of the ctors of the objects depend. Please check twice
+		// when changing this order if this will work!
 		this.loader = new DemandLoader(this.game.load, this.game.cache, this.url);
 		this.indicatorManager = new IndicatorManager(this);
 		this.fxManager = new EffectsManager(this);
@@ -96,9 +96,9 @@ export default class EngineContext {
 	}
 
 	/**
-	 * TODO Das zu einem getter setter machen.
+	 * Returns the entity wrapper object of the player bestia.
 	 */
-	getPlayerEntity() {
+	get playerEntity() {
 		var pbid = this.engine.bestia.playerBestiaId();
 		var entity = this.entityCache.getByPlayerBestiaId(pbid);
 		return entity;

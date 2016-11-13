@@ -27,6 +27,7 @@ var MID = {
 	MAP_TILESET: 'map.tileset',
 	MAP_TILESET_REQUEST: 'map.tilesetrequest',
 	MAP_CHUNK: 'map.chunk',
+	MAP_CHUNK_REQUEST: 'map.requestdata',
 	
 	UI_DIALOG : 'ui.dialog',
 	

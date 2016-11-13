@@ -28,6 +28,17 @@ export default class UrlHelper {
 	}
 	
 	/**
+	 * Returns the url of an tilemap image.
+	 * 
+	 * @param {string}
+	 *            name - Name of the tilemap.
+	 * @returns {string} URL of the tilemap.
+	 */
+	getTilemapUrl(name) {
+		return this._assetRoot + 'tileset/' + name + '.png';
+	}
+	
+	/**
 	 * Returns the URL inside the asset folder for the mob icon.
 	 * 
 	 * @param mobName

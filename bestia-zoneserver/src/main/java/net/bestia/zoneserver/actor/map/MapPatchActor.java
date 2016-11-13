@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
-import net.bestia.messages.map.RequestMapDataMessage;
+import net.bestia.messages.map.MapChunkRequestMessage;
 import net.bestia.model.map.Map;
 import net.bestia.model.shape.Point;
 import net.bestia.model.shape.Rect;
@@ -49,7 +49,7 @@ public class MapPatchActor extends BestiaRoutingActor {
 			MapService mapService,
 			@Qualifier(CacheConfiguration.ACTIVE_BESTIA_CACHE) CacheManager<Long, Integer> activeBestiaCache,
 			@Qualifier(CacheConfiguration.PLAYER_BESTIA_CACHE) CacheManager<Integer, MasterBestiaEntity> playerBestiaCache) {
-		super(Arrays.asList(RequestMapDataMessage.class));
+		super(Arrays.asList(MapChunkRequestMessage.class));
 
 		this.activeBestiaCache = Objects.requireNonNull(activeBestiaCache);
 		this.mapService = Objects.requireNonNull(mapService);
@@ -61,7 +61,7 @@ public class MapPatchActor extends BestiaRoutingActor {
 	@Override
 	protected void handleMessage(Object msg) {
 
-		final RequestMapDataMessage req = (RequestMapDataMessage) msg;
+		final MapChunkRequestMessage req = (MapChunkRequestMessage) msg;
 		final long accId = req.getAccountId();
 
 		// Find the currently active bestia for this account.

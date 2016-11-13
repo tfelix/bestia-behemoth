@@ -1,3 +1,5 @@
+/*global Phaser */
+
 import Signal from '../io/Signal.js';
 import EngineContext from './core/EngineContext.js';
 import BootState from './states/BootState.js';

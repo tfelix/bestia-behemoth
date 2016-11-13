@@ -1,5 +1,7 @@
 package net.bestia.messages.map;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import net.bestia.messages.AccountMessage;
 import net.bestia.messages.MessageId;
 
@@ -10,20 +12,23 @@ import net.bestia.messages.MessageId;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class RequestMapDataMessage extends AccountMessage implements MessageId {
+public class MapChunkRequestMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "map.requestdata";
 	
+	@JsonProperty("x")
 	private int patchX;
+	
+	@JsonProperty("y")
 	private int patchY;
 	
-	public RequestMapDataMessage() {
+	public MapChunkRequestMessage() {
 		this.patchX = 0;
 		this.patchY = 0;
 	}
 	
-	public RequestMapDataMessage(int x, int y) {
+	public MapChunkRequestMessage(int x, int y) {
 		this.patchX = x;
 		this.patchY = y;
 	}
