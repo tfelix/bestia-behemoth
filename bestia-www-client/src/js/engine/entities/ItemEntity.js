@@ -1,5 +1,5 @@
 import Entity from './Entity.js';
-import World from '../core/World.js';
+import World from '../map/World.js';
 
 
 export default class ItemEntity extends Entity {

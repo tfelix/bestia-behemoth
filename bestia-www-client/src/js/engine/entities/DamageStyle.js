@@ -3,9 +3,8 @@
  * Contains the textual styles of the damage entity display. It will be
  * displayed as text.
  */
-let DamageStyle = {};
 
-DamageStyle.NORMAL = {
+const NORMAL = {
 	font : "18px Arial",
 	fill : "#ffffff",
 	align : "center",
@@ -13,7 +12,7 @@ DamageStyle.NORMAL = {
 	strokeThickness : 3
 };
 
-DamageStyle.CRIT = {
+const CRIT = {
 	font : "18px Arial",
 	fill : "#ffffff",
 	align : "center",
@@ -21,7 +20,7 @@ DamageStyle.CRIT = {
 	strokeThickness : 3
 };
 
-DamageStyle.HEAL = {
+const HEAL = {
 	font : "18px Arial",
 	fill : "#ffffff",
 	align : "center",
@@ -29,4 +28,4 @@ DamageStyle.HEAL = {
 	strokeThickness : 3
 };
 
-export default {DamageStyle};
+export {NORMAL, CRIT, HEAL};

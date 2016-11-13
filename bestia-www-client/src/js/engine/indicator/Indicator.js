@@ -1,4 +1,4 @@
-import WorldHelper from '../core/WorldHelper.js';
+import WorldHelper from '../map/WorldHelper.js';
 import IndicatorManager from './IndicatorManager.js';
 
 /**

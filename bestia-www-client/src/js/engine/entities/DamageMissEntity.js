@@ -1,5 +1,7 @@
+/*global Phaser */
+
 import DamageEntity from './DamageEntity.js';
-import DamageStyle from './DamageStyle.js';
+import {NORMAL} from './DamageStyle.js';
 
 
 /**
@@ -37,6 +39,6 @@ export default class MissDamageEntity extends DamageEntity {
 	 * @method Bestia.Engine.Entity.Damage#_display
 	 */
 	_createVisual(posX, posY) {
-		this._sprite = this._game.add.text(posX, posY, '', DamageStyle.STYLE_NORMAL);
+		this._sprite = this._game.add.text(posX, posY, '', NORMAL);
 	}
 } 

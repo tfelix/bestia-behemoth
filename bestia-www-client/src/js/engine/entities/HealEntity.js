@@ -1,5 +1,5 @@
 import DamageEntity from './DamageEntity.js';
-import DamageStyle from './DamageStyle.js';
+import {HEAL} from './DamageStyle.js';
 
 
 export default class HealDamage extends DamageEntity {
@@ -17,6 +17,6 @@ export default class HealDamage extends DamageEntity {
 	 * @method Bestia.Engine.Entity.Damage#_display
 	 */
 	_createVisual(posX, posY) {
-		this._sprite = this._game.add.text(posX, posY, '', DamageStyle.STYLE_HEAL);
+		this._sprite = this._game.add.text(posX, posY, '', HEAL);
 	}
 }

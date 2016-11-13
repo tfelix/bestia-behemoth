@@ -1,4 +1,4 @@
-import WorldHelper from '../core/WorldHelper.js';
+import WorldHelper from '../map/WorldHelper.js';
 
 /**
  * Base entity for display via the bestia engine/phaser. The class contains all

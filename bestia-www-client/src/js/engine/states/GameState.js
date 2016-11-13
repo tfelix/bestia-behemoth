@@ -1,7 +1,7 @@
 /*global Phaser */
 
 import Signal from '../../io/Signal.js';
-import World from '../core/World.js';
+import World from '../map/World.js';
 
 /**
  * Central game state for controlling the games logic.

@@ -1,5 +1,5 @@
 import Entity from './Entity.js';
-import WorldHelper from '../core/WorldHelper.js';
+import WorldHelper from '../map/WorldHelper.js';
 
 
 export default class SpriteEntity extends Entity {

@@ -1,5 +1,5 @@
 import DamageEntity from './DamageEntity.js';
-import DamageStyle from './DamageStyle.js';
+import {CRIT} from './DamageStyle.js';
 	
 export default class DamageCriticalEntity extends DamageEntity {
 	constructor(game, pos, dmg) {
@@ -17,6 +17,6 @@ export default class DamageCriticalEntity extends DamageEntity {
 	 * @method Bestia.Engine.Entity.Damage#_display
 	 */
 	_createVisual(posX, posY) {
-		this._sprite = this._game.add.text(posX, posY, '', DamageStyle.STYLE_CRIT);
+		this._sprite = this._game.add.text(posX, posY, '', CRIT);
 	}
 }

@@ -1,7 +1,7 @@
 
 import Indicator from './Indicator.js';
 import Signal from '../../io/Signal.js';
-import WorldHelper from '../core/WorldHelper.js';
+import WorldHelper from '../map/WorldHelper.js';
 import Message from '../../io/messages/Message.js';
 
 /**

@@ -68,9 +68,9 @@ export default class UrlHelper {
 	getIndicatorUrl(indicator) {
 		if(indicator === 'cursor') {
 			// Special treatmen for default cursor.
-			return this._assetRoot + 'cast_indicators/' + indicator + '.png';
+			return this._assetRoot + 'img/cast_indicators/' + indicator + '.png';
 		} 
-		return this._assetRoot + 'cast_indicators/' + indicator + '/' + indicator + '.png';
+		return this._assetRoot + 'img/cast_indicators/' + indicator + '/' + indicator + '.png';
 	}
 
 	getItemIconUrl(itemName) {
