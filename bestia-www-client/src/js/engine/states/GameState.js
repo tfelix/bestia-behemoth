@@ -1,3 +1,4 @@
+/*global Phaser */
 
 import Signal from '../../io/Signal.js';
 import World from '../core/World.js';

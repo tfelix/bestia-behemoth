@@ -14,6 +14,10 @@ import Message from '../../io/messages/Message';
  * (especially if there are many many more tilesets to come) to implement a
  * better lookup strategy like maybe a tree.
  * </p>
+ * 
+ * <p>
+ * TODO Das Laden des PNGs muss noch stattfinden
+ * </p>
  */
 export default class TilesetManager {
 	
