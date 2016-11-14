@@ -42,7 +42,6 @@ public class MapPatchActor extends BestiaRoutingActor {
 	private final MapService mapService;
 	private final CacheManager<Long, Integer> activeBestiaCache;
 	private final CacheManager<Integer, MasterBestiaEntity> playerBestiaCache;
-	private final ActorRef responseActor;
 
 	@Autowired
 	public MapPatchActor(
@@ -54,8 +53,6 @@ public class MapPatchActor extends BestiaRoutingActor {
 		this.activeBestiaCache = Objects.requireNonNull(activeBestiaCache);
 		this.mapService = Objects.requireNonNull(mapService);
 		this.playerBestiaCache = Objects.requireNonNull(playerBestiaCache);
-
-		this.responseActor = createActor(SendClientActor.class, SendClientActor.NAME);
 	}
 
 	@Override

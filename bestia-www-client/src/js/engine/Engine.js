@@ -24,8 +24,6 @@ export default class Engine {
 			musicVolume : ko.observable(100)
 		};
 
-		this.bestia = undefined;
-
 		/**
 		 * Context to hold very important and shared data between the states or
 		 * other classes. Note that this object is only fully initialized after the
@@ -39,11 +37,11 @@ export default class Engine {
 
 		this.game = new Phaser.Game(width, height, Phaser.AUTO, 'bestia-canvas', null, false, false);
 
-		this.game.state.add('boot', new BootState(this));
-		this.game.state.add('connecting', new ConnectingState(this));
-		this.game.state.add('initial_loading', new InitializeState(this));
-		this.game.state.add('load', new LoadingState(this));
-		this.game.state.add('game', new GameState(this));
+		this.game.state.add('boot', new BootState(this.ctx));
+		this.game.state.add('connecting', new ConnectingState(this.ctx));
+		this.game.state.add('initial_loading', new InitializeState(this.ctx));
+		this.game.state.add('load', new LoadingState(this.ctx));
+		this.game.state.add('game', new GameState(this.ctx));
 
 		// ==== PREPARE HANDLER ====
 
@@ -69,48 +67,30 @@ export default class Engine {
 	 */
 	_handlerOnBestiaSelected(_, data) {
 		console.debug('New bestia selected. Starting loading process.');
-		this.bestia = data;
-		this.loadMap(data);
+		this.ctx.playerBestia = data;
+		this.game.state.start('load');
 	}
 
 	/**
 	 * Shows the "now connecting" screen to visualize connection lost.
 	 */
 	_handlerOnConnectionLost() {
+		console.debug('Connection lost. Trying to reconnect.');
 		this.game.state.start('connecting');
 	}
 
 	_handlerOnInitLoaded() {
+		console.debug('Init finished. Starting to connect..');
 		this.game.state.start('connecting');
 	}
 
 	_handlerOnBooted() {
+		console.debug('Booting finished. Starting load.');
 		this.game.state.start('initial_loading');
 	}
 
 	_handlerOnFinishedMapload() {
+		console.debug('Mapload finished. Starting game.');
 		this.game.state.start('game');
-	}
-
-	/**
-	 * Loads a certain map. If the map is different then the current map it will
-	 * trigger a complete map reload. Otherwise it will just do a partial load an
-	 * shift the active viewport to the newly selected bestia.
-	 * 
-	 * @param {Bestia.BestiaViewModel}
-	 *            bestia - Bestia to use as the player character.
-	 * @method Bestia.Engine#loadMap
-	 */
-	loadMap() {
-		console.debug('Loading map.');
-
-		// Check if we can do a partial mapload or a full map reload.
-		var world = this.ctx.zone;
-		if (world === null || world.name !== this.bestia.location()) {
-			// We need to do a full load.
-			this.game.state.start('load');
-		}
-		// else: Partial load only (just switch view to active bestia).
-		// TODO
 	}
 }

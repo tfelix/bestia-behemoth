@@ -12,15 +12,19 @@ import Signal from '../../io/Signal.js';
  */
 export default class InitializeState {
 	
-	constructor(engine) {
-		this.ctx = engine.ctx;
-		this.url = engine.ctx.url;
-		this._pubsub = engine.ctx.pubsub;
+	constructor(context) {
+		this.ctx = context;
+		this.url = context.url;
+		this._pubsub = context.pubsub;
 	}
 
 	preload() {
 		
-		// TODO hier auch schon einen loading screen anzeigen.
+		// TODO hier auch schon einen hinweis/splash anzeigen.
+		
+		this.game.load.image('tilemap', 'http://localhost/assets/tileset/mountain_landscape_23.png');
+		
+		
 		this.game.load.image('castindicator_small', this.url.getIndicatorUrl('_big'));
 		this.game.load.image('castindicator_medium', this.url.getIndicatorUrl('_medium'));
 		this.game.load.image('castindicator_big', this.url.getIndicatorUrl('_small'));
@@ -34,9 +38,8 @@ export default class InitializeState {
 		this.game.load.spritesheet('rain', this.url.getSpriteUrl('rain'), 17, 17);
 
 		// Load the static data from the manager.
-		this.ctx.indicatorManager.load();
-		this.ctx.fxManager.load();
-
+		//this.ctx.indicatorManager.load();
+		//this.ctx.fxManager.load();
 	}
 
 	create() {

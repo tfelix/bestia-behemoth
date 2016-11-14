@@ -18,7 +18,7 @@ import net.bestia.model.shape.Size;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MapDataMessage extends AccountMessage implements MessageId {
+public class MapChunkMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
 
@@ -33,14 +33,14 @@ public class MapDataMessage extends AccountMessage implements MessageId {
 		return MESSAGE_ID;
 	}
 	
-	public MapDataMessage() {
+	public MapChunkMessage() {
 
 		layers = Collections.emptyList();
 		groundLayer = Collections.emptyList();
 		size = new Size(0, 0);
 	}
 
-	public MapDataMessage(net.bestia.model.map.Map map) {
+	public MapChunkMessage(net.bestia.model.map.Map map) {
 
 		Objects.requireNonNull(map);
 

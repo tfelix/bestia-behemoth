@@ -31,13 +31,6 @@ export default class EngineContext {
 		 */
 		this._game = null;
 
-		/**
-		 * Bestia engine.
-		 * 
-		 * @property {Bestia.Engine}
-		 */
-		this.engine = _engine;
-
 		this.entityCache = new EntityCacheManager();
 
 		this.entityFactory = null;
@@ -77,6 +70,8 @@ export default class EngineContext {
 		 * @property {Bestia.UrlHelper}
 		 */
 		this.url = _urlHelper;
+		
+		this._bestia = null;
 	}
 
 	/**
@@ -146,7 +141,11 @@ export default class EngineContext {
 	 * Returns the currently selected player bestia.
 	 */
 	get playerBestia() {
-		return this.engine.bestia;
+		return this._bestia;
+	}
+	
+	set playerBestia(bestia) {
+		this._bestia = bestia;
 	}
 }
 

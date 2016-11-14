@@ -11,8 +11,8 @@ import Signal from '../../io/Signal.js';
  */
 export default class BootState {
 	
-	constructor(engine) {
-		this._engine = engine;
+	constructor(context) {
+		this._ctx = context;
 	}
 	
 	/**
@@ -24,10 +24,6 @@ export default class BootState {
 	
 	create() {
 		// Setup the game context.
-		var ctx = this._engine.ctx;
-		
-		ctx.game = this.game;
-
-		ctx.pubsub.publish(Signal.ENGINE_BOOTED);
+		this._ctx.pubsub.publish(Signal.ENGINE_BOOTED);
 	}
 }

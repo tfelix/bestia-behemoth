@@ -10,9 +10,9 @@ import Signal from '../../io/Signal.js';
  */
 export default class ConnectingState {
 	
-	constructor(engine) {
+	constructor(context) {
 
-		this._pubsub = engine.ctx.pubsub;
+		this._pubsub = context.pubsub;
 		
 	}
 	

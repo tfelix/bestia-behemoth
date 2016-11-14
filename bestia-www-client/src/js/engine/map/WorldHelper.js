@@ -83,7 +83,7 @@ let WorldHelper = Object.freeze({
 	},
 
 	/**
-	 * Returns the tile coordinates if world pixel are given.
+	 * Returns the tile coordinates if coordinates in pixel are given.
 	 * 
 	 * @method Bestia.Engine.World#getTileXY
 	 * @param {Object}

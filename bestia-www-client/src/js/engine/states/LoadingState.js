@@ -8,7 +8,7 @@ import Signal from '../../io/Signal.js';
  * @constructor
  */
 export default class LoadingState  {
-	constructor(engine) {
+	constructor(context) {
 		this.bestia = null;
 		
 		/**
@@ -18,23 +18,16 @@ export default class LoadingState  {
 		 */
 		this._currentProgress = 0;
 		
-		this._ctx = engine.ctx;
-		
-		/**
-		 * Reference to the bestia engine.
-		 * 
-		 * @private
-		 */
-		this._engine = engine;
+		this._ctx = context;
 
 		/**
 		 * Reference to the pubsub system.
 		 * 
 		 * @private
 		 */
-		this._pubsub = engine.ctx.pubsub;
+		this._pubsub = context.pubsub;
 		
-		this._urlHelper = engine.ctx.url;
+		this._urlHelper = context.url;
 	}
 	
 	init() {

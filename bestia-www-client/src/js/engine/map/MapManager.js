@@ -53,8 +53,11 @@ export default class MapManager {
 	 * Handle if a new mapchunk is send by the server. It will get incorporated
 	 * into the database.
 	 */
-	_handleChunkReceived() {
-		// See if
+	_handleChunkReceived(_, data) {
+		// TODO Das hier korrigieren.
+		let key = this._chunkKey(data.x, data.y);
+		this._chunkCache[key] = data;
+		this._checkChunkCache();
 	}
 	
 	/**

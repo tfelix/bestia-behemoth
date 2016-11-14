@@ -19,6 +19,9 @@ public class MapChunk implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * How many tiles are contained within one of such chunks.
+	 */
 	public static int MAP_CHUNK_SIZE = 10;
 
 	private final Tile[] groundLayer = new Tile[MAP_CHUNK_SIZE * MAP_CHUNK_SIZE];
