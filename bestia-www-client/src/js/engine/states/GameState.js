@@ -3,6 +3,7 @@
 import Signal from '../../io/Signal.js';
 import World from '../map/World.js';
 import WorldHelper from '../map/WorldHelper';
+import TileRenderer from '../renderer/TileRenderer';
 
 /**
  * Central game state for controlling the games logic.
@@ -60,23 +61,12 @@ export default class GameState {
 		// ========= TESTING =========
 		//this.game.world.setBounds(0, 0, 1024, 768);
 		
+		
 		// TILEMAP TEST 1ms
-		this.map = this.game.add.tilemap();
-		this.map.addTilesetImage('tilemap');
-		var layer = this.map.create('ground', 90, 60, 32, 32);
-		layer.resizeWorld();
+		
 		
 		// Draw tiles.
-		for(var x = 9; x < 18; x++) {
-			for(var y = 9; y < 18; y++) {
-				if(x % 2 == 0) {
-					this.map.putTile(30, x, y, 'ground');
-				} else {
-					this.map.putTile(54, x, y, 'ground');
-				}
-				
-			}
-		}
+		
 		
 		/*
 		var batch = this.game.add.spriteBatch();
@@ -94,7 +84,10 @@ export default class GameState {
 		this.sprite.anchor.setTo(0,0);
 		this.game.physics.startSystem(Phaser.Physics.ARCADE);
 		this.game.camera.follow(this.sprite);
-		this.extended = false
+		this.extended = false;
+		this._tileRenderer = new TileRenderer(this.game);
+		this._tileRenderer.playerSprite = this.sprite;
+		this._tileRenderer.clearDraw();
 	}
 
 	update() {
@@ -108,37 +101,9 @@ export default class GameState {
 			let x2 = this._ctx.playerBestia.posX + WorldHelper.SIGHT_RANGE_X;
 			let y1 = this._ctx.playerBestia.posY - WorldHelper.SIGHT_RANGE_Y;
 			let y2 = this._ctx.playerBestia.posY + WorldHelper.SIGHT_RANGE_Y;
-			/*
-			for(let y = y1; y < y2; y++) {
-				for(let x = x1; x < x2; x++) {
-					// Find the tile under this space.
-					let tiles = this._ctx.mapManager.getTileGids(x, y);
-					tiles.foreach(function(gid, layer){
-						// Iterate over each layer.
-						this._ctx.tilesetManager.get
-					});
-				}
-			}*/
 		}
 		
-		if(this.sprite.x >= 576 && this.extended == false) {
-			this.extended = true;
-			for(let x = 18; x < 27; x++) {
-				for(let y = 9; y < 18; y++) {
-					if(x % 2 == 0) {
-						this.map.putTile(30, x, y, 'ground');
-					} else {
-						this.map.putTile(54, x, y, 'ground');
-					}	
-				}
-			}
-			
-			for(let x = 0; x < 18; x++) {
-				for(let y = 0; y < 18; y++) {
-					this.map.removeTile(x, y, 'ground');					
-				}
-			}
-		}
+		this._tileRenderer.update();
 		
 		if (this.cursor.left.isDown)
 	    {
