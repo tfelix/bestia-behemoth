@@ -23,6 +23,8 @@ export default class TileRenderer {
 		this._layer = this._map.create('ground', 90, 60, 32, 32);
 		this._layer.resizeWorld();
 		this._layer.sendToBack();
+		
+		this._gameSize = {x: 0, y: 0};
 	}
 	
 	/**
@@ -37,8 +39,20 @@ export default class TileRenderer {
 	 * current player position.
 	 */
 	clearDraw() {
-		for(var x = 9; x < 18; x++) {
-			for(var y = 9; y < 18; y++) {
+		// We must calculate the game size.
+		this._gameSize.x = Math.ceil(this._game.width / WorldHelper.TILE_SIZE);
+		this._gameSize.y = Math.ceil(this._game.height / WorldHelper.TILE_SIZE);
+		
+		
+		let pos = WorldHelper.getTileXY(this._sprite.x, this._sprite.y);
+		let startX = pos.x - WorldHelper.SIGHT_RANGE.x;
+		let startY = pos.x - WorldHelper.SIGHT_RANGE.y;
+		
+		
+		for(var x = startX; x < startX + this._gameSize.x; x++) {
+			for(var y = startY; y < startY + this._gameSize.y; y++) {
+				
+				// Austauschen mit echten, tile informationen.
 				if(x % 2 == 0) {
 					this._map.putTile(30, x, y, 'ground');
 				} else {
@@ -47,7 +61,8 @@ export default class TileRenderer {
 				
 			}
 		}
-		this._rendered = {x1: 9, x2: 18, y1: 9, y2: 18};
+		
+		this._rendered = {x1: startX, x2: startX + this._gameSize.x, y1: startY, y2: startY + this._gameSize.y};
 	}
 	
 	/**

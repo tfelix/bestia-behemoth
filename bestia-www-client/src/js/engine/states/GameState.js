@@ -59,25 +59,8 @@ export default class GameState {
 		// this.ctx.indicatorManager.showDefault();
 		
 		// ========= TESTING =========
-		//this.game.world.setBounds(0, 0, 1024, 768);
+		this.game.world.setBounds(0, 0, 800, 600);
 		
-		
-		// TILEMAP TEST 1ms
-		
-		
-		// Draw tiles.
-		
-		
-		/*
-		var batch = this.game.add.spriteBatch();
-		// Draw tiles.
-		this.game.world.setBounds(0, 0, 4000, 4000);
-		for(var x = 0; x < 90; x++) {
-			for(var y = 0; y < 60; y++) {
-				let sp = this.game.make.sprite(x*32, y*32, 'tilesheet', 47);
-				batch.addChild(sp);
-			}
-		}*/
 		
 		this.sprite = this.game.add.sprite(400, 300, 'poring');
 		this.cursor = this.game.input.keyboard.createCursorKeys();
