@@ -1,33 +1,35 @@
 
+const TILE_SIZE = 32;
+const CHUNK_SIZE = 5;
+const SIGHT_RANGE_X = 32;
+const SIGHT_RANGE_Y = 32;
+
 /**
  * Contains various helpful methods to do calculations in world space.
  * 
  * @constructor
  */
-let WorldHelper = Object.freeze({
-
-	// =================
-	// Constants
-	// =================
-	
+export default class WorldHelper {
 	/**
 	 * Size of the tiles in px.
 	 */
-	TILE_SIZE : 32,
+	static get TILE_SIZE() {
+		return TILE_SIZE;
+	}
+	
 	/**
 	 * Size of the chunks in tiles.
 	 */
-	CHUNK_SIZE: 10,
+	static get CHUNK_SIZE() {
+		return CHUNK_SIZE;
+	}
 	
 	/**
-	 * Sight range of the player in tiles. X direction.
+	 * Sight range of the player in tiles. X and Y direction.
 	 */
-	SIGHT_RANGE_X: 32,
-	
-	/**
-	 * Sight range of the player in tiles. y direction.
-	 */
-	SIGHT_RANGE_Y: 32,
+	static get SIGHT_RANGE() {
+		return {x: SIGHT_RANGE_X, y: SIGHT_RANGE_Y};
+	}
 
 	/**
 	 * Finds a path between a start and a goal coordinate. The coordiantes must
@@ -36,9 +38,9 @@ let WorldHelper = Object.freeze({
 	 * @method Bestia.Engine.World#findPath
 	 * @public
 	 */
-	findPath : function(start, goal) {
+	static findPath(start, goal) {
 		return this._astar.findPath(start, goal);
-	},
+	}
 
 	/**
 	 * Returns the px coordiantes if tiles x and y coordiantes are given.
@@ -53,7 +55,7 @@ let WorldHelper = Object.freeze({
 	 * @return {Object} - X and Y px coordiantes in the form
 	 * @{code {x: INT, y: INT}}.
 	 */
-	getPxXY : function(tileX, tileY, obj) {
+	static getPxXY(tileX, tileY, obj) {
 		obj = obj || {
 			x : 0,
 			y : 0
@@ -63,7 +65,7 @@ let WorldHelper = Object.freeze({
 		obj.y = tileY * this.TILE_SIZE;
 
 		return obj;
-	},
+	}
 
 	/**
 	 * Similar to getPxXY, but this time we take in regard the anchor of the
@@ -71,7 +73,7 @@ let WorldHelper = Object.freeze({
 	 * get the pixel coordiantes in the middle of the given tile in order to
 	 * place the sprite correctly in the middle of the tile.
 	 */
-	getSpritePxXY : function(tileX, tileY, obj) {
+	static getSpritePxXY(tileX, tileY, obj) {
 		obj = obj || {
 			x : 0,
 			y : 0
@@ -80,7 +82,7 @@ let WorldHelper = Object.freeze({
 		obj.x = obj.x + this.TILE_SIZE / 2;
 		obj.y = obj.y + this.TILE_SIZE - 7;
 		return obj;
-	},
+	}
 
 	/**
 	 * Returns the tile coordinates if coordinates in pixel are given.
@@ -92,7 +94,7 @@ let WorldHelper = Object.freeze({
 	 * @return {Object} - X and Y tile coordiantes in px in the form
 	 * @{code {x: INT, y: INT}}.
 	 */
-	getTileXY : function(pxX, pxY, obj) {
+	static getTileXY(pxX, pxY, obj) {
 		obj = obj || {
 			x : 0,
 			y : 0
@@ -102,14 +104,12 @@ let WorldHelper = Object.freeze({
 		obj.y = Math.floor(pxY / this.TILE_SIZE);
 
 		return obj;
-	},
+	}
 
-	getDistance : function(c1, c2) {
+	static getDistance(c1, c2) {
 		var dX = c1.x - c2.x;
 		var dY = c1.y - c2.y;
 
 		return Math.floor(Math.sqrt(dX * dX + dY * dY));
 	}
-});
-
-export default { WorldHelper };
+}
