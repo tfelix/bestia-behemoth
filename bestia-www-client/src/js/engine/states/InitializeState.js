@@ -1,3 +1,4 @@
+/*global Phaser */
 
 import Signal from '../../io/Signal.js';
 
@@ -23,6 +24,11 @@ export default class InitializeState {
 		// TODO hier auch schon einen hinweis/splash anzeigen.
 		
 		this.game.load.image('tilemap', 'http://localhost/assets/tileset/mountain_landscape_23.png');
+		this.game.load.spritesheet('tilesheet', 'http://localhost/assets/tileset/mountain_landscape_23.png', 32, 32);
+		this.game.load.atlas('poring', 
+				'http://localhost/assets/sprite/mob/poring/poring.png', 
+				'http://localhost/assets/sprite/mob/poring/poring.json',
+				Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
 		
 		
 		this.game.load.image('castindicator_small', this.url.getIndicatorUrl('_big'));

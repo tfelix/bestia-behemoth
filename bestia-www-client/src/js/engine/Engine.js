@@ -35,7 +35,7 @@ export default class Engine {
 		var height = $(window).height();
 		var width = $('#canvas-container').width();
 
-		this.game = new Phaser.Game(width, height, Phaser.AUTO, 'bestia-canvas', null, false, false);
+		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'bestia-canvas', null, false, false);
 
 		this.game.state.add('boot', new BootState(this.ctx));
 		this.game.state.add('connecting', new ConnectingState(this.ctx));
