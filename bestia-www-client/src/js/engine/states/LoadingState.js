@@ -31,8 +31,8 @@ export default class LoadingState  {
 		this.gfx.beginFill(0xFF0000, 1);
 		
 		let chunks = this._ctx.renderer.tile.getVisibleChunks();
-		chunks.foreach(function(){
-			this._ctx.renderer.tile.loadChunks(chunks);
+		chunks.forEach(function(chunk){
+			this._ctx.renderer.tile.loadChunks(chunk);
 		}.bind(this));
 		
 		

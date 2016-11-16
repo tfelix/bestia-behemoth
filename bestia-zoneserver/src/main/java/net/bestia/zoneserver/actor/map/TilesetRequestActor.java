@@ -22,12 +22,14 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
  */
 @Component
 @Scope("prototype")
-public class RequestTilesetActor extends BestiaRoutingActor {
+public class TilesetRequestActor extends BestiaRoutingActor {
+	
+	public static String NAME = "tileset";
 	
 	private final TilesetDAO tilesetDao;
 
 	@Autowired
-	public RequestTilesetActor(TilesetDAO tilesetDao) {
+	public TilesetRequestActor(TilesetDAO tilesetDao) {
 		super(Arrays.asList(MapTilesetRequestMessage.class));
 		
 		this.tilesetDao = Objects.requireNonNull(tilesetDao);

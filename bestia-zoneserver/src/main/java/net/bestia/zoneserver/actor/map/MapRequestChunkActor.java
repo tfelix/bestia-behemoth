@@ -1,6 +1,8 @@
 package net.bestia.zoneserver.actor.map;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +11,14 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
+import net.bestia.messages.map.MapChunkMessage;
 import net.bestia.messages.map.MapChunkRequestMessage;
 import net.bestia.model.map.Map;
+import net.bestia.model.map.Map.MapBuilder;
+import net.bestia.model.map.Tile;
 import net.bestia.model.shape.Point;
 import net.bestia.model.shape.Rect;
+import net.bestia.model.shape.Size;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
@@ -29,9 +35,9 @@ import net.bestia.zoneserver.service.MapService;
  */
 @Component
 @Scope("prototype")
-public class MapPatchActor extends BestiaRoutingActor {
+public class MapRequestChunkActor extends BestiaRoutingActor {
 
-	public final static String NAME = "mapPatch";
+	public final static String NAME = "mapChunk";
 
 	/**
 	 * How many tiles are transmitted from the position of the player in each
@@ -44,7 +50,7 @@ public class MapPatchActor extends BestiaRoutingActor {
 	private final CacheManager<Integer, MasterBestiaEntity> playerBestiaCache;
 
 	@Autowired
-	public MapPatchActor(
+	public MapRequestChunkActor(
 			MapService mapService,
 			@Qualifier(CacheConfiguration.ACTIVE_BESTIA_CACHE) CacheManager<Long, Integer> activeBestiaCache,
 			@Qualifier(CacheConfiguration.PLAYER_BESTIA_CACHE) CacheManager<Integer, MasterBestiaEntity> playerBestiaCache) {
@@ -75,8 +81,17 @@ public class MapPatchActor extends BestiaRoutingActor {
 		// Retrieve all the map information in the view port of this.
 		final Map map = mapService.getMap(area);
 
-		// Assemble the answer message and find the actor with the ref.
-		// final MapDataMessage mapData = new MapDataMessage(map.getSize(), );
-		// responseActor.tell(mapData, getSelf());
+		Map.MapBuilder builder = new MapBuilder();
+		builder.setSize(new Size(10, 10));
+		
+		List<Tile> gtiles = new ArrayList<>();
+		
+		for(int i = 0; i < 100; i++) {
+			gtiles.add(new Tile(37));
+		}
+		builder.addGroundTiles(0, gtiles);
+		
+		final MapChunkMessage response = new MapChunkMessage(req, builder.build());
+		sendClient(response);
 	}
 }

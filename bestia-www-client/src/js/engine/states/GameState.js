@@ -62,14 +62,14 @@ export default class GameState {
 		this.game.physics.startSystem(Phaser.Physics.ARCADE);
 		this.game.camera.follow(this.sprite);
 		this.extended = false;
-		this._tileRenderer = new TileRenderer(this.game);
-		this._tileRenderer.playerSprite = this.sprite;
-		this._tileRenderer.clearDraw();
+
+		//this._tileRenderer.playerSprite = this.sprite;
+		//this._tileRenderer.clearDraw();
 	}
 
 	update() {
 		
-		this._tileRenderer.update();
+		//this._tileRenderer.update();
 		
 		if (this.cursor.left.isDown)
 	    {

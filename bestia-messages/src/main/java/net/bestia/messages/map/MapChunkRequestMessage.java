@@ -2,8 +2,7 @@ package net.bestia.messages.map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
+import net.bestia.messages.JacksonMessage;
 
 /**
  * Asks the server to send the data of the map in the current viewport (with
@@ -12,7 +11,7 @@ import net.bestia.messages.MessageId;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MapChunkRequestMessage extends AccountMessage implements MessageId {
+public class MapChunkRequestMessage extends JacksonMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "map.requestdata";

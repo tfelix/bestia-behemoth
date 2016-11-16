@@ -53,6 +53,13 @@ export default class TileRenderer {
 	}
 	
 	/**
+	 * Gives a key which can be used to reference a chunk inside the cache.
+	 */
+	_chunkKey(x, y) {
+		return "x"+x+"-y"+y;
+	}
+	
+	/**
 	 * Handle if a new mapchunk is send by the server. It will get incorporated
 	 * into the database.
 	 */

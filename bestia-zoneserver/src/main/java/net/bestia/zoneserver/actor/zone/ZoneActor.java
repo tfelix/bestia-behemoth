@@ -27,6 +27,8 @@ import net.bestia.zoneserver.actor.entity.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.inventory.InventoryActor;
 import net.bestia.zoneserver.actor.login.ConnectionManagerActor;
 import net.bestia.zoneserver.actor.login.LoginActor;
+import net.bestia.zoneserver.actor.map.MapRequestChunkActor;
+import net.bestia.zoneserver.actor.map.TilesetRequestActor;
 
 /**
  * Central actor for handling zone related messages. This actor will redirect
@@ -52,7 +54,11 @@ public class ZoneActor extends BestiaRoutingActor {
 
 		// Login
 		createActor(LoginActor.class);
-
+		
+		// === Map ===
+		createActor(MapRequestChunkActor.class);
+		createActor(TilesetRequestActor.class);
+		
 		// === Inventory ===
 		createActor(InventoryActor.class);
 

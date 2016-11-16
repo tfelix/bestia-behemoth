@@ -6,8 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
+import net.bestia.messages.JacksonMessage;
 import net.bestia.model.shape.Point;
 import net.bestia.model.shape.Size;
 
@@ -18,14 +20,19 @@ import net.bestia.model.shape.Size;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MapChunkMessage extends AccountMessage implements MessageId {
+public class MapChunkMessage extends JacksonMessage {
 
 	private static final long serialVersionUID = 1L;
 
 	public static final String MESSAGE_ID = "map.mapdata";
 
+	@JsonProperty("l")
 	private final List<Map<Point, Integer>> layers;
+	
+	@JsonProperty("gl")
 	private final List<Integer> groundLayer;
+	
+	@JsonProperty("s")
 	private final Size size;
 
 	@Override
@@ -40,8 +47,8 @@ public class MapChunkMessage extends AccountMessage implements MessageId {
 		size = new Size(0, 0);
 	}
 
-	public MapChunkMessage(net.bestia.model.map.Map map) {
-
+	public MapChunkMessage(AccountMessage msg, net.bestia.model.map.Map map) {
+		super(msg);
 		Objects.requireNonNull(map);
 
 		this.size = map.getSize();

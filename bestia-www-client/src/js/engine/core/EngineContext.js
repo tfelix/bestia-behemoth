@@ -79,6 +79,15 @@ export default class EngineContext {
 	 * Some initializations can only be done when a game state has been loaded.
 	 */
 	init() {
+		// The order here is very important, since we set internal objects on
+		// which some of the ctors of the objects depend. Please check twice
+		// when changing this order if this will work!
+		this.loader = new DemandLoader(this.game.load, this.game.cache, this.url);
+		this.indicatorManager = new IndicatorManager(this);
+		this.fxManager = new EffectsManager(this);
+		this.entityFactory = new EntityFactory(this);
+		this.entityUpdater = new EntityUpdater(this);
+		
 		// Prepare the renderer
 		let tileRenderer = new TileRenderer(this);
 		
@@ -88,22 +97,6 @@ export default class EngineContext {
 		this.renderer = {
 				tile: tileRenderer
 		};
-	}
-
-	/**
-	 * Trigger all the stuff which can be done after an valie game object was
-	 * set.
-	 */
-	_initGameSet() {
-
-		// The order here is very important, since we set internal objects on
-		// which some of the ctors of the objects depend. Please check twice
-		// when changing this order if this will work!
-		this.loader = new DemandLoader(this.game.load, this.game.cache, this.url);
-		this.indicatorManager = new IndicatorManager(this);
-		this.fxManager = new EffectsManager(this);
-		this.entityFactory = new EntityFactory(this);
-		this.entityUpdater = new EntityUpdater(this);
 	}
 
 	/**
