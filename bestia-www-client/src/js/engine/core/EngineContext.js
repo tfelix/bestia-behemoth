@@ -4,6 +4,7 @@ import IndicatorManager from '../indicator/IndicatorManager.js';
 import EffectsManager from '../fx/EffectsManager.js';
 import EntityFactory from '../entities/factory/EntityFactory.js';
 import EntityUpdater from '../entities/util/EntityUpdater.js';
+import TileRenderer from '../renderer/TileRenderer';
 
 /**
  * This class simply holds the reference to multiple important structures used
@@ -15,21 +16,21 @@ import EntityUpdater from '../entities/util/EntityUpdater.js';
  */
 export default class EngineContext {
 	
-	constructor(_pubsub, _engine, _urlHelper) {
+	constructor(game, _pubsub, _urlHelper) {
 		/**
 		 * Used to publish subscribe.
 		 * 
 		 * @property {Bestia.PubSub}
 		 */
 		this.pubsub = _pubsub;
-
+		
 		/**
 		 * Phaser game reference.
 		 * 
 		 * @property {Phaser.Game}
 		 * @private
 		 */
-		this._game = null;
+		this.game = game;
 
 		this.entityCache = new EntityCacheManager();
 
@@ -71,7 +72,22 @@ export default class EngineContext {
 		 */
 		this.url = _urlHelper;
 		
-		this._bestia = null;
+		this.playerBestia = null;
+	}
+	
+	/**
+	 * Some initializations can only be done when a game state has been loaded.
+	 */
+	init() {
+		// Prepare the renderer
+		let tileRenderer = new TileRenderer(this);
+		
+		/**
+		 * The different renderer of the engine.
+		 */
+		this.renderer = {
+				tile: tileRenderer
+		};
 	}
 
 	/**
@@ -124,28 +140,6 @@ export default class EngineContext {
 		this.groups.overlay.name = 'overlay';
 		this.groups.gui = this.game.add.group();
 		this.groups.gui.name = 'gui';
-	}
-
-	get game() {
-		return this._game;
-	}
-	
-	set game(value) {
-			this._game = value;
-			if (this._game) {
-				this._initGameSet();
-			}
-	}
-	
-	/**
-	 * Returns the currently selected player bestia.
-	 */
-	get playerBestia() {
-		return this._bestia;
-	}
-	
-	set playerBestia(bestia) {
-		this._bestia = bestia;
 	}
 }
 

@@ -20,12 +20,6 @@ export default class GameState {
 		this.marker = null;
 
 		this._ctx = context;
-		
-		/**
-		 * Flag to tag the render as dirty. This will trigger a rather expensive
-		 * redrawing of the scene. This should be set if the player moves.
-		 */
-		this._isMapDirty = true;
 	}
 	
 	create() {
@@ -75,17 +69,6 @@ export default class GameState {
 
 	update() {
 		
-		// Redraw the scene.
-		if(this.isMapDirty) {
-			this.isMapDirty = false;
-			
-			// Get the tile coordinates which must be drawn.
-			let x1 = this._ctx.playerBestia.posX - WorldHelper.SIGHT_RANGE_X;
-			let x2 = this._ctx.playerBestia.posX + WorldHelper.SIGHT_RANGE_X;
-			let y1 = this._ctx.playerBestia.posY - WorldHelper.SIGHT_RANGE_Y;
-			let y2 = this._ctx.playerBestia.posY + WorldHelper.SIGHT_RANGE_Y;
-		}
-		
 		this._tileRenderer.update();
 		
 		if (this.cursor.left.isDown)
@@ -122,7 +105,6 @@ export default class GameState {
 	render() {
 		this.game.debug.cameraInfo(this.game.camera, 32, 32);
 	    this.game.debug.spriteCoords(this.sprite, 32, 500);
-		
 	}
 
 	shutdown() {

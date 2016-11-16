@@ -1,6 +1,6 @@
 
 const TILE_SIZE = 32;
-const CHUNK_SIZE = 5;
+const CHUNK_SIZE = 10;
 const SIGHT_RANGE_X = 32;
 const SIGHT_RANGE_Y = 32;
 

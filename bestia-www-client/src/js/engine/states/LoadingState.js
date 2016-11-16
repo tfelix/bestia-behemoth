@@ -2,22 +2,14 @@
 import Signal from '../../io/Signal.js';
 
 /**
- * The state is triggered if a new map is loaded. Displays while the engine is
- * loading files to display the next map.
+ * The state is triggered if a new map is loaded. It should inform the user that
+ * we need to perform certain loading events until enough data is gathered to
+ * start the visualization
  * 
  * @constructor
  */
 export default class LoadingState  {
-	constructor(context) {
-		this.bestia = null;
-		
-		/**
-		 * Current asset and map loading progress.
-		 * 
-		 * @private
-		 */
-		this._currentProgress = 0;
-		
+	constructor(context) {		
 		this._ctx = context;
 
 		/**
@@ -26,53 +18,34 @@ export default class LoadingState  {
 		 * @private
 		 */
 		this._pubsub = context.pubsub;
-		
-		this._urlHelper = context.url;
 	}
 	
 	init() {
 		// Announce loading.
 		this._pubsub.publish(Signal.ENGINE_PREPARE_MAPLOAD);
-
-		console.debug("Loading map: " + this._ctx.playerBestia.location());
+		
+		this._ctx.init();
 
 		// Prepare the loading screen.
 		this.gfx = this.add.graphics(0, 0);
 		this.gfx.beginFill(0xFF0000, 1);
-	}
-
-	preload() {
 		
-		// Load the mapfile itself.
-		var mapDbName = this._ctx.playerBestia.location();
-		var packUrl = this._urlHelper.getMapPackUrl(mapDbName);
-		this.load.pack(mapDbName, packUrl);
+		let chunks = this._ctx.renderer.tile.getVisibleChunks();
+		chunks.foreach(function(){
+			this._ctx.renderer.tile.loadChunks(chunks);
+		}.bind(this));
 		
-		// TODO Pre load the map assoziated data (entities, sounds, etc)
 		
-
-		this.load.onFileComplete.add(this.fileCompleted, this);
+		this._ctx.renderer.tile.getVisibleChunks();
 	}
-
-	loadUpdate() {
-
-		this.game.debug.text("Loading", 10, 30, '#FFFFFF');
-		var maxWidth = this.game.width - 20;
-		this.gfx.drawRect(10, 60, (maxWidth * this._currentProgress / 100), 20);
-
-	}
-
-	create() {
+	
+	update() {
+		
+		//this.game.debug.text("Loading", 10, 30, '#FFFFFF');
+		//var maxWidth = this.game.width - 20;
+		//this.gfx.drawRect(10, 60, (maxWidth * this._currentProgress / 100), 20);
 		
 		this._pubsub.publish(Signal.ENGINE_FINISHED_MAPLOAD);
-
-	}
-
-	fileCompleted(progress) {
-
-		this._currentProgress = progress;
-		this.text = "Complete: " + progress + "%";
-
 	}
 }
 

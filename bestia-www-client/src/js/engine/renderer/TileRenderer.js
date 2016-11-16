@@ -1,4 +1,7 @@
 import WorldHelper from '../map/WorldHelper';
+import MID from '../../io/messages/MID';
+import Message from '../../io/messages/Message';
+import TilesetManager from '../map/TilesetManager';
 
 const MIN_SAFETY_TILES = 3;
 
@@ -9,22 +12,119 @@ const MIN_SAFETY_TILES = 3;
  */
 export default class TileRenderer {
 	
-	constructor(game) {
+	constructor(ctx) {
 	
-		this._game = game;
+		this._ctx = ctx;
+		this._game = ctx.game;
+		this._tilesetManager = new TilesetManager(ctx.pubsub, ctx.loader, ctx.url);
 		
 		this._sprite = null;
 		
 		this._rendered = {x1: 0, x2: 0, y1: 0, y2: 0};
 		this._newRendered = {x1: 0, x2: 0, y1: 0, y2: 0};
 		
-		this._map = game.add.tilemap();
+		this._map = this._game.add.tilemap();
 		this._map.addTilesetImage('tilemap');
 		this._layer = this._map.create('ground', 90, 60, 32, 32);
 		this._layer.resizeWorld();
 		this._layer.sendToBack();
 		
 		this._gameSize = {x: 0, y: 0};
+		
+		/**
+		 * The chunks from the server are called sequentially. If all chunks
+		 * have been received we ask for its tile data. {x: x, y: y,
+		 * tilesToLoad: 0, fn}
+		 */
+		this._chunkCallbackCache = {};
+		
+		ctx.pubsub.subscribe(MID.MAP_CHUNK, this._handleChunkReceived.bind(this));
+	}
+	
+	/**
+	 * The chunks with the given id a loaded. If a callback is given the
+	 * callback is fired when all chunks and their corresponding tile
+	 * information was aquired from the server.
+	 */
+	loadChunks(chunk, fn) {
+		let key = this._chunkKey(chunk.x, chunk.y);
+		this._chunkCallbackCache[key] = {fn: fn};
+		this._ctx.pubsub.send(new Message.MapChunkRequest(chunk.x, chunk.y));
+	}
+	
+	/**
+	 * Handle if a new mapchunk is send by the server. It will get incorporated
+	 * into the database.
+	 */
+	_handleChunkReceived(_, data) {
+		// TODO Das hier korrigieren.
+		let key = this._chunkKey(data.x, data.y);
+		
+		// Check the callback.
+		let chunkCallback = this._chunkCallbackCache[key];
+		data.tilesToLoad = WorldHelper.CHUNK_SIZE * WorldHelper.CHUNK_SIZE;
+		
+		// Iterate over tile inside chunk cords.
+		let tileCords = this._chunkToTile(data.x, data.y);
+		for(let x = tileCords.x; x < tileCords.x + WorldHelper.CHUNK_SIZE; x++) {
+			for(let y = tileCords.y; y < tileCords.y + WorldHelper.CHUNK_SIZE; y++) {
+				this._tilesetManager.hasTileset(x+y, function(){
+					
+					chunkCallback.tilesToLoad--;
+					if(chunkCallback.tilesToLoad === 0) {
+						delete this._chunkCallbackCache[key];
+						this._chunkCache[key] = data;
+						if(chunkCallback.fn !== undefined) {
+							chunkCallback.fn();
+						}
+					}			
+				}.bind(this));
+			}
+		}
+	}
+	
+	/**
+	 * This function returns an array with chunk cords which are visible right
+	 * now depending on the game size and player position.
+	 */
+	getVisibleChunks() {
+		let pb = this._ctx.playerBestia;
+		let xChunks = Math.ceil(WorldHelper.SIGHT_RANGE.x / WorldHelper.CHUNK_SIZE);
+		let yChunks = Math.ceil(WorldHelper.SIGHT_RANGE.y / WorldHelper.CHUNK_SIZE);
+		let playerChunk = this._tileToGlobChunk(pb.posX(), pb.posY());
+		let chunks = [];
+		
+		for(let x = playerChunk.x - xChunks; x < playerChunk.x + xChunks; x++) {
+			for(let y = playerChunk.y - xChunks; y < playerChunk.y + yChunks; y++) {
+				if(x >= 0 && y >= 0) {
+					chunks.push({x: x, y: y});
+				}
+			}
+		}
+		
+		return chunks;
+	}
+	
+	/**
+	 * Transforms tile to chunk coordinates.
+	 */
+	_tileToGlobChunk(x ,y) {
+		return {x: Math.trunc(x / WorldHelper.CHUNK_SIZE),
+			y: Math.trunc(y / WorldHelper.CHUNK_SIZE)};
+	}
+	
+	/**
+	 * Transforms chunk cords to tile cords.
+	 */
+	_chunkToTile(chunkX ,chunkY) {
+		return {x: chunkX * WorldHelper.CHUNK_SIZE, y: chunkY * WorldHelper.CHUNK_SIZE};
+	}
+	
+	/**
+	 * Gives the coordiantes of the tile inside the chunk itself.
+	 */
+	_tileToLocChunk(x, y) {
+		return {x: x % WorldHelper.CHUNK_SIZE, y: y % WorldHelper.CHUNK_SIZE};
 	}
 	
 	/**

@@ -231,6 +231,16 @@ var Message = {
 	/**
 	 * Requests a tileset information from the server.
 	 */
+	MapChunkRequest : function(x, y) {
+		this.mid = MID.MAP_CHUNK_REQUEST;
+		
+		this.x = x;
+		this.y = y;
+	},
+	
+	/**
+	 * Requests a tileset information from the server.
+	 */
 	MapTilesetRequest : function(gid) {
 		this.mid = MID.MAP_TILESET_REQUEST;
 		

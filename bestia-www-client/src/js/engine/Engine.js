@@ -1,11 +1,12 @@
 /*global Phaser */
 
 import Signal from '../io/Signal.js';
+import PubSub from '../util/PubSub';
 import EngineContext from './core/EngineContext.js';
 import BootState from './states/BootState.js';
 import ConnectingState from './states/ConnectingState.js';
 import GameState from './states/GameState.js';
-import InitializeState from './states/InitializeState.js';
+import InitialLoadingState from './states/InitialLoadingState';
 import LoadingState from './states/LoadingState.js';
 
 /**
@@ -21,45 +22,46 @@ export default class Engine {
 	constructor(pubsub, url) {
 		this.options = {
 			enableMusic : ko.observable('true'),
-			musicVolume : ko.observable(100)
+			musicVolume : ko.observable(100),
+			debug : ko.observable(false)
 		};
-
-		/**
-		 * Context to hold very important and shared data between the states or
-		 * other classes. Note that this object is only fully initialized after the
-		 * engine has started (that means has passed the boot state).
-		 */
-		this.ctx = new EngineContext(pubsub, this, url);
+		
+		// Internal pubsub to let came components communicate with each other.
+		this._gamePubSub = new PubSub();
 
 		// Determine the size of the canvas. And create the game object.
-		var height = $(window).height();
-		var width = $('#canvas-container').width();
+		
+		//var height = $(window).height();
+		//var width = $('#canvas-container').width();
 
 		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'bestia-canvas', null, false, false);
+		
+		this._ctx = new EngineContext(this.game, pubsub, url);
 
-		this.game.state.add('boot', new BootState(this.ctx));
-		this.game.state.add('connecting', new ConnectingState(this.ctx));
-		this.game.state.add('initial_loading', new InitializeState(this.ctx));
-		this.game.state.add('load', new LoadingState(this.ctx));
-		this.game.state.add('game', new GameState(this.ctx));
+		this.game.state.add('boot', new BootState(this._ctx));
+		this.game.state.add('connecting', new ConnectingState(this._ctx));
+		this.game.state.add('initial_loading', new InitialLoadingState(this._ctx));
+		this.game.state.add('load', new LoadingState(this._ctx));
+		this.game.state.add('game', new GameState(this._ctx));
 
 		// ==== PREPARE HANDLER ====
 
-		// React on bestia selection changes. We need to re-trigger the map loading.
+		// React on bestia selection changes. We need to re-trigger the map
+		// loading.
 		// This event will fire if we have established a connection.
 		pubsub.subscribe(Signal.BESTIA_SELECTED, this._handlerOnBestiaSelected.bind(this));
 		pubsub.subscribe(Signal.IO_CONNECTION_LOST, this._handlerOnConnectionLost.bind(this));
 		pubsub.subscribe(Signal.ENGINE_BOOTED, this._handlerOnBooted.bind(this));
 		pubsub.subscribe(Signal.ENGINE_INIT_LOADED, this._handlerOnInitLoaded.bind(this));
 		pubsub.subscribe(Signal.ENGINE_FINISHED_MAPLOAD, this._handlerOnFinishedMapload.bind(this));
-
-		// When everything is setup. Start the engine.
-		this.game.state.start('boot');
 		
-		// We need right click. So hide it.	
+		// We need right click. So hide it.
 		$('#bestia-canvas').bind('contextmenu', function(e){
 			e.preventDefault();
 		}); 
+		
+		// When everything is setup. Start the engine.
+		this.game.state.start('boot');
 	}
 	
 	/**
@@ -67,7 +69,7 @@ export default class Engine {
 	 */
 	_handlerOnBestiaSelected(_, data) {
 		console.debug('New bestia selected. Starting loading process.');
-		this.ctx.playerBestia = data;
+		this._ctx.playerBestia = data;
 		this.game.state.start('load');
 	}
 
