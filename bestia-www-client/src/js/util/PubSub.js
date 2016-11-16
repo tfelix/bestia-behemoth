@@ -124,7 +124,11 @@ export default class PubSub {
 		var fns = this.cache[e];
 		var fnsCount = fns.length;
 		for (var i = 0; i < fnsCount; ++i) {
-			fns[i](e, data);
+			try {
+				fns[i](e, data);
+			} catch(ex) {
+				console.error('Error while publish topic: ' + e, ex);
+			}
 		}
 		this._currentlyActive--;
 		this._updateCache();
