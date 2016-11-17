@@ -3,7 +3,6 @@ package net.bestia.zoneserver;
 import org.junit.Test;
 
 import net.bestia.model.shape.Size;
-import net.bestia.zoneserver.generator.map.MapSizeCalculator;
 import net.bestia.zoneserver.generator.map.SimplexNoise;
 
 public class MapCreatorTest {

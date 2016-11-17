@@ -112,7 +112,7 @@ public class MapService {
 		// Build the map objects.
 		final MapBuilder mapBuilder = new MapBuilder();
 
-		mapBuilder.setSize(new Size((int) range.getWidth(), (int) range.getHeight()));
+		//mapBuilder.setSize(new Size((int) range.getWidth(), (int) range.getHeight()));
 		mapBuilder.addTilesets(tilesets);
 
 		for (int i = 0; i < maxLevel; i++) {

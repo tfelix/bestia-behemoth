@@ -126,6 +126,10 @@ export default class TilesetManager {
 	 * Requests a tileset from the server. It will fire the callback as soon as
 	 * the tileset is there or immediately if the tileset is already found
 	 * inside this manager.
+	 * 
+	 * TODO Das muss smarter sein. Wenn der Server bereits nach einer GID
+	 * gefragt wurde die nah zusammen liegt, dann muss man ein paar ms warten ob
+	 * ggf eine Antwort kommt, bevor man erneut nachfragt.
 	 */
 	getTileset(gid, fn) {
 		if(typeof fn !== 'function') {

@@ -45,6 +45,12 @@ public class PlayerEntityService {
 		activeEntities.put(accId, activeEntityId);
 	}
 
+	/**
+	 * Returns the active player bestia entity for the given account it.
+	 * 
+	 * @param accId The account id.
+	 * @return The active {@link PlayerBestiaEntity} of this account or null.
+	 */
 	public PlayerBestiaEntity getActivePlayerEntity(long accId) {
 		final Long entityId = activeEntities.get(accId);
 
@@ -60,7 +66,7 @@ public class PlayerEntityService {
 
 		return (PlayerBestiaEntity) entity;
 	}
-	
+
 	public Set<PlayerBestiaEntity> getPlayerBestiaEntities(long accId) {
 
 		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);

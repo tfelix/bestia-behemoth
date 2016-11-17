@@ -24,14 +24,15 @@ public class MapBaseParameter {
 
 	public MapBaseParameter() {
 		this.population = 100;
-		this.worldSize = new Size(1000,1000);
+		this.worldSize = new Size(1000, 1000);
 		this.waterLandRatio = 0.5f;
 		this.minSettlementDistance = 500;
 		this.settlementCount = 35;
 	}
 
-	public MapBaseParameter(long population, Size size, float waterLandRatio, int numSettlements, int minSettleDistance) {
-		
+	public MapBaseParameter(long population, Size size, float waterLandRatio, int numSettlements,
+			int minSettleDistance) {
+
 		this.population = population;
 		this.worldSize = Objects.requireNonNull(size);
 		this.waterLandRatio = waterLandRatio;
@@ -48,9 +49,9 @@ public class MapBaseParameter {
 	 * @return
 	 */
 	public static MapBaseParameter fromAverageUserCount(int user) {
-		
+
 		final ThreadLocalRandom rand = ThreadLocalRandom.current();
-		
+
 		double area = user * 0.5;
 		float waterLandRatio = rand.nextInt(40, 60) / 100f;
 
@@ -69,12 +70,12 @@ public class MapBaseParameter {
 		final Size mapSize = new Size((int) (x * 1000), (int) (y * 1000));
 
 		int population = 6 * user;
-		int numberOfSettlements = Math.max(30, 2 * population / 55) * (int)(rand.nextFloat() * 40);
+		int numberOfSettlements = Math.max(30, 2 * population / 55) * (int) (rand.nextFloat() * 40);
 		int minSettleDistance = rand.nextInt(4000, 6001);
-		
+
 		return new MapBaseParameter(population, mapSize, waterLandRatio, numberOfSettlements, minSettleDistance);
 	}
-	
+
 	public long getPopulation() {
 		return population;
 	}

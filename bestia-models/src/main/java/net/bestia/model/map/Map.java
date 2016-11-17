@@ -10,12 +10,11 @@ import java.util.stream.Collectors;
 
 import net.bestia.model.shape.Point;
 import net.bestia.model.shape.Rect;
-import net.bestia.model.shape.Size;
 
 public class Map {
 
 	public static int SIGHT_RANGE = 32;
-	
+
 	/**
 	 * A helper class which is used in order to construct maps for the bestia
 	 * system.
@@ -26,21 +25,20 @@ public class Map {
 		private final List<Tileset> tilesets = new ArrayList<>();
 		private final List<Tile> groundTiles = new ArrayList<>();
 		private final List<java.util.Map<Point, Integer>> layerTiles = new ArrayList<>();
-		private Size size = new Size(1, 1);
 		private Rect rect = new Rect(1, 1, 1, 1);
 
-		public void setSize(Size size) {
-			this.size = size;
+		public void setRect(Rect rect) {
+			this.rect = rect;
 		}
 
 		/**
 		 * Adds a new tile layers. The layer must have the size of the map which
-		 * must be provided first!
+		 * must be also provided!
 		 * 
 		 * @param layer
 		 */
-		public void addGroundTiles(int layer, List<Tile> tiles) {
-			tiles.addAll(tiles);
+		public void addGroundTiles(List<Tile> tiles) {
+			groundTiles.addAll(tiles);
 		}
 
 		public void addTileset(Tileset ts) {
@@ -76,7 +74,7 @@ public class Map {
 		public Map build() {
 			// Perform some sanity checks the tile bottom layer must have no
 			// holes.
-			if (groundTiles.size() != size.getHeight() * size.getWidth()) {
+			if (groundTiles.size() != rect.getHeight() * rect.getWidth()) {
 				throw new IllegalStateException("Groundlayer tile count does not match map size.");
 			}
 
@@ -95,17 +93,15 @@ public class Map {
 	}
 
 	private final Rect rect;
-	private final Size size;
-	private final boolean[][] walkable;
+	//private final boolean[][] walkable;
 	private final List<Tileset> tilesets;
 	private final List<Integer> groundLayer;
 	private final List<java.util.Map<Point, Integer>> tileLayer = new ArrayList<>();
 
 	public Map(MapBuilder builder) {
+		
 		this.rect = Objects.requireNonNull(builder.rect);
-		this.size = Objects.requireNonNull(builder.size);
-
-		this.walkable = new boolean[(int) size.getHeight()][(int) size.getWidth()];
+		//this.walkable = new boolean[(int) size.getHeight()][(int) size.getWidth()];
 
 		Objects.requireNonNull(builder.tilesets);
 		this.tilesets = Collections.unmodifiableList(new ArrayList<>(builder.tilesets));
@@ -121,16 +117,8 @@ public class Map {
 	}
 
 	public boolean isWalkable(Point p) {
-		return walkable[(int) p.getY()][(int) p.getY()];
-	}
-
-	/**
-	 * Returns the size of map.
-	 * 
-	 * @return The size of the map.
-	 */
-	public Size getSize() {
-		return size;
+		return true;
+		//return walkable[(int) p.getY()][(int) p.getY()];
 	}
 
 	/**
@@ -146,7 +134,7 @@ public class Map {
 		final java.util.Map<Point, Boolean> collisions = new HashMap<>();
 
 		int y = (int) rect.getY();
-		for (boolean[] row : walkable) {
+		/*for (boolean[] row : walkable) {
 			int x = (int) rect.getX();
 			for (boolean walkable : row) {
 
@@ -157,7 +145,7 @@ public class Map {
 				x++;
 			}
 			y++;
-		}
+		}*/
 
 		return collisions;
 	}
@@ -191,5 +179,14 @@ public class Map {
 		return tilesets.stream()
 				.map(x -> x.getName())
 				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Returns the size of map.
+	 * 
+	 * @return The view to this part of the map.
+	 */
+	public Rect getRect() {
+		return rect;
 	}
 }

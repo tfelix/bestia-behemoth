@@ -64,21 +64,25 @@ export default class TileRenderer {
 	 * into the database.
 	 */
 	_handleChunkReceived(_, data) {
-		// TODO Das hier korrigieren.
-		let key = this._chunkKey(data.x, data.y);
+		let key = this._chunkKey(data.p.x, data.p.y);
 		
 		// Check the callback.
 		let chunkCallback = this._chunkCallbackCache[key];
 		data.tilesToLoad = WorldHelper.CHUNK_SIZE * WorldHelper.CHUNK_SIZE;
 		
 		// Iterate over tile inside chunk cords.
-		let tileCords = this._chunkToTile(data.x, data.y);
+		let tileCords = this._chunkToTile(data.p.x, data.p.y);
 		for(let x = tileCords.x; x < tileCords.x + WorldHelper.CHUNK_SIZE; x++) {
 			for(let y = tileCords.y; y < tileCords.y + WorldHelper.CHUNK_SIZE; y++) {
-				this._tilesetManager.hasTileset(x+y, function(){
+				
+				let gid = data.gl[y *  WorldHelper.CHUNK_SIZE + x];
+				
+				this._tilesetManager.getTileset(gid, function(){
 					
 					chunkCallback.tilesToLoad--;
-					if(chunkCallback.tilesToLoad === 0) {
+					
+					if(chunkCallback.tilesToLoad === 0) {	
+						
 						delete this._chunkCallbackCache[key];
 						this._chunkCache[key] = data;
 						if(chunkCallback.fn !== undefined) {

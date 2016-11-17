@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import net.bestia.messages.AccountMessage;
 import net.bestia.messages.JacksonMessage;
 import net.bestia.model.shape.Point;
-import net.bestia.model.shape.Size;
 
 /**
  * This message contains all needed information for the client to load and
@@ -24,7 +23,7 @@ public class MapChunkMessage extends JacksonMessage {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final String MESSAGE_ID = "map.mapdata";
+	public static final String MESSAGE_ID = "map.chunk";
 
 	@JsonProperty("l")
 	private final List<Map<Point, Integer>> layers;
@@ -32,8 +31,9 @@ public class MapChunkMessage extends JacksonMessage {
 	@JsonProperty("gl")
 	private final List<Integer> groundLayer;
 	
-	@JsonProperty("s")
-	private final Size size;
+	// Leads to back reference? Dunno why.
+	@JsonProperty("p")
+	private final Point position;
 
 	@Override
 	public String getMessageId() {
@@ -44,14 +44,14 @@ public class MapChunkMessage extends JacksonMessage {
 
 		layers = Collections.emptyList();
 		groundLayer = Collections.emptyList();
-		size = new Size(0, 0);
+		position = new Point(0, 0);
 	}
 
 	public MapChunkMessage(AccountMessage msg, net.bestia.model.map.Map map) {
 		super(msg);
 		Objects.requireNonNull(map);
 
-		this.size = map.getSize();
+		this.position = map.getRect().getOrigin();
 
 		this.groundLayer = new ArrayList<>(map.getGroundLayer());
 		this.layers = map.getSparseLayers();
@@ -76,12 +76,12 @@ public class MapChunkMessage extends JacksonMessage {
 		return layers;
 	}
 
-	/**
-	 * Returns the size of the map part.
-	 * 
-	 * @return The size of this map part.
-	 */
-	public Size getSize() {
-		return size;
+	public Point getPosition() {
+		return position;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("MapChunkMessage[pos: %s]", getPosition().toString());
 	}
 }

@@ -1,6 +1,9 @@
 package net.bestia.model.shape;
 
+import java.io.Serializable;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Rectangle. Immutable. Can be used as collision bounding box shape and other
@@ -9,10 +12,17 @@ import java.util.Objects;
  * @author Thomas Felix <thoams.felix@tfelix.de>
  *
  */
-public final class Rect implements Collision {
+public final class Rect implements Collision, Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
+	@JsonProperty("o")
 	private final Point origin;
+	
+	@JsonProperty("s")
 	private final Size size;
+	
+	@JsonProperty("a")
 	private final Point anchor;
 
 	/**
@@ -178,5 +188,9 @@ public final class Rect implements Collision {
 
 		final Rect r = new Rect(cX, cY, getWidth(), getHeight(), x, y);
 		return r;
+	}
+
+	public Point getOrigin() {
+		return origin;
 	}
 }

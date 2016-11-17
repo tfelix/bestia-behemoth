@@ -3,6 +3,8 @@ package net.bestia.model.shape;
 import java.io.Serializable;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import net.bestia.model.domain.Position;
 
 /**
@@ -82,6 +84,7 @@ public final class Point implements Collision, Serializable {
 		return CollisionHelper.collide(this, s);
 	}
 
+	@JsonIgnore
 	@Override
 	public Rect getBoundingBox() {
 		return new Rect(x, y, 0, 0);
@@ -92,6 +95,7 @@ public final class Point implements Collision, Serializable {
 		return s.collide(this);
 	}
 
+	@JsonIgnore
 	@Override
 	public Point getAnchor() {
 		return this;

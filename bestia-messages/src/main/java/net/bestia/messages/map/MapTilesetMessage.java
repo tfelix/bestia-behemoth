@@ -37,7 +37,7 @@ public class MapTilesetMessage extends JacksonMessage {
 
 	@Override
 	public String toString() {
-		return String.format("MapTileset[accId: %d]", getTileset());
+		return String.format("MapTileset[%s]", getTileset().toString());
 	}
 
 	@Override
