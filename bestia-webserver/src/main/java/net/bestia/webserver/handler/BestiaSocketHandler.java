@@ -29,6 +29,9 @@ public class BestiaSocketHandler extends TextWebSocketHandler {
 
 	private static final String ATTRIBUTE_ACTOR_REF = "actorRef";
 
+	/**
+	 * One mapper for all actors.
+	 */
 	private final ObjectMapper mapper = new ObjectMapper();
 	private ActorSystem actorSystem;
 
@@ -66,7 +69,7 @@ public class BestiaSocketHandler extends TextWebSocketHandler {
 
 	@Override
 	public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-		LOG.trace("New connection: {}.", session.getRemoteAddress().toString());
+		LOG.debug("New connection: {}.", session.getRemoteAddress().toString());
 
 		// Setup the actor to access the zone server cluster.
 		final String actorName = String.format("socket-%s", session.getId());
@@ -76,12 +79,13 @@ public class BestiaSocketHandler extends TextWebSocketHandler {
 
 	@Override
 	public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-		LOG.trace("Closed connection: {}.", session.getRemoteAddress().toString());
+		LOG.debug("Closed connection: {}.", session.getRemoteAddress().toString());
 
 		// Kill the underlying akka actor.
 		final ActorRef actor = (ActorRef) session.getAttributes().get(ATTRIBUTE_ACTOR_REF);
 		
 		if(actor == null) {
+			LOG.warn("No actorref attaches to websocket. Strange.");
 			return;
 		}
 		

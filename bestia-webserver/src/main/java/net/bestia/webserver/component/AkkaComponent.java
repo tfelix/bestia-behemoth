@@ -11,14 +11,13 @@ import com.hazelcast.core.HazelcastInstance;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Address;
-import akka.actor.DeadLetter;
 import akka.actor.Props;
 import akka.cluster.Cluster;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.service.ClusterConfigurationService;
+import net.bestia.webserver.actor.ClusterListenerActor;
 import net.bestia.webserver.actor.DeadLetterWatchActor;
 
 
@@ -42,9 +41,9 @@ public class AkkaComponent {
 
 		final ActorSystem system = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
 		
-		// Subscribe for dead letter checking.
-		final ActorRef deadLetterActor = system.actorOf(Props.create(DeadLetterWatchActor.class));
-		system.eventStream().subscribe(deadLetterActor, DeadLetter.class);
+		// Subscribe for dead letter checking and domain events.
+		system.actorOf(Props.create(ClusterListenerActor.class));
+		system.actorOf(Props.create(DeadLetterWatchActor.class));
 
 		final ClusterConfigurationService clusterConfig = new ClusterConfigurationService(hzClient);
 		final List<Address> seedNodes = clusterConfig.getClusterNodes();

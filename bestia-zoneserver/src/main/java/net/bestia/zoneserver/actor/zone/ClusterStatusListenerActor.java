@@ -1,5 +1,8 @@
 package net.bestia.zoneserver.actor.zone;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +13,7 @@ import akka.cluster.ClusterEvent.MemberEvent;
 import akka.cluster.ClusterEvent.MemberUp;
 import akka.cluster.ClusterEvent.MemberRemoved;
 import akka.cluster.ClusterEvent.UnreachableMember;
+import akka.cluster.Member;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 
@@ -24,8 +28,11 @@ import akka.event.LoggingAdapter;
 public class ClusterStatusListenerActor extends UntypedActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+	private final static String WEB_ROLE = "webserver";
 
 	private final Cluster cluster = Cluster.get(getContext().system());
+
+	private final List<Member> webserverMember = new ArrayList<>();
 
 	/**
 	 * Subscribe to cluster changes
@@ -47,16 +54,39 @@ public class ClusterStatusListenerActor extends UntypedActor {
 	@Override
 	public void onReceive(Object message) {
 		if (message instanceof MemberUp) {
-			MemberUp mUp = (MemberUp) message;
-			LOG.info("Member is Up: {}", mUp.member());
+			final MemberUp mUp = (MemberUp) message;
+
+			if (mUp.member().hasRole(WEB_ROLE)) {
+				LOG.info("Webserver is up: {}", mUp.member());
+				webserverMember.add(mUp.member());
+			} else {
+				LOG.info("Zoneserver is up: {}", mUp.member());
+			}
 
 		} else if (message instanceof UnreachableMember) {
-			UnreachableMember mUnreachable = (UnreachableMember) message;
-			LOG.info("Member detected as unreachable: {}", mUnreachable.member());
+
+			final UnreachableMember mUnreachable = (UnreachableMember) message;
+			LOG.warning("Member detected as unreachable: {}", mUnreachable.member());
+			
+			// If its a webserver we can automatically down it. Since they will
+			// terminate upon disconnection.
+			if(mUnreachable.member().hasRole(WEB_ROLE)) {
+				LOG.warning("Member has role WEBSERVER downing it.");
+				cluster.down(mUnreachable.member().address());
+			}
 
 		} else if (message instanceof MemberRemoved) {
-			MemberRemoved mRemoved = (MemberRemoved) message;
-			LOG.info("Member is Removed: {}", mRemoved.member());
+
+			final MemberRemoved mRemoved = (MemberRemoved) message;
+			LOG.debug("Member is removed: {}", mRemoved.member());
+
+			if (!mRemoved.member().hasRole(WEB_ROLE)) {
+				// TODO we must terminate all user connections from this webserver.
+				LOG.warning("Must terminate all connections from this node.");
+				return;
+			}
+
+			LOG.warning("Webserver is removed: {}", mRemoved.member());
 
 		} else if (message instanceof MemberEvent) {
 			// ignore

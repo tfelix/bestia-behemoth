@@ -22,5 +22,4 @@ public class WebSocketConfig implements WebSocketConfigurer {
 	public BestiaSocketHandler bestiaSocketHandler() {
 		return new BestiaSocketHandler();
 	}
-
 }

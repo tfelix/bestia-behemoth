@@ -133,17 +133,17 @@ public class MessageHandlerActor extends UntypedActor {
 			try {
 				// Turn the text message into a bestia message.
 				final JacksonMessage msg = mapper.readValue(payload, JacksonMessage.class);
-				
+
 				// Regenrate the account id from this session.
 				msg.setAccountId(accountId);
-				
+
 				LOG.debug("Client sending: {}.", msg.toString());
 				mediator.tell(getClusterMessage(msg), getSelf());
 
 			} catch (IOException e) {
-				LOG.warning("Malformed message. Client: {}, Payload: {}, Error: {}.", 
-						session.getRemoteAddress(), 
-						payload, 
+				LOG.warning("Malformed message. Client: {}, Payload: {}, Error: {}.",
+						session.getRemoteAddress(),
+						payload,
 						e.toString());
 				closeSession(CloseStatus.BAD_DATA);
 			}
@@ -154,10 +154,10 @@ public class MessageHandlerActor extends UntypedActor {
 		// Check how the login state was given.
 		if (msg.getLoginState() == LoginState.ACCEPTED) {
 			isAuthenticated = true;
-			accountId = msg.getAccountId();		
+			accountId = msg.getAccountId();
 			// Also announce to client the login success.
 			sendToClient(msg);
-			
+
 		} else {
 			closeSession(CloseStatus.PROTOCOL_ERROR);
 		}
@@ -187,6 +187,12 @@ public class MessageHandlerActor extends UntypedActor {
 					ConnectionState.DISCONNECTED,
 					getSelf());
 			mediator.tell(getClusterMessage(ccsmsg), getSelf());
+		}
+
+		// If the websocket session is still opened and we are terminated from
+		// the akka side, close it here.
+		if (session.isOpen()) {
+			session.close();
 		}
 	}
 
