@@ -3,11 +3,11 @@
  * @copyright 2015 Thomas Felix
  */
 
-import PubSub from './util/Pubsub.js';
+import PubSub from './util/PubSub.js';
 import Config from './util/Config.js';
 import UrlHelper from './util/UrlHelper.js';
 import Urls from './Urls.js';
-import Connection from './io/connection.js';
+import Connection from './io/Connection.js';
 import Signal from './io/Signal.js';
 import Inventory from './inventory/Inventory.js';
 import Chat from './chat/Chat.js';

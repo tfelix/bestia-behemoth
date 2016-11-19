@@ -4,14 +4,15 @@ module.exports = {
 	rollup : {
 		options : {
 			sourceMap : true,
-			format: 'iife',
-			moduleName: 'bestia',
-			plugins : [ babel({
-				sourceMaps: true,
-				babelrc: false,
-				exclude: 'node_modules/**',
-				presets: ["es2015-rollup"]
-			}) ]
+			format : 'iife',
+			moduleName : 'bestia',
+			plugins : function() {
+				return [ babel({
+					sourceMaps : true,
+					babelrc : false,
+					exclude : 'node_modules/**'
+				}) ];
+			}
 		},
 		files : {
 			'<%= buildDir %>/js/behemoth.js' : [ '<%= tempDir %>/js/main.js' ]
