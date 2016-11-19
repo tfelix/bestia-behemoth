@@ -10,7 +10,9 @@ module.exports = {
 				return [ babel({
 					sourceMaps : true,
 					babelrc : false,
-					exclude : 'node_modules/**'
+					exclude : 'node_modules/**',
+					presets: [['es2015', {modules: false}]],
+					plugins: ['external-helpers']
 				}) ];
 			}
 		},

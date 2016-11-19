@@ -4,13 +4,16 @@
 <meta charset="UTF-8">
 <title>Spielwiese</title>
 
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet"> 
+<!-- 
 <link rel="stylesheet" type="text/css"
-	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">-->
 
 <style>
 body {
 	font-size: 10pt;
-	font-weight: 400;
+	font-weight: 300;
+	font-family: 'Open Sans', 'Verdana', sans-serif;
 }
 
 html {
@@ -27,23 +30,27 @@ html {
 	width: 350px;
 }
 
-.login
-
 .login-header {
-	height: 210px;
+	height: 160px;
+	background: url('./img/bestia_logo_big.png') no-repeat center #3a3a3a;
+	border-bottom: 1px solid #282828;
+	background-size: 280px Auto;
+	position: relative;
+	z-index: -5;
 }
 
 .login-content input {
 	display: block;
 	padding: 6px 2px;
 	font-size: 15pt;
+	font-weight: lighter;
 	margin: 30px 0;
 	text-align: center;
 	width: 100%;
-	color: #c8caea;
-	border: 1px solid #141824;
-	border-radius: 3px;
-	background: #2f3b6a;
+	color: #c2c2c2;
+	border: 1px solid #1d1d1d;
+	border-radius: 2px;
+	background: #515151;
 }
 
 .error {
@@ -52,21 +59,47 @@ html {
 }
 
 .login-content {
-	padding: 5px 20px;
+	padding: 5px 40px;
+	border-bottom: 1px solid #282828;
+}
+
+a {
+	color: #c4b58a;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
 }
 
 .login-footer {
-	background: #4091b6;
+	background: #ac9a65;
+	text-align: center;
+	padding: 1.5rem 3rem;
+	display: block;
+	box-sizing: border-box;
 	height: 80px;
-	
+	width: 100%;
 }
 
 .box {
 	border: 1px solid #141824;
-	box-shadow: 0 0 4px #202020, inset 0 0 1px #546bae;
+	box-shadow: 0 0 4px #202020, 0 0 100px #d3cec2, 0 0 180px #d3cec2;
 	display: inline-block;
-	background: rgba(30, 50, 100, 1);
+	background: #464646;
 }
+
+.box:after {
+    content:'';
+    display:block;
+    box-shadow: inset 0 0 1px #e4e4e4;
+    pointer-events: none;
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+}​
 
 button:hover {
 	color: #ffffff;
@@ -74,16 +107,15 @@ button:hover {
 }
 
 button {
-	background: rgba(9, 14, 76, 0.7);
-	color: #c8caea;
-	/*border: 1px solid #141627;*/
+	background: #d6b554;
+	display:inline-block;
+	color: #262216;
 	font-size: 13pt;
 	width: 100px;
-	margin: 0 6px;
-	padding: 5px;
-	width: 100px;
-	border: 1px solid #141824;
-	box-shadow: 0 0 3px #202020, inset 0 0 2px #546bae;
+	padding: 6px 3px;
+	width: 110px;
+	border: 1px solid #f9df92;
+	border-radius: 3px;
 }
 
 .centered {
@@ -125,107 +157,30 @@ button {
 <body>
 
 	<div class="box centered login">
-		<form>
-			<div class="login-header">
-				<img style="height: 100px;" src="./img/bestia_logo_big.png">
-			</div>
-
+		<form id="login-form">
+			<div class="login-header"></div>
 			<div class="login-content">
-				<input type="email" placeholder="E-Mail"> <input
-					type="password" placeholder="Password">
+				<div class="form-wrapper">
+					<input style="font-weight: 300;
+	font-family: 'Open Sans', 'Verdana', sans-serif;" value="" placeholder="E-Mail" autofocus="autofocus"
+						required="required" type="text">
+				</div>
+				<div class="form-wrapper">
+					<input name="data[password]" value="" class="input"
+						placeholder="Password" required="required" type="password">
+				</div>
+			
 			</div>
-
 			<div class="login-footer">
 				<button>Login</button>
 				<button>Anmelden</button>
 			</div>
-
 		</form>
 	</div>
 
-	<!-- 
-<section>
-	<h1>Grav Admin Login</h1>
-
-	<div class="error alert">Invalid Security Token</div>
-
-	<form method="post" action="/admin">
-		<div class="padding">
-			<div>
-				<div class="form-field grid">
-					<div class="form-label block size-1-3">
-						<label> <span class="required">*</span>
-						</label>
-					</div>
-					<div>
-						<div class="form-input-wrapper">
-							<input name="data[username]" value=""
-								placeholder="Username or Email" autofocus="autofocus"
-								required="required" type="text">
-						</div>
-					</div>
-				</div>
-			</div>
-			<div>
-
-
-				<div class="form-field grid">
-					<div class="form-label block size-1-3">
-						<label> <span class="required">*</span>
-						</label>
-					</div>
-					<div class="form-data block size-2-3" data-grav-field="password"
-						data-grav-disabled="" data-grav-default="null">
-						<div class="form-input-wrapper  ">
-							<input name="data[password]" value="" class="input"
-								placeholder="Password" required="required" type="password">
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div class="form-actions primary-accent">
-				<a class="button secondary" href="/admin/forgot"><i
-					class="fa fa-exclamation-circle"></i> Forgot</a>
-				<button type="submit" class="button primary" name="task"
-					value="login">
-					<i class="fa fa-sign-in"></i> Login
-				</button>
-			</div>
-		</div>
-	</form>
-</section>-->
-
-	<!-- 
-	
-	<div class="box centered login" style="width: 800px;">
-		<div>
-			<form>
-				<p>
-					<input placeholder="E-Mail">
-				</p>
-				<p>
-					<input placeholder="Password">
-				</p>
-
-				<p class="txt-center" style="margin-top: 20px;">
-					<button>Login</button>
-					<button>Anmelden</button>
-				</p>
-			</form>
-		</div>
-		<div>
-			<p>Login mit...</p>
-			<img alt="Login Facebook" style="width: 60px; height: 60px;"
-				src="https://www.facebook.com/images/fb_icon_325x325.png"> <img
-				alt="Login Goolge" style="width: 60px; height: 60px;"
-				src="http://4.bp.blogspot.com/-Nyfdpymc_Lo/VkQw-nJ79mI/AAAAAAAARYg/6o9VeoTvu-I/s1600-r/logo_chrome.png">
-		</div>
+	<div class="footer txt-center">
+		<a href="https://www.tfelix.de/software">tfelix SOFTWARE</a> &#8231; Bestia - The Browsergame &#8231; <a
+			href="./imprint.html">Impressum</a> &#8231; <a href="datenschutz.hml">Datenschutz</a>
 	</div>
-	
-	<div class="footer txt-center">tfelix SOFTWARE &#8231; Bestia -
-		The Browsergame &#8231; Impressum &#8231; Datenschutz</div>
-	 -->
-
 </body>
 </html>
