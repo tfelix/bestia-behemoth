@@ -1,7 +1,8 @@
-import Urls from '../Urls.js';
+import UrlHelper from '../UrlHelper.js';
 import Storage from '../util/Storage.js';
 
 $(document).ready(function() {
+	
 	// Login Form vorbereiten.
 	$('#login').submit(function() {
 		var email = $('#inputEmail').val();
@@ -18,10 +19,8 @@ $(document).ready(function() {
 
 			window.location.href = Urls.gameHtml;
 			
-		}).fail(function(jqXHR, textStatus, errorThrown) {
+		}).fail(function() {
 			$('#login').addClass('has-error');
-			
-			console.debug("Error while login: " + errorThrown + ", Status: " + textStatus);
 		});
 
 		return false;
