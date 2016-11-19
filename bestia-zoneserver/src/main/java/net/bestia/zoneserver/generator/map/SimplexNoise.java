@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.generator.map;
 
+import net.bytebuddy.description.type.PackageDescription.Simple;
+
 /*
  * A speed-improved simplex noise algorithm for 2D, 3D and 4D in Java.
  *
@@ -65,6 +67,11 @@ public final class SimplexNoise {
 	// private static final double F3 = 1 / 3;
 	// private static final double G3 = 1 / 6;
 
+	public SimplexNoise(int seed) {
+		
+		seed(seed);
+	}
+	
 	// This method is a *lot* faster than using (int)Math.floor(x)
 	private static int fastfloor(double x) {
 		int xi = (int) x;

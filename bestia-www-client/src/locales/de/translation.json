@@ -7,7 +7,8 @@
 	"nav": {
 		"inventory": "Inventar",
 		"equip": "Ausrüstung",
-		"attacks": "Attacken"
+		"attacks": "Attacken",
+		"bugs": "Bugs"
 	},
 	
 	"ui": {

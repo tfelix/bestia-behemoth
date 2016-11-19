@@ -20,13 +20,6 @@
 <script src="js/behemoth.js"></script>
 <!-- @endif -->
 
-<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-<!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
-<![endif]-->
-
 </head>
 <body class="noscroll">
 	<div class="cont">
@@ -76,6 +69,8 @@
 						data-i18n="nav.inventory">nav.inventory</button>
 					<button id="btn-attacks" class="btn btn-sm btn-block"
 						data-i18n="nav.attacks">nav.attacks</button>
+					<button id="btn-bugs" class="btn btn-sm btn-block"
+						data-i18n="nav.bugs">nav.bugs</button>
 				</div>
 				<!-- /UI BUTTONS -->
 
@@ -154,85 +149,6 @@
 			</div>
 			<!-- /CHAT -->
 
-			<!-- SHORTCUTS -->
-			<div id="shortcuts">
-				<script id="tmpl-atk-shortcut" type="text/html">
-<div class="shortcut">
-<img data-bind="attr: {src: imageUrl, alt: name}" src="" alt="">
-</div>
-</script>
-				<script id="tmpl-item-shortcut" type="text/html">
-<div class="shortcut">
-	<div class="item">
-		<img data-bind="attr: {src: imageSrc, alt: name}" src="" alt="">
-		<span class="amount" data-bind="text: amount"></span>
-	</div>
-</div>
-</script>
-
-				<div class="shortcut-row" data-bind="with: bestias.selectedBestia">
-					<div class="shortcut-entity">
-						<div class="shortcut-wrapper"
-							data-bind="template: {if: attack1(), name: 'tmpl-atk-shortcut', data: attack1 }"></div>
-						<div class="key">Q</div>
-					</div>
-					<div class="shortcut-entity">
-						<div class="shortcut-wrapper"
-							data-bind="template: {if: attack2(), name: 'tmpl-atk-shortcut', data: attack2 }"></div>
-						<div class="key">W</div>
-					</div>
-					<div class="shortcut-entity">
-						<div class="shortcut-wrapper"
-							data-bind="template: {if: attack3(), name: 'tmpl-atk-shortcut', data: attack3 }"></div>
-						<div class="key">E</div>
-					</div>
-					<div class="shortcut-entity">
-						<div class="shortcut-wrapper"
-							data-bind="template: {if: attack4(), name: 'tmpl-atk-shortcut', data: attack4 }"></div>
-						<div class="key">R</div>
-					</div>
-					<div class="shortcut-entity">
-						<div class="shortcut-wrapper"
-							data-bind="template: {if: attack5(), name: 'tmpl-atk-shortcut', data: attack5 }"></div>
-						<div class="key">T</div>
-					</div>
-				</div>
-
-				<div class="shortcut-row" data-bind="with: inventory">
-					<div class="shortcut-entity"
-						data-bind="click: useItemSlot.bind('0'), css: itemSlot1Css">
-						<div class="shortcut-wrapper"
-							data-bind="template: {if: itemSlot1(), name: 'tmpl-item-shortcut', data: itemSlot1 }"></div>
-						<div class="key">1</div>
-					</div>
-					<div class="shortcut-entity"
-						data-bind="click: useItemSlot.bind('1'), css: itemSlot2Css">
-						<div class="shortcut-wrapper"
-							data-bind="template: {if: itemSlot2(), name: 'tmpl-item-shortcut', data: itemSlot2 }"></div>
-						<div class="key">2</div>
-					</div>
-					<div class="shortcut-entity"
-						data-bind="click: useItemSlot.bind('2'), css: itemSlot3Css ">
-						<div class="shortcut-wrapper"
-							data-bind="template: {if: itemSlot3(), name: 'tmpl-item-shortcut', data: itemSlot3 }"></div>
-						<div class="key">3</div>
-					</div>
-					<div class="shortcut-entity"
-						data-bind="click: useItemSlot.bind('3'), , css: itemSlot4Css">
-						<div class="shortcut-wrapper"
-							data-bind="template: {if: itemSlot4(), name: 'tmpl-item-shortcut', data: itemSlot4 }"></div>
-						<div class="key">4</div>
-					</div>
-					<div class="shortcut-entity"
-						data-bind="click: useItemSlot.bind('4'), , css: itemSlot5Css">
-						<div class="shortcut-wrapper"
-							data-bind="template: {if: itemSlot5(), name: 'tmpl-item-shortcut', data: itemSlot5 }"></div>
-						<div class="key">5</div>
-					</div>
-				</div>
-			</div>
-			<!-- /SHORTCUTS -->
-
 			<!-- GAME CANVAS -->
 			<div id="bestia-canvas"></div>
 			<!-- /GAME CANVAS -->
@@ -244,6 +160,86 @@
 		</div>
 	</div>
 
+	<!-- SHORTCUTS -->
+	<div id="shortcuts">
+		<script id="tmpl-atk-shortcut" type="text/html">
+<div class="shortcut">
+<img data-bind="attr: {src: imageUrl, alt: name}" src="" alt="">
+</div>
+</script>
+		<script id="tmpl-item-shortcut" type="text/html">
+<div class="shortcut">
+	<div class="item">
+		<img data-bind="attr: {src: imageSrc, alt: name}" src="" alt="">
+		<span class="amount" data-bind="text: amount"></span>
+	</div>
+</div>
+</script>
+
+		<div class="shortcut-row" data-bind="with: bestias.selectedBestia">
+			<div class="shortcut-entity">
+				<div class="shortcut-wrapper"
+					data-bind="template: {if: attack1(), name: 'tmpl-atk-shortcut', data: attack1 }"></div>
+				<div class="key">Q</div>
+			</div>
+			<div class="shortcut-entity">
+				<div class="shortcut-wrapper"
+					data-bind="template: {if: attack2(), name: 'tmpl-atk-shortcut', data: attack2 }"></div>
+				<div class="key">W</div>
+			</div>
+			<div class="shortcut-entity">
+				<div class="shortcut-wrapper"
+					data-bind="template: {if: attack3(), name: 'tmpl-atk-shortcut', data: attack3 }"></div>
+				<div class="key">E</div>
+			</div>
+			<div class="shortcut-entity">
+				<div class="shortcut-wrapper"
+					data-bind="template: {if: attack4(), name: 'tmpl-atk-shortcut', data: attack4 }"></div>
+				<div class="key">R</div>
+			</div>
+			<div class="shortcut-entity">
+				<div class="shortcut-wrapper"
+					data-bind="template: {if: attack5(), name: 'tmpl-atk-shortcut', data: attack5 }"></div>
+				<div class="key">T</div>
+			</div>
+		</div>
+
+		<div class="shortcut-row" data-bind="with: inventory">
+			<div class="shortcut-entity"
+				data-bind="click: useItemSlot.bind('0'), css: itemSlot1Css">
+				<div class="shortcut-wrapper"
+					data-bind="template: {if: itemSlot1(), name: 'tmpl-item-shortcut', data: itemSlot1 }"></div>
+				<div class="key">1</div>
+			</div>
+			<div class="shortcut-entity"
+				data-bind="click: useItemSlot.bind('1'), css: itemSlot2Css">
+				<div class="shortcut-wrapper"
+					data-bind="template: {if: itemSlot2(), name: 'tmpl-item-shortcut', data: itemSlot2 }"></div>
+				<div class="key">2</div>
+			</div>
+			<div class="shortcut-entity"
+				data-bind="click: useItemSlot.bind('2'), css: itemSlot3Css ">
+				<div class="shortcut-wrapper"
+					data-bind="template: {if: itemSlot3(), name: 'tmpl-item-shortcut', data: itemSlot3 }"></div>
+				<div class="key">3</div>
+			</div>
+			<div class="shortcut-entity"
+				data-bind="click: useItemSlot.bind('3'), , css: itemSlot4Css">
+				<div class="shortcut-wrapper"
+					data-bind="template: {if: itemSlot4(), name: 'tmpl-item-shortcut', data: itemSlot4 }"></div>
+				<div class="key">4</div>
+			</div>
+			<div class="shortcut-entity"
+				data-bind="click: useItemSlot.bind('4'), , css: itemSlot5Css">
+				<div class="shortcut-wrapper"
+					data-bind="template: {if: itemSlot5(), name: 'tmpl-item-shortcut', data: itemSlot5 }"></div>
+				<div class="key">5</div>
+			</div>
+		</div>
+	</div>
+	<!-- /SHORTCUTS -->
+
+	<!-- MODALS -->
 	<div id="modal-logout" class="modal fade">
 		<div class="modal-dialog">
 			<div class="modal-content">
@@ -266,7 +262,7 @@
 		</div>
 		<!-- /.modal-dialog -->
 	</div>
-	<!-- /.modal -->
+	<!-- /MODALS -->
 
 	<!-- INVENTORY -->
 	<div id="inventory"
