@@ -95,4 +95,9 @@ public class MapBaseParameter {
 	public int getSettlementCount() {
 		return settlementCount;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("MapBaseParams[size: %s, population: %d]", getWorldSize().toString(), population);
+	}
 }
