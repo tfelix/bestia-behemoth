@@ -5,9 +5,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600'
-	rel='stylesheet' type='text/css'>
-<link rel="stylesheet" type="text/css" href="css/app.css" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet"> 
+<link rel="stylesheet" type="text/css" href="css/main.css" />
 
 <!-- JAVASCRIPT -->
 <!-- @ifdef PRODUCTION -->
@@ -48,6 +47,7 @@
 							<div data-bind="style: {width: hpWidth}"></div>
 						</div>
 						<div class="bar-text">
+							HP:
 							<span data-bind="text: curHp">0</span> / <span
 								data-bind="text: maxHp">0</span>
 						</div>
@@ -57,6 +57,7 @@
 							<div data-bind="style: {width: manaWidth}"></div>
 						</div>
 						<div class="bar-text">
+							Mana:
 							<span data-bind="text: curMana">0</span> / <span
 								data-bind="text: maxMana">0</span>
 						</div>
@@ -65,12 +66,9 @@
 
 				<!-- UI BUTTONS -->
 				<div class="ui-buttons">
-					<button id="btn-inventory" class="btn btn-sm btn-block"
-						data-i18n="nav.inventory">nav.inventory</button>
-					<button id="btn-attacks" class="btn btn-sm btn-block"
-						data-i18n="nav.attacks">nav.attacks</button>
-					<button id="btn-bugs" class="btn btn-sm btn-block"
-						data-i18n="nav.bugs">nav.bugs</button>
+					<button id="btn-inventory"><img src="/img/swap-bag.png" data-i18n="[alt]nav.inventory"></button>
+					<button id="btn-attacks"><img src="/img/sword-clash.png" data-i18n="[alt]nav.attacks"></button>
+					<button id="btn-bugs"><img src="/img/spotted-bug.png" data-i18n="[alt]nav.bugs"></button>
 				</div>
 				<!-- /UI BUTTONS -->
 
@@ -89,6 +87,7 @@
 									<div data-bind="style: {width: hpWidth}"></div>
 								</div>
 								<div class="bar-text">
+									HP:
 									<span data-bind="text: curHp">0</span> / <span
 										data-bind="text: maxHp">0</span>
 								</div>
@@ -98,6 +97,7 @@
 									<div data-bind="style: {width: manaWidth}"></div>
 								</div>
 								<div class="bar-text">
+									Mana:
 									<span data-bind="text: curMana">0</span> / <span
 										data-bind="text: maxMana">0</span>
 								</div>
@@ -110,6 +110,9 @@
 			</div>
 
 			<div style="clear: both"></div>
+			<div class="navi-footer">
+				tfelix Software - <a href="imprint.html" target="_blank">Impressum</a> - &copy; 2016
+			</div>
 		</div>
 
 		<div id="canvas-container">

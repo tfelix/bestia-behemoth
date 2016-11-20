@@ -1,5 +1,7 @@
-@import "bootstrap/bootstrap.less";
-@import "colors.less";
+@import "../bootstrap/bootstrap.less";
+@import "../colors.less";
+@import "../general.less";
+@import "../util.less";
 @import "modal.less";
 @import "bars.less";
 @import "selected-bestias.less";
@@ -7,7 +9,6 @@
 @import "inventory.less";
 @import "attacks.less";
 @import "ui-dialog.less";
-@import "util.less";
 @import "shortcuts.less";
 
 body {
@@ -37,6 +38,7 @@ p {
 .ui-buttons {
 	padding: 0 10px;
 	margin-bottom: 10px;
+	text-align: center;
 }
 
 .debug-box {
@@ -55,11 +57,21 @@ p {
 }
 
 .navi {
+	.box;
 	width: 320px;
 	height: 100%;
-	background: green;
-	left-margin: 10px;
+	margin: 10px 0 0 10px;
 	float: left;
+	
+	button {
+		display: inline-block;
+		width: 80px;
+		margin: 2px 5px;
+	}
+	
+	.navi-footer {
+		text-align: center;
+	}
 }
 
 #bestia-canvas {

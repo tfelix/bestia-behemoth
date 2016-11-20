@@ -14,11 +14,12 @@ html {
 
 .login {
 	width: 350px;
+	box-shadow: 0 0 4px #202020, 0 0 100px #d3cec2, 0 0 180px #d3cec2
 }
 
 .login-header {
 	height: 160px;
-	background: url('../../img/bestia_logo_big.png') no-repeat center #3a3a3a;
+	background: url('../../img/bestia_logo_big.png') no-repeat center @darkBackground;
 	border-bottom: 1px solid #282828;
 	background-size: 280px Auto;
 	position: relative;
@@ -50,7 +51,7 @@ html {
 }
 
 .login-footer {
-	background: #ac9a65;
+	background: @darkHighlight;
 	text-align: center;
 	padding: 1.5rem 3rem;
 	display: block;
