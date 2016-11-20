@@ -5,7 +5,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet"> 
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400"
+	rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="css/main.css" />
 
 <!-- JAVASCRIPT -->
@@ -23,21 +24,33 @@
 <body class="noscroll">
 	<div class="cont">
 		<div class="navi" id="navi">
-			<p style="text-align: center; padding-top: 10px;">
-				<img src="img/bestia_logo.png" alt="Bestia Logo">
-			</p>
+
+			<!-- UI BUTTONS -->
+			<div class="ui-buttons">
+				<button id="btn-inventory">
+					<img src="/img/swap-bag.png" data-i18n="[alt]nav.inventory">
+				</button>
+				<button id="btn-attacks">
+					<img src="/img/sword-clash.png" data-i18n="[alt]nav.attacks">
+				</button>
+				<button id="btn-bugs">
+					<img src="/img/spotted-bug.png" data-i18n="[alt]nav.bugs">
+				</button>
+			</div>
+			<!-- /UI BUTTONS -->
+
 			<div data-bind="with: bestias">
 				<div id="selected-bestia" data-bind="with: selectedBestia">
 					<!-- TODO Austauschen gegen ein animiertes Canvas. -->
 					<img data-bind="attr: {src: iconUrl}" alt="Bestia Icon"
 						style="float: left; margin: 10px;">
 
-					<div style="float: left; margin-top: 10px;">
-						<p data-bind="text: customName">---</p>
-						<p data-bind="text: name">---</p>
+					<div class="name">
+						<b><span data-bind="text: customName">---</span></b> - Lv. <span
+							data-bind="text: level">---</span>
 						<p>
-							X: <span data-bind="text: posX"></span> Y: <span
-								data-bind="text: posY"></span>
+							Östliches Kalaria (X: <span data-bind="text: posX"></span> Y: <span
+								data-bind="text: posY"></span>)
 						</p>
 					</div>
 
@@ -47,8 +60,7 @@
 							<div data-bind="style: {width: hpWidth}"></div>
 						</div>
 						<div class="bar-text">
-							HP:
-							<span data-bind="text: curHp">0</span> / <span
+							HP: <span data-bind="text: curHp">0</span> / <span
 								data-bind="text: maxHp">0</span>
 						</div>
 					</div>
@@ -57,20 +69,17 @@
 							<div data-bind="style: {width: manaWidth}"></div>
 						</div>
 						<div class="bar-text">
-							Mana:
-							<span data-bind="text: curMana">0</span> / <span
+							Mana: <span data-bind="text: curMana">0</span> / <span
 								data-bind="text: maxMana">0</span>
 						</div>
 					</div>
+					
+					<div>
+						<img src="http://placehold.it/32x32">
+						<img src="http://placehold.it/32x32">
+						<img src="http://placehold.it/32x32">
+					</div>
 				</div>
-
-				<!-- UI BUTTONS -->
-				<div class="ui-buttons">
-					<button id="btn-inventory"><img src="/img/swap-bag.png" data-i18n="[alt]nav.inventory"></button>
-					<button id="btn-attacks"><img src="/img/sword-clash.png" data-i18n="[alt]nav.attacks"></button>
-					<button id="btn-bugs"><img src="/img/spotted-bug.png" data-i18n="[alt]nav.bugs"></button>
-				</div>
-				<!-- /UI BUTTONS -->
 
 				<div id="bestia-slots" data-bind="foreach: bestias">
 					<div class="bestia-slot" data-bind="click: selectBestia">
@@ -87,8 +96,7 @@
 									<div data-bind="style: {width: hpWidth}"></div>
 								</div>
 								<div class="bar-text">
-									HP:
-									<span data-bind="text: curHp">0</span> / <span
+									HP: <span data-bind="text: curHp">0</span> / <span
 										data-bind="text: maxHp">0</span>
 								</div>
 							</div>
@@ -97,8 +105,7 @@
 									<div data-bind="style: {width: manaWidth}"></div>
 								</div>
 								<div class="bar-text">
-									Mana:
-									<span data-bind="text: curMana">0</span> / <span
+									Mana: <span data-bind="text: curMana">0</span> / <span
 										data-bind="text: maxMana">0</span>
 								</div>
 							</div>
@@ -111,7 +118,8 @@
 
 			<div style="clear: both"></div>
 			<div class="navi-footer">
-				tfelix Software - <a href="imprint.html" target="_blank">Impressum</a> - &copy; 2016
+				tfelix Software - <a href="imprint.html" target="_blank">Impressum</a>
+				- &copy; 2016
 			</div>
 		</div>
 
@@ -269,7 +277,7 @@
 
 	<!-- INVENTORY -->
 	<div id="inventory"
-		data-bind="with: inventory, css: {slider_active: inventory.showWindow()}"
+		data-bind="with: inventory, css: {slider_active: inventory.showWindow(), visible: inventory.showWindow()}"
 		class="inventory">
 
 		<div class="header">
@@ -357,7 +365,7 @@
 
 	<!-- ATTACKS -->
 	<div id="attacks"
-		data-bind="with: attacks, css: {slider_active: attacks.showWindow()}"
+		data-bind="with: attacks, css: {slider_active: attacks.showWindow(), visible: attacks.showWindow()}"
 		class="attacks">
 
 		<div class="header">
