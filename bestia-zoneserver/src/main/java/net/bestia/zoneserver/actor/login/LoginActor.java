@@ -7,11 +7,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.ActorPath;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -23,9 +21,8 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.configuration.CacheConfiguration;
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
-import net.bestia.zoneserver.service.CacheManager;
+import net.bestia.zoneserver.service.ConnectionService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 import net.bestia.zoneserver.service.ServerRuntimeConfiguration;
 
@@ -51,21 +48,21 @@ public class LoginActor extends BestiaRoutingActor {
 
 	private final AccountDAO accountDao;
 	private final ServerRuntimeConfiguration config;
-	private final CacheManager<Long, ActorPath> clientCache;
 	private final PlayerBestiaService playerBestiaService;
 	private final PlayerEntityService entityService;
+	private final ConnectionService connectionService;
 
 	@Autowired
 	public LoginActor(AccountDAO accountDao,
 			ServerRuntimeConfiguration config,
-			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorPath> clientCache,
+			ConnectionService connectionService,
 			PlayerEntityService entityService,
 			PlayerBestiaService pbService) {
 		super(Arrays.asList(LoginAuthMessage.class));
 
 		this.accountDao = Objects.requireNonNull(accountDao);
 		this.config = Objects.requireNonNull(config);
-		this.clientCache = Objects.requireNonNull(clientCache);
+		this.connectionService = Objects.requireNonNull(connectionService);
 		this.playerBestiaService = Objects.requireNonNull(pbService);
 		this.entityService = Objects.requireNonNull(entityService);
 	}
@@ -111,9 +108,9 @@ public class LoginActor extends BestiaRoutingActor {
 				.findAny();
 		
 		entityService.setActiveEntity(msg.getAccountId(), masterEntity.get().getId());
-
-		final ActorPath actorRef = getSender().path();
-		clientCache.set(msg.getAccountId(), actorRef);
+		
+		// Register the sender.
+		connectionService.addClient(msg.getAccountId(), getSender().path());
 	}
 
 	@Override
