@@ -21,7 +21,7 @@ module.exports = function(grunt) {
 
 	var loadConfig = require('load-grunt-config');
 	loadConfig(grunt, {
-		configPath : __dirname + '/tasks/options',
+		configPath : __dirname + '/tasks',
 		config : {
 			sourceDir : 'src',
 			tempDir : 'build_temp',
