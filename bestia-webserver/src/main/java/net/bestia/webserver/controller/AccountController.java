@@ -4,12 +4,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@RestController("account/")
 public class AccountController {
 	
 	//@RequestParam(value="name", defaultValue="World") String name
 
-	@RequestMapping("/login")
+	@RequestMapping("login")
     public String login() {
         return "Hello World";
     }

@@ -13,12 +13,11 @@ import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorSystem;
 import akka.actor.Address;
-import akka.actor.Props;
 import akka.cluster.Cluster;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.service.ClusterConfigurationService;
 import net.bestia.webserver.actor.ActorSystemTerminator;
-import net.bestia.webserver.actor.ClusterListenerActor;
+import net.bestia.webserver.actor.WebClusterListenerActor;
 
 /**
  * Generates the akka configuration file which is used to connect to the remote
@@ -35,16 +34,15 @@ public class AkkaComponent {
 	private final static Logger LOG = LoggerFactory.getLogger(AkkaComponent.class);
 	private final static String AKKA_CONFIG_NAME = "akka";
 
+	private ActorSystemTerminator terminator = null;
+
 	@Bean
 	public ActorSystem actorSystem(Config akkaConfig, HazelcastInstance hzClient) {
 
 		final ActorSystem system = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
 
-		// Subscribe for dead letter checking and domain events.
-		system.actorOf(Props.create(ClusterListenerActor.class));
-
 		final ClusterConfigurationService clusterConfig = new ClusterConfigurationService(hzClient);
-		final List<Address> seedNodes = clusterConfig.getClusterNodes();
+		final List<Address> seedNodes = clusterConfig.getClusterSeedNodes();
 
 		if (seedNodes.isEmpty()) {
 			LOG.error("No seed cluster nodes found. Can not join the system. Shutting down.");
@@ -56,14 +54,28 @@ public class AkkaComponent {
 		cluster.joinSeedNodes(seedNodes);
 
 		// Prepare cleanup if we are removed from the cluster we will terminate.
-		cluster.registerOnMemberRemoved(systemTerminator(system, hzClient));
+		final ActorSystemTerminator terminator = systemTerminator(system, hzClient);
+		cluster.registerOnMemberRemoved(terminator);
+
+		// Subscribe for dead letter checking and domain events.
+		system.actorOf(WebClusterListenerActor.props(terminator));
 
 		return system;
 	}
-	
+
+	/**
+	 * Creates singelton terminator bean.
+	 * 
+	 * @param system The actor system.
+	 * @param hz Hazelcast
+	 * @return The singelton {@link ActorSystemTerminator}.
+	 */
 	@Bean
 	public ActorSystemTerminator systemTerminator(ActorSystem system, HazelcastInstance hz) {
-		return new ActorSystemTerminator(system, hz);
+		if (terminator == null) {
+			terminator = new ActorSystemTerminator(system, hz);
+		}
+		return terminator;
 	}
 
 	@Bean

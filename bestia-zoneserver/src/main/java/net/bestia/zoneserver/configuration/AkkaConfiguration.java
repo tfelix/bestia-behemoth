@@ -50,13 +50,12 @@ public class AkkaConfiguration {
 		final ClusterConfigurationService clusterConfig = new ClusterConfigurationService(hzInstance);
 
 		final Address selfAddr = Cluster.get(system).selfAddress();
-
+		final List<Address> seedNodes = clusterConfig.getClusterSeedNodes();
+		
 		if (clusterConfig.shoudlJoinAsSeedNode()) {
 
 			// Check if there are at least some seeds or if we need to bootstrap
 			// the cluster.
-			final List<Address> seedNodes = clusterConfig.getClusterNodes();
-
 			if (seedNodes.size() == 0) {
 				// Join as seed node since desired number of seeds is not
 				// reached.
@@ -67,8 +66,7 @@ public class AkkaConfiguration {
 
 		} else {
 			// Only join as normal node.
-			final List<Address> clusterNodes = clusterConfig.getClusterNodes();
-			Cluster.get(system).joinSeedNodes(clusterNodes);
+			Cluster.get(system).joinSeedNodes(seedNodes);
 		}
 
 		LOG.info("Zoneserver Akka Address: {}", selfAddr);

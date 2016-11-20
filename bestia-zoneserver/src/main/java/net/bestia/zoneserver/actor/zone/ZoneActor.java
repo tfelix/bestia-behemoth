@@ -90,7 +90,7 @@ public class ZoneActor extends BestiaRoutingActor {
 		localInitActor = createActor(InitLocalActor.class, "localInit");
 
 		// Some utility actors.
-		createActor(ClusterStatusListenerActor.class, "clusterStatusListener");
+		createActor(ZoneClusterListenerActor.class, "clusterStatusListener");
 		
 		// Temporary register without init.
 		final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();

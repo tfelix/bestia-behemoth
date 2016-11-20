@@ -13,15 +13,16 @@ import scala.concurrent.Await;
 import scala.concurrent.duration.Duration;
 
 /**
- * This runner will try to end the akkasystem gracefully.
+ * This runner will try to end the akka actor system gracefully.
  * 
- * @author Thomas
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class ActorSystemTerminator implements Runnable {
 	
 	private final static Logger LOG = LoggerFactory.getLogger(ActorSystemTerminator.class);
 	
+	private boolean hasRun = false;
 	private final ActorSystem system;
 	private final HazelcastInstance hz;
 	
@@ -32,6 +33,12 @@ public class ActorSystemTerminator implements Runnable {
 	}
 
 	public void run() {
+		// Safety check if we where already terminated.
+		if(hasRun) {
+			return;
+		}
+		hasRun = true;
+		
 		LOG.info("Terminating the akka system and hazelcast.");
 		
 		// Shutdown Hazelcast.

@@ -16,6 +16,7 @@ import akka.cluster.ClusterEvent.UnreachableMember;
 import akka.cluster.Member;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.server.AkkaCluster;
 
 /**
  * Logs information about the whole behemoth cluster.
@@ -25,10 +26,9 @@ import akka.event.LoggingAdapter;
  */
 @Component
 @Scope("prototype")
-public class ClusterStatusListenerActor extends UntypedActor {
+public class ZoneClusterListenerActor extends UntypedActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-	private final static String WEB_ROLE = "webserver";
 
 	private final Cluster cluster = Cluster.get(getContext().system());
 
@@ -56,7 +56,7 @@ public class ClusterStatusListenerActor extends UntypedActor {
 		if (message instanceof MemberUp) {
 			final MemberUp mUp = (MemberUp) message;
 
-			if (mUp.member().hasRole(WEB_ROLE)) {
+			if (mUp.member().hasRole(AkkaCluster.ROLE_WEB)) {
 				LOG.info("Webserver is up: {}", mUp.member());
 				webserverMember.add(mUp.member());
 			} else {
@@ -70,7 +70,7 @@ public class ClusterStatusListenerActor extends UntypedActor {
 			
 			// If its a webserver we can automatically down it. Since they will
 			// terminate upon disconnection.
-			if(mUnreachable.member().hasRole(WEB_ROLE)) {
+			if(mUnreachable.member().hasRole(AkkaCluster.ROLE_WEB)) {
 				LOG.warning("Member has role WEBSERVER downing it.");
 				cluster.down(mUnreachable.member().address());
 			} else {
@@ -84,7 +84,7 @@ public class ClusterStatusListenerActor extends UntypedActor {
 			final MemberRemoved mRemoved = (MemberRemoved) message;
 			LOG.debug("Member is removed: {}", mRemoved.member());
 
-			if (!mRemoved.member().hasRole(WEB_ROLE)) {
+			if (!mRemoved.member().hasRole(AkkaCluster.ROLE_WEB)) {
 				// TODO we must terminate all user connections from this webserver.
 				LOG.warning("Must terminate all connections from this node.");
 				return;
