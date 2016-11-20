@@ -18,7 +18,7 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
  */
 public class BestiaSocketInterceptor implements HandshakeInterceptor {
 
-	private AtomicBoolean allowConnections = new AtomicBoolean(false);
+	private AtomicBoolean allowConnections = new AtomicBoolean(true);
 
 	@Override
 	public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler waHandler,
@@ -32,4 +32,13 @@ public class BestiaSocketInterceptor implements HandshakeInterceptor {
 		return allowConnections.get();
 	}
 
+	/**
+	 * Sets the flag if new incoming connections to this server are allowed or
+	 * not.
+	 * 
+	 * @param flag
+	 */
+	public void allowConnections(boolean flag) {
+		allowConnections.set(flag);
+	}
 }

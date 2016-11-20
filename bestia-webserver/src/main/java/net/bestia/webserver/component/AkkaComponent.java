@@ -17,9 +17,8 @@ import akka.actor.Props;
 import akka.cluster.Cluster;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.service.ClusterConfigurationService;
+import net.bestia.webserver.actor.ActorSystemTerminator;
 import net.bestia.webserver.actor.ClusterListenerActor;
-import net.bestia.webserver.actor.DeadLetterWatchActor;
-
 
 /**
  * Generates the akka configuration file which is used to connect to the remote
@@ -40,23 +39,31 @@ public class AkkaComponent {
 	public ActorSystem actorSystem(Config akkaConfig, HazelcastInstance hzClient) {
 
 		final ActorSystem system = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
-		
+
 		// Subscribe for dead letter checking and domain events.
 		system.actorOf(Props.create(ClusterListenerActor.class));
-		system.actorOf(Props.create(DeadLetterWatchActor.class));
 
 		final ClusterConfigurationService clusterConfig = new ClusterConfigurationService(hzClient);
 		final List<Address> seedNodes = clusterConfig.getClusterNodes();
-		
-		if(seedNodes.isEmpty()) {
+
+		if (seedNodes.isEmpty()) {
 			LOG.error("No seed cluster nodes found. Can not join the system. Shutting down.");
 			System.exit(1);
 		}
 
 		LOG.info("Attempting to joing the bestia cluster...");
-		Cluster.get(system).joinSeedNodes(seedNodes);
+		final Cluster cluster = Cluster.get(system);
+		cluster.joinSeedNodes(seedNodes);
+
+		// Prepare cleanup if we are removed from the cluster we will terminate.
+		cluster.registerOnMemberRemoved(systemTerminator(system, hzClient));
 
 		return system;
+	}
+	
+	@Bean
+	public ActorSystemTerminator systemTerminator(ActorSystem system, HazelcastInstance hz) {
+		return new ActorSystemTerminator(system, hz);
 	}
 
 	@Bean

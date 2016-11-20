@@ -73,6 +73,10 @@ public class ClusterStatusListenerActor extends UntypedActor {
 			if(mUnreachable.member().hasRole(WEB_ROLE)) {
 				LOG.warning("Member has role WEBSERVER downing it.");
 				cluster.down(mUnreachable.member().address());
+			} else {
+				// TODO Das hier ist temporär und muss noch in DowningProvider ausgelagert werden.
+				LOG.warning("TEMP TEST OF DOWNING");
+				cluster.down(mUnreachable.member().address());
 			}
 
 		} else if (message instanceof MemberRemoved) {
@@ -84,6 +88,8 @@ public class ClusterStatusListenerActor extends UntypedActor {
 				// TODO we must terminate all user connections from this webserver.
 				LOG.warning("Must terminate all connections from this node.");
 				return;
+			} else {
+				
 			}
 
 			LOG.warning("Webserver is removed: {}", mRemoved.member());
