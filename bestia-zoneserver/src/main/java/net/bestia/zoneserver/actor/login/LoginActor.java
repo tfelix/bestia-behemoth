@@ -103,13 +103,13 @@ public class LoginActor extends BestiaRoutingActor {
 		entityService.putPlayerBestiaEntities(bestias);
 
 		// Extract master now again from bestias and get its entity id.
-		Optional<PlayerBestiaEntity> masterEntity = bestias.parallelStream()
+		final Optional<PlayerBestiaEntity> masterEntity = bestias.parallelStream()
 				.filter(x -> x.getPlayerBestiaId() == master.getId())
 				.findAny();
 		
 		entityService.setActiveEntity(msg.getAccountId(), masterEntity.get().getId());
 		
-		// Register the sender.
+		// Register the sender connection.
 		connectionService.addClient(msg.getAccountId(), getSender().path());
 	}
 

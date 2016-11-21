@@ -25,7 +25,7 @@ import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.entity.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.inventory.InventoryActor;
-import net.bestia.zoneserver.actor.login.ConnectionManagerActor;
+import net.bestia.zoneserver.actor.login.DisconnectManagerActor;
 import net.bestia.zoneserver.actor.login.LoginActor;
 import net.bestia.zoneserver.actor.map.MapRequestChunkActor;
 import net.bestia.zoneserver.actor.map.TilesetRequestActor;
@@ -70,8 +70,9 @@ public class ZoneActor extends BestiaRoutingActor {
 		createActor(ChatActor.class);
 
 		// === House keeping actors ===
-		createActor(ConnectionManagerActor.class);
+		createActor(DisconnectManagerActor.class);
 		createActor(PingPongActor.class);
+		createActor(ZoneClusterListenerActor.class);
 
 		// Setup the init actor singelton for creation of the system.
 		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
@@ -88,9 +89,6 @@ public class ZoneActor extends BestiaRoutingActor {
 		// Do the local init like loading scripts. When this is finished we can
 		// register ourselves with the messaging system.
 		localInitActor = createActor(InitLocalActor.class, "localInit");
-
-		// Some utility actors.
-		createActor(ZoneClusterListenerActor.class, "clusterStatusListener");
 		
 		// Temporary register without init.
 		final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();

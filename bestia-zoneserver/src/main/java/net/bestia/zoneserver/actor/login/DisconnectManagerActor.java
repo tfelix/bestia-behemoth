@@ -28,16 +28,16 @@ import net.bestia.zoneserver.service.PlayerEntityService;
  */
 @Component
 @Scope("prototype")
-public class ConnectionManagerActor extends BestiaRoutingActor {
+public class DisconnectManagerActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-	public static final String NAME = "connectionManager";
+	public static final String NAME = "disconnectManager";
 
 	private final CacheManager<Long, ActorPath> clientCache;
 	private final PlayerEntityService entityService;
 
 	@Autowired
-	public ConnectionManagerActor(
+	public DisconnectManagerActor(
 			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorPath> clientCache,
 			PlayerEntityService entityService) {
 		super(Arrays.asList(ClientConnectionStatusMessage.class));

@@ -14,11 +14,9 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.bestia.BestiaInfoMessage;
 import net.bestia.messages.bestia.RequestBestiaInfoMessage;
 import net.bestia.model.domain.PlayerBestia;
-import net.bestia.model.service.AccountService;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
-import net.bestia.zoneserver.service.AccountZoneService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**

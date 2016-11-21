@@ -4,6 +4,8 @@ import net.bestia.model.shape.Size;
 import net.bestia.zoneserver.actor.BestiaActor;
 
 public class MapGeneratorActor extends BestiaActor {
+	
+	public final static String NAME = "mapGenerator";
 
 	@Override
 	public void onReceive(Object msg) throws Throwable {
