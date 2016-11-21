@@ -2,6 +2,7 @@ import WorldHelper from '../map/WorldHelper';
 import MID from '../../io/messages/MID';
 import Message from '../../io/messages/Message';
 import TilesetManager from '../map/TilesetManager';
+import NOOP from '../../util/NOOP';
 
 const MIN_SAFETY_TILES = 3;
 
@@ -38,17 +39,29 @@ export default class TileRenderer {
 		 */
 		this._chunkCallbackCache = {};
 		
+		/**
+		 * Cache object for loaded chunks.
+		 */
+		this._chunkCache = {};
+		
 		ctx.pubsub.subscribe(MID.MAP_CHUNK, this._handleChunkReceived.bind(this));
 	}
 	
 	/**
 	 * The chunks with the given id a loaded. If a callback is given the
 	 * callback is fired when all chunks and their corresponding tile
-	 * information was aquired from the server.
+	 * information was acquired from the server.
 	 */
 	loadChunks(chunk, fn) {
 		let key = this._chunkKey(chunk.x, chunk.y);
-		this._chunkCallbackCache[key] = {fn: fn};
+		fn = fn || NOOP;
+		
+		// Does the same key exist? if so abort.
+		if(this._chunkCallbackCache.hasOwnProperty(key)) {
+			this._chunkCallbackCache[key].fn.push(fn);
+		}
+		
+		this._chunkCallbackCache[key] = {fn: [fn]};
 		this._ctx.pubsub.send(new Message.MapChunkRequest(chunk.x, chunk.y));
 	}
 	
@@ -68,7 +81,7 @@ export default class TileRenderer {
 		
 		// Check the callback.
 		let chunkCallback = this._chunkCallbackCache[key];
-		data.tilesToLoad = WorldHelper.CHUNK_SIZE * WorldHelper.CHUNK_SIZE;
+		chunkCallback.tilesToLoad = WorldHelper.CHUNK_SIZE * WorldHelper.CHUNK_SIZE;
 		
 		// Iterate over tile inside chunk cords.
 		let tileCords = this._chunkToTile(data.p.x, data.p.y);
@@ -77,6 +90,10 @@ export default class TileRenderer {
 				
 				let gid = data.gl[y *  WorldHelper.CHUNK_SIZE + x];
 				
+				// Load all the tilesets associated with the given gids.
+				
+				// TODO This can be handled far more efficently. Maybe group the
+				// ids before the request.
 				this._tilesetManager.getTileset(gid, function(){
 					
 					chunkCallback.tilesToLoad--;
@@ -86,7 +103,9 @@ export default class TileRenderer {
 						delete this._chunkCallbackCache[key];
 						this._chunkCache[key] = data;
 						if(chunkCallback.fn !== undefined) {
-							chunkCallback.fn();
+							chunkCallback.fn.forEach(function(x){
+								x();
+							}, this);
 						}
 					}			
 				}.bind(this));

@@ -34,9 +34,6 @@ export default class LoadingState  {
 		chunks.forEach(function(chunk){
 			this._ctx.renderer.tile.loadChunks(chunk);
 		}.bind(this));
-		
-		
-		this._ctx.renderer.tile.getVisibleChunks();
 	}
 	
 	update() {

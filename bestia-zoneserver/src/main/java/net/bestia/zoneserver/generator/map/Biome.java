@@ -9,8 +9,23 @@ package net.bestia.zoneserver.generator.map;
  */
 public enum Biome {
 
+	WATER,
 	DESERT,
 	BEACH,
-	FORREST
+	FORREST,
+	TROPICAL_FORREST,
+	SWAMP,
+	/**
+	 * Warmer in summer (thaw). Snowfall, wetter.
+	 */
+	TAIGA,
+	/**
+	 * Permafrost, dry.
+	 */
+	TUNDRA,
+	ALPINE,
+	TEMPERATE_GRASSLAND,
+	WETLANDS,
+	SAVANNAH
 	
 }

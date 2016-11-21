@@ -55,8 +55,7 @@ export default class DemandLoader {
 			delete this._keyCache[key];
 		} else {
 			// No cache entry found. Propably the file was directly loaded
-			// without
-			// the use of the demand loader.
+			// without the use of the demand loader.
 			// Skip the callback search.
 			return;
 		}
@@ -133,6 +132,7 @@ export default class DemandLoader {
 		}
 
 		switch (type) {
+		case 'image':
 		case 'item':
 			return this._phaserCache.getImage(key);
 		case 'json':
@@ -143,8 +143,15 @@ export default class DemandLoader {
 		}
 	}
 
+	/**
+	 * Checks if the key for the given type exist inside the loader (the file
+	 * was already loaded then).
+	 * 
+	 * @return TRUE if the key exist. FALSE otherwise.
+	 */
 	_hasType(key, type) {
 		switch (type) {
+		case 'image':
 		case 'item':
 			return this._phaserCache.checkImageKey(key);
 		case 'json':
@@ -233,30 +240,25 @@ export default class DemandLoader {
 			this._cache[data.key].callbackFns.push(fnOnComplete);
 			return;
 		}
+		
+		if (this._hasType(data.key, data.type)) {
+			fnOnComplete();
+			return;
+		}
 
 		switch (data.type) {
 		case 'json':
-			if (this._phaserCache.checkJSONKey(data.key)) {
-				fnOnComplete();
-				return;
-			} else {
-				this._loader.json(data.key, data.url);
-			}
+			this._loader.json(data.key, data.url);
 			break;
 		case 'image':
-			if (this._phaserCache.checkImageKey(data.key)) {
-				fnOnComplete();
-				return;
-			} else {
-				this._loader.image(data.key, data.url);
-			}
+			this._loader.image(data.key, data.url);
 			break;
 		default:
 			console.warn("Loading this type not supported: " + data.type);
 			return;
 		}
 
-		var countObj = {
+		let countObj = {
 			key : data.key,
 			callbackFns : [ fnOnComplete ],
 			toLoad : 1,

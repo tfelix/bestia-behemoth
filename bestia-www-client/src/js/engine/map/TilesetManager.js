@@ -106,7 +106,7 @@ export default class TilesetManager {
 					fn(gid, this);
 				}, this);
 			}
-		});
+		}, this);
 	}
 	
 	/**
@@ -117,9 +117,12 @@ export default class TilesetManager {
 	 * @param Number
 	 *            gids - The gid of the tiles to check inside this cache.
 	 */
-	hasTileset(gids) {
-		// TODO implementieren.
-		return false;
+	hasTileset(gid) {
+		this._tilestes.forEach(function(ts) {
+			if(gid <= ts.maxgid && gid >= ts.mingid) {
+				return true;
+			}
+		});
 	}
 	
 	/**
