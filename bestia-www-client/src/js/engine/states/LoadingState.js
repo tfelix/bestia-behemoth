@@ -30,17 +30,14 @@ export default class LoadingState  {
 		this.gfx = this.add.graphics(0, 0);
 		this.gfx.beginFill(0xFF0000, 1);
 		
+		/*
 		let chunks = this._ctx.renderer.tile.getVisibleChunks();
 		chunks.forEach(function(chunk){
-			this._ctx.renderer.tile.loadChunks(chunk);
-		}.bind(this));
+			this._ctx.renderer.tile.loadChunk(chunk);
+		}.bind(this));*/
 	}
 	
 	update() {
-		
-		//this.game.debug.text("Loading", 10, 30, '#FFFFFF');
-		//var maxWidth = this.game.width - 20;
-		//this.gfx.drawRect(10, 60, (maxWidth * this._currentProgress / 100), 20);
 		
 		this._pubsub.publish(Signal.ENGINE_FINISHED_MAPLOAD);
 	}

@@ -22,8 +22,6 @@ export default class InitializeState {
 	preload() {
 		
 		// TODO hier auch schon einen hinweis/splash anzeigen.
-		
-		this.game.load.image('tilemap', 'http://localhost/assets/tileset/mountain_landscape_23.png');
 		this.game.load.spritesheet('tilesheet', 'http://localhost/assets/tileset/mountain_landscape_23.png', 32, 32);
 		this.game.load.atlas('poring', 
 				'http://localhost/assets/sprite/mob/poring/poring.png', 

@@ -24,12 +24,6 @@ export default class TileRenderer {
 		this._rendered = {x1: 0, x2: 0, y1: 0, y2: 0};
 		this._newRendered = {x1: 0, x2: 0, y1: 0, y2: 0};
 		
-		this._map = this._game.add.tilemap();
-		this._map.addTilesetImage('tilemap');
-		this._layer = this._map.create('ground', 90, 60, 32, 32);
-		this._layer.resizeWorld();
-		this._layer.sendToBack();
-		
 		this._gameSize = {x: 0, y: 0};
 		
 		/**
@@ -49,7 +43,7 @@ export default class TileRenderer {
 	
 	/**
 	 * The chunks with the given id a loaded. If a callback is given the
-	 * callback is fired when all chunks and their corresponding tile
+	 * callback is fired when all chunks AND their corresponding tile
 	 * information was acquired from the server.
 	 */
 	loadChunks(chunk, fn) {
@@ -165,25 +159,40 @@ export default class TileRenderer {
 	}
 	
 	/**
+	 * Gets the current player sprite.
+	 */
+	get playerSprite() {
+		return this._sprite;
+	}
+	
+	/**
 	 * Clears the whole screen and setup a complete new rendering from the
 	 * current player position.
 	 */
 	clearDraw() {
-		// We must calculate the game size.
-		this._gameSize.x = Math.ceil(this._game.width / WorldHelper.TILE_SIZE);
-		this._gameSize.y = Math.ceil(this._game.height / WorldHelper.TILE_SIZE);
+		// Prepare the new tilemap.
+		this._map = this._game.add.tilemap();
+		this._map.addTilesetImage('tilemap');
+		this._layer = this._map.create('ground', 90, 60, 32, 32);
+		this._layer.resizeWorld();
+		this._layer.sendToBack();
 		
+		// We must calculate the game size.
+		this._gameSize = WorldHelper.getTileXY(this._game.width, this._game.height);
 		
 		let pos = WorldHelper.getTileXY(this._sprite.x, this._sprite.y);
+		
 		let startX = pos.x - WorldHelper.SIGHT_RANGE.x;
 		let startY = pos.x - WorldHelper.SIGHT_RANGE.y;
+		let endX = pos.x + WorldHelper.SIGHT_RANGE.x;
+		let endY = pos.y + WorldHelper.SIGHT_RANGE.y;
 		
 		
-		for(var x = startX; x < startX + this._gameSize.x; x++) {
-			for(var y = startY; y < startY + this._gameSize.y; y++) {
+		for(var x = Math.max(0, startX); x < endX; x++) {
+			for(var y = Math.max(0, startY); y < endY; y++) {
 				
 				// Austauschen mit echten, tile informationen.
-				if(x % 2 == 0) {
+				if(x % 2 === 0) {
 					this._map.putTile(30, x, y, 'ground');
 				} else {
 					this._map.putTile(54, x, y, 'ground');

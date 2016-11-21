@@ -22,6 +22,16 @@ export default class GameState {
 		this._ctx = context;
 	}
 	
+	preload() {
+		
+		this.game.load.image('tilemap', 'http://localhost/assets/tileset/mountain_landscape_23.png');
+		
+		let chunks = this._ctx.renderer.tile.getVisibleChunks();
+		chunks.forEach(function(chunk){
+			this._ctx.renderer.tile.loadChunks(chunk);
+		}.bind(this));
+	}
+	
 	create() {
 		
 		// ==== PLUGINS ====
@@ -63,14 +73,15 @@ export default class GameState {
 		this.game.camera.follow(this.sprite);
 		this.extended = false;
 
-		//this._tileRenderer.playerSprite = this.sprite;
-		//this._tileRenderer.clearDraw();
+		this._ctx.renderer.tile.playerSprite = this.sprite;
+		this._ctx.renderer.tile.clearDraw();
 	}
 
 	update() {
 		
-		//this._tileRenderer.update();
+		this._ctx.renderer.tile.update();
 		
+		/*
 		if (this.cursor.left.isDown)
 	    {
 			this.sprite.x -= 2;
@@ -87,7 +98,7 @@ export default class GameState {
 	    else if (this.cursor.down.isDown)
 	    {
 	    	this.sprite.y += 2;
-	    }
+	    }*/
 		
 		// Trigger the update effects.
 		// this.ctx.fxManager.update();
@@ -104,7 +115,7 @@ export default class GameState {
 	
 	render() {
 		this.game.debug.cameraInfo(this.game.camera, 32, 32);
-	    this.game.debug.spriteCoords(this.sprite, 32, 500);
+		this.game.debug.spriteCoords(this.sprite, 32, 500);
 	}
 
 	shutdown() {
