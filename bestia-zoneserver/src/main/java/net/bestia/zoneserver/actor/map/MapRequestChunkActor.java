@@ -14,6 +14,7 @@ import net.bestia.messages.map.MapChunkMessage;
 import net.bestia.messages.map.MapChunkRequestMessage;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.Map.MapBuilder;
+import net.bestia.model.map.MapChunk;
 import net.bestia.model.map.Tile;
 import net.bestia.model.shape.Point;
 import net.bestia.model.shape.Rect;
@@ -70,28 +71,31 @@ public class MapRequestChunkActor extends BestiaRoutingActor {
 		final PlayerBestiaEntity pbe = pbService.getActivePlayerEntity(req.getAccountId());
 
 		final Point pos = pbe.getPosition();
-		final Rect area = new Rect(
+		final Rect viewArea = new Rect(
 				pos.getX() - VIEW_RANGE,
 				pos.getY() - VIEW_RANGE,
 				pos.getX() + VIEW_RANGE,
 				pos.getY() + VIEW_RANGE);
 
 		// Retrieve all the map information in the view port of this.
-		/*final Map map = mapService.getMap(area);*/
+		/* final Map map = mapService.getMap(area); */
+		/* final List<MapChunks> chunks = mapService.getChunks(area); */
 
-		Map.MapBuilder builder = new MapBuilder();
+		
 
-		builder.setRect(new Rect(req.getPatchX() * 10, req.getPatchY() * 10, 10, 10));
-		
-		List<Tile> gtiles = new ArrayList<>();
-		
-		for(int i = 0; i < 100; i++) {
-			gtiles.add(new Tile(37));
-		}
-		
-		builder.addGroundTiles(gtiles);
-		
-		final MapChunkMessage response = new MapChunkMessage(req, builder.build());
+		List<MapChunk> chunks = new ArrayList<>();
+
+		req.getChunks().forEach(x -> {
+			int[] gl = new int[100];
+			for (int i = 0; i < 100; i++) {
+				gl[i] = 37;
+			}
+			MapChunk mc = new MapChunk(x, gl);
+			chunks.add(mc);
+		});
+
+
+		final MapChunkMessage response = new MapChunkMessage(req, chunks);
 		sendClient(response);
 	}
 }

@@ -2,9 +2,17 @@
 import Signal from '../../io/Signal.js';
 
 /**
- * The state is triggered if a new map is loaded. It should inform the user that
- * we need to perform certain loading events until enough data is gathered to
- * start the visualization
+ * The state is triggered if a complete now part of a map is loaded and thus the
+ * engine needs some time to get all the needed data. Usually we must ask the
+ * server for the current chunks of the player and then load the following data:
+ * <p>
+ * <ul>
+ * <li>Map chunks</li>
+ * <li>Sounds</li>
+ * <li>Entity sprites</li>
+ * <li>Attack sprites/sounds of these entities</li>
+ * </ul>
+ * </p>
  * 
  * @constructor
  */
@@ -20,7 +28,11 @@ export default class LoadingState  {
 		this._pubsub = context.pubsub;
 	}
 	
-	init() {
+	_finishedLoad() {
+		this._pubsub.publish(Signal.ENGINE_FINISHED_MAPLOAD);
+	}
+	
+	preload() {
 		// Announce loading.
 		this._pubsub.publish(Signal.ENGINE_PREPARE_MAPLOAD);
 		
@@ -30,16 +42,10 @@ export default class LoadingState  {
 		this.gfx = this.add.graphics(0, 0);
 		this.gfx.beginFill(0xFF0000, 1);
 		
-		/*
 		let chunks = this._ctx.renderer.tile.getVisibleChunks();
-		chunks.forEach(function(chunk){
-			this._ctx.renderer.tile.loadChunk(chunk);
-		}.bind(this));*/
-	}
-	
-	update() {
-		
-		this._pubsub.publish(Signal.ENGINE_FINISHED_MAPLOAD);
+		this._ctx.renderer.tile.loadChunks(chunks, function(){
+			this._finishedLoad();
+		}.bind(this));
 	}
 }
 

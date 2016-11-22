@@ -39,6 +39,7 @@ export default class GameState {
 
 		// @ifdef DEVELOPMENT
 		this.game.plugins.add(Phaser.Plugin.Debug);
+		this.game.stage.disableVisibilityChange = true;
 		// @endif
 		// ==== /PLUGINS ====
 		
@@ -52,15 +53,12 @@ export default class GameState {
 		// this.ctx.zone = new World(this.game, astar, this.ctx.groups);
 		// this.ctx.zone.loadMap(this.ctx.playerBestia.location());
 
-		// @ifdef DEVELOPMENT
-		this.game.stage.disableVisibilityChange = true;
-		// @endif
 
 		// this.ctx.pubsub.publish(Signal.ENGINE_GAME_STARTED);
 		// this.ctx.entityUpdater.releaseHold();
 		
 		// Activate move handler.
-		// this.ctx.indicatorManager.showDefault();
+		this.ctx.indicatorManager.showDefault();
 		
 		// ========= TESTING =========
 		this.game.world.setBounds(0, 0, 800, 600);
@@ -82,23 +80,12 @@ export default class GameState {
 		this._ctx.renderer.tile.update();
 		
 		/*
-		if (this.cursor.left.isDown)
-	    {
-			this.sprite.x -= 2;
-	    }
-	    else if (this.cursor.right.isDown)
-	    {
-	    	this.sprite.x += 2;
-	    }
-
-	    if (this.cursor.up.isDown)
-	    {
-	    	this.sprite.y -= 2;
-	    }
-	    else if (this.cursor.down.isDown)
-	    {
-	    	this.sprite.y += 2;
-	    }*/
+		 * if (this.cursor.left.isDown) { this.sprite.x -= 2; } else if
+		 * (this.cursor.right.isDown) { this.sprite.x += 2; }
+		 * 
+		 * if (this.cursor.up.isDown) { this.sprite.y -= 2; } else if
+		 * (this.cursor.down.isDown) { this.sprite.y += 2; }
+		 */
 		
 		// Trigger the update effects.
 		// this.ctx.fxManager.update();

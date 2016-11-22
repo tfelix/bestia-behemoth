@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.model.domain.Position;
 
@@ -17,14 +18,27 @@ public final class Point implements Collision, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	@JsonProperty("x")
 	private final long x;
+
+	@JsonProperty("y")
 	private final long y;
+
+	/**
+	 * Std. ctor for JSON construction.
+	 */
+	public Point() {
+		x = 0;
+		y = 0;
+	}
 
 	/**
 	 * Ctor. Creates a new point at the given x and y coordinates.
 	 * 
-	 * @param x The x-coordinate.
-	 * @param y The y-coordinate.
+	 * @param x
+	 *            The x-coordinate.
+	 * @param y
+	 *            The y-coordinate.
 	 */
 	public Point(long x, long y) {
 		this.x = x;

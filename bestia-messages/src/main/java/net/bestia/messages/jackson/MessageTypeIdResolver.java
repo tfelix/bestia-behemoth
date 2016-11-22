@@ -31,24 +31,15 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 	private final static Logger log = LoggerFactory.getLogger(MessageTypeIdResolver.class);
 
 	private final TypeFactory typeFactory = TypeFactory.defaultInstance();
-	private final HashMap<String, Class<? extends MessageId>> idToClass = new HashMap<>();
-	private final HashMap<Class<? extends MessageId>, String> classToId = new HashMap<>();
+	private static final HashMap<String, Class<? extends MessageId>> idToClass = new HashMap<>();
+	private static final HashMap<Class<? extends MessageId>, String> classToId = new HashMap<>();
 
-	private JavaType baseType;
-
-	/**
-	 * Finds all IDs of the messages and registers them for later
-	 * identification.
-	 */
-	@Override
-	public void init(JavaType bt) {
-		super.init(bt);
-		baseType = bt;
+	static {
 
 		// Find all classes implementing the message interface.
 		Reflections reflections = new Reflections("net.bestia.messages");
 		Set<Class<? extends MessageId>> messages = reflections.getSubTypesOf(MessageId.class);
-		
+
 		// Instantiate the message classes to get their message id from the
 		// method and store it for later serialization and deserialization.
 		for (Class<? extends MessageId> msg : messages) {
@@ -75,6 +66,19 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 		}
 	}
 
+	private JavaType baseType;
+
+	/**
+	 * Finds all IDs of the messages and registers them for later
+	 * identification.
+	 */
+	@Override
+	public void init(JavaType bt) {
+		super.init(bt);
+		baseType = bt;
+
+	}
+
 	@Override
 	public Id getMechanism() {
 		return Id.CUSTOM;
@@ -89,7 +93,7 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 	public String idFromValueAndType(Object value, Class<?> suggestedType) {
 		return classToId.get(suggestedType);
 	}
-	
+
 	@Override
 	public JavaType typeFromId(DatabindContext context, String id) throws IOException {
 		final Class<? extends MessageId> clazz = idToClass.get(id);

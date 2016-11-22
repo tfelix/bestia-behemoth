@@ -42,13 +42,18 @@ export default class TileRenderer {
 	}
 	
 	/**
-	 * The chunks with the given id a loaded. If a callback is given the
-	 * callback is fired when all chunks AND their corresponding tile
+	 * The chunks (array) with the given id are loaded. If a callback is given
+	 * the callback is fired when all chunks AND their corresponding tile
 	 * information was acquired from the server.
 	 */
-	loadChunks(chunk, fn) {
-		let key = this._chunkKey(chunk.x, chunk.y);
+	loadChunks(chunks, fn) {
+		if(!(chunks instanceof Array)) {
+			chunks = [chunks];
+		}
+	
 		fn = fn || NOOP;
+		
+		let key = this._chunkJobKey(chunks);
 		
 		// Does the same key exist? if so abort.
 		if(this._chunkCallbackCache.hasOwnProperty(key)) {
@@ -56,7 +61,15 @@ export default class TileRenderer {
 		}
 		
 		this._chunkCallbackCache[key] = {fn: [fn]};
-		this._ctx.pubsub.send(new Message.MapChunkRequest(chunk.x, chunk.y));
+		this._ctx.pubsub.send(new Message.MapChunkRequest(chunks));
+	}
+	
+	/**
+	 * Calculates an unique string key for a given array of chunk ids. This can
+	 * be used as a callback storage.
+	 */
+	_chunkJobKey(chunks) {
+		return chunks.length + '-' + chunks[0].x + chunks[0].y;
 	}
 	
 	/**
@@ -67,15 +80,43 @@ export default class TileRenderer {
 	}
 	
 	/**
+	 * Returns the GID of the tile under this x and y position of the map. If
+	 * the tile/chunk was not yet loaded null is returned.
+	 */
+	_getGid(x, y) {
+		let glob = this._tileToGlobChunk(x, y);
+		let loc = this._tileToLocChunk(x, y);
+		let key = this._chunkKey(glob.x, glob.y);
+		
+		if(!this._chunkCache.hasOwnProperty(key)) {
+			return null;
+		}
+		
+		return this._chunkCache[key].gl[loc.y *  WorldHelper.CHUNK_SIZE + loc.x];
+	}
+	
+	/**
 	 * Handle if a new mapchunk is send by the server. It will get incorporated
 	 * into the database.
 	 */
 	_handleChunkReceived(_, data) {
-		let key = this._chunkKey(data.p.x, data.p.y);
+		let key = this._chunkJobKey(data.c);
 		
 		// Check the callback.
-		let chunkCallback = this._chunkCallbackCache[key];
-		chunkCallback.tilesToLoad = WorldHelper.CHUNK_SIZE * WorldHelper.CHUNK_SIZE;
+		let fn = this._chunkCallbackCache[key];
+		let tilesToLoad = WorldHelper.CHUNK_SIZE * WorldHelper.CHUNK_SIZE;
+		
+		let tileCallback = function(){
+			
+			tilesToLoad--;
+			
+			if(tilesToLoad === 0) {	
+				
+				delete this._chunkCallbackCache[key];
+				this._chunkCache[key] = data;
+				fn();
+			}			
+		}.bind(this)
 		
 		// Iterate over tile inside chunk cords.
 		let tileCords = this._chunkToTile(data.p.x, data.p.y);
@@ -88,21 +129,7 @@ export default class TileRenderer {
 				
 				// TODO This can be handled far more efficently. Maybe group the
 				// ids before the request.
-				this._tilesetManager.getTileset(gid, function(){
-					
-					chunkCallback.tilesToLoad--;
-					
-					if(chunkCallback.tilesToLoad === 0) {	
-						
-						delete this._chunkCallbackCache[key];
-						this._chunkCache[key] = data;
-						if(chunkCallback.fn !== undefined) {
-							chunkCallback.fn.forEach(function(x){
-								x();
-							}, this);
-						}
-					}			
-				}.bind(this));
+				this._tilesetManager.getTileset(gid, );
 			}
 		}
 	}
@@ -191,13 +218,8 @@ export default class TileRenderer {
 		for(var x = Math.max(0, startX); x < endX; x++) {
 			for(var y = Math.max(0, startY); y < endY; y++) {
 				
-				// Austauschen mit echten, tile informationen.
-				if(x % 2 === 0) {
-					this._map.putTile(30, x, y, 'ground');
-				} else {
-					this._map.putTile(54, x, y, 'ground');
-				}
-				
+				let gid = this._getGid(x, y);
+				this._map.putTile(gid, x, y, 'ground');
 			}
 		}
 		

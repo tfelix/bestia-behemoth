@@ -1,8 +1,12 @@
 package net.bestia.messages.map;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JacksonMessage;
+import net.bestia.model.shape.Point;
 
 /**
  * Asks the server to send the data of the map in the current viewport (with
@@ -16,33 +20,20 @@ public class MapChunkRequestMessage extends JacksonMessage {
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "map.requestdata";
 	
-	@JsonProperty("x")
-	private int patchX;
-	
-	@JsonProperty("y")
-	private int patchY;
+	@JsonProperty("c")
+	private List<Point> chunks = new ArrayList<>();
 	
 	public MapChunkRequestMessage() {
-		this.patchX = 0;
-		this.patchY = 0;
+		// no op.
 	}
 	
-	public MapChunkRequestMessage(int x, int y) {
-		this.patchX = x;
-		this.patchY = y;
-	}
-	
-	public int getPatchX() {
-		return patchX;
-	}
-	
-	public int getPatchY() {
-		return patchY;
+	public List<Point> getChunks() {
+		return chunks;
 	}
 	
 	@Override
 	public String toString() {
-		return String.format("RequestMapDataMessage[patchX: %d, patchY: %d]", patchX, patchY);
+		return String.format("RequestMapDataMessage[patches: %s]", chunks.toString());
 	}
 
 	@Override

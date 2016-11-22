@@ -19,7 +19,9 @@ export default class BootState {
 	 * Preload all the needed assets in order to display a loading screen.
 	 */
 	preload() {
-		// TBD
+		let url = this._ctx.url;
+		
+		this.game.load.image('logo', url.getImageUrl('logo_small'));
 	}
 	
 	create() {
