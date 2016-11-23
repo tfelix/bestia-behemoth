@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Objects;
 
+import net.bestia.model.domain.Tile;
 import net.bestia.model.shape.Size;
 
 /**

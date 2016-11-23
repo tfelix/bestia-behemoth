@@ -17,9 +17,9 @@ import com.hazelcast.query.Predicate;
 import com.hazelcast.query.PredicateBuilder;
 import com.hazelcast.query.Predicates;
 
+import net.bestia.model.domain.Tile;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.Map.MapBuilder;
-import net.bestia.model.map.Tile;
 import net.bestia.model.map.TileProperties;
 import net.bestia.model.map.Tileset;
 import net.bestia.model.shape.Point;

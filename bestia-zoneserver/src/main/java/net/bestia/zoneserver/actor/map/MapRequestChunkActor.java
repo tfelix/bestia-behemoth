@@ -12,13 +12,10 @@ import org.springframework.stereotype.Component;
 
 import net.bestia.messages.map.MapChunkMessage;
 import net.bestia.messages.map.MapChunkRequestMessage;
-import net.bestia.model.map.Map;
-import net.bestia.model.map.Map.MapBuilder;
+import net.bestia.model.dao.TileDAO;
 import net.bestia.model.map.MapChunk;
-import net.bestia.model.map.Tile;
 import net.bestia.model.shape.Point;
 import net.bestia.model.shape.Rect;
-import net.bestia.model.shape.Size;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
 import net.bestia.zoneserver.entity.MasterBestiaEntity;
@@ -46,19 +43,19 @@ public class MapRequestChunkActor extends BestiaRoutingActor {
 	 */
 	private static final int VIEW_RANGE = 32;
 
-	private final MapService mapService;
+	private final TileDAO tileDao;
 	private final PlayerEntityService pbService;
 	private final CacheManager<Integer, MasterBestiaEntity> playerBestiaCache;
 
 	@Autowired
 	public MapRequestChunkActor(
-			MapService mapService,
+			TileDAO tileDao,
 			PlayerEntityService pbService,
 			@Qualifier(CacheConfiguration.PLAYER_BESTIA_CACHE) CacheManager<Integer, MasterBestiaEntity> playerBestiaCache) {
 		super(Arrays.asList(MapChunkRequestMessage.class));
 
 		this.pbService = Objects.requireNonNull(pbService);
-		this.mapService = Objects.requireNonNull(mapService);
+		this.tileDao = Objects.requireNonNull(tileDao);
 		this.playerBestiaCache = Objects.requireNonNull(playerBestiaCache);
 	}
 

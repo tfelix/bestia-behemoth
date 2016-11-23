@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import net.bestia.model.domain.Tile;
 import net.bestia.model.shape.Point;
 import net.bestia.model.shape.Rect;
 
