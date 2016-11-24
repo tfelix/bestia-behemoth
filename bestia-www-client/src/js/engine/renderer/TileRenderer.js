@@ -53,23 +53,17 @@ export default class TileRenderer {
 	
 		fn = fn || NOOP;
 		
-		let key = this._chunkJobKey(chunks);
+		// We generate the job key which is later used to identify the
+		// loading process.
+		let key = chunks.length + '-' + chunks[0].x + '-' + chunks[0].y;
 		
 		// Does the same key exist? if so abort.
 		if(this._chunkCallbackCache.hasOwnProperty(key)) {
 			this._chunkCallbackCache[key].fn.push(fn);
 		}
 		
-		this._chunkCallbackCache[key] = {fn: [fn]};
+		this._chunkCallbackCache[key] = fn;
 		this._ctx.pubsub.send(new Message.MapChunkRequest(chunks));
-	}
-	
-	/**
-	 * Calculates an unique string key for a given array of chunk ids. This can
-	 * be used as a callback storage.
-	 */
-	_chunkJobKey(chunks) {
-		return chunks.length + '-' + chunks[0].x + chunks[0].y;
 	}
 	
 	/**
@@ -100,7 +94,8 @@ export default class TileRenderer {
 	 * into the database.
 	 */
 	_handleChunkReceived(_, data) {
-		let key = this._chunkJobKey(data.c);
+		// Generate the job key.
+		let key = data.c.length + '-' + data.c[0].p.x + '-' + data.c[0].p.y;
 		
 		// Check the callback.
 		let fn = this._chunkCallbackCache[key];
@@ -118,18 +113,22 @@ export default class TileRenderer {
 			}			
 		}.bind(this)
 		
-		// Iterate over tile inside chunk cords.
-		let tileCords = this._chunkToTile(data.p.x, data.p.y);
-		for(let x = tileCords.x; x < tileCords.x + WorldHelper.CHUNK_SIZE; x++) {
-			for(let y = tileCords.y; y < tileCords.y + WorldHelper.CHUNK_SIZE; y++) {
-				
-				let gid = data.gl[y *  WorldHelper.CHUNK_SIZE + x];
-				
-				// Load all the tilesets associated with the given gids.
-				
-				// TODO This can be handled far more efficently. Maybe group the
-				// ids before the request.
-				this._tilesetManager.getTileset(gid, );
+		// Iterate over all tiles inside the chunk message.
+		for(let c = 0; c < data.c.length; c++) {
+			let chunk = data.c[c];
+			let tileCords = this._chunkToTile(chunk.p.x, chunk.p.y);
+			
+			for(let x = tileCords.x; x < tileCords.x + WorldHelper.CHUNK_SIZE; x++) {
+				for(let y = tileCords.y; y < tileCords.y + WorldHelper.CHUNK_SIZE; y++) {
+					
+					let gid = chunk.gl[y *  WorldHelper.CHUNK_SIZE + x];
+					
+					// Load all the tilesets associated with the given gids.
+					
+					// TODO This can be handled far more efficently. Maybe group the
+					// ids before the request.
+					this._tilesetManager.getTileset(gid, tileCallback);
+				}
 			}
 		}
 	}

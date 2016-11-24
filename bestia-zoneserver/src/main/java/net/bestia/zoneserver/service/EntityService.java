@@ -19,6 +19,7 @@ import com.hazelcast.query.Predicates;
 import net.bestia.model.map.Map;
 import net.bestia.model.shape.Point;
 import net.bestia.model.shape.Rect;
+import net.bestia.zoneserver.entity.BaseEntity;
 import net.bestia.zoneserver.entity.traits.IdEntity;
 import net.bestia.zoneserver.entity.traits.Locatable;
 import net.bestia.zoneserver.entity.traits.Visible;
@@ -53,7 +54,7 @@ public class EntityService {
 	 */
 	public void put(IdEntity entity) {
 		// Check if this id already exists.
-		if(!entities.containsKey(entity.getId())) {
+		if (!entities.containsKey(entity.getId())) {
 			long newId = idCounter.incrementAndGet();
 			entity.setId(newId);
 		}
@@ -68,17 +69,33 @@ public class EntityService {
 		delete(entity.getId());
 	}
 
-	@SuppressWarnings("rawtypes")
 	public Collection<IdEntity> getEntitiesInRange(Rect area) {
+		return getEntitiesInRange(area, null);
+	}
+
+	/**
+	 * Looks for all entities in the given range but with the given class type.
+	 * 
+	 * @param area
+	 * @param filterType
+	 * @return
+	 */
+	@SuppressWarnings("rawtypes")
+	public Collection<IdEntity> getEntitiesInRange(Rect area, Class<? extends BaseEntity> filterType) {
 		// Build the query.
 		final EntryObject e = new PredicateBuilder().getEntryObject();
 
 		final Predicate xPredicate = e.get("position.x").between(area.getX(), area.getX() + area.getWidth());
 		final Predicate yPredicate = e.get("position.y").between(area.getY(), area.getY() + area.getHeight());
 
-		final Predicate rangePredicate = Predicates.and(xPredicate, yPredicate);
-
-		return entities.values(rangePredicate);
+		if(filterType == null) {
+			final Predicate rangePredicate = Predicates.and(xPredicate, yPredicate);
+			return entities.values(rangePredicate);
+		} else {
+			final Predicate rangePredicate = Predicates.and(xPredicate, yPredicate, Predicates.instanceOf(filterType));
+			return entities.values(rangePredicate);
+		}
+		
 	}
 
 	/**

@@ -35,8 +35,6 @@ export default class LoadingState  {
 	preload() {
 		// Announce loading.
 		this._pubsub.publish(Signal.ENGINE_PREPARE_MAPLOAD);
-		
-		this._ctx.init();
 
 		// Prepare the loading screen.
 		this.gfx = this.add.graphics(0, 0);

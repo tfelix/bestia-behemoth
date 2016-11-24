@@ -78,6 +78,13 @@ public class ConnectionService {
 		getClients(addr).forEach(id -> removeClient(id));
 	}
 
+	/**
+	 * Gets the webserver actor path to the client.
+	 * 
+	 * @param accId
+	 *            The account id of the client.
+	 * @return The path to the webserver who holds the connection.
+	 */
 	public ActorPath getPath(long accId) {
 		return clientCache.get(accId);
 	}

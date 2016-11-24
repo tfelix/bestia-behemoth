@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.entity;
 
 import net.bestia.zoneserver.entity.traits.IdEntity;
+import net.bestia.zoneserver.entity.traits.Locatable;
 
 /**
  * The base entity is the most simply form of an entity inside the bestia
@@ -10,7 +11,7 @@ import net.bestia.zoneserver.entity.traits.IdEntity;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public abstract class BaseEntity implements IdEntity {
+public abstract class BaseEntity implements IdEntity, Locatable {
 
 	private static final long serialVersionUID = 1L;
 	private long id;
@@ -38,6 +39,14 @@ public abstract class BaseEntity implements IdEntity {
 	@Override
 	public long getId() {
 		return id;
+	}
+	
+	public long getX() {
+		return getPosition().getX();
+	}
+	
+	public long getY() {
+		return getPosition().getY();
 	}
 
 }

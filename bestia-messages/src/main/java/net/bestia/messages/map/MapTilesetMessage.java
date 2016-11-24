@@ -1,5 +1,7 @@
 package net.bestia.messages.map;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
@@ -28,7 +30,7 @@ public class MapTilesetMessage extends JacksonMessage {
 
 	public MapTilesetMessage(AccountMessage msg, Tileset tileset) {
 		super(msg);
-		this.tileset = tileset;
+		this.tileset = Objects.requireNonNull(tileset);
 	}
 
 	public Tileset getTileset() {

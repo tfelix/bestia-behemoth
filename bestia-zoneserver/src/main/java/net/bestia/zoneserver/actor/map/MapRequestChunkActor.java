@@ -45,18 +45,15 @@ public class MapRequestChunkActor extends BestiaRoutingActor {
 
 	private final TileDAO tileDao;
 	private final PlayerEntityService pbService;
-	private final CacheManager<Integer, MasterBestiaEntity> playerBestiaCache;
 
 	@Autowired
 	public MapRequestChunkActor(
 			TileDAO tileDao,
-			PlayerEntityService pbService,
-			@Qualifier(CacheConfiguration.PLAYER_BESTIA_CACHE) CacheManager<Integer, MasterBestiaEntity> playerBestiaCache) {
+			PlayerEntityService pbService) {
 		super(Arrays.asList(MapChunkRequestMessage.class));
 
 		this.pbService = Objects.requireNonNull(pbService);
 		this.tileDao = Objects.requireNonNull(tileDao);
-		this.playerBestiaCache = Objects.requireNonNull(playerBestiaCache);
 	}
 
 	@Override

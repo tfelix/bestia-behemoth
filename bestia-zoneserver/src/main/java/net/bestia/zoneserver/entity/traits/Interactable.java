@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.entity.traits;
 
+import java.util.Set;
+
 /**
  * Entities which implement this interface have some kind of intractable
  * behaviour. This usually can be different types of interactions. A NPC might
@@ -10,4 +12,11 @@ package net.bestia.zoneserver.entity.traits;
  */
 public interface Interactable {
 
+	/**
+	 * Asks the entity for all types of interactions which are possible with it
+	 * by the certain entity.
+	 * 
+	 * @return
+	 */
+	Set<InteractionType> getInteractions();
 }

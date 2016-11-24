@@ -48,7 +48,8 @@ public class PlayerEntityService {
 	/**
 	 * Returns the active player bestia entity for the given account it.
 	 * 
-	 * @param accId The account id.
+	 * @param accId
+	 *            The account id.
 	 * @return The active {@link PlayerBestiaEntity} of this account or null.
 	 */
 	public PlayerBestiaEntity getActivePlayerEntity(long accId) {
@@ -67,6 +68,12 @@ public class PlayerEntityService {
 		return (PlayerBestiaEntity) entity;
 	}
 
+	/**
+	 * Returns all the active player bestias for a given account.
+	 * 
+	 * @param accId
+	 * @return The set of player bestia entities of a single player.
+	 */
 	public Set<PlayerBestiaEntity> getPlayerBestiaEntities(long accId) {
 
 		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
@@ -78,6 +85,13 @@ public class PlayerEntityService {
 				.collect(Collectors.toSet());
 	}
 
+	/**
+	 * Inserts the given player bestias into the cache. The player bestias must
+	 * not be from the same player account. This will be taken care off.
+	 * 
+	 * @param pb
+	 *            A collection of player bestias.
+	 */
 	public void putPlayerBestiaEntities(Collection<PlayerBestiaEntity> pb) {
 
 		final Map<Long, List<PlayerBestiaEntity>> byAccId = pb.stream()

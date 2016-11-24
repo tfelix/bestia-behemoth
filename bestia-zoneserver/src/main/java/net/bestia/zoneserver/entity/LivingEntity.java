@@ -268,4 +268,10 @@ public class LivingEntity extends BaseEntity implements Locatable, Visible, Atta
 	public Set<EquipmentSlot> getAvailableEquipmentSlots() {
 		return Collections.emptySet();
 	}
+
+	@Override
+	public void collide(Collidable collider) {
+		// TODO Auto-generated method stub
+		
+	}
 }

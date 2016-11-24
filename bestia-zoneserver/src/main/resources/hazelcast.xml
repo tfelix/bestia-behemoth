@@ -122,14 +122,12 @@
 		</merge-policy>
 	</map>
 
-<!--
 	<map name="entities">
 		<indexes>
-			<index ordered="true">position.x</index>
-			<index ordered="true">position.y</index>
+			<index ordered="true">x</index>
+			<index ordered="true">y</index>
 		</indexes>
 	</map>
--->
 
 	<multimap name="default">
 		<backup-count>1</backup-count>

@@ -69,9 +69,10 @@ public class CacheConfiguration {
 	 * 
 	 * @return Cache of the {@link MasterBestiaEntity}s.
 	 */
+	/*
 	@Bean(name = PLAYER_BESTIA_CACHE)
 	public CacheManager<Integer, MasterBestiaEntity> getPlayerBestiaCache() {
 
 		return new CacheManager<>("cache.playerBestia", cache);
-	}
+	}*/
 }
