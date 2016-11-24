@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -17,11 +16,7 @@ import net.bestia.model.map.MapChunk;
 import net.bestia.model.shape.Point;
 import net.bestia.model.shape.Rect;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.configuration.CacheConfiguration;
-import net.bestia.zoneserver.entity.MasterBestiaEntity;
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
-import net.bestia.zoneserver.service.CacheManager;
-import net.bestia.zoneserver.service.MapService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**

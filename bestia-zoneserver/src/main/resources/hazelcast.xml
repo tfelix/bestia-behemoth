@@ -122,13 +122,6 @@
 		</merge-policy>
 	</map>
 
-	<map name="entities">
-		<indexes>
-			<index ordered="true">x</index>
-			<index ordered="true">y</index>
-		</indexes>
-	</map>
-
 	<multimap name="default">
 		<backup-count>1</backup-count>
 		<value-collection-type>SET</value-collection-type>

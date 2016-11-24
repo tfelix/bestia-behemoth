@@ -8,7 +8,6 @@ import com.hazelcast.core.HazelcastInstance;
 
 import akka.actor.ActorPath;
 import net.bestia.zoneserver.entity.LivingEntity;
-import net.bestia.zoneserver.entity.MasterBestiaEntity;
 import net.bestia.zoneserver.service.CacheManager;
 
 /**
