@@ -14,10 +14,10 @@ import com.hazelcast.core.HazelcastInstance;
  *
  */
 @Service
-public class ServerRuntimeConfiguration extends CacheManager<String, Object> {
+public class RuntimeConfigurationService extends CacheManager<String, Object> {
 
 	@Autowired
-	public ServerRuntimeConfiguration(HazelcastInstance cache) {
+	public RuntimeConfigurationService(HazelcastInstance cache) {
 		super("server.config", cache);
 
 	}

@@ -24,7 +24,7 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
 import net.bestia.zoneserver.service.ConnectionService;
 import net.bestia.zoneserver.service.PlayerEntityService;
-import net.bestia.zoneserver.service.ServerRuntimeConfiguration;
+import net.bestia.zoneserver.service.RuntimeConfigurationService;
 
 /**
  * This actor will take {@link LoginRequestMessage} and check the validity of
@@ -47,14 +47,14 @@ public class LoginActor extends BestiaRoutingActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private final AccountDAO accountDao;
-	private final ServerRuntimeConfiguration config;
+	private final RuntimeConfigurationService config;
 	private final PlayerBestiaService playerBestiaService;
 	private final PlayerEntityService entityService;
 	private final ConnectionService connectionService;
 
 	@Autowired
 	public LoginActor(AccountDAO accountDao,
-			ServerRuntimeConfiguration config,
+			RuntimeConfigurationService config,
 			ConnectionService connectionService,
 			PlayerEntityService entityService,
 			PlayerBestiaService pbService) {

@@ -19,7 +19,7 @@ public class StaticConfigurationService {
 	/**
 	 * Directory of the script files.
 	 */
-	@Value("${scriptDir}")
+	@Value("${server.scriptDir}")
 	private String scriptDir;
 
 	/**
@@ -30,5 +30,15 @@ public class StaticConfigurationService {
 	 */
 	public String getServerName() {
 		return serverName;
+	}
+
+	/**
+	 * Returns the script directories for the custom item, mob, entity scripts
+	 * etc.
+	 * 
+	 * @return The path to the scripts.
+	 */
+	public String getScriptDir() {
+		return scriptDir;
 	}
 }
