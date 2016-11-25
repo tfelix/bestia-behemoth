@@ -5,7 +5,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.JacksonMessage;
+import net.bestia.messages.JasonMessage;
 import net.bestia.model.domain.Tileset;
 
 /**
@@ -16,7 +16,7 @@ import net.bestia.model.domain.Tileset;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MapTilesetMessage extends JacksonMessage {
+public class MapTilesetMessage extends JasonMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "map.tileset";

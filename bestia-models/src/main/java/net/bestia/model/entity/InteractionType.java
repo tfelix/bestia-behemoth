@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity.traits;
+package net.bestia.model.entity;
 
 public enum InteractionType {
 

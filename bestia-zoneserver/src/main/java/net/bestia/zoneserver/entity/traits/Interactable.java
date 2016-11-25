@@ -2,6 +2,8 @@ package net.bestia.zoneserver.entity.traits;
 
 import java.util.Set;
 
+import net.bestia.model.entity.InteractionType;
+
 /**
  * Entities which implement this interface have some kind of intractable
  * behaviour. This usually can be different types of interactions. A NPC might

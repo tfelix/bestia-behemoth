@@ -3,7 +3,6 @@ package net.bestia.messages;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * These messages carry additional account information (the account id). Usually

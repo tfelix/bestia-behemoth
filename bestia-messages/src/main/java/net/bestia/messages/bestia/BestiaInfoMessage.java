@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.JacksonMessage;
+import net.bestia.messages.JasonMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 
@@ -18,7 +18,7 @@ import net.bestia.model.domain.StatusPoints;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class BestiaInfoMessage extends JacksonMessage {
+public class BestiaInfoMessage extends JasonMessage {
 
 	private static final long serialVersionUID = 1L;
 

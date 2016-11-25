@@ -6,7 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JacksonMessage;
+import net.bestia.messages.JasonMessage;
 import net.bestia.messages.ui.TranslationRequestMessage.TranslationItem;
 
 /**
@@ -17,7 +17,7 @@ import net.bestia.messages.ui.TranslationRequestMessage.TranslationItem;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class TranslationResponseMessage extends JacksonMessage {
+public class TranslationResponseMessage extends JasonMessage {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;

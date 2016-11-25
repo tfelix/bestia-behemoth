@@ -2,7 +2,7 @@ package net.bestia.messages.bestia;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JacksonMessage;
+import net.bestia.messages.JasonMessage;
 
 /**
  * Client sends this message if it wants to switch to another active bestia.
@@ -12,7 +12,7 @@ import net.bestia.messages.JacksonMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class BestiaActivateMessage extends JacksonMessage {
+public class BestiaActivateMessage extends JasonMessage {
 
 	private static final long serialVersionUID = 1L;
 	public final static String MESSAGE_ID = "bestia.activate";

@@ -7,7 +7,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.JacksonMessage;
+import net.bestia.messages.JasonMessage;
 import net.bestia.model.map.MapChunk;
 
 /**
@@ -17,7 +17,7 @@ import net.bestia.model.map.MapChunk;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MapChunkMessage extends JacksonMessage {
+public class MapChunkMessage extends JasonMessage {
 
 	private static final long serialVersionUID = 1L;
 

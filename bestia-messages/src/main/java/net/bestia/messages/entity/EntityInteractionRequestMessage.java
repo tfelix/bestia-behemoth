@@ -1,24 +1,42 @@
 package net.bestia.messages.entity;
 
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.JasonMessage;
 
 /**
- * By sending this message to the server the client indicates that it want to
- * interact with the given entity. The server is responsible for looking up the
- * entity and invoking the given handler for handling the request. Additional
- * data might get send by this request.
+ * By sending this message the client wants to get to know how he is able to
+ * interact with the given entity. The server will respond with a list of
+ * possible interactions.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class EntityInteractionRequestMessage extends AccountMessage implements MessageId {
-	
+public class EntityInteractionRequestMessage extends JasonMessage {
+
 	private static final long serialVersionUID = 1L;
-	
+
 	public static final String MESSAGE_ID = "entity.interactreq";
 	
+	@JsonProperty("eid")
+	private final long entityId;
 	
+	public EntityInteractionRequestMessage() {
+		entityId = 0;
+	}
+	
+	public EntityInteractionRequestMessage(long eid) {
+		this.entityId = eid;
+	}
+	
+	public long getEntityId() {
+		return entityId;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("EntityInteractionReqMsg[eid: %d]", getEntityId());
+	}
 
 	@Override
 	public String getMessageId() {

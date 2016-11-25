@@ -20,7 +20,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.JacksonMessage;
+import net.bestia.messages.JasonMessage;
 import net.bestia.messages.internal.ClientConnectionStatusMessage;
 import net.bestia.messages.internal.ClientConnectionStatusMessage.ConnectionState;
 import net.bestia.messages.login.LoginAuthMessage;
@@ -132,7 +132,7 @@ public class MessageHandlerActor extends UntypedActor {
 		} else {
 			try {
 				// Turn the text message into a bestia message.
-				final JacksonMessage msg = mapper.readValue(payload, JacksonMessage.class);
+				final JasonMessage msg = mapper.readValue(payload, JasonMessage.class);
 
 				// Regenrate the account id from this session.
 				msg.setAccountId(accountId);
