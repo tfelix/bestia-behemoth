@@ -36,7 +36,7 @@ public class Bestia implements Serializable {
 	@Column(name = "bestia_db_name", unique = true, nullable = false, length = 100)
 	@JsonProperty("bdbn")
 	private String databaseName;
-	
+
 	@Column(name = "default_name", nullable = false, length = 100)
 	@JsonIgnore
 	private String defaultName;
@@ -53,6 +53,9 @@ public class Bestia implements Serializable {
 
 	@JsonIgnore
 	private int expGained;
+
+	@JsonProperty("t")
+	private BestiaType type;
 
 	@JsonIgnore
 	private int level;
@@ -76,13 +79,13 @@ public class Bestia implements Serializable {
 	 */
 	@Embedded
 	@JsonIgnore
-	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "evHp") ),
-			@AttributeOverride(name = "mana", column = @Column(name = "evMana") ),
-			@AttributeOverride(name = "atk", column = @Column(name = "evAtk") ),
-			@AttributeOverride(name = "def", column = @Column(name = "evDef") ),
-			@AttributeOverride(name = "spAtk", column = @Column(name = "evSpAtk") ),
-			@AttributeOverride(name = "spDef", column = @Column(name = "evSpDef") ),
-			@AttributeOverride(name = "spd", column = @Column(name = "evSpd") ) })
+	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "evHp")),
+			@AttributeOverride(name = "mana", column = @Column(name = "evMana")),
+			@AttributeOverride(name = "atk", column = @Column(name = "evAtk")),
+			@AttributeOverride(name = "def", column = @Column(name = "evDef")),
+			@AttributeOverride(name = "spAtk", column = @Column(name = "evSpAtk")),
+			@AttributeOverride(name = "spDef", column = @Column(name = "evSpDef")),
+			@AttributeOverride(name = "spd", column = @Column(name = "evSpd")) })
 	private BaseValues effortValues;
 
 	@JsonIgnore
@@ -147,6 +150,15 @@ public class Bestia implements Serializable {
 		effortValues.setSpd(evSpd);
 	}
 
+	/**
+	 * Returns the type of the bestia.
+	 * 
+	 * @return The type of the bestia.
+	 */
+	public BestiaType getType() {
+		return type;
+	}
+
 	public BaseValues getBaseValues() {
 		return baseValues;
 	}
@@ -190,11 +202,11 @@ public class Bestia implements Serializable {
 	public boolean isBoss() {
 		return isBoss;
 	}
-	
+
 	public String getDefaultName() {
 		return defaultName;
 	}
-	
+
 	public void setDefaultName(String defaultName) {
 		this.defaultName = defaultName;
 	}
@@ -234,7 +246,7 @@ public class Bestia implements Serializable {
 		}
 		return effortValues;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("Bestia[dbName: %s, id: %d, level: %d]", databaseName, id, level);
