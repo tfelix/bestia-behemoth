@@ -3,8 +3,6 @@ package net.bestia.messages;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 
-import net.bestia.messages.jackson.MessageTypeIdResolver;
-
 /**
  * This base class is meant to provide custom serializing abilities to massages
  * for the clients. All messages meant to be send to the client via jackson

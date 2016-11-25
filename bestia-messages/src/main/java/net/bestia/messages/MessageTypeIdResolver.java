@@ -1,4 +1,4 @@
-package net.bestia.messages.jackson;
+package net.bestia.messages;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -15,8 +15,6 @@ import com.fasterxml.jackson.databind.DatabindContext;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-
-import net.bestia.messages.MessageId;
 
 /**
  * Custom TypeId Resolver for message objects. Upon start it looks for all
