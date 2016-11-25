@@ -3,7 +3,7 @@ package net.bestia.model.entity;
 public enum InteractionType {
 
 	/**
-	 * Simple mob on the map. The player can interact/attack it.
+	 * The player can possibly attack this entity.
 	 */
 	ATTACKABLE,
 

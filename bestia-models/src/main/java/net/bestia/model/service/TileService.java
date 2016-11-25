@@ -15,12 +15,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class TileService {
 
-	private SessionFactory sessionFactory;
-
-	@Autowired
-	public void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
+	
 
 	/**
 	 * This will delete the whole map on the server.
@@ -30,10 +25,10 @@ public class TileService {
 	 * </p>
 	 */
 	public void deleteMap() {
-		final Session session = sessionFactory.getCurrentSession();
+		/*final Session session = sessionFactory.getCurrentSession();
 		final String stringQuery = "DELETE FROM Tile";
 		Query query = session.createQuery(stringQuery);
-		query.executeUpdate();
+		query.executeUpdate();*/
 
 	}
 

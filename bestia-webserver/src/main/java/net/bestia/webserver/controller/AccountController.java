@@ -6,12 +6,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController("account/")
 public class AccountController {
-	
-	//@RequestParam(value="name", defaultValue="World") String name
 
 	@RequestMapping("login")
-    public String login() {
-		// TODO Login noch implementieren.
-        return "Hello World";
-    }
+	public String login(@RequestParam(value = "accName") String account,
+			@RequestParam(value = "password") String password) {
+
+		return "Hello World";
+	}
 }
