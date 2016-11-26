@@ -18,6 +18,7 @@ public class PlayerBestiaEntity extends LivingEntity {
 
 	private final long accountId;
 	private final PlayerBestia playerBestia;
+	private boolean isActive;
 
 	public PlayerBestiaEntity(PlayerBestia pb) {
 		super(pb.getBaseValues(), pb.getIndividualValue(), pb.getEffortValues(), pb.getOrigin().getDatabaseName());
@@ -32,6 +33,14 @@ public class PlayerBestiaEntity extends LivingEntity {
 		// Modify the player bestia so it takes up less memory when inside the
 		// cache.
 		this.playerBestia.setOwner(null);
+	}
+	
+	public boolean isActive() {
+		return isActive;
+	}
+	
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
 	}
 
 	/**
@@ -105,7 +114,7 @@ public class PlayerBestiaEntity extends LivingEntity {
 			return false;
 		}
 
-		return getStatusPoints().subtractMana(atk.getManaCost());
+		return getStatusPoints().addMana(-atk.getManaCost());
 	}
 
 	/**

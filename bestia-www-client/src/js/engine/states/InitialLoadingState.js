@@ -30,7 +30,6 @@ export default class InitializeState {
 		this.game.load.image('action_options_background', url.getImageUrl('action_options_back'));
 		
 		// TODO hier auch schon einen hinweis/splash anzeigen.
-		this.game.load.spritesheet('tilesheet', 'http://localhost/assets/tileset/mountain_landscape_23.png', 32, 32);
 		this.game.load.atlas('poring', 
 				'http://localhost/assets/sprite/mob/poring/poring.png', 
 				'http://localhost/assets/sprite/mob/poring/poring.json',
@@ -44,10 +43,10 @@ export default class InitializeState {
 		this.game.load.image('default_item', url.getItemIconUrl('_default'));
 
 		// #### Filters
-		this.game.load.script('filter_blur_x', url.getFilterUrl('BlurX'));
-		this.game.load.script('filter_blur_y', url.getFilterUrl('BlurY'));
+		//this.game.load.shader('blur', 'http://localhost/assets/shader/blur.frag');
+		//this.game.load.shader('filter_blur_y', url.getFilterUrl('BlurY'));
 
-		this.game.load.spritesheet('rain', url.getSpriteUrl('rain'), 17, 17);
+		//this.game.load.spritesheet('rain', url.getSpriteUrl('rain'), 17, 17);
 
 		// Load the static data from the manager.
 		//this.ctx.indicatorManager.load();

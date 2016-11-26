@@ -24,12 +24,6 @@ export default class GameState {
 	
 	preload() {
 		
-		this.game.load.image('tilemap', 'http://localhost/assets/tileset/mountain_landscape_23.png');
-		
-		let chunks = this._ctx.renderer.tile.getVisibleChunks();
-		chunks.forEach(function(chunk){
-			this._ctx.renderer.tile.loadChunks(chunk);
-		}.bind(this));
 	}
 	
 	create() {
@@ -58,13 +52,18 @@ export default class GameState {
 		// this.ctx.entityUpdater.releaseHold();
 		
 		// Activate move handler.
-		this.ctx.indicatorManager.showDefault();
+		//this.ctx.indicatorManager.showDefault();
 		
 		// ========= TESTING =========
 		this.game.world.setBounds(0, 0, 800, 600);
 		
 		
 		this.sprite = this.game.add.sprite(400, 300, 'poring');
+		
+		//var blur = this.game.add.filter('Blur', null, this.game.cache.getShader('blur'));
+		//var blur = new Phaser.Filter(this.game, null, this.game.cache.getShader('blur'));
+		//this.sprite.filters = [blur];
+		
 		this.cursor = this.game.input.keyboard.createCursorKeys();
 		this.sprite.anchor.setTo(0,0);
 		this.game.physics.startSystem(Phaser.Physics.ARCADE);

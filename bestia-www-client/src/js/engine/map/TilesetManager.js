@@ -42,6 +42,7 @@ export default class TilesetManager {
 		this._tilestes = [];
 		this._callbacks = {};
 		
+		// map.tileset
 		pubsub.subscribe(MID.MAP_TILESET, this._handleTilesetReceived.bind(this));
 	}
 	
@@ -51,6 +52,8 @@ export default class TilesetManager {
 	_handleTilesetReceived(_, data) {
 		
 		let key = TILE_KEY_PREFIX+data.ts.name;
+		// Save the generated key so we can use it later.
+		data.ts.key = key;
 		
 		// Do we have the image already saved?
 		if(this._loader.has(key, 'image')) {
@@ -67,7 +70,7 @@ export default class TilesetManager {
 	}
 	
 	/**
-	 * Callback if the tileset was completly loaded.
+	 * Callback if the tileset image and data was completly loaded.
 	 * 
 	 * @param ts -
 	 *            Contains the data description of a tileset.
@@ -118,11 +121,19 @@ export default class TilesetManager {
 	 *            gids - The gid of the tiles to check inside this cache.
 	 */
 	hasTileset(gid) {
-		this._tilestes.forEach(function(ts) {
-			if(gid <= ts.maxgid && gid >= ts.mingid) {
+		for(let i = 0; i < this._tilestes.length; i++) {
+			if(gid <= this._tilestes[i].maxgid && gid >= this._tilestes[i].mingid) {
 				return true;
 			}
-		});
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns all cached tilesets.
+	 */
+	getCachedTilesets() {
+		return this._tilestes;
 	}
 	
 	/**
@@ -140,12 +151,12 @@ export default class TilesetManager {
 		}
 		
 		// See if we can directly deliver or if we must ask the server first.
-		this._tilestes.forEach(function(ts) {
-			if(gid <= ts.maxgid && gid >= ts.mingid) {
-				fn(ts, this);
+		for(let i = 0; i < this._tilestes.length; i++) {
+			if(gid <= this._tilestes[i].maxgid && gid >= this._tilestes[i].mingid) {
+				fn(this._tilestes[i], this);
 				return;
 			}
-		});
+		}
 		
 		this._requestTileset(gid, fn);
 	}

@@ -15,6 +15,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MultiMap;
 
+import net.bestia.model.shape.Rect;
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
 import net.bestia.zoneserver.entity.traits.IdEntity;
 
@@ -41,8 +42,24 @@ public class PlayerEntityService {
 		this.entityService = Objects.requireNonNull(entityService);
 	}
 
+	/**
+	 * Sets the entity id as the active player bestia for the given account id.
+	 * 
+	 * @param accId
+	 * @param activeEntityId
+	 */
 	public void setActiveEntity(long accId, long activeEntityId) {
+		// Remove the active flag from the last active player bestia.
+		long lastActive = activeEntities.get(accId);
 		activeEntities.put(accId, activeEntityId);
+
+		PlayerBestiaEntity pbe = (PlayerBestiaEntity) entityService.getEntity(lastActive);
+		pbe.setActive(false);
+		entityService.put(pbe);
+
+		pbe = (PlayerBestiaEntity) entityService.getEntity(activeEntityId);
+		pbe.setActive(true);
+		entityService.put(pbe);
 	}
 
 	/**
@@ -66,6 +83,24 @@ public class PlayerEntityService {
 		}
 
 		return (PlayerBestiaEntity) entity;
+	}
+
+	/**
+	 * Returns a list with account ids of active player accounts in range.
+	 * 
+	 * @param range
+	 * @return
+	 */
+	public List<Long> getActiveAccountIdsInRange(Rect range) {
+		List<PlayerBestiaEntity> pbe = entityService.getEntitiesInRange(range, PlayerBestiaEntity.class)
+				.stream()
+				.map(x -> (PlayerBestiaEntity) x)
+				.collect(Collectors.toList());
+
+		return pbe.stream()
+				.filter(x -> x.isActive())
+				.map(x -> x.getAccountId())
+				.collect(Collectors.toList());
 	}
 
 	/**

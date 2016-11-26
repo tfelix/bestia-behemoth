@@ -16,10 +16,12 @@ import net.bestia.model.domain.Item;
 import net.bestia.model.domain.Position;
 import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.map.Map;
 import net.bestia.model.misc.Sprite;
 import net.bestia.model.misc.SpriteType;
 import net.bestia.model.shape.Collision;
 import net.bestia.model.shape.Point;
+import net.bestia.model.shape.Rect;
 import net.bestia.zoneserver.entity.traits.Attackable;
 import net.bestia.zoneserver.entity.traits.Collidable;
 import net.bestia.zoneserver.entity.traits.Equipable;
@@ -158,7 +160,7 @@ public class LivingEntity extends BaseEntity implements Locatable, Visible, Atta
 		baseStatusPoints.setSpDef(spdef);
 		baseStatusPoints.setSpd(spd);
 	}
-	
+
 	protected void calculateModifiedStatusPoints() {
 		calculateStatusPoints();
 		modifiedStatusPoints = baseStatusPoints;
@@ -197,7 +199,7 @@ public class LivingEntity extends BaseEntity implements Locatable, Visible, Atta
 	@Override
 	public StatusPoints getStatusPoints() {
 		// Dereferred calculate status points upon first request.
-		if(modifiedStatusPoints == null) {
+		if (modifiedStatusPoints == null) {
 			calculateModifiedStatusPoints();
 		}
 		return modifiedStatusPoints;
@@ -206,16 +208,16 @@ public class LivingEntity extends BaseEntity implements Locatable, Visible, Atta
 	@Override
 	public StatusPoints getOriginalStatusPoints() {
 		// Dereferred calculate status points upon first request.
-		if(baseStatusPoints == null) {
+		if (baseStatusPoints == null) {
 			calculateStatusPoints();
 		}
-		
+
 		return baseStatusPoints;
 	}
 
 	@Override
 	public void addStatusEffect(StatusEffect effect) {
-		if(effect == null) {
+		if (effect == null) {
 			return;
 		}
 		statusEffects.add(effect);
@@ -239,6 +241,15 @@ public class LivingEntity extends BaseEntity implements Locatable, Visible, Atta
 	public void kill() {
 		// TODO Auto-generated method stub
 
+	}
+
+	public Rect getSightRect() {
+		final Point pos = getPosition();
+		final Rect sightRect = new Rect(pos.getX() - Map.SIGHT_RANGE,
+				pos.getY() - Map.SIGHT_RANGE,
+				pos.getX() + Map.SIGHT_RANGE,
+				pos.getY() + Map.SIGHT_RANGE);
+		return sightRect;
 	}
 
 	@Override
@@ -272,6 +283,6 @@ public class LivingEntity extends BaseEntity implements Locatable, Visible, Atta
 	@Override
 	public void collide(Collidable collider) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

@@ -1,10 +1,8 @@
 package net.bestia.zoneserver.actor.chat;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -17,9 +15,7 @@ import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
-import net.bestia.zoneserver.entity.traits.IdEntity;
 import net.bestia.zoneserver.service.AccountZoneService;
-import net.bestia.zoneserver.service.EntityService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
@@ -38,18 +34,15 @@ public class ChatActor extends BestiaRoutingActor {
 
 	private final AccountZoneService accService;
 	private final PlayerEntityService playerEntityService;
-	private final EntityService entityService;
 	
 	private final ActorRef chatCommandActor;
 
 	@Autowired
-	public ChatActor(AccountZoneService accService, PlayerEntityService playerEntityService,
-			EntityService entityService) {
+	public ChatActor(AccountZoneService accService, PlayerEntityService playerEntityService) {
 		super(Arrays.asList(ChatMessage.class));
 		
 		this.accService = Objects.requireNonNull(accService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
-		this.entityService = Objects.requireNonNull(entityService);
 		
 		this.chatCommandActor = createActor(ChatCommandActor.class);
 	}
@@ -89,15 +82,9 @@ public class ChatActor extends BestiaRoutingActor {
 			return;
 		}
 
-		final Collection<IdEntity> entities = entityService.getEntitiesInSight(pbe);
+		final List<Long> receiverAccIds = playerEntityService.getActiveAccountIdsInRange(pbe.getSightRect());
 		
-		final List<PlayerBestiaEntity> sightPbe = entities.stream()
-				.filter(x -> (x instanceof PlayerBestiaEntity))
-				.map(x -> (PlayerBestiaEntity) x)
-				.collect(Collectors.toList());
-
-		sightPbe.parallelStream()
-				.map(x -> x.getAccountId())
+		receiverAccIds.parallelStream()
 				.map(receiverAccId -> ChatMessage.getEchoMessage(receiverAccId,
 						chatMsg))
 				.forEach(msg -> sendClient(msg));

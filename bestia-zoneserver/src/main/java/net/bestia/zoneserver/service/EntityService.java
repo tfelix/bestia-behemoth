@@ -132,22 +132,4 @@ public class EntityService {
 	public java.util.Map<Long, IdEntity> getAll(Set<Long> ids) {
 		return entities.getAll(ids);
 	}
-
-	/**
-	 * Finds all other entities which are in sight range of the given entity id.
-	 * 
-	 * @param entity
-	 *            The entity to get all entities in sight range from.
-	 * @return All {@link IdEntity} which are in sight range of the given
-	 *         entity.
-	 */
-	public Collection<IdEntity> getEntitiesInSight(Locatable entity) {
-		final Point pos = entity.getPosition();
-		final Rect sightRect = new Rect(pos.getX() - Map.SIGHT_RANGE,
-				pos.getY() - Map.SIGHT_RANGE,
-				pos.getX() + Map.SIGHT_RANGE,
-				pos.getY() + Map.SIGHT_RANGE);
-		return getEntitiesInRange(sightRect);
-	}
-
 }

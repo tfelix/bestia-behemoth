@@ -99,38 +99,41 @@ export default class TileRenderer {
 		
 		// Check the callback.
 		let fn = this._chunkCallbackCache[key];
-		let tilesToLoad = WorldHelper.CHUNK_SIZE * WorldHelper.CHUNK_SIZE;
+		delete this._chunkCallbackCache[key];
 		
+		// Iterate over all tiles inside the chunk message and group the tile
+		// ids.
+		let tileGids = new Set();
+		for(let c = 0; c < data.c.length; c++) {
+			let chunk = data.c[c];
+			
+			// let tileCords = this._chunkToTile(chunk.p.x, chunk.p.y);
+			let chunkKey = this._chunkKey(chunk.p.x, chunk.p.y);
+			this._chunkCache[chunkKey] = chunk;
+			
+			for(let x = 0; x < WorldHelper.CHUNK_SIZE; x++) {
+				for(let y = 0; y < WorldHelper.CHUNK_SIZE; y++) {
+					
+					let gid = chunk.gl[y *  WorldHelper.CHUNK_SIZE + x];
+					tileGids.add(gid);
+					
+				}
+			}
+		}
+		
+		let tilesToLoad = tileGids.size;
 		let tileCallback = function(){
 			
 			tilesToLoad--;
 			
 			if(tilesToLoad === 0) {	
-				
-				delete this._chunkCallbackCache[key];
-				this._chunkCache[key] = data;
 				fn();
 			}			
 		}.bind(this)
 		
-		// Iterate over all tiles inside the chunk message.
-		for(let c = 0; c < data.c.length; c++) {
-			let chunk = data.c[c];
-			let tileCords = this._chunkToTile(chunk.p.x, chunk.p.y);
-			
-			for(let x = tileCords.x; x < tileCords.x + WorldHelper.CHUNK_SIZE; x++) {
-				for(let y = tileCords.y; y < tileCords.y + WorldHelper.CHUNK_SIZE; y++) {
-					
-					let gid = chunk.gl[y *  WorldHelper.CHUNK_SIZE + x];
-					
-					// Load all the tilesets associated with the given gids.
-					
-					// TODO This can be handled far more efficently. Maybe group the
-					// ids before the request.
-					this._tilesetManager.getTileset(gid, tileCallback);
-				}
-			}
-		}
+		tileGids.forEach(function(gid) {
+			this._tilesetManager.getTileset(gid, tileCallback);
+		}, this);
 	}
 	
 	/**
@@ -198,8 +201,14 @@ export default class TileRenderer {
 	clearDraw() {
 		// Prepare the new tilemap.
 		this._map = this._game.add.tilemap();
-		this._map.addTilesetImage('tilemap');
-		this._layer = this._map.create('ground', 90, 60, 32, 32);
+		
+		// We must create tileset images for every tileset image loaded.
+		this._tilesetManager.getCachedTilesets().forEach(function(ts){
+			this._map.addTilesetImage(ts.key, null, 32, 32, 0, 0, ts.mingid);
+		}, this);
+		
+		this._layer = this._map.create('ground', 90, 90, 32, 32);
+		
 		this._layer.resizeWorld();
 		this._layer.sendToBack();
 		
