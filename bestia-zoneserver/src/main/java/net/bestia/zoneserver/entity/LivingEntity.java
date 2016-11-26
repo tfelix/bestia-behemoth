@@ -16,6 +16,7 @@ import net.bestia.model.domain.Item;
 import net.bestia.model.domain.Position;
 import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.entity.InteractionType;
 import net.bestia.model.map.Map;
 import net.bestia.model.misc.Sprite;
 import net.bestia.model.misc.SpriteType;
@@ -25,6 +26,7 @@ import net.bestia.model.shape.Rect;
 import net.bestia.zoneserver.entity.traits.Attackable;
 import net.bestia.zoneserver.entity.traits.Collidable;
 import net.bestia.zoneserver.entity.traits.Equipable;
+import net.bestia.zoneserver.entity.traits.Interactable;
 import net.bestia.zoneserver.entity.traits.Locatable;
 import net.bestia.zoneserver.entity.traits.Visible;
 
@@ -43,7 +45,8 @@ import net.bestia.zoneserver.entity.traits.Visible;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class LivingEntity extends BaseEntity implements Locatable, Visible, Attackable, Collidable, Equipable {
+public class LivingEntity extends BaseEntity
+		implements Locatable, Visible, Attackable, Collidable, Equipable, Interactable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -284,5 +287,10 @@ public class LivingEntity extends BaseEntity implements Locatable, Visible, Atta
 	public void collide(Collidable collider) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public Set<InteractionType> getInteractions(Interactable interacter) {
+		return Collections.emptySet();
 	}
 }

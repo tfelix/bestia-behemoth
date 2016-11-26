@@ -16,9 +16,11 @@ public interface Interactable {
 
 	/**
 	 * Asks the entity for all types of interactions which are possible with it
-	 * by the certain entity.
+	 * by the certain entity. It might be possible that the interaction
+	 * possibilities are dependent upon the invoker. Usually the questioning
+	 * part is also an {@link Interactable} unit.
 	 * 
-	 * @return
+	 * @return A set of possible interactions.
 	 */
-	Set<InteractionType> getInteractions();
+	Set<InteractionType> getInteractions(Interactable interacter);
 }

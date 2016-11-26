@@ -29,8 +29,8 @@ export default class GameState {
 	
 	create() {
 		/**
-		 * Phaser whipes the scene graph when states change. Thus one need to init
-		 * the groups when the final (game_state) is started.
+		 * Phaser whipes the scene graph when states change. Thus one need to
+		 * init the groups when the final (game_state) is started.
 		 */
 		// Groups can be created.
 		this._ctx.groups = {};
@@ -41,9 +41,6 @@ export default class GameState {
 		this._ctx.groups.overlay = this.game.add.group(undefined, 'overlay');
 		this._ctx.groups.gui = this.game.add.group(undefined, 'gui');
 
-		
-		// ==== PLUGINS ====
-		var astar = this.game.plugins.add(Phaser.Plugin.AStar);
 
 		// @ifdef DEVELOPMENT
 		this.game.plugins.add(Phaser.Plugin.Debug);
@@ -54,10 +51,6 @@ export default class GameState {
 		// Trigger fx create effects.
 		this._ctx.fxManager.create();
 		this._ctx.indicatorManager.create();
-
-		// Load the tilemap and display it.
-		// this.ctx.zone = new World(this.game, astar, this.ctx.groups);
-		// this.ctx.zone.loadMap(this.ctx.playerBestia.location());
 		
 		// Activate move handler.
 		this._ctx.indicatorManager.showDefault();
@@ -78,7 +71,7 @@ export default class GameState {
 		this._ctx.renderer.tile.playerSprite = this.sprite;
 		this._ctx.renderer.tile.clearDraw();
 		
-		//this.ctx.entityUpdater.releaseHold();
+		// this.ctx.entityUpdater.releaseHold();
 		this._ctx.pubsub.publish(Signal.ENGINE_GAME_STARTED);
 	}
 
@@ -91,10 +84,10 @@ export default class GameState {
 		this._ctx.fxManager.update();
 
 		// Update the animation frame groups of all multi sprite entities.
-		/*
-		 * var entities = this.ctx.entityCache.getAllEntities();
-		 * entities.forEach(function(entity) { entity.tickAnimation(); });
-		 */
+		let entities = this._ctx.entityCache.getAllEntities();
+		entities.forEach(function(entity) { 
+			entity.tickAnimation(); 
+		});
 		
 		// Group sort the sprite layer.
 		this._ctx.groups.sprites.sort('y', Phaser.Group.SORT_ASCENDING);

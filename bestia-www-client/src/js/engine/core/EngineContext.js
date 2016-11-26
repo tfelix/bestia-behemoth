@@ -67,11 +67,6 @@ export default class EngineContext {
 		this.indicatorManager = null;
 
 		/**
-		 * Bestia Zone Data.
-		 */
-		this.zone = null;
-
-		/**
 		 * Url Helper.
 		 * 
 		 * @property {Bestia.UrlHelper}

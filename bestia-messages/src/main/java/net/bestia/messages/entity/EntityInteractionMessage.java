@@ -34,6 +34,15 @@ public class EntityInteractionMessage extends JasonMessage {
 	public EntityInteractionMessage() {
 		entityId = 0;
 	}
+	
+	public EntityInteractionMessage(AccountMessage accMsg, long eid, InteractionType interaction) {
+		super(accMsg);
+		
+		Objects.requireNonNull(interactions);
+		
+		this.entityId = eid;
+		this.interactions.add(interaction);
+	}
 
 	public EntityInteractionMessage(AccountMessage accMsg, long eid, Collection<InteractionType> interactions) {
 		super(accMsg);

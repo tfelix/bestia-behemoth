@@ -10,6 +10,6 @@ public enum BestiaType {
 	HUMANOID,
 	DEMI_HUMAN,
 	ANIMAL,
-	
+	FORMLESS
 
 }
