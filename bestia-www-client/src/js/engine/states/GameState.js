@@ -27,6 +27,19 @@ export default class GameState {
 	}
 	
 	create() {
+		/**
+		 * Phaser whipes the scene graph when states change. Thus one need to init
+		 * the groups when the final (game_state) is started.
+		 */
+		// Groups can be created.
+		this._ctx.groups = {};
+		this._ctx.groups.mapGround = this.game.add.group(undefined, 'map_ground');
+		this._ctx.groups.sprites = this.game.add.group(undefined, 'sprites');
+		this._ctx.groups.mapOverlay = this.game.add.group(undefined, 'map_overlay');
+		this._ctx.groups.effects = this.game.add.group(undefined, 'fx');
+		this._ctx.groups.overlay = this.game.add.group(undefined, 'overlay');
+		this._ctx.groups.gui = this.game.add.group(undefined, 'gui');
+
 		
 		// ==== PLUGINS ====
 		//var astar = this.game.plugins.add(Phaser.Plugin.AStar);
@@ -37,19 +50,13 @@ export default class GameState {
 		// @endif
 		// ==== /PLUGINS ====
 		
-		// this._ctx.createGroups();
-		
 		// Trigger fx create effects.
-		// this._ctx.fxManager.create();
+		this._ctx.fxManager.create();
 		this._ctx.indicatorManager.create();
 
 		// Load the tilemap and display it.
 		// this.ctx.zone = new World(this.game, astar, this.ctx.groups);
 		// this.ctx.zone.loadMap(this.ctx.playerBestia.location());
-
-
-		// this.ctx.pubsub.publish(Signal.ENGINE_GAME_STARTED);
-		// this.ctx.entityUpdater.releaseHold();
 		
 		// Activate move handler.
 		this._ctx.indicatorManager.showDefault();
@@ -59,10 +66,7 @@ export default class GameState {
 		
 		
 		this.sprite = this.game.add.sprite(400, 300, 'poring');
-		
-		//var blur = this.game.add.filter('Blur', null, this.game.cache.getShader('blur'));
-		//var blur = new Phaser.Filter(this.game, null, this.game.cache.getShader('blur'));
-		//this.sprite.filters = [blur];
+
 		
 		this.cursor = this.game.input.keyboard.createCursorKeys();
 		this.sprite.anchor.setTo(0,0);
@@ -72,6 +76,9 @@ export default class GameState {
 
 		this._ctx.renderer.tile.playerSprite = this.sprite;
 		this._ctx.renderer.tile.clearDraw();
+		
+		//this.ctx.entityUpdater.releaseHold();
+		this._ctx.pubsub.publish(Signal.ENGINE_GAME_STARTED);
 	}
 
 	update() {
@@ -80,7 +87,7 @@ export default class GameState {
 
 		
 		// Trigger the update effects.
-		// this.ctx.fxManager.update();
+		this._ctx.fxManager.update();
 
 		// Update the animation frame groups of all multi sprite entities.
 		/*
@@ -89,12 +96,14 @@ export default class GameState {
 		 */
 		
 		// Group sort the sprite layer.
-		// this.ctx.groups.sprites.sort('y', Phaser.Group.SORT_ASCENDING);
+		this._ctx.groups.sprites.sort('y', Phaser.Group.SORT_ASCENDING);
 	}
 	
 	render() {
+		// @ifdef DEVELOPMENT
 		this.game.debug.cameraInfo(this.game.camera, 32, 32);
 		this.game.debug.spriteCoords(this.sprite, 32, 500);
+		// @endif
 	}
 
 	shutdown() {
@@ -105,7 +114,8 @@ export default class GameState {
 		// benötigt wird.
 		// this.pubsub.unsubscribe(Bestia.Signal.ENGINE_CAST_ITEM,
 		// this._onCastItem.bind(this));
-
+		
+		this._ctx.clear();
 	}
 
 }

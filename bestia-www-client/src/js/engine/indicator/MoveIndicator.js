@@ -64,6 +64,7 @@ export default class MoveIndicator extends Indicator {
 	 */
 	create() {
 		this._marker = this._ctx.game.make.sprite(0, 0, 'cursor');
+		this._marker.name = 'cursor';
 		this._marker.animations.add('blink');
 		this._marker.animations.play('blink', 1, true);
 		

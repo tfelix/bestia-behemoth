@@ -54,7 +54,13 @@ export default class EngineContext {
 		 */
 		this.fxManager = null;
 
-		this.groups = null;
+		/**
+		 * Holds a reference to the groups of the engine context.
+		 * 
+		 * @public
+		 * @property {Bestia.Engine.FX.EffectsManager}
+		 */
+		this.groups = {};
 
 		this.loader = null;
 
@@ -73,6 +79,23 @@ export default class EngineContext {
 		this.url = _urlHelper;
 		
 		this.playerBestia = null;
+	}
+	
+	/**
+	 * When game object/state was removed clean should be called in order to
+	 * clean up all old connection so the garbage colletor can do its job and
+	 * acoid memory leaks.
+	 */
+	clear() {
+		this.loader = null;
+		this.indicatorManager = null;
+		this.fxManager = null;
+		this.entityFactory = null;
+		this.entityUpdater = null;
+		
+		// Prepare the renderer
+		this.renderer = {};
+		this.groups = {};
 	}
 	
 	/**
@@ -106,33 +129,6 @@ export default class EngineContext {
 		var pbid = this.engine.bestia.playerBestiaId();
 		var entity = this.entityCache.getByPlayerBestiaId(pbid);
 		return entity;
-	}
-
-	/**
-	 * Phaser whipes the scene graph when states change. Thus one need to init
-	 * the groups when the final (game_state) is started.
-	 */
-	createGroups() {
-
-		if (!this.game) {
-			console.warn("Game is not set. Can not create groups.");
-			return;
-		}
-
-		// Groups can be created.
-		this.groups = {};
-		this.groups.mapGround = this.game.add.group();
-		this.groups.mapGround.name = 'map_ground';
-		this.groups.sprites = this.game.add.group();
-		this.groups.sprites.name = 'sprites';
-		this.groups.mapOverlay = this.game.add.group();
-		this.groups.mapOverlay.name = 'map_overlay';
-		this.groups.effects = this.game.add.group();
-		this.groups.effects.name = 'fx';
-		this.groups.overlay = this.game.add.group();
-		this.groups.overlay.name = 'overlay';
-		this.groups.gui = this.game.add.group();
-		this.groups.gui.name = 'gui';
 	}
 }
 
