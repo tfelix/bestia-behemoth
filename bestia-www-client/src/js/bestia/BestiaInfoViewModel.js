@@ -64,6 +64,7 @@ export default class BestiaInfoViewModel {
 	
 		// Register for messages from the server.
 		pubsub.subscribe(Signal.IO_CONNECTED, this._handleConnected.bind(this));
+		pubsub.subscribe(Signal.IO_DISCONNECTED, this._handleDisconnected.bind(this));
 		pubsub.subscribe(MID.BESTIA_INFO, this._handleOnMessage.bind(this));
 		pubsub.subscribe(MID.BESTIA_ACTIVATED, this._handleOnActivate.bind(this));
 	}
@@ -74,7 +75,16 @@ export default class BestiaInfoViewModel {
 	 */
 	_handleConnected() {
 		var msg = new Message.ReqBestiaInfo();
-		this._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
+		this._pubsub.send(msg);
+	}
+	
+	/**
+	 * When we got disconnected clear all data again.
+	 */
+	_handleDisconnected() {
+		this.bestias.removeAll();
+		this.slots(0);
+		this.masterBestia(null);
 	}
 	
 	_handleOnActivate(_, msg) {
