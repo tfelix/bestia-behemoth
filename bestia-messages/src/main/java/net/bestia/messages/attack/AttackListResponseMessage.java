@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
+import net.bestia.messages.JasonMessage;
 import net.bestia.model.domain.BestiaAttack;
 
 /**
@@ -17,7 +17,7 @@ import net.bestia.model.domain.BestiaAttack;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class AttackListResponseMessage extends AccountMessage implements MessageId {
+public class AttackListResponseMessage extends JasonMessage {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;

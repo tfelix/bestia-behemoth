@@ -2,8 +2,7 @@ package net.bestia.messages.attack;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
+import net.bestia.messages.JasonMessage;
 
 /**
  * Lists the current learned attacks of an bestia. The attacks are sorted in the
@@ -13,7 +12,7 @@ import net.bestia.messages.MessageId;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class AttackListRequestMessage extends AccountMessage implements MessageId {
+public class AttackListRequestMessage extends JasonMessage {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;

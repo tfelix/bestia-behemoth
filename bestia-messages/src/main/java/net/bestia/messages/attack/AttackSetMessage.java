@@ -3,8 +3,7 @@ package net.bestia.messages.attack;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
+import net.bestia.messages.JasonMessage;
 
 /**
  * Sets the attacks of the currently active bestia.
@@ -12,7 +11,7 @@ import net.bestia.messages.MessageId;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class AttackSetMessage extends AccountMessage implements MessageId {
+public class AttackSetMessage extends JasonMessage {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;
