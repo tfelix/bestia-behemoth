@@ -22,7 +22,7 @@ import MID from '../io/messages/MID.js';
 /* jshint unused: false */
 export default class BestiaAttacks {
 	
-	constructor(pubsub, i18n, urlHelper) {
+	constructor(pubsub, i18n) {
 
 		var self = this;
 
@@ -241,7 +241,7 @@ export default class BestiaAttacks {
 		}
 
 		var msg = new Message.AttackListRequest();
-		this._pubsub.publish(Signal.IO_SEND, msg);
+		this._pubsub.send(msg);
 	}
 
 	/**
