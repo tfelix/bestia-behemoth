@@ -49,7 +49,7 @@ export default class Engine {
 		// React on bestia selection changes. We need to re-trigger the map
 		// loading. This event will fire if we have established a connection.
 		pubsub.subscribe(Signal.BESTIA_SELECTED, this._handlerOnBestiaSelected.bind(this));
-		pubsub.subscribe(Signal.IO_CONNECTION_LOST, this._handlerOnConnectionLost.bind(this));
+		pubsub.subscribe(Signal.IO_DISCONNECTED, this._handlerOnConnectionLost.bind(this));
 		pubsub.subscribe(Signal.ENGINE_BOOTED, this._handlerOnBooted.bind(this));
 		pubsub.subscribe(Signal.ENGINE_INIT_LOADED, this._handlerOnInitLoaded.bind(this));
 		pubsub.subscribe(Signal.ENGINE_FINISHED_MAPLOAD, this._handlerOnFinishedMapload.bind(this));

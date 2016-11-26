@@ -30,6 +30,10 @@ export default class PubSub {
 	 *            happens.
 	 */
 	subscribe(e, fn) {
+		if(typeof e === 'string') {
+			throw "Eventname must be of type string.";
+		}
+		
 		if (!this.cache[e]) {
 			this.cache[e] = [];
 		}
