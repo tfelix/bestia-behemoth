@@ -71,7 +71,9 @@ export default class Indicator {
 	}
 
 	/**
-	 * Callback is called if the engine
+	 * Mouse pointer move callback. Is fired if the game receives a moving mouse
+	 * pointer. This operates only if a _marker is set and will move its
+	 * coordiantes centered on a tile.
 	 */
 	_onMouseMove() {
 		if (this._marker === null) {
@@ -82,6 +84,7 @@ export default class Indicator {
 
 		// From px to tiles and back.
 		var cords = WorldHelper.getTileXY(pointer.worldX, pointer.worldY);
+		WorldHelper.getPxXY(cords.x, cords.y, cords);
 
 		this._marker.x = cords.x;
 		this._marker.y = cords.y;

@@ -16,12 +16,9 @@ import com.hazelcast.query.Predicate;
 import com.hazelcast.query.PredicateBuilder;
 import com.hazelcast.query.Predicates;
 
-import net.bestia.model.map.Map;
-import net.bestia.model.shape.Point;
 import net.bestia.model.shape.Rect;
 import net.bestia.zoneserver.entity.BaseEntity;
 import net.bestia.zoneserver.entity.traits.IdEntity;
-import net.bestia.zoneserver.entity.traits.Locatable;
 import net.bestia.zoneserver.entity.traits.Visible;
 
 /**

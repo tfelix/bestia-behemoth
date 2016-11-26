@@ -17,8 +17,7 @@ export default class IndicatorManager {
 	constructor(ctx) {
 
 		/**
-		 * Holds all the registered indicators. TODO Kann man das hier auch
-		 * automatisch registrieren wenn neue Indikatoren geadded werden?
+		 * Holds all the registered indicators.
 		 */
 		this._indicators = [];
 

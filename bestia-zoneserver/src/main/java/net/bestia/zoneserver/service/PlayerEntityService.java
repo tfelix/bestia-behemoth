@@ -156,5 +156,7 @@ public class PlayerEntityService {
 		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
 		ids.forEach(id -> entityService.delete(id));
 		playerBestiaEntitiesIds.remove(accId);
+		// Remove the active bestia.
+		activeEntities.remove(accId);
 	}
 }

@@ -17,7 +17,7 @@ export default class GameState {
 	
 	constructor(context) {
 
-		this.marker = null;
+		this._marker = null;
 
 		this._ctx = context;
 	}
@@ -29,7 +29,7 @@ export default class GameState {
 	create() {
 		
 		// ==== PLUGINS ====
-		// var astar = this.game.plugins.add(Phaser.Plugin.AStar);
+		//var astar = this.game.plugins.add(Phaser.Plugin.AStar);
 
 		// @ifdef DEVELOPMENT
 		this.game.plugins.add(Phaser.Plugin.Debug);
@@ -41,7 +41,7 @@ export default class GameState {
 		
 		// Trigger fx create effects.
 		// this._ctx.fxManager.create();
-		// this._ctx.indicatorManager.create();
+		this._ctx.indicatorManager.create();
 
 		// Load the tilemap and display it.
 		// this.ctx.zone = new World(this.game, astar, this.ctx.groups);
@@ -52,7 +52,7 @@ export default class GameState {
 		// this.ctx.entityUpdater.releaseHold();
 		
 		// Activate move handler.
-		//this.ctx.indicatorManager.showDefault();
+		this._ctx.indicatorManager.showDefault();
 		
 		// ========= TESTING =========
 		this.game.world.setBounds(0, 0, 800, 600);
@@ -77,14 +77,7 @@ export default class GameState {
 	update() {
 		
 		this._ctx.renderer.tile.update();
-		
-		/*
-		 * if (this.cursor.left.isDown) { this.sprite.x -= 2; } else if
-		 * (this.cursor.right.isDown) { this.sprite.x += 2; }
-		 * 
-		 * if (this.cursor.up.isDown) { this.sprite.y -= 2; } else if
-		 * (this.cursor.down.isDown) { this.sprite.y += 2; }
-		 */
+
 		
 		// Trigger the update effects.
 		// this.ctx.fxManager.update();

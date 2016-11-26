@@ -49,7 +49,7 @@ export default class InitializeState {
 		//this.game.load.spritesheet('rain', url.getSpriteUrl('rain'), 17, 17);
 
 		// Load the static data from the manager.
-		//this.ctx.indicatorManager.load();
+		this._ctx.indicatorManager.load();
 		//this.ctx.fxManager.load();
 	}
 

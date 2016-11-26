@@ -1,3 +1,5 @@
+/*global Phaser */
+
 import Indicator from './Indicator.js';
 import Message from '../../io/messages/Message.js';
 import Signal from '../../io/Signal.js';
