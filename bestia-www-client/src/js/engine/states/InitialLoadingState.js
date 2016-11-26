@@ -30,27 +30,20 @@ export default class InitializeState {
 		this.game.load.image('action_options_background', url.getImageUrl('action_options_back'));
 		
 		// TODO hier auch schon einen hinweis/splash anzeigen.
-		this.game.load.atlas('poring', 
+		/*this.game.load.atlas('poring', 
 				'http://localhost/assets/sprite/mob/poring/poring.png', 
 				'http://localhost/assets/sprite/mob/poring/poring.json',
-				Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);
+				Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);*/
 		
 		
 		this.game.load.image('castindicator_small', url.getIndicatorUrl('_big'));
 		this.game.load.image('castindicator_medium', url.getIndicatorUrl('_medium'));
 		this.game.load.image('castindicator_big', url.getIndicatorUrl('_small'));
-
 		this.game.load.image('default_item', url.getItemIconUrl('_default'));
-
-		// #### Filters
-		//this.game.load.shader('blur', 'http://localhost/assets/shader/blur.frag');
-		//this.game.load.shader('filter_blur_y', url.getFilterUrl('BlurY'));
-
-		//this.game.load.spritesheet('rain', url.getSpriteUrl('rain'), 17, 17);
 
 		// Load the static data from the manager.
 		this._ctx.indicatorManager.load();
-		//this.ctx.fxManager.load();
+		this._ctx.fxManager.load();
 	}
 
 	create() {

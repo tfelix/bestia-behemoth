@@ -31,8 +31,8 @@ export default class Engine {
 
 		// Determine the size of the canvas. And create the game object.
 		
-		//var height = $(window).height();
-		//var width = $('#canvas-container').width();
+		// var height = $(window).height();
+		// var width = $('#canvas-container').width();
 
 		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'bestia-canvas', null, false, false);
 		
@@ -47,8 +47,7 @@ export default class Engine {
 		// ==== PREPARE HANDLER ====
 
 		// React on bestia selection changes. We need to re-trigger the map
-		// loading.
-		// This event will fire if we have established a connection.
+		// loading. This event will fire if we have established a connection.
 		pubsub.subscribe(Signal.BESTIA_SELECTED, this._handlerOnBestiaSelected.bind(this));
 		pubsub.subscribe(Signal.IO_CONNECTION_LOST, this._handlerOnConnectionLost.bind(this));
 		pubsub.subscribe(Signal.ENGINE_BOOTED, this._handlerOnBooted.bind(this));
@@ -69,8 +68,11 @@ export default class Engine {
 	 */
 	_handlerOnBestiaSelected(_, data) {
 		console.debug('New bestia selected. Starting loading process.');
+		
+		// Check if we can go without loading: we must be inside view range AND
+		// have the multi sprite cached. Currently not supported.
 		this._ctx.playerBestia = data;
-		this.game.state.start('load');
+		this.game.state.start('load');		
 	}
 
 	/**

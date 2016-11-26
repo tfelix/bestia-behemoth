@@ -10,8 +10,12 @@ export default class EntityCache {
 		this._cache = {};
 	
 		/**
-		 * Holds an array with all entities in the cache. The array itself is cached
-		 * for higher performance.
+		 * Holds an array with all entities in the cache. This is used if all
+		 * entities are queried for iterate over them which happens frequently
+		 * by the engine. This cache is invalidated when underlying data
+		 * changes.
+		 * 
+		 * @private
 		 */
 		this._entityCache = null;
 	}
@@ -32,8 +36,8 @@ export default class EntityCache {
 	}
 	
 	/**
-	 * Returns the entity which is registered for the given id. Or NULL if no entity
-	 * was registered with this ID.
+	 * Returns the entity which is registered for the given id. Or NULL if no
+	 * entity was registered with this ID.
 	 * 
 	 * @param {String|Number}
 	 *            id - The unique ID of this entity.

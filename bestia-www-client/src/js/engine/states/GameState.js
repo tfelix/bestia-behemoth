@@ -2,9 +2,6 @@
 
 import * as AStar from '../plugins/AStar';
 import Signal from '../../io/Signal.js';
-import World from '../map/World.js';
-import WorldHelper from '../map/WorldHelper';
-import TileRenderer from '../renderer/TileRenderer';
 
 /**
  * Central game state for controlling the games logic.
@@ -57,16 +54,12 @@ export default class GameState {
 		
 		// ========= TESTING =========
 		this.game.world.setBounds(0, 0, 800, 600);
-		
-		
-		this.sprite = this.game.add.sprite(400, 300, 'poring');
 
 		
-		this.cursor = this.game.input.keyboard.createCursorKeys();
-		this.sprite.anchor.setTo(0,0);
-		this.game.physics.startSystem(Phaser.Physics.ARCADE);
-		this.game.camera.follow(this.sprite);
-		this.extended = false;
+		//this.sprite.anchor.setTo(0,0);
+		//this.game.physics.startSystem(Phaser.Physics.ARCADE);
+		//this.game.camera.follow(this.sprite);
+		//this.extended = false;
 
 		this._ctx.renderer.tile.playerSprite = this.sprite;
 		this._ctx.renderer.tile.clearDraw();
@@ -96,18 +89,13 @@ export default class GameState {
 	render() {
 		// @ifdef DEVELOPMENT
 		this.game.debug.cameraInfo(this.game.camera, 32, 32);
-		this.game.debug.spriteCoords(this.sprite, 32, 500);
+		//this.game.debug.spriteCoords(this.sprite, 32, 500);
 		// @endif
 	}
 
 	shutdown() {
 
 		// We need to UNSUBSCRIBE from all subscriptions to avoid leakage.
-		// TODO Ich weiß nicht ob das hier funktioniert oder ob referenz zu
-		// callback
-		// benötigt wird.
-		// this.pubsub.unsubscribe(Bestia.Signal.ENGINE_CAST_ITEM,
-		// this._onCastItem.bind(this));
 		
 		this._ctx.clear();
 	}

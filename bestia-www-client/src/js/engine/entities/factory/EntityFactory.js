@@ -44,7 +44,6 @@ export default class EntityFactory {
 	 * update messages.
 	 */
 	register(builder) {
-		alert("Geht");
 		this.builder.push(builder);
 	}
 

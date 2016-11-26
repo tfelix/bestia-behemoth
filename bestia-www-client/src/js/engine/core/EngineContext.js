@@ -120,11 +120,13 @@ export default class EngineContext {
 	/**
 	 * Returns the entity wrapper object of the player bestia.
 	 */
+	/*
 	get playerEntity() {
-		var pbid = this.engine.bestia.playerBestiaId();
+		// TODO das funktioniert nicht mehr
+		let pbid = this.playerBestia.playerBestiaId();
 		var entity = this.entityCache.getByPlayerBestiaId(pbid);
 		return entity;
-	}
+	}*/
 }
 
 

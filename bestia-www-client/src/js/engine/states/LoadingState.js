@@ -28,11 +28,18 @@ export default class LoadingState  {
 		this._pubsub = context.pubsub;
 	}
 	
-	_finishedLoad() {
-		this._pubsub.publish(Signal.ENGINE_FINISHED_MAPLOAD);
+	_checkFinishedLoading() {
+		this._loadingCounter--;
+		
+		if(this._loadingCounter == 0) {
+			this._pubsub.publish(Signal.ENGINE_FINISHED_MAPLOAD);
+		}
 	}
 	
 	preload() {
+		// Set loading counter.
+		this._loadingCounter = 1;
+		
 		// Announce loading.
 		this._pubsub.publish(Signal.ENGINE_PREPARE_MAPLOAD);
 
@@ -40,10 +47,11 @@ export default class LoadingState  {
 		this.gfx = this.add.graphics(0, 0);
 		this.gfx.beginFill(0xFF0000, 1);
 		
+		// Create new multisprite entity from player bestia.
+		//this._ctx.entityFactory.build({}, this._checkFinishedLoading.bind(this));
+		
 		let chunks = this._ctx.renderer.tile.getVisibleChunks();
-		this._ctx.renderer.tile.loadChunks(chunks, function(){
-			this._finishedLoad();
-		}.bind(this));
+		this._ctx.renderer.tile.loadChunks(chunks, this._checkFinishedLoading.bind(this));
 	}
 }
 

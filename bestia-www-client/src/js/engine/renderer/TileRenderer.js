@@ -19,8 +19,6 @@ export default class TileRenderer {
 		this._game = ctx.game;
 		this._tilesetManager = new TilesetManager(ctx.pubsub, ctx.loader, ctx.url);
 		
-		this._sprite = null;
-		
 		this._rendered = {x1: 0, x2: 0, y1: 0, y2: 0};
 		this._newRendered = {x1: 0, x2: 0, y1: 0, y2: 0};
 		
@@ -181,24 +179,16 @@ export default class TileRenderer {
 	}
 	
 	/**
-	 * Sets the current player sprite.
-	 */
-	set playerSprite(sprite) {
-		this._sprite = sprite;
-	}
-	
-	/**
-	 * Gets the current player sprite.
-	 */
-	get playerSprite() {
-		return this._sprite;
-	}
-	
-	/**
 	 * Clears the whole screen and setup a complete new rendering from the
 	 * current player position.
 	 */
 	clearDraw() {
+		let player = this._ctx.playerBestia;
+		if(player == null) {
+			console.error("PlayerBestia not found in context.");
+			return;
+		}
+		
 		// Prepare the new tilemap.
 		this._map = this._game.add.tilemap();
 		
@@ -215,7 +205,7 @@ export default class TileRenderer {
 		// We must calculate the game size.
 		this._gameSize = WorldHelper.getTileXY(this._game.width, this._game.height);
 		
-		let pos = WorldHelper.getTileXY(this._sprite.x, this._sprite.y);
+		let pos = {x: player.posX(), y: player.posY()};
 		
 		let startX = pos.x - WorldHelper.SIGHT_RANGE.x;
 		let startY = pos.x - WorldHelper.SIGHT_RANGE.y;
@@ -239,7 +229,7 @@ export default class TileRenderer {
 	 * decides if a re-render of the map is needed.
 	 */
 	update() {
-		let tPos = WorldHelper.getTileXY(this._sprite.x, this._sprite.y);
+		let tPos = {x: this._ctx.playerBestia.posX(), y: this._ctx.playerBestia.posY()};
 		
 		// Tile distance left.
 		let tdLeft = tPos.x - this._rendered.x1;

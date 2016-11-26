@@ -1,7 +1,6 @@
 import SpriteEntity from './SpriteEntity.js';
 
 
-
 /**
  * This entity is a bit different. It supports a head sprite which can be moved
  * async to the body sprite to give a certain more realistic look to the players
@@ -27,9 +26,9 @@ export default class MultispriteEntity extends SpriteEntity {
 	}
 
 	/**
-	 * Returns the name of the subsprite animation depending of the current "main"
-	 * animation running on the main sprite. Can be used to set the subsprite
-	 * animations after the animation of the main sprite has changed.
+	 * Returns the name of the subsprite animation depending of the current
+	 * "main" animation running on the main sprite. Can be used to set the
+	 * subsprite animations after the animation of the main sprite has changed.
 	 * 
 	 * @param {string}
 	 *            subspriteName Name of the current subsprite.
@@ -51,8 +50,8 @@ export default class MultispriteEntity extends SpriteEntity {
 	}
 
 	/**
-	 * Sets the sprite of the entity. TODO Das hier alles in die Factory auslagern.
-	 * Das Bauen der Sprites.
+	 * Sets the sprite of the entity. TODO Das hier alles in die Factory
+	 * auslagern. Das Bauen der Sprites.
 	 * 
 	 * @param {string}
 	 *            spriteName - New name of the sprite.
@@ -154,8 +153,8 @@ export default class MultispriteEntity extends SpriteEntity {
 	}
 
 	/**
-	 * It will keep all the subsprites with their animation in sync when the parent
-	 * animation was set.
+	 * It will keep all the subsprites with their animation in sync when the
+	 * parent animation was set.
 	 * 
 	 * @param name
 	 *            Name of the new animation to play.
