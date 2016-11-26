@@ -11,19 +11,16 @@
 		<module>bestia-conf</module>
 		<module>bestia-models</module>
 		<module>bestia-messages</module>
-		<module>bestia-server-base</module>
 		<module>bestia-server-commons</module>
 		<module>bestia-zoneserver</module>
 		<module>bestia-webserver</module>
 		<module>bestia-www-client</module>
-		<module>bestia-gmserver</module>
-		<module>map-tmxloader</module>
 	</modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jackson.version>2.8.4</jackson.version>
-		<findbugs.version>3.0.2</findbugs.version>
+		<findbugs.version>3.0.4</findbugs.version>
 		<spring.version>1.4.2.RELEASE</spring.version>
 		<akka.version>2.4.12</akka.version>
 		<hazelcast.version>3.7.2</hazelcast.version>

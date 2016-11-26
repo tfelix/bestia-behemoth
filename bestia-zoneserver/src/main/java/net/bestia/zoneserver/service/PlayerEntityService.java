@@ -50,12 +50,17 @@ public class PlayerEntityService {
 	 */
 	public void setActiveEntity(long accId, long activeEntityId) {
 		// Remove the active flag from the last active player bestia.
-		long lastActive = activeEntities.get(accId);
+		Long lastActive = activeEntities.get(accId);
 		activeEntities.put(accId, activeEntityId);
 
-		PlayerBestiaEntity pbe = (PlayerBestiaEntity) entityService.getEntity(lastActive);
-		pbe.setActive(false);
-		entityService.put(pbe);
+		PlayerBestiaEntity pbe = null;
+
+		// Last active might be null if no previous bestia was active.
+		if (lastActive != null) {
+			pbe = (PlayerBestiaEntity) entityService.getEntity(lastActive);
+			pbe.setActive(false);
+			entityService.put(pbe);
+		}
 
 		pbe = (PlayerBestiaEntity) entityService.getEntity(activeEntityId);
 		pbe.setActive(true);

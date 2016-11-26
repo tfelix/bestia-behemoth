@@ -9,7 +9,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import akka.actor.Actor;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import akka.testkit.TestActorRef;
 import net.bestia.zoneserver.actor.SpringExtension;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -24,8 +23,8 @@ public class PingPongActorTest {
 
 	@Test
 	public void ping_sendsPong() {
-		TestActorRef<PingPongActor> ref = TestActorRef.create(system, springProps(PingPongActor.class));
-		PingPongActor actor = ref.underlyingActor();
+		//TestActorRef<PingPongActor> ref = TestActorRef.create(system, springProps(PingPongActor.class));
+		//PingPongActor actor = ref.underlyingActor();
 	}
 
 	protected Props springProps(Class<? extends Actor> actorClass) {
