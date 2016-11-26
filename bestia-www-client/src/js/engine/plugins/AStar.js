@@ -1,3 +1,4 @@
+/*global Phaser */
 /**
  * The MIT License (MIT)
 

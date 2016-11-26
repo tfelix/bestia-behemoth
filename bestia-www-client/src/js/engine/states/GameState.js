@@ -1,5 +1,6 @@
 /*global Phaser */
 
+import * as AStar from '../plugins/AStar';
 import Signal from '../../io/Signal.js';
 import World from '../map/World.js';
 import WorldHelper from '../map/WorldHelper';
@@ -42,7 +43,7 @@ export default class GameState {
 
 		
 		// ==== PLUGINS ====
-		//var astar = this.game.plugins.add(Phaser.Plugin.AStar);
+		var astar = this.game.plugins.add(Phaser.Plugin.AStar);
 
 		// @ifdef DEVELOPMENT
 		this.game.plugins.add(Phaser.Plugin.Debug);
