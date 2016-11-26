@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
@@ -25,6 +27,7 @@ import net.bestia.zoneserver.service.PlayerEntityService;
 @Scope("prototype")
 public class ActivateBestiaActor extends BestiaRoutingActor {
 
+	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public final static String NAME = "activateBestia";
 	private final PlayerEntityService playerService;
 
@@ -50,8 +53,14 @@ public class ActivateBestiaActor extends BestiaRoutingActor {
 		if (!bestia.isPresent()) {
 			return;
 		}
+		
+		final PlayerBestiaEntity pbe = bestia.get();
 
-		playerService.setActiveEntity(bestiaMsg.getAccountId(), bestia.get().getId());
+		LOG.debug("Activated player bestia id: {} from accId: {}, entityId: {}", 
+				pbe.getPlayerBestiaId(), 
+				pbe.getAccountId(), 
+				pbe.getId());
+		playerService.setActiveEntity(bestiaMsg.getAccountId(), pbe.getId());
 	}
 
 }
