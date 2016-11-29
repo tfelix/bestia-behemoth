@@ -11,16 +11,23 @@ export default class MultispriteBuilder extends Builder {
 		
 		// Register with factory.
 		this.version = 1;
+		
+		/**
+		 * Url helper.
+		 */
+		this._url = ctx.url;
 	}
 	
 	build(data, desc) {
+		if(data.onlyLoad) {
+			return null;
+		}
 
 		var entity = new MultispriteEntity(this._ctx, data.uuid, desc);
 
-		// Position
-		entity.setPosition(data.x, data.y);
-
+		// Setup the phaser sprite.
 		entity.setSprite(data.s);
+		entity.setPosition(data.x, data.y);
 		
 		entity.addToGroup(this._ctx.groups.sprites);
 
@@ -71,8 +78,8 @@ export default class MultispriteBuilder extends Builder {
 			packArray.push({
 				type : "atlasJSONHash",
 				key : msName,
-				textureURL : "assets/sprite/multi/" + msName + "/" + msName + ".png",
-				atlasURL : "assets/sprite/multi/" + msName + "/" + msName + ".json",
+				textureURL : this._url.getMultiSheetUrl(msName),
+				atlasURL : this._url.getMultiAtlasUrl(msName),
 				atlasData : null
 			});
 
@@ -80,15 +87,15 @@ export default class MultispriteBuilder extends Builder {
 			packArray.push({
 				type : "json",
 				key : msName + '_desc',
-				url : "assets/sprite/multi/" + msName + "/" + msName + '_desc.json'
+				url : this._url.getMultiDescUrl(msName)
 			});
 
 			// Also include the offset file for this combination.
-			var offsetFileName = MultispriteEntity.getOffsetFilename(msName, key);
+			var offsetFileName = 'offset_' + msName + '_' + key;
 			packArray.push({
 				type : "json",
 				key : offsetFileName,
-				url : "assets/sprite/multi/" + msName + "/" + offsetFileName + ".json"
+				url : this._url.getMultiOffsetUrl(msName, offsetFileName)
 			});
 
 		}, this);

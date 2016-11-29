@@ -10,8 +10,8 @@
  * responsible for sending the correct events when the engine starts up or a
  * server connections is unexpectedly lost. He will orchestrate all connection
  * attempts. If an error condition happens or too many connection attempts fail
- * the error handling is done by this class.
- * Internally it is basically a state machine.
+ * the error handling is done by this class. Internally it is basically a state
+ * machine.
  * 
  * @class Bestia.Connection
  * @param {Bestia.PubSub}
@@ -27,6 +27,21 @@ export default class ConnectionManager {
 	constructor(pubsub) {
 
 		this._pubsub = pubsub;
+		
+		
+	}
+	
+	/**
+	 * Starts the connection and startup sequence.
+	 */
+	start() {
+		
+	}
+	
+	/**
+	 * Ends the connection and disconnects the system.
+	 */
+	stop() {
 		
 	}
 }

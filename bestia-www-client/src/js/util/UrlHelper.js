@@ -49,12 +49,54 @@ export default class UrlHelper {
 		return this._assetRoot + 'img/icons/mob/' + mobName + '.png';
 	}
 
-	getMapPackUrl(mapName) {
-		return this._assetRoot + 'map/' + mapName + '/assetpack.json';
-	}
-
+	/**
+	 * Gets the URL for the nob description json file.
+	 */
 	getMobDescUrl(mobName) {
 		return this._assetRoot + 'sprite/mob/' + mobName + '/' + mobName + '_desc.json';
+	}
+	
+	/**
+	 * Returns the url for the mob sprite sheet.
+	 */
+	getMobSheetUrl(mobName) {
+		return this._assetRoot + 'sprite/mob/' + mobName + '/' + mobName + '.png';
+	}
+	
+	/**
+	 * Returns the url for the mob sprite sheet atlas file.
+	 */
+	getMobAtlasUrl(mobName) {
+		return this._assetRoot + 'sprite/mob/' + mobName + '/' + mobName + '.json';
+	}
+	
+	/**
+	 * Returns the url for the mob sprite sheet.
+	 */
+	getMultiSheetUrl(mobName) {
+		return this._assetRoot + 'sprite/multi/' + mobName + '/' + mobName + '.png';
+	}
+	
+	/**
+	 * Returns the url for the mob sprite sheet.
+	 */
+	getMultiDescUrl(sheetName) {
+		return this._assetRoot + 'sprite/multi/' + sheetName + '/' + sheetName + '_desc.json';
+	}
+	
+	/**
+	 * Returns the url for the mob sprite sheet atlas file.
+	 */
+	getMultiAtlasUrl(mobName) {
+		return this._assetRoot + 'sprite/multi/' + mobName + '/' + mobName + '.json';
+	}
+	
+	/**
+	 * Multi sprites have an offset file which defines the relative positions of
+	 * all sprites. This method returns the url to it.
+	 */
+	getMultiOffsetUrl(multisprite, offsetFile) {
+		return this._assetRoot + 'sprite/multi/' + multisprite + '/' + offsetFile +'.json';
 	}
 
 	getObjectDescUrl(objectName) {

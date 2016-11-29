@@ -20,10 +20,6 @@ export default class GameState {
 		this._ctx = context;
 	}
 	
-	preload() {
-		
-	}
-	
 	create() {
 		/**
 		 * Phaser whipes the scene graph when states change. Thus one need to
@@ -64,6 +60,8 @@ export default class GameState {
 		this._ctx.renderer.tile.playerSprite = this.sprite;
 		this._ctx.renderer.tile.clearDraw();
 		
+		this._ctx.entityFactory.build({uuid: 1, x: 10, y: 10, s: 'mastersmith', a: 'APPEAR', t: 'PLAYER_ANIM'});
+		
 		// this.ctx.entityUpdater.releaseHold();
 		this._ctx.pubsub.publish(Signal.ENGINE_GAME_STARTED);
 	}
@@ -77,10 +75,10 @@ export default class GameState {
 		this._ctx.fxManager.update();
 
 		// Update the animation frame groups of all multi sprite entities.
-		let entities = this._ctx.entityCache.getAllEntities();
+		/*let entities = this._ctx.entityCache.getAllEntities();
 		entities.forEach(function(entity) { 
 			entity.tickAnimation(); 
-		});
+		});*/
 		
 		// Group sort the sprite layer.
 		this._ctx.groups.sprites.sort('y', Phaser.Group.SORT_ASCENDING);

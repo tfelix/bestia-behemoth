@@ -1,4 +1,3 @@
-import EntityCacheManager from '../entities/util/EntityCacheManager.js';
 import DemandLoader from '../core/DemandLoader.js';
 import IndicatorManager from '../indicator/IndicatorManager.js';
 import EffectsManager from '../fx/EffectsManager.js';
@@ -31,8 +30,6 @@ export default class EngineContext {
 		 * @private
 		 */
 		this.game = game;
-
-		this.entityCache = new EntityCacheManager();
 
 		this.entityFactory = null;
 
@@ -116,17 +113,6 @@ export default class EngineContext {
 				tile: tileRenderer
 		};
 	}
-
-	/**
-	 * Returns the entity wrapper object of the player bestia.
-	 */
-	/*
-	get playerEntity() {
-		// TODO das funktioniert nicht mehr
-		let pbid = this.playerBestia.playerBestiaId();
-		var entity = this.entityCache.getByPlayerBestiaId(pbid);
-		return entity;
-	}*/
 }
 
 

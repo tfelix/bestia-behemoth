@@ -15,7 +15,10 @@ export default class SpriteBuilder extends Builder {
 	}
 	
 	build(data, desc) {
-
+		if(data.onlyLoad) {
+			return null;
+		}
+		
 		var entity = new ImageEntity(this._ctx, data.uuid, data.x, data.y, desc);
 
 		entity.setSprite(data.s);

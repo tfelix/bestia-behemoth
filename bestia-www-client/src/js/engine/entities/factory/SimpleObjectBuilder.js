@@ -16,9 +16,11 @@ export default class SimpleObjectBuilder extends Builder {
 	}
 
 	build(data) {
-
+		if(data.onlyLoad) {
+			return null;
+		}
+		
 		this._data = data;
-
 	}
 
 	canBuild(data) {

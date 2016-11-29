@@ -34,13 +34,16 @@ export default class DemandLoader {
 		this._urlHelper = urlHelper;
 
 		this._cache = {};
-		this._keyCache = {};
-
-		// this._loadPackCallBuffer = [];
+		
+		/**
+		 * Asset packs do load multiple keys. These keys with their reference to
+		 * the pack key are saved inside this so after a file was loaded the
+		 * original cache entry can be found via indirection.
+		 */
+		this._packKeyCache = {};
 
 		// Add the callbacks.
 		loader.onFileComplete.add(this._fileLoadedCallback, this);
-		// loader.onLoadComplete.add(this._checkPackCallBufferCallback, this);
 	}
 	
 	_fileLoadedCallback(progress, key) {
@@ -49,12 +52,12 @@ export default class DemandLoader {
 
 		if (this._cache.hasOwnProperty(key)) {
 			cacheData = this._cache[key];
-		} else if (this._keyCache.hasOwnProperty(key)) {
+		} else if (this._packKeyCache.hasOwnProperty(key)) {
 			// Go the indirection.
-			cacheData = this._cache[this._keyCache[key]];
-			delete this._keyCache[key];
+			cacheData = this._cache[this._packKeyCache[key]];
+			delete this._packKeyCache[key];
 		} else {
-			// No cache entry found. Propably the file was directly loaded
+			// No cache entry found. Probably the file was directly loaded
 			// without the use of the demand loader.
 			// Skip the callback search.
 			return;
@@ -69,8 +72,10 @@ export default class DemandLoader {
 				return x.key;
 			});
 
+			// Save the keys inside the pack into the pack key cache with a
+			// reference to the main cache key.
 			keyList.forEach(function(x) {
-				this._keyCache[x] = key;
+				this._packKeyCache[x] = key;
 			}, this);
 
 			this._cache[key].items = keyList;
@@ -82,6 +87,9 @@ export default class DemandLoader {
 		} else {
 			cacheData.toLoad--;
 			if (cacheData.toLoad === 0) {
+				
+				// Delete the entry in cache.
+				delete this._cache[key];
 
 				cacheData.callbackFns.forEach(function(x) {
 					try {
@@ -90,8 +98,7 @@ export default class DemandLoader {
 						console.error("DemandLoader#_fileLoadedCallback: " + err);
 					}
 				});
-
-				delete this._cache[key];
+				
 				// Restart to fetch queued stuff.
 				this._loader.start();
 			}
@@ -111,7 +118,7 @@ export default class DemandLoader {
 			var hasCache = true;
 
 			keys.forEach(function(val) {
-				hasCache = hasCache & this._hasType(val.key, val.type);
+				hasCache = hasCache & this._hasLoaded(val.key, val.type);
 			}.bind(this));
 
 			return hasCache;
@@ -121,13 +128,13 @@ export default class DemandLoader {
 				return false;
 			}
 
-			return this._hasType(keys, type);
+			return this._hasLoaded(keys, type);
 		}
 	}
 
 	get(key, type) {
 
-		if (!this._hasType(key, type)) {
+		if (!this._hasLoaded(key, type)) {
 			return null;
 		}
 
@@ -149,38 +156,28 @@ export default class DemandLoader {
 	 * 
 	 * @return TRUE if the key exist. FALSE otherwise.
 	 */
-	_hasType(key, type) {
+	_hasLoaded(key, type) {
 		switch (type) {
 		case 'image':
 		case 'item':
+		// Atlas is currently inconsistently handled inside the cache.
+		// see https://github.com/photonstorm/phaser/issues/2893
+		case 'atlasJSONHash':
 			return this._phaserCache.checkImageKey(key);
 		case 'json':
 			return this._phaserCache.checkJSONKey(key);
 		default:
-			console.warn("_hasType: Unknown type.");
+			console.warn("_hasLoaded: Unknown type.");
 			return false;
 
 		}
 	}
 
 	loadPackData(pack, fnOnComplete) {
-
-		// If there is currently a loading in progress we can not insert our
-		// pack
-		// data. This will mess up the Phaser Loader. We MUST wait until the
-		// loading
-		// has finished. DOES NOT WORK.
-		/*
-		 * if (this._loader.isLoading) {
-		 * this._loadPackCallBuffer.push(function() { this.loadPackData(pack,
-		 * fnOnComplete); }.bind(this)); return; }
-		 */
-
 		fnOnComplete = fnOnComplete || NOOP;
 
 		// Get the key. Keys in objects are not sorted but packs should contain
-		// only
-		// one key.
+		// only one key.
 		// So I guess we re safe.
 		var key = '';
 		for ( var a in pack) {
@@ -194,26 +191,35 @@ export default class DemandLoader {
 			this._cache[key].callbackFns.push(fnOnComplete);
 			return;
 		}
+		
+		// Remove all files from this pack which are already loaded.
+		let notLoadedFiles = pack[key].filter(function(file){
+			return !this._hasLoaded(file.key, file.type);
+		}, this);
+		
+		if(notLoadedFiles.length === 0) {
+			fnOnComplete();
+			return;
+		}
 
 		// Add all files of this pack to our file list.
-		var keyList = pack[key].map(function(x) {
+		var keyList = notLoadedFiles.map(function(x) {
 			return x.key;
 		});
+		
+		// Check if there are
 
 		keyList.forEach(function(x) {
-			this._keyCache[x] = key;
+			this._packKeyCache[x] = key;
 		}, this);
 
-		var countObj = {
+		this._cache[key] ={
 			key : key,
 			callbackFns : [ fnOnComplete ],
-			toLoad : 1,
+			toLoad : keyList.length,
+			items: keyList,
 			type : 'file'
 		};
-		this._cache[key] = countObj;
-
-		this._cache[key].items = keyList;
-		this._cache[key].toLoad = keyList.length;
 
 		// Start to load all data in this pack.
 		this._loader.pack(key, null, pack);
@@ -234,14 +240,15 @@ export default class DemandLoader {
 
 		fnOnComplete = fnOnComplete || NOOP;
 
-		// Check if a load is running. If this is the case only add the callback
-		// function to be executed when the load completes.
+		// Check if a loading of the current key is already running.
+		// If this is the case only add the callback function to be executed
+		// when the load completes.
 		if (this._cache.hasOwnProperty(data.key)) {
 			this._cache[data.key].callbackFns.push(fnOnComplete);
 			return;
 		}
 		
-		if (this._hasType(data.key, data.type)) {
+		if (this._hasLoaded(data.key, data.type)) {
 			fnOnComplete();
 			return;
 		}

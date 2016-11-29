@@ -19,8 +19,8 @@
       {  
         "type":"atlasJSONHash",
         "key":"female_01",
-        "textureURL":"assets/sprite/multi/female_01.png",
-        "atlasURL":"assets/sprite/multi/female_01.json",
+        "textureURL":"assets/sprite/multi/female_01/female_01.png",
+        "atlasURL":"assets/sprite/multi/female_01/female_01.json",
         "atlasData":null
       }
     ]

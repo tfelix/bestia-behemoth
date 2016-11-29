@@ -37,8 +37,8 @@ export default class LoadingState  {
 	}
 	
 	preload() {
-		// Set loading counter.
-		this._loadingCounter = 1;
+		// Set loading counter (we load two assets)
+		this._loadingCounter = 2;
 		
 		// Announce loading.
 		this._pubsub.publish(Signal.ENGINE_PREPARE_MAPLOAD);
@@ -48,7 +48,8 @@ export default class LoadingState  {
 		this.gfx.beginFill(0xFF0000, 1);
 		
 		// Create new multisprite entity from player bestia.
-		//this._ctx.entityFactory.build({}, this._checkFinishedLoading.bind(this));
+		this._ctx.entityFactory.build({uuid: 1, x: 10, y: 10, s: 'mastersmith', a: 'APPEAR', t: 'PLAYER_ANIM'}, 
+				this._checkFinishedLoading.bind(this), true);
 		
 		let chunks = this._ctx.renderer.tile.getVisibleChunks();
 		this._ctx.renderer.tile.loadChunks(chunks, this._checkFinishedLoading.bind(this));

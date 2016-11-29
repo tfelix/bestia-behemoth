@@ -18,6 +18,9 @@ export default class ItemBuilder extends Builder {
 	}
 	
 	build(data) {
+		if(data.onlyLoad) {
+			return null;
+		}
 		
 		var entity;
 		

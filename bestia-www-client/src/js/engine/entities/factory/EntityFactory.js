@@ -40,21 +40,37 @@ export default class EntityFactory {
 	}
 	
 	/**
-	 * Registers dynamically new builder objects which react upon incoming entity
-	 * update messages.
+	 * Registers dynamically new builder objects which react upon incoming
+	 * entity update messages.
 	 */
 	register(builder) {
 		this.builder.push(builder);
 	}
 
-	build(data, fnOnComplete) {
+	/**
+	 * This will create a new entity sprite object. Bascially it loads all
+	 * needed assets and wraps a phaser sprite (or a group of them) into our own
+	 * entity handling class. If the onlyLoad flag is set the building will not
+	 * be done but there will be only the data loaded and cached. This can be
+	 * used when to only load the sprite data which might be needed for
+	 * preloading form a different game state.
+	 * 
+	 * @param {boolean}
+	 *            onlyLoad - Flag of the builder should only load the assets.
+	 */
+	build(data, fnOnComplete, onlyLoad) {
+		onlyLoad = onlyLoad || false;
 		fnOnComplete = fnOnComplete || NOOP;
+		
+		// Add the flag to the data object for taking it to the builder.
+		data.onlyLoad = onlyLoad;
 
 		// Do we already have the desc file?
 		var descFile = this._getDescriptionFile(data);
 
 		if (descFile === null) {
-			// We must first load this file because we dont know anything about the
+			// We must first load this file because we dont know anything about
+			// the
 			// entity. Hand over the now loaded description file as well as the
 			// callback.
 			this.descLoader.loadDescription(data, this._continueBuild.bind(this, data, fnOnComplete));
@@ -64,6 +80,10 @@ export default class EntityFactory {
 		}
 	}
 
+	/**
+	 * After we got the initial description file we now must continue the
+	 * creation of the entity.
+	 */
 	_continueBuild(data, fnOnComplete, descFile) {
 		var b = this._getBuilder(data, descFile);
 
@@ -72,16 +92,22 @@ export default class EntityFactory {
 			return;
 		}
 
+		// The builder is now responsible for figuring out which files to load
+		// additionally. It must be all given in the JSON file.
 		b.load(descFile, function() {
 
 			if (descFile === null) {
 				// Could not load desc file.
+				console.warn("Could not load description file from data: " + JSON.stringify(data));
 				return;
 			}
 
-			var entity = b.build(data, descFile);
+			let entity = b.build(data, descFile);
 
-			this._ctx.entityCache.addEntity(entity);
+			// Entity might be null if the onlyLoad flag was set. So we need to check.
+			if(entity !== null) {
+				//this._ctx.entityCache.addEntity(entity);
+			}			
 
 			// Call the callback handler.
 			fnOnComplete(entity);

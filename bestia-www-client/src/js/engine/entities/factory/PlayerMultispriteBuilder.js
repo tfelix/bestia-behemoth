@@ -14,6 +14,10 @@ export default class PlayerMultispriteBuilder extends MultispriteBuilder {
 	}
 	
 	build(data, desc) {
+		if(data.onlyLoad) {
+			return null;
+		}
+		
 		var entity = super.build(data, desc);
 		
 		entity.playerBestiaId = data.pbid;
