@@ -70,15 +70,14 @@ export default class GameState {
 		
 		this._ctx.renderer.tile.update();
 
-		
 		// Trigger the update effects.
 		this._ctx.fxManager.update();
 
 		// Update the animation frame groups of all multi sprite entities.
-		/*let entities = this._ctx.entityCache.getAllEntities();
+		let entities = this._ctx.entityCache.getAllEntities();
 		entities.forEach(function(entity) { 
 			entity.tickAnimation(); 
-		});*/
+		});
 		
 		// Group sort the sprite layer.
 		this._ctx.groups.sprites.sort('y', Phaser.Group.SORT_ASCENDING);

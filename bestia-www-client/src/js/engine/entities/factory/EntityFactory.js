@@ -70,9 +70,8 @@ export default class EntityFactory {
 
 		if (descFile === null) {
 			// We must first load this file because we dont know anything about
-			// the
-			// entity. Hand over the now loaded description file as well as the
-			// callback.
+			// the entity. Hand over the now loaded description file as well as
+			// the callback.
 			this.descLoader.loadDescription(data, this._continueBuild.bind(this, data, fnOnComplete));
 
 		} else {
@@ -104,9 +103,10 @@ export default class EntityFactory {
 
 			let entity = b.build(data, descFile);
 
-			// Entity might be null if the onlyLoad flag was set. So we need to check.
+			// Entity might be null if the onlyLoad flag was set. So we need to
+			// check.
 			if(entity !== null) {
-				//this._ctx.entityCache.addEntity(entity);
+				this._ctx.entityCache.addEntity(entity);
 			}			
 
 			// Call the callback handler.

@@ -3,6 +3,7 @@ import IndicatorManager from '../indicator/IndicatorManager.js';
 import EffectsManager from '../fx/EffectsManager.js';
 import EntityFactory from '../entities/factory/EntityFactory.js';
 import EntityUpdater from '../entities/util/EntityUpdater.js';
+import EntityCache from '../entities/util/EntityCache.js';
 import TileRenderer from '../renderer/TileRenderer';
 
 /**
@@ -31,7 +32,13 @@ export default class EngineContext {
 		 */
 		this.game = game;
 
+		/**
+		 * Factory for creating new entities in the running game. Usually this
+		 * is used by the entity updater. Maybe public exposure is not needed.
+		 */
 		this.entityFactory = null;
+		
+		this.entityCache = new EntityCache();
 
 		/**
 		 * Entity updater for managing the adding and removal of entities.

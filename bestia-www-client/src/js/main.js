@@ -2,6 +2,19 @@ import BestiaGame from './BestiaGame.js';
 import LogoutDialog from './dialog/LogoutDialog.js';
 import VERSION from './Version.js';
 
+/*
+ko.components.register('like-widget', {
+	viewModel: function(params) {
+        // Data: value is either null, 'like', or 'dislike'
+        this.chosenValue = params.value;
+         
+        // Behaviors
+        this.like = function() { this.chosenValue('like'); }.bind(this);
+        this.dislike = function() { this.chosenValue('dislike'); }.bind(this);
+    },
+    template: { require: 'text!comp/test.html' }
+});*/
+
 function main() {
 
 	console.log("Starting Bestia Client V." + VERSION);

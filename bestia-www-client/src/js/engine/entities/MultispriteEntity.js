@@ -1,5 +1,6 @@
 import SpriteEntity from './SpriteEntity.js';
 
+const NULL_OFFSET = {x: 0, y: 0};
 
 /**
  * This entity is a bit different. It supports a head sprite which can be moved
@@ -13,11 +14,14 @@ import SpriteEntity from './SpriteEntity.js';
  *            sprite.
  */
 export default class MultispriteEntity extends SpriteEntity {
-	constructor(game, uuid, desc) {
-		super(game, uuid, -100, -100, desc);
-	
-		this._animOffset = {};
-	
+	constructor(game, id, desc) {
+		super(game, id, -100, -100, desc);
+		
+		/**
+		 * Contains information about all multi sprites added to this sprite. It
+		 * contains: {sprite: Phaser.Sprite, name: String, offsets: Obj,
+		 * defaultCords: {x:, y:}}
+		 */
 		this._multiSprites = [];
 	}
 
@@ -36,16 +40,32 @@ export default class MultispriteEntity extends SpriteEntity {
 	 * @returns Name of the subsprite animation.
 	 */
 	_getSubspriteAnimation(subspriteName, currentAnim) {
+		
+		let subsprite = this._getSubspriteData(subspriteName);
+		
+		if(subsprite === null) {
+			return null;
+		}
 	
-		// TODO This works currnetly only if there is only one subsprite. Extend
-		// this for true multi sprite support.
-		for (var i = 0; i < this._animOffset.length; i++) {
-			if (this._animOffset[i].triggered === currentAnim) {
-				return this._animOffset[i].name;
+		for (var i = 0; i < subsprite.offsets.length; i++) {
+			if (subsprite.offsets[i].triggered === currentAnim) {
+				return subsprite.offsets[i].name;
 			}
 		}
 	
 		// No anim found.
+		return null;
+	}
+	
+	/**
+	 * Searches for the data of the subsprite.
+	 */
+	_getSubspriteData(subspriteName) {
+		for (let i = 0; i < this._multiSprites.length; i++) {
+			if (this._multiSprites[i].name === subspriteName) {
+				return this._multiSprites[i];
+			}
+		}
 		return null;
 	}
 
@@ -73,22 +93,13 @@ export default class MultispriteEntity extends SpriteEntity {
 				return;
 			}
 	
-			var anchor = msDesc.anchor;
-	
-			var sprite = this._game.make.sprite(anchor.x, anchor.y, msName);
+			let anchor = msDesc.anchor;
+			let sprite = this._game.make.sprite(anchor.x, anchor.y, msName);
 			this._sprite.addChild(sprite);
 			
 			sprite.anchor = anchor;
 	
-			// Register all the animations.
-			// TODO The head animation names are currently not in the default
-			// nameing scheme. need to do this "by hand".
-			// this._setupSprite(sprite, msDesc);
-			// setupSrite did alpha 0
-			// TODO Overwriting appear an letting appear all subsprites would be
-			// better.
-			// sprite.alpha = 1;
-	
+			// TODO This should be automatically parsed.
 			// Setup the normal data.
 			sprite.scale.setTo(msDesc.scale || 1);
 			sprite.animations.add("bottom.png", [ "bottom.png" ], 0, true, false);
@@ -99,18 +110,24 @@ export default class MultispriteEntity extends SpriteEntity {
 			sprite.animations.add("top_left.png", [ "top_left.png" ], 0, true, false);
 	
 			// Generate offset information.
-			var offsetFileName = this.getOffsetFilename(msName, this._data.name);
-			var offsets = this._game.cache.getJSON(offsetFileName) || {};
-			this._animOffset = offsets.offsets || [];
-	
-			sprite.bestiaDefaultAnchor = offsets.defaultCords || {
+			let offsetFileName = this.getOffsetFilename(msName, this._data.name);
+			let offsets = this._game.cache.getJSON(offsetFileName) || {};
+			
+			// Prepare the info object.
+			let defaultCords = offsets.defaultCords || {
 				x : 0,
 				y : 0
 			};
-	
+			let msData = {
+					sprite: sprite, 
+					offsets: offsets.offsets || [], 
+					name: msName,
+					defaultCords: defaultCords
+			};
+
 			sprite.name = msName;
 	
-			this._multiSprites.push(sprite);
+			this._multiSprites.push(msData);
 		}, this);
 	
 		// After setting the subsprites we must manually call set
@@ -118,6 +135,8 @@ export default class MultispriteEntity extends SpriteEntity {
 	}
 
 	/**
+	 * Returns the current offset for the given subsprite, animation of the main
+	 * sprite and current animation frame.
 	 * 
 	 * @param subsprite
 	 *            Name of the subsprite to look for its anchor offset.
@@ -128,28 +147,20 @@ export default class MultispriteEntity extends SpriteEntity {
 	 * @returns
 	 */
 	_getSubspriteOffset(subsprite, currentAnim, currentFrame) {
-	
-		for (var i = 0; i < this._data.multiSprite.length; i++) {
-			var ms = this._data.multiSprite[i];
-			if (ms.id !== subsprite) {
+		
+		let subData = this._getSubspriteData(subsprite);
+		
+		for (let i = 0; i < subData.offsets.length; i++) {
+			if(subData.offsets[i].triggered !== currentAnim) {
 				continue;
 			}
-	
-			// Look for the name.
-			for (var j = 0; j < ms.animations.length; j++) {
-				if (ms.animations[j].triggered === currentAnim) {
-	
-					// Safety check.
-					if (ms.animations[j].offsets.length <= currentFrame) {
-						return this.NULL_POS;
-					}
-	
-					return ms.animations[j].offsets[currentFrame];
-				}
+
+			if(subData.offsets[i].offsets.length >= currentFrame) {
+				return subData.offsets[i].offsets[currentFrame];
+			} else {
+				return NULL_OFFSET;
 			}
 		}
-	
-		return this.NULL_POS;
 	}
 
 	/**
@@ -172,12 +183,12 @@ export default class MultispriteEntity extends SpriteEntity {
 	_playSubspriteAnimation(mainAnimName) {
 		// Iterate over all subsprites an set their animations.
 		this._multiSprites.forEach(function(s) {
-			var subAnim = this._getSubspriteAnimation(s.name, mainAnimName);
+			let subAnim = this._getSubspriteAnimation(s.name, mainAnimName);
 			if (subAnim === null) {
 				// no suitable sub animation found. Do nothing.
 				return;
 			}
-			s.play(subAnim);
+			s.sprite.play(subAnim);
 	
 		}, this);
 	}
@@ -203,11 +214,11 @@ export default class MultispriteEntity extends SpriteEntity {
 		this._multiSprites.forEach(function(ms) {
 	
 			// Get the current sub sprite anim name.
-			var subPos = this._getSubspriteOffset(ms.name, curAnim, curFrame);
+			let subPos = this._getSubspriteOffset(ms.name, curAnim, curFrame);
 	
-			ms.position = {
-				x : ms.bestiaDefaultAnchor.x + subPos.x,
-				y : ms.bestiaDefaultAnchor.y + subPos.y
+			ms.sprite.position = {
+				x : ms.defaultCords.x + subPos.x,
+				y : ms.defaultCords.y + subPos.y
 			};
 	
 		}, this);

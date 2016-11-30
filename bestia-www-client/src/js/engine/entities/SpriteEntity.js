@@ -4,8 +4,8 @@ import WorldHelper from '../map/WorldHelper.js';
 
 export default class SpriteEntity extends Entity {
 	
-	constructor(ctx, uuid, x, y, desc) {
-		super(ctx, uuid);
+	constructor(ctx, id, x, y, desc) {
+		super(ctx, id);
 
 		this._data = desc;
 

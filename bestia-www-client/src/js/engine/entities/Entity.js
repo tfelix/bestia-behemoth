@@ -6,7 +6,7 @@ import WorldHelper from '../map/WorldHelper.js';
  */
 export default class Entity {
 	
-	constructor(ctx, uuid) {
+	constructor(ctx, id, uuid) {
 		/**
 		 * Position in tile coordinates.
 		 * 
@@ -19,14 +19,14 @@ export default class Entity {
 		};
 
 		/**
-		 * Entities have aswell a UUID with which they can be identified. This
-		 * UUID exisits (unlike the player bestia id, or pbid) in EVERY entity
-		 * which is spawned in the system.
+		 * Each entity which exists on the server has an id. This id is globally
+		 * unique and must be used when requesting certain action with an
+		 * entity.
 		 * 
 		 * @public
 		 * @property {String}
 		 */
-		this._uuid = uuid;
+		this.id = id;
 
 		this._game = ctx.game;
 

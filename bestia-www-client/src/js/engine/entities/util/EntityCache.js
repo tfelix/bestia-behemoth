@@ -28,10 +28,10 @@ export default class EntityCache {
 	 * @param {Bestia.Engine.BasicEntity}
 	 *            entity - The entity to add to the cache.
 	 */
-	addEntity(id, entity) {
+	addEntity(entity) {
 	
 		this._entityCache = null;
-		this._cache[id] = entity;
+		this._cache[entity.id] = entity;
 	
 	}
 	
