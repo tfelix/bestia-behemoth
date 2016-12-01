@@ -8,7 +8,11 @@ import org.springframework.stereotype.Component;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
+import net.bestia.messages.JsonMessage;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 
 /**
  * Should be the base class for the whole akka system. This class provides some
@@ -20,9 +24,29 @@ import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
 @Component
 @Scope("prototype")
 public abstract class BestiaActor extends UntypedActor {
+	
+	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+	
+	private ActorRef responder;
 
 	public BestiaActor() {
 		super();
+	}
+	
+	/**
+	 * This will deliver the given message back to the account. In order to do
+	 * this a {@link SendClientActor} responder is used. The actor will be
+	 * created when necessary (this means the method is first invoked).
+	 * 
+	 * @param msg
+	 */
+	protected void sendClient(JsonMessage msg) {
+		LOG.debug(String.format("Sending to client: %s", msg.toString()));
+		if (responder == null) {
+			responder = createActor(SendClientActor.class);
+		}
+
+		responder.tell(msg, getSelf());
 	}
 
 	/**
@@ -56,6 +80,7 @@ public abstract class BestiaActor extends UntypedActor {
 
 		final Props props = getSpringProps(clazz);
 
+		// Try to create the class with the name field.
 		try {
 			final Field f = clazz.getField("NAME");
 			final Class<?> t = f.getType();
@@ -67,6 +92,21 @@ public abstract class BestiaActor extends UntypedActor {
 		}
 		
 		return getContext().actorOf(props, "NONAME");
+	}
+	
+	/**
+	 * Small helper method to get props via the spring extension (and thus can
+	 * use dependency injection).
+	 * 
+	 * @param clazz
+	 *            The Actor class to get the props object for.
+	 * @return The created props object.
+	 */
+	protected Props getSpringProps(Class<? extends UntypedActor> clazz, Object... args) {
+
+		final SpringExt springExt = SpringExtension.PROVIDER.get(getContext().system());
+		final Props props = springExt.props(clazz, args);
+		return props;
 	}
 
 	/**

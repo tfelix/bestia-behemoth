@@ -18,7 +18,7 @@ public interface Visible {
 	 * 
 	 * @return
 	 */
-	Visual getSprite();
+	Visual getVisual();
 
 	/**
 	 * Gives a flag if the entity is visible.

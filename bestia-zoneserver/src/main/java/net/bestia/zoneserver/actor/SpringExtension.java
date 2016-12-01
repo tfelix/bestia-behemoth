@@ -59,5 +59,19 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 			return Props.create(SpringActorProducer.class,
 					applicationContext, actorBeanClass).withDeploy(Deploy.local());
 		}
+
+		/**
+		 * Same as {@link #props(Class)} but inside the args can be additional
+		 * arguments for the constructor of the {@link Actor}.
+		 * 
+		 * @param actorBeanClass
+		 * @param args
+		 *            Additional arguments for the actor ctor.
+		 * @return
+		 */
+		public Props props(Class<? extends Actor> actorBeanClass, Object... args) {
+			return Props.create(SpringActorProducer.class,
+					applicationContext, actorBeanClass, args).withDeploy(Deploy.local());
+		}
 	}
 }

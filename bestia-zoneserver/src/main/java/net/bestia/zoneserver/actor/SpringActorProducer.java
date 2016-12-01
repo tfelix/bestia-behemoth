@@ -12,15 +12,29 @@ public class SpringActorProducer implements IndirectActorProducer {
 
 	private final ApplicationContext applicationContext;
 	private final Class<? extends Actor> actorBeanClass;
+	private final Object[] args;
 
 	public SpringActorProducer(ApplicationContext applicationContext, Class<? extends Actor> actorBeanClass) {
 		this.applicationContext = applicationContext;
 		this.actorBeanClass = actorBeanClass;
+		this.args = null;
+	}
+	
+	public SpringActorProducer(ApplicationContext applicationContext, 
+			Class<? extends Actor> actorBeanClass,
+			Object... args) {
+		this.applicationContext = applicationContext;
+		this.actorBeanClass = actorBeanClass;
+		this.args = args;
 	}
 
 	@Override
 	public Actor produce() {
-		return (Actor) applicationContext.getBean(actorBeanClass);
+		if(args == null) {
+			return (Actor) applicationContext.getBean(actorBeanClass);
+		} else {
+			return (Actor) applicationContext.getBean(actorBeanClass, args);
+		}
 	}
 
 	@Override

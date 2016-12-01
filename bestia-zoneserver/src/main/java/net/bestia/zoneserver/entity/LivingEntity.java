@@ -170,7 +170,7 @@ public class LivingEntity extends BaseEntity
 	}
 
 	@Override
-	public Visual getSprite() {
+	public Visual getVisual() {
 		return sprite;
 	}
 

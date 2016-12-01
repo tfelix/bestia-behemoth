@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.ActorRef;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -21,6 +22,7 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
 import net.bestia.zoneserver.service.ConnectionService;
 import net.bestia.zoneserver.service.PlayerEntityService;
@@ -51,6 +53,7 @@ public class LoginActor extends BestiaRoutingActor {
 	private final PlayerBestiaService playerBestiaService;
 	private final PlayerEntityService entityService;
 	private final ConnectionService connectionService;
+	//private final ActorRef activateActor;
 
 	@Autowired
 	public LoginActor(AccountDAO accountDao,
@@ -65,6 +68,8 @@ public class LoginActor extends BestiaRoutingActor {
 		this.connectionService = Objects.requireNonNull(connectionService);
 		this.playerBestiaService = Objects.requireNonNull(pbService);
 		this.entityService = Objects.requireNonNull(entityService);
+		
+		//this.activateActor = createActor(ActivateBestiaActor.class);
 	}
 
 	private void respond(LoginAuthMessage msg, LoginState state, Account acc) {
@@ -86,7 +91,11 @@ public class LoginActor extends BestiaRoutingActor {
 		getSender().tell(response, getSelf());
 	}
 
-	private void spawnEntities(LoginAuthMessage msg) {
+	/**
+	 * Creates the entities (bestias) of the player. It will return the master
+	 * bestia of the player.
+	 */
+	private PlayerBestiaEntity spawnEntities(LoginAuthMessage msg) {
 		LOG.debug("Client connected: {}.", msg);
 
 		// Spawn all bestia entities for this account into the world.
@@ -106,11 +115,11 @@ public class LoginActor extends BestiaRoutingActor {
 		final Optional<PlayerBestiaEntity> masterEntity = bestias.parallelStream()
 				.filter(x -> x.getPlayerBestiaId() == master.getId())
 				.findAny();
-		
-		entityService.setActiveEntity(msg.getAccountId(), masterEntity.get().getId());
-		
+
 		// Register the sender connection.
 		connectionService.addClient(msg.getAccountId(), getSender().path());
+		
+		return masterEntity.get();
 	}
 
 	@Override
