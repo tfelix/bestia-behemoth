@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,7 +33,9 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 
 	private final Set<Class<? extends Object>> ownHandler;
 	private final Map<Class<? extends Object>, Set<ActorRef>> childHandler = new HashMap<>();
-	
+
+	private boolean doChildRouting = true;
+	private boolean hasReported = false;
 
 	public BestiaRoutingActor() {
 		ownHandler = Collections.unmodifiableSet(new HashSet<>());
@@ -42,8 +45,28 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 		ownHandler = Collections.unmodifiableSet(new HashSet<>(handledMessages));
 	}
 
-	public BestiaRoutingActor(Collection<Class<? extends Object>> handledMessages, boolean announceRoute) {
-		ownHandler = Collections.unmodifiableSet(new HashSet<>(handledMessages));
+	/**
+	 * Flag controls if the {@link BestiaRoutingActor} will propagate the
+	 * routing information of its children upstream. If this flag is set to
+	 * false then no child {@link BestiaRoutingActor} will be reported upstream.
+	 * 
+	 * @param flag
+	 */
+	protected void setChildRouting(boolean flag) {
+		doChildRouting = flag;
+
+		// If we had already reported, we must re-report.
+		if (hasReported) {
+			if (doChildRouting) {
+				// Re-send the handled child messages.
+				final ReportHandledMessages reportMsg = new ReportHandledMessages(getAllHandledMessages());
+				getContext().parent().tell(reportMsg, getSelf());
+			} else {
+				// Re-send the empty child message handling.
+				final ReportHandledMessages reportMsg = new ReportHandledMessages();
+				getContext().parent().tell(reportMsg, getSelf());
+			}
+		}
 	}
 
 	/**
@@ -70,7 +93,6 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	 */
 	protected abstract void handleMessage(Object msg);
 
-
 	/**
 	 * Reports to the parent which messages are handled by us.
 	 */
@@ -83,10 +105,9 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	@Override
 	public void onReceive(Object message) throws Exception {
 
-
 		// Internal status messages must be used to handle the routing.
 		if (message instanceof ReportHandledMessages) {
-			addHandledRoutes((ReportHandledMessages) message);
+			setHandledRoutes((ReportHandledMessages) message);
 			return;
 		}
 
@@ -118,25 +139,48 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	}
 
 	/**
-	 * Adds the incoming message routes to the system.
+	 * Sets the incoming message routes to the system. It will set the handled
+	 * message to the handled messages of the childs.
 	 */
-	private void addHandledRoutes(ReportHandledMessages message) {
-		if (message.getHandledMessages().isEmpty()) {
-			return;
-		}
+	private void setHandledRoutes(ReportHandledMessages message) {
+		
+		removeHandledRoutes(getSender());
 
 		message.getHandledMessages().forEach(x -> {
+
 			if (!childHandler.containsKey(x)) {
 				childHandler.put(x, new HashSet<>());
 			}
+
 			childHandler.get(x).add(getSender());
 		});
 
-		// Announce the changed routing table upstream (only if we are not the
-		// sender).
-		if (!getContext().parent().equals(getSelf())) {
+		// Announce the changed routing table upstream.
+		// (only if we are not the sender).
+		if (!getContext().parent().equals(getSelf()) && doChildRouting) {
+			hasReported = true;
 			final ReportHandledMessages reportMsg = new ReportHandledMessages(getAllHandledMessages());
 			getContext().parent().tell(reportMsg, getSelf());
+		}
+	}
+
+	/**
+	 * Removes all routes to this sender.
+	 * 
+	 * @param sender
+	 */
+	private void removeHandledRoutes(ActorRef sender) {
+
+		Iterator<Map.Entry<Class<? extends Object>, Set<ActorRef>>> iter = childHandler.entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry<Class<? extends Object>, Set<ActorRef>> entry = iter.next();
+			entry.getValue().remove(sender);
+
+			// Remove whole set.
+			if (entry.getValue().size() == 0) {
+				iter.remove();
+			}
+
 		}
 	}
 

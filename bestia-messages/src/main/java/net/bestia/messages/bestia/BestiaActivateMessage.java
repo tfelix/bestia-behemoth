@@ -18,28 +18,25 @@ public class BestiaActivateMessage extends JsonMessage {
 	public final static String MESSAGE_ID = "bestia.activate";
 
 	@JsonProperty("pbid")
-	private int playerBestiaId;
+	private final int playerBestiaId;
 	
 	/**
 	 * Ctor.
 	 */
 	public BestiaActivateMessage() {
-		
+		this(0, 0);
 	}
 	
 	/**
 	 * Ctor.
 	 */
-	public BestiaActivateMessage(int bestiaId) {
+	public BestiaActivateMessage(long accId, int bestiaId) {
+		super(accId);
 		this.playerBestiaId = bestiaId;
 	}
 	
 	public int getPlayerBestiaId() {
 		return playerBestiaId;
-	}
-	
-	public void setPlayerBestiaId(int playerBestiaId) {
-		this.playerBestiaId = playerBestiaId;
 	}
 
 	@Override

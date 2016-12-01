@@ -21,6 +21,13 @@ public class ReportHandledMessages {
 	private Set<Class<? extends Object>> handledMessages = new HashSet<>();
 
 	/**
+	 * Empty message means it handles no messages.
+	 */
+	public ReportHandledMessages() {
+		// no op.
+	}
+
+	/**
 	 * 
 	 * @param handledMessages
 	 */

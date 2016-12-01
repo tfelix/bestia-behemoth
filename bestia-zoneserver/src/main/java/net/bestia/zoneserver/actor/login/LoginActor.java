@@ -14,6 +14,7 @@ import akka.actor.ActorRef;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
@@ -53,7 +54,7 @@ public class LoginActor extends BestiaRoutingActor {
 	private final PlayerBestiaService playerBestiaService;
 	private final PlayerEntityService entityService;
 	private final ConnectionService connectionService;
-	//private final ActorRef activateActor;
+	private final ActorRef activateActor;
 
 	@Autowired
 	public LoginActor(AccountDAO accountDao,
@@ -63,13 +64,15 @@ public class LoginActor extends BestiaRoutingActor {
 			PlayerBestiaService pbService) {
 		super(Arrays.asList(LoginAuthMessage.class));
 
+		setChildRouting(false);
+
 		this.accountDao = Objects.requireNonNull(accountDao);
 		this.config = Objects.requireNonNull(config);
 		this.connectionService = Objects.requireNonNull(connectionService);
 		this.playerBestiaService = Objects.requireNonNull(pbService);
 		this.entityService = Objects.requireNonNull(entityService);
-		
-		//this.activateActor = createActor(ActivateBestiaActor.class);
+
+		this.activateActor = createActor(ActivateBestiaActor.class);
 	}
 
 	private void respond(LoginAuthMessage msg, LoginState state, Account acc) {
@@ -82,7 +85,12 @@ public class LoginActor extends BestiaRoutingActor {
 		if (state == LoginState.ACCEPTED) {
 			// Announce to the cluster that we have a new connected user.
 			// Welcome my friend. :)
-			spawnEntities(msg);
+			final PlayerBestiaEntity master = spawnEntities(msg);
+
+			// Now activate the master.
+			final BestiaActivateMessage activateMsg = new BestiaActivateMessage(msg.getAccountId(),
+					master.getPlayerBestiaId());
+			activateActor.tell(activateMsg, getSelf());
 		}
 
 		// Special case. We can not use the SendClientActor because the
@@ -118,7 +126,7 @@ public class LoginActor extends BestiaRoutingActor {
 
 		// Register the sender connection.
 		connectionService.addClient(msg.getAccountId(), getSender().path());
-		
+
 		return masterEntity.get();
 	}
 
