@@ -1,6 +1,7 @@
-package net.bestia.model.misc;
+package net.bestia.model.entity;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -21,6 +22,8 @@ public class Sprite implements Serializable {
 
 	@JsonProperty("st")
 	private SpriteType spriteType;
+	
+	private List<String> multiSprites;
 
 	public Sprite() {
 		// no op.

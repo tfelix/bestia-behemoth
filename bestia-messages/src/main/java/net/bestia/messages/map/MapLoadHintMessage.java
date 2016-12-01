@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
 import net.bestia.messages.MessageId;
-import net.bestia.model.misc.Sprite;
+import net.bestia.model.entity.Sprite;
 
 /**
  * This message is send by the server to the client which has newly connected to

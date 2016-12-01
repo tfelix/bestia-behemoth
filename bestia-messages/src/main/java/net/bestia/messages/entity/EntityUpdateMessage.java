@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
 import net.bestia.messages.MessageId;
-import net.bestia.model.misc.SpriteType;
+import net.bestia.model.entity.SpriteType;
 
 public class EntityUpdateMessage extends AccountMessage implements MessageId {
 

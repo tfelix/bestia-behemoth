@@ -1,4 +1,4 @@
-package net.bestia.model.misc;
+package net.bestia.model.entity;
 
 /**
  * Can be used to send to the client in order to playback a certain animation

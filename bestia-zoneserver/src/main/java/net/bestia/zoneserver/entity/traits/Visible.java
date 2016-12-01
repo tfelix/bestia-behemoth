@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.entity.traits;
 
-import net.bestia.model.misc.Sprite;
+import net.bestia.model.entity.Sprite;
 
 /**
  * The entity can be visualized by the engine. In order to do this some means of

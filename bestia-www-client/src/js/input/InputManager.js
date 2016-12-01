@@ -11,47 +11,48 @@ export default class InputManager {
 	constructor(pubsub) {
 		this._pubsub = pubsub;
 
+		/**
+		 * Hash which holds the actions of this manager.
+		 */
+		this._actions = {};
+		
+		this.isActive = ko.observable(true);
 		
 
 		// Subscribe to keypress events.
 		$(document).on("keydown", this._handleInput.bind(this));
 
+		this._pubsub.subscribe(Signal.SET_ACTION, this._handleAction.bind(this));
 		this._pubsub.subscribe(Signal.INPUT_LISTEN, this._handleListenControl.bind(this));
+	}
+	
+	/**
+	 * This is invoced if we need to handle a certain action by the user.
+	 */
+	_handleAction(_, msg) {
+		
 	}
 	
 	_handleListenControl(_, flag) {
 		this._listen = flag;
 	}
 	
+	/**
+	 * Handles the keypress event of the user. It will look if there is an
+	 * apropriate action for this event.
+	 */
 	_handleInput(input) {
-		if (!this._listen) {
+		if (!this.isActive()) {
 			return;
 		}
 
-		var event = null;
-		var topic = '';
+		let keyCode = input.keyCode;
 
-		// Identify keypress and see if its an registered command.
-		for (var i = 0; i < this._model.length; i++) {
-			if (this._model[i].keyCode == input.keyCode) {
-				event = this._model[i].event;
-
-				switch (this._model[i].category) {
-				case 'attack':
-					topic = Signal.INPUT_USE_ATTACK;
-					break;
-				case 'item':
-					topic = Signal.INPUT_USE_ITEM;
-					break;
-				}
-			}
+		if(!this._actions.hasOwnProperty(keyCode)) {
+			return;
 		}
 		
-		if(event == null) {
-			return;
-		}
-
-		// If so send the appropriate event.
-		this._pubsub.publish(topic, event);
+		// Execute the action set on this key code.
+		this._actions[keyCode].execute();
 	}
 }

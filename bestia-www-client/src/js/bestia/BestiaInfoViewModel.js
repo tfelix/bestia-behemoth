@@ -9,7 +9,7 @@ import MID from '../io/messages/MID.js';
 import Message from '../io/messages/Message.js';
 
 /**
- * Holds complete overview of all selected bestias.
+ * Holds and manages a complete overview of all selected bestias.
  * 
  * @class Bestia.BestiaInfoViewModel
  * @constructor
