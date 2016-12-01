@@ -5,7 +5,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bestia.model.shape.Size;
+import net.bestia.model.geometry.Size;
 
 public class MapGenerator {
 

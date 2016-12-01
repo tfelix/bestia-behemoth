@@ -7,7 +7,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.model.shape.Point;
+import net.bestia.model.geometry.Point;
 
 /**
  * The bestia map consists of multiple small parts. These parts can be requested

@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import net.bestia.model.dao.BestiaDAO;
 import net.bestia.model.domain.Bestia;
-import net.bestia.model.shape.Point;
+import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.script.ScriptCompiler;
 import net.bestia.zoneserver.service.EntityService;
 

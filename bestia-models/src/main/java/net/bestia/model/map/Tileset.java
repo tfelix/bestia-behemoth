@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Objects;
 
 import net.bestia.model.domain.Tile;
-import net.bestia.model.shape.Size;
+import net.bestia.model.geometry.Size;
 
 /**
  * Data of a tileset which is used by the bestia map creation. It holds all

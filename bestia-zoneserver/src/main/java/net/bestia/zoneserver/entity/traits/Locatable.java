@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.entity.traits;
 
-import net.bestia.model.shape.Point;
+import net.bestia.model.geometry.Point;
 
 /**
  * Entity has a defined position in the world. Point refers to the anchor point

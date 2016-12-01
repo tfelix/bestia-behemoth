@@ -16,7 +16,7 @@ import com.hazelcast.query.Predicate;
 import com.hazelcast.query.PredicateBuilder;
 import com.hazelcast.query.Predicates;
 
-import net.bestia.model.shape.Rect;
+import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.entity.BaseEntity;
 import net.bestia.zoneserver.entity.traits.IdEntity;
 import net.bestia.zoneserver.entity.traits.Visible;

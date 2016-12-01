@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.entity.traits;
 
-import net.bestia.model.shape.Collision;
+import net.bestia.model.geometry.Collision;
 
 /**
  * This trait marks the entity as able to collide with another one.

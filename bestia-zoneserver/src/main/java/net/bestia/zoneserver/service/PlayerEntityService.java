@@ -15,7 +15,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MultiMap;
 
-import net.bestia.model.shape.Rect;
+import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
 import net.bestia.zoneserver.entity.traits.IdEntity;
 

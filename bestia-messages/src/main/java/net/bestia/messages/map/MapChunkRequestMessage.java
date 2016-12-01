@@ -6,7 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
-import net.bestia.model.shape.Point;
+import net.bestia.model.geometry.Point;
 
 /**
  * Asks the server to send the data of the map in the current viewport (with

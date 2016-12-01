@@ -1,4 +1,4 @@
-package net.bestia.model.shape;
+package net.bestia.model.geometry;
 
 /**
  * This class contains the shared collision code for the {@link Collision}

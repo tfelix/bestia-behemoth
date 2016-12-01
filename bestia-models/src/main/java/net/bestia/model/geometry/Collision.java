@@ -1,4 +1,4 @@
-package net.bestia.model.shape;
+package net.bestia.model.geometry;
 
 /**
  * The interface provides a common interface for the existing collision shapes.

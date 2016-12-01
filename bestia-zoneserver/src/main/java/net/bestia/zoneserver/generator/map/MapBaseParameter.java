@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
-import net.bestia.model.shape.Size;
+import net.bestia.model.geometry.Size;
 
 /**
  * Creates the base parameter of a newly generated map.

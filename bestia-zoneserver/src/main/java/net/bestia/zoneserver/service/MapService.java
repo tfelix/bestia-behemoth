@@ -18,13 +18,13 @@ import com.hazelcast.query.PredicateBuilder;
 import com.hazelcast.query.Predicates;
 
 import net.bestia.model.domain.Tile;
+import net.bestia.model.geometry.Point;
+import net.bestia.model.geometry.Rect;
+import net.bestia.model.geometry.Size;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.Map.MapBuilder;
 import net.bestia.model.map.TileProperties;
 import net.bestia.model.map.Tileset;
-import net.bestia.model.shape.Point;
-import net.bestia.model.shape.Rect;
-import net.bestia.model.shape.Size;
 
 /**
  * The {@link MapService} is responsible for effectively querying the cache in

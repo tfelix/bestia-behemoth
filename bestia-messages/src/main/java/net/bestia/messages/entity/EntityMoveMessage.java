@@ -6,7 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
-import net.bestia.model.shape.Point;
+import net.bestia.model.geometry.Point;
 
 /**
  * This message is send from the server to all clients as soon as a movement is

@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import net.bestia.messages.AccountMessage;
 import net.bestia.messages.MessageId;
-import net.bestia.model.shape.Point;
+import net.bestia.model.geometry.Point;
 
 /**
  * The ECS is adviced to move the given entity on the map. This is an internal

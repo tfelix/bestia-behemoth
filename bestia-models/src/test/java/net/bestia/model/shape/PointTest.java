@@ -5,6 +5,10 @@ import java.io.Serializable;
 import org.junit.Assert;
 import org.junit.Test;
 
+import net.bestia.model.geometry.Circle;
+import net.bestia.model.geometry.Point;
+import net.bestia.model.geometry.Rect;
+
 public class PointTest {
 	
 	@Test

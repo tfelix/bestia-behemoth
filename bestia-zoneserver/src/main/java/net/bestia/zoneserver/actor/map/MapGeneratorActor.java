@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.actor.map;
 
-import net.bestia.model.shape.Size;
+import net.bestia.model.geometry.Size;
 import net.bestia.zoneserver.actor.BestiaActor;
 
 public class MapGeneratorActor extends BestiaActor {

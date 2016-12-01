@@ -9,8 +9,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import net.bestia.model.domain.Tile;
-import net.bestia.model.shape.Point;
-import net.bestia.model.shape.Rect;
+import net.bestia.model.geometry.Point;
+import net.bestia.model.geometry.Rect;
 
 public class Map {
 
