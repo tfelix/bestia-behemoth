@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
 import net.bestia.messages.MessageId;
-import net.bestia.model.entity.SpriteType;
+import net.bestia.model.entity.VisualType;
 
 public class EntityUpdateMessage extends AccountMessage implements MessageId {
 
@@ -23,7 +23,7 @@ public class EntityUpdateMessage extends AccountMessage implements MessageId {
 	public int y;
 	
 	@JsonProperty("t")
-	public SpriteType type;
+	public VisualType type;
 	
 	@JsonProperty("a")
 	public EntityAction action;
@@ -35,7 +35,7 @@ public class EntityUpdateMessage extends AccountMessage implements MessageId {
 		// no op.
 	}
 
-	public EntityUpdateMessage(SpriteType type, EntityAction action) {
+	public EntityUpdateMessage(VisualType type, EntityAction action) {
 		this.type = type;
 		this.action = action;
 	}
@@ -93,11 +93,11 @@ public class EntityUpdateMessage extends AccountMessage implements MessageId {
 		this.y = y;
 	}
 
-	public SpriteType getType() {
+	public VisualType getType() {
 		return type;
 	}
 
-	public void setType(SpriteType type) {
+	public void setType(VisualType type) {
 		this.type = type;
 	}
 

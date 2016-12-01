@@ -99,7 +99,7 @@ public class TimedMoveActor extends BestiaActor {
 
 			final List<Point> path = msg.getPath()
 					.stream()
-					.map(p -> new Point(p.x, p.y))
+					.map(p -> new Point(p.getX(), p.getY()))
 					.collect(Collectors.toList());
 
 			path.clear();

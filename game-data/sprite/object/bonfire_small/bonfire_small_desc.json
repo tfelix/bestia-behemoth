@@ -1,5 +1,5 @@
  {
-	"type" : "simpleobject",
+	"type" : "object",
 	"version" : 1,
 	"scale" : 0.68,
 	"anchor": {"x": 0.5, "y": 1},

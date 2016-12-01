@@ -7,7 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JasonMessage;
+import net.bestia.messages.JsonMessage;
 import net.bestia.model.domain.TranslationCategory;
 
 /**
@@ -18,7 +18,7 @@ import net.bestia.model.domain.TranslationCategory;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class TranslationRequestMessage extends JasonMessage {
+public class TranslationRequestMessage extends JsonMessage {
 
 	public static class TranslationItem implements Serializable {
 

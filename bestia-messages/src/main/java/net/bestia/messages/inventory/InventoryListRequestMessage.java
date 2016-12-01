@@ -1,6 +1,6 @@
 package net.bestia.messages.inventory;
 
-import net.bestia.messages.JasonMessage;
+import net.bestia.messages.JsonMessage;
 
 /**
  * Client requests to list the inventory.
@@ -8,7 +8,7 @@ import net.bestia.messages.JasonMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class InventoryListRequestMessage extends JasonMessage {
+public class InventoryListRequestMessage extends JsonMessage {
 
 	public final static String MESSAGE_ID = "inventory.requestlist";
 	

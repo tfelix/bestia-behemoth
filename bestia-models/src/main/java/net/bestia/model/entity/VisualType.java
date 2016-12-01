@@ -1,10 +1,12 @@
 package net.bestia.model.entity;
 
 /**
- * Different kinds of sprite sheets.
+ * Entities are visualized via visuals. These visuals can either be a simple
+ * sprite, a sprite build from multiple sprites or even a complex json
+ * description file which tells the engine how to display itself.
  *
  */
-public enum SpriteType {
+public enum VisualType {
 	/**
 	 * Generic still image from the assets without any animations.
 	 */
@@ -28,5 +30,10 @@ public enum SpriteType {
 	 * for the beginning but instead of using the multi sprite information from
 	 * the pack the info from the server is preferred.
 	 */
-	MULTI_DYNAMIC
+	MULTI_DYNAMIC,
+
+	/**
+	 * Visualization is done via an descriptive json file.
+	 */
+	OBJECT
 }

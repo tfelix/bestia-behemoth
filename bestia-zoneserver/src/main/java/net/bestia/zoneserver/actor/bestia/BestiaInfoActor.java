@@ -68,6 +68,7 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 			bestia.updateModel(pb.get());
 
 			final BestiaInfoMessage bimsg = new BestiaInfoMessage(rbimsg,
+					bestia.getId(),
 					pb.get(),
 					bestia.getStatusPoints());
 			sendClient(bimsg);

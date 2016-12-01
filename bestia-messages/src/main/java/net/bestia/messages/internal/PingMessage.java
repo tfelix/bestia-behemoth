@@ -2,9 +2,9 @@ package net.bestia.messages.internal;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JasonMessage;
+import net.bestia.messages.JsonMessage;
 
-public class PingMessage extends JasonMessage {
+public class PingMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 	private final static String message = "Hello Bestia.";

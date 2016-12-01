@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.entity.traits;
 
-import net.bestia.model.entity.Sprite;
+import net.bestia.model.entity.Visual;
 
 /**
  * The entity can be visualized by the engine. In order to do this some means of
@@ -18,7 +18,7 @@ public interface Visible {
 	 * 
 	 * @return
 	 */
-	Sprite getSprite();
+	Visual getSprite();
 
 	/**
 	 * Gives a flag if the entity is visible.

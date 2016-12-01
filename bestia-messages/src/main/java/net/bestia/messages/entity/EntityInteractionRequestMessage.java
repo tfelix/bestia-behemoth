@@ -2,7 +2,7 @@ package net.bestia.messages.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JasonMessage;
+import net.bestia.messages.JsonMessage;
 
 /**
  * By sending this message the client wants to get to know how he is able to
@@ -12,7 +12,7 @@ import net.bestia.messages.JasonMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class EntityInteractionRequestMessage extends JasonMessage {
+public class EntityInteractionRequestMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 

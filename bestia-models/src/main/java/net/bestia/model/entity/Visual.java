@@ -1,7 +1,6 @@
 package net.bestia.model.entity;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class Sprite implements Serializable {
+public class Visual implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -21,18 +20,16 @@ public class Sprite implements Serializable {
 	private String name;
 
 	@JsonProperty("st")
-	private SpriteType spriteType;
-	
-	private List<String> multiSprites;
+	private VisualType visualType;
 
-	public Sprite() {
+	public Visual() {
 		// no op.
 	}
 
-	public Sprite(String name, SpriteType type) {
+	public Visual(String name, VisualType type) {
 		
 		this.name = Objects.requireNonNull(name);
-		this.spriteType = type;
+		this.visualType = type;
 	}
 
 	public String getName() {
@@ -43,11 +40,16 @@ public class Sprite implements Serializable {
 		this.name = name;
 	}
 
-	public SpriteType getSpriteType() {
-		return spriteType;
+	public VisualType getSpriteType() {
+		return visualType;
 	}
 
-	public void setSpriteType(SpriteType spriteType) {
-		this.spriteType = spriteType;
+	public void setVisualType(VisualType spriteType) {
+		this.visualType = spriteType;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("Visual[name: %s, type: %s]", name, visualType.toString());
 	}
 }

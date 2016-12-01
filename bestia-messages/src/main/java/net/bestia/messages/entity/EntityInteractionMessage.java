@@ -8,7 +8,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.JasonMessage;
+import net.bestia.messages.JsonMessage;
 import net.bestia.model.entity.InteractionType;
 
 /**
@@ -19,7 +19,7 @@ import net.bestia.model.entity.InteractionType;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class EntityInteractionMessage extends JasonMessage {
+public class EntityInteractionMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 

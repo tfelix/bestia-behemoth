@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
 import net.bestia.messages.MessageId;
-import net.bestia.model.entity.Sprite;
+import net.bestia.model.entity.Visual;
 
 /**
  * This message is send by the server to the client which has newly connected to
@@ -24,9 +24,9 @@ public class MapLoadHintMessage extends AccountMessage implements MessageId {
 	public static final String MESSAGE_ID = "map.loadhint";
 	
 	@JsonProperty("s")
-	private List<Sprite> sprites = new ArrayList<>();
+	private List<Visual> sprites = new ArrayList<>();
 	
-	public void addSprite(Sprite sprite) {
+	public void addSprite(Visual sprite) {
 		sprites.add(sprite);
 	}
 

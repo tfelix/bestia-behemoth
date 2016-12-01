@@ -13,16 +13,20 @@ import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "mid")
 @JsonTypeIdResolver(MessageTypeIdResolver.class)
-public abstract class JasonMessage extends AccountMessage implements MessageId {
+public abstract class JsonMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
 	
-	public JasonMessage() {
+	public JsonMessage() {
 		// no op.
 	}
 	
-	public JasonMessage(AccountMessage msg) {
+	public JsonMessage(AccountMessage msg) {
 		super(msg);
+	}
+
+	public JsonMessage(long accId) {
+		super(accId);
 	}
 	
 

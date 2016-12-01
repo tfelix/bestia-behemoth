@@ -2,7 +2,7 @@ package net.bestia.messages.login;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JasonMessage;
+import net.bestia.messages.JsonMessage;
 
 /**
  * Message is send if a webserver wants to authenticate a pending connection. It
@@ -12,7 +12,7 @@ import net.bestia.messages.JasonMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class LoginAuthMessage extends JasonMessage {
+public class LoginAuthMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 

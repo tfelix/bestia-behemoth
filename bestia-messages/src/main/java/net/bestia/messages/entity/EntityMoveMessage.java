@@ -1,14 +1,12 @@
 package net.bestia.messages.entity;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
+import net.bestia.messages.JsonMessage;
+import net.bestia.model.shape.Point;
 
 /**
  * This message is send from the server to all clients as soon as a movement is
@@ -21,28 +19,7 @@ import net.bestia.messages.MessageId;
  * @author Thomas Felix <thomas.felix@tfelix.>
  *
  */
-public class EntityMoveMessage extends AccountMessage implements MessageId {
-	
-	public static class Point implements Serializable {
-
-		private static final long serialVersionUID = 1L;
-
-		@JsonProperty("x")
-		public final long x;
-		
-		@JsonProperty("y")
-		public final long y;
-		
-		public Point(long x, long y) {
-			this.x = x;
-			this.y = y;
-		}
-		
-		@Override
-		public String toString() {
-			return String.format("[x: %d, y: %d]", x, y);
-		}
-	}
+public class EntityMoveMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.move";
@@ -50,13 +27,13 @@ public class EntityMoveMessage extends AccountMessage implements MessageId {
 	private List<Point> cords = new ArrayList<>();
 
 	@JsonProperty("s")
-	private int speed;
+	private final int speed;
 
 	@JsonProperty("uuid")
-	private long entityId;
-	
+	private final long entityId;
+
 	public EntityMoveMessage() {
-		// no op.
+		this(0, 0);
 	}
 
 	public EntityMoveMessage(long entityId, int speed) {
@@ -64,7 +41,7 @@ public class EntityMoveMessage extends AccountMessage implements MessageId {
 		this.entityId = entityId;
 		this.speed = speed;
 	}
-	
+
 	public void addCord(int x, int y) {
 		this.cords.add(new Point(x, y));
 	}
@@ -78,30 +55,12 @@ public class EntityMoveMessage extends AccountMessage implements MessageId {
 		return entityId;
 	}
 
-	public void setEntityId(long entityId) {
-		this.entityId = entityId;
+	public List<Point> getPath() {
+		return cords;
 	}
 	
-	@JsonIgnore
-	public int getPathDistance() {
-		int d = 0;
-		
-		for(int i = 1; i < cords.size(); i++) {
-			final Point x1 = cords.get(i);
-			final Point x0 = cords.get(i-1);
-			
-			d += (int)Math.sqrt((x1.x - x0.x) * (x1.x - x0.x) + (x1.y - x0.y) * (x1.y - x0.y));
-		}
-		
-		return d;
-	}
-
 	@Override
 	public String toString() {
 		return String.format("EntityMoveMessage[uuid: %s, accId: %d, cords: %s]", entityId, getAccountId(), cords);
-	}
-
-	public List<Point> getPath() {
-		return cords;
 	}
 }

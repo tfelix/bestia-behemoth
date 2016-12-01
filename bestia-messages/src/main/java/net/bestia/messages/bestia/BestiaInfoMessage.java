@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.JasonMessage;
+import net.bestia.messages.JsonMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 
@@ -18,7 +18,7 @@ import net.bestia.model.domain.StatusPoints;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class BestiaInfoMessage extends JasonMessage {
+public class BestiaInfoMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 
@@ -30,9 +30,12 @@ public class BestiaInfoMessage extends JasonMessage {
 	@JsonProperty("b")
 	private PlayerBestia bestia;
 
+	@JsonProperty("eeid")
+	private long entityId;
+
 	@JsonProperty("sp")
 	private StatusPoints statusPoints;
-	
+
 	public BestiaInfoMessage() {
 		// no op.
 	}
@@ -52,11 +55,12 @@ public class BestiaInfoMessage extends JasonMessage {
 	 * @param pb
 	 * @param rbimsg
 	 */
-	public BestiaInfoMessage(AccountMessage message, PlayerBestia pb, StatusPoints sp) {
+	public BestiaInfoMessage(AccountMessage message, long entityId, PlayerBestia pb, StatusPoints sp) {
 		super(message);
-		
+
 		Objects.requireNonNull(pb);
-		
+
+		this.entityId = entityId;
 		isMaster = pb.getMaster() != null;
 		bestia = pb;
 		statusPoints = Objects.requireNonNull(sp);
@@ -110,6 +114,15 @@ public class BestiaInfoMessage extends JasonMessage {
 
 	public PlayerBestia getBestia() {
 		return bestia;
+	}
+
+	/**
+	 * Returns the unique entity id of this bestia.
+	 * 
+	 * @return The entity ID of this bestia.
+	 */
+	public long getEntityId() {
+		return entityId;
 	}
 
 	public void setBestia(PlayerBestia bestia, StatusPoints statusPoints) {

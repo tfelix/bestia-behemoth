@@ -2,7 +2,7 @@ package net.bestia.messages.chat;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JasonMessage;
+import net.bestia.messages.JsonMessage;
 import net.bestia.model.I18n;
 import net.bestia.model.domain.Account;
 
@@ -12,7 +12,7 @@ import net.bestia.model.domain.Account;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class ChatMessage extends JasonMessage {
+public class ChatMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 

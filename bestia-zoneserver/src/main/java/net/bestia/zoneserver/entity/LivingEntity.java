@@ -17,8 +17,8 @@ import net.bestia.model.domain.Position;
 import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.entity.InteractionType;
-import net.bestia.model.entity.Sprite;
-import net.bestia.model.entity.SpriteType;
+import net.bestia.model.entity.Visual;
+import net.bestia.model.entity.VisualType;
 import net.bestia.model.map.Map;
 import net.bestia.model.shape.Collision;
 import net.bestia.model.shape.Point;
@@ -59,7 +59,7 @@ public class LivingEntity extends BaseEntity
 	private Position position = new Position();
 
 	private Direction headFacing = Direction.SOUTH;
-	private Sprite sprite;
+	private Visual sprite;
 	private boolean isVisible = true;
 
 	private final BaseValues baseValues;
@@ -81,7 +81,7 @@ public class LivingEntity extends BaseEntity
 		this.ivs = BaseValues.getNewIndividualValues();
 		this.effortValues = Objects.requireNonNull(effortValues);
 
-		this.sprite = new Sprite(spriteName, SpriteType.PACK);
+		this.sprite = new Visual(spriteName, VisualType.PACK);
 	}
 
 	public LivingEntity(BaseValues baseValues, BaseValues ivs, BaseValues effortValues, String spriteName) {
@@ -90,7 +90,7 @@ public class LivingEntity extends BaseEntity
 		this.ivs = Objects.requireNonNull(ivs);
 		this.effortValues = Objects.requireNonNull(effortValues);
 
-		this.sprite = new Sprite(spriteName, SpriteType.PACK);
+		this.sprite = new Visual(spriteName, VisualType.PACK);
 	}
 
 	public Direction getHeadFacing() {
@@ -170,7 +170,7 @@ public class LivingEntity extends BaseEntity
 	}
 
 	@Override
-	public Sprite getSprite() {
+	public Visual getSprite() {
 		return sprite;
 	}
 
