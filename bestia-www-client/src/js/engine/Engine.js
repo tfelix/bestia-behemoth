@@ -88,6 +88,9 @@ export default class Engine {
 		this.game.state.start('connecting');
 	}
 
+	/**
+	 * After booting was done. Init the game.
+	 */
 	_handlerOnBooted() {
 		console.debug('Booting finished. Starting load.');
 		this.game.state.start('initial_loading');

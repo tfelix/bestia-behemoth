@@ -66,6 +66,11 @@ let Signal = {
 	ENGINE_INIT_LOADED : 'engine.initloaded',
 	ENGINE_LOADED : 'engine.loaded',
 	ENGINE_PREPARE_MAPLOAD : 'engine.prepareMapload',
+	/**
+	 * Emitted when the map and the game state has loaded and is being
+	 * displayed.
+	 */
+	ENGINE_GAME_STARTED : 'engine.gameStarted'
 
 	/**
 	 * Emitted when map data has loaded and we can now switch to the game state.
@@ -73,14 +78,7 @@ let Signal = {
 	ENGINE_FINISHED_MAPLOAD : 'engine.finishMapload',
 
 	ENGINE_CAST_ITEM : 'engine.castItem',
-	ENGINE_REQUEST_INDICATOR : 'engine.indicator',
-
-	/**
-	 * Emitted when the map and the game state has loaded and is being
-	 * displayed.
-	 */
-	ENGINE_GAME_STARTED : 'engine.gameStarted'
-
+	ENGINE_REQUEST_INDICATOR : 'engine.indicator'
 };
 
 export default Signal;
