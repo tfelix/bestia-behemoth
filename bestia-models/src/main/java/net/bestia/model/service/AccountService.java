@@ -1,5 +1,8 @@
 package net.bestia.model.service;
 
+import java.util.Date;
+import java.util.UUID;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,7 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.domain.PlayerClass;
 
 /**
  * Generates all the needed account services. Please be careful: This factory is
@@ -33,21 +37,6 @@ public class AccountService {
 	private PlayerBestiaDAO playerBestiaDao;
 	private BestiaDAO bestiaDao;
 
-	public enum Master {
-		/**
-		 * DPS starter class.
-		 */
-		FIGHTER,
-		/**
-		 * Tank starter class.
-		 */
-		KNIGHT,
-		/**
-		 * Support class.
-		 */
-		SPIRITUAL
-	}
-
 	@Autowired
 	public void setAccountDao(AccountDAO accountDao) {
 		this.accountDao = accountDao;
@@ -61,6 +50,29 @@ public class AccountService {
 	@Autowired
 	public void setBestiaDao(BestiaDAO bestiaDAO) {
 		this.bestiaDao = bestiaDAO;
+	}
+
+	/**
+	 * This will return a {@link Account} with the needed, new access token. If
+	 * the wrong credentials where provided null is returned instead.
+	 * 
+	 * @param accName
+	 * @return The account with the new token, or null if wrong credentials.
+	 */
+	public Account createLoginToken(String accName, String password) {
+		final Account acc = accountDao.findByEmail(accName);
+		if(acc == null) {
+			return null;
+		}
+		
+		if(!acc.getPassword().matches(password)) {
+			return null;
+		}
+		
+		acc.setLastLogin(new Date());
+		acc.setLoginToken(UUID.randomUUID().toString());
+		accountDao.save(acc);
+		return acc;
 	}
 
 	/**
@@ -78,7 +90,7 @@ public class AccountService {
 	 * @return {@code TRUE} if the new account coule be created. {@code FALSE}
 	 *         otherwise.
 	 */
-	public void createNewAccount(String email, String mastername, String password, Master starter) {
+	public void createNewAccount(String email, String mastername, String password, PlayerClass starter) {
 		if (mastername == null || mastername.isEmpty()) {
 			throw new IllegalArgumentException("Mastername can not be null or empty.");
 		}

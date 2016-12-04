@@ -11,7 +11,8 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
 
-import net.bestia.model.service.AccountService.Master;
+import net.bestia.model.domain.PlayerClass;
+
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"/spring-config.xml"})
@@ -25,48 +26,48 @@ public class AccountServiceTest {
 
 	@Test(expected=IllegalArgumentException.class)
 	public void createNewAccount_noMail_fail() {
-		accService.createNewAccount("", "Ignatz", "test123", Master.KNIGHT);
+		accService.createNewAccount("", "Ignatz", "test123", PlayerClass.KNIGHT);
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void createNewAccount_nullMail_fail() {
-		accService.createNewAccount(null, "Ignatz", "test123", Master.KNIGHT);
+		accService.createNewAccount(null, "Ignatz", "test123", PlayerClass.KNIGHT);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void createNewAccount_duplicateMail_fail() {
-		accService.createNewAccount("thomas.new123@tfelix.de", "Ignatz", "test123", Master.KNIGHT);
-		accService.createNewAccount("thomas.new123@tfelix.de", "Ignatz2", "test123", Master.KNIGHT);
+		accService.createNewAccount("thomas.new123@tfelix.de", "Ignatz", "test123", PlayerClass.KNIGHT);
+		accService.createNewAccount("thomas.new123@tfelix.de", "Ignatz2", "test123", PlayerClass.KNIGHT);
 	}
 
 	@Test
 	public void createNewAccount_ok_success() {
-		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "test123", Master.KNIGHT);
+		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "test123", PlayerClass.KNIGHT);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void createNewAccount_noMasterName_fail() {
-		accService.createNewAccount("thomas.felix@tfelix.de", "", "test123", Master.KNIGHT);
+		accService.createNewAccount("thomas.felix@tfelix.de", "", "test123", PlayerClass.KNIGHT);
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void createNewAccount_nullMasterName_fail() {
-		accService.createNewAccount("thomas.felix@tfelix.de", null, "test123", Master.KNIGHT);
+		accService.createNewAccount("thomas.felix@tfelix.de", null, "test123", PlayerClass.KNIGHT);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void createNewAccount_duplicateMasterName_fail() {
-		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "test123", Master.KNIGHT);
-		accService.createNewAccount("thomas.felix2@tfelix.de", "Ignatz", "test123", Master.KNIGHT);
+		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "test123", PlayerClass.KNIGHT);
+		accService.createNewAccount("thomas.felix2@tfelix.de", "Ignatz", "test123", PlayerClass.KNIGHT);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void createNewAccount_nullPassword_fail() {
-		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", null, Master.KNIGHT);
+		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", null, PlayerClass.KNIGHT);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void createNewAccount_emptyPassword_fail() {
-		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "", Master.KNIGHT);
+		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "", PlayerClass.KNIGHT);
 	}
 }
