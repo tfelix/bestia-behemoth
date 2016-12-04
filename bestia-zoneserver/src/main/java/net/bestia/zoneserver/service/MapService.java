@@ -1,29 +1,19 @@
 package net.bestia.zoneserver.service;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
-import com.hazelcast.query.EntryObject;
-import com.hazelcast.query.Predicate;
-import com.hazelcast.query.PredicateBuilder;
-import com.hazelcast.query.Predicates;
 
-import net.bestia.model.domain.Tile;
+import net.bestia.model.dao.TileDAO;
+import net.bestia.model.dao.TilesetDAO;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
-import net.bestia.model.geometry.Size;
 import net.bestia.model.map.Map;
-import net.bestia.model.map.Map.MapBuilder;
-import net.bestia.model.map.TileProperties;
 import net.bestia.model.map.Tileset;
 
 /**
@@ -37,17 +27,21 @@ import net.bestia.model.map.Tileset;
 @Service
 public class MapService {
 
-	public final static String CACHE_KEY = "map.tiles";
-	public final static String MAP_NAME_KEY = "map.name";
+	// public final static String CACHE_KEY = "map.tiles";
+	// public final static String MAP_NAME_KEY = "map.name";
 	private final static String TILESET_KEY = "map.tilesets";
-	private final static String TILE_PROPS_KEY = "map.tileprops";
+
+	private final TileDAO tileDao;
+	private final TilesetDAO tilesetDao;
 
 	private final HazelcastInstance hazelcastInstance;
 
 	@Autowired
-	public MapService(HazelcastInstance hz) {
+	public MapService(TileDAO tileDao, TilesetDAO tilesetDao, HazelcastInstance hz) {
 
 		this.hazelcastInstance = Objects.requireNonNull(hz);
+		this.tileDao = Objects.requireNonNull(tileDao);
+		this.tilesetDao = Objects.requireNonNull(tilesetDao);
 	}
 
 	/**
@@ -70,10 +64,6 @@ public class MapService {
 		return "Kalarian";
 	}
 
-	public void setName(String name) {
-		// TODO das hier implementieren.
-	}
-
 	/**
 	 * Retrieves all the needed map data from the database and build a map
 	 * object around it in order to access it.
@@ -84,45 +74,50 @@ public class MapService {
 	@SuppressWarnings("rawtypes")
 	public Map getMap(Rect range) {
 
-		final IMap<Point, List<Tile>> tileData = hazelcastInstance.getMap(CACHE_KEY);
+		/*
+		 * final IMap<Point, List<Tile>> tileData =
+		 * hazelcastInstance.getMap(CACHE_KEY);
+		 * 
+		 * // Build the query. final EntryObject e = new
+		 * PredicateBuilder().getEntryObject();
+		 * 
+		 * final Predicate xPredicate =
+		 * e.get("position.x").between(range.getX(), range.getX() +
+		 * range.getWidth()); final Predicate yPredicate =
+		 * e.get("position.y").between(range.getY(), range.getY() +
+		 * range.getHeight());
+		 * 
+		 * final Predicate rangePredicate = Predicates.and(xPredicate,
+		 * yPredicate);
+		 * 
+		 * final Collection<List<Tile>> tiles = tileData.values(rangePredicate);
+		 * 
+		 * // Find the highest map layer. final int maxLevel =
+		 * tiles.parallelStream().map(x ->
+		 * x.size()).max(Integer::compare).get();
+		 * 
+		 * final Set<Tileset> tilesets = new HashSet<>();
+		 * 
+		 * // Find the tilesets to this tiles. for (List<Tile> lt : tiles) { for
+		 * (Tile t : lt) { final Tileset ts = getTileset(t.getGid());
+		 * tilesets.add(ts); } }
+		 * 
+		 * // Build the map objects. final MapBuilder mapBuilder = new
+		 * MapBuilder();
+		 * 
+		 * // mapBuilder.setSize(new Size((int) range.getWidth(), (int) //
+		 * range.getHeight())); mapBuilder.addTilesets(tilesets);
+		 * 
+		 * for (int i = 0; i < maxLevel; i++) { // Find all tiles on this
+		 * particular layer.
+		 * 
+		 * // Add the tiles to the mapbuilder. // mapBuilder.addTiles(i, tiles);
+		 * }
+		 * 
+		 * return mapBuilder.build();
+		 */
 
-		// Build the query.
-		final EntryObject e = new PredicateBuilder().getEntryObject();
-
-		final Predicate xPredicate = e.get("position.x").between(range.getX(), range.getX() + range.getWidth());
-		final Predicate yPredicate = e.get("position.y").between(range.getY(), range.getY() + range.getHeight());
-
-		final Predicate rangePredicate = Predicates.and(xPredicate, yPredicate);
-
-		final Collection<List<Tile>> tiles = tileData.values(rangePredicate);
-
-		// Find the highest map layer.
-		final int maxLevel = tiles.parallelStream().map(x -> x.size()).max(Integer::compare).get();
-
-		final Set<Tileset> tilesets = new HashSet<>();
-
-		// Find the tilesets to this tiles.
-		for (List<Tile> lt : tiles) {
-			for (Tile t : lt) {
-				final Tileset ts = getTileset(t.getGid());
-				tilesets.add(ts);
-			}
-		}
-
-		// Build the map objects.
-		final MapBuilder mapBuilder = new MapBuilder();
-
-		//mapBuilder.setSize(new Size((int) range.getWidth(), (int) range.getHeight()));
-		mapBuilder.addTilesets(tilesets);
-
-		for (int i = 0; i < maxLevel; i++) {
-			// Find all tiles on this particular layer.
-
-			// Add the tiles to the mapbuilder.
-			// mapBuilder.addTiles(i, tiles);
-		}
-
-		return mapBuilder.build();
+		return null;
 	}
 
 	/**
@@ -154,37 +149,5 @@ public class MapService {
 				.findAny();
 
 		return ts.isPresent() ? ts.get() : null;
-	}
-
-	/**
-	 * This will save all the tiles as the given layer to the database.
-	 * 
-	 * @param layer
-	 * @param tiles
-	 */
-	public void saveTiles(int layer, List<Tile> tiles) {
-
-		final IMap<Point, List<Tile>> tileData = hazelcastInstance.getMap(CACHE_KEY);
-	}
-
-	/**
-	 * Saves the given tileset into the memory cache for later retrieval.
-	 * 
-	 * @param tileset
-	 */
-	public void saveTileset(Tileset tileset) {
-		final IMap<String, Tileset> tilesetData = hazelcastInstance.getMap(TILESET_KEY);
-		tilesetData.put(tileset.getName(), tileset);
-	}
-
-	/**
-	 * Saves the given tile properties for this given tile.
-	 * 
-	 * @param gid Global tile id.
-	 * @param tileProps The properties of this tile.
-	 */
-	public void saveTileProperties(int gid, TileProperties tileProps) {
-		final IMap<Integer, TileProperties> props = hazelcastInstance.getMap(TILE_PROPS_KEY);
-		props.put(gid, tileProps);
 	}
 }

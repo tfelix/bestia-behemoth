@@ -6,14 +6,33 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bestia.model.domain.Tile;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 
+/**
+ * Helper object to encapsulate map data. Usually the game engine works on this
+ * map part objects to provide the pathfinding algorithms with enough
+ * information or the AI. Not the whole map is encapsulated inside this map.
+ * Usually this is a rather small part because all data is hold in memory and
+ * not streamed.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public class Map {
 
+	private static final Logger LOG = LoggerFactory.getLogger(Map.class);
+
+	/**
+	 * Max sight range in tiles in every direction.
+	 */
 	public static int SIGHT_RANGE = 32;
 
 	/**
@@ -94,23 +113,19 @@ public class Map {
 	}
 
 	private final Rect rect;
-	//private final boolean[][] walkable;
 	private final List<Tileset> tilesets;
 	private final List<Integer> groundLayer;
 	private final List<java.util.Map<Point, Integer>> tileLayer = new ArrayList<>();
 
 	public Map(MapBuilder builder) {
-		
-		this.rect = Objects.requireNonNull(builder.rect);
-		//this.walkable = new boolean[(int) size.getHeight()][(int) size.getWidth()];
 
+		this.rect = Objects.requireNonNull(builder.rect);
 		Objects.requireNonNull(builder.tilesets);
 		this.tilesets = Collections.unmodifiableList(new ArrayList<>(builder.tilesets));
 		Objects.requireNonNull(builder.groundTiles);
 		this.groundLayer = Collections.unmodifiableList(builder.groundTiles.stream()
 				.map(x -> x.getGid())
 				.collect(Collectors.toList()));
-
 	}
 
 	public boolean isWalkable(long x, long y) {
@@ -118,8 +133,40 @@ public class Map {
 	}
 
 	public boolean isWalkable(Point p) {
+		if(!rect.collide(p)) {
+			throw new IndexOutOfBoundsException("Coodination does not lie inside this map.");
+		}
+		
+		// Now check the layers.
+		long x = p.getX() - rect.getOrigin().getX();
+		long y = p.getY() - rect.getOrigin().getY();
+		int index = (int) (y * rect.getWidth() + x);
+		final int gid = groundLayer.get(index);
+		
+		boolean groundWalkable = getTileset(gid)
+				.map(ts -> ts.getProperties(gid).isWalkable())
+				.orElse(false);
+		
+		if(!groundWalkable) {
+			return false;
+		}
+		
+		// TODO Check the sparse map.
+
 		return true;
-		//return walkable[(int) p.getY()][(int) p.getY()];
+	}
+
+	private Optional<Tileset> getTileset(int gid) {
+		final Optional<Tileset> tileset = tilesets.stream()
+				.filter(ts -> ts.contains(gid))
+				.findAny();
+
+		if (!tileset.isPresent()) {
+			LOG.warn("Gid {} not found inside tilsets.", gid);
+			return null;
+		}
+
+		return tileset;
 	}
 
 	/**
@@ -130,26 +177,21 @@ public class Map {
 	 * 
 	 * @return The sparse collisions layer.
 	 */
-	public java.util.Map<Point, Boolean> getSparseCollisionLayer() {
-
-		final java.util.Map<Point, Boolean> collisions = new HashMap<>();
-
-		int y = (int) rect.getY();
-		/*for (boolean[] row : walkable) {
-			int x = (int) rect.getX();
-			for (boolean walkable : row) {
-
-				if (!walkable) {
-					collisions.put(new Point(x, y), false);
-				}
-
-				x++;
-			}
-			y++;
-		}*/
-
-		return collisions;
-	}
+	/*
+	 * public java.util.Map<Point, Boolean> getSparseCollisionLayer() {
+	 * 
+	 * final java.util.Map<Point, Boolean> collisions = new HashMap<>();
+	 * 
+	 * int y = (int) rect.getY(); /* for (boolean[] row : walkable) { int x =
+	 * (int) rect.getX(); for (boolean walkable : row) {
+	 * 
+	 * if (!walkable) { collisions.put(new Point(x, y), false); }
+	 * 
+	 * x++; } y++; }
+	 */
+	/*
+	 * return collisions; }
+	 */
 
 	/**
 	 * Gets the linear tile ids for the ground layer.
@@ -183,7 +225,8 @@ public class Map {
 	}
 
 	/**
-	 * Returns the size of map.
+	 * Returns the size (and location) of map which usually only represents a
+	 * small part of the whole global map.
 	 * 
 	 * @return The view to this part of the map.
 	 */
