@@ -5,9 +5,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Element;
@@ -21,8 +18,6 @@ import net.bestia.model.entity.Visual;
 import net.bestia.model.entity.VisualType;
 import net.bestia.model.geometry.Collision;
 import net.bestia.model.geometry.Point;
-import net.bestia.model.geometry.Rect;
-import net.bestia.model.map.Map;
 import net.bestia.zoneserver.entity.traits.Attackable;
 import net.bestia.zoneserver.entity.traits.Collidable;
 import net.bestia.zoneserver.entity.traits.Equipable;
@@ -50,8 +45,6 @@ public class LivingEntity extends BaseEntity
 
 	private static final long serialVersionUID = 1L;
 
-	private final static Logger LOG = LoggerFactory.getLogger(LivingEntity.class);
-
 	/**
 	 * Contains all the applied status effects.
 	 */
@@ -75,17 +68,13 @@ public class LivingEntity extends BaseEntity
 	 */
 	private StatusPoints modifiedStatusPoints;
 
-	public LivingEntity(BaseValues baseValues, BaseValues effortValues, String spriteName) {
-
-		this.baseValues = Objects.requireNonNull(baseValues);
-		this.ivs = BaseValues.getNewIndividualValues();
-		this.effortValues = Objects.requireNonNull(effortValues);
-
-		this.sprite = new Visual(spriteName, VisualType.PACK);
+	public LivingEntity(EntityContext ctx, BaseValues baseValues, BaseValues effortValues, String spriteName) {
+		this(ctx, baseValues, BaseValues.getNewIndividualValues(), effortValues, spriteName);
 	}
 
-	public LivingEntity(BaseValues baseValues, BaseValues ivs, BaseValues effortValues, String spriteName) {
-
+	public LivingEntity(EntityContext ctx, BaseValues baseValues, BaseValues ivs, BaseValues effortValues, String spriteName) {
+		super(ctx);
+		
 		this.baseValues = Objects.requireNonNull(baseValues);
 		this.ivs = Objects.requireNonNull(ivs);
 		this.effortValues = Objects.requireNonNull(effortValues);
@@ -188,10 +177,12 @@ public class LivingEntity extends BaseEntity
 	public void setPosition(long x, long y) {
 		this.position.setX(x);
 		this.position.setY(y);
+		ctx.notifyPosition(this);
 	}
 
 	public void setPosition(Position pos) {
 		this.position.set(pos);
+		ctx.notifyPosition(this);
 	}
 
 	@Override
@@ -244,15 +235,6 @@ public class LivingEntity extends BaseEntity
 	public void kill() {
 		// TODO Auto-generated method stub
 
-	}
-
-	public Rect getSightRect() {
-		final Point pos = getPosition();
-		final Rect sightRect = new Rect(pos.getX() - Map.SIGHT_RANGE,
-				pos.getY() - Map.SIGHT_RANGE,
-				pos.getX() + Map.SIGHT_RANGE,
-				pos.getY() + Map.SIGHT_RANGE);
-		return sightRect;
 	}
 
 	@Override

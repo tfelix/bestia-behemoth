@@ -107,8 +107,7 @@ public class LoginActor extends BestiaRoutingActor {
 		LOG.debug("Client connected: {}.", msg);
 
 		// Spawn all bestia entities for this account into the world.
-		final Set<PlayerBestia> pbs = playerBestiaService
-				.getAllBestias(msg.getAccountId());
+		final Set<PlayerBestia> pbs = playerBestiaService.getAllBestias(msg.getAccountId());
 
 		final PlayerBestia master = playerBestiaService.getMaster(msg.getAccountId());
 

@@ -12,11 +12,11 @@ public final class AkkaCluster {
 	public static final String CLUSTER_NAME = "BehemothCluster";
 
 	public static final String CLUSTER_PUBSUB_TOPIC = "behemoth";
-	
+
 	public static final String ROLE_WEB = "webserver";
 	public static final String ROLE_ZONE = "zoneserver";
 
 	private AkkaCluster() {
-
+		// no op.
 	}
 }

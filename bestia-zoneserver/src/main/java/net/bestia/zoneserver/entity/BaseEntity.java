@@ -1,5 +1,10 @@
 package net.bestia.zoneserver.entity;
 
+import java.util.Objects;
+
+import net.bestia.model.geometry.Point;
+import net.bestia.model.geometry.Rect;
+import net.bestia.model.map.Map;
 import net.bestia.zoneserver.entity.traits.IdEntity;
 import net.bestia.zoneserver.entity.traits.Locatable;
 
@@ -14,10 +19,13 @@ import net.bestia.zoneserver.entity.traits.Locatable;
 public abstract class BaseEntity implements IdEntity, Locatable {
 
 	private static final long serialVersionUID = 1L;
+
+	protected final EntityContext ctx;
 	private long id;
 
-	public BaseEntity() {
-		// no op.
+	public BaseEntity(EntityContext ctx) {
+
+		this.ctx = Objects.requireNonNull(ctx);
 	}
 
 	/**
@@ -40,13 +48,30 @@ public abstract class BaseEntity implements IdEntity, Locatable {
 	public long getId() {
 		return id;
 	}
-	
+
 	public long getX() {
 		return getPosition().getX();
 	}
-	
+
 	public long getY() {
 		return getPosition().getY();
+	}
+
+	/**
+	 * Returns the sight range of the entity. This method is very important,
+	 * because it is used in case of a change to determine all clients which are
+	 * in range and must be updated about the change.
+	 * 
+	 * @return The range {@link Rect} of the sight range originating from this
+	 *         entity.
+	 */
+	public Rect getSightRect() {
+		final Point pos = getPosition();
+		final Rect sightRect = new Rect(pos.getX() - Map.SIGHT_RANGE,
+				pos.getY() - Map.SIGHT_RANGE,
+				pos.getX() + Map.SIGHT_RANGE,
+				pos.getY() + Map.SIGHT_RANGE);
+		return sightRect;
 	}
 
 }

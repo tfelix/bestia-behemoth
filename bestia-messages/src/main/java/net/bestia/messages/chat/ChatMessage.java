@@ -47,6 +47,14 @@ public class ChatMessage extends JsonMessage {
 		// no op.
 	}
 
+	public ChatMessage(long accId, String message, Mode mode) {
+		super(accId);
+
+		this.chatMode = mode;
+		this.text = message;
+		setTime(System.currentTimeMillis() / 1000L);
+	}
+
 	public static ChatMessage getSystemMessage(Account account, String translationKey, Object... args) {
 
 		final String text = I18n.t(account, translationKey, args);
@@ -59,9 +67,13 @@ public class ChatMessage extends JsonMessage {
 	}
 
 	/**
+	 * Creates a new chat message in the mode as a system message.
+	 * 
 	 * @param account
+	 *            A account to receive the message.
 	 * @param text
-	 * @return
+	 *            A text to send to the client.
+	 * @return The generated message.
 	 */
 	public static ChatMessage getSystemMessage(Account account, String text) {
 
@@ -114,7 +126,7 @@ public class ChatMessage extends JsonMessage {
 	public void setSenderNickname(String senderNickname) {
 		this.senderNickname = senderNickname;
 	}
-	
+
 	public String getReceiverNickname() {
 		return receiverNickname;
 	}

@@ -33,9 +33,14 @@ public class MoveActor extends BestiaRoutingActor {
 
 		final LivingEntity entity = null;
 
-		// TODO Was it a visible entity? If yes update all nearby entities.
+		// Check if the entity is already moving.
+		// If this is the case cancel the current movement.
 
-		// TODO Was
+		// Then start a new movement via spawning a new movement tick actor with
+		// the route to move and the movement speed determines the ticking
+		// speed.
 
+		// If it is a visible entity then update all nearby entities with the
+		// movement message.
 	}
 }

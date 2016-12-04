@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.ActorSystem;
 import akka.actor.Props;
+import net.bestia.server.AkkaCluster;
+import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
 import net.bestia.zoneserver.actor.zone.ZoneActor;
 
 /**
@@ -32,7 +34,9 @@ public class ZoneStarter implements CommandLineRunner {
 	public void run(String... strings) throws Exception {
 		LOG.info("Starting actor system...");
 
-		final Props props = SpringExtension.PROVIDER.get(system).props(ZoneActor.class);
-		system.actorOf(props, "behemoth");
+		// Spawn the root actor of the system.
+		final SpringExt ext = SpringExtension.PROVIDER.get(system);
+		final Props props = ext.props(ZoneActor.class);
+		system.actorOf(props, AkkaCluster.CLUSTER_PUBSUB_TOPIC);
 	}
 }
