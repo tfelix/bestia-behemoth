@@ -3,16 +3,15 @@
 
 	<parent>
 		<groupId>net.bestia</groupId>
-		<artifactId>bestia-server-commons</artifactId>
+		<artifactId>bestia-server-base</artifactId>
 		<version>alpha-0.3.0-SNAPSHOT</version>
-		<relativePath>../bestia-server-commons/pom.xml</relativePath>
+		<relativePath>../bestia-server-base/pom.xml</relativePath>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>bestia-webserver</artifactId>
 	<name>bestia-webserver</name>
 
-	<description>Next generation bestia webserver for client connections.</description>
 
 
 	<dependencies>
@@ -38,6 +37,11 @@
 		</dependency>
 
 		<!-- BESTIA DEPENDENCIES -->
+		<dependency>
+			<groupId>net.bestia</groupId>
+			<artifactId>bestia-server-commons</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>net.bestia</groupId>
 			<artifactId>bestia-message</artifactId>
@@ -70,4 +74,5 @@
 			</plugin>
 		</plugins>
 	</build>
+	<description>Frontend server for websocket clients to connect to the bestia server. It also provides some basic REST functions for the web clients to startup a connection (mainly for fetching login details).</description>
 </project>
