@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.generator.map;
 
 /**
- * This class is used to define after which of the values a single biome is
- * choosen.
+ * This class is used to define with a fuzzy logic implementation which biom
+ * values must be met in order to choose a certain biome.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *

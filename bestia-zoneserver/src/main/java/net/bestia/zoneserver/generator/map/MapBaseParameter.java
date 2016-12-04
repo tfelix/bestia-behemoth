@@ -2,6 +2,7 @@ package net.bestia.zoneserver.generator.map;
 
 import java.util.Date;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import net.bestia.model.geometry.Size;
@@ -19,6 +20,8 @@ public class MapBaseParameter {
 	 *
 	 */
 	public static class Builder {
+		
+		private final Random rand = ThreadLocalRandom.current();
 
 		private long population;
 		private Size worldSize;
@@ -26,6 +29,7 @@ public class MapBaseParameter {
 		private int minSettlementDistance;
 		private int settlementCount;
 		private String name;
+		private int seed;
 
 		public Builder() {
 			// no op.
@@ -58,6 +62,10 @@ public class MapBaseParameter {
 		public MapBaseParameter build() {
 			return new MapBaseParameter(this);
 		}
+		
+		public void newSeed() {
+			this.seed = rand.nextInt();
+		}
 	}
 
 	private final static double MAP_RATIO = 12 / 8.0;
@@ -70,6 +78,7 @@ public class MapBaseParameter {
 	private final int settlementCount;
 	private final String name;
 	private final Date createDate;
+	private final int seed;
 
 	public MapBaseParameter() {
 		this.population = 100;
@@ -79,6 +88,7 @@ public class MapBaseParameter {
 		this.settlementCount = 35;
 		this.name = "";
 		this.createDate = new Date();
+		this.seed = ThreadLocalRandom.current().nextInt();
 	}
 
 	public MapBaseParameter(Builder builder) {
@@ -90,6 +100,7 @@ public class MapBaseParameter {
 		this.settlementCount = builder.settlementCount;
 		this.name = Objects.requireNonNull(builder.name);
 		this.createDate = new Date();
+		this.seed = builder.seed;
 	}
 
 	/**
@@ -159,6 +170,10 @@ public class MapBaseParameter {
 
 	public int getSettlementCount() {
 		return settlementCount;
+	}
+	
+	public int getSeed() {
+		return seed;
 	}
 
 	@Override
