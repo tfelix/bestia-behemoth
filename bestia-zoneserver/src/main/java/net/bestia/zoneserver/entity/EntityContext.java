@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
 import net.bestia.messages.chat.ChatMessage;
+import net.bestia.messages.entity.EntityPositionMessage;
+import net.bestia.zoneserver.actor.entity.EntityContextActor;
 
 /**
  * This class is used to give all entities a callback option in order to submit
@@ -16,11 +18,18 @@ import net.bestia.messages.chat.ChatMessage;
  */
 @Component
 public class EntityContext {
-	
+
 	private final ActorRef actor;
-	
+
+	/**
+	 * Ctor.
+	 * 
+	 * @param actor
+	 *            Entry point for handling the entity messaging. This is usually
+	 *            done via an {@link EntityContextActor}.
+	 */
 	public EntityContext(ActorRef actor) {
-		
+
 		this.actor = Objects.requireNonNull(actor);
 	}
 
@@ -33,8 +42,16 @@ public class EntityContext {
 
 	}
 
+	/**
+	 * Should be called if an entities position has been changed since the last
+	 * call. It then will update the new position to all entities in sight
+	 * range.
+	 * 
+	 * @param e
+	 */
 	public void notifyPosition(BaseEntity e) {
-
+		final EntityPositionMessage epmsg = new EntityPositionMessage(e.getId(), e.getX(), e.getY());
+		actor.tell(epmsg, ActorRef.noSender());
 	}
 
 	/**

@@ -1,7 +1,8 @@
 package net.bestia.messages.entity;
 
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import net.bestia.messages.JsonMessage;
 
 /**
  * This message is purely for position changes. It will be send to the client
@@ -13,57 +14,59 @@ import net.bestia.messages.MessageId;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class EntityPositionMessage extends AccountMessage implements MessageId {
+public class EntityPositionMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.position";
 
-	private int x;
-	private int y;
-	private String entityId;
+	private long x;
+	private long y;
+
+	@JsonProperty("eid")
+	private long entityId;
 
 	public EntityPositionMessage() {
 
 	}
-	
-	public EntityPositionMessage(String entityId, int x, int y) {
+
+	public EntityPositionMessage(long entityId, long x, long y) {
 		this.setX(x);
 		this.setY(y);
 		this.setEntityId(entityId);
 	}
-
 
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
 	}
 
-	public String getEntityId() {
+	public long getEntityId() {
 		return entityId;
 	}
 
-	public void setEntityId(String entityId) {
+	public void setEntityId(long entityId) {
 		this.entityId = entityId;
 	}
 
-	public int getY() {
+	public long getY() {
 		return y;
 	}
 
-	public void setY(int y) {
+	public void setY(long y) {
 		this.y = y;
 	}
 
-	public int getX() {
+	public long getX() {
 		return x;
 	}
 
-	public void setX(int x) {
+	public void setX(long x) {
 		this.x = x;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("EntityPositionMessage[uuid: %s, accId: %d, x: %d, y: %d]", entityId, getAccountId(), x, y);
+		return String.format("EntityPositionMessage[uuid: %s, accId: %d, x: %d, y: %d]", entityId, getAccountId(), x,
+				y);
 	}
 }

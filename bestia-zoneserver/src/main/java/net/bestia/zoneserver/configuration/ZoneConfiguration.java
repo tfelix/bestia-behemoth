@@ -8,7 +8,7 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
-import net.bestia.zoneserver.actor.notify.EntityContextActor;
+import net.bestia.zoneserver.actor.entity.EntityContextActor;
 import net.bestia.zoneserver.entity.EntityContext;
 import net.bestia.zoneserver.map.path.AStarPathfinder;
 import net.bestia.zoneserver.map.path.Pathfinder;

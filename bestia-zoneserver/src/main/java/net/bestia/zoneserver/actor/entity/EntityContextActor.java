@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.notify;
+package net.bestia.zoneserver.actor.entity;
 
 import java.util.Objects;
 
