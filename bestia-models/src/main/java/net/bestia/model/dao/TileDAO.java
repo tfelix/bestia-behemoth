@@ -27,6 +27,19 @@ public interface TileDAO extends CrudRepository<Tile, Long> {
 	@Query("SELECT new Size((SELECT MAX(t.x) FROM Tile t), (SELECT MAX(t.y) FROM Tile t))")
 	public Size getMapSize();
 
+	/**
+	 * Returns all tile data which is in range.
+	 * 
+	 * @param x
+	 *            Start x
+	 * @param y
+	 *            Start y
+	 * @param width
+	 *            Width
+	 * @param height
+	 *            Height
+	 * @return All tiles which lie in this range.
+	 */
 	@Query("FROM Tile as t WHERE (t.x BETWEEN :x AND (:x + :w)) AND (t.y BETWEEN :y AND (:y + :h))")
 	public List<Tile> getTilesInRange(@Param("x") long x,
 			@Param("y") long y,

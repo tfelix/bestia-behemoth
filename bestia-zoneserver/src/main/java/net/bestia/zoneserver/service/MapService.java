@@ -27,8 +27,6 @@ import net.bestia.model.map.Tileset;
 @Service
 public class MapService {
 
-	// public final static String CACHE_KEY = "map.tiles";
-	// public final static String MAP_NAME_KEY = "map.name";
 	private final static String TILESET_KEY = "map.tilesets";
 
 	private final TileDAO tileDao;

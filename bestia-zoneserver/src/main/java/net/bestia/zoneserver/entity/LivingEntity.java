@@ -68,12 +68,11 @@ public class LivingEntity extends BaseEntity
 	 */
 	private StatusPoints modifiedStatusPoints;
 
-	public LivingEntity(EntityContext ctx, BaseValues baseValues, BaseValues effortValues, String spriteName) {
-		this(ctx, baseValues, BaseValues.getNewIndividualValues(), effortValues, spriteName);
+	public LivingEntity(BaseValues baseValues, BaseValues effortValues, String spriteName) {
+		this(baseValues, BaseValues.getNewIndividualValues(), effortValues, spriteName);
 	}
 
-	public LivingEntity(EntityContext ctx, BaseValues baseValues, BaseValues ivs, BaseValues effortValues, String spriteName) {
-		super(ctx);
+	public LivingEntity(BaseValues baseValues, BaseValues ivs, BaseValues effortValues, String spriteName) {
 		
 		this.baseValues = Objects.requireNonNull(baseValues);
 		this.ivs = Objects.requireNonNull(ivs);
@@ -177,12 +176,12 @@ public class LivingEntity extends BaseEntity
 	public void setPosition(long x, long y) {
 		this.position.setX(x);
 		this.position.setY(y);
-		ctx.notifyPosition(this);
+		getContext().notifyPosition(this);
 	}
 
 	public void setPosition(Position pos) {
 		this.position.set(pos);
-		ctx.notifyPosition(this);
+		getContext().notifyPosition(this);
 	}
 
 	@Override

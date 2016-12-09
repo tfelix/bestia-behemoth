@@ -18,11 +18,6 @@ public class PlayerBestiaServiceTest {
 	@Autowired
 	private PlayerBestiaService service;
 
-	@Test(expected=IllegalArgumentException.class)
-	public void savePlayerBestiaECS_null_exception() {
-		service.savePlayerBestiaECS(null);
-	}
-	
 	@Test
 	public void getAllBesitas_wrongId_null() {
 		final Set<PlayerBestia> result = service.getAllBestias(1337);

@@ -1,7 +1,5 @@
 package net.bestia.zoneserver.entity;
 
-import java.util.Objects;
-
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
@@ -20,12 +18,37 @@ public abstract class BaseEntity implements IdEntity, Locatable {
 
 	private static final long serialVersionUID = 1L;
 
-	protected final EntityContext ctx;
+	private EntityContext ctx;
 	private long id;
 
-	public BaseEntity(EntityContext ctx) {
+	public BaseEntity() {
+		// no op.
+	}
 
-		this.ctx = Objects.requireNonNull(ctx);
+	/**
+	 * Gets the {@link EntityContext}.
+	 * 
+	 * @return The context.
+	 */
+	protected EntityContext getContext() {
+		if(ctx == null) {
+			throw new IllegalStateException("Context is null.");
+		}
+		return ctx;
+	}
+
+	/**
+	 * Sets the entity context for this entity. The context is needed to perform
+	 * certain callbacks. It MUST be set before most calls can be made to the
+	 * entity. But it must be removed upon saving the entity because it can not
+	 * be serialized.
+	 * 
+	 * @param ctx
+	 */
+	@Override
+	public void setEntityContext(EntityContext ctx) {
+
+		this.ctx = ctx;
 	}
 
 	/**

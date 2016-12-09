@@ -18,6 +18,7 @@ import com.hazelcast.query.Predicates;
 
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.entity.BaseEntity;
+import net.bestia.zoneserver.entity.EntityContext;
 import net.bestia.zoneserver.entity.traits.IdEntity;
 import net.bestia.zoneserver.entity.traits.Visible;
 
@@ -33,13 +34,15 @@ public class EntityService {
 	private final HazelcastInstance hazelcastInstance;
 	private final IMap<Long, IdEntity> entities;
 	private final IdGenerator idCounter;
+	private final EntityContext entityContext;
 
 	@Autowired
-	public EntityService(HazelcastInstance hz) {
+	public EntityService(HazelcastInstance hz, EntityContext entityContext) {
 
 		this.hazelcastInstance = Objects.requireNonNull(hz);
 		this.entities = hazelcastInstance.getMap("entities");
 		this.idCounter = hazelcastInstance.getIdGenerator("entities.id");
+		this.entityContext = Objects.requireNonNull(entityContext);
 	}
 
 	/**
@@ -55,6 +58,7 @@ public class EntityService {
 			long newId = idCounter.newId();
 			entity.setId(newId);
 		}
+		entity.setEntityContext(null);
 		entities.put(entity.getId(), entity);
 	}
 
@@ -85,14 +89,20 @@ public class EntityService {
 		final Predicate xPredicate = e.get("position.x").between(area.getX(), area.getX() + area.getWidth());
 		final Predicate yPredicate = e.get("position.y").between(area.getY(), area.getY() + area.getHeight());
 
+		final Collection<IdEntity> found;
+		
 		if (filterType == null) {
 			final Predicate rangePredicate = Predicates.and(xPredicate, yPredicate);
-			return entities.values(rangePredicate);
+			found = entities.values(rangePredicate);
 		} else {
 			final Predicate rangePredicate = Predicates.and(xPredicate, yPredicate, Predicates.instanceOf(filterType));
-			return entities.values(rangePredicate);
+			found = entities.values(rangePredicate);
 		}
 
+		// Set ctx.
+		found.forEach(x -> x.setEntityContext(entityContext));
+		
+		return found;
 	}
 
 	/**
@@ -116,7 +126,9 @@ public class EntityService {
 	 * @return The {@link IdEntity} or NULL if no such id is stored.
 	 */
 	public IdEntity getEntity(long entityId) {
-		return entities.get(entityId);
+		final IdEntity e = entities.get(entityId);
+		e.setEntityContext(entityContext);
+		return e;
 	}
 
 	/**
@@ -127,6 +139,8 @@ public class EntityService {
 	 * @return A {@link java.util.Map} of the ids and entities.
 	 */
 	public java.util.Map<Long, IdEntity> getAll(Set<Long> ids) {
-		return entities.getAll(ids);
+		java.util.Map<Long, IdEntity> es = entities.getAll(ids);
+		es.entrySet().forEach(x -> x.getValue().setEntityContext(entityContext));
+		return es;
 	}
 }

@@ -2,6 +2,8 @@ package net.bestia.zoneserver.entity.traits;
 
 import java.io.Serializable;
 
+import net.bestia.zoneserver.entity.EntityContext;
+
 /**
  * Makes entities identifiably. Base interface for all entities. Must be
  * serializable because the entites will be saved by hazelcast.
@@ -26,4 +28,11 @@ public interface IdEntity extends Serializable {
 	 */
 	void setId(long id);
 
+	/**
+	 * Sets the {@link EntityContext} for this entity.
+	 * 
+	 * @param ctx
+	 *            The entity context.
+	 */
+	void setEntityContext(EntityContext ctx);
 }
