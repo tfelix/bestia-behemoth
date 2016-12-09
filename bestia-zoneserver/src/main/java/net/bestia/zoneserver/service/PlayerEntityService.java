@@ -22,6 +22,8 @@ import net.bestia.zoneserver.entity.traits.IdEntity;
 /**
  * This service manages and queries the active entities inside the game.
  * 
+ * TODO Threadsafe machen.
+ * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
@@ -91,7 +93,8 @@ public class PlayerEntityService {
 	}
 
 	/**
-	 * Returns a list with account ids of active player accounts in range.
+	 * Returns a list of account ids from players which active bestia entity is
+	 * inside the given rect.
 	 * 
 	 * @param range
 	 * @return
@@ -114,7 +117,7 @@ public class PlayerEntityService {
 	 * @param accId
 	 * @return The set of player bestia entities of a single player.
 	 */
-	public Set<PlayerBestiaEntity> getPlayerBestiaEntities(long accId) {
+	public Set<PlayerBestiaEntity> getPlayerEntities(long accId) {
 
 		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
 		return entityService.getAll(new HashSet<>(ids))
@@ -132,7 +135,7 @@ public class PlayerEntityService {
 	 * @param pb
 	 *            A collection of player bestias.
 	 */
-	public void putPlayerBestiaEntities(Collection<PlayerBestiaEntity> pb) {
+	public void putPlayerEntities(Collection<PlayerBestiaEntity> pb) {
 
 		final Map<Long, List<PlayerBestiaEntity>> byAccId = pb.stream()
 				.collect(Collectors.groupingBy(PlayerBestiaEntity::getAccountId));
@@ -143,6 +146,11 @@ public class PlayerEntityService {
 				playerBestiaEntitiesIds.put(accId, pbe.getId());
 			});
 		});
+	}
+
+	public void putPlayerEntity(PlayerBestiaEntity pbe) {
+		entityService.put(pbe);
+		playerBestiaEntitiesIds.put(pbe.getAccountId(), pbe.getId());
 	}
 
 	/**

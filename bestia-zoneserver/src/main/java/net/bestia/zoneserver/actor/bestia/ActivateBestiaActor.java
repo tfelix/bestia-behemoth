@@ -44,7 +44,7 @@ public class ActivateBestiaActor extends BestiaRoutingActor {
 		final BestiaActivateMessage bestiaMsg = (BestiaActivateMessage) msg;
 
 		// Check if the user really owns this bestia.
-		final Optional<PlayerBestiaEntity> bestia = playerService.getPlayerBestiaEntities(bestiaMsg.getAccountId())
+		final Optional<PlayerBestiaEntity> bestia = playerService.getPlayerEntities(bestiaMsg.getAccountId())
 				.parallelStream()
 				.filter(x -> x.getPlayerBestiaId() == bestiaMsg.getPlayerBestiaId())
 				.findAny();

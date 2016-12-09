@@ -227,37 +227,6 @@ public class PlayerBestiaService {
 	}
 
 	/**
-	 * Special method for saving bestia coming from the ECS. Since not all
-	 * attributes need saving and the bestia entity is in a detached state we
-	 * will look up the entity, update its needed vaulues and save it to the
-	 * database.
-	 * 
-	 * @param playerBestia
-	 */
-	public void savePlayerBestiaECS(PlayerBestia playerBestia) {
-		if (playerBestia == null) {
-			throw new IllegalArgumentException("PlayerBestia can not be null.");
-		}
-
-		final PlayerBestia dbPlayerBestia = playerBestiaDao.findOne(playerBestia.getId());
-
-		if (dbPlayerBestia == null) {
-			return;
-		}
-
-		// Update its values from the ECS.
-		dbPlayerBestia.setCurrentPosition(playerBestia.getCurrentPosition());
-
-		dbPlayerBestia.setCurrentHp(playerBestia.getCurrentHp());
-		dbPlayerBestia.setCurrentMana(playerBestia.getCurrentMana());
-		dbPlayerBestia.setLevel(playerBestia.getLevel());
-		dbPlayerBestia.setExp(playerBestia.getExp());
-		// TODO set EVs.
-
-		playerBestiaDao.save(dbPlayerBestia);
-	}
-
-	/**
 	 * Returns all the bestias under a given account id. This includes the
 	 * bestia master as well as "normal" bestias.
 	 * 

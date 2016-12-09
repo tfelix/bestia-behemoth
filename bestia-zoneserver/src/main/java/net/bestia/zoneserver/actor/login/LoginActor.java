@@ -116,7 +116,7 @@ public class LoginActor extends BestiaRoutingActor {
 				.map(x -> new PlayerBestiaEntity(x))
 				.collect(Collectors.toSet());
 		LOG.debug(String.format("Spawning %d player bestias for acc id: %d", bestias.size(), msg.getAccountId()));
-		entityService.putPlayerBestiaEntities(bestias);
+		entityService.putPlayerEntities(bestias);
 
 		// Extract master now again from bestias and get its entity id.
 		final Optional<PlayerBestiaEntity> masterEntity = bestias.parallelStream()

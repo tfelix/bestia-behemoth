@@ -51,7 +51,7 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 
 		final RequestBestiaInfoMessage rbimsg = (RequestBestiaInfoMessage) msg;
 
-		final Set<PlayerBestiaEntity> bestias = entityService.getPlayerBestiaEntities(rbimsg.getAccountId());
+		final Set<PlayerBestiaEntity> bestias = entityService.getPlayerEntities(rbimsg.getAccountId());
 		final Set<PlayerBestia> pbs = playerBestiaService.getAllBestias(rbimsg.getAccountId());
 
 		for (PlayerBestiaEntity bestia : bestias) {
