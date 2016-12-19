@@ -61,12 +61,12 @@ public class PlayerEntityService {
 		if (lastActive != null) {
 			pbe = (PlayerBestiaEntity) entityService.getEntity(lastActive);
 			pbe.setActive(false);
-			entityService.put(pbe);
+			entityService.save(pbe);
 		}
 
 		pbe = (PlayerBestiaEntity) entityService.getEntity(activeEntityId);
 		pbe.setActive(true);
-		entityService.put(pbe);
+		entityService.save(pbe);
 	}
 
 	/**
@@ -142,14 +142,14 @@ public class PlayerEntityService {
 
 		byAccId.forEach((accId, pbes) -> {
 			pbes.forEach(pbe -> {
-				entityService.put(pbe);
+				entityService.save(pbe);
 				playerBestiaEntitiesIds.put(accId, pbe.getId());
 			});
 		});
 	}
 
 	public void putPlayerEntity(PlayerBestiaEntity pbe) {
-		entityService.put(pbe);
+		entityService.save(pbe);
 		playerBestiaEntitiesIds.put(pbe.getAccountId(), pbe.getId());
 	}
 
