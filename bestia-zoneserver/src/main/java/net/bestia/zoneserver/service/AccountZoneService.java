@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import akka.actor.ActorPath;
 import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.dao.BestiaDAO;
+import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.service.AccountService;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
@@ -21,21 +23,19 @@ import net.bestia.zoneserver.configuration.CacheConfiguration;
  */
 @Service
 public class AccountZoneService extends AccountService {
-
+	
 	private AccountDAO accountDao;
 	private CacheManager<Long, ActorPath> clientCache;
+
+	@Autowired
+	public AccountZoneService(AccountDAO accDao, PlayerBestiaDAO playerBestiaDao, BestiaDAO bestiaDao) {
+		super(accDao, playerBestiaDao, bestiaDao);
+	}
 
 	@Autowired
 	public void setClientCache(
 			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorPath> clientCache) {
 		this.clientCache = clientCache;
-	}
-
-	@Override
-	@Autowired
-	public void setAccountDao(AccountDAO accountDao) {
-		this.accountDao = Objects.requireNonNull(accountDao);
-		super.setAccountDao(accountDao);
 	}
 
 	/**

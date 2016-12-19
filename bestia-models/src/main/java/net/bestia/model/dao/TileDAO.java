@@ -24,7 +24,7 @@ public interface TileDAO extends CrudRepository<Tile, Long> {
 	 * 
 	 * @return The size of the map.
 	 */
-	@Query("SELECT new Size((SELECT MAX(t.x) FROM Tile t), (SELECT MAX(t.y) FROM Tile t))")
+	@Query("SELECT new net.bestia.model.geometry.Size(MAX(t.x), MAX(t.y)) FROM Tile t")
 	public Size getMapSize();
 
 	/**

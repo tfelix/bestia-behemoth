@@ -1,6 +1,7 @@
 package net.bestia.model.service;
 
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -31,25 +32,17 @@ import net.bestia.model.domain.PlayerClass;
 @Service
 public class AccountService {
 
-	private final static Logger log = LoggerFactory.getLogger(AccountService.class);
+	private final static Logger LOG = LoggerFactory.getLogger(AccountService.class);
 
 	private AccountDAO accountDao;
 	private PlayerBestiaDAO playerBestiaDao;
 	private BestiaDAO bestiaDao;
-
+	
 	@Autowired
-	public void setAccountDao(AccountDAO accountDao) {
-		this.accountDao = accountDao;
-	}
-
-	@Autowired
-	public void setPlayerBestiaDao(PlayerBestiaDAO playerBestiaDAO) {
-		this.playerBestiaDao = playerBestiaDAO;
-	}
-
-	@Autowired
-	public void setBestiaDao(BestiaDAO bestiaDAO) {
-		this.bestiaDao = bestiaDAO;
+	public AccountService(AccountDAO accDao, PlayerBestiaDAO playerBestiaDao, BestiaDAO bestiaDao) {
+		this.accountDao = Objects.requireNonNull(accDao);
+		this.bestiaDao = Objects.requireNonNull(bestiaDao);
+		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
 	}
 
 	/**
@@ -108,7 +101,7 @@ public class AccountService {
 		// Depending on the master get the offspring bestia.
 		final Bestia origin = bestiaDao.findOne(starterId);
 		if (origin == null) {
-			log.error("Starter bestia with id {} could not been found.", starterId);
+			LOG.error("Starter bestia with id {} could not been found.", starterId);
 			throw new IllegalArgumentException("Starter bestia was not found.");
 		}
 
@@ -116,7 +109,7 @@ public class AccountService {
 		final PlayerBestia existingMaster = playerBestiaDao.findMasterBestiaWithName(mastername);
 
 		if (existingMaster != null) {
-			log.warn("Can not create account. Master name already exists: {}", mastername);
+			LOG.warn("Can not create account. Master name already exists: {}", mastername);
 			throw new IllegalArgumentException("A master with this name does already exist.");
 		}
 
@@ -132,7 +125,7 @@ public class AccountService {
 			playerBestiaDao.save(masterBestia);
 
 		} catch (JpaSystemException ex) {
-			log.warn("Could not create account because of duplicate mail: {}", ex.getMessage(), ex);
+			LOG.warn("Could not create account because of duplicate mail: {}", ex.getMessage(), ex);
 			throw new IllegalArgumentException("Could not create account. Duplicate mail.", ex);
 		}
 	}

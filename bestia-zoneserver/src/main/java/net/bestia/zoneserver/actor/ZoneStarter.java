@@ -34,7 +34,8 @@ public class ZoneStarter implements CommandLineRunner {
 	public void run(String... strings) throws Exception {
 		LOG.info("Starting actor system...");
 
-		// Spawn the root actor of the system.
+		// Spawn the root actor of the system. Bootstrapping via spring actor
+		// because of automatic injections.
 		final SpringExt ext = SpringExtension.PROVIDER.get(system);
 		final Props props = ext.props(ZoneActor.class);
 		system.actorOf(props, AkkaCluster.CLUSTER_PUBSUB_TOPIC);

@@ -1,12 +1,12 @@
 package net.bestia.zoneserver.actor.entity;
 
-import java.util.Objects;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
-import net.bestia.messages.entity.EntityPositionMessage;
-import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.service.PlayerEntityService;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
+import net.bestia.zoneserver.actor.BestiaRoutingActor;
 
 /**
  * This actor is responsible for receiving messages from the entities and
@@ -17,26 +17,22 @@ import net.bestia.zoneserver.service.PlayerEntityService;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class EntityContextActor extends BestiaActor {
+@Component
+@Scope("prototype")
+public class EntityContextActor extends BestiaRoutingActor {
 	
 	public static final String NAME = "entityContext";
-
-	private final PlayerEntityService peService;
+	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	@Autowired
-	public EntityContextActor(PlayerEntityService entityService) {
-
-		this.peService = Objects.requireNonNull(entityService);
+	public EntityContextActor() {
+		createActor(EntityUpdateActor.class);
 	}
 
 	@Override
-	public void onReceive(Object msg) throws Throwable {
+	protected void handleMessage(Object msg) {
+		// TODO Auto-generated method stub
 		
-		// Check which message it is.
-		if(msg instanceof EntityPositionMessage) {
-			EntityPositionMessage posMsg = (EntityPositionMessage) msg;
-			//peService.getActiveAccountIdsInRange(range)
-		}
 	}
 
 }

@@ -2,8 +2,6 @@ package net.bestia.zoneserver.entity;
 
 import java.util.Objects;
 
-import org.springframework.stereotype.Component;
-
 import akka.actor.ActorRef;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.messages.entity.EntityPositionMessage;
@@ -16,7 +14,6 @@ import net.bestia.zoneserver.actor.entity.EntityContextActor;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-@Component
 public class EntityContext {
 
 	private final ActorRef actor;
@@ -31,15 +28,6 @@ public class EntityContext {
 	public EntityContext(ActorRef actor) {
 
 		this.actor = Objects.requireNonNull(actor);
-	}
-
-	/**
-	 * Should be
-	 * 
-	 * @param e
-	 */
-	public void notifyChanged(BaseEntity e) {
-
 	}
 
 	/**
