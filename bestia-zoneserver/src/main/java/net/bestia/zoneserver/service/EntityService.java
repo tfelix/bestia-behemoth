@@ -164,6 +164,34 @@ public class EntityService {
 	}
 
 	/**
+	 * Gets the entity and performs
+	 * 
+	 * @param entityId
+	 * @param clazz
+	 * @return
+	 */
+	public <T> T getEntity(long entityId, Class<T> clazz) throws ClassCastException {
+		try {
+			lock.lock();
+			final IdEntity e = entities.get(entityId);
+
+			if (e == null) {
+				return null;
+			}
+
+			// Check instance.
+			if (clazz.isAssignableFrom(e.getClass())) {
+				e.setEntityContext(entityContext);
+				return clazz.cast(e);
+			} else {
+				throw new ClassCastException("Found IdEntity is not of type " + clazz.getName());
+			}
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	/**
 	 * Returns the ID entity with the given ID.
 	 * 
 	 * @param entityId

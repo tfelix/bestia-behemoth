@@ -12,9 +12,11 @@ public interface Moving extends Locatable {
 
 	/**
 	 * Returns the current movement speed. 1 is the nominal speed which is 1.4
-	 * m/s (or 1.4 tiles per second).
+	 * m/s (or 1.4 tiles per second). The minimum speed returned via this method
+	 * is 0.01 otherwise it is clamped to 0 (which means the unit can no longer
+	 * move). The upper limit is 10.
 	 * 
-	 * @return
+	 * @return The current movement speed of the unit.
 	 */
 	float getMovementSpeed();
 

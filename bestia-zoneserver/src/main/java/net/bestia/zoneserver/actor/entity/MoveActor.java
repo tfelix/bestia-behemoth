@@ -1,13 +1,19 @@
 package net.bestia.zoneserver.actor.entity;
 
 import java.util.Arrays;
+import java.util.Objects;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.ActorRef;
+import akka.actor.PoisonPill;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.LivingEntity;
+import net.bestia.zoneserver.service.MovingEntityService;
 
 /**
  * Upon receiving of a move message we will lookup the movable entity and sets
@@ -21,26 +27,36 @@ import net.bestia.zoneserver.entity.LivingEntity;
 public class MoveActor extends BestiaRoutingActor {
 
 	public final static String NAME = "bestiaMove";
+	
+	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+	
+	private final MovingEntityService movingService;
 
-	public MoveActor() {
+	@Autowired
+	public MoveActor(MovingEntityService movingService) {
 		super(Arrays.asList(EntityMoveMessage.class));
+
+		this.movingService = Objects.requireNonNull(movingService);
 	}
 
 	@Override
 	protected void handleMessage(Object msg) {
 
 		final EntityMoveMessage moveMsg = (EntityMoveMessage) msg;
-
-		final LivingEntity entity = null;
+		LOG.debug("Received move message: {}", moveMsg.toString());
 
 		// Check if the entity is already moving.
 		// If this is the case cancel the current movement.
+		ActorRef moveActor = movingService.getMovingActorRef(moveMsg.getEntityId());
+		
+		if(moveActor != null) {
+			moveActor.tell(PoisonPill.getInstance(), getSelf());
+		}
 
 		// Then start a new movement via spawning a new movement tick actor with
 		// the route to move and the movement speed determines the ticking
 		// speed.
-
-		// If it is a visible entity then update all nearby entities with the
-		// movement message.
+		moveActor = createActor(TimedMoveActor.class);
+		moveActor.tell(moveMsg, getSelf());
 	}
 }

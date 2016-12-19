@@ -8,8 +8,6 @@ import java.util.Set;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Element;
-import net.bestia.model.domain.EquipmentSlot;
-import net.bestia.model.domain.Item;
 import net.bestia.model.domain.Position;
 import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
@@ -20,9 +18,7 @@ import net.bestia.model.geometry.Collision;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.traits.Attackable;
 import net.bestia.zoneserver.entity.traits.Collidable;
-import net.bestia.zoneserver.entity.traits.Equipable;
 import net.bestia.zoneserver.entity.traits.Interactable;
-import net.bestia.zoneserver.entity.traits.Locatable;
 import net.bestia.zoneserver.entity.traits.Visible;
 
 /**
@@ -41,7 +37,7 @@ import net.bestia.zoneserver.entity.traits.Visible;
  *
  */
 public class LivingEntity extends BaseEntity
-		implements Locatable, Visible, Attackable, Collidable, Equipable, Interactable {
+		implements Visible, Attackable, Collidable, Interactable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -73,7 +69,7 @@ public class LivingEntity extends BaseEntity
 	}
 
 	public LivingEntity(BaseValues baseValues, BaseValues ivs, BaseValues effortValues, String spriteName) {
-		
+
 		this.baseValues = Objects.requireNonNull(baseValues);
 		this.ivs = Objects.requireNonNull(ivs);
 		this.effortValues = Objects.requireNonNull(effortValues);
@@ -239,29 +235,6 @@ public class LivingEntity extends BaseEntity
 	@Override
 	public Collision getCollision() {
 		return new Point(position.getX(), position.getY());
-	}
-
-	/**
-	 * Basic living entities can usually not equip anything.
-	 */
-	@Override
-	public boolean canEquip(Item item) {
-		return false;
-	}
-
-	@Override
-	public void equipItem(Item item) {
-		// no op.
-	}
-
-	@Override
-	public void unequipItem(Item item) {
-		// no op.
-	}
-
-	@Override
-	public Set<EquipmentSlot> getAvailableEquipmentSlots() {
-		return Collections.emptySet();
 	}
 
 	@Override

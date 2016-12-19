@@ -8,7 +8,7 @@ import com.hazelcast.core.HazelcastInstance;
 /**
  * This configuration service holds information about the current state of the
  * server while they are running. These information might get changed during
- * runtime.
+ * runtime. It is saved via the in memory database.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *

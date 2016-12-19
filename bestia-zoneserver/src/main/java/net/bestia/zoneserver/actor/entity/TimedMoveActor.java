@@ -1,13 +1,10 @@
 package net.bestia.zoneserver.actor.entity;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -16,11 +13,9 @@ import akka.actor.Scheduler;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.configuration.CacheConfiguration;
-import net.bestia.zoneserver.entity.LivingEntity;
 import net.bestia.zoneserver.entity.traits.Moving;
-import net.bestia.zoneserver.service.CacheManager;
-import net.bestia.zoneserver.service.MovingEntityManager;
+import net.bestia.zoneserver.service.EntityService;
+import net.bestia.zoneserver.service.MovingEntityService;
 import scala.concurrent.duration.Duration;
 
 /**
@@ -39,18 +34,18 @@ public class TimedMoveActor extends BestiaActor {
 
 	private Cancellable tick;
 
-	private final MovingEntityManager movingManager;
-	private final CacheManager<Long, LivingEntity> entityCache;
+	private final MovingEntityService movingManager;
+	private final EntityService entityService;
 
 	private long entityId;
 	private Queue<Point> path;
 
 	@Autowired
 	public TimedMoveActor(
-			@Qualifier(CacheConfiguration.ACTIVE_BESTIA_CACHE) CacheManager<Long, LivingEntity> entityCache,
-			MovingEntityManager movingManager) {
+			EntityService entityService,
+			MovingEntityService movingManager) {
 
-		this.entityCache = Objects.requireNonNull(entityCache);
+		this.entityService = Objects.requireNonNull(entityService);
 		this.movingManager = Objects.requireNonNull(movingManager);
 	}
 
@@ -59,7 +54,7 @@ public class TimedMoveActor extends BestiaActor {
 		if (message.equals(TICK_MSG)) {
 
 			final Point nextPoint = path.poll();
-			final Moving e = (Moving) entityCache.get(entityId);
+			final Moving e = entityService.getEntity(entityId, Moving.class);
 
 			if (e == null) {
 				// Strange no entity anymore. Stop.
@@ -69,16 +64,18 @@ public class TimedMoveActor extends BestiaActor {
 
 			e.setPosition(nextPoint.getX(), nextPoint.getY());
 
-			// TODO Was it a visible entity? If yes update all nearby entities.
-
-			// TODO Was it a collidable entity? Update its collision based on
-			// new position.
-
 			// Path empty and can we terminate now?
 			if (path.isEmpty()) {
 				getContext().stop(getSelf());
 			} else {
 				final int moveDelay = getMoveDelay(path.peek(), e);
+				
+				if(moveDelay == -1) {
+					// Strange no entity anymore. Stop.
+					getContext().stop(getSelf());
+					return;
+				}
+				
 				setupMoveTick(moveDelay);
 			}
 
@@ -89,21 +86,15 @@ public class TimedMoveActor extends BestiaActor {
 
 			entityId = msg.getEntityId();
 
-			final LivingEntity e = entityCache.get(entityId);
+			final Moving e = entityService.getEntity(entityId, Moving.class);
 
 			// Check if the entity can move. If not stop.
-			if (e == null || !(e instanceof Moving)) {
+			if (e == null) {
 				getContext().stop(getSelf());
 				return;
 			}
 
-			final List<Point> path = msg.getPath()
-					.stream()
-					.map(p -> new Point(p.getX(), p.getY()))
-					.collect(Collectors.toList());
-
-			path.clear();
-			path.addAll(path);
+			path.addAll(msg.getPath());
 		} else {
 			unhandled(message);
 		}
@@ -117,11 +108,26 @@ public class TimedMoveActor extends BestiaActor {
 		movingManager.removeMovingActorRef(entityId);
 	}
 
+	/**
+	 * Calculates the next movement tick depending on the move speed. If -1 is
+	 * returned this means that the unit can no longer move (an error occurred
+	 * while calculating the movement).
+	 * 
+	 * @param nextPos
+	 *            The next position.
+	 * @param e
+	 *            The moving entity.
+	 * @return The delay in ms for the next movement tick, or -1 if an error has
+	 *         occurred.
+	 */
 	private int getMoveDelay(Point nextPos, Moving e) {
 		final Point p = e.getPosition();
-		final long d = Math.abs(p.getX() - nextPos.getX()) + Math.abs(p.getY() - nextPos.getY());
-
+		final double d = nextPos.getDistance(p);
 		float speed = e.getMovementSpeed();
+
+		if (speed == 0) {
+			return -1;
+		}
 
 		// Distance should be 1 or 2 (means walking diagonally)
 		if (d > 1) {
