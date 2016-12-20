@@ -15,7 +15,7 @@ import net.bestia.webserver.model.AccountCreds;
 @RestController("account/")
 public class AccountController {
 
-	private final AccountService accountService;
+	/*private final AccountService accountService;
 
 	@Autowired
 	public AccountController(AccountService accService) {
@@ -36,5 +36,5 @@ public class AccountController {
 		final AccountCreds creds = new AccountCreds(acc.getId(), acc.getLoginToken(), acc.getMaster().getName());
 
 		return creds;
-	}
+	}*/
 }

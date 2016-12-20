@@ -106,6 +106,11 @@ export default class WorldHelper {
 		return obj;
 	}
 
+	/**
+	 * Calculates the distance between to objects with x and y properties.
+	 * 
+	 * @return Double - The euclidian distance between those two points.
+	 */
 	static getDistance(c1, c2) {
 		var dX = c1.x - c2.x;
 		var dY = c1.y - c2.y;

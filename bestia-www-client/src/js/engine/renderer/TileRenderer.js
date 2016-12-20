@@ -1,3 +1,4 @@
+import Render from './Render';
 import WorldHelper from '../map/WorldHelper';
 import MID from '../../io/messages/MID';
 import Message from '../../io/messages/Message';
@@ -11,9 +12,10 @@ const MIN_SAFETY_TILES = 3;
  * rendering of tiles. To perform its duty it needs to tap into the map manager
  * and the tileset manager as well.
  */
-export default class TileRenderer {
+export default class TileRender extends Render {
 	
 	constructor(ctx) {
+		super();
 	
 		this._ctx = ctx;
 		this._game = ctx.game;
@@ -37,6 +39,20 @@ export default class TileRenderer {
 		this._chunkCache = {};
 		
 		ctx.pubsub.subscribe(MID.MAP_CHUNK, this._handleChunkReceived.bind(this));
+	}
+	
+	/**
+	 * The name of this render.
+	 */
+	get name() {
+		return TileRender.NAME;
+	}
+	
+	/**
+	 * Checks if we need a redraw.
+	 */
+	get isDirty() {
+		return true;
 	}
 	
 	/**
@@ -330,3 +346,5 @@ export default class TileRenderer {
 		}
 	}	
 }
+
+TileRender.NAME = 'tile';

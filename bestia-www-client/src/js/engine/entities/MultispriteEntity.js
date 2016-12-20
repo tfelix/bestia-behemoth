@@ -161,6 +161,9 @@ export default class MultispriteEntity extends SpriteEntity {
 				return NULL_OFFSET;
 			}
 		}
+		
+		// If nothing found return default.
+		return subData.defaultCords;
 	}
 
 	/**

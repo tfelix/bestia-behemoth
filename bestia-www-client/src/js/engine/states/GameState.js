@@ -1,7 +1,8 @@
 /*global Phaser */
 
-import * as AStar from '../plugins/AStar';
+import * as AStar from '../plugins/phaser_pathfinding-0.2.0';
 import Signal from '../../io/Signal.js';
+import TileRender from '../renderer/TileRenderer';
 
 /**
  * Central game state for controlling the games logic.
@@ -21,6 +22,10 @@ export default class GameState {
 	}
 	
 	create() {
+		
+		// ==== VAR SETUP ====
+		this._tileRender = this._ctx.render.getRender(TileRender.NAME);
+		
 		/**
 		 * Phaser whipes the scene graph when states change. Thus one need to
 		 * init the groups when the final (game_state) is started.
@@ -35,10 +40,23 @@ export default class GameState {
 		this._ctx.groups.gui = this.game.add.group(undefined, 'gui');
 
 
+		// ==== PLUGINS ====
 		// @ifdef DEVELOPMENT
 		this.game.plugins.add(Phaser.Plugin.Debug);
 		this.game.stage.disableVisibilityChange = true;
 		// @endif
+		
+		this.pathfinder = this.game.plugins.add(Phaser.Plugin.PathFinderPlugin);
+		var walkable = [];
+		for(let x = 0; x < 32*32; x++) {
+			walkable.push(0);
+		}
+		walkable[50] = 1;
+		walkable[51] = 1;
+		walkable[52] = 1;
+		walkable[53] = 1;
+		walkable[54] = 1;
+		this.pathfinder.setGrid(walkable, [0]);
 		// ==== /PLUGINS ====
 		
 		// Trigger fx create effects.
@@ -57,8 +75,8 @@ export default class GameState {
 		//this.game.camera.follow(this.sprite);
 		//this.extended = false;
 
-		this._ctx.renderer.tile.playerSprite = this.sprite;
-		this._ctx.renderer.tile.clearDraw();
+		this._tileRender.playerSprite = this.sprite;
+		this._tileRender.clearDraw();
 		
 		this._ctx.entityFactory.build({uuid: 1, x: 10, y: 10, s: 'mastersmith', a: 'APPEAR', t: 'PLAYER_ANIM'});
 		
@@ -68,7 +86,8 @@ export default class GameState {
 
 	update() {
 		
-		this._ctx.renderer.tile.update();
+		// Calls the renderer.
+		this._ctx.render.update();
 
 		// Trigger the update effects.
 		this._ctx.fxManager.update();

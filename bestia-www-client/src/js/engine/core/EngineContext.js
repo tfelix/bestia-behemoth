@@ -5,6 +5,7 @@ import EntityFactory from '../entities/factory/EntityFactory.js';
 import EntityUpdater from '../entities/util/EntityUpdater.js';
 import EntityCache from '../entities/util/EntityCache.js';
 import TileRenderer from '../renderer/TileRenderer';
+import RenderManager from '../renderer/RenderManager';
 
 /**
  * This class simply holds the reference to multiple important structures used
@@ -116,9 +117,8 @@ export default class EngineContext {
 		/**
 		 * The different renderer of the engine.
 		 */
-		this.renderer = {
-				tile: tileRenderer
-		};
+		this.render = new RenderManager();
+		this.render.addRender(tileRenderer);
 	}
 }
 

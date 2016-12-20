@@ -1,4 +1,4 @@
-
+import TileRender from '../renderer/TileRenderer';
 import Signal from '../../io/Signal.js';
 
 /**
@@ -37,6 +37,8 @@ export default class LoadingState  {
 	}
 	
 	preload() {
+		this._tileRender = this._ctx.render.getRender(TileRender.NAME);
+		
 		// Set loading counter (we load two assets)
 		this._loadingCounter = 2;
 		
@@ -51,8 +53,8 @@ export default class LoadingState  {
 		this._ctx.entityFactory.build({uuid: 1, x: 10, y: 10, s: 'mastersmith', a: 'APPEAR', t: 'PLAYER_ANIM'}, 
 				this._checkFinishedLoading.bind(this), true);
 		
-		let chunks = this._ctx.renderer.tile.getVisibleChunks();
-		this._ctx.renderer.tile.loadChunks(chunks, this._checkFinishedLoading.bind(this));
+		let chunks = this._tileRender.getVisibleChunks();
+		this._tileRender.loadChunks(chunks, this._checkFinishedLoading.bind(this));
 	}
 }
 

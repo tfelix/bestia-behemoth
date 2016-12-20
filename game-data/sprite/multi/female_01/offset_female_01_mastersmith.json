@@ -21,7 +21,7 @@
     },
     {  
       "name":"top_left.png",
-      "triggered":"walk_left_up",
+      "triggered":"walk_up_left",
       "offsets":[  
 
       ]
