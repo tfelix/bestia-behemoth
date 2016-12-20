@@ -24,6 +24,7 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
+import net.bestia.zoneserver.actor.entity.EntityMoveActor;
 import net.bestia.zoneserver.actor.entity.InteractionRequestActor;
 import net.bestia.zoneserver.actor.inventory.InventoryActor;
 import net.bestia.zoneserver.actor.login.DisconnectManagerActor;
@@ -69,6 +70,7 @@ public class ZoneActor extends BestiaRoutingActor {
 		
 		// === Entities ===
 		createActor(InteractionRequestActor.class);
+		createActor(EntityMoveActor.class);
 
 		// === Chat ===
 		createActor(ChatActor.class);

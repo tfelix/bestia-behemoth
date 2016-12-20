@@ -11,6 +11,7 @@ import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.messages.bestia.BestiaMoveMessage;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.service.MovingEntityService;
@@ -24,25 +25,33 @@ import net.bestia.zoneserver.service.MovingEntityService;
  */
 @Component
 @Scope("prototype")
-public class MoveActor extends BestiaRoutingActor {
+public class EntityMoveActor extends BestiaRoutingActor {
 
-	public final static String NAME = "bestiaMove";
+	public final static String NAME = "entityMove";
 	
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	
 	private final MovingEntityService movingService;
 
 	@Autowired
-	public MoveActor(MovingEntityService movingService) {
-		super(Arrays.asList(EntityMoveMessage.class));
+	public EntityMoveActor(MovingEntityService movingService) {
+		super(Arrays.asList(EntityMoveMessage.class, BestiaMoveMessage.class));
 
 		this.movingService = Objects.requireNonNull(movingService);
 	}
 
 	@Override
 	protected void handleMessage(Object msg) {
+		
+		// If we receive a bestia move message we must first convert it.
+		final EntityMoveMessage moveMsg;
+		if(msg instanceof BestiaMoveMessage) {
+			
+		} else {
+			moveMsg = (EntityMoveMessage) msg;
+		}
 
-		final EntityMoveMessage moveMsg = (EntityMoveMessage) msg;
+		
 		LOG.debug("Received move message: {}", moveMsg.toString());
 
 		// Check if the entity is already moving.

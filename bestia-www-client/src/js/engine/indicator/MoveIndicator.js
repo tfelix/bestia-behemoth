@@ -2,7 +2,6 @@
 
 import Indicator from './Indicator.js';
 import Message from '../../io/messages/Message.js';
-import Signal from '../../io/Signal.js';
 import WorldHelper from '../map/WorldHelper.js';
 
 /**
@@ -29,7 +28,7 @@ export default class MoveIndicator extends Indicator {
 		this._ctx.game.add.tween(this._effect).to({alpha: 0}, 500, Phaser.Easing.Cubic.Out, true);
 		
 
-		var player = this._ctx.getPlayerEntity();
+		var player = this._ctx.playerBestia;
 		
 		if(player === null) {
 			return;
@@ -37,19 +36,22 @@ export default class MoveIndicator extends Indicator {
 
 		var start = player.position;
 		var goal = WorldHelper.getTileXY(pointer.worldX, pointer.worldY);
+		
+		this._ctx.etc.pathfinder.setCallbackFunction(function(path) {
+			path = path || [];
+			
+			if(path.length == 0) {
+				return;
+			}
+			
+			var msg = new Message.BestiaMove(player.playerBestiaId, path, this._ctx.playerBestia.walkspeed());
+			this._ctx.pubsub.send(msg);
 
-		var path = this._ctx.zone.findPath(start, goal).nodes;
-
-		if (path.length === 0) {
-			return;
-		}
-
-		path = path.reverse();
-		var msg = new Message.BestiaMove(player.playerBestiaId, path, this._ctx.playerBestia.walkspeed());
-		this._ctx.pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
-
-		// Start movement locally as well.
-		player.moveTo(path, this._ctx.playerBestia.walkspeed());
+			// Start movement locally as well.
+			//player.moveTo(path, this._ctx.playerBestia.walkspeed());
+		}.bind(this));
+		this._ctx.etc.pathfinder.preparePathCalculation([0,0], [goal.x, goal.y]);
+		this._ctx.etc.pathfinder.calculatePath();
 	}
 
 	/**

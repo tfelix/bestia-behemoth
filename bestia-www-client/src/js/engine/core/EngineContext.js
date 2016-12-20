@@ -66,6 +66,12 @@ export default class EngineContext {
 		 * @property {Bestia.Engine.FX.EffectsManager}
 		 */
 		this.groups = {};
+		
+		/**
+		 * Multi purpose object to which one can attach objects in order to
+		 * share them between different parts of the engine.
+		 */
+		this.etc = {};
 
 		this.loader = null;
 
@@ -92,9 +98,10 @@ export default class EngineContext {
 		this.fxManager = null;
 		this.entityFactory = null;
 		this.entityUpdater = null;
+		this.render = null;
 		
-		// Prepare the renderer
-		this.renderer = {};
+		// General utility objects.
+		this.etc = {};
 		this.groups = {};
 	}
 	

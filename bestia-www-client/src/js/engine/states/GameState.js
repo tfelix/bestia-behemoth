@@ -46,17 +46,23 @@ export default class GameState {
 		this.game.stage.disableVisibilityChange = true;
 		// @endif
 		
-		this.pathfinder = this.game.plugins.add(Phaser.Plugin.PathFinderPlugin);
+		// Nicht sauber.
+		let pathfinder = this.game.plugins.add(Phaser.Plugin.PathFinderPlugin);
+		this._ctx.etc.pathfinder = pathfinder;
 		var walkable = [];
-		for(let x = 0; x < 32*32; x++) {
-			walkable.push(0);
+		for(let y = 0; y < 32; y++) {
+			var row = [];
+			for(let x = 0; x < 32; x++) {
+				row.push(0);
+			}
+			walkable.push(row);
 		}
-		walkable[50] = 1;
-		walkable[51] = 1;
-		walkable[52] = 1;
-		walkable[53] = 1;
-		walkable[54] = 1;
-		this.pathfinder.setGrid(walkable, [0]);
+		walkable[10][3] = 1;
+		walkable[10][4] = 1;
+		walkable[10][5] = 1;
+		walkable[10][6] = 1;
+		walkable[10][7] = 1;
+		pathfinder.setGrid(walkable, [0]);
 		// ==== /PLUGINS ====
 		
 		// Trigger fx create effects.
@@ -70,10 +76,10 @@ export default class GameState {
 		this.game.world.setBounds(0, 0, 800, 600);
 
 		
-		//this.sprite.anchor.setTo(0,0);
-		//this.game.physics.startSystem(Phaser.Physics.ARCADE);
-		//this.game.camera.follow(this.sprite);
-		//this.extended = false;
+		// this.sprite.anchor.setTo(0,0);
+		// this.game.physics.startSystem(Phaser.Physics.ARCADE);
+		// this.game.camera.follow(this.sprite);
+		// this.extended = false;
 
 		this._tileRender.playerSprite = this.sprite;
 		this._tileRender.clearDraw();
@@ -105,7 +111,7 @@ export default class GameState {
 	render() {
 		// @ifdef DEVELOPMENT
 		this.game.debug.cameraInfo(this.game.camera, 32, 32);
-		//this.game.debug.spriteCoords(this.sprite, 32, 500);
+		// this.game.debug.spriteCoords(this.sprite, 32, 500);
 		// @endif
 	}
 

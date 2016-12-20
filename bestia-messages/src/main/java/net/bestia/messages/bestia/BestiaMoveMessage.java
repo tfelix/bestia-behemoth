@@ -5,6 +5,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
+import net.bestia.messages.entity.EntityMoveMessage;
 
 public class BestiaMoveMessage extends JsonMessage {
 
@@ -16,7 +17,7 @@ public class BestiaMoveMessage extends JsonMessage {
 
 	@JsonProperty("pY")
 	private List<Integer> cordsY;
-	
+
 	@JsonProperty("w")
 	private float walkspeed;
 
@@ -44,6 +45,15 @@ public class BestiaMoveMessage extends JsonMessage {
 		this.walkspeed = walkspeed;
 	}
 
+	/**
+	 * Converts this message to a entity move message which has a slightly
+	 * different format. FORMAT ANPASSEN.
+	 * 
+	 * @return
+	 */
+	public EntityMoveMessage getEntityMoveMessage() {
+		return null;
+	}
 
 	@Override
 	public String getMessageId() {
