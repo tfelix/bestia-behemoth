@@ -70,7 +70,7 @@ let Signal = {
 	 * Emitted when the map and the game state has loaded and is being
 	 * displayed.
 	 */
-	ENGINE_GAME_STARTED : 'engine.gameStarted'
+	ENGINE_GAME_STARTED : 'engine.gameStarted',
 
 	/**
 	 * Emitted when map data has loaded and we can now switch to the game state.
