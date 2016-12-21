@@ -30,7 +30,7 @@ public class BestiaInfoMessage extends JsonMessage {
 	@JsonProperty("b")
 	private PlayerBestia bestia;
 
-	@JsonProperty("eeid")
+	@JsonProperty("eid")
 	private long entityId;
 
 	@JsonProperty("sp")

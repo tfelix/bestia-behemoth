@@ -50,7 +50,10 @@ export default class Indicator {
 		// no op.
 	}
 
-	loadAssets() {
+	/**
+	 * Overwrite to load all needed assets in order to draw this indicator.
+	 */
+	load() {
 		// no op.
 	}
 

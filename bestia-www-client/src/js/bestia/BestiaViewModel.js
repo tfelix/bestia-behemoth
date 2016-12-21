@@ -40,7 +40,8 @@ export default class BestiaViewModel {
 		
 		this._urlHelper = urlHelper;
 	
-		this.playerBestiaId = ko.observable();
+		this.playerBestiaId = ko.observable(0);
+		this.entityId = ko.observable(0);
 		this.databaseName = ko.observable('');
 		this.equip = [];
 		this.location = ko.observable('');
@@ -97,6 +98,7 @@ export default class BestiaViewModel {
 	update(msg, sp) {
 		if (msg !== undefined) {
 			this.playerBestiaId(msg.id);
+			this.entityId(msg.eeid);
 			this.location(msg.cl.mdbn);
 			this.posX(msg.cl.x);
 			this.posY(msg.cl.y);

@@ -71,6 +71,7 @@ export default class GameState {
 		
 		// Activate move handler.
 		this._ctx.indicatorManager.showDefault();
+		this._ctx.indicatorManager.hide();
 		
 		// ========= TESTING =========
 		this.game.world.setBounds(0, 0, 800, 600);

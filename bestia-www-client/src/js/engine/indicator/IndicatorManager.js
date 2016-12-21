@@ -1,3 +1,4 @@
+import NullIndicator from './NullIndicator';
 import MoveIndicator from './MoveIndicator.js';
 import ItemCastIndicator from './ItemCastIndicator.js';
 import BasicAttackIndicator from './BasicAttackIndicator.js';
@@ -39,11 +40,30 @@ export default class IndicatorManager {
 		this.ctx = ctx;
 		
 		this._moveIndicator = new MoveIndicator(this);
+		this._nullIndicator = new NullIndicator(this);
 		
 		// Register the available indicators.
 		this._indicators.push(this._moveIndicator);
 		this._indicators.push(new ItemCastIndicator(this));
 		this._indicators.push(new BasicAttackIndicator(this));
+	}
+	
+	/**
+	 * This will hide and disable all indicators.
+	 */
+	hide() {
+		this.requestActive(this._nullIndicator, true);
+	}
+	
+	/**
+	 * This will re-enable the indicators if they were hidden before.
+	 */
+	show() {
+		// We can only show when previously hidden.
+		if(this._active !== this._nullIndicator) {
+			return;
+		}
+		this.dismissActive();
 	}
 
 	/**
@@ -75,13 +95,19 @@ export default class IndicatorManager {
 	}
 
 	/**
-	 * An indicator can request to get displayed via the manager.
+	 * An indicator can request to get displayed via the manager. The current
+	 * active indicator is pushed to the stack. With dismissActive it will
+	 * re-appear again.
+	 * 
+	 * @param force -
+	 *            The indicator will not be checked if its okay to replace him
+	 *            with the new indicator.
 	 */
-	requestActive(indicator) {
+	requestActive(indicator, force = false) {
 		if (this._active !== null) {
 			// Ask the active pointer if he allows to be overwritten by the new
 			// indicator.
-			if (!this._active.allowOverwrite(indicator)) {
+			if (!force && !this._active.allowOverwrite(indicator)) {
 				return;
 			}
 

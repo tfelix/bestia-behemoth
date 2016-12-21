@@ -62,7 +62,7 @@ export default class Connection {
 		var message = JSON.stringify(msg);
 		
 		// @ifdef DEVELOPMENT
-		console.trace('Sending Message: ' + message);
+		console.debug('Sending Message: ' + message);
 		this._debug('send', message, msg);
 		// @endif
 		
