@@ -84,6 +84,9 @@ export default class EngineContext {
 		 */
 		this.url = _urlHelper;
 		
+		/**
+		 * Contains the player bestia view model.
+		 */
 		this.playerBestia = null;
 	}
 	

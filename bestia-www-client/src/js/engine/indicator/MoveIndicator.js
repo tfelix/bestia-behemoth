@@ -44,7 +44,7 @@ export default class MoveIndicator extends Indicator {
 				return;
 			}
 			
-			var msg = new Message.BestiaMove(player.playerBestiaId, path, this._ctx.playerBestia.walkspeed());
+			var msg = new Message.EntityMove(player.playerBestiaId, path, this._ctx.playerBestia.walkspeed());
 			this._ctx.pubsub.send(msg);
 
 			// Start movement locally as well.

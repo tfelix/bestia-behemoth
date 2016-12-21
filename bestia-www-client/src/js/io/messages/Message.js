@@ -67,8 +67,8 @@ var Message = {
 	/**
 	 * Tells the server to move the bestia to a certain spot on the map.
 	 */
-	BestiaMove : function(playerBestiaId, path, walkspeed) {
-		this.mid = MID.BESTIA_MOVE;
+	EntityMove : function(playerBestiaId, path, walkspeed) {
+		this.mid = MID.ENTITY_MOVE;
 
 		this.pbid = playerBestiaId;
 

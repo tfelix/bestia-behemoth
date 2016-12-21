@@ -21,7 +21,7 @@ export default class Builder {
 	}
 
 	/**
-	 * Checks wenever a concrete builder can generate/build a given dataset.
+	 * Checks whenever a concrete builder can generate/build a given dataset.
 	 */
 	canBuild(data) {
 		return data.type === this.type && data.version === this.version;

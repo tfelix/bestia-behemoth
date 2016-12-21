@@ -104,7 +104,9 @@ public class TimedMoveActor extends BestiaActor {
 	public void postStop() throws Exception {
 		super.postStop();
 
-		tick.cancel();
+		if(tick != null) {
+			tick.cancel();
+		}
 		movingManager.removeMovingActorRef(entityId);
 	}
 

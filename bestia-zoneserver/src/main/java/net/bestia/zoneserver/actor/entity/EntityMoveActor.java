@@ -11,7 +11,6 @@ import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.bestia.BestiaMoveMessage;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.service.MovingEntityService;
@@ -35,7 +34,7 @@ public class EntityMoveActor extends BestiaRoutingActor {
 
 	@Autowired
 	public EntityMoveActor(MovingEntityService movingService) {
-		super(Arrays.asList(EntityMoveMessage.class, BestiaMoveMessage.class));
+		super(Arrays.asList(EntityMoveMessage.class));
 
 		this.movingService = Objects.requireNonNull(movingService);
 	}
@@ -44,13 +43,7 @@ public class EntityMoveActor extends BestiaRoutingActor {
 	protected void handleMessage(Object msg) {
 		
 		// If we receive a bestia move message we must first convert it.
-		final EntityMoveMessage moveMsg;
-		if(msg instanceof BestiaMoveMessage) {
-			
-		} else {
-			moveMsg = (EntityMoveMessage) msg;
-		}
-
+		final EntityMoveMessage moveMsg = (EntityMoveMessage) msg;
 		
 		LOG.debug("Received move message: {}", moveMsg.toString());
 

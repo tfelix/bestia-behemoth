@@ -1,5 +1,3 @@
-/*global Phaser */
-
 import Signal from '../../io/Signal.js';
 
 /**
@@ -28,14 +26,6 @@ export default class InitializeState {
 		let url = this._ctx.url;
 		
 		this.game.load.image('action_options_background', url.getImageUrl('action_options_back'));
-		
-		// TODO hier auch schon einen hinweis/splash anzeigen.
-		/*this.game.load.atlas('poring', 
-				'http://localhost/assets/sprite/mob/poring/poring.png', 
-				'http://localhost/assets/sprite/mob/poring/poring.json',
-				Phaser.Loader.TEXTURE_ATLAS_JSON_HASH);*/
-		
-		
 		this.game.load.image('castindicator_small', url.getIndicatorUrl('_big'));
 		this.game.load.image('castindicator_medium', url.getIndicatorUrl('_medium'));
 		this.game.load.image('castindicator_big', url.getIndicatorUrl('_small'));
@@ -46,6 +36,9 @@ export default class InitializeState {
 		this._ctx.fxManager.load();
 	}
 
+	/**
+	 * Signal the finished loading.
+	 */
 	create() {
 
 		this._pubsub.publish(Signal.ENGINE_INIT_LOADED);

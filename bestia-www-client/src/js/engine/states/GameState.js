@@ -75,7 +75,6 @@ export default class GameState {
 		// ========= TESTING =========
 		this.game.world.setBounds(0, 0, 800, 600);
 
-		
 		// this.sprite.anchor.setTo(0,0);
 		// this.game.physics.startSystem(Phaser.Physics.ARCADE);
 		// this.game.camera.follow(this.sprite);
@@ -83,8 +82,6 @@ export default class GameState {
 
 		this._tileRender.playerSprite = this.sprite;
 		this._tileRender.clearDraw();
-		
-		this._ctx.entityFactory.build({uuid: 1, x: 10, y: 10, s: 'mastersmith', a: 'APPEAR', t: 'PLAYER_ANIM'});
 		
 		// this.ctx.entityUpdater.releaseHold();
 		this._ctx.pubsub.publish(Signal.ENGINE_GAME_STARTED);

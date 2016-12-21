@@ -33,26 +33,67 @@ public class EntityMoveMessage extends JsonMessage {
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.move";
 
-	private final List<Point> cords = new ArrayList<>();
+	@JsonProperty("eid")
+	private long entityId;
 
-	@JsonProperty("s")
-	private final int speed;
+	@JsonProperty("pX")
+	private List<Integer> cordsX;
 
-	@JsonProperty("uuid")
-	private final long entityId;
+	@JsonProperty("pY")
+	private List<Integer> cordsY;
 
-	public EntityMoveMessage() {
-		this(0, 0);
+	@JsonProperty("w")
+	private float walkspeed;
+
+	public List<Integer> getCordsX() {
+		return cordsX;
 	}
 
-	public EntityMoveMessage(long entityId, int speed) {
-		super(0);
+	public void setCordsX(List<Integer> cordsX) {
+		this.cordsX = cordsX;
+	}
+
+	public List<Integer> getCordsY() {
+		return cordsY;
+	}
+
+	public void setCordsY(List<Integer> cordsY) {
+		this.cordsY = cordsY;
+	}
+
+	public long getEntityId() {
+		return entityId;
+	}
+
+	public void setEntityId(long entityId) {
 		this.entityId = entityId;
-		this.speed = speed;
 	}
 
-	public void addCord(int x, int y) {
-		this.cords.add(new Point(x, y));
+	public float getWalkspeed() {
+		return walkspeed;
+	}
+
+	public void setWalkspeed(float walkspeed) {
+		this.walkspeed = walkspeed;
+	}
+
+	/**
+	 * Turns the list of coordiantes into a array of points.
+	 * 
+	 * @return
+	 */
+	public List<Point> getPath() {
+		if (cordsX.size() != cordsY.size()) {
+			throw new IllegalStateException("Size of the coordiante arrays does not match.");
+		}
+
+		final List<Point> patch = new ArrayList<>(cordsX.size());
+
+		for (int i = 0; i < cordsX.size(); i++) {
+			patch.add(new Point(cordsX.get(i), cordsY.get(i)));
+		}
+
+		return patch;
 	}
 
 	@Override
@@ -60,21 +101,10 @@ public class EntityMoveMessage extends JsonMessage {
 		return MESSAGE_ID;
 	}
 
-	public long getEntityId() {
-		return entityId;
-	}
-
-	/**
-	 * The path of the movement.
-	 * 
-	 * @return Path of the movement.
-	 */
-	public List<Point> getPath() {
-		return cords;
-	}
-
 	@Override
 	public String toString() {
-		return String.format("EntityMoveMessage[uuid: %s, accId: %d, cords: %s]", entityId, getAccountId(), cords);
+		return String.format(
+				"EntityMoveMessage[eid: %d, pathX: %s, pathY: %s, walkspeed: %f]", getEntityId(),
+				cordsX.toString(), cordsY.toString(), walkspeed);
 	}
 }

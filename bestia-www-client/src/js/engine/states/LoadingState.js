@@ -49,7 +49,9 @@ export default class LoadingState  {
 		this.gfx = this.add.graphics(0, 0);
 		this.gfx.beginFill(0xFF0000, 1);
 		
-		// Create new multisprite entity from player bestia.
+		// Create new multisprite entity from player bestia. This call will
+		// initialize a loading process even if visible sprite gets destroyed by
+		// changing game states.
 		this._ctx.entityFactory.build({uuid: 1, x: 10, y: 10, s: 'mastersmith', a: 'APPEAR', t: 'PLAYER_ANIM'}, 
 				this._checkFinishedLoading.bind(this), true);
 		
