@@ -1,6 +1,7 @@
 package net.bestia.messages;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 
 /**
  * Messages can be identified by returning a unique id.
@@ -8,6 +9,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@JsonTypeInfo(use = JsonTypeInfo.Id.CUSTOM, include = JsonTypeInfo.As.PROPERTY, property = "mid")
+@JsonTypeIdResolver(MessageTypeIdResolver.class)
 public interface MessageId {
 
 	/**
@@ -17,6 +20,5 @@ public interface MessageId {
 	 * 
 	 * @return Event name to be triggered on the client.
 	 */
-	@JsonProperty("mid")
 	String getMessageId();
 }
