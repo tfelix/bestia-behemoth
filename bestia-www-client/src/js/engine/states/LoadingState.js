@@ -28,6 +28,10 @@ export default class LoadingState  {
 		this._pubsub = context.pubsub;
 	}
 	
+	/**
+	 * Checks if all loading operations have been performed by counting down a
+	 * latch. If loading has finished we proceed with the initialization.
+	 */
 	_checkFinishedLoading() {
 		this._loadingCounter--;
 		
@@ -52,8 +56,8 @@ export default class LoadingState  {
 		// Create new multisprite entity from player bestia. This call will
 		// initialize a loading process even if visible sprite gets destroyed by
 		// changing game states.
-		this._ctx.entityFactory.build({uuid: 1, x: 10, y: 10, s: 'mastersmith', a: 'APPEAR', t: 'PLAYER_ANIM'}, 
-				this._checkFinishedLoading.bind(this), true);
+		let pb = this._ctx.playerBestia;
+		this._ctx.entityFactory.load({s: pb.sprite(), a: 'APPEAR', t: pb.spriteType()}, this._checkFinishedLoading.bind(this));
 		
 		let chunks = this._tileRender.getVisibleChunks();
 		this._tileRender.loadChunks(chunks, this._checkFinishedLoading.bind(this));

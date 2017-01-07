@@ -71,7 +71,6 @@ export default class GameState {
 		
 		// Activate move handler.
 		this._ctx.indicatorManager.showDefault();
-		this._ctx.indicatorManager.hide();
 		
 		// ========= TESTING =========
 		this.game.world.setBounds(0, 0, 800, 600);
@@ -85,7 +84,8 @@ export default class GameState {
 		this._tileRender.clearDraw();
 		
 		// After all is setup create the player sprite.
-		this._ctx.entityFactory.build({uuid: 1, x: 10, y: 10, s: 'mastersmith', a: 'APPEAR', t: 'PLAYER_ANIM'});
+		let pb = this._ctx.playerBestia;
+		this._ctx.entityFactory.build({uuid: pb.entityId(), x: pb.posX(), y: pb.posY(), s: pb.sprite(), a: 'APPEAR', t: pb.spriteType()});
 		
 		// this.ctx.entityUpdater.releaseHold();
 		this._ctx.pubsub.publish(Signal.ENGINE_GAME_STARTED);

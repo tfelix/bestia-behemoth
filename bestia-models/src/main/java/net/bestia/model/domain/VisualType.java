@@ -31,7 +31,7 @@ public enum VisualType {
 	 * the pack the info from the server is preferred. The player sprites with
 	 * different hairstyles are one example for this type of visual.
 	 */
-	MULTI_DYNAMIC,
+	DYNAMIC,
 
 	/**
 	 * Visualization is done via an descriptive json file.

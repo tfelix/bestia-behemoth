@@ -26,7 +26,7 @@ import StatusPointViewModel from './StatusPointViewModel.js';
  */
 export default class BestiaViewModel {
 	
-	constructor(pubsub, msg, statusPoints, urlHelper) {
+	constructor(pubsub, msg, urlHelper) {
 		if (!pubsub) {
 			throw "BestiaViewModel: PubSub must be given.";
 		}
@@ -50,6 +50,7 @@ export default class BestiaViewModel {
 		this.saveLocation = ko.observable();
 		this.customName = ko.observable('');
 		this.sprite = ko.observable('');
+		this.spriteType = ko.observable('');
 		this.statusEffects = [];
 		this.iconUrl = ko.pureComputed(function() {
 			return urlHelper.getMobIconUrl(self.databaseName());
@@ -73,7 +74,7 @@ export default class BestiaViewModel {
 		this.item4 = ko.observable(null);
 		this.item5 = ko.observable(null);
 	
-		this.update(msg, statusPoints);
+		this.update(msg);
 	}
 	
 	/**
@@ -95,65 +96,71 @@ export default class BestiaViewModel {
 	 * @param {Object}
 	 *            msg - Message object from the server.
 	 */
-	update(msg, sp) {
+	update(msg) {
 		if (msg !== undefined) {
-			this.playerBestiaId(msg.id);
-			this.entityId(msg.eeid);
-			this.location(msg.cl.mdbn);
-			this.posX(msg.cl.x);
-			this.posY(msg.cl.y);
-			this.saveLocation(msg.sl.mdbn);
-			this.customName(msg.cn);
-			this.level(msg.lv);
-			this.databaseName(msg.b.bdbn);
-			this.sprite(msg.b.s);
+			
+			// Status points
+			let sp = msg.sp;
+			
+			// Bestia
+			let b = msg.b;
+			
+			this.playerBestiaId(b.id);
+			this.entityId(msg.eid);
+			this.location(b.cl.mdbn);
+			this.posX(b.cl.x);
+			this.posY(b.cl.y);
+			this.saveLocation(b.sl.mdbn);
+			this.customName(b.cn);
+			this.level(b.lv);
+			this.databaseName(b.b.bdbn);
+			this.sprite(b.b.sp.s);
+			this.spriteType(b.b.sp.t);
 			// this.statusEffects = [];
 			// this.slot(msg.sl);
 
 			// Update the attacks.
-			if (msg.atk1) {
-				this.attack1(new Attack(msg.atk1));
+			if (b.atk1) {
+				this.attack1(new Attack(b.atk1));
 			}
 
-			if (msg.atk2) {
-				this.attack2(new Attack(msg.atk2));
+			if (b.atk2) {
+				this.attack2(new Attack(b.atk2));
 			}
 
-			if (msg.atk3) {
-				this.attack3(new Attack(msg.atk3));
+			if (b.atk3) {
+				this.attack3(new Attack(b.atk3));
 			}
 
-			if (msg.atk4) {
-				this.attack4(new Attack(msg.atk4));
+			if (b.atk4) {
+				this.attack4(new Attack(b.atk4));
 			}
 
-			if (msg.atk5) {
-				this.attack5(new Attack(msg.atk5));
+			if (b.atk5) {
+				this.attack5(new Attack(b.atk5));
 			}
 
 			// Update the items.
-			if (msg.item1) {
-				this.item1(new ItemViewModel(msg.item1, this._urlHelper));
+			if (b.item1) {
+				this.item1(new ItemViewModel(b.item1, this._urlHelper));
 			}
 
-			if (msg.item2) {
-				this.item2(new ItemViewModel(msg.item2, this._urlHelper));
+			if (b.item2) {
+				this.item2(new ItemViewModel(b.item2, this._urlHelper));
 			}
 
-			if (msg.item3) {
-				this.item3(new ItemViewModel(msg.item3, this._urlHelper));
+			if (b.item3) {
+				this.item3(new ItemViewModel(b.item3, this._urlHelper));
 			}
 
-			if (msg.item4) {
-				this.item4(new ItemViewModel(msg.item4, this._urlHelper));
+			if (b.item4) {
+				this.item4(new ItemViewModel(b.item4, this._urlHelper));
 			}
 
-			if (msg.item5) {
-				this.item5(new ItemViewModel(msg.item5, this._urlHelper));
+			if (b.item5) {
+				this.item5(new ItemViewModel(b.item5, this._urlHelper));
 			}
-		}
-		
-		if (sp !== undefined) {
+			
 			this.statusPoints.update(sp);
 		}
 	}

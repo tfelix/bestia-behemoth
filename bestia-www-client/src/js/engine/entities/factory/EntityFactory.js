@@ -1,5 +1,5 @@
-import MultispriteBuilder from './MultispriteBuilder.js';
-import PlayerMultispriteBuilder from './PlayerMultispriteBuilder.js';
+import PackSpriteBuilder from './PackSpriteBuilder.js';
+import DynamicSpriteBuilder from './DynamicSpriteBuilder.js';
 import SpriteBuilder from './SpriteBuilder.js';
 import SimpleObjectBuilder from './SimpleObjectBuilder.js';
 import ItemBuilder from './ItemBuilder.js';
@@ -32,11 +32,11 @@ export default class EntityFactory {
 		 */
 		this.builder = [];
 	
-		this.builder.push(new MultispriteBuilder(this, ctx));
-		this.builder.push(new PlayerMultispriteBuilder(this, ctx));
-		this.builder.push(new SpriteBuilder(this, ctx));
-		this.builder.push(new SimpleObjectBuilder(this, ctx));
-		this.builder.push(new ItemBuilder(this, ctx));
+		this.register(new PackSpriteBuilder(this, ctx));
+		this.register(new DynamicSpriteBuilder(this, ctx));
+		this.register(new SpriteBuilder(this, ctx));
+		this.register(new SimpleObjectBuilder(this, ctx));
+		this.register(new ItemBuilder(this, ctx));
 	}
 	
 	/**
@@ -45,6 +45,23 @@ export default class EntityFactory {
 	 */
 	register(builder) {
 		this.builder.push(builder);
+	}
+	
+	/**
+	 * This will only load the assets specified in the given data set. The
+	 * callback function is executed after all loads have been performed.
+	 * 
+	 * @param {Function}
+	 *            fnOnComplete - Callback function getting the entity reference
+	 *            when the load process was completed.
+	 */
+	load(data, fnOnComplete) {
+		fnOnComplete = fnOnComplete || NOOP;
+		
+		// Add the flag to the data object for taking it to the builder.
+		data.onlyLoad = true;
+		
+		this.build(data, fnOnComplete);
 	}
 
 	/**
@@ -61,11 +78,8 @@ export default class EntityFactory {
 	 * @param {boolean}
 	 *            onlyLoad - Flag of the builder should only load the assets.
 	 */
-	build(data, fnOnComplete, onlyLoad = false) {
+	build(data, fnOnComplete) {
 		fnOnComplete = fnOnComplete || NOOP;
-		
-		// Add the flag to the data object for taking it to the builder.
-		data.onlyLoad = onlyLoad;
 
 		// Do we already have the desc file?
 		var descFile = this._getDescriptionFile(data);
@@ -89,27 +103,47 @@ export default class EntityFactory {
 		var b = this._getBuilder(data, descFile);
 
 		if (!b) {
-			console.warn("Could not build entity. From data: " + JSON.stringify(data));
+			console.warn("No builder registered to build entity from data: " + JSON.stringify(data));
+			fnOnComplete(null);
+			return;
+		}
+		
+		if (descFile === null) {
+			// Could not load desc file.
+			console.warn("Could not load description file from data: " + JSON.stringify(data));
+			fnOnComplete(null);
 			return;
 		}
 
 		// The builder is now responsible for figuring out which files to load
 		// additionally. It must be all given in the JSON file.
 		b.load(descFile, function() {
-
-			if (descFile === null) {
-				// Could not load desc file.
-				console.warn("Could not load description file from data: " + JSON.stringify(data));
+			
+			// Abort if there is only loading required.
+			if(data.onlyLoad === true) {
+				fnOnComplete(null);
 				return;
 			}
-
+			
+			// Do some sanity checks.
+			if(!data.uuid) {
+				throw "No uuid (uuid) is given.";
+			}
+			
+			if(data.x === undefined || data.y === undefined) {
+				throw "No x and/or y (x, y) postion is given";
+			}
+			
+			if(!data.s) {
+				throw "No spritename (s) given";
+			}
+			
+			if(!data.a) {
+				throw "No action (a) given";
+			}
+			
 			let entity = b.build(data, descFile);
-
-			// Entity might be null if the onlyLoad flag was set. So we need to
-			// check.
-			if(entity !== null) {
-				this._ctx.entityCache.addEntity(entity);
-			}			
+			this._ctx.entityCache.addEntity(entity);	
 
 			// Call the callback handler.
 			fnOnComplete(entity);

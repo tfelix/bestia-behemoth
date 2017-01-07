@@ -1,5 +1,6 @@
 package net.bestia.messages;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 
@@ -20,5 +21,6 @@ public interface MessageId {
 	 * 
 	 * @return Event name to be triggered on the client.
 	 */
+	@JsonIgnore
 	String getMessageId();
 }

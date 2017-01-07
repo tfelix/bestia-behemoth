@@ -2,10 +2,10 @@ import Builder from './Builder.js';
 import MultispriteEntity from '../MultispriteEntity.js';
 
 /**
- * Responsible for building the multisprites entities.
+ * Responsible for building the packed (multisprite) entities. These are usually
+ * mobs. All sprites which consists of multiple sprites with animation data.
  */
-
-export default class MultispriteBuilder extends Builder {
+export default class PackSpriteBuilder extends Builder {
 	constructor(factory, ctx) {
 		super(factory, ctx);
 		
@@ -19,10 +19,6 @@ export default class MultispriteBuilder extends Builder {
 	}
 	
 	build(data, desc) {
-		if(data.onlyLoad) {
-			return null;
-		}
-
 		var entity = new MultispriteEntity(this._ctx, data.uuid, desc);
 
 		// Setup the phaser sprite.
@@ -41,8 +37,8 @@ export default class MultispriteBuilder extends Builder {
 	}
 
 	/**
-	 * Responsible for loading all the necessairy date before a build of the object
-	 * can be performt.
+	 * Responsible for loading all the necessairy date before a build of the
+	 * object can be performt.
 	 * 
 	 * @param data
 	 */
@@ -54,8 +50,8 @@ export default class MultispriteBuilder extends Builder {
 	}
 
 	/**
-	 * Extends the given pack with multisprite data. Also dynamic multisprites can
-	 * be requested by setting the additional sprite array.
+	 * Extends the given pack with multisprite data. Also dynamic multisprites
+	 * can be requested by setting the additional sprite array.
 	 * 
 	 * @param descFile
 	 * @param additionalSprites
@@ -104,6 +100,6 @@ export default class MultispriteBuilder extends Builder {
 	}
 
 	canBuild(data) {
-		return data.t === 'MOB_ANIM';
+		return data.t.toUpperCase() === 'PACK';
 	}
 }

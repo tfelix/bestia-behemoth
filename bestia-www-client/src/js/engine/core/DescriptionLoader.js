@@ -18,7 +18,8 @@ export default class DescriptionLoader {
 	 * the data object. The DescriptionLoader will try to determine its name
 	 * then from the data object.
 	 * 
-	 * @param name
+	 * @param {String}
+	 *            name - The name of the sprite/visual description file.
 	 */
 	getDescription(name) {
 		if((typeof name) !== 'string') {
@@ -61,9 +62,9 @@ export default class DescriptionLoader {
 	 */
 	_getUrlFromData(data) {
 
-		switch (data.t) {
-		case 'MOB_ANIM':
-		case 'PLAYER_ANIM':
+		switch (data.t.toUpperCase()) {
+		case 'PACK':
+		case 'MULTI_DYNAMIC':
 			// its an mob.
 			return this._url.getMobDescUrl(data.s);
 		default:

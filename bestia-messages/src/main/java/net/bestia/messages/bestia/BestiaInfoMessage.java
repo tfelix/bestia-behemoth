@@ -75,18 +75,6 @@ public class BestiaInfoMessage extends JsonMessage {
 		return entityId;
 	}
 
-	/*
-	public void setBestia(PlayerBestia bestia, StatusPoints statusPoints) {
-		if (bestia == null) {
-			throw new IllegalArgumentException("bestia can not be null.");
-		}
-		if (statusPoints == null) {
-			throw new IllegalArgumentException("statusPoints can not be null.");
-		}
-		this.bestia = bestia;
-		this.statusPoints = statusPoints;
-	}*/
-
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
@@ -95,11 +83,6 @@ public class BestiaInfoMessage extends JsonMessage {
 	public StatusPoints getStatusPoints() {
 		return statusPoints;
 	}
-
-	/*
-	public void setStatusPoints(StatusPoints statusPoints) {
-		this.statusPoints = statusPoints;
-	}*/
 
 	@Override
 	public String toString() {

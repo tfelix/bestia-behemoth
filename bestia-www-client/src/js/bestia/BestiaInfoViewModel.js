@@ -106,7 +106,7 @@ export default class BestiaInfoViewModel {
 	_handleOnMessage(_, msg) {
 		console.debug('Update bestia model with data.');
 
-		var bestia = new BestiaViewModel(this._pubsub, msg.b, msg.sp, this._urlHelper);
+		var bestia = new BestiaViewModel(this._pubsub, msg, this._urlHelper);
 
 		// Check if the bestia is already inside our cache.
 		for (var i = 0; i < this.bestias().length; i++) {
