@@ -9,11 +9,11 @@ import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Element;
 import net.bestia.model.domain.Position;
+import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.domain.VisualType;
 import net.bestia.model.entity.InteractionType;
-import net.bestia.model.entity.Visual;
-import net.bestia.model.entity.VisualType;
 import net.bestia.model.geometry.Collision;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.traits.Attackable;
@@ -48,7 +48,7 @@ public class LivingEntity extends BaseEntity
 	private Position position = new Position();
 
 	private Direction headFacing = Direction.SOUTH;
-	private Visual sprite;
+	private SpriteInfo sprite;
 	private boolean isVisible = true;
 
 	private final BaseValues baseValues;
@@ -74,7 +74,7 @@ public class LivingEntity extends BaseEntity
 		this.ivs = Objects.requireNonNull(ivs);
 		this.effortValues = Objects.requireNonNull(effortValues);
 
-		this.sprite = new Visual(spriteName, VisualType.PACK);
+		this.sprite = new SpriteInfo(spriteName, VisualType.PACK);
 	}
 
 	public Direction getHeadFacing() {
@@ -154,7 +154,7 @@ public class LivingEntity extends BaseEntity
 	}
 
 	@Override
-	public Visual getVisual() {
+	public SpriteInfo getVisual() {
 		return sprite;
 	}
 

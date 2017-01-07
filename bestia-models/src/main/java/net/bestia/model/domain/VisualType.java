@@ -1,4 +1,4 @@
-package net.bestia.model.entity;
+package net.bestia.model.domain;
 
 /**
  * Entities are visualized via visuals. These visuals can either be a simple
@@ -28,7 +28,8 @@ public enum VisualType {
 	/**
 	 * This sprite is dynamically put together. It is treated like a pack sprite
 	 * for the beginning but instead of using the multi sprite information from
-	 * the pack the info from the server is preferred.
+	 * the pack the info from the server is preferred. The player sprites with
+	 * different hairstyles are one example for this type of visual.
 	 */
 	MULTI_DYNAMIC,
 

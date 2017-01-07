@@ -55,11 +55,13 @@ export default class EntityFactory {
 	 * used when to only load the sprite data which might be needed for
 	 * preloading form a different game state.
 	 * 
+	 * @param {Function}
+	 *            fnOnComplete - Callback function getting the entity reference
+	 *            when the build process was completed.
 	 * @param {boolean}
 	 *            onlyLoad - Flag of the builder should only load the assets.
 	 */
-	build(data, fnOnComplete, onlyLoad) {
-		onlyLoad = onlyLoad || false;
+	build(data, fnOnComplete, onlyLoad = false) {
 		fnOnComplete = fnOnComplete || NOOP;
 		
 		// Add the flag to the data object for taking it to the builder.

@@ -84,6 +84,9 @@ export default class GameState {
 		this._tileRender.playerSprite = this.sprite;
 		this._tileRender.clearDraw();
 		
+		// After all is setup create the player sprite.
+		this._ctx.entityFactory.build({uuid: 1, x: 10, y: 10, s: 'mastersmith', a: 'APPEAR', t: 'PLAYER_ANIM'});
+		
 		// this.ctx.entityUpdater.releaseHold();
 		this._ctx.pubsub.publish(Signal.ENGINE_GAME_STARTED);
 	}

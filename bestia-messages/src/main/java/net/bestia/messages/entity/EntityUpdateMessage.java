@@ -1,42 +1,40 @@
 package net.bestia.messages.entity;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
-import net.bestia.model.entity.VisualType;
+import net.bestia.messages.JsonMessage;
+import net.bestia.model.domain.SpriteInfo;
 
-public class EntityUpdateMessage extends AccountMessage implements MessageId {
+public class EntityUpdateMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.update";
 
 	public String uuid;
-	
+
 	@JsonProperty("s")
-	public String sprite;
-	
+	private SpriteInfo spriteInfo;
+
 	@JsonProperty("x")
-	public int x;
-	
+	private int x;
+
 	@JsonProperty("y")
-	public int y;
-	
-	@JsonProperty("t")
-	public VisualType type;
-	
+	private int y;
+
 	@JsonProperty("a")
-	public EntityAction action;
-	
+	private EntityAction action;
+
 	@JsonProperty("pbid")
-	public Integer playerBestiaId;
-	
+	private Integer playerBestiaId;
+
 	public EntityUpdateMessage() {
 		// no op.
 	}
 
-	public EntityUpdateMessage(VisualType type, EntityAction action) {
-		this.type = type;
+	public EntityUpdateMessage(SpriteInfo info, EntityAction action) {
+		this.spriteInfo = Objects.requireNonNull(info);
 		this.action = action;
 	}
 
@@ -47,34 +45,12 @@ public class EntityUpdateMessage extends AccountMessage implements MessageId {
 		this.action = EntityAction.APPEAR;
 	}
 
-	/**
-	 * Returns a Entity with the action preset to APPEAR.
-	 * 
-	 * @param uuid
-	 * @param x
-	 * @param y
-	 * @return Entity with action preset to appear.
-	 */
-	public static EntityUpdateMessage getAppearEntity(String uuid, int x, int y) {
-		final EntityUpdateMessage e = new EntityUpdateMessage(uuid, x, y);
-		e.setAction(EntityAction.APPEAR);
-		return e;
-	}
-
 	public String getUuid() {
 		return uuid;
 	}
 
 	public void setUuid(String uuid) {
 		this.uuid = uuid;
-	}
-
-	public String getSprite() {
-		return sprite;
-	}
-
-	public void addSprite(String sprite) {
-		this.sprite = sprite;
 	}
 
 	public int getX() {
@@ -91,14 +67,6 @@ public class EntityUpdateMessage extends AccountMessage implements MessageId {
 
 	public void setY(int y) {
 		this.y = y;
-	}
-
-	public VisualType getType() {
-		return type;
-	}
-
-	public void setType(VisualType type) {
-		this.type = type;
 	}
 
 	public EntityAction getAction() {
@@ -121,7 +89,7 @@ public class EntityUpdateMessage extends AccountMessage implements MessageId {
 	public String toString() {
 		return String.format("EntityUpdateMessage[uuid: %s, x: %d, y: %d, sprite: %s, type: %s, action: %s]",
 				uuid, x, y,
-				sprite, type.toString(), action.toString());
+				spriteInfo.toString(), action.toString());
 	}
 
 	@Override

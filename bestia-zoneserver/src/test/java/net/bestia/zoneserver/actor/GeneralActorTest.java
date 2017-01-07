@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.UntypedActor;
-import net.bestia.zoneserver.util.PackageLoader;
+import net.bestia.util.PackageLoader;
 
 public class GeneralActorTest {
 

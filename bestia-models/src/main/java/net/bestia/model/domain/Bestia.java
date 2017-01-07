@@ -22,8 +22,6 @@ import javax.persistence.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.model.entity.VisualType;
-
 @Entity
 @Table(name = "bestias")
 @PrimaryKeyJoinColumn(name = "bestia_id")
@@ -50,13 +48,10 @@ public class Bestia implements Serializable {
 
 	@JsonProperty("img")
 	private String image = "";
-	
-	@Enumerated(EnumType.STRING)
-	@JsonIgnore
-	private VisualType visual;
 
-	@JsonIgnore
-	private String sprite = "";
+	@JsonProperty("sp")
+	@AttributeOverrides({ @AttributeOverride(name = "type", column = @Column(name = "visual")) })
+	private SpriteInfo spriteInfo;
 
 	@JsonIgnore
 	private int expGained;
@@ -185,8 +180,8 @@ public class Bestia implements Serializable {
 		return image;
 	}
 
-	public String getSprite() {
-		return sprite;
+	public SpriteInfo getSpriteInfo() {
+		return spriteInfo;
 	}
 
 	/**
@@ -208,10 +203,6 @@ public class Bestia implements Serializable {
 
 	public boolean isBoss() {
 		return isBoss;
-	}
-	
-	public VisualType getVisual() {
-		return visual;
 	}
 
 	public String getDefaultName() {

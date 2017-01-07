@@ -11,7 +11,8 @@ import LoadingState from './states/LoadingState.js';
 
 /**
  * Bestia Graphics engine. Responsible for displaying the game collecting user
- * input and sending these data to the server.
+ * input and sending these data to the server. It manages the phaserjs states
+ * and also the state transitions depending on external events.
  * 
  * @constructor
  * @class Bestia.Engine

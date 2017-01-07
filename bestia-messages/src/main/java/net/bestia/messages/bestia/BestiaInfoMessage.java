@@ -5,7 +5,6 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
@@ -36,71 +35,22 @@ public class BestiaInfoMessage extends JsonMessage {
 	@JsonProperty("sp")
 	private StatusPoints statusPoints;
 
+	/**
+	 * For Jackson.
+	 */
 	public BestiaInfoMessage() {
 		// no op.
 	}
-
-	/**
-	 * 
-	 * @param message
-	 *            Message to initialize the message with.
-	 */
-	public BestiaInfoMessage(AccountMessage message) {
-		super(message);
-	}
-
-	/**
-	 * Std. ctor.
-	 * 
-	 * @param pb
-	 * @param rbimsg
-	 */
-	public BestiaInfoMessage(AccountMessage message, long entityId, PlayerBestia pb, StatusPoints sp) {
-		super(message);
-
+	
+	public BestiaInfoMessage(long accId, long entityId, PlayerBestia pb, StatusPoints sp) {
+		super(accId);
+		
 		Objects.requireNonNull(pb);
-
+		
 		this.entityId = entityId;
-		isMaster = pb.getMaster() != null;
-		bestia = pb;
-		statusPoints = Objects.requireNonNull(sp);
-	}
-
-	/**
-	 * 
-	 * @param numberOfExtraSlots
-	 *            Number of extra
-	 * @param masterBestia
-	 * @param bestias
-	 */
-	public BestiaInfoMessage(AccountMessage msg, PlayerBestia bestia, boolean isMaster) {
-		super(msg);
-		if (msg == null) {
-			throw new IllegalArgumentException("Message can not be null.");
-		}
-		if (bestia == null) {
-			throw new IllegalArgumentException("Bestia can not be null.");
-		}
-
-		this.isMaster = isMaster;
-		this.bestia = bestia;
-	}
-
-	/**
-	 * 
-	 * @param bestia
-	 */
-	public BestiaInfoMessage(PlayerBestia bestia, StatusPoints status) {
-		if (bestia == null) {
-			throw new IllegalArgumentException("Bestia can not be null.");
-		}
-		if (status == null) {
-			throw new IllegalArgumentException("Status can not be null.");
-		}
-
-		setAccountId(bestia.getOwner().getId());
-		this.bestia = bestia;
-		this.statusPoints = status;
+		this.isMaster = pb.getMaster() != null;
+		this.bestia = pb;
+		this.statusPoints = Objects.requireNonNull(sp);		
 	}
 
 	@JsonIgnore
@@ -125,6 +75,7 @@ public class BestiaInfoMessage extends JsonMessage {
 		return entityId;
 	}
 
+	/*
 	public void setBestia(PlayerBestia bestia, StatusPoints statusPoints) {
 		if (bestia == null) {
 			throw new IllegalArgumentException("bestia can not be null.");
@@ -134,7 +85,7 @@ public class BestiaInfoMessage extends JsonMessage {
 		}
 		this.bestia = bestia;
 		this.statusPoints = statusPoints;
-	}
+	}*/
 
 	@Override
 	public String getMessageId() {
@@ -145,9 +96,10 @@ public class BestiaInfoMessage extends JsonMessage {
 		return statusPoints;
 	}
 
+	/*
 	public void setStatusPoints(StatusPoints statusPoints) {
 		this.statusPoints = statusPoints;
-	}
+	}*/
 
 	@Override
 	public String toString() {

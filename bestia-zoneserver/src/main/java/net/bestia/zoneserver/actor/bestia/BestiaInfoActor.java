@@ -54,10 +54,10 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 		final Set<PlayerBestiaEntity> bestias = entityService.getPlayerEntities(rbimsg.getAccountId());
 		final Set<PlayerBestia> pbs = playerBestiaService.getAllBestias(rbimsg.getAccountId());
 
-		for (PlayerBestiaEntity bestia : bestias) {
+		for (PlayerBestiaEntity pbe : bestias) {
 			// Get the player bestia.
 			Optional<PlayerBestia> pb = pbs.stream()
-					.filter(x -> x.getId() == bestia.getPlayerBestiaId())
+					.filter(x -> x.getId() == pbe.getPlayerBestiaId())
 					.findAny();
 			
 			if(!pb.isPresent()) {
@@ -65,12 +65,13 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 			}
 
 			// We must send for each bestia a single message.
-			bestia.updateModel(pb.get());
+			pbe.updateModel(pb.get());
 
-			final BestiaInfoMessage bimsg = new BestiaInfoMessage(rbimsg,
-					bestia.getId(),
+			// BestiaInfoMessage(long accId, long entityId, PlayerBestia pb, StatusPoints sp)
+			final BestiaInfoMessage bimsg = new BestiaInfoMessage(rbimsg.getAccountId(),
+					pbe.getId(),
 					pb.get(),
-					bestia.getStatusPoints());
+					pbe.getStatusPoints());
 			sendClient(bimsg);
 		}
 	}

@@ -10,9 +10,6 @@
     "doc_comment": {
       
     },
-    "eslint": {
-      "configFile": "eslint.json"
-    },
     "es_modules": {
       
     },

@@ -164,7 +164,7 @@ export default class Connection {
 			try {
 				var json = jQuery.parseJSON(e.data);
 				// @ifdef DEVELOPMENT
-				console.trace('Received Message: ' + e.data);
+				console.debug('Received Message: ' + e.data);
 				self._debug('receive', json, e.data);
 				// @endif
 				

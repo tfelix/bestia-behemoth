@@ -88,6 +88,11 @@ export default class EngineContext {
 		 * Contains the player bestia view model.
 		 */
 		this.playerBestia = null;
+		
+		/**
+		 * Contains the player bestia entity after it was created.
+		 */
+		this.playerEntity = null;
 	}
 	
 	/**
@@ -102,6 +107,7 @@ export default class EngineContext {
 		this.entityFactory = null;
 		this.entityUpdater = null;
 		this.render = null;
+		this.playerEntity = null;
 		
 		// General utility objects.
 		this.etc = {};

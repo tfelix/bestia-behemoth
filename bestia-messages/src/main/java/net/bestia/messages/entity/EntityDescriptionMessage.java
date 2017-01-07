@@ -5,7 +5,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
-import net.bestia.model.entity.Visual;
+import net.bestia.model.domain.SpriteInfo;
 
 /**
  * Tells the engine how to visualize a entity.
@@ -22,22 +22,27 @@ public class EntityDescriptionMessage extends JsonMessage {
 	@JsonProperty("eid")
 	private final long entityId;
 	
-	@JsonProperty("v")
-	private final Visual visual;
+	@JsonProperty("s")
+	private final SpriteInfo spriteInfo;
 	
+	/**
+	 * For Jackson only.
+	 */
 	public EntityDescriptionMessage() {
-		this(0, 0, new Visual());
+		
+		this.entityId = 0;
+		this.spriteInfo = null;
 	}
 	
-	public EntityDescriptionMessage(long accId, long entityId, Visual visual) {
+	public EntityDescriptionMessage(long accId, long entityId, SpriteInfo visual) {
 		super(accId);
 		
 		this.entityId = entityId;
-		this.visual = Objects.requireNonNull(visual);
+		this.spriteInfo = Objects.requireNonNull(visual);
 	}
-	
-	public Visual getVisual() {
-		return visual;
+
+	public SpriteInfo getSpriteInfo() {
+		return spriteInfo;
 	}
 	
 	public long getEntityId() {
