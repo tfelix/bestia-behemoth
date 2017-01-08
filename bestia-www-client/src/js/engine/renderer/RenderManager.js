@@ -29,6 +29,14 @@ export default class RenderManager {
 		return this._named[name];		
 	}
 	
+	/**
+	 * Clears all renderer.
+	 */
+	clear() {
+		this._renderer.forEach((r) => {
+			r.clear();
+		});
+	}
 	
 	/**
 	 * Loops through all rengistered renderer and performs an update call if

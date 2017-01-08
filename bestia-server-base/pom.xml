@@ -1,8 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	
+
 	<packaging>pom</packaging>
-	
+
 	<parent>
 		<groupId>net.bestia</groupId>
 		<artifactId>behemoth</artifactId>
@@ -12,7 +12,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>bestia-server-base</artifactId>
 	<name>bestia-server-base</name>
-	
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -22,6 +22,16 @@
 				<version>${spring.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.hazelcast</groupId>
+				<artifactId>hazelcast</artifactId>
+				<version>3.7.4</version>
+			</dependency>
+			<dependency>
+				<groupId>com.hazelcast</groupId>
+				<artifactId>hazelcast-client</artifactId>
+				<version>3.7.4</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -63,15 +73,6 @@
 			<artifactId>akka-testkit_2.11</artifactId>
 			<version>${akka.version}</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.hazelcast</groupId>
-			<artifactId>hazelcast</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.hazelcast</groupId>
-			<artifactId>hazelcast-client</artifactId>
-			<version>3.5.5</version>
 		</dependency>
 	</dependencies>
 

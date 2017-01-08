@@ -19,24 +19,8 @@ export default class TileRender extends Render {
 	
 		this._ctx = ctx;
 		this._game = ctx.game;
-		this._tilesetManager = new TilesetManager(ctx.pubsub, ctx.loader, ctx.url);
-		
-		this._rendered = {x1: 0, x2: 0, y1: 0, y2: 0};
-		this._newRendered = {x1: 0, x2: 0, y1: 0, y2: 0};
-		
-		this._gameSize = {x: 0, y: 0};
-		
-		/**
-		 * The chunks from the server are called sequentially. If all chunks
-		 * have been received we ask for its tile data. {x: x, y: y,
-		 * tilesToLoad: 0, fn}
-		 */
-		this._chunkCallbackCache = {};
-		
-		/**
-		 * Cache object for loaded chunks.
-		 */
-		this._chunkCache = {};
+
+		this.clear();
 		
 		ctx.pubsub.subscribe(MID.MAP_CHUNK, this._handleChunkReceived.bind(this));
 	}
@@ -53,6 +37,26 @@ export default class TileRender extends Render {
 	 */
 	get isDirty() {
 		return true;
+	}
+	
+	/**
+	 * Clears all chunks and basically resets the tile renderer.
+	 */
+	clear() {
+		this._tilesetManager = new TilesetManager(this._ctx.pubsub, this._ctx.loader, this._ctx.url);		
+		this._rendered = {x1: 0, x2: 0, y1: 0, y2: 0};
+		this._newRendered = {x1: 0, x2: 0, y1: 0, y2: 0};
+		/**
+		 * The chunks from the server are called sequentially. If all chunks
+		 * have been received we ask for its tile data. {x: x, y: y,
+		 * tilesToLoad: 0, fn}
+		 */
+		this._chunkCallbackCache = {};
+		/**
+		 * Cache object for loaded chunks.
+		 */
+		this._chunkCache = {};
+		this._gameSize = {x: 0, y: 0};
 	}
 	
 	/**

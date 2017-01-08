@@ -66,7 +66,7 @@ export default class BestiaInfoViewModel {
 		pubsub.subscribe(Signal.IO_AUTH_CONNECTED, this._handleConnected.bind(this));
 		pubsub.subscribe(Signal.IO_DISCONNECTED, this._handleDisconnected.bind(this));
 		pubsub.subscribe(MID.BESTIA_INFO, this._handleOnMessage.bind(this));
-		pubsub.subscribe(MID.BESTIA_ACTIVATED, this._handleOnActivate.bind(this));
+		pubsub.subscribe(MID.BESTIA_ACTIVATE, this._handleOnActivate.bind(this));
 	}
 	
 	/**
@@ -121,7 +121,7 @@ export default class BestiaInfoViewModel {
 		// it.
 		this.bestias.push(bestia);
 
-		// Check if we have unselected master.
+		// Check if we have unselected master and use a given master bestia for this.
 		if (this.masterBestia() === null && msg.im === true) {
 			this.masterBestia(bestia);
 			this._selectBestia(bestia);

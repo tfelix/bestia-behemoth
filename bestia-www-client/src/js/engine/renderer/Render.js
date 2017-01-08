@@ -12,7 +12,7 @@ export default class Renderer {
 	 * Returns the name of the renderer. Must be overwritten by childs.
 	 */
 	get name() {
-		throw "This method must be overwritten.";
+		throw 'This method must be overwritten.';
 	}
 	
 	/**
@@ -23,10 +23,17 @@ export default class Renderer {
 	}
 	
 	/**
+	 * Clears all data.
+	 */
+	clear() {
+		throw 'This method must be overwritten.';
+	}
+	
+	/**
 	 * This is called by the render manager in each update step of the render
 	 * loop if this class reports as dirty.
 	 */
 	update() {
-		throw "This method must be overwritten.";
+		throw 'This method must be overwritten.';
 	}	
 }

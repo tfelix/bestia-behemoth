@@ -123,8 +123,7 @@ public class EntityService {
 
 		final Predicate xPredicate = e.get("position.x").between(area.getX(), area.getX() + area.getWidth());
 		final Predicate yPredicate = e.get("position.y").between(area.getY(), area.getY() + area.getHeight());
-		final Predicate rangePredicate = Predicates.and(xPredicate, yPredicate,
-				Predicates.instanceOf(PlayerBestiaEntity.class));
+		final Predicate rangePredicate = Predicates.and(xPredicate, yPredicate, Predicates.instanceOf(filterType));
 
 		final Collection<Entity> found = entities.values(rangePredicate);
 

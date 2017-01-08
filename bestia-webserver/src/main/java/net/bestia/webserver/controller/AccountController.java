@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 import net.bestia.model.domain.Account;
 import net.bestia.model.service.AccountService;
 import net.bestia.webserver.exceptions.WrongCredentialsException;
-import net.bestia.webserver.model.AccountCreds;
 
 @RestController("account/")
 public class AccountController {

@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.entity;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -13,7 +14,7 @@ import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.traits.Moving;
 
-public class PlayerBestiaEntity extends LivingEntity implements Moving {
+public class PlayerBestiaEntity extends LivingEntity implements Moving, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private final static Logger LOG = LoggerFactory.getLogger(PlayerBestiaEntity.class);

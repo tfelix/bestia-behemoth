@@ -11,7 +11,6 @@ var MID = {
 	BESTIA_INFO : 'bestia.info',
 	BESTIA_REQ_INFO : 'bestia.requestinfo',
 	BESTIA_ACTIVATE: 'bestia.activate',
-	BESTIA_ACTIVATED: 'bestia.activated',
 	
 	ATTACK_SET : 'attack.set',
 	ATTACK_LIST_REQUEST: 'attack.list.request',

@@ -4,7 +4,7 @@ import MID from '../../../io/messages/MID.js';
  * The updater will hook into the messaging system and listen for entity update
  * messages. If such a message is received it is responsible for updating and
  * translating this change message to commands for the bestia engine. If updates
- * to entities are detected this will be communicated "upstream" via the use of
+ * to entities are detected this will be communicated 'upstream' via the use of
  * callback function. The engine/state can hook into the updater via them.
  * <p>
  * The updates of the entities are hold back until releaseHold is called.
@@ -18,7 +18,7 @@ export default class EntityUpdater{
 	
 	constructor(ctx) {
 		if (!ctx) {
-			throw "Context can not be undefined.";
+			throw 'Context can not be undefined.';
 		}
 
 		/**

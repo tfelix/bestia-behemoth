@@ -1,11 +1,11 @@
-package net.bestia.webserver.component;
+package net.bestia.webserver.config;
 
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.typesafe.config.Config;
@@ -28,10 +28,10 @@ import net.bestia.webserver.actor.WebClusterListenerActor;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-@Component
-public class AkkaComponent {
+@Configuration
+public class AkkaConfiguration {
 
-	private final static Logger LOG = LoggerFactory.getLogger(AkkaComponent.class);
+	private final static Logger LOG = LoggerFactory.getLogger(AkkaConfiguration.class);
 	private final static String AKKA_CONFIG_NAME = "akka";
 
 	private ActorSystemTerminator terminator = null;

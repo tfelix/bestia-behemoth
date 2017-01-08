@@ -11,7 +11,7 @@ export default class Indicator {
 
 	constructor(manager) {
 		if (!(manager instanceof IndicatorManager)) {
-			throw new Error("Manager can not be null.");
+			throw new Error('Manager can not be null.');
 		}
 
 		this._ctx = manager.ctx;
@@ -38,8 +38,12 @@ export default class Indicator {
 
 	/**
 	 * Checks if this indicator can be overwritten by the new one.
+	 * 
+	 * @param {Indicator}
+	 *            indicator - The new indicator intended to override the
+	 *            currently active one.
 	 */
-	get allowOverwrite() {
+	allowOverwrite(indicator) {
 		return true;
 	}
 

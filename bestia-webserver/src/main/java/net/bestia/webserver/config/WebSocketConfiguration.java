@@ -16,7 +16,7 @@ import net.bestia.webserver.websocket.BestiaSocketHandler;
  */
 @Configuration
 @EnableWebSocket
-public class WebSocketConfig implements WebSocketConfigurer {
+public class WebSocketConfiguration implements WebSocketConfigurer {
 
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
 		registry.addHandler(bestiaSocketHandler(), "/socket")

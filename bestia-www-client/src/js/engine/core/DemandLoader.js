@@ -18,15 +18,15 @@ export default class DemandLoader {
 	constructor(loader, cache, urlHelper) {
 
 		if (!(loader instanceof Phaser.Loader)) {
-			throw "DemandLoader: Loader is not a Phaser.Loader";
+			throw 'DemandLoader: Loader is not a Phaser.Loader';
 		}
 	
 		if (!(cache instanceof Phaser.Cache)) {
-			throw "DemandLoader: Cache is not a Phaser.Cache";
+			throw 'DemandLoader: Cache is not a Phaser.Cache';
 		}
 	
 		if (!urlHelper) {
-			throw "UrlHelper: Can not be null";
+			throw 'UrlHelper: Can not be null';
 		}
 	
 		this._loader = loader;
@@ -95,7 +95,7 @@ export default class DemandLoader {
 					try {
 						x();
 					} catch (err) {
-						console.error("DemandLoader#_fileLoadedCallback: " + err);
+						console.error('DemandLoader#_fileLoadedCallback: ' + err);
 					}
 				});
 				
@@ -145,7 +145,7 @@ export default class DemandLoader {
 		case 'json':
 			return this._phaserCache.getJSON(key);
 		default:
-			console.warn("DemandLoader#get: Unknown type.");
+			console.warn('DemandLoader#get: Unknown type.');
 			return false;
 		}
 	}
@@ -167,7 +167,7 @@ export default class DemandLoader {
 		case 'json':
 			return this._phaserCache.checkJSONKey(key);
 		default:
-			console.warn("_hasLoaded: Unknown type.");
+			console.warn('_hasLoaded: Unknown type.');
 			return false;
 
 		}
@@ -234,7 +234,7 @@ export default class DemandLoader {
 	 */
 	load(data, fnOnComplete) {
 		if (Array.isArray(data)) {
-			console.error("Loading of arrays not yet supported.");
+			console.error('Loading of arrays not yet supported.');
 			return;
 		}
 
@@ -261,7 +261,7 @@ export default class DemandLoader {
 			this._loader.image(data.key, data.url);
 			break;
 		default:
-			console.warn("Loading this type not supported: " + data.type);
+			console.warn('Loading this type not supported: ' + data.type);
 			return;
 		}
 

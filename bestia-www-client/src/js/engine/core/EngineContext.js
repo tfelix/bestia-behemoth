@@ -93,20 +93,27 @@ export default class EngineContext {
 		 * Contains the player bestia entity after it was created.
 		 */
 		this.playerEntity = null;
+		
+		this._hasInit = false;
 	}
 	
 	/**
 	 * When game object/state was removed clean should be called in order to
-	 * clean up all old connection so the garbage colletor can do its job and
-	 * acoid memory leaks.
+	 * clean up all old connection so the garbage collector can do its job and
+	 * avoid memory leaks.
 	 */
 	clear() {
-		this.loader = null;
-		this.indicatorManager = null;
-		this.fxManager = null;
-		this.entityFactory = null;
-		this.entityUpdater = null;
-		this.render = null;
+		
+		if(!this._hasInit) {
+			return;
+		}
+		
+		//this.loader = null;
+		//this.indicatorManager = null;
+		//this.fxManager = null;
+		//this.entityFactory = null;
+		//this.entityUpdater = null;
+		this.render.clear();
 		this.playerEntity = null;
 		
 		// General utility objects.
@@ -118,6 +125,7 @@ export default class EngineContext {
 	 * Some initializations can only be done when a game state has been loaded.
 	 */
 	init() {
+		this._hasInit = true;
 		// The order here is very important, since we set internal objects on
 		// which some of the ctors of the objects depend. Please check twice
 		// when changing this order if this will work!
