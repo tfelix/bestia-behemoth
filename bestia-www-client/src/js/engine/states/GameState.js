@@ -89,6 +89,7 @@ export default class GameState {
 		let playerData = {uuid: pb.entityId(), x: pb.posX(), y: pb.posY(), s: pb.sprite(), a: 'APPEAR', t: pb.spriteType()};
 		this._ctx.entityFactory.build(playerData, function(playerEntity){
 			this._ctx.playerEntity = playerEntity;
+			this.game.camera.follow(playerEntity.sprite);
 		}.bind(this));
 		
 		// this.ctx.entityUpdater.releaseHold();

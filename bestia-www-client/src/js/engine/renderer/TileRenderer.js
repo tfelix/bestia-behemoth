@@ -84,7 +84,7 @@ export default class TileRender extends Render {
 	 * Gives a key which can be used to reference a chunk inside the cache.
 	 */
 	_chunkKey(x, y) {
-		return "x"+x+"-y"+y;
+		return 'x'+x+'-y'+y;
 	}
 	
 	/**
@@ -201,7 +201,7 @@ export default class TileRender extends Render {
 	clearDraw() {
 		let player = this._ctx.playerBestia;
 		if(player == null) {
-			console.error("PlayerBestia not found in context.");
+			console.error('PlayerBestia not found in context.');
 			return;
 		}
 		
