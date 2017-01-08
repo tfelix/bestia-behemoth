@@ -24,11 +24,12 @@ public class EntityContextActor extends BestiaRoutingActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	public EntityContextActor() {
-		createActor(EntityUpdateActor.class);
+		createActor(EntityUpdatePositionActor.class);
 	}
 	
 	@Override
 	public void onReceive(Object message) throws Exception {
+		super.onReceive(message);
 		LOG.warning("Received message." + message.toString());
 	}
 

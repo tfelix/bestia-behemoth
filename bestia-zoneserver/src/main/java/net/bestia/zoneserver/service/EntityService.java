@@ -3,8 +3,6 @@ package net.bestia.zoneserver.service;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,10 +16,9 @@ import com.hazelcast.query.PredicateBuilder;
 import com.hazelcast.query.Predicates;
 
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.entity.BaseEntity;
 import net.bestia.zoneserver.entity.EntityContext;
+import net.bestia.zoneserver.entity.PlayerBestiaEntity;
 import net.bestia.zoneserver.entity.traits.Entity;
-import net.bestia.zoneserver.entity.traits.Visible;
 
 /**
  * This service manages and queries the active entities inside the game.
@@ -36,7 +33,6 @@ public class EntityService {
 	private final IMap<Long, Entity> entities;
 	private final IdGenerator idCounter;
 	private final EntityContext entityContext;
-	private final Lock lock;
 
 	@Autowired
 	public EntityService(HazelcastInstance hz, EntityContext entityContext) {
@@ -45,7 +41,6 @@ public class EntityService {
 		this.entities = hazelcastInstance.getMap("entities");
 		this.idCounter = hazelcastInstance.getIdGenerator("entities.id");
 		this.entityContext = Objects.requireNonNull(entityContext);
-		this.lock = hz.getLock("entities.lock");
 	}
 
 	/**
@@ -60,7 +55,7 @@ public class EntityService {
 		// Remove entity context since it can not be serialized.
 		entity.setEntityContext(null);
 		try {
-			lock.lock();
+			entities.lock(entity.getId());
 			// Check if this id already exists.
 			if (!entities.containsKey(entity.getId())) {
 				long newId = idCounter.newId();
@@ -68,7 +63,7 @@ public class EntityService {
 			}
 			entities.put(entity.getId(), entity);
 		} finally {
-			lock.unlock();
+			entities.unlock(entity.getId());
 		}
 	}
 
@@ -80,10 +75,10 @@ public class EntityService {
 	 */
 	public void delete(long entityId) {
 		try {
-			lock.lock();
+			entities.lock(entityId);
 			entities.delete(entityId);
 		} finally {
-			lock.unlock();
+			entities.unlock(entityId);
 		}
 
 	}
@@ -105,7 +100,7 @@ public class EntityService {
 	 * @return All entities inside this arera.
 	 */
 	public Collection<Entity> getEntitiesInRange(Rect area) {
-		return getEntitiesInRange(area, null);
+		return getEntitiesInRange(area, Entity.class);
 	}
 
 	/**
@@ -119,61 +114,38 @@ public class EntityService {
 	 * @return All entities which are in range and are an instance of the given
 	 *         filter type.
 	 */
-	@SuppressWarnings("rawtypes")
-	public Collection<Entity> getEntitiesInRange(Rect area, Class<? extends BaseEntity> filterType) {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public <T> Collection<T> getEntitiesInRange(Rect area, Class<T> filterType) {
 		// Build the query.
 		final EntryObject e = new PredicateBuilder().getEntryObject();
 
 		final Predicate xPredicate = e.get("position.x").between(area.getX(), area.getX() + area.getWidth());
 		final Predicate yPredicate = e.get("position.y").between(area.getY(), area.getY() + area.getHeight());
+		final Predicate rangePredicate = Predicates.and(xPredicate, yPredicate,
+				Predicates.instanceOf(PlayerBestiaEntity.class));
 
-		final Collection<Entity> found;
+		final Collection<Entity> found = entities.values(rangePredicate);
 
-		try {
-			lock.lock();
+		// Reassign ctx.
+		found.forEach(x -> x.setEntityContext(entityContext));
 
-			if (filterType == null) {
-				final Predicate rangePredicate = Predicates.and(xPredicate, yPredicate);
-				found = entities.values(rangePredicate);
-			} else {
-				final Predicate rangePredicate = Predicates.and(xPredicate, yPredicate,
-						Predicates.instanceOf(filterType));
-				found = entities.values(rangePredicate);
-			}
-
-			// Set ctx.
-			found.forEach(x -> x.setEntityContext(entityContext));
-
-			return found;
-		} finally {
-			lock.unlock();
-		}
+		return (Collection<T>) found;
 	}
 
 	/**
-	 * Finds all visible entities inside the queried rectangle.
-	 * 
-	 * @param area
-	 *            The area to collect all {@link Visible} entities.
-	 * @return A collection of the found entities.
-	 */
-	public Collection<Entity> getVisibleEntitiesInRange(Rect area) {
-		return getEntitiesInRange(area)
-				.parallelStream()
-				.filter(x -> x instanceof Visible)
-				.collect(Collectors.toList());
-	}
-
-	/**
-	 * Gets the entity and performs
+	 * Gets the entity and performs a cast to the type requested. If the entity
+	 * of the given id does not match the given type a
+	 * {@link ClassCastException} is thrown.
 	 * 
 	 * @param entityId
+	 *            The entity ID to look up.
 	 * @param clazz
-	 * @return
+	 *            The class in which to cast the entity.
+	 * @return The casted entity.
 	 */
 	public <T> T getEntity(long entityId, Class<T> clazz) throws ClassCastException {
 		try {
-			lock.lock();
+			entities.lock(entityId);
 			final Entity e = entities.get(entityId);
 
 			if (e == null) {
@@ -188,7 +160,7 @@ public class EntityService {
 				throw new ClassCastException("Found IdEntity is not of type " + clazz.getName());
 			}
 		} finally {
-			lock.unlock();
+			entities.unlock(entityId);
 		}
 	}
 
@@ -200,12 +172,12 @@ public class EntityService {
 	 */
 	public Entity getEntity(long entityId) {
 		try {
-			lock.lock();
+			entities.lock(entityId);
 			final Entity e = entities.get(entityId);
 			e.setEntityContext(entityContext);
 			return e;
 		} finally {
-			lock.unlock();
+			entities.unlock(entityId);
 		}
 	}
 
@@ -217,14 +189,9 @@ public class EntityService {
 	 * @return A {@link java.util.Map} of the ids and entities.
 	 */
 	public java.util.Map<Long, Entity> getAll(Set<Long> ids) {
-		try {
-			lock.lock();
-			java.util.Map<Long, Entity> es = entities.getAll(ids);
-			es.entrySet().forEach(x -> x.getValue().setEntityContext(entityContext));
-			return es;
-		} finally {
-			lock.unlock();
-		}
 
+		java.util.Map<Long, Entity> es = entities.getAll(ids);
+		es.entrySet().forEach(x -> x.getValue().setEntityContext(entityContext));
+		return es;
 	}
 }

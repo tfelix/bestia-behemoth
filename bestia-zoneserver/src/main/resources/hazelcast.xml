@@ -121,6 +121,20 @@
 		<merge-policy>com.hazelcast.map.merge.PutIfAbsentMapMergePolicy
 		</merge-policy>
 	</map>
+	
+	<map name="entities">
+		<in-memory-format>OBJECT</in-memory-format>
+		<backup-count>1</backup-count>
+		<async-backup-count>0</async-backup-count>
+		<time-to-live-seconds>0</time-to-live-seconds>
+		<max-idle-seconds>0</max-idle-seconds>
+		<eviction-policy>NONE</eviction-policy>
+		<max-size policy="PER_NODE">0</max-size>
+		<eviction-percentage>25</eviction-percentage>
+		<min-eviction-check-millis>100</min-eviction-check-millis>
+		<merge-policy>com.hazelcast.map.merge.PutIfAbsentMapMergePolicy
+		</merge-policy>
+	</map>
 
 	<multimap name="default">
 		<backup-count>1</backup-count>

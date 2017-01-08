@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import com.hazelcast.core.HazelcastInstance;
 
 import akka.actor.ActorPath;
-import net.bestia.zoneserver.entity.LivingEntity;
 import net.bestia.zoneserver.service.CacheManager;
 
 /**
@@ -21,22 +20,13 @@ import net.bestia.zoneserver.service.CacheManager;
 @Configuration
 public class CacheConfiguration {
 
-	public final static String ENTITY_CACHE = "entityCache";
 	public final static String CLIENT_CACHE = "clientCache";
-	public final static String ACTIVE_BESTIA_CACHE = "bestia.active";
-	public final static String PLAYER_BESTIA_CACHE = "bestia.playerbestia";
 
 	private HazelcastInstance cache;
 
 	@Autowired
 	public void setCache(HazelcastInstance cache) {
 		this.cache = cache;
-	}
-
-	@Bean(name = ENTITY_CACHE)
-	public CacheManager<Long, LivingEntity> getEntityCache() {
-
-		return new CacheManager<>("cache.entity", cache);
 	}
 
 	/**
@@ -47,20 +37,6 @@ public class CacheConfiguration {
 	public CacheManager<Long, ActorPath> getClientCache() {
 
 		return new CacheManager<>("cache.client", cache);
-	}
-
-	/**
-	 * Returns the cache holding the active bestia entity id.
-	 * <p>
-	 * Please note: In this cache the ENTITY ID not the bestia ID is saved.
-	 * </p>
-	 * 
-	 * @return Cache of the active bestias of the player.
-	 */
-	@Bean(name = ACTIVE_BESTIA_CACHE)
-	public CacheManager<Long, Long> getActiveBestiaCache() {
-
-		return new CacheManager<>("cache.activeBestia", cache);
 	}
 
 	/**

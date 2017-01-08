@@ -102,11 +102,11 @@ public class PlayerEntityService {
 	 */
 	public List<Long> getActiveAccountIdsInRange(Rect range) {
 		List<PlayerBestiaEntity> pbe = entityService.getEntitiesInRange(range, PlayerBestiaEntity.class)
-				.stream()
+				.parallelStream()
 				.map(x -> (PlayerBestiaEntity) x)
 				.collect(Collectors.toList());
 
-		return pbe.stream()
+		return pbe.parallelStream()
 				.filter(x -> x.isActive())
 				.map(x -> x.getAccountId())
 				.collect(Collectors.toList());

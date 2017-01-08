@@ -31,7 +31,7 @@ public abstract class BaseEntity implements Entity, Locatable {
 	 * @return The context.
 	 */
 	protected EntityContext getContext() {
-		if(ctx == null) {
+		if (ctx == null) {
 			throw new IllegalStateException("Context is null.");
 		}
 		return ctx;
@@ -81,9 +81,8 @@ public abstract class BaseEntity implements Entity, Locatable {
 	}
 
 	/**
-	 * Returns the sight range of the entity. This method is very important,
-	 * because it is used in case of a change to determine all clients which are
-	 * in range and must be updated about the change.
+	 * Returns the sight range of the entity. This method is very important, for
+	 * the AI to be able to "see" other entities and react upon them.
 	 * 
 	 * @return The range {@link Rect} of the sight range originating from this
 	 *         entity.
@@ -96,5 +95,4 @@ public abstract class BaseEntity implements Entity, Locatable {
 				pos.getY() + Map.SIGHT_RANGE);
 		return sightRect;
 	}
-
 }
