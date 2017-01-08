@@ -159,9 +159,9 @@ export default class Chat {
 		// once this is done.
 		var handleAuthEvent = function(_, data) {
 			self.LOCAL_NICKNAME = data.username;
-			self._pubsub.unsubscribe(Signal.AUTH, handleAuthEvent);
+			self._pubsub.unsubscribe(Signal.IO_AUTH_CONNECTED, handleAuthEvent);
 		};
-		this._pubsub.subscribe(Signal.AUTH, handleAuthEvent);
+		this._pubsub.subscribe(Signal.IO_AUTH_CONNECTED, handleAuthEvent);
 	
 		// Handle the selection of a new bestia for the bestia id
 		// (chat messages are input messages).
@@ -230,7 +230,7 @@ export default class Chat {
 
 		// Check if this was a command to be executed on the server and set the
 		// message flag accordingly.
-		if (msgText.slice(0, 1) === "/") {
+		if (msgText.slice(0, 1) === '/') {
 			msg.m = 'COMMAND';
 		} else {
 			// Only add when its no command.
@@ -300,7 +300,7 @@ export default class Chat {
 
 		this._i18n.t('chat.item_obtained', function(t) {
 			var text = t('chat.item_obtained').format(item.name(), newAmount);
-			self.addLocalMessage(text, "SYSTEM");
+			self.addLocalMessage(text, 'SYSTEM');
 		});
 
 	}
@@ -349,7 +349,7 @@ export default class Chat {
 	 *            COMMAND, BATTLE.
 	 */
 	addLocalMessage(msg, mode) {
-		mode = mode || "SYSTEM";
+		mode = mode || 'SYSTEM';
 		var msgObj = new Message.Chat(mode, msg);
 		this.addMessage(msgObj);
 	}

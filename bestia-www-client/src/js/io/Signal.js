@@ -9,19 +9,7 @@ let Signal = {
 	 * Signal to logout the user.
 	 */
 	SYSTEM_LOGOUT: 'system.logout',
-
-	/**
-	 * Emitted when the system tries to authenticate.
-	 */
-	AUTH : 'system.auth',
-	
 	I18N_LANG_CHANGED : 'i18n.lang',
-
-	/**
-	 * Emitted when the server does not authenticate or auth data is not
-	 * complete.
-	 */
-	AUTH_ERROR : 'system.autherror',
 
 	BESTIA_SELECTED : 'client.bestia.selected',
 
@@ -37,13 +25,21 @@ let Signal = {
 	 */
 	INVENTORY_PERFORM_CAST : 'client.inventory.performcast',
 
+	// ### CONNECTION SIGNALS
+	
 	IO_SEND_MESSAGE : 'io.sendMessage',
 	IO_CONNECT : 'io.connect',
 	IO_DISCONNECT : 'io.disconnect',
-
 	IO_CONNECTING : 'io.connecting',
 	IO_DISCONNECTED : 'io.disconnected',
 	IO_CONNECTED : 'io.connected',
+	IO_AUTH_CONNECTED : 'io.authconnected',
+	
+	/**
+	 * Emitted when the server does not authenticate or auth data is not
+	 * complete.
+	 */
+	IO_AUTH_ERROR : 'io.autherror',
 
 	CHAT_RECEIVED : 'client.chat.received',
 	/**
@@ -59,6 +55,7 @@ let Signal = {
 	INPUT_USE_ATTACK : 'input.attack',
 	INPUT_USE_ITEM : 'input.item',
 
+	// ### ENGINE
 	/**
 	 * Engine is ready and can be used.
 	 */

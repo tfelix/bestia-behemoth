@@ -28,15 +28,22 @@ export default class PubSub {
 	 * @param {function}
 	 *            fn - Callback function which will get invoked if such an event
 	 *            happens.
+	 * @param {mixed}
+	 *            ctx - Optional: Context which is bound to the function.
 	 */
-	subscribe(e, fn) {
+	subscribe(e, fn, ctx) {
 		if(typeof e !== 'string') {
-			throw "Eventname must be of type string.";
+			throw 'Eventname must be of type string.';
 		}
 		
 		if (!this.cache[e]) {
 			this.cache[e] = [];
 		}
+		
+		if(ctx) {
+			fn = fn.bind(ctx);
+		}
+		
 		this.cache[e].push(fn);
 	}
 
@@ -111,7 +118,7 @@ export default class PubSub {
 	publish(e, data) {
 		
 		if(!e) {
-			throw "Topic can not be undefined.";
+			throw 'Topic can not be undefined.';
 		}
 
 		// @ifdef DEVELOPMENT

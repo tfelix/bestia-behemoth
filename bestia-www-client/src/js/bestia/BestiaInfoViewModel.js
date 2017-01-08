@@ -23,10 +23,10 @@ export default class BestiaInfoViewModel {
 	constructor(pubsub, urlHelper) {
 
 		if (!pubsub) {
-			throw "Bestia.BestiaInfoViewModel: Pubsub is not optional.";
+			throw 'Bestia.BestiaInfoViewModel: Pubsub is not optional.';
 		}
 		if(!urlHelper) {
-			throw "UrlHelper can not be null.";
+			throw 'UrlHelper can not be null.';
 		}
 	
 		this._pubsub = pubsub;
@@ -63,7 +63,7 @@ export default class BestiaInfoViewModel {
 		this.slots = ko.observable(0);
 	
 		// Register for messages from the server.
-		pubsub.subscribe(Signal.IO_CONNECTED, this._handleConnected.bind(this));
+		pubsub.subscribe(Signal.IO_AUTH_CONNECTED, this._handleConnected.bind(this));
 		pubsub.subscribe(Signal.IO_DISCONNECTED, this._handleDisconnected.bind(this));
 		pubsub.subscribe(MID.BESTIA_INFO, this._handleOnMessage.bind(this));
 		pubsub.subscribe(MID.BESTIA_ACTIVATED, this._handleOnActivate.bind(this));

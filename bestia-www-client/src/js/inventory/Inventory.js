@@ -29,13 +29,13 @@ export default class Inventory {
 	constructor(pubsub, i18n, urlHelper) {
 
 		if (pubsub === undefined) {
-			throw "pubsub can not be null.";
+			throw 'pubsub can not be null.';
 		}
 		if (i18n === undefined) {
-			throw "i18n can not be null.";
+			throw 'i18n can not be null.';
 		}
 		if (urlHelper === undefined) {
-			throw "urlHelper can not be null.";
+			throw 'urlHelper can not be null.';
 		}
 	
 		var self = this;
@@ -208,8 +208,8 @@ export default class Inventory {
 		pubsub.subscribe(Signal.INPUT_USE_ITEM, this._handlerInputCastItem.bind(this));
 		pubsub.subscribe(Signal.BESTIA_SELECTED, this._handlerBestiaSelected.bind(this));
 		pubsub.subscribe(Signal.INVENTORY_PERFORM_CAST, this._handlerDoCast.bind(this));
-		pubsub.subscribe(Signal.IO_CONNECTED, this._handlerDoRequestInventory.bind(this));
-		// pubsub.subscribe(Bestia.Signal.INVENTORY_CAST_CONFIRM,
+		pubsub.subscribe(Signal.IO_AUTH_CONNECTED, this._handlerDoRequestInventory.bind(this));
+		// pubsub.subscribe(Signal.INVENTORY_CAST_CONFIRM,
 		// this._handlerCastServerConfirm.bind(this));
 	}
 	
@@ -236,7 +236,7 @@ export default class Inventory {
 		item = item || this.selectedItem();
 
 		if (item === undefined) {
-			console.debug("No item selected.");
+			console.debug('No item selected.');
 			return;
 		}
 
@@ -245,7 +245,7 @@ export default class Inventory {
 			var msg = new Message.InventoryItemCast(item.itemId(), this._selectedBestia.playerBestiaId());
 			this._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 		} else if (item.type() === 'CASTABLE') {
-			// Item is "castable". Notify the engine about displaying a
+			// Item is 'castable'. Notify the engine about displaying a
 			// indicator how to use this item.
 			this._pubsub.publish(Signal.ENGINE_CAST_ITEM, item);
 		}
@@ -319,7 +319,7 @@ export default class Inventory {
 		var item = this.selectedItem();
 
 		if (!item) {
-			throw "Item can not be undefined.";
+			throw 'Item can not be undefined.';
 		}
 
 		switch (slot) {
@@ -344,7 +344,7 @@ export default class Inventory {
 			this._selectedBestia.item5(item);
 			break;
 		default:
-			throw "Slot must be between 1 and 5.";
+			throw 'Slot must be between 1 and 5.';
 		}
 
 		this.saveItemBindings();

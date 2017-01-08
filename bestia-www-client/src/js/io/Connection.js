@@ -28,8 +28,6 @@ export default class Connection {
 	constructor(pubsub) {
 
 		this._socket = null;
-		
-		this._isAuthenticated = false;
 
 		/**
 		 * Pubsub interface.
@@ -46,19 +44,14 @@ export default class Connection {
 		// @endif
 
 		// Sends a message while listening to this channel.
-		pubsub.subscribe(Signal.IO_SEND_MESSAGE, this._handleOnSendMessage.bind(this));
+		pubsub.subscribe(Signal.IO_SEND_MESSAGE, this._handleOnSendMessage, this);
 		// wire connect.
-		pubsub.subscribe(Signal.IO_CONNECT, this.connect.bind(this));
+		pubsub.subscribe(Signal.IO_CONNECT, this.connect, this);
 		// wire disconnect.
-		pubsub.subscribe(Signal.IO_DISCONNECT, this.disconnect.bind(this));
+		pubsub.subscribe(Signal.IO_DISCONNECT, this.disconnect, this);
 	}
 	
 	_handleOnSendMessage(_, msg) {
-		// Refuse to send to server until fully connected and authed.
-		if(!this._isAuthenticated) {
-			return;
-		}
-		
 		var message = JSON.stringify(msg);
 		
 		// @ifdef DEVELOPMENT
@@ -106,58 +99,12 @@ export default class Connection {
 		this._debugData[msgObj.mid].bytes += msgString.length;
 	}
 
-	/**
-	 * Checks if logindata is ok or otherwise not complete. Returns true if
-	 * everything is looking good. Otherwise false.
-	 * 
-	 * @private
-	 * @param {Object}
-	 *            data - The data object containting the login data.
-	 * @method Bestia.Connection#checkLoginData
-	 * @returns TRUE if all the login data is existing. FALSE if there is
-	 *          something missing or an error.
-	 */
-	checkLoginData(data) {
-
-		var state = true;
-
-		if (!data) {
-			console.error("No login data present.");
-			state = false;
-		}
-
-		if (!state || data.token === undefined) {
-			console.error("Login: token missing.");
-			state = false;
-		} else if (!state | data.accId === undefined) {
-			console.error("Login: account id missing.");
-			state = false;
-		} else if (!state | data.username === undefined) {
-			console.error("Login: username missing.");
-			state = false;
-		}
-
-		if (state === false) {
-			this._pubsub.publish(Signal.AUTH_ERROR);
-			return false;
-		}
-
-		return true;
-	}
-
 	connect() {
 		// defined a connection to a new socket endpoint
-		var self = this;
 		this._socket = new SockJS(Urls.bestiaWebsocket);
 		this._socket.onopen = function() {
-			// Prepare login message and send it.
-			var loginMsg = {
-				mid: 'system.loginauth',
-				accId : 1,
-				token : '04473c9f-65e9-4f59-9075-6da257a21826'
-			};
-			self._socket.send(JSON.stringify(loginMsg));
-		};
+			this._pubsub.publish(Signal.IO_CONNECTED);
+		}.bind(this);
 
 		this._socket.onmessage = function(e) {
 			// Is it a valid server message?
@@ -165,36 +112,23 @@ export default class Connection {
 				var json = jQuery.parseJSON(e.data);
 				// @ifdef DEVELOPMENT
 				console.debug('Received Message: ' + e.data);
-				self._debug('receive', json, e.data);
+				this._debug('receive', json, e.data);
 				// @endif
-				
-				if(!this._isAuthenticated) {
-					self._checkAuthReply(json);
-				} else {
-					return;
-				}
 
-				self._pubsub.publish(json.mid, json);
+				this._pubsub.publish(json.mid, json);
 			} catch (ex) {
 				console.error('No valid JSON: ', e);
 				return;
 			}
-		};
+		}.bind(this);
 
 		this._socket.onclose = function() {
 			console.log('Server has closed the connection.');
 			// Most likly we are not authenticated. Back to login.
-			self._pubsub.publish(Signal.IO_DISCONNECTED);
-		};
+			this._pubsub.publish(Signal.IO_DISCONNECTED);
+		}.bind(this);
 		
 		this._pubsub.publish(Signal.IO_CONNECTING);
-	}
-	
-	_checkAuthReply(msg) {		
-		if(msg.mid === MID.SYSTEM_AUTHREPLY && msg.s === 'ACCEPTED') {
-			this._isAuthenticated = true;
-			this._pubsub.publish(Signal.IO_CONNECTED);
-		}
 	}
 
 	/**
@@ -208,7 +142,9 @@ export default class Connection {
 		this._socket = null;
 	}
 
-
+	/**
+	 * Sends ping to the server.
+	 */
 	sendPing() {
 		this._socket.send(JSON.stringify({
 			mid : 'system.ping',

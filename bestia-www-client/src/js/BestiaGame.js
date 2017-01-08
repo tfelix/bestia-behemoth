@@ -4,11 +4,11 @@
  */
 
 import PubSub from './util/PubSub.js';
+import Authenticator from './io/Authenticator';
 import Config from './util/Config.js';
 import UrlHelper from './util/UrlHelper.js';
 import Urls from './Urls.js';
 import Connection from './io/Connection.js';
-import Signal from './io/Signal.js';
 import Inventory from './inventory/Inventory.js';
 import Chat from './chat/Chat.js';
 import I18n from './util/I18n.js';
@@ -23,6 +23,7 @@ export default class BestiaGame {
 		this.pubsub = new PubSub();
 		this.config = new Config(this.pubsub);
 		this.i18n = new I18n(this.pubsub);
+		this.auth = new Authenticator(this.pubsub);
 		this.urlHelper = new UrlHelper(Urls.assetsRoot);
 	
 		this.inventory = new Inventory(this.pubsub, this.i18n, this.urlHelper);
@@ -32,17 +33,5 @@ export default class BestiaGame {
 		this.chat = new Chat($('#chat'), this, this.i18n);
 		this.engine = new Engine(this.pubsub, this.urlHelper);
 		this.connection = new Connection(this.pubsub);
-		
-		this.pubsub.subscribe(Signal.IO_CONNECTED, function(){
-			this.connection.sendPing();
-		}.bind(this));
-		
-		
-		/**
-		 * Authentication error. Go to logout.
-		 */
-		this.pubsub.subscribe(Signal.AUTH_ERROR, function(){
-			window.location.replace(Urls.loginHtml);
-		});
 	}
 }

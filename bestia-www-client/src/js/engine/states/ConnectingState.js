@@ -18,10 +18,10 @@ export default class ConnectingState {
 	
 	create() {
 		var style = {
-			font : "bold 32px Arial",
-			fill : "#fff",
-			boundsAlignH : "center",
-			boundsAlignV : "middle"
+			font : 'bold 32px Arial',
+			fill : '#fff',
+			boundsAlignH :'center',
+			boundsAlignV : 'middle'
 		};
 
 		var bar = this.game.add.graphics();
@@ -31,8 +31,7 @@ export default class ConnectingState {
 		var txt = this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'Connecting...', style);
 		txt.anchor.set(0.5);
 		txt.align = 'center';
-
-		// Signal that the engine has loaded. Triggers connect.
+		
 		this._pubsub.publish(Signal.IO_CONNECT);
 	}
 }
