@@ -14,16 +14,23 @@ export default class ChatTextEntity {
 
 		this._game = game;
 
-		this._sprite = this._game.add.text(0, 0, text, ChatTextEntity.STYLE);
-		this._sprite.alpha = 0;
-		this._sprite.anchor.setTo(0.5);
+		let box = this._game.add.graphics(0, 0);
+		box.beginFill(0xFF3300);
+		box.alpha = 0;
+		
+		let textSprite = this._game.add.text(5, 0, text, ChatTextEntity.STYLE);
+		
+		box.drawRect(0, 0, textSprite.width + 10, textSprite.height);
+		box.anchor.setTo(0.5);
+		box.addChild(textSprite);
+		
+		box.position.y = -Math.round(origin._sprite.height + ChatTextEntity.Y_OFFSET);
+		box.position.x = Math.round(textSprite.x);
 	
 		// Add chat msg.
-		origin._sprite.addChild(this._sprite);
-	
-		this._sprite.position.y = -(origin._sprite.height + ChatTextEntity.Y_OFFSET);
+		origin._sprite.addChild(box);
+		this._sprite = box;
 	}
-	
 
 	setText(text) {
 		this._sprite.text = text;
@@ -41,10 +48,10 @@ export default class ChatTextEntity {
 
 // Constant text style.
 ChatTextEntity.STYLE = {
-	font : "16px Arial",
-	fill : "#fff",
-	boundsAlignH : "center",
-	boundsAlignV : "middle"
+	font : '26px Arial',
+	fill : '#fff',
+	boundsAlignH : 'center',
+	boundsAlignV : 'middle'
 };
 
 ChatTextEntity.CHAT_DISPLAY_TIME = 3000;

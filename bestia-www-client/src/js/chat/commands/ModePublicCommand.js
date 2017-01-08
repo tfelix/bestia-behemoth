@@ -1,5 +1,8 @@
 import RealtimeCommand from './RealtimeCommand';
 
+/**
+ * Upon entering of the command switches chat into public mode.
+ */
 export default class ModePublicCommand extends RealtimeCommand {
 	
 	constructor() {

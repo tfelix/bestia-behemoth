@@ -52,7 +52,7 @@ export default class Chat {
 		 * @property
 		 * @constant
 		 */
-		this.LOCAL_NICKNAME = '';
+		this._nickname = '';
 	
 		this._currentBestiaId = 0;
 		this._currentEntityId = 0;
@@ -169,7 +169,7 @@ export default class Chat {
 		// ourself
 		// once this is done.
 		var handleAuthEvent = function(_, data) {
-			this.LOCAL_NICKNAME = data.username;
+			this._nickname = data.username;
 			this._pubsub.unsubscribe(Signal.IO_AUTH_CONNECTED, handleAuthEvent);
 		};
 		this._pubsub.subscribe(Signal.IO_AUTH_CONNECTED, handleAuthEvent, this);
@@ -217,6 +217,9 @@ export default class Chat {
 		}
 	}
 	
+	/**
+	 * Starts the speech recognition for the chat system.
+	 */
 	recognizeSpeech() {
 		if(!this.speechEnabled()) {
 			return;
@@ -270,7 +273,7 @@ export default class Chat {
 
 		// Prepare and send the message to the server and add it to the local
 		// chat.
-		var msg = new Message.Chat(this.mode(), msgText, this.whisperNick(), this.LOCAL_NICKNAME,
+		var msg = new Message.Chat(this.mode(), msgText, this.whisperNick(), this._nickname,
 				this._currentBestiaId);
 
 		// Check if this was a command to be executed on the server and set the
