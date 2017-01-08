@@ -14,7 +14,8 @@ import net.bestia.webserver.exceptions.WrongCredentialsException;
 @RestController("account/")
 public class AccountController {
 
-	/*private final AccountService accountService;
+	/*
+	private final AccountService accountService;
 
 	@Autowired
 	public AccountController(AccountService accService) {
@@ -23,7 +24,8 @@ public class AccountController {
 	}
 
 	@RequestMapping("login")
-	public AccountCreds login(@RequestParam(value = "accName") String account,
+	public AccountCreds login(
+			@RequestParam(value = "accName") String account,
 			@RequestParam(value = "password") String password) {
 
 		final Account acc = accountService.createLoginToken(account, password);
