@@ -32,7 +32,7 @@ export default class ChatFx {
 		// TODO Hier ein Caching implementieren. Das vielleicht als fx_manager
 		// Service handhaben.
 
-		var entity = this._cache.getByPlayerBestiaId(data.senderPlayerBestiaId());
+		var entity = this._cache.getEntity(data.entityId);
 
 		if (entity !== null) {
 			var textEntity = new ChatTextEntity(this._game, data.text(), entity);

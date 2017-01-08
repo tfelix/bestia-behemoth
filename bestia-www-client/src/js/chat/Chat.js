@@ -55,6 +55,7 @@ export default class Chat {
 		this.LOCAL_NICKNAME = '';
 	
 		this._currentBestiaId = 0;
+		this._currentEntityId = 0;
 	
 		this.domEle = domEle;
 		
@@ -166,8 +167,9 @@ export default class Chat {
 		// Handle the selection of a new bestia for the bestia id
 		// (chat messages are input messages).
 		this._pubsub.subscribe(Signal.BESTIA_SELECTED, function(_, bestia) {
-			self._currentBestiaId = bestia.playerBestiaId();
-		});
+			this._currentBestiaId = bestia.playerBestiaId();
+			this._currentEntityId = bestia.entityId();
+		}, this);
 	
 		// When the game enters the loading menu hide the chat.
 		this._pubsub.subscribe(Signal.ENGINE_PREPARE_MAPLOAD, function() {
@@ -186,8 +188,9 @@ export default class Chat {
 			self.isVisible(true);
 		});
 	
-		this._pubsub.subscribe(Signal.INVENTORY_ITEM_ADD, this._handleItemObtainedMsg.bind(this));
-		this._pubsub.subscribe(Signal.CHAT_REGISTER_CMD, this._handleRegisterCommand.bind(this));
+		this._pubsub.subscribe(Signal.INVENTORY_ITEM_ADD, this._handleItemObtainedMsg, this);
+		this._pubsub.subscribe(Signal.CHAT_REGISTER_CMD, this._handleRegisterCommand, this);
+		this._pubsub.subscribe(Signal.IO_DISCONNECTED, this.clear, this);
 	
 		// Register the chat specific local commands.
 		this._handleRegisterCommand(null, new ClearCommand());
@@ -235,10 +238,18 @@ export default class Chat {
 		} else {
 			// Only add when its no command.
 			msg.pbid = this._currentBestiaId;
+			msg.eid = this._currentEntityId;
 			this.addMessage(msg);
 		}
 
 		this._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
+	}
+	
+	/**
+	 * Clears all chat input.
+	 */
+	clear() {
+		this.messages.removeAll();
 	}
 
 	/**

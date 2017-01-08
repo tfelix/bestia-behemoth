@@ -15,7 +15,7 @@ export default class ChatMessage {
 		 * @public
 		 * @property {string}
 		 */
-		self.nickname = ko.observable(msg.sn || "");
+		self.nickname = ko.observable(msg.sn || '');
 	
 		/**
 		 * Player bestia id of the sender of this message. Only if the message
@@ -24,7 +24,9 @@ export default class ChatMessage {
 		 * @public
 		 * @property {Number}
 		 */
-		this.senderPlayerBestiaId = ko.observable(msg.pbid || 0);
+		this.senderPlayerBestiaId = msg.pbid || 0;
+		
+		this.entityId = msg.eid || 0;
 	
 		/**
 		 * Activated mode of the chat.
@@ -32,7 +34,7 @@ export default class ChatMessage {
 		 * @public
 		 * @property {string}
 		 */
-		self.mode = ko.observable(msg.m || "");
+		self.mode = ko.observable(msg.m || '');
 	
 		/**
 		 * Text of the chat message.
@@ -40,7 +42,7 @@ export default class ChatMessage {
 		 * @public
 		 * @property {string}
 		 */
-		self.text = ko.observable(msg.txt || "");
+		self.text = ko.observable(msg.txt || '');
 	
 		/**
 		 * Holds the CSS style name of the currently activated chatmode.

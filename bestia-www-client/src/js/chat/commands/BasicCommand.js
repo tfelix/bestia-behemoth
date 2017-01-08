@@ -23,8 +23,7 @@ export default class BasicCommand {
 	/**
 	 * Checks if the command matches the input.
 	 * 
-	 * @private
-	 * @method Bestia.Chat.Commands.BestiaCommand#_checkCommand
+	 * @method Bestia.Chat.Commands.BestiaCommand#checkCommand
 	 * @return TRUE if the command matches. FALSE if the command does not match.
 	 */
 	_checkCommand(cmdStr) {

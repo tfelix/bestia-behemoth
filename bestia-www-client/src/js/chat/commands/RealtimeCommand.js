@@ -11,6 +11,8 @@ import { strStartsWith } from './../../util/Utils.js';
 export default class RealtimeCommand extends BasicCommand {
 	
 	constructor() {
+		super();
+		
 		/**
 		 * The string which triggers the command. As soon as the string is found at
 		 * the beginning of a typed text the command is executed.

@@ -1,9 +1,9 @@
-import BasicCommand from './BasicCommand.js';
+import RealtimeCommand from './RealtimeCommand';
 
 /**
  * Switches to chat whisper mode with the given username.
  */
-export default class ModeWhisperCommand extends BasicCommand {
+export default class ModeWhisperCommand extends RealtimeCommand {
 	constructor() {
 		super();
 		this._whisperRegex = /^\/[wW] (\w.+) /;

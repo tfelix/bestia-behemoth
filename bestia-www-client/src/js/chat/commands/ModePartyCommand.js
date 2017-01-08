@@ -1,9 +1,9 @@
-import BasicCommand from './BasicCommand.js';
+import RealtimeCommand from './RealtimeCommand';
 
 /**
  * Switches the chat mode to party.
  */
-export default class ModePartyCommand extends BasicCommand {
+export default class ModePartyCommand extends RealtimeCommand {
 	
 	constructor() {
 		super();

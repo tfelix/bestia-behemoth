@@ -1,6 +1,6 @@
-import BasicCommand from './BasicCommand.js';
+import RealtimeCommand from './RealtimeCommand';
 
-export default class ModePublicCommand extends BasicCommand {
+export default class ModePublicCommand extends RealtimeCommand {
 	
 	constructor() {
 		super();

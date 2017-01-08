@@ -1,9 +1,9 @@
-import BasicCommand from './BasicCommand.js';
+import RealtimeCommand from './RealtimeCommand';
 
 /**
  * Switches the chat to guild chat mode.
  */
-export default class ModeGuildCommand extends BasicCommand {
+export default class ModeGuildCommand extends RealtimeCommand {
 	
 	constructor() {
 		super();
