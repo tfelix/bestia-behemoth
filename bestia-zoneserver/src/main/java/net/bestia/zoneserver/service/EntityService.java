@@ -57,6 +57,7 @@ public class EntityService {
 	 *            The entity to put into the memory database.
 	 */
 	public void save(IdEntity entity) {
+		// Remove entity context since it can not be serialized.
 		entity.setEntityContext(null);
 		try {
 			lock.lock();

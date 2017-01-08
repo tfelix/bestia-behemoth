@@ -14,6 +14,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.service.MovingEntityService;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * Upon receiving of a move message we will lookup the movable entity and sets
@@ -31,11 +32,13 @@ public class EntityMoveActor extends BestiaRoutingActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	
 	private final MovingEntityService movingService;
+	private final PlayerEntityService playerEntityService;
 
 	@Autowired
-	public EntityMoveActor(MovingEntityService movingService) {
+	public EntityMoveActor(MovingEntityService movingService, PlayerEntityService playerEntityService) {
 		super(Arrays.asList(EntityMoveMessage.class));
 
+		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		this.movingService = Objects.requireNonNull(movingService);
 	}
 
@@ -46,6 +49,11 @@ public class EntityMoveActor extends BestiaRoutingActor {
 		final EntityMoveMessage moveMsg = (EntityMoveMessage) msg;
 		
 		LOG.debug("Received move message: {}", moveMsg.toString());
+		
+		if(!playerEntityService.hasPlayerEntity(moveMsg.getAccountId(), moveMsg.getEntityId())) {
+			LOG.warning("Player {} does not own entity {}.", moveMsg.getAccountId(), moveMsg.getEntityId());
+			return;
+		}
 
 		// Check if the entity is already moving.
 		// If this is the case cancel the current movement.

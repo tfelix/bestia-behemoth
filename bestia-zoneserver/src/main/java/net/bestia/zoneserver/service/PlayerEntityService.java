@@ -30,7 +30,8 @@ import net.bestia.zoneserver.entity.traits.IdEntity;
 @Service
 public class PlayerEntityService {
 
-	private final static String ACTIVE_ENTITIES_KEY = "active_entities";
+	private final static String ACTIVE_ENTITIES_KEY = "entities.player.active";
+	private final static String PLAYER_ENTITIES_KEY = "entities.player";
 
 	private final MultiMap<Long, Long> playerBestiaEntitiesIds;
 	private final IMap<Long, Long> activeEntities;
@@ -40,7 +41,7 @@ public class PlayerEntityService {
 	public PlayerEntityService(HazelcastInstance hz, EntityService entityService) {
 
 		this.activeEntities = hz.getMap(ACTIVE_ENTITIES_KEY);
-		this.playerBestiaEntitiesIds = hz.getMultiMap("playerBestiaIds");
+		this.playerBestiaEntitiesIds = hz.getMultiMap(PLAYER_ENTITIES_KEY);
 		this.entityService = Objects.requireNonNull(entityService);
 	}
 
@@ -148,6 +149,26 @@ public class PlayerEntityService {
 		});
 	}
 
+	/**
+	 * Checks if the given account owns this entity.
+	 * 
+	 * @param accId
+	 *            An account id.
+	 * @param entityId
+	 *            The entity for which ownership should be checked.
+	 * @return TRUE if the player owns this entity. FALSE if not or the
+	 *         account/entity was not found.
+	 */
+	public boolean hasPlayerEntity(long accId, long entityId) {
+		return playerBestiaEntitiesIds.containsEntry(accId, entityId);
+	}
+
+	/**
+	 * Puts a single {@link PlayerBestiaEntity} into the cache.
+	 * 
+	 * @param pbe
+	 *            The player entity to put into the cache.
+	 */
 	public void putPlayerEntity(PlayerBestiaEntity pbe) {
 		entityService.save(pbe);
 		playerBestiaEntitiesIds.put(pbe.getAccountId(), pbe.getId());
