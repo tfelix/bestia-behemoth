@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.ActorRef;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -23,7 +22,6 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
 import net.bestia.zoneserver.service.ConnectionService;
 import net.bestia.zoneserver.service.PlayerEntityService;
@@ -37,6 +35,12 @@ import net.bestia.zoneserver.service.RuntimeConfigurationService;
  * <p>
  * A {@link DistributedPubSubMediator} is used in order to provide a random
  * cluster wide routing logic for incoming messages.
+ * </p>
+ * <p>
+ * The bestia master is activated also inside this actor to avoid sync issues
+ * with the client because the next calls from the client require everything to
+ * be activated and ready on the server side. Doing it here as one single unit
+ * of operation eases this problem.
  * </p>
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
@@ -54,7 +58,6 @@ public class LoginActor extends BestiaRoutingActor {
 	private final PlayerBestiaService playerBestiaService;
 	private final PlayerEntityService entityService;
 	private final ConnectionService connectionService;
-	private final ActorRef activateActor;
 
 	/**
 	 * Ctor.
@@ -80,8 +83,6 @@ public class LoginActor extends BestiaRoutingActor {
 		this.connectionService = Objects.requireNonNull(connectionService);
 		this.playerBestiaService = Objects.requireNonNull(pbService);
 		this.entityService = Objects.requireNonNull(entityService);
-
-		this.activateActor = createActor(ActivateBestiaActor.class);
 	}
 
 	private void respond(LoginAuthMessage msg, LoginState state, Account acc) {
@@ -97,13 +98,17 @@ public class LoginActor extends BestiaRoutingActor {
 			final PlayerBestiaEntity master = spawnEntities(msg);
 
 			// Now activate the master.
+			entityService.setActiveEntity(master.getAccountId(), master.getId());
+
+			final LoginAuthReplyMessage response = new LoginAuthReplyMessage(acc.getId(), state, acc.getName());
+			LOG.debug("Sending: {}.", response.toString());
+			getSender().tell(response, getSelf());
+
 			final BestiaActivateMessage activateMsg = new BestiaActivateMessage(msg.getAccountId(),
 					master.getPlayerBestiaId());
-			activateActor.tell(activateMsg, getSelf());
-			
-			final LoginAuthReplyMessage response = new LoginAuthReplyMessage(acc.getId(), state, acc.getName());
-			getSender().tell(response, getSelf());
-			
+			getSender().tell(activateMsg, getSelf());
+			LOG.debug("Sending: {}.", activateMsg.toString());
+
 		} else {
 			final LoginAuthReplyMessage response = new LoginAuthReplyMessage(state, "");
 			if (acc != null) {

@@ -19,7 +19,7 @@ public abstract class BaseEntity implements Entity, Locatable {
 	private static final long serialVersionUID = 1L;
 
 	private EntityContext ctx;
-	private long id;
+	private long id = -1;
 
 	public BaseEntity() {
 		// no op.
@@ -52,7 +52,8 @@ public abstract class BaseEntity implements Entity, Locatable {
 	}
 
 	/**
-	 * Sets the ID of the entity. Ids can only be positive.
+	 * Sets the ID of the entity. Ids can only be positive or null. If the
+	 * entity is first created and has no ID assigned it has the value -1.
 	 * 
 	 * @param id
 	 *            The new ID of this entity.

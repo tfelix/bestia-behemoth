@@ -54,13 +54,15 @@ public class EntityService {
 	public void save(Entity entity) {
 		// Remove entity context since it can not be serialized.
 		entity.setEntityContext(null);
+		
+		// Check if the entity needs a new unique id (if its a new one).
+		if(entity.getId() == -1) {
+			long newId = idCounter.newId();
+			entity.setId(newId);
+		}
+		
+		entities.lock(entity.getId());
 		try {
-			entities.lock(entity.getId());
-			// Check if this id already exists.
-			if (!entities.containsKey(entity.getId())) {
-				long newId = idCounter.newId();
-				entity.setId(newId);
-			}
 			entities.put(entity.getId(), entity);
 		} finally {
 			entities.unlock(entity.getId());
@@ -74,8 +76,8 @@ public class EntityService {
 	 *            The entity id to remove from the memory database.
 	 */
 	public void delete(long entityId) {
+		entities.lock(entityId);
 		try {
-			entities.lock(entityId);
 			entities.delete(entityId);
 		} finally {
 			entities.unlock(entityId);
@@ -144,8 +146,8 @@ public class EntityService {
 	 * @return The casted entity.
 	 */
 	public <T> T getEntity(long entityId, Class<T> clazz) throws ClassCastException {
+		entities.lock(entityId);
 		try {
-			entities.lock(entityId);
 			final Entity e = entities.get(entityId);
 
 			if (e == null) {
@@ -171,8 +173,8 @@ public class EntityService {
 	 * @return The {@link Entity} or NULL if no such id is stored.
 	 */
 	public Entity getEntity(long entityId) {
+		entities.lock(entityId);
 		try {
-			entities.lock(entityId);
 			final Entity e = entities.get(entityId);
 			e.setEntityContext(entityContext);
 			return e;
