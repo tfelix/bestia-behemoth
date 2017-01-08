@@ -108,11 +108,7 @@ export default class EngineContext {
 			return;
 		}
 		
-		//this.loader = null;
-		//this.indicatorManager = null;
-		//this.fxManager = null;
-		//this.entityFactory = null;
-		//this.entityUpdater = null;
+		this.entityCache.clear();
 		this.render.clear();
 		this.playerEntity = null;
 		

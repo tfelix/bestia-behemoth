@@ -17,7 +17,6 @@ import com.hazelcast.query.Predicates;
 
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.entity.EntityContext;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
 import net.bestia.zoneserver.entity.traits.Entity;
 
 /**

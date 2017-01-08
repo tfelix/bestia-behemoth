@@ -14,6 +14,7 @@ import net.bestia.messages.map.MapChunkRequestMessage;
 import net.bestia.model.dao.TileDAO;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
+import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
@@ -31,12 +32,6 @@ import net.bestia.zoneserver.service.PlayerEntityService;
 public class MapRequestChunkActor extends BestiaRoutingActor {
 
 	public final static String NAME = "mapChunk";
-
-	/**
-	 * How many tiles are transmitted from the position of the player in each
-	 * direction to the client.
-	 */
-	private static final int VIEW_RANGE = 32;
 
 	private final TileDAO tileDao;
 	private final PlayerEntityService pbService;
@@ -61,10 +56,10 @@ public class MapRequestChunkActor extends BestiaRoutingActor {
 
 		final Point pos = pbe.getPosition();
 		final Rect viewArea = new Rect(
-				pos.getX() - VIEW_RANGE,
-				pos.getY() - VIEW_RANGE,
-				pos.getX() + VIEW_RANGE,
-				pos.getY() + VIEW_RANGE);
+				pos.getX() - Map.SIGHT_RANGE,
+				pos.getY() - Map.SIGHT_RANGE,
+				pos.getX() + Map.SIGHT_RANGE,
+				pos.getY() + Map.SIGHT_RANGE);
 
 		// Retrieve all the map information in the view port of this.
 		/* final Map map = mapService.getMap(area); */

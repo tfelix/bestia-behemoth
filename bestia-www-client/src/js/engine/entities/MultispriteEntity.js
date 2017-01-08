@@ -31,7 +31,7 @@ export default class MultispriteEntity extends SpriteEntity {
 
 	/**
 	 * Returns the name of the subsprite animation depending of the current
-	 * "main" animation running on the main sprite. Can be used to set the
+	 * 'main' animation running on the main sprite. Can be used to set the
 	 * subsprite animations after the animation of the main sprite has changed.
 	 * 
 	 * @param {string}
@@ -102,12 +102,12 @@ export default class MultispriteEntity extends SpriteEntity {
 			// TODO This should be automatically parsed.
 			// Setup the normal data.
 			sprite.scale.setTo(msDesc.scale || 1);
-			sprite.animations.add("bottom.png", [ "bottom.png" ], 0, true, false);
-			sprite.animations.add("bottom_left.png", [ "bottom_left.png" ], 0, true, false);
-			sprite.animations.add("left.png", [ "left.png" ], 0, true, false);
-			sprite.animations.add("left.png", [ "left.png" ], 0, true, false);
-			sprite.animations.add("top.png", [ "top.png" ], 0, true, false);
-			sprite.animations.add("top_left.png", [ "top_left.png" ], 0, true, false);
+			sprite.animations.add('bottom.png', [ 'bottom.png' ], 0, true, false);
+			sprite.animations.add('bottom_left.png', [ 'bottom_left.png' ], 0, true, false);
+			sprite.animations.add('left.png', [ 'left.png' ], 0, true, false);
+			sprite.animations.add('left.png', [ 'left.png' ], 0, true, false);
+			sprite.animations.add('top.png', [ 'top.png' ], 0, true, false);
+			sprite.animations.add('top_left.png', [ 'top_left.png' ], 0, true, false);
 	
 			// Generate offset information.
 			let offsetFileName = this.getOffsetFilename(msName, this._data.name);
@@ -208,7 +208,7 @@ export default class MultispriteEntity extends SpriteEntity {
 	
 		// The frame names are ???/001.png etc.
 		if(this._sprite.frameName === undefined) {
-			console.error("Soll nicht passieren");
+			console.error('Soll nicht passieren');
 		}
 		var start = this._sprite.frameName.length - 7;
 		var frameNumber = this._sprite.frameName.substring(start, start + 3);

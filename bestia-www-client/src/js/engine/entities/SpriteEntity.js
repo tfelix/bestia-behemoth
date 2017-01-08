@@ -151,20 +151,20 @@ export default class SpriteEntity extends Entity {
 		}
 
 		// We need to mirror the sprite for right sprites.
-		if (name.indexOf("right") !== -1) {
+		if (name.indexOf('right') !== -1) {
 			this._sprite.scale.x = -1 * this._data.scale;
 			name = name.replace('right', 'left');
 		} else {
 			this._sprite.scale.x = this._data.scale;
 		}
 
-		// Check if the sprite "knows" this animation. If not we have several
+		// Check if the sprite 'knows' this animation. If not we have several
 		// fallback strategys to test before we fail.
 		if (!this._hasAnimationName(name)) {
 			name = this._getAnimationFallback(name);
 
 			if (name === null) {
-				console.warn("Could not found alternate animation solution for: " + name);
+				console.warn('Could not found alternate animation solution for: ' + name);
 				return;
 			}
 		}
@@ -196,30 +196,30 @@ export default class SpriteEntity extends Entity {
 	 *         suitable animation could been found.
 	 */
 	_getAnimationFallback(name) {
-		if (name === "stand_down_left" || name === "stand_left") {
+		if (name === 'stand_down_left' || name === 'stand_left') {
 			// Try to replace it with stand down.
-			if (this._availableAnimationNames.indexOf("stand_down") === -1) {
+			if (this._availableAnimationNames.indexOf('stand_down') === -1) {
 				return null;
 			} else {
-				return "stand_down";
+				return 'stand_down';
 			}
 		}
 
-		if (name == "stand_left_up") {
+		if (name == 'stand_left_up') {
 			// Try to replace it with stand down.
-			if (this._availableAnimationNames.indexOf("stand_up") === -1) {
+			if (this._availableAnimationNames.indexOf('stand_up') === -1) {
 				return null;
 			} else {
-				return "stand_up";
+				return 'stand_up';
 			}
 		}
 
-		if (name == "stand_right") {
+		if (name == 'stand_right') {
 			// Try to replace it with stand down.
-			if (this._availableAnimationNames.indexOf("stand_up") === -1) {
+			if (this._availableAnimationNames.indexOf('stand_up') === -1) {
 				return null;
 			} else {
-				return "stand_up";
+				return 'stand_up';
 			}
 		}
 
@@ -382,21 +382,21 @@ export default class SpriteEntity extends Entity {
 		var animName = '';
 
 		if (x === 0 && y === -1) {
-			return "walk_up";
+			return 'walk_up';
 		} else if (x === 1 && y === -1) {
-			animName = "walk_up_right";
+			animName = 'walk_up_right';
 		} else if (x === 1 && y === 0) {
-			animName = "walk_right";
+			animName = 'walk_right';
 		} else if (x === 1 && y === 1) {
-			animName = "walk_down_right";
+			animName = 'walk_down_right';
 		} else if (x === 0 && y === 1) {
-			animName = "walk_down";
+			animName = 'walk_down';
 		} else if (x === -1 && y === 1) {
-			animName = "walk_down_left";
+			animName = 'walk_down_left';
 		} else if (x === -1 && y === 0) {
-			animName = "walk_left";
+			animName = 'walk_left';
 		} else {
-			animName = "walk_up_left";
+			animName = 'walk_up_left';
 		}
 
 		return animName;
@@ -420,21 +420,21 @@ export default class SpriteEntity extends Entity {
 		}
 
 		if (x === 0 && y === -1) {
-			return "stand_up";
+			return 'stand_up';
 		} else if (x === 1 && y === -1) {
-			return "stand_up_right";
+			return 'stand_up_right';
 		} else if (x === 1 && y === 0) {
-			return "stand_right";
+			return 'stand_right';
 		} else if (x === 1 && y === 1) {
-			return "stand_down_right";
+			return 'stand_down_right';
 		} else if (x === 0 && y === 1) {
-			return "stand_down";
+			return 'stand_down';
 		} else if (x === -1 && y === 1) {
-			return "stand_down_left";
+			return 'stand_down_left';
 		} else if (x === -1 && y === 0) {
-			return "stand_left";
+			return 'stand_left';
 		} else {
-			return "stand_up_left";
+			return 'stand_up_left';
 		}
 	}
 	

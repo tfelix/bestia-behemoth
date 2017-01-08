@@ -20,7 +20,7 @@ export default class EntityFactory {
 	constructor(ctx) {
 
 		if (!ctx) {
-			throw new Error("Context can not be null.");
+			throw new Error('Context can not be null.');
 		}
 	
 		this._ctx = ctx;
@@ -103,14 +103,14 @@ export default class EntityFactory {
 		var b = this._getBuilder(data, descFile);
 
 		if (!b) {
-			console.warn("No builder registered to build entity from data: " + JSON.stringify(data));
+			console.warn('No builder registered to build entity from data: ' + JSON.stringify(data));
 			fnOnComplete(null);
 			return;
 		}
 		
 		if (descFile === null) {
 			// Could not load desc file.
-			console.warn("Could not load description file from data: " + JSON.stringify(data));
+			console.warn('Could not load description file from data: ' + JSON.stringify(data));
 			fnOnComplete(null);
 			return;
 		}
@@ -127,19 +127,19 @@ export default class EntityFactory {
 			
 			// Do some sanity checks.
 			if(!data.uuid) {
-				throw "No uuid (uuid) is given.";
+				throw 'No uuid (uuid) is given.';
 			}
 			
 			if(data.x === undefined || data.y === undefined) {
-				throw "No x and/or y (x, y) postion is given";
+				throw 'No x and/or y (x, y) postion is given';
 			}
 			
 			if(!data.s) {
-				throw "No spritename (s) given";
+				throw 'No spritename (s) given';
 			}
 			
 			if(!data.a) {
-				throw "No action (a) given";
+				throw 'No action (a) given';
 			}
 			
 			let entity = b.build(data, descFile);

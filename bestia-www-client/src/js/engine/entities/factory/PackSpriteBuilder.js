@@ -27,7 +27,7 @@ export default class PackSpriteBuilder extends Builder {
 		
 		entity.addToGroup(this._ctx.groups.sprites);
 
-		if (data.a === "APPEAR") {
+		if (data.a === 'APPEAR') {
 			entity.appear();
 		} else {
 			entity.show();
@@ -72,7 +72,7 @@ export default class PackSpriteBuilder extends Builder {
 
 			// Load the sprite.
 			packArray.push({
-				type : "atlasJSONHash",
+				type : 'atlasJSONHash',
 				key : msName,
 				textureURL : this._url.getMultiSheetUrl(msName),
 				atlasURL : this._url.getMultiAtlasUrl(msName),
@@ -81,7 +81,7 @@ export default class PackSpriteBuilder extends Builder {
 
 			// Load the description.
 			packArray.push({
-				type : "json",
+				type : 'json',
 				key : msName + '_desc',
 				url : this._url.getMultiDescUrl(msName)
 			});
@@ -89,7 +89,7 @@ export default class PackSpriteBuilder extends Builder {
 			// Also include the offset file for this combination.
 			var offsetFileName = 'offset_' + msName + '_' + key;
 			packArray.push({
-				type : "json",
+				type : 'json',
 				key : offsetFileName,
 				url : this._url.getMultiOffsetUrl(msName, offsetFileName)
 			});

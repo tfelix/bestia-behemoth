@@ -21,15 +21,15 @@ import DialogFx from './DialogFx.js';
 export default class EffectsManager {
 	constructor(ctx) {
 		if (!ctx.pubsub) {
-			throw new Error("PubSub can not be undefined");
+			throw new Error('PubSub can not be undefined');
 		}
 	
 		if (!ctx.game) {
-			throw  new Error("Game can not be null.");
+			throw  new Error('Game can not be null.');
 		}
 		
 		if (!ctx.loader) {
-			throw new Error("Loader can not be undefined.");
+			throw new Error('Loader can not be undefined.');
 		}
 	
 		/**
@@ -38,8 +38,6 @@ export default class EffectsManager {
 		 * @private
 		 */
 		this._effectInstances = [];
-		
-		this.test = [];
 		
 		this._ctx = ctx;
 	

@@ -64,7 +64,7 @@ export default class DescriptionLoader {
 
 		switch (data.t.toUpperCase()) {
 		case 'PACK':
-		case 'MULTI_DYNAMIC':
+		case 'DYNAMIC':
 			// its an mob.
 			return this._url.getMobDescUrl(data.s);
 		default:

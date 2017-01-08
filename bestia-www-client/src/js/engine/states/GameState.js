@@ -33,7 +33,9 @@ export default class GameState {
 		// Groups can be created.
 		this._ctx.groups = {};
 		this._ctx.groups.mapGround = this.game.add.group(undefined, 'map_ground');
+		this._ctx.groups.spritesUnder = this.game.add.group(undefined, 'sprites_under');
 		this._ctx.groups.sprites = this.game.add.group(undefined, 'sprites');
+		this._ctx.groups.spritesOver = this.game.add.group(undefined, 'sprites_over');
 		this._ctx.groups.mapOverlay = this.game.add.group(undefined, 'map_overlay');
 		this._ctx.groups.effects = this.game.add.group(undefined, 'fx');
 		this._ctx.groups.overlay = this.game.add.group(undefined, 'overlay');
