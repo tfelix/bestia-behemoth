@@ -46,8 +46,8 @@ export default class Chat {
 		this._pubsub = game.pubsub;
 	
 		/**
-		 * Name of the bestia master. Is extracted from the game config which is set
-		 * during login process.
+		 * Name of the bestia master. Is extracted from the game config which is
+		 * set during login process.
 		 * 
 		 * @property
 		 * @constant
@@ -75,7 +75,8 @@ export default class Chat {
 		this._localCommands = [];
 	
 		/**
-		 * Commands which will be checked at each keystroke if the must be invoked.
+		 * Commands which will be checked at each keystroke if the must be
+		 * invoked.
 		 * 
 		 * @private
 		 */
@@ -90,6 +91,14 @@ export default class Chat {
 		 * @property {String}
 		 */
 		this.mode = ko.observable('PUBLIC');
+		
+		/**
+		 * Flag if the speech recognition is enabled for the chat.
+		 * 
+		 * @public
+		 * @property {bool}
+		 */
+		this.speechEnabled = ko.observable(false);
 	
 		/**
 		 * The translated text for the chat mode. Depends upon mode.
@@ -156,7 +165,8 @@ export default class Chat {
 			self.addMessage(msg);
 		});
 	
-		// Catch authentication to set username for the chat. We can remove ourself
+		// Catch authentication to set username for the chat. We can remove
+		// ourself
 		// once this is done.
 		var handleAuthEvent = function(_, data) {
 			this.LOCAL_NICKNAME = data.username;
@@ -200,6 +210,37 @@ export default class Chat {
 		this._localRealtimeCommands.push(new ModePartyCommand());
 		this._localRealtimeCommands.push(new ModeGuildCommand());
 		this._localRealtimeCommands.push(new ModeWhisperCommand());
+		
+		// Some special checks.
+		if(window.hasOwnProperty('webkitSpeechRecognition')) {
+			this.speechEnabled(true);
+		}
+	}
+	
+	recognizeSpeech() {
+		if(!this.speechEnabled()) {
+			return;
+		}
+		
+		if(!this._recognition) {
+			this._recognition = new webkitSpeechRecognition();
+			this._recognition.continuous = false;
+			this._recognition.interimResults = false;
+			// TODO Sprache muss dynamisch mit der sprache angepasst werden.
+			this._recognition.lang = 'de-DE';
+			
+			this._recognition.onresult = function(e) {
+				this.text(e.results[0][0].transcript);
+				this._recognition.stop();
+		        this.sendChat();
+		      }.bind(this);
+		 
+		      this._recognition.onerror = function(e) {
+		    	  recognition.stop();
+		      }
+		}
+		
+		this._recognition.start();
 	}
 	
 	/**
@@ -227,7 +268,8 @@ export default class Chat {
 			}
 		}
 
-		// Prepare and send the message to the server and add it to the local chat.
+		// Prepare and send the message to the server and add it to the local
+		// chat.
 		var msg = new Message.Chat(this.mode(), msgText, this.whisperNick(), this.LOCAL_NICKNAME,
 				this._currentBestiaId);
 
@@ -253,7 +295,8 @@ export default class Chat {
 	}
 
 	/**
-	 * Changes the mode of the model. Is used to bind against as a view callback.
+	 * Changes the mode of the model. Is used to bind against as a view
+	 * callback.
 	 * 
 	 * @public
 	 * @method Bestia.Chat#changeMode
@@ -263,9 +306,9 @@ export default class Chat {
 	}
 
 	/**
-	 * Adds a message to the chat model. Message is from the server and therefore a
-	 * server object. If scrolled to bottom stays at bottom. If not display a
-	 * notification that there are new messages waiting.
+	 * Adds a message to the chat model. Message is from the server and
+	 * therefore a server object. If scrolled to bottom stays at bottom. If not
+	 * display a notification that there are new messages waiting.
 	 * 
 	 * @method Bestia.Chat#addMessage
 	 * @param {Bestia.ChatMessage}
@@ -299,8 +342,8 @@ export default class Chat {
 	}
 
 	/**
-	 * Translates the message when an item was added to the inventory and displays
-	 * it in the chat.
+	 * Translates the message when an item was added to the inventory and
+	 * displays it in the chat.
 	 * 
 	 * @param _
 	 * @param item
@@ -366,9 +409,9 @@ export default class Chat {
 	}
 
 	/**
-	 * Identifying local chat commands which can be executed directly by the client.
-	 * Later when this gets more complex we might need to refactor this as an extra
-	 * class.
+	 * Identifying local chat commands which can be executed directly by the
+	 * client. Later when this gets more complex we might need to refactor this
+	 * as an extra class.
 	 */
 	_identifyLocalCommandTyping(str) {
 

@@ -1,5 +1,6 @@
 package net.bestia.messages.chat;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
@@ -12,6 +13,7 @@ import net.bestia.model.domain.Account;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ChatMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
