@@ -63,6 +63,7 @@ export default class GameState {
 		walkable[10][6] = 1;
 		walkable[10][7] = 1;
 		pathfinder.setGrid(walkable, [0]);
+		pathfinder.enableDiagonals();
 		// ==== /PLUGINS ====
 		
 		// Trigger fx create effects.
