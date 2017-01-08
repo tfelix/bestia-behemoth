@@ -6,9 +6,11 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.traits.Moving;
 
 public class PlayerBestiaEntity extends LivingEntity implements Moving {
@@ -35,11 +37,11 @@ public class PlayerBestiaEntity extends LivingEntity implements Moving {
 		// cache.
 		this.playerBestia.setOwner(null);
 	}
-	
+
 	public boolean isActive() {
 		return isActive;
 	}
-	
+
 	public void setActive(boolean isActive) {
 		this.isActive = isActive;
 	}
@@ -130,6 +132,11 @@ public class PlayerBestiaEntity extends LivingEntity implements Moving {
 		return playerBestia.getAttacks();
 	}
 
+	/**
+	 * The account id this player bestia belongs to.
+	 * 
+	 * @return The owner account id.
+	 */
 	public long getAccountId() {
 		return accountId;
 	}
@@ -161,26 +168,37 @@ public class PlayerBestiaEntity extends LivingEntity implements Moving {
 	public int getLevel() {
 		return playerBestia.getLevel();
 	}
+	
+	@Override
+	public Point getPosition() {
+		return playerBestia.getCurrentPosition().toPoint();
+	}
+
+	@Override
+	public void setPosition(long x, long y) {
+		this.playerBestia.getCurrentPosition().setX(x);
+		this.playerBestia.getCurrentPosition().setY(y);
+		getContext().notifyPosition(this);
+	}
 
 	/**
-	 * Updates the given player bestia model with the latest information from
-	 * the entity. The updated model can then be used to be send to the database
-	 * of to the client. The given {@link PlayerBestia} must match with the
-	 * wrapped player bestia. Otherwise an {@link IllegalArgumentException} is
-	 * thrown.
+	 * Restores the owner of the wrapped player bestia object. When setup in
+	 * order to save memory the owner reference is removed from the player
+	 * bestia. In order to get the modified player bestia it will need its owner
+	 * and then return the restored object.
 	 * 
-	 * @param pb
+	 * @param owner
+	 * @return
 	 */
-	public void updateModel(PlayerBestia pb) {
-		Objects.requireNonNull(pb);
-		if(pb.getId() != getPlayerBestiaId()) {
+	public PlayerBestia restorePlayerBestia(Account owner) {
+		Objects.requireNonNull(owner);
+		if (owner.getId() != getAccountId()) {
 			throw new IllegalArgumentException("Wrong PlayerBestia object given for update.");
 		}
-		
+
 		// Perform the update process.
-		StatusPoints sp = getStatusPoints();
-		pb.setCurrentHp(sp.getCurrentHp());
-		pb.setCurrentMana(sp.getCurrentMana());
+		playerBestia.setOwner(owner);
+		return playerBestia;
 	}
 
 	@Override

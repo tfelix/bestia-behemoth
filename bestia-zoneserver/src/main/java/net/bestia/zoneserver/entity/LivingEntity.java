@@ -175,10 +175,11 @@ public class LivingEntity extends BaseEntity
 		getContext().notifyPosition(this);
 	}
 
+	/*
 	public void setPosition(Position pos) {
 		this.position.set(pos);
 		getContext().notifyPosition(this);
-	}
+	}*/
 
 	@Override
 	public int getLevel() {

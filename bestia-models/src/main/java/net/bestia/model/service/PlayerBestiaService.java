@@ -235,13 +235,20 @@ public class PlayerBestiaService {
 	 *         empty set if this account does not exist.
 	 */
 	public Set<PlayerBestia> getAllBestias(long accId) {
-		
+
 		final Set<PlayerBestia> bestias = playerBestiaDao.findPlayerBestiasForAccount(accId);
 
 		// Add master as well since its not listed as a "player bestia".
 		bestias.add(getMaster(accId));
 
 		return bestias;
+	}
+
+	/**
+	 * Saves all given bestias back to the database.
+	 */
+	public void saveBestias(Set<PlayerBestia> bestias) {
+		playerBestiaDao.save(bestias);
 	}
 
 	/**

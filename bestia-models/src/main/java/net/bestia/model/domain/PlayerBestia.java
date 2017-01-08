@@ -40,13 +40,13 @@ public class PlayerBestia implements Serializable {
 
 	@Id
 	@GeneratedValue
-	private int id = 1;
+	private int id;
 
 	@JsonProperty("e")
 	private int exp;
 
 	@JsonProperty("cn")
-	private String name = "";
+	private String name;
 
 	@AttributeOverrides({ @AttributeOverride(name = "map", column = @Column(name = "saveMapName")),
 			@AttributeOverride(name = "area", column = @Column(name = "saveArea")),

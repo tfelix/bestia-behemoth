@@ -5,9 +5,10 @@ import java.util.Objects;
 
 import javax.persistence.Embeddable;
 
+import net.bestia.model.geometry.Point;
+
 /**
- * A location on the global map. None the less there might be different "maps"
- * like dungeons etc. which can be adressed here.
+ * Position is basically a mutable version of the point.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -17,20 +18,13 @@ public class Position implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public final static String WORLD_MAP = "wmap";
-
-	/**
-	 * Maps are divided in areas to help memory locations. But besides this area
-	 * has no meaning.
-	 */
-	private String area;
+	private static final String WORLD_MAP = "wmap";
+	
 	private String map;
-
 	private long x;
 	private long y;
 
 	public Position() {
-		this.area = "";
 		this.map = WORLD_MAP;
 
 		this.x = 0;
@@ -40,22 +34,15 @@ public class Position implements Serializable {
 	public Position(String mapname, String area, long x, long y) {
 
 		this.map = mapname;
-		this.area = area;
-
 		setX(x);
 		setY(y);
 	}
 
 	public Position(long x, long y) {
-		this.area = "";
 		this.map = WORLD_MAP;
 
 		setX(x);
 		setY(y);
-	}
-
-	public String getArea() {
-		return area;
 	}
 
 	public String getMap() {
@@ -88,7 +75,6 @@ public class Position implements Serializable {
 
 	public void set(Position pos) {
 		Objects.requireNonNull(pos);
-		this.area = pos.getArea();
 		this.map = pos.getMap();
 		this.x = pos.getX();
 		this.y = pos.getY();
@@ -101,5 +87,13 @@ public class Position implements Serializable {
 	@Override
 	public String toString() {
 		return String.format("Position[x: %d, y: %d, map: %s]", getX(), getY(), getMap());
+	}
+
+	/**
+	 * Converts current position to a point.
+	 * @return
+	 */
+	public Point toPoint() {
+		return new Point(x, y);
 	}
 }

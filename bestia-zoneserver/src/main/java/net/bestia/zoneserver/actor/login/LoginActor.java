@@ -56,6 +56,14 @@ public class LoginActor extends BestiaRoutingActor {
 	private final ConnectionService connectionService;
 	private final ActorRef activateActor;
 
+	/**
+	 * Ctor.
+	 * @param accountDao
+	 * @param config
+	 * @param connectionService
+	 * @param entityService
+	 * @param pbService
+	 */
 	@Autowired
 	public LoginActor(AccountDAO accountDao,
 			RuntimeConfigurationService config,
