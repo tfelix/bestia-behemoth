@@ -61,6 +61,10 @@ public class ActivateBestiaActor extends BestiaRoutingActor {
 				pbe.getAccountId(), 
 				pbe.getId());
 		playerService.setActiveEntity(bestiaMsg.getAccountId(), pbe.getId());
+		
+		// Send the responding message to the client.
+		final BestiaActivateMessage bam = new BestiaActivateMessage(bestiaMsg.getAccountId(), pbe.getPlayerBestiaId());
+		sendClient(bam);
 	}
 
 }
