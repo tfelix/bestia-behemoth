@@ -158,10 +158,10 @@ export default class Chat {
 		// Catch authentication to set username for the chat. We can remove ourself
 		// once this is done.
 		var handleAuthEvent = function(_, data) {
-			self.LOCAL_NICKNAME = data.username;
-			self._pubsub.unsubscribe(Signal.IO_AUTH_CONNECTED, handleAuthEvent);
+			this.LOCAL_NICKNAME = data.username;
+			this._pubsub.unsubscribe(Signal.IO_AUTH_CONNECTED, handleAuthEvent);
 		};
-		this._pubsub.subscribe(Signal.IO_AUTH_CONNECTED, handleAuthEvent);
+		this._pubsub.subscribe(Signal.IO_AUTH_CONNECTED, handleAuthEvent, this);
 	
 		// Handle the selection of a new bestia for the bestia id
 		// (chat messages are input messages).

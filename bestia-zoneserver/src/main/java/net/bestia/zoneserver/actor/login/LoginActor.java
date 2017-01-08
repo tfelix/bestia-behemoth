@@ -58,6 +58,7 @@ public class LoginActor extends BestiaRoutingActor {
 
 	/**
 	 * Ctor.
+	 * 
 	 * @param accountDao
 	 * @param config
 	 * @param connectionService
@@ -84,11 +85,11 @@ public class LoginActor extends BestiaRoutingActor {
 	}
 
 	private void respond(LoginAuthMessage msg, LoginState state, Account acc) {
-		final LoginAuthReplyMessage response = new LoginAuthReplyMessage(state);
 
-		if (acc != null) {
-			response.setAccountId(acc.getId());
-		}
+		// Special case. We can not use the SendClientActor because the
+		// connection was not yet registered by the webserver. (If there is no
+		// successfull login we cant even register). Only after this
+		// trigger message it will be available by the SendClientActor.
 
 		if (state == LoginState.ACCEPTED) {
 			// Announce to the cluster that we have a new connected user.
@@ -99,12 +100,17 @@ public class LoginActor extends BestiaRoutingActor {
 			final BestiaActivateMessage activateMsg = new BestiaActivateMessage(msg.getAccountId(),
 					master.getPlayerBestiaId());
 			activateActor.tell(activateMsg, getSelf());
+			
+			final LoginAuthReplyMessage response = new LoginAuthReplyMessage(acc.getId(), state, acc.getName());
+			getSender().tell(response, getSelf());
+			
+		} else {
+			final LoginAuthReplyMessage response = new LoginAuthReplyMessage(state, "");
+			if (acc != null) {
+				response.setAccountId(acc.getId());
+			}
+			getSender().tell(response, getSelf());
 		}
-
-		// Special case. We can not use the SendClientActor because the
-		// connection was not yet registered by the webserver. Only after this
-		// trigger message it will be available by the SendClientActor.
-		getSender().tell(response, getSelf());
 	}
 
 	/**

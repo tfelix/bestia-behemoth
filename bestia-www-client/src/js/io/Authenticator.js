@@ -38,8 +38,8 @@ export default class Authenticator {
 	 * Reads the auth reply from the server.
 	 */
 	_onAuthReply(_, msg) {
-		if(msg.s === 'ACCEPTED') {
-			this._pubsub.publish(Signal.IO_AUTH_CONNECTED);
+		if(msg.state === 'ACCEPTED') {
+			this._pubsub.publish(Signal.IO_AUTH_CONNECTED, msg);
 		} else {
 			this._pubsub.publish(Signal.IO_AUTH_ERROR);
 			// Go to login if there is wrong data.

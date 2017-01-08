@@ -1,5 +1,7 @@
 package net.bestia.messages.login;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
@@ -16,23 +18,36 @@ public class LoginAuthReplyMessage extends AccountMessage implements MessageId {
 	public static final String MESSAGE_ID = "system.loginauthreply";
 	private static final long serialVersionUID = 1L;
 
+	@JsonProperty("state")
 	private LoginState state;
+	
+	@JsonProperty("username")
+	private String username;
 
 	public LoginAuthReplyMessage() {
 		setLoginState(LoginState.DENIED);
 	}
-
-	public LoginAuthReplyMessage(LoginState state) {
+	
+	public LoginAuthReplyMessage(long accId, LoginState state, String username) {
+		setAccountId(accId);
 		this.state = state;
+		this.username = Objects.requireNonNull(username);
+	}
+
+	public LoginAuthReplyMessage(LoginState state, String username) {
+		this(0, state, username);
 	}
 
 	public void setLoginState(LoginState state) {
 		this.state = state;
 	}
 
-	@JsonProperty("s")
 	public LoginState getLoginState() {
 		return state;
+	}
+	
+	public String getUsername() {
+		return username;
 	}
 
 	@Override
