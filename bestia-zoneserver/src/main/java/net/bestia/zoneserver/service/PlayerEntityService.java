@@ -17,7 +17,7 @@ import com.hazelcast.core.MultiMap;
 
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
-import net.bestia.zoneserver.entity.traits.IdEntity;
+import net.bestia.zoneserver.entity.traits.Entity;
 
 /**
  * This service manages and queries the active entities inside the game.
@@ -84,7 +84,7 @@ public class PlayerEntityService {
 			return null;
 		}
 
-		final IdEntity entity = entityService.getEntity(entityId);
+		final Entity entity = entityService.getEntity(entityId);
 
 		if (entity == null || !(entity instanceof PlayerBestiaEntity)) {
 			return null;

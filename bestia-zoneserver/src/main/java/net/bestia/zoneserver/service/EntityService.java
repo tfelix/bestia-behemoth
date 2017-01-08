@@ -20,7 +20,7 @@ import com.hazelcast.query.Predicates;
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.entity.BaseEntity;
 import net.bestia.zoneserver.entity.EntityContext;
-import net.bestia.zoneserver.entity.traits.IdEntity;
+import net.bestia.zoneserver.entity.traits.Entity;
 import net.bestia.zoneserver.entity.traits.Visible;
 
 /**
@@ -33,7 +33,7 @@ import net.bestia.zoneserver.entity.traits.Visible;
 public class EntityService {
 
 	private final HazelcastInstance hazelcastInstance;
-	private final IMap<Long, IdEntity> entities;
+	private final IMap<Long, Entity> entities;
 	private final IdGenerator idCounter;
 	private final EntityContext entityContext;
 	private final Lock lock;
@@ -56,7 +56,7 @@ public class EntityService {
 	 * @param entity
 	 *            The entity to put into the memory database.
 	 */
-	public void save(IdEntity entity) {
+	public void save(Entity entity) {
 		// Remove entity context since it can not be serialized.
 		entity.setEntityContext(null);
 		try {
@@ -94,7 +94,7 @@ public class EntityService {
 	 * @param entity
 	 *            Removes the entity.
 	 */
-	public void delete(IdEntity entity) {
+	public void delete(Entity entity) {
 		delete(entity.getId());
 	}
 
@@ -104,7 +104,7 @@ public class EntityService {
 	 * @param area
 	 * @return All entities inside this arera.
 	 */
-	public Collection<IdEntity> getEntitiesInRange(Rect area) {
+	public Collection<Entity> getEntitiesInRange(Rect area) {
 		return getEntitiesInRange(area, null);
 	}
 
@@ -120,14 +120,14 @@ public class EntityService {
 	 *         filter type.
 	 */
 	@SuppressWarnings("rawtypes")
-	public Collection<IdEntity> getEntitiesInRange(Rect area, Class<? extends BaseEntity> filterType) {
+	public Collection<Entity> getEntitiesInRange(Rect area, Class<? extends BaseEntity> filterType) {
 		// Build the query.
 		final EntryObject e = new PredicateBuilder().getEntryObject();
 
 		final Predicate xPredicate = e.get("position.x").between(area.getX(), area.getX() + area.getWidth());
 		final Predicate yPredicate = e.get("position.y").between(area.getY(), area.getY() + area.getHeight());
 
-		final Collection<IdEntity> found;
+		final Collection<Entity> found;
 
 		try {
 			lock.lock();
@@ -157,7 +157,7 @@ public class EntityService {
 	 *            The area to collect all {@link Visible} entities.
 	 * @return A collection of the found entities.
 	 */
-	public Collection<IdEntity> getVisibleEntitiesInRange(Rect area) {
+	public Collection<Entity> getVisibleEntitiesInRange(Rect area) {
 		return getEntitiesInRange(area)
 				.parallelStream()
 				.filter(x -> x instanceof Visible)
@@ -174,7 +174,7 @@ public class EntityService {
 	public <T> T getEntity(long entityId, Class<T> clazz) throws ClassCastException {
 		try {
 			lock.lock();
-			final IdEntity e = entities.get(entityId);
+			final Entity e = entities.get(entityId);
 
 			if (e == null) {
 				return null;
@@ -196,12 +196,12 @@ public class EntityService {
 	 * Returns the ID entity with the given ID.
 	 * 
 	 * @param entityId
-	 * @return The {@link IdEntity} or NULL if no such id is stored.
+	 * @return The {@link Entity} or NULL if no such id is stored.
 	 */
-	public IdEntity getEntity(long entityId) {
+	public Entity getEntity(long entityId) {
 		try {
 			lock.lock();
-			final IdEntity e = entities.get(entityId);
+			final Entity e = entities.get(entityId);
 			e.setEntityContext(entityContext);
 			return e;
 		} finally {
@@ -216,10 +216,10 @@ public class EntityService {
 	 *            The ids to look for the entities.
 	 * @return A {@link java.util.Map} of the ids and entities.
 	 */
-	public java.util.Map<Long, IdEntity> getAll(Set<Long> ids) {
+	public java.util.Map<Long, Entity> getAll(Set<Long> ids) {
 		try {
 			lock.lock();
-			java.util.Map<Long, IdEntity> es = entities.getAll(ids);
+			java.util.Map<Long, Entity> es = entities.getAll(ids);
 			es.entrySet().forEach(x -> x.getValue().setEntityContext(entityContext));
 			return es;
 		} finally {

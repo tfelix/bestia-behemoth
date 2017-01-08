@@ -24,15 +24,15 @@ import net.bestia.zoneserver.actor.zone.SendClientActor;
 @Component
 @Scope("prototype")
 public abstract class BestiaActor extends UntypedActor {
-	
+
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-	
+
 	private ActorRef responder;
 
 	public BestiaActor() {
 		super();
 	}
-	
+
 	/**
 	 * This will deliver the given message back to the account. In order to do
 	 * this a {@link SendClientActor} responder is used. The actor will be
@@ -90,10 +90,24 @@ public abstract class BestiaActor extends UntypedActor {
 		} catch (Exception e) {
 			// no op.
 		}
-		
-		return getContext().actorOf(props, "NONAME");
+
+		return getContext().actorOf(props);
 	}
-	
+
+	/**
+	 * Unlike {@link #createActor(Class)} this wont check the given class for a
+	 * name and just assign a random name. This is important when a lot of
+	 * actors are created and destroyed to avoid performance bottlenecks.
+	 * 
+	 * @param clazz
+	 *            The class to create an actor from.
+	 * @return The created and already registered new actor.
+	 */
+	protected ActorRef createUnnamedActor(Class<? extends UntypedActor> clazz) {
+		final Props props = getSpringProps(clazz);
+		return getContext().actorOf(props);
+	}
+
 	/**
 	 * Small helper method to get props via the spring extension (and thus can
 	 * use dependency injection).

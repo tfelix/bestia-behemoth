@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.actor.entity;
 
+import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
@@ -32,13 +33,16 @@ public class TimedMoveActor extends BestiaActor {
 
 	private final static String TICK_MSG = "tick";
 
+	public static final String STOP_MESSAGE = "STOP";
+
 	private Cancellable tick;
 
 	private final MovingEntityService movingManager;
 	private final EntityService entityService;
 
+	private int waitLatch = 0;
 	private long entityId;
-	private Queue<Point> path;
+	private final Queue<Point> path = new LinkedList<>();
 
 	@Autowired
 	public TimedMoveActor(
@@ -57,28 +61,36 @@ public class TimedMoveActor extends BestiaActor {
 			final Moving e = entityService.getEntity(entityId, Moving.class);
 
 			if (e == null) {
+
+				// We are currently in waiting mode for another job. We will
+				// wait for a few seconds for a new path to arrive.
+				if (waitLatch > 0) {
+					waitLatch--;
+					return;
+				}
+
 				// Strange no entity anymore. Stop.
 				getContext().stop(getSelf());
 				return;
 			}
 
 			e.setPosition(nextPoint.getX(), nextPoint.getY());
+			entityService.save(e);
 
 			// Path empty and can we terminate now?
 			if (path.isEmpty()) {
 				getContext().stop(getSelf());
 			} else {
 				final int moveDelay = getMoveDelay(path.peek(), e);
-				
-				if(moveDelay == -1) {
-					// Strange no entity anymore. Stop.
-					getContext().stop(getSelf());
-					return;
-				}
-				
 				setupMoveTick(moveDelay);
 			}
 
+		} else if (message.equals(STOP_MESSAGE)) {
+			// Stop the current movement but dont end the actor. We will soon
+			// receive another movement job.
+			path.clear();
+			waitLatch = 5;
+			setupMoveTick(100);
 		} else if (message instanceof EntityMoveMessage) {
 			// We get the order to reuse this actor and stop the current
 			// movement.
@@ -94,7 +106,11 @@ public class TimedMoveActor extends BestiaActor {
 				return;
 			}
 
+			path.clear();
 			path.addAll(msg.getPath());
+			
+			final int moveDelay = getMoveDelay(path.peek(), e);
+			setupMoveTick(moveDelay);
 		} else {
 			unhandled(message);
 		}
@@ -104,9 +120,10 @@ public class TimedMoveActor extends BestiaActor {
 	public void postStop() throws Exception {
 		super.postStop();
 
-		if(tick != null) {
+		if (tick != null) {
 			tick.cancel();
 		}
+		
 		movingManager.removeMovingActorRef(entityId);
 	}
 
@@ -139,11 +156,21 @@ public class TimedMoveActor extends BestiaActor {
 		return (int) Math.floor((1 / 1.4) / speed * 1000);
 	}
 
+	/**
+	 * Setup a new movement tick based on the delay. If the delay is negative we
+	 * know that we can not move and thus end the movement and this actor.
+	 * 
+	 * @param delay
+	 */
 	private void setupMoveTick(int delay) {
-
+		if (delay < 0) {
+			getContext().stop(getSelf());
+			return;
+		}
+		
 		final Scheduler shed = getContext().system().scheduler();
 		tick = shed.scheduleOnce(Duration.create(delay, TimeUnit.MILLISECONDS),
-				getSelf(), TICK_MSG, getContext().system().dispatcher(), null);
+				getSelf(), TICK_MSG, getContext().dispatcher(), null);
 	}
 
 }

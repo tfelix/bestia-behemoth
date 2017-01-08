@@ -3,7 +3,7 @@ package net.bestia.zoneserver.entity;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
-import net.bestia.zoneserver.entity.traits.IdEntity;
+import net.bestia.zoneserver.entity.traits.Entity;
 import net.bestia.zoneserver.entity.traits.Locatable;
 
 /**
@@ -14,7 +14,7 @@ import net.bestia.zoneserver.entity.traits.Locatable;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public abstract class BaseEntity implements IdEntity, Locatable {
+public abstract class BaseEntity implements Entity, Locatable {
 
 	private static final long serialVersionUID = 1L;
 

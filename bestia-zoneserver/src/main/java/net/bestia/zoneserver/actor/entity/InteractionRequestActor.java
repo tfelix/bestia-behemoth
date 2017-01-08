@@ -15,7 +15,7 @@ import net.bestia.messages.entity.EntityInteractionRequestMessage;
 import net.bestia.model.entity.InteractionType;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
-import net.bestia.zoneserver.entity.traits.IdEntity;
+import net.bestia.zoneserver.entity.traits.Entity;
 import net.bestia.zoneserver.entity.traits.Interactable;
 import net.bestia.zoneserver.service.EntityService;
 import net.bestia.zoneserver.service.PlayerEntityService;
@@ -49,7 +49,7 @@ public class InteractionRequestActor extends BestiaRoutingActor {
 	protected void handleMessage(Object msg) {
 		
 		final EntityInteractionRequestMessage rm = (EntityInteractionRequestMessage) msg;	
-		final IdEntity entity = entityService.getEntity(rm.getEntityId());
+		final Entity entity = entityService.getEntity(rm.getEntityId());
 		
 		if(entity == null) {
 			LOG.warning("Entity not found. Message was: {}", msg.toString());

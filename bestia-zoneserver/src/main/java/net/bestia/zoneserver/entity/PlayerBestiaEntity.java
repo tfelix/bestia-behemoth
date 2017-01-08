@@ -9,8 +9,9 @@ import org.slf4j.LoggerFactory;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.zoneserver.entity.traits.Moving;
 
-public class PlayerBestiaEntity extends LivingEntity {
+public class PlayerBestiaEntity extends LivingEntity implements Moving {
 
 	private static final long serialVersionUID = 1L;
 	private final static Logger LOG = LoggerFactory.getLogger(PlayerBestiaEntity.class);
@@ -180,5 +181,11 @@ public class PlayerBestiaEntity extends LivingEntity {
 		StatusPoints sp = getStatusPoints();
 		pb.setCurrentHp(sp.getCurrentHp());
 		pb.setCurrentMana(sp.getCurrentMana());
+	}
+
+	@Override
+	public float getMovementSpeed() {
+		// TODO Implement this.
+		return 1.0f;
 	}
 }

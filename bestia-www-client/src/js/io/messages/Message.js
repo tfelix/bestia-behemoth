@@ -67,10 +67,11 @@ var Message = {
 	/**
 	 * Tells the server to move the bestia to a certain spot on the map.
 	 */
-	EntityMove : function(playerBestiaId, path, walkspeed) {
+	EntityMove : function(playerBestiaId, entityId, path, walkspeed = 1.0) {
 		this.mid = MID.ENTITY_MOVE;
 
 		this.pbid = playerBestiaId;
+		this.eid = entityId;
 
 		// Generate the path arrays.
 		var pX = new Array(path.length);

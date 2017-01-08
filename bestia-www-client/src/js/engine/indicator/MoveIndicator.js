@@ -34,9 +34,9 @@ export default class MoveIndicator extends Indicator {
 			return;
 		}
 
-		var start = player.position;
 		var goal = WorldHelper.getTileXY(pointer.worldX, pointer.worldY);
 		
+		// Callback function.
 		this._ctx.etc.pathfinder.setCallbackFunction(function(path) {
 			path = path || [];
 			
@@ -44,13 +44,18 @@ export default class MoveIndicator extends Indicator {
 				return;
 			}
 			
-			var msg = new Message.EntityMove(player.playerBestiaId, path, this._ctx.playerBestia.walkspeed());
+			// Remove first element since its the current postion.
+			path.shift();
+			
+			var msg = new Message.EntityMove(player.playerBestiaId, player.entityId(), path, player.walkspeed());
 			this._ctx.pubsub.send(msg);
 
 			// Start movement locally as well.
-			//player.moveTo(path, this._ctx.playerBestia.walkspeed());
+			this._ctx.playerEntity.moveTo(path, this._ctx.playerBestia.walkspeed());
 		}.bind(this));
-		this._ctx.etc.pathfinder.preparePathCalculation([0,0], [goal.x, goal.y]);
+		
+		// Start the path calculation
+		this._ctx.etc.pathfinder.preparePathCalculation([player.posX(), player.posY()], [goal.x, goal.y]);
 		this._ctx.etc.pathfinder.calculatePath();
 	}
 

@@ -1,7 +1,7 @@
 
 
 /**
- * Manages and contains all renderer.
+ * Manages and contains all for the graphics.
  */
 export default class RenderManager {
 	

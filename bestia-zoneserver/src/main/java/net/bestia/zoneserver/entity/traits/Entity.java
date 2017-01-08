@@ -11,7 +11,7 @@ import net.bestia.zoneserver.entity.EntityContext;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public interface IdEntity extends Serializable {
+public interface Entity extends Serializable {
 
 	/**
 	 * Returns the unique ID for each entity.

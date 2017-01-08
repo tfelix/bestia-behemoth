@@ -243,26 +243,14 @@ export default class SpriteEntity extends Entity {
 	/**
 	 * Moves the entity along a certain path. The path is an array with {x: INT,
 	 * y: INT} components. The path must not contain the current position of the
-	 * entity. It might happen that the method is called directly just giving
-	 * the path and a walkspeed. So we need to determine if we received a
-	 * message from the server or a direct call from the framework.
+	 * entity.
 	 * 
-	 * @param {Object}
-	 *            msg - Containing the path of the predicted movement as well as
-	 *            the movement speed. {cords: [{x: INT, y: INT}], s: 100}.
+	 * @param {Array[]} -
+	 *            Array containing point objects {x: Number, y: Number} objects.
+	 * @param {float}
+	 *            speed - The movement speed.
 	 */
-	moveTo(msg, s) {
-
-		var speed = 1;
-		var path = [];
-
-		if (Array.isArray(msg) && s) {
-			speed = s;
-			path = msg;
-		} else {
-			speed = msg.s / 100.0;
-			path = msg.cords;
-		}
+	moveTo(path, speed = 1.0) {
 		
 		// Push current position of the entity (start) to the path aswell.
 		path.unshift(this.position);
@@ -288,8 +276,8 @@ export default class SpriteEntity extends Entity {
 			var lastTile = path[i - 1];
 
 			// Check if we go diagonal to adjust speed.
-			var distance = this._getDistance(lastTile, ele);
-			if (distance > 1) {
+			var distance = WorldHelper.getDistance(lastTile, ele);
+			if (distance > 1.01) {
 				// diagonal move. Multi with sqrt(2).
 				duration *= 1.414;
 			}
@@ -423,6 +411,13 @@ export default class SpriteEntity extends Entity {
 	_getStandAnimationName(oldTile, newTile) {
 		var x = newTile.x - oldTile.x;
 		var y = newTile.y - oldTile.y;
+		
+		if(x > 1) {
+			x = 1;
+		}
+		if(y > 1) {
+			y = 1;
+		}
 
 		if (x === 0 && y === -1) {
 			return "stand_up";
