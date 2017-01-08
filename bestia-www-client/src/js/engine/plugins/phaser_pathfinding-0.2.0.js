@@ -660,3 +660,10 @@ Phaser.Plugin.PathFinderPlugin.prototype.calculatePath = function () {
 
     this._easyStar.calculate();
 };
+
+/**
+ * Enable diagonals.
+ */
+Phaser.Plugin.PathFinderPlugin.prototype.enableDiagonals = function () {
+    this._easyStar.enableDiagonals();
+};
