@@ -87,7 +87,7 @@ export default class GameState {
 			this._ctx.pubsub.publish(Signal.ENGINE_GAME_STARTED);
 		}.bind(this));
 		
-		// this.ctx.entityUpdater.releaseHold();
+		this._ctx.entityUpdater.releaseHold();
 	}
 
 	update() {

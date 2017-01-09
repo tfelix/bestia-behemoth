@@ -44,7 +44,7 @@ export default class World {
 		 * @property {String}
 		 * @public
 		 */
-		this.name = "";
+		this.name = '';
 
 		this._groups = groups;
 

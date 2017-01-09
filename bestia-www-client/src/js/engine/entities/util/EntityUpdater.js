@@ -46,7 +46,7 @@ export default class EntityUpdater{
 		switch (msg.a) {
 		case 'APPEAR':
 			// Entity should not exist.
-			var entity = this._ctx.entityCache.getByUuid(msg.uuid);
+			var entity = this._ctx.entityCache.getEntity(msg.eid);
 			if (entity !== null) {
 				// Exists already. Strange.
 				return;
@@ -56,7 +56,7 @@ export default class EntityUpdater{
 			break;
 		case 'VANISH':
 		case 'DIE':
-			var entity = this._ctx.entityCache.getByUuid(msg.uuid);
+			var entity = this._ctx.entityCache.getEntity(msg.eid);
 			entity.remove();
 			this._ctx.entityCache.removeEntity(entity);
 			break;
@@ -72,7 +72,7 @@ export default class EntityUpdater{
 			return;
 		}
 
-		var entity = this._ctx.entityCache.getByUuid(msg.uuid);
+		var entity = this._ctx.entityCache.getEntity(msg.eid);
 		// Entity not in cache. We cant do anything.
 		if (entity === null) {
 			return;
@@ -90,7 +90,7 @@ export default class EntityUpdater{
 			return;
 		}
 
-		var entity = this._ctx.entityCache.getByUuid(msg.uuid);
+		var entity = this._ctx.entityCache.getEntity(msg.eid);
 		// Entity not in cache. We cant do anything.
 		if (entity === null) {
 			return;

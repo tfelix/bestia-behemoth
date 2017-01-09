@@ -26,7 +26,7 @@ export default class Entity {
 		 * @public
 		 * @property {String}
 		 */
-		this.id = id;
+		this._id = id;
 
 		this._game = ctx.game;
 
@@ -143,8 +143,8 @@ export default class Entity {
 	/**
 	 * Readonly access to the uuid.
 	 */
-	get uuid() {
-		return this._uuid;
+	get id() {
+		return this._id;
 	}
 	
 	/**

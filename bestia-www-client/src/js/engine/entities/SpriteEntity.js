@@ -90,8 +90,8 @@ export default class SpriteEntity extends Entity {
 	 * @returns Total walkspeed in ms.
 	 */
 	_getWalkDuration(length, walkspeed) {
-		// Usual walkspeed is 3 tiles / s -> 1/3 s/tile.
-		return Math.round((1 / 3) * length / walkspeed * 1000);
+		// Usual walkspeed is 1.4 tiles / s -> 0,74 s/tile.		
+		return Math.round((1 / 1.4) * length / walkspeed * 1000);
 	}
 
 	show() {
@@ -335,7 +335,7 @@ export default class SpriteEntity extends Entity {
 		};
 
 		// Compare the current position with the NOW position.
-		var d = this._getDistance(this.position, newPos);
+		var d = WorldHelper.getDistance(this.position, newPos);
 
 		// Now we decide, are we moving?
 		if (this.isMoving) {
