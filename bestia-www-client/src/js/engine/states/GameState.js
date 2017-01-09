@@ -86,6 +86,8 @@ export default class GameState {
 		this._tileRender.playerSprite = this.sprite;
 		this._tileRender.clearDraw();
 		
+		this._ctx.groups.spritesUnder.create(600, 300, 'castindicator_medium');
+		
 		// After all is setup create the player sprite.
 		let pb = this._ctx.playerBestia;
 		let playerData = {uuid: pb.entityId(), x: pb.posX(), y: pb.posY(), s: pb.sprite(), a: 'APPEAR', t: pb.spriteType()};
@@ -113,7 +115,7 @@ export default class GameState {
 		});
 		
 		// Group sort the sprite layer.
-		this._ctx.groups.sprites.sort('y', Phaser.Group.SORT_ASCENDING);
+		//this._ctx.groups.sprites.sort('y', Phaser.Group.SORT_ASCENDING);
 	}
 	
 	render() {
