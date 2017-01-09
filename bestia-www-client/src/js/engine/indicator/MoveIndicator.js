@@ -44,7 +44,7 @@ export default class MoveIndicator extends Indicator {
 				return;
 			}
 			
-			// Remove first element since its the current postion.
+			// Remove first element since its the current position.
 			path.shift();
 			
 			var msg = new Message.EntityMove(player.playerBestiaId, player.entityId(), path, player.walkspeed());
@@ -70,15 +70,14 @@ export default class MoveIndicator extends Indicator {
 	 * Override an create all needed game objects here.
 	 */
 	create() {
-		this._marker = this._ctx.game.add.sprite(0, 0, 'cursor');
-		this._ctx.groups.spritesUnder.add(this._marker);
+		this._marker = this._ctx.game.make.sprite(0, 0, 'cursor');
 		this._marker.name = 'cursor';
 		this._marker.animations.add('blink');
 		this._marker.animations.play('blink', 1, true);
 		
-		var graphics = this._ctx.game.add.graphics(0, 0);
+		var graphics = this._ctx.game.make.graphics(0, 0);
 		graphics.beginFill(0x42D65D);
-		graphics.drawRect(6, 6, 20, 20);
+		graphics.drawRect(0, 0, 32, 32);
 		graphics.endFill();
 		graphics.alpha = 0;
 		this._effect = graphics;

@@ -27,17 +27,18 @@ export default class Indicator {
 
 		this._ctx.game.input.addMoveCallback(this._onMouseMove, this);
 		this._ctx.game.input.onDown.add(this._onClick, this);
-		this._ctx.game.world.add(this._marker);
+		this._ctx.groups.spritesUnder.add(this._marker);
 	}
 
 	deactivate() {
 		this._ctx.game.input.deleteMoveCallback(this._onMouseMove, this);
 		this._ctx.game.input.onDown.remove(this._onClick, this);
-		this._ctx.game.world.remove(this._marker);
+		this._ctx.groups.spritesUnder.remove(this._marker);
 	}
 
 	/**
-	 * Checks if this indicator can be overwritten by the new one.
+	 * Checks if this indicator can be overwritten by the new one. Usually this
+	 * is the default behaviour.
 	 * 
 	 * @param {Indicator}
 	 *            indicator - The new indicator intended to override the
