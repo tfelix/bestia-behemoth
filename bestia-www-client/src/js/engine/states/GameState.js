@@ -32,7 +32,6 @@ export default class GameState {
 		 */
 		// Groups can be created.
 		this._ctx.groups = {};
-		//this._ctx.groups.mapGround = this.game.add.group(undefined, 'map_ground');
 		this._ctx.groups.spritesUnder = this.game.add.group(undefined, 'sprites_under');
 		this._ctx.groups.sprites = this.game.add.group(undefined, 'sprites');
 		this._ctx.groups.spritesOver = this.game.add.group(undefined, 'sprites_over');
@@ -77,16 +76,6 @@ export default class GameState {
 		
 		// ========= TESTING =========
 		this.game.world.setBounds(0, 0, 800, 600);
-
-		// this.sprite.anchor.setTo(0,0);
-		// this.game.physics.startSystem(Phaser.Physics.ARCADE);
-		// this.game.camera.follow(this.sprite);
-		// this.extended = false;
-
-		this._tileRender.playerSprite = this.sprite;
-		this._tileRender.clearDraw();
-		
-		this._ctx.groups.spritesUnder.create(600, 300, 'castindicator_medium');
 		
 		// After all is setup create the player sprite.
 		let pb = this._ctx.playerBestia;
@@ -94,10 +83,11 @@ export default class GameState {
 		this._ctx.entityFactory.build(playerData, function(playerEntity){
 			this._ctx.playerEntity = playerEntity;
 			this.game.camera.follow(playerEntity.sprite);
+			this._tileRender.clearDraw();
+			this._ctx.pubsub.publish(Signal.ENGINE_GAME_STARTED);
 		}.bind(this));
 		
 		// this.ctx.entityUpdater.releaseHold();
-		this._ctx.pubsub.publish(Signal.ENGINE_GAME_STARTED);
 	}
 
 	update() {
@@ -115,7 +105,7 @@ export default class GameState {
 		});
 		
 		// Group sort the sprite layer.
-		//this._ctx.groups.sprites.sort('y', Phaser.Group.SORT_ASCENDING);
+		this._ctx.groups.sprites.sort('y', Phaser.Group.SORT_ASCENDING);
 	}
 	
 	render() {
