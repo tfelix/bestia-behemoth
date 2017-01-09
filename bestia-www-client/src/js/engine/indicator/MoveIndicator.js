@@ -40,7 +40,7 @@ export default class MoveIndicator extends Indicator {
 		this._ctx.etc.pathfinder.setCallbackFunction(function(path) {
 			path = path || [];
 			
-			if(path.length == 0) {
+			if(path.length === 0) {
 				return;
 			}
 			

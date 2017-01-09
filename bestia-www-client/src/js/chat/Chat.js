@@ -235,12 +235,12 @@ export default class Chat {
 			this._recognition.onresult = function(e) {
 				this.text(e.results[0][0].transcript);
 				this._recognition.stop();
-		        this.sendChat();
-		      }.bind(this);
-		 
-		      this._recognition.onerror = function(e) {
-		    	  recognition.stop();
-		      }
+				this.sendChat();
+			}.bind(this);
+		    
+			this._recognition.onerror = function() {
+				this._recognition.stop();
+			};
 		}
 		
 		this._recognition.start();

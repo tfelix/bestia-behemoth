@@ -6,8 +6,6 @@
  */
 
 import Signal from './Signal.js';
-import MID from './messages/MID.js';
-import Storage from '../util/Storage.js';
 import Urls from '../Urls.js';
 
 /**

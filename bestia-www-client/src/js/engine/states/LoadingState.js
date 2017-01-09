@@ -35,7 +35,7 @@ export default class LoadingState  {
 	_checkFinishedLoading() {
 		this._loadingCounter--;
 		
-		if(this._loadingCounter == 0) {
+		if(this._loadingCounter === 0) {
 			this._pubsub.publish(Signal.ENGINE_FINISHED_MAPLOAD);
 		}
 	}

@@ -17,7 +17,7 @@ ko.components.register('like-widget', {
 
 function main() {
 
-	console.log("Starting Bestia Client V." + VERSION);
+	console.log('Starting Bestia Client V.' + VERSION);
 
 	// Creating the bestia game.
 	var game = new BestiaGame();
@@ -55,7 +55,7 @@ function main() {
 }
 
 i18n.init({
-	lng : "de",
+	lng : 'de',
 	fallbackLng : false
 }, function() {
 	// Translate document.

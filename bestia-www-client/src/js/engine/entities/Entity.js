@@ -6,7 +6,7 @@ import WorldHelper from '../map/WorldHelper.js';
  */
 export default class Entity {
 	
-	constructor(ctx, id, uuid) {
+	constructor(ctx, id) {
 		/**
 		 * Position in tile coordinates.
 		 * 
@@ -61,7 +61,7 @@ export default class Entity {
 	 * whatsoever means.
 	 */
 	kill() {
-		// Placeholder death "animation".
+		// Placeholder death 'animation'.
 		this._sprite.tint = 0xffffff;
 		this._game.add.tween(this._sprite).to({alpha: 0}, 400, 'Linear', true);
 	}
@@ -91,7 +91,7 @@ export default class Entity {
 
 	addToGroup(group) {
 		if (!(group instanceof Phaser.Group)) {
-			throw "Group must be instance of Phaser.Group";
+			throw 'Group must be instance of Phaser.Group';
 		}
 
 		if (this._sprite === null) {
