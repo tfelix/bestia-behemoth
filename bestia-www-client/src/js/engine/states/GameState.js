@@ -1,6 +1,6 @@
 /*global Phaser */
 
-import * as AStar from '../plugins/phaser_pathfinding-0.2.0';
+import '../plugins/phaser_pathfinding-0.2.0';
 import Signal from '../../io/Signal.js';
 import TileRender from '../renderer/TileRenderer';
 

@@ -1,19 +1,15 @@
-import BestiaGame from './BestiaGame.js';
-import LogoutDialog from './dialog/LogoutDialog.js';
-import VERSION from './Version.js';
+import './util/KoAjaxComponentLoader';
+import BestiaGame from './BestiaGame';
+import LogoutDialog from './dialog/LogoutDialog';
+import VERSION from './Version';
 
-/*
-ko.components.register('like-widget', {
+
+ko.components.register('test-widget', {
 	viewModel: function(params) {
-        // Data: value is either null, 'like', or 'dislike'
-        this.chosenValue = params.value;
-         
-        // Behaviors
-        this.like = function() { this.chosenValue('like'); }.bind(this);
-        this.dislike = function() { this.chosenValue('dislike'); }.bind(this);
+        this.bla = '123456';
     },
-    template: { require: 'text!comp/test.html' }
-});*/
+    template: { fromUrl: 'test.html' }
+});
 
 function main() {
 
