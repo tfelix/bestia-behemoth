@@ -7,13 +7,23 @@ package net.bestia.messages.web;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class AccountLoginResponse {
+public class AccountLoginToken {
 
 	private String token;
 	private String username;
 	private long accId;
 
-	public AccountLoginResponse(long accId, String username, String token) {
+	/**
+	 * Ctor.
+	 * 
+	 * @param accId
+	 *            The logged in account id.
+	 * @param username
+	 *            The username of the account.
+	 * @param token
+	 *            The generated login token.
+	 */
+	public AccountLoginToken(long accId, String username, String token) {
 		this.accId = accId;
 		this.username = username;
 		this.token = token;
