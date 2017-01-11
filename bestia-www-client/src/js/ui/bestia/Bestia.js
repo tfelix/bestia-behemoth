@@ -3,11 +3,11 @@
  * @copyright    2015 Thomas Felix
  */
 
-import Message from '../io/messages/Message.js';
-import Signal from '../io/Signal.js';
-import Attack from '../attack/Attack.js';
-import ItemViewModel from '../inventory/ItemViewModel.js';
-import StatusPointViewModel from './StatusPointViewModel.js';
+import Message from '../../io/messages/Message';
+import Signal from '../../io/Signal';
+import Attack from '../../attack/Attack';
+import ItemViewModel from '../../inventory/Item';
+import StatusPoint from './StatusPoints';
 
 /**
  * ViewModel of a Bestia.
@@ -28,10 +28,10 @@ export default class BestiaViewModel {
 	
 	constructor(pubsub, msg, urlHelper) {
 		if (!pubsub) {
-			throw "BestiaViewModel: PubSub must be given.";
+			throw 'BestiaViewModel: PubSub must be given.';
 		}
 		if (!urlHelper) {
-			throw "BestiaViewModel: UrlHelper must be given.";
+			throw 'BestiaViewModel: UrlHelper must be given.';
 		}
 	
 		var self = this;
@@ -57,7 +57,7 @@ export default class BestiaViewModel {
 		});
 		this.level = ko.observable(1);
 		this.slot = ko.observable();
-		this.statusPoints = new StatusPointViewModel();
+		this.statusPoints = new StatusPoint();
 		
 		// TODO Das hier noch ins system einbinden.
 		this.walkspeed = ko.observable(1.0);

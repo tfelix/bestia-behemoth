@@ -3,10 +3,10 @@
  * @copyright 2015 Thomas Felix
  */
 
-import Signal from '../io/Signal.js';
-import BestiaViewModel from './BestiaViewModel.js';
-import MID from '../io/messages/MID.js';
-import Message from '../io/messages/Message.js';
+import Signal from '../../io/Signal.js';
+import Bestia from './Bestia.js';
+import MID from '../../io/messages/MID.js';
+import Message from '../../io/messages/Message.js';
 
 /**
  * Holds and manages a complete overview of all selected bestias.
@@ -18,7 +18,7 @@ import Message from '../io/messages/Message.js';
  * @param {Bestia.UrlHelper}
  *            urlHelper - Helper for resolving URLs.
  */
-export default class BestiaInfoViewModel {
+export default class BestiaView {
 	
 	constructor(pubsub, urlHelper) {
 
@@ -37,7 +37,7 @@ export default class BestiaInfoViewModel {
 		 * Holds the currently selected bestia.
 		 * 
 		 * @public
-		 * @property {Bestia.BestiaViewModel}
+		 * @property {Bestia.Bestia}
 		 */
 		this.selectedBestia = ko.observable(null);
 	
@@ -45,7 +45,7 @@ export default class BestiaInfoViewModel {
 		 * Holds a reference to the master bestia.
 		 * 
 		 * @public
-		 * @property {Bestia.BestiaViewModel}
+		 * @property {Bestia.Bestia}
 		 */
 		this.masterBestia = ko.observable(null);
 	
@@ -106,7 +106,7 @@ export default class BestiaInfoViewModel {
 	_handleOnMessage(_, msg) {
 		console.debug('Update bestia model with data.');
 
-		var bestia = new BestiaViewModel(this._pubsub, msg, this._urlHelper);
+		var bestia = new Bestia(this._pubsub, msg, this._urlHelper);
 
 		// Check if the bestia is already inside our cache.
 		for (var i = 0; i < this.bestias().length; i++) {

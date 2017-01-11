@@ -3,17 +3,17 @@
  * @copyright 2015 Thomas Felix
  */
 
-import Message from '../io/messages/Message.js';
-import Signal from '../io/Signal.js';
-import MID from '../io/messages/MID.js';
-import ChatMessage from './ChatMessage.js';
-import BasicCommand from './commands/BasicCommand.js';
-import ClearCommand from './commands/ClearCommand.js';
-import HelpCommand from './commands/HelpCommand.js';
-import ModeGuildCommand from './commands/ModeGuildCommand.js';
-import ModePublicCommand from './commands/ModePublicCommand.js';
-import ModeWhisperCommand from './commands/ModeWhisperCommand.js';
-import ModePartyCommand from './commands/ModePartyCommand.js';
+import Message from '../../io/messages/Message';
+import Signal from '../../io/Signal';
+import MID from '../../io/messages/MID';
+import ChatMessage from './ChatMessage';
+import BasicCommand from './commands/BasicCommand';
+import ClearCommand from './commands/ClearCommand';
+import HelpCommand from './commands/HelpCommand';
+import ModeGuildCommand from './commands/ModeGuildCommand';
+import ModePublicCommand from './commands/ModePublicCommand';
+import ModeWhisperCommand from './commands/ModeWhisperCommand';
+import ModePartyCommand from './commands/ModePartyCommand';
 
 /**
  * Chat for the bestia client. It subscribes to the necessairy messages to get
@@ -363,7 +363,9 @@ export default class Chat {
 	 */
 	_handleRegisterCommand(_, cmd) {
 		if (!(cmd instanceof BasicCommand)) {
-			console.warn('Bestia.Chat#_handleRegisterCommand: Command is not an instance of BasicCommand.');
+			console.warn('Chat#_handleRegisterCommand: Command is not an instance of BasicCommand.');
+			console.warn(cmd);
+			return;
 		}
 
 		console.debug('Registering Chat command: ' + cmd.cmdHandle);

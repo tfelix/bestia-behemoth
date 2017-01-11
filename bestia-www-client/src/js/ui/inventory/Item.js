@@ -3,7 +3,7 @@
  * @copyright 2015 Thomas Felix
  */
 
-import UrlHelper from '../util/UrlHelper.js';
+import UrlHelper from '../../util/UrlHelper.js';
 
 /**
  * ItemViewModel displays an item for the user.
@@ -13,12 +13,12 @@ import UrlHelper from '../util/UrlHelper.js';
  * @param {Bestia.UrlHelper}
  *            urlHelper - Helper to resolve URLs.
  */
-export default class ItemViewModel {
+export default class Item {
 	
 	constructor(data, urlHelper) {
 	
 		if(!(urlHelper instanceof UrlHelper)) {
-			throw "Bestia.ItemViewModel: UrlHelper can not be null.";
+			throw 'Bestia.ItemViewModel: UrlHelper can not be null.';
 		}
 	
 		var self = this;
@@ -99,7 +99,7 @@ export default class ItemViewModel {
 		 * @property {string}
 		 * @public
 		 */
-		this.indicator = "";
+		this.indicator = '';
 
 		
 		/**

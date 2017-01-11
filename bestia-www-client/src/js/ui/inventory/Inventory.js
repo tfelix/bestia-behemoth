@@ -3,11 +3,11 @@
  * @copyright 2015 Thomas Felix
  */
 
-import Signal from '../io/Signal.js';
-import MID from '../io/messages/MID.js';
-import Message from '../io/messages/Message.js';
-import InputEvent from '../input/Input.js';
-import ItemViewModel from './ItemViewModel.js';
+import Signal from '../../io/Signal.js';
+import MID from '../../io/messages/MID.js';
+import Message from '../../io/messages/Message.js';
+import InputEvent from '../../input/Input.js';
+import ItemViewModel from './Item';
 
 /**
  * Inventory is hooking into inventory messages from the server and manages item
@@ -26,13 +26,10 @@ import ItemViewModel from './ItemViewModel.js';
  */
 export default class Inventory {
 	
-	constructor(pubsub, i18n, urlHelper) {
+	constructor(pubsub, urlHelper) {
 
 		if (pubsub === undefined) {
 			throw 'pubsub can not be null.';
-		}
-		if (i18n === undefined) {
-			throw 'i18n can not be null.';
 		}
 		if (urlHelper === undefined) {
 			throw 'urlHelper can not be null.';
@@ -54,7 +51,7 @@ export default class Inventory {
 		 * @property
 		 * @private
 		 */
-		this._i18n = i18n;
+		//this._i18n = i18n;
 	
 		/**
 		 * Flag if the inventory has been loaded with new items.

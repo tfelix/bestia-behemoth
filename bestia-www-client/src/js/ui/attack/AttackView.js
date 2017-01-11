@@ -20,7 +20,7 @@ import MID from '../io/messages/MID.js';
  *            pubsub - Handle to the pubsub system.
  */
 /* jshint unused: false */
-export default class BestiaAttacks {
+export default class AttackView {
 	
 	constructor(pubsub, i18n) {
 

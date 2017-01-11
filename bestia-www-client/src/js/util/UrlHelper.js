@@ -8,6 +8,9 @@ export default class UrlHelper {
 	 *            assetUrl - Base URL for the assets.
 	 */
 	constructor(assetUrl) {
+		if(!assetUrl) {
+			throw 'assetUrl can not be empty.';
+		}
 
 		/**
 		 * @property {string}

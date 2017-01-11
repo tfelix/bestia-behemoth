@@ -1,18 +1,38 @@
 import KoAjaxComponentLoader from './ui/KoAjaxComponentLoader';
 
+import PubSub from './util/PubSub';
+import UrlHelper from './util/UrlHelper';
+import createModel from './ui/CreateModel';
 import BestiaGame from './BestiaGame';
-import LogoutDialog from './dialog/LogoutDialog';
 import VERSION from './Version';
 
-//Creating the bestia game.
-var game = new BestiaGame();
+let pubSub = new PubSub();
+let urlHelper = new UrlHelper('assets/');
 
-ko.components.loaders.unshift(new KoAjaxComponentLoader(game.pubsub));
+let model = createModel(pubSub, urlHelper);
+
+//Creating the bestia game.
+let game = new BestiaGame(pubSub, urlHelper);
+
+
 
 ko.components.register('bestia-chat', {
-    viewModel: { test: 124 },
+    viewModel: { instance: model.chat },
     template: { fromUrl: 'chat.html' }
 });
+
+// DOM Ready
+$(function(){
+	// Bind the DOM to the game.
+	ko.applyBindings(model);
+});
+
+// Export game to global if dev.
+// @ifdef DEVELOPMENT
+window.bestiaGame = game;
+//window.bestiaPages = pages;
+// @endif
+
 
 function main() {
 
@@ -20,12 +40,9 @@ function main() {
 
 
 	// UI init must wait until dom is loaded and accessible.
-	var pages = {
+	/*var pages = {
 		logoutDialog : new LogoutDialog('#modal-logout', game.pubsub)
-	};
-
-	// Bind the DOM to the game.
-	ko.applyBindings(game);
+	};*/
 
 	// Add click handler.
 	$('#btn-inventory').click(function() {
@@ -42,12 +59,6 @@ function main() {
 			game.attacks.request();
 		}
 	});
-	
-	// Export game to global if dev.
-	// @ifdef DEVELOPMENT
-	window.bestiaGame = game;
-	window.bestiaPages = pages;
-	// @endif
 }
 
 i18n.init({

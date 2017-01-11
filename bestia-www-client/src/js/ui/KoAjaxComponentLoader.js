@@ -12,30 +12,8 @@ import Chat from '../chat/Chat';
  */
 export default class KoAjaxComponentLoader {
 	
-	constructor(pubsub) {
-		if(!pubsub) {
-			throw 'Pubsub can not be empty.';
-		}
-		
-		this._pubsub = pubsub;
-	}
-	
-	/**
-	 * Defines a viewmodel factory and dependency inject the pubsub object for
-	 * communication.
-	 */
-	loadViewModel(name, viewModelConfig, callback) {
-		// You could use arbitrary logic, e.g., a third-party
-        // code loader, to asynchronously supply the constructor.
-        // For this example, just use a hard-coded constructor function.
-		var that = this;
-		var viewModelConstructor = function(params, componentInfo){
-			return new Chat(that._pubsub);
-		};
-
-        // We need a createViewModel function, not a plain constructor.
-		// callback will transform it for us.
-		callback(viewModelConstructor);
+	constructor() {
+		// no op.
 	}
 	
 	loadTemplate(name, templateConfig, callback) {
@@ -55,6 +33,7 @@ export default class KoAjaxComponentLoader {
             callback(null);
         }
     }
-	
 }
+
+ko.components.loaders.unshift(new KoAjaxComponentLoader());
 

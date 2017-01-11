@@ -1,5 +1,5 @@
 import BasicCommand from './BasicCommand.js';
-import { strStartsWith } from './../../util/Utils.js';
+import { strStartsWith } from './../../../util/Utils.js';
 
 /**
  * This kinds of commands are checked agains in real time while the user is

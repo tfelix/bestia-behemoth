@@ -23,7 +23,7 @@ export default class LogoutDialog {
 
 		this.dialog = $(domID);
 		if (this.dialog.length === 0) {
-			throw "DOM node was not found.";
+			throw 'DOM node was not found.';
 		}
 
 		this.dialog.on('hide.bs.modal', function() {
