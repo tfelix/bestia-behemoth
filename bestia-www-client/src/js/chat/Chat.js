@@ -21,19 +21,13 @@ import ModePartyCommand from './commands/ModePartyCommand.js';
  * provide chat functionality to the user.
  * 
  * @class Bestia.Chat
- * @param {DOMElement}
- *            domEle - DOM element of the chat. Should have all the needed
- *            classes of a chat set.
- * @param {BestiaGame}
- *            game - An instance to the central bestia game object.
- * @param {string}
- *            LOCAL_NICKNAME - How the players account is called to display the
- *            correct name in the echo messages.
  */
 export default class Chat {
 	
-	constructor(domEle, game, myI18n) {
-		var self = this;
+	constructor(pubsub) {
+		if(!pubsub) {
+			throw 'Pubsub can not be null.';
+		}
 	
 		/**
 		 * Number of max messages until old messages are discarded.
@@ -43,7 +37,7 @@ export default class Chat {
 		 */
 		this.MAX_MESSAGES = 50;
 		
-		this._pubsub = game.pubsub;
+		this._pubsub = pubsub;
 	
 		/**
 		 * Name of the bestia master. Is extracted from the game config which is
@@ -56,12 +50,7 @@ export default class Chat {
 	
 		this._currentBestiaId = 0;
 		this._currentEntityId = 0;
-	
-		this.domEle = domEle;
-		
-		this._i18n = myI18n;
-	
-		this.chatEle = $(domEle).find('.chat-msgs:first').get(0);
+
 	
 		/**
 		 * Array list of local commands. Commands can register themselve to this
@@ -81,8 +70,6 @@ export default class Chat {
 		 * @private
 		 */
 		this._localRealtimeCommands = [];
-	
-		this._game = game;
 	
 		/**
 		 * Current chat mode. Possible values are PUBLIC, PARTY or GUILD.
@@ -106,19 +93,21 @@ export default class Chat {
 		 * @public
 		 * @property {String}
 		 */
+		this.modeText = ko.observable(false);
+		/*
 		this.modeText = ko.computed(function() {
-			if (self.mode() == 'PUBLIC') {
-				return self._i18n.t('chat.public');
+			if (this.mode() == 'PUBLIC') {
+				return this._i18n.t('chat.public');
 			}
-			if (self.mode() == 'PARTY') {
-				return self._i18n.t('chat.party');
+			if (this.mode() == 'PARTY') {
+				return this._i18n.t('chat.party');
 			}
-			if (self.mode() == 'GUILD') {
-				return self._i18n.t('chat.guild');
+			if (this.mode() == 'GUILD') {
+				return this._i18n.t('chat.guild');
 			}
 	
-			return self._i18n.t('chat.public');
-		});
+			return this._i18n.t('chat.public');
+		});*/
 	
 		/**
 		 * Holds the nickname which is used to whisper someone.

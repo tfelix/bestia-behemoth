@@ -1,22 +1,22 @@
-import './util/KoAjaxComponentLoader';
+import KoAjaxComponentLoader from './ui/KoAjaxComponentLoader';
+
 import BestiaGame from './BestiaGame';
 import LogoutDialog from './dialog/LogoutDialog';
 import VERSION from './Version';
 
+//Creating the bestia game.
+var game = new BestiaGame();
 
-ko.components.register('test-widget', {
-	viewModel: function(params) {
-        this.bla = '123456';
-    },
-    template: { fromUrl: 'test.html' }
+ko.components.loaders.unshift(new KoAjaxComponentLoader(game.pubsub));
+
+ko.components.register('bestia-chat', {
+    viewModel: { test: 124 },
+    template: { fromUrl: 'chat.html' }
 });
 
 function main() {
 
 	console.log('Starting Bestia Client V.' + VERSION);
-
-	// Creating the bestia game.
-	var game = new BestiaGame();
 
 
 	// UI init must wait until dom is loaded and accessible.

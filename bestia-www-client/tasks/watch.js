@@ -15,7 +15,7 @@ module.exports = {
 	},
 	
 	html: {
-		files : ['<%= sourceDir %>/*.html', '<%= sourceDir %>/**/*.json'],
+		files : ['<%= sourceDir %>/*.html', '<%= sourceDir %>/**/*.json', '<%= sourceDir %>/templates/**/*'],
 		tasks : [ 'preprocess:htmldev', 'copy:dist']
 	},
 	

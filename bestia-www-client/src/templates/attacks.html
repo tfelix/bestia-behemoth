@@ -1,0 +1,186 @@
+<!-- ATTACKS -->
+<div id="attacks"
+	data-bind="with: attacks, css: {slider_active: attacks.showWindow(), visible: attacks.showWindow()}"
+	class="attacks">
+
+	<div class="header">
+		<button data-bind="click: close">Schließen</button>
+	</div>
+
+	<div class="main">
+		<div class="atk-description">
+			<div data-bind="if: selectedAttack">
+				<div data-bind="with: selectedAttack">
+					<h1 data-bind="text: name"></h1>
+					<div>
+						Mana: <span data-bind="text: manaCost"></span>
+					</div>
+					<div data-bind="text: element"></div>
+					<div>
+						St�rke: <span data-bind="text: strength"></span>
+					</div>
+					<div>
+						Art: <span data-bind="text: basedStatus"></span>
+					</div>
+					<div>
+						Reichweite: <span data-bind="text: range"></span>
+					</div>
+					<p class="description" data-bind="text: description"></p>
+				</div>
+			</div>
+			<div class="empty" data-bind="ifnot: selectedAttack">Attacke
+				ausw�hlen</div>
+		</div>
+
+		<div class="atk-list">
+			<input type="text" placeholder="Suche...">
+			<!-- ATTACKENLISTE -->
+			<div data-bind="foreach: attacks">
+				<div class="atk" data-bind="click: $parent.selectAttack">
+					<img data-bind="attr: {src: imageUrl, alt: name}" src="" alt="">
+					<div class="atk_detail">
+						<div data-bind="text: name"></div>
+						<div>
+							Mana: <span data-bind="text: manaCost"></span> <span
+								data-bind="text: element"></span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="atk-learned">
+			<!-- SLOTS -->
+			<div class="atk_slot">
+				<div class="key" data-bind="click: useSelectedAttack.bind($data, 1)">Q</div>
+				<div class="atk-container">
+					<!-- ko if: attackSlot1() != null -->
+					<div class="atk_learned">
+						<img
+							data-bind="attr: {src: attackSlot1().imageUrl, alt: attackSlot1().name}"
+							src="" alt="">
+						<div class="atk_detail">
+							<div data-bind="text: attackSlot1().name"></div>
+							<div>
+								Mana: <span data-bind="text: attackSlot1().manaCost"></span>
+							</div>
+						</div>
+					</div>
+					<!-- /ko -->
+					<div data-bind="if: attackSlot1() == null" class="empty">
+						<i>Nicht benutzt</i>
+					</div>
+				</div>
+				<div class="atk-delete"
+					data-bind="click: removeAttack.bind($data, 1)">
+					<img src="img/ic_delete.png" alt="Remove">
+				</div>
+			</div>
+
+			<div class="atk_slot">
+				<div class="key" data-bind="click: useSelectedAttack.bind($data, 2)">W</div>
+				<div class="atk-container">
+					<!-- ko if: attackSlot2() != null -->
+					<div class="atk_learned">
+						<img
+							data-bind="attr: {src: attackSlot2().imageUrl, alt: attackSlot2().name}"
+							src="" alt="">
+						<div class="atk_detail">
+							<div data-bind="text: attackSlot2().name"></div>
+							<div>
+								Mana: <span data-bind="text: attackSlot2().manaCost"></span>
+							</div>
+						</div>
+					</div>
+					<!-- /ko -->
+					<div data-bind="if: attackSlot2() == null" class="empty">
+						<i>Nicht benutzt</i>
+					</div>
+				</div>
+				<div class="atk-delete"
+					data-bind="click: removeAttack.bind($data, 2)">
+					<img src="img/ic_delete.png" alt="Remove">
+				</div>
+			</div>
+
+			<div class="atk_slot">
+				<div class="key" data-bind="click: useSelectedAttack.bind($data, 3)">E</div>
+				<div class="atk-container">
+					<!-- ko if: attackSlot3() != null -->
+					<div class="atk_learned">
+						<img
+							data-bind="attr: {src: attackSlot3().imageUrl, alt: attackSlot3().name}"
+							src="" alt="">
+						<div class="atk_detail">
+							<div data-bind="text: attackSlot3().name"></div>
+							<div>
+								Mana: <span data-bind="text: attackSlot3().manaCost"></span>
+							</div>
+						</div>
+					</div>
+					<!-- /ko -->
+					<div data-bind="if: attackSlot3() == null" class="empty">
+						<i>Nicht benutzt</i>
+					</div>
+				</div>
+				<div class="atk-delete"
+					data-bind="click: removeAttack.bind($data, 3)">
+					<img src="img/ic_delete.png" alt="Remove">
+				</div>
+			</div>
+
+			<div class="atk_slot">
+				<div class="key" data-bind="click: useSelectedAttack.bind($data, 4)">R</div>
+				<div class="atk-container">
+					<!-- ko if: attackSlot4() != null -->
+					<div class="atk_learned">
+						<img
+							data-bind="attr: {src: attackSlot4().imageUrl, alt: attackSlot4().name}"
+							src="" alt="">
+						<div class="atk_detail">
+							<div data-bind="text: attackSlot4().name"></div>
+							<div>
+								Mana: <span data-bind="text: attackSlot4().manaCost"></span>
+							</div>
+						</div>
+					</div>
+					<!-- /ko -->
+					<div data-bind="if: attackSlot4() == null" class="empty">
+						<i>Nicht benutzt</i>
+					</div>
+				</div>
+				<div class="atk-delete"
+					data-bind="click: removeAttack.bind($data, 4)">
+					<img src="img/ic_delete.png" alt="Remove">
+				</div>
+			</div>
+
+			<div class="atk_slot">
+				<div class="key" data-bind="click: useSelectedAttack.bind($data, 5)">T</div>
+				<div class="atk-container">
+					<!-- ko if: attackSlot5() != null -->
+					<div class="atk_learned">
+						<img
+							data-bind="attr: {src: attackSlot5().imageUrl, alt: attackSlot5().name}"
+							src="" alt="">
+						<div class="atk_detail">
+							<div data-bind="text: attackSlot5().name"></div>
+							<div>
+								Mana: <span data-bind="text: attackSlot5().manaCost"></span>
+							</div>
+						</div>
+					</div>
+					<!-- /ko -->
+					<div data-bind="if: attackSlot5() == null" class="empty">
+						<i>Nicht benutzt</i>
+					</div>
+				</div>
+				<div class="atk-delete"
+					data-bind="click: removeAttack.bind($data, 5)">
+					<img src="img/ic_delete.png" alt="Remove">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- /ATTACKS -->

@@ -1,0 +1,87 @@
+<!-- INVENTORY -->
+
+<div id="inventory"
+	data-bind="with: inventory, css: {slider_active: inventory.showWindow(), visible: inventory.showWindow()}"
+	class="inventory">
+
+	<div class="header">
+		<div class="left">
+			<input type="text" data-bind="textInput: searchFilter"
+				placeholder="Suche">
+			<!-- 
+				<button>All</button>
+				<button>Usable</button>
+				<button>Equipment</button>
+				<button>Etc</button>-->
+		</div>
+		<div class="right">
+			<button>Craft</button>
+			<button>Trade</button>
+			<button>Equip</button>
+			<button type="button" class="btn btn-default"
+				data-bind="click: close" data-i18n="ui.close">ui.close</button>
+		</div>
+	</div>
+
+	<div style="clear: both"></div>
+
+	<div class="flex-container">
+		<div class="flex items" data-bind="foreach: items">
+			<div class="item"
+				data-bind="click: $parent.selectItem, attr: {'data-itemid': itemId}">
+				<img data-bind="attr: {src: imageSrc, alt: name}" src="" alt="">
+				<span class="amount" data-bind="text: amount"></span>
+			</div>
+		</div>
+
+		<div id="slider-info" data-bind="if: selectedItem" class="equipment">
+			<p data-bind="text: selectedItem().name"></p>
+			<p data-bind="text: selectedItem().description"></p>
+			<div>
+				<input data-bind="textInput: dropAmount" type="text">
+				<button data-bind="click: dropItem">Abwerfen</button>
+			</div>
+			<div>
+				<button data-bind="click: useItem">Benutzen</button>
+			</div>
+
+			<div class="shortcut-row">
+				<div class="shortcut-entity">
+					<button data-bind="click: bindItem.bind($data, 1)">v</button>
+					<div class="shortcut-wrapper"
+						data-bind="template: {if: itemSlot1(), name: 'tmpl-item-shortcut', data: itemSlot1 }"></div>
+					<div class="key">1</div>
+				</div>
+				<div class="shortcut-entity">
+					<button data-bind="click: bindItem.bind($data, 2)">v</button>
+					<div class="shortcut-wrapper"
+						data-bind="template: {if: itemSlot2(), name: 'tmpl-item-shortcut', data: itemSlot2 }"></div>
+					<div class="key">2</div>
+				</div>
+				<div class="shortcut-entity">
+					<button data-bind="click: bindItem.bind($data, 3)">v</button>
+					<div class="shortcut-wrapper"
+						data-bind="template: {if: itemSlot3(), name: 'tmpl-item-shortcut', data: itemSlot3 }"></div>
+					<div class="key">3</div>
+				</div>
+				<div class="shortcut-entity">
+					<button data-bind="click: bindItem.bind($data, 4)">v</button>
+					<div class="shortcut-wrapper"
+						data-bind="template: {if: itemSlot4(), name: 'tmpl-item-shortcut', data: itemSlot4 }"></div>
+					<div class="key">4</div>
+				</div>
+				<div class="shortcut-entity">
+					<button data-bind="click: bindItem.bind($data, 5)">v</button>
+					<div class="shortcut-wrapper"
+						data-bind="template: {if: itemSlot5(), name: 'tmpl-item-shortcut', data: itemSlot5 }"></div>
+					<div class="key">5</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="footer">
+		<span data-bind="text: currentWeight">0</span>/<span
+			data-bind="text: maxWeight">0</span><span data-i18n="inv.weight">inv.weight</span>
+	</div>
+</div>
