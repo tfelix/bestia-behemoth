@@ -1,4 +1,5 @@
 import BestiaView from './bestia/BestiaView';
+import AttackView from './attack/AttackView';
 import Chat from './chat/Chat';
 import Inventory from './inventory/Inventory';
 import Config from './Config';
@@ -20,6 +21,8 @@ export default function createModel(pubsub, urlHelper) {
 		bestias : new BestiaView(pubsub, urlHelper),
 		
 		chat : new Chat(pubsub),
+		
+		attacks : new AttackView(pubsub),
 		
 		inventory : new Inventory(pubsub, urlHelper),
 		

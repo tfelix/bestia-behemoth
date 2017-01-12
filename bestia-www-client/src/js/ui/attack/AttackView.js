@@ -1,7 +1,7 @@
-import Signal from '../io/Signal.js';
-import Message from '../io/messages/Message.js';
-import Attack from './Attack.js';
-import MID from '../io/messages/MID.js';
+import Signal from '../../io/Signal';
+import Message from '../../io/messages/Message';
+import Attack from './Attack';
+import MID from '../../io/messages/MID';
 
 /**
  * <p>
@@ -154,7 +154,7 @@ export default class AttackView {
 				self._selectedBestia.attack5(self.selectedAttack());
 				break;
 			default:
-				throw "Slotnumber must be between 1 and 5.";
+				throw 'Slotnumber must be between 1 and 5.';
 			}
 			self.saveAttacks();
 		};
@@ -190,7 +190,7 @@ export default class AttackView {
 				self._selectedBestia.attack5(null);
 				break;
 			default:
-				throw "Slotnumber must be between 1 and 4.";
+				throw 'Slotnumber must be between 1 and 4.';
 			}
 			self.saveAttacks();
 		};
@@ -265,7 +265,7 @@ export default class AttackView {
 		});
 
 		if (learnedAtk.length != 1) {
-			throw "Attack was not known.";
+			throw 'Attack was not known.';
 		}
 
 		var atk = learnedAtk[0];
@@ -287,7 +287,7 @@ export default class AttackView {
 			this.attackSlot5(atk);
 			break;
 		default:
-			throw "Slot must be between 1 and 5.";
+			throw 'Slot must be between 1 and 5.';
 		}
 
 		// Delete the same attack from all other slots.

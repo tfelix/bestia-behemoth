@@ -15,35 +15,31 @@ let model = createModel(pubSub, urlHelper);
 let game = new BestiaGame(pubSub, urlHelper);
 
 
-
+// === Register the components.
 ko.components.register('bestia-chat', {
     viewModel: { instance: model.chat },
     template: { fromUrl: 'chat.html' }
 });
+ko.components.register('bestia-inventory', {
+    viewModel: { instance: model.inventory },
+    template: { fromUrl: 'inventory.html' }
+});
+ko.components.register('bestia-attacks', {
+    viewModel: { instance: model.attacks },
+    template: { fromUrl: 'attacks.html' }
+});
+ko.components.register('bestia-shortcuts', {
+    viewModel: { instance: model.inventory },
+    template: { fromUrl: 'inventory.html' }
+});
 
 // DOM Ready
 $(function(){
+	console.log('Starting Bestia Client V.' + VERSION);
+	
 	// Bind the DOM to the game.
 	ko.applyBindings(model);
-});
-
-// Export game to global if dev.
-// @ifdef DEVELOPMENT
-window.bestiaGame = game;
-//window.bestiaPages = pages;
-// @endif
-
-
-function main() {
-
-	console.log('Starting Bestia Client V.' + VERSION);
-
-
-	// UI init must wait until dom is loaded and accessible.
-	/*var pages = {
-		logoutDialog : new LogoutDialog('#modal-logout', game.pubsub)
-	};*/
-
+	
 	// Add click handler.
 	$('#btn-inventory').click(function() {
 		game.attacks.close();
@@ -59,8 +55,16 @@ function main() {
 			game.attacks.request();
 		}
 	});
-}
+});
 
+// Export game to global if dev.
+// @ifdef DEVELOPMENT
+window.bestiaGame = game;
+//window.bestiaPages = pages;
+// @endif
+
+
+/*
 i18n.init({
 	lng : 'de',
 	fallbackLng : false
@@ -70,4 +74,4 @@ i18n.init({
 
 	// Start game.
 	$(document).ready(main);
-});
+});*/

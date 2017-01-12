@@ -57,6 +57,11 @@ let Signal = {
 
 	// ### ENGINE
 	/**
+	 * Returns the reference to the searched component or null if there is no such compoent.
+	 */
+	ENGINE_GETREF : 'engine.getref',
+	
+	/**
 	 * Engine is ready and can be used.
 	 */
 	ENGINE_BOOTED : 'engine.bootet',
