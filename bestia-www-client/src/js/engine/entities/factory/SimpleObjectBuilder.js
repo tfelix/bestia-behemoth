@@ -35,7 +35,7 @@ export default class SimpleObjectBuilder extends Builder {
 			}
 		}
 	
-		return "unknown";
+		return 'unknown';
 	}
 
 	_createNode(template) {
@@ -49,7 +49,7 @@ export default class SimpleObjectBuilder extends Builder {
 		case 'sprite':
 			return this._game.add.sprite(-100, -100, template.name);
 		case 'filter':
-			console.warn("Not yet supported");
+			console.warn('Not yet supported');
 			break;
 		default:
 			// no supported.

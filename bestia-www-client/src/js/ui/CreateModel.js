@@ -16,7 +16,7 @@ export default function createModel(pubsub, urlHelper) {
 	}
 	
 	// ==== Bestia View Model
-	var model = {
+	let model = {
 		
 		bestias : new BestiaView(pubsub, urlHelper),
 		
@@ -31,7 +31,7 @@ export default function createModel(pubsub, urlHelper) {
 		dialog : {
 			//logout : new LogoutDialog()
 		}
-	}
+	};
 	
 	return Object.freeze(model);
 }

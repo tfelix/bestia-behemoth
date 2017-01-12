@@ -25,7 +25,7 @@ export default class SpriteBuilder extends Builder {
 
 		entity.addToGroup(this._ctx.groups.sprites);
 
-		if (data.a === "APPEAR") {
+		if (data.a === 'APPEAR') {
 			entity.appear();
 		} else {
 			entity.show();

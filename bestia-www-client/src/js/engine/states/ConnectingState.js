@@ -32,6 +32,6 @@ export default class ConnectingState {
 		txt.anchor.set(0.5);
 		txt.align = 'center';
 		
-		this._pubsub.publish(Signal.IO_CONNECT);
+		//this._pubsub.publish(Signal.IO_CONNECT);
 	}
 }

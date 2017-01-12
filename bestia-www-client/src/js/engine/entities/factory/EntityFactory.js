@@ -17,26 +17,20 @@ import DescriptionLoader from '../../core/DescriptionLoader.js';
  */
 export default class EntityFactory {
 	
-	constructor(ctx) {
-
-		if (!ctx) {
-			throw new Error('Context can not be null.');
-		}
+	constructor(pubsub) {
 	
-		this._ctx = ctx;
-	
-		this.descLoader = new DescriptionLoader(ctx.loader, ctx.url);
+		this.descLoader = new DescriptionLoader(pubsub);
 	
 		/**
 		 * Registry for the builder to register themselfes.
 		 */
 		this.builder = [];
 	
-		this.register(new PackSpriteBuilder(this, ctx));
-		this.register(new DynamicSpriteBuilder(this, ctx));
-		this.register(new SpriteBuilder(this, ctx));
-		this.register(new SimpleObjectBuilder(this, ctx));
-		this.register(new ItemBuilder(this, ctx));
+		this.register(new PackSpriteBuilder(this, pubsub));
+		this.register(new DynamicSpriteBuilder(this, pubsub));
+		this.register(new SpriteBuilder(this, pubsub));
+		this.register(new SimpleObjectBuilder(this, pubsub));
+		this.register(new ItemBuilder(this, pubsub));
 	}
 	
 	/**

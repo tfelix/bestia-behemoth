@@ -46,6 +46,16 @@ export default class Config {
 		 * @property {string} locale
 		 */
 		this.locale = ko.observable('de-DE');
+		
+		// Engine
+		this.engine = {
+			enableMusic : ko.observable(true),
+			volumeMusic : ko.observable(1.0),
+			enableSoundFx : ko.observable(true),
+			volumeSoundFx : ko.observable(1.0),
+			
+			debug : ko.observable(true)
+		}
 	
 		// Register for messages.
 		pubsub.subscribe('server.info', this._handleOnMessage.bind(this));

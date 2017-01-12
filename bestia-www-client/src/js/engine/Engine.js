@@ -2,12 +2,16 @@
 
 import Signal from '../io/Signal.js';
 import PubSub from '../util/PubSub';
+import EngineCache from './EngineCache';
 import EngineContext from './core/EngineContext.js';
 import BootState from './states/BootState.js';
 import ConnectingState from './states/ConnectingState.js';
 import GameState from './states/GameState.js';
-import InitialLoadingState from './states/InitialLoadingState';
+import InitializeState from './states/InitializeState';
 import LoadingState from './states/LoadingState.js';
+
+import EngineMediator from './EngineMediator';
+import EntityCache from './entities/util/EntityCache';
 
 /**
  * Bestia Graphics engine. Responsible for displaying the game collecting user
@@ -21,39 +25,41 @@ import LoadingState from './states/LoadingState.js';
  */
 export default class Engine {
 	constructor(pubsub, url) {
-		this.options = {
-			enableMusic : ko.observable('true'),
-			musicVolume : ko.observable(100),
-			debug : ko.observable(false)
-		};
 		
 		// Internal pubsub to let came components communicate with each other.
-		this._gamePubSub = new PubSub();
+		let gamePubSub = new PubSub();
+		
+		this._engineCache = new EngineCache(gamePubSub);
+		this._engineMediator = new EngineMediator(gamePubSub, pubsub);
+		
+		url.NAME = 'urlHelper';
+		this._engineCache.registerComponent(url);
 
 		// Determine the size of the canvas. And create the game object.
+		let phaserGame = new Phaser.Game(800, 600, Phaser.AUTO, 'bestia-canvas', null, false, false);
+		phaserGame.NAME = 'phaserGame';
+		this._engineCache.registerComponent(phaserGame);
 		
-		// var height = $(window).height();
-		// var width = $('#canvas-container').width();
-
-		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'bestia-canvas', null, false, false);
 		
-		this._ctx = new EngineContext(this.game, pubsub, url);
-
-		this.game.state.add('boot', new BootState(this._ctx));
-		this.game.state.add('connecting', new ConnectingState(this._ctx));
-		this.game.state.add('initial_loading', new InitialLoadingState(this._ctx));
-		this.game.state.add('load', new LoadingState(this._ctx));
-		this.game.state.add('game', new GameState(this._ctx));
+		// Create all other components.
+		new EntityCache(gamePubSub);
+		
+		// Create the states.
+		phaserGame.state.add('boot', new BootState(pubsub));
+		phaserGame.state.add('initial_loading', new InitializeState(pubsub));
+		phaserGame.state.add('connecting', new ConnectingState(pubsub));
+		phaserGame.state.add('load', new LoadingState(pubsub));
+		phaserGame.state.add('game', new GameState(pubsub));
 
 		// ==== PREPARE HANDLER ====
 
 		// React on bestia selection changes. We need to re-trigger the map
 		// loading. This event will fire if we have established a connection.
-		pubsub.subscribe(Signal.BESTIA_SELECTED, this._handlerOnBestiaSelected.bind(this));
-		pubsub.subscribe(Signal.IO_DISCONNECTED, this._handlerOnConnectionLost.bind(this));
-		pubsub.subscribe(Signal.ENGINE_BOOTED, this._handlerOnBooted.bind(this));
-		pubsub.subscribe(Signal.ENGINE_INIT_LOADED, this._handlerOnInitLoaded.bind(this));
-		pubsub.subscribe(Signal.ENGINE_FINISHED_MAPLOAD, this._handlerOnFinishedMapload.bind(this));
+		pubsub.subscribe(Signal.BESTIA_SELECTED, this._handlerOnBestiaSelected, this);
+		pubsub.subscribe(Signal.IO_DISCONNECTED, this._handlerOnConnectionLost, this);
+		pubsub.subscribe(Signal.ENGINE_BOOTED, this._handlerOnBooted, this);
+		pubsub.subscribe(Signal.ENGINE_INIT_LOADED, this._handlerOnInitLoaded, this);
+		pubsub.subscribe(Signal.ENGINE_FINISHED_MAPLOAD, this._handlerOnFinishedMapload, this);
 		
 		// We need right click. So hide it.
 		$('#bestia-canvas').bind('contextmenu', function(e){
@@ -61,7 +67,7 @@ export default class Engine {
 		}); 
 		
 		// When everything is setup. Start the engine.
-		this.game.state.start('boot');
+		phaserGame.state.start('boot');
 	}
 	
 	/**

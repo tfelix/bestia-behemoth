@@ -1,3 +1,5 @@
+import Signal from '../../../io/Signal';
+
 /**
  * The entity cache holds references to entities with their unique id as a key.
  * If an update of the entity is send from the server it can be looked up from
@@ -5,8 +7,11 @@
  */
 export default class EntityCache {
 	
-	constructor() {
-
+	/**
+	 * Ctor.
+	 */
+	constructor(pubsub) {
+		
 		this._cache = {};
 	
 		/**
@@ -18,6 +23,23 @@ export default class EntityCache {
 		 * @private
 		 */
 		this._entityCache = null;
+		
+		pubsub.publish(Signal.ENGINE_SETREF, this);
+		pubsub.subscribe(Signal.ENGINE_GET_ENTITY, this._getEntity, this);
+	}
+	
+	get NAME() {
+		return this.constructor.NAME;
+	}
+	
+	/**
+	 * Returns the entity as pubsub callback.
+	 */
+	_getEntity(_, msg) {
+		
+		let e = getEntity(msg.id);
+		msg.callback(e);
+		
 	}
 
 	/**
@@ -84,3 +106,5 @@ export default class EntityCache {
 	}
 
 }
+
+EntityCache.NAME = 'entityCache';

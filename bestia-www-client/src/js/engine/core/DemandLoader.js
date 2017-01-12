@@ -15,25 +15,17 @@ import NOOP from '../../util/NOOP.js';
  */
 export default class DemandLoader {
 	
-	constructor(loader, cache, urlHelper) {
-
-		if (!(loader instanceof Phaser.Loader)) {
-			throw 'DemandLoader: Loader is not a Phaser.Loader';
-		}
-	
-		if (!(cache instanceof Phaser.Cache)) {
-			throw 'DemandLoader: Cache is not a Phaser.Cache';
-		}
-	
-		if (!urlHelper) {
-			throw 'UrlHelper: Can not be null';
-		}
-	
-		this._loader = loader;
-		this._phaserCache = cache;
-		this._urlHelper = urlHelper;
-
+	constructor(pubsub) {
+		
 		this._cache = {};
+		
+		this._phaserCache = null;
+		this._loader = null;
+		this._url = null;
+		
+		pubsub.getRef('urlHelper', helper => this._url = helper);
+		pubsub.getRef('phaserLoader', loader => this._loader = loader);
+		pubsub.getRef('phaserCache', cache => this._phaserCache = cache);
 		
 		/**
 		 * Asset packs do load multiple keys. These keys with their reference to
@@ -44,6 +36,23 @@ export default class DemandLoader {
 
 		// Add the callbacks.
 		loader.onFileComplete.add(this._fileLoadedCallback, this);
+		
+		pubsub.subscribe(DemandLoader.Message.LOAD, this._asyncLoad, this);
+		pubsub.subscribe(DemandLoader.Message.LOAD_PACK, this._asyncLoadPack, this);
+	}
+	
+	/**
+	 * Performs an async loading of the given data via the pubsub system.
+	 */
+	_asyncLoad(_, msg) {
+		this.load(msg.data, msg.callback);
+	}
+	
+	/**
+	 * Performs an async loading of the given pack via the pubsub system.
+	 */
+	_asyncLoadPack(_, msg) {
+		this.loadPack(msg.data, msg.callback);
 	}
 	
 	_fileLoadedCallback(progress, key) {
@@ -275,5 +284,9 @@ export default class DemandLoader {
 		this._cache[data.key] = countObj;
 		this._loader.start();
 	}
-
 }
+
+DemandLoader.Message = Object.freeze({
+	LOAD : 'loader.load',
+	LOAD_PACK : 'loader.pack'
+});

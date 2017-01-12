@@ -10,10 +10,8 @@ import Signal from '../../io/Signal.js';
  */
 export default class InitializeState {
 	
-	constructor(context) {
-		this._ctx = context;
-		this._url = context.url;
-		this._pubsub = context.pubsub;
+	constructor(pubsub) {
+		this._pubsub = pubsub;
 	}
 
 	/**
@@ -21,7 +19,6 @@ export default class InitializeState {
 	 */
 	preload() {
 		// Initialize the context since our engine is now ready.
-		this._ctx.init();
 		
 		let url = this._ctx.url;
 		
@@ -32,8 +29,8 @@ export default class InitializeState {
 		this.game.load.image('default_item', url.getItemIconUrl('_default'));
 
 		// Load the static data from the manager.
-		this._ctx.indicatorManager.load();
-		this._ctx.fxManager.load();
+		//this._ctx.indicatorManager.load();
+		//this._ctx.fxManager.load();
 	}
 
 	/**

@@ -6,10 +6,18 @@ import NOOP from '../../util/NOOP.js';
  * operations are backed by the DemandLoader and thus are asynchronous.
  */
 export default class DescriptionLoader {
-	constructor(loader, urlHelper) {
-		this._loader = loader;
-		this._url = urlHelper;
+	constructor(pubsub) {
+		
+		this._loader = null;
+		this._url = null;
+		
+		pubsub.publish(Signal.ENGINE_GETREF, {name: 'urlHelper', callback: function(urlHelper){
+			this._url = urlHelper;
+		}.bind(this)});
 
+		pubsub.publish(Signal.ENGINE_GETREF, {name: 'loader', callback: function(loader){
+			this._url = loader;
+		}.bind(this)});
 	}
 
 	/**

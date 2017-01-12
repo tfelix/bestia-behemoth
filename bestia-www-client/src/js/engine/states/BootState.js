@@ -12,14 +12,17 @@ import Signal from '../../io/Signal.js';
  */
 export default class BootState {
 	
-	constructor(context) {
-		this._ctx = context;
+	constructor(pubsub) {
+		this._pubsub = pubsub;
 	}
 	
 	/**
 	 * Preload all the needed assets in order to display a loading screen.
 	 */
 	preload() {
+		this.game.load.NAME = 'phaserLoader';
+		this._pubsub(Signal.ENGINE_SETREF, this.game.load);
+		
 		let url = this._ctx.url;
 		
 		this.game.load.image('logo', url.getImageUrl('logo_small'));
