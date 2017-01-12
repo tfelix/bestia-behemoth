@@ -1,4 +1,3 @@
-import Chat from '../chat/Chat';
 
 /**
  * @author       Thomas Felix <thomas.felix@tfelix.de>

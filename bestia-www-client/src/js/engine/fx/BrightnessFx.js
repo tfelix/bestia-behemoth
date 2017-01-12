@@ -1,4 +1,4 @@
-import EngineCommand from '../../chat/commands/EngineCommand.js';
+import EngineCommand from '../../ui/chat/commands/EngineCommand.js';
 import Signal from '../../io/Signal.js';
 
 /**

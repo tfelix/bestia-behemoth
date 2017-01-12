@@ -5,8 +5,8 @@
 
 import Message from '../../io/messages/Message';
 import Signal from '../../io/Signal';
-import Attack from '../../attack/Attack';
-import ItemViewModel from '../../inventory/Item';
+import Attack from '../attack/Attack';
+import ItemViewModel from '../inventory/Item';
 import StatusPoint from './StatusPoints';
 
 /**
