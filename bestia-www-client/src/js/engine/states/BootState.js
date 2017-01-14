@@ -1,5 +1,7 @@
 
 import Signal from '../../io/Signal.js';
+import UrlHelper from '../../util/UrlHelper';
+import ReferenceName from '../ReferenceName';
 
 /**
  * State is triggered once when the game starts. It will preload all the REALLY
@@ -14,22 +16,27 @@ export default class BootState {
 	
 	constructor(pubsub) {
 		this._pubsub = pubsub;
+		
+		/**
+		 * Will be extended later.
+		 */
+		this._url = null;
 	}
 	
 	/**
 	 * Preload all the needed assets in order to display a loading screen.
 	 */
 	preload() {
-		this.game.load.NAME = 'phaserLoader';
-		this._pubsub(Signal.ENGINE_SETREF, this.game.load);
+		this._pubsub.setRef(ReferenceName.PhaserLoader, this.game.load);
 		
-		let url = this._ctx.url;
+		// Extend this with the url helper.
+		this._pubsub.extendRefs({ref: ReferenceName.UrlHelper, member: '_url'}, this);
 		
-		this.game.load.image('logo', url.getImageUrl('logo_small'));
+		this.game.load.image('logo', this._url.getImageUrl('logo_small'));
 	}
 	
 	create() {
 		// Setup the game context.
-		this._ctx.pubsub.publish(Signal.ENGINE_BOOTED);
+		this._pubsub.publish(Signal.ENGINE_BOOTED);
 	}
 }

@@ -59,8 +59,6 @@ let Signal = {
 	/**
 	 * Returns the reference to the searched component or null if there is no such compoent.
 	 */
-	ENGINE_GETREF : 'engine.getref',
-	ENGINE_SETREF : 'engine.setref',
 	ENGINE_GET_ENTITY : 'engine.entity.get',
 	
 	/**

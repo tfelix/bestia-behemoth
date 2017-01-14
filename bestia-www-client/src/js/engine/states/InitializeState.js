@@ -12,6 +12,8 @@ export default class InitializeState {
 	
 	constructor(pubsub) {
 		this._pubsub = pubsub;
+		
+		this._url = null;
 	}
 
 	/**
@@ -20,13 +22,13 @@ export default class InitializeState {
 	preload() {
 		// Initialize the context since our engine is now ready.
 		
-		let url = this._ctx.url;
+		this._pubsub.extendRefs({ref: ReferenceName.UrlHelper, member: '_url'}, this);
 		
-		this.game.load.image('action_options_background', url.getImageUrl('action_options_back'));
-		this.game.load.image('castindicator_small', url.getIndicatorUrl('_big'));
-		this.game.load.image('castindicator_medium', url.getIndicatorUrl('_medium'));
-		this.game.load.image('castindicator_big', url.getIndicatorUrl('_small'));
-		this.game.load.image('default_item', url.getItemIconUrl('_default'));
+		this.game.load.image('action_options_background', this._url.getImageUrl('action_options_back'));
+		this.game.load.image('castindicator_small', this._url.getIndicatorUrl('_big'));
+		this.game.load.image('castindicator_medium', this._url.getIndicatorUrl('_medium'));
+		this.game.load.image('castindicator_big', this._url.getIndicatorUrl('_small'));
+		this.game.load.image('default_item', this._url.getItemIconUrl('_default'));
 
 		// Load the static data from the manager.
 		//this._ctx.indicatorManager.load();

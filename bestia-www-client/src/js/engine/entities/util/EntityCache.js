@@ -1,4 +1,5 @@
 import Signal from '../../../io/Signal';
+import ReferenceName from '../../ReferenceName';
 
 /**
  * The entity cache holds references to entities with their unique id as a key.
@@ -24,8 +25,7 @@ export default class EntityCache {
 		 */
 		this._entityCache = null;
 		
-		pubsub.publish(Signal.ENGINE_SETREF, this);
-		pubsub.subscribe(Signal.ENGINE_GET_ENTITY, this._getEntity, this);
+		pubsub.setRef(ReferenceName.EntityCache, this);
 	}
 	
 	get NAME() {
@@ -106,5 +106,3 @@ export default class EntityCache {
 	}
 
 }
-
-EntityCache.NAME = 'entityCache';
