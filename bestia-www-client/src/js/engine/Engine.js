@@ -11,9 +11,6 @@ import GameState from './states/GameState.js';
 import InitializeState from './states/InitializeState';
 import LoadingState from './states/LoadingState.js';
 
-import EngineMediator from './EngineMediator';
-import EntityCache from './entities/util/EntityCache';
-
 /**
  * Bestia Graphics engine. Responsible for displaying the game collecting user
  * input and sending these data to the server. It manages the phaserjs states
@@ -29,20 +26,12 @@ export default class Engine {
 		
 		// Internal pubsub to let came components communicate with each other.
 		let gamePubSub = new EnginePubSub();
-		
-		this._engineMediator = new EngineMediator(gamePubSub, pubsub);
-		gamePubSub.setRef(ReferenceName.UrlHelper, url);
 
 		// Determine the size of the canvas. And create the game object.
 		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'bestia-canvas', null, false, false);
-		gamePubSub.setRef(ReferenceName.PhaserGame, this.game);
-		
-		
-		// Create all other components.
-		new EntityCache(gamePubSub);
 		
 		// Create the states.
-		this.game.state.add('boot', new BootState(gamePubSub));
+		this.game.state.add('boot', new BootState(gamePubSub, pubsub, url));
 		this.game.state.add('initial_loading', new InitializeState(gamePubSub));
 		this.game.state.add('connecting', new ConnectingState(gamePubSub));
 		this.game.state.add('load', new LoadingState(gamePubSub));
@@ -75,8 +64,7 @@ export default class Engine {
 		
 		// Check if we can go without loading: we must be inside view range AND
 		// have the multi sprite cached. Currently not supported.
-		//this._ctx.playerBestia = data;
-		//this.game.state.start('load');		
+		this.game.state.start('load');		
 	}
 
 	/**

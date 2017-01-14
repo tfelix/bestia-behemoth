@@ -1,4 +1,5 @@
 import PackSpriteBuilder from './PackSpriteBuilder.js';
+import ReferenceName from '../../ReferenceName';
 import DynamicSpriteBuilder from './DynamicSpriteBuilder.js';
 import SpriteBuilder from './SpriteBuilder.js';
 import SimpleObjectBuilder from './SimpleObjectBuilder.js';
@@ -31,6 +32,8 @@ export default class EntityFactory {
 		this.register(new SpriteBuilder(this, pubsub));
 		this.register(new SimpleObjectBuilder(this, pubsub));
 		this.register(new ItemBuilder(this, pubsub));
+		
+		pubsub.setRef(ReferenceName.EntityFactory, this);
 	}
 	
 	/**

@@ -2,7 +2,7 @@
 
 import PubSub from '../util/PubSub';
 import Signal from '../io/Signal';
-import getRefName from './ReferenceName';
+import ReferenceName from './ReferenceName';
 import EngineMessage from './../message/internal/EngineMessage';
 
 
@@ -22,6 +22,25 @@ export default class EnginePubSub extends PubSub {
 		 * cached until this happend and then it will resolve.
 		 */
 		this._callbackCache = [];
+		
+		// Listen to player bestia references.
+		this.subscribe(Signal.BESTIA_SELECTED, this._onBestiaSelected, this);
+	}
+	
+	/**
+	 * TODO Make this more efficent. Currently crude way to search an replace
+	 * bestia.
+	 */
+	_onBestiaSelected(_, bestia) {
+		for(let i = 0; i < this._components.length; i++) {
+			if(this._components[i].ref === ReferenceName.PlayerBestia) {
+				this._components[i] = bestia;
+				return;
+			}
+		}
+		
+		// No bestia added yet, okay add it.
+		this._components.push({name: ReferenceName.PlayerBestia, ref: bestia});
 	}
 	
 	/**
@@ -98,7 +117,7 @@ export default class EnginePubSub extends PubSub {
 	}
 	
 	
-	extendRefs(refs, obj) {
+	extendRef(refs, obj) {
 		
 		if(!this.hasRefs(refs)) {
 			throw 'Not all references where instanced.';

@@ -1,5 +1,6 @@
 import MID from '../../io/messages/MID';
 import Message from '../../io/messages/Message';
+import ReferenceName from '../ReferenceName';
 
 const TILE_KEY_PREFIX = 'tiles_';
 
@@ -25,22 +26,23 @@ export default class TilesetManager {
 	 * @param Pubsub -
 	 *            Pubsub interface.
 	 */
-	constructor(pubsub, loader, urlHelper) {
+	constructor(pubsub) {
 		if(!pubsub) {
 			throw 'Pubsub can not be null.';
 		}
-		if(!loader) {
-			throw 'Loader can not be null.';
-		}
-		if(!urlHelper) {
-			throw 'UrlHelper can not be null.';
-		}
+		
 		
 		this._pubsub = pubsub;
-		this._loader = loader;
-		this._url = urlHelper;
+		
+		this._loader = null;
+		this._url = null;
+		
 		this._tilestes = [];
 		this._callbacks = {};
+		
+		pubsub.extendRef([
+			{ref: ReferenceName.DemandLoader, member: '_loader'},
+			{ref: ReferenceName.UrlHelper, member: '_url'}], this);
 		
 		// map.tileset
 		pubsub.subscribe(MID.MAP_TILESET, this._handleTilesetReceived.bind(this));

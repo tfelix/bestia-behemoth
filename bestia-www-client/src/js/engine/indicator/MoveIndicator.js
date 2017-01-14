@@ -3,6 +3,7 @@
 import Indicator from './Indicator.js';
 import Message from '../../io/messages/Message.js';
 import WorldHelper from '../map/WorldHelper.js';
+import ReferenceName from '../ReferenceName';
 
 /**
  * Basic indicator for visualization of the mouse pointer.
@@ -14,6 +15,13 @@ export default class MoveIndicator extends Indicator {
 		super(manager);
 		
 		this._effect = null;
+		
+		this._pubsub = manager.pubsub;
+		
+		// Init with the needed member.
+		manager.pubsub.extendRef([
+			{ref: ReferenceName.PhaserGame, member: '_game'},
+			{ref: ReferenceName.UrlHelper, member: '_url'}], this);
 	}
 	
 	_onClick(pointer) {
@@ -25,7 +33,7 @@ export default class MoveIndicator extends Indicator {
 		
 		// Display fx.
 		this._effect.alpha = 1;
-		this._ctx.game.add.tween(this._effect).to({alpha: 0}, 500, Phaser.Easing.Cubic.Out, true);
+		this._game.add.tween(this._effect).to({alpha: 0}, 500, Phaser.Easing.Cubic.Out, true);
 		
 
 		var player = this._ctx.playerBestia;
@@ -48,7 +56,7 @@ export default class MoveIndicator extends Indicator {
 			path.shift();
 			
 			var msg = new Message.EntityMove(player.playerBestiaId, player.entityId(), path, player.walkspeed());
-			this._ctx.pubsub.send(msg);
+			this._game.pubsub.send(msg);
 
 			// Start movement locally as well.
 			this._ctx.playerEntity.moveTo(path, this._ctx.playerBestia.walkspeed());
@@ -63,19 +71,20 @@ export default class MoveIndicator extends Indicator {
 	 * Override an create all needed game objects here.
 	 */
 	load() {
-		this._ctx.game.load.spritesheet('cursor', this._ctx.url.getIndicatorUrl('cursor'), 32, 32);
+		
+		this._game.load.spritesheet('cursor', this._url.getIndicatorUrl('cursor'), 32, 32);
 	}
 
 	/**
 	 * Override an create all needed game objects here.
 	 */
 	create() {
-		this._marker = this._ctx.game.make.sprite(0, 0, 'cursor');
+		this._marker = this._game.make.sprite(0, 0, 'cursor');
 		this._marker.name = 'cursor';
 		this._marker.animations.add('blink');
 		this._marker.animations.play('blink', 1, true);
 		
-		var graphics = this._ctx.game.make.graphics(0, 0);
+		var graphics = this._game.make.graphics(0, 0);
 		graphics.beginFill(0x42D65D);
 		graphics.drawRect(0, 0, 32, 32);
 		graphics.endFill();

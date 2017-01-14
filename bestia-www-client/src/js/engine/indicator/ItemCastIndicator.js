@@ -20,7 +20,7 @@ export default class ItemCast extends Indicator {
 		this._item = null;
 
 		// Listen for activation signal.
-		this._ctx.pubsub.subscribe(Signal.ENGINE_CAST_ITEM, this._onCastItem.bind(this));
+		manager.pubsub.subscribe(Signal.ENGINE_CAST_ITEM, this._onCastItem.bind(this));
 	}
 	
 	_onClick(pointer) {

@@ -13,7 +13,7 @@ import MID from './../../io/messages/MID.js';
  */
 export default class DialogFx {
 	
-	constructor(ctx, parentEle) {
+	constructor(pubsub, parentEle) {
 
 		this._game = ctx.game;
 	

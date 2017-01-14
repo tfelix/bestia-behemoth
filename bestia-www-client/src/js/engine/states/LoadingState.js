@@ -1,5 +1,6 @@
-import TileRender from '../renderer/TileRenderer';
 import Signal from '../../io/Signal.js';
+import ReferenceName from '../ReferenceName';
+import TileRender from '../renderer/TileRenderer';
 
 /**
  * The state is triggered if a complete now part of a map is loaded and thus the
@@ -17,15 +18,9 @@ import Signal from '../../io/Signal.js';
  * @constructor
  */
 export default class LoadingState  {
-	constructor(context) {		
-		this._ctx = context;
-
-		/**
-		 * Reference to the pubsub system.
-		 * 
-		 * @private
-		 */
-		this._pubsub = context.pubsub;
+	constructor(pubsub) {		
+		
+		this._pubsub = pubsub;
 	}
 	
 	/**
@@ -41,7 +36,14 @@ export default class LoadingState  {
 	}
 	
 	preload() {
-		this._tileRender = this._ctx.render.getRender(TileRender.NAME);
+		// Extend with all needed objects.
+		this._pubsub.extendRef([
+			{ref: ReferenceName.RenderManager, member: '_render'},
+			{ref: ReferenceName.EntityFactory, member: '_entityFactory'},
+			{ref: ReferenceName.PlayerBestia, member: '_pb'}
+			], this);
+		
+		this._tileRender = this._render.getRender(TileRender.NAME);
 		
 		// Set loading counter (we load two assets)
 		this._loadingCounter = 2;
@@ -56,8 +58,7 @@ export default class LoadingState  {
 		// Create new multisprite entity from player bestia. This call will
 		// initialize a loading process even if visible sprite gets destroyed by
 		// changing game states.
-		let pb = this._ctx.playerBestia;
-		this._ctx.entityFactory.load({s: pb.sprite(), a: 'APPEAR', t: pb.spriteType()}, this._checkFinishedLoading.bind(this));
+		this._entityFactory.load({s: this._pb.sprite(), a: 'APPEAR', t: this._pb.spriteType()}, this._checkFinishedLoading.bind(this));
 		
 		let chunks = this._tileRender.getVisibleChunks();
 		this._tileRender.loadChunks(chunks, this._checkFinishedLoading.bind(this));

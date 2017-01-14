@@ -1,6 +1,7 @@
 /*global Phaser */
 
 import NOOP from '../../util/NOOP.js';
+import ReferenceName from '../ReferenceName';
 
 /**
  * Performs and manages on demand reloads for assets. If something has to be
@@ -23,9 +24,10 @@ export default class DemandLoader {
 		this._loader = null;
 		this._url = null;
 		
-		pubsub.getRef('urlHelper', helper => this._url = helper);
-		pubsub.getRef('phaserLoader', loader => this._loader = loader);
-		pubsub.getRef('phaserCache', cache => this._phaserCache = cache);
+		pubsub.extendRef([
+			{ref: ReferenceName.UrlHelper, member: '_url'},
+			{ref: ReferenceName.PhaserLoader, member: '_loader'},
+			{ref: ReferenceName.PhaserCache, member: '_phaserCache'}], this);
 		
 		/**
 		 * Asset packs do load multiple keys. These keys with their reference to
@@ -35,10 +37,12 @@ export default class DemandLoader {
 		this._packKeyCache = {};
 
 		// Add the callbacks.
-		loader.onFileComplete.add(this._fileLoadedCallback, this);
+		this._loader.onFileComplete.add(this._fileLoadedCallback, this);
 		
-		pubsub.subscribe(DemandLoader.Message.LOAD, this._asyncLoad, this);
-		pubsub.subscribe(DemandLoader.Message.LOAD_PACK, this._asyncLoadPack, this);
+		//pubsub.subscribe(DemandLoader.Message.LOAD, this._asyncLoad, this);
+		//pubsub.subscribe(DemandLoader.Message.LOAD_PACK, this._asyncLoadPack, this);
+		
+		pubsub.setRef(ReferenceName.DemandLoader, this);
 	}
 	
 	/**

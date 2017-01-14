@@ -2,6 +2,7 @@
 
 import PubSub from '../util/PubSub';
 import Signal from '../io/Signal';
+import MID from '../io/messages/MID';
 import GetRefMessage from '../message/internal/GetRefMessage';
 
 /**
@@ -18,6 +19,11 @@ export default class EngineMediator {
 		// ### Subscribe callbacks
 		this._enginePubSub.subscribe(Signal.IO_SEND_MESSAGE, this._forwardToWorld, this);
 		this._enginePubSub.subscribe(Signal.IO_CONNECT, this._forwardToWorld, this);
+		
+		// ### Forward to world.
+		this._pubsub.subscribe(Signal.BESTIA_SELECTED, this._forwardToEngine, this);
+		this._pubsub.subscribe(MID.MAP_CHUNK, this._forwardToEngine, this);
+		
 	}
 	
 	/**

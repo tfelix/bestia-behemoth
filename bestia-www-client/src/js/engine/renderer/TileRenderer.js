@@ -4,6 +4,8 @@ import MID from '../../io/messages/MID';
 import Message from '../../io/messages/Message';
 import TilesetManager from '../map/TilesetManager';
 import NOOP from '../../util/NOOP';
+import ReferenceName from '../ReferenceName';
+import PlayerBestiaHelper from '../PlayerBestiaHelper';
 
 const MIN_SAFETY_TILES = 3;
 
@@ -14,15 +16,20 @@ const MIN_SAFETY_TILES = 3;
  */
 export default class TileRender extends Render {
 	
-	constructor(ctx) {
+	constructor(pubsub) {
 		super();
 	
-		this._ctx = ctx;
-		this._game = ctx.game;
-
-		this.clear();
+		this._pubsub = pubsub;
 		
-		ctx.pubsub.subscribe(MID.MAP_CHUNK, this._handleChunkReceived.bind(this));
+		this._pbHelper = new PlayerBestiaHelper(pubsub);
+		
+		pubsub.extendRef([
+			{ref: ReferenceName.PhaserGame, member: '_game'}
+			], this);
+
+		// Some basic init.
+		this.clear();
+		pubsub.subscribe(MID.MAP_CHUNK, this._handleChunkReceived.bind(this));
 	}
 	
 	/**
@@ -43,7 +50,7 @@ export default class TileRender extends Render {
 	 * Clears all chunks and basically resets the tile renderer.
 	 */
 	clear() {
-		this._tilesetManager = new TilesetManager(this._ctx.pubsub, this._ctx.loader, this._ctx.url);		
+		this._tilesetManager = new TilesetManager(this._pubsub);		
 		this._rendered = {x1: 0, x2: 0, y1: 0, y2: 0};
 		this._newRendered = {x1: 0, x2: 0, y1: 0, y2: 0};
 		/**
@@ -159,7 +166,7 @@ export default class TileRender extends Render {
 	 * now depending on the game size and player position.
 	 */
 	getVisibleChunks() {
-		let pb = this._ctx.playerBestia;
+		let pb = this._pbHelper.playerBestia;
 		let xChunks = Math.ceil(WorldHelper.SIGHT_RANGE.x / WorldHelper.CHUNK_SIZE);
 		let yChunks = Math.ceil(WorldHelper.SIGHT_RANGE.y / WorldHelper.CHUNK_SIZE);
 		let playerChunk = this._tileToGlobChunk(pb.posX(), pb.posY());

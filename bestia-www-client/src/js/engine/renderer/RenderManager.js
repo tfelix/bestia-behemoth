@@ -1,14 +1,18 @@
-
+import ReferenceName from '../ReferenceName';
+import TileRenderer from './TileRenderer';
 
 /**
  * Manages and contains all for the graphics.
  */
 export default class RenderManager {
 	
-	constructor() {
+	constructor(pubsub) {
 		this._renderer = [];
 		this._named = {};
 		
+		pubsub.setRef(ReferenceName.RenderManager, this);
+		
+		this.addRender(new TileRenderer(pubsub));
 	}
 	
 	/**

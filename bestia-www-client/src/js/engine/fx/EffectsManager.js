@@ -4,6 +4,7 @@ import BrightnessFx from './BrightnessFx.js';
 import RainFx from './RainFx.js';
 import RangeMeasureFx from './RangeMeasureFx.js';
 import DialogFx from './DialogFx.js';
+import ReferenceName from '../ReferenceName';
 
 /**
  * FX Manager which is responsible for effect generation and display. Effects
@@ -19,18 +20,7 @@ import DialogFx from './DialogFx.js';
  * @author Thomas Felix <thomas.felix@tfelix.de>
  */
 export default class EffectsManager {
-	constructor(ctx) {
-		if (!ctx.pubsub) {
-			throw new Error('PubSub can not be undefined');
-		}
-	
-		if (!ctx.game) {
-			throw  new Error('Game can not be null.');
-		}
-		
-		if (!ctx.loader) {
-			throw new Error('Loader can not be undefined.');
-		}
+	constructor(pubsub) {
 	
 		/**
 		 * Holds reference to all added effect instances.
@@ -39,16 +29,18 @@ export default class EffectsManager {
 		 */
 		this._effectInstances = [];
 		
-		this._ctx = ctx;
+		this._pubsub = pubsub;
 	
 		// Add the instances to control certain effects depending on incoming
 		// messages.
-		this._effectInstances.push(new DamageFx(ctx));
-		this._effectInstances.push(new ChatFx(ctx));
-		this._effectInstances.push(new DialogFx(ctx));
-		this._effectInstances.push(new BrightnessFx(ctx));
-		this._effectInstances.push(new RainFx(ctx));
-		this._effectInstances.push(new RangeMeasureFx(ctx));
+		this._effectInstances.push(new DamageFx(pubsub));
+		this._effectInstances.push(new ChatFx(pubsub));
+		//this._effectInstances.push(new DialogFx(pubsub));
+		//this._effectInstances.push(new BrightnessFx(pubsub));
+		//this._effectInstances.push(new RainFx(pubsub));
+		//this._effectInstances.push(new RangeMeasureFx(pubsub));
+		
+		pubsub.setRef(ReferenceName.EffectsManager, this);
 	}
 	
 	/**

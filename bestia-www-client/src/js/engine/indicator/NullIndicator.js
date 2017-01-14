@@ -7,8 +7,8 @@ import Indicator from './Indicator.js';
  * @class Bestia.Engine.Indicator
  */
 export default class NullIndicator extends Indicator {
-	constructor(manager) {
-		super(manager);
+	constructor(pubsub) {
+		super(pubsub);
 	}
 	
 	_onClick() {

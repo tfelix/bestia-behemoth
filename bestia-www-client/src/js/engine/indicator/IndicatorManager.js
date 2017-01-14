@@ -1,4 +1,5 @@
 import NullIndicator from './NullIndicator';
+import ReferenceName from '../ReferenceName';
 import MoveIndicator from './MoveIndicator.js';
 import ItemCastIndicator from './ItemCastIndicator.js';
 import BasicAttackIndicator from './BasicAttackIndicator.js';
@@ -15,7 +16,7 @@ import BasicAttackIndicator from './BasicAttackIndicator.js';
  */
 export default class IndicatorManager {
 	
-	constructor(ctx) {
+	constructor(pubsub) {
 
 		/**
 		 * Holds all the registered indicators.
@@ -37,15 +38,17 @@ export default class IndicatorManager {
 		 */
 		this._active = null;
 
-		this.ctx = ctx;
+		this.pubsub = pubsub;
 		
 		this._moveIndicator = new MoveIndicator(this);
 		this._nullIndicator = new NullIndicator(this);
 		
 		// Register the available indicators.
 		this._indicators.push(this._moveIndicator);
-		this._indicators.push(new ItemCastIndicator(this));
-		this._indicators.push(new BasicAttackIndicator(this));
+		//this._indicators.push(new ItemCastIndicator(this));
+		//this._indicators.push(new BasicAttackIndicator(this));
+		
+		pubsub.setRef(ReferenceName.IndicatorManager, this);
 	}
 	
 	/**

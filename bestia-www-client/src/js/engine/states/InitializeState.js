@@ -3,8 +3,9 @@ import ReferenceName from '../ReferenceName';
 
 /**
  * The state is triggered for the first game loading. A real loading screen will
- * be shown but since we need to load more data then the normal ingame loading screen
- * we still need to load basic game assets like static engine sounds, image, logos etc.
+ * be shown but since we need to load more data then the normal ingame loading
+ * screen we still need to load basic game assets like static engine sounds,
+ * image, logos etc.
  * 
  * @constructor
  * @class Bestia.Engine.States.InitialLoadingState
@@ -23,7 +24,10 @@ export default class InitializeState {
 	preload() {
 		// Initialize the context since our engine is now ready.
 		
-		this._pubsub.extendRefs({ref: ReferenceName.UrlHelper, member: '_url'}, this);
+		this._pubsub.extendRef([
+			{ref: ReferenceName.UrlHelper, member: '_url'},
+			{ref: ReferenceName.IndicatorManager, member: '_indicatorManager'},
+			{ref: ReferenceName.EffectsManager, member: '_fxManager'}], this);
 		
 		this.game.load.image('action_options_background', this._url.getImageUrl('action_options_back'));
 		this.game.load.image('castindicator_small', this._url.getIndicatorUrl('_big'));
@@ -32,8 +36,8 @@ export default class InitializeState {
 		this.game.load.image('default_item', this._url.getItemIconUrl('_default'));
 
 		// Load the static data from the manager.
-		//this._ctx.indicatorManager.load();
-		//this._ctx.fxManager.load();
+		this._indicatorManager.load();
+		this._fxManager.load();
 	}
 
 	/**

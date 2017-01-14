@@ -26,7 +26,7 @@ export default class BasicAttackIndicator extends Indicator {
 		this._targetEntity = null;
 
 		// Listen for activation signal.
-		this._ctx.pubsub.subscribe(Signal.ENGINE_REQUEST_INDICATOR, this._handleIndicator.bind(this));
+		manager.pubsub.subscribe(Signal.ENGINE_REQUEST_INDICATOR, this._handleIndicator.bind(this));
 	}
 	
 	activate() {

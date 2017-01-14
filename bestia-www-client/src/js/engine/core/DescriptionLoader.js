@@ -1,4 +1,5 @@
 import NOOP from '../../util/NOOP.js';
+import ReferenceName from '../ReferenceName';
 
 /**
  * This class is responsible for loading the description files of entities. It
@@ -11,13 +12,9 @@ export default class DescriptionLoader {
 		this._loader = null;
 		this._url = null;
 		
-		pubsub.publish(Signal.ENGINE_GETREF, {name: 'urlHelper', callback: function(urlHelper){
-			this._url = urlHelper;
-		}.bind(this)});
-
-		pubsub.publish(Signal.ENGINE_GETREF, {name: 'loader', callback: function(loader){
-			this._url = loader;
-		}.bind(this)});
+		pubsub.extendRef([
+			{ref: ReferenceName.UrlHelper, member: '_url'},
+			{ref: ReferenceName.DemandLoader, member: '_loader'}], this);
 	}
 
 	/**
