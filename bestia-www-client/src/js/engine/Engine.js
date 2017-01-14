@@ -34,19 +34,19 @@ export default class Engine {
 		gamePubSub.setRef(ReferenceName.UrlHelper, url);
 
 		// Determine the size of the canvas. And create the game object.
-		let phaserGame = new Phaser.Game(800, 600, Phaser.AUTO, 'bestia-canvas', null, false, false);
-		gamePubSub.setRef(ReferenceName.PhaserGame, phaserGame);
+		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'bestia-canvas', null, false, false);
+		gamePubSub.setRef(ReferenceName.PhaserGame, this.game);
 		
 		
 		// Create all other components.
 		new EntityCache(gamePubSub);
 		
 		// Create the states.
-		phaserGame.state.add('boot', new BootState(gamePubSub));
-		phaserGame.state.add('initial_loading', new InitializeState(gamePubSub));
-		phaserGame.state.add('connecting', new ConnectingState(gamePubSub));
-		phaserGame.state.add('load', new LoadingState(gamePubSub));
-		phaserGame.state.add('game', new GameState(gamePubSub));
+		this.game.state.add('boot', new BootState(gamePubSub));
+		this.game.state.add('initial_loading', new InitializeState(gamePubSub));
+		this.game.state.add('connecting', new ConnectingState(gamePubSub));
+		this.game.state.add('load', new LoadingState(gamePubSub));
+		this.game.state.add('game', new GameState(gamePubSub));
 
 		// ==== PREPARE HANDLER ====
 
@@ -64,7 +64,7 @@ export default class Engine {
 		}); 
 		
 		// When everything is setup. Start the engine.
-		phaserGame.state.start('boot');
+		this.game.state.start('boot');
 	}
 	
 	/**
@@ -75,8 +75,8 @@ export default class Engine {
 		
 		// Check if we can go without loading: we must be inside view range AND
 		// have the multi sprite cached. Currently not supported.
-		this._ctx.playerBestia = data;
-		this.game.state.start('load');		
+		//this._ctx.playerBestia = data;
+		//this.game.state.start('load');		
 	}
 
 	/**

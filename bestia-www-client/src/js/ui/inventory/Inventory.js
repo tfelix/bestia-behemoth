@@ -51,7 +51,10 @@ export default class Inventory {
 		 * @property
 		 * @private
 		 */
-		//this._i18n = i18n;
+		this._i18n = {};
+		this._i18n.t = function() {
+			return 'BLA';
+		}
 	
 		/**
 		 * Flag if the inventory has been loaded with new items.
@@ -208,6 +211,7 @@ export default class Inventory {
 		pubsub.subscribe(Signal.IO_AUTH_CONNECTED, this._handlerDoRequestInventory.bind(this));
 		// pubsub.subscribe(Signal.INVENTORY_CAST_CONFIRM,
 		// this._handlerCastServerConfirm.bind(this));
+		
 	}
 	
 	

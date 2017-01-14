@@ -1,4 +1,5 @@
 import Signal from '../../io/Signal.js';
+import ReferenceName from '../ReferenceName';
 
 /**
  * The state is triggered for the first game loading. A real loading screen will

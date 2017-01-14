@@ -103,7 +103,7 @@ export default class AttackView {
 		/**
 		 * Flag if the window of the attack management should be shown.
 		 */
-		this.showWindow = ko.observable(false);
+		this.showWindow = ko.observable(true);
 
 		/**
 		 * Holds the reference to the currently active bestia. We need this in order
@@ -196,10 +196,11 @@ export default class AttackView {
 		};
 		
 		pubsub.subscribe(MID.ATTACK_LIST_RESPONSE, this._updateHandle.bind(this));
-		pubsub.subscribe(Signal.BESTIA_SELECTED, this._invalidateListHandle.bind(this));
-		pubsub.subscribe(Signal.I18N_LANG_CHANGED, this._invalidateListHandle.bind(this));
-	
+		//pubsub.subscribe(Signal.BESTIA_SELECTED, this._invalidateListHandle.bind(this));
+		//pubsub.subscribe(Signal.I18N_LANG_CHANGED, this._invalidateListHandle.bind(this));
 	}
+	
+	
 	
 	_invalidateListHandle(_, selectedBestia) {
 		this.isLoaded(false);

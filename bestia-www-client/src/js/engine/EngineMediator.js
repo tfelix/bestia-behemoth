@@ -17,6 +17,7 @@ export default class EngineMediator {
 		
 		// ### Subscribe callbacks
 		this._enginePubSub.subscribe(Signal.IO_SEND_MESSAGE, this._forwardToWorld, this);
+		this._enginePubSub.subscribe(Signal.IO_CONNECT, this._forwardToWorld, this);
 	}
 	
 	/**

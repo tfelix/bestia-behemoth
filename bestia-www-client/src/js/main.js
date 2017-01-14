@@ -48,11 +48,11 @@ $(function(){
 
 	$('#btn-attacks').click(function() {
 		// Hide all others.
-		game.inventory.close();
-		game.attacks.showWindow(!game.attacks.showWindow());
+		model.inventory.close();
+		model.attacks.showWindow(!model.attacks.showWindow());
 
-		if (!game.attacks.isLoaded()) {
-			game.attacks.request();
+		if (!model.attacks.isLoaded()) {
+			model.attacks.request();
 		}
 	});
 });
