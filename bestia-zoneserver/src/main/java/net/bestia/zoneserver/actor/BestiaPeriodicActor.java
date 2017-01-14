@@ -54,7 +54,7 @@ public abstract class BestiaPeriodicActor extends BestiaActor {
 	 * @param message
 	 *            The message send to this actor.
 	 */
-	protected abstract void handleMessage(Object message);
+	protected abstract void handleMessage(Object message) throws Exception;
 
 	@Override
 	public void onReceive(Object message) throws Throwable {
