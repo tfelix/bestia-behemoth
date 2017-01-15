@@ -35,19 +35,20 @@ public final class Rect implements Collision, Serializable {
 	 *            Height
 	 */
 	public Rect(long width, long height) {
-		this.origin = new Point(0, 0);
-		checkNotNegative(width, height);
-		this.size = new Size(width, height);
-
-		this.anchor = new Point(width / 2, height / 2);
+		this(0, 0, width, height);
+		
+		// no op.
 	}
 
 	public Rect(long x, long y, long width, long height, long anchorX, long anchorY) {
+		
 		checkNotNegative(width, height);
-		checkAnchor(anchorX, anchorY);
 
-		this.origin = new Point(0, 0);
+		this.origin = new Point(x, y);
 		this.size = new Size(width, height);
+		
+		checkAnchor(anchorX, anchorY);
+		
 		this.anchor = new Point(anchorX, anchorY);
 	}
 
@@ -60,18 +61,16 @@ public final class Rect implements Collision, Serializable {
 	 * @param height
 	 */
 	public Rect(long x, long y, long width, long height) {
-		checkNotNegative(width, height);
+		this(x, y, width, height, width / 2, height / 2);
 
-		this.origin = new Point(x, y);
-		this.size = new Size(width, height);
-		this.anchor = new Point(width / 2, height / 2);
+		// no op.
 	}
 
 	private void checkAnchor(long aX, long aY) {
-		if (aX < origin.getX() || aX > origin.getX() + size.getWidth()) {
+		if (aX < 0 || aX > size.getWidth()) {
 			throw new IllegalArgumentException("X must be inside the rectangle.");
 		}
-		if (aY < origin.getY() || aY > origin.getY() + size.getHeight()) {
+		if (aY < 0 || aY > size.getHeight()) {
 			throw new IllegalArgumentException("Y must be inside the rectangle.");
 		}
 	}
@@ -180,13 +179,13 @@ public final class Rect implements Collision, Serializable {
 
 	@Override
 	public Collision moveByAnchor(int x, int y) {
-		final long dX = x - getAnchor().getX();
-		final long dY = y - getAnchor().getY();
+		final long dX = x - (getX() + getAnchor().getX());
+		final long dY = y - (getY() + getAnchor().getY());
 
 		final long cX = getX() + dX;
 		final long cY = getY() + dY;
 
-		final Rect r = new Rect(cX, cY, getWidth(), getHeight(), x, y);
+		final Rect r = new Rect(cX, cY, getWidth(), getHeight(), getAnchor().getX(), getAnchor().getY());
 		return r;
 	}
 

@@ -13,7 +13,7 @@ public class PositionTest {
 		Assert.assertEquals("test", loc.getMap());
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = NullPointerException.class)
 	public void false_ctor_args1() {
 		new Position(null, "", 10, 0);
 	}
@@ -41,8 +41,8 @@ public class PositionTest {
 		loc.setY(-5);
 	}
 	
-	@Test(expected = IllegalArgumentException.class)
-	public void no_null_mab_db_name() {
+	@Test(expected = NullPointerException.class)
+	public void setMap_nullMabDbName_throws() {
 		Position loc = new Position(10, 5);
 		loc.setMap(null);
 	}	

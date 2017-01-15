@@ -1,4 +1,4 @@
-package net.bestia.model.shape;
+package net.bestia.model.geometry;
 
 import java.io.Serializable;
 
