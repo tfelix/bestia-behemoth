@@ -10,11 +10,11 @@ import DamageCriticalEntity from '../entities/DamageCriticalEntity.js';
  */
 export default class DamageFx {
 	
-	constructor(pubsub) {
+	constructor(ctx) {
 
-		this._pubsub = pubsub;
+		this._pubsub = ctx.pubsub;
 	
-		pubsub.subscribe(MID.ENTITY_DAMAGE, this._handlerOnEntityDamage.bind(this));
+		ctx.pubsub.subscribe(MID.ENTITY_DAMAGE, this._handlerOnEntityDamage.bind(this));
 	}
 	
 	/**

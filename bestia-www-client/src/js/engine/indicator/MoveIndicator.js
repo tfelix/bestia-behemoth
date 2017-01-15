@@ -16,12 +16,10 @@ export default class MoveIndicator extends Indicator {
 		
 		this._effect = null;
 		
-		this._pubsub = manager.pubsub;
 		
-		// Init with the needed member.
-		manager.pubsub.extendRef([
-			{ref: ReferenceName.PhaserGame, member: '_game'},
-			{ref: ReferenceName.UrlHelper, member: '_url'}], this);
+		this._pubsub = manager.ctx.pubsub;
+		this._game = manager.ctx.game;
+		this._ctx = manager.ctx;
 	}
 	
 	_onClick(pointer) {
@@ -72,7 +70,7 @@ export default class MoveIndicator extends Indicator {
 	 */
 	load() {
 		
-		this._game.load.spritesheet('cursor', this._url.getIndicatorUrl('cursor'), 32, 32);
+		this._game.load.spritesheet('cursor', this._ctx.url.getIndicatorUrl('cursor'), 32, 32);
 	}
 
 	/**

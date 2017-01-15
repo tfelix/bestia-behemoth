@@ -7,14 +7,10 @@ import ReferenceName from '../ReferenceName';
  * operations are backed by the DemandLoader and thus are asynchronous.
  */
 export default class DescriptionLoader {
-	constructor(pubsub) {
+	constructor(ctx) {
 		
-		this._loader = null;
-		this._url = null;
-		
-		pubsub.extendRef([
-			{ref: ReferenceName.UrlHelper, member: '_url'},
-			{ref: ReferenceName.DemandLoader, member: '_loader'}], this);
+		this._loader = ctx.loader;
+		this._url = ctx.url;
 	}
 
 	/**

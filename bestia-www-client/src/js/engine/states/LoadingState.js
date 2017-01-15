@@ -18,9 +18,9 @@ import TileRender from '../renderer/TileRenderer';
  * @constructor
  */
 export default class LoadingState  {
-	constructor(pubsub) {		
+	constructor(ctx) {		
 		
-		this._pubsub = pubsub;
+		this._ctx = ctx;
 	}
 	
 	/**
@@ -31,25 +31,20 @@ export default class LoadingState  {
 		this._loadingCounter--;
 		
 		if(this._loadingCounter === 0) {
-			this._pubsub.publish(Signal.ENGINE_FINISHED_MAPLOAD);
+			this._ctx.pubsub.publish(Signal.ENGINE_FINISHED_MAPLOAD);
 		}
 	}
 	
 	preload() {
 		// Extend with all needed objects.
-		this._pubsub.extendRef([
-			{ref: ReferenceName.RenderManager, member: '_render'},
-			{ref: ReferenceName.EntityFactory, member: '_entityFactory'},
-			{ref: ReferenceName.PlayerBestia, member: '_pb'}
-			], this);
 		
-		this._tileRender = this._render.getRender(TileRender.NAME);
+		let tileRender = this._ctx.render.getRender(TileRender.NAME);
 		
 		// Set loading counter (we load two assets)
 		this._loadingCounter = 2;
 		
 		// Announce loading.
-		this._pubsub.publish(Signal.ENGINE_PREPARE_MAPLOAD);
+		this._ctx.pubsub.publish(Signal.ENGINE_PREPARE_MAPLOAD);
 
 		// Prepare the loading screen.
 		this.gfx = this.add.graphics(0, 0);
@@ -58,10 +53,11 @@ export default class LoadingState  {
 		// Create new multisprite entity from player bestia. This call will
 		// initialize a loading process even if visible sprite gets destroyed by
 		// changing game states.
-		this._entityFactory.load({s: this._pb.sprite(), a: 'APPEAR', t: this._pb.spriteType()}, this._checkFinishedLoading.bind(this));
+		let pb = this._ctx.playerBestia;
+		this._ctx.entityFactory.load({s: pb.sprite(), a: 'APPEAR', t: pb.spriteType()}, this._checkFinishedLoading.bind(this));
 		
-		let chunks = this._tileRender.getVisibleChunks();
-		this._tileRender.loadChunks(chunks, this._checkFinishedLoading.bind(this));
+		let chunks = tileRender.getVisibleChunks();
+		tileRender.loadChunks(chunks, this._checkFinishedLoading.bind(this));
 	}
 }
 

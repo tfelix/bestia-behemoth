@@ -21,43 +21,24 @@ import EntityCache from '../entities/util/EntityCache';
  */
 export default class BootState {
 	
-	constructor(gamePubSub, pubsub, url) {
-		this._gamePubSub = gamePubSub;
+	constructor(ctx) {
 		
-		/**
-		 * Will be extended later.
-		 */
-		this._url = null;
-		
-		// Create all other components.
-		new EntityCache(gamePubSub);
-		new EngineMediator(gamePubSub, pubsub);
-		gamePubSub.setRef(ReferenceName.UrlHelper, url);
+		this._ctx = ctx;
 	}
 	
 	/**
 	 * Preload all the needed assets in order to display a loading screen.
 	 */
 	preload() {
-		this._gamePubSub.setRef(ReferenceName.PhaserGame, this.game);
-		this._gamePubSub.setRef(ReferenceName.PhaserLoader, this.game.load);
-		this._gamePubSub.setRef(ReferenceName.PhaserCache, this.game.cache);
 		
-		// Extend this with the url helper.
-		this._gamePubSub.extendRef({ref: ReferenceName.UrlHelper, member: '_url'}, this);
+		// Initialize the context with the new created phaser objects.
+		this._ctx.initialize(this.game);
 		
-		this.game.load.image('logo', this._url.getImageUrl('logo_small'));
-		
-		// Setup the parts of the engine which depend upon phaser parts.
-		new DemandLoader(this._gamePubSub);
-		new IndicatorManager(this._gamePubSub);
-		new EffectsManager(this._gamePubSub);
-		new RenderManager(this._gamePubSub);
-		new EntityFactory(this._gamePubSub);
+		this.game.load.image('logo', this._ctx.url.getImageUrl('logo_small'));
 	}
 	
 	create() {
 		// Setup the game context.
-		this._gamePubSub.publish(Signal.ENGINE_BOOTED);
+		this._ctx.pubsub.publish(Signal.ENGINE_BOOTED);
 	}
 }

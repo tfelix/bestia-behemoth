@@ -6,13 +6,12 @@ import TileRenderer from './TileRenderer';
  */
 export default class RenderManager {
 	
-	constructor(pubsub) {
+	constructor(ctx) {
 		this._renderer = [];
 		this._named = {};
 		
-		pubsub.setRef(ReferenceName.RenderManager, this);
-		
-		this.addRender(new TileRenderer(pubsub));
+		// Add all the renderer.
+		this.addRender(new TileRenderer(ctx));
 	}
 	
 	/**

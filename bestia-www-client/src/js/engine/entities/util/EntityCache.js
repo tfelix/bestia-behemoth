@@ -11,7 +11,7 @@ export default class EntityCache {
 	/**
 	 * Ctor.
 	 */
-	constructor(pubsub) {
+	constructor() {
 		
 		this._cache = {};
 	
@@ -24,8 +24,6 @@ export default class EntityCache {
 		 * @private
 		 */
 		this._entityCache = null;
-		
-		pubsub.setRef(ReferenceName.EntityCache, this);
 	}
 	
 	get NAME() {

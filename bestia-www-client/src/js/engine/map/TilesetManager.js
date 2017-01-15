@@ -1,6 +1,5 @@
 import MID from '../../io/messages/MID';
 import Message from '../../io/messages/Message';
-import ReferenceName from '../ReferenceName';
 
 const TILE_KEY_PREFIX = 'tiles_';
 
@@ -26,26 +25,20 @@ export default class TilesetManager {
 	 * @param Pubsub -
 	 *            Pubsub interface.
 	 */
-	constructor(pubsub) {
-		if(!pubsub) {
-			throw 'Pubsub can not be null.';
+	constructor(ctx) {
+		if(!ctx) {
+			throw 'Context can not be null.';
 		}
 		
 		
-		this._pubsub = pubsub;
-		
-		this._loader = null;
-		this._url = null;
+		this._pubsub = ctx.pubsub;
+		this._ctx = ctx;
 		
 		this._tilestes = [];
 		this._callbacks = {};
 		
-		pubsub.extendRef([
-			{ref: ReferenceName.DemandLoader, member: '_loader'},
-			{ref: ReferenceName.UrlHelper, member: '_url'}], this);
-		
 		// map.tileset
-		pubsub.subscribe(MID.MAP_TILESET, this._handleTilesetReceived.bind(this));
+		this._pubsub.subscribe(MID.MAP_TILESET, this._handleTilesetReceived.bind(this));
 	}
 	
 	/**
@@ -58,14 +51,14 @@ export default class TilesetManager {
 		data.ts.key = key;
 		
 		// Do we have the image already saved?
-		if(this._loader.has(key, 'image')) {
+		if(this._ctx.loader.has(key, 'image')) {
 			this._handleTilesetCompleteLoad(data.ts);
 		} else {
 			// Prepare the loader and set a callback.
-			this._loader.load({
+			this._ctx.loader.load({
 				key : key, 
 				type : 'image', 
-				url : this._url.getTilemapUrl(data.ts.name)}, function(){
+				url : this._ctx.url.getTilemapUrl(data.ts.name)}, function(){
 					this._handleTilesetCompleteLoad(data.ts);
 			}.bind(this));
 		}

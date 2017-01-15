@@ -10,9 +10,9 @@ import Signal from '../../io/Signal.js';
  */
 export default class ConnectingState {
 	
-	constructor(pubsub) {
+	constructor(ctx) {
 
-		this._pubsub = pubsub;
+		this._ctx = ctx;
 		
 	}
 	
@@ -32,6 +32,6 @@ export default class ConnectingState {
 		txt.anchor.set(0.5);
 		txt.align = 'center';
 		
-		this._pubsub.publish(Signal.IO_CONNECT);
+		this._ctx.pubsub.publish(Signal.IO_CONNECT);
 	}
 }

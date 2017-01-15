@@ -12,32 +12,26 @@ import ReferenceName from '../ReferenceName';
  */
 export default class InitializeState {
 	
-	constructor(pubsub) {
-		this._pubsub = pubsub;
+	constructor(ctx) {
 		
-		this._url = null;
+		this._ctx = ctx;
 	}
 
 	/**
 	 * Preload all basic assets which a normal game will need.
 	 */
 	preload() {
+		
 		// Initialize the context since our engine is now ready.
-		
-		this._pubsub.extendRef([
-			{ref: ReferenceName.UrlHelper, member: '_url'},
-			{ref: ReferenceName.IndicatorManager, member: '_indicatorManager'},
-			{ref: ReferenceName.EffectsManager, member: '_fxManager'}], this);
-		
-		this.game.load.image('action_options_background', this._url.getImageUrl('action_options_back'));
-		this.game.load.image('castindicator_small', this._url.getIndicatorUrl('_big'));
-		this.game.load.image('castindicator_medium', this._url.getIndicatorUrl('_medium'));
-		this.game.load.image('castindicator_big', this._url.getIndicatorUrl('_small'));
-		this.game.load.image('default_item', this._url.getItemIconUrl('_default'));
+		this.game.load.image('action_options_background', this._ctx.url.getImageUrl('action_options_back'));
+		this.game.load.image('castindicator_small', this._ctx.url.getIndicatorUrl('_big'));
+		this.game.load.image('castindicator_medium', this._ctx.url.getIndicatorUrl('_medium'));
+		this.game.load.image('castindicator_big', this._ctx.url.getIndicatorUrl('_small'));
+		this.game.load.image('default_item', this._ctx.url.getItemIconUrl('_default'));
 
 		// Load the static data from the manager.
-		this._indicatorManager.load();
-		this._fxManager.load();
+		this._ctx.indicatorManager.load();
+		this._ctx.fxManager.load();
 	}
 
 	/**
@@ -45,7 +39,7 @@ export default class InitializeState {
 	 */
 	create() {
 
-		this._pubsub.publish(Signal.ENGINE_INIT_LOADED);
+		this._ctx.pubsub.publish(Signal.ENGINE_INIT_LOADED);
 	}
 
 }

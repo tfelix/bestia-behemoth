@@ -20,7 +20,7 @@ import ReferenceName from '../ReferenceName';
  * @author Thomas Felix <thomas.felix@tfelix.de>
  */
 export default class EffectsManager {
-	constructor(pubsub) {
+	constructor(ctx) {
 	
 		/**
 		 * Holds reference to all added effect instances.
@@ -29,18 +29,16 @@ export default class EffectsManager {
 		 */
 		this._effectInstances = [];
 		
-		this._pubsub = pubsub;
+		this._pubsub = ctx.pubsub;
 	
 		// Add the instances to control certain effects depending on incoming
 		// messages.
-		this._effectInstances.push(new DamageFx(pubsub));
-		this._effectInstances.push(new ChatFx(pubsub));
+		this._effectInstances.push(new DamageFx(ctx));
+		this._effectInstances.push(new ChatFx(ctx));
 		//this._effectInstances.push(new DialogFx(pubsub));
 		//this._effectInstances.push(new BrightnessFx(pubsub));
 		//this._effectInstances.push(new RainFx(pubsub));
 		//this._effectInstances.push(new RangeMeasureFx(pubsub));
-		
-		pubsub.setRef(ReferenceName.EffectsManager, this);
 	}
 	
 	/**

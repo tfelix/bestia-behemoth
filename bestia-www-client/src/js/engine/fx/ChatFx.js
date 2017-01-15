@@ -10,11 +10,11 @@ import ChatTextEntity from '../entities/ChatTextEntity.js';
  *            cache
  */
 export default class ChatFx {
-	constructor(pubsub) {
+	constructor(ctx) {
 
-		this._pubsub = pubsub;
+		this._pubsub = ctx.pubsub;
 	
-		pubsub.subscribe(Signal.CHAT_RECEIVED, this._onChatMsgHandler.bind(this));
+		ctx.pubsub.subscribe(Signal.CHAT_RECEIVED, this._onChatMsgHandler.bind(this));
 	}
 	
 	/**

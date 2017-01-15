@@ -1,7 +1,6 @@
 /*global Phaser */
 
 import NOOP from '../../util/NOOP.js';
-import ReferenceName from '../ReferenceName';
 
 /**
  * Performs and manages on demand reloads for assets. If something has to be
@@ -16,19 +15,15 @@ import ReferenceName from '../ReferenceName';
  */
 export default class DemandLoader {
 	
-	constructor(pubsub) {
+	constructor(ctx) {
 		
 		this._cache = {};
 		
-		this._phaserCache = null;
-		this._loader = null;
-		this._url = null;
+		this._ctx = ctx;
 		
-		pubsub.extendRef([
-			{ref: ReferenceName.UrlHelper, member: '_url'},
-			{ref: ReferenceName.PhaserLoader, member: '_loader'},
-			{ref: ReferenceName.PhaserCache, member: '_phaserCache'}], this);
-		
+		this._phaserCache = ctx.game.cache;
+		this._loader = ctx.game.load;
+
 		/**
 		 * Asset packs do load multiple keys. These keys with their reference to
 		 * the pack key are saved inside this so after a file was loaded the
@@ -37,12 +32,10 @@ export default class DemandLoader {
 		this._packKeyCache = {};
 
 		// Add the callbacks.
-		this._loader.onFileComplete.add(this._fileLoadedCallback, this);
+		this._ctx.game.load.onFileComplete.add(this._fileLoadedCallback, this);
 		
 		//pubsub.subscribe(DemandLoader.Message.LOAD, this._asyncLoad, this);
 		//pubsub.subscribe(DemandLoader.Message.LOAD_PACK, this._asyncLoadPack, this);
-		
-		pubsub.setRef(ReferenceName.DemandLoader, this);
 	}
 	
 	/**
