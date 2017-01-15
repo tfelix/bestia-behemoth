@@ -172,8 +172,8 @@ export default class Chat {
 	
 		// When the game enters the loading menu hide the chat.
 		this._pubsub.subscribe(Signal.ENGINE_PREPARE_MAPLOAD, function() {
-			self.isVisible(false);
-		});
+			this.isVisible(false);
+		}, this);
 	
 		// Check the focus and blur events on inputs to notify input ctrl.
 		$(this.domEle).find('input').focusin(function() {

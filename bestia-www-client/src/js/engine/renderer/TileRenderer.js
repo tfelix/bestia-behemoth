@@ -210,7 +210,7 @@ export default class TileRender extends Render {
 		}
 		
 		// Prepare the new tilemap.
-		this._map = this._game.add.tilemap();
+		this._map = this._ctx.game.add.tilemap();
 		
 		// We must create tileset images for every tileset image loaded.
 		this._tilesetManager.getCachedTilesets().forEach(function(ts){
@@ -223,7 +223,7 @@ export default class TileRender extends Render {
 		this._layer.sendToBack();
 		
 		// We must calculate the game size.
-		this._gameSize = WorldHelper.getTileXY(this._game.width, this._game.height);
+		this._gameSize = WorldHelper.getTileXY(this._ctx.game.width, this._ctx.game.height);
 		
 		let pos = {x: player.posX(), y: player.posY()};
 		

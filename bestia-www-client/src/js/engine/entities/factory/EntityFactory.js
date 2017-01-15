@@ -20,6 +20,8 @@ export default class EntityFactory {
 	constructor(ctx) {
 	
 		this.descLoader = new DescriptionLoader(ctx);
+		
+		this._ctx = ctx;
 	
 		/**
 		 * Registry for the builder to register themselfes.
