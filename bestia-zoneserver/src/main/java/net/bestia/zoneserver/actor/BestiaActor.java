@@ -114,6 +114,9 @@ public abstract class BestiaActor extends UntypedActor {
 	 * 
 	 * @param clazz
 	 *            The Actor class to get the props object for.
+	 * @param args
+	 *            The arguments are used by spring to fill in additional ctor
+	 *            arguments.
 	 * @return The created props object.
 	 */
 	protected Props getSpringProps(Class<? extends UntypedActor> clazz, Object... args) {

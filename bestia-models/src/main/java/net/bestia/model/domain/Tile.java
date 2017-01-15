@@ -23,9 +23,9 @@ import net.bestia.model.map.TileProperties;
 public class Tile implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
 	private int gid;
@@ -37,11 +37,11 @@ public class Tile implements Serializable {
 		// empty ctor.
 	}
 
-	public Tile( int gid, long x, long y, int layer) {
-		if(x < 0 || y < 0) {
+	public Tile(int gid, long x, long y, int layer) {
+		if (x < 0 || y < 0) {
 			throw new IllegalArgumentException("X and Y must be positve or 0.");
 		}
-		
+
 		this.gid = gid;
 		this.x = x;
 		this.y = y;
@@ -51,16 +51,21 @@ public class Tile implements Serializable {
 	public int getGid() {
 		return gid;
 	}
-	
+
 	public long getX() {
 		return x;
 	}
-	
+
 	public long getY() {
 		return y;
 	}
-	
+
 	public int getLayer() {
 		return layer;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("Tile[x: %d, y: %d,  gid: %d, layer: %d]", x, y, gid, layer);
 	}
 }

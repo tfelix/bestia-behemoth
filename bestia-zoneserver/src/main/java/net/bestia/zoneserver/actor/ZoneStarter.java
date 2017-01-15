@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.actor;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +25,14 @@ public class ZoneStarter implements CommandLineRunner {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ZoneStarter.class);
 
-	private ActorSystem system;
-
+	private final ActorSystem system;
+	
 	@Autowired
-	public void setSystem(ActorSystem system) {
-		this.system = system;
+	public ZoneStarter(ActorSystem system) {
+		
+		this.system = Objects.requireNonNull(system);
 	}
+	
 
 	@Override
 	public void run(String... strings) throws Exception {

@@ -101,7 +101,7 @@ public final class Point implements Collision, Serializable {
 	@JsonIgnore
 	@Override
 	public Rect getBoundingBox() {
-		return new Rect(x, y, 0, 0);
+		return new Rect(x, y, 1, 1);
 	}
 
 	@Override
@@ -117,7 +117,7 @@ public final class Point implements Collision, Serializable {
 
 	@Override
 	public Collision moveByAnchor(int x, int y) {
-		return new Point(x, y);
+		return new Point(getX() + x, getY() + y);
 	}
 
 	/**
@@ -140,7 +140,11 @@ public final class Point implements Collision, Serializable {
 	 * @return The distance from this point to the given point p.
 	 */
 	public double getDistance(Point p) {
-		return Math.sqrt(Math.abs(getX() - p.getX()) + Math.abs(getY() - p.getY()));
+		
+		final long dx = getX() - p.getX();
+		final long dy = getY() - p.getY();
+		
+		return Math.sqrt(dx * dx + dy *dy);
 	}
 
 }

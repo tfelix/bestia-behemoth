@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.actor.map;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -9,20 +8,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import net.bestia.messages.map.MapChunkMessage;
 import net.bestia.messages.map.MapChunkRequestMessage;
-import net.bestia.model.dao.TileDAO;
 import net.bestia.model.geometry.Point;
-import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.service.MapService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
- * This actor generates a data message containing all the data needed for the
- * client to render a certain piece of a map.
+ * This actor generates a data message containing all the data/map chunks needed
+ * for the client to render a certain piece of a map.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -33,17 +33,19 @@ public class MapRequestChunkActor extends BestiaRoutingActor {
 
 	public final static String NAME = "mapChunk";
 
-	private final TileDAO tileDao;
+	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+
 	private final PlayerEntityService pbService;
+	private final MapService mapService;
 
 	@Autowired
 	public MapRequestChunkActor(
-			TileDAO tileDao,
+			MapService mapService,
 			PlayerEntityService pbService) {
 		super(Arrays.asList(MapChunkRequestMessage.class));
 
 		this.pbService = Objects.requireNonNull(pbService);
-		this.tileDao = Objects.requireNonNull(tileDao);
+		this.mapService = Objects.requireNonNull(mapService);
 	}
 
 	@Override
@@ -55,29 +57,14 @@ public class MapRequestChunkActor extends BestiaRoutingActor {
 		final PlayerBestiaEntity pbe = pbService.getActivePlayerEntity(req.getAccountId());
 
 		final Point pos = pbe.getPosition();
-		final Rect viewArea = new Rect(
-				pos.getX() - Map.SIGHT_RANGE,
-				pos.getY() - Map.SIGHT_RANGE,
-				pos.getX() + Map.SIGHT_RANGE,
-				pos.getY() + Map.SIGHT_RANGE);
 
-		// Retrieve all the map information in the view port of this.
-		/* final Map map = mapService.getMap(area); */
-		/* final List<MapChunks> chunks = mapService.getChunks(area); */
+		// Verify if the player is able to request the given chunk ids.
+		if (!Map.canRequestChunks(pos, req.getChunks())) {
+			LOG.warning("Player requested invalid chunks. Message: {}", req.toString());
+			return;
+		}
 
-		
-
-		List<MapChunk> chunks = new ArrayList<>();
-
-		req.getChunks().forEach(x -> {
-			int[] gl = new int[100];
-			for (int i = 0; i < 100; i++) {
-				gl[i] = 37;
-			}
-			MapChunk mc = new MapChunk(x, gl);
-			chunks.add(mc);
-		});
-
+		final List<MapChunk> chunks = mapService.getChunks(req.getChunks());
 
 		final MapChunkMessage response = new MapChunkMessage(req, chunks);
 		sendClient(response);

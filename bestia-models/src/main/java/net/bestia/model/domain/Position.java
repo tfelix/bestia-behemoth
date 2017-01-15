@@ -33,7 +33,7 @@ public class Position implements Serializable {
 
 	public Position(String mapname, String area, long x, long y) {
 
-		this.map = mapname;
+		this.map = Objects.requireNonNull(mapname);
 		setX(x);
 		setY(y);
 	}
@@ -58,7 +58,7 @@ public class Position implements Serializable {
 	}
 
 	public void setY(long y) {
-		if (x < 0) {
+		if (y < 0) {
 			throw new IllegalArgumentException("Y can not be negative. Use positive values.");
 		}
 

@@ -9,9 +9,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.bestia.model.domain.Tile;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
@@ -28,7 +25,6 @@ import net.bestia.model.geometry.Rect;
  */
 public class Map {
 
-	private static final Logger LOG = LoggerFactory.getLogger(Map.class);
 
 	/**
 	 * Max sight range in tiles in every direction.
@@ -115,6 +111,10 @@ public class Map {
 	private final Rect rect;
 	private final List<Tileset> tilesets;
 	private final List<Integer> groundLayer;
+
+	/**
+	 * Sparse layer of the tiles.
+	 */
 	private final List<java.util.Map<Point, Integer>> tileLayer = new ArrayList<>();
 
 	public Map(MapBuilder builder) {
@@ -128,93 +128,97 @@ public class Map {
 				.collect(Collectors.toList()));
 	}
 
+	/**
+	 * Returns the rect which lies inside the sight range of the position.
+	 * 
+	 * @param pos
+	 *            The position to generate the view area around.
+	 * @return The viewable rect.
+	 */
+	public static Rect getViewRect(Point pos) {
+		final Rect viewArea = new Rect(
+				pos.getX() - Map.SIGHT_RANGE,
+				pos.getY() - Map.SIGHT_RANGE,
+				pos.getX() + Map.SIGHT_RANGE,
+				pos.getY() + Map.SIGHT_RANGE);
+		return viewArea;
+	}
+
+	public float getWalkspeed(long x, long y) {
+		return 1.0f;
+	}
+
+	/**
+	 * Checks if the given point of this map is walkable. If the point is out of
+	 * range of the selected map an {@link IndexOutOfBoundsException} is thrown.
+	 * The given coordinates must be in world space. The coordinates are not
+	 * relative to this map part.
+	 * 
+	 * @param p
+	 *            The point to check walkability.
+	 * @return TRUE if the point is walkable. FALSE otherwise.
+	 */
+	public boolean isWalkable(Point p) {
+
+		if (!rect.collide(p)) {
+			throw new IndexOutOfBoundsException("X or/and Y does not lie inside the map rectangle.");
+		}
+
+		// Now check the layers.
+		final long x = p.getX() - rect.getX();
+		final long y = p.getY() - rect.getY();
+		int index = (int) (y * rect.getWidth() + x);
+		final int gid = groundLayer.get(index);
+
+		final boolean groundWalkable = getTileset(gid)
+				.map(ts -> ts.getProperties(gid).isWalkable())
+				.orElse(false);
+
+		if (!groundWalkable) {
+			return false;
+		}
+
+		// Now we must check the layers above it.
+		boolean layerWalkable = tileLayer.stream()
+				.filter(d -> d.containsKey(p))
+				.map(d -> d.get(p))
+				.filter(layerGid -> {
+					return getTileset(layerGid)
+					.map(ts -> ts.getProperties(gid).isWalkable())
+					.orElse(true);
+		}).findAny().map(data -> false).orElse(true);
+
+		return groundWalkable && layerWalkable;
+	}
+
+	/**
+	 * See {@link #isWalkable(Point)}.
+	 * 
+	 * @param x
+	 *            Position coordiante X
+	 * @param y
+	 *            Position coordinate Y
+	 * @return TRUE if the point is walkable. FALSE otherwise.
+	 */
 	public boolean isWalkable(long x, long y) {
 		return isWalkable(new Point(x, y));
 	}
 
-	public boolean isWalkable(Point p) {
-		if(!rect.collide(p)) {
-			throw new IndexOutOfBoundsException("Coodination does not lie inside this map.");
-		}
-		
-		// Now check the layers.
-		long x = p.getX() - rect.getOrigin().getX();
-		long y = p.getY() - rect.getOrigin().getY();
-		int index = (int) (y * rect.getWidth() + x);
-		final int gid = groundLayer.get(index);
-		
-		boolean groundWalkable = getTileset(gid)
-				.map(ts -> ts.getProperties(gid).isWalkable())
-				.orElse(false);
-		
-		if(!groundWalkable) {
-			return false;
-		}
-		
-		// TODO Check the sparse map.
-
-		return true;
-	}
-
+	/**
+	 * Gets the tilset for the given gid.
+	 * 
+	 * @param gid
+	 * @return The tileset.
+	 */
 	private Optional<Tileset> getTileset(int gid) {
-		final Optional<Tileset> tileset = tilesets.stream()
+
+		return tilesets.stream()
 				.filter(ts -> ts.contains(gid))
 				.findAny();
-
-		if (!tileset.isPresent()) {
-			LOG.warn("Gid {} not found inside tilsets.", gid);
-			return null;
-		}
-
-		return tileset;
 	}
 
 	/**
-	 * Returns the sparse layer map of non walkable tiles. Note: Only the non
-	 * walkable tiles are listed in this map. If a point is not inside this map
-	 * it means it is walkable. This should be the majority of points. The
-	 * points are the global coordinates.
-	 * 
-	 * @return The sparse collisions layer.
-	 */
-	/*
-	 * public java.util.Map<Point, Boolean> getSparseCollisionLayer() {
-	 * 
-	 * final java.util.Map<Point, Boolean> collisions = new HashMap<>();
-	 * 
-	 * int y = (int) rect.getY(); /* for (boolean[] row : walkable) { int x =
-	 * (int) rect.getX(); for (boolean walkable : row) {
-	 * 
-	 * if (!walkable) { collisions.put(new Point(x, y), false); }
-	 * 
-	 * x++; } y++; }
-	 */
-	/*
-	 * return collisions; }
-	 */
-
-	/**
-	 * Gets the linear tile ids for the ground layer.
-	 * 
-	 * @return
-	 */
-	public List<Integer> getGroundLayer() {
-		return Collections.unmodifiableList(groundLayer);
-	}
-
-	/**
-	 * Returns the upper layers of this map. In this map the ground layer is not
-	 * listed anymore. In order to retrieve the non sparse ground layer user
-	 * {@link #getGroundLayer()}.
-	 * 
-	 * @return The sparse upper layer of the map.
-	 */
-	public List<java.util.Map<Point, Integer>> getSparseLayers() {
-		return tileLayer;
-	}
-
-	/**
-	 * Gets all the names of the tilsets used by this map.
+	 * Gets all the names of the tilsets used by this map in the given area.
 	 * 
 	 * @return The names of the tilesets.
 	 */
@@ -232,5 +236,32 @@ public class Map {
 	 */
 	public Rect getRect() {
 		return rect;
+	}
+
+	/**
+	 * Checks if the chunks lie within the position reachable from this point.
+	 * 
+	 * @param pos
+	 *            Current position of the player.
+	 * @param chunks
+	 *            A list of chunk coordiantes.
+	 * @return TRUE if all chunks are within reach. FALSE otherwise.
+	 */
+	public static boolean canRequestChunks(Point pos, List<Point> chunks) {
+
+		// Find min max dist.
+		final double maxD = Math.ceil(Math.sqrt(2 * (SIGHT_RANGE * SIGHT_RANGE)));
+		
+		List<Double> distances = chunks.stream()
+				.map(p -> MapChunk.getWorldCords(p).getDistance(pos))
+				.collect(Collectors.toList());
+
+		final boolean isTooFar = chunks.stream()
+				.map(p -> MapChunk.getWorldCords(p))
+				.filter(wp -> wp.getDistance(pos) > maxD)
+				.findAny()
+				.isPresent();
+
+		return !isTooFar;
 	}
 }

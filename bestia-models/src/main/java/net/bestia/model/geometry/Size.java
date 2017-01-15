@@ -16,6 +16,9 @@ public final class Size implements Serializable {
 	private final long height;
 
 	public Size(long width, long height) {
+		if (width < 0 || height < 0) {
+			throw new IllegalArgumentException("Width and Height must be 0 or bigger.");
+		}
 
 		this.width = width;
 		this.height = height;
