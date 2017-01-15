@@ -184,8 +184,8 @@ export default class Chat {
 	
 		// When the game is displayed also display the chat.
 		this._pubsub.subscribe(Signal.ENGINE_FINISHED_MAPLOAD, function() {
-			self.isVisible(true);
-		});
+			this.isVisible(true);
+		}, this);
 	
 		this._pubsub.subscribe(Signal.INVENTORY_ITEM_ADD, this._handleItemObtainedMsg, this);
 		this._pubsub.subscribe(Signal.CHAT_REGISTER_CMD, this._handleRegisterCommand, this);

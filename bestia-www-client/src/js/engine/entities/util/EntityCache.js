@@ -1,5 +1,4 @@
 import Signal from '../../../io/Signal';
-import ReferenceName from '../../ReferenceName';
 
 /**
  * The entity cache holds references to entities with their unique id as a key.

@@ -4,7 +4,6 @@ import BrightnessFx from './BrightnessFx.js';
 import RainFx from './RainFx.js';
 import RangeMeasureFx from './RangeMeasureFx.js';
 import DialogFx from './DialogFx.js';
-import ReferenceName from '../ReferenceName';
 
 /**
  * FX Manager which is responsible for effect generation and display. Effects

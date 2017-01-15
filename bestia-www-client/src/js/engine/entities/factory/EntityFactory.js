@@ -1,5 +1,4 @@
 import PackSpriteBuilder from './PackSpriteBuilder.js';
-import ReferenceName from '../../ReferenceName';
 import DynamicSpriteBuilder from './DynamicSpriteBuilder.js';
 import SpriteBuilder from './SpriteBuilder.js';
 import SimpleObjectBuilder from './SimpleObjectBuilder.js';

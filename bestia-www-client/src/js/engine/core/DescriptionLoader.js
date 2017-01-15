@@ -1,5 +1,4 @@
 import NOOP from '../../util/NOOP.js';
-import ReferenceName from '../ReferenceName';
 
 /**
  * This class is responsible for loading the description files of entities. It

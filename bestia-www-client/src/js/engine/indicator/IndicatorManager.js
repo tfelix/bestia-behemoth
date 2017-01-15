@@ -1,5 +1,4 @@
 import NullIndicator from './NullIndicator';
-import ReferenceName from '../ReferenceName';
 import MoveIndicator from './MoveIndicator.js';
 import ItemCastIndicator from './ItemCastIndicator.js';
 import BasicAttackIndicator from './BasicAttackIndicator.js';

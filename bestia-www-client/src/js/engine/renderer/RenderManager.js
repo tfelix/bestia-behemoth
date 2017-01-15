@@ -1,4 +1,3 @@
-import ReferenceName from '../ReferenceName';
 import TileRenderer from './TileRenderer';
 
 /**

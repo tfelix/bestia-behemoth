@@ -1,12 +1,10 @@
 
 import Signal from '../../io/Signal.js';
 import UrlHelper from '../../util/UrlHelper';
-import ReferenceName from '../ReferenceName';
 import IndicatorManager from '../indicator/IndicatorManager';
 import EffectsManager from '../fx/EffectsManager';
 import EntityFactory from '../entities/factory/EntityFactory';
 import RenderManager from '../renderer/RenderManager';
-import EngineMediator from '../EngineMediator';
 import DemandLoader from '../core/DemandLoader';
 import EntityCache from '../entities/util/EntityCache';
 

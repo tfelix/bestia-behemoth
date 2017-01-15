@@ -1,5 +1,4 @@
 import Signal from '../../io/Signal.js';
-import ReferenceName from '../ReferenceName';
 import TileRender from '../renderer/TileRenderer';
 
 /**
