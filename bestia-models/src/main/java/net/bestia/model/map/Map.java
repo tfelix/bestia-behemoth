@@ -251,8 +251,12 @@ public class Map {
 
 		// Find min max dist.
 		final double maxD = Math.ceil(Math.sqrt(2 * (SIGHT_RANGE * SIGHT_RANGE)));
+		
+		List<Double> distances = chunks.stream()
+				.map(p -> MapChunk.getWorldCords(p).getDistance(pos))
+				.collect(Collectors.toList());
 
-		final boolean isTooFar = chunks.parallelStream()
+		final boolean isTooFar = chunks.stream()
 				.map(p -> MapChunk.getWorldCords(p))
 				.filter(wp -> wp.getDistance(pos) > maxD)
 				.findAny()

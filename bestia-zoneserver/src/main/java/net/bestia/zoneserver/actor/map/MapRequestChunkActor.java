@@ -59,7 +59,7 @@ public class MapRequestChunkActor extends BestiaRoutingActor {
 		final Point pos = pbe.getPosition();
 
 		// Verify if the player is able to request the given chunk ids.
-		if (Map.canRequestChunks(pos, req.getChunks())) {
+		if (!Map.canRequestChunks(pos, req.getChunks())) {
 			LOG.warning("Player requested invalid chunks. Message: {}", req.toString());
 			return;
 		}

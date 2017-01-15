@@ -140,7 +140,11 @@ public final class Point implements Collision, Serializable {
 	 * @return The distance from this point to the given point p.
 	 */
 	public double getDistance(Point p) {
-		return Math.sqrt(Math.abs(getX() - p.getX()) + Math.abs(getY() - p.getY()));
+		
+		final long dx = getX() - p.getX();
+		final long dy = getY() - p.getY();
+		
+		return Math.sqrt(dx * dx + dy *dy);
 	}
 
 }

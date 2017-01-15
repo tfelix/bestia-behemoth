@@ -62,7 +62,7 @@ public final class Rect implements Collision, Serializable {
 	public Rect(long x, long y, long width, long height) {
 		checkNotNegative(width, height);
 
-		this.origin = new Point(0, 0);
+		this.origin = new Point(x, y);
 		this.size = new Size(width, height);
 		this.anchor = new Point(width / 2, height / 2);
 	}

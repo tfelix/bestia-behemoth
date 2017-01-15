@@ -125,7 +125,10 @@ public class MapService {
 
 		for (Point point : chunkCords) {
 			final Rect area = MapChunk.getWoldRect(point);
-			List<Tile> tiles = tileDao.getTilesInRange(area.getX(), area.getY(), area.getHeight(), area.getWidth());
+			// -1 because from to coordinates are on less then height (start to
+			// count at the start coordiante).
+			List<Tile> tiles = tileDao.getTilesInRange(area.getX(), area.getY(), area.getHeight() - 1,
+					area.getWidth() - 1);
 
 			// Now filter the tiles for the ground layer.
 			List<Integer> groundTiles = tiles.stream()

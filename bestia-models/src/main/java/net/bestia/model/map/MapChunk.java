@@ -136,7 +136,7 @@ public class MapChunk implements Serializable {
 	public static Rect getWoldRect(Point chunk) {
 
 		final Point p = getWorldCords(chunk);
-		return new Rect(p.getX(), p.getY(), p.getX() + MAP_CHUNK_SIZE, p.getY() + MAP_CHUNK_SIZE);
+		return new Rect(p.getX(), p.getY(), MAP_CHUNK_SIZE, MAP_CHUNK_SIZE);
 	}
 
 }
