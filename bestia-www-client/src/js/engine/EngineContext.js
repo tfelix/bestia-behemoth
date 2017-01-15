@@ -35,7 +35,7 @@ export default class EngineContext {
 		this._entityUpdater = new EntityUpdater(this);
 		
 		let pathfinder = this._game.plugins.add(Phaser.Plugin.PathFinderPlugin);
-		/*var walkable = [];
+		var walkable = [];
 		for(let y = 0; y < 32; y++) {
 			var row = [];
 			for(let x = 0; x < 32; x++) {
@@ -47,8 +47,8 @@ export default class EngineContext {
 		walkable[10][4] = 1;
 		walkable[10][5] = 1;
 		walkable[10][6] = 1;
-		walkable[10][7] = 1;*/
-		//pathfinder.setGrid(walkable, [0]);
+		walkable[10][7] = 1;
+		pathfinder.setGrid(walkable, [0]);
 		pathfinder.enableDiagonals();
 		
 		this._pathfinder = pathfinder;

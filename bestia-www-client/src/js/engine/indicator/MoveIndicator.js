@@ -42,7 +42,7 @@ export default class MoveIndicator extends Indicator {
 		var goal = WorldHelper.getTileXY(pointer.worldX, pointer.worldY);
 		
 		// Callback function.
-		this._ctx.etc.pathfinder.setCallbackFunction(function(path) {
+		this._ctx.pathfinder.setCallbackFunction(function(path) {
 			path = path || [];
 			
 			if(path.length === 0) {
@@ -53,15 +53,15 @@ export default class MoveIndicator extends Indicator {
 			path.shift();
 			
 			var msg = new Message.EntityMove(player.playerBestiaId, player.entityId(), path, player.walkspeed());
-			this._game.pubsub.send(msg);
+			this._ctx.pubsub.send(msg);
 
 			// Start movement locally as well.
 			this._ctx.playerEntity.moveTo(path, this._ctx.playerBestia.walkspeed());
 		}.bind(this));
 		
 		// Start the path calculation
-		this._ctx.etc.pathfinder.preparePathCalculation([player.posX(), player.posY()], [goal.x, goal.y]);
-		this._ctx.etc.pathfinder.calculatePath();
+		this._ctx.pathfinder.preparePathCalculation([player.posX(), player.posY()], [goal.x, goal.y]);
+		this._ctx.pathfinder.calculatePath();
 	}
 
 	/**
