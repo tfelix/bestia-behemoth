@@ -1,0 +1,23 @@
+{
+	"version": 1,
+	"resources": [],
+	"animationSequences": 
+	[
+		{
+			"id": "attack", 
+			"animations": 
+			[
+				{"type": "SPRITE_ANIMATION", "duration": 300, "data": {"name": "attack"}}
+			]
+		},
+		{
+			"id": "hit", 
+			"animations": 
+			[
+				{"type": "SPRITE_ANIMATION", "duration": 300, "data": {"name": "hit"}}
+			]
+		}
+	],
+	"target": ["hit"],
+	"origin": ["attack"]
+}
