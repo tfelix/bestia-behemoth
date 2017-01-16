@@ -53,6 +53,9 @@ public class Attack implements Serializable {
 	@Column(name = "atkRange", nullable = false)
 	private int range;
 
+	/**
+	 * Check if a line of sight to the target is necessairy.
+	 */
 	@JsonProperty("los")
 	private boolean lineOfSight;
 
@@ -68,6 +71,13 @@ public class Attack implements Serializable {
 
 	@JsonProperty("i")
 	private String indicator;
+	
+	@JsonProperty("a")
+	private String animation;
+	
+	@Enumerated(EnumType.STRING)
+	@JsonProperty("t")
+	private AttackTarget target;
 
 	public Attack() {
 		// no op.
