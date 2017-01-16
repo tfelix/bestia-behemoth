@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.entity;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -129,7 +129,7 @@ public class PlayerBestiaEntity extends LivingEntity implements Moving, Serializ
 		LOG.debug("Player bestia {} was killed.", getPlayerBestiaId());
 	}
 
-	public Collection<Attack> getAttacks() {
+	public List<Attack> getAttacks() {
 		return playerBestia.getAttacks();
 	}
 
