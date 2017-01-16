@@ -87,6 +87,14 @@ public class Attack implements Serializable {
 		this.databaseName = databaseName;
 	}
 
+	public AttackTarget getTarget() {
+		return target;
+	}
+	
+	public void setTarget(AttackTarget target) {
+		this.target = target;
+	}
+	
 	/**
 	 * @return the attackDbName
 	 */
