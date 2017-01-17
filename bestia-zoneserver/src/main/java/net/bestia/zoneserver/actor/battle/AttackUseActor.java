@@ -61,7 +61,7 @@ public class AttackUseActor extends BestiaRoutingActor {
 		}
 
 		// We must check if all preconditions for using the attack are
-		// fullfilled.
+		// fulfilled.
 		final Attack usedAttack = pbe.getAttacks().get(atkMsg.getSlot());
 
 		// TODO If there is equipment which reduces the mana used? This must be

@@ -19,6 +19,7 @@ export default class PackSpriteBuilder extends Builder {
 	}
 	
 	build(data, desc) {
+		console.log('PackSpriteBuilder build() called');
 		var entity = new MultispriteEntity(this._ctx, data.uuid, desc);
 
 		// Setup the phaser sprite.

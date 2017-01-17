@@ -61,14 +61,16 @@ export default class GameState {
 		let pb = this._ctx.playerBestia;
 		let playerData = {uuid: pb.entityId(), x: pb.posX(), y: pb.posY(), s: pb.sprite(), a: 'APPEAR', t: pb.spriteType()};
 		this._ctx.entityFactory.build(playerData, function(playerEntity){
-			// Follow the player.
+			// Follow the player
+			console.log('Player build');
 			this._ctx.playerEntity = playerEntity;
 			this.game.camera.follow(playerEntity.sprite);
-			this._tileRender.clearDraw();
 			this._ctx.pubsub.publish(Signal.ENGINE_GAME_STARTED);
 		}.bind(this));
 		
-		this._ctx.entityUpdater.releaseHold();
+		console.log('Draw called');
+		this._tileRender.clearDraw();
+		//this._ctx.entityUpdater.releaseHold();
 	}
 
 	update() {

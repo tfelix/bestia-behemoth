@@ -115,6 +115,8 @@ export default class EntityFactory {
 		// additionally. It must be all given in the JSON file.
 		b.load(descFile, function() {
 			
+			console.log('continueBuild loaded()');
+			
 			// Abort if there is only loading required.
 			if(data.onlyLoad === true) {
 				fnOnComplete(null);

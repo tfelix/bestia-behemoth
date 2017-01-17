@@ -194,7 +194,8 @@ export default class DemandLoader {
 		// Check if a load is running. If this is the case only add the callback
 		// function to be executed when the load completes.
 		if (this._cache.hasOwnProperty(key)) {
-			this._cache[key].callbackFns.push(fnOnComplete);
+			//this._cache[key].callbackFns.push(fnOnComplete);
+			fnOnComplete();
 			return;
 		}
 		
@@ -204,8 +205,14 @@ export default class DemandLoader {
 		}, this);
 		
 		if(notLoadedFiles.length === 0) {
-			fnOnComplete();
+			try {
+				fnOnComplete();
+			} catch(e) {
+				console.error('Could not execute demand loader callback. ' + e);
+			}
 			return;
+		} else {
+			console.debug('NOT COMPLETE LOADED');
 		}
 
 		// Add all files of this pack to our file list.

@@ -78,6 +78,8 @@ export default class MultispriteEntity extends SpriteEntity {
 	 */
 	setSprite(spriteName) {
 		super.setSprite(spriteName);
+		
+		console.log('SetSprite called ' + spriteName);
 	
 		// Add the multi sprites if there are some of them.
 		var multisprites = this._data.multiSprite || [];
@@ -158,7 +160,7 @@ export default class MultispriteEntity extends SpriteEntity {
 			if(subData.offsets[i].offsets.length >= currentFrame) {
 				return subData.offsets[i].offsets[currentFrame];
 			} else {
-				return NULL_OFFSET;
+				return subData.defaultCords;
 			}
 		}
 		
@@ -220,8 +222,8 @@ export default class MultispriteEntity extends SpriteEntity {
 			let subPos = this._getSubspriteOffset(ms.name, curAnim, curFrame);
 	
 			ms.sprite.position = {
-				x : ms.defaultCords.x + subPos.x,
-				y : ms.defaultCords.y + subPos.y
+				x : subPos.x,
+				y : subPos.y
 			};
 	
 		}, this);

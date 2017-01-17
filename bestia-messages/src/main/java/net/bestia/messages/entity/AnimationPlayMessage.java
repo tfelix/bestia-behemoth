@@ -42,6 +42,13 @@ public class AnimationPlayMessage extends JsonMessage {
 	 */
 	@JsonProperty("d")
 	private int duration;
+	
+	/**
+	 * For Jackson.
+	 */
+	public AnimationPlayMessage() {
+		//no op.
+	}
 
 	public AnimationPlayMessage(long accountId, String animationName, long ownerEntityId) {
 		this(accountId, animationName, ownerEntityId, 0);
