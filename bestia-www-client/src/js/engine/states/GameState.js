@@ -70,7 +70,7 @@ export default class GameState {
 		
 		console.log('Draw called');
 		this._tileRender.clearDraw();
-		//this._ctx.entityUpdater.releaseHold();
+		this._ctx.entityUpdater.releaseHold();
 	}
 
 	update() {

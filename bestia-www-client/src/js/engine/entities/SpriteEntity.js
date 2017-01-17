@@ -336,35 +336,25 @@ export default class SpriteEntity extends Entity {
 
 		// Compare the current position with the NOW position.
 		var d = WorldHelper.getDistance(this.position, newPos);
+		
+		if(isNaN(d)) {
+			// Some error occured while calculating the distance.
+			console.log('Error while calculating the distance.');
+			return;
+		}
 
 		// Now we decide, are we moving?
 		if (this.isMoving) {
 			// Check the distance.
-			// if (d < 2) {
+			if (d < 2) {
 				// Are we approaching the target?
-				/*
-				 * if (true) { // if so speed up the movement. } else if (false) { //
-				 * if we are heading away from the target but we once passed it, //
-				 * slow down. } else { // If the point was not even found in
-				 * movement list we cancel // movement and calc path towards
-				 * goal. }
-				 */
-			// } else {
+				
+			 } else {
 				// Set to the target.
 				this.stopMove();
 				this.position = newPos;
-			// }
-		} else {
-			// We stand. So we MUST move to the target position.
-			if (d < 1.5) {
-				// Move to target.
-				this.moveTo([ newPos ], 1.5);
-			} else {
-				// Set target.
-				this.position = newPos;
-			}
+			 }
 		}
-
 	}
 
 	/**

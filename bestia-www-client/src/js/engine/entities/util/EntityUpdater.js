@@ -96,7 +96,7 @@ export default class EntityUpdater{
 			return;
 		}
 
-		entity.checkPosition(msg);
+		entity.checkPosition(msg.x, msg.y);
 	}
 
 	/**

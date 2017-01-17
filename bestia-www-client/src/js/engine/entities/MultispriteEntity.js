@@ -157,14 +157,20 @@ export default class MultispriteEntity extends SpriteEntity {
 				continue;
 			}
 
-			if(subData.offsets[i].offsets.length >= currentFrame) {
+			if(subData.offsets[i].offsets.length > currentFrame) {
 				return subData.offsets[i].offsets[currentFrame];
 			} else {
+				console.warn('getSubspriteOffset: Not enough frames found for: ' + subsprite + ' currentAnim: ' + currentAnim);
 				return subData.defaultCords;
 			}
 		}
 		
 		// If nothing found return default.
+		if(!subData.defaultCords) {
+			console.warn('getSubspriteOffset: No default cords found for: ' + subsprite + ' currentAnim: ' + currentAnim);
+			return NULL_OFFSET;
+		}
+		
 		return subData.defaultCords;
 	}
 

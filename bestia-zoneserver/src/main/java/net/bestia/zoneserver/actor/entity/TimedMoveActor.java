@@ -74,6 +74,7 @@ public class TimedMoveActor extends BestiaActor {
 				return;
 			}
 
+			// TODO Das hier klüger mit nächster position an den client senden.
 			e.setPosition(nextPoint.getX(), nextPoint.getY());
 			entityService.save(e);
 

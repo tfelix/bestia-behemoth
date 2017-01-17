@@ -36,18 +36,13 @@ export default class EngineContext {
 		
 		let pathfinder = this._game.plugins.add(Phaser.Plugin.PathFinderPlugin);
 		var walkable = [];
-		for(let y = 0; y < 32; y++) {
+		for(let y = 0; y < 64; y++) {
 			var row = [];
-			for(let x = 0; x < 32; x++) {
+			for(let x = 0; x < 64; x++) {
 				row.push(0);
 			}
 			walkable.push(row);
 		}
-		walkable[10][3] = 1;
-		walkable[10][4] = 1;
-		walkable[10][5] = 1;
-		walkable[10][6] = 1;
-		walkable[10][7] = 1;
 		pathfinder.setGrid(walkable, [0]);
 		pathfinder.enableDiagonals();
 		
