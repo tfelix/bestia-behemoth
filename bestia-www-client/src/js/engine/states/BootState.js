@@ -1,12 +1,6 @@
 
 import Signal from '../../io/Signal.js';
-import UrlHelper from '../../util/UrlHelper';
-import IndicatorManager from '../indicator/IndicatorManager';
-import EffectsManager from '../fx/EffectsManager';
-import EntityFactory from '../entities/factory/EntityFactory';
-import RenderManager from '../renderer/RenderManager';
-import DemandLoader from '../core/DemandLoader';
-import EntityCache from '../entities/util/EntityCache';
+
 
 /**
  * State is triggered once when the game starts. It will preload all the REALLY

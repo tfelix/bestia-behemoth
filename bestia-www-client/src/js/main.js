@@ -6,6 +6,8 @@ import createModel from './ui/CreateModel';
 import BestiaGame from './BestiaGame';
 import VERSION from './Version';
 
+import LOG from './util/Log';
+
 let pubSub = new PubSub();
 let urlHelper = new UrlHelper('assets/');
 
@@ -13,7 +15,6 @@ let model = createModel(pubSub, urlHelper);
 
 //Creating the bestia game.
 let game = new BestiaGame(pubSub, urlHelper);
-
 
 // === Register the components.
 ko.components.register('bestia-chat', {
@@ -35,7 +36,7 @@ ko.components.register('bestia-shortcuts', {
 
 // DOM Ready
 $(function(){
-	console.log('Starting Bestia Client V.' + VERSION);
+	LOG.info('Starting Bestia Client V.' + VERSION);
 	
 	// Bind the DOM to the game.
 	ko.applyBindings(model);

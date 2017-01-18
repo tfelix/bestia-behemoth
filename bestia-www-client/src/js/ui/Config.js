@@ -55,7 +55,7 @@ export default class Config {
 			volumeSoundFx : ko.observable(1.0),
 			
 			debug : ko.observable(true)
-		}
+		};
 	
 		// Register for messages.
 		pubsub.subscribe('server.info', this._handleOnMessage.bind(this));

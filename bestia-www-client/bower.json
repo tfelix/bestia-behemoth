@@ -26,7 +26,8 @@
     "interact": "~1.2.6",
     "nanoscroller": "~0.8.7",
     "phaser": "~2.6.2",
-    "sockjs-client": "~1.0.0"
+    "sockjs-client": "~1.0.0",
+    "loglevel": "^1.4.1"
   },
   "devDependencies": {
     "jasmine-jquery": "~2.1.0"
