@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import akka.actor.Cancellable;
 import akka.actor.Scheduler;
 import net.bestia.messages.entity.EntityMoveMessage;
+import net.bestia.messages.internal.entity.EntityMoveInternalMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.entity.traits.Locatable;
@@ -92,10 +93,10 @@ public class TimedMoveActor extends BestiaActor {
 			path.clear();
 			waitLatch = 5;
 			setupMoveTick(100);
-		} else if (message instanceof EntityMoveMessage) {
+		} else if (message instanceof EntityMoveInternalMessage) {
 			// We get the order to reuse this actor and stop the current
 			// movement.
-			final EntityMoveMessage msg = (EntityMoveMessage) message;
+			final EntityMoveInternalMessage msg = (EntityMoveInternalMessage) message;
 
 			entityId = msg.getEntityId();
 

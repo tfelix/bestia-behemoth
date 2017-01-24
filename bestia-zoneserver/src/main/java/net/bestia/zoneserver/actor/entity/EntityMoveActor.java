@@ -11,6 +11,7 @@ import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.entity.EntityMoveMessage;
+import net.bestia.messages.internal.entity.EntityMoveInternalMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.service.MovingEntityService;
 import net.bestia.zoneserver.service.PlayerEntityService;
@@ -35,7 +36,7 @@ public class EntityMoveActor extends BestiaRoutingActor {
 
 	@Autowired
 	public EntityMoveActor(MovingEntityService movingService, PlayerEntityService playerEntityService) {
-		super(Arrays.asList(EntityMoveMessage.class));
+		super(Arrays.asList(EntityMoveMessage.class, EntityMoveInternalMessage.class));
 
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		this.movingService = Objects.requireNonNull(movingService);
@@ -44,19 +45,20 @@ public class EntityMoveActor extends BestiaRoutingActor {
 	@Override
 	protected void handleMessage(Object msg) {
 
-		// If we receive a bestia move message we must first convert it.
-		final EntityMoveMessage moveMsg = (EntityMoveMessage) msg;
-
-		LOG.debug("Received move message: {}", moveMsg.toString());
-
-		if (!playerEntityService.hasPlayerEntity(moveMsg.getAccountId(), moveMsg.getEntityId())) {
-			LOG.warning("Player {} does not own entity {}.", moveMsg.getAccountId(), moveMsg.getEntityId());
-			return;
+		if (msg instanceof EntityMoveInternalMessage) {
+			handleInternalMove((EntityMoveInternalMessage) msg);
+		} else {
+			handleMove((EntityMoveMessage) msg);
 		}
+	}
+
+	private void handleInternalMove(EntityMoveInternalMessage msg) {
+		
+		LOG.debug("Received internal move message: {}", msg.toString());
 
 		// Check if the entity is already moving.
 		// If this is the case cancel the current movement.
-		ActorRef moveActor = movingService.getMovingActorRef(moveMsg.getEntityId());
+		ActorRef moveActor = movingService.getMovingActorRef(msg.getEntityId());
 
 		if (moveActor != null) {
 			moveActor.tell(TimedMoveActor.STOP_MESSAGE, getSelf());
@@ -67,6 +69,19 @@ public class EntityMoveActor extends BestiaRoutingActor {
 			moveActor = createUnnamedActor(TimedMoveActor.class);
 		}
 
-		moveActor.tell(moveMsg, getSelf());
+		moveActor.tell(msg, getSelf());
+	}
+
+	private void handleMove(EntityMoveMessage msg) {
+
+		LOG.debug("Received player move message: {}", msg.toString());
+
+		if (!playerEntityService.hasPlayerEntity(msg.getAccountId(), msg.getEntityId())) {
+			LOG.warning("Player {} does not own entity {}.", msg.getAccountId(), msg.getEntityId());
+			return;
+		}
+
+		// Transform to an internal message.
+		handleInternalMove(new EntityMoveInternalMessage(msg.getEntityId(), msg.getPath()));
 	}
 }

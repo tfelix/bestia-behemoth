@@ -16,18 +16,23 @@ import net.bestia.model.geometry.Point;
  *
  */
 public class EntityMoveInternalMessage extends EntityMessage {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private List<Point> path;
 
 	public EntityMoveInternalMessage(long entityId, List<Point> path) {
 		super(entityId);
-		
+
 		this.path = new ArrayList<>(path);
 	}
 
 	public List<Point> getPath() {
 		return path;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("MoveMessageInternal[eeid: %d, path: %s]", getEntityId(), path.toString());
 	}
 }

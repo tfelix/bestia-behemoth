@@ -26,7 +26,7 @@ public class EntityContextActor extends BestiaRoutingActor {
 	public EntityContextActor() {
 		//super(Arrays.asList(EntityMoveMessage.class, ))
 		
-		createActor(EntityUpdatePositionActor.class);
+		createActor(ClientUpdateActor.class);
 		createActor(EntityMoveActor.class);
 		createActor(EntitySpawnActor.class);
 	}
