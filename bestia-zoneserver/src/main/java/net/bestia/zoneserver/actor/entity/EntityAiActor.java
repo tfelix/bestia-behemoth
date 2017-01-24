@@ -9,7 +9,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.zoneserver.actor.BestiaPeriodicActor;
 import net.bestia.zoneserver.entity.traits.Entity;
-import net.bestia.zoneserver.entity.traits.Moving;
+import net.bestia.zoneserver.entity.traits.Locatable;
 import net.bestia.zoneserver.service.EntityService;
 
 @Component
@@ -37,11 +37,11 @@ public class EntityAiActor extends BestiaPeriodicActor {
 		// See if its a movable entity.
 		Entity e = entityService.getEntity(entityId);
 		
-		if(!(e instanceof Moving)) {
+		if(!(e instanceof Locatable)) {
 			return;
 		}
 		
-		Moving me = (Moving) e;
+		Locatable me = (Locatable) e;
 		
 		LOG.debug("Entity {} moving.", entityId);
 	}

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author Thomas Felix <thoams.felix@tfelix.de>
  *
  */
-public final class Rect implements Collision, Serializable {
+public final class Rect implements CollisionShape, Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -163,7 +163,7 @@ public final class Rect implements Collision, Serializable {
 	}
 
 	@Override
-	public boolean collide(Collision s) {
+	public boolean collide(CollisionShape s) {
 		return s.collide(this);
 	}
 
@@ -178,7 +178,7 @@ public final class Rect implements Collision, Serializable {
 	}
 
 	@Override
-	public Collision moveByAnchor(int x, int y) {
+	public CollisionShape moveByAnchor(int x, int y) {
 		final long dX = x - (getX() + getAnchor().getX());
 		final long dY = y - (getY() + getAnchor().getY());
 

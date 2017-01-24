@@ -14,7 +14,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.service.AccountZoneService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
@@ -76,7 +76,7 @@ public class ChatActor extends BestiaRoutingActor {
 	 */
 	private void handlePublic(ChatMessage chatMsg) {
 		final long accId = chatMsg.getAccountId();
-		final PlayerBestiaEntity pbe = playerEntityService.getActivePlayerEntity(accId);
+		final PlayerEntity pbe = playerEntityService.getActivePlayerEntity(accId);
 
 		if (pbe == null) {
 			return;

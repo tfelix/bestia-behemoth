@@ -7,7 +7,7 @@ package net.bestia.model.geometry;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public interface Collision {
+public interface CollisionShape {
 
 	/**
 	 * Checks if this shape collides with the given vector.
@@ -43,7 +43,7 @@ public interface Collision {
 	 *            Collding shape.
 	 * @return TRUE if it collides. FALSE otherwise.
 	 */
-	boolean collide(Collision s);
+	boolean collide(CollisionShape s);
 
 	/**
 	 * Checks if this shape collides with the given vector.
@@ -63,7 +63,7 @@ public interface Collision {
 	public Point getAnchor();
 
 	/**
-	 * Moves the whole {@link Collision} to the new coordiantes relative to
+	 * Moves the whole {@link CollisionShape} to the new coordiantes relative to
 	 * its anchor whose absolute coordiantes are set by this method.
 	 * 
 	 * @param x
@@ -72,5 +72,5 @@ public interface Collision {
 	 *            New absolute y coordinate.
 	 * @return A new collision shape which is move
 	 */
-	public Collision moveByAnchor(int x, int y);
+	public CollisionShape moveByAnchor(int x, int y);
 }

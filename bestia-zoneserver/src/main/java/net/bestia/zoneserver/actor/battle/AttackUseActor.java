@@ -10,12 +10,11 @@ import org.springframework.stereotype.Component;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.attack.AttackUseMessage;
-import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.AttackTarget;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.entity.traits.Attackable;
 import net.bestia.zoneserver.service.EntityService;
 import net.bestia.zoneserver.service.PlayerEntityService;
@@ -53,7 +52,7 @@ public class AttackUseActor extends BestiaRoutingActor {
 	protected void handleMessage(Object msg) {
 
 		final AttackUseMessage atkMsg = (AttackUseMessage) msg;
-		final PlayerBestiaEntity pbe = playerEntityService.getActivePlayerEntity(atkMsg.getAccountId());
+		final PlayerEntity pbe = playerEntityService.getActivePlayerEntity(atkMsg.getAccountId());
 
 		if (atkMsg.getSlot() < 0 || atkMsg.getSlot() > 4) {
 			LOG.warning("Attacke slots not in range. Message: {}", atkMsg.toString());
@@ -110,7 +109,7 @@ public class AttackUseActor extends BestiaRoutingActor {
 	 * @param usedAttack
 	 * @param pbe
 	 */
-	private void attackSelf(AttackUseMessage atkMsg, Attack usedAttack, PlayerBestiaEntity pbe) {
+	private void attackSelf(AttackUseMessage atkMsg, Attack usedAttack, PlayerEntity pbe) {
 		// TODO Auto-generated method stub
 
 	}
@@ -121,7 +120,7 @@ public class AttackUseActor extends BestiaRoutingActor {
 	 * @param atkMsg
 	 * @param usedAttack
 	 */
-	private void attackGround(AttackUseMessage atkMsg, Attack usedAttack, PlayerBestiaEntity pbe) {
+	private void attackGround(AttackUseMessage atkMsg, Attack usedAttack, PlayerEntity pbe) {
 
 		// Check if we have valid x and y.
 		try {

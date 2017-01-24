@@ -37,6 +37,19 @@ public class SpriteInfo implements Serializable {
 	}
 
 	/**
+	 * Constructs an empty placeholder visual which can be seen as such inside
+	 * the engine.
+	 * 
+	 * @return
+	 */
+	public static SpriteInfo placeholder() {
+		final SpriteInfo info =  new SpriteInfo();
+		info.setType(VisualType.SINGLE);
+		info.setSprite("placeholder");
+		return info;
+	}
+
+	/**
 	 * Ctor.
 	 * 
 	 * @param sprite
@@ -62,7 +75,7 @@ public class SpriteInfo implements Serializable {
 		return sprite;
 	}
 
-	public void addSprite(String sprite) {
+	public void setSprite(String sprite) {
 		this.sprite = sprite;
 	}
 

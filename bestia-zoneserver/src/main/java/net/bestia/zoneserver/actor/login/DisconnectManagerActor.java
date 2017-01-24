@@ -18,7 +18,7 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.service.ConnectionService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
@@ -66,7 +66,7 @@ public class DisconnectManagerActor extends BestiaRoutingActor {
 			// Persist and remove all bestias entities for this account.
 			LOG.debug(String.format("DeSpawning bestias for acc id: %d", ccmsg.getAccountId()));
 			
-			final Set<PlayerBestiaEntity> bestias = entityService.getPlayerEntities(ccmsg.getAccountId());
+			final Set<PlayerEntity> bestias = entityService.getPlayerEntities(ccmsg.getAccountId());
 			entityService.removePlayerBestias(ccmsg.getAccountId());
 			
 			final Account acc = accDao.findOne(ccmsg.getAccountId());

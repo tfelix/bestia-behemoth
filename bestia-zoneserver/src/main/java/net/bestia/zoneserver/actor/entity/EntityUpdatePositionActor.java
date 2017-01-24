@@ -14,8 +14,8 @@ import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
-import net.bestia.zoneserver.entity.traits.Moving;
+import net.bestia.zoneserver.entity.PlayerEntity;
+import net.bestia.zoneserver.entity.traits.Locatable;
 import net.bestia.zoneserver.service.EntityService;
 
 /**
@@ -55,21 +55,21 @@ public class EntityUpdatePositionActor extends BestiaRoutingActor {
 
 		// Send message to the owner if its an player entity.
 		try {
-			final Moving movingEntity = entityService.getEntity(posMsg.getEntityId(), Moving.class);
+			final Locatable movingEntity = entityService.getEntity(posMsg.getEntityId(), Locatable.class);
 
-			if (movingEntity instanceof PlayerBestiaEntity) {
+			if (movingEntity instanceof PlayerEntity) {
 				// Send update to the player.
-				posMsg.setAccountId(((PlayerBestiaEntity) movingEntity).getAccountId());
+				posMsg.setAccountId(((PlayerEntity) movingEntity).getAccountId());
 				sendClient(posMsg);
 			}
 
 			// Find all active player bestias in range.
 			final Rect updateRect = getUpdateRect(movingEntity.getPosition());
-			final Collection<PlayerBestiaEntity> pbes = entityService.getEntitiesInRange(updateRect,
-					PlayerBestiaEntity.class);
+			final Collection<PlayerEntity> pbes = entityService.getEntitiesInRange(updateRect,
+					PlayerEntity.class);
 
 			// Check if the pbe are active and if so send them the update.
-			for (PlayerBestiaEntity pbe : pbes) {
+			for (PlayerEntity pbe : pbes) {
 				if (pbe.isActive()) {
 					posMsg.setAccountId(pbe.getAccountId());
 					sendClient(posMsg);

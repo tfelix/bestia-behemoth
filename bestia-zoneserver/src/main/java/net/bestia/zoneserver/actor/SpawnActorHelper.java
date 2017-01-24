@@ -12,7 +12,6 @@ import net.bestia.messages.internal.EntitySpawnMessage;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.actor.entity.EntityManagerActor;
-import net.bestia.zoneserver.entity.BestiaEntity;
 import net.bestia.zoneserver.entity.traits.Entity;
 import net.bestia.zoneserver.service.EntityService;
 
@@ -53,6 +52,7 @@ public class SpawnActorHelper extends BestiaPeriodicActor {
 		
 		int found = 0;
 		
+		/*
 		for(Entity e : entities) {
 			if(e instanceof BestiaEntity) {
 				found++;
@@ -68,7 +68,7 @@ public class SpawnActorHelper extends BestiaPeriodicActor {
 			
 			EntitySpawnMessage msg = new EntitySpawnMessage(be.getId());
 			managerActor.tell(msg, getSelf());
-		}
+		}*/
 	}
 
 	@Override

@@ -14,7 +14,7 @@ import akka.actor.Scheduler;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.entity.traits.Moving;
+import net.bestia.zoneserver.entity.traits.Locatable;
 import net.bestia.zoneserver.service.EntityService;
 import net.bestia.zoneserver.service.MovingEntityService;
 import scala.concurrent.duration.Duration;
@@ -58,7 +58,7 @@ public class TimedMoveActor extends BestiaActor {
 		if (message.equals(TICK_MSG)) {
 
 			final Point nextPoint = path.poll();
-			final Moving e = entityService.getEntity(entityId, Moving.class);
+			final Locatable e = entityService.getEntity(entityId, Locatable.class);
 
 			if (e == null) {
 
@@ -99,7 +99,7 @@ public class TimedMoveActor extends BestiaActor {
 
 			entityId = msg.getEntityId();
 
-			final Moving e = entityService.getEntity(entityId, Moving.class);
+			final Locatable e = entityService.getEntity(entityId, Locatable.class);
 
 			// Check if the entity can move. If not stop.
 			if (e == null) {
@@ -140,7 +140,7 @@ public class TimedMoveActor extends BestiaActor {
 	 * @return The delay in ms for the next movement tick, or -1 if an error has
 	 *         occurred.
 	 */
-	private int getMoveDelay(Point nextPos, Moving e) {
+	private int getMoveDelay(Point nextPos, Locatable e) {
 		final Point p = e.getPosition();
 		final double d = nextPos.getDistance(p);
 		float speed = e.getMovementSpeed();

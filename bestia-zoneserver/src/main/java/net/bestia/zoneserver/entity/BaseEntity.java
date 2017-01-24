@@ -1,10 +1,6 @@
 package net.bestia.zoneserver.entity;
 
-import net.bestia.model.geometry.Point;
-import net.bestia.model.geometry.Rect;
-import net.bestia.model.map.Map;
 import net.bestia.zoneserver.entity.traits.Entity;
-import net.bestia.zoneserver.entity.traits.Locatable;
 
 /**
  * The base entity is the most simply form of an entity inside the bestia
@@ -14,13 +10,16 @@ import net.bestia.zoneserver.entity.traits.Locatable;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public abstract class BaseEntity implements Entity, Locatable {
+public abstract class BaseEntity implements Entity {
 
 	private static final long serialVersionUID = 1L;
 
 	private EntityContext ctx;
 	private long id = -1;
 
+	/**
+	 * This will set an id of -1.
+	 */
 	public BaseEntity() {
 		// no op.
 	}
@@ -71,29 +70,5 @@ public abstract class BaseEntity implements Entity, Locatable {
 	@Override
 	public long getId() {
 		return id;
-	}
-
-	public long getX() {
-		return getPosition().getX();
-	}
-
-	public long getY() {
-		return getPosition().getY();
-	}
-
-	/**
-	 * Returns the sight range of the entity. This method is very important, for
-	 * the AI to be able to "see" other entities and react upon them.
-	 * 
-	 * @return The range {@link Rect} of the sight range originating from this
-	 *         entity.
-	 */
-	public Rect getSightRect() {
-		final Point pos = getPosition();
-		final Rect sightRect = new Rect(pos.getX() - Map.SIGHT_RANGE,
-				pos.getY() - Map.SIGHT_RANGE,
-				pos.getX() + Map.SIGHT_RANGE,
-				pos.getY() + Map.SIGHT_RANGE);
-		return sightRect;
 	}
 }

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
@@ -68,7 +68,7 @@ public class MapMoveCommand implements ChatCommand {
 		
 		// TODO Safety checks.
 		
-		final PlayerBestiaEntity pbe = playerBestiaService.getActivePlayerEntity(accId);
+		final PlayerEntity pbe = playerBestiaService.getActivePlayerEntity(accId);
 		pbe.setPosition(x, y);
 		playerBestiaService.putPlayerEntity(pbe);		
 	}

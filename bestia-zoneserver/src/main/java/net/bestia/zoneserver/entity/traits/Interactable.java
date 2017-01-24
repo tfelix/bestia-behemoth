@@ -12,7 +12,7 @@ import net.bestia.model.entity.InteractionType;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public interface Interactable {
+public interface Interactable extends Entity {
 
 	/**
 	 * Asks the entity for all types of interactions which are possible with it
@@ -22,5 +22,22 @@ public interface Interactable {
 	 * 
 	 * @return A set of possible interactions.
 	 */
-	Set<InteractionType> getInteractions(Interactable interacter);
+	Set<InteractionType> getPossibleInteractions(Interactable interacter);
+
+	/**
+	 * Returns all possible interaction supported by this entity.
+	 * 
+	 * @return A set of all possible interactions.
+	 */
+	Set<InteractionType> getInteractions();
+
+	/**
+	 * Performs the requested interaction with the given interactor.
+	 * 
+	 * @param type
+	 *            The type of requested interaction.
+	 * @param interactor
+	 *            The interactor which performs the interaction.
+	 */
+	void triggerInteraction(InteractionType type, Interactable interactor);
 }

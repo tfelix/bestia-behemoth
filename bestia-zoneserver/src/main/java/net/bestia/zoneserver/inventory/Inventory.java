@@ -10,8 +10,7 @@ import net.bestia.messages.inventory.InventoryUpdateMessage;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerItem;
 import net.bestia.model.service.InventoryService;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
-import net.bestia.zoneserver.entity.traits.Updateable;
+import net.bestia.zoneserver.entity.PlayerEntity;
 
 /**
  * Wrapper around the {@link InventoryService}. It provides more or less the
@@ -22,16 +21,16 @@ import net.bestia.zoneserver.entity.traits.Updateable;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class Inventory implements Updateable {
+public class Inventory {
 
 	private final InventoryService inventoryService;
 	
 	private final long accountId;
-	private final PlayerBestiaEntity owner;
+	private final PlayerEntity owner;
 	
 	private final List<Message> messageBuffer = new ArrayList<>();
 
-	public Inventory(PlayerBestiaEntity owner, InventoryService service) {
+	public Inventory(PlayerEntity owner, InventoryService service) {
 
 		if (service == null) {
 			throw new IllegalArgumentException("Service can not be null.");
@@ -199,12 +198,5 @@ public class Inventory implements Updateable {
 
 	public PlayerItem getPlayerItem(int playerItemId) {
 		return inventoryService.getPlayerItem(playerItemId);
-	}
-
-	@Override
-	public List<Message> getUpdates() {
-		final List<Message> msgs = new ArrayList<>(messageBuffer);
-		messageBuffer.clear();
-		return msgs;
 	}
 }

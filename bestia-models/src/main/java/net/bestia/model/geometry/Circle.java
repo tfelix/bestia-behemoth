@@ -2,7 +2,7 @@ package net.bestia.model.geometry;
 
 import com.google.common.base.Objects;
 
-public final class Circle implements Collision {
+public final class Circle implements CollisionShape {
 
 	private final Point center;
 	private Point anchor;
@@ -83,7 +83,7 @@ public final class Circle implements Collision {
 	}
 
 	@Override
-	public boolean collide(Collision s) {
+	public boolean collide(CollisionShape s) {
 		return s.collide(this);
 	}
 
@@ -115,7 +115,7 @@ public final class Circle implements Collision {
 	}
 
 	@Override
-	public Collision moveByAnchor(int x, int y) {
+	public CollisionShape moveByAnchor(int x, int y) {
 		final long dX = x - getAnchor().getX();
 		final long dY = y - getAnchor().getY();
 

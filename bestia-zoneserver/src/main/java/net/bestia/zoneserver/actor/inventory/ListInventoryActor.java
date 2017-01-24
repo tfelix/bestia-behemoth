@@ -12,7 +12,7 @@ import net.bestia.messages.inventory.InventoryListRequestMessage;
 import net.bestia.model.service.InventoryService;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.inventory.Inventory;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
@@ -54,7 +54,7 @@ public class ListInventoryActor extends BestiaRoutingActor {
 		
 		final InventoryListRequestMessage ilmsg = (InventoryListRequestMessage) msg;
 		
-		final PlayerBestiaEntity pbe = entityService.getActivePlayerEntity(ilmsg.getAccountId());
+		final PlayerEntity pbe = entityService.getActivePlayerEntity(ilmsg.getAccountId());
 		
 		final Inventory invManager = new Inventory(pbe, inventoryService);
 		final InventoryListMessage invListMessage = invManager.getInventoryListMessage();

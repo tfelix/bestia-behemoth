@@ -14,7 +14,7 @@ import net.bestia.messages.entity.EntityInteractionMessage;
 import net.bestia.messages.entity.EntityInteractionRequestMessage;
 import net.bestia.model.entity.InteractionType;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.entity.traits.Entity;
 import net.bestia.zoneserver.entity.traits.Interactable;
 import net.bestia.zoneserver.service.EntityService;
@@ -62,8 +62,8 @@ public class InteractionRequestActor extends BestiaRoutingActor {
 			return;
 		}
 		
-		final PlayerBestiaEntity pbe = playerEntityService.getActivePlayerEntity(rm.getEntityId());
-		final Set<InteractionType> interactions = ((Interactable) entity).getInteractions(pbe);
+		final PlayerEntity pbe = playerEntityService.getActivePlayerEntity(rm.getEntityId());
+		final Set<InteractionType> interactions = ((Interactable) entity).getPossibleInteractions(pbe);
 		sendClient(new EntityInteractionMessage(rm, rm.getEntityId(), interactions));
 	}
 

@@ -16,7 +16,7 @@ import net.bestia.model.geometry.Point;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.service.MapService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
@@ -54,7 +54,7 @@ public class MapRequestChunkActor extends BestiaRoutingActor {
 		final MapChunkRequestMessage req = (MapChunkRequestMessage) msg;
 
 		// Find the currently active bestia for this account.
-		final PlayerBestiaEntity pbe = pbService.getActivePlayerEntity(req.getAccountId());
+		final PlayerEntity pbe = pbService.getActivePlayerEntity(req.getAccountId());
 
 		final Point pos = pbe.getPosition();
 

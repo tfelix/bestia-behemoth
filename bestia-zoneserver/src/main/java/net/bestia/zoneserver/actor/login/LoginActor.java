@@ -22,7 +22,7 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.service.ConnectionService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 import net.bestia.zoneserver.service.RuntimeConfigurationService;
@@ -95,7 +95,7 @@ public class LoginActor extends BestiaRoutingActor {
 		if (state == LoginState.ACCEPTED) {
 			// Announce to the cluster that we have a new connected user.
 			// Welcome my friend. :)
-			final PlayerBestiaEntity master = spawnEntities(msg);
+			final PlayerEntity master = spawnEntities(msg);
 
 			// Now activate the master.
 			entityService.setActiveEntity(master.getAccountId(), master.getId());
@@ -122,7 +122,7 @@ public class LoginActor extends BestiaRoutingActor {
 	 * Creates the entities (bestias) of the player. It will return the master
 	 * bestia of the player.
 	 */
-	private PlayerBestiaEntity spawnEntities(LoginAuthMessage msg) {
+	private PlayerEntity spawnEntities(LoginAuthMessage msg) {
 		LOG.debug("Client connected: {}.", msg);
 
 		// Spawn all bestia entities for this account into the world.
@@ -130,15 +130,15 @@ public class LoginActor extends BestiaRoutingActor {
 
 		final PlayerBestia master = playerBestiaService.getMaster(msg.getAccountId());
 
-		final Set<PlayerBestiaEntity> bestias = pbs
+		final Set<PlayerEntity> bestias = pbs
 				.parallelStream()
-				.map(x -> new PlayerBestiaEntity(x))
+				.map(x -> new PlayerEntity(msg.getAccountId(), x))
 				.collect(Collectors.toSet());
 		LOG.debug(String.format("Spawning %d player bestias for acc id: %d", bestias.size(), msg.getAccountId()));
 		entityService.putPlayerEntities(bestias);
 
 		// Extract master now again from bestias and get its entity id.
-		final Optional<PlayerBestiaEntity> masterEntity = bestias.parallelStream()
+		final Optional<PlayerEntity> masterEntity = bestias.parallelStream()
 				.filter(x -> x.getPlayerBestiaId() == master.getId())
 				.findAny();
 

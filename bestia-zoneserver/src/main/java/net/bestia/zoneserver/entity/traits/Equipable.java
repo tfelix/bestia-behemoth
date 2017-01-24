@@ -11,7 +11,7 @@ import net.bestia.model.domain.Item;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public interface Equipable {
+public interface Equipable extends Entity {
 
 	/**
 	 * Checks if all prerequisites are fulfilled in order to equip this item to
@@ -32,7 +32,7 @@ public interface Equipable {
 	 * @param item
 	 *            The item to equip.
 	 */
-	void equipItem(Item item);
+	void equip(Item item);
 
 	/**
 	 * Removes the item and removes all status effects associated with it.
@@ -40,7 +40,7 @@ public interface Equipable {
 	 * @param item
 	 *            The item to remove.
 	 */
-	void unequipItem(Item item);
+	void takeOff(Item item);
 
 	/**
 	 * Returns the set of equipment slots which are available for equipping
@@ -50,5 +50,4 @@ public interface Equipable {
 	 * @return A set of available equipment slots.
 	 */
 	Set<EquipmentSlot> getAvailableEquipmentSlots();
-
 }

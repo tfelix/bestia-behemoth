@@ -16,7 +16,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.MultiMap;
 
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.entity.traits.Entity;
 
 /**
@@ -56,16 +56,16 @@ public class PlayerEntityService {
 		Long lastActive = activeEntities.get(accId);
 		activeEntities.put(accId, activeEntityId);
 
-		PlayerBestiaEntity pbe = null;
+		PlayerEntity pbe = null;
 
 		// Last active might be null if no previous bestia was active.
 		if (lastActive != null) {
-			pbe = (PlayerBestiaEntity) entityService.getEntity(lastActive);
+			pbe = (PlayerEntity) entityService.getEntity(lastActive);
 			pbe.setActive(false);
 			entityService.save(pbe);
 		}
 
-		pbe = (PlayerBestiaEntity) entityService.getEntity(activeEntityId);
+		pbe = (PlayerEntity) entityService.getEntity(activeEntityId);
 		pbe.setActive(true);
 		entityService.save(pbe);
 	}
@@ -75,9 +75,9 @@ public class PlayerEntityService {
 	 * 
 	 * @param accId
 	 *            The account id.
-	 * @return The active {@link PlayerBestiaEntity} of this account or null.
+	 * @return The active {@link PlayerEntity} of this account or null.
 	 */
-	public PlayerBestiaEntity getActivePlayerEntity(long accId) {
+	public PlayerEntity getActivePlayerEntity(long accId) {
 		final Long entityId = activeEntities.get(accId);
 
 		if (entityId == null) {
@@ -86,11 +86,11 @@ public class PlayerEntityService {
 
 		final Entity entity = entityService.getEntity(entityId);
 
-		if (entity == null || !(entity instanceof PlayerBestiaEntity)) {
+		if (entity == null || !(entity instanceof PlayerEntity)) {
 			return null;
 		}
 
-		return (PlayerBestiaEntity) entity;
+		return (PlayerEntity) entity;
 	}
 
 	/**
@@ -101,9 +101,9 @@ public class PlayerEntityService {
 	 * @return
 	 */
 	public List<Long> getActiveAccountIdsInRange(Rect range) {
-		List<PlayerBestiaEntity> pbe = entityService.getEntitiesInRange(range, PlayerBestiaEntity.class)
+		List<PlayerEntity> pbe = entityService.getEntitiesInRange(range, PlayerEntity.class)
 				.parallelStream()
-				.map(x -> (PlayerBestiaEntity) x)
+				.map(x -> (PlayerEntity) x)
 				.collect(Collectors.toList());
 
 		return pbe.parallelStream()
@@ -118,14 +118,14 @@ public class PlayerEntityService {
 	 * @param accId
 	 * @return The set of player bestia entities of a single player.
 	 */
-	public Set<PlayerBestiaEntity> getPlayerEntities(long accId) {
+	public Set<PlayerEntity> getPlayerEntities(long accId) {
 
 		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
 		return entityService.getAll(new HashSet<>(ids))
 				.values()
 				.parallelStream()
-				.filter(x -> x instanceof PlayerBestiaEntity)
-				.map(x -> (PlayerBestiaEntity) x)
+				.filter(x -> x instanceof PlayerEntity)
+				.map(x -> (PlayerEntity) x)
 				.collect(Collectors.toSet());
 	}
 
@@ -136,10 +136,10 @@ public class PlayerEntityService {
 	 * @param pb
 	 *            A collection of player bestias.
 	 */
-	public void putPlayerEntities(Collection<PlayerBestiaEntity> pb) {
+	public void putPlayerEntities(Collection<PlayerEntity> pb) {
 
-		final Map<Long, List<PlayerBestiaEntity>> byAccId = pb.stream()
-				.collect(Collectors.groupingBy(PlayerBestiaEntity::getAccountId));
+		final Map<Long, List<PlayerEntity>> byAccId = pb.stream()
+				.collect(Collectors.groupingBy(PlayerEntity::getAccountId));
 
 		byAccId.forEach((accId, pbes) -> {
 			pbes.forEach(pbe -> {
@@ -164,12 +164,12 @@ public class PlayerEntityService {
 	}
 
 	/**
-	 * Puts a single {@link PlayerBestiaEntity} into the cache.
+	 * Puts a single {@link PlayerEntity} into the cache.
 	 * 
 	 * @param pbe
 	 *            The player entity to put into the cache.
 	 */
-	public void putPlayerEntity(PlayerBestiaEntity pbe) {
+	public void putPlayerEntity(PlayerEntity pbe) {
 		entityService.save(pbe);
 		playerBestiaEntitiesIds.put(pbe.getAccountId(), pbe.getId());
 	}

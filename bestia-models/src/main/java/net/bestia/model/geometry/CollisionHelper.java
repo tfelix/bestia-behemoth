@@ -1,7 +1,7 @@
 package net.bestia.model.geometry;
 
 /**
- * This class contains the shared collision code for the {@link Collision}
+ * This class contains the shared collision code for the {@link CollisionShape}
  * implementations. Since collision is implemented with a visitor pattern code
  * would have to be implemented twice. In order to prevent this code sharing all
  * the collision methods are implemented here.

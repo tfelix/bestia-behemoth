@@ -14,7 +14,7 @@ import net.bestia.model.domain.Position;
  * @author Thomas Felix <thoams.felix@tfelix.de>
  *
  */
-public final class Point implements Collision, Serializable {
+public final class Point implements CollisionShape, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -105,7 +105,7 @@ public final class Point implements Collision, Serializable {
 	}
 
 	@Override
-	public boolean collide(Collision s) {
+	public boolean collide(CollisionShape s) {
 		return s.collide(this);
 	}
 
@@ -116,7 +116,7 @@ public final class Point implements Collision, Serializable {
 	}
 
 	@Override
-	public Collision moveByAnchor(int x, int y) {
+	public CollisionShape moveByAnchor(int x, int y) {
 		return new Point(getX() + x, getY() + y);
 	}
 

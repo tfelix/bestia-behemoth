@@ -12,7 +12,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.PlayerBestiaEntity;
+import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
@@ -44,7 +44,7 @@ public class ActivateBestiaActor extends BestiaRoutingActor {
 		final BestiaActivateMessage bestiaMsg = (BestiaActivateMessage) msg;
 
 		// Check if the user really owns this bestia.
-		final Optional<PlayerBestiaEntity> bestia = playerService.getPlayerEntities(bestiaMsg.getAccountId())
+		final Optional<PlayerEntity> bestia = playerService.getPlayerEntities(bestiaMsg.getAccountId())
 				.parallelStream()
 				.filter(x -> x.getPlayerBestiaId() == bestiaMsg.getPlayerBestiaId())
 				.findAny();
@@ -54,7 +54,7 @@ public class ActivateBestiaActor extends BestiaRoutingActor {
 			return;
 		}
 		
-		final PlayerBestiaEntity pbe = bestia.get();
+		final PlayerEntity pbe = bestia.get();
 
 		LOG.debug("Activated player bestia id: {} from accId: {}, entityId: {}", 
 				pbe.getPlayerBestiaId(), 

@@ -11,20 +11,34 @@ import net.bestia.model.domain.SpriteInfo;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public interface Visible {
+public interface Visible extends Entity {
 
 	/**
-	 * Returns the sprite of the entity.
+	 * Returns the sprite/visual representation of the entity.
 	 * 
-	 * @return
+	 * @return The {@link SpriteInfo} of this entity.
 	 */
 	SpriteInfo getVisual();
 
 	/**
-	 * Gives a flag if the entity is visible.
+	 * Sets the visual representation of this entity.
 	 * 
-	 * @return
+	 * @param visual
+	 *            The new visual representation. Can not be null.
+	 */
+	void setVisual(SpriteInfo visual);
+
+	/**
+	 * Gives a flag if the entity is currently visible.
+	 * 
+	 * @return TRUE if the entity is visible. FALSE otherwise.
 	 */
 	boolean isVisible();
 
+	// Filter to alter the visual representation of this unit.
+	/*
+	 * void addVisualFilter();
+	 * 
+	 * void removeVisualFilter();
+	 */
 }
