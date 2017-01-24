@@ -25,7 +25,7 @@ import net.bestia.zoneserver.actor.SpawnActorHelper;
 import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.entity.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.entity.BestiaInfoActor;
-import net.bestia.zoneserver.actor.entity.EntityManagerActor;
+import net.bestia.zoneserver.actor.entity.EntitySpawnActor;
 import net.bestia.zoneserver.actor.entity.EntityMoveActor;
 import net.bestia.zoneserver.actor.entity.InteractionRequestActor;
 import net.bestia.zoneserver.actor.inventory.InventoryActor;
@@ -56,7 +56,7 @@ public class ZoneActor extends BestiaRoutingActor {
 
 		final ActorSystem system = getContext().system();
 
-		// Login
+		// === Login ===
 		createActor(LoginActor.class);
 		
 		// === Map ===
@@ -69,12 +69,11 @@ public class ZoneActor extends BestiaRoutingActor {
 		// === Bestias ===
 		createActor(BestiaInfoActor.class);
 		createActor(ActivateBestiaActor.class);
-		createActor(EntityManagerActor.class);
+		createActor(EntitySpawnActor.class);
 		
 		// === Entities ===
 		createActor(InteractionRequestActor.class);
 		createActor(EntityMoveActor.class);
-		createActor(EntityManagerActor.class);
 
 		// === Chat ===
 		createActor(ChatActor.class);

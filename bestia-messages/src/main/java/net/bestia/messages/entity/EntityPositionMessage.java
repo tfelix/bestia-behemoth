@@ -32,7 +32,7 @@ public class EntityPositionMessage extends JsonMessage {
 	private long nextY;
 
 	/**
-	 * Walkspeed is in integern because we can only round floats too bad.
+	 * Walkspeed is in integer because we can only round floats too bad.
 	 */
 	@JsonProperty("s")
 	private int speed;
@@ -92,6 +92,15 @@ public class EntityPositionMessage extends JsonMessage {
 		this.nextX = nextX;
 		this.nextY = nextY;
 		this.speed = speed;
+	}
+
+	/**
+	 * Changed the walkspeed into the float representation.
+	 * 
+	 * @return
+	 */
+	public float getWalkspeedFloat() {
+		return speed / 100f;
 	}
 
 	@Override

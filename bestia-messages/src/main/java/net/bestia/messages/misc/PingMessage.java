@@ -1,4 +1,4 @@
-package net.bestia.messages.internal;
+package net.bestia.messages.misc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

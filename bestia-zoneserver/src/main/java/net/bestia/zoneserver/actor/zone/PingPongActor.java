@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.internal.PingMessage;
-import net.bestia.messages.internal.PongMessage;
+import net.bestia.messages.misc.PingMessage;
+import net.bestia.messages.misc.PongMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 
 /**

@@ -38,16 +38,4 @@ public class CacheConfiguration {
 
 		return new CacheManager<>("cache.client", cache);
 	}
-
-	/**
-	 * Returns the cache holding the {@link MasterBestiaEntity}s of the players.
-	 * 
-	 * @return Cache of the {@link MasterBestiaEntity}s.
-	 */
-	/*
-	@Bean(name = PLAYER_BESTIA_CACHE)
-	public CacheManager<Integer, MasterBestiaEntity> getPlayerBestiaCache() {
-
-		return new CacheManager<>("cache.playerBestia", cache);
-	}*/
 }

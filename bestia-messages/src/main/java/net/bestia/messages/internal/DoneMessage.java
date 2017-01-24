@@ -7,7 +7,7 @@ package net.bestia.messages.internal;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class DoneMessage extends SystemMessage {
+public class DoneMessage extends InternalMessage {
 
 	private static final long serialVersionUID = 1L;
 	private final String tag;

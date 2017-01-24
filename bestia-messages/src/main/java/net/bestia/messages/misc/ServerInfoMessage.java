@@ -1,11 +1,11 @@
-package net.bestia.messages.internal;
+package net.bestia.messages.misc;
 
 import java.util.Collection;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
+import net.bestia.messages.JsonMessage;
 
 /**
  * Returns basic information about this zoneserver for debugging purposes.
@@ -13,7 +13,7 @@ import net.bestia.messages.MessageId;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public final class ServerInfoMessage extends AccountMessage implements MessageId {
+public final class ServerInfoMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 

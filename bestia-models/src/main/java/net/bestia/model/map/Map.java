@@ -248,6 +248,8 @@ public class Map {
 	 * @return TRUE if all chunks are within reach. FALSE otherwise.
 	 */
 	public static boolean canRequestChunks(Point pos, List<Point> chunks) {
+		Objects.requireNonNull(pos);
+		Objects.requireNonNull(chunks);
 
 		// Find min max dist.
 		final double maxD = Math.ceil(Math.sqrt(2 * (SIGHT_RANGE * SIGHT_RANGE)));

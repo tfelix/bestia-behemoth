@@ -24,7 +24,11 @@ public class EntityContextActor extends BestiaRoutingActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	public EntityContextActor() {
+		//super(Arrays.asList(EntityMoveMessage.class, ))
+		
 		createActor(EntityUpdatePositionActor.class);
+		createActor(EntityMoveActor.class);
+		createActor(EntitySpawnActor.class);
 	}
 	
 	@Override

@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
 import akka.actor.ActorSelection;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.internal.EntitySpawnMessage;
+import net.bestia.messages.internal.entity.EntitySpawnMessage;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.actor.entity.EntityManagerActor;
+import net.bestia.zoneserver.actor.entity.EntitySpawnActor;
 import net.bestia.zoneserver.entity.traits.Entity;
 import net.bestia.zoneserver.service.EntityService;
 

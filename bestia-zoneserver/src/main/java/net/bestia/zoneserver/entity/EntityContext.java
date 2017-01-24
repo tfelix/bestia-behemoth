@@ -3,7 +3,7 @@ package net.bestia.zoneserver.entity;
 import java.util.Objects;
 
 import akka.actor.ActorRef;
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.Message;
 import net.bestia.zoneserver.actor.entity.EntityContextActor;
 
 /**
@@ -36,7 +36,7 @@ public class EntityContext {
 	 * @param msg
 	 *            The message which shall be send to the client(s).
 	 */
-	public void sendMessage(JsonMessage msg) {
+	public void sendMessage(Message msg) {
 		actor.tell(msg, ActorRef.noSender());
 	}
 }

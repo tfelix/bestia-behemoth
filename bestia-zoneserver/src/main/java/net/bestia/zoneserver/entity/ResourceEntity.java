@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import net.bestia.messages.entity.EntityPositionMessage;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.geometry.Point;
@@ -30,6 +31,7 @@ public abstract class ResourceEntity extends BaseEntity implements Locatable, Vi
 	private static final long serialVersionUID = 1L;
 
 	private SpriteInfo visual;
+	private Point position = new Point(0, 0);
 
 	public ResourceEntity() {
 
@@ -87,16 +89,18 @@ public abstract class ResourceEntity extends BaseEntity implements Locatable, Vi
 
 	@Override
 	public Point getPosition() {
-		// TODO Auto-generated method stub
-		return null;
+		return position;
 	}
 
 	@Override
 	public void setPosition(long x, long y) {
-		// TODO Auto-generated method stub
+		position = new Point(x, y);
 
+		// Send an update to the server system to check for script trigger etc.
+		final EntityPositionMessage epmsg = new EntityPositionMessage(getId(), x, y);
+		getContext().sendMessage(epmsg);
 	}
-	
+
 	/**
 	 * A simple resource can not attack on its own.
 	 */
@@ -110,9 +114,9 @@ public abstract class ResourceEntity extends BaseEntity implements Locatable, Vi
 	 */
 	@Override
 	public void moveTo(List<Point> path) {
-		// No op.
+		// No op. Can not move.
 	}
-	
+
 	@Override
 	public int getLevel() {
 		return 1;

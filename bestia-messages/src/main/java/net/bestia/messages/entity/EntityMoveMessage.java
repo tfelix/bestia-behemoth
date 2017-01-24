@@ -44,7 +44,11 @@ public class EntityMoveMessage extends JsonMessage {
 
 	@JsonProperty("w")
 	private float walkspeed;
-
+	
+	public EntityMoveMessage() {
+		// no op.
+	}
+	
 	public List<Integer> getCordsX() {
 		return cordsX;
 	}
