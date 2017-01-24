@@ -21,9 +21,11 @@ import net.bestia.messages.internal.DoneMessage;
 import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.actor.SpawnActorHelper;
 import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.entity.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.entity.BestiaInfoActor;
+import net.bestia.zoneserver.actor.entity.EntityManagerActor;
 import net.bestia.zoneserver.actor.entity.EntityMoveActor;
 import net.bestia.zoneserver.actor.entity.InteractionRequestActor;
 import net.bestia.zoneserver.actor.inventory.InventoryActor;
@@ -67,10 +69,12 @@ public class ZoneActor extends BestiaRoutingActor {
 		// === Bestias ===
 		createActor(BestiaInfoActor.class);
 		createActor(ActivateBestiaActor.class);
+		createActor(EntityManagerActor.class);
 		
 		// === Entities ===
 		createActor(InteractionRequestActor.class);
 		createActor(EntityMoveActor.class);
+		createActor(EntityManagerActor.class);
 
 		// === Chat ===
 		createActor(ChatActor.class);
@@ -79,6 +83,9 @@ public class ZoneActor extends BestiaRoutingActor {
 		createActor(DisconnectManagerActor.class);
 		createActor(PingPongActor.class);
 		createActor(ZoneClusterListenerActor.class);
+		
+		// === DEVELOPMENT ===
+		createActor(SpawnActorHelper.class);
 
 		// Setup the init actor singelton for creation of the system.
 		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);

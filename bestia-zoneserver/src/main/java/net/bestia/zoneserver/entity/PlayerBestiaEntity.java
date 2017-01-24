@@ -179,7 +179,7 @@ public class PlayerBestiaEntity extends LivingEntity implements Moving, Serializ
 	public void setPosition(long x, long y) {
 		this.playerBestia.getCurrentPosition().setX(x);
 		this.playerBestia.getCurrentPosition().setY(y);
-		getContext().notifyPosition(this);
+		//getContext().notifyPosition(this);
 	}
 
 	/**

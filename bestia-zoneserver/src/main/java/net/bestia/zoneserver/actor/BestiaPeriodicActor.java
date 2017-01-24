@@ -23,8 +23,11 @@ public abstract class BestiaPeriodicActor extends BestiaActor {
 
 	private int intervalDuration;
 
-	public BestiaPeriodicActor() {
+	public BestiaPeriodicActor(int initialDelay) {
 		super();
+		
+		setIntervalDuration(initialDelay);
+		setupTicker();
 	}
 
 	/**

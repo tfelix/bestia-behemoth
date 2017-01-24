@@ -1,0 +1,23 @@
+{
+	"version": 1,
+	"resources": [],
+	"animationSequences":
+	[
+		{
+			"id": "die",
+			"animations":
+			[
+				{"type": "SPRITE_ANIMATION", "duration": 300, "data": {"name": "die", "repeat": 1}}
+			]
+		},
+		{
+			"id": "hit",
+			"animations":
+			[
+				{"type": "SPRITE_ANIMATION", "duration": 300, "data": {"name": "hit"}}
+			]
+		}
+	],
+	"target": ["die"],
+	"origin": ["attack"]
+}

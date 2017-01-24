@@ -3,13 +3,12 @@ package net.bestia.zoneserver.entity;
 import java.util.Objects;
 
 import akka.actor.ActorRef;
-import net.bestia.messages.chat.ChatMessage;
-import net.bestia.messages.entity.EntityPositionMessage;
+import net.bestia.messages.JsonMessage;
 import net.bestia.zoneserver.actor.entity.EntityContextActor;
 
 /**
  * This class is used to give all entities a callback option in order to submit
- * messages back to the actor system.
+ * messages back to the actor system and/or the connected clients.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -31,27 +30,13 @@ public class EntityContext {
 	}
 
 	/**
-	 * Should be called if an entities position has been changed since the last
-	 * call. It then will update the new position to all entities in sight
-	 * range.
+	 * Sends a message to the client or clients. The messaging framework will
+	 * check to find out to whom the message must be delivered.
 	 * 
-	 * @param e
-	 */
-	public void notifyPosition(BaseEntity e) {
-		final EntityPositionMessage epmsg = new EntityPositionMessage(e.getId(), e.getX(), e.getY());
-		actor.tell(epmsg, ActorRef.noSender());
-	}
-
-	/**
-	 * Sends a message to the given account (which must be online).
-	 * 
-	 * @param accId
-	 *            Account to receive this message.
 	 * @param msg
-	 *            The message send to the account.
+	 *            The message which shall be send to the client(s).
 	 */
-	public void sendMessage(long accId, String msg, ChatMessage.Mode mode) {
-		final ChatMessage chatMsg = new ChatMessage(accId, msg, mode);
-		actor.tell(chatMsg, ActorRef.noSender());
+	public void sendMessage(JsonMessage msg) {
+		actor.tell(msg, ActorRef.noSender());
 	}
 }

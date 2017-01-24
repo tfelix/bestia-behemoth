@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import net.bestia.messages.entity.AnimationPlayMessage;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Element;
@@ -172,14 +173,8 @@ public class LivingEntity extends BaseEntity
 	public void setPosition(long x, long y) {
 		this.position.setX(x);
 		this.position.setY(y);
-		getContext().notifyPosition(this);
+		//getContext().notifyPosition(this);
 	}
-
-	/*
-	public void setPosition(Position pos) {
-		this.position.set(pos);
-		getContext().notifyPosition(this);
-	}*/
 
 	@Override
 	public int getLevel() {
@@ -229,8 +224,10 @@ public class LivingEntity extends BaseEntity
 
 	@Override
 	public void kill() {
-		// TODO Auto-generated method stub
-
+		
+		// Send death animation to client.
+		AnimationPlayMessage animMsg = new AnimationPlayMessage(0, "die", getId());
+		getContext().sendMessage(animMsg);
 	}
 
 	@Override
