@@ -31,4 +31,17 @@ public class ActiveUpateMessage extends EntityMessage {
 	public String toString() {
 		return String.format("ActiveUpdate[senderEntity: %d, msg: %s]", getEntityId(), updateMessage.toString());
 	}
+
+	/**
+	 * Wraps the given message inside a {@link ActiveUpateMessage}.
+	 * 
+	 * @param entityId
+	 *            The entity ID from which the update originates. Important to
+	 *            determine the line of sight.
+	 * @param updateMsg
+	 *            The update to be send.
+	 */
+	public static ActiveUpateMessage wrap(long entityId, JsonMessage updateMsg) {
+		return new ActiveUpateMessage(entityId, updateMsg);
+	}
 }

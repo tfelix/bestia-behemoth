@@ -238,11 +238,15 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 	public float getMovementSpeed() {
 		return 1.0f;
 	}
-	
+
+	/**
+	 * Moves the entity a certain path. This will trigger a message to the actor
+	 * system.
+	 */
 	@Override
 	public void moveTo(List<Point> path) {
 		Objects.requireNonNull(path);
-		
+
 		final EntityMoveInternalMessage moveMsg = new EntityMoveInternalMessage(getId(), path);
 		getContext().sendMessage(moveMsg);
 	}

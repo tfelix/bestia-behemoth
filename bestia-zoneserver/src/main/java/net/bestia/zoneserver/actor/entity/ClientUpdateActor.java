@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.actor.entity;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 
@@ -14,7 +13,7 @@ import net.bestia.messages.internal.entity.ActiveUpateMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
-import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.entity.traits.Locatable;
 import net.bestia.zoneserver.service.EntityService;
@@ -27,7 +26,7 @@ import net.bestia.zoneserver.service.EntityService;
  */
 @Component
 @Scope("prototype")
-public class ClientUpdateActor extends BestiaRoutingActor {
+public class ClientUpdateActor extends BestiaActor {
 
 	public final static String NAME = "activePlayerUpdate";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
@@ -35,7 +34,6 @@ public class ClientUpdateActor extends BestiaRoutingActor {
 	private final EntityService entityService;
 
 	public ClientUpdateActor(EntityService entityService) {
-		super(Arrays.asList(ActiveUpateMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);
 	}
@@ -48,9 +46,15 @@ public class ClientUpdateActor extends BestiaRoutingActor {
 	}
 
 	@Override
-	protected void handleMessage(Object msg) {
+	public void onReceive(Object msg) throws Throwable {
 		LOG.debug("Received: {}", msg.toString());
-
+		
+		// Handle only ActiveUpdateMessage
+		if(!(msg instanceof ActiveUpateMessage)) {
+			unhandled(msg);
+			return;
+		}
+		
 		final ActiveUpateMessage updateMsg = (ActiveUpateMessage) msg;
 		final JsonMessage dataMsg = updateMsg.getUpdateMessage();
 

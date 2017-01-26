@@ -173,5 +173,7 @@ public class PlayerEntity extends LivingEntity {
 	@Override
 	public void setPosition(long x, long y) {
 		playerBestia.setCurrentPosition(new Position(x, y));
+		// Update all the sorrounding entities.
+		super.setPosition(x, y);
 	}
 }

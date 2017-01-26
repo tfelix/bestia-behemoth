@@ -37,10 +37,10 @@ public class EntityMoveMessage extends JsonMessage {
 	private long entityId;
 
 	@JsonProperty("pX")
-	private List<Integer> cordsX;
+	private List<Long> cordsX;
 
 	@JsonProperty("pY")
-	private List<Integer> cordsY;
+	private List<Long> cordsY;
 
 	@JsonProperty("w")
 	private float walkspeed;
@@ -49,19 +49,33 @@ public class EntityMoveMessage extends JsonMessage {
 		// no op.
 	}
 	
-	public List<Integer> getCordsX() {
+	public EntityMoveMessage(long eid, List<Point> path, float speed) {
+		
+		this.entityId = eid;
+		this.walkspeed = speed;
+		
+		cordsX = new ArrayList<>(path.size());
+		cordsY = new ArrayList<>(path.size());
+		
+		path.forEach(x -> {
+			cordsX.add(x.getX());
+			cordsY.add(x.getY());
+		});
+	}
+
+	public List<Long> getCordsX() {
 		return cordsX;
 	}
 
-	public void setCordsX(List<Integer> cordsX) {
+	public void setCordsX(List<Long> cordsX) {
 		this.cordsX = cordsX;
 	}
 
-	public List<Integer> getCordsY() {
+	public List<Long> getCordsY() {
 		return cordsY;
 	}
 
-	public void setCordsY(List<Integer> cordsY) {
+	public void setCordsY(List<Long> cordsY) {
 		this.cordsY = cordsY;
 	}
 

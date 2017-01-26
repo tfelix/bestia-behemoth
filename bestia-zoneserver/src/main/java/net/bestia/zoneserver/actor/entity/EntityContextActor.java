@@ -3,8 +3,6 @@ package net.bestia.zoneserver.actor.entity;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.event.Logging;
-import akka.event.LoggingAdapter;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 
 /**
@@ -21,20 +19,12 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
 public class EntityContextActor extends BestiaRoutingActor {
 	
 	public static final String NAME = "entityContext";
-	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	public EntityContextActor() {
-		//super(Arrays.asList(EntityMoveMessage.class, ))
 		
 		createActor(ClientUpdateActor.class);
 		createActor(EntityMoveActor.class);
 		createActor(EntitySpawnActor.class);
-	}
-	
-	@Override
-	public void onReceive(Object message) throws Exception {
-		super.onReceive(message);
-		LOG.warning("Received message." + message.toString());
 	}
 
 	@Override

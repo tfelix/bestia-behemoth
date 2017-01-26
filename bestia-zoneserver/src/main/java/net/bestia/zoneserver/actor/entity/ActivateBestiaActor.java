@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.bestia.BestiaActivateMessage;
+import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.service.PlayerEntityService;
@@ -66,5 +67,4 @@ public class ActivateBestiaActor extends BestiaRoutingActor {
 		final BestiaActivateMessage bam = new BestiaActivateMessage(bestiaMsg.getAccountId(), pbe.getPlayerBestiaId());
 		sendClient(bam);
 	}
-
 }

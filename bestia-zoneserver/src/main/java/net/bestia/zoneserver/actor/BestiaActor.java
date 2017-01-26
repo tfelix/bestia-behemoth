@@ -11,7 +11,9 @@ import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.JsonMessage;
+import net.bestia.messages.internal.entity.ActiveUpateMessage;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
+import net.bestia.zoneserver.actor.entity.ClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 
 /**
@@ -28,6 +30,7 @@ public abstract class BestiaActor extends UntypedActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private ActorRef responder;
+	private ActorRef activeClientBroadcaster;
 
 	public BestiaActor() {
 		super();
@@ -47,6 +50,22 @@ public abstract class BestiaActor extends UntypedActor {
 		}
 
 		responder.tell(msg, getSelf());
+	}
+
+	/**
+	 * Sends the given message back to all active player clients in sight. To to
+	 * this an on demand {@link ClientUpdateActor} is created.
+	 * 
+	 * @param msg
+	 *            The update message to be send to all active clients in sight
+	 *            of the referenced entity.
+	 */
+	protected void sendActiveClients(ActiveUpateMessage msg) {
+		if (activeClientBroadcaster == null) {
+			activeClientBroadcaster = createActor(ClientUpdateActor.class);
+		}
+
+		activeClientBroadcaster.tell(msg, getSelf());
 	}
 
 	/**

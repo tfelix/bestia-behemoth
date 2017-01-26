@@ -118,7 +118,7 @@ public class EntityPositionMessage extends JsonMessage {
 
 	@Override
 	public String toString() {
-		return String.format("EntityPositionMessage[eid: %s, accId: %d, curX: %d, curY: %d, nextX: %d, nextY: %d]",
-				entityId, getAccountId(), currentX, currentY);
+		return String.format("EntityPositionMessage[eid: %d, accId: %d, curX: %d, curY: %d, nextX: %d, nextY: %d]",
+				entityId, getAccountId(), currentX, currentY, nextX, nextY);
 	}
 }
