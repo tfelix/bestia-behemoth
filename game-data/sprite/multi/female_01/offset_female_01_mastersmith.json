@@ -10,9 +10,7 @@
     {  
       "name":"bottom_left.png",
       "triggered":"walk_down_left",
-      "offsets":[  
-
-      ]
+      "offsets":[{ "x":0, "y":1},{ "x":0, "y":2},{ "x":0, "y":3},{ "x":0, "y":2},{ "x":0, "y":1},{ "x":0, "y":1}]
     },
     {  
       "name":"left.png",
@@ -22,50 +20,36 @@
     {  
       "name":"top_left.png",
       "triggered":"walk_up_left",
-      "offsets":[  
-
-      ]
+      "offsets":[{ "x":0, "y":1},{ "x":0, "y":2},{ "x":0, "y":3},{ "x":0, "y":2},{ "x":0, "y":1},{ "x":0, "y":1}]
     },
     {  
       "name":"top.png",
       "triggered":"walk_up",
-      "offsets":[  
-
-      ]
+      "offsets":[{ "x":0, "y":1},{ "x":0, "y":2},{ "x":0, "y":3},{ "x":0, "y":2},{ "x":0, "y":1},{ "x":0, "y":1}]
     },
     {  
       "name":"top.png",
       "triggered":"stand_up",
-      "offsets":[  
-
-      ]
+      "offsets":[{ "x":0, "y":1},{ "x":0, "y":2},{ "x":0, "y":3},{ "x":0, "y":2},{ "x":0, "y":1},{ "x":0, "y":1}]
     },
     {  
       "name":"bottom.png",
       "triggered":"stand_down",
-      "offsets":[  
-
-      ]
+      "offsets":[{ "x":0, "y":1},{ "x":0, "y":2},{ "x":0, "y":3},{ "x":0, "y":2},{ "x":0, "y":1},{ "x":0, "y":1}]
     },
     {  
       "name":"left.png",
       "triggered":"stand_left",
-      "offsets":[  
-
-      ]
+      "offsets":[{ "x":0, "y":1},{ "x":0, "y":2},{ "x":0, "y":3},{ "x":0, "y":2},{ "x":0, "y":1},{ "x":0, "y":1}]
     },
     {  
       "name":"top_left.png",
       "triggered":"stand_left_up",
-      "offsets":[  
-
-      ]
+      "offsets":[{ "x":0, "y":1},{ "x":0, "y":2},{ "x":0, "y":3},{ "x":0, "y":2},{ "x":0, "y":1},{ "x":0, "y":1}]
     },
     {  
       "name":"bottom_left.png",
       "triggered":"stand_down_left",
-      "offsets":[  
-
-      ]
+      "offsets":[{ "x":0, "y":1},{ "x":0, "y":2},{ "x":0, "y":3},{ "x":0, "y":2},{ "x":0, "y":1},{ "x":0, "y":1}]
     }
 ]}
