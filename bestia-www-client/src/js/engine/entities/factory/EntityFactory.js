@@ -122,8 +122,8 @@ export default class EntityFactory {
 			}
 			
 			// Do some sanity checks.
-			if(!data.uuid) {
-				throw 'No uuid (uuid) is given.';
+			if(data.eid === undefined) {
+				throw 'No eid (entity id) is given.';
 			}
 			
 			if(data.x === undefined || data.y === undefined) {

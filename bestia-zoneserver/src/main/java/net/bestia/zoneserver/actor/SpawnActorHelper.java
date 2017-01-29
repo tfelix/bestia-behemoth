@@ -10,8 +10,11 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.entity.EntitySpawnMessage;
 import net.bestia.model.domain.BaseValues;
+import net.bestia.model.domain.SpriteInfo;
+import net.bestia.model.domain.VisualType;
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.actor.entity.EntitySpawnActor;
+import net.bestia.zoneserver.entity.EntityContext;
+import net.bestia.zoneserver.entity.NPCEntity;
 import net.bestia.zoneserver.entity.traits.Entity;
 import net.bestia.zoneserver.service.EntityService;
 
@@ -26,7 +29,7 @@ import net.bestia.zoneserver.service.EntityService;
 @Scope("prototype")
 public class SpawnActorHelper extends BestiaPeriodicActor {
 	
-	private static final String NAME = "spawnHelper";
+	public static final String NAME = "spawnHelper";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	
 	private final EntityService entityService;
@@ -34,13 +37,15 @@ public class SpawnActorHelper extends BestiaPeriodicActor {
 	private final int NUM_NPCS = 5;
 	
 	private ActorSelection managerActor;
+	private EntityContext ctx;
 	
-	public SpawnActorHelper(EntityService entityService) {
+	public SpawnActorHelper(EntityService entityService, EntityContext ctx) {
 		super(5000);
 		
 		this.entityService = entityService;
+		this.ctx = ctx;
 		
-		setIntervalDuration(5000);
+		setIntervalDuration(100000);
 		
 		managerActor = getContext().actorSelection("/user/behemoth/entities");
 	}
@@ -52,9 +57,9 @@ public class SpawnActorHelper extends BestiaPeriodicActor {
 		
 		int found = 0;
 		
-		/*
+
 		for(Entity e : entities) {
-			if(e instanceof BestiaEntity) {
+			if(e instanceof NPCEntity) {
 				found++;
 			}
 		}
@@ -63,12 +68,21 @@ public class SpawnActorHelper extends BestiaPeriodicActor {
 		
 		for(int i = found; i < NUM_NPCS; i++) {
 			BaseValues bv = BaseValues.getNewIndividualValues();
-			BestiaEntity be = new BestiaEntity(bv, bv, bv, "poring");
+			SpriteInfo si = new SpriteInfo("poring", VisualType.PACK);
+			
+			// Save first for ID.
+			NPCEntity be = new NPCEntity(bv, bv, bv, si);
+			be.setEntityContext(ctx);
 			entityService.save(be);
 			
-			EntitySpawnMessage msg = new EntitySpawnMessage(be.getId());
-			managerActor.tell(msg, getSelf());
-		}*/
+			
+			// Then position.
+			be.setPosition(10 + i, 20 + i);
+			entityService.save(be);
+			
+			//EntitySpawnMessage msg = new EntitySpawnMessage(be.getId());
+			//managerActor.tell(msg, getSelf());
+		}
 	}
 
 	@Override

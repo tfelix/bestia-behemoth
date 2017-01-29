@@ -36,7 +36,7 @@ export default class ItemBuilder extends Builder {
 			}.bind(this));
 		}
 		
-		if (data.a === "APPEAR") {
+		if (data.a === 'APPEAR') {
 			entity.appear();
 		} else {
 			entity.show();

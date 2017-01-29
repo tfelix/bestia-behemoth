@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.entity;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -26,6 +27,11 @@ public class PlayerEntity extends LivingEntity {
 	private final long accountId;
 	private final PlayerBestia playerBestia;
 	private boolean isActive = false;
+	
+	/**
+	 * Contains the entities already send to the client.
+	 */
+	private Set<Long> lastSeenEntities = new HashSet<>();
 
 	public PlayerEntity(long accId, PlayerBestia playerBestia) {
 		super(playerBestia.getBaseValues(), playerBestia.getIndividualValue(), playerBestia.getEffortValues(),
@@ -46,6 +52,10 @@ public class PlayerEntity extends LivingEntity {
 		// Modify the player bestia so it takes up less memory when inside the
 		// cache.
 		this.playerBestia.setOwner(null);
+	}
+	
+	public Set<Long> getLastSeenEntities() {
+		return lastSeenEntities;
 	}
 
 	public boolean isActive() {

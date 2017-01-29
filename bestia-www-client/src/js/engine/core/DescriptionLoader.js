@@ -1,4 +1,5 @@
 import NOOP from '../../util/NOOP.js';
+import LOG from '../../util/Log';
 
 /**
  * This class is responsible for loading the description files of entities. It
@@ -40,18 +41,21 @@ export default class DescriptionLoader {
 	 *            fnCallback - Callback function. Executed when the data was
 	 *            loaded.
 	 */
-	loadDescription(data, fnCallback) {
-
+	loadDescription(data, fnCallback) {		
 		fnCallback = fnCallback || NOOP;
 
 		var url = this._getUrlFromData(data);
 		var name = this._getNameFromData(data) + '_desc';
+		
+		LOG.trace('Loading description: ' + name + ' from: ' + url);
 
 		this._loader.load({
 			key : name,
 			type : 'json',
 			url : url
 		}, function() {
+			LOG.trace('Description loaded: ' + name + ' from: ' + url);
+			
 			var descFile = this.getDescription(name);
 			fnCallback(descFile);
 		}.bind(this));
@@ -62,14 +66,14 @@ export default class DescriptionLoader {
 	 */
 	_getUrlFromData(data) {
 
-		switch (data.t.toUpperCase()) {
+		switch (data.s.t.toUpperCase()) {
 		case 'PACK':
 		case 'DYNAMIC':
 			// its an mob.
-			return this._url.getMobDescUrl(data.s);
+			return this._url.getMobDescUrl(data.s.s);
 		default:
 			// its an object.
-			return this._url.getObjectDescUrl(data.s);
+			return this._url.getObjectDescUrl(data.s.s);
 		}
 	}
 
@@ -80,6 +84,6 @@ export default class DescriptionLoader {
 	 *            data
 	 */
 	_getNameFromData(data) {
-		return data.s;
+		return data.s.s;
 	}
 }

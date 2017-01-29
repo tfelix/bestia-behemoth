@@ -1,5 +1,6 @@
 import Builder from './Builder.js';
 import MultispriteEntity from '../MultispriteEntity.js';
+import LOG from '../../../util/Log';
 
 /**
  * Responsible for building the packed (multisprite) entities. These are usually
@@ -19,11 +20,11 @@ export default class PackSpriteBuilder extends Builder {
 	}
 	
 	build(data, desc) {
-		console.log('PackSpriteBuilder build() called');
-		var entity = new MultispriteEntity(this._ctx, data.uuid, desc);
+		LOG.debug('Building pack sprite.', data);
+		var entity = new MultispriteEntity(this._ctx, data.eid, desc);
 
 		// Setup the phaser sprite.
-		entity.setSprite(data.s);
+		entity.setSprite(data.s.s);
 		entity.setPosition(data.x, data.y);
 		
 		entity.addToGroup(this._ctx.groups.sprites);
@@ -101,6 +102,6 @@ export default class PackSpriteBuilder extends Builder {
 	}
 
 	canBuild(data) {
-		return data.t.toUpperCase() === 'PACK';
+		return data.s.t.toUpperCase() === 'PACK';
 	}
 }

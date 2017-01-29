@@ -10,8 +10,15 @@ public enum EntityAction {
 	/**
 	 * Object just spawned. 
 	 */
-	APPEAR, 
-	DIE, 
-	VANISH, 
-	UPDATE
+	APPEAR,
+	
+	/**
+	 * Entity has died.
+	 */
+	DIE,
+	
+	/**
+	 * Entity has vanished and is basically now invisible.
+	 */
+	VANISH
 }

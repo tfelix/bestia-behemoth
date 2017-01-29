@@ -4,68 +4,63 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.model.domain.SpriteInfo;
 
-public class EntityUpdateMessage extends JsonMessage {
+public class EntityUpdateMessage extends JsonMessage implements EntityMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.update";
-
-	public String uuid;
 
 	@JsonProperty("s")
 	private SpriteInfo spriteInfo;
 
 	@JsonProperty("x")
-	private int x;
+	private long x;
 
 	@JsonProperty("y")
-	private int y;
+	private long y;
 
 	@JsonProperty("a")
 	private EntityAction action;
 
-	@JsonProperty("pbid")
-	private Integer playerBestiaId;
+	@JsonProperty("eid")
+	private long entityId;
 
 	public EntityUpdateMessage() {
 		// no op.
 	}
 
-	public EntityUpdateMessage(SpriteInfo info, EntityAction action) {
-		this.spriteInfo = Objects.requireNonNull(info);
+	public EntityUpdateMessage(long accId, long entityId, long x, long y, SpriteInfo info, EntityAction action) {
+		this(accId, entityId, x, y, info);
+		
 		this.action = action;
 	}
 
-	public EntityUpdateMessage(String uuid, int x, int y) {
-		this.uuid = uuid;
+	public EntityUpdateMessage(long accId, long entityId, long x, long y, SpriteInfo info) {
+		super(accId);
+		
+		this.entityId = entityId;
 		this.x = x;
 		this.y = y;
+		this.spriteInfo = Objects.requireNonNull(info);
 		this.action = EntityAction.APPEAR;
 	}
 
-	public String getUuid() {
-		return uuid;
-	}
-
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
-
-	public int getX() {
+	public long getX() {
 		return x;
 	}
 
-	public void setX(int x) {
+	public void setX(long x) {
 		this.x = x;
 	}
 
-	public int getY() {
+	public long getY() {
 		return y;
 	}
 
-	public void setY(int y) {
+	public void setY(long y) {
 		this.y = y;
 	}
 
@@ -77,23 +72,20 @@ public class EntityUpdateMessage extends JsonMessage {
 		this.action = action;
 	}
 
-	public Integer getPlayerBestiaId() {
-		return playerBestiaId;
-	}
-
-	public void setPlayerBestiaId(int pbid) {
-		this.playerBestiaId = pbid;
-	}
-
 	@Override
 	public String toString() {
-		return String.format("EntityUpdateMessage[uuid: %s, x: %d, y: %d, sprite: %s, type: %s, action: %s]",
-				uuid, x, y,
+		return String.format("EntityUpdateMessage[eid: %d, x: %d, y: %d, sprite: %s, action: %s]",
+				entityId, x, y,
 				spriteInfo.toString(), action.toString());
 	}
 
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
+	}
+
+	@Override
+	public long getEntityId() {
+		return entityId;
 	}
 }

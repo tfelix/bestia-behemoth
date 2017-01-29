@@ -53,7 +53,8 @@ export default class LoadingState  {
 		// initialize a loading process even if visible sprite gets destroyed by
 		// changing game states.
 		let pb = this._ctx.playerBestia;
-		this._ctx.entityFactory.load({s: pb.sprite(), a: 'APPEAR', t: pb.spriteType()}, this._checkFinishedLoading.bind(this));
+		let updateMsg = {s: pb.sprite(), a: 'APPEAR', s: {s: pb.sprite(), t: pb.spriteType()}};
+		this._ctx.entityFactory.load(updateMsg, this._checkFinishedLoading.bind(this));
 		
 		let chunks = tileRender.getVisibleChunks();
 		tileRender.loadChunks(chunks, this._checkFinishedLoading.bind(this));

@@ -1,6 +1,7 @@
 /*global Phaser */
 
 import NOOP from '../../util/NOOP.js';
+import LOG from '../../util/Log';
 
 /**
  * Performs and manages on demand reloads for assets. If something has to be
@@ -194,8 +195,7 @@ export default class DemandLoader {
 		// Check if a load is running. If this is the case only add the callback
 		// function to be executed when the load completes.
 		if (this._cache.hasOwnProperty(key)) {
-			//this._cache[key].callbackFns.push(fnOnComplete);
-			fnOnComplete();
+			this._cache[key].callbackFns.push(fnOnComplete);
 			return;
 		}
 		
@@ -208,11 +208,11 @@ export default class DemandLoader {
 			try {
 				fnOnComplete();
 			} catch(e) {
-				console.error('Could not execute demand loader callback. ' + e);
+				LOG.error('Could not execute demand loader callback. ' + e);
 			}
 			return;
 		} else {
-			console.debug('NOT COMPLETE LOADED');
+			LOG.debug('Not all assets loaded. Loading: ', notLoadedFiles);
 		}
 
 		// Add all files of this pack to our file list.
@@ -274,7 +274,7 @@ export default class DemandLoader {
 			this._loader.image(data.key, data.url);
 			break;
 		default:
-			console.warn('Loading this type not supported: ' + data.type);
+			LOG.warn('Loading this type not supported: ' + data.type);
 			return;
 		}
 

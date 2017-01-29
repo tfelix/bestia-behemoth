@@ -59,7 +59,7 @@ export default class GameState {
 		
 		// After all is setup create the player sprite.
 		let pb = this._ctx.playerBestia;
-		let playerData = {uuid: pb.entityId(), x: pb.posX(), y: pb.posY(), s: pb.sprite(), a: 'APPEAR', t: pb.spriteType()};
+		let playerData = {eid: pb.entityId(), x: pb.posX(), y: pb.posY(), s: {s: pb.sprite(), t: pb.spriteType()}, a: 'APPEAR'};
 		this._ctx.entityFactory.build(playerData, function(playerEntity){
 			// Follow the player
 			console.log('Player build');

@@ -32,7 +32,7 @@ export default class DynamicSpriteBuilder extends PackSpriteBuilder {
 	 * corrected.
 	 */
 	canBuild(data) {
-		return data.t === 'DYNAMIC';
+		return data.s.t === 'DYNAMIC';
 	}
 
 }

@@ -78,7 +78,8 @@ export default class EntityUpdater{
 			return;
 		}
 
-		entity.moveTo(msg);
+		// Unklares handling des servers.
+		//entity.moveTo(msg);
 	}
 
 	/**
