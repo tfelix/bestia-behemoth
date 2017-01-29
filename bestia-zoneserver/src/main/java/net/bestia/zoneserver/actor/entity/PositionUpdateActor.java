@@ -16,8 +16,10 @@ import com.google.common.collect.Sets.SetView;
 
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.messages.entity.EntityAction;
 import net.bestia.messages.entity.EntityPositionMessage;
 import net.bestia.messages.entity.EntityUpdateMessage;
+import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerEntity;
@@ -79,17 +81,25 @@ public class PositionUpdateActor extends BestiaRoutingActor {
 				.filter(x -> x instanceof Visible)
 				.map(x -> (Visible) x)
 				.collect(Collectors.toMap(Entity::getId, Function.identity()));
-		
+
 		// Remove own entity.
 		entities.remove(e.getId());
 
 		final Set<Long> lastSeen = e.getLastSeenEntities();
 
 		// get all entities which where seen since the last invocation.
-		SetView<Long> diff = Sets.difference(entities.keySet(), lastSeen);
+		SetView<Long> oldEntities = Sets.difference(lastSeen, entities.keySet());
+		SetView<Long> newEntities = Sets.difference(entities.keySet(), lastSeen);
 
 		// Send update to client.
-		for (Long eid : diff) {
+		for (Long eid : oldEntities) {
+			final EntityUpdateMessage euMsg = new EntityUpdateMessage(e.getAccountId(), eid, 0, 0,
+					SpriteInfo.placeholder(), EntityAction.VANISH);
+			sendClient(euMsg);
+		}
+
+		// Send update to client.
+		for (Long eid : newEntities) {
 			// If the entity is not locatable skip it (should not happen because
 			// it was selected in the first place).
 			final Visible v = entities.get(eid);
