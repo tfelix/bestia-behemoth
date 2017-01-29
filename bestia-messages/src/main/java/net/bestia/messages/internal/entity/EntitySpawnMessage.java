@@ -1,5 +1,6 @@
 package net.bestia.messages.internal.entity;
 
+import net.bestia.messages.EntityMessage;
 import net.bestia.messages.Message;
 
 /**
@@ -8,7 +9,7 @@ import net.bestia.messages.Message;
  * @author Thomas Felix
  *
  */
-public class EntitySpawnMessage extends Message {
+public class EntitySpawnMessage extends Message implements EntityMessage {
 
 	private static final long serialVersionUID = 1L;
 
@@ -24,6 +25,7 @@ public class EntitySpawnMessage extends Message {
 	 * 
 	 * @return
 	 */
+	@Override
 	public long getEntityId() {
 		return entityId;
 	}

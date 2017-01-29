@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.bestia.BestiaActivateMessage;
-import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.service.PlayerEntityService;
@@ -29,7 +28,9 @@ import net.bestia.zoneserver.service.PlayerEntityService;
 public class ActivateBestiaActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+	
 	public final static String NAME = "activateBestia";
+	
 	private final PlayerEntityService playerService;
 
 	@Autowired

@@ -1,7 +1,9 @@
 package net.bestia.messages.internal.entity;
 
+import java.io.Serializable;
 import java.util.Objects;
 
+import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
 
 /**
@@ -11,16 +13,21 @@ import net.bestia.messages.JsonMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class ActiveUpateMessage extends EntityMessage {
+public class ActiveUpateMessage implements EntityMessage, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	private final JsonMessage updateMessage;
+	private final long entityId;
 
 	public ActiveUpateMessage(long entityId, JsonMessage updateMsg) {
-		super(entityId);
-
+		
+		this.entityId = entityId;
 		this.updateMessage = Objects.requireNonNull(updateMsg);
+	}
+	
+	public long getEntityId() {
+		return entityId;
 	}
 
 	public JsonMessage getUpdateMessage() {

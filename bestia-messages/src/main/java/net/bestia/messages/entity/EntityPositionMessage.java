@@ -2,6 +2,7 @@ package net.bestia.messages.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
 
 /**
@@ -14,7 +15,7 @@ import net.bestia.messages.JsonMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class EntityPositionMessage extends JsonMessage {
+public class EntityPositionMessage extends JsonMessage implements EntityMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.position";
@@ -25,23 +26,11 @@ public class EntityPositionMessage extends JsonMessage {
 	@JsonProperty("cy")
 	private long currentY;
 
-	@JsonProperty("nx")
-	private long nextX;
-
-	@JsonProperty("ny")
-	private long nextY;
-
-	/**
-	 * Walkspeed is in integer because we can only round floats too bad.
-	 */
-	@JsonProperty("s")
-	private int speed;
-
 	@JsonProperty("eid")
 	private long entityId;
 
 	public EntityPositionMessage() {
-
+		// no op.
 	}
 
 	/**
@@ -68,46 +57,12 @@ public class EntityPositionMessage extends JsonMessage {
 		this.setEntityId(entityId);
 	}
 
-	/**
-	 * Sets the current position for the given bestia entity id.
-	 * 
-	 * @param entityId
-	 *            The entity id to set the postion.
-	 * @param x
-	 *            The x position.
-	 * @param y
-	 *            The y postion.
-	 */
-	public EntityPositionMessage(long entityId, long x, long y, long nextX, long nextY, int speed) {
-		this(entityId, x, y);
-
-		if (nextX < 0 || nextY < 0) {
-			throw new IllegalArgumentException("nextX and nextY must be bigger then 0.");
-		}
-
-		if (speed < 0 || speed > 200) {
-			throw new IllegalArgumentException("Speed must be between 0 and 200 (inclusive).");
-		}
-
-		this.nextX = nextX;
-		this.nextY = nextY;
-		this.speed = speed;
-	}
-
-	/**
-	 * Changed the walkspeed into the float representation.
-	 * 
-	 * @return
-	 */
-	public float getWalkspeedFloat() {
-		return speed / 100f;
-	}
-
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
 	}
 
+	@Override
 	public long getEntityId() {
 		return entityId;
 	}
@@ -118,7 +73,7 @@ public class EntityPositionMessage extends JsonMessage {
 
 	@Override
 	public String toString() {
-		return String.format("EntityPositionMessage[eid: %d, accId: %d, curX: %d, curY: %d, nextX: %d, nextY: %d]",
-				entityId, getAccountId(), currentX, currentY, nextX, nextY);
+		return String.format("EntityPositionMessage[eid: %d, accId: %d, curX: %d, curY: %d]",
+				entityId, getAccountId(), currentX, currentY);
 	}
 }

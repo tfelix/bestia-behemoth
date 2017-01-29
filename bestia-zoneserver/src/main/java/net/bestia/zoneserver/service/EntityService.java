@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +30,8 @@ import net.bestia.zoneserver.entity.traits.Entity;
 @Service
 public class EntityService {
 
+	private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
+	
 	private final HazelcastInstance hazelcastInstance;
 	private final IMap<Long, Entity> entities;
 	private final IdGenerator idCounter;
@@ -157,7 +161,8 @@ public class EntityService {
 				e.setEntityContext(entityContext);
 				return clazz.cast(e);
 			} else {
-				throw new ClassCastException("Found IdEntity is not of type " + clazz.getName());
+				LOG.warn("Can not cast entity {} to class {}.", entityId, e.toString());
+				return null;
 			}
 		} finally {
 			entities.unlock(entityId);

@@ -14,6 +14,8 @@ import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.messages.internal.entity.ActiveUpateMessage;
 import net.bestia.messages.internal.entity.EntityMoveInternalMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.entity.traits.Locatable;
+import net.bestia.zoneserver.service.EntityService;
 import net.bestia.zoneserver.service.MovingEntityService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
@@ -27,25 +29,29 @@ import net.bestia.zoneserver.service.PlayerEntityService;
  */
 @Component
 @Scope("prototype")
-public class EntityInternalMoveActor extends BestiaRoutingActor {
+public class MoveUpdateActor extends BestiaRoutingActor {
 
 	public final static String NAME = "entityInternalMove";
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private final MovingEntityService movingService;
+	private final EntityService entityService;
 
 	@Autowired
-	public EntityInternalMoveActor(MovingEntityService movingService, PlayerEntityService playerEntityService) {
+	public MoveUpdateActor(MovingEntityService movingService,
+			PlayerEntityService playerEntityService,
+			EntityService entityService) {
 		super(Arrays.asList(EntityMoveInternalMessage.class));
 
 		this.movingService = Objects.requireNonNull(movingService);
+		this.entityService = Objects.requireNonNull(entityService);
 	}
 
 	@Override
 	protected void handleMessage(Object msg) {
 		LOG.debug("Received internal move message: {}", msg.toString());
-		
+
 		final EntityMoveInternalMessage moveMsg = (EntityMoveInternalMessage) msg;
 
 		// Check if the entity is already moving.
@@ -61,13 +67,20 @@ public class EntityInternalMoveActor extends BestiaRoutingActor {
 			moveActor = createUnnamedActor(TimedMoveActor.class);
 		}
 
-		moveActor.tell(msg, getSelf());
-		
 		// Tell the client the movement prediction message.
-		// TODO Speed von entity bestimmen.
-		final float speed = 1.0f;
-		final EntityMoveMessage updateMsg =  new EntityMoveMessage(moveMsg.getEntityId(), moveMsg.getPath(), speed);
+		final Locatable entity = entityService.getEntity(moveMsg.getEntityId(), Locatable.class);
+
+		if (entity == null) {
+			return;
+		}
+
+		final EntityMoveMessage updateMsg = new EntityMoveMessage(
+				moveMsg.getEntityId(), 
+				moveMsg.getPath(),
+				entity.getMovementSpeed());
 		final ActiveUpateMessage wrappedUpdateMsg = ActiveUpateMessage.wrap(moveMsg.getEntityId(), updateMsg);
 		sendActiveClients(wrappedUpdateMsg);
+
+		moveActor.tell(msg, getSelf());
 	}
 }
