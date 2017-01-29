@@ -1,5 +1,7 @@
 package net.bestia.messages.internal;
 
+import net.bestia.messages.Message;
+
 /**
  * Simple message which can be used to signal that an event has been done. It
  * carries a simple tag to identify which origin the message had.
@@ -7,7 +9,7 @@ package net.bestia.messages.internal;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class DoneMessage extends InternalMessage {
+public class DoneMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 	private final String tag;

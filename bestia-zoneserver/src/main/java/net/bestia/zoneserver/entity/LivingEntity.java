@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import net.bestia.messages.entity.AnimationPlayMessage;
-import net.bestia.messages.internal.entity.EntityMoveInternalMessage;
+import net.bestia.messages.entity.EntityMoveInternalMessage;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Element;

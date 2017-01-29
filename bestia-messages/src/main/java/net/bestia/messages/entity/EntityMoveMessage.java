@@ -5,8 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.EntityMessage;
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.EntityJsonMessage;
 import net.bestia.model.geometry.Point;
 
 /**
@@ -29,13 +28,10 @@ import net.bestia.model.geometry.Point;
  * @author Thomas Felix <thomas.felix@tfelix.>
  *
  */
-public class EntityMoveMessage extends JsonMessage implements EntityMessage {
+public class EntityMoveMessage extends EntityJsonMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.move";
-
-	@JsonProperty("eid")
-	private long entityId;
 
 	@JsonProperty("pX")
 	private List<Long> cordsX;
@@ -52,7 +48,7 @@ public class EntityMoveMessage extends JsonMessage implements EntityMessage {
 	
 	public EntityMoveMessage(long eid, List<Point> path, float speed) {
 		
-		this.entityId = eid;
+		setEntityId(eid);
 		this.walkspeed = speed;
 		
 		cordsX = new ArrayList<>(path.size());
@@ -78,14 +74,6 @@ public class EntityMoveMessage extends JsonMessage implements EntityMessage {
 
 	public void setCordsY(List<Long> cordsY) {
 		this.cordsY = cordsY;
-	}
-
-	public long getEntityId() {
-		return entityId;
-	}
-
-	public void setEntityId(long entityId) {
-		this.entityId = entityId;
 	}
 
 	public float getWalkspeed() {

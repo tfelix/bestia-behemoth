@@ -1,12 +1,11 @@
-package net.bestia.messages.internal.entity;
+package net.bestia.messages.entity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.bestia.messages.EntityMessage;
-import net.bestia.messages.entity.EntityMoveMessage;
-import net.bestia.messages.internal.InternalMessage;
+import net.bestia.messages.Message;
 import net.bestia.model.geometry.Point;
 
 /**
@@ -18,7 +17,7 @@ import net.bestia.model.geometry.Point;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class EntityMoveInternalMessage extends InternalMessage implements EntityMessage, Serializable {
+public class EntityMoveInternalMessage extends Message implements EntityMessage, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -37,7 +36,7 @@ public class EntityMoveInternalMessage extends InternalMessage implements Entity
 
 	@Override
 	public String toString() {
-		return String.format("MoveMessageInternal[eeid: %d, path: %s]", getEntityId(), path.toString());
+		return String.format("EntityMoveInternalMessage[eeid: %d, path: %s]", getEntityId(), path.toString());
 	}
 
 	@Override

@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.Props;
-import net.bestia.messages.internal.entity.EntitySpawnMessage;
+import net.bestia.messages.entity.EntitySpawnMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 
 /**

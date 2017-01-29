@@ -10,7 +10,7 @@ import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.EntityMessage;
+import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
 import net.bestia.zoneserver.actor.entity.ClientUpdateActor;
@@ -60,7 +60,7 @@ public abstract class BestiaActor extends UntypedActor {
 	 *            The update message to be send to all active clients in sight
 	 *            of the referenced entity.
 	 */
-	protected void sendActiveClients(EntityMessage msg) {
+	protected void sendActiveClients(EntityJsonMessage msg) {
 		if (activeClientBroadcaster == null) {
 			activeClientBroadcaster = createActor(ClientUpdateActor.class);
 		}

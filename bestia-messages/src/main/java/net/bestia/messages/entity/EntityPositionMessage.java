@@ -2,8 +2,7 @@ package net.bestia.messages.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.EntityMessage;
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.EntityJsonMessage;
 
 /**
  * This message is purely for position changes. It will be send to the client
@@ -15,7 +14,7 @@ import net.bestia.messages.JsonMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class EntityPositionMessage extends JsonMessage implements EntityMessage {
+public class EntityPositionMessage extends EntityJsonMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.position";
@@ -25,9 +24,6 @@ public class EntityPositionMessage extends JsonMessage implements EntityMessage 
 
 	@JsonProperty("cy")
 	private long currentY;
-
-	@JsonProperty("eid")
-	private long entityId;
 
 	public EntityPositionMessage() {
 		// no op.
@@ -63,17 +59,8 @@ public class EntityPositionMessage extends JsonMessage implements EntityMessage 
 	}
 
 	@Override
-	public long getEntityId() {
-		return entityId;
-	}
-
-	public void setEntityId(long entityId) {
-		this.entityId = entityId;
-	}
-
-	@Override
 	public String toString() {
 		return String.format("EntityPositionMessage[eid: %d, accId: %d, curX: %d, curY: %d]",
-				entityId, getAccountId(), currentX, currentY);
+				getEntityId(), getAccountId(), currentX, currentY);
 	}
 }

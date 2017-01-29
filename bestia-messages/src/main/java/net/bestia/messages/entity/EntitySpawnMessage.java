@@ -1,4 +1,4 @@
-package net.bestia.messages.internal.entity;
+package net.bestia.messages.entity;
 
 import net.bestia.messages.EntityMessage;
 import net.bestia.messages.Message;

@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.bestia.messages.internal.entity.EntitySpawnMessage;
+import net.bestia.messages.entity.EntitySpawnMessage;
 import net.bestia.model.dao.BestiaDAO;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Bestia;

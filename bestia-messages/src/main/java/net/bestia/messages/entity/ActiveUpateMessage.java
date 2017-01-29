@@ -1,4 +1,4 @@
-package net.bestia.messages.internal.entity;
+package net.bestia.messages.entity;
 
 import java.io.Serializable;
 import java.util.Objects;
