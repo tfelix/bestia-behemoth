@@ -76,7 +76,7 @@ public class PositionUpdateActor extends BestiaRoutingActor {
 	private void doVisualChecks(PlayerEntity e) {
 
 		Map<Long, Visible> entities = entityService.getEntitiesInRange(
-				e.getSightRect())
+				net.bestia.model.map.Map.getUpdateRect(e.getPosition()))
 				.stream()
 				.filter(x -> x instanceof Visible)
 				.map(x -> (Visible) x)

@@ -8,9 +8,8 @@ import org.springframework.stereotype.Component;
 
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
-import net.bestia.messages.internal.entity.ActiveUpateMessage;
-import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaActor;
@@ -38,32 +37,26 @@ public class ClientUpdateActor extends BestiaActor {
 		this.entityService = Objects.requireNonNull(entityService);
 	}
 
-	protected Rect getUpdateRect(Point pos) {
-		return new Rect(pos.getX() - Map.SIGHT_RANGE * 2,
-				pos.getY() - Map.SIGHT_RANGE * 2,
-				pos.getX() + Map.SIGHT_RANGE * 2,
-				pos.getY() + Map.SIGHT_RANGE * 2);
-	}
-
 	@Override
 	public void onReceive(Object msg) throws Throwable {
 		LOG.debug("Received: {}", msg.toString());
-		
+
 		// Handle only ActiveUpdateMessage
-		if(!(msg instanceof ActiveUpateMessage)) {
+		if (!(msg instanceof EntityMessage) || !(msg instanceof JsonMessage)) {
+			LOG.warning("Can not send to client. Message does not inherit from EntityMessage AND JsonMessage.");
 			unhandled(msg);
 			return;
 		}
-		
-		final ActiveUpateMessage updateMsg = (ActiveUpateMessage) msg;
-		final JsonMessage dataMsg = updateMsg.getUpdateMessage();
+
+		final EntityMessage entityMsg = (EntityMessage) msg;
+		final JsonMessage dataMsg = (JsonMessage) msg;
 
 		// Send message to the owner if its an player entity.
 		try {
-			final Locatable movingEntity = entityService.getEntity(updateMsg.getEntityId(), Locatable.class);
+			final Locatable movingEntity = entityService.getEntity(entityMsg.getEntityId(), Locatable.class);
 
 			// Find all active player bestias in range.
-			final Rect updateRect = getUpdateRect(movingEntity.getPosition());
+			final Rect updateRect = Map.getUpdateRect(movingEntity.getPosition());
 			final Collection<PlayerEntity> pbes = entityService.getEntitiesInRange(updateRect,
 					PlayerEntity.class);
 

@@ -25,7 +25,6 @@ import net.bestia.model.geometry.Rect;
  */
 public class Map {
 
-
 	/**
 	 * Max sight range in tiles in every direction.
 	 */
@@ -144,6 +143,23 @@ public class Map {
 		return viewArea;
 	}
 
+	/**
+	 * Returns the rectangular which is used for updating the clients. It is
+	 * usually larger than the {@link #getViewRect(Point)}.
+	 * 
+	 * @param pos
+	 *            The position to generate the view area around.
+	 * @return The viewable rect.
+	 */
+	public static Rect getUpdateRect(Point pos) {
+		final Rect viewArea = new Rect(
+				pos.getX() - Map.SIGHT_RANGE * 2,
+				pos.getY() - Map.SIGHT_RANGE * 2,
+				pos.getX() + Map.SIGHT_RANGE * 2,
+				pos.getY() + Map.SIGHT_RANGE * 2);
+		return viewArea;
+	}
+
 	public float getWalkspeed(long x, long y) {
 		return 1.0f;
 	}
@@ -184,9 +200,12 @@ public class Map {
 				.map(d -> d.get(p))
 				.filter(layerGid -> {
 					return getTileset(layerGid)
-					.map(ts -> ts.getProperties(gid).isWalkable())
-					.orElse(true);
-		}).findAny().map(data -> false).orElse(true);
+							.map(ts -> ts.getProperties(gid).isWalkable())
+							.orElse(true);
+				})
+				.findAny()
+				.map(data -> false)
+				.orElse(true);
 
 		return groundWalkable && layerWalkable;
 	}
@@ -253,7 +272,7 @@ public class Map {
 
 		// Find min max dist.
 		final double maxD = Math.ceil(Math.sqrt(2 * (SIGHT_RANGE * SIGHT_RANGE)));
-		
+
 		List<Double> distances = chunks.stream()
 				.map(p -> MapChunk.getWorldCords(p).getDistance(pos))
 				.collect(Collectors.toList());

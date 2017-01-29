@@ -13,6 +13,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.domain.Account;
+import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.service.AccountZoneService;
@@ -82,7 +83,7 @@ public class ChatActor extends BestiaRoutingActor {
 			return;
 		}
 
-		final List<Long> receiverAccIds = playerEntityService.getActiveAccountIdsInRange(pbe.getSightRect());
+		final List<Long> receiverAccIds = playerEntityService.getActiveAccountIdsInRange(Map.getViewRect(pbe.getPosition()));
 		
 		receiverAccIds.parallelStream()
 				.map(receiverAccId -> ChatMessage.getEchoMessage(receiverAccId,

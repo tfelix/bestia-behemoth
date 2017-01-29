@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.model.geometry.Point;
 
@@ -28,7 +29,7 @@ import net.bestia.model.geometry.Point;
  * @author Thomas Felix <thomas.felix@tfelix.>
  *
  */
-public class EntityMoveMessage extends JsonMessage {
+public class EntityMoveMessage extends JsonMessage implements EntityMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.move";

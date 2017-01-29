@@ -8,7 +8,8 @@ import javax.persistence.Embeddable;
 import javax.persistence.Transient;
 
 /**
- * Saves holds the basic bestia status values. Can be used to represent effort values or individual values.
+ * Saves holds the basic bestia status values. Can be used to represent effort
+ * values or individual values.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -24,22 +25,22 @@ public class BaseValues implements Serializable {
 
 	@Column(name = "bHp")
 	private int hp;
-	
+
 	@Column(name = "bMana")
 	private int mana;
-	
+
 	@Column(name = "bAtk")
 	private int atk;
-	
+
 	@Column(name = "bDef")
 	private int def;
-	
+
 	@Column(name = "bSpAtk")
 	private int spAtk;
-	
+
 	@Column(name = "bSpDef")
 	private int spDef;
-	
+
 	@Column(name = "bSpd")
 	private int spd;
 
@@ -54,9 +55,11 @@ public class BaseValues implements Serializable {
 	}
 
 	/**
-	 * Creates a new BaseValues object with individual values set. Useful when generating a new bestia.
+	 * Creates a new BaseValues object with individual values set. Useful when
+	 * generating a new bestia.
 	 * 
-	 * @return {@link BaseValues} instance initiated with random values between 0 and {@code MAX_IV_VALUE}.
+	 * @return {@link BaseValues} instance initiated with random values between
+	 *         0 and {@code MAX_IV_VALUE}.
 	 */
 	public static BaseValues getNewIndividualValues() {
 
@@ -87,6 +90,23 @@ public class BaseValues implements Serializable {
 		bv.setMana(13);
 		bv.setSpAtk(13);
 		bv.setSpDef(13);
+
+		return bv;
+	}
+
+	/**
+	 * All values are 0.
+	 * 
+	 * @return A {@link BaseValues} instance with all values set to 0.
+	 */
+	public static BaseValues getNullValues() {
+		final BaseValues bv = new BaseValues();
+		bv.setAtk(0);
+		bv.setDef(0);
+		bv.setHp(0);
+		bv.setMana(0);
+		bv.setSpAtk(0);
+		bv.setSpDef(0);
 
 		return bv;
 	}

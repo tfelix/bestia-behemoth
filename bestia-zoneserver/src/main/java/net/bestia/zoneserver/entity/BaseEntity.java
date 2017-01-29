@@ -31,7 +31,7 @@ public abstract class BaseEntity implements Entity {
 	 */
 	protected EntityContext getContext() {
 		if (ctx == null) {
-			throw new IllegalStateException("Context is null.");
+			throw new IllegalStateException("Context is null. Please initialize a context with setEntityContext first.");
 		}
 		return ctx;
 	}

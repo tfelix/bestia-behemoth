@@ -31,7 +31,7 @@ import net.bestia.zoneserver.entity.traits.Entity;
 public class EntityService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
-	
+
 	private final HazelcastInstance hazelcastInstance;
 	private final IMap<Long, Entity> entities;
 	private final IdGenerator idCounter;
@@ -57,17 +57,15 @@ public class EntityService {
 	public void save(Entity entity) {
 		// Remove entity context since it can not be serialized.
 		entity.setEntityContext(null);
-		
-		// Check if the entity needs a new unique id (if its a new one).
-		if(entity.getId() == -1) {
-			long newId = idCounter.newId();
-			entity.setId(newId);
-		}
-		
+
+		generateId(entity);
+
 		entities.lock(entity.getId());
 		try {
 			entities.put(entity.getId(), entity);
 		} finally {
+			// Reset ctx.
+			entity.setEntityContext(entityContext);
 			entities.unlock(entity.getId());
 		}
 	}
@@ -198,5 +196,29 @@ public class EntityService {
 		java.util.Map<Long, Entity> es = entities.getAll(ids);
 		es.entrySet().forEach(x -> x.getValue().setEntityContext(entityContext));
 		return es;
+	}
+
+	/**
+	 * Generates a new ID beforehand. Saving an entity will also generate a new
+	 * ID but upon creation it might be useful to have an ID already available
+	 * without saving the entity. The id is set into the entity. It contains a
+	 * valid unique ID after calling this method. If it already has a valid ID
+	 * the method wont to anything.
+	 * 
+	 * @param entity
+	 *            A entity to assign a new valid global id.
+	 */
+	public void generateId(Entity entity) {
+		// Check if the entity needs a new unique id (if its a new one).
+		if (entity.getId() == -1) {
+			long newId = idCounter.newId();
+
+			// Dont allow 0.
+			if (newId == 0) {
+				newId = idCounter.newId();
+			}
+
+			entity.setId(newId);
+		}
 	}
 }

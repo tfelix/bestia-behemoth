@@ -78,8 +78,7 @@ public class MoveUpdateActor extends BestiaRoutingActor {
 				moveMsg.getEntityId(), 
 				moveMsg.getPath(),
 				entity.getMovementSpeed());
-		final ActiveUpateMessage wrappedUpdateMsg = ActiveUpateMessage.wrap(moveMsg.getEntityId(), updateMsg);
-		sendActiveClients(wrappedUpdateMsg);
+		sendActiveClients(updateMsg);
 
 		moveActor.tell(msg, getSelf());
 	}

@@ -8,8 +8,6 @@ import net.bestia.messages.entity.EntityPositionMessage;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.geometry.Point;
-import net.bestia.model.geometry.Rect;
-import net.bestia.model.map.Map;
 import net.bestia.zoneserver.entity.traits.Attackable;
 import net.bestia.zoneserver.entity.traits.Interactable;
 import net.bestia.zoneserver.entity.traits.Locatable;
@@ -59,22 +57,6 @@ public abstract class ResourceEntity extends BaseEntity implements Locatable, Vi
 	 */
 	public long getY() {
 		return getPosition().getY();
-	}
-
-	/**
-	 * Returns the sight range of the entity. This method is very important, for
-	 * the AI to be able to "see" other entities and react upon them.
-	 * 
-	 * @return The range {@link Rect} of the sight range originating from this
-	 *         entity.
-	 */
-	public Rect getSightRect() {
-		final Point pos = getPosition();
-		final Rect sightRect = new Rect(pos.getX() - Map.SIGHT_RANGE,
-				pos.getY() - Map.SIGHT_RANGE,
-				pos.getX() + Map.SIGHT_RANGE,
-				pos.getY() + Map.SIGHT_RANGE);
-		return sightRect;
 	}
 
 	@Override

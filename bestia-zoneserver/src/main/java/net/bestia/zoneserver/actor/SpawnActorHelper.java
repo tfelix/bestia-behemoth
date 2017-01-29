@@ -2,18 +2,14 @@ package net.bestia.zoneserver.actor;
 
 import java.util.Collection;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.ActorSelection;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.internal.entity.EntitySpawnMessage;
-import net.bestia.model.domain.BaseValues;
-import net.bestia.model.domain.SpriteInfo;
-import net.bestia.model.domain.VisualType;
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.entity.EntityContext;
+import net.bestia.zoneserver.entity.EntityFactory;
 import net.bestia.zoneserver.entity.NPCEntity;
 import net.bestia.zoneserver.entity.traits.Entity;
 import net.bestia.zoneserver.service.EntityService;
@@ -36,18 +32,16 @@ public class SpawnActorHelper extends BestiaPeriodicActor {
 	
 	private final int NUM_NPCS = 5;
 	
-	private ActorSelection managerActor;
-	private EntityContext ctx;
+	private EntityFactory fac;
 	
-	public SpawnActorHelper(EntityService entityService, EntityContext ctx) {
+	@Autowired
+	public SpawnActorHelper(EntityFactory fac, EntityService service) {
 		super(5000);
 		
-		this.entityService = entityService;
-		this.ctx = ctx;
+		this.fac = fac;
+		this.entityService = service;
 		
 		setIntervalDuration(100000);
-		
-		managerActor = getContext().actorSelection("/user/behemoth/entities");
 	}
 
 	@Override
@@ -67,21 +61,8 @@ public class SpawnActorHelper extends BestiaPeriodicActor {
 		LOG.debug("Spawning {} bestias.", NUM_NPCS - found);
 		
 		for(int i = found; i < NUM_NPCS; i++) {
-			BaseValues bv = BaseValues.getNewIndividualValues();
-			SpriteInfo si = new SpriteInfo("poring", VisualType.PACK);
 			
-			// Save first for ID.
-			NPCEntity be = new NPCEntity(bv, bv, bv, si);
-			be.setEntityContext(ctx);
-			entityService.save(be);
-			
-			
-			// Then position.
-			be.setPosition(10 + i, 20 + i);
-			entityService.save(be);
-			
-			//EntitySpawnMessage msg = new EntitySpawnMessage(be.getId());
-			//managerActor.tell(msg, getSelf());
+			fac.spawnBestia("blob", 10 + i, 10 + i);
 		}
 	}
 
