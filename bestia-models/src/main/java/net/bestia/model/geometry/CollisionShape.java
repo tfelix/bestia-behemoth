@@ -72,5 +72,5 @@ public interface CollisionShape {
 	 *            New absolute y coordinate.
 	 * @return A new collision shape which is move
 	 */
-	public CollisionShape moveByAnchor(int x, int y);
+	public CollisionShape moveByAnchor(long x, long y);
 }

@@ -116,7 +116,7 @@ public final class Point implements CollisionShape, Serializable {
 	}
 
 	@Override
-	public CollisionShape moveByAnchor(int x, int y) {
+	public CollisionShape moveByAnchor(long x, long y) {
 		return new Point(getX() + x, getY() + y);
 	}
 

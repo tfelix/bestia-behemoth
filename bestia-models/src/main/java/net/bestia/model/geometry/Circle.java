@@ -115,7 +115,7 @@ public final class Circle implements CollisionShape {
 	}
 
 	@Override
-	public CollisionShape moveByAnchor(int x, int y) {
+	public CollisionShape moveByAnchor(long x, long y) {
 		final long dX = x - getAnchor().getX();
 		final long dY = y - getAnchor().getY();
 
