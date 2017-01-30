@@ -1,5 +1,6 @@
 import Entity from './Entity.js';
 import WorldHelper from '../map/WorldHelper.js';
+import LOG from '../../util/Log';
 
 
 export default class SpriteEntity extends Entity {
@@ -17,13 +18,12 @@ export default class SpriteEntity extends Entity {
 		 * @property {Array}
 		 */
 		this._availableAnimationNames = [];
-
-		this.setPosition(x, y);
-
+		
 		this._currentPathCounter = 0;
 		this._currentPath = null;
-
 		this._tween = null;
+
+		this.setPosition(x, y);
 	}
 
 	setSprite(spriteName) {
@@ -47,7 +47,7 @@ export default class SpriteEntity extends Entity {
 		this.playAnimation(standAnimations[i].name);
 
 		// Re-set position so the sprite gets now postioned.
-		this.setPosition(this.position.x, this.position.y);
+		this._syncSpritePosition();
 	}
 
 	/**
@@ -90,7 +90,7 @@ export default class SpriteEntity extends Entity {
 	 * @returns Total walkspeed in ms.
 	 */
 	_getWalkDuration(length, walkspeed) {
-		// Usual walkspeed is 1.4 tiles / s -> 0,74 s/tile.		
+		// Usual walkspeed is 1.4 tiles / s -> 0,74 s/tile.
 		return Math.round((1 / 1.4) * length / walkspeed * 1000);
 	}
 
@@ -127,7 +127,10 @@ export default class SpriteEntity extends Entity {
 	 */
 	remove() {
 
-		this._tween.stop();
+		if(this._tween !== null) {
+			this._tween.stop();
+		}
+		
 		this._sprite.destroy();
 
 	}
@@ -251,10 +254,11 @@ export default class SpriteEntity extends Entity {
 	 *            speed - The movement speed.
 	 */
 	moveTo(path, speed = 1.0) {
-		
-		// Push current position of the entity (start) to the path aswell.
-		path.unshift(this.position);
 
+		// Push current position of the entity (start) to the path aswell.
+		path.unshift(this.getPosition());
+
+		// Stop movement is there is any currently.
 		this.stopMove();
 
 		this._tween = this._game.add.tween(this._sprite);
@@ -294,7 +298,8 @@ export default class SpriteEntity extends Entity {
 
 			var pos = this._currentPath[this._currentPathCounter];
 			var isLast = this._currentPath.length === (this._currentPathCounter - 1);
-			this.setPosition(pos.x, pos.y, true);
+			// We dont need no checks since WE know where we are (or at least we think so).
+			this._uncheckedSetPosition(pos.x, pos.y);
 
 			var nextAnim = this._getWalkAnimationName(pos, path[this._currentPathCounter + 1]);
 
@@ -320,41 +325,62 @@ export default class SpriteEntity extends Entity {
 		this.playAnimation(animName);
 		this._tween.start();
 	}
+	
+	/**
+	 * Helper function wo we can call super method from callback.
+	 */
+	_uncheckedSetPosition(x ,y) {
+		super.setPosition(x, y);
+	}
 
 	/**
-	 * This will check the current position with the given position. If the
-	 * bestia is currently moving this will blend the movement towards the given
-	 * position by a certain algorithm. If the distance is too big it will hard
-	 * set the position.
+	 * This is a move advanced checking algorithm for the position. It will see
+	 * if the entity is moving towards the current point and until there is a
+	 * threshold it will only fasten the movement speed to reach the given point
+	 * or slow down the movement if the sprite has already passed it. For
+	 * smoother calculation we weill be in pixel space.
 	 */
-	checkPosition(x, y) {
+	setPosition(x, y) {
+		
+		// Position directly if we are not moving.
+		if(!this.isMoving) {
+			super.setPosition(x, y);
+			return;
+		}
+		
+		let posPx = WorldHelper.getPxXY(x, y);
+		let curPosPx = WorldHelper.getPxXY(this.getPosition().x, this.getPosition().y);
 
-		var newPos = {
-			x : x,
-			y : y
-		};
-
-		// Compare the current position with the NOW position.
-		var d = WorldHelper.getDistance(this.position, newPos);
+		// We need to check if we are moving away or towards our given position.
+		let curPathPos = this._currentPath[this._currentPathCounter];
+		var curPathPosPx = WorldHelper.getPxXY(curPathPos.x, curPathPos.y);
+		
+		let d = WorldHelper.getDistance(curPosPx, curPathPosPx);
 		
 		if(isNaN(d)) {
 			// Some error occured while calculating the distance.
-			console.log('Error while calculating the distance.');
+			LOG.warn('Error while calculating the distance.');
 			return;
 		}
-
-		// Now we decide, are we moving?
-		if (this.isMoving) {
-			// Check the distance.
-			if (d < 2) {
-				// Are we approaching the target?
+		
+		/*
+		if(d > WorldHelper.TILE_SIZE / 2) {
+			// we are further away then close to the target. Need to know if we
+			// move away or closer.
+			let nextPathPos = this._currentPath[this._currentPathCounter + 1];
+			let nextPathPosPx = WorldHelper.getPxXY(path.x, path.y);
+			let nextD = WorldHelper.getDistance(curPosPx, nextPathPosPx);
+			
+			if(nextD < d) {
+				// We are moving towards the next tile and are too fast. Need to slow down.
+			} else {
+				// We are still moving to the tile before and are too slow. Need to fasten.
 				
-			 } else {
-				// Set to the target.
-				this.stopMove();
-				this.position = newPos;
-			 }
-		}
+			}
+		} else {
+			
+		}*/
+		
 	}
 
 	/**
@@ -368,6 +394,13 @@ export default class SpriteEntity extends Entity {
 
 		var x = newTile.x - oldTile.x;
 		var y = newTile.y - oldTile.y;
+		
+		if(x > 1) {
+			x = 1;
+		}
+		if(y > 1) {
+			y = 1;
+		}
 
 		var animName = '';
 

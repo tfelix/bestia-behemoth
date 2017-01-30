@@ -19,6 +19,8 @@ export default class TileRender extends Render {
 	
 		this._ctx = ctx;
 		this._pubsub = ctx.pubsub;
+		
+		this._lastPlayerPos = {x: -1, y: -1};
 
 		// Some basic init.
 		this.clear();
@@ -36,7 +38,8 @@ export default class TileRender extends Render {
 	 * Checks if we need a redraw.
 	 */
 	get isDirty() {
-		return true;
+		let pb = this._ctx.playerBestia;
+		return this._lastPlayerPos.x !== pb.posX() || this._lastPlayerPos.y !== pb.posY();
 	}
 	
 	/**
@@ -227,21 +230,23 @@ export default class TileRender extends Render {
 		
 		let pos = {x: player.posX(), y: player.posY()};
 		
-		let startX = pos.x - WorldHelper.SIGHT_RANGE.x;
-		let startY = pos.x - WorldHelper.SIGHT_RANGE.y;
+		let startX = Math.max(0, pos.x - WorldHelper.SIGHT_RANGE.x);
+		let startY = Math.max(0, pos.x - WorldHelper.SIGHT_RANGE.y);
 		let endX = pos.x + WorldHelper.SIGHT_RANGE.x;
 		let endY = pos.y + WorldHelper.SIGHT_RANGE.y;
 		
 		
-		for(var x = Math.max(0, startX); x < endX; x++) {
-			for(var y = Math.max(0, startY); y < endY; y++) {
+		for(var x = startX; x < endX; x++) {
+			for(var y = startY; y < endY; y++) {
 				
 				let gid = this._getGid(x, y);
 				this._map.putTile(gid, x, y, 'ground');
 			}
 		}
 		
-		this._rendered = {x1: startX, x2: startX + this._gameSize.x, y1: startY, y2: startY + this._gameSize.y};
+		this._rendered = {x1: startX, x2: endX, y1: startY, y2: endY};
+		this._lastPlayerPos.x = player.posX();
+		this._lastPlayerPos.y = player.posY();
 	}
 	
 	/**
@@ -249,12 +254,13 @@ export default class TileRender extends Render {
 	 * decides if a re-render of the map is needed.
 	 */
 	update() {
+		
 		let tPos = {x: this._ctx.playerBestia.posX(), y: this._ctx.playerBestia.posY()};
 		
-		// Tile distance left.
-		let tdLeft = tPos.x - this._rendered.x1;
+		// Tile distance to display left.
+		let tdLeft = Math.max(0, tPos.x - this._rendered.x1);
 		let tdRight = this._rendered.x2 - tPos.x;
-		let tdTop = tPos.y - this._rendered.y1;
+		let tdTop = Math.max(0, tPos.y - this._rendered.y1);
 		let tdBottom = this._rendered.y2 - tPos.y;
 		
 		// Check if we need an extension at the right.
@@ -265,7 +271,8 @@ export default class TileRender extends Render {
 			// Add the new tiles.
 			for(let x = this._rendered.x2; x < newX2; x++) {
 				for(let y = this._rendered.y1; y < this._rendered.y2; y++) {
-					this._map.putTile(30, x, y, this._layer);				
+					let gid = this._getGid(x, y);
+					this._map.putTile(1, x, y, this._layer);				
 				}
 			}
 			

@@ -78,7 +78,11 @@ export default class EntityUpdater{
 			return;
 		}
 
-		// Unklares handling des servers.
+		// If this is the player bestia update its position.
+		/*if(msg.eid === this._ctx.playerBestia.entityId()) {
+			
+		}*/
+		
 		//entity.moveTo(msg);
 	}
 
@@ -97,7 +101,7 @@ export default class EntityUpdater{
 			return;
 		}
 
-		entity.checkPosition(msg.x, msg.y);
+		entity.setPosition(msg.x, msg.y);
 	}
 
 	/**

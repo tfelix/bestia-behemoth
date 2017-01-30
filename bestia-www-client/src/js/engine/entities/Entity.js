@@ -112,27 +112,17 @@ export default class Entity {
 		}
 	}
 
-	setPosition(x, y, noSync) {
-		this._position.x = x;
-		this._position.y = y;
-
-		if (!noSync) {
-			this._syncSpritePosition();
-		}
+	setPosition(x, y) {
+		this._position.x = x || 0;
+		this._position.y = y || 0;
+	
+		this._syncSpritePosition();
 	}
 	
-	get position() {
+	getPosition() {
 		return this._position;
 	}
 	
-	set position(value) {
-		value.x = value.x || 0;
-		value.y = value.y || 0;
-
-		this._position = value;
-		this._syncSpritePosition();
-	}
-
 	/**
 	 * Give access to the underlying sprite phaser API.
 	 */
@@ -141,7 +131,7 @@ export default class Entity {
 	}
 	
 	/**
-	 * Readonly access to the uuid.
+	 * Readonly access to the eid.
 	 */
 	get id() {
 		return this._id;
@@ -150,13 +140,16 @@ export default class Entity {
 	/**
 	 * Returns the position of the entity in pixel in world space.
 	 */
-	get positionPx() {
+	getPositionPx() {
 		return this._sprite.position;
 	}
 	
-	set positionPx(value) {
-		value.x = value.x || 0;
-		value.y = value.y || 0;
+	/**
+	 * Sets the position in pixel in world space.
+	 */
+	setPositionPx(x, y) {
+		value.x = x || 0;
+		value.y = y || 0;
 
 		this._sprite.postion = value;
 	}

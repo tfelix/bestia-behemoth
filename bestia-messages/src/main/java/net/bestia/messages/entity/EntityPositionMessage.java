@@ -19,10 +19,10 @@ public class EntityPositionMessage extends EntityJsonMessage {
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.position";
 
-	@JsonProperty("cx")
+	@JsonProperty("x")
 	private long currentX;
 
-	@JsonProperty("cy")
+	@JsonProperty("y")
 	private long currentY;
 
 	public EntityPositionMessage() {
