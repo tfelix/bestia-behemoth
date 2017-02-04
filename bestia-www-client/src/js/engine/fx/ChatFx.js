@@ -1,5 +1,5 @@
 import Signal from '../../io/Signal.js';
-import ChatTextEntity from '../entities/ChatTextEntity.js';
+import ChatTextEntity from './ChatTextEntity.js';
 
 /**
  * This controller will listen to incoming chat messages. If one public message

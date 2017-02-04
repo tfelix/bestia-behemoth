@@ -1,12 +1,12 @@
 import Builder from './Builder.js';
-import MultispriteEntity from '../MultispriteEntity.js';
+import SpriteEntity from '../SpriteEntity';
 import LOG from '../../../util/Log';
 
 /**
  * Responsible for building the packed (multisprite) entities. These are usually
  * mobs. All sprites which consists of multiple sprites with animation data.
  */
-export default class PackSpriteBuilder extends Builder {
+export default class MultispriteBuilder extends Builder {
 	constructor(factory, ctx) {
 		super(factory, ctx);
 		
@@ -21,11 +21,10 @@ export default class PackSpriteBuilder extends Builder {
 	
 	build(data, desc) {
 		LOG.debug('Building pack sprite.', data);
-		var entity = new MultispriteEntity(this._ctx, data.eid, desc);
+		var entity = new SpriteEntity(this._ctx, data.eid, data.x, data.y, desc);
 
 		// Setup the phaser sprite.
 		entity.setSprite(data.s.s);
-		entity.setPosition(data.x, data.y);
 		
 		entity.addToGroup(this._ctx.groups.sprites);
 
@@ -39,8 +38,8 @@ export default class PackSpriteBuilder extends Builder {
 	}
 
 	/**
-	 * Responsible for loading all the necessairy date before a build of the
-	 * object can be performt.
+	 * Responsible for loading all the needed date before a build of the
+	 * object can be performed.
 	 * 
 	 * @param data
 	 */

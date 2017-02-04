@@ -1,6 +1,6 @@
 /*global Phaser */
 
-import Entity from './Entity.js';
+import Entity from '../entities/Entity.js';
 import {NORMAL} from './DamageStyle.js';
 
 

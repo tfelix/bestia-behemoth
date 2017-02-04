@@ -1,4 +1,4 @@
-import PackSpriteBuilder from './PackSpriteBuilder.js';
+import MultispriteBuilder from './MultispriteBuilder';
 import DynamicSpriteBuilder from './DynamicSpriteBuilder.js';
 import ItemBuilder from './ItemBuilder.js';
 import NOOP from '../../../util/NOOP.js';
@@ -26,7 +26,7 @@ export default class EntityFactory {
 		 */
 		this.builder = [];
 
-		this.register(new PackSpriteBuilder(this, ctx));
+		this.register(new MultispriteBuilder(this, ctx));
 		this.register(new DynamicSpriteBuilder(this, ctx));
 		this.register(new ItemBuilder(this, ctx));
 	}

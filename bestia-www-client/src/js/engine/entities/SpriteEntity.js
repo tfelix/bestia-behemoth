@@ -11,6 +11,13 @@ export default class SpriteEntity extends Entity {
 	
 	constructor(ctx, id, x, y, desc) {
 		super(ctx, id);
+		
+		x = x || 0;
+		y = y || 0;
+		
+		if(desc === undefined) {
+			throw 'Description can not be undefined.';
+		}
 
 		this._data = desc;
 

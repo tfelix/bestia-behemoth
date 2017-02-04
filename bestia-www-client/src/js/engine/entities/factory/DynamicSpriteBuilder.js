@@ -1,4 +1,6 @@
 import MultispriteBuilder from './MultispriteBuilder';
+import MultispriteEntity from '../MultispriteEntity';
+import LOG from '../../../util/Log';
 
 /**
  * This is able to create sprite entities which differ to the runtime. It must
@@ -16,11 +18,25 @@ export default class DynamicSpriteBuilder extends MultispriteBuilder {
 	}
 	
 	build(data, desc) {
+		LOG.debug('Building dynamic sprite.', data);
+		
 		if(data.onlyLoad) {
+			alert("wtf");
 			return null;
 		}
 		
-		var entity = super.build(data, desc);
+		var entity = new MultispriteEntity(this._ctx, data.eid, data.x, data.y, desc);
+
+		// Setup the phaser sprite.
+		entity.setSprite(data.s.s);
+		
+		entity.addToGroup(this._ctx.groups.sprites);
+
+		if (data.a === 'APPEAR') {
+			entity.appear();
+		} else {
+			entity.show();
+		}
 		
 		entity.playerBestiaId = data.pbid;
 			

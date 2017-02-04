@@ -1,8 +1,8 @@
 import MID from '../../io/messages/MID.js';
-import DamageEntity from '../entities/DamageEntity.js';
-import HealEntity from '../entities/HealEntity.js';
-import DamageMissEntity from '../entities/DamageMissEntity.js';
-import DamageCriticalEntity from '../entities/DamageCriticalEntity.js';
+import DamageEntity from './DamageEntity.js';
+import HealEntity from './HealEntity.js';
+import DamageMissEntity from './DamageMissEntity.js';
+import DamageCriticalEntity from './DamageCriticalEntity.js';
 
 /**
  * 
