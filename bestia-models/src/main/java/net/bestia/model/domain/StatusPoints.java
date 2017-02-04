@@ -32,35 +32,32 @@ public class StatusPoints implements Serializable {
 	@JsonProperty("mmana")
 	private int maxMana;
 
-	@JsonProperty("adef")
-	private int armorDef;
+	@JsonProperty("str")
+	private int strength;
 
-	@JsonProperty("aspdef")
-	private int armorSpDef;
+	@JsonProperty("vit")
+	private int vitality;
 
-	@JsonProperty("atk")
-	private int atk;
+	@JsonProperty("int")
+	private int intelligence;
+
+	@JsonProperty("will")
+	private int willpower;
+
+	@JsonProperty("agi")
+	private int agility;
+
+	@JsonProperty("dex")
+	private int dexterity;
 
 	@JsonProperty("def")
-	private int def;
+	private int defense;
 
-	@JsonProperty("spatk")
-	private int spAtk;
-
-	@JsonProperty("spdef")
-	private int spDef;
-
-	@JsonProperty("spd")
-	private int spd;
-
-	@Transient
-	private float hpRegenRate;
-
-	@Transient
-	private float manaRegenRate;
+	@JsonProperty("mdef")
+	private int magicDefense;
 
 	public StatusPoints() {
-		checkInvalidStatusValue();
+		// no op.
 	}
 
 	public int getCurrentHp() {
@@ -68,16 +65,14 @@ public class StatusPoints implements Serializable {
 	}
 
 	public void setCurrentHp(int hp) {
+		if (hp < 1) {
+			hp = 1;
+		}
+		if (hp > maxHp) {
+			hp = maxHp;
+		}
+
 		this.currentHp = hp;
-		checkInvalidStatusValue();
-	}
-
-	public float getHpRegenerationRate() {
-		return hpRegenRate;
-	}
-
-	public void setHpRegenerationRate(float hpRegenRate) {
-		this.hpRegenRate = hpRegenRate;
 	}
 
 	public int getMaxHp() {
@@ -85,8 +80,15 @@ public class StatusPoints implements Serializable {
 	}
 
 	public void setMaxHp(int maxHp) {
+		if (maxHp < 1) {
+			maxHp = 1;
+		}
+
 		this.maxHp = maxHp;
-		checkInvalidStatusValue();
+
+		if (currentHp > maxHp) {
+			setCurrentHp(maxHp);
+		}
 	}
 
 	public int getCurrentMana() {
@@ -94,161 +96,187 @@ public class StatusPoints implements Serializable {
 	}
 
 	public void setCurrentMana(int mana) {
+		if (mana < 1) {
+			mana = 1;
+		}
+		if (mana > maxMana) {
+			mana = maxMana;
+		}
+
 		this.currentMana = mana;
-		checkInvalidStatusValue();
-	}
-
-	public float getManaRegenerationRate() {
-		return manaRegenRate;
-	}
-
-	public void setManaRegenenerationRate(float manaRegenRate) {
-		this.manaRegenRate = manaRegenRate;
 	}
 
 	public void setMaxMana(int maxMana) {
+		if (maxMana < 1) {
+			maxMana = 1;
+		}
+
 		this.maxMana = maxMana;
-		checkInvalidStatusValue();
+
+		if (currentMana > maxMana) {
+			setCurrentMana(maxMana);
+		}
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Returns the max mana.
 	 * 
-	 * @see net.bestia.model.domain.StatusPoints#getMaxMana()
+	 * @return Max mana.
 	 */
-
 	public int getMaxMana() {
 		return maxMana;
 	}
 
-	/*
-	 * (non-Javadoc)
+	public int getDefense() {
+		return defense;
+	}
+
+	public void setDefense(int def) {
+		if (def < 0) {
+			def = 0;
+		}
+		if (def > 1000) {
+			def = 1000;
+		}
+
+		this.defense = def;
+	}
+
+	/**
+	 * Returns the magic defense.
 	 * 
-	 * @see net.bestia.model.domain.StatusPoints#getArmorDef()
+	 * @return The magic defense.
 	 */
-
-	public int getArmorDef() {
-		return armorDef;
+	public int getMagicDefense() {
+		return magicDefense;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Sets the magic defense. Must be between 0 and 1000 (which increments in
+	 * 1/10) percents.
 	 * 
-	 * @see net.bestia.model.domain.StatusPoints#setArmorDef(int)
+	 * @param mdef
+	 *            The new mdef.
 	 */
+	public void setMagicDefense(int mdef) {
+		if (mdef < 0) {
+			mdef = 0;
+		}
+		if (mdef > 1000) {
+			mdef = 1000;
+		}
 
-	public void setArmorDef(int armorDef) {
-		this.armorDef = armorDef;
-		checkInvalidStatusValue();
+		this.magicDefense = mdef;
 	}
 
-	public int getArmorSpDef() {
-		return armorSpDef;
-	}
-
-	public void setArmorSpDef(int armorSpDef) {
-		this.armorSpDef = armorSpDef;
-		checkInvalidStatusValue();
-	}
-
-	public int getAtk() {
-		return atk;
-	}
-
-	public void setAtk(int atk) {
-		this.atk = atk;
-		checkInvalidStatusValue();
-	}
-
-	public int getDef() {
-		return def;
-	}
-
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Returns the strength.
 	 * 
-	 * @see net.bestia.model.domain.StatusPoints#setDef(int)
+	 * @return
 	 */
-
-	public void setDef(int def) {
-		this.def = def;
-		checkInvalidStatusValue();
+	public int getStrength() {
+		return strength;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Sets the strength. Can not be lower then 1.
 	 * 
-	 * @see net.bestia.model.domain.StatusPoints#getSpAtk()
+	 * @param str
+	 *            The new strength.
 	 */
+	public void setStrenght(int str) {
+		if (str < 1) {
+			str = 1;
+		}
 
-	public int getSpAtk() {
-		return spAtk;
+		this.strength = str;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bestia.model.domain.StatusPoints#setSpAtk(int)
-	 */
-
-	public void setSpAtk(int spAtk) {
-		this.spAtk = spAtk;
-		checkInvalidStatusValue();
+	public int getVitality() {
+		return vitality;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Sets the vitality. Can not be lower then 1.
 	 * 
-	 * @see net.bestia.model.domain.StatusPoints#getSpDef()
+	 * @param vit
+	 *            The new vit.
 	 */
+	public void setVitality(int vit) {
+		if (vit < 1) {
+			vit = 1;
+		}
 
-	public int getSpDef() {
-		return spDef;
+		this.vitality = vit;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Returns the intelligence.
 	 * 
-	 * @see net.bestia.model.domain.StatusPoints#setSpDef(int)
+	 * @return Intelligence.
 	 */
-
-	public void setSpDef(int spDef) {
-		this.spDef = spDef;
-		checkInvalidStatusValue();
+	public int getIntelligence() {
+		return intelligence;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Sets the intelligence. Can not be lower then 1.
 	 * 
-	 * @see net.bestia.model.domain.StatusPoints#getSpd()
+	 * @param intel
+	 *            New intelligence.
 	 */
+	public void setIntelligence(int intel) {
+		if (intel < 1) {
+			intel = 1;
+		}
 
-	public int getSpd() {
-		return spd;
+		this.intelligence = intel;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Returns the agility of the entity.
 	 * 
-	 * @see net.bestia.model.domain.StatusPoints#setSpd(int)
+	 * @return The agility.
 	 */
-
-	public void setSpd(int spd) {
-		this.spd = spd;
-		checkInvalidStatusValue();
+	public int getAgility() {
+		return agility;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/**
+	 * Sets the agility.
 	 * 
-	 * @see net.bestia.model.domain.StatusPoints#setMaxValues(int, int)
+	 * @param agi
+	 *            The new agi value.
 	 */
+	public void setAgility(int agi) {
+		if (agi < 1) {
+			agi = 1;
+		}
+		this.agility = agi;
+	}
 
-	public void setMaxValues(int maxHp, int maxMana) {
+	public int getWillpower() {
+		return willpower;
+	}
 
-		this.maxHp = maxHp;
-		this.maxMana = maxMana;
-		checkInvalidStatusValue();
+	public void setWillpower(int willpower) {
+		if (willpower < 1) {
+			willpower = 1;
+		}
+
+		this.willpower = willpower;
+	}
+
+	public int getDexterity() {
+		return dexterity;
+	}
+
+	public void setDexterity(int dexterity) {
+		if (dexterity < 1) {
+			dexterity = 1;
+		}
+
+		this.dexterity = dexterity;
 	}
 
 	/*
@@ -265,104 +293,32 @@ public class StatusPoints implements Serializable {
 		this.currentHp += rhs.getCurrentHp();
 		this.currentMana += rhs.getCurrentMana();
 
-		this.atk += rhs.getAtk();
-		this.def += rhs.getDef();
-		this.spAtk += rhs.getSpAtk();
-		this.spd += rhs.getSpd();
-		this.spDef += rhs.getSpDef();
-		this.armorDef += rhs.getArmorDef();
-		this.armorSpDef += rhs.getArmorSpDef();
-		checkInvalidStatusValue();
-	}
-
-	/**
-	 * Überprüft ob sich ein Statuswert im "illegalen" Bereich aufhält, zb das
-	 * die cur_hp immer niedriger sind als die max_hp. Bei änderungen an
-	 * kritischen Stati wird diese Methode gecalled um evtl Berichtigungen
-	 * durchzuführen.
-	 * 
-	 * @param $changed_stat
-	 * @return void
-	 */
-	private void checkInvalidStatusValue() {
-
-		// MAX HP & MANA TEST
-		if (maxHp < 1) {
-			maxHp = 1;
-		}
-
-		if (maxMana < 1) {
-			maxMana = 1;
-		}
-
-		if (currentHp > maxHp) {
-			currentHp = maxHp;
-		}
-
-		if (currentMana > maxMana) {
-			currentMana = maxMana;
-		}
-
-		if (currentHp < 0) {
-			currentHp = 0;
-		}
-
-		if (currentMana < 0) {
-			currentMana = 0;
-		}
-
-		// ARMOR TEST
-		if (armorDef < 1) {
-			armorDef = 1;
-		}
-		if (armorDef > 100) {
-			armorDef = 100;
-		}
-
-		// SP ARMOR TEST
-		if (armorSpDef < 1) {
-			armorSpDef = 1;
-		}
-		if (armorSpDef > 100) {
-			armorSpDef = 100;
-		}
-
-		if (atk < 1) {
-			atk = 1;
-		}
-
-		if (def < 1) {
-			def = 1;
-		}
-
-		if (spd < 1) {
-			spd = 1;
-		}
-
-		if (spAtk < 1) {
-			spAtk = 1;
-		}
-
-		if (spDef < 1) {
-			spDef = 1;
-		}
+		this.strength += rhs.getStrength();
+		this.vitality += rhs.getVitality();
+		this.intelligence += rhs.getIntelligence();
+		this.agility += rhs.getAgility();
+		this.dexterity += rhs.getDexterity();
+		this.willpower += rhs.getWillpower();
+		this.magicDefense += rhs.getMagicDefense();
+		this.defense += rhs.getDefense();
 	}
 
 	@Override
 	public String toString() {
-		return String.format("SP[curHp: %d, maxHp: %d, curMana: %d, maxMana: %d, atk: %d def: %d, spAtk: %d,"
-				+ " spDef: %d, spd: %d, armDef: %d, armSpDef: %d]",
+		return String.format("SP[curHp: %d, maxHp: %d, curMana: %d, maxMana: %d, str: %d vit: %d, int: %d,"
+				+ " will: %d, agi: %d, dex: %d, defense: %d, magicDef: %d]",
 				currentHp,
 				maxHp,
 				currentMana,
 				maxMana,
-				atk,
-				def,
-				spAtk,
-				spDef,
-				spd,
-				armorDef,
-				armorSpDef);
+				strength,
+				vitality,
+				intelligence,
+				willpower,
+				agility,
+				dexterity,
+				defense,
+				magicDefense);
 	}
 
 	/**
@@ -377,11 +333,10 @@ public class StatusPoints implements Serializable {
 	 *         total HP value. FALSE otherwise.
 	 */
 	public boolean addHp(int addHp) {
-		
+
 		int curHp = getCurrentHp();
 		setCurrentHp(getCurrentHp() + addHp);
-		checkInvalidStatusValue();
-		
+
 		if (curHp + addHp > 0) {
 			return true;
 		} else {
@@ -403,8 +358,7 @@ public class StatusPoints implements Serializable {
 	public boolean addMana(int addMana) {
 		int curMana = getCurrentMana();
 		setCurrentMana(getCurrentHp() + addMana);
-		checkInvalidStatusValue();
-		
+
 		if (curMana + addMana > 0) {
 			return true;
 		} else {

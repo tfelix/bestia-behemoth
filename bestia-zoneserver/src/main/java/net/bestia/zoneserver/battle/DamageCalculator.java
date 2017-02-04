@@ -39,11 +39,11 @@ public final class DamageCalculator {
 		final float defV;
 
 		if (attack.getBasedStatus() == AttackBasedStatus.NORMAL) {
-			atkV = user.getStatusPoints().getAtk();
-			defV = target.getStatusPoints().getDef();
+			atkV = user.getStatusPoints().getStrength();
+			defV = target.getStatusPoints().getDefense();
 		} else {
-			atkV = user.getStatusPoints().getSpAtk();
-			defV = target.getStatusPoints().getSpDef();
+			atkV = user.getStatusPoints().getIntelligence();
+			defV = target.getStatusPoints().getMagicDefense();
 		}
 
 		// Calculate base damage.

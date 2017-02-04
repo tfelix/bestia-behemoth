@@ -192,7 +192,7 @@ public class Inventory {
 	public int getMaxWeight() {
 		// Currently we can not distinguesh between bestia classes.
 		final int baseWeight = 300;
-		final int weight = (int)(baseWeight + 200.0 / owner.getLevel() + 5 * owner.getStatusPoints().getAtk());
+		final int weight = (int)(baseWeight + 200.0 / owner.getLevel() + 5 * owner.getStatusPoints().getStrength());
 		return weight;
 	}
 

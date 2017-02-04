@@ -41,72 +41,78 @@ public class StatusPointsTest {
 	public void check_invalid_sp_armor() {
 		StatusPoints sp = new StatusPoints();
 
-		sp.setArmorSpDef(-10);
-		Assert.assertEquals(1, sp.getArmorSpDef());
-		sp.setArmorSpDef(10);
-		Assert.assertEquals(10, sp.getArmorSpDef());
-		sp.setArmorSpDef(110);
-		Assert.assertEquals(100, sp.getArmorSpDef());
+		sp.setMagicDefense(-10);
+		Assert.assertEquals(1, sp.getMagicDefense());
+		sp.setMagicDefense(10);
+		Assert.assertEquals(10, sp.getMagicDefense());
+		sp.setMagicDefense(110);
+		Assert.assertEquals(100, sp.getMagicDefense());
 	}
 	
 	@Test
 	public void check_invalid_armor() {
 		StatusPoints sp = new StatusPoints();
 
-		sp.setArmorDef(-10);
-		Assert.assertEquals(1, sp.getArmorDef());
-		sp.setArmorDef(10);
-		Assert.assertEquals(10, sp.getArmorDef());
-		sp.setArmorDef(110);
-		Assert.assertEquals(100, sp.getArmorDef());
+		sp.setDefense(-10);
+		Assert.assertEquals(1, sp.getDefense());
+		sp.setDefense(10);
+		Assert.assertEquals(10, sp.getDefense());
+		sp.setDefense(110);
+		Assert.assertEquals(100, sp.getDefense());
 	}
 
 	@Test
 	public void check_add() {
 		StatusPoints sp1 = new StatusPoints();
 
-		sp1.setArmorDef(10);
-		sp1.setArmorSpDef(10);
-		sp1.setAtk(10);
-		sp1.setDef(10);
+		sp1.setStrenght(10);
+		sp1.setVitality(10);
+		sp1.setIntelligence(10);
+		sp1.setWillpower(10);
+		sp1.setAgility(10);
+		sp1.setDexterity(10);
 		
 		sp1.setMaxHp(100);
 		sp1.setMaxMana(100);
 		sp1.setCurrentHp(10);
 		sp1.setCurrentMana(10);
 		
-		sp1.setSpAtk(10);
-		sp1.setSpDef(10);
+		sp1.setDefense(10);
+		sp1.setMagicDefense(10);
 	
-		sp1.setSpd(10);
 		
 		sp1.add(sp1);
 		
-		Assert.assertEquals(20, sp1.getArmorDef());
-		Assert.assertEquals(20, sp1.getArmorSpDef());
-		Assert.assertEquals(20, sp1.getAtk());
-		Assert.assertEquals(20, sp1.getDef());
+		Assert.assertEquals(20, sp1.getDefense());
+		Assert.assertEquals(20, sp1.getMagicDefense());
+		
+		Assert.assertEquals(20, sp1.getIntelligence());
+		Assert.assertEquals(20, sp1.getVitality());
+		Assert.assertEquals(20, sp1.getVitality());
 		
 		Assert.assertEquals(200, sp1.getMaxHp());
 		Assert.assertEquals(200, sp1.getMaxMana());
 		
 		Assert.assertEquals(20, sp1.getCurrentHp());
 		Assert.assertEquals(20, sp1.getCurrentMana());
-		Assert.assertEquals(20, sp1.getSpAtk());
-		Assert.assertEquals(20, sp1.getSpDef());
 	}
 	
 	@Test
 	public void test_instanciation() {
 		StatusPoints sp = new StatusPoints();
 
-		Assert.assertEquals(1, sp.getAtk());
-		Assert.assertEquals(1, sp.getDef());
-		Assert.assertEquals(0, sp.getCurrentHp());
-		Assert.assertEquals(0, sp.getCurrentMana());
-		Assert.assertEquals(1, sp.getSpAtk());
-		Assert.assertEquals(1, sp.getSpd());
-		Assert.assertEquals(1, sp.getSpDef());
+		Assert.assertEquals(1, sp.getAgility());
+		Assert.assertEquals(1, sp.getVitality());
+		Assert.assertEquals(1, sp.getIntelligence());
+		Assert.assertEquals(1, sp.getAgility());
+		Assert.assertEquals(1, sp.getWillpower());
+		Assert.assertEquals(1, sp.getStrength());
+		
+		Assert.assertEquals(1, sp.getDefense());
+		Assert.assertEquals(1, sp.getMagicDefense());
+		
+		Assert.assertEquals(1, sp.getCurrentHp());
+		Assert.assertEquals(1, sp.getCurrentMana());
 	}
 	
 	@Test

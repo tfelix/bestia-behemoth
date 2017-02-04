@@ -72,20 +72,6 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 		this.headFacing = headFacing;
 	}
 
-	/**
-	 * Re-calculates the current HP and mana regeneration rate based on stats.
-	 */
-	protected void calculateRegenerationRates() {
-		final StatusPoints statusPoints = getStatusPoints();
-
-		final int level = getLevel();
-		final float hpRegen = (statusPoints.getDef() * 4 + statusPoints.getSpDef() * 1.5f + level) / 100.0f;
-
-		final float manaRegen = (statusPoints.getDef() * 1.5f + statusPoints.getSpDef() * 3 + level) / 100.0f;
-
-		statusPoints.setHpRegenerationRate(hpRegen);
-		statusPoints.setManaRegenenerationRate(manaRegen);
-	}
 
 	/**
 	 * Recalculates the status values of a bestia. It uses the EVs, IVs and
@@ -115,12 +101,13 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 				+ effortValues.getMana() / 4 * getLevel() / 100 + 10 + getLevel() * 2;
 
 		baseStatusPoints = new StatusPoints();
-		baseStatusPoints.setMaxValues(maxHp, maxMana);
-		baseStatusPoints.setAtk(atk);
-		baseStatusPoints.setDef(def);
-		baseStatusPoints.setSpAtk(spatk);
-		baseStatusPoints.setSpDef(spdef);
-		baseStatusPoints.setSpd(spd);
+		baseStatusPoints.setMaxHp(maxHp);
+		baseStatusPoints.setMaxMana(maxMana);
+		baseStatusPoints.setStrenght(atk);
+		baseStatusPoints.setVitality(def);
+		baseStatusPoints.setIntelligence(spatk);
+		baseStatusPoints.setMagicDefense(spdef);
+		baseStatusPoints.setAgility(spd);
 	}
 
 	protected void calculateModifiedStatusPoints() {
