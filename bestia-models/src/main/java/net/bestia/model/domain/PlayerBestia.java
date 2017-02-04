@@ -24,6 +24,8 @@ import javax.persistence.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import net.bestia.model.geometry.Point;
+
 /**
  * Entity for the PlayerBestias these are bestias which are directly controlled
  * by the player.
@@ -48,13 +50,12 @@ public class PlayerBestia implements Serializable {
 	@JsonProperty("cn")
 	private String name;
 
-	@AttributeOverrides({ @AttributeOverride(name = "map", column = @Column(name = "saveMapName")),
-			@AttributeOverride(name = "area", column = @Column(name = "saveArea")),
+	@AttributeOverrides({
 			@AttributeOverride(name = "x", column = @Column(name = "saveX")),
 			@AttributeOverride(name = "y", column = @Column(name = "saveY")), })
 	@Embedded
 	@JsonProperty("sl")
-	private Position savePosition = new Position();
+	private Point savePosition = new Point(0, 0);
 
 	/**
 	 * The current hp value must be persisted inside the db. Since the status
@@ -72,7 +73,7 @@ public class PlayerBestia implements Serializable {
 
 	@Embedded
 	@JsonProperty("cl")
-	private Position currentPosition = new Position();
+	private Point currentPosition = new Point(0, 0);
 
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "ACCOUNT_ID", nullable = false)
@@ -149,43 +150,37 @@ public class PlayerBestia implements Serializable {
 	@Embedded
 	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "evHp")),
 			@AttributeOverride(name = "mana", column = @Column(name = "evMana")),
-			@AttributeOverride(name = "atk", column = @Column(name = "evAtk")),
-			@AttributeOverride(name = "def", column = @Column(name = "evDef")),
-			@AttributeOverride(name = "spAtk", column = @Column(name = "evSpAtk")),
-			@AttributeOverride(name = "spDef", column = @Column(name = "evSpDef")),
-			@AttributeOverride(name = "spd", column = @Column(name = "evSpd")) })
+			@AttributeOverride(name = "strength", column = @Column(name = "evStr")),
+			@AttributeOverride(name = "defense", column = @Column(name = "evDef")),
+			@AttributeOverride(name = "intelligence", column = @Column(name = "evInt")),
+			@AttributeOverride(name = "willpower", column = @Column(name = "evWill")),
+			@AttributeOverride(name = "agility", column = @Column(name = "evAgi")),
+			@AttributeOverride(name = "dexterity", column = @Column(name = "evDex")) })
 	@JsonIgnore
 	private BaseValues effortValues;
 
 	@Embedded
 	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "ivHp")),
 			@AttributeOverride(name = "mana", column = @Column(name = "ivMana")),
-			@AttributeOverride(name = "atk", column = @Column(name = "ivAtk")),
-			@AttributeOverride(name = "def", column = @Column(name = "ivDef")),
-			@AttributeOverride(name = "spAtk", column = @Column(name = "ivSpAtk")),
-			@AttributeOverride(name = "spDef", column = @Column(name = "ivSpDef")),
-			@AttributeOverride(name = "spd", column = @Column(name = "ivSpd")) })
+			@AttributeOverride(name = "strength", column = @Column(name = "ivAtk")),
+			@AttributeOverride(name = "vitality", column = @Column(name = "ivDef")),
+			@AttributeOverride(name = "intelligence", column = @Column(name = "ivSpAtk")),
+			@AttributeOverride(name = "willpower", column = @Column(name = "ivSpDef")),
+			@AttributeOverride(name = "agility", column = @Column(name = "ivSpd")),
+			@AttributeOverride(name = "dexterity", column = @Column(name = "ivDex")) })
 	@JsonIgnore
 	private BaseValues individualValue;
 
 	public PlayerBestia() {
+
 		initialize();
 		this.individualValue = BaseValues.getNewIndividualValues();
 	}
 
 	public PlayerBestia(Account owner, Bestia origin) {
-		if (owner == null) {
-			throw new IllegalArgumentException("Owner can not be null.");
-		}
-		if (origin == null) {
-			throw new IllegalArgumentException("Origin Bestia can not be null.");
-		}
+		this(owner, origin, BaseValues.getNewIndividualValues());
 
-		initialize();
-
-		this.owner = owner;
-		this.originBestia = origin;
-		this.individualValue = BaseValues.getNewIndividualValues();
+		// no op.
 	}
 
 	public PlayerBestia(Account owner, Bestia origin, BaseValues iValues) {
@@ -207,7 +202,7 @@ public class PlayerBestia implements Serializable {
 	}
 
 	private void initialize() {
-		final Position defaultLocation = new Position(0, 0);
+		final Point defaultLocation = new Point(0, 0);
 		setCurrentPosition(defaultLocation);
 		setSavePosition(defaultLocation);
 
@@ -224,10 +219,10 @@ public class PlayerBestia implements Serializable {
 	}
 
 	public String getName() {
-		if(name == null || name.isEmpty()) {
+		if (name == null || name.isEmpty()) {
 			return originBestia.getDefaultName();
 		}
-		
+
 		return name;
 	}
 
@@ -235,20 +230,22 @@ public class PlayerBestia implements Serializable {
 		this.name = Objects.requireNonNull(name);
 	}
 
-	public Position getSavePosition() {
+	public Point getSavePosition() {
 		return savePosition;
 	}
 
-	public void setSavePosition(Position savePosition) {
-		this.savePosition.set(savePosition);
+	public void setSavePosition(Point savePosition) {
+		
+		this.savePosition = Objects.requireNonNull(savePosition);
 	}
 
-	public Position getCurrentPosition() {
+	public Point getCurrentPosition() {
 		return currentPosition;
 	}
 
-	public void setCurrentPosition(Position currentPosition) {
-		this.currentPosition.set(currentPosition);
+	public void setCurrentPosition(Point currentPosition) {
+		
+		this.currentPosition = Objects.requireNonNull(currentPosition);
 	}
 
 	@JsonIgnore

@@ -50,7 +50,7 @@ public class Bestia implements Serializable {
 	private String image = "";
 
 	@JsonProperty("sp")
-	@AttributeOverrides({ @AttributeOverride(name = "type", column = @Column(name = "visual")) })
+	@AttributeOverrides({ @AttributeOverride(name = "type", column = @Column(name = "visualType")) })
 	private SpriteInfo spriteInfo;
 
 	@JsonIgnore
@@ -83,16 +83,19 @@ public class Bestia implements Serializable {
 	 */
 	@Embedded
 	@JsonIgnore
+	@Transient
 	@AttributeOverrides({ @AttributeOverride(name = "hp", column = @Column(name = "evHp")),
 			@AttributeOverride(name = "mana", column = @Column(name = "evMana")),
-			@AttributeOverride(name = "atk", column = @Column(name = "evAtk")),
-			@AttributeOverride(name = "def", column = @Column(name = "evDef")),
-			@AttributeOverride(name = "spAtk", column = @Column(name = "evSpAtk")),
-			@AttributeOverride(name = "spDef", column = @Column(name = "evSpDef")),
-			@AttributeOverride(name = "spd", column = @Column(name = "evSpd")) })
+			@AttributeOverride(name = "strength", column = @Column(name = "evStr")),
+			@AttributeOverride(name = "vitality", column = @Column(name = "evVit")),
+			@AttributeOverride(name = "intelligence", column = @Column(name = "evInt")),
+			@AttributeOverride(name = "willpower", column = @Column(name = "evWill")),
+			@AttributeOverride(name = "agility", column = @Column(name = "evAgi")),
+			@AttributeOverride(name = "dexterity", column = @Column(name = "evDex"))})
 	private BaseValues effortValues;
 
 	@JsonIgnore
+	@Transient
 	private StatusPoints statusPoints;
 
 	/**
@@ -111,7 +114,7 @@ public class Bestia implements Serializable {
 	private String scriptExec;
 
 	public Bestia() {
-
+		// no op.
 	}
 
 	/**

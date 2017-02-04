@@ -3,10 +3,10 @@ package net.bestia.model.geometry;
 import java.io.Serializable;
 import java.util.Objects;
 
+import javax.persistence.Embeddable;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import net.bestia.model.domain.Position;
 
 /**
  * 2D Point. Immutable. Used as coordinates in various systems.
@@ -14,6 +14,7 @@ import net.bestia.model.domain.Position;
  * @author Thomas Felix <thoams.felix@tfelix.de>
  *
  */
+@Embeddable
 public final class Point implements CollisionShape, Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -118,18 +119,6 @@ public final class Point implements CollisionShape, Serializable {
 	@Override
 	public CollisionShape moveByAnchor(long x, long y) {
 		return new Point(getX() + x, getY() + y);
-	}
-
-	/**
-	 * Helper method to transform a {@link Location} into a Vector which is
-	 * often needed for calculations.
-	 * 
-	 * @param loc
-	 *            The position to generate a vector from.
-	 * @return A generated {@link Point} from the {@link Location}.
-	 */
-	public static Point fromPosition(Position loc) {
-		return new Point(loc.getX(), loc.getY());
 	}
 
 	/**

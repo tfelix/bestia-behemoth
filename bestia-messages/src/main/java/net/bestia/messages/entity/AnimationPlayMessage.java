@@ -5,7 +5,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
-import net.bestia.model.domain.Position;
+import net.bestia.model.geometry.Point;
 
 /**
  * Contains information to tell a client to play a animation. The animation
@@ -31,10 +31,10 @@ public class AnimationPlayMessage extends JsonMessage {
 	private long targetEntityId;
 
 	@JsonProperty("op")
-	private Position ownerPos;
+	private Point ownerPos;
 
 	@JsonProperty("tp")
-	private Position targetPos;
+	private Point targetPos;
 
 	/**
 	 * Total duration of the animation. If this is set the animation framework
@@ -62,11 +62,11 @@ public class AnimationPlayMessage extends JsonMessage {
 		this.targetEntityId = targetEntityId;
 	}
 
-	public AnimationPlayMessage(long accountId, String animationName, Position ownerPos) {
+	public AnimationPlayMessage(long accountId, String animationName, Point ownerPos) {
 		this(accountId, animationName, ownerPos, null);
 	}
 
-	public AnimationPlayMessage(long accountId, String animationName, Position ownerPos, Position targetPos) {
+	public AnimationPlayMessage(long accountId, String animationName, Point ownerPos, Point targetPos) {
 		super(accountId);
 
 		if (targetPos == null && ownerPos == null) {
@@ -90,11 +90,11 @@ public class AnimationPlayMessage extends JsonMessage {
 		return targetEntityId;
 	}
 
-	public Position getOwnerPos() {
+	public Point getOwnerPos() {
 		return ownerPos;
 	}
 
-	public Position getTargetPos() {
+	public Point getTargetPos() {
 		return targetPos;
 	}
 

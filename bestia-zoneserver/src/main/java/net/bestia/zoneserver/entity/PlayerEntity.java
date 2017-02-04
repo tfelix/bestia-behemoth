@@ -12,7 +12,6 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerBestia;
-import net.bestia.model.domain.Position;
 import net.bestia.model.entity.InteractionType;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.traits.Interactable;
@@ -177,12 +176,12 @@ public class PlayerEntity extends LivingEntity {
 	
 	@Override
 	public Point getPosition() {
-		return playerBestia.getCurrentPosition().toPoint();
+		return playerBestia.getCurrentPosition();
 	}
 	
 	@Override
 	public void setPosition(long x, long y) {
-		playerBestia.setCurrentPosition(new Position(x, y));
+		playerBestia.setCurrentPosition(new Point(x, y));
 		// Update all the sorrounding entities.
 		super.setPosition(x, y);
 	}

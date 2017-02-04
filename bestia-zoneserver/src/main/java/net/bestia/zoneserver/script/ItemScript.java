@@ -2,7 +2,7 @@ package net.bestia.zoneserver.script;
 
 import java.util.Objects;
 
-import net.bestia.model.domain.Position;
+import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.LivingEntity;
 
 public class ItemScript {
@@ -23,7 +23,7 @@ public class ItemScript {
 		onUse(userAccId, user, target, null);
 	}
 
-	public void onUse(long userAccId, LivingEntity user, LivingEntity target, Position targetPlace) {
+	public void onUse(long userAccId, LivingEntity user, LivingEntity target, Point targetPlace) {
 
 	}
 

@@ -63,18 +63,25 @@ public class Attack implements Serializable {
 	@JsonProperty("bs")
 	private AttackBasedStatus basedStatus;
 
+	/**
+	 * Casttime in ms. 0 means it is instant.
+	 */
 	@JsonProperty("ct")
 	private int casttime;
 
 	@JsonProperty("cd")
 	private int cooldown;
 
+	/**
+	 * Shows if there is a special indicator when the attack is activated to be
+	 * shown.
+	 */
 	@JsonProperty("i")
 	private String indicator;
-	
+
 	@JsonProperty("a")
 	private String animation;
-	
+
 	@Enumerated(EnumType.STRING)
 	@JsonProperty("t")
 	private AttackTarget target;
@@ -90,11 +97,11 @@ public class Attack implements Serializable {
 	public AttackTarget getTarget() {
 		return target;
 	}
-	
+
 	public void setTarget(AttackTarget target) {
 		this.target = target;
 	}
-	
+
 	/**
 	 * @return the attackDbName
 	 */
