@@ -79,7 +79,7 @@ export default class MultispriteEntity extends SpriteEntity {
 	setSprite(spriteName) {
 		super.setSprite(spriteName);
 		
-		console.log('SetSprite called ' + spriteName);
+		console.log('setSprite called ' + spriteName);
 	
 		// Add the multi sprites if there are some of them.
 		var multisprites = this._data.multiSprite || [];

@@ -104,7 +104,7 @@ export default class AttackView {
 		/**
 		 * Flag if the window of the attack management should be shown.
 		 */
-		this.show = ko.observable(true);
+		this.show = ko.observable(false);
 
 		/**
 		 * Holds the reference to the currently active bestia. We need this in order

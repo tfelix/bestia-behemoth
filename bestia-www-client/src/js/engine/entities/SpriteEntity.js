@@ -2,6 +2,10 @@ import Entity from './Entity.js';
 import WorldHelper from '../map/WorldHelper.js';
 import LOG from '../../util/Log';
 
+const FACING = Object.freeze({
+	TOP: 1, 
+	TOP_RIGHT: 2
+});
 
 export default class SpriteEntity extends Entity {
 	
@@ -25,6 +29,18 @@ export default class SpriteEntity extends Entity {
 
 		this.setPosition(x, y);
 	}
+	
+	/**
+	 * Handles when cursor is over this sprite. We have to determine all
+	 * available interaction methods and pick the default indicator.
+	 */
+	_onOverHandler() {
+		this._ctx.pubsub.publish(Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_over', entity: this});
+	}
+
+	_onOutHandler() {
+		this._ctx.pubsub.publish(Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_out', entity: this});
+	}
 
 	setSprite(spriteName) {
 
@@ -36,18 +52,22 @@ export default class SpriteEntity extends Entity {
 		this._sprite = this._game.add.sprite(0, 0, spriteName);
 
 		this._setupSprite(this._sprite, this._data);
+		
+		// Re-set position so the sprite gets now postioned.
+		this._syncSpritePosition();
+		
+		this._sprite.events.onInputOver.add(this._onOverHandler, this);
+		this._sprite.events.onInputOut.add(this._onOutHandler, this);
 
-		// Find all animations which stands.
+		// Find all animations in which it stands.
 		var standAnimations = this._data.animations.filter(function(anim) {
 			return anim.name.indexOf('stand') !== -1;
 		});
 
+		// Pick a custom one.
 		var i = Math.floor(Math.random() * standAnimations.length);
-		// var i = 0;
 		this.playAnimation(standAnimations[i].name);
 
-		// Re-set position so the sprite gets now postioned.
-		this._syncSpritePosition();
 	}
 
 	/**
@@ -298,7 +318,8 @@ export default class SpriteEntity extends Entity {
 
 			var pos = this._currentPath[this._currentPathCounter];
 			var isLast = this._currentPath.length === (this._currentPathCounter - 1);
-			// We dont need no checks since WE know where we are (or at least we think so).
+			// We dont need no checks since WE know where we are (or at least we
+			// think so).
 			this._uncheckedSetPosition(pos.x, pos.y);
 
 			var nextAnim = this._getWalkAnimationName(pos, path[this._currentPathCounter + 1]);
@@ -364,22 +385,16 @@ export default class SpriteEntity extends Entity {
 		}
 		
 		/*
-		if(d > WorldHelper.TILE_SIZE / 2) {
-			// we are further away then close to the target. Need to know if we
-			// move away or closer.
-			let nextPathPos = this._currentPath[this._currentPathCounter + 1];
-			let nextPathPosPx = WorldHelper.getPxXY(path.x, path.y);
-			let nextD = WorldHelper.getDistance(curPosPx, nextPathPosPx);
-			
-			if(nextD < d) {
-				// We are moving towards the next tile and are too fast. Need to slow down.
-			} else {
-				// We are still moving to the tile before and are too slow. Need to fasten.
-				
-			}
-		} else {
-			
-		}*/
+		 * if(d > WorldHelper.TILE_SIZE / 2) { // we are further away then close
+		 * to the target. Need to know if we // move away or closer. let
+		 * nextPathPos = this._currentPath[this._currentPathCounter + 1]; let
+		 * nextPathPosPx = WorldHelper.getPxXY(path.x, path.y); let nextD =
+		 * WorldHelper.getDistance(curPosPx, nextPathPosPx);
+		 * 
+		 * if(nextD < d) { // We are moving towards the next tile and are too
+		 * fast. Need to slow down. } else { // We are still moving to the tile
+		 * before and are too slow. Need to fasten. } } else { }
+		 */
 		
 	}
 

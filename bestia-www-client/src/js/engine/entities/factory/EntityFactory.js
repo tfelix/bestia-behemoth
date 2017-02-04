@@ -1,7 +1,5 @@
 import PackSpriteBuilder from './PackSpriteBuilder.js';
 import DynamicSpriteBuilder from './DynamicSpriteBuilder.js';
-import SpriteBuilder from './SpriteBuilder.js';
-import SimpleObjectBuilder from './SimpleObjectBuilder.js';
 import ItemBuilder from './ItemBuilder.js';
 import NOOP from '../../../util/NOOP.js';
 import DescriptionLoader from '../../core/DescriptionLoader.js';
@@ -30,8 +28,6 @@ export default class EntityFactory {
 
 		this.register(new PackSpriteBuilder(this, ctx));
 		this.register(new DynamicSpriteBuilder(this, ctx));
-		this.register(new SpriteBuilder(this, ctx));
-		this.register(new SimpleObjectBuilder(this, ctx));
 		this.register(new ItemBuilder(this, ctx));
 	}
 	
@@ -78,7 +74,7 @@ export default class EntityFactory {
 		fnOnComplete = fnOnComplete || NOOP;
 
 		// Do we already have the desc file?
-		var descFile = this._getDescriptionFile(data);
+		var descFile = this.descLoader.getDescription(data);
 
 		if (descFile === null) {
 			// We must first load this file because we dont know anything about
@@ -144,20 +140,6 @@ export default class EntityFactory {
 			// Call the callback handler.
 			fnOnComplete(entity);
 		}.bind(this));
-	}
-
-	_getDescriptionFile(data) {
-		if (data.t === 'STATIC') {
-			// We can generate the description file on the fly.
-			// TODO This should be externalized.
-			return {
-				type : 'STATIC',
-				version : 1,
-				name : data.s
-			};
-		} else {
-			return this.descLoader.getDescription(data);
-		}
 	}
 
 	/**

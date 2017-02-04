@@ -1,11 +1,11 @@
-import PackSpriteBuilder from './PackSpriteBuilder.js';
+import MultispriteBuilder from './MultispriteBuilder';
 
 /**
  * This is able to create sprite entities which differ to the runtime. It must
  * react automatically when created to data described inside its description
  * file.
  */
-export default class DynamicSpriteBuilder extends PackSpriteBuilder {
+export default class DynamicSpriteBuilder extends MultispriteBuilder {
 	
 	constructor(factory, ctx) {
 		super(factory, ctx);

@@ -57,16 +57,6 @@ export default class Entity {
 	}
 
 	/**
-	 * Shows death animation if any. The entity was killd/destroyed by
-	 * whatsoever means.
-	 */
-	kill() {
-		// Placeholder death 'animation'.
-		this._sprite.tint = 0xffffff;
-		this._game.add.tween(this._sprite).to({alpha: 0}, 400, 'Linear', true);
-	}
-
-	/**
 	 * This function is called every tick in the animation loop and can be used
 	 * to update internal sprite information. Especially in a multipart sprite
 	 * object this can be useful.

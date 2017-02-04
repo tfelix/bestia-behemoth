@@ -2,7 +2,7 @@ import Builder from './Builder.js';
 import ItemEntity from '../ItemEntity.js';
 
 /**
- * Responsible for building items on the map.
+ * Responsible for building item entities displayed on the map.
  */
 export default class ItemBuilder extends Builder {
 	constructor(factory, ctx) {

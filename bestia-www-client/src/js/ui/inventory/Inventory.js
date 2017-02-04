@@ -54,7 +54,7 @@ export default class Inventory {
 		this._i18n = {};
 		this._i18n.t = function() {
 			return 'BLA';
-		}
+		};
 	
 		/**
 		 * Flag if the inventory has been loaded with new items.
