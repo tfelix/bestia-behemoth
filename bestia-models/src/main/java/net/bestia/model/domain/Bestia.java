@@ -132,26 +132,26 @@ public class Bestia implements Serializable {
 		}
 
 		// Calculate total amount of base values and distribute accordingly.
-		final float baseMax = baseValues.getAtk() + baseValues.getDef() + baseValues.getHp() + baseValues.getMana()
-				+ baseValues.getSpAtk() + baseValues.getSpd() + baseValues.getSpDef();
+		final float baseMax = baseValues.getAttack() + baseValues.getVitality() + baseValues.getHp() + baseValues.getMana()
+				+ baseValues.getIntelligence() + baseValues.getAgility() + baseValues.getWillpower();
 
-		final int evAtk = Math.round(maxEffortVal * (baseValues.getAtk() / baseMax));
-		final int evDef = Math.round(maxEffortVal * (baseValues.getDef() / baseMax));
+		final int evAtk = Math.round(maxEffortVal * (baseValues.getAttack() / baseMax));
+		final int evDef = Math.round(maxEffortVal * (baseValues.getVitality() / baseMax));
 		final int evHp = Math.round(maxEffortVal * (baseValues.getHp() / baseMax));
 		final int evMana = Math.round(maxEffortVal * (baseValues.getMana() / baseMax));
 
-		final int evSpAtk = Math.round(maxEffortVal * (baseValues.getSpAtk() / baseMax));
-		final int evSpDef = Math.round(maxEffortVal * (baseValues.getSpDef() / baseMax));
-		final int evSpd = Math.round(maxEffortVal * (baseValues.getSpd() / baseMax));
+		final int evSpAtk = Math.round(maxEffortVal * (baseValues.getIntelligence() / baseMax));
+		final int evSpDef = Math.round(maxEffortVal * (baseValues.getWillpower() / baseMax));
+		final int evSpd = Math.round(maxEffortVal * (baseValues.getAgility() / baseMax));
 
 		// Set the values.
-		effortValues.setAtk(evAtk);
-		effortValues.setDef(evDef);
+		effortValues.setAttack(evAtk);
+		effortValues.setVitality(evDef);
 		effortValues.setHp(evHp);
 		effortValues.setMana(evMana);
-		effortValues.setSpAtk(evSpAtk);
-		effortValues.setSpDef(evSpDef);
-		effortValues.setSpd(evSpd);
+		effortValues.setIntelligence(evSpAtk);
+		effortValues.setWillpower(evSpDef);
+		effortValues.setAgility(evSpd);
 	}
 
 	/**

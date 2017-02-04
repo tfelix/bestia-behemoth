@@ -29,29 +29,33 @@ public class BaseValues implements Serializable {
 	@Column(name = "bMana")
 	private int mana;
 
-	@Column(name = "bAtk")
-	private int atk;
+	@Column(name = "bStr")
+	private int strength;
 
-	@Column(name = "bDef")
-	private int def;
+	@Column(name = "bVit")
+	private int vitality;
 
-	@Column(name = "bSpAtk")
-	private int spAtk;
+	@Column(name = "bInt")
+	private int intelligence;
 
-	@Column(name = "bSpDef")
-	private int spDef;
+	@Column(name = "bWill")
+	private int willpower;
 
-	@Column(name = "bSpd")
-	private int spd;
+	@Column(name = "bAgi")
+	private int agility;
+	
+	@Column(name = "bDex")
+	private int dexterity;
 
 	public BaseValues() {
 		hp = 0;
 		mana = 0;
-		atk = 0;
-		def = 0;
-		spAtk = 0;
-		spDef = 0;
-		spd = 0;
+		strength = 0;
+		vitality = 0;
+		intelligence = 0;
+		willpower = 0;
+		agility = 0;
+		dexterity = 0;
 	}
 
 	/**
@@ -66,12 +70,12 @@ public class BaseValues implements Serializable {
 		final ThreadLocalRandom rand = ThreadLocalRandom.current();
 
 		final BaseValues bv = new BaseValues();
-		bv.setAtk(rand.nextInt(0, MAX_IV_VALUE + 1));
-		bv.setDef(rand.nextInt(0, MAX_IV_VALUE + 1));
+		bv.setAttack(rand.nextInt(0, MAX_IV_VALUE + 1));
+		bv.setVitality(rand.nextInt(0, MAX_IV_VALUE + 1));
 		bv.setHp(rand.nextInt(0, MAX_IV_VALUE + 1));
 		bv.setMana(rand.nextInt(0, MAX_IV_VALUE + 1));
-		bv.setSpAtk(rand.nextInt(0, MAX_IV_VALUE + 1));
-		bv.setSpDef(rand.nextInt(0, MAX_IV_VALUE + 1));
+		bv.setIntelligence(rand.nextInt(0, MAX_IV_VALUE + 1));
+		bv.setWillpower(rand.nextInt(0, MAX_IV_VALUE + 1));
 
 		return bv;
 	}
@@ -84,12 +88,16 @@ public class BaseValues implements Serializable {
 	public static BaseValues getStarterIndividualValues() {
 
 		final BaseValues bv = new BaseValues();
-		bv.setAtk(13);
-		bv.setDef(13);
+		
 		bv.setHp(13);
 		bv.setMana(13);
-		bv.setSpAtk(13);
-		bv.setSpDef(13);
+		
+		bv.setAttack(13);
+		bv.setVitality(13);
+		bv.setIntelligence(13);
+		bv.setWillpower(13);
+		bv.setDexterity(13);
+		bv.setAgility(13);
 
 		return bv;
 	}
@@ -101,12 +109,15 @@ public class BaseValues implements Serializable {
 	 */
 	public static BaseValues getNullValues() {
 		final BaseValues bv = new BaseValues();
-		bv.setAtk(0);
-		bv.setDef(0);
+		
+		bv.setAttack(0);
+		bv.setVitality(0);
 		bv.setHp(0);
 		bv.setMana(0);
-		bv.setSpAtk(0);
-		bv.setSpDef(0);
+		bv.setIntelligence(0);
+		bv.setWillpower(0);
+		bv.setDexterity(0);
+		bv.setAgility(0);
 
 		return bv;
 	}
@@ -133,58 +144,66 @@ public class BaseValues implements Serializable {
 		this.mana = mana;
 	}
 
-	public int getAtk() {
-		return atk;
+	public int getAttack() {
+		return strength;
 	}
 
-	public void setAtk(int atk) {
+	public void setAttack(int atk) {
 		if (atk < 0) {
 			throw new IllegalArgumentException("Attack can not be negative.");
 		}
-		this.atk = atk;
+		this.strength = atk;
 	}
 
-	public int getSpAtk() {
-		return spAtk;
+	public int getIntelligence() {
+		return intelligence;
 	}
 
-	public void setSpAtk(int spAtk) {
+	public void setIntelligence(int spAtk) {
 		if (spAtk < 0) {
 			throw new IllegalArgumentException("Special attack can not be negative.");
 		}
-		this.spAtk = spAtk;
+		this.intelligence = spAtk;
 	}
 
-	public int getDef() {
-		return def;
+	public int getVitality() {
+		return vitality;
 	}
 
-	public void setDef(int def) {
+	public void setVitality(int def) {
 		if (def < 0) {
 			throw new IllegalArgumentException("Defense can not be negative.");
 		}
-		this.def = def;
+		this.vitality = def;
 	}
 
-	public int getSpDef() {
-		return spDef;
+	public int getWillpower() {
+		return willpower;
 	}
 
-	public void setSpDef(int spDef) {
+	public void setWillpower(int spDef) {
 		if (spDef < 0) {
 			throw new IllegalArgumentException("Special defense can not be negative.");
 		}
-		this.spDef = spDef;
+		this.willpower = spDef;
 	}
 
-	public int getSpd() {
-		return spd;
+	public int getAgility() {
+		return agility;
 	}
 
-	public void setSpd(int spd) {
-		if (spd < 0) {
+	public void setAgility(int agi) {
+		if (agi < 0) {
 			throw new IllegalArgumentException("Speed can not be negative.");
 		}
-		this.spd = spd;
+		this.agility = agi;
+	}
+	
+	public int getDexterity() {
+		return dexterity;
+	}
+	
+	public void setDexterity(int dexterity) {
+		this.dexterity = dexterity;
 	}
 }

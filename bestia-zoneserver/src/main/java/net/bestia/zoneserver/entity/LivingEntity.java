@@ -79,20 +79,20 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 	 */
 	protected void calculateStatusPoints() {
 
-		final int atk = (baseValues.getAtk() * 2 + ivs.getAtk()
-				+ effortValues.getAtk() / 4) * getLevel() / 100 + 5;
+		final int atk = (baseValues.getAttack() * 2 + ivs.getAttack()
+				+ effortValues.getAttack() / 4) * getLevel() / 100 + 5;
 
-		final int def = (baseValues.getDef() * 2 + ivs.getDef()
-				+ effortValues.getDef() / 4) * getLevel() / 100 + 5;
+		final int def = (baseValues.getVitality() * 2 + ivs.getVitality()
+				+ effortValues.getVitality() / 4) * getLevel() / 100 + 5;
 
-		final int spatk = (baseValues.getSpAtk() * 2 + ivs.getSpAtk()
-				+ effortValues.getSpAtk() / 4) * getLevel() / 100 + 5;
+		final int spatk = (baseValues.getIntelligence() * 2 + ivs.getIntelligence()
+				+ effortValues.getIntelligence() / 4) * getLevel() / 100 + 5;
 
-		final int spdef = (baseValues.getSpDef() * 2 + ivs.getSpDef()
-				+ effortValues.getSpDef() / 4) * getLevel() / 100 + 5;
+		final int spdef = (baseValues.getWillpower() * 2 + ivs.getWillpower()
+				+ effortValues.getWillpower() / 4) * getLevel() / 100 + 5;
 
-		int spd = (baseValues.getSpd() * 2 + ivs.getSpd()
-				+ effortValues.getSpd() / 4) * getLevel() / 100 + 5;
+		int spd = (baseValues.getAgility() * 2 + ivs.getAgility()
+				+ effortValues.getAgility() / 4) * getLevel() / 100 + 5;
 
 		final int maxHp = baseValues.getHp() * 2 + ivs.getHp()
 				+ effortValues.getHp() / 4 * getLevel() / 100 + 10 + getLevel();
