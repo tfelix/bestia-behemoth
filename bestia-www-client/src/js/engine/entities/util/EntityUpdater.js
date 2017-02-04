@@ -137,13 +137,13 @@ export default class EntityUpdater{
 		temp.forEach(function(d) {
 			switch (d.topic) {
 			case MID.ENTITY_UPDATE:
-				this._onUpdateHandler(d.topic, d.msg);
+				this._handlerOnUpdate(d.topic, d.msg);
 				break;
 			case MID.ENTITY_MOVE:
-				this._onMoveHandler(d.topic, d.msg);
+				this._handlerOnMove(d.topic, d.msg);
 				break;
 			case MID.ENTITY_POSITION:
-				this._onPositionHandler(d.topic, d.msg);
+				this._handlerOnPosition(d.topic, d.msg);
 				break;
 			default:
 				break;

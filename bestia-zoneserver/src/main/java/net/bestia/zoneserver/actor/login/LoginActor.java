@@ -20,6 +20,7 @@ import net.bestia.messages.login.LoginState;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.geometry.Point;
 import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerEntity;
@@ -131,19 +132,25 @@ public class LoginActor extends BestiaRoutingActor {
 		final PlayerBestia master = playerBestiaService.getMaster(msg.getAccountId());
 
 		final Set<PlayerEntity> bestias = pbs
-				.parallelStream()
+				.stream()
 				.map(x -> new PlayerEntity(msg.getAccountId(), x))
 				.collect(Collectors.toSet());
 		LOG.debug(String.format("Spawning %d player bestias for acc id: %d", bestias.size(), msg.getAccountId()));
 		entityService.putPlayerEntities(bestias);
 
+		// Register the sender connection.
+		connectionService.addClient(msg.getAccountId(), getSender().path());
+		
+		// Set the position in order to send updates to the client.
+		for(PlayerEntity pb : bestias) {
+			final Point p = pb.getPosition();
+			pb.setPosition(p.getX(), p.getY());
+		}
+
 		// Extract master now again from bestias and get its entity id.
 		final Optional<PlayerEntity> masterEntity = bestias.parallelStream()
 				.filter(x -> x.getPlayerBestiaId() == master.getId())
 				.findAny();
-
-		// Register the sender connection.
-		connectionService.addClient(msg.getAccountId(), getSender().path());
 
 		return masterEntity.get();
 	}
