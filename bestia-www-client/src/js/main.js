@@ -43,18 +43,14 @@ $(function(){
 	
 	// Add click handler.
 	$('#btn-inventory').click(function() {
-		game.attacks.close();
-		game.inventory.showWindow(!game.inventory.showWindow());
+		model.attacks.show(false);
+		model.inventory.show(!model.inventory.show());
 	});
 
 	$('#btn-attacks').click(function() {
 		// Hide all others.
-		model.inventory.close();
-		model.attacks.showWindow(!model.attacks.showWindow());
-
-		if (!model.attacks.isLoaded()) {
-			model.attacks.request();
-		}
+		model.inventory.show(false);
+		model.attacks.show(!model.attacks.show());
 	});
 });
 

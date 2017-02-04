@@ -44,8 +44,8 @@ export default class IndicatorManager {
 		
 		// Register the available indicators.
 		this._indicators.push(this._moveIndicator);
-		//this._indicators.push(new ItemCastIndicator(this));
-		//this._indicators.push(new BasicAttackIndicator(this));
+		// this._indicators.push(new ItemCastIndicator(this));
+		// this._indicators.push(new BasicAttackIndicator(this));
 	}
 	
 	/**
@@ -92,6 +92,18 @@ export default class IndicatorManager {
 		this._indicators.forEach(function(x) {
 			x.create();
 		}, this);
+	}
+	
+	/**
+	 * Called each tick in case there is a need to perform some changes
+	 * depending on the game tick.
+	 */
+	update() {
+		/*if(!this.ctx.game.input.pointer1.withinGame) {
+			this.hide();
+		} else {
+			this.show();
+		}*/
 	}
 
 	/**

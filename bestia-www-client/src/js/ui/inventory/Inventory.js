@@ -140,7 +140,7 @@ export default class Inventory {
 		/**
 		 * Flag to show and hide the inventory window.
 		 */
-		this.showWindow = ko.observable(false);
+		this.show = ko.observable(false);
 	
 		/**
 		 * Show the current weight of all items inside the inventory.
@@ -601,17 +601,10 @@ export default class Inventory {
 		}
 
 		/**
-		 * Shows the inventory window.
-		 */
-		show() {
-			this.showWindow(true);
-		}
-
-		/**
-		 * Hides the inventory window.
+		 * Hides the inventory window. Used for event triggering.
 		 */
 		close() {
-			this.showWindow(false);
+			this.show(false);
 		}
 
 		/**

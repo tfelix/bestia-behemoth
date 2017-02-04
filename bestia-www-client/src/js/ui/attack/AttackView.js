@@ -46,9 +46,10 @@ export default class AttackView {
 		 * Boolean flag if the attack list is cached and ready to be displayed. Nice
 		 * for layouts.
 		 * 
+		 * @private
 		 * @property
 		 */
-		this.isLoaded = ko.observable(false);
+		this._isLoaded = false;
 
 		/**
 		 * Holds the array with all known attacks currently requested from the
@@ -103,7 +104,7 @@ export default class AttackView {
 		/**
 		 * Flag if the window of the attack management should be shown.
 		 */
-		this.showWindow = ko.observable(true);
+		this.show = ko.observable(true);
 
 		/**
 		 * Holds the reference to the currently active bestia. We need this in order
@@ -195,15 +196,22 @@ export default class AttackView {
 			self.saveAttacks();
 		};
 		
+		// Setup the subscribers.
 		pubsub.subscribe(MID.ATTACK_LIST_RESPONSE, this._updateHandle.bind(this));
-		//pubsub.subscribe(Signal.BESTIA_SELECTED, this._invalidateListHandle.bind(this));
+		pubsub.subscribe(Signal.BESTIA_SELECTED, this._invalidateListHandle.bind(this));
 		//pubsub.subscribe(Signal.I18N_LANG_CHANGED, this._invalidateListHandle.bind(this));
+		
+		this.show.subscribe(function(newValue){
+			if(!this._isLoaded && newValue === true) {
+				this.request();
+			}
+		}, this);
 	}
 	
 	
 	
 	_invalidateListHandle(_, selectedBestia) {
-		this.isLoaded(false);
+		this._isLoaded = false;
 		this.attacks.removeAll();
 
 		// Set reference to selected bestia.
@@ -383,6 +391,7 @@ export default class AttackView {
 			return 'attack.' + atk.attackDatabaseName() + '_desc';
 		};
 
+		/*
 		var i18nKeys = attacks.map(buildTranslationKey);
 		// Add the keys with for the description.
 		i18nKeys = i18nKeys.concat(attacks.map(buildTranslationKeyDesc));
@@ -392,7 +401,7 @@ export default class AttackView {
 				val.name(t(buildTranslationKey(val)));
 				val.description(t(buildTranslationKeyDesc(val)));
 			});
-		});
+		});*/
 	}
 
 	/**

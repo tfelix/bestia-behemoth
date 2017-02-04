@@ -11,19 +11,21 @@
  */
 export default class StatusPointViewModel {
 	constructor(msg) {
+		
 		this.curMana = ko.observable(0);
 		this.maxMana = ko.observable(0);
 		this.curHp = ko.observable(0);
 		this.maxHp = ko.observable(0);
 	
-		this.atk = ko.observable(0);
-		this.def = ko.observable(0);
-		this.spAtk = ko.observable(0);
-		this.spDef = ko.observable(0);
-		this.spd = ko.observable(0);
+		this.str = ko.observable(0);
+		this.vit = ko.observable(0);
+		this.int = ko.observable(0);
+		this.will = ko.observable(0);
+		this.agi = ko.observable(0);
+		this.dex = ko.observable(0);
 	
-		this.armor = ko.observable(0);
-		this.spArmor = ko.observable(0);
+		this.defense = ko.observable(0);
+		this.magicDefense = ko.observable(0);
 	
 		// CSS helper data.
 		this.manaWidth = ko.computed(function() {
@@ -51,13 +53,14 @@ export default class StatusPointViewModel {
 		this.curHp(msg.chp);
 		this.maxHp(msg.mhp);
 		
-		this.atk(msg.atk);
-		this.def(msg.def);
-		this.spAtk(msg.spatk);
-		this.spDef(msg.spdef);
-		this.spd(msg.spd);
+		this.str(msg.atk);
+		this.vit(msg.def);
+		this.int(msg.int);
+		this.will(msg.will);
+		this.agi(msg.agi);
+		this.dex(msg.dex);
 		
-		this.armor(msg.adef);
-		this.spArmor(msg.spdef);
+		this.defense(msg.def);
+		this.magicDefense(msg.mdef);
 	}
 }

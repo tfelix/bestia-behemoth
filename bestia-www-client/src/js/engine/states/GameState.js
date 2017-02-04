@@ -80,6 +80,8 @@ export default class GameState {
 
 		// Trigger the update effects.
 		this._ctx.fxManager.update();
+		
+		this._ctx.indicatorManager.update();
 
 		// Update the animation frame groups of all multi sprite entities.
 		let entities = this._ctx.entityCache.getAllEntities();
