@@ -3,9 +3,9 @@ package net.bestia.model.domain;
 import java.io.Serializable;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.Index;
 import javax.persistence.Table;
 
 import net.bestia.model.map.TileProperties;
@@ -19,19 +19,76 @@ import net.bestia.model.map.TileProperties;
  *
  */
 @Entity
-@Table(name = "tiles")
+@Table(name = "tiles", indexes = {
+		@Index(columnList = "x", name = "x_idx"),
+		@Index(columnList = "y", name = "y_idx") })
+@IdClass(Tile.TilePK.class)
 public class Tile implements Serializable {
+
+	/**
+	 * Composite primary key helper class.
+	 *
+	 */
+	static class TilePK implements Serializable {
+		
+		private static final long serialVersionUID = 1L;
+		
+		private long x;
+		private long y;
+		private short layer;
+
+		public TilePK() {
+			// no op.
+		}
+
+		public TilePK(long x, long y, short layer) {
+
+			this.x = x;
+			this.y = y;
+			this.layer = layer;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + layer;
+			result = prime * result + (int) (x ^ (x >>> 32));
+			result = prime * result + (int) (y ^ (y >>> 32));
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			TilePK other = (TilePK) obj;
+			if (layer != other.layer)
+				return false;
+			if (x != other.x)
+				return false;
+			if (y != other.y)
+				return false;
+			return true;
+		}
+	}
 
 	private static final long serialVersionUID = 1L;
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
-
 	private int gid;
+	
+	@Id
 	private long x;
+	
+	@Id
 	private long y;
-	private int layer;
+	
+	@Id
+	private short layer;
 
 	public Tile() {
 		// empty ctor.
@@ -45,7 +102,7 @@ public class Tile implements Serializable {
 		this.gid = gid;
 		this.x = x;
 		this.y = y;
-		this.layer = layer;
+		this.layer = (short)layer;
 	}
 
 	public int getGid() {
@@ -60,7 +117,7 @@ public class Tile implements Serializable {
 		return y;
 	}
 
-	public int getLayer() {
+	public short getLayer() {
 		return layer;
 	}
 

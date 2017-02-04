@@ -31,6 +31,7 @@ public class ZoneStarter implements CommandLineRunner {
 	public ZoneStarter(ActorSystem system) {
 		
 		this.system = Objects.requireNonNull(system);
+		
 	}
 	
 

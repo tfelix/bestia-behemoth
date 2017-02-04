@@ -258,7 +258,7 @@ public class Map {
 	}
 
 	/**
-	 * Checks if the chunks lie within the position reachable from this point.
+	 * Checks if the chunks lie within the range reachable from the given point.
 	 * 
 	 * @param pos
 	 *            Current position of the player.
@@ -272,10 +272,6 @@ public class Map {
 
 		// Find min max dist.
 		final double maxD = Math.ceil(Math.sqrt(2 * (SIGHT_RANGE * SIGHT_RANGE)));
-
-		List<Double> distances = chunks.stream()
-				.map(p -> MapChunk.getWorldCords(p).getDistance(pos))
-				.collect(Collectors.toList());
 
 		final boolean isTooFar = chunks.stream()
 				.map(p -> MapChunk.getWorldCords(p))

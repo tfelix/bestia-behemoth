@@ -15,7 +15,6 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
 import net.bestia.model.dao.TileDAO;
-import net.bestia.model.dao.TilesetDAO;
 import net.bestia.model.domain.Tile;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
@@ -37,16 +36,14 @@ public class MapService {
 	private final static String TILESET_KEY = "map.tilesets";
 
 	private final TileDAO tileDao;
-	private final TilesetDAO tilesetDao;
 
 	private final HazelcastInstance hazelcastInstance;
 
 	@Autowired
-	public MapService(TileDAO tileDao, TilesetDAO tilesetDao, HazelcastInstance hz) {
+	public MapService(TileDAO tileDao, HazelcastInstance hz) {
 
 		this.hazelcastInstance = Objects.requireNonNull(hz);
 		this.tileDao = Objects.requireNonNull(tileDao);
-		this.tilesetDao = Objects.requireNonNull(tilesetDao);
 	}
 
 	/**
@@ -137,13 +134,13 @@ public class MapService {
 					.collect(Collectors.toList());
 
 			// Now filter and group the tiles by layers.
-			java.util.Map<Integer, List<Tile>> layers = tiles.stream()
+			java.util.Map<Short, List<Tile>> layers = tiles.stream()
 					.filter(t -> t.getLayer() != 0)
 					.collect(Collectors.groupingBy(Tile::getLayer));
 
 			List<java.util.Map<Point, Integer>> sortedLayers = new ArrayList<>();
 
-			for (Entry<Integer, List<Tile>> entry : layers.entrySet()) {
+			for (Entry<Short, List<Tile>> entry : layers.entrySet()) {
 
 				java.util.Map<Point, Integer> temp = new HashMap<>();
 
