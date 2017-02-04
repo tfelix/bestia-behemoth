@@ -245,7 +245,7 @@ export default class AttackView {
 	 * If the caches or not dirty this method call will do nothing and just return.
 	 */
 	request() {
-		if (this.isLoaded()) {
+		if (this._isLoaded) {
 			return;
 		}
 
@@ -366,14 +366,7 @@ export default class AttackView {
 	 * window.
 	 */
 	close() {
-		this.showWindow(false);
-	}
-
-	/**
-	 * It sets the showWindow flag so the window is displayed.
-	 */
-	show() {
-		this.showWindow(true);
+		this.show(false);
 	}
 
 	/**
