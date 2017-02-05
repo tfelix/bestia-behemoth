@@ -40,6 +40,11 @@ public class StatusBasedValuesDecorator implements IStatusBasedValues, Serializa
 	}
 	
 	private float sumFloat(ToDoubleFunction<? super StatusBasedValueModifier> func) {
+		
+		if(statusMods.size() == 0) {
+			return 1f;
+		}
+		
 		return (float) statusMods.stream()
 				.mapToDouble(func)
 				.sum();

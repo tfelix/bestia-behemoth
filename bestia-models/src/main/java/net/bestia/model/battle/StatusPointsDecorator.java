@@ -46,12 +46,18 @@ public class StatusPointsDecorator implements StatusPoints, Serializable {
 	}
 
 	private float sumFloat(ToDoubleFunction<? super StatusPointsModifier> func) {
+		
+		if(statusMods.size() == 0) {
+			return 1f;
+		}
+		
 		return (float) statusMods.stream()
 				.mapToDouble(func)
 				.sum();
 	}
 
 	private int sumInt(ToIntFunction<? super StatusPointsModifier> func) {
+		
 		return statusMods.stream()
 				.mapToInt(func)
 				.sum();
@@ -64,71 +70,97 @@ public class StatusPointsDecorator implements StatusPoints, Serializable {
 
 	@Override
 	public int getMaxHp() {
-		// TODO Auto-generated method stub
-		return 0;
+
+		final int val = sumInt(StatusPointsModifier::getMaxHpValue);
+		final float mod = sumFloat(StatusPointsModifier::getMaxHpValue);
+
+		return Math.round(wrapped.getMaxHp() * mod) + val;
 	}
 
 	@Override
 	public int getCurrentMana() {
-		// TODO Auto-generated method stub
-		return 0;
+		return wrapped.getCurrentMana();
 	}
 
 	@Override
 	public int getMaxMana() {
-		// TODO Auto-generated method stub
-		return 0;
+
+		final int val = sumInt(StatusPointsModifier::getMaxManaValue);
+		final float mod = sumFloat(StatusPointsModifier::getMaxManaMod);
+
+		return Math.round(wrapped.getMaxMana() * mod) + val;
 	}
 
 	@Override
 	public int getDefense() {
-		// TODO Auto-generated method stub
-		return 0;
+
+		final int val = sumInt(StatusPointsModifier::getDefenseValue);
+		final float mod = sumFloat(StatusPointsModifier::getDefenseMod);
+
+		return Math.round(wrapped.getDefense() * mod) + val;
 	}
 
 	@Override
 	public int getMagicDefense() {
-		// TODO Auto-generated method stub
-		return 0;
+
+		final int val = sumInt(StatusPointsModifier::getMagicDefenseValue);
+		final float mod = sumFloat(StatusPointsModifier::getMagicDefenseMod);
+
+		return Math.round(wrapped.getMagicDefense() * mod) + val;
 	}
 
 	@Override
 	public int getStrength() {
 
-		final int strengthVal = sumInt(StatusPointsModifier::getStrengthValue);
-		final float stengthMod = sumFloat(StatusPointsModifier::getStrengthMod);
+		final int val = sumInt(StatusPointsModifier::getStrengthValue);
+		final float mod = sumFloat(StatusPointsModifier::getStrengthMod);
 
-		return Math.round(wrapped.getStrength() * stengthMod) + strengthVal;
+		return Math.round(wrapped.getStrength() * mod) + val;
 	}
 
 	@Override
 	public int getVitality() {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		final int val = sumInt(StatusPointsModifier::getVitalityValue);
+		final float mod = sumFloat(StatusPointsModifier::getVitalityMod);
+
+		return Math.round(wrapped.getVitality() * mod) + val;
 	}
 
 	@Override
 	public int getIntelligence() {
-		// TODO Auto-generated method stub
-		return 0;
+
+		final int val = sumInt(StatusPointsModifier::getIntelligenceValue);
+		final float mod = sumFloat(StatusPointsModifier::getIntelligenceMod);
+
+		return Math.round(wrapped.getIntelligence() * mod) + val;
 	}
 
 	@Override
 	public int getAgility() {
-		// TODO Auto-generated method stub
-		return 0;
+
+		final int val = sumInt(StatusPointsModifier::getAgilityValue);
+		final float mod = sumFloat(StatusPointsModifier::getAgilityMod);
+
+		return Math.round(wrapped.getAgility() * mod) + val;
 	}
 
 	@Override
 	public int getWillpower() {
-		// TODO Auto-generated method stub
-		return 0;
+
+		final int val = sumInt(StatusPointsModifier::getWillpowerValue);
+		final float mod = sumFloat(StatusPointsModifier::getWillpowerMod);
+
+		return Math.round(wrapped.getWillpower() * mod) + val;
 	}
 
 	@Override
 	public int getDexterity() {
-		// TODO Auto-generated method stub
-		return 0;
+
+		final int val = sumInt(StatusPointsModifier::getDexterityValue);
+		final float mod = sumFloat(StatusPointsModifier::getDexterityMod);
+
+		return Math.round(wrapped.getDexterity() * mod) + val;
 	}
 
 	public void setDexterity(int dexterity) {

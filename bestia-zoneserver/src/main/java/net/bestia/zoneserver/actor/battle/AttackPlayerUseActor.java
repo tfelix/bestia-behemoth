@@ -35,7 +35,7 @@ import net.bestia.zoneserver.service.PlayerEntityService;
 @Scope("prototype")
 public class AttackPlayerUseActor extends BestiaRoutingActor {
 
-	public final static String NAME = "attackUse";
+	public final static String NAME = "attackPlayerUse";
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
