@@ -33,6 +33,7 @@ export default class BasicAttackIndicator extends Indicator {
 		this._ctx.game.input.onDown.add(this._onClick, this);
 		this._marker.reset();
 		this._targetSprite.addChild(this._marker);
+		this._targetSprite.bringToTop();
 	}
 
 	deactivate() {
@@ -64,12 +65,16 @@ export default class BasicAttackIndicator extends Indicator {
 			
 			// Do some wiring. If the sprite dies we need to give up controls.
 			this._targetSprite.events.onDestroy.add(function(){
-				this._manager.activate();
+				this.deactivate();
+				this._manager.dismissActive();
 			}, this);
 			
-			this._requestActive();
+			this.activate();
+			this._manager.requestActive(this);
+			
 		} else if (data.handle === 'basic_attack_out') {
-			this._manager.deactivate();
+			this.deactivate();
+			this._manager.dismissActive();
 		}
 	}
 
@@ -82,13 +87,14 @@ export default class BasicAttackIndicator extends Indicator {
 		}
 
 		// Publish the cast information.
-		var player = this._ctx.getPlayerEntity();
+		var player = this._ctx.playerEntity;
 		var pointerCords = WorldHelper.getTileXY(pointer.worldX, pointer.worldY);
 		
-		var d = WorldHelper.getDistance(player.position, pointerCords);
+		var d = WorldHelper.getDistance(player.getPosition(), pointerCords);
 		
 		if(d > this.RANGE) {
 			// Move to target.
+			/*
 			var path = this._ctx.zone.findPath(player.position, pointerCords).nodes;
 
 			// Path not found.
@@ -101,7 +107,7 @@ export default class BasicAttackIndicator extends Indicator {
 			this._ctx.pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 
 			// Start movement locally as well.
-			player.moveTo(path, this._ctx.playerBestia.walkspeed());
+			player.moveTo(path, this._ctx.playerBestia.walkspeed());*/
 		} else {
 			// Attack.
 			let msg = new Message.BasicMeleeAttackUse(this._targetEntity.uuid);

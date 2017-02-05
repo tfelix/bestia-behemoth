@@ -72,7 +72,7 @@ export default class Indicator {
 	}
 
 	/**
-	 * Private shurtcut method to request itself as an active indicator.
+	 * Private shortcut method to request itself as an active indicator.
 	 */
 	_setActive() {
 		return this._manager.requestActive(this);

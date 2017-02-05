@@ -104,6 +104,26 @@ var Message = {
 		this.x = x;
 		this.y = y;
 	},
+	
+	/**
+	 * Uses an attack.
+	 */
+	BasicMeleeAttackUse : function(targetUid) {
+		// Special reserved value.
+		this.aid = -1;
+		this.mid = MID.ATTACK_USE;
+		this.eid = targetUid;
+	},
+	
+	/**
+	 * Uses an attack.
+	 */
+	BasicRangedAttackUse : function(targetUid) {
+		// Special reserved value.
+		this.aid = -2;
+		this.mid = MID.ATTACK_USE;
+		this.eid = targetUid;
+	},
 
 	/**
 	 * Advices the server to change the attacks of the currently active bestia
@@ -180,10 +200,10 @@ var Message = {
 	 */
 	InventoryItemUse : function(playerItemId, playerBestiaId) {
 		if(playerItemId === undefined) {
-			throw "PlayerItemId can not be undefined.";
+			throw 'PlayerItemId can not be undefined.';
 		}
 		if(playerBestiaId === undefined) {
-			throw "PlayerBestiaId can not be undefined.";
+			throw 'PlayerBestiaId can not be undefined.';
 		}
 		
 		this.mid = MID.INVENTORY_ITEM_USE;
@@ -197,13 +217,13 @@ var Message = {
 	 */
 	InventoryItemCast : function(playerItemId, playerBestiaId, x, y) {
 		if(playerItemId === undefined) {
-			throw "PlayerItemId can not be undefined.";
+			throw 'PlayerItemId can not be undefined.';
 		}
 		if(x === undefined || y === undefined) {
-			throw "X and Y can not be undefined.";
+			throw 'X and Y can not be undefined.';
 		}
 		if(playerBestiaId === undefined) {
-			throw "PlayerBestiaId can not be undefined.";
+			throw 'PlayerBestiaId can not be undefined.';
 		}
 		
 		this.mid = MID.INVENTORY_ITEM_CAST;
