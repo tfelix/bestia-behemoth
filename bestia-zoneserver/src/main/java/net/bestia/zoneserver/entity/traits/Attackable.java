@@ -5,8 +5,9 @@ import java.util.List;
 import net.bestia.model.battle.Damage;
 import net.bestia.model.domain.AttackImpl;
 import net.bestia.model.domain.Element;
-import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.domain.StatusEffect;
+import net.bestia.model.domain.StatusPointsImpl;
 
 /**
  * Entities implementing this interface participating in the attacking system.
@@ -24,7 +25,7 @@ public interface Attackable extends Entity {
 	int getLevel();
 
 	/**
-	 * {@link StatusPoints}s of this entity. Please note that this status points
+	 * {@link StatusPointsImpl}s of this entity. Please note that this status points
 	 * might have been altered via items, equipments or status effects. The
 	 * original status points without this effects applied can be obtained via
 	 * {@link #getOriginalStatusPoints()}.

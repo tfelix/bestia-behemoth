@@ -7,7 +7,7 @@ public class StatusPointsTest {
 
 	@Test
 	public void check_invalid_hp() {
-		StatusPoints sp = new StatusPoints();
+		StatusPoints sp = new StatusPointsImpl();
 
 		sp.setMaxHp(100);
 		sp.setCurrentHp(0);
@@ -23,7 +23,7 @@ public class StatusPointsTest {
 
 	@Test
 	public void check_invalid_mana() {
-		StatusPoints sp = new StatusPoints();
+		StatusPoints sp = new StatusPointsImpl();
 
 		sp.setMaxMana(100);
 		sp.setCurrentMana(0);
@@ -39,7 +39,7 @@ public class StatusPointsTest {
 	
 	@Test
 	public void check_invalid_sp_armor() {
-		StatusPoints sp = new StatusPoints();
+		StatusPoints sp = new StatusPointsImpl();
 
 		sp.setMagicDefense(-10);
 		Assert.assertEquals(1, sp.getMagicDefense());
@@ -51,7 +51,7 @@ public class StatusPointsTest {
 	
 	@Test
 	public void check_invalid_armor() {
-		StatusPoints sp = new StatusPoints();
+		StatusPoints sp = new StatusPointsImpl();
 
 		sp.setDefense(-10);
 		Assert.assertEquals(1, sp.getDefense());
@@ -63,7 +63,7 @@ public class StatusPointsTest {
 
 	@Test
 	public void check_add() {
-		StatusPoints sp1 = new StatusPoints();
+		StatusPointsImpl sp1 = new StatusPointsImpl();
 
 		sp1.setStrenght(10);
 		sp1.setVitality(10);
@@ -99,7 +99,7 @@ public class StatusPointsTest {
 	
 	@Test
 	public void test_instanciation() {
-		StatusPoints sp = new StatusPoints();
+		StatusPoints sp = new StatusPointsImpl();
 
 		Assert.assertEquals(1, sp.getAgility());
 		Assert.assertEquals(1, sp.getVitality());
@@ -117,7 +117,7 @@ public class StatusPointsTest {
 	
 	@Test
 	public void test_CriticalValues() {
-		StatusPoints sp = new StatusPoints();
+		StatusPoints sp = new StatusPointsImpl();
 
 		sp.setMaxHp(110);
 		sp.setCurrentHp(100);
@@ -134,7 +134,7 @@ public class StatusPointsTest {
 	
 	@Test
 	public void test_IllegalMana() {
-		StatusPoints sp = new StatusPoints();
+		StatusPoints sp = new StatusPointsImpl();
 
 		sp.setCurrentMana(-10);
 		Assert.assertEquals(0, sp.getCurrentMana());
@@ -142,7 +142,7 @@ public class StatusPointsTest {
 	
 	@Test
 	public void illegal_low_hp() {
-		StatusPoints sp = new StatusPoints();
+		StatusPoints sp = new StatusPointsImpl();
 
 		sp.setCurrentHp(-10);
 		Assert.assertEquals(0, sp.getCurrentHp());
@@ -150,7 +150,7 @@ public class StatusPointsTest {
 	
 	@Test
 	public void illegal_low_maxHp() {
-		StatusPoints sp = new StatusPoints();
+		StatusPoints sp = new StatusPointsImpl();
 
 		sp.setMaxHp(-10);
 		Assert.assertEquals(1, sp.getMaxHp());
@@ -158,7 +158,7 @@ public class StatusPointsTest {
 	
 	@Test
 	public void illegal_low_maxMana() {
-		StatusPoints sp = new StatusPoints();
+		StatusPoints sp = new StatusPointsImpl();
 		sp.setMaxMana(-10);
 		Assert.assertEquals(1, sp.getMaxMana());
 	}

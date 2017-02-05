@@ -9,11 +9,13 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.AttackImpl;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.entity.InteractionType;
+import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.traits.Interactable;
 
@@ -27,7 +29,7 @@ public class PlayerEntity extends LivingEntity {
 	private final long accountId;
 	private final PlayerBestia playerBestia;
 	private boolean isActive = false;
-	
+
 	/**
 	 * Contains the entities already send to the client.
 	 */
@@ -40,7 +42,7 @@ public class PlayerEntity extends LivingEntity {
 		// Must be set rather quick because we call methods needing this
 		// information.
 		this.playerBestia = Objects.requireNonNull(playerBestia);
-		
+
 		this.accountId = accId;
 
 		setVisual(playerBestia.getOrigin().getSpriteInfo());
@@ -53,7 +55,34 @@ public class PlayerEntity extends LivingEntity {
 		// cache.
 		this.playerBestia.setOwner(null);
 	}
-	
+
+	private void checkLevelup() {
+
+		final int neededExp = (int) Math.round(Math.pow(getLevel(), 3) / 10 + 15 + getLevel() * 1.5);
+
+		if (playerBestia.getExp() > neededExp) {
+			playerBestia.setExp(playerBestia.getExp() - neededExp);
+			playerBestia.setLevel(playerBestia.getLevel() + 1);
+			getContext().sendMessage(
+					ChatMessage.getSystemMessage(getAccountId(), "T: Bestia advanced to level " + getLevel()));
+			statusBasedValues.setLevel(getLevel());
+			calculateStatusPoints();
+			checkLevelup();
+		}
+	}
+
+	/**
+	 * Adds experience points to the bestia. It will also check if a level up
+	 * occures.
+	 * 
+	 * @param exp
+	 */
+	public void addExperience(int exp) {
+
+		playerBestia.setExp(playerBestia.getExp() + exp);
+		checkLevelup();
+	}
+
 	public Set<Long> getLastSeenEntities() {
 		return lastSeenEntities;
 	}
@@ -99,24 +128,22 @@ public class PlayerEntity extends LivingEntity {
 	@Override
 	public float getMaxWeight() {
 		// TODO Auto-generated method stub
-		return 0;
+		return 100;
 	}
 
 	@Override
 	public float getWeight() {
 		// TODO Auto-generated method stub
-		return 0;
+		return 10;
 	}
 
 	@Override
 	public int getMaxItemCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 100;
 	}
 
 	@Override
-	public int getItemCount() {
-		// TODO Auto-generated method stub
+	public int getItemCount() {	
 		return 0;
 	}
 
@@ -171,16 +198,26 @@ public class PlayerEntity extends LivingEntity {
 		playerBestia.setOwner(owner);
 		return playerBestia;
 	}
-	
+
 	@Override
 	public Point getPosition() {
 		return playerBestia.getCurrentPosition();
 	}
-	
+
 	@Override
 	public void setPosition(long x, long y) {
 		playerBestia.setCurrentPosition(new Point(x, y));
 		// Update all the sorrounding entities.
 		super.setPosition(x, y);
+	}
+
+	@Override
+	public CollisionShape getShape() {
+		return getPosition();
+	}
+
+	@Override
+	public void setShape(CollisionShape shape) {
+		// TODO NOOP. Currently only a point shape is used.
 	}
 }

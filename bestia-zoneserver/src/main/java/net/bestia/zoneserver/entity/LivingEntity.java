@@ -9,17 +9,17 @@ import java.util.Set;
 import net.bestia.messages.entity.AnimationPlayMessage;
 import net.bestia.messages.entity.EntityMoveInternalMessage;
 import net.bestia.model.battle.Damage;
+import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Element;
 import net.bestia.model.domain.EquipmentSlot;
-import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.domain.StatusPointsImpl;
 import net.bestia.model.entity.StatusBasedValues;
-import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.traits.Equipable;
 import net.bestia.zoneserver.entity.traits.Loadable;
@@ -52,15 +52,17 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 	/**
 	 * Contains the unmodified (by equip or effects) base status points.
 	 */
-	private StatusPoints baseStatusPoints = new StatusPoints();
+	private StatusPointsImpl baseStatusPoints = new StatusPointsImpl();
 
 	/**
-	 * Contains the modified (by equip of effects) status points.
+	 * Contains the modified (by equip of effects) status points. It basically
+	 * caches the status values because they are needed quite often and
+	 * calculation is somehow costly.
 	 */
-	private StatusPoints modifiedStatusPoints = new StatusPoints();
-	
-	private final StatusBasedValues statusModifier;
-	
+	private StatusPointsImpl modifiedStatusPoints = new StatusPointsImpl();
+
+	protected final StatusBasedValues statusBasedValues;
+
 	private final List<StatusEffect> statusEffects = new ArrayList<>();
 
 	public LivingEntity(BaseValues baseValues, BaseValues ivs, BaseValues effortValues, SpriteInfo visual) {
@@ -70,8 +72,8 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 		this.effortValues = Objects.requireNonNull(effortValues);
 
 		setVisual(visual);
-		
-		statusModifier = new StatusBasedValues(modifiedStatusPoints, getLevel());
+
+		statusBasedValues = new StatusBasedValues(modifiedStatusPoints, getLevel());
 	}
 
 	public Direction getHeadFacing() {
@@ -145,7 +147,7 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 	}
 
 	@Override
-	public void removeStatusEffect(StatusEffect effect) {	
+	public void removeStatusEffect(StatusEffect effect) {
 		statusEffects.remove(effect);
 	}
 

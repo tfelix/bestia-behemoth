@@ -77,13 +77,13 @@ public class ChatMessage extends JsonMessage {
 	 *            A text to send to the client.
 	 * @return The generated message.
 	 */
-	public static ChatMessage getSystemMessage(Account account, String text) {
+	public static ChatMessage getSystemMessage(long accId, String text) {
 
 		final ChatMessage msg = new ChatMessage();
 		msg.setText(text);
 		msg.setTime(System.currentTimeMillis() / 1000L);
 		msg.setChatMode(Mode.SYSTEM);
-		msg.setAccountId(account.getId());
+		msg.setAccountId(accId);
 
 		return msg;
 	}

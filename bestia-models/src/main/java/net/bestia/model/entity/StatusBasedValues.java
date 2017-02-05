@@ -3,6 +3,7 @@ package net.bestia.model.entity;
 import java.util.Objects;
 
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.domain.StatusPointsImpl;
 
 /**
  * These modifier are calculates based on status values. The are used to
@@ -16,7 +17,7 @@ public class StatusBasedValues {
 	private final StatusPoints status;
 	private int level;
 
-	public StatusBasedValues(StatusPoints status, int level) {
+	public StatusBasedValues(StatusPointsImpl status, int level) {
 		if (level < 1) {
 			throw new IllegalArgumentException("Level can not be smaller then 1.");
 		}
