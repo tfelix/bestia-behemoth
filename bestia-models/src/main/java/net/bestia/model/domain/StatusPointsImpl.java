@@ -5,8 +5,6 @@ import java.io.Serializable;
 import javax.persistence.Embeddable;
 import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * Status values for bestia entities.
  * 

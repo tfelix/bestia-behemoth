@@ -51,7 +51,10 @@ public class EntityFactory {
 				BaseValues.getNullValues(), bestia.getSpriteInfo());
 		be.setEntityContext(entityCtx);
 		entityService.generateId(be);
-
+		
+		// Save so the position update can access the entity.
+		entityService.save(be);
+		
 		// Position the entity.
 		be.setPosition(x, y);
 		entityService.save(be);

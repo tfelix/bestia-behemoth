@@ -30,6 +30,10 @@ export default class BootState {
 	}
 	
 	create() {
+		
+		// Prevent rightclick.
+		this.game.canvas.oncontextmenu = (e) => e.preventDefault();
+		
 		// Setup the game context.
 		this._ctx.pubsub.publish(Signal.ENGINE_BOOTED);
 	}

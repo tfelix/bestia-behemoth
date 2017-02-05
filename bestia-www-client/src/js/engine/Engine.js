@@ -45,11 +45,6 @@ export default class Engine {
 		pubsub.subscribe(Signal.ENGINE_INIT_LOADED, this._handlerOnInitLoaded, this);
 		pubsub.subscribe(Signal.ENGINE_FINISHED_MAPLOAD, this._handlerOnFinishedMapload, this);
 		
-		// We need right click. So hide it.
-		$('#bestia-canvas').bind('contextmenu', function(e){
-			e.preventDefault();
-		}); 
-		
 		// When everything is setup. Start the engine.
 		this.game.state.start('boot');
 	}
