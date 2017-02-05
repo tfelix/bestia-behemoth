@@ -1,10 +1,17 @@
 import Entity from './Entity.js';
+import Signal from './../../io/Signal';
 import WorldHelper from '../map/WorldHelper.js';
 import LOG from '../../util/Log';
 
 const FACING = Object.freeze({
 	TOP: 1, 
-	TOP_RIGHT: 2
+	TOP_RIGHT: 2,
+	RIGHT: 3,
+	BOTTOM_RIGHT: 4,
+	BOTTOM: 5,
+	BOTTOM_LEFT: 6,
+	LEFT: 7,
+	TOP_LEFT: 8
 });
 
 export default class SpriteEntity extends Entity {
@@ -62,9 +69,6 @@ export default class SpriteEntity extends Entity {
 		
 		// Re-set position so the sprite gets now postioned.
 		this._syncSpritePosition();
-		
-		this._sprite.events.onInputOver.add(this._onOverHandler, this);
-		this._sprite.events.onInputOut.add(this._onOutHandler, this);
 
 		// Find all animations in which it stands.
 		var standAnimations = this._data.animations.filter(function(anim) {
@@ -102,6 +106,11 @@ export default class SpriteEntity extends Entity {
 			var frames = Phaser.Animation.generateFrameNames(anim.name + '/', anim.from, anim.to, '.png', 3);
 			sprite.animations.add(anim.name, frames, anim.fps, true, false);
 		}, this);
+		
+		// Enable input.
+		this._sprite.inputEnabled = true;
+		this._sprite.events.onInputOver.add(this._onOverHandler, this);
+		this._sprite.events.onInputOut.add(this._onOutHandler, this);
 	}
 
 	setTexture(name) {

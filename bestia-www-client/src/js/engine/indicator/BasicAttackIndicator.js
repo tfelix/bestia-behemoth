@@ -64,12 +64,12 @@ export default class BasicAttackIndicator extends Indicator {
 			
 			// Do some wiring. If the sprite dies we need to give up controls.
 			this._targetSprite.events.onDestroy.add(function(){
-				this._manager.dismissActive();
+				this._manager.activate();
 			}, this);
 			
 			this._requestActive();
 		} else if (data.handle === 'basic_attack_out') {
-			this._manager.dismissActive();
+			this._manager.deactivate();
 		}
 	}
 

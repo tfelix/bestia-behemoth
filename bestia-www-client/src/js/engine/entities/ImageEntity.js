@@ -14,9 +14,6 @@ export default class ImageEntity extends Entity {
 
 		this._sprite = this._game.add.image(0, 0, spriteName);
 		
-		// Enable input.
-		this._sprite.inputEnabled = true;
-		
 		this._sprite.events.onInputOver.add(this._onOverHandler, this);
 		this._sprite.events.onInputOut.add(this._onOutHandler, this);
 
@@ -51,6 +48,9 @@ export default class ImageEntity extends Entity {
 
 		// Sprite is invisible at first.
 		sprite.alpha = 0;
+		
+		// Enable input.
+		this._sprite.inputEnabled = true;
 	}
 
 	show() {

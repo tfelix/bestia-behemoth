@@ -1,5 +1,3 @@
-/*global Phaser */
-
 import NOOP from '../../util/NOOP.js';
 import LOG from '../../util/Log';
 

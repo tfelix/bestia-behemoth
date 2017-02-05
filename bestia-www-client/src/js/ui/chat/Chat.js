@@ -151,8 +151,8 @@ export default class Chat {
 	
 		// Finally subscribe to chat messages.
 		this._pubsub.subscribe(MID.CHAT_MESSAGE, function(_, msg) {
-			self.addMessage(msg);
-		});
+			this.addMessage(msg);
+		}, this);
 	
 		// Catch authentication to set username for the chat. We can remove
 		// ourself
