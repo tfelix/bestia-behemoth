@@ -39,7 +39,7 @@ public class BestiaAttack implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "ATTACK_ID", nullable = false)
 	@JsonProperty("a")
-	private Attack attack;
+	private AttackImpl attack;
 
 	@ManyToOne
 	@JoinColumn(name = "BESTIA_ID", nullable = false)
@@ -61,7 +61,7 @@ public class BestiaAttack implements Serializable {
 		return String.format("AttackLevel[attack_db_name: %s, minLevel: %d]", attack.getDatabaseName(), minLevel);
 	}
 
-	public Attack getAttack() {
+	public AttackImpl getAttack() {
 		return attack;
 	}
 

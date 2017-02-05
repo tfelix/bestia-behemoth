@@ -1,22 +1,26 @@
 package net.bestia.zoneserver.entity;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 import net.bestia.messages.entity.AnimationPlayMessage;
 import net.bestia.messages.entity.EntityMoveInternalMessage;
+import net.bestia.model.battle.Damage;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Element;
 import net.bestia.model.domain.EquipmentSlot;
+import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
-import net.bestia.model.misc.Damage;
 import net.bestia.zoneserver.entity.traits.Equipable;
 import net.bestia.zoneserver.entity.traits.Loadable;
 
@@ -48,12 +52,16 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 	/**
 	 * Contains the unmodified (by equip or effects) base status points.
 	 */
-	private StatusPoints baseStatusPoints;
+	private StatusPoints baseStatusPoints = new StatusPoints();
 
 	/**
 	 * Contains the modified (by equip of effects) status points.
 	 */
-	private StatusPoints modifiedStatusPoints;
+	private StatusPoints modifiedStatusPoints = new StatusPoints();
+	
+	private final StatusBasedValues statusModifier;
+	
+	private final List<StatusEffect> statusEffects = new ArrayList<>();
 
 	public LivingEntity(BaseValues baseValues, BaseValues ivs, BaseValues effortValues, SpriteInfo visual) {
 
@@ -62,6 +70,8 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 		this.effortValues = Objects.requireNonNull(effortValues);
 
 		setVisual(visual);
+		
+		statusModifier = new StatusBasedValues(modifiedStatusPoints, getLevel());
 	}
 
 	public Direction getHeadFacing() {
@@ -71,7 +81,6 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 	public void setHeadFacing(Direction headFacing) {
 		this.headFacing = headFacing;
 	}
-
 
 	/**
 	 * Recalculates the status values of a bestia. It uses the EVs, IVs and
@@ -100,7 +109,6 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 		final int maxMana = baseValues.getMana() * 2 + ivs.getMana()
 				+ effortValues.getMana() / 4 * getLevel() / 100 + 10 + getLevel() * 2;
 
-		baseStatusPoints = new StatusPoints();
 		baseStatusPoints.setMaxHp(maxHp);
 		baseStatusPoints.setMaxMana(maxMana);
 		baseStatusPoints.setStrenght(atk);
@@ -137,15 +145,13 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 	}
 
 	@Override
-	public void removeStatusEffect(StatusEffect effect) {
-		// TODO Auto-generated method stub
-
+	public void removeStatusEffect(StatusEffect effect) {	
+		statusEffects.remove(effect);
 	}
 
 	@Override
 	public List<StatusEffect> getStatusEffects() {
-		// TODO Auto-generated method stub
-		return null;
+		return Collections.unmodifiableList(statusEffects);
 	}
 
 	@Override
@@ -210,18 +216,6 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 	}
 
 	@Override
-	public CollisionShape getShape() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setShape(CollisionShape shape) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public float getMovementSpeed() {
 		return 1.0f;
 	}
@@ -236,5 +230,16 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 
 		final EntityMoveInternalMessage moveMsg = new EntityMoveInternalMessage(getId(), path);
 		getContext().sendMessage(moveMsg);
+	}
+
+	// ################ SCRIPT HOOKS ##################
+
+	/**
+	 * This will be called upon usage of an attack. If the entity has some
+	 * status effects or equipments which will transform this attack this is the
+	 * right place to do so.
+	 */
+	public Attack onAttackUse(Attack attack) {
+
 	}
 }

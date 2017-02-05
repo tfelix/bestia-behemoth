@@ -15,7 +15,7 @@ import net.bestia.model.dao.BestiaAttackDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.dao.PlayerItemDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.model.domain.Attack;
+import net.bestia.model.domain.AttackImpl;
 import net.bestia.model.domain.BestiaAttack;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
@@ -124,7 +124,7 @@ public class PlayerBestiaService {
 	 * @param slot
 	 *            The slot to set the attack into.
 	 */
-	private void setPlayerBestiaAttack(PlayerBestia playerBestia, Attack atk, int slot) {
+	private void setPlayerBestiaAttack(PlayerBestia playerBestia, AttackImpl atk, int slot) {
 		switch (slot) {
 		case 1:
 			playerBestia.setAttack1(atk);

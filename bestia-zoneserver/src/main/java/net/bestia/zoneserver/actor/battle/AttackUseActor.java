@@ -10,8 +10,9 @@ import org.springframework.stereotype.Component;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.attack.AttackUseMessage;
-import net.bestia.model.domain.Attack;
+import net.bestia.model.domain.AttackImpl;
 import net.bestia.model.domain.AttackTarget;
+import net.bestia.model.domain.Attack;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerEntity;
@@ -54,14 +55,29 @@ public class AttackUseActor extends BestiaRoutingActor {
 		final AttackUseMessage atkMsg = (AttackUseMessage) msg;
 		final PlayerEntity pbe = playerEntityService.getActivePlayerEntity(atkMsg.getAccountId());
 
-		if (atkMsg.getSlot() < 0 || atkMsg.getSlot() > 4) {
-			LOG.warning("Attacke slots not in range. Message: {}", atkMsg.toString());
-			return;
-		}
-
 		// We must check if all preconditions for using the attack are
 		// fulfilled.
-		final Attack usedAttack = pbe.getAttacks().get(atkMsg.getSlot());
+		final Attack usedAttack;
+
+		// Some special handling for basic attacks.
+		if (atkMsg.getAttackId() == -1) {
+			
+			// Use the default melee attack.
+			usedAttack = AttackImpl.getDefaultMeleeAttack();
+		} else if (atkMsg.getAttackId() == -2) {
+			
+			// TODO: Use the default ranged attack.
+			usedAttack = AttackImpl.getDefaultMeleeAttack();
+		} else {
+			if (atkMsg.getSlot() < 0 || atkMsg.getSlot() > 4) {
+				LOG.warning("Attacke slots not in range. Message: {}", atkMsg.toString());
+				return;
+			}
+
+			// We must check if all preconditions for using the attack are
+			// fulfilled.
+			usedAttack = pbe.getAttacks().get(atkMsg.getSlot());
+		}
 
 		// TODO If there is equipment which reduces the mana used? This must be
 		// considered.
@@ -90,15 +106,16 @@ public class AttackUseActor extends BestiaRoutingActor {
 			return;
 		}
 	}
-	
+
 	/**
 	 * TODO Implementieren.
+	 * 
 	 * @param start
 	 * @param end
 	 * @return
 	 */
 	private boolean hasLineOfSight(Point start, Point end) {
-		
+
 		return true;
 	}
 
@@ -125,20 +142,19 @@ public class AttackUseActor extends BestiaRoutingActor {
 		// Check if we have valid x and y.
 		try {
 			final Point target = new Point(atkMsg.getX(), atkMsg.getY());
-			
+
 			// Check if target is in sight.
-			if(usedAttack.needsLineOfSight() && !hasLineOfSight(pbe.getPosition(), target)) {
+			if (usedAttack.needsLineOfSight() && !hasLineOfSight(pbe.getPosition(), target)) {
 				// No line of sight.
 				return;
 			}
-			
+
 			// Check if target is in range.
-			if(usedAttack.getRange() < pbe.getPosition().getDistance(target)) {
+			if (usedAttack.getRange() < pbe.getPosition().getDistance(target)) {
 				// Out of range.
 				return;
 			}
-			
-			
+
 		} catch (IllegalArgumentException e) {
 			LOG.warning("Wrong target coordinates. Message: {}", atkMsg.toString());
 		}

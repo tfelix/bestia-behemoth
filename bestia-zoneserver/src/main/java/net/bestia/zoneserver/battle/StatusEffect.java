@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.battle;
 
+import net.bestia.model.battle.Damage;
 import net.bestia.model.domain.Attack;
-import net.bestia.model.misc.Damage;
 import net.bestia.zoneserver.entity.traits.Attackable;
 
 public interface StatusEffect {

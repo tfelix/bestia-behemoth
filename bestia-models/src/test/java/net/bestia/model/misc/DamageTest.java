@@ -3,7 +3,8 @@ package net.bestia.model.misc;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.bestia.model.misc.Damage.DamageType;
+import net.bestia.model.battle.Damage;
+import net.bestia.model.battle.Damage.DamageType;
 
 public class DamageTest {
 

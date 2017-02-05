@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.entity;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -9,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bestia.model.domain.Account;
-import net.bestia.model.domain.Attack;
+import net.bestia.model.domain.AttackImpl;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.entity.InteractionType;
@@ -30,7 +31,7 @@ public class PlayerEntity extends LivingEntity {
 	/**
 	 * Contains the entities already send to the client.
 	 */
-	private Set<Long> lastSeenEntities = new HashSet<>();
+	private final Set<Long> lastSeenEntities = new HashSet<>();
 
 	public PlayerEntity(long accId, PlayerBestia playerBestia) {
 		super(playerBestia.getBaseValues(), playerBestia.getIndividualValue(), playerBestia.getEffortValues(),
@@ -70,9 +71,8 @@ public class PlayerEntity extends LivingEntity {
 	}
 
 	@Override
-	public List<Attack> getAttacks() {
-		// TODO Auto-generated method stub
-		return null;
+	public List<AttackImpl> getAttacks() {
+		return playerBestia.getAttacks();
 	}
 
 	@Override
@@ -82,14 +82,12 @@ public class PlayerEntity extends LivingEntity {
 
 	@Override
 	public Set<InteractionType> getPossibleInteractions(Interactable interacter) {
-		// TODO Auto-generated method stub
-		return null;
+		return Collections.emptySet();
 	}
 
 	@Override
 	public Set<InteractionType> getInteractions() {
-		// TODO Auto-generated method stub
-		return null;
+		return Collections.emptySet();
 	}
 
 	@Override

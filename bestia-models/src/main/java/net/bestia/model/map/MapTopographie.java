@@ -1,4 +1,4 @@
-package net.bestia.model.misc;
+package net.bestia.model.map;
 
 import java.util.HashSet;
 import java.util.Objects;

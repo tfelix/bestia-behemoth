@@ -120,27 +120,27 @@ public class PlayerBestia implements Serializable {
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ATTACK_1", nullable = true)
 	@JsonProperty("atk1")
-	private Attack attack1;
+	private AttackImpl attack1;
 
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ATTACK_2", nullable = true)
 	@JsonProperty("atk2")
-	private Attack attack2;
+	private AttackImpl attack2;
 
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ATTACK_3", nullable = true)
 	@JsonProperty("atk3")
-	private Attack attack3;
+	private AttackImpl attack3;
 
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ATTACK_4", nullable = true)
 	@JsonProperty("atk4")
-	private Attack attack4;
+	private AttackImpl attack4;
 
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ATTACK_5", nullable = true)
 	@JsonProperty("atk5")
-	private Attack attack5;
+	private AttackImpl attack5;
 
 	/**
 	 * Override the names because the are the same like in status points. Both
@@ -303,43 +303,43 @@ public class PlayerBestia implements Serializable {
 		this.currentMana = curMana;
 	}
 
-	public Attack getAttack1() {
+	public AttackImpl getAttack1() {
 		return attack1;
 	}
 
-	public void setAttack1(Attack attack1) {
+	public void setAttack1(AttackImpl attack1) {
 		this.attack1 = attack1;
 	}
 
-	public Attack getAttack2() {
+	public AttackImpl getAttack2() {
 		return attack2;
 	}
 
-	public void setAttack2(Attack attack2) {
+	public void setAttack2(AttackImpl attack2) {
 		this.attack2 = attack2;
 	}
 
-	public Attack getAttack3() {
+	public AttackImpl getAttack3() {
 		return attack3;
 	}
 
-	public void setAttack3(Attack attack3) {
+	public void setAttack3(AttackImpl attack3) {
 		this.attack3 = attack3;
 	}
 
-	public Attack getAttack4() {
+	public AttackImpl getAttack4() {
 		return attack4;
 	}
 
-	public void setAttack4(Attack attack4) {
+	public void setAttack4(AttackImpl attack4) {
 		this.attack4 = attack4;
 	}
 
-	public Attack getAttack5() {
+	public AttackImpl getAttack5() {
 		return attack5;
 	}
 
-	public void setAttack5(Attack attack5) {
+	public void setAttack5(AttackImpl attack5) {
 		this.attack5 = attack5;
 	}
 
@@ -391,7 +391,7 @@ public class PlayerBestia implements Serializable {
 		this.master = master;
 	}
 
-	public List<Attack> getAttacks() {
+	public List<AttackImpl> getAttacks() {
 		return Arrays.asList(getAttack1(), getAttack2(), getAttack3(), getAttack4(), getAttack5());
 	}
 

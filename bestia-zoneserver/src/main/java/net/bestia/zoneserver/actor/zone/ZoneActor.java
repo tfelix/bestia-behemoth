@@ -22,6 +22,7 @@ import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.SpawnActorHelper;
+import net.bestia.zoneserver.actor.battle.AttackUseActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.entity.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.entity.BestiaInfoActor;
@@ -77,6 +78,9 @@ public class ZoneActor extends BestiaRoutingActor {
 
 		// === Chat ===
 		createActor(ChatActor.class);
+		
+		// === Attacking ===
+		createActor(AttackUseActor.class);
 
 		// === House keeping actors ===
 		createActor(DisconnectManagerActor.class);

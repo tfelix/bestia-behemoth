@@ -1,4 +1,4 @@
-package net.bestia.model.misc;
+package net.bestia.model.battle;
 
 import java.io.Serializable;
 

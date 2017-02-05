@@ -11,17 +11,26 @@ import net.bestia.model.domain.StatusPoints;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class StatusModifier {
+public class StatusBasedValues {
 
 	private final StatusPoints status;
 	private int level;
 
-	public StatusModifier(StatusPoints status, int level) {
+	public StatusBasedValues(StatusPoints status, int level) {
 		if (level < 1) {
 			throw new IllegalArgumentException("Level can not be smaller then 1.");
 		}
 
 		this.status = Objects.requireNonNull(status);
+		this.level = level;
+	}
+
+	/**
+	 * Sets the level of the modifier.
+	 * 
+	 * @param level The new level.
+	 */
+	public void setLevel(int level) {
 		this.level = level;
 	}
 
@@ -62,39 +71,39 @@ public class StatusModifier {
 	public int getDodge() {
 		return 0;
 	}
-	
+
 	public float getCasttime() {
 		return 1;
 	}
-	
+
 	public float getCastduration() {
 		return 1;
 	}
-	
+
 	public int getWillpowerResistance() {
 		return 0;
 	}
-	
+
 	public int getVitalityResistance() {
 		return 0;
 	}
-	
+
 	public int getHitrate() {
 		return 1000;
 	}
-	
+
 	public int getMinDamage() {
 		return 60;
 	}
-	
+
 	public int getRangedBonusDamage() {
 		return 0;
 	}
-	
+
 	public int getAttackSpeed() {
 		return 0;
 	}
-	
+
 	public int getWalkspeed() {
 		return 100;
 	}

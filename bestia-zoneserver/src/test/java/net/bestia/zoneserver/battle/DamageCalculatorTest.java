@@ -3,13 +3,13 @@ package net.bestia.zoneserver.battle;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import net.bestia.model.domain.Attack;
+import net.bestia.model.domain.AttackImpl;
 import net.bestia.zoneserver.entity.traits.Attackable;
 
 public class DamageCalculatorTest {
 	
 	@Mock
-	private Attack atk;
+	private AttackImpl atk;
 	
 	@Mock
 	Attackable user;

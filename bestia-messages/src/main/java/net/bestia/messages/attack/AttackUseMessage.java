@@ -20,13 +20,16 @@ public class AttackUseMessage extends JsonMessage {
 
 	@JsonProperty("aid")
 	private int attackId;
-	
+
 	@JsonProperty("s")
 	private int slot;
-	
+
+	@JsonProperty("x")
 	private long x;
+
+	@JsonProperty("y")
 	private long y;
-	
+
 	@JsonProperty("tid")
 	private long targetEntityId;
 
@@ -61,11 +64,11 @@ public class AttackUseMessage extends JsonMessage {
 	public void setY(long y) {
 		this.y = y;
 	}
-	
+
 	public long getTargetEntityId() {
 		return targetEntityId;
 	}
-	
+
 	public void setTargetEntityId(long targetEntityId) {
 		this.targetEntityId = targetEntityId;
 	}
@@ -77,6 +80,7 @@ public class AttackUseMessage extends JsonMessage {
 
 	@Override
 	public String toString() {
-		return String.format("AttackUseMessage[attackId: %d, x: %d, y: %d]", attackId, x, y);
+		return String.format("AttackUseMessage[attackId: %d, x: %d, y: %d, targetEid: %d]", attackId, x, y,
+				targetEntityId);
 	}
 }

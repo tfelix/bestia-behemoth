@@ -2,11 +2,11 @@ package net.bestia.zoneserver.entity.traits;
 
 import java.util.List;
 
-import net.bestia.model.domain.Attack;
+import net.bestia.model.battle.Damage;
+import net.bestia.model.domain.AttackImpl;
 import net.bestia.model.domain.Element;
 import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
-import net.bestia.model.misc.Damage;
 
 /**
  * Entities implementing this interface participating in the attacking system.
@@ -35,8 +35,22 @@ public interface Attackable extends Entity {
 
 	StatusPoints getOriginalStatusPoints();
 
+	/**
+	 * Adds a {@link StatusEffect} to the entity. This will possibly trigger
+	 * effects associated with the adding of the effect.
+	 * 
+	 * @param effect
+	 *            The effect to add.
+	 */
 	void addStatusEffect(StatusEffect effect);
 
+	/**
+	 * Removes the given status effect from the entity. This will possibly
+	 * trigger effects associated with the removal of the effect.
+	 * 
+	 * @param effect
+	 *            The effect to remove.
+	 */
 	void removeStatusEffect(StatusEffect effect);
 
 	/**
@@ -51,7 +65,7 @@ public interface Attackable extends Entity {
 	/**
 	 * The current element of this entity.
 	 * 
-	 * @return
+	 * @return The current element of the entity.
 	 */
 	Element getElement();
 
@@ -59,7 +73,7 @@ public interface Attackable extends Entity {
 	 * The original element of this entity unaltered by status effects or
 	 * equipments.
 	 * 
-	 * @return
+	 * @return The original unaltered element.
 	 */
 	Element getOriginalElement();
 
@@ -68,7 +82,7 @@ public interface Attackable extends Entity {
 	 * 
 	 * @return A list of all available attacks.
 	 */
-	List<Attack> getAttacks();
+	List<AttackImpl> getAttacks();
 
 	/**
 	 * Kills the entity.

@@ -112,7 +112,7 @@ var Message = {
 		// Special reserved value.
 		this.aid = -1;
 		this.mid = MID.ATTACK_USE;
-		this.eid = targetUid;
+		this.tid = targetUid;
 	},
 	
 	/**
