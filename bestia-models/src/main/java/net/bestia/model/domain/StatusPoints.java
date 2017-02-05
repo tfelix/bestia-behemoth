@@ -1,11 +1,16 @@
 package net.bestia.model.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public interface StatusPoints {
 
+	@JsonProperty("chp")
 	int getCurrentHp();
 
+	@JsonProperty("mhp")
 	int getMaxHp();
 
+	@JsonProperty("cmana")
 	int getCurrentMana();
 
 	/**
@@ -13,8 +18,10 @@ public interface StatusPoints {
 	 * 
 	 * @return Max mana.
 	 */
+	@JsonProperty("mmana")
 	int getMaxMana();
 
+	@JsonProperty("def")
 	int getDefense();
 
 	/**
@@ -22,6 +29,8 @@ public interface StatusPoints {
 	 * 
 	 * @return The magic defense.
 	 */
+
+	@JsonProperty("mdef")
 	int getMagicDefense();
 
 	/**
@@ -29,8 +38,10 @@ public interface StatusPoints {
 	 * 
 	 * @return
 	 */
+	@JsonProperty("str")
 	int getStrength();
 
+	@JsonProperty("vit")
 	int getVitality();
 
 	/**
@@ -38,6 +49,7 @@ public interface StatusPoints {
 	 * 
 	 * @return Intelligence.
 	 */
+	@JsonProperty("int")
 	int getIntelligence();
 
 	/**
@@ -45,10 +57,13 @@ public interface StatusPoints {
 	 * 
 	 * @return The agility.
 	 */
+	@JsonProperty("agi")
 	int getAgility();
 
+	@JsonProperty("will")
 	int getWillpower();
 
+	@JsonProperty("dex")
 	int getDexterity();
 
 	void setDexterity(int dexterity);

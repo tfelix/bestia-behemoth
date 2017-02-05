@@ -18,42 +18,21 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 
 	private static final long serialVersionUID = 1L;
 
-	@JsonProperty("chp")
 	@Transient
 	private int currentHp;
 
-	@JsonProperty("mhp")
-	private int maxHp;
-
-	@JsonProperty("cmana")
 	@Transient
 	private int currentMana;
 
-	@JsonProperty("mmana")
+	private int maxHp;
 	private int maxMana;
-
-	@JsonProperty("str")
 	private int strength;
-
-	@JsonProperty("vit")
 	private int vitality;
-
-	@JsonProperty("int")
 	private int intelligence;
-
-	@JsonProperty("will")
 	private int willpower;
-
-	@JsonProperty("agi")
 	private int agility;
-
-	@JsonProperty("dex")
 	private int dexterity;
-
-	@JsonProperty("def")
 	private int defense;
-
-	@JsonProperty("mdef")
 	private int magicDefense;
 
 	public StatusPointsImpl() {

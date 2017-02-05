@@ -22,7 +22,7 @@ import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.SpawnActorHelper;
-import net.bestia.zoneserver.actor.battle.AttackUseActor;
+import net.bestia.zoneserver.actor.battle.AttackPlayerUseActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.entity.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.entity.BestiaInfoActor;
@@ -49,8 +49,6 @@ public class ZoneActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "zoneRoot";
-	
-	private ActorRef localInitActor;
 
 	public ZoneActor() {
 		super(Arrays.asList(DoneMessage.class));
@@ -80,7 +78,7 @@ public class ZoneActor extends BestiaRoutingActor {
 		createActor(ChatActor.class);
 		
 		// === Attacking ===
-		createActor(AttackUseActor.class);
+		createActor(AttackPlayerUseActor.class);
 
 		// === House keeping actors ===
 		createActor(DisconnectManagerActor.class);
@@ -101,10 +99,6 @@ public class ZoneActor extends BestiaRoutingActor {
 		clusterProbs = ClusterSingletonProxy.props("/user/globalInit", proxySettings);
 		final ActorRef initProxy = system.actorOf(clusterProbs, "globalInitProxy");
 		initProxy.tell(new StartInitMessage(), getSelf());
-
-		// Do the local init like loading scripts. When this is finished we can
-		// register ourselves with the messaging system.
-		localInitActor = createActor(InitLocalActor.class, "localInit");
 		
 		// Temporary register without init.
 		final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
@@ -116,24 +110,7 @@ public class ZoneActor extends BestiaRoutingActor {
 
 	@Override
 	protected void handleMessage(Object msg) {
-		if(msg instanceof DoneMessage) {
-			final DoneMessage dm = (DoneMessage) msg;
-			if(dm.getTag().equals("global")) {
-				localInitActor.tell(new StartInitMessage(), getSelf());
-			} else {
-				// Local init done.
-				localInitActor.tell(PoisonPill.getInstance(), getSelf());
-				localInitActor = null;
-				
-				// If we have finished loading setup the mediator to receive pub sub
-				// messages.
-				final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
-				mediator.tell(new DistributedPubSubMediator.Subscribe(
-						AkkaCluster.CLUSTER_PUBSUB_TOPIC,
-						getSelf()),
-						getSelf());
-			}
-		}
+		// no op.
 	}
 
 	@Override

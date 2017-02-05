@@ -33,7 +33,7 @@ import net.bestia.zoneserver.service.PlayerEntityService;
  */
 @Component
 @Scope("prototype")
-public class AttackUseActor extends BestiaRoutingActor {
+public class AttackPlayerUseActor extends BestiaRoutingActor {
 
 	public final static String NAME = "attackUse";
 
@@ -44,7 +44,7 @@ public class AttackUseActor extends BestiaRoutingActor {
 	private final ScriptCache cache;
 
 	@Autowired
-	public AttackUseActor(EntityService entityService, PlayerEntityService playerEntityService, ScriptCache cache) {
+	public AttackPlayerUseActor(EntityService entityService, PlayerEntityService playerEntityService, ScriptCache cache) {
 		super(Arrays.asList(AttackUseMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);
