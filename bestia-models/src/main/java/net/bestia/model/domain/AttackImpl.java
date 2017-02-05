@@ -243,6 +243,7 @@ public class AttackImpl implements Serializable, Attack {
 			defaultMeleeAttack.range = 1;
 			defaultMeleeAttack.lineOfSight = true;
 			defaultMeleeAttack.basedStatus = AttackBasedStatus.NORMAL;
+			defaultMeleeAttack.target = AttackTarget.ENEMY_ENTITY;
 			defaultMeleeAttack.casttime = 0;
 			defaultMeleeAttack.cooldown = 1500;
 		}

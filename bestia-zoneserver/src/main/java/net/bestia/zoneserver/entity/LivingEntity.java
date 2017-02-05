@@ -9,8 +9,10 @@ import java.util.Set;
 import net.bestia.messages.entity.AnimationPlayMessage;
 import net.bestia.messages.entity.EntityMoveInternalMessage;
 import net.bestia.model.battle.Damage;
+import net.bestia.model.battle.StatusBasedValueModifier;
 import net.bestia.model.battle.StatusBasedValuesDecorator;
 import net.bestia.model.battle.StatusPointsDecorator;
+import net.bestia.model.battle.StatusPointsModifier;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Element;
@@ -20,10 +22,12 @@ import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
-import net.bestia.model.entity.StatusBasedValues;
+import net.bestia.model.entity.IStatusBasedValues;
+import net.bestia.model.entity.StatusBasedValuesImpl;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.traits.Equipable;
 import net.bestia.zoneserver.entity.traits.Loadable;
+import net.bestia.zoneserver.script.StatusEffectScript;
 
 /**
  * <p>
@@ -54,11 +58,12 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 	 * Contains the unmodified (by equip or effects) base status points.
 	 */
 	private StatusPoints baseStatusPoints;
-	private StatusPointsDecorator baseStatusPointDeco;
+	private StatusPointsDecorator baseStatusPointModified;
 
-	private StatusBasedValues statusBasedValues;
+	private IStatusBasedValues statusBasedValues;
 	private StatusBasedValuesDecorator statusBasedValuesModified;
 
+	private final List<StatusEffectScript> statusEffectsScripts = new ArrayList<>();
 	private final List<StatusEffect> statusEffects = new ArrayList<>();
 
 	public LivingEntity(BaseValues baseValues, BaseValues ivs, BaseValues effortValues, SpriteInfo visual) {
@@ -83,7 +88,7 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 	 * BaseValues. Must be called after the level of a bestia has changed.
 	 */
 	protected void calculateStatusPoints() {
-		
+
 		baseStatusPoints = new StatusPointsImpl();
 
 		final int atk = (baseValues.getAttack() * 2 + ivs.getAttack()
@@ -115,18 +120,34 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 		baseStatusPoints.setMagicDefense(spdef);
 		baseStatusPoints.setAgility(spd);
 
-		baseStatusPointDeco = new StatusPointsDecorator(baseStatusPoints);
-		statusBasedValues = new StatusBasedValues(baseStatusPointDeco, getLevel());
+		baseStatusPointModified = new StatusPointsDecorator(baseStatusPoints);
+		baseStatusPointModified.clearModifier();
+
+		// Get all the attached script mods.
+		for (StatusEffectScript statScript : statusEffectsScripts) {
+			final StatusPointsModifier mod = statScript.onStatusPoints(baseStatusPoints);
+			baseStatusPointModified.addModifier(mod);
+		}
+
+		statusBasedValues = new StatusBasedValuesImpl(baseStatusPointModified, getLevel());
+		statusBasedValuesModified = new StatusBasedValuesDecorator(statusBasedValues);
+		statusBasedValuesModified.clearModifier();
+
+		// Get all the attached script mods.
+		for (StatusEffectScript statScript : statusEffectsScripts) {
+			final StatusBasedValueModifier mod = statScript.onStatusBasedValues(statusBasedValues);
+			statusBasedValuesModified.addStatusModifier(mod);
+		}
 	}
 
 	@Override
 	public StatusPoints getStatusPoints() {
 		// Dereferred calculate status points upon first request.
-		if (baseStatusPointDeco == null) {
+		if (baseStatusPointModified == null) {
 			calculateStatusPoints();
 		}
 
-		return baseStatusPointDeco;
+		return baseStatusPointModified;
 	}
 
 	@Override
@@ -216,11 +237,11 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 	public float getMovementSpeed() {
 		return statusBasedValues.getWalkspeed() / 100f;
 	}
-	
+
 	@Override
 	public void setLevel(int level) {
 		super.setLevel(level);
-		
+
 		statusBasedValues.setLevel(level);
 	}
 

@@ -1,142 +1,135 @@
 package net.bestia.model.battle;
 
-import java.util.List;
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.ToDoubleFunction;
+import java.util.function.ToIntFunction;
 
-import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.entity.IStatusBasedValues;
 
-public class StatusBasedValuesDecorator implements StatusPoints {
+public class StatusBasedValuesDecorator implements IStatusBasedValues, Serializable {
 
-	private final StatusPoints wrapped;
+	private static final long serialVersionUID = 1L;
 
-	private List<StatusPointsModifier> statusMods = new ArrayList<>();
+	private final IStatusBasedValues wrapped;
 
-	public StatusBasedValuesDecorator(StatusPoints wrapped) {
+	private List<StatusBasedValueModifier> statusMods = new ArrayList<>();
+
+	public StatusBasedValuesDecorator(IStatusBasedValues wrapped) {
 
 		this.wrapped = Objects.requireNonNull(wrapped);
 	}
 
-	public void addStatusModifier(StatusPointsModifier mod) {
+	public void addStatusModifier(StatusBasedValueModifier mod) {
 		statusMods.add(Objects.requireNonNull(mod));
 	}
 
-	public void removeStatusModifier(StatusPointsModifier mod) {
+	public void removeStatusModifier(StatusBasedValueModifier mod) {
 		statusMods.remove(mod);
 	}
 
-	@Override
-	public int getCurrentHp() {
-		return wrapped.getCurrentHp();
+	public void clearModifier() {
+		statusMods.clear();
 	}
 
 	@Override
-	public int getMaxHp() {
-		// TODO Auto-generated method stub
-		return 0;
+	public void setLevel(int level) {
+		wrapped.setLevel(level);
 	}
-
-	@Override
-	public int getCurrentMana() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getMaxMana() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getDefense() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getMagicDefense() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public int getStrength() {
-		
-		final int strengthVal = statusMods.stream()
-				.mapToInt(StatusPointsModifier::getStrengthValue)
+	
+	private float sumFloat(ToDoubleFunction<? super StatusBasedValueModifier> func) {
+		return (float) statusMods.stream()
+				.mapToDouble(func)
 				.sum();
-		final float stengthMod = (float) statusMods.stream()
-				.mapToDouble(StatusPointsModifier::getStrengthMod)
+	}
+	
+	private int sumInt(ToIntFunction<? super StatusBasedValueModifier> func) {
+		return statusMods.stream()
+				.mapToInt(func)
 				.sum();
+	}
+
+	@Override
+	public float getHpRegenRate() {
 		
-		return Math.round(wrapped.getStrength() * stengthMod) + strengthVal;
+		final float hpRegenMod = sumFloat(StatusBasedValueModifier::getHpRegenMod);
+		final int hpRegenValue = sumInt(StatusBasedValueModifier::getHpRegenValue);
+		
+		return wrapped.getHpRegenRate() * hpRegenMod + hpRegenValue;
 	}
 
 	@Override
-	public int getVitality() {
+	public float getManaRegenRate() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public int getIntelligence() {
+	public int getCriticalHitrate() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public int getAgility() {
+	public int getDodge() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public int getWillpower() {
+	public float getCasttime() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	@Override
-	public int getDexterity() {
+	public float getCastduration() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	public void setDexterity(int dexterity) {
+	@Override
+	public int getWillpowerResistance() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
-	public void setWillpower(int willpower) {
+	@Override
+	public int getVitalityResistance() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
-	public void setAgility(int agi) {
+	@Override
+	public int getHitrate() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
-	public void setIntelligence(int intel) {
+	@Override
+	public int getMinDamage() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
-	public void setVitality(int vit) {
+	@Override
+	public int getRangedBonusDamage() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
-	public void setStrenght(int str) {
+	@Override
+	public int getAttackSpeed() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
-	public void setMagicDefense(int mdef) {
-	}
-
-	public void setDefense(int def) {
-	}
-
-	public void setMaxMana(int maxMana) {
-	}
-
-	public void setCurrentMana(int mana) {
-	}
-
-	public void setMaxHp(int maxHp) {
-	}
-
-	public void setCurrentHp(int hp) {
+	@Override
+	public int getWalkspeed() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 
 }
