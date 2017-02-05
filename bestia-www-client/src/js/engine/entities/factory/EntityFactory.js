@@ -143,7 +143,7 @@ export default class EntityFactory {
 	}
 
 	/**
-	 * Das müsste auch an die Builder ausgelagert werden.
+	 * Returns a responsible builder for the given data and description file.
 	 */
 	_getBuilder(data, descFile) {
 		for (var i = 0; i < this.builder.length; i++) {

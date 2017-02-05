@@ -16,7 +16,7 @@ export default class Builder {
 	 */
 	build() {
 		
-		throw new Error("Must be overwritten by child class.");
+		throw new Error('Must be overwritten by child class.');
 		
 	}
 
