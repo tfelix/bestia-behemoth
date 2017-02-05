@@ -9,7 +9,8 @@ import java.util.Set;
 import net.bestia.messages.entity.AnimationPlayMessage;
 import net.bestia.messages.entity.EntityMoveInternalMessage;
 import net.bestia.model.battle.Damage;
-import net.bestia.model.domain.Attack;
+import net.bestia.model.battle.StatusBasedValuesDecorator;
+import net.bestia.model.battle.StatusPointsDecorator;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.domain.Element;
@@ -52,16 +53,11 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 	/**
 	 * Contains the unmodified (by equip or effects) base status points.
 	 */
-	private StatusPointsImpl baseStatusPoints = new StatusPointsImpl();
+	private StatusPoints baseStatusPoints;
+	private StatusPointsDecorator baseStatusPointDeco;
 
-	/**
-	 * Contains the modified (by equip of effects) status points. It basically
-	 * caches the status values because they are needed quite often and
-	 * calculation is somehow costly.
-	 */
-	private StatusPointsImpl modifiedStatusPoints = new StatusPointsImpl();
-
-	protected final StatusBasedValues statusBasedValues;
+	private StatusBasedValues statusBasedValues;
+	private StatusBasedValuesDecorator statusBasedValuesModified;
 
 	private final List<StatusEffect> statusEffects = new ArrayList<>();
 
@@ -72,8 +68,6 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 		this.effortValues = Objects.requireNonNull(effortValues);
 
 		setVisual(visual);
-
-		statusBasedValues = new StatusBasedValues(modifiedStatusPoints, getLevel());
 	}
 
 	public Direction getHeadFacing() {
@@ -89,6 +83,8 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 	 * BaseValues. Must be called after the level of a bestia has changed.
 	 */
 	protected void calculateStatusPoints() {
+		
+		baseStatusPoints = new StatusPointsImpl();
 
 		final int atk = (baseValues.getAttack() * 2 + ivs.getAttack()
 				+ effortValues.getAttack() / 4) * getLevel() / 100 + 5;
@@ -118,26 +114,25 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 		baseStatusPoints.setIntelligence(spatk);
 		baseStatusPoints.setMagicDefense(spdef);
 		baseStatusPoints.setAgility(spd);
-	}
 
-	protected void calculateModifiedStatusPoints() {
-		calculateStatusPoints();
-		modifiedStatusPoints = baseStatusPoints;
+		baseStatusPointDeco = new StatusPointsDecorator(baseStatusPoints);
+		statusBasedValues = new StatusBasedValues(baseStatusPointDeco, getLevel());
 	}
 
 	@Override
 	public StatusPoints getStatusPoints() {
 		// Dereferred calculate status points upon first request.
-		if (modifiedStatusPoints == null) {
-			calculateModifiedStatusPoints();
+		if (baseStatusPointDeco == null) {
+			calculateStatusPoints();
 		}
-		return modifiedStatusPoints;
+
+		return baseStatusPointDeco;
 	}
 
 	@Override
 	public StatusPoints getOriginalStatusPoints() {
-		// TODO Auto-generated method stub
-		return null;
+
+		return baseStatusPoints;
 	}
 
 	@Override
@@ -219,7 +214,14 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 
 	@Override
 	public float getMovementSpeed() {
-		return 1.0f;
+		return statusBasedValues.getWalkspeed() / 100f;
+	}
+	
+	@Override
+	public void setLevel(int level) {
+		super.setLevel(level);
+		
+		statusBasedValues.setLevel(level);
 	}
 
 	/**
@@ -232,16 +234,5 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 
 		final EntityMoveInternalMessage moveMsg = new EntityMoveInternalMessage(getId(), path);
 		getContext().sendMessage(moveMsg);
-	}
-
-	// ################ SCRIPT HOOKS ##################
-
-	/**
-	 * This will be called upon usage of an attack. If the entity has some
-	 * status effects or equipments which will transform this attack this is the
-	 * right place to do so.
-	 */
-	public Attack onAttackUse(Attack attack) {
-
 	}
 }

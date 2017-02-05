@@ -6,6 +6,7 @@ import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.entity.InteractionType;
+import net.bestia.model.geometry.CollisionShape;
 import net.bestia.zoneserver.entity.traits.Interactable;
 
 public class NPCEntity extends LivingEntity {
@@ -81,6 +82,16 @@ public class NPCEntity extends LivingEntity {
 	public void triggerInteraction(InteractionType type, Interactable interactor) {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public CollisionShape getShape() {
+		return getPosition();
+	}
+
+	@Override
+	public void setShape(CollisionShape shape) {
+		// TODO Curerntly not suppoerted.
 	}
 
 }

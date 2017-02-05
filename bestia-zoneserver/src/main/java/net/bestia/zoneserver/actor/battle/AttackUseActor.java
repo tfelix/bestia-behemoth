@@ -17,6 +17,7 @@ import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.entity.traits.Attackable;
+import net.bestia.zoneserver.script.ScriptCache;
 import net.bestia.zoneserver.service.EntityService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
@@ -40,13 +41,15 @@ public class AttackUseActor extends BestiaRoutingActor {
 
 	private final EntityService entityService;
 	private final PlayerEntityService playerEntityService;
+	private final ScriptCache cache;
 
 	@Autowired
-	public AttackUseActor(EntityService entityService, PlayerEntityService playerEntityService) {
+	public AttackUseActor(EntityService entityService, PlayerEntityService playerEntityService, ScriptCache cache) {
 		super(Arrays.asList(AttackUseMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
+		this.cache = Objects.requireNonNull(cache);
 	}
 
 	@Override
@@ -79,8 +82,6 @@ public class AttackUseActor extends BestiaRoutingActor {
 			usedAttack = pbe.getAttacks().get(atkMsg.getSlot());
 		}
 
-		// TODO If there is equipment which reduces the mana used? This must be
-		// considered.
 		// Is there enough mana?
 		if (pbe.getStatusPoints().getCurrentMana() < usedAttack.getManaCost()) {
 			// TODO Send Chat message.

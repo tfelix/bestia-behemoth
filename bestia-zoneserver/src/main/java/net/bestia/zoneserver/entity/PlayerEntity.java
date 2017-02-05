@@ -65,7 +65,7 @@ public class PlayerEntity extends LivingEntity {
 			playerBestia.setLevel(playerBestia.getLevel() + 1);
 			getContext().sendMessage(
 					ChatMessage.getSystemMessage(getAccountId(), "T: Bestia advanced to level " + getLevel()));
-			statusBasedValues.setLevel(getLevel());
+			setLevel(playerBestia.getLevel());
 			calculateStatusPoints();
 			checkLevelup();
 		}

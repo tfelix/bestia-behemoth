@@ -1,18 +1,21 @@
 package net.bestia.model.battle;
 
 import java.util.List;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
 
 import net.bestia.model.domain.StatusPoints;
 
-public class StatusPointsModifyDecorator implements StatusPoints {
+public class StatusPointsDecorator implements StatusPoints, Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private final StatusPoints wrapped;
 
 	private List<StatusPointsModifier> statusMods = new ArrayList<>();
 
-	public StatusPointsModifyDecorator(StatusPoints wrapped) {
+	public StatusPointsDecorator(StatusPoints wrapped) {
 
 		this.wrapped = Objects.requireNonNull(wrapped);
 	}

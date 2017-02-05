@@ -1,6 +1,10 @@
 package net.bestia.model.battle;
 
-public class StatusPointsModifier {
+import java.io.Serializable;
+
+public class StatusPointsModifier implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 	
 	private float strengthMod = 1f;
 	private int strengthValue = 0;
