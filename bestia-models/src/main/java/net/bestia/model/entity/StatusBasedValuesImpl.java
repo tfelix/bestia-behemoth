@@ -12,7 +12,7 @@ import net.bestia.model.domain.StatusPoints;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class StatusBasedValuesImpl implements Serializable, IStatusBasedValues {
+public class StatusBasedValuesImpl implements Serializable, StatusBasedValues {
 
 	private static final long serialVersionUID = 1L;
 	

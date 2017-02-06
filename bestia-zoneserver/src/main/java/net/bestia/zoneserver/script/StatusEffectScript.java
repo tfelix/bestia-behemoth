@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import net.bestia.model.battle.StatusBasedValueModifier;
 import net.bestia.model.battle.StatusPointsModifier;
 import net.bestia.model.domain.StatusPoints;
-import net.bestia.model.entity.IStatusBasedValues;
+import net.bestia.model.entity.StatusBasedValues;
 
 /**
  * This script class is used for scripts attached to equipments and status
@@ -71,7 +71,7 @@ public class StatusEffectScript extends Script {
 	 *            The original status based values.
 	 * @return The modifier of the status based values.
 	 */
-	public StatusBasedValueModifier onStatusBasedValues(IStatusBasedValues status) {
+	public StatusBasedValueModifier onStatusBasedValues(StatusBasedValues status) {
 
 		final StatusBasedValueModifier statusMods = new StatusBasedValueModifier();
 		final Invocable invocable = getInvocable();

@@ -1,19 +1,32 @@
 package net.bestia.model.entity;
 
-public interface IStatusBasedValues {
+import net.bestia.model.domain.StatusPoints;
+
+/**
+ * The {@link StatusBasedValues} are used for advanced calculations. They are
+ * usually based upon {@link StatusPoints}.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
+public interface StatusBasedValues {
 
 	/**
 	 * Sets the level of the modifier.
 	 * 
-	 * @param level The new level.
+	 * @param level
+	 *            The new level.
 	 */
 	void setLevel(int level);
 
 	/**
-	 * Re-calculates the current HP and mana regeneration rate based on stats.
+	 * @return Returns the current HP regeneration per tick.
 	 */
 	float getHpRegenRate();
 
+	/**
+	 * @return The current mana regeneration per tick.
+	 */
 	float getManaRegenRate();
 
 	/**

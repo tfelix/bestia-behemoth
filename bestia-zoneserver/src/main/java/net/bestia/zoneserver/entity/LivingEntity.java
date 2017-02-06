@@ -22,7 +22,7 @@ import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
-import net.bestia.model.entity.IStatusBasedValues;
+import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.entity.StatusBasedValuesImpl;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.traits.Equipable;
@@ -60,7 +60,7 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 	private StatusPoints baseStatusPoints;
 	private StatusPointsDecorator baseStatusPointModified;
 
-	private IStatusBasedValues statusBasedValues;
+	private StatusBasedValues statusBasedValues;
 	private StatusBasedValuesDecorator statusBasedValuesModified;
 
 	private final List<StatusEffectScript> statusEffectsScripts = new ArrayList<>();

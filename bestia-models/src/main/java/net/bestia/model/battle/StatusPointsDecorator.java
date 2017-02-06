@@ -53,7 +53,7 @@ public class StatusPointsDecorator implements StatusPoints, Serializable {
 		
 		return (float) statusMods.stream()
 				.mapToDouble(func)
-				.sum();
+				.reduce(1, (a, b) -> a * b);
 	}
 
 	private int sumInt(ToIntFunction<? super StatusPointsModifier> func) {
