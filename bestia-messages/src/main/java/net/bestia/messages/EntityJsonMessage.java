@@ -19,8 +19,7 @@ public abstract class EntityJsonMessage extends JsonMessage implements EntityMes
 		// no op.
 	}
 
-	public EntityJsonMessage(long accId, long entityId) {
-		super(accId);
+	public EntityJsonMessage(long entityId) {
 		
 		this.entityId = entityId;
 	}

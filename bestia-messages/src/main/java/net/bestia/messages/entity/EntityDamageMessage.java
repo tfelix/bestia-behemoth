@@ -2,11 +2,11 @@ package net.bestia.messages.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
+import net.bestia.messages.EntityJsonMessage;
 import net.bestia.model.battle.Damage;
 
 /**
@@ -17,7 +17,7 @@ import net.bestia.model.battle.Damage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class EntityDamageMessage extends AccountMessage implements MessageId {
+public class EntityDamageMessage extends EntityJsonMessage {
 
 	private static final long serialVersionUID = 1L;
 
@@ -41,26 +41,28 @@ public class EntityDamageMessage extends AccountMessage implements MessageId {
 	 * @param dmg
 	 *            The amount of damage to receive.s
 	 */
-	public EntityDamageMessage(Damage dmg) {
-		if (dmg == null) {
-			throw new IllegalArgumentException("Damage can not be null.");
-		}
+	public EntityDamageMessage(long entityId, Damage dmg) {
+		super(entityId);
+
+		Objects.requireNonNull(dmg);
 
 		this.damage.add(dmg);
 	}
-	
+
 	/**
 	 * Ctor.
 	 * 
-	 * @param uuid
-	 *            UUID of the entity receiving this damage.
+	 * @param accId
+	 *            Account ID to receive this message.
+	 * @param entityId
+	 *            Entity ID for this damage.
 	 * @param dmg
-	 *            The amount of damage to receive.s
+	 *            The received damage.
 	 */
-	public EntityDamageMessage(List<Damage> dmg) {
-		if (dmg == null) {
-			throw new IllegalArgumentException("Damage can not be null.");
-		}
+	public EntityDamageMessage(long entityId, List<Damage> dmg) {
+		super(entityId);
+
+		Objects.requireNonNull(dmg);
 
 		this.damage.addAll(dmg);
 	}
@@ -68,5 +70,10 @@ public class EntityDamageMessage extends AccountMessage implements MessageId {
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("EntityDmgMessage[eid: %d, dmg: %s]", getEntityId(), damage.toString());
 	}
 }

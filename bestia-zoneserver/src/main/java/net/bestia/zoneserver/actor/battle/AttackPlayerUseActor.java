@@ -18,6 +18,7 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.entity.traits.Attackable;
 import net.bestia.zoneserver.script.ScriptCache;
+import net.bestia.zoneserver.service.BattleService;
 import net.bestia.zoneserver.service.EntityService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
@@ -41,15 +42,16 @@ public class AttackPlayerUseActor extends BestiaRoutingActor {
 
 	private final EntityService entityService;
 	private final PlayerEntityService playerEntityService;
-	private final ScriptCache cache;
+	private final BattleService battleService;
 
 	@Autowired
-	public AttackPlayerUseActor(EntityService entityService, PlayerEntityService playerEntityService, ScriptCache cache) {
+	public AttackPlayerUseActor(EntityService entityService, PlayerEntityService playerEntityService,
+			BattleService battleService) {
 		super(Arrays.asList(AttackUseMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
-		this.cache = Objects.requireNonNull(cache);
+		this.battleService = Objects.requireNonNull(battleService);
 	}
 
 	@Override
@@ -64,22 +66,20 @@ public class AttackPlayerUseActor extends BestiaRoutingActor {
 
 		// Some special handling for basic attacks.
 		if (atkMsg.getAttackId() == -1) {
-			
+
 			// Use the default melee attack.
 			usedAttack = AttackImpl.getDefaultMeleeAttack();
 		} else if (atkMsg.getAttackId() == -2) {
-			
+
 			// TODO: Use the default ranged attack.
 			usedAttack = AttackImpl.getDefaultMeleeAttack();
 		} else {
-			if (atkMsg.getSlot() < 0 || atkMsg.getSlot() > 4) {
-				LOG.warning("Attacke slots not in range. Message: {}", atkMsg.toString());
-				return;
-			}
+
+			// TODO Check if the Bestia has the given attack.
 
 			// We must check if all preconditions for using the attack are
 			// fulfilled.
-			usedAttack = pbe.getAttacks().get(atkMsg.getSlot());
+			usedAttack = AttackImpl.getDefaultMeleeAttack();
 		}
 
 		// Is there enough mana?
@@ -89,96 +89,20 @@ public class AttackPlayerUseActor extends BestiaRoutingActor {
 		}
 
 		// Is the target correct?
-		AttackTarget target = usedAttack.getTarget();
+		AttackTarget atkTarget = usedAttack.getTarget();
 
-		switch (target) {
+		switch (atkTarget) {
 		case ENEMY_ENTITY:
 		case FRIENDLY_ENTITY:
-			attackEntity(atkMsg, usedAttack);
-			break;
-		case GROUND:
-			attackGround(atkMsg, usedAttack, pbe);
-			break;
-		case SELF:
-			attackSelf(atkMsg, usedAttack, pbe);
+			
+			// Find the entity.
+			final Attackable target = entityService.getEntity(atkMsg.getTargetEntityId(), Attackable.class);
+			battleService.attackEntity(usedAttack, pbe, target);
+			
 			break;
 		default:
-			LOG.error("Attack target type is not supported. Type: {}, message: {}", target, atkMsg.toString());
+			LOG.error("Attack target type is not supported. Type: {}, message: {}", atkTarget, atkMsg.toString());
 			return;
 		}
 	}
-
-	/**
-	 * TODO Implementieren.
-	 * 
-	 * @param start
-	 * @param end
-	 * @return
-	 */
-	private boolean hasLineOfSight(Point start, Point end) {
-
-		return true;
-	}
-
-	/**
-	 * Attacks itself.
-	 * 
-	 * @param atkMsg
-	 * @param usedAttack
-	 * @param pbe
-	 */
-	private void attackSelf(AttackUseMessage atkMsg, Attack usedAttack, PlayerEntity pbe) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * Attacks the ground.
-	 * 
-	 * @param atkMsg
-	 * @param usedAttack
-	 */
-	private void attackGround(AttackUseMessage atkMsg, Attack usedAttack, PlayerEntity pbe) {
-
-		// Check if we have valid x and y.
-		try {
-			final Point target = new Point(atkMsg.getX(), atkMsg.getY());
-
-			// Check if target is in sight.
-			if (usedAttack.needsLineOfSight() && !hasLineOfSight(pbe.getPosition(), target)) {
-				// No line of sight.
-				return;
-			}
-
-			// Check if target is in range.
-			if (usedAttack.getRange() < pbe.getPosition().getDistance(target)) {
-				// Out of range.
-				return;
-			}
-
-		} catch (IllegalArgumentException e) {
-			LOG.warning("Wrong target coordinates. Message: {}", atkMsg.toString());
-		}
-
-	}
-
-	private void attackEntity(AttackUseMessage atkMsg, Attack usedAttack) {
-
-		try {
-			Attackable target = entityService.getEntity(atkMsg.getTargetEntityId(), Attackable.class);
-
-			if (target == null) {
-				LOG.warning("Entity is not found. Message: {}", atkMsg.toString());
-				return;
-			}
-
-			// target.
-
-		} catch (ClassCastException e) {
-			LOG.warning("Entity is not attackable. Message: {}", atkMsg.toString());
-			return;
-		}
-
-	}
-
 }

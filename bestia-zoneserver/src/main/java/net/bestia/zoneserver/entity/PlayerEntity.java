@@ -71,17 +71,6 @@ public class PlayerEntity extends LivingEntity {
 		}
 	}
 
-	/**
-	 * Adds experience points to the bestia. It will also check if a level up
-	 * occures.
-	 * 
-	 * @param exp
-	 */
-	public void addExperience(int exp) {
-
-		playerBestia.setExp(playerBestia.getExp() + exp);
-		checkLevelup();
-	}
 
 	public Set<Long> getLastSeenEntities() {
 		return lastSeenEntities;
@@ -219,5 +208,23 @@ public class PlayerEntity extends LivingEntity {
 	@Override
 	public void setShape(CollisionShape shape) {
 		// TODO NOOP. Currently only a point shape is used.
+	}
+
+	@Override
+	public boolean isDead() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void addExp(int exp) {
+		playerBestia.setExp(playerBestia.getExp() + exp);
+		checkLevelup();
+	}
+
+	@Override
+	public int getKilledExp() {
+		// TODO Das hier noch austauschen.
+		return 10;
 	}
 }

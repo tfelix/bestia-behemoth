@@ -110,7 +110,7 @@ export default class BasicAttackIndicator extends Indicator {
 			player.moveTo(path, this._ctx.playerBestia.walkspeed());*/
 		} else {
 			// Attack.
-			let msg = new Message.BasicMeleeAttackUse(this._targetEntity.uuid);
+			let msg = new Message.BasicMeleeAttackUse(this._targetEntity.id);
 			this._ctx.pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 		}
 	}	

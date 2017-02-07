@@ -15,7 +15,7 @@ import net.bestia.model.domain.StatusPointsImpl;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public interface Attackable extends Entity {
+public interface Attackable extends Locatable {
 
 	/**
 	 * The level of the entity.
@@ -25,10 +25,10 @@ public interface Attackable extends Entity {
 	int getLevel();
 
 	/**
-	 * {@link StatusPointsImpl}s of this entity. Please note that this status points
-	 * might have been altered via items, equipments or status effects. The
-	 * original status points without this effects applied can be obtained via
-	 * {@link #getOriginalStatusPoints()}.
+	 * {@link StatusPointsImpl}s of this entity. Please note that this status
+	 * points might have been altered via items, equipments or status effects.
+	 * The original status points without this effects applied can be obtained
+	 * via {@link #getOriginalStatusPoints()}.
 	 * 
 	 * @return
 	 */
@@ -102,11 +102,12 @@ public interface Attackable extends Entity {
 	Damage takeDamage(Damage damage);
 
 	/**
-	 * CHecks the damage and reduces it by resistances or status effects.
-	 * Returns the reduced damage or null of the damage was negated altogether.
-	 * If there are effects which would be run out because of this damage then
-	 * the checking will NOT run them out. It is only a check. Only applying the
-	 * damage via {@link #takeDamage(Damage)} will trigger this removals.
+	 * Checks the damage and reduces it by resistances or status effects.
+	 * Returns the reduced damage the damage can be 0 if the damage was negated
+	 * altogether. If there are effects which would be run out because of this
+	 * damage then the checking will NOT run them out. It is only a check. Only
+	 * applying the damage via {@link #takeDamage(Damage)} will trigger this
+	 * removals.
 	 * 
 	 * @param damage
 	 *            The damage to check if taken.
@@ -115,10 +116,25 @@ public interface Attackable extends Entity {
 	Damage checkDamage(Damage damage);
 
 	/**
-	 * Applies this damage to the entity without checking it any further.
+	 * Flag if the entity has bean killed. Important for the attack service in
+	 * order to perform post death operations.
 	 * 
-	 * @param damage
-	 *            The damage to apply without reduce.
+	 * @return TRUE if the entity was killed. FALSE otherwise.
 	 */
-	void takeTrueDamage(Damage damage);
+	boolean isDead();
+
+	/**
+	 * Adds the given amount of experience to this entity.
+	 * 
+	 * @param Amount
+	 *            of exp added to the entity.
+	 */
+	void addExp(int exp);
+
+	/**
+	 * Returns the amount of EXP given if the entity was killed.
+	 * 
+	 * @return The amount of EXP given by this entity.
+	 */
+	int getKilledExp();
 }

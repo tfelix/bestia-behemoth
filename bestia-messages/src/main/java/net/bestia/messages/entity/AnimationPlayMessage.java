@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.EntityJsonMessage;
 import net.bestia.model.geometry.Point;
 
 /**
@@ -15,7 +15,7 @@ import net.bestia.model.geometry.Point;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class AnimationPlayMessage extends JsonMessage {
+public class AnimationPlayMessage extends EntityJsonMessage {
 
 	private static final long serialVersionUID = 1L;
 
@@ -23,9 +23,6 @@ public class AnimationPlayMessage extends JsonMessage {
 
 	@JsonProperty("an")
 	private String animationName;
-
-	@JsonProperty("oeid")
-	private long ownerEntityId;
 
 	@JsonProperty("teid")
 	private long targetEntityId;
@@ -55,10 +52,9 @@ public class AnimationPlayMessage extends JsonMessage {
 	}
 
 	public AnimationPlayMessage(long accountId, String animationName, long ownerEntityId, long targetEntityId) {
-		super(accountId);
+		super(ownerEntityId);
 
 		this.animationName = Objects.requireNonNull(animationName);
-		this.ownerEntityId = ownerEntityId;
 		this.targetEntityId = targetEntityId;
 	}
 
@@ -80,10 +76,6 @@ public class AnimationPlayMessage extends JsonMessage {
 
 	public String getAnimationName() {
 		return animationName;
-	}
-
-	public long getOwnerEntityId() {
-		return ownerEntityId;
 	}
 
 	public long getTargetEntityId() {
@@ -116,7 +108,7 @@ public class AnimationPlayMessage extends JsonMessage {
 		return String.format(
 				"AnimationPlayMessage[name: %s, ownerId: %d, targetId: %d, ownerPos: %s, targetPos: %s, duration: %d]",
 				animationName,
-				ownerEntityId,
+				getEntityId(),
 				targetEntityId,
 				ownerPosStr,
 				targetPosStr,

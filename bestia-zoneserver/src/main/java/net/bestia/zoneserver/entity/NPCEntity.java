@@ -94,4 +94,20 @@ public class NPCEntity extends LivingEntity {
 		// TODO Curerntly not suppoerted.
 	}
 
+	@Override
+	public boolean isDead() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void addExp(int exp) {
+		// no op.
+	}
+
+	@Override
+	public int getKilledExp() {
+		return (int)(Math.random() * 15);
+	}
+
 }

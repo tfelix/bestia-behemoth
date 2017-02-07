@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import net.bestia.messages.entity.AnimationPlayMessage;
+import net.bestia.messages.entity.EntityDamageMessage;
 import net.bestia.messages.entity.EntityMoveInternalMessage;
 import net.bestia.model.battle.Damage;
 import net.bestia.model.battle.StatusBasedValueModifier;
@@ -193,20 +194,26 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 
 	@Override
 	public Damage takeDamage(Damage damage) {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO Den Schaden richtig verrechnen.
+		int curHp = getStatusPoints().getCurrentHp();
+		
+		// Send the message to all clients in visible range.
+		getContext().sendMessage(new EntityDamageMessage(getId(), damage));
+		
+		if (curHp - damage.getDamage() > 0) {
+			getStatusPoints().setCurrentHp(curHp - damage.getDamage());
+			
+		} else {
+			kill();
+		}
+
+		return damage;
 	}
 
 	@Override
 	public Damage checkDamage(Damage damage) {
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void takeTrueDamage(Damage damage) {
-		// TODO Auto-generated method stub
-
+		return damage;
 	}
 
 	@Override

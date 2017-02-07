@@ -59,7 +59,7 @@ public final class DamageCalculator {
 
 		dmg *= mods;
 
-		final Damage damage = Damage.fromDamage((int) dmg);
+		final Damage damage = Damage.getHit((int) dmg);
 
 		return damage;
 	}

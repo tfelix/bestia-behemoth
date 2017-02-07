@@ -13,7 +13,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class Damage implements Serializable {
 
 	public enum DamageType {
-		HEAL, MISS,
+		
+		/**
+		 * Damage is used as heal.
+		 */
+		HEAL, 
+		
+		/**
+		 * Damage was missed.
+		 */
+		MISS,
 
 		/**
 		 * Normal hit damage.
@@ -34,9 +43,6 @@ public class Damage implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	@JsonProperty("uuid")
-	private String entityUUID;
-
 	@JsonProperty("dmg")
 	private int damage;
 
@@ -49,14 +55,13 @@ public class Damage implements Serializable {
 	 * @param damage
 	 * @param type
 	 */
-	public Damage(String uuid, int damage, DamageType type) {
+	public Damage(int damage, DamageType type) {
 		if (damage < 0) {
 			throw new IllegalArgumentException("Damage can not be negative.");
 		}
 
 		this.setDamage(damage);
 		this.setType(type);
-		this.entityUUID = uuid;
 	}
 
 	/**
@@ -68,8 +73,8 @@ public class Damage implements Serializable {
 	 *            Amount of damage taken.
 	 * @return The damage object.
 	 */
-	public static Damage getHit(String uuid, int hitAmount) {
-		return new Damage(uuid, hitAmount, DamageType.HIT);
+	public static Damage getHit(int hitAmount) {
+		return new Damage(hitAmount, DamageType.HIT);
 	}
 
 	/**
@@ -81,8 +86,8 @@ public class Damage implements Serializable {
 	 *            Amount of damage taken.
 	 * @return The damage object.
 	 */
-	public static Damage getHeal(String uuid, int healAmount) {
-		return new Damage(uuid, healAmount, DamageType.HEAL);
+	public static Damage getHeal(int healAmount) {
+		return new Damage(healAmount, DamageType.HEAL);
 	}
 
 	/**
@@ -92,8 +97,8 @@ public class Damage implements Serializable {
 	 *            Entity UUID to get hit by the damage miss.
 	 * @return The damage object.
 	 */
-	public static Damage getMiss(String uuid) {
-		return new Damage(uuid, 0, DamageType.MISS);
+	public static Damage getMiss() {
+		return new Damage(0, DamageType.MISS);
 	}
 
 	/**
@@ -106,8 +111,8 @@ public class Damage implements Serializable {
 	 *            Amount of damage taken.
 	 * @return The damage object.
 	 */
-	public static Damage getCrit(String uuid, int hitAmount) {
-		final Damage d = getHit(uuid, hitAmount);
+	public static Damage getCrit(int hitAmount) {
+		final Damage d = getHit(hitAmount);
 		d.setType(DamageType.CRITICAL);
 		return d;
 	}
@@ -131,28 +136,8 @@ public class Damage implements Serializable {
 		this.type = type;
 	}
 
-	public String getEntityUUID() {
-		return entityUUID;
-	}
-
-	public void setEntityUUID(String entityUUID) {
-		if (entityUUID == null || entityUUID.isEmpty()) {
-			throw new IllegalArgumentException("EntityUUID can not be null or empty.");
-		}
-		this.entityUUID = entityUUID;
-	}
-
 	@Override
 	public String toString() {
 		return String.format("Damage[a: %d, t: %s]", damage, type.toString());
 	}
-
-	public static Damage fromDamage(int dmg) {
-		if(dmg <= 0) {
-			return Damage.getMiss("");
-		} else {
-			return Damage.getHit("", dmg);
-		}
-	}
-
 }
