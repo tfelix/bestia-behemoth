@@ -30,8 +30,6 @@ import net.bestia.zoneserver.actor.entity.EntitySpawnActor;
 import net.bestia.zoneserver.actor.entity.EntityMoveActor;
 import net.bestia.zoneserver.actor.entity.InteractionRequestActor;
 import net.bestia.zoneserver.actor.inventory.InventoryActor;
-import net.bestia.zoneserver.actor.login.DisconnectManagerActor;
-import net.bestia.zoneserver.actor.login.LoginActor;
 import net.bestia.zoneserver.actor.map.MapRequestChunkActor;
 import net.bestia.zoneserver.actor.map.TilesetRequestActor;
 
@@ -81,7 +79,7 @@ public class ZoneActor extends BestiaRoutingActor {
 		createActor(AttackPlayerUseActor.class);
 
 		// === House keeping actors ===
-		createActor(DisconnectManagerActor.class);
+		createActor(LogoutActor.class);
 		createActor(PingPongActor.class);
 		createActor(ZoneClusterListenerActor.class);
 		

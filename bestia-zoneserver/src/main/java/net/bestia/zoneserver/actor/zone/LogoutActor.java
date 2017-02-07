@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.login;
+package net.bestia.zoneserver.actor.zone;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -32,7 +32,7 @@ import net.bestia.zoneserver.service.PlayerEntityService;
  */
 @Component
 @Scope("prototype")
-public class DisconnectManagerActor extends BestiaRoutingActor {
+public class LogoutActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "disconnectManager";
@@ -43,7 +43,7 @@ public class DisconnectManagerActor extends BestiaRoutingActor {
 	private final ConnectionService connectionService;
 
 	@Autowired
-	public DisconnectManagerActor(ConnectionService connectionService,
+	public LogoutActor(ConnectionService connectionService,
 			PlayerEntityService entityService, PlayerBestiaService playerBestiaService, AccountDAO accDao) {
 		super(Arrays.asList(ClientConnectionStatusMessage.class));
 
