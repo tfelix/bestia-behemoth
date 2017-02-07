@@ -13,7 +13,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
-import net.bestia.zoneserver.actor.entity.ClientUpdateActor;
+import net.bestia.zoneserver.actor.entity.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 
 /**
@@ -44,7 +44,7 @@ public abstract class BestiaActor extends UntypedActor {
 	 * @param msg
 	 */
 	protected void sendClient(JsonMessage msg) {
-		LOG.debug(String.format("Sending to client: %s", msg.toString()));
+		LOG.debug(String.format("Sending to client %d: %s", msg.getAccountId(), msg.toString()));
 		if (responder == null) {
 			responder = createActor(SendClientActor.class);
 		}
@@ -54,7 +54,7 @@ public abstract class BestiaActor extends UntypedActor {
 
 	/**
 	 * Sends the given message back to all active player clients in sight. To to
-	 * this an on demand {@link ClientUpdateActor} is created.
+	 * this an on demand {@link ActiveClientUpdateActor} is created.
 	 * 
 	 * @param msg
 	 *            The update message to be send to all active clients in sight
@@ -62,7 +62,7 @@ public abstract class BestiaActor extends UntypedActor {
 	 */
 	protected void sendActiveClients(EntityJsonMessage msg) {
 		if (activeClientBroadcaster == null) {
-			activeClientBroadcaster = createActor(ClientUpdateActor.class);
+			activeClientBroadcaster = createActor(ActiveClientUpdateActor.class);
 		}
 
 		activeClientBroadcaster.tell(msg, getSelf());

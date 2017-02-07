@@ -2,6 +2,7 @@ package net.bestia.zoneserver.actor.entity;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 
 import org.springframework.context.annotation.Scope;
@@ -19,6 +20,7 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.entity.traits.Locatable;
 import net.bestia.zoneserver.service.EntityService;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * This actor sends update messages to all active player in side.
@@ -28,17 +30,19 @@ import net.bestia.zoneserver.service.EntityService;
  */
 @Component
 @Scope("prototype")
-public class ClientUpdateActor extends BestiaRoutingActor {
+public class ActiveClientUpdateActor extends BestiaRoutingActor {
 
-	public final static String NAME = "activePlayerUpdate";
+	public final static String NAME = "activeClientUpdate";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private final EntityService entityService;
+	private final PlayerEntityService playerEntityService;
 
-	public ClientUpdateActor(EntityService entityService) {
+	public ActiveClientUpdateActor(EntityService entityService, PlayerEntityService playerService) {
 		super(Arrays.asList(EntityDamageMessage.class, AnimationPlayMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);
+		this.playerEntityService = Objects.requireNonNull(playerService);
 	}
 
 
@@ -62,21 +66,15 @@ public class ClientUpdateActor extends BestiaRoutingActor {
 
 			// Find all active player bestias in range.
 			final Rect updateRect = Map.getUpdateRect(movingEntity.getPosition());
-			final Collection<PlayerEntity> pbes = entityService.getEntitiesInRange(updateRect,
-					PlayerEntity.class);
+			final List<Long> activeAccs = playerEntityService.getActiveAccountIdsInRange(updateRect);
 
 			// Check if the pbe are active and if so send them the update.
-			for (PlayerEntity pbe : pbes) {
-				/*if (pbe.isActive()) {
-					dataMsg.setAccountId(pbe.getAccountId());
-					sendClient(dataMsg);
-				}*/
+			for (long activeAcc : activeAccs) {
 				
-				// TODO warum ist die PB nicht aktiv?
-				dataMsg.setAccountId(pbe.getAccountId());
+				dataMsg.setAccountId(activeAcc);
 				sendClient(dataMsg);
+			
 			}
-
 		} catch (ClassCastException e) {
 			LOG.error("Updating entity is not of trait Locatable: {}", e.getMessage());
 		}

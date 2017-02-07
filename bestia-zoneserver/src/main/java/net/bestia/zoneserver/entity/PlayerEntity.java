@@ -28,7 +28,6 @@ public class PlayerEntity extends LivingEntity {
 
 	private final long accountId;
 	private final PlayerBestia playerBestia;
-	private boolean isActive = false;
 
 	/**
 	 * Contains the entities already send to the client.
@@ -74,14 +73,6 @@ public class PlayerEntity extends LivingEntity {
 
 	public Set<Long> getLastSeenEntities() {
 		return lastSeenEntities;
-	}
-
-	public boolean isActive() {
-		return isActive;
-	}
-
-	public void setActive(boolean isActive) {
-		this.isActive = isActive;
 	}
 
 	public long getAccountId() {

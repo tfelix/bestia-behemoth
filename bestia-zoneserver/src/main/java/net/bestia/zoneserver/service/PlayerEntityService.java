@@ -53,21 +53,21 @@ public class PlayerEntityService {
 	 */
 	public void setActiveEntity(long accId, long activeEntityId) {
 		// Remove the active flag from the last active player bestia.
-		Long lastActive = activeEntities.get(accId);
 		activeEntities.put(accId, activeEntityId);
+	}
 
-		PlayerEntity pbe = null;
-
-		// Last active might be null if no previous bestia was active.
-		if (lastActive != null) {
-			pbe = (PlayerEntity) entityService.getEntity(lastActive);
-			pbe.setActive(false);
-			entityService.save(pbe);
-		}
-
-		pbe = (PlayerEntity) entityService.getEntity(activeEntityId);
-		pbe.setActive(true);
-		entityService.save(pbe);
+	/**
+	 * Checks if the given entity id is the active player entity.
+	 * 
+	 * @param accId
+	 *            The account to check the active entity.
+	 * @param activeEntityId
+	 *            The entity which should be checked if its active.
+	 * @return TRUE if this is the active entity. FALSE otherwise.
+	 */
+	public boolean isActiveEntity(long accId, long activeEntityId) {
+		Long active = activeEntities.get(accId);
+		return active != null && active == activeEntityId;
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class PlayerEntityService {
 				.collect(Collectors.toList());
 
 		return pbe.parallelStream()
-				.filter(x -> x.isActive())
+				.filter(x -> isActiveEntity(x.getAccountId(), x.getId()))
 				.map(x -> x.getAccountId())
 				.collect(Collectors.toList());
 	}
