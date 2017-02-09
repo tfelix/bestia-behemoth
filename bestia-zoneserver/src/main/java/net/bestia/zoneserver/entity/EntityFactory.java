@@ -29,7 +29,7 @@ public class EntityFactory {
 	private final EntityService entityService;
 
 	@Autowired
-	public EntityFactory(BestiaDAO bestiaDao, EntityContext entityCtx, EntityService entityService) {
+	public EntityFactory(BestiaDAO bestiaDao, EntityAkkaContext entityCtx, EntityService entityService) {
 
 		this.bestiaDao = Objects.requireNonNull(bestiaDao);
 		this.entityCtx = Objects.requireNonNull(entityCtx);

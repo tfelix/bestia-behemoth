@@ -18,6 +18,7 @@ import com.hazelcast.query.PredicateBuilder;
 import com.hazelcast.query.Predicates;
 
 import net.bestia.model.geometry.Rect;
+import net.bestia.zoneserver.entity.EntityAkkaContext;
 import net.bestia.zoneserver.entity.EntityContext;
 import net.bestia.zoneserver.entity.traits.Entity;
 
@@ -38,7 +39,7 @@ public class EntityService {
 	private final EntityContext entityContext;
 
 	@Autowired
-	public EntityService(HazelcastInstance hz, EntityContext entityContext) {
+	public EntityService(HazelcastInstance hz, EntityAkkaContext entityContext) {
 
 		this.hazelcastInstance = Objects.requireNonNull(hz);
 		this.entities = hazelcastInstance.getMap("entities");

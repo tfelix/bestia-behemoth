@@ -2,6 +2,7 @@ package net.bestia.zoneserver.entity.traits;
 
 import java.io.Serializable;
 
+import net.bestia.zoneserver.entity.EntityAkkaContext;
 import net.bestia.zoneserver.entity.EntityContext;
 
 /**
@@ -29,7 +30,7 @@ public interface Entity extends Serializable {
 	void setId(long id);
 
 	/**
-	 * Sets the {@link EntityContext} for this entity.
+	 * Sets the {@link EntityAkkaContext} for this entity.
 	 * 
 	 * @param ctx
 	 *            The entity context.

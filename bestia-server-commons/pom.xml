@@ -13,4 +13,10 @@
 
 	<description>Base package for the servers. Includes all shared dependencies and configuration. Especially the spring boot config.</description>
 
+	<dependencies>
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast-client</artifactId>
+		</dependency>
+	</dependencies>
 </project>

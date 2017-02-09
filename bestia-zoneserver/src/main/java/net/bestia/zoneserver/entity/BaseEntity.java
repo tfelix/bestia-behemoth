@@ -25,7 +25,7 @@ public abstract class BaseEntity implements Entity {
 	}
 
 	/**
-	 * Gets the {@link EntityContext}.
+	 * Gets the {@link EntityAkkaContext}.
 	 * 
 	 * @return The context.
 	 */

@@ -13,16 +13,15 @@ import com.hazelcast.core.HazelcastInstance;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Address;
-import akka.actor.Props;
+import akka.actor.TypedActor;
+import akka.actor.TypedProps;
 import akka.cluster.Cluster;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.service.ClusterConfigurationService;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
-import net.bestia.zoneserver.actor.entity.EntityContextActor;
+import net.bestia.zoneserver.entity.EntityAkkaContext;
 import net.bestia.zoneserver.entity.EntityContext;
 
 /**
@@ -42,13 +41,12 @@ public class AkkaConfiguration {
 	private static final String AKKA_CONFIG_NAME = "akka";
 
 	@Bean
-	public ActorSystem actorSystem(HazelcastInstance hzInstance,
-			ApplicationContext appContext)
+	public ActorSystem actorSystem(HazelcastInstance hzInstance, ApplicationContext appContext)
 			throws UnknownHostException {
-		
+
 		final Config akkaConfig = ConfigFactory.load(AKKA_CONFIG_NAME);
 		final ActorSystem system = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
-		
+
 		// initialize the application context in the Akka Spring extension.
 		SpringExtension.PROVIDER.get(system).initialize(appContext);
 
@@ -56,7 +54,7 @@ public class AkkaConfiguration {
 
 		final Address selfAddr = Cluster.get(system).selfAddress();
 		final List<Address> seedNodes = clusterConfig.getClusterSeedNodes();
-		
+
 		if (clusterConfig.shoudlJoinAsSeedNode()) {
 
 			// Check if there are at least some seeds or if we need to bootstrap
@@ -83,21 +81,21 @@ public class AkkaConfiguration {
 
 		return system;
 	}
-	
+
 	/**
-	 * Returns the {@link EntityContext} which is used by the entities itself to
-	 * communicate back into the bestia system.
+	 * Returns the {@link EntityAkkaContext} which is used by the entities
+	 * itself to communicate back into the bestia system.
 	 * 
 	 * @param system
 	 *            The current {@link ActorSystem}.
-	 * @return The {@link EntityContext}.
+	 * @return The {@link EntityAkkaContext}.
 	 */
 	@Bean
 	EntityContext entityContext(ActorSystem system) {
-		final SpringExt ext = SpringExtension.PROVIDER.get(system);
-		final Props props = ext.props(EntityContextActor.class);
-		final ActorRef actor = system.actorOf(props, EntityContextActor.NAME);
+		
+		final EntityContext ctx = TypedActor.get(system)
+				.typedActorOf(new TypedProps<EntityAkkaContext>(EntityContext.class, EntityAkkaContext.class));
 
-		return new EntityContext(actor);
+		return ctx;
 	}
 }
