@@ -5,6 +5,8 @@ import RainFx from './RainFx.js';
 import RangeMeasureFx from './RangeMeasureFx.js';
 import DialogFx from './DialogFx.js';
 
+const MAX_CACHE_SIZE = 50;
+
 /**
  * FX Manager which is responsible for effect generation and display. Effects
  * are not so important to be tracked liked entities. In fact they can be
@@ -28,16 +30,56 @@ export default class EffectsManager {
 		 */
 		this._effectInstances = [];
 		
-		this._pubsub = ctx.pubsub;
+		/**
+		 * Holds a cache to all effects which can thus be reused by the effects.
+		 * With this technique no additional object must be created all the
+		 * time.
+		 */
+		this._cache = {};
+		this.ctx = ctx;
 	
 		// Add the instances to control certain effects depending on incoming
 		// messages.
-		this._effectInstances.push(new DamageFx(ctx));
-		this._effectInstances.push(new ChatFx(ctx));
-		//this._effectInstances.push(new DialogFx(pubsub));
-		//this._effectInstances.push(new BrightnessFx(pubsub));
-		//this._effectInstances.push(new RainFx(pubsub));
-		//this._effectInstances.push(new RangeMeasureFx(pubsub));
+		this._effectInstances.push(new DamageFx(this));
+		this._effectInstances.push(new ChatFx(this));
+		// this._effectInstances.push(new DialogFx(pubsub));
+		// this._effectInstances.push(new BrightnessFx(pubsub));
+		// this._effectInstances.push(new RainFx(pubsub));
+		// this._effectInstances.push(new RangeMeasureFx(pubsub));
+	}
+	
+	/**
+	 * Caches the effect instance under a given key. If there are more objects
+	 * then cache spaces available the object is destroyed by calling
+	 * #remove();
+	 */
+	cacheEffect(key, obj) {
+		if(!this._cache.hasOwnProperty(key)) {
+			this._cache[key] = [];
+		}
+		
+		if(this._cache[key].length < MAX_CACHE_SIZE) {
+			this._cache[key].push(obj);
+		} else {
+			// Destroy the effect instance.
+			obj.remove();
+		}
+	}
+	
+	/**
+	 * Returns a previously cached object with the given key. If the cache was
+	 * empty then null is returned.
+	 * 
+	 * @return A cached object or null if the cache was empty.
+	 */
+	getCachedEffect(key) {
+		if(this._cache.hasOwnProperty(key)) {
+			if(this._cache[key].length > 0) {
+				return this._cache[key];
+			}
+		}
+		
+		return null;
 	}
 	
 	/**

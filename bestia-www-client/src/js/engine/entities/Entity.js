@@ -1,8 +1,8 @@
 import WorldHelper from '../map/WorldHelper.js';
 
 /**
- * Base entity for display via the bestia engine/phaser. The class contains all
- * important position management function and methods.
+ * Base entity for display via the bestia engine/phaser. It is a thin wrapper to
+ * the phaser API.
  */
 export default class Entity {
 	
@@ -41,12 +41,15 @@ export default class Entity {
 		this._sprite = null;
 	}
 	
+	/**
+	 * This will show the entity with the designated appearance animation.
+	 */
 	appear() {
 		// no op.
 	}
 
 	/**
-	 * This will show and display the entity with the default appear animation.
+	 * This will show and display the entity without any animation.
 	 */
 	show() {
 		// no op.
