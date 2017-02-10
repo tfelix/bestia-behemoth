@@ -7,6 +7,8 @@ import LOG from '../../util/Log';
 const CACHE_KEY = 'fxDamage';
 
 /**
+ * Displays an text entity for the damage visual effect if a damage message
+ * arrives and after the display it will be cached to the fx manager.
  * 
  * @class Bestia.Engine.FX.Damage
  */
@@ -23,11 +25,12 @@ export default class DamageFx {
 	
 	/**
 	 * Handles the incoming damage massage and displays a damage object at the
-	 * apropriate place.
+	 * appropriate place.
 	 * 
 	 * @private
 	 * @param _
-	 * @param msg The incoming message form the server.
+	 * @param msg
+	 *            The incoming message form the server.
 	 */
 	_handlerOnEntityDamage(_, msg) {
 
@@ -50,10 +53,8 @@ export default class DamageFx {
 				
 			} else {
 				// Create a new instance of the entity.
-
+				dmgFx = this._game.make.sprite(0,0, x.dmg);
 			}
-			
-			//dmgFx = new HealEntity(this._game, entity.positionPixel, x.dmg);
 			
 			switch (x.t) {
 			case 'HEAL':
@@ -65,11 +66,39 @@ export default class DamageFx {
 				break;
 			case 'CRITICAL':
 				dmgFx.setStyle(CRIT);
+				break;
 			default:
-				LOG.warn('Unknown ');
-				return;
+				LOG.warn('Unknown damage type. Using normal style.');
+				dmgFx.setStyle(NORMAL);
+			break;
 			}
-			
+				
 		}, this);
+	}
+	
+	_startAnimation(targetEntity, dmg) {
+		
+		let targetSize = targetEntity.getSize();
+		let pos = targetEntity.getPositionPx();
+		
+		let cords = {
+			x: [pos.x, (pos.x - targetSize.x - targetSize.x * 0.5)],
+			y: [pos.y - targetSize.y * 0.80, pos.y - targetSize.y * 1.5]
+		};
+		var tween = this._game.add.tween(dmg.getRootVisual()).to(cords, 1000);
+		tween.interpolation(function(v,k){
+			return Phaser.Math.bezierInterpolation(v, k);
+		});
+		tween.start();
+		this._game.add
+			.tween(dmg.getRootVisual())
+			.to({alpha: 0}, 100, Phaser.Easing.Linear.None, true, 900)
+			.start();Meine 
+	}
+	
+	_createAnimation() {
+		
+		var tween = this._game.add.tween(this._);
+		
 	}
 }

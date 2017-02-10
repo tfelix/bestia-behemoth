@@ -13,8 +13,6 @@ const MAX_CACHE_SIZE = 50;
  * generated directly by the server or also internally by the client if needed.
  * This might be temporary effects like damage displays or particle effects.
  * 
- * TODO There must be a way to communicate with the effects.
- * 
  * If this class gets too bloated it must be split into smaller fx manager only
  * responsible for their area.
  * 

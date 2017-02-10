@@ -6,7 +6,7 @@ import LOG from '../../../util/Log';
  * Responsible for building the packed (multisprite) entities. These are usually
  * mobs. All sprites which consists of multiple sprites with animation data.
  */
-export default class MultispriteBuilder extends Builder {
+export default class SpriteBuilder extends Builder {
 	constructor(factory, ctx) {
 		super(factory, ctx);
 		

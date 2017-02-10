@@ -4,27 +4,30 @@ import Signal from '../../io/Signal.js';
 /**
  * This entity displays a text inside the game engine.
  */
-export default class ImageEntity extends Entity {
+export default class TextEntity extends Entity {
 	constructor(ctx) {
 		super(ctx);
 
-		this._sprite = game.add.text(0, 0, '', style);
-    this._sprite.anchor.set(0.5);
-
-		this._sprite.events.onInputOver.add(this._onOverHandler, this);
-		this._sprite.events.onInputOut.add(this._onOutHandler, this);
+		this._sprite = ctx.game.make.text(0, 0, '', style);
+		this._sprite.anchor.set(0.5);
 	}
 
+	/**
+	 * Sets the text of the entity.
+	 */
 	setText(text) {
-
-
+		if(this._sprite) {
+			this._sprite.setText(text);
+		}
 	}
 
 	/**
 	 * Sets the style of text.
 	 */
 	setStyle(style) {
-
+		if(this._sprite) {
+			this._sprite.setStyle(style);
+		}
 	}
 
 	/**

@@ -1,4 +1,5 @@
 import WorldHelper from '../map/WorldHelper.js';
+import NOOP from '../../util/NOOP';
 
 /**
  * Base entity for display via the bestia engine/phaser. It is a thin wrapper to
@@ -26,37 +27,60 @@ export default class Entity {
 		 * @public
 		 * @property {String}
 		 */
-		this._id = id;
+		this._id = 'NOID' || id;
 
 		this._game = ctx.game;
 
 		this._ctx = ctx;
-
+		
 		/**
-		 * The underlying sprite for the engine.
-		 * 
-		 * @public
-		 * @property {String}
+		 * This function is called when the mouse is hovered over the main
+		 * representation of this object.
 		 */
-		this._sprite = null;
+		this.onInputOver = NOOP;
+		
+		/**
+		 * This function is called when the mouse is hovered over the main
+		 * representation of this object.
+		 */
+		this.onInputOut = NOOP;
+		
+		/**
+		 * This callback is called if the user performs a primary click on the
+		 * main representation of this object.
+		 */
+		this.onInputClick = NOOP;
 	}
 	
 	/**
-	 * This will show the entity with the designated appearance animation.
+	 * Helper method which will attach all supported callbacks to the given game
+	 * object.
 	 */
-	appear() {
-		// no op.
+	_setupCallbacks(gameObj) {
+		gameObj.input.enabled = true;
+		
+		gameObj.events.onInputOver.add(x => { this.onInputOver(); });
+		gameObj.events.onInputOut.add(x => { this.onInputOut(); });
+		gameObj.events.onInputDown.add(x => { this.onInputClick(); })
 	}
-
+	
 	/**
-	 * This will show and display the entity without any animation.
+	 * Helper method to put the given sprite to the same (tile based) position
+	 * as this entity.
 	 */
-	show() {
-		// no op.
+	_syncSpritePosition(gameObj) {
+		// Correct the sprite position.
+		let pos = WorldHelper.getSpritePxXY(this._position.x, this._position.y);
+		gameObj.x = pos.x;
+		gameObj.y = pos.y;
 	}
-
-	update() {
-		// no op.
+	
+	/**
+	 * Returns the root visual representation of this sprite. Should be
+	 * overwritten in child implementations.
+	 */
+	getRootVisual() {
+		throw 'Must be overridden by child implementations';
 	}
 
 	/**
@@ -95,25 +119,20 @@ export default class Entity {
 		group.add(this._sprite);
 	}
 
-	_syncSpritePosition() {
-		// Correct the sprite position.
-		if (this._sprite !== null) {
-			var pos = WorldHelper.getSpritePxXY(this._position.x, this._position.y);
-
-			this._sprite.x = pos.x;
-			this._sprite.y = pos.y;
-		}
-	}
-
 	setPosition(x, y) {
 		this._position.x = x || 0;
 		this._position.y = y || 0;
-	
-		this._syncSpritePosition();
 	}
 	
 	getPosition() {
 		return this._position;
+	}
+	
+	/**
+	 * Returns the size of the visual representation of the entity.
+	 */
+	getSize() {
+		return {x: 0, y: 0};
 	}
 	
 	/**

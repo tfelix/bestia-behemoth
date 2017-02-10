@@ -43,19 +43,10 @@ export default class SpriteEntity extends Entity {
 
 		this.setPosition(x, y);
 	}
-	
+
 	/**
-	 * Handles when cursor is over this sprite. We have to determine all
-	 * available interaction methods and pick the default indicator.
+	 * Sets the sprite of this entity for the given sprite name.
 	 */
-	_onOverHandler() {
-		this._ctx.pubsub.publish(Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_over', entity: this});
-	}
-
-	_onOutHandler() {
-		this._ctx.pubsub.publish(Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_out', entity: this});
-	}
-
 	setSprite(spriteName) {
 
 		// Generate the animation names.
@@ -490,6 +481,14 @@ export default class SpriteEntity extends Entity {
 		} else {
 			return 'stand_up_left';
 		}
+	}
+	
+	/**
+	 * Sets the entity position and re-sync the sprite position.
+	 */
+	setPosition(x, y) {
+		super.setPosition(x, y);
+		this._syncSpritePosition(this._sprite);
 	}
 	
 	/**
