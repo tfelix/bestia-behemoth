@@ -19,18 +19,19 @@ import net.bestia.zoneserver.service.MovingEntityService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
- * Handle movement of an entity originating from an entity itself. It will
- * announce the intended move path with timing to all clients in sight and will
- * perform the reoccuring movement timings.
+ * Handle movement of an entity. It will announce the intended move path with
+ * timing to all clients in sight so they can start to show the walk animation
+ * and will perform the movement timer triggers so the unit does move from tile
+ * to tile.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 @Component
 @Scope("prototype")
-public class MoveUpdateActor extends BestiaRoutingActor {
+public class MovementActor extends BestiaRoutingActor {
 
-	public final static String NAME = "entityInternalMove";
+	public final static String NAME = "movement";
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
@@ -38,7 +39,7 @@ public class MoveUpdateActor extends BestiaRoutingActor {
 	private final EntityService entityService;
 
 	@Autowired
-	public MoveUpdateActor(MovingEntityService movingService,
+	public MovementActor(MovingEntityService movingService,
 			PlayerEntityService playerEntityService,
 			EntityService entityService) {
 		super(Arrays.asList(EntityMoveInternalMessage.class));
@@ -74,7 +75,7 @@ public class MoveUpdateActor extends BestiaRoutingActor {
 		}
 
 		final EntityMoveMessage updateMsg = new EntityMoveMessage(
-				moveMsg.getEntityId(), 
+				moveMsg.getEntityId(),
 				moveMsg.getPath(),
 				entity.getMovementSpeed());
 		sendActiveClients(updateMsg);

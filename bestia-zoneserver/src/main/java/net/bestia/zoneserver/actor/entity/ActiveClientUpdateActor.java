@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.actor.entity;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -10,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.messages.entity.AnimationPlayMessage;
@@ -17,13 +17,14 @@ import net.bestia.messages.entity.EntityDamageMessage;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.entity.traits.Locatable;
 import net.bestia.zoneserver.service.EntityService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
- * This actor sends update messages to all active player in side.
+ * This actor sends update messages to all active player in sight. In order to
+ * perform the the sending of the message the message must inherit both the
+ * {@link EntityMessage} interface and also {@link JsonMessage}.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -39,12 +40,11 @@ public class ActiveClientUpdateActor extends BestiaRoutingActor {
 	private final PlayerEntityService playerEntityService;
 
 	public ActiveClientUpdateActor(EntityService entityService, PlayerEntityService playerService) {
-		super(Arrays.asList(EntityDamageMessage.class, AnimationPlayMessage.class));
+		super(Arrays.asList(EntityJsonMessage.class, JsonMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerService);
 	}
-
 
 	@Override
 	protected void handleMessage(Object msg) {
@@ -70,10 +70,10 @@ public class ActiveClientUpdateActor extends BestiaRoutingActor {
 
 			// Check if the pbe are active and if so send them the update.
 			for (long activeAcc : activeAccs) {
-				
+
 				dataMsg.setAccountId(activeAcc);
 				sendClient(dataMsg);
-			
+
 			}
 		} catch (ClassCastException e) {
 			LOG.error("Updating entity is not of trait Locatable: {}", e.getMessage());

@@ -29,24 +29,26 @@ import net.bestia.zoneserver.entity.traits.Visible;
 import net.bestia.zoneserver.service.EntityService;
 
 /**
- * This actor has an crucial role in checking if a position update leads to the
- * triggering of scripts or to check view distances of newly seen entities.
+ * This actor has an crucial role in checking if a position update of an entity
+ * leads to the triggering of scripts. It does also check if the moved entity is
+ * now in viewing range of other (player) entities and will inform them about a
+ * newly seen entity.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 @Component
 @Scope("prototype")
-public class PositionUpdateActor extends BestiaRoutingActor {
+public class PositionActor extends BestiaRoutingActor {
 
-	public final static String NAME = "entityPositionUpdate";
+	public final static String NAME = "position";
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private final EntityService entityService;
 
 	@Autowired
-	public PositionUpdateActor(EntityService entityService) {
+	public PositionActor(EntityService entityService) {
 		super(Arrays.asList(EntityPositionMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);

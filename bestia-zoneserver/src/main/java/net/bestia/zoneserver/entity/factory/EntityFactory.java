@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity;
+package net.bestia.zoneserver.entity.factory;
 
 import java.util.Objects;
 
@@ -11,17 +11,22 @@ import net.bestia.messages.entity.EntitySpawnMessage;
 import net.bestia.model.dao.BestiaDAO;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Bestia;
+import net.bestia.zoneserver.entity.EntityContext;
+import net.bestia.zoneserver.entity.NPCEntity;
 import net.bestia.zoneserver.service.EntityService;
 
 /**
- * The factory is used to create entities.
+ * The factory is used to create entities. This is an abstract class holding all
+ * the needed common routines for creating entities. Because the entities are
+ * usually created rather complicated we have multiple factories for each type
+ * of entity to be created.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 @Component
 public class EntityFactory {
-	
+
 	private final static Logger LOG = LoggerFactory.getLogger(EntityFactory.class);
 
 	private final BestiaDAO bestiaDao;
@@ -29,7 +34,7 @@ public class EntityFactory {
 	private final EntityService entityService;
 
 	@Autowired
-	public EntityFactory(BestiaDAO bestiaDao, EntityAkkaContext entityCtx, EntityService entityService) {
+	public EntityFactory(BestiaDAO bestiaDao, EntityContext entityCtx, EntityService entityService) {
 
 		this.bestiaDao = Objects.requireNonNull(bestiaDao);
 		this.entityCtx = Objects.requireNonNull(entityCtx);
@@ -40,8 +45,8 @@ public class EntityFactory {
 	public void spawnBestia(String bestiaName, long x, long y) {
 
 		final Bestia bestia = bestiaDao.findByDatabaseName(bestiaName);
-		
-		if(bestia == null) {
+
+		if (bestia == null) {
 			LOG.warn("Bestia with name {} was not found in the database.", bestiaName);
 			return;
 		}
@@ -51,15 +56,15 @@ public class EntityFactory {
 				BaseValues.getNullValues(), bestia.getSpriteInfo());
 		be.setEntityContext(entityCtx);
 		entityService.generateId(be);
-		
+
 		// Save so the position update can access the entity.
 		entityService.save(be);
-		
+
 		// Position the entity.
 		be.setPosition(x, y);
 		entityService.save(be);
 
 		final EntitySpawnMessage spawnMsg = new EntitySpawnMessage(be.getId());
-		//entityCtx.sendMessage(spawnMsg);
+		// entityCtx.sendMessage(spawnMsg);
 	}
 }

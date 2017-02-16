@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.entity.EntityFactory;
 import net.bestia.zoneserver.entity.NPCEntity;
+import net.bestia.zoneserver.entity.factory.EntityFactory;
 import net.bestia.zoneserver.entity.traits.Entity;
 import net.bestia.zoneserver.service.EntityService;
 

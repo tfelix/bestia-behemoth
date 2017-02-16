@@ -27,14 +27,19 @@ public class EntityAkkaContext implements EntityContext {
 	public EntityAkkaContext() {
 
 		final ActorContext context = TypedActor.context();
-		
+
+		// Create a new entity context actor which is responsible for routing
+		// the messages.
 		final SpringExt ext = SpringExtension.PROVIDER.get(context.system());
 		final Props props = ext.props(EntityContextActor.class);
 		actor = context.system().actorOf(props, EntityContextActor.NAME);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.bestia.zoneserver.entity.IEntityContext#sendMessage(net.bestia.messages.Message)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.bestia.zoneserver.entity.IEntityContext#sendMessage(net.bestia.
+	 * messages.Message)
 	 */
 	@Override
 	public void sendMessage(Message msg) {

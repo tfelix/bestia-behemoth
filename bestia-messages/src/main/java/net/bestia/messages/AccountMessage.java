@@ -59,6 +59,25 @@ public abstract class AccountMessage extends Message {
 		return accountId;
 	}
 
+	/**
+	 * Creates a new instance of the account message with a new account id. This
+	 * method should be used if messages are send to different receiver
+	 * accounts. By using this helper method immutable copies are created.
+	 * 
+	 * @param accountId
+	 * @return
+	 */
+	public AccountMessage createNewInstance(long accountId) {
+		// @TODO implementieren.
+		return null;
+	}
+
+	/**
+	 * Create new instances when sending acc messages.
+	 * 
+	 * @param accountId
+	 */
+	@Deprecated
 	public void setAccountId(long accountId) {
 		this.accountId = accountId;
 	}
