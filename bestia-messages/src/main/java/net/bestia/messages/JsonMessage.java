@@ -1,5 +1,7 @@
 package net.bestia.messages;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /**
  * This base class is meant to provide custom serializing abilities to massages
  * for the clients. All messages meant to be send to the client via jackson
@@ -8,6 +10,7 @@ package net.bestia.messages;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class JsonMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;

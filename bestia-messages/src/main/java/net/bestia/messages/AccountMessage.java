@@ -1,6 +1,6 @@
 package net.bestia.messages;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * These messages carry additional account information (the account id). Usually
@@ -14,7 +14,7 @@ public abstract class AccountMessage extends Message {
 
 	private static final long serialVersionUID = 1L;
 
-	@JsonIgnore
+	@JsonProperty("accId")
 	private long accountId;
 
 	/**
