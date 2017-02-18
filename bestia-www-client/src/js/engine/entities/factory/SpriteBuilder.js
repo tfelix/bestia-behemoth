@@ -22,9 +22,6 @@ export default class SpriteBuilder extends Builder {
 	build(data, desc) {
 		LOG.debug('Building pack sprite.', data);
 		var entity = new SpriteEntity(this._ctx, data.eid, data.x, data.y, desc);
-
-		// Setup the phaser sprite.
-		entity.setSprite(data.s.s);
 		
 		entity.addToGroup(this._ctx.groups.sprites);
 

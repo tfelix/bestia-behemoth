@@ -40,6 +40,9 @@ export default class SpriteEntity extends Entity {
 		this._currentPathCounter = 0;
 		this._currentPath = null;
 		this._tween = null;
+		
+		// Set the sprite now.
+		this.setSprite(desc.name);
 
 		this.setPosition(x, y);
 	}
@@ -59,8 +62,13 @@ export default class SpriteEntity extends Entity {
 		this._setupSprite(this._sprite, this._data);
 		
 		// Re-set position so the sprite gets now postioned.
-		this._syncSpritePosition();
-
+		this._syncSpritePosition(this._sprite);
+	}
+	
+	/**
+	 * Some code to find a standing animation.
+	 */
+	__standAnimation() {
 		// Find all animations in which it stands.
 		var standAnimations = this._data.animations.filter(function(anim) {
 			return anim.name.indexOf('stand') !== -1;
@@ -69,7 +77,6 @@ export default class SpriteEntity extends Entity {
 		// Pick a custom one.
 		var i = Math.floor(Math.random() * standAnimations.length);
 		this.playAnimation(standAnimations[i].name);
-
 	}
 
 	/**
@@ -98,10 +105,7 @@ export default class SpriteEntity extends Entity {
 			sprite.animations.add(anim.name, frames, anim.fps, true, false);
 		}, this);
 		
-		// Enable input.
-		this._sprite.inputEnabled = true;
-		this._sprite.events.onInputOver.add(this._onOverHandler, this);
-		this._sprite.events.onInputOut.add(this._onOutHandler, this);
+		this._setupCallbacks(sprite);
 	}
 
 	setTexture(name) {

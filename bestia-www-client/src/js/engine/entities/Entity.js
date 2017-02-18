@@ -54,14 +54,15 @@ export default class Entity {
 	
 	/**
 	 * Helper method which will attach all supported callbacks to the given game
-	 * object.
+	 * object. These are indirectly calling the externalized, public callbacks
+	 * which can be altered later on without rewiring this calls.
 	 */
 	_setupCallbacks(gameObj) {
-		gameObj.input.enabled = true;
+		gameObj.inputEnabled = true;
 		
-		gameObj.events.onInputOver.add(x => { this.onInputOver(); });
-		gameObj.events.onInputOut.add(x => { this.onInputOut(); });
-		gameObj.events.onInputDown.add(x => { this.onInputClick(); })
+		gameObj.events.onInputOver.add(() => { this.onInputOver(); });
+		gameObj.events.onInputOut.add(() => { this.onInputOut(); });
+		gameObj.events.onInputDown.add(() => { this.onInputClick(); })
 	}
 	
 	/**

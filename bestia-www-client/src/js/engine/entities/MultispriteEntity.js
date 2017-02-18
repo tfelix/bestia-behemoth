@@ -22,7 +22,7 @@ export default class MultispriteEntity extends SpriteEntity {
 		 * contains: {sprite: Phaser.Sprite, name: String, offsets: Obj,
 		 * defaultCords: {x:, y:}}
 		 */
-		this._multiSprites = [];
+		this._multiSprites;
 	}
 
 	getOffsetFilename(multispriteName, mainspriteName) {
@@ -128,6 +128,12 @@ export default class MultispriteEntity extends SpriteEntity {
 			};
 
 			sprite.name = msName;
+			
+			// THe whole sprite setup is stupid. We need safty check because we
+			// call setSprite() from the parent ctor. Fix this.
+			if(!this._multiSprites) {
+				this._multiSprites = [];
+			}
 	
 			this._multiSprites.push(msData);
 		}, this);
