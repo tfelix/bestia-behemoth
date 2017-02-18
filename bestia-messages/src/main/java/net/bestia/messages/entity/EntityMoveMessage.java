@@ -41,19 +41,31 @@ public class EntityMoveMessage extends EntityJsonMessage {
 
 	@JsonProperty("w")
 	private float walkspeed;
-	
+
 	public EntityMoveMessage() {
 		// no op.
 	}
-	
+
+	/**
+	 * Helper ctor if the receiving account id is not known upon creation of
+	 * this message.
+	 * 
+	 * @param eid
+	 * @param path
+	 * @param speed
+	 */
+	public EntityMoveMessage(long eid, List<Point> path, float speed) {
+		this(0, eid, path, speed);
+	}
+
 	public EntityMoveMessage(long accId, long eid, List<Point> path, float speed) {
 		super(accId, eid);
-		
+
 		this.walkspeed = speed;
-		
+
 		cordsX = new ArrayList<>(path.size());
 		cordsY = new ArrayList<>(path.size());
-		
+
 		path.forEach(x -> {
 			cordsX.add(x.getX());
 			cordsY.add(x.getY());

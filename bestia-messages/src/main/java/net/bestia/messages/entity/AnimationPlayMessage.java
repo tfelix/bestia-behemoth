@@ -47,6 +47,17 @@ public class AnimationPlayMessage extends EntityJsonMessage {
 		// no op.
 	}
 
+	/**
+	 * Helper ctor if the receiving account id is not known when the message is
+	 * created.
+	 * 
+	 * @param ownerEntityId
+	 * @param animationName
+	 */
+	public AnimationPlayMessage(long ownerEntityId, String animationName) {
+		this(0, ownerEntityId, 0, animationName);
+	}
+
 	public AnimationPlayMessage(long accountId, long ownerEntityId, String animationName) {
 		this(accountId, ownerEntityId, 0, animationName);
 	}
@@ -73,7 +84,7 @@ public class AnimationPlayMessage extends EntityJsonMessage {
 		this.ownerPos = ownerPos;
 		this.targetPos = targetPos;
 	}
-	
+
 	private AnimationPlayMessage(long accountId, AnimationPlayMessage rhs) {
 		super(accountId, rhs.getEntityId());
 

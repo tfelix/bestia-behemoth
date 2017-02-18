@@ -188,7 +188,7 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 	@Override
 	public void kill() {
 		// Send death animation to client.
-		final AnimationPlayMessage animMsg = new AnimationPlayMessage(0, "die", getId());
+		final AnimationPlayMessage animMsg = new AnimationPlayMessage(getId(), "die");
 		getContext().sendMessage(animMsg);
 	}
 

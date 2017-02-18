@@ -30,6 +30,22 @@ public class EntityPositionMessage extends EntityJsonMessage {
 	}
 
 	/**
+	 * Sets the current receiver account to 0. This is useful if the receiver
+	 * account is not yet known upon creation of this message.
+	 * 
+	 * @param entityId
+	 *            Entity triggering this message.
+	 * @param x
+	 *            X Position of the entity.
+	 * @param y
+	 *            Y Position of the entity.
+	 */
+	public EntityPositionMessage(long entityId, long x, long y) {
+		this(0, entityId, x, y);
+		// no op.
+	}
+
+	/**
 	 * Sets the current position for the given bestia entity id.
 	 * 
 	 * @param entityId
@@ -41,7 +57,7 @@ public class EntityPositionMessage extends EntityJsonMessage {
 	 */
 	public EntityPositionMessage(long accId, long entityId, long x, long y) {
 		super(accId, entityId);
-		
+
 		if (x < 0 || y < 0) {
 			throw new IllegalArgumentException("X and Y can not be smaller then 0.");
 		}

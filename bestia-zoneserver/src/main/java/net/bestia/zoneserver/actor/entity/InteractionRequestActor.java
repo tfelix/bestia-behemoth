@@ -58,13 +58,13 @@ public class InteractionRequestActor extends BestiaRoutingActor {
 		
 		// Is it a interactable entity?
 		if(!(entity instanceof Interactable)) {
-			sendClient(new EntityInteractionMessage(rm, rm.getEntityId(), InteractionType.NONE));
+			sendClient(new EntityInteractionMessage(rm.getAccountId(), rm.getEntityId(), InteractionType.NONE));
 			return;
 		}
 		
 		final PlayerEntity pbe = playerEntityService.getActivePlayerEntity(rm.getEntityId());
 		final Set<InteractionType> interactions = ((Interactable) entity).getPossibleInteractions(pbe);
-		sendClient(new EntityInteractionMessage(rm, rm.getEntityId(), interactions));
+		sendClient(new EntityInteractionMessage(rm.getAccountId(), rm.getEntityId(), interactions));
 	}
 
 }

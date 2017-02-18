@@ -34,6 +34,14 @@ public class EntityDamageMessage extends EntityJsonMessage {
 	}
 
 	/**
+	 * Helper ctor if receiving acc is not known when the message is created.
+	 */
+	public EntityDamageMessage(long entityId, Damage dmg) {
+		this(0, entityId, dmg);
+		// no op.
+	}
+
+	/**
 	 * Ctor.
 	 * 
 	 * @param uuid

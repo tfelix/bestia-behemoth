@@ -85,9 +85,8 @@ public class ChatActor extends BestiaRoutingActor {
 
 		final List<Long> receiverAccIds = playerEntityService.getActiveAccountIdsInRange(Map.getViewRect(pbe.getPosition()));
 		
-		receiverAccIds.parallelStream()
-				.map(receiverAccId -> ChatMessage.getEchoMessage(receiverAccId,
-						chatMsg))
+		receiverAccIds.stream()
+				.map(receiverAccId -> chatMsg.createNewInstance(receiverAccId))
 				.forEach(msg -> sendClient(msg));
 	}
 
@@ -106,7 +105,7 @@ public class ChatActor extends BestiaRoutingActor {
 			return;
 		}
 
-		final ChatMessage reply = ChatMessage.getEchoMessage(acc.getId(), chatMsg);
+		final ChatMessage reply = chatMsg.createNewInstance(acc.getId());
 		sendClient(reply);
 	}
 

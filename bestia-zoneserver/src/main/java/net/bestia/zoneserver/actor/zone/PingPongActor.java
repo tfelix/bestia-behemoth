@@ -33,7 +33,7 @@ public class PingPongActor extends BestiaRoutingActor {
 		LOG.debug(String.format("Received: %s", msg.toString()));
 		final PingMessage pmsg = (PingMessage) msg;
 		
-		sendClient(new PongMessage(pmsg));
+		sendClient(new PongMessage(pmsg.getAccountId()));
 	}
 
 }

@@ -12,8 +12,6 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
-import net.bestia.messages.entity.AnimationPlayMessage;
-import net.bestia.messages.entity.EntityDamageMessage;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
@@ -71,8 +69,7 @@ public class ActiveClientUpdateActor extends BestiaRoutingActor {
 			// Check if the pbe are active and if so send them the update.
 			for (long activeAcc : activeAccs) {
 
-				dataMsg.setAccountId(activeAcc);
-				sendClient(dataMsg);
+				sendClient(dataMsg.createNewInstance(activeAcc));
 
 			}
 		} catch (ClassCastException e) {

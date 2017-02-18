@@ -49,7 +49,7 @@ public class TilesetRequestActor extends BestiaRoutingActor {
 			return;
 		}
 		
-		final MapTilesetMessage response = new MapTilesetMessage(mtmsg, ts);
+		final MapTilesetMessage response = new MapTilesetMessage(mtmsg.getAccountId(), ts);
 		sendClient(response);
 	}
 

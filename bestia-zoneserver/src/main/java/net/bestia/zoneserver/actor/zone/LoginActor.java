@@ -111,10 +111,14 @@ public class LoginActor extends BestiaRoutingActor {
 			LOG.debug("Sending: {}.", activateMsg.toString());
 
 		} else {
-			final LoginAuthReplyMessage response = new LoginAuthReplyMessage(state, "");
+			final LoginAuthReplyMessage response;
+			
 			if (acc != null) {
-				response.setAccountId(acc.getId());
+				response = new LoginAuthReplyMessage(acc.getId(), state, "");
+			} else {
+				response = new LoginAuthReplyMessage(0, state, "");
 			}
+			
 			getSender().tell(response, getSelf());
 		}
 	}

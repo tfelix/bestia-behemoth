@@ -18,9 +18,11 @@ import net.bestia.messages.ui.DialogNode;
 public class DialogBuilder {
 
 	private final List<DialogNode> nodes = new ArrayList<>();
+	private final long receiverAccId;
 
-	public DialogBuilder() {
-		// no op.
+	public DialogBuilder(long receiverAccId) {
+		
+		this.receiverAccId = receiverAccId;
 	}
 
 	public void text(String txt) {
@@ -42,7 +44,7 @@ public class DialogBuilder {
 	 */
 	public DialogMessage close(String dialogId) {
 		nodes.add(new DialogNode(DialogAction.CLOSE, dialogId));
-		final DialogMessage msg = new DialogMessage(nodes);
+		final DialogMessage msg = new DialogMessage(receiverAccId, nodes);
 
 		clear();
 
@@ -60,7 +62,7 @@ public class DialogBuilder {
 	 * @return The build {@link DialogMessage}.
 	 */
 	public DialogMessage build(String dialogId) {
-		final DialogMessage msg = new DialogMessage(nodes);
+		final DialogMessage msg = new DialogMessage(receiverAccId, nodes);
 
 		clear();
 

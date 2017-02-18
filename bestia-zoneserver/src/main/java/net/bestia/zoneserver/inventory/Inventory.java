@@ -145,10 +145,8 @@ public class Inventory {
 		final List<PlayerItem> items = inventoryService.findPlayerItemsForAccount(accountId);
 
 		// Generate a list of inventory items.
-		final InventoryListMessage invMsg = new InventoryListMessage();
+		final InventoryListMessage invMsg = new InventoryListMessage(accountId);
 		invMsg.setPlayerItems(items);
-		
-		invMsg.setAccountId(accountId);
 
 		return invMsg;
 	}

@@ -66,7 +66,7 @@ public class MapRequestChunkActor extends BestiaRoutingActor {
 
 		final List<MapChunk> chunks = mapService.getChunks(req.getChunks());
 
-		final MapChunkMessage response = new MapChunkMessage(req, chunks);
+		final MapChunkMessage response = new MapChunkMessage(req.getAccountId(), chunks);
 		sendClient(response);
 	}
 }
