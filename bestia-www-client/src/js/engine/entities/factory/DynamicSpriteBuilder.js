@@ -28,13 +28,15 @@ export default class DynamicSpriteBuilder extends SpriteBuilder {
 		// Setup the phaser sprite.
 		entity.setSprite(data.s.s);
 		
-		// Set the callbacks.
+		// Set the apropriate callbacks for the (player) entities.
+		/*
 		entity.onInputOver = function() {
 			this._pubsub.publish(Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_over', entity: entity});
-		}
+		}.bind(this);
+		
 		entity.onInputOut = function() {
 			this._pubsub.publish(Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_out', entity: entity});
-		}
+		}.bind(this);*/
 		
 		entity.addToGroup(this._ctx.groups.sprites);
 

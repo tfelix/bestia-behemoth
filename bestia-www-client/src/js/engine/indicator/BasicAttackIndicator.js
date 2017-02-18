@@ -1,4 +1,3 @@
-
 import Indicator from './Indicator.js';
 import Signal from '../../io/Signal.js';
 import WorldHelper from '../map/WorldHelper.js';

@@ -1,6 +1,7 @@
 import Builder from './Builder.js';
 import SpriteEntity from '../SpriteEntity';
 import LOG from '../../../util/Log';
+import Signal from '../../../io/Signal';
 
 /**
  * Responsible for building the packed (multisprite) entities. These are usually
@@ -17,6 +18,8 @@ export default class SpriteBuilder extends Builder {
 		 * Url helper.
 		 */
 		this._url = ctx.url;
+		
+		this._pubsub = ctx.pubsub;
 	}
 	
 	build(data, desc) {
@@ -24,6 +27,17 @@ export default class SpriteBuilder extends Builder {
 		var entity = new SpriteEntity(this._ctx, data.eid, data.x, data.y, desc);
 		
 		entity.addToGroup(this._ctx.groups.sprites);
+		
+		// We need to check how we can interact with this entity. If this is
+		// clear we add the behaviour of the move over. Currently its attack
+		// only.
+		entity.onInputOver = function() {
+			this._pubsub.publish(Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_over', entity: entity});
+		}.bind(this);
+		
+		entity.onInputOut = function() {
+			this._pubsub.publish(Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_out', entity: entity});
+		}.bind(this);
 
 		if (data.a === 'APPEAR') {
 			entity.appear();
@@ -35,8 +49,8 @@ export default class SpriteBuilder extends Builder {
 	}
 
 	/**
-	 * Responsible for loading all the needed date before a build of the
-	 * object can be performed.
+	 * Responsible for loading all the needed date before a build of the object
+	 * can be performed.
 	 * 
 	 * @param data
 	 */
