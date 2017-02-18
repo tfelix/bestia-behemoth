@@ -3,6 +3,7 @@ package net.bestia.messages.ui;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -29,12 +30,24 @@ public class DialogMessage extends JsonMessage {
 		this.nodes = Collections.unmodifiableList(new ArrayList<>());
 	}
 
-	public DialogMessage(List<DialogNode> nodes) {
-		this.nodes = Collections.unmodifiableList(new ArrayList<>(nodes));
+	public DialogMessage(long accId, List<DialogNode> nodes) {
+		super(accId);
+		
+		this.nodes = Collections.unmodifiableList(Objects.requireNonNull(new ArrayList<>(nodes)));
 	}
 
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("DialogMsg[nodes: %s]", nodes.toString());
+	}
+
+	@Override
+	public DialogMessage createNewInstance(long accountId) {
+		return new DialogMessage(accountId, nodes);
 	}
 }

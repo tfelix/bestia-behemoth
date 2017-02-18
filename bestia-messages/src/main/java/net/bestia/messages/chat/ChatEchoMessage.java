@@ -1,5 +1,7 @@
 package net.bestia.messages.chat;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
@@ -16,10 +18,27 @@ public class ChatEchoMessage extends JsonMessage {
 	
 	@JsonProperty("ec")
 	private EchoCode echoCode;
+	
 	@JsonProperty("txt")
 	private String text;
+	
 	@JsonProperty("cmid")
 	private int chatMessageId;
+	
+	/**
+	 * Priv ctor. for jackson.
+	 */
+	protected ChatEchoMessage() {
+		// no op.
+	}
+	
+	public ChatEchoMessage(long accId, EchoCode code, String txt, int chatMsgId) {
+		super(accId);
+		
+		this.echoCode = Objects.requireNonNull(code);
+		this.text = Objects.requireNonNull(txt);
+		this.chatMessageId = chatMsgId;
+	}
 	
 	/**
 	 * Creates a ChatEchoMessage from a incoming ChatMessage. Please note
@@ -65,5 +84,10 @@ public class ChatEchoMessage extends JsonMessage {
 	@Override
 	public String getMessageId() {
 		return "chat.echo";
+	}
+
+	@Override
+	public ChatEchoMessage createNewInstance(long accountId) {
+		return new ChatEchoMessage(accountId, this.echoCode, this.text, this.chatMessageId);
 	}
 }

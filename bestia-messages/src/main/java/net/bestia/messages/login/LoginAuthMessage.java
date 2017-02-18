@@ -1,5 +1,7 @@
 package net.bestia.messages.login;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
@@ -17,20 +19,18 @@ public class LoginAuthMessage extends JsonMessage {
 	private static final long serialVersionUID = 1L;
 
 	public static final String MESSAGE_ID = "system.loginauth";
-
-	@JsonProperty("accId")
-	private long accountId;
 	
 	@JsonProperty("token")
 	private String token;
 
-	public LoginAuthMessage() {
-		
+	protected LoginAuthMessage() {
+		// no op.
 	}
 
 	public LoginAuthMessage(long accountId, String token) {
-		setAccountId(accountId);
-		this.token = token;
+		super(accountId);
+		
+		this.token = Objects.requireNonNull(token);
 	}
 
 
@@ -51,6 +51,12 @@ public class LoginAuthMessage extends JsonMessage {
 	@Override
 	public String toString() {
 		return String.format("LoginAuthMessage[accountId: %d, token: %s]", getAccountId(), getToken());
+	}
+
+	@Override
+	public LoginAuthMessage createNewInstance(long accountId) {
+		
+		return new LoginAuthMessage(accountId, token);
 	}
 
 }

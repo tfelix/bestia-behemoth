@@ -10,8 +10,12 @@ public class PingMessage extends JsonMessage {
 	private final static String message = "Hello Bestia.";
 	public static final String MESSAGE_ID = "system.ping";
 	
-	public PingMessage() {
+	protected PingMessage() {
 		// no op.
+	}
+	
+	public PingMessage(long accId) {
+		super(accId);
 	}
 	
 	@Override
@@ -33,5 +37,10 @@ public class PingMessage extends JsonMessage {
 	@Override
 	public String toString() {
 		return String.format("PingMessage[accId: %d]", getAccountId());
+	}
+
+	@Override
+	public PingMessage createNewInstance(long accountId) {
+		return new PingMessage(accountId);
 	}
 }

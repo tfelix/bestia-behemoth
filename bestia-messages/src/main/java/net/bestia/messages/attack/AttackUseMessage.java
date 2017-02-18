@@ -32,6 +32,18 @@ public class AttackUseMessage extends JsonMessage {
 
 	@JsonProperty("tid")
 	private long targetEntityId;
+	
+	/**
+	 * Priv. ctor. Used for jackson.
+	 */
+	protected AttackUseMessage() {
+		// no op.
+	}
+	
+	public AttackUseMessage(long accId) {
+		super(accId);
+		// no op.
+	}
 
 	public int getAttackId() {
 		return attackId;
@@ -82,5 +94,16 @@ public class AttackUseMessage extends JsonMessage {
 	public String toString() {
 		return String.format("AttackUseMessage[attackId: %d, x: %d, y: %d, targetEid: %d]", attackId, x, y,
 				targetEntityId);
+	}
+
+	@Override
+	public AttackUseMessage createNewInstance(long accountId) {
+		final AttackUseMessage msg = new AttackUseMessage(accountId);
+		msg.attackId = this.attackId;
+		msg.slot = this.slot;
+		msg.targetEntityId = this.targetEntityId;
+		msg.x = this.x;
+		msg.y = this.y;
+		return msg;
 	}
 }

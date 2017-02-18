@@ -2,6 +2,7 @@ package net.bestia.messages.ui;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,7 +26,7 @@ public class TranslationResponseMessage extends JsonMessage {
 	public static final String MESSAGE_ID = "translation.response";
 
 	@JsonProperty("is")
-	private List<TranslationItem> items = new ArrayList<>();
+	private List<TranslationItem> items;
 
 	/**
 	 * The token is put in the answer of this message. Sync these requests are
@@ -35,13 +36,15 @@ public class TranslationResponseMessage extends JsonMessage {
 	@JsonProperty("t")
 	private String token;
 	
-	public TranslationResponseMessage() {
+	protected TranslationResponseMessage() {
 		
 	}
 	
-	public TranslationResponseMessage(TranslationRequestMessage msg) {
-		super(msg);
-		this.token = msg.getToken();
+	public TranslationResponseMessage(long accId, String token, List<TranslationItem> items) {
+		super(accId);
+		
+		this.token = Objects.requireNonNull(token);
+		this.items = new ArrayList<>(items);
 	}
 	
 	public void setItems(List<TranslationItem> items) {
@@ -70,5 +73,10 @@ public class TranslationResponseMessage extends JsonMessage {
 	public String toString() {
 		return String.format("TranslationResponseMessage[items: %s]",
 				items.toString());
+	}
+
+	@Override
+	public TranslationResponseMessage createNewInstance(long accountId) {
+		return new TranslationResponseMessage(accountId, this.token, this.items);
 	}
 }

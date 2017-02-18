@@ -4,11 +4,10 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.EntityMessage;
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.EntityJsonMessage;
 import net.bestia.model.domain.SpriteInfo;
 
-public class EntityUpdateMessage extends JsonMessage implements EntityMessage {
+public class EntityUpdateMessage extends EntityJsonMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.update";
@@ -25,10 +24,10 @@ public class EntityUpdateMessage extends JsonMessage implements EntityMessage {
 	@JsonProperty("a")
 	private EntityAction action;
 
-	@JsonProperty("eid")
-	private long entityId;
-
-	public EntityUpdateMessage() {
+	/**
+	 * Priv. ctor for jackson.
+	 */
+	protected EntityUpdateMessage() {
 		// no op.
 	}
 
@@ -39,12 +38,20 @@ public class EntityUpdateMessage extends JsonMessage implements EntityMessage {
 	}
 
 	public EntityUpdateMessage(long accId, long entityId, long x, long y, SpriteInfo info) {
-		super(accId);
+		super(accId, entityId);
 		
-		this.entityId = entityId;
 		this.x = x;
 		this.y = y;
 		this.spriteInfo = Objects.requireNonNull(info);
+		this.action = EntityAction.APPEAR;
+	}
+	
+	public EntityUpdateMessage(long accId, EntityUpdateMessage msg) {
+		super(accId, msg.getEntityId());
+		
+		this.x = msg.x;
+		this.y = msg.y;
+		this.spriteInfo = msg.spriteInfo;
 		this.action = EntityAction.APPEAR;
 	}
 
@@ -75,7 +82,7 @@ public class EntityUpdateMessage extends JsonMessage implements EntityMessage {
 	@Override
 	public String toString() {
 		return String.format("EntityUpdateMessage[eid: %d, x: %d, y: %d, sprite: %s, action: %s]",
-				entityId, x, y,
+				getEntityId(), x, y,
 				spriteInfo.toString(), action.toString());
 	}
 
@@ -85,7 +92,7 @@ public class EntityUpdateMessage extends JsonMessage implements EntityMessage {
 	}
 
 	@Override
-	public long getEntityId() {
-		return entityId;
+	public EntityUpdateMessage createNewInstance(long accountId) {
+		return new EntityUpdateMessage(accountId, this);
 	}
 }

@@ -20,11 +20,13 @@ public class MapTilesetRequestMessage extends JsonMessage {
 	@JsonProperty("gid")
 	private long tileId;
 
-	public MapTilesetRequestMessage() {
+	protected MapTilesetRequestMessage() {
 		tileId = 0;
 	}
 
-	public MapTilesetRequestMessage(long gid) {
+	public MapTilesetRequestMessage(long accId, long gid) {
+		super(accId);
+		
 		this.tileId = gid;
 	}
 
@@ -40,5 +42,10 @@ public class MapTilesetRequestMessage extends JsonMessage {
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
+	}
+
+	@Override
+	public MapTilesetRequestMessage createNewInstance(long accountId) {
+		return new MapTilesetRequestMessage(accountId, tileId);
 	}
 }

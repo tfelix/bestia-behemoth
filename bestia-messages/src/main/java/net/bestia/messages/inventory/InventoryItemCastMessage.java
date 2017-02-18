@@ -34,16 +34,17 @@ public class InventoryItemCastMessage extends JsonMessage {
 	/**
 	 * Std. Ctor.
 	 */
-	public InventoryItemCastMessage() {
+	protected InventoryItemCastMessage() {
 		// no op.
 	}
 
-	public InventoryItemCastMessage(InventoryItemCastMessage msg) {
+	public InventoryItemCastMessage(long accId, InventoryItemCastMessage copy) {
+		super(accId);
 
-		this.playerItemId = msg.playerItemId;
-		this.token = msg.token;
-		this.x = msg.x;
-		this.y = msg.y;
+		this.playerItemId = copy.playerItemId;
+		this.token = copy.token;
+		this.x = copy.x;
+		this.y = copy.y;
 	}
 
 	@Override
@@ -86,5 +87,10 @@ public class InventoryItemCastMessage extends JsonMessage {
 	@Override
 	public String toString() {
 		return String.format("InventoryItemCastMessage[piid: %d, x: %d, y: %d, token: %s]", playerItemId, x, y, token);
+	}
+
+	@Override
+	public InventoryItemCastMessage createNewInstance(long accountId) {
+		return new InventoryItemCastMessage(accountId, this);
 	}
 }

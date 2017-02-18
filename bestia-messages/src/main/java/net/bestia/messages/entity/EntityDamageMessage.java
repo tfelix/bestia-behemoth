@@ -24,13 +24,13 @@ public class EntityDamageMessage extends EntityJsonMessage {
 	private static final String MESSAGE_ID = "entity.damage";
 
 	@JsonProperty("d")
-	private List<Damage> damage = new ArrayList<>();
+	private final List<Damage> damage = new ArrayList<>();
 
 	/**
 	 * Std. Ctor for Jackson.
 	 */
-	public EntityDamageMessage() {
-
+	protected EntityDamageMessage() {
+		// no op.
 	}
 
 	/**
@@ -41,8 +41,8 @@ public class EntityDamageMessage extends EntityJsonMessage {
 	 * @param dmg
 	 *            The amount of damage to receive.s
 	 */
-	public EntityDamageMessage(long entityId, Damage dmg) {
-		super(entityId);
+	public EntityDamageMessage(long accId, long entityId, Damage dmg) {
+		super(accId, entityId);
 
 		Objects.requireNonNull(dmg);
 
@@ -59,12 +59,26 @@ public class EntityDamageMessage extends EntityJsonMessage {
 	 * @param dmg
 	 *            The received damage.
 	 */
-	public EntityDamageMessage(long entityId, List<Damage> dmg) {
-		super(entityId);
+	public EntityDamageMessage(long accId, long entityId, List<Damage> dmg) {
+		super(accId, entityId);
 
 		Objects.requireNonNull(dmg);
 
 		this.damage.addAll(dmg);
+	}
+
+	/**
+	 * Private copy ctor.
+	 * 
+	 * @param accId
+	 *            The new receiver account id.
+	 * @param msg
+	 *            The message content to be copied.
+	 */
+	private EntityDamageMessage(long accId, EntityDamageMessage msg) {
+		super(accId, msg.getEntityId());
+
+		this.damage.addAll(msg.damage);
 	}
 
 	@Override
@@ -75,5 +89,10 @@ public class EntityDamageMessage extends EntityJsonMessage {
 	@Override
 	public String toString() {
 		return String.format("EntityDmgMessage[eid: %d, dmg: %s]", getEntityId(), damage.toString());
+	}
+
+	@Override
+	public EntityDamageMessage createNewInstance(long accountId) {
+		return new EntityDamageMessage(accountId, this);
 	}
 }

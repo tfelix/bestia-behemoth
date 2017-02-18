@@ -14,6 +14,18 @@ import net.bestia.messages.JsonMessage;
  */
 public class AttackListRequestMessage extends JsonMessage {
 
+	/**
+	 * Priv. ctor. This is needed for jackson.
+	 */
+	protected AttackListRequestMessage() {
+		// no op.
+	}
+	
+	public AttackListRequestMessage(long accId) {
+		super(accId);
+		// no op.
+	}
+
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;
 
@@ -27,5 +39,10 @@ public class AttackListRequestMessage extends JsonMessage {
 	@Override
 	public String toString() {
 		return "AttackListRequestMessage[]";
+	}
+
+	@Override
+	public AttackListRequestMessage createNewInstance(long accountId) {
+		return new AttackListRequestMessage(accountId);
 	}
 }

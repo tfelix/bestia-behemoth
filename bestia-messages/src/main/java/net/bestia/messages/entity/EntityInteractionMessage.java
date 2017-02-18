@@ -7,8 +7,7 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.EntityJsonMessage;
 import net.bestia.model.entity.InteractionType;
 
 /**
@@ -19,42 +18,36 @@ import net.bestia.model.entity.InteractionType;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class EntityInteractionMessage extends JsonMessage {
+public class EntityInteractionMessage extends EntityJsonMessage {
 
 	private static final long serialVersionUID = 1L;
 
 	public static final String MESSAGE_ID = "entity.interact";
 
-	@JsonProperty("eid")
-	private final long entityId;
-
 	@JsonProperty("is")
 	private final List<InteractionType> interactions = new ArrayList<>();
 
-	public EntityInteractionMessage() {
-		entityId = 0;
+	/**
+	 * Priv ctor. for jackson.
+	 */
+	protected EntityInteractionMessage() {
+		// no op.
 	}
 	
-	public EntityInteractionMessage(AccountMessage accMsg, long eid, InteractionType interaction) {
-		super(accMsg);
+	public EntityInteractionMessage(long accId, long eid, InteractionType interaction) {
+		super(accId, eid);
 		
 		Objects.requireNonNull(interactions);
 		
-		this.entityId = eid;
 		this.interactions.add(interaction);
 	}
 
-	public EntityInteractionMessage(AccountMessage accMsg, long eid, Collection<InteractionType> interactions) {
-		super(accMsg);
+	public EntityInteractionMessage(long accId, long eid, Collection<InteractionType> interactions) {
+		super(accId, eid);
 		
 		Objects.requireNonNull(interactions);
 		
-		this.entityId = eid;
 		this.interactions.addAll(interactions);
-	}
-
-	public long getEntityId() {
-		return entityId;
 	}
 
 	@Override
@@ -68,5 +61,10 @@ public class EntityInteractionMessage extends JsonMessage {
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
+	}
+
+	@Override
+	public EntityInteractionMessage createNewInstance(long accountId) {
+		return new EntityInteractionMessage(getAccountId(), getEntityId(), interactions);
 	}
 }

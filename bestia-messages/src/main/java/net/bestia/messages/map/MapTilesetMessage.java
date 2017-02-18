@@ -4,7 +4,6 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.model.domain.Tileset;
 
@@ -24,12 +23,16 @@ public class MapTilesetMessage extends JsonMessage {
 	@JsonProperty("ts")
 	private final Tileset tileset;
 
-	public MapTilesetMessage() {
+	/**
+	 * Priv. ctor for jackson.
+	 */
+	protected MapTilesetMessage() {
 		tileset = null;
 	}
 
-	public MapTilesetMessage(AccountMessage msg, Tileset tileset) {
-		super(msg);
+	public MapTilesetMessage(long accId, Tileset tileset) {
+		super(accId);
+		
 		this.tileset = Objects.requireNonNull(tileset);
 	}
 
@@ -45,5 +48,11 @@ public class MapTilesetMessage extends JsonMessage {
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
+	}
+
+	@Override
+	public MapTilesetMessage createNewInstance(long accountId) {
+		
+		return new MapTilesetMessage(accountId, tileset);
 	}
 }

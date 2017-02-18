@@ -38,7 +38,7 @@ public class BestiaInfoMessage extends JsonMessage {
 	/**
 	 * For Jackson.
 	 */
-	public BestiaInfoMessage() {
+	protected BestiaInfoMessage() {
 		// no op.
 	}
 	
@@ -88,5 +88,10 @@ public class BestiaInfoMessage extends JsonMessage {
 	public String toString() {
 		return String.format("BestiaInfoMessage[accId: %d, isMaster: %b, bestia: %s, statusPoints: %s]", getAccountId(),
 				isMaster, bestia.toString(), statusPoints.toString());
+	}
+
+	@Override
+	public BestiaInfoMessage createNewInstance(long accountId) {
+		return new BestiaInfoMessage(accountId, this.entityId, this.bestia, this.statusPoints);
 	}
 }

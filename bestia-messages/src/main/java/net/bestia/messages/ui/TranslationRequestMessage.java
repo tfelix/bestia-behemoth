@@ -15,6 +15,8 @@ import net.bestia.model.domain.TranslationCategory;
  * our I18N interface and then delivered to the client with an translation
  * response message.
  * 
+ * TODO Das hier noch überarbeiten. Immutable machen bzw anders lösen.
+ * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
@@ -97,6 +99,12 @@ public class TranslationRequestMessage extends JsonMessage {
 		items = new ArrayList<>();
 		token = "";
 	}
+	
+	public TranslationRequestMessage(long accId, List<TranslationItem> items) {
+		super(accId);
+		
+		this.items = new ArrayList<>(items);
+	}
 
 	public List<TranslationItem> getItems() {
 		return items;
@@ -122,5 +130,11 @@ public class TranslationRequestMessage extends JsonMessage {
 	@Override
 	public String toString() {
 		return String.format("TranslationRequestMessage[items: %s]", items.toString());
+	}
+
+	@Override
+	public TranslationRequestMessage createNewInstance(long accountId) {
+		
+		return new TranslationRequestMessage(accountId, items);
 	}
 }

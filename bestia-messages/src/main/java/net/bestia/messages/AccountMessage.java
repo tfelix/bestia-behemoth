@@ -1,7 +1,5 @@
 package net.bestia.messages;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
@@ -20,22 +18,10 @@ public abstract class AccountMessage extends Message {
 	private long accountId;
 
 	/**
-	 * Std. ctor for deserialization purpose of child classes.
+	 * Priv. ctor. This is needed for jackson.
 	 */
-	public AccountMessage() {
-
-	}
-
-	/**
-	 * Creates a message out of a previous message. Informations like the
-	 * account id and the uuid for connection identification are reused.
-	 * 
-	 * @param msg
-	 */
-	public AccountMessage(AccountMessage msg) {
-
-		Objects.requireNonNull(msg);
-		this.accountId = msg.getAccountId();
+	protected AccountMessage() {
+		// no op.
 	}
 
 	/**
@@ -67,20 +53,8 @@ public abstract class AccountMessage extends Message {
 	 * @param accountId
 	 * @return
 	 */
-	public AccountMessage createNewInstance(long accountId) {
-		// @TODO implementieren.
-		return null;
-	}
+	public abstract AccountMessage createNewInstance(long accountId);
 
-	/**
-	 * Create new instances when sending acc messages.
-	 * 
-	 * @param accountId
-	 */
-	@Deprecated
-	public void setAccountId(long accountId) {
-		this.accountId = accountId;
-	}
 
 	@Override
 	public String toString() {

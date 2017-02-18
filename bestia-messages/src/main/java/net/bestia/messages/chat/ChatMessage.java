@@ -10,6 +10,8 @@ import net.bestia.model.domain.Account;
 /**
  * Chatmessage is sent from the user to the server and vice versa.
  * 
+ * TODO This is a mess! Cleanup the API of ctors.
+ * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
@@ -45,7 +47,7 @@ public class ChatMessage extends JsonMessage {
 	/**
 	 * Std. Ctor So the Jason Library can create this object.
 	 */
-	public ChatMessage() {
+	protected ChatMessage() {
 		// no op.
 	}
 
@@ -55,6 +57,17 @@ public class ChatMessage extends JsonMessage {
 		this.chatMode = mode;
 		this.text = message;
 		setTime(System.currentTimeMillis() / 1000L);
+	}
+
+	public ChatMessage(long accountId, ChatMessage chat) {
+		super(accountId);
+		
+		this.chatMessageId = chat.chatMessageId;
+		this.chatMode = chat.chatMode;
+		this.receiverNickname = chat.receiverNickname;
+		this.senderNickname = chat.senderNickname;
+		this.text = chat.text;
+		this.time = chat.time;		
 	}
 
 	public static ChatMessage getSystemMessage(Account account, String translationKey, Object... args) {
@@ -79,11 +92,9 @@ public class ChatMessage extends JsonMessage {
 	 */
 	public static ChatMessage getSystemMessage(long accId, String text) {
 
-		final ChatMessage msg = new ChatMessage();
-		msg.setText(text);
+		final ChatMessage msg = new ChatMessage(accId, text, Mode.SYSTEM);
 		msg.setTime(System.currentTimeMillis() / 1000L);
 		msg.setChatMode(Mode.SYSTEM);
-		msg.setAccountId(accId);
 
 		return msg;
 	}
@@ -139,36 +150,8 @@ public class ChatMessage extends JsonMessage {
 				chatMode, senderNickname, receiverNickname, text, time);
 	}
 
-	/**
-	 * This message has a different path so it gets delivered back to the client
-	 * given in the receiver account id.
-	 * 
-	 * @param receiverAccountId
-	 * @param msg
-	 * @return
-	 */
-	public static ChatMessage getEchoMessage(long receiverAccountId, ChatMessage msg) {
-		final ChatMessage forwardMsg = new ChatMessage();
-
-		forwardMsg.senderNickname = msg.senderNickname;
-		forwardMsg.receiverNickname = msg.receiverNickname;
-
-		forwardMsg.setAccountId(receiverAccountId);
-		forwardMsg.setChatMessageId(msg.chatMessageId);
-		forwardMsg.setChatMode(msg.chatMode);
-		forwardMsg.setText(msg.text);
-		forwardMsg.setTime(msg.time);
-
-		return forwardMsg;
-	}
-
-	public static ChatMessage getEchoRawMessage(long receiverAccoundId, String text) {
-		final ChatMessage forwardMsg = new ChatMessage();
-
-		forwardMsg.setAccountId(receiverAccoundId);
-		forwardMsg.setChatMode(Mode.SYSTEM);
-		forwardMsg.setText(text);
-
-		return forwardMsg;
+	@Override
+	public ChatMessage createNewInstance(long accountId) {
+		return new ChatMessage(accountId, this);
 	}
 }

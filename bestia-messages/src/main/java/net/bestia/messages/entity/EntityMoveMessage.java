@@ -46,9 +46,9 @@ public class EntityMoveMessage extends EntityJsonMessage {
 		// no op.
 	}
 	
-	public EntityMoveMessage(long eid, List<Point> path, float speed) {
+	public EntityMoveMessage(long accId, long eid, List<Point> path, float speed) {
+		super(accId, eid);
 		
-		setEntityId(eid);
 		this.walkspeed = speed;
 		
 		cordsX = new ArrayList<>(path.size());
@@ -113,5 +113,10 @@ public class EntityMoveMessage extends EntityJsonMessage {
 		return String.format(
 				"EntityMoveMessage[eid: %d, pathX: %s, pathY: %s, walkspeed: %f]", getEntityId(),
 				cordsX.toString(), cordsY.toString(), walkspeed);
+	}
+
+	@Override
+	public EntityMoveMessage createNewInstance(long accountId) {
+		return new EntityMoveMessage(accountId, getEntityId(), getPath(), walkspeed);
 	}
 }

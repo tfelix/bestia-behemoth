@@ -2,7 +2,6 @@ package net.bestia.messages.misc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
 import net.bestia.messages.JsonMessage;
 
 public class PongMessage extends JsonMessage {
@@ -14,12 +13,12 @@ public class PongMessage extends JsonMessage {
 	/**
 	 * Ctor.
 	 */
-	public PongMessage() {
+	protected PongMessage() {
 		// no op.
 	}
 	
-	public PongMessage(AccountMessage msg) {
-		super(msg);
+	public PongMessage(long accId) {
+		super(accId);
 	}
 	
 	@JsonProperty("m")
@@ -35,5 +34,10 @@ public class PongMessage extends JsonMessage {
 	@Override
 	public String toString() {
 		return String.format("PongMessage[account id: %d]", getAccountId());
+	}
+
+	@Override
+	public PongMessage createNewInstance(long accountId) {
+		return new PongMessage(accountId);
 	}
 }

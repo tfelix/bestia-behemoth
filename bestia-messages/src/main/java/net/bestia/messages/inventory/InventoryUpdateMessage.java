@@ -3,6 +3,7 @@ package net.bestia.messages.inventory;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -20,9 +21,10 @@ import net.bestia.model.domain.Item;
  */
 public class InventoryUpdateMessage extends JsonMessage {
 
-	@JsonIgnore
-	private static final long serialVersionUID = 1L;
-
+	/**
+	 * Item to be updates inside the inventory with a new amount.
+	 *
+	 */
 	public class UpdateItem implements Serializable {
 
 		private static final long serialVersionUID = 1L;
@@ -56,18 +58,32 @@ public class InventoryUpdateMessage extends JsonMessage {
 		}
 	}
 
-	public InventoryUpdateMessage() {
-
-	}
-
-	public InventoryUpdateMessage(long accId) {
-		super(accId);
-	}
+	@JsonIgnore
+	private static final long serialVersionUID = 1L;
 
 	public static final String MESSAGE_ID = "inventory.update";
 
 	@JsonProperty("pis")
-	private List<UpdateItem> playerItems = new ArrayList<>();
+	private List<UpdateItem> playerItems;
+
+	/**
+	 * Priv. ctor for jackson.
+	 */
+	protected InventoryUpdateMessage() {
+		// no op.
+	}
+
+	public InventoryUpdateMessage(long accId) {
+		super(accId);
+
+		this.playerItems = new ArrayList<>();
+	}
+
+	public InventoryUpdateMessage(long accId, List<UpdateItem> items) {
+		super(accId);
+
+		this.playerItems = new ArrayList<>(Objects.requireNonNull(items));
+	}
 
 	/**
 	 * Adds an item with an updated count to this message. If the amount is
@@ -92,5 +108,10 @@ public class InventoryUpdateMessage extends JsonMessage {
 	@Override
 	public String toString() {
 		return String.format("InventoryUpdateMessage[accId: %d, updates: %s]", getAccountId(), playerItems.toString());
+	}
+
+	@Override
+	public InventoryUpdateMessage createNewInstance(long accountId) {
+		return new InventoryUpdateMessage(accountId, playerItems);
 	}
 }

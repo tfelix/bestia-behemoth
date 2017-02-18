@@ -33,8 +33,12 @@ public class AttackSetMessage extends JsonMessage {
 	@JsonProperty("s5")
 	private int atkSlotId5;
 
-	public AttackSetMessage() {
+	protected AttackSetMessage() {
 		// no op.
+	}
+	
+	public AttackSetMessage(long accId) {
+		super(accId);
 	}
 	
 	public int getAtkSlotId1() {
@@ -86,6 +90,17 @@ public class AttackSetMessage extends JsonMessage {
 	public String toString() {
 		return String.format("AttackSetMessage[slot1: %d, slot2: %d, slot3: %d, slot4: %d, slot5: %d]", atkSlotId1,
 				atkSlotId2, atkSlotId3, atkSlotId4, atkSlotId5);
+	}
+
+	@Override
+	public AttackSetMessage createNewInstance(long accountId) {
+		final AttackSetMessage msg = new AttackSetMessage(accountId);
+		msg.atkSlotId1 = this.atkSlotId1;
+		msg.atkSlotId2 = this.atkSlotId2;
+		msg.atkSlotId3 = this.atkSlotId3;
+		msg.atkSlotId4 = this.atkSlotId4;
+		msg.atkSlotId5 = this.atkSlotId5;
+		return msg;
 	}
 
 }

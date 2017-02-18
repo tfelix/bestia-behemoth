@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.model.map.MapChunk;
 
@@ -30,20 +29,30 @@ public class MapChunkMessage extends JsonMessage {
 	public String getMessageId() {
 		return MESSAGE_ID;
 	}
-	
-	public MapChunkMessage() {
+
+	/**
+	 * Priv ctor for jackson.
+	 */
+	protected MapChunkMessage() {
 		// no op.
 	}
 
-	public MapChunkMessage(AccountMessage msg, List<MapChunk> chunks) {
-		super(msg);
+	public MapChunkMessage(long accId, List<MapChunk> chunks) {
+		super(accId);
+		
+		
 		Objects.requireNonNull(chunks, "Chunks can not be null.");
 
 		this.chunks.addAll(chunks);
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("MapChunkMessage[chunks: %d]", chunks.size());
+	}
+
+	@Override
+	public MapChunkMessage createNewInstance(long accountId) {
+		return new MapChunkMessage(accountId, chunks);
 	}
 }

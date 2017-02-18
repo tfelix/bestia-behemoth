@@ -21,10 +21,23 @@ public class MapLoadHintMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "map.loadhint";
-	
+
 	@JsonProperty("s")
 	private List<SpriteInfo> sprites = new ArrayList<>();
-	
+
+	/**
+	 * Priv. ctor. for jackson.
+	 */
+	protected MapLoadHintMessage() {
+		// no op.
+	}
+
+	public MapLoadHintMessage(long accId, List<SpriteInfo> sprites) {
+		super(accId);
+
+		this.sprites = new ArrayList<>(sprites);
+	}
+
 	public void addSprite(SpriteInfo sprite) {
 		sprites.add(sprite);
 	}
@@ -32,6 +45,11 @@ public class MapLoadHintMessage extends JsonMessage {
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
+	}
+
+	@Override
+	public MapLoadHintMessage createNewInstance(long accountId) {
+		return new MapLoadHintMessage(accountId, sprites);
 	}
 
 }

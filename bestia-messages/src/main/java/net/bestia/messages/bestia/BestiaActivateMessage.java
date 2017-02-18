@@ -19,14 +19,14 @@ public class BestiaActivateMessage extends JsonMessage {
 
 	@JsonProperty("pbid")
 	private final int playerBestiaId;
-	
+
 	/**
-	 * Ctor.
+	 * Priv. ctor for jackson.
 	 */
-	public BestiaActivateMessage() {
+	protected BestiaActivateMessage() {
 		this(0, 0);
 	}
-	
+
 	/**
 	 * Ctor.
 	 */
@@ -34,7 +34,7 @@ public class BestiaActivateMessage extends JsonMessage {
 		super(accId);
 		this.playerBestiaId = bestiaId;
 	}
-	
+
 	public int getPlayerBestiaId() {
 		return playerBestiaId;
 	}
@@ -42,5 +42,16 @@ public class BestiaActivateMessage extends JsonMessage {
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
+	}
+
+	@Override
+	public BestiaActivateMessage createNewInstance(long accountId) {
+		final BestiaActivateMessage msg = new BestiaActivateMessage(accountId, playerBestiaId);
+		return msg;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("BestiaActivateMessage[accId: %d, bestiaId: %d]", getAccountId(), getPlayerBestiaId());
 	}
 }

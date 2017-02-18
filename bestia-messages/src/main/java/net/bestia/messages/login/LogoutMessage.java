@@ -1,6 +1,5 @@
 package net.bestia.messages.login;
 
-import net.bestia.messages.AccountMessage;
 import net.bestia.messages.JsonMessage;
 
 /**
@@ -19,12 +18,14 @@ public class LogoutMessage extends JsonMessage {
 
 	public static final String MESSAGE_ID = "system.logout";
 
-	public LogoutMessage() {
+	protected LogoutMessage() {
 		// no op.
 	}
 
-	public LogoutMessage(AccountMessage message) {
-		setAccountId(message.getAccountId());
+	public LogoutMessage(long accId) {
+		super(accId);
+		
+		// no op.
 	}
 
 	@Override
@@ -35,5 +36,10 @@ public class LogoutMessage extends JsonMessage {
 	@Override
 	public String toString() {
 		return "LogoutMessage[]";
+	}
+
+	@Override
+	public LogoutMessage createNewInstance(long accountId) {
+		return new LogoutMessage(accountId);
 	}
 }

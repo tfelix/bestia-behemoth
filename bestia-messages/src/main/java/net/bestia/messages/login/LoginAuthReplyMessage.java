@@ -23,19 +23,22 @@ public class LoginAuthReplyMessage extends JsonMessage {
 	@JsonProperty("username")
 	private String username;
 
-	public LoginAuthReplyMessage() {
-		setLoginState(LoginState.DENIED);
+	protected LoginAuthReplyMessage() {
+		
+		// no op.
 	}
 	
 	public LoginAuthReplyMessage(long accId, LoginState state, String username) {
-		setAccountId(accId);
-		this.state = state;
+		super(accId);
+		
+		this.state = Objects.requireNonNull(state);
 		this.username = Objects.requireNonNull(username);
 	}
 
+	/*
 	public LoginAuthReplyMessage(LoginState state, String username) {
 		this(0, state, username);
-	}
+	}*/
 
 	public void setLoginState(LoginState state) {
 		this.state = state;
@@ -60,6 +63,11 @@ public class LoginAuthReplyMessage extends JsonMessage {
 				"LoginAuthReplyMessage[accountId: %d, state: %s]", 
 				getAccountId(), 
 				state.toString());
+	}
+
+	@Override
+	public LoginAuthReplyMessage createNewInstance(long accountId) {
+		return new LoginAuthReplyMessage(accountId, state, username);
 	}
 
 }

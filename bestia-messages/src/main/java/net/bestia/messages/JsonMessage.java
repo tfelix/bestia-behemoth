@@ -11,18 +11,27 @@ package net.bestia.messages;
 public abstract class JsonMessage extends AccountMessage implements MessageId {
 
 	private static final long serialVersionUID = 1L;
-	
-	public JsonMessage() {
+
+	/**
+	 * Priv. ctor. This is needed for jackson.
+	 */
+	protected JsonMessage() {
 		// no op.
-	}
-	
-	public JsonMessage(AccountMessage msg) {
-		super(msg);
 	}
 
 	public JsonMessage(long accId) {
 		super(accId);
 	}
-	
+
+	/**
+	 * Redefine the abstract class. We need to instance json messages now.
+	 * Actually we want to create always the same type of message so the API
+	 * stays the same. It will like
+	 * {@link AccountMessage#createNewInstance(long)} create a new copy with a
+	 * new account id.
+	 * 
+	 * @return A new copy of the immutable message pointing to a new account id.
+	 */
+	public abstract JsonMessage createNewInstance(long accountId);
 
 }

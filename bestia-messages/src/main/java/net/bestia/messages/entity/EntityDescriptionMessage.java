@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.EntityJsonMessage;
 import net.bestia.model.domain.SpriteInfo;
 
 /**
@@ -13,40 +13,31 @@ import net.bestia.model.domain.SpriteInfo;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class EntityDescriptionMessage extends JsonMessage {
-	
+public class EntityDescriptionMessage extends EntityJsonMessage {
+
 	private static final long serialVersionUID = 1L;
 
 	public static final String MESSAGE_ID = "entity.desc";
-	
-	@JsonProperty("eid")
-	private final long entityId;
-	
+
 	@JsonProperty("s")
 	private final SpriteInfo spriteInfo;
-	
+
 	/**
 	 * For Jackson only.
 	 */
-	public EntityDescriptionMessage() {
-		
-		this.entityId = 0;
+	protected EntityDescriptionMessage() {
+
 		this.spriteInfo = null;
 	}
-	
+
 	public EntityDescriptionMessage(long accId, long entityId, SpriteInfo visual) {
-		super(accId);
-		
-		this.entityId = entityId;
+		super(accId, entityId);
+
 		this.spriteInfo = Objects.requireNonNull(visual);
 	}
 
 	public SpriteInfo getSpriteInfo() {
 		return spriteInfo;
-	}
-	
-	public long getEntityId() {
-		return entityId;
 	}
 
 	@Override
@@ -54,4 +45,14 @@ public class EntityDescriptionMessage extends JsonMessage {
 		return MESSAGE_ID;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("EntityDescriptionMessage[accId: %d, entityId: %d, visual: %s]", getAccountId(),
+				getEntityId(), spriteInfo.toString());
+	}
+
+	@Override
+	public EntityDescriptionMessage createNewInstance(long accountId) {
+		return new EntityDescriptionMessage(accountId, getEntityId(), spriteInfo);
+	}
 }

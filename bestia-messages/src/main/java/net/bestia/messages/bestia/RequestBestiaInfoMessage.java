@@ -13,6 +13,14 @@ public class RequestBestiaInfoMessage extends JsonMessage {
 	
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "bestia.requestinfo";
+	
+	protected RequestBestiaInfoMessage() {
+		// no op.
+	}
+	
+	public RequestBestiaInfoMessage(long accId) {
+		super(accId);
+	}
 
 	@Override
 	public String getMessageId() {
@@ -22,5 +30,10 @@ public class RequestBestiaInfoMessage extends JsonMessage {
 	@Override
 	public String toString() {
 		return String.format("RequestBestiaInfoMessage[accId: %d]", getAccountId());
+	}
+
+	@Override
+	public RequestBestiaInfoMessage createNewInstance(long accountId) {
+		return new RequestBestiaInfoMessage(accountId);
 	}
 }

@@ -39,18 +39,15 @@ public class EntityPositionMessage extends EntityJsonMessage {
 	 * @param y
 	 *            The y postion.
 	 */
-	public EntityPositionMessage(long entityId, long x, long y) {
+	public EntityPositionMessage(long accId, long entityId, long x, long y) {
+		super(accId, entityId);
+		
 		if (x < 0 || y < 0) {
 			throw new IllegalArgumentException("X and Y can not be smaller then 0.");
 		}
 
-		if (entityId < 0) {
-			throw new IllegalArgumentException("EntityID must be positive.");
-		}
-
 		this.currentX = x;
 		this.currentY = y;
-		this.setEntityId(entityId);
 	}
 
 	@Override
@@ -62,5 +59,10 @@ public class EntityPositionMessage extends EntityJsonMessage {
 	public String toString() {
 		return String.format("EntityPositionMessage[eid: %d, accId: %d, curX: %d, curY: %d]",
 				getEntityId(), getAccountId(), currentX, currentY);
+	}
+
+	@Override
+	public EntityPositionMessage createNewInstance(long accountId) {
+		return new EntityPositionMessage(accountId, getEntityId(), currentX, currentY);
 	}
 }

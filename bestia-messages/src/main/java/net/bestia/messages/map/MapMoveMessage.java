@@ -23,8 +23,8 @@ public class MapMoveMessage extends JsonMessage {
 	/**
 	 * Ctor.
 	 */
-	public MapMoveMessage() {
-
+	protected MapMoveMessage() {
+		// no op.
 	}
 
 	/**
@@ -37,6 +37,7 @@ public class MapMoveMessage extends JsonMessage {
 	 */
 	public MapMoveMessage(long accId, Point target) {
 		super(accId);
+		
 		this.target = Objects.requireNonNull(target);
 	}
 
@@ -62,5 +63,15 @@ public class MapMoveMessage extends JsonMessage {
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("MapMoveMesasge[accId: %d, target: %s]", getAccountId(), getTarget().toString());
+	}
+
+	@Override
+	public MapMoveMessage createNewInstance(long accountId) {
+		return new MapMoveMessage(accountId, target);
 	}
 }

@@ -15,12 +15,25 @@ public abstract class EntityJsonMessage extends JsonMessage implements EntityMes
 	@JsonProperty("eid")
 	private long entityId;
 	
-	public EntityJsonMessage() {
+	/**
+	 * Priv. ctor for jackson.
+	 */
+	protected EntityJsonMessage() {
 		// no op.
 	}
 
-	public EntityJsonMessage(long entityId) {
+	/**
+	 * 
+	 * @param accId
+	 * @param entityId
+	 */
+	public EntityJsonMessage(long accId, long entityId) {
+		super(accId);
 		
+		if (entityId < 0) {
+			throw new IllegalArgumentException("EntityID must be positive or 0.");
+		}
+
 		this.entityId = entityId;
 	}
 
@@ -33,9 +46,4 @@ public abstract class EntityJsonMessage extends JsonMessage implements EntityMes
 	public long getEntityId() {
 		return entityId;
 	}
-	
-	public void setEntityId(long entityId) {
-		this.entityId = entityId;
-	}
-
 }

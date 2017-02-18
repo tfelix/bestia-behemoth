@@ -5,7 +5,6 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.model.domain.BestiaAttack;
 
@@ -27,12 +26,15 @@ public class AttackListResponseMessage extends JsonMessage {
 	@JsonProperty("atks")
 	private List<BestiaAttack> attacks;
 	
-	public AttackListResponseMessage() {
+	/**
+	 * Priv. ctor. This is needed for jackson.
+	 */
+	protected AttackListResponseMessage() {
 		// no op.
 	}
 	
-	public AttackListResponseMessage(AccountMessage message) {
-		super(message);
+	public AttackListResponseMessage(long accId) {
+		super(accId);
 	}
 
 	@Override
@@ -51,5 +53,12 @@ public class AttackListResponseMessage extends JsonMessage {
 
 	public void setAttacks(List<BestiaAttack> attacks) {
 		this.attacks = attacks;
+	}
+
+	@Override
+	public AttackListResponseMessage createNewInstance(long accountId) {
+		final AttackListResponseMessage msg = new AttackListResponseMessage(accountId);
+		msg.attacks.addAll(this.attacks);
+		return msg;
 	}
 }

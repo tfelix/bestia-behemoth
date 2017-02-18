@@ -132,10 +132,11 @@ public class MessageHandlerActor extends UntypedActor {
 		} else {
 			try {
 				// Turn the text message into a bestia message.
-				final JsonMessage msg = mapper.readValue(payload, JsonMessage.class);
+				JsonMessage msg = mapper.readValue(payload, JsonMessage.class);
 
-				// Regenrate the account id from this session.
-				msg.setAccountId(accountId);
+				// Regenerate the account id from this session. (we dont trust
+				// the client to tell us the right account id).
+				msg = msg.createNewInstance(accountId);
 
 				LOG.debug("Client sending: {}.", msg.toString());
 				mediator.tell(getClusterMessage(msg), getSelf());

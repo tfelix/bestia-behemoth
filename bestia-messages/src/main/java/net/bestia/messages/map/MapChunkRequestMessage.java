@@ -2,6 +2,7 @@ package net.bestia.messages.map;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -23,8 +24,17 @@ public class MapChunkRequestMessage extends JsonMessage {
 	@JsonProperty("c")
 	private List<Point> chunks = new ArrayList<>();
 
-	public MapChunkRequestMessage() {
+	/**
+	 * Jackson priv. ctor.
+	 */
+	protected MapChunkRequestMessage() {
 		// no op.
+	}
+
+	public MapChunkRequestMessage(long accId, List<Point> chunks) {
+		super(accId);
+
+		this.chunks = new ArrayList<>(Objects.requireNonNull(chunks));
 	}
 
 	/**
@@ -45,5 +55,10 @@ public class MapChunkRequestMessage extends JsonMessage {
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
+	}
+
+	@Override
+	public MapChunkRequestMessage createNewInstance(long accountId) {
+		return new MapChunkRequestMessage(accountId, chunks);
 	}
 }

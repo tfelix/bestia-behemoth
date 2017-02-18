@@ -28,7 +28,7 @@ public class ClientConnectionStatusMessage extends AccountMessage {
 	/**
 	 * Std. ctor (necessairy for Jackson).
 	 */
-	public ClientConnectionStatusMessage() {
+	protected ClientConnectionStatusMessage() {
 		state = ConnectionState.UNKNOWN;
 		webserverRef = null;
 	}
@@ -50,5 +50,10 @@ public class ClientConnectionStatusMessage extends AccountMessage {
 	@Override
 	public String toString() {
 		return String.format("ClientConnectionStatusMessage[accId: %d, status: %s]", getAccountId(), state.toString());
+	}
+
+	@Override
+	public ClientConnectionStatusMessage createNewInstance(long accountId) {
+		return new ClientConnectionStatusMessage(accountId, this.state, this.webserverRef);
 	}
 }

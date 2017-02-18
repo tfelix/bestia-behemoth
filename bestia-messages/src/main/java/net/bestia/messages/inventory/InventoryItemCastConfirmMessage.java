@@ -22,7 +22,7 @@ public class InventoryItemCastConfirmMessage extends InventoryItemCastMessage {
 	}
 	
 	public InventoryItemCastConfirmMessage(InventoryItemCastMessage msg, boolean success) {
-		super(msg);
+		super(msg.getAccountId(), msg);
 		
 		this.success = success;
 	}
@@ -42,6 +42,6 @@ public class InventoryItemCastConfirmMessage extends InventoryItemCastMessage {
 	
 	@Override
 	public String toString() {
-		return String.format("CastConfirmMessage[success: %b]", success);
+		return String.format("InventoryItemCastConfirmMessage[success: %b]", success);
 	}
 }

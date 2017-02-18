@@ -6,7 +6,6 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.model.domain.PlayerItem;
 
@@ -32,9 +31,9 @@ public class InventoryListMessage extends JsonMessage {
 	private int maxWeight;
 	
 	/**
-	 * Std. Ctor.
+	 * Priv. ctor for jackson.
 	 */
-	public InventoryListMessage() {
+	protected InventoryListMessage() {
 
 	}
 
@@ -43,10 +42,17 @@ public class InventoryListMessage extends JsonMessage {
 	 * 
 	 * @param message
 	 */
-	public InventoryListMessage(AccountMessage message) {
-		super(message);
+	public InventoryListMessage(long accId) {
+		super(accId);
 	}
 	
+	public InventoryListMessage(long accId, List<PlayerItem> playerItems, int maxWeight) {
+		super(accId);
+		
+		this.playerItems = new ArrayList<>(playerItems);
+		this.maxWeight = maxWeight;
+	}
+
 	public List<PlayerItem> getPlayerItems() {
 		return playerItems;
 	}
@@ -71,6 +77,11 @@ public class InventoryListMessage extends JsonMessage {
 	@Override
 	public String toString() {
 		return String.format("InventoryListMessage[accId: %d, items: %d]", getAccountId(), playerItems.size());
+	}
+
+	@Override
+	public InventoryListMessage createNewInstance(long accountId) {
+		return new InventoryListMessage(accountId, playerItems, maxWeight);
 	}
 
 }

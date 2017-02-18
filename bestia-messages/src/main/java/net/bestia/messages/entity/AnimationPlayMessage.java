@@ -39,31 +39,31 @@ public class AnimationPlayMessage extends EntityJsonMessage {
 	 */
 	@JsonProperty("d")
 	private int duration;
-	
+
 	/**
 	 * For Jackson.
 	 */
-	public AnimationPlayMessage() {
-		//no op.
+	protected AnimationPlayMessage() {
+		// no op.
 	}
 
-	public AnimationPlayMessage(long accountId, String animationName, long ownerEntityId) {
-		this(accountId, animationName, ownerEntityId, 0);
+	public AnimationPlayMessage(long accountId, long ownerEntityId, String animationName) {
+		this(accountId, ownerEntityId, 0, animationName);
 	}
 
-	public AnimationPlayMessage(long accountId, String animationName, long ownerEntityId, long targetEntityId) {
-		super(ownerEntityId);
+	public AnimationPlayMessage(long accountId, long ownerEntityId, long targetEntityId, String animationName) {
+		super(accountId, ownerEntityId);
 
 		this.animationName = Objects.requireNonNull(animationName);
 		this.targetEntityId = targetEntityId;
 	}
 
-	public AnimationPlayMessage(long accountId, String animationName, Point ownerPos) {
-		this(accountId, animationName, ownerPos, null);
+	public AnimationPlayMessage(long accountId, Point ownerPos, String animationName) {
+		this(accountId, ownerPos, null, animationName);
 	}
 
-	public AnimationPlayMessage(long accountId, String animationName, Point ownerPos, Point targetPos) {
-		super(accountId);
+	public AnimationPlayMessage(long accountId, Point ownerPos, Point targetPos, String animationName) {
+		super(accountId, 0);
 
 		if (targetPos == null && ownerPos == null) {
 			throw new NullPointerException("Not both owner and target position can be null at the same time.");
@@ -72,6 +72,14 @@ public class AnimationPlayMessage extends EntityJsonMessage {
 		this.animationName = Objects.requireNonNull(animationName);
 		this.ownerPos = ownerPos;
 		this.targetPos = targetPos;
+	}
+	
+	private AnimationPlayMessage(long accountId, AnimationPlayMessage rhs) {
+		super(accountId, rhs.getEntityId());
+
+		this.animationName = rhs.animationName;
+		this.ownerPos = rhs.ownerPos;
+		this.targetPos = rhs.targetPos;
 	}
 
 	public String getAnimationName() {
@@ -113,5 +121,10 @@ public class AnimationPlayMessage extends EntityJsonMessage {
 				ownerPosStr,
 				targetPosStr,
 				duration);
+	}
+
+	@Override
+	public AnimationPlayMessage createNewInstance(long accountId) {
+		return new AnimationPlayMessage(accountId, this);
 	}
 }
