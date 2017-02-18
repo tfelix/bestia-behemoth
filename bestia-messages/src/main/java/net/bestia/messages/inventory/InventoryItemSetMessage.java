@@ -2,8 +2,7 @@ package net.bestia.messages.inventory;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
+import net.bestia.messages.JsonMessage;
 
 /**
  * Sets the item shortcuts for the currently selected bestias. The shortcuts can
@@ -12,7 +11,7 @@ import net.bestia.messages.MessageId;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class InventoryItemSetMessage extends AccountMessage implements MessageId {
+public class InventoryItemSetMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 

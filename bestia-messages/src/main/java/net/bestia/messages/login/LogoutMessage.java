@@ -1,7 +1,7 @@
 package net.bestia.messages.login;
 
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
+import net.bestia.messages.JsonMessage;
 
 /**
  * This message is send to the player in order to signal a (forced) logout from
@@ -13,7 +13,7 @@ import net.bestia.messages.MessageId;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class LogoutMessage extends AccountMessage implements MessageId {
+public class LogoutMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 

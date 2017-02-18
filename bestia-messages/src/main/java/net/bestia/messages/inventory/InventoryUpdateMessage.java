@@ -7,8 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
+import net.bestia.messages.JsonMessage;
 import net.bestia.model.domain.Item;
 
 /**
@@ -19,7 +18,7 @@ import net.bestia.model.domain.Item;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class InventoryUpdateMessage extends AccountMessage implements MessageId {
+public class InventoryUpdateMessage extends JsonMessage {
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;

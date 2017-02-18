@@ -2,10 +2,9 @@ package net.bestia.messages.chat;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
+import net.bestia.messages.JsonMessage;
 
-public class ChatEchoMessage extends AccountMessage implements MessageId {
+public class ChatEchoMessage extends JsonMessage {
 	
 	private static final long serialVersionUID = 1L;
 

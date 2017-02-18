@@ -6,8 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.MessageId;
+import net.bestia.messages.JsonMessage;
 
 /**
  * This message will trigger the client to open a dialog NPC box.
@@ -15,7 +14,7 @@ import net.bestia.messages.MessageId;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class DialogMessage extends AccountMessage implements MessageId {
+public class DialogMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "ui.dialog";
