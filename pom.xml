@@ -8,7 +8,6 @@
 	<name>bestia</name>
 
 	<modules>
-		<module>bestia-conf</module>
 		<module>bestia-models</module>
 		<module>bestia-messages</module>
 		<module>bestia-server-commons</module>

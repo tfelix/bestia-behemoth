@@ -15,7 +15,7 @@ import akka.actor.ActorSystem;
 import akka.actor.Address;
 import akka.cluster.Cluster;
 import net.bestia.server.AkkaCluster;
-import net.bestia.server.service.ClusterConfigurationService;
+import net.bestia.server.DiscoveryService;
 import net.bestia.webserver.actor.ActorSystemTerminator;
 import net.bestia.webserver.actor.WebClusterListenerActor;
 
@@ -41,7 +41,7 @@ public class AkkaConfiguration {
 
 		final ActorSystem system = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
 
-		final ClusterConfigurationService clusterConfig = new ClusterConfigurationService(hzClient);
+		final DiscoveryService clusterConfig = new DiscoveryService(hzClient);
 		final List<Address> seedNodes = clusterConfig.getClusterSeedNodes();
 
 		if (seedNodes.isEmpty()) {

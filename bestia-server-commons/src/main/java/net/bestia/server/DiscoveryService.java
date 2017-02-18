@@ -1,4 +1,4 @@
-package net.bestia.server.service;
+package net.bestia.server;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,21 +12,22 @@ import com.hazelcast.core.IList;
 import akka.actor.Address;
 
 /**
- * The {@link ClusterConfigurationService} can be used to extract the necessary
+ * The {@link DiscoveryService} can be used to extract the necessary
  * cluster information from a Hazelcast instance and to use this information to
  * setup the akka cluster.
+ * <p>It serves as a simple service discovery</p>
  * 
- * @author tbf
+ * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 @Service
-public class ClusterConfigurationService {
+public class DiscoveryService {
 
 	private static final int NUM_SEED_NODES = 3;
 	private final IList<Address> clusterAdress;
 
 	@Autowired
-	public ClusterConfigurationService(HazelcastInstance hcInstance) {
+	public DiscoveryService(HazelcastInstance hcInstance) {
 
 		this.clusterAdress = hcInstance.getList("cluster_nodes");
 	}

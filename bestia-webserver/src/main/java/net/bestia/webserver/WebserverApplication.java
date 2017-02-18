@@ -7,6 +7,12 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+/**
+ * Main entry point of the webserver application.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 @SpringBootApplication
 @EnableJpaRepositories("net.bestia.model")
 @EntityScan("net.bestia.model.domain")

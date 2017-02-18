@@ -19,7 +19,7 @@ import akka.actor.TypedActor;
 import akka.actor.TypedProps;
 import akka.cluster.Cluster;
 import net.bestia.server.AkkaCluster;
-import net.bestia.server.service.ClusterConfigurationService;
+import net.bestia.server.DiscoveryService;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.entity.EntityAkkaContext;
 import net.bestia.zoneserver.entity.EntityContext;
@@ -50,7 +50,7 @@ public class AkkaConfiguration {
 		// initialize the application context in the Akka Spring extension.
 		SpringExtension.PROVIDER.get(system).initialize(appContext);
 
-		final ClusterConfigurationService clusterConfig = new ClusterConfigurationService(hzInstance);
+		final DiscoveryService clusterConfig = new DiscoveryService(hzInstance);
 
 		final Address selfAddr = Cluster.get(system).selfAddress();
 		final List<Address> seedNodes = clusterConfig.getClusterSeedNodes();
