@@ -35,8 +35,8 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 	static {
 
 		// Find all classes implementing the message interface.
-		Reflections reflections = new Reflections("net.bestia.messages");
-		Set<Class<? extends MessageId>> messages = reflections.getSubTypesOf(MessageId.class);
+		final Reflections reflections = new Reflections("net.bestia.messages");
+		final Set<Class<? extends MessageId>> messages = reflections.getSubTypesOf(MessageId.class);
 
 		// Instantiate the message classes to get their message id from the
 		// method and store it for later serialization and deserialization.
@@ -48,7 +48,10 @@ public class MessageTypeIdResolver extends TypeIdResolverBase {
 			}
 
 			try {
-				Constructor<? extends MessageId> cons = msg.getConstructor();
+				Constructor<? extends MessageId> cons = msg.getDeclaredConstructor();
+				
+				// Make accessibale
+				cons.setAccessible(true);
 
 				final String key = cons.newInstance().getMessageId();
 

@@ -20,7 +20,7 @@ export default class DamageFx {
 		this._pubsub = manager.ctx.pubsub;
 		this._game = manager.game;
 	
-		ctx.pubsub.subscribe(MID.ENTITY_DAMAGE, this._handlerOnEntityDamage.bind(this));
+		this._pubsub.subscribe(MID.ENTITY_DAMAGE, this._handlerOnEntityDamage.bind(this));
 	}
 	
 	/**

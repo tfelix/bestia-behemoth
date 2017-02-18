@@ -1,4 +1,4 @@
-import MultispriteBuilder from './MultispriteBuilder';
+import SpriteBuilder from './SpriteBuilder';
 import MultispriteEntity from '../MultispriteEntity';
 import LOG from '../../../util/Log';
 
@@ -8,7 +8,7 @@ import LOG from '../../../util/Log';
  * sprite is a good example: the hair type is only known to the server at
  * runtime. The sprite will be created based upon this data.
  */
-export default class DynamicSpriteBuilder extends MultispriteBuilder {
+export default class DynamicSpriteBuilder extends SpriteBuilder {
 	
 	constructor(factory, ctx) {
 		super(factory, ctx);
