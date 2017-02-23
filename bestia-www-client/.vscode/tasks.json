@@ -1,11 +1,21 @@
 {
     "version": "0.1.0",
-    "command": "${workspaceRoot}/node_modules/.bin/rollup",
-    "isShellCommand": true,
     "tasks": [
         {
-            "args": ["-c"],
-            "taskName": "watch",
+            "command": "${workspaceRoot}/node_modules/.bin/rollup",
+            "args": ["-c", "-w"],
+            "isShellCommand": true,
+            "taskName": "build",
+            "suppressTaskName": true,
+            "isBuildCommand": true,
+            "isBackground": true,
+            "problemMatcher": ["$jshint"]
+        },
+        {
+            "command": "${workspaceRoot}/node_modules/.bin/lite-server",
+            "args": ["-port 80"],
+            "isShellCommand": true,
+            "taskName": "server",
             "suppressTaskName": true,
             "isBuildCommand": true,
             "isBackground": true

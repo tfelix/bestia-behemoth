@@ -16,5 +16,6 @@ export default class BestiaGame {
 		this.auth = new Authenticator(pubsub);
 		this.engine = new Engine(pubsub, urlHelper);
 		this.connection = new Connection(pubsub);
+		
 	}
 }
