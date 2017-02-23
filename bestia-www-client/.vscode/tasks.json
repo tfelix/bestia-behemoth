@@ -1,10 +1,10 @@
 {
     "version": "0.1.0",
-    "command": "${workspaceRoot}/node_modules/.bin/babel",
+    "command": "${workspaceRoot}/node_modules/.bin/rollup",
     "isShellCommand": true,
     "tasks": [
         {
-            "args": ["src", "--out-dir", "build", "-w", "--source-maps"],
+            "args": ["-c"],
             "taskName": "watch",
             "suppressTaskName": true,
             "isBuildCommand": true,

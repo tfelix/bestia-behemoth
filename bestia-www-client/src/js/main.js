@@ -1,11 +1,9 @@
+import {version} from '../../package.json';
 import KoAjaxComponentLoader from './ui/KoAjaxComponentLoader';
-
 import PubSub from './util/PubSub';
 import UrlHelper from './util/UrlHelper';
 import createModel from './ui/CreateModel';
 import BestiaGame from './BestiaGame';
-import VERSION from './Version';
-
 import LOG from './util/Log';
 
 let pubSub = new PubSub();
@@ -36,7 +34,7 @@ ko.components.register('bestia-shortcuts', {
 
 // DOM Ready
 $(function(){
-	LOG.info('Starting Bestia Client V.' + VERSION);
+	LOG.info('Starting Bestia Client V.' + version);
 	
 	// Bind the DOM to the game.
 	ko.applyBindings(model);
