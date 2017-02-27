@@ -71,7 +71,8 @@ export default class EffectsManager {
 	getCachedEffect(key) {
 		if(this._cache.hasOwnProperty(key)) {
 			if(this._cache[key].length > 0) {
-				return this._cache[key];
+				let obj = this._cache[key].pop();
+				return obj;
 			}
 		}
 		

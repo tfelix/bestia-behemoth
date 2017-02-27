@@ -17,8 +17,10 @@ export default class DamageFx {
 	constructor(manager) {
 
 		this._manager = manager;
+		this._ctx = manager.ctx;
 		this._pubsub = manager.ctx.pubsub;
-		this._game = manager.game;
+		this._game = manager.ctx.game;
+		this._entityCache = manager.ctx.entityCache;
 	
 		this._pubsub.subscribe(MID.ENTITY_DAMAGE, this._handlerOnEntityDamage.bind(this));
 	}
@@ -38,7 +40,7 @@ export default class DamageFx {
 		dmgs.forEach(function(x) {
 			
 			// See if there is an entity existing to display this damage.
-			var entity = this._entityCache.getByUuid(x.eid);
+			var entity = this._entityCache.getEntity(msg.eid);
 			
 			// No entity, no dmg.
 			if(entity === null) {
@@ -47,14 +49,13 @@ export default class DamageFx {
 			
 			var dmgFx = this._manager.getCachedEffect(CACHE_KEY);
 			
-			if(dmgFx) {
-				// Only modify the cached version.
-				dmgFx.setText(x.dmg);
-				
-			} else {
+			if(!dmgFx) {
 				// Create a new instance of the entity.
-				dmgFx = this._game.make.sprite(0,0, x.dmg);
+				dmgFx = new TextEntity(this._ctx);
+				dmgFx.addToGame();
 			}
+
+			dmgFx.setText(x.dmg);
 			
 			switch (x.t) {
 			case 'HEAL':
@@ -71,7 +72,10 @@ export default class DamageFx {
 				LOG.warn('Unknown damage type. Using normal style.');
 				dmgFx.setStyle(NORMAL);
 			break;
-			}
+		}
+		
+		// Start the display animation.
+		this._startAnimation(entity, dmgFx);
 				
 		}, this);
 	}
@@ -89,11 +93,19 @@ export default class DamageFx {
 		tween.interpolation(function(v,k){
 			return Phaser.Math.bezierInterpolation(v, k);
 		});
-		tween.start();
+
+		// add entity back to cache when tween finished.
+		tween.onComplete.add(function(){
+			this._manager.cacheEffect(CACHE_KEY, dmg);
+		}, this);
+
+		// Add alpha fade.
 		this._game.add
 			.tween(dmg.getRootVisual())
-			.to({alpha: 0}, 100, Phaser.Easing.Linear.None, true, 900)
-			.start();Meine 
+			.to({alpha: 0}, 100, Phaser.Easing.Linear.None, true, 950)
+			.start();
+		// Start animation.
+		tween.start();
 	}
 	
 	_createAnimation() {

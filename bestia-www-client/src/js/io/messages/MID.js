@@ -16,6 +16,8 @@ var MID = {
 	ATTACK_LIST_REQUEST: 'attack.list.request',
 	ATTACK_LIST_RESPONSE: 'attack.list.response',
 	ATTACK_USE:	'attack.use',
+
+	ANIMATION_PLAY: 'animation.play',
 	
 	ENTITY_DAMAGE: 'entity.damage',
 	ENTITY_UPDATE: 'entity.update',

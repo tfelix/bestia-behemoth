@@ -85,6 +85,13 @@ export default class Entity {
 	}
 
 	/**
+	 * Adds the entity to the game stage in order to render it.
+	 */
+	addToGame() {
+		this._game.add.existing(this.getRootVisual());
+	}
+
+	/**
 	 * This function is called every tick in the animation loop and can be used
 	 * to update internal sprite information. Especially in a multipart sprite
 	 * object this can be useful.
@@ -138,6 +145,7 @@ export default class Entity {
 	
 	/**
 	 * Give access to the underlying sprite phaser API.
+	 * @deprecated use getRootVisual
 	 */
 	get sprite() {
 		return this._sprite;

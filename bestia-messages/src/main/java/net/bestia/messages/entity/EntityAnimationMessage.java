@@ -34,8 +34,8 @@ public class EntityAnimationMessage extends EntityJsonMessage {
 	private Point targetPos;
 
 	/**
-	 * Total duration of the animation. If this is set the animation framework
-	 * has to shorten the animation duration accordingly.
+	 * Total duration of the animation. If this differs from 0 the animation framework
+	 * has to shorten the animation duration accordingly. 0 means default animation length.
 	 */
 	@JsonProperty("d")
 	private int duration;
@@ -59,7 +59,7 @@ public class EntityAnimationMessage extends EntityJsonMessage {
 	}
 
 	public EntityAnimationMessage(long accountId, long ownerEntityId, String animationName) {
-		this(accountId, ownerEntityId, 0, animationName);
+		this(accountId, ownerEntityId, ownerEntityId, animationName);
 	}
 
 	public EntityAnimationMessage(long accountId, long ownerEntityId, long targetEntityId, String animationName) {
