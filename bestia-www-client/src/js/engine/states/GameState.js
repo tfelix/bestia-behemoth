@@ -102,9 +102,6 @@ export default class GameState {
 
 	shutdown() {
 
-		// We need to UNSUBSCRIBE from all subscriptions to avoid leakage.
-		
-		this._ctx.clear();
 	}
 
 }

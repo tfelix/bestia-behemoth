@@ -25,9 +25,9 @@ export default class Entity {
 		 * entity.
 		 * 
 		 * @public
-		 * @property {String}
+		 * @property {long}
 		 */
-		this._id = 'NOID' || id;
+		this._id = id || -1;
 
 		this._game = ctx.game;
 
