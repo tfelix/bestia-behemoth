@@ -15,7 +15,7 @@ import net.bestia.model.geometry.Point;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class AnimationPlayMessage extends EntityJsonMessage {
+public class EntityAnimationMessage extends EntityJsonMessage {
 
 	private static final long serialVersionUID = 1L;
 
@@ -43,7 +43,7 @@ public class AnimationPlayMessage extends EntityJsonMessage {
 	/**
 	 * For Jackson.
 	 */
-	protected AnimationPlayMessage() {
+	protected EntityAnimationMessage() {
 		// no op.
 	}
 
@@ -54,26 +54,26 @@ public class AnimationPlayMessage extends EntityJsonMessage {
 	 * @param ownerEntityId
 	 * @param animationName
 	 */
-	public AnimationPlayMessage(long ownerEntityId, String animationName) {
+	public EntityAnimationMessage(long ownerEntityId, String animationName) {
 		this(0, ownerEntityId, 0, animationName);
 	}
 
-	public AnimationPlayMessage(long accountId, long ownerEntityId, String animationName) {
+	public EntityAnimationMessage(long accountId, long ownerEntityId, String animationName) {
 		this(accountId, ownerEntityId, 0, animationName);
 	}
 
-	public AnimationPlayMessage(long accountId, long ownerEntityId, long targetEntityId, String animationName) {
+	public EntityAnimationMessage(long accountId, long ownerEntityId, long targetEntityId, String animationName) {
 		super(accountId, ownerEntityId);
 
 		this.animationName = Objects.requireNonNull(animationName);
 		this.targetEntityId = targetEntityId;
 	}
 
-	public AnimationPlayMessage(long accountId, Point ownerPos, String animationName) {
+	public EntityAnimationMessage(long accountId, Point ownerPos, String animationName) {
 		this(accountId, ownerPos, null, animationName);
 	}
 
-	public AnimationPlayMessage(long accountId, Point ownerPos, Point targetPos, String animationName) {
+	public EntityAnimationMessage(long accountId, Point ownerPos, Point targetPos, String animationName) {
 		super(accountId, 0);
 
 		if (targetPos == null && ownerPos == null) {
@@ -85,7 +85,7 @@ public class AnimationPlayMessage extends EntityJsonMessage {
 		this.targetPos = targetPos;
 	}
 
-	private AnimationPlayMessage(long accountId, AnimationPlayMessage rhs) {
+	private EntityAnimationMessage(long accountId, EntityAnimationMessage rhs) {
 		super(accountId, rhs.getEntityId());
 
 		this.animationName = rhs.animationName;
@@ -135,7 +135,7 @@ public class AnimationPlayMessage extends EntityJsonMessage {
 	}
 
 	@Override
-	public AnimationPlayMessage createNewInstance(long accountId) {
-		return new AnimationPlayMessage(accountId, this);
+	public EntityAnimationMessage createNewInstance(long accountId) {
+		return new EntityAnimationMessage(accountId, this);
 	}
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import net.bestia.messages.entity.AnimationPlayMessage;
+import net.bestia.messages.entity.EntityAnimationMessage;
 import net.bestia.messages.entity.EntityDamageMessage;
 import net.bestia.messages.entity.EntityMoveInternalMessage;
 import net.bestia.model.battle.Damage;
@@ -188,7 +188,7 @@ public abstract class LivingEntity extends ResourceEntity implements Equipable, 
 	@Override
 	public void kill() {
 		// Send death animation to client.
-		final AnimationPlayMessage animMsg = new AnimationPlayMessage(getId(), "die");
+		final EntityAnimationMessage animMsg = new EntityAnimationMessage(getId(), "die");
 		getContext().sendMessage(animMsg);
 	}
 

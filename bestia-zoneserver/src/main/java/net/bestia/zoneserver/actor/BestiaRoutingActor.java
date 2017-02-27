@@ -154,6 +154,8 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 
 			childHandler.get(x).add(getSender());
 		});
+		
+		LOG.debug("Installed message routing: {}", childHandler.toString());
 
 		// Announce the changed routing table upstream.
 		// (only if we are not the sender).

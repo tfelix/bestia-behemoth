@@ -109,6 +109,7 @@ public class MessageHandlerActor extends UntypedActor {
 	private void sendToClient(AccountMessage message) throws Exception {
 		// Send the payload to the client.
 		final String payload = mapper.writeValueAsString(message);
+		LOG.debug("Server sending: {}.", payload);
 		session.sendMessage(new TextMessage(payload));
 	}
 

@@ -1,20 +1,19 @@
 package net.bestia.zoneserver.actor.entity;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
-import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.entity.traits.Locatable;
 import net.bestia.zoneserver.service.EntityService;
 import net.bestia.zoneserver.service.PlayerEntityService;
@@ -29,7 +28,7 @@ import net.bestia.zoneserver.service.PlayerEntityService;
  */
 @Component
 @Scope("prototype")
-public class ActiveClientUpdateActor extends BestiaRoutingActor {
+public class ActiveClientUpdateActor extends BestiaActor {
 
 	public final static String NAME = "activeClientUpdate";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
@@ -37,20 +36,20 @@ public class ActiveClientUpdateActor extends BestiaRoutingActor {
 	private final EntityService entityService;
 	private final PlayerEntityService playerEntityService;
 
+	@Autowired
 	public ActiveClientUpdateActor(EntityService entityService, PlayerEntityService playerService) {
-		super(Arrays.asList(EntityJsonMessage.class, JsonMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerService);
 	}
 
 	@Override
-	protected void handleMessage(Object msg) {
+	public void onReceive(Object msg) throws Throwable {
 		LOG.debug("Received: {}", msg.toString());
 
 		// Handle only ActiveUpdateMessage
 		if (!(msg instanceof EntityMessage) || !(msg instanceof JsonMessage)) {
-			LOG.warning("Can not send to client. Message does not inherit from EntityMessage AND JsonMessage.");
+			LOG.warning("Can not send message to client. Message does not inherit from EntityMessage AND JsonMessage.");
 			unhandled(msg);
 			return;
 		}

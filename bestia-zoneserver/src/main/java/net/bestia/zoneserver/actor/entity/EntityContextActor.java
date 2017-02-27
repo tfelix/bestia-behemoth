@@ -3,6 +3,8 @@ package net.bestia.zoneserver.actor.entity;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.ActorRef;
+import net.bestia.messages.EntityJsonMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 
 /**
@@ -17,12 +19,14 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
 @Component
 @Scope("prototype")
 public class EntityContextActor extends BestiaRoutingActor {
-	
+
 	public static final String NAME = "entityContext";
+	
+	private final ActorRef activeClientUpdateRef;
 
 	public EntityContextActor() {
-		
-		createActor(ActiveClientUpdateActor.class);
+
+		activeClientUpdateRef = createActor(ActiveClientUpdateActor.class);
 		createActor(MovementActor.class);
 		createActor(EntitySpawnActor.class);
 		createActor(PositionActor.class);
@@ -31,6 +35,24 @@ public class EntityContextActor extends BestiaRoutingActor {
 	@Override
 	protected void handleMessage(Object msg) {
 		// no op.
+	}
+
+	/**
+	 * We have to handle incoming {@link EntityJsonMessage}. These messages are
+	 * usually meant to be send to all active players in range. But since the
+	 * way {@link BestiaRoutingActor} handles message filtering (no subtypes are
+	 * supported, only the direct type), we need to filter our messages in this
+	 * catch all method and redirect them to the right actor.
+	 */
+	@Override
+	protected void handleUnknownMessage(Object msg) {
+		
+		if(msg instanceof EntityJsonMessage) {
+			activeClientUpdateRef.tell(msg, getSelf());
+		} else {
+			super.handleUnknownMessage(msg);
+		}
+		
 	}
 
 }
