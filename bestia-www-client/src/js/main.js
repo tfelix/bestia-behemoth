@@ -1,5 +1,5 @@
 // CSS
-import './../css/game/main.less';
+//import './../css/game/main.less';
 
 import {version} from '../../package.json';
 import KoAjaxComponentLoader from './ui/KoAjaxComponentLoader';

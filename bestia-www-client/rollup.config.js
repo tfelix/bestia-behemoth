@@ -7,10 +7,11 @@ export default {
   dest: 'build/js/behemoth.js',
   format: 'iife',
   sourceMap: true,
-  plugins: [less(), json(), babel({
+  plugins: [json(), less({ output: './build/css/main.css' }),
+  babel({
     exclude: [
       'node_modules/**',
       '*.less'
-      ]
+    ]
   })]
 };
