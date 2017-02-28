@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.actor;
 
+import java.util.Objects;
+
 import org.springframework.context.ApplicationContext;
 
 import akka.actor.Actor;
@@ -15,8 +17,9 @@ public class SpringActorProducer implements IndirectActorProducer {
 	private final Object[] args;
 
 	public SpringActorProducer(ApplicationContext applicationContext, Class<? extends Actor> actorBeanClass) {
-		this.applicationContext = applicationContext;
-		this.actorBeanClass = actorBeanClass;
+		
+		this.applicationContext = Objects.requireNonNull(applicationContext);
+		this.actorBeanClass = Objects.requireNonNull(actorBeanClass);
 		this.args = null;
 	}
 	

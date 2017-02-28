@@ -55,6 +55,8 @@ export default class AnimationManager {
 	 */
 	play(entity, animation) {
 
+		// do we have loaded the animation?
+
 	}
 
 	/**

@@ -25,11 +25,6 @@ export default class AnimationResourceLoader {
         this._loader = loader;
 
         this._loadedResources = {};
-        this._loadContext = {};
-    }
-
-    _load() {
-
     }
 
     /**
@@ -72,7 +67,7 @@ export default class AnimationResourceLoader {
         let notLoaded = [];
         for (let i = 0; i < resources.length; i++) {
             if (this._loadedResources.hasOwnProperty(resources[i].res_id)) {
-                notLoaded.push(resources[i]);
+                notLoaded.push(this._transformLoaderResource(resources[i]));
             }
         }
 
@@ -82,8 +77,20 @@ export default class AnimationResourceLoader {
         }
 
         // Build our loading context.
-        let ctx = { res: notLoaded, callback: fn };
+        let ctx = { res: notLoaded, callback: fn };     
+        // Copy so we dont remove it while we iterate.
+        let resCopy = ctx.res.slice(0);
 
+        for(let i = 0; i < ctx.res.length; i++) {
+            this._load.load(ctx.res[i], function(){
+
+                // Remove the file from cache if loaded.
+                resCopy = resCopy.splice(i, 1);
+                if(resCopy.length === 0) {
+                    ctx.fn();
+                }
+            });
+        }
     }
 
     /**

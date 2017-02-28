@@ -36,7 +36,7 @@ ko.components.register('bestia-shortcuts', {
 
 // DOM Ready
 $(function(){
-	LOG.info('Starting Bestia Client V.' + VERSION);
+	LOG.info('Starting Bestia Client ' + VERSION);
 	
 	// Bind the DOM to the game.
 	ko.applyBindings(model);

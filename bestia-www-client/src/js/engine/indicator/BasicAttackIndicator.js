@@ -44,7 +44,7 @@ export default class BasicAttackIndicator extends Indicator {
 	 * Preload all needed assets.
 	 */
 	load() {
-		this._ctx.game.load.image('cursor_atk', this._ctx.url.getSpriteUrl('cursor_atk'));
+		this._ctx.game.load.image('cursor_atk', this._ctx.url.getIndicatorUrl('cursor_atk'));
 	}
 
 	/**

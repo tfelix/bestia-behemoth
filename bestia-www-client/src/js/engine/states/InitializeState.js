@@ -22,10 +22,9 @@ export default class InitializeState {
 	preload() {
 		
 		// Initialize the context since our engine is now ready.
-		this.game.load.image('action_options_background', this._ctx.url.getImageUrl('action_options_back'));
-		this.game.load.image('castindicator_small', this._ctx.url.getIndicatorUrl('_big'));
-		this.game.load.image('castindicator_medium', this._ctx.url.getIndicatorUrl('_medium'));
-		this.game.load.image('castindicator_big', this._ctx.url.getIndicatorUrl('_small'));
+		this.game.load.image('castindicator_small', this._ctx.url.getIndicatorUrl('big'));
+		this.game.load.image('castindicator_medium', this._ctx.url.getIndicatorUrl('medium'));
+		this.game.load.image('castindicator_big', this._ctx.url.getIndicatorUrl('small'));
 		this.game.load.image('default_item', this._ctx.url.getItemIconUrl('_default'));
 
 		// Load the static data from the manager.

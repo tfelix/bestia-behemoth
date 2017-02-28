@@ -27,7 +27,18 @@ export default class UrlHelper {
 	 * @returns {string} URL of the attack icon.
 	 */
 	getAttackIconUrl(atkName) {
-		return this._assetRoot + 'img/icons/attack/' + atkName + '.png';
+		return this._assetRoot + 'icons/attack/' + atkName + '.png';
+	}
+
+	/**
+	 * Returns the URL inside the asset folder for the mob icon.
+	 * 
+	 * @param mobName
+	 *            Database name of the mob.
+	 * @returns {String} URL of the mob icon.
+	 */
+	getMobIconUrl(mobName) {
+		return this._assetRoot + 'icons/mob/' + mobName + '.png';
 	}
 
 	/**
@@ -39,17 +50,6 @@ export default class UrlHelper {
 	 */
 	getTilemapUrl(name) {
 		return this._assetRoot + 'tileset/' + name + '.png';
-	}
-
-	/**
-	 * Returns the URL inside the asset folder for the mob icon.
-	 * 
-	 * @param mobName
-	 *            Database name of the mob.
-	 * @returns {String} URL of the mob icon.
-	 */
-	getMobIconUrl(mobName) {
-		return this._assetRoot + 'img/icons/mob/' + mobName + '.png';
 	}
 
 	/**
@@ -111,24 +111,20 @@ export default class UrlHelper {
 	}
 
 	getIndicatorUrl(indicator) {
-		if (indicator === 'cursor') {
-			// Special treatmen for default cursor.
-			return this._assetRoot + 'img/cast_indicators/' + indicator + '.png';
-		}
-		return this._assetRoot + 'img/cast_indicators/' + indicator + '/' + indicator + '.png';
+		return this._assetRoot + 'sprite/indicators/' + indicator + '.png';
 	}
 
 	getItemIconUrl(itemName) {
 		if (!itemName.endsWith('.png')) {
 			itemName += '.png';
 		}
-		return this._assetRoot + 'img/items/' + itemName;
+		return this._assetRoot + 'sprite/items/' + itemName;
 	}
-
+/*
 	getImageUrl(imgName) {
 		return this._assetRoot + 'img/' + imgName + '.png';
 	}
-
+*/
 	getFilterUrl(filter) {
 		return this._assetRoot + 'filter/' + filter + '.js';
 	}

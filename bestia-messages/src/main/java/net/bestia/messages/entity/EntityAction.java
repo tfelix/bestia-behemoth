@@ -13,7 +13,7 @@ public enum EntityAction {
 	APPEAR,
 	
 	/**
-	 * Entity has died.
+	 * Entity has died. 
 	 */
 	DIE,
 	

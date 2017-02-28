@@ -26,7 +26,7 @@ export default class BootState {
 		// Initialize the context with the new created phaser objects.
 		this._ctx.initialize(this.game);
 		
-		this.game.load.image('logo', this._ctx.url.getImageUrl('logo_small'));
+		//this.game.load.image('logo', this._ctx.url.getImageUrl('logo_small'));
 	}
 	
 	create() {

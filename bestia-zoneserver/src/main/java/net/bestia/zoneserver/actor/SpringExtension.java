@@ -33,7 +33,7 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 	}
 
 	/**
-	 * The Extension implementation.
+	 * The extension implementation.
 	 */
 	public static class SpringExt implements Extension {
 		private volatile ApplicationContext applicationContext;

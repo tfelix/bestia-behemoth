@@ -76,7 +76,7 @@ export default class ItemCast extends Indicator {
 	 * Preload all needed assets.
 	 */
 	load() {
-		this._ctx.game.load.image('cast_indicator', this._ctx.url.getSpriteUrl('cast_indicator'));
+		this._ctx.game.load.image('cast_indicator', this._ctx.url.getIndicatorUrl('cast_indicator'));
 	}
 
 	/**
