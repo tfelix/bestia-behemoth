@@ -382,7 +382,7 @@ export default class SpriteEntity extends Entity {
 		}
 		
 		let posPx = WorldHelper.getPxXY(x, y);
-		let curPosPx = WorldHelper.getPxXY(this.getPosition().x, this.getPosition().y);
+		let curPosPx =	his.getPositionPx();
 
 		// We need to check if we are moving away or towards our given position.
 		let curPathPos = this._currentPath[this._currentPathCounter];
@@ -395,18 +395,9 @@ export default class SpriteEntity extends Entity {
 			LOG.warn('Error while calculating the distance.');
 			return;
 		}
+
+		// TODO Do some lerping here.
 		
-		/*
-		 * if(d > WorldHelper.TILE_SIZE / 2) { // we are further away then close
-		 * to the target. Need to know if we // move away or closer. let
-		 * nextPathPos = this._currentPath[this._currentPathCounter + 1]; let
-		 * nextPathPosPx = WorldHelper.getPxXY(path.x, path.y); let nextD =
-		 * WorldHelper.getDistance(curPosPx, nextPathPosPx);
-		 * 
-		 * if(nextD < d) { // We are moving towards the next tile and are too
-		 * fast. Need to slow down. } else { // We are still moving to the tile
-		 * before and are too slow. Need to fasten. } } else { }
-		 */
 		
 	}
 

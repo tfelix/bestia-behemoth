@@ -67,6 +67,20 @@ export default class BestiaView {
 		pubsub.subscribe(Signal.IO_DISCONNECTED, this._handleDisconnected.bind(this));
 		pubsub.subscribe(MID.BESTIA_INFO, this._handleOnMessage.bind(this));
 		pubsub.subscribe(MID.BESTIA_ACTIVATE, this._handleOnActivate.bind(this));
+		pubsub.subscribe(MID.ENTITY_POSITION, this._handlerOnPosition, this);
+	}
+
+	/**
+	 * Check if we must update the position of one of our bestias.
+	 */
+	_handlerOnPosition(_, msg) {
+		for(let i = 0; i < this.bestias().length; i++) {
+			let bestia = this.bestias()[i];
+			if(bestia.entityId() === msg.eid) {
+				bestia.posX(msg.x);
+				bestia.posY(msg.y);
+			}
+		}
 	}
 	
 	/**
