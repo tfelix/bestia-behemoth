@@ -3,6 +3,8 @@ import babel from 'rollup-plugin-babel';
 import less from 'rollup-plugin-less';
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
+import uglify from 'rollup-plugin-uglify';
+import replace from 'rollup-plugin-replace';
 
 export default {
   entry: 'src/js/main.js',
@@ -23,6 +25,11 @@ export default {
         'node_modules/**',
         '*.less'
       ]
-    })
+    }),
+    replace({
+      exclude: 'node_modules/**',
+      ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
+    }),
+    (process.env.NODE_ENV === 'production' && uglify())
   ]
 };
