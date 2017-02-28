@@ -1,4 +1,4 @@
-/*global Phaser */
+import Phaser from 'phaser';
 
 //NameSpace
 var EasyStar = EasyStar || {};

@@ -1,4 +1,5 @@
-/* globals log */
+import log from 'loglevel';
+
 /**
  * This module sets up a simple logging framework and exports the object for
  * usage by bestia systems.

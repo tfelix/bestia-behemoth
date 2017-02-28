@@ -6,32 +6,33 @@
   "jsnext:main": "build/bundle.js",
   "private": true,
   "scripts": {
+    "prebuild": "npm run clean && npm run test",
+    "pretest": "npm run lint",
     "lint": "eslint src/js",
     "test": "mocha test/",
     "clean": "rimraf build/*",
-    "prebuild": "npm run clean -s",
-    "copy:watch": "parallelshell \"npm run copy:site --watch\" \"npm run copy:assets --watch\"",
-    
+    "server": "lite-server --baseDir=\"build\"",
+    "watch:copy": "parallelshell \"npm run watch:copy:site\" \"npm run watch:copy:assets\"",
+    "watch:copy:site": "cpx ./src/**/*.{html,png,jpg} ./build -v --watch",
+    "watch:copy:assets": "cpx ../game-data/**/* ./build/assets -v --watch",
     "copy": "npm run copy:site && npm run copy:assets",
     "copy:site": "cpx ./src/**/*.{html,png,jpg} ./build -v",
     "copy:assets": "cpx ../game-data/**/* ./build/assets -v",
-   
-    "build:js": "rollup -c",
+    "watch:build": "rollup -c && npm run server",
     "build": "npm run clean && npm run build:js && npm run copy",
-
-    "dev": "lite-server --baseDir=\"build\""
+    "build:dev": "npm run clean && parallelshell \"npm run watch:copy\" \"npm run watch:build\" \"npm run server\""
   },
   "dependencies": {
-    "bootstrap": "^3.3.7",
-    "i18next": "^7.1.0",
-    "jquery": "^3.1.1",
-    "js-cookie": "^2.1.3",
-    "knockout": "^3.4.1",
-    "loglevel": "^1.4.1",
-    "nanoscroller": "^0.8.7",
-    "phaser": "^2.6.2",
-    "phaser-state-transition-plugin": "^0.1.6",
-    "sockjs-client": "^1.1.2"
+    "bootstrap": "3.3.7",
+    "i18next": "7.1.0",
+    "jquery": "3.1.1",
+    "js-cookie": "2.1.3",
+    "knockout": "3.4.1",
+    "loglevel": "1.4.1",
+    "nanoscroller": "0.8.7",
+    "phaser": "2.6.2",
+    "phaser-state-transition-plugin": "0.1.6",
+    "sockjs-client": "1.1.2"
   },
   "devDependencies": {
     "babel-plugin-external-helpers": "6.22.0",
@@ -45,8 +46,10 @@
     "rimraf": "2.6.1",
     "rollup": "0.41.4",
     "rollup-plugin-babel": "2.7.1",
+    "rollup-plugin-commonjs": "^7.0.0",
     "rollup-plugin-json": "2.1.0",
     "rollup-plugin-less": "0.1.3",
+    "rollup-plugin-node-resolve": "2.0.0",
     "rollup-watch": "^3.2.2"
   }
 }
