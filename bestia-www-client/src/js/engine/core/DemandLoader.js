@@ -114,8 +114,7 @@ export default class DemandLoader {
 	 * Checks if all the given keys are already inside the cache. Keys can be a
 	 * single string or an array of strings containing the the key names.
 	 * 
-	 * @param keys
-	 *            {string|array}
+	 * @param {string|string[]} keys
 	 */
 	has(keys, type) {
 		if (Array.isArray(keys)) {
@@ -178,6 +177,12 @@ export default class DemandLoader {
 		}
 	}
 
+	/**
+	 * Loads the pack data formated in a phaser pack data structure.
+	 * 
+	 * @param {Object} pack A phaserjs asset pack object.
+	 * @param {Function} fnOnComplete Callback function called if all files in the asset pack are loaded.
+	 */
 	loadPackData(pack, fnOnComplete) {
 		fnOnComplete = fnOnComplete || NOOP;
 

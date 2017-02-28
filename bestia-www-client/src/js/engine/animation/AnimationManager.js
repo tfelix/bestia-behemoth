@@ -28,6 +28,14 @@ export default class AnimationManager {
 	 */
 	_playAnimationHandler(_, msg) {
 		LOG.info("Works");
+
+		// Is the animation completly cached?
+		// --> find the target of the animation and apply the transform to it.
+
+		// Is the animation currently loading? 
+		// --> Attach it to the complete event.
+		// --> if not load it.
+
 	}
 
 	create() {
