@@ -3,10 +3,10 @@ package net.bestia.zoneserver.entity.traits;
 import java.util.List;
 
 import net.bestia.model.battle.Damage;
-import net.bestia.model.domain.AttackImpl;
+import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Element;
-import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusEffect;
+import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
 
 /**
@@ -83,7 +83,7 @@ public interface Attackable extends Locatable {
 	 * 
 	 * @return A list of all available attacks.
 	 */
-	List<AttackImpl> getAttacks();
+	List<Attack> getAttacks();
 
 	/**
 	 * Kills the entity.

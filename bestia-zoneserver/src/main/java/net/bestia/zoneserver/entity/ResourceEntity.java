@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import net.bestia.messages.entity.EntityPositionMessage;
-import net.bestia.model.domain.AttackImpl;
+import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.traits.Attackable;
@@ -92,7 +92,7 @@ public abstract class ResourceEntity extends BaseEntity implements Locatable, Vi
 	 * A simple resource can not attack on its own.
 	 */
 	@Override
-	public List<AttackImpl> getAttacks() {
+	public List<Attack> getAttacks() {
 		return Collections.emptyList();
 	}
 

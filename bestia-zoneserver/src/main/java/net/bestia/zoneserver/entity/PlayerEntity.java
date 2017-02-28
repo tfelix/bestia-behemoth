@@ -2,7 +2,6 @@ package net.bestia.zoneserver.entity;
 
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -11,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.domain.Account;
-import net.bestia.model.domain.AttackImpl;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.entity.InteractionType;
@@ -77,11 +75,6 @@ public class PlayerEntity extends LivingEntity {
 
 	public long getAccountId() {
 		return accountId;
-	}
-
-	@Override
-	public List<AttackImpl> getAttacks() {
-		return playerBestia.getAttacks();
 	}
 
 	@Override
