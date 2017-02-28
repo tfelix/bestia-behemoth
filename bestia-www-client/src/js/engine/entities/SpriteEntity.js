@@ -180,6 +180,8 @@ export default class SpriteEntity extends Entity {
 	 */
 	playAnimation(name) {
 
+		LOG.trace('Playing: ' + name);
+
 		// If the animation is the same. Just let it run.
 		if (name === this._sprite.animations.name) {
 			return;
@@ -199,7 +201,7 @@ export default class SpriteEntity extends Entity {
 			name = this._getAnimationFallback(name);
 
 			if (name === null) {
-				console.warn('Could not found alternate animation solution for: ' + name);
+				LOG.warn('Could not found alternate animation solution for: ' + name);
 				return;
 			}
 		}
@@ -382,7 +384,7 @@ export default class SpriteEntity extends Entity {
 		}
 		
 		let posPx = WorldHelper.getPxXY(x, y);
-		let curPosPx =	his.getPositionPx();
+		let curPosPx =	this.getPositionPx();
 
 		// We need to check if we are moving away or towards our given position.
 		let curPathPos = this._currentPath[this._currentPathCounter];

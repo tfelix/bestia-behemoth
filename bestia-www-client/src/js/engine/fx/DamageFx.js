@@ -40,21 +40,24 @@ export default class DamageFx {
 		dmgs.forEach(function(x) {
 			
 			// See if there is an entity existing to display this damage.
-			var entity = this._entityCache.getEntity(msg.eid);
+			let entity = this._entityCache.getEntity(msg.eid);
 			
 			// No entity, no dmg.
 			if(entity === null) {
 				return;
 			}
 			
-			var dmgFx = this._manager.getCachedEffect(CACHE_KEY);
+			let dmgFx = this._manager.getCachedEffect(CACHE_KEY);
+			let pos = entity.getPositionPx();
 			
 			if(!dmgFx) {
 				// Create a new instance of the entity.
 				dmgFx = new TextEntity(this._ctx);
-				let pos = entity.getPositionPx();
 				dmgFx.setPositionPx(pos.x, pos.y);
 				dmgFx.addToGame();
+			} else {
+				dmgFx.setPositionPx(pos.x, pos.y);
+				dmgFx.getRootVisual().alpha = 1;
 			}
 
 			dmgFx.setText(x.dmg);
