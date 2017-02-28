@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import akka.actor.ActorRef;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 
 /**
  * This actor is responsible for receiving messages from the entities and

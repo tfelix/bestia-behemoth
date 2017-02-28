@@ -29,7 +29,7 @@ import net.bestia.zoneserver.service.PlayerEntityService;
  */
 @Component
 @Scope("prototype")
-public class InteractionRequestActor extends BestiaRoutingActor {
+public class EntityInteractionRequestActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public final static String NAME = "requestInteract";
@@ -38,7 +38,7 @@ public class InteractionRequestActor extends BestiaRoutingActor {
 	private final PlayerEntityService playerEntityService;
 	
 	@Autowired
-	public InteractionRequestActor(EntityService entityService, PlayerEntityService pes) {
+	public EntityInteractionRequestActor(EntityService entityService, PlayerEntityService pes) {
 		super(Arrays.asList(EntityInteractionRequestMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);

@@ -121,7 +121,7 @@ public class MapService {
 		final List<MapChunk> chunks = new ArrayList<>();
 
 		for (Point point : chunkCords) {
-			final Rect area = MapChunk.getWoldRect(point);
+			final Rect area = MapChunk.getWorldRect(point);
 			// -1 because from to coordinates are on less then height (start to
 			// count at the start coordiante).
 			List<Tile> tiles = tileDao.getTilesInRange(area.getX(), area.getY(), area.getHeight() - 1,

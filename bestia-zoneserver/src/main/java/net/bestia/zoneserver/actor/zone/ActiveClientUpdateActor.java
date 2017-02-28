@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.entity;
+package net.bestia.zoneserver.actor.zone;
 
 import java.util.List;
 import java.util.Objects;

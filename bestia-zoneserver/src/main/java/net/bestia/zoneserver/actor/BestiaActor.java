@@ -13,7 +13,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
-import net.bestia.zoneserver.actor.entity.ActiveClientUpdateActor;
+import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 
 /**

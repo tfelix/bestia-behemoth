@@ -20,5 +20,10 @@ public enum EntityAction {
 	/**
 	 * Entity has vanished and is basically now invisible.
 	 */
-	VANISH
+	VANISH, 
+	
+	/**
+	 * No particular action is needed. Just an update message regarding this entity.
+	 */
+	UPDATE
 }

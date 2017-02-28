@@ -11,7 +11,7 @@ import net.bestia.model.domain.SpriteInfo;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public interface Visible extends Entity {
+public interface Visible extends Locatable {
 
 	/**
 	 * Returns the sprite/visual representation of the entity.
