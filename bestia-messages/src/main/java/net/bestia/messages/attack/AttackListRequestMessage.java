@@ -38,7 +38,7 @@ public class AttackListRequestMessage extends JsonMessage {
 
 	@Override
 	public String toString() {
-		return "AttackListRequestMessage[]";
+		return String.format("AttackListRequestMessage[accId: %d]", getAccountId());
 	}
 
 	@Override

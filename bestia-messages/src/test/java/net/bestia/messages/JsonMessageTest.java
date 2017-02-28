@@ -1,13 +1,13 @@
 package net.bestia.messages;
 
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.util.ClassUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -16,17 +16,6 @@ import net.bestia.util.PackageLoader;
 public class JsonMessageTest {
 
 	private final ObjectMapper mapper = new ObjectMapper();
-
-	/**
-	 * Tests if all classes implementing this parent class have a default ctor.
-	 */
-	@Test
-	public void json_defaultCtorPresent() {
-		for (Class<? extends JsonMessage> clazz : getJsonClasses()) {
-			Assert.assertTrue("Class " + clazz.toGenericString() + " has no default ctor.",
-					ClassUtils.hasConstructor(clazz));
-		}
-	}
 
 	/**
 	 * Tests if all classes used in messages are also serializable.
@@ -54,6 +43,28 @@ public class JsonMessageTest {
 		}
 
 		Assert.assertEquals("The following classes must implement Serializable.", 0, notImplementing.size());
+	}
+
+	/**
+	 * Checks if this method creates really a new instance.
+	 */
+	@Test
+	public void json_createNewInstance_works() throws Exception {
+
+		for (Class<? extends JsonMessage> clazz : getJsonClasses()) {
+
+			try {
+				Constructor<? extends JsonMessage> ctor = clazz.getDeclaredConstructor(Long.class);
+				JsonMessage msg = ctor.newInstance(123);
+				JsonMessage newMsg = msg.createNewInstance(1337);
+				Assert.assertFalse(msg.equals(newMsg));
+				Assert.assertEquals(1337, newMsg.getAccountId());
+			} catch (NoSuchMethodException e) {
+				// This is actuall ok there might be more complex ctors. Then
+				// these classes have to be tested in a own unit test.
+			}
+		}
+
 	}
 
 	/**

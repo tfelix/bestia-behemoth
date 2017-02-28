@@ -17,7 +17,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Gives a clue which bestia learns which attack at a certain level.
+ * Gives a clue which bestia learns which attack at a certain level. Usually
+ * this is only defined in the database. Hence there are no setters.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -39,7 +40,7 @@ public class BestiaAttack implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "ATTACK_ID", nullable = false)
 	@JsonProperty("a")
-	private AttackImpl attack;
+	private Attack attack;
 
 	@ManyToOne
 	@JoinColumn(name = "BESTIA_ID", nullable = false)
@@ -53,15 +54,20 @@ public class BestiaAttack implements Serializable {
 	 * Std. Ctor.
 	 */
 	public BestiaAttack() {
-
+		// no op.
 	}
 
 	@Override
 	public String toString() {
-		return String.format("AttackLevel[attack_db_name: %s, minLevel: %d]", attack.getDatabaseName(), minLevel);
+		return String.format("BestiaAttack[attack_db_name: %s, minLevel: %d]", attack.getDatabaseName(), minLevel);
 	}
 
-	public AttackImpl getAttack() {
+	/**
+	 * The attack which can be used after the level requirement was fullfilled.
+	 * 
+	 * @return The attack to be used.
+	 */
+	public Attack getAttack() {
 		return attack;
 	}
 
@@ -69,6 +75,11 @@ public class BestiaAttack implements Serializable {
 		return bestia;
 	}
 
+	/**
+	 * Returns the minimum level required until the bestia can use this attack.
+	 * 
+	 * @return The minimum level until the bestia can use this attack.
+	 */
 	public int getMinLevel() {
 		return minLevel;
 	}

@@ -15,7 +15,6 @@ import net.bestia.model.dao.BestiaAttackDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.dao.PlayerItemDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.model.domain.AttackImpl;
 import net.bestia.model.domain.BestiaAttack;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
@@ -31,7 +30,7 @@ import net.bestia.model.domain.PlayerItem;
 public class PlayerBestiaService {
 
 	private final static int NUM_ITEM_SLOTS = 5;
-	private final static Logger log = LoggerFactory.getLogger(InventoryService.class);
+	private final static Logger LOG = LoggerFactory.getLogger(PlayerBestiaService.class);
 
 	private AccountDAO accountDao;
 	private PlayerBestiaDAO playerBestiaDao;
@@ -59,102 +58,14 @@ public class PlayerBestiaService {
 	}
 
 	/**
-	 * Saves the given attacks to a bestia. There a checks in place in order to
-	 * check the validity of this action. The bestia must be qualified in order
-	 * to learn the attack: level constraints must be met and the attack must be
-	 * learnable in general.
-	 * 
-	 * @param playerBestiaId
-	 * @param attackIds
-	 */
-	public void saveAttacks(int playerBestiaId, List<Integer> attackIds) {
-		// Some sanity checks.
-		if (attackIds.size() > 5) {
-			throw new IllegalArgumentException("Attacks can not exceed the length of 5 slots.");
-		}
-
-		final PlayerBestia playerBestia = playerBestiaDao.findOne(playerBestiaId);
-
-		// Get list of attacks for this bestia.
-		final List<BestiaAttack> knownAttacks = attackLevelDao.getAllAttacksForBestia(playerBestia.getOrigin().getId());
-
-		final List<Integer> knownAttackIds = knownAttacks.stream()
-				.map((x) -> x.getAttack().getId())
-				.collect(Collectors.toList());
-
-		// Check if the bestia can actually learn the attacks and does know
-		// them.
-		int slot = 1;
-		for (Integer atkId : attackIds) {
-
-			// Just delete the attack.
-			if (atkId == 0) {
-				setPlayerBestiaAttack(playerBestia, null, slot);
-				slot++;
-				continue;
-			}
-
-			if (!knownAttackIds.contains(atkId)) {
-				log.error("PlayerBestia {} can not learn the attack id: {}.", playerBestiaId, atkId);
-				throw new IllegalArgumentException("Bestia can not learn the attack.");
-			}
-
-			final BestiaAttack atk = knownAttacks.stream()
-					.filter((x) -> x.getAttack().getId() == atkId)
-					.findFirst()
-					.get();
-
-			if (playerBestia.getLevel() < atk.getMinLevel()) {
-				log.error("PlayerBestia {} level too low. Must be at least {}, is: {}.", playerBestia.getId(),
-						atk.getMinLevel(), playerBestia.getLevel());
-				throw new IllegalArgumentException("Bestia can not learn the attack.");
-			}
-			setPlayerBestiaAttack(playerBestia, atk.getAttack(), slot);
-			slot++;
-		}
-	}
-
-	/**
-	 * Helper method to set the attack.
-	 * 
-	 * @param playerBestia
-	 *            The bestia whose attacks to be set.
-	 * @param atk
-	 *            The attack to set.
-	 * @param slot
-	 *            The slot to set the attack into.
-	 */
-	private void setPlayerBestiaAttack(PlayerBestia playerBestia, AttackImpl atk, int slot) {
-		switch (slot) {
-		case 1:
-			playerBestia.setAttack1(atk);
-			break;
-		case 2:
-			playerBestia.setAttack2(atk);
-			break;
-		case 3:
-			playerBestia.setAttack3(atk);
-			break;
-		case 4:
-			playerBestia.setAttack4(atk);
-			break;
-		case 5:
-			playerBestia.setAttack5(atk);
-			break;
-		default:
-			// no op.
-			break;
-		}
-	}
-
-	/**
 	 * Returns all attacks for a certain player bestia with the given player
 	 * bestia id.
 	 * 
 	 * @param playerBestiaId
-	 * @return
+	 * @return A list of attacks usable by the given player bestia id.
 	 */
 	public List<BestiaAttack> getAllAttacksForPlayerBestia(int playerBestiaId) {
+		LOG.trace("Retrieving all attacks for player bestia {}", playerBestiaId);
 		final PlayerBestia pb = playerBestiaDao.findOne(playerBestiaId);
 		return attackLevelDao.getAllAttacksForBestia(pb.getOrigin().getId());
 	}
@@ -170,6 +81,7 @@ public class PlayerBestiaService {
 	 *         the item.
 	 */
 	public PlayerItem[] saveItemShortcuts(int playerBestiaId, List<Integer> itemIds) {
+		LOG.trace("Saving item shortcuts {} for player bestia {}", itemIds, playerBestiaId);
 
 		if (itemIds.size() != 5) {
 			throw new IllegalArgumentException(

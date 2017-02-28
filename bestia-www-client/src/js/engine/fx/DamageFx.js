@@ -88,10 +88,10 @@ export default class DamageFx {
 		let pos = targetEntity.getPositionPx();
 		
 		let cords = {
-			x: [pos.x, (pos.x - targetSize.x - targetSize.x * 0.5)],
-			y: [pos.y - targetSize.y * 0.80, pos.y - targetSize.y * 1.5]
+			x: [pos.x, pos.x - targetSize.width * 0.75, pos.x - targetSize.width * 1.5],
+			y: [pos.y - targetSize.height * 0.80, pos.y - targetSize.height * 1.5, pos.y]
 		};
-		var tween = this._game.add.tween(dmg.getRootVisual()).to(cords, 1000);
+		var tween = this._game.add.tween(dmg.getRootVisual()).to(cords, 850);
 		tween.interpolation(function(v,k){
 			return Phaser.Math.bezierInterpolation(v, k);
 		});
@@ -104,7 +104,7 @@ export default class DamageFx {
 		// Add alpha fade.
 		this._game.add
 			.tween(dmg.getRootVisual())
-			.to({alpha: 0}, 100, Phaser.Easing.Linear.None, true, 950)
+			.to({alpha: 0}, 100, Phaser.Easing.Linear.None, true, 850)
 			.start();
 		// Start animation.
 		tween.start();

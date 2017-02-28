@@ -143,7 +143,12 @@ export default class Entity {
 	 * Returns the size of the visual representation of the entity.
 	 */
 	getSize() {
-		return { x: 0, y: 0 };
+		let visual = this.getRootVisual();
+		if (!visual) {
+			return { width: 0, height: 0 };
+		}
+
+		return { width: visual.width, height: visual.height };
 	}
 
 	/**
@@ -166,7 +171,7 @@ export default class Entity {
 	setPositionPx(x, y) {
 		let visual = this.getRootVisual();
 
-		if(visual) {
+		if (visual) {
 			visual.x = x;
 			visual.y = y;
 		}

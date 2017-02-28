@@ -1,6 +1,7 @@
 package net.bestia.messages.attack;
 
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -52,7 +53,7 @@ public class AttackListResponseMessage extends JsonMessage {
 	}
 
 	public void setAttacks(List<BestiaAttack> attacks) {
-		this.attacks = attacks;
+		this.attacks = Objects.requireNonNull(attacks);
 	}
 
 	@Override
