@@ -52,6 +52,8 @@ export default class DamageFx {
 			if(!dmgFx) {
 				// Create a new instance of the entity.
 				dmgFx = new TextEntity(this._ctx);
+				let pos = entity.getPositionPx();
+				dmgFx.setPositionPx(pos.x, pos.y);
 				dmgFx.addToGame();
 			}
 

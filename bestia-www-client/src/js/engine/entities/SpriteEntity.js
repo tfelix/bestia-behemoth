@@ -47,6 +47,10 @@ export default class SpriteEntity extends Entity {
 		this.setPosition(x, y);
 	}
 
+	getRootVisual() {
+		return this._sprite;
+	}
+
 	/**
 	 * Sets the sprite of this entity for the given sprite name.
 	 */
@@ -60,9 +64,6 @@ export default class SpriteEntity extends Entity {
 		this._sprite = this._game.add.sprite(0, 0, spriteName);
 
 		this._setupSprite(this._sprite, this._data);
-		
-		// Re-set position so the sprite gets now postioned.
-		this._syncSpritePosition(this._sprite);
 	}
 	
 	/**
@@ -485,14 +486,6 @@ export default class SpriteEntity extends Entity {
 		} else {
 			return 'stand_up_left';
 		}
-	}
-	
-	/**
-	 * Sets the entity position and re-sync the sprite position.
-	 */
-	setPosition(x, y) {
-		super.setPosition(x, y);
-		this._syncSpritePosition(this._sprite);
 	}
 	
 	/**

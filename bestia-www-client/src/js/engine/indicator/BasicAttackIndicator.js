@@ -59,7 +59,7 @@ export default class BasicAttackIndicator extends Indicator {
 	_handleIndicator(_, data) {
 		
 		if (data.handle === 'basic_attack_over') {
-			this._targetSprite = data.entity.sprite;
+			this._targetSprite = data.entity.getRootVisual();
 			this._targetEntity = data.entity;
 			
 			// Do some wiring. If the sprite dies we need to give up controls.
