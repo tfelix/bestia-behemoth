@@ -2,12 +2,29 @@ package net.bestia.model.geometry;
 
 import com.google.common.base.Objects;
 
+/**
+ * Represents a circle collision shape.
+ * 
+ * @author Thomas Felix <thomas.felix@tfelix.de>
+ *
+ */
 public final class Circle implements CollisionShape {
 
 	private final Point center;
 	private Point anchor;
 	private final int radius;
 
+	/**
+	 * Creates a circular collision shape. The anchor of the circle is
+	 * positioned at the center of the circle.
+	 * 
+	 * @param x
+	 *            X center coordinate.
+	 * @param y
+	 *            Y center coordinate.
+	 * @param radius
+	 *            The radius of the circle.
+	 */
 	public Circle(long x, long y, int radius) {
 
 		if (radius < 0) {
@@ -39,10 +56,20 @@ public final class Circle implements CollisionShape {
 		}
 	}
 
+	/**
+	 * Returns the radius of the circle.
+	 * 
+	 * @return The radius of the circle.
+	 */
 	public int getRadius() {
 		return radius;
 	}
 
+	/**
+	 * Returns the center point of the circle.
+	 * 
+	 * @return The center of the circle.
+	 */
 	public Point getCenter() {
 		return center;
 	}
@@ -73,8 +100,7 @@ public final class Circle implements CollisionShape {
 
 	@Override
 	public String toString() {
-		return String.format("Circle[x: %d, y: %d, r: %d]",
-				center.getX(), center.getY(), radius);
+		return String.format("Circle[x: %d, y: %d, r: %d]", center.getX(), center.getY(), radius);
 	}
 
 	@Override
@@ -115,7 +141,7 @@ public final class Circle implements CollisionShape {
 	}
 
 	@Override
-	public CollisionShape moveByAnchor(long x, long y) {
+	public Circle moveByAnchor(long x, long y) {
 		final long dX = x - getAnchor().getX();
 		final long dY = y - getAnchor().getY();
 

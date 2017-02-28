@@ -23,10 +23,14 @@ public class MapChunk implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * How many tiles are contained within one of such chunks.
+	 * How many tiles are contained within one of such chunks in each dimension.
 	 */
-	public static int MAP_CHUNK_SIZE = 10;
-	private static int MAP_CHUNK_SIZE_AREA = MAP_CHUNK_SIZE * MAP_CHUNK_SIZE;
+	public static final int MAP_CHUNK_SIZE = 10;
+
+	/**
+	 * The area which is covered by this chunk.
+	 */
+	public static final int MAP_CHUNK_SIZE_AREA = MAP_CHUNK_SIZE * MAP_CHUNK_SIZE;
 
 	@JsonProperty("gl")
 	private final int[] groundLayer;
@@ -38,27 +42,15 @@ public class MapChunk implements Serializable {
 	private final Point position;
 
 	public MapChunk(Point pos, int[] groundLayer) {
-		
-		if (groundLayer.length != MAP_CHUNK_SIZE_AREA) {
-			throw new IllegalArgumentException(
-					"Ground layer is not of the size of the chunk. Must be " + MAP_CHUNK_SIZE_AREA);
-		}
+		this(pos, groundLayer, null);
 
-		this.position = Objects.requireNonNull(pos);
-		this.groundLayer = new int[MAP_CHUNK_SIZE_AREA];
-		System.arraycopy(groundLayer, 0, this.groundLayer, 0, this.groundLayer.length);
+		// no op.
 	}
 
 	public MapChunk(Point pos, List<Integer> groundLayer, List<Map<Point, Integer>> layers) {
+		this(pos, groundLayer.stream().mapToInt(i -> i).toArray(), layers);
 
-		if (groundLayer.size() != MAP_CHUNK_SIZE_AREA) {
-			throw new IllegalArgumentException(
-					"Ground layer is not of the size of the chunk. Must be " + MAP_CHUNK_SIZE_AREA);
-		}
-		
-		this.position = Objects.requireNonNull(pos);
-		this.groundLayer = groundLayer.stream().mapToInt(i -> i).toArray();
-		layers.addAll(Objects.requireNonNull(layers));
+		// no op.
 	}
 
 	public MapChunk(Point pos, int[] groundLayer, List<Map<Point, Integer>> layers) {
@@ -71,7 +63,10 @@ public class MapChunk implements Serializable {
 		this.position = Objects.requireNonNull(pos);
 		this.groundLayer = new int[MAP_CHUNK_SIZE_AREA];
 		System.arraycopy(groundLayer, 0, this.groundLayer, 0, this.groundLayer.length);
-		layers.addAll(Objects.requireNonNull(layers));
+
+		if (layers != null) {
+			layers.addAll(Objects.requireNonNull(layers));
+		}
 	}
 
 	/**
@@ -131,9 +126,10 @@ public class MapChunk implements Serializable {
 	 * Returns the area in world coordiantes which is covered by this chunk.
 	 * 
 	 * @param chunk
-	 * @return
+	 *            Chunk coordiantes.
+	 * @return The area/rect which is covered by this chunk.
 	 */
-	public static Rect getWoldRect(Point chunk) {
+	public static Rect getWorldRect(Point chunk) {
 
 		final Point p = getWorldCords(chunk);
 		return new Rect(p.getX(), p.getY(), MAP_CHUNK_SIZE, MAP_CHUNK_SIZE);
