@@ -37,10 +37,20 @@ public class TileProperties implements Serializable {
 		this.walkspeed = walkspeed;
 	}
 
+	/**
+	 * Flag if this tile is walkable at all.
+	 * 
+	 * @return TRUE if it is walkable. FALSE otherwise.
+	 */
 	public boolean isWalkable() {
 		return isWalkable;
 	}
 
+	/**
+	 * The walkspeed on this tile.
+	 * 
+	 * @return
+	 */
 	public int getWalkspeed() {
 		return walkspeed;
 	}
