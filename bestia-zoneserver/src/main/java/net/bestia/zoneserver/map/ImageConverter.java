@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.generator.map;
+package net.bestia.zoneserver.map;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;

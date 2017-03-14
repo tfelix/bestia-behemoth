@@ -2,7 +2,7 @@ package net.bestia.model.map;
 
 /**
  * Since the walkpeed in bestia can have different meanings and representations
- * (one encoded as float, the other as an int for transmission reasions) the
+ * (one encoded as float, the other as an int for transmission reason) the
  * walkspeed are completly encapsulated as a own class.
  * 
  * @TODO Testen.

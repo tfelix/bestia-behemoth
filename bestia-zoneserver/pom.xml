@@ -49,6 +49,11 @@
 			<artifactId>bestia-server-commons</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>de.tfelix.bestia</groupId>
+			<artifactId>worldgen</artifactId>
+			<version>1.0.0-ALPHA</version>
+		</dependency>
 	</dependencies>
 
 	<build>

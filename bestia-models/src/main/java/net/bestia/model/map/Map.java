@@ -259,7 +259,7 @@ public class Map {
 
 	/**
 	 * Checks if the chunks lie within the range reachable from the given point.
-	 * 
+	 * @TODO Diese Methode sollte eigentlich eher im MapService liegen.
 	 * @param pos
 	 *            Current position of the player.
 	 * @param chunks

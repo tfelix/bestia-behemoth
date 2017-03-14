@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.generator.map;
+package net.bestia.zoneserver.map;
 
 /**
  * Contains the type of biomes which are used and supported by the bestia map
