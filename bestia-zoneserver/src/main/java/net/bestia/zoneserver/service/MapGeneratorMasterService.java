@@ -21,9 +21,9 @@ import net.bestia.zoneserver.map.MapBaseParameter;
 import net.bestia.zoneserver.map.MapGeneratorConstants;
 
 @Service
-public class MapGeneratorService implements MapMasterCallbacks {
+public class MapGeneratorMasterService implements MapMasterCallbacks {
 
-	private final static Logger LOG = LoggerFactory.getLogger(MapGeneratorService.class);
+	private final static Logger LOG = LoggerFactory.getLogger(MapGeneratorMasterService.class);
 
 	private final AtomicBoolean isGenerating = new AtomicBoolean(false);
 	private MapMasterGenerator masterGenerator = null;
@@ -31,7 +31,7 @@ public class MapGeneratorService implements MapMasterCallbacks {
 	private final MapDataDAO mapDataDao;
 
 	@Autowired
-	public MapGeneratorService(MapDataDAO mapDataDao) {
+	public MapGeneratorMasterService(MapDataDAO mapDataDao) {
 
 		this.mapDataDao = Objects.requireNonNull(mapDataDao);
 	}

@@ -19,7 +19,7 @@ public class RuntimeConfigurationService extends CacheManager<String, Object> {
 	@Autowired
 	public RuntimeConfigurationService(HazelcastInstance cache) {
 		super("server.config", cache);
-
+		// no op.
 	}
 
 	/**
