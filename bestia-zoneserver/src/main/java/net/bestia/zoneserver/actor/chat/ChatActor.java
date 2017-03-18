@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.chat.ChatMessage;
@@ -17,6 +16,7 @@ import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.service.AccountZoneService;
+import net.bestia.zoneserver.service.ChatCommandService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
@@ -35,17 +35,16 @@ public class ChatActor extends BestiaRoutingActor {
 
 	private final AccountZoneService accService;
 	private final PlayerEntityService playerEntityService;
-	
-	private final ActorRef chatCommandActor;
+	private final ChatCommandService chatCmdService;
 
 	@Autowired
-	public ChatActor(AccountZoneService accService, PlayerEntityService playerEntityService) {
+	public ChatActor(AccountZoneService accService, PlayerEntityService playerEntityService,
+			ChatCommandService chatCmdService) {
 		super(Arrays.asList(ChatMessage.class));
-		
+
 		this.accService = Objects.requireNonNull(accService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
-		
-		this.chatCommandActor = createActor(ChatCommandActor.class);
+		this.chatCmdService = Objects.requireNonNull(chatCmdService);
 	}
 
 	@Override
@@ -53,9 +52,9 @@ public class ChatActor extends BestiaRoutingActor {
 
 		final ChatMessage chatMsg = (ChatMessage) msg;
 		
-		if(chatMsg.getText().startsWith(ChatCommandActor.CMD_PREFIX)) {
-			// This is a chat command.
-			chatCommandActor.tell(chatMsg, getSelf());
+		if(chatCmdService.isChatCommand(chatMsg.getText())) {
+			chatCmdService.executeChatCommand(chatMsg.getAccountId(), chatMsg.getText());
+			return;
 		}
 
 		switch (chatMsg.getChatMode()) {
@@ -83,8 +82,9 @@ public class ChatActor extends BestiaRoutingActor {
 			return;
 		}
 
-		final List<Long> receiverAccIds = playerEntityService.getActiveAccountIdsInRange(Map.getViewRect(pbe.getPosition()));
-		
+		final List<Long> receiverAccIds = playerEntityService
+				.getActiveAccountIdsInRange(Map.getViewRect(pbe.getPosition()));
+
 		receiverAccIds.stream()
 				.map(receiverAccId -> chatMsg.createNewInstance(receiverAccId))
 				.forEach(msg -> sendClient(msg));

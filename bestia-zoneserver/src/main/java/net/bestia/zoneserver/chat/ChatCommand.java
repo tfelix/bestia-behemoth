@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.chat;
 
+import net.bestia.model.domain.Account.UserLevel;
+
 public interface ChatCommand {
 
 	/**
@@ -22,4 +24,11 @@ public interface ChatCommand {
 	 *            Chat text
 	 */
 	void executeCommand(long accId, String text);
+
+	/**
+	 * Gives the minimum user level required to execute this command.
+	 * 
+	 * @return The minimum userlevel required to use this command.
+	 */
+	UserLevel requiredUserLevel();
 }

@@ -22,19 +22,18 @@ import net.bestia.zoneserver.service.PlayerEntityService;
  *
  */
 @Component
-public class MapMoveCommand implements ChatCommand {
+public class MapMoveCommand extends BaseChatCommand {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(MapMoveCommand.class);
 	private final static Pattern cmdPattern = Pattern.compile("/mm (\\d+) (\\d+)");
 	
-	private final AccountDAO accDao;
 	private final PlayerEntityService playerBestiaService;
 	
 	
 	@Autowired
 	public MapMoveCommand(AccountDAO accDao, PlayerEntityService pbService) {
+		super(accDao);
 		
-		this.accDao = Objects.requireNonNull(accDao);
 		this.playerBestiaService = Objects.requireNonNull(pbService);
 	}
 
@@ -44,17 +43,12 @@ public class MapMoveCommand implements ChatCommand {
 	}
 
 	@Override
-	public void executeCommand(long accId, String text) {
-		
-		final Account acc = accDao.findOne(accId);
-		if(acc == null) {
-			return;
-		}
-		
-		if(acc.getUserLevel().compareTo(UserLevel.GM) < 0) {
-			return;
-		}
-		
+	public UserLevel requiredUserLevel() {
+		return UserLevel.GM;
+	}
+
+	@Override
+	protected void performCommand(Account account, String text) {		
 		// Its okay, now execute the command.
 		final Matcher match = cmdPattern.matcher(text);
 		
@@ -68,7 +62,7 @@ public class MapMoveCommand implements ChatCommand {
 		
 		// TODO Safety checks.
 		
-		final PlayerEntity pbe = playerBestiaService.getActivePlayerEntity(accId);
+		final PlayerEntity pbe = playerBestiaService.getActivePlayerEntity(account.getId());
 		pbe.setPosition(x, y);
 		playerBestiaService.putPlayerEntity(pbe);		
 	}

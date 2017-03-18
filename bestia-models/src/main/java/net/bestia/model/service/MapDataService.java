@@ -32,6 +32,16 @@ public class MapDataService {
 	}
 
 	/**
+	 * Checks if there is a initialized map inside the permanent storage is
+	 * active.
+	 * 
+	 * @return TRUE if the map is initialized. FALSE otherwise.
+	 */
+	public boolean isMapInitialized() {
+		return mapDataDao.count() > 0;
+	}
+
+	/**
 	 * Retrieves and generates the map. It has the dimensions of the given
 	 * coordiantes.
 	 * 
@@ -42,9 +52,8 @@ public class MapDataService {
 	 * @return
 	 */
 	public Map getMap(long x, long y, long width, long height) {
-		
+
 		return null;
 	}
-	
-	
+
 }

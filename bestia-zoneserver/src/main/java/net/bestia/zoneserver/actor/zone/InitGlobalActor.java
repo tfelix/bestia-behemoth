@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.actor.zone;
 
+import java.util.Objects;
+
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -9,6 +11,8 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.DoneMessage;
 import net.bestia.messages.internal.StartInitMessage;
+import net.bestia.model.domain.MapData;
+import net.bestia.model.service.MapDataService;
 import net.bestia.zoneserver.actor.BestiaActor;
 
 /**
@@ -30,10 +34,27 @@ public class InitGlobalActor extends BestiaActor {
 
 	private boolean hasInitialized = false;
 	private int actorWaiting;
+	
+	private final MapDataService mapDataService;
 
-	public InitGlobalActor() {
+	public InitGlobalActor(MapDataService mapDataService) {
 
+		this.mapDataService = Objects.requireNonNull(mapDataService);
 	}
+	
+	@Override
+	public void preStart() throws Exception {
+		LOG.warning("INITGLOBAL STARTED");
+		
+		if(!mapDataService.isMapInitialized()) {
+			initializeMap();
+		}
+	}
+	
+	private void initializeMap() {
+		LOG.info("New map is generated.");
+	}
+	
 
 	@Override
 	public void onReceive(Object message) throws Exception {
