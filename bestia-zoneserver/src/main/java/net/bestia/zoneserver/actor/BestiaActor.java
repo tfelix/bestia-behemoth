@@ -137,7 +137,9 @@ public abstract class BestiaActor extends UntypedActor {
 	 *            The arguments are used by spring to fill in additional ctor
 	 *            arguments.
 	 * @return The created props object.
+	 * @deprecated Use {@link SpringExtension#getSpringProps(akka.actor.ActorSystem, Class, Object...)}
 	 */
+	@Deprecated
 	protected Props getSpringProps(Class<? extends UntypedActor> clazz, Object... args) {
 
 		final SpringExt springExt = SpringExtension.PROVIDER.get(getContext().system());

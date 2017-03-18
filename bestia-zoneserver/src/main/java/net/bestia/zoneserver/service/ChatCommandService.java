@@ -37,6 +37,8 @@ public class ChatCommandService {
 	}
 
 	public void executeChatCommand(long accId, String text) {
+		LOG.debug("Account {} used chat command. Message: {}", accId, text);
+		
 		// First small check if we have potentially a command or if the can stop
 		// right away.
 		if (!isChatCommand(text)) {
@@ -45,9 +47,7 @@ public class ChatCommandService {
 
 		chatCommands.stream()
 				.filter(x -> x.isCommand(text))
-				.forEach(cmd -> {
-					LOG.info("Chat command: {}, Message: {}", cmd.toString(), text);
-					cmd.executeCommand(accId, text);
-				});
+				.findFirst()
+				.ifPresent(cmd -> cmd.executeCommand(accId, text));
 	}
 }

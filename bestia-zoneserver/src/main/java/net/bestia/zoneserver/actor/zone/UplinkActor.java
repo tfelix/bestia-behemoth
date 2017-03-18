@@ -19,7 +19,9 @@ public class UplinkActor extends BestiaActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	@Override
-	public void onReceive(Object arg0) throws Throwable {
+	public void onReceive(Object msg) throws Throwable {
+		
+		LOG.debug("Received incoming message: {}", msg);
 		
 		LOG.info("MESSAGE RECEIVED ####");
 	}

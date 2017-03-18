@@ -33,7 +33,7 @@ abstract class BaseChatCommand implements ChatCommand {
 		}
 		
 		// Check if userlevel matches.
-		if(acc.getUserLevel().compareTo(requiredUserLevel()) < 0) {
+		if(acc.getUserLevel().compareTo(requiredUserLevel()) >= 0) {
 			performCommand(acc, text);
 		}
 	}

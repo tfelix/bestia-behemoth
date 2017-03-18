@@ -42,7 +42,7 @@ public class LogoutActor extends BestiaRoutingActor {
 
 		if (!(ccmsg.getState() == ConnectionState.CONNECTED)) {
 			// Unregister.
-			loginService.login(ccmsg.getAccountId());
+			loginService.logout(ccmsg.getAccountId());
 		}
 	}
 }

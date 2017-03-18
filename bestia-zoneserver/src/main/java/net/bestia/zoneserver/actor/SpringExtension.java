@@ -103,7 +103,7 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 	 *            The Actor class to get the props object for.
 	 * @return The created props object.
 	 */
-	protected Props getSpringProps(ActorSystem system, Class<? extends UntypedActor> clazz) {
+	public static Props getSpringProps(ActorSystem system, Class<? extends UntypedActor> clazz) {
 
 		final SpringExt springExt = SpringExtension.PROVIDER.get(system);
 		final Props props = springExt.props(clazz);
