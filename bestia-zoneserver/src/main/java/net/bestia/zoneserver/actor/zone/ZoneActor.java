@@ -46,7 +46,7 @@ import net.bestia.zoneserver.actor.map.TilesetRequestActor;
 public class ZoneActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-	public static final String NAME = "zoneRoot";
+	public static final String NAME = "zone";
 
 	public ZoneActor() {
 		super(Arrays.asList(DoneMessage.class));

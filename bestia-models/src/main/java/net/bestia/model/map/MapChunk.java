@@ -13,7 +13,8 @@ import net.bestia.model.geometry.Rect;
 
 /**
  * The bestia map consists of multiple small parts. These parts can be requested
- * by the player account and are delivered to the player.
+ * by the player account and are delivered to the player vie network. It
+ * basically encodes the map data.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *

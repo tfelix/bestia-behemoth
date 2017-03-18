@@ -37,7 +37,7 @@ public class ShutdownHookRunner implements CommandLineRunner {
 
 	@Override
 	public void run(String... arg0) throws Exception {
-		LOG.debug("Registering VM shutdown hook.");
+		LOG.info("Registering VM shutdown hook.");
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override

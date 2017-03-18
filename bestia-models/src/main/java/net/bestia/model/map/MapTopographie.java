@@ -10,6 +10,8 @@ import java.util.Set;
  * coordinate placement in order to generate a distance to the target. The node
  * weight is also given by the map diagonal as an estimation.
  * 
+ * @category WORKINPROGRESS
+ * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
