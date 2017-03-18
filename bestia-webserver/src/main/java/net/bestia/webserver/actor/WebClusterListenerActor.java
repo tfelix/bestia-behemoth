@@ -28,6 +28,7 @@ import net.bestia.server.AkkaCluster;
  *
  */
 public class WebClusterListenerActor extends UntypedActor {
+	
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	private final Cluster cluster = Cluster.get(getContext().system());
 

@@ -66,7 +66,6 @@ public class MessageHandlerActor extends UntypedActor {
 
 		this.session = Objects.requireNonNull(session, "Session can not be null.");
 		this.mapper = Objects.requireNonNull(mapper, "Mapper can not be null.");
-
 	}
 
 	/**
@@ -140,6 +139,7 @@ public class MessageHandlerActor extends UntypedActor {
 				msg = msg.createNewInstance(accountId);
 
 				LOG.debug("Client sending: {}.", msg.toString());
+				
 				mediator.tell(getClusterMessage(msg), getSelf());
 
 			} catch (IOException e) {

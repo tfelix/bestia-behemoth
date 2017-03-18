@@ -13,10 +13,12 @@ import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorSystem;
 import akka.actor.Address;
+import akka.actor.Props;
 import akka.cluster.Cluster;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.DiscoveryService;
 import net.bestia.webserver.actor.ActorSystemTerminator;
+import net.bestia.webserver.actor.UplinkActor;
 import net.bestia.webserver.actor.WebClusterListenerActor;
 
 /**
@@ -59,6 +61,8 @@ public class AkkaConfiguration {
 
 		// Subscribe for dead letter checking and domain events.
 		system.actorOf(WebClusterListenerActor.props(terminator));
+		
+		system.actorOf(Props.create(UplinkActor.class), "uplinkService");
 
 		return system;
 	}

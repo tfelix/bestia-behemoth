@@ -22,6 +22,7 @@ import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.SpawnActorHelper;
+import net.bestia.zoneserver.actor.UplinkActor;
 import net.bestia.zoneserver.actor.battle.AttackPlayerUseActor;
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
@@ -88,6 +89,7 @@ public class ZoneActor extends BestiaRoutingActor {
 		
 		// === DEVELOPMENT ===
 		createActor(SpawnActorHelper.class);
+		createActor(UplinkActor.class, "uplink");
 
 		// Setup the init actor singelton for creation of the system.
 		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
