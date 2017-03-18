@@ -19,4 +19,11 @@ public final class AkkaCluster {
 	private AkkaCluster() {
 		// no op.
 	}
+	
+	public static String getNodeName(String... names) {
+		
+		String joinedNames = String.join("/", names);
+		
+		return String.format("/user/%s", joinedNames);
+	}
 }
