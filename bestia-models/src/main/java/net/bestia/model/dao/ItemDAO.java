@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import net.bestia.model.domain.Item;
 
-@Repository("itemDao")
+@Repository
 public interface ItemDAO extends CrudRepository<Item, Integer> {
 
 	/**

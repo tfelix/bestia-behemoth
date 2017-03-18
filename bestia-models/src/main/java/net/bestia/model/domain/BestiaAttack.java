@@ -38,9 +38,9 @@ public class BestiaAttack implements Serializable {
 	private int id;
 
 	@ManyToOne
-	@JoinColumn(name = "ATTACK_ID", nullable = false, table = "attacks")
+	@JoinColumn(name = "ATTACK_ID", nullable = false)
 	@JsonProperty("a")
-	private Attack attack;
+	private AttackImpl attack;
 
 	@ManyToOne
 	@JoinColumn(name = "BESTIA_ID", nullable = false)

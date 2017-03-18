@@ -1,13 +1,7 @@
 package net.bestia.model.service;
 
-import net.bestia.model.dao.AccountDAO;
-import net.bestia.model.dao.ItemDAO;
-import net.bestia.model.dao.PlayerItemDAO;
-import net.bestia.model.domain.Account;
-import net.bestia.model.domain.Item;
-import net.bestia.model.domain.PlayerItem;
-
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.dao.ItemDAO;
+import net.bestia.model.dao.PlayerItemDAO;
+import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Item;
+import net.bestia.model.domain.PlayerItem;
 
 /**
  * This service kind of manages the user relationship with the inventory. Since
@@ -35,23 +36,16 @@ public class InventoryService {
 
 	private final static Logger log = LoggerFactory.getLogger(InventoryService.class);
 
-	private PlayerItemDAO playerItemDao;
-	private AccountDAO accountDao;
-	private ItemDAO itemDao;
+	private final PlayerItemDAO playerItemDao;
+	private final AccountDAO accountDao;
+	private final ItemDAO itemDao;
 
 	@Autowired
-	public void setPlayerItemDao(PlayerItemDAO playerItemDao) {
-		this.playerItemDao = playerItemDao;
-	}
-
-	@Autowired
-	public void setAccountDao(AccountDAO accountDao) {
-		this.accountDao = accountDao;
-	}
-
-	@Autowired
-	public void setItemDao(ItemDAO itemDao) {
-		this.itemDao = itemDao;
+	public InventoryService(PlayerItemDAO playerItemDao, AccountDAO accDao, ItemDAO itemDao) {
+		
+		this.playerItemDao = Objects.requireNonNull(playerItemDao);
+		this.accountDao = Objects.requireNonNull(accDao);
+		this.itemDao = Objects.requireNonNull(itemDao);
 	}
 
 	/**

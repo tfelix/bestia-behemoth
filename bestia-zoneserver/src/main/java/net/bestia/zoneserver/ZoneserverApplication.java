@@ -13,9 +13,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  *
  */
 @SpringBootApplication
-@EnableJpaRepositories("net.bestia.model")
+@EnableJpaRepositories("net.bestia.model.dao")
 @EntityScan("net.bestia.model.domain")
-@ComponentScan(basePackages = { "net.bestia.model.service", "net.bestia.zoneserver" })
+@ComponentScan(basePackages = { "net.bestia" })
 public class ZoneserverApplication {
 
 	/**
