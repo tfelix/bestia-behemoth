@@ -2,6 +2,8 @@ package net.bestia.zoneserver.service;
 
 import java.util.Collection;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +15,10 @@ import akka.actor.Address;
 import net.bestia.zoneserver.configuration.CacheConfiguration;
 
 /**
- * This service is for managing the connections to the zone server. We must have
- * several possibilities to add and remove client connection from this system.
+ * This service is for managing the connections to the zone server. We must keep
+ * track on which frontend which user is connected to to send directed messages
+ * to it. We also keep track of all players from a given webserver if this
+ * webserver goes offline we can desapwn all the player resources on the server.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -22,6 +26,7 @@ import net.bestia.zoneserver.configuration.CacheConfiguration;
 @Service
 public class ConnectionService {
 
+	private final static Logger LOG = LoggerFactory.getLogger(ConnectionService.class);
 	private final CacheManager<Long, ActorPath> clientCache;
 	private final MultiMap<String, Long> webserverCache;
 
@@ -35,12 +40,13 @@ public class ConnectionService {
 	}
 
 	/**
-	 * Adds a client for the given actor path
+	 * Adds a client to the cache for the given actor path.
 	 * 
 	 * @param accId
 	 * @param path
 	 */
 	public void addClient(long accId, ActorPath path) {
+		LOG.trace("Adding client id: %d connection: %s", accId, path);
 		clientCache.set(accId, path);
 		webserverCache.put(path.address().toString(), accId);
 	}
@@ -63,6 +69,7 @@ public class ConnectionService {
 	 *            Account id to remove.
 	 */
 	public void removeClient(long accId) {
+		LOG.trace("Removing client id: %d connection.", accId);
 		final ActorPath ref = clientCache.get(accId);
 		clientCache.remove(accId);
 		webserverCache.remove(ref.address().toString(), accId);
@@ -83,7 +90,8 @@ public class ConnectionService {
 	 * 
 	 * @param accId
 	 *            The account id of the client.
-	 * @return The path to the webserver who holds the connection.
+	 * @return The path to the webserver who holds the connection. Or NULL if no
+	 *         suitable connection is found.
 	 */
 	public ActorPath getPath(long accId) {
 		return clientCache.get(accId);

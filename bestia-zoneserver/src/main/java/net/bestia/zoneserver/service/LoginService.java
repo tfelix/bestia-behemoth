@@ -31,6 +31,7 @@ public class LoginService {
 
 	private final RuntimeConfigurationService config;
 	private final AccountDAO accountDao;
+	private final ConnectionService connectionService;
 	private final PlayerBestiaService playerBestiaService;
 	private final PlayerEntityService playerEntityService;
 
@@ -38,13 +39,14 @@ public class LoginService {
 	public LoginService(RuntimeConfigurationService config,
 			AccountDAO accountDao,
 			PlayerBestiaService playerBestiaService,
-			PlayerEntityService playerEntityService) {
+			PlayerEntityService playerEntityService,
+			ConnectionService connectionService) {
 
 		this.config = Objects.requireNonNull(config);
 		this.accountDao = Objects.requireNonNull(accountDao);
 		this.playerBestiaService = Objects.requireNonNull(playerBestiaService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
-
+		this.connectionService = Objects.requireNonNull(connectionService);
 	}
 
 	/**
@@ -68,7 +70,7 @@ public class LoginService {
 				.map(x -> new PlayerEntity(accId, x))
 				.collect(Collectors.toSet());
 
-		LOG.debug(String.format("Spawning %d player bestias for acc id: %d", bestias.size(), accId));
+		LOG.debug(String.format("Login in acc: %d. Spawning %d player bestias.", accId, bestias.size()));
 		playerEntityService.putPlayerEntities(bestias);
 
 		// Set the position in order to send updates to the client.
@@ -94,8 +96,31 @@ public class LoginService {
 		return accountDao.findOne(accId);
 	}
 
+	/**
+	 * Logouts a player. Also cleans up all the data and persists it back to the
+	 * database.
+	 * 
+	 * @param accId
+	 *            The account id to logout.
+	 */
 	public void logout(long accId) {
-		// TODO Auto-generated method stub
+		
+		final Account acc = accountDao.findOne(accId);
+		
+		if(acc == null) {
+			LOG.error("Can not logout account id: %d. ID does not exist.", accId);
+			return;
+		}
+		
+		// Unregister.
+		LOG.debug("Logout acc id: {}.", accId);
+		connectionService.removeClient(accId);
+
+		final Set<PlayerEntity> bestias = playerEntityService.getPlayerEntities(accId);
+		playerEntityService.removePlayerBestias(accId);
+
+		Set<PlayerBestia> pbs = bestias.stream().map(x -> x.restorePlayerBestia(acc)).collect(Collectors.toSet());
+		playerBestiaService.saveBestias(pbs);
 	}
 
 	/**

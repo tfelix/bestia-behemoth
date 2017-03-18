@@ -31,6 +31,10 @@ import scala.concurrent.duration.Duration;
 @Scope("prototype")
 public class MapGeneratorMasterActor extends BestiaActor {
 
+	/**
+	 * Interface implementation to talk to the clients.
+	 *
+	 */
 	private class AkkaMapGenClient implements MasterCom {
 
 		private final ActorRef generatorNode;
