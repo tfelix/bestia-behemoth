@@ -5,10 +5,12 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractExtensionId;
 import akka.actor.Actor;
+import akka.actor.ActorSystem;
 import akka.actor.Deploy;
 import akka.actor.ExtendedActorSystem;
 import akka.actor.Extension;
 import akka.actor.Props;
+import akka.actor.UntypedActor;
 
 /**
  * An Akka extension to provide access to the Spring manages Actor Beans.
@@ -73,5 +75,38 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 			return Props.create(SpringActorProducer.class,
 					applicationContext, actorBeanClass, args).withDeploy(Deploy.local());
 		}
+	}
+	
+	/**
+	 * Small helper method to get props via the spring extension (and thus can
+	 * use dependency injection).
+	 * 
+	 * @param clazz
+	 *            The Actor class to get the props object for.
+	 * @param args
+	 *            The arguments are used by spring to fill in additional ctor
+	 *            arguments.
+	 * @return The created props object.
+	 */
+	public static Props getSpringProps(ActorSystem system, Class<? extends UntypedActor> clazz, Object... args) {
+
+		final SpringExt springExt = SpringExtension.PROVIDER.get(system);
+		final Props props = springExt.props(clazz, args);
+		return props;
+	}
+
+	/**
+	 * Small helper method to get props via the spring extension (and thus can
+	 * use dependency injection).
+	 * 
+	 * @param clazz
+	 *            The Actor class to get the props object for.
+	 * @return The created props object.
+	 */
+	protected Props getSpringProps(ActorSystem system, Class<? extends UntypedActor> clazz) {
+
+		final SpringExt springExt = SpringExtension.PROVIDER.get(system);
+		final Props props = springExt.props(clazz);
+		return props;
 	}
 }

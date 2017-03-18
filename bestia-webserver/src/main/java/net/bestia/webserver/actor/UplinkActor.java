@@ -1,10 +1,9 @@
 package net.bestia.webserver.actor;
 
-import akka.actor.UntypedActor;
-import akka.routing.FromConfig;
 import akka.actor.ActorRef;
 import akka.actor.Props;
-import akka.actor.TypedActor.TypedActor;
+import akka.actor.UntypedActor;
+import akka.routing.FromConfig;
 
 public class UplinkActor extends UntypedActor {
 
@@ -14,7 +13,7 @@ public class UplinkActor extends UntypedActor {
 	ActorRef workerRouter = getContext().actorOf(
 			FromConfig.getInstance().props(Props.empty()),
 			"uplinkRouter");
-	
+
 	@Override
 	public void preStart() throws Exception {
 		// TODO Auto-generated method stub
@@ -24,7 +23,7 @@ public class UplinkActor extends UntypedActor {
 	@Override
 	public void onReceive(Object msg) throws Throwable {
 		// TODO Auto-generated method stub
-		
+
 		workerRouter.tell("Hello World", getSelf());
 
 	}
