@@ -70,7 +70,7 @@ public class LoginService {
 				.map(x -> new PlayerEntity(accId, x))
 				.collect(Collectors.toSet());
 
-		LOG.debug(String.format("Login in acc: %d. Spawning %d player bestias.", accId, bestias.size()));
+		LOG.debug(String.format("Login in acc: {}. Spawning {} player bestias.", accId, bestias.size()));
 		playerEntityService.putPlayerEntities(bestias);
 
 		// Set the position in order to send updates to the client.
@@ -84,8 +84,8 @@ public class LoginService {
 				.filter(x -> x.getPlayerBestiaId() == master.getId())
 				.findAny();
 
-		if (masterEntity.isPresent()) {
-			LOG.error("Account {} has no bestia master! Aborting login process.");
+		if (!masterEntity.isPresent()) {
+			LOG.error("Account {} has no bestia master! Aborting login process.", accId);
 			logout(accId);
 			throw new IllegalStateException("Account has no bestia master. Aborting.");
 		}

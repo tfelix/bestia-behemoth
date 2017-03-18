@@ -69,8 +69,14 @@ public class ConnectionService {
 	 *            Account id to remove.
 	 */
 	public void removeClient(long accId) {
-		LOG.trace("Removing client id: %d connection.", accId);
+		LOG.trace("Removing client id: {} connection.", accId);
 		final ActorPath ref = clientCache.get(accId);
+		
+		if(ref == null) {
+			// This might happen if this client is actually not connected.
+			return;
+		}
+		
 		clientCache.remove(accId);
 		webserverCache.remove(ref.address().toString(), accId);
 	}
