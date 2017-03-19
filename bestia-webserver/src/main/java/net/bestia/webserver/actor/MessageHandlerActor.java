@@ -140,6 +140,8 @@ public class MessageHandlerActor extends UntypedActor {
 
 				LOG.debug("Client sending: {}.", msg.toString());
 				
+				getContext().system().actorSelection("/user/uplinkService").tell(msg, getSelf());
+				
 				mediator.tell(getClusterMessage(msg), getSelf());
 
 			} catch (IOException e) {

@@ -88,7 +88,6 @@ public class ZoneActor extends BestiaRoutingActor {
 		
 		// === DEVELOPMENT ===
 		createActor(SpawnActorHelper.class);
-		createActor(UplinkActor.class, "uplink");
 
 		// Setup the init actor singelton for creation of the system.
 		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);

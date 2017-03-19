@@ -1,10 +1,15 @@
 package net.bestia.zoneserver.actor;
 
+import java.lang.reflect.Field;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractExtensionId;
 import akka.actor.Actor;
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Deploy;
 import akka.actor.ExtendedActorSystem;
@@ -20,6 +25,9 @@ import akka.actor.UntypedActor;
  */
 @Component
 public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringExt> {
+
+	private static final Logger LOG = LoggerFactory.getLogger(SpringExtension.class);
+
 	/**
 	 * The identifier used to access the SpringExtension.
 	 */
@@ -76,7 +84,7 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 					applicationContext, actorBeanClass, args).withDeploy(Deploy.local());
 		}
 	}
-	
+
 	/**
 	 * Small helper method to get props via the spring extension (and thus can
 	 * use dependency injection).
@@ -108,5 +116,34 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 		final SpringExt springExt = SpringExtension.PROVIDER.get(system);
 		final Props props = springExt.props(clazz);
 		return props;
+	}
+
+	public static ActorRef actorOf(ActorSystem system, Class<? extends UntypedActor> clazz) {
+
+		// Try to create the class with the name field.
+		try {
+			final Field f = clazz.getField("NAME");
+			final Class<?> t = f.getType();
+			if (t == String.class) {
+				return actorOf(system, clazz, (String) f.get(null));
+			}
+		} catch (Exception e) {
+			// no op.
+		}
+
+		return actorOf(system, clazz, null);
+	}
+
+	public static ActorRef actorOf(ActorSystem system, Class<? extends UntypedActor> clazz, String name) {
+
+		final Props props = getSpringProps(system, clazz);
+		
+		LOG.debug("Creating actor: {} with props: {}", clazz, props);
+
+		if (name == null) {
+			return system.actorOf(props);
+		} else {
+			return system.actorOf(props, name);
+		}
 	}
 }

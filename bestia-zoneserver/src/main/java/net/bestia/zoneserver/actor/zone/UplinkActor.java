@@ -16,6 +16,8 @@ import net.bestia.zoneserver.actor.BestiaActor;
 @Scope("prototype")
 public class UplinkActor extends BestiaActor {
 	
+	public final static String NAME = "uplink";
+	
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	@Override

@@ -13,6 +13,7 @@ import akka.actor.Props;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
+import net.bestia.zoneserver.actor.zone.UplinkActor;
 import net.bestia.zoneserver.actor.zone.ZoneActor;
 
 /**
@@ -27,14 +28,13 @@ public class ZoneStarter implements CommandLineRunner {
 	private static final Logger LOG = LoggerFactory.getLogger(ZoneStarter.class);
 
 	private final ActorSystem system;
-	
+
 	@Autowired
 	public ZoneStarter(ActorSystem system) {
-		
+
 		this.system = Objects.requireNonNull(system);
-		
+
 	}
-	
 
 	@Override
 	public void run(String... strings) throws Exception {
@@ -42,13 +42,12 @@ public class ZoneStarter implements CommandLineRunner {
 
 		// Spawn the root actor of the system. Bootstrapping via spring actor
 		// because of automatic injections.
+
 		Props props = SpringExtension.getSpringProps(system, ZoneActor.class);
 		system.actorOf(props, AkkaCluster.CLUSTER_PUBSUB_TOPIC);
-		
-		props = SpringExtension.getSpringProps(system, MapGeneratorClientActor.class);
-		system.actorOf(props, MapGeneratorClientActor.NAME);
-		
-		props = SpringExtension.getSpringProps(system, MapGeneratorMasterActor.class);
-		system.actorOf(props, MapGeneratorMasterActor.NAME);
+
+		SpringExtension.actorOf(system, MapGeneratorClientActor.class);
+		SpringExtension.actorOf(system, MapGeneratorMasterActor.class);
+		SpringExtension.actorOf(system, UplinkActor.class);
 	}
 }
