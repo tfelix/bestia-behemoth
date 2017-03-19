@@ -31,7 +31,7 @@ public class UplinkActor extends UntypedActor {
 	@Override
 	public void onReceive(Object msg) throws Throwable {
 		LOG.info("Sending to uplink router.");
-		workerRouter.tell(new ConsistentHashableEnvelope(msg, msg.hashCode()), getSelf());
+		workerRouter.tell(new ConsistentHashableEnvelope(msg, msg), getSender());
 
 	}
 

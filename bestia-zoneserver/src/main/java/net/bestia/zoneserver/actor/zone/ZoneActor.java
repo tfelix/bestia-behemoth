@@ -13,8 +13,6 @@ import akka.cluster.singleton.ClusterSingletonManager;
 import akka.cluster.singleton.ClusterSingletonManagerSettings;
 import akka.cluster.singleton.ClusterSingletonProxy;
 import akka.cluster.singleton.ClusterSingletonProxySettings;
-import akka.event.Logging;
-import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.DoneMessage;
 import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
@@ -42,7 +40,6 @@ import net.bestia.zoneserver.actor.map.TilesetRequestActor;
 @Scope("prototype")
 public class ZoneActor extends BestiaRoutingActor {
 
-	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "zone";
 
 	public ZoneActor() {

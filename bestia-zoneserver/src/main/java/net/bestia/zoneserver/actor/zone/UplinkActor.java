@@ -3,11 +3,11 @@ package net.bestia.zoneserver.actor.zone;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.ActorRef;
+import akka.actor.ActorSelection;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.actor.SpringExtension;
 
 /**
  * The uplink actor is a basic entrypoint 
@@ -22,17 +22,18 @@ public class UplinkActor extends BestiaActor {
 	
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	
-	private final ActorRef zone;
+	private final ActorSelection zone;
 	
 	public UplinkActor() {
 		
-		zone = SpringExtension.actorOf(getContext().system(), ZoneActor.class);
+		zone = getContext().actorSelection(AkkaCluster.getNodeName(ZoneActor.NAME));
 	}
 
 	@Override
 	public void onReceive(Object msg) throws Throwable {
 		
 		LOG.debug("Received incoming message: {}", msg);
+		//zone.tell(msg, getSender());
 		zone.tell(msg, getSender());
 	}
 
