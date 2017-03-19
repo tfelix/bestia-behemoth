@@ -11,6 +11,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Address;
 import akka.actor.Props;
@@ -62,9 +63,12 @@ public class AkkaConfiguration {
 		// Subscribe for dead letter checking and domain events.
 		system.actorOf(WebClusterListenerActor.props(terminator));
 		
-		system.actorOf(Props.create(UplinkActor.class), "uplinkService");
-
 		return system;
+	}
+	
+	@Bean
+	public ActorRef uplinkRouter(ActorSystem system) {
+		return system.actorOf(Props.create(UplinkActor.class), UplinkActor.NAME);
 	}
 
 	/**

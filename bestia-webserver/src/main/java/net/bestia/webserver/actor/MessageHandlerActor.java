@@ -14,8 +14,6 @@ import akka.actor.Deploy;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
-import akka.cluster.pubsub.DistributedPubSub;
-import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
@@ -26,7 +24,6 @@ import net.bestia.messages.internal.ClientConnectionStatusMessage.ConnectionStat
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
-import net.bestia.server.AkkaCluster;
 
 /**
  * This actor will handle all the message exchange with the websockt. When a
@@ -43,8 +40,7 @@ public class MessageHandlerActor extends UntypedActor {
 
 	private final WebSocketSession session;
 	private final ObjectMapper mapper;
-
-	private final ActorRef mediator = DistributedPubSub.get(getContext().system()).mediator();
+	private ActorRef uplinkRouter;
 
 	private boolean isAuthenticated = false;
 
@@ -62,10 +58,11 @@ public class MessageHandlerActor extends UntypedActor {
 	 * @param mapper
 	 *            An jackson json mapper.
 	 */
-	public MessageHandlerActor(WebSocketSession session, ObjectMapper mapper) {
+	public MessageHandlerActor(WebSocketSession session, ObjectMapper mapper, ActorRef uplinkRouter) {
 
 		this.session = Objects.requireNonNull(session, "Session can not be null.");
 		this.mapper = Objects.requireNonNull(mapper, "Mapper can not be null.");
+		this.uplinkRouter = Objects.requireNonNull(uplinkRouter);
 	}
 
 	/**
@@ -75,12 +72,12 @@ public class MessageHandlerActor extends UntypedActor {
 	 * @param mapper
 	 * @return
 	 */
-	public static Props props(WebSocketSession session, ObjectMapper mapper) {
+	public static Props props(WebSocketSession session, ObjectMapper mapper, ActorRef uplinkRouter) {
 		return Props.create(new Creator<MessageHandlerActor>() {
 			private static final long serialVersionUID = 1L;
 
 			public MessageHandlerActor create() throws Exception {
-				return new MessageHandlerActor(session, mapper);
+				return new MessageHandlerActor(session, mapper, uplinkRouter);
 			}
 		}).withDeploy(Deploy.local());
 	}
@@ -120,7 +117,7 @@ public class MessageHandlerActor extends UntypedActor {
 
 				// Send the LoginRequest to the cluster.
 				// Somehow centralize the names of the actors.
-				mediator.tell(getClusterMessage(loginReqMsg), getSelf());
+				uplinkRouter.tell(loginReqMsg, getSelf());
 
 			} catch (IOException e) {
 				// Wrong message. Terminate connection.
@@ -139,10 +136,7 @@ public class MessageHandlerActor extends UntypedActor {
 				msg = msg.createNewInstance(accountId);
 
 				LOG.debug("Client sending: {}.", msg.toString());
-				
-				getContext().system().actorSelection("/user/uplinkService").tell(msg, getSelf());
-				
-				mediator.tell(getClusterMessage(msg), getSelf());
+				uplinkRouter.tell(msg, getSelf());
 
 			} catch (IOException e) {
 				LOG.warning("Malformed message. Client: {}, Payload: {}, Error: {}.",
@@ -154,6 +148,10 @@ public class MessageHandlerActor extends UntypedActor {
 		}
 	}
 
+	/**
+	 * Either stores the connection details if server accepted the connection or
+	 * close the websocket.
+	 */
 	private void handleLoginAuth(LoginAuthReplyMessage msg) throws Exception {
 		// Check how the login state was given.
 		if (msg.getLoginState() == LoginState.ACCEPTED) {
@@ -190,7 +188,7 @@ public class MessageHandlerActor extends UntypedActor {
 					accountId,
 					ConnectionState.DISCONNECTED,
 					getSelf());
-			mediator.tell(getClusterMessage(ccsmsg), getSelf());
+			uplinkRouter.tell(ccsmsg, ActorRef.noSender());
 		}
 
 		// If the websocket session is still opened and we are terminated from
@@ -199,15 +197,4 @@ public class MessageHandlerActor extends UntypedActor {
 			session.close();
 		}
 	}
-
-	/**
-	 * Generates a clustered message to the pub sub mediator in the akka
-	 * cluster. (message gets send to the distributed cluster).
-	 * 
-	 * @return The message for the cluster.
-	 */
-	private Object getClusterMessage(Object msg) {
-		return new DistributedPubSubMediator.Publish(AkkaCluster.CLUSTER_PUBSUB_TOPIC, msg);
-	}
-
 }

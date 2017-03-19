@@ -33,17 +33,15 @@ public class BestiaSocketHandler extends TextWebSocketHandler {
 	 * One mapper for all actors.
 	 */
 	private final ObjectMapper mapper = new ObjectMapper();
+	
 	private ActorSystem actorSystem;
-
-	/**
-	 * Sets the actor system.
-	 * 
-	 * @param actorSystem
-	 *            The used actor system.
-	 */
+	private final ActorRef uplinkRouter;
+	
 	@Autowired
-	public void setActorSystem(ActorSystem actorSystem) {
+	public BestiaSocketHandler(ActorSystem actorSystem, ActorRef uplinkRouter) {
+		
 		this.actorSystem = actorSystem;
+		this.uplinkRouter = uplinkRouter;
 	}
 
 	@Override
@@ -73,7 +71,8 @@ public class BestiaSocketHandler extends TextWebSocketHandler {
 
 		// Setup the actor to access the zone server cluster.
 		final String actorName = String.format("socket-%s", session.getId());
-		final ActorRef messageActor = actorSystem.actorOf(MessageHandlerActor.props(session, mapper), actorName);
+		final ActorRef messageActor = actorSystem.actorOf(MessageHandlerActor.props(session, mapper, uplinkRouter), actorName);
+		
 		session.getAttributes().put(ATTRIBUTE_ACTOR_REF, messageActor);
 	}
 
