@@ -113,10 +113,12 @@ public class MapBaseParameter implements Serializable {
 	 *            The number of players to generate the base parameter for.
 	 * @return
 	 */
-	public static MapBaseParameter fromAverageUserCount(int user) {
+	public static MapBaseParameter fromAverageUserCount(int user, String mapName) {
 
 		final Builder builder = new Builder();
 		final ThreadLocalRandom rand = ThreadLocalRandom.current();
+		
+		builder.setName(mapName);
 
 		double area = user * 0.5;
 		float waterLandRatio = rand.nextInt(40, 60) / 100f;

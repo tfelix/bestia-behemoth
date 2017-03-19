@@ -11,7 +11,8 @@ import org.springframework.stereotype.Component;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import net.bestia.server.AkkaCluster;
-import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
+import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
+import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 import net.bestia.zoneserver.actor.zone.ZoneActor;
 
 /**
@@ -41,8 +42,13 @@ public class ZoneStarter implements CommandLineRunner {
 
 		// Spawn the root actor of the system. Bootstrapping via spring actor
 		// because of automatic injections.
-		final SpringExt ext = SpringExtension.PROVIDER.get(system);
-		final Props props = ext.props(ZoneActor.class);
+		Props props = SpringExtension.getSpringProps(system, ZoneActor.class);
 		system.actorOf(props, AkkaCluster.CLUSTER_PUBSUB_TOPIC);
+		
+		props = SpringExtension.getSpringProps(system, MapGeneratorClientActor.class);
+		system.actorOf(props, MapGeneratorClientActor.NAME);
+		
+		props = SpringExtension.getSpringProps(system, MapGeneratorMasterActor.class);
+		system.actorOf(props, MapGeneratorMasterActor.NAME);
 	}
 }

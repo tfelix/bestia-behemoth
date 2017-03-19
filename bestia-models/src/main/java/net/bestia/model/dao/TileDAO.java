@@ -33,7 +33,7 @@ public interface TileDAO extends CrudRepository<Tile, Long> {
 	 * @param x
 	 *            Start x
 	 * @param y
-	 *            Start y
+	 *            Start yf
 	 * @param width
 	 *            Width
 	 * @param height

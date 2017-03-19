@@ -22,6 +22,8 @@ import akka.event.LoggingAdapter;
 import de.tfelix.bestia.worldgen.description.MapDescription;
 import de.tfelix.bestia.worldgen.io.MasterCom;
 import de.tfelix.bestia.worldgen.map.MapPart;
+import de.tfelix.bestia.worldgen.message.WorkstateMessage;
+import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.map.MapBaseParameter;
 import net.bestia.zoneserver.service.MapGeneratorMasterService;
@@ -66,6 +68,7 @@ public class MapGeneratorMasterActor extends BestiaActor {
 	private final static String START_MSG = "start";
 
 	private final MapGeneratorMasterService mapGenService;
+	private MapBaseParameter mapBaseParameter = null;
 
 	private int currentLookupIdent = 0;
 	private Set<ActorRef> availableNodes = new HashSet<>();
@@ -82,8 +85,13 @@ public class MapGeneratorMasterActor extends BestiaActor {
 		if (msg instanceof MapBaseParameter) {
 
 			LOG.info("Received map base parameter. Starting to generate map. ({})", msg);
+			mapBaseParameter = (MapBaseParameter) msg;
 			queryGeneratorNodes();
 
+		} else if(msg instanceof WorkstateMessage) {
+			
+			mapGenService.consumeNodeMessage((WorkstateMessage) msg);
+			
 		} else if (msg instanceof ActorIdentity) {
 
 			addToAvailableNodes((ActorIdentity) msg);
@@ -94,8 +102,13 @@ public class MapGeneratorMasterActor extends BestiaActor {
 			List<MasterCom> nodes = availableNodes.stream()
 					.map(ref -> new AkkaMapGenClient(ref))
 					.collect(Collectors.toList());
+			
+			if(nodes.size() == 0) {
+				LOG.warning("No other nodes found to generate the map. Aborting.");
+				return;
+			}
 
-			mapGenService.generateMap((MapBaseParameter) msg, nodes);
+			mapGenService.generateMap(mapBaseParameter, nodes);
 		}
 
 	}
@@ -116,11 +129,16 @@ public class MapGeneratorMasterActor extends BestiaActor {
 		}
 	}
 
+	/**
+	 * Tries to lookup all generator nodes in the system.
+	 */
 	private void queryGeneratorNodes() {
 		LOG.debug("Quering available map generator nodes.");
+	
 		availableNodes.clear();
 		currentLookupIdent = ThreadLocalRandom.current().nextInt();
-		final ActorSelection selection = context().actorSelection("user/" + MapGeneratorClientActor.NAME);
+		final ActorSelection selection = context()
+				.actorSelection(AkkaCluster.getNodeName(MapGeneratorClientActor.NAME));
 		selection.tell(new Identify(currentLookupIdent), getSelf());
 
 		// Wait three seconds until generation starts.

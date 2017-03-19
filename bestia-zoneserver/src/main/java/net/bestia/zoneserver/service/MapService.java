@@ -124,7 +124,8 @@ public class MapService {
 			final Rect area = MapChunk.getWorldRect(point);
 			// -1 because from to coordinates are on less then height (start to
 			// count at the start coordiante).
-			List<Tile> tiles = tileDao.getTilesInRange(area.getX(), area.getY(), area.getHeight() - 1,
+			List<Tile> tiles = tileDao.getTilesInRange(area.getX(), area.getY(), 
+					area.getHeight() - 1,
 					area.getWidth() - 1);
 
 			// Now filter the tiles for the ground layer.

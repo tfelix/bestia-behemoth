@@ -12,6 +12,7 @@ public final class MapGeneratorConstants {
 	public final static String HEIGHT_MAP = "height";
 	public final static String MAGIC_MAP = "magic";
 	public final static String POPULATION_MAP = "population";
+	public final static String TILE_MAP = "tiles";
 
 	public final static String WORK_SCALE = "scale_height";
 	public final static String WORK_GEN_BIOMES = "gen_biomes";

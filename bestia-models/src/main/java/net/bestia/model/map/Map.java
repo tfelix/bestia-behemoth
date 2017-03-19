@@ -160,8 +160,48 @@ public class Map {
 		return viewArea;
 	}
 
-	public float getWalkspeed(long x, long y) {
-		return 1.0f;
+	/**
+	 * Returns the walkspeed of a given x and y coordiante. The walkspeed will
+	 * be 0 if the tile does not exist inside the {@link Map}.
+	 * 
+	 * @param x
+	 *            X coordinate.
+	 * @param y
+	 *            Y coordinate.
+	 * @return The current walkspeed on this tile.
+	 */
+	public Walkspeed getWalkspeed(long x, long y) {
+
+		// Find the walkspeed on the tile.
+		final int gid = getGid(x, y);
+
+		if (gid == 0) {
+			return Walkspeed.fromInt(0);
+		}
+
+		return getTileset(gid)
+				.map(ts -> Walkspeed.fromInt(ts.getProperties(gid).getWalkspeed()))
+				.orElse(Walkspeed.fromInt(0));
+	}
+
+	/**
+	 * Finds the tile id.
+	 * 
+	 * @return
+	 */
+	private int getGid(long x, long y) {
+		// Now check the layers.
+		final long cx = x - rect.getX();
+		final long cy = y - rect.getY();
+
+		final int index = (int) (cy * rect.getWidth() + cx);
+		final Integer gid = groundLayer.get(index);
+
+		if (gid == null) {
+			return 0;
+		}
+
+		return gid;
 	}
 
 	/**
@@ -180,11 +220,11 @@ public class Map {
 			throw new IndexOutOfBoundsException("X or/and Y does not lie inside the map rectangle.");
 		}
 
-		// Now check the layers.
-		final long x = p.getX() - rect.getX();
-		final long y = p.getY() - rect.getY();
-		int index = (int) (y * rect.getWidth() + x);
-		final int gid = groundLayer.get(index);
+		final int gid = getGid(p.getX(), p.getY());
+
+		if (gid == 0) {
+			return false;
+		}
 
 		final boolean groundWalkable = getTileset(gid)
 				.map(ts -> ts.getProperties(gid).isWalkable())
@@ -259,6 +299,7 @@ public class Map {
 
 	/**
 	 * Checks if the chunks lie within the range reachable from the given point.
+	 * 
 	 * @TODO Diese Methode sollte eigentlich eher im MapService liegen.
 	 * @param pos
 	 *            Current position of the player.

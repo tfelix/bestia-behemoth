@@ -14,6 +14,7 @@ import de.tfelix.bestia.worldgen.MapMasterCallbacks;
 import de.tfelix.bestia.worldgen.MapMasterGenerator;
 import de.tfelix.bestia.worldgen.description.Map2DDescription;
 import de.tfelix.bestia.worldgen.io.MasterCom;
+import de.tfelix.bestia.worldgen.message.WorkstateMessage;
 import de.tfelix.bestia.worldgen.random.NoiseVectorBuilder;
 import de.tfelix.bestia.worldgen.random.SimplexNoiseProvider;
 import net.bestia.model.dao.MapDataDAO;
@@ -47,7 +48,7 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 			throw new IllegalStateException("Map generation is currently in progress.");
 		}
 
-		LOG.info("Generating world with: %s", params.toString());
+		LOG.info("Generating world with: {}", params.toString());
 
 		LOG.info("Dropping old world from database...");
 		// TODO Das droppen ggf in eigenen service auslagern, da es noch
@@ -87,6 +88,23 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 		LOG.debug("Sending map configuration to all nodes.");
 
 		masterGenerator.start(descBuilder.build());
+	}
+
+	/**
+	 * Helper method which will give the master the current state of the nodes.
+	 * The {@link MapMasterGenerator} class will take care if keeping track
+	 * about the origins.
+	 * 
+	 * @param workstate
+	 *            The workstate reported by the client.
+	 */
+	public void consumeNodeMessage(WorkstateMessage workstate) {
+		if (masterGenerator == null) {
+			LOG.warn("Inbound message even if no map generation is in place.");
+			return;
+		}
+
+		masterGenerator.consumeNodeMessage(workstate);
 	}
 
 	@Override

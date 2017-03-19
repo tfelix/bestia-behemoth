@@ -309,24 +309,11 @@ export default class Chat {
 	 */
 	addMessage(msg) {
 
-		var scrollBottom = false;
-		var scrollPos = this.chatEle.scrollTop + this.chatEle.clientHeight;
-		// Check bottom.
-		if (scrollPos === this.chatEle.scrollHeight) {
-			scrollBottom = true;
-		}
-
 		var chatMsg = new ChatMessage(msg);
 		this.messages.push(chatMsg);
 
 		if (this.messages().length > this.MAX_MESSAGES) {
 			this.messages.shift();
-		}
-
-		if (scrollBottom) {
-			this.scrollToBottom();
-		} else {
-			this.hasUnreadMessages(true);
 		}
 
 		// Publish the message.
@@ -371,6 +358,27 @@ export default class Chat {
 		console.debug('Registering Chat command: ' + cmd.cmdHandle);
 
 		this._localCommands.push(cmd);
+	}
+	
+	/**
+	 * Internal check function which will work out if the 
+	 */
+	scrolled(data, event) {
+		var elem = event.target;
+		
+		var scrollBottom = false;
+		var scrollPos = this.chatEle.scrollTop + this.chatEle.clientHeight;
+		
+		// Check bottom.
+		if (scrollPos === this.chatEle.scrollHeight) {
+			scrollBottom = true;
+		}
+        
+		if (scrollBottom) {
+			this.scrollToBottom();
+		} else {
+			this.hasUnreadMessages(true);
+		}
 	}
 
 	/**

@@ -1,5 +1,13 @@
 package net.bestia.model.entity;
 
+/**
+ * Interaction types give the client hints how the player is able to interact
+ * with an entity. Based upon the available options it should present the player
+ * with appropriate UI options.
+ * 
+ * @author Thomas Felix
+ *
+ */
 public enum InteractionType {
 
 	/**
@@ -25,8 +33,8 @@ public enum InteractionType {
 	INTERACT,
 
 	/**
-	 * Generic entity. No special treatment in the engine. It will
-	 * "just be displayed."
+	 * Generic entity. No special treatment in the engine. It will "just be
+	 * displayed."
 	 */
 	NONE
 
