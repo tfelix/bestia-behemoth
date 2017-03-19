@@ -138,7 +138,7 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 
 		final Props props = getSpringProps(system, clazz);
 		
-		LOG.debug("Creating actor: {} with props: {}", clazz, props);
+		LOG.debug("Creating actor: {}.", clazz);
 
 		if (name == null) {
 			return system.actorOf(props);
