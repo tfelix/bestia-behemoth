@@ -13,6 +13,8 @@ export default class ChatFx {
 	constructor(manager) {
 
 		this._pubsub = manager.ctx.pubsub;
+		this._cache = manager.ctx.entityCache;
+		this._game = manager.ctx.game;
 	
 		this._pubsub.subscribe(Signal.CHAT_RECEIVED, this._onChatMsgHandler.bind(this));
 	}
