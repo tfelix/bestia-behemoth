@@ -1,12 +1,13 @@
 package net.bestia.zoneserver.entity;
 
-import akka.actor.ActorContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import akka.actor.ActorRef;
-import akka.actor.Props;
+import akka.actor.ActorSystem;
 import akka.actor.TypedActor;
 import net.bestia.messages.Message;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
 import net.bestia.zoneserver.actor.entity.EntityContextActor;
 
 /**
@@ -17,6 +18,8 @@ import net.bestia.zoneserver.actor.entity.EntityContextActor;
  *
  */
 public class EntityAkkaContext implements EntityContext {
+	
+	private final static Logger LOG = LoggerFactory.getLogger(EntityAkkaContext.class);
 
 	private final ActorRef actor;
 
@@ -26,18 +29,16 @@ public class EntityAkkaContext implements EntityContext {
 	 */
 	public EntityAkkaContext() {
 
-		final ActorContext context = TypedActor.context();
+		final ActorSystem system = TypedActor.context().system();
 
 		// Create a new entity context actor which is responsible for routing
 		// the messages.
-		final SpringExt ext = SpringExtension.PROVIDER.get(context.system());
-		final Props props = ext.props(EntityContextActor.class);
-		actor = context.system().actorOf(props, EntityContextActor.NAME);
+		actor = SpringExtension.actorOf(system, EntityContextActor.class);
 	}
 
 	/*
 	 * 
-	 *  (non-Javadoc)
+	 * (non-Javadoc)
 	 * 
 	 * @see net.bestia.zoneserver.entity.IEntityContext#sendMessage(net.bestia.
 	 * messages.Message)
@@ -45,5 +46,11 @@ public class EntityAkkaContext implements EntityContext {
 	@Override
 	public void sendMessage(Message msg) {
 		actor.tell(msg, ActorRef.noSender());
+	}
+
+	@Override
+	public void entitySpawned(long entityId) {
+		LOG.trace("Received entity spawn for entity id: {}", entityId);
+		// NO OP.
 	}
 }

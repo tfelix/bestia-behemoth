@@ -13,4 +13,13 @@ public interface EntityContext {
 	 */
 	void sendMessage(Message msg);
 
+	/**
+	 * Signals if a new entity was spawned from inside the system (maybe a
+	 * script source etc.). Usually the akka system need to react upon this
+	 * event and setup some actors.
+	 * 
+	 * @param entityId
+	 *            The entity ID of the freshly spawned entity.
+	 */
+	void entitySpawned(long entityId);
 }

@@ -21,7 +21,11 @@ import net.bestia.zoneserver.service.EntityService;
  * usually created rather complicated we have multiple factories for each type
  * of entity to be created.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * This is done inside a own factory because we need be able to create entities
+ * also from scripts etc. Usually this also involves in some actor setup so we
+ * need to signal back into the akka system.
+ * 
+ * @author Thomas Felix
  *
  */
 @Component
@@ -64,6 +68,7 @@ public class EntityFactory {
 		be.setPosition(x, y);
 		entityService.save(be);
 
+		// Signal the server framework that a new bestia has been spawned.
 		final EntitySpawnMessage spawnMsg = new EntitySpawnMessage(be.getId());
 		// entityCtx.sendMessage(spawnMsg);
 	}
