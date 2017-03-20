@@ -118,6 +118,12 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 		return props;
 	}
 
+	/**
+	 * TODO Kommentieren.
+	 * @param system
+	 * @param clazz
+	 * @return
+	 */
 	public static ActorRef actorOf(ActorSystem system, Class<? extends UntypedActor> clazz) {
 
 		// Try to create the class with the name field.
@@ -134,6 +140,13 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 		return actorOf(system, clazz, null);
 	}
 
+	/**
+	 * TODO Kommentieren.
+	 * @param system
+	 * @param clazz
+	 * @param name
+	 * @return
+	 */
 	public static ActorRef actorOf(ActorSystem system, Class<? extends UntypedActor> clazz, String name) {
 
 		final Props props = getSpringProps(system, clazz);

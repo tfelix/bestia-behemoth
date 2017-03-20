@@ -95,6 +95,12 @@ public class AttackPlayerUseActor extends BestiaRoutingActor {
 			
 			// Find the entity.
 			final Attackable target = entityService.getEntity(atkMsg.getTargetEntityId(), Attackable.class);
+			
+			if(target == null) {
+				LOG.warning("Account {} attacks entity {}. Entity not found.", atkMsg.getAccountId(), atkMsg.getTargetEntityId());
+				return;
+			}
+			
 			battleService.attackEntity(usedAttack, pbe, target);
 			
 			break;

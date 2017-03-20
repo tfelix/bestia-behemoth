@@ -7,6 +7,7 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.TypedActor;
 import net.bestia.messages.Message;
+import net.bestia.messages.entity.EntityDeleteInternalMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.entity.EntityContextActor;
 
@@ -57,6 +58,6 @@ public class EntityAkkaContext implements EntityContext {
 	@Override
 	public void entityRemoved(long id) {
 		LOG.trace("Removing entity {}.", id);
-		
+		actor.tell(new EntityDeleteInternalMessage(id), ActorRef.noSender());
 	}
 }

@@ -53,7 +53,7 @@ public class EntityUpdateMessage extends EntityJsonMessage {
 		this.x = msg.x;
 		this.y = msg.y;
 		this.spriteInfo = msg.spriteInfo;
-		this.action = EntityAction.APPEAR;
+		this.action = msg.action;
 	}
 
 	/**
