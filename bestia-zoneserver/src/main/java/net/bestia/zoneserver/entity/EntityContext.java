@@ -18,8 +18,18 @@ public interface EntityContext {
 	 * script source etc.). Usually the akka system need to react upon this
 	 * event and setup some actors.
 	 * 
-	 * @param entityId
+	 * @param id
 	 *            The entity ID of the freshly spawned entity.
 	 */
-	void entitySpawned(long entityId);
+	void entitySpawned(long id);
+
+	/**
+	 * Tells the system an entity with a given ID has been removed from the
+	 * system. Now the cleanup can be started and the clients notified about the
+	 * vanishing of the entity.
+	 * 
+	 * @param id
+	 *            The entity id to be removed.
+	 */
+	void entityRemoved(long id);
 }

@@ -11,6 +11,8 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
+import net.bestia.messages.entity.EntityUpdateMessage;
+import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaActor;
@@ -23,7 +25,7 @@ import net.bestia.zoneserver.service.PlayerEntityService;
  * perform the the sending of the message the message must inherit both the
  * {@link EntityMessage} interface and also {@link JsonMessage}.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Component
@@ -60,9 +62,24 @@ public class ActiveClientUpdateActor extends BestiaActor {
 		// Send message to the owner if its an player entity.
 		try {
 			final Locatable movingEntity = entityService.getEntity(entityMsg.getEntityId(), Locatable.class);
+			
+			// If the entity could not be found the rely on the position information in the message itself.
+			final Point entityPos;
+			if(movingEntity == null) {
+				if(entityMsg instanceof EntityUpdateMessage) {
+					final EntityUpdateMessage umsg = (EntityUpdateMessage) msg;
+					entityPos = new Point(umsg.getX(), umsg.getY());
+				} else {
+					// We have no position information and cant update any client.
+					LOG.warning("Could not regenerate position info for entity {}. Message was: {}.", entityMsg.getEntityId(), msg);
+					return;
+				}
+			} else {
+				entityPos = movingEntity.getPosition();
+			}
 
 			// Find all active player bestias in range.
-			final Rect updateRect = Map.getUpdateRect(movingEntity.getPosition());
+			final Rect updateRect = Map.getUpdateRect(entityPos);
 			final List<Long> activeAccs = playerEntityService.getActiveAccountIdsInRange(updateRect);
 
 			// Check if the pbe are active and if so send them the update.

@@ -53,4 +53,10 @@ public class EntityAkkaContext implements EntityContext {
 		LOG.trace("Received entity spawn for entity id: {}", entityId);
 		// NO OP.
 	}
+
+	@Override
+	public void entityRemoved(long id) {
+		LOG.trace("Removing entity {}.", id);
+		
+	}
 }

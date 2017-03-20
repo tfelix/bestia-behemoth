@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.model.domain.SpriteInfo;
+import net.bestia.model.geometry.Point;
 
 public class EntityUpdateMessage extends EntityJsonMessage {
 
@@ -33,26 +34,41 @@ public class EntityUpdateMessage extends EntityJsonMessage {
 
 	public EntityUpdateMessage(long accId, long entityId, long x, long y, SpriteInfo info, EntityAction action) {
 		this(accId, entityId, x, y, info);
-		
+
 		this.action = action;
 	}
 
 	public EntityUpdateMessage(long accId, long entityId, long x, long y, SpriteInfo info) {
 		super(accId, entityId);
-		
+
 		this.x = x;
 		this.y = y;
 		this.spriteInfo = Objects.requireNonNull(info);
 		this.action = EntityAction.APPEAR;
 	}
-	
+
 	public EntityUpdateMessage(long accId, EntityUpdateMessage msg) {
 		super(accId, msg.getEntityId());
-		
+
 		this.x = msg.x;
 		this.y = msg.y;
 		this.spriteInfo = msg.spriteInfo;
 		this.action = EntityAction.APPEAR;
+	}
+
+	/**
+	 * Creates a message setup with all the needed infos for the clients to
+	 * remove a bestia entity from their display.
+	 * 
+	 * @param entityId
+	 *            The entity to be removed.
+	 * @param pos
+	 *            The current position of the entity to be removed.
+	 * @return An {@link EntityUpdateMessage} setup so the clients remove the
+	 *         entity.
+	 */
+	public static EntityUpdateMessage getDespawnUpdate(long entityId, Point pos) {
+		return new EntityUpdateMessage(0, entityId, pos.getX(), pos.getY(), SpriteInfo.empty(), EntityAction.DIE);
 	}
 
 	public long getX() {

@@ -1,7 +1,6 @@
 package net.bestia.messages.entity;
 
-import net.bestia.messages.EntityMessage;
-import net.bestia.messages.Message;
+import net.bestia.messages.EntityInternalMessage;
 
 /**
  * Used if the spawn of a new entity was signaled.
@@ -9,24 +8,16 @@ import net.bestia.messages.Message;
  * @author Thomas Felix
  *
  */
-public class EntitySpawnMessage extends Message implements EntityMessage {
+public class EntitySpawnMessage extends EntityInternalMessage {
 
 	private static final long serialVersionUID = 1L;
 
-	private final long entityId;
-
 	public EntitySpawnMessage(long entityId) {
-
-		this.entityId = entityId;
+		super(entityId);
 	}
 
-	/**
-	 * The entity id which was spawned and already created for the cache.
-	 * 
-	 * @return
-	 */
 	@Override
-	public long getEntityId() {
-		return entityId;
+	public String toString() {
+		return String.format("EntitySpawnMessage[eeid: %d]", getEntityId());
 	}
 }

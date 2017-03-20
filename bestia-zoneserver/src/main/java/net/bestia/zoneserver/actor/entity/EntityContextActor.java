@@ -25,6 +25,7 @@ public class EntityContextActor extends BestiaRoutingActor {
 	
 	private final ActorRef activeClientUpdateRef;
 
+	
 	public EntityContextActor() {
 
 		activeClientUpdateRef = createActor(ActiveClientUpdateActor.class);

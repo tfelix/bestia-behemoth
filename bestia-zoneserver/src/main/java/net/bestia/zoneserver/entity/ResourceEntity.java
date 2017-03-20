@@ -59,7 +59,7 @@ public abstract class ResourceEntity extends BaseEntity implements Locatable, Vi
 	public long getY() {
 		return getPosition().getY();
 	}
-	
+
 	public void setLevel(int level) {
 		this.level = level;
 	}
@@ -102,6 +102,16 @@ public abstract class ResourceEntity extends BaseEntity implements Locatable, Vi
 	@Override
 	public void moveTo(List<Point> path) {
 		// No op. Can not move.
+	}
+
+	/**
+	 * Removes the entity from the whole system. Since we lack of access to the
+	 * spring services in here we need to communicate this further up the chain.
+	 * This needs refactoring as the whole entity system is currently flawed.
+	 */
+	@Override
+	public void kill() {
+		getContext().entityRemoved(getId());
 	}
 
 	@Override
