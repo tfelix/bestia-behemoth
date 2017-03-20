@@ -7,6 +7,7 @@ import EffectsManager from './fx/EffectsManager';
 import RenderManager from './renderer/RenderManager';
 import EntityFactory from './entities/factory/EntityFactory';
 import EntityUpdater from './entities/util/EntityUpdater';
+import AnimationManager from './animation/AnimationManager';
 import './plugins/phaser_pathfinding-0.2.0';
 
 export default class EngineContext {
@@ -24,6 +25,9 @@ export default class EngineContext {
 	
 	initialize(phaserGame) {
 		
+		// Since the objects often reference to the engine context inside their 
+		// ctor the order of the initialization is really important. Nether the less accessing the
+		// methods of the engine ctx inside the object ctor should be avoided to tackle the problem.
 		this._isInit = true;
 		this._game = phaserGame;		
 		this._entityCache = new EntityCache();		
@@ -33,6 +37,7 @@ export default class EngineContext {
 		this._renderManager = new RenderManager(this);
 		this._entityFactory = new EntityFactory(this);
 		this._entityUpdater = new EntityUpdater(this);
+		this._animationManager = new AnimationManager(this);
 		
 		let pathfinder = this._game.plugins.add(Phaser.Plugin.PathFinderPlugin);
 		var walkable = [];
@@ -63,6 +68,10 @@ export default class EngineContext {
 	get game() {
 		this._checkInit();
 		return this._game;
+	}
+	
+	get animationManager() {
+		return this._animationManager;
 	}
 	
 	get playerBestia() {
