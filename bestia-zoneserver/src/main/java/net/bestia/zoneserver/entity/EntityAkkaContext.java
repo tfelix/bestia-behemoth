@@ -36,7 +36,8 @@ public class EntityAkkaContext implements EntityContext {
 	}
 
 	/*
-	 * (non-Javadoc)
+	 * 
+	 *  (non-Javadoc)
 	 * 
 	 * @see net.bestia.zoneserver.entity.IEntityContext#sendMessage(net.bestia.
 	 * messages.Message)

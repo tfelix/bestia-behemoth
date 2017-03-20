@@ -11,7 +11,6 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.DoneMessage;
 import net.bestia.messages.internal.StartInitMessage;
-import net.bestia.model.domain.MapData;
 import net.bestia.model.service.MapDataService;
 import net.bestia.zoneserver.actor.BestiaActor;
 

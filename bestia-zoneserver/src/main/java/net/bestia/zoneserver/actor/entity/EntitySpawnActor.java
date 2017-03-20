@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import akka.actor.Props;
 import net.bestia.messages.entity.EntitySpawnMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.actor.SpringExtension;
 
 /**
  * TODO Vorläufige Klasse.
@@ -33,7 +34,7 @@ public class EntitySpawnActor extends BestiaRoutingActor {
 		// TODO We only have bestia entities.
 		final long eid = spmsg.getEntityId();
 
-		final Props aiProps = getSpringProps(EntityAiActor.class, Long.valueOf(eid));
+		final Props aiProps = SpringExtension.getSpringProps(getContext().system(), EntityAiActor.class, Long.valueOf(eid));
 		getContext().actorOf(aiProps);
 	}
 

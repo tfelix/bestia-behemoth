@@ -77,6 +77,11 @@ public class MapGeneratorClientActor extends BestiaActor implements ClientCom {
 			}
 			
 			@Override
+			public void onFinish(MapGenDAO dao, MapDataPart data) {
+				LOG.debug("Finished map part. Land tiles: {}, water tiles: {}", landCount, waterCount);
+			}
+			
+			@Override
 			public void onStart() {
 				waterCount = 0;
 				landCount = 0;
