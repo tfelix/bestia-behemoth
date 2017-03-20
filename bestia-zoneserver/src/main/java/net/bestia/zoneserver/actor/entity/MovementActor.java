@@ -78,7 +78,7 @@ public class MovementActor extends BestiaRoutingActor {
 				moveMsg.getEntityId(),
 				moveMsg.getPath(),
 				entity.getMovementSpeed());
-		sendActiveClients(updateMsg);
+		sendActiveInRangeClients(updateMsg);
 
 		moveActor.tell(msg, getSelf());
 	}

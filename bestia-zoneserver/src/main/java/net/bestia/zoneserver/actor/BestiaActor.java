@@ -60,7 +60,7 @@ public abstract class BestiaActor extends UntypedActor {
 	 *            The update message to be send to all active clients in sight
 	 *            of the referenced entity.
 	 */
-	protected void sendActiveClients(EntityJsonMessage msg) {
+	protected void sendActiveInRangeClients(EntityJsonMessage msg) {
 		if (activeClientBroadcaster == null) {
 			activeClientBroadcaster = createActor(ActiveClientUpdateActor.class);
 		}

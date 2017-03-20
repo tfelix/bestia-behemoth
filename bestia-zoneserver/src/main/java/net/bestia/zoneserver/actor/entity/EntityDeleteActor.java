@@ -61,7 +61,7 @@ public class EntityDeleteActor extends BestiaRoutingActor {
 		entityService.delete(delMsg.getEntityId());
 
 		// Send status update to all clients in range.
-		sendActiveClients(EntityUpdateMessage.getDespawnUpdate(delMsg.getEntityId(), position));
+		sendActiveInRangeClients(EntityUpdateMessage.getDespawnUpdate(delMsg.getEntityId(), position));
 
 	}
 
