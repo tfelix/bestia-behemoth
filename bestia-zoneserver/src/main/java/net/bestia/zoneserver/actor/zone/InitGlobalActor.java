@@ -5,8 +5,6 @@ import java.util.Objects;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.ActorRef;
-import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.DoneMessage;
@@ -87,12 +85,5 @@ public class InitGlobalActor extends BestiaActor {
 		
 		// This signalling does not work.
 		getContext().parent().tell(new DoneMessage("global"), getSelf());
-	}
-	
-	@Override
-	protected ActorRef createActor(Class<? extends UntypedActor> clazz) {
-		final ActorRef loadActor = super.createActor(clazz);
-		actorWaiting++;
-		return loadActor;
 	}
 }

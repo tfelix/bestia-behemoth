@@ -13,6 +13,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.entity.EntityMoveInternalMessage;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.entity.traits.Locatable;
 import net.bestia.zoneserver.service.EntityService;
 import net.bestia.zoneserver.service.MovingEntityService;
@@ -64,7 +65,7 @@ public class MovementActor extends BestiaRoutingActor {
 			// Start a new movement via spawning a new movement tick actor with
 			// the route to move and the movement speed determines the ticking
 			// speed.
-			moveActor = createUnnamedActor(TimedMoveActor.class);
+			moveActor = SpringExtension.unnamedActorOf(getContext().system(), TimedMoveActor.class);
 		}
 
 		// Tell the client the movement prediction message.

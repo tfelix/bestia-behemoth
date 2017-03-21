@@ -3,7 +3,9 @@ package net.bestia.zoneserver.actor.inventory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.ActorSystem;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.actor.SpringExtension;
 
 
 /**
@@ -22,9 +24,10 @@ public class InventoryActor extends BestiaRoutingActor {
 
 	public InventoryActor() {
 		
+		final ActorSystem system = getContext().system();
 		// Create all the sub actors.
-		createActor(DropItemActor.class, DropItemActor.NAME);
-		createActor(ListInventoryActor.class, ListInventoryActor.NAME);
+		SpringExtension.actorOf(system, DropItemActor.class);
+		SpringExtension.actorOf(system, ListInventoryActor.class);
 	}
 
 	@Override

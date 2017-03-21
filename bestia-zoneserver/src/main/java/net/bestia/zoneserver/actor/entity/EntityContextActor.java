@@ -4,8 +4,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 
 /**
@@ -22,17 +24,17 @@ import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 public class EntityContextActor extends BestiaRoutingActor {
 
 	public static final String NAME = "entityContext";
-	
+
 	private final ActorRef activeClientUpdateRef;
 
-	
 	public EntityContextActor() {
 
-		activeClientUpdateRef = createActor(ActiveClientUpdateActor.class);
-		createActor(MovementActor.class);
-		createActor(EntitySpawnActor.class);
-		createActor(PositionActor.class);
-		createActor(EntityDeleteActor.class);
+		final ActorSystem system = getContext().system();
+		activeClientUpdateRef = SpringExtension.actorOf(system, ActiveClientUpdateActor.class);
+		SpringExtension.actorOf(system, MovementActor.class);
+		SpringExtension.actorOf(system, EntitySpawnActor.class);
+		SpringExtension.actorOf(system, PositionActor.class);
+		SpringExtension.actorOf(system, EntityDeleteActor.class);
 	}
 
 	@Override
@@ -49,13 +51,13 @@ public class EntityContextActor extends BestiaRoutingActor {
 	 */
 	@Override
 	protected void handleUnknownMessage(Object msg) {
-		
-		if(msg instanceof EntityJsonMessage) {
+
+		if (msg instanceof EntityJsonMessage) {
 			activeClientUpdateRef.tell(msg, getSelf());
 		} else {
 			super.handleUnknownMessage(msg);
 		}
-		
+
 	}
 
 }

@@ -17,6 +17,7 @@ import net.bestia.messages.internal.DoneMessage;
 import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.SpawnActorHelper;
+import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.battle.AttackPlayerUseActor;
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
@@ -48,44 +49,44 @@ public class ZoneActor extends BestiaRoutingActor {
 		final ActorSystem system = getContext().system();
 
 		// === Login ===
-		createActor(LoginActor.class);
-		
+		SpringExtension.actorOf(system, LoginActor.class);
+
 		// === Map ===
-		createActor(MapRequestChunkActor.class);
-		createActor(TilesetRequestActor.class);
-		
+		SpringExtension.actorOf(system, MapRequestChunkActor.class);
+		SpringExtension.actorOf(system, TilesetRequestActor.class);
+
 		// === Inventory ===
-		createActor(InventoryActor.class);
+		SpringExtension.actorOf(system, InventoryActor.class);
 
 		// === Bestias ===
-		createActor(BestiaInfoActor.class);
-		createActor(ActivateBestiaActor.class);
-		createActor(EntitySpawnActor.class);
-		
+		SpringExtension.actorOf(system, BestiaInfoActor.class);
+		SpringExtension.actorOf(system, ActivateBestiaActor.class);
+		SpringExtension.actorOf(system, EntitySpawnActor.class);
+
 		// === Entities ===
-		createActor(EntityInteractionRequestActor.class);
-		createActor(EntityMoveActor.class);
+		SpringExtension.actorOf(system, EntityInteractionRequestActor.class);
+		SpringExtension.actorOf(system, EntityMoveActor.class);
 
 		// === Chat ===
-		createActor(ChatActor.class);
-		
+		SpringExtension.actorOf(system, ChatActor.class);
+
 		// === Attacking ===
-		createActor(AttackPlayerUseActor.class);
-		
+		SpringExtension.actorOf(system, AttackPlayerUseActor.class);
+
 		// === Helper Actors
-		createActor(EngineReadyActor.class);
+		SpringExtension.actorOf(system, EngineReadyActor.class);
 
 		// === House keeping actors ===
-		createActor(LogoutActor.class);
-		createActor(PingPongActor.class);
-		createActor(ZoneClusterListenerActor.class);
-		
+		SpringExtension.actorOf(system, LogoutActor.class);
+		SpringExtension.actorOf(system, PingPongActor.class);
+		SpringExtension.actorOf(system, ZoneClusterListenerActor.class);
+
 		// === DEVELOPMENT ===
-		createActor(SpawnActorHelper.class);
+		SpringExtension.actorOf(system, SpawnActorHelper.class);
 
 		// Setup the init actor singelton for creation of the system.
 		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
-		final Props globalInitProps = getSpringProps(InitGlobalActor.class);
+		final Props globalInitProps = SpringExtension.getSpringProps(system, InitGlobalActor.class);
 		Props clusterProbs = ClusterSingletonManager.props(globalInitProps, PoisonPill.getInstance(), settings);
 		system.actorOf(clusterProbs, "globalInit");
 
@@ -99,6 +100,6 @@ public class ZoneActor extends BestiaRoutingActor {
 	@Override
 	protected void handleMessage(Object msg) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

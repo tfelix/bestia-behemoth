@@ -139,6 +139,20 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 
 		return actorOf(system, clazz, null);
 	}
+	
+	/**
+	 * Unlike {@link #createActor(Class)} this wont check the given class for a
+	 * name and just assign a random name. This is important when a lot of
+	 * actors are created and destroyed to avoid performance bottlenecks.
+	 * 
+	 * @param clazz
+	 *            The class to create an actor from.
+	 * @return The created and already registered new actor.
+	 */
+	public static ActorRef unnamedActorOf(ActorSystem system, Class<? extends UntypedActor> clazz) {
+		final Props props = getSpringProps(system, clazz);
+		return system.actorOf(props);
+	}
 
 	/**
 	 * TODO Kommentieren.
