@@ -9,8 +9,8 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.DoneMessage;
 import net.bestia.messages.internal.StartInitMessage;
-import net.bestia.model.service.MapDataService;
 import net.bestia.zoneserver.actor.BestiaActor;
+import net.bestia.zoneserver.service.MapService;
 
 /**
  * Upon receiving the StartInit message the actor will start its work: Depending
@@ -32,9 +32,9 @@ public class InitGlobalActor extends BestiaActor {
 	private boolean hasInitialized = false;
 	private int actorWaiting;
 	
-	private final MapDataService mapDataService;
+	private final MapService mapDataService;
 
-	public InitGlobalActor(MapDataService mapDataService) {
+	public InitGlobalActor(MapService mapDataService) {
 
 		this.mapDataService = Objects.requireNonNull(mapDataService);
 	}

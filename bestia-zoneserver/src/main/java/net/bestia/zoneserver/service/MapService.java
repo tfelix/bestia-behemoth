@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +9,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.zip.Deflater;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,12 +20,14 @@ import com.hazelcast.core.IMap;
 import net.bestia.model.dao.MapDataDAO;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.dao.TileDAO;
+import net.bestia.model.domain.MapData;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.model.domain.Tile;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
+import net.bestia.model.map.MapDataDTO;
 import net.bestia.model.map.Tileset;
 
 /**
@@ -41,6 +46,7 @@ public class MapService {
 	private final TileDAO tileDao;
 	private final MapDataDAO mapDataDao;
 	private final MapParameterDAO mapParamDao;
+	private final Deflater deflater = new Deflater(7);
 
 	private final HazelcastInstance hazelcastInstance;
 
@@ -76,6 +82,43 @@ public class MapService {
 	public Map getMap(long x, long y, long width, long height) {
 
 		return null;
+	}
+	
+	private byte[] compress(byte[] input) {
+		return null;
+	}
+	
+	private byte[] uncompress(byte[] input) {
+		return null;
+	}
+
+	public void saveMapData(MapDataDTO dto) {
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		ObjectOutputStream oos = new ObjectOutputStream(bos);
+		oos.writeObject(dto);
+
+		byte[] dataInput = bos.toByteArray();
+
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream(dataInput.length);
+		deflater.setInput(dataInput);
+		deflater.finish();
+
+		byte[] buffer = new byte[1024];
+		while (!deflater.finished()) {
+			int count = deflater.deflate(buffer);
+			outputStream.write(buffer, 0, count);
+		}
+		outputStream.close();
+		byte[] output = outputStream.toByteArray();
+
+		// Now create the map data object and save it to the database.
+		final MapData mapData = new MapData();
+		mapData.setData(output);
+		mapData.setHeight(dto.getRect().getHeight());
+		mapData.setWidth(dto.getRect().getWidth());
+		mapData.setX(dto.getRect().getX());
+		mapData.setY(dto.getRect().getY());
+		mapDataDao.save(mapData);
 	}
 
 	/**
