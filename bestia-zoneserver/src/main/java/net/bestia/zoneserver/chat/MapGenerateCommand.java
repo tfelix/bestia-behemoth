@@ -7,10 +7,10 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
+import net.bestia.model.domain.MapParameter;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
-import net.bestia.zoneserver.map.MapBaseParameter;
 
 /**
  * Generates a new map upon command. This will basically send a message to start
@@ -44,7 +44,7 @@ public class MapGenerateCommand extends BaseChatCommand {
 	protected void performCommand(Account account, String text) {
 
 		// Create the base params.
-		MapBaseParameter baseParams = MapBaseParameter.fromAverageUserCount(1, "Narnia");
+		MapParameter baseParams = MapParameter.fromAverageUserCount(1, "Narnia");
 
 		// Perform the map generation.
 		system.actorSelection(AkkaCluster.getNodeName(MapGeneratorMasterActor.NAME)).tell(baseParams,

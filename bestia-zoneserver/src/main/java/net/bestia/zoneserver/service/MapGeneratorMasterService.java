@@ -18,7 +18,7 @@ import de.tfelix.bestia.worldgen.message.WorkstateMessage;
 import de.tfelix.bestia.worldgen.random.NoiseVectorBuilder;
 import de.tfelix.bestia.worldgen.random.SimplexNoiseProvider;
 import net.bestia.model.dao.MapDataDAO;
-import net.bestia.zoneserver.map.MapBaseParameter;
+import net.bestia.model.domain.MapParameter;
 import net.bestia.zoneserver.map.MapGeneratorConstants;
 
 @Service
@@ -43,7 +43,7 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 	 * @param params
 	 *            The basic parameter to perform the world creation with.
 	 */
-	public void generateMap(MapBaseParameter params, List<MasterCom> nodes) {
+	public void generateMap(MapParameter params, List<MasterCom> nodes) {
 		if (isGenerating.get()) {
 			throw new IllegalStateException("Map generation is currently in progress.");
 		}

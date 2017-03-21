@@ -104,7 +104,8 @@ public class MapChunk implements Serializable {
 	 * Calculates the chunk coordiantes of the given world coordiantes.
 	 * 
 	 * @param world
-	 * @return
+	 *            The world coordiantes.
+	 * @return The chunk id in which this point is located.
 	 */
 	public static Point getChunkCords(Point world) {
 
@@ -116,7 +117,7 @@ public class MapChunk implements Serializable {
 	 * 
 	 * @param chunk
 	 *            The chunk coordinates.
-	 * @return
+	 * @return The point in world coordinates.
 	 */
 	public static Point getWorldCords(Point chunk) {
 

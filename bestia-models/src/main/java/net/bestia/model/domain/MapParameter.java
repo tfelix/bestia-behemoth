@@ -1,10 +1,14 @@
-package net.bestia.zoneserver.map;
+package net.bestia.model.domain;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 import net.bestia.model.geometry.Size;
 
@@ -14,7 +18,9 @@ import net.bestia.model.geometry.Size;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class MapBaseParameter implements Serializable {
+@Entity
+@Table(name="map_parameters")
+public class MapParameter implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -62,8 +68,8 @@ public class MapBaseParameter implements Serializable {
 			this.name = name;
 		}
 
-		public MapBaseParameter build() {
-			return new MapBaseParameter(this);
+		public MapParameter build() {
+			return new MapParameter(this);
 		}
 		
 		public void newSeed() {
@@ -74,16 +80,18 @@ public class MapBaseParameter implements Serializable {
 	private final static double MAP_RATIO = 12 / 8.0;
 	private final static int MINIMUM_LANDMASS_SQUARE_KM = 40000;
 
-	private final long population;
-	private final Size worldSize;
-	private final float waterLandRatio;
-	private final int minSettlementDistance;
-	private final int settlementCount;
-	private final String name;
-	private final Date createDate;
-	private final int seed;
+	@Id
+	private int id;
+	private long population;
+	private Size worldSize;
+	private float waterLandRatio;
+	private int minSettlementDistance;
+	private int settlementCount;
+	private String name;
+	private Date createDate;
+	private int seed;
 
-	public MapBaseParameter() {
+	public MapParameter() {
 		this.population = 100;
 		this.worldSize = new Size(1000, 1000);
 		this.waterLandRatio = 0.5f;
@@ -94,7 +102,7 @@ public class MapBaseParameter implements Serializable {
 		this.seed = ThreadLocalRandom.current().nextInt();
 	}
 
-	public MapBaseParameter(Builder builder) {
+	public MapParameter(Builder builder) {
 
 		this.population = builder.population;
 		this.worldSize = Objects.requireNonNull(builder.worldSize);
@@ -113,7 +121,7 @@ public class MapBaseParameter implements Serializable {
 	 *            The number of players to generate the base parameter for.
 	 * @return
 	 */
-	public static MapBaseParameter fromAverageUserCount(int user, String mapName) {
+	public static MapParameter fromAverageUserCount(int user, String mapName) {
 
 		final Builder builder = new Builder();
 		final ThreadLocalRandom rand = ThreadLocalRandom.current();

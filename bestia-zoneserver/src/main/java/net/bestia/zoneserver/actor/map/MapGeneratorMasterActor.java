@@ -23,9 +23,9 @@ import de.tfelix.bestia.worldgen.description.MapDescription;
 import de.tfelix.bestia.worldgen.io.MasterCom;
 import de.tfelix.bestia.worldgen.map.MapPart;
 import de.tfelix.bestia.worldgen.message.WorkstateMessage;
+import net.bestia.model.domain.MapParameter;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.map.MapBaseParameter;
 import net.bestia.zoneserver.service.MapGeneratorMasterService;
 import scala.concurrent.duration.Duration;
 
@@ -68,7 +68,7 @@ public class MapGeneratorMasterActor extends BestiaActor {
 	private final static String START_MSG = "start";
 
 	private final MapGeneratorMasterService mapGenService;
-	private MapBaseParameter mapBaseParameter = null;
+	private MapParameter mapBaseParameter = null;
 
 	private int currentLookupIdent = 0;
 	private Set<ActorRef> availableNodes = new HashSet<>();
@@ -82,10 +82,10 @@ public class MapGeneratorMasterActor extends BestiaActor {
 	@Override
 	public void onReceive(Object msg) throws Throwable {
 
-		if (msg instanceof MapBaseParameter) {
+		if (msg instanceof MapParameter) {
 
 			LOG.info("Received map base parameter. Starting to generate map. ({})", msg);
-			mapBaseParameter = (MapBaseParameter) msg;
+			mapBaseParameter = (MapParameter) msg;
 			queryGeneratorNodes();
 
 		} else if(msg instanceof WorkstateMessage) {

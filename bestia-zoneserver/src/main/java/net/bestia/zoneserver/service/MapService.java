@@ -14,7 +14,10 @@ import org.springframework.stereotype.Service;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
+import net.bestia.model.dao.MapDataDAO;
+import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.dao.TileDAO;
+import net.bestia.model.domain.MapParameter;
 import net.bestia.model.domain.Tile;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
@@ -36,14 +39,43 @@ public class MapService {
 	private final static String TILESET_KEY = "map.tilesets";
 
 	private final TileDAO tileDao;
+	private final MapDataDAO mapDataDao;
+	private final MapParameterDAO mapParamDao;
 
 	private final HazelcastInstance hazelcastInstance;
 
 	@Autowired
-	public MapService(TileDAO tileDao, HazelcastInstance hz) {
+	public MapService(HazelcastInstance hz, TileDAO tileDao, MapDataDAO dataDao, MapParameterDAO paramDao) {
 
 		this.hazelcastInstance = Objects.requireNonNull(hz);
 		this.tileDao = Objects.requireNonNull(tileDao);
+		this.mapDataDao = Objects.requireNonNull(dataDao);
+		this.mapParamDao = Objects.requireNonNull(paramDao);
+	}
+
+	/**
+	 * Checks if there is a initialized map inside the permanent storage is
+	 * active.
+	 * 
+	 * @return TRUE if the map is initialized. FALSE otherwise.
+	 */
+	public boolean isMapInitialized() {
+		return mapDataDao.count() > 0;
+	}
+
+	/**
+	 * Retrieves and generates the map. It has the dimensions of the given
+	 * coordiantes.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param width
+	 * @param height
+	 * @return
+	 */
+	public Map getMap(long x, long y, long width, long height) {
+
+		return null;
 	}
 
 	/**
@@ -51,8 +83,9 @@ public class MapService {
 	 * 
 	 * @return The name of the map.
 	 */
-	public String getName() {
-		return "Aventerra";
+	public String getMapName() {
+		final MapParameter params = mapParamDao.getLatest();
+		return params == null ? null : params.getName();
 	}
 
 	/**
@@ -124,7 +157,7 @@ public class MapService {
 			final Rect area = MapChunk.getWorldRect(point);
 			// -1 because from to coordinates are on less then height (start to
 			// count at the start coordiante).
-			List<Tile> tiles = tileDao.getTilesInRange(area.getX(), area.getY(), 
+			List<Tile> tiles = tileDao.getTilesInRange(area.getX(), area.getY(),
 					area.getHeight() - 1,
 					area.getWidth() - 1);
 
