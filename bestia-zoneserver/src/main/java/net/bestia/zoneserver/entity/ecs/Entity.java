@@ -43,11 +43,14 @@ public class Entity implements Serializable {
 	 * This will set an id of -1.
 	 */
 	public Entity(long id) {
-
 		this.id = id;
 	}
 
 	public long getId() {
 		return id;
+	}
+	
+	public <T extends Component> T getComponent(int compId, Class<T> type) {
+		return type.cast(components[compId]);
 	}
 }

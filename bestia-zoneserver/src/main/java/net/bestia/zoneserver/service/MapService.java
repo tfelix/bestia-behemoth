@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.service;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +10,9 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,11 +34,12 @@ import net.bestia.model.map.MapDataDTO;
 import net.bestia.model.map.Tileset;
 
 /**
- * The {@link MapService} is responsible for effectively querying the cache in
- * order to get map data from the in memory db since we can not simply load the
- * fully map into memory as a single map.
+ * The {@link MapService} is central instance for requesting and modifing map
+ * data operation inside the bestia system. It is responsible for effectively
+ * querying the cache in order to get map data from the in memory db since we
+ * can not simply load the fully map into memory as a single map.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Service
@@ -46,7 +50,6 @@ public class MapService {
 	private final TileDAO tileDao;
 	private final MapDataDAO mapDataDao;
 	private final MapParameterDAO mapParamDao;
-	private final Deflater deflater = new Deflater(7);
 
 	private final HazelcastInstance hazelcastInstance;
 
@@ -83,42 +86,88 @@ public class MapService {
 
 		return null;
 	}
-	
-	private byte[] compress(byte[] input) {
-		return null;
-	}
-	
-	private byte[] uncompress(byte[] input) {
-		return null;
-	}
 
-	public void saveMapData(MapDataDTO dto) {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		ObjectOutputStream oos = new ObjectOutputStream(bos);
-		oos.writeObject(dto);
+	/**
+	 * Compresses the given bytestream.
+	 * 
+	 * @param input
+	 *            The byte stream of the compression.
+	 * @return The compressed byte stream.
+	 * @throws IOException
+	 *             If the object could not be compressed.
+	 */
+	private byte[] compress(byte[] input) throws IOException {
 
-		byte[] dataInput = bos.toByteArray();
+		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(input.length)) {
 
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream(dataInput.length);
-		deflater.setInput(dataInput);
-		deflater.finish();
+			final Deflater deflater = new Deflater(7);
+			deflater.setInput(input);
+			deflater.finish();
 
-		byte[] buffer = new byte[1024];
-		while (!deflater.finished()) {
-			int count = deflater.deflate(buffer);
-			outputStream.write(buffer, 0, count);
+			byte[] buffer = new byte[1024];
+			while (!deflater.finished()) {
+				int count = deflater.deflate(buffer);
+				outputStream.write(buffer, 0, count);
+			}
+
+			deflater.end();
+
+			return outputStream.toByteArray();
 		}
-		outputStream.close();
-		byte[] output = outputStream.toByteArray();
+	}
 
-		// Now create the map data object and save it to the database.
-		final MapData mapData = new MapData();
-		mapData.setData(output);
-		mapData.setHeight(dto.getRect().getHeight());
-		mapData.setWidth(dto.getRect().getWidth());
-		mapData.setX(dto.getRect().getX());
-		mapData.setY(dto.getRect().getY());
-		mapDataDao.save(mapData);
+	private byte[] uncompress(byte[] input) throws IOException {
+
+		final Inflater inflater = new Inflater();
+		// Decompress the bytes
+		inflater.setInput(input, 0, input.length);
+
+		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream(input.length * 2)) {
+
+			byte[] buffer = new byte[1024];
+			while (!inflater.finished()) {
+				try {
+					int count = inflater.inflate(buffer);
+					outputStream.write(buffer, 0, count);
+				} catch (DataFormatException e) {
+					// Rethrow as IO
+					throw new IOException(e);
+				}
+			}
+
+			inflater.end();
+
+			return outputStream.toByteArray();
+		}
+	}
+
+	/**
+	 * This will fetch and decompress the requested map data from the database.
+	 * 
+	 * @return The decompressed {@link MapDataDTO}.
+	 */
+	private MapDataDTO getMapData(long x, long y, long width, long height) {
+
+		return null;
+	}
+
+	public void saveMapData(MapDataDTO dto) throws IOException {
+
+		try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+			oos.writeObject(dto);
+
+			byte[] output = compress(bos.toByteArray());
+
+			// Now create the map data object and save it to the database.
+			final MapData mapData = new MapData();
+			mapData.setData(output);
+			mapData.setHeight(dto.getRect().getHeight());
+			mapData.setWidth(dto.getRect().getWidth());
+			mapData.setX(dto.getRect().getX());
+			mapData.setY(dto.getRect().getY());
+			mapDataDao.save(mapData);
+		}
 	}
 
 	/**

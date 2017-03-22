@@ -110,7 +110,6 @@ public class Map {
 	private final Rect rect;
 	private final List<Tileset> tilesets;
 	private final List<Integer> groundLayer;
-	private final List<java.util.Map<Point, Integer>> layers = new ArrayList<>();
 
 	/**
 	 * Sparse layer of the tiles.
