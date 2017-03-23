@@ -3,6 +3,7 @@
  * @copyright 2015 Thomas Felix
  */
 
+import ko from 'knockout';
 import Message from '../../io/messages/Message';
 import Signal from '../../io/Signal';
 import MID from '../../io/messages/MID';

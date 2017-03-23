@@ -3,6 +3,7 @@
  * @copyright 2015 Thomas Felix
  */
 
+import ko from 'knockout';
 import Signal from '../../io/Signal.js';
 import MID from '../../io/messages/MID.js';
 import Message from '../../io/messages/Message.js';

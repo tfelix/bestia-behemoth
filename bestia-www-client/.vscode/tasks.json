@@ -9,7 +9,7 @@
     "tasks": [
         {
             "taskName": "build",
-            "args": ["build"],
+            "args": ["run", "build:watch"],
             "isBackground": true,
             "isBuildCommand": true
         },

@@ -1,6 +1,3 @@
-// CSS
-//import './../css/game/main.less';
-
 import {version} from '../../package.json';
 import KoAjaxComponentLoader from './ui/KoAjaxComponentLoader';
 import PubSub from './util/PubSub';
@@ -60,16 +57,3 @@ $(function(){
 window.bestiaGame = game;
 //window.bestiaPages = pages;
 // @endif
-
-
-/*
-i18n.init({
-	lng : 'de',
-	fallbackLng : false
-}, function() {
-	// Translate document.
-	$('body').i18n();
-
-	// Start game.
-	$(document).ready(main);
-});*/

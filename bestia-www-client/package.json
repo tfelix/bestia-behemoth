@@ -10,9 +10,9 @@
     "server": "lite-server --baseDir=\"build\"",
     "build:html": "cpx ./src/**/*.{html,png,jpg} ./build -v && cpx ../game-data/**/* ./build/assets -v",
     "build:css": "lessc ./src/css/game/main.less | cssmin > ./build/css/game.css",
-    "build:js": "",
+    "build:js": "rollup -c",
     "build": "npm run clean && npm run build:html && npm run build:css",
-    "build:watch": "parallelshell \"npm run build:html\" \"npm run build:css\" \"npm run server\""
+    "build:watch": "parallelshell \"npm run build:html\" \"npm run build:css\" \"npm run build:js\" \"npm run server\""
   },
   "dependencies": {
     "bootstrap": "3.3.7",
@@ -42,7 +42,6 @@
     "rollup-plugin-babel": "2.7.1",
     "rollup-plugin-commonjs": "7.0.0",
     "rollup-plugin-json": "2.1.0",
-    "rollup-plugin-less": "0.1.3",
     "rollup-plugin-node-resolve": "2.0.0",
     "rollup-plugin-replace": "1.1.1",
     "rollup-plugin-uglify": "1.0.1",
