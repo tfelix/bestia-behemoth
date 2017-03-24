@@ -18,7 +18,9 @@ let game = new BestiaGame(pubSub, urlHelper);
 
 // === Register the components ===
 ko.components.register('bestia-chat', {
-	viewModel: Chat,
+	createViewModel: function(){
+		return new Chat(pubSub);	
+	},
 	template: { fromUrl: 'chat.html' }
 });
 

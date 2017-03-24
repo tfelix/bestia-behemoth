@@ -10,6 +10,9 @@ import GameState from './states/GameState.js';
 import InitializeState from './states/InitializeState';
 import LoadingState from './states/LoadingState.js';
 
+
+const MAX_RECON_TIME = 45;
+
 /**
  * Bestia Graphics engine. Responsible for displaying the game collecting user
  * input and sending these data to the server. It manages the phaserjs states
@@ -22,6 +25,8 @@ import LoadingState from './states/LoadingState.js';
  */
 export default class Engine {
 	constructor(pubsub, url) {
+
+		this._disconnectCount = 0;
 
 		// Determine the size of the canvas. And create the game object.
 		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'bestia-canvas', null, false, false);
