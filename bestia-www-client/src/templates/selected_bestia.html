@@ -1,0 +1,31 @@
+<div id="selected-bestia" data-bind="with: selectedBestia">
+    <!-- TODO Austauschen gegen ein animiertes Canvas. -->
+    <img data-bind="attr: {src: iconUrl}" alt="Bestia Icon" style="float: left; margin: 10px;">
+
+    <div class="name">
+        <b><span data-bind="text: customName">---</span></b> - Lv. <span data-bind="text: level">---</span>
+        <p>
+            Östliches Kalaria (X: <span data-bind="text: posX"></span> Y: <span data-bind="text: posY"></span>)
+        </p>
+    </div>
+
+    <div class="bar hp-bar" style="clear: both;" data-bind="with: statusPoints">
+        <div class="bar-bg">
+            <div data-bind="style: {width: hpWidth}"></div>
+        </div>
+        <div class="bar-text">
+            HP: <span data-bind="text: curHp">0</span> / <span data-bind="text: maxHp">0</span>
+        </div>
+    </div>
+    <div class="bar mana-bar" data-bind="with: statusPoints">
+        <div class="bar-bg">
+            <div data-bind="style: {width: manaWidth}"></div>
+        </div>
+        <div class="bar-text">
+            Mana: <span data-bind="text: curMana">0</span> / <span data-bind="text: maxMana">0</span>
+        </div>
+    </div>
+
+    <!-- Status changes. -->
+    <div> </div>
+</div>
