@@ -24,12 +24,12 @@ import ModePartyCommand from './commands/ModePartyCommand';
  * @class Bestia.Chat
  */
 export default class Chat {
-	
+
 	constructor(pubsub) {
-		if(!pubsub) {
+		if (!pubsub) {
 			throw 'Pubsub can not be null.';
 		}
-	
+
 		/**
 		 * Number of max messages until old messages are discarded.
 		 * 
@@ -37,9 +37,9 @@ export default class Chat {
 		 * @constant
 		 */
 		this.MAX_MESSAGES = 50;
-		
+
 		this._pubsub = pubsub;
-	
+
 		/**
 		 * Name of the bestia master. Is extracted from the game config which is
 		 * set during login process.
@@ -48,11 +48,11 @@ export default class Chat {
 		 * @constant
 		 */
 		this._nickname = '';
-	
+
 		this._currentBestiaId = 0;
 		this._currentEntityId = 0;
 
-	
+
 		/**
 		 * Array list of local commands. Commands can register themselve to this
 		 * array and they will be executed when a message is typed so the can
@@ -63,7 +63,7 @@ export default class Chat {
 		 * @property
 		 */
 		this._localCommands = [];
-	
+
 		/**
 		 * Commands which will be checked at each keystroke if the must be
 		 * invoked.
@@ -71,7 +71,7 @@ export default class Chat {
 		 * @private
 		 */
 		this._localRealtimeCommands = [];
-	
+
 		/**
 		 * Current chat mode. Possible values are PUBLIC, PARTY or GUILD.
 		 * 
@@ -79,7 +79,7 @@ export default class Chat {
 		 * @property {String}
 		 */
 		this.mode = ko.observable('PUBLIC');
-		
+
 		/**
 		 * Flag if the speech recognition is enabled for the chat.
 		 * 
@@ -87,7 +87,7 @@ export default class Chat {
 		 * @property {bool}
 		 */
 		this.speechEnabled = ko.observable(false);
-	
+
 		/**
 		 * The translated text for the chat mode. Depends upon mode.
 		 * 
@@ -109,21 +109,21 @@ export default class Chat {
 	
 			return this._i18n.t('chat.public');
 		});*/
-	
+
 		/**
 		 * Holds the nickname which is used to whisper someone.
 		 * 
 		 * @property {String}
 		 */
 		this.whisperNick = ko.observable('');
-	
+
 		/**
 		 * Holds all the messages for the chat.
 		 * 
 		 * @property {Array}
 		 */
 		this.messages = ko.observableArray();
-	
+
 		/**
 		 * Flag if the chat as unread messages for the user at the bottom of the
 		 * display.
@@ -132,7 +132,7 @@ export default class Chat {
 		 * @property {boolean}
 		 */
 		this.hasUnreadMessages = ko.observable(false);
-	
+
 		/**
 		 * Chat an be made visible or invisible.
 		 * 
@@ -140,106 +140,95 @@ export default class Chat {
 		 * @property {boolean}
 		 */
 		this.isVisible = ko.observable(false);
-	
+
 		/**
 		 * Holds the text of the chat.
 		 */
 		this.text = ko.observable('');
-	
+
 		// Check for constant updates to this value e.g. if the user is typing
 		// to this property. react to certain inputs on the fly.
 		this.text.subscribe(this._identifyLocalCommandTyping.bind(this));
-	
+
 		// Finally subscribe to chat messages.
-		this._pubsub.subscribe(MID.CHAT_MESSAGE, function(_, msg) {
+		this._pubsub.subscribe(MID.CHAT_MESSAGE, function (_, msg) {
 			this.addMessage(msg);
 		}, this);
-	
+
 		// Catch authentication to set username for the chat. We can remove
 		// ourself
 		// once this is done.
-		var handleAuthEvent = function(_, data) {
+		var handleAuthEvent = function (_, data) {
 			this._nickname = data.username;
 			this._pubsub.unsubscribe(Signal.IO_AUTH_CONNECTED, handleAuthEvent);
 		};
 		this._pubsub.subscribe(Signal.IO_AUTH_CONNECTED, handleAuthEvent, this);
-	
+
 		// Handle the selection of a new bestia for the bestia id
 		// (chat messages are input messages).
-		this._pubsub.subscribe(Signal.BESTIA_SELECTED, function(_, bestia) {
+		this._pubsub.subscribe(Signal.BESTIA_SELECTED, function (_, bestia) {
 			this._currentBestiaId = bestia.playerBestiaId();
 			this._currentEntityId = bestia.entityId();
 		}, this);
-	
+
 		// When the game enters the loading menu hide the chat.
-		this._pubsub.subscribe(Signal.ENGINE_PREPARE_MAPLOAD, function() {
+		this._pubsub.subscribe(Signal.ENGINE_PREPARE_MAPLOAD, function () {
 			this.isVisible(false);
 		}, this);
-	
-		// Check the focus of the chat text input field and if one starts to typed
-		// disable the the game input listener.
-		let input = this.domEle.getElementsByTagName('input');
-		input.addEventListener('focus', function() {
-			this._pubsub.publish(Signal.INPUT_LISTEN, false);
-		}.bind(this));
-		
-		input.addEventListener('blur', function() {
-			this._pubsub.publish(Signal.INPUT_LISTEN, true);
-		}.bind(this));
-	
+
 		// When the game is displayed also display the chat.
-		this._pubsub.subscribe(Signal.ENGINE_FINISHED_MAPLOAD, function() {
+		this._pubsub.subscribe(Signal.ENGINE_FINISHED_MAPLOAD, function () {
 			this.isVisible(true);
 		}, this);
-	
+
 		this._pubsub.subscribe(Signal.INVENTORY_ITEM_ADD, this._handleItemObtainedMsg, this);
 		this._pubsub.subscribe(Signal.CHAT_REGISTER_CMD, this._handleRegisterCommand, this);
 		this._pubsub.subscribe(Signal.IO_DISCONNECTED, this.clear, this);
-	
+
 		// Register the chat specific local commands.
 		this._handleRegisterCommand(null, new ClearCommand());
 		this._handleRegisterCommand(null, new HelpCommand());
-	
+
 		this._localRealtimeCommands.push(new ModePublicCommand());
 		this._localRealtimeCommands.push(new ModePartyCommand());
 		this._localRealtimeCommands.push(new ModeGuildCommand());
 		this._localRealtimeCommands.push(new ModeWhisperCommand());
-		
+
 		// Some special checks.
-		if(window.hasOwnProperty('webkitSpeechRecognition')) {
+		if (window.hasOwnProperty('webkitSpeechRecognition')) {
 			this.speechEnabled(true);
 		}
 	}
-	
+
 	/**
 	 * Starts the speech recognition for the chat system.
 	 */
 	recognizeSpeech() {
-		if(!this.speechEnabled()) {
+		if (!this.speechEnabled()) {
 			return;
 		}
-		
-		if(!this._recognition) {
+
+		if (!this._recognition) {
 			this._recognition = new webkitSpeechRecognition();
 			this._recognition.continuous = false;
 			this._recognition.interimResults = false;
 			// TODO Sprache muss dynamisch mit der sprache angepasst werden.
 			this._recognition.lang = 'de-DE';
-			
-			this._recognition.onresult = function(e) {
+
+			this._recognition.onresult = function (e) {
 				this.text(e.results[0][0].transcript);
 				this._recognition.stop();
 				this.sendChat();
 			}.bind(this);
-		    
-			this._recognition.onerror = function() {
+
+			this._recognition.onerror = function () {
 				this._recognition.stop();
 			};
 		}
-		
+
 		this._recognition.start();
 	}
-	
+
 	/**
 	 * Triggers if a chat is about to be send. Create a chat message of all the
 	 * typed information and send it to the server.
@@ -249,8 +238,8 @@ export default class Chat {
 	 */
 	sendChat() {
 		var msgText = this.text();
-		
-		if(msgText.length === 0) {
+
+		if (msgText.length === 0) {
 			return;
 		}
 
@@ -268,7 +257,7 @@ export default class Chat {
 		// Prepare and send the message to the server and add it to the local
 		// chat.
 		var msg = new Message.Chat(this.mode(), msgText, this.whisperNick(), this._nickname,
-				this._currentBestiaId);
+			this._currentBestiaId);
 
 		// Check if this was a command to be executed on the server and set the
 		// message flag accordingly.
@@ -283,7 +272,7 @@ export default class Chat {
 
 		this._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 	}
-	
+
 	/**
 	 * Clears all chat input.
 	 */
@@ -339,6 +328,20 @@ export default class Chat {
 	}
 
 	/**
+	 * Disables the game controls if the chat is focused.
+	 */
+	disableGameControls() {
+		this._pubsub.publish(Signal.INPUT_LISTEN, false);
+	}
+
+	/**
+	 * Enables the game controls again.
+	 */
+	enableGameControls() {
+		this._pubsub.publish(Signal.INPUT_LISTEN, true);
+	}
+
+	/**
 	 * Translates the message when an item was added to the inventory and
 	 * displays it in the chat.
 	 * 
@@ -349,7 +352,7 @@ export default class Chat {
 
 		var self = this;
 
-		this._i18n.t('chat.item_obtained', function(t) {
+		this._i18n.t('chat.item_obtained', function (t) {
 			var text = t('chat.item_obtained').format(item.name(), newAmount);
 			self.addLocalMessage(text, 'SYSTEM');
 		});
@@ -414,7 +417,7 @@ export default class Chat {
 	 */
 	_identifyLocalCommandTyping(str) {
 
-		this._localRealtimeCommands.forEach(function(val) {
+		this._localRealtimeCommands.forEach(function (val) {
 			val.isCommand(str, this);
 		}, this);
 

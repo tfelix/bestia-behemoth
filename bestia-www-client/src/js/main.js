@@ -18,11 +18,7 @@ let game = new BestiaGame(pubSub, urlHelper);
 
 // === Register the components ===
 ko.components.register('bestia-chat', {
-	viewModel: {
-		function(params, componentInfo) {
-			return new Chat(pubSub);
-		}
-	},
+	viewModel: Chat,
 	template: { fromUrl: 'chat.html' }
 });
 
@@ -45,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	LOG.info('Starting Bestia Client V.' + version);
 
 	// Bind the DOM to the game.
-	//ko.applyBindings(model);
+	ko.applyBindings();
 
 	// Add click handler.
 	/*$('#btn-inventory').click(function() {

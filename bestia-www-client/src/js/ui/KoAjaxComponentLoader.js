@@ -46,8 +46,9 @@ export default class KoAjaxComponentLoader {
             });
             
         } else {
+            alert('ashy');
             // Unrecognized config format. Let another loader handle it.
-            callback(null);
+            //callback(null);
         }
     }
 }

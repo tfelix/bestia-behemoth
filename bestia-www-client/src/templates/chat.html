@@ -29,7 +29,7 @@
 			<span class="whisper-nick"
 				data-bind="visible: whisperNick().length > 0"><span
 				data-bind="text: whisperNick"></span>: </span><input type="text"
-				data-bind="textInput: text">
+				data-bind="textInput: text, event: {focus: disableGameControls, blur: enableGameControls}">
 		</form>
 	</div>
 </div>
