@@ -5,6 +5,19 @@ import ko from 'knockout';
  * @copyright    2015 Thomas Felix
  */
 
+function callAjax(url, callback){
+    var xmlhttp;
+    // compatible with IE7+, Firefox, Chrome, Opera, Safari
+    xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function(){
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200){
+            callback(xmlhttp.responseText);
+        }
+    }
+    xmlhttp.open('GET', url, true);
+    xmlhttp.send();
+}
+
 /**
  * This is a custom component loader for knockout which is used to dynamically
  * fetch the templates for the components of this page like the chat or the
@@ -12,16 +25,20 @@ import ko from 'knockout';
  */
 export default class KoAjaxComponentLoader {
 	
+    /**
+     * Ctor. Creates a new component loader which is used to create the custom bestia 
+     * components for knockout.
+     */
 	constructor() {
-		// no op.
+        //no op.
 	}
 	
 	loadTemplate(name, templateConfig, callback) {
-        if (templateConfig.fromUrl) {
+        if (templateConfig.fromUrl !== undefined) {
             // Uses jQuery's ajax facility to load the markup from a file
             var fullUrl = '/templates/' + templateConfig.fromUrl;
             
-            $.get(fullUrl, function(markupString) {
+            callAjax(fullUrl, function(markupString) {
                 // We need an array of DOM nodes, not a string.
                 // We can use the default loader to convert to the
                 // required format.
@@ -34,6 +51,4 @@ export default class KoAjaxComponentLoader {
         }
     }
 }
-
-ko.components.loaders.unshift(new KoAjaxComponentLoader());
 

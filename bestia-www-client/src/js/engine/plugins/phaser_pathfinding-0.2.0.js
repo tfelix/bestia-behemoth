@@ -1,4 +1,3 @@
-import Phaser from 'phaser';
 
 //NameSpace
 var EasyStar = EasyStar || {};

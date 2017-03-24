@@ -1,6 +1,6 @@
 /*global Phaser */
 
-//import './phaser';
+
 import Signal from '../io/Signal.js';
 import PubSub from '../util/PubSub';
 import EngineContext from './EngineContext.js';

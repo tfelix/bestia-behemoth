@@ -15,7 +15,8 @@ export default {
     resolve({
       jsnext: true,
       main: true,
-      browser: true
+      browser: true,
+      preferBuiltins: false
     }),
     commonjs(),
     babel({

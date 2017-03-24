@@ -176,10 +176,14 @@ export default class Chat {
 			this.isVisible(false);
 		}, this);
 	
-		// Check the focus and blur events on inputs to notify input ctrl.
-		$(this.domEle).find('input').focusin(function() {
+		// Check the focus of the chat text input field and if one starts to typed
+		// disable the the game input listener.
+		let input = this.domEle.getElementsByTagName('input');
+		input.addEventListener('focus', function() {
 			this._pubsub.publish(Signal.INPUT_LISTEN, false);
-		}.bind(this)).focusout(function() {
+		}.bind(this));
+		
+		input.addEventListener('blur', function() {
 			this._pubsub.publish(Signal.INPUT_LISTEN, true);
 		}.bind(this));
 	

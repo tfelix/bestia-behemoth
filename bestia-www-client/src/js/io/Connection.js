@@ -7,6 +7,8 @@
 
 import Signal from './Signal.js';
 import Urls from '../Urls.js';
+import ko from 'knockout';
+import SockJS from '../../../node_modules/sockjs-client/dist/sockjs';
 
 /**
  * Main message module. Responsible for sending messages to the server and to
