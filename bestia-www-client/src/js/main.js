@@ -21,6 +21,9 @@ let auth = new Authenticator(pubsub);
 let engine = new Engine(pubsub, urlHelper);
 let connection = new Connection(pubsub);
 
+// Some views share a view model.
+let bestiaView = new BestiaView(pubsub, urlHelper);
+
 // we register the component loader.
 ko.components.loaders.unshift(new KoAjaxComponentLoader());
 
@@ -56,20 +59,12 @@ ko.components.register('bestia-attacks', {
 
 
 ko.components.register('bestia-overview', {
-	viewModel: {
-		createViewModel: function () {
-			return new AttackView(pubsub, null);
-		}
-	},
+	viewModel: { instance: bestiaView },
 	template: { fromUrl: 'bestia_overview.html' }
 });
 
 ko.components.register('bestia-selected', {
-	viewModel: {
-		createViewModel: function () {
-			return new AttackView(pubsub, null);
-		}
-	},
+	viewModel: { instance: bestiaView },
 	template: { fromUrl: 'bestia_selected.html' }
 });
 
