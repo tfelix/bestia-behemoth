@@ -18,6 +18,7 @@ function callAjax(url, callback){
     xmlhttp.send();
 }
 
+
 /**
  * This is a custom component loader for knockout which is used to dynamically
  * fetch the templates for the components of this page like the chat or the
