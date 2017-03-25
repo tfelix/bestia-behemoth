@@ -4,6 +4,7 @@
  */
 
 import Signal from '../io/Signal';
+import LOG from '../util/Log';
 
 /**
  * Publish/Subscriber object. Central object for the game inter communucation.
@@ -122,10 +123,7 @@ export default class PubSub {
 		}
 
 		// @ifdef DEVELOPMENT
-		console.debug('Published: ' + e + '.');
-		if(data) {
-			console.debug(data);
-		}
+		LOG.debug('Published:', e, '- Data:', data);
 		// @endif
 
 		if (!this.cache[e]) {
