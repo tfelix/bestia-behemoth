@@ -1,3 +1,5 @@
+import ko from 'knockout';
+
 /**
  * @author       Thomas Felix <thomas.felix@tfelix.de>
  * @copyright    2015 Thomas Felix
@@ -6,10 +8,11 @@
 /**
  * ViewModel for the Status points.
  * 
- * @class Bestia.StatusPointViewModel
+ * @class Bestia.StatusPoint
+ *
  * @constructor
  */
-export default class StatusPointViewModel {
+export default class StatusPoint {
 	constructor(msg) {
 		
 		this.curMana = ko.observable(0);
@@ -43,7 +46,8 @@ export default class StatusPointViewModel {
 	/**
 	 * ViewModel for the Status points.
 	 * 
-	 * @method Bestia.StatusPointViewModel#update
+	 * @method Bestia.StatusPoint
+	 *#update
 	 * @param {Object}
 	 *            msg - Message from the server to fill the model.
 	 */

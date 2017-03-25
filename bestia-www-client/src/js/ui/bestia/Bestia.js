@@ -3,6 +3,7 @@
  * @copyright    2015 Thomas Felix
  */
 
+import ko from 'knockout';
 import Message from '../../io/messages/Message';
 import Signal from '../../io/Signal';
 import Attack from '../attack/Attack';
@@ -12,7 +13,7 @@ import StatusPoint from './StatusPoints';
 /**
  * ViewModel of a Bestia.
  * 
- * @class Bestia.BestiaViewModel
+ * @class Bestia.Bestia
  * 
  * @param {Bestia.PubSub}
  *            pubsub - Publish/Subscriber interface.
@@ -24,14 +25,14 @@ import StatusPoint from './StatusPoints';
  *            information about the current stats.
  * @constructor
  */
-export default class BestiaViewModel {
+export default class Bestia {
 	
 	constructor(pubsub, msg, urlHelper) {
 		if (!pubsub) {
-			throw 'BestiaViewModel: PubSub must be given.';
+			throw 'Bestia: PubSub must be given.';
 		}
 		if (!urlHelper) {
-			throw 'BestiaViewModel: UrlHelper must be given.';
+			throw 'Bestia: UrlHelper must be given.';
 		}
 	
 		var self = this;
@@ -81,7 +82,7 @@ export default class BestiaViewModel {
 	 * This method selects this bestia as active. All server updates will then
 	 * forwarded to this bestia.
 	 * 
-	 * @method Bestia.BestiaViewModel#selectBestia
+	 * @method Bestia.Bestia#selectBestia
 	 */
 	selectBestia() {
 		var activeMsg = new Message.BestiaActivate(this.playerBestiaId());
@@ -92,7 +93,7 @@ export default class BestiaViewModel {
 	/**
 	 * Updates the model with new data from the server.
 	 * 
-	 * @method Bestia.BestiaViewModel#update
+	 * @method Bestia.Bestia#update
 	 * @param {Object}
 	 *            msg - Message object from the server.
 	 */

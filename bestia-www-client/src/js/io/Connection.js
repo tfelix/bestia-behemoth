@@ -48,7 +48,7 @@ export default class Connection {
 		// Sends a message while listening to this channel.
 		pubsub.subscribe(Signal.IO_SEND_MESSAGE, this._handleOnSendMessage, this);
 		// wire connect.
-		//pubsub.subscribe(Signal.IO_CONNECT, this.connect, this);
+		pubsub.subscribe(Signal.IO_CONNECT, this.connect, this);
 		// wire disconnect.
 		pubsub.subscribe(Signal.IO_DISCONNECT, this.disconnect, this);
 	}
