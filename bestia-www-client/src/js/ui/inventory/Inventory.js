@@ -104,7 +104,7 @@ export default class Inventory {
 		 * @public
 		 * @property {boolean}
 		 */
-		//this.isVisible = ko.observable(false);
+		this.isVisible = ko.observable(false);
 
 		/**
 		 * <p>
