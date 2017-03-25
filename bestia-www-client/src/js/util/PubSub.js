@@ -136,7 +136,7 @@ export default class PubSub {
 			try {
 				fns[i](e, data);
 			} catch(ex) {
-				console.error('Error while publish topic: ' + e, ex);
+				LOG.error('Error while publish topic: ', e, ex);
 			}
 		}
 		this._currentlyActive--;
