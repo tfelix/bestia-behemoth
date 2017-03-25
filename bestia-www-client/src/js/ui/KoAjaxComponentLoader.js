@@ -1,4 +1,5 @@
 import ko from 'knockout';
+import LOG from '../util/Log';
 
 /**
  * @author       Thomas Felix <thomas.felix@tfelix.de>
@@ -38,6 +39,8 @@ export default class KoAjaxComponentLoader {
         if (templateConfig.fromUrl !== undefined) {
             // Uses jQuery's ajax facility to load the markup from a file
             var fullUrl = '/templates/' + templateConfig.fromUrl;
+
+            LOG.debug('Fetching UI template:', fullUrl);
             
             callAjax(fullUrl, function(markupString) {
                 // We need an array of DOM nodes, not a string.

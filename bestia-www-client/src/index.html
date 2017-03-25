@@ -1,29 +1,29 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Bestia - Das Browsergame</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Bestia - Das Browsergame</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
 
-<link href="/css/game.css" rel="stylesheet">
+	<link href="/css/game.css" rel="stylesheet">
 
-<!-- JAVASCRIPT -->
-<!-- @ifdef DEVELOPMENT -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-debug.js"></script>
-<script src="js/phaser.min.js"></script>
-<script src="js/behemoth.js"></script>
-<!-- @endif -->
-
+	<!-- JAVASCRIPT -->
+	<!-- @ifdef DEVELOPMENT -->
+	<script src="js/phaser.min.js"></script>
+	<script src="js/behemoth.js"></script>
+	<!-- @endif -->
 </head>
+
 <body class="noscroll">
 
-	<like-widget></like-widget>
+	<bestia-chat></bestia-chat>
 
-	<!--<bestia-inventory></bestia-inventory>
-	<bestia-attacks></bestia-attacks>
-	<bestia-chat></bestia-chat>-->
+	<!--
+		<bestia-inventory></bestia-inventory>
+	<bestia-attacks></bestia-attacks>-->
 
 	<div class="cont">
 		<div class="navi" id="navi">
@@ -43,8 +43,7 @@
 			<!-- /UI BUTTONS -->
 			<div style="clear: both"></div>
 			<div class="navi-footer">
-				tfelix Software - <a href="imprint.html" target="_blank">Impressum</a>
-				- &copy; 2016
+				tfelix Software - <a href="imprint.html" target="_blank">Impressum</a> - &copy; 2016
 			</div>
 		</div>
 
@@ -63,8 +62,7 @@
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-label="Close">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 						<span aria-hidden="true">&times;</span>
 					</button>
 					<h4 class="modal-title" data-i18n="logout.title">logout.title</h4>
@@ -73,8 +71,7 @@
 					<p data-i18n="logout.msg">logout.msg</p>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal"
-						data-i18n="ui.close">ui.close</button>
+					<button type="button" class="btn btn-default" data-dismiss="modal" data-i18n="ui.close">ui.close</button>
 				</div>
 			</div>
 			<!-- /.modal-content -->
@@ -106,6 +103,6 @@
 		<!-- /.modal-dialog -->
 	</div>
 	<!-- /MODALS -->
-
 </body>
+
 </html>
