@@ -12,8 +12,6 @@ import Inventory from './ui/inventory/Inventory';
 import AttackView from './ui/attack/AttackView';
 import BestiaView from './ui/bestia/BestiaView';
 
-//this.i18n = new I18n(this.pubsub);
-
 // Creating all needed components.
 let pubsub = new PubSub();
 let urlHelper = new UrlHelper('assets/');
