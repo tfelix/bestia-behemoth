@@ -65,7 +65,7 @@ public class MovementActor extends BestiaRoutingActor {
 			// Start a new movement via spawning a new movement tick actor with
 			// the route to move and the movement speed determines the ticking
 			// speed.
-			moveActor = SpringExtension.unnamedActorOf(getContext().system(), TimedMoveActor.class);
+			moveActor = SpringExtension.createUnnamedActor(getContext(), TimedMoveActor.class);
 		}
 
 		// Tell the client the movement prediction message.

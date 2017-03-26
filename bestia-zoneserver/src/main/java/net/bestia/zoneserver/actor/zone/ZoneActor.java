@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.cluster.singleton.ClusterSingletonManager;
@@ -46,60 +45,58 @@ public class ZoneActor extends BestiaRoutingActor {
 	public ZoneActor() {
 		super(Arrays.asList(DoneMessage.class));
 
-		final ActorSystem system = getContext().system();
-
 		// === Login ===
-		SpringExtension.actorOf(system, LoginActor.class);
+		//createActor(LoginActor.class);
+		SpringExtension.actorOf(getContext(), LoginActor.class);
 
 		// === Map ===
-		SpringExtension.actorOf(system, MapRequestChunkActor.class);
-		SpringExtension.actorOf(system, TilesetRequestActor.class);
+		SpringExtension.actorOf(getContext(), MapRequestChunkActor.class);
+		SpringExtension.actorOf(getContext(), TilesetRequestActor.class);
 
 		// === Inventory ===
-		SpringExtension.actorOf(system, InventoryActor.class);
+		SpringExtension.actorOf(getContext(), InventoryActor.class);
 
 		// === Bestias ===
-		SpringExtension.actorOf(system, BestiaInfoActor.class);
-		SpringExtension.actorOf(system, ActivateBestiaActor.class);
-		SpringExtension.actorOf(system, EntitySpawnActor.class);
+		SpringExtension.actorOf(getContext(), BestiaInfoActor.class);
+		SpringExtension.actorOf(getContext(), ActivateBestiaActor.class);
+		SpringExtension.actorOf(getContext(), EntitySpawnActor.class);
 
 		// === Entities ===
-		SpringExtension.actorOf(system, EntityInteractionRequestActor.class);
-		SpringExtension.actorOf(system, EntityMoveActor.class);
+		SpringExtension.actorOf(getContext(), EntityInteractionRequestActor.class);
+		SpringExtension.actorOf(getContext(), EntityMoveActor.class);
 
 		// === Chat ===
-		SpringExtension.actorOf(system, ChatActor.class);
+		SpringExtension.actorOf(getContext(), ChatActor.class);
 
 		// === Attacking ===
-		SpringExtension.actorOf(system, AttackPlayerUseActor.class);
+		SpringExtension.actorOf(getContext(), AttackPlayerUseActor.class);
 
 		// === Helper Actors
-		SpringExtension.actorOf(system, EngineReadyActor.class);
+		SpringExtension.actorOf(getContext(), EngineReadyActor.class);
 
 		// === House keeping actors ===
-		SpringExtension.actorOf(system, LogoutActor.class);
-		SpringExtension.actorOf(system, PingPongActor.class);
-		SpringExtension.actorOf(system, ZoneClusterListenerActor.class);
+		SpringExtension.actorOf(getContext(), LogoutActor.class);
+		SpringExtension.actorOf(getContext(), PingPongActor.class);
+		SpringExtension.actorOf(getContext(), ZoneClusterListenerActor.class);
 
 		// === DEVELOPMENT ===
-		SpringExtension.actorOf(system, SpawnActorHelper.class);
+		SpringExtension.actorOf(getContext(), SpawnActorHelper.class);
 
 		// Setup the init actor singelton for creation of the system.
-		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
-		final Props globalInitProps = SpringExtension.getSpringProps(system, InitGlobalActor.class);
+		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(getContext().system());
+		final Props globalInitProps = SpringExtension.getSpringProps(getContext(), InitGlobalActor.class);
 		Props clusterProbs = ClusterSingletonManager.props(globalInitProps, PoisonPill.getInstance(), settings);
-		system.actorOf(clusterProbs, "globalInit");
+		getContext().actorOf(clusterProbs, "globalInit");
 
 		// Try to do the global init if it has not been done before.
-		final ClusterSingletonProxySettings proxySettings = ClusterSingletonProxySettings.create(system);
+		final ClusterSingletonProxySettings proxySettings = ClusterSingletonProxySettings.create(getContext().system());
 		clusterProbs = ClusterSingletonProxy.props("/user/globalInit", proxySettings);
-		final ActorRef initProxy = system.actorOf(clusterProbs, "globalInitProxy");
+		final ActorRef initProxy = getContext().actorOf(clusterProbs, "globalInitProxy");
 		initProxy.tell(new StartInitMessage(), getSelf());
 	}
 
 	@Override
 	protected void handleMessage(Object msg) {
-		// TODO Auto-generated method stub
-
+		// no op.
 	}
 }

@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.SpringExtension;
@@ -29,12 +28,11 @@ public class EntityContextActor extends BestiaRoutingActor {
 
 	public EntityContextActor() {
 
-		final ActorSystem system = getContext().system();
-		activeClientUpdateRef = SpringExtension.actorOf(system, ActiveClientUpdateActor.class);
-		SpringExtension.actorOf(system, MovementActor.class);
-		SpringExtension.actorOf(system, EntitySpawnActor.class);
-		SpringExtension.actorOf(system, PositionActor.class);
-		SpringExtension.actorOf(system, EntityDeleteActor.class);
+		activeClientUpdateRef = SpringExtension.actorOf(getContext(), ActiveClientUpdateActor.class);
+		SpringExtension.actorOf(getContext(), MovementActor.class);
+		SpringExtension.actorOf(getContext(), EntitySpawnActor.class);
+		SpringExtension.actorOf(getContext(), PositionActor.class);
+		SpringExtension.actorOf(getContext(), EntityDeleteActor.class);
 	}
 
 	@Override

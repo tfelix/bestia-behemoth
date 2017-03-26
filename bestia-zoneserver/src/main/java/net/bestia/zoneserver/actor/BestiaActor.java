@@ -42,7 +42,7 @@ public abstract class BestiaActor extends UntypedActor {
 	protected void sendClient(JsonMessage msg) {
 		LOG.debug(String.format("Sending to client %d: %s", msg.getAccountId(), msg.toString()));
 		if (responder == null) {
-			responder = SpringExtension.actorOf(getContext().system(), SendClientActor.class);
+			responder = SpringExtension.actorOf(getContext(), SendClientActor.class);
 		}
 
 		responder.tell(msg, getSelf());
@@ -58,7 +58,7 @@ public abstract class BestiaActor extends UntypedActor {
 	 */
 	protected void sendActiveInRangeClients(EntityJsonMessage msg) {
 		if (activeClientBroadcaster == null) {
-			activeClientBroadcaster = SpringExtension.actorOf(getContext().system(), ActiveClientUpdateActor.class);
+			activeClientBroadcaster = SpringExtension.actorOf(getContext(), ActiveClientUpdateActor.class);
 		}
 
 		activeClientBroadcaster.tell(msg, getSelf());

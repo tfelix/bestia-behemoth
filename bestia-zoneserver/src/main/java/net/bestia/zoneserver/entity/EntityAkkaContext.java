@@ -3,8 +3,8 @@ package net.bestia.zoneserver.entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import akka.actor.ActorContext;
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 import akka.actor.TypedActor;
 import net.bestia.messages.Message;
 import net.bestia.messages.entity.EntityDeleteInternalMessage;
@@ -30,11 +30,11 @@ public class EntityAkkaContext implements EntityContext {
 	 */
 	public EntityAkkaContext() {
 
-		final ActorSystem system = TypedActor.context().system();
+		final ActorContext ctx = TypedActor.context();
 
 		// Create a new entity context actor which is responsible for routing
 		// the messages.
-		actor = SpringExtension.actorOf(system, EntityContextActor.class);
+		actor = SpringExtension.actorOf(ctx, EntityContextActor.class);
 	}
 
 	/*

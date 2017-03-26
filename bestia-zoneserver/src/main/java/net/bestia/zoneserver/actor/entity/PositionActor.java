@@ -67,7 +67,8 @@ public class PositionActor extends BestiaRoutingActor {
 		}
 
 		// Update the client.
-		sendActiveInRangeClients(posMsg);
+		// FIXME
+		//sendActiveInRangeClients(posMsg);
 	}
 
 	/**

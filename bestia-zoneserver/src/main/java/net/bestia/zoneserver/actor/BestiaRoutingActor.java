@@ -99,7 +99,8 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	@Override
 	public void preStart() throws Exception {
 		final ReportHandledMessages msg = new ReportHandledMessages(ownHandler);
-		getContext().parent().tell(msg, getSelf());
+		final ActorRef parent = getContext().parent();
+		parent.tell(msg, getSelf());
 	}
 
 	@Override

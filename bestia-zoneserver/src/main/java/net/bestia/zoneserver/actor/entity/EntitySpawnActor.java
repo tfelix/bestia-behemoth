@@ -34,8 +34,8 @@ public class EntitySpawnActor extends BestiaRoutingActor {
 		// TODO We only have bestia entities.
 		final long eid = spmsg.getEntityId();
 
-		final Props aiProps = SpringExtension.getSpringProps(getContext().system(), EntityAiActor.class, Long.valueOf(eid));
-		getContext().actorOf(aiProps);
+		//final Props aiProps = SpringExtension.getSpringProps(getContext().system(), EntityAiActor.class, Long.valueOf(eid));
+		//getContext().actorOf(aiProps);
 	}
 
 }

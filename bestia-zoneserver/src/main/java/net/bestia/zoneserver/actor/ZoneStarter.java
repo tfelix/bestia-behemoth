@@ -9,6 +9,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorSystem;
+import akka.actor.Props;
+import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
 import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 import net.bestia.zoneserver.actor.zone.UplinkActor;
@@ -39,10 +41,21 @@ public class ZoneStarter implements CommandLineRunner {
 		LOG.info("Starting actor system...");
 
 		// Spawn the root actor of the system. Bootstrapping via spring actor
-		// because of automatic injections.
-		SpringExtension.actorOf(system, ZoneActor.class);
-		SpringExtension.actorOf(system, MapGeneratorClientActor.class);
-		SpringExtension.actorOf(system, MapGeneratorMasterActor.class);
-		SpringExtension.actorOf(system, UplinkActor.class);
+		// because of automatic injections. We must do it manually here because
+		// we are not inside an actor and have no access to a
+		// UntypedActorContext.
+		final SpringExt springExt = SpringExtension.PROVIDER.get(system);
+
+		Props props = springExt.props(ZoneActor.class);
+		system.actorOf(props);
+		
+		props = springExt.props(MapGeneratorClientActor.class);
+		system.actorOf(props);
+		
+		props = springExt.props(MapGeneratorMasterActor.class);
+		system.actorOf(props);
+		
+		props = springExt.props(UplinkActor.class);
+		system.actorOf(props);
 	}
 }

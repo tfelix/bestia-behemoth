@@ -2,15 +2,13 @@ package net.bestia.zoneserver.actor;
 
 import java.lang.reflect.Field;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractExtensionId;
 import akka.actor.Actor;
+import akka.actor.ActorContext;
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
 import akka.actor.Deploy;
 import akka.actor.ExtendedActorSystem;
 import akka.actor.Extension;
@@ -25,13 +23,14 @@ import akka.actor.UntypedActor;
  */
 @Component
 public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringExt> {
-
-	private static final Logger LOG = LoggerFactory.getLogger(SpringExtension.class);
-
 	/**
 	 * The identifier used to access the SpringExtension.
 	 */
 	public static final SpringExtension PROVIDER = new SpringExtension();
+	
+	private SpringExtension() {
+		// no op.
+	}
 
 	/**
 	 * Is used by Akka to instantiate the Extension identified by this
@@ -46,7 +45,12 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 	 * The extension implementation.
 	 */
 	public static class SpringExt implements Extension {
+		
 		private volatile ApplicationContext applicationContext;
+		
+		private SpringExt() {
+			// no op.
+		}
 
 		/**
 		 * Used to initialize the Spring application context for the extension.
@@ -85,6 +89,65 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 		}
 	}
 
+
+	/**
+	 * Like {@link #createActor(Class, String)} but it will examine the given
+	 * class if it has a static public string field called NAME and will use
+	 * this name as actor name. If no such field exists the name "NONAME" will
+	 * be used.
+	 * 
+	 * @param clazz
+	 *            The class of the {@link UntypedActor} to instantiate.
+	 * @return The created and already registered new actor.
+	 */
+	public static ActorRef actorOf(ActorContext ctx, Class<? extends UntypedActor> clazz) {
+		// Try to create the class with the name field.
+		final Props props = getSpringProps(ctx, clazz);
+		try {
+			final Field f = clazz.getField("NAME");
+			final Class<?> t = f.getType();
+			if (t == String.class) {
+				return ctx.actorOf(props, (String) f.get(null));
+			}
+		} catch (Exception e) {
+			// no op.
+		}
+
+		return ctx.actorOf(props);
+	}
+	
+	/**
+	 * Creates a new actor and already register it with this routing actor so it
+	 * is considered when receiving messages.
+	 * 
+	 * @param clazz
+	 *            The class of the {@link UntypedActor} to instantiate.
+	 * @param name
+	 *            The name under which the actor should be created.
+	 * @return The created and already registered new actor.
+	 */
+	public static ActorRef actorOf(ActorContext ctx, Class<? extends UntypedActor> clazz, String name) {
+
+		final Props props = getSpringProps(ctx, clazz);
+		final ActorRef newActor = ctx.actorOf(props, name);
+		return newActor;
+	}
+
+
+	/**
+	 * Unlike {@link #createActor(Class)} this wont check the given class for a
+	 * name and just assign a random name. This is important when a lot of
+	 * actors are created and destroyed to avoid performance bottlenecks.
+	 * 
+	 * @param clazz
+	 *            The class to create an actor from.
+	 * @return The created and already registered new actor.
+	 */
+	public static ActorRef createUnnamedActor(ActorContext ctx, Class<? extends UntypedActor> clazz) {
+		final Props props = getSpringProps(ctx, clazz);
+		return ctx.actorOf(props);
+	}
+
 	/**
 	 * Small helper method to get props via the spring extension (and thus can
 	 * use dependency injection).
@@ -96,11 +159,9 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 	 *            arguments.
 	 * @return The created props object.
 	 */
-	public static Props getSpringProps(ActorSystem system, Class<? extends UntypedActor> clazz, Object... args) {
+	public static Props getSpringProps(ActorContext ctx, Class<? extends UntypedActor> clazz, Object... args) {
 
-		final SpringExt springExt = SpringExtension.PROVIDER.get(system);
-		final Props props = springExt.props(clazz, args);
-		return props;
+		return PROVIDER.get(ctx.system()).props(clazz, args);
 	}
 
 	/**
@@ -111,66 +172,8 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 	 *            The Actor class to get the props object for.
 	 * @return The created props object.
 	 */
-	public static Props getSpringProps(ActorSystem system, Class<? extends UntypedActor> clazz) {
-
-		final SpringExt springExt = SpringExtension.PROVIDER.get(system);
-		final Props props = springExt.props(clazz);
-		return props;
-	}
-
-	/**
-	 * TODO Kommentieren.
-	 * @param system
-	 * @param clazz
-	 * @return
-	 */
-	public static ActorRef actorOf(ActorSystem system, Class<? extends UntypedActor> clazz) {
-
-		// Try to create the class with the name field.
-		try {
-			final Field f = clazz.getField("NAME");
-			final Class<?> t = f.getType();
-			if (t == String.class) {
-				return actorOf(system, clazz, (String) f.get(null));
-			}
-		} catch (Exception e) {
-			// no op.
-		}
-
-		return actorOf(system, clazz, null);
-	}
-	
-	/**
-	 * Unlike {@link #createActor(Class)} this wont check the given class for a
-	 * name and just assign a random name. This is important when a lot of
-	 * actors are created and destroyed to avoid performance bottlenecks.
-	 * 
-	 * @param clazz
-	 *            The class to create an actor from.
-	 * @return The created and already registered new actor.
-	 */
-	public static ActorRef unnamedActorOf(ActorSystem system, Class<? extends UntypedActor> clazz) {
-		final Props props = getSpringProps(system, clazz);
-		return system.actorOf(props);
-	}
-
-	/**
-	 * TODO Kommentieren.
-	 * @param system
-	 * @param clazz
-	 * @param name
-	 * @return
-	 */
-	public static ActorRef actorOf(ActorSystem system, Class<? extends UntypedActor> clazz, String name) {
-
-		final Props props = getSpringProps(system, clazz);
+	public static Props getSpringProps(ActorContext ctx, Class<? extends UntypedActor> clazz) {
 		
-		LOG.debug("Creating actor: {}.", clazz);
-
-		if (name == null) {
-			return system.actorOf(props);
-		} else {
-			return system.actorOf(props, name);
-		}
+		return PROVIDER.get(ctx.system()).props(clazz);
 	}
 }
