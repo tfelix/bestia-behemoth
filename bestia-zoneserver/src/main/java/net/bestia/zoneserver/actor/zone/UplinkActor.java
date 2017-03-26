@@ -14,7 +14,7 @@ import net.bestia.zoneserver.actor.BestiaActor;
  * @author Thomas
  *
  */
-@Component
+@Component("UplinkActor")
 @Scope("prototype")
 public class UplinkActor extends BestiaActor {
 	

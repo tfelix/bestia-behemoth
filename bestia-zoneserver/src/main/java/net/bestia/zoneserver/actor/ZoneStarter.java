@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
@@ -47,7 +48,8 @@ public class ZoneStarter implements CommandLineRunner {
 		final SpringExt springExt = SpringExtension.PROVIDER.get(system);
 
 		Props props = springExt.props(ZoneActor.class);
-		system.actorOf(props);
+		ActorRef zone = system.actorOf(props);
+		LOG.warn("Path: {}", zone.path().toString());
 		
 		props = springExt.props(MapGeneratorClientActor.class);
 		system.actorOf(props);
