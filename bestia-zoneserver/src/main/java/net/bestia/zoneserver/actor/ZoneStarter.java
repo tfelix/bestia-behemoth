@@ -48,16 +48,16 @@ public class ZoneStarter implements CommandLineRunner {
 		final SpringExt springExt = SpringExtension.PROVIDER.get(system);
 
 		Props props = springExt.props(ZoneActor.class);
-		ActorRef zone = system.actorOf(props);
+		ActorRef zone = system.actorOf(props, ZoneActor.NAME);
 		LOG.warn("Path: {}", zone.path().toString());
 		
 		props = springExt.props(MapGeneratorClientActor.class);
-		system.actorOf(props);
+		system.actorOf(props, MapGeneratorClientActor.NAME);
 		
 		props = springExt.props(MapGeneratorMasterActor.class);
-		system.actorOf(props);
+		system.actorOf(props, MapGeneratorMasterActor.NAME);
 		
 		props = springExt.props(UplinkActor.class);
-		system.actorOf(props);
+		system.actorOf(props, UplinkActor.NAME);
 	}
 }

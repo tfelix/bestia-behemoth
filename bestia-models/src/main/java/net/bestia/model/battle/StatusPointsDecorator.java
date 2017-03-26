@@ -215,4 +215,8 @@ public class StatusPointsDecorator implements StatusPoints, Serializable {
 		statusMods.clear();
 	}
 
+	@Override
+	public String toString() {
+		return "StatusPointsDecorator[]";
+	}
 }
