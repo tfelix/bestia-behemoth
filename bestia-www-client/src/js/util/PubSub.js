@@ -4,6 +4,7 @@
  */
 
 import Signal from '../io/Signal';
+import LOG from '../util/Log';
 
 /**
  * Publish/Subscriber object. Central object for the game inter communucation.
@@ -122,10 +123,7 @@ export default class PubSub {
 		}
 
 		// @ifdef DEVELOPMENT
-		console.debug('Published: ' + e + '.');
-		if(data) {
-			console.debug(data);
-		}
+		LOG.debug('Published:', e, '- Data:', data);
 		// @endif
 
 		if (!this.cache[e]) {
@@ -138,7 +136,7 @@ export default class PubSub {
 			try {
 				fns[i](e, data);
 			} catch(ex) {
-				console.error('Error while publish topic: ' + e, ex);
+				LOG.error('Error while publish topic: ', e, ex);
 			}
 		}
 		this._currentlyActive--;

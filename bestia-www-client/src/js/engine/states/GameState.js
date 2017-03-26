@@ -2,6 +2,7 @@
 
 import Signal from '../../io/Signal.js';
 import TileRender from '../renderer/TileRenderer';
+import PhaserDebug from '../plugins/phaser-debug';
 
 /**
  * Central game state for controlling the games logic.
@@ -42,7 +43,7 @@ export default class GameState {
 
 		// ==== PLUGINS ====
 		// @ifdef DEVELOPMENT
-		this.game.plugins.add(Phaser.Plugin.Debug);
+		this.game.plugins.add(PhaserDebug);
 		this.game.stage.disableVisibilityChange = true;
 		// @endif	
 		// ==== /PLUGINS ====
@@ -96,7 +97,6 @@ export default class GameState {
 	render() {
 		// @ifdef DEVELOPMENT
 		this.game.debug.cameraInfo(this.game.camera, 32, 32);
-		// this.game.debug.spriteCoords(this.sprite, 32, 500);
 		// @endif
 	}
 

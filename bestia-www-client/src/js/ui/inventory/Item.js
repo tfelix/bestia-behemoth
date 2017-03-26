@@ -1,3 +1,5 @@
+import ko from 'knockout';
+
 /**
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * @copyright 2015 Thomas Felix

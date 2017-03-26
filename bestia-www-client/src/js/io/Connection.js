@@ -7,17 +7,21 @@
 
 import Signal from './Signal.js';
 import Urls from '../Urls.js';
+import ko from 'knockout';
+import SockJS from '../../../node_modules/sockjs-client/dist/sockjs';
 
 /**
  * Main message module. Responsible for sending messages to the server and to
  * receive them and rebroadcast them into the client.
+ * 
+ * The reconnection implements a backoff algorithm if a disconnection happens.
  * 
  * @class Bestia.Connection
  * @param {Bestia.PubSub}
  *            pubsub - Publish/Subscriber interface.
  */
 export default class Connection {
-	
+
 	/**
 	 * Ctor.
 	 * 
@@ -48,20 +52,20 @@ export default class Connection {
 		// wire disconnect.
 		pubsub.subscribe(Signal.IO_DISCONNECT, this.disconnect, this);
 	}
-	
+
 	_handleOnSendMessage(_, msg) {
 		var message = JSON.stringify(msg);
-		
+
 		// @ifdef DEVELOPMENT
 		console.debug('Sending Message: ' + message);
 		this._debug('send', message, msg);
 		// @endif
-		
-		if(this._socket !== null) {
+
+		if (this._socket !== null) {
 			this._socket.send(message);
 		}
 	}
-	
+
 	/**
 	 * Creates the debug statistics. Should be called when receiving or sending
 	 * messages. Since this is a quite consuming process it should only be done
@@ -86,9 +90,9 @@ export default class Connection {
 		// Check if debug data struct exists. Or create it.
 		if (!this._debugData.hasOwnProperty(msgObj.mid)) {
 			this._debugData[msgObj.mid] = {
-				count : 0,
-				last : 0,
-				bytes : 0
+				count: 0,
+				last: 0,
+				bytes: 0
 			};
 		}
 
@@ -100,14 +104,14 @@ export default class Connection {
 	connect() {
 		// defined a connection to a new socket endpoint
 		this._socket = new SockJS(Urls.bestiaWebsocket);
-		this._socket.onopen = function() {
+		this._socket.onopen = function () {
 			this._pubsub.publish(Signal.IO_CONNECTED);
 		}.bind(this);
 
-		this._socket.onmessage = function(e) {
+		this._socket.onmessage = function (e) {
 			// Is it a valid server message?
 			try {
-				var json = jQuery.parseJSON(e.data);
+				var json = JSON.parse(e.data);
 				// @ifdef DEVELOPMENT
 				console.debug('Received Message: ' + e.data);
 				this._debug('receive', json, e.data);
@@ -120,12 +124,12 @@ export default class Connection {
 			}
 		}.bind(this);
 
-		this._socket.onclose = function() {
+		this._socket.onclose = function () {
 			console.log('Server has closed the connection.');
 			// Most likly we are not authenticated. Back to login.
 			this._pubsub.publish(Signal.IO_DISCONNECTED);
 		}.bind(this);
-		
+
 		this._pubsub.publish(Signal.IO_CONNECTING);
 	}
 
@@ -138,16 +142,6 @@ export default class Connection {
 		}
 		this._socket.close();
 		this._socket = null;
-	}
-
-	/**
-	 * Sends ping to the server.
-	 */
-	sendPing() {
-		this._socket.send(JSON.stringify({
-			mid : 'system.ping',
-			m : 'Hello Bestia.'
-		}));
 	}
 }
 

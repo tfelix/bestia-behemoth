@@ -1,191 +1,44 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Bestia - Das Browsergame</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Bestia - Das Browsergame</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400"
-	rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="css/main.css" />
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
+	<link href="/css/game.css" rel="stylesheet">
 
-<!-- JAVASCRIPT -->
-<!-- @ifdef PRODUCTION -->
-<script src="js/lib-app.min.js"></script>
-<script src="js/behemoth.min.js"></script>
-<!-- @endif -->
-<!-- @ifdef DEVELOPMENT -->
-<script src="js/lib-app.js"></script>
-<script src="lib/js/phaser-debug.js"></script>
-<script src="js/behemoth.js"></script>
-<!-- @endif -->
-
+	<!-- JAVASCRIPT -->
+	<!-- @ifdef DEVELOPMENT -->
+	<script src="js/phaser.min.js"></script>
+	<script src="js/behemoth.js"></script>
+	<!-- @endif -->
 </head>
+
 <body class="noscroll">
 
+<!--
+	<bestia-chat></bestia-chat>
 	<bestia-inventory></bestia-inventory>
 	<bestia-attacks></bestia-attacks>
-	<bestia-chat></bestia-chat>
 
-	<div class="cont">
-		<div class="navi" id="navi">
+	<bestia-selected></bestia-selected>
+	<bestia-overview></bestia-overview>-->
 
-			<!-- UI BUTTONS -->
-			<div class="ui-buttons">
-				<button id="btn-inventory">
-					<img src="/img/swap-bag.png" data-i18n="[alt]nav.inventory">
-				</button>
-				<button id="btn-attacks">
-					<img src="/img/sword-clash.png" data-i18n="[alt]nav.attacks">
-				</button>
-				<button id="btn-bugs">
-					<img src="/img/spotted-bug.png" data-i18n="[alt]nav.bugs">
-				</button>
-			</div>
-			<!-- /UI BUTTONS -->
-
-			<div data-bind="with: bestias">
-				<div id="selected-bestia" data-bind="with: selectedBestia">
-					<!-- TODO Austauschen gegen ein animiertes Canvas. -->
-					<img data-bind="attr: {src: iconUrl}" alt="Bestia Icon"
-						style="float: left; margin: 10px;">
-
-					<div class="name">
-						<b><span data-bind="text: customName">---</span></b> - Lv. <span
-							data-bind="text: level">---</span>
-						<p>
-							Östliches Kalaria (X: <span data-bind="text: posX"></span> Y: <span
-								data-bind="text: posY"></span>)
-						</p>
-					</div>
-
-					<div class="bar hp-bar" style="clear: both;"
-						data-bind="with: statusPoints">
-						<div class="bar-bg">
-							<div data-bind="style: {width: hpWidth}"></div>
-						</div>
-						<div class="bar-text">
-							HP: <span data-bind="text: curHp">0</span> / <span
-								data-bind="text: maxHp">0</span>
-						</div>
-					</div>
-					<div class="bar mana-bar" data-bind="with: statusPoints">
-						<div class="bar-bg">
-							<div data-bind="style: {width: manaWidth}"></div>
-						</div>
-						<div class="bar-text">
-							Mana: <span data-bind="text: curMana">0</span> / <span
-								data-bind="text: maxMana">0</span>
-						</div>
-					</div>
-
-					<div>
-						<img src="http://placehold.it/32x32"> <img
-							src="http://placehold.it/32x32"> <img
-							src="http://placehold.it/32x32">
-					</div>
-				</div>
-
-				<div id="bestia-slots" data-bind="foreach: bestias">
-					<div class="bestia-slot" data-bind="click: selectBestia">
-						<img data-bind="attr: {src: iconUrl}" alt="Bestia Icon"
-							style="float: left; margin: 10px;">
-						<div class="name">
-							<b><span data-bind="text: customName"></span></b> - Lv. <span
-								data-bind="text: level"></span>
-						</div>
-						<div style="margin-top: 8px; float: left; width: 200px;"
-							data-bind="with: statusPoints">
-							<div class="bar hp-bar small-bar">
-								<div class="bar-bg">
-									<div data-bind="style: {width: hpWidth}"></div>
-								</div>
-								<div class="bar-text">
-									HP: <span data-bind="text: curHp">0</span> / <span
-										data-bind="text: maxHp">0</span>
-								</div>
-							</div>
-							<div class="bar mana-bar small-bar">
-								<div class="bar-bg">
-									<div data-bind="style: {width: manaWidth}"></div>
-								</div>
-								<div class="bar-text">
-									Mana: <span data-bind="text: curMana">0</span> / <span
-										data-bind="text: maxMana">0</span>
-								</div>
-							</div>
-						</div>
-						<div style="clear: both;"></div>
-					</div>
-
-				</div>
-			</div>
-
-			<div style="clear: both"></div>
-			<div class="navi-footer">
-				tfelix Software - <a href="imprint.html" target="_blank">Impressum</a>
-				- &copy; 2016
-			</div>
-		</div>
-
-		<div id="canvas-container">
-			<!-- GAME CANVAS -->
-			<div id="bestia-canvas"></div>
-			<!-- /GAME CANVAS -->
-
-			<div id="ui-dialog" class="ui-dialog" style="display: none;"></div>
-
-		</div>
+	<div class="ui-buttons">
+		<button id="btn-inventory"><img src="/img/swap-bag.png" data-i18n="[alt]nav.inventory"></button>
+		<button id="btn-attacks"><img src="/img/sword-clash.png" data-i18n="[alt]nav.attacks"></button>
+		<button id="btn-bugs"><img src="/img/spotted-bug.png" data-i18n="[alt]nav.bugs"></button>
 	</div>
 
-	<!-- MODALS -->
-	<div id="modal-logout" class="modal fade">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"
-						aria-label="Close">
-						<span aria-hidden="true">&times;</span>
-					</button>
-					<h4 class="modal-title" data-i18n="logout.title">logout.title</h4>
-				</div>
-				<div class="modal-body">
-					<p data-i18n="logout.msg">logout.msg</p>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal"
-						data-i18n="ui.close">ui.close</button>
-				</div>
-			</div>
-			<!-- /.modal-content -->
-		</div>
-		<!-- /.modal-dialog -->
+	<div id="canvas-container">
+		<div id="bestia-canvas"></div>
 	</div>
 
-	<div class="modal">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" aria-label="Close"></button>
-					<h4>Bugreport</h4>
-				</div>
-				<div class="modal-body">
-
-					Short-Description <input type="text"> Description
-					<textarea rows="10" cols="20"></textarea>
-
-
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default">Send</button>
-					<button type="button" class="btn btn-default">Close</button>
-				</div>
-			</div>
-			<!-- /.modal-content -->
-		</div>
-		<!-- /.modal-dialog -->
-	</div>
-	<!-- /MODALS -->
-
+	<footer>
+		tfelix Software - <a href="imprint.html" target="_blank">Impressum</a> - &copy; 2016
+	</footer>
 </body>
+
 </html>

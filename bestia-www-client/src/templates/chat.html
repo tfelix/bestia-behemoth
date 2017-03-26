@@ -1,15 +1,10 @@
 <!-- Chat template -->
 
-<div class="chat" data-bind="visible: isVisible">
-	<div data-bind="visible: hasUnreadMessages"
-		style="position: absolute; bottom: 25px; right: 20px; text-align: right;">
-		<button data-bind="click: scrollToBottom">Bot</button>
-	</div>
-	<div class="chat-msgs" data-bind="foreach: messages, event: {scroll: scrolled}">
+<div class="chat">
+	<header><button>Bot</button></header>
+	<div class="chat-msgs" data-bind="foreach: messages">
 		<div data-bind="css: cssMode">
-			<span
-				data-bind="click: $parent.setWhisperNick, visible: nickname().length > 0"
-				class="nick"> <span data-bind="text: nickname"></span>:
+			<span data-bind="click: $parent.setWhisperNick, visible: nickname().length > 0" class="nick"> <span data-bind="text: nickname"></span>:
 			</span><span data-bind="text: text"></span>
 		</div>
 	</div>
@@ -17,19 +12,15 @@
 		<ul class="dropdown">
 			<li><span data-bind="text: modeText"></span>
 				<ul>
-					<li data-bind="click: changeMode.bind($data, 'PUBLIC')"
-						data-i18n="chat.public">chat.public</li>
-					<li data-bind="click: changeMode.bind($data, 'PARTY')"
-						data-i18n="chat.party">chat.party</li>
-					<li data-bind="click: changeMode.bind($data, 'GUILD')"
-						data-i18n="chat.guild">chat.guild</li>
-				</ul></li>
+					<li data-bind="click: changeMode.bind($data, 'PUBLIC')" data-i18n="chat.public">chat.public</li>
+					<li data-bind="click: changeMode.bind($data, 'PARTY')" data-i18n="chat.party">chat.party</li>
+					<li data-bind="click: changeMode.bind($data, 'GUILD')" data-i18n="chat.guild">chat.guild</li>
+				</ul>
+			</li>
 		</ul>
 		<form data-bind="submit: sendChat">
-			<span class="whisper-nick"
-				data-bind="visible: whisperNick().length > 0"><span
-				data-bind="text: whisperNick"></span>: </span><input type="text"
-				data-bind="textInput: text">
+			<span class="whisper-nick" data-bind="visible: whisperNick().length > 0"><span
+				data-bind="text: whisperNick"></span>: </span><input type="text" data-bind="textInput: text, event: {focus: disableGameControls, blur: enableGameControls}">
 		</form>
 	</div>
 </div>

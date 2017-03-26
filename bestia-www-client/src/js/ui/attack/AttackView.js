@@ -1,4 +1,5 @@
 import Signal from '../../io/Signal';
+import ko from 'knockout';
 import Message from '../../io/messages/Message';
 import Attack from './Attack';
 import MID from '../../io/messages/MID';

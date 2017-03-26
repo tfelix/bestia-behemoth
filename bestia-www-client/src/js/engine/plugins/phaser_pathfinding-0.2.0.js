@@ -1,4 +1,3 @@
-/*global Phaser */
 
 //NameSpace
 var EasyStar = EasyStar || {};

@@ -1,0 +1,6 @@
+{
+  "port": 80,
+  "files": ["./src/**/*"],
+  "server": { "baseDir": "./build" },
+  "browser": ["chrome"]
+}
