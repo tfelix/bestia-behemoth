@@ -1,9 +1,12 @@
 package net.bestia.zoneserver.service;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -14,6 +17,8 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +27,8 @@ import com.hazelcast.core.IMap;
 
 import net.bestia.model.dao.MapDataDAO;
 import net.bestia.model.dao.MapParameterDAO;
-import net.bestia.model.dao.TileDAO;
 import net.bestia.model.domain.MapData;
 import net.bestia.model.domain.MapParameter;
-import net.bestia.model.domain.Tile;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
@@ -46,18 +49,17 @@ import net.bestia.model.map.Tileset;
 public class MapService {
 
 	private final static String TILESET_KEY = "map.tilesets";
+	private final static Logger LOG = LoggerFactory.getLogger(MapService.class);
 
-	private final TileDAO tileDao;
 	private final MapDataDAO mapDataDao;
 	private final MapParameterDAO mapParamDao;
 
 	private final HazelcastInstance hazelcastInstance;
 
 	@Autowired
-	public MapService(HazelcastInstance hz, TileDAO tileDao, MapDataDAO dataDao, MapParameterDAO paramDao) {
+	public MapService(HazelcastInstance hz, MapDataDAO dataDao, MapParameterDAO paramDao) {
 
 		this.hazelcastInstance = Objects.requireNonNull(hz);
-		this.tileDao = Objects.requireNonNull(tileDao);
 		this.mapDataDao = Objects.requireNonNull(dataDao);
 		this.mapParamDao = Objects.requireNonNull(paramDao);
 	}
@@ -88,7 +90,7 @@ public class MapService {
 	}
 
 	/**
-	 * Compresses the given bytestream.
+	 * Compresses the given byte stream.
 	 * 
 	 * @param input
 	 *            The byte stream of the compression.
@@ -142,15 +144,11 @@ public class MapService {
 	}
 
 	/**
-	 * This will fetch and decompress the requested map data from the database.
+	 * Saved the given {@link MapDataDTO} to the database for later retrieval.
 	 * 
-	 * @return The decompressed {@link MapDataDTO}.
+	 * @param dto
+	 * @throws IOException
 	 */
-	private MapDataDTO getMapData(long x, long y, long width, long height) {
-
-		return null;
-	}
-
 	public void saveMapData(MapDataDTO dto) throws IOException {
 
 		try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -188,19 +186,7 @@ public class MapService {
 	 * @return The name of the local area.
 	 */
 	public String getAreaName(Point p) {
-		return "Kalarian";
-	}
-
-	/**
-	 * Retrieves all the needed map data from the database and build a map
-	 * object around it in order to access it.
-	 * 
-	 * @param range
-	 * @return
-	 */
-	public Map getMap(Rect range) {
-
-		return null;
+		return "Kalarian (mot implemented)";
 	}
 
 	/**
@@ -235,6 +221,42 @@ public class MapService {
 	}
 
 	/**
+	 * Returns a list with all DTOs which are covering the given range.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param width
+	 * @param height
+	 * @return
+	 */
+	private List<MapDataDTO> getCoveredMapDataDTO(long x, long y, long width, long height) {
+		final List<MapData> rawData = mapDataDao.findAllInRange(x, y, width, height);
+
+		if (rawData == null) {
+			return Collections.emptyList();
+		}
+
+		List<MapDataDTO> dtos = new ArrayList<>(rawData.size());
+
+		for (MapData md : rawData) {
+			try {
+				byte[] data = uncompress(md.getData());
+
+				try (ByteArrayInputStream bis = new ByteArrayInputStream(data);
+						ObjectInputStream ois = new ObjectInputStream(bis)) {
+
+					MapDataDTO dto = (MapDataDTO) ois.readObject();
+					dtos.add(dto);
+				}
+			} catch (IOException | ClassNotFoundException e) {
+				LOG.error("Could not deserialize map dto.", e);
+			}
+		}
+
+		return dtos;
+	}
+
+	/**
 	 * Returns the chunks of map data given in this list. If the chunks could
 	 * not been found an empty list is returned.
 	 * 
@@ -247,36 +269,29 @@ public class MapService {
 
 		for (Point point : chunkCords) {
 			final Rect area = MapChunk.getWorldRect(point);
-			// -1 because from to coordinates are on less then height (start to
-			// count at the start coordiante).
-			List<Tile> tiles = tileDao.getTilesInRange(area.getX(), area.getY(),
-					area.getHeight() - 1,
-					area.getWidth() - 1);
 
-			// Now filter the tiles for the ground layer.
-			List<Integer> groundTiles = tiles.stream()
-					.filter(t -> t.getLayer() == 0)
-					.map(Tile::getGid)
-					.collect(Collectors.toList());
+			// Prepare the list of ground tiles.
+			List<Integer> groundTiles = new ArrayList<>((int) (area.getWidth() * area.getHeight()));
 
-			// Now filter and group the tiles by layers.
-			java.util.Map<Short, List<Tile>> layers = tiles.stream()
-					.filter(t -> t.getLayer() != 0)
-					.collect(Collectors.groupingBy(Tile::getLayer));
+			final List<MapDataDTO> dtos = getCoveredMapDataDTO(area.getX(), area.getY(), area.getWidth(),
+					area.getHeight());
 
-			List<java.util.Map<Point, Integer>> sortedLayers = new ArrayList<>();
+			for (long y = area.getOrigin().getY(); y < area.getOrigin().getY() + area.getHeight(); y++) {
+				for (long x = area.getOrigin().getX(); x < area.getOrigin().getX() + area.getWidth(); x++) {
+					// Find the dto with the point inside.
+					final Point curPos = new Point(x, y);
 
-			for (Entry<Short, List<Tile>> entry : layers.entrySet()) {
+					final Optional<MapDataDTO> data = dtos.stream()
+							.filter(dto -> dto.getRect().collide(curPos))
+							.findFirst();
 
-				java.util.Map<Point, Integer> temp = new HashMap<>();
-
-				for (Tile t : entry.getValue()) {
-					temp.put(new Point(t.getX(), t.getY()), t.getGid());
+					Integer gid = data.map(d -> d.getGroundGid(curPos.getX(), curPos.getY())).orElse(0);
+					groundTiles.add(gid);	
 				}
-
-				sortedLayers.add(temp);
 			}
-
+			
+			// TODO Handle the different layers at this point.
+			List<java.util.Map<Point, Integer>> sortedLayers = new ArrayList<>();
 			chunks.add(new MapChunk(point, groundTiles, sortedLayers));
 		}
 

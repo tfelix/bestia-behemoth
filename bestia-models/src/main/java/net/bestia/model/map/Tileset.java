@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Objects;
 
-import net.bestia.model.domain.Tile;
 import net.bestia.model.geometry.Size;
 
 /**
@@ -80,19 +79,6 @@ public class Tileset implements Serializable {
 			throw new IllegalArgumentException("GID is not contained withing this tileset.");
 		}
 		return tileProperties.get(gid);
-	}
-
-	/**
-	 * Checks if this tile is contained within this tileset. This is done via
-	 * gid comparison.
-	 * 
-	 * @param tile
-	 *            The tile to check if it is contained within this tileset.
-	 * @return TRUE if this tile belongs to this tileset. FALSE otherwise.
-	 */
-	public boolean contains(Tile tile) {
-		Objects.requireNonNull(tile);
-		return contains(tile.getGid());
 	}
 
 	/**

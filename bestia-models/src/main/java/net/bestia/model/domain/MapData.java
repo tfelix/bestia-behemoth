@@ -1,9 +1,11 @@
 package net.bestia.model.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.persistence.Index;
 import javax.persistence.Table;
 
 /**
@@ -15,27 +17,82 @@ import javax.persistence.Table;
  *
  */
 @Entity
-@Table(name = "mapdata")
+@Table(name = "mapdata", indexes = {
+		@Index(columnList = "x", name = "x_idx"),
+		@Index(columnList = "y", name = "y_idx") })
+@IdClass(MapData.MapDataPK.class)
 public class MapData {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int id;
+	/**
+	 * Composite primary key helper class.
+	 *
+	 */
+	static class MapDataPK implements Serializable {
 
+		private static final long serialVersionUID = 1L;
+
+		private long x;
+		private long y;
+		private long width;
+		private long height;
+
+		public MapDataPK() {
+			// no op.
+		}
+
+		public MapDataPK(long x, long y, long width, long height) {
+
+			this.x = x;
+			this.y = y;
+			this.width = width;
+			this.height = height;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + (int) (height ^ (height >>> 32));
+			result = prime * result + (int) (width ^ (width >>> 32));
+			result = prime * result + (int) (x ^ (x >>> 32));
+			result = prime * result + (int) (y ^ (y >>> 32));
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			MapData other = (MapData) obj;
+			if (height != other.height)
+				return false;
+			if (width != other.width)
+				return false;
+			if (x != other.x)
+				return false;
+			if (y != other.y)
+				return false;
+			return true;
+		}
+	}
+
+	@Id
 	private long x;
+
+	@Id
 	private long y;
+
+	@Id
 	private long width;
+
+	@Id
 	private long height;
 
 	private byte[] data;
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
 
 	public long getX() {
 		return x;
@@ -77,4 +134,9 @@ public class MapData {
 		this.data = data;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("MapData[x: %d, y: %d, w: %d, h: %d, data: %d bytes]", getX(), getY(), getWidth(),
+				getHeight(), data.length);
+	}
 }

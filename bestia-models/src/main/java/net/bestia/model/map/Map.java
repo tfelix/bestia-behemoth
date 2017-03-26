@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import net.bestia.model.domain.Tile;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 
@@ -38,7 +37,7 @@ public class Map {
 	public static class MapBuilder {
 
 		private final List<Tileset> tilesets = new ArrayList<>();
-		private final List<Tile> groundTiles = new ArrayList<>();
+		private final List<Integer> groundTiles = new ArrayList<>();
 		private final List<java.util.Map<Point, Integer>> layerTiles = new ArrayList<>();
 		private Rect rect = new Rect(1, 1, 1, 1);
 
@@ -52,7 +51,7 @@ public class Map {
 		 * 
 		 * @param layer
 		 */
-		public void addGroundTiles(List<Tile> tiles) {
+		public void addGroundTiles(List<Integer> tiles) {
 			groundTiles.addAll(tiles);
 		}
 
@@ -116,15 +115,19 @@ public class Map {
 	 */
 	private final List<java.util.Map<Point, Integer>> tileLayer = new ArrayList<>();
 
-	public Map(MapBuilder builder) {
+	/**
+	 * Private ctor to be used with the builder.
+	 * 
+	 * @param builder
+	 *            Builder object to fill the data into the map.
+	 */
+	private Map(MapBuilder builder) {
 
 		this.rect = Objects.requireNonNull(builder.rect);
 		Objects.requireNonNull(builder.tilesets);
 		this.tilesets = Collections.unmodifiableList(new ArrayList<>(builder.tilesets));
 		Objects.requireNonNull(builder.groundTiles);
-		this.groundLayer = Collections.unmodifiableList(builder.groundTiles.stream()
-				.map(x -> x.getGid())
-				.collect(Collectors.toList()));
+		this.groundLayer = Collections.unmodifiableList(builder.groundTiles);
 	}
 
 	/**
