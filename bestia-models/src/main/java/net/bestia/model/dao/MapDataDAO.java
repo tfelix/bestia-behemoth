@@ -12,7 +12,7 @@ import net.bestia.model.geometry.Size;
 @Repository("mapDataDao")
 public interface MapDataDAO extends CrudRepository<MapData, Long> {
 
-	@Query("SELECT MapData md WHERE (md.x < x + width AND md.y < y + height) OR "
+	@Query("FROM MapData AS md WHERE (md.x < x + width AND md.y < y + height) OR "
 			+ "(md.x + md.width < x AND md.y < y + height) OR "
 			+ "(md.x < x + width AND md.y + md.height > y) OR "
 			+ "(md.x + md.width > x AND md.y + md.height > y)")
