@@ -1,16 +1,14 @@
 @import "../bootstrap/bootstrap.less";
 @import "../colors.less";
 @import "../general.less";
-@import "../util.less";
 @import "modal.less";
 @import "bars.less";
-@import "widget-bestias.less";
-@import "canvas.less";
-@import "chat.less";
-@import "inventory.less";
-@import "attacks.less";
-@import "ui-dialog.less";
-@import "shortcuts.less";
+@import "widget_bestias.less";
+@import "widget_chat.less";
+@import "modal_inventory.less";
+@import "modal_attacks.less";
+@import "modal_dialog.less";
+@import "widget_shortcuts.less";
 
 body {
 	font-family: 'Open Sans', sans-serif;
@@ -33,6 +31,19 @@ p {
 	padding: 0 10px;
 	margin-bottom: 10px;
 	text-align: center;
+}
+
+#canvas-container {
+
+	text-align: center;
+	vertical-align: center;
+	height: 100%;
+
+	#bestia-canvas {
+		.bestiaMenu;
+		display: inline-block;
+		cursor:url('/img/cursor.png'), auto;
+	}
 }
 
 footer {
