@@ -9,6 +9,7 @@ import Signal from '../../io/Signal';
 import MID from '../../io/messages/MID';
 import ChatMessage from './ChatMessage';
 import BasicCommand from './commands/BasicCommand';
+import DebugCommand from './commands/DebugCommand';
 import ClearCommand from './commands/ClearCommand';
 import HelpCommand from './commands/HelpCommand';
 import ModeGuildCommand from './commands/ModeGuildCommand';
@@ -188,6 +189,7 @@ export default class Chat {
 		// Register the chat specific local commands.
 		this._handleRegisterCommand(null, new ClearCommand());
 		this._handleRegisterCommand(null, new HelpCommand());
+		this._handleRegisterCommand(null, new DebugCommand());
 
 		this._localRealtimeCommands.push(new ModePublicCommand());
 		this._localRealtimeCommands.push(new ModePartyCommand());
@@ -248,7 +250,7 @@ export default class Chat {
 
 		var localCmd = this._localCommands;
 		for (var i = 0; i < localCmd.length; i++) {
-			if (localCmd[i].executeCommand(msgText, this, this._game) === true) {
+			if (localCmd[i].executeCommand(msgText, this, this._pubsub) === true) {
 				// Command was handled.
 				return;
 			}
@@ -341,7 +343,7 @@ export default class Chat {
 
 		this._i18n.t('chat.item_obtained', function (t) {
 			var text = t('chat.item_obtained').format(item.name(), newAmount);
-			self.addLocalMessage(text, 'SYSTEM');
+			self.addLocalMessage(text);
 		});
 
 	}

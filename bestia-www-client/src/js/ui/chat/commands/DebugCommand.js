@@ -1,4 +1,6 @@
 import BasicCommand from './BasicCommand.js';
+import LOG from '../../../util/Log';
+import Signal from '../../../io/Signal';
 
 /**
  * Toggles between the debug mode of the game.
@@ -9,17 +11,17 @@ import BasicCommand from './BasicCommand.js';
  */
 export default class DebugCommand extends BasicCommand {
 	constructor() {
+		super();
+
 		this.cmdRegex = /\/debug/i;
-		this.paramRegex = /\/debug (ON|OFF)/i;
+		this.paramRegex = /\/debug (.*)/i;
 		this.cmdHandle = 'debug';
 	}
 	
-	_doCommand(cmdStr, chat, game) {
-		if(this.matches[1].toUpperCase() === 'ON') {
-			game.config.debug(true);
-		} else {
-			game.config.debug(false);
-		}
+	_doCommand(cmdStr, chat, pubsub) {
+		let command = this.matches[1];
+		LOG.debug('Received debug command:', command);
+		pubsub.publish(Signal.ENGINE_DEBUG_CMD, command);
 	}
 }
 

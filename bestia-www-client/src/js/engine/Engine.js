@@ -9,6 +9,7 @@ import ConnectingState from './states/ConnectingState.js';
 import GameState from './states/GameState.js';
 import InitializeState from './states/InitializeState';
 import LoadingState from './states/LoadingState.js';
+import DebugChatCommands from './debug/DebugChatCommands';
 
 
 const MAX_RECON_TIME = 45;
@@ -31,6 +32,9 @@ export default class Engine {
 		// Determine the size of the canvas. And create the game object.
 		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'bestia-canvas', null, false, false);
 		
+		// Prepare the debug command.
+		this._debug = new DebugChatCommands(pubsub, this.game);
+
 		// Prepare the context.
 		let ctx = new EngineContext(pubsub, url);
 		

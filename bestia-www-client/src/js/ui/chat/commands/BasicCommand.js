@@ -2,10 +2,10 @@
  * Sample command which should be extended when writing new functions for the
  * local chat.
  * 
- * @class Bestia.Chat.Commands.BestiaCommand
+ * @class BasicCommand
  */
 export default class BasicCommand {
-	
+
 	constructor() {
 		/**
 		 * Regex to detect the command itself.
@@ -15,11 +15,11 @@ export default class BasicCommand {
 		 */
 		this.cmdRegex = new RegExp();
 		this.paramRegex = new RegExp();
-	
+
 		this.cmdHandle = '';
 		this.matches = null;
 	}
-	
+
 	/**
 	 * Checks if the command matches the input.
 	 * 
@@ -39,16 +39,22 @@ export default class BasicCommand {
 	 *          otherwise.
 	 */
 	_checkParameter(cmdStr) {
-		if(this.paramRegex === null) {
+		if (this.paramRegex === null) {
 			return true;
 		}
 		this.matches = this.paramRegex.exec(cmdStr);
 		return this.matches !== null;
 	}
 
-	executeCommand(cmdStr, chat, game) {
+	/**
+	 * Tries to executes the command.
+	 * 
+	 * @param Chat chat - Reference to the chat.
+	 * @param PubSub pubsub - Reference to the pubsub used to create the chat.
+	 */
+	executeCommand(cmdStr, chat, pubsub) {
 
-		if (!this._checkCommand(cmdStr, chat, game)) {
+		if (!this._checkCommand(cmdStr, chat, pubsub)) {
 			return false;
 		}
 
@@ -61,7 +67,7 @@ export default class BasicCommand {
 			return true;
 		}
 
-		this._doCommand(cmdStr, chat, game);
+		this._doCommand(cmdStr, chat, pubsub);
 		return true;
 	}
 
@@ -72,7 +78,7 @@ export default class BasicCommand {
 	 * @return void
 	 */
 	_shortHelp(chat) {
-		chat.addLocalMessage(i18n.t('chat.commands.' + this.cmdHandle + '_short'), 'SYSTEM');
+		chat.addLocalMessage(i18n.t('chat.commands.' + this.cmdHandle + '_short'));
 	}
 
 	/**
@@ -83,7 +89,7 @@ export default class BasicCommand {
 	 *            chat - Chat instance.
 	 */
 	_help(chat) {
-		chat.addLocalMessage(i18n.t('chat.commands.' + this.cmdHandle), 'SYSTEM');
+		chat.addLocalMessage(i18n.t('chat.commands.' + this.cmdHandle));
 	}
 
 	/**
@@ -92,7 +98,7 @@ export default class BasicCommand {
 	 * @private
 	 */
 	_doCommand() {
-		// no op.
+		throw '_doCommand must be overwritten.';
 	}
-	
+
 }

@@ -14,7 +14,7 @@ export default class HelpCommand extends BasicCommand {
 	
 	_doCommand(cmdStr, chat) {
 		// Iterate over all registered commands and get their help text.
-		$(chat._localCommands).each(function(key, value){
+		chat._localCommands.forEach(function(value){
 			value._shortHelp(chat);
 			value._help(chat);
 		});
