@@ -31,7 +31,5 @@ export default class ConnectingState {
 		var txt = this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'Connecting...', style);
 		txt.anchor.set(0.5);
 		txt.align = 'center';
-		
-		this._ctx.pubsub.publish(Signal.IO_CONNECT);
 	}
 }

@@ -10,6 +10,7 @@ import GameState from './states/GameState.js';
 import InitializeState from './states/InitializeState';
 import LoadingState from './states/LoadingState.js';
 import DebugChatCommands from './debug/DebugChatCommands';
+import LOG from '../util/Log';
 
 
 const MAX_RECON_TIME = 45;
@@ -37,6 +38,7 @@ export default class Engine {
 
 		// Prepare the context.
 		let ctx = new EngineContext(pubsub, url);
+		this._ctx = ctx;
 		
 		// Create the states.
 		this.game.state.add('boot', new BootState(ctx));
@@ -63,7 +65,7 @@ export default class Engine {
 	 * Triggers a mapload if a bestia was selected.
 	 */
 	_handlerOnBestiaSelected(_, data) {
-		console.debug('New bestia selected. Starting loading process.');
+		LOG.info('New bestia selected. Starting loading process.');
 		
 		// Check if we can go without loading: we must be inside view range AND
 		// have the multi sprite cached. Currently not supported.
@@ -74,25 +76,26 @@ export default class Engine {
 	 * Shows the "now connecting" screen to visualize connection lost.
 	 */
 	_handlerOnConnectionLost() {
-		console.debug('Connection lost. Trying to reconnect.');
+		LOG.info('Connection lost switching to: connecting state.');
 		this.game.state.start('connecting');
 	}
 
 	_handlerOnInitLoaded() {
-		console.debug('Init finished. Starting to connect..');
+		LOG.info('Boot finished. switching to: connecting state.');
 		this.game.state.start('connecting');
+		this._ctx.pubsub.publish(Signal.IO_CONNECT);
 	}
 
 	/**
 	 * After booting was done. Init the game.
 	 */
 	_handlerOnBooted() {
-		console.debug('Booting finished. Starting load.');
+		LOG.info('Booting finished. Starting load.');
 		this.game.state.start('initial_loading');
 	}
 
 	_handlerOnFinishedMapload() {
-		console.debug('Mapload finished. Starting game.');
+		LOG.info('Mapload finished. Starting game.');
 		this.game.state.start('game');
 	}
 }

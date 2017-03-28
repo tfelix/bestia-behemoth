@@ -9,6 +9,7 @@ import Signal from './Signal.js';
 import Urls from '../Urls.js';
 import ko from 'knockout';
 import SockJS from '../../../node_modules/sockjs-client/dist/sockjs';
+import LOG from '../util/Log';
 
 /**
  * Main message module. Responsible for sending messages to the server and to
@@ -39,6 +40,9 @@ export default class Connection {
 		 */
 		this._pubsub = pubsub;
 
+		this._connectionTries = 0;
+		this._timeoutHndl = 0;
+
 		// @ifdef DEVELOPMENT
 		this.debugBytesSend = ko.observable(0);
 		this.debugBytesReceived = ko.observable(0);
@@ -57,7 +61,7 @@ export default class Connection {
 		var message = JSON.stringify(msg);
 
 		// @ifdef DEVELOPMENT
-		console.debug('Sending Message: ' + message);
+		LOG.debug('Sending Message: ' + message);
 		this._debug('send', message, msg);
 		// @endif
 
@@ -101,10 +105,26 @@ export default class Connection {
 		this._debugData[msgObj.mid].bytes += msgString.length;
 	}
 
+	/**
+	 * Tries to reconnect with a exponential backoff.
+	 */
+	_connectRetry() {
+		this._connectionTries++;
+
+		let time = this._connectionTries * this._connectionTries * 1500;
+		if(time > 45000) {
+			time = 45000;
+		}
+		LOG.debug('Retry connecting in', time / 1000, 's.');
+		this._timeoutHndl = setTimeout(this.connect.bind(this), time);
+	}
+
 	connect() {
 		// defined a connection to a new socket endpoint
 		this._socket = new SockJS(Urls.bestiaWebsocket);
+		
 		this._socket.onopen = function () {
+			this._connectRetry = 0;
 			this._pubsub.publish(Signal.IO_CONNECTED);
 		}.bind(this);
 
@@ -113,21 +133,22 @@ export default class Connection {
 			try {
 				var json = JSON.parse(e.data);
 				// @ifdef DEVELOPMENT
-				console.debug('Received Message: ' + e.data);
+				LOG.debug('Received Message: ' + e.data);
 				this._debug('receive', json, e.data);
 				// @endif
 
 				this._pubsub.publish(json.mid, json);
 			} catch (ex) {
-				console.error('No valid JSON: ', e);
+				LOG.error('No valid JSON: ', e);
 				return;
 			}
 		}.bind(this);
 
 		this._socket.onclose = function () {
-			console.log('Server has closed the connection.');
+			LOG.info('Server has closed the connection.');
 			// Most likly we are not authenticated. Back to login.
 			this._pubsub.publish(Signal.IO_DISCONNECTED);
+			this._connectRetry();
 		}.bind(this);
 
 		this._pubsub.publish(Signal.IO_CONNECTING);
@@ -142,6 +163,11 @@ export default class Connection {
 		}
 		this._socket.close();
 		this._socket = null;
+		this._connectionTries = 0;
+		if (this._timeoutHndl !== 0) {
+			clearTimeout(this._timeoutHndl);
+		}
+		this._timeoutHndl = 0;
 	}
 }
 
