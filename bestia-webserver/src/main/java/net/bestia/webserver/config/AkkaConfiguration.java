@@ -14,13 +14,19 @@ import com.typesafe.config.ConfigFactory;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Address;
+import akka.actor.Deploy;
 import akka.actor.Props;
+import akka.actor.TypedActor;
+import akka.actor.TypedProps;
 import akka.cluster.Cluster;
+import akka.japi.Creator;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.DiscoveryService;
 import net.bestia.webserver.actor.ActorSystemTerminator;
 import net.bestia.webserver.actor.UplinkActor;
 import net.bestia.webserver.actor.WebClusterListenerActor;
+import net.bestia.webserver.actor.WebserverLogin;
+import net.bestia.webserver.actor.WebserverLoginActor;
 
 /**
  * Generates the akka configuration file which is used to connect to the remote
@@ -62,10 +68,10 @@ public class AkkaConfiguration {
 
 		// Subscribe for dead letter checking and domain events.
 		system.actorOf(WebClusterListenerActor.props(terminator));
-		
+
 		return system;
 	}
-	
+
 	@Bean
 	public ActorRef uplinkRouter(ActorSystem system) {
 		return system.actorOf(Props.create(UplinkActor.class), UplinkActor.NAME);
@@ -74,8 +80,10 @@ public class AkkaConfiguration {
 	/**
 	 * Creates singelton terminator bean.
 	 * 
-	 * @param system The actor system.
-	 * @param hz Hazelcast
+	 * @param system
+	 *            The actor system.
+	 * @param hz
+	 *            Hazelcast
 	 * @return The singelton {@link ActorSystemTerminator}.
 	 */
 	@Bean
@@ -90,5 +98,23 @@ public class AkkaConfiguration {
 	public Config config() {
 		final Config config = ConfigFactory.load(AKKA_CONFIG_NAME);
 		return config;
+	}
+
+	@Bean
+	public WebserverLogin webserverLogin(ActorSystem system, ActorRef uplinkRouter) {
+
+		final WebserverLogin login = TypedActor.get(system)
+				.typedActorOf(
+						new TypedProps<WebserverLoginActor>(WebserverLogin.class, new Creator<WebserverLoginActor>() {
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public WebserverLoginActor create() throws Exception {
+								return new WebserverLoginActor(uplinkRouter);
+							}
+						}).withDeploy(Deploy.local()), "loginWebActor");
+
+		return login;
+
 	}
 }

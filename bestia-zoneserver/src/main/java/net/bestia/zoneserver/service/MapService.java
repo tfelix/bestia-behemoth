@@ -7,12 +7,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -21,9 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
 
 import net.bestia.model.dao.MapDataDAO;
 import net.bestia.model.dao.MapParameterDAO;
@@ -34,7 +28,6 @@ import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
 import net.bestia.model.map.MapDataDTO;
-import net.bestia.model.map.Tileset;
 
 /**
  * The {@link MapService} is central instance for requesting and modifing map
@@ -48,18 +41,14 @@ import net.bestia.model.map.Tileset;
 @Service
 public class MapService {
 
-	private final static String TILESET_KEY = "map.tilesets";
 	private final static Logger LOG = LoggerFactory.getLogger(MapService.class);
 
 	private final MapDataDAO mapDataDao;
 	private final MapParameterDAO mapParamDao;
 
-	private final HazelcastInstance hazelcastInstance;
-
 	@Autowired
-	public MapService(HazelcastInstance hz, MapDataDAO dataDao, MapParameterDAO paramDao) {
+	public MapService(MapDataDAO dataDao, MapParameterDAO paramDao) {
 
-		this.hazelcastInstance = Objects.requireNonNull(hz);
 		this.mapDataDao = Objects.requireNonNull(dataDao);
 		this.mapParamDao = Objects.requireNonNull(paramDao);
 	}
@@ -150,6 +139,8 @@ public class MapService {
 	 * @throws IOException
 	 */
 	public void saveMapData(MapDataDTO dto) throws IOException {
+		
+		Objects.requireNonNull(dto);
 
 		try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
 				ObjectOutputStream oos = new ObjectOutputStream(bos)) {
@@ -175,7 +166,7 @@ public class MapService {
 	 */
 	public String getMapName() {
 		final MapParameter params = mapParamDao.getLatest();
-		return params == null ? null : params.getName();
+		return params == null ? "" : params.getName();
 	}
 
 	/**
@@ -186,19 +177,23 @@ public class MapService {
 	 * @return The name of the local area.
 	 */
 	public String getAreaName(Point p) {
+		Objects.requireNonNull(p);
+		
 		return "Kalarian (mot implemented)";
 	}
 
+	/*
 	/**
-	 * Returns a tileset via its name.
+	 * This returns a tileset via its name.
 	 * 
 	 * @param name
 	 * @return
 	 */
+	/*
 	public Tileset getTileset(String name) {
 		final IMap<String, Tileset> tilesetData = hazelcastInstance.getMap(TILESET_KEY);
 		return tilesetData.get(name);
-	}
+	}*/
 
 	/**
 	 * Returns the tileset depending on the gid of a tile. The system will
@@ -209,6 +204,7 @@ public class MapService {
 	 * @return The found tileset containing the tile with the GID or null if not
 	 *         tileset could been found.
 	 */
+	/*
 	public Tileset getTileset(int gid) {
 		final IMap<String, Tileset> tilesetData = hazelcastInstance.getMap(TILESET_KEY);
 
@@ -218,7 +214,7 @@ public class MapService {
 				.findAny();
 
 		return ts.isPresent() ? ts.get() : null;
-	}
+	}*/
 
 	/**
 	 * Returns a list with all DTOs which are covering the given range.
@@ -264,6 +260,7 @@ public class MapService {
 	 * @return
 	 */
 	public List<MapChunk> getChunks(List<Point> chunkCords) {
+		Objects.requireNonNull(chunkCords);
 
 		final List<MapChunk> chunks = new ArrayList<>();
 

@@ -21,18 +21,13 @@ public class UplinkActor extends UntypedActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	// This router is used both with lookup and deploy of routees. If you
-	// have a router with only lookup of routees you can use Props.empty()
-	// instead of Props.create(StatsWorker.class).
-	private ActorRef workerRouter = getContext().actorOf(
-			FromConfig.getInstance().props(Props.empty()),
-			"uplinkRouter");
+	private ActorRef workerRouter = getContext().actorOf(FromConfig.getInstance().props(Props.empty()), "uplinkRouter");
 
 	@Override
 	public void onReceive(Object msg) throws Throwable {
-		LOG.info("Sending to uplink router.");
+		
+		LOG.debug("Sending to uplink router: {}", msg);
 		workerRouter.tell(new ConsistentHashableEnvelope(msg, msg), getSender());
-
 	}
 
 }
