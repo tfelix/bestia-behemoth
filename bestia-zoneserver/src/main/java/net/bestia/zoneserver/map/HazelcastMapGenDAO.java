@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.dao;
+package net.bestia.zoneserver.map;
 
 import java.io.File;
 import java.io.IOException;

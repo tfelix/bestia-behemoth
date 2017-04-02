@@ -74,6 +74,9 @@ public class MapService {
 	 * @return
 	 */
 	public Map getMap(long x, long y, long width, long height) {
+		if(x < 0 || y < 0 || width < 0 || height < 0) {
+			throw new IllegalArgumentException("X, Y, width and height must be positive.");
+		}
 
 		return null;
 	}

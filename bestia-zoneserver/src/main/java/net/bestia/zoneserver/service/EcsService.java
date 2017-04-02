@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity.ecs;
+package net.bestia.zoneserver.service;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MultiMap;
+
+import net.bestia.zoneserver.entity.ecs.Component;
+import net.bestia.zoneserver.entity.ecs.Entity;
 
 @Service
 public class EcsService {

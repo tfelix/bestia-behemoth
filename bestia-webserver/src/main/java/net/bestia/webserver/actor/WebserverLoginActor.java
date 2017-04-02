@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import akka.actor.ActorRef;
-import akka.actor.TypedActor;
 import akka.pattern.Patterns;
 import akka.routing.ConsistentHashingRouter.ConsistentHashableEnvelope;
 import akka.util.Timeout;
@@ -35,8 +34,6 @@ public class WebserverLoginActor implements WebserverLogin {
 		LOG.trace("Sending login: {}, pass: {} to the cluster.", accName, password);
 		
 		final AccountLogin accountLogin = new AccountLogin(accName, password);
-		
-		uplinkRouter.tell(new ConsistentHashableEnvelope(accountLogin, accountLogin), TypedActor.context().self());
 		
 		Future<Object> answer = Patterns.ask(uplinkRouter, new ConsistentHashableEnvelope(accountLogin, accountLogin), timeout);
 		try {
