@@ -16,13 +16,15 @@ import MID from '../../io/messages/MID';
  * The current list is invalidated as soon as a new bestia is selected.
  * </p>
  * 
- * @class Bestia.BestiaAttacks
- * @param {Bestia.PubSub}
- *            pubsub - Handle to the pubsub system.
+ * @class AttackView
  */
-/* jshint unused: false */
 export default class AttackView {
 	
+	/**
+	 * @constructs AttackView
+	 * @param {*} pubsub 
+	 * @param {*} i18n 
+	 */
 	constructor(pubsub, i18n) {
 
 		var self = this;
