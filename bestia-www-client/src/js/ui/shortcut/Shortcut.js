@@ -1,6 +1,7 @@
+import ko from 'knockout';
 
 /**
- * Holds the data for the shortcut.
+ * Holds the data to display a shortcut to the user.
  */
 export default class Shortcut {
 	
@@ -19,6 +20,6 @@ export default class Shortcut {
 		 * press or push event.
 		 */
 		this.isTriggered = ko.observable(false);
+	}
 		
-	}	
 }

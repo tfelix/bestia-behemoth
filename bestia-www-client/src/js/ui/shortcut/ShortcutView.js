@@ -1,5 +1,6 @@
 import Shortcut from './Shortcut';
 import Signal from '../../io/Signal';
+import ko from 'knockout';
 
 /**
  * This class manages the shortcuts of the game for the player. It listens to
@@ -10,6 +11,13 @@ import Signal from '../../io/Signal';
  */
 export default class ShortcutView {
 
+	/**
+	 * Ctor.
+	 * @constructor
+	 * @param {module:/util/PubSub.PubSub} pubsub - Publish subscriber object.
+	 * @param {number} rows - The number of shortcut rows this view should have.
+	 * @param {number} cols - The number of cols this view should have.	 
+	 */
 	constructor(pubsub, rows, cols) {
 		if (!pubsub) {
 			throw 'Pubsub can not be empty.';
@@ -41,5 +49,12 @@ export default class ShortcutView {
 		} else {
 			// Disable the shortcut view keypress listenting.
 		}
+
+	/*
+	 * Saves the current configuration of the shortcut view into a object which can be persisted.
+	 * @return {object} Returns a descriptive object which can be used to persist this shortcut view.
+	 */
+	save() {
+		return {};
 	}
 }

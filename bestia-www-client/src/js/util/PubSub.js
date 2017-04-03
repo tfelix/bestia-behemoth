@@ -1,6 +1,7 @@
 /**
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * @copyright 2015 Thomas Felix
+ * @module util/PubSub
  */
 
 import Signal from '../io/Signal';
@@ -9,50 +10,66 @@ import LOG from '../util/Log';
 /**
  * Publish/Subscriber object. Central object for the game inter communucation.
  * 
- * @constructor
  * @class PubSub
  */
 export default class PubSub {
 	
+	/**
+	 * Creates a PubSub object.
+	 * 
+	 * @constructs PubSub
+	 */
 	constructor() {
-		this.cache = {};
+
+		/**
+		 * @private
+		 */
+		this._cache = {};
+
+		/**
+		 * @private
+		 */
 		this._holdUnsubscribeCalls = [];
+
+		/**
+		 * @private
+		 */
 		this._currentlyActive = 0;
 	}
 	
 	/**
 	 * Subscibes to the bestia publish subscriber model.
 	 * 
-	 * @method Bestia#subscribe
+	 * @member PubSub#subscribe
 	 * @param {string}
 	 *            e - Eventname or topic to subscribe to.
 	 * @param {function}
 	 *            fn - Callback function which will get invoked if such an event
 	 *            happens.
-	 * @param {mixed}
-	 *            ctx - Optional: Context which is bound to the function.
+	 * @param {*}
+	 *            [ctx] - Context which is bound to the function.
 	 */
 	subscribe(e, fn, ctx) {
 		if(typeof e !== 'string') {
 			throw 'Eventname must be of type string.';
 		}
 		
-		if (!this.cache[e]) {
-			this.cache[e] = [];
+		if (!this._cache[e]) {
+			this._cache[e] = [];
 		}
 		
 		if(ctx) {
 			fn = fn.bind(ctx);
 		}
 		
-		this.cache[e].push(fn);
+		this._cache[e].push(fn);
 	}
 
 	/**
 	 * Removes the function from the publisher list. If no function is given it
 	 * removes ALL event handler from the given callback name.
 	 * 
-	 * @method Bestia.PubSub#unsubscribe
+	 * @method PubSub#unsubscribe
 	 * @param {string}
 	 *            e - Name of the event handler.
 	 * @param {function}
@@ -67,10 +84,10 @@ export default class PubSub {
 			return;
 		}
 
-		if (!this.cache[e]) {
+		if (!this._cache[e]) {
 			return false;
 		}
-		var fns = this.cache[e];
+		var fns = this._cache[e];
 		if (!fn) {
 			// No function given. Remove all handler.
 			fns.length = 0;
@@ -89,6 +106,8 @@ export default class PubSub {
 	 * Private function which will modify the cache. This must be done this way
 	 * because we need a mechanism to wait for updating the cache when we are
 	 * currently iterating over it.
+	 * 
+	 * @private
 	 */
 	_updateCache() {
 		// Guard. If there are still active iterations, avoid infinte loop.
@@ -105,6 +124,10 @@ export default class PubSub {
 	/**
 	 * This directly sends a message request to the server. It is shortcut for
 	 * publish(IO_SEND_MESSAGE, data);
+	 * 
+	 * @method PubSub#send
+	 * @public
+	 * @param {Object} data - Data to be send to the server.
 	 */
 	send(data) {
 		this.publish(Signal.IO_SEND_MESSAGE, data);
@@ -113,8 +136,10 @@ export default class PubSub {
 	/**
 	 * Publishes a message to the subscribed listener.
 	 * 
-	 * @param {String}
-	 *            e - Name
+	 * @method PubSub#publish
+	 * @public
+	 * @param {string} e - The topic name under which the data is published.
+	 * @param {*} [data] - Data which is published to this topic.
 	 */
 	publish(e, data) {
 		
@@ -126,11 +151,11 @@ export default class PubSub {
 		LOG.debug('Published:', e, '- Data:', data);
 		// @endif
 
-		if (!this.cache[e]) {
+		if (!this._cache[e]) {
 			return;
 		}
 		this._currentlyActive++;
-		var fns = this.cache[e];
+		var fns = this._cache[e];
 		var fnsCount = fns.length;
 		for (var i = 0; i < fnsCount; ++i) {
 			try {
