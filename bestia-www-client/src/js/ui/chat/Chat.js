@@ -191,6 +191,7 @@ export default class Chat {
 		this._handleRegisterCommand(null, new HelpCommand());
 		this._handleRegisterCommand(null, new DebugCommand());
 
+		// This commands a checked right at the typing of the user.
 		this._localRealtimeCommands.push(new ModePublicCommand());
 		this._localRealtimeCommands.push(new ModePartyCommand());
 		this._localRealtimeCommands.push(new ModeGuildCommand());
@@ -369,21 +370,21 @@ export default class Chat {
 
 		this._localCommands.push(cmd);
 	}
-	
+
 	/**
 	 * Internal check function which will work out if the 
 	 */
 	scrolled(data, event) {
 		var elem = event.target;
-		
+
 		var scrollBottom = false;
 		var scrollPos = this.chatEle.scrollTop + this.chatEle.clientHeight;
-		
+
 		// Check bottom.
 		if (scrollPos === this.chatEle.scrollHeight) {
 			scrollBottom = true;
 		}
-        
+
 		if (scrollBottom) {
 			this.scrollToBottom();
 		} else {

@@ -1,79 +1,14 @@
-
 <!-- SHORTCUTS -->
-<div id="shortcuts">
-	<script id="tmpl-atk-shortcut" type="text/html">
-<div class="shortcut">
-<img data-bind="attr: {src: imageUrl, alt: name}" src="" alt="">
-</div>
-</script>
-	<script id="tmpl-item-shortcut" type="text/html">
-<div class="shortcut">
-	<div class="item">
-		<img data-bind="attr: {src: imageSrc, alt: name}" src="" alt="">
-		<span class="amount" data-bind="text: amount"></span>
-	</div>
-</div>
-</script>
-
-	<div class="shortcut-row" data-bind="with: bestias.selectedBestia">
-		<div class="shortcut-entity">
-			<div class="shortcut-wrapper"
-				data-bind="template: {if: attack1(), name: 'tmpl-atk-shortcut', data: attack1 }"></div>
-			<div class="key">Q</div>
-		</div>
-		<div class="shortcut-entity">
-			<div class="shortcut-wrapper"
-				data-bind="template: {if: attack2(), name: 'tmpl-atk-shortcut', data: attack2 }"></div>
-			<div class="key">W</div>
-		</div>
-		<div class="shortcut-entity">
-			<div class="shortcut-wrapper"
-				data-bind="template: {if: attack3(), name: 'tmpl-atk-shortcut', data: attack3 }"></div>
-			<div class="key">E</div>
-		</div>
-		<div class="shortcut-entity">
-			<div class="shortcut-wrapper"
-				data-bind="template: {if: attack4(), name: 'tmpl-atk-shortcut', data: attack4 }"></div>
-			<div class="key">R</div>
-		</div>
-		<div class="shortcut-entity">
-			<div class="shortcut-wrapper"
-				data-bind="template: {if: attack5(), name: 'tmpl-atk-shortcut', data: attack5 }"></div>
-			<div class="key">T</div>
-		</div>
-	</div>
-
-	<div class="shortcut-row" data-bind="with: inventory">
-		<div class="shortcut-entity"
-			data-bind="click: useItemSlot.bind('0'), css: itemSlot1Css">
-			<div class="shortcut-wrapper"
-				data-bind="template: {if: itemSlot1(), name: 'tmpl-item-shortcut', data: itemSlot1 }"></div>
-			<div class="key">1</div>
-		</div>
-		<div class="shortcut-entity"
-			data-bind="click: useItemSlot.bind('1'), css: itemSlot2Css">
-			<div class="shortcut-wrapper"
-				data-bind="template: {if: itemSlot2(), name: 'tmpl-item-shortcut', data: itemSlot2 }"></div>
-			<div class="key">2</div>
-		</div>
-		<div class="shortcut-entity"
-			data-bind="click: useItemSlot.bind('2'), css: itemSlot3Css ">
-			<div class="shortcut-wrapper"
-				data-bind="template: {if: itemSlot3(), name: 'tmpl-item-shortcut', data: itemSlot3 }"></div>
-			<div class="key">3</div>
-		</div>
-		<div class="shortcut-entity"
-			data-bind="click: useItemSlot.bind('3'), , css: itemSlot4Css">
-			<div class="shortcut-wrapper"
-				data-bind="template: {if: itemSlot4(), name: 'tmpl-item-shortcut', data: itemSlot4 }"></div>
-			<div class="key">4</div>
-		</div>
-		<div class="shortcut-entity"
-			data-bind="click: useItemSlot.bind('4'), , css: itemSlot5Css">
-			<div class="shortcut-wrapper"
-				data-bind="template: {if: itemSlot5(), name: 'tmpl-item-shortcut', data: itemSlot5 }"></div>
-			<div class="key">5</div>
+<div class="shortcuts" data-bind="foreach: rows">
+	<div class="shortcut-row" data-bind="forwach: row">
+		<div class="shortcut-entity" data-bind="css: {active: isTriggered()}">
+			<div class="shortcut-wrapper">
+				<div class="shortcut">
+					<img data-bind="attr: {src: imageSrc, alt: imageAlt}" src="" alt="">
+					<span class="amount" data-bind="text: amount"></span>
+				</div>
+			</div>
+			<div class="key" data-bind="text: key"></div>
 		</div>
 	</div>
 </div>
-<!-- /SHORTCUTS -->

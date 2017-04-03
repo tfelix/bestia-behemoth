@@ -11,6 +11,7 @@ import Engine from './engine/Engine.js';
 import Inventory from './ui/inventory/Inventory';
 import AttackView from './ui/attack/AttackView';
 import BestiaView from './ui/bestia/BestiaView';
+import ShortcutView from './ui/shortcut/ShortcutView';
 
 // Creating all needed components.
 let pubsub = new PubSub();
@@ -56,6 +57,16 @@ ko.components.register('bestia-attacks', {
 });
 
 
+ko.components.register('bestia-shortcuts', {
+	viewModel: {
+		createViewModel: function () {
+			return new ShortcutView(pubsub);
+		}
+	},
+	template: { fromUrl: 'shortcuts.html' }
+});
+
+
 ko.components.register('bestia-overview', {
 	viewModel: { instance: bestiaView },
 	template: { fromUrl: 'bestia_overview.html' }
@@ -72,16 +83,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// Bind the DOM to the game.
 	ko.applyBindings({});
-
-	// Add click handler.
-	/*$('#btn-inventory').click(function() {
-		model.attacks.show(false);
-		model.inventory.show(!model.inventory.show());
-	});
-
-	$('#btn-attacks').click(function() {
-		// Hide all others.
-		model.inventory.show(false);
-		model.attacks.show(!model.attacks.show());
-	});*/
 });

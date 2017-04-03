@@ -1,8 +1,3 @@
-import BestiaView from './bestia/BestiaView';
-import AttackView from './attack/AttackView';
-import Chat from './chat/Chat';
-import Inventory from './inventory/Inventory';
-import Config from './Config';
 
 /**
  * Holds the data for the shortcut.
@@ -15,15 +10,15 @@ export default class Shortcut {
 		this._action = action;
 		
 		this.key = ko.observable(key);
-		this.image = ko.observable(image);
 		
-	}
-	
-	/**
-	 * Triggers the associated action with this shortcut.
-	 */
-	triggerAction() {
-		this._action();
-	}
-	
+		this.imageSrc = ko.observable(image);
+		this.imageAlt = ko.observable('');
+
+		/**
+		 * @member {boolean} Is TRUE if the shortcut is currently triggered via a key 
+		 * press or push event.
+		 */
+		this.isTriggered = ko.observable(false);
+		
+	}	
 }
