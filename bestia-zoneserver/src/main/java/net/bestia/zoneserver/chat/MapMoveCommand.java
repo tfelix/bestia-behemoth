@@ -23,17 +23,16 @@ import net.bestia.zoneserver.service.PlayerEntityService;
  */
 @Component
 public class MapMoveCommand extends BaseChatCommand {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(MapMoveCommand.class);
 	private final static Pattern cmdPattern = Pattern.compile("/mm (\\d+) (\\d+)");
-	
+
 	private final PlayerEntityService playerBestiaService;
-	
-	
+
 	@Autowired
 	public MapMoveCommand(AccountDAO accDao, PlayerEntityService pbService) {
 		super(accDao);
-		
+
 		this.playerBestiaService = Objects.requireNonNull(pbService);
 	}
 
@@ -48,23 +47,31 @@ public class MapMoveCommand extends BaseChatCommand {
 	}
 
 	@Override
-	protected void performCommand(Account account, String text) {		
+	protected void performCommand(Account account, String text) {
 		// Its okay, now execute the command.
 		final Matcher match = cmdPattern.matcher(text);
-		
-		if(!match.find()) {
+
+		if (!match.find()) {
 			LOG.debug("Wrong command usage: {}", text);
 			return;
 		}
-		
-		final long x = Long.parseLong(match.group(1));
-		final long y = Long.parseLong(match.group(2));
-		
-		// TODO Safety checks.
-		
-		final PlayerEntity pbe = playerBestiaService.getActivePlayerEntity(account.getId());
-		pbe.setPosition(x, y);
-		playerBestiaService.putPlayerEntity(pbe);		
+
+		try {
+			final long x = Long.parseLong(match.group(1));
+			final long y = Long.parseLong(match.group(2));
+
+			if (x < 0 || y < 0) {
+				throw new IllegalArgumentException("X and Y can not be negative.");
+			}
+
+			final PlayerEntity pbe = playerBestiaService.getActivePlayerEntity(account.getId());
+			pbe.setPosition(x, y);
+			playerBestiaService.putPlayerEntity(pbe);
+			LOG.info("GM {} transported entity {} to x: {} y: {}.", account.getId(), pbe.getId(), x, y);
+
+		} catch (IllegalArgumentException e) {
+			LOG.error("Could not parse the given coordinates.", e);
+		}
 	}
 
 }

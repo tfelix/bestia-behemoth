@@ -21,7 +21,7 @@ import de.tfelix.bestia.worldgen.workload.Job;
 import de.tfelix.bestia.worldgen.workload.MultiplyJob;
 import de.tfelix.bestia.worldgen.workload.Workload;
 import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.dao.HazelcastMapGenDAO;
+import net.bestia.zoneserver.map.HazelcastMapGenDAO;
 import net.bestia.zoneserver.map.MapGeneratorConstants;
 import net.bestia.zoneserver.service.StaticConfigurationService;
 

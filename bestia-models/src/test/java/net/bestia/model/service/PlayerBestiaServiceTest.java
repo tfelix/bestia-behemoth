@@ -23,9 +23,4 @@ public class PlayerBestiaServiceTest {
 		final Set<PlayerBestia> result = service.getAllBestias(1337);
 		Assert.assertNull(result);
 	}
-	
-	public void savePlayerBestiaECS_ok() {
-	
-		
-	}
 }
