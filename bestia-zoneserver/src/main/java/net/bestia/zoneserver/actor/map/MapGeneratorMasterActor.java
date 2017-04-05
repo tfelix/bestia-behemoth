@@ -97,6 +97,8 @@ public class MapGeneratorMasterActor extends BestiaActor {
 			addToAvailableNodes((ActorIdentity) msg);
 
 		} else if (msg.equals(START_MSG)) {
+			
+			LOG.debug("Queried all generator nodes. Starting to generate map.");
 
 			// Prepare the list of nodes.
 			List<MasterCom> nodes = availableNodes.stream()

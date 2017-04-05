@@ -13,7 +13,6 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
 import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
-import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 import net.bestia.zoneserver.actor.uplink.UplinkActor;
 import net.bestia.zoneserver.actor.uplink.UplinkLoginActor;
 import net.bestia.zoneserver.actor.zone.ZoneActor;
@@ -54,9 +53,6 @@ public class ZoneStarter implements CommandLineRunner {
 		
 		props = springExt.props(MapGeneratorClientActor.class);
 		system.actorOf(props, MapGeneratorClientActor.NAME);
-		
-		props = springExt.props(MapGeneratorMasterActor.class);
-		system.actorOf(props, MapGeneratorMasterActor.NAME);
 		
 		props = springExt.props(UplinkActor.class);
 		system.actorOf(props, UplinkActor.NAME);

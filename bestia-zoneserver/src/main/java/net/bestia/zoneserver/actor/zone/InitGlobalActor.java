@@ -5,11 +5,15 @@ import java.util.Objects;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.DoneMessage;
 import net.bestia.messages.internal.StartInitMessage;
+import net.bestia.model.domain.MapParameter;
 import net.bestia.zoneserver.actor.BestiaActor;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 import net.bestia.zoneserver.service.MapService;
 
 /**
@@ -33,10 +37,14 @@ public class InitGlobalActor extends BestiaActor {
 	private int actorWaiting;
 	
 	private final MapService mapDataService;
+	
+	private final ActorRef mapGeneratorMaster;
 
 	public InitGlobalActor(MapService mapDataService) {
 
 		this.mapDataService = Objects.requireNonNull(mapDataService);
+		
+		this.mapGeneratorMaster = SpringExtension.actorOf(getContext(), MapGeneratorMasterActor.class);
 	}
 	
 	@Override
@@ -50,6 +58,8 @@ public class InitGlobalActor extends BestiaActor {
 	
 	private void initializeMap() {
 		LOG.info("New map is generated.");
+		MapParameter mapParams = MapParameter.fromAverageUserCount(1, "Terra");
+		mapGeneratorMaster.tell(mapParams, getSelf());
 	}
 	
 
@@ -80,8 +90,6 @@ public class InitGlobalActor extends BestiaActor {
 
 		// Start the initialization process.
 		LOG.info("Start the global server initialization...");
-
-		// Load the sample map into the server cache.
 		
 		// This signalling does not work.
 		getContext().parent().tell(new DoneMessage("global"), getSelf());
