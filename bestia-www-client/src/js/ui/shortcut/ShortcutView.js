@@ -33,7 +33,7 @@ export default class ShortcutView {
 			for (let j = 0; j < rows; j++) {
 				r.push(new Shortcut());
 			}
-			this.rows.push({row: ko.observableArray(r)});
+			this.rows.push({ row: ko.observableArray(r) });
 		}
 
 		this._pubsub.subscribe(Signal.INPUT_LISTEN, this._handleDisable, this);
@@ -44,11 +44,26 @@ export default class ShortcutView {
 	 * @private
 	 */
 	_handleDisable(_, isActive) {
-		if(isActive) {
+		if (isActive) {
 			// Enable the shortcut view again.
 		} else {
 			// Disable the shortcut view keypress listenting.
 		}
+	}
+
+	/**
+	 * Handles a keypress of a user.
+	 * @private
+	 */
+	_handleKeypress(e) {
+    	let keyCode = (typeof e.which == "number") ? e.which : e.keyCode;
+		// Search if a binding is set to this keycode.
+		for (let i = 0; i < this.rows().length; i++) {
+			for (let j = 0; j < this.rows()[i].length; j++) {
+				this.rows()[i].row()[j].trigger(keyCode, this._pubsub);
+			}
+		}
+	}
 
 	/*
 	 * Saves the current configuration of the shortcut view into a object which can be persisted.
