@@ -23,6 +23,9 @@ export default class ShortcutView {
 			throw 'Pubsub can not be empty.';
 		}
 
+		rows = rows || 2;
+		cols = cols || 5;
+
 		this._pubsub = pubsub;
 
 		this.rows = ko.observableArray();

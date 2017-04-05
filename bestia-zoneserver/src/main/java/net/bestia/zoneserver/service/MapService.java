@@ -230,7 +230,6 @@ public class MapService {
 	 */
 	private List<MapDataDTO> getCoveredMapDataDTO(long x, long y, long width, long height) {
 		final List<MapData> rawData = mapDataDao.findAllInRange(x, y, width, height);
-
 		if (rawData == null) {
 			return Collections.emptyList();
 		}

@@ -10,10 +10,10 @@ export default class Shortcut {
 		this.keycode = keycode;
 		this._action = action;
 
-		this.key = ko.observable(key);
+		this.key = ko.observable('A');
 
 		this.imageSrc = ko.observable(image);
-		this.imageAlt = ko.observable('');
+		this.imageAlt = ko.observable('http://placehold.it/32x32');
 
 		/**
 		 * @member {boolean} Is TRUE if the shortcut is currently triggered via a key 

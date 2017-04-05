@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import net.bestia.model.dao.MapParameterDAO;
+import net.bestia.model.domain.MapParameter;
 import net.bestia.zoneserver.environment.date.BestiaDate;
 import net.bestia.zoneserver.map.path.AStarPathfinder;
 import net.bestia.zoneserver.map.path.Pathfinder;
@@ -36,7 +37,13 @@ public class ZoneConfiguration {
 	 */
 	@Bean
 	public BestiaDate bestiaDate(MapParameterDAO mapParamDao) {
-		final Date creationDate = mapParamDao.getLatest().getCreateDate();
+		final MapParameter param = mapParamDao.getLatest();
+		
+		if(param == null) {
+			return new BestiaDate();
+		}
+		
+		final Date creationDate = param.getCreateDate();
 		return BestiaDate.fromDate(creationDate);
 	}
 
