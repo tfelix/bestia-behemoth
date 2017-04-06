@@ -28,18 +28,28 @@ export default class ShortcutView {
 
 		this._pubsub = pubsub;
 
-		this.rows = ko.observableArray();
-
 		// Prepare the rows.
-		for (let i = 0; i < rows; i++) {
-			let r = array();
-			for (let j = 0; j < rows; j++) {
-				r.push(new Shortcut());
+		for (let i = 0; i < 5; i++) {
+			let r = ko.observableArray();
+			for (let j = 0; j < 5; j++) {
+				r().push(new Shortcut());
 			}
-			this.rows.push({ row: ko.observableArray(r) });
+			this.rows.push({ row:  r});
 		}
 
+		// Activate and deactivate the shortcuts system.
 		this._pubsub.subscribe(Signal.INPUT_LISTEN, this._handleDisable, this);
+
+		// On bestia changes re-request the shortcut list.
+		this._pubsub.subscribe(Signal.BESTIA_SELECTED, this._requestShortcuts, this);
+	}
+
+	/**
+	 * Requests the new shortcuts from the server.
+	 * @private
+	 */
+	_requestShortcuts() {
+
 	}
 
 	/**
@@ -59,7 +69,7 @@ export default class ShortcutView {
 	 * @private
 	 */
 	_handleKeypress(e) {
-    	let keyCode = (typeof e.which == "number") ? e.which : e.keyCode;
+		let keyCode = (typeof e.which == "number") ? e.which : e.keyCode;
 		// Search if a binding is set to this keycode.
 		for (let i = 0; i < this.rows().length; i++) {
 			for (let j = 0; j < this.rows()[i].length; j++) {
