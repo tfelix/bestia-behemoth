@@ -28,7 +28,7 @@ import net.bestia.model.geometry.Point;
  * Entity for the PlayerBestias these are bestias which are directly controlled
  * by the player.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  * 
  */
 @Entity
