@@ -1,7 +1,7 @@
 
-#shortcuts {
+.shortcuts {
 	position: absolute;
-	bottom: 10px; 
+	bottom: 100px; 
 	right: 10px;
 	z-index: 100;
  }
@@ -15,22 +15,31 @@
 		border-radius: 4px;
 		display: inline-block;
 		background: #888888;
-	}
-	
-	.shortcut {
-		width: 34px;
-		height: 34px;
-		img {
-			width: 32px;
-			height: 32px;
-			margin: 1px;
+
+		.shortcut {
+			width: 34px;
+			height: 34px;
+			position: relative;
+
+			img {
+				position: absolute;
+				width: 32px;
+				height: 32px;
+				margin: 1px;
+			}
+
+			span {
+				display: inline;
+				position: absolute;
+				font-size: 8pt;
+				padding: 0px 2px;
+				background: gray;
+				border-radius: 3px;
+				bottom: 0px;
+				right: 0;
+			}
 		}
 	}
-	
-	.shortcut-wrapper {
-		.shortcut;
-	}
-	
 	.key {
 		border-top: 1px solid black;
 		color: black;
@@ -38,5 +47,4 @@
 		font-weight: bold;
 		text-align: center;
 	}
-
 }
