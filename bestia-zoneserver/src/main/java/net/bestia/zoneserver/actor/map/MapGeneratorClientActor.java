@@ -11,7 +11,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import de.tfelix.bestia.worldgen.MapNodeGenerator;
 import de.tfelix.bestia.worldgen.description.MapDescription;
-import de.tfelix.bestia.worldgen.io.ClientCom;
+import de.tfelix.bestia.worldgen.io.MasterConnector;
 import de.tfelix.bestia.worldgen.io.MapGenDAO;
 import de.tfelix.bestia.worldgen.map.MapDataPart;
 import de.tfelix.bestia.worldgen.map.MapPart;
@@ -27,7 +27,7 @@ import net.bestia.zoneserver.service.StaticConfigurationService;
 
 @Component
 @Scope("prototype")
-public class MapGeneratorClientActor extends BestiaActor implements ClientCom {
+public class MapGeneratorClientActor extends BestiaActor implements MasterConnector {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 

@@ -20,7 +20,7 @@ import akka.actor.Identify;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import de.tfelix.bestia.worldgen.description.MapDescription;
-import de.tfelix.bestia.worldgen.io.MasterCom;
+import de.tfelix.bestia.worldgen.io.NodeConnector;
 import de.tfelix.bestia.worldgen.map.MapPart;
 import de.tfelix.bestia.worldgen.message.WorkstateMessage;
 import net.bestia.model.domain.MapParameter;
@@ -37,7 +37,7 @@ public class MapGeneratorMasterActor extends BestiaActor {
 	 * Interface implementation to talk to the clients.
 	 *
 	 */
-	private class AkkaMapGenClient implements MasterCom {
+	private class AkkaMapGenClient implements NodeConnector {
 
 		private final ActorRef generatorNode;
 
@@ -101,7 +101,7 @@ public class MapGeneratorMasterActor extends BestiaActor {
 			LOG.debug("Queried all generator nodes. Starting to generate map.");
 
 			// Prepare the list of nodes.
-			List<MasterCom> nodes = availableNodes.stream()
+			List<NodeConnector> nodes = availableNodes.stream()
 					.map(ref -> new AkkaMapGenClient(ref))
 					.collect(Collectors.toList());
 			

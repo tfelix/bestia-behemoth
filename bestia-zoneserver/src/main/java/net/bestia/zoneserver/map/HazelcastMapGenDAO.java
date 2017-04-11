@@ -1,14 +1,11 @@
 package net.bestia.zoneserver.map;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -22,16 +19,14 @@ import de.tfelix.bestia.worldgen.map.MapDataPart;
 
 /**
  * Implementation of the {@link MapGenDAO} to the Hazelcast system for map
- * creation purposes. The {@link MapDataPart}s are currently saved in an temp directory in
- * the local filesystem.
+ * creation purposes. The {@link MapDataPart}s are currently saved in an temp
+ * directory in the local filesystem.
  * 
  * @author Thomas Felix
  *
  */
 @Repository
 public class HazelcastMapGenDAO implements MapGenDAO {
-
-	private static Logger LOG = LoggerFactory.getLogger(HazelcastMapGenDAO.class);
 
 	private static final String MASTER_STORE = "mapgen_master_store";
 	private static final String CLIENT_STORE = "mapgen_client_store";
@@ -40,22 +35,17 @@ public class HazelcastMapGenDAO implements MapGenDAO {
 	private IMap<String, Object> clientStore;
 
 	private final String nodeName;
-	private final File temp;
 	private final LocalFileMapGenDAO localFileDao;
 
 	@Autowired
-	public HazelcastMapGenDAO(@Value("${server.name}") String nodeName, HazelcastInstance hz) throws IOException {
+	public HazelcastMapGenDAO(@Value("${server.name}") String nodeName, LocalFileMapGenDAO localFileDao,
+			HazelcastInstance hz) throws IOException {
 
 		masterStore = hz.getMap(MASTER_STORE);
 		clientStore = hz.getMap(CLIENT_STORE);
 		this.nodeName = Objects.requireNonNull(nodeName);
+		this.localFileDao = Objects.requireNonNull(localFileDao);
 
-		temp = File.createTempFile("bestia-mapparts", Long.toString(System.nanoTime()));
-		temp.deleteOnExit();
-
-		localFileDao = new LocalFileMapGenDAO(nodeName, temp.toPath());
-
-		LOG.debug("Created temp mappart directory: {}", temp.getAbsolutePath());
 	}
 
 	@Override

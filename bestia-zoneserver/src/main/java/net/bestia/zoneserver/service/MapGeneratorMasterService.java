@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import de.tfelix.bestia.worldgen.MapMasterCallbacks;
 import de.tfelix.bestia.worldgen.MapMasterGenerator;
 import de.tfelix.bestia.worldgen.description.Map2DDescription;
-import de.tfelix.bestia.worldgen.io.MasterCom;
+import de.tfelix.bestia.worldgen.io.NodeConnector;
 import de.tfelix.bestia.worldgen.message.WorkstateMessage;
 import de.tfelix.bestia.worldgen.random.NoiseVectorBuilder;
 import de.tfelix.bestia.worldgen.random.SimplexNoiseProvider;
@@ -43,7 +43,7 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 	 * @param params
 	 *            The basic parameter to perform the world creation with.
 	 */
-	public void generateMap(MapParameter params, List<MasterCom> nodes) {
+	public void generateMap(MapParameter params, List<NodeConnector> nodes) {
 		if (!isGenerating.compareAndSet(false, true)) {
 			throw new IllegalStateException("Map generation is currently in progress.");
 		}
