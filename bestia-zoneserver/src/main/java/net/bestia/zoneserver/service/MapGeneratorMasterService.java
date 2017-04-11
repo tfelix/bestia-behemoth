@@ -58,8 +58,8 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 
 		final ThreadLocalRandom rand = ThreadLocalRandom.current();
 
-		final long height = params.getWorldSize().getHeight();
-		final long width = params.getWorldSize().getWidth();
+		//final long height = params.getWorldSize().getHeight();
+		//final long width = params.getWorldSize().getWidth();
 
 		masterGenerator = new MapMasterGenerator(this);
 
@@ -118,6 +118,8 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 
 		LOG.info("Map job '{}' was finished.", label);
 
+		// TODO We currently only use one test job which also saves the map to the db.
+		/*
 		switch (label) {
 		case MapGeneratorConstants.WORK_SCALE:
 			masterGenerator.startWorkload(MapGeneratorConstants.WORK_GEN_BIOMES);
@@ -130,7 +132,7 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 			masterGenerator = null;
 			isGenerating.set(false);
 			break;
-		}
+		}*/
 	}
 
 	@Override

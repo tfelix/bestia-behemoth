@@ -17,7 +17,7 @@ export default class Shortcut {
 
 		/**
 		 * @member {boolean} Is TRUE if the shortcut is currently triggered via a key 
-		 * press or push event.
+		 * press or push event. Can be used to change the css files based on triggering state.
 		 */
 		this.isTriggered = ko.observable(false);
 

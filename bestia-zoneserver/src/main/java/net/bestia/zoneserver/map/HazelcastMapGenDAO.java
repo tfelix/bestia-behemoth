@@ -7,13 +7,13 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
-import de.tfelix.bestia.worldgen.io.LocalFileMapGenDAO;
 import de.tfelix.bestia.worldgen.io.MapGenDAO;
 import de.tfelix.bestia.worldgen.map.MapDataPart;
 
@@ -35,10 +35,11 @@ public class HazelcastMapGenDAO implements MapGenDAO {
 	private IMap<String, Object> clientStore;
 
 	private final String nodeName;
-	private final LocalFileMapGenDAO localFileDao;
+	private final MapGenDAO localFileDao;
 
 	@Autowired
-	public HazelcastMapGenDAO(@Value("${server.name}") String nodeName, LocalFileMapGenDAO localFileDao,
+	public HazelcastMapGenDAO(@Value("${server.name}") String nodeName,
+			@Qualifier("localMapGenDao") MapGenDAO localFileDao,
 			HazelcastInstance hz) throws IOException {
 
 		masterStore = hz.getMap(MASTER_STORE);

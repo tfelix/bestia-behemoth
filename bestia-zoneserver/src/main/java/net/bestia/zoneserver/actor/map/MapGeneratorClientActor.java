@@ -3,6 +3,7 @@ package net.bestia.zoneserver.actor.map;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -11,18 +12,12 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import de.tfelix.bestia.worldgen.MapNodeGenerator;
 import de.tfelix.bestia.worldgen.description.MapDescription;
-import de.tfelix.bestia.worldgen.io.MasterConnector;
 import de.tfelix.bestia.worldgen.io.MapGenDAO;
-import de.tfelix.bestia.worldgen.map.MapDataPart;
+import de.tfelix.bestia.worldgen.io.MasterConnector;
 import de.tfelix.bestia.worldgen.map.MapPart;
 import de.tfelix.bestia.worldgen.message.WorkstateMessage;
-import de.tfelix.bestia.worldgen.random.NoiseVector;
-import de.tfelix.bestia.worldgen.workload.Job;
-import de.tfelix.bestia.worldgen.workload.MultiplyJob;
-import de.tfelix.bestia.worldgen.workload.Workload;
 import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.map.HazelcastMapGenDAO;
-import net.bestia.zoneserver.map.MapGeneratorConstants;
+import net.bestia.zoneserver.configuration.MapGenConfiguration;
 import net.bestia.zoneserver.service.StaticConfigurationService;
 
 @Component
@@ -33,69 +28,28 @@ public class MapGeneratorClientActor extends BestiaActor implements MasterConnec
 
 	public final static String NAME = "mapGeneratorClient";
 
-	private final HazelcastMapGenDAO dao;
-	private final StaticConfigurationService config;
+	private final MapGenConfiguration genConfig;
 
 	private MapNodeGenerator nodeGenerator;
 	private ActorRef master;
 
-	@Autowired
-	public MapGeneratorClientActor(HazelcastMapGenDAO dao, StaticConfigurationService config) {
+	private final StaticConfigurationService config;
+	private final MapGenDAO mapGenDao;
 
-		this.dao = Objects.requireNonNull(dao);
+	@Autowired
+	public MapGeneratorClientActor(StaticConfigurationService config, @Qualifier("localMapGenDao") MapGenDAO mapGenDao,
+			MapGenConfiguration genConfig) {
+
+		this.genConfig = genConfig;
+
+		this.mapGenDao = Objects.requireNonNull(mapGenDao);
 		this.config = Objects.requireNonNull(config);
 	}
 
 	@Override
 	public void preStart() throws Exception {
-		nodeGenerator = new MapNodeGenerator(config.getServerName(), this, dao);
-
-		Workload work = new Workload(MapGeneratorConstants.WORK_SCALE);
-		work.addJob(new MultiplyJob(3500, MapGeneratorConstants.HEIGHT_MAP));
-		nodeGenerator.addWorkload(work);
-
-		work = new Workload(MapGeneratorConstants.WORK_GEN_TILES);
-		work.addJob(new Job() {
-			
-			private final static double WATERLEVEL = 100;
-			
-			private int waterCount = 0;
-			private int landCount = 0;
-			
-			@Override
-			public void foreachNoiseVector(MapGenDAO dao, MapDataPart data, NoiseVector vec) {
-				
-				if(vec.getValueDouble(MapGeneratorConstants.HEIGHT_MAP) < WATERLEVEL) {
-					// Water tile.
-					vec.setValue(MapGeneratorConstants.TILE_MAP, 11);
-					waterCount++;
-				} else {
-					// Land tile.
-					vec.setValue(MapGeneratorConstants.TILE_MAP, 80);
-					landCount++;
-				}
-			}
-			
-			@Override
-			public void onFinish(MapGenDAO dao, MapDataPart data) {
-				LOG.debug("Finished map part. Land tiles: {}, water tiles: {}", landCount, waterCount);
-			}
-			
-			@Override
-			public void onStart() {
-				waterCount = 0;
-				landCount = 0;
-			}
-		});
-		work.addJob(new Job() {
-			@Override
-			public void foreachNoiseVector(MapGenDAO dao, MapDataPart data, NoiseVector vec) {
-				// Now the tiles must be saved.
-				LOG.info("Map wird gespeichert.");
-			}
-		});
 		
-		nodeGenerator.addWorkload(work);
+		nodeGenerator = genConfig.mapNodeGenerator(config, this, mapGenDao);
 	}
 
 	@Override
