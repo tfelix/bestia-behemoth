@@ -142,6 +142,6 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 		}
 
 		LOG.info("Map noise was generated.");
-		masterGenerator.startWorkload(MapGeneratorConstants.WORK_SCALE);
+		masterGenerator.startWorkload(MapGeneratorConstants.WORK_GEN_TILES);
 	}
 }

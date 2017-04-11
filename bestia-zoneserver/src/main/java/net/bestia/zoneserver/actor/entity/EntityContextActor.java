@@ -30,7 +30,7 @@ public class EntityContextActor extends BestiaRoutingActor {
 
 		activeClientUpdateRef = SpringExtension.actorOf(getContext(), ActiveClientUpdateActor.class);
 		SpringExtension.actorOf(getContext(), MovementActor.class);
-		SpringExtension.actorOf(getContext(), EntitySpawnActor.class);
+		//SpringExtension.actorOf(getContext(), EntitySpawnActor.class);
 		SpringExtension.actorOf(getContext(), PositionActor.class);
 		SpringExtension.actorOf(getContext(), EntityDeleteActor.class);
 	}

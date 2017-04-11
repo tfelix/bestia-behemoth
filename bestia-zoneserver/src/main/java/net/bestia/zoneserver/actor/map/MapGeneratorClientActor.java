@@ -18,6 +18,7 @@ import de.tfelix.bestia.worldgen.map.MapPart;
 import de.tfelix.bestia.worldgen.message.WorkstateMessage;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.configuration.MapGenConfiguration;
+import net.bestia.zoneserver.service.MapService;
 import net.bestia.zoneserver.service.StaticConfigurationService;
 
 @Component
@@ -35,21 +36,23 @@ public class MapGeneratorClientActor extends BestiaActor implements MasterConnec
 
 	private final StaticConfigurationService config;
 	private final MapGenDAO mapGenDao;
+	private final MapService mapService;
 
 	@Autowired
 	public MapGeneratorClientActor(StaticConfigurationService config, @Qualifier("localMapGenDao") MapGenDAO mapGenDao,
-			MapGenConfiguration genConfig) {
+			MapGenConfiguration genConfig, MapService mapService) {
 
 		this.genConfig = genConfig;
 
 		this.mapGenDao = Objects.requireNonNull(mapGenDao);
 		this.config = Objects.requireNonNull(config);
+		this.mapService = Objects.requireNonNull(mapService);
 	}
 
 	@Override
 	public void preStart() throws Exception {
-		
-		nodeGenerator = genConfig.mapNodeGenerator(config, this, mapGenDao);
+
+		nodeGenerator = genConfig.mapNodeGenerator(config, this, mapGenDao, mapService);
 	}
 
 	@Override

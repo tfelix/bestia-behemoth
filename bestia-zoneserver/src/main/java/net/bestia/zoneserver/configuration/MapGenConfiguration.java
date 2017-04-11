@@ -20,7 +20,10 @@ import de.tfelix.bestia.worldgen.random.NoiseVector;
 import de.tfelix.bestia.worldgen.workload.Job;
 import de.tfelix.bestia.worldgen.workload.MultiplyJob;
 import de.tfelix.bestia.worldgen.workload.Workload;
+import net.bestia.model.geometry.Rect;
+import net.bestia.model.map.MapDataDTO;
 import net.bestia.zoneserver.map.MapGeneratorConstants;
+import net.bestia.zoneserver.service.MapService;
 import net.bestia.zoneserver.service.StaticConfigurationService;
 
 /**
@@ -36,7 +39,7 @@ public class MapGenConfiguration {
 
 	private final static String MAP_GEN_DIR = "bestia-map-tempdir";
 
-	@Bean(name="localMapGenDao")
+	@Bean(name = "localMapGenDao")
 	public MapGenDAO localFileMapGenDAO(@Value("${mapgen.tempDir:#{null}}") String tempDir,
 			@Value("${server.name}") String nodeName) throws IOException {
 
@@ -66,13 +69,16 @@ public class MapGenConfiguration {
 	}
 
 	/**
-	 * Generates and confogures the {@link MapNodeGenerator}.
+	 * Generates and configures the {@link MapNodeGenerator}. Sadly we need a
+	 * {@link MasterConnector} which is implemented via a specialized actor. We
+	 * need to call this method from within the actor.
 	 * 
 	 * @return The used {@link MapNodeGenerator}.
 	 */
-	public MapNodeGenerator mapNodeGenerator(StaticConfigurationService config, 
+	public MapNodeGenerator mapNodeGenerator(StaticConfigurationService config,
 			MasterConnector connector,
-			MapGenDAO dao) {
+			MapGenDAO dao,
+			MapService mapService) {
 		MapNodeGenerator nodeGenerator = new MapNodeGenerator(config.getServerName(), connector, dao);
 
 		Workload work = new Workload(MapGeneratorConstants.WORK_SCALE);
@@ -118,7 +124,29 @@ public class MapGenConfiguration {
 			@Override
 			public void foreachNoiseVector(MapGenDAO dao, MapDataPart data, NoiseVector vec) {
 				// Now the tiles must be saved.
-				LOG.info("Map wird gespeichert.");
+				LOG.info("Map is now saved to the database.");
+				
+				// TODO Das hier ist nur provisorisch um das system grundsätzlich zu testen.
+				for(int x = 0; x < 10; x++) {
+					for(int y = 0; y < 10; y++) {
+						
+						Rect rect = new Rect(x * 100, y * 100, 1000, 1000);
+						MapDataDTO mapDataDto = new MapDataDTO(rect);
+						
+						// Die X und Y coordinaten müssen global sein.
+						for(int x2 = 0; x2 < 1000; x2++) {
+							for(int y2 = 0; y2 < 1000; y2++) {
+								
+								mapDataDto.putGroundLayer(x2, y2, 80);
+								
+							}
+						}
+						
+						mapService.saveMapData(mapDataDto);
+					}
+				}
+				
+				
 			}
 		});
 

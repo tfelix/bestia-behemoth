@@ -23,7 +23,6 @@ import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor;
 import net.bestia.zoneserver.actor.entity.EntityMoveActor;
-import net.bestia.zoneserver.actor.entity.EntitySpawnActor;
 import net.bestia.zoneserver.actor.inventory.InventoryActor;
 import net.bestia.zoneserver.actor.map.MapRequestChunkActor;
 import net.bestia.zoneserver.actor.map.TilesetRequestActor;
@@ -59,7 +58,6 @@ public class ZoneActor extends BestiaRoutingActor {
 		// === Bestias ===
 		SpringExtension.actorOf(getContext(), BestiaInfoActor.class);
 		SpringExtension.actorOf(getContext(), ActivateBestiaActor.class);
-		SpringExtension.actorOf(getContext(), EntitySpawnActor.class);
 
 		// === Entities ===
 		SpringExtension.actorOf(getContext(), EntityInteractionRequestActor.class);

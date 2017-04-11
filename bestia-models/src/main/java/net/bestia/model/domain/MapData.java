@@ -2,10 +2,12 @@ package net.bestia.model.domain;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Index;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 /**
@@ -92,6 +94,8 @@ public class MapData {
 	@Id
 	private long height;
 
+	@Lob
+	@Column(nullable=false, length=50000)
 	private byte[] data;
 
 	public long getX() {

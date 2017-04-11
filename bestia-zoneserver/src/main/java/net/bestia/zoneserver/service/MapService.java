@@ -141,7 +141,7 @@ public class MapService {
 	 * @param dto
 	 * @throws IOException
 	 */
-	public void saveMapData(MapDataDTO dto) throws IOException {
+	public void saveMapData(MapDataDTO dto) {
 		
 		Objects.requireNonNull(dto);
 
@@ -159,6 +159,8 @@ public class MapService {
 			mapData.setX(dto.getRect().getX());
 			mapData.setY(dto.getRect().getY());
 			mapDataDao.save(mapData);
+		} catch (IOException e) {
+			LOG.error("Can not persist map data.", e);
 		}
 	}
 
@@ -185,19 +187,6 @@ public class MapService {
 		return "Kalarian (mot implemented)";
 	}
 
-	/*
-	/**
-	 * This returns a tileset via its name.
-	 * 
-	 * @param name
-	 * @return
-	 */
-	/*
-	public Tileset getTileset(String name) {
-		final IMap<String, Tileset> tilesetData = hazelcastInstance.getMap(TILESET_KEY);
-		return tilesetData.get(name);
-	}*/
-
 	/**
 	 * Returns the tileset depending on the gid of a tile. The system will
 	 * perform a lookup in order to find the correct tileset for the given guid.
@@ -222,11 +211,11 @@ public class MapService {
 	/**
 	 * Returns a list with all DTOs which are covering the given range.
 	 * 
-	 * @param x
-	 * @param y
-	 * @param width
-	 * @param height
-	 * @return
+	 * @param x X start of the range.
+	 * @param y Y start of the range.
+	 * @param width Width of the area.
+	 * @param height Height of the area.
+	 * @return A list with all {@link MapDataDTO} covering the given area.
 	 */
 	private List<MapDataDTO> getCoveredMapDataDTO(long x, long y, long width, long height) {
 		final List<MapData> rawData = mapDataDao.findAllInRange(x, y, width, height);

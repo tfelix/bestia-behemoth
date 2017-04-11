@@ -41,6 +41,15 @@ public class MapDataDTO implements Serializable {
 
 	}
 
+	/**
+	 * Calculates the index of the x and y coordiante.
+	 * 
+	 * @param x
+	 *            X coordinate.
+	 * @param y
+	 *            Y coordiante.
+	 * @return The index to get the tile out of the internal array.
+	 */
 	private int getIndex(long x, long y) {
 		if (x < 0 || y < 0) {
 			throw new IllegalArgumentException("X and Y coordinates can not be negative.");
@@ -78,13 +87,13 @@ public class MapDataDTO implements Serializable {
 			throw new IndexOutOfBoundsException("Given coordiantes are not within the data.");
 		}
 
-		if(layers.size() < layer) {
+		if (layers.size() < layer) {
 			// Extend list to the given layers.
-			for(int i = layer - layers.size(); i > 0; i--) {
+			for (int i = layer - layers.size(); i > 0; i--) {
 				layers.add(new HashMap<>());
 			}
 		}
-		
+
 		layers.get(layer).put(p, gid);
 	}
 
