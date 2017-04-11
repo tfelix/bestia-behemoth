@@ -55,6 +55,9 @@ let Signal = {
 	INPUT_USE_ATTACK: 'input.attack',
 	INPUT_USE_ITEM: 'input.item',
 
+	// ### SHORTCUTS
+	SHORTCUT_REQ_SLOTS: 'shortcuts.slot.req',
+
 	// ### ENGINE
 	/**
 	 * Returns the reference to the searched component or null if there is no such compoent.
