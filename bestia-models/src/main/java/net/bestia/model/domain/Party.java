@@ -3,9 +3,11 @@ package net.bestia.model.domain;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -33,8 +35,11 @@ public class Party implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
+	
+	@Column(nullable = false, unique = true)
+	private String name;
 
-	@OneToMany(cascade = CascadeType.ALL, mappedBy = "PARTY_MEMBER")
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "party")
 	private Set<Account> members = new HashSet<>();
 
 	/**
@@ -60,5 +65,13 @@ public class Party implements Serializable {
 	 */
 	public Set<Account> getMembers() {
 		return Collections.unmodifiableSet(members);
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	public void setName(String name) {
+		this.name = Objects.requireNonNull(name);
 	}
 }

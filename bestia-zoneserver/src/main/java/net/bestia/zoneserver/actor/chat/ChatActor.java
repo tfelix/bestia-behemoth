@@ -11,7 +11,9 @@ import org.springframework.stereotype.Component;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.chat.ChatMessage;
+import net.bestia.model.dao.PartyDAO;
 import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Party;
 import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerEntity;
@@ -38,15 +40,17 @@ public class ChatActor extends BestiaRoutingActor {
 	private final AccountZoneService accService;
 	private final PlayerEntityService playerEntityService;
 	private final ChatCommandService chatCmdService;
+	private final PartyDAO partyDao;
 
 	@Autowired
 	public ChatActor(AccountZoneService accService, PlayerEntityService playerEntityService,
-			ChatCommandService chatCmdService) {
+			ChatCommandService chatCmdService, PartyDAO partyDao) {
 		super(Arrays.asList(ChatMessage.class));
 
 		this.accService = Objects.requireNonNull(accService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		this.chatCmdService = Objects.requireNonNull(chatCmdService);
+		this.partyDao = Objects.requireNonNull(partyDao);
 	}
 
 	@Override
@@ -66,11 +70,33 @@ public class ChatActor extends BestiaRoutingActor {
 		case WHISPER:
 			handleWhisper(chatMsg);
 			break;
+		case PARTY:
+			handleParty(chatMsg);
+			break;
 
 		default:
 			LOG.warning("Message type not yet supported.");
 			break;
 		}
+	}
+
+	/**
+	 * Handles the party message. Finds all member in this party and then send
+	 * the message to them.
+	 */
+	private void handleParty(ChatMessage chatMsg) {
+		final Party party = partyDao.findPartyByMembership(chatMsg.getAccountId());
+		if (party == null) {
+			// not a member of a party.
+			LOG.debug("Account {} is no member of any party.", chatMsg.getAccountId());
+			sendClient(ChatMessage.getSystemMessage(chatMsg.getAccountId(), "Not a member of a party."));
+			return;
+		}
+
+		party.getMembers().forEach(member -> {
+			final ChatMessage reply = chatMsg.createNewInstance(member.getId());
+			sendClient(reply);
+		});
 	}
 
 	/**
@@ -104,6 +130,7 @@ public class ChatActor extends BestiaRoutingActor {
 		final Account acc = accService.getOnlineAccountByName(chatMsg.getReceiverNickname());
 
 		if (acc == null) {
+			LOG.debug("Whisper receiver {} not found.", chatMsg.getReceiverNickname());
 			return;
 		}
 

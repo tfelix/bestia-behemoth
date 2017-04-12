@@ -21,6 +21,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -79,6 +80,9 @@ public class Account implements Serializable {
 	private UserLevel userLevel = UserLevel.USER;
 	
 	private Hairstyle hairstyle = Hairstyle.female_01;
+	
+	@ManyToOne(cascade = CascadeType.ALL)
+	private Party party;
 
 	// @OneToMany(mappedBy="account")
 	// private List<GuildMember> guild;
