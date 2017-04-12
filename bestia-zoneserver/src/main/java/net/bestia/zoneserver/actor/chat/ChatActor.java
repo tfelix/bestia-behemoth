@@ -21,7 +21,9 @@ import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * This actor processes chat messages from the clients to the bestia system. It
- * will check the preconditions and redirect it to the apropriate receivers.
+ * will check the preconditions and redirect it to the appropriate receivers
+ * which will then in turn work with the chat message or redirect it to the chat
+ * command system.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -51,8 +53,8 @@ public class ChatActor extends BestiaRoutingActor {
 	protected void handleMessage(Object msg) {
 
 		final ChatMessage chatMsg = (ChatMessage) msg;
-		
-		if(chatCmdService.isChatCommand(chatMsg.getText())) {
+
+		if (chatCmdService.isChatCommand(chatMsg.getText())) {
 			chatCmdService.executeChatCommand(chatMsg.getAccountId(), chatMsg.getText());
 			return;
 		}

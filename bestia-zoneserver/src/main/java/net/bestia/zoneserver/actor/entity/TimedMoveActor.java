@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import akka.actor.Cancellable;
 import akka.actor.Scheduler;
 import net.bestia.messages.entity.EntityMoveInternalMessage;
-import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.entity.traits.Locatable;

@@ -10,6 +10,8 @@ import javax.persistence.Id;
 /**
  * This domain object is used to make a login history of the accounts.
  * 
+ * TODO This must be implemented.
+ * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */

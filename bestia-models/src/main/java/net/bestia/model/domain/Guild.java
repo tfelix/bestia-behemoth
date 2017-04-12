@@ -19,7 +19,7 @@ import javax.persistence.Transient;
 /**
  * Representation of a guild for the bestia game.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Entity
