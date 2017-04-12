@@ -15,18 +15,22 @@ import net.bestia.messages.JsonMessage;
 public class ShortcutsMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private static final String MESSAGE_ID = "shortcuts";
-	
+
 	@JsonProperty("sc")
 	private String shortcuts;
-	
+
+	protected ShortcutsMessage() {
+		// no op.
+	}
+
 	public ShortcutsMessage(long accountId) {
 		super(accountId);
 	}
 
 	public ShortcutsMessage(String shortcuts) {
-		
+
 		this.shortcuts = Objects.requireNonNull(shortcuts);
 	}
 

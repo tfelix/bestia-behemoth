@@ -130,12 +130,11 @@ public class MapGenConfiguration {
 				for(int x = 0; x < 10; x++) {
 					for(int y = 0; y < 10; y++) {
 						
-						Rect rect = new Rect(x * 100, y * 100, 1000, 1000);
+						Rect rect = new Rect(x * 100, y * 100, 100, 100);
 						MapDataDTO mapDataDto = new MapDataDTO(rect);
 						
-						// Die X und Y coordinaten müssen global sein.
-						for(int x2 = 0; x2 < 1000; x2++) {
-							for(int y2 = 0; y2 < 1000; y2++) {
+						for(int x2 = x * 100; x2 < x * 100 + 100; x2++) {
+							for(int y2 = y * 100; y2 < y * 100 + 100; y2++) {
 								
 								mapDataDto.putGroundLayer(x2, y2, 80);
 								
@@ -144,9 +143,7 @@ public class MapGenConfiguration {
 						
 						mapService.saveMapData(mapDataDto);
 					}
-				}
-				
-				
+				}				
 			}
 		});
 

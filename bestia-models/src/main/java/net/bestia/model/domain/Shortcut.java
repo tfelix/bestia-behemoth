@@ -1,5 +1,6 @@
 package net.bestia.model.domain;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import javax.persistence.Entity;
@@ -19,8 +20,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 @Entity
 @Table(name = "shortcuts")
-public class Shortcut {
+public class Shortcut implements Serializable {
 	
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	@GeneratedValue
 	private int id;
@@ -31,6 +34,10 @@ public class Shortcut {
 	
 	@JsonProperty("sc")
 	private String shortcut;
+	
+	public Shortcut() {
+		
+	}
 
 	public PlayerBestia getPlayerBestia() {
 		return playerBestia;
