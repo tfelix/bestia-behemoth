@@ -22,6 +22,7 @@
 		<jackson.version>2.8.4</jackson.version>
 		<findbugs.version>3.0.4</findbugs.version>
 		<spring.version>1.4.2.RELEASE</spring.version>
+		<springtest.version>4.2.7.RELEASE</springtest.version>
 		<akka.version>2.4.12</akka.version>
 		<hazelcast.version>3.7.2</hazelcast.version>
 		<jetty.version>9.3.10.v20160621</jetty.version>
