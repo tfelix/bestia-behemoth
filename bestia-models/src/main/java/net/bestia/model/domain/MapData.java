@@ -19,7 +19,7 @@ import javax.persistence.Table;
  *
  */
 @Entity
-@Table(name = "mapdata", indexes = {
+@Table(name = "map_data", indexes = {
 		@Index(columnList = "x", name = "x_idx"),
 		@Index(columnList = "y", name = "y_idx") })
 @IdClass(MapData.MapDataPK.class)

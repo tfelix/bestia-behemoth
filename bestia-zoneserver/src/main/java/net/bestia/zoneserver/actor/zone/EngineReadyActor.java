@@ -61,7 +61,7 @@ public class EngineReadyActor extends BestiaRoutingActor {
 
 	@Override
 	protected void handleMessage(Object msg) {
-		LOG.debug("LoginRequestMessage received: {}", msg.toString());
+		LOG.debug("EngineReadyMessage received: {}", msg.toString());
 
 		final EngineReadyMessage readyMsg = (EngineReadyMessage) msg;
 		final long accId = readyMsg.getAccountId();

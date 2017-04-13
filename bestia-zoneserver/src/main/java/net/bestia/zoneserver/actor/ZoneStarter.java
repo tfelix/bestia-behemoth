@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import akka.routing.FromConfig;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
+import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
 import net.bestia.zoneserver.actor.uplink.UplinkActor;
 import net.bestia.zoneserver.actor.uplink.UplinkLoginActor;
-import net.bestia.zoneserver.actor.zone.EchoActor;
+import net.bestia.zoneserver.actor.zone.MessageRoutingActor;
 import net.bestia.zoneserver.actor.zone.ZoneActor;
 
 /**
@@ -62,12 +62,20 @@ public class ZoneStarter implements CommandLineRunner {
 		props = springExt.props(UplinkLoginActor.class);
 		system.actorOf(props, UplinkLoginActor.NAME);
 		
+		// TESTING AREA FOR ALTERNATIVE ROUTING
+		props = springExt.props(ChatActor.class);
+		system.actorOf(props, ChatActor.NAME);
+		
+		props = springExt.props(MessageRoutingActor.class);
+		system.actorOf(props, MessageRoutingActor.NAME);
+		
 		// Testing.
+		/*
 		props = springExt.props(EchoActor.class).withRouter(new FromConfig());
 		ActorRef router = system.actorOf(props, "echoRouter");
 		
 		for (int i = 0; i < 10; i++){
             router.tell("Test " + i, ActorRef.noSender());
-        }
+        }*/
 	}
 }

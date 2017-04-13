@@ -33,7 +33,7 @@ public class LoginInfo {
 	private String browserAgent;
 
 	public LoginInfo() {
-
+		eventDate = new Date();
 	}
 
 	public long getId() {

@@ -2,6 +2,7 @@ package net.bestia.messages.login;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
@@ -22,15 +23,22 @@ public class LoginAuthMessage extends JsonMessage {
 	
 	@JsonProperty("token")
 	private String token;
+	
+	@JsonProperty("agent")
+	private String browserAgent;
+	
+	@JsonIgnore
+	private String clientIp;
 
 	protected LoginAuthMessage() {
 		// no op.
 	}
 
-	public LoginAuthMessage(long accountId, String token) {
+	public LoginAuthMessage(long accountId, String token, String agent) {
 		super(accountId);
 		
 		this.token = Objects.requireNonNull(token);
+		this.browserAgent = Objects.requireNonNull(agent);
 	}
 
 
@@ -56,7 +64,12 @@ public class LoginAuthMessage extends JsonMessage {
 	@Override
 	public LoginAuthMessage createNewInstance(long accountId) {
 		
-		return new LoginAuthMessage(accountId, token);
+		return new LoginAuthMessage(accountId, token, browserAgent);
+	}
+	
+	public LoginAuthMessage createNewInstance(String clientIp) {
+		
+		return new LoginAuthMessage(getAccountId(), token, browserAgent);
 	}
 
 }

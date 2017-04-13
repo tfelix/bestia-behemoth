@@ -32,6 +32,8 @@ public class MessageRoutingActor extends BestiaActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	
 	private static final Map<String, String> MESSAGE_TO_ROUTE = new HashMap<>();
+
+	public static final String NAME = "messageRouter";
 	
 	static {
 		// Das hier ist 
