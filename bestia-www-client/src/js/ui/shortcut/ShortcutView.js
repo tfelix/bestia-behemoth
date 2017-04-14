@@ -28,6 +28,8 @@ export default class ShortcutView {
 
 		this._pubsub = pubsub;
 
+		this.rows = ko.observableArray();
+
 		// Prepare the rows.
 		for (let i = 0; i < 5; i++) {
 			let r = ko.observableArray();
