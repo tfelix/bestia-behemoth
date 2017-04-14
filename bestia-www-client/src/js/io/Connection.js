@@ -124,7 +124,7 @@ export default class Connection {
 		this._socket = new SockJS(Urls.bestiaWebsocket);
 
 		this._socket.onopen = function () {
-			this._connectRetry = 0;
+			this._connectionTries = 0;
 			this._pubsub.publish(Signal.IO_CONNECTED);
 		}.bind(this);
 

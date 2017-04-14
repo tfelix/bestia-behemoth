@@ -3,20 +3,18 @@ package net.bestia.messages.chat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.EntityJsonMessage;
 import net.bestia.model.I18n;
 import net.bestia.model.domain.Account;
 
 /**
  * Chatmessage is sent from the user to the server and vice versa.
  * 
- * TODO This is a mess! Cleanup the API of ctors.
- * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ChatMessage extends JsonMessage {
+public class ChatMessage extends EntityJsonMessage {
 
 	private static final long serialVersionUID = 1L;
 
@@ -51,16 +49,16 @@ public class ChatMessage extends JsonMessage {
 		// no op.
 	}
 
-	public ChatMessage(long accId, String message, Mode mode) {
-		super(accId);
+	public ChatMessage(long accId, long entityId, String message, Mode mode) {
+		super(accId, entityId);
 
 		this.chatMode = mode;
 		this.text = message;
 		setTime(System.currentTimeMillis() / 1000L);
 	}
 
-	public ChatMessage(long accountId, ChatMessage chat) {
-		super(accountId);
+	public ChatMessage(long newAccountId, long entityId, ChatMessage chat) {
+		super(newAccountId, chat.getEntityId());
 		
 		this.chatMessageId = chat.chatMessageId;
 		this.chatMode = chat.chatMode;
@@ -69,6 +67,7 @@ public class ChatMessage extends JsonMessage {
 		this.text = chat.text;
 		this.time = chat.time;		
 	}
+
 
 	public static ChatMessage getSystemMessage(Account account, String translationKey, Object... args) {
 
@@ -92,7 +91,7 @@ public class ChatMessage extends JsonMessage {
 	 */
 	public static ChatMessage getSystemMessage(long accId, String text) {
 
-		final ChatMessage msg = new ChatMessage(accId, text, Mode.SYSTEM);
+		final ChatMessage msg = new ChatMessage(accId, 0, text, Mode.SYSTEM);
 		msg.setTime(System.currentTimeMillis() / 1000L);
 		msg.setChatMode(Mode.SYSTEM);
 
@@ -152,6 +151,6 @@ public class ChatMessage extends JsonMessage {
 
 	@Override
 	public ChatMessage createNewInstance(long accountId) {
-		return new ChatMessage(accountId, this);
+		return new ChatMessage(accountId, getEntityId(), this);
 	}
 }

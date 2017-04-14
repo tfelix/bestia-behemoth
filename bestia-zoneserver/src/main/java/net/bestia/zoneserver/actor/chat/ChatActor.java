@@ -109,12 +109,15 @@ public class ChatActor extends BestiaRoutingActor {
 		if (pbe == null) {
 			return;
 		}
+		
+		// Add the current entity id to the message.
+		final ChatMessage chatEntityMsg = new ChatMessage(accId, pbe.getId(), chatMsg);
 
 		final List<Long> receiverAccIds = playerEntityService
 				.getActiveAccountIdsInRange(Map.getViewRect(pbe.getPosition()));
 
 		receiverAccIds.stream()
-				.map(receiverAccId -> chatMsg.createNewInstance(receiverAccId))
+				.map(receiverAccId -> chatEntityMsg.createNewInstance(receiverAccId))
 				.forEach(msg -> sendClient(msg));
 	}
 
