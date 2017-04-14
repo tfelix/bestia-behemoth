@@ -1,4 +1,5 @@
 import SpriteEntity from './SpriteEntity.js';
+import LOG from './../../util/Log';
 
 const NULL_OFFSET = {x: 0, y: 0};
 
@@ -79,7 +80,7 @@ export default class MultispriteEntity extends SpriteEntity {
 	setSprite(spriteName) {
 		super.setSprite(spriteName);
 		
-		console.log('setSprite called ' + spriteName);
+		LOG.debug('setSprite called', spriteName);
 	
 		// Add the multi sprites if there are some of them.
 		var multisprites = this._data.multiSprite || [];
@@ -129,7 +130,7 @@ export default class MultispriteEntity extends SpriteEntity {
 
 			sprite.name = msName;
 			
-			// THe whole sprite setup is stupid. We need safty check because we
+			// The whole sprite setup is stupid. We need safty check because we
 			// call setSprite() from the parent ctor. Fix this.
 			if(!this._multiSprites) {
 				this._multiSprites = [];
@@ -146,12 +147,12 @@ export default class MultispriteEntity extends SpriteEntity {
 	 * Returns the current offset for the given subsprite, animation of the main
 	 * sprite and current animation frame.
 	 * 
-	 * @param subsprite
+	 * @param {string} subsprite
 	 *            Name of the subsprite to look for its anchor offset.
-	 * @param currentAnim
+	 * @param {string} currentAnim
 	 *            Currently running animation of the main sprite.
-	 * @param currentFrame
-	 *            The current frame of the main sprite.
+	 * @param {number} currentFrame
+	 *            The current frame of the main sprite. Note that frame numbers start with 1.
 	 * @returns
 	 */
 	_getSubspriteOffset(subsprite, currentAnim, currentFrame) {
@@ -163,17 +164,17 @@ export default class MultispriteEntity extends SpriteEntity {
 				continue;
 			}
 
-			if(subData.offsets[i].offsets.length > currentFrame) {
-				return subData.offsets[i].offsets[currentFrame];
+			if(subData.offsets[i].offsets.length > currentFrame - 1) {
+				return subData.offsets[i].offsets[currentFrame - 1];
 			} else {
-				console.warn('getSubspriteOffset: Not enough frames found for: ' + subsprite + ' currentAnim: ' + currentAnim);
+				LOG.warn('getSubspriteOffset: Not enough frames found for:', subsprite, ' currentAnim:', currentAnim);
 				return subData.defaultCords;
 			}
 		}
 		
 		// If nothing found return default.
 		if(!subData.defaultCords) {
-			console.warn('getSubspriteOffset: No default cords found for: ' + subsprite + ' currentAnim: ' + currentAnim);
+			LOG.warn('getSubspriteOffset: No default cords found for:', subsprite, 'currentAnim:', currentAnim);
 			return NULL_OFFSET;
 		}
 		

@@ -16,13 +16,13 @@ export default class ChatFx {
 		this._cache = manager.ctx.entityCache;
 		this._game = manager.ctx.game;
 	
-		this._pubsub.subscribe(Signal.CHAT_RECEIVED, this._onChatMsgHandler.bind(this));
+		this._pubsub.subscribe(Signal.CHAT_RECEIVED, this._onChatMsgHandler, this);
 	}
 	
 	/**
 	 * Chat message handler.
 	 */
-	_onChatMsgHandler(_, data) {
+	_onChatMsgHandler(_, data) {		
 		if (data.mode() !== 'PUBLIC') {
 			return;
 		}

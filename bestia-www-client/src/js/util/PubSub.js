@@ -13,7 +13,7 @@ import LOG from '../util/Log';
  * @class PubSub
  */
 export default class PubSub {
-	
+
 	/**
 	 * Creates a PubSub object.
 	 * 
@@ -34,9 +34,11 @@ export default class PubSub {
 		/**
 		 * @private
 		 */
-		this._currentlyActive = 0;
+		this._currentlyActive = false;
+
+		this._publishCache = [];
 	}
-	
+
 	/**
 	 * Subscibes to the bestia publish subscriber model.
 	 * 
@@ -50,18 +52,18 @@ export default class PubSub {
 	 *            [ctx] - Context which is bound to the function.
 	 */
 	subscribe(e, fn, ctx) {
-		if(typeof e !== 'string') {
+		if (typeof e !== 'string') {
 			throw 'Eventname must be of type string.';
 		}
-		
+
 		if (!this._cache[e]) {
 			this._cache[e] = [];
 		}
-		
-		if(ctx) {
+
+		if (ctx) {
 			fn = fn.bind(ctx);
 		}
-		
+
 		this._cache[e].push(fn);
 	}
 
@@ -79,7 +81,7 @@ export default class PubSub {
 	unsubscribe(e, fn) {
 
 		// Hold the calls until we are finished iterating.
-		if (this._currentlyActive > 0) {
+		if (this._currentlyActive === true) {
 			this._holdUnsubscribeCalls.push(this.unsubscribe.bind(this, e, fn));
 			return;
 		}
@@ -115,12 +117,12 @@ export default class PubSub {
 			return;
 		}
 
-		this._holdUnsubscribeCalls.forEach(function(fn) {
+		this._holdUnsubscribeCalls.forEach(function (fn) {
 			fn();
 		}, this);
 		this._holdUnsubscribeCalls = [];
 	}
-	
+
 	/**
 	 * This directly sends a message request to the server. It is shortcut for
 	 * publish(IO_SEND_MESSAGE, data);
@@ -142,29 +144,50 @@ export default class PubSub {
 	 * @param {*} [data] - Data which is published to this topic.
 	 */
 	publish(e, data) {
-		
-		if(!e) {
+
+		if (!e) {
 			throw 'Topic can not be undefined.';
 		}
-
-		// @ifdef DEVELOPMENT
-		LOG.debug('Published:', e, '- Data:', data);
-		// @endif
 
 		if (!this._cache[e]) {
 			return;
 		}
-		this._currentlyActive++;
-		var fns = this._cache[e];
-		var fnsCount = fns.length;
-		for (var i = 0; i < fnsCount; ++i) {
-			try {
-				fns[i](e, data);
-			} catch(ex) {
-				LOG.error('Error while publish topic: ', e, ex);
+
+		this._publishCache.push({ topic: e, data: data });
+		this._performPublish();
+	}
+
+	_performPublish() {
+
+		if (this._currentlyActive === true) {
+			return;
+		} else {
+			this._currentlyActive = true;
+		}
+
+		while (this._publishCache.length > 0) {
+			let d = this._publishCache.shift();
+			let fns = this._cache[d.topic];
+			let fnsCount = fns.length;
+
+			// @ifdef DEVELOPMENT
+			LOG.debug('Published:', d.topic, '- Data:', d.data);
+			// @endif
+
+			for (var i = 0; i < fnsCount; ++i) {
+				try {
+
+					// @ifdef DEVELOPMENT
+					//LOG.trace('Calling fn:', fns[i].name);
+					// @endif
+
+					fns[i](d.topic, d.data);
+				} catch (ex) {
+					LOG.error('Error while publish topic:', d.topic, 'Function:', fns[i].name, 'Error:', ex);
+				}
 			}
 		}
-		this._currentlyActive--;
+		this._currentlyActive = false;
 		this._updateCache();
 	}
 }

@@ -152,9 +152,7 @@ export default class Chat {
 		this.text.subscribe(this._identifyLocalCommandTyping.bind(this));
 
 		// Finally subscribe to chat messages.
-		this._pubsub.subscribe(MID.CHAT_MESSAGE, function (_, msg) {
-			this.addMessage(msg);
-		}, this);
+		this._pubsub.subscribe(MID.CHAT_MESSAGE, this.addMessage, this);
 
 		// Catch authentication to set username for the chat. We can remove
 		// ourself
@@ -299,11 +297,16 @@ export default class Chat {
 	 * display a notification that there are new messages waiting.
 	 * 
 	 * @method Bestia.Chat#addMessage
-	 * @param {Bestia.ChatMessage}
-	 *            msg - Chat message to add to the display.
+	 * @param {object}
+	 *            msg - Chat message from the server.
 	 * @public
 	 */
-	addMessage(msg) {
+	addMessage(_, msg) {
+
+		// Swap the messages if the method was called directly and not via a pubsub call (no topic given then)
+		if(msg === undefined) {
+			msg = _;
+		}
 
 		var chatMsg = new ChatMessage(msg);
 		this.messages.push(chatMsg);

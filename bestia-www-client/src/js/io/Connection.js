@@ -112,7 +112,7 @@ export default class Connection {
 		this._connectionTries++;
 
 		let time = this._connectionTries * this._connectionTries * 1500;
-		if(time > 45000) {
+		if (time > 45000) {
 			time = 45000;
 		}
 		LOG.debug('Retry connecting in', time / 1000, 's.');
@@ -122,27 +122,13 @@ export default class Connection {
 	connect() {
 		// defined a connection to a new socket endpoint
 		this._socket = new SockJS(Urls.bestiaWebsocket);
-		
+
 		this._socket.onopen = function () {
 			this._connectRetry = 0;
 			this._pubsub.publish(Signal.IO_CONNECTED);
 		}.bind(this);
 
-		this._socket.onmessage = function (e) {
-			// Is it a valid server message?
-			try {
-				var json = JSON.parse(e.data);
-				// @ifdef DEVELOPMENT
-				LOG.debug('Received Message: ' + e.data);
-				this._debug('receive', json, e.data);
-				// @endif
-
-				this._pubsub.publish(json.mid, json);
-			} catch (ex) {
-				LOG.error('No valid JSON: ', e);
-				return;
-			}
-		}.bind(this);
+		this._socket.onmessage = this._handleMessage.bind(this);
 
 		this._socket.onclose = function () {
 			LOG.info('Server has closed the connection.');
@@ -152,6 +138,24 @@ export default class Connection {
 		}.bind(this);
 
 		this._pubsub.publish(Signal.IO_CONNECTING);
+	}
+
+	_handleMessage(e) {
+		// Is it a valid server message?
+		let json;
+		try {
+			json = JSON.parse(e.data);
+		} catch (ex) {
+			LOG.error('No valid JSON: ', e);
+			return;
+		}
+
+		// @ifdef DEVELOPMENT
+		LOG.trace('Received Message: ', e.data);
+		this._debug('receive', json, e.data);
+		// @endif
+
+		this._pubsub.publish(json.mid, json);
 	}
 
 	/**

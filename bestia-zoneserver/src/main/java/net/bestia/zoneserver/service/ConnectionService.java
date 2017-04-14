@@ -46,7 +46,7 @@ public class ConnectionService {
 	 * @param path
 	 */
 	public void addClient(long accId, ActorPath path) {
-		LOG.trace("Adding client id: %d connection: %s", accId, path);
+		LOG.trace("Adding client id: {} connection: {}", accId, path);
 		clientCache.set(accId, path);
 		webserverCache.put(path.address().toString(), accId);
 	}

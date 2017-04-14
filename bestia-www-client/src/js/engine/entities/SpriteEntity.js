@@ -180,7 +180,7 @@ export default class SpriteEntity extends Entity {
 	 */
 	playAnimation(name) {
 
-		LOG.trace('Playing: ' + name);
+		LOG.debug('Playing: ' + name);
 
 		// If the animation is the same. Just let it run.
 		if (name === this._sprite.animations.name) {
