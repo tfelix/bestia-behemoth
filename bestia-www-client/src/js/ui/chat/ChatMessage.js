@@ -1,3 +1,5 @@
+import ko from 'knockout';
+
 /**
  * View Model for single messages.
  * 

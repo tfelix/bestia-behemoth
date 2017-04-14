@@ -267,10 +267,9 @@ export default class Chat {
 		if (msgText.slice(0, 1) === '/') {
 			msg.m = 'COMMAND';
 		} else {
-			// Only add when its no command.
+			// Attach additional data to the message for the server.
 			msg.pbid = this._currentBestiaId;
 			msg.eid = this._currentEntityId;
-			this.addMessage(msg);
 		}
 
 		this._pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
