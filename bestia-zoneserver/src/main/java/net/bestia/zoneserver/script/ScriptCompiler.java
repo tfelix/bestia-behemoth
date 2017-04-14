@@ -53,8 +53,7 @@ public class ScriptCompiler {
 			return script;
 		} catch (ScriptException | IOException e) {
 			LOG.error("Could not compile script.", e);
+			return null;
 		}
-
-		return null;
 	}
 }

@@ -37,7 +37,7 @@ public class ScriptCache {
 	}
 
 	/**
-	 * Adds a folder to the script cache. It will immediatly start to compile
+	 * Adds a folder to the script cache. It will immediately start to compile
 	 * all the scripts.
 	 * 
 	 * @param scriptFolder

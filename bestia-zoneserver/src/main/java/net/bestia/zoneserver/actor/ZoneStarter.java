@@ -16,6 +16,7 @@ import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
 import net.bestia.zoneserver.actor.uplink.UplinkActor;
 import net.bestia.zoneserver.actor.uplink.UplinkLoginActor;
+import net.bestia.zoneserver.actor.zone.EngineReadyActor;
 import net.bestia.zoneserver.actor.zone.MessageRoutingActor;
 import net.bestia.zoneserver.actor.zone.ZoneActor;
 
@@ -65,6 +66,9 @@ public class ZoneStarter implements CommandLineRunner {
 		// TESTING AREA FOR ALTERNATIVE ROUTING
 		props = springExt.props(ChatActor.class);
 		system.actorOf(props, ChatActor.NAME);
+		
+		props = springExt.props(EngineReadyActor.class);
+		system.actorOf(props, EngineReadyActor.NAME);
 		
 		props = springExt.props(MessageRoutingActor.class);
 		system.actorOf(props, MessageRoutingActor.NAME);
