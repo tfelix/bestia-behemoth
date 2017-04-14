@@ -31,9 +31,9 @@ export default class ShortcutView {
 		this.rows = ko.observableArray();
 
 		// Prepare the rows.
-		for (let i = 0; i < 5; i++) {
+		for (let i = 0; i < this._rows; i++) {
 			let r = ko.observableArray();
-			for (let j = 0; j < 5; j++) {
+			for (let j = 0; j < this._cols; j++) {
 				r().push(new Shortcut());
 			}
 			this.rows.push({ row: r });
