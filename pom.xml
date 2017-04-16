@@ -7,6 +7,15 @@
 	<packaging>pom</packaging>
 	<name>bestia</name>
 
+	<!-- jCenter for some dependencies. -->
+	<repositories>
+		<repository>
+			<id>central</id>
+			<name>bintray</name>
+			<url>http://jcenter.bintray.com</url>
+		</repository>
+	</repositories>
+
 	<modules>
 		<module>bestia-models</module>
 		<module>bestia-messages</module>
