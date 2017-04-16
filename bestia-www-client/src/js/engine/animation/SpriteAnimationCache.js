@@ -7,7 +7,7 @@
  * If there is an animation requested which does not exist it will return an alternative usable
  * animation name.
  */
-export default class SpriteAnimationManager {
+export default class SpriteAnimationCache {
 
 	/**
 	 * Adds the given sprite description to the manager and parses its data to a better usable
@@ -17,6 +17,10 @@ export default class SpriteAnimationManager {
 	 * @param {object} desc - Description for the sprite object.
 	 */
 	addSpriteDescription(desc) {
+		throw 'implement';
+	}
+
+	getOffsetDescription(spriteName, multisprite) {
 		throw 'implement';
 	}
 

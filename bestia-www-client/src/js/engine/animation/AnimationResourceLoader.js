@@ -77,16 +77,19 @@ export default class AnimationResourceLoader {
         }
 
         // Build our loading context.
-        let ctx = { res: notLoaded, callback: fn };     
+        let ctx = {
+            res: notLoaded,
+            callback: fn
+        };
         // Copy so we dont remove it while we iterate.
         let resCopy = ctx.res.slice(0);
 
-        for(let i = 0; i < ctx.res.length; i++) {
-            this._load.load(ctx.res[i], function(){
+        for (let i = 0; i < ctx.res.length; i++) {
+            this._load.load(ctx.res[i], function () {
 
                 // Remove the file from cache if loaded.
                 resCopy = resCopy.splice(i, 1);
-                if(resCopy.length === 0) {
+                if (resCopy.length === 0) {
                     ctx.fn();
                 }
             });
