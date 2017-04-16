@@ -12,6 +12,7 @@ import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.LivingEntity;
 import net.bestia.zoneserver.entity.NPCEntity;
 import net.bestia.zoneserver.entity.PlayerEntity;
+import net.bestia.zoneserver.entity.ecs.EcsEntityService;
 import net.bestia.zoneserver.entity.traits.Attackable;
 
 /**
@@ -26,10 +27,10 @@ public class BattleService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(BattleService.class);
 	
-	private final EntityService entityService;
+	private final EcsEntityService entityService;
 	
 	@Autowired
-	public BattleService(EntityService entityService) {
+	public BattleService(EcsEntityService entityService) {
 		
 		this.entityService = entityService;
 	}

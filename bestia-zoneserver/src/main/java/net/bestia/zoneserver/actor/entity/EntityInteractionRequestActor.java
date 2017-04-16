@@ -15,9 +15,9 @@ import net.bestia.messages.entity.EntityInteractionRequestMessage;
 import net.bestia.model.entity.InteractionType;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerEntity;
-import net.bestia.zoneserver.entity.traits.Entity;
+import net.bestia.zoneserver.entity.ecs.EcsEntityService;
+import net.bestia.zoneserver.entity.ecs.Entity;
 import net.bestia.zoneserver.entity.traits.Interactable;
-import net.bestia.zoneserver.service.EntityService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
@@ -34,11 +34,11 @@ public class EntityInteractionRequestActor extends BestiaRoutingActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public final static String NAME = "requestInteract";
 	
-	private final EntityService entityService;
+	private final EcsEntityService entityService;
 	private final PlayerEntityService playerEntityService;
 	
 	@Autowired
-	public EntityInteractionRequestActor(EntityService entityService, PlayerEntityService pes) {
+	public EntityInteractionRequestActor(EcsEntityService entityService, PlayerEntityService pes) {
 		super(Arrays.asList(EntityInteractionRequestMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);
@@ -55,6 +55,8 @@ public class EntityInteractionRequestActor extends BestiaRoutingActor {
 			LOG.warning("Entity not found. Message was: {}", msg.toString());
 			return;
 		}
+		
+		Interactable interactableComp = entity.getComponent(Interactable.class);
 		
 		// Is it a interactable entity?
 		if(!(entity instanceof Interactable)) {

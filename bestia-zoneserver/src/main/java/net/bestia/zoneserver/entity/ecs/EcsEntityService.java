@@ -1,6 +1,9 @@
 package net.bestia.zoneserver.entity.ecs;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -8,6 +11,12 @@ import org.springframework.stereotype.Service;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
+import com.hazelcast.query.EntryObject;
+import com.hazelcast.query.Predicate;
+import com.hazelcast.query.PredicateBuilder;
+
+import net.bestia.model.geometry.Rect;
+import net.bestia.zoneserver.entity.ecs.components.PositionComponent;
 
 @Service
 public class EcsEntityService {
@@ -109,13 +118,24 @@ public class EcsEntityService {
 		}
 	}
 
-	/*
-	public <T> Optional<T> getComponent(long entityId, Class<T> clazz) {
-/*
-		return entityComponents.get(entityId)
-				.stream()
-				.filter(c -> clazz.isInstance(c))
-				.map(c -> clazz.cast(c))
-				.findFirst();
-	}*/
+	/**
+	 * Returns all the entities which are in range.
+	 * 
+	 * @param area
+	 * @return
+	 */
+	public Set<Entity> getEntitiesInRange(Rect area) {
+
+		// TODO Das muss noch effektiver gestaltet werden.
+		EntryObject e = new PredicateBuilder().getEntryObject();
+		@SuppressWarnings("rawtypes")
+		Predicate posPred = e.get("components").in(PositionComponent.class.getName());
+		return entities.values(posPred).stream().filter(entity -> {
+			Optional<PositionComponent> comp = componentService.getComponent(entity.getId(), PositionComponent.class);
+			if (!comp.isPresent()) {
+				return false;
+			}
+			return comp.get().getShape().collide(area);
+		}).collect(Collectors.toSet());
+	}
 }

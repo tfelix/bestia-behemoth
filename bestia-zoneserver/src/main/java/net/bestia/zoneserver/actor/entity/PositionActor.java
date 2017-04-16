@@ -23,16 +23,17 @@ import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerEntity;
-import net.bestia.zoneserver.entity.traits.Entity;
+import net.bestia.zoneserver.entity.ecs.EcsEntityService;
+import net.bestia.zoneserver.entity.ecs.Entity;
 import net.bestia.zoneserver.entity.traits.Locatable;
 import net.bestia.zoneserver.entity.traits.Visible;
-import net.bestia.zoneserver.service.EntityService;
 
 /**
  * This actor has an crucial role in checking if a position update of an entity
  * leads to the triggering of scripts. It does also check if the moved entity is
  * now in viewing range of other (player) entities and will inform them about a
- * newly seen entity.
+ * newly seen entity and also sends this information into their AI scripting
+ * agents which in turn will evaluate new actions.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -45,10 +46,10 @@ public class PositionActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	private final EntityService entityService;
+	private final EcsEntityService entityService;
 
 	@Autowired
-	public PositionActor(EntityService entityService) {
+	public PositionActor(EcsEntityService entityService) {
 		super(Arrays.asList(EntityPositionMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);
@@ -68,7 +69,7 @@ public class PositionActor extends BestiaRoutingActor {
 
 		// Update the client.
 		// FIXME
-		//sendActiveInRangeClients(posMsg);
+		// sendActiveInRangeClients(posMsg);
 	}
 
 	/**
@@ -78,11 +79,9 @@ public class PositionActor extends BestiaRoutingActor {
 	 */
 	private void doVisualChecks(PlayerEntity e) {
 
-		Map<Long, Visible> entities = entityService.getEntitiesInRange(
-				net.bestia.model.map.Map.getUpdateRect(e.getPosition()))
-				.stream()
-				.filter(x -> x instanceof Visible)
-				.map(x -> (Visible) x)
+		Map<Long, Visible> entities = entityService
+				.getEntitiesInRange(net.bestia.model.map.Map.getUpdateRect(e.getPosition())).stream()
+				.filter(x -> x instanceof Visible).map(x -> (Visible) x)
 				.collect(Collectors.toMap(Entity::getId, Function.identity()));
 
 		// Remove own entity.

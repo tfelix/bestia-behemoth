@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity.factory;
+package net.bestia.zoneserver.entity;
 
 import java.util.Objects;
 

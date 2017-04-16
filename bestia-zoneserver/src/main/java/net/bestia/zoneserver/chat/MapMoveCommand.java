@@ -13,6 +13,8 @@ import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.zoneserver.entity.PlayerEntity;
+import net.bestia.zoneserver.entity.ecs.Entity;
+import net.bestia.zoneserver.entity.ecs.components.PositionComponent;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
@@ -64,8 +66,8 @@ public class MapMoveCommand extends BaseChatCommand {
 				throw new IllegalArgumentException("X and Y can not be negative.");
 			}
 
-			final PlayerEntity pbe = playerBestiaService.getActivePlayerEntity(account.getId());
-			pbe.setPosition(x, y);
+			final Entity pbe = playerBestiaService.getActivePlayerEntity(account.getId());
+			pbe.getComponent(PositionComponent.class).setPosition(x, y);
 			playerBestiaService.putPlayerEntity(pbe);
 			LOG.info("GM {} transported entity {} to x: {} y: {}.", account.getId(), pbe.getId(), x, y);
 

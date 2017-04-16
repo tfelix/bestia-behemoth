@@ -11,12 +11,16 @@ import net.bestia.messages.entity.EntityDeleteInternalMessage;
 import net.bestia.messages.entity.EntityUpdateMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.traits.Entity;
+import net.bestia.zoneserver.entity.ecs.EcsEntityService;
+import net.bestia.zoneserver.entity.ecs.Entity;
 import net.bestia.zoneserver.entity.traits.Locatable;
-import net.bestia.zoneserver.service.EntityService;
 
 /**
- * This actor will handle the removing of an entity from the system.
+ * This actor will handle the removing of an entity from the system. It will
+ * notify all clients about the entity which was deleted from the system.
+ * 
+ * FIXME Wir machen das hier anders: Löschungen gehen von Services aus und
+ * werden dann als MSG in AKKA transportiert.
  * 
  * @author Thomas Felix
  *
@@ -25,15 +29,15 @@ import net.bestia.zoneserver.service.EntityService;
 @Scope("prototype")
 public class EntityDeleteActor extends BestiaRoutingActor {
 
-	public static final String NAME = "entityDespawn";
+	public static final String NAME = "entityDelete";
 
-	private final EntityService entityService;
+	private final EcsEntityService entityService;
 
 	/**
 	 * 
 	 */
 	@Autowired
-	public EntityDeleteActor(EntityService entityService) {
+	public EntityDeleteActor(EcsEntityService entityService) {
 		super(Arrays.asList(EntityDeleteInternalMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);

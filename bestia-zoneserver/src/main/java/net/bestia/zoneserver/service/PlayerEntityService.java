@@ -16,8 +16,8 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.MultiMap;
 
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.entity.PlayerEntity;
-import net.bestia.zoneserver.entity.traits.Entity;
+import net.bestia.zoneserver.entity.ecs.EcsEntityService;
+import net.bestia.zoneserver.entity.ecs.Entity;
 
 /**
  * This service manages and queries the active entities inside the game.
@@ -35,10 +35,10 @@ public class PlayerEntityService {
 
 	private final MultiMap<Long, Long> playerBestiaEntitiesIds;
 	private final IMap<Long, Long> activeEntities;
-	private final EntityService entityService;
+	private final EcsEntityService entityService;
 
 	@Autowired
-	public PlayerEntityService(HazelcastInstance hz, EntityService entityService) {
+	public PlayerEntityService(HazelcastInstance hz, EcsEntityService entityService) {
 
 		this.activeEntities = hz.getMap(ACTIVE_ENTITIES_KEY);
 		this.playerBestiaEntitiesIds = hz.getMultiMap(PLAYER_ENTITIES_KEY);
@@ -101,14 +101,10 @@ public class PlayerEntityService {
 	 * @return
 	 */
 	public List<Long> getActiveAccountIdsInRange(Rect range) {
-		List<PlayerEntity> pbe = entityService.getEntitiesInRange(range, PlayerEntity.class)
-				.parallelStream()
-				.map(x -> (PlayerEntity) x)
-				.collect(Collectors.toList());
+		List<PlayerEntity> pbe = entityService.getEntitiesInRange(range, PlayerEntity.class).parallelStream()
+				.map(x -> (PlayerEntity) x).collect(Collectors.toList());
 
-		return pbe.parallelStream()
-				.filter(x -> isActiveEntity(x.getAccountId(), x.getId()))
-				.map(x -> x.getAccountId())
+		return pbe.parallelStream().filter(x -> isActiveEntity(x.getAccountId(), x.getId())).map(x -> x.getAccountId())
 				.collect(Collectors.toList());
 	}
 
@@ -121,17 +117,14 @@ public class PlayerEntityService {
 	public Set<PlayerEntity> getPlayerEntities(long accId) {
 
 		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
-		return entityService.getAll(new HashSet<>(ids))
-				.values()
-				.parallelStream()
-				.filter(x -> x instanceof PlayerEntity)
-				.map(x -> (PlayerEntity) x)
-				.collect(Collectors.toSet());
+		return entityService.getAll(new HashSet<>(ids)).values().parallelStream().filter(x -> x instanceof PlayerEntity)
+				.map(x -> (PlayerEntity) x).collect(Collectors.toSet());
 	}
 
 	/**
-	 * Inserts the given player bestias into the cache. The player bestias must
-	 * not be from the same player account. This will be taken care off.
+	 * Inserts the given player bestias into the cache. The player bestias are
+	 * not required be from the same player account. This will be taken care
+	 * off.
 	 * 
 	 * @param pb
 	 *            A collection of player bestias.

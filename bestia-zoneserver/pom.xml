@@ -43,13 +43,6 @@
 			<artifactId>hazelcast</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/com.badlogicgames.gdx/gdx -->
-		<dependency>
-			<groupId>com.badlogicgames.gdx</groupId>
-			<artifactId>gdx</artifactId>
-			<version>1.9.6</version>
-		</dependency>
-
 		<!-- BESTIA DEPENDENCIES -->
 		<dependency>
 			<groupId>net.bestia</groupId>

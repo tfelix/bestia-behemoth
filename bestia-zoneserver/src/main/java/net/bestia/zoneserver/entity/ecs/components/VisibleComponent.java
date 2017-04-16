@@ -3,7 +3,6 @@ package net.bestia.zoneserver.entity.ecs.components;
 import java.util.Objects;
 
 import net.bestia.model.domain.SpriteInfo;
-import net.bestia.zoneserver.entity.ecs.Component;
 
 /**
  * The entity can be visualized by the engine. In order to do this some means of
@@ -14,10 +13,15 @@ import net.bestia.zoneserver.entity.ecs.Component;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class VisibleComponent implements Component {
-	
+public class VisibleComponent extends Component {
+
 	private SpriteInfo spriteInfo;
 	private boolean visible;
+	
+	public VisibleComponent(long id) {
+		super(id);
+		// no op.
+	}
 
 	/**
 	 * Returns the sprite/visual representation of the entity.
