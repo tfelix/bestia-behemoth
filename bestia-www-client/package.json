@@ -10,7 +10,7 @@
     "mkdir": "mkdirp ./build/css ./build/js",
     "server": "lite-server --baseDir=\"build\"",
     "build:html": "cpx ./src/**/*.{html,png,jpg} ./build -v",
-    "build:assets": "cpx ../game-data/**/* ./build/assets -v",
+    "build:assets": "cpx \"./../game-data/**/*\" ./build/assets -v",
     "build:css": "lessc ./src/css/game/main.less --source-map-map-inline | cssmin > ./build/css/game.css",
     "build:css:watch": "watch \"npm run build:css\" ./src/css",
     "build:js": "rollup -c",
