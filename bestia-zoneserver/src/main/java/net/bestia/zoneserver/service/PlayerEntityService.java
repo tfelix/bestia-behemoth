@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,13 +17,13 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.MultiMap;
 
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.entity.ecs.EcsEntityService;
-import net.bestia.zoneserver.entity.ecs.Entity;
+import net.bestia.zoneserver.entity.ComponentService;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.components.PlayerComponent;
 
 /**
  * This service manages and queries the active entities inside the game.
- * 
- * TODO Threadsafe machen.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -35,14 +36,17 @@ public class PlayerEntityService {
 
 	private final MultiMap<Long, Long> playerBestiaEntitiesIds;
 	private final IMap<Long, Long> activeEntities;
-	private final EcsEntityService entityService;
+	private final EntityService entityService;
+	private final ComponentService componentService;
 
 	@Autowired
-	public PlayerEntityService(HazelcastInstance hz, EcsEntityService entityService) {
+	public PlayerEntityService(HazelcastInstance hz, EntityService entityService,
+			ComponentService componentService) {
 
 		this.activeEntities = hz.getMap(ACTIVE_ENTITIES_KEY);
 		this.playerBestiaEntitiesIds = hz.getMultiMap(PLAYER_ENTITIES_KEY);
 		this.entityService = Objects.requireNonNull(entityService);
+		this.componentService = Objects.requireNonNull(componentService);
 	}
 
 	/**
@@ -101,10 +105,14 @@ public class PlayerEntityService {
 	 * @return
 	 */
 	public List<Long> getActiveAccountIdsInRange(Rect range) {
-		List<Entity> pbe = entityService.getEntitiesInRange(range, PlayerEntity.class).parallelStream()
-				.map(x -> (PlayerEntity) x).collect(Collectors.toList());
+		List<Entity> pbe = entityService.getEntitiesInRange(range, PlayerComponent.class)
+				.parallelStream()
+				.map(x -> (PlayerEntity) x)
+				.collect(Collectors.toList());
 
-		return pbe.parallelStream().filter(x -> isActiveEntity(x.getAccountId(), x.getId())).map(x -> x.getAccountId())
+		return pbe.parallelStream()
+				.filter(x -> isActiveEntity(x.getAccountId(), x.getId()))
+				.map(x -> x.getAccountId())
 				.collect(Collectors.toList());
 	}
 
@@ -117,8 +125,12 @@ public class PlayerEntityService {
 	public Set<PlayerEntity> getPlayerEntities(long accId) {
 
 		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
-		return entityService.getAll(new HashSet<>(ids)).values().parallelStream().filter(x -> x instanceof PlayerEntity)
-				.map(x -> (PlayerEntity) x).collect(Collectors.toSet());
+		return entityService.getAll(new HashSet<>(ids))
+				.values()
+				.parallelStream()
+				.filter(x -> x instanceof PlayerEntity)
+				.map(x -> (PlayerEntity) x)
+				.collect(Collectors.toSet());
 	}
 
 	/**
@@ -162,9 +174,14 @@ public class PlayerEntityService {
 	 * @param pbe
 	 *            The player entity to put into the cache.
 	 */
-	public void putPlayerEntity(PlayerEntity pbe) {
-		entityService.save(pbe);
-		playerBestiaEntitiesIds.put(pbe.getAccountId(), pbe.getId());
+	public void putPlayerEntity(Entity entity) {
+
+		final Optional<PlayerComponent> playerComp = componentService.getComponent(entity, PlayerComponent.class);
+		
+		if(playerComp.isPresent()) {
+			//entityService.save(playerComp.get().);
+			playerBestiaEntitiesIds.put(playerComp.get().getOwnerAccountId(), playerComp.get().getPlayerBestiaId());
+		}
 	}
 
 	/**

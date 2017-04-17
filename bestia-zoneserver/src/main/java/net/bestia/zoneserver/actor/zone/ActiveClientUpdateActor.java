@@ -16,9 +16,9 @@ import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.entity.ecs.EcsEntityService;
-import net.bestia.zoneserver.entity.ecs.Entity;
-import net.bestia.zoneserver.entity.ecs.components.PositionComponent;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.components.PositionComponent;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
@@ -36,11 +36,11 @@ public class ActiveClientUpdateActor extends BestiaActor {
 	public final static String NAME = "activeClientUpdate";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	private final EcsEntityService entityService;
+	private final EntityService entityService;
 	private final PlayerEntityService playerEntityService;
 
 	@Autowired
-	public ActiveClientUpdateActor(EcsEntityService entityService, PlayerEntityService playerService) {
+	public ActiveClientUpdateActor(EntityService entityService, PlayerEntityService playerService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerService);

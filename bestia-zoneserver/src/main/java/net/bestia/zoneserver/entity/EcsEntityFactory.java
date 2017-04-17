@@ -4,8 +4,6 @@ import java.util.Objects;
 
 import org.springframework.stereotype.Component;
 
-import net.bestia.zoneserver.entity.ecs.EcsEntityService;
-
 /**
  * The EcsEntityFactory is responsible for translating ecs blueprints into
  * working entities with all components attached and initialized.
@@ -15,14 +13,14 @@ import net.bestia.zoneserver.entity.ecs.EcsEntityService;
  */
 @Component
 public class EcsEntityFactory {
-	
-	private final EcsEntityService entityService;
-	
-	public EcsEntityFactory(EcsEntityService entityService) {
-		
+
+	private final EntityService entityService;
+	private final ComponentService componentService;
+
+	public EcsEntityFactory(EntityService entityService, ComponentService componentService) {
+
 		this.entityService = Objects.requireNonNull(entityService);
+		this.componentService = Objects.requireNonNull(componentService);
 	}
-	
-	
 
 }

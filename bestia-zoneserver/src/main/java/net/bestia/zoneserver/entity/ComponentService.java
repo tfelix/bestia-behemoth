@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity.ecs;
+package net.bestia.zoneserver.entity;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -14,7 +14,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
 
-import net.bestia.zoneserver.entity.ecs.components.Component;
+import net.bestia.zoneserver.entity.components.Component;
 
 /**
  * This service is responsible for adding and removing components from entities.
@@ -32,10 +32,10 @@ public class ComponentService {
 
 	private final IMap<Long, Component> components;
 	private final IdGenerator idGenerator;
-	private final EcsEntityService entityService;
+	private final EntityService entityService;
 
 	@Autowired
-	public ComponentService(HazelcastInstance hz, EcsEntityService entityService) {
+	public ComponentService(HazelcastInstance hz, EntityService entityService) {
 
 		this.components = Objects.requireNonNull(hz).getMap(COMP_MAP);
 		this.entityService = Objects.requireNonNull(entityService);

@@ -4,8 +4,8 @@ import java.util.Objects;
 
 import net.bestia.model.battle.Damage;
 import net.bestia.model.domain.AttackImpl;
+import net.bestia.zoneserver.entity.components.AttackComponent;
 import net.bestia.model.domain.AttackBasedStatus;
-import net.bestia.zoneserver.entity.ecs.components.AttackComponent;
 
 public final class DamageCalculator {
 

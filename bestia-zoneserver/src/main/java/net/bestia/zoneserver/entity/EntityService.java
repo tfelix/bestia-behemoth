@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity.ecs;
+package net.bestia.zoneserver.entity;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,11 +19,11 @@ import com.hazelcast.query.Predicate;
 import com.hazelcast.query.PredicateBuilder;
 
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.entity.ecs.components.Component;
-import net.bestia.zoneserver.entity.ecs.components.PositionComponent;
+import net.bestia.zoneserver.entity.components.Component;
+import net.bestia.zoneserver.entity.components.PositionComponent;
 
 @Service
-public class EcsEntityService {
+public class EntityService {
 
 	private final static String ECS_ENTITY_MAP = "entities.ecs";
 	private final static String ENTITIES_ID_GEN = "entities.id";
@@ -33,7 +33,7 @@ public class EcsEntityService {
 	private final ComponentService componentService;
 
 	@Autowired
-	public EcsEntityService(HazelcastInstance hz, ComponentService compService) {
+	public EntityService(HazelcastInstance hz, ComponentService compService) {
 
 		Objects.requireNonNull(hz);
 

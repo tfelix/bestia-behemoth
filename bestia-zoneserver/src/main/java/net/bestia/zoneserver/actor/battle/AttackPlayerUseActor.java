@@ -14,9 +14,9 @@ import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.AttackImpl;
 import net.bestia.model.domain.AttackTarget;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntity;
-import net.bestia.zoneserver.entity.ecs.EcsEntityService;
-import net.bestia.zoneserver.entity.ecs.Entity;
 import net.bestia.zoneserver.service.BattleService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
@@ -38,12 +38,12 @@ public class AttackPlayerUseActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	private final EcsEntityService entityService;
+	private final EntityService entityService;
 	private final PlayerEntityService playerEntityService;
 	private final BattleService battleService;
 
 	@Autowired
-	public AttackPlayerUseActor(EcsEntityService entityService, PlayerEntityService playerEntityService,
+	public AttackPlayerUseActor(EntityService entityService, PlayerEntityService playerEntityService,
 			BattleService battleService) {
 		super(Arrays.asList(AttackUseMessage.class));
 

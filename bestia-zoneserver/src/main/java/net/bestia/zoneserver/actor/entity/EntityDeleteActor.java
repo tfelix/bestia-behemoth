@@ -11,8 +11,8 @@ import net.bestia.messages.entity.EntityDeleteInternalMessage;
 import net.bestia.messages.entity.EntityUpdateMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.ecs.EcsEntityService;
-import net.bestia.zoneserver.entity.ecs.Entity;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.traits.Locatable;
 
 /**
@@ -31,13 +31,13 @@ public class EntityDeleteActor extends BestiaRoutingActor {
 
 	public static final String NAME = "entityDelete";
 
-	private final EcsEntityService entityService;
+	private final EntityService entityService;
 
 	/**
 	 * 
 	 */
 	@Autowired
-	public EntityDeleteActor(EcsEntityService entityService) {
+	public EntityDeleteActor(EntityService entityService) {
 		super(Arrays.asList(EntityDeleteInternalMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);

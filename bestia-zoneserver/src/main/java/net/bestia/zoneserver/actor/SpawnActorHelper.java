@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.model.geometry.Rect;
+import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.NPCEntity;
-import net.bestia.zoneserver.entity.ecs.EcsEntityService;
 import net.bestia.zoneserver.entity.factory.EntityFactory;
 import net.bestia.zoneserver.entity.traits.Entity;
 
@@ -28,14 +28,14 @@ public class SpawnActorHelper extends BestiaPeriodicActor {
 	public static final String NAME = "spawnHelper";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	
-	private final EcsEntityService entityService;
+	private final EntityService entityService;
 	
 	private final int NUM_NPCS = 5;
 	
 	private EntityFactory fac;
 	
 	@Autowired
-	public SpawnActorHelper(EntityFactory fac, EcsEntityService service) {
+	public SpawnActorHelper(EntityFactory fac, EntityService service) {
 		super(5000);
 		
 		this.fac = fac;

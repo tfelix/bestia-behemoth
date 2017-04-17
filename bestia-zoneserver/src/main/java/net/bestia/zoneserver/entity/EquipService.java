@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity.ecs;
+package net.bestia.zoneserver.entity;
 
 import org.springframework.stereotype.Service;
 

@@ -14,9 +14,9 @@ import net.bestia.messages.entity.EntityInteractionMessage;
 import net.bestia.messages.entity.EntityInteractionRequestMessage;
 import net.bestia.model.entity.InteractionType;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntity;
-import net.bestia.zoneserver.entity.ecs.EcsEntityService;
-import net.bestia.zoneserver.entity.ecs.Entity;
 import net.bestia.zoneserver.entity.traits.Interactable;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
@@ -34,11 +34,11 @@ public class EntityInteractionRequestActor extends BestiaRoutingActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public final static String NAME = "requestInteract";
 	
-	private final EcsEntityService entityService;
+	private final EntityService entityService;
 	private final PlayerEntityService playerEntityService;
 	
 	@Autowired
-	public EntityInteractionRequestActor(EcsEntityService entityService, PlayerEntityService pes) {
+	public EntityInteractionRequestActor(EntityService entityService, PlayerEntityService pes) {
 		super(Arrays.asList(EntityInteractionRequestMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);

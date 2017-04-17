@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity.ecs;
+package net.bestia.zoneserver.entity;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -8,7 +8,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bestia.zoneserver.entity.ecs.components.Component;
+import net.bestia.zoneserver.entity.components.Component;
 
 /**
  * Entities can be attached with components in order to make a composition of a

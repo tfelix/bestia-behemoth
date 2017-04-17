@@ -22,9 +22,9 @@ import net.bestia.messages.entity.EntityUpdateMessage;
 import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntity;
-import net.bestia.zoneserver.entity.ecs.EcsEntityService;
-import net.bestia.zoneserver.entity.ecs.Entity;
 import net.bestia.zoneserver.entity.traits.Locatable;
 import net.bestia.zoneserver.entity.traits.Visible;
 
@@ -46,10 +46,10 @@ public class PositionActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	private final EcsEntityService entityService;
+	private final EntityService entityService;
 
 	@Autowired
-	public PositionActor(EcsEntityService entityService) {
+	public PositionActor(EntityService entityService) {
 		super(Arrays.asList(EntityPositionMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);

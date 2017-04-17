@@ -1,7 +1,8 @@
-package net.bestia.zoneserver.entity.ecs.components;
+package net.bestia.zoneserver.entity.components;
 
 import java.util.Objects;
 
+import net.bestia.model.domain.Direction;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
 
@@ -22,9 +23,18 @@ public class PositionComponent extends Component {
 	}
 
 	private CollisionShape shape;
+	private Direction facing = Direction.SOUTH;
 
 	public Point getPosition() {
 		return shape.getAnchor();
+	}
+	
+	public Direction getFacing() {
+		return facing;
+	}
+	
+	public void setFacing(Direction facing) {
+		this.facing = facing;
 	}
 
 	/**

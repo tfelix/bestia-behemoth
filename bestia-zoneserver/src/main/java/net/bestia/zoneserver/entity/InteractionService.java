@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity.ecs;
+package net.bestia.zoneserver.entity;
 
 import java.util.Collections;
 import java.util.Set;
@@ -6,7 +6,7 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 
 import net.bestia.model.entity.InteractionType;
-import net.bestia.zoneserver.entity.ecs.components.InteractionComponent;
+import net.bestia.zoneserver.entity.components.InteractionComponent;
 
 /**
  * Service to control the interaction between entities. Usually in this

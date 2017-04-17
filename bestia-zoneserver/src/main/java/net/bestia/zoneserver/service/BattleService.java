@@ -11,11 +11,11 @@ import net.bestia.messages.attack.AttackUseMessage;
 import net.bestia.model.battle.Damage;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.geometry.Point;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.LivingEntity;
 import net.bestia.zoneserver.entity.NPCEntity;
 import net.bestia.zoneserver.entity.PlayerEntity;
-import net.bestia.zoneserver.entity.ecs.EcsEntityService;
-import net.bestia.zoneserver.entity.ecs.Entity;
 
 /**
  * This service is used to perform attacks and damage calculation for battle
@@ -29,10 +29,10 @@ public class BattleService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(BattleService.class);
 	
-	private final EcsEntityService entityService;
+	private final EntityService entityService;
 	
 	@Autowired
-	public BattleService(EcsEntityService entityService) {
+	public BattleService(EntityService entityService) {
 		
 		this.entityService = entityService;
 	}

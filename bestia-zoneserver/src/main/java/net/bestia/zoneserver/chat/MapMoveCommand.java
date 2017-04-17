@@ -13,9 +13,9 @@ import org.springframework.stereotype.Component;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
-import net.bestia.zoneserver.entity.ecs.ComponentService;
-import net.bestia.zoneserver.entity.ecs.Entity;
-import net.bestia.zoneserver.entity.ecs.components.PositionComponent;
+import net.bestia.zoneserver.entity.ComponentService;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.components.PositionComponent;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**

@@ -16,8 +16,8 @@ import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.PlayerEntity;
-import net.bestia.zoneserver.entity.ecs.Entity;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**

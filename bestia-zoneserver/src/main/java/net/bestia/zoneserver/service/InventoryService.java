@@ -1,4 +1,4 @@
-package net.bestia.model.service;
+package net.bestia.zoneserver.service;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,6 +16,8 @@ import net.bestia.model.dao.PlayerItemDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerItem;
+import net.bestia.zoneserver.entity.ComponentService;
+import net.bestia.zoneserver.entity.Entity;
 
 /**
  * This service kind of manages the user relationship with the inventory. Since
@@ -39,13 +41,35 @@ public class InventoryService {
 	private final PlayerItemDAO playerItemDao;
 	private final AccountDAO accountDao;
 	private final ItemDAO itemDao;
+	private final ComponentService componentService;
 
 	@Autowired
-	public InventoryService(PlayerItemDAO playerItemDao, AccountDAO accDao, ItemDAO itemDao) {
+	public InventoryService(PlayerItemDAO playerItemDao, AccountDAO accDao, ItemDAO itemDao, ComponentService compService) {
 		
 		this.playerItemDao = Objects.requireNonNull(playerItemDao);
 		this.accountDao = Objects.requireNonNull(accDao);
 		this.itemDao = Objects.requireNonNull(itemDao);
+		this.componentService = Objects.requireNonNull(compService);
+	}
+
+	/**
+	 * Calculates the max carriable weight of a entity. The formula is:
+	 * <p>
+	 * Weight_max = 150 + ATK * 4 + 3 * Lv
+	 * </p>
+	 * 
+	 * @param bestia
+	 * @return
+	 */
+	public int getMaxWeight(Entity entity) {
+		// Currently we can not distinguish between bestia classes.
+		final int baseWeight = 300;
+		
+		//componentService.getComponent(entity, clazz)
+		
+		
+		//final int weight = (int)(baseWeight + 200.0 / owner.getLevel() + 5 * owner.getStatusPoints().getStrength());
+		return 100;
 	}
 
 	/**
@@ -96,6 +120,8 @@ public class InventoryService {
 
 		return hasItem(accId, item.getId(), amount);
 	}
+	
+	
 
 	/**
 	 * Adds an item to the account.
