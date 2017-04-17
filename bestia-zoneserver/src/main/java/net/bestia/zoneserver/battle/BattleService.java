@@ -13,9 +13,6 @@ import net.bestia.model.domain.Attack;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.LivingEntity;
-import net.bestia.zoneserver.entity.NPCEntity;
-import net.bestia.zoneserver.entity.PlayerEntity;
 
 /**
  * This service is used to perform attacks and damage calculation for battle

@@ -1,11 +1,6 @@
 package net.bestia.zoneserver.entity.components;
 
-import java.util.List;
-
-import net.bestia.model.battle.Damage;
-import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.Element;
-import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
 

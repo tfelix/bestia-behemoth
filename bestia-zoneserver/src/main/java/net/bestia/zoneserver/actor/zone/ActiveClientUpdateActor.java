@@ -2,6 +2,7 @@ package net.bestia.zoneserver.actor.zone;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -16,6 +17,7 @@ import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaActor;
+import net.bestia.zoneserver.entity.ComponentService;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
@@ -25,6 +27,9 @@ import net.bestia.zoneserver.entity.components.PositionComponent;
  * This actor sends update messages to all active player in sight. In order to
  * perform the the sending of the message the message must inherit both the
  * {@link EntityMessage} interface and also {@link JsonMessage}.
+ * 
+ * TODO Diese Logik vielleicht in einen Service packen? Und nur das Absenden von
+ * einem Aktor übernehmen lassen.
  * 
  * @author Thomas Felix
  *
@@ -38,12 +43,15 @@ public class ActiveClientUpdateActor extends BestiaActor {
 
 	private final EntityService entityService;
 	private final PlayerEntityService playerEntityService;
+	private final ComponentService componentService;
 
 	@Autowired
-	public ActiveClientUpdateActor(EntityService entityService, PlayerEntityService playerService) {
+	public ActiveClientUpdateActor(EntityService entityService, PlayerEntityService playerService,
+			ComponentService componentService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerService);
+		this.componentService = Objects.requireNonNull(componentService);
 	}
 
 	@Override
@@ -79,16 +87,16 @@ public class ActiveClientUpdateActor extends BestiaActor {
 					return;
 				}
 			} else {
-				final PositionComponent posComp = entity.getComponent(PositionComponent.class);
-
-				if (posComp == null) {
+				final Optional<PositionComponent> posComp = componentService.getComponent(entity, PositionComponent.class);
+				
+				if (!posComp.isPresent()) {
 					// We have no position information and cant update any
 					// client.
 					LOG.warning("Could not regenerate position info for entity {}. Message was: {}.",
 							entityMsg.getEntityId(), msg);
 					return;
 				} else {
-					entityPos = posComp.getPosition();
+					entityPos = posComp.get().getPosition();
 				}
 			}
 
