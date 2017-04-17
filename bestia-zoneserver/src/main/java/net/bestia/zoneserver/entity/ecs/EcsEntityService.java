@@ -1,5 +1,8 @@
 package net.bestia.zoneserver.entity.ecs;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -16,6 +19,7 @@ import com.hazelcast.query.Predicate;
 import com.hazelcast.query.PredicateBuilder;
 
 import net.bestia.model.geometry.Rect;
+import net.bestia.zoneserver.entity.ecs.components.Component;
 import net.bestia.zoneserver.entity.ecs.components.PositionComponent;
 
 @Service
@@ -141,5 +145,18 @@ public class EcsEntityService {
 			}
 			return comp.get().getShape().collide(area);
 		}).collect(Collectors.toSet());
+	}
+
+	/**
+	 * Returns all the entities which are in range and have a certain component.
+	 * Note that they ALWAYS must have a position component in order to get
+	 * localized.
+	 * 
+	 * @param area
+	 * @return
+	 */
+	public Set<Entity> getEntitiesInRange(Rect area, @SuppressWarnings("unchecked") Class<Component>... components) {
+		final Set<Class<Component>> comps = new HashSet<>(Arrays.asList(components));
+		return getEntitiesInRange(area).stream().filter(x -> comps.contains(x.getClass())).collect(Collectors.toSet());
 	}
 }

@@ -77,7 +77,7 @@ public class PlayerEntityService {
 	 *            The account id.
 	 * @return The active {@link PlayerEntity} of this account or null.
 	 */
-	public PlayerEntity getActivePlayerEntity(long accId) {
+	public Entity getActivePlayerEntity(long accId) {
 		final Long entityId = activeEntities.get(accId);
 
 		if (entityId == null) {
@@ -86,11 +86,11 @@ public class PlayerEntityService {
 
 		final Entity entity = entityService.getEntity(entityId);
 
-		if (entity == null || !(entity instanceof PlayerEntity)) {
+		if (entity == null) {
 			return null;
 		}
 
-		return (PlayerEntity) entity;
+		return entity;
 	}
 
 	/**
@@ -101,7 +101,7 @@ public class PlayerEntityService {
 	 * @return
 	 */
 	public List<Long> getActiveAccountIdsInRange(Rect range) {
-		List<PlayerEntity> pbe = entityService.getEntitiesInRange(range, PlayerEntity.class).parallelStream()
+		List<Entity> pbe = entityService.getEntitiesInRange(range, PlayerEntity.class).parallelStream()
 				.map(x -> (PlayerEntity) x).collect(Collectors.toList());
 
 		return pbe.parallelStream().filter(x -> isActiveEntity(x.getAccountId(), x.getId())).map(x -> x.getAccountId())

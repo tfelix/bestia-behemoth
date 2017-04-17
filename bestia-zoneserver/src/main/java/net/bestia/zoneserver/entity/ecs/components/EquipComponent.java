@@ -1,5 +1,8 @@
 package net.bestia.zoneserver.entity.ecs.components;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import net.bestia.model.domain.EquipmentSlot;
@@ -14,24 +17,13 @@ import net.bestia.model.domain.Item;
 public class EquipComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
+	
+	private final Set<EquipmentSlot> slots = new HashSet<>();
+	private final Set<Item> equipments = new HashSet<>();
 
 	public EquipComponent(long id) {
 		super(id);
 		// no op.
-	}
-
-	/**
-	 * Checks if all prerequisites are fulfilled in order to equip this item to
-	 * the entity. If another item already occupied this slot the method wont
-	 * return false. Upon equipping the other item will rather get removed from
-	 * this equipment slot.
-	 * 
-	 * @param item
-	 *            The item to check if it can be equipped.
-	 * @return TRUE if the item can currently be equipped. FALSE otherwise.
-	 */
-	public boolean canEquip(Item item) {
-		
 	}
 
 	/**
@@ -42,7 +34,7 @@ public class EquipComponent extends Component {
 	 *            The item to equip.
 	 */
 	public void equip(Item item) {
-		
+		equipments.add(item);
 	}
 
 	/**
@@ -52,7 +44,7 @@ public class EquipComponent extends Component {
 	 *            The item to remove.
 	 */
 	public void unequip(Item item) {
-		
+		equipments.remove(item);
 	}
 
 	/**
@@ -63,6 +55,12 @@ public class EquipComponent extends Component {
 	 * @return A set of available equipment slots.
 	 */
 	public Set<EquipmentSlot> getAvailableEquipmentSlots() {
-		
+		return Collections.unmodifiableSet(slots);
+	}
+	
+	public void getAvailableEquipmentSlots(Set<EquipmentSlot> slots) {
+		Objects.requireNonNull(slots);
+		this.slots.clear();
+		this.slots.addAll(slots);
 	}
 }

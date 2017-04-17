@@ -50,6 +50,12 @@ public class ComponentService {
 			return Optional.empty();
 		}
 
+		return getComponent(e, clazz);
+	}
+	
+	public <T extends Component> Optional<T> getComponent(Entity e, Class<T> clazz) {
+		Objects.requireNonNull(e);
+	
 		@SuppressWarnings("unchecked")
 		final long compId = e.getComponentId((Class<Component>) clazz);
 

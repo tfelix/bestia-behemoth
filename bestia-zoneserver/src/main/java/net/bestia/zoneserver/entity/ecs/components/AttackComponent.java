@@ -18,6 +18,13 @@ import net.bestia.model.domain.StatusPointsImpl;
 public class AttackComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
+	
+	private int level;
+	private StatusPoints statusPoints;
+	private StatusPoints originalStatusPoints;
+
+	private Element originalElement;
+	private Element element;
 
 	public AttackComponent(long id) {
 		super(id);
@@ -29,7 +36,9 @@ public class AttackComponent extends Component {
 	 * 
 	 * @return The level of the entity.
 	 */
-	int getLevel();
+	public int getLevel() {
+		return level;
+	}
 
 	/**
 	 * {@link StatusPointsImpl}s of this entity. Please note that this status
@@ -39,9 +48,13 @@ public class AttackComponent extends Component {
 	 * 
 	 * @return
 	 */
-	StatusPoints getStatusPoints();
+	public StatusPoints getStatusPoints() {
+		return statusPoints;
+	}
 
-	StatusPoints getOriginalStatusPoints();
+	public StatusPoints getOriginalStatusPoints() {
+		return originalStatusPoints;
+	}
 
 	/**
 	 * Adds a {@link StatusEffect} to the entity. This will possibly trigger
@@ -50,7 +63,7 @@ public class AttackComponent extends Component {
 	 * @param effect
 	 *            The effect to add.
 	 */
-	void addStatusEffect(StatusEffect effect);
+	//void addStatusEffect(StatusEffect effect);
 
 	/**
 	 * Removes the given status effect from the entity. This will possibly
@@ -59,7 +72,7 @@ public class AttackComponent extends Component {
 	 * @param effect
 	 *            The effect to remove.
 	 */
-	void removeStatusEffect(StatusEffect effect);
+	//void removeStatusEffect(StatusEffect effect);
 
 	/**
 	 * Gets all currently added status effects. This list is immutable. Please
@@ -68,14 +81,16 @@ public class AttackComponent extends Component {
 	 * 
 	 * @return The currently added status effects.
 	 */
-	List<StatusEffect> getStatusEffects();
+	//List<StatusEffect> getStatusEffects();
 
 	/**
 	 * The current element of this entity.
 	 * 
 	 * @return The current element of the entity.
 	 */
-	Element getElement();
+	public Element getElement() {
+		return element;
+	}
 
 	/**
 	 * The original element of this entity unaltered by status effects or
@@ -83,52 +98,7 @@ public class AttackComponent extends Component {
 	 * 
 	 * @return The original unaltered element.
 	 */
-	Element getOriginalElement();
-
-	/**
-	 * Returns a list with all available attacks.
-	 * 
-	 * @return A list of all available attacks.
-	 */
-	List<Attack> getAttacks();
-
-	/**
-	 * This will perform a check damage for reducing it and alter all possible
-	 * status effects and then apply the damage to the entity. If its health
-	 * sinks below 0 then the {@link #kill()} method will be triggered.
-	 * 
-	 * @param damage
-	 *            The damage to apply to this entity.
-	 * @return The reduced damage.
-	 */
-	Damage takeDamage(Damage damage);
-
-	/**
-	 * Checks the damage and reduces it by resistances or status effects.
-	 * Returns the reduced damage the damage can be 0 if the damage was negated
-	 * altogether. If there are effects which would be run out because of this
-	 * damage then the checking will NOT run them out. It is only a check. Only
-	 * applying the damage via {@link #takeDamage(Damage)} will trigger this
-	 * removals.
-	 * 
-	 * @param damage
-	 *            The damage to check if taken.
-	 * @return Possibly reduced damage or NULL of it was negated completly.
-	 */
-	Damage checkDamage(Damage damage);
-
-	/**
-	 * Flag if the entity has bean killed. Important for the attack service in
-	 * order to perform post death operations.
-	 * 
-	 * @return TRUE if the entity was killed. FALSE otherwise.
-	 */
-	boolean isDead();
-
-	/**
-	 * Returns the amount of EXP given if the entity was killed.
-	 * 
-	 * @return The amount of EXP given by this entity.
-	 */
-	int getKilledExp();
+	public Element getOriginalElement() {
+		return originalElement;
+	}
 }

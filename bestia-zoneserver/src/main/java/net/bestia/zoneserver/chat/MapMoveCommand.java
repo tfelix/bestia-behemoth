@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.chat;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Component;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
-import net.bestia.zoneserver.entity.PlayerEntity;
+import net.bestia.zoneserver.entity.ecs.ComponentService;
 import net.bestia.zoneserver.entity.ecs.Entity;
 import net.bestia.zoneserver.entity.ecs.components.PositionComponent;
 import net.bestia.zoneserver.service.PlayerEntityService;
@@ -30,12 +31,14 @@ public class MapMoveCommand extends BaseChatCommand {
 	private final static Pattern cmdPattern = Pattern.compile("/mm (\\d+) (\\d+)");
 
 	private final PlayerEntityService playerBestiaService;
+	private final ComponentService componentService;
 
 	@Autowired
-	public MapMoveCommand(AccountDAO accDao, PlayerEntityService pbService) {
+	public MapMoveCommand(AccountDAO accDao, PlayerEntityService pbService, ComponentService compService) {
 		super(accDao);
 
 		this.playerBestiaService = Objects.requireNonNull(pbService);
+		this.componentService = Objects.requireNonNull(compService);
 	}
 
 	@Override
@@ -67,10 +70,15 @@ public class MapMoveCommand extends BaseChatCommand {
 			}
 
 			final Entity pbe = playerBestiaService.getActivePlayerEntity(account.getId());
-			pbe.getComponent(PositionComponent.class).setPosition(x, y);
-			playerBestiaService.putPlayerEntity(pbe);
-			LOG.info("GM {} transported entity {} to x: {} y: {}.", account.getId(), pbe.getId(), x, y);
 
+			Optional<PositionComponent> posComp = componentService.getComponent(pbe, PositionComponent.class);
+
+			if(posComp.isPresent()) {
+				posComp.get().setPosition(x, y);
+				LOG.info("GM {} transported entity {} to x: {} y: {}.", account.getId(), pbe.getId(), x, y);
+				componentService.update(posComp.get());
+			}
+			
 		} catch (IllegalArgumentException e) {
 			LOG.error("Could not parse the given coordinates.", e);
 		}

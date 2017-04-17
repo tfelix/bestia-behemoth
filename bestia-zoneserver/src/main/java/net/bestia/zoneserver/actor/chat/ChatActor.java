@@ -3,6 +3,7 @@ package net.bestia.zoneserver.actor.chat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -16,7 +17,9 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Party;
 import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.PlayerEntity;
+import net.bestia.zoneserver.entity.ecs.ComponentService;
+import net.bestia.zoneserver.entity.ecs.Entity;
+import net.bestia.zoneserver.entity.ecs.components.PositionComponent;
 import net.bestia.zoneserver.service.AccountZoneService;
 import net.bestia.zoneserver.service.ChatCommandService;
 import net.bestia.zoneserver.service.PlayerEntityService;
@@ -40,17 +43,19 @@ public class ChatActor extends BestiaRoutingActor {
 	private final AccountZoneService accService;
 	private final PlayerEntityService playerEntityService;
 	private final ChatCommandService chatCmdService;
+	private final ComponentService compService;
 	private final PartyDAO partyDao;
 
 	@Autowired
 	public ChatActor(AccountZoneService accService, PlayerEntityService playerEntityService,
-			ChatCommandService chatCmdService, PartyDAO partyDao) {
+			ChatCommandService chatCmdService, PartyDAO partyDao, ComponentService compService) {
 		super(Arrays.asList(ChatMessage.class));
 
 		this.accService = Objects.requireNonNull(accService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		this.chatCmdService = Objects.requireNonNull(chatCmdService);
 		this.partyDao = Objects.requireNonNull(partyDao);
+		this.compService = Objects.requireNonNull(compService);
 	}
 
 	@Override
@@ -104,20 +109,28 @@ public class ChatActor extends BestiaRoutingActor {
 	 */
 	private void handlePublic(ChatMessage chatMsg) {
 		final long accId = chatMsg.getAccountId();
-		final PlayerEntity pbe = playerEntityService.getActivePlayerEntity(accId);
+		final Entity pbe = playerEntityService.getActivePlayerEntity(accId);
 
 		if (pbe == null) {
 			return;
 		}
-		
+
 		// Add the current entity id to the message.
 		final ChatMessage chatEntityMsg = new ChatMessage(accId, pbe.getId(), chatMsg);
 
-		final List<Long> receiverAccIds = playerEntityService
-				.getActiveAccountIdsInRange(Map.getViewRect(pbe.getPosition()));
+		Optional<PositionComponent> pos = compService.getComponent(pbe, PositionComponent.class);
 
-		receiverAccIds.stream()
-				.map(receiverAccId -> chatEntityMsg.createNewInstance(receiverAccId))
+		if (!pos.isPresent()) {
+			LOG.warning("Player bestia has no position component.");
+			return;
+		}
+
+		// TODO Senden an alle Accounts in Reichweite in einen Service
+		// auslagern.
+		final List<Long> receiverAccIds = playerEntityService
+				.getActiveAccountIdsInRange(Map.getViewRect(pos.get().getPosition()));
+
+		receiverAccIds.stream().map(receiverAccId -> chatEntityMsg.createNewInstance(receiverAccId))
 				.forEach(msg -> sendClient(msg));
 	}
 
