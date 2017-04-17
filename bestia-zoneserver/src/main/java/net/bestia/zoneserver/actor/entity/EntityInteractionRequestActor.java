@@ -17,8 +17,8 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntity;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 import net.bestia.zoneserver.entity.traits.Interactable;
-import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * Receives interaction requests for an entity. It will query the system and ask

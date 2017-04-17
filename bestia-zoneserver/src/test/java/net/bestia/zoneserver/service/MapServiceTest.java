@@ -15,6 +15,7 @@ import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
+import net.bestia.zoneserver.map.MapService;
 
 public class MapServiceTest {
 

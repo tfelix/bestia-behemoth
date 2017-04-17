@@ -26,7 +26,7 @@ import de.tfelix.bestia.worldgen.message.WorkstateMessage;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.service.MapGeneratorMasterService;
+import net.bestia.zoneserver.map.MapGeneratorMasterService;
 import scala.concurrent.duration.Duration;
 
 @Component

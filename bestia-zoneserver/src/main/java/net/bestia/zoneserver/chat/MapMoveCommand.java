@@ -15,8 +15,8 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.zoneserver.entity.ComponentService;
 import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 import net.bestia.zoneserver.entity.components.PositionComponent;
-import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * Moves the player to the given map coordinates if he has GM permissions.

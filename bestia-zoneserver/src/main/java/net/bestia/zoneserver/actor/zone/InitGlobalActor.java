@@ -14,7 +14,7 @@ import net.bestia.model.domain.MapParameter;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
-import net.bestia.zoneserver.service.MapService;
+import net.bestia.zoneserver.map.MapService;
 
 /**
  * Upon receiving the StartInit message the actor will start its work: Depending

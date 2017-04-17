@@ -12,12 +12,12 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class EcsEntityFactory {
+public class EntityFactory {
 
 	private final EntityService entityService;
 	private final ComponentService componentService;
 
-	public EcsEntityFactory(EntityService entityService, ComponentService componentService) {
+	public EntityFactory(EntityService entityService, ComponentService componentService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.componentService = Objects.requireNonNull(componentService);

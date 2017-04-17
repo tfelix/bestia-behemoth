@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.service;
+package net.bestia.zoneserver.map;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

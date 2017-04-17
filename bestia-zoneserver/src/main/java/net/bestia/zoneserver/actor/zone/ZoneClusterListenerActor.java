@@ -21,8 +21,8 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.BestiaActor;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 import net.bestia.zoneserver.service.ConnectionService;
-import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * Logs information about the whole behemoth cluster and reacts on cluster

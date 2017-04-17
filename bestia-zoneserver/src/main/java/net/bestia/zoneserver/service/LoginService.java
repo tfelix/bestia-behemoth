@@ -16,7 +16,9 @@ import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.service.PlayerBestiaService;
+import net.bestia.zoneserver.configuration.RuntimeConfigurationService;
 import net.bestia.zoneserver.entity.PlayerEntity;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**
  * Performs login or logout of the bestia server system.

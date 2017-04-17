@@ -14,11 +14,11 @@ import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.AttackImpl;
 import net.bestia.model.domain.AttackTarget;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.battle.BattleService;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntity;
-import net.bestia.zoneserver.service.BattleService;
-import net.bestia.zoneserver.service.PlayerEntityService;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**
  * This actor handles incoming attack request messages. Basically the user sends

@@ -17,8 +17,7 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.PlayerEntity;
-import net.bestia.zoneserver.service.PlayerEntityService;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**
  * This actor gathers all needed information about the bestias in the players
@@ -35,13 +34,13 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private final AccountDAO accountDao;
-	private final PlayerEntityService entityService;
+	private final PlayerEntityService playerEntityService;
 
 	@Autowired
 	public BestiaInfoActor(PlayerEntityService entityService, AccountDAO accountDao) {
 		super(Arrays.asList(RequestBestiaInfoMessage.class));
 
-		this.entityService = Objects.requireNonNull(entityService);
+		this.playerEntityService = Objects.requireNonNull(entityService);
 		this.accountDao = Objects.requireNonNull(accountDao);
 
 	}
@@ -52,10 +51,10 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 
 		final RequestBestiaInfoMessage rbimsg = (RequestBestiaInfoMessage) msg;
 
-		final Set<Entity> bestias = entityService.getPlayerEntities(rbimsg.getAccountId());
+		final Set<Entity> bestias = playerEntityService.getPlayerEntities(rbimsg.getAccountId());
 		final Account owner = accountDao.findOne(rbimsg.getAccountId());
 
-		for (PlayerEntity pbe : bestias) {			
+		for (Entity pbe : bestias) {			
 
 			// Get the model updated with all the changed data.
 			final PlayerBestia pb = pbe.restorePlayerBestia(owner);

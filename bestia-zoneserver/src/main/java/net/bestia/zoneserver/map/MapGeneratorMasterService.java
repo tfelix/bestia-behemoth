@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.service;
+package net.bestia.zoneserver.map;
 
 import java.util.List;
 import java.util.Objects;
@@ -19,7 +19,6 @@ import de.tfelix.bestia.worldgen.random.NoiseVectorBuilder;
 import de.tfelix.bestia.worldgen.random.SimplexNoiseProvider;
 import net.bestia.model.dao.MapDataDAO;
 import net.bestia.model.domain.MapParameter;
-import net.bestia.zoneserver.map.MapGeneratorConstants;
 
 @Service
 public class MapGeneratorMasterService implements MapMasterCallbacks {

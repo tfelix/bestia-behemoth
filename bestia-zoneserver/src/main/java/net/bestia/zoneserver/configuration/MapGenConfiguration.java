@@ -23,8 +23,7 @@ import de.tfelix.bestia.worldgen.workload.Workload;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.MapDataDTO;
 import net.bestia.zoneserver.map.MapGeneratorConstants;
-import net.bestia.zoneserver.service.MapService;
-import net.bestia.zoneserver.service.StaticConfigurationService;
+import net.bestia.zoneserver.map.MapService;
 
 /**
  * Holds configuration for the local map generator.

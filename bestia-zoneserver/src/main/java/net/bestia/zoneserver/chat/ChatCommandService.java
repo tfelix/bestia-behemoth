@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.service;
+package net.bestia.zoneserver.chat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import net.bestia.zoneserver.chat.ChatCommand;
 
 /**
  * The service always tries to find all implementations of {@link ChatCommand}

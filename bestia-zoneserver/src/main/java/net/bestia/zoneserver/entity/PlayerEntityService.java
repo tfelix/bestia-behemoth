@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.service;
+package net.bestia.zoneserver.entity;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -17,9 +17,6 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.MultiMap;
 
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.entity.ComponentService;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.components.PlayerComponent;
 
 /**
@@ -105,14 +102,17 @@ public class PlayerEntityService {
 	 * @return
 	 */
 	public List<Long> getActiveAccountIdsInRange(Rect range) {
-		List<Entity> pbe = entityService.getEntitiesInRange(range, PlayerComponent.class)
-				.parallelStream()
-				.map(x -> (PlayerEntity) x)
+		
+		List<PlayerComponent> pbe = entityService.getEntitiesInRange(range, PlayerComponent.class)
+				.stream()
+				.map(x -> componentService.getComponent(x, PlayerComponent.class))
+				.filter(Optional::isPresent)
+				.map(Optional::get)
 				.collect(Collectors.toList());
-
-		return pbe.parallelStream()
-				.filter(x -> isActiveEntity(x.getAccountId(), x.getId()))
-				.map(x -> x.getAccountId())
+	
+		return pbe.stream()
+				.filter(x -> isActiveEntity(x.getOwnerAccountId(), x.getId()))
+				.map(x -> x.getOwnerAccountId())
 				.collect(Collectors.toList());
 	}
 
@@ -122,12 +122,12 @@ public class PlayerEntityService {
 	 * @param accId
 	 * @return The set of player bestia entities of a single player.
 	 */
-	public Set<PlayerEntity> getPlayerEntities(long accId) {
+	public Set<Entity> getPlayerEntities(long accId) {
 
 		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
 		return entityService.getAll(new HashSet<>(ids))
 				.values()
-				.parallelStream()
+				.stream()
 				.filter(x -> x instanceof PlayerEntity)
 				.map(x -> (PlayerEntity) x)
 				.collect(Collectors.toSet());
@@ -177,9 +177,9 @@ public class PlayerEntityService {
 	public void putPlayerEntity(Entity entity) {
 
 		final Optional<PlayerComponent> playerComp = componentService.getComponent(entity, PlayerComponent.class);
-		
-		if(playerComp.isPresent()) {
-			//entityService.save(playerComp.get().);
+
+		if (playerComp.isPresent()) {
+			// entityService.save(playerComp.get().);
 			playerBestiaEntitiesIds.put(playerComp.get().getOwnerAccountId(), playerComp.get().getPlayerBestiaId());
 		}
 	}

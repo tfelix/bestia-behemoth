@@ -1,9 +1,11 @@
-package net.bestia.zoneserver.service;
+package net.bestia.zoneserver.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
+
+import net.bestia.zoneserver.service.CacheManager;
 
 /**
  * This configuration service holds information about the current state of the

@@ -19,9 +19,9 @@ import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerEntity;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 import net.bestia.zoneserver.entity.traits.Visible;
 import net.bestia.zoneserver.service.EntityService;
-import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * This actor will listen to incoming {@link EngineReadyMessage}s. If such a

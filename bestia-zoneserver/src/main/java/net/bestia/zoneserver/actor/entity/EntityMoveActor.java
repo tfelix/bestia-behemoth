@@ -12,7 +12,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerEntity;
-import net.bestia.zoneserver.service.PlayerEntityService;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**
  * Upon receiving of a move message we will lookup the movable entity and sets

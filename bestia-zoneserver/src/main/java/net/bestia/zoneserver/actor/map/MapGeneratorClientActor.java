@@ -18,8 +18,8 @@ import de.tfelix.bestia.worldgen.map.MapPart;
 import de.tfelix.bestia.worldgen.message.WorkstateMessage;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.configuration.MapGenConfiguration;
-import net.bestia.zoneserver.service.MapService;
-import net.bestia.zoneserver.service.StaticConfigurationService;
+import net.bestia.zoneserver.configuration.StaticConfigurationService;
+import net.bestia.zoneserver.map.MapService;
 
 @Component
 @Scope("prototype")

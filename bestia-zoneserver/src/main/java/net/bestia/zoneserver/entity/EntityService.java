@@ -20,6 +20,7 @@ import com.hazelcast.query.PredicateBuilder;
 
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.entity.components.Component;
+import net.bestia.zoneserver.entity.components.PlayerComponent;
 import net.bestia.zoneserver.entity.components.PositionComponent;
 
 @Service
@@ -155,8 +156,8 @@ public class EntityService {
 	 * @param area
 	 * @return
 	 */
-	public Set<Entity> getEntitiesInRange(Rect area, @SuppressWarnings("unchecked") Class<Component>... components) {
-		final Set<Class<Component>> comps = new HashSet<>(Arrays.asList(components));
+	public Set<Entity> getEntitiesInRange(Rect area, Class<? extends Component> clazz) {
+		final Set<Class<? extends Component>> comps = new HashSet<>(Arrays.asList(clazz));
 		return getEntitiesInRange(area).stream().filter(x -> comps.contains(x.getClass())).collect(Collectors.toSet());
 	}
 }

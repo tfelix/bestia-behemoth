@@ -18,8 +18,8 @@ import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 import net.bestia.zoneserver.entity.components.PositionComponent;
-import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * This actor sends update messages to all active player in sight. In order to
