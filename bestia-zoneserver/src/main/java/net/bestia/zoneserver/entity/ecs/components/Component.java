@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.entity.ecs.components;
 
+import java.io.Serializable;
+
 /**
  * Each component needs a unique ID because this is required by the way
  * components are saved into the DHT of hazelcast. This is must be unique in the
@@ -10,8 +12,9 @@ package net.bestia.zoneserver.entity.ecs.components;
  * @author Thomas Felix
  *
  */
-public abstract class Component {
+public abstract class Component implements Serializable {
 
+	private static final long serialVersionUID = 1L;
 	private final long id;
 
 	public Component(long id) {

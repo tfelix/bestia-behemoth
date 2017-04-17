@@ -10,7 +10,7 @@ import net.bestia.model.domain.SpriteInfo;
  * information about the sprite sheet to be used. Also different animations can
  * be used.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class VisibleComponent extends Component {

@@ -125,4 +125,8 @@ public class ComponentService {
 			return id;
 		}
 	}
+
+	public void removeAllComponents(Entity entity) {
+		entity.getComponentIds().forEach(components::removeAsync);
+	}
 }

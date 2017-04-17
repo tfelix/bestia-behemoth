@@ -60,28 +60,32 @@ public class EcsEntityService {
 	}
 
 	/**
-	 * Deletes the entity given by its id.
+	 * Deletes the entity
 	 * 
 	 * @param entityId
 	 *            The entity id to remove from the memory database.
 	 */
 	public void delete(Entity entity) {
-		delete(entity.getId());
+		Objects.requireNonNull(entity);
+
+		entities.lock(entity.getId());
+		try {
+			// Delete all components.
+			componentService.removeAllComponents(entity);
+			entities.delete(entity.getId());
+		} finally {
+			entities.unlock(entity.getId());
+		}
 	}
 
 	/**
-	 * The entity to remove.
+	 * Deletes the entity given by its id.
 	 * 
 	 * @param entity
 	 *            Removes the entity.
 	 */
 	public void delete(long entityId) {
-		entities.lock(entityId);
-		try {
-			entities.delete(entityId);
-		} finally {
-			entities.unlock(entityId);
-		}
+		delete(entities.get(entityId));
 	}
 
 	/**
