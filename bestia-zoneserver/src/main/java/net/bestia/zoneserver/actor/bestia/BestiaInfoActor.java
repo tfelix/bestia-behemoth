@@ -17,6 +17,7 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.PlayerEntity;
+import net.bestia.zoneserver.entity.ecs.Entity;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
@@ -51,7 +52,7 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 
 		final RequestBestiaInfoMessage rbimsg = (RequestBestiaInfoMessage) msg;
 
-		final Set<PlayerEntity> bestias = entityService.getPlayerEntities(rbimsg.getAccountId());
+		final Set<Entity> bestias = entityService.getPlayerEntities(rbimsg.getAccountId());
 		final Account owner = accountDao.findOne(rbimsg.getAccountId());
 
 		for (PlayerEntity pbe : bestias) {			
