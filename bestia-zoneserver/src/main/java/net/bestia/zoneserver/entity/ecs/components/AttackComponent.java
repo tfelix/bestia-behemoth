@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity.traits;
+package net.bestia.zoneserver.entity.ecs.components;
 
 import java.util.List;
 
@@ -10,12 +10,19 @@ import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
 
 /**
- * Entities implementing this interface participating in the attacking system.
+ * Entities having this component can be participate in the attacking system.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
-public interface Attackable extends Locatable {
+public class AttackComponent extends Component {
+
+	private static final long serialVersionUID = 1L;
+
+	public AttackComponent(long id) {
+		super(id);
+		// no op
+	}
 
 	/**
 	 * The level of the entity.
@@ -86,11 +93,6 @@ public interface Attackable extends Locatable {
 	List<Attack> getAttacks();
 
 	/**
-	 * Kills the entity.
-	 */
-	void kill();
-
-	/**
 	 * This will perform a check damage for reducing it and alter all possible
 	 * status effects and then apply the damage to the entity. If its health
 	 * sinks below 0 then the {@link #kill()} method will be triggered.
@@ -122,14 +124,6 @@ public interface Attackable extends Locatable {
 	 * @return TRUE if the entity was killed. FALSE otherwise.
 	 */
 	boolean isDead();
-
-	/**
-	 * Adds the given amount of experience to this entity.
-	 * 
-	 * @param Amount
-	 *            of exp added to the entity.
-	 */
-	void addExp(int exp);
 
 	/**
 	 * Returns the amount of EXP given if the entity was killed.

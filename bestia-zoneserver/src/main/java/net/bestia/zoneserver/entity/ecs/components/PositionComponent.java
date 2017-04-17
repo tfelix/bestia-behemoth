@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.entity.ecs.components;
 
-import java.util.List;
 import java.util.Objects;
 
 import net.bestia.model.geometry.CollisionShape;

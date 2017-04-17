@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity.traits;
+package net.bestia.zoneserver.entity.ecs.components;
 
 import java.util.Set;
 
@@ -11,7 +11,14 @@ import net.bestia.model.domain.Item;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public interface Equipable extends Entity {
+public class EquipComponent extends Component {
+
+	private static final long serialVersionUID = 1L;
+
+	public EquipComponent(long id) {
+		super(id);
+		// no op.
+	}
 
 	/**
 	 * Checks if all prerequisites are fulfilled in order to equip this item to
@@ -23,7 +30,9 @@ public interface Equipable extends Entity {
 	 *            The item to check if it can be equipped.
 	 * @return TRUE if the item can currently be equipped. FALSE otherwise.
 	 */
-	boolean canEquip(Item item);
+	public boolean canEquip(Item item) {
+		
+	}
 
 	/**
 	 * Equips the item and apply any status effects bundled with this item. Only
@@ -32,7 +41,9 @@ public interface Equipable extends Entity {
 	 * @param item
 	 *            The item to equip.
 	 */
-	void equip(Item item);
+	public void equip(Item item) {
+		
+	}
 
 	/**
 	 * Removes the item and removes all status effects associated with it.
@@ -40,7 +51,9 @@ public interface Equipable extends Entity {
 	 * @param item
 	 *            The item to remove.
 	 */
-	void takeOff(Item item);
+	public void unequip(Item item) {
+		
+	}
 
 	/**
 	 * Returns the set of equipment slots which are available for equipping
@@ -49,5 +62,7 @@ public interface Equipable extends Entity {
 	 * 
 	 * @return A set of available equipment slots.
 	 */
-	Set<EquipmentSlot> getAvailableEquipmentSlots();
+	public Set<EquipmentSlot> getAvailableEquipmentSlots() {
+		
+	}
 }

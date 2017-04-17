@@ -21,7 +21,7 @@ import net.bestia.zoneserver.entity.traits.Visible;
  * it only exists as an abstract class. Normally other resources entities are
  * inherited from this class and implement the specific behaviour.
  * 
- * @author Thomas
+ * @author Thomas Felix
  *
  */
 public abstract class ResourceEntity extends BaseEntity implements Locatable, Visible, Interactable, Attackable {

@@ -15,6 +15,7 @@ import net.bestia.model.domain.SpriteInfo;
  */
 public class VisibleComponent extends Component {
 
+	private static final long serialVersionUID = 1L;
 	private SpriteInfo spriteInfo;
 	private boolean visible;
 	
