@@ -1,6 +1,4 @@
-var should = require('should');
-
-import guid from '../src/js/util/Guid';
+import {guid} from '../src/js/util/Guid';
 
 describe('Guid', function() {
 	
@@ -8,8 +6,7 @@ describe('Guid', function() {
 	
 	it('Can generate random number in the RFC4122 spec', function() {
 		var id = guid();
-		//should(id).match(pattern);
-		should(true).ok;
+		id.should.match(pattern);
 	});
 
 });

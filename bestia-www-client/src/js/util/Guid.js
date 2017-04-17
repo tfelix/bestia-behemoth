@@ -12,7 +12,7 @@ function _s4() {
 /**
  * Generates and returns a random GUID. Can be used for message referencing.
  */
-export default function guid() {
-	return _s4 + _s4 + '-' + _s4 + '-' + _s4 + '-' +
-	_s4 + '-' + _s4 + _s4 + _s4;
+export function guid() {
+	return _s4() + _s4() + '-' + _s4() + '-' + _s4() + '-' +
+	_s4() + '-' + _s4() + _s4() + _s4();
 }
