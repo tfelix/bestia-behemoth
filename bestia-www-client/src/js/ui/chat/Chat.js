@@ -18,6 +18,13 @@ import ModeWhisperCommand from './commands/ModeWhisperCommand';
 import ModePartyCommand from './commands/ModePartyCommand';
 
 /**
+ * Number of max messages until old messages are discarded.
+ * 
+ * @constant
+ */
+const MAX_MESSAGES = 50;
+
+/**
  * Chat for the bestia client. It subscribes to the necessairy messages to get
  * informed if new messages arrive. Updates and displays the messages. Will
  * provide chat functionality to the user.
@@ -30,14 +37,6 @@ export default class Chat {
 		if (!pubsub) {
 			throw 'Pubsub can not be null.';
 		}
-
-		/**
-		 * Number of max messages until old messages are discarded.
-		 * 
-		 * @property
-		 * @constant
-		 */
-		this.MAX_MESSAGES = 50;
 
 		this._pubsub = pubsub;
 
@@ -304,14 +303,14 @@ export default class Chat {
 	addMessage(_, msg) {
 
 		// Swap the messages if the method was called directly and not via a pubsub call (no topic given then)
-		if(msg === undefined) {
+		if (msg === undefined) {
 			msg = _;
 		}
 
 		var chatMsg = new ChatMessage(msg);
 		this.messages.push(chatMsg);
 
-		if (this.messages().length > this.MAX_MESSAGES) {
+		if (this.messages().length > MAX_MESSAGES) {
 			this.messages.shift();
 		}
 
@@ -376,7 +375,7 @@ export default class Chat {
 	/**
 	 * Internal check function which will work out if the 
 	 */
-	scrolled(data, event) {
+	_scrolled(data, event) {
 		var elem = event.target;
 
 		var scrollBottom = false;
