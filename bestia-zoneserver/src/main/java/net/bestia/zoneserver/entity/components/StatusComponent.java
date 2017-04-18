@@ -3,6 +3,8 @@ package net.bestia.zoneserver.entity.components;
 import net.bestia.model.domain.Element;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
+import net.bestia.model.entity.StatusBasedValues;
+import net.bestia.model.map.Walkspeed;
 
 /**
  * Entities having this component can be participate in the attacking system.
@@ -10,18 +12,19 @@ import net.bestia.model.domain.StatusPointsImpl;
  * @author Thomas Felix
  *
  */
-public class AttackComponent extends Component {
+public class StatusComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private int level;
 	private StatusPoints statusPoints;
 	private StatusPoints originalStatusPoints;
+	private StatusBasedValues statusBasedValues;
 
 	private Element originalElement;
 	private Element element;
 
-	public AttackComponent(long id) {
+	public StatusComponent(long id) {
 		super(id);
 		// no op
 	}
@@ -58,7 +61,7 @@ public class AttackComponent extends Component {
 	 * @param effect
 	 *            The effect to add.
 	 */
-	//void addStatusEffect(StatusEffect effect);
+	// void addStatusEffect(StatusEffect effect);
 
 	/**
 	 * Removes the given status effect from the entity. This will possibly
@@ -67,7 +70,7 @@ public class AttackComponent extends Component {
 	 * @param effect
 	 *            The effect to remove.
 	 */
-	//void removeStatusEffect(StatusEffect effect);
+	// void removeStatusEffect(StatusEffect effect);
 
 	/**
 	 * Gets all currently added status effects. This list is immutable. Please
@@ -76,7 +79,12 @@ public class AttackComponent extends Component {
 	 * 
 	 * @return The currently added status effects.
 	 */
-	//List<StatusEffect> getStatusEffects();
+	// List<StatusEffect> getStatusEffects();
+
+	public Walkspeed getWalkspeed() {
+
+		return Walkspeed.fromInt(statusBasedValues.getWalkspeed());
+	}
 
 	/**
 	 * The current element of this entity.
@@ -95,5 +103,9 @@ public class AttackComponent extends Component {
 	 */
 	public Element getOriginalElement() {
 		return originalElement;
+	}
+	
+	public int getKilledExp() {
+		return level * 10;
 	}
 }

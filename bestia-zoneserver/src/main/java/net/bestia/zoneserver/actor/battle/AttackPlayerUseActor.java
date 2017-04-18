@@ -17,7 +17,6 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.battle.BattleService;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.PlayerEntity;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**

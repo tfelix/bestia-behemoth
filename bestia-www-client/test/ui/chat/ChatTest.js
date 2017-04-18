@@ -3,7 +3,9 @@ import Chat from '../../../src/js/ui/chat/Chat';
 describe('Chat', function(){
     describe('ctor', function(){
         it('Throws when no pubsub obj is given.', function(){
-
+            (function(){
+                new Chat();
+            }).should.throw;
         });
 
         it('Works when pubsub is given.', function(){

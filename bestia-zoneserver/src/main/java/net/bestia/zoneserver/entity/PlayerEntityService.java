@@ -3,7 +3,6 @@ package net.bestia.zoneserver.entity;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -96,20 +95,21 @@ public class PlayerEntityService {
 
 	/**
 	 * Returns a list of account ids from players which active bestia entity is
-	 * inside the given rect.
+	 * inside the given rect. This is especially used and importand when update
+	 * messages must be send to all players inside a given area.
 	 * 
 	 * @param range
 	 * @return
 	 */
 	public List<Long> getActiveAccountIdsInRange(Rect range) {
-		
+
 		List<PlayerComponent> pbe = entityService.getEntitiesInRange(range, PlayerComponent.class)
 				.stream()
 				.map(x -> componentService.getComponent(x, PlayerComponent.class))
 				.filter(Optional::isPresent)
 				.map(Optional::get)
 				.collect(Collectors.toList());
-	
+
 		return pbe.stream()
 				.filter(x -> isActiveEntity(x.getOwnerAccountId(), x.getId()))
 				.map(x -> x.getOwnerAccountId())
@@ -117,7 +117,7 @@ public class PlayerEntityService {
 	}
 
 	/**
-	 * Returns all the active player bestias for a given account.
+	 * Returns all player bestias for a given account.
 	 * 
 	 * @param accId
 	 * @return The set of player bestia entities of a single player.
@@ -125,11 +125,10 @@ public class PlayerEntityService {
 	public Set<Entity> getPlayerEntities(long accId) {
 
 		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
-		return entityService.getAll(new HashSet<>(ids))
+		return entityService.getAllEntities(new HashSet<>(ids))
 				.values()
 				.stream()
-				.filter(x -> x instanceof PlayerEntity)
-				.map(x -> (PlayerEntity) x)
+				.filter(x -> componentService.hasComponent(x, PlayerComponent.class))
 				.collect(Collectors.toSet());
 	}
 
@@ -141,17 +140,16 @@ public class PlayerEntityService {
 	 * @param pb
 	 *            A collection of player bestias.
 	 */
-	public void putPlayerEntities(Collection<PlayerEntity> pb) {
-
-		final Map<Long, List<PlayerEntity>> byAccId = pb.stream()
-				.collect(Collectors.groupingBy(PlayerEntity::getAccountId));
-
-		byAccId.forEach((accId, pbes) -> {
-			pbes.forEach(pbe -> {
-				entityService.save(pbe);
-				playerBestiaEntitiesIds.put(accId, pbe.getId());
-			});
-		});
+	public void putPlayerEntities(Collection<Entity> pb) {
+		pb.stream()
+				.filter(x -> componentService.hasComponent(x, PlayerComponent.class))
+				.forEach(e -> {
+					Optional<PlayerComponent> playerComp = componentService.getComponent(e, PlayerComponent.class);
+					
+					final long accId = playerComp.get().getOwnerAccountId();				
+					entityService.save(e);
+					playerBestiaEntitiesIds.put(accId, e.getId());
+				});
 	}
 
 	/**

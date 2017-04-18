@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.entity;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -20,7 +20,6 @@ import com.hazelcast.query.PredicateBuilder;
 
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.entity.components.Component;
-import net.bestia.zoneserver.entity.components.PlayerComponent;
 import net.bestia.zoneserver.entity.components.PositionComponent;
 
 @Service
@@ -125,6 +124,11 @@ public class EntityService {
 		} finally {
 			entities.unlock(entityId);
 		}
+	}
+	
+
+	public Map<Long, Entity> getAllEntities(Set<Long> ids) {
+		return entities.getAll(ids);
 	}
 
 	/**

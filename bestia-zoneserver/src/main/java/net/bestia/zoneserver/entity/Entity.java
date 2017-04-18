@@ -51,7 +51,7 @@ public class Entity implements Serializable {
 		components.remove(simpleName);
 	}
 
-	long getComponentId(Class<Component> clazz) {
+	long getComponentId(Class<? extends Component> clazz) {
 
 		if (!components.containsKey(clazz.getName())) {
 			return 0;

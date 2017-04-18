@@ -15,6 +15,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
 
 import net.bestia.zoneserver.entity.components.Component;
+import net.bestia.zoneserver.entity.components.PlayerComponent;
 
 /**
  * This service is responsible for adding and removing components from entities.
@@ -134,5 +135,9 @@ public class ComponentService {
 
 	public void removeAllComponents(Entity entity) {
 		entity.getComponentIds().forEach(components::removeAsync);
+	}
+
+	public boolean hasComponent(Entity entity, Class<? extends Component> clazz) {
+		return entity.getComponentId(clazz) != 0;
 	}
 }

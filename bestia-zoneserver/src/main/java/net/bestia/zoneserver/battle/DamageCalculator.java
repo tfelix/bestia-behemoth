@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import net.bestia.model.battle.Damage;
 import net.bestia.model.domain.AttackImpl;
-import net.bestia.zoneserver.entity.components.AttackComponent;
+import net.bestia.zoneserver.entity.components.StatusComponent;
 import net.bestia.model.domain.AttackBasedStatus;
 
 public final class DamageCalculator {
@@ -30,7 +30,7 @@ public final class DamageCalculator {
 	 * @param target
 	 * @return The damage the entity would take.
 	 */
-	public static Damage calculate(AttackImpl attack, AttackComponent user, AttackComponent target) {
+	public static Damage calculate(AttackImpl attack, StatusComponent user, StatusComponent target) {
 		Objects.requireNonNull(attack);
 		Objects.requireNonNull(user);
 		Objects.requireNonNull(target);

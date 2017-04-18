@@ -3,6 +3,7 @@ package net.bestia.zoneserver.actor.zone;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -18,10 +19,13 @@ import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.PlayerEntity;
+import net.bestia.zoneserver.entity.ComponentService;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
-import net.bestia.zoneserver.entity.traits.Visible;
-import net.bestia.zoneserver.service.EntityService;
+import net.bestia.zoneserver.entity.components.PlayerComponent;
+import net.bestia.zoneserver.entity.components.PositionComponent;
+import net.bestia.zoneserver.entity.components.VisibleComponent;
 
 /**
  * This actor will listen to incoming {@link EngineReadyMessage}s. If such a
@@ -47,16 +51,19 @@ public class EngineReadyActor extends BestiaRoutingActor {
 
 	private final PlayerEntityService playerService;
 	private final EntityService entityService;
+	private final ComponentService componentService;
 
 	/**
 	 * 
 	 */
 	@Autowired
-	public EngineReadyActor(EntityService entityService, PlayerEntityService playerEntityService) {
+	public EngineReadyActor(EntityService entityService, PlayerEntityService playerEntityService,
+			ComponentService componentService) {
 		super(Arrays.asList(EngineReadyMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerService = Objects.requireNonNull(playerEntityService);
+		this.componentService = Objects.requireNonNull(componentService);
 	}
 
 	@Override
@@ -67,26 +74,37 @@ public class EngineReadyActor extends BestiaRoutingActor {
 		final long accId = readyMsg.getAccountId();
 
 		// Find the position of the active bestia.
-		final PlayerEntity playerEntity = playerService.getActivePlayerEntity(accId);
+		final Entity playerEntity = playerService.getActivePlayerEntity(accId);
+		final PlayerComponent playerComp = componentService.getComponent(playerEntity, PlayerComponent.class)
+				.orElseThrow(IllegalStateException::new);
+
 		if (playerEntity == null) {
 			LOG.warning("No active player bestia entity was found. Aborting.");
 			return;
 		}
 
-		final Rect sightRect = Map.getUpdateRect(playerEntity.getPosition());
-		final Collection<Visible> visibles = entityService.getEntitiesInRange(sightRect, Visible.class);
+		final Point p = componentService.getComponent(playerEntity, PositionComponent.class)
+				.map(x -> x.getPosition())
+				.orElseThrow(IllegalStateException::new);
+		final Rect sightRect = Map.getUpdateRect(p);
+		final Set<Entity> visibles = entityService.getEntitiesInRange(sightRect, VisibleComponent.class);
 
 		// Send a select message for the given player entity to the engine.
 		final BestiaActivateMessage bestiaMsg = new BestiaActivateMessage(readyMsg.getAccountId(),
-				playerEntity.getPlayerBestiaId());
+				playerComp.getPlayerBestiaId());
 		sendClient(bestiaMsg);
 
-		for (Visible visible : visibles) {
+		// Send info/update messages for all other bestias.
+		for (Entity visible : visibles) {
 			// Steps over them and send them to client as update messages.
-			final Point pos = visible.getPosition();
-			final EntityUpdateMessage entityMsg = new EntityUpdateMessage(accId, visible.getId(), pos.getX(),
-					pos.getY(), visible.getVisual(), EntityAction.UPDATE);
-			sendClient(entityMsg);
+			componentService.getComponent(visible, PositionComponent.class)
+					.map(PositionComponent::getPosition)
+					.ifPresent(pos -> {
+						final EntityUpdateMessage entityMsg = new EntityUpdateMessage(accId, visible.getId(),
+								pos.getX(),
+								pos.getY(), visible.getVisual(), EntityAction.UPDATE);
+						sendClient(entityMsg);
+					});
 		}
 	}
 
