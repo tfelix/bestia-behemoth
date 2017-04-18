@@ -45,33 +45,38 @@ ul.dropdown li:hover > ul {
 	visibility: visible;
 }
 
-.chat {
+.chat-wrapper {
 	width: 600px;
-	background: rgba(15, 15, 15, 0.8);
-	box-shadow: 0px 0px 5px #303030;
-	color: #F0F0F0;
-	border: 1px solid #C0C0C0;
 	position: absolute;
 	z-index: 100;
 	bottom: 40px;
-	
-	.whisper-nick {
-		float: left;
-		margin: 0 3px;
-	}
 
 	header {
-		position: absolute; 
-		bottom: 25px; 
-		right: 20px; text-align: right;
+		text-align: right;
 
 		button {
 			padding: 5px;
+			margin: 2px 4px;
+			border: none;
 			font-size: 10pt;
 			width: auto;
 			background: gray;
 			border: 1px solid cadetblue;
 		}
+	}
+}
+
+.chat {
+	
+	background: rgba(15, 15, 15, 0.8);
+	box-shadow: 0px 0px 5px #303030;
+	color: #F0F0F0;
+	border: 1px solid #C0C0C0;
+	
+	
+	.whisper-nick {
+		float: left;
+		margin: 0 3px;
 	}
 }
 

@@ -95,7 +95,7 @@ export default class Chat {
 		 * @public
 		 * @property {String}
 		 */
-		this.modeText = ko.observable(false);
+		this.modeText = ko.observable('Public');
 		/*
 		this.modeText = ko.computed(function() {
 			if (this.mode() == 'PUBLIC') {
