@@ -14,8 +14,10 @@ import akka.actor.Scheduler;
 import net.bestia.messages.entity.EntityMoveInternalMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.entity.traits.Locatable;
-import net.bestia.zoneserver.service.EntityService;
+import net.bestia.zoneserver.entity.ComponentService;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.components.PositionComponent;
 import net.bestia.zoneserver.service.MovingEntityService;
 import scala.concurrent.duration.Duration;
 
@@ -39,18 +41,20 @@ public class TimedMoveActor extends BestiaActor {
 
 	private final MovingEntityService movingManager;
 	private final EntityService entityService;
+	private final ComponentService compService;
 
-	private int waitLatch = 0;
 	private long entityId;
 	private final Queue<Point> path = new LinkedList<>();
 
 	@Autowired
 	public TimedMoveActor(
 			EntityService entityService,
-			MovingEntityService movingManager) {
+			MovingEntityService movingManager,
+			ComponentService compService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.movingManager = Objects.requireNonNull(movingManager);
+		this.compService = Objects.requireNonNull(compService);
 	}
 
 	@Override
@@ -58,31 +62,19 @@ public class TimedMoveActor extends BestiaActor {
 		if (message.equals(TICK_MSG)) {
 
 			final Point nextPoint = path.poll();
-			final Locatable e = entityService.getEntity(entityId, Locatable.class);
-
-			if (e == null) {
-
-				// We are currently in waiting mode for another job. We will
-				// wait for a few seconds for a new path to arrive.
-				if (waitLatch > 0) {
-					waitLatch--;
-					return;
-				}
-
-				// Strange no entity anymore. Stop.
-				getContext().stop(getSelf());
-				return;
-			}
+			final Entity entity = entityService.getEntity(entityId);
+			final PositionComponent pos = compService.getComponent(entity, PositionComponent.class)
+					.orElseThrow(IllegalStateException::new);
 
 			// TODO Das hier klüger mit nächster position an den client senden.
-			e.setPosition(nextPoint.getX(), nextPoint.getY());
-			entityService.save(e);
+			pos.setPosition(nextPoint.getX(), nextPoint.getY());
+			entityService.save(entity);
 
 			// Path empty and can we terminate now?
 			if (path.isEmpty()) {
 				getContext().stop(getSelf());
 			} else {
-				final int moveDelay = getMoveDelay(path.peek(), e);
+				final int moveDelay = getMoveDelay(path.peek(), pos);
 				setupMoveTick(moveDelay);
 			}
 
@@ -90,7 +82,6 @@ public class TimedMoveActor extends BestiaActor {
 			// Stop the current movement but dont end the actor. We will soon
 			// receive another movement job.
 			path.clear();
-			waitLatch = 5;
 			setupMoveTick(100);
 		} else if (message instanceof EntityMoveInternalMessage) {
 			// We get the order to reuse this actor and stop the current
@@ -99,18 +90,13 @@ public class TimedMoveActor extends BestiaActor {
 
 			entityId = msg.getEntityId();
 
-			final Locatable e = entityService.getEntity(entityId, Locatable.class);
-
-			// Check if the entity can move. If not stop.
-			if (e == null) {
-				getContext().stop(getSelf());
-				return;
-			}
+			final PositionComponent pos = compService.getComponent(entityId, PositionComponent.class)
+					.orElseThrow(IllegalStateException::new);
 
 			path.clear();
 			path.addAll(msg.getPath());
-			
-			final int moveDelay = getMoveDelay(path.peek(), e);
+
+			final int moveDelay = getMoveDelay(path.peek(), pos);
 			setupMoveTick(moveDelay);
 		} else {
 			unhandled(message);
@@ -124,7 +110,7 @@ public class TimedMoveActor extends BestiaActor {
 		if (tick != null) {
 			tick.cancel();
 		}
-		
+
 		movingManager.removeMovingActorRef(entityId);
 	}
 
@@ -140,10 +126,10 @@ public class TimedMoveActor extends BestiaActor {
 	 * @return The delay in ms for the next movement tick, or -1 if an error has
 	 *         occurred.
 	 */
-	private int getMoveDelay(Point nextPos, Locatable e) {
-		final Point p = e.getPosition();
+	private int getMoveDelay(Point nextPos, PositionComponent pos) {
+		final Point p = pos.getPosition();
 		final double d = nextPos.getDistance(p);
-		float speed = e.getMovementSpeed();
+		float speed = 1;
 
 		if (speed == 0) {
 			return -1;
@@ -168,7 +154,7 @@ public class TimedMoveActor extends BestiaActor {
 			getContext().stop(getSelf());
 			return;
 		}
-		
+
 		final Scheduler shed = getContext().system().scheduler();
 		tick = shed.scheduleOnce(Duration.create(delay, TimeUnit.MILLISECONDS),
 				getSelf(), TICK_MSG, getContext().dispatcher(), null);

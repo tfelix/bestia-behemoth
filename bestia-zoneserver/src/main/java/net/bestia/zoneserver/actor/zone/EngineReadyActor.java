@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.actor.zone;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,16 +95,20 @@ public class EngineReadyActor extends BestiaRoutingActor {
 		sendClient(bestiaMsg);
 
 		// Send info/update messages for all other bestias.
-		for (Entity visible : visibles) {
+		for (Entity entity : visibles) {
 			// Steps over them and send them to client as update messages.
-			componentService.getComponent(visible, PositionComponent.class)
-					.map(PositionComponent::getPosition)
-					.ifPresent(pos -> {
-						final EntityUpdateMessage entityMsg = new EntityUpdateMessage(accId, visible.getId(),
-								pos.getX(),
-								pos.getY(), visible.getVisual(), EntityAction.UPDATE);
-						sendClient(entityMsg);
-					});
+			Optional<PositionComponent> pos = componentService.getComponent(entity, PositionComponent.class);
+			Optional<VisibleComponent> visible = componentService.getComponent(entity, VisibleComponent.class);
+
+			if (!pos.isPresent() || !visible.isPresent()) {
+				return;
+			}
+
+			final EntityUpdateMessage entityMsg = new EntityUpdateMessage(accId, entity.getId(),
+					pos.get().getPosition().getX(),
+					pos.get().getPosition().getY(), visible.get().getVisual(), EntityAction.UPDATE);
+			sendClient(entityMsg);
+
 		}
 	}
 

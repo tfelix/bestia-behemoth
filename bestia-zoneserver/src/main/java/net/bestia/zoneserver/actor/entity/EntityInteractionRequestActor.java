@@ -2,6 +2,7 @@ package net.bestia.zoneserver.actor.entity;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +15,12 @@ import net.bestia.messages.entity.EntityInteractionMessage;
 import net.bestia.messages.entity.EntityInteractionRequestMessage;
 import net.bestia.model.entity.InteractionType;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.entity.ComponentService;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.PlayerEntity;
+import net.bestia.zoneserver.entity.InteractionService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
-import net.bestia.zoneserver.entity.traits.Interactable;
+import net.bestia.zoneserver.entity.components.InteractionComponent;
 
 /**
  * Receives interaction requests for an entity. It will query the system and ask
@@ -33,40 +35,46 @@ public class EntityInteractionRequestActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public final static String NAME = "requestInteract";
-	
+
 	private final EntityService entityService;
+	private final ComponentService compService;
+	private final InteractionService interactService;
 	private final PlayerEntityService playerEntityService;
-	
+
 	@Autowired
-	public EntityInteractionRequestActor(EntityService entityService, PlayerEntityService pes) {
+	public EntityInteractionRequestActor(EntityService entityService, PlayerEntityService pes,
+			ComponentService componentService, InteractionService interactService) {
 		super(Arrays.asList(EntityInteractionRequestMessage.class));
 
+		// FIXME Entitiy basierte services in ein context object auslagern.
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(pes);
+		this.compService = Objects.requireNonNull(componentService);
+		this.interactService = Objects.requireNonNull(interactService);
 	}
 
 	@Override
 	protected void handleMessage(Object msg) {
-		
-		final EntityInteractionRequestMessage rm = (EntityInteractionRequestMessage) msg;	
+
+		final EntityInteractionRequestMessage rm = (EntityInteractionRequestMessage) msg;
 		final Entity entity = entityService.getEntity(rm.getEntityId());
-		
-		if(entity == null) {
+
+		if (entity == null) {
 			LOG.warning("Entity not found. Message was: {}", msg.toString());
 			return;
 		}
+
+		final Optional<InteractionComponent> interactionComp = compService.getComponent(entity, InteractionComponent.class);
 		
-		Interactable interactableComp = entity.getComponent(Interactable.class);
-		
-		// Is it a interactable entity?
-		if(!(entity instanceof Interactable)) {
+		// Entity does not seam to interact.
+		if(!interactionComp.isPresent()) {
 			sendClient(new EntityInteractionMessage(rm.getAccountId(), rm.getEntityId(), InteractionType.NONE));
 			return;
+		} else {
+			final Entity pbe = playerEntityService.getActivePlayerEntity(rm.getEntityId());
+			final Set<InteractionType> interactions = interactService.getPossibleInteractions(pbe, entity);
+			sendClient(new EntityInteractionMessage(rm.getAccountId(), rm.getEntityId(), interactions));
 		}
-		
-		final PlayerEntity pbe = playerEntityService.getActivePlayerEntity(rm.getEntityId());
-		final Set<InteractionType> interactions = ((Interactable) entity).getPossibleInteractions(pbe);
-		sendClient(new EntityInteractionMessage(rm.getAccountId(), rm.getEntityId(), interactions));
 	}
 
 }

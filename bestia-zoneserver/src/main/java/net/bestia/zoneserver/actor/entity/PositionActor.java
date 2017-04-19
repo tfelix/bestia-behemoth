@@ -24,9 +24,7 @@ import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.PlayerEntity;
-import net.bestia.zoneserver.entity.traits.Locatable;
-import net.bestia.zoneserver.entity.traits.Visible;
+import net.bestia.zoneserver.entity.components.VisibleComponent;
 
 /**
  * This actor has an crucial role in checking if a position update of an entity
@@ -63,9 +61,7 @@ public class PositionActor extends BestiaRoutingActor {
 		final Entity e = entityService.getEntity(posMsg.getEntityId());
 
 		// TODO NPC AI important checks.
-		if (e instanceof PlayerEntity) {
-			doVisualChecks((PlayerEntity) e);
-		}
+		doVisualChecks(e);
 
 		// Update the client.
 		// FIXME
@@ -77,9 +73,9 @@ public class PositionActor extends BestiaRoutingActor {
 	 * 
 	 * @param e
 	 */
-	private void doVisualChecks(PlayerEntity e) {
+	private void doVisualChecks(Entity e) {
 
-		Map<Long, Visible> entities = entityService
+		Map<Long, VisibleComponent> entities = entityService
 				.getEntitiesInRange(net.bestia.model.map.Map.getUpdateRect(e.getPosition())).stream()
 				.filter(x -> x instanceof Visible).map(x -> (Visible) x)
 				.collect(Collectors.toMap(Entity::getId, Function.identity()));

@@ -15,9 +15,8 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.geometry.Point;
-import net.bestia.model.service.PlayerBestiaService;
 import net.bestia.zoneserver.configuration.RuntimeConfigurationService;
-import net.bestia.zoneserver.entity.PlayerEntity;
+import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**
@@ -118,11 +117,9 @@ public class LoginService {
 		LOG.debug("Logout acc id: {}.", accId);
 		connectionService.removeClient(accId);
 
-		final Set<PlayerEntity> bestias = playerEntityService.getPlayerEntities(accId);
+		final Set<Entity> bestias = playerEntityService.getPlayerEntities(accId);
+		playerBestiaService.updatePlayerBestias(bestias);
 		playerEntityService.removePlayerBestias(accId);
-
-		Set<PlayerBestia> pbs = bestias.stream().map(x -> x.restorePlayerBestia(acc)).collect(Collectors.toSet());
-		playerBestiaService.saveBestias(pbs);
 	}
 
 	/**

@@ -52,9 +52,11 @@ public class ActivateBestiaActor extends BestiaRoutingActor {
 		// Check if the user really owns this bestia.
 		final Optional<Entity> bestia = playerService.getPlayerEntities(bestiaMsg.getAccountId())
 				.stream()
-				.filter(x -> {
-					componentService.getComponent(x, PlayerComponent.class).ifPresent(x -> x.)
-					//x.getPlayerBestiaId() == bestiaMsg.getPlayerBestiaId()
+				.filter(e -> {
+					return componentService.getComponent(e, PlayerComponent.class)
+							.filter(c -> c.getPlayerBestiaId() == bestiaMsg.getPlayerBestiaId())
+							.map(x -> true)
+							.orElse(false);
 				})
 				.findAny();
 
@@ -63,16 +65,17 @@ public class ActivateBestiaActor extends BestiaRoutingActor {
 			return;
 		}
 
-		final PlayerEntity pbe = bestia.get();
+		final PlayerComponent playerComp = componentService.getComponent(bestia.get(), PlayerComponent.class)
+				.orElseThrow(IllegalStateException::new);
 
 		LOG.debug("Activated player bestia id: {} from accId: {}, entityId: {}",
-				pbe.getPlayerBestiaId(),
-				pbe.getAccountId(),
-				pbe.getId());
-		playerService.setActiveEntity(bestiaMsg.getAccountId(), pbe.getId());
+				playerComp.getPlayerBestiaId(),
+				playerComp.getOwnerAccountId(),
+				playerComp.getId());
+		playerService.setActiveEntity(bestiaMsg.getAccountId(), playerComp.getId());
 
 		// Send the responding message to the client.
-		final BestiaActivateMessage bam = new BestiaActivateMessage(bestiaMsg.getAccountId(), pbe.getPlayerBestiaId());
+		final BestiaActivateMessage bam = new BestiaActivateMessage(bestiaMsg.getAccountId(), playerComp.getPlayerBestiaId());
 		sendClient(bam);
 	}
 }

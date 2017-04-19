@@ -39,6 +39,14 @@ public class Entity implements Serializable {
 		return id;
 	}
 
+	/**
+	 * Adds a given component reference to this entity. Note that the component
+	 * must be saved independently in the system, only the reference to it is
+	 * stored inside the entity.
+	 * 
+	 * @param comp
+	 *            The component to be added.
+	 */
 	void addComponent(Component comp) {
 		final String simpleName = comp.getClass().getName();
 		LOG.trace("Adding component {} to entity id: {}.", simpleName, getId());
@@ -63,7 +71,8 @@ public class Entity implements Serializable {
 	/**
 	 * @return Return all assigned component ids.
 	 */
+	/*
 	Collection<Long> getComponentIds() {
 		return components.values();
-	}
+	}*/
 }

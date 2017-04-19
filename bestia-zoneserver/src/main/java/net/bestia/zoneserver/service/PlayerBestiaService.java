@@ -1,4 +1,4 @@
-package net.bestia.model.service;
+package net.bestia.zoneserver.service;
 
 import java.util.List;
 import java.util.Set;
@@ -18,6 +18,7 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.BestiaAttack;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
+import net.bestia.zoneserver.entity.Entity;
 
 /**
  * The service for managing and editing of the player bestias.
@@ -157,10 +158,12 @@ public class PlayerBestiaService {
 	}
 
 	/**
-	 * Saves all given bestias back to the database.
+	 * Synchronizes and saves all the player bestia entities back to the
+	 * database.
 	 */
-	public void saveBestias(Set<PlayerBestia> bestias) {
-		playerBestiaDao.save(bestias);
+	public void updatePlayerBestias(Set<Entity> bestias) {
+		
+		//playerBestiaDao.save(bestias);
 	}
 
 	/**

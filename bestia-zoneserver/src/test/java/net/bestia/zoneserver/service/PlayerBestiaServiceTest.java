@@ -1,4 +1,4 @@
-package net.bestia.model.service;
+package net.bestia.zoneserver.service;
 
 import java.util.Set;
 
@@ -10,6 +10,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import net.bestia.model.domain.PlayerBestia;
+import net.bestia.zoneserver.service.PlayerBestiaService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/spring-config.xml" })

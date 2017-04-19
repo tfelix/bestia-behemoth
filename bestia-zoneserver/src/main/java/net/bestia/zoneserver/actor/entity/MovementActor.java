@@ -14,9 +14,8 @@ import net.bestia.messages.entity.EntityMoveInternalMessage;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
-import net.bestia.zoneserver.entity.traits.Locatable;
-import net.bestia.zoneserver.service.EntityService;
 import net.bestia.zoneserver.service.MovingEntityService;
 
 /**
