@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import net.bestia.messages.web.AccountLoginToken;
-import net.bestia.webserver.actor.WebserverLogin;
+import net.bestia.webserver.actor.WebserverActorApi;
 
 /**
  * This controller provides a rest interface to control logins of the clients.
@@ -23,10 +23,10 @@ import net.bestia.webserver.actor.WebserverLogin;
 @RequestMapping("v1/account")
 public class AccountController {
 	
-	private WebserverLogin login;
+	private WebserverActorApi login;
 	
 	@Autowired
-	public AccountController(WebserverLogin login) {
+	public AccountController(WebserverActorApi login) {
 		
 		this.login = Objects.requireNonNull(login);
 	}
@@ -48,7 +48,6 @@ public class AccountController {
 			@RequestParam(value = "accName") String account,
 			@RequestParam(value = "password") String password, HttpServletResponse response) {
 
-		return new AccountLoginToken(1, "test", "Bla");
-		//return login.getLoginToken(account, password);
+		return login.getLoginToken(account, password);
 	}
 }

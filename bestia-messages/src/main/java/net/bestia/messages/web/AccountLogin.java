@@ -1,8 +1,11 @@
 package net.bestia.messages.web;
 
+import java.io.Serializable;
 
-public class AccountLogin {
+public class AccountLogin implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	private final String username;
 	private final String password;
 

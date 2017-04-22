@@ -36,6 +36,7 @@ import net.bestia.zoneserver.service.ConnectionService;
 public class ZoneClusterListenerActor extends BestiaActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+	public final static String NAME = "clusterStatus";
 
 	private final Cluster cluster = Cluster.get(getContext().system());
 	private final ConnectionService connectionService;

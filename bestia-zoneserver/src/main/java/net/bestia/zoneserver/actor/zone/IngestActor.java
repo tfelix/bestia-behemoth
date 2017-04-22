@@ -28,13 +28,13 @@ import net.bestia.zoneserver.actor.chat.ChatActor;
  */
 @Component
 @Scope("prototype")
-public class MessageRoutingActor extends BestiaActor {
+public class IngestActor extends BestiaActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private static final Map<String, String> MESSAGE_TO_ROUTE = new HashMap<>();
 
-	public static final String NAME = "messageRouter";
+	public static final String NAME = "ingest";
 
 	static {
 		/**
@@ -47,6 +47,8 @@ public class MessageRoutingActor extends BestiaActor {
 
 	@Override
 	public void onReceive(Object msg) throws Throwable {
+		
+		LOG.info("Received: " + msg.toString());
 
 		// TODO Maybe we need some more handling here for other messages.
 		if (msg instanceof MessageId) {

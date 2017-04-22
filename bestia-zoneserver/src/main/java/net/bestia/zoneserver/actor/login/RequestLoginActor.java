@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.uplink;
+package net.bestia.zoneserver.actor.login;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -17,13 +17,13 @@ import net.bestia.zoneserver.actor.BestiaActor;
  */
 @Component
 @Scope("prototype")
-public class UplinkLoginActor extends BestiaActor {
+public class RequestLoginActor extends BestiaActor {
 
-	public final static String NAME = "uplinkLogin";
+	public final static String NAME = "requestLogin";
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	public UplinkLoginActor() {
+	public RequestLoginActor() {
 
 		
 	}

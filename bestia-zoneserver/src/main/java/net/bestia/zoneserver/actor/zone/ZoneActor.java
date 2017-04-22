@@ -22,6 +22,8 @@ import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor;
 import net.bestia.zoneserver.actor.entity.EntityMoveActor;
 import net.bestia.zoneserver.actor.inventory.InventoryActor;
+import net.bestia.zoneserver.actor.login.LoginActor;
+import net.bestia.zoneserver.actor.login.LogoutActor;
 import net.bestia.zoneserver.actor.map.MapRequestChunkActor;
 import net.bestia.zoneserver.actor.map.TilesetRequestActor;
 

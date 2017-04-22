@@ -9,7 +9,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.actor.zone.MessageRoutingActor;
+import net.bestia.zoneserver.actor.zone.IngestActor;
 import net.bestia.zoneserver.actor.zone.ZoneActor;
 
 /**
@@ -33,7 +33,7 @@ public class UplinkActor extends BestiaActor {
 	public UplinkActor() {
 
 		zone = getContext().actorSelection(AkkaCluster.getNodeName(ZoneActor.NAME));
-		zoneRouter = getContext().actorSelection(AkkaCluster.getNodeName(MessageRoutingActor.NAME));
+		zoneRouter = getContext().actorSelection(AkkaCluster.getNodeName(IngestActor.NAME));
 	}
 
 	@Override

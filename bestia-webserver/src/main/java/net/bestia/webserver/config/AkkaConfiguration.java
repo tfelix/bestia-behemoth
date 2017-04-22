@@ -15,18 +15,17 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Address;
 import akka.actor.Deploy;
-import akka.actor.Props;
 import akka.actor.TypedActor;
 import akka.actor.TypedProps;
 import akka.cluster.Cluster;
 import akka.japi.Creator;
+import akka.routing.FromConfig;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.DiscoveryService;
 import net.bestia.webserver.actor.ActorSystemTerminator;
-import net.bestia.webserver.actor.UplinkActor;
 import net.bestia.webserver.actor.WebClusterListenerActor;
-import net.bestia.webserver.actor.WebserverLogin;
-import net.bestia.webserver.actor.WebserverLoginActor;
+import net.bestia.webserver.actor.WebserverActorApi;
+import net.bestia.webserver.actor.WebserverActorApiActor;
 
 /**
  * Generates the akka configuration file which is used to connect to the remote
@@ -72,9 +71,18 @@ public class AkkaConfiguration {
 		return system;
 	}
 
+	/**
+	 * Router to send messages to the bestia system.
+	 *
+	 */
 	@Bean
 	public ActorRef uplinkRouter(ActorSystem system) {
-		return system.actorOf(Props.create(UplinkActor.class), UplinkActor.NAME);
+		
+		ActorRef msgRouter = system.actorOf(FromConfig.getInstance().props(), "uplink");
+		LOG.info("Message ingest path: {}", msgRouter.path().toString());
+		msgRouter.tell("test", ActorRef.noSender());
+		
+		return msgRouter;
 	}
 
 	/**
@@ -101,20 +109,19 @@ public class AkkaConfiguration {
 	}
 
 	@Bean
-	public WebserverLogin webserverLogin(ActorSystem system, ActorRef uplinkRouter) {
+	public WebserverActorApi webserverLogin(ActorSystem system, ActorRef uplinkRouter) {
 
-		final WebserverLogin login = TypedActor.get(system)
+		final WebserverActorApi login = TypedActor.get(system)
 				.typedActorOf(
-						new TypedProps<WebserverLoginActor>(WebserverLogin.class, new Creator<WebserverLoginActor>() {
+						new TypedProps<WebserverActorApiActor>(WebserverActorApi.class, new Creator<WebserverActorApiActor>() {
 							private static final long serialVersionUID = 1L;
 
 							@Override
-							public WebserverLoginActor create() throws Exception {
-								return new WebserverLoginActor(uplinkRouter);
+							public WebserverActorApiActor create() throws Exception {
+								return new WebserverActorApiActor(uplinkRouter);
 							}
 						}).withDeploy(Deploy.local()), "loginWebActor");
 
 		return login;
-
 	}
 }
