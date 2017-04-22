@@ -13,12 +13,7 @@ import akka.actor.Actor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
-import akka.routing.FromConfig;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
-import net.bestia.zoneserver.actor.chat.ChatActor;
-import net.bestia.zoneserver.actor.login.RequestLoginActor;
-import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
-import net.bestia.zoneserver.actor.zone.EngineReadyActor;
 import net.bestia.zoneserver.actor.zone.IngestActor;
 
 /**
@@ -50,16 +45,6 @@ public class ZoneStarter implements CommandLineRunner {
 	@Override
 	public void run(String... strings) throws Exception {
 		LOG.info("Starting actor system...");
-
-		//Props props = springExt.props(ZoneActor.class);
-		//ActorRef zone = system.actorOf(props, ZoneActor.NAME);
-		//LOG.info("Path: {}", zone.path().toString());
-		// uplink nicht erzeugt
-
-		startActor(ChatActor.class);		
-		startActor(EngineReadyActor.class);
-		startActor(RequestLoginActor.class);
-		startActor(MapGeneratorClientActor.class);
 		
 		startActor(IngestActor.class);
 	}

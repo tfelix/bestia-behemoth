@@ -47,8 +47,6 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 		final AccountLogin accountLogin = new AccountLogin(accName, password);
 
-		uplinkRouter.tell("Das ist ein Test", ActorRef.noSender());
-
 		/*Future<Object> answer = Patterns.ask(uplinkRouter, new ConsistentHashableEnvelope(accountLogin, accountLogin),
 				timeout);*/
 		
