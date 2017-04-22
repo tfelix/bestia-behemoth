@@ -1,29 +1,23 @@
 @import "../general.less";
-@import "../util.less";
-
 
 html {
-	background:
-		url('http://img09.deviantart.net/d044/i/2014/062/2/2/tree_swing_by_t1na-d78qocc.jpg')
-		no-repeat center center fixed;
-	-webkit-background-size: cover;
-	-moz-background-size: cover;
-	-o-background-size: cover;
+	background-image: url('/img/login_back.jpg');
+	background-repeat: no-repeat;
+	background-position: 0 0;
 	background-size: cover;
+}
+
+body {
+	font-family: 'Open Sans', sans-serif;
+	background-color: #0a0a0a;
+	color: @textColor;
+	overflow: hidden;
 }
 
 .login {
 	width: 350px;
-	box-shadow: 0 0 4px #202020, 0 0 100px #d3cec2, 0 0 180px #d3cec2
-}
-
-.login-header {
-	height: 160px;
-	background: url('../../img/bestia_logo_big.png') no-repeat center @darkBackground;
-	border-bottom: 1px solid #282828;
-	background-size: 280px Auto;
-	position: relative;
-	z-index: -5;
+	box-shadow: 0 0 4px #202020, 0 0 10px #d3cec2;
+	margin-top: 150px;
 }
 
 .login-content input {

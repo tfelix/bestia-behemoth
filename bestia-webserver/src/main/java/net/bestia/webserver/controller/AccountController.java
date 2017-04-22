@@ -18,7 +18,7 @@ import net.bestia.webserver.actor.WebserverLogin;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-@RestController("account/")
+@RestController("v1/account/")
 public class AccountController {
 	
 	private WebserverLogin login;

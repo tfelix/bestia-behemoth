@@ -18,7 +18,11 @@ export default {
       browser: true,
       preferBuiltins: false
     }),
-    commonjs(),
+    commonjs({
+      namedExports: {
+        'node_modules\zepto\dist\zepto.js': ['Zepto']
+      }
+    }),
     babel({
       exclude: [
         'node_modules/**',

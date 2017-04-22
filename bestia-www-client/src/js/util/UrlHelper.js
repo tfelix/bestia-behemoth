@@ -17,6 +17,8 @@ export default class UrlHelper {
 		 */
 		this._assetRoot = assetUrl;
 
+		this.gameUrl = 'http://localhost/';
+
 	}
 
 	/**

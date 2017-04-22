@@ -12,9 +12,9 @@
     "server": "lite-server --baseDir=\"build\"",
     "build:html": "cpx ./src/**/*.{html,png,jpg} ./build -v",
     "build:assets": "cpx \"./../game-data/**/*\" ./build/assets -v",
-    "build:css": "lessc ./src/css/game/main.less --source-map-map-inline | cssmin > ./build/css/game.css",
+    "build:css": "lessc ./src/css/game/main.less --source-map-map-inline | cssmin > ./build/css/game.css && lessc ./src/css/pages/login.less --source-map-map-inline | cssmin > ./build/css/login.css",
     "build:css:watch": "watch \"npm run build:css\" ./src/css",
-    "build:js": "rollup -c",
+    "build:js": "rollup --config rollup.config.js && rollup src/js/pages/login.js --config rollup.config.js --output build/js/login.js",
     "prebuild:watch": "npm run mkdir",
     "build:watch": "parallelshell \"npm run build:html -- -w\" \"npm run build:assets -- -w\" \"npm run build:css:watch\" \"npm run build:js -- --watch\" \"npm run server\""
   },

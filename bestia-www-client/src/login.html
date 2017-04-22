@@ -6,44 +6,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet"> 
-<link rel="stylesheet" type="text/css" href="css/pages/login.css" />
+<link rel="stylesheet" type="text/css" href="css/login.css" />
 
-<!-- JAVASCRIPT -->
-<!-- @ifdef PRODUCTION -->
-<script src="js/lib-pages.min.js"></script>
-<script src="js/login.min.js"></script>
-<!-- @endif -->
-<!-- @ifdef DEVELOPMENT -->
-<script src="js/lib-pages.js"></script>
-<script src="js/login.js"></script>
-<!-- @endif -->
+<script src="./js/login.js" />
+
 </head>
 <body>
 	
 	<div class="box centered login">
-		<form id="login-form">
-			<div class="login-header"></div>
+		<form id="login">
 			<div class="login-content">
 				<div class="form-wrapper">
-					<input value="" placeholder="E-Mail" autofocus="autofocus"
+					<input id="username" value="" placeholder="E-Mail" autofocus="autofocus"
 						required="required" type="text">
 				</div>
 				<div class="form-wrapper">
-					<input name="data[password]" value="" class="input"
+					<input id="password" value="" class="input"
 						placeholder="Password" required="required" type="password">
 				</div>
 			
 			</div>
 			<div class="login-footer">
 				<button>Login</button>
-				<button>Anmelden</button>
+				<button>Account erstellen</button>
 			</div>
 		</form>
 	</div>
 	
-	<div class="footer">
+	<footer>
 		<a href="https://www.tfelix.de/software">tfelix SOFTWARE</a> &#8231; Bestia - The Browsergame &#8231; <a
 			href="./imprint.html">Impressum</a> &#8231; <a href="datenschutz.hml">Datenschutz</a>
-	</div>
+	</footer>
 </body>
 </html>

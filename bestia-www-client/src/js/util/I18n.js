@@ -4,7 +4,7 @@
  */
 
 import Signal from '../io/Signal.js';
-import guid from '../util/Guid.js';
+import {guid} from '../util/Guid.js';
 import Message from '../io/messages/Message.js';
 
 /**

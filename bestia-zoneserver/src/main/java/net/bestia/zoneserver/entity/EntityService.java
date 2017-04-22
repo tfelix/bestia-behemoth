@@ -327,14 +327,20 @@ public class EntityService {
 	 * @return
 	 */
 	public <T extends Component> T addComponent(long entityId, Class<T> clazz) {
-		if (!Component.class.isAssignableFrom(clazz)) {
-			throw new IllegalArgumentException("Only accept component classes.");
-		}
 
 		final Entity e = getEntity(entityId);
 
 		if (e == null) {
 			throw new IllegalArgumentException("Entity was not found.");
+		}
+		
+		return addComponent(e, clazz);
+	}
+	
+
+	public <T extends Component> T addComponent(Entity entity, Class<T> clazz) {
+		if (!Component.class.isAssignableFrom(clazz)) {
+			throw new IllegalArgumentException("Only accept component classes.");
 		}
 
 		try {
@@ -344,8 +350,8 @@ public class EntityService {
 
 			// Add component to entity and to the comp map.
 			components.put(comp.getId(), comp);
-			e.addComponent(comp);
-			save(e);
+			entity.addComponent(comp);
+			save(entity);
 			return clazz.cast(comp);
 
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException

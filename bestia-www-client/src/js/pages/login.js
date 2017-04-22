@@ -1,14 +1,14 @@
-import UrlHelper from '../UrlHelper.js';
+import 'zepto';
+import UrlHelper from '../util/UrlHelper.js';
 import Storage from '../util/Storage.js';
 
-$(document).ready(function() {
-	
+Zepto(function($){
 	// Login Form vorbereiten.
-	$('#login').submit(function() {
-		var email = $('#inputEmail').val();
-		var password = $('#inputPassword').val();
+	$('#login').on('submit', function(){
+		var email = $('#username').val();
+		var password = $('#password').val();
 
-		$.get(Urls.bestiaWebAPI + "/v1/account/login", {
+		$.get('http://localhost:8080/v1/account/login', {
 			ident : email,
 			password : password
 		}, function(data) {
@@ -17,7 +17,7 @@ $(document).ready(function() {
 			var storage = new Storage();
 			storage.storeAuth(data);
 
-			window.location.href = Urls.gameHtml;
+			window.location.href = UrlHelper.gameUrl;
 			
 		}).fail(function() {
 			$('#login').addClass('has-error');
@@ -26,3 +26,4 @@ $(document).ready(function() {
 		return false;
 	});
 });
+
