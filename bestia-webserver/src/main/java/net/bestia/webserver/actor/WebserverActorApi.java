@@ -2,8 +2,6 @@ package net.bestia.webserver.actor;
 
 import org.springframework.web.socket.WebSocketSession;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import net.bestia.messages.web.AccountLoginToken;
 import net.bestia.webserver.exceptions.WrongCredentialsException;
 
@@ -23,9 +21,34 @@ public interface WebserverActorApi {
 	 *             match.
 	 */
 	AccountLoginToken getLoginToken(String accName, String password) throws WrongCredentialsException;
-	
-	
-	//void setupWebsocketConnection(String sessionUid, WebSocketSession session, ObjectMapper mapper);
-	
-	//void closeWebsocketConnection(String sessionUid);
+
+	/**
+	 * Creates a new websocket connection so it can exchange messages with the
+	 * bestia backend.
+	 * 
+	 * @param sessionUid
+	 *            A unique id naming the connection.
+	 * @param session
+	 *            The websocket session.
+	 */
+	void setupWebsocketConnection(String sessionUid, WebSocketSession session);
+
+	/**
+	 * This closes the websocket session.
+	 * 
+	 * @param sessionUid
+	 *            The websocket session UID to be closed.
+	 */
+	void closeWebsocketConnection(String sessionUid);
+
+	/**
+	 * The message from the client must be handled towards the bestia cluster
+	 * server.
+	 * 
+	 * @param sessionUid
+	 *            The uid of the session from this message.
+	 * @param payload
+	 *            The message payload.
+	 */
+	void handleClientMessage(String sessionUid, String payload);
 }

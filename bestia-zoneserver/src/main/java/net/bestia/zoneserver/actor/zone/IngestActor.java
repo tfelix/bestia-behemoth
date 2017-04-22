@@ -58,6 +58,7 @@ public class IngestActor extends BestiaActor {
 			if (!MESSAGE_TO_ROUTE.containsKey(msgId)) {
 				LOG.warning("Message ID {} encountered but routing list has no entry for receiver.", msgId);
 				unhandled(msg);
+				return;
 			}
 
 			getContext().actorSelection(MESSAGE_TO_ROUTE.get(msgId)).tell(msg, getSender());

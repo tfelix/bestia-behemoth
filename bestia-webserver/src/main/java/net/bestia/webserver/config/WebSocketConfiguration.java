@@ -1,13 +1,14 @@
 package net.bestia.webserver.config;
 
+import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
+import net.bestia.webserver.actor.WebserverActorApi;
 import net.bestia.webserver.websocket.BestiaSocketHandler;
 
 /**
@@ -19,19 +20,17 @@ import net.bestia.webserver.websocket.BestiaSocketHandler;
 @Configuration
 @EnableWebSocket
 public class WebSocketConfiguration implements WebSocketConfigurer {
-	
-	private ActorSystem actorSystem;
-	private ActorRef uplinkRouter;
-	
+
+	private final WebserverActorApi actorApi;
+
 	@Autowired
-	public WebSocketConfiguration(ActorSystem actorSystem, ActorRef uplinkRouter) {
-		
-		this.actorSystem = actorSystem;
-		this.uplinkRouter = uplinkRouter;
+	public WebSocketConfiguration(WebserverActorApi actorApi) {
+
+		this.actorApi = Objects.requireNonNull(actorApi);
 	}
 
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-		registry.addHandler(new BestiaSocketHandler(actorSystem, uplinkRouter), "/socket")
+		registry.addHandler(new BestiaSocketHandler(actorApi), "/socket")
 				.setAllowedOrigins("*")
 				.withSockJS();
 	}
