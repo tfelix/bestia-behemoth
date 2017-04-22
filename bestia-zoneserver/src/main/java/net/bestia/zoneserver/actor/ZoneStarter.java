@@ -15,6 +15,7 @@ import akka.actor.ActorSystem;
 import akka.actor.Props;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
 import net.bestia.zoneserver.actor.zone.IngestActor;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 
 /**
  * Starts the actor system to process bestia messages.
@@ -47,6 +48,7 @@ public class ZoneStarter implements CommandLineRunner {
 		LOG.info("Starting actor system...");
 		
 		startActor(IngestActor.class);
+		startActor(SendClientActor.class);
 	}
 
 	private ActorRef startActor(Class<? extends Actor> actorClazz) {

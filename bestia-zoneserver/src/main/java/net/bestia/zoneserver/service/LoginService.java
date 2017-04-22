@@ -10,13 +10,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import akka.actor.ActorRef;
+import net.bestia.messages.bestia.BestiaActivateMessage;
+import net.bestia.messages.login.LoginAuthReplyMessage;
+import net.bestia.messages.login.LoginState;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.geometry.Point;
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.RuntimeConfigurationService;
 import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityServiceContext;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**
@@ -33,66 +39,83 @@ public class LoginService {
 	private final RuntimeConfigurationService config;
 	private final AccountDAO accountDao;
 	private final ConnectionService connectionService;
+	private final EntityServiceContext entityServiceCtx;
 	private final PlayerBestiaService playerBestiaService;
-	private final PlayerEntityService playerEntityService;
+	private final ZoneAkkaApi akkaApi;
 
 	@Autowired
 	public LoginService(RuntimeConfigurationService config,
 			AccountDAO accountDao,
+			EntityServiceContext entityServiceCtx,
+			ConnectionService connectionService,
 			PlayerBestiaService playerBestiaService,
-			PlayerEntityService playerEntityService,
-			ConnectionService connectionService) {
+			ZoneAkkaApi akkaApi) {
 
 		this.config = Objects.requireNonNull(config);
 		this.accountDao = Objects.requireNonNull(accountDao);
-		this.playerBestiaService = Objects.requireNonNull(playerBestiaService);
-		this.playerEntityService = Objects.requireNonNull(playerEntityService);
+		this.entityServiceCtx = Objects.requireNonNull(entityServiceCtx);
 		this.connectionService = Objects.requireNonNull(connectionService);
+		this.playerBestiaService = Objects.requireNonNull(playerBestiaService);
+		this.akkaApi = Objects.requireNonNull(akkaApi);
 	}
 
 	/**
 	 * Performs a login for this account. This prepares the bestia server system
-	 * for upcoming commands from this player. All needed entities are spawned
-	 * on the server.
+	 * for upcoming commands from this player. The player bestia entity is
+	 * spawned on the server.
 	 * 
 	 * @param accId
 	 *            The account id to perform a login.
 	 * @return The player master entity.
 	 */
-	public Account login(long accId) {
+	public void login(long accId, ActorRef connectionRef) {
+
+		// First register the sender connection.
+		connectionService.addClient(accId, connectionRef.path());
+
+		final Account account = accountDao.findOne(accId);
 
 		// Spawn all bestia entities for this account into the world.
-		final Set<PlayerBestia> pbs = playerBestiaService.getAllBestias(accId);
-
 		final PlayerBestia master = playerBestiaService.getMaster(accId);
 
-		// Das hier muss anders gemacht werden mit ECS. Und in einen Service.
+		LOG.debug(String.format("Login in acc: {}. Spawning master bestias.", accId));
 
-		//LOG.debug(String.format("Login in acc: {}. Spawning {} player bestias.", accId, bestias.size()));
-		//playerEntityService.putPlayerEntities(bestias);
+		Entity masterEntity;
+		entityServiceCtx.getPlayer().putPlayerEntity(masterEntity);
 
 		// Set the position in order to send updates to the client.
-		/*for (Entity pb : bestias) {
+
+		for (Entity pb : bestias) {
 			final Point p = pb.getPosition();
 			pb.setPosition(p.getX(), p.getY());
 		}
-*/
+
 		// Extract master now again from bestias and get its entity id.
-		
-		/*final Optional<Entity> masterEntity = pbs.stream()
+
+		final Optional<Entity> masterEntity = pbs.stream()
 				.filter(x -> x.getPlayerBestiaId() == master.getId())
 				.findAny();
 
 		if (!masterEntity.isPresent()) {
-			LOG.error("Account {} has no bestia master! Aborting login process.", accId);
+			LOG.error("Account {} has no bestia master! Aborting login process.",
+					accId);
 			logout(accId);
 			throw new IllegalStateException("Account has no bestia master. Aborting.");
 		}
 
-		// Now activate the master.
-		playerEntityService.setActiveEntity(accId, masterEntity.get().getId());*/
+		// Now activate the master and notify the client.
+		entityServiceCtx.getPlayer().setActiveEntity(accId, masterEntity.getId());
 
-		return accountDao.findOne(accId);
+		final BestiaActivateMessage activateMsg = new BestiaActivateMessage(
+				accId,
+				master.getId());
+		akkaApi.sendToClient(activateMsg);
+
+		final LoginAuthReplyMessage response = new LoginAuthReplyMessage(
+				accId,
+				LoginState.ACCEPTED,
+				account.getName());
+		akkaApi.sendToClient(response);
 	}
 
 	/**
@@ -103,14 +126,14 @@ public class LoginService {
 	 *            The account id to logout.
 	 */
 	public void logout(long accId) {
-		
+
 		final Account acc = accountDao.findOne(accId);
-		
-		if(acc == null) {
+
+		if (acc == null) {
 			LOG.error("Can not logout account id: %d. ID does not exist.", accId);
 			return;
 		}
-		
+
 		// Unregister.
 		LOG.debug("Logout acc id: {}.", accId);
 		connectionService.removeClient(accId);

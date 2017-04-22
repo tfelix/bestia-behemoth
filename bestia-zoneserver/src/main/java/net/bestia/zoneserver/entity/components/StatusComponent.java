@@ -45,7 +45,7 @@ public class StatusComponent extends Component {
 	 * The original status points without this effects applied can be obtained
 	 * via {@link #getOriginalStatusPoints()}.
 	 * 
-	 * @return
+	 * @return The current status points of the entity.
 	 */
 	public StatusPoints getStatusPoints() {
 		return statusPoints;
@@ -104,7 +104,7 @@ public class StatusComponent extends Component {
 	public Element getOriginalElement() {
 		return originalElement;
 	}
-	
+
 	public int getKilledExp() {
 		return level * 10;
 	}
@@ -116,7 +116,7 @@ public class StatusComponent extends Component {
 	public int getExp() {
 		return exp;
 	}
-	
+
 	public void setExp(int exp) {
 		this.exp = exp;
 	}

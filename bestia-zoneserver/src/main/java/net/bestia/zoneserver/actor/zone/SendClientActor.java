@@ -28,7 +28,7 @@ import net.bestia.zoneserver.service.CacheManager;
 public class SendClientActor extends BestiaActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-	public static final String NAME = "sendClient";
+	public static final String NAME = "sendToClient";
 
 	private final CacheManager<Long, ActorPath> clientCache;
 
@@ -55,6 +55,7 @@ public class SendClientActor extends BestiaActor {
 			}
 
 			// Send the client message.
+			LOG.debug(String.format("Sending to client %d: %s", accMsg.getAccountId(), accMsg));
 			origin.tell(message, getSelf());
 		} else {
 			// We handle only account messages.

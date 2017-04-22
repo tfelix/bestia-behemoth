@@ -10,11 +10,9 @@ import org.springframework.stereotype.Component;
 import akka.cluster.pubsub.DistributedPubSubMediator;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
-import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.service.ConnectionService;
 import net.bestia.zoneserver.service.LoginService;
@@ -46,13 +44,14 @@ public class LoginActor extends BestiaRoutingActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private final LoginService loginService;
-	private final ConnectionService connectionService;
 
 	/**
 	 * Ctor.
 	 * 
-	 * @param connectionService {@link ConnectionService}
-	 * @param loginService {@link LoginService}
+	 * @param connectionService
+	 *            {@link ConnectionService}
+	 * @param loginService
+	 *            {@link LoginService}
 	 */
 	@Autowired
 	public LoginActor(ConnectionService connectionService, LoginService loginService) {
@@ -61,7 +60,6 @@ public class LoginActor extends BestiaRoutingActor {
 		setChildRouting(false);
 
 		this.loginService = Objects.requireNonNull(loginService);
-		this.connectionService = Objects.requireNonNull(connectionService);
 	}
 
 	@Override
@@ -71,35 +69,18 @@ public class LoginActor extends BestiaRoutingActor {
 		final LoginAuthMessage loginMsg = (LoginAuthMessage) msg;
 		final long accId = loginMsg.getAccountId();
 
-		if (loginService.canLogin(accId, loginMsg.getToken())) {
-			
-			final Account account = loginService.login(accId);
-			
-			// Register the sender connection.
-			connectionService.addClient(accId, getSender().path());
-			
-			final LoginAuthReplyMessage response = new LoginAuthReplyMessage(
-					accId,
-					LoginState.ACCEPTED,
-					account.getName());
-			LOG.debug("Sending: {}.", response.toString());
-			getSender().tell(response, getSelf());
+		if (!loginService.canLogin(accId, loginMsg.getToken())) {
 
-			final BestiaActivateMessage activateMsg = new BestiaActivateMessage(
-					accId,
-					account.getMaster().getId());
-			LOG.debug("Sending: {}.", activateMsg.toString());
-			getSender().tell(activateMsg, getSelf());
-			
-		} else {
-			
 			final LoginAuthReplyMessage response = new LoginAuthReplyMessage(
 					accId,
 					LoginState.DENIED,
 					"");
 			getSender().tell(response, getSelf());
-			
+
+			return;
 		}
+
+		loginService.login(accId, getSender());
 	}
 
 }

@@ -4,11 +4,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
+import akka.actor.ActorSelection;
 import akka.actor.UntypedActor;
-import akka.event.Logging;
-import akka.event.LoggingAdapter;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
+import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 
@@ -23,9 +23,7 @@ import net.bestia.zoneserver.actor.zone.SendClientActor;
 @Scope("prototype")
 public abstract class BestiaActor extends UntypedActor {
 
-	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-
-	private ActorRef responder;
+	private ActorSelection responder;
 	private ActorRef activeClientBroadcaster;
 
 	public BestiaActor() {
@@ -40,9 +38,9 @@ public abstract class BestiaActor extends UntypedActor {
 	 * @param msg
 	 */
 	protected void sendClient(JsonMessage msg) {
-		LOG.debug(String.format("Sending to client %d: %s", msg.getAccountId(), msg.toString()));
+		
 		if (responder == null) {
-			responder = SpringExtension.actorOf(getContext(), SendClientActor.class);
+			responder = context().actorSelection(AkkaCluster.getNodeName(SendClientActor.NAME));
 		}
 
 		responder.tell(msg, getSelf());
