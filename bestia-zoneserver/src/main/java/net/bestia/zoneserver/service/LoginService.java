@@ -66,22 +66,20 @@ public class LoginService {
 
 		final PlayerBestia master = playerBestiaService.getMaster(accId);
 
-		final Set<PlayerEntity> bestias = pbs
-				.stream()
-				.map(x -> new PlayerEntity(accId, x))
-				.collect(Collectors.toSet());
+		// Das hier muss anders gemacht werden mit ECS. Und in einen Service.
 
-		LOG.debug(String.format("Login in acc: {}. Spawning {} player bestias.", accId, bestias.size()));
-		playerEntityService.putPlayerEntities(bestias);
+		//LOG.debug(String.format("Login in acc: {}. Spawning {} player bestias.", accId, bestias.size()));
+		//playerEntityService.putPlayerEntities(bestias);
 
 		// Set the position in order to send updates to the client.
-		for (PlayerEntity pb : bestias) {
+		/*for (Entity pb : bestias) {
 			final Point p = pb.getPosition();
 			pb.setPosition(p.getX(), p.getY());
 		}
-
+*/
 		// Extract master now again from bestias and get its entity id.
-		final Optional<PlayerEntity> masterEntity = bestias.parallelStream()
+		
+		/*final Optional<Entity> masterEntity = pbs.stream()
 				.filter(x -> x.getPlayerBestiaId() == master.getId())
 				.findAny();
 
@@ -92,7 +90,7 @@ public class LoginService {
 		}
 
 		// Now activate the master.
-		playerEntityService.setActiveEntity(accId, masterEntity.get().getId());
+		playerEntityService.setActiveEntity(accId, masterEntity.get().getId());*/
 
 		return accountDao.findOne(accId);
 	}

@@ -15,7 +15,6 @@ import akka.cluster.singleton.ClusterSingletonProxySettings;
 import net.bestia.messages.internal.DoneMessage;
 import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.actor.SpawnActorHelper;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.battle.AttackPlayerUseActor;
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
@@ -74,7 +73,6 @@ public class ZoneActor extends BestiaRoutingActor {
 		SpringExtension.actorOf(getContext(), ZoneClusterListenerActor.class);
 
 		// === DEVELOPMENT ===
-		SpringExtension.actorOf(getContext(), SpawnActorHelper.class);
 
 		// Setup the init actor singelton for creation of the system.
 		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(getContext().system());

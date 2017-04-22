@@ -16,7 +16,7 @@ import net.bestia.model.domain.PlayerBestia;
  *
  */
 @Repository("playerBestiaDao")
-public interface PlayerBestiaDAO extends CrudRepository<PlayerBestia, Integer> {
+public interface PlayerBestiaDAO extends CrudRepository<PlayerBestia, Long> {
 
 	/**
 	 * Finds all {@link PlayerBestia}s for a given account ID.

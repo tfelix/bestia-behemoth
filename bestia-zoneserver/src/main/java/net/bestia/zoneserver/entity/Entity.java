@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +60,22 @@ public class Entity implements Serializable {
 		components.remove(simpleName);
 	}
 
+	/**
+	 * Removes the component via its id from the entity.
+	 * 
+	 * @param compId
+	 *            The ID of the component to be removed.
+	 */
+	void removeComponent(Long compId) {
+		LOG.trace("Removing component id {} from entity: {}.", compId, getId());
+		components.entrySet()
+				.stream()
+				.filter(entry -> Objects.equals(entry.getValue(), compId))
+				.map(Map.Entry::getKey)
+				.findFirst()
+				.ifPresent(components::remove);
+	}
+
 	long getComponentId(Class<? extends Component> clazz) {
 
 		if (!components.containsKey(clazz.getName())) {
@@ -71,8 +88,30 @@ public class Entity implements Serializable {
 	/**
 	 * @return Return all assigned component ids.
 	 */
-	/*
 	Collection<Long> getComponentIds() {
 		return components.values();
-	}*/
+	}
+
+	@Override
+	public String toString() {
+		return String.format("Entity[id: %d]", getId());
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (!(o instanceof Entity)) {
+			return false;
+		}
+
+		Entity entity = (Entity) o;
+		return id == entity.id &&
+				Objects.equals(components, entity.components);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, components);
+	}
 }

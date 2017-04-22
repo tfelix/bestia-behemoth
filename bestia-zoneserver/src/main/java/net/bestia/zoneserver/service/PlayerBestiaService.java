@@ -65,7 +65,7 @@ public class PlayerBestiaService {
 	 * @param playerBestiaId
 	 * @return A list of attacks usable by the given player bestia id.
 	 */
-	public List<BestiaAttack> getAllAttacksForPlayerBestia(int playerBestiaId) {
+	public List<BestiaAttack> getAllAttacksForPlayerBestia(long playerBestiaId) {
 		LOG.trace("Retrieving all attacks for player bestia {}", playerBestiaId);
 		final PlayerBestia pb = playerBestiaDao.findOne(playerBestiaId);
 		return attackLevelDao.getAllAttacksForBestia(pb.getOrigin().getId());
@@ -81,7 +81,7 @@ public class PlayerBestiaService {
 	 *         not own this item the slot will be null otherwise it will contain
 	 *         the item.
 	 */
-	public PlayerItem[] saveItemShortcuts(int playerBestiaId, List<Integer> itemIds) {
+	public PlayerItem[] saveItemShortcuts(long playerBestiaId, List<Integer> itemIds) {
 		LOG.trace("Saving item shortcuts {} for player bestia {}", itemIds, playerBestiaId);
 
 		if (itemIds.size() != 5) {
@@ -172,7 +172,7 @@ public class PlayerBestiaService {
 	 * @param playerBestiaId
 	 * @return
 	 */
-	public PlayerBestia getBestia(int playerBestiaId) {
+	public PlayerBestia getBestia(long playerBestiaId) {
 		return playerBestiaDao.findOne(playerBestiaId);
 	}
 

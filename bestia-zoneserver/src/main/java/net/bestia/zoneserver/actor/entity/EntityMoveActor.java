@@ -11,8 +11,8 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.PlayerEntity;
-import net.bestia.zoneserver.entity.PlayerEntityService;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityServiceContext;
 
 /**
  * Upon receiving of a move message we will lookup the movable entity and sets
@@ -29,13 +29,13 @@ public class EntityMoveActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	private final PlayerEntityService playerEntityService;
+	private final EntityServiceContext srvCtx;
 
 	@Autowired
-	public EntityMoveActor(PlayerEntityService playerEntityService) {
+	public EntityMoveActor(EntityServiceContext srvCtx) {
 		super(Arrays.asList(EntityMoveMessage.class));
 
-		this.playerEntityService = Objects.requireNonNull(playerEntityService);
+		this.srvCtx = Objects.requireNonNull(srvCtx);
 	}
 
 	@Override
@@ -44,14 +44,14 @@ public class EntityMoveActor extends BestiaRoutingActor {
 		
 		EntityMoveMessage moveMsg = (EntityMoveMessage) msg;
 		
-		final PlayerEntity playerEntity = playerEntityService.getActivePlayerEntity(moveMsg.getAccountId());
+		final Entity playerEntity = srvCtx.getPlayer().getActivePlayerEntity(moveMsg.getAccountId());
 
 		if (playerEntity.getId() != moveMsg.getEntityId()) {
 			LOG.warning("Player {} does not own entity {}.", moveMsg.getAccountId(), moveMsg.getEntityId());
 			return;
 		}
 
-		playerEntity.moveTo(moveMsg.getPath());
+		srvCtx.getMove().moveTo(playerEntity, moveMsg.getPath());
 	}
 
 	

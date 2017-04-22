@@ -1,6 +1,7 @@
 package net.bestia.model.entity;
 
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.map.Walkspeed;
 
 /**
  * The {@link StatusBasedValues} are used for advanced calculations. They are
@@ -64,6 +65,6 @@ public interface StatusBasedValues {
 
 	int getAttackSpeed();
 
-	int getWalkspeed();
+	Walkspeed getWalkspeed();
 
 }

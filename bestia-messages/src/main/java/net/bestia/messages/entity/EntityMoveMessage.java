@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.model.geometry.Point;
+import net.bestia.model.map.Walkspeed;
 
 /**
  * <p>
@@ -52,16 +53,16 @@ public class EntityMoveMessage extends EntityJsonMessage {
 	 * 
 	 * @param eid
 	 * @param path
-	 * @param speed
+	 * @param walkspeed
 	 */
-	public EntityMoveMessage(long eid, List<Point> path, float speed) {
-		this(0, eid, path, speed);
+	public EntityMoveMessage(long eid, List<Point> path, Walkspeed walkspeed) {
+		this(0, eid, path, walkspeed);
 	}
 
-	public EntityMoveMessage(long accId, long eid, List<Point> path, float speed) {
+	public EntityMoveMessage(long accId, long eid, List<Point> path, Walkspeed walkspeed) {
 		super(accId, eid);
 
-		this.walkspeed = speed;
+		this.walkspeed = walkspeed.getSpeed();
 
 		cordsX = new ArrayList<>(path.size());
 		cordsY = new ArrayList<>(path.size());
@@ -129,6 +130,6 @@ public class EntityMoveMessage extends EntityJsonMessage {
 
 	@Override
 	public EntityMoveMessage createNewInstance(long accountId) {
-		return new EntityMoveMessage(accountId, getEntityId(), getPath(), walkspeed);
+		return new EntityMoveMessage(accountId, getEntityId(), getPath(), Walkspeed.fromFloat(walkspeed));
 	}
 }

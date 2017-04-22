@@ -14,8 +14,10 @@ import net.bestia.messages.entity.EntityMoveInternalMessage;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityServiceContext;
 import net.bestia.zoneserver.entity.PlayerEntityService;
+import net.bestia.zoneserver.entity.components.StatusComponent;
 import net.bestia.zoneserver.service.MovingEntityService;
 
 /**
@@ -36,16 +38,16 @@ public class MovementActor extends BestiaRoutingActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private final MovingEntityService movingService;
-	private final EntityService entityService;
+	private final EntityServiceContext serviceCtx;
 
 	@Autowired
 	public MovementActor(MovingEntityService movingService,
 			PlayerEntityService playerEntityService,
-			EntityService entityService) {
+			EntityServiceContext serviceCtx) {
 		super(Arrays.asList(EntityMoveInternalMessage.class));
 
 		this.movingService = Objects.requireNonNull(movingService);
-		this.entityService = Objects.requireNonNull(entityService);
+		this.serviceCtx = Objects.requireNonNull(serviceCtx);
 	}
 
 	@Override
@@ -68,16 +70,22 @@ public class MovementActor extends BestiaRoutingActor {
 		}
 
 		// Tell the client the movement prediction message.
-		final Locatable entity = entityService.getEntity(moveMsg.getEntityId(), Locatable.class);
+		final Entity entity = serviceCtx.getEntity().getEntity(moveMsg.getEntityId());
 
 		if (entity == null) {
 			return;
 		}
+		
+		if(!serviceCtx.getComponent().hasComponent(entity, StatusComponent.class)) {
+			return;
+		}
+		
+		final StatusComponent status = serviceCtx.getComponent().getComponent(entity, StatusComponent.class).get();
 
 		final EntityMoveMessage updateMsg = new EntityMoveMessage(
 				moveMsg.getEntityId(),
 				moveMsg.getPath(),
-				entity.getMovementSpeed());
+				status.getStatusBasedValues().getWalkspeed());
 		sendActiveInRangeClients(updateMsg);
 
 		moveActor.tell(msg, getSelf());

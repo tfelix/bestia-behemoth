@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.map.Walkspeed;
 
 /**
  * These modifier are calculates based on status values. The are used to
@@ -140,7 +141,7 @@ public class StatusBasedValuesImpl implements Serializable, StatusBasedValues {
 	 * @see net.bestia.model.entity.IStatusBasedValues#getWalkspeed()
 	 */
 	@Override
-	public int getWalkspeed() {
-		return 100;
+	public Walkspeed getWalkspeed() {
+		return Walkspeed.fromInt(100);
 	}
 }

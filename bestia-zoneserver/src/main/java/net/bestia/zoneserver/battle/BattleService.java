@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.battle;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,9 @@ import net.bestia.model.domain.Attack;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.EntityServiceContext;
+import net.bestia.zoneserver.entity.components.PositionComponent;
+import net.bestia.zoneserver.entity.components.StatusComponent;
 
 /**
  * This service is used to perform attacks and damage calculation for battle
@@ -26,12 +30,12 @@ public class BattleService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(BattleService.class);
 	
-	private final EntityService entityService;
+	private final EntityServiceContext entityCtx;
 	
 	@Autowired
-	public BattleService(EntityService entityService) {
+	public BattleService(EntityServiceContext entityCtx) {
 		
-		this.entityService = entityService;
+		this.entityCtx = Objects.requireNonNull(entityCtx);
 	}
 
 	public boolean canUseAttack(Entity attacker, int attackId) {
@@ -47,15 +51,21 @@ public class BattleService {
 	public void attackGround(Attack usedAttack, Entity attacker, Point target) {
 
 		// Check if we have valid x and y.
+		if(!entityCtx.getComponent().hasComponent(attacker, StatusComponent.class, PositionComponent.class)) {
+			return;
+		}
+		
+		PositionComponent atkPos = entityCtx.getComponent().getComponent(attacker, PositionComponent.class).get();
+		//StatusComponent statusComp = entityCtx.getComponent().getComponent(attacker, StatusComponent.class).get();
 
 		// Check if target is in sight.
-		if (usedAttack.needsLineOfSight() && !hasLineOfSight(attacker.getPosition(), target)) {
+		if (usedAttack.needsLineOfSight() && !hasLineOfSight(atkPos.getPosition(), target)) {
 			// No line of sight.
 			return;
 		}
 
 		// Check if target is in range.
-		if (usedAttack.getRange() < attacker.getPosition().getDistance(target)) {
+		if (usedAttack.getRange() < atkPos.getPosition().getDistance(target)) {
 			// Out of range.
 			return;
 		}
@@ -90,7 +100,7 @@ public class BattleService {
 	 * @param usedAttack
 	 * @param pbe
 	 */
-	public void attackSelf(AttackUseMessage atkMsg, Attack usedAttack, PlayerEntity pbe) {
+	public void attackSelf(AttackUseMessage atkMsg, Attack usedAttack, Entity pbe) {
 		// TODO Auto-generated method stub
 
 	}

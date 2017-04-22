@@ -1,10 +1,10 @@
 package net.bestia.zoneserver.entity.components;
 
 import net.bestia.model.domain.Element;
+import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
 import net.bestia.model.entity.StatusBasedValues;
-import net.bestia.model.map.Walkspeed;
 
 /**
  * Entities having this component can be participate in the attacking system.
@@ -20,6 +20,7 @@ public class StatusComponent extends Component {
 	private StatusPoints statusPoints;
 	private StatusPoints originalStatusPoints;
 	private StatusBasedValues statusBasedValues;
+	private int exp;
 
 	private Element originalElement;
 	private Element element;
@@ -81,9 +82,8 @@ public class StatusComponent extends Component {
 	 */
 	// List<StatusEffect> getStatusEffects();
 
-	public Walkspeed getWalkspeed() {
-
-		return Walkspeed.fromInt(statusBasedValues.getWalkspeed());
+	public StatusBasedValues getStatusBasedValues() {
+		return statusBasedValues;
 	}
 
 	/**
@@ -107,5 +107,17 @@ public class StatusComponent extends Component {
 	
 	public int getKilledExp() {
 		return level * 10;
+	}
+
+	public void setLevel(int level) {
+		this.level = level;
+	}
+
+	public int getExp() {
+		return exp;
+	}
+	
+	public void setExp(int exp) {
+		this.exp = exp;
 	}
 }

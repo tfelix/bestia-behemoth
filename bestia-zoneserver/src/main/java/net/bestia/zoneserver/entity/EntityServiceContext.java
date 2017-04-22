@@ -16,6 +16,7 @@ public final class EntityServiceContext {
 	private InteractionService interact;
 	private PlayerEntityService player;
 	private ComponentService component;
+	private MovementService move;
 	
 	public ComponentService getComponent() {
 		return component;
@@ -37,6 +38,15 @@ public final class EntityServiceContext {
 	
 	public InteractionService getInteract() {
 		return interact;
+	}
+	
+	public MovementService getMove() {
+		return move;
+	}
+	
+	@Autowired
+	public void setMove(MovementService move) {
+		this.move = move;
 	}
 	
 	@Autowired

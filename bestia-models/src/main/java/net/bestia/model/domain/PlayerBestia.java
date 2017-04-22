@@ -40,7 +40,7 @@ public class PlayerBestia implements Serializable {
 
 	@Id
 	@GeneratedValue
-	private int id;
+	private long id;
 
 	@JsonProperty("e")
 	private int exp;
@@ -208,7 +208,7 @@ public class PlayerBestia implements Serializable {
 	}
 
 	public void setSavePosition(Point savePosition) {
-		
+
 		this.savePosition = Objects.requireNonNull(savePosition);
 	}
 
@@ -217,7 +217,7 @@ public class PlayerBestia implements Serializable {
 	}
 
 	public void setCurrentPosition(Point currentPosition) {
-		
+
 		this.currentPosition = Objects.requireNonNull(currentPosition);
 	}
 
@@ -254,7 +254,7 @@ public class PlayerBestia implements Serializable {
 		return owner;
 	}
 
-	public int getId() {
+	public long getId() {
 		return id;
 	}
 
@@ -326,7 +326,7 @@ public class PlayerBestia implements Serializable {
 
 	@Override
 	public int hashCode() {
-		return Integer.hashCode(id);
+		return (int) (getId() * 21);
 	}
 
 	@Override

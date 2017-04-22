@@ -24,6 +24,8 @@ import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.EntityServiceContext;
+import net.bestia.zoneserver.entity.components.PositionComponent;
 import net.bestia.zoneserver.entity.components.VisibleComponent;
 
 /**
@@ -44,13 +46,13 @@ public class PositionActor extends BestiaRoutingActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	private final EntityService entityService;
+	private final EntityServiceContext entityServiceCtx;
 
 	@Autowired
-	public PositionActor(EntityService entityService) {
+	public PositionActor(EntityServiceContext entityServiceCtx) {
 		super(Arrays.asList(EntityPositionMessage.class));
 
-		this.entityService = Objects.requireNonNull(entityService);
+		this.entityServiceCtx = Objects.requireNonNull(entityServiceCtx);
 	}
 
 	@Override
@@ -58,7 +60,7 @@ public class PositionActor extends BestiaRoutingActor {
 		LOG.debug("Received internal position update.");
 
 		final EntityPositionMessage posMsg = (EntityPositionMessage) msg;
-		final Entity e = entityService.getEntity(posMsg.getEntityId());
+		final Entity e = entityServiceCtx.getEntity().getEntity(posMsg.getEntityId());
 
 		// TODO NPC AI important checks.
 		doVisualChecks(e);
@@ -75,9 +77,15 @@ public class PositionActor extends BestiaRoutingActor {
 	 */
 	private void doVisualChecks(Entity e) {
 
-		Map<Long, VisibleComponent> entities = entityService
-				.getEntitiesInRange(net.bestia.model.map.Map.getUpdateRect(e.getPosition())).stream()
-				.filter(x -> x instanceof Visible).map(x -> (Visible) x)
+		PositionComponent pos = entityServiceCtx.getComponent()
+				.getComponent(e, PositionComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+
+		/*Map<Long, VisibleComponent> entities = entityServiceCtx.getEntity()
+				.getEntitiesInRange(net.bestia.model.map.Map.getUpdateRect(pos.getPosition()))
+				.stream()
+				.filter(entity -> { return entityServiceCtx.getComponent().hasComponent(entity, VisibleComponent.class); })
+				.map(entity -> entityServiceCtx.getComponent().getComponent(e, VisibleComponent.class).get())
 				.collect(Collectors.toMap(Entity::getId, Function.identity()));
 
 		// Remove own entity.
@@ -117,7 +125,7 @@ public class PositionActor extends BestiaRoutingActor {
 		lastSeen.clear();
 		lastSeen.addAll(entities.keySet());
 
-		entityService.save(e);
+		entityService.save(e);*/
 	}
 
 }

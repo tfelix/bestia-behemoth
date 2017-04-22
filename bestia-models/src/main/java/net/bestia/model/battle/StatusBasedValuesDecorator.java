@@ -8,6 +8,7 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 
 import net.bestia.model.entity.StatusBasedValues;
+import net.bestia.model.map.Walkspeed;
 
 /**
  * This decorator decorates a {@link StatusBasedValues} and is able to change
@@ -202,12 +203,13 @@ public class StatusBasedValuesDecorator implements StatusBasedValues, Serializab
 	}
 
 	@Override
-	public int getWalkspeed() {
+	public Walkspeed getWalkspeed() {
 		
 		final float mod = sumFloat(StatusBasedValueModifier::getWalkspeedMod);
 		final int value = sumInt(StatusBasedValueModifier::getWalkspeedValue);
+		int walkspeed = Math.round(wrapped.getDodge() * mod) + value;
 
-		return Math.round(wrapped.getDodge() * mod) + value;
+		return Walkspeed.fromInt(walkspeed);
 	}
 
 }

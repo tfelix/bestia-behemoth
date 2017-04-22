@@ -15,7 +15,6 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
 
 import net.bestia.zoneserver.entity.components.Component;
-import net.bestia.zoneserver.entity.components.PlayerComponent;
 
 /**
  * This service is responsible for adding and removing components from entities.
@@ -26,7 +25,7 @@ import net.bestia.zoneserver.entity.components.PlayerComponent;
 @Service
 public class ComponentService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(Component.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ComponentService.class);
 
 	private static final String COMP_MAP = "components";
 	private static final String COMP_ID = "components.id";
@@ -53,10 +52,10 @@ public class ComponentService {
 
 		return getComponent(e, clazz);
 	}
-	
+
 	public <T extends Component> Optional<T> getComponent(Entity e, Class<T> clazz) {
 		Objects.requireNonNull(e);
-	
+
 		@SuppressWarnings("unchecked")
 		final long compId = e.getComponentId((Class<Component>) clazz);
 
@@ -133,11 +132,28 @@ public class ComponentService {
 		}
 	}
 
+	/**
+	 * Removes all the components from the entity.
+	 * 
+	 * @param entity
+	 *            The entity to remove all components from.
+	 */
 	public void removeAllComponents(Entity entity) {
-		entity.getComponentIds().forEach(components::removeAsync);
+		entity.getComponentIds().forEach(c -> {
+			components.removeAsync(c);
+			entity.removeComponent(c);
+		});
 	}
 
-	public boolean hasComponent(Entity entity, Class<? extends Component> clazz) {
-		return entity.getComponentId(clazz) != 0;
+	@SafeVarargs
+	public final boolean hasComponent(Entity entity, Class<? extends Component>... clazzs) {
+
+		for (Class<? extends Component> clazz : clazzs) {
+			if (entity.getComponentId(clazz) == 0) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

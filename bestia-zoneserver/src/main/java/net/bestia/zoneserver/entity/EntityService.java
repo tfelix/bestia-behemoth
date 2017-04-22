@@ -8,6 +8,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,24 +20,21 @@ import com.hazelcast.query.EntryObject;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.PredicateBuilder;
 
-import net.bestia.messages.chat.ChatMessage;
-import net.bestia.messages.entity.EntityDamageMessage;
-import net.bestia.model.battle.Damage;
-import net.bestia.model.battle.StatusBasedValueModifier;
-import net.bestia.model.battle.StatusBasedValuesDecorator;
-import net.bestia.model.battle.StatusPointsDecorator;
-import net.bestia.model.battle.StatusPointsModifier;
+import net.bestia.model.dao.PlayerBestiaDAO;
+import net.bestia.model.domain.BaseValues;
+import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
-import net.bestia.model.entity.StatusBasedValuesImpl;
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.entity.components.Component;
+import net.bestia.zoneserver.entity.components.PlayerComponent;
 import net.bestia.zoneserver.entity.components.PositionComponent;
 import net.bestia.zoneserver.entity.components.StatusComponent;
-import net.bestia.zoneserver.script.StatusEffectScript;
 
 @Service
 public class EntityService {
+
+	private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
 
 	private final static String ECS_ENTITY_MAP = "entities.ecs";
 	private final static String ENTITIES_ID_GEN = "entities.id";
@@ -43,9 +42,10 @@ public class EntityService {
 	private final IMap<Long, Entity> entities;
 	private final IdGenerator idCounter;
 	private final ComponentService componentService;
+	private final PlayerBestiaDAO playerBestiaDao;
 
 	@Autowired
-	public EntityService(HazelcastInstance hz, ComponentService compService) {
+	public EntityService(HazelcastInstance hz, ComponentService compService, PlayerBestiaDAO playerBestiaDao) {
 
 		Objects.requireNonNull(hz);
 
@@ -53,6 +53,7 @@ public class EntityService {
 		entities = hz.getMap(ECS_ENTITY_MAP);
 
 		this.componentService = Objects.requireNonNull(compService);
+		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
 	}
 
 	/**
@@ -113,6 +114,7 @@ public class EntityService {
 	 *            The entity to put into the memory database.
 	 */
 	public void save(Entity entity) {
+		LOG.trace("Saving entity: {}", entity);
 		// Remove entity context since it can not be serialized.
 		entities.lock(entity.getId());
 		try {
@@ -178,32 +180,41 @@ public class EntityService {
 
 	/**
 	 * Recalculates the status values of entity if it has a {@link StatusComponent} attached. It uses the EVs, IVs and
-	 * BaseValues. Must be called after the level of a bestia has changed.
+	 * BaseValues. Must be called after the level of a bestia has changed. Currently this method only accepts entity with player and status components. This will change in the future.
 	 */
-	public void calculateStatusPoints(Entity e) {
+	public void calculateStatusPoints(Entity entity) {
 
+		final StatusComponent statusComp = componentService.getComponent(entity, StatusComponent.class).orElseThrow(IllegalStateException::new);
+		final PlayerComponent playerComp = componentService.getComponent(entity, PlayerComponent.class).orElseThrow(IllegalStateException::new);
+		
 		StatusPoints baseStatusPoints = new StatusPointsImpl();
+		
+		PlayerBestia pb = playerBestiaDao.findOne(playerComp.getPlayerBestiaId());
+		
+		final BaseValues baseValues = pb.getBaseValues();
+		final BaseValues effortValues = pb.getEffortValues();
+		final BaseValues ivs = pb.getIndividualValue();
 
 		final int atk = (baseValues.getAttack() * 2 + ivs.getAttack()
-				+ effortValues.getAttack() / 4) * getLevel() / 100 + 5;
+				+ effortValues.getAttack() / 4) * statusComp.getLevel() / 100 + 5;
 
 		final int def = (baseValues.getVitality() * 2 + ivs.getVitality()
-				+ effortValues.getVitality() / 4) * getLevel() / 100 + 5;
+				+ effortValues.getVitality() / 4) * statusComp.getLevel() / 100 + 5;
 
 		final int spatk = (baseValues.getIntelligence() * 2 + ivs.getIntelligence()
-				+ effortValues.getIntelligence() / 4) * getLevel() / 100 + 5;
+				+ effortValues.getIntelligence() / 4) * statusComp.getLevel() / 100 + 5;
 
 		final int spdef = (baseValues.getWillpower() * 2 + ivs.getWillpower()
-				+ effortValues.getWillpower() / 4) * getLevel() / 100 + 5;
+				+ effortValues.getWillpower() / 4) * statusComp.getLevel() / 100 + 5;
 
 		int spd = (baseValues.getAgility() * 2 + ivs.getAgility()
-				+ effortValues.getAgility() / 4) * getLevel() / 100 + 5;
+				+ effortValues.getAgility() / 4) * statusComp.getLevel() / 100 + 5;
 
 		final int maxHp = baseValues.getHp() * 2 + ivs.getHp()
-				+ effortValues.getHp() / 4 * getLevel() / 100 + 10 + getLevel();
+				+ effortValues.getHp() / 4 * statusComp.getLevel() / 100 + 10 + statusComp.getLevel();
 
 		final int maxMana = baseValues.getMana() * 2 + ivs.getMana()
-				+ effortValues.getMana() / 4 * getLevel() / 100 + 10 + getLevel() * 2;
+				+ effortValues.getMana() / 4 * statusComp.getLevel() / 100 + 10 + statusComp.getLevel() * 2;
 
 		baseStatusPoints.setMaxHp(maxHp);
 		baseStatusPoints.setMaxMana(maxMana);
@@ -212,9 +223,10 @@ public class EntityService {
 		baseStatusPoints.setIntelligence(spatk);
 		baseStatusPoints.setMagicDefense(spdef);
 		baseStatusPoints.setAgility(spd);
+	}
 
-		baseStatusPointModified = new StatusPointsDecorator(baseStatusPoints);
-		baseStatusPointModified.clearModifier();
+		/*
+		StatusPointsDecorator baseStatusPointModified = new StatusPointsDecorator(baseStatusPoints);
 
 		// Get all the attached script mods.
 		for (StatusEffectScript statScript : statusEffectsScripts) {
@@ -230,50 +242,37 @@ public class EntityService {
 		for (StatusEffectScript statScript : statusEffectsScripts) {
 			final StatusBasedValueModifier mod = statScript.onStatusBasedValues(statusBasedValues);
 			statusBasedValuesModified.addStatusModifier(mod);
-		}
+		}*/
 
-	@Override
-	public Damage takeDamage(Damage damage) {
-		// TODO Den Schaden richtig verrechnen.
-		int curHp = getStatusPoints().getCurrentHp();
+	public void setLevel(Entity entity, int level) {
+		final StatusComponent statusComp = componentService.getComponent(entity, StatusComponent.class)
+				.orElseThrow(IllegalStateException::new);
 
-		// Send the message to all clients in visible range.
-		getContext().sendMessage(new EntityDamageMessage(getId(), damage));
-
-		if (curHp - damage.getDamage() > 0) {
-			getStatusPoints().setCurrentHp(curHp - damage.getDamage());
-
-		} else {
-			kill();
-		}
-
-		return damage;
+		statusComp.setLevel(level);
+		calculateStatusPoints(entity);
 	}
 
-	@Override
-	public void setLevel(int level) {
-		super.setLevel(level);
+	private void checkLevelup(Entity entity) {
 
-		statusBasedValues.setLevel(level);
-	}
+		final StatusComponent statusComp = componentService.getComponent(entity, StatusComponent.class)
+				.orElseThrow(IllegalStateException::new);
 
-	private void checkLevelup() {
+		final int neededExp = (int) Math
+				.round(Math.pow(statusComp.getLevel(), 3) / 10 + 15 + statusComp.getLevel() * 1.5);
 
-		final int neededExp = (int) Math.round(Math.pow(getLevel(), 3) / 10 + 15 + getLevel() * 1.5);
-
-		if (playerBestia.getExp() > neededExp) {
-			playerBestia.setExp(playerBestia.getExp() - neededExp);
-			playerBestia.setLevel(playerBestia.getLevel() + 1);
-			getContext().sendMessage(
-					ChatMessage.getSystemMessage(getAccountId(), "T: Bestia advanced to level " + getLevel()));
-			setLevel(playerBestia.getLevel());
-			calculateStatusPoints();
-			checkLevelup();
+		if (statusComp.getExp() > neededExp) {
+			statusComp.setExp(statusComp.getExp() - neededExp);
+			statusComp.setLevel(statusComp.getLevel() + 1);
+			calculateStatusPoints(entity);
+			checkLevelup(entity);
 		}
 	}
 
-	public void addExp(int exp) {
-		playerBestia.setExp(playerBestia.getExp() + exp);
-		checkLevelup();
+	public void addExp(Entity entity, int exp) {
+		final StatusComponent statusComp = componentService.getComponent(entity, StatusComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+
+		statusComp.setExp(statusComp.getExp() + exp);
+		checkLevelup(entity);
 	}
 }

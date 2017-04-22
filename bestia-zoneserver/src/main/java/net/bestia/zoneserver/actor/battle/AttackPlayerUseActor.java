@@ -57,6 +57,8 @@ public class AttackPlayerUseActor extends BestiaRoutingActor {
 		final AttackUseMessage atkMsg = (AttackUseMessage) msg;
 		final Entity pbe = playerEntityService.getActivePlayerEntity(atkMsg.getAccountId());
 
+		// TODO Das alles in einen Service packen.
+		
 		// We must check if all preconditions for using the attack are
 		// fulfilled.
 		final Attack usedAttack;
@@ -80,10 +82,11 @@ public class AttackPlayerUseActor extends BestiaRoutingActor {
 		}
 
 		// Is there enough mana?
+		/*
 		if (pbe.getStatusPoints().getCurrentMana() < usedAttack.getManaCost()) {
 			// TODO Send Chat message.
 			return;
-		}
+		}*/
 
 		// Is the target correct?
 		AttackTarget atkTarget = usedAttack.getTarget();
@@ -93,14 +96,14 @@ public class AttackPlayerUseActor extends BestiaRoutingActor {
 		case FRIENDLY_ENTITY:
 			
 			// Find the entity.
-			final Attackable target = entityService.getEntity(atkMsg.getTargetEntityId(), Attackable.class);
+			/*final Attackable target = entityService.getEntity(atkMsg.getTargetEntityId(), Attackable.class);
 			
 			if(target == null) {
 				LOG.warning("Account {} attacks entity {}. Entity not found.", atkMsg.getAccountId(), atkMsg.getTargetEntityId());
 				return;
 			}
 			
-			battleService.attackEntity(usedAttack, pbe, target);
+			//battleService.attackEntity(usedAttack, pbe, target);*/
 			
 			break;
 		default:
