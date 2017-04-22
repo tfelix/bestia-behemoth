@@ -9,7 +9,7 @@ Zepto(function($){
 		var password = $('#password').val();
 
 		$.get('http://localhost:8080/v1/account/login', {
-			ident : email,
+			accName : email,
 			password : password
 		}, function(data) {
 

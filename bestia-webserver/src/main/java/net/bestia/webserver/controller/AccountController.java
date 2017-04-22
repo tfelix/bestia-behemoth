@@ -5,6 +5,7 @@ import java.util.Objects;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,7 +19,8 @@ import net.bestia.webserver.actor.WebserverLogin;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-@RestController("v1/account/")
+@RestController
+@RequestMapping("v1/account")
 public class AccountController {
 	
 	private WebserverLogin login;
@@ -40,11 +42,13 @@ public class AccountController {
 	 *            The password to this account.
 	 * @return
 	 */
+	@CrossOrigin(origins = "http://localhost")
 	@RequestMapping("login")
 	public AccountLoginToken login(
 			@RequestParam(value = "accName") String account,
 			@RequestParam(value = "password") String password, HttpServletResponse response) {
 
-		return login.getLoginToken(account, password);
+		return new AccountLoginToken(1, "test", "Bla");
+		//return login.getLoginToken(account, password);
 	}
 }

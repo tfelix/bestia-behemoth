@@ -1,4 +1,4 @@
-/*global Cookies */
+import Cookies from 'js-cookie'
 
 /**
  * Provides an API to access and store local data. Depending on the kind so
