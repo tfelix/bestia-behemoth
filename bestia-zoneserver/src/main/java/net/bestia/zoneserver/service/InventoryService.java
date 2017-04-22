@@ -16,8 +16,8 @@ import net.bestia.model.dao.PlayerItemDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerItem;
-import net.bestia.zoneserver.entity.ComponentService;
 import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
 
 /**
  * This service kind of manages the user relationship with the inventory. Since
@@ -41,15 +41,15 @@ public class InventoryService {
 	private final PlayerItemDAO playerItemDao;
 	private final AccountDAO accountDao;
 	private final ItemDAO itemDao;
-	private final ComponentService componentService;
+	private final EntityService entityService;
 
 	@Autowired
-	public InventoryService(PlayerItemDAO playerItemDao, AccountDAO accDao, ItemDAO itemDao, ComponentService compService) {
+	public InventoryService(PlayerItemDAO playerItemDao, AccountDAO accDao, ItemDAO itemDao, EntityService entityService) {
 		
 		this.playerItemDao = Objects.requireNonNull(playerItemDao);
 		this.accountDao = Objects.requireNonNull(accDao);
 		this.itemDao = Objects.requireNonNull(itemDao);
-		this.componentService = Objects.requireNonNull(compService);
+		this.entityService = Objects.requireNonNull(entityService);
 	}
 
 	/**

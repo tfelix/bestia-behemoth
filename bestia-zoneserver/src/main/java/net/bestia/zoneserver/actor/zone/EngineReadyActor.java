@@ -19,7 +19,6 @@ import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.ComponentService;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
@@ -51,19 +50,16 @@ public class EngineReadyActor extends BestiaRoutingActor {
 
 	private final PlayerEntityService playerService;
 	private final EntityService entityService;
-	private final ComponentService componentService;
 
 	/**
 	 * 
 	 */
 	@Autowired
-	public EngineReadyActor(EntityService entityService, PlayerEntityService playerEntityService,
-			ComponentService componentService) {
+	public EngineReadyActor(EntityService entityService, PlayerEntityService playerEntityService) {
 		super(Arrays.asList(EngineReadyMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerService = Objects.requireNonNull(playerEntityService);
-		this.componentService = Objects.requireNonNull(componentService);
 	}
 
 	@Override
@@ -75,7 +71,7 @@ public class EngineReadyActor extends BestiaRoutingActor {
 
 		// Find the position of the active bestia.
 		final Entity playerEntity = playerService.getActivePlayerEntity(accId);
-		final PlayerComponent playerComp = componentService.getComponent(playerEntity, PlayerComponent.class)
+		final PlayerComponent playerComp = entityService.getComponent(playerEntity, PlayerComponent.class)
 				.orElseThrow(IllegalStateException::new);
 
 		if (playerEntity == null) {
@@ -83,7 +79,7 @@ public class EngineReadyActor extends BestiaRoutingActor {
 			return;
 		}
 
-		final Point p = componentService.getComponent(playerEntity, PositionComponent.class)
+		final Point p = entityService.getComponent(playerEntity, PositionComponent.class)
 				.map(x -> x.getPosition())
 				.orElseThrow(IllegalStateException::new);
 		final Rect sightRect = Map.getUpdateRect(p);
@@ -97,8 +93,8 @@ public class EngineReadyActor extends BestiaRoutingActor {
 		// Send info/update messages for all other bestias.
 		for (Entity entity : visibles) {
 			// Steps over them and send them to client as update messages.
-			Optional<PositionComponent> pos = componentService.getComponent(entity, PositionComponent.class);
-			Optional<VisibleComponent> visible = componentService.getComponent(entity, VisibleComponent.class);
+			Optional<PositionComponent> pos = entityService.getComponent(entity, PositionComponent.class);
+			Optional<VisibleComponent> visible = entityService.getComponent(entity, VisibleComponent.class);
 
 			if (!pos.isPresent() || !visible.isPresent()) {
 				return;

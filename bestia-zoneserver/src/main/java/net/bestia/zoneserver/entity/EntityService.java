@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.entity;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -38,22 +40,26 @@ public class EntityService {
 
 	private final static String ECS_ENTITY_MAP = "entities.ecs";
 	private final static String ENTITIES_ID_GEN = "entities.id";
+	private static final String COMP_MAP = "components";
+	private static final String COMP_ID = "components.id";
 
 	private final IMap<Long, Entity> entities;
-	private final IdGenerator idCounter;
-	private final ComponentService componentService;
+	private final IdGenerator entityIdGen;
 	private final PlayerBestiaDAO playerBestiaDao;
+	private final IMap<Long, Component> components;
+	private final IdGenerator idGenerator;
 
 	@Autowired
-	public EntityService(HazelcastInstance hz, ComponentService compService, PlayerBestiaDAO playerBestiaDao) {
+	public EntityService(HazelcastInstance hz, PlayerBestiaDAO playerBestiaDao) {
 
 		Objects.requireNonNull(hz);
 
-		idCounter = hz.getIdGenerator(ENTITIES_ID_GEN);
-		entities = hz.getMap(ECS_ENTITY_MAP);
+		this.entityIdGen = hz.getIdGenerator(ENTITIES_ID_GEN);
+		this.entities = hz.getMap(ECS_ENTITY_MAP);
+		this.idGenerator = hz.getIdGenerator(COMP_ID);
 
-		this.componentService = Objects.requireNonNull(compService);
 		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
+		this.components = Objects.requireNonNull(hz).getMap(COMP_MAP);
 	}
 
 	/**
@@ -63,7 +69,7 @@ public class EntityService {
 	 * @return A new, currently unused id.
 	 */
 	private long getNewEntityId() {
-		return idCounter.newId();
+		return entityIdGen.newId();
 	}
 
 	/**
@@ -88,7 +94,7 @@ public class EntityService {
 		entities.lock(entity.getId());
 		try {
 			// Delete all components.
-			componentService.removeAllComponents(entity);
+			removeAllComponents(entity);
 			entities.delete(entity.getId());
 		} finally {
 			entities.unlock(entity.getId());
@@ -157,7 +163,7 @@ public class EntityService {
 		@SuppressWarnings("rawtypes")
 		Predicate posPred = e.get("components").in(PositionComponent.class.getName());
 		return entities.values(posPred).stream().filter(entity -> {
-			Optional<PositionComponent> comp = componentService.getComponent(entity.getId(), PositionComponent.class);
+			Optional<PositionComponent> comp = getComponent(entity.getId(), PositionComponent.class);
 			if (!comp.isPresent()) {
 				return false;
 			}
@@ -179,18 +185,23 @@ public class EntityService {
 	}
 
 	/**
-	 * Recalculates the status values of entity if it has a {@link StatusComponent} attached. It uses the EVs, IVs and
-	 * BaseValues. Must be called after the level of a bestia has changed. Currently this method only accepts entity with player and status components. This will change in the future.
+	 * Recalculates the status values of entity if it has a
+	 * {@link StatusComponent} attached. It uses the EVs, IVs and BaseValues.
+	 * Must be called after the level of a bestia has changed. Currently this
+	 * method only accepts entity with player and status components. This will
+	 * change in the future.
 	 */
 	public void calculateStatusPoints(Entity entity) {
 
-		final StatusComponent statusComp = componentService.getComponent(entity, StatusComponent.class).orElseThrow(IllegalStateException::new);
-		final PlayerComponent playerComp = componentService.getComponent(entity, PlayerComponent.class).orElseThrow(IllegalStateException::new);
-		
+		final StatusComponent statusComp = getComponent(entity, StatusComponent.class)
+				.orElseThrow(IllegalStateException::new);
+		final PlayerComponent playerComp = getComponent(entity, PlayerComponent.class)
+				.orElseThrow(IllegalStateException::new);
+
 		StatusPoints baseStatusPoints = new StatusPointsImpl();
-		
+
 		PlayerBestia pb = playerBestiaDao.findOne(playerComp.getPlayerBestiaId());
-		
+
 		final BaseValues baseValues = pb.getBaseValues();
 		final BaseValues effortValues = pb.getEffortValues();
 		final BaseValues ivs = pb.getIndividualValue();
@@ -225,27 +236,28 @@ public class EntityService {
 		baseStatusPoints.setAgility(spd);
 	}
 
-		/*
-		StatusPointsDecorator baseStatusPointModified = new StatusPointsDecorator(baseStatusPoints);
-
-		// Get all the attached script mods.
-		for (StatusEffectScript statScript : statusEffectsScripts) {
-			final StatusPointsModifier mod = statScript.onStatusPoints(baseStatusPoints);
-			baseStatusPointModified.addModifier(mod);
-		}
-
-		statusBasedValues = new StatusBasedValuesImpl(baseStatusPointModified, getLevel());
-		statusBasedValuesModified = new StatusBasedValuesDecorator(statusBasedValues);
-		statusBasedValuesModified.clearModifier();
-
-		// Get all the attached script mods.
-		for (StatusEffectScript statScript : statusEffectsScripts) {
-			final StatusBasedValueModifier mod = statScript.onStatusBasedValues(statusBasedValues);
-			statusBasedValuesModified.addStatusModifier(mod);
-		}*/
+	/*
+	 * StatusPointsDecorator baseStatusPointModified = new
+	 * StatusPointsDecorator(baseStatusPoints);
+	 * 
+	 * // Get all the attached script mods. for (StatusEffectScript statScript :
+	 * statusEffectsScripts) { final StatusPointsModifier mod =
+	 * statScript.onStatusPoints(baseStatusPoints);
+	 * baseStatusPointModified.addModifier(mod); }
+	 * 
+	 * statusBasedValues = new StatusBasedValuesImpl(baseStatusPointModified,
+	 * getLevel()); statusBasedValuesModified = new
+	 * StatusBasedValuesDecorator(statusBasedValues);
+	 * statusBasedValuesModified.clearModifier();
+	 * 
+	 * // Get all the attached script mods. for (StatusEffectScript statScript :
+	 * statusEffectsScripts) { final StatusBasedValueModifier mod =
+	 * statScript.onStatusBasedValues(statusBasedValues);
+	 * statusBasedValuesModified.addStatusModifier(mod); }
+	 */
 
 	public void setLevel(Entity entity, int level) {
-		final StatusComponent statusComp = componentService.getComponent(entity, StatusComponent.class)
+		final StatusComponent statusComp = getComponent(entity, StatusComponent.class)
 				.orElseThrow(IllegalStateException::new);
 
 		statusComp.setLevel(level);
@@ -254,7 +266,7 @@ public class EntityService {
 
 	private void checkLevelup(Entity entity) {
 
-		final StatusComponent statusComp = componentService.getComponent(entity, StatusComponent.class)
+		final StatusComponent statusComp = getComponent(entity, StatusComponent.class)
 				.orElseThrow(IllegalStateException::new);
 
 		final int neededExp = (int) Math
@@ -269,10 +281,125 @@ public class EntityService {
 	}
 
 	public void addExp(Entity entity, int exp) {
-		final StatusComponent statusComp = componentService.getComponent(entity, StatusComponent.class)
+		final StatusComponent statusComp = getComponent(entity, StatusComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
 		statusComp.setExp(statusComp.getExp() + exp);
 		checkLevelup(entity);
+	}
+
+	public <T extends Component> Optional<T> getComponent(long entityId, Class<T> clazz) {
+
+		final Entity e = getEntity(entityId);
+
+		if (e == null) {
+			return Optional.empty();
+		}
+
+		return getComponent(e, clazz);
+	}
+
+	public <T extends Component> Optional<T> getComponent(Entity e, Class<T> clazz) {
+		Objects.requireNonNull(e);
+
+		@SuppressWarnings("unchecked")
+		final long compId = e.getComponentId((Class<Component>) clazz);
+
+		if (compId == 0) {
+			return Optional.empty();
+		}
+
+		final Component comp = components.get(compId);
+
+		if (comp == null || !comp.getClass().isAssignableFrom(clazz)) {
+			return Optional.empty();
+		}
+
+		return Optional.of(clazz.cast(comp));
+	}
+
+	/**
+	 * A new component will be created and added to the entity. All components
+	 * must have a constructor which only accepts a long value as an id.
+	 * 
+	 * @param entityId
+	 * @param clazz
+	 * @return
+	 */
+	public <T extends Component> T addComponent(long entityId, Class<T> clazz) {
+		if (!Component.class.isAssignableFrom(clazz)) {
+			throw new IllegalArgumentException("Only accept component classes.");
+		}
+
+		final Entity e = getEntity(entityId);
+
+		if (e == null) {
+			throw new IllegalArgumentException("Entity was not found.");
+		}
+
+		try {
+			@SuppressWarnings("unchecked")
+			Constructor<Component> ctor = (Constructor<Component>) clazz.getConstructor(Long.class);
+			final Component comp = ctor.newInstance(getId());
+
+			// Add component to entity and to the comp map.
+			components.put(comp.getId(), comp);
+			e.addComponent(comp);
+			save(e);
+			return clazz.cast(comp);
+
+		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException ex) {
+			LOG.error("Could not instantiate component.", ex);
+			throw new IllegalArgumentException(ex);
+		}
+	}
+
+	/**
+	 * Updates the given component back into the database.
+	 * 
+	 * @param component
+	 *            The component to be updated into the database.
+	 */
+	public void update(Component component) {
+		Objects.requireNonNull(component);
+		components.put(component.getId(), component);
+	}
+
+	/**
+	 * @return Non 0 new id of a component.
+	 */
+	private long getId() {
+		final long id = idGenerator.newId();
+		if (id == 0) {
+			return getId();
+		} else {
+			return id;
+		}
+	}
+
+	/**
+	 * Removes all the components from the entity.
+	 * 
+	 * @param entity
+	 *            The entity to remove all components from.
+	 */
+	public void removeAllComponents(Entity entity) {
+		entity.getComponentIds().forEach(c -> {
+			components.removeAsync(c);
+			entity.removeComponent(c);
+		});
+	}
+
+	@SafeVarargs
+	public final boolean hasComponent(Entity entity, Class<? extends Component>... clazzs) {
+
+		for (Class<? extends Component> clazz : clazzs) {
+			if (entity.getComponentId(clazz) == 0) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

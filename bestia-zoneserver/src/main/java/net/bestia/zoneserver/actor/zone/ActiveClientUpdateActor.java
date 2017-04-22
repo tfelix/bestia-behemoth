@@ -17,7 +17,6 @@ import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.entity.ComponentService;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
@@ -43,15 +42,12 @@ public class ActiveClientUpdateActor extends BestiaActor {
 
 	private final EntityService entityService;
 	private final PlayerEntityService playerEntityService;
-	private final ComponentService componentService;
 
 	@Autowired
-	public ActiveClientUpdateActor(EntityService entityService, PlayerEntityService playerService,
-			ComponentService componentService) {
+	public ActiveClientUpdateActor(EntityService entityService, PlayerEntityService playerService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerService);
-		this.componentService = Objects.requireNonNull(componentService);
 	}
 
 	@Override
@@ -87,7 +83,7 @@ public class ActiveClientUpdateActor extends BestiaActor {
 					return;
 				}
 			} else {
-				final Optional<PositionComponent> posComp = componentService.getComponent(entity, PositionComponent.class);
+				final Optional<PositionComponent> posComp = entityService.getComponent(entity, PositionComponent.class);
 				
 				if (!posComp.isPresent()) {
 					// We have no position information and cant update any

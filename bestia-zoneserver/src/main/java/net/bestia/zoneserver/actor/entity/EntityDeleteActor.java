@@ -11,7 +11,6 @@ import net.bestia.messages.entity.EntityDeleteInternalMessage;
 import net.bestia.messages.entity.EntityUpdateMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.ComponentService;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.components.PositionComponent;
@@ -33,17 +32,15 @@ public class EntityDeleteActor extends BestiaRoutingActor {
 	public static final String NAME = "entityDelete";
 
 	private final EntityService entityService;
-	private final ComponentService compService;
 
 	/**
 	 * 
 	 */
 	@Autowired
-	public EntityDeleteActor(EntityService entityService, ComponentService componentService) {
+	public EntityDeleteActor(EntityService entityService) {
 		super(Arrays.asList(EntityDeleteInternalMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);
-		this.compService = Objects.requireNonNull(componentService);
 	}
 
 	@Override
@@ -58,7 +55,7 @@ public class EntityDeleteActor extends BestiaRoutingActor {
 		// but we need to send the update messages to the clients, which in turn
 		// is dependent on the position.
 		// We need therefore cache this data.
-		final Point position = compService.getComponent(e, PositionComponent.class)
+		final Point position = entityService.getComponent(e, PositionComponent.class)
 				.map(PositionComponent::getPosition)
 				.orElse(new Point(0, 0));
 

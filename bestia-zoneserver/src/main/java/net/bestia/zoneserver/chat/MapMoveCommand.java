@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
-import net.bestia.zoneserver.entity.ComponentService;
 import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import net.bestia.zoneserver.entity.components.PositionComponent;
 
@@ -31,14 +31,14 @@ public class MapMoveCommand extends BaseChatCommand {
 	private final static Pattern cmdPattern = Pattern.compile("/mm (\\d+) (\\d+)");
 
 	private final PlayerEntityService playerBestiaService;
-	private final ComponentService componentService;
+	private final EntityService entityService;
 
 	@Autowired
-	public MapMoveCommand(AccountDAO accDao, PlayerEntityService pbService, ComponentService compService) {
+	public MapMoveCommand(AccountDAO accDao, PlayerEntityService pbService, EntityService entityService) {
 		super(accDao);
 
 		this.playerBestiaService = Objects.requireNonNull(pbService);
-		this.componentService = Objects.requireNonNull(compService);
+		this.entityService = Objects.requireNonNull(entityService);
 	}
 
 	@Override
@@ -71,12 +71,12 @@ public class MapMoveCommand extends BaseChatCommand {
 
 			final Entity pbe = playerBestiaService.getActivePlayerEntity(account.getId());
 
-			Optional<PositionComponent> posComp = componentService.getComponent(pbe, PositionComponent.class);
+			Optional<PositionComponent> posComp = entityService.getComponent(pbe, PositionComponent.class);
 
 			if(posComp.isPresent()) {
 				posComp.get().setPosition(x, y);
 				LOG.info("GM {} transported entity {} to x: {} y: {}.", account.getId(), pbe.getId(), x, y);
-				componentService.update(posComp.get());
+				entityService.update(posComp.get());
 			}
 			
 		} catch (IllegalArgumentException e) {

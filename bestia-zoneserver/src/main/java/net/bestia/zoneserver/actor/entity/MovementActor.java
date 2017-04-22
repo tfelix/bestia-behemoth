@@ -76,11 +76,11 @@ public class MovementActor extends BestiaRoutingActor {
 			return;
 		}
 		
-		if(!serviceCtx.getComponent().hasComponent(entity, StatusComponent.class)) {
+		if(!serviceCtx.getEntity().hasComponent(entity, StatusComponent.class)) {
 			return;
 		}
 		
-		final StatusComponent status = serviceCtx.getComponent().getComponent(entity, StatusComponent.class).get();
+		final StatusComponent status = serviceCtx.getEntity().getComponent(entity, StatusComponent.class).get();
 
 		final EntityMoveMessage updateMsg = new EntityMoveMessage(
 				moveMsg.getEntityId(),

@@ -12,8 +12,8 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.ComponentService;
 import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import net.bestia.zoneserver.entity.components.PlayerComponent;
 
@@ -34,14 +34,14 @@ public class ActivateBestiaActor extends BestiaRoutingActor {
 	public final static String NAME = "activateBestia";
 
 	private final PlayerEntityService playerService;
-	private final ComponentService componentService;
+	private final EntityService entityService;
 
 	@Autowired
-	public ActivateBestiaActor(PlayerEntityService playerService, ComponentService componentService) {
+	public ActivateBestiaActor(PlayerEntityService playerService, EntityService entityService) {
 		super(Arrays.asList(BestiaActivateMessage.class));
 
 		this.playerService = Objects.requireNonNull(playerService);
-		this.componentService = Objects.requireNonNull(componentService);
+		this.entityService = Objects.requireNonNull(entityService);
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public class ActivateBestiaActor extends BestiaRoutingActor {
 		final Optional<Entity> bestia = playerService.getPlayerEntities(bestiaMsg.getAccountId())
 				.stream()
 				.filter(e -> {
-					return componentService.getComponent(e, PlayerComponent.class)
+					return entityService.getComponent(e, PlayerComponent.class)
 							.filter(c -> c.getPlayerBestiaId() == bestiaMsg.getPlayerBestiaId())
 							.map(x -> true)
 							.orElse(false);
@@ -65,7 +65,7 @@ public class ActivateBestiaActor extends BestiaRoutingActor {
 			return;
 		}
 
-		final PlayerComponent playerComp = componentService.getComponent(bestia.get(), PlayerComponent.class)
+		final PlayerComponent playerComp = entityService.getComponent(bestia.get(), PlayerComponent.class)
 				.orElseThrow(IllegalStateException::new);
 
 		LOG.debug("Activated player bestia id: {} from accId: {}, entityId: {}",

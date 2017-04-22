@@ -15,12 +15,10 @@ import org.springframework.stereotype.Component;
 public class EntityFactory {
 
 	private final EntityService entityService;
-	private final ComponentService componentService;
 
-	public EntityFactory(EntityService entityService, ComponentService componentService) {
+	public EntityFactory(EntityService entityService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
-		this.componentService = Objects.requireNonNull(componentService);
 	}
 
 }

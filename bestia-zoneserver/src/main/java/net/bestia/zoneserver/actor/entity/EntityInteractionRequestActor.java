@@ -15,7 +15,6 @@ import net.bestia.messages.entity.EntityInteractionMessage;
 import net.bestia.messages.entity.EntityInteractionRequestMessage;
 import net.bestia.model.entity.InteractionType;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.ComponentService;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.InteractionService;
@@ -37,19 +36,17 @@ public class EntityInteractionRequestActor extends BestiaRoutingActor {
 	public final static String NAME = "requestInteract";
 
 	private final EntityService entityService;
-	private final ComponentService compService;
 	private final InteractionService interactService;
 	private final PlayerEntityService playerEntityService;
 
 	@Autowired
 	public EntityInteractionRequestActor(EntityService entityService, PlayerEntityService pes,
-			ComponentService componentService, InteractionService interactService) {
+			InteractionService interactService) {
 		super(Arrays.asList(EntityInteractionRequestMessage.class));
 
 		// FIXME Entitiy basierte services in ein context object auslagern.
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(pes);
-		this.compService = Objects.requireNonNull(componentService);
 		this.interactService = Objects.requireNonNull(interactService);
 	}
 
@@ -64,10 +61,11 @@ public class EntityInteractionRequestActor extends BestiaRoutingActor {
 			return;
 		}
 
-		final Optional<InteractionComponent> interactionComp = compService.getComponent(entity, InteractionComponent.class);
-		
+		final Optional<InteractionComponent> interactionComp = entityService.getComponent(entity,
+				InteractionComponent.class);
+
 		// Entity does not seam to interact.
-		if(!interactionComp.isPresent()) {
+		if (!interactionComp.isPresent()) {
 			sendClient(new EntityInteractionMessage(rm.getAccountId(), rm.getEntityId(), InteractionType.NONE));
 			return;
 		} else {

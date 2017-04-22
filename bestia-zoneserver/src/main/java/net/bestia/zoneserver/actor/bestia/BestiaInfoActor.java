@@ -57,8 +57,8 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 
 		for (Entity pbe : bestias) {
 
-			final PlayerComponent pbComp = entityServiceCtx.getComponent().getComponent(pbe, PlayerComponent.class).orElse(null);
-			final StatusComponent status = entityServiceCtx.getComponent().getComponent(pbe, StatusComponent.class).orElse(null);
+			final PlayerComponent pbComp = entityServiceCtx.getEntity().getComponent(pbe, PlayerComponent.class).orElse(null);
+			final StatusComponent status = entityServiceCtx.getEntity().getComponent(pbe, StatusComponent.class).orElse(null);
 			
 			if(pbComp == null || status == null) {
 				continue;

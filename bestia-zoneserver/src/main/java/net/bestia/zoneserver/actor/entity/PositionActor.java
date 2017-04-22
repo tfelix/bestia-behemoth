@@ -77,7 +77,7 @@ public class PositionActor extends BestiaRoutingActor {
 	 */
 	private void doVisualChecks(Entity e) {
 
-		PositionComponent pos = entityServiceCtx.getComponent()
+		PositionComponent pos = entityServiceCtx.getEntity()
 				.getComponent(e, PositionComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 

@@ -33,16 +33,13 @@ public class PlayerEntityService {
 	private final MultiMap<Long, Long> playerBestiaEntitiesIds;
 	private final IMap<Long, Long> activeEntities;
 	private final EntityService entityService;
-	private final ComponentService componentService;
 
 	@Autowired
-	public PlayerEntityService(HazelcastInstance hz, EntityService entityService,
-			ComponentService componentService) {
+	public PlayerEntityService(HazelcastInstance hz, EntityService entityService) {
 
 		this.activeEntities = hz.getMap(ACTIVE_ENTITIES_KEY);
 		this.playerBestiaEntitiesIds = hz.getMultiMap(PLAYER_ENTITIES_KEY);
 		this.entityService = Objects.requireNonNull(entityService);
-		this.componentService = Objects.requireNonNull(componentService);
 	}
 
 	/**
@@ -105,7 +102,7 @@ public class PlayerEntityService {
 
 		List<PlayerComponent> pbe = entityService.getEntitiesInRange(range, PlayerComponent.class)
 				.stream()
-				.map(x -> componentService.getComponent(x, PlayerComponent.class))
+				.map(x -> entityService.getComponent(x, PlayerComponent.class))
 				.filter(Optional::isPresent)
 				.map(Optional::get)
 				.collect(Collectors.toList());
@@ -128,7 +125,7 @@ public class PlayerEntityService {
 		return entityService.getAllEntities(new HashSet<>(ids))
 				.values()
 				.stream()
-				.filter(x -> componentService.hasComponent(x, PlayerComponent.class))
+				.filter(x -> entityService.hasComponent(x, PlayerComponent.class))
 				.collect(Collectors.toSet());
 	}
 
@@ -142,9 +139,9 @@ public class PlayerEntityService {
 	 */
 	public void putPlayerEntities(Collection<Entity> pb) {
 		pb.stream()
-				.filter(x -> componentService.hasComponent(x, PlayerComponent.class))
+				.filter(x -> entityService.hasComponent(x, PlayerComponent.class))
 				.forEach(e -> {
-					Optional<PlayerComponent> playerComp = componentService.getComponent(e, PlayerComponent.class);
+					Optional<PlayerComponent> playerComp = entityService.getComponent(e, PlayerComponent.class);
 					
 					final long accId = playerComp.get().getOwnerAccountId();				
 					entityService.save(e);
@@ -174,7 +171,7 @@ public class PlayerEntityService {
 	 */
 	public void putPlayerEntity(Entity entity) {
 
-		final Optional<PlayerComponent> playerComp = componentService.getComponent(entity, PlayerComponent.class);
+		final Optional<PlayerComponent> playerComp = entityService.getComponent(entity, PlayerComponent.class);
 
 		if (playerComp.isPresent()) {
 			// entityService.save(playerComp.get().);

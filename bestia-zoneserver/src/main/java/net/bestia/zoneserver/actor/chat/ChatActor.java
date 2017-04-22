@@ -18,8 +18,8 @@ import net.bestia.model.domain.Party;
 import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.chat.ChatCommandService;
-import net.bestia.zoneserver.entity.ComponentService;
 import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import net.bestia.zoneserver.entity.components.PositionComponent;
 import net.bestia.zoneserver.service.AccountZoneService;
@@ -43,19 +43,19 @@ public class ChatActor extends BestiaRoutingActor {
 	private final AccountZoneService accService;
 	private final PlayerEntityService playerEntityService;
 	private final ChatCommandService chatCmdService;
-	private final ComponentService compService;
+	private final EntityService entityService;
 	private final PartyDAO partyDao;
 
 	@Autowired
 	public ChatActor(AccountZoneService accService, PlayerEntityService playerEntityService,
-			ChatCommandService chatCmdService, PartyDAO partyDao, ComponentService compService) {
+			ChatCommandService chatCmdService, PartyDAO partyDao, EntityService entityService) {
 		super(Arrays.asList(ChatMessage.class));
 
 		this.accService = Objects.requireNonNull(accService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		this.chatCmdService = Objects.requireNonNull(chatCmdService);
 		this.partyDao = Objects.requireNonNull(partyDao);
-		this.compService = Objects.requireNonNull(compService);
+		this.entityService = Objects.requireNonNull(entityService);
 	}
 
 	@Override
@@ -118,7 +118,7 @@ public class ChatActor extends BestiaRoutingActor {
 		// Add the current entity id to the message.
 		final ChatMessage chatEntityMsg = new ChatMessage(accId, pbe.getId(), chatMsg);
 
-		Optional<PositionComponent> pos = compService.getComponent(pbe, PositionComponent.class);
+		Optional<PositionComponent> pos = entityService.getComponent(pbe, PositionComponent.class);
 
 		if (!pos.isPresent()) {
 			LOG.warning("Player bestia has no position component.");

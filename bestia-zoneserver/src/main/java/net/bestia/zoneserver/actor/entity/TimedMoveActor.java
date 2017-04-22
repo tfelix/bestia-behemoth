@@ -14,7 +14,6 @@ import akka.actor.Scheduler;
 import net.bestia.messages.entity.EntityMoveInternalMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.entity.ComponentService;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.components.PositionComponent;
@@ -41,7 +40,6 @@ public class TimedMoveActor extends BestiaActor {
 
 	private final MovingEntityService movingManager;
 	private final EntityService entityService;
-	private final ComponentService compService;
 
 	private long entityId;
 	private final Queue<Point> path = new LinkedList<>();
@@ -49,12 +47,10 @@ public class TimedMoveActor extends BestiaActor {
 	@Autowired
 	public TimedMoveActor(
 			EntityService entityService,
-			MovingEntityService movingManager,
-			ComponentService compService) {
+			MovingEntityService movingManager) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.movingManager = Objects.requireNonNull(movingManager);
-		this.compService = Objects.requireNonNull(compService);
 	}
 
 	@Override
@@ -63,7 +59,7 @@ public class TimedMoveActor extends BestiaActor {
 
 			final Point nextPoint = path.poll();
 			final Entity entity = entityService.getEntity(entityId);
-			final PositionComponent pos = compService.getComponent(entity, PositionComponent.class)
+			final PositionComponent pos = entityService.getComponent(entity, PositionComponent.class)
 					.orElseThrow(IllegalStateException::new);
 
 			// TODO Das hier klüger mit nächster position an den client senden.
@@ -90,7 +86,7 @@ public class TimedMoveActor extends BestiaActor {
 
 			entityId = msg.getEntityId();
 
-			final PositionComponent pos = compService.getComponent(entityId, PositionComponent.class)
+			final PositionComponent pos = entityService.getComponent(entityId, PositionComponent.class)
 					.orElseThrow(IllegalStateException::new);
 
 			path.clear();

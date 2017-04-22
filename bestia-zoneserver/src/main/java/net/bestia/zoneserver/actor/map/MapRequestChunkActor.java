@@ -17,8 +17,8 @@ import net.bestia.model.geometry.Point;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.ComponentService;
 import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import net.bestia.zoneserver.entity.components.PositionComponent;
 import net.bestia.zoneserver.map.MapService;
@@ -39,19 +39,19 @@ public class MapRequestChunkActor extends BestiaRoutingActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private final PlayerEntityService pbService;
-	private final ComponentService componentService;
+	private final EntityService entityService;
 	private final MapService mapService;
 
 	@Autowired
 	public MapRequestChunkActor(
 			MapService mapService,
 			PlayerEntityService pbService,
-			ComponentService compService) {
+			EntityService entityService) {
 		super(Arrays.asList(MapChunkRequestMessage.class));
 
 		this.pbService = Objects.requireNonNull(pbService);
 		this.mapService = Objects.requireNonNull(mapService);
-		this.componentService = Objects.requireNonNull(compService);
+		this.entityService = Objects.requireNonNull(entityService);
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class MapRequestChunkActor extends BestiaRoutingActor {
 		// Find the currently active bestia for this account.
 		final Entity pbe = pbService.getActivePlayerEntity(req.getAccountId());
 
-		final Optional<PositionComponent> pos = componentService.getComponent(pbe, PositionComponent.class);
+		final Optional<PositionComponent> pos = entityService.getComponent(pbe, PositionComponent.class);
 
 		if(!pos.isPresent()) {
 			return;

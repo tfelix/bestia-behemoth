@@ -15,17 +15,7 @@ public final class EntityServiceContext {
 	private EntityService entity;
 	private InteractionService interact;
 	private PlayerEntityService player;
-	private ComponentService component;
 	private MovementService move;
-	
-	public ComponentService getComponent() {
-		return component;
-	}
-	
-	@Autowired
-	public void setComponent(ComponentService component) {
-		this.component = component;
-	}
 	
 	public EntityService getEntity() {
 		return entity;

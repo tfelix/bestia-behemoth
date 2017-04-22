@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.battle;
 
-import java.util.List;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -9,11 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import net.bestia.messages.attack.AttackUseMessage;
-import net.bestia.model.battle.Damage;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.EntityServiceContext;
 import net.bestia.zoneserver.entity.components.PositionComponent;
 import net.bestia.zoneserver.entity.components.StatusComponent;
@@ -51,11 +48,11 @@ public class BattleService {
 	public void attackGround(Attack usedAttack, Entity attacker, Point target) {
 
 		// Check if we have valid x and y.
-		if(!entityCtx.getComponent().hasComponent(attacker, StatusComponent.class, PositionComponent.class)) {
+		if(!entityCtx.getEntity().hasComponent(attacker, StatusComponent.class, PositionComponent.class)) {
 			return;
 		}
 		
-		PositionComponent atkPos = entityCtx.getComponent().getComponent(attacker, PositionComponent.class).get();
+		PositionComponent atkPos = entityCtx.getEntity().getComponent(attacker, PositionComponent.class).get();
 		//StatusComponent statusComp = entityCtx.getComponent().getComponent(attacker, StatusComponent.class).get();
 
 		// Check if target is in sight.
