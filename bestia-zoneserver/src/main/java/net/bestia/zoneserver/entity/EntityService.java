@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.entity;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
@@ -333,10 +332,9 @@ public class EntityService {
 		if (e == null) {
 			throw new IllegalArgumentException("Entity was not found.");
 		}
-		
+
 		return addComponent(e, clazz);
 	}
-	
 
 	public <T extends Component> T addComponent(Entity entity, Class<T> clazz) {
 		if (!Component.class.isAssignableFrom(clazz)) {
@@ -345,7 +343,7 @@ public class EntityService {
 
 		try {
 			@SuppressWarnings("unchecked")
-			Constructor<Component> ctor = (Constructor<Component>) clazz.getConstructor(Long.class);
+			Constructor<Component> ctor = (Constructor<Component>) clazz.getConstructor(long.class);
 			final Component comp = ctor.newInstance(getId());
 
 			// Add component to entity and to the comp map.
@@ -354,8 +352,7 @@ public class EntityService {
 			save(entity);
 			return clazz.cast(comp);
 
-		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
-				| IllegalArgumentException | InvocationTargetException ex) {
+		} catch (Exception ex) {
 			LOG.error("Could not instantiate component.", ex);
 			throw new IllegalArgumentException(ex);
 		}

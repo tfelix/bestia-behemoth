@@ -1,9 +1,6 @@
 package net.bestia.zoneserver.service;
 
 import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,19 +8,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import akka.actor.ActorRef;
-import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.PlayerBestia;
-import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.RuntimeConfigurationService;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityServiceContext;
-import net.bestia.zoneserver.entity.PlayerEntityService;
+import net.bestia.zoneserver.entity.PlayerBestiaEntityFactory;
 
 /**
  * Performs login or logout of the bestia server system.
@@ -42,6 +37,7 @@ public class LoginService {
 	private final EntityServiceContext entityServiceCtx;
 	private final PlayerBestiaService playerBestiaService;
 	private final ZoneAkkaApi akkaApi;
+	private final PlayerBestiaEntityFactory playerEntityFactory;
 
 	@Autowired
 	public LoginService(RuntimeConfigurationService config,
@@ -49,7 +45,8 @@ public class LoginService {
 			EntityServiceContext entityServiceCtx,
 			ConnectionService connectionService,
 			PlayerBestiaService playerBestiaService,
-			ZoneAkkaApi akkaApi) {
+			ZoneAkkaApi akkaApi,
+			PlayerBestiaEntityFactory playerEntityFactory) {
 
 		this.config = Objects.requireNonNull(config);
 		this.accountDao = Objects.requireNonNull(accountDao);
@@ -57,6 +54,7 @@ public class LoginService {
 		this.connectionService = Objects.requireNonNull(connectionService);
 		this.playerBestiaService = Objects.requireNonNull(playerBestiaService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
+		this.playerEntityFactory = Objects.requireNonNull(playerEntityFactory);
 	}
 
 	/**
@@ -78,38 +76,15 @@ public class LoginService {
 		// Spawn all bestia entities for this account into the world.
 		final PlayerBestia master = playerBestiaService.getMaster(accId);
 
-		LOG.debug(String.format("Login in acc: {}. Spawning master bestias.", accId));
-
-		Entity masterEntity;
+		LOG.debug(String.format("Login in acc: %d. Spawning master bestias.", accId));
+		
+		final Entity masterEntity = playerEntityFactory.build(master);
+		
+		// Save the entity.
 		entityServiceCtx.getPlayer().putPlayerEntity(masterEntity);
-
-		// Set the position in order to send updates to the client.
-
-		for (Entity pb : bestias) {
-			final Point p = pb.getPosition();
-			pb.setPosition(p.getX(), p.getY());
-		}
-
-		// Extract master now again from bestias and get its entity id.
-
-		final Optional<Entity> masterEntity = pbs.stream()
-				.filter(x -> x.getPlayerBestiaId() == master.getId())
-				.findAny();
-
-		if (!masterEntity.isPresent()) {
-			LOG.error("Account {} has no bestia master! Aborting login process.",
-					accId);
-			logout(accId);
-			throw new IllegalStateException("Account has no bestia master. Aborting.");
-		}
 
 		// Now activate the master and notify the client.
 		entityServiceCtx.getPlayer().setActiveEntity(accId, masterEntity.getId());
-
-		final BestiaActivateMessage activateMsg = new BestiaActivateMessage(
-				accId,
-				master.getId());
-		akkaApi.sendToClient(activateMsg);
 
 		final LoginAuthReplyMessage response = new LoginAuthReplyMessage(
 				accId,
@@ -134,13 +109,14 @@ public class LoginService {
 			return;
 		}
 
-		// Unregister.
+		// Unregister connection.
 		LOG.debug("Logout acc id: {}.", accId);
 		connectionService.removeClient(accId);
 
-		final Set<Entity> bestias = playerEntityService.getPlayerEntities(accId);
-		playerBestiaService.updatePlayerBestias(bestias);
-		playerEntityService.removePlayerBestias(accId);
+		entityServiceCtx.getPlayer().getMasterEntity(accId).ifPresent(master -> {
+			playerBestiaService.updatePlayerBestias(master);
+			entityServiceCtx.getPlayer().removePlayerBestia(master);
+		});
 	}
 
 	/**

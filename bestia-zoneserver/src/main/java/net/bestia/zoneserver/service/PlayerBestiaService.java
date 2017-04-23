@@ -161,7 +161,7 @@ public class PlayerBestiaService {
 	 * Synchronizes and saves all the player bestia entities back to the
 	 * database.
 	 */
-	public void updatePlayerBestias(Set<Entity> bestias) {
+	public void updatePlayerBestias(Entity playerBestia) {
 		
 		//playerBestiaDao.save(bestias);
 	}

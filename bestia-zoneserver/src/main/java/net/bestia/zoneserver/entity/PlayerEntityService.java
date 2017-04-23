@@ -8,6 +8,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,17 +17,25 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MultiMap;
 
+import net.bestia.messages.bestia.BestiaActivateMessage;
+import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.geometry.Rect;
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.entity.components.PlayerComponent;
+import net.bestia.zoneserver.service.PlayerBestiaService;
 
 /**
- * This service manages and queries the active entities inside the game.
+ * This service manages the entities which are controlled by a player.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * TODO Das hier ggf mit dem PlayerBestiaService kombinieren.
+ * 
+ * @author Thomas Felix
  *
  */
 @Service
 public class PlayerEntityService {
+
+	private final static Logger LOG = LoggerFactory.getLogger(PlayerEntityService.class);
 
 	private final static String ACTIVE_ENTITIES_KEY = "entities.player.active";
 	private final static String PLAYER_ENTITIES_KEY = "entities.player";
@@ -33,13 +43,20 @@ public class PlayerEntityService {
 	private final MultiMap<Long, Long> playerBestiaEntitiesIds;
 	private final IMap<Long, Long> activeEntities;
 	private final EntityService entityService;
+	private final PlayerBestiaService playerBestiaService;
+	private final ZoneAkkaApi akkaApi;
 
 	@Autowired
-	public PlayerEntityService(HazelcastInstance hz, EntityService entityService) {
+	public PlayerEntityService(HazelcastInstance hz,
+			EntityService entityService,
+			PlayerBestiaService playerBestiaService,
+			ZoneAkkaApi akkaApi) {
 
 		this.activeEntities = hz.getMap(ACTIVE_ENTITIES_KEY);
 		this.playerBestiaEntitiesIds = hz.getMultiMap(PLAYER_ENTITIES_KEY);
 		this.entityService = Objects.requireNonNull(entityService);
+		this.playerBestiaService = Objects.requireNonNull(playerBestiaService);
+		this.akkaApi = Objects.requireNonNull(akkaApi);
 	}
 
 	/**
@@ -51,6 +68,13 @@ public class PlayerEntityService {
 	public void setActiveEntity(long accId, long activeEntityId) {
 		// Remove the active flag from the last active player bestia.
 		activeEntities.put(accId, activeEntityId);
+		
+		LOG.debug("Activating entity id: {} for account: {}", activeEntityId, accId);
+
+		final BestiaActivateMessage activateMsg = new BestiaActivateMessage(
+				accId,
+				activeEntityId);
+		akkaApi.sendToClient(activateMsg);
 	}
 
 	/**
@@ -129,6 +153,19 @@ public class PlayerEntityService {
 				.collect(Collectors.toSet());
 	}
 
+	public Optional<Entity> getMasterEntity(long accId) {
+		final PlayerBestia masterBestia = playerBestiaService.getMaster(accId);
+
+		return getPlayerEntities(accId).stream().filter(e -> {
+			Optional<PlayerComponent> pc = entityService.getComponent(e, PlayerComponent.class);
+			if (!pc.isPresent()) {
+				return false;
+			}
+
+			return pc.get().getPlayerBestiaId() == masterBestia.getId();
+		}).findAny();
+	}
+
 	/**
 	 * Inserts the given player bestias into the cache. The player bestias are
 	 * not required be from the same player account. This will be taken care
@@ -142,8 +179,8 @@ public class PlayerEntityService {
 				.filter(x -> entityService.hasComponent(x, PlayerComponent.class))
 				.forEach(e -> {
 					Optional<PlayerComponent> playerComp = entityService.getComponent(e, PlayerComponent.class);
-					
-					final long accId = playerComp.get().getOwnerAccountId();				
+
+					final long accId = playerComp.get().getOwnerAccountId();
 					entityService.save(e);
 					playerBestiaEntitiesIds.put(accId, e.getId());
 				});
@@ -170,13 +207,9 @@ public class PlayerEntityService {
 	 *            The player entity to put into the cache.
 	 */
 	public void putPlayerEntity(Entity entity) {
-
-		final Optional<PlayerComponent> playerComp = entityService.getComponent(entity, PlayerComponent.class);
-
-		if (playerComp.isPresent()) {
-			// entityService.save(playerComp.get().);
-			playerBestiaEntitiesIds.put(playerComp.get().getOwnerAccountId(), playerComp.get().getPlayerBestiaId());
-		}
+		entityService.getComponent(entity, PlayerComponent.class).ifPresent(comp -> {
+			playerBestiaEntitiesIds.put(comp.getOwnerAccountId(), comp.getPlayerBestiaId());
+		});
 	}
 
 	/**
@@ -192,5 +225,46 @@ public class PlayerEntityService {
 		playerBestiaEntitiesIds.remove(accId);
 		// Remove the active bestia.
 		activeEntities.remove(accId);
+	}
+
+	/**
+	 * Removes the given entity (player bestia) from the active system.
+	 * 
+	 * @param playerBestia
+	 *            The player bestia entity to be removed.
+	 *            @return TRUE if the entity could be removed. FALSE otherwise.
+	 */
+	public boolean removePlayerBestia(Entity playerBestia) {
+		
+		final PlayerComponent playerComp = entityService
+				.getComponent(playerBestia, PlayerComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+		
+		final long accId = playerComp.getOwnerAccountId();
+		final long playerBestiaId = playerComp.getPlayerBestiaId();
+		
+		// Dont remove if its the last bestia.
+		if(playerBestiaEntitiesIds.get(accId).isEmpty()) {
+			LOG.debug("Cant remove last player bestia entity.");
+			return false;
+		}
+		
+		entityService.delete(playerBestia);
+		playerBestiaEntitiesIds.remove(accId, playerBestiaId);
+		
+		if (activeEntities.get(accId) == playerBestia.getId()) {
+			// Select a new active bestia and notify the client.
+			long newActive = playerBestiaEntitiesIds.get(accId).stream().findAny().orElse(0L);
+			
+			if(newActive == 0) {
+				LOG.warn("Could not select a new active bestia for account {}", accId);
+				return false;
+			}
+			
+			setActiveEntity(accId, newActive);
+			return true;
+		}
+		
+		return true;
 	}
 }

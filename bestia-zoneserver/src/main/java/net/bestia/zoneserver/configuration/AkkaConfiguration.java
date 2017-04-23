@@ -13,7 +13,6 @@ import com.hazelcast.core.HazelcastInstance;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Address;
 import akka.actor.Deploy;
@@ -105,7 +104,7 @@ public class AkkaConfiguration {
 	}
 	
 	@Bean
-	public ZoneAkkaApi webserverLogin(ActorSystem system, ActorRef uplinkRouter) {
+	public ZoneAkkaApi zoneAkkaApi(ActorSystem system) {
 
 		final ZoneAkkaApi api = TypedActor.get(system)
 				.typedActorOf(

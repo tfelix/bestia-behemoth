@@ -28,11 +28,11 @@ public class PositionComponent extends Component {
 	public Point getPosition() {
 		return shape.getAnchor();
 	}
-	
+
 	public Direction getFacing() {
 		return facing;
 	}
-	
+
 	public void setFacing(Direction facing) {
 		this.facing = facing;
 	}
@@ -47,6 +47,15 @@ public class PositionComponent extends Component {
 	 */
 	public void setPosition(long x, long y) {
 		shape = shape.moveByAnchor(x, y);
+	}
+
+	/**
+	 * Its an alias for {@link #setPosition(long, long)}.
+	 * 
+	 * @param pos The new position.
+	 */
+	public void setPosition(Point pos) {
+		shape = shape.moveByAnchor(pos.getX(), pos.getY());
 	}
 
 	/**
@@ -87,6 +96,6 @@ public class PositionComponent extends Component {
 	 * @param path
 	 *            The path to follow.
 	 */
-	//void moveTo(List<Point> path);
+	// void moveTo(List<Point> path);
 
 }
