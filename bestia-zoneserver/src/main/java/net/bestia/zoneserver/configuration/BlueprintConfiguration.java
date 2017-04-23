@@ -16,7 +16,7 @@ import net.bestia.zoneserver.entity.components.VisibleComponent;
 public class BlueprintConfiguration {
 
 	@Bean
-	@Qualifier("masterBestia")
+	@Qualifier("playerBestia")
 	@Scope("prototype")
 	public Blueprint playerMasterBestia() {
 		Blueprint.Builder builder = new Blueprint.Builder();

@@ -46,6 +46,9 @@ public class PositionComponent extends Component {
 	 *            New y position.
 	 */
 	public void setPosition(long x, long y) {
+		if(shape == null) {
+			throw new IllegalStateException("Shape must be set first via setShape.");
+		}
 		shape = shape.moveByAnchor(x, y);
 	}
 
@@ -55,7 +58,7 @@ public class PositionComponent extends Component {
 	 * @param pos The new position.
 	 */
 	public void setPosition(Point pos) {
-		shape = shape.moveByAnchor(pos.getX(), pos.getY());
+		setPosition(pos.getX(), pos.getY());
 	}
 
 	/**

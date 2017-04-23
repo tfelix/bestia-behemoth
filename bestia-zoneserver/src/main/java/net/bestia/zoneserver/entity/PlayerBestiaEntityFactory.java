@@ -1,29 +1,54 @@
 package net.bestia.zoneserver.entity;
 
 import java.util.Objects;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 import net.bestia.model.domain.PlayerBestia;
+import net.bestia.zoneserver.entity.components.Component;
+import net.bestia.zoneserver.entity.components.ComponentSetter;
+import net.bestia.zoneserver.entity.components.PlayerComponentSetter;
 import net.bestia.zoneserver.entity.components.PositionComponentSetter;
+import net.bestia.zoneserver.entity.components.VisibleComponentSetter;
 
-@Component
+/**
+ * The factory is used to create player entities which can be controlled via a
+ * player.
+ * 
+ * @author Thomas Felix
+ *
+ */
+@org.springframework.stereotype.Component
 public class PlayerBestiaEntityFactory {
 
-	private EntityFactory entityFactory;
-	private Blueprint playerBestiaBlueprint;
+	private final EntityFactory entityFactory;
+	private final Blueprint playerBestiaBlueprint;
 
-	public PlayerBestiaEntityFactory(@Qualifier("playerBestia") Blueprint playerBestiaBlueprint) {
+	public PlayerBestiaEntityFactory(@Qualifier("playerBestia") Blueprint playerBestiaBlueprint, EntityFactory entityFactory) {
 
 		this.playerBestiaBlueprint = Objects.requireNonNull(playerBestiaBlueprint);
+		this.entityFactory = Objects.requireNonNull(entityFactory);
 	}
 
+	/**
+	 * Builds and fills up the entity with values for the player bestia.
+	 * 
+	 * @param playerBestia
+	 *            The player bestia.
+	 * @return A newly created entity for this player bestia.
+	 */
 	public Entity build(PlayerBestia playerBestia) {
 
+		// Prepare the setter.
 		final PositionComponentSetter posSetter = new PositionComponentSetter(playerBestia.getCurrentPosition());
+		final VisibleComponentSetter visSetter = new VisibleComponentSetter(playerBestia.getOrigin().getSpriteInfo());
+		final PlayerComponentSetter playerSetter = new PlayerComponentSetter(playerBestia);
 
-		final Entity masterEntity = entityFactory.build(playerBestiaBlueprint);
+		final Set<ComponentSetter<? extends Component>> comps = EntityFactory.makeSet(posSetter, visSetter,
+				playerSetter);
+
+		final Entity masterEntity = entityFactory.build(playerBestiaBlueprint, comps);
 
 		return masterEntity;
 	}

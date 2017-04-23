@@ -1,13 +1,15 @@
 package net.bestia.zoneserver.entity;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
+import net.bestia.zoneserver.entity.components.Component;
 import net.bestia.zoneserver.entity.components.ComponentSetter;
 
 /**
@@ -17,7 +19,7 @@ import net.bestia.zoneserver.entity.components.ComponentSetter;
  * @author Thomas Felix
  *
  */
-@Component
+@org.springframework.stereotype.Component
 class EntityFactory {
 
 	private final static Logger LOG = LoggerFactory.getLogger(EntityFactory.class);
@@ -28,27 +30,43 @@ class EntityFactory {
 
 		this.entityService = Objects.requireNonNull(entityService);
 	}
-	
+
+	/**
+	 * Returns the given components as a set and is a neat helper method to
+	 * prepare calling the {@link #build(Blueprint, Set)} method.
+	 * 
+	 * @param components
+	 *            Components to be transformed into a set.
+	 * @return The set containing all the given components.
+	 */
+	@SafeVarargs
+	static Set<ComponentSetter<? extends Component>> makeSet(ComponentSetter<? extends Component>... components) {
+		return new HashSet<>(Arrays.asList(components));
+	}
+
 	Entity build(Blueprint blueprint) {
 		return build(blueprint, Collections.emptySet());
 	}
 
 	Entity build(Blueprint blueprint,
-			Set<ComponentSetter<? extends net.bestia.zoneserver.entity.components.Component>> setter) {
+			Set<ComponentSetter<? extends Component>> setter) {
 
 		LOG.trace("Creating entity with: {}", blueprint);
 
 		final Entity e = entityService.newEntity();
 
 		// Add all given components in the blueprint.
-		for (Class<? extends net.bestia.zoneserver.entity.components.Component> compClazz : blueprint.getComponents()) {
+		for (Class<? extends Component> compClazz : blueprint.getComponents()) {
 
-			final net.bestia.zoneserver.entity.components.Component addedComp = entityService.addComponent(e,
+			final Component addedComp = entityService.addComponent(e,
 					compClazz);
 
-			setter.stream().filter(s -> s.getSupportedType().equals(compClazz)).findAny().ifPresent(s -> {
-				s.setComponent(addedComp);
-			});
+			setter.stream()
+					.filter(s -> s.getSupportedType().equals(compClazz))
+					.findAny()
+					.ifPresent(s -> {
+						s.setComponent(addedComp);
+					});
 
 			// Save the component.
 			entityService.update(addedComp);
