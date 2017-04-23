@@ -13,14 +13,19 @@ import com.hazelcast.core.HazelcastInstance;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Address;
+import akka.actor.Deploy;
 import akka.actor.TypedActor;
 import akka.actor.TypedProps;
 import akka.cluster.Cluster;
+import akka.japi.Creator;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.DiscoveryService;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.ZoneAkkaApiActor;
 import net.bestia.zoneserver.entity.EntityAkkaContext;
 import net.bestia.zoneserver.entity.EntityContext;
 
@@ -97,5 +102,22 @@ public class AkkaConfiguration {
 				.typedActorOf(new TypedProps<EntityAkkaContext>(EntityContext.class, EntityAkkaContext.class));
 
 		return ctx;
+	}
+	
+	@Bean
+	public ZoneAkkaApi webserverLogin(ActorSystem system, ActorRef uplinkRouter) {
+
+		final ZoneAkkaApi api = TypedActor.get(system)
+				.typedActorOf(
+						new TypedProps<ZoneAkkaApiActor>(ZoneAkkaApi.class, new Creator<ZoneAkkaApiActor>() {
+							private static final long serialVersionUID = 1L;
+
+							@Override
+							public ZoneAkkaApiActor create() throws Exception {
+								return new ZoneAkkaApiActor();
+							}
+						}).withDeploy(Deploy.local()), "internalZoneApi");
+
+		return api;
 	}
 }
