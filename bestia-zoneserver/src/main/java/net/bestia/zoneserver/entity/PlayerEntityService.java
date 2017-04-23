@@ -181,7 +181,6 @@ public class PlayerEntityService {
 					Optional<PlayerComponent> playerComp = entityService.getComponent(e, PlayerComponent.class);
 
 					final long accId = playerComp.get().getOwnerAccountId();
-					entityService.save(e);
 					playerBestiaEntitiesIds.put(accId, e.getId());
 				});
 	}

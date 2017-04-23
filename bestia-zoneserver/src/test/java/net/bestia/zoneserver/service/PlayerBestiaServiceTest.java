@@ -1,11 +1,7 @@
 package net.bestia.zoneserver.service;
 
-import java.util.Set;
-
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
@@ -13,12 +9,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.hazelcast.core.HazelcastInstance;
 
-import net.bestia.model.domain.PlayerBestia;
-import net.bestia.zoneserver.TestConfiguration;
-import net.bestia.zoneserver.service.PlayerBestiaService;
+import net.bestia.zoneserver.BasicMocks;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes={TestConfiguration.class})
+@ContextConfiguration(classes={BasicMocks.class})
 public class PlayerBestiaServiceTest {
 	
 	@Configuration

@@ -11,10 +11,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.hazelcast.core.HazelcastInstance;
 
-import net.bestia.zoneserver.TestConfiguration;
+import net.bestia.zoneserver.BasicMocks;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { TestConfiguration.class, LatencyServiceTest.ContextConfiguration.class })
+@ContextConfiguration(classes = { BasicMocks.class, LatencyServiceTest.ContextConfiguration.class })
 public class LatencyServiceTest {
 
 	@Configuration

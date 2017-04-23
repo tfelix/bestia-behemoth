@@ -17,9 +17,6 @@ import org.springframework.stereotype.Service;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
-import com.hazelcast.query.EntryObject;
-import com.hazelcast.query.Predicate;
-import com.hazelcast.query.PredicateBuilder;
 
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.BaseValues;
@@ -78,7 +75,9 @@ public class EntityService {
 	 * @return
 	 */
 	public Entity newEntity() {
-		return new Entity(getNewEntityId());
+		final Entity entity = new Entity(getNewEntityId());
+		save(entity);
+		return entity;
 	}
 
 	/**
@@ -112,13 +111,12 @@ public class EntityService {
 
 	/**
 	 * Puts the entity into the memory database for access for the bestia
-	 * system. Before saving (and thus serializing it). The context must be
-	 * removed.
+	 * system.
 	 * 
 	 * @param entity
 	 *            The entity to put into the memory database.
 	 */
-	public void save(Entity entity) {
+	private void save(Entity entity) {
 		LOG.trace("Saving entity: {}", entity);
 		// Remove entity context since it can not be serialized.
 		entities.lock(entity.getId());
@@ -161,12 +159,12 @@ public class EntityService {
 		Set<Entity> colliders = new HashSet<>();
 		entities.forEach((id, entity) -> {
 			getComponent(entity.getId(), PositionComponent.class).ifPresent(posComp -> {
-				if(posComp.getShape().collide(area)) {
+				if (posComp.getShape().collide(area)) {
 					colliders.add(entity);
 				}
 			});
 		});
-		
+
 		return colliders;
 	}
 
