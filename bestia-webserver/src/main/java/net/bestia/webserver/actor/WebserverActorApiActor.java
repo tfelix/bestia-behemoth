@@ -15,12 +15,14 @@ import akka.actor.ActorContext;
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.actor.TypedActor;
+import akka.pattern.Patterns;
+import akka.routing.ConsistentHashingRouter;
 import akka.util.Timeout;
 import net.bestia.messages.web.AccountLogin;
 import net.bestia.messages.web.AccountLoginToken;
 import scala.concurrent.Await;
+import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
-
 
 public class WebserverActorApiActor implements WebserverActorApi {
 
@@ -47,18 +49,16 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 		final AccountLogin accountLogin = new AccountLogin(accName, password);
 
-		/*Future<Object> answer = Patterns.ask(uplinkRouter, new ConsistentHashableEnvelope(accountLogin, accountLogin),
-				timeout);*/
-		
-		/*
+		Future<Object> answer = Patterns.ask(uplinkRouter,
+				new ConsistentHashingRouter.ConsistentHashableEnvelope(accountLogin, accountLogin),
+				timeout);
+
 		try {
 			return (AccountLoginToken) Await.ready(answer, timeout.duration());
 		} catch (TimeoutException | InterruptedException e) {
 			LOG.warn("Login was not checked in time.");
 			return null;
-		}*/
-		
-		return null;
+		}
 	}
 
 	@Override

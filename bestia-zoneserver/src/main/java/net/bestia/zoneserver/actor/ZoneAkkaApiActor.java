@@ -21,7 +21,7 @@ public class ZoneAkkaApiActor implements ZoneAkkaApi {
 
 	@Override
 	public void sendToClient(JsonMessage message) {
-		sendClientActor.tell(sendClientActor, ActorRef.noSender());
+		sendClientActor.tell(message, ActorRef.noSender());
 	}
 
 }
