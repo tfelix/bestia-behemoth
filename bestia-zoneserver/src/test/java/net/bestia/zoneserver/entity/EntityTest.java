@@ -27,12 +27,6 @@ public class EntityTest {
 		e.addComponent(new PositionComponent(1));
 	}
 
-	@Test(expected = NullPointerException.class)
-	public void removeComponent_null_throws() {
-		Entity e = new Entity(1337);
-		e.addComponent(new PositionComponent(1));
-	}
-
 	@Test
 	public void removeComponent_addedComponent_isRemoved() {
 		Entity e = new Entity(1337);

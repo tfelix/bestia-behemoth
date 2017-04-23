@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,29 +34,19 @@ public class PlayerBestiaService {
 	private final static int NUM_ITEM_SLOTS = 5;
 	private final static Logger LOG = LoggerFactory.getLogger(PlayerBestiaService.class);
 
-	private AccountDAO accountDao;
-	private PlayerBestiaDAO playerBestiaDao;
-	private BestiaAttackDAO attackLevelDao;
-	private PlayerItemDAO playerItemDao;
+	private final AccountDAO accountDao;
+	private final PlayerBestiaDAO playerBestiaDao;
+	private final BestiaAttackDAO attackLevelDao;
+	private final PlayerItemDAO playerItemDao;
 
 	@Autowired
-	public void setPlayerBestiaDao(PlayerBestiaDAO playerBestiaDao) {
-		this.playerBestiaDao = playerBestiaDao;
-	}
+	public PlayerBestiaService(AccountDAO accountDao, PlayerBestiaDAO playerBestiaDao, BestiaAttackDAO attackLevelDao,
+			PlayerItemDAO playerItemDao) {
 
-	@Autowired
-	public void setAttackLevelDao(BestiaAttackDAO attackLevelDao) {
-		this.attackLevelDao = attackLevelDao;
-	}
-
-	@Autowired
-	public void setPlayerItemDao(PlayerItemDAO playerItemDao) {
-		this.playerItemDao = playerItemDao;
-	}
-
-	@Autowired
-	public void setAccountDao(AccountDAO accountDao) {
-		this.accountDao = accountDao;
+		this.accountDao = Objects.requireNonNull(accountDao);
+		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
+		this.attackLevelDao = Objects.requireNonNull(attackLevelDao);
+		this.playerItemDao = Objects.requireNonNull(playerItemDao);
 	}
 
 	/**
@@ -162,8 +153,8 @@ public class PlayerBestiaService {
 	 * database.
 	 */
 	public void updatePlayerBestias(Entity playerBestia) {
-		
-		//playerBestiaDao.save(bestias);
+
+		// playerBestiaDao.save(bestias);
 	}
 
 	/**

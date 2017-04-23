@@ -1,32 +1,19 @@
 package net.bestia.zoneserver.actor.entity;
 
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Sets;
-import com.google.common.collect.Sets.SetView;
-
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.entity.EntityAction;
 import net.bestia.messages.entity.EntityPositionMessage;
-import net.bestia.messages.entity.EntityUpdateMessage;
-import net.bestia.model.domain.SpriteInfo;
-import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.EntityServiceContext;
 import net.bestia.zoneserver.entity.components.PositionComponent;
-import net.bestia.zoneserver.entity.components.VisibleComponent;
 
 /**
  * This actor has an crucial role in checking if a position update of an entity

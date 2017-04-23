@@ -40,6 +40,7 @@ public class RequestLoginActor extends BestiaActor {
 		
 		LOG.debug("Received incoming login: {}", token);
 		
+		// FIXME das hier wieder aktiv machen.
 		// Check login.
 		final AccountLoginToken answerToken = new AccountLoginToken(1, "rocket", "test1234");
 		getSender().tell(answerToken, getSelf());
