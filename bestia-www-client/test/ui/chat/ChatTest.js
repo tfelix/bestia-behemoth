@@ -1,6 +1,8 @@
 import Chat from '../../../src/js/ui/chat/Chat';
+import Pubsub from '../../../src/js/util/PubSub';
 
 describe('Chat', function(){
+    
     describe('ctor', function(){
         it('Throws when no pubsub obj is given.', function(){
             (function(){
@@ -9,7 +11,7 @@ describe('Chat', function(){
         });
 
         it('Works when pubsub is given.', function(){
-
+            new Chat(new Pubsub);
         });
     });
 
@@ -24,7 +26,7 @@ describe('Chat', function(){
 
         });
 
-         it('Executes local commands', function(){
+        it('Executes local commands', function(){
 
         });
 
@@ -35,7 +37,10 @@ describe('Chat', function(){
 
     describe('clear', function(){
         it('Clears all messages', function(){
-
+            var chat = new Chat(new Pubsub);
+            chat.addLocalMessage('Das ist ein Test', 'PUBLIC');
+            chat.clear();
+            chat.messages().length.should.equal(0);
         });
     });
 
@@ -45,7 +50,10 @@ describe('Chat', function(){
         });
 
         it('Does not set the mode if a unknown mode is given', function(){
-
+            var chat = new Chat(new Pubsub);
+            chat.mode('public');
+            chat.mode('bla');
+            chat.mode().should.equal('public');
         });
     });
 

@@ -1,4 +1,4 @@
-import {guid} from '../src/js/util/Guid';
+import {guid} from '../../src/js/util/Guid';
 
 describe('Guid', function() {
 	

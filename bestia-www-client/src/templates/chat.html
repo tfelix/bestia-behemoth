@@ -5,7 +5,7 @@
 		<button id="btn-attacks"><img src="/img/sword-clash.png"></button>
 		<button id="btn-bugs"><img src="/img/spotted-bug.png"></button><button>Bot</button></header>
 	<div class="chat">
-		<div class="chat-msgs" data-bind="foreach: messages">
+		<div class="chat-msgs" data-bind="foreach: messages; scroll: scrollBottom">
 			<div data-bind="css: cssMode">
 				<span data-bind="click: $parent.setWhisperNick, visible: nickname().length > 0" class="nick"> <span data-bind="text: nickname"></span>:
 				</span><span data-bind="text: text"></span>

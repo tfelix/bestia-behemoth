@@ -158,16 +158,16 @@ public class EntityService {
 	public Set<Entity> getEntitiesInRange(Rect area) {
 
 		// TODO Das muss noch effektiver gestaltet werden.
-		EntryObject e = new PredicateBuilder().getEntryObject();
-		@SuppressWarnings("rawtypes")
-		Predicate posPred = e.get("components").in(PositionComponent.class.getName());
-		return entities.values(posPred).stream().filter(entity -> {
-			Optional<PositionComponent> comp = getComponent(entity.getId(), PositionComponent.class);
-			if (!comp.isPresent()) {
-				return false;
-			}
-			return comp.get().getShape().collide(area);
-		}).collect(Collectors.toSet());
+		Set<Entity> colliders = new HashSet<>();
+		entities.forEach((id, entity) -> {
+			getComponent(entity.getId(), PositionComponent.class).ifPresent(posComp -> {
+				if(posComp.getShape().collide(area)) {
+					colliders.add(entity);
+				}
+			});
+		});
+		
+		return colliders;
 	}
 
 	/**

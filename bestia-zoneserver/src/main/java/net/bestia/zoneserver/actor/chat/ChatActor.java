@@ -132,6 +132,9 @@ public class ChatActor extends BestiaRoutingActor {
 
 		receiverAccIds.stream().map(receiverAccId -> chatEntityMsg.createNewInstance(receiverAccId))
 				.forEach(msg -> sendClient(msg));
+		
+		// Send echo back to client.
+		sendClient(chatEntityMsg.createNewInstance(accId));
 	}
 
 	/**

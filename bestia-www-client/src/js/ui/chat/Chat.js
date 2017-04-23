@@ -25,6 +25,31 @@ import ModePartyCommand from './commands/ModePartyCommand';
 const MAX_MESSAGES = 50;
 
 /**
+ * Custom knockout binding for scrolling on dom elements.
+ */
+/*
+ko.bindingHandlers.scroll = {
+	init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+		// This will be called when the binding is first applied to an element
+		// Set up any initial state, event handlers, etc. here
+		element.addEventListener('scroll', function () {
+			if (element.scrollTop !== element.scrollHeight) {
+				valueAccessor(false);
+			}
+		});
+	},
+
+	update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+		// This will be called once when the binding is first applied to an element,
+		// and again whenever any observables/computeds that are accessed change
+		// Update the DOM element based on the supplied values here.
+		if (valueAccessor() === true) {
+			element.scrollTop = element.scrollHeight;
+		}
+	}
+};*/
+
+/**
  * Chat for the bestia client. It subscribes to the necessairy messages to get
  * informed if new messages arrive. Updates and displays the messages. Will
  * provide chat functionality to the user.
@@ -140,6 +165,14 @@ export default class Chat {
 		 * @property {boolean}
 		 */
 		this.isVisible = ko.observable(false);
+
+		/**
+		 * If set to true the chat always scrolls to the bottom when a new message arrives.
+		 * 
+		 * @public
+		 * @property {boolean}
+		 */
+		this.scrollBottom = ko.observable(true);
 
 		/**
 		 * Holds the text of the chat.
@@ -373,27 +406,6 @@ export default class Chat {
 	}
 
 	/**
-	 * Internal check function which will work out if the 
-	 */
-	_scrolled(data, event) {
-		var elem = event.target;
-
-		var scrollBottom = false;
-		var scrollPos = this.chatEle.scrollTop + this.chatEle.clientHeight;
-
-		// Check bottom.
-		if (scrollPos === this.chatEle.scrollHeight) {
-			scrollBottom = true;
-		}
-
-		if (scrollBottom) {
-			this.scrollToBottom();
-		} else {
-			this.hasUnreadMessages(true);
-		}
-	}
-
-	/**
 	 * Scrolls to the latest messages in the chat and sets the flag
 	 * {@code hasUnreadMessages} to false.
 	 * 
@@ -401,7 +413,6 @@ export default class Chat {
 	 * @public
 	 */
 	scrollToBottom() {
-		this.chatEle.scrollTop = this.chatEle.scrollHeight;
 		this.hasUnreadMessages(false);
 	}
 

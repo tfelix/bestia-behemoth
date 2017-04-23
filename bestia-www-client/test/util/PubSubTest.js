@@ -1,6 +1,6 @@
 //var should = require('should');
-import PubSub from '../src/js/util/PubSub';
-import Signal from '../src/js/io/Signal';
+import PubSub from '../../src/js/util/PubSub';
+import Signal from '../../src/js/io/Signal';
 
 describe('PubSub', function () {
 	describe('publish', function () {
