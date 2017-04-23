@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.actor.chat;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -15,7 +14,6 @@ import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.dao.PartyDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Party;
-import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.chat.ChatCommandService;
 import net.bestia.zoneserver.entity.Entity;
@@ -124,14 +122,8 @@ public class ChatActor extends BestiaRoutingActor {
 			LOG.warning("Player bestia has no position component.");
 			return;
 		}
-
-		// TODO Senden an alle Accounts in Reichweite in einen Service
-		// auslagern.
-		final List<Long> receiverAccIds = playerEntityService
-				.getActiveAccountIdsInRange(Map.getViewRect(pos.get().getPosition()));
-
-		receiverAccIds.stream().map(receiverAccId -> chatEntityMsg.createNewInstance(receiverAccId))
-				.forEach(msg -> sendClient(msg));
+		
+		sendActiveInRangeClients(chatEntityMsg);
 		
 		// Send echo back to client.
 		sendClient(chatEntityMsg.createNewInstance(accId));
