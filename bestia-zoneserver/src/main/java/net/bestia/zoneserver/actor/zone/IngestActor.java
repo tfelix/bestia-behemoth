@@ -82,17 +82,12 @@ public class IngestActor extends BestiaRoutingActor {
 
 		// === DEVELOPMENT ===
 
-		// Setup the init actor singelton for creation of the system.
-		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(getContext().system());
-		final Props globalInitProps = SpringExtension.getSpringProps(getContext(), InitGlobalActor.class);
-		Props clusterProbs = ClusterSingletonManager.props(globalInitProps, PoisonPill.getInstance(), settings);
-		getContext().actorOf(clusterProbs, "globalInit");
-
+		/*
 		// Try to do the global init if it has not been done before.
 		final ClusterSingletonProxySettings proxySettings = ClusterSingletonProxySettings.create(getContext().system());
 		clusterProbs = ClusterSingletonProxy.props("/user/globalInit", proxySettings);
 		final ActorRef initProxy = getContext().actorOf(clusterProbs, "globalInitProxy");
-		initProxy.tell(new StartInitMessage(), getSelf());
+		initProxy.tell(new StartInitMessage(), getSelf());*/
 	}
 
 	@Override

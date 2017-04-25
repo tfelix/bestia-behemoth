@@ -12,9 +12,14 @@ import org.springframework.stereotype.Component;
 import akka.actor.Actor;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.actor.PoisonPill;
 import akka.actor.Props;
+import akka.cluster.singleton.ClusterSingletonManager;
+import akka.cluster.singleton.ClusterSingletonManagerSettings;
 import net.bestia.zoneserver.actor.SpringExtension.SpringExt;
+import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.IngestActor;
+import net.bestia.zoneserver.actor.zone.InitGlobalActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 
 /**
@@ -49,8 +54,20 @@ public class ZoneStarter implements CommandLineRunner {
 		
 		startActor(IngestActor.class);
 		startActor(SendClientActor.class);
+		startActor(ActiveClientUpdateActor.class);
+		
+		// Setup the init actor singelton for creation of the system.
+		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
+		final Props globalInitProps = springExt.props(InitGlobalActor.class);
+		Props clusterProbs = ClusterSingletonManager.props(globalInitProps, PoisonPill.getInstance(), settings);
+		system.actorOf(clusterProbs, "globalInit");
 	}
 
+	/**
+	 * Helper to start actors.
+	 * @param actorClazz
+	 * @return
+	 */
 	private ActorRef startActor(Class<? extends Actor> actorClazz) {
 		
 		Props props = springExt.props(actorClazz);

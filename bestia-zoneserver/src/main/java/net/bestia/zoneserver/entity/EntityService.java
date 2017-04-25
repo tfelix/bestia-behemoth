@@ -323,17 +323,6 @@ public class EntityService {
 	 * @param clazz
 	 * @return
 	 */
-	public <T extends Component> T addComponent(long entityId, Class<T> clazz) {
-
-		final Entity e = getEntity(entityId);
-
-		if (e == null) {
-			throw new IllegalArgumentException("Entity was not found.");
-		}
-
-		return addComponent(e, clazz);
-	}
-
 	public <T extends Component> T addComponent(Entity entity, Class<T> clazz) {
 		if (!Component.class.isAssignableFrom(clazz)) {
 			throw new IllegalArgumentException("Only accept component classes.");

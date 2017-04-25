@@ -79,7 +79,7 @@ public class EntityServiceTest {
 	@Test
 	public void addComponent_entityIdAndComponent_isAdded() {
 		Entity e1 = entityService.newEntity();
-		PositionComponent posComp = entityService.addComponent(e1.getId(), PositionComponent.class);
+		PositionComponent posComp = entityService.addComponent(e1, PositionComponent.class);
 		Assert.assertNotNull(posComp);
 		Assert.assertTrue(entityService.hasComponent(e1, PositionComponent.class));
 	}
@@ -93,7 +93,7 @@ public class EntityServiceTest {
 	@Test
 	public void hasComponent_addedComponent_true() {
 		Entity e1 = entityService.newEntity();
-		entityService.addComponent(e1.getId(), PositionComponent.class);
+		entityService.addComponent(e1, PositionComponent.class);
 		Assert.assertTrue(entityService.hasComponent(e1, PositionComponent.class));
 	}
 }
