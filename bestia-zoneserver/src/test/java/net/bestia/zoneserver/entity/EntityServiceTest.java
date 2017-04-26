@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import net.bestia.model.dao.PlayerBestiaDAO;
@@ -15,15 +16,14 @@ import net.bestia.zoneserver.entity.components.VisibleComponent;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@ActiveProfiles("test")
 public class EntityServiceTest {
 
 	@Autowired
-	EntityService entityService;
+	private EntityService entityService;
 
 	@MockBean
 	private PlayerBestiaDAO playerBestiaDao;
-	
-	
 
 	@MockBean
 	private ZoneAkkaApi zoneAkkaApi;

@@ -4,30 +4,14 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import com.hazelcast.core.HazelcastInstance;
-
-import net.bestia.zoneserver.BasicMocks;
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = { BasicMocks.class, LatencyServiceTest.ContextConfiguration.class })
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@ActiveProfiles("test")
 public class LatencyServiceTest {
-
-	@Configuration
-	static class ContextConfiguration {
-
-		// this bean will be injected into the OrderServiceTest class
-		@Bean
-		public LatencyService latencyService(HazelcastInstance hz) {
-			LatencyService service = new LatencyService(hz);
-			// set properties, etc.
-			return service;
-		}
-	}
 
 	@Autowired
 	private LatencyService latencyService;
@@ -37,27 +21,34 @@ public class LatencyServiceTest {
 		new LatencyService(null);
 	}
 
-	/*
-	 * @Test public void getTimestamp_id_newTimestamp() { LatencyService src =
-	 * new LatencyService(hz); long stamp = src.getTimestamp(123);
-	 * Assert.assertNotEquals(0, stamp); }
-	 * 
-	 * @Test(expected = IllegalStateException.class) public void
-	 * addLatency_noStampSet_throws() { LatencyService src = new
-	 * LatencyService(hz); src.addLatency(123, 10000000, 10000000); }
-	 * 
-	 * @Test public void addLatency_stampSet_ok() { LatencyService src = new
-	 * LatencyService(hz); long stamp = src.getTimestamp(123);
-	 * src.addLatency(123, stamp + 100, stamp); }
-	 * 
-	 * @Test(expected = IllegalStateException.class) public void
-	 * getClientLatency_noAccount_throws() { LatencyService src = new
-	 * LatencyService(hz); src.getClientLatency(123); }
-	 * 
-	 * @Test public void getClientLatency_accountLatencyAdded_ok() {
-	 * LatencyService src = new LatencyService(hz); long stamp =
-	 * src.getTimestamp(123); src.addLatency(123, stamp + 150, stamp); int
-	 * latency = src.getClientLatency(123); Assert.assertEquals(150, latency); }
-	 */
+	@Test
+	public void getTimestamp_id_newTimestamp() {
+		long stamp = latencyService.getTimestamp(123);
+		Assert.assertNotEquals(0, stamp);
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void addLatency_noStampSet_throws() {
+		latencyService.addLatency(123, 10000000, 10000000);
+	}
+
+	@Test
+	public void addLatency_stampSet_ok() {
+		long stamp = latencyService.getTimestamp(123);
+		latencyService.addLatency(123, stamp + 100, stamp);
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void getClientLatency_noAccount_throws() {
+		latencyService.getClientLatency(123);
+	}
+
+	@Test
+	public void getClientLatency_accountLatencyAdded_ok() {
+		long stamp = latencyService.getTimestamp(123);
+		latencyService.addLatency(123, stamp + 150, stamp);
+		int latency = latencyService.getClientLatency(123);
+		Assert.assertEquals(150, latency);
+	}
 
 }

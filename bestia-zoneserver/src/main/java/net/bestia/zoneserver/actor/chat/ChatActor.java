@@ -20,7 +20,7 @@ import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import net.bestia.zoneserver.entity.components.PositionComponent;
-import net.bestia.zoneserver.service.AccountZoneService;
+import net.bestia.zoneserver.service.AccountService;
 
 /**
  * This actor processes chat messages from the clients to the bestia system. It
@@ -38,14 +38,14 @@ public class ChatActor extends BestiaRoutingActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "chat";
 
-	private final AccountZoneService accService;
+	private final AccountService accService;
 	private final PlayerEntityService playerEntityService;
 	private final ChatCommandService chatCmdService;
 	private final EntityService entityService;
 	private final PartyDAO partyDao;
 
 	@Autowired
-	public ChatActor(AccountZoneService accService, PlayerEntityService playerEntityService,
+	public ChatActor(AccountService accService, PlayerEntityService playerEntityService,
 			ChatCommandService chatCmdService, PartyDAO partyDao, EntityService entityService) {
 		super(Arrays.asList(ChatMessage.class));
 

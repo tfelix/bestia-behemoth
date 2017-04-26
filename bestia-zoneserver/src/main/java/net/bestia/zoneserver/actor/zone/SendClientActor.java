@@ -1,7 +1,8 @@
 package net.bestia.zoneserver.actor.zone;
 
+import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -11,8 +12,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.AccountMessage;
 import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.configuration.CacheConfiguration;
-import net.bestia.zoneserver.service.CacheManager;
+import net.bestia.zoneserver.service.ConnectionService;
 
 /**
  * The {@link SendClientActor} is responsible for the delivery of messages
@@ -29,14 +29,13 @@ public class SendClientActor extends BestiaActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "sendToClient";
-
-	private final CacheManager<Long, ActorPath> clientCache;
+	
+	private final ConnectionService connectionService;
 
 	@Autowired
-	public SendClientActor(
-			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorPath> clientCache) {
+	public SendClientActor(ConnectionService connectionService) {
 
-		this.clientCache = clientCache;
+		this.connectionService = Objects.requireNonNull(connectionService);
 	}
 
 	@Override
@@ -45,7 +44,7 @@ public class SendClientActor extends BestiaActor {
 		if (message instanceof AccountMessage) {
 
 			final AccountMessage accMsg = (AccountMessage) message;
-			final ActorPath originPath = clientCache.get(accMsg.getAccountId());
+			final ActorPath originPath = connectionService.getPath(accMsg.getAccountId());
 			final ActorSelection origin = getContext().actorSelection(originPath);
 
 			if (origin == null) {

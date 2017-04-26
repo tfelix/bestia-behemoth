@@ -1,40 +1,49 @@
-package net.bestia.model.service;
+package net.bestia.zoneserver.service;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import com.github.springtestdbunit.DbUnitTestExecutionListener;
-import com.github.springtestdbunit.annotation.DatabaseSetup;
-
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.dao.BestiaDAO;
+import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.PlayerClass;
 
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"/spring-config.xml"})
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class,
-        DbUnitTestExecutionListener.class })
-@DatabaseSetup("/db/accounts.xml")
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@ActiveProfiles("test")
 public class AccountServiceTest {
 
 	@Autowired
 	private AccountService accService;
+	
+	@MockBean
+	private AccountDAO accountDao;
+	
+	@MockBean
+	private PlayerBestiaDAO playerBestiaDao;
+	
+	@MockBean
+	private BestiaDAO bestiaDao;
 
-	@Test(expected=IllegalArgumentException.class)
+	@MockBean
+	private ConnectionService connectionService;
+
+	@Test(expected = IllegalArgumentException.class)
 	public void createNewAccount_noMail_fail() {
 		accService.createNewAccount("", "Ignatz", "test123", PlayerClass.KNIGHT);
 	}
-	
-	@Test(expected=IllegalArgumentException.class)
+
+	@Test(expected = IllegalArgumentException.class)
 	public void createNewAccount_nullMail_fail() {
 		accService.createNewAccount(null, "Ignatz", "test123", PlayerClass.KNIGHT);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void createNewAccount_duplicateMail_fail() {
 		accService.createNewAccount("thomas.new123@tfelix.de", "Ignatz", "test123", PlayerClass.KNIGHT);
 		accService.createNewAccount("thomas.new123@tfelix.de", "Ignatz2", "test123", PlayerClass.KNIGHT);
@@ -45,28 +54,28 @@ public class AccountServiceTest {
 		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "test123", PlayerClass.KNIGHT);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void createNewAccount_noMasterName_fail() {
 		accService.createNewAccount("thomas.felix@tfelix.de", "", "test123", PlayerClass.KNIGHT);
 	}
-	
-	@Test(expected=IllegalArgumentException.class)
+
+	@Test(expected = IllegalArgumentException.class)
 	public void createNewAccount_nullMasterName_fail() {
 		accService.createNewAccount("thomas.felix@tfelix.de", null, "test123", PlayerClass.KNIGHT);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void createNewAccount_duplicateMasterName_fail() {
 		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "test123", PlayerClass.KNIGHT);
 		accService.createNewAccount("thomas.felix2@tfelix.de", "Ignatz", "test123", PlayerClass.KNIGHT);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void createNewAccount_nullPassword_fail() {
 		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", null, PlayerClass.KNIGHT);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void createNewAccount_emptyPassword_fail() {
 		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "", PlayerClass.KNIGHT);
 	}

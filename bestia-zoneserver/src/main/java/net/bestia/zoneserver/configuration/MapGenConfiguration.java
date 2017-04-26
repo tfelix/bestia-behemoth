@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import de.tfelix.bestia.worldgen.MapNodeGenerator;
 import de.tfelix.bestia.worldgen.io.LocalFileMapGenDAO;
@@ -32,6 +33,7 @@ import net.bestia.zoneserver.map.MapService;
  *
  */
 @Configuration
+@Profile("production")
 public class MapGenConfiguration {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MapGenConfiguration.class);

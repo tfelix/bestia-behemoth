@@ -3,6 +3,7 @@ package net.bestia.zoneserver.configuration;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 
 import net.bestia.zoneserver.entity.Blueprint;
@@ -13,6 +14,7 @@ import net.bestia.zoneserver.entity.components.StatusComponent;
 import net.bestia.zoneserver.entity.components.VisibleComponent;
 
 @Configuration
+@Profile({"production", "test"})
 public class BlueprintConfiguration {
 
 	@Bean

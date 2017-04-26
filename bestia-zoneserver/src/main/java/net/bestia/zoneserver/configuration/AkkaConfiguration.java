@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.typesafe.config.Config;
@@ -38,6 +39,7 @@ import net.bestia.zoneserver.entity.EntityContext;
  *
  */
 @Configuration
+@Profile("production")
 public class AkkaConfiguration {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AkkaConfiguration.class);
@@ -96,13 +98,13 @@ public class AkkaConfiguration {
 	 */
 	@Bean
 	EntityContext entityContext(ActorSystem system) {
-		
+
 		final EntityContext ctx = TypedActor.get(system)
 				.typedActorOf(new TypedProps<EntityAkkaContext>(EntityContext.class, EntityAkkaContext.class));
 
 		return ctx;
 	}
-	
+
 	@Bean
 	public ZoneAkkaApi zoneAkkaApi(ActorSystem system) {
 

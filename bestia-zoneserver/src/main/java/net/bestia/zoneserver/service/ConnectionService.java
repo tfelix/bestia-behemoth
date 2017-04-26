@@ -4,15 +4,14 @@ import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 import com.hazelcast.core.MultiMap;
 
 import akka.actor.ActorPath;
 import akka.actor.Address;
-import net.bestia.zoneserver.configuration.CacheConfiguration;
 
 /**
  * This service is for managing the connections to the zone server. We must keep
@@ -27,14 +26,12 @@ import net.bestia.zoneserver.configuration.CacheConfiguration;
 public class ConnectionService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(ConnectionService.class);
-	private final CacheManager<Long, ActorPath> clientCache;
+	private final IMap<Long, ActorPath> connections;
 	private final MultiMap<String, Long> webserverCache;
 
-	public ConnectionService(
-			@Qualifier(CacheConfiguration.CLIENT_CACHE) CacheManager<Long, ActorPath> clientCache,
-			HazelcastInstance hz) {
+	public ConnectionService(HazelcastInstance hz) {
 
-		this.clientCache = clientCache;
+		this.connections = hz.getMap("clients.connections");
 		this.webserverCache = hz.getMultiMap("cache.webserver");
 
 	}
@@ -47,7 +44,7 @@ public class ConnectionService {
 	 */
 	public void addClient(long accId, ActorPath path) {
 		LOG.trace("Adding client id: {} connection: {}", accId, path);
-		clientCache.set(accId, path);
+		connections.set(accId, path);
 		webserverCache.put(path.address().toString(), accId);
 	}
 
@@ -70,14 +67,14 @@ public class ConnectionService {
 	 */
 	public void removeClient(long accId) {
 		LOG.trace("Removing client id: {} connection.", accId);
-		final ActorPath ref = clientCache.get(accId);
+		final ActorPath ref = connections.get(accId);
 		
 		if(ref == null) {
 			// This might happen if this client is actually not connected.
 			return;
 		}
 		
-		clientCache.remove(accId);
+		connections.remove(accId);
 		webserverCache.remove(ref.address().toString(), accId);
 	}
 
@@ -100,6 +97,6 @@ public class ConnectionService {
 	 *         suitable connection is found.
 	 */
 	public ActorPath getPath(long accId) {
-		return clientCache.get(accId);
+		return connections.get(accId);
 	}
 }

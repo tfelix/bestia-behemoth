@@ -7,7 +7,13 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import net.bestia.model.dao.MapDataDAO;
 import net.bestia.model.dao.MapParameterDAO;
@@ -17,32 +23,31 @@ import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
 import net.bestia.zoneserver.map.MapService;
 
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@ActiveProfiles("test")
 public class MapServiceTest {
 
 	private static final String MAP_NAME = "kalarian";
 	private static final String AREA_NAME = "deimuddah";
 
+	@Autowired
 	private MapService ms;
-	private MapService noMapMs;
 
-	private MapDataDAO noMapDataDaoMock;
-	private MapDataDAO mapDataDaoMock;
-	private MapParameterDAO mapParameterDaoMock;
+	@MockBean
+	private MapDataDAO dataDao;
+	
+	@MockBean
+	private MapParameterDAO paramDao;
 
 	@Before
-	public void setUp() {
-		mapDataDaoMock = Mockito.mock(MapDataDAO.class);
-		noMapDataDaoMock = Mockito.mock(MapDataDAO.class);
+	public void setup() {
 		
-		mapParameterDaoMock = Mockito.mock(MapParameterDAO.class);
-
-		ms = new MapService(mapDataDaoMock, mapParameterDaoMock);
-		noMapMs = new MapService(noMapDataDaoMock, mapParameterDaoMock);
 	}
 
 	@Test
 	public void isMapInitialized_noMapInsideDB_false() {
-		Assert.assertFalse(noMapMs.isMapInitialized());
+		Assert.assertFalse(ms.isMapInitialized());
 	}
 
 	@Test
@@ -71,7 +76,7 @@ public class MapServiceTest {
 
 	@Test
 	public void getMapName_noMapInsideDB_emptyStr() {
-		Assert.assertEquals("", noMapMs.getMapName());
+		Assert.assertEquals("", ms.getMapName());
 	}
 
 	@Test

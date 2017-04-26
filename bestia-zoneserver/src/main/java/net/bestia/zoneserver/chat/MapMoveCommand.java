@@ -52,7 +52,7 @@ public class MapMoveCommand extends BaseChatCommand {
 	}
 
 	@Override
-	protected void performCommand(Account account, String text) {
+	protected void executeCommand(Account account, String text) {
 		// Its okay, now execute the command.
 		final Matcher match = cmdPattern.matcher(text);
 

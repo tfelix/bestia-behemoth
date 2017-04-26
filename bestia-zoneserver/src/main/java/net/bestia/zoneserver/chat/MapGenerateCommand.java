@@ -41,7 +41,7 @@ public class MapGenerateCommand extends BaseChatCommand {
 	}
 
 	@Override
-	protected void performCommand(Account account, String text) {
+	protected void executeCommand(Account account, String text) {
 
 		// Create the base params.
 		MapParameter baseParams = MapParameter.fromAverageUserCount(1, "Narnia");

@@ -61,14 +61,21 @@ public class PlayerEntityService {
 
 	/**
 	 * Sets the entity id as the active player bestia for the given account id.
+	 * This will throw if the given entity id does not exist in the system.
 	 * 
 	 * @param accId
 	 * @param activeEntityId
+	 * @throws IllegalArgumentException
+	 *             If the entity id does not exist.
 	 */
 	public void setActiveEntity(long accId, long activeEntityId) {
+		if (null == entityService.getEntity(activeEntityId)) {
+			throw new IllegalArgumentException("Active entity id was not found in the system. Add it first.");
+		}
+
 		// Remove the active flag from the last active player bestia.
 		activeEntities.put(accId, activeEntityId);
-		
+
 		LOG.debug("Activating entity id: {} for account: {}", activeEntityId, accId);
 
 		final BestiaActivateMessage activateMsg = new BestiaActivateMessage(
@@ -175,14 +182,7 @@ public class PlayerEntityService {
 	 *            A collection of player bestias.
 	 */
 	public void putPlayerEntities(Collection<Entity> pb) {
-		pb.stream()
-				.filter(x -> entityService.hasComponent(x, PlayerComponent.class))
-				.forEach(e -> {
-					Optional<PlayerComponent> playerComp = entityService.getComponent(e, PlayerComponent.class);
-
-					final long accId = playerComp.get().getOwnerAccountId();
-					playerBestiaEntitiesIds.put(accId, e.getId());
-				});
+		pb.forEach(this::putPlayerEntity);
 	}
 
 	/**
@@ -231,39 +231,39 @@ public class PlayerEntityService {
 	 * 
 	 * @param playerBestia
 	 *            The player bestia entity to be removed.
-	 *            @return TRUE if the entity could be removed. FALSE otherwise.
+	 * @return TRUE if the entity could be removed. FALSE otherwise.
 	 */
 	public boolean removePlayerBestia(Entity playerBestia) {
-		
+
 		final PlayerComponent playerComp = entityService
 				.getComponent(playerBestia, PlayerComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
-		
+
 		final long accId = playerComp.getOwnerAccountId();
 		final long playerBestiaId = playerComp.getPlayerBestiaId();
-		
+
 		// Dont remove if its the last bestia.
-		if(playerBestiaEntitiesIds.get(accId).isEmpty()) {
+		if (playerBestiaEntitiesIds.get(accId).isEmpty()) {
 			LOG.debug("Cant remove last player bestia entity.");
 			return false;
 		}
-		
+
 		entityService.delete(playerBestia);
 		playerBestiaEntitiesIds.remove(accId, playerBestiaId);
-		
+
 		if (activeEntities.get(accId) == playerBestia.getId()) {
 			// Select a new active bestia and notify the client.
 			long newActive = playerBestiaEntitiesIds.get(accId).stream().findAny().orElse(0L);
-			
-			if(newActive == 0) {
+
+			if (newActive == 0) {
 				LOG.warn("Could not select a new active bestia for account {}", accId);
 				return false;
 			}
-			
+
 			setActiveEntity(accId, newActive);
 			return true;
 		}
-		
+
 		return true;
 	}
 }

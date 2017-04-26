@@ -21,7 +21,7 @@ public interface ChatCommand {
 	 * @param accId
 	 *            Account id which issued this command.
 	 * @param text
-	 *            Chat text
+	 *            Chat text typed by the user.
 	 */
 	void executeCommand(long accId, String text);
 

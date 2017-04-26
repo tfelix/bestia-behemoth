@@ -11,6 +11,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 
 import net.bestia.zoneserver.script.ScriptCache;
@@ -25,6 +26,7 @@ import net.bestia.zoneserver.script.ScriptType;
  */
 @Configuration
 @PropertySource(value = "classpath:application.properties", ignoreResourceNotFound = true)
+@Profile("production")
 public class ScriptConfiguration {
 
 	private static class ScriptDir {

@@ -1,11 +1,11 @@
 package net.bestia.zoneserver.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
-
-import net.bestia.zoneserver.service.CacheManager;
+import com.hazelcast.core.IMap;
 
 /**
  * This configuration service holds information about the current state of the
@@ -16,12 +16,15 @@ import net.bestia.zoneserver.service.CacheManager;
  *
  */
 @Service
-public class RuntimeConfigurationService extends CacheManager<String, Object> {
+@Profile({ "production", "test" })
+public class RuntimeConfigurationService {
+
+	private final IMap<String, Object> config;
 
 	@Autowired
-	public RuntimeConfigurationService(HazelcastInstance cache) {
-		super("server.config", cache);
-		// no op.
+	public RuntimeConfigurationService(HazelcastInstance hz) {
+
+		this.config = hz.getMap("server.config");
 	}
 
 	/**
@@ -30,7 +33,7 @@ public class RuntimeConfigurationService extends CacheManager<String, Object> {
 	 * @return TRUE if the server is in maintenance mode. FALSE otherwise.
 	 */
 	public boolean isMaintenanceMode() {
-		return (Boolean) get("serverMaintenanceMode", false);
+		return (Boolean) config.getOrDefault("serverMaintenanceMode", false);
 	}
 
 	/**
@@ -40,7 +43,7 @@ public class RuntimeConfigurationService extends CacheManager<String, Object> {
 	 *            The flag to set the server into maintenance mode.
 	 */
 	public void setMaintenanceMode(boolean flag) {
-		set("serverMaintenanceMode", flag);
+		config.set("serverMaintenanceMode", flag);
 	}
 
 }

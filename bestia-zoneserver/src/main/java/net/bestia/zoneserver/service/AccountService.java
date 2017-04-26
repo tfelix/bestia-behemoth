@@ -1,4 +1,4 @@
-package net.bestia.model.service;
+package net.bestia.zoneserver.service;
 
 import java.util.Date;
 import java.util.Objects;
@@ -25,24 +25,27 @@ import net.bestia.model.domain.PlayerClass;
  * Generates all the needed account services. Please be careful: This factory is
  * not threadsafe. Therefore each thread should have its own AccountService.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 @Service
 public class AccountService {
 
-	private final static Logger LOG = LoggerFactory.getLogger(AccountService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AccountService.class);
 
 	private AccountDAO accountDao;
 	private PlayerBestiaDAO playerBestiaDao;
 	private BestiaDAO bestiaDao;
-	
+	private ConnectionService connectionService;
+
 	@Autowired
-	public AccountService(AccountDAO accDao, PlayerBestiaDAO playerBestiaDao, BestiaDAO bestiaDao) {
+	public AccountService(AccountDAO accDao, PlayerBestiaDAO playerBestiaDao, BestiaDAO bestiaDao,
+			ConnectionService connectionService) {
 		this.accountDao = Objects.requireNonNull(accDao);
 		this.bestiaDao = Objects.requireNonNull(bestiaDao);
 		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
+		this.connectionService = Objects.requireNonNull(connectionService);
 	}
 
 	/**
@@ -54,14 +57,14 @@ public class AccountService {
 	 */
 	public Account createLoginToken(String accName, String password) {
 		final Account acc = accountDao.findByEmail(accName);
-		if(acc == null) {
+		if (acc == null) {
 			return null;
 		}
-		
-		if(!acc.getPassword().matches(password)) {
+
+		if (!acc.getPassword().matches(password)) {
 			return null;
 		}
-		
+
 		acc.setLastLogin(new Date());
 		acc.setLoginToken(UUID.randomUUID().toString());
 		accountDao.save(acc);
@@ -129,4 +132,31 @@ public class AccountService {
 			throw new IllegalArgumentException("Could not create account. Duplicate mail.", ex);
 		}
 	}
+
+	/**
+	 * Returns accounts via their username (bestia master name), but only if
+	 * they are online. If the account is currently not logged in then null is
+	 * returned.
+	 * 
+	 * @param username
+	 *            The bestia master name to look for.
+	 * @return The {@link Account} of this bestia master or null if the name
+	 *         does not exist or the account is not online.
+	 */
+	public Account getOnlineAccountByName(String username) {
+		Objects.requireNonNull(username);
+		final Account acc = accountDao.findByUsername(username);
+
+		if (acc == null) {
+			return null;
+		}
+
+		// Check if this account is online.
+		if (null == connectionService.getPath(acc.getId())) {
+			return null;
+		}
+
+		return acc;
+	}
+
 }

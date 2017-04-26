@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.MapParameter;
@@ -18,6 +19,7 @@ import net.bestia.zoneserver.map.path.Pathfinder;
  *
  */
 @Configuration
+@Profile("production")
 public class ZoneConfiguration {
 
 	/**
