@@ -106,7 +106,7 @@ public class ZoneClusterListenerActor extends BestiaActor {
 				final Address addr = mRemoved.member().address();
 				final Collection<Long> clientIds = connectionService.getClients(addr);
 				clientIds.forEach(id -> entityService.removePlayerBestias(id));
-				connectionService.removeClient(addr);
+				connectionService.removeClients(addr);
 			}
 
 		} else if (message instanceof MemberEvent) {

@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.service;
 
 import java.util.Collection;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,10 @@ public class ConnectionService {
 	 * @param path
 	 */
 	public void addClient(long accId, ActorPath path) {
+		if (accId < 0) {
+			throw new IllegalArgumentException("Account ID must be positive.");
+		}
+
 		LOG.trace("Adding client id: {} connection: {}", accId, path);
 		connections.set(accId, path);
 		webserverCache.put(path.address().toString(), accId);
@@ -56,6 +61,7 @@ public class ConnectionService {
 	 * @return All clients which are connected to this webserver.
 	 */
 	public Collection<Long> getClients(Address addr) {
+		Objects.requireNonNull(addr);
 		return webserverCache.get(addr.toString());
 	}
 
@@ -68,12 +74,12 @@ public class ConnectionService {
 	public void removeClient(long accId) {
 		LOG.trace("Removing client id: {} connection.", accId);
 		final ActorPath ref = connections.get(accId);
-		
-		if(ref == null) {
+
+		if (ref == null) {
 			// This might happen if this client is actually not connected.
 			return;
 		}
-		
+
 		connections.remove(accId);
 		webserverCache.remove(ref.address().toString(), accId);
 	}
@@ -84,7 +90,7 @@ public class ConnectionService {
 	 * @param addr
 	 *            The address to remove all clients.
 	 */
-	public void removeClient(Address addr) {
+	public void removeClients(Address addr) {
 		getClients(addr).forEach(id -> removeClient(id));
 	}
 

@@ -1,8 +1,5 @@
 package net.bestia.zoneserver;
 
-import java.net.UnknownHostException;
-
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -17,27 +14,29 @@ import akka.actor.ActorSystem;
 @Configuration
 @Profile("test")
 public class BasicMocks {
-	
+
 	@Bean
 	public HazelcastInstance hazelcast() {
 		TestHazelcastInstanceFactory hzFact = new TestHazelcastInstanceFactory();
-    	HazelcastInstance hz = hzFact.newHazelcastInstance();
-    	return hz;
+		HazelcastInstance hz = hzFact.newHazelcastInstance();
+		return hz;
 	}
 
 	@Bean
-	public ActorSystem actorSystem(HazelcastInstance hzInstance, ApplicationContext appContext)
-			throws UnknownHostException {
+	public ActorSystem actorSystem() {
+
+		return actorSystem("test-cluster");
+	}
+	
+	public ActorSystem actorSystem(String systemName) {
 
 		final Config akkaConfig = ConfigFactory.empty();
-		final ActorSystem system = ActorSystem.create("test-cluster", akkaConfig);
+		final ActorSystem system = ActorSystem.create(systemName, akkaConfig);
 
 		// initialize the application context in the Akka Spring extension.
-		//SpringExtension.PROVIDER.get(system).initialize(appContext);
+		// SpringExtension.PROVIDER.get(system).initialize(appContext);
 
 		return system;
 	}
-	
-	
 
 }
