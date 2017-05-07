@@ -381,15 +381,8 @@ public class EntityService {
 		});
 	}
 
-	@SafeVarargs
-	public final boolean hasComponent(Entity entity, Class<? extends Component>... clazzs) {
+	public boolean hasComponent(Entity entity, Class<? extends Component> clazz) {
 
-		for (Class<? extends Component> clazz : clazzs) {
-			if (entity.getComponentId(clazz) == 0) {
-				return false;
-			}
-		}
-
-		return true;
+		return entity.getComponentId(clazz) != 0;
 	}
 }
