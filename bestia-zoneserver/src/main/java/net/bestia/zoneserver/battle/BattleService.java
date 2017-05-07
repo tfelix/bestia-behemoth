@@ -48,7 +48,11 @@ public class BattleService {
 	public void attackGround(Attack usedAttack, Entity attacker, Point target) {
 
 		// Check if we have valid x and y.
-		if(!entityCtx.getEntity().hasComponent(attacker, StatusComponent.class, PositionComponent.class)) {
+		if(!entityCtx.getEntity().hasComponent(attacker, StatusComponent.class)) {
+			return;
+		}
+		
+		if(!entityCtx.getEntity().hasComponent(attacker, PositionComponent.class)) {
 			return;
 		}
 		

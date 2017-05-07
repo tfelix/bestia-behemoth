@@ -47,10 +47,8 @@ public class PlayerEntityService {
 	private final ZoneAkkaApi akkaApi;
 
 	@Autowired
-	public PlayerEntityService(HazelcastInstance hz,
-			EntityService entityService,
-			PlayerBestiaService playerBestiaService,
-			ZoneAkkaApi akkaApi) {
+	public PlayerEntityService(HazelcastInstance hz, EntityService entityService,
+			PlayerBestiaService playerBestiaService, ZoneAkkaApi akkaApi) {
 
 		this.activeEntities = hz.getMap(ACTIVE_ENTITIES_KEY);
 		this.playerBestiaEntitiesIds = hz.getMultiMap(PLAYER_ENTITIES_KEY);
@@ -78,9 +76,7 @@ public class PlayerEntityService {
 
 		LOG.debug("Activating entity id: {} for account: {}", activeEntityId, accId);
 
-		final BestiaActivateMessage activateMsg = new BestiaActivateMessage(
-				accId,
-				activeEntityId);
+		final BestiaActivateMessage activateMsg = new BestiaActivateMessage(accId, activeEntityId);
 		akkaApi.sendToClient(activateMsg);
 	}
 
@@ -131,21 +127,16 @@ public class PlayerEntityService {
 	 */
 	public List<Long> getActiveAccountIdsInRange(Rect range) {
 
-		List<PlayerComponent> pbe = entityService.getEntitiesInRange(range, PlayerComponent.class)
-				.stream()
-				.map(x -> entityService.getComponent(x, PlayerComponent.class))
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.collect(Collectors.toList());
+		List<PlayerComponent> pbe = entityService.getEntitiesInRange(range, PlayerComponent.class).stream()
+				.map(x -> entityService.getComponent(x, PlayerComponent.class)).filter(Optional::isPresent)
+				.map(Optional::get).collect(Collectors.toList());
 
-		return pbe.stream()
-				.filter(x -> isActiveEntity(x.getOwnerAccountId(), x.getId()))
-				.map(x -> x.getOwnerAccountId())
-				.collect(Collectors.toList());
+		return pbe.stream().filter(x -> isActiveEntity(x.getOwnerAccountId(), x.getId()))
+				.map(x -> x.getOwnerAccountId()).collect(Collectors.toList());
 	}
 
 	/**
-	 * Returns all player bestias for a given account.
+	 * Returns all player bestia entities for a given account.
 	 * 
 	 * @param accId
 	 * @return The set of player bestia entities of a single player.
@@ -153,13 +144,20 @@ public class PlayerEntityService {
 	public Set<Entity> getPlayerEntities(long accId) {
 
 		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
-		return entityService.getAllEntities(new HashSet<>(ids))
-				.values()
-				.stream()
-				.filter(x -> entityService.hasComponent(x, PlayerComponent.class))
-				.collect(Collectors.toSet());
+		return entityService.getAllEntities(new HashSet<>(ids)).values().stream()
+				.filter(x -> entityService.hasComponent(x, PlayerComponent.class)).collect(Collectors.toSet());
 	}
 
+	/**
+	 * Returns the master entity for a given account. There MUST be a master
+	 * bestia registered for every account otherwise something very strange
+	 * happened. The optional is empty if the account id was not known and no
+	 * master was found for it.
+	 * 
+	 * @param accId
+	 *            The account id to lookup the master.
+	 * @return The found master entity.
+	 */
 	public Optional<Entity> getMasterEntity(long accId) {
 		final PlayerBestia masterBestia = playerBestiaService.getMaster(accId);
 
@@ -177,6 +175,9 @@ public class PlayerEntityService {
 	 * Inserts the given player bestias into the cache. The player bestias are
 	 * not required be from the same player account. This will be taken care
 	 * off.
+	 * 
+	 * This registers the given entities as player bestias. Only entities owning
+	 * the component {@link PlayerComponent} will be processed by this call.
 	 * 
 	 * @param pb
 	 *            A collection of player bestias.
@@ -235,8 +236,7 @@ public class PlayerEntityService {
 	 */
 	public boolean removePlayerBestia(Entity playerBestia) {
 
-		final PlayerComponent playerComp = entityService
-				.getComponent(playerBestia, PlayerComponent.class)
+		final PlayerComponent playerComp = entityService.getComponent(playerBestia, PlayerComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
 		final long accId = playerComp.getOwnerAccountId();
