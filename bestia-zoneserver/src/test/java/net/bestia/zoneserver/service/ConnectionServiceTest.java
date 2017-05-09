@@ -15,7 +15,7 @@ import net.bestia.zoneserver.BasicMocks;
 public class ConnectionServiceTest {
 
 	private BasicMocks mocks = new BasicMocks();
-	private HazelcastInstance hz = mocks.hazelcast();
+	private HazelcastInstance hz = mocks.hazelcastMock();
 
 	private ConnectionService conSrv;
 	private TestProbe webserver;

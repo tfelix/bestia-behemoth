@@ -33,4 +33,9 @@ public class PlayerComponent extends Component {
 		this.playerBestiaId = playerBestiaId;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("PlayerComponent[accId: %d, pbId: %d]", getOwnerAccountId(), getPlayerBestiaId());
+	}
+
 }

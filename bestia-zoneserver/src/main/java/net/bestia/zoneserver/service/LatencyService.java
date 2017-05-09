@@ -48,7 +48,7 @@ public class LatencyService {
 	 */
 	public long getTimestamp(long accountId) {
 		final long stamp = System.currentTimeMillis();
-		timestampStore.putAsync(accountId, stamp);
+		timestampStore.put(accountId, stamp);
 		return stamp;
 	}
 
@@ -91,6 +91,7 @@ public class LatencyService {
 
 		data.add(latency);
 		latencyStore.putAsync(accountId, data);
+		LOG.debug("Added latency {} ms for user {}.", latency, accountId);
 	}
 
 	/**
@@ -105,7 +106,7 @@ public class LatencyService {
 
 		Queue<Integer> stamps = latencyStore.get(accountId);
 
-		if (stamps.size() == 0) {
+		if (stamps == null) {
 			throw new IllegalStateException("No latency for account " + accountId + " found");
 		}
 
@@ -115,10 +116,13 @@ public class LatencyService {
 
 		int median = 0;
 
-		if (data.length % 2 == 0)
+		if (data.length % 2 == 0) {
 			median = (data[data.length / 2] + data[data.length / 2 - 1]) / 2;
-		else
+		} else {
 			median = data[data.length / 2];
+		}
+		
+		LOG.debug("Found median latency {} ms for user {}.", median, accountId);
 
 		return median;
 	}

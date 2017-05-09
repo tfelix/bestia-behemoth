@@ -35,6 +35,7 @@
 		<akka.version>2.4.12</akka.version>
 		<hazelcast.version>3.7.2</hazelcast.version>
 		<jetty.version>9.3.10.v20160621</jetty.version>
+		<slf4j.version>1.7.21</slf4j.version>
 		<java.version>1.8</java.version>
 	</properties>
 
@@ -203,7 +204,7 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>1.7.21</version>
+			<version>${slf4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>

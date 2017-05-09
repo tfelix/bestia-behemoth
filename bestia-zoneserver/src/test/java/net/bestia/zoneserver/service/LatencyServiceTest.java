@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.service;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,13 +9,21 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@ActiveProfiles("test")
+import com.hazelcast.core.HazelcastInstance;
+
+import net.bestia.zoneserver.BasicMocks;
+
 public class LatencyServiceTest {
 
-	@Autowired
+	private final static BasicMocks mocks = new BasicMocks();
+	private final static HazelcastInstance hz = mocks.hazelcastMock();
+	
 	private LatencyService latencyService;
+	
+	@Before
+	public void setup() {
+		latencyService = new LatencyService(hz);
+	}
 
 	@Test(expected = NullPointerException.class)
 	public void ctor_null_throws() {

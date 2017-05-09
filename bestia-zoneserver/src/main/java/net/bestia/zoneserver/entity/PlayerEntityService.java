@@ -127,12 +127,17 @@ public class PlayerEntityService {
 	 */
 	public List<Long> getActiveAccountIdsInRange(Rect range) {
 
-		List<PlayerComponent> pbe = entityService.getEntitiesInRange(range, PlayerComponent.class).stream()
-				.map(x -> entityService.getComponent(x, PlayerComponent.class)).filter(Optional::isPresent)
-				.map(Optional::get).collect(Collectors.toList());
+		List<PlayerComponent> pbe = entityService.getEntitiesInRange(range, PlayerComponent.class)
+				.stream()
+				.map(x -> entityService.getComponent(x, PlayerComponent.class))
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.collect(Collectors.toList());
 
-		return pbe.stream().filter(x -> isActiveEntity(x.getOwnerAccountId(), x.getId()))
-				.map(x -> x.getOwnerAccountId()).collect(Collectors.toList());
+		return pbe.stream()
+				.filter(x -> isActiveEntity(x.getOwnerAccountId(), x.getId()))
+				.map(x -> x.getOwnerAccountId())
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -144,8 +149,11 @@ public class PlayerEntityService {
 	public Set<Entity> getPlayerEntities(long accId) {
 
 		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
-		return entityService.getAllEntities(new HashSet<>(ids)).values().stream()
-				.filter(x -> entityService.hasComponent(x, PlayerComponent.class)).collect(Collectors.toSet());
+		return entityService.getAllEntities(new HashSet<>(ids))
+				.values()
+				.stream()
+				.filter(x -> entityService.hasComponent(x, PlayerComponent.class))
+				.collect(Collectors.toSet());
 	}
 
 	/**
@@ -207,8 +215,17 @@ public class PlayerEntityService {
 	 *            The player entity to put into the cache.
 	 */
 	public void putPlayerEntity(Entity entity) {
+		Objects.requireNonNull(entity);
+
+		// Can only add entities with player component.
 		entityService.getComponent(entity, PlayerComponent.class).ifPresent(comp -> {
-			playerBestiaEntitiesIds.put(comp.getOwnerAccountId(), comp.getPlayerBestiaId());
+
+			final long accId = comp.getOwnerAccountId();
+			final long entityId = entity.getId();
+
+			LOG.debug("Adding player entity: accId: {}, entityId: {}.", accId, entityId);
+
+			playerBestiaEntitiesIds.put(accId, entityId);
 		});
 	}
 
@@ -236,11 +253,12 @@ public class PlayerEntityService {
 	 */
 	public boolean removePlayerBestia(Entity playerBestia) {
 
+		Objects.requireNonNull(playerBestia);
+
 		final PlayerComponent playerComp = entityService.getComponent(playerBestia, PlayerComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
 		final long accId = playerComp.getOwnerAccountId();
-		final long playerBestiaId = playerComp.getPlayerBestiaId();
 
 		// Dont remove if its the last bestia.
 		if (playerBestiaEntitiesIds.get(accId).isEmpty()) {
@@ -249,7 +267,7 @@ public class PlayerEntityService {
 		}
 
 		entityService.delete(playerBestia);
-		playerBestiaEntitiesIds.remove(accId, playerBestiaId);
+		playerBestiaEntitiesIds.remove(accId, playerBestia.getId());
 
 		if (activeEntities.get(accId) == playerBestia.getId()) {
 			// Select a new active bestia and notify the client.

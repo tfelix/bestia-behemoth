@@ -298,6 +298,8 @@ public class EntityService {
 
 	public <T extends Component> Optional<T> getComponent(Entity e, Class<T> clazz) {
 		Objects.requireNonNull(e);
+		
+		LOG.trace("Getting component {} from entity: {}", clazz, e);
 
 		@SuppressWarnings("unchecked")
 		final long compId = e.getComponentId((Class<Component>) clazz);
