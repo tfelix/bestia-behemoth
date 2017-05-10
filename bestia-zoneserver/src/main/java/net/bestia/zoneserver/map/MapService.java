@@ -78,7 +78,7 @@ public class MapService {
 			throw new IllegalArgumentException("X, Y, width and height must be positive.");
 		}
 
-		return null;
+		throw new IllegalStateException("Not yet implemented.");
 	}
 
 	/**

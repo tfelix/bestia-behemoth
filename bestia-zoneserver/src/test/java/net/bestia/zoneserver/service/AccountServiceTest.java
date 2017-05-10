@@ -1,37 +1,34 @@
 package net.bestia.zoneserver.service;
 
+import static org.mockito.Mockito.mock;
+
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.BestiaDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.PlayerClass;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@ActiveProfiles("test")
 public class AccountServiceTest {
 
-	@Autowired
 	private AccountService accService;
-	
-	@MockBean
-	private AccountDAO accountDao;
-	
-	@MockBean
-	private PlayerBestiaDAO playerBestiaDao;
-	
-	@MockBean
-	private BestiaDAO bestiaDao;
 
-	@MockBean
+	private AccountDAO accountDao;
+	private PlayerBestiaDAO playerBestiaDao;
+	private BestiaDAO bestiaDao;
 	private ConnectionService connectionService;
+
+	@Before
+	public void setup() {
+
+		accountDao = mock(AccountDAO.class);
+		playerBestiaDao = mock(PlayerBestiaDAO.class);
+		bestiaDao = mock(BestiaDAO.class);
+		connectionService = mock(ConnectionService.class);
+
+		accService = new AccountService(accountDao, playerBestiaDao, bestiaDao, connectionService);
+	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void createNewAccount_noMail_fail() {

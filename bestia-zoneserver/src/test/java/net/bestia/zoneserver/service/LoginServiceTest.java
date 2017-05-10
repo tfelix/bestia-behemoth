@@ -1,4 +1,4 @@
-package net.bestia.zoneserver;
+package net.bestia.zoneserver.service;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;

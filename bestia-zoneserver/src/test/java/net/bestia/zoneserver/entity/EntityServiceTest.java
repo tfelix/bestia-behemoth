@@ -1,32 +1,32 @@
 package net.bestia.zoneserver.entity;
 
+import static org.mockito.Mockito.mock;
+
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+
+import com.hazelcast.core.HazelcastInstance;
 
 import net.bestia.model.dao.PlayerBestiaDAO;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.BasicMocks;
 import net.bestia.zoneserver.entity.components.PositionComponent;
 import net.bestia.zoneserver.entity.components.VisibleComponent;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@ActiveProfiles("test")
 public class EntityServiceTest {
 
-	@Autowired
 	private EntityService entityService;
 
-	@MockBean
+	private BasicMocks basicMocks = new BasicMocks();
+	private HazelcastInstance hz = basicMocks.hazelcastMock();
 	private PlayerBestiaDAO playerBestiaDao;
 
-	@MockBean
-	private ZoneAkkaApi zoneAkkaApi;
+	@Before
+	public void setup() {
+
+		playerBestiaDao = mock(PlayerBestiaDAO.class);
+		entityService = new EntityService(hz, playerBestiaDao);
+	}
 
 	@Test
 	public void newEntity_returnsNewEntity() {
@@ -62,7 +62,7 @@ public class EntityServiceTest {
 	}
 
 	@Test
-	public void delete_savedEntity_deletesIt() {	
+	public void delete_savedEntity_deletesIt() {
 		Entity e = entityService.newEntity();
 		entityService.delete(e);
 		Entity e2 = entityService.getEntity(e.getId());
@@ -83,13 +83,13 @@ public class EntityServiceTest {
 		Assert.assertNotNull(posComp);
 		Assert.assertTrue(entityService.hasComponent(e1, PositionComponent.class));
 	}
-	
+
 	@Test
 	public void hasComponent_notAddedComponent_false() {
 		Entity e1 = entityService.newEntity();
 		Assert.assertFalse(entityService.hasComponent(e1, VisibleComponent.class));
 	}
-	
+
 	@Test
 	public void hasComponent_addedComponent_true() {
 		Entity e1 = entityService.newEntity();

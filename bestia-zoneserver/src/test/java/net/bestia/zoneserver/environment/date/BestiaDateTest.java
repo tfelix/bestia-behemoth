@@ -1,4 +1,4 @@
-package net.bestia.zoneserver;
+package net.bestia.zoneserver.environment.date;
 
 import static org.junit.Assert.assertEquals;
 
