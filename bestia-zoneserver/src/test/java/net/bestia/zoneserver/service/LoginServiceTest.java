@@ -14,9 +14,6 @@ import net.bestia.zoneserver.entity.EntityServiceContext;
 import net.bestia.zoneserver.service.ConnectionService;
 import net.bestia.zoneserver.service.PlayerBestiaService;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@ActiveProfiles("test")
 public class LoginServiceTest {
 
 	@MockBean

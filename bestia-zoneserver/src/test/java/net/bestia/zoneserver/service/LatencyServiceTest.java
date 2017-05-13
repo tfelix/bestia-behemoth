@@ -3,11 +3,6 @@ package net.bestia.zoneserver.service;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import com.hazelcast.core.HazelcastInstance;
 
@@ -38,7 +33,7 @@ public class LatencyServiceTest {
 
 	@Test(expected = IllegalStateException.class)
 	public void addLatency_noStampSet_throws() {
-		latencyService.addLatency(123, 10000000, 10000000);
+		latencyService.addLatency(123456, 10000000, 10000000);
 	}
 
 	@Test
@@ -49,14 +44,14 @@ public class LatencyServiceTest {
 
 	@Test(expected = IllegalStateException.class)
 	public void getClientLatency_noAccount_throws() {
-		latencyService.getClientLatency(123);
+		latencyService.getClientLatency(987);
 	}
 
 	@Test
 	public void getClientLatency_accountLatencyAdded_ok() {
-		long stamp = latencyService.getTimestamp(123);
-		latencyService.addLatency(123, stamp + 150, stamp);
-		int latency = latencyService.getClientLatency(123);
+		long stamp = latencyService.getTimestamp(789);
+		latencyService.addLatency(789, stamp + 150, stamp);
+		int latency = latencyService.getClientLatency(789);
 		Assert.assertEquals(150, latency);
 	}
 

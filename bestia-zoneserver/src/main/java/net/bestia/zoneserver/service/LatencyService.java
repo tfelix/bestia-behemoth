@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.service;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Queue;
 
 import org.slf4j.Logger;
@@ -83,14 +84,18 @@ public class LatencyService {
 
 		final int latency = (int) (clientStamp - serverStamp);
 
-		final Queue<Integer> data = latencyStore.get(accountId);
+		Queue<Integer> data = latencyStore.get(accountId);
+		
+		if(data == null) {
+			data = new LinkedList<>();
+		}
 
 		if (data.size() == MAX_NUM_LATENCY_DATA) {
 			data.poll();
 		}
 
 		data.add(latency);
-		latencyStore.putAsync(accountId, data);
+		latencyStore.put(accountId, data);
 		LOG.debug("Added latency {} ms for user {}.", latency, accountId);
 	}
 
