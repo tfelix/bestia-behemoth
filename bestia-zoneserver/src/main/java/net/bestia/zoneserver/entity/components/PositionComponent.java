@@ -46,7 +46,7 @@ public class PositionComponent extends Component {
 	 *            New y position.
 	 */
 	public void setPosition(long x, long y) {
-		if(shape == null) {
+		if (shape == null) {
 			throw new IllegalStateException("Shape must be set first via setShape.");
 		}
 		shape = shape.moveByAnchor(x, y);
@@ -55,7 +55,8 @@ public class PositionComponent extends Component {
 	/**
 	 * Its an alias for {@link #setPosition(long, long)}.
 	 * 
-	 * @param pos The new position.
+	 * @param pos
+	 *            The new position.
 	 */
 	public void setPosition(Point pos) {
 		setPosition(pos.getX(), pos.getY());
@@ -101,4 +102,9 @@ public class PositionComponent extends Component {
 	 */
 	// void moveTo(List<Point> path);
 
+	@Override
+	public String toString() {
+		return String.format("PositionComp[pos: %s, shape: %s, facing: %s]", getPosition().toString(), shape.toString(),
+				facing.toString());
+	}
 }

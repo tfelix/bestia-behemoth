@@ -6,6 +6,7 @@
 import Signal from './Signal';
 import Urls from '../Urls';
 import MID from './messages/MID';
+import LOG from '../util/Log';
 
 /**
  * Class which reads the login token from a storage system and tries to
@@ -25,12 +26,15 @@ export default class Authenticator {
 	 * Sends auth message if the system is connected.
 	 */
 	_onConnected() {
+		LOG.debug('Connection established. Starting to authenticate with server.');
+
 		// Prepare login message and send it.
 		var loginMsg = {
 			mid: 'system.loginauth',
 			accId : 1,
 			token : '04473c9f-65e9-4f59-9075-6da257a21826'
 		};
+
 		this._pubsub.send(loginMsg);
 	}
 	
@@ -38,9 +42,12 @@ export default class Authenticator {
 	 * Reads the auth reply from the server.
 	 */
 	_onAuthReply(_, msg) {
+		LOG.trace('Received auth reply.');
+
 		if(msg.state === 'ACCEPTED') {
 			this._pubsub.publish(Signal.IO_AUTH_CONNECTED, msg);
 		} else {
+			LOG.debug('Login was denied.');
 			this._pubsub.publish(Signal.IO_AUTH_ERROR);
 			// Go to login if there is wrong data.
 			window.location.replace(Urls.loginHtml);

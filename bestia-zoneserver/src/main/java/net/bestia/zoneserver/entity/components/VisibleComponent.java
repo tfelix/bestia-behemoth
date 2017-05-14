@@ -51,4 +51,9 @@ public class VisibleComponent extends Component {
 	public boolean isVisible() {
 		return visible;
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("VisibleComp[%s, visible: %b]", spriteInfo.toString(), visible);
+	}
 }

@@ -120,4 +120,9 @@ public class StatusComponent extends Component {
 	public void setExp(int exp) {
 		this.exp = exp;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("StatusComp[level: %d, status: %s]", level, statusPoints.toString());
+	}
 }

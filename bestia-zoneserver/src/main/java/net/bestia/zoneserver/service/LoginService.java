@@ -67,14 +67,14 @@ public class LoginService {
 	 * @return The player master entity.
 	 */
 	public void login(long accId, ActorRef connectionRef) {
-		if(accId < 0) {
+		if (accId < 0) {
 			throw new IllegalArgumentException("Account ID must be positive.");
 		}
 		Objects.requireNonNull(connectionRef);
-		
+
 		final Account account = accountDao.findOne(accId);
-		
-		if(account == null) {
+
+		if (account == null) {
 			LOG.warn("Account {} was not found.", accId);
 			return;
 		}
@@ -86,14 +86,23 @@ public class LoginService {
 		final PlayerBestia master = playerBestiaService.getMaster(accId);
 
 		LOG.debug(String.format("Login in acc: %d. Spawning master bestias.", accId));
-		
-		final Entity masterEntity = playerEntityFactory.build(master);
-		
-		// Save the entity.
-		entityServiceCtx.getPlayer().putPlayerEntity(masterEntity);
 
-		// Now activate the master and notify the client.
-		entityServiceCtx.getPlayer().setActiveEntity(accId, masterEntity.getId());
+		final Entity masterEntity = playerEntityFactory.build(master);
+
+		try {
+			// Save the entity.
+			// Now activate the master and notify the client.
+			entityServiceCtx.getPlayer().putPlayerEntity(masterEntity);
+			entityServiceCtx.getPlayer().setActiveEntity(accId, masterEntity.getId());
+		} catch (IllegalArgumentException e) {
+			// Seems the entity has no player component. Aborting.
+			final LoginAuthReplyMessage response = new LoginAuthReplyMessage(
+					accId,
+					LoginState.DENIED,
+					account.getName());
+			akkaApi.sendToClient(response);
+			return;
+		}
 
 		final LoginAuthReplyMessage response = new LoginAuthReplyMessage(
 				accId,
@@ -110,7 +119,7 @@ public class LoginService {
 	 *            The account id to logout.
 	 */
 	public void logout(long accId) {
-		if(accId < 0) {
+		if (accId < 0) {
 			throw new IllegalArgumentException("Account ID must be positive.");
 		}
 

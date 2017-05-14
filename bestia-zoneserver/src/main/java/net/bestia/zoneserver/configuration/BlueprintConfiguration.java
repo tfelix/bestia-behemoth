@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import net.bestia.zoneserver.entity.Blueprint;
 import net.bestia.zoneserver.entity.components.EquipComponent;
 import net.bestia.zoneserver.entity.components.InventoryComponent;
+import net.bestia.zoneserver.entity.components.PlayerComponent;
 import net.bestia.zoneserver.entity.components.PositionComponent;
 import net.bestia.zoneserver.entity.components.StatusComponent;
 import net.bestia.zoneserver.entity.components.VisibleComponent;
@@ -27,6 +28,7 @@ public class BlueprintConfiguration {
 				.addComponent(EquipComponent.class)
 				.addComponent(InventoryComponent.class)
 				.addComponent(PositionComponent.class)
+				.addComponent(PlayerComponent.class)
 				.addComponent(StatusComponent.class);
 		
 		return builder.build();

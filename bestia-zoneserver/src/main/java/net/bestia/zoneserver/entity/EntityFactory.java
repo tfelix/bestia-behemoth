@@ -51,6 +51,9 @@ class EntityFactory {
 	Entity build(Blueprint blueprint,
 			Set<ComponentSetter<? extends Component>> setter) {
 
+		Objects.requireNonNull(blueprint);
+		Objects.requireNonNull(setter);
+
 		LOG.trace("Creating entity with: {}", blueprint);
 
 		final Entity e = entityService.newEntity();
@@ -58,9 +61,9 @@ class EntityFactory {
 		// Add all given components in the blueprint.
 		for (Class<? extends Component> compClazz : blueprint.getComponents()) {
 
-			final Component addedComp = entityService.addComponent(e,
-					compClazz);
+			final Component addedComp = entityService.addComponent(e, compClazz);
 
+			// Fill the component with values from a supported setter.
 			setter.stream()
 					.filter(s -> s.getSupportedType().equals(compClazz))
 					.findAny()
@@ -69,7 +72,7 @@ class EntityFactory {
 					});
 
 			// Save the component.
-			entityService.update(addedComp);
+			entityService.updateComponent(addedComp);
 		}
 
 		// Use the setter to fill the components with data.

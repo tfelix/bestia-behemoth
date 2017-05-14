@@ -65,7 +65,13 @@ public class EntityService {
 	 * @return A new, currently unused id.
 	 */
 	private long getNewEntityId() {
-		return entityIdGen.newId();
+		final long id = entityIdGen.newId();
+		
+		if(id == 0) {
+			return entityIdGen.newId();
+		}
+		
+		return id;
 	}
 
 	/**
@@ -353,7 +359,7 @@ public class EntityService {
 	 * @param component
 	 *            The component to be updated into the database.
 	 */
-	public void update(Component component) {
+	public void updateComponent(Component component) {
 		Objects.requireNonNull(component);
 		components.put(component.getId(), component);
 	}

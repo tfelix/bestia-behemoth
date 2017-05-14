@@ -22,7 +22,6 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
-import net.bestia.zoneserver.entity.components.PlayerComponent;
 import net.bestia.zoneserver.entity.components.PositionComponent;
 import net.bestia.zoneserver.entity.components.VisibleComponent;
 
@@ -71,8 +70,6 @@ public class EngineReadyActor extends BestiaRoutingActor {
 
 		// Find the position of the active bestia.
 		final Entity playerEntity = playerService.getActivePlayerEntity(accId);
-		final PlayerComponent playerComp = entityService.getComponent(playerEntity, PlayerComponent.class)
-				.orElseThrow(IllegalStateException::new);
 
 		if (playerEntity == null) {
 			LOG.warning("No active player bestia entity was found. Aborting.");
@@ -84,11 +81,6 @@ public class EngineReadyActor extends BestiaRoutingActor {
 				.orElseThrow(IllegalStateException::new);
 		final Rect sightRect = Map.getUpdateRect(p);
 		final Set<Entity> visibles = entityService.getEntitiesInRange(sightRect, VisibleComponent.class);
-
-		// Send a select message for the given player entity to the engine.
-		final BestiaActivateMessage bestiaMsg = new BestiaActivateMessage(readyMsg.getAccountId(),
-				playerComp.getPlayerBestiaId());
-		sendClient(bestiaMsg);
 
 		// Send info/update messages for all other bestias.
 		for (Entity entity : visibles) {

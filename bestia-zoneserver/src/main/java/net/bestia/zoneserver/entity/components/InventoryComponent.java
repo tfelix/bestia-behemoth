@@ -114,13 +114,13 @@ public class InventoryComponent extends Component {
 	public boolean removeItem(Item item, int amount) {
 		Optional<ItemCount> inventoryItem = items.stream().filter(x -> x.item.getId() == item.getId()).findFirst();
 		if (inventoryItem.isPresent()) {
-			
+
 			ItemCount ic = inventoryItem.get();
-			
-			if(ic.amount > amount) {
+
+			if (ic.amount > amount) {
 				ic.amount -= amount;
 				return true;
-			} else if(ic.amount == amount) {
+			} else if (ic.amount == amount) {
 				items.remove(ic);
 				return true;
 			} else {
@@ -129,5 +129,11 @@ public class InventoryComponent extends Component {
 		} else {
 			return false;
 		}
+	}
+
+	@Override
+	public String toString() {
+		return String.format("InventoryComp[maxWeight: %f.1f, items: %d/%d]", getMaxWeight(), items.size(),
+				getMaxItemCount());
 	}
 }

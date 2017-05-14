@@ -76,7 +76,7 @@ public class MapMoveCommand extends BaseChatCommand {
 			if(posComp.isPresent()) {
 				posComp.get().setPosition(x, y);
 				LOG.info("GM {} transported entity {} to x: {} y: {}.", account.getId(), pbe.getId(), x, y);
-				entityService.update(posComp.get());
+				entityService.updateComponent(posComp.get());
 			}
 			
 		} catch (IllegalArgumentException e) {

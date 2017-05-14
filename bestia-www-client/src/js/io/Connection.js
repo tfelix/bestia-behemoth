@@ -120,10 +120,13 @@ export default class Connection {
 	}
 
 	connect() {
+		LOG.info('Starting to connect.');
+
 		// defined a connection to a new socket endpoint
 		this._socket = new SockJS(Urls.bestiaWebsocket);
 
 		this._socket.onopen = function () {
+			LOG.debug('Connection opened.');
 			this._connectionTries = 0;
 			this._pubsub.publish(Signal.IO_CONNECTED);
 		}.bind(this);

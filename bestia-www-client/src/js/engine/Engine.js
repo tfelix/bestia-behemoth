@@ -65,7 +65,7 @@ export default class Engine {
 	 * Triggers a mapload if a bestia was selected.
 	 */
 	_handlerOnBestiaSelected(_, data) {
-		LOG.info('New bestia selected. Starting loading process.');
+		LOG.info('A new bestia selected. Starting loading process.');
 		
 		// Check if we can go without loading: we must be inside view range AND
 		// have the multi sprite cached. Currently not supported.

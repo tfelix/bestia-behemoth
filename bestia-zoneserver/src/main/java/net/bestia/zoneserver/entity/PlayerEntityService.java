@@ -71,12 +71,19 @@ public class PlayerEntityService {
 			throw new IllegalArgumentException("Active entity id was not found in the system. Add it first.");
 		}
 
+		// Check if this is a valid player bestia.
+		final Entity activeEntity = entityService.getEntity(activeEntityId);
+
+		final PlayerComponent playerComp = entityService.getComponent(activeEntity, PlayerComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+
 		// Remove the active flag from the last active player bestia.
 		activeEntities.put(accId, activeEntityId);
 
 		LOG.debug("Activating entity id: {} for account: {}", activeEntityId, accId);
 
-		final BestiaActivateMessage activateMsg = new BestiaActivateMessage(accId, activeEntityId);
+		final BestiaActivateMessage activateMsg = new BestiaActivateMessage(accId, activeEntityId,
+				playerComp.getPlayerBestiaId());
 		akkaApi.sendToClient(activateMsg);
 	}
 
@@ -218,15 +225,15 @@ public class PlayerEntityService {
 		Objects.requireNonNull(entity);
 
 		// Can only add entities with player component.
-		entityService.getComponent(entity, PlayerComponent.class).ifPresent(comp -> {
+		final PlayerComponent comp = entityService.getComponent(entity, PlayerComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
 
-			final long accId = comp.getOwnerAccountId();
-			final long entityId = entity.getId();
+		final long accId = comp.getOwnerAccountId();
+		final long entityId = entity.getId();
 
-			LOG.debug("Adding player entity: accId: {}, entityId: {}.", accId, entityId);
+		LOG.debug("Adding player entity: accId: {}, entityId: {}.", accId, entityId);
 
-			playerBestiaEntitiesIds.put(accId, entityId);
-		});
+		playerBestiaEntitiesIds.put(accId, entityId);
 	}
 
 	/**

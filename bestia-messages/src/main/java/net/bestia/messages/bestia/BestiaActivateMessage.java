@@ -2,7 +2,7 @@ package net.bestia.messages.bestia;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.EntityJsonMessage;
 
 /**
  * Client sends this message if it wants to switch to another active bestia.
@@ -12,7 +12,7 @@ import net.bestia.messages.JsonMessage;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-public class BestiaActivateMessage extends JsonMessage {
+public class BestiaActivateMessage extends EntityJsonMessage {
 
 	private static final long serialVersionUID = 1L;
 	public final static String MESSAGE_ID = "bestia.activate";
@@ -24,14 +24,15 @@ public class BestiaActivateMessage extends JsonMessage {
 	 * Priv. ctor for jackson.
 	 */
 	protected BestiaActivateMessage() {
-		this(0, 0);
+		this(0, 0, 0);
 	}
 
 	/**
 	 * Ctor.
 	 */
-	public BestiaActivateMessage(long accId, long bestiaId) {
-		super(accId);
+	public BestiaActivateMessage(long accId, long bestiaId, long entityId) {
+		super(accId, entityId);
+		
 		this.playerBestiaId = bestiaId;
 	}
 
@@ -46,7 +47,7 @@ public class BestiaActivateMessage extends JsonMessage {
 
 	@Override
 	public BestiaActivateMessage createNewInstance(long accountId) {
-		final BestiaActivateMessage msg = new BestiaActivateMessage(accountId, playerBestiaId);
+		final BestiaActivateMessage msg = new BestiaActivateMessage(accountId, playerBestiaId, getEntityId());
 		return msg;
 	}
 
