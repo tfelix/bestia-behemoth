@@ -67,11 +67,20 @@ public class LoginService {
 	 * @return The player master entity.
 	 */
 	public void login(long accId, ActorRef connectionRef) {
+		if(accId < 0) {
+			throw new IllegalArgumentException("Account ID must be positive.");
+		}
+		Objects.requireNonNull(connectionRef);
+		
+		final Account account = accountDao.findOne(accId);
+		
+		if(account == null) {
+			LOG.warn("Account {} was not found.", accId);
+			return;
+		}
 
 		// First register the sender connection.
 		connectionService.addClient(accId, connectionRef.path());
-
-		final Account account = accountDao.findOne(accId);
 
 		// Spawn all bestia entities for this account into the world.
 		final PlayerBestia master = playerBestiaService.getMaster(accId);
@@ -101,6 +110,9 @@ public class LoginService {
 	 *            The account id to logout.
 	 */
 	public void logout(long accId) {
+		if(accId < 0) {
+			throw new IllegalArgumentException("Account ID must be positive.");
+		}
 
 		final Account acc = accountDao.findOne(accId);
 
@@ -131,6 +143,7 @@ public class LoginService {
 	 * @return TRUE if the account is permitted to login FALSE otherwise.
 	 */
 	public boolean canLogin(long accId, String token) {
+		Objects.requireNonNull(token);
 
 		LOG.debug("Checking login for account {}.", accId);
 

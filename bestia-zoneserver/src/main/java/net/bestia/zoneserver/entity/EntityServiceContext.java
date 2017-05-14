@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public final class EntityServiceContext {
+public class EntityServiceContext {
 	
 	private EntityService entity;
 	private InteractionService interact;
