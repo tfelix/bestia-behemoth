@@ -1,14 +1,11 @@
 package net.bestia.zoneserver.entity;
 
-import static org.mockito.Mockito.mock;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.hazelcast.core.HazelcastInstance;
 
-import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.zoneserver.BasicMocks;
 import net.bestia.zoneserver.entity.components.PositionComponent;
 import net.bestia.zoneserver.entity.components.VisibleComponent;
@@ -19,13 +16,10 @@ public class EntityServiceTest {
 
 	private BasicMocks basicMocks = new BasicMocks();
 	private HazelcastInstance hz = basicMocks.hazelcastMock();
-	private PlayerBestiaDAO playerBestiaDao;
 
 	@Before
 	public void setup() {
-
-		playerBestiaDao = mock(PlayerBestiaDAO.class);
-		entityService = new EntityService(hz, playerBestiaDao);
+		entityService = new EntityService(hz);
 	}
 
 	@Test

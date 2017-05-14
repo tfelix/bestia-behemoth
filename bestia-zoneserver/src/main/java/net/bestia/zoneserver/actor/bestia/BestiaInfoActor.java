@@ -14,11 +14,12 @@ import net.bestia.messages.bestia.BestiaInfoMessage;
 import net.bestia.messages.bestia.RequestBestiaInfoMessage;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.domain.StatusPoints;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityServiceContext;
+import net.bestia.zoneserver.entity.StatusService;
 import net.bestia.zoneserver.entity.components.PlayerComponent;
-import net.bestia.zoneserver.entity.components.StatusComponent;
 
 /**
  * This actor gathers all needed information about the bestias in the players
@@ -36,14 +37,16 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 
 	private final EntityServiceContext entityServiceCtx;
 	private final PlayerBestiaDAO playerBestiaDao;
+	private final StatusService statusService;
 
 	@Autowired
 	public BestiaInfoActor(EntityServiceContext entityServiceCtx,
-			PlayerBestiaDAO playerBestiaDao) {
+			PlayerBestiaDAO playerBestiaDao, StatusService statusService) {
 		super(Arrays.asList(RequestBestiaInfoMessage.class));
 
 		this.entityServiceCtx = Objects.requireNonNull(entityServiceCtx);
 		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
+		this.statusService = Objects.requireNonNull(statusService);
 
 	}
 
@@ -57,20 +60,18 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 
 		for (Entity pbe : bestias) {
 
-			final PlayerComponent pbComp = entityServiceCtx.getEntity().getComponent(pbe, PlayerComponent.class).orElse(null);
-			final StatusComponent status = entityServiceCtx.getEntity().getComponent(pbe, StatusComponent.class).orElse(null);
-			
-			if(pbComp == null || status == null) {
-				continue;
-			}
-			
+			final PlayerComponent pbComp = entityServiceCtx.getEntity()
+					.getComponent(pbe, PlayerComponent.class)
+					.orElseThrow(IllegalStateException::new);
+
 			final PlayerBestia pb = playerBestiaDao.findOne(pbComp.getPlayerBestiaId());
-			
+			final StatusPoints statusPoints = statusService.getStatusPoints(pbe);
+
 			final BestiaInfoMessage bimsg = new BestiaInfoMessage(rbimsg.getAccountId(),
 					pbe.getId(),
 					pb,
-					status.getStatusPoints());
-			
+					statusPoints);
+
 			sendClient(bimsg);
 		}
 	}

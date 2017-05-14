@@ -18,16 +18,9 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
 
-import net.bestia.model.dao.PlayerBestiaDAO;
-import net.bestia.model.domain.BaseValues;
-import net.bestia.model.domain.PlayerBestia;
-import net.bestia.model.domain.StatusPoints;
-import net.bestia.model.domain.StatusPointsImpl;
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.entity.components.Component;
-import net.bestia.zoneserver.entity.components.PlayerComponent;
 import net.bestia.zoneserver.entity.components.PositionComponent;
-import net.bestia.zoneserver.entity.components.StatusComponent;
 
 @Service
 public class EntityService {
@@ -41,20 +34,17 @@ public class EntityService {
 
 	private final IMap<Long, Entity> entities;
 	private final IdGenerator entityIdGen;
-	private final PlayerBestiaDAO playerBestiaDao;
 	private final IMap<Long, Component> components;
 	private final IdGenerator idGenerator;
 
 	@Autowired
-	public EntityService(HazelcastInstance hz, PlayerBestiaDAO playerBestiaDao) {
+	public EntityService(HazelcastInstance hz) {
 
 		Objects.requireNonNull(hz);
 
 		this.entityIdGen = hz.getIdGenerator(ENTITIES_ID_GEN);
 		this.entities = hz.getMap(ECS_ENTITY_MAP);
 		this.idGenerator = hz.getIdGenerator(COMP_ID);
-
-		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
 		this.components = Objects.requireNonNull(hz).getMap(COMP_MAP);
 	}
 
@@ -187,109 +177,7 @@ public class EntityService {
 		return getEntitiesInRange(area).stream().filter(x -> comps.contains(x.getClass())).collect(Collectors.toSet());
 	}
 
-	/**
-	 * Recalculates the status values of entity if it has a
-	 * {@link StatusComponent} attached. It uses the EVs, IVs and BaseValues.
-	 * Must be called after the level of a bestia has changed. Currently this
-	 * method only accepts entity with player and status components. This will
-	 * change in the future.
-	 */
-	public void calculateStatusPoints(Entity entity) {
-
-		final StatusComponent statusComp = getComponent(entity, StatusComponent.class)
-				.orElseThrow(IllegalStateException::new);
-		final PlayerComponent playerComp = getComponent(entity, PlayerComponent.class)
-				.orElseThrow(IllegalStateException::new);
-
-		StatusPoints baseStatusPoints = new StatusPointsImpl();
-
-		PlayerBestia pb = playerBestiaDao.findOne(playerComp.getPlayerBestiaId());
-
-		final BaseValues baseValues = pb.getBaseValues();
-		final BaseValues effortValues = pb.getEffortValues();
-		final BaseValues ivs = pb.getIndividualValue();
-
-		final int atk = (baseValues.getAttack() * 2 + ivs.getAttack()
-				+ effortValues.getAttack() / 4) * statusComp.getLevel() / 100 + 5;
-
-		final int def = (baseValues.getVitality() * 2 + ivs.getVitality()
-				+ effortValues.getVitality() / 4) * statusComp.getLevel() / 100 + 5;
-
-		final int spatk = (baseValues.getIntelligence() * 2 + ivs.getIntelligence()
-				+ effortValues.getIntelligence() / 4) * statusComp.getLevel() / 100 + 5;
-
-		final int spdef = (baseValues.getWillpower() * 2 + ivs.getWillpower()
-				+ effortValues.getWillpower() / 4) * statusComp.getLevel() / 100 + 5;
-
-		int spd = (baseValues.getAgility() * 2 + ivs.getAgility()
-				+ effortValues.getAgility() / 4) * statusComp.getLevel() / 100 + 5;
-
-		final int maxHp = baseValues.getHp() * 2 + ivs.getHp()
-				+ effortValues.getHp() / 4 * statusComp.getLevel() / 100 + 10 + statusComp.getLevel();
-
-		final int maxMana = baseValues.getMana() * 2 + ivs.getMana()
-				+ effortValues.getMana() / 4 * statusComp.getLevel() / 100 + 10 + statusComp.getLevel() * 2;
-
-		baseStatusPoints.setMaxHp(maxHp);
-		baseStatusPoints.setMaxMana(maxMana);
-		baseStatusPoints.setStrenght(atk);
-		baseStatusPoints.setVitality(def);
-		baseStatusPoints.setIntelligence(spatk);
-		baseStatusPoints.setMagicDefense(spdef);
-		baseStatusPoints.setAgility(spd);
-	}
-
-	/*
-	 * StatusPointsDecorator baseStatusPointModified = new
-	 * StatusPointsDecorator(baseStatusPoints);
-	 * 
-	 * // Get all the attached script mods. for (StatusEffectScript statScript :
-	 * statusEffectsScripts) { final StatusPointsModifier mod =
-	 * statScript.onStatusPoints(baseStatusPoints);
-	 * baseStatusPointModified.addModifier(mod); }
-	 * 
-	 * statusBasedValues = new StatusBasedValuesImpl(baseStatusPointModified,
-	 * getLevel()); statusBasedValuesModified = new
-	 * StatusBasedValuesDecorator(statusBasedValues);
-	 * statusBasedValuesModified.clearModifier();
-	 * 
-	 * // Get all the attached script mods. for (StatusEffectScript statScript :
-	 * statusEffectsScripts) { final StatusBasedValueModifier mod =
-	 * statScript.onStatusBasedValues(statusBasedValues);
-	 * statusBasedValuesModified.addStatusModifier(mod); }
-	 */
-
-	public void setLevel(Entity entity, int level) {
-		final StatusComponent statusComp = getComponent(entity, StatusComponent.class)
-				.orElseThrow(IllegalStateException::new);
-
-		statusComp.setLevel(level);
-		calculateStatusPoints(entity);
-	}
-
-	private void checkLevelup(Entity entity) {
-
-		final StatusComponent statusComp = getComponent(entity, StatusComponent.class)
-				.orElseThrow(IllegalStateException::new);
-
-		final int neededExp = (int) Math
-				.round(Math.pow(statusComp.getLevel(), 3) / 10 + 15 + statusComp.getLevel() * 1.5);
-
-		if (statusComp.getExp() > neededExp) {
-			statusComp.setExp(statusComp.getExp() - neededExp);
-			statusComp.setLevel(statusComp.getLevel() + 1);
-			calculateStatusPoints(entity);
-			checkLevelup(entity);
-		}
-	}
-
-	public void addExp(Entity entity, int exp) {
-		final StatusComponent statusComp = getComponent(entity, StatusComponent.class)
-				.orElseThrow(IllegalArgumentException::new);
-
-		statusComp.setExp(statusComp.getExp() + exp);
-		checkLevelup(entity);
-	}
+	
 
 	public <T extends Component> Optional<T> getComponent(long entityId, Class<T> clazz) {
 

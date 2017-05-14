@@ -7,7 +7,8 @@ import net.bestia.model.domain.StatusPointsImpl;
 import net.bestia.model.entity.StatusBasedValues;
 
 /**
- * Entities having this component can be participate in the attacking system.
+ * Entities having this component can be participate in the attacking system. It
+ * holds all data needed to perform status values changes.
  * 
  * @author Thomas Felix
  *
@@ -124,5 +125,14 @@ public class StatusComponent extends Component {
 	@Override
 	public String toString() {
 		return String.format("StatusComp[level: %d, status: %s]", level, statusPoints.toString());
+	}
+
+	/**
+	 * Sets the status points of this component.
+	 * 
+	 * @param statusPoints
+	 */
+	public void setStatusPoints(StatusPoints statusPoints) {
+		this.statusPoints = statusPoints;
 	}
 }
