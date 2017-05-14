@@ -32,6 +32,8 @@ public class EntityServiceTest {
 	public void newEntity_returnsNewEntity() {
 		Entity e1 = entityService.newEntity();
 		Entity e2 = entityService.newEntity();
+		Assert.assertNotEquals(0, e1.getId());
+		Assert.assertNotEquals(0, e2.getId());
 		Assert.assertNotEquals(e1, e2);
 		Assert.assertNotNull(e1);
 	}

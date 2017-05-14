@@ -54,11 +54,12 @@ public class PlayerEntityServiceTest {
 
 	private Entity playerEntity;
 	private Entity masterEntity;
-
+	
 	private PlayerEntityService pbeService;
 	private PlayerBestia masterPlayerBestia;
 	
 	private Map<Long, Entity> allEntities = new HashMap<>();
+	
 
 	@Before
 	public void setup() {
@@ -258,8 +259,8 @@ public class PlayerEntityServiceTest {
 		pbeService.putPlayerEntity(null);
 	}
 
-	@Test
-	public void putPlayerEntity_nonPlayerEntity_ignored() {
+	@Test(expected=IllegalArgumentException.class)
+	public void putPlayerEntity_noPlayerComponent_throws() {
 		long nonPlayerId = 69;
 		Entity nonPlayer = mock(Entity.class);
 		when(nonPlayer.getId()).thenReturn(nonPlayerId);

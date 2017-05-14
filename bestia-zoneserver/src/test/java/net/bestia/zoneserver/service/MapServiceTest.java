@@ -21,7 +21,6 @@ import net.bestia.zoneserver.map.MapService;
 public class MapServiceTest {
 
 	private static final String MAP_NAME = "kalarian";
-	private static final String AREA_NAME = "deimuddah";
 
 	private MapService ms;
 
