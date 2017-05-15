@@ -17,11 +17,9 @@ public class StatusComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
 
-	private int level;
-	private StatusPoints statusPoints;
-	private StatusPoints originalStatusPoints;
+	private StatusPoints statusPoints = new StatusPointsImpl();
+	private StatusPoints originalStatusPoints = new StatusPointsImpl();
 	private StatusBasedValues statusBasedValues;
-	private int exp;
 
 	private Element originalElement;
 	private Element element;
@@ -29,15 +27,6 @@ public class StatusComponent extends Component {
 	public StatusComponent(long id) {
 		super(id);
 		// no op
-	}
-
-	/**
-	 * The level of the entity.
-	 * 
-	 * @return The level of the entity.
-	 */
-	public int getLevel() {
-		return level;
 	}
 
 	/**
@@ -106,25 +95,9 @@ public class StatusComponent extends Component {
 		return originalElement;
 	}
 
-	public int getKilledExp() {
-		return level * 10;
-	}
-
-	public void setLevel(int level) {
-		this.level = level;
-	}
-
-	public int getExp() {
-		return exp;
-	}
-
-	public void setExp(int exp) {
-		this.exp = exp;
-	}
-
 	@Override
 	public String toString() {
-		return String.format("StatusComp[level: %d, status: %s]", level, statusPoints.toString());
+		return String.format("StatusComp[status: %s]", statusPoints.toString());
 	}
 
 	/**
@@ -134,5 +107,15 @@ public class StatusComponent extends Component {
 	 */
 	public void setStatusPoints(StatusPoints statusPoints) {
 		this.statusPoints = statusPoints;
+	}
+
+	/**
+	 * Sets the status based values.
+	 * 
+	 * @param statusBasedValues
+	 */
+	public void setStatusBasedValues(StatusBasedValues statusBasedValues) {
+
+		this.statusBasedValues = statusBasedValues;
 	}
 }

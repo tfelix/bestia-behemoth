@@ -5,7 +5,9 @@ import net.bestia.model.map.Walkspeed;
 
 /**
  * The {@link StatusBasedValues} are used for advanced calculations. They are
- * usually based upon {@link StatusPoints}.
+ * usually based upon {@link StatusPoints} and provide data needed for further
+ * algorithms into the game. This implementation can be wrapped/decorated in
+ * order to change the values based on modifier.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *

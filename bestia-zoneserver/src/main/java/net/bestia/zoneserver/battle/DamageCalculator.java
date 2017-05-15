@@ -2,19 +2,28 @@ package net.bestia.zoneserver.battle;
 
 import java.util.Objects;
 
+import org.springframework.stereotype.Service;
+
 import net.bestia.model.battle.Damage;
 import net.bestia.model.domain.AttackImpl;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.components.LevelComponent;
 import net.bestia.zoneserver.entity.components.StatusComponent;
 import net.bestia.model.domain.AttackBasedStatus;
 
+@Service
 public final class DamageCalculator {
+
+	private EntityService entityService;
 
 	/**
 	 * No instance is needed. The {@link DamageCalculator} can be used entirely
 	 * in a static way.
 	 */
-	private DamageCalculator() {
-		// no op.
+	public DamageCalculator(EntityService entityService) {
+
+		this.entityService = Objects.requireNonNull(entityService);
 	}
 
 	/**
@@ -30,13 +39,18 @@ public final class DamageCalculator {
 	 * @param target
 	 * @return The damage the entity would take.
 	 */
-	public static Damage calculate(AttackImpl attack, StatusComponent user, StatusComponent target) {
+	/*
+	public Damage calculate(AttackImpl attack, Entity user, Entity target) {
 		Objects.requireNonNull(attack);
 		Objects.requireNonNull(user);
 		Objects.requireNonNull(target);
 
 		final float atkV;
 		final float defV;
+
+		final int userLevel = entityService.getComponent(user, LevelComponent.class)
+				.map(LevelComponent::getLevel)
+				.orElse(10);
 
 		if (attack.getBasedStatus() == AttackBasedStatus.NORMAL) {
 			atkV = user.getStatusPoints().getStrength();
@@ -47,7 +61,7 @@ public final class DamageCalculator {
 		}
 
 		// Calculate base damage.
-		float dmg = 2.0f * user.getLevel() + 10 / 250 * (atkV / defV) * attack.getStrength() + 2;
+		float dmg = 2.0f * userLevel + 10 / 250 * (atkV / defV) * attack.getStrength() + 2;
 
 		// Calculate all the needed modifier.
 
@@ -62,6 +76,6 @@ public final class DamageCalculator {
 		final Damage damage = Damage.getHit((int) dmg);
 
 		return damage;
-	}
+	}*/
 
 }

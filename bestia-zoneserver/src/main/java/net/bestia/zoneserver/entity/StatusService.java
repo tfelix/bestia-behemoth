@@ -13,6 +13,8 @@ import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
 import net.bestia.model.entity.StatusBasedValues;
+import net.bestia.model.entity.StatusBasedValuesImpl;
+import net.bestia.zoneserver.entity.components.LevelComponent;
 import net.bestia.zoneserver.entity.components.PlayerComponent;
 import net.bestia.zoneserver.entity.components.StatusComponent;
 
@@ -49,7 +51,14 @@ public class StatusService {
 	 * @return
 	 */
 	public StatusBasedValues getStatusBasedValues(Entity entity) {
-		return null;
+		final StatusComponent statusComp = entityService.getComponent(entity, StatusComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+
+		if (statusComp.getStatusPoints() == null) {
+			calculateStatusPoints(entity, statusComp);
+		}
+
+		return statusComp.getStatusBasedValues();
 	}
 
 	/**
@@ -70,6 +79,12 @@ public class StatusService {
 
 		return statusComp.getStatusPoints();
 	}
+	
+	public void calculateStatusPoints(Entity entity) {
+		entityService.getComponent(entity, StatusComponent.class).ifPresent(statusComp -> {
+			calculateStatusPoints(entity, statusComp);
+		});
+	}
 
 	/**
 	 * Recalculates the status values of entity if it has a
@@ -77,43 +92,47 @@ public class StatusService {
 	 * Must be called after the level of a bestia has changed. Currently this
 	 * method only accepts entity with player and status components. This will
 	 * change in the future.
+	 * 
+	 * TODO This need further revisiting to allow other components.
 	 */
 	private void calculateStatusPoints(Entity entity, StatusComponent statusComp) {
 		Objects.requireNonNull(entity);
-		
+
 		LOG.trace("Calculate status points for entity {}.", entity);
 
 		final PlayerComponent playerComp = entityService.getComponent(entity, PlayerComponent.class)
 				.orElseThrow(IllegalStateException::new);
 
-		StatusPoints baseStatusPoints = new StatusPointsImpl();
+		final StatusPoints baseStatusPoints = new StatusPointsImpl();
 
-		PlayerBestia pb = playerBestiaDao.findOne(playerComp.getPlayerBestiaId());
+		final PlayerBestia pb = playerBestiaDao.findOne(playerComp.getPlayerBestiaId());
 
 		final BaseValues baseValues = pb.getBaseValues();
 		final BaseValues effortValues = pb.getEffortValues();
 		final BaseValues ivs = pb.getIndividualValue();
 
-		final int atk = (baseValues.getAttack() * 2 + ivs.getAttack()
-				+ effortValues.getAttack() / 4) * statusComp.getLevel() / 100 + 5;
+		// Retrieve the level.
+		final int level = entityService.getComponent(entity, LevelComponent.class)
+				.map(LevelComponent::getLevel)
+				.orElse(10);
 
-		final int def = (baseValues.getVitality() * 2 + ivs.getVitality()
-				+ effortValues.getVitality() / 4) * statusComp.getLevel() / 100 + 5;
+		final int atk = (baseValues.getAttack() * 2 + ivs.getAttack() + effortValues.getAttack() / 4) * level / 100 + 5;
+
+		final int def = (baseValues.getVitality() * 2 + ivs.getVitality() + effortValues.getVitality() / 4) * level
+				/ 100 + 5;
 
 		final int spatk = (baseValues.getIntelligence() * 2 + ivs.getIntelligence()
-				+ effortValues.getIntelligence() / 4) * statusComp.getLevel() / 100 + 5;
+				+ effortValues.getIntelligence() / 4) * level / 100 + 5;
 
-		final int spdef = (baseValues.getWillpower() * 2 + ivs.getWillpower()
-				+ effortValues.getWillpower() / 4) * statusComp.getLevel() / 100 + 5;
+		final int spdef = (baseValues.getWillpower() * 2 + ivs.getWillpower() + effortValues.getWillpower() / 4) * level
+				/ 100 + 5;
 
-		int spd = (baseValues.getAgility() * 2 + ivs.getAgility()
-				+ effortValues.getAgility() / 4) * statusComp.getLevel() / 100 + 5;
+		int spd = (baseValues.getAgility() * 2 + ivs.getAgility() + effortValues.getAgility() / 4) * level / 100 + 5;
 
-		final int maxHp = baseValues.getHp() * 2 + ivs.getHp()
-				+ effortValues.getHp() / 4 * statusComp.getLevel() / 100 + 10 + statusComp.getLevel();
+		final int maxHp = baseValues.getHp() * 2 + ivs.getHp() + effortValues.getHp() / 4 * level / 100 + 10 + level;
 
-		final int maxMana = baseValues.getMana() * 2 + ivs.getMana()
-				+ effortValues.getMana() / 4 * statusComp.getLevel() / 100 + 10 + statusComp.getLevel() * 2;
+		final int maxMana = baseValues.getMana() * 2 + ivs.getMana() + effortValues.getMana() / 4 * level / 100 + 10
+				+ level * 2;
 
 		baseStatusPoints.setMaxHp(maxHp);
 		baseStatusPoints.setMaxMana(maxMana);
@@ -122,9 +141,11 @@ public class StatusService {
 		baseStatusPoints.setIntelligence(spatk);
 		baseStatusPoints.setMagicDefense(spdef);
 		baseStatusPoints.setAgility(spd);
-		
+
+		// Update all component values.
 		statusComp.setStatusPoints(baseStatusPoints);
-		
+		statusComp.setStatusBasedValues(new StatusBasedValuesImpl(baseStatusPoints, level));
+
 		entityService.updateComponent(statusComp);
 	}
 
@@ -148,36 +169,5 @@ public class StatusService {
 	 * statScript.onStatusBasedValues(statusBasedValues);
 	 * statusBasedValuesModified.addStatusModifier(mod); }
 	 */
-
-	public void setLevel(Entity entity, int level) {
-		final StatusComponent statusComp = entityService.getComponent(entity, StatusComponent.class)
-				.orElseThrow(IllegalStateException::new);
-
-		statusComp.setLevel(level);
-		calculateStatusPoints(entity, statusComp);
-	}
-
-	private void checkLevelup(Entity entity, StatusComponent statusComp) {
-
-		final int neededExp = (int) Math
-				.round(Math.pow(statusComp.getLevel(), 3) / 10 + 15 + statusComp.getLevel() * 1.5);
-
-		if (statusComp.getExp() > neededExp) {
-			statusComp.setExp(statusComp.getExp() - neededExp);
-			statusComp.setLevel(statusComp.getLevel() + 1);
-			checkLevelup(entity, statusComp);
-		} else {
-			calculateStatusPoints(entity, statusComp);
-			entityService.updateComponent(statusComp);
-		}
-	}
-
-	public void addExp(Entity entity, int exp) {
-		final StatusComponent statusComp = entityService.getComponent(entity, StatusComponent.class)
-				.orElseThrow(IllegalArgumentException::new);
-
-		statusComp.setExp(statusComp.getExp() + exp);
-		checkLevelup(entity, statusComp);
-	}
 
 }
