@@ -15,6 +15,8 @@ import net.bestia.zoneserver.entity.components.LevelComponent;
  */
 @Service
 public class LevelService {
+	
+	public static final int MAX_LEVEL = 50;
 
 	private EntityService entityService;
 	private StatusService statusService;
