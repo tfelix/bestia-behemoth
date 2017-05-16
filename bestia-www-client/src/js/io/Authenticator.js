@@ -49,8 +49,9 @@ export default class Authenticator {
 		} else {
 			LOG.debug('Login was denied.');
 			this._pubsub.publish(Signal.IO_AUTH_ERROR);
+			this._pubsub.publish(Signal.IO_DISCONNECT);
 			// Go to login if there is wrong data.
-			window.location.replace(Urls.loginHtml);
+			//window.location.replace(Urls.loginHtml);
 		}
 	}
 	

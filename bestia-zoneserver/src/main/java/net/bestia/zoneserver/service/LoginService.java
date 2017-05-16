@@ -96,6 +96,7 @@ public class LoginService {
 			entityServiceCtx.getPlayer().setActiveEntity(accId, masterEntity.getId());
 		} catch (IllegalArgumentException e) {
 			// Seems the entity has no player component. Aborting.
+			LOG.warn("Could not login because of exception.", e);
 			final LoginAuthReplyMessage response = new LoginAuthReplyMessage(
 					accId,
 					LoginState.DENIED,
@@ -133,11 +134,7 @@ public class LoginService {
 		// Unregister connection.
 		LOG.debug("Logout acc id: {}.", accId);
 		connectionService.removeClient(accId);
-
-		entityServiceCtx.getPlayer().getMasterEntity(accId).ifPresent(master -> {
-			playerBestiaService.updatePlayerBestias(master);
-			entityServiceCtx.getPlayer().removePlayerBestia(master);
-		});
+		entityServiceCtx.getPlayer().removePlayerBestias(accId);
 	}
 
 	/**

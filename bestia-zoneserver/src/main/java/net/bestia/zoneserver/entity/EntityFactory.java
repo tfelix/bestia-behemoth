@@ -72,7 +72,7 @@ class EntityFactory {
 					});
 
 			// Save the component.
-			entityService.updateComponent(addedComp);
+			entityService.saveComponent(addedComp);
 		}
 
 		// Use the setter to fill the components with data.

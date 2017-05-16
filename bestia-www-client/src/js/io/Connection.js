@@ -40,6 +40,10 @@ export default class Connection {
 		 */
 		this._pubsub = pubsub;
 
+		/**
+		 * Flag if a reconnection attempt should be made.
+		 */
+		this._shouldReconnect = false;
 		this._connectionTries = 0;
 		this._timeoutHndl = 0;
 
@@ -137,7 +141,10 @@ export default class Connection {
 			LOG.info('Server has closed the connection.');
 			// Most likly we are not authenticated. Back to login.
 			this._pubsub.publish(Signal.IO_DISCONNECTED);
-			this._connectRetry();
+
+			if(this._shouldReconnect) {
+				this._connectRetry();
+			}		
 		}.bind(this);
 
 		this._pubsub.publish(Signal.IO_CONNECTING);
@@ -165,16 +172,18 @@ export default class Connection {
 	 * Disconnects the socket from the server.
 	 */
 	disconnect() {
-		if (this._socket === null) {
-			return;
-		}
-		this._socket.close();
-		this._socket = null;
-		this._connectionTries = 0;
+		
+		this._shouldReconnect = false;
 		if (this._timeoutHndl !== 0) {
 			clearTimeout(this._timeoutHndl);
 		}
+		this._connectionTries = 0;
 		this._timeoutHndl = 0;
+		
+		if (this._socket !== null) {
+			this._socket.close();
+			this._socket = null;
+		}		
 	}
 }
 

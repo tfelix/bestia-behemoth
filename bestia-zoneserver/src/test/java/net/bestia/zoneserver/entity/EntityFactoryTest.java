@@ -77,7 +77,7 @@ public class EntityFactoryTest {
 
 		verify(entityService).newEntity();
 		verify(entityService).addComponent(e, PlayerComponent.class);
-		verify(entityService).updateComponent(any());
+		verify(entityService).saveComponent(any());
 	}
 
 }

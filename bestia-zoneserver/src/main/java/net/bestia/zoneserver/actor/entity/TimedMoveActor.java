@@ -64,7 +64,7 @@ public class TimedMoveActor extends BestiaActor {
 
 			// TODO Das hier klüger mit nächster position an den client senden.
 			pos.setPosition(nextPoint.getX(), nextPoint.getY());
-			entityService.updateComponent(pos);
+			entityService.saveComponent(pos);
 
 			// Path empty and can we terminate now?
 			if (path.isEmpty()) {

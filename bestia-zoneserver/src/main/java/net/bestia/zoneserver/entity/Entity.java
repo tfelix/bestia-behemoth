@@ -49,7 +49,7 @@ public class Entity implements Serializable {
 	 *            The component to be added.
 	 */
 	void addComponent(Component comp) {
-		final String simpleName = comp.getClass().getName();
+		final String simpleName = comp.getClass().getSimpleName();
 		LOG.trace("Adding component {} to entity id: {}.", simpleName, getId());
 		components.put(simpleName, comp.getId());
 	}
@@ -94,7 +94,7 @@ public class Entity implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("Entity[id: %d, comps: %s]", getId(), components.toString());
+		return String.format("Entity[id: %d]", getId());
 	}
 
 	@Override

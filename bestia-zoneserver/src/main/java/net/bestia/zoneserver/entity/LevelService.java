@@ -62,7 +62,7 @@ public class LevelService {
 		} else {
 
 			statusService.calculateStatusPoints(entity);
-			entityService.updateComponent(levelComponent);
+			entityService.saveComponent(levelComponent);
 		}
 	}
 

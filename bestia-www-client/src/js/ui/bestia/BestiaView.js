@@ -122,6 +122,7 @@ export default class BestiaView {
 
 		if(bestia === null) {
 			this._deferredActiveBestia = msg.pbid;
+			return;
 		}
 
 		this._selectBestia(bestia);

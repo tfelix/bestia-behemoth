@@ -161,6 +161,7 @@ public class MessageHandlerActor extends UntypedActor {
 			sendToClient(msg);
 
 		} else {
+			sendToClient(msg);
 			closeSession(CloseStatus.PROTOCOL_ERROR);
 		}
 	}

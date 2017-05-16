@@ -72,7 +72,7 @@ public class EntityService {
 	 */
 	public Entity newEntity() {
 		final Entity entity = new Entity(getNewEntityId());
-		save(entity);
+		saveEntity(entity);
 		return entity;
 	}
 
@@ -84,6 +84,7 @@ public class EntityService {
 	 */
 	public void delete(Entity entity) {
 		Objects.requireNonNull(entity);
+		LOG.trace("Deleting entity: {}", entity.getId());
 
 		entities.lock(entity.getId());
 		try {
@@ -112,7 +113,7 @@ public class EntityService {
 	 * @param entity
 	 *            The entity to put into the memory database.
 	 */
-	private void save(Entity entity) {
+	private void saveEntity(Entity entity) {
 		LOG.trace("Saving entity: {}", entity);
 		// Remove entity context since it can not be serialized.
 		entities.lock(entity.getId());
@@ -193,7 +194,7 @@ public class EntityService {
 	public <T extends Component> Optional<T> getComponent(Entity e, Class<T> clazz) {
 		Objects.requireNonNull(e);
 		
-		LOG.trace("Getting component {} from entity: {}", clazz, e);
+		LOG.trace("Getting component {} from entity: {}", clazz.getSimpleName(), e);
 
 		@SuppressWarnings("unchecked")
 		final long compId = e.getComponentId((Class<Component>) clazz);
@@ -232,7 +233,7 @@ public class EntityService {
 			// Add component to entity and to the comp map.
 			components.put(comp.getId(), comp);
 			entity.addComponent(comp);
-			save(entity);
+			saveEntity(entity);
 			return clazz.cast(comp);
 
 		} catch (Exception ex) {
@@ -247,7 +248,7 @@ public class EntityService {
 	 * @param component
 	 *            The component to be updated into the database.
 	 */
-	public void updateComponent(Component component) {
+	public void saveComponent(Component component) {
 		Objects.requireNonNull(component);
 		components.put(component.getId(), component);
 	}
@@ -272,9 +273,13 @@ public class EntityService {
 	 */
 	public void removeAllComponents(Entity entity) {
 		entity.getComponentIds().forEach(c -> {
-			components.removeAsync(c);
+			
+			LOG.trace("Removing component id {} from entity {}.", c, entity.getId());
+			
+			components.remove(c);
 			entity.removeComponent(c);
 		});
+		saveEntity(entity);
 	}
 
 	public boolean hasComponent(Entity entity, Class<? extends Component> clazz) {

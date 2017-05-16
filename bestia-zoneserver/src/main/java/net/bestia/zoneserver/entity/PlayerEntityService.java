@@ -243,6 +243,7 @@ public class PlayerEntityService {
 	 *            The account id to delete all bestias from.
 	 */
 	public void removePlayerBestias(long accId) {
+		LOG.trace("Removing all bestias of player {}.", accId);
 		// First get all ids of player bestias.
 		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
 		ids.forEach(id -> entityService.delete(id));

@@ -146,7 +146,7 @@ public class StatusService {
 		statusComp.setStatusPoints(baseStatusPoints);
 		statusComp.setStatusBasedValues(new StatusBasedValuesImpl(baseStatusPoints, level));
 
-		entityService.updateComponent(statusComp);
+		entityService.saveComponent(statusComp);
 	}
 
 	/*
