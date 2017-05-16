@@ -104,7 +104,7 @@ public class PositionComponent extends Component {
 
 	@Override
 	public String toString() {
-		return String.format("PositionComp[id: %d, pos: %s, shape: %s, facing: %s]", getId(), getPosition().toString(),
+		return String.format("PositionComponent[id: %d, pos: %s, shape: %s, facing: %s]", getId(), getPosition().toString(),
 				shape.toString(),
 				facing.toString());
 	}

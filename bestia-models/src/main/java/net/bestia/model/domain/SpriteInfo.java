@@ -37,23 +37,10 @@ public class SpriteInfo implements Serializable {
 	}
 
 	/**
-	 * Constructs an placeholder visual which can be seen as such inside the
-	 * engine.
-	 * 
-	 * @return A visible placeholder sprite info.
-	 */
-	public static SpriteInfo placeholder() {
-		final SpriteInfo info = new SpriteInfo();
-		info.setType(VisualType.SINGLE);
-		info.setSprite("placeholder");
-		return info;
-	}
-
-	/**
 	 * Constructs an empty placeholder visual which can be seen as such inside
 	 * the engine.
 	 * 
-	 * @return
+	 * @return A invisible placeholder sprite info.
 	 */
 	public static SpriteInfo empty() {
 		final SpriteInfo info = new SpriteInfo();

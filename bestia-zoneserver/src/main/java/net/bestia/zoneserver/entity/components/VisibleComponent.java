@@ -16,8 +16,8 @@ import net.bestia.model.domain.SpriteInfo;
 public class VisibleComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
-	private SpriteInfo spriteInfo;
-	private boolean visible;
+	private SpriteInfo spriteInfo = SpriteInfo.empty();
+	private boolean visible = true;
 	
 	public VisibleComponent(long id) {
 		super(id);
@@ -54,6 +54,6 @@ public class VisibleComponent extends Component {
 	
 	@Override
 	public String toString() {
-		return String.format("VisibleComp[%s, visible: %b]", spriteInfo.toString(), visible);
+		return String.format("VisibleComponent[%s, visible: %b]", spriteInfo.toString(), visible);
 	}
 }

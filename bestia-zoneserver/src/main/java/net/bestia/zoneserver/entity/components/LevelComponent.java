@@ -17,7 +17,7 @@ public class LevelComponent extends Component {
 
 	private int level;
 	private int exp;
-	
+
 	/**
 	 * The level of the entity.
 	 * 
@@ -26,7 +26,7 @@ public class LevelComponent extends Component {
 	public int getLevel() {
 		return level;
 	}
-	
+
 	public int getKilledExp() {
 		return level * 10;
 	}
@@ -41,5 +41,10 @@ public class LevelComponent extends Component {
 
 	public void setExp(int exp) {
 		this.exp = exp;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("LevelComponent[id: %d, level: %d, exp: %d]", getId(), getLevel(), getExp());
 	}
 }

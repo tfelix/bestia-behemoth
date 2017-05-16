@@ -63,4 +63,9 @@ public class EquipComponent extends Component {
 		this.slots.clear();
 		this.slots.addAll(slots);
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("EquipComponent[id: %d]", getId());
+	}
 }

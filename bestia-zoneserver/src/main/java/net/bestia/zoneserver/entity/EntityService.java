@@ -56,11 +56,11 @@ public class EntityService {
 	 */
 	private long getNewEntityId() {
 		final long id = entityIdGen.newId();
-		
-		if(id == 0) {
+
+		if (id == 0) {
 			return entityIdGen.newId();
 		}
-		
+
 		return id;
 	}
 
@@ -178,8 +178,6 @@ public class EntityService {
 		return getEntitiesInRange(area).stream().filter(x -> comps.contains(x.getClass())).collect(Collectors.toSet());
 	}
 
-	
-
 	public <T extends Component> Optional<T> getComponent(long entityId, Class<T> clazz) {
 
 		final Entity e = getEntity(entityId);
@@ -193,7 +191,7 @@ public class EntityService {
 
 	public <T extends Component> Optional<T> getComponent(Entity e, Class<T> clazz) {
 		Objects.requireNonNull(e);
-		
+
 		LOG.trace("Getting component {} from entity: {}", clazz.getSimpleName(), e);
 
 		@SuppressWarnings("unchecked")
@@ -234,9 +232,9 @@ public class EntityService {
 			components.put(comp.getId(), comp);
 			entity.addComponent(comp);
 			saveEntity(entity);
-			
+
 			LOG.trace("Added component {} to entity id: {}", comp, entity.getId());
-			
+
 			return clazz.cast(comp);
 
 		} catch (Exception ex) {
@@ -275,13 +273,16 @@ public class EntityService {
 	 *            The entity to remove all components from.
 	 */
 	public void removeAllComponents(Entity entity) {
-		entity.getComponentIds().forEach(c -> {
+
+		Set<Long> componentIds = new HashSet<>(entity.getComponentIds());
+
+		for (Long componentId : componentIds) {
 			
-			LOG.trace("Removing component id {} from entity {}.", c, entity.getId());
-			
-			components.remove(c);
-			entity.removeComponent(c);
-		});
+			LOG.trace("Removing component id {} from entity {}.", componentId, entity.getId());
+			components.remove(componentId);
+			entity.removeComponent(componentId);
+		}
+		
 		saveEntity(entity);
 	}
 

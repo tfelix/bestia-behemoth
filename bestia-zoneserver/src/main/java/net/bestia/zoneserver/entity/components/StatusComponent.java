@@ -97,7 +97,7 @@ public class StatusComponent extends Component {
 
 	@Override
 	public String toString() {
-		return String.format("StatusComp[status: %s]", statusPoints.toString());
+		return String.format("StatusComponent[status: %s]", statusPoints.toString());
 	}
 
 	/**
