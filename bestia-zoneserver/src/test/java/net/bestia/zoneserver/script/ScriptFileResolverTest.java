@@ -20,13 +20,15 @@ public class ScriptFileResolverTest {
 	@Test
 	public void getScriptFile_scriptNameAndType_works() {
 		String scriptFile = resolver.getScriptFile("test.js", ScriptType.ATTACK).getAbsolutePath();
-		Assert.assertTrue(scriptFile.endsWith("attack/test.js"));
+		Assert.assertTrue(scriptFile.contains(("attack")));
+		Assert.assertTrue(scriptFile.contains(("test.js")));
 	}
-	
+
 	@Test
 	public void getScriptFile_scriptNameWithoutJs_works() {
 		String scriptFile = resolver.getScriptFile("test", ScriptType.ATTACK).getAbsolutePath();
-		Assert.assertTrue(scriptFile.endsWith("item/test.js"));
+		Assert.assertTrue(scriptFile.contains(("attack")));
+		Assert.assertTrue(scriptFile.contains(("test.js")));
 	}
-	
+
 }
