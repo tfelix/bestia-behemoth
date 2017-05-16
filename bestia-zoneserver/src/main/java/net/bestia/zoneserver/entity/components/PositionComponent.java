@@ -22,7 +22,7 @@ public class PositionComponent extends Component {
 		// no op.
 	}
 
-	private CollisionShape shape;
+	private CollisionShape shape = new Point();
 	private Direction facing = Direction.SOUTH;
 
 	public Point getPosition() {
@@ -88,7 +88,7 @@ public class PositionComponent extends Component {
 	 * @param shape
 	 *            The new collision shape. Can not be null.
 	 */
-	void setShape(CollisionShape shape) {
+	public void setShape(CollisionShape shape) {
 		this.shape = Objects.requireNonNull(shape);
 	}
 
@@ -104,7 +104,38 @@ public class PositionComponent extends Component {
 
 	@Override
 	public String toString() {
-		return String.format("PositionComp[pos: %s, shape: %s, facing: %s]", getPosition().toString(), shape.toString(),
+		return String.format("PositionComp[id: %d, pos: %s, shape: %s, facing: %s]", getId(), getPosition().toString(),
+				shape.toString(),
 				facing.toString());
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((facing == null) ? 0 : facing.hashCode());
+		result = prime * result + ((shape == null) ? 0 : shape.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PositionComponent other = (PositionComponent) obj;
+		if (facing != other.facing)
+			return false;
+		if (shape == null) {
+			if (other.shape != null)
+				return false;
+		} else if (!shape.equals(other.shape))
+			return false;
+		return true;
+	}
+	
+	
 }

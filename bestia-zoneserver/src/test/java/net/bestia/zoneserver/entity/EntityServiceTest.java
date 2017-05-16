@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import com.hazelcast.core.HazelcastInstance;
 
+import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.BasicMocks;
 import net.bestia.zoneserver.entity.components.PositionComponent;
 import net.bestia.zoneserver.entity.components.VisibleComponent;
@@ -76,8 +77,19 @@ public class EntityServiceTest {
 	public void addComponent_entityIdAndComponent_isAdded() {
 		Entity e1 = entityService.newEntity();
 		PositionComponent posComp = entityService.addComponent(e1, PositionComponent.class);
+		boolean hasComp = entityService.hasComponent(e1, PositionComponent.class);
+
 		Assert.assertNotNull(posComp);
-		Assert.assertTrue(entityService.hasComponent(e1, PositionComponent.class));
+		Assert.assertTrue("Entity does not have component.", hasComp);
+		
+		posComp.setShape(new Point(10, 10));
+		posComp.setPosition(123, 123);
+		entityService.saveComponent(posComp);
+
+		PositionComponent posComp2 = entityService.getComponent(e1, PositionComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+		
+		Assert.assertEquals(posComp, posComp2);
 	}
 
 	@Test

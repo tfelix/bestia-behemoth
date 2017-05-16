@@ -35,7 +35,7 @@ public class PlayerComponent extends Component {
 
 	@Override
 	public String toString() {
-		return String.format("PlayerComponent[accId: %d, pbId: %d]", getOwnerAccountId(), getPlayerBestiaId());
+		return String.format("PlayerComponent[id: %d, accId: %d, pbId: %d]", getId(), getOwnerAccountId(), getPlayerBestiaId());
 	}
 
 }

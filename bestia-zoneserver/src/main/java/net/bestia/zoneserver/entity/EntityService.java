@@ -234,6 +234,9 @@ public class EntityService {
 			components.put(comp.getId(), comp);
 			entity.addComponent(comp);
 			saveEntity(entity);
+			
+			LOG.trace("Added component {} to entity id: {}", comp, entity.getId());
+			
 			return clazz.cast(comp);
 
 		} catch (Exception ex) {

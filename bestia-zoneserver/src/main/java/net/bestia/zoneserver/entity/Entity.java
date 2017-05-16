@@ -25,7 +25,7 @@ public class Entity implements Serializable {
 
 	private final long id;
 
-	private Map<String, Long> components = new HashMap<>();
+	private final Map<String, Long> components = new HashMap<>();
 
 	Entity(long id) {
 		this.id = id;
@@ -50,13 +50,13 @@ public class Entity implements Serializable {
 	 */
 	void addComponent(Component comp) {
 		final String simpleName = comp.getClass().getSimpleName();
-		LOG.trace("Adding component {} to entity id: {}.", simpleName, getId());
+		LOG.trace("Adding component {} (id: {}) to entity id: {}.", simpleName, comp.getId(), getId());
 		components.put(simpleName, comp.getId());
 	}
 
 	void removeComponent(Component comp) {
-		final String simpleName = comp.getClass().getName();
-		LOG.trace("Removing component {} to entity id: {}.", simpleName, getId());
+		final String simpleName = comp.getClass().getSimpleName();
+		LOG.trace("Removing component {} from entity id: {}.", simpleName, getId());
 		components.remove(simpleName);
 	}
 
@@ -78,10 +78,10 @@ public class Entity implements Serializable {
 
 	long getComponentId(Class<? extends Component> clazz) {
 
-		if (!components.containsKey(clazz.getName())) {
+		if (!components.containsKey(clazz.getSimpleName())) {
 			return 0;
 		} else {
-			return components.get(clazz.getName());
+			return components.get(clazz.getSimpleName());
 		}
 	}
 
