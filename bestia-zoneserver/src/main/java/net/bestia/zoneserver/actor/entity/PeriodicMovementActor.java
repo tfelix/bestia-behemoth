@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.actor.entity;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
@@ -11,91 +12,110 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.Cancellable;
 import akka.actor.Scheduler;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import net.bestia.messages.entity.EntityMoveInternalMessage;
+import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaActor;
+import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.EntityServiceContext;
 import net.bestia.zoneserver.entity.components.PositionComponent;
 import net.bestia.zoneserver.service.MovingEntityService;
 import scala.concurrent.duration.Duration;
 
 /**
- * When the entity will receive a walk request message with a path we will spawn
- * up a TimedMoveActor which will periodically wake up and move a given entity
- * to the desired location.
+ * Upon receiving of a move message we will lookup the movable entity and sets
+ * them to the new position.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 @Component
 @Scope("prototype")
-public class TimedMoveActor extends BestiaActor {
+public class PeriodicMovementActor extends BestiaActor {
 
-	private final static String TICK_MSG = "tick";
-
+	private final static String TICK_MSG = "onTick";
 	public static final String STOP_MESSAGE = "STOP";
+
+	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private Cancellable tick;
 
-	private final MovingEntityService movingManager;
+	private final MovingEntityService movingService;
 	private final EntityService entityService;
 
 	private long entityId;
 	private final Queue<Point> path = new LinkedList<>();
 
 	@Autowired
-	public TimedMoveActor(
+	public PeriodicMovementActor(
 			EntityService entityService,
-			MovingEntityService movingManager) {
+			MovingEntityService movingService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
-		this.movingManager = Objects.requireNonNull(movingManager);
+		this.movingService = Objects.requireNonNull(movingService);
 	}
 
 	@Override
-	public void onReceive(Object message) throws Exception {
+	public void onReceive(Object message) throws Throwable {
 		if (message.equals(TICK_MSG)) {
 
-			final Point nextPoint = path.poll();
-			final Entity entity = entityService.getEntity(entityId);
-			final PositionComponent pos = entityService.getComponent(entity, PositionComponent.class)
-					.orElseThrow(IllegalStateException::new);
-
-			// TODO Das hier klüger mit nächster position an den client senden.
-			pos.setPosition(nextPoint.getX(), nextPoint.getY());
-			entityService.saveComponent(pos);
-
-			// Path empty and can we terminate now?
-			if (path.isEmpty()) {
-				getContext().stop(getSelf());
-			} else {
-				final int moveDelay = getMoveDelay(path.peek(), pos);
-				setupMoveTick(moveDelay);
-			}
+			handleTick();
 
 		} else if (message.equals(STOP_MESSAGE)) {
-			// Stop the current movement but dont end the actor. We will soon
-			// receive another movement job.
-			path.clear();
-			setupMoveTick(100);
+
+			handleStop();
+
 		} else if (message instanceof EntityMoveInternalMessage) {
-			// We get the order to reuse this actor and stop the current
-			// movement.
-			final EntityMoveInternalMessage msg = (EntityMoveInternalMessage) message;
 
-			entityId = msg.getEntityId();
+			handleMoveMessage((EntityMoveInternalMessage) message);
 
-			final PositionComponent pos = entityService.getComponent(entityId, PositionComponent.class)
-					.orElseThrow(IllegalStateException::new);
+		} else {
+			
+			unhandled(message);
+		}
+	}
 
-			path.clear();
-			path.addAll(msg.getPath());
+	private void handleMoveMessage(EntityMoveInternalMessage msg) {
 
+		entityId = msg.getEntityId();
+
+		final PositionComponent pos = entityService.getComponent(entityId, PositionComponent.class)
+				.orElseThrow(IllegalStateException::new);
+
+		path.clear();
+		path.addAll(msg.getPath());
+
+		final int moveDelay = getMoveDelay(path.peek(), pos);
+		setupMoveTick(moveDelay);
+	}
+
+	/**
+	 * Stops the actor and finish the movement.
+	 */
+	private void handleStop() {
+		// Stop the current movement but do not end the actor. We will soon
+		// receive another movement job.
+		path.clear();
+		setupMoveTick(100);
+		getContext().stop(getSelf());
+	}
+
+	private void handleTick() {
+		final Point nextPoint = path.poll();
+
+		pos.setPosition(nextPoint.getX(), nextPoint.getY());
+		entityService.saveComponent(pos);
+
+		// Path empty and can we terminate now?
+		if (path.isEmpty()) {
+			handleStop();
+		} else {
 			final int moveDelay = getMoveDelay(path.peek(), pos);
 			setupMoveTick(moveDelay);
-		} else {
-			unhandled(message);
 		}
 	}
 
@@ -107,7 +127,7 @@ public class TimedMoveActor extends BestiaActor {
 			tick.cancel();
 		}
 
-		movingManager.removeMovingActorRef(entityId);
+		movingService.removeMovingActorRef(entityId);
 	}
 
 	/**

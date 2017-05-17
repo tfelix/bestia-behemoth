@@ -15,7 +15,9 @@ public class ScriptServiceTest {
 	public class TestApi {
 		
 		public void setCallback(Runnable obj) {
-			System.out.println("test");
+			System.out.println(obj.toString());
+			ScriptEngine eng = (ScriptEngine) obj;
+			//eng.g
 			
 			obj.run();
 			obj.run();
@@ -26,6 +28,8 @@ public class ScriptServiceTest {
 			System.out.println("call 1");
 		}
 	}
+	
+	private ScriptApi scriptApi = new ScriptApiFacade();
 	
 	@Test
 	public void test() throws ScriptException, FileNotFoundException {
@@ -41,6 +45,29 @@ public class ScriptServiceTest {
 		engine.put("api", api);
 		
 		engine.eval(new FileReader(file));
+		engine.eval(new FileReader(testFile));
+		
+	}
+	
+	@Test
+	public void test2() throws ScriptException, FileNotFoundException {
+		
+		ScriptEngineManager manager = new ScriptEngineManager();
+		ScriptEngine engine = manager.getEngineByName("nashorn");
+		
+		engine.eval("print(Math.random())");
+		
+	}
+	
+	@Test
+	public void test3() throws ScriptException, FileNotFoundException {
+		
+		ScriptEngineManager manager = new ScriptEngineManager();
+		ScriptEngine engine = manager.getEngineByName("nashorn");
+		engine.put("api", scriptApi);
+		
+		ClassLoader classLoader = getClass().getClassLoader();
+		File testFile = new File(classLoader.getResource("script/test2.js").getFile());
 		engine.eval(new FileReader(testFile));
 		
 	}

@@ -1,12 +1,14 @@
 package net.bestia.messages.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.EntityJsonMessage;
+import net.bestia.model.geometry.Point;
 
 /**
  * This message is purely for position changes. It will be send to the client
- * and the client will check the entity position agains the position given
+ * and the client will check the entity position against the position given
  * inside this message. If they deviate too much a hard set to the coordinates
  * will be performed. Otherwise only a validation or a little adjustment will
  * happen by the client.
@@ -64,6 +66,21 @@ public class EntityPositionMessage extends EntityJsonMessage {
 
 		this.currentX = x;
 		this.currentY = y;
+	}
+
+	@JsonIgnore
+	public long getX() {
+		return currentX;
+	}
+
+	@JsonIgnore
+	public long getY() {
+		return currentX;
+	}
+
+	@JsonIgnore
+	public Point getPosition() {
+		return new Point(currentX, currentY);
 	}
 
 	@Override

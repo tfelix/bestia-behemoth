@@ -2,6 +2,7 @@ package net.bestia.zoneserver.entity;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -18,6 +19,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
 
+import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.entity.components.Component;
 import net.bestia.zoneserver.entity.components.PositionComponent;
@@ -142,6 +144,38 @@ public class EntityService {
 
 	public Map<Long, Entity> getAllEntities(Set<Long> ids) {
 		return entities.getAll(ids);
+	}
+
+	/**
+	 * Returns all entities which are currently colliding with the given entity.
+	 * The entity to check for collisions must implement the position component.
+	 * Also only entities implementing position components can be checked
+	 * against collision. If the entity does not have a
+	 * {@link PositionComponent} an empty set will be returned.
+	 * 
+	 * @param entity
+	 * @return
+	 */
+	public Set<Entity> getAllCollidingEntities(Entity entity) {
+		LOG.trace("Finding all colliding entities for: {}.", entity);
+
+		Optional<PositionComponent> posComp = getComponent(entity, PositionComponent.class);
+
+		if (!posComp.isPresent()) {
+			return Collections.emptySet();
+		}
+
+		final CollisionShape shape = posComp.get().getShape();
+		final Rect boundingBox = shape.getBoundingBox();
+		final Set<Entity> entitiesInBoundingBox = getEntitiesInRange(boundingBox, PositionComponent.class);
+
+		final Set<Entity> collidingEntities = entitiesInBoundingBox.stream()
+				.filter(e -> getComponent(e, PositionComponent.class).get().getShape().collide(shape))
+				.collect(Collectors.toSet());
+		
+		LOG.trace("Found colliding entities: {}.", collidingEntities);
+		
+		return collidingEntities;
 	}
 
 	/**
@@ -277,12 +311,12 @@ public class EntityService {
 		Set<Long> componentIds = new HashSet<>(entity.getComponentIds());
 
 		for (Long componentId : componentIds) {
-			
+
 			LOG.trace("Removing component id {} from entity {}.", componentId, entity.getId());
 			components.remove(componentId);
 			entity.removeComponent(componentId);
 		}
-		
+
 		saveEntity(entity);
 	}
 
