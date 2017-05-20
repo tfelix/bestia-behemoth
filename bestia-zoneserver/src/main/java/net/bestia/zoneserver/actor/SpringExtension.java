@@ -9,6 +9,7 @@ import akka.actor.AbstractExtensionId;
 import akka.actor.Actor;
 import akka.actor.ActorContext;
 import akka.actor.ActorRef;
+import akka.actor.ActorSystem;
 import akka.actor.Deploy;
 import akka.actor.ExtendedActorSystem;
 import akka.actor.Extension;
@@ -27,7 +28,7 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 	 * The identifier used to access the SpringExtension.
 	 */
 	public static final SpringExtension PROVIDER = new SpringExtension();
-	
+
 	private SpringExtension() {
 		// no op.
 	}
@@ -45,9 +46,9 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 	 * The extension implementation.
 	 */
 	public static class SpringExt implements Extension {
-		
+
 		private volatile ApplicationContext applicationContext;
-		
+
 		private SpringExt() {
 			// no op.
 		}
@@ -89,6 +90,19 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 		}
 	}
 
+	private static String getActorName(Class<? extends UntypedActor> clazz) {
+		try {
+			final Field f = clazz.getField("NAME");
+			final Class<?> t = f.getType();
+			if (t == String.class) {
+				return (String) f.get(null);
+			}
+
+			return null;
+		} catch (Exception e) {
+			return null;
+		}
+	}
 
 	/**
 	 * Like {@link #createActor(Class, String)} but it will examine the given
@@ -101,21 +115,16 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 	 * @return The created and already registered new actor.
 	 */
 	public static ActorRef actorOf(ActorContext ctx, Class<? extends UntypedActor> clazz) {
-		// Try to create the class with the name field.
-		final Props props = getSpringProps(ctx, clazz);
-		try {
-			final Field f = clazz.getField("NAME");
-			final Class<?> t = f.getType();
-			if (t == String.class) {
-				return ctx.actorOf(props, (String) f.get(null));
-			}
-		} catch (Exception e) {
-			// no op.
-		}
-
-		return ctx.actorOf(props);
+		return actorOf(ctx, clazz, null);
 	}
-	
+
+	public static ActorRef actorOf(ActorSystem system, Class<? extends UntypedActor> clazz) {
+		// Try to create the class with the name field.
+		final Props props = getSpringProps(system, clazz);
+		final String actorName = getActorName(clazz);
+		return (actorName == null) ? system.actorOf(props) : system.actorOf(props, actorName);
+	}
+
 	/**
 	 * Creates a new actor and already register it with this routing actor so it
 	 * is considered when receiving messages.
@@ -128,11 +137,9 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 	 */
 	public static ActorRef actorOf(ActorContext ctx, Class<? extends UntypedActor> clazz, String name) {
 
-		final Props props = getSpringProps(ctx, clazz);
-		final ActorRef newActor = ctx.actorOf(props, name);
-		return newActor;
+		final Props props = getSpringProps(ctx.system(), clazz);
+		return (name == null) ? ctx.actorOf(props) : ctx.actorOf(props, name);
 	}
-
 
 	/**
 	 * Unlike {@link #createActor(Class)} this wont check the given class for a
@@ -143,9 +150,9 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 	 *            The class to create an actor from.
 	 * @return The created and already registered new actor.
 	 */
-	public static ActorRef createUnnamedActor(ActorContext ctx, Class<? extends UntypedActor> clazz) {
-		final Props props = getSpringProps(ctx, clazz);
-		return ctx.actorOf(props);
+	public static ActorRef unnamedActorOf(ActorSystem system, Class<? extends UntypedActor> clazz) {
+		final Props props = getSpringProps(system, clazz);
+		return system.actorOf(props);
 	}
 
 	/**
@@ -159,10 +166,10 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 	 *            arguments.
 	 * @return The created props object.
 	 */
-	public static Props getSpringProps(ActorContext ctx, Class<? extends UntypedActor> clazz, Object... args) {
+	/*public static Props getSpringProps(ActorSystem system, Class<? extends UntypedActor> clazz, Object... args) {
 
-		return PROVIDER.get(ctx.system()).props(clazz, args);
-	}
+		return PROVIDER.get(system).props(clazz, args);
+	}*/
 
 	/**
 	 * Small helper method to get props via the spring extension (and thus can
@@ -172,8 +179,8 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 	 *            The Actor class to get the props object for.
 	 * @return The created props object.
 	 */
-	public static Props getSpringProps(ActorContext ctx, Class<? extends UntypedActor> clazz) {
-		
-		return PROVIDER.get(ctx.system()).props(clazz);
+	private static Props getSpringProps(ActorSystem system, Class<? extends UntypedActor> clazz) {
+
+		return PROVIDER.get(system).props(clazz);
 	}
 }

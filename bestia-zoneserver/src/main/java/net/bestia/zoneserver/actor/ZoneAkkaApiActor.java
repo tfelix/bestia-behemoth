@@ -49,7 +49,17 @@ public class ZoneAkkaApiActor implements ZoneAkkaApi {
 	@Override
 	public ActorRef startActor(Class<? extends UntypedActor> actorClazz) {
 
-		ActorRef actor = SpringExtension.actorOf(context, actorClazz);
+		ActorRef actor = SpringExtension.actorOf(context.system(), actorClazz);
+
+		LOG.info("Starting actor: {}, path: {}", actorClazz, actor.path().toString());
+
+		return actor;
+	}
+	
+	@Override
+	public ActorRef startUnnamedActor(Class<? extends UntypedActor> actorClazz) {
+
+		ActorRef actor = SpringExtension.unnamedActorOf(context.system(), actorClazz);
 
 		LOG.info("Starting actor: {}, path: {}", actorClazz, actor.path().toString());
 

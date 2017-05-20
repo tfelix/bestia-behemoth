@@ -22,8 +22,6 @@ export default class GameState {
 	}
 	
 	create() {
-
-		filter = new PhaserDebug.Filter(this.game, null, this.game.cache.getShader('blackwhite'));
 		
 		// ==== VAR SETUP ====
 		this._tileRender = this._ctx.render.getRender(TileRender.NAME);

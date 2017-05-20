@@ -39,4 +39,6 @@ public interface ZoneAkkaApi {
 	 */
 	ActorRef startActor(Class<? extends UntypedActor> actorClazz);
 
+	ActorRef startUnnamedActor(Class<? extends UntypedActor> actorClazz);
+
 }

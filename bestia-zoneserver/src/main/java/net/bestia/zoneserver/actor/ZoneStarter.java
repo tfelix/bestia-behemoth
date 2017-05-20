@@ -49,7 +49,6 @@ public class ZoneStarter implements CommandLineRunner {
 		akkaApi.startActor(IngestActor.class);
 		akkaApi.startActor(SendClientActor.class);
 		akkaApi.startActor(ActiveClientUpdateActor.class);
-		akkaApi.startActor(ActiveClientUpdateActor.class);
 
 		// Entity
 		akkaApi.startActor(EntityMovementActor.class);
