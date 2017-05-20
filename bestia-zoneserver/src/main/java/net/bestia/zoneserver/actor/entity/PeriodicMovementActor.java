@@ -109,8 +109,6 @@ public class PeriodicMovementActor extends BestiaActor {
 		if (tick != null) {
 			tick.cancel();
 		}
-
-		movingService.stopMoving(entityId);
 	}
 
 

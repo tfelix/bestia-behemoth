@@ -58,7 +58,7 @@ public class StatusService {
 			return Optional.empty();
 		}
 
-		if (statusComp.get().getStatusPoints() == null) {
+		if (statusComp.get().getStatusBasedValues() == null) {
 			calculateStatusPoints(entity, statusComp.get());
 		}
 

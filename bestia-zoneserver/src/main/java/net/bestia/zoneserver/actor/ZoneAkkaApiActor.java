@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import akka.actor.ActorContext;
+import akka.actor.ActorPath;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.TypedActor;
@@ -64,5 +65,11 @@ public class ZoneAkkaApiActor implements ZoneAkkaApi {
 		LOG.info("Starting actor: {}, path: {}", actorClazz, actor.path().toString());
 
 		return actor;
+	}
+
+	@Override
+	public void sendToActor(ActorPath actorPath, Object message) {
+		final ActorSelection selection = context.system().actorSelection(actorPath);
+		selection.tell(message, ActorRef.noSender());
 	}
 }

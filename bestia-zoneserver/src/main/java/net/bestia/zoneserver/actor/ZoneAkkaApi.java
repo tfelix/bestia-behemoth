@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.actor;
 
+import akka.actor.ActorPath;
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
 import net.bestia.messages.EntityJsonMessage;
@@ -40,5 +41,7 @@ public interface ZoneAkkaApi {
 	ActorRef startActor(Class<? extends UntypedActor> actorClazz);
 
 	ActorRef startUnnamedActor(Class<? extends UntypedActor> actorClazz);
+
+	void sendToActor(ActorPath actorPath, Object message);
 
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
 
+import akka.actor.ActorPath;
 import akka.actor.ActorRef;
 import net.bestia.messages.entity.EntityMoveInternalMessage;
 import net.bestia.model.entity.StatusBasedValues;
@@ -43,7 +44,7 @@ public class MovingEntityService {
 	private static final String MOVEMENT_KEY = "entity.moving";
 	private static final float TILES_PER_SECOND = 1.4f;
 	private static final float SQRT_TWO = (float) Math.sqrt(2);
-	private final Map<Long, ActorRef> movingActorRefs;
+	private final Map<Long, ActorPath> movingActorRefs;
 
 	private final EntityService entityService;
 	private final StatusService statusService;
@@ -93,7 +94,7 @@ public class MovingEntityService {
 			diagMult *= SQRT_TWO;
 		}
 
-		return (int) Math.floor((1 / TILES_PER_SECOND) * 1000 * walkspeed.getSpeed() * diagMult);
+		return (int) Math.floor((1 / TILES_PER_SECOND) * 1000 * (1 / walkspeed.getSpeed()) * diagMult);
 	}
 
 	/**
@@ -123,6 +124,8 @@ public class MovingEntityService {
 	 *            The new position.
 	 */
 	public void moveToPosition(long entityId, Point newPos) {
+		
+		LOG.trace("Moving entity {} to postition: {}", entityId, newPos);
 
 		// Before movement get all currently colliding entities.
 		final Entity moveEntity = entityService.getEntity(entityId);
@@ -158,27 +161,23 @@ public class MovingEntityService {
 	 */
 	public void movePath(long entityId, List<Point> path) {
 
-		LOG.debug("Moving entity {} along path: {}", entityId, path);
-
 		// Check if the entity is already moving.
 		// If this is the case cancel the current movement.
-		ActorRef moveActor = movingActorRefs.get(entityId);
-
-		if (moveActor != null) {
-			moveActor.tell(PeriodicMovementActor.STOP_MESSAGE, ActorRef.noSender());
-		}
+		stopMoving(entityId);
+		
+		LOG.trace("Moving entity {} along path: {}", entityId, path);
 
 		// Start a new movement via spawning a new movement tick actor with
 		// the route to move and the movement speed determines the ticking
 		// speed.
-		moveActor = akkaApi.startActor(PeriodicMovementActor.class);
+		final ActorRef moveActor = akkaApi.startActor(PeriodicMovementActor.class);
 
 		final EntityMoveInternalMessage moveMsg = new EntityMoveInternalMessage(entityId, path);
 
 		moveActor.tell(moveMsg, ActorRef.noSender());
 
 		// Save for later reference.
-		movingActorRefs.put(entityId, moveActor);
+		movingActorRefs.put(entityId, moveActor.path());
 	}
 
 	/**
@@ -189,12 +188,12 @@ public class MovingEntityService {
 	 */
 	public void stopMoving(long entityId) {
 
-		LOG.debug("Stopping movement for entity {}.", entityId);
+		LOG.trace("Stopping movement for entity {}.", entityId);
 
-		final ActorRef moveActor = movingActorRefs.get(entityId);
+		final ActorPath moveActorPath = movingActorRefs.get(entityId);
 
-		if (moveActor != null) {
-			moveActor.tell(PeriodicMovementActor.STOP_MESSAGE, ActorRef.noSender());
+		if (moveActorPath != null) {
+			akkaApi.sendToActor(moveActorPath, PeriodicMovementActor.STOP_MESSAGE);
 			movingActorRefs.remove(entityId);
 		}
 	}
