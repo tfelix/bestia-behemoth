@@ -49,11 +49,17 @@ public class EntityMovementActor extends BestiaRoutingActor {
 		LOG.debug("Received message: {}", msg.toString());
 
 		if (msg instanceof EntityMoveInternalMessage) {
+			
 			handleMoveInternal((EntityMoveInternalMessage) msg);
+			
 		} else if (msg instanceof EntityMoveMessage) {
+			
 			handleMove((EntityMoveMessage) msg);
+			
 		} else if (msg instanceof EntityPositionMessage) {
+			
 			handlePosition((EntityPositionMessage) msg);
+			
 		} else {
 			unhandled(msg);
 		}
@@ -65,7 +71,7 @@ public class EntityMovementActor extends BestiaRoutingActor {
 	private void handlePosition(EntityPositionMessage msg) {
 		// This message should be coming only from the internal system so we
 		// need no security checks.
-		movingService.moveTo(msg.getEntityId(), msg.getPosition());
+		movingService.moveToPosition(msg.getEntityId(), msg.getPosition());
 	}
 
 	private void handleMove(EntityMoveMessage msg) {

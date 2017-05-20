@@ -65,7 +65,7 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 					.orElseThrow(IllegalStateException::new);
 
 			final PlayerBestia pb = playerBestiaDao.findOne(pbComp.getPlayerBestiaId());
-			final StatusPoints statusPoints = statusService.getStatusPoints(pbe);
+			final StatusPoints statusPoints = statusService.getStatusPoints(pbe).get();
 
 			final BestiaInfoMessage bimsg = new BestiaInfoMessage(rbimsg.getAccountId(),
 					pbe.getId(),

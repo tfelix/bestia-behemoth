@@ -3,6 +3,7 @@ package net.bestia.zoneserver.service;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -13,10 +14,15 @@ import org.springframework.stereotype.Service;
 import com.hazelcast.core.HazelcastInstance;
 
 import akka.actor.ActorRef;
+import net.bestia.messages.entity.EntityMoveInternalMessage;
+import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.Point;
+import net.bestia.model.map.Walkspeed;
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.entity.PeriodicMovementActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.StatusService;
 import net.bestia.zoneserver.entity.components.PositionComponent;
 
 /**
@@ -35,96 +41,161 @@ public class MovingEntityService {
 	private static final Logger LOG = LoggerFactory.getLogger(MovingEntityService.class);
 
 	private static final String MOVEMENT_KEY = "entity.moving";
+	private static final float TILES_PER_SECOND = 1.4f;
+	private static final float SQRT_TWO = (float) Math.sqrt(2);
 	private final Map<Long, ActorRef> movingActorRefs;
 
-	private final HazelcastInstance cache;
 	private final EntityService entityService;
+	private final StatusService statusService;
+	private final ZoneAkkaApi akkaApi;
 
 	@Autowired
-	public MovingEntityService(HazelcastInstance cache, EntityService entityService) {
+	public MovingEntityService(HazelcastInstance cache, EntityService entityService, StatusService statusService,
+			ZoneAkkaApi akkaApi) {
 
-		this.cache = Objects.requireNonNull(cache);
 		this.movingActorRefs = cache.getMap(MOVEMENT_KEY);
+		this.akkaApi = Objects.requireNonNull(akkaApi);
 		this.entityService = Objects.requireNonNull(entityService);
+		this.statusService = Objects.requireNonNull(statusService);
 	}
 
-	private void setMovingActorRef(long entityId, ActorRef ref) {
-		movingActorRefs.put(entityId, ref);
-	}
+	/**
+	 * Calculates the next movement tick depending on the move speed. If -1 is
+	 * returned this means that the unit can no longer move (an error occurred
+	 * while calculating the movement) or the unit is considered to be static
+	 * and non movable.
+	 * 
+	 * @param entity
+	 *            The entity which wants to move.
+	 * @param newPos
+	 *            The new position.
+	 * @return The delay in ms for the next movement tick, or -1 if an error has
+	 *         occurred.
+	 */
+	public int getMoveDelayMs(Entity entity, Point newPos) {
 
-	private void removeMovingActorRef(long entityId) {
-		movingActorRefs.remove(entityId);
-	}
+		final Walkspeed walkspeed = statusService.getStatusBasedValues(entity)
+				.map(StatusBasedValues::getWalkspeed)
+				.orElse(Walkspeed.ZERO);
 
-	private ActorRef getMovingActorRef(long entityId) {
-		return movingActorRefs.get(entityId);
-	}
+		final Optional<Point> pos = entityService.getComponent(entity, PositionComponent.class)
+				.map(PositionComponent::getPosition);
 
-	public void movePath(long entityId, List<Point> path) {
-
-		// Check if the entity is already moving.
-		// If this is the case cancel the current movement.
-		ActorRef moveActor = getMovingActorRef(entityId);
-
-		if (moveActor != null) {
-			moveActor.tell(PeriodicMovementActor.STOP_MESSAGE, getSelf());
-		} else {
-			// Start a new movement via spawning a new movement tick actor with
-			// the route to move and the movement speed determines the ticking
-			// speed.
-			moveActor = SpringExtension.createUnnamedActor(getContext(), TimedMoveActor.class);
+		if (walkspeed == Walkspeed.ZERO || !pos.isPresent()) {
+			return -1;
 		}
 
-		// Tell the client the movement prediction message.
-		final Entity entity = serviceCtx.getEntity().getEntity(moveMsg.getEntityId());
+		final double d = pos.get().getDistance(newPos);
+		float diagMult = 1;
 
-		if (entity == null) {
-			return;
+		// Distance should be 1 or 2 (which means walking diagonally)
+		if (d > 1) {
+			diagMult *= SQRT_TWO;
 		}
 
-		if (!serviceCtx.getEntity().hasComponent(entity, StatusComponent.class)) {
-			return;
-		}
-
-		final StatusComponent status = serviceCtx.getEntity().getComponent(entity, StatusComponent.class).get();
-
-		final EntityMoveMessage updateMsg = new EntityMoveMessage(
-				moveMsg.getEntityId(),
-				moveMsg.getPath(),
-				status.getStatusBasedValues().getWalkspeed());
-		sendActiveInRangeClients(updateMsg);
-
-		moveActor.tell(msg, getSelf());
+		return (int) Math.floor((1 / TILES_PER_SECOND) * 1000 * walkspeed.getSpeed() * diagMult);
 	}
 
-	public void moveTo(long entityId, Point pos) {
-		// not implemented.
+	/**
+	 * Alias of {@link #getMoveDelayMs(Entity, Point)}. It just looks up the
+	 * entity before.
+	 * 
+	 * @param entityId
+	 *            The ID of the entity to get the move delay.
+	 * @param newPos
+	 *            The new position of the entity.
+	 * @return The delay in ms until this point is reached.
+	 */
+	public int getMoveDelayMs(long entityId, Point newPos) {
+		final Entity entity = entityService.getEntity(entityId);
+		return getMoveDelayMs(entity, newPos);
+	}
+
+	/**
+	 * Sets the position of the given entity to a new point and performs all the
+	 * needed movement checks for triggering movement related effects. The moved
+	 * entity must have the {@link PositionComponent} otherwise it throws
+	 * {@link IllegalArgumentException}.
+	 * 
+	 * @param entityId
+	 *            The entity to be moved.
+	 * @param newPos
+	 *            The new position.
+	 */
+	public void moveToPosition(long entityId, Point newPos) {
 
 		// Before movement get all currently colliding entities.
 		final Entity moveEntity = entityService.getEntity(entityId);
 		final Set<Entity> preMoveCollisions = entityService.getAllCollidingEntities(moveEntity);
 
+		final PositionComponent posComp = entityService.getComponent(entityId, PositionComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+
 		// Move the entity to the new position.
+		posComp.setPosition(newPos);
 
 		final Set<Entity> postMoveCollisions = entityService.getAllCollidingEntities(moveEntity);
 		postMoveCollisions.removeAll(preMoveCollisions);
-		//postMoveCollisions.stream().filter(e -> entityService.hasComponent(e, PositionComponent)).filter(e -> entityService.hasComponent(e, clazz))
-		
-		
+
 		// Check if a new collision has occurred and if necessary trigger
 		// scripts.
 
-		// Update all active players in sight with the current movement path.
+		// Update all active players in sight with the current position path.
 
 		// Update all AI actors.
+
 	}
 
 	/**
-	 * This is a very crucial method. It performs all needed checks of a entity
-	 * when an movement has occurred. It will check if there are now collisions
-	 * between
+	 * This triggers a longer movement by using a path. This involves spinning
+	 * up an actor which will continuously update the movement of the entity
+	 * until an error occures or the end of the path has been reached.
+	 * 
+	 * @param entityId
+	 *            The entity to move.
+	 * @param path
+	 *            The path to move along.
 	 */
-	private void doPostMoveCheck(Entity entity) {
+	public void movePath(long entityId, List<Point> path) {
 
+		LOG.debug("Moving entity {} along path: {}", entityId, path);
+
+		// Check if the entity is already moving.
+		// If this is the case cancel the current movement.
+		ActorRef moveActor = movingActorRefs.get(entityId);
+
+		if (moveActor != null) {
+			moveActor.tell(PeriodicMovementActor.STOP_MESSAGE, ActorRef.noSender());
+		}
+
+		// Start a new movement via spawning a new movement tick actor with
+		// the route to move and the movement speed determines the ticking
+		// speed.
+		moveActor = akkaApi.startActor(PeriodicMovementActor.class);
+
+		final EntityMoveInternalMessage moveMsg = new EntityMoveInternalMessage(entityId, path);
+
+		moveActor.tell(moveMsg, ActorRef.noSender());
+
+		// Save for later reference.
+		movingActorRefs.put(entityId, moveActor);
+	}
+
+	/**
+	 * Stops the movement for this entity id if there is a currently running
+	 * movement going on.
+	 * 
+	 * @param entityId The entity id to stop the movement.
+	 */
+	public void stopMoving(long entityId) {
+
+		LOG.debug("Stopping movement for entity {}.", entityId);
+
+		final ActorRef moveActor = movingActorRefs.get(entityId);
+
+		if (moveActor != null) {
+			moveActor.tell(PeriodicMovementActor.STOP_MESSAGE, ActorRef.noSender());
+			movingActorRefs.remove(entityId);
+		}
 	}
 }

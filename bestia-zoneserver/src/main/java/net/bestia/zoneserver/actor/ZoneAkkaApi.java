@@ -1,5 +1,8 @@
 package net.bestia.zoneserver.actor;
 
+import akka.actor.ActorRef;
+import akka.actor.UntypedActor;
+import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 
 /**
@@ -17,5 +20,23 @@ public interface ZoneAkkaApi {
 	 *            The message to be send to the client.
 	 */
 	void sendToClient(JsonMessage message);
+
+	void sendActiveInRangeClients(EntityJsonMessage message);
+
+	/**
+	 * Sends a message to an actor in the actor system.
+	 * 
+	 * @param actorName
+	 * @param message
+	 */
+	void sendToActor(String actorName, Object message);
+
+	/**
+	 * Helper to start actors.
+	 * 
+	 * @param actorClazz
+	 * @return
+	 */
+	ActorRef startActor(Class<? extends UntypedActor> actorClazz);
 
 }

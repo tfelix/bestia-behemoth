@@ -3,7 +3,6 @@ package net.bestia.zoneserver.actor;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.UntypedActor;
 import net.bestia.messages.EntityJsonMessage;
@@ -24,7 +23,7 @@ import net.bestia.zoneserver.actor.zone.SendClientActor;
 public abstract class BestiaActor extends UntypedActor {
 
 	private ActorSelection responder;
-	private ActorRef activeClientBroadcaster;
+	private ActorSelection activeClientBroadcaster;
 
 	public BestiaActor() {
 		super();
@@ -55,8 +54,9 @@ public abstract class BestiaActor extends UntypedActor {
 	 *            of the referenced entity.
 	 */
 	protected void sendActiveInRangeClients(EntityJsonMessage msg) {
+		
 		if (activeClientBroadcaster == null) {
-			activeClientBroadcaster = SpringExtension.actorOf(getContext(), ActiveClientUpdateActor.class);
+			activeClientBroadcaster = context().actorSelection(AkkaCluster.getNodeName(ActiveClientUpdateActor.NAME));
 		}
 
 		activeClientBroadcaster.tell(msg, getSelf());

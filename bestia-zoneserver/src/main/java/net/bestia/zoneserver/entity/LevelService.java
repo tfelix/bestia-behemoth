@@ -15,7 +15,7 @@ import net.bestia.zoneserver.entity.components.LevelComponent;
  */
 @Service
 public class LevelService {
-	
+
 	public static final int MAX_LEVEL = 50;
 
 	private EntityService entityService;
@@ -48,6 +48,19 @@ public class LevelService {
 		statusService.calculateStatusPoints(entity);
 	}
 
+	/**
+	 * Returns the level of the entity. The entity must possess the
+	 * {@link LevelComponent} or 0 is returned.
+	 * 
+	 * @param entity
+	 */
+	public int getLevel(Entity entity) {
+
+		return entityService.getComponent(entity, LevelComponent.class)
+				.map(lv -> lv.getLevel())
+				.orElse(0);
+	}
+
 	private void checkLevelup(Entity entity, LevelComponent levelComponent) {
 
 		final int neededExp = (int) Math
@@ -66,12 +79,34 @@ public class LevelService {
 		}
 	}
 
+	/**
+	 * Adds a amount of experience points to a entity with a level component. It
+	 * will check if a level up has occurred and recalculate status points if
+	 * neccesairy.
+	 * 
+	 * @param entity
+	 * @param exp
+	 */
 	public void addExp(Entity entity, int exp) {
 		final LevelComponent levelComp = entityService.getComponent(entity, LevelComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
 		levelComp.setExp(levelComp.getExp() + exp);
 		checkLevelup(entity, levelComp);
+	}
+
+	/**
+	 * The current experience of the entity. Entity must possess
+	 * {@link LevelComponent} or 0 will be returned.
+	 * 
+	 * @param entity
+	 *            The entity to get its experience points.
+	 * @return The current exp or 0 if the {@link LevelComponent} is missing.
+	 */
+	public int getExp(Entity entity) {
+		return entityService.getComponent(entity, LevelComponent.class)
+				.map(lv -> lv.getExp())
+				.orElse(0);
 	}
 
 }

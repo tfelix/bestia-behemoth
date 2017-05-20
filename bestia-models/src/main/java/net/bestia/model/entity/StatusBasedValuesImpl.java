@@ -10,7 +10,7 @@ import net.bestia.model.map.Walkspeed;
  * These modifier are calculates based on status values. The are used to
  * calculate various aspects of the game.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class StatusBasedValuesImpl implements Serializable, StatusBasedValues {
@@ -142,6 +142,6 @@ public class StatusBasedValuesImpl implements Serializable, StatusBasedValues {
 	 */
 	@Override
 	public Walkspeed getWalkspeed() {
-		return Walkspeed.fromInt(100);
+		return Walkspeed.fromFloat(1);
 	}
 }

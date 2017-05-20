@@ -20,7 +20,7 @@ import net.bestia.zoneserver.service.ConnectionService;
  * account given in the account message, serialize the message and send it back
  * to the webserver the client is currently connected.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Component

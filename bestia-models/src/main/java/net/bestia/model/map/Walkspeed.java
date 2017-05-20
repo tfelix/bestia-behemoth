@@ -12,8 +12,10 @@ public class Walkspeed {
 
 	public static final float MAX_WALKSPEED = 3.5f;
 	public static final int MAX_WALKSPEED_INT = (int) (MAX_WALKSPEED * 100);
+	
+	public static final Walkspeed ZERO = new Walkspeed(0);
 
-	private float speed;
+	private final float speed;
 
 	/**
 	 * Generates a walkspeed from a float value.
@@ -71,4 +73,30 @@ public class Walkspeed {
 		return (int) (speed * 100);
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Float.floatToIntBits(speed);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Walkspeed other = (Walkspeed) obj;
+		if (Float.floatToIntBits(speed) != Float.floatToIntBits(other.speed))
+			return false;
+		return true;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("Walkspeed[spd: %.2f]", getSpeed());
+	}
 }

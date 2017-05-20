@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.entity;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ import net.bestia.zoneserver.entity.components.StatusComponent;
  * entity. All kind of calculations are considered, this means equipment, status
  * effects and so on.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Service
@@ -43,22 +44,25 @@ public class StatusService {
 	}
 
 	/**
-	 * This method should be used to retrive status based values for an entity.
+	 * This method should be used to retrieve status based values for an entity.
 	 * In case this values can not be retrieved thought the component is
 	 * available the values will be recalculated.
 	 * 
 	 * @param entity
 	 * @return
 	 */
-	public StatusBasedValues getStatusBasedValues(Entity entity) {
-		final StatusComponent statusComp = entityService.getComponent(entity, StatusComponent.class)
-				.orElseThrow(IllegalArgumentException::new);
+	public Optional<StatusBasedValues> getStatusBasedValues(Entity entity) {
+		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
 
-		if (statusComp.getStatusPoints() == null) {
-			calculateStatusPoints(entity, statusComp);
+		if (!statusComp.isPresent()) {
+			return Optional.empty();
 		}
 
-		return statusComp.getStatusBasedValues();
+		if (statusComp.get().getStatusPoints() == null) {
+			calculateStatusPoints(entity, statusComp.get());
+		}
+
+		return Optional.of(statusComp.get().getStatusBasedValues());
 	}
 
 	/**
@@ -68,18 +72,29 @@ public class StatusService {
 	 * @param entity
 	 * @return
 	 */
-	public StatusPoints getStatusPoints(Entity entity) {
+	public Optional<StatusPoints> getStatusPoints(Entity entity) {
 
-		final StatusComponent statusComp = entityService.getComponent(entity, StatusComponent.class)
-				.orElseThrow(IllegalArgumentException::new);
+		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
 
-		if (statusComp.getStatusPoints() == null) {
-			calculateStatusPoints(entity, statusComp);
+		if (!statusComp.isPresent()) {
+			return Optional.empty();
 		}
 
-		return statusComp.getStatusPoints();
+		if (statusComp.get().getStatusPoints() == null) {
+			calculateStatusPoints(entity, statusComp.get());
+		}
+
+		return Optional.of(statusComp.get().getStatusPoints());
 	}
-	
+
+	/**
+	 * Trigger the status point calculation. If some preconditions of status
+	 * calculation have changed recalculate the status for this given entity.
+	 * The entity must own a {@link StatusComponent}.
+	 * 
+	 * @param entity
+	 *            The entity to recalculate the status.
+	 */
 	public void calculateStatusPoints(Entity entity) {
 		entityService.getComponent(entity, StatusComponent.class).ifPresent(statusComp -> {
 			calculateStatusPoints(entity, statusComp);

@@ -73,6 +73,10 @@ public class EntityMoveMessage extends EntityJsonMessage {
 		});
 	}
 
+	public EntityMoveMessage(long entityId, List<Point> path) {
+		this(entityId, path, Walkspeed.ZERO);
+	}
+
 	public List<Long> getCordsX() {
 		return cordsX;
 	}
