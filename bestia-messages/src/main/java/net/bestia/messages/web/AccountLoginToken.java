@@ -4,7 +4,7 @@ package net.bestia.messages.web;
  * Used as a HTTP response to send login response data as JSON to a successful
  * logged in account.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class AccountLoginToken {

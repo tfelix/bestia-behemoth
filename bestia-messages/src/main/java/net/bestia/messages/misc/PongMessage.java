@@ -4,23 +4,29 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
 
+/**
+ * Answer to a {@link PingMessage} from the client.
+ * 
+ * @author Thomas Felix
+ *
+ */
 public class PongMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 	private static final String message = "Hello User.";
 	private static final String MESSAGE_ID = "system.pong";
-	
+
 	/**
 	 * Ctor.
 	 */
 	protected PongMessage() {
 		// no op.
 	}
-	
+
 	public PongMessage(long accId) {
 		super(accId);
 	}
-	
+
 	@JsonProperty("m")
 	public String getMessage() {
 		return message;
