@@ -156,6 +156,10 @@ public class StatusService {
 		baseStatusPoints.setIntelligence(spatk);
 		baseStatusPoints.setMagicDefense(spdef);
 		baseStatusPoints.setAgility(spd);
+		
+		
+		baseStatusPoints.setCurrentHp(10);
+		baseStatusPoints.setCurrentMana(10);
 
 		// Update all component values.
 		statusComp.setStatusPoints(baseStatusPoints);

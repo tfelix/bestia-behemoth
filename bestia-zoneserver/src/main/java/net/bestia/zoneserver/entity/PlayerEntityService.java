@@ -27,8 +27,6 @@ import net.bestia.zoneserver.service.PlayerBestiaService;
 /**
  * This service manages the entities which are controlled by a player.
  * 
- * TODO Das hier ggf mit dem PlayerBestiaService kombinieren.
- * 
  * @author Thomas Felix
  *
  */
@@ -80,7 +78,7 @@ public class PlayerEntityService {
 		// Remove the active flag from the last active player bestia.
 		activeEntities.put(accId, activeEntityId);
 
-		LOG.debug("Activating entity id: {} for account: {}", activeEntityId, accId);
+		LOG.debug("Activating entity id: {} for account: {}.", activeEntityId, accId);
 
 		final BestiaActivateMessage activateMsg = new BestiaActivateMessage(accId, activeEntityId,
 				playerComp.getPlayerBestiaId());
@@ -97,7 +95,7 @@ public class PlayerEntityService {
 	 * @return TRUE if this is the active entity. FALSE otherwise.
 	 */
 	public boolean isActiveEntity(long accId, long activeEntityId) {
-		Long active = activeEntities.get(accId);
+		final Long active = activeEntities.get(accId);
 		return active != null && active == activeEntityId;
 	}
 
@@ -134,17 +132,20 @@ public class PlayerEntityService {
 	 */
 	public List<Long> getActiveAccountIdsInRange(Rect range) {
 
-		List<PlayerComponent> pbe = entityService.getEntitiesInRange(range, PlayerComponent.class)
-				.stream()
-				.map(x -> entityService.getComponent(x, PlayerComponent.class))
-				.filter(Optional::isPresent)
-				.map(Optional::get)
-				.collect(Collectors.toList());
+		final Set<Entity> entitiesInRange = entityService.getEntitiesInRange(range);
 
-		return pbe.stream()
-				.filter(x -> isActiveEntity(x.getOwnerAccountId(), x.getId()))
-				.map(x -> x.getOwnerAccountId())
-				.collect(Collectors.toList());
+		LOG.trace("Entities in range: {}", entitiesInRange);
+
+		// List only the active entity ids.
+		final List<Long> activeIds = entitiesInRange.stream().filter(entity -> {
+			return entityService.getComponent(entity, PlayerComponent.class).map(playerComp -> {
+				return isActiveEntity(playerComp.getOwnerAccountId(), entity.getId());
+			}).orElse(false);
+		}).map(Entity::getId).collect(Collectors.toList());
+
+		LOG.trace("Active entities in range: {}", activeIds);
+
+		return activeIds;
 	}
 
 	/**

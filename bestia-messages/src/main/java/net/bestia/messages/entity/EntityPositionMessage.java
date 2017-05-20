@@ -68,6 +68,11 @@ public class EntityPositionMessage extends EntityJsonMessage {
 		this.currentY = y;
 	}
 
+	public EntityPositionMessage(long entityId, Point newPos) {
+		this(0, entityId, newPos.getX(), newPos.getY());
+		// no op.
+	}
+
 	@JsonIgnore
 	public long getX() {
 		return currentX;

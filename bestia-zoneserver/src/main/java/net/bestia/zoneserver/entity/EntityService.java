@@ -187,9 +187,10 @@ public class EntityService {
 	public Set<Entity> getEntitiesInRange(Rect area) {
 
 		// TODO Das muss noch effektiver gestaltet werden.
-		Set<Entity> colliders = new HashSet<>();
+		final Set<Entity> colliders = new HashSet<>();
+		
 		entities.forEach((id, entity) -> {
-			getComponent(entity.getId(), PositionComponent.class).ifPresent(posComp -> {
+			getComponent(entity, PositionComponent.class).ifPresent(posComp -> {
 				if (posComp.getShape().collide(area)) {
 					colliders.add(entity);
 				}
