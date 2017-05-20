@@ -10,6 +10,7 @@ import net.bestia.zoneserver.entity.components.Component;
 import net.bestia.zoneserver.entity.components.ComponentSetter;
 import net.bestia.zoneserver.entity.components.LevelComponentSetter;
 import net.bestia.zoneserver.entity.components.PlayerComponentSetter;
+import net.bestia.zoneserver.entity.components.PlayerStatusComponentSetter;
 import net.bestia.zoneserver.entity.components.PositionComponentSetter;
 import net.bestia.zoneserver.entity.components.VisibleComponentSetter;
 
@@ -48,9 +49,10 @@ public class PlayerBestiaEntityFactory {
 		final PlayerComponentSetter playerSetter = new PlayerComponentSetter(playerBestia);
 		final LevelComponentSetter levelSetter = new LevelComponentSetter(playerBestia.getLevel(),
 				playerBestia.getExp());
+		final PlayerStatusComponentSetter statusSetter = new PlayerStatusComponentSetter(playerBestia);
 
 		final Set<ComponentSetter<? extends Component>> comps = EntityFactory.makeSet(posSetter, visSetter,
-				playerSetter, levelSetter);
+				playerSetter, levelSetter, statusSetter);
 
 		final Entity masterEntity = entityFactory.build(playerBestiaBlueprint, comps);
 

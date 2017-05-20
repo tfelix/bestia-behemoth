@@ -15,6 +15,9 @@ import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.geometry.Point;
 
 public class PlayerBestiaEntityFactoryTest {
+	
+	private final static int LEVEL = 10;
+	private final static int EXP = 124;
 
 	private PlayerBestiaEntityFactory factory;
 
@@ -34,9 +37,14 @@ public class PlayerBestiaEntityFactoryTest {
 		playerBestia = mock(PlayerBestia.class);
 		spriteInfo = mock(SpriteInfo.class);
 		
-		when(bestia.getSpriteInfo()).thenReturn(spriteInfo);
 		
+		when(bestia.getSpriteInfo()).thenReturn(spriteInfo);	
+		
+		when(playerBestia.getOrigin()).thenReturn(bestia);
+		when(playerBestia.getLevel()).thenReturn(LEVEL);
+		when(playerBestia.getExp()).thenReturn(EXP);
 		when(playerBestia.getCurrentPosition()).thenReturn(currentPos);
+		
 		
 		factory = new PlayerBestiaEntityFactory(bestiaBP, entityFactory);
 	}
@@ -48,6 +56,7 @@ public class PlayerBestiaEntityFactoryTest {
 	
 	@Test
 	public void build_validPlayerBestia_builds() {
+		
 		Entity e = factory.build(playerBestia);
 		
 		Assert.notNull(e);

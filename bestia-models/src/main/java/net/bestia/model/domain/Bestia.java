@@ -257,4 +257,8 @@ public class Bestia implements Serializable {
 		return String.format("Bestia[dbName: %s, id: %d, level: %d]", databaseName, id, level);
 	}
 
+	public Element getElement() {
+		return element;
+	}
+
 }

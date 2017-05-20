@@ -17,12 +17,12 @@ public class StatusComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
 
+	private StatusPoints originalStatusPoints = new StatusPointsImpl();
 	private StatusPoints statusPoints;
-	private StatusPoints originalStatusPoints;
 	private StatusBasedValues statusBasedValues;
 
-	private Element originalElement;
-	private Element element;
+	private Element originalElement = Element.NORMAL;
+	private Element element = Element.NORMAL;
 
 	public StatusComponent(long id) {
 		super(id);
@@ -113,8 +113,8 @@ public class StatusComponent extends Component {
 	 * 
 	 * @param statusPoints
 	 */
-	public void setStatusPoints(StatusPoints statusPoints) {
-		this.statusPoints = statusPoints;
+	public void setOriginalStatusPoints(StatusPoints originalStatusPoints) {
+		this.originalStatusPoints = originalStatusPoints;
 	}
 
 	/**
@@ -123,7 +123,6 @@ public class StatusComponent extends Component {
 	 * @param statusBasedValues
 	 */
 	public void setStatusBasedValues(StatusBasedValues statusBasedValues) {
-
 		this.statusBasedValues = statusBasedValues;
 	}
 }

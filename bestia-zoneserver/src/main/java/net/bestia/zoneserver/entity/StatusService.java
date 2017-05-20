@@ -107,8 +107,6 @@ public class StatusService {
 	 * Must be called after the level of a bestia has changed. Currently this
 	 * method only accepts entity with player and status components. This will
 	 * change in the future.
-	 * 
-	 * TODO This need further revisiting to allow other components.
 	 */
 	private void calculateStatusPoints(Entity entity, StatusComponent statusComp) {
 		Objects.requireNonNull(entity);
@@ -118,7 +116,7 @@ public class StatusService {
 		final PlayerComponent playerComp = entityService.getComponent(entity, PlayerComponent.class)
 				.orElseThrow(IllegalStateException::new);
 
-		final StatusPoints baseStatusPoints = new StatusPointsImpl();
+		final StatusPoints statusPoints = new StatusPointsImpl();
 
 		final PlayerBestia pb = playerBestiaDao.findOne(playerComp.getPlayerBestiaId());
 
@@ -149,23 +147,37 @@ public class StatusService {
 		final int maxMana = baseValues.getMana() * 2 + ivs.getMana() + effortValues.getMana() / 4 * level / 100 + 10
 				+ level * 2;
 
-		baseStatusPoints.setMaxHp(maxHp);
-		baseStatusPoints.setMaxMana(maxMana);
-		baseStatusPoints.setStrenght(atk);
-		baseStatusPoints.setVitality(def);
-		baseStatusPoints.setIntelligence(spatk);
-		baseStatusPoints.setMagicDefense(spdef);
-		baseStatusPoints.setAgility(spd);
-		
-		
-		baseStatusPoints.setCurrentHp(10);
-		baseStatusPoints.setCurrentMana(10);
+		statusPoints.setMaxHp(maxHp);
+		statusPoints.setMaxMana(maxMana);
+		statusPoints.setStrenght(atk);
+		statusPoints.setVitality(def);
+		statusPoints.setIntelligence(spatk);
+		statusPoints.setMagicDefense(spdef);
+		statusPoints.setAgility(spd);
+
+		statusPoints.setCurrentHp(statusComp.getOriginalStatusPoints().getCurrentHp());
+		statusPoints.setCurrentMana(statusComp.getOriginalStatusPoints().getCurrentMana());
 
 		// Update all component values.
-		statusComp.setStatusPoints(baseStatusPoints);
-		statusComp.setStatusBasedValues(new StatusBasedValuesImpl(baseStatusPoints, level));
+		statusComp.setOriginalStatusPoints(statusPoints);
+
+		// Calculate the status points based on status effects and/or equipment.
+		calculateModifiedStatusPoints(entity, statusComp);
+
+		statusComp.setStatusBasedValues(new StatusBasedValuesImpl(statusPoints, level));
 
 		entityService.saveComponent(statusComp);
+	}
+
+	/**
+	 * Calculates and sets the modified status points based on the equipment and
+	 * or status effects.
+	 * 
+	 * @param entity
+	 * @param statusComp
+	 */
+	private void calculateModifiedStatusPoints(Entity entity, StatusComponent statusComp) {
+		//final StatusPoints statusPoints = new StatusPointsImpl();
 	}
 
 	/*
