@@ -17,8 +17,8 @@ public class StatusComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
 
-	private StatusPoints statusPoints = new StatusPointsImpl();
-	private StatusPoints originalStatusPoints = new StatusPointsImpl();
+	private StatusPoints statusPoints;
+	private StatusPoints originalStatusPoints;
 	private StatusBasedValues statusBasedValues;
 
 	private Element originalElement;
@@ -75,6 +75,14 @@ public class StatusComponent extends Component {
 	public StatusBasedValues getStatusBasedValues() {
 		return statusBasedValues;
 	}
+	
+	public void setElement(Element element) {
+		this.element = element;
+	}
+	
+	public void setOriginalElement(Element originalElement) {
+		this.originalElement = originalElement;
+	}
 
 	/**
 	 * The current element of this entity.
@@ -97,7 +105,7 @@ public class StatusComponent extends Component {
 
 	@Override
 	public String toString() {
-		return String.format("StatusComponent[status: %s]", statusPoints.toString());
+		return String.format("StatusComponent[]");
 	}
 
 	/**
