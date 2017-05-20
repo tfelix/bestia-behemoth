@@ -3,17 +3,27 @@ package net.bestia.model.geometry;
 import java.io.Serializable;
 import java.util.Objects;
 
+import javax.persistence.Embeddable;
+
 /**
  * Immutable size object.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@Embeddable
 public final class Size implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	private final long width;
 	private final long height;
+
+	/**
+	 * Zero argument ctor for Hibernate.
+	 */
+	public Size() {
+		this(0, 0);
+	}
 
 	public Size(long width, long height) {
 		if (width < 0 || height < 0) {

@@ -39,7 +39,7 @@ public class ZoneConfiguration {
 	 */
 	@Bean
 	public BestiaDate bestiaDate(MapParameterDAO mapParamDao) {
-		final MapParameter param = mapParamDao.getLatest();
+		final MapParameter param = mapParamDao.findLatest();
 		
 		if(param == null) {
 			return new BestiaDate();

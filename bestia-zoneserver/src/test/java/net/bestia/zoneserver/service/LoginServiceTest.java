@@ -136,7 +136,7 @@ public class LoginServiceTest {
 
 		verify(connectionService).removeClient(USER_ACC_ID);
 		verify(entityServiceCtx.getPlayer()).getMasterEntity(USER_ACC_ID);
-		verify(playerBestiaService).updatePlayerBestias(bestiaEntity);
+		verify(playerBestiaService).save(playerBestia);
 		verify(entityServiceCtx.getPlayer()).removePlayerBestia(bestiaEntity);
 	}
 

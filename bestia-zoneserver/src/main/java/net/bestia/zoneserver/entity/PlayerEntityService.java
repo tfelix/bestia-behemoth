@@ -21,7 +21,10 @@ import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.entity.components.LevelComponent;
 import net.bestia.zoneserver.entity.components.PlayerComponent;
+import net.bestia.zoneserver.entity.components.PositionComponent;
+import net.bestia.zoneserver.entity.components.StatusComponent;
 import net.bestia.zoneserver.service.PlayerBestiaService;
 
 /**
@@ -292,5 +295,44 @@ public class PlayerEntityService {
 		}
 
 		return true;
+	}
+
+	/**
+	 * This method extracts all variable data from the player entity and
+	 * persists them back into the database.
+	 * 
+	 * @param playerBestia
+	 */
+	public void save(Entity playerEntity) {
+
+		final PlayerComponent playerComp = entityService.getComponent(playerEntity, PlayerComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+
+		// Get the player bestia.
+		final PlayerBestia playerBestia = playerBestiaService.getPlayerBestia(playerComp.getPlayerBestiaId());
+
+		// Current status values (HP/Mana)
+		final StatusComponent statusComp = entityService.getComponent(playerEntity, StatusComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+
+		playerBestia.setCurrentHp(statusComp.getOriginalStatusPoints().getCurrentHp());
+		playerBestia.setCurrentMana(statusComp.getOriginalStatusPoints().getCurrentMana());
+
+		// Current position.
+		final PositionComponent posComp = entityService.getComponent(playerEntity, PositionComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+		
+		playerBestia.setCurrentPosition(posComp.getPosition());
+
+		// Level and exp.
+		final LevelComponent levelComp = entityService.getComponent(playerEntity, LevelComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+
+		playerBestia.setExp(levelComp.getExp());
+		playerBestia.setLevel(levelComp.getLevel());
+
+		// Current inventory.
+
+		playerBestiaService.save(playerBestia);
 	}
 }

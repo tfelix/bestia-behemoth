@@ -2,6 +2,7 @@ package net.bestia.model.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -19,7 +20,7 @@ import net.bestia.model.geometry.Size;
  *
  */
 @Entity
-@Table(name="map_parameters")
+@Table(name = "map_parameters")
 public class MapParameter implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -29,7 +30,7 @@ public class MapParameter implements Serializable {
 	 *
 	 */
 	public static class Builder {
-		
+
 		private final Random rand = ThreadLocalRandom.current();
 
 		private long population;
@@ -71,7 +72,7 @@ public class MapParameter implements Serializable {
 		public MapParameter build() {
 			return new MapParameter(this);
 		}
-		
+
 		public void newSeed() {
 			this.seed = rand.nextInt();
 		}
@@ -125,7 +126,7 @@ public class MapParameter implements Serializable {
 
 		final Builder builder = new Builder();
 		final ThreadLocalRandom rand = ThreadLocalRandom.current();
-		
+
 		builder.setName(mapName);
 
 		double area = user * 0.5;
@@ -150,17 +151,17 @@ public class MapParameter implements Serializable {
 		int population = 6 * user;
 		int numberOfSettlements = Math.max(30, 2 * population / 55) * (int) (rand.nextFloat() * 40);
 		int minSettleDistance = rand.nextInt(4000, 6001);
-		
+
 		builder.setSettlementCount(numberOfSettlements);
 		builder.setMinSettlementDistance(minSettleDistance);
 
 		return builder.build();
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public Date getCreateDate() {
 		return createDate;
 	}
@@ -184,13 +185,20 @@ public class MapParameter implements Serializable {
 	public int getSettlementCount() {
 		return settlementCount;
 	}
-	
+
 	public int getSeed() {
 		return seed;
 	}
 
 	@Override
 	public String toString() {
-		return String.format("MapBaseParams[size: %s, population: %d]", getWorldSize().toString(), population);
+		return String.format("MapParameter[size: %s, population: %d]", getWorldSize().toString(), population);
+	}
+
+	public String toDetailString() {
+		return String.format(Locale.US,
+				"MapParameter[width: %d height: %d, waterLandRatio: %.1f, population: %d, seed: %d, created: %s]",
+				getWorldSize().getWidth(), getWorldSize().getHeight(), getWaterLandRatio(), getPopulation(), getSeed(),
+				getCreateDate());
 	}
 }

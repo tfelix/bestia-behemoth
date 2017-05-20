@@ -53,6 +53,8 @@ public class MapMoveCommand extends BaseChatCommand {
 
 	@Override
 	protected void executeCommand(Account account, String text) {
+		LOG.debug("Chatcommand: /mm triggered by account {}.", account.getId());
+		
 		// Its okay, now execute the command.
 		final Matcher match = cmdPattern.matcher(text);
 

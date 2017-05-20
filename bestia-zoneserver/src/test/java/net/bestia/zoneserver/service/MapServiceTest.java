@@ -43,7 +43,7 @@ public class MapServiceTest {
 		
 		paramNoMapDao = mock(MapParameterDAO.class);
 		paramDao = mock(MapParameterDAO.class);
-		when(paramDao.getLatest()).thenReturn(mapParams);
+		when(paramDao.findLatest()).thenReturn(mapParams);
 		
 		ms = new MapService(dataNoMapDao, paramDao);
 	}

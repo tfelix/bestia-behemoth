@@ -19,7 +19,6 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.BestiaAttack;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.PlayerItem;
-import net.bestia.zoneserver.entity.Entity;
 
 /**
  * The service for managing and editing of the player bestias.
@@ -149,21 +148,12 @@ public class PlayerBestiaService {
 	}
 
 	/**
-	 * Synchronizes and saves all the player bestia entities back to the
-	 * database.
-	 */
-	public void updatePlayerBestias(Entity playerBestia) {
-
-		// playerBestiaDao.save(bestias);
-	}
-
-	/**
 	 * Returns the player bestia with the given id or null.
 	 * 
 	 * @param playerBestiaId
 	 * @return
 	 */
-	public PlayerBestia getBestia(long playerBestiaId) {
+	public PlayerBestia getPlayerBestia(long playerBestiaId) {
 		return playerBestiaDao.findOne(playerBestiaId);
 	}
 
@@ -181,5 +171,19 @@ public class PlayerBestiaService {
 		}
 
 		return account.getMaster();
+	}
+
+	/**
+	 * Saves the given player bestia into the database.
+	 * 
+	 * @param playerBestia
+	 *            The bestia to save into the database.
+	 */
+	public void save(PlayerBestia playerBestia) {
+		Objects.requireNonNull(playerBestia);
+
+		LOG.debug("Persisting player bestia: {}.", playerBestia);
+		playerBestiaDao.save(playerBestia);
+
 	}
 }

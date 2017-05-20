@@ -170,7 +170,7 @@ public class MapService {
 	 * @return The name of the map.
 	 */
 	public String getMapName() {
-		final MapParameter params = mapParamDao.getLatest();
+		final MapParameter params = mapParamDao.findLatest();
 		return params == null ? "" : params.getName();
 	}
 
