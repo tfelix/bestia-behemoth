@@ -6,6 +6,7 @@ import java.io.FileReader;
 
 import javax.script.Compilable;
 import javax.script.CompiledScript;
+import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
@@ -24,7 +25,7 @@ public class ScriptServiceTest {
 	private ScriptApi scriptApi;
 	
 	@Test
-	public void call_script_attaches_callbacks() throws ScriptException, FileNotFoundException {
+	public void call_script_attaches_callbacks() throws ScriptException, FileNotFoundException, NoSuchMethodException {
 		
 		ScriptEngineManager manager = new ScriptEngineManager();
 		ScriptEngine engine = manager.getEngineByName("nashorn");
@@ -33,6 +34,8 @@ public class ScriptServiceTest {
 		ClassLoader classLoader = getClass().getClassLoader();
 		File testFile = new File(classLoader.getResource("script/attack/create_aoe_dmg.js").getFile());
 		engine.eval(new FileReader(testFile));
+		
+		((Invocable) engine).invokeFunction("main");
 		
 		try {
 			Thread.sleep(10000);

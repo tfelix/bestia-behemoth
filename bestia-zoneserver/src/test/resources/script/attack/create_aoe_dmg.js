@@ -1,18 +1,25 @@
 
-var aoe = Bestia.createSpellEntity(null, 'fireSprite', 15000);
-
-function onTouch(entity) {
-	Bestia.info('Hello from script.');
+function test() {
+	print('WTF?!');
 }
 
-aoe.setOnTouch(function(entity){
-	Bestia.Entity.playAnimation(aoe, 'explosion');
-});
-
-aoe.setInterval(1000, 'onTouch');
+function onTouch() {
+	Bestia.info('Hello from script.');
+}
 
 function bla(){
 	Bestia.findCollidingEntities(aoe).forEach(function(entity){
 		entity.takeDamage('fire', 100);
 	});
+}
+
+function main() {
+	
+	var aoe = Bestia.createSpellEntity(null, 'fireSprite', 15000);
+	
+	aoe.setOnTouch(function(entity){
+		Bestia.Entity.playAnimation(aoe, 'explosion');
+	});
+
+	aoe.setInterval(1000, 'onTouch');
 }

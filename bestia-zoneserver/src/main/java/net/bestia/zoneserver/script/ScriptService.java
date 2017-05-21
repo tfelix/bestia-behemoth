@@ -114,8 +114,9 @@ public class ScriptService {
 		File testFile = new File(classLoader.getResource("script/attack/create_aoe_dmg.js").getFile());
 		try {
 			CompiledScript compiled = ((Compilable) engine).compile(new FileReader(testFile));
+			compiled.eval(compiled.getEngine().getContext());
 			try {
-				LOG.trace("Calling script callback: {} from script: {}.", callbackName);
+				LOG.trace("Calling script function: {} from script: {}.", callbackName);
 				((Invocable) compiled.getEngine()).invokeFunction(callbackName);
 			} catch (NoSuchMethodException e) {
 				// TODO Auto-generated catch block
