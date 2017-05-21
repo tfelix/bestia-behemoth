@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.bestia.model.geometry.CollisionShape;
+import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.ScriptEntityFactory;
 
 /**
  * Bundles all kind of services to provide an extensive script API. This API is
@@ -23,13 +25,14 @@ public class ScriptApiFacade implements ScriptApi {
 	
 	private static final Logger SCRIPT_LOG = LoggerFactory.getLogger("script");
 	
-	private final EntityService entityService;
-	//private final 
+	private final ScriptEntityFactory scriptEntityFactory;
+	private final ScriptService scriptService;
 	
 	@Autowired
-	public ScriptApiFacade(EntityService entityService) {
+	public ScriptApiFacade(EntityService entityService, ScriptService scriptService) {
 		
-		this.entityService = Objects.requireNonNull(entityService);
+		this.scriptEntityFactory = new ScriptEntityFactory(entityService);
+		this.scriptService = Objects.requireNonNull(scriptService);
 	}
 
 	@Override
@@ -43,9 +46,13 @@ public class ScriptApiFacade implements ScriptApi {
 	}
 
 	@Override
-	public ScriptEntity createSpellEntity(CollisionShape shape, String spriteName, int baseDuration) {
-		// TODO Auto-generated method stub
-		return null;
+	public ScriptEntityWrapper createSpellEntity(CollisionShape shape, String spriteName, int baseDuration) {
+		
+		final Entity entity = scriptEntityFactory.build();
+		
+		final ScriptEntityWrapper entityWrapper = new ScriptEntityWrapper(entity, scriptService);
+		
+		return entityWrapper;
 	}
 
 }

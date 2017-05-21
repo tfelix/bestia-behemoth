@@ -33,6 +33,16 @@ public interface ZoneAkkaApi {
 	void sendToActor(String actorName, Object message);
 
 	/**
+	 * Sends a message to an actors just as
+	 * {@link #sendToActor(String, Object)}. In this case only a
+	 * {@link ActorPath} is used instead of a simple name.
+	 * 
+	 * @param actorPath
+	 * @param message
+	 */
+	void sendToActor(ActorPath actorPath, Object message);
+
+	/**
 	 * Helper to start actors.
 	 * 
 	 * @param actorClazz
@@ -40,8 +50,13 @@ public interface ZoneAkkaApi {
 	 */
 	ActorRef startActor(Class<? extends UntypedActor> actorClazz);
 
+	/**
+	 * This starts an unnamed actor. Which is faster then starting a named
+	 * actor. If many one-shot actors should be fired off then this method is
+	 * preferred to {@link #startActor(Class)}.
+	 * 
+	 * @param actorClazz
+	 * @return
+	 */
 	ActorRef startUnnamedActor(Class<? extends UntypedActor> actorClazz);
-
-	void sendToActor(ActorPath actorPath, Object message);
-
 }

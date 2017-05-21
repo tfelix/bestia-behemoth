@@ -3,15 +3,23 @@ package net.bestia.zoneserver.entity;
 import java.util.Objects;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.entity.components.Component;
 import net.bestia.zoneserver.entity.components.ComponentSetter;
+import net.bestia.zoneserver.entity.components.EquipComponent;
+import net.bestia.zoneserver.entity.components.InventoryComponent;
+import net.bestia.zoneserver.entity.components.LevelComponent;
 import net.bestia.zoneserver.entity.components.LevelComponentSetter;
+import net.bestia.zoneserver.entity.components.PlayerComponent;
 import net.bestia.zoneserver.entity.components.PlayerComponentSetter;
 import net.bestia.zoneserver.entity.components.PlayerStatusComponentSetter;
+import net.bestia.zoneserver.entity.components.PositionComponent;
 import net.bestia.zoneserver.entity.components.PositionComponentSetter;
+import net.bestia.zoneserver.entity.components.StatusComponent;
+import net.bestia.zoneserver.entity.components.VisibleComponent;
 import net.bestia.zoneserver.entity.components.VisibleComponentSetter;
 
 /**
@@ -24,13 +32,26 @@ import net.bestia.zoneserver.entity.components.VisibleComponentSetter;
 @org.springframework.stereotype.Component
 public class PlayerBestiaEntityFactory {
 
+	private static final Logger LOG = LoggerFactory.getLogger(PlayerBestiaEntityFactory.class);
+
 	private final EntityFactory entityFactory;
-	private final Blueprint playerBestiaBlueprint;
+	private static final Blueprint playerBestiaBlueprint;
 
-	public PlayerBestiaEntityFactory(@Qualifier("playerBestia") Blueprint playerBestiaBlueprint,
-			EntityFactory entityFactory) {
+	static {
+		Blueprint.Builder builder = new Blueprint.Builder();
+		builder.addComponent(VisibleComponent.class)
+				.addComponent(EquipComponent.class)
+				.addComponent(InventoryComponent.class)
+				.addComponent(PositionComponent.class)
+				.addComponent(PlayerComponent.class)
+				.addComponent(LevelComponent.class)
+				.addComponent(StatusComponent.class);
 
-		this.playerBestiaBlueprint = Objects.requireNonNull(playerBestiaBlueprint);
+		playerBestiaBlueprint = builder.build();
+	}
+
+	public PlayerBestiaEntityFactory(EntityFactory entityFactory) {
+
 		this.entityFactory = Objects.requireNonNull(entityFactory);
 	}
 
@@ -42,6 +63,9 @@ public class PlayerBestiaEntityFactory {
 	 * @return A newly created entity for this player bestia.
 	 */
 	public Entity build(PlayerBestia playerBestia) {
+		Objects.requireNonNull(playerBestia);
+
+		LOG.trace("Building player bestia entity: {}.", playerBestia);
 
 		// Prepare the setter.
 		final PositionComponentSetter posSetter = new PositionComponentSetter(playerBestia.getCurrentPosition());

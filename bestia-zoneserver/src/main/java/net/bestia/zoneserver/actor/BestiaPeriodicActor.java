@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.Cancellable;
 import scala.concurrent.duration.Duration;
 
 /**
@@ -22,12 +23,17 @@ public abstract class BestiaPeriodicActor extends BestiaActor {
 	private static final String TICK_MSG = "net.bestia.TICK_MSG";
 
 	private int intervalDuration;
+	private Cancellable ticker;
 
 	public BestiaPeriodicActor(int initialDelay) {
 		super();
 		
 		setIntervalDuration(initialDelay);
 		setupTicker();
+	}
+	
+	public BestiaPeriodicActor() {
+		// no op.
 	}
 
 	/**
@@ -43,6 +49,15 @@ public abstract class BestiaPeriodicActor extends BestiaActor {
 		}
 
 		this.intervalDuration = duration;
+	}
+	
+	/**
+	 * Starts a new 
+	 * @param duration
+	 */
+	protected void startInterval(int duration) {
+		setIntervalDuration(duration);
+		setupTicker();
 	}
 
 	/**
@@ -74,8 +89,14 @@ public abstract class BestiaPeriodicActor extends BestiaActor {
 	 * Starts a new tick event for the next invocation of this actor.
 	 */
 	private void setupTicker() {
+		
+		if(ticker != null) {
+			ticker.cancel();
+			ticker = null;
+		}
+		
 		// send another periodic tick after the specified delay
-		getContext().system().scheduler().scheduleOnce(
+		ticker = getContext().system().scheduler().scheduleOnce(
 				Duration.create(intervalDuration, TimeUnit.MILLISECONDS),
 				getSelf(), TICK_MSG, getContext().dispatcher(), null);
 	}

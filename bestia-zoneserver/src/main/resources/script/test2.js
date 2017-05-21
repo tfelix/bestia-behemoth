@@ -1,3 +1,6 @@
 
-api.info("Das ist ein Info log.");
-api.debug("Das ist ein Debug Log.");
+api.info("Called von global.");
+
+function test() {
+	api.info("Called von test().");
+}

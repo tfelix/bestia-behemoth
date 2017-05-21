@@ -37,7 +37,7 @@ public class ZoneConfiguration {
 	 * 
 	 * @return The current time object.
 	 */
-	@Bean
+	//@Bean
 	public BestiaDate bestiaDate(MapParameterDAO mapParamDao) {
 		final MapParameter param = mapParamDao.findLatest();
 		

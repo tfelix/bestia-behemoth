@@ -30,8 +30,7 @@ public class PlayerBestiaEntityFactoryTest {
 
 	@Before
 	public void setup() {
-		
-		bestiaBP = mock(Blueprint.class);
+
 		bestia = mock(Bestia.class);
 		entityFactory = mock(EntityFactory.class);
 		playerBestia = mock(PlayerBestia.class);
@@ -46,7 +45,7 @@ public class PlayerBestiaEntityFactoryTest {
 		when(playerBestia.getCurrentPosition()).thenReturn(currentPos);
 		
 		
-		factory = new PlayerBestiaEntityFactory(bestiaBP, entityFactory);
+		factory = new PlayerBestiaEntityFactory(entityFactory);
 	}
 
 	@Test(expected = NullPointerException.class)
