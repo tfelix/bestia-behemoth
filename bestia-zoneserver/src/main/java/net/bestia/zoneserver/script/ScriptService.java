@@ -21,7 +21,6 @@ import akka.actor.ActorPath;
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import net.bestia.messages.internal.ScriptIntervalMessage;
-import net.bestia.model.geometry.CollisionShape;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.script.PeriodicScriptRunnerActor;
 import net.bestia.zoneserver.entity.Entity;
@@ -42,10 +41,12 @@ import net.bestia.zoneserver.entity.components.ScriptComponent;
 public class ScriptService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ScriptService.class);
+	private static final String MAIN_FUNC = "main";
 
 	private final EntityService entityService;
 	private final ZoneAkkaApi akkaApi;
 	private final ScriptApi scriptApi;
+	private final ScriptCache scriptCache;
 
 	@Autowired
 	public ScriptService(EntityService entityService, ZoneAkkaApi akkaApi, ScriptApi scriptApi) {
@@ -53,6 +54,7 @@ public class ScriptService {
 		this.entityService = Objects.requireNonNull(entityService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 		this.scriptApi = Objects.requireNonNull(scriptApi);
+		this.scriptCache = new ScriptCache(new ScriptCompiler());
 	}
 
 	public void saveData(String scriptUid, String json) {
@@ -74,8 +76,20 @@ public class ScriptService {
 	 * @param name
 	 * @param type
 	 */
-	public void callScript(String name, ScriptType type) {
-
+	public synchronized void callScript(String name, ScriptType type) {
+		LOG.debug("Executing script: {} ({}).", name, type);
+		
+		final CompiledScript script = scriptCache.getScript(type, name);
+		
+		try {
+			((Invocable) script.getEngine()).invokeFunction(MAIN_FUNC);
+		} catch (NoSuchMethodException e) {
+			LOG.error("Error calling script. Script {} ({}) does not contain main() function.", name, type); 
+			return;
+		} catch (ScriptException e) {
+			LOG.error("Error during script  {} ({})  execution.", name, type, e); 
+			return;
+		}
 	}
 
 	public void triggerScriptIntervalCallback(long scriptEntityId) {

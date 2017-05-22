@@ -4,14 +4,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Map;
-import java.util.Map.Entry;
 
+import javax.script.Bindings;
 import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import javax.script.SimpleBindings;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,25 +31,34 @@ public class ScriptCompiler {
 
 	public ScriptCompiler() {
 
-		engine = new ScriptEngineManager().getEngineByName("nashorn");
+		final ScriptEngineManager manager = new ScriptEngineManager();
+
+		// Setup the global bindings.
+		Bindings globalBindings = new SimpleBindings();
+
+		globalBindings.put("SERVER_VERSION", "1234");
+		// engine.put("Bestia", scriptApi);
+
+		manager.setBindings(globalBindings);
+
+		engine = manager.getEngineByName("nashorn");
 	}
 
-	public ScriptCompiler(Map<String, Object> globalBindings) {
-
-		engine = new ScriptEngineManager().getEngineByName("nashorn");
-
-		// Attach the global bindings.
-		for (Entry<String, Object> entry : globalBindings.entrySet()) {
-			LOG.debug("Binding to global script ctx: {} ({})", entry.getKey(),
-					entry.getValue().getClass().getSimpleName());
-			engine.put(entry.getKey(), entry.getValue());
-		}
-	}
-
-	public CompiledScript compiledScript(File file) {
-
+	/**
+	 * Tries to compile the given script file.
+	 * 
+	 * @param file
+	 *            The javascript bestia script file.
+	 * @return A compiled version of the script or null if there was an error.
+	 */
+	public CompiledScript compileScript(File file) {
+		LOG.trace("Compiling script file: {}.", file);
+		
 		try (Reader scriptReader = new FileReader(file)) {
+
 			final CompiledScript script = ((Compilable) engine).compile(scriptReader);
+			script.eval(engine.getContext());
+
 			return script;
 		} catch (ScriptException | IOException e) {
 			LOG.error("Could not compile script.", e);

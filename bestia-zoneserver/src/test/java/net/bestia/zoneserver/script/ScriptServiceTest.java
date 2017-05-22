@@ -29,6 +29,7 @@ public class ScriptServiceTest {
 		
 		ScriptEngineManager manager = new ScriptEngineManager();
 		ScriptEngine engine = manager.getEngineByName("nashorn");
+		
 		engine.put("Bestia", scriptApi);
 		
 		ClassLoader classLoader = getClass().getClassLoader();

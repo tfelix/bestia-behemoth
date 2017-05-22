@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.script;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -29,16 +30,18 @@ public class ScriptCache {
 
 	private final Map<String, CompiledScript> cache = new HashMap<>();
 
+	private final ScriptFileResolver resolver;
 	private final ScriptCompiler compiler;
 
 	public ScriptCache(ScriptCompiler compiler) {
 
+		this.resolver = new ScriptFileResolver();
 		this.compiler = Objects.requireNonNull(compiler);
 	}
 
 	/**
 	 * Adds a folder to the script cache. It will immediately start to compile
-	 * all the scripts.
+	 * all the scripts inside this folder.
 	 * 
 	 * @param scriptFolder
 	 *            The folder to add to the cache.
@@ -52,7 +55,7 @@ public class ScriptCache {
 			for (Path path : directoryStream) {
 				LOG.debug("Compiling script: {} (type: {})", path, type);
 
-				final CompiledScript script = compiler.compiledScript(path.toFile());
+				final CompiledScript script = compiler.compileScript(path.toFile());
 				final String key = type.toString() + "_" + FilenameUtils.getBaseName(path.toString());
 
 				cache.put(key, script);
@@ -73,8 +76,21 @@ public class ScriptCache {
 	 * @return The compiled script or null of no script was found.
 	 */
 	public CompiledScript getScript(ScriptType type, String name) {
-
+		LOG.trace("Requesting script file: {} ({}).", name, type);
 		final String key = type.toString() + "_" + FilenameUtils.getBaseName(name);
+
+		if (!cache.containsKey(key)) {
+			LOG.trace("Script was not found in cache. Compile.");
+			final File scriptFile = resolver.getScriptFile(name, type);
+			final CompiledScript compiledScript = compiler.compileScript(scriptFile);
+			
+			if(compiledScript == null) {
+				return null;
+			}
+			
+			cache.put(key, compiledScript);
+		}
+
 		return cache.get(key);
 
 	}
