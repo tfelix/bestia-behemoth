@@ -8,8 +8,10 @@ import org.slf4j.LoggerFactory;
 import net.bestia.zoneserver.entity.Entity;
 
 /**
- * This is a wrapper class for a entity to be used in scripts. It holds various
- * shortcut methods which will call differnt services. It serves as a facade.
+ * This is a wrapper class for a entity to be used inside scripts. It holds
+ * various shortcut methods which will call different services and serves as a
+ * shortcut to interact with these services. It is basically a facade wrapper
+ * for the native bestia entity which is of no big use.
  * 
  * @author Thomas Felix
  *
@@ -20,7 +22,6 @@ public class ScriptEntityWrapper {
 
 	private final Entity entity;
 	private final ScriptService scriptService;
-	
 
 	public ScriptEntityWrapper(Entity entity, ScriptService scriptService) {
 
@@ -33,7 +34,7 @@ public class ScriptEntityWrapper {
 
 		return this;
 	}
-	
+
 	/**
 	 * Defines a callback function which gets attached to the script and is
 	 * periodically called.
@@ -46,7 +47,35 @@ public class ScriptEntityWrapper {
 		LOG.trace("Script Entity: {}. setIntervalFunction {} called.", entity, callbackFunctionName);
 
 		scriptService.startScriptInterval(entity, delay, callbackFunctionName);
-		
+
+		return this;
+	}
+	
+	public ScriptEntityWrapper setVisual() {
+		return this;
+	}
+	
+	public ScriptEntityWrapper playAnimation(String name) {
+		return this;
+	}
+	
+	public ScriptEntityWrapper setLivetime(int duration) {
+		return this;
+	}
+	
+	public ScriptEntityWrapper setPosition(long x, long y) {
+		return this;
+	}
+	
+	public ScriptEntityWrapper setShape() {
+		return this;
+	}
+	
+	public ScriptEntityWrapper setOnEnter(String callbackName) {
+		return this;
+	}
+	
+	public ScriptEntityWrapper setOnLeave(String callbackName) {
 		return this;
 	}
 }

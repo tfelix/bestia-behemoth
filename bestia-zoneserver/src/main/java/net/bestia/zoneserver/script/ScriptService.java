@@ -17,14 +17,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import akka.actor.ActorPath;
 import akka.actor.ActorRef;
+import akka.actor.PoisonPill;
 import net.bestia.messages.internal.ScriptIntervalMessage;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.script.PeriodicScriptRunnerActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.ScriptComponent;
+import net.bestia.zoneserver.entity.components.ScriptComponent;
 
 /**
  * This class is responsible for fetching the script, creating a appropriate
@@ -45,46 +47,12 @@ public class ScriptService {
 	private final ZoneAkkaApi akkaApi;
 	private final ScriptApi scriptApi;
 
-	public class TestApi implements ScriptApi {
-
-		public void setCallback(Runnable obj) {
-			System.out.println(obj.toString());
-			ScriptEngine eng = (ScriptEngine) obj;
-			// eng.g
-
-			obj.run();
-			obj.run();
-			obj.run();
-		}
-
-		public void call1() {
-			System.out.println("call 1");
-		}
-
-		@Override
-		public void info(String text) {
-			System.out.println(text);
-		}
-
-		@Override
-		public void debug(String text) {
-			System.out.println(text);
-		}
-
-		@Override
-		public ScriptEntityWrapper createSpellEntity(CollisionShape shape, String spriteName, int baseDuration) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-	}
-
 	@Autowired
-	public ScriptService(EntityService entityService, ZoneAkkaApi akkaApi) {
+	public ScriptService(EntityService entityService, ZoneAkkaApi akkaApi, ScriptApi scriptApi) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
-		// this.scriptApi = Objects.requireNonNull(scriptApi);
-		this.scriptApi = new TestApi();
+		this.scriptApi = Objects.requireNonNull(scriptApi);
 	}
 
 	public void saveData(String scriptUid, String json) {
@@ -97,7 +65,20 @@ public class ScriptService {
 		LOG.debug("Loading script data for script: {} data: {}.", scriptUid, "nothing");
 	}
 
-	public void triggerScriptInterval(long scriptEntityId) {
+	/**
+	 * Central entry point for calling a script execution from the bestia system.
+	 * This will fetch the script from cache, if cache does not hold the script
+	 * it will attempt to compile it. It will then set the script environment
+	 * and execute its main function.
+	 * 
+	 * @param name
+	 * @param type
+	 */
+	public void callScript(String name, ScriptType type) {
+
+	}
+
+	public void triggerScriptIntervalCallback(long scriptEntityId) {
 
 		LOG.trace("Script {} interval called.", scriptEntityId);
 
@@ -134,18 +115,30 @@ public class ScriptService {
 				.orElseThrow(IllegalArgumentException::new);
 
 		final ActorRef scriptRunner = akkaApi.startUnnamedActor(PeriodicScriptRunnerActor.class);
-		// Tell the actor which script to periodically call.
-		final ScriptIntervalMessage message = new ScriptIntervalMessage(entity.getId(), delay);
-		scriptRunner.tell(message, ActorRef.noSender());
 
 		scriptComp.setScriptActorPath(scriptRunner.path());
 		scriptComp.setOnIntervalCallbackName(callbackFunctionName);
+		entityService.saveComponent(scriptComp);
 
-		// FIXME Das hier ist temporär zum testen. Muss später besser gelöst
-		// werden.
-		scriptComp.setScriptType(ScriptType.ATTACK);
-		scriptComp.setScriptName("create_aoe_dmg");
+		// Tell the actor which script to periodically call.
+		final ScriptIntervalMessage message = new ScriptIntervalMessage(entity.getId(), delay);
+		scriptRunner.tell(message, ActorRef.noSender());
+	}
 
+	public void stopScriptInterval(Entity entity) {
+		final ScriptComponent scriptComp = entityService.getComponent(entity, ScriptComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+
+		final ActorPath callbackActorPath = scriptComp.getScriptActorPath();
+
+		if (callbackActorPath == null) {
+			return;
+		}
+
+		akkaApi.sendToActor(callbackActorPath, PoisonPill.getInstance());
+
+		scriptComp.setScriptActorPath(null);
+		scriptComp.setOnIntervalCallbackName(null);
 		entityService.saveComponent(scriptComp);
 	}
 }

@@ -15,6 +15,13 @@ function bla(){
 
 function main() {
 	
+	// Sprite
+	// Animation
+	// Duration
+	// Position x
+	// onEnter
+	// onInterval
+	// onLeave
 	var aoe = Bestia.createSpellEntity(null, 'fireSprite', 15000);
 	
 	aoe.setOnTouch(function(entity){

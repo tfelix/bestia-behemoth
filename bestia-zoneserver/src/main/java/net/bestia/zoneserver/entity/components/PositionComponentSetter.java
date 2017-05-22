@@ -4,17 +4,22 @@ import java.util.Objects;
 
 import net.bestia.model.domain.Direction;
 import net.bestia.model.geometry.CollisionShape;
-import net.bestia.model.geometry.Point;
 
+/**
+ * Initializes a {@link PositionComponent} with a position.
+ * 
+ * @author Thomas Felix
+ *
+ */
 public class PositionComponentSetter extends ComponentSetter<PositionComponent> {
 
 	private final CollisionShape position;
 	private final Direction direction;
 
-	public PositionComponentSetter(Point position) {
-		this(position, Direction.SOUTH);
+	public PositionComponentSetter(CollisionShape bbox) {
+		this(bbox, Direction.SOUTH);
 	}
-	
+
 	public PositionComponentSetter(CollisionShape bbox, Direction facing) {
 		super(PositionComponent.class);
 

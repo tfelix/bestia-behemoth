@@ -41,7 +41,7 @@ public class PeriodicScriptRunnerActor extends BestiaPeriodicActor {
 	protected void onTick() {
 
 		try {
-			scriptService.triggerScriptInterval(scriptId);
+			scriptService.triggerScriptIntervalCallback(scriptId);
 		} catch (Exception e) {
 			LOG.warning("Error during script interval execution. Stopping interval.", e);
 			context().stop(getSelf());
