@@ -1,15 +1,9 @@
 package net.bestia.zoneserver.script;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.Objects;
 
-import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.slf4j.Logger;
@@ -45,7 +39,6 @@ public class ScriptService {
 
 	private final EntityService entityService;
 	private final ZoneAkkaApi akkaApi;
-	private final ScriptApi scriptApi;
 	private final ScriptCache scriptCache;
 
 	@Autowired
@@ -53,41 +46,55 @@ public class ScriptService {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
-		this.scriptApi = Objects.requireNonNull(scriptApi);
 		this.scriptCache = new ScriptCache(new ScriptCompiler());
 	}
 
-	public void saveData(String scriptUid, String json) {
+	/**
+	 * This prepares the script bindings for usage inside this script and
+	 * finally calls the given function name.
+	 * 
+	 * @param script
+	 * @param functionName
+	 */
+	private void setupScriptAndCallFunction(CompiledScript script, String functionName) {
 
-		LOG.debug("Saving script data for script: {} data: {}.", scriptUid, json);
-	}
-
-	public void loadData(String scriptUid) {
-
-		LOG.debug("Loading script data for script: {} data: {}.", scriptUid, "nothing");
 	}
 
 	/**
-	 * Central entry point for calling a script execution from the bestia system.
-	 * This will fetch the script from cache, if cache does not hold the script
-	 * it will attempt to compile it. It will then set the script environment
-	 * and execute its main function.
+	 * Removes a script entity completely from the system. It takes care of
+	 * removing all of the entity components as well as saved script variable
+	 * data.
+	 * 
+	 * @param scriptEntityId
+	 *            The entity id of the script.
+	 */
+	public void removeScript(long scriptEntityId) {
+
+		throw new IllegalStateException("Not implemented");
+
+	}
+
+	/**
+	 * Central entry point for calling a script execution from the bestia
+	 * system. This will fetch the script from cache, if cache does not hold the
+	 * script it will attempt to compile it. It will then set the script
+	 * environment and execute its main function.
 	 * 
 	 * @param name
 	 * @param type
 	 */
 	public synchronized void callScript(String name, ScriptType type) {
 		LOG.debug("Executing script: {} ({}).", name, type);
-		
+
 		final CompiledScript script = scriptCache.getScript(type, name);
-		
+
 		try {
 			((Invocable) script.getEngine()).invokeFunction(MAIN_FUNC);
 		} catch (NoSuchMethodException e) {
-			LOG.error("Error calling script. Script {} ({}) does not contain main() function.", name, type); 
+			LOG.error("Error calling script. Script {} ({}) does not contain main() function.", name, type);
 			return;
 		} catch (ScriptException e) {
-			LOG.error("Error during script  {} ({})  execution.", name, type, e); 
+			LOG.error("Error during script  {} ({})  execution.", name, type, e);
 			return;
 		}
 	}
@@ -100,27 +107,19 @@ public class ScriptService {
 				.orElseThrow(IllegalArgumentException::new);
 
 		final String callbackName = scriptComp.getOnIntervalCallbackName();
+		final String scriptName = scriptComp.getScriptName();
+		final ScriptType type = scriptComp.getScriptType();
 
-		ScriptEngineManager manager = new ScriptEngineManager();
-		ScriptEngine engine = manager.getEngineByName("nashorn");
-		engine.put("Bestia", scriptApi);
+		final CompiledScript script = scriptCache.getScript(type, scriptName);
 
-		ClassLoader classLoader = getClass().getClassLoader();
-		File testFile = new File(classLoader.getResource("script/attack/create_aoe_dmg.js").getFile());
 		try {
-			CompiledScript compiled = ((Compilable) engine).compile(new FileReader(testFile));
-			compiled.eval(compiled.getEngine().getContext());
-			try {
-				LOG.trace("Calling script function: {} from script: {}.", callbackName);
-				((Invocable) compiled.getEngine()).invokeFunction(callbackName);
-			} catch (NoSuchMethodException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 
-		} catch (FileNotFoundException | ScriptException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOG.trace("Calling script function: {} from script: {} ({}).", callbackName, scriptName, type);
+			((Invocable) script.getEngine()).invokeFunction(callbackName);
+
+		} catch (NoSuchMethodException | ScriptException e) {
+			LOG.error("Error while executing script interval callback ({} type: {})", scriptName, type);
+			removeScript(scriptEntityId);
 		}
 	}
 

@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.script;
+package net.bestia.zoneserver.actor.entity;
 
 import java.util.Objects;
 
@@ -12,40 +12,37 @@ import net.bestia.zoneserver.actor.BestiaPeriodicActor;
 import net.bestia.zoneserver.script.ScriptService;
 
 /**
- * This actor is used to run periodically script function.
+ * This watchdog will remove the script entity as soon as its lifetime counter
+ * is over.
  * 
  * @author Thomas Felix
  *
  */
 @Component
 @Scope("prototype")
-public class PeriodicScriptRunnerActor extends BestiaPeriodicActor {
+public class EntityLifetimeWatchdogActor extends BestiaPeriodicActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private final ScriptService scriptService;
-	private long scriptId;
+	private long scriptEntityId;
 
-	public PeriodicScriptRunnerActor(ScriptService scriptService) {
+	public EntityLifetimeWatchdogActor(ScriptService scriptService) {
 
 		this.scriptService = Objects.requireNonNull(scriptService);
 	}
 
 	private void handleSetupMessage(ScriptIntervalMessage msg) {
 		LOG.debug("Received perodic request for: {}.", msg);
-		scriptId = msg.getScriptEntityId();
+		scriptEntityId = msg.getScriptEntityId();
 		startInterval(msg.getDelay());
 	}
 
 	@Override
 	protected void onTick() {
+		LOG.debug("Terminating script entity: {}.", scriptEntityId);
 
-		try {
-			scriptService.triggerScriptIntervalCallback(scriptId);
-		} catch (Exception e) {
-			LOG.warning("Error during script interval execution. Stopping interval.", e);
-			context().stop(getSelf());
-		}
+		scriptService.removeScript(scriptEntityId);
 	}
 
 	@Override

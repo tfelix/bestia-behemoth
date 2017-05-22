@@ -44,6 +44,16 @@ public class ScriptApiFacade implements ScriptApi {
 	public void debug(String text) {
 		SCRIPT_LOG.debug(text);
 	}
+	
+	public void saveData(String scriptUid, String json) {
+
+		SCRIPT_LOG.debug("Saving script data for script: {} data: {}.", scriptUid, json);
+	}
+
+	public void loadData(String scriptUid) {
+
+		SCRIPT_LOG.debug("Loading script data for script: {} data: {}.", scriptUid, "nothing");
+	}
 
 	@Override
 	public ScriptEntityWrapper createSpellEntity(CollisionShape shape, String spriteName, int baseDuration) {

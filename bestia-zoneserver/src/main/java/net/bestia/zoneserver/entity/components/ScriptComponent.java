@@ -8,7 +8,7 @@ public class ScriptComponent extends Component {
 	private static final long serialVersionUID = 1L;
 
 	private String onIntervalCallbackName;
-	
+
 	private String scriptName;
 	private ScriptType scriptType;
 
@@ -23,23 +23,28 @@ public class ScriptComponent extends Component {
 	 */
 	private ActorPath scriptActorPath;
 
+	/**
+	 * Path to the actor which is watching the scripts lifetime.
+	 */
+	private ActorPath scriptLifetimeActorPath;
+
 	public ScriptComponent(long id) {
 		super(id);
 		// no op.
 	}
-	
+
 	public String getScriptName() {
 		return scriptName;
 	}
-	
+
 	public void setScriptName(String scriptName) {
 		this.scriptName = scriptName;
 	}
-	
+
 	public ScriptType getScriptType() {
 		return scriptType;
 	}
-	
+
 	public void setScriptType(ScriptType scriptType) {
 		this.scriptType = scriptType;
 	}
@@ -47,11 +52,11 @@ public class ScriptComponent extends Component {
 	public String getOnIntervalCallbackName() {
 		return onIntervalCallbackName;
 	}
-	
+
 	public void setScriptActorPath(ActorPath scriptActorPath) {
 		this.scriptActorPath = scriptActorPath;
 	}
-	
+
 	public ActorPath getScriptActorPath() {
 		return scriptActorPath;
 	}
@@ -66,5 +71,13 @@ public class ScriptComponent extends Component {
 
 	public void setScriptUUID(String scriptUUID) {
 		this.scriptUUID = scriptUUID;
+	}
+	
+	public ActorPath getScriptLifetimeActorPath() {
+		return scriptLifetimeActorPath;
+	}
+	
+	public void setScriptLifetimeActorPath(ActorPath scriptLifetimeActorPath) {
+		this.scriptLifetimeActorPath = scriptLifetimeActorPath;
 	}
 }
