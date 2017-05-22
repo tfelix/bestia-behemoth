@@ -1,7 +1,6 @@
-package net.bestia.zoneserver.entity;
+package net.bestia.zoneserver.entity.components;
 
 import akka.actor.ActorPath;
-import net.bestia.zoneserver.entity.components.Component;
 import net.bestia.zoneserver.script.ScriptType;
 
 public class ScriptComponent extends Component {
