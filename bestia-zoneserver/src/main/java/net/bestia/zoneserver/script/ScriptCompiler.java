@@ -15,6 +15,10 @@ import javax.script.SimpleBindings;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import net.bestia.zoneserver.configuration.StaticConfigurationService;
 
 /**
  * The ScriptCache is responsible for reading and compiling all the scripts for
@@ -23,21 +27,23 @@ import org.slf4j.LoggerFactory;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@Component
 public class ScriptCompiler {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ScriptCompiler.class);
 
 	private final ScriptEngine engine;
 
-	public ScriptCompiler() {
+	@Autowired
+	public ScriptCompiler(ScriptApi scriptApi, StaticConfigurationService configService) {
 
 		final ScriptEngineManager manager = new ScriptEngineManager();
 
 		// Setup the global bindings.
 		Bindings globalBindings = new SimpleBindings();
 
-		globalBindings.put("SERVER_VERSION", "1234");
-		// engine.put("Bestia", scriptApi);
+		globalBindings.put("SERVER_VERSION", configService.getServerVersion());
+		globalBindings.put("Bestia", scriptApi);
 
 		manager.setBindings(globalBindings);
 
@@ -53,7 +59,7 @@ public class ScriptCompiler {
 	 */
 	public CompiledScript compileScript(File file) {
 		LOG.trace("Compiling script file: {}.", file);
-		
+
 		try (Reader scriptReader = new FileReader(file)) {
 
 			final CompiledScript script = ((Compilable) engine).compile(scriptReader);

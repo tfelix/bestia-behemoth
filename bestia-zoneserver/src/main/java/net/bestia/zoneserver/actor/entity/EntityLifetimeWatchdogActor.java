@@ -42,7 +42,7 @@ public class EntityLifetimeWatchdogActor extends BestiaPeriodicActor {
 	protected void onTick() {
 		LOG.debug("Terminating script entity: {}.", scriptEntityId);
 
-		scriptService.removeScript(scriptEntityId);
+		scriptService.deleteScriptEntity(scriptEntityId);
 	}
 
 	@Override

@@ -49,11 +49,6 @@ public class ScriptConfiguration {
 			new ScriptDir("statuseffect", ScriptType.STATUS_EFFECT));
 
 	@Bean
-	public ScriptCompiler scriptCompiler() {
-		return new ScriptCompiler();
-	}
-
-	@Bean
 	public ScriptCache scriptCache(ScriptCompiler compiler) throws URISyntaxException {
 		final ScriptCache cache = new ScriptCache(compiler);
 		

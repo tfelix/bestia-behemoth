@@ -27,12 +27,6 @@ public interface ScriptApi {
 	 */
 	void debug(String text);
 	
-	/**
-	 * 
-	 * @param shape
-	 * @param spriteName
-	 * @param baseDuration
-	 * @return
-	 */
-	ScriptEntityWrapper createSpellEntity(CollisionShape shape, String spriteName, int baseDuration);
+
+	ScriptEntityWrapper createEntity(CollisionShape shape);
 }

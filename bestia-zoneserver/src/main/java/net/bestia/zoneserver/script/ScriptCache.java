@@ -14,6 +14,7 @@ import javax.script.CompiledScript;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * The script cache will accept folders which contain java scripts. It will
@@ -24,6 +25,7 @@ import org.slf4j.LoggerFactory;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
+@Component
 public class ScriptCache {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ScriptCache.class);

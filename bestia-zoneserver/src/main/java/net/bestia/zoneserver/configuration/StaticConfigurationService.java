@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service
-@Profile("production")
 public class StaticConfigurationService {
 
 	@Value("${server.name}")
@@ -24,6 +22,9 @@ public class StaticConfigurationService {
 	 */
 	@Value("${server.scriptDir}")
 	private String scriptDir;
+
+	@Value("${server.version}")
+	private String serverVersion;
 
 	/**
 	 * Returns the name of this server. By default this is an auto generated
@@ -43,5 +44,14 @@ public class StaticConfigurationService {
 	 */
 	public String getScriptDir() {
 		return scriptDir;
+	}
+
+	/**
+	 * Returns the server string of its version.
+	 * 
+	 * @return The server version.
+	 */
+	public String getServerVersion() {
+		return serverVersion;
 	}
 }

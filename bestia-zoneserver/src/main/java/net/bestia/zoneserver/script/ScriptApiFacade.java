@@ -56,8 +56,8 @@ public class ScriptApiFacade implements ScriptApi {
 	}
 
 	@Override
-	public ScriptEntityWrapper createSpellEntity(CollisionShape shape, String spriteName, int baseDuration) {
-		SCRIPT_LOG.trace("Creating a new script entity.");
+	public ScriptEntityWrapper createEntity(CollisionShape shape) {
+		SCRIPT_LOG.trace("Creating a new entity.");
 		
 		final Entity entity = scriptEntityFactory.build(shape, "", null);
 		

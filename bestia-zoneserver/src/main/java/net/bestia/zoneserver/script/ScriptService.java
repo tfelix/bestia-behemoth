@@ -42,11 +42,11 @@ public class ScriptService {
 	private final ScriptCache scriptCache;
 
 	@Autowired
-	public ScriptService(EntityService entityService, ZoneAkkaApi akkaApi, ScriptApi scriptApi) {
+	public ScriptService(EntityService entityService, ZoneAkkaApi akkaApi, ScriptCache cache) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
-		this.scriptCache = new ScriptCache(new ScriptCompiler());
+		this.scriptCache = Objects.requireNonNull(cache);
 	}
 
 	/**
@@ -68,9 +68,16 @@ public class ScriptService {
 	 * @param scriptEntityId
 	 *            The entity id of the script.
 	 */
-	public void removeScript(long scriptEntityId) {
+	public void deleteScriptEntity(long scriptEntityId) {
 
-		throw new IllegalStateException("Not implemented");
+		final Entity scriptEntity = entityService.getEntity(scriptEntityId);
+
+		if (!entityService.hasComponent(scriptEntity, ScriptComponent.class)) {
+			return;
+		}
+		
+		stopScriptInterval(scriptEntity);
+		entityService.delete(scriptEntity);
 
 	}
 
@@ -92,10 +99,8 @@ public class ScriptService {
 			((Invocable) script.getEngine()).invokeFunction(MAIN_FUNC);
 		} catch (NoSuchMethodException e) {
 			LOG.error("Error calling script. Script {} ({}) does not contain main() function.", name, type);
-			return;
 		} catch (ScriptException e) {
 			LOG.error("Error during script  {} ({})  execution.", name, type, e);
-			return;
 		}
 	}
 
@@ -119,13 +124,17 @@ public class ScriptService {
 
 		} catch (NoSuchMethodException | ScriptException e) {
 			LOG.error("Error while executing script interval callback ({} type: {})", scriptName, type);
-			removeScript(scriptEntityId);
+			deleteScriptEntity(scriptEntityId);
 		}
 	}
 
 	public void startScriptInterval(Entity entity, int delay, String callbackFunctionName) {
 		final ScriptComponent scriptComp = entityService.getComponent(entity, ScriptComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
+
+		if (delay <= 0) {
+			throw new IllegalArgumentException("Delay must be bigger then 0.");
+		}
 
 		final ActorRef scriptRunner = akkaApi.startUnnamedActor(PeriodicScriptRunnerActor.class);
 
