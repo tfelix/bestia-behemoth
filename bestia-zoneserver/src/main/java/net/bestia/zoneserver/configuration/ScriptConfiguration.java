@@ -16,6 +16,7 @@ import org.springframework.context.annotation.PropertySource;
 
 import net.bestia.zoneserver.script.ScriptCache;
 import net.bestia.zoneserver.script.ScriptCompiler;
+import net.bestia.zoneserver.script.ScriptFileResolver;
 import net.bestia.zoneserver.script.ScriptType;
 
 /**
@@ -50,7 +51,7 @@ public class ScriptConfiguration {
 
 	@Bean
 	public ScriptCache scriptCache(ScriptCompiler compiler) throws URISyntaxException {
-		final ScriptCache cache = new ScriptCache(compiler);
+		final ScriptCache cache = new ScriptCache(compiler, new ScriptFileResolver());
 		
 		final Path scriptBaseDir;
 		

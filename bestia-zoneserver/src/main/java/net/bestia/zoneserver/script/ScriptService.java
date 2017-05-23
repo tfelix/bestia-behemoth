@@ -107,12 +107,16 @@ public class ScriptService {
 	 * @param name
 	 * @param type
 	 */
-	public synchronized void callScript(String name, ScriptType type) {
+	public void callScript(String name, ScriptType type) {
 		LOG.debug("Executing script: {} ({}).", name, type);
 
 		final CompiledScript script = scriptCache.getScript(type, name);
 
 		setupScriptAndCallFunction(script, name, type, MAIN_FUNC);
+	}
+	
+	public void callAttackScript(String name) {
+		throw new IllegalStateException("Not implements");
 	}
 
 	public void triggerScriptIntervalCallback(long scriptEntityId) {

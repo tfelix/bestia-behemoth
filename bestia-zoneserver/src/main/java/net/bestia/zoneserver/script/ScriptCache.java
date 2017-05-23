@@ -37,10 +37,37 @@ public class ScriptCache {
 	private final ScriptFileResolver resolver;
 	private final ScriptCompiler compiler;
 
-	public ScriptCache(ScriptCompiler compiler) {
+	public ScriptCache(ScriptCompiler compiler, ScriptFileResolver resolver) {
 
-		this.resolver = new ScriptFileResolver();
+		this.resolver = Objects.requireNonNull(resolver);
 		this.compiler = Objects.requireNonNull(compiler);
+	}
+
+	private String getKey(ScriptType type, String name) {
+		return type.toString() + "_" + FilenameUtils.getBaseName(name);
+	}
+
+	/**
+	 * Requests and compiles the script file and puts it into the cache under a
+	 * unique key.
+	 */
+	private void setupScript(File scriptFile, ScriptType type) {
+
+		final CompiledScript compiledScript = compiler.compileScript(scriptFile);
+
+		if (compiledScript == null) {
+			return;
+		}
+		
+		final String name = FilenameUtils.getBaseName(scriptFile.getName());
+
+		final Bindings scriptBindings = compiledScript.getEngine().getBindings(ScriptContext.ENGINE_SCOPE);
+		scriptBindings.put("MYSCRIPT", name);
+		scriptBindings.put("MYTYPE", type);
+
+		final String key = getKey(type, name);
+
+		cache.put(key, compiledScript);
 	}
 
 	/**
@@ -57,12 +84,10 @@ public class ScriptCache {
 		// Starting to compile the scripts.
 		try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(scriptFolder)) {
 			for (Path path : directoryStream) {
+				
 				LOG.debug("Compiling script: {} (type: {})", path, type);
-
-				final CompiledScript script = compiler.compileScript(path.toFile());
-				final String key = type.toString() + "_" + FilenameUtils.getBaseName(path.toString());
-
-				cache.put(key, script);
+				setupScript(path.toFile(), type);
+				
 			}
 		} catch (IOException e) {
 			LOG.error("Could not compile script.", e);
@@ -80,23 +105,16 @@ public class ScriptCache {
 	 * @return The compiled script or null of no script was found.
 	 */
 	public CompiledScript getScript(ScriptType type, String name) {
+		Objects.requireNonNull(name);
 		LOG.trace("Requesting script file: {} ({}).", name, type);
-		final String key = type.toString() + "_" + FilenameUtils.getBaseName(name);
 
-		if (!cache.containsKey(key)) {
+		final String key = getKey(type, name);
+
+		if (!cache.containsKey(key)) {	
 			LOG.trace("Script was not found in cache. Compile.");
-			final File scriptFile = resolver.getScriptFile(name, type);
-			final CompiledScript compiledScript = compiler.compileScript(scriptFile);
-
-			if (compiledScript == null) {
-				return null;
-			}
 			
-			final Bindings scriptBindings = compiledScript.getEngine().getBindings(ScriptContext.ENGINE_SCOPE);
-			scriptBindings.put("MYSCRIPT", name);
-			scriptBindings.put("MYTYPE", type);
-
-			cache.put(key, compiledScript);
+			final File scriptFile = resolver.getScriptFile(name, type);
+			setupScript(scriptFile, type);
 		}
 
 		return cache.get(key);

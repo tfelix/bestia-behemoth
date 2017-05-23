@@ -19,11 +19,8 @@ import javax.script.ScriptException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import akka.actor.ActorPath;
 import akka.actor.ActorRef;
@@ -33,8 +30,6 @@ import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.components.ScriptComponent;
 
-//@RunWith(SpringRunner.class)
-//@SpringBootTest
 public class ScriptServiceTest {
 
 	private static final long INVALID_SCRIPT_ID = 666;

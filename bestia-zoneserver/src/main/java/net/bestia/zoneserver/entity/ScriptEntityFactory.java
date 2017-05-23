@@ -9,8 +9,6 @@ import net.bestia.model.geometry.CollisionShape;
 import net.bestia.zoneserver.entity.components.PositionComponent;
 import net.bestia.zoneserver.entity.components.PositionComponentSetter;
 import net.bestia.zoneserver.entity.components.ScriptComponent;
-import net.bestia.zoneserver.entity.components.ScriptComponentSetter;
-import net.bestia.zoneserver.script.ScriptType;
 
 /**
  * This builds a script entity which can be used by scripts because it usually
@@ -41,14 +39,13 @@ public class ScriptEntityFactory extends EntityFactory {
 
 	}
 
-	public Entity build(CollisionShape area, String scriptName, ScriptType type) {
+	public Entity build(CollisionShape area) {
 		
-		LOG.trace("Building script entity: {} {} pos:{}.", scriptName, type, area);
+		LOG.trace("Building script entity: {} {} pos:{}.", area);
 
 		final PositionComponentSetter posSetter = new PositionComponentSetter(area);
-		final ScriptComponentSetter scriptSetter = new ScriptComponentSetter(scriptName, type);
 
-		final Entity entity = build(scriptEntityBlueprint, makeSet(posSetter, scriptSetter));
+		final Entity entity = build(scriptEntityBlueprint, makeSet(posSetter));
 
 		return entity;
 	}
