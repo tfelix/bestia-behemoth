@@ -2,8 +2,10 @@ package net.bestia.zoneserver.script;
 
 import java.util.Objects;
 
+import javax.script.Bindings;
 import javax.script.CompiledScript;
 import javax.script.Invocable;
+import javax.script.ScriptContext;
 import javax.script.ScriptException;
 
 import org.slf4j.Logger;
@@ -56,8 +58,23 @@ public class ScriptService {
 	 * @param script
 	 * @param functionName
 	 */
-	private void setupScriptAndCallFunction(CompiledScript script, String functionName) {
+	private synchronized void setupScriptAndCallFunction(CompiledScript script, String name, ScriptType type,
+			String functionName) {
 
+		final Bindings scriptBindings = script.getEngine().getBindings(ScriptContext.ENGINE_SCOPE);
+		scriptBindings.put("MYSCRIPT", name);
+		scriptBindings.put("MYTYPE", type);
+
+		try {
+
+			script.eval(script.getEngine().getContext());
+			((Invocable) script.getEngine()).invokeFunction(functionName);
+
+		} catch (NoSuchMethodException e) {
+			LOG.error("Error calling script. Script {} ({}) does not contain {}() function.", name, type, functionName);
+		} catch (ScriptException e) {
+			LOG.error("Error during script  {} ({})  execution.", name, type, e);
+		}
 	}
 
 	/**
@@ -75,7 +92,7 @@ public class ScriptService {
 		if (!entityService.hasComponent(scriptEntity, ScriptComponent.class)) {
 			return;
 		}
-		
+
 		stopScriptInterval(scriptEntity);
 		entityService.delete(scriptEntity);
 
@@ -95,13 +112,7 @@ public class ScriptService {
 
 		final CompiledScript script = scriptCache.getScript(type, name);
 
-		try {
-			((Invocable) script.getEngine()).invokeFunction(MAIN_FUNC);
-		} catch (NoSuchMethodException e) {
-			LOG.error("Error calling script. Script {} ({}) does not contain main() function.", name, type);
-		} catch (ScriptException e) {
-			LOG.error("Error during script  {} ({})  execution.", name, type, e);
-		}
+		setupScriptAndCallFunction(script, name, type, MAIN_FUNC);
 	}
 
 	public void triggerScriptIntervalCallback(long scriptEntityId) {
@@ -117,15 +128,7 @@ public class ScriptService {
 
 		final CompiledScript script = scriptCache.getScript(type, scriptName);
 
-		try {
-
-			LOG.trace("Calling script function: {} from script: {} ({}).", callbackName, scriptName, type);
-			((Invocable) script.getEngine()).invokeFunction(callbackName);
-
-		} catch (NoSuchMethodException | ScriptException e) {
-			LOG.error("Error while executing script interval callback ({} type: {})", scriptName, type);
-			deleteScriptEntity(scriptEntityId);
-		}
+		setupScriptAndCallFunction(script, scriptName, type, callbackName);
 	}
 
 	public void startScriptInterval(Entity entity, int delay, String callbackFunctionName) {

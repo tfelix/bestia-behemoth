@@ -1,12 +1,8 @@
-/*
-var test = function() {
-	print("Das ist ein Callback");
+
+function main() {
+	print("Das ist Test1");
+	print("engine: MYSCRIPT " + MYSCRIPT);
+	print("engine: MYTYPE " + MYTYPE);
+	print("global: GLOB " + GLOB);
 }
-
-api.setCallback(createCallback(test));*/
-
-//api.call1();
-
-api.setCallback(function(){
-	print("Das ist ein Callback in JS!");
-});
+	

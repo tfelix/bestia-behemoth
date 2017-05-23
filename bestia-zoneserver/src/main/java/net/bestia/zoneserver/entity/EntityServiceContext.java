@@ -15,7 +15,7 @@ public class EntityServiceContext {
 	private EntityService entity;
 	private InteractionService interact;
 	private PlayerEntityService player;
-	private MovementService move;
+	private MovingEntityService move;
 	
 	public EntityService getEntity() {
 		return entity;
@@ -30,12 +30,12 @@ public class EntityServiceContext {
 		return interact;
 	}
 	
-	public MovementService getMove() {
+	public MovingEntityService getMove() {
 		return move;
 	}
 	
 	@Autowired
-	public void setMove(MovementService move) {
+	public void setMove(MovingEntityService move) {
 		this.move = move;
 	}
 	

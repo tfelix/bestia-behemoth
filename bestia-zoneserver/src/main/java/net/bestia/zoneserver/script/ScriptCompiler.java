@@ -24,7 +24,7 @@ import net.bestia.zoneserver.configuration.StaticConfigurationService;
  * The ScriptCache is responsible for reading and compiling all the scripts for
  * the system.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Component
@@ -63,9 +63,8 @@ public class ScriptCompiler {
 		try (Reader scriptReader = new FileReader(file)) {
 
 			final CompiledScript script = ((Compilable) engine).compile(scriptReader);
-			script.eval(engine.getContext());
-
 			return script;
+			
 		} catch (ScriptException | IOException e) {
 			LOG.error("Could not compile script.", e);
 			return null;

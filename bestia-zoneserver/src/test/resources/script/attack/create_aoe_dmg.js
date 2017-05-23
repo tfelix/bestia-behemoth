@@ -18,7 +18,10 @@ function main() {
 	// onInterval
 	// onLeave
 	Bestia.info('Script: main().');
-	var aoe = Bestia.createEntity();
-	aoe.setLivetime(12000);
-	aoe.setInterval(1000, 'onTouch');
+	
+	var entityId = Bestia.createEntity();
+	
+	Bestia.setLivetime(entityId, 12000);
+	Bestia.setScript(entityId, MYSELF, MYTYPE);
+	Bestia.setInterval(entityId, 1000, 'onTouch');
 }

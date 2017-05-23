@@ -10,7 +10,7 @@ import net.bestia.model.geometry.Point;
  * Entity with this component have a defined position in the world. Point refers
  * to the anchor point of a sprite if there is any.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class PositionComponent extends Component {

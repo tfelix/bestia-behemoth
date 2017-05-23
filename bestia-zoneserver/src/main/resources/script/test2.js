@@ -1,6 +1,8 @@
 
-api.info("Called von global.");
-
-function test() {
-	api.info("Called von test().");
+function main() {
+	print("Das ist Test2");
+	print("engine: MYSCRIPT " + MYSCRIPT);
+	print("engine: MYTYPE " + MYTYPE);
+	print("global: GLOB " + GLOB);
 }
+	

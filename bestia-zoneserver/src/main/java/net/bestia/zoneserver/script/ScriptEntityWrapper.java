@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.components.PositionComponent;
 
 /**
  * This is a wrapper class for a entity to be used inside scripts. It holds
@@ -23,11 +25,13 @@ public class ScriptEntityWrapper {
 
 	private final Entity entity;
 	private final ScriptService scriptService;
+	private final EntityService entityService;
 
-	public ScriptEntityWrapper(Entity entity, ScriptService scriptService) {
+	public ScriptEntityWrapper(Entity entity, ScriptService scriptService, EntityService entityService) {
 
 		this.entity = Objects.requireNonNull(entity);
 		this.scriptService = Objects.requireNonNull(scriptService);
+		this.entityService = Objects.requireNonNull(entityService);
 	}
 
 	public ScriptEntityWrapper setOnTouch(Runnable callback) {
@@ -72,6 +76,11 @@ public class ScriptEntityWrapper {
 
 	public ScriptEntityWrapper setPosition(long x, long y) {
 		LOG.trace("Entity: {}. Sets position x: {} y: {}.", entity, x, y);
+		
+		entityService.getComponent(entity, PositionComponent.class).ifPresent(pos -> {
+			pos.setPosition(x, y);
+			entityService.saveComponent(pos);
+		});
 
 		return this;
 	}

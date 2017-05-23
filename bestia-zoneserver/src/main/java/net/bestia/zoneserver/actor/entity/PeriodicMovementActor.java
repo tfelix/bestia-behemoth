@@ -15,7 +15,7 @@ import net.bestia.messages.entity.EntityMoveInternalMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.service.MovingEntityService;
+import net.bestia.zoneserver.entity.MovingEntityService;
 import scala.concurrent.duration.Duration;
 
 /**

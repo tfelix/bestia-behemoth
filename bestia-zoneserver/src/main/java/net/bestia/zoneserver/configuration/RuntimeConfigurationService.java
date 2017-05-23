@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.configuration;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
@@ -16,7 +15,6 @@ import com.hazelcast.core.IMap;
  *
  */
 @Service
-@Profile({ "production", "test" })
 public class RuntimeConfigurationService {
 
 	private final IMap<String, Object> config;

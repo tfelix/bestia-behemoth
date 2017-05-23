@@ -8,6 +8,8 @@ public class ScriptComponent extends Component {
 	private static final long serialVersionUID = 1L;
 
 	private String onIntervalCallbackName;
+	private String onEnterCallbackName;
+	private String onLeaveCallbackName;
 
 	private String scriptName;
 	private ScriptType scriptType;
@@ -72,12 +74,28 @@ public class ScriptComponent extends Component {
 	public void setScriptUUID(String scriptUUID) {
 		this.scriptUUID = scriptUUID;
 	}
-	
+
 	public ActorPath getScriptLifetimeActorPath() {
 		return scriptLifetimeActorPath;
 	}
-	
+
 	public void setScriptLifetimeActorPath(ActorPath scriptLifetimeActorPath) {
 		this.scriptLifetimeActorPath = scriptLifetimeActorPath;
+	}
+
+	public String getOnLeaveCallbackName() {
+		return onLeaveCallbackName;
+	}
+
+	public String getOnEnterCallbackName() {
+		return onEnterCallbackName;
+	}
+
+	public void setOnEnterCallbackName(String onEnterCallbackName) {
+		this.onEnterCallbackName = onEnterCallbackName;
+	}
+
+	public void setOnLeaveCallbackName(String onLeaveCallbackName) {
+		this.onLeaveCallbackName = onLeaveCallbackName;
 	}
 }

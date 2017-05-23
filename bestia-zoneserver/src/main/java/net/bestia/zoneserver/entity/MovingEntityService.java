@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.service;
+package net.bestia.zoneserver.entity;
 
 import java.util.List;
 import java.util.Map;
@@ -22,9 +22,6 @@ import net.bestia.model.geometry.Point;
 import net.bestia.model.map.Walkspeed;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.entity.PeriodicMovementActor;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.StatusService;
 import net.bestia.zoneserver.entity.components.PositionComponent;
 
 /**
@@ -137,6 +134,8 @@ public class MovingEntityService {
 
 		// Move the entity to the new position.
 		posComp.setPosition(newPos);
+		
+		entityService.saveComponent(posComp);
 
 		final Set<Entity> postMoveCollisions = entityService.getAllCollidingEntities(moveEntity);
 		postMoveCollisions.removeAll(preMoveCollisions);

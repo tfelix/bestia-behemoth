@@ -9,7 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import javax.script.Bindings;
 import javax.script.CompiledScript;
+import javax.script.ScriptContext;
 
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -22,7 +24,7 @@ import org.springframework.stereotype.Component;
  * use. The scripts can be reused but keep in mind that the scripts are usually
  * not thread safe and should store no persistent state.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Component
@@ -85,11 +87,15 @@ public class ScriptCache {
 			LOG.trace("Script was not found in cache. Compile.");
 			final File scriptFile = resolver.getScriptFile(name, type);
 			final CompiledScript compiledScript = compiler.compileScript(scriptFile);
-			
-			if(compiledScript == null) {
+
+			if (compiledScript == null) {
 				return null;
 			}
 			
+			final Bindings scriptBindings = compiledScript.getEngine().getBindings(ScriptContext.ENGINE_SCOPE);
+			scriptBindings.put("MYSCRIPT", name);
+			scriptBindings.put("MYTYPE", type);
+
 			cache.put(key, compiledScript);
 		}
 

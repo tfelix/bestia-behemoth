@@ -27,12 +27,14 @@ public class ScriptApiFacade implements ScriptApi {
 	
 	private final ScriptEntityFactory scriptEntityFactory;
 	private final ScriptService scriptService;
+	private final EntityService entityService;
 	
 	@Autowired
 	public ScriptApiFacade(EntityService entityService, ScriptService scriptService) {
 		
 		this.scriptEntityFactory = new ScriptEntityFactory(entityService);
 		this.scriptService = Objects.requireNonNull(scriptService);
+		this.entityService = Objects.requireNonNull(entityService);
 	}
 
 	@Override
@@ -47,12 +49,15 @@ public class ScriptApiFacade implements ScriptApi {
 	
 	public void saveData(String scriptUid, String json) {
 
-		SCRIPT_LOG.debug("Saving script data for script: {} data: {}.", scriptUid, json);
+		SCRIPT_LOG.error("Not implemented yet");
+		//SCRIPT_LOG.debug("Saving script data for script: {} data: {}.", scriptUid, json);
 	}
 
-	public void loadData(String scriptUid) {
-
-		SCRIPT_LOG.debug("Loading script data for script: {} data: {}.", scriptUid, "nothing");
+	public String loadData(String scriptUid) {
+		
+		SCRIPT_LOG.error("Not implemented yet");
+		return "";
+		//SCRIPT_LOG.debug("Loading script data for script: {} data: {}.", scriptUid, "nothing");
 	}
 
 	@Override
@@ -61,7 +66,7 @@ public class ScriptApiFacade implements ScriptApi {
 		
 		final Entity entity = scriptEntityFactory.build(shape, "", null);
 		
-		final ScriptEntityWrapper entityWrapper = new ScriptEntityWrapper(entity, scriptService);
+		final ScriptEntityWrapper entityWrapper = new ScriptEntityWrapper(entity, scriptService, entityService);
 		
 		return entityWrapper;
 	}
