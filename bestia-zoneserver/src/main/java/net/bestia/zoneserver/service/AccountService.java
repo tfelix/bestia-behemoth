@@ -19,7 +19,6 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.PlayerBestia;
-import net.bestia.model.domain.PlayerClass;
 
 /**
  * Generates all the needed account services. Please be careful: This factory is
@@ -33,6 +32,8 @@ import net.bestia.model.domain.PlayerClass;
 public class AccountService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AccountService.class);
+	
+	private final int STARTER_BESTIA_ID = 1;
 
 	private AccountDAO accountDao;
 	private PlayerBestiaDAO playerBestiaDao;
@@ -86,7 +87,7 @@ public class AccountService {
 	 * @return {@code TRUE} if the new account coule be created. {@code FALSE}
 	 *         otherwise.
 	 */
-	public void createNewAccount(String email, String mastername, String password, PlayerClass starter) {
+	public void createNewAccount(String email, String mastername, String password) {
 		if (mastername == null || mastername.isEmpty()) {
 			throw new IllegalArgumentException("Mastername can not be null or empty.");
 		}
@@ -97,14 +98,10 @@ public class AccountService {
 		// username/password anmeldung notwendig sein.
 		account.setActivated(true);
 
-		// TODO Starter ID durch ein Script ? bestimmen lassen. Außerdem
-		// Eventcodes berücksichtigen.
-		int starterId = 1;
-
 		// Depending on the master get the offspring bestia.
-		final Bestia origin = bestiaDao.findOne(starterId);
+		final Bestia origin = bestiaDao.findOne(STARTER_BESTIA_ID);
 		if (origin == null) {
-			LOG.error("Starter bestia with id {} could not been found.", starterId);
+			LOG.error("Starter bestia with id {} could not been found.", STARTER_BESTIA_ID);
 			throw new IllegalArgumentException("Starter bestia was not found.");
 		}
 

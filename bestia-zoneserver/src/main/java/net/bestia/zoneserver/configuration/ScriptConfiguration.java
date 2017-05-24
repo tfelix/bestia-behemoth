@@ -22,7 +22,7 @@ import net.bestia.zoneserver.script.ScriptType;
 /**
  * Holds the script bean initialization.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Configuration

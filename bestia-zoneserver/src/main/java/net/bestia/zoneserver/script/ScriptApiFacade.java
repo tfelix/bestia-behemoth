@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import net.bestia.model.geometry.CollisionShape;
@@ -30,8 +31,15 @@ public class ScriptApiFacade implements ScriptApi {
 	private final ScriptService scriptService;
 	private final EntityService entityService;
 
+	/**
+	 * 
+	 * @param entityService
+	 * @param scriptService
+	 *            The service the scripts have to access. It creates a circular
+	 *            dependency thus needs to be lazy initialized.
+	 */
 	@Autowired
-	public ScriptApiFacade(EntityService entityService, ScriptService scriptService) {
+	public ScriptApiFacade(EntityService entityService, @Lazy ScriptService scriptService) {
 
 		this.scriptEntityFactory = new ScriptEntityFactory(entityService);
 		this.scriptService = Objects.requireNonNull(scriptService);
@@ -89,19 +97,18 @@ public class ScriptApiFacade implements ScriptApi {
 		LOG.trace("Entity: {}. Set interval function callback name: {}.", entityId, callbackName);
 
 		final Entity entity = entityService.getEntity(entityId);
-		
-		if(entity == null) {
+
+		if (entity == null) {
 			LOG.warn("Unknown entity id: {}.", entityId);
 			return;
 		}
-		
+
 		scriptService.startScriptInterval(entity, delayMs, callbackName);
 	}
 
 	@Override
 	public void setOnEnter(long entityId, String callbackName) {
 		LOG.trace("Script Entity: {}. setOnEnter called.", entityId);
-
 
 	}
 

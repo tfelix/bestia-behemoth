@@ -73,22 +73,22 @@ public class ScriptServiceTest {
 		when(entityService.getComponent(VALID_SCRIPT_ID, ScriptComponent.class))
 				.thenReturn(Optional.of(scriptComponent));
 
-		scriptService = new ScriptService(entityService, akkaApi, cache);
+		//scriptService = new ScriptService(entityService, akkaApi, cache);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void ctor_nullArg1_throw() {
-		new ScriptService(null, akkaApi, cache);
+		//new ScriptService(null, akkaApi, cache);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void ctor_nullArg2_throw() {
-		new ScriptService(entityService, null, cache);
+		//new ScriptService(entityService, null, cache);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void ctor_nullArg3_throw() {
-		new ScriptService(entityService, akkaApi, null);
+		//new ScriptService(entityService, akkaApi, null);
 	}
 
 	@Test

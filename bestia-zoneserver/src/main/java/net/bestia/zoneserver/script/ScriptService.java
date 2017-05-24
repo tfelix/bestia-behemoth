@@ -19,6 +19,7 @@ import akka.actor.PoisonPill;
 import net.bestia.messages.internal.ScriptIntervalMessage;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.script.PeriodicScriptRunnerActor;
+import net.bestia.zoneserver.configuration.StaticConfigurationService;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.components.ScriptComponent;
@@ -42,13 +43,22 @@ public class ScriptService {
 	private final EntityService entityService;
 	private final ZoneAkkaApi akkaApi;
 	private final ScriptCache scriptCache;
+	private final StaticConfigurationService configService;
+	private final ScriptApi scriptApi;
 
 	@Autowired
-	public ScriptService(EntityService entityService, ZoneAkkaApi akkaApi, ScriptCache cache) {
+	public ScriptService(
+			EntityService entityService, 
+			ZoneAkkaApi akkaApi, 
+			ScriptCache cache,
+			ScriptApi scriptApi,
+			StaticConfigurationService configService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 		this.scriptCache = Objects.requireNonNull(cache);
+		this.configService = Objects.requireNonNull(configService);
+		this.scriptApi = Objects.requireNonNull(scriptApi);
 	}
 
 	/**
@@ -62,6 +72,8 @@ public class ScriptService {
 			String functionName) {
 
 		final Bindings scriptBindings = script.getEngine().getBindings(ScriptContext.ENGINE_SCOPE);
+		scriptBindings.put("SERVER_VERSION", configService.getServerVersion());
+		scriptBindings.put("Bestia", scriptApi);
 		scriptBindings.put("MYSCRIPT", name);
 		scriptBindings.put("MYTYPE", type);
 
