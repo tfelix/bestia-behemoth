@@ -3,6 +3,8 @@ package net.bestia.zoneserver.entity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import net.bestia.zoneserver.battle.BattleService;
+
 /**
  * This class simply combines multiple entity services for easy access to them.
  * 
@@ -16,6 +18,7 @@ public class EntityServiceContext {
 	private InteractionService interact;
 	private PlayerEntityService player;
 	private MovingEntityService move;
+	private BattleService battleService;
 	
 	public EntityService getEntity() {
 		return entity;
@@ -51,6 +54,15 @@ public class EntityServiceContext {
 	@Autowired
 	public void setPlayer(PlayerEntityService player) {
 		this.player = player;
+	}
+	
+	@Autowired
+	public void setBattleService(BattleService battleService) {
+		this.battleService = battleService;
+	}
+	
+	public BattleService getBattleService() {
+		return battleService;
 	}
 
 }

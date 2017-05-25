@@ -93,6 +93,10 @@ public class BattleService {
 			}			
 		}
 	}*/
+	
+	public void killEntity(Entity entity) {
+		
+	}
 
 	/**
 	 * Attacks itself.

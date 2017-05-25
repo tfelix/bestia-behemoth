@@ -9,10 +9,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import net.bestia.model.geometry.CollisionShape;
+import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.EntityServiceContext;
 import net.bestia.zoneserver.entity.ScriptEntityFactory;
-import net.bestia.zoneserver.entity.component.PositionComponent;
 
 /**
  * Bundles all kind of services to provide an extensive script API. This API is
@@ -29,7 +29,7 @@ public class ScriptApiFacade implements ScriptApi {
 
 	private final ScriptEntityFactory scriptEntityFactory;
 	private final ScriptService scriptService;
-	private final EntityService entityService;
+	private EntityServiceContext entityServiceCtx;
 
 	/**
 	 * 
@@ -39,11 +39,11 @@ public class ScriptApiFacade implements ScriptApi {
 	 *            dependency thus needs to be lazy initialized.
 	 */
 	@Autowired
-	public ScriptApiFacade(EntityService entityService, @Lazy ScriptService scriptService) {
+	public ScriptApiFacade(EntityServiceContext entityServiceCtx, @Lazy ScriptService scriptService) {
 
-		this.scriptEntityFactory = new ScriptEntityFactory(entityService);
+		this.scriptEntityFactory = new ScriptEntityFactory(entityServiceCtx.getEntity());
 		this.scriptService = Objects.requireNonNull(scriptService);
-		this.entityService = Objects.requireNonNull(entityService);
+		this.entityServiceCtx = Objects.requireNonNull(entityServiceCtx);
 	}
 
 	@Override
@@ -88,22 +88,14 @@ public class ScriptApiFacade implements ScriptApi {
 
 	@Override
 	public void kill(long entityId) {
-		// TODO Auto-generated method stub
-
+		LOG.trace("Killing entity: {}.", entityId);
+		entityServiceCtx.getBattleService().killEntity(getEntityFromId(entityId));
 	}
 
 	@Override
 	public void setInterval(long entityId, String scriptName, String callbackName, int delayMs) {
 		LOG.trace("Entity: {}. Set interval function callback name: {}.", entityId, callbackName);
-
-		final Entity entity = entityService.getEntity(entityId);
-
-		if (entity == null) {
-			LOG.warn("Unknown entity id: {}.", entityId);
-			return;
-		}
-
-		scriptService.startScriptInterval(entity, delayMs, callbackName);
+		scriptService.startScriptInterval(getEntityFromId(entityId), delayMs, callbackName);
 	}
 
 	@Override
@@ -133,11 +125,7 @@ public class ScriptApiFacade implements ScriptApi {
 	@Override
 	public void setPosition(long entityId, long x, long y) {
 		LOG.trace("Entity: {}. Sets position x: {} y: {}.", entityId, x, y);
-
-		entityService.getComponent(entityId, PositionComponent.class).ifPresent(pos -> {
-			pos.setPosition(x, y);
-			entityService.saveComponent(pos);
-		});
+		entityServiceCtx.getMove().moveToPosition(entityId, new Point(x, y));
 	}
 
 	@Override
@@ -146,4 +134,11 @@ public class ScriptApiFacade implements ScriptApi {
 
 	}
 
+	private Entity getEntityFromId(long eid) {
+		final Entity e = entityServiceCtx.getEntity().getEntity(eid);
+		if(e == null) {
+			throw new IllegalArgumentException("Unknown entity id: "+ eid);
+		}
+		return e;
+	}
 }
