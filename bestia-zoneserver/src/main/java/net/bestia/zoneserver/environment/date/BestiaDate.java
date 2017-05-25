@@ -84,7 +84,8 @@ public class BestiaDate {
 	 * @return Current minute of the bestia world day.
 	 */
 	public int getMinutes() {
-		return (int) (Duration.between(startDate, LocalDateTime.now()).toMinutes() % HOUR_MINUTES);
+		final long durationFromStart = Duration.between(startDate, LocalDateTime.now()).toMinutes();
+		return (int) (durationFromStart % HOUR_MINUTES);
 	}
 
 	/**

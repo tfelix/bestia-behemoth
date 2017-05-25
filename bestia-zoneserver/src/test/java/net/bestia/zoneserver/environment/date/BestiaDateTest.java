@@ -17,14 +17,18 @@ public class BestiaDateTest {
 		BestiaDate d = new BestiaDate();
 		Calendar cal = Calendar.getInstance();
 		int hour = cal.get(Calendar.HOUR_OF_DAY) % 8;
-		assertEquals(hour, d.getHours());
+		int bhour = d.getHours();
+		assertEquals(hour, bhour);
 	}
 	
 	@Test
 	public void getMinutes_correctMinutes() {
-		BestiaDate d = new BestiaDate();
-		Calendar cal = Calendar.getInstance();
-		assertEquals(d.getMinutes(), cal.get(Calendar.MINUTE));
+		BestiaDate d = BestiaDate.fromDate(createDate());
+		
+		int min = Calendar.getInstance().get(Calendar.MINUTE);
+		int bmin = d.getMinutes();
+		
+		assertEquals(bmin, min);
 	}
 
 	@Test
