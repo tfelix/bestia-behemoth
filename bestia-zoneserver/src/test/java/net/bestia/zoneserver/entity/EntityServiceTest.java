@@ -3,13 +3,15 @@ package net.bestia.zoneserver.entity;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
+import static org.mockito.Mockito.*;
 import com.hazelcast.core.HazelcastInstance;
 
 import net.bestia.model.geometry.Point;
+import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.BasicMocks;
 import net.bestia.zoneserver.entity.component.PositionComponent;
 import net.bestia.zoneserver.entity.component.VisibleComponent;
+import net.bestia.zoneserver.entity.component.interceptor.ComponentInterceptor;
 
 public class EntityServiceTest {
 
@@ -17,10 +19,45 @@ public class EntityServiceTest {
 
 	private BasicMocks basicMocks = new BasicMocks();
 	private HazelcastInstance hz = basicMocks.hazelcastMock();
+	private ComponentInterceptor<PositionComponent> interceptor;
 
+	@SuppressWarnings("unchecked")
 	@Before
 	public void setup() {
+		
+		interceptor = (ComponentInterceptor<PositionComponent>) mock(ComponentInterceptor.class);
+		
 		entityService = new EntityService(hz);
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void addInterceptor_null_throws() {
+		entityService.addInterceptor(null);
+	}
+
+	@Test
+	public void addInterceptor_intercetor_calledWhenComponentUpdateCreateDelete() {
+		entityService.addInterceptor(interceptor);
+		
+		verify(interceptor).getTriggerType();
+		
+		Entity e1 = entityService.newEntity();
+		PositionComponent comp = entityService.addComponent(e1, PositionComponent.class);
+		
+		verify(interceptor).triggerCreateAction(entityService, e1, comp);
+		
+		comp.setShape(new Rect(10, 10));
+		entityService.saveComponent(comp);
+		
+		verify(interceptor).triggerUpdateAction(entityService, e1, comp);
+		
+		entityService.deleteComponent(e1, comp);
+		
+		verify(interceptor, times(1)).triggerDeleteAction(entityService, e1, comp);
+		
+		comp = entityService.addComponent(e1, PositionComponent.class);
+		entityService.deleteAllComponents(e1);
+		verify(interceptor, times(2)).triggerDeleteAction(entityService, e1, comp);
 	}
 
 	@Test
@@ -81,14 +118,14 @@ public class EntityServiceTest {
 
 		Assert.assertNotNull(posComp);
 		Assert.assertTrue("Entity does not have component.", hasComp);
-		
+
 		posComp.setShape(new Point(10, 10));
 		posComp.setPosition(123, 123);
 		entityService.saveComponent(posComp);
 
 		PositionComponent posComp2 = entityService.getComponent(e1, PositionComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
-		
+
 		Assert.assertEquals(posComp, posComp2);
 	}
 

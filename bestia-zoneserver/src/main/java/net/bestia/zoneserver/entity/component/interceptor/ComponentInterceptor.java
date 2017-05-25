@@ -2,6 +2,7 @@ package net.bestia.zoneserver.entity.component.interceptor;
 
 import java.util.Objects;
 
+import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.component.Component;
 
@@ -36,7 +37,9 @@ public abstract class ComponentInterceptor<T extends Component> {
 	 * @param comp
 	 *            The component which is persisted to the database.
 	 */
-	protected abstract void triggerUpdateAction(EntityService entityService, T comp);
+	public abstract void triggerUpdateAction(EntityService entityService, Entity entity, T comp);
 	
-	protected abstract void triggerDeleteAction(EntityService entityService, T comp);
+	public abstract void triggerDeleteAction(EntityService entityService, Entity entity, T comp);
+	
+	public abstract void triggerCreateAction(EntityService entityService, Entity entity, T comp);
 }

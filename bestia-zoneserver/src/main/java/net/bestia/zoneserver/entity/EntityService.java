@@ -55,15 +55,24 @@ public class EntityService {
 		this.idGenerator = hz.getIdGenerator(COMP_ID);
 		this.components = Objects.requireNonNull(hz).getMap(COMP_MAP);
 	}
-	
+
+	/**
+	 * Adds an interceptor which gets notified if certain components will
+	 * change. He then can perform actions like update the clients in range
+	 * about the occuring component change.
+	 * 
+	 * @param interceptor
+	 *            The interceptor to listen to certain triggering events.
+	 */
 	public void addInterceptor(ComponentInterceptor<? extends Component> interceptor) {
-		
+		Objects.requireNonNull(interceptor);
+
 		final Class<? extends Component> triggerType = interceptor.getTriggerType();
-		
-		if(!interceptors.containsKey(triggerType)) {
+
+		if (!interceptors.containsKey(triggerType)) {
 			interceptors.put(triggerType, new ArrayList<>());
 		}
-		
+
 		interceptors.get(triggerType).add(interceptor);
 	}
 
@@ -108,7 +117,7 @@ public class EntityService {
 		entities.lock(entity.getId());
 		try {
 			// Delete all components.
-			removeAllComponents(entity);
+			deleteAllComponents(entity);
 			entities.delete(entity.getId());
 		} finally {
 			entities.unlock(entity.getId());
@@ -323,13 +332,22 @@ public class EntityService {
 		}
 	}
 
+	public void deleteComponent(Entity entity, Component component) {
+		LOG.trace("Removing component {} from entity {}.", component, entity);
+
+		entity.removeComponent(component);
+		saveEntity(entity);
+
+		components.remove(component.getId());
+	}
+
 	/**
 	 * Removes all the components from the entity.
 	 * 
 	 * @param entity
 	 *            The entity to remove all components from.
 	 */
-	public void removeAllComponents(Entity entity) {
+	public void deleteAllComponents(Entity entity) {
 
 		Set<Long> componentIds = new HashSet<>(entity.getComponentIds());
 

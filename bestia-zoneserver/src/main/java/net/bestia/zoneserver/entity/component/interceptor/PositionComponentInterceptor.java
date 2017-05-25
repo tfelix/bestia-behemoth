@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.component.PositionComponent;
 
@@ -18,17 +19,21 @@ public class PositionComponentInterceptor extends ComponentInterceptor<PositionC
 	}
 
 	@Override
-	protected void triggerUpdateAction(EntityService entityService, PositionComponent comp) {
+	public void triggerUpdateAction(EntityService entityService, Entity entity, PositionComponent comp) {
 		LOG.trace("Position component is updated.");
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
-	protected void triggerDeleteAction(EntityService entityService, PositionComponent comp) {
+	public void triggerDeleteAction(EntityService entityService, Entity entity, PositionComponent comp) {
 		LOG.trace("Position component is deleted.");
 		// TODO Auto-generated method stub
-		
+	}
+
+	@Override
+	public void triggerCreateAction(EntityService entityService, Entity entity, PositionComponent comp) {
+		LOG.trace("Position component is created.");
+		// TODO Auto-generated method stub
 	}
 
 }
