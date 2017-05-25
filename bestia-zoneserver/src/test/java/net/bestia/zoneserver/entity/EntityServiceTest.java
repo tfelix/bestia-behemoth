@@ -27,6 +27,8 @@ public class EntityServiceTest {
 		
 		interceptor = (ComponentInterceptor<PositionComponent>) mock(ComponentInterceptor.class);
 		
+		when(interceptor.getTriggerType()).thenReturn(PositionComponent.class);
+		
 		entityService = new EntityService(hz);
 	}
 
@@ -53,11 +55,11 @@ public class EntityServiceTest {
 		
 		entityService.deleteComponent(e1, comp);
 		
-		verify(interceptor, times(1)).triggerDeleteAction(entityService, e1, comp);
+		verify(interceptor).triggerDeleteAction(entityService, e1, comp);
 		
 		comp = entityService.addComponent(e1, PositionComponent.class);
 		entityService.deleteAllComponents(e1);
-		verify(interceptor, times(2)).triggerDeleteAction(entityService, e1, comp);
+		verify(interceptor).triggerDeleteAction(entityService, e1, comp);
 	}
 
 	@Test

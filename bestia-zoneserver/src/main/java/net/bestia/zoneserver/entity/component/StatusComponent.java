@@ -24,8 +24,8 @@ public class StatusComponent extends Component {
 	private Element originalElement = Element.NORMAL;
 	private Element element = Element.NORMAL;
 
-	public StatusComponent(long id) {
-		super(id);
+	public StatusComponent(long id, long entityId) {
+		super(id, entityId);
 		// no op
 	}
 

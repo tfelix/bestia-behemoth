@@ -19,19 +19,19 @@ public class PositionComponentInterceptor extends ComponentInterceptor<PositionC
 	}
 
 	@Override
-	public void triggerUpdateAction(EntityService entityService, Entity entity, PositionComponent comp) {
+	protected void onUpdateAction(EntityService entityService, Entity entity, PositionComponent comp) {
 		LOG.trace("Position component is updated.");
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void triggerDeleteAction(EntityService entityService, Entity entity, PositionComponent comp) {
+	protected void onDeleteAction(EntityService entityService, Entity entity, PositionComponent comp) {
 		LOG.trace("Position component is deleted.");
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	public void triggerCreateAction(EntityService entityService, Entity entity, PositionComponent comp) {
+	protected void onCreateAction(EntityService entityService, Entity entity, PositionComponent comp) {
 		LOG.trace("Position component is created.");
 		// TODO Auto-generated method stub
 	}

@@ -10,8 +10,8 @@ public class LevelComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
 
-	public LevelComponent(long id) {
-		super(id);
+	public LevelComponent(long id, long entityId) {
+		super(id, entityId);
 		// no op.
 	}
 

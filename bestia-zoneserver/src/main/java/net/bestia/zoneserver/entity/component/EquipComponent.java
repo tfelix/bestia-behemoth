@@ -21,8 +21,8 @@ public class EquipComponent extends Component {
 	private final Set<EquipmentSlot> slots = new HashSet<>();
 	private final Set<Item> equipments = new HashSet<>();
 
-	public EquipComponent(long id) {
-		super(id);
+	public EquipComponent(long id, long entityId) {
+		super(id, entityId);
 		// no op.
 	}
 

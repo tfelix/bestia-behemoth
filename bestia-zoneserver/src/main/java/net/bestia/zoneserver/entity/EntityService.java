@@ -285,19 +285,26 @@ public class EntityService {
 	 * @return
 	 */
 	public <T extends Component> T addComponent(Entity entity, Class<T> clazz) {
-		if (!Component.class.isAssignableFrom(clazz)) {
-			throw new IllegalArgumentException("Only accept component classes.");
-		}
+		Objects.requireNonNull(entity);
+		Objects.requireNonNull(clazz);
 
 		try {
 			@SuppressWarnings("unchecked")
-			Constructor<Component> ctor = (Constructor<Component>) clazz.getConstructor(long.class);
-			final Component comp = ctor.newInstance(getId());
+			Constructor<Component> ctor = (Constructor<Component>) clazz.getConstructor(long.class, long.class);
+			final Component comp = ctor.newInstance(getId(), entity.getId());
 
 			// Add component to entity and to the comp map.
 			components.put(comp.getId(), comp);
 			entity.addComponent(comp);
 			saveEntity(entity);
+
+			// Check possible interceptors.
+			if (interceptors.containsKey(comp.getClass())) {
+				interceptors.get(comp.getClass()).forEach(intercep -> {
+					// Need to cast so we dont get problems with typings.
+					intercep.triggerCreateAction(this, entity, comp);
+				});
+			}
 
 			LOG.trace("Added component {} to entity id: {}", comp, entity.getId());
 
@@ -317,7 +324,17 @@ public class EntityService {
 	 */
 	public void saveComponent(Component component) {
 		Objects.requireNonNull(component);
+
 		components.put(component.getId(), component);
+		final Entity ownerEntity = getEntity(component.getEntityId());
+
+		// Check possible interceptors.
+		if (interceptors.containsKey(component.getClass())) {
+			interceptors.get(component.getClass()).forEach(intercep -> {
+				// Need to cast so we dont get problems with typings.
+				intercep.triggerUpdateAction(this, ownerEntity, component);
+			});
+		}
 	}
 
 	/**
@@ -332,13 +349,38 @@ public class EntityService {
 		}
 	}
 
+	/**
+	 * Only removes the component from the entity and the system. Does not yet
+	 * safe the entity. This is to avoid multiple saves to the entity when
+	 * removing bulk components.
+	 * 
+	 * @param entity
+	 * @param component
+	 */
+	private void prepareComponentRemove(Entity entity, Component component) {
+		Objects.requireNonNull(entity);
+		Objects.requireNonNull(component);
+		
+		LOG.trace("Removing component id {} from entity {}.", component.getId(), entity.getId());
+
+		entity.removeComponent(component);
+		components.remove(component.getId());
+
+		// Check possible interceptors.
+		if (interceptors.containsKey(component.getClass())) {
+			interceptors.get(component.getClass()).forEach(intercep -> {
+				// Need to cast so we dont get problems with typings.
+				intercep.triggerDeleteAction(this, entity, component);
+			});
+		}
+	}
+
 	public void deleteComponent(Entity entity, Component component) {
 		LOG.trace("Removing component {} from entity {}.", component, entity);
 
-		entity.removeComponent(component);
+		prepareComponentRemove(entity, component);
+		
 		saveEntity(entity);
-
-		components.remove(component.getId());
 	}
 
 	/**
@@ -349,13 +391,12 @@ public class EntityService {
 	 */
 	public void deleteAllComponents(Entity entity) {
 
-		Set<Long> componentIds = new HashSet<>(entity.getComponentIds());
+		final Set<Long> componentIds = new HashSet<>(entity.getComponentIds());
 
 		for (Long componentId : componentIds) {
+			final Component comp = components.get(componentId);
+			prepareComponentRemove(entity, comp);
 
-			LOG.trace("Removing component id {} from entity {}.", componentId, entity.getId());
-			components.remove(componentId);
-			entity.removeComponent(componentId);
 		}
 
 		saveEntity(entity);

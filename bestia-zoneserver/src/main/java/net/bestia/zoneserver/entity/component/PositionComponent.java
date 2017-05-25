@@ -17,8 +17,8 @@ public class PositionComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
 
-	public PositionComponent(long id) {
-		super(id);
+	public PositionComponent(long id, long entityId) {
+		super(id, entityId);
 		// no op.
 	}
 

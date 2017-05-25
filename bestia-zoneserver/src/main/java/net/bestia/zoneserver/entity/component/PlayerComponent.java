@@ -6,8 +6,8 @@ public class PlayerComponent extends Component {
 	private long ownerAccountId;
 	private long playerBestiaId;
 
-	public PlayerComponent(long id) {
-		super(id);
+	public PlayerComponent(long id, long entityId) {
+		super(id, entityId);
 		// no op.
 	}
 

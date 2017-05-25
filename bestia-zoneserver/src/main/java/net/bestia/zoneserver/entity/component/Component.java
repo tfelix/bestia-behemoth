@@ -15,10 +15,14 @@ import java.io.Serializable;
 public abstract class Component implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private final long id;
 
-	public Component(long id) {
+	private final long id;
+	private final long entityId;
+
+	public Component(long id, long entityId) {
+
 		this.id = id;
+		this.entityId = entityId;
 	}
 
 	/**
@@ -28,6 +32,15 @@ public abstract class Component implements Serializable {
 	 */
 	public long getId() {
 		return id;
+	}
+
+	/**
+	 * Returns the entity id to which this component is attached.
+	 * 
+	 * @return The entity id to which this component is attached.
+	 */
+	public long getEntityId() {
+		return entityId;
 	}
 
 	@Override

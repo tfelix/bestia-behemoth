@@ -30,6 +30,21 @@ public abstract class ComponentInterceptor<T extends Component> {
 	public Class<T> getTriggerType() {
 		return triggerClass;
 	}
+	
+	public void triggerCreateAction(EntityService entityService, Entity entity, Component comp) {
+		final T castComp = triggerClass.cast(comp);
+		onCreateAction(entityService, entity, castComp);
+	}
+	
+	public void triggerUpdateAction(EntityService entityService, Entity entity, Component comp) {
+		final T castComp = triggerClass.cast(comp);
+		onUpdateAction(entityService, entity, castComp);
+	}
+	
+	public void triggerDeleteAction(EntityService entityService, Entity entity, Component comp) {
+		final T castComp = triggerClass.cast(comp);
+		onDeleteAction(entityService, entity, castComp);
+	}
 
 	/**
 	 * This method is called if a trigger of the given component is detected.
@@ -37,9 +52,9 @@ public abstract class ComponentInterceptor<T extends Component> {
 	 * @param comp
 	 *            The component which is persisted to the database.
 	 */
-	public abstract void triggerUpdateAction(EntityService entityService, Entity entity, T comp);
+	protected abstract void onUpdateAction(EntityService entityService, Entity entity, T comp);
 	
-	public abstract void triggerDeleteAction(EntityService entityService, Entity entity, T comp);
+	protected abstract void onDeleteAction(EntityService entityService, Entity entity, T comp);
 	
-	public abstract void triggerCreateAction(EntityService entityService, Entity entity, T comp);
+	protected abstract void onCreateAction(EntityService entityService, Entity entity, T comp);
 }

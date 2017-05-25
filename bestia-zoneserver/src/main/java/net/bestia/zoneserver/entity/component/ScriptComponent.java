@@ -30,8 +30,8 @@ public class ScriptComponent extends Component {
 	 */
 	private ActorPath scriptLifetimeActorPath;
 
-	public ScriptComponent(long id) {
-		super(id);
+	public ScriptComponent(long id, long entityId) {
+		super(id, entityId);
 		// no op.
 	}
 
