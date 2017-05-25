@@ -8,8 +8,8 @@ import net.bestia.model.battle.Damage;
 import net.bestia.model.domain.AttackImpl;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.components.LevelComponent;
-import net.bestia.zoneserver.entity.components.StatusComponent;
+import net.bestia.zoneserver.entity.component.LevelComponent;
+import net.bestia.zoneserver.entity.component.StatusComponent;
 import net.bestia.model.domain.AttackBasedStatus;
 
 @Service

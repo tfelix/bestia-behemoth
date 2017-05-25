@@ -20,7 +20,7 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
-import net.bestia.zoneserver.entity.components.PositionComponent;
+import net.bestia.zoneserver.entity.component.PositionComponent;
 import net.bestia.zoneserver.map.MapService;
 
 /**

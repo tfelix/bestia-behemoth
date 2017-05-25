@@ -22,7 +22,7 @@ import net.bestia.model.geometry.Point;
 import net.bestia.model.map.Walkspeed;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.entity.PeriodicMovementActor;
-import net.bestia.zoneserver.entity.components.PositionComponent;
+import net.bestia.zoneserver.entity.component.PositionComponent;
 
 /**
  * This manager holds references of currently moving entities and their movement

@@ -9,8 +9,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bestia.zoneserver.entity.components.Component;
-import net.bestia.zoneserver.entity.components.ComponentSetter;
+import net.bestia.zoneserver.entity.component.Component;
+import net.bestia.zoneserver.entity.component.ComponentSetter;
 
 /**
  * The EcsEntityFactory is responsible for translating ecs blueprints into

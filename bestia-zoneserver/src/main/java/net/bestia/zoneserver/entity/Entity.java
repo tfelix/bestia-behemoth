@@ -9,7 +9,7 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.bestia.zoneserver.entity.components.Component;
+import net.bestia.zoneserver.entity.component.Component;
 
 /**
  * Entities can be attached with components in order to make a composition of a

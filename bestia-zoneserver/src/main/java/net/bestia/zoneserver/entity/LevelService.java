@@ -5,7 +5,7 @@ import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import net.bestia.zoneserver.entity.components.LevelComponent;
+import net.bestia.zoneserver.entity.component.LevelComponent;
 
 /**
  * This service manages entities to level up and to receive exp.

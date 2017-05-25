@@ -15,7 +15,7 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
-import net.bestia.zoneserver.entity.components.PlayerComponent;
+import net.bestia.zoneserver.entity.component.PlayerComponent;
 
 /**
  * Upon receiving an activation request from this account we check if the

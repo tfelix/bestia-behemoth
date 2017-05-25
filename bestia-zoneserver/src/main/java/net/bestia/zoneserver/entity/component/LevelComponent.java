@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity.components;
+package net.bestia.zoneserver.entity.component;
 
 /**
  * Level components allow entities to receive exp and level up.

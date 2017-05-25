@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import net.bestia.zoneserver.entity.components.Component;
+import net.bestia.zoneserver.entity.component.Component;
 
 /**
  * Blueprints are used to generate entities with a certain mix of components.

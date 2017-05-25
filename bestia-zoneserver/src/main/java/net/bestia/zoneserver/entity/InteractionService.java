@@ -6,7 +6,7 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 
 import net.bestia.model.entity.InteractionType;
-import net.bestia.zoneserver.entity.components.InteractionComponent;
+import net.bestia.zoneserver.entity.component.InteractionComponent;
 
 /**
  * Service to control the interaction between entities. Usually in this

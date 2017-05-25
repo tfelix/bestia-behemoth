@@ -13,7 +13,7 @@ import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.components.PositionComponent;
+import net.bestia.zoneserver.entity.component.PositionComponent;
 
 /**
  * This actor will handle the removing of an entity from the system. It will

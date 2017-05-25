@@ -12,8 +12,8 @@ import net.bestia.model.domain.Attack;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityServiceContext;
-import net.bestia.zoneserver.entity.components.PositionComponent;
-import net.bestia.zoneserver.entity.components.StatusComponent;
+import net.bestia.zoneserver.entity.component.PositionComponent;
+import net.bestia.zoneserver.entity.component.StatusComponent;
 
 /**
  * This service is used to perform attacks and damage calculation for battle

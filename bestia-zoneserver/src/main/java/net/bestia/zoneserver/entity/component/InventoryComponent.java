@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity.components;
+package net.bestia.zoneserver.entity.component;
 
 import java.util.ArrayList;
 import java.util.List;

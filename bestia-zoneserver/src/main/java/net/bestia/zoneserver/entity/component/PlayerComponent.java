@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity.components;
+package net.bestia.zoneserver.entity.component;
 
 public class PlayerComponent extends Component {
 

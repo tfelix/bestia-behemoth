@@ -7,20 +7,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bestia.model.domain.PlayerBestia;
-import net.bestia.zoneserver.entity.components.Component;
-import net.bestia.zoneserver.entity.components.ComponentSetter;
-import net.bestia.zoneserver.entity.components.EquipComponent;
-import net.bestia.zoneserver.entity.components.InventoryComponent;
-import net.bestia.zoneserver.entity.components.LevelComponent;
-import net.bestia.zoneserver.entity.components.LevelComponentSetter;
-import net.bestia.zoneserver.entity.components.PlayerComponent;
-import net.bestia.zoneserver.entity.components.PlayerComponentSetter;
-import net.bestia.zoneserver.entity.components.PlayerStatusComponentSetter;
-import net.bestia.zoneserver.entity.components.PositionComponent;
-import net.bestia.zoneserver.entity.components.PositionComponentSetter;
-import net.bestia.zoneserver.entity.components.StatusComponent;
-import net.bestia.zoneserver.entity.components.VisibleComponent;
-import net.bestia.zoneserver.entity.components.VisibleComponentSetter;
+import net.bestia.zoneserver.entity.component.Component;
+import net.bestia.zoneserver.entity.component.ComponentSetter;
+import net.bestia.zoneserver.entity.component.EquipComponent;
+import net.bestia.zoneserver.entity.component.InventoryComponent;
+import net.bestia.zoneserver.entity.component.LevelComponent;
+import net.bestia.zoneserver.entity.component.LevelComponentSetter;
+import net.bestia.zoneserver.entity.component.PlayerComponent;
+import net.bestia.zoneserver.entity.component.PlayerComponentSetter;
+import net.bestia.zoneserver.entity.component.PlayerStatusComponentSetter;
+import net.bestia.zoneserver.entity.component.PositionComponent;
+import net.bestia.zoneserver.entity.component.PositionComponentSetter;
+import net.bestia.zoneserver.entity.component.StatusComponent;
+import net.bestia.zoneserver.entity.component.VisibleComponent;
+import net.bestia.zoneserver.entity.component.VisibleComponentSetter;
 
 /**
  * The factory is used to create player entities which can be controlled via a

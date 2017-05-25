@@ -15,9 +15,9 @@ import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.entity.StatusBasedValuesImpl;
-import net.bestia.zoneserver.entity.components.LevelComponent;
-import net.bestia.zoneserver.entity.components.PlayerComponent;
-import net.bestia.zoneserver.entity.components.StatusComponent;
+import net.bestia.zoneserver.entity.component.LevelComponent;
+import net.bestia.zoneserver.entity.component.PlayerComponent;
+import net.bestia.zoneserver.entity.component.StatusComponent;
 
 /**
  * The service class is responsible for recalculating the status values for a

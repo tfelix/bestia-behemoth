@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.bestia.model.geometry.CollisionShape;
-import net.bestia.zoneserver.entity.components.PositionComponent;
-import net.bestia.zoneserver.entity.components.PositionComponentSetter;
-import net.bestia.zoneserver.entity.components.ScriptComponent;
+import net.bestia.zoneserver.entity.component.PositionComponent;
+import net.bestia.zoneserver.entity.component.PositionComponentSetter;
+import net.bestia.zoneserver.entity.component.ScriptComponent;
 
 /**
  * This builds a script entity which can be used by scripts because it usually

@@ -1,9 +1,12 @@
 package net.bestia.zoneserver.entity;
 
 import java.lang.reflect.Constructor;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -21,8 +24,9 @@ import com.hazelcast.core.IdGenerator;
 
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.entity.components.Component;
-import net.bestia.zoneserver.entity.components.PositionComponent;
+import net.bestia.zoneserver.entity.component.Component;
+import net.bestia.zoneserver.entity.component.PositionComponent;
+import net.bestia.zoneserver.entity.component.interceptor.ComponentInterceptor;
 
 @Service
 public class EntityService {
@@ -39,6 +43,8 @@ public class EntityService {
 	private final IMap<Long, Component> components;
 	private final IdGenerator idGenerator;
 
+	private final Map<Class<? extends Component>, List<ComponentInterceptor<? extends Component>>> interceptors = new HashMap<>();
+
 	@Autowired
 	public EntityService(HazelcastInstance hz) {
 
@@ -48,6 +54,17 @@ public class EntityService {
 		this.entities = hz.getMap(ECS_ENTITY_MAP);
 		this.idGenerator = hz.getIdGenerator(COMP_ID);
 		this.components = Objects.requireNonNull(hz).getMap(COMP_MAP);
+	}
+	
+	public void addInterceptor(ComponentInterceptor<? extends Component> interceptor) {
+		
+		final Class<? extends Component> triggerType = interceptor.getTriggerType();
+		
+		if(!interceptors.containsKey(triggerType)) {
+			interceptors.put(triggerType, new ArrayList<>());
+		}
+		
+		interceptors.get(triggerType).add(interceptor);
 	}
 
 	/**
@@ -142,6 +159,11 @@ public class EntityService {
 		}
 	}
 
+	/**
+	 * 
+	 * @param ids
+	 * @return
+	 */
 	public Map<Long, Entity> getAllEntities(Set<Long> ids) {
 		return entities.getAll(ids);
 	}
@@ -172,9 +194,9 @@ public class EntityService {
 		final Set<Entity> collidingEntities = entitiesInBoundingBox.stream()
 				.filter(e -> getComponent(e, PositionComponent.class).get().getShape().collide(shape))
 				.collect(Collectors.toSet());
-		
+
 		LOG.trace("Found colliding entities: {}.", collidingEntities);
-		
+
 		return collidingEntities;
 	}
 
@@ -188,7 +210,7 @@ public class EntityService {
 
 		// TODO Das muss noch effektiver gestaltet werden.
 		final Set<Entity> colliders = new HashSet<>();
-		
+
 		entities.forEach((id, entity) -> {
 			getComponent(entity, PositionComponent.class).ifPresent(posComp -> {
 				if (posComp.getShape().collide(area)) {

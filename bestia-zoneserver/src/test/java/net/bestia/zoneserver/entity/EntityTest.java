@@ -3,9 +3,9 @@ package net.bestia.zoneserver.entity;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.bestia.zoneserver.entity.components.Component;
-import net.bestia.zoneserver.entity.components.PositionComponent;
-import net.bestia.zoneserver.entity.components.VisibleComponent;
+import net.bestia.zoneserver.entity.component.Component;
+import net.bestia.zoneserver.entity.component.PositionComponent;
+import net.bestia.zoneserver.entity.component.VisibleComponent;
 
 public class EntityTest {
 

@@ -12,7 +12,7 @@ import net.bestia.model.geometry.CollisionShape;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.ScriptEntityFactory;
-import net.bestia.zoneserver.entity.components.PositionComponent;
+import net.bestia.zoneserver.entity.component.PositionComponent;
 
 /**
  * Bundles all kind of services to provide an extensive script API. This API is

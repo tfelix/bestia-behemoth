@@ -8,8 +8,8 @@ import com.hazelcast.core.HazelcastInstance;
 
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.BasicMocks;
-import net.bestia.zoneserver.entity.components.PositionComponent;
-import net.bestia.zoneserver.entity.components.VisibleComponent;
+import net.bestia.zoneserver.entity.component.PositionComponent;
+import net.bestia.zoneserver.entity.component.VisibleComponent;
 
 public class EntityServiceTest {
 

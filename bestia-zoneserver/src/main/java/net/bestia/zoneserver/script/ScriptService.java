@@ -22,7 +22,7 @@ import net.bestia.zoneserver.actor.script.PeriodicScriptRunnerActor;
 import net.bestia.zoneserver.configuration.StaticConfigurationService;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.components.ScriptComponent;
+import net.bestia.zoneserver.entity.component.ScriptComponent;
 
 /**
  * This class is responsible for fetching the script, creating a appropriate

@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity.components;
+package net.bestia.zoneserver.entity.component;
 
 import java.util.Collections;
 import java.util.HashSet;

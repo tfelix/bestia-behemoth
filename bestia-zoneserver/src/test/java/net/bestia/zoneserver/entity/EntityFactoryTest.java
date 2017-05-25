@@ -13,10 +13,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.bestia.zoneserver.entity.components.Component;
-import net.bestia.zoneserver.entity.components.ComponentSetter;
-import net.bestia.zoneserver.entity.components.PlayerComponent;
-import net.bestia.zoneserver.entity.components.PlayerComponentSetter;
+import net.bestia.zoneserver.entity.component.Component;
+import net.bestia.zoneserver.entity.component.ComponentSetter;
+import net.bestia.zoneserver.entity.component.PlayerComponent;
+import net.bestia.zoneserver.entity.component.PlayerComponentSetter;
 
 public class EntityFactoryTest {
 

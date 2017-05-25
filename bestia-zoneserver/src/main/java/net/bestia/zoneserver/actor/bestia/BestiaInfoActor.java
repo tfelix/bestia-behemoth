@@ -19,7 +19,7 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityServiceContext;
 import net.bestia.zoneserver.entity.StatusService;
-import net.bestia.zoneserver.entity.components.PlayerComponent;
+import net.bestia.zoneserver.entity.component.PlayerComponent;
 
 /**
  * This actor gathers all needed information about the bestias in the players

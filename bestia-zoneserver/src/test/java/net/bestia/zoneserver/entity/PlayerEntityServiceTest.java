@@ -31,7 +31,7 @@ import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.BasicMocks;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
-import net.bestia.zoneserver.entity.components.PlayerComponent;
+import net.bestia.zoneserver.entity.component.PlayerComponent;
 import net.bestia.zoneserver.service.PlayerBestiaService;
 
 public class PlayerEntityServiceTest {

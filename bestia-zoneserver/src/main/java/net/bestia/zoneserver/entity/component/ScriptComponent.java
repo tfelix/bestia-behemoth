@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity.components;
+package net.bestia.zoneserver.entity.component;
 
 import akka.actor.ActorPath;
 import net.bestia.zoneserver.script.ScriptType;

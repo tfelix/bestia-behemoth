@@ -28,7 +28,7 @@ import akka.actor.PoisonPill;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.components.ScriptComponent;
+import net.bestia.zoneserver.entity.component.ScriptComponent;
 
 public class ScriptServiceTest {
 

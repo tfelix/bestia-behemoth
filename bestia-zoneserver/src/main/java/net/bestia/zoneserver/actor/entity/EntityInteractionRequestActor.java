@@ -19,7 +19,7 @@ import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.InteractionService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
-import net.bestia.zoneserver.entity.components.InteractionComponent;
+import net.bestia.zoneserver.entity.component.InteractionComponent;
 
 /**
  * Receives interaction requests for an entity. It will query the system and ask
