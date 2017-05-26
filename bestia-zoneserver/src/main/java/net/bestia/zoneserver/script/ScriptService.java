@@ -48,8 +48,8 @@ public class ScriptService {
 
 	@Autowired
 	public ScriptService(
-			EntityService entityService, 
-			ZoneAkkaApi akkaApi, 
+			EntityService entityService,
+			ZoneAkkaApi akkaApi,
 			ScriptCache cache,
 			ScriptApi scriptApi,
 			StaticConfigurationService configService) {
@@ -126,11 +126,18 @@ public class ScriptService {
 
 		setupScriptAndCallFunction(script, name, type, MAIN_FUNC);
 	}
-	
+
 	public void callAttackScript(String name) {
 		throw new IllegalStateException("Not implements");
 	}
 
+	/**
+	 * The script callback is triggered via a counter which was initially set
+	 * into the {@link ScriptComponent}.
+	 * 
+	 * @param scriptEntityId
+	 *            The script entity whose callback is about to be triggered.
+	 */
 	public void triggerScriptIntervalCallback(long scriptEntityId) {
 
 		LOG.trace("Script {} interval called.", scriptEntityId);
@@ -148,12 +155,12 @@ public class ScriptService {
 	}
 
 	public void startScriptInterval(Entity entity, int delay, String callbackFunctionName) {
-		final ScriptComponent scriptComp = entityService.getComponent(entity, ScriptComponent.class)
-				.orElseThrow(IllegalArgumentException::new);
-
 		if (delay <= 0) {
 			throw new IllegalArgumentException("Delay must be bigger then 0.");
 		}
+
+		final ScriptComponent scriptComp = entityService.getComponent(entity, ScriptComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
 
 		final ActorRef scriptRunner = akkaApi.startUnnamedActor(PeriodicScriptRunnerActor.class);
 

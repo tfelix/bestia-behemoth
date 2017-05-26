@@ -2,15 +2,21 @@ package net.bestia.zoneserver.entity.component.interceptor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.component.PositionComponent;
 
-@Component
+/**
+ * Evtl ist das obsolete da wird alles über die services abdecken können
+ * sollten. vielleicht ist die lösung hier aber dennoch eleganter?
+ * 
+ * @author Thomas Felix
+ *
+ */
+//@Component
 public class PositionComponentInterceptor extends ComponentInterceptor<PositionComponent> {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(PositionComponentInterceptor.class);
 
 	PositionComponentInterceptor() {

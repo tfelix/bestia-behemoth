@@ -67,10 +67,16 @@ public class StatusService {
 
 	/**
 	 * Returns the status points of an entity which has this component. If the
-	 * values are not set then they are recalculated.
+	 * values are not set then they are recalculated. It returns the modified
+	 * status values (they can be modified by status effects which are added via
+	 * spells/buffs or via equipment).
+	 * 
+	 * The entity must posess the {@link StatusComponent} or an empty optional
+	 * is returned.
 	 * 
 	 * @param entity
-	 * @return
+	 *            The entity which status points to retrieve.
+	 * @return The by status effects or equip modified {@link StatusPoints}.
 	 */
 	public Optional<StatusPoints> getStatusPoints(Entity entity) {
 
@@ -85,6 +91,21 @@ public class StatusService {
 		}
 
 		return Optional.of(statusComp.get().getStatusPoints());
+	}
+
+	public Optional<StatusPoints> getUnmodifiedStatusPoints(Entity entity) {
+
+		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
+
+		if (!statusComp.isPresent()) {
+			return Optional.empty();
+		}
+
+		if (statusComp.get().getOriginalStatusPoints() == null) {
+			calculateStatusPoints(entity, statusComp.get());
+		}
+
+		return Optional.of(statusComp.get().getOriginalStatusPoints());
 	}
 
 	/**
@@ -171,13 +192,14 @@ public class StatusService {
 
 	/**
 	 * Calculates and sets the modified status points based on the equipment and
-	 * or status effects.
+	 * or status effects. Each status effect can possibly return a modifier
+	 * which will then modify the original base status values.
 	 * 
 	 * @param entity
 	 * @param statusComp
 	 */
 	private void calculateModifiedStatusPoints(Entity entity, StatusComponent statusComp) {
-		//final StatusPoints statusPoints = new StatusPointsImpl();
+		// final StatusPoints statusPoints = new StatusPointsImpl();
 	}
 
 	/*

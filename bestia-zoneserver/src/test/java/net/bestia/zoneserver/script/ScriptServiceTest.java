@@ -20,29 +20,29 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import akka.actor.ActorPath;
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.configuration.StaticConfigurationService;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.component.ScriptComponent;
 
 public class ScriptServiceTest {
 
-	private static final long INVALID_SCRIPT_ID = 666;
-	private static final long VALID_SCRIPT_ID = 123;
+	private static final long INVALID_SCRIPT_COMP_ID = 666;
+	private static final long VALID_SCRIPT_COMP_ID = 123;
 	private static final String UNKNOWN_SCRIPT_FILE = "blubber.js";
 	private static final String CALLBACK_FN_NAME = "callbackFunction";
 	private static final String KNOWN_SCRIPT_FILE = "known.js";
-
-	@Autowired
-	private ScriptApi scriptApi;
+	private static final long INVALID_ENTITY_ID = 888;
+	private static final long VALID_ENTITY_ID = 890;
 
 	private EntityService entityService;
 	private ZoneAkkaApi akkaApi;
+	private ScriptApi scriptApi;
 	private ScriptCache cache;
 	private ScriptService scriptService;
 	private Entity scriptEntity;
@@ -50,10 +50,14 @@ public class ScriptServiceTest {
 	private ScriptComponent scriptComponent;
 	private ActorRef runnerRef;
 	private ActorPath runnerRefPath;
+	private StaticConfigurationService configService;
 
 	@Before
 	public void setup() {
-
+		
+		
+		configService = mock(StaticConfigurationService.class);
+		scriptApi = mock(ScriptApi.class);
 		entityService = mock(EntityService.class);
 		akkaApi = mock(ZoneAkkaApi.class);
 		cache = mock(ScriptCache.class);
@@ -65,12 +69,14 @@ public class ScriptServiceTest {
 		
 		when(runnerRef.path()).thenReturn(runnerRefPath);
 
+		when(entityService.getEntity(INVALID_ENTITY_ID)).thenReturn(null);
+		when(entityService.getEntity(VALID_ENTITY_ID)).thenReturn(scriptEntity);
 		when(entityService.getComponent(scriptEntity, ScriptComponent.class)).thenReturn(Optional.of(scriptComponent));
 		when(entityService.hasComponent(scriptEntity, ScriptComponent.class)).thenReturn(true);
 		when(entityService.getComponent(nonScriptEntity, ScriptComponent.class)).thenReturn(Optional.empty());
 		when(entityService.hasComponent(nonScriptEntity, ScriptComponent.class)).thenReturn(false);
-		when(entityService.getComponent(INVALID_SCRIPT_ID, ScriptComponent.class)).thenReturn(Optional.empty());
-		when(entityService.getComponent(VALID_SCRIPT_ID, ScriptComponent.class))
+		when(entityService.getComponent(INVALID_SCRIPT_COMP_ID, ScriptComponent.class)).thenReturn(Optional.empty());
+		when(entityService.getComponent(VALID_SCRIPT_COMP_ID, ScriptComponent.class))
 				.thenReturn(Optional.of(scriptComponent));
 
 		//scriptService = new ScriptService(entityService, akkaApi, cache);
@@ -78,34 +84,49 @@ public class ScriptServiceTest {
 
 	@Test(expected = NullPointerException.class)
 	public void ctor_nullArg1_throw() {
-		//new ScriptService(null, akkaApi, cache);
+		new ScriptService(null, akkaApi, cache, scriptApi, configService);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void ctor_nullArg2_throw() {
-		//new ScriptService(entityService, null, cache);
+		new ScriptService(entityService, null, cache, scriptApi, configService);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void ctor_nullArg3_throw() {
-		//new ScriptService(entityService, akkaApi, null);
+		new ScriptService(entityService, akkaApi, null, scriptApi, configService);
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public void ctor_nullArg4_throw() {
+		new ScriptService(entityService, akkaApi, cache, null, configService);
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public void ctor_nullArg5_throw() {
+		new ScriptService(entityService, akkaApi, cache, scriptApi, null);
 	}
 
 	@Test
 	public void deleteScriptEntity_validScriptEntityId_removeEntity() {
-		scriptService.deleteScriptEntity(VALID_SCRIPT_ID);
+		scriptService.deleteScriptEntity(VALID_ENTITY_ID);
+		
+		verify(entityService).delete(scriptEntity);
+		verify(entityService).deleteComponent(scriptEntity, scriptComponent);
 	}
 
 	@Test
 	public void deleteScriptEntity_invalidScriptEntityId_doesNothing() {
-		scriptService.deleteScriptEntity(INVALID_SCRIPT_ID);
+		scriptService.deleteScriptEntity(INVALID_ENTITY_ID);
+		
 		verify(entityService, never()).delete(any());
-
+		verify(entityService).deleteComponent(any(), any());
 	}
+
 
 	@Test
 	public void callScript_unkownScriptFileName_doesNothing() {
-		scriptService.deleteScriptEntity(INVALID_SCRIPT_ID);
+		scriptService.deleteScriptEntity(INVALID_SCRIPT_COMP_ID);
 	}
 
 	@Test
@@ -115,7 +136,7 @@ public class ScriptServiceTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void triggerScriptIntervalCallback_invalidScriptId_throws() {
-		scriptService.triggerScriptIntervalCallback(INVALID_SCRIPT_ID);
+		scriptService.triggerScriptIntervalCallback(INVALID_SCRIPT_COMP_ID);
 	}
 
 	@Test
