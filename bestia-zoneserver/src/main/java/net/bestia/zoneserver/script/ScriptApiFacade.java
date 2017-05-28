@@ -5,11 +5,14 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import akka.actor.ActorRef;
+import net.bestia.messages.internal.ScriptIntervalMessage;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.entity.EntityLifetimeWatchdogActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityServiceContext;
 import net.bestia.zoneserver.entity.ScriptEntityFactory;
@@ -28,8 +31,8 @@ public class ScriptApiFacade implements ScriptApi {
 	private static final Logger LOG = LoggerFactory.getLogger("script");
 
 	private final ScriptEntityFactory scriptEntityFactory;
-	private final ScriptService scriptService;
-	private EntityServiceContext entityServiceCtx;
+	private final EntityServiceContext entityServiceCtx;
+	private final ZoneAkkaApi akkaApi;
 
 	/**
 	 * 
@@ -39,11 +42,11 @@ public class ScriptApiFacade implements ScriptApi {
 	 *            dependency thus needs to be lazy initialized.
 	 */
 	@Autowired
-	public ScriptApiFacade(EntityServiceContext entityServiceCtx, @Lazy ScriptService scriptService) {
+	public ScriptApiFacade(EntityServiceContext entityServiceCtx, ZoneAkkaApi akkaApi) {
 
 		this.scriptEntityFactory = new ScriptEntityFactory(entityServiceCtx.getEntity());
-		this.scriptService = Objects.requireNonNull(scriptService);
 		this.entityServiceCtx = Objects.requireNonNull(entityServiceCtx);
+		this.akkaApi = Objects.requireNonNull(akkaApi);
 	}
 
 	@Override
@@ -83,7 +86,10 @@ public class ScriptApiFacade implements ScriptApi {
 	@Override
 	public void setLivetime(long entityId, int livetimeMs) {
 		LOG.trace("Entity: {}. Sets lifetime: {} ms.", entityId, livetimeMs);
-
+		
+		final ActorRef watchdog = akkaApi.startUnnamedActor(EntityLifetimeWatchdogActor.class);
+		final ScriptIntervalMessage message = new ScriptIntervalMessage(entityId, livetimeMs);
+		watchdog.tell(message, ActorRef.noSender());
 	}
 
 	@Override
@@ -95,7 +101,7 @@ public class ScriptApiFacade implements ScriptApi {
 	@Override
 	public void setInterval(long entityId, String scriptName, String callbackName, int delayMs) {
 		LOG.trace("Entity: {}. Set interval function callback name: {}.", entityId, callbackName);
-		scriptService.startScriptInterval(getEntityFromId(entityId), delayMs, callbackName);
+		entityServiceCtx.getScriptService().startScriptInterval(getEntityFromId(entityId), delayMs, callbackName);
 	}
 
 	@Override

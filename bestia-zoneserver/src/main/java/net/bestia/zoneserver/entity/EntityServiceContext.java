@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.bestia.zoneserver.battle.BattleService;
+import net.bestia.zoneserver.script.ScriptService;
 
 /**
  * This class simply combines multiple entity services for easy access to them.
@@ -19,9 +20,19 @@ public class EntityServiceContext {
 	private PlayerEntityService player;
 	private MovingEntityService move;
 	private BattleService battleService;
+	private ScriptService scriptService;
 	
 	public EntityService getEntity() {
 		return entity;
+	}
+	
+	@Autowired
+	public void setScriptService(ScriptService scriptService) {
+		this.scriptService = scriptService;
+	}
+	
+	public ScriptService getScriptService() {
+		return scriptService;
 	}
 	
 	@Autowired

@@ -42,6 +42,8 @@ public class EntityLifetimeWatchdogActor extends BestiaPeriodicActor {
 	protected void onTick() {
 		LOG.debug("Terminating script entity: {}.", scriptEntityId);
 
+		// TODO Das hier muss man testen ob man nicht auch entities entfernen
+		// kann die nicht nur ein script sind.
 		scriptService.deleteScriptEntity(scriptEntityId);
 	}
 

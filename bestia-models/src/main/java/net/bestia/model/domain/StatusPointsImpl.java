@@ -37,7 +37,27 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		// no op.
 	}
 
-	/* (non-Javadoc)
+	public StatusPointsImpl(StatusPoints rhs) {
+
+		maxHp = rhs.getMaxHp();
+		maxMana = rhs.getMaxMana();
+		strength = rhs.getStrength();
+		vitality = rhs.getVitality();
+		intelligence = rhs.getIntelligence();
+		willpower = rhs.getWillpower();
+		agility = rhs.getAgility();
+		dexterity = rhs.getDexterity();
+		defense = rhs.getDefense();
+		magicDefense = rhs.getMagicDefense();
+
+		currentHp = rhs.getCurrentHp();
+		currentMana = rhs.getCurrentMana();
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IStatusPoints#getCurrentHp()
 	 */
 	@Override
@@ -57,7 +77,9 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		this.currentHp = hp;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IStatusPoints#getMaxHp()
 	 */
 	@Override
@@ -78,7 +100,9 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IStatusPoints#getCurrentMana()
 	 */
 	@Override
@@ -111,7 +135,9 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IStatusPoints#getMaxMana()
 	 */
 	@Override
@@ -119,7 +145,9 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		return maxMana;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IStatusPoints#getDefense()
 	 */
 	@Override
@@ -139,7 +167,9 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		this.defense = def;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IStatusPoints#getMagicDefense()
 	 */
 	@Override
@@ -166,7 +196,9 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		this.magicDefense = mdef;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IStatusPoints#getStrength()
 	 */
 	@Override
@@ -189,7 +221,9 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		this.strength = str;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IStatusPoints#getVitality()
 	 */
 	@Override
@@ -212,7 +246,9 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		this.vitality = vit;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IStatusPoints#getIntelligence()
 	 */
 	@Override
@@ -235,7 +271,9 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		this.intelligence = intel;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IStatusPoints#getAgility()
 	 */
 	@Override
@@ -257,7 +295,9 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		this.agility = agi;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IStatusPoints#getWillpower()
 	 */
 	@Override
@@ -274,7 +314,9 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		this.willpower = willpower;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IStatusPoints#getDexterity()
 	 */
 	@Override

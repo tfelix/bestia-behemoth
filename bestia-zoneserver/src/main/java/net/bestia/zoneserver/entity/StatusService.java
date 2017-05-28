@@ -57,8 +57,13 @@ public class StatusService {
 		if (!statusComp.isPresent()) {
 			return Optional.empty();
 		}
+		
 
-		if (statusComp.get().getStatusBasedValues() == null) {
+		if (statusComp.get().getOriginalStatusPoints() == null) {
+			calculateUnmodifiedStatusPoints(entity, statusComp.get());
+		}
+		
+		if (statusComp.get().getStatusPoints() == null || statusComp.get().getStatusBasedValues() == null) {
 			calculateStatusPoints(entity, statusComp.get());
 		}
 
@@ -87,6 +92,7 @@ public class StatusService {
 		}
 
 		if (statusComp.get().getStatusPoints() == null) {
+			calculateUnmodifiedStatusPoints(entity, statusComp.get());
 			calculateStatusPoints(entity, statusComp.get());
 		}
 
@@ -102,7 +108,7 @@ public class StatusService {
 		}
 
 		if (statusComp.get().getOriginalStatusPoints() == null) {
-			calculateStatusPoints(entity, statusComp.get());
+			calculateUnmodifiedStatusPoints(entity, statusComp.get());
 		}
 
 		return Optional.of(statusComp.get().getOriginalStatusPoints());
@@ -123,16 +129,12 @@ public class StatusService {
 	}
 
 	/**
-	 * Recalculates the status values of entity if it has a
-	 * {@link StatusComponent} attached. It uses the EVs, IVs and BaseValues.
-	 * Must be called after the level of a bestia has changed. Currently this
-	 * method only accepts entity with player and status components. This will
-	 * change in the future.
+	 * At first this calculates the unmodified, original status points.
 	 */
-	private void calculateStatusPoints(Entity entity, StatusComponent statusComp) {
+	private void calculateUnmodifiedStatusPoints(Entity entity, StatusComponent statusComp) {
 		Objects.requireNonNull(entity);
 
-		LOG.trace("Calculate status points for entity {}.", entity);
+		LOG.trace("Calculate unmodfified status points for entity {}.", entity);
 
 		final PlayerComponent playerComp = entityService.getComponent(entity, PlayerComponent.class)
 				.orElseThrow(IllegalStateException::new);
@@ -176,16 +178,11 @@ public class StatusService {
 		statusPoints.setMagicDefense(spdef);
 		statusPoints.setAgility(spd);
 
-		statusPoints.setCurrentHp(statusComp.getOriginalStatusPoints().getCurrentHp());
-		statusPoints.setCurrentMana(statusComp.getOriginalStatusPoints().getCurrentMana());
+		statusPoints.setCurrentHp(pb.getCurrentHp());
+		statusPoints.setCurrentMana(pb.getCurrentMana());
 
 		// Update all component values.
 		statusComp.setOriginalStatusPoints(statusPoints);
-
-		// Calculate the status points based on status effects and/or equipment.
-		calculateModifiedStatusPoints(entity, statusComp);
-
-		statusComp.setStatusBasedValues(new StatusBasedValuesImpl(statusPoints, level));
 
 		entityService.saveComponent(statusComp);
 	}
@@ -198,9 +195,26 @@ public class StatusService {
 	 * @param entity
 	 * @param statusComp
 	 */
-	private void calculateModifiedStatusPoints(Entity entity, StatusComponent statusComp) {
-		// final StatusPoints statusPoints = new StatusPointsImpl();
+	private void calculateStatusPoints(Entity entity, StatusComponent statusComp) {
+		Objects.requireNonNull(entity);
+
+		LOG.trace("Calculate status points for entity {}.", entity);
+
+		// Retrieve the level.
+		final int level = entityService.getComponent(entity, LevelComponent.class)
+				.map(LevelComponent::getLevel)
+				.orElse(10);
+
+		// Currently only use status values 1:1.
+		StatusPoints statusPoints = new StatusPointsImpl(statusComp.getOriginalStatusPoints());
+		
+		statusComp.setStatusPoints(statusPoints);
+		
+		statusComp.setStatusBasedValues(new StatusBasedValuesImpl(statusPoints, level));
+
+		entityService.saveComponent(statusComp);
 	}
+
 
 	/*
 	 * StatusPointsDecorator baseStatusPointModified = new

@@ -17,7 +17,7 @@ public class StatusComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
 
-	private StatusPoints originalStatusPoints = new StatusPointsImpl();
+	private StatusPoints originalStatusPoints;
 	private StatusPoints statusPoints;
 	private StatusBasedValues statusBasedValues;
 
@@ -75,11 +75,11 @@ public class StatusComponent extends Component {
 	public StatusBasedValues getStatusBasedValues() {
 		return statusBasedValues;
 	}
-	
+
 	public void setElement(Element element) {
 		this.element = element;
 	}
-	
+
 	public void setOriginalElement(Element originalElement) {
 		this.originalElement = originalElement;
 	}
@@ -124,5 +124,9 @@ public class StatusComponent extends Component {
 	 */
 	public void setStatusBasedValues(StatusBasedValues statusBasedValues) {
 		this.statusBasedValues = statusBasedValues;
+	}
+
+	public void setStatusPoints(StatusPoints statusPoints) {
+		this.statusPoints = statusPoints;
 	}
 }
