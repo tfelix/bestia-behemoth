@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.bestia.zoneserver.battle.BattleService;
-import net.bestia.zoneserver.script.ScriptService;
 
 /**
  * This class simply combines multiple entity services for easy access to them.

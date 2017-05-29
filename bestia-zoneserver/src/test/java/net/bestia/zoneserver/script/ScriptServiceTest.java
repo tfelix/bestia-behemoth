@@ -28,6 +28,7 @@ import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.StaticConfigurationService;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.ScriptService;
 import net.bestia.zoneserver.entity.component.ScriptComponent;
 
 public class ScriptServiceTest {

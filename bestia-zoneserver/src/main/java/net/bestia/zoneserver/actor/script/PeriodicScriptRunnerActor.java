@@ -9,7 +9,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.ScriptIntervalMessage;
 import net.bestia.zoneserver.actor.BestiaPeriodicActor;
-import net.bestia.zoneserver.script.ScriptService;
+import net.bestia.zoneserver.entity.ScriptService;
 
 /**
  * This actor is used to run periodically script function.

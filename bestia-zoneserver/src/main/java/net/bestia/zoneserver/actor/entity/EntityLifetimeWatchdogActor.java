@@ -9,11 +9,14 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.ScriptIntervalMessage;
 import net.bestia.zoneserver.actor.BestiaPeriodicActor;
-import net.bestia.zoneserver.script.ScriptService;
+import net.bestia.zoneserver.entity.EntityRecycler;
 
 /**
  * This watchdog will remove the script entity as soon as its lifetime counter
- * is over.
+ * is over. 
+ * 
+ * TODO Diese Aktoren von selbst terminieren wenn nach einer gewissen
+ * Zeitspanne keine Aufgabe eingetroffen ist.
  * 
  * @author Thomas Felix
  *
@@ -24,27 +27,27 @@ public class EntityLifetimeWatchdogActor extends BestiaPeriodicActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	private final ScriptService scriptService;
-	private long scriptEntityId;
+	private final EntityRecycler recycler;
+	private long entityId;
 
-	public EntityLifetimeWatchdogActor(ScriptService scriptService) {
+	public EntityLifetimeWatchdogActor(EntityRecycler recycler) {
 
-		this.scriptService = Objects.requireNonNull(scriptService);
+		this.recycler = Objects.requireNonNull(recycler);
 	}
 
 	private void handleSetupMessage(ScriptIntervalMessage msg) {
 		LOG.debug("Received perodic request for: {}.", msg);
-		scriptEntityId = msg.getScriptEntityId();
+		entityId = msg.getScriptEntityId();
 		startInterval(msg.getDelay());
 	}
 
 	@Override
 	protected void onTick() {
-		LOG.debug("Terminating script entity: {}.", scriptEntityId);
+		LOG.debug("Terminating script entity: {}.", entityId);
 
 		// TODO Das hier muss man testen ob man nicht auch entities entfernen
 		// kann die nicht nur ein script sind.
-		scriptService.deleteScriptEntity(scriptEntityId);
+		recycler.free(entityId);
 	}
 
 	@Override

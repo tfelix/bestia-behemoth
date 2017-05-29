@@ -25,7 +25,7 @@ import net.bestia.zoneserver.entity.component.PlayerComponent;
  * This actor gathers all needed information about the bestias in the players
  * possession and will deliver this information to the player.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Component
