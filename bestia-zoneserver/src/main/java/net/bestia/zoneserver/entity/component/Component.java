@@ -17,7 +17,7 @@ public abstract class Component implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final long id;
-	private final long entityId;
+	private long entityId;
 
 	public Component(long id, long entityId) {
 
@@ -41,6 +41,17 @@ public abstract class Component implements Serializable {
 	 */
 	public long getEntityId() {
 		return entityId;
+	}
+
+	/**
+	 * Sets the entity id. Components can be reused and reattached to a new
+	 * entity. Thus the ID need to be changable.
+	 * 
+	 * @param entityId
+	 *            The new entity id.
+	 */
+	public void setEntityId(long entityId) {
+		this.entityId = entityId;
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package net.bestia.zoneserver.entity;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -360,11 +361,13 @@ public class EntityService {
 	private void prepareComponentRemove(Entity entity, Component component) {
 		Objects.requireNonNull(entity);
 		Objects.requireNonNull(component);
-		
+
 		LOG.trace("Removing component id {} from entity {}.", component.getId(), entity.getId());
 
 		entity.removeComponent(component);
 		components.remove(component.getId());
+
+		component.setEntityId(0);
 
 		// Check possible interceptors.
 		if (interceptors.containsKey(component.getClass())) {
@@ -379,7 +382,7 @@ public class EntityService {
 		LOG.trace("Removing component {} from entity {}.", component, entity);
 
 		prepareComponentRemove(entity, component);
-		
+
 		saveEntity(entity);
 	}
 
@@ -402,8 +405,35 @@ public class EntityService {
 		saveEntity(entity);
 	}
 
+	/**
+	 * Checks if the entity has the given component.
+	 * 
+	 * @param entity
+	 *            The entity to check.
+	 * @param clazz
+	 *            The component class to check for.
+	 * @return TRUE if the entity has the component. FALSE otherwise.
+	 */
 	public boolean hasComponent(Entity entity, Class<? extends Component> clazz) {
+		Objects.requireNonNull(entity);
+		Objects.requireNonNull(clazz);
 
 		return entity.getComponentId(clazz) != 0;
+	}
+
+	/**
+	 * Returns all components of this entity.
+	 * 
+	 * @param entity
+	 *            The entity which components will get returned.
+	 * @return A collection of all components from this entity.
+	 */
+	public Collection<Component> getAllComponents(Entity entity) {
+
+		return Objects.requireNonNull(entity)
+				.getComponentIds()
+				.stream()
+				.map(components::get)
+				.collect(Collectors.toList());
 	}
 }

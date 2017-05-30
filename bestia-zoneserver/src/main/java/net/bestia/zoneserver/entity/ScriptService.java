@@ -91,24 +91,44 @@ public class ScriptService {
 	}
 
 	/**
-	 * Removes a script entity completely from the system. It takes care of
-	 * removing all of the entity components as well as saved script variable
-	 * data.
+	 * Alias for {@link #freeScriptComponent(Entity)}. Entity is resolved first.
+	 * 
+	 * @param scriptEntityId
+	 *            The ID of the script entity.
+	 * @return The removed {@link ScriptComponent} or null if no component was
+	 *         attached to the entity.
+	 */
+	public ScriptComponent freeScriptComponent(long scriptEntityId) {
+
+		final Entity scriptEntity = entityService.getEntity(scriptEntityId);
+		return freeScriptComponent(scriptEntity);
+
+	}
+
+	/**
+	 * Removes a script component from an entity.It takes care of releasing all
+	 * script related resources to the attached script component. The detached
+	 * and cleared script components is returned and can be reused. If the
+	 * entity contains no {@link ScriptComponent} null is returned.
 	 * 
 	 * @param scriptEntityId
 	 *            The entity id of the script.
+	 * @return The removed {@link ScriptComponent} or null if no component was
+	 *         attached to the entity.
 	 */
-	public void freeScriptComponent(long scriptEntityId) {
-
-		final Entity scriptEntity = entityService.getEntity(scriptEntityId);
-
+	public ScriptComponent freeScriptComponent(Entity scriptEntity) {
 		if (!entityService.hasComponent(scriptEntity, ScriptComponent.class)) {
-			return;
+			return null;
 		}
 
 		stopScriptInterval(scriptEntity);
-		entityService.delete(scriptEntity);
 
+		final ScriptComponent scriptComp = entityService.getComponent(scriptEntity, ScriptComponent.class).get();
+		entityService.deleteComponent(scriptEntity, scriptComp);
+
+		scriptComp.setEntityId(0);
+
+		return scriptComp;
 	}
 
 	/**

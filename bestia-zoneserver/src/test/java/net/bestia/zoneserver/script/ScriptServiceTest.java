@@ -110,7 +110,7 @@ public class ScriptServiceTest {
 
 	@Test
 	public void deleteScriptEntity_validScriptEntityId_removeEntity() {
-		scriptService.deleteScriptEntity(VALID_ENTITY_ID);
+		scriptService.freeScriptComponent(VALID_ENTITY_ID);
 		
 		verify(entityService).delete(scriptEntity);
 		verify(entityService).deleteComponent(scriptEntity, scriptComponent);
@@ -118,7 +118,7 @@ public class ScriptServiceTest {
 
 	@Test
 	public void deleteScriptEntity_invalidScriptEntityId_doesNothing() {
-		scriptService.deleteScriptEntity(INVALID_ENTITY_ID);
+		scriptService.freeScriptComponent(INVALID_ENTITY_ID);
 		
 		verify(entityService, never()).delete(any());
 		verify(entityService).deleteComponent(any(), any());
@@ -127,7 +127,7 @@ public class ScriptServiceTest {
 
 	@Test
 	public void callScript_unkownScriptFileName_doesNothing() {
-		scriptService.deleteScriptEntity(INVALID_SCRIPT_COMP_ID);
+		scriptService.freeScriptComponent(INVALID_SCRIPT_COMP_ID);
 	}
 
 	@Test

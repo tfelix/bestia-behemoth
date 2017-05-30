@@ -1,12 +1,17 @@
 package net.bestia.zoneserver.entity;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bestia.zoneserver.entity.component.Component;
+import net.bestia.zoneserver.entity.component.ScriptComponent;
 
 /**
  * The {@link EntityRecycler} is used to get rid of an entity and its
@@ -16,14 +21,16 @@ import net.bestia.zoneserver.entity.component.Component;
  * @author Thomas Felix
  *
  */
+@org.springframework.stereotype.Component
 public class EntityRecycler {
 
+	private static final Logger LOG = LoggerFactory.getLogger(EntityRecycler.class);
 	private static final int DEFAULT_MAX_CACHED_INSTANCES = 1000;
 
 	private final int maxCachedInstances;
 
 	private final Queue<Entity> entities = new LinkedList<>();
-	private final Map<Class<? extends Component>, Queue<? extends Component>> components = new HashMap<>();
+	private final Map<Class<? extends Component>, Queue<Component>> components = new HashMap<>();
 	private final EntityServiceContext entityServiceCtx;
 
 	public EntityRecycler(int maxCachedInstances, EntityServiceContext entityServiceCtx) {
@@ -48,17 +55,70 @@ public class EntityRecycler {
 	 *            The entity to delete.
 	 */
 	public void free(Entity entity) {
-		
-		//entityServiceCtx.getEntity().ge
+		LOG.debug("Recycling entity: {}", entity);
+
+		// Remove/Recycle the special handled components.
+		freeSpecialComponents(entity);
+
+		final Collection<Component> components = entityServiceCtx.getEntity().getAllComponents(entity);
+		entityServiceCtx.getEntity().deleteAllComponents(entity);
+		components.stream().forEach(this::stashComponente);
 	}
-	
+
+	/**
+	 * Removes all the special handles components from an entity.
+	 */
+	private void freeSpecialComponents(Entity entity) {
+
+		final ScriptComponent scriptComp = entityServiceCtx.getScriptService().freeScriptComponent(entity);
+		stashComponente(scriptComp);
+	}
+
+	/**
+	 * Saves the component for later reuse. Null components can be given since
+	 * we check here in a central point and just ignore them.
+	 * 
+	 * @param component
+	 *            The component to stash away for later reuse. Can be null the
+	 *            nothing happens.
+	 */
+	private void stashComponente(Component component) {
+		if(component == null) {
+			return;
+		}
+
+		LOG.trace("Stashing component: {}", component);
+
+		component.setEntityId(0);
+
+		final Class<? extends Component> compClass = component.getClass();
+
+		if (!components.containsKey(compClass)) {
+			components.put(compClass, new LinkedList<>());
+		}
+
+		final Queue<Component> queue = components.get(compClass);
+
+		if (queue.size() > maxCachedInstances) {
+			return;
+		}
+
+		queue.offer(component);
+	}
+
+	/**
+	 * Alias to {@link #free(Entity)}.
+	 * 
+	 * @param entityId
+	 *            The entity ID to free (and delete all the components).
+	 */
 	public void free(long entityId) {
 		final Entity e = entityServiceCtx.getEntity().getEntity(entityId);
-		
-		if(e == null) {
+
+		if (e == null) {
 			throw new IllegalArgumentException("Entity ID does not exist.");
 		}
-		
+
 		free(e);
 	}
 
