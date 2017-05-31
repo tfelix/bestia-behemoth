@@ -21,7 +21,6 @@ import net.bestia.zoneserver.entity.component.ScriptComponent;
  * @author Thomas Felix
  *
  */
-@org.springframework.stereotype.Component
 public class EntityRecycler {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EntityRecycler.class);
@@ -55,6 +54,8 @@ public class EntityRecycler {
 	 *            The entity to delete.
 	 */
 	public void free(Entity entity) {
+		Objects.requireNonNull(entity);
+
 		LOG.debug("Recycling entity: {}", entity);
 
 		// Remove/Recycle the special handled components.
@@ -63,6 +64,10 @@ public class EntityRecycler {
 		final Collection<Component> components = entityServiceCtx.getEntity().getAllComponents(entity);
 		entityServiceCtx.getEntity().deleteAllComponents(entity);
 		components.stream().forEach(this::stashComponente);
+
+		// Save entity.
+		entityServiceCtx.getEntity().delete(entity);
+		stashEntity(entity);
 	}
 
 	/**
@@ -83,7 +88,7 @@ public class EntityRecycler {
 	 *            nothing happens.
 	 */
 	private void stashComponente(Component component) {
-		if(component == null) {
+		if (component == null) {
 			return;
 		}
 
@@ -99,11 +104,25 @@ public class EntityRecycler {
 
 		final Queue<Component> queue = components.get(compClass);
 
-		if (queue.size() > maxCachedInstances) {
+		if (queue.size() >= maxCachedInstances) {
 			return;
 		}
 
 		queue.offer(component);
+	}
+
+	/**
+	 * Stash away an entity for later use.
+	 * 
+	 */
+	private void stashEntity(Entity entity) {
+		LOG.trace("Stashing entity: {}", entity);
+
+		if (entities.size() >= maxCachedInstances) {
+			return;
+		}
+
+		entities.offer(entity);
 	}
 
 	/**

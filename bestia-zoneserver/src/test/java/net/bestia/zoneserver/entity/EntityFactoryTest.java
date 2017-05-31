@@ -54,12 +54,12 @@ public class EntityFactoryTest {
 
 	@Test(expected = NullPointerException.class)
 	public void build_nullBlueprint_throws() {
-		factory.build(null);
+		factory.buildEntity(null);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void build_nullComponentSetter_throws() {
-		factory.build(blueprint, null);
+		factory.buildEntity(blueprint, null);
 	}
 
 	@Test
@@ -71,7 +71,7 @@ public class EntityFactoryTest {
 	@Test
 	public void build_validSetter_works() {
 		Set<ComponentSetter<? extends Component>> set = EntityFactory.makeSet(playerSet);
-		Entity e = factory.build(blueprint, set);
+		Entity e = factory.buildEntity(blueprint, set);
 
 		Assert.assertNotNull(e);
 

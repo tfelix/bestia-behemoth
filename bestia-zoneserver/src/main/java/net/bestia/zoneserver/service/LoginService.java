@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.service;
 
 import java.util.Objects;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import net.bestia.zoneserver.configuration.RuntimeConfigurationService;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityServiceContext;
 import net.bestia.zoneserver.entity.PlayerBestiaEntityFactory;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**
  * Performs login or logout of the bestia server system.
@@ -127,14 +129,20 @@ public class LoginService {
 		final Account acc = accountDao.findOne(accId);
 
 		if (acc == null) {
-			LOG.error("Can not logout account id: %d. ID does not exist.", accId);
+			LOG.warn("Can not logout account id: %d. ID does not exist.", accId);
 			return;
 		}
 
 		// Unregister connection.
 		LOG.debug("Logout acc id: {}.", accId);
 		connectionService.removeClient(accId);
-		entityServiceCtx.getPlayer().removePlayerBestias(accId);
+
+		final PlayerEntityService playerEntityService = entityServiceCtx.getPlayer();
+
+		final Set<Entity> playerEntities = playerEntityService.getPlayerEntities(accId);
+		
+		playerEntities.forEach(playerEntityService::save);
+		playerEntityService.removePlayerBestias(accId);
 	}
 
 	/**

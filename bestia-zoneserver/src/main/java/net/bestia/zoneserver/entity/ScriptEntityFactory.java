@@ -45,7 +45,7 @@ public class ScriptEntityFactory extends EntityFactory {
 
 		final PositionComponentSetter posSetter = new PositionComponentSetter(area);
 
-		final Entity entity = build(scriptEntityBlueprint, makeSet(posSetter));
+		final Entity entity = buildEntity(scriptEntityBlueprint, makeSet(posSetter));
 
 		return entity;
 	}

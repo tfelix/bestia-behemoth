@@ -13,7 +13,9 @@ import com.hazelcast.core.HazelcastInstance;
 
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.MapParameter;
+import net.bestia.zoneserver.entity.EntityRecycler;
 import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.EntityServiceContext;
 import net.bestia.zoneserver.entity.component.interceptor.ComponentInterceptor;
 import net.bestia.zoneserver.environment.date.BestiaDate;
 import net.bestia.zoneserver.map.path.AStarPathfinder;
@@ -72,6 +74,11 @@ public class ZoneConfiguration {
 		}
 
 		return entityService;
+	}
+	
+	@Bean
+	public EntityRecycler entityRecycler(EntityServiceContext entityServiceCtx) {
+		return new EntityRecycler(10, entityServiceCtx);
 	}
 
 }

@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.entity.component.Component;
@@ -30,11 +31,10 @@ import net.bestia.zoneserver.entity.component.VisibleComponentSetter;
  *
  */
 @org.springframework.stereotype.Component
-public class PlayerBestiaEntityFactory {
+public class PlayerBestiaEntityFactory extends EntityFactory {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PlayerBestiaEntityFactory.class);
 
-	private final EntityFactory entityFactory;
 	private static final Blueprint playerBestiaBlueprint;
 
 	static {
@@ -50,9 +50,10 @@ public class PlayerBestiaEntityFactory {
 		playerBestiaBlueprint = builder.build();
 	}
 
-	public PlayerBestiaEntityFactory(EntityFactory entityFactory) {
-
-		this.entityFactory = Objects.requireNonNull(entityFactory);
+	@Autowired
+	public PlayerBestiaEntityFactory(EntityService entityService) {
+		super(entityService);
+		// no op.
 	}
 
 	/**
@@ -78,7 +79,7 @@ public class PlayerBestiaEntityFactory {
 		final Set<ComponentSetter<? extends Component>> comps = EntityFactory.makeSet(posSetter, visSetter,
 				playerSetter, levelSetter, statusSetter);
 
-		final Entity masterEntity = entityFactory.build(playerBestiaBlueprint, comps);
+		final Entity masterEntity = buildEntity(playerBestiaBlueprint, comps);
 
 		return masterEntity;
 	}

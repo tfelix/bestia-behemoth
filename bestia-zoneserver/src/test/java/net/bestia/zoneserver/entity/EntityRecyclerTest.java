@@ -3,6 +3,8 @@ package net.bestia.zoneserver.entity;
 import static org.mockito.Mockito.*;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -52,6 +54,8 @@ public class EntityRecyclerTest {
 		
 		when(entityService.getEntity(INVALID_ENTITY_ID)).thenReturn(null);
 		when(entityService.getEntity(VALID_ENTITY_ID)).thenReturn(entity);
+		when(entityService.getAllComponents(entity)).thenReturn(Stream.of(p1).collect(Collectors.toList()));
+		when(entityService.getAllComponents(entity2)).thenReturn(Stream.of(p2).collect(Collectors.toList()));
 		
 		recycler = new EntityRecycler(1, serviceCtx);
 	}
@@ -82,8 +86,8 @@ public class EntityRecyclerTest {
 		recycler.free(entity);
 		recycler.free(entity2);
 		
-		verify(entityService).deleteComponent(entity, p1);
-		verify(entityService).deleteComponent(entity2, p2);
+		verify(entityService).deleteAllComponents(entity);
+		verify(entityService).deleteAllComponents(entity2);
 		verify(entityService).delete(entity);
 		verify(entityService).delete(entity2);
 		
@@ -94,10 +98,10 @@ public class EntityRecyclerTest {
 		cachedEntity = recycler.getEntity();
 		Assert.assertNull(cachedEntity);
 		
-		PositionComponent cachedComp = recycler.getComponent(PositionComponent.class);
+		PositionComponent cachedComp = recycler.getComponent(p1.getClass());
 		Assert.assertEquals(p1, cachedComp);
 		
-		cachedComp = recycler.getComponent(PositionComponent.class);
+		cachedComp = recycler.getComponent(p2.getClass());
 		Assert.assertNull(cachedComp);
 	}
 	
@@ -105,13 +109,13 @@ public class EntityRecyclerTest {
 	public void free_validEntityId_cachesAllComponentsEntityIsReturnedAgain() {
 		recycler.free(VALID_ENTITY_ID);
 		
-		verify(entityService).deleteComponent(entity, p1);
+		verify(entityService).deleteAllComponents(entity);
 		verify(entityService).delete(entity);
 		
 		Entity cachedEntity = recycler.getEntity();
 		Assert.assertEquals(entity, cachedEntity);
 		
-		PositionComponent cachedComp = recycler.getComponent(PositionComponent.class);
+		PositionComponent cachedComp = recycler.getComponent(p1.getClass());
 		Assert.assertEquals(p1, cachedComp);
 	}
 	

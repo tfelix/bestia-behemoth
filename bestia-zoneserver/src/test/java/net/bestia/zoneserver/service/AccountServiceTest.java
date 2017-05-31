@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.service;
 
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
@@ -9,29 +9,42 @@ import org.junit.Test;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.BestiaDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;
+import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Bestia;
+import net.bestia.model.domain.PlayerBestia;
 
 public class AccountServiceTest {
 
+	private static final String EXISTING_MAIL = "thomas.exists@tfelix.de";
+	private static final String EXISTING_MASTER_NAME = "IgnatzDerDicke";
+	
 	private AccountService accService;
 
 	private AccountDAO accountDao;
 	private PlayerBestiaDAO playerBestiaDao;
 	private BestiaDAO bestiaDao;
 	private ConnectionService connectionService;
-
+	
+	private Account account;
 	private Bestia bestia;
+	private PlayerBestia masterBestia;
 
 	@Before
 	public void setup() {
 
 		bestia = mock(Bestia.class);
+		
 		accountDao = mock(AccountDAO.class);
+		account = mock(Account.class);
+		masterBestia = mock(PlayerBestia.class);
+		
 		playerBestiaDao = mock(PlayerBestiaDAO.class);
 		bestiaDao = mock(BestiaDAO.class);
 		connectionService = mock(ConnectionService.class);
 		
 		when(bestiaDao.findOne(1)).thenReturn(bestia);
+		when(accountDao.findByEmail(EXISTING_MAIL)).thenReturn(account);
+		when(playerBestiaDao.findMasterBestiaWithName(EXISTING_MASTER_NAME)).thenReturn(masterBestia);
 
 		accService = new AccountService(accountDao, playerBestiaDao, bestiaDao, connectionService);
 	}
@@ -48,8 +61,7 @@ public class AccountServiceTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void createNewAccount_duplicateMail_fail() {
-		accService.createNewAccount("thomas.new123@tfelix.de", "Ignatz", "test123");
-		accService.createNewAccount("thomas.new123@tfelix.de", "Ignatz2", "test123");
+		accService.createNewAccount(EXISTING_MAIL, "Ignatz2", "test123");
 	}
 
 	@Test
@@ -69,8 +81,7 @@ public class AccountServiceTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void createNewAccount_duplicateMasterName_fail() {
-		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "test123");
-		accService.createNewAccount("thomas.felix2@tfelix.de", "Ignatz", "test123");
+		accService.createNewAccount("thomas.felix2@tfelix.de", EXISTING_MASTER_NAME, "test123");
 	}
 
 	@Test(expected = IllegalArgumentException.class)

@@ -33,7 +33,7 @@ class EntityFactory {
 
 	/**
 	 * Returns the given components as a set and is a neat helper method to
-	 * prepare calling the {@link #build(Blueprint, Set)} method.
+	 * prepare calling the {@link #buildEntity(Blueprint, Set)} method.
 	 * 
 	 * @param components
 	 *            Components to be transformed into a set.
@@ -44,11 +44,11 @@ class EntityFactory {
 		return new HashSet<>(Arrays.asList(components));
 	}
 
-	Entity build(Blueprint blueprint) {
-		return build(blueprint, Collections.emptySet());
+	protected Entity buildEntity(Blueprint blueprint) {
+		return buildEntity(blueprint, Collections.emptySet());
 	}
 
-	Entity build(Blueprint blueprint,
+	protected Entity buildEntity(Blueprint blueprint,
 			Set<ComponentSetter<? extends Component>> setter) {
 
 		Objects.requireNonNull(blueprint);

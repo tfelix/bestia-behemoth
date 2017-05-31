@@ -27,6 +27,7 @@ public class PlayerBestiaEntityFactoryTest {
 	private PlayerBestia playerBestia;
 	private Point currentPos = new Point(12, 56);
 	private SpriteInfo spriteInfo;
+	private EntityService entityService;
 
 	@Before
 	public void setup() {
@@ -35,7 +36,7 @@ public class PlayerBestiaEntityFactoryTest {
 		entityFactory = mock(EntityFactory.class);
 		playerBestia = mock(PlayerBestia.class);
 		spriteInfo = mock(SpriteInfo.class);
-		
+		entityService = mock(EntityService.class);
 		
 		when(bestia.getSpriteInfo()).thenReturn(spriteInfo);	
 		
@@ -45,12 +46,12 @@ public class PlayerBestiaEntityFactoryTest {
 		when(playerBestia.getCurrentPosition()).thenReturn(currentPos);
 		
 		
-		factory = new PlayerBestiaEntityFactory(entityFactory);
+		factory = new PlayerBestiaEntityFactory(entityService);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void build_null_throws() {
-		factory.build(null);
+		factory.buildEntity(null);
 	}
 	
 	@Test
@@ -59,7 +60,7 @@ public class PlayerBestiaEntityFactoryTest {
 		Entity e = factory.build(playerBestia);
 		
 		Assert.notNull(e);
-		verify(entityFactory.build(bestiaBP, any()));
+		verify(entityFactory.buildEntity(bestiaBP, any()));
 	}
 
 }

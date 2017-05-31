@@ -7,6 +7,8 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Matchers.anyLong;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -70,31 +72,32 @@ public class LoginServiceTest {
 		playerBestia = mock(PlayerBestia.class);
 		bestiaEntity = mock(Entity.class);
 		playerEntityService = mock(PlayerEntityService.class);
-		
+
 		userAccount = mock(Account.class);
 		gmAccount = mock(Account.class);
-		
+
 		when(userAccount.getName()).thenReturn(ACC_NAME);
 		when(gmAccount.getName()).thenReturn(ACC_NAME);
-		
+
 		when(userAccount.getLoginToken()).thenReturn(LOGIN_OK_TOKEN);
 		when(userAccount.getUserLevel()).thenReturn(UserLevel.USER);
-		
+
 		when(gmAccount.getLoginToken()).thenReturn(LOGIN_OK_TOKEN);
 		when(gmAccount.getUserLevel()).thenReturn(UserLevel.SUPER_GM);
-		
+
 		when(accountDao.findOne(USER_ACC_ID)).thenReturn(userAccount);
 		when(accountDao.findOne(GM_ACC_ID)).thenReturn(gmAccount);
-		
+
 		when(playerBestiaService.getMaster(USER_ACC_ID)).thenReturn(playerBestia);
 		when(playerEntityFactory.build(playerBestia)).thenReturn(bestiaEntity);
-		
+
 		when(entityServiceCtx.getPlayer()).thenReturn(playerEntityService);
-		
+
 		when(playerEntityService.getMasterEntity(anyLong())).thenReturn(Optional.empty());
 		when(playerEntityService.getMasterEntity(USER_ACC_ID)).thenReturn(Optional.of(bestiaEntity));
 		when(playerEntityService.getMasterEntity(GM_ACC_ID)).thenReturn(Optional.of(bestiaEntity));
-		
+		when(playerEntityService.getPlayerEntities(USER_ACC_ID))
+				.thenReturn(Stream.of(bestiaEntity).collect(Collectors.toSet()));
 
 		clientConnection = new TestProbe(mocks.actorSystem(), "client");
 
@@ -135,9 +138,9 @@ public class LoginServiceTest {
 		loginService.logout(USER_ACC_ID);
 
 		verify(connectionService).removeClient(USER_ACC_ID);
-		verify(entityServiceCtx.getPlayer()).getMasterEntity(USER_ACC_ID);
-		verify(playerBestiaService).save(playerBestia);
-		verify(entityServiceCtx.getPlayer()).removePlayerBestia(bestiaEntity);
+
+		verify(playerEntityService).save(bestiaEntity);
+		verify(playerEntityService).removePlayerBestias(USER_ACC_ID);
 	}
 
 	@Test

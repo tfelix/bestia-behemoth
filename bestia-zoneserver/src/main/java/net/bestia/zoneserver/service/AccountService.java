@@ -100,9 +100,15 @@ public class AccountService {
 
 		// Depending on the master get the offspring bestia.
 		final Bestia origin = bestiaDao.findOne(STARTER_BESTIA_ID);
+		
 		if (origin == null) {
 			LOG.error("Starter bestia with id {} could not been found.", STARTER_BESTIA_ID);
 			throw new IllegalArgumentException("Starter bestia was not found.");
+		}
+		
+		if(accountDao.findByEmail(email) != null) {
+			LOG.debug("Could not create account because of duplicate mail: {}", email);
+			throw new IllegalArgumentException("Could not create account. Duplicate mail.");
 		}
 
 		// Check if there is a bestia master with this name.
@@ -121,12 +127,13 @@ public class AccountService {
 
 		// Generate ID.
 		try {
+			
 			accountDao.save(account);
 			playerBestiaDao.save(masterBestia);
 
 		} catch (JpaSystemException ex) {
-			LOG.warn("Could not create account because of duplicate mail: {}", ex.getMessage(), ex);
-			throw new IllegalArgumentException("Could not create account. Duplicate mail.", ex);
+			LOG.warn("Could not create account: {}", ex.getMessage(), ex);
+			throw new IllegalArgumentException("Could not create account.", ex);
 		}
 	}
 

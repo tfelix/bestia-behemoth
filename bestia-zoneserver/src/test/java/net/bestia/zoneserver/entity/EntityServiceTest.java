@@ -199,7 +199,7 @@ public class EntityServiceTest {
 	public void deleteAllComponents_validEntity_deletesAllComponentsCallsInterceptor() {
 		Entity e1 = entityService.newEntity();
 		PositionComponent pc = entityService.addComponent(e1, PositionComponent.class);
-		VisibleComponent vc = entityService.addComponent(e1, VisibleComponent.class);
+		entityService.addInterceptor(interceptor);
 		
 		entityService.deleteAllComponents(e1);
 		
@@ -207,6 +207,5 @@ public class EntityServiceTest {
 		Assert.assertEquals(0, comps.size());
 		
 		verify(interceptor).triggerDeleteAction(entityService, e1, pc);
-		verify(interceptor).triggerDeleteAction(entityService, e1, vc);
 	}
 }
