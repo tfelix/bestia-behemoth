@@ -17,7 +17,8 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerItem;
 import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.EntityServiceContext;
+import net.bestia.zoneserver.entity.component.LevelComponent;
 
 /**
  * This service kind of manages the user relationship with the inventory. Since
@@ -38,38 +39,54 @@ public class InventoryService {
 
 	private final static Logger log = LoggerFactory.getLogger(InventoryService.class);
 
+	private static final int BASE_WEIGHT = 150;
+
 	private final PlayerItemDAO playerItemDao;
 	private final AccountDAO accountDao;
 	private final ItemDAO itemDao;
-	private final EntityService entityService;
+	private final EntityServiceContext entityServiceCtx;
 
 	@Autowired
-	public InventoryService(PlayerItemDAO playerItemDao, AccountDAO accDao, ItemDAO itemDao, EntityService entityService) {
-		
+	public InventoryService(PlayerItemDAO playerItemDao,
+			AccountDAO accDao,
+			ItemDAO itemDao,
+			EntityServiceContext entityServiceCtx) {
+
 		this.playerItemDao = Objects.requireNonNull(playerItemDao);
 		this.accountDao = Objects.requireNonNull(accDao);
 		this.itemDao = Objects.requireNonNull(itemDao);
-		this.entityService = Objects.requireNonNull(entityService);
+		this.entityServiceCtx = Objects.requireNonNull(entityServiceCtx);
 	}
 
 	/**
-	 * Calculates the max carriable weight of a entity. The formula is:
+	 * Calculates the max carryable weight of a entity. The formula is:
 	 * <p>
-	 * Weight_max = 150 + ATK * 4 + 3 * Lv
+	 * Weight_max = 200 + STR * 4 + 3 * Lv
 	 * </p>
+	 * If the entity does not have a status component then the weight will be 0.
+	 * As a guideline one weight unit loosly resembles 0.1 kg. The entity needs
+	 * a level and a status component.
 	 * 
-	 * @param bestia
-	 * @return
+	 * @param entity
+	 *            The entity to get the carry weight for.
+	 * @return The weight the entity is able to carry.
 	 */
 	public int getMaxWeight(Entity entity) {
 		// Currently we can not distinguish between bestia classes.
-		final int baseWeight = 300;
-		
-		//componentService.getComponent(entity, clazz)
-		
-		
-		//final int weight = (int)(baseWeight + 200.0 / owner.getLevel() + 5 * owner.getStatusPoints().getStrength());
-		return 100;
+		final int level = entityServiceCtx.getEntity()
+				.getComponent(entity, LevelComponent.class)
+				.map(LevelComponent::getLevel)
+				.orElse(0);
+
+		if (level == 0) {
+			return 0;
+		}
+
+		final int weight = entityServiceCtx.getStatusService().getStatusPoints(entity).map(status -> {
+			return BASE_WEIGHT + status.getStrength() * 4 * level;
+		}).orElse(0);
+
+		return weight;
 	}
 
 	/**
@@ -120,8 +137,6 @@ public class InventoryService {
 
 		return hasItem(accId, item.getId(), amount);
 	}
-	
-	
 
 	/**
 	 * Adds an item to the account.

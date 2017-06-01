@@ -20,9 +20,19 @@ public class EntityServiceContext {
 	private MovingEntityService move;
 	private BattleService battleService;
 	private ScriptService scriptService;
+	private StatusService statusService;
 	
 	public EntityService getEntity() {
 		return entity;
+	}
+	
+	public StatusService getStatusService() {
+		return statusService;
+	}
+	
+	@Autowired
+	public void setStatusService(StatusService statusService) {
+		this.statusService = statusService;
 	}
 	
 	@Autowired

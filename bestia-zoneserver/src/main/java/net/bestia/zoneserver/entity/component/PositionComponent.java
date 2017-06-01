@@ -17,18 +17,50 @@ public class PositionComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
 
+	private CollisionShape shape = new Point();
+	private Direction facing = Direction.SOUTH;
+	private boolean sightBlocking = false;
+
 	public PositionComponent(long id, long entityId) {
 		super(id, entityId);
 		// no op.
 	}
 
-	private CollisionShape shape = new Point();
-	private Direction facing = Direction.SOUTH;
+	/**
+	 * Returns the flag if the entity is blocking the line of sight with its
+	 * collision shape.
+	 * 
+	 * @return TRUE if the entity should block line of sight. FALSE otherwise.
+	 */
+	public boolean isSightBlocking() {
+		return sightBlocking;
+	}
 
+	/**
+	 * Sets the flag if the entity blocks the line of sight.
+	 * 
+	 * @param sightBlocking
+	 *            The flag to set the sight blocking.
+	 */
+	public void setSightBlocking(boolean sightBlocking) {
+		this.sightBlocking = sightBlocking;
+	}
+
+	/**
+	 * Returns the anchor position of the entities {@link CollisionShape}.
+	 * 
+	 * @return Current position of the entity.
+	 */
 	public Point getPosition() {
 		return shape.getAnchor();
 	}
 
+	/**
+	 * Returns the current direction of facing. Important to check for AI for
+	 * sight and detection checks.
+	 * 
+	 * @return The face direction.
+	 */
 	public Direction getFacing() {
 		return facing;
 	}
@@ -73,16 +105,6 @@ public class PositionComponent extends Component {
 	}
 
 	/**
-	 * Returns the current movement speed. 1 is the nominal speed which is 1.4
-	 * m/s (or 1.4 tiles per second). The minimum speed returned via this method
-	 * is 0.01 otherwise it is clamped to 0 (which means the unit can no longer
-	 * move). The upper limit is 10.
-	 * 
-	 * @return The current movement speed of the unit.
-	 */
-	// public float getMovementSpeed();
-
-	/**
 	 * Sets a new {@link CollisionShape} for this entity unit.
 	 * 
 	 * @param shape
@@ -92,19 +114,10 @@ public class PositionComponent extends Component {
 		this.shape = Objects.requireNonNull(shape);
 	}
 
-	/**
-	 * Moves the entity along a certain path. This is important to be called
-	 * from a script context. The can not be any holes inside this path. All
-	 * path following elements must have only a distance of 1 from each other.
-	 * 
-	 * @param path
-	 *            The path to follow.
-	 */
-	// void moveTo(List<Point> path);
-
 	@Override
 	public String toString() {
-		return String.format("PositionComponent[id: %d, pos: %s, shape: %s, facing: %s]", getId(), getPosition().toString(),
+		return String.format("PositionComponent[id: %d, pos: %s, shape: %s, facing: %s]", getId(),
+				getPosition().toString(),
 				shape.toString(),
 				facing.toString());
 	}
@@ -136,6 +149,5 @@ public class PositionComponent extends Component {
 			return false;
 		return true;
 	}
-	
-	
+
 }

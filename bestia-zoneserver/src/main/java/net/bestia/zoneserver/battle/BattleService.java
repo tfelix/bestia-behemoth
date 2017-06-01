@@ -18,6 +18,7 @@ import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.StatusService;
 import net.bestia.zoneserver.entity.component.PositionComponent;
 import net.bestia.zoneserver.entity.component.StatusComponent;
+import net.bestia.zoneserver.map.MapService;
 
 /**
  * This service is used to perform attacks and damage calculation for battle
@@ -33,12 +34,17 @@ public class BattleService {
 
 	private final EntityService entityService;
 	private final StatusService statusService;
+	private final MapService mapService;
 
 	@Autowired
-	public BattleService(EntityService entityService, StatusService statusService) {
+	public BattleService(
+			EntityService entityService, 
+			StatusService statusService, 
+			MapService mapService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.statusService = Objects.requireNonNull(statusService);
+		this.mapService = Objects.requireNonNull(mapService);
 	}
 
 	public boolean canUseAttack(Entity attacker, int attackId) {
@@ -137,22 +143,22 @@ public class BattleService {
 
 	public Damage takeDamage(Entity defender, Damage primaryDamage) {
 		LOG.trace("Entity {} takes damage: {}.", defender, primaryDamage);
-		
+
 		final StatusComponent statusComp = entityService.getComponent(defender, StatusComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
-		
+
 		final StatusPoints status = statusComp.getStatusPoints();
-		
+
 		// TODO Possibly reduce the damge or reflect it etc.
-		
+
 		int damage = primaryDamage.getDamage();
 		Damage reducedDamage = new Damage(damage, primaryDamage.getType());
-		
-		if(status.getCurrentHp() < damage) {
+
+		if (status.getCurrentHp() < damage) {
 			killEntity(defender);
 			return reducedDamage;
 		}
-		
+
 		status.setCurrentHp(status.getCurrentHp() - damage);
 		entityService.saveComponent(statusComp);
 
@@ -176,11 +182,16 @@ public class BattleService {
 	}
 
 	/**
-	 * TODO Implementieren.
+	 * Checks if there is a direct line of sight between the two points. This
+	 * does not only take static map features into account but also dynamic
+	 * effects like entities which might block the direct line of sight.
 	 * 
 	 * @param start
+	 *            Start point of the line of sight.
 	 * @param end
-	 * @return
+	 *            The end point of the line of sight.
+	 * @return Returns TRUE if there is a direct line of sight. FALSE if there
+	 *         is no direct line of sight.
 	 */
 	private boolean hasLineOfSight(Point start, Point end) {
 
