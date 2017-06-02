@@ -138,11 +138,8 @@ public class Map {
 	 * @return The viewable rect.
 	 */
 	public static Rect getViewRect(Point pos) {
-		final Rect viewArea = new Rect(
-				pos.getX() - Map.SIGHT_RANGE,
-				pos.getY() - Map.SIGHT_RANGE,
-				pos.getX() + Map.SIGHT_RANGE,
-				pos.getY() + Map.SIGHT_RANGE);
+		final Rect viewArea = new Rect(pos.getX() - Map.SIGHT_RANGE, pos.getY() - Map.SIGHT_RANGE,
+				pos.getX() + Map.SIGHT_RANGE, pos.getY() + Map.SIGHT_RANGE);
 		return viewArea;
 	}
 
@@ -155,11 +152,8 @@ public class Map {
 	 * @return The viewable rect.
 	 */
 	public static Rect getUpdateRect(Point pos) {
-		final Rect viewArea = new Rect(
-				pos.getX() - Map.SIGHT_RANGE * 2,
-				pos.getY() - Map.SIGHT_RANGE * 2,
-				pos.getX() + Map.SIGHT_RANGE * 2,
-				pos.getY() + Map.SIGHT_RANGE * 2);
+		final Rect viewArea = new Rect(pos.getX() - Map.SIGHT_RANGE * 2, pos.getY() - Map.SIGHT_RANGE * 2,
+				pos.getX() + Map.SIGHT_RANGE * 2, pos.getY() + Map.SIGHT_RANGE * 2);
 		return viewArea;
 	}
 
@@ -182,8 +176,7 @@ public class Map {
 			return Walkspeed.fromInt(0);
 		}
 
-		return getTileset(gid)
-				.map(ts -> Walkspeed.fromInt(ts.getProperties(gid).getWalkspeed()))
+		return getTileset(gid).map(ts -> Walkspeed.fromInt(ts.getProperties(gid).getWalkspeed()))
 				.orElse(Walkspeed.fromInt(0));
 	}
 
@@ -229,26 +222,16 @@ public class Map {
 			return false;
 		}
 
-		final boolean groundWalkable = getTileset(gid)
-				.map(ts -> ts.getProperties(gid).isWalkable())
-				.orElse(false);
+		final boolean groundWalkable = getTileset(gid).map(ts -> ts.getProperties(gid).isWalkable()).orElse(false);
 
 		if (!groundWalkable) {
 			return false;
 		}
 
 		// Now we must check the layers above it.
-		boolean layerWalkable = tileLayer.stream()
-				.filter(d -> d.containsKey(p))
-				.map(d -> d.get(p))
-				.filter(layerGid -> {
-					return getTileset(layerGid)
-							.map(ts -> ts.getProperties(gid).isWalkable())
-							.orElse(true);
-				})
-				.findAny()
-				.map(data -> false)
-				.orElse(true);
+		boolean layerWalkable = tileLayer.stream().filter(d -> d.containsKey(p)).map(d -> d.get(p)).filter(layerGid -> {
+			return getTileset(layerGid).map(ts -> ts.getProperties(gid).isWalkable()).orElse(true);
+		}).findAny().map(data -> false).orElse(true);
 
 		return groundWalkable && layerWalkable;
 	}
@@ -267,6 +250,48 @@ public class Map {
 	}
 
 	/**
+	 * Returns TRUE if the given tile blocks the sight of the player. FALSE if
+	 * the player can look over the tile.
+	 * 
+	 * @param x
+	 *            X coordinate to check.
+	 * @param y
+	 *            Y coordinate to check.
+	 * @return TRUE if the tile blocks the sight. FALSE otherwise.
+	 */
+	public boolean blocksSight(long x, long y) {
+
+		final Point p = new Point(x, y);
+
+		if (!rect.collide(p)) {
+			throw new IndexOutOfBoundsException("X or/and Y does not lie inside the map rectangle.");
+		}
+
+		final int gid = getGid(x, y);
+
+		if (gid == 0) {
+			return false;
+		}
+
+		final boolean groundBlockSight = getTileset(gid).map(ts -> ts.getProperties(gid).blockSight()).orElse(false);
+
+		if (!groundBlockSight) {
+			return false;
+		}
+
+		// Now we must check the layers above it.
+		final boolean blocksSight = tileLayer.stream()
+				.filter(layer -> layer.containsKey(p))
+				.map(layer -> layer.get(p))
+				.map(this::getTileset)
+				.anyMatch(tileset -> {
+					return tileset.isPresent() && tileset.get().getProperties(gid).blockSight();
+				});
+				
+		return blocksSight;
+	}
+
+	/**
 	 * Gets the tilset for the given gid.
 	 * 
 	 * @param gid
@@ -274,9 +299,7 @@ public class Map {
 	 */
 	private Optional<Tileset> getTileset(int gid) {
 
-		return tilesets.stream()
-				.filter(ts -> ts.contains(gid))
-				.findAny();
+		return tilesets.stream().filter(ts -> ts.contains(gid)).findAny();
 	}
 
 	/**
@@ -285,9 +308,7 @@ public class Map {
 	 * @return The names of the tilesets.
 	 */
 	public List<String> getTilesetNames() {
-		return tilesets.stream()
-				.map(x -> x.getName())
-				.collect(Collectors.toList());
+		return tilesets.stream().map(x -> x.getName()).collect(Collectors.toList());
 	}
 
 	/**
@@ -317,11 +338,8 @@ public class Map {
 		// Find min max dist.
 		final double maxD = Math.ceil(Math.sqrt(2 * (SIGHT_RANGE * SIGHT_RANGE)));
 
-		final boolean isTooFar = chunks.stream()
-				.map(p -> MapChunk.getWorldCords(p))
-				.filter(wp -> wp.getDistance(pos) > maxD)
-				.findAny()
-				.isPresent();
+		final boolean isTooFar = chunks.stream().map(p -> MapChunk.getWorldCords(p))
+				.filter(wp -> wp.getDistance(pos) > maxD).findAny().isPresent();
 
 		return !isTooFar;
 	}

@@ -144,6 +144,11 @@ public class ScriptService {
 		LOG.debug("Executing script: {} ({}).", name, type);
 
 		final CompiledScript script = scriptCache.getScript(type, name);
+		
+		if(script == null) {
+			LOG.warn("Did not find script file: {} ({})", name, type);
+			return;
+		}
 
 		setupScriptAndCallFunction(script, name, type, MAIN_FUNC);
 	}

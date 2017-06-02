@@ -74,11 +74,21 @@ public class MapService {
 	 * @return
 	 */
 	public Map getMap(long x, long y, long width, long height) {
-		if(x < 0 || y < 0 || width < 0 || height < 0) {
+		if (x < 0 || y < 0 || width < 0 || height < 0) {
 			throw new IllegalArgumentException("X, Y, width and height must be positive.");
 		}
 
 		throw new IllegalStateException("Not yet implemented.");
+	}
+
+	/**
+	 * Alias for {@link #getMap(long, long, long, long)}.
+	 * 
+	 * @param bbox
+	 *            The bounding box for retrieving the map data.
+	 */
+	public Map getMap(Rect bbox) {
+		return getMap(bbox.getX(), bbox.getY(), bbox.getWidth(), bbox.getHeight());
 	}
 
 	/**
@@ -142,7 +152,7 @@ public class MapService {
 	 * @throws IOException
 	 */
 	public void saveMapData(MapDataDTO dto) {
-		
+
 		Objects.requireNonNull(dto);
 
 		try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -183,7 +193,7 @@ public class MapService {
 	 */
 	public String getAreaName(Point p) {
 		Objects.requireNonNull(p);
-		
+
 		return "Kalarian (mot implemented)";
 	}
 
@@ -197,24 +207,26 @@ public class MapService {
 	 *         tileset could been found.
 	 */
 	/*
-	public Tileset getTileset(int gid) {
-		final IMap<String, Tileset> tilesetData = hazelcastInstance.getMap(TILESET_KEY);
-
-		final Optional<Tileset> ts = tilesetData.values()
-				.stream()
-				.filter(x -> x.contains(gid))
-				.findAny();
-
-		return ts.isPresent() ? ts.get() : null;
-	}*/
+	 * public Tileset getTileset(int gid) { final IMap<String, Tileset>
+	 * tilesetData = hazelcastInstance.getMap(TILESET_KEY);
+	 * 
+	 * final Optional<Tileset> ts = tilesetData.values() .stream() .filter(x ->
+	 * x.contains(gid)) .findAny();
+	 * 
+	 * return ts.isPresent() ? ts.get() : null; }
+	 */
 
 	/**
 	 * Returns a list with all DTOs which are covering the given range.
 	 * 
-	 * @param x X start of the range.
-	 * @param y Y start of the range.
-	 * @param width Width of the area.
-	 * @param height Height of the area.
+	 * @param x
+	 *            X start of the range.
+	 * @param y
+	 *            Y start of the range.
+	 * @param width
+	 *            Width of the area.
+	 * @param height
+	 *            Height of the area.
 	 * @return A list with all {@link MapDataDTO} covering the given area.
 	 */
 	private List<MapDataDTO> getCoveredMapDataDTO(long x, long y, long width, long height) {
@@ -269,15 +281,14 @@ public class MapService {
 					// Find the dto with the point inside.
 					final Point curPos = new Point(x, y);
 
-					final Optional<MapDataDTO> data = dtos.stream()
-							.filter(dto -> dto.getRect().collide(curPos))
+					final Optional<MapDataDTO> data = dtos.stream().filter(dto -> dto.getRect().collide(curPos))
 							.findFirst();
 
 					Integer gid = data.map(d -> d.getGroundGid(curPos.getX(), curPos.getY())).orElse(0);
-					groundTiles.add(gid);	
+					groundTiles.add(gid);
 				}
 			}
-			
+
 			// TODO Handle the different layers at this point.
 			List<java.util.Map<Point, Integer>> sortedLayers = new ArrayList<>();
 			chunks.add(new MapChunk(point, groundTiles, sortedLayers));

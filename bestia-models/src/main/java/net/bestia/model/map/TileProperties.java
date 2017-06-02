@@ -20,6 +20,9 @@ public class TileProperties implements Serializable {
 	@JsonProperty("w")
 	private final int walkspeed;
 
+	@JsonProperty("s")
+	private final boolean blocksSight;
+
 	/**
 	 * Ctor. Walkspeed is a fixed point two decimal value between 0 and 300.
 	 * 
@@ -28,13 +31,14 @@ public class TileProperties implements Serializable {
 	 * @param walkspeed
 	 *            The base walkspeed on this tile.
 	 */
-	public TileProperties(boolean isWalkable, int walkspeed) {
+	public TileProperties(boolean isWalkable, int walkspeed, boolean blocksSight) {
 		if (walkspeed < 0) {
 			throw new IllegalArgumentException("Walkspeed must be 0 or positive.");
 		}
 
 		this.isWalkable = isWalkable;
 		this.walkspeed = walkspeed;
+		this.blocksSight = blocksSight;
 	}
 
 	/**
@@ -49,9 +53,18 @@ public class TileProperties implements Serializable {
 	/**
 	 * The walkspeed on this tile.
 	 * 
-	 * @return
+	 * @return The walkspeed of this tile in integer form.
 	 */
 	public int getWalkspeed() {
 		return walkspeed;
+	}
+
+	/**
+	 * Flag if the tile blocks sight.
+	 * 
+	 * @return TRUE if the tile blocks direct sight. FALSE otherwise.
+	 */
+	public boolean blockSight() {
+		return blocksSight;
 	}
 }

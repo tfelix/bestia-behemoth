@@ -45,7 +45,6 @@ public class PlayerBestiaEntityFactoryTest {
 		when(playerBestia.getExp()).thenReturn(EXP);
 		when(playerBestia.getCurrentPosition()).thenReturn(currentPos);
 		
-		
 		factory = new PlayerBestiaEntityFactory(entityService);
 	}
 

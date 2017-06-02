@@ -7,12 +7,12 @@ public class TilePropertiesTest {
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void negWalkspeedSpeed_throws() {
-		new TileProperties(true, -100);
+		new TileProperties(true, -100, false);
 	}
 	
 	@Test
 	public void correctArgs_getterOk() {
-		TileProperties p = new TileProperties(true, 100);
+		TileProperties p = new TileProperties(true, 100, false);
 		Assert.assertTrue(p.isWalkable());
 		Assert.assertEquals(100, p.getWalkspeed());
 	}

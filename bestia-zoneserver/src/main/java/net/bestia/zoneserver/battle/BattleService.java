@@ -13,6 +13,8 @@ import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.Point;
+import net.bestia.model.geometry.Rect;
+import net.bestia.model.map.Map;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.StatusService;
@@ -32,6 +34,7 @@ public class BattleService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(BattleService.class);
 
+	private final Point ZERO = new Point(0, 0);
 	private final EntityService entityService;
 	private final StatusService statusService;
 	private final MapService mapService;
@@ -194,7 +197,30 @@ public class BattleService {
 	 *         is no direct line of sight.
 	 */
 	private boolean hasLineOfSight(Point start, Point end) {
-
+		// Find the rect enclosing the two points.
+		final double d1 = ZERO.getDistance(start);
+		final double d2 = ZERO.getDistance(end);
+		
+		final Point smaller, bigger;
+		
+		if(d1 < d2) {
+			smaller = start;
+			bigger = end;
+		} else {
+			smaller = end;
+			bigger = start;
+		}
+		
+		final long width = bigger.getX() - bigger.getX();
+		final long height = bigger.getY() - bigger.getY();
+		
+		final Rect bbox = new Rect(smaller.getX(), smaller.getY(), width, height);
+		
+		final Map map = mapService.getMap(bbox);
+		
+		// Find the tiles which lie within the line of sight and need to be checked.
+		//map.isWalkable(p)
+		
 		return true;
 	}
 

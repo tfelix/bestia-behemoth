@@ -80,7 +80,7 @@ public class ScriptServiceTest {
 		when(entityService.getComponent(VALID_SCRIPT_COMP_ID, ScriptComponent.class))
 				.thenReturn(Optional.of(scriptComponent));
 
-		//scriptService = new ScriptService(entityService, akkaApi, cache);
+		scriptService = new ScriptService(entityService, akkaApi, cache, scriptApi, configService);
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -121,7 +121,7 @@ public class ScriptServiceTest {
 		scriptService.freeScriptComponent(INVALID_ENTITY_ID);
 		
 		verify(entityService, never()).delete(any());
-		verify(entityService).deleteComponent(any(), any());
+		verify(entityService, never()).deleteComponent(any(), any());
 	}
 
 
@@ -140,7 +140,7 @@ public class ScriptServiceTest {
 		scriptService.triggerScriptIntervalCallback(INVALID_SCRIPT_COMP_ID);
 	}
 
-	@Test
+	//@Test
 	public void triggerScriptIntervalCallback_validScriptId_callsScriptFunction() {
 
 	}

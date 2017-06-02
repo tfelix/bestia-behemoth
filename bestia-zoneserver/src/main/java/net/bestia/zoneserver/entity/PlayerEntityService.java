@@ -89,17 +89,29 @@ public class PlayerEntityService {
 	}
 
 	/**
-	 * Checks if the given entity id is the active player entity.
+	 * Checks if the given entity id is the current active entity of the
+	 * account.
 	 * 
-	 * @param accId
-	 *            The account to check the active entity.
-	 * @param activeEntityId
+	 * @param entityId
 	 *            The entity which should be checked if its active.
 	 * @return TRUE if this is the active entity. FALSE otherwise.
 	 */
-	public boolean isActiveEntity(long accId, long activeEntityId) {
+	private boolean isActiveEntity(long entityId) {
+
+		final long accId = entityService.getComponent(entityId, PlayerComponent.class)
+				.map(PlayerComponent::getOwnerAccountId)
+				.orElse(0L);
+
+		if (accId == 0) {
+			return false;
+		}
+
 		final Long active = activeEntities.get(accId);
-		return active != null && active == activeEntityId;
+		final boolean isActive = active != null && active == entityId;
+		
+		LOG.trace("Entity {} of account {} is active: {}.", entityId, accId, isActive);
+		
+		return isActive;
 	}
 
 	/**
@@ -139,16 +151,22 @@ public class PlayerEntityService {
 
 		LOG.trace("Entities in range: {}", entitiesInRange);
 
-		// List only the active entity ids.
-		final List<Long> activeIds = entitiesInRange.stream().filter(entity -> {
-			return entityService.getComponent(entity, PlayerComponent.class).map(playerComp -> {
-				return isActiveEntity(playerComp.getOwnerAccountId(), entity.getId());
-			}).orElse(false);
-		}).map(Entity::getId).collect(Collectors.toList());
+		// Filter only for active entities.
+		final List<Long> activeAccountIds = entitiesInRange.stream()
+				.filter(entity -> {
+					return isActiveEntity(entity.getId());
+				})
+				.map(entity -> {
+					return entityService.getComponent(entity, PlayerComponent.class)
+							.map(PlayerComponent::getOwnerAccountId)
+							.orElse(0L);
+				})
+				.filter(id -> id != 0)
+				.collect(Collectors.toList());
 
-		LOG.trace("Active entities in range: {}", activeIds);
+		LOG.trace("Active entities {} in range: {}", activeAccountIds, range);
 
-		return activeIds;
+		return activeAccountIds;
 	}
 
 	/**
@@ -160,11 +178,8 @@ public class PlayerEntityService {
 	public Set<Entity> getPlayerEntities(long accId) {
 
 		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
-		return entityService.getAllEntities(new HashSet<>(ids))
-				.values()
-				.stream()
-				.filter(x -> entityService.hasComponent(x, PlayerComponent.class))
-				.collect(Collectors.toSet());
+		return entityService.getAllEntities(new HashSet<>(ids)).values().stream()
+				.filter(x -> entityService.hasComponent(x, PlayerComponent.class)).collect(Collectors.toSet());
 	}
 
 	/**
@@ -248,13 +263,13 @@ public class PlayerEntityService {
 	 */
 	public void removePlayerBestias(long accId) {
 		LOG.trace("Removing all bestias of player {}.", accId);
-		
+
 		// First get all ids of player bestias.
 		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
 		ids.forEach(entityService::delete);
-		
+
 		playerBestiaEntitiesIds.remove(accId);
-		
+
 		// Remove the active bestia.
 		activeEntities.remove(accId);
 	}
@@ -324,7 +339,7 @@ public class PlayerEntityService {
 		// Current position.
 		final PositionComponent posComp = entityService.getComponent(playerEntity, PositionComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
-		
+
 		playerBestia.setCurrentPosition(posComp.getPosition());
 
 		// Level and exp.
