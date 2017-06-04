@@ -1,33 +1,43 @@
 package net.bestia.zoneserver.entity.component.interceptor;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+import net.bestia.messages.entity.EntityPositionMessage;
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.component.PositionComponent;
 
 /**
- * Evtl ist das obsolete da wird alles über die services abdecken können
- * sollten. vielleicht ist die lösung hier aber dennoch eleganter?
+ * Every active player entity in sight is updated about the entity movement.
  * 
  * @author Thomas Felix
  *
  */
-//@Component
+@Component
 public class PositionComponentInterceptor extends ComponentInterceptor<PositionComponent> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PositionComponentInterceptor.class);
 
-	PositionComponentInterceptor() {
+	private final ZoneAkkaApi akkaApi;
+	
+	PositionComponentInterceptor(ZoneAkkaApi akkaApi) {
 		super(PositionComponent.class);
-		// TODO Auto-generated constructor stub
+
+		this.akkaApi = Objects.requireNonNull(akkaApi);
 	}
 
 	@Override
 	protected void onUpdateAction(EntityService entityService, Entity entity, PositionComponent comp) {
 		LOG.trace("Position component is updated.");
-		// TODO Auto-generated method stub
+
+		// Update all active players in sight with the new position path.
+		final EntityPositionMessage posMessage = new EntityPositionMessage(entity.getId(), comp.getPosition());
+		akkaApi.sendActiveInRangeClients(posMessage);
 	}
 
 	@Override

@@ -16,7 +16,6 @@ import com.hazelcast.core.HazelcastInstance;
 import akka.actor.ActorPath;
 import akka.actor.ActorRef;
 import net.bestia.messages.entity.EntityMoveInternalMessage;
-import net.bestia.messages.entity.EntityPositionMessage;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.map.Walkspeed;
@@ -134,8 +133,6 @@ public class MovingEntityService {
 
 		// Move the entity to the new position.
 		posComp.setPosition(newPos);
-		
-		entityService.saveComponent(posComp);
 
 		final Set<Entity> postMoveCollisions = entityService.getAllCollidingEntities(moveEntity);
 		postMoveCollisions.removeAll(preMoveCollisions);
@@ -143,12 +140,10 @@ public class MovingEntityService {
 		// Check if a new collision has occurred and if necessary trigger
 		// scripts.
 
-		// Update all active players in sight with the new position path.
-		final EntityPositionMessage posMessage = new EntityPositionMessage(entityId, newPos);
-		akkaApi.sendActiveInRangeClients(posMessage);
 
 		// Update all AI actors.
-
+		
+		entityService.saveComponent(posComp);
 	}
 
 	/**
