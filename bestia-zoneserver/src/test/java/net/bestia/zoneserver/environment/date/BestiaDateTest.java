@@ -14,11 +14,16 @@ public class BestiaDateTest {
 	
 	@Test
 	public void getHours_correctHours() {
-		BestiaDate d = new BestiaDate();
+		BestiaDate d = BestiaDate.fromDate(createDate());
 		Calendar cal = Calendar.getInstance();
-		int hour = cal.get(Calendar.HOUR_OF_DAY) % 8;
+		int hour = (cal.get(Calendar.HOUR_OF_DAY) - 13) % 8;
 		int bhour = d.getHours();
 		assertEquals(hour, bhour);
+	}
+	
+	@Test(expected=NullPointerException.class)
+	public void fromDate_null_throws() {
+		BestiaDate.fromDate(null);
 	}
 	
 	@Test
@@ -29,6 +34,13 @@ public class BestiaDateTest {
 		int bmin = d.getMinutes();
 		
 		assertEquals(bmin, min);
+	}
+	
+	@Test
+	public void getSeason_currentSeason() {
+		BestiaDate d = BestiaDate.fromDate(createDate());
+		Season s = d.getSeason();
+		Assert.assertNotNull(s);
 	}
 
 	@Test

@@ -184,13 +184,16 @@ public class ScriptService {
 		if (delay <= 0) {
 			throw new IllegalArgumentException("Delay must be bigger then 0.");
 		}
+		
+		Objects.requireNonNull(callbackFunctionName);
 
 		final ScriptComponent scriptComp = entityService.getComponent(entity, ScriptComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
 		final ActorRef scriptRunner = akkaApi.startUnnamedActor(PeriodicScriptRunnerActor.class);
-
-		scriptComp.setScriptActorPath(scriptRunner.path());
+		final ActorPath scriptPath = scriptRunner.path();
+		
+		scriptComp.setScriptActorPath(scriptPath);
 		scriptComp.setOnIntervalCallbackName(callbackFunctionName);
 		entityService.saveComponent(scriptComp);
 

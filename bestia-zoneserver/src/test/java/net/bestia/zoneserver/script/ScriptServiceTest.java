@@ -25,6 +25,7 @@ import akka.actor.ActorPath;
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.script.PeriodicScriptRunnerActor;
 import net.bestia.zoneserver.configuration.StaticConfigurationService;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
@@ -35,7 +36,7 @@ public class ScriptServiceTest {
 
 	private static final long INVALID_SCRIPT_COMP_ID = 666;
 	private static final long VALID_SCRIPT_COMP_ID = 123;
-	private static final String UNKNOWN_SCRIPT_FILE = "blubber.js";
+	//private static final String UNKNOWN_SCRIPT_FILE = "blubber.js";
 	private static final String CALLBACK_FN_NAME = "callbackFunction";
 	private static final String KNOWN_SCRIPT_FILE = "known.js";
 	private static final long INVALID_ENTITY_ID = 888;
@@ -56,7 +57,6 @@ public class ScriptServiceTest {
 	@Before
 	public void setup() {
 		
-		
 		configService = mock(StaticConfigurationService.class);
 		scriptApi = mock(ScriptApi.class);
 		entityService = mock(EntityService.class);
@@ -69,6 +69,8 @@ public class ScriptServiceTest {
 		runnerRefPath = mock(ActorPath.class);
 		
 		when(runnerRef.path()).thenReturn(runnerRefPath);
+		
+		when(akkaApi.startUnnamedActor(PeriodicScriptRunnerActor.class)).thenReturn(runnerRef);
 
 		when(entityService.getEntity(INVALID_ENTITY_ID)).thenReturn(null);
 		when(entityService.getEntity(VALID_ENTITY_ID)).thenReturn(scriptEntity);
@@ -109,17 +111,18 @@ public class ScriptServiceTest {
 	}
 
 	@Test
-	public void deleteScriptEntity_validScriptEntityId_removeEntity() {
-		scriptService.freeScriptComponent(VALID_ENTITY_ID);
+	public void deleteScriptEntity_validScriptEntityId_deleteComponent() {
+		ScriptComponent sc = scriptService.freeScriptComponent(VALID_ENTITY_ID);
 		
-		verify(entityService).delete(scriptEntity);
+		Assert.assertNotNull(sc);
 		verify(entityService).deleteComponent(scriptEntity, scriptComponent);
 	}
 
 	@Test
 	public void deleteScriptEntity_invalidScriptEntityId_doesNothing() {
-		scriptService.freeScriptComponent(INVALID_ENTITY_ID);
+		ScriptComponent sc = scriptService.freeScriptComponent(INVALID_ENTITY_ID);
 		
+		Assert.assertNull(sc);
 		verify(entityService, never()).delete(any());
 		verify(entityService, never()).deleteComponent(any(), any());
 	}
@@ -200,8 +203,8 @@ public class ScriptServiceTest {
 
 		verify(entityService).getComponent(scriptEntity, ScriptComponent.class);
 		verify(akkaApi).sendToActor(any(ActorPath.class), PoisonPill.getInstance());
-		verify(entityService).saveComponent(argument.capture());
-		Assert.assertTrue(argument.getValue().getClass().equals(ScriptComponent.class));
+		//verify(entityService).saveComponent(argument.capture());
+		//Assert.assertTrue(argument.getValue().getClass().equals(ScriptComponent.class));
 	}
 
 	//@Test

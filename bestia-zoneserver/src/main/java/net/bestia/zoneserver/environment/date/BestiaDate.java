@@ -59,12 +59,24 @@ public class BestiaDate {
 		return (Duration.between(startDate, now).toMinutes() % MINUTES_OF_DAY) / (float) MINUTES_OF_DAY;
 	}
 
+	/**
+	 * Returns the progress in percentage of the month. Starting at the first
+	 * day of the month with 0.0 and then going up to 1.0 for the last day.
+	 * 
+	 * @return The current progress of the month.
+	 */
 	public float getMonthProgress() {
 		final LocalDateTime now = LocalDateTime.now();
 		return (Duration.between(startDate, now).toMinutes() % MINUTES_OF_MONTH) / (float) MINUTES_OF_MONTH;
 	}
 
-	public float getYearProgress() {
+	/**
+	 * The current progress of the year. Starting at the first day with 0.0 and
+	 * then going up to 1.0 for the last day of the year.
+	 * 
+	 * @return The current progress of the year.
+	 */
+	float getYearProgress() {
 		final LocalDateTime now = LocalDateTime.now();
 		return (Duration.between(startDate, now).toMinutes() % MINUTES_OF_YEAR) / (float) MINUTES_OF_YEAR;
 	}
@@ -91,7 +103,7 @@ public class BestiaDate {
 	/**
 	 * Returns the current season.
 	 * 
-	 * @return
+	 * @return The current season in the bestia system.
 	 */
 	public Season getSeason() {
 		LocalDateTime tempTime = LocalDateTime.from(startDate);
@@ -101,4 +113,8 @@ public class BestiaDate {
 		return Season.values()[season];
 	}
 
+	@Override
+	public String toString() {
+		return String.format("BestiaDate[%d:%d (%s)]", getHours(), getMinutes(), getSeason());
+	}
 }
