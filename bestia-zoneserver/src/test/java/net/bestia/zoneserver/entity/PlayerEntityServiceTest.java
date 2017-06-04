@@ -123,7 +123,7 @@ public class PlayerEntityServiceTest {
 				return foundEntities;
 			}
 		});
-		when(entityService.getEntitiesInRange(inRangeRect)).thenReturn(Stream.of(playerEntity, masterEntity)
+		when(entityService.getCollidingEntities(inRangeRect)).thenReturn(Stream.of(playerEntity, masterEntity)
 				.collect(Collectors.toSet()));
 		when(entityService.getEntity(PLAYER_ENTITY_ID)).thenReturn(playerEntity);
 		when(entityService.getEntity(MASTER_ENTITY_ID)).thenReturn(masterEntity);

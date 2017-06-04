@@ -170,9 +170,11 @@ public class EntityService {
 	}
 
 	/**
+	 * Gets all entities with the given ids.
 	 * 
 	 * @param ids
-	 * @return
+	 *            IDs to return all entities.
+	 * @return All entities which possess the given IDs.
 	 */
 	public Map<Long, Entity> getAllEntities(Set<Long> ids) {
 		return entities.getAll(ids);
@@ -185,13 +187,16 @@ public class EntityService {
 	 * against collision. If the entity does not have a
 	 * {@link PositionComponent} an empty set will be returned.
 	 * 
+	 * This is basically a shortcut for a rather frequently called operation for
+	 * scripts to get entities colliding with scrpit entities.
+	 * 
 	 * @param entity
 	 * @return
 	 */
 	public Set<Entity> getAllCollidingEntities(Entity entity) {
 		LOG.trace("Finding all colliding entities for: {}.", entity);
 
-		Optional<PositionComponent> posComp = getComponent(entity, PositionComponent.class);
+		final Optional<PositionComponent> posComp = getComponent(entity, PositionComponent.class);
 
 		if (!posComp.isPresent()) {
 			return Collections.emptySet();
@@ -199,7 +204,7 @@ public class EntityService {
 
 		final CollisionShape shape = posComp.get().getShape();
 		final Rect boundingBox = shape.getBoundingBox();
-		final Set<Entity> entitiesInBoundingBox = getEntitiesInRange(boundingBox, PositionComponent.class);
+		final Set<Entity> entitiesInBoundingBox = getCollidingEntities(boundingBox, PositionComponent.class);
 
 		final Set<Entity> collidingEntities = entitiesInBoundingBox.stream()
 				.filter(e -> getComponent(e, PositionComponent.class).get().getShape().collide(shape))
@@ -214,9 +219,10 @@ public class EntityService {
 	 * Returns all the entities which are in range.
 	 * 
 	 * @param area
-	 * @return
+	 *            The area in which the looked up entities lie.
+	 * @return All entities contained in the area.
 	 */
-	public Set<Entity> getEntitiesInRange(Rect area) {
+	public Set<Entity> getCollidingEntities(CollisionShape area) {
 
 		// TODO Das muss noch effektiver gestaltet werden.
 		final Set<Entity> colliders = new HashSet<>();
@@ -240,9 +246,10 @@ public class EntityService {
 	 * @param area
 	 * @return
 	 */
-	public Set<Entity> getEntitiesInRange(Rect area, Class<? extends Component> clazz) {
+	public Set<Entity> getCollidingEntities(CollisionShape area, Class<? extends Component> clazz) {
 		final Set<Class<? extends Component>> comps = new HashSet<>(Arrays.asList(clazz));
-		return getEntitiesInRange(area).stream().filter(x -> comps.contains(x.getClass())).collect(Collectors.toSet());
+		return getCollidingEntities(area).stream().filter(x -> comps.contains(x.getClass()))
+				.collect(Collectors.toSet());
 	}
 
 	public <T extends Component> Optional<T> getComponent(long entityId, Class<T> clazz) {
@@ -430,10 +437,7 @@ public class EntityService {
 	 */
 	public Collection<Component> getAllComponents(Entity entity) {
 
-		return Objects.requireNonNull(entity)
-				.getComponentIds()
-				.stream()
-				.map(components::get)
+		return Objects.requireNonNull(entity).getComponentIds().stream().map(components::get)
 				.collect(Collectors.toList());
 	}
 }

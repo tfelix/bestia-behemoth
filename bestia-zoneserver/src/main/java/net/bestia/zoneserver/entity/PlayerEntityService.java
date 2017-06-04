@@ -147,7 +147,7 @@ public class PlayerEntityService {
 	 */
 	public List<Long> getActiveAccountIdsInRange(Rect range) {
 
-		final Set<Entity> entitiesInRange = entityService.getEntitiesInRange(range);
+		final Set<Entity> entitiesInRange = entityService.getCollidingEntities(range);
 
 		LOG.trace("Entities in range: {}", entitiesInRange);
 

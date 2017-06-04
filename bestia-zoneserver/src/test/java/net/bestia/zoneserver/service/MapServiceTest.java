@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.bytecode.enhance.internal.EntityEnhancer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +17,7 @@ import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
+import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.map.MapService;
 
 public class MapServiceTest {
@@ -29,6 +31,7 @@ public class MapServiceTest {
 	private MapParameterDAO paramDao;
 	private MapParameterDAO paramNoMapDao;
 	private MapParameter mapParams;
+	private EntityService entityService;
 
 	@Before
 	public void setup() {
@@ -41,11 +44,13 @@ public class MapServiceTest {
 		mapParams = mock(MapParameter.class);
 		when(mapParams.getName()).thenReturn(MAP_NAME);
 		
+		entityService = mock(EntityService.class);
+		
 		paramNoMapDao = mock(MapParameterDAO.class);
 		paramDao = mock(MapParameterDAO.class);
 		when(paramDao.findLatest()).thenReturn(mapParams);
 		
-		ms = new MapService(dataNoMapDao, paramDao);
+		ms = new MapService(dataNoMapDao, paramDao, entityService);
 	}
 
 	@Test
@@ -55,7 +60,7 @@ public class MapServiceTest {
 
 	@Test
 	public void isMapInitialized_mapInsideDB_true() {
-		ms = new MapService(dataMapDao, paramDao);
+		ms = new MapService(dataMapDao, paramDao, entityService);
 		Assert.assertTrue(ms.isMapInitialized());
 	}
 
@@ -66,13 +71,10 @@ public class MapServiceTest {
 
 	@Test
 	public void getMap_legalCoordinates_validMap() {
-		
-		Map m = ms.getMap(0, 0, 0, 0);
-		
+
+		Map m = ms.getMap(5, 10, 10, 10);
+
 		Assert.assertNotNull(m);
-
-		m = ms.getMap(5, 10, 10, 10);
-
 		Assert.assertEquals(new Rect(5, 10, 10, 10), m.getRect());
 	}
 
@@ -83,7 +85,7 @@ public class MapServiceTest {
 
 	@Test
 	public void getMapName_noMapInsideDB_emptyStr() {
-		ms = new MapService(dataNoMapDao, paramNoMapDao);
+		ms = new MapService(dataNoMapDao, paramNoMapDao, entityService);
 		Assert.assertEquals("", ms.getMapName());
 	}
 
@@ -91,17 +93,6 @@ public class MapServiceTest {
 	public void getMapName_mapInsideDB_validStr() {
 		Assert.assertEquals(MAP_NAME, ms.getMapName());
 	}
-
-	@Test(expected = NullPointerException.class)
-	public void getAreaName_null_throws() {
-		ms.getAreaName(null);
-	}
-
-	/*
-	@Test
-	public void getAreaName_validPoint_nameOfArea() {
-		Assert.assertEquals(AREA_NAME, ms.getAreaName(new Point(1, 42)));
-	}*/
 
 	@Test(expected = NullPointerException.class)
 	public void getChunks_null_throws() {
@@ -117,8 +108,4 @@ public class MapServiceTest {
 		Assert.assertNotNull(chunks);
 		Assert.assertEquals(1, chunks.size());
 	}
-	
-	
-	
-
 }

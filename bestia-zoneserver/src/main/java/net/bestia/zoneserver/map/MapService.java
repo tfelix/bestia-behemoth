@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -28,6 +29,9 @@ import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
 import net.bestia.model.map.MapDataDTO;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.component.TagComponent;
 
 /**
  * The {@link MapService} is central instance for requesting and modifing map
@@ -43,14 +47,18 @@ public class MapService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(MapService.class);
 
+	public final static String AREA_TAG_NAME = "areaname";
+
 	private final MapDataDAO mapDataDao;
 	private final MapParameterDAO mapParamDao;
+	private final EntityService entityService;
 
 	@Autowired
-	public MapService(MapDataDAO dataDao, MapParameterDAO paramDao) {
+	public MapService(MapDataDAO dataDao, MapParameterDAO paramDao, EntityService entityService) {
 
 		this.mapDataDao = Objects.requireNonNull(dataDao);
 		this.mapParamDao = Objects.requireNonNull(paramDao);
+		this.entityService = Objects.requireNonNull(entityService);
 	}
 
 	/**
@@ -65,13 +73,13 @@ public class MapService {
 
 	/**
 	 * Retrieves and generates the map. It has the dimensions of the given
-	 * coordiantes.
+	 * coordinates.
 	 * 
 	 * @param x
 	 * @param y
 	 * @param width
 	 * @param height
-	 * @return
+	 * @return A {@link Map} containig the enclosed data.
 	 */
 	public Map getMap(long x, long y, long width, long height) {
 		if (x < 0 || y < 0 || width < 0 || height < 0) {
@@ -175,6 +183,25 @@ public class MapService {
 	}
 
 	/**
+	 * Returns the name of the current area of the map if it has a special
+	 * naming component attached to it.
+	 * 
+	 * @param pos
+	 *            The position to check for a naming component.
+	 * @return The name of the area.
+	 */
+	public String getAreaName(Point pos) {
+		final Set<Entity> entities = entityService.getCollidingEntities(pos, TagComponent.class);
+
+		Optional<String> areaName = entities.stream()
+				.map(entity -> entityService.getComponent(entity, TagComponent.class)).map(Optional::get)
+				.filter(tagComp -> tagComp.get(AREA_TAG_NAME) != null)
+				.map(tagComp -> (String) tagComp.get(AREA_TAG_NAME)).findFirst();
+
+		return areaName.orElse("");
+	}
+
+	/**
 	 * Returns the name of the current map/world.
 	 * 
 	 * @return The name of the map.
@@ -183,38 +210,6 @@ public class MapService {
 		final MapParameter params = mapParamDao.findLatest();
 		return params == null ? "" : params.getName();
 	}
-
-	/**
-	 * Returns the name of the area in which this point is lying.
-	 * 
-	 * @param p
-	 *            The coordinates of which the local name should be found.
-	 * @return The name of the local area.
-	 */
-	public String getAreaName(Point p) {
-		Objects.requireNonNull(p);
-
-		return "Kalarian (mot implemented)";
-	}
-
-	/**
-	 * Returns the tileset depending on the gid of a tile. The system will
-	 * perform a lookup in order to find the correct tileset for the given guid.
-	 * 
-	 * @param gid
-	 *            The id of the tile to which the tileset should be found.
-	 * @return The found tileset containing the tile with the GID or null if not
-	 *         tileset could been found.
-	 */
-	/*
-	 * public Tileset getTileset(int gid) { final IMap<String, Tileset>
-	 * tilesetData = hazelcastInstance.getMap(TILESET_KEY);
-	 * 
-	 * final Optional<Tileset> ts = tilesetData.values() .stream() .filter(x ->
-	 * x.contains(gid)) .findAny();
-	 * 
-	 * return ts.isPresent() ? ts.get() : null; }
-	 */
 
 	/**
 	 * Returns a list with all DTOs which are covering the given range.
@@ -271,7 +266,7 @@ public class MapService {
 			final Rect area = MapChunk.getWorldRect(point);
 
 			// Prepare the list of ground tiles.
-			List<Integer> groundTiles = new ArrayList<>((int) (area.getWidth() * area.getHeight()));
+			final List<Integer> groundTiles = new ArrayList<>((int) (area.getWidth() * area.getHeight()));
 
 			final List<MapDataDTO> dtos = getCoveredMapDataDTO(area.getX(), area.getY(), area.getWidth(),
 					area.getHeight());
