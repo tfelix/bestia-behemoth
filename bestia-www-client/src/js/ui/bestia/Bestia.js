@@ -85,7 +85,7 @@ export default class Bestia {
 	 * @method Bestia.Bestia#selectBestia
 	 */
 	selectBestia() {
-		var activeMsg = new Message.BestiaActivate(this.playerBestiaId());
+		var activeMsg = new Message.BestiaActivate(this.entityId());
 		this._pubsub.publish(Signal.IO_SEND_MESSAGE, activeMsg);
 	}
 	

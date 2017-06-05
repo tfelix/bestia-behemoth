@@ -8,7 +8,7 @@ public class WalkspeedTest {
 
 	@Test(expected=IllegalArgumentException.class)
 	public void fromInt_outOfRange_throws() {
-		Walkspeed.fromInt(23);
+		Walkspeed.fromInt(2003);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
@@ -33,7 +33,7 @@ public class WalkspeedTest {
 		Walkspeed.fromFloat(-1.7f);
 	}
 	
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void fromFloat_ok() {
 		Walkspeed.fromFloat(1.7f);
 		Walkspeed.fromFloat(0f);
@@ -49,7 +49,7 @@ public class WalkspeedTest {
 	@Test
 	public void toInt_ok() {
 		Walkspeed ws = Walkspeed.fromFloat(Walkspeed.MAX_WALKSPEED);
-		Assert.assertEquals(3500, ws.toInt());
+		Assert.assertEquals(Walkspeed.MAX_WALKSPEED_INT, ws.toInt());
 		
 		ws = Walkspeed.fromFloat(0);
 		Assert.assertEquals(0, ws.toInt());

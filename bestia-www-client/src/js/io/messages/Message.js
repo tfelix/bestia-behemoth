@@ -91,9 +91,9 @@ var Message = {
 	 * Orders the server to switch to another active bestia in order to get
 	 * client updates now from it.
 	 */
-	BestiaActivate : function(playerBestiaId) {
+	BestiaActivate : function(entityId) {
 		this.mid = MID.BESTIA_ACTIVATE;
-		this.pbid = playerBestiaId;
+		this.eid = entityId;
 	},
 
 	/**

@@ -28,7 +28,7 @@ public class Walkspeed {
 			throw new IllegalArgumentException("Walkspeed in float form must be between 0 and 3.5f");
 		}
 
-		this.speed = (int) (speed * MAX_WALKSPEED);
+		this.speed = speed;
 	}
 
 	private Walkspeed(int speed) {
@@ -36,7 +36,7 @@ public class Walkspeed {
 			throw new IllegalArgumentException("Walkspeed in int form must be between 0 and 3500");
 		}
 
-		this.speed = speed;
+		this.speed = speed / 100.0f;
 	}
 
 	/**

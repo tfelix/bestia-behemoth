@@ -40,9 +40,13 @@ public class PlayerEntityServiceTest {
 	
 	private static final long MASTER_ENTITY_ID = 71;
 	private static final long PLAYER_ENTITY_ID = 72;
+	private static final long UNKNOWN_ENTITY_ID = 12;
+	private static final long NOTOWNED_ENTITY_ID = 13;
 
 	private final static long KNOWN_ACC_ID = 666;
-	private static final long UNKNOWN_ENTITY_ID = 12;
+	private static final long OTHER_ACC_ID = 16;
+	
+	
 	
 	private static final long MASTER_PB_ID = 42;
 	private static final long PLAYER_PB_ID = 43;
@@ -56,6 +60,7 @@ public class PlayerEntityServiceTest {
 
 	private Entity playerEntity;
 	private Entity masterEntity;
+	private Entity otherPlayerEntity;
 	
 	private PlayerEntityService pbeService;
 	private PlayerBestia masterPlayerBestia;
@@ -74,6 +79,7 @@ public class PlayerEntityServiceTest {
 
 		playerEntity = mock(Entity.class);
 		masterEntity = mock(Entity.class);
+		otherPlayerEntity = mock(Entity.class);
 		
 		when(playerEntity.getId()).thenReturn(PLAYER_ENTITY_ID);
 		when(masterEntity.getId()).thenReturn(MASTER_ENTITY_ID);
@@ -90,6 +96,11 @@ public class PlayerEntityServiceTest {
 		PlayerComponent masterComponent = mock(PlayerComponent.class);
 		when(masterComponent.getOwnerAccountId()).thenReturn(KNOWN_ACC_ID);
 		when(masterComponent.getPlayerBestiaId()).thenReturn(MASTER_PB_ID);
+		
+		// Setup other player
+		PlayerComponent otherPlayerComponent = mock(PlayerComponent.class);
+		when(otherPlayerComponent.getOwnerAccountId()).thenReturn(OTHER_ACC_ID);
+		when(otherPlayerComponent.getPlayerBestiaId()).thenReturn(NOTOWNED_ENTITY_ID);
 
 		masterPlayerBestia = mock(PlayerBestia.class);
 		when(masterPlayerBestia.getId()).thenReturn(MASTER_PB_ID);
@@ -97,12 +108,15 @@ public class PlayerEntityServiceTest {
 		when(entityService.hasComponent(any(Entity.class), any())).thenReturn(false);
 		when(entityService.hasComponent(playerEntity, PlayerComponent.class)).thenReturn(true);
 		when(entityService.hasComponent(masterEntity, PlayerComponent.class)).thenReturn(true);
+		when(entityService.hasComponent(otherPlayerEntity, PlayerComponent.class)).thenReturn(true);
 		
 		when(entityService.getComponent(any(Entity.class), any())).thenReturn(Optional.empty());
 		when(entityService.getComponent(playerEntity, PlayerComponent.class)).thenReturn(Optional.of(playerComponent));
 		when(entityService.getComponent(masterEntity, PlayerComponent.class)).thenReturn(Optional.of(masterComponent));
+		when(entityService.getComponent(otherPlayerEntity, PlayerComponent.class)).thenReturn(Optional.of(otherPlayerComponent));
 		when(entityService.getComponent(PLAYER_ENTITY_ID, PlayerComponent.class)).thenReturn(Optional.of(playerComponent));
 		when(entityService.getComponent(MASTER_ENTITY_ID, PlayerComponent.class)).thenReturn(Optional.of(masterComponent));
+		when(entityService.getComponent(NOTOWNED_ENTITY_ID, PlayerComponent.class)).thenReturn(Optional.of(otherPlayerComponent));
 		
 		
 		when(entityService.getAllEntities(any())).then(new Answer<Map<Long, Entity>>() {
@@ -138,6 +152,11 @@ public class PlayerEntityServiceTest {
 	public void setActiveEntity_unknownEntityId_throws() {
 		pbeService.setActiveEntity(KNOWN_ACC_ID, UNKNOWN_ENTITY_ID);
 	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void setActiveEntity_notOwnedEntityId_throws() {
+		pbeService.setActiveEntity(KNOWN_ACC_ID, UNKNOWN_ENTITY_ID);
+	}
 
 	@Test
 	public void setActiveEntity_idSetAndMessageSendToClient() {
@@ -151,7 +170,8 @@ public class PlayerEntityServiceTest {
 		
 		assertEquals(playerEntity, active);
 		assertEquals(KNOWN_ACC_ID, captor.getValue().getAccountId());
-		assertEquals(PLAYER_ENTITY_ID, captor.getValue().getPlayerBestiaId());
+		assertEquals(PLAYER_PB_ID, captor.getValue().getPlayerBestiaId());
+		assertEquals(PLAYER_ENTITY_ID, captor.getValue().getEntityId());
 	}
 
 	/*

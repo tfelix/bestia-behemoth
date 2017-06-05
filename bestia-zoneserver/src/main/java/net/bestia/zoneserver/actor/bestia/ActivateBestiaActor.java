@@ -2,7 +2,6 @@ package net.bestia.zoneserver.actor.bestia;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -12,10 +11,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
-import net.bestia.zoneserver.entity.component.PlayerComponent;
 
 /**
  * Upon receiving an activation request from this account we check if the
@@ -34,14 +30,11 @@ public class ActivateBestiaActor extends BestiaRoutingActor {
 	public final static String NAME = "activateBestia";
 
 	private final PlayerEntityService playerService;
-	private final EntityService entityService;
-
 	@Autowired
-	public ActivateBestiaActor(PlayerEntityService playerService, EntityService entityService) {
+	public ActivateBestiaActor(PlayerEntityService playerService) {
 		super(Arrays.asList(BestiaActivateMessage.class));
 
 		this.playerService = Objects.requireNonNull(playerService);
-		this.entityService = Objects.requireNonNull(entityService);
 	}
 
 	@Override
@@ -49,29 +42,14 @@ public class ActivateBestiaActor extends BestiaRoutingActor {
 
 		final BestiaActivateMessage bestiaMsg = (BestiaActivateMessage) msg;
 
-		// Check if the user really owns this bestia.
-		final Optional<Entity> bestia = playerService.getPlayerEntities(bestiaMsg.getAccountId())
-				.stream()
-				.filter(e -> {
-					return entityService.getComponent(e, PlayerComponent.class)
-							.filter(c -> c.getPlayerBestiaId() == bestiaMsg.getPlayerBestiaId())
-							.map(x -> true)
-							.orElse(false);
-				})
-				.findAny();
-
-		// If he owns it then you we can make it active.
-		if (!bestia.isPresent()) {
-			return;
+		try {
+			playerService.setActiveEntity(bestiaMsg.getAccountId(), bestiaMsg.getEntityId());
+			LOG.debug("Activated player bestia from accId: {}, entityId: {}",
+					bestiaMsg.getAccountId(),
+					bestiaMsg.getEntityId());
+			
+		} catch (IllegalArgumentException ex) {
+			LOG.warning("Can not activiate entity: {}", bestiaMsg.toString());
 		}
-
-		final PlayerComponent playerComp = entityService.getComponent(bestia.get(), PlayerComponent.class)
-				.orElseThrow(IllegalStateException::new);
-
-		LOG.debug("Activated player bestia id: {} from accId: {}, entityId: {}",
-				playerComp.getPlayerBestiaId(),
-				playerComp.getOwnerAccountId(),
-				playerComp.getId());
-		playerService.setActiveEntity(bestiaMsg.getAccountId(), playerComp.getId());
 	}
 }

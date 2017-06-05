@@ -68,23 +68,29 @@ public class PlayerEntityService {
 	 *             If the entity id does not exist.
 	 */
 	public void setActiveEntity(long accId, long activeEntityId) {
-		if (null == entityService.getEntity(activeEntityId)) {
+		// Check if this is a valid player bestia.
+		final Entity activeEntity = entityService.getEntity(activeEntityId);
+		
+		if (null == activeEntity) {
 			throw new IllegalArgumentException("Active entity id was not found in the system. Add it first.");
 		}
 
-		// Check if this is a valid player bestia.
-		final Entity activeEntity = entityService.getEntity(activeEntityId);
-
 		final PlayerComponent playerComp = entityService.getComponent(activeEntity, PlayerComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
+		
+		// Safety check if the player owns this entity.
+		if(playerComp.getOwnerAccountId() != accId) {
+			throw new IllegalArgumentException("Account ID does not own entity id. Can not activate.");
+		}
 
 		// Remove the active flag from the last active player bestia.
 		activeEntities.put(accId, activeEntityId);
 
 		LOG.debug("Activating entity id: {} for account: {}.", activeEntityId, accId);
 
-		final BestiaActivateMessage activateMsg = new BestiaActivateMessage(accId, activeEntityId,
-				playerComp.getPlayerBestiaId());
+		final BestiaActivateMessage activateMsg = new BestiaActivateMessage(accId, 
+				playerComp.getPlayerBestiaId(),
+				activeEntityId);
 		akkaApi.sendToClient(activateMsg);
 	}
 

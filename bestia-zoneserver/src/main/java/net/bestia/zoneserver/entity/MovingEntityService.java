@@ -16,6 +16,7 @@ import com.hazelcast.core.HazelcastInstance;
 import akka.actor.ActorPath;
 import akka.actor.ActorRef;
 import net.bestia.messages.entity.EntityMoveInternalMessage;
+import net.bestia.model.domain.Direction;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.map.Walkspeed;
@@ -122,8 +123,6 @@ public class MovingEntityService {
 	 */
 	public void moveToPosition(long entityId, Point newPos) {
 		
-		LOG.trace("Moving entity {} to postition: {}", entityId, newPos);
-
 		// Before movement get all currently colliding entities.
 		final Entity moveEntity = entityService.getEntity(entityId);
 		final Set<Entity> preMoveCollisions = entityService.getAllCollidingEntities(moveEntity);
@@ -131,19 +130,64 @@ public class MovingEntityService {
 		final PositionComponent posComp = entityService.getComponent(entityId, PositionComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
+		final Point oldPos = posComp.getPosition();
+
 		// Move the entity to the new position.
 		posComp.setPosition(newPos);
+		
+		final Direction newFacing = getDirection(oldPos, newPos, posComp.getFacing());	
+		posComp.setFacing(newFacing);
 
 		final Set<Entity> postMoveCollisions = entityService.getAllCollidingEntities(moveEntity);
 		postMoveCollisions.removeAll(preMoveCollisions);
+		
+		LOG.trace("Moving entity {} to postition: {}. Facing: {}", entityId, newPos, newFacing);
 
 		// Check if a new collision has occurred and if necessary trigger
 		// scripts.
 
-
 		// Update all AI actors.
-		
+
 		entityService.saveComponent(posComp);
+	}
+
+	/**
+	 * Calculates the direction of the entity which it is now facing. Usually an
+	 * entity faces the direction it moves. If old and new position are the
+	 * same, then the defaultDirection is returned.
+	 * 
+	 * @param oldPos
+	 *            The old position.
+	 * @param newPos
+	 *            The new position.
+	 * @return The direction the unit now faces.
+	 */
+	private Direction getDirection(Point oldPos, Point newPos, Direction defaultDirection) {
+
+		if(oldPos.equals(newPos)) {
+			return defaultDirection;
+		}
+		
+		final long y = newPos.getY() - oldPos.getY();
+		final long x = newPos.getX() - oldPos.getX();
+		
+		if(x == 0 && y > 0) {
+			return Direction.SOUTH;
+		} else if(x > 0 && y > 0) {
+			return Direction.SOUTH_EAST;
+		} else if(x > 0 && y == 0) {
+			return Direction.EAST;
+		} else if(x > 0 && y < 0) {
+			return Direction.NORTH_EAST;
+		} else if(x == 0 && y < 0) {
+			return Direction.NORTH;
+		} else if(x < 0 && y < 0) {
+			return Direction.NORTH_WEST;
+		} else if(x < 0 && y == 0) {
+			return Direction.WEST;
+		} else {
+			return Direction.SOUTH_WEST;
+		}
 	}
 
 	/**
@@ -161,7 +205,7 @@ public class MovingEntityService {
 		// Check if the entity is already moving.
 		// If this is the case cancel the current movement.
 		stopMoving(entityId);
-		
+
 		LOG.trace("Moving entity {} along path: {}", entityId, path);
 
 		// Start a new movement via spawning a new movement tick actor with
@@ -181,7 +225,8 @@ public class MovingEntityService {
 	 * Stops the movement for this entity id if there is a currently running
 	 * movement going on.
 	 * 
-	 * @param entityId The entity id to stop the movement.
+	 * @param entityId
+	 *            The entity id to stop the movement.
 	 */
 	public void stopMoving(long entityId) {
 

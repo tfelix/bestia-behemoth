@@ -108,6 +108,7 @@ export default class BestiaView {
 		this.bestias.removeAll();
 		this.slots(0);
 		this.masterBestia(null);
+		this._selectBestia(null);
 	}
 	
 	/**
