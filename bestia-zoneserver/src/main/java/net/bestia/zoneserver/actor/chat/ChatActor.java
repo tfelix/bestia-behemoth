@@ -122,11 +122,11 @@ public class ChatActor extends BestiaRoutingActor {
 			LOG.warning("Player bestia has no position component.");
 			return;
 		}
-		
+
+		// We dont need to send a echo back because the player entity is also
+		// active in the area so this call also includes the sender of the chat
+		// message.
 		sendActiveInRangeClients(chatEntityMsg);
-		
-		// Send echo back to client.
-		sendClient(chatEntityMsg.createNewInstance(accId));
 	}
 
 	/**

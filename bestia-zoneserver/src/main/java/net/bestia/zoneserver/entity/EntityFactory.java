@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import net.bestia.zoneserver.entity.component.Component;
 import net.bestia.zoneserver.entity.component.ComponentSetter;
@@ -26,6 +27,7 @@ class EntityFactory {
 
 	private final EntityService entityService;
 
+	@Autowired
 	EntityFactory(EntityService entityService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
