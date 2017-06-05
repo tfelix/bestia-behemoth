@@ -14,7 +14,6 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.map.MapChunkMessage;
 import net.bestia.messages.map.MapChunkRequestMessage;
 import net.bestia.model.geometry.Point;
-import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.Entity;
@@ -71,7 +70,7 @@ public class MapRequestChunkActor extends BestiaRoutingActor {
 		final Point point = pos.get().getPosition();
 
 		// Verify if the player is able to request the given chunk ids.
-		if (!Map.canRequestChunks(point, req.getChunks())) {
+		if (!MapService.areChunksInClientRange(point, req.getChunks())) {
 			LOG.warning("Player requested invalid chunks. Message: {}", req.toString());
 			return;
 		}

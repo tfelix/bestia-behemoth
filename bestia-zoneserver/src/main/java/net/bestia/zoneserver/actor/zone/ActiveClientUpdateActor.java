@@ -15,12 +15,12 @@ import net.bestia.messages.JsonMessage;
 import net.bestia.messages.entity.EntityUpdateMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
-import net.bestia.model.map.Map;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 import net.bestia.zoneserver.entity.component.PositionComponent;
+import net.bestia.zoneserver.map.MapService;
 
 /**
  * This actor sends update messages to all active player in sight. In order to
@@ -97,7 +97,7 @@ public class ActiveClientUpdateActor extends BestiaActor {
 			}
 
 			// Find all active player accounts in visible/update range.
-			final Rect updateRect = Map.getUpdateRect(entityPos);
+			final Rect updateRect = MapService.getUpdateRect(entityPos);
 			final List<Long> activeAccs = playerEntityService.getActiveAccountIdsInRange(updateRect);
 
 			// Check if the pbe are active and if so send them the update.

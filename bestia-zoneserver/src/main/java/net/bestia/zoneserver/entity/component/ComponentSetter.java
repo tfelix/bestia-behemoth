@@ -34,6 +34,7 @@ public abstract class ComponentSetter<T extends Component> {
 	 * @param addedComp
 	 */
 	public void setComponent(Component addedComp) {
+		Objects.requireNonNull(addedComp);
 
 		// Can I cast?
 		if (!type.isAssignableFrom(addedComp.getClass())) {

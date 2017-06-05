@@ -73,7 +73,7 @@ public class Blueprint {
 	 * 
 	 * @return
 	 */
-	Collection<Class<? extends Component>> getComponents() {
+	public Collection<Class<? extends Component>> getComponents() {
 		return Collections.unmodifiableList(components);
 	}
 

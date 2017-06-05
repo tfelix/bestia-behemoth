@@ -31,7 +31,7 @@ import net.bestia.zoneserver.entity.component.VisibleComponentSetter;
  *
  */
 @org.springframework.stereotype.Component
-public class PlayerBestiaEntityFactory extends EntityFactory {
+public class PlayerBestiaEntityFactory {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PlayerBestiaEntityFactory.class);
 
@@ -50,10 +50,14 @@ public class PlayerBestiaEntityFactory extends EntityFactory {
 		playerBestiaBlueprint = builder.build();
 	}
 
+	private final StatusService statusService;
+	private final EntityFactory entityFactory;
+
 	@Autowired
-	public PlayerBestiaEntityFactory(EntityService entityService) {
-		super(entityService);
-		// no op.
+	public PlayerBestiaEntityFactory(EntityFactory entityFactory, StatusService statusService) {
+		
+		this.entityFactory = Objects.requireNonNull(entityFactory);
+		this.statusService = Objects.requireNonNull(statusService);
 	}
 
 	/**
@@ -76,12 +80,19 @@ public class PlayerBestiaEntityFactory extends EntityFactory {
 				playerBestia.getExp());
 		final PlayerStatusComponentSetter statusSetter = new PlayerStatusComponentSetter(playerBestia);
 
-		final Set<ComponentSetter<? extends Component>> comps = EntityFactory.makeSet(posSetter, visSetter,
-				playerSetter, levelSetter, statusSetter);
+		final Set<ComponentSetter<? extends Component>> comps = EntityFactory.makeSet(
+				posSetter,
+				visSetter,
+				playerSetter,
+				levelSetter,
+				statusSetter);
 
-		final Entity masterEntity = buildEntity(playerBestiaBlueprint, comps);
+		final Entity playerEntity = entityFactory.buildEntity(playerBestiaBlueprint, comps);
+		
+		// Calculate the status points now.
+		statusService.calculateStatusPoints(playerEntity);
 
-		return masterEntity;
+		return playerEntity;
 	}
 
 }

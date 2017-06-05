@@ -10,6 +10,8 @@ import javax.persistence.Index;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 
+import net.bestia.model.map.MapDataDTO;
+
 /**
  * The {@link MapData} is raw map file data which is used by the map service in
  * order to query and generate the player map data. It lies in the form a binary
@@ -94,8 +96,12 @@ public class MapData {
 	@Id
 	private long height;
 
+	/**
+	 * This data storages contain {@link MapDataDTO}s which are encoded map
+	 * data.
+	 */
 	@Lob
-	@Column(nullable=false, length=50000)
+	@Column(nullable = false, length = 50000)
 	private byte[] data;
 
 	public long getX() {

@@ -29,6 +29,7 @@ import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
 import net.bestia.model.map.MapDataDTO;
+import net.bestia.model.map.Map.MapBuilder;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.component.TagComponent;
@@ -49,6 +50,11 @@ public class MapService {
 
 	public final static String AREA_TAG_NAME = "areaname";
 
+	/**
+	 * Max sight range for the client in tiles in every direction.
+	 */
+	public static int SIGHT_RANGE_TILES = 32;
+
 	private final MapDataDAO mapDataDao;
 	private final MapParameterDAO mapParamDao;
 	private final EntityService entityService;
@@ -59,6 +65,66 @@ public class MapService {
 		this.mapDataDao = Objects.requireNonNull(dataDao);
 		this.mapParamDao = Objects.requireNonNull(paramDao);
 		this.entityService = Objects.requireNonNull(entityService);
+	}
+
+	/**
+	 * Returns the rect which lies inside the sight range of the position.
+	 * 
+	 * @param pos
+	 *            The position to generate the view area around.
+	 * @return The viewable rect.
+	 */
+	public static Rect getViewRect(Point pos) {
+		final Rect viewArea = new Rect(
+				pos.getX() - SIGHT_RANGE_TILES,
+				pos.getY() - SIGHT_RANGE_TILES,
+				pos.getX() + SIGHT_RANGE_TILES,
+				pos.getY() + SIGHT_RANGE_TILES);
+		return viewArea;
+	}
+
+	/**
+	 * Returns the rectangular which is used for updating the clients. It is
+	 * usually larger than the {@link #getViewRect(Point)}.
+	 * 
+	 * @param pos
+	 *            The position to generate the view area around.
+	 * @return The viewable rect.
+	 */
+	public static Rect getUpdateRect(Point pos) {
+		final Rect viewArea = new Rect(
+				pos.getX() - SIGHT_RANGE_TILES * 2,
+				pos.getY() - SIGHT_RANGE_TILES * 2,
+				pos.getX() + SIGHT_RANGE_TILES * 2,
+				pos.getY() + SIGHT_RANGE_TILES * 2);
+		return viewArea;
+	}
+
+	/**
+	 * Checks if the chunks coordinates lie within the range reachable from the
+	 * given point. This is important so the client can not request chunk ids
+	 * not visible by it.
+	 * 
+	 * @param pos
+	 *            Current position of the player.
+	 * @param chunks
+	 *            A list of chunk coordinates.
+	 * @return TRUE if all chunks are within reach. FALSE otherwise.
+	 */
+	public static boolean areChunksInClientRange(Point pos, List<Point> chunks) {
+		Objects.requireNonNull(pos);
+		Objects.requireNonNull(chunks);
+
+		// Find min max dist.
+		final double maxD = Math.ceil(Math.sqrt(2 * (SIGHT_RANGE_TILES * SIGHT_RANGE_TILES)));
+
+		final boolean isTooFar = chunks.stream()
+				.map(p -> MapChunk.getWorldCords(p))
+				.filter(wp -> wp.getDistance(pos) > maxD)
+				.findAny()
+				.isPresent();
+
+		return !isTooFar;
 	}
 
 	/**
@@ -73,7 +139,7 @@ public class MapService {
 
 	/**
 	 * Retrieves and generates the map. It has the dimensions of the given
-	 * coordinates.
+	 * coordinates and contains all layers and tilemap data.
 	 * 
 	 * @param x
 	 * @param y
@@ -85,6 +151,15 @@ public class MapService {
 		if (x < 0 || y < 0 || width < 0 || height < 0) {
 			throw new IllegalArgumentException("X, Y, width and height must be positive.");
 		}
+
+		final MapBuilder builder = new Map.MapBuilder();
+		
+		final List<MapDataDTO> data = getCoveredMapDataDTO(x, y, width, height);
+		
+		/*
+		data.sort((MapDataDTO d1, MapDataDTO d2) -> {
+			d1.getRect().getX() < d2.getRect().getX() 
+		});*/
 
 		throw new IllegalStateException("Not yet implemented.");
 	}
@@ -194,9 +269,11 @@ public class MapService {
 		final Set<Entity> entities = entityService.getCollidingEntities(pos, TagComponent.class);
 
 		Optional<String> areaName = entities.stream()
-				.map(entity -> entityService.getComponent(entity, TagComponent.class)).map(Optional::get)
+				.map(entity -> entityService.getComponent(entity, TagComponent.class))
+				.map(Optional::get)
 				.filter(tagComp -> tagComp.get(AREA_TAG_NAME) != null)
-				.map(tagComp -> (String) tagComp.get(AREA_TAG_NAME)).findFirst();
+				.map(tagComp -> (String) tagComp.get(AREA_TAG_NAME))
+				.findFirst();
 
 		return areaName.orElse("");
 	}
@@ -251,8 +328,8 @@ public class MapService {
 	}
 
 	/**
-	 * Returns the chunks of map data given in this list. If the chunks could
-	 * not been found an empty list is returned.
+	 * A list of chunk coordinates must be given and the method will return all
+	 * chunks of map data for the given coordinates.
 	 * 
 	 * @param chunkCords
 	 * @return
@@ -276,7 +353,8 @@ public class MapService {
 					// Find the dto with the point inside.
 					final Point curPos = new Point(x, y);
 
-					final Optional<MapDataDTO> data = dtos.stream().filter(dto -> dto.getRect().collide(curPos))
+					final Optional<MapDataDTO> data = dtos.stream()
+							.filter(dto -> dto.getRect().collide(curPos))
 							.findFirst();
 
 					Integer gid = data.map(d -> d.getGroundGid(curPos.getX(), curPos.getY())).orElse(0);

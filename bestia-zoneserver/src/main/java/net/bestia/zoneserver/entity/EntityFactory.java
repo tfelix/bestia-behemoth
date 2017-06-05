@@ -44,11 +44,11 @@ class EntityFactory {
 		return new HashSet<>(Arrays.asList(components));
 	}
 
-	protected Entity buildEntity(Blueprint blueprint) {
+	public Entity buildEntity(Blueprint blueprint) {
 		return buildEntity(blueprint, Collections.emptySet());
 	}
 
-	protected Entity buildEntity(Blueprint blueprint,
+	public Entity buildEntity(Blueprint blueprint,
 			Set<ComponentSetter<? extends Component>> setter) {
 
 		Objects.requireNonNull(blueprint);

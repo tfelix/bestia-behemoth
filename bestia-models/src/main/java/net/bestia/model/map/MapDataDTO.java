@@ -62,6 +62,13 @@ public class MapDataDTO implements Serializable {
 		return (int) (posY * rect.getWidth()) + posX;
 	}
 
+	/**
+	 * Gets the GID from the ground layer.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
 	public int getGroundGid(long x, long y) {
 		int index = getIndex(x, y);
 		if (index > groundLayer.length) {
@@ -71,6 +78,13 @@ public class MapDataDTO implements Serializable {
 		return groundLayer[index];
 	}
 
+	/**
+	 * Puts the given GID to the given x and y coordinates.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param gid
+	 */
 	public void putGroundLayer(long x, long y, int gid) {
 		int index = getIndex(x, y);
 		if (index > groundLayer.length) {

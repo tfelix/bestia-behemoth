@@ -5,6 +5,7 @@ import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
 import net.bestia.model.entity.StatusBasedValues;
+import net.bestia.model.entity.StatusBasedValuesImpl;
 
 /**
  * Entities having this component can be participate in the attacking system. It
@@ -17,9 +18,9 @@ public class StatusComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
 
-	private StatusPoints originalStatusPoints;
-	private StatusPoints statusPoints;
-	private StatusBasedValues statusBasedValues;
+	private StatusPoints originalStatusPoints = new StatusPointsImpl();
+	private StatusPoints statusPoints = new StatusPointsImpl();
+	private StatusBasedValues statusBasedValues = new StatusBasedValuesImpl(statusPoints, 1);
 
 	private Element originalElement = Element.NORMAL;
 	private Element element = Element.NORMAL;

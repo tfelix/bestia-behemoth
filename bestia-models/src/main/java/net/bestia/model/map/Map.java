@@ -25,11 +25,6 @@ import net.bestia.model.geometry.Rect;
 public class Map {
 
 	/**
-	 * Max sight range in tiles in every direction.
-	 */
-	public static int SIGHT_RANGE = 32;
-
-	/**
 	 * A helper class which is used in order to construct maps for the bestia
 	 * system.
 	 * 
@@ -111,7 +106,7 @@ public class Map {
 	private final List<Integer> groundLayer;
 
 	/**
-	 * Sparse layer of the tiles.
+	 * Sparse layers on top of the bottom tiles.
 	 */
 	private final List<java.util.Map<Point, Integer>> tileLayer = new ArrayList<>();
 
@@ -130,32 +125,6 @@ public class Map {
 		this.groundLayer = Collections.unmodifiableList(builder.groundTiles);
 	}
 
-	/**
-	 * Returns the rect which lies inside the sight range of the position.
-	 * 
-	 * @param pos
-	 *            The position to generate the view area around.
-	 * @return The viewable rect.
-	 */
-	public static Rect getViewRect(Point pos) {
-		final Rect viewArea = new Rect(pos.getX() - Map.SIGHT_RANGE, pos.getY() - Map.SIGHT_RANGE,
-				pos.getX() + Map.SIGHT_RANGE, pos.getY() + Map.SIGHT_RANGE);
-		return viewArea;
-	}
-
-	/**
-	 * Returns the rectangular which is used for updating the clients. It is
-	 * usually larger than the {@link #getViewRect(Point)}.
-	 * 
-	 * @param pos
-	 *            The position to generate the view area around.
-	 * @return The viewable rect.
-	 */
-	public static Rect getUpdateRect(Point pos) {
-		final Rect viewArea = new Rect(pos.getX() - Map.SIGHT_RANGE * 2, pos.getY() - Map.SIGHT_RANGE * 2,
-				pos.getX() + Map.SIGHT_RANGE * 2, pos.getY() + Map.SIGHT_RANGE * 2);
-		return viewArea;
-	}
 
 	/**
 	 * Returns the walkspeed of a given x and y coordiante. The walkspeed will
@@ -302,14 +271,6 @@ public class Map {
 		return tilesets.stream().filter(ts -> ts.contains(gid)).findAny();
 	}
 
-	/**
-	 * Gets all the names of the tilsets used by this map in the given area.
-	 * 
-	 * @return The names of the tilesets.
-	 */
-	public List<String> getTilesetNames() {
-		return tilesets.stream().map(x -> x.getName()).collect(Collectors.toList());
-	}
 
 	/**
 	 * Returns the size (and location) of map which usually only represents a
@@ -319,28 +280,5 @@ public class Map {
 	 */
 	public Rect getRect() {
 		return rect;
-	}
-
-	/**
-	 * Checks if the chunks lie within the range reachable from the given point.
-	 * 
-	 * @TODO Diese Methode sollte eigentlich eher im MapService liegen.
-	 * @param pos
-	 *            Current position of the player.
-	 * @param chunks
-	 *            A list of chunk coordiantes.
-	 * @return TRUE if all chunks are within reach. FALSE otherwise.
-	 */
-	public static boolean canRequestChunks(Point pos, List<Point> chunks) {
-		Objects.requireNonNull(pos);
-		Objects.requireNonNull(chunks);
-
-		// Find min max dist.
-		final double maxD = Math.ceil(Math.sqrt(2 * (SIGHT_RANGE * SIGHT_RANGE)));
-
-		final boolean isTooFar = chunks.stream().map(p -> MapChunk.getWorldCords(p))
-				.filter(wp -> wp.getDistance(pos) > maxD).findAny().isPresent();
-
-		return !isTooFar;
 	}
 }

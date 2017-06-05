@@ -12,11 +12,12 @@ import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 
 /**
- * The bestia map consists of multiple small parts. These parts can be requested
- * by the player account and are delivered to the player vie network. It
- * basically encodes the map data.
+ * The bestia map consists of multiple small parts cvalled chunks. These parts
+ * can be requested by the player client and are delivered to the player via the
+ * network. It basically encodes the map data into parts used by the engine.
+ * This chunk class is optimized for transfer to the client.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class MapChunk implements Serializable {

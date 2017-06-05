@@ -1,65 +1,135 @@
 package net.bestia.zoneserver.entity;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.util.Assert;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.geometry.Point;
+import net.bestia.zoneserver.entity.component.Component;
+import net.bestia.zoneserver.entity.component.ComponentSetter;
+import net.bestia.zoneserver.entity.component.EquipComponent;
+import net.bestia.zoneserver.entity.component.InventoryComponent;
+import net.bestia.zoneserver.entity.component.LevelComponent;
+import net.bestia.zoneserver.entity.component.LevelComponentSetter;
+import net.bestia.zoneserver.entity.component.PlayerComponent;
+import net.bestia.zoneserver.entity.component.PlayerComponentSetter;
+import net.bestia.zoneserver.entity.component.PlayerStatusComponentSetter;
+import net.bestia.zoneserver.entity.component.PositionComponent;
+import net.bestia.zoneserver.entity.component.PositionComponentSetter;
+import net.bestia.zoneserver.entity.component.StatusComponent;
+import net.bestia.zoneserver.entity.component.VisibleComponent;
+import net.bestia.zoneserver.entity.component.VisibleComponentSetter;
 
+@RunWith(MockitoJUnitRunner.class)
 public class PlayerBestiaEntityFactoryTest {
-	
+
 	private final static int LEVEL = 10;
 	private final static int EXP = 124;
+	private final static long ENTITY_ID = 666;
+	// private final static long BASE_COMP_ID = 10;
 
 	private PlayerBestiaEntityFactory factory;
 
-	private Blueprint bestiaBP;
+	@Mock
 	private EntityFactory entityFactory;
+
+	@Mock
 	private Bestia bestia;
+
+	@Mock
 	private PlayerBestia playerBestia;
+
 	private Point currentPos = new Point(12, 56);
+
+	@Mock
 	private SpriteInfo spriteInfo;
-	private EntityService entityService;
+
+	@Mock
+	private StatusService statusService;
+
+	@Captor
+	private ArgumentCaptor<Set<ComponentSetter<? extends Component>>> componentSetterCaptor;
+
+	@Captor
+	private ArgumentCaptor<Blueprint> blueprintCaptor;
 
 	@Before
 	public void setup() {
 
-		bestia = mock(Bestia.class);
-		entityFactory = mock(EntityFactory.class);
-		playerBestia = mock(PlayerBestia.class);
-		spriteInfo = mock(SpriteInfo.class);
-		entityService = mock(EntityService.class);
-		
-		when(bestia.getSpriteInfo()).thenReturn(spriteInfo);	
-		
+		when(bestia.getSpriteInfo()).thenReturn(spriteInfo);
+
 		when(playerBestia.getOrigin()).thenReturn(bestia);
 		when(playerBestia.getLevel()).thenReturn(LEVEL);
 		when(playerBestia.getExp()).thenReturn(EXP);
 		when(playerBestia.getCurrentPosition()).thenReturn(currentPos);
-		
-		factory = new PlayerBestiaEntityFactory(entityService);
+
+		when(entityFactory.buildEntity(any())).thenReturn(new Entity(ENTITY_ID));
+		when(entityFactory.buildEntity(any(), any())).thenReturn(new Entity(ENTITY_ID));
+
+		factory = new PlayerBestiaEntityFactory(entityFactory, statusService);
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void bctor_arg1Null_throws() {
+		new PlayerBestiaEntityFactory(null, statusService);
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void bctor_arg2Null_throws() {
+		new PlayerBestiaEntityFactory(entityFactory, null);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void build_null_throws() {
-		factory.buildEntity(null);
+		factory.build(null);
 	}
-	
+
 	@Test
 	public void build_validPlayerBestia_builds() {
-		
 		Entity e = factory.build(playerBestia);
-		
-		Assert.notNull(e);
-		verify(entityFactory.buildEntity(bestiaBP, any()));
+
+		Assert.assertNotNull(e);
+
+		// Interceptor nutzen
+		verify(entityFactory).buildEntity(blueprintCaptor.capture(), componentSetterCaptor.capture());
+
+		// Assert the captor.
+		Assert.assertTrue(blueprintCaptor.getValue().getComponents().contains(VisibleComponent.class));
+		Assert.assertTrue(blueprintCaptor.getValue().getComponents().contains(EquipComponent.class));
+		Assert.assertTrue(blueprintCaptor.getValue().getComponents().contains(InventoryComponent.class));
+		Assert.assertTrue(blueprintCaptor.getValue().getComponents().contains(PositionComponent.class));
+		Assert.assertTrue(blueprintCaptor.getValue().getComponents().contains(PlayerComponent.class));
+		Assert.assertTrue(blueprintCaptor.getValue().getComponents().contains(LevelComponent.class));
+		Assert.assertTrue(blueprintCaptor.getValue().getComponents().contains(StatusComponent.class));
+
+		@SuppressWarnings("rawtypes")
+		final Set<Class<? extends ComponentSetter>> compSetterClasses = componentSetterCaptor.getValue()
+				.stream()
+				.map(x -> x.getClass())
+				.collect(Collectors.toSet());
+
+		Assert.assertTrue(compSetterClasses.contains(PositionComponentSetter.class));
+		Assert.assertTrue(compSetterClasses.contains(VisibleComponentSetter.class));
+		Assert.assertTrue(compSetterClasses.contains(PlayerComponentSetter.class));
+		Assert.assertTrue(compSetterClasses.contains(LevelComponentSetter.class));
+		Assert.assertTrue(compSetterClasses.contains(PlayerStatusComponentSetter.class));
+
+		verify(statusService).calculateStatusPoints(e);
 	}
 
 }
