@@ -45,7 +45,7 @@ public class LoginInfo {
 	}
 
 	public Date getEventDate() {
-		return eventDate;
+		return new Date(eventDate.getTime());
 	}
 
 	public void setEventDate(Date eventDate) {

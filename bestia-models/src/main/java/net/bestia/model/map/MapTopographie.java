@@ -17,7 +17,7 @@ import java.util.Set;
  */
 public class MapTopographie {
 	
-	public class TopographyNode {
+	public static class TopographyNode {
 		private int weight;
 		private int x;
 		private int y;

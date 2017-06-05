@@ -202,7 +202,7 @@ public class Map {
 			return getTileset(layerGid).map(ts -> ts.getProperties(gid).isWalkable()).orElse(true);
 		}).findAny().map(data -> false).orElse(true);
 
-		return groundWalkable && layerWalkable;
+		return layerWalkable;
 	}
 
 	/**

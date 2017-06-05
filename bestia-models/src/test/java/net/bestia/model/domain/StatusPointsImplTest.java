@@ -3,11 +3,11 @@ package net.bestia.model.domain;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class StatusPointsTest {
+public class StatusPointsImplTest {
 
 	@Test
 	public void check_invalid_hp() {
-		StatusPoints sp = new StatusPointsImpl();
+		StatusPointsImpl sp = new StatusPointsImpl();
 
 		sp.setMaxHp(100);
 		sp.setCurrentHp(0);
@@ -23,7 +23,7 @@ public class StatusPointsTest {
 
 	@Test
 	public void check_invalid_mana() {
-		StatusPoints sp = new StatusPointsImpl();
+		StatusPointsImpl sp = new StatusPointsImpl();
 
 		sp.setMaxMana(100);
 		sp.setCurrentMana(0);
@@ -39,26 +39,26 @@ public class StatusPointsTest {
 	
 	@Test
 	public void check_invalid_sp_armor() {
-		StatusPoints sp = new StatusPointsImpl();
+		StatusPointsImpl sp = new StatusPointsImpl();
 
 		sp.setMagicDefense(-10);
-		Assert.assertEquals(1, sp.getMagicDefense());
+		Assert.assertEquals(0, sp.getMagicDefense());
 		sp.setMagicDefense(10);
 		Assert.assertEquals(10, sp.getMagicDefense());
-		sp.setMagicDefense(110);
-		Assert.assertEquals(100, sp.getMagicDefense());
+		sp.setMagicDefense(1100);
+		Assert.assertEquals(1000, sp.getMagicDefense());
 	}
 	
 	@Test
 	public void check_invalid_armor() {
-		StatusPoints sp = new StatusPointsImpl();
+		StatusPointsImpl sp = new StatusPointsImpl();
 
 		sp.setDefense(-10);
-		Assert.assertEquals(1, sp.getDefense());
+		Assert.assertEquals(0, sp.getDefense());
 		sp.setDefense(10);
 		Assert.assertEquals(10, sp.getDefense());
-		sp.setDefense(110);
-		Assert.assertEquals(100, sp.getDefense());
+		sp.setDefense(1100);
+		Assert.assertEquals(1000, sp.getDefense());
 	}
 
 	@Test
@@ -101,18 +101,18 @@ public class StatusPointsTest {
 	public void test_instanciation() {
 		StatusPoints sp = new StatusPointsImpl();
 
-		Assert.assertEquals(1, sp.getAgility());
-		Assert.assertEquals(1, sp.getVitality());
-		Assert.assertEquals(1, sp.getIntelligence());
-		Assert.assertEquals(1, sp.getAgility());
-		Assert.assertEquals(1, sp.getWillpower());
-		Assert.assertEquals(1, sp.getStrength());
+		Assert.assertEquals(0, sp.getAgility());
+		Assert.assertEquals(0, sp.getVitality());
+		Assert.assertEquals(0, sp.getIntelligence());
+		Assert.assertEquals(0, sp.getAgility());
+		Assert.assertEquals(0, sp.getWillpower());
+		Assert.assertEquals(0, sp.getStrength());
 		
-		Assert.assertEquals(1, sp.getDefense());
-		Assert.assertEquals(1, sp.getMagicDefense());
+		Assert.assertEquals(0, sp.getDefense());
+		Assert.assertEquals(0, sp.getMagicDefense());
 		
-		Assert.assertEquals(1, sp.getCurrentHp());
-		Assert.assertEquals(1, sp.getCurrentMana());
+		Assert.assertEquals(0, sp.getCurrentHp());
+		Assert.assertEquals(0, sp.getCurrentMana());
 	}
 	
 	@Test

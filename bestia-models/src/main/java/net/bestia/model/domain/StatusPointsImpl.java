@@ -67,8 +67,8 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 
 	@Override
 	public void setCurrentHp(int hp) {
-		if (hp < 1) {
-			hp = 1;
+		if (hp < 0) {
+			hp = 0;
 		}
 		if (hp > maxHp) {
 			hp = maxHp;
@@ -112,8 +112,8 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 
 	@Override
 	public void setCurrentMana(int mana) {
-		if (mana < 1) {
-			mana = 1;
+		if (mana < 0) {
+			mana = 0;
 		}
 		if (mana > maxMana) {
 			mana = maxMana;

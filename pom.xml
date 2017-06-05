@@ -22,7 +22,6 @@
 		<module>bestia-server-commons</module>
 		<module>bestia-zoneserver</module>
 		<module>bestia-webserver</module>
-		<module>bestia-www-client</module>
 		<module>bestia-server-base</module>
 	</modules>
 

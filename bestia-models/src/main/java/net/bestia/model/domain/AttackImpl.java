@@ -25,6 +25,21 @@ public class AttackImpl implements Serializable, Attack {
 	@Transient
 	private static AttackImpl defaultMeleeAttack;
 
+	static {
+		defaultMeleeAttack = new AttackImpl();
+		defaultMeleeAttack.id = BASIC_MELEE_ATTACK_ID;
+		defaultMeleeAttack.databaseName = "default_melee_attack";
+		defaultMeleeAttack.strength = 5;
+		defaultMeleeAttack.element = Element.NORMAL;
+		defaultMeleeAttack.manaCost = 0;
+		defaultMeleeAttack.range = 1;
+		defaultMeleeAttack.lineOfSight = true;
+		defaultMeleeAttack.basedStatus = AttackBasedStatus.NORMAL;
+		defaultMeleeAttack.target = AttackTarget.ENEMY_ENTITY;
+		defaultMeleeAttack.casttime = 0;
+		defaultMeleeAttack.cooldown = 1500;
+	}
+
 	@Transient
 	private static final long serialVersionUID = 1L;
 
@@ -94,7 +109,9 @@ public class AttackImpl implements Serializable, Attack {
 		this.databaseName = databaseName;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IAttack#getTarget()
 	 */
 	@Override
@@ -106,7 +123,9 @@ public class AttackImpl implements Serializable, Attack {
 		this.target = target;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IAttack#getDatabaseName()
 	 */
 	@Override
@@ -114,7 +133,9 @@ public class AttackImpl implements Serializable, Attack {
 		return databaseName;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IAttack#getStrength()
 	 */
 	@Override
@@ -130,7 +151,9 @@ public class AttackImpl implements Serializable, Attack {
 		this.strength = strength;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IAttack#getElement()
 	 */
 	@Override
@@ -146,7 +169,9 @@ public class AttackImpl implements Serializable, Attack {
 		this.element = element;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IAttack#getManaCost()
 	 */
 	@Override
@@ -154,7 +179,9 @@ public class AttackImpl implements Serializable, Attack {
 		return manaCost;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IAttack#needsLineOfSight()
 	 */
 	@Override
@@ -170,7 +197,9 @@ public class AttackImpl implements Serializable, Attack {
 		this.manaCost = manaCost;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IAttack#getBasedStatus()
 	 */
 	@Override
@@ -186,7 +215,9 @@ public class AttackImpl implements Serializable, Attack {
 		this.basedStatus = basedStatus;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IAttack#getCasttime()
 	 */
 	@Override
@@ -194,7 +225,9 @@ public class AttackImpl implements Serializable, Attack {
 		return casttime;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IAttack#getRange()
 	 */
 	@Override
@@ -202,7 +235,9 @@ public class AttackImpl implements Serializable, Attack {
 		return range;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IAttack#getCooldown()
 	 */
 	@Override
@@ -210,7 +245,9 @@ public class AttackImpl implements Serializable, Attack {
 		return cooldown;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IAttack#getId()
 	 */
 	@Override
@@ -218,7 +255,9 @@ public class AttackImpl implements Serializable, Attack {
 		return id;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see net.bestia.model.domain.IAttack#getIndicator()
 	 */
 	@Override
@@ -233,21 +272,6 @@ public class AttackImpl implements Serializable, Attack {
 	 * @return Specialized default melee attack.
 	 */
 	public static Attack getDefaultMeleeAttack() {
-		if (defaultMeleeAttack == null) {
-			defaultMeleeAttack = new AttackImpl();
-			defaultMeleeAttack.id = BASIC_MELEE_ATTACK_ID;
-			defaultMeleeAttack.databaseName = "default_melee_attack";
-			defaultMeleeAttack.strength = 5;
-			defaultMeleeAttack.element = Element.NORMAL;
-			defaultMeleeAttack.manaCost = 0;
-			defaultMeleeAttack.range = 1;
-			defaultMeleeAttack.lineOfSight = true;
-			defaultMeleeAttack.basedStatus = AttackBasedStatus.NORMAL;
-			defaultMeleeAttack.target = AttackTarget.ENEMY_ENTITY;
-			defaultMeleeAttack.casttime = 0;
-			defaultMeleeAttack.cooldown = 1500;
-		}
-
 		return defaultMeleeAttack;
 	}
 

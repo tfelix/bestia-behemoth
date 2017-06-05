@@ -24,8 +24,8 @@ public class Walkspeed {
 	 *            The current walkspeed in float.
 	 */
 	private Walkspeed(float speed) {
-		if (speed < 0 || speed > MAX_WALKSPEED / 1000) {
-
+		if (speed < 0 || speed > MAX_WALKSPEED) {
+			throw new IllegalArgumentException("Walkspeed in float form must be between 0 and 3.5f");
 		}
 
 		this.speed = (int) (speed * MAX_WALKSPEED);
