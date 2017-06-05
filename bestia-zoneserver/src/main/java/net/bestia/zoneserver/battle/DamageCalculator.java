@@ -1,21 +1,21 @@
 package net.bestia.zoneserver.battle;
 
 import java.util.Objects;
+import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
 import net.bestia.model.battle.Damage;
-import net.bestia.model.domain.AttackImpl;
+import net.bestia.model.battle.Damage.DamageType;
+import net.bestia.model.domain.Attack;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.component.LevelComponent;
-import net.bestia.zoneserver.entity.component.StatusComponent;
-import net.bestia.model.domain.AttackBasedStatus;
 
 @Service
 public final class DamageCalculator {
 
 	private EntityService entityService;
+	private Random rand = new Random();
 
 	/**
 	 * No instance is needed. The {@link DamageCalculator} can be used entirely
@@ -27,8 +27,15 @@ public final class DamageCalculator {
 	}
 
 	/**
-	 * Calculates the damage if an attack hits a target. NOTE: No damage will be
-	 * applied to the entity. This is in the responsibility of the caller.
+	 * Calculates the damage if an attack hits a target entity. This calculates
+	 * damage as long as the target entity is able to participate in the damage
+	 * system. This means it must have a status component attached.
+	 * 
+	 * If the target entity does not fulfill the requirements of getting a
+	 * damage calculated it will throw {@link IllegalArgumentException}.
+	 * 
+	 * NOTE: No damage will be applied to the entity. This is in the
+	 * responsibility of the caller.
 	 * 
 	 * <p>
 	 * Note: The implementation of the damage formula is not COMPLETE!
@@ -39,43 +46,12 @@ public final class DamageCalculator {
 	 * @param target
 	 * @return The damage the entity would take.
 	 */
-	/*
-	public Damage calculate(AttackImpl attack, Entity user, Entity target) {
+	public Damage calculate(Attack attack, Entity user, Entity target) {
 		Objects.requireNonNull(attack);
 		Objects.requireNonNull(user);
 		Objects.requireNonNull(target);
 
-		final float atkV;
-		final float defV;
-
-		final int userLevel = entityService.getComponent(user, LevelComponent.class)
-				.map(LevelComponent::getLevel)
-				.orElse(10);
-
-		if (attack.getBasedStatus() == AttackBasedStatus.NORMAL) {
-			atkV = user.getStatusPoints().getStrength();
-			defV = target.getStatusPoints().getDefense();
-		} else {
-			atkV = user.getStatusPoints().getIntelligence();
-			defV = target.getStatusPoints().getMagicDefense();
-		}
-
-		// Calculate base damage.
-		float dmg = 2.0f * userLevel + 10 / 250 * (atkV / defV) * attack.getStrength() + 2;
-
-		// Calculate all the needed modifier.
-
-		// same type as attack.
-		final float stabMod = (attack.getElement() == user.getElement()) ? 1.3f : 1.0f;
-		final float sizeMod = 1.0f;
-
-		final float mods = stabMod * sizeMod;
-
-		dmg *= mods;
-
-		final Damage damage = Damage.getHit((int) dmg);
-
-		return damage;
-	}*/
+		return new Damage(1 + rand.nextInt(5), DamageType.HIT);
+	}
 
 }

@@ -3,7 +3,7 @@ package net.bestia.model.domain;
 /**
  * Gives the target type for a attack.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public enum AttackTarget {
@@ -15,7 +15,7 @@ public enum AttackTarget {
 
 	/**
 	 * The attack can be targeted against another entity but is not usable
-	 * against friendly entities. (The user can override this though).
+	 * against friendly entities. (The user can override this though to target it to friendly entities).
 	 */
 	ENEMY_ENTITY,
 
@@ -26,7 +26,7 @@ public enum AttackTarget {
 
 	/**
 	 * The attack is targeted against a friendly entity (the user can override
-	 * this though to target it also against enemy entities).
+	 * this manually to target it also against enemy entities).
 	 */
 	FRIENDLY_ENTITY
 }

@@ -2,6 +2,14 @@ package net.bestia.model.domain;
 
 public interface Attack {
 
+	/**
+	 * @return ID of the attack.
+	 */
+	int getId();
+
+	/**
+	 * @return Information on which target the attack is directed.
+	 */
 	AttackTarget getTarget();
 
 	/**
@@ -33,12 +41,12 @@ public interface Attack {
 	boolean needsLineOfSight();
 
 	/**
-	 * @return the basedStatus
+	 * @return The status 
 	 */
 	AttackBasedStatus getBasedStatus();
 
 	/**
-	 * Base casttime of an attack in ms.
+	 * Base cast time of an attack in ms.
 	 * 
 	 * @return Cast time of an attack in ms.
 	 */
@@ -58,8 +66,6 @@ public interface Attack {
 	 */
 	int getCooldown();
 
-	int getId();
-
 	/**
 	 * The indicator description used to build the indicator for this attack.
 	 * 
@@ -67,4 +73,5 @@ public interface Attack {
 	 */
 	String getIndicator();
 
+	//AttackType getType();
 }

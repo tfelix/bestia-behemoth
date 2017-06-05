@@ -35,7 +35,7 @@ public class Party implements Serializable {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
-	
+
 	@Column(nullable = false, unique = true)
 	private String name;
 
@@ -66,11 +66,18 @@ public class Party implements Serializable {
 	public Set<Account> getMembers() {
 		return Collections.unmodifiableSet(members);
 	}
-	
+
+	/**
+	 * @return The name of the party.
+	 */
 	public String getName() {
 		return name;
 	}
-	
+
+	/**
+	 * @param name
+	 *            The name of the party.
+	 */
 	public void setName(String name) {
 		this.name = Objects.requireNonNull(name);
 	}

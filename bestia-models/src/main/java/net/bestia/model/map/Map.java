@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
@@ -125,7 +124,6 @@ public class Map {
 		this.groundLayer = Collections.unmodifiableList(builder.groundTiles);
 	}
 
-
 	/**
 	 * Returns the walkspeed of a given x and y coordiante. The walkspeed will
 	 * be 0 if the tile does not exist inside the {@link Map}.
@@ -222,21 +220,17 @@ public class Map {
 	 * Returns TRUE if the given tile blocks the sight of the player. FALSE if
 	 * the player can look over the tile.
 	 * 
-	 * @param x
-	 *            X coordinate to check.
-	 * @param y
-	 *            Y coordinate to check.
+	 * @param p
+	 *            The point to check for sight blocking.
 	 * @return TRUE if the tile blocks the sight. FALSE otherwise.
 	 */
-	public boolean blocksSight(long x, long y) {
-
-		final Point p = new Point(x, y);
+	public boolean blocksSight(Point p) {
 
 		if (!rect.collide(p)) {
 			throw new IndexOutOfBoundsException("X or/and Y does not lie inside the map rectangle.");
 		}
 
-		final int gid = getGid(x, y);
+		final int gid = getGid(p.getX(), p.getY());
 
 		if (gid == 0) {
 			return false;
@@ -256,7 +250,7 @@ public class Map {
 				.anyMatch(tileset -> {
 					return tileset.isPresent() && tileset.get().getProperties(gid).blockSight();
 				});
-				
+
 		return blocksSight;
 	}
 
@@ -270,7 +264,6 @@ public class Map {
 
 		return tilesets.stream().filter(ts -> ts.contains(gid)).findAny();
 	}
-
 
 	/**
 	 * Returns the size (and location) of map which usually only represents a

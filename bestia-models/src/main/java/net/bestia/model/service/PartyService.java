@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import net.bestia.model.dao.PartyDAO;
 
 /**
- * Service to manage the parties of the players.
+ * Service to manage the parties of the players. Parties are a way to organize
+ * loose groups of players. A party is permanent in such a way it is persisted
+ * upon the server until the last member leaves it.
  * 
  * @author Thomas Felix
  *
@@ -30,15 +32,15 @@ public class PartyService {
 	 * @param accountId
 	 * @return TRUE if the member could be added. FALSE otherwise.
 	 */
-	public boolean addPartyMember(long accountId, String partyName) {
+	public boolean addPartyMember(long memberAccountId, long invitedAccountId) {
 		throw new IllegalStateException("Method not implemented.");
 	}
 
 	/**
-	 * Removes the member from the party. If a admin leaves a party a new party
-	 * member is promoted to the owner state. If the last member (and thus
-	 * owner) has left the party the party is destroyed and removed from the
-	 * database.
+	 * Removes the member from the party. If a party owner (or party admin)
+	 * leaves a party a new party member is promoted to the owner state. If the
+	 * last member (and thus last owner) has left the party the party is destroyed
+	 * and removed from the database.
 	 * 
 	 * @param accountId
 	 *            The account id to be removed from a party.

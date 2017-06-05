@@ -1,6 +1,11 @@
 package net.bestia.zoneserver.battle;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +46,8 @@ public class BattleService {
 
 	@Autowired
 	public BattleService(
-			EntityService entityService, 
-			StatusService statusService, 
+			EntityService entityService,
+			StatusService statusService,
 			MapService mapService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
@@ -200,28 +205,64 @@ public class BattleService {
 		// Find the rect enclosing the two points.
 		final double d1 = ZERO.getDistance(start);
 		final double d2 = ZERO.getDistance(end);
-		
+
 		final Point smaller, bigger;
-		
-		if(d1 < d2) {
+
+		if (d1 < d2) {
 			smaller = start;
 			bigger = end;
 		} else {
 			smaller = end;
 			bigger = start;
 		}
-		
+
 		final long width = bigger.getX() - bigger.getX();
 		final long height = bigger.getY() - bigger.getY();
-		
+
 		final Rect bbox = new Rect(smaller.getX(), smaller.getY(), width, height);
-		
+
 		final Map map = mapService.getMap(bbox);
-		
-		// Find the tiles which lie within the line of sight and need to be checked.
-		//map.isWalkable(p)
-		
-		return true;
+
+		List<Point> lineOfSight = lineOfSight(start, end);
+
+		final boolean doesMapBlock = lineOfSight.stream().filter(map::blocksSight).findAny().isPresent();
+
+		// TODO We need to check temporarly entity sight blocking as well.
+
+		return doesMapBlock;
+	}
+
+	/**
+	 * Calculates a list of points which lie under the given line of sight. This
+	 * uses Bresenham line algorithm.
+	 * 
+	 * @param start
+	 *            Starting point.
+	 * @param end
+	 *            End point.
+	 * @return A list of points which are under the
+	 */
+	private List<Point> lineOfSight(Point start, Point end) {
+		final List<Point> result = new ArrayList<>();
+
+		long dx = end.getX() - start.getX();
+		long dy = end.getY() - start.getY();
+		long D = 2 * dy - dx;
+		long y = start.getY();
+
+		for (long x = start.getX(); x <= end.getX(); x++) {
+
+			result.add(new Point(x, y));
+
+			if (D > 0) {
+				y = y + 1;
+				D = D - 2 * dx;
+			}
+
+			D = D + 2 * dy;
+		}
+
+		return result;
 	}
 
 	/**
