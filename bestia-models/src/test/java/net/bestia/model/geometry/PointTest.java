@@ -20,8 +20,8 @@ public class PointTest {
 	public void moveAnchor() {
 		Point p = new Point(10, 10);
 		p = (Point) p.moveByAnchor(3, 3);
-		Assert.assertEquals(13, p.getX());
-		Assert.assertEquals(13, p.getY());
+		Assert.assertEquals(3, p.getX());
+		Assert.assertEquals(3, p.getY());
 	}
 
 	@Test

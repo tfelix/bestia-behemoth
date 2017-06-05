@@ -334,6 +334,7 @@ public class EntityService {
 		Objects.requireNonNull(component);
 
 		components.put(component.getId(), component);
+		
 		final Entity ownerEntity = getEntity(component.getEntityId());
 
 		// Check possible interceptors.

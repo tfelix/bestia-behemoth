@@ -63,8 +63,8 @@ public interface CollisionShape {
 	public Point getAnchor();
 
 	/**
-	 * Moves the whole {@link CollisionShape} to the new coordiantes relative to
-	 * its anchor whose absolute coordiantes are set by this method.
+	 * Moves the whole {@link CollisionShape} to the new coordinates relative to
+	 * its anchor point whose absolute coordinates are now set by this method.
 	 * 
 	 * @param x
 	 *            New absolute x coordinate.

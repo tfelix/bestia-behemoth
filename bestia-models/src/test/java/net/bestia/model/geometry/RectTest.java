@@ -23,8 +23,8 @@ public class RectTest {
 		
 		Assert.assertEquals(14, r.getX());
 		Assert.assertEquals(14, r.getY());
-		Assert.assertEquals(1, r.getAnchor().getX());
-		Assert.assertEquals(1, r.getAnchor().getY());
+		Assert.assertEquals(15, r.getAnchor().getX());
+		Assert.assertEquals(15, r.getAnchor().getY());
 	}
 
 	@Test

@@ -65,6 +65,11 @@ public class PositionComponent extends Component {
 		return facing;
 	}
 
+	/**
+	 * Set the facing direction.
+	 * 
+	 * @param facing The new facing.
+	 */
 	public void setFacing(Direction facing) {
 		this.facing = facing;
 	}
