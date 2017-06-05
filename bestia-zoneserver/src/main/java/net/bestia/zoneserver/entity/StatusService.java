@@ -58,11 +58,6 @@ public class StatusService {
 			return Optional.empty();
 		}
 		
-
-		if (statusComp.get().getOriginalStatusPoints() == null) {
-			calculateUnmodifiedStatusPoints(entity, statusComp.get());
-		}
-		
 		if (statusComp.get().getStatusPoints() == null || statusComp.get().getStatusBasedValues() == null) {
 			calculateStatusPoints(entity, statusComp.get());
 		}
@@ -91,11 +86,6 @@ public class StatusService {
 			return Optional.empty();
 		}
 
-		if (statusComp.get().getStatusPoints() == null) {
-			calculateUnmodifiedStatusPoints(entity, statusComp.get());
-			calculateStatusPoints(entity, statusComp.get());
-		}
-
 		return Optional.of(statusComp.get().getStatusPoints());
 	}
 
@@ -105,10 +95,6 @@ public class StatusService {
 
 		if (!statusComp.isPresent()) {
 			return Optional.empty();
-		}
-
-		if (statusComp.get().getOriginalStatusPoints() == null) {
-			calculateUnmodifiedStatusPoints(entity, statusComp.get());
 		}
 
 		return Optional.of(statusComp.get().getOriginalStatusPoints());
@@ -131,7 +117,7 @@ public class StatusService {
 	/**
 	 * At first this calculates the unmodified, original status points.
 	 */
-	private void calculateUnmodifiedStatusPoints(Entity entity, StatusComponent statusComp) {
+	private void calculateUnmodifiedStatusPoints(Entity entity, StatusComponent statusComp, int level) {
 		Objects.requireNonNull(entity);
 
 		LOG.trace("Calculate unmodfified status points for entity {}.", entity);
@@ -147,23 +133,20 @@ public class StatusService {
 		final BaseValues effortValues = pb.getEffortValues();
 		final BaseValues ivs = pb.getIndividualValue();
 
-		// Retrieve the level.
-		final int level = entityService.getComponent(entity, LevelComponent.class)
-				.map(LevelComponent::getLevel)
-				.orElse(10);
+		final int str = (baseValues.getAttack() * 2 + ivs.getAttack() + effortValues.getAttack() / 4) * level / 100 + 5;
 
-		final int atk = (baseValues.getAttack() * 2 + ivs.getAttack() + effortValues.getAttack() / 4) * level / 100 + 5;
-
-		final int def = (baseValues.getVitality() * 2 + ivs.getVitality() + effortValues.getVitality() / 4) * level
+		final int vit = (baseValues.getVitality() * 2 + ivs.getVitality() + effortValues.getVitality() / 4) * level
 				/ 100 + 5;
 
-		final int spatk = (baseValues.getIntelligence() * 2 + ivs.getIntelligence()
+		final int intel = (baseValues.getIntelligence() * 2 + ivs.getIntelligence()
 				+ effortValues.getIntelligence() / 4) * level / 100 + 5;
 
-		final int spdef = (baseValues.getWillpower() * 2 + ivs.getWillpower() + effortValues.getWillpower() / 4) * level
+		final int will = (baseValues.getWillpower() * 2 + ivs.getWillpower() + effortValues.getWillpower() / 4) * level
 				/ 100 + 5;
 
-		int spd = (baseValues.getAgility() * 2 + ivs.getAgility() + effortValues.getAgility() / 4) * level / 100 + 5;
+		final int agi = (baseValues.getAgility() * 2 + ivs.getAgility() + effortValues.getAgility() / 4) * level / 100 + 5;
+		
+		final int dex = (baseValues.getDexterity() * 2 + ivs.getDexterity() + effortValues.getDexterity() / 4) * level / 100 + 5;
 
 		final int maxHp = baseValues.getHp() * 2 + ivs.getHp() + effortValues.getHp() / 4 * level / 100 + 10 + level;
 
@@ -172,11 +155,12 @@ public class StatusService {
 
 		statusPoints.setMaxHp(maxHp);
 		statusPoints.setMaxMana(maxMana);
-		statusPoints.setStrenght(atk);
-		statusPoints.setVitality(def);
-		statusPoints.setIntelligence(spatk);
-		statusPoints.setMagicDefense(spdef);
-		statusPoints.setAgility(spd);
+		statusPoints.setStrenght(str);
+		statusPoints.setVitality(vit);
+		statusPoints.setIntelligence(intel);
+		statusPoints.setWillpower(will);
+		statusPoints.setAgility(agi);
+		statusPoints.setDexterity(dex);
 
 		statusPoints.setCurrentHp(pb.getCurrentHp());
 		statusPoints.setCurrentMana(pb.getCurrentMana());
@@ -203,7 +187,9 @@ public class StatusService {
 		// Retrieve the level.
 		final int level = entityService.getComponent(entity, LevelComponent.class)
 				.map(LevelComponent::getLevel)
-				.orElse(10);
+				.orElse(1);
+		
+		calculateUnmodifiedStatusPoints(entity, statusComp, level);
 
 		// Currently only use status values 1:1.
 		StatusPoints statusPoints = new StatusPointsImpl(statusComp.getOriginalStatusPoints());

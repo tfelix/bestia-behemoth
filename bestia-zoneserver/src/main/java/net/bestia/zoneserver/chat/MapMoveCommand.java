@@ -73,7 +73,7 @@ public class MapMoveCommand extends BaseChatCommand {
 
 			final Entity pbe = playerBestiaService.getActivePlayerEntity(account.getId());
 
-			Optional<PositionComponent> posComp = entityService.getComponent(pbe, PositionComponent.class);
+			final Optional<PositionComponent> posComp = entityService.getComponent(pbe, PositionComponent.class);
 
 			if(posComp.isPresent()) {
 				posComp.get().setPosition(x, y);

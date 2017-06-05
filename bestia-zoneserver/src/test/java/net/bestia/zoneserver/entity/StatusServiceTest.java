@@ -115,6 +115,7 @@ public class StatusServiceTest {
 		statusService.getUnmodifiedStatusPoints(null);
 	}
 
+	@Test
 	public void getUnmodifiedStatusPoints_nonStatusEntity_empty() {
 		Optional<StatusPoints> sp = statusService.getUnmodifiedStatusPoints(nonStatusEntity);
 		Assert.assertFalse(sp.isPresent());
@@ -124,5 +125,26 @@ public class StatusServiceTest {
 	public void getUnmodifiedStatusPoints_statusEntity_returnsValues() {
 		Optional<StatusPoints> sp = statusService.getUnmodifiedStatusPoints(statusEntity);
 		Assert.assertTrue(sp.isPresent());
+	}
+	
+	@Test(expected=NullPointerException.class)
+	public void calculateStatusPoints_nullEntity_throws() {
+		statusService.calculateStatusPoints(null);
+	}
+	
+	@Test
+	public void calculateStatusPoints_validEntity_recalculatesStatus() {
+		statusService.calculateStatusPoints(statusEntity);
+		
+		Optional<StatusPoints> sp = statusService.getStatusPoints(statusEntity);
+		
+		Assert.assertTrue(sp.isPresent());
+		
+		Assert.assertNotEquals(0, sp.get().getAgility());
+		Assert.assertNotEquals(0, sp.get().getVitality());
+		Assert.assertNotEquals(0, sp.get().getDexterity());
+		Assert.assertNotEquals(0, sp.get().getStrength());
+		Assert.assertNotEquals(0, sp.get().getIntelligence());
+		Assert.assertNotEquals(0, sp.get().getWillpower());
 	}
 }
