@@ -108,7 +108,7 @@ export default class BestiaView {
 		this.bestias.removeAll();
 		this.slots(0);
 		this.masterBestia(null);
-		this._selectBestia(null);
+		//this._selectBestia(null);
 	}
 	
 	/**
@@ -122,7 +122,7 @@ export default class BestiaView {
 		var bestia = this.getBestiaByEntityId(msg.eid);
 
 		if(bestia === null) {
-			this._deferredActiveBestia = msg.pbid;
+			this._deferredActiveBestia = msg.eid;
 			return;
 		}
 

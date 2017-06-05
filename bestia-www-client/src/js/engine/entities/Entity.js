@@ -136,7 +136,7 @@ export default class Entity {
 			return { x: 0, y: 0 };
 		}
 
-		return WorldHelper.getTileXY(visual.position);
+		return WorldHelper.getTileXY(visual.position.x, visual.position.y);
 	}
 
 	/**
