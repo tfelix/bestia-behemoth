@@ -29,19 +29,21 @@ public abstract class ComponentSetter<T extends Component> {
 	}
 
 	/**
-	 * Small helper method to transform the incoming type
+	 * Small helper method to transform the incoming type. If this is the wrong
+	 * component type. Do nothing.
 	 * 
-	 * @param addedComp
+	 * @param component
+	 *            The component to be set via this setter.
 	 */
-	public void setComponent(Component addedComp) {
-		Objects.requireNonNull(addedComp);
+	public void setComponent(Component component) {
+		Objects.requireNonNull(component);
 
 		// Can I cast?
-		if (!type.isAssignableFrom(addedComp.getClass())) {
+		if (!type.isAssignableFrom(component.getClass())) {
 			return;
 		}
 
-		performSetting(type.cast(addedComp));
+		performSetting(type.cast(component));
 	}
 
 	/**

@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.entity.component;
 
 import net.bestia.model.domain.Element;
-import net.bestia.model.domain.StatusEffect;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
 import net.bestia.model.entity.StatusBasedValues;
@@ -47,31 +46,13 @@ public class StatusComponent extends Component {
 	}
 
 	/**
-	 * Adds a {@link StatusEffect} to the entity. This will possibly trigger
-	 * effects associated with the adding of the effect.
+	 * Sets the status points of this component.
 	 * 
-	 * @param effect
-	 *            The effect to add.
+	 * @param statusPoints
 	 */
-	// void addStatusEffect(StatusEffect effect);
-
-	/**
-	 * Removes the given status effect from the entity. This will possibly
-	 * trigger effects associated with the removal of the effect.
-	 * 
-	 * @param effect
-	 *            The effect to remove.
-	 */
-	// void removeStatusEffect(StatusEffect effect);
-
-	/**
-	 * Gets all currently added status effects. This list is immutable. Please
-	 * use {@link #addStatusEffect(StatusEffect)} or
-	 * {@link #removeStatusEffect(StatusEffect)} to alter this list indirectly.
-	 * 
-	 * @return The currently added status effects.
-	 */
-	// List<StatusEffect> getStatusEffects();
+	public void setOriginalStatusPoints(StatusPoints originalStatusPoints) {
+		this.originalStatusPoints = originalStatusPoints;
+	}
 
 	public StatusBasedValues getStatusBasedValues() {
 		return statusBasedValues;
@@ -86,15 +67,6 @@ public class StatusComponent extends Component {
 	}
 
 	/**
-	 * The current element of this entity.
-	 * 
-	 * @return The current element of the entity.
-	 */
-	public Element getElement() {
-		return element;
-	}
-
-	/**
 	 * The original element of this entity unaltered by status effects or
 	 * equipments.
 	 * 
@@ -104,30 +76,37 @@ public class StatusComponent extends Component {
 		return originalElement;
 	}
 
-	@Override
-	public String toString() {
-		return String.format("StatusComponent[]");
+	/**
+	 * The current element of this entity.
+	 * 
+	 * @return The current element of the entity.
+	 */
+	public Element getElement() {
+		return element;
 	}
 
 	/**
-	 * Sets the status points of this component.
+	 * Sets new status values.
 	 * 
 	 * @param statusPoints
+	 *            The new status values.
 	 */
-	public void setOriginalStatusPoints(StatusPoints originalStatusPoints) {
-		this.originalStatusPoints = originalStatusPoints;
+	public void setStatusPoints(StatusPoints statusPoints) {
+		this.statusPoints = statusPoints;
 	}
-
+	
 	/**
 	 * Sets the status based values.
 	 * 
 	 * @param statusBasedValues
+	 *            The new status based values.
 	 */
 	public void setStatusBasedValues(StatusBasedValues statusBasedValues) {
 		this.statusBasedValues = statusBasedValues;
 	}
 
-	public void setStatusPoints(StatusPoints statusPoints) {
-		this.statusPoints = statusPoints;
+	@Override
+	public String toString() {
+		return String.format("StatusComponent[]");
 	}
 }
