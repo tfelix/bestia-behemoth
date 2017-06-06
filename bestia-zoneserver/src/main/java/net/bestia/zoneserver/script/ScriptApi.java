@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.script;
 
+import java.util.List;
+
 import net.bestia.model.geometry.CollisionShape;
 
 /**
@@ -27,7 +29,26 @@ public interface ScriptApi {
 	 */
 	void debug(String text);
 
+	// ############# ENTITY API #############
 	long createEntity(CollisionShape shape);
+
+	List<Long> findEntities(long x, long y, long width, long height);
+
+	/**
+	 * Checks if the entity is a given type. Returns TRUE if the entity belongs
+	 * to this type or FALSE otherwise.
+	 * 
+	 * Valid types (string) are:
+	 * <ul>
+	 * 	<li>PLAYER</li>
+	 * 	<li>SCRIPT</li>
+	 * </ul>
+	 * 
+	 * @param entityId
+	 * @param type
+	 * @return
+	 */
+	boolean isEntityTypeOf(long entityId, String type);
 
 	void setLivetime(long entityId, int livetimeMs);
 

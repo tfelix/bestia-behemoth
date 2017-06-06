@@ -20,7 +20,7 @@ import scala.concurrent.duration.Duration;
 @Scope("prototype")
 public abstract class BestiaPeriodicActor extends BestiaActor {
 
-	private static final String TICK_MSG = "net.bestia.TICK_MSG";
+	protected static final String TICK_MSG = "net.bestia.TICK_MSG";
 
 	private int intervalDuration;
 	private Cancellable ticker;

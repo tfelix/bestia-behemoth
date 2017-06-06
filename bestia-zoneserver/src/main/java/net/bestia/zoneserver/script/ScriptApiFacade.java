@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.script;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -95,7 +96,8 @@ public class ScriptApiFacade implements ScriptApi {
 	@Override
 	public void kill(long entityId) {
 		LOG.trace("Killing entity: {}.", entityId);
-		entityServiceCtx.getBattleService().killEntity(getEntityFromId(entityId));
+		final Entity entity = getEntityFromId(entityId);
+		entityServiceCtx.getBattleService().killEntity(entity);
 	}
 
 	@Override
@@ -146,5 +148,17 @@ public class ScriptApiFacade implements ScriptApi {
 			throw new IllegalArgumentException("Unknown entity id: "+ eid);
 		}
 		return e;
+	}
+
+	@Override
+	public List<Long> findEntities(long x, long y, long width, long height) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isEntityTypeOf(long entityId, String type) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
