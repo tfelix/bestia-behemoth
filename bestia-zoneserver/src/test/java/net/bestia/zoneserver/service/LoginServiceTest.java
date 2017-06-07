@@ -1,10 +1,9 @@
 package net.bestia.zoneserver.service;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.anyLong;
 
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -13,6 +12,9 @@ import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import akka.testkit.TestProbe;
 import net.bestia.model.dao.AccountDAO;
@@ -23,10 +25,10 @@ import net.bestia.zoneserver.BasicMocks;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.RuntimeConfigurationService;
 import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityServiceContext;
 import net.bestia.zoneserver.entity.PlayerBestiaEntityFactory;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 
+@RunWith(MockitoJUnitRunner.class)
 public class LoginServiceTest {
 
 	private final static long USER_ACC_ID = 134;
@@ -37,44 +39,43 @@ public class LoginServiceTest {
 	private final static String ACC_NAME = "testacc";
 
 	private BasicMocks mocks = new BasicMocks();
+
+	@Mock
 	private RuntimeConfigurationService config;
 
+	@Mock
 	private AccountDAO accountDao;
 
+	@Mock
 	private ConnectionService connectionService;
 
-	private EntityServiceContext entityServiceCtx;
-
+	@Mock
 	private PlayerBestiaService playerBestiaService;
 
+	@Mock
 	private ZoneAkkaApi akkaApi;
 
+	@Mock
 	private PlayerBestiaEntityFactory playerEntityFactory;
 
 	private LoginService loginService;
 	private TestProbe clientConnection;
+
+	@Mock
 	private Account userAccount;
+
+	@Mock
 	private Account gmAccount;
+
+	@Mock
 	private PlayerBestia playerBestia;
+
+	@Mock
 	private Entity bestiaEntity;
 	private PlayerEntityService playerEntityService;
 
 	@Before
 	public void setup() {
-
-		config = mock(RuntimeConfigurationService.class);
-		accountDao = mock(AccountDAO.class);
-		connectionService = mock(ConnectionService.class);
-		entityServiceCtx = mock(EntityServiceContext.class);
-		playerBestiaService = mock(PlayerBestiaService.class);
-		akkaApi = mock(ZoneAkkaApi.class);
-		playerEntityFactory = mock(PlayerBestiaEntityFactory.class);
-		playerBestia = mock(PlayerBestia.class);
-		bestiaEntity = mock(Entity.class);
-		playerEntityService = mock(PlayerEntityService.class);
-
-		userAccount = mock(Account.class);
-		gmAccount = mock(Account.class);
 
 		when(userAccount.getName()).thenReturn(ACC_NAME);
 		when(gmAccount.getName()).thenReturn(ACC_NAME);
@@ -91,8 +92,6 @@ public class LoginServiceTest {
 		when(playerBestiaService.getMaster(USER_ACC_ID)).thenReturn(playerBestia);
 		when(playerEntityFactory.build(playerBestia)).thenReturn(bestiaEntity);
 
-		when(entityServiceCtx.getPlayer()).thenReturn(playerEntityService);
-
 		when(playerEntityService.getMasterEntity(anyLong())).thenReturn(Optional.empty());
 		when(playerEntityService.getMasterEntity(USER_ACC_ID)).thenReturn(Optional.of(bestiaEntity));
 		when(playerEntityService.getMasterEntity(GM_ACC_ID)).thenReturn(Optional.of(bestiaEntity));
@@ -101,8 +100,13 @@ public class LoginServiceTest {
 
 		clientConnection = new TestProbe(mocks.actorSystem(), "client");
 
-		loginService = new LoginService(config, accountDao, entityServiceCtx, connectionService, playerBestiaService,
-				akkaApi, playerEntityFactory);
+		loginService = new LoginService(config, 
+				accountDao,
+				playerEntityService, 
+				connectionService, 
+				playerBestiaService,
+				akkaApi, 
+				playerEntityFactory);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

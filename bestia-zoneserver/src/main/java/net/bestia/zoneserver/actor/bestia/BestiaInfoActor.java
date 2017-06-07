@@ -17,7 +17,8 @@ import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityServiceContext;
+import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 import net.bestia.zoneserver.entity.StatusService;
 import net.bestia.zoneserver.entity.component.PlayerComponent;
 
@@ -35,16 +36,21 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 	public static final String NAME = "bestiaInfo";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	private final EntityServiceContext entityServiceCtx;
+	private final EntityService entityService;
+	private final PlayerEntityService playerEntityService;
 	private final PlayerBestiaDAO playerBestiaDao;
 	private final StatusService statusService;
 
 	@Autowired
-	public BestiaInfoActor(EntityServiceContext entityServiceCtx,
-			PlayerBestiaDAO playerBestiaDao, StatusService statusService) {
+	public BestiaInfoActor(
+			EntityService entityService,
+			PlayerBestiaDAO playerBestiaDao,
+			StatusService statusService,
+			PlayerEntityService playerEntityService) {
 		super(Arrays.asList(RequestBestiaInfoMessage.class));
 
-		this.entityServiceCtx = Objects.requireNonNull(entityServiceCtx);
+		this.entityService = Objects.requireNonNull(entityService);
+		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
 		this.statusService = Objects.requireNonNull(statusService);
 
@@ -56,12 +62,11 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 
 		final RequestBestiaInfoMessage rbimsg = (RequestBestiaInfoMessage) msg;
 
-		final Set<Entity> bestias = entityServiceCtx.getPlayer().getPlayerEntities(rbimsg.getAccountId());
+		final Set<Entity> bestias = playerEntityService.getPlayerEntities(rbimsg.getAccountId());
 
 		for (Entity pbe : bestias) {
 
-			final PlayerComponent pbComp = entityServiceCtx.getEntity()
-					.getComponent(pbe, PlayerComponent.class)
+			final PlayerComponent pbComp = entityService.getComponent(pbe, PlayerComponent.class)
 					.orElseThrow(IllegalStateException::new);
 
 			final PlayerBestia pb = playerBestiaDao.findOne(pbComp.getPlayerBestiaId());

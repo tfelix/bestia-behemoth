@@ -9,10 +9,14 @@ import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import net.bestia.zoneserver.entity.component.PositionComponent;
 import net.bestia.zoneserver.script.ScriptService;
 
+@RunWith(MockitoJUnitRunner.class)
 public class EntityRecyclerTest {
 	
 	private static final long INVALID_ENTITY_ID = 123;
@@ -21,31 +25,26 @@ public class EntityRecyclerTest {
 
 	private EntityRecycler recycler;
 	
-	private EntityServiceContext serviceCtx;
+	@Mock
 	private EntityService entityService;
+	
+	@Mock
 	private ScriptService scriptService;
 	
+	@Mock
 	private PositionComponent p1;
+	
+	@Mock
 	private PositionComponent p2;
 	
+	@Mock
 	private Entity entity;
+	
+	@Mock
 	private Entity entity2;
 
 	@Before
 	public void setup() {
-
-		entity = mock(Entity.class);
-		entity2 = mock(Entity.class);
-		
-		serviceCtx = mock(EntityServiceContext.class);
-		entityService = mock(EntityService.class);
-		scriptService = mock(ScriptService.class);
-		
-		p1 = mock(PositionComponent.class);
-		p2 = mock(PositionComponent.class);
-		
-		when(serviceCtx.getEntity()).thenReturn(entityService);
-		when(serviceCtx.getScriptService()).thenReturn(scriptService);
 		
 		when(entityService.hasComponent(entity, PositionComponent.class)).thenReturn(true);
 		when(entityService.getComponent(entity, PositionComponent.class)).thenReturn(Optional.of(p1));
@@ -58,17 +57,17 @@ public class EntityRecyclerTest {
 		when(entityService.getAllComponents(entity)).thenReturn(Stream.of(p1).collect(Collectors.toList()));
 		when(entityService.getAllComponents(entity2)).thenReturn(Stream.of(p2).collect(Collectors.toList()));
 		
-		recycler = new EntityRecycler(1, serviceCtx);
+		recycler = new EntityRecycler(1, entityService, scriptService);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void ctor_negativeCacheValues_throws() {
-		new EntityRecycler(-10, serviceCtx);
+		new EntityRecycler(-10, entityService, scriptService);
 	}
 
 	@Test(expected=NullPointerException.class)
 	public void ctor_nullEntityServiceCtx_throws() {
-		new EntityRecycler(10, null);
+		new EntityRecycler(10, null, scriptService);
 	}
 
 	@Test(expected=NullPointerException.class)

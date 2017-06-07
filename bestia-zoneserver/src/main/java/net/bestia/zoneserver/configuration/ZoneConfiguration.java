@@ -15,11 +15,11 @@ import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.zoneserver.entity.EntityRecycler;
 import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.EntityServiceContext;
 import net.bestia.zoneserver.entity.component.interceptor.ComponentInterceptor;
 import net.bestia.zoneserver.environment.date.BestiaDate;
 import net.bestia.zoneserver.map.path.AStarPathfinder;
 import net.bestia.zoneserver.map.path.Pathfinder;
+import net.bestia.zoneserver.script.ScriptService;
 
 /**
  * Central bean definitions for the main bestia zoneserver. Some beans require a
@@ -81,8 +81,8 @@ public class ZoneConfiguration {
 	}
 	
 	@Bean
-	public EntityRecycler entityRecycler(EntityServiceContext entityServiceCtx) {
-		return new EntityRecycler(10, entityServiceCtx);
+	public EntityRecycler entityRecycler(EntityService entityService, ScriptService scriptService) {
+		return new EntityRecycler(10, entityService, scriptService);
 	}
 
 }

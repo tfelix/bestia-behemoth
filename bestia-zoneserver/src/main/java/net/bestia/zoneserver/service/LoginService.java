@@ -18,7 +18,6 @@ import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.RuntimeConfigurationService;
 import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityServiceContext;
 import net.bestia.zoneserver.entity.PlayerBestiaEntityFactory;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 
@@ -36,7 +35,7 @@ public class LoginService {
 	private final RuntimeConfigurationService config;
 	private final AccountDAO accountDao;
 	private final ConnectionService connectionService;
-	private final EntityServiceContext entityServiceCtx;
+	private final PlayerEntityService playerEntityService;
 	private final PlayerBestiaService playerBestiaService;
 	private final ZoneAkkaApi akkaApi;
 	private final PlayerBestiaEntityFactory playerEntityFactory;
@@ -44,7 +43,7 @@ public class LoginService {
 	@Autowired
 	public LoginService(RuntimeConfigurationService config,
 			AccountDAO accountDao,
-			EntityServiceContext entityServiceCtx,
+			PlayerEntityService playerEntityService,
 			ConnectionService connectionService,
 			PlayerBestiaService playerBestiaService,
 			ZoneAkkaApi akkaApi,
@@ -52,7 +51,7 @@ public class LoginService {
 
 		this.config = Objects.requireNonNull(config);
 		this.accountDao = Objects.requireNonNull(accountDao);
-		this.entityServiceCtx = Objects.requireNonNull(entityServiceCtx);
+		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		this.connectionService = Objects.requireNonNull(connectionService);
 		this.playerBestiaService = Objects.requireNonNull(playerBestiaService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
@@ -94,8 +93,8 @@ public class LoginService {
 		try {
 			// Save the entity.
 			// Now activate the master and notify the client.
-			entityServiceCtx.getPlayer().putPlayerEntity(masterEntity);
-			entityServiceCtx.getPlayer().setActiveEntity(accId, masterEntity.getId());
+			playerEntityService.putPlayerEntity(masterEntity);
+			playerEntityService.setActiveEntity(accId, masterEntity.getId());
 		} catch (IllegalArgumentException e) {
 			// Seems the entity has no player component. Aborting.
 			LOG.warn("Could not login because of exception.", e);
@@ -136,8 +135,6 @@ public class LoginService {
 		// Unregister connection.
 		LOG.debug("Logout acc id: {}.", accId);
 		connectionService.removeClient(accId);
-
-		final PlayerEntityService playerEntityService = entityServiceCtx.getPlayer();
 
 		final Set<Entity> playerEntities = playerEntityService.getPlayerEntities(accId);
 		
