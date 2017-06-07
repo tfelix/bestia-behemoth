@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.hazelcast.core.HazelcastInstance;
 
 import akka.actor.ActorSystem;
-import akka.actor.Terminated;
-import scala.concurrent.Future;
 
 
 /**
@@ -47,10 +45,10 @@ public class ServerController {
 		LOG.info("Received REST Command: SHUTDOWN.");
 		
 		// TODO Das hier noch richtig beenden.
-		Future<Terminated> termination = actorSystem.terminate();
+		actorSystem.terminate();
 		
 		try {
-			termination.wait(3000);
+			Thread.sleep(2000);
 		} catch (InterruptedException e) {
 			// no op.
 		}
