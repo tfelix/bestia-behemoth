@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity;
+package net.bestia.zoneserver.script;
 
 import java.util.Objects;
 
@@ -13,17 +13,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import akka.actor.ActorPath;
 import akka.actor.ActorRef;
-import akka.actor.PoisonPill;
 import net.bestia.messages.internal.ScriptIntervalMessage;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.script.PeriodicScriptRunnerActor;
 import net.bestia.zoneserver.configuration.StaticConfigurationService;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.component.ScriptComponent;
-import net.bestia.zoneserver.script.ScriptApi;
-import net.bestia.zoneserver.script.ScriptCache;
-import net.bestia.zoneserver.script.ScriptType;
 
 /**
  * This class is responsible for fetching the script, creating a appropriate
@@ -189,13 +186,11 @@ public class ScriptService {
 
 		final ScriptComponent scriptComp = entityService.getComponent(entity, ScriptComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
-
-		final ActorRef scriptRunner = akkaApi.startUnnamedActor(PeriodicScriptRunnerActor.class);
-		final ActorPath scriptPath = scriptRunner.path();
 		
-		scriptComp.setScriptActorPath(scriptPath);
 		scriptComp.setOnIntervalCallbackName(callbackFunctionName);
 		entityService.saveComponent(scriptComp);
+
+		final ActorRef scriptRunner = akkaApi.startUnnamedActor(PeriodicScriptRunnerActor.class);
 
 		// Tell the actor which script to periodically call.
 		final ScriptIntervalMessage message = new ScriptIntervalMessage(entity.getId(), delay);
@@ -206,15 +201,6 @@ public class ScriptService {
 		final ScriptComponent scriptComp = entityService.getComponent(entity, ScriptComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
-		final ActorPath callbackActorPath = scriptComp.getScriptActorPath();
-
-		if (callbackActorPath == null) {
-			return;
-		}
-
-		akkaApi.sendToActor(callbackActorPath, PoisonPill.getInstance());
-
-		scriptComp.setScriptActorPath(null);
 		scriptComp.setOnIntervalCallbackName(null);
 		entityService.saveComponent(scriptComp);
 	}

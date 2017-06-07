@@ -9,10 +9,13 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.ScriptIntervalMessage;
 import net.bestia.zoneserver.actor.BestiaPeriodicActor;
-import net.bestia.zoneserver.entity.ScriptService;
+import net.bestia.zoneserver.actor.entity.EntityHpManaRegenActor;
+import net.bestia.zoneserver.script.ScriptService;
 
 /**
- * This actor is used to run periodically script function.
+ * This actor is used to run periodically script function. TODO Wenn der
+ * {@link EntityHpManaRegenActor} gut funktioniert den hier auch zu einem
+ * BestiaPeriodicTerminatingActor machen.
  * 
  * @author Thomas Felix
  *
@@ -42,6 +45,9 @@ public class PeriodicScriptRunnerActor extends BestiaPeriodicActor {
 
 		try {
 			scriptService.triggerScriptIntervalCallback(scriptId);
+		} catch (IllegalArgumentException e) {
+			LOG.debug("Entity had no script callback component attached.", e);
+			context().stop(getSelf());
 		} catch (Exception e) {
 			LOG.warning("Error during script interval execution. Stopping interval.", e);
 			context().stop(getSelf());

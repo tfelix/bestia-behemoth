@@ -21,11 +21,6 @@ public class ScriptComponent extends Component {
 	private String scriptUUID;
 
 	/**
-	 * Path to the actor which is operating the periodic script calls.
-	 */
-	private ActorPath scriptActorPath;
-
-	/**
 	 * Path to the actor which is watching the scripts lifetime.
 	 */
 	private ActorPath scriptLifetimeActorPath;
@@ -53,14 +48,6 @@ public class ScriptComponent extends Component {
 
 	public String getOnIntervalCallbackName() {
 		return onIntervalCallbackName;
-	}
-
-	public void setScriptActorPath(ActorPath scriptActorPath) {
-		this.scriptActorPath = scriptActorPath;
-	}
-
-	public ActorPath getScriptActorPath() {
-		return scriptActorPath;
 	}
 
 	public void setOnIntervalCallbackName(String callbackFunctionName) {

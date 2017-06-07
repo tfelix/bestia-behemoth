@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import net.bestia.zoneserver.entity.component.PositionComponent;
+import net.bestia.zoneserver.script.ScriptService;
 
 public class EntityRecyclerTest {
 	
