@@ -32,6 +32,11 @@ public class StatusService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(StatusService.class);
 
+	/**
+	 * How often the regeneration should tick for each entity.
+	 */
+	public static final int REGENERATION_TICK_RATE_MS = 1000;
+
 	private final EntityService entityService;
 
 	private final PlayerBestiaDAO playerBestiaDao;
@@ -57,7 +62,7 @@ public class StatusService {
 		if (!statusComp.isPresent()) {
 			return Optional.empty();
 		}
-		
+
 		if (statusComp.get().getStatusPoints() == null || statusComp.get().getStatusBasedValues() == null) {
 			calculateStatusPoints(entity, statusComp.get());
 		}
@@ -144,9 +149,11 @@ public class StatusService {
 		final int will = (baseValues.getWillpower() * 2 + ivs.getWillpower() + effortValues.getWillpower() / 4) * level
 				/ 100 + 5;
 
-		final int agi = (baseValues.getAgility() * 2 + ivs.getAgility() + effortValues.getAgility() / 4) * level / 100 + 5;
-		
-		final int dex = (baseValues.getDexterity() * 2 + ivs.getDexterity() + effortValues.getDexterity() / 4) * level / 100 + 5;
+		final int agi = (baseValues.getAgility() * 2 + ivs.getAgility() + effortValues.getAgility() / 4) * level / 100
+				+ 5;
+
+		final int dex = (baseValues.getDexterity() * 2 + ivs.getDexterity() + effortValues.getDexterity() / 4) * level
+				/ 100 + 5;
 
 		final int maxHp = baseValues.getHp() * 2 + ivs.getHp() + effortValues.getHp() / 4 * level / 100 + 10 + level;
 
@@ -188,19 +195,56 @@ public class StatusService {
 		final int level = entityService.getComponent(entity, LevelComponent.class)
 				.map(LevelComponent::getLevel)
 				.orElse(1);
-		
+
 		calculateUnmodifiedStatusPoints(entity, statusComp, level);
 
 		// Currently only use status values 1:1.
 		StatusPoints statusPoints = new StatusPointsImpl(statusComp.getOriginalStatusPoints());
-		
+
 		statusComp.setStatusPoints(statusPoints);
-		
+
 		statusComp.setStatusBasedValues(new StatusBasedValuesImpl(statusPoints, level));
 
 		entityService.saveComponent(statusComp);
 	}
 
+	/**
+	 * Ticks the regeneration for all tick based status regeneration for this
+	 * entity. If the given entity ID can not be regenerated a
+	 * {@link IllegalArgumentException} is thrown.
+	 * 
+	 * @param entityId
+	 *            The entity ID to tick the regeneration procedure.
+	 */
+	public void tickRegeneration(long entityId) {
+
+		final StatusComponent statusComponent = entityService.getComponent(entityId, StatusComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+
+		LOG.trace("Ticking hp/mana regeneration for entity {}.", entityId);
+		
+		final float manaRegenRate = statusComponent.getStatusBasedValues().getManaRegenRate();
+		final float hpRegenRate = statusComponent.getStatusBasedValues().getManaRegenRate();
+		
+		final StatusPoints origStatus = statusComponent.getOriginalStatusPoints();
+		final StatusPoints status = statusComponent.getStatusPoints();
+		
+		// Calc the added value.
+		final int manaRegen = Math.round(manaRegenRate / 1000 * REGENERATION_TICK_RATE_MS);
+		final int hpRegen = Math.round(hpRegenRate / 1000 * REGENERATION_TICK_RATE_MS);
+		
+		final int curMana = origStatus.getCurrentMana() + manaRegen;
+		final int curHp =  origStatus.getCurrentHp() + hpRegen;
+		
+		origStatus.setCurrentMana(curMana);
+		origStatus.setCurrentHp(curHp);
+		
+		status.setCurrentMana(curMana);
+		status.setCurrentHp(curHp);
+		
+		// Save component back.
+		entityService.saveComponent(statusComponent);
+	}
 
 	/*
 	 * StatusPointsDecorator baseStatusPointModified = new

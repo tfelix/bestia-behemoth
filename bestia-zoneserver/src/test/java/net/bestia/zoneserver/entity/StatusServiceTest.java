@@ -147,4 +147,9 @@ public class StatusServiceTest {
 		Assert.assertNotEquals(0, sp.get().getIntelligence());
 		Assert.assertNotEquals(0, sp.get().getWillpower());
 	}
+	
+	@Test
+	public void tickRegeneration_statusEntity_addsManaHp() {
+		Assert.fail();
+	}
 }
