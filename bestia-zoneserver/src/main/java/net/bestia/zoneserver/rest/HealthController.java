@@ -17,4 +17,5 @@ public class HealthController {
 	public HealthStatus greeting() {
 		return new HealthStatus();
 	}
+
 }
