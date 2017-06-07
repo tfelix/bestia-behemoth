@@ -9,12 +9,12 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.ScriptIntervalMessage;
 import net.bestia.zoneserver.actor.BestiaPeriodicActor;
-import net.bestia.zoneserver.actor.entity.EntityHpManaRegenActor;
+import net.bestia.zoneserver.actor.entity.EntityStatusTickActor;
 import net.bestia.zoneserver.script.ScriptService;
 
 /**
  * This actor is used to run periodically script function. TODO Wenn der
- * {@link EntityHpManaRegenActor} gut funktioniert den hier auch zu einem
+ * {@link EntityStatusTickActor} gut funktioniert den hier auch zu einem
  * BestiaPeriodicTerminatingActor machen.
  * 
  * @author Thomas Felix

@@ -15,14 +15,14 @@ import net.bestia.zoneserver.entity.StatusService;
  * @author Thomas Felix
  *
  */
-public class EntityHpManaRegenActor extends BestiaPeriodicTerminatingActor {
+public class EntityStatusTickActor extends BestiaPeriodicTerminatingActor {
 
 	private long entityId;
 
 	private final StatusService statusService;
 
 	@Autowired
-	public EntityHpManaRegenActor(StatusService statusService) {
+	public EntityStatusTickActor(StatusService statusService) {
 
 		this.statusService = Objects.requireNonNull(statusService);
 

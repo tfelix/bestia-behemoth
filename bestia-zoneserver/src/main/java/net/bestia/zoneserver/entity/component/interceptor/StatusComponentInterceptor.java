@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
-import net.bestia.zoneserver.actor.entity.EntityHpManaRegenActor;
+import net.bestia.zoneserver.actor.entity.EntityStatusTickActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.component.StatusComponent;
@@ -53,7 +53,7 @@ public class StatusComponentInterceptor extends ComponentInterceptor<StatusCompo
 		
 		LOG.trace("StatusComponent created.");
 		
-		final ActorRef tickActor = actorApi.startUnnamedActor(EntityHpManaRegenActor.class);
+		final ActorRef tickActor = actorApi.startUnnamedActor(EntityStatusTickActor.class);
 		tickActor.tell(entity.getId(), ActorRef.noSender());
 		
 	}
