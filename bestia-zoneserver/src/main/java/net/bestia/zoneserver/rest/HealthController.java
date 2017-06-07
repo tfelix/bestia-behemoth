@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.rest;
 
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Displays basic stats about the health of the bestia zone server. Temporär
@@ -8,10 +10,10 @@ package net.bestia.zoneserver.rest;
  * @author Thomas Felix
  *
  */
-// @RestController
+@RestController
 public class HealthController {
 
-	// @RequestMapping("/health")
+	@RequestMapping("/health")
 	public HealthStatus greeting() {
 		return new HealthStatus();
 	}
