@@ -10,11 +10,6 @@ public class CircleTest {
 		new Circle(10, 10, -4);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void negCords_throws() {
-		new Circle(-4, 10, 3);
-	}
-
 	@Test
 	public void ctor_ok() {
 		new Circle(3, 10, 2);
@@ -38,7 +33,8 @@ public class CircleTest {
 	@Test
 	public void getBoundingBox_ok() {
 		Circle c = new Circle(3, 10, 2);
-		Assert.assertTrue(c.getBoundingBox().equals(new Rect(1, 8, 4, 4)));
+		Rect bb = c.getBoundingBox();
+		Assert.assertEquals(new Rect(1, 8, 4, 4), bb);
 	}
 
 	@Test

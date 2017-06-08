@@ -240,7 +240,7 @@ public class StatusService {
 		origStatus.setCurrentHp(curHp);
 		
 		status.setCurrentMana(curMana);
-		status.setCurrentHp(curHp);
+		status.setCurrentHp(curHp); 
 		
 		// Save component back.
 		entityService.saveComponent(statusComponent);

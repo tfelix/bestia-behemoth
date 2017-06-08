@@ -92,10 +92,9 @@ public final class Circle implements CollisionShape {
 	@Override
 	public Rect getBoundingBox() {
 		final long leftX = center.getX() - radius;
-		final long rightX = center.getY() + radius;
-		final long topY = center.getX() - radius;
-		final long bottomY = center.getY() + radius;
-		return new Rect(leftX, topY, rightX - leftX, bottomY - topY);
+		final long topY = center.getY() - radius;
+
+		return new Rect(leftX, topY, 2 * radius, 2 * radius);
 	}
 
 	@Override
@@ -142,13 +141,15 @@ public final class Circle implements CollisionShape {
 
 	@Override
 	public Circle moveByAnchor(long x, long y) {
-		final long dX = x - getAnchor().getX();
-		final long dY = y - getAnchor().getY();
 
-		final long cX = center.getX() + dX;
-		final long cY = center.getY() + dY;
+		final long dX = center.getX() - getAnchor().getX();
+		final long dY = center.getY() - getAnchor().getY();
 
-		final Circle c = new Circle(cX, cY, radius, dX, dY);
+		final long cX = x + dX;
+		final long cY = y + dY;
+
+		final Circle c = new Circle(cX, cY, radius, x, y);
+
 		return c;
 	}
 }

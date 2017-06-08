@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.entity;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.Optional;
 
@@ -21,6 +21,7 @@ import net.bestia.zoneserver.entity.component.StatusComponent;
 public class StatusServiceTest {
 	
 	private final static long PLAYER_BESTIA_ID = 123;
+	private final static long STATUS_ENTITY_ID = 69;
 
 	private StatusService statusService;
 	private EntityService entityService;
@@ -61,9 +62,12 @@ public class StatusServiceTest {
 		when(baseValues.getMana()).thenReturn(10);
 
 		when(entityService.getComponent(nonStatusEntity, StatusComponent.class)).thenReturn(Optional.empty());
+		
 		when(entityService.getComponent(statusEntity, StatusComponent.class)).thenReturn(Optional.of(statusComp));
 		when(entityService.getComponent(statusEntity, LevelComponent.class)).thenReturn(Optional.of(levelComp));
 		when(entityService.getComponent(statusEntity, PlayerComponent.class)).thenReturn(Optional.of(playerComp));
+		
+		when(entityService.getComponent(STATUS_ENTITY_ID, StatusComponent.class)).thenReturn(Optional.of(statusComp));
 		
 		when(playerBestiaDao.findOne(PLAYER_BESTIA_ID)).thenReturn(playerBestia);
 		
@@ -150,6 +154,8 @@ public class StatusServiceTest {
 	
 	@Test
 	public void tickRegeneration_statusEntity_addsManaHp() {
-		Assert.fail();
+		statusService.tickRegeneration(STATUS_ENTITY_ID);
+		
+		verify(entityService).saveComponent(statusComp);
 	}
 }
