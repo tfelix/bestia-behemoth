@@ -17,7 +17,8 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerItem;
 import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityServiceContext;
+import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.StatusService;
 import net.bestia.zoneserver.entity.component.LevelComponent;
 
 /**
@@ -44,18 +45,22 @@ public class InventoryService {
 	private final PlayerItemDAO playerItemDao;
 	private final AccountDAO accountDao;
 	private final ItemDAO itemDao;
-	private final EntityServiceContext entityServiceCtx;
+	private final EntityService entityService;
+	private final StatusService statusService;
 
 	@Autowired
 	public InventoryService(PlayerItemDAO playerItemDao,
 			AccountDAO accDao,
 			ItemDAO itemDao,
-			EntityServiceContext entityServiceCtx) {
+			EntityService entityService,
+			StatusService statusService) {
 
 		this.playerItemDao = Objects.requireNonNull(playerItemDao);
 		this.accountDao = Objects.requireNonNull(accDao);
 		this.itemDao = Objects.requireNonNull(itemDao);
-		this.entityServiceCtx = Objects.requireNonNull(entityServiceCtx);
+		this.entityService = Objects.requireNonNull(entityService);
+		this.statusService = Objects.requireNonNull(statusService);
+
 	}
 
 	/**
@@ -73,7 +78,7 @@ public class InventoryService {
 	 */
 	public int getMaxWeight(Entity entity) {
 		// Currently we can not distinguish between bestia classes.
-		final int level = entityServiceCtx.getEntity()
+		final int level = entityService
 				.getComponent(entity, LevelComponent.class)
 				.map(LevelComponent::getLevel)
 				.orElse(0);
@@ -82,7 +87,7 @@ public class InventoryService {
 			return 0;
 		}
 
-		final int weight = entityServiceCtx.getStatusService().getStatusPoints(entity).map(status -> {
+		final int weight = statusService.getStatusPoints(entity).map(status -> {
 			return BASE_WEIGHT + status.getStrength() * 4 * level;
 		}).orElse(0);
 

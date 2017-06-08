@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import net.bestia.zoneserver.entity.component.Component;
 import net.bestia.zoneserver.entity.component.ScriptComponent;
+import net.bestia.zoneserver.script.ScriptService;
 
 /**
  * The {@link EntityRecycler} is used to get rid of an entity and its
@@ -30,19 +31,22 @@ public class EntityRecycler {
 
 	private final Queue<Entity> entities = new LinkedList<>();
 	private final Map<Class<? extends Component>, Queue<Component>> components = new HashMap<>();
-	private final EntityServiceContext entityServiceCtx;
+	
+	private final EntityService entityService;
+	private final ScriptService scriptService;
 
-	public EntityRecycler(int maxCachedInstances, EntityServiceContext entityServiceCtx) {
+	public EntityRecycler(int maxCachedInstances, EntityService entityService, ScriptService scriptService) {
 		if (maxCachedInstances < 0) {
 			throw new IllegalArgumentException("MaxCachedInstances must be positive.");
 		}
 
 		this.maxCachedInstances = maxCachedInstances;
-		this.entityServiceCtx = Objects.requireNonNull(entityServiceCtx);
+		this.entityService = Objects.requireNonNull(entityService);
+		this.scriptService = Objects.requireNonNull(scriptService);
 	}
 
-	public EntityRecycler(EntityServiceContext entityServiceCtx) {
-		this(DEFAULT_MAX_CACHED_INSTANCES, entityServiceCtx);
+	public EntityRecycler(EntityService entityService, ScriptService scriptService) {
+		this(DEFAULT_MAX_CACHED_INSTANCES, entityService, scriptService);
 	}
 
 	/**
@@ -61,12 +65,12 @@ public class EntityRecycler {
 		// Remove/Recycle the special handled components.
 		freeSpecialComponents(entity);
 
-		final Collection<Component> components = entityServiceCtx.getEntity().getAllComponents(entity);
-		entityServiceCtx.getEntity().deleteAllComponents(entity);
+		final Collection<Component> components = entityService.getAllComponents(entity);
+		entityService.deleteAllComponents(entity);
 		components.stream().forEach(this::stashComponente);
 
 		// Save entity.
-		entityServiceCtx.getEntity().delete(entity);
+		entityService.delete(entity);
 		stashEntity(entity);
 	}
 
@@ -75,7 +79,7 @@ public class EntityRecycler {
 	 */
 	private void freeSpecialComponents(Entity entity) {
 
-		final ScriptComponent scriptComp = entityServiceCtx.getScriptService().freeScriptComponent(entity);
+		final ScriptComponent scriptComp = scriptService.freeScriptComponent(entity);
 		stashComponente(scriptComp);
 	}
 
@@ -132,7 +136,7 @@ public class EntityRecycler {
 	 *            The entity ID to free (and delete all the components).
 	 */
 	public void free(long entityId) {
-		final Entity e = entityServiceCtx.getEntity().getEntity(entityId);
+		final Entity e = entityService.getEntity(entityId);
 
 		if (e == null) {
 			throw new IllegalArgumentException("Entity ID does not exist.");
