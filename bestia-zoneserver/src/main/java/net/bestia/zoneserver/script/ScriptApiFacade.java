@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
@@ -51,7 +52,7 @@ public class ScriptApiFacade implements ScriptApi {
 	public ScriptApiFacade(
 			EntityService entityService,
 			BattleService battleService,
-			ScriptService scriptService,
+			@Lazy ScriptService scriptService,
 			MovingEntityService moveService,
 			ZoneAkkaApi akkaApi) {
 
