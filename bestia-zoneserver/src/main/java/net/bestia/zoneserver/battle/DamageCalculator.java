@@ -14,7 +14,7 @@ import net.bestia.zoneserver.entity.EntityService;
 @Service
 public final class DamageCalculator {
 
-	private EntityService entityService;
+	//private EntityService entityService;
 	private Random rand = new Random();
 
 	/**
@@ -23,7 +23,7 @@ public final class DamageCalculator {
 	 */
 	public DamageCalculator(EntityService entityService) {
 
-		this.entityService = Objects.requireNonNull(entityService);
+		//this.entityService = Objects.requireNonNull(entityService);
 	}
 
 	/**

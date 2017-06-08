@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * of the base class as well as the variant of the base class. To search for the
  * classes then call the appropriate method.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class PackageLoader<BaseT> {

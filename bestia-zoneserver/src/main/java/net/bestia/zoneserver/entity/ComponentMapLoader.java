@@ -17,13 +17,13 @@ import net.bestia.zoneserver.entity.component.Component;
 public class ComponentMapLoader implements MapLoader<Long, Component> {
 
 	@Override
-	public synchronized Component load(Long arg0) {
+	public synchronized Component load(Long id) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public synchronized Map<Long, Component> loadAll(Collection<Long> arg0) {
+	public synchronized Map<Long, Component> loadAll(Collection<Long> components) {
 		// TODO Auto-generated method stub
 		return null;
 	}

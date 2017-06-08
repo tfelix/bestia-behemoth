@@ -1,4 +1,4 @@
-package net.bestia.model.service;
+package net.bestia.zoneserver.service;
 
 import java.util.Objects;
 

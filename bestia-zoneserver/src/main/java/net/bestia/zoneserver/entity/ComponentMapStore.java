@@ -18,13 +18,13 @@ import net.bestia.zoneserver.entity.component.Component;
 public class ComponentMapStore implements MapStore<Long, Component> {
 
 	@Override
-	public synchronized Component load(Long arg0) {
+	public synchronized Component load(Long id) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public synchronized Map<Long, Component> loadAll(Collection<Long> arg0) {
+	public synchronized Map<Long, Component> loadAll(Collection<Long> ids) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -36,25 +36,25 @@ public class ComponentMapStore implements MapStore<Long, Component> {
 	}
 
 	@Override
-	public synchronized void delete(Long key) {
+	public synchronized void delete(Long id) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public synchronized void deleteAll(Collection<Long> keys) {
+	public synchronized void deleteAll(Collection<Long> ids) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public synchronized void store(Long key, Component comp) {
+	public synchronized void store(Long id, Component comp) {
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
-	public synchronized void storeAll(Map<Long, Component> arg0) {
+	public synchronized void storeAll(Map<Long, Component> components) {
 		// TODO Auto-generated method stub
 
 	}

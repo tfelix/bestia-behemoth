@@ -27,6 +27,12 @@ public class Entity implements Serializable {
 
 	private final Map<String, Long> components = new HashMap<>();
 
+	/**
+	 * Ctor. The ID of the entity must be unique in the whole system!
+	 * 
+	 * @param id
+	 *            The ID of the entity.
+	 */
 	Entity(long id) {
 		this.id = id;
 	}
@@ -54,6 +60,12 @@ public class Entity implements Serializable {
 		components.put(simpleName, comp.getId());
 	}
 
+	/**
+	 * Removes a component from the entity.
+	 * 
+	 * @param comp
+	 *            The component to be removed.
+	 */
 	void removeComponent(Component comp) {
 		final String simpleName = comp.getClass().getSimpleName();
 		LOG.trace("Removing component {} from entity id: {}.", simpleName, getId());
@@ -76,6 +88,14 @@ public class Entity implements Serializable {
 				.ifPresent(components::remove);
 	}
 
+	/**
+	 * Returns the associated component ID with this component class.
+	 * 
+	 * @param clazz
+	 *            The class of the component.
+	 * @return The ID is this component is attached to this entity or 0
+	 *         otherwise.
+	 */
 	long getComponentId(Class<? extends Component> clazz) {
 
 		if (!components.containsKey(clazz.getSimpleName())) {
