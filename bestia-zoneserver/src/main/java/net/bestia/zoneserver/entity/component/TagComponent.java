@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.entity.component;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The tag component allows attach simple data to the entity.
@@ -12,7 +12,10 @@ import java.util.Map;
 public class TagComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
-	private final Map<String, Object> data = new HashMap<>();
+	
+	public static final String TAG_PERSIST = "persist";
+	
+	private final Set<String> data = new HashSet<>();
 	
 	public TagComponent(long id, long entityId) {
 		super(id, entityId);
@@ -23,12 +26,12 @@ public class TagComponent extends Component {
 		data.clear();
 	}
 	
-	public void set(String key, Object value) {
-		data.put(key, value);
+	public void add(String tag) {
+		data.add(tag);
 	}
 	
-	public Object get(String key) {
-		return data.get(key);
+	public boolean has(String tag) {
+		return data.contains(tag);
 	}
 	
 	@Override
