@@ -2,13 +2,14 @@ package net.bestia.zoneserver.entity;
 
 import java.util.Collection;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.hazelcast.core.MapStore;
-
-import net.bestia.model.dao.EntityDataDAO;
-import net.bestia.model.domain.EntityData;
-import net.bestia.zoneserver.entity.component.TagComponent;
 
 /**
  * Specialized class which enables the entities to be persistedly stored into a
@@ -18,32 +19,26 @@ import net.bestia.zoneserver.entity.component.TagComponent;
  * @author Thomas Felix
  *
  */
+@Component
 public class EntityMapStore implements MapStore<Long, Entity> {
 	
-	private EntityService entityService;
-	private EntityDataDAO entityDataDao;
+	private final static Logger LOG = LoggerFactory.getLogger(EntityMapStore.class);
+	private final EntityPersistService entityPersistService;
 	
-	private boolean persistEntity(Entity entity) {
-		final Optional<TagComponent> tag = entityService.getComponent(entity, TagComponent.class);
+	@Autowired
+	public EntityMapStore(EntityPersistService entityPersistService) {
 		
-		if(!tag.isPresent()) {
-			return false;
-		}
-		
-		return tag.get().has(TagComponent.TAG_PERSIST);
+		this.entityPersistService = Objects.requireNonNull(entityPersistService);
 	}
+	
 
 	@Override
 	public synchronized Entity load(Long id) {
 		
-		final EntityData entityData = entityDataDao.findOne(id);
+		LOG.trace("Loading entity: {}.", id);
 		
-		if(entityData == null) {
-			return null;
-		}
-		
-		// TODO Auto-generated method stub
-		return null;
+		final Entity entity = entityPersistService.load(id);
+		return entity;
 	}
 
 	@Override
@@ -60,25 +55,41 @@ public class EntityMapStore implements MapStore<Long, Entity> {
 
 	@Override
 	public synchronized void delete(Long id) {
-		entityDataDao.delete(id);
+		
+		LOG.trace("Deleting entity: {}.", id);
+		
+		entityPersistService.deleteEntity(id);
 	}
 
 	@Override
 	public synchronized void deleteAll(Collection<Long> ids) {
-		final Iterable<EntityData> datas = entityDataDao.findAll(ids);
-		entityDataDao.delete(datas);
+		
+		LOG.trace("Deleting all {} entities.", ids.size());
+		
+		for(Long id : ids) {
+			entityPersistService.deleteEntity(id);
+		}
+		
 	}
 
 	@Override
 	public synchronized void store(Long id, Entity entity) {
-		// TODO Auto-generated method stub
-
+		
+		LOG.trace("Persisting entity: {}", entity);
+		
+		entityPersistService.store(entity);
+		
 	}
 
 	@Override
 	public synchronized void storeAll(Map<Long, Entity> entities) {
-		// TODO Auto-generated method stub
 
+		LOG.trace("Persisting {} entities.", entities.size());
+		
+		for(Entity entity : entities.values()) {
+			entityPersistService.store(entity);
+		}
+		
 	}
 
 }

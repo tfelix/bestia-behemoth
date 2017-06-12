@@ -5,27 +5,27 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * This is a persisted entity which is saved into the database in case the
+ * This is a persisted component which is saved into the database in case the
  * server goes down and the game has to be restored.
  * 
  * @author Thomas Felix
  *
  */
 @Entity
-@Table(name = "entity_data")
-public class EntityData {
+@Table(name = "component_data")
+public class ComponentData {
 
 	@Id
-	private long id;
+	private int id;
 
 	private byte[] data;
 
-	public long getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(long l) {
-		this.id = l;
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public byte[] getData() {

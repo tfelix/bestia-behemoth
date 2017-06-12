@@ -271,8 +271,8 @@ public class MapService {
 		Optional<String> areaName = entities.stream()
 				.map(entity -> entityService.getComponent(entity, TagComponent.class))
 				.map(Optional::get)
-				.filter(tagComp -> tagComp.get(AREA_TAG_NAME) != null)
-				.map(tagComp -> (String) tagComp.get(AREA_TAG_NAME))
+				.filter(tagComp -> tagComp.has(AREA_TAG_NAME))
+				.map(tagComp -> tagComp.get(AREA_TAG_NAME, String.class).get())
 				.findFirst();
 
 		return areaName.orElse("");
