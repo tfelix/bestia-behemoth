@@ -143,6 +143,15 @@
 			<write-coalescing>true</write-coalescing>
 		</map-store>
 	</map>
+	
+	<map name="components">
+		<map-store enabled="true" initial-mode="LAZY">
+			<class-name>net.bestia.zoneserver.entity.ComponentyMapStore</class-name>
+			<write-delay-seconds>10</write-delay-seconds>
+			<write-batch-size>1000</write-batch-size>
+			<write-coalescing>true</write-coalescing>
+		</map-store>
+	</map>
 
 	<multimap name="default">
 		<backup-count>1</backup-count>

@@ -1,14 +1,15 @@
 package net.bestia.zoneserver.entity;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import net.bestia.model.dao.ComponentDataDAO;
 import net.bestia.model.dao.EntityDataDAO;
 import net.bestia.model.domain.EntityData;
 import net.bestia.util.ObjectSerializer;
+import net.bestia.zoneserver.entity.component.TagComponent;
 
 @Service
 public class EntityPersistService {
@@ -17,13 +18,13 @@ public class EntityPersistService {
 
 	private final ObjectSerializer<Entity> serializer = new ObjectSerializer<>();
 	private final EntityDataDAO entityDao;
-	private final ComponentDataDAO componentDao;
+	private final EntityService entityService;
 
 	@Autowired
-	public EntityPersistService(EntityDataDAO entityDao, ComponentDataDAO componentDao) {
+	public EntityPersistService(EntityDataDAO entityDao, EntityService entityService) {
 
 		this.entityDao = Objects.requireNonNull(entityDao);
-		this.componentDao = Objects.requireNonNull(componentDao);
+		this.entityService = Objects.requireNonNull(entityService);
 	}
 
 	/**
@@ -35,19 +36,6 @@ public class EntityPersistService {
 	 *            storage.
 	 */
 	public void deleteEntity(Long id) {
-
-		final EntityData data = entityDao.findOne(id);
-
-		if (data == null) {
-			return;
-		}
-
-		final Entity entity = serializer.deserialize(data.getData());
-
-		// Delete all attached components.
-		for (Long compId : entity.getComponentIds()) {
-			componentDao.delete(compId);
-		}
 
 		entityDao.delete(id);
 	}
@@ -77,6 +65,13 @@ public class EntityPersistService {
 	 *            The entity to be permanently stored.
 	 */
 	public void store(Entity entity) {
+		
+		// Only store if it was flagged with a tag.
+		Optional<TagComponent> tagComp = entityService.getComponent(entity, TagComponent.class);
+		
+		if(!tagComp.isPresent() || !tagComp.get().has(TagComponent.TAG_PERSIST)) {
+			return;
+		}
 		
 		// Find all the components of the entity.
 		final byte[] data = serializer.serialize(entity);

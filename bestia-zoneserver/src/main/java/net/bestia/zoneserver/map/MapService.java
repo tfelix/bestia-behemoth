@@ -160,6 +160,10 @@ public class MapService {
 		data.sort((MapDataDTO d1, MapDataDTO d2) -> {
 			d1.getRect().getX() < d2.getRect().getX() 
 		});*/
+		
+		// Sort for x and y coordiante.
+		
+		// Step through the MapDataDTOs and extract the data needed for the map.
 
 		throw new IllegalStateException("Not yet implemented.");
 	}
@@ -345,7 +349,9 @@ public class MapService {
 			// Prepare the list of ground tiles.
 			final List<Integer> groundTiles = new ArrayList<>((int) (area.getWidth() * area.getHeight()));
 
-			final List<MapDataDTO> dtos = getCoveredMapDataDTO(area.getX(), area.getY(), area.getWidth(),
+			final List<MapDataDTO> dtos = getCoveredMapDataDTO(area.getX(), 
+					area.getY(), 
+					area.getWidth(),
 					area.getHeight());
 
 			for (long y = area.getOrigin().getY(); y < area.getOrigin().getY() + area.getHeight(); y++) {
