@@ -26,12 +26,12 @@
 			<dependency>
 				<groupId>com.hazelcast</groupId>
 				<artifactId>hazelcast</artifactId>
-				<version>3.7.4</version>
+				<version>${hazelcast.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.hazelcast</groupId>
 				<artifactId>hazelcast-client</artifactId>
-				<version>3.7.4</version>
+				<version>${hazelcast.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
