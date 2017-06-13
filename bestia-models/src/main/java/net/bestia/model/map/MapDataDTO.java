@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.Map;
+import java.util.Objects;
 
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
@@ -94,9 +94,41 @@ public class MapDataDTO implements Serializable {
 		groundLayer[index] = gid;
 	}
 
+	/**
+	 * Returns all layered ids for the given coordiante.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public List<Integer> getLayerGids(long x, long y) {
+		final Point p = new Point(x, y);
+		final List<Integer> gids = new ArrayList<>();
+
+		for (Map<Point, Integer> layer : layers) {
+			Integer lgid = layer.get(p);
+
+			if (lgid != null) {
+				gids.add(lgid);
+			}
+		}
+
+		return gids;
+	}
+
+	/**
+	 * Sets a tile id onto a given layer. We must start with layer 1 since layer
+	 * 0 is the ground layer.
+	 * 
+	 * @param layer
+	 * @param x
+	 * @param y
+	 * @param gid
+	 */
 	public void putLayer(int layer, long x, long y, int gid) {
 		// Check if the cords are within this chunkg.
 		final Point p = new Point(x, y);
+
 		if (!rect.collide(p)) {
 			throw new IndexOutOfBoundsException("Given coordiantes are not within the data.");
 		}
@@ -120,4 +152,54 @@ public class MapDataDTO implements Serializable {
 		return rect;
 	}
 
+	/**
+	 * Combines different DTOs into a single one.
+	 * 
+	 * @param rhs
+	 * @return
+	 */
+	public MapDataDTO join(MapDataDTO rhs) {
+
+	}
+
+	/**
+	 * Returns a sliced rect from the {@link MapDataDTO}. The given rect must be
+	 * fully inside the are covered by this DTO or an
+	 * {@link IllegalArgumentException} is thrown.
+	 * 
+	 * @param rect
+	 * @return
+	 */
+	public MapDataDTO slice(Rect slice) {
+
+		Objects.requireNonNull(rect);
+		if (slice.getX() < rect.getX()
+				|| slice.getY() > rect.getY()
+				|| slice.getWidth() > rect.getWidth()
+				|| slice.getHeight() > rect.getHeight()) {
+			throw new IllegalArgumentException("Slice is bigger then the area covered by the DTO.");
+		}
+
+		final MapDataDTO sliced = new MapDataDTO(slice);
+
+		// This could be possibly done more effectivly. But I am tired for now
+		// and this needs to work asap.
+		for (long y = slice.getY(); y < slice.getY() + slice.getHeight(); ++y) {
+			for (long x = slice.getX(); x < slice.getX() + slice.getWidth(); ++x) {
+
+				int gid = getGroundGid(x, y);
+				sliced.putGroundLayer(x, y, gid);
+
+				final List<Integer> layerGids = getLayerGids(x, y);
+				int layer = 1;
+
+				for (Integer lgid : layerGids) {
+					sliced.putLayer(layer, x, y, lgid);
+					layer++;
+				}
+			}
+		}
+
+		return sliced;
+	}
 }

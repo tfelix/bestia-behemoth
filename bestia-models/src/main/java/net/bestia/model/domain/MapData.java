@@ -17,7 +17,9 @@ import net.bestia.model.map.MapDataDTO;
  * order to query and generate the player map data. It lies in the form a binary
  * compressed data to support the huge bestia maps.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * Certain indices are set and used for fast query of the map parts.
+ * 
+ * @author Thomas Felix
  *
  */
 @Entity

@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +28,7 @@ import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
 import net.bestia.model.map.MapDataDTO;
-import net.bestia.model.map.Map.MapBuilder;
+import net.bestia.util.ObjectSerializer;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.component.TagComponent;
@@ -58,6 +57,7 @@ public class MapService {
 	private final MapDataDAO mapDataDao;
 	private final MapParameterDAO mapParamDao;
 	private final EntityService entityService;
+	private final ObjectSerializer<MapDataDTO> mapDataSerializer;
 
 	@Autowired
 	public MapService(MapDataDAO dataDao, MapParameterDAO paramDao, EntityService entityService) {
@@ -65,6 +65,7 @@ public class MapService {
 		this.mapDataDao = Objects.requireNonNull(dataDao);
 		this.mapParamDao = Objects.requireNonNull(paramDao);
 		this.entityService = Objects.requireNonNull(entityService);
+		this.mapDataSerializer = new ObjectSerializer<>();
 	}
 
 	/**
@@ -147,23 +148,15 @@ public class MapService {
 	 * @param height
 	 * @return A {@link Map} containig the enclosed data.
 	 */
-	public Map getMap(long x, long y, long width, long height) {
-		if (x < 0 || y < 0 || width < 0 || height < 0) {
+	public Map getMap(long startX, long startY, long width, long height) {
+		if (startX < 0 || startY < 0 || width < 0 || height < 0) {
 			throw new IllegalArgumentException("X, Y, width and height must be positive.");
 		}
 
-		final MapBuilder builder = new Map.MapBuilder();
-		
-		final List<MapDataDTO> data = getCoveredMapDataDTO(x, y, width, height);
-		
-		/*
-		data.sort((MapDataDTO d1, MapDataDTO d2) -> {
-			d1.getRect().getX() < d2.getRect().getX() 
-		});*/
-		
-		// Sort for x and y coordiante.
-		
-		// Step through the MapDataDTOs and extract the data needed for the map.
+		final List<MapDataDTO> data = getCoveredMapDataDTO(startX, startY, width, height);
+
+		// Combine them to a big dto.
+		final MapDataDTO joinedData = data.stream().reduce(MapDataDTO::join).orElseThrow(IllegalStateException::new);
 
 		throw new IllegalStateException("Not yet implemented.");
 	}
@@ -242,11 +235,9 @@ public class MapService {
 
 		Objects.requireNonNull(dto);
 
-		try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				ObjectOutputStream oos = new ObjectOutputStream(bos)) {
-			oos.writeObject(dto);
-
-			byte[] output = compress(bos.toByteArray());
+		try {
+			byte[] output = mapDataSerializer.serialize(dto);
+			output = compress(output);
 
 			// Now create the map data object and save it to the database.
 			final MapData mapData = new MapData();
@@ -256,8 +247,9 @@ public class MapService {
 			mapData.setX(dto.getRect().getX());
 			mapData.setY(dto.getRect().getY());
 			mapDataDao.save(mapData);
+
 		} catch (IOException e) {
-			LOG.error("Can not persist map data.", e);
+			LOG.error("Could not compress map data.", e);
 		}
 	}
 
@@ -349,8 +341,8 @@ public class MapService {
 			// Prepare the list of ground tiles.
 			final List<Integer> groundTiles = new ArrayList<>((int) (area.getWidth() * area.getHeight()));
 
-			final List<MapDataDTO> dtos = getCoveredMapDataDTO(area.getX(), 
-					area.getY(), 
+			final List<MapDataDTO> dtos = getCoveredMapDataDTO(area.getX(),
+					area.getY(),
 					area.getWidth(),
 					area.getHeight());
 
