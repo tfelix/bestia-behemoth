@@ -22,20 +22,18 @@
 		<module>bestia-server-commons</module>
 		<module>bestia-zoneserver</module>
 		<module>bestia-webserver</module>
-		<module>bestia-server-base</module>
 	</modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jackson.version>2.8.4</jackson.version>
+		
 		<findbugs.version>3.0.4</findbugs.version>
 		<spring.version>1.4.2.RELEASE</spring.version>
-		<springtest.version>4.2.7.RELEASE</springtest.version>
-		<akka.version>2.4.12</akka.version>
 		<hazelcast.version>3.7.4</hazelcast.version>
-		<jetty.version>9.3.10.v20160621</jetty.version>
-		<slf4j.version>1.7.21</slf4j.version>
+		
 		<java.version>1.8</java.version>
+		<akka.version>2.4.12</akka.version>
+		<slf4j.version>1.7.25</slf4j.version>
 	</properties>
 
 	<!-- Profiles for the different builds. -->
@@ -193,22 +191,201 @@
 		</resources>
 	</build>
 
+	<dependencyManagement>
+		<dependencies>
+			
+			<dependency>
+				<groupId>com.typesafe.akka</groupId>
+				<artifactId>akka-actor_2.11</artifactId>
+				<version>${akka.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.typesafe.akka</groupId>
+				<artifactId>akka-persistence_2.11</artifactId>
+				<version>${akka.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.typesafe.akka</groupId>
+				<artifactId>akka-cluster_2.11</artifactId>
+				<version>${akka.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.typesafe.akka</groupId>
+				<artifactId>akka-slf4j_2.11</artifactId>
+				<version>${akka.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.typesafe.akka</groupId>
+				<artifactId>akka-cluster-tools_2.11</artifactId>
+				<version>${akka.version}</version>
+			</dependency>
+			<!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-testkit_2.11 -->
+			<dependency>
+				<groupId>com.typesafe.akka</groupId>
+				<artifactId>akka-testkit_2.11</artifactId>
+				<version>${akka.version}</version>
+				<scope>test</scope>
+			</dependency>
+			
+			<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>2.5</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>com.hazelcast</groupId>
+				<artifactId>hazelcast</artifactId>
+				<version>${hazelcast.version}</version>
+				<classifier>tests</classifier>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.hazelcast</groupId>
+				<artifactId>hazelcast</artifactId>
+				<version>${hazelcast.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.hazelcast</groupId>
+				<artifactId>hazelcast-client</artifactId>
+				<version>${hazelcast.version}</version>
+			</dependency>
+			
+			<dependency>
+				<!-- Import dependency management from Spring Boot -->
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-dependencies</artifactId>
+				<version>${spring.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-test</artifactId>
+				<version>${spring.version}</version>
+				<scope>test</scope>
+			</dependency>
+			
+			<!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>4.3.1.RELEASE</version>
+			</dependency>
+			<!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-jpa -->
+			<dependency>
+				<groupId>org.springframework.data</groupId>
+				<artifactId>spring-data-jpa</artifactId>
+				<version>1.10.2.RELEASE</version>
+			</dependency>
+			<dependency>
+				<groupId>com.github.springtestdbunit</groupId>
+				<artifactId>spring-test-dbunit</artifactId>
+				<version>1.2.0</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-orm</artifactId>
+				<version>4.3.1.RELEASE</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-test</artifactId>
+				<version>4.3.1.RELEASE</version>
+				<scope>test</scope>
+			</dependency>
+			
+			
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>2.8.4</version>
+			</dependency>
+			
+			<!-- https://mvnrepository.com/artifact/org.hibernate.javax.persistence/hibernate-jpa-2.1-api -->
+			<dependency>
+				<groupId>org.hibernate.javax.persistence</groupId>
+				<artifactId>hibernate-jpa-2.1-api</artifactId>
+				<version>1.0.0.Final</version>
+			</dependency>
+			<dependency>
+				<groupId>org.hibernate</groupId>
+				<artifactId>hibernate-core</artifactId>
+				<version>5.0.11.Final</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.dbunit</groupId>
+				<artifactId>dbunit</artifactId>
+				<version>2.5.0</version>
+				<type>jar</type>
+				<scope>test</scope>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-simple</artifactId>
+				<version>${slf4j.version}</version>
+				<scope>test</scope>
+			</dependency>
+			
+			<dependency>
+				<groupId>org.hsqldb</groupId>
+				<artifactId>hsqldb</artifactId>
+				<version>2.3.3</version>
+				<scope>test</scope>
+			</dependency>
+			
+			<!-- https://mvnrepository.com/artifact/org.reflections/reflections -->
+			<dependency>
+				<groupId>org.reflections</groupId>
+				<artifactId>reflections</artifactId>
+				<version>0.9.11</version>
+			</dependency>
+			
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.12</version>
+				<scope>test</scope>
+			</dependency>
+			
+			<!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-core</artifactId>
+				<version>2.8.9</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>2.0.31-beta</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

@@ -3,9 +3,8 @@
 
 	<parent>
 		<groupId>net.bestia</groupId>
-		<artifactId>bestia-server-base</artifactId>
+		<artifactId>behemoth</artifactId>
 		<version>alpha-0.4.1-SNAPSHOT</version>
-		<relativePath>../bestia-server-base/pom.xml</relativePath>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
@@ -19,6 +18,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
 
 		<dependency>
@@ -43,22 +47,45 @@
 			<artifactId>spring-boot-starter-jetty</artifactId>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-cluster_2.11</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-slf4j_2.11</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-cluster-tools_2.11</artifactId>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-testkit_2.11 -->
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-testkit_2.11</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.typesafe.akka</groupId>
+			<artifactId>akka-persistence_2.11</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-		</dependency>
-		
-		<dependency>
-		  <groupId>com.typesafe.akka</groupId>
-		  <artifactId>akka-persistence_2.11</artifactId>
-		  <version>${akka.version}</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.5</version>
 		</dependency>
 
 		<dependency>
@@ -69,7 +96,6 @@
 		<dependency>
 			<groupId>com.hazelcast</groupId>
 			<artifactId>hazelcast</artifactId>
-			<version>${hazelcast.version}</version>
 			<classifier>tests</classifier>
 			<scope>test</scope>
 		</dependency>

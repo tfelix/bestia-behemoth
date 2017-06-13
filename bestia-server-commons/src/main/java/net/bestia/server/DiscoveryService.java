@@ -17,7 +17,7 @@ import akka.actor.Address;
  * setup the akka cluster.
  * <p>It serves as a simple service discovery</p>
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Service
