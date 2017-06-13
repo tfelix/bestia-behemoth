@@ -85,9 +85,9 @@ public class RectTest {
 	}
 
 	@Test
-	public void getAnchor() {
+	public void getAnchor_anchorInMiddle() {
 		Rect r = new Rect(12, 12, 3, 3);
-		Assert.assertEquals(new Point(1, 1), r.getAnchor());
+		Assert.assertEquals(new Point(13, 13), r.getAnchor());
 	}
 	
 	@Test

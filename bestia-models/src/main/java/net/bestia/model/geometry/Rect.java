@@ -15,13 +15,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public final class Rect implements CollisionShape, Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	@JsonProperty("o")
 	private final Point origin;
-	
+
 	@JsonProperty("s")
 	private final Size size;
-	
+
 	@JsonProperty("a")
 	private final Point anchor;
 
@@ -36,19 +36,19 @@ public final class Rect implements CollisionShape, Serializable {
 	 */
 	public Rect(long width, long height) {
 		this(0, 0, width, height);
-		
+
 		// no op.
 	}
 
 	public Rect(long x, long y, long width, long height, long anchorX, long anchorY) {
-		
+
 		checkNotNegative(width, height);
 
 		this.origin = new Point(x, y);
 		this.size = new Size(width, height);
-		
+
 		checkAnchor(anchorX, anchorY);
-		
+
 		this.anchor = new Point(anchorX, anchorY);
 	}
 
@@ -61,16 +61,16 @@ public final class Rect implements CollisionShape, Serializable {
 	 * @param height
 	 */
 	public Rect(long x, long y, long width, long height) {
-		this(x, y, width, height, width / 2, height / 2);
+		this(x, y, width, height, x + width / 2, y + height / 2);
 
 		// no op.
 	}
 
 	private void checkAnchor(long aX, long aY) {
-		if (aX < 0 || aX > size.getWidth()) {
+		if (aX < 0 || aX > origin.getX() + size.getWidth()) {
 			throw new IllegalArgumentException("X must be inside the rectangle.");
 		}
-		if (aY < 0 || aY > size.getHeight()) {
+		if (aY < 0 || aY > origin.getY() +  size.getHeight()) {
 			throw new IllegalArgumentException("Y must be inside the rectangle.");
 		}
 	}
