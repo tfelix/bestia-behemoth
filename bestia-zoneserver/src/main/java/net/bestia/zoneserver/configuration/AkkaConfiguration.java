@@ -59,7 +59,7 @@ public class AkkaConfiguration {
 		final Address selfAddr = Cluster.get(system).selfAddress();
 		final List<Address> seedNodes = clusterConfig.getClusterSeedNodes();
 
-		if (clusterConfig.shoudlJoinAsSeedNode()) {
+		if (clusterConfig.shoudJoinAsSeedNode()) {
 
 			// Check if there are at least some seeds or if we need to bootstrap
 			// the cluster.

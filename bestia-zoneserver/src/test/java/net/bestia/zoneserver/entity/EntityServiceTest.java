@@ -11,7 +11,7 @@ import com.hazelcast.core.HazelcastInstance;
 
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.BasicMocks;
+import net.bestia.server.BasicMocks;
 import net.bestia.zoneserver.entity.component.Component;
 import net.bestia.zoneserver.entity.component.PositionComponent;
 import net.bestia.zoneserver.entity.component.VisibleComponent;

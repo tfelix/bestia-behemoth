@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import com.hazelcast.core.HazelcastInstance;
 
-import net.bestia.zoneserver.BasicMocks;
+import net.bestia.server.BasicMocks;
 
 public class LatencyServiceTest {
 
