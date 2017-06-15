@@ -1,14 +1,17 @@
 package net.bestia.zoneserver.service;
 
+import static org.mockito.Mockito.when;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.bytecode.enhance.internal.EntityEnhancer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import static org.mockito.Mockito.*;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import net.bestia.model.dao.MapDataDAO;
 import net.bestia.model.dao.MapParameterDAO;
@@ -17,40 +20,46 @@ import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
+import net.bestia.model.map.TilesetService;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.map.MapService;
 
+@RunWith(MockitoJUnitRunner.class)
 public class MapServiceTest {
 
 	private static final String MAP_NAME = "kalarian";
 
 	private MapService ms;
 
+	@Mock
 	private MapDataDAO dataNoMapDao;
+
+	@Mock
 	private MapDataDAO dataMapDao;
+
+	@Mock
 	private MapParameterDAO paramDao;
+
+	@Mock
 	private MapParameterDAO paramNoMapDao;
+
+	@Mock
 	private MapParameter mapParams;
+
+	@Mock
 	private EntityService entityService;
+
+	@Mock
+	private TilesetService tilesetService;
 
 	@Before
 	public void setup() {
-		
-		dataNoMapDao = mock(MapDataDAO.class);
-		
-		dataMapDao = mock(MapDataDAO.class);
+
 		when(dataMapDao.count()).thenReturn(1L);
-		
-		mapParams = mock(MapParameter.class);
 		when(mapParams.getName()).thenReturn(MAP_NAME);
-		
-		entityService = mock(EntityService.class);
-		
-		paramNoMapDao = mock(MapParameterDAO.class);
-		paramDao = mock(MapParameterDAO.class);
 		when(paramDao.findLatest()).thenReturn(mapParams);
-		
-		ms = new MapService(dataNoMapDao, paramDao, entityService);
+
+		ms = new MapService(dataNoMapDao, paramDao, tilesetService, entityService);
 	}
 
 	@Test
@@ -60,7 +69,7 @@ public class MapServiceTest {
 
 	@Test
 	public void isMapInitialized_mapInsideDB_true() {
-		ms = new MapService(dataMapDao, paramDao, entityService);
+		ms = new MapService(dataMapDao, paramDao, tilesetService, entityService);
 		Assert.assertTrue(ms.isMapInitialized());
 	}
 
@@ -85,7 +94,7 @@ public class MapServiceTest {
 
 	@Test
 	public void getMapName_noMapInsideDB_emptyStr() {
-		ms = new MapService(dataNoMapDao, paramNoMapDao, entityService);
+		ms = new MapService(dataNoMapDao, paramNoMapDao, tilesetService, entityService);
 		Assert.assertEquals("", ms.getMapName());
 	}
 

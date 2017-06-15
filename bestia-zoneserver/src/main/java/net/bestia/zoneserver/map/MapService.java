@@ -28,6 +28,8 @@ import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
 import net.bestia.model.map.MapDataDTO;
+import net.bestia.model.map.Tileset;
+import net.bestia.model.map.TilesetService;
 import net.bestia.util.ObjectSerializer;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
@@ -57,14 +59,17 @@ public class MapService {
 	private final MapDataDAO mapDataDao;
 	private final MapParameterDAO mapParamDao;
 	private final EntityService entityService;
+	private final TilesetService tilesetService;
 	private final ObjectSerializer<MapDataDTO> mapDataSerializer;
 
 	@Autowired
-	public MapService(MapDataDAO dataDao, MapParameterDAO paramDao, EntityService entityService) {
+	public MapService(MapDataDAO dataDao, MapParameterDAO paramDao, TilesetService tilesetService,
+			EntityService entityService) {
 
 		this.mapDataDao = Objects.requireNonNull(dataDao);
 		this.mapParamDao = Objects.requireNonNull(paramDao);
 		this.entityService = Objects.requireNonNull(entityService);
+		this.tilesetService = Objects.requireNonNull(tilesetService);
 		this.mapDataSerializer = new ObjectSerializer<>();
 	}
 
@@ -153,12 +158,21 @@ public class MapService {
 			throw new IllegalArgumentException("X, Y, width and height must be positive.");
 		}
 
+		final Rect rect = new Rect(startX, startY, width, height);
+
 		final List<MapDataDTO> data = getCoveredMapDataDTO(startX, startY, width, height);
 
 		// Combine them to a big dto.
 		final MapDataDTO joinedData = data.stream().reduce(MapDataDTO::join).orElseThrow(IllegalStateException::new);
+		final MapDataDTO slicedData = joinedData.slice(rect);
 
-		throw new IllegalStateException("Not yet implemented.");
+		// Get all used tilesets.
+		final Set<Integer> gids = slicedData.getDistinctGids();
+
+		// Find all tilesets for the gids.
+		final List<Tileset> tilesets = tilesetService.findAllTilesets(gids);
+
+		return new Map(slicedData, tilesets);
 	}
 
 	/**
@@ -303,7 +317,7 @@ public class MapService {
 			return Collections.emptyList();
 		}
 
-		List<MapDataDTO> dtos = new ArrayList<>(rawData.size());
+		final List<MapDataDTO> dtos = new ArrayList<>(rawData.size());
 
 		for (MapData md : rawData) {
 			try {

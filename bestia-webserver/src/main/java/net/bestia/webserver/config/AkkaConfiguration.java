@@ -105,6 +105,7 @@ public class AkkaConfiguration {
 	@Bean
 	public Config config() {
 		final Config config = ConfigFactory.load(AKKA_CONFIG_NAME);
+		
 		return config;
 	}
 

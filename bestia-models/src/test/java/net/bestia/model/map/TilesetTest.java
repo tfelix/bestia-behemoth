@@ -1,4 +1,4 @@
-package net.bestia.zoneserver;
+package net.bestia.model.map;
 
 import org.junit.Assert;
 import org.junit.Test;

@@ -2,10 +2,13 @@ package net.bestia.model.map;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
@@ -153,13 +156,21 @@ public class MapDataDTO implements Serializable {
 	}
 
 	/**
-	 * Combines different DTOs into a single one.
+	 * Combines different DTOs into a single one the covered are is extended.
+	 * The instances can only be joined if they are adjacent to each other. If
+	 * this is not the case an illegal argument exception is thrown.
 	 * 
 	 * @param rhs
 	 * @return
 	 */
 	public MapDataDTO join(MapDataDTO rhs) {
 
+		final long x = rhs.getRect().getX();
+		final long x2 = x + rhs.getRect().getWidth();
+		final long y = rhs.getRect().getY();
+		final long y2 = x + rhs.getRect().getHeight();
+
+		return null;
 	}
 
 	/**
@@ -201,5 +212,26 @@ public class MapDataDTO implements Serializable {
 		}
 
 		return sliced;
+	}
+
+	/**
+	 * Returns all GIDs which are contained within this {@link MapDataDTO}. This
+	 * includes ALL layers of the DTO.
+	 * 
+	 * @return A set containing all GIDs of the data included in this instance.
+	 */
+	public Set<Integer> getDistinctGids() {
+
+		final Set<Integer> gids = Arrays.stream(groundLayer).boxed().collect(Collectors.toSet());
+
+		// Now we go over all the over ids and add them to the set.
+		final Set<Integer> layerGids = layers.stream()
+				.map(Map::values)
+				.flatMap(s -> s.stream())
+				.collect(Collectors.toSet());
+
+		gids.addAll(layerGids);
+
+		return gids;
 	}
 }

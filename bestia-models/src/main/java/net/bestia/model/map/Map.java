@@ -1,14 +1,11 @@
 package net.bestia.model.map;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import net.bestia.model.domain.MapData;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 
@@ -41,7 +38,7 @@ public class Map {
 	 * @param builder
 	 *            Builder object to fill the data into the map.
 	 */
-	private Map(MapDataDTO data, List<Tileset> tilesets) {
+	public Map(MapDataDTO data, List<Tileset> tilesets) {
 
 		this.data = Objects.requireNonNull(data);
 		this.tilesets = Collections.unmodifiableList(new ArrayList<>(tilesets));
@@ -61,7 +58,7 @@ public class Map {
 	public Walkspeed getWalkspeed(long x, long y) {
 
 		// Find the walkspeed on the tile.
-		final int gid = getGid(x, y);
+		final int gid = data.getGroundGid(x, y);
 
 		if (gid == 0) {
 			return Walkspeed.fromInt(0);
@@ -69,26 +66,6 @@ public class Map {
 
 		return getTileset(gid).map(ts -> Walkspeed.fromInt(ts.getProperties(gid).getWalkspeed()))
 				.orElse(Walkspeed.fromInt(0));
-	}
-
-	/**
-	 * Finds the tile id of the given coordiante.
-	 * 
-	 * @return
-	 */
-	private int getGid(long x, long y) {
-		// Now check the layers.
-		final long cx = x - rect.getX();
-		final long cy = y - rect.getY();
-
-		final int index = (int) (cy * rect.getWidth() + cx);
-		final Integer gid = groundLayer.get(index);
-
-		if (gid == null) {
-			return 0;
-		}
-
-		return gid;
 	}
 
 	/**
@@ -107,7 +84,7 @@ public class Map {
 			throw new IndexOutOfBoundsException("X or/and Y does not lie inside the map rectangle.");
 		}
 
-		final int gid = getGid(p.getX(), p.getY());
+		final int gid = data.getGroundGid(p.getX(), p.getY());
 
 		if (gid == 0) {
 			return false;
@@ -154,7 +131,7 @@ public class Map {
 			throw new IndexOutOfBoundsException("X or/and Y does not lie inside the map rectangle.");
 		}
 
-		final int gid = getGid(p.getX(), p.getY());
+		final int gid = data.getGroundGid(p.getX(), p.getY());
 
 		if (gid == 0) {
 			return false;

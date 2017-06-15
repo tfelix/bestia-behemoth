@@ -9,20 +9,19 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
- * The {@link Tileset} holds information about the concrete pack to load. It can
- * be queried for the GID in order to get the apropriate tileset information.
+ * The {@link TilesetData} holds information about the concrete pack to load. It
+ * can be queried for the GID in order to get the apropriate tileset
+ * information.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Entity
 @Table(name = "tileset", indexes = {
 		@Index(columnList = "min_gid"),
 		@Index(columnList = "max_gid") })
-public class Tileset implements Serializable {
+public class TilesetData implements Serializable {
 
 	@Transient
 	private static final long serialVersionUID = 1L;
@@ -30,20 +29,20 @@ public class Tileset implements Serializable {
 	@Id
 	private int id;
 
-	@Column(unique = true, nullable = false)
-	private String name;
-
-	@JsonProperty("mingid")
 	@Column(name = "min_gid")
 	private long minGid;
-	
-	@JsonProperty("maxgid")
+
 	@Column(name = "max_gid")
 	private long maxGid;
 
+	/**
+	 * JSON serialized description of the tileset.
+	 */
+	private String data;
+
 	@Override
 	public String toString() {
-		return String.format("Tileset[id: %d, name: %s, minGid: %d, maxGid: %d]", getId(), getName(), getMinGid(),
+		return String.format("Tileset[id: %d, minGid: %d, maxGid: %d]", getId(), getMinGid(),
 				getMaxGid());
 	}
 
@@ -53,14 +52,6 @@ public class Tileset implements Serializable {
 
 	public void setId(int id) {
 		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public long getMinGid() {
@@ -77,5 +68,9 @@ public class Tileset implements Serializable {
 
 	public void setMaxGid(long maxGid) {
 		this.maxGid = maxGid;
+	}
+	
+	public String getData() {
+		return data;
 	}
 }

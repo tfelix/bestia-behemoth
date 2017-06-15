@@ -11,12 +11,12 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.map.MapTilesetMessage;
 import net.bestia.messages.map.MapTilesetRequestMessage;
-import net.bestia.model.dao.TilesetDAO;
-import net.bestia.model.domain.Tileset;
+import net.bestia.model.dao.TilesetDataDAO;
+import net.bestia.model.domain.TilesetData;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 
 /**
- * The user queries the name/data of an {@link Tileset}. He only sends the GID
+ * The user queries the name/data of an {@link TilesetData}. He only sends the GID
  * of the tile and we must find the appropriate tileset.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
@@ -29,10 +29,10 @@ public class TilesetRequestActor extends BestiaRoutingActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static String NAME = "tileset";
 	
-	private final TilesetDAO tilesetDao;
+	private final TilesetDataDAO tilesetDao;
 
 	@Autowired
-	public TilesetRequestActor(TilesetDAO tilesetDao) {
+	public TilesetRequestActor(TilesetDataDAO tilesetDao) {
 		super(Arrays.asList(MapTilesetRequestMessage.class));
 		
 		this.tilesetDao = Objects.requireNonNull(tilesetDao);
@@ -42,7 +42,7 @@ public class TilesetRequestActor extends BestiaRoutingActor {
 	protected void handleMessage(Object msg) {
 		final MapTilesetRequestMessage mtmsg = (MapTilesetRequestMessage) msg;
 		
-		final Tileset ts = tilesetDao.findByGid(mtmsg.getTileId());
+		final TilesetData ts = tilesetDao.findByGid(mtmsg.getTileId());
 		
 		if(ts == null) {
 			LOG.warning("Tileset containing gid {} not found.", mtmsg.getTileId());

@@ -5,7 +5,7 @@ import java.util.Objects;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
-import net.bestia.model.domain.Tileset;
+import net.bestia.model.domain.TilesetData;
 
 /**
  * Tiles are only referenced by so called gids. This ids are globally unique and
@@ -21,7 +21,7 @@ public class MapTilesetMessage extends JsonMessage {
 	public static final String MESSAGE_ID = "map.tileset";
 
 	@JsonProperty("ts")
-	private final Tileset tileset;
+	private final TilesetData tileset;
 
 	/**
 	 * Priv. ctor for jackson.
@@ -30,13 +30,13 @@ public class MapTilesetMessage extends JsonMessage {
 		tileset = null;
 	}
 
-	public MapTilesetMessage(long accId, Tileset tileset) {
+	public MapTilesetMessage(long accId, TilesetData tileset) {
 		super(accId);
 		
 		this.tileset = Objects.requireNonNull(tileset);
 	}
 
-	public Tileset getTileset() {
+	public TilesetData getTileset() {
 		return tileset;
 	}
 
