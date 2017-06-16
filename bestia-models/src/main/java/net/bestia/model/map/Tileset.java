@@ -67,6 +67,13 @@ public class Tileset implements Serializable {
 	@JsonIgnore
 	private int tileCount;
 
+	/**
+	 * 
+	 * @param name
+	 * @param size
+	 *            Size in tiles.
+	 * @param firstGID
+	 */
 	public Tileset(String name, Size size, int firstGID) {
 
 		this.name = Objects.requireNonNull(name);

@@ -2,35 +2,32 @@ package net.bestia.model.dao;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
-import java.util.Iterator;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestExecutionListeners;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-
-import com.github.springtestdbunit.DbUnitTestExecutionListener;
-import com.github.springtestdbunit.annotation.DatabaseSetup;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
 import net.bestia.model.domain.Account;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "/spring-config.xml" })
-@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class,
+@RunWith(SpringRunner.class)
+@SpringBootTest
+/*@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class,
     DbUnitTestExecutionListener.class })
-@DatabaseSetup("/db/accounts.xml")
+@DatabaseSetup("/db/accounts.xml")*/
+@DataJpaTest
 public class AccountDAOTest {
+	
+	private static final String EMAIL = "test@test.net";
 
 	@Autowired
 	private AccountDAO accountDao;
 
 	public Account getNewAccount() {
-		final Account a = new Account("thomas.felix@tfelix.de", "test123");
+		final Account a = new Account(EMAIL, "test123");
 		return a;
 	}
 
@@ -59,26 +56,25 @@ public class AccountDAOTest {
 
 	@Test
 	public void remove_test() {
-		long oldSize = accountDao.count();
-		final Account a = accountDao.findAll().iterator().next();
+		
+		Account a = new Account(EMAIL, "test123");
+		accountDao.save(a);
+		
+		long accId = a.getId();
+
 		accountDao.delete(a);
-		long newSize = accountDao.count();
+		
+		a = accountDao.findOne(accId);
 
-		assertFalse(oldSize == newSize);
-	}
-
-	@Test
-	public void testList() {
-		Iterator<Account> list = accountDao.findAll().iterator();
-		assertTrue(list.hasNext());
+		Assert.assertNull(a);
 	}
 
 	@Test
 	public void findByEmail_test() {
-		Account a = new Account("thomas.felix@tfelix.de", "test123");
+		Account a = new Account(EMAIL, "test123");
 		accountDao.save(a);
 
-		Account found = accountDao.findByEmail("thomas.felix@tfelix.de");
+		Account found = accountDao.findByEmail(EMAIL);
 		assertNotNull(found);
 	}
 }

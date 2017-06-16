@@ -165,12 +165,60 @@ public class MapDataDTO implements Serializable {
 	 */
 	public MapDataDTO join(MapDataDTO rhs) {
 
-		final long x = rhs.getRect().getX();
-		final long x2 = x + rhs.getRect().getWidth();
-		final long y = rhs.getRect().getY();
-		final long y2 = x + rhs.getRect().getHeight();
+		// We can only join same dimensions.
+		if (rhs.getRect().getWidth() != getRect().getWidth()
+				|| rhs.getRect().getHeight() != getRect().getHeight()) {
+			throw new IllegalArgumentException("MapDataDTOs have different sizes. Can not join.");
+		}
 
-		return null;
+		final long rhsX = rhs.getRect().getX();
+		final long rhsX2 = rhsX + rhs.getRect().getWidth();
+		final long rhsY = rhs.getRect().getY();
+		final long rhsY2 = rhsX + rhs.getRect().getHeight();
+
+		final long x = getRect().getX();
+		final long x2 = x + getRect().getWidth();
+		final long y = getRect().getY();
+		final long y2 = y + getRect().getHeight();
+		
+		final long totalWidth = getRect().getWidth() + rhs.getRect().getWidth();
+		final long totalHeight = getRect().getHeight() + rhs.getRect().getHeight();
+		
+		final Rect joinedRect;
+
+		if (x2 + 1 == rhsX && rhsY == y) {
+			// RHS is on right quadrant.
+			joinedRect = new Rect(x, y, totalWidth, getRect().getHeight());		
+		} else if(rhsX2 + 1 == x && rhsY == y){
+			// RHS is on left quadrant.
+			joinedRect = new Rect(rhsX, rhsY, totalWidth, getRect().getHeight());	
+		}
+		else {
+			// Non overlapping.
+			throw new IllegalArgumentException("Area is not adjacent to each other.");
+		}
+		
+		final MapDataDTO joinedData = new MapDataDTO(joinedRect);
+
+		// Since width must be equal for both arrays.
+		final int length = (int) rhs.getRect().getWidth();
+
+		// Combine the ground layer data.
+		for (int i = 0; i < y2 - y; ++i) {
+
+			int srcPos = i * length;
+			int destPos = 2 * i * length;
+
+			System.arraycopy(groundLayer, srcPos, joinedData.groundLayer, destPos, length);
+
+			destPos += length;
+
+			System.arraycopy(rhs.groundLayer, srcPos, joinedData.groundLayer, destPos, length);
+		}
+
+		// Copy the upper map layers.
+
+		return joinedData;
 	}
 
 	/**

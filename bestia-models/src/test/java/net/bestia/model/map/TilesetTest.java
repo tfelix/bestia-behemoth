@@ -47,6 +47,6 @@ public class TilesetTest {
 	}
 
 	public Tileset getTileset() {
-		return new Tileset("test", new Size(320, 320), 100);
+		return new Tileset("test", new Size(10, 10), 100);
 	}
 }

@@ -30,7 +30,7 @@
 		<java.version>1.8</java.version>
 
 		<findbugs.version>3.0.4</findbugs.version>
-		<spring.version>1.4.2.RELEASE</spring.version>
+		<spring.version>1.5.4.RELEASE</spring.version>
 		<hazelcast.version>3.7.4</hazelcast.version>	
 		<akka.version>2.5.2</akka.version>
 		<slf4j.version>1.7.25</slf4j.version>
@@ -271,34 +271,11 @@
 				<version>${spring.version}</version>
 				<scope>test</scope>
 			</dependency>
-
-			<!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-context</artifactId>
-				<version>4.3.1.RELEASE</version>
-			</dependency>
-			<!-- https://mvnrepository.com/artifact/org.springframework.data/spring-data-jpa -->
-			<dependency>
-				<groupId>org.springframework.data</groupId>
-				<artifactId>spring-data-jpa</artifactId>
-				<version>1.10.2.RELEASE</version>
-			</dependency>
+			
 			<dependency>
 				<groupId>com.github.springtestdbunit</groupId>
 				<artifactId>spring-test-dbunit</artifactId>
 				<version>1.2.0</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-orm</artifactId>
-				<version>4.3.1.RELEASE</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-test</artifactId>
-				<version>4.3.1.RELEASE</version>
 				<scope>test</scope>
 			</dependency>
 
@@ -386,12 +363,6 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-core</artifactId>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
