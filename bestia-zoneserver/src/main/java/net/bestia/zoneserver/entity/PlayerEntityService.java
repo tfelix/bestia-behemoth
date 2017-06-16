@@ -305,6 +305,10 @@ public class PlayerEntityService {
 		entityService.delete(playerBestia);
 		playerBestiaEntitiesIds.remove(accId, playerBestia.getId());
 
+		if(!activeEntities.containsKey(accId)) {
+			return false;
+		}
+		
 		if (activeEntities.get(accId) == playerBestia.getId()) {
 			// Select a new active bestia and notify the client.
 			long newActive = playerBestiaEntitiesIds.get(accId).stream().findAny().orElse(0L);

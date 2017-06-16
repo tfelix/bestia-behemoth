@@ -30,7 +30,7 @@ public class EntityRecycler {
 	private final int maxCachedInstances;
 
 	private final Queue<Entity> entities = new LinkedList<>();
-	private final Map<Class<? extends Component>, Queue<Component>> components = new HashMap<>();
+	private final Map<String, Queue<Component>> components = new HashMap<>();
 	
 	private final EntityService entityService;
 	private final ScriptService scriptService;
@@ -103,10 +103,10 @@ public class EntityRecycler {
 		final Class<? extends Component> compClass = component.getClass();
 
 		if (!components.containsKey(compClass)) {
-			components.put(compClass, new LinkedList<>());
+			components.put(compClass.getName(), new LinkedList<>());
 		}
 
-		final Queue<Component> queue = components.get(compClass);
+		final Queue<Component> queue = components.get(compClass.getName());
 
 		if (queue.size() >= maxCachedInstances) {
 			return;
@@ -166,8 +166,10 @@ public class EntityRecycler {
 	@SuppressWarnings("unchecked")
 	public <T extends Component> T getComponent(Class<T> componentClass) {
 
-		if (components.containsKey(componentClass)) {
-			return (T) components.get(componentClass).poll();
+		final String className = componentClass.getName();
+		
+		if (components.containsKey(className)) {
+			return (T) components.get(className).poll();
 		} else {
 			return null;
 		}

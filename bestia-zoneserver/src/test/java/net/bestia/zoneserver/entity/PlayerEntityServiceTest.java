@@ -284,7 +284,9 @@ public class PlayerEntityServiceTest {
 
 	@Test
 	public void hasPlayerEntity_knownAccOkEntityId_true() {
-		assertTrue(pbeService.hasPlayerEntity(KNOWN_ACC_ID, PLAYER_ENTITY_ID));
+		pbeService.putPlayerEntity(playerEntity);
+		boolean isKnown = pbeService.hasPlayerEntity(KNOWN_ACC_ID, PLAYER_ENTITY_ID);
+		assertTrue(isKnown);
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -344,11 +346,13 @@ public class PlayerEntityServiceTest {
 		
 		pbeService.putPlayerEntity(masterEntity);
 		pbeService.putPlayerEntity(playerEntity);
+		pbeService.setActiveEntity(KNOWN_ACC_ID, masterEntity.getId());
 
 		assertEquals("Account should own two bestias now.", 2, pbeService.getPlayerEntities(KNOWN_ACC_ID).size());
 
-		pbeService.removePlayerBestia(masterEntity);
+		boolean removed = pbeService.removePlayerBestia(masterEntity);
 
+		assertTrue(removed);
 		assertEquals("Account should own only one bestias now.", 1, pbeService.getPlayerEntities(KNOWN_ACC_ID).size());
 		assertTrue(pbeService.getPlayerEntities(KNOWN_ACC_ID).contains(playerEntity));
 	}

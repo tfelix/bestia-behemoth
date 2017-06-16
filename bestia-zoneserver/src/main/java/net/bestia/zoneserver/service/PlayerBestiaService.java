@@ -144,7 +144,11 @@ public class PlayerBestiaService {
 		final Set<PlayerBestia> bestias = playerBestiaDao.findPlayerBestiasForAccount(accId);
 
 		// Add master as well since its not listed as a "player bestia".
-		bestias.add(getMaster(accId));
+		final PlayerBestia master = getMaster(accId);
+		
+		if(master != null) {
+			bestias.add(master);
+		}
 
 		return bestias;
 	}

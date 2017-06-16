@@ -57,6 +57,7 @@ public class StatusService {
 	 * @return
 	 */
 	public Optional<StatusBasedValues> getStatusBasedValues(Entity entity) {
+		Objects.requireNonNull(entity);
 		
 		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
 
@@ -85,6 +86,7 @@ public class StatusService {
 	 * @return The by status effects or equip modified {@link StatusPoints}.
 	 */
 	public Optional<StatusPoints> getStatusPoints(Entity entity) {
+		Objects.requireNonNull(entity);
 
 		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
 
@@ -116,6 +118,8 @@ public class StatusService {
 	 *            The entity to recalculate the status.
 	 */
 	public void calculateStatusPoints(Entity entity) {
+		Objects.requireNonNull(entity);
+		
 		entityService.getComponent(entity, StatusComponent.class).ifPresent(statusComp -> {
 			calculateStatusPoints(entity, statusComp);
 		});

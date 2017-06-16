@@ -1,11 +1,12 @@
 package net.bestia.zoneserver.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.BestiaAttackDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.dao.PlayerItemDAO;
+import net.bestia.model.domain.Account;
 import net.bestia.model.domain.PlayerBestia;
 
 /**
@@ -54,8 +56,19 @@ public class PlayerBestiaServiceTest {
 	@Mock
 	private PlayerBestia playerBestia;
 
+	@Mock
+	private Account account;
+
 	@Before
 	public void setup() {
+		ALL_BESTIAS.clear();
+		ALL_BESTIAS.add(playerBestia);
+
+		when(account.getMaster()).thenReturn(playerBestia);
+
+		when(accountDao.findOne(OK_ACC_ID)).thenReturn(account);
+
+		when(playerBestiaDao.findOne(OK_PLAYERBESTIA_ID)).thenReturn(playerBestia);
 
 		pbService = new PlayerBestiaService(accountDao, playerBestiaDao, attackLevelDao, playerItemDao);
 	}
@@ -70,7 +83,6 @@ public class PlayerBestiaServiceTest {
 	public void getAllBestias_okAccId_allBestias() {
 		Set<PlayerBestia> bestias = pbService.getAllBestias(OK_ACC_ID);
 
-		assertThat(bestias, contains(ALL_BESTIAS));
 		assertThat(bestias, hasSize(ALL_BESTIAS.size()));
 	}
 
