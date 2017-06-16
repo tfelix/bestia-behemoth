@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,25 +39,28 @@ import net.bestia.zoneserver.actor.ZoneAkkaApiActor;
  */
 @Configuration
 @Profile("production")
-public class AkkaConfiguration {
+public class AkkaConfiguration implements DisposableBean  {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AkkaConfiguration.class);
 
 	private static final String AKKA_CONFIG_NAME = "akka";
+	
+	private ActorSystem systemInstance;
 
 	@Bean
 	public ActorSystem actorSystem(HazelcastInstance hzInstance, ApplicationContext appContext)
 			throws UnknownHostException {
 
 		final Config akkaConfig = ConfigFactory.load(AKKA_CONFIG_NAME);
-		final ActorSystem system = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
+		
+		systemInstance = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
 
 		// initialize the application context in the Akka Spring extension.
-		SpringExtension.PROVIDER.get(system).initialize(appContext);
+		SpringExtension.PROVIDER.get(systemInstance).initialize(appContext);
 
 		final DiscoveryService clusterConfig = new DiscoveryService(hzInstance);
 
-		final Address selfAddr = Cluster.get(system).selfAddress();
+		final Address selfAddr = Cluster.get(systemInstance).selfAddress();
 		final List<Address> seedNodes = clusterConfig.getClusterSeedNodes();
 
 		if (clusterConfig.shoudJoinAsSeedNode()) {
@@ -66,14 +70,14 @@ public class AkkaConfiguration {
 			if (seedNodes.size() == 0) {
 				// Join as seed node since desired number of seeds is not
 				// reached.
-				Cluster.get(system).join(selfAddr);
+				Cluster.get(systemInstance).join(selfAddr);
 			} else {
-				Cluster.get(system).joinSeedNodes(seedNodes);
+				Cluster.get(systemInstance).joinSeedNodes(seedNodes);
 			}
 
 		} else {
 			// Only join as normal node.
-			Cluster.get(system).joinSeedNodes(seedNodes);
+			Cluster.get(systemInstance).joinSeedNodes(seedNodes);
 		}
 
 		LOG.info("Zoneserver Akka Address: {}", selfAddr);
@@ -83,7 +87,7 @@ public class AkkaConfiguration {
 		// selfAddr.
 		clusterConfig.addClusterNode(selfAddr);
 
-		return system;
+		return systemInstance;
 	}
 
 	@Bean
@@ -101,5 +105,11 @@ public class AkkaConfiguration {
 						}).withDeploy(Deploy.local()), "internalZoneApi");
 
 		return api;
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		LOG.info("Stopping Akka instance.");
+		systemInstance.terminate();
 	}
 }
