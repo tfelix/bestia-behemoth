@@ -104,13 +104,14 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	}
 
 	@Override
-	public void onReceive(Object message) throws Exception {
+	public Receive createReceive() {
+		return receiveBuilder()
+				.match(ReportHandledMessages.class, this::setHandledRoutes)
+				.matchAny(this::receive)
+				.build();
+	}
 
-		// Internal status messages must be used to handle the routing.
-		if (message instanceof ReportHandledMessages) {
-			setHandledRoutes((ReportHandledMessages) message);
-			return;
-		}
+	public void receive(Object message) throws Exception {
 
 		if (ownHandler.contains(message.getClass())) {
 			handleMessage(message);
@@ -144,7 +145,7 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 	 * message to the handled messages of the childs.
 	 */
 	private void setHandledRoutes(ReportHandledMessages message) {
-		
+
 		removeHandledRoutes(getSender());
 
 		message.getHandledMessages().forEach(x -> {
@@ -155,7 +156,7 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 
 			childHandler.get(x).add(getSender());
 		});
-		
+
 		LOG.debug("Installed message routing: {}", childHandler.toString());
 
 		// Announce the changed routing table upstream.

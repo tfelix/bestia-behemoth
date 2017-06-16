@@ -29,7 +29,7 @@ public class SendClientActor extends BestiaActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "sendToClient";
-	
+
 	private final ConnectionService connectionService;
 
 	@Autowired
@@ -39,27 +39,26 @@ public class SendClientActor extends BestiaActor {
 	}
 
 	@Override
-	public void onReceive(Object message) throws Exception {
+	public Receive createReceive() {
+		return receiveBuilder()
+				.match(AccountMessage.class, this::sendToClient)
+				.build();
+	}
 
-		if (message instanceof AccountMessage) {
+	private void sendToClient(AccountMessage msg) {
 
-			final AccountMessage accMsg = (AccountMessage) message;
-			final ActorPath originPath = connectionService.getPath(accMsg.getAccountId());
-			final ActorSelection origin = getContext().actorSelection(originPath);
+		final ActorPath originPath = connectionService.getPath(msg.getAccountId());
+		final ActorSelection origin = getContext().actorSelection(originPath);
 
-			if (origin == null) {
-				LOG.warning("Could not find origin ref for message: {}", message.toString());
-				unhandled(message);
-				return;
-			}
-
-			// Send the client message.
-			LOG.debug(String.format("Sending to client %d: %s", accMsg.getAccountId(), accMsg));
-			origin.tell(message, getSelf());
-		} else {
-			// We handle only account messages.
-			unhandled(message);
+		if (origin == null) {
+			LOG.warning("Could not find origin ref for message: {}", msg.toString());
+			unhandled(msg);
+			return;
 		}
+
+		// Send the client message.
+		LOG.debug(String.format("Sending to client %d: %s", msg.getAccountId(), msg));
+		origin.tell(msg, getSelf());
 
 	}
 

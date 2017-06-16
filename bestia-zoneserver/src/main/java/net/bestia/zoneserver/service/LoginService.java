@@ -2,6 +2,7 @@ package net.bestia.zoneserver.service;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import akka.actor.ActorRef;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
+import net.bestia.messages.web.AccountLoginToken;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
@@ -137,9 +139,32 @@ public class LoginService {
 		connectionService.removeClient(accId);
 
 		final Set<Entity> playerEntities = playerEntityService.getPlayerEntities(accId);
-		
+
 		playerEntities.forEach(playerEntityService::save);
 		playerEntityService.removePlayerBestias(accId);
+	}
+
+	public AccountLoginToken setNewLoginToken(String username, String password) {
+
+		final Account account = accountDao.findByUsername(username);
+
+		if (account == null) {
+			LOG.debug("Account with username {} not found.", username);
+			return null;
+		}
+
+		if (!account.getPassword().matches(password)) {
+			LOG.debug("Password does not match with username {}.", username);
+			return null;
+		}
+
+		final String uuid = UUID.randomUUID().toString();
+		account.setLoginToken(uuid);
+
+		// Check login.
+		final AccountLoginToken answerToken = new AccountLoginToken(1, account.getName(), uuid);
+
+		return answerToken;
 	}
 
 	/**

@@ -1,8 +1,8 @@
 package net.bestia.zoneserver.actor;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorPath;
 import akka.actor.ActorRef;
-import akka.actor.UntypedActor;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 
@@ -48,7 +48,7 @@ public interface ZoneAkkaApi {
 	 * @param actorClazz
 	 * @return
 	 */
-	ActorRef startActor(Class<? extends UntypedActor> actorClazz);
+	ActorRef startActor(Class<? extends AbstractActor> actorClazz);
 
 	/**
 	 * This starts an unnamed actor. Which is faster then starting a named
@@ -58,5 +58,5 @@ public interface ZoneAkkaApi {
 	 * @param actorClazz
 	 * @return
 	 */
-	ActorRef startUnnamedActor(Class<? extends UntypedActor> actorClazz);
+	ActorRef startUnnamedActor(Class<? extends AbstractActor> actorClazz);
 }

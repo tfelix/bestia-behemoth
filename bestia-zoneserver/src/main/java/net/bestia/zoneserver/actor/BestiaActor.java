@@ -3,8 +3,8 @@ package net.bestia.zoneserver.actor;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorSelection;
-import akka.actor.UntypedActor;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.server.AkkaCluster;
@@ -20,7 +20,7 @@ import net.bestia.zoneserver.actor.zone.SendClientActor;
  */
 @Component
 @Scope("prototype")
-public abstract class BestiaActor extends UntypedActor {
+public abstract class BestiaActor extends AbstractActor {
 
 	private ActorSelection responder;
 	private ActorSelection activeClientBroadcaster;

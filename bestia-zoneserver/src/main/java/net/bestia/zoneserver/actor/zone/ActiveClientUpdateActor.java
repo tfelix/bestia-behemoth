@@ -49,6 +49,11 @@ public class ActiveClientUpdateActor extends BestiaActor {
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerService);
 	}
+	
+	@Override
+	public Receive createReceive() {
+		receiveBuilder().build();
+	}
 
 	@Override
 	public void onReceive(Object msg) throws Throwable {

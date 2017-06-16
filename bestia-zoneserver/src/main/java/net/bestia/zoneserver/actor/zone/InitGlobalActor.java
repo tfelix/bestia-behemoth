@@ -9,7 +9,6 @@ import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.DoneMessage;
-import net.bestia.messages.internal.StartInitMessage;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.actor.SpringExtension;
@@ -33,64 +32,55 @@ public class InitGlobalActor extends BestiaActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
+	public static final String START_MSG = "init.start";
+
 	private boolean hasInitialized = false;
 	private int actorWaiting;
-	
+
 	private final MapService mapDataService;
-	
+
 	private final ActorRef mapGeneratorMaster;
 
 	public InitGlobalActor(MapService mapDataService) {
 
 		this.mapDataService = Objects.requireNonNull(mapDataService);
-		
+
 		this.mapGeneratorMaster = SpringExtension.actorOf(getContext(), MapGeneratorMasterActor.class);
 	}
-	
+
 	@Override
 	public void preStart() throws Exception {
 		LOG.warning("INITGLOBAL STARTED");
-		
-		if(!mapDataService.isMapInitialized()) {
+
+		if (!mapDataService.isMapInitialized()) {
 			initializeMap();
 		}
 	}
-	
+
 	private void initializeMap() {
 		LOG.info("New map is generated.");
 		MapParameter mapParams = MapParameter.fromAverageUserCount(1, "Terra");
 		mapGeneratorMaster.tell(mapParams, getSelf());
 	}
-	
 
 	@Override
-	public void onReceive(Object message) throws Exception {
+	public Receive createReceive() {
+		return receiveBuilder()
+				.matchEquals(START_MSG, m -> this.startInit())
+				.build();
+	}
 
-		if(message instanceof String) {
-			if(((String)message).equals("okay")) {
-				unhandled(message);
-				return;
-			}
-			
-			actorWaiting--;
-			if(actorWaiting <= 0) {
-				getContext().parent().tell(new DoneMessage("global"), getSelf());
-			}
-		}
-		
-		if (!(message instanceof StartInitMessage)) {
-			
-		}
+	private void startInit() {
 
 		if (hasInitialized) {
 			return;
 		}
-		
-		hasInitialized = true;		
+
+		hasInitialized = true;
 
 		// Start the initialization process.
 		LOG.info("Start the global server initialization...");
-		
+
 		// This signalling does not work.
 		getContext().parent().tell(new DoneMessage("global"), getSelf());
 	}

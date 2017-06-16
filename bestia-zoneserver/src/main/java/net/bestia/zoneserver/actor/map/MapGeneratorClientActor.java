@@ -54,21 +54,17 @@ public class MapGeneratorClientActor extends BestiaActor implements MasterConnec
 
 		nodeGenerator = genConfig.mapNodeGenerator(config, this, mapGenDao, mapService);
 	}
-
+	
 	@Override
-	public void onReceive(Object msg) throws Throwable {
-
-		if (msg instanceof MapDescription) {
-			// If we are requested to generate a new map we save the sender.
-			master = getSender();
-			createWorld((MapDescription) msg);
-		} else if (msg instanceof MapPart) {
-			consumeMapPart((MapPart) msg);
-		} else if (msg instanceof String) {
-			startWorkload((String) msg);
-		} else {
-			unhandled(msg);
-		}
+	public Receive createReceive() {
+		return receiveBuilder()
+				.match(MapDescription.class, m -> {
+					master = getSender();
+					createWorld(m);
+				})
+				.match(MapPart.class, this::consumeMapPart)
+				.match(String.class, this::startWorkload)
+				.build();
 	}
 
 	private void startWorkload(String label) {

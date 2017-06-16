@@ -3,12 +3,12 @@ package net.bestia.zoneserver.actor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorContext;
 import akka.actor.ActorPath;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.TypedActor;
-import akka.actor.UntypedActor;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.server.AkkaCluster;
@@ -48,7 +48,7 @@ public class ZoneAkkaApiActor implements ZoneAkkaApi {
 	}
 	
 	@Override
-	public ActorRef startActor(Class<? extends UntypedActor> actorClazz) {
+	public ActorRef startActor(Class<? extends AbstractActor> actorClazz) {
 
 		ActorRef actor = SpringExtension.actorOf(context.system(), actorClazz);
 
@@ -58,7 +58,7 @@ public class ZoneAkkaApiActor implements ZoneAkkaApi {
 	}
 	
 	@Override
-	public ActorRef startUnnamedActor(Class<? extends UntypedActor> actorClazz) {
+	public ActorRef startUnnamedActor(Class<? extends AbstractActor> actorClazz) {
 
 		ActorRef actor = SpringExtension.unnamedActorOf(context.system(), actorClazz);
 

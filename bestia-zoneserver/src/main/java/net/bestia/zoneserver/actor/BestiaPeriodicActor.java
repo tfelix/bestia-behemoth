@@ -27,11 +27,11 @@ public abstract class BestiaPeriodicActor extends BestiaActor {
 
 	public BestiaPeriodicActor(int initialDelay) {
 		super();
-		
+
 		setIntervalDuration(initialDelay);
 		setupTicker();
 	}
-	
+
 	public BestiaPeriodicActor() {
 		// no op.
 	}
@@ -50,9 +50,10 @@ public abstract class BestiaPeriodicActor extends BestiaActor {
 
 		this.intervalDuration = duration;
 	}
-	
+
 	/**
-	 * Starts a new 
+	 * Starts a new
+	 * 
 	 * @param duration
 	 */
 	protected void startInterval(int duration) {
@@ -75,26 +76,23 @@ public abstract class BestiaPeriodicActor extends BestiaActor {
 	protected abstract void handleMessage(Object message) throws Exception;
 
 	@Override
-	public void onReceive(Object message) throws Throwable {
-		// Check if we received a tick message.
-		if (message.equals(TICK_MSG)) {
+	public Receive createReceive() {
+		return receiveBuilder().matchEquals(TICK_MSG, x -> {
 			onTick();
 			setupTicker();
-		} else {
-			handleMessage(message);
-		}
+		}).matchAny(this::handleMessage).build();
 	}
 
 	/**
 	 * Starts a new tick event for the next invocation of this actor.
 	 */
 	private void setupTicker() {
-		
-		if(ticker != null) {
+
+		if (ticker != null) {
 			ticker.cancel();
 			ticker = null;
 		}
-		
+
 		// send another periodic tick after the specified delay
 		ticker = getContext().system().scheduler().scheduleOnce(
 				Duration.create(intervalDuration, TimeUnit.MILLISECONDS),
