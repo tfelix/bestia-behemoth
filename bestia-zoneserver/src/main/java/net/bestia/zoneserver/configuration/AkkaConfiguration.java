@@ -39,12 +39,12 @@ import net.bestia.zoneserver.actor.ZoneAkkaApiActor;
  */
 @Configuration
 @Profile("production")
-public class AkkaConfiguration implements DisposableBean  {
+public class AkkaConfiguration implements DisposableBean {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AkkaConfiguration.class);
 
 	private static final String AKKA_CONFIG_NAME = "akka";
-	
+
 	private ActorSystem systemInstance;
 
 	@Bean
@@ -52,7 +52,7 @@ public class AkkaConfiguration implements DisposableBean  {
 			throws UnknownHostException {
 
 		final Config akkaConfig = ConfigFactory.load(AKKA_CONFIG_NAME);
-		
+
 		systemInstance = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
 
 		// initialize the application context in the Akka Spring extension.
@@ -107,9 +107,16 @@ public class AkkaConfiguration implements DisposableBean  {
 		return api;
 	}
 
+	/**
+	 * Kill the akka instance if it has been created and Spring shuts down.
+	 */
 	@Override
 	public void destroy() throws Exception {
 		LOG.info("Stopping Akka instance.");
-		systemInstance.terminate();
+
+		if (systemInstance != null) {
+			systemInstance.terminate();
+		}
+
 	}
 }

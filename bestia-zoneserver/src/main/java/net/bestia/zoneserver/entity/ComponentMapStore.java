@@ -3,7 +3,6 @@ package net.bestia.zoneserver.entity;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,12 +24,19 @@ import net.bestia.zoneserver.entity.component.Component;
 public class ComponentMapStore implements MapStore<Long, Component> {
 
 	private final static Logger LOG = LoggerFactory.getLogger(ComponentMapStore.class);
-	private final ComponentPersistService persistService;
 
+	/**
+	 * Must dep-inject via setter cause hazelcast wants no arg ctor.
+	 */
+	private ComponentPersistService persistService;
+
+	public ComponentMapStore() {
+		// no op.
+	}
+	
 	@Autowired
-	public ComponentMapStore(ComponentPersistService persistService) {
-
-		this.persistService = Objects.requireNonNull(persistService);
+	public void setPersistService(ComponentPersistService persistService) {
+		this.persistService = persistService;
 	}
 
 	@Override
@@ -43,14 +49,14 @@ public class ComponentMapStore implements MapStore<Long, Component> {
 
 	@Override
 	public synchronized Map<Long, Component> loadAll(Collection<Long> ids) {
-		
+
 		final Map<Long, Component> components = new HashMap<>();
-		
-		for(Long id : ids) {
+
+		for (Long id : ids) {
 			final Component comp = persistService.load(id);
 			components.put(id, comp);
 		}
-		
+
 		return components;
 	}
 

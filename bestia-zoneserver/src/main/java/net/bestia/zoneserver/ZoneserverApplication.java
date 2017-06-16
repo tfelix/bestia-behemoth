@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * @author Thomas Felix
  *
  */
-@SpringBootApplication
+@SpringBootApplication //(scanBasePackages = {"net.bestia"})
 @EnableJpaRepositories("net.bestia.model.dao")
 @EntityScan("net.bestia.model.domain")
 @ComponentScan(basePackages = { "net.bestia" })

@@ -13,7 +13,7 @@ import net.bestia.model.domain.TilesetData;
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
-@Repository("tilesetDao")
+@Repository("tilesetDataDao")
 public interface TilesetDataDAO extends CrudRepository<TilesetData, Long> {
 
 	/**
@@ -24,6 +24,6 @@ public interface TilesetDataDAO extends CrudRepository<TilesetData, Long> {
 	 * @return The {@link TilesetData} which contains this GID, or null if no
 	 *         {@link TilesetData} was found.
 	 */
-	@Query("SELECT t FROM Tileset t WHERE t.minGid <= :gid AND t.maxGid >= :gid")
+	@Query("SELECT t FROM TilesetData t WHERE t.minGid <= :gid AND t.maxGid >= :gid")
 	public TilesetData findByGid(@Param("gid") long gid);
 }
