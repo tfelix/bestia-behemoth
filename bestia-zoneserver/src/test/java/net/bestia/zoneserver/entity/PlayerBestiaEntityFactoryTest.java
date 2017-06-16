@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.PlayerBestia;
@@ -78,7 +78,7 @@ public class PlayerBestiaEntityFactoryTest {
 		when(playerBestia.getExp()).thenReturn(EXP);
 		when(playerBestia.getCurrentPosition()).thenReturn(currentPos);
 
-		when(entityFactory.buildEntity(any())).thenReturn(new Entity(ENTITY_ID));
+		//when(entityFactory.buildEntity(any())).thenReturn(new Entity(ENTITY_ID));
 		when(entityFactory.buildEntity(any(), any())).thenReturn(new Entity(ENTITY_ID));
 
 		factory = new PlayerBestiaEntityFactory(entityFactory, statusService);

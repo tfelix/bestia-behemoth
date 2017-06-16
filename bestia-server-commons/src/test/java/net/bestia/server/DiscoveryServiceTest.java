@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import akka.actor.Address;
+import net.bestia.testing.BasicMocks;
 
 public class DiscoveryServiceTest {
 

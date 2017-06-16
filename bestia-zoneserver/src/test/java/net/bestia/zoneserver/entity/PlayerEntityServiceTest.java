@@ -31,7 +31,7 @@ import com.hazelcast.core.HazelcastInstance;
 import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.geometry.Rect;
-import net.bestia.server.BasicMocks;
+import net.bestia.testing.BasicMocks;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.entity.component.PlayerComponent;
 import net.bestia.zoneserver.service.PlayerBestiaService;
@@ -51,8 +51,8 @@ public class PlayerEntityServiceTest {
 	private static final long MASTER_PB_ID = 42;
 	private static final long PLAYER_PB_ID = 43;
 
-	private final static BasicMocks mocks = new BasicMocks();
-	private final static HazelcastInstance hz = mocks.hazelcastMock();
+	private final BasicMocks mocks = new BasicMocks();
+	private final HazelcastInstance hz = mocks.hazelcastMock();
 
 	private EntityService entityService;
 	private PlayerBestiaService playerBestiaService;

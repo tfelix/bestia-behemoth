@@ -57,6 +57,7 @@ public class StatusService {
 	 * @return
 	 */
 	public Optional<StatusBasedValues> getStatusBasedValues(Entity entity) {
+		
 		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
 
 		if (!statusComp.isPresent()) {
@@ -95,6 +96,7 @@ public class StatusService {
 	}
 
 	public Optional<StatusPoints> getUnmodifiedStatusPoints(Entity entity) {
+		Objects.requireNonNull(entity);
 
 		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
 

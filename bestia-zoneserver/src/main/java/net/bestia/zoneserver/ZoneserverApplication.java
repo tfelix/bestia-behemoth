@@ -3,7 +3,6 @@ package net.bestia.zoneserver;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
@@ -12,10 +11,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * @author Thomas Felix
  *
  */
-@SpringBootApplication //(scanBasePackages = {"net.bestia"})
+@SpringBootApplication(scanBasePackages = {"net.bestia"})
 @EnableJpaRepositories("net.bestia.model.dao")
 @EntityScan("net.bestia.model.domain")
-@ComponentScan(basePackages = { "net.bestia" })
 public class ZoneserverApplication {
 
 	/**

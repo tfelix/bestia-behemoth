@@ -7,7 +7,7 @@ import org.junit.runner.RunWith;
 import static org.mockito.Mockito.*;
 
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.Element;
@@ -42,7 +42,7 @@ public class PlayerStatusComponentSetterTest {
 		
 		setter = new PlayerStatusComponentSetter(playerBestia);
 		
-		when(statusComp.getStatusPoints()).thenReturn(statusPoints);
+		//when(statusComp.getStatusPoints()).thenReturn(statusPoints);
 		when(statusComp.getOriginalStatusPoints()).thenReturn(origStatusPoints);
 		
 		when(playerBestia.getCurrentHp()).thenReturn(CURRENT_HP);

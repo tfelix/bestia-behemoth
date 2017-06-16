@@ -265,6 +265,7 @@ public class EntityService {
 
 	public <T extends Component> Optional<T> getComponent(Entity e, Class<T> clazz) {
 		Objects.requireNonNull(e);
+		Objects.requireNonNull(clazz);
 
 		LOG.trace("Getting component {} from entity: {}", clazz.getSimpleName(), e);
 

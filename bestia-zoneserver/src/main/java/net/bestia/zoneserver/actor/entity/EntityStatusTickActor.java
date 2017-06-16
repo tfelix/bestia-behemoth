@@ -3,6 +3,8 @@ package net.bestia.zoneserver.actor.entity;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import net.bestia.zoneserver.actor.BestiaPeriodicTerminatingActor;
 import net.bestia.zoneserver.entity.StatusService;
@@ -15,6 +17,8 @@ import net.bestia.zoneserver.entity.StatusService;
  * @author Thomas Felix
  *
  */
+@Component
+@Scope("prototype")
 public class EntityStatusTickActor extends BestiaPeriodicTerminatingActor {
 
 	private long entityId;

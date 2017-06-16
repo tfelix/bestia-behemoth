@@ -116,6 +116,14 @@
 			<artifactId>bestia-server-commons</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<!-- Include shared testing code as well in test scope -->
+		<dependency>
+			<groupId>net.bestia</groupId>
+			<artifactId>bestia-server-commons</artifactId>
+			<version>${project.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>de.tfelix.bestia</groupId>
 			<artifactId>worldgen</artifactId>

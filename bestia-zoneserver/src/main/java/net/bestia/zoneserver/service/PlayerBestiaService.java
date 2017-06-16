@@ -35,16 +35,18 @@ public class PlayerBestiaService {
 
 	private final AccountDAO accountDao;
 	private final PlayerBestiaDAO playerBestiaDao;
-	private final BestiaAttackDAO attackLevelDao;
+	private final BestiaAttackDAO attackDao;
 	private final PlayerItemDAO playerItemDao;
 
 	@Autowired
-	public PlayerBestiaService(AccountDAO accountDao, PlayerBestiaDAO playerBestiaDao, BestiaAttackDAO attackLevelDao,
+	public PlayerBestiaService(AccountDAO accountDao, 
+			PlayerBestiaDAO playerBestiaDao, 
+			BestiaAttackDAO attackDao,
 			PlayerItemDAO playerItemDao) {
 
 		this.accountDao = Objects.requireNonNull(accountDao);
 		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
-		this.attackLevelDao = Objects.requireNonNull(attackLevelDao);
+		this.attackDao = Objects.requireNonNull(attackDao);
 		this.playerItemDao = Objects.requireNonNull(playerItemDao);
 	}
 
@@ -58,7 +60,7 @@ public class PlayerBestiaService {
 	public List<BestiaAttack> getAllAttacksForPlayerBestia(long playerBestiaId) {
 		LOG.trace("Retrieving all attacks for player bestia {}", playerBestiaId);
 		final PlayerBestia pb = playerBestiaDao.findOne(playerBestiaId);
-		return attackLevelDao.getAllAttacksForBestia(pb.getOrigin().getId());
+		return attackDao.getAllAttacksForBestia(pb.getOrigin().getId());
 	}
 
 	/**

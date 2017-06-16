@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.actor;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,11 +28,18 @@ public class GeneralActorTest {
 		Set<Class<? extends AbstractActor>> classes = actorLoader.getSubClasses();
 
 		for (Class<? extends AbstractActor> clazz : classes) {
+			
+			// Ignore abstract classes.
+			if(Modifier.isAbstract(clazz.getModifiers())) {
+				continue;
+			}
+			
 			if (IGNORED_ACTORS.contains(clazz)) {
 				continue;
 			}
 
-			Assert.assertTrue(clazz.isAnnotationPresent(Component.class));
+			Assert.assertTrue("Missing component annotation for: " + clazz.getName(),
+					clazz.isAnnotationPresent(Component.class));
 			Assert.assertTrue(clazz.isAnnotationPresent(Scope.class));
 			Scope scope = clazz.getAnnotation(Scope.class);
 			Assert.assertEquals(scope.value(), "prototype");

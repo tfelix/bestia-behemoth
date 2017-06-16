@@ -145,6 +145,9 @@ public class LoginService {
 	}
 
 	public AccountLoginToken setNewLoginToken(String username, String password) {
+		Objects.requireNonNull(username);
+		Objects.requireNonNull(password);
+		
 		LOG.debug("Trying to set login token for username {}.", username);
 
 		final Account account = accountDao.findByUsername(username);
@@ -161,9 +164,15 @@ public class LoginService {
 
 		final String uuid = UUID.randomUUID().toString();
 		account.setLoginToken(uuid);
+		
+		// Save to database.
+		accountDao.save(account);
 
 		// Check login.
-		final AccountLoginToken answerToken = new AccountLoginToken(1, account.getName(), uuid);
+		final AccountLoginToken answerToken = new AccountLoginToken(
+				account.getId(), 
+				account.getName(), 
+				uuid);
 
 		return answerToken;
 	}

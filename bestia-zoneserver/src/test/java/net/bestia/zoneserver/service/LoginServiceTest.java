@@ -14,13 +14,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import akka.testkit.TestProbe;
+import net.bestia.messages.web.AccountLoginToken;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
-import net.bestia.server.BasicMocks;
+import net.bestia.model.domain.Password;
+import net.bestia.testing.BasicMocks;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.RuntimeConfigurationService;
@@ -37,6 +39,10 @@ public class LoginServiceTest {
 	private final static String LOGIN_OK_TOKEN = "beste-is-awesome";
 	private final static String LOGIN_WRONG_TOKEN = "beste-is-shit";
 	private final static String ACC_NAME = "testacc";
+	private final static String ACC_EMAIL = "max.muster@testmail.net";
+	private final static String VALID_PASSWORD = "helloworld";
+	private final static String INVALID_PASSWORD = "penis123";
+	private final static String INVALID_ACC_EMAIL = "wrongmail@testmail.net";
 
 	private BasicMocks mocks = new BasicMocks();
 
@@ -72,40 +78,53 @@ public class LoginServiceTest {
 
 	@Mock
 	private Entity bestiaEntity;
+	
+	@Mock
 	private PlayerEntityService playerEntityService;
+	
+	@Mock
+	private Password password;
 
 	@Before
 	public void setup() {
 
 		when(userAccount.getName()).thenReturn(ACC_NAME);
-		when(gmAccount.getName()).thenReturn(ACC_NAME);
+		//when(gmAccount.getName()).thenReturn(ACC_NAME);
+		
+		when(password.matches(INVALID_PASSWORD)).thenReturn(false);
+		when(password.matches(VALID_PASSWORD)).thenReturn(true);
 
 		when(userAccount.getLoginToken()).thenReturn(LOGIN_OK_TOKEN);
 		when(userAccount.getUserLevel()).thenReturn(UserLevel.USER);
+		when(userAccount.getId()).thenReturn(USER_ACC_ID);
+	
+		when(userAccount.getPassword()).thenReturn(password);
 
 		when(gmAccount.getLoginToken()).thenReturn(LOGIN_OK_TOKEN);
 		when(gmAccount.getUserLevel()).thenReturn(UserLevel.SUPER_GM);
 
 		when(accountDao.findOne(USER_ACC_ID)).thenReturn(userAccount);
 		when(accountDao.findOne(GM_ACC_ID)).thenReturn(gmAccount);
+		//when(accountDao.findByEmail(ACC_EMAIL)).thenReturn(userAccount);
+		when(accountDao.findByUsername(ACC_EMAIL)).thenReturn(userAccount);
 
 		when(playerBestiaService.getMaster(USER_ACC_ID)).thenReturn(playerBestia);
 		when(playerEntityFactory.build(playerBestia)).thenReturn(bestiaEntity);
 
-		when(playerEntityService.getMasterEntity(anyLong())).thenReturn(Optional.empty());
-		when(playerEntityService.getMasterEntity(USER_ACC_ID)).thenReturn(Optional.of(bestiaEntity));
-		when(playerEntityService.getMasterEntity(GM_ACC_ID)).thenReturn(Optional.of(bestiaEntity));
+		//when(playerEntityService.getMasterEntity(anyLong())).thenReturn(Optional.empty());
+		//when(playerEntityService.getMasterEntity(USER_ACC_ID)).thenReturn(Optional.of(bestiaEntity));
+		//when(playerEntityService.getMasterEntity(GM_ACC_ID)).thenReturn(Optional.of(bestiaEntity));
 		when(playerEntityService.getPlayerEntities(USER_ACC_ID))
 				.thenReturn(Stream.of(bestiaEntity).collect(Collectors.toSet()));
 
 		clientConnection = new TestProbe(mocks.actorSystem(), "client");
 
-		loginService = new LoginService(config, 
+		loginService = new LoginService(config,
 				accountDao,
-				playerEntityService, 
-				connectionService, 
+				playerEntityService,
+				connectionService,
 				playerBestiaService,
-				akkaApi, 
+				akkaApi,
 				playerEntityFactory);
 	}
 
@@ -188,6 +207,38 @@ public class LoginServiceTest {
 	public void canLogin_wrongLoginToken_false() {
 		boolean login = loginService.canLogin(17396, LOGIN_WRONG_TOKEN);
 		Assert.assertFalse(login);
+	}
+
+	@Test
+	public void createNewLoginToken_wrongUsername_fails() {
+		AccountLoginToken token = loginService.setNewLoginToken(INVALID_ACC_EMAIL, VALID_PASSWORD);
+		Assert.assertNull(token);
+	}
+
+	@Test
+	public void createNewLoginToken_wrongPassword_fails() {
+		AccountLoginToken token = loginService.setNewLoginToken(ACC_EMAIL, INVALID_PASSWORD);
+		Assert.assertNull(token);
+	}
+
+	@Test
+	public void createNewLoginToken_validCredentials_works() {
+		AccountLoginToken token = loginService.setNewLoginToken(ACC_EMAIL, VALID_PASSWORD);
+
+		Assert.assertEquals(ACC_NAME, token.getUsername());
+		Assert.assertEquals(USER_ACC_ID, token.getAccId());
+		Assert.assertNotNull(token.getToken());
+		verify(accountDao).save(userAccount);
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void createNewLoginToken_nullUsername_throws() {
+		loginService.setNewLoginToken(null, VALID_PASSWORD);
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void createNewLoginToken_nullPassword_throws() {
+		loginService.setNewLoginToken(ACC_EMAIL, null);
 	}
 
 }

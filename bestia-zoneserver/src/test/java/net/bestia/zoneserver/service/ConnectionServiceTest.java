@@ -10,7 +10,7 @@ import com.hazelcast.core.HazelcastInstance;
 
 import akka.actor.Address;
 import akka.testkit.TestProbe;
-import net.bestia.server.BasicMocks;
+import net.bestia.testing.BasicMocks;
 
 public class ConnectionServiceTest {
 
