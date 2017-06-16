@@ -22,6 +22,7 @@
 		<module>bestia-server-commons</module>
 		<module>bestia-zoneserver</module>
 		<module>bestia-webserver</module>
+		<module>bestia-memoryserver</module>
 	</modules>
 
 	<properties>
