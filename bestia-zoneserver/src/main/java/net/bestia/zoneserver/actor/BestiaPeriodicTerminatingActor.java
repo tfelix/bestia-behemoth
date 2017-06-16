@@ -53,14 +53,16 @@ public abstract class BestiaPeriodicTerminatingActor extends BestiaPeriodicActor
 	}
 	
 	@Override
-	public Receive createReceive() {
-		return receiveBuilder()
-				.matchEquals(KILL_MESSAGE, m -> {
-					LOG.debug("Actor {} has not received any external message. Killing myself now.", getSelf().path());
-					context().stop(getSelf());
-				})
-				.matchEquals(TICK_MSG, m -> stopKillInterval())
-				.matchAny(apply)
-				.build();
+	protected void processMessage(Object msg) {
+		
+		if(msg.equals(KILL_MESSAGE)) {
+			LOG.debug("Actor {} has not received any external message. Killing myself now.", getSelf().path());
+			context().stop(getSelf());
+		} else if(msg.equals(TICK_MSG)) {
+			stopKillInterval();
+		}
+		
+		super.processMessage(msg);
+		
 	}
 }

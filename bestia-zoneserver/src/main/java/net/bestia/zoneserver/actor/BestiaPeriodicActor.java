@@ -73,14 +73,21 @@ public abstract class BestiaPeriodicActor extends BestiaActor {
 	 * @param message
 	 *            The message send to this actor.
 	 */
-	protected abstract void handleMessage(Object message) throws Exception;
+	protected abstract void handleMessage(Object message);
 
 	@Override
 	public Receive createReceive() {
-		return receiveBuilder().matchEquals(TICK_MSG, x -> {
+		return receiveBuilder()
+				.matchAny(this::processMessage).build();
+	}
+
+	protected void processMessage(Object msg) {
+		if(msg.equals(TICK_MSG)) {
 			onTick();
 			setupTicker();
-		}).matchAny(this::handleMessage).build();
+		} else {
+			handleMessage(msg);
+		}
 	}
 
 	/**
@@ -94,9 +101,11 @@ public abstract class BestiaPeriodicActor extends BestiaActor {
 		}
 
 		// send another periodic tick after the specified delay
-		ticker = getContext().system().scheduler().scheduleOnce(
-				Duration.create(intervalDuration, TimeUnit.MILLISECONDS),
-				getSelf(), TICK_MSG, getContext().dispatcher(), null);
+		ticker = getContext().system()
+				.scheduler()
+				.scheduleOnce(
+						Duration.create(intervalDuration, TimeUnit.MILLISECONDS),
+						getSelf(), TICK_MSG, getContext().dispatcher(), null);
 	}
 
 }

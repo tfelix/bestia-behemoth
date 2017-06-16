@@ -49,14 +49,15 @@ public class ActiveClientUpdateActor extends BestiaActor {
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerService);
 	}
-	
-	@Override
-	public Receive createReceive() {
-		receiveBuilder().build();
-	}
 
 	@Override
-	public void onReceive(Object msg) throws Throwable {
+	public Receive createReceive() {
+		return receiveBuilder()
+				.matchAny(this::handleMessage)
+				.build();
+	}
+
+	public void handleMessage(Object msg) {
 		LOG.debug("Received: {}", msg.toString());
 
 		// Handle only ActiveUpdateMessage
@@ -89,7 +90,7 @@ public class ActiveClientUpdateActor extends BestiaActor {
 				}
 			} else {
 				final Optional<PositionComponent> posComp = entityService.getComponent(entity, PositionComponent.class);
-				
+
 				if (!posComp.isPresent()) {
 					// We have no position information and cant update any
 					// client.

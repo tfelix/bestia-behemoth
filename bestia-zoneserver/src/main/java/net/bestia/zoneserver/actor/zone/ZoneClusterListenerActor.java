@@ -67,53 +67,54 @@ public class ZoneClusterListenerActor extends BestiaActor {
 	public void postStop() {
 		cluster.unsubscribe(getSelf());
 	}
+	
+	private void handleMemberUp(MemberUp mUp) {
+		if (mUp.member().hasRole(AkkaCluster.ROLE_WEB)) {
+			LOG.info("Webserver is up: {}", mUp.member());
+			
+			webserverMember.add(mUp.member());
+		} else {
+			LOG.info("Zoneserver is up: {}", mUp.member());
+		}
+	}
+	
+	private void handleUnreachableMember(UnreachableMember mUnreachable) {
+		LOG.info("Member detected as unreachable: {}", mUnreachable.member());
+
+		// If its a webserver we can automatically down it. Since they will
+		// terminate upon disconnection.
+		if (mUnreachable.member().hasRole(AkkaCluster.ROLE_WEB)) {
+			LOG.warning("Member has role WEBSERVER downing it.");
+			cluster.down(mUnreachable.member().address());
+		} else {
+			// TODO Das hier ist temporär und muss noch in DowningProvider
+			// ausgelagert werden.
+			LOG.warning("TEMP TEST OF DOWNING");
+			cluster.down(mUnreachable.member().address());
+		}
+	}
+	
+	private void handleMemberRemoved(MemberRemoved mRemoved) {
+		LOG.info("Member was removed: {}", mRemoved.member());
+
+		if (!mRemoved.member().hasRole(AkkaCluster.ROLE_WEB)) {
+			LOG.debug("Webserver is removed: {}. Disconnecting all clients.", mRemoved.member());
+			
+			final Address addr = mRemoved.member().address();
+			final Collection<Long> clientIds = connectionService.getClients(addr);
+			clientIds.forEach(id -> entityService.removePlayerBestias(id));
+			connectionService.removeClients(addr);
+		}
+	}
+	
 
 	@Override
-	public void onReceive(Object message) {
-		if (message instanceof MemberUp) {
-			final MemberUp mUp = (MemberUp) message;
-
-			if (mUp.member().hasRole(AkkaCluster.ROLE_WEB)) {
-				LOG.info("Webserver is up: {}", mUp.member());
-				webserverMember.add(mUp.member());
-			} else {
-				LOG.info("Zoneserver is up: {}", mUp.member());
-			}
-
-		} else if (message instanceof UnreachableMember) {
-
-			final UnreachableMember mUnreachable = (UnreachableMember) message;
-			LOG.warning("Member detected as unreachable: {}", mUnreachable.member());
-
-			// If its a webserver we can automatically down it. Since they will
-			// terminate upon disconnection.
-			if (mUnreachable.member().hasRole(AkkaCluster.ROLE_WEB)) {
-				LOG.warning("Member has role WEBSERVER downing it.");
-				cluster.down(mUnreachable.member().address());
-			} else {
-				// TODO Das hier ist temporär und muss noch in DowningProvider
-				// ausgelagert werden.
-				LOG.warning("TEMP TEST OF DOWNING");
-				cluster.down(mUnreachable.member().address());
-			}
-
-		} else if (message instanceof MemberRemoved) {
-
-			final MemberRemoved mRemoved = (MemberRemoved) message;
-
-			if (!mRemoved.member().hasRole(AkkaCluster.ROLE_WEB)) {
-				LOG.debug("Webserver is removed: {}. Disconnecting clients.", mRemoved.member());
-				final Address addr = mRemoved.member().address();
-				final Collection<Long> clientIds = connectionService.getClients(addr);
-				clientIds.forEach(id -> entityService.removePlayerBestias(id));
-				connectionService.removeClients(addr);
-			}
-
-		} else if (message instanceof MemberEvent) {
-			// ignore
-		} else {
-			unhandled(message);
-		}
-
+	public Receive createReceive() {
+		return receiveBuilder()
+				.match(MemberUp.class, this::handleMemberUp)
+				.match(UnreachableMember.class, this::handleUnreachableMember)
+				.match(MemberRemoved.class, this::handleMemberRemoved)
+				.match(MemberEvent.class, m -> { })
+				.build();
 	}
 }

@@ -145,6 +145,7 @@ public class LoginService {
 	}
 
 	public AccountLoginToken setNewLoginToken(String username, String password) {
+		LOG.debug("Trying to set login token for username {}.", username);
 
 		final Account account = accountDao.findByUsername(username);
 

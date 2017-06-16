@@ -55,7 +55,7 @@ public class PeriodicScriptRunnerActor extends BestiaPeriodicActor {
 	}
 
 	@Override
-	protected void handleMessage(Object message) throws Exception {
+	protected void handleMessage(Object message) {
 		if (message instanceof ScriptIntervalMessage) {
 			handleSetupMessage((ScriptIntervalMessage) message);
 		} else {

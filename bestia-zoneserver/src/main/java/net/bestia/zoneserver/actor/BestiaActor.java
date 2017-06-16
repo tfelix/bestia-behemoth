@@ -39,7 +39,8 @@ public abstract class BestiaActor extends AbstractActor {
 	protected void sendClient(JsonMessage msg) {
 		
 		if (responder == null) {
-			responder = context().actorSelection(AkkaCluster.getNodeName(SendClientActor.NAME));
+			final String nodeName = AkkaCluster.getNodeName(SendClientActor.NAME);
+			responder = context().actorSelection(nodeName);
 		}
 
 		responder.tell(msg, getSelf());
@@ -56,7 +57,8 @@ public abstract class BestiaActor extends AbstractActor {
 	protected void sendActiveInRangeClients(EntityJsonMessage msg) {
 		
 		if (activeClientBroadcaster == null) {
-			activeClientBroadcaster = context().actorSelection(AkkaCluster.getNodeName(ActiveClientUpdateActor.NAME));
+			final String nodeName = AkkaCluster.getNodeName(SendClientActor.NAME);
+			activeClientBroadcaster = context().actorSelection(nodeName);
 		}
 
 		activeClientBroadcaster.tell(msg, getSelf());

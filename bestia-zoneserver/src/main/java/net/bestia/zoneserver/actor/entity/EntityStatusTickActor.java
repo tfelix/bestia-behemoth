@@ -41,7 +41,7 @@ public class EntityStatusTickActor extends BestiaPeriodicTerminatingActor {
 	}
 
 	@Override
-	protected void handleMessage(Object message) throws Exception {
+	protected void handleMessage(Object message) {
 
 		if (message instanceof Long) {
 			trackEntity((Long) message);

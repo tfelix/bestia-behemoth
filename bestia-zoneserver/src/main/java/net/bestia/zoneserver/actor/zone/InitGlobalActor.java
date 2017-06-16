@@ -35,7 +35,7 @@ public class InitGlobalActor extends BestiaActor {
 	public static final String START_MSG = "init.start";
 
 	private boolean hasInitialized = false;
-	private int actorWaiting;
+	//private int actorWaiting;
 
 	private final MapService mapDataService;
 
