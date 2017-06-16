@@ -179,13 +179,11 @@ public final class Rect implements CollisionShape, Serializable {
 
 	@Override
 	public Rect moveByAnchor(long x, long y) {
-		final long dX = x - (getX() + getAnchor().getX());
-		final long dY = y - (getY() + getAnchor().getY());
 
-		final long cX = getX() + dX;
-		final long cY = getY() + dY;
+		final long cX = getX() + x - getAnchor().getX();
+		final long cY = getY() + y - getAnchor().getY();
 
-		final Rect r = new Rect(cX, cY, getWidth(), getHeight(), getAnchor().getX(), getAnchor().getY());
+		final Rect r = new Rect(cX, cY, getWidth(), getHeight(), x, y);
 		return r;
 	}
 

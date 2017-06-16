@@ -54,6 +54,6 @@ public interface ScriptVarDAO extends CrudRepository<ScriptVar, Long> {
 	 *            The {@link PlayerBestia} to delete all linked
 	 *            {@link ScriptVar}s.
 	 */
-	public void deleteByPlayerBestia(PlayerBestia bestia);
+	//public void deleteByPlayerBestia(PlayerBestia bestia);
 
 }
