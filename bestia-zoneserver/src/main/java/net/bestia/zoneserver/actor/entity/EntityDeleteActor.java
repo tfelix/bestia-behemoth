@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import net.bestia.messages.entity.EntityDeleteInternalMessage;
 import net.bestia.messages.entity.EntityUpdateMessage;
+import net.bestia.messages.internal.entity.EntityDeleteInternalMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.Entity;

@@ -26,7 +26,7 @@ import net.bestia.model.map.Walkspeed;
  * old one.
  * </p>
  * 
- * @author Thomas Felix <thomas.felix@tfelix.>
+ * @author Thomas Felix
  *
  */
 public class EntityMoveMessage extends EntityJsonMessage {

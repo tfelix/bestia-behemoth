@@ -14,7 +14,7 @@ import net.bestia.model.battle.Damage;
  * more then one damage is returned it will be a multi damage display. Otherwise
  * it is a simple hit.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class EntityDamageMessage extends EntityJsonMessage {

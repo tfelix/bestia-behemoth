@@ -111,7 +111,7 @@ public abstract class BestiaRoutingActor extends BestiaActor {
 				.build();
 	}
 
-	public void receive(Object message) throws Exception {
+	protected void receive(Object message) throws Exception {
 
 		if (ownHandler.contains(message.getClass())) {
 			handleMessage(message);

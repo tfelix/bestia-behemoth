@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
-import net.bestia.messages.internal.ScriptIntervalMessage;
+import net.bestia.messages.internal.script.ScriptIntervalMessage;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;

@@ -15,7 +15,7 @@ import com.hazelcast.core.HazelcastInstance;
 
 import akka.actor.ActorPath;
 import akka.actor.ActorRef;
-import net.bestia.messages.entity.EntityMoveInternalMessage;
+import net.bestia.messages.internal.entity.EntityMoveInternalMessage;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.Point;

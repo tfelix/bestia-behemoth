@@ -1,9 +1,10 @@
-package net.bestia.messages.entity;
+package net.bestia.messages.internal.entity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.bestia.messages.EntityInternalMessage;
+import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.model.geometry.Point;
 
 /**
@@ -12,7 +13,7 @@ import net.bestia.model.geometry.Point;
  * actor to perform the movement. The internal path is represented differently
  * and thus makes it easier to use it without transforming it first.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class EntityMoveInternalMessage extends EntityInternalMessage {

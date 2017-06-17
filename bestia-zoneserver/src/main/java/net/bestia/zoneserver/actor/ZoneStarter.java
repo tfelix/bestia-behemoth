@@ -6,7 +6,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorSystem;
@@ -27,7 +26,6 @@ import net.bestia.zoneserver.actor.zone.SendClientActor;
  *
  */
 @Component
-@Profile({ "production" })
 public class ZoneStarter implements CommandLineRunner {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ZoneStarter.class);

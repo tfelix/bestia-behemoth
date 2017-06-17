@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.internal.ScriptIntervalMessage;
+import net.bestia.messages.internal.script.ScriptIntervalMessage;
 import net.bestia.zoneserver.actor.BestiaPeriodicActor;
 import net.bestia.zoneserver.actor.entity.EntityStatusTickActor;
 import net.bestia.zoneserver.script.ScriptService;
