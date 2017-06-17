@@ -180,24 +180,29 @@ public class MapDataDTO implements Serializable {
 		final long x2 = x + getRect().getWidth();
 		final long y = getRect().getY();
 		final long y2 = y + getRect().getHeight();
-		
+
 		final long totalWidth = getRect().getWidth() + rhs.getRect().getWidth();
 		final long totalHeight = getRect().getHeight() + rhs.getRect().getHeight();
-		
+
 		final Rect joinedRect;
 
 		if (x2 + 1 == rhsX && rhsY == y) {
 			// RHS is on right quadrant.
-			joinedRect = new Rect(x, y, totalWidth, getRect().getHeight());		
-		} else if(rhsX2 + 1 == x && rhsY == y){
+			joinedRect = new Rect(x, y, totalWidth, getRect().getHeight());
+		} else if (rhsX2 + 1 == x && rhsY == y) {
 			// RHS is on left quadrant.
-			joinedRect = new Rect(rhsX, rhsY, totalWidth, getRect().getHeight());	
-		}
-		else {
+			joinedRect = new Rect(rhsX, rhsY, totalWidth, getRect().getHeight());
+		} else if (rhsX == x && rhsY2 == y2 + 1) {
+			// RHS is on the bottom quadrant.
+			joinedRect = new Rect(x, y, getRect().getWidth(), totalHeight);
+		} else if (rhsX == x && rhsY2 == y + 1) {
+			// RHS is on the top quadrant.
+			joinedRect = new Rect(rhsX, rhsY, getRect().getWidth(), totalHeight);
+		} else {
 			// Non overlapping.
 			throw new IllegalArgumentException("Area is not adjacent to each other.");
 		}
-		
+
 		final MapDataDTO joinedData = new MapDataDTO(joinedRect);
 
 		// Since width must be equal for both arrays.
@@ -217,6 +222,21 @@ public class MapDataDTO implements Serializable {
 		}
 
 		// Copy the upper map layers.
+		final int maxLayer = Math.max(layers.size(), rhs.layers.size());
+
+		for (int i = 0; i < maxLayer; ++i) {
+			final Map<Point, Integer> layer = new HashMap<>();
+
+			if (layers.size() < i) {
+				layer.putAll(layers.get(i));
+			}
+
+			if (rhs.layers.size() < i) {
+				layer.putAll(rhs.layers.get(i));
+			}
+
+			joinedData.layers.add(layer);
+		}
 
 		return joinedData;
 	}
