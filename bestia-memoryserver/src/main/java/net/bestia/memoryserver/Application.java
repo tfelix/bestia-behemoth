@@ -10,12 +10,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  */
 @SpringBootApplication
-public class MemoryserverApplication {
+public class Application {
 
 	/**
 	 * Main entry point of the application.
 	 */
 	public static void main(String[] args) throws Exception {
-		SpringApplication.run(MemoryserverApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 }

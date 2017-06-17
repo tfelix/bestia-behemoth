@@ -32,13 +32,15 @@
 	</dependencies>
 
 	<build>
+		<finalName>${project.artifactId}-${project.version}</finalName>
+
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>${spring.version}</version>
 				<configuration>
-					<mainClass>net.bestia.memoryserver.MemoryserverApplication</mainClass>
+					<mainClass>net.bestia.memoryserver.Application</mainClass>
 					<layout>ZIP</layout>
 				</configuration>
 				<executions>
