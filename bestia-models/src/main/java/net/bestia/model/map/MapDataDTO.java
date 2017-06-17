@@ -174,7 +174,7 @@ public class MapDataDTO implements Serializable {
 		final long rhsX = rhs.getRect().getX();
 		final long rhsX2 = rhsX + rhs.getRect().getWidth();
 		final long rhsY = rhs.getRect().getY();
-		final long rhsY2 = rhsX + rhs.getRect().getHeight();
+		final long rhsY2 = rhsY + rhs.getRect().getHeight();
 
 		final long x = getRect().getX();
 		final long x2 = x + getRect().getWidth();
@@ -192,10 +192,10 @@ public class MapDataDTO implements Serializable {
 		} else if (rhsX2 + 1 == x && rhsY == y) {
 			// RHS is on left quadrant.
 			joinedRect = new Rect(rhsX, rhsY, totalWidth, getRect().getHeight());
-		} else if (rhsX == x && rhsY2 == y2 + 1) {
+		} else if (rhsX == x && rhsY == y2 + 1) {
 			// RHS is on the bottom quadrant.
 			joinedRect = new Rect(x, y, getRect().getWidth(), totalHeight);
-		} else if (rhsX == x && rhsY2 == y + 1) {
+		} else if (rhsX == x && rhsY2 + 1 == y) {
 			// RHS is on the top quadrant.
 			joinedRect = new Rect(rhsX, rhsY, getRect().getWidth(), totalHeight);
 		} else {
