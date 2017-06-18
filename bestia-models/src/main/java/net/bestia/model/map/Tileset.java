@@ -4,7 +4,11 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.model.geometry.Size;
@@ -16,6 +20,7 @@ import net.bestia.model.geometry.Size;
  * @author Thomas Felix
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Tileset implements Serializable {
 
 	/**
@@ -25,7 +30,9 @@ public class Tileset implements Serializable {
 	 * server.
 	 *
 	 */
-	public static class SimpleTileset {
+	public static class SimpleTileset implements Serializable {
+
+		private static final long serialVersionUID = 1L;
 
 		@JsonProperty("mingid")
 		private final int minGID;
@@ -61,7 +68,8 @@ public class Tileset implements Serializable {
 	@JsonProperty("size")
 	private final Size size;
 
-	@JsonProperty("properties")
+	@JsonProperty("props")
+	@JsonInclude(Include.NON_NULL)
 	private final java.util.Map<Integer, TileProperties> tileProperties = new HashMap<>();
 
 	@JsonIgnore
@@ -74,11 +82,20 @@ public class Tileset implements Serializable {
 	 *            Size in tiles.
 	 * @param firstGID
 	 */
-	public Tileset(String name, Size size, int firstGID) {
+	@JsonCreator
+	public Tileset(
+			@JsonProperty("name") String name,
+			@JsonProperty("size") Size size,
+			@JsonProperty("mingid") int firstGID) {
 
 		this.name = Objects.requireNonNull(name);
 		this.size = Objects.requireNonNull(size);
-
+		
+		/*
+		if(props != null) {
+			this.tileProperties.putAll(props);
+		}*/
+		
 		this.minGID = firstGID;
 		this.maxGid = firstGID + (int) (size.getHeight() * size.getWidth());
 		this.tileCount = this.maxGid - this.minGID;

@@ -69,7 +69,7 @@ public class TilesetData implements Serializable {
 	public void setMaxGid(long maxGid) {
 		this.maxGid = maxGid;
 	}
-	
+
 	public String getData() {
 		return data;
 	}
