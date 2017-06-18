@@ -1,5 +1,8 @@
 package net.bestia.zoneserver.actor.entity;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.event.Logging;
@@ -22,17 +25,24 @@ import net.bestia.zoneserver.actor.SpringExtension;
  * @author Thomas Felix
  *
  */
+@Component
+@Scope("prototype")
 public class EntityActor extends BestiaActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().getSystem(), this);
 
-	private final static String PERSISTED_NAME = "entity-%d";
+	private final static String ACTOR_NAME = "entity-%d";
 	private final long entityId;
 
 	private ActorRef movementActor;
+	private ActorRef regenerationTickActor;
 
 	public EntityActor(long entityId) {
 
 		this.entityId = entityId;
+	}
+	
+	public static String getActorName(long entityId) {
+		return String.format(ACTOR_NAME, entityId);
 	}
 
 	@Override
@@ -43,25 +53,30 @@ public class EntityActor extends BestiaActor {
 				.match(EntityMoveInternalMessage.class, this::handleInternalMoveMessage)
 				.match(EntityDeleteInternalMessage.class, this::handleDeleteMessage)
 				.match(Terminated.class, this::handleTerminated)
+				.match(String.class, this::handleDebugString)
 				.build();
 	}
 
 	private void handleTerminated(Terminated term) {
 
 		if (term.actor().equals(movementActor)) {
-			
+
 			LOG.debug("Movement actor has terminated.");
 			movementActor = null;
-			
+
 		} else {
-			
+
 			LOG.warning("Unknown actor {} has terminated. Cant handle event.",
 					term.getActor().path().toStringWithoutAddress());
-			
+
 		}
 
 	}
 
+	private void handleDebugString(String msg) {
+		LOG.debug("DEBUG STRING: {}", msg);
+	}
+	
 	private void handleDeleteMessage(EntityDeleteInternalMessage msg) {
 
 	}
@@ -91,12 +106,20 @@ public class EntityActor extends BestiaActor {
 		context().watch(movementActor);
 		movementActor.tell(msg, getSelf());
 	}
-	
+
 	private void stopMovement() {
 		if (movementActor != null) {
 			context().stop(movementActor);
 			context().unwatch(movementActor);
 			movementActor = null;
+		}
+	}
+	
+	private void stopRegenTick() {
+		if(regenerationTickActor != null) {
+			context().stop(regenerationTickActor);
+			context().unwatch(regenerationTickActor);
+			regenerationTickActor = null;
 		}
 	}
 
@@ -105,5 +128,6 @@ public class EntityActor extends BestiaActor {
 	 */
 	private void stopAll() {
 		stopMovement();
+		stopRegenTick();
 	}
 }

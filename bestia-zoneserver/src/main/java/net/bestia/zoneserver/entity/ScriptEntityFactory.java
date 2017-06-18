@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.bestia.model.geometry.CollisionShape;
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.entity.component.PositionComponent;
 import net.bestia.zoneserver.entity.component.PositionComponentSetter;
 import net.bestia.zoneserver.entity.component.ScriptComponent;
@@ -34,8 +35,8 @@ public class ScriptEntityFactory extends EntityFactory {
 	}
 
 	@Autowired
-	public ScriptEntityFactory(EntityService entityService) {
-		super(entityService);
+	public ScriptEntityFactory(EntityService entityService, ZoneAkkaApi akkaApi) {
+		super(entityService, akkaApi);
 
 	}
 

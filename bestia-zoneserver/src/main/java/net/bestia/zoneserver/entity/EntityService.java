@@ -126,7 +126,8 @@ public class EntityService {
 	}
 
 	/**
-	 * Deletes the entity given by its id.
+	 * Deletes the entity given by its id. This is a alias for
+	 * {@link #delete(Entity)}.
 	 * 
 	 * @param entity
 	 *            Removes the entity.
@@ -248,7 +249,8 @@ public class EntityService {
 	 */
 	public Set<Entity> getCollidingEntities(CollisionShape area, Class<? extends Component> clazz) {
 		final Set<Class<? extends Component>> comps = new HashSet<>(Arrays.asList(clazz));
-		return getCollidingEntities(area).stream().filter(x -> comps.contains(x.getClass()))
+		return getCollidingEntities(area).stream()
+				.filter(x -> comps.contains(x.getClass()))
 				.collect(Collectors.toSet());
 	}
 
@@ -335,7 +337,7 @@ public class EntityService {
 		Objects.requireNonNull(component);
 
 		components.put(component.getId(), component);
-		
+
 		final Entity ownerEntity = getEntity(component.getEntityId());
 
 		// Check possible interceptors.
@@ -439,7 +441,10 @@ public class EntityService {
 	 */
 	public Collection<Component> getAllComponents(Entity entity) {
 
-		return Objects.requireNonNull(entity).getComponentIds().stream().map(components::get)
+		return Objects.requireNonNull(entity)
+				.getComponentIds()
+				.stream()
+				.map(components::get)
 				.collect(Collectors.toList());
 	}
 }

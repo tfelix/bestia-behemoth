@@ -26,7 +26,7 @@ import net.bestia.server.AkkaCluster;
 import net.bestia.server.DiscoveryService;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
-import net.bestia.zoneserver.actor.ZoneAkkaApiActor;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApiActor;
 
 /**
  * Generates the akka configuration file which is used to connect to the remote

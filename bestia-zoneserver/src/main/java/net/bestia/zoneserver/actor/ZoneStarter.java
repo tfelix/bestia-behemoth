@@ -13,7 +13,8 @@ import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.cluster.singleton.ClusterSingletonManager;
 import akka.cluster.singleton.ClusterSingletonManagerSettings;
-import net.bestia.zoneserver.actor.entity.EntityMovementActor;
+import net.bestia.zoneserver.actor.entity.EntityDeleteWorker;
+import net.bestia.zoneserver.actor.entity.EntityWorker;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.IngestActor;
 import net.bestia.zoneserver.actor.zone.InitGlobalActor;
@@ -49,7 +50,8 @@ public class ZoneStarter implements CommandLineRunner {
 		akkaApi.startActor(ActiveClientUpdateActor.class);
 
 		// Entity
-		akkaApi.startActor(EntityMovementActor.class);
+		akkaApi.startActor(EntityWorker.class);
+		akkaApi.startActor(EntityDeleteWorker.class);
 
 		// Setup the init actor singelton for creation of the system.
 		LOG.info("Starting the global init singeltons.");

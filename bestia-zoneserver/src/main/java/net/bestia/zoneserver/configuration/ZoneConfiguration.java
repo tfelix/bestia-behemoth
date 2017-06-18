@@ -67,19 +67,19 @@ public class ZoneConfiguration {
 
 		@SuppressWarnings("rawtypes")
 		final Map<String, ComponentInterceptor> interceptors = ctx.getBeansOfType(ComponentInterceptor.class);
-		
+
 		LOG.info("Found {} component interceptors. Adding to entity service.", interceptors.size());
-		
-		for(ComponentInterceptor<?> interceptor : interceptors.values()) {
-			
+
+		for (ComponentInterceptor<?> interceptor : interceptors.values()) {
+
 			entityService.addInterceptor(interceptor);
 			LOG.debug("Added component interceptor: {}", interceptor.getClass().getSimpleName());
-			
+
 		}
 
 		return entityService;
 	}
-	
+
 	@Bean
 	public EntityRecycler entityRecycler(EntityService entityService, ScriptService scriptService) {
 		return new EntityRecycler(10, entityService, scriptService);

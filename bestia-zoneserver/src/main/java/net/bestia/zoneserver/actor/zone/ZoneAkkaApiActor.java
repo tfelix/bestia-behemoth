@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor;
+package net.bestia.zoneserver.actor.zone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +12,10 @@ import akka.actor.TypedActor;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.server.AkkaCluster;
-import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.entity.EntityActor;
+import net.bestia.zoneserver.actor.entity.EntityWorker;
 
 public class ZoneAkkaApiActor implements ZoneAkkaApi {
 	
@@ -71,5 +73,15 @@ public class ZoneAkkaApiActor implements ZoneAkkaApi {
 	public void sendToActor(ActorPath actorPath, Object message) {
 		final ActorSelection selection = context.system().actorSelection(actorPath);
 		selection.tell(message, ActorRef.noSender());
+	}
+
+	@Override
+	public void sendEntityActor(long entityId, Object msg) {
+		
+		// Find the name.
+		final String rawActorName = EntityActor.getActorName(entityId);
+		final String actorName = AkkaCluster.getNodeName(EntityWorker.NAME, rawActorName);
+		final ActorSelection selection = context.system().actorSelection(actorName);
+		selection.tell(msg, ActorRef.noSender());
 	}
 }
