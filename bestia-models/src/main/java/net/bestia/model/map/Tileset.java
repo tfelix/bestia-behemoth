@@ -50,6 +50,10 @@ public class Tileset implements Serializable {
 			this.name = tileset.name;
 		}
 
+		@Override
+		public String toString() {
+			return String.format("TS[name: %s]", name);
+		}
 	}
 
 	private static final long serialVersionUID = 1L;
