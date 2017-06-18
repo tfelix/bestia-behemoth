@@ -26,6 +26,6 @@ public interface Pathfinder {
 	 * @return List of Points representing the path. Or null if no path could be
 	 *         found.
 	 */
-	List<Node<?>> findPath(Node<?> start, Node<?> end);
+	List<Node> findPath(Node start, Node end);
 
 }

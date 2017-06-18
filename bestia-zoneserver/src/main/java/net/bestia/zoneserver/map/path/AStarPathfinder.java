@@ -12,22 +12,22 @@ import java.util.Set;
 /**
  * Implements the A* pathfinding algorithm.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class AStarPathfinder implements Pathfinder {
 
-	private final PriorityQueue<Node<?>> openSet;
-	private final Set<Node<?>> closedSet = new HashSet<>();
-	private final Map<Node<?>, Node<?>> parentChildConnections = new HashMap<>();
+	private final PriorityQueue<Node> openSet;
+	private final Set<Node> closedSet = new HashSet<>();
+	private final Map<Node, Node> parentChildConnections = new HashMap<>();
 
 	public AStarPathfinder() {
-		this.openSet = new PriorityQueue<>(50, new Comparator<Node<?>>() {
+		this.openSet = new PriorityQueue<>(50, new Comparator<Node>() {
 			@Override
-			public int compare(Node<?> a, Node<?> b) {
+			public int compare(Node a, Node b) {
 
-				float dA = a.getNodeCost() + a.getStartDistance();
-				float dB = b.getNodeCost() + b.getStartDistance();
+				float dA = a.getNodeCost() + a.getHeuristicDistance();
+				float dB = b.getNodeCost() + b.getHeuristicDistance();
 
 				if (Math.abs(dA - dB) < 0.00001f) {
 					return 0;
@@ -39,13 +39,13 @@ public class AStarPathfinder implements Pathfinder {
 	}
 
 	@Override
-	public List<Node<?>> findPath(Node<?> start, Node<?> end) {
+	public List<Node> findPath(Node start, Node end) {
 
 		// Beginning from the start, add all neighbour nodes
 		openSet.addAll(start.getConnections());
 
-		Node<?> lastNode = null;
-		Node<?> currentNode = null;
+		Node lastNode = null;
+		Node currentNode = null;
 		while (!openSet.isEmpty()) {
 			lastNode = currentNode;
 			currentNode = openSet.remove();
@@ -54,7 +54,7 @@ public class AStarPathfinder implements Pathfinder {
 
 			// Check if we found the solution and reconstruct path.
 			if (currentNode.equals(end)) {
-				final List<Node<?>> solution = new ArrayList<>();
+				final List<Node> solution = new ArrayList<>();
 
 				while (currentNode != null) {
 					solution.add(currentNode);

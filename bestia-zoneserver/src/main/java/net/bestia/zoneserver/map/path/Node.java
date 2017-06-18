@@ -1,6 +1,9 @@
 package net.bestia.zoneserver.map.path;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import net.bestia.model.geometry.Point;
 
 /**
  * Generic path node implementation. It must give some generic information about
@@ -12,30 +15,47 @@ import java.util.List;
  *
  * @param <T>
  */
-public interface Node<T> {
+public class Node {
+	
+	private Point goal;
+	private Point self;
+	private Node parent;
+	private float cost;
+	private final List<Node> connections = new ArrayList<>();
+	
+	public List<Node> getConnections() {
+		return connections;
+	}
 
-	List<Node<T>> getConnections();
-
-	float getStartDistance();
 
 	/**
 	 * Walking cost of this current node.
 	 * 
 	 * @return
 	 */
-	float getNodeCost();
+	float getNodeCost() {
+		if(parent == null) {
+			return 0;
+		} else {
+			return cost + parent.getNodeCost();
+		}
+	}
 
 	/**
 	 * Gets the heuristic distance towards the goal from this node on.
 	 * 
-	 * @return The aproximated distance.
+	 * @return The approximated distance.
 	 */
-	float getHeuristicDistance();
+	float getHeuristicDistance() {
+		return (float) goal.getDistance(self);
+	}
 
 	/**
 	 * Returns the wrapped object.
 	 * 
 	 * @return
 	 */
-	T getWrapped();
+	Point getPoint() {
+		return self;
+	}
 }
