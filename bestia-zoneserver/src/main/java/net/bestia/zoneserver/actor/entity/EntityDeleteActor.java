@@ -39,7 +39,7 @@ public class EntityDeleteActor extends BestiaRoutingActor {
 	@Autowired
 	public EntityDeleteActor(EntityService entityService) {
 		super(Arrays.asList(EntityDeleteInternalMessage.class));
-
+ 
 		this.entityService = Objects.requireNonNull(entityService);
 	}
 
