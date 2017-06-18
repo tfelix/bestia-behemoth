@@ -11,10 +11,10 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
  *
  */
 @SpringBootApplication
-public class WebserverApplication extends SpringBootServletInitializer {
+public class Application extends SpringBootServletInitializer {
 
 	public static void main(String[] args) throws Exception {
-		SpringApplication.run(WebserverApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 
 }

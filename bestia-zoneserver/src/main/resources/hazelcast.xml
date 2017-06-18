@@ -136,21 +136,24 @@
 		<merge-policy>com.hazelcast.map.merge.PutIfAbsentMapMergePolicy
 		</merge-policy>
 
+<!--  Not instanced good via spring. must be configured via hazelcast XML or spring config
 		<map-store enabled="true" initial-mode="LAZY">
 			<class-name>net.bestia.zoneserver.entity.EntityMapStore</class-name>
 			<write-delay-seconds>10</write-delay-seconds>
 			<write-batch-size>1000</write-batch-size>
 			<write-coalescing>true</write-coalescing>
 		</map-store>
+		-->
 	</map>
 	
 	<map name="components">
+		<!-- Not instanced good via spring. must be configured via hazelcast XML or spring config
 		<map-store enabled="true" initial-mode="LAZY">
 			<class-name>net.bestia.zoneserver.entity.ComponentMapStore</class-name>
 			<write-delay-seconds>10</write-delay-seconds>
 			<write-batch-size>1000</write-batch-size>
 			<write-coalescing>true</write-coalescing>
-		</map-store>
+		</map-store>-->
 	</map>
 
 	<multimap name="default">

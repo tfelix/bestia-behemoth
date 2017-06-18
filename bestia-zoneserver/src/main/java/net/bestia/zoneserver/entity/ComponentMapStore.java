@@ -3,6 +3,7 @@ package net.bestia.zoneserver.entity;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,9 @@ public class ComponentMapStore implements MapStore<Long, Component> {
 	 */
 	private ComponentPersistService persistService;
 
+	/**
+	 * Zero Arg ctor needed by Hazelcast.
+	 */
 	public ComponentMapStore() {
 		// no op.
 	}

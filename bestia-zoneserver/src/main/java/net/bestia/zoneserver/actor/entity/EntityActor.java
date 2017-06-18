@@ -85,21 +85,25 @@ public class EntityActor extends BestiaActor {
 	 */
 	private void handleInternalMoveMessage(EntityMoveInternalMessage msg) {
 
-		if (movementActor != null) {
-			context().stop(movementActor);
-			context().unwatch(movementActor);
-			movementActor = null;
-		}
+		stopMovement();
 
 		movementActor = SpringExtension.actorOf(context(), EntityMovementActor.class);
 		context().watch(movementActor);
 		movementActor.tell(msg, getSelf());
 	}
+	
+	private void stopMovement() {
+		if (movementActor != null) {
+			context().stop(movementActor);
+			context().unwatch(movementActor);
+			movementActor = null;
+		}
+	}
 
 	/**
 	 * Stops the actor and all child actors.
 	 */
-	private void stop() {
-
+	private void stopAll() {
+		stopMovement();
 	}
 }
