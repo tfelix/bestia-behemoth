@@ -4,10 +4,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
-import akka.actor.ActorSelection;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
-import net.bestia.server.AkkaCluster;
+import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 
@@ -22,9 +21,6 @@ import net.bestia.zoneserver.actor.zone.SendClientActor;
 @Scope("prototype")
 public abstract class BestiaActor extends AbstractActor {
 
-	private ActorSelection responder;
-	private ActorSelection activeClientBroadcaster;
-
 	public BestiaActor() {
 		super();
 	}
@@ -35,32 +31,24 @@ public abstract class BestiaActor extends AbstractActor {
 	 * created when necessary (this means the method is first invoked).
 	 * 
 	 * @param msg
+	 * @deprecated Use AkkaSender.sendClient
 	 */
 	protected void sendClient(JsonMessage msg) {
 		
-		if (responder == null) {
-			final String nodeName = AkkaCluster.getNodeName(SendClientActor.NAME);
-			responder = context().actorSelection(nodeName);
-		}
-
-		responder.tell(msg, getSelf());
+		AkkaSender.sendClient(getContext(), msg);
 	}
 
 	/**
 	 * Sends the given message back to all active player clients in sight. To to
 	 * this an on demand {@link ActiveClientUpdateActor} is created.
 	 * 
+	 * @deprecated Use AkkaSender.sendActiveInRange
 	 * @param msg
 	 *            The update message to be send to all active clients in sight
 	 *            of the referenced entity.
 	 */
 	protected void sendActiveInRangeClients(EntityJsonMessage msg) {
 		
-		if (activeClientBroadcaster == null) {
-			final String nodeName = AkkaCluster.getNodeName(SendClientActor.NAME);
-			activeClientBroadcaster = context().actorSelection(nodeName);
-		}
-
-		activeClientBroadcaster.tell(msg, getSelf());
+		AkkaSender.sendActiveInRangeClients(getContext(), msg);
 	}
 }

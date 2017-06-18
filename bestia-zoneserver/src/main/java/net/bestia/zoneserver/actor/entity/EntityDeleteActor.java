@@ -6,12 +6,12 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
-import akka.actor.ActorSelection;
 import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.internal.entity.EntityDeleteInternalMessage;
+import net.bestia.messages.entity.EntityUpdateMessage;
 import net.bestia.model.geometry.Point;
+import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityRecycler;
 import net.bestia.zoneserver.entity.EntityService;
@@ -50,25 +50,13 @@ public class EntityDeleteActor extends AbstractActor {
 
 	@Override
 	public Receive createReceive() {
-		return receiveBuilder()
-				.match(Terminated.class, this::handleActorTermination)
-				.build();
-	}
-
-	private void handleActorTermination(Terminated msg) {
-		
+		return receiveBuilder().build();
 	}
 	
 	private void startDeletingEntity() {
 		LOG.debug("Deleting/Recycling entity {}.", entityId);
 		
 		final Entity e = entityService.getEntity(entityId);
-		
-		final EntityDeleteInternalMessage deleteMsg = new EntityDeleteInternalMessage(entityId);
-		
-		// Send stop signal the the entity watch actors.
-		final ActorSelection entityActor = context().actorSelection(String.format("user/entity-%d", entityId));
-		entityActor.tell(deleteMsg, getSelf());
 
 		// Find the position of the entity to be send inside the message.
 		// The position is important because the entity is removed right here
@@ -82,7 +70,7 @@ public class EntityDeleteActor extends AbstractActor {
 		recycler.free(e);
 
 		// Send status update to all clients in range.
-		//sendActiveInRangeClients(EntityUpdateMessage.getDespawnUpdate(entityId, position));
+		AkkaSender.sendActiveInRangeClients(getContext(), EntityUpdateMessage.getDespawnUpdate(entityId, position));
 		
 		// Actually we should wait for termination by the EntityActor.
 		context().stop(getSelf());

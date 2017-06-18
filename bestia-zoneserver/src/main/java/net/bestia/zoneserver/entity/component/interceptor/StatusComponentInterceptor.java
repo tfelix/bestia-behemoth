@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import net.bestia.messages.internal.entity.EntityRegenTickMessage;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
@@ -54,8 +55,8 @@ public class StatusComponentInterceptor extends ComponentInterceptor<StatusCompo
 	protected void onCreateAction(EntityService entityService, Entity entity, StatusComponent comp) {
 
 		LOG.trace("StatusComponent created.");
-
-		actorApi.sendEntityActor(entity.getId(), "TEST");
+		final EntityRegenTickMessage msg = new EntityRegenTickMessage(entity.getId(), true);
+		actorApi.sendEntityActor(entity.getId(), msg);
 
 	}
 

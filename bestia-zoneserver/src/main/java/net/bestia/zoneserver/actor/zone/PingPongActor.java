@@ -9,6 +9,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.misc.PingMessage;
 import net.bestia.messages.misc.PongMessage;
+import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 
 /**
@@ -33,7 +34,7 @@ public class PingPongActor extends BestiaRoutingActor {
 		LOG.debug(String.format("Received: %s", msg.toString()));
 		final PingMessage pmsg = (PingMessage) msg;
 		
-		sendClient(new PongMessage(pmsg.getAccountId()));
+		AkkaSender.sendClient(getContext(), new PongMessage(pmsg.getAccountId()));
 	}
 
 }

@@ -10,6 +10,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.messages.internal.entity.EntityDeleteInternalMessage;
 import net.bestia.messages.internal.entity.EntityMoveInternalMessage;
+import net.bestia.messages.internal.entity.EntityRegenTickMessage;
 import net.bestia.messages.internal.script.ScriptIntervalMessage;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.actor.SpringExtension;
@@ -35,12 +36,13 @@ public class EntityActor extends BestiaActor {
 
 	private ActorRef movementActor;
 	private ActorRef regenerationTickActor;
+	private ActorRef scriptTickActor;
 
 	public EntityActor(long entityId) {
 
 		this.entityId = entityId;
 	}
-	
+
 	public static String getActorName(long entityId) {
 		return String.format(ACTOR_NAME, entityId);
 	}
@@ -52,9 +54,20 @@ public class EntityActor extends BestiaActor {
 				.match(EntityMoveMessage.class, this::handleClientMoveMessage)
 				.match(EntityMoveInternalMessage.class, this::handleInternalMoveMessage)
 				.match(EntityDeleteInternalMessage.class, this::handleDeleteMessage)
+				.match(EntityRegenTickMessage.class, this::handleRegenerationTickMessage)
 				.match(Terminated.class, this::handleTerminated)
-				.match(String.class, this::handleDebugString)
 				.build();
+	}
+
+	private void handleRegenerationTickMessage(EntityRegenTickMessage msg) {
+
+		stopRegenTick();
+
+		if (msg.isActive()) {
+			regenerationTickActor = SpringExtension.unnamedActorOf(getContext(),
+					EntityStatusTickActor.class,
+					msg.getEntityId());
+		}
 	}
 
 	private void handleTerminated(Terminated term) {
@@ -76,15 +89,18 @@ public class EntityActor extends BestiaActor {
 	private void handleDebugString(String msg) {
 		LOG.debug("DEBUG STRING: {}", msg);
 	}
-	
-	private void handleDeleteMessage(EntityDeleteInternalMessage msg) {
 
+	private void handleDeleteMessage(EntityDeleteInternalMessage msg) {
+		stopAll();
+		SpringExtension.unnamedActorOf(getContext(), EntityDeleteActor.class, msg.getEntityId());
 	}
 
 	/**
 	 * Setup a periodic script runner actor.
 	 */
 	private void handleScriptIntervalMessage(ScriptIntervalMessage msg) {
+
+		stopScript();
 
 	}
 
@@ -107,6 +123,14 @@ public class EntityActor extends BestiaActor {
 		movementActor.tell(msg, getSelf());
 	}
 
+	private void stopScript() {
+		if (scriptTickActor != null) {
+			context().stop(scriptTickActor);
+			context().unwatch(scriptTickActor);
+			scriptTickActor = null;
+		}
+	}
+
 	private void stopMovement() {
 		if (movementActor != null) {
 			context().stop(movementActor);
@@ -114,9 +138,9 @@ public class EntityActor extends BestiaActor {
 			movementActor = null;
 		}
 	}
-	
+
 	private void stopRegenTick() {
-		if(regenerationTickActor != null) {
+		if (regenerationTickActor != null) {
 			context().stop(regenerationTickActor);
 			context().unwatch(regenerationTickActor);
 			regenerationTickActor = null;

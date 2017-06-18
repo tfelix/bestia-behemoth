@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import net.bestia.messages.inventory.InventoryListMessage;
 import net.bestia.messages.inventory.InventoryListRequestMessage;
 import net.bestia.model.domain.PlayerItem;
+import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.service.InventoryService;
 
@@ -53,7 +54,7 @@ public class ListInventoryActor extends BestiaRoutingActor {
 		final List<PlayerItem> items = inventoryService.findPlayerItemsForAccount(ilmsg.getAccountId());
 		invMsg.setPlayerItems(items);
 
-		sendClient(invMsg);
+		AkkaSender.sendClient(getContext(), invMsg);
 	}
 
 }

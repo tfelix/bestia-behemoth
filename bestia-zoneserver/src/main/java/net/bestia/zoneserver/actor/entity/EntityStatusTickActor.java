@@ -21,14 +21,15 @@ import net.bestia.zoneserver.entity.StatusService;
 @Scope("prototype")
 public class EntityStatusTickActor extends BestiaPeriodicTerminatingActor {
 
-	private long entityId;
-
+	private final long entityId;
 	private final StatusService statusService;
+	
 
 	@Autowired
-	public EntityStatusTickActor(StatusService statusService) {
+	public EntityStatusTickActor(StatusService statusService, long entityId) {
 
 		this.statusService = Objects.requireNonNull(statusService);
+		this.entityId = entityId;
 
 		startInterval(StatusService.REGENERATION_TICK_RATE_MS);
 	}
@@ -46,14 +47,6 @@ public class EntityStatusTickActor extends BestiaPeriodicTerminatingActor {
 
 	@Override
 	protected void handleMessage(Object message) {
-
-		if (message instanceof Long) {
-			trackEntity((Long) message);
-		}
-
-	}
-
-	private void trackEntity(Long entityId) {
-		this.entityId = entityId;
+		// no op.
 	}
 }

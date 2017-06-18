@@ -12,17 +12,15 @@ import akka.actor.TypedActor;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.server.AkkaCluster;
+import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
-import net.bestia.zoneserver.actor.entity.EntityActor;
-import net.bestia.zoneserver.actor.entity.EntityWorker;
 
 public class ZoneAkkaApiActor implements ZoneAkkaApi {
 	
 	private final static Logger LOG = LoggerFactory.getLogger(ZoneAkkaApiActor.class);
 
 	private final ActorSelection sendClientActor;
-	private final ActorSelection sendActiveClientActor;
 
 	private final ActorContext context;
 
@@ -31,7 +29,6 @@ public class ZoneAkkaApiActor implements ZoneAkkaApi {
 		this.context = TypedActor.context();
 
 		this.sendClientActor = context.actorSelection(AkkaCluster.getNodeName(SendClientActor.NAME));
-		this.sendActiveClientActor = context.actorSelection(AkkaCluster.getNodeName(ActiveClientUpdateActor.NAME));
 	}
 
 	@Override
@@ -41,7 +38,7 @@ public class ZoneAkkaApiActor implements ZoneAkkaApi {
 
 	@Override
 	public void sendActiveInRangeClients(EntityJsonMessage message) {
-		sendActiveClientActor.tell(message, ActorRef.noSender());
+		AkkaSender.sendActiveInRangeClients(context, message);
 	}
 
 	@Override
@@ -77,11 +74,6 @@ public class ZoneAkkaApiActor implements ZoneAkkaApi {
 
 	@Override
 	public void sendEntityActor(long entityId, Object msg) {
-		
-		// Find the name.
-		final String rawActorName = EntityActor.getActorName(entityId);
-		final String actorName = AkkaCluster.getNodeName(EntityWorker.NAME, rawActorName);
-		final ActorSelection selection = context.system().actorSelection(actorName);
-		selection.tell(msg, ActorRef.noSender());
+		AkkaSender.sendEntityActor(context, entityId, msg);
 	}
 }

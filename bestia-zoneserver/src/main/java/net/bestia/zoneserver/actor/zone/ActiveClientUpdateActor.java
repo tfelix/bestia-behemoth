@@ -27,9 +27,6 @@ import net.bestia.zoneserver.map.MapService;
  * perform the the sending of the message the message must inherit both the
  * {@link EntityMessage} interface and also {@link JsonMessage}.
  * 
- * TODO Diese Logik vielleicht in einen Service packen? Und nur das Absenden von
- * einem Aktor übernehmen lassen.
- * 
  * @author Thomas Felix
  *
  */
