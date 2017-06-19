@@ -87,7 +87,7 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 		 * @param actorBeanClass
 		 * @param args
 		 *            Additional arguments for the actor ctor.
-		 * @return
+		 * @return A props object containing an application context.
 		 */
 		public Props props(Class<? extends Actor> actorBeanClass, Object... args) {
 			return Props.create(
@@ -149,11 +149,11 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 		return (name == null) ? context.actorOf(props) : context.actorOf(props, name);
 	}
 
-	public static ActorRef actorOf(ActorContext context, 
-			Class<? extends AbstractActor> clazz, 
+	public static ActorRef actorOf(ActorContext context,
+			Class<? extends AbstractActor> clazz,
 			String name,
 			Object... args) {
-		
+
 		final Props props = getSpringProps(context.system(), clazz, args);
 		return (name == null) ? context.actorOf(props) : context.actorOf(props, name);
 	}

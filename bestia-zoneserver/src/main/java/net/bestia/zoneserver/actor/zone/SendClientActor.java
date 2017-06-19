@@ -48,7 +48,7 @@ public class SendClientActor extends BestiaActor {
 	private void sendToClient(AccountMessage msg) {
 
 		final ActorPath originPath = connectionService.getPath(msg.getAccountId());
-		final ActorSelection origin = getContext().actorSelection(originPath);
+		final ActorSelection origin = context().actorSelection(originPath);
 
 		if (origin == null) {
 			LOG.warning("Could not find origin ref for message: {}", msg.toString());

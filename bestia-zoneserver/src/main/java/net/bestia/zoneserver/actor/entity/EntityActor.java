@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.actor.entity;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +39,7 @@ public class EntityActor extends BestiaActor {
 	private ActorRef regenerationTickActor;
 	private ActorRef scriptTickActor;
 
+	@Autowired
 	public EntityActor(long entityId) {
 
 		this.entityId = entityId;
