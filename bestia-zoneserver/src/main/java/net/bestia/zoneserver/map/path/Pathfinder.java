@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Interface for path calculation algorithms used by the bestia game.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public interface Pathfinder {

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import net.bestia.model.domain.StatusPoints;
 import net.bestia.zoneserver.actor.BestiaPeriodicTerminatingActor;
 import net.bestia.zoneserver.entity.StatusService;
 
@@ -23,7 +24,9 @@ public class EntityStatusTickActor extends BestiaPeriodicTerminatingActor {
 
 	private final long entityId;
 	private final StatusService statusService;
-	
+
+	private float manaIncrement;
+	private float healthIncrement;
 
 	@Autowired
 	public EntityStatusTickActor(StatusService statusService, long entityId) {
@@ -38,9 +41,40 @@ public class EntityStatusTickActor extends BestiaPeriodicTerminatingActor {
 	protected void onTick() {
 
 		try {
-			statusService.tickRegeneration(entityId);
+
+			final float hpTick = statusService.getHealthTick(entityId) + healthIncrement;
+			final float manaTick = statusService.getManaTick(entityId) + manaIncrement;
+
+			StatusPoints sp = statusService.getStatusPoints(entityId).orElseThrow(IllegalArgumentException::new);
+
+			if (hpTick > 1) {
+				// Update health status.
+				final int hpRound = (int) hpTick;
+				
+				sp.setCurrentHp(sp.getCurrentHp() + hpRound);
+				healthIncrement = hpTick - hpRound;
+				
+			} else {
+				healthIncrement = hpTick;
+			}
+
+			if (manaTick > 1) {
+				// Update mana.
+				final int manaRound = (int) manaTick;
+				
+				sp.setCurrentHp(sp.getCurrentHp() + manaRound);
+				healthIncrement = hpTick - manaRound;
+				
+			} else {
+				manaIncrement = manaTick;
+			}
+			
+			statusService.saveStatusPoints(sp);
+
 		} catch (IllegalArgumentException e) {
-			// Could not tick regeneration for this entity id. Terminating.
+			// Could not tick regeneration for this entity id. Probably no
+			// status component attached.
+			// Terminating.
 			context().stop(getSelf());
 		}
 	}

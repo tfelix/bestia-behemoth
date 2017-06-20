@@ -15,6 +15,7 @@ import net.bestia.messages.internal.entity.EntityRegenTickMessage;
 import net.bestia.messages.internal.script.ScriptIntervalMessage;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.script.PeriodicScriptRunnerActor;
 
 /**
  * The {@link EntityActor} is a persistent actor managing all aspects of a
@@ -72,12 +73,30 @@ public class EntityActor extends BestiaActor {
 		}
 	}
 
+	/**
+	 * Check which actor was terminated and remove it.
+	 * 
+	 * @param term
+	 *            The termination message from akka.
+	 */
 	private void handleTerminated(Terminated term) {
 
-		if (term.actor().equals(movementActor)) {
+		final ActorRef termActor = term.actor();
+
+		if (termActor.equals(movementActor)) {
 
 			LOG.debug("Movement actor has terminated.");
 			movementActor = null;
+
+		} else if (termActor.equals(scriptTickActor)) {
+
+			LOG.debug("Script trigger actor has terminated.");
+			scriptTickActor = null;
+
+		} else if (termActor.equals(regenerationTickActor)) {
+
+			LOG.debug("Regeneration actor has terminated.");
+			regenerationTickActor = null;
 
 		} else {
 
@@ -86,10 +105,6 @@ public class EntityActor extends BestiaActor {
 
 		}
 
-	}
-
-	private void handleDebugString(String msg) {
-		LOG.debug("DEBUG STRING: {}", msg);
 	}
 
 	private void handleDeleteMessage(EntityDeleteInternalMessage msg) {
@@ -103,6 +118,9 @@ public class EntityActor extends BestiaActor {
 	private void handleScriptIntervalMessage(ScriptIntervalMessage msg) {
 
 		stopScript();
+
+		scriptTickActor = SpringExtension.unnamedActorOf(context(), PeriodicScriptRunnerActor.class, msg);
+		context().watch(scriptTickActor);
 
 	}
 
@@ -121,6 +139,7 @@ public class EntityActor extends BestiaActor {
 		stopMovement();
 
 		movementActor = SpringExtension.actorOf(context(), EntityMovementActor.class);
+
 		context().watch(movementActor);
 		movementActor.tell(msg, getSelf());
 	}

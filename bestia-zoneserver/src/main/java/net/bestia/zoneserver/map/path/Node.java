@@ -11,7 +11,7 @@ import net.bestia.model.geometry.Point;
  * within hash maps and sets and thus should implement the
  * {@link #equals(Object)} and {@link #hashCode()} method.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  * @param <T>
  */

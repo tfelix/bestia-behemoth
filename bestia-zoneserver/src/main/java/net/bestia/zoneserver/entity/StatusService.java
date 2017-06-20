@@ -58,7 +58,7 @@ public class StatusService {
 	 */
 	public Optional<StatusBasedValues> getStatusBasedValues(Entity entity) {
 		Objects.requireNonNull(entity);
-		
+
 		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
 
 		if (!statusComp.isPresent()) {
@@ -70,6 +70,18 @@ public class StatusService {
 		}
 
 		return Optional.of(statusComp.get().getStatusBasedValues());
+	}
+
+	/**
+	 * Alias to {@link #getStatusPoints(Entity)}.
+	 * 
+	 * @param entityId
+	 *            The entity ID to get the status points for.
+	 * @return The found status points.
+	 */
+	public Optional<StatusPoints> getStatusPoints(long entityId) {
+		final Entity entity = entityService.getEntity(entityId);
+		return getStatusPoints(entity);
 	}
 
 	/**
@@ -119,7 +131,7 @@ public class StatusService {
 	 */
 	public void calculateStatusPoints(Entity entity) {
 		Objects.requireNonNull(entity);
-		
+
 		entityService.getComponent(entity, StatusComponent.class).ifPresent(statusComp -> {
 			calculateStatusPoints(entity, statusComp);
 		});
@@ -215,41 +227,51 @@ public class StatusService {
 	}
 
 	/**
-	 * Ticks the regeneration for all tick based status regeneration for this
-	 * entity. If the given entity ID can not be regenerated a
-	 * {@link IllegalArgumentException} is thrown.
+	 * Returns the mana value ticked per regeneration step. Note that this value
+	 * might be smaller then 1. We use this to save the value between the ticks
+	 * until we have at least 1 mana and can add this to the user status.
 	 * 
 	 * @param entityId
-	 *            The entity ID to tick the regeneration procedure.
+	 * @return The ticked mana value.
 	 */
-	public void tickRegeneration(long entityId) {
-
+	public float getManaTick(long entityId) {
 		final StatusComponent statusComponent = entityService.getComponent(entityId, StatusComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
-		LOG.trace("Ticking hp/mana regeneration for entity {}.", entityId);
-		
 		final float manaRegenRate = statusComponent.getStatusBasedValues().getManaRegenRate();
-		final float hpRegenRate = statusComponent.getStatusBasedValues().getManaRegenRate();
-		
-		final StatusPoints origStatus = statusComponent.getOriginalStatusPoints();
-		final StatusPoints status = statusComponent.getStatusPoints();
-		
+
 		// Calc the added value.
-		final int manaRegen = Math.round(manaRegenRate / 1000 * REGENERATION_TICK_RATE_MS);
-		final int hpRegen = Math.round(hpRegenRate / 1000 * REGENERATION_TICK_RATE_MS);
+		final float manaRegen = manaRegenRate / 1000 * REGENERATION_TICK_RATE_MS;
+		LOG.trace("Ticking mana regen {} for entity {}.", manaRegen, entityId);
+
+		return manaRegen;
+	}
+
+	/**
+	 * Returns the health value ticked per regeneration step. Note that this
+	 * value might be smaller then 1. We use this to save the value between the
+	 * ticks until we have at least 1 health and can add this to the user
+	 * status.
+	 * 
+	 * @param entityId
+	 * @return The ticked health value.
+	 */
+	public float getHealthTick(long entityId) {
+		final StatusComponent statusComponent = entityService.getComponent(entityId, StatusComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+
+		final float hpRegenRate = statusComponent.getStatusBasedValues().getHpRegenRate();
+
+		// Calc the added value.
+		final float hpRegen = hpRegenRate / 1000 * REGENERATION_TICK_RATE_MS;
+		LOG.trace("Ticking hp regen {} for entity {}.", hpRegen, entityId);
+
+		return hpRegen;
+	}
+
+	public void saveStatusPoints(StatusPoints sp) {
+		// TODO Auto-generated method stub
 		
-		final int curMana = origStatus.getCurrentMana() + manaRegen;
-		final int curHp =  origStatus.getCurrentHp() + hpRegen;
-		
-		origStatus.setCurrentMana(curMana);
-		origStatus.setCurrentHp(curHp);
-		
-		status.setCurrentMana(curMana);
-		status.setCurrentHp(curHp); 
-		
-		// Save component back.
-		entityService.saveComponent(statusComponent);
 	}
 
 	/*

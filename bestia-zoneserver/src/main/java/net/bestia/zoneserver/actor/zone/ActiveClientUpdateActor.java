@@ -15,6 +15,7 @@ import net.bestia.messages.JsonMessage;
 import net.bestia.messages.entity.EntityUpdateMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
+import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
@@ -106,7 +107,7 @@ public class ActiveClientUpdateActor extends BestiaActor {
 			// Check if the pbe are active and if so send them the update.
 			for (long activeAcc : activeAccs) {
 
-				sendClient(dataMsg.createNewInstance(activeAcc));
+				AkkaSender.sendClient(getContext(), dataMsg.createNewInstance(activeAcc));
 
 			}
 		} catch (ClassCastException e) {

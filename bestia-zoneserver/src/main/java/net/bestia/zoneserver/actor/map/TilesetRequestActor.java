@@ -15,6 +15,7 @@ import net.bestia.messages.map.MapTilesetRequestMessage;
 import net.bestia.model.domain.TilesetData;
 import net.bestia.model.map.Tileset;
 import net.bestia.model.map.TilesetService;
+import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 
 /**
@@ -55,7 +56,7 @@ public class TilesetRequestActor extends BestiaRoutingActor {
 				mtmsg.getAccountId(), 
 				ts.get().getSimpleTileset());
 		
-		sendClient(response);
+		AkkaSender.sendClient(getContext(), response);
 	}
 
 }
