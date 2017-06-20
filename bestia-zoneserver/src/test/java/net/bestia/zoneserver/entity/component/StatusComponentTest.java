@@ -21,7 +21,7 @@ public class StatusComponentTest {
 
 	@Test
 	public void getOriginalStatusPoints_returnsNunNull() {
-		Assert.assertNotNull(statusComp.getOriginalStatusPoints());
+		Assert.assertNotNull(statusComp.getUnmodifiedStatusPoints());
 	}
 
 	@Test

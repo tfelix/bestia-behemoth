@@ -343,8 +343,8 @@ public class PlayerEntityService {
 		final StatusComponent statusComp = entityService.getComponent(playerEntity, StatusComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
-		playerBestia.setCurrentHp(statusComp.getOriginalStatusPoints().getCurrentHp());
-		playerBestia.setCurrentMana(statusComp.getOriginalStatusPoints().getCurrentMana());
+		playerBestia.setCurrentHp(statusComp.getUnmodifiedStatusPoints().getCurrentHp());
+		playerBestia.setCurrentMana(statusComp.getUnmodifiedStatusPoints().getCurrentMana());
 
 		// Current position.
 		final PositionComponent posComp = entityService.getComponent(playerEntity, PositionComponent.class)

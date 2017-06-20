@@ -4,14 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public interface StatusPoints {
 
-	@JsonProperty("chp")
-	int getCurrentHp();
-
 	@JsonProperty("mhp")
 	int getMaxHp();
-
-	@JsonProperty("cmana")
-	int getCurrentMana();
 
 	/**
 	 * Returns the max mana.
@@ -41,6 +35,11 @@ public interface StatusPoints {
 	@JsonProperty("str")
 	int getStrength();
 
+	/**
+	 * Returns the vitality.
+	 * 
+	 * @return
+	 */
 	@JsonProperty("vit")
 	int getVitality();
 
@@ -84,10 +83,6 @@ public interface StatusPoints {
 
 	void setMaxMana(int maxMana);
 
-	void setCurrentMana(int mana);
-
 	void setMaxHp(int maxHp);
-
-	void setCurrentHp(int hp);
 
 }

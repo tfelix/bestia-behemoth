@@ -118,7 +118,7 @@ public class StatusService {
 			return Optional.empty();
 		}
 
-		return Optional.of(statusComp.get().getOriginalStatusPoints());
+		return Optional.of(statusComp.get().getUnmodifiedStatusPoints());
 	}
 
 	/**
@@ -187,11 +187,8 @@ public class StatusService {
 		statusPoints.setAgility(agi);
 		statusPoints.setDexterity(dex);
 
-		statusPoints.setCurrentHp(pb.getCurrentHp());
-		statusPoints.setCurrentMana(pb.getCurrentMana());
-
 		// Update all component values.
-		statusComp.setOriginalStatusPoints(statusPoints);
+		statusComp.setUnodifiedStatusPoints(statusPoints);
 
 		entityService.saveComponent(statusComp);
 	}
@@ -217,7 +214,7 @@ public class StatusService {
 		calculateUnmodifiedStatusPoints(entity, statusComp, level);
 
 		// Currently only use status values 1:1.
-		StatusPoints statusPoints = new StatusPointsImpl(statusComp.getOriginalStatusPoints());
+		StatusPoints statusPoints = new StatusPointsImpl(statusComp.getUnmodifiedStatusPoints());
 
 		statusComp.setStatusPoints(statusPoints);
 
@@ -271,7 +268,47 @@ public class StatusService {
 
 	public void saveStatusPoints(StatusPoints sp) {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	public void setCurrentMana(long entityId, int currentHp) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public void setCurrentHp(long entityId, int currentHp) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/**
+	 * This will add or subtract Mana from the current Mana (depending if the
+	 * argument is positive or negative). Will return TRUE if this does NOT
+	 * lower the current Mana below 1. FALSE otherwise.
+	 * 
+	 * @param addMana
+	 *            The value to subtract from current mana value. Must be
+	 *            positive.
+	 * @return TRUE if the value could be lowered without hitting a negative
+	 *         total Mana value. FALSE otherwise.
+	 */
+	public void addMana(long entityId, int addMana) {
+
+	}
+
+	/**
+	 * This will add or subtract HP from the current HP (depending if the
+	 * argument is positive or negative). Will return TRUE if this does NOT
+	 * lower the current HP below 1. FALSE otherwise.
+	 * 
+	 * @param addHp
+	 *            The value to subtract from current mana value. Must be
+	 *            positive.
+	 * @return TRUE if the value could be lowered without hitting a negative
+	 *         total HP value. FALSE otherwise.
+	 */
+	public void addHp(long entityId, int addHp) {
+
 	}
 
 	/*

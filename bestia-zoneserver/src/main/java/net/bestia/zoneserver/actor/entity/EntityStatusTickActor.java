@@ -62,14 +62,15 @@ public class EntityStatusTickActor extends BestiaPeriodicTerminatingActor {
 				// Update mana.
 				final int manaRound = (int) manaTick;
 				
-				sp.setCurrentHp(sp.getCurrentHp() + manaRound);
+				sp.setCurrentMana(manaRound);
 				healthIncrement = hpTick - manaRound;
 				
 			} else {
 				manaIncrement = manaTick;
 			}
 			
-			statusService.saveStatusPoints(sp);
+			statusService.setCurrentMana(entityId, sp.getCurrentHp());
+			statusService.setCurrentHp(entityId, sp.getCurrentHp());
 
 		} catch (IllegalArgumentException e) {
 			// Could not tick regeneration for this entity id. Probably no

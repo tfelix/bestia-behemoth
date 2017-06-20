@@ -43,7 +43,7 @@ public class PlayerStatusComponentSetterTest {
 		setter = new PlayerStatusComponentSetter(playerBestia);
 		
 		//when(statusComp.getStatusPoints()).thenReturn(statusPoints);
-		when(statusComp.getOriginalStatusPoints()).thenReturn(origStatusPoints);
+		when(statusComp.getUnmodifiedStatusPoints()).thenReturn(origStatusPoints);
 		
 		when(playerBestia.getCurrentHp()).thenReturn(CURRENT_HP);
 		when(playerBestia.getCurrentMana()).thenReturn(CURRENT_MANA);
@@ -72,7 +72,7 @@ public class PlayerStatusComponentSetterTest {
 		verify(origStatusPoints).setMaxHp(CURRENT_HP);
 		verify(origStatusPoints).setMaxMana(CURRENT_MANA);
 		
-		verify(statusComp).setOriginalElement(Element.FIRE);
+		verify(statusComp).setUnmodifiedElement(Element.FIRE);
 	}
 
 }

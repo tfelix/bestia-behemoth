@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
-import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.entity.EntityUpdateMessage;

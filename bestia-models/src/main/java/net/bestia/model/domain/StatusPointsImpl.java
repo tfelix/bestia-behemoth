@@ -3,7 +3,6 @@ package net.bestia.model.domain;
 import java.io.Serializable;
 
 import javax.persistence.Embeddable;
-import javax.persistence.Transient;
 
 /**
  * Status values for bestia entities.
@@ -15,12 +14,6 @@ import javax.persistence.Transient;
 public class StatusPointsImpl implements Serializable, StatusPoints {
 
 	private static final long serialVersionUID = 1L;
-
-	@Transient
-	private int currentHp;
-
-	@Transient
-	private int currentMana;
 
 	private int maxHp;
 	private int maxMana;
@@ -50,32 +43,8 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		defense = rhs.getDefense();
 		magicDefense = rhs.getMagicDefense();
 
-		currentHp = rhs.getCurrentHp();
-		currentMana = rhs.getCurrentMana();
-
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bestia.model.domain.IStatusPoints#getCurrentHp()
-	 */
-	@Override
-	public int getCurrentHp() {
-		return currentHp;
-	}
-
-	@Override
-	public void setCurrentHp(int hp) {
-		if (hp < 0) {
-			hp = 0;
-		}
-		if (hp > maxHp) {
-			hp = maxHp;
-		}
-
-		this.currentHp = hp;
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -87,53 +56,6 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		return maxHp;
 	}
 
-	@Override
-	public void setMaxHp(int maxHp) {
-		if (maxHp < 1) {
-			maxHp = 1;
-		}
-
-		this.maxHp = maxHp;
-
-		if (currentHp > maxHp) {
-			setCurrentHp(maxHp);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bestia.model.domain.IStatusPoints#getCurrentMana()
-	 */
-	@Override
-	public int getCurrentMana() {
-		return currentMana;
-	}
-
-	@Override
-	public void setCurrentMana(int mana) {
-		if (mana < 0) {
-			mana = 0;
-		}
-		if (mana > maxMana) {
-			mana = maxMana;
-		}
-
-		this.currentMana = mana;
-	}
-
-	@Override
-	public void setMaxMana(int maxMana) {
-		if (maxMana < 1) {
-			maxMana = 1;
-		}
-
-		this.maxMana = maxMana;
-
-		if (currentMana > maxMana) {
-			setCurrentMana(maxMana);
-		}
-	}
 
 	/*
 	 * (non-Javadoc)
@@ -344,8 +266,6 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 
 		this.maxHp += rhs.getMaxHp();
 		this.maxMana += rhs.getMaxMana();
-		this.currentHp += rhs.getCurrentHp();
-		this.currentMana += rhs.getCurrentMana();
 
 		this.strength += rhs.getStrength();
 		this.vitality += rhs.getVitality();
@@ -359,11 +279,9 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 
 	@Override
 	public String toString() {
-		return String.format("SP[curHp: %d, maxHp: %d, curMana: %d, maxMana: %d, str: %d vit: %d, int: %d,"
+		return String.format("SP[maxHp: %d, maxMana: %d, str: %d vit: %d, int: %d,"
 				+ " will: %d, agi: %d, dex: %d, def: %d, mdef: %d]",
-				currentHp,
 				maxHp,
-				currentMana,
 				maxMana,
 				strength,
 				vitality,
@@ -375,48 +293,13 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 				magicDefense);
 	}
 
-	/**
-	 * This will add or subtract HP from the current HP (depending if the
-	 * argument is positive or negative). Will return TRUE if this does NOT
-	 * lower the current HP below 1. FALSE otherwise.
-	 * 
-	 * @param addHp
-	 *            The value to subtract from current mana value. Must be
-	 *            positive.
-	 * @return TRUE if the value could be lowered without hitting a negative
-	 *         total HP value. FALSE otherwise.
-	 */
-	public boolean addHp(int addHp) {
-
-		int curHp = getCurrentHp();
-		setCurrentHp(getCurrentHp() + addHp);
-
-		if (curHp + addHp > 0) {
-			return true;
-		} else {
-			return false;
-		}
+	@Override
+	public void setMaxMana(int maxMana) {
+		this.maxMana = maxMana;
 	}
 
-	/**
-	 * This will add or subtract Mana from the current Mana (depending if the
-	 * argument is positive or negative). Will return TRUE if this does NOT
-	 * lower the current Mana below 1. FALSE otherwise.
-	 * 
-	 * @param addMana
-	 *            The value to subtract from current mana value. Must be
-	 *            positive.
-	 * @return TRUE if the value could be lowered without hitting a negative
-	 *         total Mana value. FALSE otherwise.
-	 */
-	public boolean addMana(int addMana) {
-		int curMana = getCurrentMana();
-		setCurrentMana(getCurrentHp() + addMana);
-
-		if (curMana + addMana > 0) {
-			return true;
-		} else {
-			return false;
-		}
+	@Override
+	public void setMaxHp(int maxHp) {
+		this.maxHp = maxHp;
 	}
 }
