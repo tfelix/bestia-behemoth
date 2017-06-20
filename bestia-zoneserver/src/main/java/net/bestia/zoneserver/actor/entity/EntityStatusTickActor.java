@@ -26,7 +26,7 @@ public class EntityStatusTickActor extends BestiaPeriodicTerminatingActor {
 	
 
 	@Autowired
-	public EntityStatusTickActor(long entityId, StatusService statusService) {
+	public EntityStatusTickActor(StatusService statusService, long entityId) {
 
 		this.statusService = Objects.requireNonNull(statusService);
 		this.entityId = entityId;

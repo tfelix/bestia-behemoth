@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.util.ClassUtils;
 
 import akka.actor.Actor;
 import akka.actor.IndirectActorProducer;
@@ -93,33 +92,75 @@ class SpringActorProducer implements IndirectActorProducer {
 		// We need to use in order to get the boxed type of primitive
 		// arguments.
 		final Set<Class<?>> neededArgs = new HashSet<>();
-		
+
 		for (Class<?> clazz : Arrays.asList(params)) {
 			Optional<Class<?>> primClazz = getClassFromPrimitive(clazz);
-			
-			if(primClazz.isPresent()) {
+
+			if (primClazz.isPresent()) {
 				neededArgs.add(primClazz.get());
 			} else {
 				neededArgs.add(clazz);
 			}
-		
+
 		}
 
 		// Remove all available arg classes.
 		availableArgsClasses.forEach(neededArgs::remove);
 
 		// Try to create the missing args via spring beans invocation.
-		final List<Object> availableArgs = new ArrayList<>(Arrays.asList(args));
+		final List<Object> instancedArgs = new ArrayList<>();
 		for (Class<?> clazz : neededArgs) {
 			final Object argObj = applicationContext.getBean(clazz);
-			availableArgs.add(argObj);
+			instancedArgs.add(argObj);
 		}
 
-		return availableArgs.toArray();
+		// After we have created all instance objects we must sort them into the
+		// right oder since spring is unable to do so.
+		final List<Object> sortedArgs = new ArrayList<>();
+		final List<Object> providedArgs = new ArrayList<>(Arrays.asList(args));
+
+		// We priorize the handed arguments.
+		for (Class<?> param : params) {
+			
+			boolean wasProvided = false;
+
+			for (int i = 0; i < providedArgs.size(); i++) {
+				if (providedArgs.get(i).getClass().equals(boxPrimitiveClass(param))) {
+					sortedArgs.add(providedArgs.get(i));
+					providedArgs.remove(i);
+					wasProvided = true;
+					break;
+				}
+			}
+			
+			// Skip the next check if we have found the bean.
+			if(wasProvided) {
+				continue;
+			}
+
+			// We did not find a suitable param. Use the spring instanced.
+			for (int i = 0; i < instancedArgs.size(); i++) {
+				if (instancedArgs.get(i).getClass().equals(boxPrimitiveClass(param))) {
+					sortedArgs.add(instancedArgs.get(i));
+					instancedArgs.remove(i);
+					break;
+				}
+			}
+		}
+
+		return sortedArgs.toArray();
 	}
-	
+
+	private Class<?> boxPrimitiveClass(Class<?> clazz) {
+		if (clazz == long.class) {
+			return Long.class;
+		} else {
+			return clazz;
+		}
+	}
+
 	private Optional<Class<?>> getClassFromPrimitive(Class<?> clazz) {
-		if(clazz == long.class) {
+		if (clazz == long.class) {
 			return Optional.of(Long.class);
 		} else {
 			return Optional.empty();
