@@ -68,13 +68,13 @@ public final class Rect implements CollisionShape, Serializable {
 
 	private void checkAnchor(long aX, long aY) {
 
-		final boolean isXInside = origin.getX() < aX && aX < getOrigin().getX() + size.getWidth();
+		final boolean isXInside = origin.getX() <= aX && aX <= getOrigin().getX() + size.getWidth();
 		
 		if (!isXInside) {
 			throw new IllegalArgumentException("Anchor X must be inside the rectangle.");
 		}
 
-		final boolean isYInside = origin.getY() < aY && aY < getOrigin().getY() + size.getHeight();
+		final boolean isYInside = origin.getY() <= aY && aY <= getOrigin().getY() + size.getHeight();
 
 		if (!isYInside) {
 			throw new IllegalArgumentException("Anchor Y must be inside the rectangle.");

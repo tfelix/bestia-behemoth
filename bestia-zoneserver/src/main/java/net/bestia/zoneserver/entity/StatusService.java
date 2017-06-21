@@ -13,6 +13,7 @@ import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
+import net.bestia.model.domain.StatusValues;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.entity.StatusBasedValuesImpl;
 import net.bestia.zoneserver.entity.component.LevelComponent;
@@ -188,7 +189,7 @@ public class StatusService {
 		statusPoints.setDexterity(dex);
 
 		// Update all component values.
-		statusComp.setUnodifiedStatusPoints(statusPoints);
+		statusComp.setUnmodifiedStatusPoints(statusPoints);
 
 		entityService.saveComponent(statusComp);
 	}
@@ -266,49 +267,61 @@ public class StatusService {
 		return hpRegen;
 	}
 
-	public void saveStatusPoints(StatusPoints sp) {
-		// TODO Auto-generated method stub
-
+	public StatusValues getStatusValues(long entityId) {
+		final Entity e = entityService.getEntity(entityId);
+		return getStatusValues(e);
 	}
 
-	public void setCurrentMana(long entityId, int currentHp) {
-		// TODO Auto-generated method stub
+	public StatusValues getStatusValues(Entity entity) {
 
-	}
+		final StatusComponent statusComp = entityService.getComponent(entity, StatusComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
 
-	public void setCurrentHp(long entityId, int currentHp) {
-		// TODO Auto-generated method stub
-
-	}
-
-	/**
-	 * This will add or subtract Mana from the current Mana (depending if the
-	 * argument is positive or negative). Will return TRUE if this does NOT
-	 * lower the current Mana below 1. FALSE otherwise.
-	 * 
-	 * @param addMana
-	 *            The value to subtract from current mana value. Must be
-	 *            positive.
-	 * @return TRUE if the value could be lowered without hitting a negative
-	 *         total Mana value. FALSE otherwise.
-	 */
-	public void addMana(long entityId, int addMana) {
-
+		return statusComp.getValues();
 	}
 
 	/**
-	 * This will add or subtract HP from the current HP (depending if the
-	 * argument is positive or negative). Will return TRUE if this does NOT
-	 * lower the current HP below 1. FALSE otherwise.
+	 * Saves the status values into the specific component of the given entity.
+	 * It also makes sure the current mana and health are not exeeding the max
+	 * hp and max mana from the status points of this entity.
 	 * 
-	 * @param addHp
-	 *            The value to subtract from current mana value. Must be
-	 *            positive.
-	 * @return TRUE if the value could be lowered without hitting a negative
-	 *         total HP value. FALSE otherwise.
+	 * @param entity
+	 * @param values
 	 */
-	public void addHp(long entityId, int addHp) {
+	public void saveStatusValues(Entity entity, StatusValues values) {
+		
+		Objects.requireNonNull(values);
 
+		final StatusComponent statusComp = entityService.getComponent(entity, StatusComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+
+		// Sanity check the data.
+		final StatusPoints sp = statusComp.getStatusPoints();
+		
+		if(values.getCurrentHealth() > sp.getMaxHp()) {
+			values.setCurrentHealth(sp.getMaxHp());
+		}
+		
+		if(values.getCurrentMana() > sp.getMaxMana()) {
+			values.setCurrentMana(sp.getMaxMana());
+		}
+		
+		statusComp.getValues().set(values);
+		
+		entityService.saveComponent(statusComp);
+	}
+
+	/**
+	 * This is an alias for {@link #saveStatusValues(Entity, StatusValues)}.
+	 * 
+	 * @param entityId
+	 *            The entity ID for which to save the status values.
+	 * @param sval
+	 *            The status values to save for this entity.
+	 */
+	public void saveStatusValues(long entityId, StatusValues sval) {
+		final Entity e = entityService.getEntity(entityId);
+		saveStatusValues(e, sval);
 	}
 
 	/*

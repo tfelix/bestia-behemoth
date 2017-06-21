@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.domain.StatusValues;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -33,9 +34,11 @@ public class PlayerBestiaDAOTest {
 		
 		PlayerBestia pb = new PlayerBestia();
 		
-		
-		pb.setCurrentHp(10);
-		pb.setCurrentMana(10);
+		StatusValues sv = new StatusValues();
+		sv.setCurrentHealth(10);
+		sv.setCurrentMana(10);
+			
+		pb.setStatusValues(sv);
 		pb.setLevel(10);
 		pb.setName(BESTIA_NAME);
 		

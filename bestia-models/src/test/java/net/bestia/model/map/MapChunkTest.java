@@ -1,9 +1,5 @@
 package net.bestia.model.map;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -13,7 +9,6 @@ public class MapChunkTest {
 
 	private int[] groundLayer = new int[MapChunk.MAP_CHUNK_SIZE_AREA];
 	private int[] groundLayerBig = new int[MapChunk.MAP_CHUNK_SIZE_AREA + 10];
-	private List<Map<Point, Integer>> layers = new ArrayList<>();
 
 	public MapChunkTest() {
 		for (int i = 0; i < groundLayer.length; i++) {

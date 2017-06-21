@@ -25,14 +25,7 @@ public class PlayerStatusComponentSetter extends ComponentSetter<StatusComponent
 	protected void performSetting(StatusComponent comp) {
 		
 		comp.setUnmodifiedElement(playerBestia.getOrigin().getElement());
-		
-		// We can not set bigger values then the max mana and max hp value so
-		// we need to raise them first.
-		comp.getUnmodifiedStatusPoints().setMaxHp(playerBestia.getCurrentHp());
-		comp.getUnmodifiedStatusPoints().setMaxMana(playerBestia.getCurrentMana());
-		
-		comp.getUnmodifiedStatusPoints().setCurrentHp(playerBestia.getCurrentHp());
-		comp.getUnmodifiedStatusPoints().setCurrentMana(playerBestia.getCurrentMana());
+		comp.setStatusValues(playerBestia.getStatusValues());
 	}
 
 }

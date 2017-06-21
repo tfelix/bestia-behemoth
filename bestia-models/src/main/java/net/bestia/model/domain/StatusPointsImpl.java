@@ -295,11 +295,21 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 
 	@Override
 	public void setMaxMana(int maxMana) {
+		
+		if(maxMana < 1) {
+			maxMana = 1;
+		}
+		
 		this.maxMana = maxMana;
 	}
 
 	@Override
 	public void setMaxHp(int maxHp) {
+		
+		if(maxHp < 1) {
+			maxHp = 1;
+		}
+		
 		this.maxHp = maxHp;
 	}
 }

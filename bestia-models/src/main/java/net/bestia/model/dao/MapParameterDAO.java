@@ -20,6 +20,6 @@ public interface MapParameterDAO extends CrudRepository<MapParameter, Integer> {
 	 * 
 	 * @return The latest {@link MapParameter}.
 	 */
-	@Query("FROM MapParameter mp ORDER BY mp.id DESC")
+	@Query("FROM MapParameter mp ORDER BY mp.id DESC LIMIT 1")
 	MapParameter findLatest();
 }

@@ -27,7 +27,9 @@ import net.bestia.model.map.MapDataDTO;
 		@Index(columnList = "x", name = "x_idx"),
 		@Index(columnList = "y", name = "y_idx") })
 @IdClass(MapData.MapDataPK.class)
-public class MapData {
+public class MapData implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Composite primary key helper class.

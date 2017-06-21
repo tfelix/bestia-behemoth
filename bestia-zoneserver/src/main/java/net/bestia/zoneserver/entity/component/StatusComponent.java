@@ -123,4 +123,8 @@ public class StatusComponent extends Component {
 	public String toString() {
 		return String.format("StatusComponent[]");
 	}
+
+	public void setStatusValues(StatusValues statusValues) {
+		values.set(statusValues);
+	}
 }

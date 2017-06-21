@@ -338,4 +338,8 @@ public class PlayerBestia implements Serializable {
 	public void setOwner(Account owner) {
 		this.owner = owner;
 	}
+
+	public void setStatusValues(StatusValues sv) {
+		this.statusValues = Objects.requireNonNull(sv);
+	}
 }

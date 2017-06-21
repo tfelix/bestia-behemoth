@@ -29,10 +29,18 @@ public class StatusValues {
 	}
 
 	public void setCurrentHealth(int currentHealth) {
+		if (currentHealth < 0) {
+			currentHealth = 0;
+		}
+
 		this.currentHealth = currentHealth;
 	}
 
 	public void setCurrentMana(int currentMana) {
+		if (currentMana < 0) {
+			currentMana = 0;
+		}
+
 		this.currentMana = currentMana;
 	}
 
@@ -47,5 +55,31 @@ public class StatusValues {
 		setCurrentHealth(rhs.getCurrentHealth());
 		setCurrentMana(rhs.getCurrentMana());
 
+	}
+
+	/**
+	 * This will add or subtract HP from the current HP (depending if the
+	 * argument is positive or negative). Will return TRUE if this does NOT
+	 * lower the current HP below 1. FALSE otherwise.
+	 * 
+	 * @param addHp
+	 *            The value to subtract from current mana value. Must be
+	 *            positive.
+	 */
+	public void addHealth(int hp) {
+		this.setCurrentHealth(this.currentHealth + hp);
+	}
+
+	/**
+	 * This will add or subtract Mana from the current Mana (depending if the
+	 * argument is positive or negative). Will return TRUE if this does NOT
+	 * lower the current Mana below 1. FALSE otherwise.
+	 * 
+	 * @param addMana
+	 *            The value to subtract from current mana value. Must be
+	 *            positive.
+	 */
+	public void addMana(int mana) {
+		this.setCurrentMana(this.currentMana + mana);
 	}
 }

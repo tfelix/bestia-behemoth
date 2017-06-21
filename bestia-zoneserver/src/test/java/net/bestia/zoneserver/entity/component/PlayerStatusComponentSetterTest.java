@@ -13,6 +13,7 @@ import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.Element;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.domain.StatusValues;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PlayerStatusComponentSetterTest {
@@ -37,6 +38,9 @@ public class PlayerStatusComponentSetterTest {
 	@Mock
 	private StatusPoints origStatusPoints;
 	
+	@Mock
+	private StatusValues statusValues;
+	
 	@Before
 	public void setup() {
 		
@@ -44,10 +48,8 @@ public class PlayerStatusComponentSetterTest {
 		
 		//when(statusComp.getStatusPoints()).thenReturn(statusPoints);
 		when(statusComp.getUnmodifiedStatusPoints()).thenReturn(origStatusPoints);
-		
-		when(playerBestia.getCurrentHp()).thenReturn(CURRENT_HP);
-		when(playerBestia.getCurrentMana()).thenReturn(CURRENT_MANA);
 		when(playerBestia.getOrigin()).thenReturn(bestia);
+		when(playerBestia.getStatusValues()).thenReturn(statusValues);
 		
 		when(bestia.getElement()).thenReturn(Element.FIRE);
 	}
@@ -67,11 +69,10 @@ public class PlayerStatusComponentSetterTest {
 		
 		setter.setComponent(statusComp);
 		
-		verify(origStatusPoints).setCurrentHp(CURRENT_HP);
-		verify(origStatusPoints).setCurrentMana(CURRENT_MANA);
 		verify(origStatusPoints).setMaxHp(CURRENT_HP);
 		verify(origStatusPoints).setMaxMana(CURRENT_MANA);
 		
+		verify(statusComp).setStatusValues(statusValues);
 		verify(statusComp).setUnmodifiedElement(Element.FIRE);
 	}
 
