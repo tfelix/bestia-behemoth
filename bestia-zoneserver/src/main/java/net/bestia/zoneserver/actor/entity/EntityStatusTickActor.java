@@ -45,14 +45,14 @@ public class EntityStatusTickActor extends BestiaPeriodicTerminatingActor {
 			final float hpTick = statusService.getHealthTick(entityId) + healthIncrement;
 			final float manaTick = statusService.getManaTick(entityId) + manaIncrement;
 
-			StatusValues sval = statusService.getStatusValues(entityId);
+			StatusValues sval = statusService.getStatusValues(entityId).orElseThrow(IllegalArgumentException::new);
 
 			if (hpTick > 1) {
 				// Update health status.
 				final int hpRound = (int) hpTick;
 				healthIncrement = hpTick - hpRound;
 				sval.addHealth(hpRound);
-				
+
 			} else {
 				healthIncrement = hpTick;
 			}
@@ -62,11 +62,11 @@ public class EntityStatusTickActor extends BestiaPeriodicTerminatingActor {
 				final int manaRound = (int) manaTick;
 				healthIncrement = hpTick - manaRound;
 				sval.addMana(manaRound);
-				
+
 			} else {
 				manaIncrement = manaTick;
 			}
-			
+
 			statusService.saveStatusValues(entityId, sval);
 
 		} catch (IllegalArgumentException e) {

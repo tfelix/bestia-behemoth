@@ -210,13 +210,13 @@ public class StatusServiceTest {
 
 	@Test
 	public void getStatusValue_validEntityId_validValue() {
-		StatusValues sv = statusService.getStatusValues(statusEntity);
+		StatusValues sv = statusService.getStatusValues(statusEntity).get();
 		assertNotNull(sv);
 	}
 
 	@Test
 	public void getStatusValue_validEntity_validValue() {
-		StatusValues sv = statusService.getStatusValues(statusEntity);
+		StatusValues sv = statusService.getStatusValues(statusEntity).get();
 		assertNotNull(sv);
 	}
 

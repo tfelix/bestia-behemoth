@@ -267,17 +267,15 @@ public class StatusService {
 		return hpRegen;
 	}
 
-	public StatusValues getStatusValues(long entityId) {
+	public Optional<StatusValues> getStatusValues(long entityId) {
 		final Entity e = entityService.getEntity(entityId);
 		return getStatusValues(e);
 	}
 
-	public StatusValues getStatusValues(Entity entity) {
+	public Optional<StatusValues> getStatusValues(Entity entity) {
 
-		final StatusComponent statusComp = entityService.getComponent(entity, StatusComponent.class)
-				.orElseThrow(IllegalArgumentException::new);
-
-		return statusComp.getValues();
+		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
+		return statusComp.map(sc -> Optional.of(sc.getValues())).orElse(Optional.empty());
 	}
 
 	/**

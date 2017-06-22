@@ -23,6 +23,7 @@ var MID = {
 	ENTITY_UPDATE: 'entity.update',
 	ENTITY_POSITION: 'entity.position',
 	ENTITY_MOVE: 'entity.move',
+	ENTITY_STATUS: 'entity.status',
 	
 	MAP_TILESET: 'map.tileset',
 	MAP_TILESET_REQUEST: 'map.tilesetrequest',

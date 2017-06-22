@@ -74,6 +74,7 @@ export default class BestiaView {
 		pubsub.subscribe(Signal.IO_AUTH_CONNECTED, this._handleConnected.bind(this));
 		pubsub.subscribe(Signal.IO_DISCONNECTED, this._handleDisconnected.bind(this));
 		pubsub.subscribe(MID.BESTIA_INFO, this._handleBestiaInfo.bind(this));
+		pubsub.subscribe(MID.ENTITY_STATUS, this._handleBestiaStatus.bind(this));
 		pubsub.subscribe(MID.BESTIA_ACTIVATE, this._handleOnActivate.bind(this));
 		pubsub.subscribe(MID.ENTITY_POSITION, this._handlerOnPosition, this);
 	}
@@ -128,6 +129,22 @@ export default class BestiaView {
 
 		this._selectBestia(bestia);
 	}
+
+	/**
+	 * Handles incoming bestia status messages. If the bestia is already registered into the view 
+	 * its status information is updated.
+	 */
+	_handleBestiaStatus(_, msg) {
+
+		var bestia = this.getBestiaByEntityId(msg.eid);
+		
+		if(bestia === null) {
+			LOG.debug('Bestia was not found. Cant update status values.');
+			return;
+		}
+
+		bestia.updateStatus(msg);
+	}
 	
 	/**
 	 * Handler to fill out the data. We get this data from the bestia.update
@@ -142,7 +159,7 @@ export default class BestiaView {
 		for (var i = 0; i < this.bestias().length; i++) {
 			if (this.bestias()[i].playerBestiaId() === bestia.playerBestiaId()) {
 				// Just update it.
-				this.bestias()[i].update(msg.b, msg.sp);
+				this.bestias()[i].update(msg.b);
 				return;
 			}
 		}

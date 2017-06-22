@@ -9,6 +9,7 @@ import Signal from '../../io/Signal';
 import Attack from '../attack/Attack';
 import ItemViewModel from '../inventory/Item';
 import StatusPoint from './StatusPoints';
+import StatusPointsComparer from './StatusPointsComparer';
 
 /**
  * ViewModel of a Bestia.
@@ -58,10 +59,12 @@ export default class Bestia {
 		});
 		this.level = ko.observable(1);
 		this.slot = ko.observable();
-		this.statusPoints = new StatusPoint();
 		
-		// TODO Das hier noch ins system einbinden.
-		this.walkspeed = ko.observable(1.0);
+		this.statusPoints = new StatusPoint();
+		this.unmodifiedStatusPoints = new StatusPoint();
+		this.comparedStatusPoints = new StatusPointsComparer();
+		this.statusValues = new StatusValues();
+		this.statusBasedValues = null;
 	
 		this.attack1 = ko.observable(null);
 		this.attack2 = ko.observable(null);

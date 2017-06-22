@@ -12,7 +12,7 @@ import ko from 'knockout';
  *
  * @constructor
  */
-export default class StatusPoint {
+export default class StatusPoints {
 	constructor(msg, curHp, curMana) {
 		
 		this.curMana = ko.observable(0);
