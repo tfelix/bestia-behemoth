@@ -1,5 +1,7 @@
 package net.bestia.model.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.Embeddable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,7 +15,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 @Embeddable
-public class StatusValues {
+public class StatusValues implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private int currentHealth;
 	private int currentMana;
@@ -28,6 +32,12 @@ public class StatusValues {
 		return currentMana;
 	}
 
+	/**
+	 * Sets the current health value. The value can not be less then 0.
+	 * 
+	 * @param currentHealth
+	 *            The new health value.
+	 */
 	public void setCurrentHealth(int currentHealth) {
 		if (currentHealth < 0) {
 			currentHealth = 0;
@@ -36,6 +46,12 @@ public class StatusValues {
 		this.currentHealth = currentHealth;
 	}
 
+	/**
+	 * Sets the current mana value. The value can not be less then 0.
+	 * 
+	 * @param currentMana
+	 *            New current mana value.
+	 */
 	public void setCurrentMana(int currentMana) {
 		if (currentMana < 0) {
 			currentMana = 0;

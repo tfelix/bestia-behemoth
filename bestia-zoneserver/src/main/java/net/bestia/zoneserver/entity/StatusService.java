@@ -324,25 +324,4 @@ public class StatusService {
 		saveStatusValues(e, sval);
 	}
 
-	/*
-	 * StatusPointsDecorator baseStatusPointModified = new
-	 * StatusPointsDecorator(baseStatusPoints);
-	 * 
-	 * // Get all the attached script mods. for (StatusEffectScript statScript :
-	 * statusEffectsScripts) { final StatusPointsModifier mod =
-	 * statScript.onStatusPoints(baseStatusPoints);
-	 * baseStatusPointModified.addModifier(mod); }
-	 * 
-	 * statusBasedValues=new
-	 * StatusBasedValuesImpl(baseStatusPointModified,getLevel());
-	 * statusBasedValuesModified=new
-	 * StatusBasedValuesDecorator(statusBasedValues);statusBasedValuesModified.
-	 * clearModifier();
-	 * 
-	 * // Get all the attached script mods. for (StatusEffectScript statScript :
-	 * statusEffectsScripts) { final StatusBasedValueModifier mod =
-	 * statScript.onStatusBasedValues(statusBasedValues);
-	 * statusBasedValuesModified.addStatusModifier(mod); }
-	 */
-
 }

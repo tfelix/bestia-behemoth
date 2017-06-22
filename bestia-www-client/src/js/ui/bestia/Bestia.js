@@ -162,7 +162,7 @@ export default class Bestia {
 				this.item5(new ItemViewModel(b.item5, this._urlHelper));
 			}
 			
-			this.statusPoints.update(sp);
+			this.statusPoints.update(sp, msg.b.chp, msg.b.cmana);
 		}
 	}
 }

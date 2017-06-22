@@ -1,16 +1,19 @@
 package net.bestia.zoneserver.entity.component.interceptor;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import net.bestia.messages.entity.EntityStatusUpdateMessage;
 import net.bestia.messages.internal.entity.EntityRegenTickMessage;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.zoneserver.entity.component.PlayerComponent;
 import net.bestia.zoneserver.entity.component.StatusComponent;
 
 /**
@@ -37,19 +40,45 @@ public class StatusComponentInterceptor extends ComponentInterceptor<StatusCompo
 
 	@Override
 	protected void onUpdateAction(EntityService entityService, Entity entity, StatusComponent comp) {
-		// TODO Auto-generated method stub
-
+		
+		LOG.trace("StatusComponent updated for entity {}", entity.getId());
+		
+		// Check if its a player and needs updates of the entity status.
+		final Optional<PlayerComponent> playerComp = entityService.getComponent(entity, PlayerComponent.class);
+		
+		if(!playerComp.isPresent()) {
+			return;
+		}
+		
+		final long accId = playerComp.get().getOwnerAccountId();
+		
+		final EntityStatusUpdateMessage msg = new EntityStatusUpdateMessage(
+				accId, 
+				entity.getId(), 
+				comp.getStatusPoints(),
+				comp.getUnmodifiedStatusPoints(),
+				comp.getValues(),
+				comp.getStatusBasedValues());
+		actorApi.sendEntityActor(entity.getId(), msg);
+		
 	}
 
+	/**
+	 * If the component was removed we need to tell the actor to stop updating
+	 * the entity component.
+	 */
 	@Override
 	protected void onDeleteAction(EntityService entityService, Entity entity, StatusComponent comp) {
-		// TODO Auto-generated method stub
-
+		
+		LOG.trace("StatusComponent deleted.");
+		final EntityRegenTickMessage msg = new EntityRegenTickMessage(entity.getId(), false);
+		actorApi.sendEntityActor(entity.getId(), msg);
+		
 	}
 
 	/**
 	 * We need to notify the entity actor that a new status component was
-	 * attached and so needs to tick.
+	 * attached and so needs to start the regeneration ticks for this component.
 	 */
 	@Override
 	protected void onCreateAction(EntityService entityService, Entity entity, StatusComponent comp) {

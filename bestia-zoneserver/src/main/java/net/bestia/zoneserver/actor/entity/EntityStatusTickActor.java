@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusValues;
 import net.bestia.zoneserver.actor.BestiaPeriodicTerminatingActor;
 import net.bestia.zoneserver.entity.StatusService;
