@@ -34,7 +34,7 @@ public class MapParameterDAOTest {
 	
 	@Test
 	public void findLatest_latestParams() {
-		MapParameter p = dao.findLatest();
+		MapParameter p = dao.findFirstByOrderByIdDesc();
 		Assert.assertEquals(MAPNAME2, p.getName());
 	}
 }

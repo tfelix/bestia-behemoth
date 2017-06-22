@@ -57,7 +57,7 @@ public class MapServiceTest {
 
 		when(dataMapDao.count()).thenReturn(1L);
 		when(mapParams.getName()).thenReturn(MAP_NAME);
-		when(paramDao.findLatest()).thenReturn(mapParams);
+		when(paramDao.findFirstByOrderByIdDesc()).thenReturn(mapParams);
 
 		ms = new MapService(dataNoMapDao, paramDao, tilesetService, entityService);
 	}

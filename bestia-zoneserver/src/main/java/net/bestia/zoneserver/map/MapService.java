@@ -294,7 +294,7 @@ public class MapService {
 	 * @return The name of the map.
 	 */
 	public String getMapName() {
-		final MapParameter params = mapParamDao.findLatest();
+		final MapParameter params = mapParamDao.findFirstByOrderByIdDesc();
 		return params == null ? "" : params.getName();
 	}
 

@@ -1,6 +1,5 @@
 package net.bestia.model.dao;
 
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -20,6 +19,5 @@ public interface MapParameterDAO extends CrudRepository<MapParameter, Integer> {
 	 * 
 	 * @return The latest {@link MapParameter}.
 	 */
-	@Query("FROM MapParameter mp ORDER BY mp.id DESC LIMIT 1")
-	MapParameter findLatest();
+	MapParameter findFirstByOrderByIdDesc();
 }

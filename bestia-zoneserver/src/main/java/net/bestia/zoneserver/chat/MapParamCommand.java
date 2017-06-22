@@ -55,7 +55,7 @@ public class MapParamCommand extends BaseChatCommand {
 	protected void executeCommand(Account account, String text) {
 		LOG.debug("Chatcommand: /mapinfo triggered by account {}.", account.getId());
 		
-		final MapParameter mapParam = mapParamDao.findLatest();	
+		final MapParameter mapParam = mapParamDao.findFirstByOrderByIdDesc();	
 		
 		if(mapParam == null) {
 			LOG.warn("No map parameter found inside database.");

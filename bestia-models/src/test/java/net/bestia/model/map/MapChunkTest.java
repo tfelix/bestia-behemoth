@@ -11,16 +11,14 @@ public class MapChunkTest {
 	private int[] groundLayerBig = new int[MapChunk.MAP_CHUNK_SIZE_AREA + 10];
 
 	public MapChunkTest() {
+		
+		
 		for (int i = 0; i < groundLayer.length; i++) {
 			groundLayer[i] = 10;
 		}
 
 		for (int i = 0; i < groundLayerBig.length; i++) {
-			groundLayer[i] = 10;
-		}
-
-		for (int i = 0; i < 3; i++) {
-
+			groundLayerBig[i] = 10;
 		}
 	}
 
