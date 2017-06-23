@@ -21,20 +21,20 @@ import LOG from '../../util/Log';
  *            urlHelper - Helper for resolving URLs.
  */
 export default class BestiaView {
-	
+
 	constructor(pubsub, urlHelper) {
 
 		if (!pubsub) {
 			throw 'Bestia.BestiaInfoViewModel: Pubsub is not optional.';
 		}
-		if(!urlHelper) {
+		if (!urlHelper) {
 			throw 'UrlHelper can not be null.';
 		}
-	
+
 		this._pubsub = pubsub;
-	
+
 		this._urlHelper = urlHelper;
-	
+
 		/**
 		 * Holds the currently selected bestia.
 		 * 
@@ -42,7 +42,7 @@ export default class BestiaView {
 		 * @property {Bestia.Bestia}
 		 */
 		this.selectedBestia = ko.observable(null);
-	
+
 		/**
 		 * Holds a reference to the master bestia.
 		 * 
@@ -50,7 +50,7 @@ export default class BestiaView {
 		 * @property {Bestia.Bestia}
 		 */
 		this.masterBestia = ko.observable(null);
-	
+
 		/**
 		 * Holds the currently available bestias for this bestia master.
 		 * 
@@ -58,7 +58,7 @@ export default class BestiaView {
 		 * @property {Array}
 		 */
 		this.bestias = ko.observableArray([]);
-	
+
 		/**
 		 * Number of usable slots for bestias.
 		 */
@@ -69,7 +69,7 @@ export default class BestiaView {
 		 * @private
 		 */
 		this._deferredActiveBestia = 0;
-	
+
 		// Register for messages from the server.
 		pubsub.subscribe(Signal.IO_AUTH_CONNECTED, this._handleConnected.bind(this));
 		pubsub.subscribe(Signal.IO_DISCONNECTED, this._handleDisconnected.bind(this));
@@ -83,15 +83,15 @@ export default class BestiaView {
 	 * Check if we must update the position of one of our bestias.
 	 */
 	_handlerOnPosition(_, msg) {
-		for(let i = 0; i < this.bestias().length; i++) {
+		for (let i = 0; i < this.bestias().length; i++) {
 			let bestia = this.bestias()[i];
-			if(bestia.entityId() === msg.eid) {
+			if (bestia.entityId() === msg.eid) {
 				bestia.posX(msg.x);
 				bestia.posY(msg.y);
 			}
 		}
 	}
-	
+
 	/**
 	 * Is triggered when there is a new connection established. We must ask the
 	 * server for the bestias to display in here.
@@ -101,7 +101,7 @@ export default class BestiaView {
 		var msg = new Message.ReqBestiaInfo();
 		this._pubsub.send(msg);
 	}
-	
+
 	/**
 	 * When we got disconnected clear all data again.
 	 */
@@ -111,7 +111,7 @@ export default class BestiaView {
 		this.masterBestia(null);
 		//this._selectBestia(null);
 	}
-	
+
 	/**
 	 * Handles the selection of the bestia from the server. If the bestia was selected before
 	 * we received details about the bestia it will hold back until the data has arrived.
@@ -122,7 +122,7 @@ export default class BestiaView {
 		// Check if the bestia is already inside our cache.
 		var bestia = this.getBestiaByEntityId(msg.eid);
 
-		if(bestia === null) {
+		if (bestia === null) {
 			this._deferredActiveBestia = msg.eid;
 			return;
 		}
@@ -137,38 +137,53 @@ export default class BestiaView {
 	_handleBestiaStatus(_, msg) {
 
 		var bestia = this.getBestiaByEntityId(msg.eid);
-		
-		if(bestia === null) {
+
+		if (bestia === null) {
 			LOG.debug('Bestia was not found. Cant update status values.');
 			return;
 		}
 
-		bestia.updateStatus(msg);
+		// Status points present?
+		if (msg.sp) {
+			bestia.statusPoints.update(msg.sp);
+		}
+
+		if (msg.sv) {
+			bestia.statusPoints.updateValues(msg.sv);
+			bestia.comparedStatusPoints.setPoints(bestia.statusPoints);
+		}
+
+		if (msg.osp) {
+			bestia.unmodifiedStatusPoints.update(msg.osp);
+			bestia.comparedStatusPoints.setUnmodifiedPoints(bestia.unmodifiedStatusPoints);
+		}
+
+		if (msg.sbv) {
+			bestia.statusBasedValues.update(msg.sbv);
+		}
 	}
-	
+
 	/**
 	 * Handler to fill out the data. We get this data from the bestia.update
 	 * messages.
 	 */
 	_handleBestiaInfo(_, msg) {
-		LOG.debug('Update bestia model with data.');
+		LOG.debug('Update bestia model with data: ' + msg);
 
-		var bestia = new Bestia(this._pubsub, msg, this._urlHelper);
+		var bestia = this.getBestiaByEntityId(msg.eid);
 
-		// Check if the bestia is already inside our cache.
-		for (var i = 0; i < this.bestias().length; i++) {
-			if (this.bestias()[i].playerBestiaId() === bestia.playerBestiaId()) {
-				// Just update it.
-				this.bestias()[i].update(msg.b);
-				return;
-			}
+		if (bestia !== null) {
+			// Just update it.
+			bestia.update(msg.b);
+			return;
 		}
 
+		var bestia = new Bestia(this._pubsub, msg, this._urlHelper);
 		// If the bestia was not found however to the extended logic. First add
 		// it.
 		this.bestias.push(bestia);
 
-		if(this._deferredActiveBestia !== 0 && this._deferredActiveBestia === bestia.entityId()) {
+		if (this._deferredActiveBestia !== 0 && this._deferredActiveBestia === bestia.entityId()) {
 			LOG.debug('Selecting deferred bestia with eid: {}', this._deferredActiveBestia);
 			this._selectBestia(bestia);
 		}
@@ -178,7 +193,7 @@ export default class BestiaView {
 			this.masterBestia(bestia);
 		}
 	}
-	
+
 	/**
 	 * Returns a bestia model via its entity id. 
 	 */

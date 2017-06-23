@@ -59,7 +59,7 @@ public class StatusComponentInterceptor extends ComponentInterceptor<StatusCompo
 				comp.getUnmodifiedStatusPoints(),
 				comp.getValues(),
 				comp.getStatusBasedValues());
-		actorApi.sendEntityActor(entity.getId(), msg);
+		actorApi.sendToClient(msg);
 		
 	}
 

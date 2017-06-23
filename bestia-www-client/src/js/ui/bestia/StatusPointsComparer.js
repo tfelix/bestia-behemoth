@@ -46,7 +46,18 @@ export default class StatusPointsComparer {
 			return;
 		}
 
-		this.maxManaCompare(this._unmodPoints.maxMana() - this._points.maxMana());
+		this.maxManaCompare(this._points.maxMana() - this._unmodPoints.maxMana());
+		this.maxHpCompare(this._points.maxHp() - this._unmodPoints.maxHp());
+
+		this.strCompare(this._points.str() - this._unmodPoints.str());
+		this.vitCompare(this._points.vit() - this._unmodPoints.vit());
+		this.intCompare(this._points.int() - this._unmodPoints.int());
+		this.willCompare(this._points.will() - this._unmodPoints.will());
+		this.agiCompare(this._points.agi() - this._unmodPoints.agi());
+		this.dexCompare(this._points.dex() - this._unmodPoints.dex());
+
+		this.defenseCompare(this._points.defense() - this._unmodPoints.defense());
+		this.magicDefenseCompare(this._points.magicDefense() - this._unmodPoints.magicDefense());
 	}
 
 	/**
@@ -57,6 +68,7 @@ export default class StatusPointsComparer {
 			throw 'Can not set unmodifiedPoints to undefined.';
 		}
 		this._unmodPoints = unmodifiedPoints;
+		this._compare();
 	}
 
 	/**
@@ -68,5 +80,6 @@ export default class StatusPointsComparer {
 		}
 
 		this._points = statusPoints;
+		this._compare();
 	}
 }

@@ -144,4 +144,10 @@ public class StatusBasedValuesImpl implements Serializable, StatusBasedValues {
 	public Walkspeed getWalkspeed() {
 		return Walkspeed.fromFloat(1);
 	}
+
+	@Override
+	public float getCooldown() {
+		// TODO Auto-generated method stub
+		return 1.0f;
+	}
 }

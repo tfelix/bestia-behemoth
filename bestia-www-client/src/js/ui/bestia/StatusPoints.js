@@ -52,9 +52,7 @@ export default class StatusPoints {
 	 *            msg - Message from the server to fill the model.
 	 */
 	update(msg, curHp, curMana) {
-		this.curMana(curMana);
 		this.maxMana(msg.mmana);
-		this.curHp(curHp);
 		this.maxHp(msg.mhp);
 		
 		this.str(msg.atk);
@@ -66,5 +64,15 @@ export default class StatusPoints {
 		
 		this.defense(msg.def);
 		this.magicDefense(msg.mdef);
+	}
+
+	/**
+	 * Updates only the status values part of this model.
+	 * @param {Object} msg 
+	 */
+	updateValues(msg) {
+
+		this.curHp(msg.chp);
+		this.curMana(msg.cmana);
 	}
 }
