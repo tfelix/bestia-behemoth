@@ -14,7 +14,7 @@ import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 
 /**
  * Generates a new map upon command. This will basically send a message to start
- * the map generation to the apropriate actor.
+ * the map generation to the appropriate actor.
  */
 @Component
 public class MapGenerateCommand extends BaseChatCommand {
