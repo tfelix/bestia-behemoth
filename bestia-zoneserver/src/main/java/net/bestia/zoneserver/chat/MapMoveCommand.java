@@ -16,6 +16,7 @@ import net.bestia.entity.component.PositionComponent;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
@@ -34,8 +35,12 @@ public class MapMoveCommand extends BaseChatCommand {
 	private final EntityService entityService;
 
 	@Autowired
-	public MapMoveCommand(AccountDAO accDao, PlayerEntityService pbService, EntityService entityService) {
-		super(accDao);
+	public MapMoveCommand(
+			AccountDAO accDao,
+			ZoneAkkaApi akkaApi,
+			PlayerEntityService pbService,
+			EntityService entityService) {
+		super(accDao, akkaApi);
 
 		this.playerBestiaService = Objects.requireNonNull(pbService);
 		this.entityService = Objects.requireNonNull(entityService);
@@ -54,7 +59,7 @@ public class MapMoveCommand extends BaseChatCommand {
 	@Override
 	protected void executeCommand(Account account, String text) {
 		LOG.info("Chatcommand: /mm triggered by account {}.", account.getId());
-		
+
 		// Its okay, now execute the command.
 		final Matcher match = cmdPattern.matcher(text);
 
@@ -75,12 +80,12 @@ public class MapMoveCommand extends BaseChatCommand {
 
 			final Optional<PositionComponent> posComp = entityService.getComponent(pbe, PositionComponent.class);
 
-			if(posComp.isPresent()) {
+			if (posComp.isPresent()) {
 				posComp.get().setPosition(x, y);
 				LOG.info("GM {} transported entity {} to x: {} y: {}.", account.getId(), pbe.getId(), x, y);
 				entityService.saveComponent(posComp.get());
 			}
-			
+
 		} catch (IllegalArgumentException e) {
 			LOG.error("Could not parse the given coordinates.", e);
 		}

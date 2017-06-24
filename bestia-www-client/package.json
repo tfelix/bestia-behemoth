@@ -6,7 +6,7 @@
   "jsnext:main": "build/bundle.js",
   "private": true,
   "scripts": {
-    "test": "mocha -w --compilers js:babel-core/register",
+    "test": "mocha --compilers js:babel-core/register",
     "clean": "rimraf build/*",
     "mkdir": "mkdirp ./build/css ./build/js",
     "server": "lite-server --baseDir=\"build\"",

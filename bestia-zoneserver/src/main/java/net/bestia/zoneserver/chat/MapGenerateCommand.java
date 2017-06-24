@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.chat;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +12,7 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.server.AkkaCluster;
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 
 /**
@@ -19,13 +22,13 @@ import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 @Component
 public class MapGenerateCommand extends BaseChatCommand {
 
-	//private static final Logger LOG = LoggerFactory.getLogger(MapGenerateCommand.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MapGenerateCommand.class);
 
 	private ActorSystem system;
 
 	@Autowired
-	public MapGenerateCommand(AccountDAO accDao, ActorSystem system) {
-		super(accDao);
+	public MapGenerateCommand(AccountDAO accDao, ZoneAkkaApi akkaApi, ActorSystem system) {
+		super(accDao, akkaApi);
 
 		this.system = system;
 	}
@@ -42,6 +45,9 @@ public class MapGenerateCommand extends BaseChatCommand {
 
 	@Override
 	protected void executeCommand(Account account, String text) {
+
+		LOG.info("Map generation triggerd by {}. Put cluster into maintenance mode and generate new world.",
+				account.getId());
 
 		// Create the base params.
 		MapParameter baseParams = MapParameter.fromAverageUserCount(1, "Narnia");

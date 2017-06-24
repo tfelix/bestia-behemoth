@@ -34,8 +34,11 @@ public class MapParamCommand extends BaseChatCommand {
 	private final ZoneAkkaApi akkaApi;
 
 	@Autowired
-	public MapParamCommand(AccountDAO accDao, MapParameterDAO mapParamDao, ZoneAkkaApi akkaApi) {
-		super(accDao);
+	public MapParamCommand(
+			AccountDAO accDao, 
+			ZoneAkkaApi akkaApi, 
+			MapParameterDAO mapParamDao) {
+		super(accDao, akkaApi);
 		
 		this.mapParamDao = Objects.requireNonNull(mapParamDao);
 		this.akkaApi = Objects.requireNonNull(akkaApi);

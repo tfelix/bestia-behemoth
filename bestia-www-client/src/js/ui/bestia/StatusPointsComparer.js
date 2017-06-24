@@ -21,7 +21,11 @@ export default class StatusPointsComparer {
 		this._unmodPoints = null;
 		this._points = null;
 
-		this.maxManaCompare = ko.observable(0);
+		this.maxManaCompare = 0;
+		this.maxMana = ko.pureComputed(function(){
+			this._getText(this.maxMana);
+		});
+
 		this.maxHpCompare = ko.observable(0);
 
 		this.strCompare = ko.observable(0);
@@ -35,6 +39,13 @@ export default class StatusPointsComparer {
 		this.magicDefenseCompare = ko.observable(0);
 
 		this._compare();
+	}
+
+	_getText(val) {
+		if(val === 0) {
+			return val;
+		}
+		return (val > 0) ? '+' + val : '-' + val;
 	}
 
 	/**

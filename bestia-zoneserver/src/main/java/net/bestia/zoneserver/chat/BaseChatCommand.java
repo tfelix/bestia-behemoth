@@ -6,19 +6,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
 
 abstract class BaseChatCommand implements ChatCommand {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MapMoveCommand.class);
 
 	private final AccountDAO accDao;
+	private final ZoneAkkaApi akkaApi;
 
 	@Autowired
-	public BaseChatCommand(AccountDAO accDao) {
+	public BaseChatCommand(AccountDAO accDao, ZoneAkkaApi akkaApi) {
 
 		this.accDao = Objects.requireNonNull(accDao);
+		this.akkaApi = Objects.requireNonNull(akkaApi);
 	}
 
 	/**
@@ -39,6 +43,21 @@ abstract class BaseChatCommand implements ChatCommand {
 		if (acc.getUserLevel().compareTo(requiredUserLevel()) >= 0) {
 			executeCommand(acc, text);
 		}
+	}
+
+	/**
+	 * This text is send right to the user who invoked the command.
+	 * 
+	 * @param text
+	 *            The text to send to the user.
+	 * @param accId
+	 *            The account id to send the text to.
+	 */
+	protected void sendSystemMessage(long accId, String text) {
+
+		final ChatMessage replyMsg = ChatMessage.getSystemMessage(accId, text);
+		akkaApi.sendToClient(replyMsg);
+
 	}
 
 	/**
