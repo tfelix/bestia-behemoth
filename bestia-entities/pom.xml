@@ -48,6 +48,13 @@
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast</artifactId>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- BESTIA DEPENDENCIES -->
 		<dependency>
 			<groupId>net.bestia</groupId>

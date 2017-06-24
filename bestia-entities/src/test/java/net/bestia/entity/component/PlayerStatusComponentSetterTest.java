@@ -20,9 +20,6 @@ public class PlayerStatusComponentSetterTest {
 	
 	private PlayerStatusComponentSetter setter;
 	
-	private final static int CURRENT_HP = 123;
-	private final static int CURRENT_MANA = 124;
-	
 	@Mock
 	private PlayerBestia playerBestia;
 	
@@ -46,8 +43,6 @@ public class PlayerStatusComponentSetterTest {
 		
 		setter = new PlayerStatusComponentSetter(playerBestia);
 		
-		//when(statusComp.getStatusPoints()).thenReturn(statusPoints);
-		when(statusComp.getUnmodifiedStatusPoints()).thenReturn(origStatusPoints);
 		when(playerBestia.getOrigin()).thenReturn(bestia);
 		when(playerBestia.getStatusValues()).thenReturn(statusValues);
 		
@@ -68,9 +63,6 @@ public class PlayerStatusComponentSetterTest {
 	public void setComponent_statusComponent_SetsCurrentHpAndMana() {
 		
 		setter.setComponent(statusComp);
-		
-		verify(origStatusPoints).setMaxHp(CURRENT_HP);
-		verify(origStatusPoints).setMaxMana(CURRENT_MANA);
 		
 		verify(statusComp).setStatusValues(statusValues);
 		verify(statusComp).setUnmodifiedElement(Element.FIRE);

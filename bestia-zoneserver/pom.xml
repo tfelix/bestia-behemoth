@@ -109,13 +109,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>com.hazelcast</groupId>
-			<artifactId>hazelcast</artifactId>
-			<classifier>tests</classifier>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
 			<groupId>com.netflix.servo</groupId>
 			<artifactId>servo-core</artifactId>
 		</dependency>

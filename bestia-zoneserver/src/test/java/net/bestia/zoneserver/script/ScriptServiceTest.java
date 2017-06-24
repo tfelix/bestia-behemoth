@@ -69,6 +69,8 @@ public class ScriptServiceTest {
 		
 		when(runnerRef.path()).thenReturn(runnerRefPath);
 		
+		// Actor ref can only be test probe
+		// https://stackoverflow.com/questions/10868983/spock-mocks-for-akkas-actorref
 		when(akkaApi.startUnnamedActor(PeriodicScriptRunnerActor.class)).thenReturn(runnerRef);
 
 		when(entityService.getEntity(INVALID_ENTITY_ID)).thenReturn(null);

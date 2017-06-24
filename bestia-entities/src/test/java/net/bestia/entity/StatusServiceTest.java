@@ -91,10 +91,6 @@ public class StatusServiceTest {
 		when(playerBestia.getBaseValues()).thenReturn(baseValues);
 		when(playerBestia.getEffortValues()).thenReturn(baseValues);
 		when(playerBestia.getIndividualValue()).thenReturn(baseValues);
-		when(playerBestia.getStatusValues()).thenReturn(statusValues);
-
-		when(statusValues.getCurrentHealth()).thenReturn(50);
-		when(statusValues.getCurrentMana()).thenReturn(50);
 
 		statusService = new StatusService(entityService, playerBestiaDao);
 	}
@@ -198,12 +194,12 @@ public class StatusServiceTest {
 		statusService.saveStatusValues(statusEntity, null);
 	}
 
-	//@Test
+	// @Test
 	public void saveStatusValues_validEntityId_savesComponent() {
 
 	}
 
-	//@Test
+	// @Test
 	public void saveStatusValues_validEntity_savesComponent() {
 
 	}
@@ -220,9 +216,9 @@ public class StatusServiceTest {
 		assertNotNull(sv);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
-	public void getStatusValue_invalidEntityId_throws() {
-		statusService.getStatusValues(INVALID_ENTITY_ID);
+	@Test
+	public void getStatusValue_invalidEntityId_empty() {
+		Assert.assertFalse(statusService.getStatusValues(INVALID_ENTITY_ID).isPresent());
 	}
 
 }
