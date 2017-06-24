@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import net.bestia.entity.StatusService;
 import net.bestia.model.domain.StatusValues;
 import net.bestia.zoneserver.actor.BestiaPeriodicTerminatingActor;
-import net.bestia.zoneserver.entity.StatusService;
 
 /**
  * The actor checks an entity with a status component attached and will

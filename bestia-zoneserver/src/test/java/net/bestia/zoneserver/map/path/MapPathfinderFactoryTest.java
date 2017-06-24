@@ -7,9 +7,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import net.bestia.entity.EntityService;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.map.Map;
-import net.bestia.zoneserver.entity.EntityService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MapPathfinderFactoryTest {

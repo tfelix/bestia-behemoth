@@ -11,15 +11,16 @@ import org.springframework.stereotype.Component;
 
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.InteractionService;
+import net.bestia.entity.component.InteractionComponent;
 import net.bestia.messages.entity.EntityInteractionMessage;
 import net.bestia.messages.entity.EntityInteractionRequestMessage;
 import net.bestia.model.entity.InteractionType;
+import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.InteractionService;
-import net.bestia.zoneserver.entity.PlayerEntityService;
-import net.bestia.zoneserver.entity.component.InteractionComponent;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * Receives interaction requests for an entity. It will query the system and ask
@@ -67,12 +68,21 @@ public class EntityInteractionRequestActor extends BestiaRoutingActor {
 
 		// Entity does not seam to interact.
 		if (!interactionComp.isPresent()) {
-			sendClient(new EntityInteractionMessage(rm.getAccountId(), rm.getEntityId(), InteractionType.NONE));
+			final EntityInteractionMessage reply = new EntityInteractionMessage(
+					rm.getAccountId(),
+					rm.getEntityId(),
+					InteractionType.NONE);
+			AkkaSender.sendClient(getContext(), reply);
+
 			return;
 		} else {
 			final Entity pbe = playerEntityService.getActivePlayerEntity(rm.getEntityId());
 			final Set<InteractionType> interactions = interactService.getPossibleInteractions(pbe, entity);
-			sendClient(new EntityInteractionMessage(rm.getAccountId(), rm.getEntityId(), interactions));
+			final EntityInteractionMessage reply = new EntityInteractionMessage(
+					rm.getAccountId(),
+					rm.getEntityId(),
+					interactions);
+			AkkaSender.sendClient(getContext(), reply);
 		}
 	}
 

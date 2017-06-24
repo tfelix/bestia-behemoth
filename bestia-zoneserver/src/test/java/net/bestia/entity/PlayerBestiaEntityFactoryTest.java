@@ -16,24 +16,24 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import net.bestia.entity.component.Component;
+import net.bestia.entity.component.ComponentSetter;
+import net.bestia.entity.component.EquipComponent;
+import net.bestia.entity.component.InventoryComponent;
+import net.bestia.entity.component.LevelComponent;
+import net.bestia.entity.component.LevelComponentSetter;
+import net.bestia.entity.component.PlayerComponent;
+import net.bestia.entity.component.PlayerComponentSetter;
+import net.bestia.entity.component.PlayerStatusComponentSetter;
+import net.bestia.entity.component.PositionComponent;
+import net.bestia.entity.component.PositionComponentSetter;
+import net.bestia.entity.component.StatusComponent;
+import net.bestia.entity.component.VisibleComponent;
+import net.bestia.entity.component.VisibleComponentSetter;
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.geometry.Point;
-import net.bestia.zoneserver.entity.component.Component;
-import net.bestia.zoneserver.entity.component.ComponentSetter;
-import net.bestia.zoneserver.entity.component.EquipComponent;
-import net.bestia.zoneserver.entity.component.InventoryComponent;
-import net.bestia.zoneserver.entity.component.LevelComponent;
-import net.bestia.zoneserver.entity.component.LevelComponentSetter;
-import net.bestia.zoneserver.entity.component.PlayerComponent;
-import net.bestia.zoneserver.entity.component.PlayerComponentSetter;
-import net.bestia.zoneserver.entity.component.PlayerStatusComponentSetter;
-import net.bestia.zoneserver.entity.component.PositionComponent;
-import net.bestia.zoneserver.entity.component.PositionComponentSetter;
-import net.bestia.zoneserver.entity.component.StatusComponent;
-import net.bestia.zoneserver.entity.component.VisibleComponent;
-import net.bestia.zoneserver.entity.component.VisibleComponentSetter;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PlayerBestiaEntityFactoryTest {

@@ -1,11 +1,9 @@
 package net.bestia.zoneserver.service;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,18 +15,17 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import akka.testkit.TestProbe;
+import net.bestia.entity.Entity;
+import net.bestia.entity.PlayerBestiaEntityFactory;
 import net.bestia.messages.web.AccountLoginToken;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.Password;
-import net.bestia.testing.BasicMocks;
 import net.bestia.model.domain.PlayerBestia;
+import net.bestia.testing.BasicMocks;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.RuntimeConfigurationService;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.PlayerBestiaEntityFactory;
-import net.bestia.zoneserver.entity.PlayerEntityService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LoginServiceTest {

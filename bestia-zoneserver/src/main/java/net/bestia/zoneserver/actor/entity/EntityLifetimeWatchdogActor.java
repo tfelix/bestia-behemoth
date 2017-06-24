@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.entity.EntityRecycler;
 import net.bestia.messages.internal.script.ScriptIntervalMessage;
 import net.bestia.zoneserver.actor.BestiaPeriodicActor;
-import net.bestia.zoneserver.entity.EntityRecycler;
 
 /**
  * This watchdog will remove the script entity as soon as its lifetime counter

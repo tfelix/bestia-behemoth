@@ -9,12 +9,12 @@ import org.springframework.stereotype.Component;
 
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.entity.MovingEntityService;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.messages.entity.EntityPositionMessage;
 import net.bestia.messages.internal.entity.EntityMoveInternalMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.MovingEntityService;
-import net.bestia.zoneserver.entity.PlayerEntityService;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * Handle movement of an entity. It will announce the intended move path with

@@ -13,11 +13,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.bestia.actor.ZoneAkkaApi;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
 import net.bestia.entity.component.PlayerComponent;
 import net.bestia.entity.component.PlayerComponentSetter;
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
 
 public class EntityFactoryTest {
 

@@ -8,13 +8,13 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityRecycler;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.PositionComponent;
 import net.bestia.messages.entity.EntityUpdateMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.AkkaSender;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityRecycler;
-import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.component.PositionComponent;
 
 /**
  * The {@link EntityDeleteActor} actor are here as high level instance to

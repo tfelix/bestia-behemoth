@@ -16,13 +16,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.PositionComponent;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.Walkspeed;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.component.PositionComponent;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TileNodeProviderTest {

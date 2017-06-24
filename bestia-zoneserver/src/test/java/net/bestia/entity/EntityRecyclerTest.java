@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import net.bestia.zoneserver.entity.component.PositionComponent;
+import net.bestia.entity.component.PositionComponent;
 import net.bestia.zoneserver.script.ScriptService;
 
 @RunWith(MockitoJUnitRunner.class)
