@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>net.bestia</groupId>
 		<artifactId>behemoth</artifactId>
-		<version>alpha-0.4.1</version>
+		<version>alpha-0.4.2-SNAPSHOT</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
