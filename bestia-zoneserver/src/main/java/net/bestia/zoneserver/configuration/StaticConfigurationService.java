@@ -17,6 +17,9 @@ public class StaticConfigurationService {
 	@Value("${server.name}")
 	private String serverName;
 
+	@Value("${server.entityBuffer}")
+	private int entityBufferSize = 10;
+
 	/**
 	 * Directory of the script files.
 	 */
@@ -53,5 +56,14 @@ public class StaticConfigurationService {
 	 */
 	public String getServerVersion() {
 		return serverVersion;
+	}
+
+	/**
+	 * Returns the size of the entity buffer inside the recycler.
+	 * 
+	 * @return Size of the entity buffer.
+	 */
+	public int getEntityBufferSize() {
+		return entityBufferSize;
 	}
 }

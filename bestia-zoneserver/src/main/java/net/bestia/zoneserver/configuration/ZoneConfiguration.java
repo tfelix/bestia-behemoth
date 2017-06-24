@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,9 +30,6 @@ import net.bestia.zoneserver.script.ScriptService;
 public class ZoneConfiguration {
 
 	private final static Logger LOG = LoggerFactory.getLogger(ZoneConfiguration.class);
-
-	@Value("${server.entityBuffer}")
-	private int entityBufferSize = 10;
 
 	/**
 	 * Gets the current time of the bestia zoneserver.
@@ -73,8 +69,11 @@ public class ZoneConfiguration {
 	}
 
 	@Bean
-	public EntityRecycler entityRecycler(EntityService entityService, ScriptService scriptService) {
-		return new EntityRecycler(entityBufferSize, entityService, scriptService);
+	public EntityRecycler entityRecycler(
+			EntityService entityService,
+			ScriptService scriptService,
+			StaticConfigurationService config) {
+		return new EntityRecycler(config.getEntityBufferSize(), entityService, scriptService);
 	}
 
 }
