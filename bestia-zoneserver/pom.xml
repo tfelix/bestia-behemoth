@@ -158,7 +158,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>${spring.version}</version>
 				<configuration>
-					<mainClass>net.bestia.zoneserver.ZoneserverApplication</mainClass>
+					<mainClass>net.bestia.Application</mainClass>
 					<layout>ZIP</layout>
 				</configuration>
 				<executions>
