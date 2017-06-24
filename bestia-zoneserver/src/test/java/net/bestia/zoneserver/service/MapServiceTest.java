@@ -21,7 +21,6 @@ import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
 import net.bestia.model.map.TilesetService;
-import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.map.MapService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -47,9 +46,6 @@ public class MapServiceTest {
 	private MapParameter mapParams;
 
 	@Mock
-	private EntityService entityService;
-
-	@Mock
 	private TilesetService tilesetService;
 
 	@Before
@@ -59,7 +55,7 @@ public class MapServiceTest {
 		when(mapParams.getName()).thenReturn(MAP_NAME);
 		when(paramDao.findFirstByOrderByIdDesc()).thenReturn(mapParams);
 
-		ms = new MapService(dataNoMapDao, paramDao, tilesetService, entityService);
+		ms = new MapService(dataNoMapDao, paramDao, tilesetService);
 	}
 
 	@Test
@@ -69,7 +65,7 @@ public class MapServiceTest {
 
 	@Test
 	public void isMapInitialized_mapInsideDB_true() {
-		ms = new MapService(dataMapDao, paramDao, tilesetService, entityService);
+		ms = new MapService(dataMapDao, paramDao, tilesetService);
 		Assert.assertTrue(ms.isMapInitialized());
 	}
 
@@ -94,7 +90,7 @@ public class MapServiceTest {
 
 	@Test
 	public void getMapName_noMapInsideDB_emptyStr() {
-		ms = new MapService(dataNoMapDao, paramNoMapDao, tilesetService, entityService);
+		ms = new MapService(dataNoMapDao, paramNoMapDao, tilesetService);
 		Assert.assertEquals("", ms.getMapName());
 	}
 

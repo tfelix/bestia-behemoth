@@ -14,14 +14,25 @@ import java.util.Objects;
  */
 public class Node<T> {
 
-	private T goal;
 	private final T self;
 	private Node<T> parent;
-	private float cost = Float.NaN;
+
+	private float ownCost = 0;
+	private float completeCost = Float.NaN;
 
 	public Node(T self) {
 
 		this.self = Objects.requireNonNull(self);
+	}
+
+	/**
+	 * Sets the own cost of this node.
+	 * 
+	 * @param cost
+	 *            The own cost.
+	 */
+	public void setOwnCost(float cost) {
+		this.ownCost = cost;
 	}
 
 	/**
@@ -31,27 +42,16 @@ public class Node<T> {
 	 */
 	float getNodeCost() {
 
-		if (!Float.isNaN(cost)) {
-			return cost;
+		if (!Float.isNaN(completeCost)) {
+			return completeCost;
 		}
 
 		if (parent == null) {
-			return 0;
+			return ownCost;
 		} else {
-			cost = cost + parent.getNodeCost();
-			return cost;
+			completeCost = ownCost + parent.getNodeCost();
+			return completeCost;
 		}
-	}
-
-	/**
-	 * Gets the heuristic distance towards the goal from this node on.
-	 * 
-	 * @return The approximated distance.
-	 */
-	float getHeuristicDistance(HeuristicEstimator<T> estimator) {
-
-		return estimator.getDistance(self, goal);
-
 	}
 
 	/**
@@ -60,15 +60,6 @@ public class Node<T> {
 	 * @return The wrapped object.
 	 */
 	T getSelf() {
-		return self;
-	}
-
-	/**
-	 * Returns the wrapped point object.
-	 * 
-	 * @return
-	 */
-	T getLocation() {
 		return self;
 	}
 

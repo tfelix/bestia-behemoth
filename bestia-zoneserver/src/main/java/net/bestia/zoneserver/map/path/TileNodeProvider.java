@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import net.bestia.model.geometry.Point;
 import net.bestia.model.map.Map;
+import net.bestia.model.map.Walkspeed;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.component.PositionComponent;
@@ -19,6 +20,9 @@ import net.bestia.zoneserver.entity.component.PositionComponent;
  * Provides tile based nodes for map pathfinding based on a map object. The
  * whole path must be covered by the returned map object otherwise no new nodes
  * can be delivered.
+ * 
+ * When delivering the nodes it must also take the walkpeed (walking cost) into
+ * account.
  * 
  * @author Thomas Felix
  *
@@ -108,9 +112,27 @@ public class TileNodeProvider implements NodeProvider<Point> {
 
 	private void checkWalkable(Set<Node<Point>> connections, long x, long y) {
 		if (isMapWalkable(x, y) && isEntityWalkable(x, y)) {
-			final Node<Point> temp = new Node<>(new Point(x, y));
+
+			final Point pos = new Point(x, y);
+			final Node<Point> temp = new Node<>(pos);
+
+			// Calculate the cost of the tilemap. Must be the inverse (lower
+			// walkspeed means higher walking cost).
+			final float slowestWalkspeed = Math.min(getMapCost(pos), getEntityCost(pos));
+			temp.setOwnCost(1 / slowestWalkspeed);
+
 			connections.add(temp);
 		}
+	}
+
+	private float getMapCost(Point p) {
+		final Walkspeed w = gameMap.getWalkspeed(p.getX(), p.getY());
+		return w.getSpeed();
+	}
+
+	private float getEntityCost(Point p) {
+		// FIXME berechnen.
+		return 1f;
 	}
 
 	/**
@@ -137,7 +159,7 @@ public class TileNodeProvider implements NodeProvider<Point> {
 	 */
 	private boolean isEntityWalkable(long x, long y) {
 		final Point position = new Point(x, y);
-		final Set<Entity> entities = entityService.getCollidingEntities(new Point(x, y));
+		final Set<Entity> entities = entityService.getCollidingEntities(position);
 
 		final boolean blocked = entities.stream()
 				.map(e -> entityService.getComponent(e, PositionComponent.class))
