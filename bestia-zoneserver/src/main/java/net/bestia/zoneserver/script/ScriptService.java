@@ -182,6 +182,7 @@ public class ScriptService {
 			throw new IllegalArgumentException("Delay must be bigger then 0.");
 		}
 		
+		Objects.requireNonNull(entity);
 		Objects.requireNonNull(callbackFunctionName);
 
 		final ScriptComponent scriptComp = entityService.getComponent(entity, ScriptComponent.class)
@@ -198,6 +199,8 @@ public class ScriptService {
 	}
 
 	public void stopScriptInterval(Entity entity) {
+		Objects.requireNonNull(entity);
+		
 		final ScriptComponent scriptComp = entityService.getComponent(entity, ScriptComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 

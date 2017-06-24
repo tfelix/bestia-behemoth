@@ -68,9 +68,6 @@ public class TileNodeProviderTest {
 	@Before
 	public void setup() {
 
-		when(gameMap.isWalkable(POINT_OUT_OF_RANGE.getX(), POINT_OUT_OF_RANGE.getY())).thenReturn(false);
-		when(gameMap.isWalkable(POINT_IN_RANGE.getX(), POINT_IN_RANGE.getY())).thenReturn(true);
-		when(gameMap.isWalkable(POINT_ENTITY_BLOCK.getX(), POINT_ENTITY_BLOCK.getY())).thenReturn(true);
 		when(gameMap.isWalkable(anyLong(), anyLong())).thenReturn(true);
 		when(gameMap.getWalkspeed(anyLong(), anyLong())).thenReturn(WALKSPD);
 		when(gameMap.getRect()).thenReturn(MAP_RECT);
