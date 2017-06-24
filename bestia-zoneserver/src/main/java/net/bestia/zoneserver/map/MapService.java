@@ -31,9 +31,6 @@ import net.bestia.model.map.MapDataDTO;
 import net.bestia.model.map.Tileset;
 import net.bestia.model.map.TilesetService;
 import net.bestia.util.ObjectSerializer;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.component.TagComponent;
 
 /**
  * The {@link MapService} is central instance for requesting and modifing map
@@ -58,17 +55,16 @@ public class MapService {
 
 	private final MapDataDAO mapDataDao;
 	private final MapParameterDAO mapParamDao;
-	private final EntityService entityService;
 	private final TilesetService tilesetService;
 	private final ObjectSerializer<MapDataDTO> mapDataSerializer;
 
 	@Autowired
-	public MapService(MapDataDAO dataDao, MapParameterDAO paramDao, TilesetService tilesetService,
-			EntityService entityService) {
+	public MapService(MapDataDAO dataDao,
+			MapParameterDAO paramDao,
+			TilesetService tilesetService) {
 
 		this.mapDataDao = Objects.requireNonNull(dataDao);
 		this.mapParamDao = Objects.requireNonNull(paramDao);
-		this.entityService = Objects.requireNonNull(entityService);
 		this.tilesetService = Objects.requireNonNull(tilesetService);
 		this.mapDataSerializer = new ObjectSerializer<>();
 	}
@@ -265,27 +261,6 @@ public class MapService {
 		} catch (IOException e) {
 			LOG.error("Could not compress map data.", e);
 		}
-	}
-
-	/**
-	 * Returns the name of the current area of the map if it has a special
-	 * naming component attached to it.
-	 * 
-	 * @param pos
-	 *            The position to check for a naming component.
-	 * @return The name of the area.
-	 */
-	public String getAreaName(Point pos) {
-		final Set<Entity> entities = entityService.getCollidingEntities(pos, TagComponent.class);
-
-		Optional<String> areaName = entities.stream()
-				.map(entity -> entityService.getComponent(entity, TagComponent.class))
-				.map(Optional::get)
-				.filter(tagComp -> tagComp.has(AREA_TAG_NAME))
-				.map(tagComp -> tagComp.get(AREA_TAG_NAME, String.class).get())
-				.findFirst();
-
-		return areaName.orElse("");
 	}
 
 	/**
