@@ -9,10 +9,6 @@ public class NodeTest {
 
 	private static float DELTA = 0.0001f;
 
-	@Test(expected = NullPointerException.class)
-	public void ctor_null_throws() {
-		new Node<Point>(null);
-	}
 
 	@Test
 	public void getNodeCost_Nullparent_0() {
@@ -47,10 +43,16 @@ public class NodeTest {
 	
 	@Test
 	public void equals_wrappedObject_true() {
-		Point p = new Point(1, 0);
-		Node<Point> n = new Node<Point>(p);
 		
-		Assert.assertTrue(n.equals(p));
+		Point p1 = new Point(1, 0);
+		Node<Point> n1 = new Node<Point>(p1);
+		
+		Point p2 = new Point(1, 0);
+		Node<Point> n2 = new Node<Point>(p2);
+		
+		Assert.assertTrue(n1.equals(p1));
+		Assert.assertTrue(n1.equals(n2));
+		Assert.assertTrue(n1.equals(p2));
 	}
 	
 	@Test

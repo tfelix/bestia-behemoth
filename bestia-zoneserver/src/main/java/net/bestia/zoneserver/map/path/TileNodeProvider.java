@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.map.path;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -56,6 +57,10 @@ public class TileNodeProvider implements NodeProvider<Point> {
 
 	@Override
 	public Set<Node<Point>> getConnectedNodes(Node<Point> node) {
+		
+		if(!gameMap.getRect().collide(node.getSelf())) {
+			return Collections.emptySet();
+		}
 
 		final Point p = node.getSelf();
 		final Set<Node<Point>> connections = new HashSet<>();

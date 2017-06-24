@@ -15,7 +15,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import net.bestia.model.geometry.Point;
 
@@ -47,16 +49,30 @@ public class AStarPathfinderTest {
 
 	@Before
 	public void setup() {
+		
+		final Node<Point> n1 = new Node<Point>(new Point(0, 1));
+		final Node<Point> n2 = new Node<Point>(new Point(0, 2));
 
-		when(provider.getConnectedNodes(START)).thenReturn(setOf(new Point(0, 1)));
+		when(provider.getConnectedNodes(any())).thenAnswer(new Answer<Set<Node<Point>>>() {
 
-		when(provider.getConnectedNodes(new Node<Point>(new Point(0, 1))))
-				.thenReturn(setOf(new Point(0, 0), new Point(0, 2)));
-
-		when(provider.getConnectedNodes(new Node<Point>(new Point(0, 2))))
-				.thenReturn(setOf(new Point(0, 1)));
-
-		when(provider.getConnectedNodes(any())).thenReturn(Collections.emptySet());
+			@Override
+			public Set<Node<Point>> answer(InvocationOnMock invocation) throws Throwable {
+				
+				Node<Point> arg = invocation.getArgument(0);
+				
+				if(arg.equals(START)) {
+					return setOf(new Point(0, 1));
+				} else if(arg.equals(n1)) {
+					return setOf(new Point(0, 0), new Point(0, 2));
+				} else if(arg.equals(n2)) {
+					return setOf(new Point(0, 1));
+				}
+				
+				return Collections.emptySet();
+			}
+		});
+		
+		finder = new AStarPathfinder<>(provider, estimator);
 	}
 
 	private Set<Node<Point>> setOf(Point... points) {
@@ -98,6 +114,7 @@ public class AStarPathfinderTest {
 	@Test
 	public void findPath_sticksToMaxIteration_empty() {
 		finder = new AStarPathfinder<>(provider, estimator, 1);
+		
 		List<Point> path = finder.findPath(START, END)
 				.stream()
 				.map(Node::getSelf)

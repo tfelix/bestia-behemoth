@@ -1,7 +1,5 @@
 package net.bestia.zoneserver.map.path;
 
-import java.util.Objects;
-
 /**
  * Generic path node implementation. It must give some generic information about
  * a path in oder for the path finder to work correctly. Node objects are used
@@ -22,7 +20,7 @@ public class Node<T> {
 
 	public Node(T self) {
 
-		this.self = Objects.requireNonNull(self);
+		this.self = self;
 	}
 
 	/**
@@ -82,9 +80,23 @@ public class Node<T> {
 		return parent;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public boolean equals(Object obj) {
-		return self.equals(obj);
+	public boolean equals(Object o) {
+		if (o == null) {
+			return false;
+		}
+
+		if (o instanceof Node) {
+			try {
+				final T rhsSelf = ((Node<T>) o).getSelf();
+				return self.equals(rhsSelf);
+			} catch (ClassCastException e) {
+				return false;
+			}
+		}
+
+		return self.equals(o);
 	}
 
 	@Override

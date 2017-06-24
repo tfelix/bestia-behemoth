@@ -62,6 +62,9 @@ public class AStarPathfinder<T> implements Pathfinder<T> {
 	@Override
 	public List<Node<T>> findPath(Node<T> start, Node<T> end) {
 
+		Objects.requireNonNull(start);
+		Objects.requireNonNull(end);
+
 		LOG.trace("Finding path from {} to {}.", start, end);
 
 		this.openSet = new PriorityQueue<>(50, new Comparator<Node<T>>() {
@@ -84,18 +87,22 @@ public class AStarPathfinder<T> implements Pathfinder<T> {
 		});
 
 		Node<T> lastNode = null;
-		Node<T> currentNode = start;
+		Node<T> currentNode = null;
+		openSet.add(start);
 
+		// We must step into the loop at least once for the first tile. At first
+		// step the openSet will be empty.
 		int i = 0;
 		while (!openSet.isEmpty() && ++i <= maxIteration) {
-
-			// Beginning from the start, add all neighboring nodes to open set.
+			
+			lastNode = currentNode;
+			currentNode = openSet.remove();
+			
+			// Add all neighboring nodes to open set.
 			final Set<Node<T>> connections = nodeProvider.getConnectedNodes(currentNode);
 			LOG.trace("Node {} connections; {}.", currentNode, connections);
 			connections.stream().filter(c -> !closedSet.contains(c)).forEach(openSet::add);
 
-			lastNode = currentNode;
-			currentNode = openSet.remove();
 			currentNode.setParent(lastNode);
 			closedSet.add(currentNode);
 
@@ -115,6 +122,7 @@ public class AStarPathfinder<T> implements Pathfinder<T> {
 				return solution;
 			}
 		}
+		;
 
 		return Collections.emptyList();
 	}

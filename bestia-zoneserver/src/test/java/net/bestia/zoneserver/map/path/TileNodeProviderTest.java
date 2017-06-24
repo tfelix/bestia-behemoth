@@ -19,6 +19,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
+import net.bestia.model.map.Walkspeed;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.component.PositionComponent;
@@ -44,9 +45,13 @@ public class TileNodeProviderTest {
 	private final static Point POINT_ENTITY_BLOCK = new Point(12, 12);
 	private final static Node<Point> NODE_ENTITY_BLOCK = new Node<>(POINT_ENTITY_BLOCK);
 
+	private final static Rect MAP_RECT = new Rect(0, 0, 100, 100);
 	private final Rect collisionShape = new Rect(0, 0, 10000, 10000);
+	
 	private final static Entity blockingEntity;
 	private final static Set<Entity> blockingEntities = new HashSet<>();
+	
+	private final static Walkspeed WALKSPD = Walkspeed.fromFloat(1.0f);
 
 	static {
 		blockingEntity = Mockito.mock(Entity.class);
@@ -62,6 +67,8 @@ public class TileNodeProviderTest {
 		when(gameMap.isWalkable(POINT_IN_RANGE.getX(), POINT_IN_RANGE.getY())).thenReturn(true);
 		when(gameMap.isWalkable(POINT_ENTITY_BLOCK.getX(), POINT_ENTITY_BLOCK.getY())).thenReturn(true);
 		when(gameMap.isWalkable(anyLong(), anyLong())).thenReturn(true);
+		when(gameMap.getWalkspeed(anyLong(), anyLong())).thenReturn(WALKSPD);
+		when(gameMap.getRect()).thenReturn(MAP_RECT);
 
 		when(entityService.getCollidingEntities(POINT_ENTITY_BLOCK)).thenReturn(blockingEntities);
 		when(entityService.getComponent(blockingEntity, PositionComponent.class)).thenReturn(Optional.of(posComp));
