@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity.component;
+package net.bestia.entity.component;
 
 import org.junit.Assert;
 import org.junit.Before;

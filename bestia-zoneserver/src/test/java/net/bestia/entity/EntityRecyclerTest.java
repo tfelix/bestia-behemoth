@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity;
+package net.bestia.entity;
 
 import static org.mockito.Mockito.*;
 

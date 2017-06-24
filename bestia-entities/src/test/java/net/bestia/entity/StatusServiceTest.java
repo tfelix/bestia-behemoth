@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity;
+package net.bestia.entity;
 
 import static org.mockito.Mockito.mock;
 import static org.junit.Assert.*;
@@ -19,9 +19,9 @@ import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusValues;
 import net.bestia.model.entity.StatusBasedValues;
-import net.bestia.zoneserver.entity.component.LevelComponent;
-import net.bestia.zoneserver.entity.component.PlayerComponent;
-import net.bestia.zoneserver.entity.component.StatusComponent;
+import net.bestia.entity.component.LevelComponent;
+import net.bestia.entity.component.PlayerComponent;
+import net.bestia.entity.component.StatusComponent;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StatusServiceTest {

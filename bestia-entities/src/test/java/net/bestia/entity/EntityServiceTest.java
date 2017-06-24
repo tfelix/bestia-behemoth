@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity;
+package net.bestia.entity;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -12,10 +12,10 @@ import com.hazelcast.core.HazelcastInstance;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.testing.BasicMocks;
-import net.bestia.zoneserver.entity.component.Component;
-import net.bestia.zoneserver.entity.component.PositionComponent;
-import net.bestia.zoneserver.entity.component.VisibleComponent;
-import net.bestia.zoneserver.entity.component.interceptor.ComponentInterceptor;
+import net.bestia.entity.component.Component;
+import net.bestia.entity.component.PositionComponent;
+import net.bestia.entity.component.VisibleComponent;
+import net.bestia.entity.component.interceptor.ComponentInterceptor;
 
 public class EntityServiceTest {
 

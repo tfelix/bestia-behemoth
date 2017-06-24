@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.entity;
+package net.bestia.entity;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -13,11 +13,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
-import net.bestia.zoneserver.entity.component.Component;
-import net.bestia.zoneserver.entity.component.ComponentSetter;
-import net.bestia.zoneserver.entity.component.PlayerComponent;
-import net.bestia.zoneserver.entity.component.PlayerComponentSetter;
+import net.bestia.actor.ZoneAkkaApi;
+import net.bestia.entity.component.Component;
+import net.bestia.entity.component.ComponentSetter;
+import net.bestia.entity.component.PlayerComponent;
+import net.bestia.entity.component.PlayerComponentSetter;
 
 public class EntityFactoryTest {
 

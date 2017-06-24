@@ -1,11 +1,11 @@
-package net.bestia.zoneserver.entity;
+package net.bestia.entity;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.bestia.zoneserver.entity.component.Component;
-import net.bestia.zoneserver.entity.component.PositionComponent;
-import net.bestia.zoneserver.entity.component.VisibleComponent;
+import net.bestia.entity.component.Component;
+import net.bestia.entity.component.PositionComponent;
+import net.bestia.entity.component.VisibleComponent;
 
 public class EntityTest {
 
