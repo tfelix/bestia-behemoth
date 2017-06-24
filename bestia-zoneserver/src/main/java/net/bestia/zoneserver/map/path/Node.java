@@ -1,9 +1,6 @@
 package net.bestia.zoneserver.map.path;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.bestia.model.geometry.Point;
+import java.util.Objects;
 
 /**
  * Generic path node implementation. It must give some generic information about
@@ -15,18 +12,17 @@ import net.bestia.model.geometry.Point;
  *
  * @param <T>
  */
-public class Node {
-	
-	private Point goal;
-	private Point self;
-	private Node parent;
-	private float cost;
-	private final List<Node> connections = new ArrayList<>();
-	
-	public List<Node> getConnections() {
-		return connections;
-	}
+public class Node<T> {
 
+	private T goal;
+	private final T self;
+	private Node<T> parent;
+	private float cost = Float.NaN;
+
+	public Node(T self) {
+
+		this.self = Objects.requireNonNull(self);
+	}
 
 	/**
 	 * Walking cost of this current node.
@@ -34,10 +30,16 @@ public class Node {
 	 * @return
 	 */
 	float getNodeCost() {
-		if(parent == null) {
+
+		if (!Float.isNaN(cost)) {
+			return cost;
+		}
+
+		if (parent == null) {
 			return 0;
 		} else {
-			return cost + parent.getNodeCost();
+			cost = cost + parent.getNodeCost();
+			return cost;
 		}
 	}
 
@@ -46,16 +48,61 @@ public class Node {
 	 * 
 	 * @return The approximated distance.
 	 */
-	float getHeuristicDistance() {
-		return (float) goal.getDistance(self);
+	float getHeuristicDistance(HeuristicEstimator<T> estimator) {
+
+		return estimator.getDistance(self, goal);
+
 	}
 
 	/**
 	 * Returns the wrapped object.
 	 * 
+	 * @return The wrapped object.
+	 */
+	T getSelf() {
+		return self;
+	}
+
+	/**
+	 * Returns the wrapped point object.
+	 * 
 	 * @return
 	 */
-	Point getPoint() {
+	T getLocation() {
 		return self;
+	}
+
+	/**
+	 * Sets the parent. Can be null. This means the node is the starting node.
+	 * 
+	 * @param parent
+	 *            The parent of this node.
+	 */
+	void setParent(Node<T> parent) {
+		this.parent = parent;
+	}
+
+	/**
+	 * The parent of the node. Can be null.
+	 * 
+	 * @return The parent or NULL.
+	 */
+	Node<T> getParent() {
+		return parent;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return self.equals(obj);
+	}
+
+	@Override
+	public int hashCode() {
+		return self.hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return String.format("Node[%s]", getSelf().toString());
 	}
 }

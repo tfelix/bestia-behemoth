@@ -125,7 +125,7 @@ public class MovingEntityService {
 		
 		// Before movement get all currently colliding entities.
 		final Entity moveEntity = entityService.getEntity(entityId);
-		final Set<Entity> preMoveCollisions = entityService.getAllCollidingEntities(moveEntity);
+		final Set<Entity> preMoveCollisions = entityService.getCollidingEntities(moveEntity);
 
 		final PositionComponent posComp = entityService.getComponent(entityId, PositionComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
@@ -138,7 +138,7 @@ public class MovingEntityService {
 		final Direction newFacing = getDirection(oldPos, newPos, posComp.getFacing());	
 		posComp.setFacing(newFacing);
 
-		final Set<Entity> postMoveCollisions = entityService.getAllCollidingEntities(moveEntity);
+		final Set<Entity> postMoveCollisions = entityService.getCollidingEntities(moveEntity);
 		postMoveCollisions.removeAll(preMoveCollisions);
 		
 		LOG.trace("Moving entity {} to postition: {}. Facing: {}", entityId, newPos, newFacing);
