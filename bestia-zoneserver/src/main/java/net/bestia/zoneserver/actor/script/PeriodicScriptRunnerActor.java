@@ -7,15 +7,12 @@ import org.springframework.stereotype.Component;
 
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.internal.ScriptIntervalMessage;
+import net.bestia.messages.internal.script.ScriptIntervalMessage;
 import net.bestia.zoneserver.actor.BestiaPeriodicActor;
-import net.bestia.zoneserver.actor.entity.EntityStatusTickActor;
 import net.bestia.zoneserver.script.ScriptService;
 
 /**
- * This actor is used to run periodically script function. TODO Wenn der
- * {@link EntityStatusTickActor} gut funktioniert den hier auch zu einem
- * BestiaPeriodicTerminatingActor machen.
+ * This actor is used to run periodically script function.
  * 
  * @author Thomas Felix
  *
@@ -29,13 +26,12 @@ public class PeriodicScriptRunnerActor extends BestiaPeriodicActor {
 	private final ScriptService scriptService;
 	private long scriptId;
 
-	public PeriodicScriptRunnerActor(ScriptService scriptService) {
+	public PeriodicScriptRunnerActor(ScriptService scriptService, ScriptIntervalMessage msg) {
 
 		this.scriptService = Objects.requireNonNull(scriptService);
-	}
-
-	private void handleSetupMessage(ScriptIntervalMessage msg) {
+		
 		LOG.debug("Received perodic request for: {}.", msg);
+		
 		scriptId = msg.getScriptEntityId();
 		startInterval(msg.getDelay());
 	}
@@ -55,12 +51,8 @@ public class PeriodicScriptRunnerActor extends BestiaPeriodicActor {
 	}
 
 	@Override
-	protected void handleMessage(Object message) throws Exception {
-		if (message instanceof ScriptIntervalMessage) {
-			handleSetupMessage((ScriptIntervalMessage) message);
-		} else {
-			unhandled(message);
-		}
+	protected void handleMessage(Object message) {
+		unhandled(message);
 	}
 
 }

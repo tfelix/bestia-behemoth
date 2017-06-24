@@ -17,7 +17,9 @@ import net.bestia.model.map.MapDataDTO;
  * order to query and generate the player map data. It lies in the form a binary
  * compressed data to support the huge bestia maps.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * Certain indices are set and used for fast query of the map parts.
+ * 
+ * @author Thomas Felix
  *
  */
 @Entity
@@ -25,7 +27,9 @@ import net.bestia.model.map.MapDataDTO;
 		@Index(columnList = "x", name = "x_idx"),
 		@Index(columnList = "y", name = "y_idx") })
 @IdClass(MapData.MapDataPK.class)
-public class MapData {
+public class MapData implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Composite primary key helper class.

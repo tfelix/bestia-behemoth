@@ -5,10 +5,10 @@ import java.util.List;
 /**
  * Interface for path calculation algorithms used by the bestia game.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
-public interface Pathfinder {
+public interface Pathfinder<T> {
 
 	/**
 	 * Tries to find a path between start and end Point. If no Path could be
@@ -26,6 +26,6 @@ public interface Pathfinder {
 	 * @return List of Points representing the path. Or null if no path could be
 	 *         found.
 	 */
-	List<Node<?>> findPath(Node<?> start, Node<?> end);
+	List<Node<T>> findPath(Node<T> start, Node<T> end);
 
 }

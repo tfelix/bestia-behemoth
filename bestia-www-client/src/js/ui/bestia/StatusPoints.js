@@ -12,8 +12,8 @@ import ko from 'knockout';
  *
  * @constructor
  */
-export default class StatusPoint {
-	constructor(msg) {
+export default class StatusPoints {
+	constructor(msg, curHp, curMana) {
 		
 		this.curMana = ko.observable(0);
 		this.maxMana = ko.observable(0);
@@ -39,7 +39,7 @@ export default class StatusPoint {
 		}, this);
 	
 		if (msg !== undefined) {
-			this.update(msg);
+			this.update(msg, curHp, curMana);
 		}
 	}
 	
@@ -51,10 +51,8 @@ export default class StatusPoint {
 	 * @param {Object}
 	 *            msg - Message from the server to fill the model.
 	 */
-	update(msg) {
-		this.curMana(msg.cmana);
+	update(msg, curHp, curMana) {
 		this.maxMana(msg.mmana);
-		this.curHp(msg.chp);
 		this.maxHp(msg.mhp);
 		
 		this.str(msg.atk);
@@ -66,5 +64,15 @@ export default class StatusPoint {
 		
 		this.defense(msg.def);
 		this.magicDefense(msg.mdef);
+	}
+
+	/**
+	 * Updates only the status values part of this model.
+	 * @param {Object} msg 
+	 */
+	updateValues(msg) {
+
+		this.curHp(msg.chp);
+		this.curMana(msg.cmana);
 	}
 }

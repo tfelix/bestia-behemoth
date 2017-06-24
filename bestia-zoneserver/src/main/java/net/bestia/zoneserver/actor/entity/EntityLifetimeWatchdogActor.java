@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.internal.ScriptIntervalMessage;
+import net.bestia.messages.internal.script.ScriptIntervalMessage;
 import net.bestia.zoneserver.actor.BestiaPeriodicActor;
 import net.bestia.zoneserver.entity.EntityRecycler;
 
@@ -51,7 +51,7 @@ public class EntityLifetimeWatchdogActor extends BestiaPeriodicActor {
 	}
 
 	@Override
-	protected void handleMessage(Object message) throws Exception {
+	protected void handleMessage(Object message) {
 		if (message instanceof ScriptIntervalMessage) {
 			handleSetupMessage((ScriptIntervalMessage) message);
 		} else {

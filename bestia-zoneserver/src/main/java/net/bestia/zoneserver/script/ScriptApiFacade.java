@@ -10,10 +10,11 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
-import net.bestia.messages.internal.ScriptIntervalMessage;
+import net.bestia.messages.internal.script.ScriptIntervalMessage;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.entity.EntityDeleteWorker;
 import net.bestia.zoneserver.actor.entity.EntityLifetimeWatchdogActor;
 import net.bestia.zoneserver.battle.BattleService;
 import net.bestia.zoneserver.entity.Entity;
@@ -56,7 +57,7 @@ public class ScriptApiFacade implements ScriptApi {
 			MovingEntityService moveService,
 			ZoneAkkaApi akkaApi) {
 
-		this.scriptEntityFactory = new ScriptEntityFactory(entityService);
+		this.scriptEntityFactory = new ScriptEntityFactory(entityService, akkaApi);
 		this.entityService = Objects.requireNonNull(entityService);
 		this.battleService = Objects.requireNonNull(battleService);
 		this.scriptService = Objects.requireNonNull(scriptService);
@@ -174,5 +175,10 @@ public class ScriptApiFacade implements ScriptApi {
 	public boolean isEntityTypeOf(long entityId, String type) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public void delete(long entityId) {
+		akkaApi.sendToActor(EntityDeleteWorker.NAME, entityId);
 	}
 }

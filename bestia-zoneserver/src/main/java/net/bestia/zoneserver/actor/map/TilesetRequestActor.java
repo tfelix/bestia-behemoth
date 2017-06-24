@@ -2,6 +2,7 @@ package net.bestia.zoneserver.actor.map;
 
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -11,13 +12,15 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.map.MapTilesetMessage;
 import net.bestia.messages.map.MapTilesetRequestMessage;
-import net.bestia.model.dao.TilesetDAO;
-import net.bestia.model.domain.Tileset;
+import net.bestia.model.domain.TilesetData;
+import net.bestia.model.map.Tileset;
+import net.bestia.model.map.TilesetService;
+import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 
 /**
- * The user queries the name/data of an {@link Tileset}. He only sends the GID
- * of the tile and we must find the appropriate tileset.
+ * The user queries the name/data of an {@link TilesetData}. He only sends the
+ * GID of the tile and we must find the appropriate tileset.
  * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
@@ -25,32 +28,35 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
 @Component
 @Scope("prototype")
 public class TilesetRequestActor extends BestiaRoutingActor {
-	
+
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static String NAME = "tileset";
-	
-	private final TilesetDAO tilesetDao;
+
+	private final TilesetService tilesetService;
 
 	@Autowired
-	public TilesetRequestActor(TilesetDAO tilesetDao) {
+	public TilesetRequestActor(TilesetService tilesetService) {
 		super(Arrays.asList(MapTilesetRequestMessage.class));
-		
-		this.tilesetDao = Objects.requireNonNull(tilesetDao);
+
+		this.tilesetService = Objects.requireNonNull(tilesetService);
 	}
-	
+
 	@Override
 	protected void handleMessage(Object msg) {
 		final MapTilesetRequestMessage mtmsg = (MapTilesetRequestMessage) msg;
-		
-		final Tileset ts = tilesetDao.findByGid(mtmsg.getTileId());
-		
-		if(ts == null) {
+
+		final Optional<Tileset> ts = tilesetService.findTileset(mtmsg.getTileId());
+
+		if (!ts.isPresent()) {
 			LOG.warning("Tileset containing gid {} not found.", mtmsg.getTileId());
 			return;
 		}
+
+		final MapTilesetMessage response = new MapTilesetMessage(
+				mtmsg.getAccountId(), 
+				ts.get().getSimpleTileset());
 		
-		final MapTilesetMessage response = new MapTilesetMessage(mtmsg.getAccountId(), ts);
-		sendClient(response);
+		AkkaSender.sendClient(getContext(), response);
 	}
 
 }

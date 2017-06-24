@@ -26,6 +26,13 @@ public class RectTest {
 		Assert.assertEquals(15, r.getAnchor().getX());
 		Assert.assertEquals(15, r.getAnchor().getY());
 	}
+	
+	@Test
+	public void ctor_anchorAtCorners() {
+		new Rect(0, 0, 20, 20);
+		new Rect(-10, -10, 30, 30);
+		new Rect(-10, -10, 30, 30, -10, -10);
+	}
 
 	@Test
 	public void collide_point_success() {
@@ -85,9 +92,9 @@ public class RectTest {
 	}
 
 	@Test
-	public void getAnchor() {
+	public void getAnchor_anchorInMiddle() {
 		Rect r = new Rect(12, 12, 3, 3);
-		Assert.assertEquals(new Point(1, 1), r.getAnchor());
+		Assert.assertEquals(new Point(13, 13), r.getAnchor());
 	}
 	
 	@Test

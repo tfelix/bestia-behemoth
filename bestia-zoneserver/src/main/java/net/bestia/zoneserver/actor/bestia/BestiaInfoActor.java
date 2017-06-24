@@ -12,9 +12,13 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.bestia.BestiaInfoMessage;
 import net.bestia.messages.bestia.RequestBestiaInfoMessage;
+import net.bestia.messages.entity.EntityStatusUpdateMessage;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.domain.StatusValues;
+import net.bestia.model.entity.StatusBasedValues;
+import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
@@ -61,6 +65,7 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 		LOG.debug(String.format("Received: %s", msg.toString()));
 
 		final RequestBestiaInfoMessage rbimsg = (RequestBestiaInfoMessage) msg;
+		final long accId = rbimsg.getAccountId();
 
 		final Set<Entity> bestias = playerEntityService.getPlayerEntities(rbimsg.getAccountId());
 
@@ -70,14 +75,25 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 					.orElseThrow(IllegalStateException::new);
 
 			final PlayerBestia pb = playerBestiaDao.findOne(pbComp.getPlayerBestiaId());
+			
 			final StatusPoints statusPoints = statusService.getStatusPoints(pbe).get();
+			final StatusPoints unmodStatusPoints = statusService.getUnmodifiedStatusPoints(pbe).get();
+			final StatusValues statusValues = statusService.getStatusValues(pbe).get();
+			final StatusBasedValues statusBasedValues = statusService.getStatusBasedValues(pbe).get();
 
-			final BestiaInfoMessage bimsg = new BestiaInfoMessage(rbimsg.getAccountId(),
-					pbe.getId(),
-					pb,
-					statusPoints);
-
-			sendClient(bimsg);
+			// Send the normal bestia info message.
+			final BestiaInfoMessage bimsg = new BestiaInfoMessage(accId, pbe.getId(), pb);
+			AkkaSender.sendClient(getContext(), bimsg);
+			
+			// Now send the bestia status messages.
+			final EntityStatusUpdateMessage esmsg = new EntityStatusUpdateMessage(
+					accId, 
+					pbe.getId(), 
+					statusPoints, 
+					unmodStatusPoints, 
+					statusValues, 
+					statusBasedValues);
+			AkkaSender.sendClient(getContext(), esmsg);
 		}
 	}
 }

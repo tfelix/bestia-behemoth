@@ -305,6 +305,10 @@ public class PlayerEntityService {
 		entityService.delete(playerBestia);
 		playerBestiaEntitiesIds.remove(accId, playerBestia.getId());
 
+		if(!activeEntities.containsKey(accId)) {
+			return false;
+		}
+		
 		if (activeEntities.get(accId) == playerBestia.getId()) {
 			// Select a new active bestia and notify the client.
 			long newActive = playerBestiaEntitiesIds.get(accId).stream().findAny().orElse(0L);
@@ -339,8 +343,7 @@ public class PlayerEntityService {
 		final StatusComponent statusComp = entityService.getComponent(playerEntity, StatusComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
-		playerBestia.setCurrentHp(statusComp.getOriginalStatusPoints().getCurrentHp());
-		playerBestia.setCurrentMana(statusComp.getOriginalStatusPoints().getCurrentMana());
+		playerBestia.setStatusValues(statusComp.getValues());
 
 		// Current position.
 		final PositionComponent posComp = entityService.getComponent(playerEntity, PositionComponent.class)

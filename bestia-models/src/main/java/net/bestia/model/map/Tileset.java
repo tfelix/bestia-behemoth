@@ -4,36 +4,105 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import net.bestia.model.geometry.Size;
 
 /**
  * Data of a tileset which is used by the bestia map creation. It holds all
  * needed data for each tile in this tileset. The information can be queried.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Tileset implements Serializable {
 
+	/**
+	 * This class is used for simple tileset representations send to the client.
+	 * The client does not need full information about all tiles thus we can
+	 * leave it out. But we need this information to be serializable for the
+	 * server.
+	 *
+	 */
+	public static class SimpleTileset implements Serializable {
+
+		private static final long serialVersionUID = 1L;
+
+		@JsonProperty("mingid")
+		private final int minGID;
+
+		@JsonProperty("maxgid")
+		private final int maxGid;
+
+		@JsonProperty("name")
+		private final String name;
+
+		public SimpleTileset(Tileset tileset) {
+
+			this.minGID = tileset.minGID;
+			this.maxGid = tileset.maxGid;
+			this.name = tileset.name;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("TS[name: %s]", name);
+		}
+	}
+
 	private static final long serialVersionUID = 1L;
+
+	@JsonIgnore
 	public static final Size TILE_SIZE = new Size(32, 32);
 
 	private final String name;
-	private final int firstGID;
-	private final Size tilesetSize;
-	private final long tileCount;
 
+	@JsonProperty("mingid")
+	private final int minGID;
+
+	@JsonProperty("maxgid")
+	private final int maxGid;
+
+	@JsonProperty("size")
+	private final Size size;
+
+	@JsonProperty("props")
+	@JsonInclude(Include.NON_NULL)
 	private final java.util.Map<Integer, TileProperties> tileProperties = new HashMap<>();
 
-	public Tileset(String name, Size size, int firstGID) {
+	@JsonIgnore
+	private int tileCount;
+
+	/**
+	 * 
+	 * @param name
+	 * @param size
+	 *            Size in tiles.
+	 * @param firstGID
+	 */
+	@JsonCreator
+	public Tileset(
+			@JsonProperty("name") String name,
+			@JsonProperty("size") Size size,
+			@JsonProperty("mingid") int firstGID) {
 
 		this.name = Objects.requireNonNull(name);
-		this.tilesetSize = Objects.requireNonNull(size);
-		this.firstGID = firstGID;
-
-		final long tileCountX = tilesetSize.getWidth() / TILE_SIZE.getWidth();
-		final long tileCountY = tilesetSize.getHeight() / TILE_SIZE.getHeight();
-		tileCount = tileCountX * tileCountY;
+		this.size = Objects.requireNonNull(size);
+		
+		/*
+		if(props != null) {
+			this.tileProperties.putAll(props);
+		}*/
+		
+		this.minGID = firstGID;
+		this.maxGid = firstGID + (int) (size.getHeight() * size.getWidth());
+		this.tileCount = this.maxGid - this.minGID;
 	}
 
 	/**
@@ -43,8 +112,8 @@ public class Tileset implements Serializable {
 	 * 
 	 * @return The first used GID of the tiles in this tileset.
 	 */
-	public int getFirstGID() {
-		return firstGID;
+	public int getStartGID() {
+		return minGID;
 	}
 
 	/**
@@ -90,7 +159,7 @@ public class Tileset implements Serializable {
 	 * @return TRUE if this tile belongs to this tileset. FALSE otherwise.
 	 */
 	public boolean contains(int gid) {
-		return (firstGID + tileCount) >= gid && gid >= firstGID;
+		return (minGID + tileCount) >= gid && gid >= minGID;
 	}
 
 	/**
@@ -100,5 +169,16 @@ public class Tileset implements Serializable {
 	 */
 	public String getName() {
 		return name;
+	}
+
+	/**
+	 * Returns the simple representation of the tileset for use to be send to
+	 * the client. This version does not contain any tile property information.
+	 * 
+	 * @return A simplified version of Tileset.
+	 */
+	@JsonIgnore
+	public SimpleTileset getSimpleTileset() {
+		return new SimpleTileset(this);
 	}
 }

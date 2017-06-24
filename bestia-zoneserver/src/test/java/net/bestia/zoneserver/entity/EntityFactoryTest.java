@@ -13,6 +13,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.entity.component.Component;
 import net.bestia.zoneserver.entity.component.ComponentSetter;
 import net.bestia.zoneserver.entity.component.PlayerComponent;
@@ -28,6 +29,7 @@ public class EntityFactoryTest {
 	private PlayerComponentSetter playerSet;
 	private PlayerComponent playerComp;
 	private Collection<Class<? extends Component>> components = new HashSet<>();
+	private ZoneAkkaApi akkaApi;
 
 	@Before
 	public void setup() {
@@ -39,6 +41,7 @@ public class EntityFactoryTest {
 		blueprint = mock(Blueprint.class);
 		entity = mock(Entity.class);
 		playerComp = mock(PlayerComponent.class);
+		akkaApi = mock(ZoneAkkaApi.class);
 
 		playerSet = mock(PlayerComponentSetter.class);
 
@@ -49,7 +52,7 @@ public class EntityFactoryTest {
 		
 		when(playerSet.getSupportedType()).thenReturn(PlayerComponent.class);
 
-		factory = new EntityFactory(entityService);
+		factory = new EntityFactory(entityService, akkaApi);
 	}
 
 	@Test(expected = NullPointerException.class)

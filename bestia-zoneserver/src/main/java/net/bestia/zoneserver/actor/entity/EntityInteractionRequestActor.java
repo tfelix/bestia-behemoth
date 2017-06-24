@@ -40,7 +40,8 @@ public class EntityInteractionRequestActor extends BestiaRoutingActor {
 	private final PlayerEntityService playerEntityService;
 
 	@Autowired
-	public EntityInteractionRequestActor(EntityService entityService, PlayerEntityService pes,
+	public EntityInteractionRequestActor(EntityService entityService,
+			PlayerEntityService pes,
 			InteractionService interactService) {
 		super(Arrays.asList(EntityInteractionRequestMessage.class));
 

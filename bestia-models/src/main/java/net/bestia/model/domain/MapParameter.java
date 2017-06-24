@@ -8,6 +8,8 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -82,6 +84,7 @@ public class MapParameter implements Serializable {
 	private final static int MINIMUM_LANDMASS_SQUARE_KM = 40000;
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private long population;
 	private Size worldSize;

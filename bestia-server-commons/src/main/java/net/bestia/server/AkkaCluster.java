@@ -6,7 +6,7 @@ package net.bestia.server;
  * 
  * It provides also methods for accessing the routing names of the actors.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public final class AkkaCluster {
@@ -20,9 +20,16 @@ public final class AkkaCluster {
 		// no op.
 	}
 
+	/**
+	 * Creates the node name of the akka cluster server.
+	 * 
+	 * @param names
+	 *            The names for the actor.
+	 * @return The actor path.
+	 */
 	public static String getNodeName(String... names) {
 
-		String joinedNames = String.join("/", names);
+		final String joinedNames = String.join("/", names);
 
 		return String.format("/user/%s", joinedNames);
 	}

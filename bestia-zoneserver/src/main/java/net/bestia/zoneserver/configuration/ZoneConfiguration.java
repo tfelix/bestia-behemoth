@@ -5,20 +5,26 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 import com.hazelcast.core.HazelcastInstance;
 
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.MapParameter;
+import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.entity.EntityRecycler;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.component.interceptor.ComponentInterceptor;
 import net.bestia.zoneserver.environment.date.BestiaDate;
 import net.bestia.zoneserver.map.path.AStarPathfinder;
 import net.bestia.zoneserver.map.path.Pathfinder;
+import net.bestia.zoneserver.map.path.PointEstimator;
+import net.bestia.zoneserver.map.path.TileNodeProvider;
 import net.bestia.zoneserver.script.ScriptService;
 
 /**
@@ -33,15 +39,8 @@ public class ZoneConfiguration {
 
 	private final static Logger LOG = LoggerFactory.getLogger(ZoneConfiguration.class);
 
-	/**
-	 * Gets the pathfinder implementation used by bestia.
-	 * 
-	 * @return A pathfinder.
-	 */
-	@Bean
-	Pathfinder pathfinder() {
-		return new AStarPathfinder();
-	}
+	@Value("${server.entityBuffer}")
+	private int entityBufferSize = 10;
 
 	/**
 	 * Gets the current time of the bestia zoneserver.
@@ -50,7 +49,7 @@ public class ZoneConfiguration {
 	 */
 	// @Bean
 	public BestiaDate bestiaDate(MapParameterDAO mapParamDao) {
-		final MapParameter param = mapParamDao.findLatest();
+		final MapParameter param = mapParamDao.findFirstByOrderByIdDesc();
 
 		if (param == null) {
 			return new BestiaDate();
@@ -67,22 +66,22 @@ public class ZoneConfiguration {
 
 		@SuppressWarnings("rawtypes")
 		final Map<String, ComponentInterceptor> interceptors = ctx.getBeansOfType(ComponentInterceptor.class);
-		
+
 		LOG.info("Found {} component interceptors. Adding to entity service.", interceptors.size());
-		
-		for(ComponentInterceptor<?> interceptor : interceptors.values()) {
-			
+
+		for (ComponentInterceptor<?> interceptor : interceptors.values()) {
+
 			entityService.addInterceptor(interceptor);
 			LOG.debug("Added component interceptor: {}", interceptor.getClass().getSimpleName());
-			
+
 		}
 
 		return entityService;
 	}
-	
+
 	@Bean
 	public EntityRecycler entityRecycler(EntityService entityService, ScriptService scriptService) {
-		return new EntityRecycler(10, entityService, scriptService);
+		return new EntityRecycler(entityBufferSize, entityService, scriptService);
 	}
 
 }

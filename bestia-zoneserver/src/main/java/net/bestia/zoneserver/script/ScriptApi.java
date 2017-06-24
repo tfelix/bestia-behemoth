@@ -40,8 +40,8 @@ public interface ScriptApi {
 	 * 
 	 * Valid types (string) are:
 	 * <ul>
-	 * 	<li>PLAYER</li>
-	 * 	<li>SCRIPT</li>
+	 * <li>PLAYER</li>
+	 * <li>SCRIPT</li>
 	 * </ul>
 	 * 
 	 * @param entityId
@@ -54,12 +54,21 @@ public interface ScriptApi {
 
 	/**
 	 * Kills the entity with the given entity id. It behaves as if it would have
-	 * been regularly killed by a player.
+	 * been regularly killed by a player and thus plays an death animation.
 	 * 
 	 * @param entityId
 	 *            The entity ID to be killed.
 	 */
 	void kill(long entityId);
+
+	/**
+	 * The given entity ID is just deleted and immediately removed from the
+	 * system. No death animation is played back to the client.
+	 * 
+	 * @param entityId
+	 *            The entity ID to be removed.
+	 */
+	void delete(long entityId);
 
 	/**
 	 * Defines a callback function which gets attached to the script and is

@@ -3,9 +3,6 @@ package net.bestia.zoneserver.battle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +13,7 @@ import net.bestia.messages.attack.AttackUseMessage;
 import net.bestia.model.battle.Damage;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.domain.StatusValues;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
@@ -31,7 +29,9 @@ import net.bestia.zoneserver.map.MapService;
  * This service is used to perform attacks and damage calculation for battle
  * related tasks.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * TODO This service is work in progress.
+ * 
+ * @author Thomas Felix
  *
  */
 @Service
@@ -156,18 +156,19 @@ public class BattleService {
 				.orElseThrow(IllegalArgumentException::new);
 
 		final StatusPoints status = statusComp.getStatusPoints();
+		final StatusValues statusValues = statusComp.getValues();
 
 		// TODO Possibly reduce the damge or reflect it etc.
 
 		int damage = primaryDamage.getDamage();
 		Damage reducedDamage = new Damage(damage, primaryDamage.getType());
 
-		if (status.getCurrentHp() < damage) {
+		if (statusValues.getCurrentHealth() < damage) {
 			killEntity(defender);
 			return reducedDamage;
 		}
 
-		status.setCurrentHp(status.getCurrentHp() - damage);
+		statusValues.addHealth(-damage);
 		entityService.saveComponent(statusComp);
 
 		return primaryDamage;

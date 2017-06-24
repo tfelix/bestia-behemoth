@@ -21,6 +21,7 @@ import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
 import net.bestia.model.geometry.Point;
 
@@ -55,19 +56,9 @@ public class PlayerBestia implements Serializable {
 	@JsonProperty("sl")
 	private Point savePosition = new Point(0, 0);
 
-	/**
-	 * The current hp value must be persisted inside the db. Since the status
-	 * points are not persisted at all we need a certain field for it.
-	 */
-	@JsonIgnore
-	private int currentHp;
-
-	/**
-	 * The current mana value must be persisted inside the db. Since the status
-	 * points are not persisted at all we need a certain field for it.
-	 */
-	@JsonIgnore
-	private int currentMana;
+	@Embedded
+	@JsonUnwrapped
+	private StatusValues statusValues;
 
 	@Embedded
 	@JsonProperty("cl")
@@ -257,23 +248,9 @@ public class PlayerBestia implements Serializable {
 	public long getId() {
 		return id;
 	}
-
-	@JsonIgnore
-	public int getCurrentHp() {
-		return currentHp;
-	}
-
-	public void setCurrentHp(int curHp) {
-		this.currentHp = curHp;
-	}
-
-	@JsonIgnore
-	public int getCurrentMana() {
-		return currentMana;
-	}
-
-	public void setCurrentMana(int curMana) {
-		this.currentMana = curMana;
+	
+	public StatusValues getStatusValues() {
+		return statusValues;
 	}
 
 	public PlayerItem getItem1() {
@@ -360,5 +337,9 @@ public class PlayerBestia implements Serializable {
 	 */
 	public void setOwner(Account owner) {
 		this.owner = owner;
+	}
+
+	public void setStatusValues(StatusValues sv) {
+		this.statusValues = Objects.requireNonNull(sv);
 	}
 }

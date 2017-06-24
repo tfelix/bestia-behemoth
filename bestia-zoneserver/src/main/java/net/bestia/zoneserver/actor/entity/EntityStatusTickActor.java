@@ -3,7 +3,10 @@ package net.bestia.zoneserver.actor.entity;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
+import net.bestia.model.domain.StatusValues;
 import net.bestia.zoneserver.actor.BestiaPeriodicTerminatingActor;
 import net.bestia.zoneserver.entity.StatusService;
 
@@ -15,16 +18,21 @@ import net.bestia.zoneserver.entity.StatusService;
  * @author Thomas Felix
  *
  */
+@Component
+@Scope("prototype")
 public class EntityStatusTickActor extends BestiaPeriodicTerminatingActor {
 
-	private long entityId;
-
+	private final long entityId;
 	private final StatusService statusService;
 
+	private float manaIncrement;
+	private float healthIncrement;
+
 	@Autowired
-	public EntityStatusTickActor(StatusService statusService) {
+	public EntityStatusTickActor(StatusService statusService, long entityId) {
 
 		this.statusService = Objects.requireNonNull(statusService);
+		this.entityId = entityId;
 
 		startInterval(StatusService.REGENERATION_TICK_RATE_MS);
 	}
@@ -33,23 +41,42 @@ public class EntityStatusTickActor extends BestiaPeriodicTerminatingActor {
 	protected void onTick() {
 
 		try {
-			statusService.tickRegeneration(entityId);
+
+			healthIncrement += statusService.getHealthTick(entityId);
+			manaIncrement += statusService.getManaTick(entityId);
+
+			StatusValues sval = statusService.getStatusValues(entityId).orElseThrow(IllegalArgumentException::new);
+
+			if (healthIncrement > 1) {
+				
+				// Update health status.
+				final int hpRound = (int) healthIncrement;
+				healthIncrement -= hpRound;
+				sval.addHealth(hpRound);
+
+			} 
+
+			if (manaIncrement > 1) {
+				
+				// Update mana.
+				final int manaRound = (int) manaIncrement;
+				manaIncrement -= manaRound;
+				sval.addMana(manaRound);
+
+			}
+			
+			statusService.saveStatusValues(entityId, sval);
+
 		} catch (IllegalArgumentException e) {
-			// Could not tick regeneration for this entity id. Terminating.
+			// Could not tick regeneration for this entity id. Probably no
+			// status component attached.
+			// Terminating.
 			context().stop(getSelf());
 		}
 	}
 
 	@Override
-	protected void handleMessage(Object message) throws Exception {
-
-		if (message instanceof Long) {
-			trackEntity((Long) message);
-		}
-
-	}
-
-	private void trackEntity(Long entityId) {
-		this.entityId = entityId;
+	protected void handleMessage(Object message) {
+		// no op.
 	}
 }

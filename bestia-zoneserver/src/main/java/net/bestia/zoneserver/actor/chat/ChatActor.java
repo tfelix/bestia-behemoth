@@ -14,6 +14,7 @@ import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.dao.PartyDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Party;
+import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.chat.ChatCommandService;
 import net.bestia.zoneserver.entity.Entity;
@@ -92,13 +93,15 @@ public class ChatActor extends BestiaRoutingActor {
 		if (party == null) {
 			// not a member of a party.
 			LOG.debug("Account {} is no member of any party.", chatMsg.getAccountId());
-			sendClient(ChatMessage.getSystemMessage(chatMsg.getAccountId(), "Not a member of a party."));
+			final ChatMessage replyMsg = ChatMessage.getSystemMessage(chatMsg.getAccountId(),
+					"Not a member of a party.");
+			AkkaSender.sendClient(getContext(), replyMsg);
 			return;
 		}
 
 		party.getMembers().forEach(member -> {
 			final ChatMessage reply = chatMsg.createNewInstance(member.getId());
-			sendClient(reply);
+			AkkaSender.sendClient(getContext(), reply);
 		});
 	}
 
@@ -126,7 +129,7 @@ public class ChatActor extends BestiaRoutingActor {
 		// We dont need to send a echo back because the player entity is also
 		// active in the area so this call also includes the sender of the chat
 		// message.
-		sendActiveInRangeClients(chatEntityMsg);
+		AkkaSender.sendActiveInRangeClients(getContext(), chatEntityMsg);
 	}
 
 	/**
@@ -146,7 +149,7 @@ public class ChatActor extends BestiaRoutingActor {
 		}
 
 		final ChatMessage reply = chatMsg.createNewInstance(acc.getId());
-		sendClient(reply);
+		AkkaSender.sendClient(getContext(), reply);
 	}
 
 }

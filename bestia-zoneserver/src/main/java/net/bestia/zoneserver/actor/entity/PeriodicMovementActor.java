@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.Cancellable;
 import akka.actor.Scheduler;
-import net.bestia.messages.entity.EntityMoveInternalMessage;
+import net.bestia.messages.internal.entity.EntityMoveInternalMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.entity.EntityService;
@@ -48,23 +48,16 @@ public class PeriodicMovementActor extends BestiaActor {
 	}
 
 	@Override
-	public void onReceive(Object message) throws Throwable {
-		if (message.equals(TICK_MSG)) {
-
-			handleTick();
-
-		} else if (message.equals(STOP_MESSAGE)) {
-
-			handleStop();
-
-		} else if (message instanceof EntityMoveInternalMessage) {
-
-			handleMoveMessage((EntityMoveInternalMessage) message);
-
-		} else {
-
-			unhandled(message);
-		}
+	public Receive createReceive() {
+		return receiveBuilder()
+				.matchEquals(TICK_MSG, x -> {
+					handleTick();
+				})
+				.matchEquals(STOP_MESSAGE, x -> {
+					handleStop();
+				})
+				.match(EntityMoveInternalMessage.class, this::handleMoveMessage)
+				.build();
 	}
 
 	private void handleMoveMessage(EntityMoveInternalMessage msg) {
@@ -110,7 +103,6 @@ public class PeriodicMovementActor extends BestiaActor {
 			tick.cancel();
 		}
 	}
-
 
 	/**
 	 * Setup a new movement tick based on the delay. If the delay is negative we

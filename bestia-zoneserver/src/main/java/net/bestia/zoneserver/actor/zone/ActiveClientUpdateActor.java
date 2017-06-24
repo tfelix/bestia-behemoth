@@ -15,6 +15,7 @@ import net.bestia.messages.JsonMessage;
 import net.bestia.messages.entity.EntityUpdateMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
+import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
@@ -26,9 +27,6 @@ import net.bestia.zoneserver.map.MapService;
  * This actor sends update messages to all active player in sight. In order to
  * perform the the sending of the message the message must inherit both the
  * {@link EntityMessage} interface and also {@link JsonMessage}.
- * 
- * TODO Diese Logik vielleicht in einen Service packen? Und nur das Absenden von
- * einem Aktor übernehmen lassen.
  * 
  * @author Thomas Felix
  *
@@ -51,7 +49,13 @@ public class ActiveClientUpdateActor extends BestiaActor {
 	}
 
 	@Override
-	public void onReceive(Object msg) throws Throwable {
+	public Receive createReceive() {
+		return receiveBuilder()
+				.matchAny(this::handleMessage)
+				.build();
+	}
+
+	public void handleMessage(Object msg) {
 		LOG.debug("Received: {}", msg.toString());
 
 		// Handle only ActiveUpdateMessage
@@ -84,7 +88,7 @@ public class ActiveClientUpdateActor extends BestiaActor {
 				}
 			} else {
 				final Optional<PositionComponent> posComp = entityService.getComponent(entity, PositionComponent.class);
-				
+
 				if (!posComp.isPresent()) {
 					// We have no position information and cant update any
 					// client.
@@ -103,7 +107,7 @@ public class ActiveClientUpdateActor extends BestiaActor {
 			// Check if the pbe are active and if so send them the update.
 			for (long activeAcc : activeAccs) {
 
-				sendClient(dataMsg.createNewInstance(activeAcc));
+				AkkaSender.sendClient(getContext(), dataMsg.createNewInstance(activeAcc));
 
 			}
 		} catch (ClassCastException e) {

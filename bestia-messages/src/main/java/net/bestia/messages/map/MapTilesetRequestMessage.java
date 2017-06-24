@@ -18,19 +18,19 @@ public class MapTilesetRequestMessage extends JsonMessage {
 	public static final String MESSAGE_ID = "map.tilesetrequest";
 
 	@JsonProperty("gid")
-	private long tileId;
+	private int tileId;
 
 	protected MapTilesetRequestMessage() {
 		tileId = 0;
 	}
 
-	public MapTilesetRequestMessage(long accId, long gid) {
+	public MapTilesetRequestMessage(long accId, int gid) {
 		super(accId);
 		
 		this.tileId = gid;
 	}
 
-	public long getTileId() {
+	public int getTileId() {
 		return tileId;
 	}
 

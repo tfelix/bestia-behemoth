@@ -1,34 +1,83 @@
 package net.bestia.zoneserver.map.path;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implements the A* pathfinding algorithm.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
-public class AStarPathfinder implements Pathfinder {
+public class AStarPathfinder<T> implements Pathfinder<T> {
 
-	private final PriorityQueue<Node<?>> openSet;
-	private final Set<Node<?>> closedSet = new HashSet<>();
-	private final Map<Node<?>, Node<?>> parentChildConnections = new HashMap<>();
+	private static final Logger LOG = LoggerFactory.getLogger(AStarPathfinder.class);
 
-	public AStarPathfinder() {
-		this.openSet = new PriorityQueue<>(50, new Comparator<Node<?>>() {
+	private PriorityQueue<Node<T>> openSet;
+	private final Set<Node<T>> closedSet = new HashSet<>();
+
+	private final NodeProvider<T> nodeProvider;
+	private final HeuristicEstimator<T> estimator;
+
+	/**
+	 * Maximum number of iterations in order to prevent extensive search on big
+	 * maps.
+	 */
+	private final int maxIteration;
+
+	/**
+	 * Alias to {@link #AStarPathfinder(NodeProvider, HeuristicEstimator, int)}
+	 * with default iterations set to 1000.
+	 * 
+	 * @param nodeProvider
+	 *            A node provider.
+	 * @param estimator
+	 *            An estimator.
+	 */
+	public AStarPathfinder(NodeProvider<T> nodeProvider, HeuristicEstimator<T> estimator) {
+		this(nodeProvider, estimator, 1000);
+	}
+
+	public AStarPathfinder(NodeProvider<T> nodeProvider, HeuristicEstimator<T> estimator, int maxIterations) {
+
+		if (maxIterations <= 0) {
+			throw new IllegalArgumentException("MaxIterations must be greater then 0.");
+		}
+
+		this.nodeProvider = Objects.requireNonNull(nodeProvider);
+		this.estimator = Objects.requireNonNull(estimator);
+		this.maxIteration = maxIterations;
+
+	}
+
+	@Override
+	public List<Node<T>> findPath(Node<T> start, Node<T> end) {
+
+		Objects.requireNonNull(start);
+		Objects.requireNonNull(end);
+
+		LOG.trace("Finding path from {} to {}.", start, end);
+
+		this.openSet = new PriorityQueue<>(50, new Comparator<Node<T>>() {
 			@Override
-			public int compare(Node<?> a, Node<?> b) {
+			public int compare(Node<T> a, Node<T> b) {
 
-				float dA = a.getNodeCost() + a.getStartDistance();
-				float dB = b.getNodeCost() + b.getStartDistance();
+				final float targetDistA = estimator.getDistance(a.getSelf(), end.getSelf());
+				final float targetDistB = estimator.getDistance(a.getSelf(), end.getSelf());
 
+				float dA = a.getNodeCost() + targetDistA;
+				float dB = b.getNodeCost() + targetDistB;
+
+				// Tie breaker.
 				if (Math.abs(dA - dB) < 0.00001f) {
 					return 0;
 				}
@@ -36,43 +85,46 @@ public class AStarPathfinder implements Pathfinder {
 				return (dA < dB) ? -1 : 1;
 			}
 		});
-	}
 
-	@Override
-	public List<Node<?>> findPath(Node<?> start, Node<?> end) {
+		Node<T> lastNode = null;
+		Node<T> currentNode = null;
+		openSet.add(start);
 
-		// Beginning from the start, add all neighbour nodes
-		openSet.addAll(start.getConnections());
-
-		Node<?> lastNode = null;
-		Node<?> currentNode = null;
-		while (!openSet.isEmpty()) {
+		// We must step into the loop at least once for the first tile. At first
+		// step the openSet will be empty.
+		int i = 0;
+		while (!openSet.isEmpty() && ++i <= maxIteration) {
+			
 			lastNode = currentNode;
 			currentNode = openSet.remove();
-			parentChildConnections.put(currentNode, lastNode);
+			
+			// Add all neighboring nodes to open set.
+			final Set<Node<T>> connections = nodeProvider.getConnectedNodes(currentNode);
+			LOG.trace("Node {} connections; {}.", currentNode, connections);
+			connections.stream().filter(c -> !closedSet.contains(c)).forEach(openSet::add);
+
+			currentNode.setParent(lastNode);
 			closedSet.add(currentNode);
 
-			// Check if we found the solution and reconstruct path.
+			// Check if we already found the solution.
+			// We can reconstruct the path then.
 			if (currentNode.equals(end)) {
-				final List<Node<?>> solution = new ArrayList<>();
+				final List<Node<T>> solution = new ArrayList<>();
 
 				while (currentNode != null) {
 					solution.add(currentNode);
-					
-					currentNode = parentChildConnections.get(currentNode);
+					currentNode = currentNode.getParent();
 				}
+
+				// Path is now in reverse order. Fix this.
+				Collections.reverse(solution);
+
 				return solution;
 			}
-
-			currentNode.getConnections().forEach(neighbour -> {
-				if (closedSet.contains(neighbour)) {
-					return;
-				}
-				openSet.add(neighbour);
-			});
 		}
+		;
 
-		return null;
+		return Collections.emptyList();
 	}
 
 }

@@ -1,13 +1,14 @@
 package net.bestia.zoneserver.actor;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorPath;
 import akka.actor.ActorRef;
-import akka.actor.UntypedActor;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 
 /**
- * This is the interface for a typed actor for internal message routing.
+ * This is the zentral interface for any external component like services or
+ * components to interact with the akka system.
  * 
  * @author Thomas Felix
  *
@@ -48,7 +49,7 @@ public interface ZoneAkkaApi {
 	 * @param actorClazz
 	 * @return
 	 */
-	ActorRef startActor(Class<? extends UntypedActor> actorClazz);
+	ActorRef startActor(Class<? extends AbstractActor> actorClazz);
 
 	/**
 	 * This starts an unnamed actor. Which is faster then starting a named
@@ -58,5 +59,14 @@ public interface ZoneAkkaApi {
 	 * @param actorClazz
 	 * @return
 	 */
-	ActorRef startUnnamedActor(Class<? extends UntypedActor> actorClazz);
+	ActorRef startUnnamedActor(Class<? extends AbstractActor> actorClazz);
+
+	/**
+	 * Sends a message directly to the entity actor managing a single entity
+	 * inside the cluster.
+	 * 
+	 * @param id The entity ID which actor should receive the message.
+	 * @param msg The message to send.
+	 */
+	void sendEntityActor(long id, Object msg);
 }

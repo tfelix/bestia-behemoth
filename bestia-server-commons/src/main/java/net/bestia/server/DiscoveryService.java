@@ -1,6 +1,7 @@
 package net.bestia.server;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,24 +13,28 @@ import com.hazelcast.core.IList;
 import akka.actor.Address;
 
 /**
- * The {@link DiscoveryService} can be used to extract the necessary
- * cluster information from a Hazelcast instance and to use this information to
- * setup the akka cluster.
- * <p>It serves as a simple service discovery</p>
+ * The {@link DiscoveryService} can be used to extract the necessary cluster
+ * information from a Hazelcast instance and to use this information to setup
+ * the akka cluster.
+ * <p>
+ * It serves as a simple service discovery
+ * </p>
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Service
 public class DiscoveryService {
 
-	private static final int NUM_SEED_NODES = 3;
+	private static final String CLUSTER_NODES = "srv.clusterNodes";
+	public static final int NUM_SEED_NODES = 3;
+
 	private final IList<Address> clusterAdress;
 
 	@Autowired
 	public DiscoveryService(HazelcastInstance hcInstance) {
 
-		this.clusterAdress = hcInstance.getList("cluster_nodes");
+		this.clusterAdress = hcInstance.getList(CLUSTER_NODES);
 	}
 
 	/**
@@ -42,7 +47,7 @@ public class DiscoveryService {
 	 * 
 	 * @return TRUE if the current node should join as seed. FALSE otherwise.
 	 */
-	public boolean shoudlJoinAsSeedNode() {
+	public boolean shoudJoinAsSeedNode() {
 
 		return clusterAdress.size() < NUM_SEED_NODES;
 	}
@@ -63,7 +68,7 @@ public class DiscoveryService {
 	 *            The node to be added.
 	 */
 	public void addClusterNode(Address address) {
-
+		Objects.requireNonNull(address);
 		clusterAdress.add(address);
 	}
 
@@ -74,7 +79,7 @@ public class DiscoveryService {
 	 *            The address to be removed.
 	 */
 	public void removeClusterNode(Address address) {
-
+		Objects.requireNonNull(address);
 		clusterAdress.remove(address);
 	}
 

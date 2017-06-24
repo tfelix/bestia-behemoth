@@ -51,19 +51,18 @@ public abstract class BestiaPeriodicTerminatingActor extends BestiaPeriodicActor
 		killTicker.cancel();
 		killTicker = null;
 	}
-
+	
 	@Override
-	public void onReceive(Object message) throws Throwable {
-		if(message.equals(KILL_MESSAGE)) {
+	protected void processMessage(Object msg) {
+		
+		if(msg.equals(KILL_MESSAGE)) {
 			LOG.debug("Actor {} has not received any external message. Killing myself now.", getSelf().path());
 			context().stop(getSelf());
-			return;
-		} 
-		
-		if(!message.equals(TICK_MSG)) {
+		} else if(msg.equals(TICK_MSG)) {
 			stopKillInterval();
 		}
 		
-		super.onReceive(message);
+		super.processMessage(msg);
+		
 	}
 }

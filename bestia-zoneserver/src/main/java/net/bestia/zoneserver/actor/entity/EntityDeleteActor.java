@@ -1,54 +1,61 @@
 package net.bestia.zoneserver.actor.entity;
 
-import java.util.Arrays;
 import java.util.Objects;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import net.bestia.messages.entity.EntityDeleteInternalMessage;
+import akka.actor.AbstractActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import net.bestia.messages.entity.EntityUpdateMessage;
 import net.bestia.model.geometry.Point;
-import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.EntityRecycler;
 import net.bestia.zoneserver.entity.EntityService;
 import net.bestia.zoneserver.entity.component.PositionComponent;
 
 /**
- * This actor will handle the removing of an entity from the system. It will
- * notify all clients about the entity which was deleted from the system.
+ * The {@link EntityDeleteActor} actor are here as high level instance to
+ * perform all the steps needed to remove an entity from the world. Like
+ * terminating all running actors, deleting all components from the services and
+ * possibly recycling them.
  * 
- * FIXME Wir machen das hier anders: Löschungen gehen von Services aus und
- * werden dann als MSG in AKKA transportiert.
+ * After all jobs are performed the entity delete actors terminates itself.
  * 
  * @author Thomas Felix
  *
  */
 @Component
 @Scope("prototype")
-public class EntityDeleteActor extends BestiaRoutingActor {
-
-	public static final String NAME = "entityDelete";
-
+public class EntityDeleteActor extends AbstractActor {
+	
+	private final LoggingAdapter LOG = Logging.getLogger(getContext().getSystem(), this);
+	
+	private final long entityId;
+	
+	private final EntityRecycler recycler;
 	private final EntityService entityService;
 
-	/**
-	 * 
-	 */
-	@Autowired
-	public EntityDeleteActor(EntityService entityService) {
-		super(Arrays.asList(EntityDeleteInternalMessage.class));
+	public EntityDeleteActor(long entityId, EntityService entityService, EntityRecycler recycler) {
 
+		this.entityId = entityId;
+		this.recycler = Objects.requireNonNull(recycler);
 		this.entityService = Objects.requireNonNull(entityService);
+		
+		startDeletingEntity();
 	}
 
 	@Override
-	protected void handleMessage(Object msg) {
-
-		final EntityDeleteInternalMessage delMsg = (EntityDeleteInternalMessage) msg;
-
-		final Entity e = entityService.getEntity(delMsg.getEntityId());
+	public Receive createReceive() {
+		return receiveBuilder().build();
+	}
+	
+	private void startDeletingEntity() {
+		LOG.debug("Deleting/Recycling entity {}.", entityId);
+		
+		final Entity e = entityService.getEntity(entityId);
 
 		// Find the position of the entity to be send inside the message.
 		// The position is important because the entity is removed right here
@@ -59,11 +66,12 @@ public class EntityDeleteActor extends BestiaRoutingActor {
 				.map(PositionComponent::getPosition)
 				.orElse(new Point(0, 0));
 
-		entityService.delete(delMsg.getEntityId());
+		recycler.free(e);
 
 		// Send status update to all clients in range.
-		sendActiveInRangeClients(EntityUpdateMessage.getDespawnUpdate(delMsg.getEntityId(), position));
-
+		AkkaSender.sendActiveInRangeClients(getContext(), EntityUpdateMessage.getDespawnUpdate(entityId, position));
+		
+		// Actually we should wait for termination by the EntityActor.
+		context().stop(getSelf());
 	}
-
 }

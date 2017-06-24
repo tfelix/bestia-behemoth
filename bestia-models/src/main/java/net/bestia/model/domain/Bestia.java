@@ -116,6 +116,11 @@ public class Bestia implements Serializable {
 	public Bestia() {
 		// no op.
 	}
+	
+	public Bestia(String databaseName) {
+		
+		this.databaseName = databaseName;
+	}
 
 	/**
 	 * Calculates the effort values depending on its level and the base values.

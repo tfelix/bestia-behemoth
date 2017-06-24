@@ -2,7 +2,6 @@ package net.bestia.zoneserver.entity;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,7 +23,6 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
 
 import net.bestia.model.geometry.CollisionShape;
-import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.entity.component.Component;
 import net.bestia.zoneserver.entity.component.PositionComponent;
 import net.bestia.zoneserver.entity.component.interceptor.ComponentInterceptor;
@@ -126,7 +124,8 @@ public class EntityService {
 	}
 
 	/**
-	 * Deletes the entity given by its id.
+	 * Deletes the entity given by its id. This is a alias for
+	 * {@link #delete(Entity)}.
 	 * 
 	 * @param entity
 	 *            Removes the entity.
@@ -188,12 +187,13 @@ public class EntityService {
 	 * {@link PositionComponent} an empty set will be returned.
 	 * 
 	 * This is basically a shortcut for a rather frequently called operation for
-	 * scripts to get entities colliding with scrpit entities.
+	 * scripts to get entities colliding with script entities. It is similar to
+	 * {@link #getCollidingEntities(CollisionShape)}.
 	 * 
 	 * @param entity
 	 * @return
 	 */
-	public Set<Entity> getAllCollidingEntities(Entity entity) {
+	public Set<Entity> getCollidingEntities(Entity entity) {
 		LOG.trace("Finding all colliding entities for: {}.", entity);
 
 		final Optional<PositionComponent> posComp = getComponent(entity, PositionComponent.class);
@@ -203,12 +203,7 @@ public class EntityService {
 		}
 
 		final CollisionShape shape = posComp.get().getShape();
-		final Rect boundingBox = shape.getBoundingBox();
-		final Set<Entity> entitiesInBoundingBox = getCollidingEntities(boundingBox, PositionComponent.class);
-
-		final Set<Entity> collidingEntities = entitiesInBoundingBox.stream()
-				.filter(e -> getComponent(e, PositionComponent.class).get().getShape().collide(shape))
-				.collect(Collectors.toSet());
+		Set<Entity> collidingEntities = getCollidingEntities(shape);
 
 		LOG.trace("Found colliding entities: {}.", collidingEntities);
 
@@ -216,7 +211,9 @@ public class EntityService {
 	}
 
 	/**
-	 * Returns all the entities which are in range.
+	 * Returns all the entities which are in range. The detected collision
+	 * entities will have a {@link PositionComponent} for sure. Other components
+	 * are optional.
 	 * 
 	 * @param area
 	 *            The area in which the looked up entities lie.
@@ -239,19 +236,14 @@ public class EntityService {
 	}
 
 	/**
-	 * Returns all the entities which are in range and have a certain component.
-	 * Note that they ALWAYS must have a position component in order to get
-	 * localized.
+	 * Alias to {@link #getComponent(Entity, Class)}.
 	 * 
-	 * @param area
-	 * @return
+	 * @param entityId
+	 *            The ID of the entity.
+	 * @param clazz
+	 *            The class of the {@link Component} to retrieve.
+	 * @return The component if it was attached to this entity.
 	 */
-	public Set<Entity> getCollidingEntities(CollisionShape area, Class<? extends Component> clazz) {
-		final Set<Class<? extends Component>> comps = new HashSet<>(Arrays.asList(clazz));
-		return getCollidingEntities(area).stream().filter(x -> comps.contains(x.getClass()))
-				.collect(Collectors.toSet());
-	}
-
 	public <T extends Component> Optional<T> getComponent(long entityId, Class<T> clazz) {
 
 		final Entity e = getEntity(entityId);
@@ -265,6 +257,7 @@ public class EntityService {
 
 	public <T extends Component> Optional<T> getComponent(Entity e, Class<T> clazz) {
 		Objects.requireNonNull(e);
+		Objects.requireNonNull(clazz);
 
 		LOG.trace("Getting component {} from entity: {}", clazz.getSimpleName(), e);
 
@@ -334,7 +327,7 @@ public class EntityService {
 		Objects.requireNonNull(component);
 
 		components.put(component.getId(), component);
-		
+
 		final Entity ownerEntity = getEntity(component.getEntityId());
 
 		// Check possible interceptors.
@@ -386,6 +379,15 @@ public class EntityService {
 		}
 	}
 
+	/**
+	 * Deletes a specific component from this entity. Interceptors which were
+	 * registered for this component are getting called.
+	 * 
+	 * @param entity
+	 *            The entity to delete the component from.
+	 * @param component
+	 *            The component to delete.
+	 */
 	public void deleteComponent(Entity entity, Component component) {
 		LOG.trace("Removing component {} from entity {}.", component, entity);
 
@@ -438,7 +440,10 @@ public class EntityService {
 	 */
 	public Collection<Component> getAllComponents(Entity entity) {
 
-		return Objects.requireNonNull(entity).getComponentIds().stream().map(components::get)
+		return Objects.requireNonNull(entity)
+				.getComponentIds()
+				.stream()
+				.map(components::get)
 				.collect(Collectors.toList());
 	}
 }

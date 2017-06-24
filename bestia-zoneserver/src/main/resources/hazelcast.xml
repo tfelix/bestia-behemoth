@@ -6,7 +6,8 @@
 		<name>dev</name>
 		<password>dev-pass</password>
 	</group>
-	<management-center enabled="false">http://localhost:8080/mancenter</management-center>
+	<management-center enabled="false">http://localhost:8080/mancenter
+	</management-center>
 	<network>
 		<port auto-increment="true" port-count="100">5701</port>
 		<outbound-ports>
@@ -121,7 +122,7 @@
 		<merge-policy>com.hazelcast.map.merge.PutIfAbsentMapMergePolicy
 		</merge-policy>
 	</map>
-	
+
 	<map name="entities">
 		<in-memory-format>OBJECT</in-memory-format>
 		<backup-count>1</backup-count>
@@ -134,6 +135,25 @@
 		<min-eviction-check-millis>100</min-eviction-check-millis>
 		<merge-policy>com.hazelcast.map.merge.PutIfAbsentMapMergePolicy
 		</merge-policy>
+
+<!--  Not instanced good via spring. must be configured via hazelcast XML or spring config
+		<map-store enabled="true" initial-mode="LAZY">
+			<class-name>net.bestia.zoneserver.entity.EntityMapStore</class-name>
+			<write-delay-seconds>10</write-delay-seconds>
+			<write-batch-size>1000</write-batch-size>
+			<write-coalescing>true</write-coalescing>
+		</map-store>
+		-->
+	</map>
+	
+	<map name="components">
+		<!-- Not instanced good via spring. must be configured via hazelcast XML or spring config
+		<map-store enabled="true" initial-mode="LAZY">
+			<class-name>net.bestia.zoneserver.entity.ComponentMapStore</class-name>
+			<write-delay-seconds>10</write-delay-seconds>
+			<write-batch-size>1000</write-batch-size>
+			<write-coalescing>true</write-coalescing>
+		</map-store>-->
 	</map>
 
 	<multimap name="default">
@@ -148,16 +168,6 @@
 	<set name="default">
 		<backup-count>1</backup-count>
 	</set>
-
-	<jobtracker name="default">
-		<max-thread-size>0</max-thread-size>
-		<!-- Queue size 0 means number of partitions * 2 -->
-		<queue-size>0</queue-size>
-		<retry-count>0</retry-count>
-		<chunk-size>1000</chunk-size>
-		<communicate-stats>true</communicate-stats>
-		<topology-changed-strategy>CANCEL_RUNNING_OPERATION</topology-changed-strategy>
-	</jobtracker>
 
 	<semaphore name="default">
 		<initial-permits>0</initial-permits>

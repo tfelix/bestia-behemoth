@@ -58,7 +58,10 @@ public class Item implements Serializable {
 	@JsonProperty("i")
 	private String indicator;
 
-	private int usableRange = 0;
+	/**
+	 * Maybe query a script for the range.
+	 */
+	private int usableDefaultRange = 0;
 
 	public int getId() {
 		return id;
@@ -88,8 +91,8 @@ public class Item implements Serializable {
 		return weight;
 	}
 	
-	public int getUsableRange() {
-		return usableRange;
+	public int getUsableDefaultRange() {
+		return usableDefaultRange;
 	}
 	
 	@Override

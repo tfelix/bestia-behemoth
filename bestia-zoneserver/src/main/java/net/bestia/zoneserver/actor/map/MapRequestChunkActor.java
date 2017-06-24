@@ -15,6 +15,7 @@ import net.bestia.messages.map.MapChunkMessage;
 import net.bestia.messages.map.MapChunkRequestMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.map.MapChunk;
+import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.entity.Entity;
 import net.bestia.zoneserver.entity.EntityService;
@@ -78,6 +79,6 @@ public class MapRequestChunkActor extends BestiaRoutingActor {
 		final List<MapChunk> chunks = mapService.getChunks(req.getChunks());
 
 		final MapChunkMessage response = new MapChunkMessage(req.getAccountId(), chunks);
-		sendClient(response);
+		AkkaSender.sendClient(getContext(), response);
 	}
 }

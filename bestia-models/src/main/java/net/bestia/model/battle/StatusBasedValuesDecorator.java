@@ -212,4 +212,9 @@ public class StatusBasedValuesDecorator implements StatusBasedValues, Serializab
 		return Walkspeed.fromInt(walkspeed);
 	}
 
+	@Override
+	public float getCooldown() {
+		return wrapped.getCooldown();
+	}
+
 }

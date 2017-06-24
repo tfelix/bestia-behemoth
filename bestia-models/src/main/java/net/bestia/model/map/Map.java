@@ -1,9 +1,7 @@
 package net.bestia.model.map;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -18,91 +16,16 @@ import net.bestia.model.geometry.Rect;
  * Usually this is a rather small part because all data is hold in memory and
  * not streamed.
  * 
+ * Map is basically a wrapper around {@link MapDataDTO} and contains a bit more
+ * data like the tileset information.
+ * 
  * @author Thomas Felix <thomas.felix@tfelix.de>
  *
  */
 public class Map {
 
-	/**
-	 * A helper class which is used in order to construct maps for the bestia
-	 * system.
-	 * 
-	 */
-	public static class MapBuilder {
-
-		private final List<Tileset> tilesets = new ArrayList<>();
-		private final List<Integer> groundTiles = new ArrayList<>();
-		private final List<java.util.Map<Point, Integer>> layerTiles = new ArrayList<>();
-		private Rect rect = new Rect(1, 1, 1, 1);
-
-		public void setRect(Rect rect) {
-			this.rect = rect;
-		}
-
-		/**
-		 * Adds a new tile layers. The layer must have the size of the map which
-		 * must be also provided!
-		 * 
-		 * @param layer
-		 */
-		public void addGroundTiles(List<Integer> tiles) {
-			groundTiles.addAll(tiles);
-		}
-
-		public void addTileset(Tileset ts) {
-			this.tilesets.add(ts);
-		}
-
-		/**
-		 * Adds a new tile layer to this builder.
-		 * 
-		 * @param layer
-		 *            The layer to be added.
-		 * @param tiles
-		 *            The new tiles of this layer.
-		 */
-		public void addTileLayer(int layer, java.util.Map<Point, Integer> tiles) {
-			if (layer > layerTiles.size()) {
-
-				for (int i = layerTiles.size(); i < layer; i++) {
-					layerTiles.add(new HashMap<>());
-				}
-			}
-
-			java.util.Map<Point, Integer> tileLayer = layerTiles.get(layer);
-			tileLayer.clear();
-			tileLayer.putAll(tiles);
-		}
-
-		/**
-		 * Builds the map from the provided data.
-		 * 
-		 * @return A new build map.
-		 */
-		public Map build() {
-			// Perform some sanity checks the tile bottom layer must have no
-			// holes.
-			if (groundTiles.size() != rect.getHeight() * rect.getWidth()) {
-				throw new IllegalStateException("Groundlayer tile count does not match map size.");
-			}
-
-			return new Map(this);
-		}
-
-		/**
-		 * Adds multiple tilesets to the builder.
-		 * 
-		 * @param tilesets
-		 */
-		public void addTilesets(Collection<Tileset> tilesets) {
-			this.tilesets.addAll(tilesets);
-		}
-
-	}
-
-	private final Rect rect;
 	private final List<Tileset> tilesets;
-	private final List<Integer> groundLayer;
+	private final MapDataDTO data;
 
 	/**
 	 * Sparse layers on top of the bottom tiles.
@@ -115,13 +38,11 @@ public class Map {
 	 * @param builder
 	 *            Builder object to fill the data into the map.
 	 */
-	private Map(MapBuilder builder) {
+	public Map(MapDataDTO data, List<Tileset> tilesets) {
 
-		this.rect = Objects.requireNonNull(builder.rect);
-		Objects.requireNonNull(builder.tilesets);
-		this.tilesets = Collections.unmodifiableList(new ArrayList<>(builder.tilesets));
-		Objects.requireNonNull(builder.groundTiles);
-		this.groundLayer = Collections.unmodifiableList(builder.groundTiles);
+		this.data = Objects.requireNonNull(data);
+		this.tilesets = Collections.unmodifiableList(new ArrayList<>(tilesets));
+
 	}
 
 	/**
@@ -137,7 +58,7 @@ public class Map {
 	public Walkspeed getWalkspeed(long x, long y) {
 
 		// Find the walkspeed on the tile.
-		final int gid = getGid(x, y);
+		final int gid = data.getGroundGid(x, y);
 
 		if (gid == 0) {
 			return Walkspeed.fromInt(0);
@@ -145,26 +66,6 @@ public class Map {
 
 		return getTileset(gid).map(ts -> Walkspeed.fromInt(ts.getProperties(gid).getWalkspeed()))
 				.orElse(Walkspeed.fromInt(0));
-	}
-
-	/**
-	 * Finds the tile id of the given coordiante.
-	 * 
-	 * @return
-	 */
-	private int getGid(long x, long y) {
-		// Now check the layers.
-		final long cx = x - rect.getX();
-		final long cy = y - rect.getY();
-
-		final int index = (int) (cy * rect.getWidth() + cx);
-		final Integer gid = groundLayer.get(index);
-
-		if (gid == null) {
-			return 0;
-		}
-
-		return gid;
 	}
 
 	/**
@@ -179,11 +80,11 @@ public class Map {
 	 */
 	public boolean isWalkable(Point p) {
 
-		if (!rect.collide(p)) {
+		if (!data.getRect().collide(p)) {
 			throw new IndexOutOfBoundsException("X or/and Y does not lie inside the map rectangle.");
 		}
 
-		final int gid = getGid(p.getX(), p.getY());
+		final int gid = data.getGroundGid(p.getX(), p.getY());
 
 		if (gid == 0) {
 			return false;
@@ -226,11 +127,11 @@ public class Map {
 	 */
 	public boolean blocksSight(Point p) {
 
-		if (!rect.collide(p)) {
+		if (!data.getRect().collide(p)) {
 			throw new IndexOutOfBoundsException("X or/and Y does not lie inside the map rectangle.");
 		}
 
-		final int gid = getGid(p.getX(), p.getY());
+		final int gid = data.getGroundGid(p.getX(), p.getY());
 
 		if (gid == 0) {
 			return false;
@@ -272,6 +173,6 @@ public class Map {
 	 * @return The view to this part of the map.
 	 */
 	public Rect getRect() {
-		return rect;
+		return data.getRect();
 	}
 }

@@ -69,10 +69,10 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 		final Map2DDescription.Builder descBuilder = new Map2DDescription.Builder();
 		//descBuilder.setHeight(height);
 		//descBuilder.setWidth(width);
-		descBuilder.setHeight(300);
-		descBuilder.setWidth(300);
-		descBuilder.setPartHeight(1000);
-		descBuilder.setPartWidth(1000);
+		descBuilder.setHeight(1000);
+		descBuilder.setWidth(1000);
+		descBuilder.setPartHeight(100);
+		descBuilder.setPartWidth(100);
 
 		// Prepare the data.
 		final NoiseVectorBuilder noiseBuilder = new NoiseVectorBuilder();

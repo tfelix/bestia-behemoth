@@ -78,41 +78,35 @@ public class MapGeneratorMasterActor extends BestiaActor {
 
 		this.mapGenService = Objects.requireNonNull(mapGenService);
 	}
-
+	
 	@Override
-	public void onReceive(Object msg) throws Throwable {
+	public Receive createReceive() {
+		return receiveBuilder()
+				.match(MapParameter.class, m -> {
+					LOG.info("Received map base parameter. Starting to generate map. ({})", m);
+					mapBaseParameter = m;
+					queryGeneratorNodes();
+				})
+				.match(WorkstateMessage.class, mapGenService::consumeNodeMessage)
+				.match(ActorIdentity.class, this::addToAvailableNodes)
+				.matchEquals(START_MSG, m -> this.start())
+				.build();
+	}
 
-		if (msg instanceof MapParameter) {
+	private void start() {
+		LOG.debug("Queried all generator nodes. Starting to generate map.");
 
-			LOG.info("Received map base parameter. Starting to generate map. ({})", msg);
-			mapBaseParameter = (MapParameter) msg;
-			queryGeneratorNodes();
-
-		} else if(msg instanceof WorkstateMessage) {
-			
-			mapGenService.consumeNodeMessage((WorkstateMessage) msg);
-			
-		} else if (msg instanceof ActorIdentity) {
-
-			addToAvailableNodes((ActorIdentity) msg);
-
-		} else if (msg.equals(START_MSG)) {
-			
-			LOG.debug("Queried all generator nodes. Starting to generate map.");
-
-			// Prepare the list of nodes.
-			List<NodeConnector> nodes = availableNodes.stream()
-					.map(ref -> new AkkaMapGenClient(ref))
-					.collect(Collectors.toList());
-			
-			if(nodes.size() == 0) {
-				LOG.warning("No other nodes found to generate the map. Aborting.");
-				return;
-			}
-
-			mapGenService.generateMap(mapBaseParameter, nodes);
+		// Prepare the list of nodes.
+		List<NodeConnector> nodes = availableNodes.stream()
+				.map(ref -> new AkkaMapGenClient(ref))
+				.collect(Collectors.toList());
+		
+		if(nodes.size() == 0) {
+			LOG.warning("No other nodes found to generate the map. Aborting.");
+			return;
 		}
 
+		mapGenService.generateMap(mapBaseParameter, nodes);
 	}
 
 	/**
@@ -125,9 +119,9 @@ public class MapGeneratorMasterActor extends BestiaActor {
 			return;
 		}
 
-		if (msg.getRef() != null) {
-			LOG.debug("Map generator client node identified: {}", msg.getRef());
-			availableNodes.add(msg.getRef());
+		if (msg.getActorRef().isPresent()) {
+			LOG.debug("Map generator client node identified: {}", msg.getActorRef().get());
+			availableNodes.add(msg.getActorRef().get());
 		}
 	}
 

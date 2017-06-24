@@ -1,5 +1,8 @@
 package net.bestia.zoneserver.actor.login;
 
+import java.util.Objects;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -8,6 +11,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.web.AccountLogin;
 import net.bestia.messages.web.AccountLoginToken;
 import net.bestia.zoneserver.actor.BestiaActor;
+import net.bestia.zoneserver.service.LoginService;
 
 /**
  * Performs a login operation and generates a new login token for the account.
@@ -22,28 +26,27 @@ public class RequestLoginActor extends BestiaActor {
 	public final static String NAME = "requestLogin";
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+	private final LoginService loginService;
 
-	public RequestLoginActor() {
+	@Autowired
+	public RequestLoginActor(LoginService loginService) {
 
-		
+		this.loginService = Objects.requireNonNull(loginService);
+	}
+
+	private void handleLogin(AccountLogin msg) {
+		LOG.debug("Received incoming login: {}", msg);
+
+		final AccountLoginToken newToken = loginService.setNewLoginToken(msg.getUsername(), msg.getPassword());
+
+		getSender().tell(newToken, getSelf());
 	}
 
 	@Override
-	public void onReceive(Object msg) throws Throwable {
-
-		if(!(msg instanceof AccountLogin)) {
-			unhandled(msg);
-			return;
-		}
-		
-		final AccountLogin token = (AccountLogin) msg;
-		
-		LOG.debug("Received incoming login: {}", token);
-		
-		// FIXME das hier wieder aktiv machen.
-		// Check login.
-		final AccountLoginToken answerToken = new AccountLoginToken(1, "rocket", "test1234");
-		getSender().tell(answerToken, getSelf());
+	public Receive createReceive() {
+		return receiveBuilder()
+				.match(AccountLogin.class, this::handleLogin)
+				.build();
 	}
 
 }

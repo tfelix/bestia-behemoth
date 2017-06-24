@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,10 +28,9 @@ import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.MapChunk;
 import net.bestia.model.map.MapDataDTO;
-import net.bestia.model.map.Map.MapBuilder;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.component.TagComponent;
+import net.bestia.model.map.Tileset;
+import net.bestia.model.map.TilesetService;
+import net.bestia.util.ObjectSerializer;
 
 /**
  * The {@link MapService} is central instance for requesting and modifing map
@@ -57,14 +55,18 @@ public class MapService {
 
 	private final MapDataDAO mapDataDao;
 	private final MapParameterDAO mapParamDao;
-	private final EntityService entityService;
+	private final TilesetService tilesetService;
+	private final ObjectSerializer<MapDataDTO> mapDataSerializer;
 
 	@Autowired
-	public MapService(MapDataDAO dataDao, MapParameterDAO paramDao, EntityService entityService) {
+	public MapService(MapDataDAO dataDao,
+			MapParameterDAO paramDao,
+			TilesetService tilesetService) {
 
 		this.mapDataDao = Objects.requireNonNull(dataDao);
 		this.mapParamDao = Objects.requireNonNull(paramDao);
-		this.entityService = Objects.requireNonNull(entityService);
+		this.tilesetService = Objects.requireNonNull(tilesetService);
+		this.mapDataSerializer = new ObjectSerializer<>();
 	}
 
 	/**
@@ -147,21 +149,26 @@ public class MapService {
 	 * @param height
 	 * @return A {@link Map} containig the enclosed data.
 	 */
-	public Map getMap(long x, long y, long width, long height) {
-		if (x < 0 || y < 0 || width < 0 || height < 0) {
+	public Map getMap(long startX, long startY, long width, long height) {
+		if (startX < 0 || startY < 0 || width < 0 || height < 0) {
 			throw new IllegalArgumentException("X, Y, width and height must be positive.");
 		}
 
-		final MapBuilder builder = new Map.MapBuilder();
-		
-		final List<MapDataDTO> data = getCoveredMapDataDTO(x, y, width, height);
-		
-		/*
-		data.sort((MapDataDTO d1, MapDataDTO d2) -> {
-			d1.getRect().getX() < d2.getRect().getX() 
-		});*/
+		final Rect rect = new Rect(startX, startY, width, height);
 
-		throw new IllegalStateException("Not yet implemented.");
+		final List<MapDataDTO> data = getCoveredMapDataDTO(startX, startY, width, height);
+
+		// Combine them to a big dto.
+		final MapDataDTO joinedData = data.stream().reduce(MapDataDTO::join).orElseThrow(IllegalStateException::new);
+		final MapDataDTO slicedData = joinedData.slice(rect);
+
+		// Get all used tilesets.
+		final Set<Integer> gids = slicedData.getDistinctGids();
+
+		// Find all tilesets for the gids.
+		final List<Tileset> tilesets = tilesetService.findAllTilesets(gids);
+
+		return new Map(slicedData, tilesets);
 	}
 
 	/**
@@ -238,11 +245,9 @@ public class MapService {
 
 		Objects.requireNonNull(dto);
 
-		try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				ObjectOutputStream oos = new ObjectOutputStream(bos)) {
-			oos.writeObject(dto);
-
-			byte[] output = compress(bos.toByteArray());
+		try {
+			byte[] output = mapDataSerializer.serialize(dto);
+			output = compress(output);
 
 			// Now create the map data object and save it to the database.
 			final MapData mapData = new MapData();
@@ -252,30 +257,10 @@ public class MapService {
 			mapData.setX(dto.getRect().getX());
 			mapData.setY(dto.getRect().getY());
 			mapDataDao.save(mapData);
+
 		} catch (IOException e) {
-			LOG.error("Can not persist map data.", e);
+			LOG.error("Could not compress map data.", e);
 		}
-	}
-
-	/**
-	 * Returns the name of the current area of the map if it has a special
-	 * naming component attached to it.
-	 * 
-	 * @param pos
-	 *            The position to check for a naming component.
-	 * @return The name of the area.
-	 */
-	public String getAreaName(Point pos) {
-		final Set<Entity> entities = entityService.getCollidingEntities(pos, TagComponent.class);
-
-		Optional<String> areaName = entities.stream()
-				.map(entity -> entityService.getComponent(entity, TagComponent.class))
-				.map(Optional::get)
-				.filter(tagComp -> tagComp.get(AREA_TAG_NAME) != null)
-				.map(tagComp -> (String) tagComp.get(AREA_TAG_NAME))
-				.findFirst();
-
-		return areaName.orElse("");
 	}
 
 	/**
@@ -284,7 +269,7 @@ public class MapService {
 	 * @return The name of the map.
 	 */
 	public String getMapName() {
-		final MapParameter params = mapParamDao.findLatest();
+		final MapParameter params = mapParamDao.findFirstByOrderByIdDesc();
 		return params == null ? "" : params.getName();
 	}
 
@@ -307,7 +292,7 @@ public class MapService {
 			return Collections.emptyList();
 		}
 
-		List<MapDataDTO> dtos = new ArrayList<>(rawData.size());
+		final List<MapDataDTO> dtos = new ArrayList<>(rawData.size());
 
 		for (MapData md : rawData) {
 			try {
@@ -345,7 +330,9 @@ public class MapService {
 			// Prepare the list of ground tiles.
 			final List<Integer> groundTiles = new ArrayList<>((int) (area.getWidth() * area.getHeight()));
 
-			final List<MapDataDTO> dtos = getCoveredMapDataDTO(area.getX(), area.getY(), area.getWidth(),
+			final List<MapDataDTO> dtos = getCoveredMapDataDTO(area.getX(),
+					area.getY(),
+					area.getWidth(),
 					area.getHeight());
 
 			for (long y = area.getOrigin().getY(); y < area.getOrigin().getY() + area.getHeight(); y++) {

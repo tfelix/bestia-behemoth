@@ -1,7 +1,5 @@
 package net.bestia.zoneserver.service;
 
-import java.util.Objects;
-
 import org.springframework.stereotype.Service;
 
 import net.bestia.model.dao.PartyDAO;
@@ -17,11 +15,11 @@ import net.bestia.model.dao.PartyDAO;
 @Service
 public class PartyService {
 
-	private final PartyDAO partyDao;
+	//private final PartyDAO partyDao;
 
 	public PartyService(PartyDAO partyDao) {
 
-		this.partyDao = Objects.requireNonNull(partyDao);
+		//this.partyDao = Objects.requireNonNull(partyDao);
 	}
 
 	/**

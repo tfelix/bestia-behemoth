@@ -31,7 +31,7 @@ import com.hazelcast.core.HazelcastInstance;
 import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.BasicMocks;
+import net.bestia.testing.BasicMocks;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.entity.component.PlayerComponent;
 import net.bestia.zoneserver.service.PlayerBestiaService;
@@ -51,8 +51,8 @@ public class PlayerEntityServiceTest {
 	private static final long MASTER_PB_ID = 42;
 	private static final long PLAYER_PB_ID = 43;
 
-	private final static BasicMocks mocks = new BasicMocks();
-	private final static HazelcastInstance hz = mocks.hazelcastMock();
+	private final BasicMocks mocks = new BasicMocks();
+	private final HazelcastInstance hz = mocks.hazelcastMock();
 
 	private EntityService entityService;
 	private PlayerBestiaService playerBestiaService;
@@ -284,7 +284,9 @@ public class PlayerEntityServiceTest {
 
 	@Test
 	public void hasPlayerEntity_knownAccOkEntityId_true() {
-		assertTrue(pbeService.hasPlayerEntity(KNOWN_ACC_ID, PLAYER_ENTITY_ID));
+		pbeService.putPlayerEntity(playerEntity);
+		boolean isKnown = pbeService.hasPlayerEntity(KNOWN_ACC_ID, PLAYER_ENTITY_ID);
+		assertTrue(isKnown);
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -344,11 +346,13 @@ public class PlayerEntityServiceTest {
 		
 		pbeService.putPlayerEntity(masterEntity);
 		pbeService.putPlayerEntity(playerEntity);
+		pbeService.setActiveEntity(KNOWN_ACC_ID, masterEntity.getId());
 
 		assertEquals("Account should own two bestias now.", 2, pbeService.getPlayerEntities(KNOWN_ACC_ID).size());
 
-		pbeService.removePlayerBestia(masterEntity);
+		boolean removed = pbeService.removePlayerBestia(masterEntity);
 
+		assertTrue(removed);
 		assertEquals("Account should own only one bestias now.", 1, pbeService.getPlayerEntities(KNOWN_ACC_ID).size());
 		assertTrue(pbeService.getPlayerEntities(KNOWN_ACC_ID).contains(playerEntity));
 	}

@@ -13,6 +13,7 @@ import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
+import net.bestia.model.domain.StatusValues;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.entity.StatusBasedValuesImpl;
 import net.bestia.zoneserver.entity.component.LevelComponent;
@@ -57,6 +58,8 @@ public class StatusService {
 	 * @return
 	 */
 	public Optional<StatusBasedValues> getStatusBasedValues(Entity entity) {
+		Objects.requireNonNull(entity);
+
 		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
 
 		if (!statusComp.isPresent()) {
@@ -68,6 +71,18 @@ public class StatusService {
 		}
 
 		return Optional.of(statusComp.get().getStatusBasedValues());
+	}
+
+	/**
+	 * Alias to {@link #getStatusPoints(Entity)}.
+	 * 
+	 * @param entityId
+	 *            The entity ID to get the status points for.
+	 * @return The found status points.
+	 */
+	public Optional<StatusPoints> getStatusPoints(long entityId) {
+		final Entity entity = entityService.getEntity(entityId);
+		return getStatusPoints(entity);
 	}
 
 	/**
@@ -84,6 +99,7 @@ public class StatusService {
 	 * @return The by status effects or equip modified {@link StatusPoints}.
 	 */
 	public Optional<StatusPoints> getStatusPoints(Entity entity) {
+		Objects.requireNonNull(entity);
 
 		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
 
@@ -95,6 +111,7 @@ public class StatusService {
 	}
 
 	public Optional<StatusPoints> getUnmodifiedStatusPoints(Entity entity) {
+		Objects.requireNonNull(entity);
 
 		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
 
@@ -102,7 +119,7 @@ public class StatusService {
 			return Optional.empty();
 		}
 
-		return Optional.of(statusComp.get().getOriginalStatusPoints());
+		return Optional.of(statusComp.get().getUnmodifiedStatusPoints());
 	}
 
 	/**
@@ -114,6 +131,8 @@ public class StatusService {
 	 *            The entity to recalculate the status.
 	 */
 	public void calculateStatusPoints(Entity entity) {
+		Objects.requireNonNull(entity);
+
 		entityService.getComponent(entity, StatusComponent.class).ifPresent(statusComp -> {
 			calculateStatusPoints(entity, statusComp);
 		});
@@ -169,11 +188,8 @@ public class StatusService {
 		statusPoints.setAgility(agi);
 		statusPoints.setDexterity(dex);
 
-		statusPoints.setCurrentHp(pb.getCurrentHp());
-		statusPoints.setCurrentMana(pb.getCurrentMana());
-
 		// Update all component values.
-		statusComp.setOriginalStatusPoints(statusPoints);
+		statusComp.setUnmodifiedStatusPoints(statusPoints);
 
 		entityService.saveComponent(statusComp);
 	}
@@ -199,7 +215,7 @@ public class StatusService {
 		calculateUnmodifiedStatusPoints(entity, statusComp, level);
 
 		// Currently only use status values 1:1.
-		StatusPoints statusPoints = new StatusPointsImpl(statusComp.getOriginalStatusPoints());
+		StatusPoints statusPoints = new StatusPointsImpl(statusComp.getUnmodifiedStatusPoints());
 
 		statusComp.setStatusPoints(statusPoints);
 
@@ -209,62 +225,101 @@ public class StatusService {
 	}
 
 	/**
-	 * Ticks the regeneration for all tick based status regeneration for this
-	 * entity. If the given entity ID can not be regenerated a
-	 * {@link IllegalArgumentException} is thrown.
+	 * Returns the mana value ticked per regeneration step. Note that this value
+	 * might be smaller then 1. We use this to save the value between the ticks
+	 * until we have at least 1 mana and can add this to the user status.
 	 * 
 	 * @param entityId
-	 *            The entity ID to tick the regeneration procedure.
+	 * @return The ticked mana value.
 	 */
-	public void tickRegeneration(long entityId) {
-
+	public float getManaTick(long entityId) {
 		final StatusComponent statusComponent = entityService.getComponent(entityId, StatusComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
-		LOG.trace("Ticking hp/mana regeneration for entity {}.", entityId);
-		
 		final float manaRegenRate = statusComponent.getStatusBasedValues().getManaRegenRate();
-		final float hpRegenRate = statusComponent.getStatusBasedValues().getManaRegenRate();
-		
-		final StatusPoints origStatus = statusComponent.getOriginalStatusPoints();
-		final StatusPoints status = statusComponent.getStatusPoints();
-		
+
 		// Calc the added value.
-		final int manaRegen = Math.round(manaRegenRate / 1000 * REGENERATION_TICK_RATE_MS);
-		final int hpRegen = Math.round(hpRegenRate / 1000 * REGENERATION_TICK_RATE_MS);
-		
-		final int curMana = origStatus.getCurrentMana() + manaRegen;
-		final int curHp =  origStatus.getCurrentHp() + hpRegen;
-		
-		origStatus.setCurrentMana(curMana);
-		origStatus.setCurrentHp(curHp);
-		
-		status.setCurrentMana(curMana);
-		status.setCurrentHp(curHp); 
-		
-		// Save component back.
-		entityService.saveComponent(statusComponent);
+		final float manaRegen = manaRegenRate / 1000 * REGENERATION_TICK_RATE_MS;
+		LOG.trace("Ticking mana regen {} for entity {}.", manaRegen, entityId);
+
+		return manaRegen;
 	}
 
-	/*
-	 * StatusPointsDecorator baseStatusPointModified = new
-	 * StatusPointsDecorator(baseStatusPoints);
+	/**
+	 * Returns the health value ticked per regeneration step. Note that this
+	 * value might be smaller then 1. We use this to save the value between the
+	 * ticks until we have at least 1 health and can add this to the user
+	 * status.
 	 * 
-	 * // Get all the attached script mods. for (StatusEffectScript statScript :
-	 * statusEffectsScripts) { final StatusPointsModifier mod =
-	 * statScript.onStatusPoints(baseStatusPoints);
-	 * baseStatusPointModified.addModifier(mod); }
-	 * 
-	 * statusBasedValues=new
-	 * StatusBasedValuesImpl(baseStatusPointModified,getLevel());
-	 * statusBasedValuesModified=new
-	 * StatusBasedValuesDecorator(statusBasedValues);statusBasedValuesModified.
-	 * clearModifier();
-	 * 
-	 * // Get all the attached script mods. for (StatusEffectScript statScript :
-	 * statusEffectsScripts) { final StatusBasedValueModifier mod =
-	 * statScript.onStatusBasedValues(statusBasedValues);
-	 * statusBasedValuesModified.addStatusModifier(mod); }
+	 * @param entityId
+	 * @return The ticked health value.
 	 */
+	public float getHealthTick(long entityId) {
+		final StatusComponent statusComponent = entityService.getComponent(entityId, StatusComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+
+		final float hpRegenRate = statusComponent.getStatusBasedValues().getHpRegenRate();
+
+		// Calc the added value.
+		final float hpRegen = hpRegenRate / 1000 * REGENERATION_TICK_RATE_MS;
+		LOG.trace("Ticking hp regen {} for entity {}.", hpRegen, entityId);
+
+		return hpRegen;
+	}
+
+	public Optional<StatusValues> getStatusValues(long entityId) {
+		final Entity e = entityService.getEntity(entityId);
+		return getStatusValues(e);
+	}
+
+	public Optional<StatusValues> getStatusValues(Entity entity) {
+
+		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
+		return statusComp.map(sc -> Optional.of(sc.getValues())).orElse(Optional.empty());
+	}
+
+	/**
+	 * Saves the status values into the specific component of the given entity.
+	 * It also makes sure the current mana and health are not exeeding the max
+	 * hp and max mana from the status points of this entity.
+	 * 
+	 * @param entity
+	 * @param values
+	 */
+	public void saveStatusValues(Entity entity, StatusValues values) {
+		
+		Objects.requireNonNull(values);
+
+		final StatusComponent statusComp = entityService.getComponent(entity, StatusComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+
+		// Sanity check the data.
+		final StatusPoints sp = statusComp.getStatusPoints();
+		
+		if(values.getCurrentHealth() > sp.getMaxHp()) {
+			values.setCurrentHealth(sp.getMaxHp());
+		}
+		
+		if(values.getCurrentMana() > sp.getMaxMana()) {
+			values.setCurrentMana(sp.getMaxMana());
+		}
+		
+		statusComp.getValues().set(values);
+		
+		entityService.saveComponent(statusComp);
+	}
+
+	/**
+	 * This is an alias for {@link #saveStatusValues(Entity, StatusValues)}.
+	 * 
+	 * @param entityId
+	 *            The entity ID for which to save the status values.
+	 * @param sval
+	 *            The status values to save for this entity.
+	 */
+	public void saveStatusValues(long entityId, StatusValues sval) {
+		final Entity e = entityService.getEntity(entityId);
+		saveStatusValues(e, sval);
+	}
 
 }
