@@ -2,9 +2,10 @@ package net.bestia.zoneserver.map.path;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -14,11 +15,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.PositionComponent;
+import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
@@ -42,15 +46,16 @@ public class TileNodeProviderTest {
 	private final static Point POINT_IN_RANGE = new Point(10, 10);
 	private final static Node<Point> NODE_IN_RANGE = new Node<>(POINT_IN_RANGE);
 
-	private final static Point POINT_ENTITY_BLOCK = new Point(12, 12);
+	private final static Point POINT_ENTITY_BLOCK = new Point(50, 50);
 	private final static Node<Point> NODE_ENTITY_BLOCK = new Node<>(POINT_ENTITY_BLOCK);
 
 	private final static Rect MAP_RECT = new Rect(0, 0, 100, 100);
+	private final static Rect ENTITY_RECT = new Rect(45, 45, 10, 10);
 	private final Rect collisionShape = new Rect(0, 0, 10000, 10000);
-	
+
 	private final static Entity blockingEntity;
 	private final static Set<Entity> blockingEntities = new HashSet<>();
-	
+
 	private final static Walkspeed WALKSPD = Walkspeed.fromFloat(1.0f);
 
 	static {
@@ -70,7 +75,20 @@ public class TileNodeProviderTest {
 		when(gameMap.getWalkspeed(anyLong(), anyLong())).thenReturn(WALKSPD);
 		when(gameMap.getRect()).thenReturn(MAP_RECT);
 
-		when(entityService.getCollidingEntities(POINT_ENTITY_BLOCK)).thenReturn(blockingEntities);
+		when(entityService.getCollidingEntities(any(CollisionShape.class))).thenAnswer(new Answer<Set<Entity>>() {
+
+			@Override
+			public Set<Entity> answer(InvocationOnMock invocation) throws Throwable {
+
+				CollisionShape shape = invocation.getArgument(0);
+				if (ENTITY_RECT.collide(shape)) {
+					return blockingEntities;
+				} else {
+					return Collections.emptySet();
+				}
+			}
+		});
+
 		when(entityService.getComponent(blockingEntity, PositionComponent.class)).thenReturn(Optional.of(posComp));
 		when(posComp.getShape()).thenReturn(collisionShape);
 
