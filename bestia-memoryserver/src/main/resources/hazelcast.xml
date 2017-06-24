@@ -137,7 +137,7 @@
 		</merge-policy>
 
 		<map-store enabled="true" initial-mode="LAZY">
-			<class-name>net.bestia.zoneserver.entity.EntityMapStore</class-name>
+			<class-name>net.bestia.memoryserver.persistance.EntityMapStore</class-name>
 			<write-delay-seconds>10</write-delay-seconds>
 			<write-batch-size>1000</write-batch-size>
 			<write-coalescing>true</write-coalescing>
@@ -146,7 +146,7 @@
 	
 	<map name="components">
 		<map-store enabled="true" initial-mode="LAZY">
-			<class-name>net.bestia.zoneserver.entity.ComponentMapStore</class-name>
+			<class-name>net.bestia.memoryserver.persistance.ComponentMapStore</class-name>
 			<write-delay-seconds>10</write-delay-seconds>
 			<write-batch-size>1000</write-batch-size>
 			<write-coalescing>true</write-coalescing>

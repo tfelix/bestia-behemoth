@@ -116,6 +116,11 @@
 			<artifactId>bestia-server-commons</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>net.bestia</groupId>
+			<artifactId>bestia-entities</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<!-- Include shared testing code as well in test scope -->
 		<dependency>
 			<groupId>net.bestia</groupId>

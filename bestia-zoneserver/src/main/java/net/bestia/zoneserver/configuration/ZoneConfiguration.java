@@ -5,26 +5,19 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 
 import com.hazelcast.core.HazelcastInstance;
 
+import net.bestia.entity.EntityRecycler;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.interceptor.ComponentInterceptor;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.MapParameter;
-import net.bestia.model.geometry.Point;
-import net.bestia.zoneserver.entity.EntityRecycler;
-import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.component.interceptor.ComponentInterceptor;
 import net.bestia.zoneserver.environment.date.BestiaDate;
-import net.bestia.zoneserver.map.path.AStarPathfinder;
-import net.bestia.zoneserver.map.path.Pathfinder;
-import net.bestia.zoneserver.map.path.PointEstimator;
-import net.bestia.zoneserver.map.path.TileNodeProvider;
 import net.bestia.zoneserver.script.ScriptService;
 
 /**

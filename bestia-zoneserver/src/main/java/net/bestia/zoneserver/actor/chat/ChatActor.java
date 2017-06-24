@@ -17,11 +17,11 @@ import net.bestia.model.domain.Party;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.chat.ChatCommandService;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.PlayerEntityService;
-import net.bestia.zoneserver.entity.component.PositionComponent;
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.PositionComponent;
 import net.bestia.zoneserver.service.AccountService;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * This actor processes chat messages from the clients to the bestia system. It

@@ -10,12 +10,12 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.PositionComponent;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.map.Map;
 import net.bestia.model.map.Walkspeed;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.component.PositionComponent;
 
 /**
  * Provides tile based nodes for map pathfinding based on a map object. The

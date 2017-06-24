@@ -9,6 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.StatusService;
+import net.bestia.entity.component.PositionComponent;
+import net.bestia.entity.component.StatusComponent;
 import net.bestia.messages.attack.AttackUseMessage;
 import net.bestia.model.battle.Damage;
 import net.bestia.model.domain.Attack;
@@ -18,11 +23,6 @@ import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.StatusService;
-import net.bestia.zoneserver.entity.component.PositionComponent;
-import net.bestia.zoneserver.entity.component.StatusComponent;
 import net.bestia.zoneserver.map.MapService;
 
 /**

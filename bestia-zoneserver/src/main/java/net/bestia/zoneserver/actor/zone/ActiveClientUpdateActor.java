@@ -17,11 +17,11 @@ import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.PlayerEntityService;
-import net.bestia.zoneserver.entity.component.PositionComponent;
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.PositionComponent;
 import net.bestia.zoneserver.map.MapService;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * This actor sends update messages to all active player in sight. In order to

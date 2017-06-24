@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import akka.actor.ActorRef;
+import net.bestia.entity.Entity;
+import net.bestia.entity.PlayerBestiaEntityFactory;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
 import net.bestia.messages.web.AccountLoginToken;
@@ -19,9 +21,6 @@ import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.RuntimeConfigurationService;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.PlayerBestiaEntityFactory;
-import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**
  * Performs login or logout of the bestia server system.

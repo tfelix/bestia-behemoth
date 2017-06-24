@@ -5,11 +5,11 @@ import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
 import net.bestia.model.battle.Damage;
 import net.bestia.model.battle.Damage.DamageType;
 import net.bestia.model.domain.Attack;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
 
 @Service
 public final class DamageCalculator {

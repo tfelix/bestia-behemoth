@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import net.bestia.model.geometry.Point;
 import net.bestia.model.map.Map;
-import net.bestia.zoneserver.entity.EntityService;
+import net.bestia.entity.EntityService;
 
 /**
  * Helper factory in order to provide a clean setup for map pathfinders. This is

@@ -23,6 +23,7 @@
 		<module>bestia-zoneserver</module>
 		<module>bestia-webserver</module>
 		<module>bestia-memoryserver</module>
+		<module>bestia-entities</module>
 	</modules>
 
 	<properties>

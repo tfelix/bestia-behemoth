@@ -16,10 +16,10 @@ import net.bestia.model.dao.PlayerItemDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerItem;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.StatusService;
-import net.bestia.zoneserver.entity.component.LevelComponent;
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.StatusService;
+import net.bestia.entity.component.LevelComponent;
 
 /**
  * This service kind of manages the user relationship with the inventory. Since

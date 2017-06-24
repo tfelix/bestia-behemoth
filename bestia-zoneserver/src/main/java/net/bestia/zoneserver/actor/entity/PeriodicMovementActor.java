@@ -14,8 +14,8 @@ import akka.actor.Scheduler;
 import net.bestia.messages.internal.entity.EntityMoveInternalMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.MovingEntityService;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.MovingEntityService;
 import scala.concurrent.duration.Duration;
 
 /**

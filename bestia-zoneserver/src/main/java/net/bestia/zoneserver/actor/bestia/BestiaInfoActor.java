@@ -20,11 +20,11 @@ import net.bestia.model.domain.StatusValues;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.PlayerEntityService;
-import net.bestia.zoneserver.entity.StatusService;
-import net.bestia.zoneserver.entity.component.PlayerComponent;
+import net.bestia.zoneserver.service.PlayerEntityService;
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.StatusService;
+import net.bestia.entity.component.PlayerComponent;
 
 /**
  * This actor gathers all needed information about the bestias in the players

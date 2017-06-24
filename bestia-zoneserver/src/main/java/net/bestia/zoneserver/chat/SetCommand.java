@@ -9,15 +9,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.StatusComponent;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.PlayerEntityService;
-import net.bestia.zoneserver.entity.component.StatusComponent;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * The set command is a very powerful admin and debugging command. It can set

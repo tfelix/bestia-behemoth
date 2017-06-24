@@ -18,9 +18,9 @@ import net.bestia.messages.internal.script.ScriptIntervalMessage;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.script.PeriodicScriptRunnerActor;
 import net.bestia.zoneserver.configuration.StaticConfigurationService;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.component.ScriptComponent;
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.ScriptComponent;
 
 /**
  * This class is responsible for fetching the script, creating a appropriate

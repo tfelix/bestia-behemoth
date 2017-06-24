@@ -17,10 +17,10 @@ import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.entity.EntityDeleteWorker;
 import net.bestia.zoneserver.actor.entity.EntityLifetimeWatchdogActor;
 import net.bestia.zoneserver.battle.BattleService;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.EntityService;
-import net.bestia.zoneserver.entity.MovingEntityService;
-import net.bestia.zoneserver.entity.ScriptEntityFactory;
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.MovingEntityService;
+import net.bestia.entity.ScriptEntityFactory;
 
 /**
  * Bundles all kind of services to provide an extensive script API. This API is
