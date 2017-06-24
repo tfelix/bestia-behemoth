@@ -67,14 +67,28 @@
 			<artifactId>akka-cluster-tools_2.11</artifactId>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-testkit_2.11 -->
+
 		<dependency>
 			<groupId>com.typesafe.akka</groupId>
 			<artifactId>akka-testkit_2.11</artifactId>
 			<scope>test</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>com.typesafe.akka</groupId>
 			<artifactId>akka-persistence_2.11</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>com.okumin</groupId>
+			<artifactId>akka-persistence-sql-async_2.11</artifactId>
+			<version>0.4.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.github.mauricio</groupId>
+			<artifactId>mysql-async_2.11</artifactId>
+			<version>0.2.20</version>
 		</dependency>
 
 		<dependency>

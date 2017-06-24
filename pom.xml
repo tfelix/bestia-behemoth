@@ -33,7 +33,7 @@
 		<findbugs.version>3.0.4</findbugs.version>
 		<spring.version>1.5.4.RELEASE</spring.version>
 		<hazelcast.version>3.7.4</hazelcast.version>	
-		<akka.version>2.5.2</akka.version>
+		<akka.version>2.5.3</akka.version>
 		<slf4j.version>1.7.25</slf4j.version>
 	</properties>
 
