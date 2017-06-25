@@ -15,6 +15,7 @@ import akka.cluster.singleton.ClusterSingletonManager;
 import akka.cluster.singleton.ClusterSingletonManagerSettings;
 import net.bestia.zoneserver.actor.entity.EntityDeleteWorker;
 import net.bestia.zoneserver.actor.entity.EntityWorker;
+import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.IngestActor;
@@ -56,6 +57,7 @@ public class ZoneStarter implements CommandLineRunner {
 		
 		// Maintenance actors.
 		akkaApi.startActor(MapGeneratorMasterActor.class);
+		akkaApi.startActor(MapGeneratorClientActor.class);
 
 		// Setup the init actor singelton for creation of the system.
 		LOG.info("Starting the global init singeltons.");

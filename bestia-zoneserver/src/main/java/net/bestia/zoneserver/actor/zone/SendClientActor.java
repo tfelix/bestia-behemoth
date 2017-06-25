@@ -48,6 +48,14 @@ public class SendClientActor extends BestiaActor {
 	private void sendToClient(AccountMessage msg) {
 
 		final ActorPath originPath = connectionService.getPath(msg.getAccountId());
+		
+		// Origin path might be null because of race conditions or because the actor 
+		// was logged out.
+		if(originPath == null) {
+			LOG.debug("Webserver path was null. Message not delivered: {}", msg);
+			return;
+		}
+		
 		final ActorSelection origin = context().actorSelection(originPath);
 
 		if (origin == null) {

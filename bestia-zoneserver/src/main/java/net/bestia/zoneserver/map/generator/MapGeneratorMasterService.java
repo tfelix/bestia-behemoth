@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.map;
+package net.bestia.zoneserver.map.generator;
 
 import java.util.List;
 import java.util.Objects;
@@ -58,8 +58,8 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 
 		final ThreadLocalRandom rand = ThreadLocalRandom.current();
 
-		// final long height = params.getWorldSize().getHeight();
-		// final long width = params.getWorldSize().getWidth();
+		final long height = params.getWorldSize().getHeight();
+		final long width = params.getWorldSize().getWidth();
 
 		masterGenerator = new MapMasterGenerator(this);
 
@@ -68,25 +68,23 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 
 		// Setup the map configuration object.
 		final Map2DDescription.Builder descBuilder = new Map2DDescription.Builder();
-		// descBuilder.setHeight(height);
-		// descBuilder.setWidth(width);
-		descBuilder.setHeight(1000);
-		descBuilder.setWidth(1000);
+		descBuilder.setHeight(height);
+		descBuilder.setWidth(width);
 		descBuilder.setPartHeight(100);
 		descBuilder.setPartWidth(100);
 
 		// Prepare the data.
 		final NoiseVectorBuilder noiseBuilder = new NoiseVectorBuilder();
-		noiseBuilder.addDimension(MapGeneratorConstants.HEIGHT_MAP, Float.class,
+		noiseBuilder.addDimension(MapGeneratorConstants.HEIGHT_MAP,
+				Float.class,
 				new SimplexNoiseProvider(rand.nextLong()));
-		/*
-		 * noiseBuilder.addDimension(MapGeneratorConstants.RAIN_MAP,
-		 * Float.class, new SimplexNoiseProvider(rand.nextLong()));
-		 * noiseBuilder.addDimension(MapGeneratorConstants.MAGIC_MAP,
-		 * Float.class, new SimplexNoiseProvider(rand.nextLong()));
-		 * noiseBuilder.addDimension(MapGeneratorConstants.POPULATION_MAP,
-		 * Float.class, new SimplexNoiseProvider(rand.nextLong()));
-		 */
+
+		//noiseBuilder.addDimension(MapGeneratorConstants.RAIN_MAP,
+		//		Float.class, new SimplexNoiseProvider(rand.nextLong()));
+		//noiseBuilder.addDimension(MapGeneratorConstants.MAGIC_MAP,
+		//		Float.class, new SimplexNoiseProvider(rand.nextLong()));
+		//noiseBuilder.addDimension(MapGeneratorConstants.POPULATION_MAP,
+		//		Float.class, new SimplexNoiseProvider(rand.nextLong()));
 
 		descBuilder.setNoiseVectorBuilder(noiseBuilder);
 

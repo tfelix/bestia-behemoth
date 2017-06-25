@@ -1,13 +1,15 @@
-package net.bestia.zoneserver.map;
+package net.bestia.zoneserver.map.generator;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import net.bestia.zoneserver.map.Biome;
 
 /**
  * The biome converter does a fuzzy logic comparison of the different biomes
  * with the parameter which are used to determine a certain biome.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class BiomeConverter {

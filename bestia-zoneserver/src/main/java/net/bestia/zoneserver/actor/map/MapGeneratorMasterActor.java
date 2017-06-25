@@ -28,7 +28,7 @@ import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.configuration.MaintenanceLevel;
 import net.bestia.zoneserver.configuration.RuntimeConfigurationService;
-import net.bestia.zoneserver.map.MapGeneratorMasterService;
+import net.bestia.zoneserver.map.generator.MapGeneratorMasterService;
 import net.bestia.zoneserver.service.LoginService;
 import scala.concurrent.duration.Duration;
 

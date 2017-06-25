@@ -1,10 +1,12 @@
-package net.bestia.zoneserver.map;
+package net.bestia.zoneserver.map.generator;
+
+import net.bestia.zoneserver.map.Biome;
 
 /**
  * This class is used to define with a fuzzy logic implementation which biom
  * values must be met in order to choose a certain biome.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 class BiomeSelector {

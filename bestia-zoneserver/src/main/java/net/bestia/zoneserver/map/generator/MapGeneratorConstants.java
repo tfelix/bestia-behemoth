@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.map;
+package net.bestia.zoneserver.map.generator;
 
 /**
  * Constants for the map generator.

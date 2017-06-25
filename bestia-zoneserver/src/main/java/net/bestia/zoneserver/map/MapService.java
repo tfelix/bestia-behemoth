@@ -248,6 +248,8 @@ public class MapService {
 		try {
 			byte[] output = mapDataSerializer.serialize(dto);
 			output = compress(output);
+			
+			LOG.debug("Map data {} compressed size: {} bytes.", dto, output.length);
 
 			// Now create the map data object and save it to the database.
 			final MapData mapData = new MapData();

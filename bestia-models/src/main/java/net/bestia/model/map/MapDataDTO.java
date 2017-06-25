@@ -82,11 +82,15 @@ public class MapDataDTO implements Serializable {
 	}
 
 	/**
-	 * Puts the given GID to the given x and y coordinates.
+	 * Puts the given GID to the given x and y coordinates. The coordinates are
+	 * GLOBAL map coordinates.
 	 * 
 	 * @param x
+	 *            Global map x coordinate.
 	 * @param y
+	 *            Global map y coordinate.
 	 * @param gid
+	 *            The tile ID of the ground tile.
 	 */
 	public void putGroundLayer(long x, long y, int gid) {
 		int index = getIndex(x, y);
