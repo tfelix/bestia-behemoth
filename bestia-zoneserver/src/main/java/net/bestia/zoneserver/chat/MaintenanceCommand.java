@@ -31,7 +31,7 @@ public class MaintenanceCommand extends BaseChatCommand {
 	private static final Logger LOG = LoggerFactory.getLogger(MaintenanceCommand.class);
 
 	private static final String CMD_START_REGEX = "^/maintenance .*";
-	private static final Pattern CMD_PATTERN = Pattern.compile("/maintenance (.*?)");
+	private static final Pattern CMD_PATTERN = Pattern.compile("/maintenance (.+)");
 
 	private final RuntimeConfigurationService config;
 	private final LoginService loginService;
@@ -73,7 +73,8 @@ public class MaintenanceCommand extends BaseChatCommand {
 		boolean isMaintenance;
 
 		try {
-			isMaintenance = Boolean.parseBoolean(match.group(1));
+			final String txt = match.group(1);
+			isMaintenance = Boolean.parseBoolean(txt);
 		} catch (Exception e) {
 			printError(account.getId());
 			return;
@@ -82,9 +83,11 @@ public class MaintenanceCommand extends BaseChatCommand {
 		LOG.info("Account {} set maintenance to: {}", account.getId(), isMaintenance);
 
 		if(isMaintenance) {
+			sendSystemMessage(account.getId(), "Server maintenance: true");
 			config.setMaintenanceMode(MaintenanceLevel.PARTIAL);
 			loginService.logoutAllUsersBelow(UserLevel.SUPER_GM);
 		} else {
+			sendSystemMessage(account.getId(), "Server maintenance: false");
 			config.setMaintenanceMode(MaintenanceLevel.NONE);
 		}
 	}

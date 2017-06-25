@@ -31,7 +31,7 @@ export default class Authenticator {
 		// Prepare login message and send it.
 		var loginMsg = {
 			mid: 'system.loginauth',
-			accId : 2,
+			accId : 1,
 			token : '04473c9f-65e9-4f59-9075-6da257a21826'
 		};
 
