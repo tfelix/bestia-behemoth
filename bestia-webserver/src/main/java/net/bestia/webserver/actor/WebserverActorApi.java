@@ -23,6 +23,22 @@ public interface WebserverActorApi {
 	AccountLoginToken getLoginToken(String accName, String password) throws WrongCredentialsException;
 
 	/**
+	 * Sets a new password for the given user account.
+	 * 
+	 * @param accName
+	 *            The name of the account. Usually this contains the email
+	 *            address.
+	 * @param oldPassword
+	 *            The old password must be given for validation.
+	 * @param newPassword
+	 *            The new password.
+	 * @return TRUE of the password setting was successful.
+	 * @throws WrongCredentialsException
+	 *             If the old password was not correct.
+	 */
+	boolean setPassword(String accName, String oldPassword, String newPassword) throws WrongCredentialsException;
+
+	/**
 	 * Creates a new websocket connection so it can exchange messages with the
 	 * bestia backend.
 	 * 

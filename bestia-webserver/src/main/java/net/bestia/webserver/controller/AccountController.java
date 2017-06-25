@@ -50,4 +50,14 @@ public class AccountController {
 
 		return login.getLoginToken(account, password);
 	}
+	
+	@CrossOrigin(origins = "http://localhost")
+	@RequestMapping("password")
+	public AccountLoginToken password(
+			@RequestParam(value = "oldPassword") String account,
+			@RequestParam(value = "newPassword") String password,
+			@RequestParam(value = "email") String email) {
+
+		return login.getLoginToken(account, password);
+	}
 }

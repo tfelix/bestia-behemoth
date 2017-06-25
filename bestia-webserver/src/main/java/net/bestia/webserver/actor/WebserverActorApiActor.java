@@ -20,6 +20,7 @@ import akka.routing.ConsistentHashingRouter;
 import akka.util.Timeout;
 import net.bestia.messages.web.AccountLogin;
 import net.bestia.messages.web.AccountLoginToken;
+import net.bestia.webserver.exceptions.WrongCredentialsException;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -90,6 +91,14 @@ public class WebserverActorApiActor implements WebserverActorApi {
 		}
 
 		openedSockets.get(sessionUid).tell(payload, ActorRef.noSender());
+	}
+
+	@Override
+	public boolean setPassword(String accName, String oldPassword, String newPassword)
+			throws WrongCredentialsException {
+		
+		// FIXME Einbauen.
+		throw new IllegalStateException("Not implemented yet.");
 	}
 
 }
