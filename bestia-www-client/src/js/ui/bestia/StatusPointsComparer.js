@@ -57,7 +57,7 @@ export default class StatusPointsComparer {
 			return;
 		}
 
-		this.maxManaCompare(this._points.maxMana() - this._unmodPoints.maxMana());
+		this.maxManaCompare = this._points.maxMana() - this._unmodPoints.maxMana();
 		this.maxHpCompare(this._points.maxHp() - this._unmodPoints.maxHp());
 
 		this.strCompare(this._points.str() - this._unmodPoints.str());

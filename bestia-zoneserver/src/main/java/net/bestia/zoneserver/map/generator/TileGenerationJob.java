@@ -25,7 +25,10 @@ public class TileGenerationJob extends Job {
 
 	@Override
 	public void foreachNoiseVector(MapGenDAO dao, MapDataPart data, NoiseVector vec) {
-		if (vec.getValueDouble(MapGeneratorConstants.HEIGHT_MAP) < WATERLEVEL) {
+		
+		final double heightLevel = vec.getValueDouble(MapGeneratorConstants.HEIGHT_MAP);
+		
+		if (heightLevel < WATERLEVEL) {
 			// Water tile.
 			vec.setValue(MapGeneratorConstants.TILE_MAP, 11);
 			waterCount++;

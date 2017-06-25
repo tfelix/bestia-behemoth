@@ -16,6 +16,7 @@ import de.tfelix.bestia.worldgen.MapNodeGenerator;
 import de.tfelix.bestia.worldgen.io.LocalFileMapGenDAO;
 import de.tfelix.bestia.worldgen.io.MapGenDAO;
 import de.tfelix.bestia.worldgen.io.MasterConnector;
+import de.tfelix.bestia.worldgen.workload.AddJob;
 import de.tfelix.bestia.worldgen.workload.MultiplyJob;
 import de.tfelix.bestia.worldgen.workload.Workload;
 import net.bestia.zoneserver.map.MapService;
@@ -83,6 +84,7 @@ public class MapGenConfiguration {
 		MapNodeGenerator nodeGenerator = new MapNodeGenerator(config.getServerName(), connector, dao);
 
 		Workload work = new Workload(MapGeneratorConstants.WORK_SCALE);
+		work.addJob(new AddJob(1.0, MapGeneratorConstants.HEIGHT_MAP));
 		work.addJob(new MultiplyJob(3500, MapGeneratorConstants.HEIGHT_MAP));
 		nodeGenerator.addWorkload(work);
 

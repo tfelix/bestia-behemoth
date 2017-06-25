@@ -18,6 +18,7 @@ import de.tfelix.bestia.worldgen.message.WorkstateMessage;
 import de.tfelix.bestia.worldgen.random.NoiseVectorBuilder;
 import de.tfelix.bestia.worldgen.random.SimplexNoiseProvider;
 import net.bestia.model.dao.MapDataDAO;
+import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.MapParameter;
 
 @Service
@@ -29,12 +30,15 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 	private MapMasterGenerator masterGenerator = null;
 
 	private final MapDataDAO mapDataDao;
+	private final MapParameterDAO mapParamDao;
+
 	private Runnable onFinishCallback = null;
 
 	@Autowired
-	public MapGeneratorMasterService(MapDataDAO mapDataDao) {
+	public MapGeneratorMasterService(MapDataDAO mapDataDao, MapParameterDAO mapParamDao) {
 
 		this.mapDataDao = Objects.requireNonNull(mapDataDao);
+		this.mapParamDao = Objects.requireNonNull(mapParamDao);
 	}
 
 	/**
@@ -49,6 +53,8 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 		}
 
 		LOG.info("Generating world with: {}", params.toString());
+
+		mapParamDao.save(params);
 
 		LOG.info("Dropping old world from database...");
 		// FIXME Das droppen ggf in eigenen service auslagern, da es noch
@@ -79,12 +85,12 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 				Float.class,
 				new SimplexNoiseProvider(rand.nextLong()));
 
-		//noiseBuilder.addDimension(MapGeneratorConstants.RAIN_MAP,
-		//		Float.class, new SimplexNoiseProvider(rand.nextLong()));
-		//noiseBuilder.addDimension(MapGeneratorConstants.MAGIC_MAP,
-		//		Float.class, new SimplexNoiseProvider(rand.nextLong()));
-		//noiseBuilder.addDimension(MapGeneratorConstants.POPULATION_MAP,
-		//		Float.class, new SimplexNoiseProvider(rand.nextLong()));
+		// noiseBuilder.addDimension(MapGeneratorConstants.RAIN_MAP,
+		// Float.class, new SimplexNoiseProvider(rand.nextLong()));
+		// noiseBuilder.addDimension(MapGeneratorConstants.MAGIC_MAP,
+		// Float.class, new SimplexNoiseProvider(rand.nextLong()));
+		// noiseBuilder.addDimension(MapGeneratorConstants.POPULATION_MAP,
+		// Float.class, new SimplexNoiseProvider(rand.nextLong()));
 
 		descBuilder.setNoiseVectorBuilder(noiseBuilder);
 
@@ -141,14 +147,19 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 			LOG.info("Finished map creation.");
 			masterGenerator = null;
 			isGenerating.set(false);
+
+			try {
+				if (onFinishCallback != null) {
+					onFinishCallback.run();
+				}
+			} catch (Exception e) {
+				LOG.warn("Exception in callback handler.", e);
+			}
+
 			break;
 		default:
 			LOG.warn("Unknown workload label: {}.", label);
 			return;
-		}
-
-		if (onFinishCallback != null) {
-			onFinishCallback.run();
 		}
 	}
 
