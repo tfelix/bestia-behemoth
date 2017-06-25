@@ -20,6 +20,7 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.configuration.MaintenanceLevel;
 import net.bestia.zoneserver.configuration.RuntimeConfigurationService;
 
 /**
@@ -143,10 +144,27 @@ public class LoginService {
 		playerEntityService.removePlayerBestias(accId);
 	}
 
+	/**
+	 * Logs out all users from the server.
+	 */
+	public void logoutAll() {
+		Set<Long> ids = connectionService.getAllConnectedAccountIds();
+		ids.forEach(this::logout);
+	}
+
+	/**
+	 * Logs out all users who are blow the given user level.
+	 * 
+	 * @param level
+	 */
+	public void logoutAllUsersBelow(UserLevel level) {
+
+	}
+
 	public AccountLoginToken setNewLoginToken(String username, String password) {
 		Objects.requireNonNull(username);
 		Objects.requireNonNull(password);
-		
+
 		LOG.debug("Trying to set login token for username {}.", username);
 
 		final Account account = accountDao.findByUsername(username);
@@ -163,14 +181,14 @@ public class LoginService {
 
 		final String uuid = UUID.randomUUID().toString();
 		account.setLoginToken(uuid);
-		
+
 		// Save to database.
 		accountDao.save(account);
 
 		// Check login.
 		final AccountLoginToken answerToken = new AccountLoginToken(
-				account.getId(), 
-				account.getName(), 
+				account.getId(),
+				account.getName(),
 				uuid);
 
 		return answerToken;
@@ -204,13 +222,22 @@ public class LoginService {
 			return false;
 		}
 
-		if (config.isMaintenanceMode() && acc.getUserLevel().compareTo(UserLevel.SUPER_GM) < 0) {
-			LOG.trace("Account {} can not login during maintenance.", accId);
-			return false;
+		if (config.getMaintenanceMode() != MaintenanceLevel.NONE) {
+			
+			// Depending on maintenance mode certain users can login.
+			if(config.getMaintenanceMode() == MaintenanceLevel.FULL) {
+				LOG.debug("No accounts can login during full maintenance.");
+				return false;
+			}
+			
+			if(config.getMaintenanceMode() == MaintenanceLevel.PARTIAL 
+					&& acc.getUserLevel().compareTo(UserLevel.SUPER_GM) < 0) {
+				LOG.debug("Account {} can not login during maintenance User level too low.", accId);
+				return false;
+			}
 		}
 
 		LOG.trace("Account {} login permitted.", accId);
 		return true;
 	}
-
 }

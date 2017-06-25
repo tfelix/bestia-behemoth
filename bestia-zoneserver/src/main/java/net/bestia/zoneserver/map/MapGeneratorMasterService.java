@@ -29,6 +29,7 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 	private MapMasterGenerator masterGenerator = null;
 
 	private final MapDataDAO mapDataDao;
+	private Runnable onFinishCallback = null;
 
 	@Autowired
 	public MapGeneratorMasterService(MapDataDAO mapDataDao) {
@@ -50,15 +51,15 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 		LOG.info("Generating world with: {}", params.toString());
 
 		LOG.info("Dropping old world from database...");
-		// TODO Das droppen ggf in eigenen service auslagern, da es noch
+		// FIXME Das droppen ggf in eigenen service auslagern, da es noch
 		// komplexere behandlung der entities benötigt.
 		mapDataDao.deleteAll();
 		LOG.info("Old world dropped from database.");
 
 		final ThreadLocalRandom rand = ThreadLocalRandom.current();
 
-		//final long height = params.getWorldSize().getHeight();
-		//final long width = params.getWorldSize().getWidth();
+		// final long height = params.getWorldSize().getHeight();
+		// final long width = params.getWorldSize().getWidth();
 
 		masterGenerator = new MapMasterGenerator(this);
 
@@ -67,8 +68,8 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 
 		// Setup the map configuration object.
 		final Map2DDescription.Builder descBuilder = new Map2DDescription.Builder();
-		//descBuilder.setHeight(height);
-		//descBuilder.setWidth(width);
+		// descBuilder.setHeight(height);
+		// descBuilder.setWidth(width);
 		descBuilder.setHeight(1000);
 		descBuilder.setWidth(1000);
 		descBuilder.setPartHeight(100);
@@ -78,18 +79,29 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 		final NoiseVectorBuilder noiseBuilder = new NoiseVectorBuilder();
 		noiseBuilder.addDimension(MapGeneratorConstants.HEIGHT_MAP, Float.class,
 				new SimplexNoiseProvider(rand.nextLong()));
-		/*noiseBuilder.addDimension(MapGeneratorConstants.RAIN_MAP, Float.class,
-				new SimplexNoiseProvider(rand.nextLong()));
-		noiseBuilder.addDimension(MapGeneratorConstants.MAGIC_MAP, Float.class,
-				new SimplexNoiseProvider(rand.nextLong()));
-		noiseBuilder.addDimension(MapGeneratorConstants.POPULATION_MAP, Float.class,
-				new SimplexNoiseProvider(rand.nextLong()));*/
-		
+		/*
+		 * noiseBuilder.addDimension(MapGeneratorConstants.RAIN_MAP,
+		 * Float.class, new SimplexNoiseProvider(rand.nextLong()));
+		 * noiseBuilder.addDimension(MapGeneratorConstants.MAGIC_MAP,
+		 * Float.class, new SimplexNoiseProvider(rand.nextLong()));
+		 * noiseBuilder.addDimension(MapGeneratorConstants.POPULATION_MAP,
+		 * Float.class, new SimplexNoiseProvider(rand.nextLong()));
+		 */
+
 		descBuilder.setNoiseVectorBuilder(noiseBuilder);
 
 		LOG.debug("Sending map configuration to all nodes.");
 
 		masterGenerator.start(descBuilder.build());
+	}
+
+	/**
+	 * Sets a callback this is executed after the mapgeneration has finished.
+	 * 
+	 * @param onFinishCallback
+	 */
+	public void setOnFinishCallback(Runnable onFinishCallback) {
+		this.onFinishCallback = onFinishCallback;
 	}
 
 	/**
@@ -117,8 +129,9 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 
 		LOG.info("Map job '{}' was finished.", label);
 
-		// TODO We currently only use one test job which also saves the map to the db.
-		/*
+		// TODO We currently only use one test job which also saves the map to
+		// the db.
+
 		switch (label) {
 		case MapGeneratorConstants.WORK_SCALE:
 			masterGenerator.startWorkload(MapGeneratorConstants.WORK_GEN_BIOMES);
@@ -131,7 +144,14 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 			masterGenerator = null;
 			isGenerating.set(false);
 			break;
-		}*/
+		default:
+			LOG.warn("Unknown workload label: {}.", label);
+			return;
+		}
+
+		if (onFinishCallback != null) {
+			onFinishCallback.run();
+		}
 	}
 
 	@Override

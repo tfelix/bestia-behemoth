@@ -11,7 +11,7 @@ import com.hazelcast.core.IMap;
  * server while they are running. These information might get changed during
  * runtime. It is saved via the in memory database.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Service
@@ -30,8 +30,8 @@ public class RuntimeConfigurationService {
 	 * 
 	 * @return TRUE if the server is in maintenance mode. FALSE otherwise.
 	 */
-	public boolean isMaintenanceMode() {
-		return (Boolean) config.getOrDefault("serverMaintenanceMode", false);
+	public MaintenanceLevel getMaintenanceMode() {
+		return (MaintenanceLevel) config.getOrDefault("serverMaintenanceMode", MaintenanceLevel.NONE);
 	}
 
 	/**
@@ -40,7 +40,7 @@ public class RuntimeConfigurationService {
 	 * @param flag
 	 *            The flag to set the server into maintenance mode.
 	 */
-	public void setMaintenanceMode(boolean flag) {
+	public void setMaintenanceMode(MaintenanceLevel flag) {
 		config.set("serverMaintenanceMode", flag);
 	}
 

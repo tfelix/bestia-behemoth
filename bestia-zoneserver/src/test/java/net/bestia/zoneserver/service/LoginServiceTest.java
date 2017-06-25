@@ -25,6 +25,7 @@ import net.bestia.model.domain.Password;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.testing.BasicMocks;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.configuration.MaintenanceLevel;
 import net.bestia.zoneserver.configuration.RuntimeConfigurationService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -188,16 +189,23 @@ public class LoginServiceTest {
 
 	@Test
 	public void canLogin_serverInMaintenenace_false() {
-		when(config.isMaintenanceMode()).thenReturn(true);
+		when(config.getMaintenanceMode()).thenReturn(MaintenanceLevel.PARTIAL);
 		boolean canLogin = loginService.canLogin(USER_ACC_ID, LOGIN_OK_TOKEN);
 		Assert.assertFalse(canLogin);
 	}
 
 	@Test
 	public void canLogin_serverInMaintenenaceUserLevelSuperGM_true() {
-		when(config.isMaintenanceMode()).thenReturn(true);
+		when(config.getMaintenanceMode()).thenReturn(MaintenanceLevel.PARTIAL);
 		boolean canLogin = loginService.canLogin(GM_ACC_ID, LOGIN_OK_TOKEN);
 		Assert.assertTrue(canLogin);
+	}
+	
+	@Test
+	public void canLogin_serverInFullMaintenenaceUserLevelSuperGM_false() {
+		when(config.getMaintenanceMode()).thenReturn(MaintenanceLevel.FULL);
+		boolean canLogin = loginService.canLogin(GM_ACC_ID, LOGIN_OK_TOKEN);
+		Assert.assertFalse(canLogin);
 	}
 
 	@Test

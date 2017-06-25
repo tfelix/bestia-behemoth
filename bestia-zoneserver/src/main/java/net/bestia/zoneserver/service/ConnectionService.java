@@ -2,6 +2,7 @@ package net.bestia.zoneserver.service;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -104,5 +105,14 @@ public class ConnectionService {
 	 */
 	public ActorPath getPath(long accId) {
 		return connections.get(accId);
+	}
+
+	/**
+	 * Returns a set of all connected account ids.
+	 * 
+	 * @return All connected account ids.
+	 */
+	public Set<Long> getAllConnectedAccountIds() {
+		return connections.keySet();
 	}
 }
