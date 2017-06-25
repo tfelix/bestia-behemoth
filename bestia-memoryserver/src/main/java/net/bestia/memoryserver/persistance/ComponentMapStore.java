@@ -91,7 +91,7 @@ public class ComponentMapStore implements MapStore<Long, Component> {
 	@Override
 	public synchronized void store(Long id, Component comp) {
 
-		LOG.trace("Persisting component: {}", comp);
+		LOG.trace("Store component: {}", comp);
 
 		persistService.store(comp);
 	}
@@ -99,7 +99,7 @@ public class ComponentMapStore implements MapStore<Long, Component> {
 	@Override
 	public synchronized void storeAll(Map<Long, Component> components) {
 
-		LOG.trace("Persisting {} components.", components.size());
+		LOG.trace("Store all {} components.", components.size());
 
 		for (Component comp : components.values()) {
 			persistService.store(comp);

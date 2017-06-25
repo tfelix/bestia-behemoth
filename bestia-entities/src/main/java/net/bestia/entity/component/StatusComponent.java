@@ -121,7 +121,7 @@ public class StatusComponent extends Component {
 
 	@Override
 	public String toString() {
-		return String.format("StatusComponent[]");
+		return String.format("StatusComponent[id: %d]", getId());
 	}
 
 	public void setStatusValues(StatusValues statusValues) {
