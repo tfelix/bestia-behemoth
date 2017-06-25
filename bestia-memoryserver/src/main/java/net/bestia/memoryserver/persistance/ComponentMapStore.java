@@ -3,10 +3,12 @@ package net.bestia.memoryserver.persistance;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 
 import com.hazelcast.core.MapStore;
 
@@ -28,18 +30,15 @@ public class ComponentMapStore implements MapStore<Long, Component> {
 	/**
 	 * Must dep-inject via setter cause hazelcast wants no arg ctor.
 	 */
-	private ComponentPersistService persistService;
+	private final ComponentPersistService persistService;
 
 	/**
 	 * Zero Arg ctor needed by Hazelcast.
 	 */
-	public ComponentMapStore() {
-		// no op.
-	}
-
 	@Autowired
-	public void setPersistService(ComponentPersistService persistService) {
-		this.persistService = persistService;
+	public ComponentMapStore(@Lazy ComponentPersistService persistService) {
+		
+		this.persistService = Objects.requireNonNull(persistService);
 	}
 
 	@Override

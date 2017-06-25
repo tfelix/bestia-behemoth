@@ -8,6 +8,8 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 
 import com.hazelcast.core.MapStore;
@@ -28,8 +30,16 @@ public class EntityMapStore implements MapStore<Long, Entity> {
 	private final static Logger LOG = LoggerFactory.getLogger(EntityMapStore.class);
 	private final EntityPersistService entityPersistService;
 
+	/**
+	 * Ctor. EntityPersistService must be marked with Lazy since it has a
+	 * indirect dependency to a {@link CrudRepository} which in turn uses a
+	 * hazelcast instance because of caching. This forms a circular
+	 * dependency.
+	 * 
+	 * @param entityPersistService
+	 */
 	@Autowired
-	public EntityMapStore(EntityPersistService entityPersistService) {
+	public EntityMapStore(@Lazy EntityPersistService entityPersistService) {
 
 		this.entityPersistService = Objects.requireNonNull(entityPersistService);
 	}
