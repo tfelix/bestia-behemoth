@@ -70,7 +70,7 @@ public class PlayerBestiaServiceTest {
 
 		when(playerBestiaDao.findOne(OK_PLAYERBESTIA_ID)).thenReturn(playerBestia);
 
-		pbService = new PlayerBestiaService(accountDao, playerBestiaDao, attackLevelDao, playerItemDao);
+		pbService = new PlayerBestiaService(accountDao, playerBestiaDao, attackLevelDao);
 	}
 
 	@Test

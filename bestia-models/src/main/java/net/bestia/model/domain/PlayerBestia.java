@@ -5,7 +5,6 @@ import java.util.Objects;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -80,31 +79,6 @@ public class PlayerBestia implements Serializable {
 
 	@JsonProperty("lv")
 	private int level;
-
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "ITEM_1", nullable = true)
-	@JsonProperty("item1")
-	private PlayerItem item1;
-
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "ITEM_2", nullable = true)
-	@JsonProperty("item2")
-	private PlayerItem item2;
-
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "ITEM_3", nullable = true)
-	@JsonProperty("item3")
-	private PlayerItem item3;
-
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "ITEM_4", nullable = true)
-	@JsonProperty("item4")
-	private PlayerItem item4;
-
-	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "ITEM_5", nullable = true)
-	@JsonProperty("item5")
-	private PlayerItem item5;
 
 	/**
 	 * Override the names because the are the same like in status points. Both
@@ -251,46 +225,6 @@ public class PlayerBestia implements Serializable {
 	
 	public StatusValues getStatusValues() {
 		return statusValues;
-	}
-
-	public PlayerItem getItem1() {
-		return item1;
-	}
-
-	public void setItem1(PlayerItem item1) {
-		this.item1 = item1;
-	}
-
-	public PlayerItem getItem2() {
-		return item2;
-	}
-
-	public void setItem2(PlayerItem item2) {
-		this.item2 = item2;
-	}
-
-	public PlayerItem getItem3() {
-		return item3;
-	}
-
-	public void setItem3(PlayerItem item3) {
-		this.item3 = item3;
-	}
-
-	public PlayerItem getItem4() {
-		return item4;
-	}
-
-	public void setItem4(PlayerItem item4) {
-		this.item4 = item4;
-	}
-
-	public PlayerItem getItem5() {
-		return item5;
-	}
-
-	public void setItem5(PlayerItem item5) {
-		this.item5 = item5;
 	}
 
 	public Account getMaster() {

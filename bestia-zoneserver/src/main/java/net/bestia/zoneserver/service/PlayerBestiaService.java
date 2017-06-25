@@ -3,7 +3,6 @@ package net.bestia.zoneserver.service;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.BestiaAttackDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;
-import net.bestia.model.dao.PlayerItemDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.BestiaAttack;
 import net.bestia.model.domain.PlayerBestia;
@@ -36,18 +34,15 @@ public class PlayerBestiaService {
 	private final AccountDAO accountDao;
 	private final PlayerBestiaDAO playerBestiaDao;
 	private final BestiaAttackDAO attackDao;
-	private final PlayerItemDAO playerItemDao;
 
 	@Autowired
 	public PlayerBestiaService(AccountDAO accountDao, 
 			PlayerBestiaDAO playerBestiaDao, 
-			BestiaAttackDAO attackDao,
-			PlayerItemDAO playerItemDao) {
+			BestiaAttackDAO attackDao) {
 
 		this.accountDao = Objects.requireNonNull(accountDao);
 		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
 		this.attackDao = Objects.requireNonNull(attackDao);
-		this.playerItemDao = Objects.requireNonNull(playerItemDao);
 	}
 
 	/**
@@ -82,48 +77,7 @@ public class PlayerBestiaService {
 		}
 
 		final PlayerBestia bestia = playerBestiaDao.findOne(playerBestiaId);
-		final Set<Integer> nonNullIds = itemIds.stream().filter((x) -> x != null).collect(Collectors.toSet());
-		final List<PlayerItem> foundItems = playerItemDao.findAllPlayerItemsForIds(nonNullIds);
-
 		final PlayerItem[] checkedItems = new PlayerItem[NUM_ITEM_SLOTS];
-
-		for (int i = 0; i < NUM_ITEM_SLOTS; i++) {
-
-			final Integer id = itemIds.get(i);
-			final PlayerItem item;
-
-			if (id == null) {
-				item = null;
-			} else {
-				item = foundItems.stream().filter((x) -> x.getItem().getId() == id).findFirst().orElse(null);
-			}
-
-			switch (i) {
-			case 0:
-				bestia.setItem1(item);
-				checkedItems[0] = item;
-				break;
-			case 1:
-				bestia.setItem2(item);
-				checkedItems[1] = item;
-				break;
-			case 2:
-				bestia.setItem3(item);
-				checkedItems[2] = item;
-				break;
-			case 3:
-				bestia.setItem4(item);
-				checkedItems[3] = item;
-				break;
-			case 4:
-				bestia.setItem5(item);
-				checkedItems[4] = item;
-				break;
-			default:
-				// no op.
-				break;
-			}
-		}
 
 		// Save.
 		playerBestiaDao.save(bestia);
