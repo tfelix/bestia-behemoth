@@ -16,8 +16,6 @@ import net.bestia.util.ObjectSerializer;
 @Service
 public class EntityPersistService {
 
-	//private final static Logger LOG = LoggerFactory.getLogger(EntityPersistService.class);
-
 	private final ObjectSerializer<Entity> serializer = new ObjectSerializer<>();
 	private final EntityDataDAO entityDao;
 	private final EntityService entityService;
