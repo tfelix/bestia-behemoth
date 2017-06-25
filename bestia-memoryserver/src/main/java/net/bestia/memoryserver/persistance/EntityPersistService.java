@@ -65,6 +65,7 @@ public class EntityPersistService {
 	 *            The entity to be permanently stored.
 	 */
 	public void store(Entity entity) {
+		Objects.requireNonNull(entity);
 		
 		// Only store if it was flagged with a tag.
 		Optional<TagComponent> tagComp = entityService.getComponent(entity, TagComponent.class);
