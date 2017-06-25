@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -27,6 +28,7 @@ public class EntityMapStoreTest {
 	@Mock
 	private EntityPersistService persistService;
 	
+	@Before
 	public void setup() {
 		
 		store = new EntityMapStore(persistService);
@@ -35,31 +37,31 @@ public class EntityMapStoreTest {
 	@Test
 	public void load_validId_loads() {
 		store.load(VALID_ENTITY_ID);
-		verify(store).load(VALID_ENTITY_ID);
+		verify(persistService).load(VALID_ENTITY_ID);
 	}
 	
 	@Test
 	public void loadAll_validIds_loads() {
 		store.loadAll(Arrays.asList(VALID_ENTITY_ID));
-		verify(store).load(VALID_ENTITY_ID);
+		verify(persistService).load(VALID_ENTITY_ID);
 	}
 	
 	@Test
 	public void delete_validId_delete() {
 		store.delete(VALID_ENTITY_ID);
-		verify(store).delete(VALID_ENTITY_ID);
+		verify(persistService).delete(VALID_ENTITY_ID);
 	}
 	
 	@Test
 	public void deleteAll_validIds_delete() {
 		store.deleteAll(Arrays.asList(VALID_ENTITY_ID));
-		verify(store).delete(VALID_ENTITY_ID);
+		verify(persistService).delete(VALID_ENTITY_ID);
 	}
 	
 	@Test
 	public void store_validId_delete() {
 		store.store(VALID_ENTITY_ID, entity);
-		verify(store).store(VALID_ENTITY_ID, entity);
+		verify(persistService).store(entity);
 	}
 	
 	@Test
@@ -69,6 +71,6 @@ public class EntityMapStoreTest {
 		data.put(VALID_ENTITY_ID, entity);
 		store.storeAll(data);
 		
-		verify(store).storeAll(data);
+		verify(persistService).store(entity);
 	}
 }

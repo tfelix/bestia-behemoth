@@ -35,7 +35,7 @@ public class EntityPersistService {
 	 *            Deletes the entity and all attached component from the
 	 *            storage.
 	 */
-	public void deleteEntity(Long id) {
+	public void delete(Long id) {
 
 		entityDao.delete(id);
 	}

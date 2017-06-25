@@ -1,6 +1,7 @@
 package net.bestia.memoryserver.configuration;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -22,6 +23,7 @@ public class HazelcastConfigurationTest {
 	@Mock
 	private ComponentMapStore compStore;
 	
+	@Before
 	public void setup() {
 		
 		config = new HazelcastConfiguration();

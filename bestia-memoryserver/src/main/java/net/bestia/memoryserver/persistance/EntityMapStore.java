@@ -79,7 +79,7 @@ public class EntityMapStore implements MapStore<Long, Entity> {
 
 		LOG.trace("Deleting entity: {}.", id);
 
-		entityPersistService.deleteEntity(id);
+		entityPersistService.delete(id);
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class EntityMapStore implements MapStore<Long, Entity> {
 		LOG.trace("Deleting all {} entities.", ids.size());
 
 		for (Long id : ids) {
-			entityPersistService.deleteEntity(id);
+			entityPersistService.delete(id);
 		}
 
 	}
