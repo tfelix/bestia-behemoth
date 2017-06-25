@@ -142,14 +142,13 @@ public class MapParameter implements Serializable {
 
 		area += area * (1 - waterLandRatio);
 
-		final double baseSize = Math.sqrt(area);
-
-		final double x = baseSize * MAP_RATIO;
-		final double y = baseSize / MAP_RATIO;
-
 		// Calculate the km to tile sizes (1 tile ~ 1m).
-		final Size mapSize = new Size((int) (x * 1000), (int) (y * 1000));
-		builder.setWorldSize(mapSize);
+		//final double baseSize = Math.sqrt(area);
+		//final double x = baseSize * MAP_RATIO;
+		//final double y = baseSize / MAP_RATIO;
+		//final Size mapSize = new Size((int) (x * 1000), (int) (y * 1000));
+		// FIXME We currently limit world size to 1sqm.
+		builder.setWorldSize(new Size(1000, 1000));
 
 		int population = 6 * user;
 		int numberOfSettlements = Math.max(30, 2 * population / 55) * (int) (rand.nextFloat() * 40);
