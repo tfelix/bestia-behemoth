@@ -62,6 +62,8 @@ public class AkkaConfiguration implements DisposableBean {
 
 		final Address selfAddr = Cluster.get(systemInstance).selfAddress();
 		final List<Address> seedNodes = clusterConfig.getClusterSeedNodes();
+		
+		LOG.info("Received live endpoints: {}", seedNodes);
 
 		if (clusterConfig.shoudJoinAsSeedNode()) {
 
@@ -70,8 +72,10 @@ public class AkkaConfiguration implements DisposableBean {
 			if (seedNodes.size() == 0) {
 				// Join as seed node since desired number of seeds is not
 				// reached.
+				LOG.info("Joining as seed node.");
 				Cluster.get(systemInstance).join(selfAddr);
 			} else {
+				LOG.info("Joining as regular node.");
 				Cluster.get(systemInstance).joinSeedNodes(seedNodes);
 			}
 
