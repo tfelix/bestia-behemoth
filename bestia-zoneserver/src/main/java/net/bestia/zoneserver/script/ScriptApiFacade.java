@@ -2,6 +2,7 @@ package net.bestia.zoneserver.script;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
+import net.bestia.messages.chat.ChatMessage;
 import net.bestia.messages.internal.script.ScriptIntervalMessage;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
@@ -21,6 +23,7 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.MovingEntityService;
 import net.bestia.entity.ScriptEntityFactory;
+import net.bestia.entity.component.PlayerComponent;
 
 /**
  * Bundles all kind of services to provide an extensive script API. This API is
@@ -180,5 +183,35 @@ public class ScriptApiFacade implements ScriptApi {
 	@Override
 	public void delete(long entityId) {
 		akkaApi.sendToActor(EntityDeleteWorker.NAME, entityId);
+	}
+
+	@Override
+	public void sendMessage(long playerEntityId, String message, String modeStr) {
+		if(message == null) {
+			LOG.warn("sendMessage: Message can not be null.");
+			return;
+		}
+
+		// Find the account id.
+		Optional<PlayerComponent> playerComp = entityService
+				.getComponent(playerEntityId, PlayerComponent.class);
+
+		if (!playerComp.isPresent()) {
+			LOG.warn("sendMessage: EID is no player entity id.");
+			return;
+		}
+
+		final long accId = playerComp.get().getOwnerAccountId();
+
+		// Get the chat mode.
+		ChatMessage.Mode mode = ChatMessage.Mode.SYSTEM;
+		try {
+			mode = ChatMessage.Mode.valueOf(modeStr.toUpperCase());
+		} catch (NullPointerException | IllegalArgumentException e) {
+			LOG.warn("sendMessage: Invalid chat mode. Using default: SYSTEM.");
+		}
+		
+		final ChatMessage chatMsg = new ChatMessage(accId, playerEntityId, message, mode);
+		akkaApi.sendToClient(chatMsg);
 	}
 }

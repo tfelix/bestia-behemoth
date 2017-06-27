@@ -2,6 +2,7 @@ package net.bestia.zoneserver.script;
 
 import java.util.List;
 
+import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.geometry.CollisionShape;
 
 /**
@@ -92,4 +93,5 @@ public interface ScriptApi {
 
 	void setShape(long entityId, CollisionShape shape);
 
+	void sendMessage(long playerEntityId, String message, String mode);
 }
