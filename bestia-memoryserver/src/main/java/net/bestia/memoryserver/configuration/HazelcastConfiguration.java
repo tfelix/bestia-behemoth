@@ -17,6 +17,8 @@ import net.bestia.memoryserver.persistance.EntityMapStore;
 
 @Configuration
 public class HazelcastConfiguration {
+	
+	private final static String ENTITIES_MAP_NAME = "entities";
 
 	@Bean
 	public HazelcastInstance hazelcastInstance(
@@ -27,12 +29,14 @@ public class HazelcastConfiguration {
 		Map<String, MapConfig> mapConfigs = cfg.getMapConfigs();
 
 		// Set our map storages.
-		MapConfig entitiesCfg = mapConfigs.get("entities");
+		
+		MapConfig entitiesCfg = mapConfigs.get(ENTITIES_MAP_NAME);
 
 		MapStoreConfig mapStoreCfg = new MapStoreConfig();
 		mapStoreCfg.setImplementation(entityMapStore);
 
 		entitiesCfg.setMapStoreConfig(mapStoreCfg);
+		mapConfigs.put(ENTITIES_MAP_NAME, entitiesCfg);
 
 		MapConfig componentCfg = new MapConfig();
 

@@ -32,10 +32,10 @@ public class EntityService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
 
-	private final static String ECS_ENTITY_MAP = "entities.ecs";
+	private final static String ECS_ENTITY_MAP = "entities";
 	private final static String ENTITIES_ID_GEN = "entities.id";
 	private static final String COMP_MAP = "components";
-	private static final String COMP_ID = "components.id";
+	private static final String COMP_ID_GEN = "components.id";
 
 	private final IMap<Long, Entity> entities;
 	private final IdGenerator entityIdGen;
@@ -51,7 +51,7 @@ public class EntityService {
 
 		this.entityIdGen = hz.getIdGenerator(ENTITIES_ID_GEN);
 		this.entities = hz.getMap(ECS_ENTITY_MAP);
-		this.idGenerator = hz.getIdGenerator(COMP_ID);
+		this.idGenerator = hz.getIdGenerator(COMP_ID_GEN);
 		this.components = Objects.requireNonNull(hz).getMap(COMP_MAP);
 	}
 
