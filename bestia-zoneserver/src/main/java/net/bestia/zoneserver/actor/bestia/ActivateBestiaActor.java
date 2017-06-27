@@ -9,9 +9,9 @@ import org.springframework.stereotype.Component;
 
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.entity.PlayerEntityService;
 import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * Upon receiving an activation request from this account we check if the

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import akka.actor.ActorRef;
 import net.bestia.entity.Entity;
 import net.bestia.entity.PlayerBestiaEntityFactory;
+import net.bestia.entity.PlayerEntityService;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
 import net.bestia.messages.web.AccountLoginToken;

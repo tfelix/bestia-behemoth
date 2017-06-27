@@ -19,9 +19,9 @@ import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
+import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.zoneserver.map.MapService;
-import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * This actor sends update messages to all active player in sight. In order to

@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.service;
+package net.bestia.entity;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,6 +21,7 @@ import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.service.PlayerBestiaService;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.LevelComponent;

@@ -29,31 +29,31 @@ public class Shortcut implements Serializable {
 	 * JSON representation of this database object. Can be send to the client.
 	 *
 	 */
-	private static class ShortcutJson implements Serializable {
-		
+	public static class ShortcutJson implements Serializable {
+
 		private static final long serialVersionUID = 1L;
-		
+
 		@JsonProperty("sid")
 		private int shortcutId;
 
 		@JsonProperty("aid")
 		private long accountId;
-		
+
 		@JsonProperty("pbid")
 		private long playerBestiaId;
 
 		@JsonRawValue
 		private String data;
-		
-		public ShortcutJson(Shortcut shortcut) {
-			
+
+		private ShortcutJson(Shortcut shortcut) {
+
 			this.accountId = shortcut.getAccount().getId();
 			this.shortcutId = shortcut.getId();
-			
-			if(shortcut.getPlayerBestia() != null) {
+
+			if (shortcut.getPlayerBestia() != null) {
 				this.playerBestiaId = shortcut.getPlayerBestia().getId();
 			}
-			
+
 			this.data = shortcut.getData();
 		}
 	}
@@ -61,6 +61,13 @@ public class Shortcut implements Serializable {
 	@Id
 	@GeneratedValue
 	private int id;
+
+	/**
+	 * This is the slot id of the shortcut to provide a ordered display but also
+	 * a flexible amount of usable slots. The service makes sure all shortcuts
+	 * are given in a valid ways this means no slot id is set twice.
+	 */
+	private int slotId;
 
 	@OneToOne
 	@JoinColumn(name = "PLAYER_BESTIA_ID", nullable = true)
@@ -76,7 +83,11 @@ public class Shortcut implements Serializable {
 	private String data;
 
 	public Shortcut() {
-
+		// no op.
+	}
+	
+	public int getSlotId() {
+		return slotId;
 	}
 
 	public int getId() {
@@ -99,7 +110,7 @@ public class Shortcut implements Serializable {
 	public Account getAccount() {
 		return account;
 	}
-	
+
 	public ShortcutJson toJSON() {
 		return new ShortcutJson(this);
 	}

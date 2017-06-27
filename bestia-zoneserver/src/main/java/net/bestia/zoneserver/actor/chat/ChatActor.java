@@ -19,9 +19,9 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.chat.ChatCommandService;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
+import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.zoneserver.service.AccountService;
-import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * This actor processes chat messages from the clients to the bestia system. It

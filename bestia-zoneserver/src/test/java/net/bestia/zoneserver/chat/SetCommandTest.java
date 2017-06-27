@@ -16,6 +16,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
+import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.component.StatusComponent;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
@@ -24,7 +25,6 @@ import net.bestia.model.domain.Element;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusValues;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
-import net.bestia.zoneserver.service.PlayerEntityService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SetCommandTest {

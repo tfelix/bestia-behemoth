@@ -17,6 +17,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import akka.testkit.TestProbe;
 import net.bestia.entity.Entity;
 import net.bestia.entity.PlayerBestiaEntityFactory;
+import net.bestia.entity.PlayerEntityService;
 import net.bestia.messages.web.AccountLoginToken;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;

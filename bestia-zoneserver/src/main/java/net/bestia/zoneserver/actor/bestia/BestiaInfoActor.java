@@ -20,9 +20,9 @@ import net.bestia.model.domain.StatusValues;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.service.PlayerEntityService;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
+import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.StatusService;
 import net.bestia.entity.component.PlayerComponent;
 

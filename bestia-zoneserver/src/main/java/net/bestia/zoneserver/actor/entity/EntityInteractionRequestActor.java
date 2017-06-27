@@ -14,13 +14,13 @@ import akka.event.LoggingAdapter;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.InteractionService;
+import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.component.InteractionComponent;
 import net.bestia.messages.entity.EntityInteractionMessage;
 import net.bestia.messages.entity.EntityInteractionRequestMessage;
 import net.bestia.model.entity.InteractionType;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
-import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * Receives interaction requests for an entity. It will query the system and ask

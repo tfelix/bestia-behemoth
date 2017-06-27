@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.service;
+package net.bestia.entity;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -30,6 +30,7 @@ import com.hazelcast.core.HazelcastInstance;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
+import net.bestia.entity.PlayerEntityService;
 import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.geometry.Rect;
