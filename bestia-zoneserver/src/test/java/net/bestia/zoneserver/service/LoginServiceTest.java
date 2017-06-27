@@ -26,7 +26,7 @@ import net.bestia.model.domain.PlayerBestia;
 import net.bestia.testing.BasicMocks;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.MaintenanceLevel;
-import net.bestia.zoneserver.configuration.RuntimeConfigurationService;
+import net.bestia.zoneserver.configuration.RuntimeConfigService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LoginServiceTest {
@@ -45,7 +45,7 @@ public class LoginServiceTest {
 	private BasicMocks mocks = new BasicMocks();
 
 	@Mock
-	private RuntimeConfigurationService config;
+	private RuntimeConfigService config;
 
 	@Mock
 	private AccountDAO accountDao;

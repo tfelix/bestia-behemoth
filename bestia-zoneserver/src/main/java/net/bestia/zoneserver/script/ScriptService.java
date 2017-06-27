@@ -17,7 +17,7 @@ import akka.actor.ActorRef;
 import net.bestia.messages.internal.script.ScriptIntervalMessage;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.script.PeriodicScriptRunnerActor;
-import net.bestia.zoneserver.configuration.StaticConfigurationService;
+import net.bestia.zoneserver.configuration.StaticConfigService;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
@@ -41,7 +41,7 @@ public class ScriptService {
 	private final EntityService entityService;
 	private final ZoneAkkaApi akkaApi;
 	private final ScriptCache scriptCache;
-	private final StaticConfigurationService configService;
+	private final StaticConfigService configService;
 	private final ScriptApi scriptApi;
 
 	@Autowired
@@ -50,7 +50,7 @@ public class ScriptService {
 			ZoneAkkaApi akkaApi,
 			ScriptCache cache,
 			ScriptApi scriptApi,
-			StaticConfigurationService configService) {
+			StaticConfigService configService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);

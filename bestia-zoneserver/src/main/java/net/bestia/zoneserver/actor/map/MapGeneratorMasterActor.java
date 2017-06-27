@@ -27,7 +27,7 @@ import net.bestia.model.domain.MapParameter;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.configuration.MaintenanceLevel;
-import net.bestia.zoneserver.configuration.RuntimeConfigurationService;
+import net.bestia.zoneserver.configuration.RuntimeConfigService;
 import net.bestia.zoneserver.map.generator.MapGeneratorMasterService;
 import net.bestia.zoneserver.service.LoginService;
 import scala.concurrent.duration.Duration;
@@ -78,14 +78,14 @@ public class MapGeneratorMasterActor extends BestiaActor {
 	private int currentLookupIdent = 0;
 	private Set<ActorRef> availableNodes = new HashSet<>();
 
-	private final RuntimeConfigurationService clusterConfig;
+	private final RuntimeConfigService clusterConfig;
 	private final LoginService loginService;
 
 	@Autowired
 	public MapGeneratorMasterActor(
 			MapGeneratorMasterService mapGenService,
 			LoginService loginService,
-			RuntimeConfigurationService config) {
+			RuntimeConfigService config) {
 
 		this.mapGenService = Objects.requireNonNull(mapGenService);
 		this.clusterConfig = Objects.requireNonNull(config);

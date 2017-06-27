@@ -80,12 +80,9 @@ public class AkkaConfiguration implements DisposableBean {
 			Cluster.get(systemInstance).joinSeedNodes(seedNodes);
 		}
 
-		LOG.info("Zoneserver Akka Address: {}", selfAddr);
-
-		// Save the new generated address. Must be done here since we MIGHT
-		// could use random port join which will alter the port defined in
-		// selfAddr.
-		clusterConfig.addClusterNode(selfAddr);
+		LOG.info("Zoneserver Akka Address is: {}", selfAddr);
+		
+		// Cluster registration is done in the HeartbeatActor.
 
 		return systemInstance;
 	}

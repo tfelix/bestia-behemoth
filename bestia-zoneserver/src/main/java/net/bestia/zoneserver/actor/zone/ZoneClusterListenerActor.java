@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import akka.actor.Address;
 import akka.cluster.Cluster;
 import akka.cluster.ClusterEvent;
+import akka.cluster.ClusterEvent.ClusterDomainEvent;
 import akka.cluster.ClusterEvent.MemberEvent;
 import akka.cluster.ClusterEvent.MemberRemoved;
 import akka.cluster.ClusterEvent.MemberUp;
@@ -107,14 +108,23 @@ public class ZoneClusterListenerActor extends BestiaActor {
 		}
 	}
 	
+	private void handleMemberEvent(MemberEvent event) {
+		LOG.info("Member event: {}", event.toString());
+	}
+	
+	
+	private void test(ClusterDomainEvent test) {
+		LOG.info("INFO " + test.toString());
+	}
 
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
+				.match(ClusterDomainEvent.class, this::test)
 				.match(MemberUp.class, this::handleMemberUp)
 				.match(UnreachableMember.class, this::handleUnreachableMember)
 				.match(MemberRemoved.class, this::handleMemberRemoved)
-				.match(MemberEvent.class, m -> { })
+				.match(MemberEvent.class, this::handleMemberEvent)
 				.build();
 	}
 }

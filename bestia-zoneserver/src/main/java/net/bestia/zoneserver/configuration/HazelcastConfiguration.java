@@ -6,9 +6,15 @@ import org.springframework.context.annotation.Configuration;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.core.HazelcastInstance;
 
+/**
+ * Hazelcast specific configuration.
+ * 
+ * @author Thomas Felix
+ *
+ */
 @Configuration
 public class HazelcastConfiguration {
-	
+
 	@Bean
 	public HazelcastInstance hazelcastInstance() {
 		final HazelcastInstance client = HazelcastClient.newHazelcastClient();

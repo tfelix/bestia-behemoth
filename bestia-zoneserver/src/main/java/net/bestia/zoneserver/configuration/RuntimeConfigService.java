@@ -15,12 +15,12 @@ import com.hazelcast.core.IMap;
  *
  */
 @Service
-public class RuntimeConfigurationService {
+public class RuntimeConfigService {
 
 	private final IMap<String, Object> config;
 
 	@Autowired
-	public RuntimeConfigurationService(HazelcastInstance hz) {
+	public RuntimeConfigService(HazelcastInstance hz) {
 
 		this.config = hz.getMap("server.config");
 	}

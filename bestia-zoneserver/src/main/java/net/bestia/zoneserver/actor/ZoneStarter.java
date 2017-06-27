@@ -18,9 +18,11 @@ import net.bestia.zoneserver.actor.entity.EntityWorker;
 import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
+import net.bestia.zoneserver.actor.zone.HeartbeatActor;
 import net.bestia.zoneserver.actor.zone.IngestActor;
 import net.bestia.zoneserver.actor.zone.InitGlobalActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
+import net.bestia.zoneserver.actor.zone.ZoneClusterListenerActor;
 
 /**
  * Starts the actor system to process bestia messages.
@@ -58,6 +60,10 @@ public class ZoneStarter implements CommandLineRunner {
 		// Maintenance actors.
 		akkaApi.startActor(MapGeneratorMasterActor.class);
 		akkaApi.startActor(MapGeneratorClientActor.class);
+		
+		// System actors.
+		akkaApi.startActor(ZoneClusterListenerActor.class);
+		akkaApi.startActor(HeartbeatActor.class);
 
 		// Setup the init actor singelton for creation of the system.
 		LOG.info("Starting the global init singeltons.");

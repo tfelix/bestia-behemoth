@@ -76,7 +76,7 @@ public class MapGenConfiguration {
 	 * @return The used {@link MapNodeGenerator}.
 	 */
 	public MapNodeGenerator mapNodeGenerator(
-			StaticConfigurationService config,
+			StaticConfigService config,
 			MasterConnector connector,
 			MapGenDAO dao,
 			MapService mapService) {

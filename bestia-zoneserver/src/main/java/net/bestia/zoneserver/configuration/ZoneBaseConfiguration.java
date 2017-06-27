@@ -27,9 +27,9 @@ import net.bestia.zoneserver.script.ScriptService;
  *
  */
 @Configuration
-public class ZoneConfiguration {
+public class ZoneBaseConfiguration {
 
-	private final static Logger LOG = LoggerFactory.getLogger(ZoneConfiguration.class);
+	private final static Logger LOG = LoggerFactory.getLogger(ZoneBaseConfiguration.class);
 
 	/**
 	 * Gets the current time of the bestia zoneserver.
@@ -72,7 +72,7 @@ public class ZoneConfiguration {
 	public EntityRecycler entityRecycler(
 			EntityService entityService,
 			ScriptService scriptService,
-			StaticConfigurationService config) {
+			StaticConfigService config) {
 		return new EntityRecycler(config.getEntityBufferSize(), entityService, scriptService);
 	}
 

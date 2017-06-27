@@ -9,6 +9,7 @@ import net.bestia.testing.BasicMocks;
 public class DiscoveryServiceTest {
 
 	private DiscoveryService discServ;
+	private final String SERVER_NAME = "hugo";
 
 	public void setup() {
 		BasicMocks mocks = new BasicMocks();
@@ -25,7 +26,7 @@ public class DiscoveryServiceTest {
 
 		for(int i = 0; i <= DiscoveryService.NUM_SEED_NODES; i++) {
 			Address addr = new Address("akka.tcp", "System" + i);
-			discServ.addClusterNode(addr);
+			discServ.addClusterNode(SERVER_NAME, addr);
 		}
 		
 		Assert.assertFalse(discServ.shoudJoinAsSeedNode());
@@ -34,7 +35,7 @@ public class DiscoveryServiceTest {
 	@Test
 	public void getClusterSeedNodes_listOfSeedNodes() {
 		Address addr = new Address("akka.tcp", "System12");
-		discServ.addClusterNode(addr);
+		discServ.addClusterNode(SERVER_NAME, addr);
 		
 		Assert.assertEquals(1, discServ.getClusterSeedNodes().size());
 		Assert.assertTrue(discServ.getClusterSeedNodes().contains(addr));
@@ -42,7 +43,7 @@ public class DiscoveryServiceTest {
 
 	@Test(expected = NullPointerException.class)
 	public void addClusterNode_null_throws() {
-		discServ.addClusterNode(null);
+		discServ.addClusterNode(SERVER_NAME, null);
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -54,8 +55,8 @@ public class DiscoveryServiceTest {
 	public void removeClusterNode_addClusterNode_validData_removed() {
 		for(int i = 0; i <= DiscoveryService.NUM_SEED_NODES; i++) {
 			Address addr = new Address("akka.tcp", "System" + i);
-			discServ.addClusterNode(addr);
-			discServ.removeClusterNode(addr);
+			discServ.addClusterNode(SERVER_NAME, addr);
+			discServ.removeClusterNode(SERVER_NAME);
 		}
 		
 		Assert.assertEquals(0, discServ.getClusterSeedNodes().size());

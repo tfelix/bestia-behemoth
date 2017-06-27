@@ -14,7 +14,7 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.MaintenanceLevel;
-import net.bestia.zoneserver.configuration.RuntimeConfigurationService;
+import net.bestia.zoneserver.configuration.RuntimeConfigService;
 import net.bestia.zoneserver.service.LoginService;
 
 /**
@@ -33,7 +33,7 @@ public class MaintenanceCommand extends BaseChatCommand {
 	private static final String CMD_START_REGEX = "^/maintenance .*";
 	private static final Pattern CMD_PATTERN = Pattern.compile("/maintenance (.+)");
 
-	private final RuntimeConfigurationService config;
+	private final RuntimeConfigService config;
 	private final LoginService loginService;
 
 
@@ -42,7 +42,7 @@ public class MaintenanceCommand extends BaseChatCommand {
 			AccountDAO accDao, 
 			ZoneAkkaApi akkaApi, 
 			LoginService loginService, 
-			RuntimeConfigurationService config) {
+			RuntimeConfigService config) {
 		super(accDao, akkaApi);
 
 		this.loginService = Objects.requireNonNull(loginService);

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service
-public class StaticConfigurationService {
+public class StaticConfigService {
 
 	@Value("${server.name}")
 	private String serverName;

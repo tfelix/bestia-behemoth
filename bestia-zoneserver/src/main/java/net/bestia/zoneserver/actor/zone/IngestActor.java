@@ -67,16 +67,9 @@ public class IngestActor extends BestiaRoutingActor {
 		// === House keeping actors ===
 		SpringExtension.actorOf(getContext(), LogoutActor.class);
 		SpringExtension.actorOf(getContext(), PingPongActor.class);
-		SpringExtension.actorOf(getContext(), ZoneClusterListenerActor.class);
 
 		// === DEVELOPMENT ===
 
-		/*
-		// Try to do the global init if it has not been done before.
-		final ClusterSingletonProxySettings proxySettings = ClusterSingletonProxySettings.create(getContext().system());
-		clusterProbs = ClusterSingletonProxy.props("/user/globalInit", proxySettings);
-		final ActorRef initProxy = getContext().actorOf(clusterProbs, "globalInitProxy");
-		initProxy.tell(new StartInitMessage(), getSelf());*/
 	}
 
 	@Override

@@ -21,7 +21,7 @@ import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.MaintenanceLevel;
-import net.bestia.zoneserver.configuration.RuntimeConfigurationService;
+import net.bestia.zoneserver.configuration.RuntimeConfigService;
 
 /**
  * Performs login or logout of the bestia server system.
@@ -34,7 +34,7 @@ public class LoginService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(LoginService.class);
 
-	private final RuntimeConfigurationService config;
+	private final RuntimeConfigService config;
 	private final AccountDAO accountDao;
 	private final ConnectionService connectionService;
 	private final PlayerEntityService playerEntityService;
@@ -43,7 +43,7 @@ public class LoginService {
 	private final PlayerBestiaEntityFactory playerEntityFactory;
 
 	@Autowired
-	public LoginService(RuntimeConfigurationService config,
+	public LoginService(RuntimeConfigService config,
 			AccountDAO accountDao,
 			PlayerEntityService playerEntityService,
 			ConnectionService connectionService,

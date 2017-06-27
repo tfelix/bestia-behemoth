@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IList;
+import com.hazelcast.core.IMap;
 
 import akka.actor.Address;
 
@@ -26,15 +26,15 @@ import akka.actor.Address;
 @Service
 public class DiscoveryService {
 
-	private static final String CLUSTER_NODES = "srv.clusterNodes";
+	private static final String CLUSTER_NODES = "server.nodes";
 	public static final int NUM_SEED_NODES = 3;
 
-	private final IList<Address> clusterAdress;
+	private final IMap<String, Address> clusterAdress;
 
 	@Autowired
 	public DiscoveryService(HazelcastInstance hcInstance) {
 
-		this.clusterAdress = hcInstance.getList(CLUSTER_NODES);
+		this.clusterAdress = hcInstance.getMap(CLUSTER_NODES);
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class DiscoveryService {
 	 * @return The list of current active seed nodes.
 	 */
 	public List<Address> getClusterSeedNodes() {
-		return clusterAdress.stream().limit(3).collect(Collectors.toList());
+		return clusterAdress.values().stream().limit(3).collect(Collectors.toList());
 	}
 
 	/**
@@ -67,20 +67,20 @@ public class DiscoveryService {
 	 * @param address
 	 *            The node to be added.
 	 */
-	public void addClusterNode(Address address) {
+	public void addClusterNode(String servername, Address address) {
 		Objects.requireNonNull(address);
-		clusterAdress.add(address);
+		clusterAdress.put(servername, address);
 	}
 
 	/**
 	 * Removes a cluster node from the registry.
 	 * 
-	 * @param address
-	 *            The address to be removed.
+	 * @param servername
+	 *            The name of the server to be removed.
 	 */
-	public void removeClusterNode(Address address) {
-		Objects.requireNonNull(address);
-		clusterAdress.remove(address);
+	public void removeClusterNode(String servername) {
+		Objects.requireNonNull(servername);
+		clusterAdress.remove(servername);
 	}
 
 }

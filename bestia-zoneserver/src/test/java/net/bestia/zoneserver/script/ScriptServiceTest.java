@@ -26,7 +26,7 @@ import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.script.PeriodicScriptRunnerActor;
-import net.bestia.zoneserver.configuration.StaticConfigurationService;
+import net.bestia.zoneserver.configuration.StaticConfigService;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
@@ -51,12 +51,12 @@ public class ScriptServiceTest {
 	private ScriptComponent scriptComponent;
 	private ActorRef runnerRef;
 	private ActorPath runnerRefPath;
-	private StaticConfigurationService configService;
+	private StaticConfigService configService;
 
 	@Before
 	public void setup() {
 		
-		configService = mock(StaticConfigurationService.class);
+		configService = mock(StaticConfigService.class);
 		scriptApi = mock(ScriptApi.class);
 		entityService = mock(EntityService.class);
 		akkaApi = mock(ZoneAkkaApi.class);
