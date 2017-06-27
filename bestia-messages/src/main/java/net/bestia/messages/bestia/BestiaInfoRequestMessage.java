@@ -6,19 +6,19 @@ import net.bestia.messages.JsonMessage;
  * This message is send from the client to ask the server for data about the
  * owned bestias and their status.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
-public class RequestBestiaInfoMessage extends JsonMessage {
+public class BestiaInfoRequestMessage extends JsonMessage {
 	
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "bestia.requestinfo";
 	
-	protected RequestBestiaInfoMessage() {
+	protected BestiaInfoRequestMessage() {
 		// no op.
 	}
 	
-	public RequestBestiaInfoMessage(long accId) {
+	public BestiaInfoRequestMessage(long accId) {
 		super(accId);
 	}
 
@@ -33,7 +33,7 @@ public class RequestBestiaInfoMessage extends JsonMessage {
 	}
 
 	@Override
-	public RequestBestiaInfoMessage createNewInstance(long accountId) {
-		return new RequestBestiaInfoMessage(accountId);
+	public BestiaInfoRequestMessage createNewInstance(long accountId) {
+		return new BestiaInfoRequestMessage(accountId);
 	}
 }

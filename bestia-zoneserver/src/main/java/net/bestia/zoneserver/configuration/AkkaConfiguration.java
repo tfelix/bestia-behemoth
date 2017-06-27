@@ -62,30 +62,23 @@ public class AkkaConfiguration implements DisposableBean {
 
 		final Address selfAddr = Cluster.get(systemInstance).selfAddress();
 		final List<Address> seedNodes = clusterConfig.getClusterSeedNodes();
-		
+
 		LOG.info("Received live endpoints: {}", seedNodes);
 
-		if (clusterConfig.shoudJoinAsSeedNode()) {
-
-			// Check if there are at least some seeds or if we need to bootstrap
-			// the cluster.
-			if (seedNodes.size() == 0) {
-				// Join as seed node since desired number of seeds is not
-				// reached.
-				LOG.info("Joining as seed node.");
-				Cluster.get(systemInstance).join(selfAddr);
-			} else {
-				LOG.info("Joining as regular node.");
-				Cluster.get(systemInstance).joinSeedNodes(seedNodes);
-			}
-
+		// Check if there are at least some seeds or if we need to bootstrap
+		// the cluster.
+		if (seedNodes.size() == 0) {
+			// Join as seed node since desired number of seeds is not
+			// reached.
+			LOG.info("Joining as bootstrap seed node.");
+			Cluster.get(systemInstance).join(selfAddr);
 		} else {
-			// Only join as normal node.
+			LOG.info("Joining as regular node.");
 			Cluster.get(systemInstance).joinSeedNodes(seedNodes);
 		}
 
 		LOG.info("Zoneserver Akka Address is: {}", selfAddr);
-		
+
 		// Cluster registration is done in the HeartbeatActor.
 
 		return systemInstance;

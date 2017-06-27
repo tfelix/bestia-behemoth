@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.bestia.BestiaInfoMessage;
-import net.bestia.messages.bestia.RequestBestiaInfoMessage;
+import net.bestia.messages.bestia.BestiaInfoRequestMessage;
 import net.bestia.messages.entity.EntityStatusUpdateMessage;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.PlayerBestia;
@@ -51,7 +51,7 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 			PlayerBestiaDAO playerBestiaDao,
 			StatusService statusService,
 			PlayerEntityService playerEntityService) {
-		super(Arrays.asList(RequestBestiaInfoMessage.class));
+		super(Arrays.asList(BestiaInfoRequestMessage.class));
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
@@ -64,7 +64,7 @@ public class BestiaInfoActor extends BestiaRoutingActor {
 	protected void handleMessage(Object msg) {
 		LOG.debug(String.format("Received: %s", msg.toString()));
 
-		final RequestBestiaInfoMessage rbimsg = (RequestBestiaInfoMessage) msg;
+		final BestiaInfoRequestMessage rbimsg = (BestiaInfoRequestMessage) msg;
 		final long accId = rbimsg.getAccountId();
 
 		final Set<Entity> bestias = playerEntityService.getPlayerEntities(rbimsg.getAccountId());
