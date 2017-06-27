@@ -2,7 +2,6 @@ package net.bestia.zoneserver.script;
 
 import java.util.List;
 
-import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.geometry.CollisionShape;
 
 /**
@@ -93,5 +92,17 @@ public interface ScriptApi {
 
 	void setShape(long entityId, CollisionShape shape);
 
+	/**
+	 * Sends a chat message to the user/owner of this given player entity id
+	 * entity.
+	 * 
+	 * @param playerEntityId
+	 *            The entity which should be a player entity.
+	 * @param message
+	 *            The message to be send.
+	 * @param mode
+	 *            The chat mode under which the message should arrive. Default
+	 *            is "SYSTEM".
+	 */
 	void sendMessage(long playerEntityId, String message, String mode);
 }

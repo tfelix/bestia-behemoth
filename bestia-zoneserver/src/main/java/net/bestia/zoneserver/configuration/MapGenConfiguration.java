@@ -83,12 +83,13 @@ public class MapGenConfiguration {
 		
 		MapNodeGenerator nodeGenerator = new MapNodeGenerator(config.getServerName(), connector, dao);
 
-		Workload work = new Workload(MapGeneratorConstants.WORK_SCALE);
-		work.addJob(new AddJob(1.0, MapGeneratorConstants.HEIGHT_MAP));
-		work.addJob(new MultiplyJob(3500, MapGeneratorConstants.HEIGHT_MAP));
-		nodeGenerator.addWorkload(work);
+		//Workload work = new Workload(MapGeneratorConstants.WORK_SCALE);
+		//work.addJob(new AddJob(1.0, MapGeneratorConstants.HEIGHT_MAP));
+		//work.addJob(new MultiplyJob(3500, MapGeneratorConstants.HEIGHT_MAP));
+		//nodeGenerator.addWorkload(work);
 
-		work = new Workload(MapGeneratorConstants.WORK_GEN_TILES);
+		Workload work = new Workload(MapGeneratorConstants.WORK_GEN_TILES);
+		work.addJob(new MultiplyJob(1500, MapGeneratorConstants.HEIGHT_MAP));
 		work.addJob(new TileGenerationJob());
 		work.addJob(new TileSaveJob(mapService));
 

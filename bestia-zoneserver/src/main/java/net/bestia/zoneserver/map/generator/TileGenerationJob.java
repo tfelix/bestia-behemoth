@@ -18,7 +18,7 @@ public class TileGenerationJob extends Job {
 
 	private static final Logger LOG = LoggerFactory.getLogger(TileGenerationJob.class);
 
-	private final static double WATERLEVEL = 100;
+	private final static double WATERLEVEL = 800;
 
 	private int waterCount = 0;
 	private int landCount = 0;

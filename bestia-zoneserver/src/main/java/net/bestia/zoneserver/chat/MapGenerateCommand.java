@@ -28,8 +28,8 @@ public class MapGenerateCommand extends BaseChatCommand {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MapGenerateCommand.class);
 
-	private static final String CMD_START_REGEX = "^/genMap .*";
-	private static final Pattern CMD_PATTERN = Pattern.compile("/genMap (.*?) (\\d+)");
+	private static final String CMD_START_REGEX = "^/genmap .*";
+	private static final Pattern CMD_PATTERN = Pattern.compile("/genmap (.*?) (\\d+)");
 
 	private ActorSystem system;
 
