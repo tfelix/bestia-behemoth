@@ -11,6 +11,7 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRawValue;
 
 /**
  * This holds the shortcuts of items and attacks for a certain bestia.
@@ -21,38 +22,85 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Entity
 @Table(name = "shortcuts")
 public class Shortcut implements Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
+
+	/**
+	 * JSON representation of this database object. Can be send to the client.
+	 *
+	 */
+	private static class ShortcutJson implements Serializable {
+		
+		private static final long serialVersionUID = 1L;
+		
+		@JsonProperty("sid")
+		private int shortcutId;
+
+		@JsonProperty("aid")
+		private long accountId;
+		
+		@JsonProperty("pbid")
+		private long playerBestiaId;
+
+		@JsonRawValue
+		private String data;
+		
+		public ShortcutJson(Shortcut shortcut) {
+			
+			this.accountId = shortcut.getAccount().getId();
+			this.shortcutId = shortcut.getId();
+			
+			if(shortcut.getPlayerBestia() != null) {
+				this.playerBestiaId = shortcut.getPlayerBestia().getId();
+			}
+			
+			this.data = shortcut.getData();
+		}
+	}
 
 	@Id
 	@GeneratedValue
 	private int id;
-	
+
 	@OneToOne
-	@JoinColumn(name = "PLAYER_BESTIA_ID", nullable = false)
+	@JoinColumn(name = "PLAYER_BESTIA_ID", nullable = true)
 	private PlayerBestia playerBestia;
-	
-	@JsonProperty("sc")
-	private String shortcut;
-	
+
+	@OneToOne
+	@JoinColumn(name = "ACCOUNT_ID", nullable = false)
+	private Account account;
+
+	/**
+	 * Data containing this shortcut.
+	 */
+	private String data;
+
 	public Shortcut() {
-		
+
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public String getData() {
+		return data;
 	}
 
 	public PlayerBestia getPlayerBestia() {
 		return playerBestia;
 	}
-	
+
 	public void setPlayerBestia(PlayerBestia playerBestia) {
-		
+
 		this.playerBestia = Objects.requireNonNull(playerBestia);
 	}
-	
-	public String getShortcut() {
-		return shortcut;
+
+	public Account getAccount() {
+		return account;
 	}
 	
-	public void setShortcut(String shortcut) {
-		this.shortcut = shortcut;
+	public ShortcutJson toJSON() {
+		return new ShortcutJson(this);
 	}
 }

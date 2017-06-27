@@ -18,7 +18,7 @@ import net.bestia.model.geometry.Size;
 /**
  * Creates the base parameter of a newly generated map.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Entity
@@ -143,10 +143,10 @@ public class MapParameter implements Serializable {
 		area += area * (1 - waterLandRatio);
 
 		// Calculate the km to tile sizes (1 tile ~ 1m).
-		//final double baseSize = Math.sqrt(area);
-		//final double x = baseSize * MAP_RATIO;
-		//final double y = baseSize / MAP_RATIO;
-		//final Size mapSize = new Size((int) (x * 1000), (int) (y * 1000));
+		// final double baseSize = Math.sqrt(area);
+		// final double x = baseSize * MAP_RATIO;
+		// final double y = baseSize / MAP_RATIO;
+		// final Size mapSize = new Size((int) (x * 1000), (int) (y * 1000));
 		// FIXME We currently limit world size to 1sqm.
 		builder.setWorldSize(new Size(1000, 1000));
 
@@ -160,34 +160,74 @@ public class MapParameter implements Serializable {
 		return builder.build();
 	}
 
+	/**
+	 * The name of this world.
+	 * 
+	 * @return The name of this world.
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * @return The date of the worlds creation.
+	 */
 	public Date getCreateDate() {
 		return createDate;
 	}
 
+	/**
+	 * Projected number of NPC to this world.
+	 * 
+	 * @return Number of NPCs in this world.
+	 */
 	public long getPopulation() {
 		return population;
 	}
 
+	/**
+	 * The size of this world in meter.
+	 * 
+	 * @return World size.
+	 */
 	public Size getWorldSize() {
 		return worldSize;
 	}
 
+	/**
+	 * Projected ratio between water and land.
+	 * 
+	 * @return
+	 */
 	public float getWaterLandRatio() {
 		return waterLandRatio;
 	}
 
+	/**
+	 * Minimum distance between settlements.
+	 * 
+	 * @return Minimum distance between settlements in meters.
+	 */
 	public int getMinSettlementDistance() {
 		return minSettlementDistance;
 	}
 
+	/**
+	 * The number of settlements in this world.
+	 * 
+	 * @return Minimum distance between settlements in meters/tiles.
+	 */
 	public int getSettlementCount() {
 		return settlementCount;
 	}
 
+	/**
+	 * The seed number for the random number generator. This is important to
+	 * recreate this world. Even though it might be possible that not all
+	 * details can be restored via this one single seed most of it should.
+	 * 
+	 * @return The world seed.
+	 */
 	public int getSeed() {
 		return seed;
 	}

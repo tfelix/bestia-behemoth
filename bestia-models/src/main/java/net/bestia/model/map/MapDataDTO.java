@@ -306,4 +306,9 @@ public class MapDataDTO implements Serializable {
 
 		return gids;
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("MapDataDTO[%s]", rect.toString());
+	}
 }
