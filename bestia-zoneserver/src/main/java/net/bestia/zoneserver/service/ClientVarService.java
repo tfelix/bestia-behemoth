@@ -24,6 +24,8 @@ public class ClientVarService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ClientVarService.class);
 
+	private static final int MAX_DATA_LENGTH_BYTES = 1000;
+
 	private final ClientVarDAO cvarDao;
 	private final AccountDAO accDao;
 
@@ -79,6 +81,12 @@ public class ClientVarService {
 	 *            The data payload.
 	 */
 	public void set(long accountId, String key, String data) {
+		Objects.requireNonNull(data);
+
+		if (data.length() > MAX_DATA_LENGTH_BYTES) {
+			final String errMsg = String.format("Data can not be longer then %d bytes.", MAX_DATA_LENGTH_BYTES);
+			throw new IllegalArgumentException(errMsg);
+		}
 
 		ClientVar cvar = find(accountId, key);
 
