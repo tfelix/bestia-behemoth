@@ -1,7 +1,5 @@
 package net.bestia.entity.component;
 
-import akka.actor.ActorPath;
-import net.bestia.entity.component.Component;
 import net.bestia.zoneserver.script.ScriptType;
 
 public class ScriptComponent extends Component {
@@ -20,11 +18,6 @@ public class ScriptComponent extends Component {
 	 * can be used to store and retrieve data.
 	 */
 	private String scriptUUID;
-
-	/**
-	 * Path to the actor which is watching the scripts lifetime.
-	 */
-	private ActorPath scriptLifetimeActorPath;
 
 	public ScriptComponent(long id, long entityId) {
 		super(id, entityId);
@@ -61,14 +54,6 @@ public class ScriptComponent extends Component {
 
 	public void setScriptUUID(String scriptUUID) {
 		this.scriptUUID = scriptUUID;
-	}
-
-	public ActorPath getScriptLifetimeActorPath() {
-		return scriptLifetimeActorPath;
-	}
-
-	public void setScriptLifetimeActorPath(ActorPath scriptLifetimeActorPath) {
-		this.scriptLifetimeActorPath = scriptLifetimeActorPath;
 	}
 
 	public String getOnLeaveCallbackName() {

@@ -1,29 +1,24 @@
 package net.bestia.zoneserver.script;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import akka.actor.ActorRef;
-import net.bestia.messages.chat.ChatMessage;
-import net.bestia.messages.internal.script.ScriptIntervalMessage;
-import net.bestia.model.geometry.CollisionShape;
-import net.bestia.model.geometry.Point;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
-import net.bestia.zoneserver.actor.entity.EntityDeleteWorker;
-import net.bestia.zoneserver.actor.entity.EntityLifetimeWatchdogActor;
-import net.bestia.zoneserver.battle.BattleService;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.MovingEntityService;
 import net.bestia.entity.ScriptEntityFactory;
 import net.bestia.entity.component.PlayerComponent;
+import net.bestia.messages.chat.ChatMessage;
+import net.bestia.model.geometry.CollisionShape;
+import net.bestia.model.geometry.Point;
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.entity.EntityDeleteWorker;
+import net.bestia.zoneserver.battle.BattleService;
 
 /**
  * Bundles all kind of services to provide an extensive script API. This API is
@@ -38,34 +33,45 @@ public class ScriptApiFacade implements ScriptApi {
 
 	private static final Logger LOG = LoggerFactory.getLogger("script");
 
-	private final ScriptEntityFactory scriptEntityFactory;
-	private final EntityService entityService;
-	private final ZoneAkkaApi akkaApi;
-	private final BattleService battleService;
-	private final ScriptService scriptService;
-	private final MovingEntityService moveService;
+	private ScriptEntityFactory scriptEntityFactory;
+	private EntityService entityService;
+	private ZoneAkkaApi akkaApi;
+	private BattleService battleService;
+	private ScriptService scriptService;
+	private MovingEntityService moveService;
 
-	/**
-	 * 
-	 * @param entityService
-	 * @param scriptService
-	 *            The service the scripts have to access. It creates a circular
-	 *            dependency thus needs to be lazy initialized.
-	 */
+	public ScriptApiFacade() {
+		// no op.
+	}
+
 	@Autowired
-	public ScriptApiFacade(
-			EntityService entityService,
-			BattleService battleService,
-			@Lazy ScriptService scriptService,
-			MovingEntityService moveService,
-			ZoneAkkaApi akkaApi) {
+	public void setScriptEntityFactory(ScriptEntityFactory scriptEntityFactory) {
+		this.scriptEntityFactory = scriptEntityFactory;
+	}
 
-		this.scriptEntityFactory = new ScriptEntityFactory(entityService, akkaApi);
-		this.entityService = Objects.requireNonNull(entityService);
-		this.battleService = Objects.requireNonNull(battleService);
-		this.scriptService = Objects.requireNonNull(scriptService);
-		this.moveService = Objects.requireNonNull(moveService);
-		this.akkaApi = Objects.requireNonNull(akkaApi);
+	@Autowired
+	public void setEntityService(EntityService entityService) {
+		this.entityService = entityService;
+	}
+
+	@Autowired
+	public void setAkkaApi(ZoneAkkaApi akkaApi) {
+		this.akkaApi = akkaApi;
+	}
+
+	@Autowired
+	public void setBattleService(BattleService battleService) {
+		this.battleService = battleService;
+	}
+
+	@Autowired
+	public void setScriptService(ScriptService scriptService) {
+		this.scriptService = scriptService;
+	}
+
+	@Autowired
+	public void setMoveService(MovingEntityService moveService) {
+		this.moveService = moveService;
 	}
 
 	@Override
@@ -100,15 +106,6 @@ public class ScriptApiFacade implements ScriptApi {
 		final Entity entity = scriptEntityFactory.build(shape);
 
 		return entity.getId();
-	}
-
-	@Override
-	public void setLivetime(long entityId, int livetimeMs) {
-		LOG.trace("Entity: {}. Sets lifetime: {} ms.", entityId, livetimeMs);
-
-		final ActorRef watchdog = akkaApi.startUnnamedActor(EntityLifetimeWatchdogActor.class);
-		final ScriptIntervalMessage message = new ScriptIntervalMessage(entityId, livetimeMs);
-		watchdog.tell(message, ActorRef.noSender());
 	}
 
 	@Override
@@ -187,7 +184,7 @@ public class ScriptApiFacade implements ScriptApi {
 
 	@Override
 	public void sendMessage(long playerEntityId, String message, String modeStr) {
-		if(message == null) {
+		if (message == null) {
 			LOG.warn("sendMessage: Message can not be null.");
 			return;
 		}
@@ -210,7 +207,7 @@ public class ScriptApiFacade implements ScriptApi {
 		} catch (NullPointerException | IllegalArgumentException e) {
 			LOG.warn("sendMessage: Invalid chat mode. Using default: SYSTEM.");
 		}
-		
+
 		final ChatMessage chatMsg = new ChatMessage(accId, playerEntityId, message, mode);
 		akkaApi.sendToClient(chatMsg);
 	}

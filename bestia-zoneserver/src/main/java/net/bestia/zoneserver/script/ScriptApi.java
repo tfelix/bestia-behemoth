@@ -50,8 +50,6 @@ public interface ScriptApi {
 	 */
 	boolean isEntityTypeOf(long entityId, String type);
 
-	void setLivetime(long entityId, int livetimeMs);
-
 	/**
 	 * Kills the entity with the given entity id. It behaves as if it would have
 	 * been regularly killed by a player and thus plays an death animation.
