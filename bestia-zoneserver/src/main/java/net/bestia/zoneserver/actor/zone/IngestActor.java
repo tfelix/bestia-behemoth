@@ -19,7 +19,7 @@ import net.bestia.zoneserver.actor.login.LoginActor;
 import net.bestia.zoneserver.actor.login.LogoutActor;
 import net.bestia.zoneserver.actor.map.MapRequestChunkActor;
 import net.bestia.zoneserver.actor.map.TilesetRequestActor;
-import net.bestia.zoneserver.actor.ui.ShortcutActor;
+import net.bestia.zoneserver.actor.ui.ClientVarActor;
 
 /**
  * This actor will once be the central routing actor which will resend all the
@@ -66,7 +66,7 @@ public class IngestActor extends BestiaRoutingActor {
 		SpringExtension.actorOf(getContext(), AttackPlayerUseActor.class);
 		
 		// === UI ===
-		SpringExtension.actorOf(getContext(), ShortcutActor.class);
+		SpringExtension.actorOf(getContext(), ClientVarActor.class);
 
 		// === House keeping actors ===
 		SpringExtension.actorOf(getContext(), LogoutActor.class);

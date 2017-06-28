@@ -297,6 +297,23 @@ var Message = {
 				k : items[i].key
 			});
 		}
+	},
+
+	/**
+	 * Sends a request of a client var to the server.
+	 */
+	CvarRequest : function(uuid, key, mode, data) {
+		this.uuid = uuid;
+		this.key = key;
+		this.m = mode;
+		
+		if(mode == 'set' && !data) {
+			throw 'Data must be given if mode is \'set\'.';
+		}
+
+		if(data) {
+			this.d = JSON.stringify(data);
+		}
 	}
 };
 

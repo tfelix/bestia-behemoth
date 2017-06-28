@@ -25,6 +25,11 @@ let Signal = {
 	 */
 	INVENTORY_PERFORM_CAST: 'client.inventory.performcast',
 
+	/**
+	 * Sends a cvar request to the cvar manager.
+	 */
+	CVAR: 'client.cvarreq',
+
 	// ### CONNECTION SIGNALS
 
 	IO_SEND_MESSAGE: 'io.sendMessage',

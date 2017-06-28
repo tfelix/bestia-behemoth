@@ -44,7 +44,9 @@ var MID = {
 	
 	CHAT_MESSAGE: 'chat.message',
 		
-	TRANSLATION_REQUEST: 'translation.request'
+	TRANSLATION_REQ: 'translation.request',
+	CVAR_REQ: 'cvar.req',
+	CVAR: 'cvar'
 };
 
 export default MID;
