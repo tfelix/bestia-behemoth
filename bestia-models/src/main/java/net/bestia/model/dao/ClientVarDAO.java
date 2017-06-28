@@ -10,8 +10,25 @@ import net.bestia.model.domain.ClientVar;
 @Transactional(readOnly = true)
 public interface ClientVarDAO extends CrudRepository<ClientVar, Long> {
 
-
+	/**
+	 * Searches for a client variable.
+	 * 
+	 * @param key
+	 *            The key of the client var.
+	 * @param accountId
+	 *            The owning account id.
+	 * @return Returns the found client variable or null if no was found.
+	 */
 	ClientVar findByKeyAndAccountId(String key, long accountId);
-	
-	ClientVar deleteByKeyAndAccountId(String key, long accountId);
+
+	/**
+	 * Deletes a client variable identified by its key and the owning account
+	 * id.
+	 * 
+	 * @param key
+	 *            The key of the client var.
+	 * @param accountId
+	 *            The owning account id.
+	 */
+	void deleteByKeyAndAccountId(String key, long accountId);
 }

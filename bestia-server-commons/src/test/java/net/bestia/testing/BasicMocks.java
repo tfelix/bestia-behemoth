@@ -12,8 +12,6 @@ import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorSystem;
 
-@Configuration
-@Profile("test")
 public class BasicMocks {
 
 	@Bean

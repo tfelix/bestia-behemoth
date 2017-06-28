@@ -118,7 +118,7 @@ public class ClientVarServiceTest {
 		cvarService.set(EXISTING_ACC_ID, EXISTING_KEY, null);
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void set_longData_throws() {
 		cvarService.set(EXISTING_ACC_ID, EXISTING_KEY, LONG_DATA_STR);
 	}
