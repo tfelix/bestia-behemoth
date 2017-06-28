@@ -11,7 +11,7 @@ import com.hazelcast.core.HazelcastInstance;
  * We need a client mode here since we dont want any operation to be peroformed
  * on the webserver.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Configuration
