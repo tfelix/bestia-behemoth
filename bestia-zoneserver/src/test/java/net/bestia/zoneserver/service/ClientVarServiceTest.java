@@ -1,14 +1,15 @@
 package net.bestia.zoneserver.service;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.ClientVarDAO;
@@ -55,12 +56,12 @@ public class ClientVarServiceTest {
 	public void setup() {
 
 		when(accDao.findOne(EXISTING_ACC_ID)).thenReturn(account);
-		when(accDao.findOne(NON_OWNING_ACC_ID)).thenReturn(account);
-		when(accDao.findOne(OWNING_ACC_ID)).thenReturn(account);
+		//when(accDao.findOne(NON_OWNING_ACC_ID)).thenReturn(account);
+		//when(accDao.findOne(OWNING_ACC_ID)).thenReturn(account);
 		when(accDao.findOne(NOT_EXISTING_ACC)).thenReturn(null);
 
 		when(cvarDao.findByKeyAndAccountId(EXISTING_KEY, OWNING_ACC_ID)).thenReturn(existingCvar);
-		when(cvarDao.findByKeyAndAccountId(NOT_EXISTING_KEY, OWNING_ACC_ID)).thenReturn(null);
+		//when(cvarDao.findByKeyAndAccountId(NOT_EXISTING_KEY, OWNING_ACC_ID)).thenReturn(null);
 
 		cvarService = new ClientVarService(cvarDao, accDao);
 	}
@@ -99,7 +100,7 @@ public class ClientVarServiceTest {
 	@Test
 	public void find_existingAccId_notExistingKey_null() {
 		ClientVar var = cvarService.find(EXISTING_ACC_ID, NOT_EXISTING_KEY);
-		verify(cvarDao.findByKeyAndAccountId(NOT_EXISTING_KEY, EXISTING_ACC_ID));
+		verify(cvarDao).findByKeyAndAccountId(NOT_EXISTING_KEY, EXISTING_ACC_ID);
 		Assert.assertNull(var);
 	}
 
@@ -134,7 +135,7 @@ public class ClientVarServiceTest {
 		cvarService.set(EXISTING_ACC_ID, EXISTING_KEY, DATA_STR);
 
 		verify(cvarDao).findByKeyAndAccountId(EXISTING_KEY, EXISTING_ACC_ID);
-		verify(cvarDao).save(existingCvar);
+		verify(cvarDao).save(any(ClientVar.class));
 	}
 
 	@Test
