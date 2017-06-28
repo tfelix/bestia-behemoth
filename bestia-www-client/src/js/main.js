@@ -12,6 +12,7 @@ import Inventory from './ui/inventory/Inventory';
 import AttackView from './ui/attack/AttackView';
 import BestiaView from './ui/bestia/BestiaView';
 import ShortcutView from './ui/shortcut/ShortcutView';
+import ClientVarManager from './ui/ClientVarManager';
 
 // Creating all needed components.
 let pubsub = new PubSub();
@@ -19,6 +20,7 @@ let urlHelper = new UrlHelper('assets/');
 let auth = new Authenticator(pubsub);
 let engine = new Engine(pubsub, urlHelper);
 let connection = new Connection(pubsub);
+let cvarManager = new ClientVarManager(pubsub);
 
 // Some views share a view model.
 let bestiaView = new BestiaView(pubsub, urlHelper);
