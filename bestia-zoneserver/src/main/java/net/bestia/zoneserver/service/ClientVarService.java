@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.service;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -24,7 +25,8 @@ public class ClientVarService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ClientVarService.class);
 
-	private static final int MAX_DATA_LENGTH_BYTES = 1000;
+	private static final int MAX_DATA_ENTRY_LENGTH_BYTES = 1000;
+	private static final int MAX_DATA_LENGH_TOTAL_BYTES = 100 * 1024;
 
 	private final ClientVarDAO cvarDao;
 	private final AccountDAO accDao;
@@ -64,6 +66,21 @@ public class ClientVarService {
 		cvarDao.deleteByKeyAndAccountId(key, accId);
 	}
 
+	/**
+	 * Returns the number of bytes used in total by the given account id.
+	 * 
+	 * @param accId
+	 *            The account ID to look up.
+	 * @return The number of bytes used by this account.
+	 */
+	public int getBytesUsedByAccount(long accId) {
+		List<ClientVar> cvars = cvarDao.findyByAccountId(accId);
+		return cvars.stream()
+				.map(ClientVar::getDataLength)
+				.mapToInt(Integer::intValue)
+				.sum();
+	}
+
 	public ClientVar find(long accId, String key) {
 		LOG.debug("Finding cvar with accID: {} and key: {}.", accId, key);
 		final ClientVar cvar = cvarDao.findByKeyAndAccountId(Objects.requireNonNull(key), accId);
@@ -83,8 +100,14 @@ public class ClientVarService {
 	public void set(long accountId, String key, String data) {
 		Objects.requireNonNull(data);
 
-		if (data.length() > MAX_DATA_LENGTH_BYTES) {
-			final String errMsg = String.format("Data can not be longer then %d bytes.", MAX_DATA_LENGTH_BYTES);
+		if (data.length() > MAX_DATA_ENTRY_LENGTH_BYTES) {
+			final String errMsg = String.format("Data can not be longer then %d bytes.", MAX_DATA_ENTRY_LENGTH_BYTES);
+			throw new IllegalArgumentException(errMsg);
+		}
+
+		if (getBytesUsedByAccount(accountId) + data.length() >= MAX_DATA_LENGH_TOTAL_BYTES) {
+			final String errMsg = String.format("Max data stored can not be longer then %d bytes.",
+					MAX_DATA_LENGH_TOTAL_BYTES);
 			throw new IllegalArgumentException(errMsg);
 		}
 

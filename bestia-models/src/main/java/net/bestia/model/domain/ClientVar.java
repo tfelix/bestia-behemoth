@@ -66,6 +66,10 @@ public class ClientVar implements Serializable {
 	public String getKey() {
 		return key;
 	}
+	
+	public int getDataLength() {
+		return data.length;
+	}
 
 	public String getData() {
 		return new String(data, UTF_8);

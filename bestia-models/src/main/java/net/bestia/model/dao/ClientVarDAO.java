@@ -1,5 +1,7 @@
 package net.bestia.model.dao;
 
+import java.util.List;
+
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,4 +33,13 @@ public interface ClientVarDAO extends CrudRepository<ClientVar, Long> {
 	 *            The owning account id.
 	 */
 	void deleteByKeyAndAccountId(String key, long accountId);
+
+	/**
+	 * Counts the number of bytes used by a single account.
+	 * 
+	 * @param accountId
+	 *            The account to find.
+	 * @return
+	 */
+	 List<ClientVar> findyByAccountId(long accountId);
 }
