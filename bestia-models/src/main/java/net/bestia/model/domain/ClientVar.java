@@ -1,8 +1,10 @@
 package net.bestia.model.domain;
 
 import java.io.Serializable;
+import java.nio.charset.Charset;
 import java.util.Objects;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -19,9 +21,11 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "clientvars", indexes = {
-		@Index(columnList = "key", name = "key_idx")
+		@Index(columnList = "cvar_key", name = "key_idx")
 })
 public class ClientVar implements Serializable {
+
+	private static final Charset UTF_8 = Charset.forName("UTF-8");
 
 	private static final long serialVersionUID = 1L;
 
@@ -36,12 +40,13 @@ public class ClientVar implements Serializable {
 	/**
 	 * Key for the given entry.
 	 */
+	@Column(name = "cvar_key")
 	private String key;
 
 	/**
 	 * Data containing this shortcut.
 	 */
-	private String data;
+	private byte[] data;
 
 	public ClientVar() {
 		// no op.
@@ -51,7 +56,7 @@ public class ClientVar implements Serializable {
 
 		this.account = Objects.requireNonNull(acc);
 		this.key = Objects.requireNonNull(key);
-		this.data = Objects.requireNonNull(data);
+		setData(data);
 	}
 
 	public long getId() {
@@ -63,7 +68,7 @@ public class ClientVar implements Serializable {
 	}
 
 	public String getData() {
-		return data;
+		return new String(data, UTF_8);
 	}
 
 	public Account getAccount() {
@@ -71,7 +76,7 @@ public class ClientVar implements Serializable {
 	}
 
 	public void setData(String data) {
-		this.data = Objects.requireNonNull(data);
+		this.data = data.getBytes(UTF_8);
 	}
 
 	@Override
