@@ -13,7 +13,7 @@ import net.bestia.zoneserver.actor.ZoneAkkaApi;
 
 abstract class BaseChatCommand implements ChatCommand {
 
-	private static final Logger LOG = LoggerFactory.getLogger(MapMoveCommand.class);
+	private static final Logger LOG = LoggerFactory.getLogger(BaseChatCommand.class);
 
 	private final AccountDAO accDao;
 	private final ZoneAkkaApi akkaApi;
