@@ -7,20 +7,19 @@ import javax.script.CompiledScript;
 import javax.script.Invocable;
 import javax.script.ScriptContext;
 import javax.script.ScriptException;
+import javax.script.SimpleBindings;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import akka.actor.ActorRef;
-import net.bestia.messages.internal.script.ScriptIntervalMessage;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
-import net.bestia.zoneserver.actor.script.PeriodicScriptRunnerActor;
-import net.bestia.zoneserver.configuration.StaticConfigService;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
+import net.bestia.messages.internal.script.ScriptIntervalMessage;
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.configuration.StaticConfigService;
 
 /**
  * This class is responsible for fetching the script, creating a appropriate
@@ -32,7 +31,6 @@ import net.bestia.entity.component.ScriptComponent;
  * @author Thomas Felix
  *
  */
-@Service
 public class ScriptService2 {
 	
 	private static class ScriptIdent {
@@ -46,8 +44,6 @@ public class ScriptService2 {
 	private final EntityService entityService;
 	private final ZoneAkkaApi akkaApi;
 	private final ScriptCache scriptCache;
-	private final StaticConfigService configService;
-	private final ScriptApi scriptApi;
 
 	@Autowired
 	public ScriptService2(
@@ -60,9 +56,10 @@ public class ScriptService2 {
 		this.entityService = Objects.requireNonNull(entityService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 		this.scriptCache = Objects.requireNonNull(cache);
-		this.configService = Objects.requireNonNull(configService);
-		this.scriptApi = Objects.requireNonNull(scriptApi);
 		
+		SimpleBindings bindings = new SimpleBindings();
+		bindings.put("SERVER_VERSION", configService.getServerVersion());
+		bindings.put("BAPI", scriptApi);
 		
 	}
 	
@@ -88,8 +85,7 @@ public class ScriptService2 {
 			String functionName) {
 
 		final Bindings scriptBindings = script.getEngine().getBindings(ScriptContext.ENGINE_SCOPE);
-		scriptBindings.put("SERVER_VERSION", configService.getServerVersion());
-		scriptBindings.put("BAPI", scriptApi);
+		
 		scriptBindings.put("SCRIPT", name);
 		scriptBindings.put("TYPE", type);
 
@@ -119,17 +115,17 @@ public class ScriptService2 {
 	}
 
 	/**
-	 * Alias for {@link #freeScriptComponent(Entity)}. Entity is resolved first.
+	 * Alias for {@link #deleteScriptComponent(Entity)}. Entity is resolved first.
 	 * 
 	 * @param scriptEntityId
 	 *            The ID of the script entity.
 	 * @return The removed {@link ScriptComponent} or null if no component was
 	 *         attached to the entity.
 	 */
-	public ScriptComponent freeScriptComponent(long scriptEntityId) {
+	public ScriptComponent deleteScriptComponent(long scriptEntityId) {
 
 		final Entity scriptEntity = entityService.getEntity(scriptEntityId);
-		return freeScriptComponent(scriptEntity);
+		return deleteScriptComponent(scriptEntity);
 	}
 
 	/**
@@ -143,7 +139,7 @@ public class ScriptService2 {
 	 * @return The removed {@link ScriptComponent} or null if no component was
 	 *         attached to the entity.
 	 */
-	public ScriptComponent freeScriptComponent(Entity scriptEntity) {
+	public ScriptComponent deleteScriptComponent(Entity scriptEntity) {
 		if (!entityService.hasComponent(scriptEntity, ScriptComponent.class)) {
 			return null;
 		}
@@ -168,6 +164,7 @@ public class ScriptService2 {
 	 * @param type
 	 */
 	public void callScript(String name, ScriptType type) {
+		
 		LOG.debug("Executing script: {} ({}).", name, type);
 
 		final CompiledScript script = scriptCache.getScript(type, name);
@@ -177,7 +174,7 @@ public class ScriptService2 {
 			return;
 		}
 
-		runScript(script);
+		//runScript(script);
 	}
 
 	public void callAttackScript(String name) {

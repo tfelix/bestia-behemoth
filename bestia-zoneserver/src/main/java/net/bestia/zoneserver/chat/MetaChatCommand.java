@@ -20,7 +20,7 @@ import net.bestia.model.domain.Account.UserLevel;
  * @author Thomas Felix
  *
  */
-public abstract class MetaChatCommand implements ChatCommand {
+public class MetaChatCommand implements ChatCommand {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(MapMoveCommand.class);
 
