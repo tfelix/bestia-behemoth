@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.configuration;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -11,13 +12,14 @@ import org.springframework.context.annotation.Configuration;
 
 import com.hazelcast.core.HazelcastInstance;
 
-import net.bestia.entity.EntityRecycler;
 import net.bestia.entity.EntityService;
+import net.bestia.entity.component.Component;
 import net.bestia.entity.component.interceptor.ComponentInterceptor;
+import net.bestia.entity.recycler.ComponentRecycler;
+import net.bestia.entity.recycler.EntityRecycler;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.zoneserver.environment.date.BestiaDate;
-import net.bestia.zoneserver.script.ScriptService;
 
 /**
  * Central bean definitions for the main bestia zoneserver. Some beans require a
@@ -71,9 +73,9 @@ public class ZoneBaseConfiguration {
 	@Bean
 	public EntityRecycler entityRecycler(
 			EntityService entityService,
-			ScriptService scriptService,
-			StaticConfigService config) {
-		return new EntityRecycler(config.getEntityBufferSize(), entityService, scriptService);
+			StaticConfigService config,
+			List<ComponentRecycler<? extends Component>> recyclers) {
+		return new EntityRecycler(config.getEntityBufferSize(), entityService, recyclers);
 	}
 
 }

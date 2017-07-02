@@ -7,7 +7,6 @@ import javax.script.CompiledScript;
 import javax.script.Invocable;
 import javax.script.ScriptContext;
 import javax.script.ScriptException;
-import javax.script.SimpleBindings;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +18,6 @@ import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
 import net.bestia.messages.internal.script.ScriptIntervalMessage;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
-import net.bestia.zoneserver.configuration.StaticConfigService;
 
 /**
  * This class is responsible for fetching the script, creating a appropriate
@@ -142,7 +140,7 @@ public class ScriptService {
 		stopScriptInterval(scriptEntity);
 
 		final ScriptComponent scriptComp = entityService.getComponent(scriptEntity, ScriptComponent.class).get();
-		entityService.deleteComponent(scriptEntity, scriptComp);
+		entityService.deleteComponent(scriptComp);
 
 		scriptComp.setEntityId(0);
 

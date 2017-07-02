@@ -13,7 +13,6 @@ import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.cluster.singleton.ClusterSingletonManager;
 import akka.cluster.singleton.ClusterSingletonManagerSettings;
-import net.bestia.zoneserver.actor.entity.EntityDeleteWorker;
 import net.bestia.zoneserver.actor.entity.EntityWorker;
 import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
@@ -55,7 +54,6 @@ public class ZoneStarter implements CommandLineRunner {
 
 		// Entity
 		akkaApi.startActor(EntityWorker.class);
-		akkaApi.startActor(EntityDeleteWorker.class);
 		
 		// Maintenance actors.
 		akkaApi.startActor(MapGeneratorMasterActor.class);

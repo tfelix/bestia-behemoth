@@ -48,7 +48,7 @@ public class MapMoveCommand extends BaseChatCommand {
 
 	@Override
 	public boolean isCommand(String text) {
-		return text.startsWith("/mm");
+		return text.startsWith("/mm ");
 	}
 
 	@Override

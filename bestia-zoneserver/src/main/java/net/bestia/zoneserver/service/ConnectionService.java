@@ -21,7 +21,7 @@ import akka.actor.Address;
  * to it. We also keep track of all players from a given webserver if this
  * webserver goes offline we can desapwn all the player resources on the server.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Service
@@ -29,12 +29,12 @@ public class ConnectionService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(ConnectionService.class);
 	private final IMap<Long, ActorPath> connections;
-	private final MultiMap<String, Long> webserverCache;
+	private final MultiMap<String, Long> webserverClientConnections;
 
 	public ConnectionService(HazelcastInstance hz) {
 
 		this.connections = hz.getMap("clients.connections");
-		this.webserverCache = hz.getMultiMap("cache.webserver");
+		this.webserverClientConnections = hz.getMultiMap("cache.webserver");
 
 	}
 
@@ -51,7 +51,7 @@ public class ConnectionService {
 
 		LOG.trace("Adding client id: {} connection: {}", accId, path);
 		connections.set(accId, path);
-		webserverCache.put(path.address().toString(), accId);
+		webserverClientConnections.put(path.address().toString(), accId);
 	}
 
 	/**
@@ -63,7 +63,18 @@ public class ConnectionService {
 	 */
 	public Collection<Long> getClients(Address addr) {
 		Objects.requireNonNull(addr);
-		return webserverCache.get(addr.toString());
+		return webserverClientConnections.get(addr.toString());
+	}
+
+	/**
+	 * Checks if a given account is already online.
+	 * 
+	 * @param accId
+	 *            The account to check if it is online and connected.
+	 * @return TRUE if account is currently online or FALSE.
+	 */
+	public boolean isConnected(long accId) {
+		return connections.containsKey(accId);
 	}
 
 	/**
@@ -82,7 +93,7 @@ public class ConnectionService {
 		}
 
 		connections.remove(accId);
-		webserverCache.remove(ref.address().toString(), accId);
+		webserverClientConnections.remove(ref.address().toString(), accId);
 	}
 
 	/**

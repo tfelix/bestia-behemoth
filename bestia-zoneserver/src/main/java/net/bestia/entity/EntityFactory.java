@@ -14,6 +14,7 @@ import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.entity.EntityWorker;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
+import net.bestia.entity.recycler.EntityRecycler;
 
 /**
  * The EcsEntityFactory is responsible for translating ecs blueprints into
@@ -28,13 +29,18 @@ class EntityFactory {
 	private final static Logger LOG = LoggerFactory.getLogger(EntityFactory.class);
 
 	private final EntityService entityService;
+	private final EntityRecycler recycler;
 	private final ZoneAkkaApi akkaApi;
 
 	@Autowired
-	EntityFactory(EntityService entityService, ZoneAkkaApi akkaApi) {
+	EntityFactory(
+			EntityService entityService,
+			ZoneAkkaApi akkaApi,
+			EntityRecycler recycler) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
+		this.recycler = Objects.requireNonNull(recycler);
 	}
 
 	/**
@@ -62,8 +68,14 @@ class EntityFactory {
 
 		LOG.trace("Creating entity with: {}", blueprint);
 
-		final Entity e = entityService.newEntity();
-		
+		// Check if we can use recycled entity.
+		Entity e = recycler.getEntity();
+
+		if (e == null) {
+			LOG.debug("No recycled entity present. Creating new entity.");
+			e = entityService.newEntity();
+		}
+
 		// Start a actor for this entity.
 		akkaApi.sendToActor(EntityWorker.NAME, e.getId());
 
@@ -85,9 +97,7 @@ class EntityFactory {
 		}
 
 		// Use the setter to fill the components with data.
-		
 
 		return e;
 	}
-
 }

@@ -70,6 +70,7 @@ public class EntityActor extends BestiaActor {
 			regenerationTickActor = SpringExtension.unnamedActorOf(getContext(),
 					EntityStatusTickActor.class,
 					msg.getEntityId());
+			context().watch(regenerationTickActor);
 		}
 	}
 
@@ -109,7 +110,7 @@ public class EntityActor extends BestiaActor {
 
 	private void handleDeleteMessage(EntityDeleteInternalMessage msg) {
 		stopAll();
-		SpringExtension.unnamedActorOf(getContext(), EntityDeleteActor.class, msg.getEntityId());
+		getContext().system().stop(getSelf());
 	}
 
 	/**
@@ -174,5 +175,6 @@ public class EntityActor extends BestiaActor {
 	private void stopAll() {
 		stopMovement();
 		stopRegenTick();
+		stopScript();
 	}
 }

@@ -72,16 +72,16 @@ public class PlayerEntityService {
 	public void setActiveEntity(long accId, long activeEntityId) {
 		// Check if this is a valid player bestia.
 		final Entity activeEntity = entityService.getEntity(activeEntityId);
-		
+
 		if (null == activeEntity) {
 			throw new IllegalArgumentException("Active entity id was not found in the system. Add it first.");
 		}
 
 		final PlayerComponent playerComp = entityService.getComponent(activeEntity, PlayerComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
-		
+
 		// Safety check if the player owns this entity.
-		if(playerComp.getOwnerAccountId() != accId) {
+		if (playerComp.getOwnerAccountId() != accId) {
 			throw new IllegalArgumentException("Account ID does not own entity id. Can not activate.");
 		}
 
@@ -90,7 +90,7 @@ public class PlayerEntityService {
 
 		LOG.debug("Activating entity id: {} for account: {}.", activeEntityId, accId);
 
-		final BestiaActivateMessage activateMsg = new BestiaActivateMessage(accId, 
+		final BestiaActivateMessage activateMsg = new BestiaActivateMessage(accId,
 				playerComp.getPlayerBestiaId(),
 				activeEntityId);
 		akkaApi.sendToClient(activateMsg);
@@ -116,9 +116,9 @@ public class PlayerEntityService {
 
 		final Long active = activeEntities.get(accId);
 		final boolean isActive = active != null && active == entityId;
-		
+
 		LOG.trace("Entity {} of account {} is active: {}.", entityId, accId, isActive);
-		
+
 		return isActive;
 	}
 
@@ -186,8 +186,11 @@ public class PlayerEntityService {
 	public Set<Entity> getPlayerEntities(long accId) {
 
 		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
-		return entityService.getAllEntities(new HashSet<>(ids)).values().stream()
-				.filter(x -> entityService.hasComponent(x, PlayerComponent.class)).collect(Collectors.toSet());
+		return entityService.getAllEntities(new HashSet<>(ids))
+				.values()
+				.stream()
+				.filter(x -> entityService.hasComponent(x, PlayerComponent.class))
+				.collect(Collectors.toSet());
 	}
 
 	/**
@@ -272,13 +275,9 @@ public class PlayerEntityService {
 	public void removePlayerBestias(long accId) {
 		LOG.trace("Removing all bestias of player {}.", accId);
 
-		// First get all ids of player bestias.
-		final Collection<Long> ids = playerBestiaEntitiesIds.get(accId);
-		ids.forEach(entityService::delete);
-
 		playerBestiaEntitiesIds.remove(accId);
 
-		// Remove the active bestia.
+		// Remove the active bestia if it was set.
 		activeEntities.remove(accId);
 	}
 
@@ -289,7 +288,7 @@ public class PlayerEntityService {
 	 *            The player bestia entity to be removed.
 	 * @return TRUE if the entity could be removed. FALSE otherwise.
 	 */
-	public boolean removePlayerBestia(Entity playerBestia) {
+	public void removePlayerBestia(Entity playerBestia) {
 
 		Objects.requireNonNull(playerBestia);
 
@@ -301,35 +300,32 @@ public class PlayerEntityService {
 		// Dont remove if its the last bestia.
 		if (playerBestiaEntitiesIds.get(accId).isEmpty()) {
 			LOG.debug("Cant remove last player bestia entity.");
-			return false;
+			return;
 		}
 
 		entityService.delete(playerBestia);
 		playerBestiaEntitiesIds.remove(accId, playerBestia.getId());
 
-		if(!activeEntities.containsKey(accId)) {
-			return false;
+		if (!activeEntities.containsKey(accId)) {
+			return;
 		}
-		
+
 		if (activeEntities.get(accId) == playerBestia.getId()) {
 			// Select a new active bestia and notify the client.
 			long newActive = playerBestiaEntitiesIds.get(accId).stream().findAny().orElse(0L);
 
 			if (newActive == 0) {
 				LOG.warn("Could not select a new active bestia for account {}", accId);
-				return false;
 			}
 
 			setActiveEntity(accId, newActive);
-			return true;
 		}
 
-		return true;
 	}
 
 	/**
-	 * This method extracts all variable data from the player entity and
-	 * persists them back into the database.
+	 * This method extracts all variable and important data from the player
+	 * entity and persists them back into the database.
 	 * 
 	 * @param playerBestia
 	 */

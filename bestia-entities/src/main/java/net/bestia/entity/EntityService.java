@@ -378,7 +378,7 @@ public class EntityService {
 			});
 		}
 	}
-
+	
 	/**
 	 * Deletes a specific component from this entity. Interceptors which were
 	 * registered for this component are getting called.
@@ -388,12 +388,14 @@ public class EntityService {
 	 * @param component
 	 *            The component to delete.
 	 */
-	public void deleteComponent(Entity entity, Component component) {
+	public void deleteComponent(Component component) {
+		final Entity entity = getEntity(component.getEntityId());
+		
 		LOG.trace("Removing component {} from entity {}.", component, entity);
 
 		prepareComponentRemove(entity, component);
 
-		saveEntity(entity);
+		saveEntity(entity);	
 	}
 
 	/**

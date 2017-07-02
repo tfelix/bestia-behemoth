@@ -154,7 +154,7 @@ export default class AttackView {
 		
 		// Setup the subscribers.
 		pubsub.subscribe(MID.ATTACK_LIST_RESPONSE, this._updateHandle.bind(this));
-		pubsub.subscribe(Signal.BESTIA_SELECTED, this._invalidateListHandle.bind(this));
+		//pubsub.subscribe(Signal.BESTIA_SELECTED, this._invalidateListHandle.bind(this));
 		//pubsub.subscribe(Signal.I18N_LANG_CHANGED, this._invalidateListHandle.bind(this));
 		
 		this.show.subscribe(function(newValue){

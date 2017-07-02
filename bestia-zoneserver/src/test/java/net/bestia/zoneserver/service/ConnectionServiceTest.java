@@ -14,6 +14,8 @@ import net.bestia.testing.BasicMocks;
 
 public class ConnectionServiceTest {
 
+	private static final long CONNECTED_ACC_ID = 10;
+	private static final long NOT_CONNECTED_ACC_ID = 11;
 	private BasicMocks mocks = new BasicMocks();
 	private HazelcastInstance hz = mocks.hazelcastMock();
 
@@ -67,6 +69,17 @@ public class ConnectionServiceTest {
 	@Test(expected = NullPointerException.class)
 	public void removeClients_null_throws() {
 		conSrv.removeClients(null);
+	}
+	
+	@Test
+	public void isOnline_accIdNotOnline_false() {
+		Assert.assertTrue(conSrv.isConnected(NOT_CONNECTED_ACC_ID));
+	}
+	
+	@Test
+	public void isOnline_accIdOnline_true() {
+		conSrv.addClient(CONNECTED_ACC_ID, webserver.ref().path());
+		Assert.assertTrue(conSrv.isConnected(CONNECTED_ACC_ID));
 	}
 
 	@Test

@@ -424,7 +424,8 @@ export default class Inventory {
 
 		this._translateItems(newItems, function () {
 			// Flag that all items are sucessfully loaded.
-			this._setupItemBindings();
+			// Shortcut managers now manages the shortcuts.
+			//this._setupItemBindings();
 		}.bind(this));
 	}
 
@@ -512,8 +513,6 @@ export default class Inventory {
 		this.itemSlot3(null);
 		this.itemSlot4(null);
 		this.itemSlot5(null);
-
-		this._setupItemBindings();
 	}
 
 	/**
@@ -667,54 +666,5 @@ export default class Inventory {
 		}
 
 		this.useItem(item);
-	}
-
-	/**
-	 * Setup the item bindings with the proper items. We need to derefer
-	 * this call until the bestia is selected AND the items have been
-	 * loaded.
-	 */
-	_setupItemBindings() {
-		if (this.hasLoaded()) {
-			return;
-		}
-
-		var bestia = this._selectedBestia;
-		// If we still have no bestia selected via a server message we will
-		// stop
-		// here and wait until this has happened. The method will then be
-		// called
-		// again.
-		if (bestia === null) {
-			return;
-		}
-
-		var item = null;
-
-		// Set the item shortcuts by the ones of the newly selected bestia.
-		// But these items are not the same instance then the ones from the
-		// inventory. We must replace them with the inventory instances.
-		if (bestia.item1() !== null) {
-			item = this._findItem(bestia.item1().itemId());
-			this.itemSlot1(item);
-		}
-		if (bestia.item2() !== null) {
-			item = this._findItem(bestia.item2().itemId());
-			this.itemSlot2(item);
-		}
-		if (bestia.item3() !== null) {
-			item = this._findItem(bestia.item3().itemId());
-			this.itemSlot3(item);
-		}
-		if (bestia.item4() !== null) {
-			item = this._findItem(bestia.item4().itemId());
-			this.itemSlot4(item);
-		}
-		if (bestia.item5() !== null) {
-			item = this._findItem(bestia.item5().itemId());
-			this.itemSlot5(item);
-		}
-
-		this.hasLoaded(true);
 	}
 }

@@ -1,18 +1,20 @@
-package net.bestia.entity;
+package net.bestia.entity.recycler;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
-import net.bestia.entity.component.ScriptComponent;
-import net.bestia.zoneserver.script.ScriptService;
 
 /**
  * The {@link EntityRecycler} is used to get rid of an entity and its
@@ -22,6 +24,7 @@ import net.bestia.zoneserver.script.ScriptService;
  * @author Thomas Felix
  *
  */
+@org.springframework.stereotype.Component
 public class EntityRecycler {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EntityRecycler.class);
@@ -31,22 +34,29 @@ public class EntityRecycler {
 
 	private final Queue<Entity> entities = new LinkedList<>();
 	private final Map<String, Queue<Component>> components = new HashMap<>();
-	
-	private final EntityService entityService;
-	private final ScriptService scriptService;
 
-	public EntityRecycler(int maxCachedInstances, EntityService entityService, ScriptService scriptService) {
+	private final EntityService entityService;
+	private final Map<Class<? extends Component>, ComponentRecycler<? extends Component>> recyclers = new HashMap<>();
+
+	public EntityRecycler(int maxCachedInstances,
+			EntityService entityService,
+			List<ComponentRecycler<? extends Component>> componentRecyclers) {
+
 		if (maxCachedInstances < 0) {
 			throw new IllegalArgumentException("MaxCachedInstances must be positive.");
 		}
 
 		this.maxCachedInstances = maxCachedInstances;
 		this.entityService = Objects.requireNonNull(entityService);
-		this.scriptService = Objects.requireNonNull(scriptService);
+
+		for (ComponentRecycler<? extends Component> compRecycler : componentRecyclers) {
+			recyclers.put(compRecycler.supportedComponent(), compRecycler);
+		}
 	}
 
-	public EntityRecycler(EntityService entityService, ScriptService scriptService) {
-		this(DEFAULT_MAX_CACHED_INSTANCES, entityService, scriptService);
+	public EntityRecycler(EntityService entityService,
+			List<ComponentRecycler<? extends Component>> componentRecyclers) {
+		this(DEFAULT_MAX_CACHED_INSTANCES, entityService, componentRecyclers);
 	}
 
 	/**
@@ -62,12 +72,12 @@ public class EntityRecycler {
 
 		LOG.debug("Recycling entity: {}", entity);
 
-		// Remove/Recycle the special handled components.
-		freeSpecialComponents(entity);
-
 		final Collection<Component> components = entityService.getAllComponents(entity);
 		entityService.deleteAllComponents(entity);
-		components.stream().forEach(this::stashComponente);
+
+		components.stream().forEach(comp -> {
+			freeComponent(entity.getId(), comp.getClass());
+		});
 
 		// Save entity.
 		entityService.delete(entity);
@@ -75,12 +85,52 @@ public class EntityRecycler {
 	}
 
 	/**
-	 * Removes all the special handles components from an entity.
+	 * Alias to {@link #free(Entity)}.
+	 * 
+	 * @param entityId
+	 *            The entity ID to free (and delete all the components).
 	 */
-	private void freeSpecialComponents(Entity entity) {
+	public void free(long entityId) {
+		final Entity e = entityService.getEntity(entityId);
 
-		final ScriptComponent scriptComp = scriptService.deleteScriptComponent(entity);
-		stashComponente(scriptComp);
+		if (e == null) {
+			throw new IllegalArgumentException("Entity ID does not exist.");
+		}
+
+		free(e);
+	}
+
+	public void freeComponent(long entityId, Component comp) {
+
+		// Check if we can recycle.
+		if (!recyclers.containsKey(comp.getClass())) {
+			LOG.warn("Can not recycle component: {}", comp.getClass());
+			return;
+		}
+
+		final ComponentRecycler<? extends Component> recycler = recyclers.get(comp.getClass());
+		recycler.freeComponent(comp);
+		stashComponente(comp);
+	}
+
+	/**
+	 * Frees a single component and cleans up all the associated resources with
+	 * it. Alias to {@link #freeComponent(long, Component)}.
+	 * 
+	 * @param entityId
+	 *            The entity to remove a component from.
+	 * @param compClass
+	 *            The class of the component to be removed.
+	 */
+	public void freeComponent(long entityId, Class<? extends Component> compClass) {
+
+		final Optional<? extends Component> comp = entityService.getComponent(entityId, compClass);
+
+		if (!comp.isPresent()) {
+			return;
+		} else {
+			freeComponent(entityId, comp.get());
+		}
 	}
 
 	/**
@@ -130,22 +180,6 @@ public class EntityRecycler {
 	}
 
 	/**
-	 * Alias to {@link #free(Entity)}.
-	 * 
-	 * @param entityId
-	 *            The entity ID to free (and delete all the components).
-	 */
-	public void free(long entityId) {
-		final Entity e = entityService.getEntity(entityId);
-
-		if (e == null) {
-			throw new IllegalArgumentException("Entity ID does not exist.");
-		}
-
-		free(e);
-	}
-
-	/**
 	 * Returns an entity which was previously cached. It does not contain
 	 * components anymore. It returns null if there is no entity available.
 	 * 
@@ -167,7 +201,7 @@ public class EntityRecycler {
 	public <T extends Component> T getComponent(Class<T> componentClass) {
 
 		final String className = componentClass.getName();
-		
+
 		if (components.containsKey(className)) {
 			return (T) components.get(className).poll();
 		} else {

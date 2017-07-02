@@ -143,6 +143,8 @@ public class LoginService {
 
 		playerEntities.forEach(playerEntityService::save);
 		playerEntityService.removePlayerBestias(accId);
+		
+		// Recycle all entities.
 	}
 
 	/**
@@ -159,7 +161,9 @@ public class LoginService {
 	 * @param level
 	 */
 	public void logoutAllUsersBelow(UserLevel level) {
-
+		connectionService.getAllConnectedAccountIds().stream().filter(accId -> {
+			return accountDao.findOne(accId).getUserLevel().compareTo(level) == -1;
+		}).forEach(this::logout);
 	}
 
 	public AccountLoginToken setNewLoginToken(String username, String password) {
@@ -224,14 +228,14 @@ public class LoginService {
 		}
 
 		if (config.getMaintenanceMode() != MaintenanceLevel.NONE) {
-			
+
 			// Depending on maintenance mode certain users can login.
-			if(config.getMaintenanceMode() == MaintenanceLevel.FULL) {
+			if (config.getMaintenanceMode() == MaintenanceLevel.FULL) {
 				LOG.debug("No accounts can login during full maintenance.");
 				return false;
 			}
-			
-			if(config.getMaintenanceMode() == MaintenanceLevel.PARTIAL 
+
+			if (config.getMaintenanceMode() == MaintenanceLevel.PARTIAL
 					&& acc.getUserLevel().compareTo(UserLevel.SUPER_GM) < 0) {
 				LOG.debug("Account {} can not login during maintenance User level too low.", accId);
 				return false;

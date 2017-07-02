@@ -353,9 +353,8 @@ public class PlayerEntityServiceTest {
 
 		assertEquals("Account should own two bestias now.", 2, pbeService.getPlayerEntities(KNOWN_ACC_ID).size());
 
-		boolean removed = pbeService.removePlayerBestia(masterEntity);
+		pbeService.removePlayerBestia(masterEntity);
 
-		assertTrue(removed);
 		assertEquals("Account should own only one bestias now.", 1, pbeService.getPlayerEntities(KNOWN_ACC_ID).size());
 		assertTrue(pbeService.getPlayerEntities(KNOWN_ACC_ID).contains(playerEntity));
 	}

@@ -45,8 +45,10 @@ export default class DynamicSpriteBuilder extends SpriteBuilder {
 		} else {
 			entity.show();
 		}
+
+		entity.setPosition(data.x, data.y);
 		
-		entity.playerBestiaId = data.pbid;
+		entity.entityId = data.eid;
 			
 		return entity;
 	}

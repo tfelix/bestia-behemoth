@@ -65,8 +65,8 @@ public interface ZoneAkkaApi {
 	 * Sends a message directly to the entity actor managing a single entity
 	 * inside the cluster.
 	 * 
-	 * @param id The entity ID which actor should receive the message.
+	 * @param entityId The entity ID which actor should receive the message.
 	 * @param msg The message to send.
 	 */
-	void sendEntityActor(long id, Object msg);
+	void sendEntityActor(long entityId, Object msg);
 }

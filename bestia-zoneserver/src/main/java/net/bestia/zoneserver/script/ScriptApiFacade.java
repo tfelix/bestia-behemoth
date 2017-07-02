@@ -13,11 +13,11 @@ import net.bestia.entity.EntityService;
 import net.bestia.entity.MovingEntityService;
 import net.bestia.entity.ScriptEntityFactory;
 import net.bestia.entity.component.PlayerComponent;
+import net.bestia.entity.recycler.EntityRecycler;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
-import net.bestia.zoneserver.actor.entity.EntityDeleteWorker;
 import net.bestia.zoneserver.battle.BattleService;
 
 /**
@@ -40,6 +40,7 @@ public class ScriptApiFacade implements ScriptApi {
 	private BattleService battleService;
 	private ScriptService scriptService;
 	private MovingEntityService moveService;
+	private EntityRecycler entityRecycler;
 
 	public ScriptApiFacade() {
 		// no op.
@@ -48,6 +49,11 @@ public class ScriptApiFacade implements ScriptApi {
 	@Autowired
 	public void setScriptEntityFactory(ScriptEntityFactory scriptEntityFactory) {
 		this.scriptEntityFactory = scriptEntityFactory;
+	}
+	
+	@Autowired
+	public void setEntityRecycler(EntityRecycler entityRecycler) {
+		this.entityRecycler = entityRecycler;
 	}
 
 	@Autowired
@@ -180,7 +186,7 @@ public class ScriptApiFacade implements ScriptApi {
 
 	@Override
 	public void delete(long entityId) {
-		akkaApi.sendToActor(EntityDeleteWorker.NAME, entityId);
+		entityRecycler.free(entityId);
 	}
 
 	@Override
