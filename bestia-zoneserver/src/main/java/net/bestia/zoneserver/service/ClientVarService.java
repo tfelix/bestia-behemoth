@@ -74,7 +74,7 @@ public class ClientVarService {
 	 * @return The number of bytes used by this account.
 	 */
 	public int getBytesUsedByAccount(long accId) {
-		List<ClientVar> cvars = cvarDao.findyByAccountId(accId);
+		List<ClientVar> cvars = cvarDao.findByAccountId(accId);
 		return cvars.stream()
 				.map(ClientVar::getDataLength)
 				.mapToInt(Integer::intValue)

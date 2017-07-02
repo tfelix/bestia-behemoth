@@ -41,5 +41,5 @@ public interface ClientVarDAO extends CrudRepository<ClientVar, Long> {
 	 *            The account to find.
 	 * @return
 	 */
-	 List<ClientVar> findyByAccountId(long accountId);
+	 List<ClientVar> findByAccountId(long accountId);
 }

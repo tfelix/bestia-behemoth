@@ -31,7 +31,8 @@ import net.bestia.zoneserver.battle.BattleService;
 @Component
 public class ScriptApiFacade implements ScriptApi {
 
-	private static final Logger LOG = LoggerFactory.getLogger("script");
+	private static final Logger SCRIPT_LOG = LoggerFactory.getLogger("script_log");
+	private static final Logger LOG = LoggerFactory.getLogger(ScriptApiFacade.class);
 
 	private ScriptEntityFactory scriptEntityFactory;
 	private EntityService entityService;

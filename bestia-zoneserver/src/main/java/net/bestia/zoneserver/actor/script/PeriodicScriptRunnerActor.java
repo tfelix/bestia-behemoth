@@ -40,7 +40,7 @@ public class PeriodicScriptRunnerActor extends BestiaPeriodicActor {
 	protected void onTick() {
 
 		try {
-			scriptService.triggerScriptIntervalCallback(scriptId);
+			scriptService.callScriptIntervalCallback(scriptId);
 		} catch (IllegalArgumentException e) {
 			LOG.debug("Entity had no script callback component attached.", e);
 			context().stop(getSelf());

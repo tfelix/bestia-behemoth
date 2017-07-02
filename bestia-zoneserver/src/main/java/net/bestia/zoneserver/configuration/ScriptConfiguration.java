@@ -8,12 +8,21 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.script.ScriptApi;
 import net.bestia.zoneserver.script.ScriptCache;
 import net.bestia.zoneserver.script.ScriptCompiler;
 import net.bestia.zoneserver.script.ScriptFileResolver;
@@ -29,6 +38,8 @@ import net.bestia.zoneserver.script.ScriptType;
 @PropertySource(value = "classpath:application.properties", ignoreResourceNotFound = true)
 @Profile("production")
 public class ScriptConfiguration {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(ScriptConfiguration.class);
 
 	private static class ScriptDir {
 		public final String subDir;
@@ -72,6 +83,25 @@ public class ScriptConfiguration {
 		}
 
 		return cache;
+	}
+	
+	/**
+	 * Configures the global bindings for the script engine.
+	 */
+	@Bean
+	public ScriptEngine scriptEngine(ZoneAkkaApi akkaApi, ScriptApi scriptApi, StaticConfigService config) {
+		final ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+		
+		LOG.info("Starting script engine: {} (version {}).", ScriptEngine.ENGINE, ScriptEngine.ENGINE_VERSION);
+		
+		Bindings bindings = engine.createBindings();
+		
+		bindings.put("SERVER_VERSION", config.getServerVersion());
+		bindings.put("BAPI", scriptApi);
+		
+		engine.setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
+		
+		return engine;
 	}
 
 }

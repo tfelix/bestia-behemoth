@@ -79,7 +79,7 @@ public class EntityRecycler {
 	 */
 	private void freeSpecialComponents(Entity entity) {
 
-		final ScriptComponent scriptComp = scriptService.freeScriptComponent(entity);
+		final ScriptComponent scriptComp = scriptService.deleteScriptComponent(entity);
 		stashComponente(scriptComp);
 	}
 

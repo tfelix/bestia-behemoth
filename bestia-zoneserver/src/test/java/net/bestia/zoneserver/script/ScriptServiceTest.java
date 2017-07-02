@@ -1,6 +1,6 @@
 package net.bestia.zoneserver.script;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -24,12 +24,11 @@ import org.mockito.ArgumentCaptor;
 import akka.actor.ActorPath;
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
-import net.bestia.zoneserver.actor.script.PeriodicScriptRunnerActor;
-import net.bestia.zoneserver.configuration.StaticConfigService;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.script.PeriodicScriptRunnerActor;
 
 public class ScriptServiceTest {
 
@@ -51,12 +50,10 @@ public class ScriptServiceTest {
 	private ScriptComponent scriptComponent;
 	private ActorRef runnerRef;
 	private ActorPath runnerRefPath;
-	private StaticConfigService configService;
 
 	@Before
 	public void setup() {
 		
-		configService = mock(StaticConfigService.class);
 		scriptApi = mock(ScriptApi.class);
 		entityService = mock(EntityService.class);
 		akkaApi = mock(ZoneAkkaApi.class);
@@ -83,37 +80,27 @@ public class ScriptServiceTest {
 		when(entityService.getComponent(VALID_SCRIPT_COMP_ID, ScriptComponent.class))
 				.thenReturn(Optional.of(scriptComponent));
 
-		scriptService = new ScriptService(entityService, akkaApi, cache, scriptApi, configService);
+		scriptService = new ScriptService(entityService, akkaApi, cache);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void ctor_nullArg1_throw() {
-		new ScriptService(null, akkaApi, cache, scriptApi, configService);
+		new ScriptService(null, akkaApi, cache);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void ctor_nullArg2_throw() {
-		new ScriptService(entityService, null, cache, scriptApi, configService);
+		new ScriptService(entityService, null, cache);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void ctor_nullArg3_throw() {
-		new ScriptService(entityService, akkaApi, null, scriptApi, configService);
-	}
-	
-	@Test(expected = NullPointerException.class)
-	public void ctor_nullArg4_throw() {
-		new ScriptService(entityService, akkaApi, cache, null, configService);
-	}
-	
-	@Test(expected = NullPointerException.class)
-	public void ctor_nullArg5_throw() {
-		new ScriptService(entityService, akkaApi, cache, scriptApi, null);
+		new ScriptService(entityService, akkaApi, null);
 	}
 
 	@Test
 	public void deleteScriptEntity_validScriptEntityId_deleteComponent() {
-		ScriptComponent sc = scriptService.freeScriptComponent(VALID_ENTITY_ID);
+		ScriptComponent sc = scriptService.deleteScriptComponent(VALID_ENTITY_ID);
 		
 		Assert.assertNotNull(sc);
 		verify(entityService).deleteComponent(scriptEntity, scriptComponent);
@@ -121,7 +108,7 @@ public class ScriptServiceTest {
 
 	@Test
 	public void deleteScriptEntity_invalidScriptEntityId_doesNothing() {
-		ScriptComponent sc = scriptService.freeScriptComponent(INVALID_ENTITY_ID);
+		ScriptComponent sc = scriptService.deleteScriptComponent(INVALID_ENTITY_ID);
 		
 		Assert.assertNull(sc);
 		verify(entityService, never()).delete(any());
@@ -131,7 +118,7 @@ public class ScriptServiceTest {
 
 	@Test
 	public void callScript_unkownScriptFileName_doesNothing() {
-		scriptService.freeScriptComponent(INVALID_SCRIPT_COMP_ID);
+		//scriptService.deleteScriptComponent(INVALID_SCRIPT_COMP_ID);
 	}
 
 	@Test
@@ -141,7 +128,7 @@ public class ScriptServiceTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void triggerScriptIntervalCallback_invalidScriptId_throws() {
-		scriptService.triggerScriptIntervalCallback(INVALID_SCRIPT_COMP_ID);
+		scriptService.callScriptIntervalCallback(INVALID_SCRIPT_COMP_ID);
 	}
 
 	//@Test
