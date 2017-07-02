@@ -7,6 +7,7 @@ import javax.script.CompiledScript;
 import javax.script.Invocable;
 import javax.script.ScriptContext;
 import javax.script.ScriptException;
+import javax.script.SimpleBindings;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,7 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
 import net.bestia.messages.internal.script.ScriptIntervalMessage;
+import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 
 /**
@@ -31,14 +33,20 @@ import net.bestia.zoneserver.actor.ZoneAkkaApi;
  */
 @Service
 public class ScriptService {
-	
+
 	private static class ScriptIdent {
 		public ScriptType type;
 		public String name;
 		public String functionName;
+
+		public ScriptIdent() {
+
+		}
 	}
 
 	private static final Logger LOG = LoggerFactory.getLogger(ScriptService.class);
+
+	private static final String MAIN_FUNC = "main";
 
 	private final EntityService entityService;
 	private final ScriptCache scriptCache;
@@ -54,19 +62,62 @@ public class ScriptService {
 		this.entityService = Objects.requireNonNull(entityService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 		this.scriptCache = Objects.requireNonNull(cache);
-		
-		
+
 	}
-	
+
 	/**
-	 * To call into random scripts the name can be encoded like the following scheme:
-	 * func:test - This will call the function test() in the original script.
-	 * script:/item/test:func:test - This will call the function test() in the 
+	 * To call into random scripts the name can be encoded like the following
+	 * scheme:
+	 * 
+	 * <pre>
+	 * test - This will call the function test() in the original script file.
+	 * item/apple:test - This will call the function test in the script file item/apple.js
+	 * item/apple - This will call the default main function in script file item/apple.js
+	 * item/apple.js - Same as above.
+	 * </pre>
+	 * 
 	 * @param callback
 	 * @return
 	 */
-	private ScriptIdent resolveCallbackName(String callback) {
-		return null;
+	private ScriptIdent resolveCallbackName(String callbackName) {
+
+		String[] token = callbackName.split(":");
+		String funcName;
+
+		if (token.length == 2) {
+			funcName = token[1];
+		} else {
+			funcName = MAIN_FUNC;
+		}
+
+		String scriptName = token[0];
+		if (scriptName.endsWith(".js")) {
+			scriptName = scriptName.replace(".js", "");
+		}
+
+		if (scriptName.startsWith("/")) {
+			scriptName = scriptName.substring(1).toUpperCase();
+		}
+
+		// Detect the type.
+		ScriptType type;
+		if (scriptName.startsWith("ITEM")) {
+			type = ScriptType.ITEM;
+		} else if (scriptName.startsWith("ATTACK")) {
+			type = ScriptType.ATTACK;
+		} else if (scriptName.startsWith("STATUS_EFFECT")) {
+			type = ScriptType.STATUS_EFFECT;
+		} else {
+			type = ScriptType.ITEM;
+		}
+
+		final ScriptIdent ident = new ScriptIdent();
+
+		ident.name = callbackName;
+		ident.type = type;
+		ident.functionName = funcName;
+
+		return ident;
 	}
 
 	/**
@@ -76,21 +127,16 @@ public class ScriptService {
 	 * @param script
 	 * @param functionName
 	 */
-	private synchronized void setupScriptAndCallFunction(CompiledScript script, String name, String functionName) {
-
-		final Bindings scriptBindings = script.getEngine().getBindings(ScriptContext.ENGINE_SCOPE);
-		
-		scriptBindings.put("SCRIPT", name);
-
+	private synchronized void callFunction(CompiledScript script, String functionName) {
 		try {
 
 			script.eval(script.getEngine().getContext());
 			((Invocable) script.getEngine()).invokeFunction(functionName);
 
 		} catch (NoSuchMethodException e) {
-			LOG.error("Error calling script. Script {} does not contain {}() function.", name, functionName);
+			LOG.error("Error calling script. Script does not contain {}() function.", functionName);
 		} catch (ScriptException e) {
-			LOG.error("Error during script  {} execution.", name, e);
+			LOG.error("Error during script  {} execution.", e);
 		}
 	}
 
@@ -99,52 +145,25 @@ public class ScriptService {
 	 * finally calls the given function name.
 	 * 
 	 * @param script
-	 * @throws ScriptException
+	 * @param functionName
 	 */
-	private synchronized void runScript(CompiledScript script) throws ScriptException {
+	private synchronized void setupScriptBindings(CompiledScript script, ScriptIdent ident, Bindings bindings) {
 
-		//script.getEngine().getContext();
-		//script.eval();
+		final Bindings scriptBindings = script.getEngine().getBindings(ScriptContext.ENGINE_SCOPE);
+
+		scriptBindings.put("SCRIPT", ident.name);
+		scriptBindings.putAll(bindings);
 	}
 
-	/**
-	 * Alias for {@link #deleteScriptComponent(Entity)}. Entity is resolved first.
-	 * 
-	 * @param scriptEntityId
-	 *            The ID of the script entity.
-	 * @return The removed {@link ScriptComponent} or null if no component was
-	 *         attached to the entity.
-	 */
-	public ScriptComponent deleteScriptComponent(long scriptEntityId) {
+	private CompiledScript resolveScript(ScriptIdent ident) {
+		final CompiledScript script = scriptCache.getScript(ident.type, ident.name);
 
-		final Entity scriptEntity = entityService.getEntity(scriptEntityId);
-		return deleteScriptComponent(scriptEntity);
-	}
-
-	/**
-	 * Removes a script component from an entity.It takes care of releasing all
-	 * script related resources to the attached script component. The detached
-	 * and cleared script components is returned and can be reused. If the
-	 * entity contains no {@link ScriptComponent} null is returned.
-	 * 
-	 * @param scriptEntityId
-	 *            The entity id of the script.
-	 * @return The removed {@link ScriptComponent} or null if no component was
-	 *         attached to the entity.
-	 */
-	public ScriptComponent deleteScriptComponent(Entity scriptEntity) {
-		if (!entityService.hasComponent(scriptEntity, ScriptComponent.class)) {
-			return null;
+		if (script == null) {
+			LOG.warn("Did not find script file: {} ({})", ident.name, ident.type);
+			throw new IllegalArgumentException("Could not find script.");
 		}
 
-		stopScriptInterval(scriptEntity);
-
-		final ScriptComponent scriptComp = entityService.getComponent(scriptEntity, ScriptComponent.class).get();
-		entityService.deleteComponent(scriptComp);
-
-		scriptComp.setEntityId(0);
-
-		return scriptComp;
+		return script;
 	}
 
 	/**
@@ -156,22 +175,21 @@ public class ScriptService {
 	 * @param name
 	 * @param type
 	 */
-	public void callScript(String name, ScriptType type) {
-		
-		LOG.debug("Executing script: {} ({}).", name, type);
 
-		final CompiledScript script = scriptCache.getScript(type, name);
+	public void callScript(String name) {
+		final ScriptIdent ident = resolveCallbackName(name);
+		final CompiledScript script = resolveScript(ident);
 
-		if (script == null) {
-			LOG.warn("Did not find script file: {} ({})", name, type);
-			return;
-		}
-
-		//runScript(script);
+		setupScriptBindings(script, ident, new SimpleBindings());
+		callFunction(script, ident.functionName);
 	}
 
-	public void callAttackScript(String name) {
-		throw new IllegalStateException("Not implements");
+	public void callItemScript(String name, Entity source, Entity target) {
+		throw new IllegalStateException("Not implemented.");
+	}
+
+	public void callItemScript(String name, Entity source, Point target) {
+		throw new IllegalStateException("Not implemented.");
 	}
 
 	/**
@@ -190,14 +208,25 @@ public class ScriptService {
 
 		final String callbackName = scriptComp.getOnIntervalCallbackName();
 		
-		final String scriptName = scriptComp.getScriptName();
-		final ScriptType type = scriptComp.getScriptType();
-
-		final CompiledScript script = scriptCache.getScript(type, scriptName);
-
-		setupScriptAndCallFunction(script, scriptName, callbackName);
+		final ScriptIdent ident = resolveCallbackName(callbackName);
+		final CompiledScript script = resolveScript(ident);
+		
+		// Prepare additional bindings.
+		final SimpleBindings bindings = new SimpleBindings();
+		bindings.put("SCRIPT_ID", scriptComp.getScriptUUID());
+		
+		setupScriptBindings(script, ident, bindings);
+		callFunction(script, ident.functionName);
 	}
 
+	/**
+	 * Starts a recurring script interval attached to an entity. After the given
+	 * delay timer in ms the script call will be invoced.
+	 * 
+	 * @param entity
+	 * @param delay
+	 * @param callbackFunctionName
+	 */
 	public void startScriptInterval(Entity entity, int delay, String callbackFunctionName) {
 		if (delay <= 0) {
 			throw new IllegalArgumentException("Delay must be bigger then 0.");

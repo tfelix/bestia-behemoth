@@ -4,8 +4,7 @@
  */
 
 function main() {
-	print("Das ist Test1");
+	print("Bestia Behemoth startup script.");
 	print("engine: MYSCRIPT " + MYSCRIPT);
 	print("engine: MYTYPE " + MYTYPE);
-	print("global: GLOB " + GLOB);
 }

@@ -110,6 +110,11 @@ public class EntityRecycler {
 
 		final ComponentRecycler<? extends Component> recycler = recyclers.get(comp.getClass());
 		recycler.freeComponent(comp);
+		
+		// Delete the component from the ECS.
+		entityService.deleteComponent(comp);
+		comp.setEntityId(0);
+		
 		stashComponente(comp);
 	}
 

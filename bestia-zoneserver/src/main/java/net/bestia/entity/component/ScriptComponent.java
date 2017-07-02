@@ -1,7 +1,5 @@
 package net.bestia.entity.component;
 
-import net.bestia.zoneserver.script.ScriptType;
-
 public class ScriptComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
@@ -9,9 +7,6 @@ public class ScriptComponent extends Component {
 	private String onIntervalCallbackName;
 	private String onEnterCallbackName;
 	private String onLeaveCallbackName;
-
-	private String scriptName;
-	private ScriptType scriptType;
 
 	/**
 	 * Unique script name. Each invocation of a script has a unique name which
@@ -22,22 +17,6 @@ public class ScriptComponent extends Component {
 	public ScriptComponent(long id, long entityId) {
 		super(id, entityId);
 		// no op.
-	}
-
-	public String getScriptName() {
-		return scriptName;
-	}
-
-	public void setScriptName(String scriptName) {
-		this.scriptName = scriptName;
-	}
-
-	public ScriptType getScriptType() {
-		return scriptType;
-	}
-
-	public void setScriptType(ScriptType scriptType) {
-		this.scriptType = scriptType;
 	}
 
 	public String getOnIntervalCallbackName() {
