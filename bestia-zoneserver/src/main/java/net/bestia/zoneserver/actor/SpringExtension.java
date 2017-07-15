@@ -19,11 +19,11 @@ import akka.actor.Props;
 /**
  * An Akka extension to provide access to the Spring manages Actor Beans.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Component
-public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringExt> {
+public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringAkkaExt> {
 
 	/**
 	 * The identifier used to access the SpringExtension.
@@ -39,18 +39,18 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 	 * ExtensionId, internal use only.
 	 */
 	@Override
-	public SpringExt createExtension(ExtendedActorSystem system) {
-		return new SpringExt();
+	public SpringAkkaExt createExtension(ExtendedActorSystem system) {
+		return new SpringAkkaExt();
 	}
 
 	/**
 	 * The extension implementation.
 	 */
-	public static class SpringExt implements Extension {
+	public static class SpringAkkaExt implements Extension {
 
 		private volatile ApplicationContext applicationContext;
 
-		private SpringExt() {
+		private SpringAkkaExt() {
 			// no op.
 		}
 
@@ -138,6 +138,9 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 	 * Creates a new actor and already register it with this routing actor so it
 	 * is considered when receiving messages.
 	 * 
+	 * @param context
+	 *            The {@link ActorContext} under which the actor should be
+	 *            spawned.
 	 * @param clazz
 	 *            The class of the {@link UntypedActor} to instantiate.
 	 * @param name
@@ -149,6 +152,22 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringE
 		return (name == null) ? context.actorOf(props) : context.actorOf(props, name);
 	}
 
+	/**
+	 * Returns a new actor with a external name like
+	 * {@link #actorOf(ActorContext, Class, String)} but with optional parameter
+	 * arguments.
+	 * 
+	 * @param context
+	 *            The {@link ActorContext} under which the actor should be
+	 *            spawned.
+	 * @param clazz
+	 *            The class of the {@link AbstractActor} to be instantiated.
+	 * @param name
+	 *            The name under which the actor should be created.
+	 * @param args
+	 *            The additional arguments delivered to the actor.
+	 * @return
+	 */
 	public static ActorRef actorOf(ActorContext context,
 			Class<? extends AbstractActor> clazz,
 			String name,

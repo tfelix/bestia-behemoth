@@ -25,7 +25,7 @@ public class EntityWorkerActor extends AbstractActor {
 	public static final String NAME = "entity";
 
 	public EntityWorkerActor() {
-
+		// no op.
 	}
 
 	@Override
@@ -47,7 +47,6 @@ public class EntityWorkerActor extends AbstractActor {
 		LOG.debug("Received start request for entity: {}. Actor name: {}", entityId, actorName);
 
 		SpringExtension.actorOf(getContext(), EntityActor.class, actorName, entityId);
-
 	}
 
 }

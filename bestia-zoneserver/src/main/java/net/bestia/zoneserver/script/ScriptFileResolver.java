@@ -29,7 +29,7 @@ public class ScriptFileResolver {
 	 * @return The global script file.
 	 */
 	public File getGlobalScriptFile() {
-		final File globalScriptFile = new File(classLoader.getResource("script/globalContext.js").getFile());
+		final File globalScriptFile = new File(classLoader.getResource("script/api.js").getFile());
 		LOG.debug("Getting global script file: {}", globalScriptFile.getAbsolutePath());
 		return globalScriptFile;
 	}

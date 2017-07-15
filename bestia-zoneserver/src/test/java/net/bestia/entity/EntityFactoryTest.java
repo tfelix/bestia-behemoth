@@ -1,7 +1,6 @@
 package net.bestia.entity;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,24 +11,44 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
 import net.bestia.entity.component.PlayerComponent;
 import net.bestia.entity.component.PlayerComponentSetter;
+import net.bestia.entity.recycler.EntityCache;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 
+@RunWith(MockitoJUnitRunner.class)
 public class EntityFactoryTest {
 
 	private EntityFactory factory;
+	
+	@Mock
 	private EntityService entityService;
+	
+	@Mock
 	private Blueprint blueprint;
+	
+	@Mock
 	private Entity entity;
 
+	@Mock
 	private PlayerComponentSetter playerSet;
+	
+	@Mock
 	private PlayerComponent playerComp;
-	private Collection<Class<? extends Component>> components = new HashSet<>();
+	
+	@Mock
 	private ZoneAkkaApi akkaApi;
+	
+	@Mock
+	private EntityCache cache;
+	
+	private Collection<Class<? extends Component>> components = new HashSet<>();
 
 	@Before
 	public void setup() {
@@ -37,22 +56,14 @@ public class EntityFactoryTest {
 		components.clear();
 		components.add(PlayerComponent.class);
 
-		entityService = mock(EntityService.class);
-		blueprint = mock(Blueprint.class);
-		entity = mock(Entity.class);
-		playerComp = mock(PlayerComponent.class);
-		akkaApi = mock(ZoneAkkaApi.class);
-
-		playerSet = mock(PlayerComponentSetter.class);
-
 		when(entityService.newEntity()).thenReturn(entity);
 		when(entityService.addComponent(entity, PlayerComponent.class)).thenReturn(playerComp);
-
+		
 		when(blueprint.getComponents()).thenReturn(components);
 		
 		when(playerSet.getSupportedType()).thenReturn(PlayerComponent.class);
 
-		factory = new EntityFactory(entityService, akkaApi);
+		factory = new EntityFactory(entityService, akkaApi, cache);
 	}
 
 	@Test(expected = NullPointerException.class)

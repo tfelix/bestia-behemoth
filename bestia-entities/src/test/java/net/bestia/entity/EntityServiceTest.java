@@ -57,7 +57,7 @@ public class EntityServiceTest {
 		
 		verify(interceptor).triggerUpdateAction(entityService, e1, comp);
 		
-		entityService.deleteComponent(e1, comp);
+		entityService.deleteComponent(comp);
 		
 		verify(interceptor).triggerDeleteAction(entityService, e1, comp);
 		
@@ -178,16 +178,8 @@ public class EntityServiceTest {
 	}
 	
 	@Test(expected=NullPointerException.class)
-	public void deleteComponent_nullEntity_throws() {
-		Entity e1 = entityService.newEntity();
-		PositionComponent pc = entityService.addComponent(e1, PositionComponent.class);
-		entityService.deleteComponent(null, pc);
-	}
-	
-	@Test(expected=NullPointerException.class)
 	public void deleteComponent_nullComponent_throws() {
-		Entity e1 = entityService.newEntity();
-		entityService.deleteComponent(e1, null);
+		entityService.deleteComponent(null);
 	}
 	
 	@Test(expected=NullPointerException.class)

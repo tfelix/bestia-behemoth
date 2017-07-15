@@ -1,5 +1,7 @@
 package net.bestia.zoneserver.script;
 
+import java.io.File;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -9,7 +11,8 @@ public class ScriptFileResolverTest {
 
 	@Test
 	public void getGlobalScriptFile_ok() {
-		Assert.assertTrue(resolver.getGlobalScriptFile().toString().endsWith("globalContext.js"));
+		File globScript = resolver.getGlobalScriptFile();
+		Assert.assertTrue(globScript.toString().endsWith("api.js"));
 	}
 
 	@Test(expected = NullPointerException.class)

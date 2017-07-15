@@ -47,6 +47,9 @@ public class EntityActor extends BestiaActor {
 	}
 
 	public static String getActorName(long entityId) {
+		if (entityId < 0) {
+			throw new IllegalArgumentException("Entity id must be positive.");
+		}
 		return String.format(ACTOR_NAME, entityId);
 	}
 

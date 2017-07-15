@@ -14,7 +14,6 @@ import net.bestia.entity.EntityService;
 import net.bestia.entity.MovingEntityService;
 import net.bestia.entity.ScriptEntityFactory;
 import net.bestia.entity.component.PlayerComponent;
-import net.bestia.entity.recycler.EntityCache;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
@@ -32,7 +31,7 @@ import net.bestia.zoneserver.battle.BattleService;
 @Component
 public class ScriptApiFacade implements ScriptApi {
 
-	private static final Logger SCRIPT_LOG = LoggerFactory.getLogger("script_log");
+	//private static final Logger SCRIPT_LOG = LoggerFactory.getLogger("script_log");
 	private static final Logger LOG = LoggerFactory.getLogger(ScriptApiFacade.class);
 
 	private ScriptEntityFactory scriptEntityFactory;

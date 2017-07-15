@@ -1,26 +1,27 @@
 package net.bestia.entity;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import akka.util.Collections;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.recycler.ComponentDeleter;
 import net.bestia.entity.recycler.EntityCache;
+import net.bestia.messages.internal.entity.EntityDeleteInternalMessage;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
-import net.bestia.zoneserver.script.ScriptService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EntityDeleterServiceTest {
@@ -56,16 +57,6 @@ public class EntityDeleterServiceTest {
 	@Before
 	public void setup() {
 
-		// when(entityService.hasComponent(entity,
-		// PositionComponent.class)).thenReturn(true);
-		// when(entityService.getComponent(entity,
-		// PositionComponent.class)).thenReturn(Optional.of(p1));
-
-		// when(entityService.hasComponent(entity2,
-		// PositionComponent.class)).thenReturn(true);
-		// when(entityService.getComponent(entity2,
-		// PositionComponent.class)).thenReturn(Optional.of(p2));
-
 		when(entityService.getEntity(INVALID_ENTITY_ID)).thenReturn(null);
 		when(entityService.getEntity(VALID_ENTITY_ID)).thenReturn(entity);
 		when(entityService.getAllComponents(entity)).thenReturn(Stream.of(p1).collect(Collectors.toList()));
@@ -93,32 +84,6 @@ public class EntityDeleterServiceTest {
 	public void ctor_nullDeleters_throws() {
 		new EntityDeleterService(cache, entityService, akkaApi, null);
 	}
-	
-/*
-	@Test
-	public void free_validEntity_cachesAllComponentsEntityIsReturnedAgain() {
-
-		deleter.deleteEntity(entity);
-		deleter.deleteEntity(entity2);
-
-		verify(entityService).deleteAllComponents(entity);
-		verify(entityService).deleteAllComponents(entity2);
-		verify(entityService).delete(entity);
-		verify(entityService).delete(entity2);
-
-		Entity cachedEntity = recycler.getEntity();
-		Assert.assertEquals(entity, cachedEntity);
-
-		// Only once item cached.
-		cachedEntity = recycler.getEntity();
-		Assert.assertNull(cachedEntity);
-
-		PositionComponent cachedComp = recycler.getComponent(p1.getClass());
-		Assert.assertNotNull(cachedComp);
-
-		cachedComp = recycler.getComponent(p2.getClass());
-		Assert.assertNull(cachedComp);
-	}*/
 
 	@Test(expected = NullPointerException.class)
 	public void deleteEntity_null_throws() {
@@ -137,11 +102,21 @@ public class EntityDeleterServiceTest {
 
 	@Test
 	public void deleteEntity_entity_entityIsCompletlyRemoved() {
-
+		deleter.deleteEntity(entity);
+		
+		verify(entityService).deleteComponent(p1);
+		verify(entityService).delete(entity);
+		verify(akkaApi).sendEntityActor(VALID_ENTITY_ID, any(EntityDeleteInternalMessage.class));
+		verify(cache).stashComponente(p1);
+		verify(cache).stashEntity(entity);
 	}
 
 	@Test
 	public void deleteComponent_validEntityAndComponent_componentRemoved() {
-
+		deleter.deleteComponent(entity, PositionComponent.class);
+		
+		verify(entityService, times(0)).delete(entity);
+		verify(entityService).deleteComponent(p1);
+		verify(cache).stashComponente(p1);
 	}
 }

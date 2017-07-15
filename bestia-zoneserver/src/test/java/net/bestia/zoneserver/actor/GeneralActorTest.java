@@ -14,6 +14,12 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import net.bestia.util.PackageLoader;
 
+/**
+ * Especially testing if all actors are annotated correctly.
+ * 
+ * @author Thomas Felix
+ *
+ */
 public class GeneralActorTest {
 
 	private final static Set<Class<? extends AbstractActor>> IGNORED_ACTORS = new HashSet<>();
@@ -28,12 +34,12 @@ public class GeneralActorTest {
 		Set<Class<? extends AbstractActor>> classes = actorLoader.getSubClasses();
 
 		for (Class<? extends AbstractActor> clazz : classes) {
-			
+
 			// Ignore abstract classes.
-			if(Modifier.isAbstract(clazz.getModifiers())) {
+			if (Modifier.isAbstract(clazz.getModifiers())) {
 				continue;
 			}
-			
+
 			if (IGNORED_ACTORS.contains(clazz)) {
 				continue;
 			}
