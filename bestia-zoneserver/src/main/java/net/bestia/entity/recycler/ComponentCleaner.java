@@ -6,18 +6,18 @@ import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
 
 /**
- * The {@link ComponentDeleter} takes care of de-allocating all used up
+ * The {@link ComponentCleaner} takes care of de-allocating all used up
  * resources by a component.
  * 
  * @author Thomas Felix
  *
  */
-public abstract class ComponentDeleter<T extends Component> {
+public abstract class ComponentCleaner<T extends Component> {
 
 	private final Class<T> type;
 	protected final EntityService entityService;
 
-	protected ComponentDeleter(EntityService entityService, Class<T> type) {
+	protected ComponentCleaner(EntityService entityService, Class<T> type) {
 
 		this.type = Objects.requireNonNull(type);
 		this.entityService = Objects.requireNonNull(entityService);

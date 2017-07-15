@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import net.bestia.entity.component.Component;
-import net.bestia.entity.recycler.ComponentDeleter;
+import net.bestia.entity.recycler.ComponentCleaner;
 import net.bestia.entity.recycler.EntityCache;
 import net.bestia.messages.internal.entity.EntityDeleteInternalMessage;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
@@ -35,21 +35,21 @@ public class EntityDeleterService {
 	private final EntityCache cache;
 	private final EntityService entityService;
 	private final ZoneAkkaApi akkaApi;
-	private final Map<String, ComponentDeleter<? extends Component>> componentDeleter = new HashMap<>();
+	private final Map<String, ComponentCleaner<? extends Component>> componentCleaner = new HashMap<>();
 
 	@Autowired
 	public EntityDeleterService(EntityCache cache,
 			EntityService entityService,
 			ZoneAkkaApi akkaApi,
-			List<ComponentDeleter<? extends Component>> deleters) {
+			List<ComponentCleaner<? extends Component>> deleters) {
 
 		this.cache = Objects.requireNonNull(cache);
 		this.entityService = Objects.requireNonNull(entityService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 
-		for (ComponentDeleter<? extends Component> deleter : deleters) {
+		for (ComponentCleaner<? extends Component> deleter : deleters) {
 
-			componentDeleter.put(deleter.supportedComponent().getName(), deleter);
+			componentCleaner.put(deleter.supportedComponent().getName(), deleter);
 
 		}
 	}
@@ -61,18 +61,14 @@ public class EntityDeleterService {
 	 *            The entity to remove from the system.
 	 */
 	public void deleteEntity(Entity entity) {
+		
+		Objects.requireNonNull(entity);
 
 		LOG.debug("Deleting entity: {}", entity);
 		
 		// Iterate over all components and remove them.
 		for (Component component : entityService.getAllComponents(entity)) {
-
-			final String clazzname = component.getClass().getName();
-			if (componentDeleter.containsKey(clazzname)) {
-				componentDeleter.get(clazzname).freeComponent(component);
-				cache.stashComponente(component);
-			}
-
+			deleteComponent(entity, component);
 		}
 
 		// Send message to kill off entity actor.
@@ -95,16 +91,26 @@ public class EntityDeleterService {
 	 */
 	public void deleteComponent(Entity entity, Class<? extends Component> clazz) {
 
+		Objects.requireNonNull(entity);
+		Objects.requireNonNull(clazz);
+		
 		LOG.debug("Deleting component: {} from entity: {}.", clazz.getSimpleName(), entity);
 		
 		final Component comp = entityService.getComponent(entity, clazz)
 				.orElseThrow(IllegalArgumentException::new);
 
-		if(componentDeleter.containsKey(clazz.getName())) {
-			componentDeleter.get(clazz.getName()).freeComponent(comp);
-			cache.stashComponente(comp);
+		deleteComponent(entity, comp);
+	}
+	
+	private void deleteComponent(Entity entity, Component comp) {
+		
+		final String clazzname = comp.getClass().getName();
+		
+		if(componentCleaner.containsKey(clazzname)) {
+			componentCleaner.get(clazzname).freeComponent(comp);
 		}
 		
+		cache.stashComponente(comp);
 		entityService.deleteComponent(comp);
 	}
 }
