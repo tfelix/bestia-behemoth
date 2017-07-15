@@ -21,6 +21,11 @@ public enum ScriptType {
 	/**
 	 * An status effect script.
 	 */
-	STATUS_EFFECT
+	STATUS_EFFECT,
+	
+	/**
+	 * No special script type.
+	 */
+	NONE
 
 }

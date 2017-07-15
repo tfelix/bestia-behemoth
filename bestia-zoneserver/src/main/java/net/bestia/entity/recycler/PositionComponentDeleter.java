@@ -14,14 +14,14 @@ import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 
 @Component
-public class PositionComponentRecycler extends ComponentRecycler<PositionComponent> {
+public class PositionComponentDeleter extends ComponentDeleter<PositionComponent> {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(PositionComponentRecycler.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PositionComponentDeleter.class);
 	
 	private final ZoneAkkaApi akkaApi;
 
 	@Autowired
-	public PositionComponentRecycler(EntityService entityService, ZoneAkkaApi akkaApi) {
+	public PositionComponentDeleter(EntityService entityService, ZoneAkkaApi akkaApi) {
 		super(entityService, PositionComponent.class);
 		
 		this.akkaApi = Objects.requireNonNull(akkaApi);

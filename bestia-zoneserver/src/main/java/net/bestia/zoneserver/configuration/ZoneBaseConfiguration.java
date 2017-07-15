@@ -15,8 +15,8 @@ import com.hazelcast.core.HazelcastInstance;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.interceptor.ComponentInterceptor;
-import net.bestia.entity.recycler.ComponentRecycler;
-import net.bestia.entity.recycler.EntityRecycler;
+import net.bestia.entity.recycler.ComponentDeleter;
+import net.bestia.entity.recycler.EntityCache;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.zoneserver.environment.date.BestiaDate;
@@ -71,11 +71,10 @@ public class ZoneBaseConfiguration {
 	}
 
 	@Bean
-	public EntityRecycler entityRecycler(
-			EntityService entityService,
+	public EntityCache entityRecycler(
 			StaticConfigService config,
-			List<ComponentRecycler<? extends Component>> recyclers) {
-		return new EntityRecycler(config.getEntityBufferSize(), entityService, recyclers);
+			List<ComponentDeleter<? extends Component>> recyclers) {
+		return new EntityCache(config.getEntityBufferSize(), recyclers);
 	}
 
 }

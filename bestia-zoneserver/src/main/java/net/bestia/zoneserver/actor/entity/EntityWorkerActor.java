@@ -10,7 +10,7 @@ import net.bestia.zoneserver.actor.SpringExtension;
 
 /**
  * It manages to start the entity actor as cluster shareded actors. This worker
- * has a fixed adress and can thus be used from the other actors quite easily.
+ * has a fixed address and can thus be used from the other actors quite easily.
  * It is the central point for creating entity centric actors.
  * 
  * @author Thomas Felix
@@ -18,13 +18,13 @@ import net.bestia.zoneserver.actor.SpringExtension;
  */
 @Component
 @Scope("prototype")
-public class EntityWorker extends AbstractActor {
+public class EntityWorkerActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().getSystem(), this);
 
 	public static final String NAME = "entity";
 
-	public EntityWorker() {
+	public EntityWorkerActor() {
 
 	}
 

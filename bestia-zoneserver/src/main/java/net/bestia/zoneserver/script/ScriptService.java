@@ -108,7 +108,7 @@ public class ScriptService {
 		} else if (scriptName.startsWith("STATUS_EFFECT")) {
 			type = ScriptType.STATUS_EFFECT;
 		} else {
-			type = ScriptType.ITEM;
+			type = ScriptType.NONE;
 		}
 
 		final ScriptIdent ident = new ScriptIdent();

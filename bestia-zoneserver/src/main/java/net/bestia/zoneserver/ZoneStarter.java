@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor;
+package net.bestia.zoneserver;
 
 import java.util.Objects;
 
@@ -13,7 +13,9 @@ import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.cluster.singleton.ClusterSingletonManager;
 import akka.cluster.singleton.ClusterSingletonManagerSettings;
-import net.bestia.zoneserver.actor.entity.EntityWorker;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.entity.EntityWorkerActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
@@ -22,6 +24,7 @@ import net.bestia.zoneserver.actor.zone.IngestActor;
 import net.bestia.zoneserver.actor.zone.InitGlobalActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.ZoneClusterListenerActor;
+import net.bestia.zoneserver.script.ScriptService;
 
 /**
  * Starts the actor system to process bestia messages.
@@ -36,12 +39,14 @@ public class ZoneStarter implements CommandLineRunner {
 
 	private final ZoneAkkaApi akkaApi;
 	private final ActorSystem system;
+	private final ScriptService scriptService;
 
 	@Autowired
-	public ZoneStarter(ActorSystem system, ZoneAkkaApi akkaApi) {
+	public ZoneStarter(ActorSystem system, ZoneAkkaApi akkaApi, ScriptService scriptService) {
 
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 		this.system = Objects.requireNonNull(system);
+		this.scriptService = Objects.requireNonNull(scriptService);
 	}
 
 	@Override
@@ -53,7 +58,7 @@ public class ZoneStarter implements CommandLineRunner {
 		akkaApi.startActor(ActiveClientUpdateActor.class);
 
 		// Entity
-		akkaApi.startActor(EntityWorker.class);
+		akkaApi.startActor(EntityWorkerActor.class);
 		
 		// Maintenance actors.
 		akkaApi.startActor(MapGeneratorMasterActor.class);
@@ -69,5 +74,8 @@ public class ZoneStarter implements CommandLineRunner {
 		final Props globalInitProps = SpringExtension.PROVIDER.get(system).props(InitGlobalActor.class);
 		Props clusterProbs = ClusterSingletonManager.props(globalInitProps, PoisonPill.getInstance(), settings);
 		system.actorOf(clusterProbs, "globalInit");
+		
+		// Trigger the startup script.
+		scriptService.callScript("startup");
 	}
 }

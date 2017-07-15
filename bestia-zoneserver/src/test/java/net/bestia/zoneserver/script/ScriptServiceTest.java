@@ -99,31 +99,13 @@ public class ScriptServiceTest {
 	}
 
 	@Test
-	public void deleteScriptEntity_validScriptEntityId_deleteComponent() {
-		ScriptComponent sc = scriptService.deleteScriptComponent(VALID_ENTITY_ID);
-		
-		Assert.assertNotNull(sc);
-		verify(entityService).deleteComponent(scriptEntity, scriptComponent);
-	}
-
-	@Test
-	public void deleteScriptEntity_invalidScriptEntityId_doesNothing() {
-		ScriptComponent sc = scriptService.deleteScriptComponent(INVALID_ENTITY_ID);
-		
-		Assert.assertNull(sc);
-		verify(entityService, never()).delete(any());
-		verify(entityService, never()).deleteComponent(any(), any());
-	}
-
-
-	@Test
 	public void callScript_unkownScriptFileName_doesNothing() {
 		//scriptService.deleteScriptComponent(INVALID_SCRIPT_COMP_ID);
 	}
 
 	@Test
 	public void callScript_errorInScript_doesNothing() {
-		scriptService.callScript(KNOWN_SCRIPT_FILE, ScriptType.ATTACK);
+		scriptService.callScript(KNOWN_SCRIPT_FILE);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

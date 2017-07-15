@@ -9,11 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.bestia.entity.Entity;
+import net.bestia.entity.EntityDeleterService;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.MovingEntityService;
 import net.bestia.entity.ScriptEntityFactory;
 import net.bestia.entity.component.PlayerComponent;
-import net.bestia.entity.recycler.EntityRecycler;
+import net.bestia.entity.recycler.EntityCache;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
@@ -40,7 +41,7 @@ public class ScriptApiFacade implements ScriptApi {
 	private BattleService battleService;
 	private ScriptService scriptService;
 	private MovingEntityService moveService;
-	private EntityRecycler entityRecycler;
+	private EntityDeleterService entityDeleter;
 
 	public ScriptApiFacade() {
 		// no op.
@@ -52,8 +53,8 @@ public class ScriptApiFacade implements ScriptApi {
 	}
 	
 	@Autowired
-	public void setEntityRecycler(EntityRecycler entityRecycler) {
-		this.entityRecycler = entityRecycler;
+	public void EntityDeleterService(EntityDeleterService entityRecycler) {
+		this.entityDeleter = entityRecycler;
 	}
 
 	@Autowired
@@ -186,7 +187,10 @@ public class ScriptApiFacade implements ScriptApi {
 
 	@Override
 	public void delete(long entityId) {
-		entityRecycler.free(entityId);
+		
+		final Entity entity = entityService.getEntity(entityId);
+		entityDeleter.deleteEntity(entity);
+		
 	}
 
 	@Override
