@@ -4,14 +4,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import javax.annotation.PostConstruct;
+
 import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import akka.actor.ActorSystem;
@@ -35,17 +36,22 @@ public class HeartbeatActorTest {
 	@MockBean
 	private DiscoveryService discoveryService;
 
-	@Autowired
-	public HeartbeatActorTest(ApplicationContext springCtx) {
-		system = ActorSystem.create();
-		SpringExtension.PROVIDER.get(system).initialize(springCtx);
-	}
-
 	@Before
 	public void setup() {
 		
 		when(configService.getServerName()).thenReturn(SERVER_NAME);
 	}
+	
+	@BeforeClass
+	public static void prepare() {
+		system = ActorSystem.create();
+		//SpringExtension.PROVIDER.get(system).initialize(springCtx);
+	}
+	
+	@PostConstruct
+    public void init() {
+        System.out.println("Mastersetup for initializing jndi namespace");
+    }
 
 	@AfterClass
 	public static void teardown() {

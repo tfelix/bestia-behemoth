@@ -6,6 +6,10 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
+
+import com.hazelcast.config.properties.ValueValidatorTest;
 
 import akka.actor.ActorIdentity;
 import akka.actor.ActorRef;
@@ -17,9 +21,12 @@ import akka.pattern.AskableActorSelection;
 import akka.testkit.javadsl.TestKit;
 import akka.util.Timeout;
 import net.bestia.server.AkkaCluster;
+import net.bestia.zoneserver.TestZoneConfiguration;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 
+@SpringBootTest
+@Import(TestZoneConfiguration.class)
 public class EntityWorkerActorTest {
 
 	private static ActorSystem system;
