@@ -20,7 +20,6 @@ import net.bestia.entity.component.Component;
  * @author Thomas Felix
  *
  */
-@org.springframework.stereotype.Component
 public class EntityCache {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EntityCache.class);

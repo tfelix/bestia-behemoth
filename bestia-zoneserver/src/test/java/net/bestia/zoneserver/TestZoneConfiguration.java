@@ -11,12 +11,13 @@ import com.hazelcast.test.TestHazelcastInstanceFactory;
 
 /**
  * Configures the app context for testing operations.
+ * 
  * @author Thomas Felix
  *
  */
 @SpringBootConfiguration
 public class TestZoneConfiguration {
-	
+
 	@Bean
 	@Primary
 	public HazelcastInstance hazelcastMock() {

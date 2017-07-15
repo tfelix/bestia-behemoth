@@ -29,7 +29,7 @@ import net.bestia.zoneserver.script.ScriptService;
 /**
  * Starts the actor system to process bestia messages.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Component

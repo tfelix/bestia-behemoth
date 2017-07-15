@@ -11,8 +11,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import akka.actor.ActorSystem;
@@ -35,6 +37,9 @@ public class HeartbeatActorTest {
 
 	@MockBean
 	private DiscoveryService discoveryService;
+	
+	@Autowired
+	private ApplicationContext springCtx;
 
 	@Before
 	public void setup() {
@@ -45,12 +50,11 @@ public class HeartbeatActorTest {
 	@BeforeClass
 	public static void prepare() {
 		system = ActorSystem.create();
-		//SpringExtension.PROVIDER.get(system).initialize(springCtx);
 	}
 	
 	@PostConstruct
     public void init() {
-        System.out.println("Mastersetup for initializing jndi namespace");
+		SpringExtension.PROVIDER.get(system).initialize(springCtx);
     }
 
 	@AfterClass

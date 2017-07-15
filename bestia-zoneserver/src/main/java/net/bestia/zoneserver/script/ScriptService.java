@@ -34,22 +34,11 @@ import net.bestia.zoneserver.actor.ZoneAkkaApi;
 @Service
 public class ScriptService {
 
-	private static class ScriptIdent {
-		public ScriptType type;
-		public String name;
-		public String functionName;
-
-		public ScriptIdent() {
-
-		}
-	}
-
 	private static final Logger LOG = LoggerFactory.getLogger(ScriptService.class);
-
-	private static final String MAIN_FUNC = "main";
 
 	private final EntityService entityService;
 	private final ScriptCache scriptCache;
+	private final ScriptResolver resolver;
 
 	private ZoneAkkaApi akkaApi;
 
@@ -57,67 +46,14 @@ public class ScriptService {
 	public ScriptService(
 			EntityService entityService,
 			ZoneAkkaApi akkaApi,
-			ScriptCache cache) {
+			ScriptCache cache,
+			ScriptResolver resolver) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 		this.scriptCache = Objects.requireNonNull(cache);
+		this.resolver = Objects.requireNonNull(resolver);
 
-	}
-
-	/**
-	 * To call into random scripts the name can be encoded like the following
-	 * scheme:
-	 * 
-	 * <pre>
-	 * test - This will call the function test() in the original script file.
-	 * item/apple:test - This will call the function test in the script file item/apple.js
-	 * item/apple - This will call the default main function in script file item/apple.js
-	 * item/apple.js - Same as above.
-	 * </pre>
-	 * 
-	 * @param callback
-	 * @return
-	 */
-	private ScriptIdent resolveCallbackName(String callbackName) {
-
-		String[] token = callbackName.split(":");
-		String funcName;
-
-		if (token.length == 2) {
-			funcName = token[1];
-		} else {
-			funcName = MAIN_FUNC;
-		}
-
-		String scriptName = token[0];
-		if (scriptName.endsWith(".js")) {
-			scriptName = scriptName.replace(".js", "");
-		}
-
-		if (scriptName.startsWith("/")) {
-			scriptName = scriptName.substring(1).toUpperCase();
-		}
-
-		// Detect the type.
-		ScriptType type;
-		if (scriptName.startsWith("ITEM")) {
-			type = ScriptType.ITEM;
-		} else if (scriptName.startsWith("ATTACK")) {
-			type = ScriptType.ATTACK;
-		} else if (scriptName.startsWith("STATUS_EFFECT")) {
-			type = ScriptType.STATUS_EFFECT;
-		} else {
-			type = ScriptType.NONE;
-		}
-
-		final ScriptIdent ident = new ScriptIdent();
-
-		ident.name = callbackName;
-		ident.type = type;
-		ident.functionName = funcName;
-
-		return ident;
 	}
 
 	/**
@@ -151,15 +87,15 @@ public class ScriptService {
 
 		final Bindings scriptBindings = script.getEngine().getBindings(ScriptContext.ENGINE_SCOPE);
 
-		scriptBindings.put("SCRIPT", ident.name);
+		scriptBindings.put("SCRIPT", ident.getName());
 		scriptBindings.putAll(bindings);
 	}
 
 	private CompiledScript resolveScript(ScriptIdent ident) {
-		final CompiledScript script = scriptCache.getScript(ident.type, ident.name);
+		final CompiledScript script = scriptCache.getScript(ident.getType(), ident.getName());
 
 		if (script == null) {
-			LOG.warn("Did not find script file: {} ({})", ident.name, ident.type);
+			LOG.warn("Did not find script file: {} ({})", ident.getName(), ident.getType());
 			throw new IllegalArgumentException("Could not find script.");
 		}
 
@@ -167,21 +103,23 @@ public class ScriptService {
 	}
 
 	/**
-	 * Central entry point for calling a script execution from the bestia
+	 * Central entry point for calling a script execution from the Bestia
 	 * system. This will fetch the script from cache, if cache does not hold the
 	 * script it will attempt to compile it. It will then set the script
 	 * environment and execute its main function.
 	 * 
 	 * @param name
-	 * @param type
+	 *            The name of the script to be called.
 	 */
 
 	public void callScript(String name) {
-		final ScriptIdent ident = resolveCallbackName(name);
+		Objects.requireNonNull(name);
+		
+		final ScriptIdent ident = resolver.resolveScriptIdent(name);
 		final CompiledScript script = resolveScript(ident);
 
 		setupScriptBindings(script, ident, new SimpleBindings());
-		callFunction(script, ident.functionName);
+		callFunction(script, ident.getFunctionName());
 	}
 
 	public void callItemScript(String name, Entity source, Entity target) {
@@ -207,16 +145,16 @@ public class ScriptService {
 				.orElseThrow(IllegalArgumentException::new);
 
 		final String callbackName = scriptComp.getOnIntervalCallbackName();
-		
-		final ScriptIdent ident = resolveCallbackName(callbackName);
+
+		final ScriptIdent ident = resolver.resolveScriptIdent(callbackName);
 		final CompiledScript script = resolveScript(ident);
-		
+
 		// Prepare additional bindings.
 		final SimpleBindings bindings = new SimpleBindings();
 		bindings.put("SCRIPT_ID", scriptComp.getScriptUUID());
-		
+
 		setupScriptBindings(script, ident, bindings);
-		callFunction(script, ident.functionName);
+		callFunction(script, ident.getFunctionName());
 	}
 
 	/**
