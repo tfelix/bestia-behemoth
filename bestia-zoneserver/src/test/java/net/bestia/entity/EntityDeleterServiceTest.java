@@ -20,7 +20,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.PositionComponent;
-import net.bestia.entity.recycler.ComponentCleaner;
+import net.bestia.entity.recycler.ComponentDeleter;
 import net.bestia.entity.recycler.EntityCache;
 import net.bestia.messages.internal.entity.EntityDeleteInternalMessage;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
@@ -41,7 +41,7 @@ public class EntityDeleterServiceTest {
 	@Mock
 	private EntityCache cache;
 
-	private List<ComponentCleaner<? extends Component>> deleters = new ArrayList<>();
+	private List<ComponentDeleter<? extends Component>> deleters = new ArrayList<>();
 
 	@Mock
 	private PositionComponent p1;

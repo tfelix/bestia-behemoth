@@ -14,7 +14,7 @@ import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
 
 @Component
-public class PositionComponentDeleter extends ComponentCleaner<PositionComponent> {
+public class PositionComponentDeleter extends ComponentDeleter<PositionComponent> {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(PositionComponentDeleter.class);
 	

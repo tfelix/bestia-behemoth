@@ -31,7 +31,7 @@ public class EntityCache {
 	private final Map<String, Queue<Component>> components = new HashMap<>();
 
 	public EntityCache(int maxCachedInstances,
-			List<ComponentCleaner<? extends Component>> componentRecyclers) {
+			List<ComponentDeleter<? extends Component>> componentRecyclers) {
 
 		if (maxCachedInstances < 0) {
 			throw new IllegalArgumentException("MaxCachedInstances must be positive.");
@@ -40,7 +40,7 @@ public class EntityCache {
 		this.maxCachedInstances = maxCachedInstances;
 	}
 
-	public EntityCache(List<ComponentCleaner<? extends Component>> componentRecyclers) {
+	public EntityCache(List<ComponentDeleter<? extends Component>> componentRecyclers) {
 		this(DEFAULT_MAX_CACHED_INSTANCES, componentRecyclers);
 	}
 

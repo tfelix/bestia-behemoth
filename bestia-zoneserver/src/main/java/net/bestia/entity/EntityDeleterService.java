@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import net.bestia.entity.component.Component;
-import net.bestia.entity.recycler.ComponentCleaner;
+import net.bestia.entity.recycler.ComponentDeleter;
 import net.bestia.entity.recycler.EntityCache;
 import net.bestia.messages.internal.entity.EntityDeleteInternalMessage;
 import net.bestia.zoneserver.actor.ZoneAkkaApi;
@@ -35,19 +35,19 @@ public class EntityDeleterService {
 	private final EntityCache cache;
 	private final EntityService entityService;
 	private final ZoneAkkaApi akkaApi;
-	private final Map<String, ComponentCleaner<? extends Component>> componentCleaner = new HashMap<>();
+	private final Map<String, ComponentDeleter<? extends Component>> componentCleaner = new HashMap<>();
 
 	@Autowired
 	public EntityDeleterService(EntityCache cache,
 			EntityService entityService,
 			ZoneAkkaApi akkaApi,
-			List<ComponentCleaner<? extends Component>> deleters) {
+			List<ComponentDeleter<? extends Component>> deleters) {
 
 		this.cache = Objects.requireNonNull(cache);
 		this.entityService = Objects.requireNonNull(entityService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 
-		for (ComponentCleaner<? extends Component> deleter : deleters) {
+		for (ComponentDeleter<? extends Component> deleter : deleters) {
 
 			componentCleaner.put(deleter.supportedComponent().getName(), deleter);
 
