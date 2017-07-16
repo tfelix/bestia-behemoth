@@ -21,7 +21,7 @@ public class ScriptCacheTest {
 		compiler = mock(ScriptCompiler.class);
 		resolver = mock(ScriptFileResolver.class);
 
-		when(resolver.getScriptFile(VALID_SCRIPT, any(ScriptType.class)))
+		when(resolver.getScriptFile(eq(VALID_SCRIPT), any(ScriptType.class)))
 				.thenReturn(validFile);
 
 		cache = new ScriptCache(compiler, resolver);
