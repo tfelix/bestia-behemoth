@@ -3,7 +3,7 @@ package net.bestia.zoneserver.battle;
 import java.util.Objects;
 import java.util.Random;
 
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
@@ -11,7 +11,7 @@ import net.bestia.model.battle.Damage;
 import net.bestia.model.battle.Damage.DamageType;
 import net.bestia.model.domain.Attack;
 
-@Service
+@Component
 public final class DamageCalculator {
 
 	//private EntityService entityService;

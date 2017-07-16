@@ -37,9 +37,13 @@ public interface ScriptApi {
 	 * 
 	 * @param mobDbName
 	 *            The mob database name.
+	 * @param x
+	 *            X position of the mob.
+	 * @param y
+	 *            Y position of the mob.
 	 * @return The entity id of this mob entity.
 	 */
-	long spawnMob(String mobDbName);
+	long spawnMob(String mobDbName, long x, long y);
 
 	List<Long> findEntities(long x, long y, long width, long height);
 

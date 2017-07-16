@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityDeleterService;
 import net.bestia.entity.EntityService;
+import net.bestia.entity.MobFactory;
 import net.bestia.entity.MovingEntityService;
 import net.bestia.entity.ScriptEntityFactory;
 import net.bestia.entity.component.PlayerComponent;
@@ -41,11 +42,17 @@ public class ScriptApiFacade implements ScriptApi {
 	private ScriptService scriptService;
 	private MovingEntityService moveService;
 	private EntityDeleterService entityDeleter;
+	private MobFactory mobFactory;
 
 	public ScriptApiFacade() {
 		// no op.
 	}
 
+	@Autowired
+	public void setMobFactory(MobFactory mobFactory) {
+		this.mobFactory = mobFactory;
+	}
+	
 	@Autowired
 	public void setScriptEntityFactory(ScriptEntityFactory scriptEntityFactory) {
 		this.scriptEntityFactory = scriptEntityFactory;
@@ -223,7 +230,13 @@ public class ScriptApiFacade implements ScriptApi {
 	}
 
 	@Override
-	public long spawnMob(String mobDbName) {
-		throw new IllegalStateException("Not implemented.");
+	public long spawnMob(String mobDbName, long x, long y) {
+		final Entity e = mobFactory.build(mobDbName, x, y);
+		
+		if(e == null) {
+			return 0;
+		} else {
+			return e.getId();
+		}
 	}
 }
