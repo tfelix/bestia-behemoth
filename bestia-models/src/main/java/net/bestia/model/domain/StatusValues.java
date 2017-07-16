@@ -98,4 +98,9 @@ public class StatusValues implements Serializable {
 	public void addMana(int mana) {
 		this.setCurrentMana(this.currentMana + mana);
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("SV[mana: %d, hp: %d]", getCurrentMana(), getCurrentHealth());
+	}
 }

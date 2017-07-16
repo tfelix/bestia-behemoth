@@ -28,6 +28,11 @@ class ScriptIdent {
 	}
 
 	@Override
+	public String toString() {
+		return String.format("ScriptIdent[name: %s, type: %s, fn: %s]", name, type, functionName);
+	}
+
+	@Override
 	public int hashCode() {
 		return Objects.hash(type, name, functionName);
 	}

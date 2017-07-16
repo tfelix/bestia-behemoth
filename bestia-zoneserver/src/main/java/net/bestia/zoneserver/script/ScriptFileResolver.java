@@ -49,10 +49,17 @@ public class ScriptFileResolver {
 			name += ".js";
 		}
 		
-		final String endPath = String.format("script/%s/%s", type.toString().toLowerCase(), name);
+		final String endPath;
+		
+		if(type == ScriptType.NONE) {
+			endPath = String.format("script/%s", name);
+		} else {
+			endPath = String.format("script/%s/%s", type.toString().toLowerCase(), name);
+		}
+		
 		try {
 			final File scriptFile = new File(classLoader.getResource(endPath).getFile());
-			LOG.debug("Getting global script file: {}", scriptFile.getAbsolutePath());
+			LOG.trace("Getting global script file: {}", scriptFile.getAbsolutePath());
 			return scriptFile;
 		} catch (NullPointerException e) {
 			throw new IllegalArgumentException("File does not exist: " + endPath, e);

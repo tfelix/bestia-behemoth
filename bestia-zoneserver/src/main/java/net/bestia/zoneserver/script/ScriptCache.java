@@ -111,7 +111,7 @@ public class ScriptCache {
 		final String key = getKey(type, name);
 
 		if (!cache.containsKey(key)) {	
-			LOG.trace("Script was not found in cache. Compile.");
+			LOG.trace("Script was not found in cache. Compile it first.");
 			
 			final File scriptFile = resolver.getScriptFile(name, type);
 			setupScript(scriptFile, type);

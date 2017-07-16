@@ -32,6 +32,15 @@ public interface ScriptApi {
 	// ############# ENTITY API #############
 	long createEntity(CollisionShape shape);
 
+	/**
+	 * Spawns a mob entity with the given database name.
+	 * 
+	 * @param mobDbName
+	 *            The mob database name.
+	 * @return The entity id of this mob entity.
+	 */
+	long spawnMob(String mobDbName);
+
 	List<Long> findEntities(long x, long y, long width, long height);
 
 	/**

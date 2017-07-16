@@ -96,5 +96,4 @@ public interface StatusBasedValues {
 
 	@JsonProperty("w")
 	Walkspeed getWalkspeed();
-
 }

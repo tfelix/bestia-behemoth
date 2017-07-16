@@ -150,4 +150,9 @@ public class StatusBasedValuesImpl implements Serializable, StatusBasedValues {
 		// TODO Auto-generated method stub
 		return 1.0f;
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("StatBasedValues[]");
+	}
 }

@@ -83,14 +83,17 @@ public class MapGeneratorMasterService implements MapMasterCallbacks {
 		final NoiseVectorBuilder noiseBuilder = new NoiseVectorBuilder();
 		noiseBuilder.addDimension(MapGeneratorConstants.HEIGHT_MAP,
 				Float.class,
-				new SimplexNoiseProvider(rand.nextLong()));
+				new SimplexNoiseProvider(rand.nextLong(), 0.0001));
 
-		// noiseBuilder.addDimension(MapGeneratorConstants.RAIN_MAP,
-		// Float.class, new SimplexNoiseProvider(rand.nextLong()));
-		// noiseBuilder.addDimension(MapGeneratorConstants.MAGIC_MAP,
-		// Float.class, new SimplexNoiseProvider(rand.nextLong()));
-		// noiseBuilder.addDimension(MapGeneratorConstants.POPULATION_MAP,
-		// Float.class, new SimplexNoiseProvider(rand.nextLong()));
+		noiseBuilder.addDimension(MapGeneratorConstants.RAIN_MAP,
+				Float.class,
+				new SimplexNoiseProvider(rand.nextLong(), 0.0001));
+		noiseBuilder.addDimension(MapGeneratorConstants.MAGIC_MAP,
+				Float.class,
+				new SimplexNoiseProvider(rand.nextLong(), 0.0001));
+		noiseBuilder.addDimension(MapGeneratorConstants.POPULATION_MAP, 
+				Float.class,
+				new SimplexNoiseProvider(rand.nextLong(), 0.0001));
 
 		descBuilder.setNoiseVectorBuilder(noiseBuilder);
 

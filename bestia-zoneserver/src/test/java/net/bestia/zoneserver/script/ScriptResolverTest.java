@@ -25,7 +25,7 @@ public class ScriptResolverTest {
 
 		Assert.assertEquals(ScriptType.STATUS_EFFECT, ident.getType());
 		Assert.assertEquals("main", ident.getFunctionName());
-		Assert.assertEquals("/status_effect/test", ident.getName());
+		Assert.assertEquals("status_effect/test", ident.getName());
 	}
 
 	@Test
@@ -34,7 +34,7 @@ public class ScriptResolverTest {
 
 		Assert.assertEquals(ScriptType.ATTACK, ident.getType());
 		Assert.assertEquals("main", ident.getFunctionName());
-		Assert.assertEquals("/attack/test", ident.getName());
+		Assert.assertEquals("attack/test", ident.getName());
 	}
 
 	@Test
@@ -43,12 +43,12 @@ public class ScriptResolverTest {
 
 		Assert.assertEquals(ScriptType.ATTACK, ident.getType());
 		Assert.assertEquals("callback", ident.getFunctionName());
-		Assert.assertEquals("/attack/test", ident.getName());
+		Assert.assertEquals("attack/test", ident.getName());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void resolveScriptIdent_invaliedScriptPath_throws() {
-		resolver.resolveScriptIdent("/blabla/test:callback");
+		resolver.resolveScriptIdent("blabla/test:callback");
 	}
 
 }

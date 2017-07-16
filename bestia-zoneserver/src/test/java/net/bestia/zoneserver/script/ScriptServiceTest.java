@@ -1,22 +1,12 @@
 package net.bestia.zoneserver.script;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.util.Optional;
 
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -195,28 +185,6 @@ public class ScriptServiceTest {
 		verify(akkaApi).sendToActor(any(ActorPath.class), PoisonPill.getInstance());
 		// verify(entityService).saveComponent(argument.capture());
 		// Assert.assertTrue(argument.getValue().getClass().equals(ScriptComponent.class));
-	}
-
-	// @Test
-	public void call_script_attaches_callbacks() throws ScriptException, FileNotFoundException, NoSuchMethodException {
-
-		ScriptEngineManager manager = new ScriptEngineManager();
-		ScriptEngine engine = manager.getEngineByName("nashorn");
-
-		engine.put("Bestia", scriptApi);
-
-		ClassLoader classLoader = getClass().getClassLoader();
-		File testFile = new File(classLoader.getResource("script/attack/create_aoe_dmg.js").getFile());
-		engine.eval(new FileReader(testFile));
-
-		((Invocable) engine).invokeFunction("main");
-
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 }

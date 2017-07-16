@@ -42,14 +42,14 @@ class ScriptResolver {
 
 		// Remove trailing slash
 		if (scriptName.startsWith("/")) {
-			scriptName = scriptName.substring(1).toUpperCase();
+			scriptName = scriptName.substring(1);
 		}
 
 		// Detect the type.
 		ScriptType type;
 
-		String[] nameTokens = scriptName.split("/");
-		if (nameTokens.length == 0) {
+		String[] nameTokens = scriptName.toUpperCase().split("/");
+		if (nameTokens.length == 1) {
 			type = ScriptType.NONE;
 		} else {
 			if (nameTokens[0].startsWith("ITEM")) {
@@ -63,7 +63,7 @@ class ScriptResolver {
 			}
 		}
 
-		return new ScriptIdent(type, callbackName, funcName);
+		return new ScriptIdent(type, scriptName, funcName);
 	}
 
 }
