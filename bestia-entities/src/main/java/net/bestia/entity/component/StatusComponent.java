@@ -11,7 +11,7 @@ import net.bestia.entity.StatusService;
 /**
  * Entities having this component can be participate in the attacking system. It
  * holds all data needed to perform status values changes. Since the
- * calulcations of the status values are non trivial it is important to use the
+ * calculations of the status values are non trivial it is important to use the
  * {@link StatusService} to access the values inside this component.
  * 
  * @author Thomas Felix
@@ -26,6 +26,7 @@ public class StatusComponent extends Component {
 	 */
 	private StatusPoints unmodifiedStatusPoints = new StatusPointsImpl();
 	private StatusPoints statusPoints = new StatusPointsImpl();
+	
 	private StatusBasedValues statusBasedValues = new StatusBasedValuesImpl(statusPoints, 1);
 
 	private Element unmodifiedElement = Element.NORMAL;

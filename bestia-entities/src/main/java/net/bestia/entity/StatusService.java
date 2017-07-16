@@ -141,7 +141,7 @@ public class StatusService {
 	/**
 	 * At first this calculates the unmodified, original status points.
 	 */
-	private void calculateUnmodifiedStatusPoints(Entity entity, StatusComponent statusComp, int level) {
+	private void calculatePlayerUnmodifiedStatusPoints(Entity entity, StatusComponent statusComp, int level) {
 		Objects.requireNonNull(entity);
 
 		LOG.trace("Calculate unmodfified status points for entity {}.", entity);
@@ -212,13 +212,15 @@ public class StatusService {
 				.map(LevelComponent::getLevel)
 				.orElse(1);
 
-		calculateUnmodifiedStatusPoints(entity, statusComp, level);
+		// Mob entities should have their status points already be set.
+		if(entityService.hasComponent(entity, PlayerComponent.class)) {
+			calculatePlayerUnmodifiedStatusPoints(entity, statusComp, level);
+		}
 
 		// Currently only use status values 1:1.
 		StatusPoints statusPoints = new StatusPointsImpl(statusComp.getUnmodifiedStatusPoints());
 
 		statusComp.setStatusPoints(statusPoints);
-
 		statusComp.setStatusBasedValues(new StatusBasedValuesImpl(statusPoints, level));
 
 		entityService.saveComponent(statusComp);
@@ -267,11 +269,28 @@ public class StatusService {
 		return hpRegen;
 	}
 
+	/**
+	 * Returns the status values for the given entity. Alias für
+	 * {@link #getStatusPoints(Entity)}.
+	 * 
+	 * @param entityId
+	 *            The entity id.
+	 * @return The {@link StatusValues} of this entity.
+	 */
 	public Optional<StatusValues> getStatusValues(long entityId) {
 		final Entity e = entityService.getEntity(entityId);
 		return getStatusValues(e);
 	}
 
+	/**
+	 * Returns the status values for the given entity. The values should be
+	 * retrieved using this method in order to let the status values be
+	 * recalculated if needed.
+	 * 
+	 * @param entity
+	 *            The entity.
+	 * @return The {@link StatusValues} of this entity.
+	 */
 	public Optional<StatusValues> getStatusValues(Entity entity) {
 
 		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
@@ -287,7 +306,7 @@ public class StatusService {
 	 * @param values
 	 */
 	public void saveStatusValues(Entity entity, StatusValues values) {
-		
+
 		Objects.requireNonNull(values);
 
 		final StatusComponent statusComp = entityService.getComponent(entity, StatusComponent.class)
@@ -295,17 +314,17 @@ public class StatusService {
 
 		// Sanity check the data.
 		final StatusPoints sp = statusComp.getStatusPoints();
-		
-		if(values.getCurrentHealth() > sp.getMaxHp()) {
+
+		if (values.getCurrentHealth() > sp.getMaxHp()) {
 			values.setCurrentHealth(sp.getMaxHp());
 		}
-		
-		if(values.getCurrentMana() > sp.getMaxMana()) {
+
+		if (values.getCurrentMana() > sp.getMaxMana()) {
 			values.setCurrentMana(sp.getMaxMana());
 		}
-		
+
 		statusComp.getValues().set(values);
-		
+
 		entityService.saveComponent(statusComp);
 	}
 

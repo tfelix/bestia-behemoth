@@ -92,11 +92,13 @@ class EntityFactory {
 						s.setComponent(addedComp);
 					});
 
-			// Save the component.
+			// Save the updated component.
 			entityService.saveComponent(addedComp);
 		}
 
-		// Use the setter to fill the components with data.
+		// After all components are added and set trigger the create
+		// interceptors.
+		entityService.interceptCreatedComponents(e);
 
 		return e;
 	}

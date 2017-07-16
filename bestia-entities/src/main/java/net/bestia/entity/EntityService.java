@@ -299,14 +299,6 @@ public class EntityService {
 			entity.addComponent(comp);
 			saveEntity(entity);
 
-			// Check possible interceptors.
-			if (interceptors.containsKey(comp.getClass())) {
-				interceptors.get(comp.getClass()).forEach(intercep -> {
-					// Need to cast so we dont get problems with typings.
-					intercep.triggerCreateAction(this, entity, comp);
-				});
-			}
-
 			LOG.trace("Added component {} to entity id: {}", comp, entity.getId());
 
 			return clazz.cast(comp);
@@ -315,6 +307,22 @@ public class EntityService {
 			LOG.error("Could not instantiate component.", ex);
 			throw new IllegalArgumentException(ex);
 		}
+	}
+
+	public void interceptCreatedComponents(Entity entity) {
+		
+		LOG.debug("Intercepting all components (created) for: {}.", entity);
+		
+		for(Component comp : getAllComponents(entity)) {
+			// Check possible interceptors.
+			if (interceptors.containsKey(comp.getClass())) {
+				interceptors.get(comp.getClass()).forEach(intercep -> {
+					// Need to cast so we dont get problems with typings.
+					intercep.triggerCreateAction(this, entity, comp);
+				});
+			}
+		}
+		
 	}
 
 	/**
@@ -378,7 +386,7 @@ public class EntityService {
 			});
 		}
 	}
-	
+
 	/**
 	 * Deletes a specific component from this entity. Interceptors which were
 	 * registered for this component are getting called.
@@ -390,12 +398,12 @@ public class EntityService {
 	 */
 	public void deleteComponent(Component component) {
 		final Entity entity = getEntity(component.getEntityId());
-		
+
 		LOG.trace("Removing component {} from entity {}.", component, entity);
 
 		prepareComponentRemove(entity, component);
 
-		saveEntity(entity);	
+		saveEntity(entity);
 	}
 
 	/**
