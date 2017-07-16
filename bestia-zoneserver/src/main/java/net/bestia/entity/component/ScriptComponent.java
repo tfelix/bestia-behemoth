@@ -1,5 +1,11 @@
 package net.bestia.entity.component;
 
+/**
+ * Holds various script callbacks for entities.
+ * 
+ * @author Thomas Felix
+ *
+ */
 public class ScriptComponent extends Component {
 
 	private static final long serialVersionUID = 1L;

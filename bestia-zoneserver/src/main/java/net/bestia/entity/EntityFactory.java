@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -29,7 +30,7 @@ class EntityFactory {
 	private final static Logger LOG = LoggerFactory.getLogger(EntityFactory.class);
 
 	private final EntityService entityService;
-	private final EntityCache recycler;
+	private final EntityCache cache;
 	private final ZoneAkkaApi akkaApi;
 
 	@Autowired
@@ -40,7 +41,7 @@ class EntityFactory {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
-		this.recycler = Objects.requireNonNull(recycler);
+		this.cache = Objects.requireNonNull(recycler);
 	}
 
 	/**
@@ -69,7 +70,7 @@ class EntityFactory {
 		LOG.trace("Creating entity with: {}", blueprint);
 
 		// Check if we can use recycled entity.
-		Entity e = recycler.getEntity();
+		Entity e = cache.getEntity();
 
 		if (e == null) {
 			LOG.debug("No recycled entity present. Creating new entity.");
@@ -82,15 +83,23 @@ class EntityFactory {
 		// Add all given components in the blueprint.
 		for (Class<? extends Component> compClazz : blueprint.getComponents()) {
 
-			final Component addedComp = entityService.addComponent(e, compClazz);
+			Component addedComp = cache.getComponent(compClazz);
+			
+			if(addedComp == null) {
+				addedComp = entityService.addComponent(e, compClazz);
+			}			
 
 			// Fill the component with values from a supported setter.
-			setter.stream()
+			final Optional<ComponentSetter<? extends Component>> foundSetter = setter.stream()
 					.filter(s -> s.getSupportedType().equals(compClazz))
-					.findAny()
-					.ifPresent(s -> {
-						s.setComponent(addedComp);
-					});
+					.findAny();
+			
+			if(foundSetter.isPresent()) {
+				foundSetter.get().setComponent(addedComp);
+			}
+			
+			// Update the entity id on component.
+			addedComp.setEntityId(e.getId());
 
 			// Save the updated component.
 			entityService.saveComponent(addedComp);

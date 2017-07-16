@@ -23,17 +23,34 @@ public abstract class ComponentDeleter<T extends Component> {
 		this.entityService = Objects.requireNonNull(entityService);
 	}
 
+	/**
+	 * The type of the component which is deleted by this deleter.
+	 * 
+	 * @return The supported component type.
+	 */
 	public Class<T> supportedComponent() {
 		return type;
 	}
 
+	/**
+	 * Frees a component from the entity.
+	 * 
+	 * @param component
+	 *            The component to be removed.
+	 */
 	public void freeComponent(Component component) {
 		if (component.getClass().isAssignableFrom(type)) {
-			freeComponent(type.cast(component));
+			doFreeComponent(type.cast(component));
 		} else {
 			throw new IllegalArgumentException("Wrong component class. Not supported by this recycler.");
 		}
 	}
 
+	/**
+	 * Performs the removal of this component from the system.
+	 * 
+	 * @param component
+	 *            The deleted component.
+	 */
 	protected abstract void doFreeComponent(T component);
 }

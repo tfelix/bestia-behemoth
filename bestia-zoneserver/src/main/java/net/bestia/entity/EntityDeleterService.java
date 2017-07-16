@@ -1,5 +1,6 @@
 package net.bestia.entity;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,8 +67,10 @@ public class EntityDeleterService {
 
 		LOG.debug("Deleting entity: {}", entity);
 		
+		final Collection<Component> components = entityService.getAllComponents(entity);
+		
 		// Iterate over all components and remove them.
-		for (Component component : entityService.getAllComponents(entity)) {
+		for (Component component : components) {
 			deleteComponent(entity, component);
 		}
 
@@ -110,7 +113,8 @@ public class EntityDeleterService {
 			componentCleaner.get(clazzname).freeComponent(comp);
 		}
 		
-		cache.stashComponente(comp);
 		entityService.deleteComponent(comp);
+		
+		cache.stashComponente(comp);	
 	}
 }

@@ -41,11 +41,6 @@ public abstract class ComponentInterceptor<T extends Component> {
 		onUpdateAction(entityService, entity, castComp);
 	}
 
-	public void triggerDeleteAction(EntityService entityService, Entity entity, Component comp) {
-		final T castComp = triggerClass.cast(comp);
-		onDeleteAction(entityService, entity, castComp);
-	}
-
 	/**
 	 * This method is called if a trigger of the given component is detected.
 	 * 
@@ -55,17 +50,6 @@ public abstract class ComponentInterceptor<T extends Component> {
 	 *            The component which is persisted to the database.
 	 */
 	protected abstract void onUpdateAction(EntityService entityService, Entity entity, T comp);
-
-	/**
-	 * This method is called when the component is about to be removed.
-	 * 
-	 * @param entityService
-	 * @param entity
-	 *            The entity to which the component belongs.
-	 * @param comp
-	 *            The component which going to be deleted.
-	 */
-	protected abstract void onDeleteAction(EntityService entityService, Entity entity, T comp);
 
 	/**
 	 * This method is called when the component was created and is attached to

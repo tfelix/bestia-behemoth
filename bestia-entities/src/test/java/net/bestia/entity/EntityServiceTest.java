@@ -59,11 +59,8 @@ public class EntityServiceTest {
 		
 		entityService.deleteComponent(comp);
 		
-		verify(interceptor).triggerDeleteAction(entityService, e1, comp);
-		
 		comp = entityService.addComponent(e1, PositionComponent.class);
 		entityService.deleteAllComponents(e1);
-		verify(interceptor).triggerDeleteAction(entityService, e1, comp);
 	}
 
 	@Test
@@ -190,14 +187,11 @@ public class EntityServiceTest {
 	@Test
 	public void deleteAllComponents_validEntity_deletesAllComponentsCallsInterceptor() {
 		Entity e1 = entityService.newEntity();
-		PositionComponent pc = entityService.addComponent(e1, PositionComponent.class);
 		entityService.addInterceptor(interceptor);
 		
 		entityService.deleteAllComponents(e1);
 		
 		Collection<Component> comps = entityService.getAllComponents(e1);
 		Assert.assertEquals(0, comps.size());
-		
-		verify(interceptor).triggerDeleteAction(entityService, e1, pc);
 	}
 }

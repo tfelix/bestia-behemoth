@@ -16,6 +16,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import akka.testkit.TestProbe;
 import net.bestia.entity.Entity;
+import net.bestia.entity.EntityDeleterService;
 import net.bestia.entity.PlayerBestiaEntityFactory;
 import net.bestia.entity.PlayerEntityService;
 import net.bestia.messages.web.AccountLoginToken;
@@ -59,6 +60,9 @@ public class LoginServiceTest {
 
 	@Mock
 	private ZoneAkkaApi akkaApi;
+	
+	@Mock
+	private EntityDeleterService deleteService;
 
 	@Mock
 	private PlayerBestiaEntityFactory playerEntityFactory;
@@ -124,7 +128,8 @@ public class LoginServiceTest {
 				connectionService,
 				playerBestiaService,
 				akkaApi,
-				playerEntityFactory);
+				playerEntityFactory,
+				deleteService);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -163,6 +168,7 @@ public class LoginServiceTest {
 
 		verify(playerEntityService).save(bestiaEntity);
 		verify(playerEntityService).removePlayerBestias(USER_ACC_ID);
+		verify(deleteService).deleteEntity(bestiaEntity);
 	}
 
 	@Test

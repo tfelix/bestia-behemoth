@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import akka.actor.ActorRef;
 import net.bestia.entity.Entity;
+import net.bestia.entity.EntityDeleterService;
 import net.bestia.entity.PlayerBestiaEntityFactory;
 import net.bestia.entity.PlayerEntityService;
 import net.bestia.messages.login.LoginAuthReplyMessage;
@@ -42,6 +43,7 @@ public class LoginService {
 	private final PlayerBestiaService playerBestiaService;
 	private final ZoneAkkaApi akkaApi;
 	private final PlayerBestiaEntityFactory playerEntityFactory;
+	private final EntityDeleterService deleteService;
 
 	@Autowired
 	public LoginService(RuntimeConfigService config,
@@ -50,7 +52,8 @@ public class LoginService {
 			ConnectionService connectionService,
 			PlayerBestiaService playerBestiaService,
 			ZoneAkkaApi akkaApi,
-			PlayerBestiaEntityFactory playerEntityFactory) {
+			PlayerBestiaEntityFactory playerEntityFactory,
+			EntityDeleterService deleteService) {
 
 		this.config = Objects.requireNonNull(config);
 		this.accountDao = Objects.requireNonNull(accountDao);
@@ -59,6 +62,7 @@ public class LoginService {
 		this.playerBestiaService = Objects.requireNonNull(playerBestiaService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 		this.playerEntityFactory = Objects.requireNonNull(playerEntityFactory);
+		this.deleteService = Objects.requireNonNull(deleteService);
 	}
 
 	/**
@@ -140,11 +144,17 @@ public class LoginService {
 		connectionService.removeClient(accId);
 
 		final Set<Entity> playerEntities = playerEntityService.getPlayerEntities(accId);
-
-		playerEntities.forEach(playerEntityService::save);
-		playerEntityService.removePlayerBestias(accId);
 		
+		try {
+			playerEntities.forEach(playerEntityService::save);
+		} catch (Exception e) {
+			LOG.warn("Something went wrong saving entities.", e);
+		}
+
+		playerEntityService.removePlayerBestias(accId);
+
 		// Recycle all entities.
+		playerEntities.forEach(deleteService::deleteEntity);
 	}
 
 	/**

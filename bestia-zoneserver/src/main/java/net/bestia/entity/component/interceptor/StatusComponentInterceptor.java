@@ -64,19 +64,6 @@ public class StatusComponentInterceptor extends ComponentInterceptor<StatusCompo
 	}
 
 	/**
-	 * If the component was removed we need to tell the actor to stop updating
-	 * the entity component.
-	 */
-	@Override
-	protected void onDeleteAction(EntityService entityService, Entity entity, StatusComponent comp) {
-		
-		LOG.trace("StatusComponent deleted.");
-		final EntityRegenTickMessage msg = new EntityRegenTickMessage(entity.getId(), false);
-		actorApi.sendEntityActor(entity.getId(), msg);
-		
-	}
-
-	/**
 	 * We need to notify the entity actor that a new status component was
 	 * attached and so needs to start the regeneration ticks for this component.
 	 */

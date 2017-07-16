@@ -47,22 +47,6 @@ public class VisibleComponentInterceptor extends ComponentInterceptor<VisibleCom
 	}
 
 	@Override
-	protected void onDeleteAction(EntityService entityService, Entity entity, VisibleComponent comp) {
-		final long eid = entity.getId();
-		Optional<PositionComponent> posComp = entityService.getComponent(entity, PositionComponent.class);
-		
-		if(!posComp.isPresent()) {
-			return;
-		}
-		
-		final long x = posComp.get().getPosition().getX();
-		final long y = posComp.get().getPosition().getY();
-		
-		final EntityUpdateMessage msg = new EntityUpdateMessage(0, eid, x, y, comp.getVisual(), EntityAction.VANISH);
-		akkaApi.sendActiveInRangeClients(msg);
-	}
-
-	@Override
 	protected void onCreateAction(EntityService entityService, Entity entity, VisibleComponent comp) {
 		
 		final long eid = entity.getId();

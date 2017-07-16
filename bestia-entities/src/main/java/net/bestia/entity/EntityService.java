@@ -112,12 +112,13 @@ public class EntityService {
 	public void delete(Entity entity) {
 		Objects.requireNonNull(entity);
 		LOG.trace("Deleting entity: {}", entity.getId());
-
-		entities.lock(entity.getId());
 		try {
+			entities.lock(entity.getId());
+
 			// Delete all components.
 			deleteAllComponents(entity);
 			entities.delete(entity.getId());
+
 		} finally {
 			entities.unlock(entity.getId());
 		}
@@ -143,9 +144,10 @@ public class EntityService {
 	 */
 	private void saveEntity(Entity entity) {
 		LOG.trace("Saving entity: {}", entity);
+		
 		// Remove entity context since it can not be serialized.
-		entities.lock(entity.getId());
 		try {
+			entities.lock(entity.getId());
 			entities.put(entity.getId(), entity);
 		} finally {
 			entities.unlock(entity.getId());
@@ -268,7 +270,14 @@ public class EntityService {
 			return Optional.empty();
 		}
 
-		final Component comp = components.get(compId);
+		final Component comp;
+
+		try {
+			components.lock(compId);
+			comp = components.get(compId);
+		} finally {
+			components.unlock(compId);
+		}
 
 		if (comp == null || !comp.getClass().isAssignableFrom(clazz)) {
 			return Optional.empty();
@@ -289,31 +298,36 @@ public class EntityService {
 		Objects.requireNonNull(entity);
 		Objects.requireNonNull(clazz);
 
+		final Component comp;
 		try {
 			@SuppressWarnings("unchecked")
 			Constructor<Component> ctor = (Constructor<Component>) clazz.getConstructor(long.class, long.class);
-			final Component comp = ctor.newInstance(getId(), entity.getId());
-
-			// Add component to entity and to the comp map.
-			components.put(comp.getId(), comp);
-			entity.addComponent(comp);
-			saveEntity(entity);
-
-			LOG.trace("Added component {} to entity id: {}", comp, entity.getId());
-
-			return clazz.cast(comp);
-
+			comp = ctor.newInstance(getId(), entity.getId());
 		} catch (Exception ex) {
 			LOG.error("Could not instantiate component.", ex);
 			throw new IllegalArgumentException(ex);
 		}
+
+		// Add component to entity and to the comp map.
+		final long compId = comp.getId();
+		try {
+			components.lock(compId);
+			components.put(compId, comp);
+			entity.addComponent(comp);
+			saveEntity(entity);
+			LOG.trace("Added component {} to entity id: {}", comp, entity.getId());
+		} finally {
+			components.unlock(compId);
+		}
+
+		return clazz.cast(comp);
 	}
 
 	public void interceptCreatedComponents(Entity entity) {
-		
+
 		LOG.debug("Intercepting all components (created) for: {}.", entity);
-		
-		for(Component comp : getAllComponents(entity)) {
+
+		for (Component comp : getAllComponents(entity)) {
 			// Check possible interceptors.
 			if (interceptors.containsKey(comp.getClass())) {
 				interceptors.get(comp.getClass()).forEach(intercep -> {
@@ -322,7 +336,7 @@ public class EntityService {
 				});
 			}
 		}
-		
+
 	}
 
 	/**
@@ -374,17 +388,15 @@ public class EntityService {
 		LOG.trace("Removing component id {} from entity {}.", component.getId(), entity.getId());
 
 		entity.removeComponent(component);
-		components.remove(component.getId());
-
-		component.setEntityId(0);
-
-		// Check possible interceptors.
-		if (interceptors.containsKey(component.getClass())) {
-			interceptors.get(component.getClass()).forEach(intercep -> {
-				// Need to cast so we dont get problems with typings.
-				intercep.triggerDeleteAction(this, entity, component);
-			});
+		
+		try {
+			components.lock(component.getId());
+			components.remove(component.getId());
+		} finally {
+			components.unlock(component.getId());
 		}
+		
+		component.setEntityId(0);
 	}
 
 	/**
@@ -417,6 +429,7 @@ public class EntityService {
 		final Set<Long> componentIds = new HashSet<>(entity.getComponentIds());
 
 		for (Long componentId : componentIds) {
+			
 			final Component comp = components.get(componentId);
 			prepareComponentRemove(entity, comp);
 

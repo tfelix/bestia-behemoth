@@ -39,11 +39,7 @@ public class PositionComponentDeleter extends ComponentDeleter<PositionComponent
 		// but we need to send the update messages to the clients, which in turn
 		// is dependent on the position.
 		// We need therefore cache this data.
-		final Point position = entityService.getComponent(entityId, PositionComponent.class)
-				.map(PositionComponent::getPosition)
-				.orElse(new Point(0, 0));
-
-		entityService.deleteComponent(component);
+		final Point position = component.getPosition();
 
 		// Send status update to all clients in range.
 		final EntityUpdateMessage updateMsg = EntityUpdateMessage.getDespawnUpdate(entityId, position);
