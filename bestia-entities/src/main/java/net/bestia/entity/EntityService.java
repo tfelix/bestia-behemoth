@@ -431,6 +431,7 @@ public class EntityService {
 		for (Long componentId : componentIds) {
 			
 			final Component comp = components.get(componentId);
+			LOG.trace("Preparing to remove: {} from entity: {}", comp, entity);
 			prepareComponentRemove(entity, comp);
 
 		}
