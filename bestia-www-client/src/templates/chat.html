@@ -23,7 +23,7 @@
 			</ul>
 			<form data-bind="submit: sendChat">
 				<span class="whisper-nick" data-bind="visible: whisperNick().length > 0"><span
-				data-bind="text: whisperNick"></span>: </span><input type="text" data-bind="textInput: text, event: {focus: disableGameControls, blur: enableGameControls}">
+				data-bind="text: whisperNick"></span>: </span><input type="text" data-bind="textInput: text, event: {focus: disableGameControls, blur: enableGameControls, keydown: onKeyPressed}">
 			</form>
 		</div>
 	</div>

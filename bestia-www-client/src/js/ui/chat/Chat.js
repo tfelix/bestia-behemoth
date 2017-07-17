@@ -25,6 +25,14 @@ import ModePartyCommand from './commands/ModePartyCommand';
 const MAX_MESSAGES = 50;
 
 /**
+ * Maximum number of commands/text to save in the chat history.
+ */
+const NUM_COMMAND_HISTORY = 10;
+
+const KEYCODE_ARROW_UP = 38;
+const KEYCODE_ARROW_DOWN = 40;
+
+/**
  * Custom knockout binding for scrolling on dom elements.
  */
 /*
@@ -179,6 +187,16 @@ export default class Chat {
 		 */
 		this.text = ko.observable('');
 
+		/**
+		 * Holds the current text/command of 
+		 */
+		this._history = [];
+
+		/**
+		 * Holds the number of the current command index.
+		 */
+		this._currentHistoryIndex = 0;
+
 		// Check for constant updates to this value e.g. if the user is typing
 		// to this property. react to certain inputs on the fly.
 		this.text.subscribe(this._identifyLocalCommandTyping.bind(this));
@@ -263,6 +281,33 @@ export default class Chat {
 	}
 
 	/**
+	 * Triggered if a key is pressed inside the chat window. 
+	 * We check if we need to put a historical command.
+	 */
+	onKeyPressed(_, event) {
+		var keycode = event.which | event.keyCode;
+
+		if(keycode === KEYCODE_ARROW_UP) {
+
+			if(this._currentHistoryIndex < 0) {
+				return;
+			} 
+
+			this.text(this._history[this._currentHistoryIndex--]);
+
+		} else if(keycode === KEYCODE_ARROW_DOWN) {
+
+			if(this._currentHistoryIndex >= this._history.length) {
+				return;
+			} 
+
+			this.text(this._history[++this._currentHistoryIndex]);
+		}
+
+		return true;
+	}
+
+	/**
 	 * Triggers if a chat is about to be send. Create a chat message of all the
 	 * typed information and send it to the server.
 	 * 
@@ -278,6 +323,13 @@ export default class Chat {
 
 		// Clear text.
 		this.text('');
+
+		// Add text to command history.
+		if(this._history.length >= NUM_COMMAND_HISTORY) {
+			this._history.shift();
+		}
+		this._history.push(msgText);
+		this._currentHistoryIndex = this._history.length - 1;
 
 		var localCmd = this._localCommands;
 		for (var i = 0; i < localCmd.length; i++) {
