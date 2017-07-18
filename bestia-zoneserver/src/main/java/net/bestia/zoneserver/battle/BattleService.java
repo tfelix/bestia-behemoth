@@ -169,7 +169,7 @@ public class BattleService {
 		}
 
 		statusValues.addHealth(-damage);
-		entityService.saveComponent(statusComp);
+		entityService.updateComponent(statusComp);
 
 		return primaryDamage;
 	}

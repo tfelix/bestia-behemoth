@@ -19,10 +19,9 @@ public abstract class Component implements Serializable {
 	private final long id;
 	private long entityId;
 
-	public Component(long id, long entityId) {
+	public Component(long id) {
 
 		this.id = id;
-		this.entityId = entityId;
 	}
 
 	/**

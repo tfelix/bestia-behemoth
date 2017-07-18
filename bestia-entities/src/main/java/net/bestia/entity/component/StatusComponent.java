@@ -35,8 +35,8 @@ public class StatusComponent extends Component {
 	// Current HP and Mana
 	private StatusValues values = new StatusValues();
 
-	public StatusComponent(long id, long entityId) {
-		super(id, entityId);
+	public StatusComponent(long id) {
+		super(id);
 		// no op
 	}
 

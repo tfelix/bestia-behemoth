@@ -20,8 +20,8 @@ public class InteractionComponent extends Component {
 
 	private Set<InteractionType> interactions = new HashSet<>();
 
-	public InteractionComponent(long id, long entityId) {
-		super(id, entityId);
+	public InteractionComponent(long id) {
+		super(id);
 		// no op.
 	}
 

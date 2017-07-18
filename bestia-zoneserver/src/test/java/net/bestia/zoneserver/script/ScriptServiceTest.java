@@ -171,7 +171,7 @@ public class ScriptServiceTest {
 
 		verify(entityService).getComponent(scriptEntity, ScriptComponent.class);
 		verify(akkaApi, never()).sendToActor(any(ActorPath.class), any(PoisonPill.class));
-		verify(entityService, never()).saveComponent(argument.capture());
+		verify(entityService, never()).updateComponent(argument.capture());
 	}
 
 	@Test

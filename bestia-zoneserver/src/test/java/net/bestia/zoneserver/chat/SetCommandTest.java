@@ -97,7 +97,7 @@ public class SetCommandTest {
 		setCmd.executeCommand(ACC_ID, "/set status.element fire");	
 		
 		verify(statusComp).setElement(Element.FIRE);
-		verify(entityService).saveComponent(statusComp);
+		verify(entityService).updateComponent(statusComp);
 	} 
 	
 	@Test
@@ -105,7 +105,7 @@ public class SetCommandTest {
 		setCmd.executeCommand(ACC_ID, "/set status.values.currentHealth 10");	
 		
 		verify(values).setCurrentHealth(10);
-		verify(entityService).saveComponent(statusComp);
+		verify(entityService).updateComponent(statusComp);
 	} 
 	
 	@Test
@@ -113,7 +113,7 @@ public class SetCommandTest {
 		setCmd.executeCommand(ACC_ID, "/set hp 123");	
 		
 		verify(values).setCurrentHealth(123);
-		verify(entityService).saveComponent(statusComp);
+		verify(entityService).updateComponent(statusComp);
 	} 
 	
 	@Test
@@ -121,7 +121,7 @@ public class SetCommandTest {
 		setCmd.executeCommand(ACC_ID, "/set HP 123");	
 		
 		verify(values).setCurrentHealth(123);
-		verify(entityService).saveComponent(statusComp);
+		verify(entityService).updateComponent(statusComp);
 	} 
 	
 	@Test
@@ -129,7 +129,7 @@ public class SetCommandTest {
 		setCmd.executeCommand(ACC_ID, "/set mana 123");	
 		
 		verify(values).setCurrentMana(123);
-		verify(entityService).saveComponent(statusComp);
+		verify(entityService).updateComponent(statusComp);
 	} 
 	
 	@Test
@@ -137,7 +137,7 @@ public class SetCommandTest {
 		setCmd.executeCommand(ACC_ID, "/set status.statusPoints.intelligence 1337");	
 		
 		verify(statusPoints).setIntelligence(1337);
-		verify(entityService).saveComponent(statusComp);
+		verify(entityService).updateComponent(statusComp);
 	} 
 	
 	@Test
@@ -146,7 +146,7 @@ public class SetCommandTest {
 		
 		verify(entityService).getEntity(69);
 		verify(values).setCurrentHealth(123);
-		verify(entityService).saveComponent(statusComp);
+		verify(entityService).updateComponent(statusComp);
 	} 
 	
 	@Test
@@ -154,6 +154,6 @@ public class SetCommandTest {
 		setCmd.executeCommand(ACC_ID, "/set 10 HP 123");	
 		
 		verify(values, never()).setCurrentHealth(123);
-		verify(entityService, never()).saveComponent(statusComp);
+		verify(entityService, never()).updateComponent(statusComp);
 	} 
 }

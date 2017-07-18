@@ -11,7 +11,7 @@ public class StatusComponentTest {
 	@Before
 	public void setup() {
 		
-		statusComp = new StatusComponent(10, 10);
+		statusComp = new StatusComponent(10);
 	}
 
 	@Test

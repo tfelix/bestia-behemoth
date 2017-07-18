@@ -57,7 +57,7 @@ public class StatusServiceTest {
 
 		entityService = mock(EntityService.class);
 		playerBestiaDao = mock(PlayerBestiaDAO.class);
-		statusComp = new StatusComponent(10, 10);
+		statusComp = new StatusComponent(10);
 		levelComp = mock(LevelComponent.class);
 
 		playerComp = mock(PlayerComponent.class);

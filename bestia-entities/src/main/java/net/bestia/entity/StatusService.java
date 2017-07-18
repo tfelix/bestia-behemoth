@@ -191,7 +191,7 @@ public class StatusService {
 		// Update all component values.
 		statusComp.setUnmodifiedStatusPoints(statusPoints);
 
-		entityService.saveComponent(statusComp);
+		entityService.updateComponent(statusComp);
 	}
 
 	/**
@@ -223,7 +223,7 @@ public class StatusService {
 		statusComp.setStatusPoints(statusPoints);
 		statusComp.setStatusBasedValues(new StatusBasedValuesImpl(statusPoints, level));
 
-		entityService.saveComponent(statusComp);
+		entityService.updateComponent(statusComp);
 	}
 
 	/**
@@ -325,7 +325,7 @@ public class StatusService {
 
 		statusComp.getValues().set(values);
 
-		entityService.saveComponent(statusComp);
+		entityService.updateComponent(statusComp);
 	}
 
 	/**

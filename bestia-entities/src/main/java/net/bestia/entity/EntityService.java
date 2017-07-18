@@ -98,9 +98,9 @@ public class EntityService {
 	 * @return
 	 */
 	public Entity newEntity() {
-		final Entity entity = new Entity(getNewEntityId());
-		saveEntity(entity);
-		return entity;
+		final Entity e = new Entity(getNewEntityId());
+		saveEntity(e);
+		return e;
 	}
 
 	/**
@@ -112,9 +112,8 @@ public class EntityService {
 	public void delete(Entity entity) {
 		Objects.requireNonNull(entity);
 		LOG.trace("Deleting entity: {}", entity.getId());
+		entities.lock(entity.getId());
 		try {
-			entities.lock(entity.getId());
-
 			// Delete all components.
 			deleteAllComponents(entity);
 			entities.delete(entity.getId());
@@ -144,10 +143,10 @@ public class EntityService {
 	 */
 	private void saveEntity(Entity entity) {
 		LOG.trace("Saving entity: {}", entity);
-		
+
 		// Remove entity context since it can not be serialized.
+		entities.lock(entity.getId());
 		try {
-			entities.lock(entity.getId());
 			entities.put(entity.getId(), entity);
 		} finally {
 			entities.unlock(entity.getId());
@@ -163,8 +162,7 @@ public class EntityService {
 	public Entity getEntity(long entityId) {
 		entities.lock(entityId);
 		try {
-			final Entity e = entities.get(entityId);
-			return e;
+			return entities.get(entityId);
 		} finally {
 			entities.unlock(entityId);
 		}
@@ -251,6 +249,7 @@ public class EntityService {
 		final Entity e = getEntity(entityId);
 
 		if (e == null) {
+			LOG.warn("Entity {} not found for component lookup: {}", entityId, clazz);
 			return Optional.empty();
 		}
 
@@ -272,8 +271,8 @@ public class EntityService {
 
 		final Component comp;
 
+		components.lock(compId);
 		try {
-			components.lock(compId);
 			comp = components.get(compId);
 		} finally {
 			components.unlock(compId);
@@ -287,73 +286,147 @@ public class EntityService {
 	}
 
 	/**
-	 * A new component will be created and added to the entity. All components
-	 * must have a constructor which only accepts a long value as an id.
+	 * Creates a new component which can be used with an entity. The component
+	 * is not yet saved in the system and can be filled with data. When the
+	 * component is filled it should be attached to an entity by calling
+	 * {@link #attachComponent(Entity, Component)}. If multiple components
+	 * should be attached at once on the entity then
 	 * 
-	 * @param entityId
 	 * @param clazz
 	 * @return
 	 */
-	public <T extends Component> T addComponent(Entity entity, Class<T> clazz) {
-		Objects.requireNonNull(entity);
+	public <T extends Component> T newComponent(Class<T> clazz) {
 		Objects.requireNonNull(clazz);
 
 		final Component comp;
 		try {
 			@SuppressWarnings("unchecked")
-			Constructor<Component> ctor = (Constructor<Component>) clazz.getConstructor(long.class, long.class);
-			comp = ctor.newInstance(getId(), entity.getId());
+			Constructor<Component> ctor = (Constructor<Component>) clazz.getConstructor(long.class);
+			comp = ctor.newInstance(getId());
 		} catch (Exception ex) {
 			LOG.error("Could not instantiate component.", ex);
 			throw new IllegalArgumentException(ex);
 		}
 
-		// Add component to entity and to the comp map.
-		final long compId = comp.getId();
-		try {
-			components.lock(compId);
-			components.put(compId, comp);
-			entity.addComponent(comp);
-			saveEntity(entity);
-			LOG.trace("Added component {} to entity id: {}", comp, entity.getId());
-		} finally {
-			components.unlock(compId);
-		}
-
 		return clazz.cast(comp);
 	}
 
-	public void interceptCreatedComponents(Entity entity) {
+	/**
+	 * Re-attaches an existing component to an entity. The component must not be
+	 * owned by an entity (its entity id must be set to 0).
+	 * 
+	 * @param e
+	 * @param addedComp
+	 */
+	public void attachComponent(Entity e, Component comp) {
+		Objects.requireNonNull(e);
+		Objects.requireNonNull(comp);
 
-		LOG.debug("Intercepting all components (created) for: {}.", entity);
-
-		for (Component comp : getAllComponents(entity)) {
-			// Check possible interceptors.
-			if (interceptors.containsKey(comp.getClass())) {
-				interceptors.get(comp.getClass()).forEach(intercep -> {
-					// Need to cast so we dont get problems with typings.
-					intercep.triggerCreateAction(this, entity, comp);
-				});
-			}
+		if (comp.getEntityId() != 0) {
+			throw new IllegalArgumentException(
+					"Component is already owned by an entity. Delete/Remove it first via EntityDeleter.");
 		}
 
+		// Add component to entity and to the comp map.
+		final long compId = comp.getId();
+		final long entityId = e.getId();
+
+		comp.setEntityId(entityId);
+		e.addComponent(comp);
+
+		components.lock(compId);
+		entities.lock(entityId);
+		try {
+			components.put(compId, comp);
+			saveEntity(e);
+			LOG.trace("Added component {} to entity id: {}", comp, e.getId());
+		} finally {
+			components.unlock(compId);
+			entities.unlock(entityId);
+		}
+
+		interceptCreatedComponent(e, comp);
+	}
+
+	public void attachComponents(Entity e, Collection<Component> attachComponents) {
+		Objects.requireNonNull(e);
+		Objects.requireNonNull(components);
+
+		// Add component to entity and to the comp map.
+		final long entityId = e.getId();
+
+		attachComponents.stream()
+				.filter(c -> c.getEntityId() != 0 && c.getEntityId() != entityId)
+				.findAny()
+				.ifPresent(x -> {
+					throw new IllegalArgumentException("Component was already attached to entity: " + x.toString());
+				});
+
+		try {
+			entities.lock(entityId);
+			for (Component comp : attachComponents) {
+				final long compId = comp.getId();
+
+				comp.setEntityId(entityId);
+				e.addComponent(comp);
+
+				components.lock(compId);
+				try {
+					components.put(compId, comp);
+				} finally {
+					components.unlock(compId);
+				}
+			}
+			saveEntity(e);
+		} finally {
+			entities.unlock(entityId);
+		}
+
+		// After all is saved intercept the created components.
+		attachComponents.forEach(c -> {
+			interceptCreatedComponent(e, c);
+		});
+	}
+
+	private void interceptCreatedComponent(Entity entity, Component createdComp) {
+
+		LOG.debug("Intercepting created component {} for: {}.", createdComp, entity);
+
+		// Check possible interceptors.
+		if (interceptors.containsKey(createdComp.getClass())) {
+			interceptors.get(createdComp.getClass()).forEach(intercep -> {
+				// Need to cast so we dont get problems with typings.
+				intercep.triggerCreateAction(this, entity, createdComp);
+			});
+		}
 	}
 
 	/**
-	 * Updates the given component back into the database.
+	 * Saves the given component back into the database. Update of the
+	 * interceptors is called. If the component is not attached to an entity it
+	 * throws an exception.
 	 * 
 	 * @param component
 	 *            The component to be updated into the database.
 	 */
-	public void saveComponent(Component component) {
-		Objects.requireNonNull(component);
+	public void updateComponent(Component component) {
 
-		components.put(component.getId(), component);
+		if (component.getEntityId() == 0) {
+			throw new IllegalArgumentException("Component is not attached to entity. Call attachComponent first.");
+		}
 
-		final Entity ownerEntity = getEntity(component.getEntityId());
+		components.lock(component.getId());
+		try {
+			components.put(component.getId(), component);
+		} finally {
+			components.unlock(component.getId());
+		}
 
 		// Check possible interceptors.
 		if (interceptors.containsKey(component.getClass())) {
+
+			final Entity ownerEntity = getEntity(component.getEntityId());
+
 			interceptors.get(component.getClass()).forEach(intercep -> {
 				// Need to cast so we dont get problems with typings.
 				intercep.triggerUpdateAction(this, ownerEntity, component);
@@ -376,7 +449,8 @@ public class EntityService {
 	/**
 	 * Only removes the component from the entity and the system. Does not yet
 	 * safe the entity. This is to avoid multiple saves to the entity when
-	 * removing bulk components.
+	 * removing bulk components. Important: CALL {@link #saveEntity(Entity)}
+	 * after using this private method!
 	 * 
 	 * @param entity
 	 * @param component
@@ -388,14 +462,14 @@ public class EntityService {
 		LOG.trace("Removing component id {} from entity {}.", component.getId(), entity.getId());
 
 		entity.removeComponent(component);
-		
+
 		try {
 			components.lock(component.getId());
 			components.remove(component.getId());
 		} finally {
 			components.unlock(component.getId());
 		}
-		
+
 		component.setEntityId(0);
 	}
 
@@ -429,7 +503,7 @@ public class EntityService {
 		final Set<Long> componentIds = new HashSet<>(entity.getComponentIds());
 
 		for (Long componentId : componentIds) {
-			
+
 			final Component comp = components.get(componentId);
 			LOG.trace("Preparing to remove: {} from entity: {}", comp, entity);
 			prepareComponentRemove(entity, comp);

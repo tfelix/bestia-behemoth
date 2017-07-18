@@ -21,8 +21,8 @@ public class PositionComponent extends Component {
 	private Direction facing = Direction.SOUTH;
 	private boolean sightBlocking = false;
 
-	public PositionComponent(long id, long entityId) {
-		super(id, entityId);
+	public PositionComponent(long id) {
+		super(id);
 		// no op.
 	}
 

@@ -168,7 +168,7 @@ public class SetCommand extends BaseChatCommand {
 		setter.invoke(setterObj.object, sortedArgs);
 
 		// Component should now be modified and must be saved again.
-		entityService.saveComponent(comp);
+		entityService.updateComponent(comp);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

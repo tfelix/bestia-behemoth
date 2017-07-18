@@ -13,7 +13,7 @@ public class PositionComponentTest {
 
 	@Before
 	public void setup() {
-		posComp = new PositionComponent(10, 12);
+		posComp = new PositionComponent(10);
 	}
 
 	@Test

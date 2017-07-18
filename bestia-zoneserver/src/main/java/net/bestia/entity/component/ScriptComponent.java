@@ -20,8 +20,8 @@ public class ScriptComponent extends Component {
 	 */
 	private String scriptUUID;
 
-	public ScriptComponent(long id, long entityId) {
-		super(id, entityId);
+	public ScriptComponent(long id) {
+		super(id);
 		// no op.
 	}
 

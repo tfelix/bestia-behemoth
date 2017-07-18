@@ -19,8 +19,8 @@ public class VisibleComponent extends Component {
 	private SpriteInfo spriteInfo = SpriteInfo.empty();
 	private boolean visible = true;
 	
-	public VisibleComponent(long id, long entityId) {
-		super(id, entityId);
+	public VisibleComponent(long id) {
+		super(id);
 		// no op.
 	}
 

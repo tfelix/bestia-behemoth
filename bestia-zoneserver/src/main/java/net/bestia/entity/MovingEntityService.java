@@ -150,7 +150,7 @@ public class MovingEntityService {
 
 		// Update all AI actors.
 
-		entityService.saveComponent(posComp);
+		entityService.updateComponent(posComp);
 	}
 
 	/**

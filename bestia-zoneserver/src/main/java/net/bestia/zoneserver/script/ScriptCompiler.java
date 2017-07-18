@@ -4,15 +4,16 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Objects;
 
 import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -29,11 +30,10 @@ public class ScriptCompiler {
 
 	private final ScriptEngine engine;
 
-	public ScriptCompiler() {
+	@Autowired
+	public ScriptCompiler(ScriptEngine engine) {
 
-		final ScriptEngineManager manager = new ScriptEngineManager();
-
-		engine = manager.getEngineByName("nashorn");
+		this.engine = Objects.requireNonNull(engine);
 	}
 
 	/**

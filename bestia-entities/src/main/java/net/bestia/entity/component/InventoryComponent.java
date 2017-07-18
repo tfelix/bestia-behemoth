@@ -33,8 +33,8 @@ public class InventoryComponent extends Component {
 	private int maxItems;
 	private List<ItemCount> items = new ArrayList<>();
 
-	public InventoryComponent(long id, long entityId) {
-		super(id, entityId);
+	public InventoryComponent(long id) {
+		super(id);
 		// no op.
 	}
 

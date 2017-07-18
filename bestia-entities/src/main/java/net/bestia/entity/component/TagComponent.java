@@ -19,8 +19,8 @@ public class TagComponent extends Component {
 
 	private final Map<String, Object> data = new HashMap<>();
 
-	public TagComponent(long id, long entityId) {
-		super(id, entityId);
+	public TagComponent(long id) {
+		super(id);
 		// no op.
 	}
 

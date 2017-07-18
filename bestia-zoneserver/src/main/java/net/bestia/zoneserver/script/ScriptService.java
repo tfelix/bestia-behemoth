@@ -177,7 +177,7 @@ public class ScriptService {
 				.orElseThrow(IllegalArgumentException::new);
 
 		scriptComp.setOnIntervalCallbackName(callbackFunctionName);
-		entityService.saveComponent(scriptComp);
+		entityService.updateComponent(scriptComp);
 
 		// Tell the actor which script to periodically call.
 		final ScriptIntervalMessage message = new ScriptIntervalMessage(entity.getId(), delay);
@@ -196,6 +196,6 @@ public class ScriptService {
 				.orElseThrow(IllegalArgumentException::new);
 
 		scriptComp.setOnIntervalCallbackName(null);
-		entityService.saveComponent(scriptComp);
+		entityService.updateComponent(scriptComp);
 	}
 }

@@ -67,7 +67,7 @@ class EntityFactory {
 		Objects.requireNonNull(blueprint);
 		Objects.requireNonNull(setter);
 
-		LOG.trace("Creating entity with: {}", blueprint);
+		LOG.debug("Creating entity with: {}", blueprint);
 
 		// Check if we can use recycled entity.
 		Entity e = cache.getEntity();
@@ -87,7 +87,10 @@ class EntityFactory {
 			
 			if(addedComp == null) {
 				addedComp = entityService.addComponent(e, compClazz);
-			}			
+			} else {
+				// Attaches the existing component to the entity.
+				entityService.attachComponent(e, addedComp);
+			}
 
 			// Fill the component with values from a supported setter.
 			final Optional<ComponentSetter<? extends Component>> foundSetter = setter.stream()
@@ -102,7 +105,7 @@ class EntityFactory {
 			addedComp.setEntityId(e.getId());
 
 			// Save the updated component.
-			entityService.saveComponent(addedComp);
+			entityService.updateComponent(addedComp);
 		}
 
 		// After all components are added and set trigger the create
