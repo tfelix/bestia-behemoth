@@ -12,8 +12,8 @@ import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.model.domain.MapParameter;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
 
 /**
  * Returns the max current mapsize.

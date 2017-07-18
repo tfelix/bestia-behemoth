@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import net.bestia.messages.entity.EntityStatusUpdateMessage;
 import net.bestia.messages.internal.entity.EntityRegenTickMessage;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.PlayerComponent;

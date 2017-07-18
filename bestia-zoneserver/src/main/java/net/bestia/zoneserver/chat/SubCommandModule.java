@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * The sub modules are used to implement chat command modules which are used by

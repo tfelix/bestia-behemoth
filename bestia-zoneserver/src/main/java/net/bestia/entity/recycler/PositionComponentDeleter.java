@@ -11,7 +11,7 @@ import net.bestia.entity.EntityService;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.messages.entity.EntityUpdateMessage;
 import net.bestia.model.geometry.Point;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 @Component
 public class PositionComponentDeleter extends ComponentDeleter<PositionComponent> {

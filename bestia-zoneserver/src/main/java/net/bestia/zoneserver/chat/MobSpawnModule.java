@@ -12,7 +12,7 @@ import net.bestia.entity.MobFactory;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * Spawns a mob for a given mob database name.

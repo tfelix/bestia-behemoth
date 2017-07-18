@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 
 import net.bestia.entity.MobFactory;
 import net.bestia.model.dao.AccountDAO;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.chat.MetaChatCommand;
 import net.bestia.zoneserver.chat.MobSpawnModule;
 import net.bestia.zoneserver.chat.SetScriptModule;

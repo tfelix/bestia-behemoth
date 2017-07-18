@@ -17,7 +17,7 @@ import net.bestia.entity.component.PositionComponent;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * Moves the player to the given map coordinates if he has GM permissions.

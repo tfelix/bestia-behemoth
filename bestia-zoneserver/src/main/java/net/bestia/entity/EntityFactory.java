@@ -1,8 +1,10 @@
 package net.bestia.entity;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -11,8 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.entity.EntityWorkerActor;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
 import net.bestia.entity.recycler.EntityCache;
@@ -79,6 +81,8 @@ class EntityFactory {
 
 		// Start a actor for this entity.
 		akkaApi.sendToActor(EntityWorkerActor.NAME, e.getId());
+		
+		List<Component> addedComponents = new ArrayList<>(blueprint.getComponents().size());
 
 		// Add all given components in the blueprint.
 		for (Class<? extends Component> compClazz : blueprint.getComponents()) {
@@ -86,10 +90,7 @@ class EntityFactory {
 			Component addedComp = cache.getComponent(compClazz);
 			
 			if(addedComp == null) {
-				addedComp = entityService.addComponent(e, compClazz);
-			} else {
-				// Attaches the existing component to the entity.
-				entityService.attachComponent(e, addedComp);
+				addedComp = entityService.newComponent(compClazz);
 			}
 
 			// Fill the component with values from a supported setter.
@@ -101,16 +102,11 @@ class EntityFactory {
 				foundSetter.get().setComponent(addedComp);
 			}
 			
-			// Update the entity id on component.
-			addedComp.setEntityId(e.getId());
-
-			// Save the updated component.
-			entityService.updateComponent(addedComp);
+			addedComponents.add(addedComp);
 		}
-
-		// After all components are added and set trigger the create
-		// interceptors.
-		entityService.interceptCreatedComponents(e);
+		
+		// Attaches the existing component to the entity.
+		entityService.attachComponents(e, addedComponents);
 
 		return e;
 	}

@@ -11,7 +11,7 @@ import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.VisibleComponent;
 import net.bestia.messages.entity.EntityAction;
 import net.bestia.messages.entity.EntityUpdateMessage;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * A visible component is sent to the client upon creation.

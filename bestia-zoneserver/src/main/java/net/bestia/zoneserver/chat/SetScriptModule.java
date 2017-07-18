@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 public class SetScriptModule extends BaseChatCommand {
 	

@@ -19,7 +19,7 @@ import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
 import net.bestia.messages.internal.script.ScriptIntervalMessage;
 import net.bestia.model.geometry.Point;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * This class is responsible for fetching the script, creating a appropriate

@@ -20,8 +20,8 @@ import net.bestia.model.domain.Direction;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.map.Walkspeed;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.entity.PeriodicMovementActor;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.entity.component.PositionComponent;
 
 /**

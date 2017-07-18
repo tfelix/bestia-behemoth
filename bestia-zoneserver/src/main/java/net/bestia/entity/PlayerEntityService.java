@@ -20,7 +20,7 @@ import com.hazelcast.core.MultiMap;
 import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.service.PlayerBestiaService;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
@@ -172,7 +172,7 @@ public class PlayerEntityService {
 				.filter(id -> id != 0)
 				.collect(Collectors.toList());
 
-		LOG.trace("Active entities {} in range: {}", activeAccountIds, range);
+		LOG.trace("Active player entities {} in range: {}", activeAccountIds, range);
 
 		return activeAccountIds;
 	}

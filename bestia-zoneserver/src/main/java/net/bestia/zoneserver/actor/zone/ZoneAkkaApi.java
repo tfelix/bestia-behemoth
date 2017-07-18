@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor;
+package net.bestia.zoneserver.actor.zone;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorPath;

@@ -15,7 +15,7 @@ import net.bestia.entity.component.Component;
 import net.bestia.entity.recycler.ComponentDeleter;
 import net.bestia.entity.recycler.EntityCache;
 import net.bestia.messages.internal.entity.EntityDeleteInternalMessage;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * The entity deleter is performing several cleanup acts for entities. It stops

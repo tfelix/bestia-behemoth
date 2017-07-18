@@ -23,7 +23,7 @@ import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.recycler.ComponentDeleter;
 import net.bestia.entity.recycler.EntityCache;
 import net.bestia.messages.internal.entity.EntityDeleteInternalMessage;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EntityDeleterServiceTest {

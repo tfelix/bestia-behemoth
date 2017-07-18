@@ -16,8 +16,8 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.server.AkkaCluster;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * Generates a new map upon command. This will basically send a message to start

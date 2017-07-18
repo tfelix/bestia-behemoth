@@ -25,7 +25,7 @@ import akka.japi.Creator;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.DiscoveryService;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApiActor;
 
 /**

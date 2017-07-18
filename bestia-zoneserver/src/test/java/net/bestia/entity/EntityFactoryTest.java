@@ -20,7 +20,7 @@ import net.bestia.entity.component.ComponentSetter;
 import net.bestia.entity.component.PlayerComponent;
 import net.bestia.entity.component.PlayerComponentSetter;
 import net.bestia.entity.recycler.EntityCache;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EntityFactoryTest {
@@ -57,7 +57,7 @@ public class EntityFactoryTest {
 		components.add(PlayerComponent.class);
 
 		when(entityService.newEntity()).thenReturn(entity);
-		when(entityService.addComponent(entity, PlayerComponent.class)).thenReturn(playerComp);
+		when(entityService.newComponent(PlayerComponent.class)).thenReturn(playerComp);
 		
 		when(blueprint.getComponents()).thenReturn(components);
 		
@@ -90,7 +90,7 @@ public class EntityFactoryTest {
 		Assert.assertNotNull(e);
 
 		verify(entityService).newEntity();
-		verify(entityService).addComponent(e, PlayerComponent.class);
+		verify(entityService).newComponent(PlayerComponent.class);
 		verify(entityService).updateComponent(any());
 	}
 

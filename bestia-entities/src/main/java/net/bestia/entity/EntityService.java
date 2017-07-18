@@ -390,10 +390,9 @@ public class EntityService {
 
 	private void interceptCreatedComponent(Entity entity, Component createdComp) {
 
-		LOG.debug("Intercepting created component {} for: {}.", createdComp, entity);
-
 		// Check possible interceptors.
 		if (interceptors.containsKey(createdComp.getClass())) {
+			LOG.debug("Intercepting created component {} for: {}.", createdComp, entity);
 			interceptors.get(createdComp.getClass()).forEach(intercep -> {
 				// Need to cast so we dont get problems with typings.
 				intercep.triggerCreateAction(this, entity, createdComp);
@@ -424,9 +423,9 @@ public class EntityService {
 
 		// Check possible interceptors.
 		if (interceptors.containsKey(component.getClass())) {
-
 			final Entity ownerEntity = getEntity(component.getEntityId());
-
+			LOG.debug("Intercepting update component {} for: {}.", component, ownerEntity);
+			
 			interceptors.get(component.getClass()).forEach(intercep -> {
 				// Need to cast so we dont get problems with typings.
 				intercep.triggerUpdateAction(this, ownerEntity, component);

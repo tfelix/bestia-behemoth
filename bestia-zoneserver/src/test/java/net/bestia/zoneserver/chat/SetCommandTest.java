@@ -21,10 +21,10 @@ import net.bestia.entity.component.StatusComponent;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.model.domain.Element;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusValues;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SetCommandTest {

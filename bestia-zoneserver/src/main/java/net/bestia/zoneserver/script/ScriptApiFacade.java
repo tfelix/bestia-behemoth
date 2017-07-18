@@ -18,7 +18,7 @@ import net.bestia.entity.component.PlayerComponent;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.battle.BattleService;
 
 /**

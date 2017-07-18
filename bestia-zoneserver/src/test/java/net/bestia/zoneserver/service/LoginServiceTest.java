@@ -26,7 +26,7 @@ import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.Password;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.testing.BasicMocks;
-import net.bestia.zoneserver.actor.ZoneAkkaApi;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.MaintenanceLevel;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
 
