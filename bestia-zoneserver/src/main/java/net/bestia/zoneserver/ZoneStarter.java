@@ -21,6 +21,7 @@ import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.HeartbeatActor;
 import net.bestia.zoneserver.actor.zone.IngestActor;
 import net.bestia.zoneserver.actor.zone.InitGlobalActor;
+import net.bestia.zoneserver.actor.zone.SendActiveRangeActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.zone.ZoneClusterListenerActor;
@@ -55,6 +56,7 @@ public class ZoneStarter implements CommandLineRunner {
 
 		akkaApi.startActor(IngestActor.class);
 		akkaApi.startActor(SendClientActor.class);
+		akkaApi.startActor(SendActiveRangeActor.class);
 		akkaApi.startActor(ActiveClientUpdateActor.class);
 
 		// Entity

@@ -9,6 +9,7 @@ import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.entity.EntityActor;
 import net.bestia.zoneserver.actor.entity.EntityWorkerActor;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
+import net.bestia.zoneserver.actor.zone.SendActiveRangeActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 
 /**
@@ -49,7 +50,7 @@ public final class AkkaSender {
 	 */
 	public static void sendActiveInRangeClients(ActorContext context, EntityJsonMessage msg) {
 
-		final String nodeName = AkkaCluster.getNodeName(SendClientActor.NAME);
+		final String nodeName = AkkaCluster.getNodeName(SendActiveRangeActor.NAME);
 		final ActorSelection activeClientBroadcaster = context.actorSelection(nodeName);
 		activeClientBroadcaster.tell(msg, ActorRef.noSender());
 	}

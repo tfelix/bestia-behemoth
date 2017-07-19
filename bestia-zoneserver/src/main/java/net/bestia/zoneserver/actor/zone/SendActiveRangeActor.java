@@ -1,0 +1,90 @@
+package net.bestia.zoneserver.actor.zone;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import akka.actor.ActorSelection;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.PlayerEntityService;
+import net.bestia.entity.component.PositionComponent;
+import net.bestia.messages.EntityJsonMessage;
+import net.bestia.messages.JsonMessage;
+import net.bestia.model.geometry.Point;
+import net.bestia.model.geometry.Rect;
+import net.bestia.server.AkkaCluster;
+import net.bestia.zoneserver.actor.BestiaActor;
+import net.bestia.zoneserver.map.MapService;
+
+/***
+ * If a {@link EntityJsonMessage} is received by this actor it will check if the
+ * given entity contains a {@link PositionComponent} and if it does so it will
+ * detect all active player entities in the update range of the game and forward
+ * the message to them via a {@link SendClientActor}.
+ * 
+ * @author Thomas Felix
+ *
+ */
+@Component
+@Scope("prototype")
+public class SendActiveRangeActor extends BestiaActor {
+
+	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+	public static final String NAME = "sendToActiveInRange";
+
+	private final PlayerEntityService playerEntityService;
+	private final EntityService entityService;
+	private final ActorSelection sendClientActor;
+
+	@Autowired
+	public SendActiveRangeActor(PlayerEntityService playerEntityService,
+			EntityService entityService) {
+
+		this.entityService = Objects.requireNonNull(entityService);
+		this.playerEntityService = Objects.requireNonNull(playerEntityService);
+		this.sendClientActor = getContext().actorSelection(AkkaCluster.getNodeName(SendClientActor.NAME));
+	}
+
+	@Override
+	public Receive createReceive() {
+		return receiveBuilder()
+				.match(EntityJsonMessage.class, this::sendToActiveInRange)
+				.build();
+	}
+
+	/**
+	 * Sends to all active players in range. Maybe automatically detecting this
+	 * method by message type does not work out. Then we might need to create a
+	 * whole new actor only responsible for sending active range messages. Might
+	 * be better idea anyways.
+	 * 
+	 * @param msg
+	 */
+	private void sendToActiveInRange(EntityJsonMessage msg) {
+
+		// Get position of the entity.
+		final Optional<PositionComponent> posComp = entityService.getComponent(msg.getEntityId(),
+				PositionComponent.class);
+
+		if (!posComp.isPresent()) {
+			LOG.warning("Position component of entity in message {} not present. Can not send range update.", msg);
+			return;
+		}
+
+		final Point pos = posComp.get().getPosition();
+		final Rect updateRect = MapService.getUpdateRect(pos);
+
+		final List<Long> activeIds = playerEntityService.getActiveAccountIdsInRange(updateRect);
+
+		for (Long activeId : activeIds) {
+			final JsonMessage newMsg = msg.createNewInstance(activeId);
+			sendClientActor.tell(newMsg, getSelf());
+		}
+	}
+}
