@@ -213,7 +213,7 @@ public class StatusService {
 				.orElse(1);
 
 		// Mob entities should have their status points already be set.
-		if(entityService.hasComponent(entity, PlayerComponent.class)) {
+		if (entityService.hasComponent(entity, PlayerComponent.class)) {
 			calculatePlayerUnmodifiedStatusPoints(entity, statusComp, level);
 		}
 
@@ -279,6 +279,11 @@ public class StatusService {
 	 */
 	public Optional<StatusValues> getStatusValues(long entityId) {
 		final Entity e = entityService.getEntity(entityId);
+
+		if (e == null) {
+			return Optional.empty();
+		}
+
 		return getStatusValues(e);
 	}
 
@@ -315,15 +320,24 @@ public class StatusService {
 		// Sanity check the data.
 		final StatusPoints sp = statusComp.getStatusPoints();
 
+		// Cap to max.
 		if (values.getCurrentHealth() > sp.getMaxHp()) {
 			values.setCurrentHealth(sp.getMaxHp());
 		}
 
+		// Cap to max.
 		if (values.getCurrentMana() > sp.getMaxMana()) {
 			values.setCurrentMana(sp.getMaxMana());
 		}
 
-		statusComp.getValues().set(values);
+		// If values are equal if so dont do anything.
+		final StatusValues curValues = statusComp.getValues();
+		if (curValues.getCurrentHealth() == values.getCurrentHealth()
+				&& curValues.getCurrentMana() == values.getCurrentMana()) {
+			return;
+		}
+
+		curValues.set(values);
 
 		entityService.updateComponent(statusComp);
 	}

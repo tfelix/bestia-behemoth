@@ -4,6 +4,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public interface StatusPoints {
 
+	/**
+	 * Current maximum HP value.
+	 * 
+	 * @return current maximum HP.
+	 */
 	@JsonProperty("mhp")
 	int getMaxHp();
 
@@ -15,6 +20,11 @@ public interface StatusPoints {
 	@JsonProperty("mmana")
 	int getMaxMana();
 
+	/**
+	 * Defense against regular physical attacks.
+	 * 
+	 * @return Physical attack defense.
+	 */
 	@JsonProperty("def")
 	int getDefense();
 
@@ -28,9 +38,9 @@ public interface StatusPoints {
 	int getMagicDefense();
 
 	/**
-	 * Returns the strength.
+	 * Returns the physical strength.
 	 * 
-	 * @return
+	 * @return Strength
 	 */
 	@JsonProperty("str")
 	int getStrength();
@@ -38,7 +48,7 @@ public interface StatusPoints {
 	/**
 	 * Returns the vitality.
 	 * 
-	 * @return
+	 * @return Vitality.
 	 */
 	@JsonProperty("vit")
 	int getVitality();
