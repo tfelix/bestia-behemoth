@@ -45,6 +45,9 @@ export default class SpriteBuilder extends Builder {
 			entity.show();
 		}
 
+		// Switch to idle animation.
+		entity.playAnimation('stand_down');
+
 		return entity;
 	}
 

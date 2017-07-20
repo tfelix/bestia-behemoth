@@ -130,6 +130,9 @@ export default class SpriteEntity extends Entity {
 		this._sprite.alpha = 1;
 	}
 
+	/**
+	 * Shows the sprite.
+	 */
 	appear() {
 		this._sprite.alpha = 1;
 	}

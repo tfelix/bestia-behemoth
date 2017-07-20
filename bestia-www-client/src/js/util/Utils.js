@@ -21,6 +21,9 @@ export function strFormat(format) {
  * @returns {booleans} Returns true if the string starts, false otherwise.
  */
 export function strStartsWith(str, start) {
+	if(!str) {
+		return false;
+	}
 	return str.slice(0, start.length) == start;
 }
 
