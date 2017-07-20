@@ -52,11 +52,11 @@ export default class MoveIndicator extends Indicator {
 			// Remove first element since its the current position.
 			path.shift();
 			
-			var msg = new Message.EntityMove(player.playerBestiaId, player.entityId(), path, player.walkspeed());
+			var msg = new Message.EntityMove(player.playerBestiaId, player.entityId(), path, player.statusBasedValues.walkspeed());
 			this._ctx.pubsub.send(msg);
 
 			// Start movement locally as well.
-			this._ctx.playerEntity.moveTo(path, this._ctx.playerBestia.walkspeed());
+			this._ctx.playerEntity.moveTo(path, player.statusBasedValues.walkspeed());
 		}.bind(this));
 		
 		// Start the path calculation
