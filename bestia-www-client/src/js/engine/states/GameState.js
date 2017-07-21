@@ -2,6 +2,7 @@
 
 import Signal from '../../io/Signal.js';
 import TileRender from '../renderer/TileRenderer';
+import LOG from '../../util/Log';
 import PhaserDebug from '../plugins/phaser-debug';
 
 /**
@@ -63,13 +64,13 @@ export default class GameState {
 		let playerData = {eid: pb.entityId(), x: pb.posX(), y: pb.posY(), s: {s: pb.sprite(), t: pb.spriteType()}, a: 'APPEAR'};
 		this._ctx.entityFactory.build(playerData, function(playerEntity){
 			// Follow the player
-			console.log('Player build');
+			LOG.info('Player build');
 			this._ctx.playerEntity = playerEntity;
 			this.game.camera.follow(playerEntity.sprite);
 			this._ctx.pubsub.publish(Signal.ENGINE_GAME_STARTED);
 		}.bind(this));
 		
-		console.log('Draw called');
+		LOG.info('Draw called');
 		this._tileRender.clearDraw();
 		this._ctx.entityUpdater.releaseHold();
 	}

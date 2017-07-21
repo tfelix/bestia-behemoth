@@ -2,7 +2,7 @@
 
 
 import Signal from '../io/Signal.js';
-import PubSub from '../util/PubSub';
+//import PubSub from '../util/PubSub';
 import EngineContext from './EngineContext.js';
 import BootState from './states/BootState.js';
 import ConnectingState from './states/ConnectingState.js';
@@ -13,7 +13,7 @@ import DebugChatCommands from './debug/DebugChatCommands';
 import LOG from '../util/Log';
 
 
-const MAX_RECON_TIME = 45;
+//const MAX_RECON_TIME = 45;
 
 /**
  * Bestia Graphics engine. Responsible for displaying the game collecting user
@@ -32,6 +32,8 @@ export default class Engine {
 
 		// Determine the size of the canvas. And create the game object.
 		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'bestia-canvas', null, false, false);
+
+		this._pubsub = pubsub;
 		
 		// Prepare the debug command.
 		this._debug = new DebugChatCommands(pubsub, this.game);
@@ -67,8 +69,9 @@ export default class Engine {
 	_handlerOnBestiaSelected(_, data) {
 		LOG.info('A new bestia selected. Starting loading process.');
 		
-		// Check if we can go without loading: we must be inside view range AND
+		// TODO Check if we can go without loading: we must be inside view range AND
 		// have the multi sprite cached. Currently not supported.
+		
 		this.game.state.start('load');		
 	}
 
@@ -80,8 +83,11 @@ export default class Engine {
 		this.game.state.start('connecting');
 	}
 
+	/**
+	 * Loading the minimum assets was finished. No prepare to connect.
+	 */
 	_handlerOnInitLoaded() {
-		LOG.info('Boot finished. switching to: connecting state.');
+		LOG.info('Initializing finished. switching to: connecting state.');
 		this.game.state.start('connecting');
 		this._ctx.pubsub.publish(Signal.IO_CONNECT);
 	}
