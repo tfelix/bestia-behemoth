@@ -1,5 +1,6 @@
 import Signal from '../../io/Signal.js';
 import TileRender from '../renderer/TileRenderer';
+import EntitySyncRequestMessage from '../../message/EntitySyncRequestMessage';
 
 /**
  * The state is triggered if a complete now part of a map is loaded and thus the
@@ -58,6 +59,10 @@ export default class LoadingState  {
 		
 		let chunks = tileRender.getVisibleChunks();
 		tileRender.loadChunks(chunks, this._checkFinishedLoading.bind(this));
+
+		// Request a loading of all entities.
+		let msg = new EntitySyncRequestMessage();
+		this._ctx.pubsub.send(msg);
 	}
 }
 

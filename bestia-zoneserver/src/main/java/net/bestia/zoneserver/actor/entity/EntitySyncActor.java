@@ -56,8 +56,9 @@ public class EntitySyncActor extends BestiaRoutingActor {
 	protected void handleMessage(Object msg) {
 
 		final EntitySyncRequestMessage syncMsg = (EntitySyncRequestMessage) msg;
+		final long requestAccId = syncMsg.getAccountId();
 
-		LOG.info("Account {} requests a full entity sync.", syncMsg.getAccountId());
+		LOG.info("Account {} requests a full entity sync.", requestAccId);
 
 		final Entity activeEntity = playerEntityService.getActivePlayerEntity(syncMsg.getAccountId());
 		final Point activePos = entityService.getComponent(activeEntity, PositionComponent.class)
@@ -77,7 +78,9 @@ public class EntitySyncActor extends BestiaRoutingActor {
 			final PositionComponent posComp = entityService.getComponent(activeEntity, PositionComponent.class).get();
 
 			final SpriteInfo sprite = visComp.getVisual();
-			final EntityUpdateMessage updateMsg = EntityUpdateMessage.getUpdate(e.getId(), posComp.getPosition(),
+			final EntityUpdateMessage updateMsg = EntityUpdateMessage.getUpdate(requestAccId,
+					e.getId(),
+					posComp.getPosition(),
 					sprite);
 
 			AkkaSender.sendClient(getContext(), updateMsg);

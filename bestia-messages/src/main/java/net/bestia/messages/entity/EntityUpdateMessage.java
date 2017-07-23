@@ -70,9 +70,19 @@ public class EntityUpdateMessage extends EntityJsonMessage {
 	public static EntityUpdateMessage getDespawnUpdate(long entityId, Point pos) {
 		return new EntityUpdateMessage(0, entityId, pos.getX(), pos.getY(), SpriteInfo.empty(), EntityAction.DIE);
 	}
-	
-	public static EntityUpdateMessage getUpdate(long entityId, Point pos, SpriteInfo sprite) {
-		return new EntityUpdateMessage(0, entityId, pos.getX(), pos.getY(), sprite, EntityAction.UPDATE);
+
+	/**
+	 * Creates an update message.
+	 * 
+	 * @param accId
+	 *            The account id which should receive this message.
+	 * @param entityId
+	 * @param pos
+	 * @param sprite
+	 * @return
+	 */
+	public static EntityUpdateMessage getUpdate(long accId, long entityId, Point pos, SpriteInfo sprite) {
+		return new EntityUpdateMessage(accId, entityId, pos.getX(), pos.getY(), sprite, EntityAction.UPDATE);
 	}
 
 	public long getX() {
