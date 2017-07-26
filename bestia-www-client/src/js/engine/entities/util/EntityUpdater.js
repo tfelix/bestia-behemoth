@@ -1,4 +1,5 @@
 import MID from '../../../io/messages/MID.js';
+import LOG from '../../../util/Log';
 
 /**
  * The updater will hook into the messaging system and listen for entity update
@@ -44,9 +45,10 @@ export default class EntityUpdater{
 		}
 
 		switch (msg.a) {
+		case 'UPDATE':
 		case 'APPEAR':
-			// Entity should not exist.
 			var entity = this._ctx.entityCache.getEntity(msg.eid);
+			
 			if (entity !== null) {
 				// Exists already. Strange.
 				return;
