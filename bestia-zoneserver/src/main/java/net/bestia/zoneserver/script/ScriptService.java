@@ -18,6 +18,7 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
 import net.bestia.messages.internal.script.ScriptIntervalMessage;
+import net.bestia.model.dao.ScriptVarDAO;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 

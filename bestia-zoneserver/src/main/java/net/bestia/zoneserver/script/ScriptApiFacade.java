@@ -16,6 +16,8 @@ import net.bestia.entity.MovingEntityService;
 import net.bestia.entity.ScriptEntityFactory;
 import net.bestia.entity.component.PlayerComponent;
 import net.bestia.messages.chat.ChatMessage;
+import net.bestia.model.dao.ScriptVarDAO;
+import net.bestia.model.domain.ScriptVar;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
@@ -43,9 +45,15 @@ public class ScriptApiFacade implements ScriptApi {
 	private MovingEntityService moveService;
 	private EntityDeleterService entityDeleter;
 	private MobFactory mobFactory;
+	private ScriptVarDAO scriptVarDao;
 
 	public ScriptApiFacade() {
 		// no op.
+	}
+	
+	@Autowired
+	public void setScriptVarDao(ScriptVarDAO scriptVarDao) {
+		this.scriptVarDao = scriptVarDao;
 	}
 
 	@Autowired
@@ -130,9 +138,9 @@ public class ScriptApiFacade implements ScriptApi {
 	}
 
 	@Override
-	public void setInterval(long entityId, String scriptName, String callbackName, int delayMs) {
-		LOG.trace("Entity: {}. Set interval function callback name: {}.", entityId, callbackName);
-		scriptService.startScriptInterval(getEntityFromId(entityId), delayMs, callbackName);
+	public void setInterval(long entityId, String scriptName, int delayMs) {
+		LOG.trace("Entity: {}. Set interval function callback name: {}.", entityId, scriptName);
+		scriptService.startScriptInterval(getEntityFromId(entityId), delayMs, scriptName);
 	}
 
 	@Override
@@ -238,5 +246,33 @@ public class ScriptApiFacade implements ScriptApi {
 		} else {
 			return e.getId();
 		}
+	}
+
+	@Override
+	public void setScriptVar(String key, String data) {
+		
+		ScriptVar svar = scriptVarDao.findByScriptKey(key);
+		
+		if(svar == null) {
+			svar = new ScriptVar(key, data);
+		}
+		
+		scriptVarDao.save(svar);
+	}
+
+	@Override
+	public String getScriptVar(String key) {
+		final ScriptVar svar = scriptVarDao.findByScriptKey(key);
+		
+		if(svar == null) {
+			return "";
+		} else {
+			return svar.getData();
+		}
+	}
+
+	@Override
+	public boolean exists(long entityId) {
+		return entityService.getEntity(entityId) != null;
 	}
 }

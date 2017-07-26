@@ -73,6 +73,14 @@ public interface ScriptApi {
 	void kill(long entityId);
 
 	/**
+	 * Checks if the given entity ID exists.
+	 * 
+	 * @param entityId
+	 * @return
+	 */
+	boolean exists(long entityId);
+
+	/**
 	 * The given entity ID is just deleted and immediately removed from the
 	 * system. No death animation is played back to the client.
 	 * 
@@ -81,15 +89,18 @@ public interface ScriptApi {
 	 */
 	void delete(long entityId);
 
+	void setScriptVar(String scriptKey, String data);
+
+	String getScriptVar(String scriptKey);
+
 	/**
 	 * Defines a callback function which gets attached to the script and is
 	 * periodically called.
 	 * 
 	 * @param entityId
 	 * @param scriptName
-	 * @param callbackName
 	 */
-	void setInterval(long entityId, String scriptName, String callbackName, int delayMs);
+	void setInterval(long entityId, String scriptName, int delayMs);
 
 	void setOnEnter(long entityId, String callbackName);
 
