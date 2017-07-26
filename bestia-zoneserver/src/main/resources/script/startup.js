@@ -5,8 +5,8 @@
 
 function main() {
 	BAPI.info("Bestia Behemoth startup script.");
-	BAPI.info("engine: MYSCRIPT " + MYSCRIPT);
-	BAPI.info("engine: MYTYPE " + MYTYPE);
+	BAPI.info("engine: MYSCRIPT " + SNAME);
+	BAPI.info("engine: MYTYPE " + STYPE);
 	
 	
 	BAPI.spawnMob("blob", 10, 10);

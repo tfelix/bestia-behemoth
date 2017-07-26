@@ -2,6 +2,7 @@ package net.bestia.zoneserver.actor.script;
 
 import java.util.Objects;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,7 @@ public class PeriodicScriptRunnerActor extends BestiaPeriodicActor {
 	private final ScriptService scriptService;
 	private long scriptId;
 
+	@Autowired
 	public PeriodicScriptRunnerActor(ScriptService scriptService, ScriptIntervalMessage msg) {
 
 		this.scriptService = Objects.requireNonNull(scriptService);
@@ -42,10 +44,10 @@ public class PeriodicScriptRunnerActor extends BestiaPeriodicActor {
 		try {
 			scriptService.callScriptIntervalCallback(scriptId);
 		} catch (IllegalArgumentException e) {
-			LOG.debug("Entity had no script callback component attached.", e);
+			LOG.debug("Error while script execution Stopping callback interval.", e);
 			context().stop(getSelf());
 		} catch (Exception e) {
-			LOG.warning("Error during script interval execution. Stopping interval.", e);
+			LOG.warning("Error during script interval execution. Stopping callback interval.", e);
 			context().stop(getSelf());
 		}
 	}

@@ -1,6 +1,8 @@
 package net.bestia.zoneserver.configuration;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -12,6 +14,7 @@ import javax.script.Bindings;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +41,7 @@ import net.bestia.zoneserver.script.ScriptType;
 @PropertySource(value = "classpath:application.properties", ignoreResourceNotFound = true)
 @Profile("production")
 public class ScriptConfiguration {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(ScriptConfiguration.class);
 
 	private static class ScriptDir {
@@ -57,16 +60,17 @@ public class ScriptConfiguration {
 
 	private static final List<ScriptDir> SCRIPT_SUB_DIRS = Arrays.asList(
 			new ScriptDir("attack", ScriptType.ATTACK),
+			new ScriptDir("map", ScriptType.MAP),
 			new ScriptDir("item", ScriptType.ITEM),
 			new ScriptDir("statuseffect", ScriptType.STATUS_EFFECT));
 
 	@Bean
 	public ScriptCache scriptCache(ScriptCompiler compiler) throws URISyntaxException {
 		final ScriptCache cache = new ScriptCache(compiler, new ScriptFileResolver());
-		
+
 		final Path scriptBaseDir;
-		
-		if(baseDir.startsWith("classpath:")) {
+
+		if (baseDir.startsWith("classpath:")) {
 			final String base = baseDir.substring(10);
 			URL res = getClass().getClassLoader().getResource(base);
 			final File classPath = new File(res.toURI());
@@ -84,7 +88,7 @@ public class ScriptConfiguration {
 
 		return cache;
 	}
-	
+
 	/**
 	 * Configures the global bindings for the script engine.
 	 */
@@ -92,15 +96,30 @@ public class ScriptConfiguration {
 	public ScriptEngine scriptEngine(ZoneAkkaApi akkaApi, ScriptApi scriptApi, StaticConfigService config) {
 		final ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
 		
-		LOG.info("Starting script engine: {} (version {}).", ScriptEngine.ENGINE, ScriptEngine.ENGINE_VERSION);
-		
-		Bindings bindings = engine.createBindings();
-		
+		LOG.info("Starting script engine: {} (version {}).",
+				engine.getFactory().getEngineName(),
+				engine.getFactory().getEngineVersion());
+
+		final Bindings bindings = engine.createBindings();
+
 		bindings.put("SERVER_VERSION", config.getServerVersion());
 		bindings.put("BAPI", scriptApi);
-		
+
 		engine.setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
-		
+
+		ScriptFileResolver resolver = new ScriptFileResolver();
+		final File globScriptApiFile = resolver.getGlobalScriptFile();
+
+		try (FileReader scriptReader = new FileReader(globScriptApiFile)) {
+
+			// Add the helper scripts.
+			engine.eval(scriptReader);
+
+		} catch (ScriptException | IOException e) {
+			LOG.error("Could not compile script.", e);
+			return null;
+		}
+
 		return engine;
 	}
 

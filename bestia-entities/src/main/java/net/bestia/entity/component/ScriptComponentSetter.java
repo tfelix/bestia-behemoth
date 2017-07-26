@@ -2,7 +2,6 @@ package net.bestia.entity.component;
 
 import java.util.UUID;
 
-import net.bestia.zoneserver.script.ScriptType;
 
 /**
  * Fills a script component with values.
@@ -12,7 +11,7 @@ import net.bestia.zoneserver.script.ScriptType;
  */
 public class ScriptComponentSetter extends ComponentSetter<ScriptComponent> {
 
-	public ScriptComponentSetter(String scriptName, ScriptType type) {
+	public ScriptComponentSetter(String scriptName) {
 		super(ScriptComponent.class);
 		// no op.
 	}

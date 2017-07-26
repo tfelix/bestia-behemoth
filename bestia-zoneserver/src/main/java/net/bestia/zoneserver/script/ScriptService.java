@@ -18,7 +18,6 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
 import net.bestia.messages.internal.script.ScriptIntervalMessage;
-import net.bestia.model.dao.ScriptVarDAO;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
@@ -87,8 +86,6 @@ public class ScriptService {
 	private synchronized void setupScriptBindings(CompiledScript script, ScriptIdent ident, Bindings bindings) {
 
 		final Bindings scriptBindings = script.getEngine().getBindings(ScriptContext.ENGINE_SCOPE);
-
-		scriptBindings.put("SCRIPT", ident.getName());
 		scriptBindings.putAll(bindings);
 	}
 
@@ -115,7 +112,8 @@ public class ScriptService {
 
 	public void callScript(String name) {
 		Objects.requireNonNull(name);
-		
+		LOG.debug("Calling script: {}.", name);
+
 		final ScriptIdent ident = resolver.resolveScriptIdent(name);
 		final CompiledScript script = resolveScript(ident);
 
@@ -152,7 +150,7 @@ public class ScriptService {
 
 		// Prepare additional bindings.
 		final SimpleBindings bindings = new SimpleBindings();
-		bindings.put("SCRIPT_ID", scriptComp.getScriptUUID());
+		bindings.put("SUID", scriptComp.getScriptUUID());
 
 		setupScriptBindings(script, ident, bindings);
 		callFunction(script, ident.getFunctionName());

@@ -58,6 +58,8 @@ class ScriptResolver {
 				type = ScriptType.ATTACK;
 			} else if (nameTokens[0].startsWith("STATUS_EFFECT")) {
 				type = ScriptType.STATUS_EFFECT;
+			} else if (nameTokens[0].startsWith("MAP")) {
+				type = ScriptType.MAP;
 			} else {
 				throw new IllegalArgumentException("Unknown script type: " + nameTokens[0]);
 			}

@@ -12,6 +12,7 @@ function checkEntities() {
 
 	var existingMobs = 0;
 
+	// Hier passiert ein fehler
 	entities.forEach(function(id) {
 		if (BAPI.exists(id)) {
 			existingMobs++;

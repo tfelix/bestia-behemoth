@@ -17,5 +17,6 @@ function rect() {
  * @returns The created point.
  */
 function point(x, y) {
-	return new net.bestia.model.geometry.Point(x, y);
+	var Point = Java.type('net.bestia.model.geometry.Point');
+	return new Point(x, y);
 }

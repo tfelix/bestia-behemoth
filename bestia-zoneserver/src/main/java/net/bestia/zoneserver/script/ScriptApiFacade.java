@@ -265,7 +265,7 @@ public class ScriptApiFacade implements ScriptApi {
 		final ScriptVar svar = scriptVarDao.findByScriptKey(key);
 		
 		if(svar == null) {
-			return "";
+			return "{}";
 		} else {
 			return svar.getData();
 		}

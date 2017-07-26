@@ -62,8 +62,9 @@ public class ScriptCache {
 		final String name = FilenameUtils.getBaseName(scriptFile.getName());
 
 		final Bindings scriptBindings = compiledScript.getEngine().getBindings(ScriptContext.ENGINE_SCOPE);
-		scriptBindings.put("MYSCRIPT", name);
-		scriptBindings.put("MYTYPE", type);
+		
+		scriptBindings.put("SNAME", name);
+		scriptBindings.put("STYPE", type);
 
 		final String key = getKey(type, name);
 

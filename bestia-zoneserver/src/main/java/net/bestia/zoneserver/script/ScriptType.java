@@ -22,10 +22,15 @@ public enum ScriptType {
 	 * An status effect script.
 	 */
 	STATUS_EFFECT,
-	
+
 	/**
 	 * No special script type.
 	 */
-	NONE
+	NONE,
+
+	/**
+	 * Scripts found on entities placed on the map.
+	 */
+	MAP
 
 }
