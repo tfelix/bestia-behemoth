@@ -22,7 +22,7 @@ import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
  */
 public class MobSpawnModule extends SubCommandModule {
 
-	private static final Logger LOG = LoggerFactory.getLogger(SetScriptModule.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MobSpawnModule.class);
 
 	private static final Pattern CMD_PATTERN = Pattern.compile("mob (\\w+) (\\d+) (\\d+)");
 	private final MobFactory mobFactory;

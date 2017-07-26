@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.chat;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -21,7 +22,20 @@ public class GeneralChatCommandTest {
 		List<String> notAnnotated = new ArrayList<>();
 
 		for (Class<? extends BaseChatCommand> clazz : commands) {
-			if (!clazz.isAnnotationPresent(Component.class)) {
+			
+			boolean isAnnotationNeeded = true;
+			
+			// Not needed if abstract class.
+			if(Modifier.isAbstract(clazz.getModifiers())) {
+				isAnnotationNeeded = false;
+			}
+			
+			// Not needed if SubCommandModule.
+			if(SubCommandModule.class.isAssignableFrom(clazz)) {
+				isAnnotationNeeded = false;
+			}
+			
+			if (isAnnotationNeeded && !clazz.isAnnotationPresent(Component.class)) {
 				notAnnotated.add(clazz.getName());
 			}
 		}

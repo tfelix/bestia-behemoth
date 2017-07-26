@@ -29,8 +29,8 @@ public class BestiaDate {
 		// no op.
 	}
 
-	private BestiaDate(LocalDateTime time) {
-		startDate = Objects.requireNonNull(time);
+	private BestiaDate(LocalDateTime startTime) {
+		startDate = Objects.requireNonNull(startTime);
 	}
 
 	/**
@@ -87,7 +87,16 @@ public class BestiaDate {
 	 * @return Current hour of the bestia world day.
 	 */
 	public int getHours() {
-		return (int) (Duration.between(startDate, LocalDateTime.now()).toHours() % DAY_HOURS);
+		return getHours(LocalDateTime.now());
+	}
+
+	/**
+	 * Returns the current hour of the day in the bestia time format. (24h)
+	 * 
+	 * @return Current hour of the bestia world day.
+	 */
+	public int getHours(LocalDateTime now) {
+		return (int) (Duration.between(startDate, now).toHours() % DAY_HOURS);
 	}
 
 	/**
@@ -96,7 +105,17 @@ public class BestiaDate {
 	 * @return Current minute of the bestia world day.
 	 */
 	public int getMinutes() {
-		final long durationFromStart = Duration.between(startDate, LocalDateTime.now()).toMinutes();
+		return getMinutes(LocalDateTime.now());
+	}
+
+	/**
+	 * Returns the current bestia minutes from the start time to the given time.
+	 * 
+	 * @param now
+	 * @return Current minute of the bestia hour.
+	 */
+	public int getMinutes(LocalDateTime now) {
+		final long durationFromStart = Duration.between(startDate, now).toMinutes();
 		return (int) (durationFromStart % HOUR_MINUTES);
 	}
 

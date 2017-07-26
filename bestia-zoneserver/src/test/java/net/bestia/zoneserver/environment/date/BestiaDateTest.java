@@ -2,6 +2,7 @@ package net.bestia.zoneserver.environment.date;
 
 import static org.junit.Assert.assertEquals;
 
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -14,11 +15,11 @@ public class BestiaDateTest {
 	
 	@Test
 	public void getHours_correctHours() {
+		
 		BestiaDate d = BestiaDate.fromDate(createDate());
-		Calendar cal = Calendar.getInstance();
-		int hour = (cal.get(Calendar.HOUR_OF_DAY) - 13) % 8;
-		int bhour = d.getHours();
-		assertEquals(hour, bhour);
+		int bhour = d.getHours(createNowDate());
+		
+		assertEquals(1, bhour);
 	}
 	
 	@Test(expected=NullPointerException.class)
@@ -28,12 +29,10 @@ public class BestiaDateTest {
 	
 	@Test
 	public void getMinutes_correctMinutes() {
-		BestiaDate d = BestiaDate.fromDate(createDate());
+		BestiaDate d = BestiaDate.fromDate(createDate());	
+		int bmin = d.getMinutes(createNowDate());
 		
-		int min = Calendar.getInstance().get(Calendar.MINUTE);
-		int bmin = d.getMinutes();
-		
-		assertEquals(bmin, min);
+		assertEquals(9, bmin);
 	}
 	
 	@Test
@@ -47,6 +46,10 @@ public class BestiaDateTest {
 	public void fromDate_instance() {
 		BestiaDate bd = BestiaDate.fromDate(createDate());
 		Assert.assertNotNull(bd);
+	}
+	
+	private LocalDateTime createNowDate() {
+		return LocalDateTime.of(2016, 4, 14, 14, 10);
 	}
 	
 	private Date createDate() {

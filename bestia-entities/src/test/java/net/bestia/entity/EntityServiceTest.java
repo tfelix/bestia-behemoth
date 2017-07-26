@@ -232,7 +232,7 @@ public class EntityServiceTest {
 		entityService.deleteAllComponents(null);
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void deleteComponent_validEntity_dontHaveComponentAnymore() {
 		Entity e = entityService.newEntity();
 		PositionComponent posComp = new PositionComponent(10);

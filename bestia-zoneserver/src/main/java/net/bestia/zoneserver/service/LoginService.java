@@ -179,8 +179,8 @@ public class LoginService {
 	 * Logs out all users from the server.
 	 */
 	public void logoutAll() {
-		Set<Long> ids = connectionService.getAllConnectedAccountIds();
-		ids.forEach(this::logout);
+		connectionService.getAllConnectedAccountIds()
+				.forEachRemaining(this::logout);
 	}
 
 	/**
@@ -189,9 +189,13 @@ public class LoginService {
 	 * @param level
 	 */
 	public void logoutAllUsersBelow(UserLevel level) {
-		connectionService.getAllConnectedAccountIds().stream().filter(accId -> {
-			return accountDao.findOne(accId).getUserLevel().compareTo(level) == -1;
-		}).forEach(this::logout);
+		connectionService.getAllConnectedAccountIds().forEachRemaining(accId -> {
+			final Account acc = accountDao.findOne(accId);
+			
+			if(acc.getUserLevel().compareTo(level) == -1) {
+				logout(accId);
+			}
+		});
 	}
 
 	public AccountLoginToken setNewLoginToken(String username, String password) {

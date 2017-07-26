@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.service;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.Set;
 
@@ -123,7 +124,7 @@ public class ConnectionService {
 	 * 
 	 * @return All connected account ids.
 	 */
-	public Set<Long> getAllConnectedAccountIds() {
-		return connections.keySet();
+	public Iterator<Long> getAllConnectedAccountIds() {
+		return connections.keySet().iterator();
 	}
 }
