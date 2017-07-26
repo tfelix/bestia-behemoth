@@ -74,8 +74,8 @@ public class EntitySyncActor extends BestiaRoutingActor {
 
 		for (Entity e : visibleEntities) {
 
-			final VisibleComponent visComp = entityService.getComponent(activeEntity, VisibleComponent.class).get();
-			final PositionComponent posComp = entityService.getComponent(activeEntity, PositionComponent.class).get();
+			final VisibleComponent visComp = entityService.getComponent(e, VisibleComponent.class).get();
+			final PositionComponent posComp = entityService.getComponent(e, PositionComponent.class).get();
 
 			final SpriteInfo sprite = visComp.getVisual();
 			final EntityUpdateMessage updateMsg = EntityUpdateMessage.getUpdate(requestAccId,
