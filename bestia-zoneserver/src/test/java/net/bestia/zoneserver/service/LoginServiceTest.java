@@ -2,7 +2,7 @@ package net.bestia.zoneserver.service;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -17,6 +17,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import akka.testkit.TestProbe;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityDeleterService;
+import net.bestia.entity.EntityService;
 import net.bestia.entity.PlayerBestiaEntityFactory;
 import net.bestia.entity.PlayerEntityService;
 import net.bestia.messages.web.AccountLoginToken;
@@ -36,6 +37,8 @@ public class LoginServiceTest {
 	private final static long USER_ACC_ID = 134;
 	private final static long GM_ACC_ID = 135;
 	private final static long USER_BANNED_ACC_ID = 566;
+	private final static long EXISTING_ENTITY_ID = 4589;
+
 	private final static String LOGIN_OK_TOKEN = "beste-is-awesome";
 	private final static String LOGIN_WRONG_TOKEN = "beste-is-shit";
 	private final static String ACC_NAME = "testacc";
@@ -56,11 +59,14 @@ public class LoginServiceTest {
 	private ConnectionService connectionService;
 
 	@Mock
+	private EntityService entityService;
+
+	@Mock
 	private PlayerBestiaService playerBestiaService;
 
 	@Mock
 	private ZoneAkkaApi akkaApi;
-	
+
 	@Mock
 	private EntityDeleterService deleteService;
 
@@ -80,11 +86,14 @@ public class LoginServiceTest {
 	private PlayerBestia playerBestia;
 
 	@Mock
+	private PlayerBestia playerBestiaWithEntity;
+
+	@Mock
 	private Entity bestiaEntity;
-	
+
 	@Mock
 	private PlayerEntityService playerEntityService;
-	
+
 	@Mock
 	private Password password;
 
@@ -92,15 +101,15 @@ public class LoginServiceTest {
 	public void setup() {
 
 		when(userAccount.getName()).thenReturn(ACC_NAME);
-		//when(gmAccount.getName()).thenReturn(ACC_NAME);
-		
+		// when(gmAccount.getName()).thenReturn(ACC_NAME);
+
 		when(password.matches(INVALID_PASSWORD)).thenReturn(false);
 		when(password.matches(VALID_PASSWORD)).thenReturn(true);
 
 		when(userAccount.getLoginToken()).thenReturn(LOGIN_OK_TOKEN);
 		when(userAccount.getUserLevel()).thenReturn(UserLevel.USER);
 		when(userAccount.getId()).thenReturn(USER_ACC_ID);
-	
+
 		when(userAccount.getPassword()).thenReturn(password);
 
 		when(gmAccount.getLoginToken()).thenReturn(LOGIN_OK_TOKEN);
@@ -108,15 +117,18 @@ public class LoginServiceTest {
 
 		when(accountDao.findOne(USER_ACC_ID)).thenReturn(userAccount);
 		when(accountDao.findOne(GM_ACC_ID)).thenReturn(gmAccount);
-		//when(accountDao.findByEmail(ACC_EMAIL)).thenReturn(userAccount);
 		when(accountDao.findByUsername(ACC_EMAIL)).thenReturn(userAccount);
 
 		when(playerBestiaService.getMaster(USER_ACC_ID)).thenReturn(playerBestia);
 		when(playerEntityFactory.build(playerBestia)).thenReturn(bestiaEntity);
 
-		//when(playerEntityService.getMasterEntity(anyLong())).thenReturn(Optional.empty());
-		//when(playerEntityService.getMasterEntity(USER_ACC_ID)).thenReturn(Optional.of(bestiaEntity));
-		//when(playerEntityService.getMasterEntity(GM_ACC_ID)).thenReturn(Optional.of(bestiaEntity));
+		when(playerBestiaWithEntity.getEntityId()).thenReturn(EXISTING_ENTITY_ID);
+
+		when(entityService.getEntity(EXISTING_ENTITY_ID)).thenReturn(bestiaEntity);
+
+		// when(playerEntityService.getMasterEntity(anyLong())).thenReturn(Optional.empty());
+		// when(playerEntityService.getMasterEntity(USER_ACC_ID)).thenReturn(Optional.of(bestiaEntity));
+		// when(playerEntityService.getMasterEntity(GM_ACC_ID)).thenReturn(Optional.of(bestiaEntity));
 		when(playerEntityService.getPlayerEntities(USER_ACC_ID))
 				.thenReturn(Stream.of(bestiaEntity).collect(Collectors.toSet()));
 
@@ -129,7 +141,8 @@ public class LoginServiceTest {
 				playerBestiaService,
 				akkaApi,
 				playerEntityFactory,
-				deleteService);
+				deleteService,
+				entityService);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -140,6 +153,21 @@ public class LoginServiceTest {
 	@Test(expected = NullPointerException.class)
 	public void login_invalidActorRef_throws() {
 		loginService.login(13, null);
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void login_existingEntity_dontSpawnNewEntities() {
+		when(playerBestiaService.getMaster(USER_ACC_ID)).thenReturn(playerBestiaWithEntity);
+
+		loginService.login(USER_ACC_ID, clientConnection.ref());
+
+		verify(accountDao).findOne(USER_ACC_ID);
+		verify(entityService).getEntity(EXISTING_ENTITY_ID);
+		verify(connectionService).addClient(USER_ACC_ID, clientConnection.ref().path());
+		verify(playerEntityFactory, times(0)).build(any());
+		verify(akkaApi).sendToClient(any());
+		verify(playerBestiaService).getMaster(USER_ACC_ID);
+		verify(playerEntityService).putPlayerEntity(bestiaEntity);
 	}
 
 	@Test
@@ -207,7 +235,7 @@ public class LoginServiceTest {
 		boolean canLogin = loginService.canLogin(GM_ACC_ID, LOGIN_OK_TOKEN);
 		Assert.assertTrue(canLogin);
 	}
-	
+
 	@Test
 	public void canLogin_serverInFullMaintenenaceUserLevelSuperGM_false() {
 		when(config.getMaintenanceMode()).thenReturn(MaintenanceLevel.FULL);

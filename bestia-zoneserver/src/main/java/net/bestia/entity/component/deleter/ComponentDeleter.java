@@ -1,4 +1,4 @@
-package net.bestia.entity.recycler;
+package net.bestia.entity.component.deleter;
 
 import java.util.Objects;
 

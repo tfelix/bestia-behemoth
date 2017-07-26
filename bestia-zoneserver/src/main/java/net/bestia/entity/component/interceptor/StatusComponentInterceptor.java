@@ -71,6 +71,7 @@ public class StatusComponentInterceptor extends ComponentInterceptor<StatusCompo
 	protected void onCreateAction(EntityService entityService, Entity entity, StatusComponent comp) {
 
 		LOG.trace("StatusComponent created.");
+		
 		final EntityRegenTickMessage msg = new EntityRegenTickMessage(entity.getId(), true);
 		actorApi.sendEntityActor(entity.getId(), msg);
 

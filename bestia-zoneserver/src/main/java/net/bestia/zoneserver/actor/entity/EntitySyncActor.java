@@ -58,7 +58,7 @@ public class EntitySyncActor extends BestiaRoutingActor {
 		final EntitySyncRequestMessage syncMsg = (EntitySyncRequestMessage) msg;
 		final long requestAccId = syncMsg.getAccountId();
 
-		LOG.info("Account {} requests a full entity sync.", requestAccId);
+		LOG.debug("Account {} requests a full entity sync.", requestAccId);
 
 		final Entity activeEntity = playerEntityService.getActivePlayerEntity(syncMsg.getAccountId());
 		final Point activePos = entityService.getComponent(activeEntity, PositionComponent.class)

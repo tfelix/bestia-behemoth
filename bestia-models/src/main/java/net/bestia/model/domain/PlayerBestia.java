@@ -80,6 +80,9 @@ public class PlayerBestia implements Serializable {
 	@JsonProperty("lv")
 	private int level;
 
+	@JsonIgnore
+	private long entityId;
+
 	/**
 	 * Override the names because the are the same like in status points. Both
 	 * entities are embedded so we need individual column names. This values is
@@ -222,7 +225,21 @@ public class PlayerBestia implements Serializable {
 	public long getId() {
 		return id;
 	}
-	
+
+	/**
+	 * Returns the entity ID of this player bestia if the bestia was spawned. If
+	 * no entity was spawned the ID is 0.
+	 * 
+	 * @return The entity ID of the player bestia. 0 if no entity was spawned.
+	 */
+	public long getEntityId() {
+		return entityId;
+	}
+
+	public void setEntityId(long entityId) {
+		this.entityId = entityId;
+	}
+
 	public StatusValues getStatusValues() {
 		return statusValues;
 	}

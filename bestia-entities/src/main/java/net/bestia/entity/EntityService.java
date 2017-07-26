@@ -111,15 +111,18 @@ public class EntityService {
 	 */
 	public void delete(Entity entity) {
 		Objects.requireNonNull(entity);
-		LOG.trace("Deleting entity: {}", entity.getId());
-		entities.lock(entity.getId());
+		
+		final long eid = entity.getId();
+		
+		LOG.trace("Deleting entity: {}", eid);
+		entities.lock(eid);
 		try {
 			// Delete all components.
 			deleteAllComponents(entity);
-			entities.delete(entity.getId());
+			entities.delete(eid);
 
 		} finally {
-			entities.unlock(entity.getId());
+			entities.unlock(eid);
 		}
 	}
 
@@ -425,7 +428,7 @@ public class EntityService {
 		if (interceptors.containsKey(component.getClass())) {
 			final Entity ownerEntity = getEntity(component.getEntityId());
 			LOG.debug("Intercepting update component {} for: {}.", component, ownerEntity);
-			
+
 			interceptors.get(component.getClass()).forEach(intercep -> {
 				// Need to cast so we dont get problems with typings.
 				intercep.triggerUpdateAction(this, ownerEntity, component);
@@ -473,16 +476,16 @@ public class EntityService {
 	}
 
 	/**
-	 * Deletes a specific component from this entity. Interceptors which were
-	 * registered for this component are getting called.
+	 * Deletes a specific component from this entity. The entity reference is
+	 * needed since we remove the component ID also from the internal entity
+	 * registry.
 	 * 
 	 * @param entity
 	 *            The entity to delete the component from.
 	 * @param component
 	 *            The component to delete.
 	 */
-	public void deleteComponent(Component component) {
-		final Entity entity = getEntity(component.getEntityId());
+	public void deleteComponent(Entity entity, Component component) {
 
 		LOG.trace("Removing component {} from entity {}.", component, entity);
 
@@ -504,6 +507,7 @@ public class EntityService {
 		for (Long componentId : componentIds) {
 
 			final Component comp = components.get(componentId);
+
 			LOG.trace("Preparing to remove: {} from entity: {}", comp, entity);
 			prepareComponentRemove(entity, comp);
 

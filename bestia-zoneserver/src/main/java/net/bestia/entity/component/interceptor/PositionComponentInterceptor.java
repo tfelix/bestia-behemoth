@@ -25,7 +25,7 @@ public class PositionComponentInterceptor extends ComponentInterceptor<PositionC
 
 	private final ZoneAkkaApi akkaApi;
 	
-	PositionComponentInterceptor(ZoneAkkaApi akkaApi) {
+	public PositionComponentInterceptor(ZoneAkkaApi akkaApi) {
 		super(PositionComponent.class);
 
 		this.akkaApi = Objects.requireNonNull(akkaApi);

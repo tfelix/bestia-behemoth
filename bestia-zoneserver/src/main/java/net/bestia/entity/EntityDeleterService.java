@@ -12,8 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import net.bestia.entity.component.Component;
-import net.bestia.entity.recycler.ComponentDeleter;
-import net.bestia.entity.recycler.EntityCache;
+import net.bestia.entity.component.deleter.ComponentDeleter;
+import net.bestia.entity.component.deleter.EntityCache;
 import net.bestia.messages.internal.entity.EntityDeleteInternalMessage;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
@@ -78,9 +78,8 @@ public class EntityDeleterService {
 		final EntityDeleteInternalMessage killMsg = new EntityDeleteInternalMessage(entity.getId());
 		akkaApi.sendEntityActor(entity.getId(), killMsg);
 
-		// Delete entity.
+		// Delete entity and stash it for later re-use.
 		entityService.delete(entity);
-
 		cache.stashEntity(entity);
 	}
 
@@ -113,7 +112,7 @@ public class EntityDeleterService {
 			componentCleaner.get(clazzname).freeComponent(comp);
 		}
 		
-		entityService.deleteComponent(comp);
+		entityService.deleteComponent(entity, comp);
 		
 		cache.stashComponente(comp);	
 	}

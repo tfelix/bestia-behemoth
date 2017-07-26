@@ -14,9 +14,9 @@ import com.hazelcast.core.HazelcastInstance;
 
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
+import net.bestia.entity.component.deleter.ComponentDeleter;
+import net.bestia.entity.component.deleter.EntityCache;
 import net.bestia.entity.component.interceptor.ComponentInterceptor;
-import net.bestia.entity.recycler.ComponentDeleter;
-import net.bestia.entity.recycler.EntityCache;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.zoneserver.environment.date.BestiaDate;

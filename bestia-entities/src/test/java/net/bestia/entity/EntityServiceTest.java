@@ -73,10 +73,10 @@ public class EntityServiceTest {
 		verify(interceptor, times(1)).triggerCreateAction(entityService, e1, comp);
 
 		entityService.updateComponent(comp);
-		
+
 		verify(interceptor).triggerUpdateAction(entityService, e1, comp);
 
-		entityService.deleteComponent(comp);
+		entityService.deleteComponent(e1, comp);
 	}
 
 	@Test
@@ -98,7 +98,7 @@ public class EntityServiceTest {
 	public void addComponent_entityRefAndComponent_isAdded() {
 		Entity e1 = entityService.newEntity();
 		PositionComponent posComp = entityService.newComponent(PositionComponent.class);
-		
+
 		Assert.assertNotNull(posComp);
 		Assert.assertFalse(entityService.hasComponent(e1, PositionComponent.class));
 	}
@@ -125,9 +125,9 @@ public class EntityServiceTest {
 	@Test
 	public void save_entity_savedIt() {
 		Entity e = entityService.newEntity();
-		
+
 		Entity e2 = entityService.getEntity(e.getId());
-		
+
 		Assert.assertEquals(e, e2);
 	}
 
@@ -142,8 +142,8 @@ public class EntityServiceTest {
 
 		posComp.setShape(new Point(10, 10));
 		posComp.setPosition(123, 123);
-		
-		entityService.attachComponent(e1, posComp);		
+
+		entityService.attachComponent(e1, posComp);
 		entityService.updateComponent(posComp);
 
 		PositionComponent posComp2 = entityService.getComponent(e1, PositionComponent.class)
@@ -209,10 +209,10 @@ public class EntityServiceTest {
 	@Test
 	public void getAllComponents_validEntity_returnsAllComponents() {
 		Entity e1 = entityService.newEntity();
-		
+
 		PositionComponent pc = entityService.newComponent(PositionComponent.class);
 		VisibleComponent vc = entityService.newComponent(VisibleComponent.class);
-		
+
 		entityService.attachComponents(e1, Arrays.asList(pc, vc));
 
 		Collection<Component> comps = entityService.getAllComponents(e1);
@@ -223,12 +223,28 @@ public class EntityServiceTest {
 
 	@Test(expected = NullPointerException.class)
 	public void deleteComponent_nullComponent_throws() {
-		entityService.deleteComponent(null);
+		Entity e1 = entityService.newEntity();
+		entityService.deleteComponent(e1, null);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void deleteAllComponents_nullEntity_throws() {
 		entityService.deleteAllComponents(null);
+	}
+
+	@Test(expected = NullPointerException.class)
+	public void deleteComponent_validEntity_dontHaveComponentAnymore() {
+		Entity e = entityService.newEntity();
+		PositionComponent posComp = new PositionComponent(10);
+		entityService.attachComponent(e, posComp);
+
+		Assert.assertEquals(1, e.getComponentIds().size());
+		Assert.assertTrue(e.getComponentId(PositionComponent.class) == 10);
+
+		entityService.deleteComponent(e, posComp);
+		
+		Assert.assertEquals(0, e.getComponentIds().size());
+		Assert.assertTrue(e.getComponentId(PositionComponent.class) == 0);
 	}
 
 	@Test

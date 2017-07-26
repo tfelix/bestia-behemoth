@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import akka.actor.ActorRef;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityDeleterService;
+import net.bestia.entity.EntityService;
 import net.bestia.entity.PlayerBestiaEntityFactory;
 import net.bestia.entity.PlayerEntityService;
 import net.bestia.messages.login.LoginAuthReplyMessage;
@@ -44,6 +45,7 @@ public class LoginService {
 	private final ZoneAkkaApi akkaApi;
 	private final PlayerBestiaEntityFactory playerEntityFactory;
 	private final EntityDeleterService deleteService;
+	private final EntityService entityService;
 
 	@Autowired
 	public LoginService(RuntimeConfigService config,
@@ -53,7 +55,8 @@ public class LoginService {
 			PlayerBestiaService playerBestiaService,
 			ZoneAkkaApi akkaApi,
 			PlayerBestiaEntityFactory playerEntityFactory,
-			EntityDeleterService deleteService) {
+			EntityDeleterService deleteService,
+			EntityService entityService) {
 
 		this.config = Objects.requireNonNull(config);
 		this.accountDao = Objects.requireNonNull(accountDao);
@@ -63,6 +66,7 @@ public class LoginService {
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 		this.playerEntityFactory = Objects.requireNonNull(playerEntityFactory);
 		this.deleteService = Objects.requireNonNull(deleteService);
+		this.entityService = Objects.requireNonNull(entityService);
 	}
 
 	/**
@@ -93,9 +97,23 @@ public class LoginService {
 		// Spawn all bestia entities for this account into the world.
 		final PlayerBestia master = playerBestiaService.getMaster(accId);
 
-		LOG.debug(String.format("Login in acc: %d. Spawning master bestias.", accId));
+		Entity masterEntity = null;
 
-		final Entity masterEntity = playerEntityFactory.build(master);
+		if (master.getEntityId() != 0) {
+			LOG.debug("Login in acc: {}. Master bestia already spawned(eid: {}). Using it", accId,
+					master.getEntityId());
+			masterEntity = entityService.getEntity(master.getEntityId());
+
+			if (masterEntity == null) {
+				LOG.warn("Master entity {} fro account {} not found even though ID was set. Spawning it.",
+						master.getEntityId(), accId);
+				masterEntity = playerEntityFactory.build(master);
+			}
+
+		} else {
+			LOG.debug("Login in acc: {}. Spawning master bestias.", accId);
+			masterEntity = playerEntityFactory.build(master);
+		}
 
 		try {
 			// Save the entity.
@@ -144,7 +162,7 @@ public class LoginService {
 		connectionService.removeClient(accId);
 
 		final Set<Entity> playerEntities = playerEntityService.getPlayerEntities(accId);
-		
+
 		try {
 			playerEntities.forEach(playerEntityService::save);
 		} catch (Exception e) {

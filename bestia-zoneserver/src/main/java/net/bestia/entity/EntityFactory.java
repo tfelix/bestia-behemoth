@@ -17,7 +17,7 @@ import net.bestia.zoneserver.actor.entity.EntityWorkerActor;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
-import net.bestia.entity.recycler.EntityCache;
+import net.bestia.entity.component.deleter.EntityCache;
 
 /**
  * The EcsEntityFactory is responsible for translating ecs blueprints into

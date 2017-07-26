@@ -3,4 +3,4 @@
  * @author Thomas Felix
  *
  */
-package net.bestia.entity.recycler;
+package net.bestia.entity.component.deleter;
