@@ -32,6 +32,7 @@ abstract class BaseChatCommand implements ChatCommand {
 	@Override
 	public void executeCommand(long accId, String text) {
 
+		// TODO Diese logik in den ChatCommnadService auslagern.
 		final Account acc = accDao.findOne(accId);
 
 		if (acc == null) {
