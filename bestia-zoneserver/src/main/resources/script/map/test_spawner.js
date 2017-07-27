@@ -7,7 +7,14 @@
 var SPAWN_COUNT = 10;
 
 function checkEntities() {
-	var entities = JSON.parse(BAPI.getScriptVar(SUID));
+	
+	var data = BAPI.getScriptVar(SUID);
+	var entities = [];
+	
+	if(data != null) {
+		var entities = JSON.parse();
+	} 
+		
 	var newEntities = [];
 
 	var existingMobs = 0;

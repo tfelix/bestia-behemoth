@@ -34,7 +34,8 @@ import net.bestia.zoneserver.battle.BattleService;
 @Component
 public class ScriptApiFacade implements ScriptApi {
 
-	//private static final Logger SCRIPT_LOG = LoggerFactory.getLogger("script_log");
+	// private static final Logger SCRIPT_LOG =
+	// LoggerFactory.getLogger("script_log");
 	private static final Logger LOG = LoggerFactory.getLogger(ScriptApiFacade.class);
 
 	private ScriptEntityFactory scriptEntityFactory;
@@ -50,7 +51,7 @@ public class ScriptApiFacade implements ScriptApi {
 	public ScriptApiFacade() {
 		// no op.
 	}
-	
+
 	@Autowired
 	public void setScriptVarDao(ScriptVarDAO scriptVarDao) {
 		this.scriptVarDao = scriptVarDao;
@@ -60,12 +61,12 @@ public class ScriptApiFacade implements ScriptApi {
 	public void setMobFactory(MobFactory mobFactory) {
 		this.mobFactory = mobFactory;
 	}
-	
+
 	@Autowired
 	public void setScriptEntityFactory(ScriptEntityFactory scriptEntityFactory) {
 		this.scriptEntityFactory = scriptEntityFactory;
 	}
-	
+
 	@Autowired
 	public void EntityDeleterService(EntityDeleterService entityRecycler) {
 		this.entityDeleter = entityRecycler;
@@ -133,14 +134,14 @@ public class ScriptApiFacade implements ScriptApi {
 	@Override
 	public void kill(long entityId) {
 		LOG.trace("Killing entity: {}.", entityId);
-		final Entity entity = getEntityFromId(entityId);
+		final Entity entity = getEntityById(entityId);
 		battleService.killEntity(entity);
 	}
 
 	@Override
 	public void setInterval(long entityId, String scriptName, int delayMs) {
 		LOG.trace("Entity: {}. Set interval function callback name: {}.", entityId, scriptName);
-		scriptService.startScriptInterval(getEntityFromId(entityId), delayMs, scriptName);
+		scriptService.startScriptInterval(getEntityById(entityId), delayMs, scriptName);
 	}
 
 	@Override
@@ -179,7 +180,7 @@ public class ScriptApiFacade implements ScriptApi {
 
 	}
 
-	private Entity getEntityFromId(long eid) {
+	private Entity getEntityById(long eid) {
 		final Entity e = entityService.getEntity(eid);
 		if (e == null) {
 			throw new IllegalArgumentException("Unknown entity id: " + eid);
@@ -201,10 +202,10 @@ public class ScriptApiFacade implements ScriptApi {
 
 	@Override
 	public void delete(long entityId) {
-		
+
 		final Entity entity = entityService.getEntity(entityId);
 		entityDeleter.deleteEntity(entity);
-		
+
 	}
 
 	@Override
@@ -239,9 +240,11 @@ public class ScriptApiFacade implements ScriptApi {
 
 	@Override
 	public long spawnMob(String mobDbName, long x, long y) {
+		LOG.trace("spawnMob: mobDbName: {} x: {} y: {}.", mobDbName, x, y);
+
 		final Entity e = mobFactory.build(mobDbName, x, y);
-		
-		if(e == null) {
+
+		if (e == null) {
 			return 0;
 		} else {
 			return e.getId();
@@ -250,22 +253,25 @@ public class ScriptApiFacade implements ScriptApi {
 
 	@Override
 	public void setScriptVar(String key, String data) {
-		
+		LOG.trace("setScriptVar: key: {} data: {}.", key, data);
+
 		ScriptVar svar = scriptVarDao.findByScriptKey(key);
-		
-		if(svar == null) {
+
+		if (svar == null) {
 			svar = new ScriptVar(key, data);
 		}
-		
+
 		scriptVarDao.save(svar);
 	}
 
 	@Override
 	public String getScriptVar(String key) {
 		final ScriptVar svar = scriptVarDao.findByScriptKey(key);
-		
-		if(svar == null) {
-			return "{}";
+
+		LOG.trace("getScriptVar: key: {} svar: {}.", key, svar);
+
+		if (svar == null) {
+			return null;
 		} else {
 			return svar.getData();
 		}
@@ -273,6 +279,7 @@ public class ScriptApiFacade implements ScriptApi {
 
 	@Override
 	public boolean exists(long entityId) {
+		LOG.trace("exists: entityId: {}", entityId);
 		return entityService.getEntity(entityId) != null;
 	}
 }
