@@ -2,48 +2,19 @@ package net.bestia.zoneserver.chat;
 
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import net.bestia.messages.chat.ChatMessage;
-import net.bestia.model.dao.AccountDAO;
-import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 abstract class BaseChatCommand implements ChatCommand {
 
-	private static final Logger LOG = LoggerFactory.getLogger(BaseChatCommand.class);
-
-	private final AccountDAO accDao;
 	private final ZoneAkkaApi akkaApi;
 
 	@Autowired
-	public BaseChatCommand(AccountDAO accDao, ZoneAkkaApi akkaApi) {
+	public BaseChatCommand(ZoneAkkaApi akkaApi) {
 
-		this.accDao = Objects.requireNonNull(accDao);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
-	}
-
-	/**
-	 * Extracts the account which issued the command and hands it down to the
-	 * perform
-	 */
-	@Override
-	public void executeCommand(long accId, String text) {
-
-		// TODO Diese logik in den ChatCommnadService auslagern.
-		final Account acc = accDao.findOne(accId);
-
-		if (acc == null) {
-			LOG.error("Account with id %d not found.", accId);
-			return;
-		}
-
-		// Check if userlevel matches.
-		if (acc.getUserLevel().compareTo(requiredUserLevel()) >= 0) {
-			executeCommand(acc, text);
-		}
 	}
 
 	/**
@@ -60,16 +31,4 @@ abstract class BaseChatCommand implements ChatCommand {
 		akkaApi.sendToClient(replyMsg);
 
 	}
-
-	/**
-	 * Account ID is replaced with an actual account object which is usually
-	 * needed more.
-	 * 
-	 * @param account
-	 *            The account issuing the command.
-	 * @param text
-	 *            The user typed text.
-	 */
-	protected abstract void executeCommand(Account account, String text);
-
 }

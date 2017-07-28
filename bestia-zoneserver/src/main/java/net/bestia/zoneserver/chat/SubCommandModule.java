@@ -17,7 +17,7 @@ import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 abstract class SubCommandModule extends BaseChatCommand {
 
 	public SubCommandModule(AccountDAO accDao, ZoneAkkaApi akkaApi) {
-		super(accDao, akkaApi);
+		super(akkaApi);
 		// no op.
 	}
 
@@ -32,7 +32,7 @@ abstract class SubCommandModule extends BaseChatCommand {
 	protected abstract void executeCheckedCommand(Account account, String text, Matcher matcher);
 	
 	@Override
-	protected void executeCommand(Account account, String text) {
+	public void executeCommand(Account account, String text) {
 		
 		// Check if user has rights.
 		if(account.getUserLevel().compareTo(requiredUserLevel()) < 0) {

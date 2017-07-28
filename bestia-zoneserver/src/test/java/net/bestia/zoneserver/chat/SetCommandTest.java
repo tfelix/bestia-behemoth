@@ -94,7 +94,7 @@ public class SetCommandTest {
 	
 	@Test
 	public void executeCommand_setEnumValue_works() {
-		setCmd.executeCommand(ACC_ID, "/set status.element fire");	
+		setCmd.executeCommand(acc, "/set status.element fire");	
 		
 		verify(statusComp).setElement(Element.FIRE);
 		verify(entityService).updateComponent(statusComp);
@@ -102,7 +102,7 @@ public class SetCommandTest {
 	
 	@Test
 	public void executeCommand_setCurrentHealthVerbose_works() {
-		setCmd.executeCommand(ACC_ID, "/set status.values.currentHealth 10");	
+		setCmd.executeCommand(acc, "/set status.values.currentHealth 10");	
 		
 		verify(values).setCurrentHealth(10);
 		verify(entityService).updateComponent(statusComp);
@@ -110,7 +110,7 @@ public class SetCommandTest {
 	
 	@Test
 	public void executeCommand_setCurrentHealthVariant1_works() {
-		setCmd.executeCommand(ACC_ID, "/set hp 123");	
+		setCmd.executeCommand(acc, "/set hp 123");	
 		
 		verify(values).setCurrentHealth(123);
 		verify(entityService).updateComponent(statusComp);
@@ -118,7 +118,7 @@ public class SetCommandTest {
 	
 	@Test
 	public void executeCommand_setCurrentHealthVariant2_works() {
-		setCmd.executeCommand(ACC_ID, "/set HP 123");	
+		setCmd.executeCommand(acc, "/set HP 123");	
 		
 		verify(values).setCurrentHealth(123);
 		verify(entityService).updateComponent(statusComp);
@@ -126,7 +126,7 @@ public class SetCommandTest {
 	
 	@Test
 	public void executeCommand_setCurrentMana_works() {
-		setCmd.executeCommand(ACC_ID, "/set mana 123");	
+		setCmd.executeCommand(acc, "/set mana 123");	
 		
 		verify(values).setCurrentMana(123);
 		verify(entityService).updateComponent(statusComp);
@@ -134,7 +134,7 @@ public class SetCommandTest {
 	
 	@Test
 	public void executeCommand_setIntelligence_works() {
-		setCmd.executeCommand(ACC_ID, "/set status.statusPoints.intelligence 1337");	
+		setCmd.executeCommand(acc, "/set status.statusPoints.intelligence 1337");	
 		
 		verify(statusPoints).setIntelligence(1337);
 		verify(entityService).updateComponent(statusComp);
@@ -142,7 +142,7 @@ public class SetCommandTest {
 	
 	@Test
 	public void executeCommand_knownEntitySetHp_works() {
-		setCmd.executeCommand(ACC_ID, "/set 69 HP 123");	
+		setCmd.executeCommand(acc, "/set 69 HP 123");	
 		
 		verify(entityService).getEntity(69);
 		verify(values).setCurrentHealth(123);
@@ -151,7 +151,7 @@ public class SetCommandTest {
 	
 	@Test
 	public void executeCommand_unknownEntitySetHp_doesNotSet() {
-		setCmd.executeCommand(ACC_ID, "/set 10 HP 123");	
+		setCmd.executeCommand(acc, "/set 10 HP 123");	
 		
 		verify(values, never()).setCurrentHealth(123);
 		verify(entityService, never()).updateComponent(statusComp);

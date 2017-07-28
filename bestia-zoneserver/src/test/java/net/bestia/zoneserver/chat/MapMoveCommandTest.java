@@ -11,7 +11,9 @@ import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
@@ -23,10 +25,10 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
+@RunWith(MockitoJUnitRunner.class)
 public class MapMoveCommandTest {
 
 	private final static long ACC_ID = 123;
-	private final static long NON_MOVEMENT_ACC_ID = 124;
 
 	private MapMoveCommand cmd;
 
@@ -83,7 +85,7 @@ public class MapMoveCommandTest {
 
 	@Test
 	public void executeCommand_wrongArgs_sendsMessage() {
-		cmd.executeCommand(ACC_ID, "/mm bla bla");
+		cmd.executeCommand(acc, "/mm bla bla");
 
 		verify(akkaApi).sendToClient(any(ChatMessage.class));
 		verify(entityService, times(0)).updateComponent(posComp);
@@ -91,7 +93,7 @@ public class MapMoveCommandTest {
 
 	@Test
 	public void executeCommand_validCords_setPositionToNewCords() {
-		cmd.executeCommand(ACC_ID, "/mm 10 11");
+		cmd.executeCommand(acc, "/mm 10 11");
 
 		verify(posComp).setPosition(10, 11);
 		verify(entityService).updateComponent(posComp);
@@ -100,11 +102,11 @@ public class MapMoveCommandTest {
 	@Test
 	public void executeCommand_invalidCords_dontSetPosition() {
 		
-		cmd.executeCommand(ACC_ID, "/mm -10 11");
+		cmd.executeCommand(acc, "/mm -10 11");
 		verify(entityService, times(0)).updateComponent(posComp);
 		verify(akkaApi).sendToClient(any(ChatMessage.class));
 		
-		cmd.executeCommand(ACC_ID, "/mm 100000 11");
+		cmd.executeCommand(acc, "/mm 100000 11");
 		verify(entityService, times(0)).updateComponent(posComp);
 		verify(akkaApi).sendToClient(any(ChatMessage.class));
 	}
@@ -114,7 +116,7 @@ public class MapMoveCommandTest {
 
 		when(entityService.getComponent(entity, PositionComponent.class)).thenReturn(Optional.empty());
 
-		cmd.executeCommand(NON_MOVEMENT_ACC_ID, "/mm 10 11");
+		cmd.executeCommand(acc, "/mm 10 11");
 
 		verify(entityService, times(0)).updateComponent(posComp);
 		verify(akkaApi).sendToClient(any(ChatMessage.class));

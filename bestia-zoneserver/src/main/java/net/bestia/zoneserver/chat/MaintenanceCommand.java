@@ -43,7 +43,7 @@ public class MaintenanceCommand extends BaseChatCommand {
 			ZoneAkkaApi akkaApi, 
 			LoginService loginService, 
 			RuntimeConfigService config) {
-		super(accDao, akkaApi);
+		super(akkaApi);
 
 		this.loginService = Objects.requireNonNull(loginService);
 		this.config = Objects.requireNonNull(config);
@@ -60,7 +60,7 @@ public class MaintenanceCommand extends BaseChatCommand {
 	}
 
 	@Override
-	protected void executeCommand(Account account, String text) {
+	public void executeCommand(Account account, String text) {
 
 		// Extract name of the new map.
 		final Matcher match = CMD_PATTERN.matcher(text);

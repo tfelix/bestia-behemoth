@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
+
 /**
  * The service always tries to find all implementations of {@link ChatCommand}
  * and loads them upon creation. All the incoming chat commands are tested for
@@ -23,11 +26,13 @@ public class ChatCommandService {
 	public static final String CMD_PREFIX = "/";
 
 	private final List<ChatCommand> chatCommands = new ArrayList<>();
+	private final AccountDAO accountDao;
 
 	@Autowired
-	public ChatCommandService(List<ChatCommand> chatCommands) {
+	public ChatCommandService(List<ChatCommand> chatCommands, AccountDAO accDao) {
 
 		this.chatCommands.addAll(Objects.requireNonNull(chatCommands));
+		this.accountDao = Objects.requireNonNull(accDao);
 	}
 
 	/**
@@ -61,6 +66,20 @@ public class ChatCommandService {
 		chatCommands.stream()
 				.filter(x -> x.isCommand(text))
 				.findFirst()
-				.ifPresent(cmd -> cmd.executeCommand(accId, text));
+				.ifPresent(cmd -> {					
+					final Account acc = accountDao.findOne(accId);
+
+					if (acc == null) {
+						LOG.error("Account with id %d not found.", accId);
+						return;
+					}
+					
+					// Check if userlevel matches.
+					if (acc.getUserLevel().compareTo(cmd.requiredUserLevel()) < 0) {
+						return;
+					}
+					
+					cmd.executeCommand(acc, text);
+				});
 	}
 }

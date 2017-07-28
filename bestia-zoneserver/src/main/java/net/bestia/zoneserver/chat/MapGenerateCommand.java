@@ -35,7 +35,7 @@ public class MapGenerateCommand extends BaseChatCommand {
 
 	@Autowired
 	public MapGenerateCommand(AccountDAO accDao, ZoneAkkaApi akkaApi, ActorSystem system) {
-		super(accDao, akkaApi);
+		super(akkaApi);
 
 		this.system = system;
 	}
@@ -51,7 +51,7 @@ public class MapGenerateCommand extends BaseChatCommand {
 	}
 
 	@Override
-	protected void executeCommand(Account account, String text) {
+	public void executeCommand(Account account, String text) {
 
 		// Extract name of the new map.
 		final Matcher match = CMD_PATTERN.matcher(text);

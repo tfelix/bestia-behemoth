@@ -9,6 +9,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.domain.Account;
+
 public class ChatCommandServiceTest {
 
 	private static final long ACC_ID = 10;
@@ -18,19 +21,32 @@ public class ChatCommandServiceTest {
 
 	@Mock
 	private ChatCommand chatCmd;
+	
+	@Mock
+	private AccountDAO accDao;
+	
+	@Mock
+	private Account acc;
 
 	@Before
 	public void setup() {
 
 		when(chatCmd.isCommand(any())).thenReturn(false);
 		when(chatCmd.isCommand(CMD_TXT)).thenReturn(true);
+		
+		when(accDao.findOne(ACC_ID)).thenReturn(acc);
 
-		chatService = new ChatCommandService(Arrays.asList(chatCmd));
+		chatService = new ChatCommandService(Arrays.asList(chatCmd), accDao);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void ctor_nullList_throws() {
-		new ChatCommandService(null);
+		new ChatCommandService(null, accDao);
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public void ctor_2argNull_throws() {
+		new ChatCommandService(Arrays.asList(chatCmd), null);
 	}
 
 	@Test
@@ -47,7 +63,7 @@ public class ChatCommandServiceTest {
 	public void executeChatCommand_validTextCommand_chatCommandIsExecuted() {
 		chatService.executeChatCommand(ACC_ID, CMD_TXT);
 
-		verify(chatCmd).executeCommand(ACC_ID, CMD_TXT);
+		verify(chatCmd).executeCommand(acc, CMD_TXT);
 	}
 
 	@Test
@@ -55,6 +71,6 @@ public class ChatCommandServiceTest {
 		final String CMD_TXT = "/unknown la la";
 		chatService.executeChatCommand(ACC_ID, CMD_TXT);
 
-		verify(chatCmd, times(0)).executeCommand(ACC_ID, CMD_TXT);
+		verify(chatCmd, times(0)).executeCommand(acc, CMD_TXT);
 	}
 }

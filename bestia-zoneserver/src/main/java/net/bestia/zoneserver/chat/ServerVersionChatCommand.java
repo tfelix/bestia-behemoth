@@ -24,7 +24,7 @@ public class ServerVersionChatCommand extends BaseChatCommand {
 
 	@Autowired
 	public ServerVersionChatCommand(AccountDAO accDao, ZoneAkkaApi akkaApi, StaticConfigService config) {
-		super(accDao, akkaApi);
+		super(akkaApi);
 
 		this.config = Objects.requireNonNull(config);
 	}
@@ -40,7 +40,7 @@ public class ServerVersionChatCommand extends BaseChatCommand {
 	}
 
 	@Override
-	protected void executeCommand(Account account, String text) {
+	public void executeCommand(Account account, String text) {
 		final String replyText = String.format("Bestia Behemoth Server (%s)", config.getServerVersion());
 		sendSystemMessage(account.getId(), replyText);
 	}

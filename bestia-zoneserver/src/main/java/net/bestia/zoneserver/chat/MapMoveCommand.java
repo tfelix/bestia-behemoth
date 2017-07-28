@@ -40,7 +40,7 @@ public class MapMoveCommand extends BaseChatCommand {
 			ZoneAkkaApi akkaApi,
 			PlayerEntityService pbService,
 			EntityService entityService) {
-		super(accDao, akkaApi);
+		super(akkaApi);
 
 		this.playerBestiaService = Objects.requireNonNull(pbService);
 		this.entityService = Objects.requireNonNull(entityService);
@@ -57,7 +57,7 @@ public class MapMoveCommand extends BaseChatCommand {
 	}
 
 	@Override
-	protected void executeCommand(Account account, String text) {
+	public void executeCommand(Account account, String text) {
 		LOG.info("Chatcommand: /mm triggered by account {}.", account.getId());
 
 		// Its okay, now execute the command.

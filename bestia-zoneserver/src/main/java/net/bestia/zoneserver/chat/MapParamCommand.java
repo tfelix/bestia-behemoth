@@ -38,7 +38,7 @@ public class MapParamCommand extends BaseChatCommand {
 			AccountDAO accDao, 
 			ZoneAkkaApi akkaApi, 
 			MapParameterDAO mapParamDao) {
-		super(accDao, akkaApi);
+		super(akkaApi);
 		
 		this.mapParamDao = Objects.requireNonNull(mapParamDao);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
@@ -55,7 +55,7 @@ public class MapParamCommand extends BaseChatCommand {
 	}
 
 	@Override
-	protected void executeCommand(Account account, String text) {
+	public void executeCommand(Account account, String text) {
 		LOG.debug("Chatcommand: /mapinfo triggered by account {}.", account.getId());
 		
 		final MapParameter mapParam = mapParamDao.findFirstByOrderByIdDesc();	

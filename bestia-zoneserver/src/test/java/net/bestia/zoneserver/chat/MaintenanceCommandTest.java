@@ -67,7 +67,7 @@ public class MaintenanceCommandTest {
 
 	@Test
 	public void executeCommand_wrongArgs_sendsMessage() {
-		cmd.executeCommand(ACC_ID, "/maintenance bla");
+		cmd.executeCommand(acc, "/maintenance bla");
 
 		verify(akkaApi).sendToClient(any(ChatMessage.class));
 		verify(config, times(0)).setMaintenanceMode(any());
@@ -76,14 +76,14 @@ public class MaintenanceCommandTest {
 
 	@Test
 	public void executeCommand_true_switchesServerModeLogoutUsers() {
-		cmd.executeCommand(ACC_ID, "/maintenance true");
+		cmd.executeCommand(acc, "/maintenance true");
 		verify(config).setMaintenanceMode(MaintenanceLevel.PARTIAL);
 		verify(loginService).logoutAllUsersBelow(UserLevel.SUPER_GM);
 	}
 	
 	@Test
 	public void executeCommand_false_switchesServerModeLogoutUsers() {
-		cmd.executeCommand(ACC_ID, "/maintenance false");
+		cmd.executeCommand(acc, "/maintenance false");
 		verify(config).setMaintenanceMode(MaintenanceLevel.NONE);
 		verify(loginService, times(0)).logoutAllUsersBelow(any());
 	}

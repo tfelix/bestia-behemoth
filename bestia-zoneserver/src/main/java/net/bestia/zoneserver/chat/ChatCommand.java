@@ -1,5 +1,6 @@
 package net.bestia.zoneserver.chat;
 
+import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 
 public interface ChatCommand {
@@ -18,12 +19,12 @@ public interface ChatCommand {
 	/**
 	 * Executes the chat command which was issued by the given account id.
 	 * 
-	 * @param accId
-	 *            Account id which issued this command.
+	 * @param acc
+	 *            Account which issued this command.
 	 * @param text
 	 *            Chat text typed by the user.
 	 */
-	void executeCommand(long accId, String text);
+	void executeCommand(Account account, String text);
 
 	/**
 	 * Gives the minimum user level required to execute this command.

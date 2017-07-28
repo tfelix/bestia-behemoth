@@ -100,7 +100,7 @@ public class SetCommand extends BaseChatCommand {
 			ZoneAkkaApi akkaApi,
 			EntityService entityService,
 			PlayerEntityService playerBestiaService) {
-		super(accDao, akkaApi);
+		super(akkaApi);
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerBestiaService = Objects.requireNonNull(playerBestiaService);
@@ -118,7 +118,7 @@ public class SetCommand extends BaseChatCommand {
 	}
 
 	@Override
-	protected void executeCommand(Account account, String text) {
+	public void executeCommand(Account account, String text) {
 		LOG.info("Chatcommand: /set triggered by account {}.", account.getId());
 
 		final Matcher match = cmdPattern.matcher(text);

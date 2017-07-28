@@ -7,6 +7,7 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 
 /**
@@ -21,7 +22,7 @@ import net.bestia.model.domain.Account.UserLevel;
  *
  */
 public class MetaChatCommand implements ChatCommand {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(MapMoveCommand.class);
 
 	private final String commandStr;
@@ -52,26 +53,6 @@ public class MetaChatCommand implements ChatCommand {
 	public boolean isCommand(String text) {
 		return text.startsWith(commandStr);
 	}
-	
-	@Override
-	public void executeCommand(long accId, String text) {
-		
-		// Strip away our prefix of the command.
-		String strippedText = text.substring(commandStr.length());
-		
-		// Look if we find a sub command with this prefix.
-		for(BaseChatCommand module : modules) {
-			if(module.isCommand(strippedText)) {
-				try {
-					module.executeCommand(accId, strippedText);
-				} catch(Exception e) {
-					LOG.warn("Error while executing chat command: {}", text, e);
-					return;
-				}
-			}
-		}
-		
-	}
 
 	/**
 	 * The user can potentially execute the lowest command module included in
@@ -90,5 +71,23 @@ public class MetaChatCommand implements ChatCommand {
 			}
 		}
 		return level;
+	}
+
+	@Override
+	public void executeCommand(Account account, String text) {
+		// Strip away our prefix of the command.
+		String strippedText = text.substring(commandStr.length());
+
+		// Look if we find a sub command with this prefix.
+		for (BaseChatCommand module : modules) {
+			if (module.isCommand(strippedText)) {
+				try {
+					module.executeCommand(account, strippedText);
+				} catch (Exception e) {
+					LOG.warn("Error while executing chat command: {}", text, e);
+					return;
+				}
+			}
+		}
 	}
 }
