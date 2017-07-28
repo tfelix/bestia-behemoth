@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
@@ -39,7 +38,6 @@ public class MaintenanceCommand extends BaseChatCommand {
 
 	@Autowired
 	public MaintenanceCommand(
-			AccountDAO accDao, 
 			ZoneAkkaApi akkaApi, 
 			LoginService loginService, 
 			RuntimeConfigService config) {
@@ -94,5 +92,10 @@ public class MaintenanceCommand extends BaseChatCommand {
 
 	private void printError(long accId) {
 		sendSystemMessage(accId, "Usage: /maintenance [true, false]");
+	}
+
+	@Override
+	protected String getHelpText() {
+		return "Usage: /maintenance [TRUE|FALSE]";
 	}
 }

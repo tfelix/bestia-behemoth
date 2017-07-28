@@ -31,12 +31,7 @@ public class MetaChatCommand implements ChatCommand {
 	public MetaChatCommand(String metaCommandStr) {
 
 		Objects.requireNonNull(metaCommandStr);
-
-		if (metaCommandStr.endsWith(" ")) {
-			this.commandStr = metaCommandStr;
-		} else {
-			this.commandStr = metaCommandStr + " ";
-		}
+		this.commandStr = metaCommandStr.trim() + " ";
 	}
 
 	/**
@@ -57,7 +52,7 @@ public class MetaChatCommand implements ChatCommand {
 	/**
 	 * The user can potentially execute the lowest command module included in
 	 * this {@link MetaChatCommand}. Thus the required level is the lowest level
-	 * found in all command modules. The nodules will have to check for
+	 * found in all command modules. The modules will have to check for
 	 * themselves upon execution if this requirement is met.
 	 * 
 	 * @return The minimum userlevel required to use this command.

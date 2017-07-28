@@ -3,7 +3,6 @@ package net.bestia.zoneserver.chat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
@@ -16,7 +15,7 @@ import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
  */
 abstract class SubCommandModule extends BaseChatCommand {
 
-	public SubCommandModule(AccountDAO accDao, ZoneAkkaApi akkaApi) {
+	public SubCommandModule(ZoneAkkaApi akkaApi) {
 		super(akkaApi);
 		// no op.
 	}

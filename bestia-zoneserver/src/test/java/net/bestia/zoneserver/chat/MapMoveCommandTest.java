@@ -67,7 +67,7 @@ public class MapMoveCommandTest {
 
 		when(playerEntityService.getActivePlayerEntity(anyLong())).thenReturn(entity);
 
-		cmd = new MapMoveCommand(accDao, akkaApi, playerEntityService, entityService);
+		cmd = new MapMoveCommand(akkaApi, playerEntityService, entityService);
 	}
 
 	@Test

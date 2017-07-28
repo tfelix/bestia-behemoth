@@ -14,7 +14,6 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.component.PositionComponent;
-import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
@@ -36,7 +35,6 @@ public class MapMoveCommand extends BaseChatCommand {
 
 	@Autowired
 	public MapMoveCommand(
-			AccountDAO accDao,
 			ZoneAkkaApi akkaApi,
 			PlayerEntityService pbService,
 			EntityService entityService) {
@@ -89,6 +87,11 @@ public class MapMoveCommand extends BaseChatCommand {
 		} catch (IllegalArgumentException e) {
 			LOG.error("Could not parse the given coordinates.", e);
 		}
+	}
+
+	@Override
+	protected String getHelpText() {
+		return "Usage: /mm <X> <Y>";
 	}
 
 }

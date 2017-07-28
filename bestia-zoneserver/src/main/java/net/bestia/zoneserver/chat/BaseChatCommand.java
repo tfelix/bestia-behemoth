@@ -18,6 +18,13 @@ abstract class BaseChatCommand implements ChatCommand {
 	}
 
 	/**
+	 * Defines a help text in case the arguments of the command are not ready.
+	 * 
+	 * @return A short helping text for the command.
+	 */
+	abstract protected String getHelpText();
+
+	/**
 	 * This text is send right to the user who invoked the command.
 	 * 
 	 * @param text

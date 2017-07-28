@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import net.bestia.entity.MobFactory;
-import net.bestia.model.dao.AccountDAO;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.chat.ChatCommandService;
 import net.bestia.zoneserver.chat.MetaChatCommand;
@@ -21,7 +20,7 @@ import net.bestia.zoneserver.chat.MobSpawnModule;
 public class ChatCommandConfiguration {
 
 	@Bean
-	public MetaChatCommand getSetChatCommand(AccountDAO accDao, ZoneAkkaApi akkaApi) {
+	public MetaChatCommand getSetChatCommand() {
 
 		final MetaChatCommand setCmd = new MetaChatCommand("/entity");
 
@@ -29,11 +28,11 @@ public class ChatCommandConfiguration {
 	}
 
 	@Bean
-	public MetaChatCommand getSpawnChatCommand(AccountDAO accDao, ZoneAkkaApi akkaApi, MobFactory mobFactory) {
+	public MetaChatCommand getSpawnChatCommand(ZoneAkkaApi akkaApi, MobFactory mobFactory) {
 
 		final MetaChatCommand spawnCmd = new MetaChatCommand("/spawn");
 
-		final MobSpawnModule mobModule = new MobSpawnModule(accDao, akkaApi, mobFactory);
+		final MobSpawnModule mobModule = new MobSpawnModule(akkaApi, mobFactory);
 
 		spawnCmd.addCommandModule(mobModule);
 

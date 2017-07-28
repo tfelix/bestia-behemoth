@@ -11,10 +11,9 @@ import org.springframework.stereotype.Component;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
-import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.model.domain.MapParameter;
 import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.MapParameter;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
@@ -34,7 +33,7 @@ public class MapGenerateCommand extends BaseChatCommand {
 	private ActorSystem system;
 
 	@Autowired
-	public MapGenerateCommand(AccountDAO accDao, ZoneAkkaApi akkaApi, ActorSystem system) {
+	public MapGenerateCommand(ZoneAkkaApi akkaApi, ActorSystem system) {
 		super(akkaApi);
 
 		this.system = system;
@@ -92,5 +91,10 @@ public class MapGenerateCommand extends BaseChatCommand {
 
 	private void printError(long accId) {
 		sendSystemMessage(accId, "No mapname given. Usage: /genMap <MAPNAME> <USERCOUNT>");
+	}
+
+	@Override
+	protected String getHelpText() {
+		return "Usage: /genMap <MAPNAME> <USERCOUNT>";
 	}
 }

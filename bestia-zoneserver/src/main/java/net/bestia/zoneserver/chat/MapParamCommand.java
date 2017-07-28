@@ -8,18 +8,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.bestia.messages.chat.ChatMessage;
-import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.model.domain.MapParameter;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * Returns the max current mapsize.
  * 
  * <p>
- * /mapsize
+ * /mapinfo
  * </p>
  * 
  * @author Thomas Felix
@@ -35,7 +34,6 @@ public class MapParamCommand extends BaseChatCommand {
 
 	@Autowired
 	public MapParamCommand(
-			AccountDAO accDao, 
 			ZoneAkkaApi akkaApi, 
 			MapParameterDAO mapParamDao) {
 		super(akkaApi);
@@ -69,6 +67,11 @@ public class MapParamCommand extends BaseChatCommand {
 		
 		final ChatMessage msg = ChatMessage.getSystemMessage(account.getId(), mapParam.toDetailString());
 		akkaApi.sendToClient(msg);
+	}
+
+	@Override
+	protected String getHelpText() {
+		return "Usage: /mapinfo";
 	}
 
 }

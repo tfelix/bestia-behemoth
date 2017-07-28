@@ -340,4 +340,9 @@ public class SetCommand extends BaseChatCommand {
 			}
 		}
 	}
+
+	@Override
+	protected String getHelpText() {
+		return "/set TOO COMPLICATED :-)";
+	}
 }

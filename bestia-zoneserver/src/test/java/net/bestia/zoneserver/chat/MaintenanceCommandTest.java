@@ -47,7 +47,7 @@ public class MaintenanceCommandTest {
 		
 		when(acc.getUserLevel()).thenReturn(UserLevel.ADMIN);
 
-		cmd = new MaintenanceCommand(accDao, akkaApi, loginService, config);
+		cmd = new MaintenanceCommand(akkaApi, loginService, config);
 	}
 
 	@Test

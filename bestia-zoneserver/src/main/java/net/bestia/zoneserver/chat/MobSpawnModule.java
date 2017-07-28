@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.MobFactory;
-import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
@@ -27,8 +26,8 @@ public class MobSpawnModule extends SubCommandModule {
 	private static final Pattern CMD_PATTERN = Pattern.compile("mob (\\w+) (\\d+) (\\d+)");
 	private final MobFactory mobFactory;
 
-	public MobSpawnModule(AccountDAO accDao, ZoneAkkaApi akkaApi, MobFactory mobFactory) {
-		super(accDao, akkaApi);
+	public MobSpawnModule(ZoneAkkaApi akkaApi, MobFactory mobFactory) {
+		super(akkaApi);
 
 		this.mobFactory = Objects.requireNonNull(mobFactory);
 	}
