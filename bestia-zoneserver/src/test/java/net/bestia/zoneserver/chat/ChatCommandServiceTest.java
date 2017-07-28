@@ -7,11 +7,14 @@ import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ChatCommandServiceTest {
 
 	private static final long ACC_ID = 10;

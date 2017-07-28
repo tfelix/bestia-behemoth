@@ -21,8 +21,11 @@ import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.dao.AccountDAO;
+import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.MapParameter;
+import net.bestia.model.geometry.Size;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -51,6 +54,12 @@ public class MapMoveCommandTest {
 	private EntityService entityService;
 
 	@Mock
+	private MapParameterDAO mapParamDao;
+
+	@Mock
+	private MapParameter mapParam;
+
+	@Mock
 	private PositionComponent posComp;
 
 	@Before
@@ -61,13 +70,17 @@ public class MapMoveCommandTest {
 		when(acc.getId()).thenReturn(ACC_ID);
 		when(acc.getUserLevel()).thenReturn(UserLevel.ADMIN);
 
+		when(mapParamDao.findFirstByOrderByIdDesc()).thenReturn(mapParam);
+
+		when(mapParam.getWorldSize()).thenReturn(new Size(100, 100));
+
 		when(playerEntityService.getActivePlayerEntity(ACC_ID)).thenReturn(entity);
 
 		when(entityService.getComponent(entity, PositionComponent.class)).thenReturn(Optional.of(posComp));
 
 		when(playerEntityService.getActivePlayerEntity(anyLong())).thenReturn(entity);
 
-		cmd = new MapMoveCommand(akkaApi, playerEntityService, entityService);
+		cmd = new MapMoveCommand(akkaApi, playerEntityService, entityService, mapParamDao);
 	}
 
 	@Test
@@ -101,14 +114,15 @@ public class MapMoveCommandTest {
 
 	@Test
 	public void executeCommand_invalidCords_dontSetPosition() {
-		
+
 		cmd.executeCommand(acc, "/mm -10 11");
 		verify(entityService, times(0)).updateComponent(posComp);
 		verify(akkaApi).sendToClient(any(ChatMessage.class));
-		
+	
 		cmd.executeCommand(acc, "/mm 100000 11");
+
 		verify(entityService, times(0)).updateComponent(posComp);
-		verify(akkaApi).sendToClient(any(ChatMessage.class));
+		verify(akkaApi, times(2)).sendToClient(any(ChatMessage.class));
 	}
 
 	@Test
@@ -119,7 +133,6 @@ public class MapMoveCommandTest {
 		cmd.executeCommand(acc, "/mm 10 11");
 
 		verify(entityService, times(0)).updateComponent(posComp);
-		verify(akkaApi).sendToClient(any(ChatMessage.class));
 	}
 
 }

@@ -14,8 +14,10 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.component.PositionComponent;
+import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.domain.MapParameter;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
@@ -32,16 +34,19 @@ public class MapMoveCommand extends BaseChatCommand {
 
 	private final PlayerEntityService playerBestiaService;
 	private final EntityService entityService;
+	private final MapParameterDAO mapParamDao;
 
 	@Autowired
 	public MapMoveCommand(
 			ZoneAkkaApi akkaApi,
 			PlayerEntityService pbService,
-			EntityService entityService) {
+			EntityService entityService,
+			MapParameterDAO mapParamDao) {
 		super(akkaApi);
 
 		this.playerBestiaService = Objects.requireNonNull(pbService);
 		this.entityService = Objects.requireNonNull(entityService);
+		this.mapParamDao = Objects.requireNonNull(mapParamDao);
 	}
 
 	@Override
@@ -63,6 +68,7 @@ public class MapMoveCommand extends BaseChatCommand {
 
 		if (!match.find()) {
 			LOG.debug("Wrong command usage: {}", text);
+			sendSystemMessage(account.getId(), getHelpText());
 			return;
 		}
 
@@ -71,7 +77,19 @@ public class MapMoveCommand extends BaseChatCommand {
 			final long y = Long.parseLong(match.group(2));
 
 			if (x < 0 || y < 0) {
+				sendSystemMessage(account.getId(), "Illegal coordiantes. Must be positive and inside the map.");
 				throw new IllegalArgumentException("X and Y can not be negative.");
+			}
+
+			final MapParameter params = mapParamDao.findFirstByOrderByIdDesc();
+
+			if (params == null) {
+				throw new IllegalStateException("Seems there is no map. Can not determine map size.");
+			}
+
+			if (x > params.getWorldSize().getWidth() || y > params.getWorldSize().getHeight()) {
+				sendSystemMessage(account.getId(), "Illegal coordiantes. Must be positive and inside the map.");
+				return;
 			}
 
 			final Entity pbe = playerBestiaService.getActivePlayerEntity(account.getId());
@@ -82,6 +100,9 @@ public class MapMoveCommand extends BaseChatCommand {
 				posComp.get().setPosition(x, y);
 				LOG.info("GM {} transported entity {} to x: {} y: {}.", account.getId(), pbe.getId(), x, y);
 				entityService.updateComponent(posComp.get());
+			} else {
+				sendSystemMessage(account.getId(), "Selected entity has no position component present.");
+				return;
 			}
 
 		} catch (IllegalArgumentException e) {

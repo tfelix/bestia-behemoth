@@ -35,16 +35,16 @@ public class ServerVersionChatCommandTest {
 
 	@Test
 	public void isCommand_invalidCommand_false() {
-		Assert.assertFalse(cmd.isCommand("/version."));
-		Assert.assertFalse(cmd.isCommand("//version"));
-		Assert.assertFalse(cmd.isCommand("/versionn "));
+		Assert.assertFalse(cmd.isCommand("/server."));
+		Assert.assertFalse(cmd.isCommand("//server"));
+		Assert.assertFalse(cmd.isCommand("/serverr "));
 	}
 
 	@Test
 	public void isCommand_validCommand_true() {
-		Assert.assertTrue(cmd.isCommand("/version"));
-		Assert.assertTrue(cmd.isCommand("/version "));
-		Assert.assertTrue(cmd.isCommand("/version test "));
+		Assert.assertTrue(cmd.isCommand("/server"));
+		Assert.assertTrue(cmd.isCommand("/server "));
+		Assert.assertTrue(cmd.isCommand("/server test "));
 	}
 
 	@Test
