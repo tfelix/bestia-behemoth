@@ -85,7 +85,13 @@ public class LoginService {
 		if (accId < 0) {
 			throw new IllegalArgumentException("Account ID must be positive.");
 		}
+		
 		Objects.requireNonNull(connectionRef);
+		// No sender is not allowed.
+		if(connectionRef.equals(ActorRef.noSender())) {
+			throw new IllegalArgumentException("ActorRef.noSender() is not allowed.");
+		}
+		
 
 		final Account account = accountDao.findOne(accId);
 
@@ -94,6 +100,8 @@ public class LoginService {
 			return;
 		}
 
+		// TODO Das hier ist ein fehler. Erst den client complett anmelden und danach beginnen die entities zu instanzieren.
+		
 		// First register the sender connection.
 		// FIXME This is legacy code and will soon be handled by actors.
 		connectionService.addClient(accId, connectionRef.path());

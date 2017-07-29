@@ -39,15 +39,19 @@ public final class AkkaSender {
 	 * @param msg
 	 */
 	public static void sendClient(ActorContext context, JsonMessage msg) {
-		
+
 		sendToActor(context, SendClientActor.NAME, msg);
 	}
-	
+
 	public static void sendToActor(ActorContext context, String actorName, Object message) {
-		
+		sendToActor(context, actorName, message, ActorRef.noSender());
+	}
+
+	public static void sendToActor(ActorContext context, String actorName, Object message, ActorRef sender) {
+
 		final String nodeName = AkkaCluster.getNodeName(actorName);
 		final ActorSelection actor = context.actorSelection(nodeName);
-		actor.tell(message, ActorRef.noSender());
+		actor.tell(message, sender);
 	}
 
 	/**
@@ -59,7 +63,7 @@ public final class AkkaSender {
 	 *            of the referenced entity.
 	 */
 	public static void sendActiveInRangeClients(ActorContext context, EntityJsonMessage msg) {
-		
+
 		sendToActor(context, SendActiveRangeActor.NAME, msg);
 	}
 

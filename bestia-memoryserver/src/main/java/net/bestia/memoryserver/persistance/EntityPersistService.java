@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import net.bestia.entity.Entity;
@@ -36,8 +37,11 @@ public class EntityPersistService {
 	 *            storage.
 	 */
 	public void delete(Long id) {
-
-		entityDao.delete(id);
+		try {
+			entityDao.delete(id);
+		} catch (EmptyResultDataAccessException e) {
+			// Entity did not exist. Not important. Ignore.
+		}
 	}
 
 	/**
@@ -66,21 +70,21 @@ public class EntityPersistService {
 	 */
 	public void store(Entity entity) {
 		Objects.requireNonNull(entity);
-		
+
 		// Only store if it was flagged with a tag.
 		Optional<TagComponent> tagComp = entityService.getComponent(entity, TagComponent.class);
-		
-		if(!tagComp.isPresent() || !tagComp.get().has(TagComponent.TAG_PERSIST)) {
+
+		if (!tagComp.isPresent() || !tagComp.get().has(TagComponent.TAG_PERSIST)) {
 			return;
 		}
-		
+
 		// Find all the components of the entity.
 		final byte[] data = serializer.serialize(entity);
 		final EntityData entityData = new EntityData();
 		entityData.setId(entity.getId());
 		entityData.setData(data);
 		entityDao.save(entityData);
-		
+
 	}
 
 }

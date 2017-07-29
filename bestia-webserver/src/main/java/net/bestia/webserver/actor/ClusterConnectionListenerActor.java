@@ -92,13 +92,9 @@ public class ClusterConnectionListenerActor extends AbstractActor {
 	}
 
 	private void onMemberUp(MemberUp msg) {
-		if (isSelf(msg.member())) {
-			LOG.info("Webserver himself connected to the cluster.");
-			config.setConnectedToCluster(true);
-		}
-
 		if (msg.member().hasRole(AkkaCluster.ROLE_ZONE)) {
 			LOG.info("Zone member is up: {}", msg.member());
+			config.setConnectedToCluster(true);
 			zoneMember.add(msg.member());
 		}
 	}

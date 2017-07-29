@@ -1,3 +1,4 @@
+// Replace http://easystarjs.com/
 
 //NameSpace
 var EasyStar = EasyStar || {};

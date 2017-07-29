@@ -44,13 +44,13 @@ public class IngestExActor extends AbstractActor {
 	 */
 	private void redirect(Object msg) {
 		LOG.debug("IngestEx redir: {}.", msg);
-		AkkaSender.sendToActor(getContext(), IngestActor.NAME, msg);
+		AkkaSender.sendToActor(getContext(), IngestActor.NAME, msg, getSender());
 	}
 
 	private void redirectConnection(Object msg) {
 		LOG.debug("IngestEx received: {}.", msg);
 		
-		AkkaSender.sendToActor(getContext(), ConnectionManagerActor.NAME, msg);
+		AkkaSender.sendToActor(getContext(), ConnectionManagerActor.NAME, msg, getSender());
 		redirect(msg);
 	}
 }

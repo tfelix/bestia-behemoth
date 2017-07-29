@@ -112,6 +112,7 @@ public class ConnectionActor extends AbstractActor {
 			// Connection seems to have dropped. Signal the server that the
 			// client has disconnected and terminate.
 			loginService.logout(accountId);
+			getContext().stop(getSelf());
 		} else {
 			
 			if(clientWebserver == null) {
