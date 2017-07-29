@@ -8,7 +8,6 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
-import net.bestia.webserver.actor.WebserverActorApi;
 import net.bestia.webserver.websocket.BestiaSocketHandler;
 
 /**
@@ -21,16 +20,16 @@ import net.bestia.webserver.websocket.BestiaSocketHandler;
 @EnableWebSocket
 public class WebSocketConfiguration implements WebSocketConfigurer {
 
-	private final WebserverActorApi actorApi;
+	private final BestiaSocketHandler socketHandler;
 
 	@Autowired
-	public WebSocketConfiguration(WebserverActorApi actorApi) {
+	public WebSocketConfiguration(BestiaSocketHandler socketHandler) {
 
-		this.actorApi = Objects.requireNonNull(actorApi);
+		this.socketHandler = Objects.requireNonNull(socketHandler);
 	}
 
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-		registry.addHandler(new BestiaSocketHandler(actorApi), "/socket")
+		registry.addHandler(socketHandler, "/socket")
 				.setAllowedOrigins("*")
 				.withSockJS();
 	}

@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Deploy;
-import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -98,6 +97,12 @@ public class MessageHandlerActor extends AbstractActor {
 		session.sendMessage(new TextMessage(payload));
 	}
 
+	/**
+	 * Payload is send from the client to the server.
+	 * 
+	 * @param payload
+	 *            Payload data from the client.
+	 */
 	private void handlePayload(String payload) {
 		// We only accept auth messages if we are not connected. Every other
 		// message will disconnect the client.
@@ -114,7 +119,7 @@ public class MessageHandlerActor extends AbstractActor {
 				LOG.warning("Client {} send wrong auth message. Payload was: {}.",
 						session.getRemoteAddress(),
 						payload);
-				closeSession(CloseStatus.PROTOCOL_ERROR);
+				closeClientConnection(CloseStatus.PROTOCOL_ERROR);
 			}
 		} else {
 			try {
@@ -133,7 +138,7 @@ public class MessageHandlerActor extends AbstractActor {
 						session.getRemoteAddress(),
 						payload,
 						e.toString());
-				closeSession(CloseStatus.BAD_DATA);
+				closeClientConnection(CloseStatus.BAD_DATA);
 			}
 		}
 	}
@@ -149,7 +154,7 @@ public class MessageHandlerActor extends AbstractActor {
 			accountId = msg.getAccountId();
 			// Also announce to client the login success.
 			sendToClient(msg);
-			
+
 			// Announce to the server that client is now fully connected.
 			final ClientConnectionStatusMessage ccsmsg = new ClientConnectionStatusMessage(
 					accountId,
@@ -159,29 +164,15 @@ public class MessageHandlerActor extends AbstractActor {
 
 		} else {
 			sendToClient(msg);
-			closeSession(CloseStatus.PROTOCOL_ERROR);
+			closeClientConnection(CloseStatus.PROTOCOL_ERROR);
 		}
 	}
 
-	private void closeSession(CloseStatus status) {
+	private void closeClientConnection(CloseStatus status) {
 		LOG.debug("Closing connection to {}.", session.getRemoteAddress().toString());
 
-		try {
-			session.close(status);
-		} catch (IOException e1) {
-			// no op.
-		}
-
-		// Kill ourself.
-		getSelf().tell(PoisonPill.getInstance(), getSelf());
-	}
-
-	@Override
-	public void postStop() throws Exception {
-		super.postStop();
-
-		// If we were connected, disconnect from the server.
-		if (accountId != 0) {
+		// If we were fully connected, disconnect from the server.
+		if (accountId != 0 && isAuthenticated) {
 			final ClientConnectionStatusMessage ccsmsg = new ClientConnectionStatusMessage(
 					accountId,
 					ConnectionState.DISCONNECTED,
@@ -192,7 +183,20 @@ public class MessageHandlerActor extends AbstractActor {
 		// If the websocket session is still opened and we are terminated from
 		// the akka side, close it here.
 		if (session.isOpen()) {
-			session.close();
+			try {
+				session.close(status);
+			} catch (IOException e1) {
+				// no op.
+			}
 		}
+
+		// Kill ourself.
+		getContext().stop(getSelf());
+	}
+
+	@Override
+	public void postStop() throws Exception {
+		super.postStop();
+		closeClientConnection(CloseStatus.NORMAL);
 	}
 }
