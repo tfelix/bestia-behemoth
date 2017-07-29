@@ -66,13 +66,13 @@ public class ClientVar implements Serializable {
 	public String getKey() {
 		return key;
 	}
-	
+
 	public int getDataLength() {
-		return data.length;
+		return (data == null) ? 0 : data.length;
 	}
 
 	public String getData() {
-		return new String(data, UTF_8);
+		return (data == null) ? "" : new String(data, UTF_8);
 	}
 
 	public Account getAccount() {

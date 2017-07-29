@@ -11,6 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.reflections.Reflections;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class GeneralModelTest {
@@ -25,6 +26,12 @@ public class GeneralModelTest {
 				.getTypesAnnotatedWith(Entity.class);
 		return allClasses;
 	}
+	
+	public GeneralModelTest() {
+		
+		// Ignore null fields for the sake of the tests.
+		mapper.setSerializationInclusion(Include.NON_NULL);
+	}
 
 	/**
 	 * All entities must implement serializable.
@@ -32,12 +39,12 @@ public class GeneralModelTest {
 	@Test
 	public void all_serializable() {
 		for (Class<?> clazz : getAllEntities()) {
-			
+
 			// Whitelist classes dont need to be serializable.
-			if(WHITELIST.contains(clazz)) {
+			if (WHITELIST.contains(clazz)) {
 				continue;
 			}
-			
+
 			Assert.assertTrue(clazz.toGenericString()
 					+ " does not implement Serializable.",
 					Serializable.class.isAssignableFrom(clazz));
@@ -63,6 +70,12 @@ public class GeneralModelTest {
 	@Test
 	public void all_serializable_json() throws Exception {
 		for (Class<?> clazz : getAllEntities()) {
+
+			// Whitelist classes dont need to be serializable.
+			if (WHITELIST.contains(clazz)) {
+				continue;
+			}
+
 			Object obj = clazz.newInstance();
 			mapper.writeValueAsString(obj);
 		}

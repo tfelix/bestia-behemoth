@@ -161,6 +161,11 @@ public class PlayerBestia implements Serializable {
 
 	public String getName() {
 		if (name == null || name.isEmpty()) {
+			// In some cases, if the PlayerBestia is instanced via default ctor
+			// this might even be null. Avoid it.
+			if (originBestia == null) {
+				return "";
+			}
 			return originBestia.getDefaultName();
 		}
 

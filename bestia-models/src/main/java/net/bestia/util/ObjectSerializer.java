@@ -11,7 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Helper object to serialize objects into byte arrays and vice versa.
+ * Helper object to serialize objects into byte arrays and vice versa. Some data
+ * in the database is persisted as binary stream data. This class helps to
+ * transform this data into binary streams.
  * 
  * @author Thomas Felix
  *
@@ -31,7 +33,7 @@ public class ObjectSerializer<T> {
 	 */
 	@SuppressWarnings("unchecked")
 	public T deserialize(byte[] data) {
-		
+
 		Objects.requireNonNull(data);
 
 		try (ByteArrayInputStream bis = new ByteArrayInputStream(data);
@@ -54,7 +56,7 @@ public class ObjectSerializer<T> {
 	 * @return Raw byte array.
 	 */
 	public byte[] serialize(T obj) {
-		
+
 		Objects.requireNonNull(obj);
 
 		try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
