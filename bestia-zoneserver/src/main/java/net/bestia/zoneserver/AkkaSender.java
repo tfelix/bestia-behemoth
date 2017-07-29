@@ -75,8 +75,8 @@ public final class AkkaSender {
 	 */
 	public static void sendEntityActor(ActorContext context, long entityId, Object msg) {
 		// Find the name.
-		final String rawActorName = EntityActor.getActorName(entityId);
-		final String actorName = AkkaCluster.getNodeName(EntityManagerActor.NAME, rawActorName);
+		final String entityActorName = EntityActor.getActorName(entityId);
+		final String actorName = AkkaCluster.getNodeName(EntityManagerActor.NAME, entityActorName);
 		final ActorSelection selection = context.system().actorSelection(actorName);
 		selection.tell(msg, ActorRef.noSender());
 	}

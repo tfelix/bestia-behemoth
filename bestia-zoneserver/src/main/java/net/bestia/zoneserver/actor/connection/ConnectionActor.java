@@ -19,6 +19,7 @@ import net.bestia.messages.login.LogoutMessage;
 import net.bestia.messages.misc.PingMessage;
 import net.bestia.messages.misc.PongMessage;
 import net.bestia.zoneserver.service.LatencyService;
+import net.bestia.zoneserver.service.LoginService;
 import scala.concurrent.duration.Duration;
 
 /**
@@ -38,21 +39,25 @@ public class ConnectionActor extends AbstractActor {
 	private static final int MAX_LATENCY_MISSING = 4;
 
 	private final Cancellable tick = getContext().getSystem().scheduler().schedule(
-			Duration.create(1, TimeUnit.SECONDS),
 			Duration.create(5, TimeUnit.SECONDS),
+			Duration.create(1, TimeUnit.SECONDS),
 			getSelf(), LATENCY_REQUEST_MSG, getContext().dispatcher(), null);
 
 	private final long accountId;
 	private ActorRef clientWebserver;
 	private final LatencyService latencyService;
+	private final LoginService loginService;
 
-	private int missedLatencyCounter = 0;
+	private int missedLatencyCounter = 0;	
 
 	@Autowired
-	public ConnectionActor(Long accountId, LatencyService latencyService) {
+	public ConnectionActor(Long accountId, 
+			LatencyService latencyService,
+			LoginService loginService) {
 
 		this.accountId = Objects.requireNonNull(accountId);
 		this.latencyService = Objects.requireNonNull(latencyService);
+		this.loginService = Objects.requireNonNull(loginService);
 	}
 
 	@Override
@@ -106,7 +111,14 @@ public class ConnectionActor extends AbstractActor {
 		if (missedLatencyCounter > MAX_LATENCY_MISSING) {
 			// Connection seems to have dropped. Signal the server that the
 			// client has disconnected and terminate.
+			loginService.logout(accountId);
 		} else {
+			
+			if(clientWebserver == null) {
+				// Not yet identified. Abort.
+				return;
+			}
+			
 			final PingMessage ping = new PingMessage(accountId);
 			clientWebserver.tell(ping, getSender());
 		}

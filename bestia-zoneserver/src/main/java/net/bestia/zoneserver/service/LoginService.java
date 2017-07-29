@@ -17,11 +17,14 @@ import net.bestia.entity.PlayerBestiaEntityFactory;
 import net.bestia.entity.PlayerEntityService;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
+import net.bestia.messages.login.LogoutMessage;
 import net.bestia.messages.web.AccountLoginToken;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.PlayerBestia;
+import net.bestia.zoneserver.actor.connection.ConnectionActor;
+import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.MaintenanceLevel;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
@@ -92,6 +95,7 @@ public class LoginService {
 		}
 
 		// First register the sender connection.
+		// FIXME This is legacy code and will soon be handled by actors.
 		connectionService.addClient(accId, connectionRef.path());
 
 		// Spawn all bestia entities for this account into the world.
@@ -135,7 +139,10 @@ public class LoginService {
 				accId,
 				LoginState.ACCEPTED,
 				account.getName());
+		
 		akkaApi.sendToClient(response);
+		// First start the connection actor and then update him with the connection details.
+		akkaApi.sendToActor(ConnectionManagerActor.NAME, accId);
 	}
 
 	/**
@@ -156,6 +163,11 @@ public class LoginService {
 			LOG.warn("Can not logout account id: %d. ID does not exist.", accId);
 			return;
 		}
+		
+		// Send disconnect message to the webserver.
+		final LogoutMessage logoutMsg = new LogoutMessage(accId);
+		akkaApi.sendToClient(logoutMsg);
+		akkaApi.sendToActor(ConnectionActor.getActorName(accId), logoutMsg);
 
 		// Unregister connection.
 		LOG.debug("Logout acc id: {}.", accId);

@@ -14,12 +14,14 @@ import akka.actor.Props;
 import akka.cluster.singleton.ClusterSingletonManager;
 import akka.cluster.singleton.ClusterSingletonManagerSettings;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
 import net.bestia.zoneserver.actor.entity.EntityManagerActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.HeartbeatActor;
 import net.bestia.zoneserver.actor.zone.IngestActor;
+import net.bestia.zoneserver.actor.zone.IngestExActor;
 import net.bestia.zoneserver.actor.zone.InitGlobalActor;
 import net.bestia.zoneserver.actor.zone.SendActiveRangeActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
@@ -55,29 +57,37 @@ public class ZoneStarter implements CommandLineRunner {
 		LOG.info("Starting actor system...");
 
 		akkaApi.startActor(IngestActor.class);
+		akkaApi.startActor(IngestExActor.class);
 		akkaApi.startActor(SendClientActor.class);
 		akkaApi.startActor(SendActiveRangeActor.class);
 		akkaApi.startActor(ActiveClientUpdateActor.class);
 
 		// Entity
 		akkaApi.startActor(EntityManagerActor.class);
-		
+
+		// Connection
+		akkaApi.startActor(ConnectionManagerActor.class);
+
 		// Maintenance actors.
 		akkaApi.startActor(MapGeneratorMasterActor.class);
 		akkaApi.startActor(MapGeneratorClientActor.class);
-		
+
 		// System actors.
 		akkaApi.startActor(ZoneClusterListenerActor.class);
 		akkaApi.startActor(HeartbeatActor.class);
 
+		// Maybe this needs to be more sophisticated done only when we joined
+		// the cluster.
 		// Setup the init actor singelton for creation of the system.
 		LOG.info("Starting the global init singeltons.");
 		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
 		final Props globalInitProps = SpringExtension.PROVIDER.get(system).props(InitGlobalActor.class);
 		Props clusterProbs = ClusterSingletonManager.props(globalInitProps, PoisonPill.getInstance(), settings);
 		system.actorOf(clusterProbs, "globalInit");
-		
+
 		// Trigger the startup script.
 		scriptService.callScript("startup");
+
+		LOG.info("Bestia Zone startup completed.");
 	}
 }

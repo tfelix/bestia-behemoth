@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import com.hazelcast.core.HazelcastInstance;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -48,7 +47,7 @@ public class AkkaConfiguration implements DisposableBean {
 	private ActorSystem systemInstance;
 
 	@Bean
-	public ActorSystem actorSystem(HazelcastInstance hzInstance, ApplicationContext appContext)
+	public ActorSystem actorSystem(DiscoveryService clusterConfig, ApplicationContext appContext)
 			throws UnknownHostException {
 
 		final Config akkaConfig = ConfigFactory.load(AKKA_CONFIG_NAME);
@@ -57,8 +56,6 @@ public class AkkaConfiguration implements DisposableBean {
 
 		// initialize the application context in the Akka Spring extension.
 		SpringExtension.PROVIDER.get(systemInstance).initialize(appContext);
-
-		final DiscoveryService clusterConfig = new DiscoveryService(hzInstance);
 
 		final Address selfAddr = Cluster.get(systemInstance).selfAddress();
 		final List<Address> seedNodes = clusterConfig.getClusterSeedNodes();
@@ -78,8 +75,6 @@ public class AkkaConfiguration implements DisposableBean {
 		}
 
 		LOG.info("Zoneserver Akka Address is: {}", selfAddr);
-
-		// Cluster registration is done in the HeartbeatActor.
 
 		return systemInstance;
 	}

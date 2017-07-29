@@ -1,6 +1,15 @@
 package net.bestia.zoneserver.actor.zone;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import akka.actor.AbstractActor;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
+import net.bestia.messages.internal.ClientConnectionStatusMessage;
+import net.bestia.messages.misc.PongMessage;
+import net.bestia.zoneserver.AkkaSender;
+import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
 
 /**
  * The ingestion extended actor is a development actor to help the transition
@@ -11,12 +20,37 @@ import akka.actor.AbstractActor;
  * @author Thomas Felix
  *
  */
+@Component
+@Scope("prototype")
 public class IngestExActor extends AbstractActor {
+	
+	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+
+	public static final String NAME = "ingestEx";
 
 	@Override
 	public Receive createReceive() {
-		// TODO Auto-generated method stub
-		return null;
+		return receiveBuilder()
+				.match(PongMessage.class, this::redirectConnection)
+				.match(ClientConnectionStatusMessage.class, this::redirectConnection)
+				.matchAny(this::redirect)
+				.build();
 	}
 
+	/**
+	 * Redirect all other messages to the legacy actor.
+	 * 
+	 * @param msg
+	 */
+	private void redirect(Object msg) {
+		LOG.debug("IngestEx redir: {}.", msg);
+		AkkaSender.sendToActor(getContext(), IngestActor.NAME, msg);
+	}
+
+	private void redirectConnection(Object msg) {
+		LOG.debug("IngestEx received: {}.", msg);
+		
+		AkkaSender.sendToActor(getContext(), ConnectionManagerActor.NAME, msg);
+		redirect(msg);
+	}
 }

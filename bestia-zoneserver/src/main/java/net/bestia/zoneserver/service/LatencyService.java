@@ -6,6 +6,7 @@ import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
@@ -19,6 +20,7 @@ import com.hazelcast.core.IMap;
  * @author Thomas Felix
  *
  */
+@Service
 public class LatencyService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(LatencyService.class);
