@@ -9,11 +9,11 @@ import org.springframework.web.socket.WebSocketSession;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Deploy;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
-import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
@@ -34,7 +34,7 @@ import net.bestia.messages.login.LoginState;
  * @author Thomas Felix
  *
  */
-public class MessageHandlerActor extends UntypedActor {
+public class MessageHandlerActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
@@ -83,23 +83,12 @@ public class MessageHandlerActor extends UntypedActor {
 	}
 
 	@Override
-	public void onReceive(Object message) throws Exception {
-
-		if (message instanceof LoginAuthReplyMessage) {
-
-			handleLoginAuth((LoginAuthReplyMessage) message);
-
-		} else if (message instanceof AccountMessage) {
-
-			sendToClient((AccountMessage) message);
-
-		} else if (message instanceof String) {
-
-			handlePayload((String) message);
-
-		} else {
-			unhandled(message);
-		}
+	public Receive createReceive() {
+		return receiveBuilder()
+				.match(LoginAuthReplyMessage.class, this::handleLoginAuth)
+				.match(AccountMessage.class, this::sendToClient)
+				.match(String.class, this::handlePayload)
+				.build();
 	}
 
 	private void sendToClient(AccountMessage message) throws Exception {
@@ -110,7 +99,8 @@ public class MessageHandlerActor extends UntypedActor {
 	}
 
 	private void handlePayload(String payload) {
-		// We only accept auth messages.
+		// We only accept auth messages if we are not connected. Every other
+		// message will disconnect the client.
 		if (!isAuthenticated) {
 			try {
 				final LoginAuthMessage loginReqMsg = mapper.readValue(payload, LoginAuthMessage.class);
@@ -159,6 +149,13 @@ public class MessageHandlerActor extends UntypedActor {
 			accountId = msg.getAccountId();
 			// Also announce to client the login success.
 			sendToClient(msg);
+			
+			// Announce to the server that client is now fully connected.
+			final ClientConnectionStatusMessage ccsmsg = new ClientConnectionStatusMessage(
+					accountId,
+					ConnectionState.CONNECTED,
+					getSelf());
+			uplinkRouter.tell(ccsmsg, getSelf());
 
 		} else {
 			sendToClient(msg);

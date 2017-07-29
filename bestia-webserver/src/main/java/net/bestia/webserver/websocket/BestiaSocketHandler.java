@@ -56,6 +56,7 @@ public class BestiaSocketHandler extends TextWebSocketHandler {
 		LOG.debug("Closed connection: {}.", session.getRemoteAddress().toString());
 
 		// Kill the underlying akka actor.
-		actorApi.closeWebsocketConnection((String) session.getAttributes().get(ATTRIBUTE_ACTOR_REF));
+		final String actorRef = (String) session.getAttributes().get(ATTRIBUTE_ACTOR_REF);
+		actorApi.closeWebsocketConnection(actorRef);
 	}
 }

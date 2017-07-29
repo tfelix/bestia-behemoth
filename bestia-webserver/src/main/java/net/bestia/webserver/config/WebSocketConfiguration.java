@@ -14,7 +14,7 @@ import net.bestia.webserver.websocket.BestiaSocketHandler;
 /**
  * Configures the websocket connection endpoint.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Configuration
