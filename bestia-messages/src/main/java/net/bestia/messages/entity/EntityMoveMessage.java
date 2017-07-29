@@ -43,6 +43,17 @@ public class EntityMoveMessage extends EntityJsonMessage {
 	@JsonProperty("w")
 	private float walkspeed;
 
+	/**
+	 * This is the time latency of the moving entity. For server entities this
+	 * is 0, but for player controlled entities it is their latency.
+	 */
+	private int delta;
+
+	/**
+	 * This is the latency of the player receiving this update.
+	 */
+	private int latency;
+
 	public EntityMoveMessage() {
 		// no op.
 	}
@@ -75,6 +86,22 @@ public class EntityMoveMessage extends EntityJsonMessage {
 
 	public EntityMoveMessage(long entityId, List<Point> path) {
 		this(entityId, path, Walkspeed.ZERO);
+	}
+	
+	public void setDelta(int delta) {
+		this.delta = delta;
+	}
+	
+	public int getDelta() {
+		return delta;
+	}
+	
+	public void setLatency(int latency) {
+		this.latency = latency;
+	}
+	
+	public int getLatency() {
+		return latency;
 	}
 
 	public List<Long> getCordsX() {

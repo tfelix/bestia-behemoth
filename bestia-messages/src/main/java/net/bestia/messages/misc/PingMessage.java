@@ -14,8 +14,10 @@ import net.bestia.messages.JsonMessage;
 public class PingMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
-	private final static String message = "Hello Bestia.";
-	public static final String MESSAGE_ID = "system.ping";
+	public static final String MESSAGE_ID = "lat.req";
+	
+	@JsonProperty("s")
+	private long start;
 
 	protected PingMessage() {
 		// no op.
@@ -23,22 +25,19 @@ public class PingMessage extends JsonMessage {
 
 	public PingMessage(long accId) {
 		super(accId);
+		
+		start = System.currentTimeMillis();
+	}
+
+	public PingMessage(long accountId, long currentTimeMillis) {
+		super(accountId);
+		
+		this.start = currentTimeMillis;
 	}
 
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
-	}
-
-	@JsonProperty("m")
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		if (!PingMessage.message.equals(message)) {
-			throw new IllegalArgumentException("Wrong message for ping message.");
-		}
 	}
 
 	@Override

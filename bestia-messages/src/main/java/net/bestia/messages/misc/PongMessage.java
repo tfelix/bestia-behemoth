@@ -13,8 +13,10 @@ import net.bestia.messages.JsonMessage;
 public class PongMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
-	private static final String message = "Hello User.";
-	private static final String MESSAGE_ID = "system.pong";
+	public static final String MESSAGE_ID = "lat.res";
+	
+	@JsonProperty("s")
+	private long start;
 
 	/**
 	 * Ctor.
@@ -27,14 +29,13 @@ public class PongMessage extends JsonMessage {
 		super(accId);
 	}
 
-	@JsonProperty("m")
-	public String getMessage() {
-		return message;
-	}
-
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
+	}
+	
+	public long getStart() {
+		return start;
 	}
 
 	@Override

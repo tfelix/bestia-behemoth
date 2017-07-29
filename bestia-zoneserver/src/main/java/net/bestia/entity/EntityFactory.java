@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.bestia.zoneserver.actor.entity.EntityWorkerActor;
+import net.bestia.zoneserver.actor.entity.EntityManagerActor;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
@@ -80,7 +80,7 @@ class EntityFactory {
 		}
 
 		// Start a actor for this entity.
-		akkaApi.sendToActor(EntityWorkerActor.NAME, e.getId());
+		akkaApi.sendToActor(EntityManagerActor.NAME, e.getId());
 		
 		List<Component> addedComponents = new ArrayList<>(blueprint.getComponents().size());
 

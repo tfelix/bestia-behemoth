@@ -50,7 +50,7 @@ public class EntityWorkerActorTest {
 		 */
 		new TestKit(system) {
 			{
-				final Props props = Props.create(EntityWorkerActor.class);
+				final Props props = Props.create(EntityManagerActor.class);
 				final ActorRef subject = system.actorOf(props);
 
 				// “inject” the probe by passing it to the test subject

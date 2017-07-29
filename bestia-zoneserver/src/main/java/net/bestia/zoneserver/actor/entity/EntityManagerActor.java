@@ -9,7 +9,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.zoneserver.actor.SpringExtension;
 
 /**
- * It manages to start the entity actor as cluster shareded actors. This worker
+ * It manages to start the entity actor as cluster sharded actors. This worker
  * has a fixed address and can thus be used from the other actors quite easily.
  * It is the central point for creating entity centric actors.
  * 
@@ -18,13 +18,13 @@ import net.bestia.zoneserver.actor.SpringExtension;
  */
 @Component
 @Scope("prototype")
-public class EntityWorkerActor extends AbstractActor {
+public class EntityManagerActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().getSystem(), this);
 
 	public static final String NAME = "entity";
 
-	public EntityWorkerActor() {
+	public EntityManagerActor() {
 		// no op.
 	}
 

@@ -7,15 +7,20 @@ import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.entity.EntityActor;
-import net.bestia.zoneserver.actor.entity.EntityWorkerActor;
+import net.bestia.zoneserver.actor.entity.EntityManagerActor;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.SendActiveRangeActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * Contains static helper methods to send special messages to certain actors
  * inside the bestia system. This is only a helper shortcut to allow easier and
- * faster access to send messages.
+ * faster access to send messages to a bunch of actors which are accessed by
+ * special names.
+ * 
+ * Usually this class is used from actors itself. From the outside the
+ * {@link ZoneAkkaApi} is used.
  * 
  * @author Thomas Felix
  *
@@ -34,10 +39,15 @@ public final class AkkaSender {
 	 * @param msg
 	 */
 	public static void sendClient(ActorContext context, JsonMessage msg) {
-
-		final String nodeName = AkkaCluster.getNodeName(SendClientActor.NAME);
-		final ActorSelection responder = context.actorSelection(nodeName);
-		responder.tell(msg, ActorRef.noSender());
+		
+		sendToActor(context, SendClientActor.NAME, msg);
+	}
+	
+	public static void sendToActor(ActorContext context, String actorName, Object message) {
+		
+		final String nodeName = AkkaCluster.getNodeName(actorName);
+		final ActorSelection actor = context.actorSelection(nodeName);
+		actor.tell(message, ActorRef.noSender());
 	}
 
 	/**
@@ -49,10 +59,8 @@ public final class AkkaSender {
 	 *            of the referenced entity.
 	 */
 	public static void sendActiveInRangeClients(ActorContext context, EntityJsonMessage msg) {
-
-		final String nodeName = AkkaCluster.getNodeName(SendActiveRangeActor.NAME);
-		final ActorSelection activeClientBroadcaster = context.actorSelection(nodeName);
-		activeClientBroadcaster.tell(msg, ActorRef.noSender());
+		
+		sendToActor(context, SendActiveRangeActor.NAME, msg);
 	}
 
 	/**
@@ -68,7 +76,7 @@ public final class AkkaSender {
 	public static void sendEntityActor(ActorContext context, long entityId, Object msg) {
 		// Find the name.
 		final String rawActorName = EntityActor.getActorName(entityId);
-		final String actorName = AkkaCluster.getNodeName(EntityWorkerActor.NAME, rawActorName);
+		final String actorName = AkkaCluster.getNodeName(EntityManagerActor.NAME, rawActorName);
 		final ActorSelection selection = context.system().actorSelection(actorName);
 		selection.tell(msg, ActorRef.noSender());
 	}

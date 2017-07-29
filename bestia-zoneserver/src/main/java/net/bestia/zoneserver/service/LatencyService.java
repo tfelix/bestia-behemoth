@@ -12,7 +12,9 @@ import com.hazelcast.core.IMap;
 
 /**
  * This services helps to keep track of the client latency. It generates
- * timestamps and manages the latency calculation.
+ * timestamps and manages the latency calculation. This can and should be used
+ * in order to reduce lag while sending position and motion updates to the
+ * clients.
  * 
  * @author Thomas Felix
  *
@@ -52,6 +54,26 @@ public class LatencyService {
 		timestampStore.put(accountId, stamp);
 		return stamp;
 	}
+	
+	/**
+	 * Generates a new latency entry for the given client. It throws if no
+	 * server timestamp was previously set via {@link #getTimestamp(long)}. The
+	 * server stamp is used as precauson because the server timestamp could have
+	 * been changed in the meantime. Only if it matches the saved value the
+	 * latency estimation will be added.
+	 * 
+	 * @param accountId
+	 *            The account id.
+	 * @param clientStamp
+	 *            The timestamp sent via the client.
+	 */
+	public void addLatency(long accountId, long delta) {
+		
+		if(delta < 0) {
+			return;
+		}
+
+	}
 
 	/**
 	 * Generates a new latency entry for the given client. It throws if no
@@ -85,8 +107,8 @@ public class LatencyService {
 		final int latency = (int) (clientStamp - serverStamp);
 
 		Queue<Integer> data = latencyStore.get(accountId);
-		
-		if(data == null) {
+
+		if (data == null) {
 			data = new LinkedList<>();
 		}
 
@@ -126,7 +148,7 @@ public class LatencyService {
 		} else {
 			median = data[data.length / 2];
 		}
-		
+
 		LOG.debug("Found median latency {} ms for user {}.", median, accountId);
 
 		return median;
