@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 /**
  * Exception can be thrown when the wrong user credentials where selected.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @ResponseStatus(HttpStatus.FORBIDDEN)

@@ -15,7 +15,7 @@ import scala.concurrent.duration.Duration;
 /**
  * This runner will try to end the akka actor system gracefully.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class ActorSystemTerminator implements Runnable {

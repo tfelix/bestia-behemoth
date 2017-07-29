@@ -16,7 +16,7 @@ import net.bestia.webserver.actor.WebserverActorApi;
 /**
  * Handles the bestia websocket to the clients.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class BestiaSocketHandler extends TextWebSocketHandler {

@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import akka.actor.ActorContext;
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
+import akka.actor.Props;
 import akka.actor.TypedActor;
 import akka.pattern.Patterns;
 import akka.routing.ConsistentHashingRouter;
@@ -66,8 +67,8 @@ public class WebserverActorApiActor implements WebserverActorApi {
 	public void setupWebsocketConnection(String sessionUid, WebSocketSession session) {
 		// Setup the actor to access the zone server cluster.
 		final String actorName = String.format("socket-%s", session.getId());
-		final ActorRef messageActor = context.actorOf(MessageHandlerActor.props(session, mapper, uplinkRouter),
-				actorName);
+		final Props messageHandlerProps = MessageHandlerActor.props(session, mapper, uplinkRouter);
+		final ActorRef messageActor = context.actorOf(messageHandlerProps, actorName);
 		openedSockets.put(sessionUid, messageActor);
 	}
 
@@ -96,7 +97,7 @@ public class WebserverActorApiActor implements WebserverActorApi {
 	@Override
 	public boolean setPassword(String accName, String oldPassword, String newPassword)
 			throws WrongCredentialsException {
-		
+
 		// FIXME Einbauen.
 		throw new IllegalStateException("Not implemented yet.");
 	}

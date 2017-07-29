@@ -26,12 +26,12 @@ import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
 
 /**
- * This actor will handle all the message exchange with the websockt. When a
+ * This actor will handle all the message exchange with the websocket. When a
  * message from the zone cluster is received it will forward the message to the
  * client or if client messages are incoming it will handle them and forward
  * them into the system.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class MessageHandlerActor extends UntypedActor {

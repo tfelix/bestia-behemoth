@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 
 import akka.actor.ActorSystem;
 import akka.cluster.Cluster;
@@ -14,10 +13,9 @@ import net.bestia.webserver.actor.ActorSystemTerminator;
  * This will register a shutdown hook the the webserver, if we are terminated
  * properly we will terminate our connection gracefully with the system.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
-@Component
 public class ShutdownHookRunner implements CommandLineRunner {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ShutdownHookRunner.class);

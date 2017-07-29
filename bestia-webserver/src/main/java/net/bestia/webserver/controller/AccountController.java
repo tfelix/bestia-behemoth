@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import net.bestia.messages.web.AccountLoginToken;
 import net.bestia.webserver.actor.WebserverActorApi;
+import net.bestia.webserver.exceptions.NoConnectedException;
+import net.bestia.webserver.service.ConfigurationService;
 
 /**
  * This controller provides a rest interface to control logins of the clients.
@@ -22,13 +24,15 @@ import net.bestia.webserver.actor.WebserverActorApi;
 @RestController
 @RequestMapping("v1/account")
 public class AccountController {
-	
-	private WebserverActorApi login;
-	
+
+	private final WebserverActorApi login;
+	private final ConfigurationService config;
+
 	@Autowired
-	public AccountController(WebserverActorApi login) {
-		
+	public AccountController(WebserverActorApi login, ConfigurationService config) {
+
 		this.login = Objects.requireNonNull(login);
+		this.config = Objects.requireNonNull(config);
 	}
 
 	/**
@@ -47,17 +51,26 @@ public class AccountController {
 	public AccountLoginToken login(
 			@RequestParam(value = "accName") String account,
 			@RequestParam(value = "password") String password, HttpServletResponse response) {
-
+		NoConnectedException.isConnectedOrThrow(config);
 		return login.getLoginToken(account, password);
 	}
-	
+
+	/**
+	 * Resets the password to a new one.
+	 * 
+	 * @param account
+	 * @param password
+	 * @param email
+	 * @return
+	 */
 	@CrossOrigin(origins = "http://localhost")
 	@RequestMapping("password")
 	public AccountLoginToken password(
 			@RequestParam(value = "oldPassword") String account,
 			@RequestParam(value = "newPassword") String password,
 			@RequestParam(value = "email") String email) {
-
-		return login.getLoginToken(account, password);
+		NoConnectedException.isConnectedOrThrow(config);
+		throw new IllegalStateException("Not implemented.");
+		//return login.getLoginToken(account, password);
 	}
 }

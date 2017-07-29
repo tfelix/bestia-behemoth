@@ -1,7 +1,5 @@
 package net.bestia.webserver.config;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -13,19 +11,19 @@ import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import akka.actor.Address;
 import akka.actor.Deploy;
+import akka.actor.Props;
 import akka.actor.TypedActor;
 import akka.actor.TypedProps;
-import akka.cluster.Cluster;
 import akka.japi.Creator;
 import akka.routing.FromConfig;
 import net.bestia.server.AkkaCluster;
-import net.bestia.server.DiscoveryService;
 import net.bestia.webserver.actor.ActorSystemTerminator;
-import net.bestia.webserver.actor.WebClusterListenerActor;
+import net.bestia.webserver.actor.ClusterConnectActor;
+import net.bestia.webserver.actor.ClusterConnectionListenerActor;
 import net.bestia.webserver.actor.WebserverActorApi;
 import net.bestia.webserver.actor.WebserverActorApiActor;
+import net.bestia.webserver.service.ConfigurationService;
 
 /**
  * Generates the akka configuration file which is used to connect to the remote
@@ -45,28 +43,18 @@ public class AkkaConfiguration {
 	private ActorSystemTerminator terminator = null;
 
 	@Bean
-	public ActorSystem actorSystem(Config akkaConfig, HazelcastInstance hzClient) {
+	public ActorSystem actorSystem(Config akkaConfig,
+			HazelcastInstance hzClient,
+			ConfigurationService serverConfig) {
 
 		final ActorSystem system = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
 
-		final DiscoveryService clusterConfig = new DiscoveryService(hzClient);
-		final List<Address> seedNodes = clusterConfig.getClusterSeedNodes();
-
-		if (seedNodes.isEmpty()) {
-			LOG.error("No seed cluster nodes found. Can not join the system. Shutting down.");
-			System.exit(1);
-		}
-
-		LOG.info("Attempting to joing the bestia cluster...");
-		final Cluster cluster = Cluster.get(system);
-		cluster.joinSeedNodes(seedNodes);
-
-		// Prepare cleanup if we are removed from the cluster we will terminate.
-		final ActorSystemTerminator terminator = systemTerminator(system, hzClient);
-		cluster.registerOnMemberRemoved(terminator);
+		final Props clusterConnectProps = ClusterConnectActor.props(hzClient);
+		system.actorOf(clusterConnectProps, ClusterConnectActor.NAME);
 
 		// Subscribe for dead letter checking and domain events.
-		system.actorOf(WebClusterListenerActor.props(terminator));
+		final Props clusterListenerProps = ClusterConnectionListenerActor.props(serverConfig, hzClient);
+		system.actorOf(clusterListenerProps);
 
 		return system;
 	}
@@ -77,11 +65,10 @@ public class AkkaConfiguration {
 	 */
 	@Bean
 	public ActorRef uplinkRouter(ActorSystem system) {
-		
+
 		ActorRef msgRouter = system.actorOf(FromConfig.getInstance().props(), "uplink");
 		LOG.info("Message ingest path: {}", msgRouter.path().toString());
-		msgRouter.tell("test", ActorRef.noSender());
-		
+
 		return msgRouter;
 	}
 
@@ -105,7 +92,6 @@ public class AkkaConfiguration {
 	@Bean
 	public Config config() {
 		final Config config = ConfigFactory.load(AKKA_CONFIG_NAME);
-		
 		return config;
 	}
 
@@ -114,14 +100,16 @@ public class AkkaConfiguration {
 
 		final WebserverActorApi login = TypedActor.get(system)
 				.typedActorOf(
-						new TypedProps<WebserverActorApiActor>(WebserverActorApi.class, new Creator<WebserverActorApiActor>() {
-							private static final long serialVersionUID = 1L;
+						new TypedProps<WebserverActorApiActor>(WebserverActorApi.class,
+								new Creator<WebserverActorApiActor>() {
+									private static final long serialVersionUID = 1L;
 
-							@Override
-							public WebserverActorApiActor create() throws Exception {
-								return new WebserverActorApiActor(uplinkRouter);
-							}
-						}).withDeploy(Deploy.local()), "loginWebActor");
+									@Override
+									public WebserverActorApiActor create() throws Exception {
+										return new WebserverActorApiActor(uplinkRouter);
+									}
+								}).withDeploy(Deploy.local()),
+						"loginWebActor");
 
 		return login;
 	}
