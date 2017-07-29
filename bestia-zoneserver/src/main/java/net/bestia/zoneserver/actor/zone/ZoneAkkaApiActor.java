@@ -19,20 +19,16 @@ public class ZoneAkkaApiActor implements ZoneAkkaApi {
 	
 	private final static Logger LOG = LoggerFactory.getLogger(ZoneAkkaApiActor.class);
 
-	private final ActorSelection sendClientActor;
-
 	private final ActorContext context;
 
 	public ZoneAkkaApiActor() {
 
 		this.context = TypedActor.context();
-
-		this.sendClientActor = context.actorSelection(AkkaCluster.getNodeName(SendClientActor.NAME));
 	}
 
 	@Override
 	public void sendToClient(JsonMessage message) {
-		sendClientActor.tell(message, ActorRef.noSender());
+		AkkaSender.sendClient(context, message);
 	}
 
 	@Override

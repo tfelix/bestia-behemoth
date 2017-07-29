@@ -72,7 +72,6 @@ public class IngestActor extends BestiaRoutingActor {
 
 		// === House keeping actors ===
 		SpringExtension.actorOf(getContext(), LogoutActor.class);
-		SpringExtension.actorOf(getContext(), PingPongActor.class);
 
 		// === DEVELOPMENT ===
 
