@@ -9,3 +9,5 @@ In order to perform automatic startup of the server systemd start scripts are pr
 ```
 systemctl enable bestia-zone.service
 ```
+
+The Bestia  bestia-zoneserver.jar file must be placed in `/opt/bestia-zone/` to install it.

@@ -1,3 +1,13 @@
-==== Bestia inMemory Database ====
+# Bestia-InMemoryServer
 
-Clusterable in-memory databse for the bestia service. Zones will connect to this memory database in order to present the game world.
+The in-memory database server (Hazelcast) is used for fast and scalable access to saved entities which is needed for operating the game.
+
+## Installation
+
+In order to perform automatic startup of the server systemd start scripts are provided. In order to start the server automatically place the scripts under `/etc/systemd/system` and then do the following:
+
+```
+systemctl enable bestia-memdb.service
+```
+
+The Bestia  bestia-memdb.jar file must be placed in `/opt/bestia-memdb/` to install it.
