@@ -1,9 +1,15 @@
 package net.bestia.model.map;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 import net.bestia.model.geometry.Point;
+import net.bestia.model.geometry.Rect;
 
 public class MapChunkTest {
 
@@ -11,8 +17,7 @@ public class MapChunkTest {
 	private int[] groundLayerBig = new int[MapChunk.MAP_CHUNK_SIZE_AREA + 10];
 
 	public MapChunkTest() {
-		
-		
+
 		for (int i = 0; i < groundLayer.length; i++) {
 			groundLayer[i] = 10;
 		}
@@ -38,26 +43,6 @@ public class MapChunkTest {
 	}
 
 	@Test
-	public void ctor2_ok() {
-
-	}
-
-	@Test
-	public void ctor3_ok() {
-
-	}
-
-	@Test
-	public void ctor2_nok_throws() {
-
-	}
-
-	@Test
-	public void ctor3_ok_throws() {
-
-	}
-
-	@Test
 	public void getGid_outOfRange_minusOne() {
 		MapChunk mc = new MapChunk(new Point(5, 4), groundLayer);
 		Assert.assertEquals(-1, mc.getGid(new Point(-10, 3)));
@@ -72,9 +57,18 @@ public class MapChunkTest {
 
 	@Test
 	public void getGid_ok() {
-		MapChunk mc = new MapChunk(new Point(5, 4), groundLayer);
+		List<Map<Point, Integer>> layers = new ArrayList<>();
+		Map<Point, Integer> layer1 = new HashMap<>();
+		layers.add(layer1);
+		layer1.put(new Point(2, 3), 10);
+		layer1.put(new Point(6, 2), 11);
+		
+		MapChunk mc = new MapChunk(new Point(5, 4), groundLayer, layers);
+		
 		Assert.assertEquals(10, mc.getGid(new Point(1, 1)));
-		Assert.assertEquals(10, mc.getGid(1, new Point(1, 1)));
+		Assert.assertEquals(-1, mc.getGid(1, new Point(1, 1)));
+		Assert.assertEquals(10, mc.getGid(1, new Point(2, 3)));
+		Assert.assertEquals(11, mc.getGid(1, new Point(6, 2)));
 		// Ground
 		Assert.assertEquals(10, mc.getGid(0, new Point(1, 1)));
 	}
@@ -86,8 +80,8 @@ public class MapChunkTest {
 
 	@Test
 	public void getChunkCords_ok() {
-		Point p = MapChunk.getChunkCords(new Point(15, 5));
-		Assert.assertEquals(new Point(1, 0), p);
+		Point p = MapChunk.getChunkCords(new Point(105, 5));
+		Assert.assertEquals(new Point(5, 5), p);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -101,11 +95,14 @@ public class MapChunkTest {
 		Assert.assertEquals(new Point(50, 50), p);
 	}
 
+	@Test(expected = IllegalArgumentException.class)
 	public void getWorldRect_negative_throws() {
-
+		MapChunk.getWorldRect(new Point(-1, 5));
 	}
 
+	@Test
 	public void getWorldRect_ok() {
-
+		Rect r = MapChunk.getWorldRect(new Point(1, 5));
+		Assert.assertEquals(new Rect(10, 50, 10, 10), r);
 	}
 }

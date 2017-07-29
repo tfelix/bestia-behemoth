@@ -80,7 +80,7 @@ public class MapParameter implements Serializable {
 		}
 	}
 
-	private final static double MAP_RATIO = 12 / 8.0;
+	//private final static double MAP_RATIO = 12 / 8.0;
 	private final static int MINIMUM_LANDMASS_SQUARE_KM = 40000;
 
 	@Id

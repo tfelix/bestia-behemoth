@@ -73,7 +73,7 @@ public class ConnectionServiceTest {
 	
 	@Test
 	public void isOnline_accIdNotOnline_false() {
-		Assert.assertTrue(conSrv.isConnected(NOT_CONNECTED_ACC_ID));
+		Assert.assertFalse(conSrv.isConnected(NOT_CONNECTED_ACC_ID));
 	}
 	
 	@Test

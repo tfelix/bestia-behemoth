@@ -1,6 +1,8 @@
 package net.bestia.model.domain;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.persistence.Entity;
@@ -15,29 +17,38 @@ public class GeneralModelTest {
 
 	private ObjectMapper mapper = new ObjectMapper();
 	private Reflections reflections = new Reflections("net.bestia.model");
-	
+
+	private final static Set<Class<? extends Object>> WHITELIST = new HashSet<>(Arrays.asList(LoginInfo.class));
+
 	private Set<Class<?>> getAllEntities() {
 		final Set<Class<?>> allClasses = reflections
 				.getTypesAnnotatedWith(Entity.class);
 		return allClasses;
 	}
-	
+
 	/**
 	 * All entities must implement serializable.
 	 */
 	@Test
 	public void all_serializable() {
 		for (Class<?> clazz : getAllEntities()) {
+			
+			// Whitelist classes dont need to be serializable.
+			if(WHITELIST.contains(clazz)) {
+				continue;
+			}
+			
 			Assert.assertTrue(clazz.toGenericString()
 					+ " does not implement Serializable.",
 					Serializable.class.isAssignableFrom(clazz));
 		}
 	}
-	
+
 	/**
 	 * All entities must implement serializable.
-	 * @throws IllegalAccessException 
-	 * @throws InstantiationException 
+	 * 
+	 * @throws IllegalAccessException
+	 * @throws InstantiationException
 	 */
 	@Test
 	public void all_std_ctor() throws InstantiationException, IllegalAccessException {
@@ -45,7 +56,7 @@ public class GeneralModelTest {
 			clazz.newInstance();
 		}
 	}
-	
+
 	/**
 	 * All models should be serializable to JSON.
 	 */

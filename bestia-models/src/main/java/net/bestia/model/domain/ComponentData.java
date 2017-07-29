@@ -1,5 +1,7 @@
 package net.bestia.model.domain;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -14,7 +16,9 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "component_data")
-public class ComponentData {
+public class ComponentData implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	@Id
 	private long id;

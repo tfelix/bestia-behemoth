@@ -129,7 +129,7 @@ public class MapDataDTOTest {
 	}
 
 	@Test
-	public void getDeistinctGids_distinctGids() {
+	public void getDistinctGids_distinctGids() {
 		final Rect r1 = new Rect(10, 20, 10, 10);
 		MapDataDTO md1 = new MapDataDTO(r1);
 

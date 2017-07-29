@@ -59,7 +59,7 @@ public class ChatCommandServiceTest {
 
 	@Test
 	public void isChatCommand_notContainedChatPrefix_false() {
-		Assert.assertFalse(chatService.isChatCommand("/unknown test"));
+		Assert.assertFalse(chatService.isChatCommand("#unknown test"));
 	}
 
 	@Test

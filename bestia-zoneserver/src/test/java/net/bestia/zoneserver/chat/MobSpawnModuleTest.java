@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.chat;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -24,6 +25,7 @@ public class MobSpawnModuleTest {
 	@Mock
 	private Account acc;
 
+	@Before
 	public void setup() {
 
 		module = new MobSpawnModule(akkaApi, mobFactory);

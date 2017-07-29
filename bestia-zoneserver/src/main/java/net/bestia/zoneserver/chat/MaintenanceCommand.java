@@ -30,7 +30,7 @@ public class MaintenanceCommand extends BaseChatCommand {
 	private static final Logger LOG = LoggerFactory.getLogger(MaintenanceCommand.class);
 
 	private static final String CMD_START_REGEX = "^/maintenance .*";
-	private static final Pattern CMD_PATTERN = Pattern.compile("/maintenance (.+)");
+	private static final Pattern CMD_PATTERN = Pattern.compile("/maintenance (true|false)", Pattern.CASE_INSENSITIVE);
 
 	private final RuntimeConfigService config;
 	private final LoginService loginService;

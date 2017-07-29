@@ -30,7 +30,7 @@ public class ServerVersionChatCommand extends BaseChatCommand {
 
 	@Override
 	public boolean isCommand(String text) {
-		return text.equals("/server");
+		return text.startsWith("/server ") || text.equals("/server");
 	}
 
 	@Override
