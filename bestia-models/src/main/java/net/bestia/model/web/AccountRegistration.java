@@ -5,10 +5,16 @@ import java.io.Serializable;
 import net.bestia.model.domain.Gender;
 import net.bestia.model.domain.Hairstyle;
 
+/**
+ * This POJO holds the data needed for an account registration.
+ * 
+ * @author Thomas Felix
+ *
+ */
 public class AccountRegistration implements Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private String username;
 	private String email;
 	private String password;
@@ -18,6 +24,67 @@ public class AccountRegistration implements Serializable {
 	private String authToken;
 
 	public AccountRegistration() {
-		
+
 	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public Gender getGender() {
+		return gender;
+	}
+
+	public void setGender(Gender gender) {
+		this.gender = gender;
+	}
+
+	public Hairstyle getHairstyle() {
+		return hairstyle;
+	}
+
+	public void setHairstyle(Hairstyle hairstyle) {
+		this.hairstyle = hairstyle;
+	}
+
+	public String getCampaignCode() {
+		return campaignCode;
+	}
+
+	public void setCampaignCode(String campaignCode) {
+		this.campaignCode = campaignCode;
+	}
+
+	public String getAuthToken() {
+		return authToken;
+	}
+
+	public void setAuthToken(String authToken) {
+		this.authToken = authToken;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
 }

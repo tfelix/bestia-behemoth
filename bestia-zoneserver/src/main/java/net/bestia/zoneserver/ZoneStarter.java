@@ -18,6 +18,7 @@ import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
 import net.bestia.zoneserver.actor.entity.EntityManagerActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
+import net.bestia.zoneserver.actor.web.CheckUsernameDataActor;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.HeartbeatActor;
 import net.bestia.zoneserver.actor.zone.IngestActor;
@@ -58,6 +59,7 @@ public class ZoneStarter implements CommandLineRunner {
 
 		akkaApi.startActor(IngestActor.class);
 		akkaApi.startActor(IngestExActor.class);
+		
 		akkaApi.startActor(SendClientActor.class);
 		akkaApi.startActor(SendActiveRangeActor.class);
 		akkaApi.startActor(ActiveClientUpdateActor.class);
@@ -75,6 +77,9 @@ public class ZoneStarter implements CommandLineRunner {
 		// System actors.
 		akkaApi.startActor(ZoneClusterListenerActor.class);
 		akkaApi.startActor(HeartbeatActor.class);
+		
+		// Web/REST actors.
+		akkaApi.startActor(CheckUsernameDataActor.class);
 
 		// Maybe this needs to be more sophisticated done only when we joined
 		// the cluster.

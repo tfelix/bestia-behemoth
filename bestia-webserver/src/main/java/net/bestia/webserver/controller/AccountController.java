@@ -96,7 +96,9 @@ public class AccountController {
 	 */
 	@CrossOrigin(origins = "http://localhost")
 	@RequestMapping("check")
-	public void checkData(@RequestBody UserNameCheck check) {
-
+	public ResponseEntity<UserNameCheck> checkData(@RequestBody UserNameCheck check) {
+		
+		
+		return null;
 	}
 }

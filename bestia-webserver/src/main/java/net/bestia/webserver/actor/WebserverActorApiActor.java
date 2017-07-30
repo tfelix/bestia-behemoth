@@ -16,11 +16,13 @@ import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.TypedActor;
+import akka.japi.Option;
 import akka.pattern.Patterns;
 import akka.routing.ConsistentHashingRouter;
 import akka.util.Timeout;
 import net.bestia.messages.web.AccountLogin;
 import net.bestia.messages.web.AccountLoginToken;
+import net.bestia.model.web.UserNameCheck;
 import net.bestia.webserver.exceptions.WrongCredentialsException;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -29,7 +31,7 @@ import scala.concurrent.duration.Duration;
 public class WebserverActorApiActor implements WebserverActorApi {
 
 	private final static Logger LOG = LoggerFactory.getLogger(WebserverActorApiActor.class);
-	private final static Timeout timeout = new Timeout(Duration.create(2, "seconds"));
+	private final static Timeout REST_CALL_TIMEOUTS = new Timeout(Duration.create(5, "seconds"));
 
 	private final ActorRef uplinkRouter;
 	private final ActorContext context;
@@ -53,10 +55,10 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 		Future<Object> answer = Patterns.ask(uplinkRouter,
 				new ConsistentHashingRouter.ConsistentHashableEnvelope(accountLogin, accountLogin),
-				timeout);
+				REST_CALL_TIMEOUTS);
 
 		try {
-			return (AccountLoginToken) Await.ready(answer, timeout.duration());
+			return (AccountLoginToken) Await.ready(answer, REST_CALL_TIMEOUTS.duration());
 		} catch (TimeoutException | InterruptedException e) {
 			LOG.warn("Login was not checked in time.");
 			return null;
@@ -100,6 +102,25 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 		// FIXME Einbauen.
 		throw new IllegalStateException("Not implemented yet.");
+	}
+
+	@Override
+	public Future<Object> checkAvailableUserName(UserNameCheck data) {
+		
+	
+		//Option.option(arg0)
+		Future<Object> future = Patterns.ask(uplinkRouter, data, REST_CALL_TIMEOUTS);
+		
+		return future;
+	}
+
+	/**
+	 * Handle the answers from the server.
+	 */
+	@Override
+	public void onReceive(Object arg0, ActorRef arg1) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

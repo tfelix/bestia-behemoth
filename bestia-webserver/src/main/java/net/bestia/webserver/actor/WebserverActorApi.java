@@ -2,10 +2,16 @@ package net.bestia.webserver.actor;
 
 import org.springframework.web.socket.WebSocketSession;
 
+import akka.actor.TypedActor;
+import akka.japi.Option;
 import net.bestia.messages.web.AccountLoginToken;
+import net.bestia.model.web.UserNameCheck;
 import net.bestia.webserver.exceptions.WrongCredentialsException;
+import scala.concurrent.Future;
 
-public interface WebserverActorApi {
+public interface WebserverActorApi extends TypedActor.Receiver {
+
+	Future<Object> checkAvailableUserName(UserNameCheck data);
 
 	/**
 	 * Generates a new login token for a given account and password combination.
