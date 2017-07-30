@@ -37,6 +37,10 @@ public class PongMessage extends JsonMessage {
 	public long getStart() {
 		return start;
 	}
+	
+	public void setStart(long start) {
+		this.start = start;
+	}
 
 	@Override
 	public String toString() {
