@@ -35,7 +35,7 @@ import net.bestia.messages.login.LogoutMessage;
  * @author Thomas Felix
  *
  */
-public class MessageHandlerActor extends AbstractActor {
+public class ClientMessageHandlerActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
@@ -66,7 +66,7 @@ public class MessageHandlerActor extends AbstractActor {
 	 * @param mapper
 	 *            An jackson json mapper.
 	 */
-	public MessageHandlerActor(WebSocketSession session, ObjectMapper mapper, ActorRef uplinkRouter) {
+	public ClientMessageHandlerActor(WebSocketSession session, ObjectMapper mapper, ActorRef uplinkRouter) {
 
 		this.session = Objects.requireNonNull(session, "Session can not be null.");
 		this.mapper = Objects.requireNonNull(mapper, "Mapper can not be null.");
@@ -81,11 +81,11 @@ public class MessageHandlerActor extends AbstractActor {
 	 * @return
 	 */
 	public static Props props(WebSocketSession session, ObjectMapper mapper, ActorRef uplinkRouter) {
-		return Props.create(new Creator<MessageHandlerActor>() {
+		return Props.create(new Creator<ClientMessageHandlerActor>() {
 			private static final long serialVersionUID = 1L;
 
-			public MessageHandlerActor create() throws Exception {
-				return new MessageHandlerActor(session, mapper, uplinkRouter);
+			public ClientMessageHandlerActor create() throws Exception {
+				return new ClientMessageHandlerActor(session, mapper, uplinkRouter);
 			}
 		}).withDeploy(Deploy.local());
 	}

@@ -67,7 +67,7 @@ public class WebserverActorApiActor implements WebserverActorApi {
 	public void setupWebsocketConnection(String sessionUid, WebSocketSession session) {
 		// Setup the actor to access the zone server cluster.
 		final String actorName = String.format("socket-%s", session.getId());
-		final Props messageHandlerProps = MessageHandlerActor.props(session, mapper, uplinkRouter);
+		final Props messageHandlerProps = ClientMessageHandlerActor.props(session, mapper, uplinkRouter);
 		final ActorRef messageActor = context.actorOf(messageHandlerProps, actorName);
 		openedSockets.put(sessionUid, messageActor);
 	}

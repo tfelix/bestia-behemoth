@@ -25,8 +25,10 @@ public class PongMessage extends JsonMessage {
 		// no op.
 	}
 
-	public PongMessage(long accId) {
+	public PongMessage(long accId, long start) {
 		super(accId);
+		
+		this.start = start;
 	}
 
 	@Override
@@ -49,6 +51,6 @@ public class PongMessage extends JsonMessage {
 
 	@Override
 	public PongMessage createNewInstance(long accountId) {
-		return new PongMessage(accountId);
+		return new PongMessage(accountId, start);
 	}
 }
