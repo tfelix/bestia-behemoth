@@ -66,7 +66,9 @@ export default class GameState {
 			// Follow the player
 			LOG.info('Player build');
 			this._ctx.playerEntity = playerEntity;
-			this.game.camera.follow(playerEntity.sprite);
+			// This is not clean as we must reference the internal sprite of the player.
+			// Rework this when updating the render engine.
+			this.game.camera.follow(playerEntity._sprite);
 			this._ctx.pubsub.publish(Signal.ENGINE_GAME_STARTED);
 		}.bind(this));
 		

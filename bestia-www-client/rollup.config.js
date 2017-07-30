@@ -5,7 +5,7 @@ import commonjs from 'rollup-plugin-commonjs';
 import uglify from 'rollup-plugin-uglify';
 import replace from 'rollup-plugin-replace';
 
-export default {
+export default [{
   entry: 'src/js/main.js',
   dest: 'build/js/behemoth.js',
   format: 'iife',
@@ -35,4 +35,14 @@ export default {
     }),
     (process.env.NODE_ENV === 'production' && uglify())
   ]
-};
+}, {
+  entry: 'src/js/pages/login.js',
+  dest: 'build/js/login.js',
+  format: 'iife',
+  sourceMap: true,
+  plugins: [
+    json(),
+    resolve({jsnext: true, main: true}),
+    commonjs()
+  ]
+}];

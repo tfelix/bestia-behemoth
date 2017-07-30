@@ -1,59 +1,100 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title data-i18n="[html]register.title_html">register.title_title</title>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Bestia - Register</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
-<link rel="stylesheet" type="text/css" href="css/lib-pages.css" />
-
-<script src="js/app-pages.js"></script>
-<script src="js/create.js"></script>
-
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" href="css/spectre.min.css" />
+	<link rel="stylesheet" type="text/css" href="css/register.css" />
+	<script src="js/register.js"></script>
+	<script src='https://www.google.com/recaptcha/api.js'></script>
 </head>
+
 <body>
 
 	<div class="container">
-		<div style="float: none; margin: 50px auto;" class="col-md-6">
-			<p style="text-align: center;">
-				<img src="img/bestia_logo.png" alt="Bestia Logo">
-			</p>
+		<div class="columns">
+			<div class="content column col-4 centered text-large">
 
-			<div style="font-size: 16pt;" class="label label-warning pull-right">ALPHA-Version</div>
-			<h3 data-i18n="register.title">register.title</h3>
-			<p></p>
-			<form id="login" data-bind="submit: onSubmit">
-				<p>Vielen Dank! Durch deine Anmeldung hilfst du uns in einem sehr frühen Prozess der Spielentwicklung auf Fehler
-					und Ungereimtheiten aufmerksam zu werden!</p>
-				<div class="form-group">
-					<label for="email" data-i18n="username">username</label> <input type="text" class="form-control" name="masterName"
-						data-i18n="[placeholder]username_placeholder;" placeholder="username_placeholder" data-bind="value: masterName">
-					<p class="help-block">Der Meister-Name wird im Spiel für andere Spieler sichtbar sein. Es ist sozusagen dein
-						sichtbarer Spitzname. Er kann nicht mehr geändert werden! Wähle in mit Bedacht junger Meister!</p>
-				</div>
-				<div class="form-group">
-					<label for="email" data-i18n="email">email</label> <input type="text" class="form-control" name="email"
-						data-i18n="[placeholder]email_placeholder;" placeholder="email_placeholder" data-bind="value: email">
-					<p class="help-block">Deine E-Mail dient als Login für das Spiel. Außerdem senden wir, sofern du das möchtest,
-						ab und an einen Newsletter über Events, Gewinnmöglichkeiten und Updates. Aber keine Angst wir hassen Spam genau so
-						wie du und du kannst diesen Service auch abschalten.</p>
-				</div>
-				<div class="form-group">
-					<label for="password" data-i18n="password">password</label> <input type="password" class="form-control"
-						name="password" data-i18n="[placeholder]password_placeholder;" placeholder="password_placeholder"
-						data-bind="value: password"> <span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
-				</div>
-				<div class="form-group">
-					<label for="password" data-i18n="password_confirm">password_confirm</label> <input type="password"
-						class="form-control" name="password" data-i18n="[placeholder]password_confirm_placeholder;"
-						placeholder="password_confirm_placeholder" data-bind="value: passwordConfirm"> <span
-						class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
-				</div>
-				<div data-bind="text: password"></div>
-				<button type="submit" class="btn btn-default" data-i18n="create_account">create_account</button>
-			</form>
+				<div style="font-size: 16pt;" class="label label-warning pull-right">ALPHA-Version</div>
+				<h1>Bestia Register</h1>
+
+				<div class="divider text-center"></div>
+
+				<p><b>This is Alpha-Software!</b> Bestia is currently in an early alpha stage. We therefore only invite certain dedicated players
+					for early testing.</p>
+				<p>Please note that the server software is work in progress. Dataloss or rollbacks <b>WILL</b> happen.</p>
+
+				<p>Dont forget to follow us for further updates!</p>
+
+				<div class="divider text-center"></div>
+
+				<form>
+
+					<div class="popover popover-right">
+						<div class="form-group">
+							<label class="form-label" for="input-example-1">Username</label>
+							<input class="form-input" type="text" id="input-example-1" placeholder="Enter username" />
+						</div>
+						<div class="popover-container">
+							<div class="card">
+								<div class="card-header"></div>
+								<div class="card-body">
+									MItte
+								</div>
+								<div class="card-footer"></div>
+							</div>
+						</div>
+					</div>
+
+					<!-- form input control -->
+					<div class="form-group">
+						<label class="form-label" for="input-example-1">Username</label>
+						<input class="form-input" type="text" id="input-example-1" placeholder="Enter username" />
+					</div>
+					<div class="form-group">
+						<label class="form-label" for="input-example-1">E-Mail</label>
+						<input class="form-input" type="text" id="input-email" placeholder="Enter e-mail" />
+					</div>
+					<div class="form-group">
+						<label class="form-label" for="input-password">Password</label>
+						<input class="form-input" type="password" id="input-password" placeholder="Enter password" />
+					</div>
+					<!-- form radio control -->
+					<div class="form-group">
+						<label class="form-label">Gender</label>
+						<label class="form-radio">
+					<input type="radio" name="gender" />
+					<i class="form-icon"></i> Male
+				</label>
+						<label class="form-radio">
+					<input type="radio" name="gender" checked />
+					<i class="form-icon"></i> Female
+				</label>
+					</div>
+					<div class="form-group">
+						<label class="form-label" for="input-invitekey">Invite key</label>
+						<input class="form-input" type="password" id="input-invitekey" placeholder="Enter invite key" />
+					</div>
+
+					<div class="form-group centered">
+						<div class="g-recaptcha" data-sitekey="6LfPCSsUAAAAAM51azbc7utLMjqcI_GT32YLw2nY"></div>
+					</div>
+
+					<!-- form textarea control -->
+					<div class="form-group">
+						<button type="submit" class="btn btn-lg centered" style="padding: 0 80px">Register</button>
+						<div class="loading"></div>
+					</div>
+				</form>
+
+			</div>
 		</div>
 	</div>
+
 </body>
+
 </html>

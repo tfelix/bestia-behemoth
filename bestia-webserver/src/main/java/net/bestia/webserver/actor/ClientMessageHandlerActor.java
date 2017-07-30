@@ -200,10 +200,10 @@ public class ClientMessageHandlerActor extends AbstractActor {
 	}
 
 	private void closeClientConnection(CloseStatus status) {
-		LOG.debug("Closing connection to {}.", session.getRemoteAddress().toString());
 
 		// If we were fully connected, disconnect from the server.
 		if (accountId != 0 && isAuthenticated && !notifiedServerClose) {
+			LOG.debug("Closing connection to {}.", session.getRemoteAddress().toString());
 			notifiedServerClose = true;
 			final ClientConnectionStatusMessage ccsmsg = new ClientConnectionStatusMessage(
 					accountId,
