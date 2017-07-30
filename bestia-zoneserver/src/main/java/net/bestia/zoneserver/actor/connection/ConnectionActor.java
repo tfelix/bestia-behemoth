@@ -71,11 +71,11 @@ public class ConnectionActor extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(JsonMessage.class, this::handleClientMessage)
 				.match(PongMessage.class, this::handlePongMessage)
 				.match(ClientConnectionStatusMessage.class, this::handleClientConnectionMessage)
 				.match(LogoutMessage.class, this::handleLogout)
 				.matchEquals(LATENCY_REQUEST_MSG, msg -> handleLatencyRequest())
+				.match(JsonMessage.class, this::handleClientMessage)
 				.build();
 	}
 
@@ -114,8 +114,8 @@ public class ConnectionActor extends AbstractActor {
 		if (missedLatencyCounter > MAX_LATENCY_MISSING) {
 			// Connection seems to have dropped. Signal the server that the
 			// client has disconnected and terminate.
-			loginService.logout(accountId);
-			getContext().stop(getSelf());
+			//loginService.logout(accountId);
+			//getContext().stop(getSelf());
 		} else {
 
 			if (clientWebserver == null) {

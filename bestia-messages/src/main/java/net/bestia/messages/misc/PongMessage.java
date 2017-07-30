@@ -44,7 +44,7 @@ public class PongMessage extends JsonMessage {
 
 	@Override
 	public String toString() {
-		return String.format("PongMessage[account id: %d]", getAccountId());
+		return String.format("PongMessage[account id: %d, stamp: %d]", getAccountId(), start);
 	}
 
 	@Override

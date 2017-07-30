@@ -42,7 +42,7 @@ public class PingMessage extends JsonMessage {
 
 	@Override
 	public String toString() {
-		return String.format("PingMessage[accId: %d]", getAccountId());
+		return String.format("PingMessage[accId: %d, stamp: %d]", getAccountId(), start);
 	}
 
 	@Override
