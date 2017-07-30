@@ -52,4 +52,6 @@ var bestiaForm = new CreateForm();
 
 $(document).ready(function() {
 	ko.applyBindings(bestiaForm);
+
+	
 });

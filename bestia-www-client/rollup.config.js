@@ -45,4 +45,15 @@ export default [{
     resolve({jsnext: true, main: true}),
     commonjs()
   ]
+},
+{
+  entry: 'src/js/pages/register.js',
+  dest: 'build/js/register.js',
+  format: 'iife',
+  sourceMap: true,
+  plugins: [
+    json(),
+    resolve({jsnext: true, main: true}),
+    commonjs()
+  ]
 }];
