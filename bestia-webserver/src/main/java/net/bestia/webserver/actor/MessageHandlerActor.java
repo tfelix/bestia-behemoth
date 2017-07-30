@@ -150,8 +150,10 @@ public class MessageHandlerActor extends AbstractActor {
 	private void handleLoginAuth(LoginAuthReplyMessage msg) throws Exception {
 		// Check how the login state was given.
 		if (msg.getLoginState() == LoginState.ACCEPTED) {
+			
 			isAuthenticated = true;
 			accountId = msg.getAccountId();
+			
 			// Also announce to client the login success.
 			sendToClient(msg);
 

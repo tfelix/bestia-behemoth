@@ -33,7 +33,7 @@ public class IngestExActor extends AbstractActor {
 		return receiveBuilder()
 				.match(PongMessage.class, this::redirectConnection)
 				.match(ClientConnectionStatusMessage.class, this::redirectConnection)
-				.matchAny(this::redirect)
+				.matchAny(this::redirectLegacy)
 				.build();
 	}
 
@@ -42,8 +42,8 @@ public class IngestExActor extends AbstractActor {
 	 * 
 	 * @param msg
 	 */
-	private void redirect(Object msg) {
-		LOG.debug("IngestEx redir: {}.", msg);
+	private void redirectLegacy(Object msg) {
+		LOG.debug("IngestEx legacy: {}.", msg);
 		AkkaSender.sendToActor(getContext(), IngestActor.NAME, msg, getSender());
 	}
 
@@ -51,6 +51,6 @@ public class IngestExActor extends AbstractActor {
 		LOG.debug("IngestEx received: {}.", msg);
 		
 		AkkaSender.sendToActor(getContext(), ConnectionManagerActor.NAME, msg, getSender());
-		redirect(msg);
+		redirectLegacy(msg);
 	}
 }

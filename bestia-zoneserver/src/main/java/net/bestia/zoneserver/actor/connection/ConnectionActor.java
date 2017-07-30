@@ -39,8 +39,8 @@ public class ConnectionActor extends AbstractActor {
 	private static final int MAX_LATENCY_MISSING = 4;
 
 	private final Cancellable tick = getContext().getSystem().scheduler().schedule(
+			Duration.create(2, TimeUnit.SECONDS),
 			Duration.create(5, TimeUnit.SECONDS),
-			Duration.create(1, TimeUnit.SECONDS),
 			getSelf(), LATENCY_REQUEST_MSG, getContext().dispatcher(), null);
 
 	private final long accountId;
