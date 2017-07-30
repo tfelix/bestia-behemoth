@@ -114,8 +114,8 @@ public class ConnectionActor extends AbstractActor {
 		if (missedLatencyCounter > MAX_LATENCY_MISSING) {
 			// Connection seems to have dropped. Signal the server that the
 			// client has disconnected and terminate.
-			//loginService.logout(accountId);
-			//getContext().stop(getSelf());
+			loginService.logout(accountId);
+			getContext().stop(getSelf());
 		} else {
 
 			if (clientWebserver == null) {
