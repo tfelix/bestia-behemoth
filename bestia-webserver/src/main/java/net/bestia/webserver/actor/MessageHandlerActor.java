@@ -7,6 +7,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import akka.actor.AbstractActor;
@@ -23,6 +24,7 @@ import net.bestia.messages.internal.ClientConnectionStatusMessage.ConnectionStat
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
+import net.bestia.messages.login.LogoutMessage;
 
 /**
  * This actor will handle all the message exchange with the websocket. When a
@@ -85,16 +87,36 @@ public class MessageHandlerActor extends AbstractActor {
 	public Receive createReceive() {
 		return receiveBuilder()
 				.match(LoginAuthReplyMessage.class, this::handleLoginAuth)
+				.match(LogoutMessage.class, this::handleServerLogout)
 				.match(AccountMessage.class, this::sendToClient)
 				.match(String.class, this::handlePayload)
 				.build();
 	}
 
-	private void sendToClient(AccountMessage message) throws Exception {
+	private void sendToClient(AccountMessage message) {
 		// Send the payload to the client.
-		final String payload = mapper.writeValueAsString(message);
-		LOG.debug("Server sending: {}.", payload);
-		session.sendMessage(new TextMessage(payload));
+		try {
+			final String payload = mapper.writeValueAsString(message);
+			LOG.debug("Server sending: {}.", payload);
+			session.sendMessage(new TextMessage(payload));
+		} catch (JsonProcessingException e) {
+			LOG.error("Could not serialize server message: {}.", message.toString());
+		} catch (IOException e) {
+			// Could not send to client.
+			closeClientConnection(CloseStatus.NORMAL);
+		}
+
+	}
+
+	/**
+	 * The server requests a logout.
+	 */
+	private void handleServerLogout(LogoutMessage msg) {
+
+		// Send the message to the client like every other message.
+		sendToClient(msg);
+
+		closeClientConnection(CloseStatus.NORMAL);
 	}
 
 	/**
@@ -150,10 +172,10 @@ public class MessageHandlerActor extends AbstractActor {
 	private void handleLoginAuth(LoginAuthReplyMessage msg) throws Exception {
 		// Check how the login state was given.
 		if (msg.getLoginState() == LoginState.ACCEPTED) {
-			
+
 			isAuthenticated = true;
 			accountId = msg.getAccountId();
-			
+
 			// Also announce to client the login success.
 			sendToClient(msg);
 
