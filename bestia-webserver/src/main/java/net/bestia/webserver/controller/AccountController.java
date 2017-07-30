@@ -5,12 +5,18 @@ import java.util.Objects;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import net.bestia.messages.web.AccountLoginToken;
+import net.bestia.model.web.AccountRegistration;
+import net.bestia.model.web.UserNameCheck;
 import net.bestia.webserver.actor.WebserverActorApi;
 import net.bestia.webserver.exceptions.NoConnectedException;
 import net.bestia.webserver.service.ConfigurationService;
@@ -70,7 +76,27 @@ public class AccountController {
 			@RequestParam(value = "newPassword") String password,
 			@RequestParam(value = "email") String email) {
 		NoConnectedException.isConnectedOrThrow(config);
+
 		throw new IllegalStateException("Not implemented.");
-		//return login.getLoginToken(account, password);
+		// return login.getLoginToken(account, password);
+	}
+
+	/**
+	 * Registers a new account with the bestia server.
+	 */
+	@CrossOrigin(origins = "http://localhost")
+	@RequestMapping(value = "register", method = RequestMethod.POST)
+	public ResponseEntity register(@RequestBody AccountRegistration registration) {
+
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	/**
+	 * Checks the entered user data if this is valid (username not taken etc.)
+	 */
+	@CrossOrigin(origins = "http://localhost")
+	@RequestMapping("check")
+	public void checkData(@RequestBody UserNameCheck check) {
+
 	}
 }
