@@ -75,6 +75,9 @@ public class Account implements Serializable {
 
 	@Temporal(TemporalType.DATE)
 	private Date bannedUntilDate;
+	
+	@Enumerated(EnumType.STRING)
+	private Gender gender; 
 
 	@Enumerated(EnumType.STRING)
 	private UserLevel userLevel = UserLevel.USER;
@@ -244,6 +247,14 @@ public class Account implements Serializable {
 
 	public void setUserLevel(UserLevel userLevel) {
 		this.userLevel = userLevel;
+	}
+	
+	public Gender getGender() {
+		return gender;
+	}
+	
+	public void setGender(Gender gender) {
+		this.gender = gender;
 	}
 
 	@Override
