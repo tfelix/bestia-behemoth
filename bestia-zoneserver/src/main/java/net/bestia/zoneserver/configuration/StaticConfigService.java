@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
  * either obtained by application.properties or via commandline attributes. They
  * are not meant to be changed during runtime.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Service
@@ -28,6 +28,9 @@ public class StaticConfigService {
 
 	@Value("${server.version}")
 	private String serverVersion;
+
+	@Value("${recaptcha.secretKey}")
+	private String reCaptchaSecretKey;
 
 	/**
 	 * Returns the name of this server. By default this is an auto generated
@@ -65,5 +68,14 @@ public class StaticConfigService {
 	 */
 	public int getEntityBufferSize() {
 		return entityBufferSize;
+	}
+
+	/**
+	 * Returns the secret key for re-captcha authentication.
+	 * 
+	 * @return The server secret key.
+	 */
+	public String getReCaptchaSecretKey() {
+		return reCaptchaSecretKey;
 	}
 }
