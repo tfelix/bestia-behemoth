@@ -13,6 +13,7 @@ import AttackView from './ui/attack/AttackView';
 import BestiaView from './ui/bestia/BestiaView';
 import ShortcutView from './ui/shortcut/ShortcutView';
 import ClientVarManager from './ui/ClientVarManager';
+import LatencyReporter from './util/LatencyReporter';
 
 // Creating all needed components.
 let pubsub = new PubSub();
@@ -21,6 +22,7 @@ let auth = new Authenticator(pubsub);
 let engine = new Engine(pubsub, urlHelper);
 let connection = new Connection(pubsub);
 let cvarManager = new ClientVarManager(pubsub);
+let latencyReporter = new LatencyReporter(pubsub);
 
 // Some views share a view model.
 let bestiaView = new BestiaView(pubsub, urlHelper);

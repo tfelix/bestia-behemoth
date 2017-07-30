@@ -5,8 +5,10 @@
  */
 var MID = {
 	SERVER_INFO : 'server.info',
-	
+
 	SYSTEM_AUTHREPLY : 'system.loginauthreply',
+
+	LATENCY_REQ : 'lat.req',
 	
 	BESTIA_INFO : 'bestia.info',
 	BESTIA_REQ_INFO : 'bestia.requestinfo',
