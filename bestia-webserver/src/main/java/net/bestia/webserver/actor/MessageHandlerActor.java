@@ -46,6 +46,13 @@ public class MessageHandlerActor extends AbstractActor {
 	private boolean isAuthenticated = false;
 
 	/**
+	 * Flag if the server was already notified about the close. Since we are
+	 * entering the close state from multiple paths we need to make sure to
+	 * execute the server send only once.
+	 */
+	private boolean notifiedServerClose = false;
+
+	/**
 	 * Account id is set as soon as the connection gets confirmed from the
 	 * server.
 	 */
@@ -196,7 +203,8 @@ public class MessageHandlerActor extends AbstractActor {
 		LOG.debug("Closing connection to {}.", session.getRemoteAddress().toString());
 
 		// If we were fully connected, disconnect from the server.
-		if (accountId != 0 && isAuthenticated) {
+		if (accountId != 0 && isAuthenticated && !notifiedServerClose) {
+			notifiedServerClose = true;
 			final ClientConnectionStatusMessage ccsmsg = new ClientConnectionStatusMessage(
 					accountId,
 					ConnectionState.DISCONNECTED,

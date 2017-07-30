@@ -23,6 +23,9 @@ import net.bestia.zoneserver.service.LoginService;
 import scala.concurrent.duration.Duration;
 
 /**
+ * This actor holds the connection details of a client and is able to redirect
+ * messages towards this client. It keeps track of the latency checks and
+ * possibly disconnects the client if it does not reply in time.
  * 
  * @author Thomas Felix
  *
@@ -48,10 +51,10 @@ public class ConnectionActor extends AbstractActor {
 	private final LatencyService latencyService;
 	private final LoginService loginService;
 
-	private int missedLatencyCounter = 0;	
+	private int missedLatencyCounter = 0;
 
 	@Autowired
-	public ConnectionActor(Long accountId, 
+	public ConnectionActor(Long accountId,
 			LatencyService latencyService,
 			LoginService loginService) {
 
@@ -114,12 +117,12 @@ public class ConnectionActor extends AbstractActor {
 			loginService.logout(accountId);
 			getContext().stop(getSelf());
 		} else {
-			
-			if(clientWebserver == null) {
+
+			if (clientWebserver == null) {
 				// Not yet identified. Abort.
 				return;
 			}
-			
+
 			final PingMessage ping = new PingMessage(accountId);
 			clientWebserver.tell(ping, getSender());
 		}

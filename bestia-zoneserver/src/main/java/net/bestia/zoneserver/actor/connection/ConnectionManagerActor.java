@@ -7,7 +7,9 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.messages.AccountMessage;
 import net.bestia.messages.internal.ClientConnectionStatusMessage;
+import net.bestia.messages.misc.PongMessage;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.SpringExtension;
 
@@ -35,7 +37,8 @@ public class ConnectionManagerActor extends AbstractActor {
 	public Receive createReceive() {
 		return receiveBuilder()
 				.match(Long.class, this::startConnectionActor)
-				.match(ClientConnectionStatusMessage.class, this::handleConnectionStatus)
+				.match(ClientConnectionStatusMessage.class, this::redirectToConnectionActor)
+				.match(PongMessage.class, this::redirectToConnectionActor)
 				.build();
 	}
 
@@ -44,8 +47,9 @@ public class ConnectionManagerActor extends AbstractActor {
 	 * is forwarded to the connection actor.
 	 * 
 	 * @param msg
+	 *            The message to redirect to the connection actor.
 	 */
-	private void handleConnectionStatus(ClientConnectionStatusMessage msg) {
+	private void redirectToConnectionActor(AccountMessage msg) {
 		final String connectionActorName = ConnectionActor.getActorName(msg.getAccountId());
 		final String actorName = AkkaCluster.getNodeName(NAME, connectionActorName);
 		getContext().actorSelection(actorName).tell(msg, getSelf());
@@ -55,8 +59,8 @@ public class ConnectionManagerActor extends AbstractActor {
 		final String actorName = ConnectionActor.getActorName(accountId);
 		final ActorRef connectionActor = SpringExtension.actorOf(getContext(), ConnectionActor.class, actorName,
 				accountId);
-		
-		LOG.debug("Received start request for account connection: {}. Actor name: {}", 
+
+		LOG.debug("Received start request for account connection: {}. Actor name: {}",
 				accountId,
 				connectionActor.path().toString());
 	}
