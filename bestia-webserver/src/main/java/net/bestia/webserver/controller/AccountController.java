@@ -105,8 +105,12 @@ public class AccountController {
 			@RequestParam(value = "email") String email) {
 		
 		final UserNameCheck usernameCheck = new UserNameCheck(username, email);
-		akkaApi.checkAvailableUserName(usernameCheck);
+		final UserNameCheck checkedUsername = akkaApi.checkAvailableUserName(usernameCheck);
 		
-		return null;
+		if(checkedUsername == null) {
+			return new ResponseEntity<UserNameCheck>(HttpStatus.SERVICE_UNAVAILABLE);
+		} else {
+			return new ResponseEntity<UserNameCheck>(checkedUsername, HttpStatus.OK);
+		}
 	}
 }
