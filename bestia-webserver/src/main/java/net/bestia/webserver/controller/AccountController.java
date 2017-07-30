@@ -33,12 +33,16 @@ public class AccountController {
 
 	private final WebserverActorApi login;
 	private final ConfigurationService config;
+	private final WebserverActorApi akkaApi;
 
 	@Autowired
-	public AccountController(WebserverActorApi login, ConfigurationService config) {
+	public AccountController(WebserverActorApi login, 
+			ConfigurationService config,
+			WebserverActorApi akkaApi) {
 
 		this.login = Objects.requireNonNull(login);
 		this.config = Objects.requireNonNull(config);
+		this.akkaApi = Objects.requireNonNull(akkaApi);
 	}
 
 	/**
@@ -96,8 +100,12 @@ public class AccountController {
 	 */
 	@CrossOrigin(origins = "http://localhost")
 	@RequestMapping("check")
-	public ResponseEntity<UserNameCheck> checkData(@RequestBody UserNameCheck check) {
+	public ResponseEntity<UserNameCheck> checkData(
+			@RequestParam(value = "username") String username,
+			@RequestParam(value = "email") String email) {
 		
+		final UserNameCheck usernameCheck = new UserNameCheck(username, email);
+		akkaApi.checkAvailableUserName(usernameCheck);
 		
 		return null;
 	}

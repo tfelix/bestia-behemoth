@@ -16,7 +16,6 @@ import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.TypedActor;
-import akka.japi.Option;
 import akka.pattern.Patterns;
 import akka.routing.ConsistentHashingRouter;
 import akka.util.Timeout;
@@ -105,22 +104,16 @@ public class WebserverActorApiActor implements WebserverActorApi {
 	}
 
 	@Override
-	public Future<Object> checkAvailableUserName(UserNameCheck data) {
-		
-	
-		//Option.option(arg0)
-		Future<Object> future = Patterns.ask(uplinkRouter, data, REST_CALL_TIMEOUTS);
-		
-		return future;
-	}
+	public UserNameCheck checkAvailableUserName(UserNameCheck data) {
 
-	/**
-	 * Handle the answers from the server.
-	 */
-	@Override
-	public void onReceive(Object arg0, ActorRef arg1) {
-		// TODO Auto-generated method stub
-		
-	}
+		try {
+			final Future<Object> future = Patterns.ask(uplinkRouter, data, REST_CALL_TIMEOUTS);
+			final UserNameCheck result = (UserNameCheck) Await.result(future, REST_CALL_TIMEOUTS.duration());
+			return result;
+		} catch (Exception e) {
+			LOG.warn("Request for user name check timed out: {}.", data);
+			return null;
+		}
 
+	}
 }

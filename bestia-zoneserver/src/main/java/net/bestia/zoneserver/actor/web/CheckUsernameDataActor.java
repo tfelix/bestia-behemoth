@@ -55,9 +55,9 @@ public class CheckUsernameDataActor extends AbstractActor {
 		Account acc = accDao.findByEmail(data.getEmail());
 		
 		if(acc == null) {
-			data.setEmailAvialable(true);
+			data.setEmailAvailable(true);
 		} else {
-			data.setEmailAvialable(false);
+			data.setEmailAvailable(false);
 		}
 		
 		acc = accDao.findByUsername(data.getUsername());
