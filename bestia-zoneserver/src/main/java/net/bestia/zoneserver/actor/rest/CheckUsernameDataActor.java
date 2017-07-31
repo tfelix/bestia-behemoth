@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.web;
+package net.bestia.zoneserver.actor.rest;
 
 import java.util.Objects;
 
@@ -9,12 +9,12 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.messages.internal.RedirectRequestMessage;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.web.UserNameCheck;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.zone.IngestExActor;
-import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectRequest;
 
 /**
  * Checks if a username and email is available.
@@ -26,6 +26,8 @@ import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectRequest;
 @Scope("prototype")
 public class CheckUsernameDataActor extends AbstractActor {
 
+	public final static String NAME = "RESTcheckUsername";
+	
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	
 	private final AccountDAO accDao;
@@ -39,7 +41,7 @@ public class CheckUsernameDataActor extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 
-		RedirectRequest req = IngestExActor.RedirectRequest.get(UserNameCheck.class);
+		final RedirectRequestMessage req = RedirectRequestMessage.get(UserNameCheck.class);
 		getContext().actorSelection(AkkaCluster.getNodeName(IngestExActor.NAME)).tell(req, getSelf());
 
 		return receiveBuilder()
@@ -50,8 +52,7 @@ public class CheckUsernameDataActor extends AbstractActor {
 	private void handleUserNameCheck(UserNameCheck data) {
 		
 		LOG.debug("Check data: {}", data);
-		
-		// Check emails.
+
 		Account acc = accDao.findByEmail(data.getEmail());
 		
 		if(acc == null) {

@@ -2,28 +2,35 @@ import 'zepto';
 import UrlHelper from '../util/UrlHelper.js';
 import Storage from '../util/Storage.js';
 
-Zepto(function($){
+
+$(document).ready(function () {
+
 	// Login Form vorbereiten.
-	$('#login').on('submit', function(){
+	$('#login').on('submit', function () {
 		var email = $('#username').val();
 		var password = $('#password').val();
 
-		$.get('http://localhost:8080/v1/account/login', {
-			accName : email,
-			password : password
-		}, function(data) {
+		$.get(UrlHelper.restUrl + 'v1/account/login', {
+			accName: email,
+			password: password
+		}, {
+				success: function (data) {
 
-			// Save cookie with this data.
-			var storage = new Storage();
-			storage.storeAuth(data);
+					// Save cookie with this data.
+					var storage = new Storage();
+					storage.storeAuth(data);
 
-			window.location.href = UrlHelper.gameUrl;
-			
-		}).fail(function() {
-			$('#login').addClass('has-error');
-		});
+					// Redirect to the game itself.
+					window.location.href = UrlHelper.gameUrl;
+				},
+				error: function (data) {
+					alert("fehler");
+				}
+			}
+		);
 
 		return false;
 	});
+
 });
 

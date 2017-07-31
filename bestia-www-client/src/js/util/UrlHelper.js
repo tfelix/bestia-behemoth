@@ -16,9 +16,6 @@ export default class UrlHelper {
 		 * @property {string}
 		 */
 		this._assetRoot = assetUrl;
-
-		this.gameUrl = 'http://localhost/';
-
 	}
 
 	/**
@@ -163,4 +160,5 @@ export default class UrlHelper {
 	}
 }
 
-
+UrlHelper.gameUrl = 'http://localhost/';
+UrlHelper.restUrl = 'http://localhost:8080/';

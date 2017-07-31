@@ -2,7 +2,7 @@ package net.bestia.webserver.actor;
 
 import org.springframework.web.socket.WebSocketSession;
 
-import net.bestia.messages.web.AccountLoginToken;
+import net.bestia.messages.web.AccountLoginRequest;
 import net.bestia.model.web.UserNameCheck;
 import net.bestia.webserver.exceptions.WrongCredentialsException;
 
@@ -23,7 +23,7 @@ public interface WebserverActorApi {
 	 *             If the provided accName or password were not found or did not
 	 *             match.
 	 */
-	AccountLoginToken getLoginToken(String accName, String password) throws WrongCredentialsException;
+	AccountLoginRequest getLoginToken(String accName, String password) throws WrongCredentialsException;
 
 	/**
 	 * Sets a new password for the given user account.

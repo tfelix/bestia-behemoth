@@ -2,16 +2,29 @@ package net.bestia.messages.web;
 
 import java.io.Serializable;
 
-public class AccountLogin implements Serializable {
+public class AccountLoginRequest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
 	private final String username;
 	private final String password;
+	private final long accountId;
+	private final String token;
 
-	public AccountLogin(String username, String password) {
+	public AccountLoginRequest(String username, String password) {
 		this.username = username;
 		this.password = password;
+		
+		this.accountId = 0;
+		this.token = "";
+	}
+	
+	private AccountLoginRequest(String username, String password, long accId, String token) {
+		this.username = username;
+		this.password = password;
+		
+		this.accountId = accId;
+		this.token = token;
 	}
 
 	public String getUsername() {
@@ -22,9 +35,29 @@ public class AccountLogin implements Serializable {
 		return password;
 	}
 	
+	public long getAccountId() {
+		return accountId;
+	}
+	
+	public String getToken() {
+		return token;
+	}
+	
+	public AccountLoginRequest success(long accountId, String token) {
+		return new AccountLoginRequest(username, password, accountId, token);
+	}
+	
+	/**
+	 * Empty token is send back.
+	 * @return
+	 */
+	public AccountLoginRequest fail() {
+		return new AccountLoginRequest(username, "");
+	}
+	
 	@Override
 	public String toString() {
-		return String.format("AccountLogin[username: %s, password: ****]", username);
+		return String.format("AccountLoginReq[username: %s]", username);
 	}
 
 	@Override
@@ -44,7 +77,7 @@ public class AccountLogin implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AccountLogin other = (AccountLogin) obj;
+		AccountLoginRequest other = (AccountLoginRequest) obj;
 		if (password == null) {
 			if (other.password != null)
 				return false;

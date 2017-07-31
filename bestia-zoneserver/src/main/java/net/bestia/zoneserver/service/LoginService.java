@@ -18,7 +18,7 @@ import net.bestia.entity.PlayerEntityService;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
 import net.bestia.messages.login.LogoutMessage;
-import net.bestia.messages.web.AccountLoginToken;
+import net.bestia.messages.web.AccountLoginRequest;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
@@ -85,13 +85,12 @@ public class LoginService {
 		if (accId < 0) {
 			throw new IllegalArgumentException("Account ID must be positive.");
 		}
-		
+
 		Objects.requireNonNull(connectionRef);
 		// No sender is not allowed.
-		if(connectionRef.equals(ActorRef.noSender())) {
+		if (connectionRef.equals(ActorRef.noSender())) {
 			throw new IllegalArgumentException("ActorRef.noSender() is not allowed.");
 		}
-		
 
 		final Account account = accountDao.findOne(accId);
 
@@ -100,8 +99,9 @@ public class LoginService {
 			return;
 		}
 
-		// TODO Das hier ist ein fehler. Erst den client complett anmelden und danach beginnen die entities zu instanzieren.
-		
+		// TODO Das hier ist ein fehler. Erst den client complett anmelden und
+		// danach beginnen die entities zu instanzieren.
+
 		// First register the sender connection.
 		// FIXME This is legacy code and will soon be handled by actors.
 		connectionService.addClient(accId, connectionRef.path());
@@ -147,9 +147,10 @@ public class LoginService {
 				accId,
 				LoginState.ACCEPTED,
 				account.getName());
-		
+
 		akkaApi.sendToClient(response);
-		// First start the connection actor and then update him with the connection details.
+		// First start the connection actor and then update him with the
+		// connection details.
 		akkaApi.sendToActor(ConnectionManagerActor.NAME, accId);
 	}
 
@@ -171,7 +172,7 @@ public class LoginService {
 			LOG.warn("Can not logout account id: %d. ID does not exist.", accId);
 			return;
 		}
-		
+
 		// Send disconnect message to the webserver.
 		final LogoutMessage logoutMsg = new LogoutMessage(accId);
 		akkaApi.sendToClient(logoutMsg);
@@ -211,44 +212,37 @@ public class LoginService {
 	public void logoutAllUsersBelow(UserLevel level) {
 		connectionService.getAllConnectedAccountIds().forEachRemaining(accId -> {
 			final Account acc = accountDao.findOne(accId);
-			
-			if(acc.getUserLevel().compareTo(level) == -1) {
+
+			if (acc.getUserLevel().compareTo(level) == -1) {
 				logout(accId);
 			}
 		});
 	}
 
-	public AccountLoginToken setNewLoginToken(String username, String password) {
-		Objects.requireNonNull(username);
-		Objects.requireNonNull(password);
+	public AccountLoginRequest setNewLoginToken(AccountLoginRequest request) {
+		Objects.requireNonNull(request);
 
-		LOG.debug("Trying to set login token for username {}.", username);
+		LOG.debug("Trying to set login token for username {}.", request);
 
-		final Account account = accountDao.findByUsername(username);
+		final Account account = accountDao.findByUsername(request.getUsername());
 
 		if (account == null) {
-			LOG.debug("Account with username {} not found.", username);
-			return null;
+			LOG.debug("Account with username {} not found.", request.getUsername());
+			return request.fail();
 		}
 
-		if (!account.getPassword().matches(password)) {
-			LOG.debug("Password does not match with username {}.", username);
-			return null;
+		if (!account.getPassword().matches(request.getPassword())) {
+			LOG.debug("Password does not match: {}.", request);
+			return request.fail();
 		}
 
+		// Create new token and save it.
 		final String uuid = UUID.randomUUID().toString();
 		account.setLoginToken(uuid);
-
-		// Save to database.
 		accountDao.save(account);
 
 		// Check login.
-		final AccountLoginToken answerToken = new AccountLoginToken(
-				account.getId(),
-				account.getName(),
-				uuid);
-
-		return answerToken;
+		return request.success(account.getId(), uuid);
 	}
 
 	/**

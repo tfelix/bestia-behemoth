@@ -12,12 +12,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.bestia.messages.web.ChangePasswordRequest;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.BestiaDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Bestia;
+import net.bestia.model.domain.Password;
 import net.bestia.model.domain.PlayerBestia;
 
 /**
@@ -32,7 +34,7 @@ import net.bestia.model.domain.PlayerBestia;
 public class AccountService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AccountService.class);
-	
+
 	private final int STARTER_BESTIA_ID = 1;
 
 	private AccountDAO accountDao;
@@ -100,13 +102,13 @@ public class AccountService {
 
 		// Depending on the master get the offspring bestia.
 		final Bestia origin = bestiaDao.findOne(STARTER_BESTIA_ID);
-		
+
 		if (origin == null) {
 			LOG.error("Starter bestia with id {} could not been found.", STARTER_BESTIA_ID);
 			throw new IllegalArgumentException("Starter bestia was not found.");
 		}
-		
-		if(accountDao.findByEmail(email) != null) {
+
+		if (accountDao.findByEmail(email) != null) {
 			LOG.debug("Could not create account because of duplicate mail: {}", email);
 			throw new IllegalArgumentException("Could not create account. Duplicate mail.");
 		}
@@ -127,7 +129,7 @@ public class AccountService {
 
 		// Generate ID.
 		try {
-			
+
 			accountDao.save(account);
 			playerBestiaDao.save(masterBestia);
 
@@ -161,6 +163,50 @@ public class AccountService {
 		}
 
 		return acc;
+	}
+
+	/**
+	 * Tries to change the password for the given account.
+	 * 
+	 * @param data
+	 * @return
+	 */
+	public boolean changePassword(ChangePasswordRequest data) {
+
+		final Account acc = getAccountByUsernameOrMail(data.getAccountName());
+
+		if (acc == null) {
+			return false;
+		}
+
+		final Password password = acc.getPassword();
+
+		if (!password.matches(data.getOldPassword())) {
+			return false;
+		}
+
+		acc.setPassword(new Password(data.getNewPassword()));
+		accountDao.save(acc);
+		return true;
+	}
+
+	/**
+	 * Returns the account via its username or if its mail if the username did
+	 * not match (username takes preference about email). If none could be found
+	 * null is returned.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	private Account getAccountByUsernameOrMail(String name) {
+
+		final Account acc = accountDao.findByUsername(name);
+
+		if (acc != null) {
+			return acc;
+		}
+
+		return accountDao.findByEmail(name);
 	}
 
 }

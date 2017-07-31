@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import net.bestia.messages.web.AccountLoginToken;
+import net.bestia.messages.web.AccountLoginRequest;
 import net.bestia.model.web.AccountRegistration;
 import net.bestia.model.web.UserNameCheck;
 import net.bestia.webserver.actor.WebserverActorApi;
@@ -31,16 +31,13 @@ import net.bestia.webserver.service.ConfigurationService;
 @RequestMapping("v1/account")
 public class AccountController {
 
-	private final WebserverActorApi login;
 	private final ConfigurationService config;
 	private final WebserverActorApi akkaApi;
 
 	@Autowired
-	public AccountController(WebserverActorApi login, 
-			ConfigurationService config,
+	public AccountController(ConfigurationService config,
 			WebserverActorApi akkaApi) {
 
-		this.login = Objects.requireNonNull(login);
 		this.config = Objects.requireNonNull(config);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 	}
@@ -58,11 +55,12 @@ public class AccountController {
 	 */
 	@CrossOrigin(origins = "http://localhost")
 	@RequestMapping("login")
-	public AccountLoginToken login(
+	public AccountLoginRequest login(
 			@RequestParam(value = "accName") String account,
 			@RequestParam(value = "password") String password, HttpServletResponse response) {
+		
 		NoConnectedException.isConnectedOrThrow(config);
-		return login.getLoginToken(account, password);
+		return akkaApi.getLoginToken(account, password);
 	}
 
 	/**
@@ -75,14 +73,19 @@ public class AccountController {
 	 */
 	@CrossOrigin(origins = "http://localhost")
 	@RequestMapping("password")
-	public AccountLoginToken password(
-			@RequestParam(value = "oldPassword") String account,
-			@RequestParam(value = "newPassword") String password,
+	public ResponseEntity<String> password(
+			@RequestParam(value = "oldPassword") String oldPassword,
+			@RequestParam(value = "newPassword") String newPassword,
 			@RequestParam(value = "email") String email) {
 		NoConnectedException.isConnectedOrThrow(config);
 
-		throw new IllegalStateException("Not implemented.");
-		// return login.getLoginToken(account, password);
+		final boolean wasSuccessful = akkaApi.setPassword(email, oldPassword, newPassword);
+		
+		if(wasSuccessful) {
+			return new ResponseEntity<>(HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	/**
@@ -90,7 +93,7 @@ public class AccountController {
 	 */
 	@CrossOrigin(origins = "http://localhost")
 	@RequestMapping(value = "register", method = RequestMethod.POST)
-	public ResponseEntity register(@RequestBody AccountRegistration registration) {
+	public ResponseEntity<String> register(@RequestBody AccountRegistration registration) {
 
 		return new ResponseEntity<>(HttpStatus.OK);
 	}

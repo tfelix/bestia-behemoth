@@ -18,6 +18,9 @@ public class AccountServiceTest {
 	private static final String EXISTING_MAIL = "thomas.exists@tfelix.de";
 	private static final String EXISTING_MASTER_NAME = "IgnatzDerDicke";
 	
+	private static final String NOT_EXISTING_PASSWORD = "notexisting";
+	private static final String EXISTING_PASSWORD = "existing";
+	
 	private AccountService accService;
 
 	private AccountDAO accountDao;
@@ -92,5 +95,15 @@ public class AccountServiceTest {
 	@Test(expected = IllegalArgumentException.class)
 	public void createNewAccount_emptyPassword_fail() {
 		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "");
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public void changePassword_null_throws() {
+		accService.changePassword(null);
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public void changePassword_invalidOldPassword_false() {
+		throw new IllegalStateException("Implementieren");
 	}
 }

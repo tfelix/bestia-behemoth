@@ -20,7 +20,7 @@ import net.bestia.entity.EntityDeleterService;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.PlayerBestiaEntityFactory;
 import net.bestia.entity.PlayerEntityService;
-import net.bestia.messages.web.AccountLoginToken;
+import net.bestia.messages.web.AccountLoginRequest;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
@@ -251,34 +251,31 @@ public class LoginServiceTest {
 
 	@Test
 	public void createNewLoginToken_wrongUsername_fails() {
-		AccountLoginToken token = loginService.setNewLoginToken(INVALID_ACC_EMAIL, VALID_PASSWORD);
+		AccountLoginRequest req = new AccountLoginRequest(INVALID_ACC_EMAIL, VALID_PASSWORD);
+		AccountLoginRequest token = loginService.setNewLoginToken(req);
 		Assert.assertNull(token);
 	}
 
 	@Test
 	public void createNewLoginToken_wrongPassword_fails() {
-		AccountLoginToken token = loginService.setNewLoginToken(ACC_EMAIL, INVALID_PASSWORD);
+		AccountLoginRequest req = new AccountLoginRequest(ACC_EMAIL, INVALID_PASSWORD);
+		AccountLoginRequest token = loginService.setNewLoginToken(req);
 		Assert.assertNull(token);
 	}
 
 	@Test
 	public void createNewLoginToken_validCredentials_works() {
-		AccountLoginToken token = loginService.setNewLoginToken(ACC_EMAIL, VALID_PASSWORD);
+		AccountLoginRequest req = new AccountLoginRequest(ACC_EMAIL, VALID_PASSWORD);
+		AccountLoginRequest token = loginService.setNewLoginToken(req);
 
 		Assert.assertEquals(ACC_NAME, token.getUsername());
-		Assert.assertEquals(USER_ACC_ID, token.getAccId());
+		Assert.assertEquals(USER_ACC_ID, token.getAccountId());
 		Assert.assertNotNull(token.getToken());
 		verify(accountDao).save(userAccount);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void createNewLoginToken_nullUsername_throws() {
-		loginService.setNewLoginToken(null, VALID_PASSWORD);
+		loginService.setNewLoginToken(null);
 	}
-
-	@Test(expected = NullPointerException.class)
-	public void createNewLoginToken_nullPassword_throws() {
-		loginService.setNewLoginToken(ACC_EMAIL, null);
-	}
-
 }

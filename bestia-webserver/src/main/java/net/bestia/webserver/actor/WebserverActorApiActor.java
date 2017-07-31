@@ -3,7 +3,6 @@ package net.bestia.webserver.actor;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +16,9 @@ import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.TypedActor;
 import akka.pattern.Patterns;
-import akka.routing.ConsistentHashingRouter;
 import akka.util.Timeout;
-import net.bestia.messages.web.AccountLogin;
-import net.bestia.messages.web.AccountLoginToken;
+import net.bestia.messages.web.AccountLoginRequest;
+import net.bestia.messages.web.ChangePasswordRequest;
 import net.bestia.model.web.UserNameCheck;
 import net.bestia.webserver.exceptions.WrongCredentialsException;
 import scala.concurrent.Await;
@@ -46,20 +44,18 @@ public class WebserverActorApiActor implements WebserverActorApi {
 	}
 
 	@Override
-	public AccountLoginToken getLoginToken(String accName, String password) {
+	public AccountLoginRequest getLoginToken(String accName, String password) {
 
-		LOG.trace("Sending login: {}, pass: {} to the cluster.", accName, password);
-
-		final AccountLogin accountLogin = new AccountLogin(accName, password);
-
-		Future<Object> answer = Patterns.ask(uplinkRouter,
-				new ConsistentHashingRouter.ConsistentHashableEnvelope(accountLogin, accountLogin),
-				REST_CALL_TIMEOUTS);
-
+		LOG.debug("REST loginTokenRequest: {}, pass: {}.", accName, password);
+		
+		final AccountLoginRequest data = new AccountLoginRequest(accName, password);
+		
 		try {
-			return (AccountLoginToken) Await.ready(answer, REST_CALL_TIMEOUTS.duration());
-		} catch (TimeoutException | InterruptedException e) {
-			LOG.warn("Login was not checked in time.");
+			final Future<Object> future = Patterns.ask(uplinkRouter, data, REST_CALL_TIMEOUTS);
+			final AccountLoginRequest result = (AccountLoginRequest) Await.result(future, REST_CALL_TIMEOUTS.duration());
+			return result;
+		} catch (Exception e) {
+			LOG.warn("Request for loginTokenRequest timed out: {}.", data);
 			return null;
 		}
 	}
@@ -99,13 +95,25 @@ public class WebserverActorApiActor implements WebserverActorApi {
 	public boolean setPassword(String accName, String oldPassword, String newPassword)
 			throws WrongCredentialsException {
 
-		// FIXME Einbauen.
-		throw new IllegalStateException("Not implemented yet.");
+		LOG.debug("REST password reset: {}.", accName);
+		
+		final ChangePasswordRequest data = new ChangePasswordRequest(accName, oldPassword, newPassword);
+		
+		try {
+			final Future<Object> future = Patterns.ask(uplinkRouter, data, REST_CALL_TIMEOUTS);
+			final Boolean result = (Boolean) Await.result(future, REST_CALL_TIMEOUTS.duration());
+			return result;
+		} catch (Exception e) {
+			LOG.warn("Request for password change timed out: {}.", data);
+			return false;
+		}
 	}
 
 	@Override
 	public UserNameCheck checkAvailableUserName(UserNameCheck data) {
 
+		LOG.debug("REST user name check: {}.", data);
+		
 		try {
 			final Future<Object> future = Patterns.ask(uplinkRouter, data, REST_CALL_TIMEOUTS);
 			final UserNameCheck result = (UserNameCheck) Await.result(future, REST_CALL_TIMEOUTS.duration());

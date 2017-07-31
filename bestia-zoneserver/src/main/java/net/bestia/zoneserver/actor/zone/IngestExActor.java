@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.actor.zone;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +13,7 @@ import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.ClientConnectionStatusMessage;
+import net.bestia.messages.internal.RedirectRequestMessage;
 import net.bestia.messages.misc.PongMessage;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
@@ -34,21 +34,6 @@ import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
 @Scope("prototype")
 public class IngestExActor extends AbstractActor {
 
-	public static class RedirectRequest {
-		List<Class<? extends Object>> classes = new ArrayList<>();
-
-		private RedirectRequest() {
-
-		}
-
-		@SafeVarargs
-		public static RedirectRequest get(Class<? extends Object>... classes) {
-			RedirectRequest req = new RedirectRequest();
-			req.classes.addAll(Arrays.asList(classes));
-			return req;
-		}
-	}
-
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	public static final String NAME = "ingestEx";
@@ -60,7 +45,7 @@ public class IngestExActor extends AbstractActor {
 		return receiveBuilder()
 				.match(PongMessage.class, this::redirectConnection)
 				.match(ClientConnectionStatusMessage.class, this::redirectConnection)
-				.match(RedirectRequest.class, this::handleMessageRedirectRequest)
+				.match(RedirectRequestMessage.class, this::handleMessageRedirectRequest)
 				.matchAny(this::redirectLegacy)
 				.build();
 	}
@@ -70,8 +55,8 @@ public class IngestExActor extends AbstractActor {
 	 * 
 	 * @param requestedClasses
 	 */
-	private void handleMessageRedirectRequest(RedirectRequest requestedClasses) {
-		requestedClasses.classes.forEach(clazz -> {
+	private void handleMessageRedirectRequest(RedirectRequestMessage requestedClasses) {
+		requestedClasses.getClasses().forEach(clazz -> {
 			if (!redirections.containsKey(clazz)) {
 				redirections.put(clazz, new ArrayList<>());
 			}

@@ -33,7 +33,7 @@ import net.bestia.zoneserver.service.LoginService;
  * of operation eases this problem.
  * </p>
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Component("LoginActor")

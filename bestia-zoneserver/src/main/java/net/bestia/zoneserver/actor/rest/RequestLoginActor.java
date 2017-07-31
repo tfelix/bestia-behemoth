@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.login;
+package net.bestia.zoneserver.actor.rest;
 
 import java.util.Objects;
 
@@ -6,11 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.web.AccountLogin;
-import net.bestia.messages.web.AccountLoginToken;
-import net.bestia.zoneserver.actor.BestiaActor;
+import net.bestia.messages.web.AccountLoginRequest;
 import net.bestia.zoneserver.service.LoginService;
 
 /**
@@ -21,9 +20,9 @@ import net.bestia.zoneserver.service.LoginService;
  */
 @Component
 @Scope("prototype")
-public class RequestLoginActor extends BestiaActor {
+public class RequestLoginActor extends AbstractActor {
 
-	public final static String NAME = "requestLogin";
+	public final static String NAME = "RESTrequestLogin";
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	private final LoginService loginService;
@@ -34,10 +33,10 @@ public class RequestLoginActor extends BestiaActor {
 		this.loginService = Objects.requireNonNull(loginService);
 	}
 
-	private void handleLogin(AccountLogin msg) {
+	private void handleLogin(AccountLoginRequest msg) {
 		LOG.debug("Received incoming login: {}", msg);
 
-		final AccountLoginToken newToken = loginService.setNewLoginToken(msg.getUsername(), msg.getPassword());
+		final AccountLoginRequest newToken = loginService.setNewLoginToken(msg);
 
 		getSender().tell(newToken, getSelf());
 	}
@@ -45,7 +44,7 @@ public class RequestLoginActor extends BestiaActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(AccountLogin.class, this::handleLogin)
+				.match(AccountLoginRequest.class, this::handleLogin)
 				.build();
 	}
 
