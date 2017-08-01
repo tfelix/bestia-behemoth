@@ -50,6 +50,9 @@ export default class Bestia {
 		this.location = ko.observable('');
 		this.posX = ko.observable(0);
 		this.posY = ko.observable(0);
+		this.position = ko.pureComputed(function () {
+			return { x: this.posX(), y: this.posY() };
+		}, this);
 		this.saveLocation = ko.observable();
 		this.customName = ko.observable('');
 		this.sprite = ko.observable('');

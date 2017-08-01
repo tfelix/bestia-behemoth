@@ -2,7 +2,6 @@
 
 
 import Signal from '../io/Signal.js';
-//import PubSub from '../util/PubSub';
 import EngineContext from './EngineContext.js';
 import BootState from './states/BootState.js';
 import ConnectingState from './states/ConnectingState.js';

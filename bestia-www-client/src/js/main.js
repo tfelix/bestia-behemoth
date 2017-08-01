@@ -15,6 +15,13 @@ import ShortcutView from './ui/shortcut/ShortcutView';
 import ClientVarManager from './ui/ClientVarManager';
 import LatencyReporter from './util/LatencyReporter';
 
+// JSDoc definitions.
+/**
+ * @typedef {Object} Point
+ * @property {number} x The X Coordinate
+ * @property {number} y The Y Coordinate
+ */
+
 // Creating all needed components.
 let pubsub = new PubSub();
 let urlHelper = new UrlHelper('assets/');

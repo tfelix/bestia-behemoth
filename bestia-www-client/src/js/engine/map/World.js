@@ -12,7 +12,7 @@ import I18n from '../../util/I18n.js';
  */
 export default class World {
 	
-	constructor(game, astar, groups) {
+	constructor(game, groups) {
 		/**
 		 * Reference to a phaser game.
 		 * 
@@ -20,8 +20,6 @@ export default class World {
 		 * @private
 		 */
 		this._game = game;
-
-		this._astar = astar;
 
 		/**
 		 * Current map properties.

@@ -8,7 +8,6 @@ import RenderManager from './renderer/RenderManager';
 import EntityFactory from './entities/factory/EntityFactory';
 import EntityUpdater from './entities/util/EntityUpdater';
 import AnimationManager from './animation/AnimationManager';
-import './plugins/phaser_pathfinding-0.2.0';
 
 export default class EngineContext {
 	
@@ -38,31 +37,12 @@ export default class EngineContext {
 		this._entityFactory = new EntityFactory(this);
 		this._entityUpdater = new EntityUpdater(this);
 		this._animationManager = new AnimationManager(this);
-		
-		let pathfinder = this._game.plugins.add(Phaser.Plugin.PathFinderPlugin);
-		var walkable = [];
-		for(let y = 0; y < 64; y++) {
-			var row = [];
-			for(let x = 0; x < 64; x++) {
-				row.push(0);
-			}
-			walkable.push(row);
-		}
-		pathfinder.setGrid(walkable, [0]);
-		pathfinder.enableDiagonals();
-		
-		this._pathfinder = pathfinder;
 	}
 	
 	_checkInit() {
 		if(!this._isInit) {
 			throw 'Context not called initialize() yet.';
 		}
-	}
-	
-	get pathfinder() {
-		this._checkInit();
-		return this._pathfinder;
 	}
 	
 	get game() {
