@@ -27,6 +27,13 @@ import net.bestia.entity.component.Component;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.interceptor.ComponentInterceptor;
 
+/**
+ * FIXME ComponentInterceptor Management in eine eigene Klasse auslagern
+ * zusammen mit dem ComponentChange handler und dem component delete handler.
+ * 
+ * @author Thomas Felix
+ *
+ */
 @Service
 public class EntityService {
 
@@ -111,9 +118,9 @@ public class EntityService {
 	 */
 	public void delete(Entity entity) {
 		Objects.requireNonNull(entity);
-		
+
 		final long eid = entity.getId();
-		
+
 		LOG.trace("Deleting entity: {}", eid);
 		entities.lock(eid);
 		try {
@@ -546,5 +553,18 @@ public class EntityService {
 				.stream()
 				.map(components::get)
 				.collect(Collectors.toList());
+	}
+
+	/**
+	 * FIXME Unit Testen. Returns the component with the given ID or null if the
+	 * component does not exist.
+	 * 
+	 * @param componentId
+	 *            The component ID to retrieve the component.
+	 * @return The requested component or NULL if the component id does not
+	 *         exist.
+	 */
+	public Component getComponent(long componentId) {
+		return components.get(componentId);
 	}
 }

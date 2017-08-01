@@ -13,11 +13,11 @@ import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.entity.component.EntityComponentActorFactory;
 import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.messages.internal.entity.EntityComponentMessage;
 import net.bestia.messages.internal.entity.EntityComponentMessage.ComponentState;
 import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.zoneserver.actor.entity.component.EntityComponentActorFactory;
 
 /**
  * The {@link EntityActor} is a persistent actor managing all aspects of a
@@ -37,7 +37,7 @@ public class EntityActor extends BestiaActor {
 
 	private final static String ACTOR_NAME = "entity-%d";
 	private final long entityId;
-	
+
 	private final EntityComponentActorFactory factory;
 
 	/**
@@ -63,35 +63,42 @@ public class EntityActor extends BestiaActor {
 	public Receive createReceive() {
 		return receiveBuilder()
 				.match(EntityComponentMessage.class, this::handleComponentMessage)
-				//.match(EntityMoveMessage.class, this::handleClientMoveMessage)
-				//.match(EntityMoveInternalMessage.class, this::handleInternalMoveMessage)
+				// .match(EntityMoveMessage.class,
+				// this::handleClientMoveMessage)
+				// .match(EntityMoveInternalMessage.class,
+				// this::handleInternalMoveMessage)
 				.match(Terminated.class, this::handleTerminated)
 				.build();
 	}
-	
+
+	/**
+	 * Adds or removes a component actor from the system.
+	 * 
+	 * @param msg
+	 */
 	private void handleComponentMessage(EntityComponentMessage msg) {
-		
-		if(msg.getState() == ComponentState.INSTALL) {
-			
+
+		if (msg.getState() == ComponentState.INSTALL) {
+
 			// Install the component.
 			ActorRef compActor = factory.startActor(msg.getComponentId());
 			context().watch(compActor);
 			componentActors.put(msg.getComponentId(), compActor);
-			
+
 		} else {
-			
+
 			// Remove the component.
 			final ActorRef compRef = componentActors.get(msg.getComponentId());
-			
-			if(compRef == null) {
+
+			if (compRef == null) {
 				LOG.debug("Actor for component {} not found.", msg.getComponentId());
 				return;
 			}
-			
+
 			stopActor(compRef);
 			componentActors.remove(msg.getComponentId());
 		}
-		
+
 	}
 
 	/**
@@ -105,15 +112,15 @@ public class EntityActor extends BestiaActor {
 		final ActorRef termActor = term.actor();
 		long foundKey = -1;
 
-		for(Entry<Long, ActorRef> entries : componentActors.entrySet()) {
-			
-			if(entries.getValue().equals(termActor)) {
+		for (Entry<Long, ActorRef> entries : componentActors.entrySet()) {
+
+			if (entries.getValue().equals(termActor)) {
 				foundKey = entries.getKey();
 				break;
 			}
 		}
-		
-		if(foundKey == -1) {
+
+		if (foundKey == -1) {
 			LOG.warning("Unknown actor {} has terminated. Cant handle event.",
 					term.getActor().path().toStringWithoutAddress());
 		} else {
@@ -122,12 +129,12 @@ public class EntityActor extends BestiaActor {
 
 	}
 
-
 	/**
 	 * Transforms msg to internal movement message.
 	 */
 	private void handleClientMoveMessage(EntityMoveMessage msg) {
-		//handleInternalMoveMessage(new EntityMoveInternalMessage(entityId, msg.getPath()));
+		// handleInternalMoveMessage(new EntityMoveInternalMessage(entityId,
+		// msg.getPath()));
 	}
 
 	private void stopActor(ActorRef ref) {
