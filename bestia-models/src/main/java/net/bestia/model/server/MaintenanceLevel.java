@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.configuration;
+package net.bestia.model.server;
 
 public enum MaintenanceLevel {
 	

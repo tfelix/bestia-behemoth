@@ -52,6 +52,7 @@ public class ScriptVar implements Serializable {
 			throw new IllegalArgumentException("Data can not be null or empty.");
 		}
 
+		this.scriptKey = key;
 		this.data = data;
 	}
 

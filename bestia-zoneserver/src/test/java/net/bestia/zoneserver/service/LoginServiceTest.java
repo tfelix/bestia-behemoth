@@ -24,11 +24,11 @@ import net.bestia.messages.web.AccountLoginRequest;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
+import net.bestia.model.server.MaintenanceLevel;
 import net.bestia.model.domain.Password;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.testing.BasicMocks;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
-import net.bestia.zoneserver.configuration.MaintenanceLevel;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
 
 @RunWith(MockitoJUnitRunner.class)

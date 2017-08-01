@@ -33,6 +33,13 @@ public class RequestLoginActor extends AbstractActor {
 		this.loginService = Objects.requireNonNull(loginService);
 	}
 
+	@Override
+	public Receive createReceive() {
+		return receiveBuilder()
+				.match(AccountLoginRequest.class, this::handleLogin)
+				.build();
+	}
+	
 	private void handleLogin(AccountLoginRequest msg) {
 		LOG.debug("Received incoming login: {}", msg);
 
@@ -40,12 +47,4 @@ public class RequestLoginActor extends AbstractActor {
 
 		getSender().tell(newToken, getSelf());
 	}
-
-	@Override
-	public Receive createReceive() {
-		return receiveBuilder()
-				.match(AccountLoginRequest.class, this::handleLogin)
-				.build();
-	}
-
 }

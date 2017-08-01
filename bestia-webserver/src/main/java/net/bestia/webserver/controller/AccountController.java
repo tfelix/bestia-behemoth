@@ -2,8 +2,6 @@ package net.bestia.webserver.controller;
 
 import java.util.Objects;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +22,7 @@ import net.bestia.webserver.service.ConfigurationService;
 /**
  * This controller provides a rest interface to control logins of the clients.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @RestController
@@ -33,6 +31,31 @@ public class AccountController {
 
 	private final ConfigurationService config;
 	private final WebserverActorApi akkaApi;
+
+	@SuppressWarnings("unused")
+	private class TokenResponse {
+
+		public final boolean success;
+		public final String username;
+		public final long accountId;
+		public final String token;
+
+		public TokenResponse(AccountLoginRequest req) {
+
+			if (req.getAccountId() == 0) {
+				this.success = false;
+				this.username = "";
+				this.accountId = 0;
+				this.token = "";
+			} else {
+				this.success = true;
+				this.username = req.getUsername();
+				this.accountId = req.getAccountId();
+				this.token = req.getToken();
+			}
+
+		}
+	}
 
 	@Autowired
 	public AccountController(ConfigurationService config,
@@ -55,20 +78,27 @@ public class AccountController {
 	 */
 	@CrossOrigin(origins = "http://localhost")
 	@RequestMapping("login")
-	public AccountLoginRequest login(
+	public ResponseEntity<TokenResponse> login(
 			@RequestParam(value = "accName") String account,
-			@RequestParam(value = "password") String password, HttpServletResponse response) {
-		
+			@RequestParam(value = "password") String password) {
+
 		NoConnectedException.isConnectedOrThrow(config);
-		return akkaApi.getLoginToken(account, password);
+
+		final AccountLoginRequest request = akkaApi.getLoginToken(account, password);
+		final TokenResponse response = new TokenResponse(request);
+
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 
 	/**
 	 * Resets the password to a new one.
 	 * 
-	 * @param account
-	 * @param password
+	 * @param oldPassword
+	 *            The old password.
+	 * @param newPassword
+	 *            The new password.
 	 * @param email
+	 *            Name or E-Mail of the account to reset the password.
 	 * @return
 	 */
 	@CrossOrigin(origins = "http://localhost")
@@ -80,8 +110,8 @@ public class AccountController {
 		NoConnectedException.isConnectedOrThrow(config);
 
 		final boolean wasSuccessful = akkaApi.setPassword(email, oldPassword, newPassword);
-		
-		if(wasSuccessful) {
+
+		if (wasSuccessful) {
 			return new ResponseEntity<>(HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -95,6 +125,7 @@ public class AccountController {
 	@RequestMapping(value = "register", method = RequestMethod.POST)
 	public ResponseEntity<String> register(@RequestBody AccountRegistration registration) {
 
+		// TODO Noch implementieren.
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -106,11 +137,11 @@ public class AccountController {
 	public ResponseEntity<UserNameCheck> checkData(
 			@RequestParam(value = "username") String username,
 			@RequestParam(value = "email") String email) {
-		
+
 		final UserNameCheck usernameCheck = new UserNameCheck(username, email);
 		final UserNameCheck checkedUsername = akkaApi.checkAvailableUserName(usernameCheck);
-		
-		if(checkedUsername == null) {
+
+		if (checkedUsername == null) {
 			return new ResponseEntity<UserNameCheck>(HttpStatus.SERVICE_UNAVAILABLE);
 		} else {
 			return new ResponseEntity<UserNameCheck>(checkedUsername, HttpStatus.OK);

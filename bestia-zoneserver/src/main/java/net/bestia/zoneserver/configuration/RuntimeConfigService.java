@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
+import net.bestia.model.server.MaintenanceLevel;
+
 /**
  * This configuration service holds information about the current state of the
  * server while they are running. These information might get changed during
