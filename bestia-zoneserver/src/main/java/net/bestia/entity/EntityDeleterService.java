@@ -11,10 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import akka.actor.PoisonPill;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.deleter.ComponentDeleter;
 import net.bestia.entity.component.deleter.EntityCache;
-import net.bestia.messages.internal.entity.EntityDeleteInternalMessage;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
@@ -24,6 +24,8 @@ import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
  * 
  * The components and entities are cached for later reuse by the
  * {@link EntityCache}.
+ * 
+ * FIXME Mit dem EntityService kombinieren.
  * 
  * @author Thomas Felix
  *
@@ -75,8 +77,7 @@ public class EntityDeleterService {
 		}
 
 		// Send message to kill off entity actor.
-		final EntityDeleteInternalMessage killMsg = new EntityDeleteInternalMessage(entity.getId());
-		akkaApi.sendEntityActor(entity.getId(), killMsg);
+		akkaApi.sendEntityActor(entity.getId(), PoisonPill.getInstance());
 
 		// Delete entity and stash it for later re-use.
 		entityService.delete(entity);

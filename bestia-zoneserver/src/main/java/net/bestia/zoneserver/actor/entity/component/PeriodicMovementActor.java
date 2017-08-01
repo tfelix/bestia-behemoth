@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.entity;
+package net.bestia.zoneserver.actor.entity.component;
 
 import java.util.LinkedList;
 import java.util.Objects;

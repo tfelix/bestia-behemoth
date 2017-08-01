@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.entity;
+package net.bestia.zoneserver.actor.entity.component;
 
 import java.util.Objects;
 
@@ -20,7 +20,7 @@ import net.bestia.zoneserver.actor.BestiaPeriodicTerminatingActor;
  */
 @Component
 @Scope("prototype")
-public class EntityStatusTickActor extends BestiaPeriodicTerminatingActor {
+public class StatusComponentActor extends BestiaPeriodicTerminatingActor {
 
 	private final long entityId;
 	private final StatusService statusService;
@@ -29,7 +29,7 @@ public class EntityStatusTickActor extends BestiaPeriodicTerminatingActor {
 	private float healthIncrement;
 
 	@Autowired
-	public EntityStatusTickActor(StatusService statusService, long entityId) {
+	public StatusComponentActor(StatusService statusService, long entityId) {
 
 		this.statusService = Objects.requireNonNull(statusService);
 		this.entityId = entityId;

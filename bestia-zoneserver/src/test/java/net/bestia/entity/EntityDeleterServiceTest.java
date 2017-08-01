@@ -22,7 +22,7 @@ import net.bestia.entity.component.Component;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.deleter.ComponentDeleter;
 import net.bestia.entity.component.deleter.EntityCache;
-import net.bestia.messages.internal.entity.EntityDeleteInternalMessage;
+import net.bestia.messages.internal.entity.EntityComponentMessage;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -108,7 +108,7 @@ public class EntityDeleterServiceTest {
 		
 		verify(entityService).deleteComponent(entity, p1);
 		verify(entityService).delete(entity);
-		verify(akkaApi).sendEntityActor(eq(VALID_ENTITY_ID), any(EntityDeleteInternalMessage.class));
+		verify(akkaApi).sendEntityActor(eq(VALID_ENTITY_ID), any(EntityComponentMessage.class));
 		verify(cache).stashComponente(p1);
 		verify(cache).stashEntity(entity);
 	}

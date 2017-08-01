@@ -22,7 +22,7 @@ public class EntityComponentMessage extends EntityInternalMessage {
 
 	public EntityComponentMessage(long entityId, long componentId, ComponentState state) {
 		super(entityId);
-		
+
 		this.componentId = componentId;
 		this.state = state;
 	}
@@ -30,8 +30,23 @@ public class EntityComponentMessage extends EntityInternalMessage {
 	public long getComponentId() {
 		return componentId;
 	}
-	
+
 	public ComponentState getState() {
 		return state;
+	}
+
+	/**
+	 * Creates a message that will stop the given component actor.
+	 * 
+	 * @param componentId
+	 *            The component ID to stop.
+	 * @return
+	 */
+	public static EntityComponentMessage stop(long entityId, long componentId) {
+		return new EntityComponentMessage(entityId, componentId, ComponentState.REMOVE);
+	}
+
+	public static EntityComponentMessage start(long entityId, long componentId) {
+		return new EntityComponentMessage(entityId, componentId, ComponentState.INSTALL);
 	}
 }

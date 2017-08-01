@@ -8,36 +8,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.bestia.entity.EntityService;
-import net.bestia.entity.component.StatusComponent;
+import net.bestia.entity.component.ScriptComponent;
 import net.bestia.messages.internal.entity.EntityComponentMessage;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
- * Removes the entity actor responsible for ticking the status updates.
+ * If a {@link ScriptComponent} is deleted the associated actor will get
+ * removed.
  * 
  * @author Thomas Felix
  *
  */
 @Component
-public class StatusComponentDeleter extends ComponentDeleter<StatusComponent> {
+public class ScriptComponentDeleter extends ComponentDeleter<ScriptComponent> {
 
-	private static final Logger LOG = LoggerFactory.getLogger(StatusComponentDeleter.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ScriptComponentDeleter.class);
 
 	private final ZoneAkkaApi akkaApi;
 
 	@Autowired
-	protected StatusComponentDeleter(EntityService entityService, ZoneAkkaApi akkaApi) {
-		super(entityService, StatusComponent.class);
+	protected ScriptComponentDeleter(EntityService entityService, ZoneAkkaApi akkaApi) {
+		super(entityService, ScriptComponent.class);
 
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 	}
 
 	@Override
-	protected void doFreeComponent(StatusComponent component) {
+	protected void doFreeComponent(ScriptComponent component) {
 		// Stop the actor timing the entity component.
-		LOG.trace("StatusComponent deleted. Stopping updates.");
+		LOG.trace("ScriptComponent deleted. Stopping actor.");
 
-		final EntityComponentMessage msg = EntityComponentMessage.stop(component.getEntityId(), component.getId());
+		EntityComponentMessage msg = EntityComponentMessage.stop(component.getEntityId(), component.getId());
 		akkaApi.sendEntityActor(component.getEntityId(), msg);
 	}
 
