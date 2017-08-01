@@ -1,5 +1,10 @@
 package net.bestia.zoneserver.actor.entity;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -9,6 +14,8 @@ import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.entity.EntityMoveMessage;
+import net.bestia.messages.internal.entity.EntityComponentMessage;
+import net.bestia.messages.internal.entity.EntityComponentMessage.ComponentState;
 import net.bestia.messages.internal.entity.EntityDeleteInternalMessage;
 import net.bestia.messages.internal.entity.EntityMoveInternalMessage;
 import net.bestia.messages.internal.entity.EntityRegenTickMessage;
@@ -35,14 +42,18 @@ public class EntityActor extends BestiaActor {
 
 	private final static String ACTOR_NAME = "entity-%d";
 	private final long entityId;
+	
+	private final EntityComponentActorFactory factory;
 
-	private ActorRef movementActor;
-	private ActorRef regenerationTickActor;
-	private ActorRef scriptTickActor;
+	/**
+	 * Saves the references for the actors managing components.
+	 */
+	private Map<Long, ActorRef> componentActors = new HashMap<>();
 
 	@Autowired
-	public EntityActor(long entityId) {
+	public EntityActor(long entityId, EntityComponentActorFactory factory) {
 
+		this.factory = Objects.requireNonNull(factory);
 		this.entityId = entityId;
 	}
 
@@ -56,25 +67,30 @@ public class EntityActor extends BestiaActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(ScriptIntervalMessage.class, this::handleScriptIntervalMessage)
+				.match(EntityComponentMessage.class, this::handleComponentMessage)
 				.match(EntityMoveMessage.class, this::handleClientMoveMessage)
 				.match(EntityMoveInternalMessage.class, this::handleInternalMoveMessage)
 				.match(EntityDeleteInternalMessage.class, this::handleDeleteMessage)
-				.match(EntityRegenTickMessage.class, this::handleRegenerationTickMessage)
 				.match(Terminated.class, this::handleTerminated)
 				.build();
 	}
-
-	private void handleRegenerationTickMessage(EntityRegenTickMessage msg) {
-
-		stopRegenTick();
-
-		if (msg.isActive()) {
-			regenerationTickActor = SpringExtension.unnamedActorOf(getContext(),
-					EntityStatusTickActor.class,
-					msg.getEntityId());
-			context().watch(regenerationTickActor);
+	
+	private void handleComponentMessage(EntityComponentMessage msg) {
+		
+		if(msg.getState() == ComponentState.INSTALL) {
+			// Install the component.
+			ActorRef compActor = factory.startActor(msg.getComponentId());
+			context().watch(compActor);
+			componentActors.put(msg.getComponentId(), compActor);
+		} else {
+			// Remove the component.
+			final ActorRef compRef = componentActors.get(msg.getComponentId());
+			if(compRef == null) {
+				LOG.debug("Actor for component {} not found.", msg.getComponentId());
+				getContext().
+			}
 		}
+		
 	}
 
 	/**
@@ -87,25 +103,8 @@ public class EntityActor extends BestiaActor {
 
 		final ActorRef termActor = term.actor();
 
-		if (termActor.equals(movementActor)) {
-
-			LOG.debug("Movement actor has terminated.");
-			movementActor = null;
-
-		} else if (termActor.equals(scriptTickActor)) {
-
-			LOG.debug("Script trigger actor has terminated.");
-			scriptTickActor = null;
-
-		} else if (termActor.equals(regenerationTickActor)) {
-
-			LOG.debug("Regeneration actor has terminated.");
-			regenerationTickActor = null;
-
-		} else {
-
-			LOG.warning("Unknown actor {} has terminated. Cant handle event.",
-					term.getActor().path().toStringWithoutAddress());
+		for(Entry<Long, ActorRef> entries : componentActors.entrySet()) {
+			
 
 		}
 
@@ -117,67 +116,14 @@ public class EntityActor extends BestiaActor {
 	}
 
 	/**
-	 * Setup a periodic script runner actor.
-	 */
-	private void handleScriptIntervalMessage(ScriptIntervalMessage msg) {
-
-		stopScript();
-
-		scriptTickActor = SpringExtension.unnamedActorOf(context(), PeriodicScriptRunnerActor.class, msg);
-		context().watch(scriptTickActor);
-
-	}
-
-	/**
 	 * Transforms msg to internal movement message.
 	 */
 	private void handleClientMoveMessage(EntityMoveMessage msg) {
 		handleInternalMoveMessage(new EntityMoveInternalMessage(entityId, msg.getPath()));
 	}
 
-	/**
-	 * Setup a moving actor to perform the periodic movement.
-	 */
-	private void handleInternalMoveMessage(EntityMoveInternalMessage msg) {
-
-		stopMovement();
-
-		movementActor = SpringExtension.actorOf(context(), EntityMovementActor.class);
-
-		context().watch(movementActor);
-		movementActor.tell(msg, getSelf());
-	}
-
-	private void stopScript() {
-		if (scriptTickActor != null) {
-			context().stop(scriptTickActor);
-			context().unwatch(scriptTickActor);
-			scriptTickActor = null;
-		}
-	}
-
-	private void stopMovement() {
-		if (movementActor != null) {
-			context().stop(movementActor);
-			context().unwatch(movementActor);
-			movementActor = null;
-		}
-	}
-
-	private void stopRegenTick() {
-		if (regenerationTickActor != null) {
-			context().stop(regenerationTickActor);
-			context().unwatch(regenerationTickActor);
-			regenerationTickActor = null;
-		}
-	}
-
-	/**
-	 * Stops the actor and all child actors.
-	 */
-	private void stopAll() {
-		stopMovement();
-		stopRegenTick();
-		stopScript();
+	private void stopActor(ActorRef ref) {
+		context().unwatch(ref);
+		context().stop(ref);
 	}
 }
