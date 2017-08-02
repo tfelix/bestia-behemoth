@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import net.bestia.messages.web.ChangePasswordRequest;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.BestiaDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;
@@ -166,14 +165,35 @@ public class AccountService {
 	}
 
 	/**
-	 * Tries to change the password for the given account.
+	 * Sets the password without checking the old password first.
+	 * 
+	 * @param accountName
+	 * @param newPassword
+	 * @return
+	 */
+	public boolean changePassword(String accountName, String newPassword) {
+
+		final Account acc = getAccountByUsernameOrMail(accountName);
+
+		if (acc == null) {
+			return false;
+		}
+
+		acc.setPassword(new Password(newPassword));
+		accountDao.save(acc);
+		return true;
+	}
+
+	/**
+	 * Tries to change the password for the given account. The old password must
+	 * match first before this method executes.
 	 * 
 	 * @param data
 	 * @return
 	 */
-	public boolean changePassword(ChangePasswordRequest data) {
+	public boolean changePassword(String accountName, String oldPassword, String newPassword) {
 
-		final Account acc = getAccountByUsernameOrMail(data.getAccountName());
+		final Account acc = getAccountByUsernameOrMail(accountName);
 
 		if (acc == null) {
 			return false;
@@ -181,11 +201,11 @@ public class AccountService {
 
 		final Password password = acc.getPassword();
 
-		if (!password.matches(data.getOldPassword())) {
+		if (!password.matches(oldPassword)) {
 			return false;
 		}
 
-		acc.setPassword(new Password(data.getNewPassword()));
+		acc.setPassword(new Password(newPassword));
 		accountDao.save(acc);
 		return true;
 	}

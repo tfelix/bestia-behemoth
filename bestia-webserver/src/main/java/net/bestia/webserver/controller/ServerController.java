@@ -9,9 +9,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import net.bestia.model.server.MaintenanceLevel;
+import net.bestia.messages.web.ServerStatusMessage;
 import net.bestia.webserver.actor.WebserverActorApi;
-import net.bestia.webserver.service.ConfigurationService;
 
 /**
  * Controller provides REST information about the server.
@@ -23,36 +22,24 @@ import net.bestia.webserver.service.ConfigurationService;
 @RequestMapping("v1/server")
 public class ServerController {
 
-	private final ConfigurationService config;
 	private final WebserverActorApi akkaApi;
 
-	private static class ServerStatus {
-		public final MaintenanceLevel maintenance;
-		public final String motd;
-
-		public ServerStatus(MaintenanceLevel maintenance, String motd) {
-
-			this.maintenance = maintenance;
-			this.motd = motd;
-		}
-	}
-
 	@Autowired
-	public ServerController(ConfigurationService config,
-			WebserverActorApi akkaApi) {
+	public ServerController(WebserverActorApi akkaApi) {
 
-		this.config = Objects.requireNonNull(config);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 	}
 
+	/**
+	 * Show the current login status of the server and the MOTD.
+	 * 
+	 * @return Current server status.
+	 */
 	@CrossOrigin(origins = "http://localhost")
 	@RequestMapping(value = "status")
-	public ResponseEntity<ServerStatus> status() {
+	public ResponseEntity<ServerStatusMessage> status() {
 
-		// TODO Noch implementieren.
-		
-		final ServerStatus status = new ServerStatus(MaintenanceLevel.PARTIAL, "Hello World");
-		
-		return new ResponseEntity<>(status, HttpStatus.OK);
+		final ServerStatusMessage statusReply = akkaApi.requestServerStatus();
+		return new ResponseEntity<>(statusReply, HttpStatus.OK);
 	}
 }

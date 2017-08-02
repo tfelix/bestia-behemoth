@@ -3,6 +3,7 @@ package net.bestia.webserver.actor;
 import org.springframework.web.socket.WebSocketSession;
 
 import net.bestia.messages.web.AccountLoginRequest;
+import net.bestia.messages.web.ServerStatusMessage;
 import net.bestia.model.web.UserNameCheck;
 import net.bestia.webserver.exceptions.WrongCredentialsException;
 
@@ -70,4 +71,12 @@ public interface WebserverActorApi {
 	 *            The message payload.
 	 */
 	void handleClientMessage(String sessionUid, String payload);
+
+	/**
+	 * Requests the current status of the server.
+	 * 
+	 * @return The current server status of NULL if the request could not be
+	 *         processed.
+	 */
+	ServerStatusMessage requestServerStatus();
 }

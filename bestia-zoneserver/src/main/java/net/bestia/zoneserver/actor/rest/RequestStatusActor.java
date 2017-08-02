@@ -7,34 +7,32 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
-import akka.event.Logging;
-import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.RedirectRequestMessage;
 import net.bestia.messages.web.ChangePasswordRequest;
+import net.bestia.messages.web.ServerStatusMessage;
+import net.bestia.model.server.MaintenanceLevel;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.zone.IngestExActor;
-import net.bestia.zoneserver.service.AccountService;
+import net.bestia.zoneserver.configuration.RuntimeConfigService;
 
 /**
- * Changes the password of a user.
+ * Sends the server login status to the user.
  * 
  * @author Thomas Felix
  *
  */
 @Component
 @Scope("prototype")
-public class ChangePasswordActor extends AbstractActor {
+public class RequestStatusActor extends AbstractActor {
 
-	public final static String NAME = "RESTchangePassword";
+	public final static String NAME = "RESTserverStatus";
 
-	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-
-	private final AccountService accService;
+	private final RuntimeConfigService config;
 
 	@Autowired
-	public ChangePasswordActor(AccountService accService) {
+	public RequestStatusActor(RuntimeConfigService config) {
 
-		this.accService = Objects.requireNonNull(accService);
+		this.config = Objects.requireNonNull(config);
 	}
 
 	@Override
@@ -44,19 +42,17 @@ public class ChangePasswordActor extends AbstractActor {
 		getContext().actorSelection(AkkaCluster.getNodeName(IngestExActor.NAME)).tell(req, getSelf());
 
 		return receiveBuilder()
-				.match(ChangePasswordRequest.class, this::handleChangePassword)
+				.match(ServerStatusMessage.Request.class, x -> handleStatusRequest())
 				.build();
 	}
 
-	private void handleChangePassword(ChangePasswordRequest data) {
+	private void handleStatusRequest() {
 
-		LOG.debug("Check data: {}", data);
+		final MaintenanceLevel level = config.getMaintenanceMode();
 
-		final boolean wasSuccess = accService.changePassword(data.getAccountName(), 
-				data.getOldPassword(),
-				data.getNewPassword());
+		final ServerStatusMessage reply = new ServerStatusMessage(level, "");
 
 		// Reply the message.
-		getSender().tell(wasSuccess, getSelf());
+		getSender().tell(reply, getSelf());
 	}
 }

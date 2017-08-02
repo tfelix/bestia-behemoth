@@ -19,12 +19,19 @@ import akka.pattern.Patterns;
 import akka.util.Timeout;
 import net.bestia.messages.web.AccountLoginRequest;
 import net.bestia.messages.web.ChangePasswordRequest;
+import net.bestia.messages.web.ServerStatusMessage;
 import net.bestia.model.web.UserNameCheck;
 import net.bestia.webserver.exceptions.WrongCredentialsException;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 
+/**
+ * Typed actor to connect to the webserver in order to query the zoneservers.
+ * 
+ * @author Thomas Felix
+ *
+ */
 public class WebserverActorApiActor implements WebserverActorApi {
 
 	private final static Logger LOG = LoggerFactory.getLogger(WebserverActorApiActor.class);
@@ -47,12 +54,13 @@ public class WebserverActorApiActor implements WebserverActorApi {
 	public AccountLoginRequest getLoginToken(String accName, String password) {
 
 		LOG.debug("REST loginTokenRequest: {}, pass: {}.", accName, password);
-		
+
 		final AccountLoginRequest data = new AccountLoginRequest(accName, password);
-		
+
 		try {
 			final Future<Object> future = Patterns.ask(uplinkRouter, data, REST_CALL_TIMEOUTS);
-			final AccountLoginRequest result = (AccountLoginRequest) Await.result(future, REST_CALL_TIMEOUTS.duration());
+			final AccountLoginRequest result = (AccountLoginRequest) Await.result(future,
+					REST_CALL_TIMEOUTS.duration());
 			return result;
 		} catch (Exception e) {
 			LOG.warn("Request for loginTokenRequest timed out: {}.", data);
@@ -96,9 +104,9 @@ public class WebserverActorApiActor implements WebserverActorApi {
 			throws WrongCredentialsException {
 
 		LOG.debug("REST password reset: {}.", accName);
-		
+
 		final ChangePasswordRequest data = new ChangePasswordRequest(accName, oldPassword, newPassword);
-		
+
 		try {
 			final Future<Object> future = Patterns.ask(uplinkRouter, data, REST_CALL_TIMEOUTS);
 			final Boolean result = (Boolean) Await.result(future, REST_CALL_TIMEOUTS.duration());
@@ -113,7 +121,7 @@ public class WebserverActorApiActor implements WebserverActorApi {
 	public UserNameCheck checkAvailableUserName(UserNameCheck data) {
 
 		LOG.debug("REST user name check: {}.", data);
-		
+
 		try {
 			final Future<Object> future = Patterns.ask(uplinkRouter, data, REST_CALL_TIMEOUTS);
 			final UserNameCheck result = (UserNameCheck) Await.result(future, REST_CALL_TIMEOUTS.duration());
@@ -123,5 +131,22 @@ public class WebserverActorApiActor implements WebserverActorApi {
 			return null;
 		}
 
+	}
+
+	@Override
+	public ServerStatusMessage requestServerStatus() {
+
+		LOG.debug("REST server status requested.");
+
+		try {
+			final ServerStatusMessage.Request req = new ServerStatusMessage.Request();
+			final Future<Object> future = Patterns.ask(uplinkRouter, req, REST_CALL_TIMEOUTS);
+			final ServerStatusMessage result = (ServerStatusMessage) Await.result(future,
+					REST_CALL_TIMEOUTS.duration());
+			return result;
+		} catch (Exception e) {
+			LOG.warn("Request for server status timed out.");
+			return null;
+		}
 	}
 }
