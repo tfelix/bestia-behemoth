@@ -16,9 +16,11 @@ import net.bestia.messages.internal.ClientConnectionStatusMessage;
 import net.bestia.messages.internal.RedirectRequestMessage;
 import net.bestia.messages.misc.PongMessage;
 import net.bestia.messages.web.AccountLoginRequest;
+import net.bestia.messages.web.ServerStatusMessage;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
 import net.bestia.zoneserver.actor.rest.RequestLoginActor;
+import net.bestia.zoneserver.actor.rest.RequestStatusActor;
 
 /**
  * The ingestion extended actor is a development actor to help the transition
@@ -50,14 +52,15 @@ public class IngestExActor extends AbstractActor {
 				.match(RedirectRequestMessage.class, this::handleMessageRedirectRequest)
 				
 				// Temp
-				.match(AccountLoginRequest.class, this::handleLoginReq)
+				.match(AccountLoginRequest.class, msg -> {
+					AkkaSender.sendToActor(getContext(), RequestLoginActor.NAME, msg, getSender());
+				})
+				.match(ServerStatusMessage.Request.class, msg -> {
+					AkkaSender.sendToActor(getContext(), RequestStatusActor.NAME, msg, getSender());
+				})
 				
 				.matchAny(this::redirectLegacy)
 				.build();
-	}
-	
-	private void handleLoginReq(AccountLoginRequest msg) {
-		AkkaSender.sendToActor(getContext(), RequestLoginActor.NAME, msg, getSender());
 	}
 
 	/**

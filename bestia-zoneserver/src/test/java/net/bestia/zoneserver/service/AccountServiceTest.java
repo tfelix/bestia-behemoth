@@ -17,17 +17,17 @@ public class AccountServiceTest {
 
 	private static final String EXISTING_MAIL = "thomas.exists@tfelix.de";
 	private static final String EXISTING_MASTER_NAME = "IgnatzDerDicke";
-	
+
 	private static final String NOT_EXISTING_PASSWORD = "notexisting";
 	private static final String EXISTING_PASSWORD = "existing";
-	
+
 	private AccountService accService;
 
 	private AccountDAO accountDao;
 	private PlayerBestiaDAO playerBestiaDao;
 	private BestiaDAO bestiaDao;
 	private ConnectionService connectionService;
-	
+
 	private Account account;
 	private Bestia bestia;
 	private PlayerBestia masterBestia;
@@ -36,15 +36,15 @@ public class AccountServiceTest {
 	public void setup() {
 
 		bestia = mock(Bestia.class);
-		
+
 		accountDao = mock(AccountDAO.class);
 		account = mock(Account.class);
 		masterBestia = mock(PlayerBestia.class);
-		
+
 		playerBestiaDao = mock(PlayerBestiaDAO.class);
 		bestiaDao = mock(BestiaDAO.class);
 		connectionService = mock(ConnectionService.class);
-		
+
 		when(bestiaDao.findOne(1)).thenReturn(bestia);
 		when(accountDao.findByEmail(EXISTING_MAIL)).thenReturn(account);
 		when(playerBestiaDao.findMasterBestiaWithName(EXISTING_MASTER_NAME)).thenReturn(masterBestia);
@@ -96,12 +96,17 @@ public class AccountServiceTest {
 	public void createNewAccount_emptyPassword_fail() {
 		accService.createNewAccount("thomas.felix@tfelix.de", "Ignatz", "");
 	}
-	
+
 	@Test(expected = NullPointerException.class)
-	public void changePassword_null_throws() {
-		accService.changePassword(null);
+	public void changePassword_1argNull_throws() {
+		accService.changePassword(null, "test");
 	}
-	
+
+	@Test(expected = NullPointerException.class)
+	public void changePassword_2argNull_throws() {
+		accService.changePassword("test", null);
+	}
+
 	@Test(expected = NullPointerException.class)
 	public void changePassword_invalidOldPassword_false() {
 		throw new IllegalStateException("Implementieren");

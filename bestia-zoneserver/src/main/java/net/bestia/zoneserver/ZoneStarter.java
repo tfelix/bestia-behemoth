@@ -21,6 +21,7 @@ import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 import net.bestia.zoneserver.actor.rest.ChangePasswordActor;
 import net.bestia.zoneserver.actor.rest.CheckUsernameDataActor;
 import net.bestia.zoneserver.actor.rest.RequestLoginActor;
+import net.bestia.zoneserver.actor.rest.RequestStatusActor;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.HeartbeatActor;
 import net.bestia.zoneserver.actor.zone.IngestActor;
@@ -84,6 +85,7 @@ public class ZoneStarter implements CommandLineRunner {
 		akkaApi.startActor(CheckUsernameDataActor.class);
 		akkaApi.startActor(ChangePasswordActor.class);
 		akkaApi.startActor(RequestLoginActor.class);
+		akkaApi.startActor(RequestStatusActor.class);
 
 		// Maybe this needs to be more sophisticated done only when we joined
 		// the cluster.

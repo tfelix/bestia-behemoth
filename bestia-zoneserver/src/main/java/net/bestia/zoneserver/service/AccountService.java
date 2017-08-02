@@ -165,7 +165,8 @@ public class AccountService {
 	}
 
 	/**
-	 * Sets the password without checking the old password first.
+	 * Sets the password without checking the old password first. FIXME unit
+	 * testen.
 	 * 
 	 * @param accountName
 	 * @param newPassword
@@ -186,7 +187,7 @@ public class AccountService {
 
 	/**
 	 * Tries to change the password for the given account. The old password must
-	 * match first before this method executes.
+	 * match first before this method executes. FIXME Unit testen.
 	 * 
 	 * @param data
 	 * @return
