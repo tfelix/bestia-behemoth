@@ -8,7 +8,7 @@ import net.bestia.messages.JsonMessage;
 /**
  * A message from the client to the server to use an attack.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class AttackUseMessage extends JsonMessage {
@@ -20,9 +20,6 @@ public class AttackUseMessage extends JsonMessage {
 
 	@JsonProperty("aid")
 	private int attackId;
-
-	@JsonProperty("s")
-	private int slot;
 
 	@JsonProperty("x")
 	private long x;
@@ -51,14 +48,6 @@ public class AttackUseMessage extends JsonMessage {
 
 	public void setAttackId(int attackId) {
 		this.attackId = attackId;
-	}
-
-	public int getSlot() {
-		return slot;
-	}
-
-	public void setSlot(int slot) {
-		this.slot = slot;
 	}
 
 	public long getX() {
@@ -100,7 +89,6 @@ public class AttackUseMessage extends JsonMessage {
 	public AttackUseMessage createNewInstance(long accountId) {
 		final AttackUseMessage msg = new AttackUseMessage(accountId);
 		msg.attackId = this.attackId;
-		msg.slot = this.slot;
 		msg.targetEntityId = this.targetEntityId;
 		msg.x = this.x;
 		msg.y = this.y;

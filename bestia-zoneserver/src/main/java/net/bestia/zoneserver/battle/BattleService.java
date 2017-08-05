@@ -38,6 +38,9 @@ import net.bestia.zoneserver.map.MapService;
 public class BattleService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(BattleService.class);
+	
+	public final static int DEFAULT_MELEE_ATTACK_ID = -1;
+	public final static int DEFAULT_RANGE_ATTACK_ID = -2;
 
 	private final Point ZERO = new Point(0, 0);
 	private final EntityService entityService;
