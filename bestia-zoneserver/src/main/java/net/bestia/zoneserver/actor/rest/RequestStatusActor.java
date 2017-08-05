@@ -7,12 +7,12 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
-import net.bestia.messages.internal.RedirectRequestMessage;
 import net.bestia.messages.web.ChangePasswordRequest;
 import net.bestia.messages.web.ServerStatusMessage;
 import net.bestia.model.server.MaintenanceLevel;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.zone.IngestExActor;
+import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectRequestMessage;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
 
 /**

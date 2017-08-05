@@ -5,7 +5,7 @@ package net.bestia.model.domain;
  * how some skill trees are expressed. Will also alter the status values
  * slightly.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public enum PlayerClass {

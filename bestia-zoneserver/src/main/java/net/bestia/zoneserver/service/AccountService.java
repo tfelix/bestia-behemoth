@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.bestia.messages.web.AccountRegistration;
+import net.bestia.messages.web.AccountRegistrationError;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.BestiaDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;
@@ -20,6 +22,7 @@ import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.Password;
 import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.domain.PlayerClass;
 
 /**
  * Generates all the needed account services. Please be careful: This factory is
@@ -34,8 +37,6 @@ public class AccountService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AccountService.class);
 
-	private final int STARTER_BESTIA_ID = 1;
-
 	private AccountDAO accountDao;
 	private PlayerBestiaDAO playerBestiaDao;
 	private BestiaDAO bestiaDao;
@@ -48,6 +49,10 @@ public class AccountService {
 		this.bestiaDao = Objects.requireNonNull(bestiaDao);
 		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
 		this.connectionService = Objects.requireNonNull(connectionService);
+	}
+
+	private int getIdFromPlayerClass(PlayerClass pc) {
+		return 1;
 	}
 
 	/**
@@ -74,42 +79,64 @@ public class AccountService {
 	}
 
 	/**
+	 * Checks if an account is not activated yet and then it will check if the
+	 * activation code matches the login token and if yes activate the account.
+	 * 
+	 * @param activationCode
+	 *            The activation code for this account.
+	 * @return TRUE if successfull. FALSE otherwise.
+	 */
+	public boolean activateAccount(long accId, String activationCode) {
+
+		final Account acc = accountDao.findOne(accId);
+		
+		// Abort if account is activated.
+		if(acc.isActivated()) {
+			return false;
+		}
+		
+		if(acc.getLoginToken().equals(activationCode)) {
+			acc.setActivated(true);
+			acc.setLoginToken("");
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * Creates a completely new account. The username will be given to the
 	 * bestia master. No other bestia mastia can have this name.
 	 * 
-	 * @param email
-	 *            E-Mail to use.
-	 * @param mastername
-	 *            Username of the bestia master.
-	 * @param password
-	 *            Password for the account.
-	 * @param starter
-	 *            Choosen starter bestia.
 	 * @return {@code TRUE} if the new account coule be created. {@code FALSE}
 	 *         otherwise.
 	 */
-	public void createNewAccount(String email, String mastername, String password) {
+	public AccountRegistrationError createNewAccount(AccountRegistration data) {
+
+		final String mastername = data.getUsername();
+
 		if (mastername == null || mastername.isEmpty()) {
 			throw new IllegalArgumentException("Mastername can not be null or empty.");
 		}
 
-		final Account account = new Account(email, password);
+		final Account account = new Account(data.getEmail(), data.getPassword());
 
 		// TODO das hier noch auslagern. Die aktivierung soll nur per
 		// username/password anmeldung notwendig sein.
 		account.setActivated(true);
 
 		// Depending on the master get the offspring bestia.
-		final Bestia origin = bestiaDao.findOne(STARTER_BESTIA_ID);
+		final int starterId = getIdFromPlayerClass(data.getPlayerClass());
+		final Bestia origin = bestiaDao.findOne(starterId);
 
 		if (origin == null) {
-			LOG.error("Starter bestia with id {} could not been found.", STARTER_BESTIA_ID);
+			LOG.error("Starter bestia with id {} could not been found.", starterId);
 			throw new IllegalArgumentException("Starter bestia was not found.");
 		}
 
-		if (accountDao.findByEmail(email) != null) {
-			LOG.debug("Could not create account because of duplicate mail: {}", email);
-			throw new IllegalArgumentException("Could not create account. Duplicate mail.");
+		if (accountDao.findByEmail(data.getEmail()) != null) {
+			LOG.debug("Could not create account because of duplicate mail: {}", data.getEmail());
+			return AccountRegistrationError.EMAIL_INVALID;
 		}
 
 		// Check if there is a bestia master with this name.
@@ -117,7 +144,7 @@ public class AccountService {
 
 		if (existingMaster != null) {
 			LOG.warn("Can not create account. Master name already exists: {}", mastername);
-			throw new IllegalArgumentException("A master with this name does already exist.");
+			return AccountRegistrationError.USERNAME_INVALID;
 		}
 
 		// Create the bestia.
@@ -132,9 +159,11 @@ public class AccountService {
 			accountDao.save(account);
 			playerBestiaDao.save(masterBestia);
 
+			return AccountRegistrationError.NONE;
+
 		} catch (JpaSystemException ex) {
 			LOG.warn("Could not create account: {}", ex.getMessage(), ex);
-			throw new IllegalArgumentException("Could not create account.", ex);
+			return AccountRegistrationError.GENERAL_ERROR;
 		}
 	}
 
@@ -165,14 +194,15 @@ public class AccountService {
 	}
 
 	/**
-	 * Sets the password without checking the old password first. FIXME unit
-	 * testen.
+	 * Sets the password without checking the old password first.
 	 * 
 	 * @param accountName
 	 * @param newPassword
 	 * @return
 	 */
-	public boolean changePassword(String accountName, String newPassword) {
+	public boolean changePasswordWithoutCheck(String accountName, String newPassword) {
+		Objects.requireNonNull(accountName);
+		Objects.requireNonNull(newPassword);
 
 		final Account acc = accountDao.findByUsernameOrEmail(accountName);
 
@@ -187,12 +217,19 @@ public class AccountService {
 
 	/**
 	 * Tries to change the password for the given account. The old password must
-	 * match first before this method executes. FIXME Unit testen.
+	 * match first before this method executes.
 	 * 
 	 * @param data
 	 * @return
 	 */
 	public boolean changePassword(String accountName, String oldPassword, String newPassword) {
+		Objects.requireNonNull(accountName);
+		Objects.requireNonNull(oldPassword);
+		Objects.requireNonNull(newPassword);
+
+		if (newPassword.isEmpty()) {
+			return false;
+		}
 
 		final Account acc = accountDao.findByUsernameOrEmail(accountName);
 

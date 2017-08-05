@@ -11,7 +11,7 @@ import net.bestia.model.server.MaintenanceLevel;
  * @author Thomas Felix
  *
  */
-public class ServerStatusMessage implements Serializable {
+public final class ServerStatusMessage implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 

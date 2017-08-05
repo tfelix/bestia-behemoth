@@ -18,9 +18,11 @@ import akka.actor.TypedActor;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 import net.bestia.messages.web.AccountLoginRequest;
+import net.bestia.messages.web.AccountRegistration;
+import net.bestia.messages.web.AccountRegistrationReply;
 import net.bestia.messages.web.ChangePasswordRequest;
 import net.bestia.messages.web.ServerStatusMessage;
-import net.bestia.model.web.UserNameCheck;
+import net.bestia.messages.web.UserNameCheck;
 import net.bestia.webserver.exceptions.WrongCredentialsException;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -146,6 +148,22 @@ public class WebserverActorApiActor implements WebserverActorApi {
 			return result;
 		} catch (Exception e) {
 			LOG.warn("Request for server status timed out.");
+			return null;
+		}
+	}
+
+	@Override
+	public AccountRegistrationReply registerAccount(AccountRegistration registration) {
+		
+		LOG.debug("REST account registration requested.");
+
+		try {
+			final Future<Object> future = Patterns.ask(uplinkRouter, registration, REST_CALL_TIMEOUTS);
+			final AccountRegistrationReply result = (AccountRegistrationReply) Await.result(future,
+					REST_CALL_TIMEOUTS.duration());
+			return result;
+		} catch (Exception e) {
+			LOG.warn("Request for registration timed out.");
 			return null;
 		}
 	}

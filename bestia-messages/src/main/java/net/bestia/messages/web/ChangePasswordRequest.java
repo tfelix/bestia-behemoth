@@ -10,7 +10,7 @@ import java.util.Objects;
  * @author Thomas Felix
  *
  */
-public class ChangePasswordRequest implements Serializable {
+public final class ChangePasswordRequest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 

@@ -13,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import net.bestia.messages.web.AccountLoginRequest;
-import net.bestia.model.web.AccountRegistration;
-import net.bestia.model.web.UserNameCheck;
+import net.bestia.messages.web.AccountRegistration;
+import net.bestia.messages.web.AccountRegistrationReply;
+import net.bestia.messages.web.UserNameCheck;
 import net.bestia.webserver.actor.WebserverActorApi;
 import net.bestia.webserver.exceptions.NoConnectedException;
 import net.bestia.webserver.service.ConfigurationService;
@@ -32,8 +33,12 @@ public class AccountController {
 	private final ConfigurationService config;
 	private final WebserverActorApi akkaApi;
 
+	/**
+	 * Transforms the server reply to a better usable response for the clients.
+	 * 
+	 */
 	@SuppressWarnings("unused")
-	private class TokenResponse {
+	private final class TokenResponse {
 
 		public final boolean success;
 		public final String username;
@@ -123,10 +128,10 @@ public class AccountController {
 	 */
 	@CrossOrigin(origins = "http://localhost")
 	@RequestMapping(value = "register", method = RequestMethod.POST)
-	public ResponseEntity<String> register(@RequestBody AccountRegistration registration) {
+	public ResponseEntity<AccountRegistrationReply> register(@RequestBody AccountRegistration registration) {
 
-		// TODO Noch implementieren.
-		return new ResponseEntity<>(HttpStatus.OK);
+		final AccountRegistrationReply reply = akkaApi.registerAccount(registration);
+		return new ResponseEntity<>(reply, HttpStatus.OK);
 	}
 
 	/**

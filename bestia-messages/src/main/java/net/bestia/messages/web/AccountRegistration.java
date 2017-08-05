@@ -1,9 +1,10 @@
-package net.bestia.model.web;
+package net.bestia.messages.web;
 
 import java.io.Serializable;
 
 import net.bestia.model.domain.Gender;
 import net.bestia.model.domain.Hairstyle;
+import net.bestia.model.domain.PlayerClass;
 
 /**
  * This POJO holds the data needed for an account registration.
@@ -21,7 +22,8 @@ public class AccountRegistration implements Serializable {
 	private Gender gender;
 	private Hairstyle hairstyle;
 	private String campaignCode;
-	private String authToken;
+	private String token;
+	private PlayerClass playerClass = PlayerClass.KNIGHT;
 
 	public AccountRegistration() {
 
@@ -75,16 +77,15 @@ public class AccountRegistration implements Serializable {
 		this.campaignCode = campaignCode;
 	}
 
-	public String getAuthToken() {
-		return authToken;
+	public String getToken() {
+		return token;
 	}
 
-	public void setAuthToken(String authToken) {
-		this.authToken = authToken;
+	public void setToken(String token) {
+		this.token = token;
 	}
 
-	public static long getSerialversionuid() {
-		return serialVersionUID;
+	public PlayerClass getPlayerClass() {
+		return playerClass;
 	}
-
 }

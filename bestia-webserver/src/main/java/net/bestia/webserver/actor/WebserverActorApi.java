@@ -3,8 +3,10 @@ package net.bestia.webserver.actor;
 import org.springframework.web.socket.WebSocketSession;
 
 import net.bestia.messages.web.AccountLoginRequest;
+import net.bestia.messages.web.AccountRegistration;
+import net.bestia.messages.web.AccountRegistrationReply;
 import net.bestia.messages.web.ServerStatusMessage;
-import net.bestia.model.web.UserNameCheck;
+import net.bestia.messages.web.UserNameCheck;
 import net.bestia.webserver.exceptions.WrongCredentialsException;
 
 public interface WebserverActorApi {
@@ -79,4 +81,13 @@ public interface WebserverActorApi {
 	 *         processed.
 	 */
 	ServerStatusMessage requestServerStatus();
+
+	/**
+	 * Tries to register a new account into the bestia system.
+	 * 
+	 * @param registration
+	 *            The data needed for account registration.
+	 * @return The status of the registration.
+	 */
+	AccountRegistrationReply registerAccount(AccountRegistration registration);
 }

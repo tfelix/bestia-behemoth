@@ -2,10 +2,16 @@ package net.bestia.messages.web;
 
 import java.io.Serializable;
 
-public class AccountLoginRequest implements Serializable {
+/**
+ * Sends a request to login a account and thus create a new login token.
+ * 
+ * @author Thomas Felix
+ *
+ */
+public final class AccountLoginRequest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private final String username;
 	private final String password;
 	private final long accountId;
@@ -14,15 +20,15 @@ public class AccountLoginRequest implements Serializable {
 	public AccountLoginRequest(String username, String password) {
 		this.username = username;
 		this.password = password;
-		
+
 		this.accountId = 0;
 		this.token = "";
 	}
-	
+
 	private AccountLoginRequest(String username, String password, long accId, String token) {
 		this.username = username;
 		this.password = password;
-		
+
 		this.accountId = accId;
 		this.token = token;
 	}
@@ -34,27 +40,28 @@ public class AccountLoginRequest implements Serializable {
 	public String getPassword() {
 		return password;
 	}
-	
+
 	public long getAccountId() {
 		return accountId;
 	}
-	
+
 	public String getToken() {
 		return token;
 	}
-	
+
 	public AccountLoginRequest success(long accountId, String token) {
 		return new AccountLoginRequest(username, "", accountId, token);
 	}
-	
+
 	/**
 	 * Empty token is send back.
+	 * 
 	 * @return
 	 */
 	public AccountLoginRequest fail() {
 		return new AccountLoginRequest(username, "");
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("AccountLoginReq[username: %s]", username);

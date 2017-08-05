@@ -1,4 +1,4 @@
-package net.bestia.model.web;
+package net.bestia.messages.web;
 
 import java.io.Serializable;
 

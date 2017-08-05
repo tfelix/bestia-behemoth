@@ -267,6 +267,11 @@ public class LoginService {
 			LOG.trace("No account with id {} found.", accId);
 			return false;
 		}
+		
+		if(acc.getLoginToken().isEmpty()) {
+			LOG.debug("Login with empty token is not allowed.");
+			return false;
+		}
 
 		if (!acc.getLoginToken().equals(token)) {
 			LOG.trace("Account {} logintoken does not match.", accId);
