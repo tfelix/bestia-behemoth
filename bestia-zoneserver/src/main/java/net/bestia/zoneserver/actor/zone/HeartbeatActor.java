@@ -30,7 +30,7 @@ public class HeartbeatActor extends AbstractActor {
 	public static final String NAME = "heartbeat";
 
 	private static final String BEAT_MSG = "beat";
-	public static final int HEARTBEAT_INTERVAL_S = 15;
+	public static final int HEARTBEAT_INTERVAL_S = 10;
 
 	private final String serverName;
 	private final DiscoveryService discoveryService;

@@ -117,7 +117,7 @@ public class LoginServiceTest {
 
 		when(accountDao.findOne(USER_ACC_ID)).thenReturn(userAccount);
 		when(accountDao.findOne(GM_ACC_ID)).thenReturn(gmAccount);
-		when(accountDao.findByUsername(ACC_EMAIL)).thenReturn(userAccount);
+		when(accountDao.findByUsernameOrEmail(ACC_EMAIL)).thenReturn(userAccount);
 
 		when(playerBestiaService.getMaster(USER_ACC_ID)).thenReturn(playerBestia);
 		when(playerEntityFactory.build(playerBestia)).thenReturn(bestiaEntity);
@@ -155,7 +155,7 @@ public class LoginServiceTest {
 		loginService.login(13, null);
 	}
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void login_existingEntity_dontSpawnNewEntities() {
 		when(playerBestiaService.getMaster(USER_ACC_ID)).thenReturn(playerBestiaWithEntity);
 
@@ -253,14 +253,16 @@ public class LoginServiceTest {
 	public void createNewLoginToken_wrongUsername_fails() {
 		AccountLoginRequest req = new AccountLoginRequest(INVALID_ACC_EMAIL, VALID_PASSWORD);
 		AccountLoginRequest token = loginService.setNewLoginToken(req);
-		Assert.assertNull(token);
+		Assert.assertEquals(0, token.getAccountId());
+		Assert.assertEquals("", token.getToken());
 	}
 
 	@Test
 	public void createNewLoginToken_wrongPassword_fails() {
 		AccountLoginRequest req = new AccountLoginRequest(ACC_EMAIL, INVALID_PASSWORD);
 		AccountLoginRequest token = loginService.setNewLoginToken(req);
-		Assert.assertNull(token);
+		Assert.assertEquals(0, token.getAccountId());
+		Assert.assertEquals("", token.getToken());
 	}
 
 	@Test
@@ -268,7 +270,7 @@ public class LoginServiceTest {
 		AccountLoginRequest req = new AccountLoginRequest(ACC_EMAIL, VALID_PASSWORD);
 		AccountLoginRequest token = loginService.setNewLoginToken(req);
 
-		Assert.assertEquals(ACC_NAME, token.getUsername());
+		Assert.assertEquals(ACC_EMAIL, token.getUsername());
 		Assert.assertEquals(USER_ACC_ID, token.getAccountId());
 		Assert.assertNotNull(token.getToken());
 		verify(accountDao).save(userAccount);

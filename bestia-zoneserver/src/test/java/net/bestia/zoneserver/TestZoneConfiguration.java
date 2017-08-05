@@ -3,11 +3,12 @@ package net.bestia.zoneserver;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Primary;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.test.TestHazelcastInstanceFactory;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorSystem;
 import net.bestia.zoneserver.actor.SpringExtension;
@@ -33,7 +34,9 @@ public class TestZoneConfiguration {
 	@Primary
 	public ActorSystem actorSystem(ApplicationContext appCtx) {
 		
-		final ActorSystem system = ActorSystem.create("testSystem");
+		final Config akkaConfig = ConfigFactory.load("akka-test");
+		
+		final ActorSystem system = ActorSystem.create("testSystem", akkaConfig);
 
 		SpringExtension.PROVIDER.get(system).initialize(appCtx);
 		
