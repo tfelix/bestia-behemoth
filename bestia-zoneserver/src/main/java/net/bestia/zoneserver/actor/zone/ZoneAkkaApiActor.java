@@ -15,8 +15,15 @@ import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.SpringExtension;
 
+/**
+ * Implementation of the {@link ZoneAkkaApi} provides a entry from OO "normal"
+ * code into the world of akka messages.
+ * 
+ * @author Thomas Felix
+ *
+ */
 public class ZoneAkkaApiActor implements ZoneAkkaApi {
-	
+
 	private final static Logger LOG = LoggerFactory.getLogger(ZoneAkkaApiActor.class);
 
 	private final ActorContext context;
@@ -40,7 +47,7 @@ public class ZoneAkkaApiActor implements ZoneAkkaApi {
 	public void sendToActor(String actorName, Object message) {
 		context.actorSelection(AkkaCluster.getNodeName(actorName)).tell(message, ActorRef.noSender());
 	}
-	
+
 	@Override
 	public ActorRef startActor(Class<? extends AbstractActor> actorClazz) {
 
@@ -50,7 +57,7 @@ public class ZoneAkkaApiActor implements ZoneAkkaApi {
 
 		return actor;
 	}
-	
+
 	@Override
 	public ActorRef startUnnamedActor(Class<? extends AbstractActor> actorClazz) {
 

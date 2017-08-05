@@ -224,7 +224,7 @@ public class LoginService {
 
 		LOG.debug("Trying to set login token for username {}.", request);
 
-		final Account account = accountDao.findByUsername(request.getUsername());
+		final Account account = accountDao.findByUsernameOrEmail(request.getUsername());
 
 		if (account == null) {
 			LOG.debug("Account with username {} not found.", request.getUsername());

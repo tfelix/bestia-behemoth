@@ -6,6 +6,7 @@
 var MID = {
 	SERVER_INFO : 'server.info',
 
+	SYSTEM_AUTH : 'system.loginauth',
 	SYSTEM_AUTHREPLY : 'system.loginauthreply',
 
 	LATENCY_REQ : 'lat.req',

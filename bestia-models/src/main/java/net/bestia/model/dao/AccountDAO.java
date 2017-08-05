@@ -35,4 +35,15 @@ public interface AccountDAO extends CrudRepository<Account, Long> {
 	 */
 	@Query("FROM Account a WHERE a.master.name = :username")
 	public Account findByUsername(@Param("username") String username);
+	
+	/**
+	 * Returns the account via its username or if its mail if the username did
+	 * not match (username takes preference about email). If none could be found
+	 * null is returned.
+	 * 
+	 * @param name
+	 * @return
+	 */
+	@Query("FROM Account a WHERE a.master.name = :username OR a.email = :username")
+	public Account findByUsernameOrEmail(@Param("username") String username);
 }

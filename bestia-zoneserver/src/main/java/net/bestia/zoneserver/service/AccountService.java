@@ -174,7 +174,7 @@ public class AccountService {
 	 */
 	public boolean changePassword(String accountName, String newPassword) {
 
-		final Account acc = getAccountByUsernameOrMail(accountName);
+		final Account acc = accountDao.findByUsernameOrEmail(accountName);
 
 		if (acc == null) {
 			return false;
@@ -194,7 +194,7 @@ public class AccountService {
 	 */
 	public boolean changePassword(String accountName, String oldPassword, String newPassword) {
 
-		final Account acc = getAccountByUsernameOrMail(accountName);
+		final Account acc = accountDao.findByUsernameOrEmail(accountName);
 
 		if (acc == null) {
 			return false;
@@ -209,25 +209,6 @@ public class AccountService {
 		acc.setPassword(new Password(newPassword));
 		accountDao.save(acc);
 		return true;
-	}
-
-	/**
-	 * Returns the account via its username or if its mail if the username did
-	 * not match (username takes preference about email). If none could be found
-	 * null is returned.
-	 * 
-	 * @param name
-	 * @return
-	 */
-	private Account getAccountByUsernameOrMail(String name) {
-
-		final Account acc = accountDao.findByUsername(name);
-
-		if (acc != null) {
-			return acc;
-		}
-
-		return accountDao.findByEmail(name);
 	}
 
 }

@@ -8,7 +8,7 @@ $(document).ready(function () {
 	// Ask the server about the login status.
 	$.get(UrlHelper.restUrl + 'v1/server/status', function (data) {
 
-		if(data.maintenance.toUpperCase() !== 'NONE') {
+		if (data.maintenance.toUpperCase() !== 'NONE') {
 
 			// Server is in maintenance mode.
 			$('#maintenance').show();
@@ -25,8 +25,10 @@ $(document).ready(function () {
 		$.get(UrlHelper.restUrl + 'v1/account/login', {
 			accName: email,
 			password: password
-		}, {
-				success: function (data) {
+		},
+			function (data) {
+
+				if (data.success) {
 
 					// Save cookie with this data.
 					var storage = new Storage();
@@ -34,9 +36,8 @@ $(document).ready(function () {
 
 					// Redirect to the game itself.
 					window.location.href = UrlHelper.gameUrl;
-				},
-				error: function (data) {
-					alert("fehler");
+				} else {
+					$('#error').text('Could not login.');
 				}
 			}
 		);

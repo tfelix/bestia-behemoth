@@ -2,7 +2,7 @@
   "name": "bestia-behemoth-web_alpha",
   "description": "Frontend of Bestia - Browsergame.",
   "author": "Thomas Felix (http://www.tfelix.de)",
-  "version": "0.4.0",
+  "version": "0.4.3",
   "jsnext:main": "build/bundle.js",
   "private": true,
   "scripts": {

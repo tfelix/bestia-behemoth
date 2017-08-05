@@ -7,6 +7,8 @@ import Signal from './Signal';
 import Urls from '../Urls';
 import MID from './messages/MID';
 import LOG from '../util/Log';
+import AuthenticateMessage from '../message/external/AuthenticateMessage';
+import Storage from '../util/Storage.js';
 
 /**
  * Class which reads the login token from a storage system and tries to
@@ -17,6 +19,7 @@ export default class Authenticator {
 	constructor(pubsub) {
 		
 		this._pubsub = pubsub;
+		this._storage = new Storage();
 		
 		this._pubsub.subscribe(Signal.IO_CONNECTED, this._onConnected, this);
 		this._pubsub.subscribe(MID.SYSTEM_AUTHREPLY, this._onAuthReply, this);
@@ -28,14 +31,13 @@ export default class Authenticator {
 	_onConnected() {
 		LOG.debug('Connection established. Starting to authenticate with server.');
 
-		// Prepare login message and send it.
-		var loginMsg = {
-			mid: 'system.loginauth',
-			accId : 1,
-			token : '04473c9f-65e9-4f59-9075-6da257a21826'
-		};
+		var authToken = this._storage.getAuth();
 
-		this._pubsub.send(loginMsg);
+		var authMsg = new AuthenticateMessage(
+			authToken.accountId, 
+			authToken.token);
+
+		this._pubsub.send(authMsg);
 	}
 	
 	/**
@@ -51,7 +53,7 @@ export default class Authenticator {
 			this._pubsub.publish(Signal.IO_AUTH_ERROR);
 			this._pubsub.publish(Signal.IO_DISCONNECT);
 			// Go to login if there is wrong data.
-			//window.location.replace(Urls.loginHtml);
+			window.location.replace(Urls.loginHtml);
 		}
 	}
 	

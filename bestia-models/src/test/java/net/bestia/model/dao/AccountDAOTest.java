@@ -12,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import net.bestia.model.domain.Account;
+import net.bestia.model.domain.Bestia;
+import net.bestia.model.domain.PlayerBestia;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -75,6 +77,24 @@ public class AccountDAOTest {
 		accountDao.save(a);
 
 		Account found = accountDao.findByEmail(EMAIL);
+		assertNotNull(found);
+	}
+	
+	@Test
+	public void findByEmailOrUsername_findsBoth() {
+		Account a = new Account(EMAIL, "test123");
+		
+		Bestia b = new Bestia();
+		PlayerBestia pb = new PlayerBestia(a, b);
+		pb.setName("max");
+		a.setMaster(pb);
+		
+		accountDao.save(a);
+		
+		Account found = accountDao.findByUsernameOrEmail(EMAIL);
+		assertNotNull(found);
+		
+		found = accountDao.findByUsernameOrEmail("max");
 		assertNotNull(found);
 	}
 }

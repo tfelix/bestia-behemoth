@@ -12,6 +12,10 @@ export default [{
   sourceMap: true,
   plugins: [
     json(),
+    replace({
+      exclude: 'node_modules/**',
+      ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
+    }),
     resolve({
       jsnext: true,
       main: true,
@@ -28,10 +32,6 @@ export default [{
         'node_modules/**',
         '*.less'
       ]
-    }),
-    replace({
-      exclude: 'node_modules/**',
-      ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
     }),
     (process.env.NODE_ENV === 'production' && uglify())
   ]
