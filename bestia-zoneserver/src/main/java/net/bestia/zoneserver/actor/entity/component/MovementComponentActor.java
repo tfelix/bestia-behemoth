@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.entity;
+package net.bestia.zoneserver.actor.entity.component;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -27,7 +27,7 @@ import net.bestia.zoneserver.actor.BestiaRoutingActor;
  */
 @Component
 @Scope("prototype")
-public class EntityMovementActor extends BestiaRoutingActor {
+public class MovementComponentActor extends BestiaRoutingActor {
 
 	public final static String NAME = "movement";
 
@@ -37,7 +37,7 @@ public class EntityMovementActor extends BestiaRoutingActor {
 	private final PlayerEntityService playerEntityService;
 
 	@Autowired
-	public EntityMovementActor(MovingEntityService movingService, PlayerEntityService playerEntityService) {
+	public MovementComponentActor(MovingEntityService movingService, PlayerEntityService playerEntityService) {
 		super(Arrays.asList(EntityMoveInternalMessage.class, EntityMoveMessage.class, EntityPositionMessage.class));
 
 		this.movingService = Objects.requireNonNull(movingService);
