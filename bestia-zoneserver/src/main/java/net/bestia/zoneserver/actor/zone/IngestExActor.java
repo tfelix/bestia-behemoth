@@ -20,7 +20,7 @@ import net.bestia.messages.web.ServerStatusMessage;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
 import net.bestia.zoneserver.actor.rest.RequestLoginActor;
-import net.bestia.zoneserver.actor.rest.RequestStatusActor;
+import net.bestia.zoneserver.actor.rest.RequestServerStatusActor;
 
 /**
  * The ingestion extended actor is a development actor to help the transition
@@ -56,7 +56,7 @@ public class IngestExActor extends AbstractActor {
 					AkkaSender.sendToActor(getContext(), RequestLoginActor.NAME, msg, getSender());
 				})
 				.match(ServerStatusMessage.Request.class, msg -> {
-					AkkaSender.sendToActor(getContext(), RequestStatusActor.NAME, msg, getSender());
+					AkkaSender.sendToActor(getContext(), RequestServerStatusActor.NAME, msg, getSender());
 				})
 				
 				.matchAny(this::redirectLegacy)
