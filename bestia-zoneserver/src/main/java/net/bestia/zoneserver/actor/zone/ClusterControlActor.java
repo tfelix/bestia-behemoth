@@ -1,50 +1,51 @@
 package net.bestia.zoneserver.actor.zone;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.DoneMessage;
 import net.bestia.model.domain.MapParameter;
-import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 import net.bestia.zoneserver.map.MapService;
 
 /**
- * Upon receiving the StartInit message the actor will start its work: Depending
- * on the given config it will generate a whole new world (by spawning the
- * needed worker actors chains) or it will restart the bestia service. This
- * means it will reload a given/saved map file and repopulate all the caches
- * with entity instances. If there is no data to be found it will default fall
- * back to a default world creation.
+ * This is a cluster singelton actor. It centralized the control over the whole
+ * bestia cluster. Upon receiving control messages it performs centralized
+ * orchestration like generating a new map.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Component
 @Scope("prototype")
-public class InitGlobalActor extends BestiaActor {
+public class ClusterControlActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	public static final String START_MSG = "init.start";
 
+	public static final class ControlMessage implements Serializable {
+
+		private static final long serialVersionUID = 1L;
+
+	}
+
 	private boolean hasInitialized = false;
-	//private int actorWaiting;
 
 	private final MapService mapDataService;
-
 	private final ActorRef mapGeneratorMaster;
 
-	public InitGlobalActor(MapService mapDataService) {
+	public ClusterControlActor(MapService mapDataService) {
 
 		this.mapDataService = Objects.requireNonNull(mapDataService);
-
 		this.mapGeneratorMaster = SpringExtension.actorOf(getContext(), MapGeneratorMasterActor.class);
 	}
 
@@ -83,5 +84,13 @@ public class InitGlobalActor extends BestiaActor {
 
 		// This signalling does not work.
 		getContext().parent().tell(new DoneMessage("global"), getSelf());
+	}
+
+	/**
+	 * Checks if the bestia game was just shut down or if there is a new start
+	 * which means world generation should begin.
+	 */
+	private void checkInitStatus() {
+
 	}
 }

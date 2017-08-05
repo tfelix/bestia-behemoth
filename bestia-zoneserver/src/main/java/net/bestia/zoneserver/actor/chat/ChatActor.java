@@ -2,26 +2,18 @@ package net.bestia.zoneserver.actor.chat;
 
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.chat.ChatMessage;
-import net.bestia.model.dao.PartyDAO;
-import net.bestia.model.domain.Account;
-import net.bestia.model.domain.Party;
-import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.chat.ChatCommandService;
-import net.bestia.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.bestia.entity.PlayerEntityService;
-import net.bestia.entity.component.PositionComponent;
-import net.bestia.zoneserver.service.AccountService;
 
 /**
  * This actor processes chat messages from the clients to the bestia system. It
@@ -29,7 +21,7 @@ import net.bestia.zoneserver.service.AccountService;
  * which will then in turn work with the chat message or redirect it to the chat
  * command system.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Component
@@ -39,22 +31,27 @@ public class ChatActor extends BestiaRoutingActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "chat";
 
-	private final AccountService accService;
-	private final PlayerEntityService playerEntityService;
 	private final ChatCommandService chatCmdService;
-	private final EntityService entityService;
-	private final PartyDAO partyDao;
+	
+
+	private ActorRef publicChatActor;
+	private ActorRef whisperChatActor;
+	private ActorRef guildChatActor;
+	private ActorRef partyChatActor;
 
 	@Autowired
-	public ChatActor(AccountService accService, PlayerEntityService playerEntityService,
-			ChatCommandService chatCmdService, PartyDAO partyDao, EntityService entityService) {
+	public ChatActor(ChatCommandService chatCmdService) {
 		super(Arrays.asList(ChatMessage.class));
 
-		this.accService = Objects.requireNonNull(accService);
-		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		this.chatCmdService = Objects.requireNonNull(chatCmdService);
-		this.partyDao = Objects.requireNonNull(partyDao);
-		this.entityService = Objects.requireNonNull(entityService);
+	}
+
+	@Override
+	public void preStart() throws Exception {
+		publicChatActor = SpringExtension.actorOf(getContext(), PublicChatActor.class);
+		whisperChatActor = SpringExtension.actorOf(getContext(), WhisperChatActor.class);
+		partyChatActor = SpringExtension.actorOf(getContext(), PartyChatActor.class);
+		guildChatActor = SpringExtension.actorOf(getContext(), GuildChatActor.class);
 	}
 
 	@Override
@@ -69,13 +66,16 @@ public class ChatActor extends BestiaRoutingActor {
 
 		switch (chatMsg.getChatMode()) {
 		case PUBLIC:
-			handlePublic(chatMsg);
+			publicChatActor.tell(chatMsg, getSelf());
 			break;
 		case WHISPER:
-			handleWhisper(chatMsg);
+			whisperChatActor.tell(chatMsg, getSelf());
 			break;
 		case PARTY:
-			handleParty(chatMsg);
+			partyChatActor.tell(chatMsg, getSelf());
+			break;
+		case GUILD:
+			guildChatActor.tell(chatMsg, getSelf());
 			break;
 
 		default:
@@ -83,73 +83,4 @@ public class ChatActor extends BestiaRoutingActor {
 			break;
 		}
 	}
-
-	/**
-	 * Handles the party message. Finds all member in this party and then send
-	 * the message to them.
-	 */
-	private void handleParty(ChatMessage chatMsg) {
-		final Party party = partyDao.findPartyByMembership(chatMsg.getAccountId());
-		if (party == null) {
-			// not a member of a party.
-			LOG.debug("Account {} is no member of any party.", chatMsg.getAccountId());
-			final ChatMessage replyMsg = ChatMessage.getSystemMessage(chatMsg.getAccountId(),
-					"Not a member of a party.");
-			AkkaSender.sendClient(getContext(), replyMsg);
-			return;
-		}
-
-		party.getMembers().forEach(member -> {
-			final ChatMessage reply = chatMsg.createNewInstance(member.getId());
-			AkkaSender.sendClient(getContext(), reply);
-		});
-	}
-
-	/**
-	 * Sends a public message to all clients in sight.
-	 */
-	private void handlePublic(ChatMessage chatMsg) {
-		final long accId = chatMsg.getAccountId();
-		final Entity pbe = playerEntityService.getActivePlayerEntity(accId);
-
-		if (pbe == null) {
-			return;
-		}
-
-		// Add the current entity id to the message.
-		final ChatMessage chatEntityMsg = new ChatMessage(accId, pbe.getId(), chatMsg);
-
-		Optional<PositionComponent> pos = entityService.getComponent(pbe, PositionComponent.class);
-
-		if (!pos.isPresent()) {
-			LOG.warning("Player bestia has no position component.");
-			return;
-		}
-
-		// We dont need to send a echo back because the player entity is also
-		// active in the area so this call also includes the sender of the chat
-		// message.
-		AkkaSender.sendActiveInRangeClients(getContext(), chatEntityMsg);
-	}
-
-	/**
-	 * Handles an incoming whisper message.
-	 */
-	private void handleWhisper(ChatMessage chatMsg) {
-		// Cant handle with no receiver name.
-		if (chatMsg.getReceiverNickname() == null) {
-			return;
-		}
-
-		final Account acc = accService.getOnlineAccountByName(chatMsg.getReceiverNickname());
-
-		if (acc == null) {
-			LOG.debug("Whisper receiver {} not found.", chatMsg.getReceiverNickname());
-			return;
-		}
-
-		final ChatMessage reply = chatMsg.createNewInstance(acc.getId());
-		AkkaSender.sendClient(getContext(), reply);
-	}
-
 }

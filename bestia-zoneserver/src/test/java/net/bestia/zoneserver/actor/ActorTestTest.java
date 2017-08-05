@@ -11,8 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.testkit.javadsl.TestKit;
-import net.bestia.zoneserver.actor.rest.BRouterActor;
-import net.bestia.zoneserver.actor.rest.BRouterActor.RedirectMessage;
+import net.bestia.zoneserver.actor.BRouterActor.RedirectMessage;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest

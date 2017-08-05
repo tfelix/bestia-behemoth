@@ -23,14 +23,14 @@ import net.bestia.zoneserver.configuration.RuntimeConfigService;
  */
 @Component
 @Scope("prototype")
-public class RequestStatusActor extends AbstractActor {
+public class RequestServerStatusActor extends AbstractActor {
 
 	public final static String NAME = "RESTserverStatus";
 
 	private final RuntimeConfigService config;
 
 	@Autowired
-	public RequestStatusActor(RuntimeConfigService config) {
+	public RequestServerStatusActor(RuntimeConfigService config) {
 
 		this.config = Objects.requireNonNull(config);
 	}

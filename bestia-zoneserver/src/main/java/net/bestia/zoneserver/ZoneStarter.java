@@ -22,12 +22,12 @@ import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 import net.bestia.zoneserver.actor.rest.ChangePasswordActor;
 import net.bestia.zoneserver.actor.rest.CheckUsernameDataActor;
 import net.bestia.zoneserver.actor.rest.RequestLoginActor;
-import net.bestia.zoneserver.actor.rest.RequestStatusActor;
+import net.bestia.zoneserver.actor.rest.RequestServerStatusActor;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.HeartbeatActor;
 import net.bestia.zoneserver.actor.zone.IngestActor;
 import net.bestia.zoneserver.actor.zone.IngestExActor;
-import net.bestia.zoneserver.actor.zone.InitGlobalActor;
+import net.bestia.zoneserver.actor.zone.ClusterControlActor;
 import net.bestia.zoneserver.actor.zone.SendActiveRangeActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
@@ -89,14 +89,14 @@ public class ZoneStarter implements CommandLineRunner {
 		akkaApi.startActor(CheckUsernameDataActor.class);
 		akkaApi.startActor(ChangePasswordActor.class);
 		akkaApi.startActor(RequestLoginActor.class);
-		akkaApi.startActor(RequestStatusActor.class);
+		akkaApi.startActor(RequestServerStatusActor.class);
 
 		// Maybe this needs to be more sophisticated done only when we joined
 		// the cluster.
 		// Setup the init actor singelton for creation of the system.
 		LOG.info("Starting the global init singeltons.");
 		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
-		final Props globalInitProps = SpringExtension.PROVIDER.get(system).props(InitGlobalActor.class);
+		final Props globalInitProps = SpringExtension.PROVIDER.get(system).props(ClusterControlActor.class);
 		Props clusterProbs = ClusterSingletonManager.props(globalInitProps, PoisonPill.getInstance(), settings);
 		system.actorOf(clusterProbs, "globalInit");
 
