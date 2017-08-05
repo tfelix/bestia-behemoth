@@ -1,13 +1,17 @@
 import 'zepto';
-import Urls from '../Urls.js';
-
+import UrlHelper from '../util/UrlHelper.js';
 
 
 $(document).ready(function() {
 
-	$('#test').click(function(){
-		$.get('http://localhost:8080/v1/account/check', {username: 'test', email: 'bla@bla.de'}, function(){
+	$('#register').on('submit', function () {
+
+		$.get(UrlHelper.restUrl + 'v1/account/check', {username: 'test', email: 'bla@bla.de'}, function(){
 			console.log('geht');
 		});
+
+		alert("Not implemented.");
+
+		return false;
 	});
 });

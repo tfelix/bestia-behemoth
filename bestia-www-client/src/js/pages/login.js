@@ -1,4 +1,5 @@
 import 'zepto';
+import ko from 'knockout';
 import UrlHelper from '../util/UrlHelper.js';
 import Storage from '../util/Storage.js';
 
