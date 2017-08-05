@@ -11,13 +11,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.testkit.javadsl.TestKit;
-import net.bestia.zoneserver.TestZoneConfiguration;
 import net.bestia.zoneserver.actor.rest.BRouterActor;
 import net.bestia.zoneserver.actor.rest.BRouterActor.RedirectMessage;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@Import(TestZoneConfiguration.class)
+@Import(ActorTestConfig.class)
 public class ActorTestTest {
 	
 	@Autowired

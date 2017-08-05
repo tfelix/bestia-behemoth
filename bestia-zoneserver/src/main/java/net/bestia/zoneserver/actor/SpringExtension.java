@@ -114,9 +114,25 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 	}
 
 	public static ActorRef actorOf(ActorSystem system, Class<? extends AbstractActor> clazz) {
-		// Try to create the class with the name field.
-		final Props props = getSpringProps(system, clazz);
+
 		final String actorName = getActorName(clazz);
+		return actorOf(system, clazz, actorName);
+	}
+
+	/**
+	 * Creates a new actor via injection of spring dependencies. Does give the
+	 * actor a custom name by the user.
+	 * 
+	 * @param system
+	 * @param clazz
+	 * @param actorName
+	 *            Default actor name, if the name is null the class name or a
+	 *            random name is used.
+	 * @return The created {@link ActorRef}.
+	 */
+	public static ActorRef actorOf(ActorSystem system, Class<? extends AbstractActor> clazz, String actorName) {
+
+		final Props props = getSpringProps(system, clazz);
 		return (actorName == null) ? system.actorOf(props) : system.actorOf(props, actorName);
 	}
 
@@ -148,6 +164,7 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 	 * @return The created and already registered new actor.
 	 */
 	public static ActorRef actorOf(ActorContext context, Class<? extends AbstractActor> clazz, String name) {
+
 		final Props props = getSpringProps(context.system(), clazz);
 		return (name == null) ? context.actorOf(props) : context.actorOf(props, name);
 	}
@@ -187,6 +204,7 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 	 * @return The created and already registered new actor.
 	 */
 	public static ActorRef unnamedActorOf(ActorSystem system, Class<? extends AbstractActor> clazz) {
+
 		final Props props = getSpringProps(system, clazz);
 		return system.actorOf(props);
 	}
@@ -201,6 +219,7 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 	 * @return
 	 */
 	public static ActorRef unnamedActorOf(ActorContext ctx, Class<? extends AbstractActor> clazz, Object... args) {
+
 		final Props props = getSpringProps(ctx.system(), clazz, args);
 		return ctx.actorOf(props);
 	}

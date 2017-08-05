@@ -44,7 +44,7 @@ public class AccountLoginRequest implements Serializable {
 	}
 	
 	public AccountLoginRequest success(long accountId, String token) {
-		return new AccountLoginRequest(username, password, accountId, token);
+		return new AccountLoginRequest(username, "", accountId, token);
 	}
 	
 	/**
