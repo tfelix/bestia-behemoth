@@ -14,7 +14,7 @@ import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.zone.IngestExActor;
-import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectRequestMessage;
+import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 
 /**
  * Checks if a username and email is available.
@@ -41,7 +41,7 @@ public class CheckUsernameDataActor extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 
-		final RedirectRequestMessage req = RedirectRequestMessage.get(UserNameCheck.class);
+		final RedirectMessage req = RedirectMessage.get(UserNameCheck.class);
 		getContext().actorSelection(AkkaCluster.getNodeName(IngestExActor.NAME)).tell(req, getSelf());
 
 		return receiveBuilder()

@@ -16,8 +16,6 @@ import net.bestia.entity.EntityService;
  * Depending on the given component ID this factory will create an actor
  * suitable for the component.
  * 
- * FIXME Unit Testen.
- * 
  * @author Thomas Felix
  *
  */
@@ -33,6 +31,7 @@ public class EntityComponentActorFactory {
 	@Autowired
 	public EntityComponentActorFactory(EntityService entityService,
 			List<ActorComponentFactoryModule<? extends Component>> modules) {
+		Objects.requireNonNull(modules);
 
 		this.entityService = Objects.requireNonNull(entityService);
 

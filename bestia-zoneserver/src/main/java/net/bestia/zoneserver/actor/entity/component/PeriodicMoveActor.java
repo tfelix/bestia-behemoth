@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.actor.entity.component;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
@@ -9,13 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.AbstractActor;
 import akka.actor.Cancellable;
 import akka.actor.Scheduler;
+import net.bestia.entity.MovingEntityService;
 import net.bestia.messages.internal.entity.EntityMoveInternalMessage;
 import net.bestia.model.geometry.Point;
-import net.bestia.zoneserver.actor.BestiaActor;
-import net.bestia.entity.EntityService;
-import net.bestia.entity.MovingEntityService;
 import scala.concurrent.duration.Duration;
 
 /**
@@ -27,10 +27,9 @@ import scala.concurrent.duration.Duration;
  */
 @Component
 @Scope("prototype")
-public class PeriodicMovementActor extends BestiaActor {
+public class PeriodicMoveActor extends AbstractActor {
 
 	private final static String TICK_MSG = "onTick";
-	public static final String STOP_MESSAGE = "STOP";
 
 	private Cancellable tick;
 
@@ -40,10 +39,11 @@ public class PeriodicMovementActor extends BestiaActor {
 	private final Queue<Point> path = new LinkedList<>();
 
 	@Autowired
-	public PeriodicMovementActor(
-			EntityService entityService,
+	public PeriodicMoveActor(
+			List<Point> path,
 			MovingEntityService movingService) {
 
+		this.path.addAll(path);
 		this.movingService = Objects.requireNonNull(movingService);
 	}
 
@@ -51,13 +51,34 @@ public class PeriodicMovementActor extends BestiaActor {
 	public Receive createReceive() {
 		return receiveBuilder()
 				.matchEquals(TICK_MSG, x -> {
-					handleTick();
-				})
-				.matchEquals(STOP_MESSAGE, x -> {
-					handleStop();
+					handleMoveTick();
 				})
 				.match(EntityMoveInternalMessage.class, this::handleMoveMessage)
 				.build();
+	}
+
+	@Override
+	public void preStart() {
+		// Here comes the trick: after half the time consider the entity
+		// moved/active
+		// on the next tile.
+		final int moveDelay = movingService.getMoveDelayMs(entityId, path.peek()) / 2;
+		setupMoveTick(moveDelay);
+	}
+
+	// override postRestart so we don't call preStart and schedule a new message
+	@Override
+	public void postRestart(Throwable reason) {
+		// no op.
+	}
+
+	@Override
+	public void postStop() throws Exception {
+
+		if (tick != null) {
+			tick.cancel();
+		}
+
 	}
 
 	private void handleMoveMessage(EntityMoveInternalMessage msg) {
@@ -71,36 +92,19 @@ public class PeriodicMovementActor extends BestiaActor {
 		setupMoveTick(moveDelay);
 	}
 
-	/**
-	 * Stops the actor and finish the movement.
-	 */
-	private void handleStop() {
-		// Stop the current movement but do not end the actor. We will soon
-		// receive another movement job.
-		path.clear();
-		setupMoveTick(100);
-		getContext().stop(getSelf());
-	}
+	private void handleMoveTick() {
 
-	private void handleTick() {
 		final Point nextPoint = path.poll();
 		movingService.moveToPosition(entityId, nextPoint);
 
 		// Path empty and can we terminate now?
 		if (path.isEmpty()) {
-			handleStop();
+			getContext().stop(getSelf());
 		} else {
-			final int moveDelay = movingService.getMoveDelayMs(entityId, path.peek());
+			// Here comes the trick: after half the time consider the entity
+			// moved/active on the next tile.
+			final int moveDelay = movingService.getMoveDelayMs(entityId, path.peek()) / 2;
 			setupMoveTick(moveDelay);
-		}
-	}
-
-	@Override
-	public void postStop() throws Exception {
-		super.postStop();
-
-		if (tick != null) {
-			tick.cancel();
 		}
 	}
 

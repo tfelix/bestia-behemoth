@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorSelection;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -19,7 +20,6 @@ import net.bestia.messages.JsonMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.server.AkkaCluster;
-import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.map.MapService;
 
 /***
@@ -33,7 +33,7 @@ import net.bestia.zoneserver.map.MapService;
  */
 @Component
 @Scope("prototype")
-public class SendActiveRangeActor extends BestiaActor {
+public class SendActiveRangeActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "sendToActiveInRange";

@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.AbstractActor;
 import akka.actor.Cancellable;
 import scala.concurrent.duration.Duration;
 
@@ -18,7 +19,7 @@ import scala.concurrent.duration.Duration;
  */
 @Component
 @Scope("prototype")
-public abstract class BestiaPeriodicActor extends BestiaActor {
+public abstract class BestiaPeriodicActor extends AbstractActor {
 
 	protected static final String TICK_MSG = "net.bestia.TICK_MSG";
 

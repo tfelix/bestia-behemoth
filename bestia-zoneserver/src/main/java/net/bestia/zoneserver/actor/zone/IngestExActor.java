@@ -45,21 +45,19 @@ public class IngestExActor extends AbstractActor {
 	/**
 	 * This message is send towards actors (usually an IngestActor) which will
 	 * then redirect all messages towards the actor.
-	 * 
-	 * @author Thomas Felix
 	 *
 	 */
-	public static final class RedirectRequestMessage {
+	public static final class RedirectMessage {
 
 		private List<Class<? extends Object>> classes = new ArrayList<>();
 
-		private RedirectRequestMessage() {
+		private RedirectMessage() {
 			// no op
 		}
 
 		@SafeVarargs
-		public static RedirectRequestMessage get(Class<? extends Object>... classes) {
-			RedirectRequestMessage req = new RedirectRequestMessage();
+		public static RedirectMessage get(Class<? extends Object>... classes) {
+			RedirectMessage req = new RedirectMessage();
 			req.classes.addAll(Arrays.asList(classes));
 			return req;
 		}
@@ -75,14 +73,14 @@ public class IngestExActor extends AbstractActor {
 		}
 	}
 
-	private Map<Class<? extends Object>, List<ActorRef>> redirections = new HashMap<>();
+	private Map<Class<?>, List<ActorRef>> redirections = new HashMap<>();
 
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
 				.match(PongMessage.class, this::redirectConnection)
 				.match(ClientConnectionStatusMessage.class, this::redirectConnection)
-				.match(RedirectRequestMessage.class, this::handleMessageRedirectRequest)
+				.match(RedirectMessage.class, this::handleMessageRedirectRequest)
 
 				// Temp
 				.match(AccountLoginRequest.class, msg -> {
@@ -92,7 +90,7 @@ public class IngestExActor extends AbstractActor {
 					AkkaSender.sendToActor(getContext(), RequestServerStatusActor.NAME, msg, getSender());
 				})
 
-				.matchAny(this::redirectLegacy)
+				.matchAny(this::handleIncomingMessage)
 				.build();
 	}
 
@@ -101,7 +99,7 @@ public class IngestExActor extends AbstractActor {
 	 * 
 	 * @param requestedClasses
 	 */
-	private void handleMessageRedirectRequest(RedirectRequestMessage requestedClasses) {
+	private void handleMessageRedirectRequest(RedirectMessage requestedClasses) {
 		requestedClasses.getClasses().forEach(clazz -> {
 			if (!redirections.containsKey(clazz)) {
 				redirections.put(clazz, new ArrayList<>());
@@ -131,5 +129,16 @@ public class IngestExActor extends AbstractActor {
 
 		AkkaSender.sendToActor(getContext(), ConnectionManagerActor.NAME, msg, getSender());
 		redirectLegacy(msg);
+	}
+	
+	private void handleIncomingMessage(Object msg) {
+		if(redirections.containsKey(msg.getClass())) {
+			redirections.get(msg.getClass()).forEach(ref -> {
+				ref.forward(msg, getContext());
+			});
+		} else {
+			redirectLegacy(msg);
+			//unhandled(msg);
+		}
 	}
 }

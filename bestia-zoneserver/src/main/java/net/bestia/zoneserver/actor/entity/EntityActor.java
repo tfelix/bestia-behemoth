@@ -2,22 +2,22 @@ package net.bestia.zoneserver.actor.entity;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.actor.PoisonPill;
 import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.component.EntityComponentActorFactory;
-import net.bestia.messages.entity.EntityMoveMessage;
+import net.bestia.messages.internal.entity.ComponentPayloadWrapper;
 import net.bestia.messages.internal.entity.EntityComponentMessage;
 import net.bestia.messages.internal.entity.EntityComponentMessage.ComponentState;
-import net.bestia.zoneserver.actor.BestiaActor;
 
 /**
  * The {@link EntityActor} is a persistent actor managing all aspects of a
@@ -32,24 +32,25 @@ import net.bestia.zoneserver.actor.BestiaActor;
  */
 @Component
 @Scope("prototype")
-public class EntityActor extends BestiaActor {
+public class EntityActor extends AbstractActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().getSystem(), this);
 
 	private final static String ACTOR_NAME = "entity-%d";
-	private final long entityId;
+	// private final long entityId;
 
 	private final EntityComponentActorFactory factory;
 
 	/**
 	 * Saves the references for the actors managing components.
 	 */
-	private Map<Long, ActorRef> componentActors = new HashMap<>();
+	private Map<Long, ActorRef> actorsByComponentId = new HashMap<>();
+	private Map<ActorRef, Long> componentIdsByActor = new HashMap<>();
 
 	@Autowired
 	public EntityActor(long entityId, EntityComponentActorFactory factory) {
 
 		this.factory = Objects.requireNonNull(factory);
-		this.entityId = entityId;
+		// this.entityId = entityId;
 	}
 
 	public static String getActorName(long entityId) {
@@ -63,16 +64,29 @@ public class EntityActor extends BestiaActor {
 	public Receive createReceive() {
 		return receiveBuilder()
 				.match(EntityComponentMessage.class, this::handleComponentMessage)
-				// .match(EntityMoveMessage.class,
-				// this::handleClientMoveMessage)
-				// .match(EntityMoveInternalMessage.class,
-				// this::handleInternalMoveMessage)
+				.match(ComponentPayloadWrapper.class, this::handleComponentPayload)
 				.match(Terminated.class, this::handleTerminated)
 				.build();
 	}
 
 	/**
-	 * Adds or removes a component actor from the system.
+	 * Checks if we have such a associated component and if so delivers the
+	 * message.
+	 */
+	private void handleComponentPayload(ComponentPayloadWrapper msg) {
+		
+		final long compId = msg.getComponentId();
+		
+		if(!actorsByComponentId.containsKey(compId)) {
+			unhandled(msg);
+			return;
+		}
+		
+		actorsByComponentId.get(compId).tell(msg.getPayload(), getSelf());
+	}
+
+	/**
+	 * Adds or removes a active component actor from the entity.
 	 * 
 	 * @param msg
 	 */
@@ -83,22 +97,22 @@ public class EntityActor extends BestiaActor {
 			// Install the component.
 			ActorRef compActor = factory.startActor(msg.getComponentId());
 			context().watch(compActor);
-			componentActors.put(msg.getComponentId(), compActor);
+
+			actorsByComponentId.put(msg.getComponentId(), compActor);
+			componentIdsByActor.put(compActor, msg.getComponentId());
 
 		} else {
 
 			// Remove the component.
-			final ActorRef compRef = componentActors.get(msg.getComponentId());
+			final ActorRef compRef = actorsByComponentId.get(msg.getComponentId());
 
 			if (compRef == null) {
 				LOG.debug("Actor for component {} not found.", msg.getComponentId());
 				return;
 			}
 
-			stopActor(compRef);
-			componentActors.remove(msg.getComponentId());
+			compRef.tell(PoisonPill.getInstance(), getSelf());
 		}
-
 	}
 
 	/**
@@ -110,35 +124,9 @@ public class EntityActor extends BestiaActor {
 	private void handleTerminated(Terminated term) {
 
 		final ActorRef termActor = term.actor();
-		long foundKey = -1;
+		final long compId = componentIdsByActor.get(termActor);
 
-		for (Entry<Long, ActorRef> entries : componentActors.entrySet()) {
-
-			if (entries.getValue().equals(termActor)) {
-				foundKey = entries.getKey();
-				break;
-			}
-		}
-
-		if (foundKey == -1) {
-			LOG.warning("Unknown actor {} has terminated. Cant handle event.",
-					term.getActor().path().toStringWithoutAddress());
-		} else {
-			componentActors.remove(foundKey);
-		}
-
-	}
-
-	/**
-	 * Transforms msg to internal movement message.
-	 */
-	private void handleClientMoveMessage(EntityMoveMessage msg) {
-		// handleInternalMoveMessage(new EntityMoveInternalMessage(entityId,
-		// msg.getPath()));
-	}
-
-	private void stopActor(ActorRef ref) {
-		context().unwatch(ref);
-		context().stop(ref);
+		componentIdsByActor.remove(termActor);
+		actorsByComponentId.remove(compId);
 	}
 }

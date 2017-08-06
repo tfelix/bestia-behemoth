@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
-import net.bestia.messages.internal.script.ScriptIntervalMessage;
+import net.bestia.messages.internal.entity.EntityComponentMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
@@ -158,7 +158,7 @@ public class ScriptService {
 
 	/**
 	 * Starts a recurring script interval attached to an entity. After the given
-	 * delay timer in ms the script call will be invoced.
+	 * delay timer in ms the script call will be invoked.
 	 * 
 	 * @param entity
 	 * @param delay
@@ -177,10 +177,10 @@ public class ScriptService {
 
 		scriptComp.setOnIntervalCallbackName(callbackFunctionName);
 		entityService.updateComponent(scriptComp);
-
+		
 		// Tell the actor which script to periodically call.
-		final ScriptIntervalMessage message = new ScriptIntervalMessage(entity.getId(), delay);
-		akkaApi.sendEntityActor(entity.getId(), message);
+		final EntityComponentMessage compMessage = EntityComponentMessage.start(entity.getId(), scriptComp.getId());
+		akkaApi.sendEntityActor(entity.getId(), compMessage);
 	}
 
 	/**

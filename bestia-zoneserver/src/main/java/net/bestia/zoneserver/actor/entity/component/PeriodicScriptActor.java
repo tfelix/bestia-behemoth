@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.script;
+package net.bestia.zoneserver.actor.entity.component;
 
 import java.util.Objects;
 
@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.internal.script.ScriptIntervalMessage;
 import net.bestia.zoneserver.actor.BestiaPeriodicActor;
 import net.bestia.zoneserver.script.ScriptService;
 
@@ -20,7 +20,7 @@ import net.bestia.zoneserver.script.ScriptService;
  */
 @Component
 @Scope("prototype")
-public class PeriodicScriptRunnerActor extends BestiaPeriodicActor {
+public class PeriodicScriptActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
@@ -28,7 +28,7 @@ public class PeriodicScriptRunnerActor extends BestiaPeriodicActor {
 	private long scriptId;
 
 	@Autowired
-	public PeriodicScriptRunnerActor(ScriptService scriptService, ScriptIntervalMessage msg) {
+	public PeriodicScriptActor(ScriptService scriptService, ScriptIntervalMessage msg) {
 
 		this.scriptService = Objects.requireNonNull(scriptService);
 		
@@ -36,6 +36,12 @@ public class PeriodicScriptRunnerActor extends BestiaPeriodicActor {
 		
 		scriptId = msg.getScriptEntityId();
 		startInterval(msg.getDelay());
+	}
+	
+	@Override
+	public Receive createReceive() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -56,5 +62,4 @@ public class PeriodicScriptRunnerActor extends BestiaPeriodicActor {
 	protected void handleMessage(Object message) {
 		unhandled(message);
 	}
-
 }

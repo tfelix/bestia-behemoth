@@ -10,7 +10,6 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.internal.DoneMessage;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
@@ -81,9 +80,6 @@ public class ClusterControlActor extends AbstractActor {
 
 		// Start the initialization process.
 		LOG.info("Start the global server initialization...");
-
-		// This signalling does not work.
-		getContext().parent().tell(new DoneMessage("global"), getSelf());
 	}
 
 	/**

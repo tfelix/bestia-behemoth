@@ -11,6 +11,7 @@ import java.util.Set;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -27,7 +28,7 @@ import net.bestia.messages.internal.ReportHandledMessages;
  */
 @Component
 @Scope("prototype")
-public abstract class BestiaRoutingActor extends BestiaActor {
+public abstract class BestiaRoutingActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 

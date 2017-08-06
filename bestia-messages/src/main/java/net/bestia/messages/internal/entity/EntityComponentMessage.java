@@ -36,16 +36,23 @@ public class EntityComponentMessage extends EntityInternalMessage {
 	}
 
 	/**
-	 * Creates a message that will stop the given component actor.
-	 * 
+	 * @param entityId
+	 *            The entity id.
 	 * @param componentId
 	 *            The component ID to stop.
-	 * @return
+	 * @return Creates a message that will stop the given component actor.
 	 */
 	public static EntityComponentMessage stop(long entityId, long componentId) {
 		return new EntityComponentMessage(entityId, componentId, ComponentState.REMOVE);
 	}
 
+	/**
+	 * @param entityId
+	 *            The entity id.
+	 * @param componentId
+	 *            The component ID to stop.
+	 * @return Creates a message that will start the given component actor.
+	 */
 	public static EntityComponentMessage start(long entityId, long componentId) {
 		return new EntityComponentMessage(entityId, componentId, ComponentState.INSTALL);
 	}

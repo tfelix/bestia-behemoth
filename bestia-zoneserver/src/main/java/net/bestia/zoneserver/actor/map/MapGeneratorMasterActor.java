@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import com.hazelcast.internal.util.ThreadLocalRandom;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorIdentity;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
@@ -26,7 +27,6 @@ import de.tfelix.bestia.worldgen.message.WorkstateMessage;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.model.server.MaintenanceLevel;
 import net.bestia.server.AkkaCluster;
-import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
 import net.bestia.zoneserver.map.generator.MapGeneratorMasterService;
 import net.bestia.zoneserver.service.LoginService;
@@ -34,7 +34,7 @@ import scala.concurrent.duration.Duration;
 
 @Component
 @Scope("prototype")
-public class MapGeneratorMasterActor extends BestiaActor {
+public class MapGeneratorMasterActor extends AbstractActor {
 
 	/**
 	 * Interface implementation to talk to the clients.

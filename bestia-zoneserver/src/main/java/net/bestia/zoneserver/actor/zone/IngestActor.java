@@ -1,11 +1,8 @@
 package net.bestia.zoneserver.actor.zone;
 
-import java.util.Arrays;
-
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import net.bestia.messages.internal.DoneMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.battle.AttackPlayerUseActor;
@@ -40,7 +37,6 @@ public class IngestActor extends BestiaRoutingActor {
 	public static final String NAME = "ingest";
 
 	public IngestActor() {
-		super(Arrays.asList(DoneMessage.class));
 
 		// === Login ===
 		SpringExtension.actorOf(getContext(), LoginActor.class);

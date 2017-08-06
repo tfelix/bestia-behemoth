@@ -9,11 +9,11 @@ import java.util.Set;
 import net.bestia.messages.Message;
 
 /**
- * The message is used to report back to paren actors which message IDs are
+ * The message is used to report back to paretn actors which message IDs are
  * handled by the actor and its child-actors. The routing can then create the
  * message routing table.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class ReportHandledMessages {

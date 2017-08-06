@@ -12,7 +12,7 @@ import net.bestia.messages.web.ServerStatusMessage;
 import net.bestia.model.server.MaintenanceLevel;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.zone.IngestExActor;
-import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectRequestMessage;
+import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
 
 /**
@@ -38,7 +38,7 @@ public class RequestServerStatusActor extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 
-		final RedirectRequestMessage req = RedirectRequestMessage.get(ChangePasswordRequest.class);
+		final RedirectMessage req = RedirectMessage.get(ChangePasswordRequest.class);
 		getContext().actorSelection(AkkaCluster.getNodeName(IngestExActor.NAME)).tell(req, getSelf());
 
 		return receiveBuilder()

@@ -1,7 +1,6 @@
 package net.bestia.entity;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -11,18 +10,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.hazelcast.core.HazelcastInstance;
-
-import akka.actor.ActorPath;
-import akka.actor.ActorRef;
+import net.bestia.entity.component.PositionComponent;
+import net.bestia.messages.internal.entity.ComponentPayloadWrapper;
 import net.bestia.messages.internal.entity.EntityMoveInternalMessage;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.map.Walkspeed;
-import net.bestia.zoneserver.actor.entity.component.PeriodicMovementActor;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
-import net.bestia.entity.component.PositionComponent;
 
 /**
  * This manager holds references of currently moving entities and their movement
@@ -39,22 +34,18 @@ public class MovingEntityService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(MovingEntityService.class);
 
-	private static final String MOVEMENT_KEY = "entity.moving";
 	private static final float TILES_PER_SECOND = 1.4f;
 	private static final float SQRT_TWO = (float) Math.sqrt(2);
-	private final Map<Long, ActorPath> movingActorRefs;
 
 	private final EntityService entityService;
 	private final StatusService statusService;
 	private final ZoneAkkaApi akkaApi;
 
 	@Autowired
-	public MovingEntityService(HazelcastInstance cache, 
-			EntityService entityService, 
+	public MovingEntityService(EntityService entityService,
 			StatusService statusService,
 			ZoneAkkaApi akkaApi) {
 
-		this.movingActorRefs = cache.getMap(MOVEMENT_KEY);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 		this.entityService = Objects.requireNonNull(entityService);
 		this.statusService = Objects.requireNonNull(statusService);
@@ -124,7 +115,7 @@ public class MovingEntityService {
 	 *            The new position.
 	 */
 	public void moveToPosition(long entityId, Point newPos) {
-		
+
 		// Before movement get all currently colliding entities.
 		final Entity moveEntity = entityService.getEntity(entityId);
 		final Set<Entity> preMoveCollisions = entityService.getCollidingEntities(moveEntity);
@@ -136,13 +127,13 @@ public class MovingEntityService {
 
 		// Move the entity to the new position.
 		posComp.setPosition(newPos);
-		
-		final Direction newFacing = getDirection(oldPos, newPos, posComp.getFacing());	
+
+		final Direction newFacing = getDirection(oldPos, newPos, posComp.getFacing());
 		posComp.setFacing(newFacing);
 
 		final Set<Entity> postMoveCollisions = entityService.getCollidingEntities(moveEntity);
 		postMoveCollisions.removeAll(preMoveCollisions);
-		
+
 		LOG.trace("Moving entity {} to postition: {}. Facing: {}", entityId, newPos, newFacing);
 
 		// Check if a new collision has occurred and if necessary trigger
@@ -166,26 +157,26 @@ public class MovingEntityService {
 	 */
 	private Direction getDirection(Point oldPos, Point newPos, Direction defaultDirection) {
 
-		if(oldPos.equals(newPos)) {
+		if (oldPos.equals(newPos)) {
 			return defaultDirection;
 		}
-		
+
 		final long y = newPos.getY() - oldPos.getY();
 		final long x = newPos.getX() - oldPos.getX();
-		
-		if(x == 0 && y > 0) {
+
+		if (x == 0 && y > 0) {
 			return Direction.SOUTH;
-		} else if(x > 0 && y > 0) {
+		} else if (x > 0 && y > 0) {
 			return Direction.SOUTH_EAST;
-		} else if(x > 0 && y == 0) {
+		} else if (x > 0 && y == 0) {
 			return Direction.EAST;
-		} else if(x > 0 && y < 0) {
+		} else if (x > 0 && y < 0) {
 			return Direction.NORTH_EAST;
-		} else if(x == 0 && y < 0) {
+		} else if (x == 0 && y < 0) {
 			return Direction.NORTH;
-		} else if(x < 0 && y < 0) {
+		} else if (x < 0 && y < 0) {
 			return Direction.NORTH_WEST;
-		} else if(x < 0 && y == 0) {
+		} else if (x < 0 && y == 0) {
 			return Direction.WEST;
 		} else {
 			return Direction.SOUTH_WEST;
@@ -204,41 +195,15 @@ public class MovingEntityService {
 	 */
 	public void movePath(long entityId, List<Point> path) {
 
-		// Check if the entity is already moving.
-		// If this is the case cancel the current movement.
-		stopMoving(entityId);
-
 		LOG.trace("Moving entity {} along path: {}", entityId, path);
 
-		// Start a new movement via spawning a new movement tick actor with
-		// the route to move and the movement speed determines the ticking
-		// speed.
-		final ActorRef moveActor = akkaApi.startActor(PeriodicMovementActor.class);
+		final PositionComponent posComp = entityService
+				.getComponent(entityId, PositionComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
 
-		final EntityMoveInternalMessage moveMsg = new EntityMoveInternalMessage(entityId, path);
+		final EntityMoveInternalMessage msg = new EntityMoveInternalMessage(entityId, path);
+		final ComponentPayloadWrapper wrappedMsg = new ComponentPayloadWrapper(posComp.getId(), msg);
 
-		moveActor.tell(moveMsg, ActorRef.noSender());
-
-		// Save for later reference.
-		movingActorRefs.put(entityId, moveActor.path());
-	}
-
-	/**
-	 * Stops the movement for this entity id if there is a currently running
-	 * movement going on.
-	 * 
-	 * @param entityId
-	 *            The entity id to stop the movement.
-	 */
-	public void stopMoving(long entityId) {
-
-		LOG.trace("Stopping movement for entity {}.", entityId);
-
-		final ActorPath moveActorPath = movingActorRefs.get(entityId);
-
-		if (moveActorPath != null) {
-			akkaApi.sendToActor(moveActorPath, PeriodicMovementActor.STOP_MESSAGE);
-			movingActorRefs.remove(entityId);
-		}
+		akkaApi.sendEntityActor(entityId, wrappedMsg);
 	}
 }

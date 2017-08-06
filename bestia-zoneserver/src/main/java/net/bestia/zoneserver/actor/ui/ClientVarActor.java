@@ -6,13 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.ui.ClientVarMessage;
 import net.bestia.messages.ui.ClientVarRequestMessage;
 import net.bestia.model.domain.ClientVar;
 import net.bestia.zoneserver.AkkaSender;
-import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.service.ClientVarService;
 
 /**
@@ -24,7 +24,7 @@ import net.bestia.zoneserver.service.ClientVarService;
  */
 @Component
 @Scope("prototype")
-public class ClientVarActor extends BestiaRoutingActor {
+public class ClientVarActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
@@ -37,14 +37,17 @@ public class ClientVarActor extends BestiaRoutingActor {
 
 		this.cvarService = Objects.requireNonNull(cvarService);
 	}
+	
+	@Override
+	public void preStart() throws Exception {
+		//B
+	}
 
 	@Override
-	protected void handleMessage(Object msg) {
-		if (msg instanceof ClientVarRequestMessage) {
-			handleCvarReqest((ClientVarRequestMessage) msg);
-		} else {
-			unhandled(msg);
-		}
+	public Receive createReceive() {
+		return receiveBuilder()
+				.match(ClientVarRequestMessage.class, this::handleCvarReqest)
+				.build();
 	}
 
 	/**
@@ -111,4 +114,5 @@ public class ClientVarActor extends BestiaRoutingActor {
 		final ClientVarMessage cvarMsg = new ClientVarMessage(accId, msg.getUuid(), cvar.getData());
 		AkkaSender.sendClient(getContext(), cvarMsg);
 	}
+
 }

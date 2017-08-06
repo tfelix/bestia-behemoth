@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.EntityMessage;
@@ -16,7 +17,6 @@ import net.bestia.messages.entity.EntityUpdateMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.AkkaSender;
-import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.PlayerEntityService;
@@ -33,7 +33,7 @@ import net.bestia.zoneserver.map.MapService;
  */
 @Component
 @Scope("prototype")
-public class ActiveClientUpdateActor extends BestiaActor {
+public class ActiveClientUpdateActor extends AbstractActor {
 
 	public final static String NAME = "activeClientUpdate";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);

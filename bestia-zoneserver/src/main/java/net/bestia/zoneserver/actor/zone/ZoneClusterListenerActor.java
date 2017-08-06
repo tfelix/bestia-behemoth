@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.AbstractActor;
 import akka.actor.Address;
 import akka.cluster.Cluster;
 import akka.cluster.ClusterEvent;
@@ -22,7 +23,6 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.PlayerEntityService;
 import net.bestia.server.AkkaCluster;
-import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.service.ConnectionService;
 
 /**
@@ -34,7 +34,7 @@ import net.bestia.zoneserver.service.ConnectionService;
  */
 @Component
 @Scope("prototype")
-public class ZoneClusterListenerActor extends BestiaActor {
+public class ZoneClusterListenerActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public final static String NAME = "clusterStatus";

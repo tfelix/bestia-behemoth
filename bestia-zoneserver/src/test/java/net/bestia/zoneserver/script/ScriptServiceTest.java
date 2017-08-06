@@ -20,7 +20,7 @@ import akka.actor.PoisonPill;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
-import net.bestia.zoneserver.actor.script.PeriodicScriptRunnerActor;
+import net.bestia.zoneserver.actor.entity.component.PeriodicScriptActor;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -68,7 +68,7 @@ public class ScriptServiceTest {
 
 		// Actor ref can only be test probe
 		// https://stackoverflow.com/questions/10868983/spock-mocks-for-akkas-actorref
-		when(akkaApi.startUnnamedActor(PeriodicScriptRunnerActor.class)).thenReturn(runnerRef);
+		when(akkaApi.startUnnamedActor(PeriodicScriptActor.class)).thenReturn(runnerRef);
 
 		when(entityService.getEntity(INVALID_ENTITY_ID)).thenReturn(null);
 		when(entityService.getEntity(VALID_ENTITY_ID)).thenReturn(scriptEntity);

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -16,14 +17,13 @@ import de.tfelix.bestia.worldgen.io.MapGenDAO;
 import de.tfelix.bestia.worldgen.io.MasterConnector;
 import de.tfelix.bestia.worldgen.map.MapPart;
 import de.tfelix.bestia.worldgen.message.WorkstateMessage;
-import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.configuration.MapGenConfiguration;
 import net.bestia.zoneserver.configuration.StaticConfigService;
 import net.bestia.zoneserver.map.MapService;
 
 @Component
 @Scope("prototype")
-public class MapGeneratorClientActor extends BestiaActor implements MasterConnector {
+public class MapGeneratorClientActor extends AbstractActor implements MasterConnector {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 

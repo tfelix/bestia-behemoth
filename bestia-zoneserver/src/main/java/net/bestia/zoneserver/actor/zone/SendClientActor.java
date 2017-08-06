@@ -6,12 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorPath;
 import akka.actor.ActorSelection;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.AccountMessage;
-import net.bestia.zoneserver.actor.BestiaActor;
 import net.bestia.zoneserver.service.ConnectionService;
 
 /**
@@ -25,7 +25,7 @@ import net.bestia.zoneserver.service.ConnectionService;
  */
 @Component
 @Scope("prototype")
-public class SendClientActor extends BestiaActor {
+public class SendClientActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "sendToClient";
