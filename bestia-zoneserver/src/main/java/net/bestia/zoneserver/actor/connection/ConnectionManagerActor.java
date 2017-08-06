@@ -11,7 +11,10 @@ import net.bestia.messages.AccountMessage;
 import net.bestia.messages.internal.ClientConnectionStatusMessage;
 import net.bestia.messages.misc.PongMessage;
 import net.bestia.server.AkkaCluster;
+import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.IngestExActor;
+import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 
 /**
  * This is a central manager actor which will start up sharded actors for each
@@ -30,7 +33,7 @@ public class ConnectionManagerActor extends AbstractActor {
 	public static final String NAME = "connection";
 
 	public ConnectionManagerActor() {
-
+		// no op.
 	}
 
 	@Override
@@ -40,6 +43,14 @@ public class ConnectionManagerActor extends AbstractActor {
 				.match(ClientConnectionStatusMessage.class, this::redirectToConnectionActor)
 				.match(PongMessage.class, this::redirectToConnectionActor)
 				.build();
+	}
+	
+	@Override
+	public void preStart() throws Exception {
+		// After the start we must inform the ingest actor that we want to
+		// receive messages.
+		final RedirectMessage msg = RedirectMessage.get(PongMessage.class, ClientConnectionStatusMessage.class);
+		AkkaSender.sendToActor(getContext(), IngestExActor.NAME, msg, getSelf());
 	}
 
 	/**

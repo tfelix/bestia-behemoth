@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import net.bestia.messages.entity.EntityPositionMessage;
+import net.bestia.messages.internal.entity.EntityComponentMessage;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
@@ -24,7 +25,7 @@ public class PositionComponentInterceptor extends ComponentInterceptor<PositionC
 	private static final Logger LOG = LoggerFactory.getLogger(PositionComponentInterceptor.class);
 
 	private final ZoneAkkaApi akkaApi;
-	
+
 	public PositionComponentInterceptor(ZoneAkkaApi akkaApi) {
 		super(PositionComponent.class);
 
@@ -42,7 +43,10 @@ public class PositionComponentInterceptor extends ComponentInterceptor<PositionC
 
 	@Override
 	protected void onCreateAction(EntityService entityService, Entity entity, PositionComponent comp) {
-		// no op.
+		LOG.trace("Position component created.");
+
+		final EntityComponentMessage msg = EntityComponentMessage.start(entity.getId(), comp.getId());
+		akkaApi.sendEntityActor(entity.getId(), msg);
 	}
 
 }

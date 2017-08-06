@@ -66,7 +66,9 @@ public class EntityComponentActorFactory {
 			return null;
 		}
 
-		return componentModules.get(compClazzName).buildActor(ctx, comp);
+		final ActorRef compActor = componentModules.get(compClazzName).buildActor(ctx, comp);
+		LOG.debug("Starting component {} actor: {} ", componentId, compActor);
+		return compActor;
 	}
 
 }

@@ -14,7 +14,7 @@ import java.util.Objects;
 public final class ComponentPayloadWrapper {
 
 	private final Object payload;
-	
+
 	private final long componentId;
 	private final long entityId;
 
@@ -32,8 +32,14 @@ public final class ComponentPayloadWrapper {
 	public long getComponentId() {
 		return componentId;
 	}
-	
+
 	public long getEntityId() {
 		return entityId;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("ComponentPayloadWrapper[eid: %d, compId: %d, payload: %s...]", entityId, componentId,
+				payload.toString().substring(0, 10));
 	}
 }

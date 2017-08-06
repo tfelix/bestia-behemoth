@@ -14,8 +14,6 @@ import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.ComponentMessage;
-import net.bestia.messages.internal.ClientConnectionStatusMessage;
-import net.bestia.messages.misc.PongMessage;
 import net.bestia.messages.web.AccountLoginRequest;
 import net.bestia.messages.web.ServerStatusMessage;
 import net.bestia.zoneserver.AkkaSender;
@@ -86,6 +84,9 @@ public class IngestExActor extends AbstractActor {
 		// Setup the internal sub-actors of the ingest actor first.
 		componentRedirActor = SpringExtension.actorOf(getContext(), ComponentRedirectionActor.class);
 
+		// === Connection & Login ===
+		SpringExtension.actorOf(getContext(), ConnectionManagerActor.class);
+		
 		// === UI ===
 		SpringExtension.actorOf(getContext(), ClientVarActor.class);
 	}
@@ -96,8 +97,6 @@ public class IngestExActor extends AbstractActor {
 				.match(ComponentMessage.class, msg -> {
 					componentRedirActor.tell(msg, getSelf());
 				})
-				.match(PongMessage.class, this::redirectConnection)
-				.match(ClientConnectionStatusMessage.class, this::redirectConnection)
 				.match(RedirectMessage.class, this::handleMessageRedirectRequest)
 
 				// Temp
@@ -143,13 +142,6 @@ public class IngestExActor extends AbstractActor {
 				ref.tell(msg, getSender());
 			});
 		}
-	}
-
-	private void redirectConnection(Object msg) {
-		LOG.debug("IngestEx received: {}.", msg);
-
-		AkkaSender.sendToActor(getContext(), ConnectionManagerActor.NAME, msg, getSender());
-		redirectLegacy(msg);
 	}
 
 	private void handleIncomingMessage(Object msg) {
