@@ -11,13 +11,11 @@ import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor;
 import net.bestia.zoneserver.actor.entity.EntitySyncActor;
-import net.bestia.zoneserver.actor.entity.component.MovementComponentActor;
 import net.bestia.zoneserver.actor.inventory.InventoryActor;
 import net.bestia.zoneserver.actor.login.LoginActor;
 import net.bestia.zoneserver.actor.login.LogoutActor;
 import net.bestia.zoneserver.actor.map.MapRequestChunkActor;
 import net.bestia.zoneserver.actor.map.TilesetRequestActor;
-import net.bestia.zoneserver.actor.ui.ClientVarActor;
 
 /**
  * This actor will once be the central routing actor which will resend all the
@@ -61,9 +59,6 @@ public class IngestActor extends BestiaRoutingActor {
 
 		// === Attacking ===
 		SpringExtension.actorOf(getContext(), AttackPlayerUseActor.class);
-		
-		// === UI ===
-		SpringExtension.actorOf(getContext(), ClientVarActor.class);
 
 		// === House keeping actors ===
 		SpringExtension.actorOf(getContext(), LogoutActor.class);

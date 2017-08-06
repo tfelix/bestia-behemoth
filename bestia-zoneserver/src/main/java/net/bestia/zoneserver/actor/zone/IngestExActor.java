@@ -13,14 +13,18 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.messages.ComponentMessage;
 import net.bestia.messages.internal.ClientConnectionStatusMessage;
 import net.bestia.messages.misc.PongMessage;
 import net.bestia.messages.web.AccountLoginRequest;
 import net.bestia.messages.web.ServerStatusMessage;
 import net.bestia.zoneserver.AkkaSender;
+import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
+import net.bestia.zoneserver.actor.entity.ComponentRedirectionActor;
 import net.bestia.zoneserver.actor.rest.RequestLoginActor;
 import net.bestia.zoneserver.actor.rest.RequestServerStatusActor;
+import net.bestia.zoneserver.actor.ui.ClientVarActor;
 
 /**
  * The ingestion extended actor is a development actor to help the transition
@@ -74,10 +78,24 @@ public class IngestExActor extends AbstractActor {
 	}
 
 	private Map<Class<?>, List<ActorRef>> redirections = new HashMap<>();
+	
+	private ActorRef componentRedirActor;
+
+	public IngestExActor() {
+		
+		// Setup the internal sub-actors of the ingest actor first.
+		componentRedirActor = SpringExtension.actorOf(getContext(), ComponentRedirectionActor.class);
+
+		// === UI ===
+		SpringExtension.actorOf(getContext(), ClientVarActor.class);
+	}
 
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
+				.match(ComponentMessage.class, msg -> {
+					componentRedirActor.tell(msg, getSelf());
+				})
 				.match(PongMessage.class, this::redirectConnection)
 				.match(ClientConnectionStatusMessage.class, this::redirectConnection)
 				.match(RedirectMessage.class, this::handleMessageRedirectRequest)
@@ -100,6 +118,9 @@ public class IngestExActor extends AbstractActor {
 	 * @param requestedClasses
 	 */
 	private void handleMessageRedirectRequest(RedirectMessage requestedClasses) {
+
+		LOG.debug("Installing message route for: {} to: {}.", requestedClasses.getClasses(), getSender());
+
 		requestedClasses.getClasses().forEach(clazz -> {
 			if (!redirections.containsKey(clazz)) {
 				redirections.put(clazz, new ArrayList<>());
@@ -130,15 +151,16 @@ public class IngestExActor extends AbstractActor {
 		AkkaSender.sendToActor(getContext(), ConnectionManagerActor.NAME, msg, getSender());
 		redirectLegacy(msg);
 	}
-	
+
 	private void handleIncomingMessage(Object msg) {
-		if(redirections.containsKey(msg.getClass())) {
+		if (redirections.containsKey(msg.getClass())) {
 			redirections.get(msg.getClass()).forEach(ref -> {
 				ref.forward(msg, getContext());
 			});
 		} else {
+			LOG.warning("IngestEx received non redirected: {}.", msg);
 			redirectLegacy(msg);
-			//unhandled(msg);
+			// unhandled(msg);
 		}
 	}
 }

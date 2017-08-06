@@ -58,7 +58,7 @@
 		<!-- BESTIA DEPENDENCIES -->
 		<dependency>
 			<groupId>net.bestia</groupId>
-			<artifactId>bestia-message</artifactId>
+			<artifactId>bestia-models</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<!-- Include shared testing code as well in test scope -->

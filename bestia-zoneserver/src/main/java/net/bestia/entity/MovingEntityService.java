@@ -202,7 +202,7 @@ public class MovingEntityService {
 				.orElseThrow(IllegalArgumentException::new);
 
 		final EntityMoveInternalMessage msg = new EntityMoveInternalMessage(entityId, path);
-		final ComponentPayloadWrapper wrappedMsg = new ComponentPayloadWrapper(posComp.getId(), msg);
+		final ComponentPayloadWrapper wrappedMsg = new ComponentPayloadWrapper(posComp.getEntityId(), posComp.getId(), msg);
 
 		akkaApi.sendEntityActor(entityId, wrappedMsg);
 	}

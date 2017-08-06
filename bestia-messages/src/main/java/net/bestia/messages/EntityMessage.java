@@ -1,9 +1,9 @@
 package net.bestia.messages;
 
 /**
- * Messages are used to update entities. They must carry an entity id.
+ * Messages are refering to update entities. They must carry an entity id.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public interface EntityMessage {

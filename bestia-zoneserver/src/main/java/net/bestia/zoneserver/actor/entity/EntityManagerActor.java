@@ -6,9 +6,13 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.EntityJsonMessage;
+import net.bestia.messages.EntityMessage;
+import net.bestia.messages.entity.EntityMoveMessage;
+import net.bestia.messages.internal.entity.ComponentPayloadWrapper;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.IngestExActor;
+import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 
 /**
  * It manages to start the entity actor as cluster sharded actors. This worker
@@ -25,8 +29,8 @@ public class EntityManagerActor extends AbstractActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().getSystem(), this);
 
 	public static final String NAME = "entity";
-	
-	//private ActorRef entityShardRegion;
+
+	// private ActorRef entityShardRegion;
 
 	public EntityManagerActor() {
 		// no op.
@@ -36,21 +40,27 @@ public class EntityManagerActor extends AbstractActor {
 	public Receive createReceive() {
 		return receiveBuilder()
 				.match(Long.class, this::startEntityActor)
-				.match(EntityJsonMessage.class, this::onEntityMessage)
+				.match(ComponentPayloadWrapper.class, this::onEntityComponentMessage)
 				.build();
 	}
-	
+
 	@Override
 	public void preStart() throws Exception {
-		//entityShardRegion = ClusterSharding.get(getContext().system()).shardRegion("entity");
+		// entityShardRegion =
+		// ClusterSharding.get(getContext().system()).shardRegion("entity");
+
+		// After the start we must inform the ingest actor that we want to
+		// receive messages.
+		final RedirectMessage msg = RedirectMessage.get(EntityMessage.class, ComponentPayloadWrapper.class);
+		AkkaSender.sendToActor(getContext(), IngestExActor.NAME, msg, getSelf());
 	}
 
 	/**
 	 * Entity message should be forwarded towards the shard containing this id.
 	 */
-	public void onEntityMessage(EntityJsonMessage msg) {
-		//entityShardRegion.tell(msg, getSelf());
-		
+	public void onEntityComponentMessage(ComponentPayloadWrapper msg) {
+		// entityShardRegion.tell(msg, getSelf());
+
 		// Currenty we dont use sharding only send to local system.
 		AkkaSender.sendEntityActor(getContext(), msg.getEntityId(), msg);
 	}
