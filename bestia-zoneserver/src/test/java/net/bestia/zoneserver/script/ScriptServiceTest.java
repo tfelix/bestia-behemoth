@@ -31,6 +31,7 @@ public class ScriptServiceTest {
 	// private static final String UNKNOWN_SCRIPT_FILE = "blubber.js";
 	private static final String CALLBACK_FN_NAME = "callbackFunction";
 	private static final String VALID_SCRIPT_FILE = "start.js";
+	private static final String VALID_SCRIPT_UID = "12435-23345-233656-233446";
 	private static final long INVALID_ENTITY_ID = 888;
 	private static final long VALID_ENTITY_ID = 890;
 	private static final String ERROR_SCRIPT_FILE = null;
@@ -120,7 +121,7 @@ public class ScriptServiceTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void triggerScriptIntervalCallback_invalidScriptId_throws() {
-		scriptService.callScriptIntervalCallback(INVALID_SCRIPT_COMP_ID);
+		scriptService.callScriptIntervalCallback(INVALID_SCRIPT_COMP_ID, VALID_SCRIPT_UID);
 	}
 
 	// @Test
