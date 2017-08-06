@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
@@ -21,6 +23,8 @@ import net.bestia.zoneserver.actor.SpringExtension;
  * @author Thomas Felix
  *
  */
+@Component
+@Scope("prototype")
 public class ScriptComponentActor extends AbstractActor {
 
 	/**

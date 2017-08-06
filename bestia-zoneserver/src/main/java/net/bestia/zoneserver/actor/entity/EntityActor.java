@@ -96,6 +96,12 @@ public class EntityActor extends AbstractActor {
 
 			// Install the component.
 			ActorRef compActor = factory.startActor(getContext(), msg.getComponentId());
+			
+			if(compActor == null) {
+				LOG.warning("Component actor for comp id {} was not created.", msg.getComponentId());
+				return;
+			}
+			
 			context().watch(compActor);
 
 			actorsByComponentId.put(msg.getComponentId(), compActor);

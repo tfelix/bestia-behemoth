@@ -59,14 +59,14 @@ public class EntityComponentActorFactory {
 			return null;
 		}
 
-		Class<? extends Component> compClazz = null;
+		final String compClazzName = comp.getClass().getName();
 
-		if (!componentModules.containsKey(comp.getClass().getName())) {
-			LOG.warn("Component {} (id: {}) has now factory module attached.", comp.getClass().getName(), componentId);
+		if (!componentModules.containsKey(compClazzName)) {
+			LOG.warn("Component {} (id: {}) has now factory module attached.", compClazzName, componentId);
 			return null;
 		}
 
-		return componentModules.get(compClazz).buildActor(ctx, comp);
+		return componentModules.get(compClazzName).buildActor(ctx, comp);
 	}
 
 }
