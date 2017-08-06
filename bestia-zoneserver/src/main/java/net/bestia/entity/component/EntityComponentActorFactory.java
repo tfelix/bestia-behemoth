@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import akka.actor.ActorContext;
 import akka.actor.ActorRef;
 import net.bestia.entity.EntityService;
 
@@ -49,7 +50,7 @@ public class EntityComponentActorFactory {
 	 *            an actor for.
 	 * @return The created actor or null if something went wrong.
 	 */
-	public ActorRef startActor(long componentId) {
+	public ActorRef startActor(ActorContext ctx, long componentId) {
 
 		final Component comp = entityService.getComponent(componentId);
 
@@ -65,7 +66,7 @@ public class EntityComponentActorFactory {
 			return null;
 		}
 
-		return componentModules.get(compClazz).buildActor(comp);
+		return componentModules.get(compClazz).buildActor(ctx, comp);
 	}
 
 }

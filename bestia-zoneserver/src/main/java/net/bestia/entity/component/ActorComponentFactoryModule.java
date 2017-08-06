@@ -2,6 +2,7 @@ package net.bestia.entity.component;
 
 import java.util.Objects;
 
+import akka.actor.ActorContext;
 import akka.actor.ActorRef;
 import net.bestia.entity.component.Component;
 
@@ -25,11 +26,12 @@ public abstract class ActorComponentFactoryModule<T extends Component> {
 		return type;
 	}
 
-	public ActorRef buildActor(Component component) {
+	public ActorRef buildActor(ActorContext ctx, Component component) {
 		if (component.getClass().isAssignableFrom(type)) {
-			return doBuildActor(type.cast(component));
+			return doBuildActor(ctx, type.cast(component));
 		} else {
-			throw new IllegalArgumentException("Wrong component class. Not supported by this recycler.");
+			throw new IllegalArgumentException(
+					"Wrong component class. Not supported by this ActorComponentFactoryModule.");
 		}
 	}
 
@@ -40,5 +42,5 @@ public abstract class ActorComponentFactoryModule<T extends Component> {
 	 * @param component
 	 * @return
 	 */
-	protected abstract ActorRef doBuildActor(T component);
+	protected abstract ActorRef doBuildActor(ActorContext ctx, T component);
 }

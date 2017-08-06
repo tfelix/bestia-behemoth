@@ -133,10 +133,13 @@ public class ScriptService {
 	 * The script callback is triggered via a counter which was initially set
 	 * into the {@link ScriptComponent}.
 	 * 
+	 * @param scriptUuid
+	 *            The uuid of the script (an entity can have more then one
+	 *            callback script attached).
 	 * @param scriptEntityId
 	 *            The script entity whose callback is about to be triggered.
 	 */
-	public void callScriptIntervalCallback(long scriptEntityId) {
+	public void callScriptIntervalCallback(long scriptEntityId, String scriptUuid) {
 
 		LOG.trace("Script {} interval called.", scriptEntityId);
 
@@ -177,7 +180,7 @@ public class ScriptService {
 
 		scriptComp.setOnIntervalCallbackName(callbackFunctionName);
 		entityService.updateComponent(scriptComp);
-		
+
 		// Tell the actor which script to periodically call.
 		final EntityComponentMessage compMessage = EntityComponentMessage.start(entity.getId(), scriptComp.getId());
 		akkaApi.sendEntityActor(entity.getId(), compMessage);

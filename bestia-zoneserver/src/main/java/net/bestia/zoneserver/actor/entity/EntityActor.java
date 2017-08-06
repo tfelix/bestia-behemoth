@@ -95,7 +95,7 @@ public class EntityActor extends AbstractActor {
 		if (msg.getState() == ComponentState.INSTALL) {
 
 			// Install the component.
-			ActorRef compActor = factory.startActor(msg.getComponentId());
+			ActorRef compActor = factory.startActor(getContext(), msg.getComponentId());
 			context().watch(compActor);
 
 			actorsByComponentId.put(msg.getComponentId(), compActor);
