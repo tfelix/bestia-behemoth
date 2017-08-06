@@ -7,7 +7,6 @@ import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.EntityMessage;
-import net.bestia.messages.entity.EntityMoveMessage;
 import net.bestia.messages.internal.entity.ComponentPayloadWrapper;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.SpringExtension;

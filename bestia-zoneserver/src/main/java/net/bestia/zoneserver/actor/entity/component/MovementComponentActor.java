@@ -73,7 +73,7 @@ public class MovementComponentActor extends AbstractActor {
 		// We need to check if the user owns this entity.
 		if(!playerEntityService.hasPlayerEntity(msg.getAccountId(), msg.getEntityId())) {
 			// Player does not own this bestia so we abort.
-			LOG.warning("Player does not woen the entity to move: {}.", msg);
+			LOG.warning("Player does not own the entity to move: {}.", msg);
 			return;
 		}
 		

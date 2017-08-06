@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -104,8 +105,29 @@ class SpringActorProducer implements IndirectActorProducer {
 
 		}
 
-		// Remove all available arg classes.
-		availableArgsClasses.forEach(neededArgs::remove);
+		// Remove all available arg classes. But do this in a smart ways.
+		// Because of inheritance a simple remove wont do it. We need to check
+		// espacially for interface implementations.
+		availableArgsClasses.forEach(availClass -> {
+			
+			if(neededArgs.contains(availClass)) {
+				neededArgs.remove(availClass);
+			} else {
+				// Do a safety check for inherited classes.
+				Iterator<Class<?>> neededClazzIt = neededArgs.iterator();
+				
+				while(neededClazzIt.hasNext()) {
+					Class<?> clazz = neededClazzIt.next();
+					if(clazz.isAssignableFrom(availClass)) {
+						neededClazzIt.remove();
+						// We can break early.
+						break;
+					}
+				}
+				
+			}
+			
+		});
 
 		// Try to create the missing args via spring beans invocation.
 		final List<Object> instancedArgs = new ArrayList<>();
@@ -121,20 +143,20 @@ class SpringActorProducer implements IndirectActorProducer {
 
 		// We priorize the handed arguments.
 		for (Class<?> param : params) {
-			
+
 			boolean wasProvided = false;
 
 			for (int i = 0; i < providedArgs.size(); i++) {
-				if (providedArgs.get(i).getClass().equals(boxPrimitiveClass(param))) {
+				if (boxPrimitiveClass(param).isAssignableFrom(providedArgs.get(i).getClass())) {
 					sortedArgs.add(providedArgs.get(i));
 					providedArgs.remove(i);
 					wasProvided = true;
 					break;
 				}
 			}
-			
+
 			// Skip the next check if we have found the bean.
-			if(wasProvided) {
+			if (wasProvided) {
 				continue;
 			}
 
