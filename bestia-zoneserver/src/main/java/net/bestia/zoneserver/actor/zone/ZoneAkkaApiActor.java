@@ -9,6 +9,7 @@ import akka.actor.ActorPath;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.TypedActor;
+import akka.cluster.sharding.ShardRegion;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.server.AkkaCluster;
@@ -27,6 +28,7 @@ public class ZoneAkkaApiActor implements ZoneAkkaApi {
 	private final static Logger LOG = LoggerFactory.getLogger(ZoneAkkaApiActor.class);
 
 	private final ActorContext context;
+
 
 	public ZoneAkkaApiActor() {
 

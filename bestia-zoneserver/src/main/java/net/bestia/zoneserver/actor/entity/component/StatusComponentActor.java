@@ -22,6 +22,8 @@ import net.bestia.zoneserver.actor.BestiaPeriodicTerminatingActor;
 @Scope("prototype")
 public class StatusComponentActor extends BestiaPeriodicTerminatingActor {
 
+	public static final String NAME = "statusComponent";
+	
 	private final long entityId;
 	private final StatusService statusService;
 

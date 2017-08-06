@@ -57,7 +57,6 @@ public class IngestActor extends BestiaRoutingActor {
 
 		// === Entities ===
 		SpringExtension.actorOf(getContext(), EntityInteractionRequestActor.class);
-		SpringExtension.actorOf(getContext(), MovementComponentActor.class);
 		SpringExtension.actorOf(getContext(), EntitySyncActor.class);
 
 		// === Attacking ===

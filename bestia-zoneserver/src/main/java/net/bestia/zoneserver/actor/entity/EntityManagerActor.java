@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import net.bestia.messages.EntityJsonMessage;
+import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.SpringExtension;
 
 /**
@@ -23,6 +25,8 @@ public class EntityManagerActor extends AbstractActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().getSystem(), this);
 
 	public static final String NAME = "entity";
+	
+	//private ActorRef entityShardRegion;
 
 	public EntityManagerActor() {
 		// no op.
@@ -32,7 +36,23 @@ public class EntityManagerActor extends AbstractActor {
 	public Receive createReceive() {
 		return receiveBuilder()
 				.match(Long.class, this::startEntityActor)
+				.match(EntityJsonMessage.class, this::onEntityMessage)
 				.build();
+	}
+	
+	@Override
+	public void preStart() throws Exception {
+		//entityShardRegion = ClusterSharding.get(getContext().system()).shardRegion("entity");
+	}
+
+	/**
+	 * Entity message should be forwarded towards the shard containing this id.
+	 */
+	public void onEntityMessage(EntityJsonMessage msg) {
+		//entityShardRegion.tell(msg, getSelf());
+		
+		// Currenty we dont use sharding only send to local system.
+		AkkaSender.sendEntityActor(getContext(), msg.getEntityId(), msg);
 	}
 
 	/**
