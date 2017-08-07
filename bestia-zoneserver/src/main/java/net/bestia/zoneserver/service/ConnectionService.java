@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.ISet;
+import com.hazelcast.core.MultiMap;
+
+import akka.actor.Address;
 
 /**
  * This service is for managing the connections to the zone server. We must keep
@@ -23,11 +25,11 @@ public class ConnectionService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(ConnectionService.class);
 
-	private final ISet<Long> connectedClients;
+	private final MultiMap<String, Long> connectedClients;
 
 	public ConnectionService(HazelcastInstance hz) {
 
-		this.connectedClients = hz.getSet("connection.clients");
+		this.connectedClients = hz.getMultiMap("connection.clients");
 
 	}
 
@@ -39,7 +41,7 @@ public class ConnectionService {
 	 * @return TRUE if account is currently online or FALSE.
 	 */
 	public boolean isConnected(long accId) {
-		return connectedClients.contains(accId);
+		return connectedClients.containsValue(accId);
 	}
 
 	/**
@@ -48,9 +50,9 @@ public class ConnectionService {
 	 * @param accountId
 	 *            The connected account id.
 	 */
-	public void connected(long accountId) {
+	public void connected(long accountId, Address address) {
 		LOG.debug("Account {} now listed as connected.", accountId);
-		connectedClients.add(accountId);
+		connectedClients.put(address.toString(), accountId);
 	}
 
 	public void disconnected(long accountId) {
@@ -59,6 +61,6 @@ public class ConnectionService {
 	}
 
 	public Iterator<Long> getAllConnectedAccountIds() {
-		return connectedClients.iterator();
+		return connectedClients.values().iterator();
 	}
 }

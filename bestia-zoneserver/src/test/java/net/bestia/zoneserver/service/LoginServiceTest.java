@@ -163,7 +163,7 @@ public class LoginServiceTest {
 
 		verify(accountDao).findOne(USER_ACC_ID);
 		verify(entityService).getEntity(EXISTING_ENTITY_ID);
-		verify(connectionService).addClient(USER_ACC_ID, clientConnection.ref().path());
+		verify(connectionService).connected(USER_ACC_ID, clientConnection.ref().path().address());
 		verify(playerEntityFactory, times(0)).build(any());
 		verify(akkaApi).sendToClient(any());
 		verify(playerBestiaService).getMaster(USER_ACC_ID);
@@ -175,7 +175,7 @@ public class LoginServiceTest {
 		loginService.login(USER_ACC_ID, clientConnection.ref());
 
 		verify(accountDao).findOne(USER_ACC_ID);
-		verify(connectionService).addClient(USER_ACC_ID, clientConnection.ref().path());
+		verify(connectionService).connected(USER_ACC_ID, clientConnection.ref().path().address());
 		verify(playerEntityFactory).build(any());
 		verify(akkaApi).sendToClient(any());
 		verify(playerBestiaService).getMaster(USER_ACC_ID);
@@ -192,7 +192,7 @@ public class LoginServiceTest {
 		loginService.login(USER_ACC_ID, clientConnection.ref());
 		loginService.logout(USER_ACC_ID);
 
-		verify(connectionService).removeClient(USER_ACC_ID);
+		verify(connectionService).disconnected(USER_ACC_ID);
 
 		verify(playerEntityService).save(bestiaEntity);
 		verify(playerEntityService).removePlayerBestias(USER_ACC_ID);

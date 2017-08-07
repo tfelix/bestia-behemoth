@@ -56,7 +56,7 @@ public class ConnectionActor extends AbstractActor {
 
 	@Override
 	public void preStart() throws Exception {
-		connectionService.connected(accountId);
+		connectionService.connected(accountId, clientConnection.path().address());
 	}
 
 	@Override
