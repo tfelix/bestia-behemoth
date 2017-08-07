@@ -14,13 +14,13 @@ import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.ComponentMessage;
-import net.bestia.messages.web.AccountLoginRequest;
-import net.bestia.messages.web.ServerStatusMessage;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
 import net.bestia.zoneserver.actor.connection.LatencyManagerActor;
 import net.bestia.zoneserver.actor.entity.ComponentRedirectionActor;
+import net.bestia.zoneserver.actor.rest.ChangePasswordActor;
+import net.bestia.zoneserver.actor.rest.CheckUsernameDataActor;
 import net.bestia.zoneserver.actor.rest.RequestLoginActor;
 import net.bestia.zoneserver.actor.rest.RequestServerStatusActor;
 import net.bestia.zoneserver.actor.ui.ClientVarActor;
@@ -77,22 +77,29 @@ public class IngestExActor extends AbstractActor {
 	}
 
 	private Map<Class<?>, List<ActorRef>> redirections = new HashMap<>();
-	
+
 	private ActorRef componentRedirActor;
 
 	public IngestExActor() {
-		
-		// This is a temporary setup. Should be done inside a own actor with this as a super actor.
-		
+
+		// This is a temporary setup. Should be done inside a own actor with
+		// this as a super actor.
+
 		// Setup the internal sub-actors of the ingest actor first.
 		componentRedirActor = SpringExtension.actorOf(getContext(), ComponentRedirectionActor.class);
 
 		// === Connection & Login ===
 		SpringExtension.actorOf(getContext(), ConnectionManagerActor.class);
 		SpringExtension.actorOf(getContext(), LatencyManagerActor.class);
-		
+
 		// === UI ===
 		SpringExtension.actorOf(getContext(), ClientVarActor.class);
+
+		// === Web/REST actors ===
+		SpringExtension.actorOf(getContext(), CheckUsernameDataActor.class);
+		SpringExtension.actorOf(getContext(), ChangePasswordActor.class);
+		SpringExtension.actorOf(getContext(), RequestLoginActor.class);
+		SpringExtension.actorOf(getContext(), RequestServerStatusActor.class);
 	}
 
 	@Override
@@ -102,15 +109,6 @@ public class IngestExActor extends AbstractActor {
 					componentRedirActor.tell(msg, getSelf());
 				})
 				.match(RedirectMessage.class, this::handleMessageRedirectRequest)
-
-				// Temp
-				.match(AccountLoginRequest.class, msg -> {
-					AkkaSender.sendToActor(getContext(), RequestLoginActor.NAME, msg, getSender());
-				})
-				.match(ServerStatusMessage.Request.class, msg -> {
-					AkkaSender.sendToActor(getContext(), RequestServerStatusActor.NAME, msg, getSender());
-				})
-
 				.matchAny(this::handleIncomingMessage)
 				.build();
 	}
@@ -148,6 +146,10 @@ public class IngestExActor extends AbstractActor {
 		}
 	}
 
+	/**
+	 * Checks if a sub-actor wants to redirect this message and if so deliver it
+	 * to all subscribed actors.
+	 */
 	private void handleIncomingMessage(Object msg) {
 		if (redirections.containsKey(msg.getClass())) {
 			redirections.get(msg.getClass()).forEach(ref -> {

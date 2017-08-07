@@ -7,11 +7,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
-import net.bestia.messages.web.ChangePasswordRequest;
 import net.bestia.messages.web.ServerStatusMessage;
 import net.bestia.model.server.MaintenanceLevel;
-import net.bestia.server.AkkaCluster;
-import net.bestia.zoneserver.actor.zone.IngestExActor;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
 
@@ -37,13 +34,15 @@ public class RequestServerStatusActor extends AbstractActor {
 
 	@Override
 	public Receive createReceive() {
-
-		final RedirectMessage req = RedirectMessage.get(ChangePasswordRequest.class);
-		getContext().actorSelection(AkkaCluster.getNodeName(IngestExActor.NAME)).tell(req, getSelf());
-
 		return receiveBuilder()
 				.match(ServerStatusMessage.Request.class, x -> handleStatusRequest())
 				.build();
+	}
+	
+	@Override
+	public void preStart() throws Exception {
+		final RedirectMessage req = RedirectMessage.get(ServerStatusMessage.Request.class);
+		context().parent().tell(req, getSelf());
 	}
 
 	private void handleStatusRequest() {

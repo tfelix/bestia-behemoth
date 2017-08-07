@@ -145,11 +145,13 @@ public class LoginService {
 				accId,
 				LoginState.ACCEPTED,
 				account.getName());
+		
+		connectionRef.tell(response, ActorRef.noSender());
 
-		akkaApi.sendToClient(response);
+		//akkaApi.sendToClient(response);
 		// First start the connection actor and then update him with the
 		// connection details.
-		akkaApi.sendToActor(ConnectionManagerActor.NAME, accId);
+		//akkaApi.sendToActor(ConnectionManagerActor.NAME, accId);
 	}
 
 	/**

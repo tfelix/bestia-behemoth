@@ -147,7 +147,9 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 	 * @return The created and already registered new actor.
 	 */
 	public static ActorRef actorOf(ActorContext ctx, Class<? extends AbstractActor> clazz) {
-		return actorOf(ctx, clazz, null);
+		
+		final String actorName = getActorName(clazz);
+		return actorOf(ctx, clazz, actorName);
 	}
 
 	/**

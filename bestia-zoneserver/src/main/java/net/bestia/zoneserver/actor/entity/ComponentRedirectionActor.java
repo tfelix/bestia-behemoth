@@ -14,7 +14,7 @@ import net.bestia.messages.internal.entity.ComponentPayloadWrapper;
 
 /**
  * Some messages which are coming from the client can not directly associated
- * with certain component ids. But this is neccesairy in order to direct the
+ * with certain component ids. But this is necessary in order to direct the
  * message to certain component actors attached to entities which then will act
  * upon the received message.
  * 

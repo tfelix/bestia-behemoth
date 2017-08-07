@@ -12,8 +12,6 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.web.UserNameCheck;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.server.AkkaCluster;
-import net.bestia.zoneserver.actor.zone.IngestExActor;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 
 /**
@@ -40,13 +38,15 @@ public class CheckUsernameDataActor extends AbstractActor {
 
 	@Override
 	public Receive createReceive() {
-
-		final RedirectMessage req = RedirectMessage.get(UserNameCheck.class);
-		getContext().actorSelection(AkkaCluster.getNodeName(IngestExActor.NAME)).tell(req, getSelf());
-
 		return receiveBuilder()
 				.match(UserNameCheck.class, this::handleUserNameCheck)
 				.build();
+	}
+	
+	@Override
+	public void preStart() throws Exception {
+		final RedirectMessage req = RedirectMessage.get(UserNameCheck.class);
+		getContext().parent().tell(req, getSelf());
 	}
 
 	private void handleUserNameCheck(UserNameCheck data) {

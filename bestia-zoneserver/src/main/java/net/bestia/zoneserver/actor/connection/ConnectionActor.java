@@ -39,8 +39,8 @@ import scala.concurrent.duration.Duration;
 public class ConnectionActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-	
-	private final static String ACTOR_NAME = "connection-%d";	
+
+	private final static String ACTOR_NAME = "connection-%d";
 	private final static String LATENCY_REQUEST_MSG = "latency";
 	private final static int CLIENT_TIMEOUT_MS = 30 * 1000;
 
@@ -49,7 +49,8 @@ public class ConnectionActor extends AbstractActor {
 
 	private final ConnectionService connectionService;
 	private final LatencyService latencyService;
-	
+	private boolean isFirstPing = true;
+
 	private final Cancellable latencyTick = getContext().getSystem().scheduler().schedule(
 			Duration.create(2, TimeUnit.SECONDS),
 			Duration.create(5, TimeUnit.SECONDS),
@@ -57,8 +58,8 @@ public class ConnectionActor extends AbstractActor {
 
 	@Autowired
 	public ConnectionActor(
-			Long accountId, 
-			ActorRef connection, 
+			Long accountId,
+			ActorRef connection,
 			ConnectionService connectionService,
 			LatencyService latencyService) {
 
@@ -85,13 +86,14 @@ public class ConnectionActor extends AbstractActor {
 		connectionService.connected(accountId, clientConnection.path().address());
 	}
 
+	// FIXME Das hier wird direkt nach dem start gecalled.
 	@Override
 	public void postStop() throws Exception {
 		latencyTick.cancel();
-		
+
 		// TODO Handle the server ressource cleanup.
 		connectionService.disconnected(accountId);
-		
+
 	}
 
 	/**
@@ -104,12 +106,18 @@ public class ConnectionActor extends AbstractActor {
 	public static String getActorName(long accId) {
 		return String.format(ACTOR_NAME, accId);
 	}
-	
+
 	/**
 	 * The client is send a latency request message.
 	 */
 	private void onLatencyRequest() {
-		
+
+		if (isFirstPing) {
+			final long now = System.currentTimeMillis();
+			latencyService.addLatency(accountId, now, now + 10);
+			isFirstPing = false;
+		}
+
 		// Check how many latency requests we have missed.
 		long dLastReply = System.currentTimeMillis() - latencyService.getLastClientReply(accountId);
 

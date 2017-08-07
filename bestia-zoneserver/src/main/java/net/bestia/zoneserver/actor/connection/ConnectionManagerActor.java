@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.actor.InvalidActorNameException;
 import akka.actor.PoisonPill;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -59,24 +60,27 @@ public class ConnectionManagerActor extends AbstractActor {
 
 		if (msg.getState() == ConnectionState.CONNECTED) {
 			// Start the connection actor.
-			SpringExtension.actorOf(getContext(), 
+			SpringExtension.actorOf(getContext(),
 					ConnectionActor.class,
-					ConnectionActor.getActorName(msg.getAccountId()), 
+					ConnectionActor.getActorName(msg.getAccountId()),
 					msg.getAccountId(), msg.getWebserverRef());
-			
-			final String actorName = ConnectionActor.getActorName(msg.getAccountId());
-			final ActorRef connectionActor = SpringExtension.actorOf(getContext(), ConnectionActor.class, actorName,
-					msg.getAccountId());
 
-			LOG.debug("Received start request for account connection: {}. Actor name: {}",
-					msg.getAccountId(),
-					connectionActor.path().toString());
-			
+			final String actorName = ConnectionActor.getActorName(msg.getAccountId());
+			try {
+				final ActorRef connectionActor = SpringExtension.actorOf(getContext(), ConnectionActor.class, actorName,
+						msg.getAccountId());
+
+				LOG.debug("Received start request for account connection: {}. Actor name: {}",
+						msg.getAccountId(),
+						connectionActor.path().toString());
+			} catch (InvalidActorNameException ex) {
+				LOG.debug("Actor with actor name already active: {}", actorName);
+				return;
+			}
 		} else {
 			// Terminate if there is a connection existing.
 			sendToConnectionActor(msg.getAccountId(), PoisonPill.getInstance());
 		}
-
 	}
 
 	/**

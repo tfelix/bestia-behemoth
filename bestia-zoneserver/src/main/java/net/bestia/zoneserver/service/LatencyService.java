@@ -65,17 +65,19 @@ public class LatencyService {
 	 * @param accountId
 	 *            The account id.
 	 * @param clientStamp
-	 *            The timestamp sent via the client.
+	 *            The timestamp when the message was send to the client.
+	 * @param serverStamp
+	 *            The timestamp when the message arrived again on the server.
 	 */
 	public void addLatency(long accountId, long clientStamp, long serverStamp) {
-		if (clientStamp < serverStamp) {
-			throw new IllegalArgumentException("Client stamp is smaller then server stamp.");
+		if (clientStamp > serverStamp) {
+			throw new IllegalArgumentException("Client stamp is bigger then server stamp.");
 		}
 
 		// Save the last client answer.
 		timestampStore.putAsync(accountId, serverStamp);
-		
-		final int latency = (int) (clientStamp - serverStamp);
+
+		final int latency = (int) (serverStamp - clientStamp);
 
 		Queue<Integer> data = latencyStore.get(accountId);
 

@@ -10,6 +10,7 @@ import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.web.AccountLoginRequest;
+import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 import net.bestia.zoneserver.service.LoginService;
 
 /**
@@ -38,6 +39,12 @@ public class RequestLoginActor extends AbstractActor {
 		return receiveBuilder()
 				.match(AccountLoginRequest.class, this::handleLogin)
 				.build();
+	}
+	
+	@Override
+	public void preStart() throws Exception {
+		RedirectMessage req = RedirectMessage.get(AccountLoginRequest.class);
+		context().parent().tell(req, getSelf());
 	}
 	
 	private void handleLogin(AccountLoginRequest msg) {

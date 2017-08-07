@@ -10,8 +10,6 @@ import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.web.ChangePasswordRequest;
-import net.bestia.server.AkkaCluster;
-import net.bestia.zoneserver.actor.zone.IngestExActor;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 import net.bestia.zoneserver.service.AccountService;
 
@@ -39,13 +37,15 @@ public class ChangePasswordActor extends AbstractActor {
 
 	@Override
 	public Receive createReceive() {
-
-		final RedirectMessage req = RedirectMessage.get(ChangePasswordRequest.class);
-		getContext().actorSelection(AkkaCluster.getNodeName(IngestExActor.NAME)).tell(req, getSelf());
-
 		return receiveBuilder()
 				.match(ChangePasswordRequest.class, this::handleChangePassword)
 				.build();
+	}
+	
+	@Override
+	public void preStart() throws Exception {
+		final RedirectMessage req = RedirectMessage.get(ChangePasswordRequest.class);
+		context().parent().tell(req, getSelf());
 	}
 
 	private void handleChangePassword(ChangePasswordRequest data) {
