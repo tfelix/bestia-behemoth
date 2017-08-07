@@ -23,7 +23,10 @@ public class MovementActorModule extends ActorComponentFactoryModule<PositionCom
 
 	@Override
 	protected ActorRef doBuildActor(ActorContext ctx, PositionComponent component) {
-		return SpringExtension.actorOf(ctx, MovementComponentActor.class);
+		return SpringExtension.actorOf(ctx, 
+				MovementComponentActor.class,
+				MovementComponentActor.NAME,
+				component.getEntityId());
 	}
 
 }

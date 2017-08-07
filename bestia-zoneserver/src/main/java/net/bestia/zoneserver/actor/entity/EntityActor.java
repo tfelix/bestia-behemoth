@@ -66,7 +66,12 @@ public class EntityActor extends AbstractActor {
 				.match(EntityComponentMessage.class, this::handleComponentMessage)
 				.match(ComponentPayloadWrapper.class, this::handleComponentPayload)
 				.match(Terminated.class, this::handleTerminated)
+				.matchAny(this::handleAll)
 				.build();
+	}
+	
+	private void handleAll(Object msg) {
+		LOG.debug("MSG: {}.", msg);
 	}
 
 	/**
@@ -78,11 +83,14 @@ public class EntityActor extends AbstractActor {
 		final long compId = msg.getComponentId();
 		
 		if(!actorsByComponentId.containsKey(compId)) {
+			LOG.debug("Component message unhandled: {}.", msg);
 			unhandled(msg);
 			return;
 		}
 		
-		actorsByComponentId.get(compId).tell(msg.getPayload(), getSelf());
+		final ActorRef compActor = actorsByComponentId.get(compId);
+		LOG.debug("Forwarding comp message: {} to: {}.", msg, compActor);
+		compActor.tell(msg.getPayload(), getSelf());
 	}
 
 	/**

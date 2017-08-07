@@ -14,7 +14,6 @@ import akka.actor.AbstractActor;
 import akka.actor.Cancellable;
 import akka.actor.Scheduler;
 import net.bestia.entity.MovingEntityService;
-import net.bestia.messages.internal.entity.EntityMoveInternalMessage;
 import net.bestia.model.geometry.Point;
 import scala.concurrent.duration.Duration;
 
@@ -35,16 +34,18 @@ public class PeriodicMoveActor extends AbstractActor {
 
 	private final MovingEntityService movingService;
 
-	private long entityId;
+	private final long entityId;
 	private final Queue<Point> path = new LinkedList<>();
 
 	@Autowired
 	public PeriodicMoveActor(
+			long entityId,
 			List<Point> path,
 			MovingEntityService movingService) {
 
 		this.path.addAll(path);
 		this.movingService = Objects.requireNonNull(movingService);
+		this.entityId = entityId;
 	}
 
 	@Override
@@ -53,23 +54,15 @@ public class PeriodicMoveActor extends AbstractActor {
 				.matchEquals(TICK_MSG, x -> {
 					handleMoveTick();
 				})
-				.match(EntityMoveInternalMessage.class, this::handleMoveMessage)
 				.build();
 	}
-
+	
 	@Override
-	public void preStart() {
-		// Here comes the trick: after half the time consider the entity
-		// moved/active
-		// on the next tile.
+	public void preStart() throws Exception {
+		
 		final int moveDelay = movingService.getMoveDelayMs(entityId, path.peek()) / 2;
 		setupMoveTick(moveDelay);
-	}
-
-	// override postRestart so we don't call preStart and schedule a new message
-	@Override
-	public void postRestart(Throwable reason) {
-		// no op.
+		
 	}
 
 	@Override
@@ -79,17 +72,6 @@ public class PeriodicMoveActor extends AbstractActor {
 			tick.cancel();
 		}
 
-	}
-
-	private void handleMoveMessage(EntityMoveInternalMessage msg) {
-
-		entityId = msg.getEntityId();
-
-		path.clear();
-		path.addAll(msg.getPath());
-
-		final int moveDelay = movingService.getMoveDelayMs(entityId, path.peek());
-		setupMoveTick(moveDelay);
 	}
 
 	private void handleMoveTick() {

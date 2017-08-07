@@ -42,12 +42,14 @@ public class MovementComponentActor extends AbstractActor {
 	private final PlayerEntityService playerEntityService;
 
 	private ActorRef periodicMoveActor;
+	private final long entityId;
 
 	@Autowired
-	public MovementComponentActor(MovingEntityService movingService, PlayerEntityService playerEntityService) {
+	public MovementComponentActor(long entityId, MovingEntityService movingService, PlayerEntityService playerEntityService) {
 
 		this.movingService = Objects.requireNonNull(movingService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
+		this.entityId = entityId;
 	}
 
 	@Override
@@ -91,7 +93,7 @@ public class MovementComponentActor extends AbstractActor {
 			periodicMoveActor.tell(PoisonPill.getInstance(), getSelf());
 		}
 
-		periodicMoveActor = SpringExtension.unnamedActorOf(getContext(), PeriodicMoveActor.class, path);
+		periodicMoveActor = SpringExtension.unnamedActorOf(getContext(), PeriodicMoveActor.class, path, entityId);
 		getContext().watch(periodicMoveActor);
 	}
 

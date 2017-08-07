@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.EntityMessage;
@@ -58,6 +59,7 @@ public class EntityManagerActor extends AbstractActor {
 	 * Entity message should be forwarded towards the shard containing this id.
 	 */
 	public void onEntityComponentMessage(ComponentPayloadWrapper msg) {
+		LOG.debug("Received: {}.", msg);
 		// entityShardRegion.tell(msg, getSelf());
 
 		// Currenty we dont use sharding only send to local system.
@@ -75,7 +77,9 @@ public class EntityManagerActor extends AbstractActor {
 
 		LOG.debug("Received start request for entity: {}. Actor name: {}", entityId, actorName);
 
-		SpringExtension.actorOf(getContext(), EntityActor.class, actorName, entityId);
+		final ActorRef entityActor = SpringExtension.actorOf(getContext(), EntityActor.class, actorName, entityId);
+		
+		LOG.debug("Started actor: {}", entityActor);
 	}
 
 }
