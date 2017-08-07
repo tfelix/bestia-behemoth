@@ -13,6 +13,7 @@ public class LatencyServiceTest {
 
 	private final static BasicMocks mocks = new BasicMocks();
 	private final static HazelcastInstance hz = mocks.hazelcastMock();
+	private static final long ACC_ID = 789;
 	
 	private LatencyService latencyService;
 	
@@ -26,12 +27,6 @@ public class LatencyServiceTest {
 		new LatencyService(null);
 	}
 
-	@Test
-	public void getTimestamp_id_newTimestamp() {
-		long stamp = latencyService.getTimestamp(123);
-		Assert.assertNotEquals(0, stamp);
-	}
-
 	@Test(expected = IllegalStateException.class)
 	public void addLatency_noStampSet_throws() {
 		latencyService.addLatency(123456, 10000000, 10000000);
@@ -39,7 +34,7 @@ public class LatencyServiceTest {
 
 	@Test
 	public void addLatency_stampSet_ok() {
-		long stamp = latencyService.getTimestamp(123);
+		long stamp = System.currentTimeMillis();
 		latencyService.addLatency(123, stamp + 100, stamp);
 	}
 
@@ -50,9 +45,9 @@ public class LatencyServiceTest {
 
 	@Test
 	public void getClientLatency_accountLatencyAdded_ok() {
-		long stamp = latencyService.getTimestamp(789);
-		latencyService.addLatency(789, stamp + 150, stamp);
-		int latency = latencyService.getClientLatency(789);
+		long stamp = System.currentTimeMillis();
+		latencyService.addLatency(ACC_ID, stamp + 150, stamp);
+		int latency = latencyService.getClientLatency(ACC_ID);
 		Assert.assertEquals(150, latency);
 	}
 
