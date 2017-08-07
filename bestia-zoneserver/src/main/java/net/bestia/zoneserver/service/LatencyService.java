@@ -46,35 +46,13 @@ public class LatencyService {
 	}
 
 	/**
-	 * Generates a new timestamp for the given account id.
-	 * 
-	 * @param accountId
-	 * @return
+	 * @param accId
+	 *            The account of the client to request.
+	 * @return Returns the time of the last reply by this client in the unix
+	 *         timestamp format of 0 if the client never replied.
 	 */
-	public long getTimestamp(long accountId) {
-		final long stamp = System.currentTimeMillis();
-		timestampStore.put(accountId, stamp);
-		return stamp;
-	}
-	
-	/**
-	 * Generates a new latency entry for the given client. It throws if no
-	 * server timestamp was previously set via {@link #getTimestamp(long)}. The
-	 * server stamp is used as precauson because the server timestamp could have
-	 * been changed in the meantime. Only if it matches the saved value the
-	 * latency estimation will be added.
-	 * 
-	 * @param accountId
-	 *            The account id.
-	 * @param clientStamp
-	 *            The timestamp sent via the client.
-	 */
-	public void addLatency(long accountId, long delta) {
-		
-		if(delta < 0) {
-			return;
-		}
-
+	public long getLastClientReply(long accId) {
+		return timestampStore.getOrDefault(accId, 0L);
 	}
 
 	/**
@@ -90,22 +68,13 @@ public class LatencyService {
 	 *            The timestamp sent via the client.
 	 */
 	public void addLatency(long accountId, long clientStamp, long serverStamp) {
-
-		final long savedStamp = timestampStore.getOrDefault(accountId, 0L);
-
-		if (savedStamp == 0) {
-			throw new IllegalStateException("Set a server stamp with getTimestamp first.");
-		}
-
-		if (serverStamp != savedStamp) {
-			LOG.warn("Server and client timestamps do not match. Not processing.");
-			return;
-		}
-
 		if (clientStamp < serverStamp) {
 			throw new IllegalArgumentException("Client stamp is smaller then server stamp.");
 		}
 
+		// Save the last client answer.
+		timestampStore.putAsync(accountId, serverStamp);
+		
 		final int latency = (int) (clientStamp - serverStamp);
 
 		Queue<Integer> data = latencyStore.get(accountId);

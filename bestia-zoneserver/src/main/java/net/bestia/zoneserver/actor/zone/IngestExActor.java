@@ -19,6 +19,7 @@ import net.bestia.messages.web.ServerStatusMessage;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
+import net.bestia.zoneserver.actor.connection.LatencyManagerActor;
 import net.bestia.zoneserver.actor.entity.ComponentRedirectionActor;
 import net.bestia.zoneserver.actor.rest.RequestLoginActor;
 import net.bestia.zoneserver.actor.rest.RequestServerStatusActor;
@@ -81,11 +82,14 @@ public class IngestExActor extends AbstractActor {
 
 	public IngestExActor() {
 		
+		// This is a temporary setup. Should be done inside a own actor with this as a super actor.
+		
 		// Setup the internal sub-actors of the ingest actor first.
 		componentRedirActor = SpringExtension.actorOf(getContext(), ComponentRedirectionActor.class);
 
 		// === Connection & Login ===
 		SpringExtension.actorOf(getContext(), ConnectionManagerActor.class);
+		SpringExtension.actorOf(getContext(), LatencyManagerActor.class);
 		
 		// === UI ===
 		SpringExtension.actorOf(getContext(), ClientVarActor.class);

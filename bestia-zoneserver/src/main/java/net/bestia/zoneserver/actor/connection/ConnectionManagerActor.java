@@ -5,15 +5,13 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.actor.PoisonPill;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.AccountMessage;
 import net.bestia.messages.internal.ClientConnectionStatusMessage;
-import net.bestia.messages.misc.PongMessage;
+import net.bestia.messages.internal.ClientConnectionStatusMessage.ConnectionState;
 import net.bestia.server.AkkaCluster;
-import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.IngestExActor;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 
 /**
@@ -39,40 +37,56 @@ public class ConnectionManagerActor extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(Long.class, this::startConnectionActor)
-				.match(ClientConnectionStatusMessage.class, this::redirectToConnectionActor)
-				.match(PongMessage.class, this::redirectToConnectionActor)
+				.match(ClientConnectionStatusMessage.class, this::checkConnectionStatus)
 				.build();
 	}
-	
+
 	@Override
 	public void preStart() throws Exception {
 		// After the start we must inform the ingest actor that we want to
 		// receive messages.
-		final RedirectMessage msg = RedirectMessage.get(PongMessage.class, ClientConnectionStatusMessage.class);
-		AkkaSender.sendToActor(getContext(), IngestExActor.NAME, msg, getSelf());
+		final RedirectMessage msg = RedirectMessage.get(ClientConnectionStatusMessage.class);
+		context().parent().tell(msg, getSelf());
 	}
 
 	/**
-	 * This messages are usually send if there was a login detected. The message
-	 * is forwarded to the connection actor.
+	 * Checks if the user is connected or disconnected. Based upon this state a
+	 * connection is established or closed.
 	 * 
 	 * @param msg
-	 *            The message to redirect to the connection actor.
 	 */
-	private void redirectToConnectionActor(AccountMessage msg) {
-		final String connectionActorName = ConnectionActor.getActorName(msg.getAccountId());
-		final String actorName = AkkaCluster.getNodeName(NAME, connectionActorName);
-		getContext().actorSelection(actorName).tell(msg, getSelf());
+	private void checkConnectionStatus(ClientConnectionStatusMessage msg) {
+
+		if (msg.getState() == ConnectionState.CONNECTED) {
+			// Start the connection actor.
+			SpringExtension.actorOf(getContext(), 
+					ConnectionActor.class,
+					ConnectionActor.getActorName(msg.getAccountId()), 
+					msg.getAccountId(), msg.getWebserverRef());
+			
+			final String actorName = ConnectionActor.getActorName(msg.getAccountId());
+			final ActorRef connectionActor = SpringExtension.actorOf(getContext(), ConnectionActor.class, actorName,
+					msg.getAccountId());
+
+			LOG.debug("Received start request for account connection: {}. Actor name: {}",
+					msg.getAccountId(),
+					connectionActor.path().toString());
+			
+		} else {
+			// Terminate if there is a connection existing.
+			sendToConnectionActor(msg.getAccountId(), PoisonPill.getInstance());
+		}
+
 	}
 
-	private void startConnectionActor(Long accountId) {
-		final String actorName = ConnectionActor.getActorName(accountId);
-		final ActorRef connectionActor = SpringExtension.actorOf(getContext(), ConnectionActor.class, actorName,
-				accountId);
-
-		LOG.debug("Received start request for account connection: {}. Actor name: {}",
-				accountId,
-				connectionActor.path().toString());
+	/**
+	 * The message is forwarded towards the connection actor.
+	 * 
+	 * @param msg
+	 */
+	private void sendToConnectionActor(long accoundId, Object msg) {
+		final String connectionActorName = ConnectionActor.getActorName(accoundId);
+		final String actorName = AkkaCluster.getNodeName(NAME, connectionActorName);
+		getContext().actorSelection(actorName).tell(msg, getSelf());
 	}
 }

@@ -11,7 +11,7 @@ import net.bestia.messages.AccountMessage;
  * message arrives the client is authenticated and connected and must/can
  * receive messages from now on.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class ClientConnectionStatusMessage extends AccountMessage {
@@ -43,6 +43,10 @@ public class ClientConnectionStatusMessage extends AccountMessage {
 		return state;
 	}
 
+	/**
+	 * @return Webserver who did send this message and to which the client
+	 *         mentioned in this message is connected.
+	 */
 	public ActorRef getWebserverRef() {
 		return webserverRef;
 	}
