@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.actor.zone;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -10,7 +9,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
-import akka.actor.Address;
 import akka.cluster.Cluster;
 import akka.cluster.ClusterEvent;
 import akka.cluster.ClusterEvent.ClusterDomainEvent;
@@ -21,9 +19,8 @@ import akka.cluster.ClusterEvent.UnreachableMember;
 import akka.cluster.Member;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.entity.PlayerEntityService;
 import net.bestia.server.AkkaCluster;
-import net.bestia.zoneserver.service.ConnectionService;
+import net.bestia.zoneserver.service.LoginService;
 
 /**
  * Logs information about the whole behemoth cluster and reacts on cluster
@@ -40,16 +37,14 @@ public class ZoneClusterListenerActor extends AbstractActor {
 	public final static String NAME = "clusterStatus";
 
 	private final Cluster cluster = Cluster.get(getContext().system());
-	private final ConnectionService connectionService;
-	private final PlayerEntityService entityService;
+	private final LoginService loginService;
 
 	private final List<Member> webserverMember = new ArrayList<>();
 	
 	@Autowired
-	public ZoneClusterListenerActor(ConnectionService connectionService,  PlayerEntityService bestiaService) {
+	public ZoneClusterListenerActor(LoginService loginService) {
 		
-		this.entityService = Objects.requireNonNull(bestiaService);
-		this.connectionService = Objects.requireNonNull(connectionService);
+		this.loginService = Objects.requireNonNull(loginService);
 	}
 
 	/**
@@ -99,12 +94,8 @@ public class ZoneClusterListenerActor extends AbstractActor {
 		LOG.info("Member was removed: {}", mRemoved.member());
 
 		if (!mRemoved.member().hasRole(AkkaCluster.ROLE_WEB)) {
-			LOG.debug("Webserver is removed: {}. Disconnecting all clients.", mRemoved.member());
-			
-			final Address addr = mRemoved.member().address();
-			final Collection<Long> clientIds = connectionService.getClients(addr);
-			clientIds.forEach(id -> entityService.removePlayerBestias(id));
-			connectionService.removeClients(addr);
+			LOG.debug("Webserver is removed: {}. Disconnecting all clients.", mRemoved.member());			
+			loginService.logoutAllFromServer(mRemoved.member().address());
 		}
 	}
 	

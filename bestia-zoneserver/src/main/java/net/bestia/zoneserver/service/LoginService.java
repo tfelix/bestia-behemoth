@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import akka.actor.ActorRef;
+import akka.actor.Address;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityDeleterService;
 import net.bestia.entity.EntityService;
@@ -22,8 +23,8 @@ import net.bestia.messages.web.AccountLoginRequest;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
-import net.bestia.model.server.MaintenanceLevel;
 import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.server.MaintenanceLevel;
 import net.bestia.zoneserver.actor.connection.ConnectionActor;
 import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
@@ -102,9 +103,6 @@ public class LoginService {
 		// TODO Das hier ist ein fehler. Erst den client complett anmelden und
 		// danach beginnen die entities zu instanzieren.
 
-		// First register the sender connection.
-		// FIXME This is legacy code and will soon be handled by actors.
-		connectionService.addClient(accId, connectionRef.path());
 
 		// Spawn all bestia entities for this account into the world.
 		final PlayerBestia master = playerBestiaService.getMaster(accId);
@@ -180,7 +178,6 @@ public class LoginService {
 
 		// Unregister connection.
 		LOG.debug("Logout acc id: {}.", accId);
-		connectionService.removeClient(accId);
 
 		final Set<Entity> playerEntities = playerEntityService.getPlayerEntities(accId);
 
@@ -195,14 +192,11 @@ public class LoginService {
 		// Recycle all entities.
 		playerEntities.forEach(deleteService::deleteEntity);
 	}
-
-	/**
-	 * Logs out all users from the server.
-	 */
-	public void logoutAll() {
-		connectionService.getAllConnectedAccountIds()
-				.forEachRemaining(this::logout);
+	
+	public void logoutAllFromServer(Address address) {
+		
 	}
+
 
 	/**
 	 * Logs out all users who are blow the given user level.
@@ -295,5 +289,10 @@ public class LoginService {
 
 		LOG.trace("Account {} login permitted.", accId);
 		return true;
+	}
+
+	public void logoutAll() {
+		// TODO Auto-generated method stub
+		
 	}
 }

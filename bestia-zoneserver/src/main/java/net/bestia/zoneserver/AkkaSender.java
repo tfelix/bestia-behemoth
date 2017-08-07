@@ -6,11 +6,12 @@ import akka.actor.ActorSelection;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.server.AkkaCluster;
+import net.bestia.zoneserver.actor.connection.ConnectionActor;
+import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
 import net.bestia.zoneserver.actor.entity.EntityActor;
 import net.bestia.zoneserver.actor.entity.EntityManagerActor;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.SendActiveRangeActor;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
@@ -36,11 +37,17 @@ public final class AkkaSender {
 	 * this a {@link SendClientActor} responder is used. The actor will be
 	 * created when necessary (this means the method is first invoked).
 	 * 
+	 * TODO Current implementation is only temporary. This must be exchanged
+	 * against the sharded implementation when finished.
+	 * 
 	 * @param msg
 	 */
 	public static void sendClient(ActorContext context, JsonMessage msg) {
 
-		sendToActor(context, SendClientActor.NAME, msg);
+		final String actorName = AkkaCluster.getNodeName(ConnectionManagerActor.NAME,
+				ConnectionActor.getActorName(msg.getAccountId()));
+		final ActorSelection actor = context.actorSelection(actorName);
+		actor.tell(msg, ActorRef.noSender());
 	}
 
 	public static void sendToActor(ActorContext context, String actorName, Object message) {

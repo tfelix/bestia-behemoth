@@ -15,7 +15,6 @@ import akka.cluster.singleton.ClusterSingletonManager;
 import akka.cluster.singleton.ClusterSingletonManagerSettings;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.battle.AttackManagerActor;
-import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
 import net.bestia.zoneserver.actor.entity.EntityManagerActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
@@ -24,12 +23,11 @@ import net.bestia.zoneserver.actor.rest.CheckUsernameDataActor;
 import net.bestia.zoneserver.actor.rest.RequestLoginActor;
 import net.bestia.zoneserver.actor.rest.RequestServerStatusActor;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
+import net.bestia.zoneserver.actor.zone.ClusterControlActor;
 import net.bestia.zoneserver.actor.zone.HeartbeatActor;
 import net.bestia.zoneserver.actor.zone.IngestActor;
 import net.bestia.zoneserver.actor.zone.IngestExActor;
-import net.bestia.zoneserver.actor.zone.ClusterControlActor;
 import net.bestia.zoneserver.actor.zone.SendActiveRangeActor;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.zone.ZoneClusterListenerActor;
 import net.bestia.zoneserver.script.ScriptService;
@@ -64,7 +62,6 @@ public class ZoneStarter implements CommandLineRunner {
 		akkaApi.startActor(IngestActor.class);
 		akkaApi.startActor(IngestExActor.class);
 		
-		akkaApi.startActor(SendClientActor.class);
 		akkaApi.startActor(SendActiveRangeActor.class);
 		akkaApi.startActor(ActiveClientUpdateActor.class);
 

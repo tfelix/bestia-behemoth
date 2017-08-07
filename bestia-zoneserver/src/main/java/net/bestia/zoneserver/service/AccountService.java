@@ -186,7 +186,7 @@ public class AccountService {
 		}
 
 		// Check if this account is online.
-		if (null == connectionService.getPath(acc.getId())) {
+		if (connectionService.isConnected(acc.getId())) {
 			return null;
 		}
 

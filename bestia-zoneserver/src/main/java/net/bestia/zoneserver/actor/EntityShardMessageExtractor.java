@@ -1,16 +1,20 @@
 package net.bestia.zoneserver.actor;
 
+import org.springframework.stereotype.Component;
+
 import akka.cluster.sharding.ShardRegion;
 import net.bestia.messages.EntityMessage;
 
 /**
- * Defines methods for extracting the shard id from the incoming messages.
+ * Defines methods for extracting the shard id from the incoming messages for
+ * entity actors.
  * 
  * @author Thomas Felix
  *
  */
-public class EntityShardRegionMessageExtractor implements ShardRegion.MessageExtractor {
-	
+@Component
+public class EntityShardMessageExtractor implements ShardRegion.MessageExtractor {
+
 	private final static int NUMBER_OF_SHARDS = 10;
 
 	@Override

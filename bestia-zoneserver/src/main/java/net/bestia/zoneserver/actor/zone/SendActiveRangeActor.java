@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
-import akka.actor.ActorSelection;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.EntityService;
@@ -19,7 +18,7 @@ import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
-import net.bestia.server.AkkaCluster;
+import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.map.MapService;
 
 /***
@@ -40,7 +39,6 @@ public class SendActiveRangeActor extends AbstractActor {
 
 	private final PlayerEntityService playerEntityService;
 	private final EntityService entityService;
-	private final ActorSelection sendClientActor;
 
 	@Autowired
 	public SendActiveRangeActor(PlayerEntityService playerEntityService,
@@ -48,7 +46,6 @@ public class SendActiveRangeActor extends AbstractActor {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
-		this.sendClientActor = getContext().actorSelection(AkkaCluster.getNodeName(SendClientActor.NAME));
 	}
 
 	@Override
@@ -84,7 +81,7 @@ public class SendActiveRangeActor extends AbstractActor {
 
 		for (Long activeId : activeIds) {
 			final JsonMessage newMsg = msg.createNewInstance(activeId);
-			sendClientActor.tell(newMsg, getSelf());
+			AkkaSender.sendClient(getContext(), newMsg);
 		}
 	}
 }
