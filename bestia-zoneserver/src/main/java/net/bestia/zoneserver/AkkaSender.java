@@ -11,6 +11,7 @@ import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
 import net.bestia.zoneserver.actor.entity.EntityActor;
 import net.bestia.zoneserver.actor.entity.EntityManagerActor;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
+import net.bestia.zoneserver.actor.zone.IngestExActor;
 import net.bestia.zoneserver.actor.zone.SendActiveRangeActor;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
@@ -44,7 +45,9 @@ public final class AkkaSender {
 	 */
 	public static void sendClient(ActorContext context, JsonMessage msg) {
 
-		final String actorName = AkkaCluster.getNodeName(ConnectionManagerActor.NAME,
+		final String actorName = AkkaCluster.getNodeName(
+				IngestExActor.NAME,
+				ConnectionManagerActor.NAME,
 				ConnectionActor.getActorName(msg.getAccountId()));
 		final ActorSelection actor = context.actorSelection(actorName);
 		actor.tell(msg, ActorRef.noSender());

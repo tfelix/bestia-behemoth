@@ -78,11 +78,13 @@ public class ConnectionActor extends AbstractActor {
 				.match(JsonMessage.class, this::onMessageForClient)
 				.match(Terminated.class, this::onClientConnectionClosed)
 				.matchEquals(LATENCY_REQUEST_MSG, msg -> onLatencyRequest())
+				.matchAny(this::test)
 				.build();
 	}
 
 	@Override
 	public void preStart() throws Exception {
+		LOG.debug("Connection actor started: {}", getSelf().path());
 		connectionService.connected(accountId, clientConnection.path().address());
 	}
 
@@ -105,6 +107,10 @@ public class ConnectionActor extends AbstractActor {
 	 */
 	public static String getActorName(long accId) {
 		return String.format(ACTOR_NAME, accId);
+	}
+	
+	private void test(Object msg) {
+		LOG.debug(msg.toString());
 	}
 
 	/**

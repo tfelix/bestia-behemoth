@@ -59,16 +59,13 @@ public class ConnectionManagerActor extends AbstractActor {
 	private void checkConnectionStatus(ClientConnectionStatusMessage msg) {
 
 		if (msg.getState() == ConnectionState.CONNECTED) {
-			// Start the connection actor.
-			SpringExtension.actorOf(getContext(),
-					ConnectionActor.class,
-					ConnectionActor.getActorName(msg.getAccountId()),
-					msg.getAccountId(), msg.getWebserverRef());
-
 			final String actorName = ConnectionActor.getActorName(msg.getAccountId());
 			try {
-				final ActorRef connectionActor = SpringExtension.actorOf(getContext(), ConnectionActor.class, actorName,
-						msg.getAccountId());
+				final ActorRef connectionActor = SpringExtension.actorOf(
+						getContext(), 
+						ConnectionActor.class,
+						actorName,
+						msg.getAccountId(), msg.getWebserverRef());
 
 				LOG.debug("Received start request for account connection: {}. Actor name: {}",
 						msg.getAccountId(),
