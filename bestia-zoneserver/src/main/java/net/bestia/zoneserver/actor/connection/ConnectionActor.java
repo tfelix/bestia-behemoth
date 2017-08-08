@@ -86,13 +86,13 @@ public class ConnectionActor extends AbstractActor {
 		connectionService.connected(accountId, clientConnection.path().address());
 	}
 
-	// FIXME Das hier wird direkt nach dem start gecalled.
 	@Override
 	public void postStop() throws Exception {
 		latencyTick.cancel();
 
 		// TODO Handle the server ressource cleanup.
 		connectionService.disconnected(accountId);
+		latencyService.delete(accountId);
 
 	}
 
@@ -119,9 +119,10 @@ public class ConnectionActor extends AbstractActor {
 		}
 
 		// Check how many latency requests we have missed.
-		long dLastReply = System.currentTimeMillis() - latencyService.getLastClientReply(accountId);
+		long lastReply = latencyService.getLastClientReply(accountId);
+		long dLastReply = System.currentTimeMillis() - lastReply;
 
-		if (dLastReply > CLIENT_TIMEOUT_MS) {
+		if (lastReply > 0 && dLastReply > CLIENT_TIMEOUT_MS) {
 			// Connection seems to have dropped. Signal the server that the
 			// client has disconnected and terminate.
 			getContext().stop(getSelf());

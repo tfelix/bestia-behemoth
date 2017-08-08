@@ -127,4 +127,15 @@ public class LatencyService {
 		return median;
 	}
 
+	/**
+	 * Removes all client latency data for this account id.
+	 * 
+	 * @param accountId
+	 *            The account id.
+	 */
+	public void delete(long accountId) {
+		latencyStore.remove(accountId);
+		timestampStore.remove(accountId);
+	}
+
 }
