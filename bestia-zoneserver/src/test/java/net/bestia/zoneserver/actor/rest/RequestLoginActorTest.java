@@ -64,7 +64,6 @@ public class RequestLoginActorTest {
 	@Test
 	public void AccountLoginRequest_validRequest_loginOk() {
 		TestKit sender = new TestKit(system);
-
 		ActorRef router = SpringExtension.actorOf(system, RequestLoginActor.class, "validRequest");
 
 		router.tell(validReq, sender.getRef());
@@ -78,7 +77,6 @@ public class RequestLoginActorTest {
 	@Test
 	public void AccountLoginRequest_invalidRequest_loginNotOk() {
 		TestKit sender = new TestKit(system);
-
 		ActorRef router = SpringExtension.actorOf(system, RequestLoginActor.class, "invalidRequest");
 
 		router.tell(invalidReq, sender.getRef());

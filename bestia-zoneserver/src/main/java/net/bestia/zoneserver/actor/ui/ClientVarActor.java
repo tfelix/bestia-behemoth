@@ -100,7 +100,7 @@ public class ClientVarActor extends AbstractActor {
 	 * Retrieves the requested key from the server.
 	 * 
 	 * @param msg
-	 *            The messge.
+	 *            The message.
 	 */
 	private void handleCvarReq(ClientVarRequestMessage msg) {
 		final long accId = msg.getAccountId();

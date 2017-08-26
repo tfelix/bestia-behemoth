@@ -30,10 +30,10 @@ public class ClientVarRequestMessage extends JsonMessage {
 
 	@JsonProperty("uuid")
 	private String uuid;
-	
+
 	@JsonProperty("m")
 	private Mode mode;
-	
+
 	@JsonProperty("d")
 	private String data;
 
@@ -44,6 +44,46 @@ public class ClientVarRequestMessage extends JsonMessage {
 	public ClientVarRequestMessage(long accountId) {
 		super(accountId);
 		// no op.
+	}
+
+	public static ClientVarRequestMessage request(long accId, String key, String uuid) {
+		final ClientVarRequestMessage msg = new ClientVarRequestMessage(accId);
+		msg.key = key;
+		msg.uuid = uuid;
+		msg.mode = Mode.REQ;
+		return msg;
+	}
+
+	public static ClientVarRequestMessage delete(long accId, String key) {
+		final ClientVarRequestMessage msg = new ClientVarRequestMessage(accId);
+		msg.key = key;
+		msg.mode = Mode.DEL;
+		return msg;
+	}
+
+	public static ClientVarRequestMessage set(long accId, String key, String uuid, String data) {
+		final ClientVarRequestMessage msg = new ClientVarRequestMessage(accId);
+		msg.key = key;
+		msg.uuid = uuid;
+		msg.data = data;
+		msg.mode = Mode.SET;
+		return msg;
+	}
+
+	public static ClientVarRequestMessage reply(ClientVarRequestMessage request, String data) {
+
+		// Can only reply to requests.
+		if (request.getMode() != Mode.REQ) {
+			throw new IllegalArgumentException("Can only replay to REQ mode message.");
+		}
+
+		final ClientVarRequestMessage msg = new ClientVarRequestMessage(request.getAccountId());
+		msg.key = request.getKey();
+		msg.uuid = request.getUuid();
+		msg.mode = Mode.REQ;
+		msg.data = data;
+
+		return msg;
 	}
 
 	/**
@@ -64,11 +104,11 @@ public class ClientVarRequestMessage extends JsonMessage {
 	public String getUuid() {
 		return uuid;
 	}
-	
+
 	public String getData() {
 		return data;
 	}
-	
+
 	public Mode getMode() {
 		return mode;
 	}

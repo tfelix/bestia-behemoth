@@ -81,6 +81,15 @@ public class ClientVarService {
 				.sum();
 	}
 
+	/**
+	 * Finds the cvar associated with this account id and the key.
+	 * 
+	 * @param accId
+	 *            The account id.
+	 * @param key
+	 *            A key.
+	 * @return The associated cvar variable.
+	 */
 	public ClientVar find(long accId, String key) {
 		LOG.debug("Finding cvar with accID: {} and key: {}.", accId, key);
 		final ClientVar cvar = cvarDao.findByKeyAndAccountId(Objects.requireNonNull(key), accId);

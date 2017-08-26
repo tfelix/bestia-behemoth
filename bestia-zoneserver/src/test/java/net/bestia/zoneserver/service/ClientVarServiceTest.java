@@ -56,12 +56,8 @@ public class ClientVarServiceTest {
 	public void setup() {
 
 		when(accDao.findOne(EXISTING_ACC_ID)).thenReturn(account);
-		//when(accDao.findOne(NON_OWNING_ACC_ID)).thenReturn(account);
-		//when(accDao.findOne(OWNING_ACC_ID)).thenReturn(account);
 		when(accDao.findOne(NOT_EXISTING_ACC)).thenReturn(null);
-
 		when(cvarDao.findByKeyAndAccountId(EXISTING_KEY, OWNING_ACC_ID)).thenReturn(existingCvar);
-		//when(cvarDao.findByKeyAndAccountId(NOT_EXISTING_KEY, OWNING_ACC_ID)).thenReturn(null);
 
 		cvarService = new ClientVarService(cvarDao, accDao);
 	}
