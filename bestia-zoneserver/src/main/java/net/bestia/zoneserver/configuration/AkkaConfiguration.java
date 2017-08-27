@@ -55,7 +55,7 @@ public class AkkaConfiguration implements DisposableBean {
 		systemInstance = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
 
 		// initialize the application context in the Akka Spring extension.
-		SpringExtension.PROVIDER.get(systemInstance).initialize(appContext);
+		SpringExtension.initialize(systemInstance, appContext);
 
 		final Address selfAddr = Cluster.get(systemInstance).selfAddress();
 		final List<Address> seedNodes = clusterConfig.getClusterSeedNodes();

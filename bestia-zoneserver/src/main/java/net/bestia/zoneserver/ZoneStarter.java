@@ -80,7 +80,7 @@ public class ZoneStarter implements CommandLineRunner {
 		// Setup the init actor singelton for creation of the system.
 		LOG.info("Starting the global init singeltons.");
 		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
-		final Props globalInitProps = SpringExtension.PROVIDER.get(system).props(ClusterControlActor.class);
+		final Props globalInitProps = SpringExtension.getSpringProps(system, ClusterControlActor.class);
 		Props clusterProbs = ClusterSingletonManager.props(globalInitProps, PoisonPill.getInstance(), settings);
 		system.actorOf(clusterProbs, "globalInit");
 

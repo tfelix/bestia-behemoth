@@ -104,7 +104,10 @@ public class AccountServiceTest {
 	public void setup() {
 
 		when(bestiaDao.findOne(1)).thenReturn(bestia);
+		
 		when(accountDao.findByEmail(EXISTING_MAIL)).thenReturn(account);
+		when(accountDao.findByUsernameOrEmail(EXISTING_MAIL)).thenReturn(account);
+		
 		when(playerBestiaDao.findMasterBestiaWithName(EXISTING_MASTER_NAME)).thenReturn(masterBestia);
 
 		when(account.getPassword()).thenReturn(password);
@@ -116,7 +119,7 @@ public class AccountServiceTest {
 		accService = new AccountService(accountDao, playerBestiaDao, bestiaDao, connectionService);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void createNewAccount_noMail_fail() {
 		AccountRegistrationError error = accService.createNewAccount(regisMailMissing);
 		Assert.assertEquals(AccountRegistrationError.EMAIL_INVALID, error);
@@ -140,7 +143,7 @@ public class AccountServiceTest {
 		Assert.assertEquals(AccountRegistrationError.USERNAME_INVALID, error);
 	}
 
-	@Test
+	@Test(expected=IllegalArgumentException.class)
 	public void createNewAccount_nullMasterName_fail() {
 		AccountRegistrationError error = accService.createNewAccount(regisEmptyUserName);
 		Assert.assertEquals(AccountRegistrationError.USERNAME_INVALID, error);
@@ -152,7 +155,7 @@ public class AccountServiceTest {
 		Assert.assertEquals(AccountRegistrationError.USERNAME_INVALID, error);
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void createNewAccount_emptyPassword_fail() {
 		AccountRegistrationError error = accService.createNewAccount(regisEmptyPassword);
 		Assert.assertEquals(AccountRegistrationError.GENERAL_ERROR, error);
@@ -219,8 +222,7 @@ public class AccountServiceTest {
 		Account acc = accService.createLoginToken(EXISTING_MAIL, EXISTING_PASSWORD);
 
 		Assert.assertNotNull(acc);
-		verify(account, times(1)).setLoginToken(acc.getLoginToken());
-		Assert.assertFalse(acc.getLoginToken().isEmpty());
+		verify(account, times(1)).setLoginToken(anyString());
 	}
 
 	@Test

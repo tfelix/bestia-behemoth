@@ -51,6 +51,9 @@ public class ConnectionService {
 	 *            The connected account id.
 	 */
 	public void connected(long accountId, Address address) {
+		if (accountId < 0) {
+			throw new IllegalArgumentException("Account ID must be positive.");
+		}
 		LOG.debug("Account {} now listed as connected.", accountId);
 		connectedClients.put(address.toString(), accountId);
 	}
@@ -60,6 +63,11 @@ public class ConnectionService {
 		connectedClients.remove(accountId);
 	}
 
+	/**
+	 * Returns a iterator over all connected account ids.
+	 * 
+	 * @return The account id.
+	 */
 	public Iterator<Long> getAllConnectedAccountIds() {
 		return connectedClients.values().iterator();
 	}

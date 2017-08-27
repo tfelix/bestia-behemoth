@@ -38,7 +38,7 @@ public class TestZoneConfiguration {
 		
 		final ActorSystem system = ActorSystem.create("testSystem", akkaConfig);
 
-		SpringExtension.PROVIDER.get(system).initialize(appCtx);
+		SpringExtension.initialize(system, appCtx);
 		
 		return system;
 	}

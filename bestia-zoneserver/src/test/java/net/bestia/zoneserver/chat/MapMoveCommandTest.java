@@ -23,7 +23,6 @@ import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.model.geometry.Size;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
@@ -65,16 +64,11 @@ public class MapMoveCommandTest {
 	@Before
 	public void setup() {
 
-		when(accDao.findOne(ACC_ID)).thenReturn(acc);
-
 		when(acc.getId()).thenReturn(ACC_ID);
-		when(acc.getUserLevel()).thenReturn(UserLevel.ADMIN);
 
 		when(mapParamDao.findFirstByOrderByIdDesc()).thenReturn(mapParam);
 
 		when(mapParam.getWorldSize()).thenReturn(new Size(100, 100));
-
-		when(playerEntityService.getActivePlayerEntity(ACC_ID)).thenReturn(entity);
 
 		when(entityService.getComponent(entity, PositionComponent.class)).thenReturn(Optional.of(posComp));
 

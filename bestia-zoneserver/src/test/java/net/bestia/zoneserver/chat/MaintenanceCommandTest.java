@@ -21,8 +21,6 @@ import net.bestia.zoneserver.service.LoginService;
 @RunWith(MockitoJUnitRunner.class)
 public class MaintenanceCommandTest {
 
-	private static final long ACC_ID = 10L;
-
 	private MaintenanceCommand cmd;
 
 	@Mock
@@ -42,10 +40,6 @@ public class MaintenanceCommandTest {
 
 	@Before
 	public void setup() {
-
-		when(accDao.findOne(ACC_ID)).thenReturn(acc);
-		
-		when(acc.getUserLevel()).thenReturn(UserLevel.ADMIN);
 
 		cmd = new MaintenanceCommand(akkaApi, loginService, config);
 	}

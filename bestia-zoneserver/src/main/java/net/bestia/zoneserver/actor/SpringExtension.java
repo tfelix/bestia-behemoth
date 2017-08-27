@@ -28,7 +28,7 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 	/**
 	 * The identifier used to access the SpringExtension.
 	 */
-	public static final SpringExtension PROVIDER = new SpringExtension();
+	private static final SpringExtension PROVIDER = new SpringExtension();
 
 	private SpringExtension() {
 		// no op.
@@ -147,7 +147,7 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 	 * @return The created and already registered new actor.
 	 */
 	public static ActorRef actorOf(ActorContext ctx, Class<? extends AbstractActor> clazz) {
-		
+
 		final String actorName = getActorName(clazz);
 		return actorOf(ctx, clazz, actorName);
 	}
@@ -253,5 +253,18 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 	private static Props getSpringProps(ActorSystem system, Class<? extends AbstractActor> clazz) {
 
 		return PROVIDER.get(system).props(clazz);
+	}
+
+	/**
+	 * Initializes the provider with a new app context which will be used to
+	 * inject new actors with dependencies.
+	 * 
+	 * @param system
+	 *            AKKA system.
+	 * @param appContext
+	 *            The spring app context.
+	 */
+	public static void initialize(ActorSystem system, ApplicationContext appContext) {
+		PROVIDER.get(system).initialize(appContext);
 	}
 }

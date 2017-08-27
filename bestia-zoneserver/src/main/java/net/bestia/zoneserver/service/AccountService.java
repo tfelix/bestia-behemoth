@@ -64,7 +64,13 @@ public class AccountService {
 	 */
 	public Account createLoginToken(String accName, String password) {
 		final Account acc = accountDao.findByEmail(accName);
+		
 		if (acc == null) {
+			return null;
+		}
+		
+		// Dont allow login for not activated accounts.
+		if(!acc.isActivated()) {
 			return null;
 		}
 

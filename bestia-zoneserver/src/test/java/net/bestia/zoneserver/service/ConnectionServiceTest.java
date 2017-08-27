@@ -44,9 +44,10 @@ public class ConnectionServiceTest {
 
 	@Test
 	public void removeClient_validAccId_works() {
-		conSrv.connected(13, webserver.ref().path().address());
-		conSrv.disconnected(13);
-		Assert.assertFalse(conSrv.isConnected(13));
+		conSrv.connected(15, webserver.ref().path().address());
+		conSrv.disconnected(15);
+		boolean con = conSrv.isConnected(15);
+		Assert.assertFalse(con);
 	}
 	
 	@Test

@@ -20,16 +20,14 @@ import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.component.StatusComponent;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.model.domain.Account.UserLevel;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.model.domain.Element;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusValues;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SetCommandTest {
 	
-	private static final long ACC_ID = 1;
 	private static final long EXT_ENTITY_ID = 69;
 
 	private SetCommand setCmd;
@@ -63,10 +61,6 @@ public class SetCommandTest {
 
 	@Before
 	public void setup() {
-		
-		when(accDao.findOne(ACC_ID)).thenReturn(acc);
-		
-		when(acc.getUserLevel()).thenReturn(UserLevel.ADMIN);
 		
 		when(statusComp.getStatusPoints()).thenReturn(statusPoints);
 		when(statusComp.getValues()).thenReturn(values);

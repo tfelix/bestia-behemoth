@@ -27,15 +27,10 @@ public class LatencyServiceTest {
 		new LatencyService(null);
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void addLatency_noStampSet_throws() {
-		latencyService.addLatency(123456, 10000000, 10000000);
-	}
-
 	@Test
 	public void addLatency_stampSet_ok() {
 		long stamp = System.currentTimeMillis();
-		latencyService.addLatency(123, stamp + 100, stamp);
+		latencyService.addLatency(123, stamp, stamp + 100);
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -46,7 +41,7 @@ public class LatencyServiceTest {
 	@Test
 	public void getClientLatency_accountLatencyAdded_ok() {
 		long stamp = System.currentTimeMillis();
-		latencyService.addLatency(ACC_ID, stamp + 150, stamp);
+		latencyService.addLatency(ACC_ID, stamp, stamp + 150);
 		int latency = latencyService.getClientLatency(ACC_ID);
 		Assert.assertEquals(150, latency);
 	}
