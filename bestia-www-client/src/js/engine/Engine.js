@@ -1,6 +1,5 @@
 /*global Phaser */
 
-
 import Signal from '../io/Signal.js';
 import EngineContext from './EngineContext.js';
 import BootState from './states/BootState.js';
@@ -9,6 +8,8 @@ import GameState from './states/GameState.js';
 import InitializeState from './states/InitializeState';
 import LoadingState from './states/LoadingState.js';
 import DebugChatCommands from './debug/DebugChatCommands';
+import renderManager from './renderer/RenderManager';
+import TileRenderer from './renderer/TileRenderer';
 import LOG from '../util/Log';
 
 
@@ -47,6 +48,9 @@ export default class Engine {
 		this.game.state.add('connecting', new ConnectingState(ctx));
 		this.game.state.add('load', new LoadingState(ctx));
 		this.game.state.add('game', new GameState(ctx));
+
+		// Prepare the renderer.
+		renderManager.addRender(new TileRenderer(ctx));
 
 		// ==== PREPARE HANDLER ====
 

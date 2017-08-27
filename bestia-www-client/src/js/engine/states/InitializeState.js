@@ -1,4 +1,5 @@
 import Signal from '../../io/Signal.js';
+import renderManger from '../renderer/RenderManager';
 
 /**
  * The state is triggered for the first game loading. A real loading screen will
@@ -20,6 +21,9 @@ export default class InitializeState {
 	 * Preload all basic assets which a normal game will need.
 	 */
 	preload() {
+
+		// Load all static render assets.
+		renderManger.load(this.game);
 		
 		// Initialize the context since our engine is now ready.
 		this.game.load.image('castindicator_small', this._ctx.url.getIndicatorUrl('big'));

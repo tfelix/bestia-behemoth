@@ -1,6 +1,4 @@
-/*global Phaser */
-
-import I18n from '../../util/I18n.js';
+import Renderer from './Renderer';
 
 /**
  * The game world is represented by this class. It will provide a lot of helper
@@ -10,7 +8,7 @@ import I18n from '../../util/I18n.js';
  * @constructor
  * @class Bestia.Engine.World
  */
-export default class World {
+export default class WorldInfoRenderer extends Renderer {
 	
 	constructor(game, groups) {
 		/**

@@ -1,7 +1,6 @@
 import WorldHelper from '../map/WorldHelper.js';
 import Indicator from './Indicator.js';
 import Signal from '../../io/Signal.js';
-import World from '../map/World.js';
 
 /**
  * Visualize the casting of an item. If the position was determined it will

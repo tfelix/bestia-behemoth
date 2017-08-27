@@ -64,20 +64,22 @@ let Signal = {
 	SHORTCUT_REQ_SLOTS: 'shortcuts.slot.req',
 
 	// ### ENGINE
+	
 	/**
 	 * Returns the reference to the searched component or null if there is no such compoent.
 	 */
 	ENGINE_GET_ENTITY: 'engine.entity.get',
 
 	/**
-	 * Engine is ready and can be used.
+	 * Core Engine is booted and can start the loading operation. Minimum core assets
+	 * to display a loading screen are fetched after the signal is emitted.
 	 */
 	ENGINE_BOOTED: 'engine.booted',
 	ENGINE_INIT_LOADED: 'engine.initloaded',
-	ENGINE_LOADED: 'engine.loaded',
+	//ENGINE_LOADED: 'engine.loaded',
 	ENGINE_PREPARE_MAPLOAD: 'engine.prepareMapload',
 	/**
-	 * Emitted when the map and the game state has loaded and is being
+	 * Emitted when the map and the game state has fully loaded and is being
 	 * displayed.
 	 */
 	ENGINE_GAME_STARTED: 'engine.gameStarted',

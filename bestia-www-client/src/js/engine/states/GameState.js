@@ -1,6 +1,7 @@
 /*global Phaser */
 
 import Signal from '../../io/Signal.js';
+import Groups from '../core/Groups';
 import TileRender from '../renderer/TileRenderer';
 import WorldHelper from '../map/WorldHelper';
 import LOG from '../../util/Log';
@@ -26,23 +27,12 @@ export default class GameState {
 
 	create() {
 
-		// ==== VAR SETUP ====
-		this._tileRender = this._ctx.render.getRender(TileRender.NAME);
-
 		/**
 		 * Phaser whipes the scene graph when states change. Thus one need to
 		 * init the groups when the final (game_state) is started.
 		 */
 		// Groups can be created.
-		this._ctx.groups = {};
-		this._ctx.groups.spritesUnder = this.game.add.group(undefined, 'sprites_under');
-		this._ctx.groups.sprites = this.game.add.group(undefined, 'sprites');
-		this._ctx.groups.spritesOver = this.game.add.group(undefined, 'sprites_over');
-		this._ctx.groups.mapOverlay = this.game.add.group(undefined, 'map_overlay');
-		this._ctx.groups.effects = this.game.add.group(undefined, 'fx');
-		this._ctx.groups.overlay = this.game.add.group(undefined, 'overlay');
-		this._ctx.groups.gui = this.game.add.group(undefined, 'gui');
-
+		Groups.initilize(this.game);
 
 		// ==== PLUGINS ====
 		// @ifdef DEVELOPMENT
@@ -65,7 +55,13 @@ export default class GameState {
 
 		// After all is setup create the player sprite.
 		let pb = this._ctx.playerBestia;
-		let playerData = { eid: pb.entityId(), x: pb.posX(), y: pb.posY(), s: { s: pb.sprite(), t: pb.spriteType() }, a: 'APPEAR' };
+		let playerData = {
+			eid: pb.entityId(),
+			x: pb.posX(),
+			y: pb.posY(),
+			s: { s: pb.sprite(), t: pb.spriteType() },
+			a: 'APPEAR'
+		};
 		this._ctx.entityFactory.build(playerData, function (playerEntity) {
 			// Follow the player
 			LOG.info('Player build');
@@ -77,7 +73,6 @@ export default class GameState {
 		}.bind(this));
 
 		LOG.info('Draw called');
-		this._tileRender.clearDraw();
 		this._ctx.entityUpdater.releaseHold();
 	}
 

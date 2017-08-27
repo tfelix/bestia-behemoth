@@ -1,6 +1,7 @@
-import Render from './Render';
+import Renderer from './Renderer';
 import WorldHelper from '../map/WorldHelper';
 import MID from '../../io/messages/MID';
+import Signal from '../../io/Signal';
 import Message from '../../io/messages/Message';
 import TilesetManager from '../map/TilesetManager';
 import NOOP from '../../util/NOOP';
@@ -13,7 +14,7 @@ const MIN_SAFETY_TILES = 3;
  * rendering of tiles. To perform its duty it needs to tap into the map manager
  * and the tileset manager as well.
  */
-export default class TileRender extends Render {
+export default class TileRender extends Renderer {
 
 	constructor(ctx) {
 		super();
@@ -26,6 +27,9 @@ export default class TileRender extends Render {
 		// Some basic init.
 		this.clear();
 		this._pubsub.subscribe(MID.MAP_CHUNK, this._handleChunkReceived.bind(this));
+		this._pubsub.subscribe(Signal.ENGINE_GAME_STARTED, function(){
+			this.clearDraw();
+		});
 	}
 
 	/**

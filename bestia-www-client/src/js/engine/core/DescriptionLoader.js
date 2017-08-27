@@ -47,14 +47,14 @@ export default class DescriptionLoader {
 		var url = this._getUrlFromData(data);
 		var name = this._getNameFromData(data) + '_desc';
 		
-		LOG.trace('Loading description: ' + name + ' from: ' + url);
+		LOG.debug('Loading description: ' + name + ' from: ' + url);
 
 		this._loader.load({
 			key : name,
 			type : 'json',
 			url : url
 		}, function() {
-			LOG.trace('Description loaded: ' + name + ' from: ' + url);
+			LOG.debug('Description loaded: ' + name + ' from: ' + url);
 			
 			var descFile = this.getDescription(name);
 			fnCallback(descFile);

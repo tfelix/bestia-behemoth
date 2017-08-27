@@ -4,7 +4,6 @@ import EntityCache from './entities/util/EntityCache';
 import DemandLoader from './core/DemandLoader';
 import IndicatorManager from './indicator/IndicatorManager';
 import EffectsManager from './fx/EffectsManager';
-import RenderManager from './renderer/RenderManager';
 import EntityFactory from './entities/factory/EntityFactory';
 import EntityUpdater from './entities/util/EntityUpdater';
 import AnimationManager from './animation/AnimationManager';
@@ -33,7 +32,6 @@ export default class EngineContext {
 		this._demandLoader = new DemandLoader(this);
 		this._indicatorManager = new IndicatorManager(this);
 		this._fxManager = new EffectsManager(this);
-		this._renderManager = new RenderManager(this);
 		this._entityFactory = new EntityFactory(this);
 		this._entityUpdater = new EntityUpdater(this);
 		this._animationManager = new AnimationManager(this);

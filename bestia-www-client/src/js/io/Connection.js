@@ -167,7 +167,7 @@ export default class Connection {
 		// @ifdef DEVELOPMENT
 		// Only show non latency messages.
 		if(json.mid !== MID.LATENCY_REQ) {
-			LOG.trace('Received Message: ', e.data);
+			LOG.debug('Received Message: '+ e.data);
 			this._debug('receive', json, e.data);
 		}
 		// @endif
