@@ -1,8 +1,9 @@
 /*global Phaser */
 
 import Signal from '../../io/Signal.js';
-import Groups from '../core/Groups';
+import groups, {GROUP_LAYERS} from '../core/Groups';
 import TileRender from '../renderer/TileRenderer';
+import renderManager from '../renderer/RenderManager';
 import WorldHelper from '../map/WorldHelper';
 import LOG from '../../util/Log';
 import PhaserDebug from '../plugins/phaser-debug';
@@ -32,7 +33,7 @@ export default class GameState {
 		 * init the groups when the final (game_state) is started.
 		 */
 		// Groups can be created.
-		Groups.initilize(this.game);
+		groups.initilize(this.game);
 
 		// ==== PLUGINS ====
 		// @ifdef DEVELOPMENT
@@ -64,7 +65,7 @@ export default class GameState {
 		};
 		this._ctx.entityFactory.build(playerData, function (playerEntity) {
 			// Follow the player
-			LOG.info('Player build');
+			LOG.info('Player entity created.');
 			this._ctx.playerEntity = playerEntity;
 			// This is not clean as we must reference the internal sprite of the player.
 			// Rework this when updating the render engine.
@@ -72,14 +73,13 @@ export default class GameState {
 			this._ctx.pubsub.publish(Signal.ENGINE_GAME_STARTED);
 		}.bind(this));
 
-		LOG.info('Draw called');
 		this._ctx.entityUpdater.releaseHold();
 	}
 
 	update() {
 
 		// Calls the renderer.
-		this._ctx.render.update();
+		renderManager.update();
 
 		// Trigger the update effects.
 		this._ctx.fxManager.update();
@@ -95,7 +95,7 @@ export default class GameState {
 		});
 
 		// Group sort the sprite layer.
-		this._ctx.groups.sprites.sort('y', Phaser.Group.SORT_ASCENDING);
+		groups.sort(GROUP_LAYERS.SPRITES);
 	}
 
 	render() {

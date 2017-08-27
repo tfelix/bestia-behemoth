@@ -1,4 +1,5 @@
 import WorldHelper from '../map/WorldHelper.js';
+import groups, {GROUP_LAYERS} from '../core/Groups';
 import IndicatorManager from './IndicatorManager.js';
 
 /**
@@ -27,7 +28,8 @@ export default class Indicator {
 
 		this._ctx.game.input.addMoveCallback(this._onMouseMove, this);
 		this._ctx.game.input.onDown.add(this._onClick, this);
-		this._ctx.groups.spritesUnder.add(this._marker);
+		
+		groups.get(GROUP_LAYERS.SPRITES_BOTTOM).add(this._marker);
 	}
 
 	deactivate() {

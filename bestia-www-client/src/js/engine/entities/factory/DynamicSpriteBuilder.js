@@ -1,6 +1,7 @@
 import SpriteBuilder from './SpriteBuilder';
 import MultispriteEntity from '../MultispriteEntity';
 import LOG from '../../../util/Log';
+import groups, {GROUP_LAYERS} from '../../core/Groups';
 
 /**
  * This is able to create sprite entities which differ to the runtime. It must
@@ -38,7 +39,7 @@ export default class DynamicSpriteBuilder extends SpriteBuilder {
 			this._pubsub.publish(Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_out', entity: entity});
 		}.bind(this);*/
 		
-		entity.addToGroup(this._ctx.groups.sprites);
+		groups.get(GROUP_LAYERS.SPRITES).add(entity._sprite);
 
 		if (data.a === 'APPEAR') {
 			entity.appear();

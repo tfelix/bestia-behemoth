@@ -1,5 +1,6 @@
 import Builder from './Builder.js';
 import SpriteEntity from '../SpriteEntity';
+import groups, {GROUP_LAYERS} from '../../core/Groups';
 import LOG from '../../../util/Log';
 import Signal from '../../../io/Signal';
 
@@ -26,7 +27,7 @@ export default class SpriteBuilder extends Builder {
 		LOG.debug('Building pack sprite.', data);
 		var entity = new SpriteEntity(this._ctx, data.eid, data.x, data.y, desc);
 		
-		entity.addToGroup(this._ctx.groups.sprites);
+		groups.get(GROUP_LAYERS.SPRITES).add(entity._sprite);
 		
 		// We need to check how we can interact with this entity. If this is
 		// clear we add the behaviour of the move over. Currently its attack

@@ -92,24 +92,24 @@ export default class EntityFactory {
 	 * creation of the entity.
 	 */
 	_continueBuild(data, fnOnComplete, descFile) {
-		var b = this._getBuilder(data, descFile);
-
-		if (!b) {
-			console.warn('No builder registered to build entity from data: ' + JSON.stringify(data));
-			fnOnComplete(null);
-			return;
-		}
-		
 		if (descFile === null) {
 			// Could not load desc file.
 			console.warn('Could not load description file from data: ' + JSON.stringify(data));
 			fnOnComplete(null);
 			return;
 		}
+		
+		var builder = this._getBuilder(data, descFile);
+
+		if (!builder) {
+			console.warn('No builder registered to build entity from data: ' + JSON.stringify(data));
+			fnOnComplete(null);
+			return;
+		}
 
 		// The builder is now responsible for figuring out which files to load
 		// additionally. It must be all given in the JSON file.
-		b.load(descFile, function() {
+		builder.load(descFile, function() {
 			
 			// Abort if there is only loading required.
 			if(data.onlyLoad === true) {
@@ -134,7 +134,7 @@ export default class EntityFactory {
 				throw 'No action (a) given';
 			}
 			
-			let entity = b.build(data, descFile);
+			let entity = builder.build(data, descFile);
 			this._ctx.entityCache.addEntity(entity);	
 
 			// Call the callback handler.

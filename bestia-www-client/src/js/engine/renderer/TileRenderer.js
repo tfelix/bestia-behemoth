@@ -26,10 +26,10 @@ export default class TileRender extends Renderer {
 
 		// Some basic init.
 		this.clear();
-		this._pubsub.subscribe(MID.MAP_CHUNK, this._handleChunkReceived.bind(this));
+		this._pubsub.subscribe(MID.MAP_CHUNK, this._handleChunkReceived, this);
 		this._pubsub.subscribe(Signal.ENGINE_GAME_STARTED, function(){
 			this.clearDraw();
-		});
+		}, this);
 	}
 
 	/**
@@ -133,7 +133,6 @@ export default class TileRender extends Renderer {
 		for (let c = 0; c < data.c.length; c++) {
 			let chunk = data.c[c];
 
-			// let tileCords = this._chunkToTile(chunk.p.x, chunk.p.y);
 			let chunkKey = this._chunkKey(chunk.p.x, chunk.p.y);
 			this._chunkCache[chunkKey] = chunk;
 
@@ -215,7 +214,7 @@ export default class TileRender extends Renderer {
 	clearDraw() {
 		let player = this._ctx.playerBestia;
 		if (player == null) {
-			console.error('PlayerBestia not found in context.');
+			console.error('PlayerBestia not found in context. Can not draw tilemap.');
 			return;
 		}
 

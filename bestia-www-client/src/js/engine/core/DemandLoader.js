@@ -100,7 +100,7 @@ export default class DemandLoader {
 					try {
 						x();
 					} catch (err) {
-						console.error('DemandLoader#_fileLoadedCallback: ' + err);
+						console.error('DemandLoader#_fileLoadedCallback: ' + err, x);
 					}
 				});
 				
@@ -211,7 +211,7 @@ export default class DemandLoader {
 			try {
 				fnOnComplete();
 			} catch(e) {
-				LOG.error('Could not execute demand loader callback. ' + e);
+				LOG.error('Could not execute demand loader callback. ' + e, fnOnComplete);
 			}
 			return;
 		} else {
