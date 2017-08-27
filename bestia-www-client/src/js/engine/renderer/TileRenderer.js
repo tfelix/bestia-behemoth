@@ -5,7 +5,8 @@ import Signal from '../../io/Signal';
 import Message from '../../io/messages/Message';
 import TilesetManager from '../map/TilesetManager';
 import NOOP from '../../util/NOOP';
-import pathfinder from '../map/pathfinder';
+import pathfinder from '../map/Pathfinder';
+import LOG from '../../util/Log';
 
 const MIN_SAFETY_TILES = 3;
 
@@ -117,14 +118,14 @@ export default class TileRender extends Renderer {
 
 	/**
 	 * Handle if a new mapchunk is send by the server. It will get incorporated
-	 * into the database.
+	 * into the cache.
 	 */
 	_handleChunkReceived(_, data) {
 		// Generate the job key.
 		let key = data.c.length + '-' + data.c[0].p.x + '-' + data.c[0].p.y;
 
 		// Check the callback.
-		let fn = this._chunkCallbackCache[key];
+		let callbackFn = this._chunkCallbackCache[key];
 		delete this._chunkCallbackCache[key];
 
 		// Iterate over all tiles inside the chunk message and group the tile
@@ -152,7 +153,7 @@ export default class TileRender extends Renderer {
 			tilesToLoad--;
 
 			if (tilesToLoad === 0) {
-				fn();
+				callbackFn();
 			}
 		}.bind(this)
 
@@ -258,25 +259,40 @@ export default class TileRender extends Renderer {
 	}
 
 	/**
-	 * Updates the path information with the new tile ids.
+	 * Updates the path finder information with the new data.
 	 */
 	_updatePathInfo() {
 		// Set the grid to a static value. Must be updated when player moves.
 		var grid = new Array(this._gameSize.y);
+		
 		for (var y = 0; y < this._gameSize.y; y++) {
 
 			grid[y] = new Array(this._gameSize.x);
 
 			for (var x = 0; x < this._gameSize.x; x++) {
-				grid[y][x] = 0;
+				
+				var offsetX = this._rendered.x1 + x;
+				var offsetY = this._rendered.y1 + y;
+
+				var gid = this._getGid(offsetX, offsetY);
+				
+				// TODO Feststellen ob die GID lauffähig ist oder nicht.
+				var isGidWalkable = true;
+				if(isGidWalkable) {
+					grid[y][x] = 1;
+				} else {
+					grid[y][x] = 0;
+				}
 			}
 		}
 
 		var offset = { x: this._rendered.x1, y: this._rendered.y1 };
 
+		LOG.debug('Updating the pathfinder data with offset: ');
+
 		// TODO Hier dir richtigen TID einpflegen.
 		pathfinder.setGrid(offset, grid);
-		pathfinder.setAcceptableTiles([0]);
+		pathfinder.setAcceptableTiles([1]);
 	}
 
 	/**

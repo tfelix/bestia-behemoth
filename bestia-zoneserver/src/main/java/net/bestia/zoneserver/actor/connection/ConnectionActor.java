@@ -19,6 +19,7 @@ import net.bestia.messages.login.LogoutMessage;
 import net.bestia.messages.misc.PingMessage;
 import net.bestia.zoneserver.service.ConnectionService;
 import net.bestia.zoneserver.service.LatencyService;
+import net.bestia.zoneserver.service.LoginService;
 import scala.concurrent.duration.Duration;
 
 /**
@@ -49,6 +50,8 @@ public class ConnectionActor extends AbstractActor {
 
 	private final ConnectionService connectionService;
 	private final LatencyService latencyService;
+	private final LoginService loginService;
+	
 	private boolean isFirstPing = true;
 
 	private final Cancellable latencyTick = getContext().getSystem().scheduler().schedule(
@@ -61,12 +64,14 @@ public class ConnectionActor extends AbstractActor {
 			Long accountId,
 			ActorRef connection,
 			ConnectionService connectionService,
-			LatencyService latencyService) {
+			LatencyService latencyService,
+			LoginService loginService) {
 
 		this.clientConnection = Objects.requireNonNull(connection);
 		this.accountId = Objects.requireNonNull(accountId);
 		this.connectionService = Objects.requireNonNull(connectionService);
 		this.latencyService = Objects.requireNonNull(latencyService);
+		this.loginService = Objects.requireNonNull(loginService);
 
 		getContext().watch(clientConnection);
 	}
@@ -78,13 +83,12 @@ public class ConnectionActor extends AbstractActor {
 				.match(JsonMessage.class, this::onMessageForClient)
 				.match(Terminated.class, this::onClientConnectionClosed)
 				.matchEquals(LATENCY_REQUEST_MSG, msg -> onLatencyRequest())
-				.matchAny(this::test)
 				.build();
 	}
 
 	@Override
 	public void preStart() throws Exception {
-		LOG.debug("Connection actor started: {}", getSelf().path());
+		LOG.debug("Connection actor started: {}, account: {}", getSelf().path(), accountId);
 		connectionService.connected(accountId, clientConnection.path().address());
 	}
 
@@ -92,10 +96,13 @@ public class ConnectionActor extends AbstractActor {
 	public void postStop() throws Exception {
 		latencyTick.cancel();
 
-		// TODO Handle the server ressource cleanup.
 		connectionService.disconnected(accountId);
 		latencyService.delete(accountId);
+		
+		// Clean up the associated entity actors.
+		loginService.logout(accountId);
 
+		LOG.debug("Connection actor stopped: {}, account: {}", getSelf().path(), accountId);
 	}
 
 	/**
@@ -107,10 +114,6 @@ public class ConnectionActor extends AbstractActor {
 	 */
 	public static String getActorName(long accId) {
 		return String.format(ACTOR_NAME, accId);
-	}
-	
-	private void test(Object msg) {
-		LOG.debug(msg.toString());
 	}
 
 	/**

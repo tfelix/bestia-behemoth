@@ -56,7 +56,8 @@ public class EntityManagerActor extends AbstractActor {
 	}
 
 	/**
-	 * Entity message should be forwarded towards the shard containing this id.
+	 * Entity component message should be forwarded towards the shard containing
+	 * the entity actor.
 	 */
 	public void onEntityComponentMessage(ComponentPayloadWrapper msg) {
 		LOG.debug("Received: {}.", msg);
@@ -78,7 +79,7 @@ public class EntityManagerActor extends AbstractActor {
 		LOG.debug("Received start request for entity: {}. Actor name: {}", entityId, actorName);
 
 		final ActorRef entityActor = SpringExtension.actorOf(getContext(), EntityActor.class, actorName, entityId);
-		
+
 		LOG.debug("Started actor: {}", entityActor);
 	}
 

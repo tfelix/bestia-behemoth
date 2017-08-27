@@ -32,7 +32,7 @@ import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
  */
 @Service
 public class EntityDeleterService {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(EntityDeleterService.class);
 
 	private final EntityCache cache;
@@ -58,19 +58,30 @@ public class EntityDeleterService {
 	}
 
 	/**
+	 * Alias for {@link #deleteEntity(Entity)}.
+	 * 
+	 * @param entityId
+	 *            The id of the entity which should be deleted.
+	 */
+	public void deleteEntity(long entityId) {
+		final Entity entity = entityService.getEntity(entityId);
+		deleteEntity(entity);
+	}
+
+	/**
 	 * Deletes the entity and removes all components from the system.
 	 * 
 	 * @param entity
 	 *            The entity to remove from the system.
 	 */
 	public void deleteEntity(Entity entity) {
-		
+
 		Objects.requireNonNull(entity);
 
 		LOG.debug("Deleting entity: {}", entity);
-		
+
 		final Collection<Component> components = entityService.getAllComponents(entity);
-		
+
 		// Iterate over all components and remove them.
 		for (Component component : components) {
 			deleteComponent(entity, component);
@@ -96,25 +107,25 @@ public class EntityDeleterService {
 
 		Objects.requireNonNull(entity);
 		Objects.requireNonNull(clazz);
-		
+
 		LOG.debug("Deleting component: {} from entity: {}.", clazz.getSimpleName(), entity);
-		
+
 		final Component comp = entityService.getComponent(entity, clazz)
 				.orElseThrow(IllegalArgumentException::new);
 
 		deleteComponent(entity, comp);
 	}
-	
+
 	private void deleteComponent(Entity entity, Component comp) {
-		
+
 		final String clazzname = comp.getClass().getName();
-		
-		if(componentCleaner.containsKey(clazzname)) {
+
+		if (componentCleaner.containsKey(clazzname)) {
 			componentCleaner.get(clazzname).freeComponent(comp);
 		}
-		
+
 		entityService.deleteComponent(entity, comp);
-		
-		cache.stashComponente(comp);	
+
+		cache.stashComponente(comp);
 	}
 }

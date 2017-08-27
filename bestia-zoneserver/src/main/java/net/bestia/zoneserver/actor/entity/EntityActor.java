@@ -35,8 +35,7 @@ import net.bestia.messages.internal.entity.EntityComponentMessage.ComponentState
 public class EntityActor extends AbstractActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().getSystem(), this);
 
-	private final static String ACTOR_NAME = "entity-%d";
-	// private final long entityId;
+	private final static String ACTOR_NAME_TEMPLATE = "entity-%d";
 
 	private final EntityComponentActorFactory factory;
 
@@ -53,11 +52,17 @@ public class EntityActor extends AbstractActor {
 		// this.entityId = entityId;
 	}
 
+	/**
+	 * Returns the unique actor name based on the entity id.
+	 * 
+	 * @param entityId
+	 * @return
+	 */
 	public static String getActorName(long entityId) {
 		if (entityId < 0) {
 			throw new IllegalArgumentException("Entity id must be positive.");
 		}
-		return String.format(ACTOR_NAME, entityId);
+		return String.format(ACTOR_NAME_TEMPLATE, entityId);
 	}
 
 	@Override
@@ -69,7 +74,7 @@ public class EntityActor extends AbstractActor {
 				.matchAny(this::handleAll)
 				.build();
 	}
-	
+
 	private void handleAll(Object msg) {
 		LOG.debug("MSG: {}.", msg);
 	}
@@ -79,15 +84,15 @@ public class EntityActor extends AbstractActor {
 	 * message.
 	 */
 	private void handleComponentPayload(ComponentPayloadWrapper msg) {
-		
+
 		final long compId = msg.getComponentId();
-		
-		if(!actorsByComponentId.containsKey(compId)) {
+
+		if (!actorsByComponentId.containsKey(compId)) {
 			LOG.debug("Component message unhandled: {}.", msg);
 			unhandled(msg);
 			return;
 		}
-		
+
 		final ActorRef compActor = actorsByComponentId.get(compId);
 		LOG.debug("Forwarding comp message: {} to: {}.", msg, compActor);
 		compActor.tell(msg.getPayload(), getSelf());
@@ -104,12 +109,12 @@ public class EntityActor extends AbstractActor {
 
 			// Install the component.
 			ActorRef compActor = factory.startActor(getContext(), msg.getComponentId());
-			
-			if(compActor == null) {
+
+			if (compActor == null) {
 				LOG.warning("Component actor for comp id {} was not created.", msg.getComponentId());
 				return;
 			}
-			
+
 			context().watch(compActor);
 
 			actorsByComponentId.put(msg.getComponentId(), compActor);

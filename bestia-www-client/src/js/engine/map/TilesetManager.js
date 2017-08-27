@@ -5,8 +5,8 @@ const TILE_KEY_PREFIX = 'tiles_';
 
 /**
  * The tileset manager can be queried about the the tile data for a given gid
- * tile. If the tileset is already cached the manager will return the tileset
- * information it has.
+ * tile. If the tileset containing this gid tile data is already cached the manager will 
+ * return the tileset information it has.
  * <p>
  * Otherwise the caller can request to obtain the tileset and give a callback to
  * get noticed as soon as the data has arrived.

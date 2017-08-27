@@ -15,8 +15,11 @@ import net.bestia.messages.internal.entity.ComponentPayloadWrapper;
 /**
  * Some messages which are coming from the client can not directly associated
  * with certain component ids. But this is necessary in order to direct the
- * message to certain component actors attached to entities which then will act
- * upon the received message.
+ * message to the certain component actors attached to entity actor which then
+ * will act upon the received message.
+ * 
+ * This actor will identify the component and wrap the incoming message in a
+ * envelope and redirect it back to the sender.
  * 
  * @author Thomas Felix
  *

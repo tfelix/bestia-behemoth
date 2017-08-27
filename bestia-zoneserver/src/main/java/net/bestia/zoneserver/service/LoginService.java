@@ -109,12 +109,12 @@ public class LoginService {
 		Entity masterEntity = null;
 
 		if (master.getEntityId() != 0) {
-			LOG.debug("Login in acc: {}. Master bestia already spawned(eid: {}). Using it", accId,
+			LOG.debug("Login in acc: {}. Master bestia already spawned (eid: {}). Using it", accId,
 					master.getEntityId());
 			masterEntity = entityService.getEntity(master.getEntityId());
 
 			if (masterEntity == null) {
-				LOG.warn("Master entity {} fro account {} not found even though ID was set. Spawning it.",
+				LOG.warn("Master entity {} for account {} not found even though ID was set. Spawning it.",
 						master.getEntityId(), accId);
 				masterEntity = playerEntityFactory.build(master);
 			}
@@ -146,11 +146,6 @@ public class LoginService {
 				account.getName());
 		
 		connectionRef.tell(response, ActorRef.noSender());
-
-		//akkaApi.sendToClient(response);
-		// First start the connection actor and then update him with the
-		// connection details.
-		//akkaApi.sendToActor(ConnectionManagerActor.NAME, accId);
 	}
 
 	/**
@@ -173,6 +168,7 @@ public class LoginService {
 		}
 
 		// Send disconnect message to the webserver.
+		// Depending on the logout state the actor might have already been stopped.
 		final LogoutMessage logoutMsg = new LogoutMessage(accId);
 		akkaApi.sendToClient(logoutMsg);
 		akkaApi.sendToActor(ConnectionActor.getActorName(accId), logoutMsg);

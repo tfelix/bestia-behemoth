@@ -8,7 +8,6 @@ import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.battle.AttackPlayerUseActor;
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
-import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor;
 import net.bestia.zoneserver.actor.entity.EntitySyncActor;
 import net.bestia.zoneserver.actor.inventory.InventoryActor;
