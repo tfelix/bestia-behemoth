@@ -16,6 +16,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.ComponentMessage;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
 import net.bestia.zoneserver.actor.connection.LatencyManagerActor;
 import net.bestia.zoneserver.actor.entity.ComponentRedirectionActor;
@@ -52,12 +53,19 @@ public class IngestExActor extends AbstractActor {
 	 */
 	public static final class RedirectMessage {
 
-		private List<Class<? extends Object>> classes = new ArrayList<>();
+		private final List<Class<? extends Object>> classes = new ArrayList<>();
 
 		private RedirectMessage() {
 			// no op
 		}
 
+		/**
+		 * Creates a redirection message for the given classes. This message can
+		 * be send to a {@link IngestExActor} to redirect the message flow.
+		 * 
+		 * @param classes
+		 * @return A new redirection request message.
+		 */
 		@SafeVarargs
 		public static RedirectMessage get(Class<? extends Object>... classes) {
 			RedirectMessage req = new RedirectMessage();
@@ -94,6 +102,9 @@ public class IngestExActor extends AbstractActor {
 
 		// === UI ===
 		SpringExtension.actorOf(getContext(), ClientVarActor.class);
+
+		// === Chat ===
+		SpringExtension.actorOf(getContext(), ChatActor.class);
 
 		// === Web/REST actors ===
 		SpringExtension.actorOf(getContext(), CheckUsernameDataActor.class);

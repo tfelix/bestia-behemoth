@@ -13,6 +13,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 import net.bestia.zoneserver.chat.ChatCommandService;
 
 /**
@@ -33,7 +34,6 @@ public class ChatActor extends BestiaRoutingActor {
 
 	private final ChatCommandService chatCmdService;
 	
-
 	private ActorRef publicChatActor;
 	private ActorRef whisperChatActor;
 	private ActorRef guildChatActor;
@@ -52,6 +52,10 @@ public class ChatActor extends BestiaRoutingActor {
 		whisperChatActor = SpringExtension.actorOf(getContext(), WhisperChatActor.class);
 		partyChatActor = SpringExtension.actorOf(getContext(), PartyChatActor.class);
 		guildChatActor = SpringExtension.actorOf(getContext(), GuildChatActor.class);
+		
+		// Register for chat commands.
+		final RedirectMessage redirMsg = RedirectMessage.get(ChatMessage.class);
+		getContext().parent().tell(redirMsg, getSelf());
 	}
 
 	@Override

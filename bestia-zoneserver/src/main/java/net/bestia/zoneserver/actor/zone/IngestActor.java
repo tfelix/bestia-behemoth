@@ -38,9 +38,6 @@ public class IngestActor extends BestiaRoutingActor {
 
 		// === Login ===
 		SpringExtension.actorOf(getContext(), LoginActor.class);
-		
-		// === Chat ===
-		SpringExtension.actorOf(getContext(), ChatActor.class);
 
 		// === Map ===
 		SpringExtension.actorOf(getContext(), MapRequestChunkActor.class);

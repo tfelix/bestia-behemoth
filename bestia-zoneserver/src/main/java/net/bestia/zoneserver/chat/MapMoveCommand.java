@@ -23,7 +23,7 @@ import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 /**
  * Moves the player to the given map coordinates if he has GM permissions.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Component
