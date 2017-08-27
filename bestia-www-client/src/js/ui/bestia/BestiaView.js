@@ -64,12 +64,6 @@ export default class BestiaView {
 		 */
 		this.slots = ko.observable(0);
 
-		/**
-		 * Entity ID of a bestia selection that has not jet been loaded.
-		 * @private
-		 */
-		this._deferredActiveBestia = 0;
-
 		// Register for messages from the server.
 		pubsub.subscribe(Signal.IO_AUTH_CONNECTED, this._handleConnected.bind(this));
 		pubsub.subscribe(Signal.IO_DISCONNECTED, this._handleDisconnected.bind(this));
@@ -121,12 +115,6 @@ export default class BestiaView {
 
 		// Check if the bestia is already inside our cache.
 		var bestia = this.getBestiaByEntityId(msg.eid);
-
-		if (bestia === null) {
-			this._deferredActiveBestia = msg.eid;
-			return;
-		}
-
 		this._selectBestia(bestia);
 	}
 
@@ -168,7 +156,7 @@ export default class BestiaView {
 	 * messages.
 	 */
 	_handleBestiaInfo(_, msg) {
-		LOG.debug('Update bestia model with data: ' + msg);
+		LOG.debug('Update bestia model with data: ' + JSON.stringify(msg));
 
 		var bestia = this.getBestiaByEntityId(msg.eid);
 
@@ -183,14 +171,11 @@ export default class BestiaView {
 		// it.
 		this.bestias.push(bestia);
 
-		if (this._deferredActiveBestia !== 0 && this._deferredActiveBestia === bestia.entityId()) {
-			LOG.debug('Selecting deferred bestia with eid: {}', this._deferredActiveBestia);
-			this._selectBestia(bestia);
-		}
-
 		// Check if we have unselected master and use a given master bestia for this.
 		if (this.masterBestia() === null && msg.im === true) {
+			LOG.debug('Selecting the master bestia.');
 			this.masterBestia(bestia);
+			this._selectBestia(bestia);
 		}
 	}
 

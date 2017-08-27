@@ -6,6 +6,8 @@
  */
 
 import Signal from './Signal.js';
+import MID from '../io/messages/MID';
+import LatencyResponseMessage from '../message/external/LatencyResponseMessage';
 import Urls from '../Urls.js';
 import ko from 'knockout';
 import SockJS from '../../../node_modules/sockjs-client/dist/sockjs';
@@ -65,8 +67,10 @@ export default class Connection {
 		var message = JSON.stringify(msg);
 
 		// @ifdef DEVELOPMENT
-		LOG.debug('Sending Message: ' + message);
-		this._debug('send', message, msg);
+		if(msg.mid !== LatencyResponseMessage.MID) {
+			LOG.debug('Sending Message: ' + message);
+			this._debug('send', message, msg);
+		}
 		// @endif
 
 		if (this._socket !== null) {
@@ -161,8 +165,11 @@ export default class Connection {
 		}
 
 		// @ifdef DEVELOPMENT
-		LOG.trace('Received Message: ', e.data);
-		this._debug('receive', json, e.data);
+		// Only show non latency messages.
+		if(json.mid !== MID.LATENCY_REQ) {
+			LOG.trace('Received Message: ', e.data);
+			this._debug('receive', json, e.data);
+		}
 		// @endif
 
 		this._pubsub.publish(json.mid, json);
