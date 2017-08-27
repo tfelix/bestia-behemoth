@@ -33,9 +33,11 @@ export default class Indicator {
 	}
 
 	deactivate() {
+		
 		this._ctx.game.input.deleteMoveCallback(this._onMouseMove, this);
 		this._ctx.game.input.onDown.remove(this._onClick, this);
-		this._ctx.groups.spritesUnder.remove(this._marker);
+		
+		groups.get(GROUP_LAYERS.SPRITES_BOTTOM).remove(this._marker);
 	}
 
 	/**

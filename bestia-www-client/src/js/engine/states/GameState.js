@@ -53,29 +53,12 @@ export default class GameState {
 		this.game.world.setBounds(0, 0, 800, 600);
 		// ========= END TESTING =========
 
-
-		// After all is setup create the player sprite.
-		let pb = this._ctx.playerBestia;
-		let playerData = {
-			eid: pb.entityId(),
-			x: pb.posX(),
-			y: pb.posY(),
-			s: { s: pb.sprite(), t: pb.spriteType() },
-			a: 'APPEAR'
-		};
-		this._ctx.entityFactory.build(playerData, function (playerEntity) {
-			// Follow the player
-			LOG.info('Player entity created.');
-			this._ctx.playerEntity = playerEntity;
-			// This is not clean as we must reference the internal sprite of the player.
-			// Rework this when updating the render engine.
-			this.game.camera.follow(playerEntity._sprite);
-			this._ctx.pubsub.publish(Signal.ENGINE_GAME_STARTED);
-		}.bind(this));
-
 		this._ctx.entityUpdater.releaseHold();
 	}
 
+	/**
+	 * In this step the synchronize the bestia model with the phaser engine representation of sprites.
+	 */
 	update() {
 
 		// Calls the renderer.
@@ -86,7 +69,7 @@ export default class GameState {
 
 		this._ctx.indicatorManager.update();
 
-		pathfinder.update();
+		//pathfinder.update();
 
 		// Update the animation frame groups of all multi sprite entities.
 		let entities = this._ctx.entityCache.getAllEntities();

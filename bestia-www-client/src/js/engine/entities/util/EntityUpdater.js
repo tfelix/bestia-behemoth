@@ -1,5 +1,7 @@
 import MID from '../../../io/messages/MID.js';
 import LOG from '../../../util/Log';
+import entityCacheEx from '../EntityCacheEx';
+import {phaserSpriteCache, phaserPlayerSprite} from './../../PhaserSpriteCache';
 
 /**
  * The updater will hook into the messaging system and listen for entity update
@@ -15,8 +17,8 @@ import LOG from '../../../util/Log';
  *            pubsub - Reference to the bestia publish/subscriber system for
  *            hooking into update calls.
  */
-export default class EntityUpdater{
-	
+export default class EntityUpdater {
+
 	constructor(ctx) {
 		if (!ctx) {
 			throw 'Context can not be undefined.';
@@ -45,23 +47,38 @@ export default class EntityUpdater{
 		}
 
 		switch (msg.a) {
-		case 'UPDATE':
-		case 'APPEAR':
-			var entity = this._ctx.entityCache.getEntity(msg.eid);
-			
-			if (entity !== null) {
-				// Exists already. Strange.
-				return;
-			}
-			
-			this._ctx.entityFactory.build(msg);
-			break;
-		case 'VANISH':
-		case 'DIE':
-			var entity = this._ctx.entityCache.getEntity(msg.eid);
-			entity.remove();
-			this._ctx.entityCache.removeEntity(entity);
-			break;
+			case 'UPDATE':
+			case 'APPEAR':
+				var entity = this._ctx.entityCache.getEntity(msg.eid);
+
+				if (entity !== null) {
+					// Exists already. Strange.
+					return;
+				}
+
+				var entityData = {
+					eid: msg.eid,
+					sprite: { name: msg.s.s, type: msg.s.t },
+					position: { x: msg.x, y: msg.y }
+				}
+
+				entityCacheEx.addEntity(entityData);
+
+				// Build the display object and attach it to the sprite cache.
+				this._ctx.entityFactory.build(msg, function(displayObj){
+					phaserSpriteCache[msg.eid] = displayObj;
+
+					if(msg.eid === this._ctx.playerBestia.entityId()) {
+						phaserPlayerSprite = displayObj;
+					}
+				});
+				break;
+			case 'VANISH':
+			case 'DIE':
+				var entity = this._ctx.entityCache.getEntity(msg.eid);
+				entity.remove();
+				this._ctx.entityCache.removeEntity(entity);
+				break;
 		}
 	}
 
@@ -74,18 +91,27 @@ export default class EntityUpdater{
 			return;
 		}
 
-		var entity = this._ctx.entityCache.getEntity(msg.eid);
+		var entity = entityCacheEx.getEntity(msg.eid);
+
 		// Entity not in cache. We cant do anything.
 		if (entity === null) {
+			LOG.warn('Entity not found in cache. Can not move it.' + msg);
 			return;
 		}
 
-		// If this is the player bestia update its position.
-		/*if(msg.eid === this._ctx.playerBestia.entityId()) {
-			
-		}*/
-		
-		//entity.moveTo(msg);
+		// Transform movement path of message.
+		var path = [];
+		for (var i = 0; i < msg.pX.length; i++) {
+			var point = { x: msg.pX[i], y: msg.pY[i] };
+			path.push(point);
+		}
+
+		// Attach the movement data to the entity.
+		entity.movement = {
+			path: path,
+			speed: msg.w,
+			detla: msg.d + msg.l
+		};
 	}
 
 	/**
@@ -99,11 +125,16 @@ export default class EntityUpdater{
 
 		var entity = this._ctx.entityCache.getEntity(msg.eid);
 		// Entity not in cache. We cant do anything.
-		if (entity === null) {
-			return;
+		if (entity !== null) {
+			//entity.setPosition(msg.x, msg.y);
 		}
 
-		entity.setPosition(msg.x, msg.y);
+		// Update the alternate cache.
+		entity = entityCacheEx.getEntity(msg.eid);
+		if(entity !== null) {
+			entity.position.x = msg.x;
+			entity.position.y = msg.y;
+		}
 	}
 
 	/**
@@ -116,8 +147,8 @@ export default class EntityUpdater{
 	_isBuffered(msg) {
 		if (this._buffer !== undefined) {
 			this._buffer.push({
-				topic : msg.mid,
-				msg : msg
+				topic: msg.mid,
+				msg: msg
 			});
 			return true;
 		} else {
@@ -136,19 +167,19 @@ export default class EntityUpdater{
 
 		var temp = this._buffer;
 		this._buffer = undefined;
-		temp.forEach(function(d) {
+		temp.forEach(function (d) {
 			switch (d.topic) {
-			case MID.ENTITY_UPDATE:
-				this._handlerOnUpdate(d.topic, d.msg);
-				break;
-			case MID.ENTITY_MOVE:
-				this._handlerOnMove(d.topic, d.msg);
-				break;
-			case MID.ENTITY_POSITION:
-				this._handlerOnPosition(d.topic, d.msg);
-				break;
-			default:
-				break;
+				case MID.ENTITY_UPDATE:
+					this._handlerOnUpdate(d.topic, d.msg);
+					break;
+				case MID.ENTITY_MOVE:
+					this._handlerOnMove(d.topic, d.msg);
+					break;
+				case MID.ENTITY_POSITION:
+					this._handlerOnPosition(d.topic, d.msg);
+					break;
+				default:
+					break;
 			}
 		}, this);
 	}

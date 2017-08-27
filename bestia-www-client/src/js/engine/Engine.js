@@ -10,10 +10,8 @@ import LoadingState from './states/LoadingState.js';
 import DebugChatCommands from './debug/DebugChatCommands';
 import renderManager from './renderer/RenderManager';
 import TileRenderer from './renderer/TileRenderer';
+import EntityRenderer from './renderer/EntityRenderer';
 import LOG from '../util/Log';
-
-
-//const MAX_RECON_TIME = 45;
 
 /**
  * Bestia Graphics engine. Responsible for displaying the game collecting user
@@ -49,8 +47,9 @@ export default class Engine {
 		this.game.state.add('load', new LoadingState(ctx));
 		this.game.state.add('game', new GameState(ctx));
 
-		// Prepare the renderer.
+		// ==== PREPARE RENDERER ====
 		renderManager.addRender(new TileRenderer(ctx));
+		renderManager.addRender(new EntityRenderer());
 
 		// ==== PREPARE HANDLER ====
 

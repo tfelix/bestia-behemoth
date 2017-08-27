@@ -50,11 +50,13 @@ public class EntityMoveMessage extends EntityJsonMessage implements ComponentMes
 	 * This is the time latency of the moving entity. For server entities this
 	 * is 0, but for player controlled entities it is their latency.
 	 */
+	@JsonProperty("d")
 	private int delta;
 
 	/**
 	 * This is the latency of the player receiving this update.
 	 */
+	@JsonProperty("l")
 	private int latency;
 
 	public EntityMoveMessage() {

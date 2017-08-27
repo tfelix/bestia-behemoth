@@ -290,7 +290,6 @@ export default class TileRender extends Renderer {
 
 		LOG.debug('Updating the pathfinder data with offset: ');
 
-		// TODO Hier dir richtigen TID einpflegen.
 		pathfinder.setGrid(offset, grid);
 		pathfinder.setAcceptableTiles([1]);
 	}
