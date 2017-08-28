@@ -35,9 +35,6 @@ public class IngestActor extends BestiaRoutingActor {
 
 	public IngestActor() {
 
-		// === Login ===
-		SpringExtension.actorOf(getContext(), LoginActor.class);
-
 		// === Map ===
 		SpringExtension.actorOf(getContext(), MapRequestChunkActor.class);
 		SpringExtension.actorOf(getContext(), TilesetRequestActor.class);
@@ -58,8 +55,6 @@ public class IngestActor extends BestiaRoutingActor {
 
 		// === House keeping actors ===
 		SpringExtension.actorOf(getContext(), LogoutActor.class);
-
-		// === DEVELOPMENT ===
 
 	}
 

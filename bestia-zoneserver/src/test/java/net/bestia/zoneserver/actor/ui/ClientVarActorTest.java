@@ -21,6 +21,7 @@ import net.bestia.messages.ui.ClientVarRequestMessage;
 import net.bestia.model.domain.ClientVar;
 import net.bestia.zoneserver.actor.ActorTestConfig;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.service.ClientVarService;
 
 @RunWith(SpringRunner.class)
@@ -41,6 +42,9 @@ public class ClientVarActorTest {
 
 	@MockBean
 	private ClientVarService cvarService;
+	
+	@MockBean
+	private ZoneAkkaApi akkaApi;
 
 	@Mock
 	private ClientVar cvar;

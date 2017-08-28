@@ -147,19 +147,14 @@ public class LoginServiceTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void login_invalidAccId_throws() {
-		loginService.login(-123, clientConnection.ref());
-	}
-
-	@Test(expected = NullPointerException.class)
-	public void login_invalidActorRef_throws() {
-		loginService.login(13, null);
+		loginService.login(-123);
 	}
 
 	@Test
 	public void login_existingEntity_dontSpawnNewEntities() {
 		when(playerBestiaService.getMaster(USER_ACC_ID)).thenReturn(playerBestiaWithEntity);
 
-		loginService.login(USER_ACC_ID, clientConnection.ref());
+		loginService.login(USER_ACC_ID);
 
 		verify(accountDao).findOne(USER_ACC_ID);
 		verify(entityService).getEntity(EXISTING_ENTITY_ID);
@@ -172,7 +167,7 @@ public class LoginServiceTest {
 
 	@Test
 	public void login_validData_accountIdLoggedIn() {
-		loginService.login(USER_ACC_ID, clientConnection.ref());
+		loginService.login(USER_ACC_ID);
 
 		verify(accountDao).findOne(USER_ACC_ID);
 		verify(connectionService).connected(USER_ACC_ID, clientConnection.ref().path().address());
@@ -189,7 +184,7 @@ public class LoginServiceTest {
 
 	@Test
 	public void logout_validLoggedInAccId_accountIsLoggedOut() {
-		loginService.login(USER_ACC_ID, clientConnection.ref());
+		loginService.login(USER_ACC_ID);
 		loginService.logout(USER_ACC_ID);
 
 		verify(connectionService).disconnected(USER_ACC_ID);

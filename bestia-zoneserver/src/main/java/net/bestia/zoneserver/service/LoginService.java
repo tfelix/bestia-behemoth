@@ -9,15 +9,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import akka.actor.ActorRef;
 import akka.actor.Address;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityDeleterService;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.PlayerBestiaEntityFactory;
 import net.bestia.entity.PlayerEntityService;
-import net.bestia.messages.login.LoginAuthReplyMessage;
-import net.bestia.messages.login.LoginState;
 import net.bestia.messages.login.LogoutMessage;
 import net.bestia.messages.web.AccountLoginRequest;
 import net.bestia.model.dao.AccountDAO;
@@ -79,29 +76,22 @@ public class LoginService {
 	 * 
 	 * @param accId
 	 *            The account id to perform a login.
-	 * @return The player master entity.
+	 * @return The logged in Account or NULL if login failed.
 	 */
-	public void login(long accId, ActorRef connectionRef) {
+	public Account login(long accId) {
 		if (accId < 0) {
 			throw new IllegalArgumentException("Account ID must be positive.");
-		}
-
-		Objects.requireNonNull(connectionRef);
-		// No sender is not allowed.
-		if (connectionRef.equals(ActorRef.noSender())) {
-			throw new IllegalArgumentException("ActorRef.noSender() is not allowed.");
 		}
 
 		final Account account = accountDao.findOne(accId);
 
 		if (account == null) {
 			LOG.warn("Account {} was not found.", accId);
-			return;
+			return null;
 		}
 
 		// TODO Das hier ist ein fehler. Erst den client complett anmelden und
 		// danach beginnen die entities zu instanzieren.
-
 
 		// Spawn all bestia entities for this account into the world.
 		final PlayerBestia master = playerBestiaService.getMaster(accId);
@@ -132,20 +122,10 @@ public class LoginService {
 		} catch (IllegalArgumentException e) {
 			// Seems the entity has no player component. Aborting.
 			LOG.warn("Could not login because of exception.", e);
-			final LoginAuthReplyMessage response = new LoginAuthReplyMessage(
-					accId,
-					LoginState.DENIED,
-					account.getName());
-			akkaApi.sendToClient(response);
-			return;
+			return null;
 		}
-
-		final LoginAuthReplyMessage response = new LoginAuthReplyMessage(
-				accId,
-				LoginState.ACCEPTED,
-				account.getName());
 		
-		connectionRef.tell(response, ActorRef.noSender());
+		return account;
 	}
 
 	/**
@@ -168,7 +148,8 @@ public class LoginService {
 		}
 
 		// Send disconnect message to the webserver.
-		// Depending on the logout state the actor might have already been stopped.
+		// Depending on the logout state the actor might have already been
+		// stopped.
 		final LogoutMessage logoutMsg = new LogoutMessage(accId);
 		akkaApi.sendToClient(logoutMsg);
 		akkaApi.sendToActor(ConnectionActor.getActorName(accId), logoutMsg);
@@ -189,11 +170,10 @@ public class LoginService {
 		// Recycle all entities.
 		playerEntities.forEach(deleteService::deleteEntity);
 	}
-	
-	public void logoutAllFromServer(Address address) {
-		
-	}
 
+	public void logoutAllFromServer(Address address) {
+
+	}
 
 	/**
 	 * Logs out all users who are blow the given user level.
@@ -258,8 +238,8 @@ public class LoginService {
 			LOG.trace("No account with id {} found.", accId);
 			return false;
 		}
-		
-		if(acc.getLoginToken().isEmpty()) {
+
+		if (acc.getLoginToken().isEmpty()) {
 			LOG.debug("Login with empty token is not allowed.");
 			return false;
 		}
@@ -290,6 +270,6 @@ public class LoginService {
 
 	public void logoutAll() {
 		// TODO Auto-generated method stub
-		
+
 	}
 }
