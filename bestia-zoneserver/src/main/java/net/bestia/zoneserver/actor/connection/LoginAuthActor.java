@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.login;
+package net.bestia.zoneserver.actor.connection;
 
 import java.util.Objects;
 
@@ -39,7 +39,7 @@ import net.bestia.zoneserver.service.LoginService;
  */
 @Component("LoginActor")
 @Scope("prototype")
-public class LoginActor extends AbstractActor {
+public class LoginAuthActor extends AbstractActor {
 
 	public static final String NAME = "login";
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
@@ -55,7 +55,7 @@ public class LoginActor extends AbstractActor {
 	 *            {@link LoginService}
 	 */
 	@Autowired
-	public LoginActor(LoginService loginService) {
+	public LoginAuthActor(LoginService loginService) {
 
 		this.loginService = Objects.requireNonNull(loginService);
 	}

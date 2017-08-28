@@ -6,7 +6,7 @@ import akka.actor.ActorSelection;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.server.AkkaCluster;
-import net.bestia.zoneserver.actor.connection.ConnectionActor;
+import net.bestia.zoneserver.actor.connection.ClientConnectionActor;
 import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
 import net.bestia.zoneserver.actor.entity.EntityActor;
 import net.bestia.zoneserver.actor.entity.EntityManagerActor;
@@ -48,7 +48,7 @@ public final class AkkaSender {
 		final String actorName = AkkaCluster.getNodeName(
 				IngestExActor.NAME,
 				ConnectionManagerActor.NAME,
-				ConnectionActor.getActorName(msg.getAccountId()));
+				ClientConnectionActor.getActorName(msg.getAccountId()));
 		final ActorSelection actor = context.actorSelection(actorName);
 		actor.tell(msg, ActorRef.noSender());
 	}

@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.login;
+package net.bestia.zoneserver.actor.connection;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -22,6 +22,7 @@ import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
 import net.bestia.zoneserver.actor.ActorTestConfig;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.connection.LoginAuthActor;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 import net.bestia.zoneserver.service.LoginService;
 
@@ -77,7 +78,7 @@ public class LoginActorTest {
 	public void registers_RedirectMessage_after_start() {
 		new TestKit(system) {
 			{
-				SpringExtension.unnamedActorOf(system, LoginActor.class);
+				SpringExtension.unnamedActorOf(system, LoginAuthActor.class);
 				expectMsgClass(duration("3 second"), RedirectMessage.class);
 			}
 		};
@@ -87,7 +88,7 @@ public class LoginActorTest {
 	public void onValidLogin_loginAccepted() {
 		new TestKit(system) {
 			{
-				final ActorRef actor = SpringExtension.unnamedActorOf(system, LoginActor.class);
+				final ActorRef actor = SpringExtension.unnamedActorOf(system, LoginAuthActor.class);
 
 				within(duration("1 seconds"), () -> {
 					actor.tell(validAuthMsg, getRef());
@@ -106,7 +107,7 @@ public class LoginActorTest {
 	public void onInvalidLogin_loginDenied() {
 		new TestKit(system) {
 			{
-				final ActorRef actor = SpringExtension.unnamedActorOf(system, LoginActor.class);
+				final ActorRef actor = SpringExtension.unnamedActorOf(system, LoginAuthActor.class);
 
 				within(duration("1 seconds"), () -> {
 					actor.tell(invalidAuthMsg, getRef());

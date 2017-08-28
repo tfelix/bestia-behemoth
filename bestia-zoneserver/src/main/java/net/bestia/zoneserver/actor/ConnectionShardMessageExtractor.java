@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import akka.cluster.sharding.ShardRegion;
 import net.bestia.messages.JsonMessage;
-import net.bestia.zoneserver.actor.connection.ConnectionActor;
+import net.bestia.zoneserver.actor.connection.ClientConnectionActor;
 
 /**
  * Defines methods for extracting the shard id from the incoming messages for
@@ -21,7 +21,7 @@ public class ConnectionShardMessageExtractor implements ShardRegion.MessageExtra
 	@Override
 	public String entityId(Object message) {
 		if (message instanceof JsonMessage) {			
-			return ConnectionActor.getActorName(((JsonMessage) message).getAccountId());
+			return ClientConnectionActor.getActorName(((JsonMessage) message).getAccountId());
 		} else {
 			return null;
 		}
@@ -39,7 +39,7 @@ public class ConnectionShardMessageExtractor implements ShardRegion.MessageExtra
 		if (message instanceof JsonMessage) {
 			// Use actor name to get the hash more evenly distributed.
 			// Maybe not necessairy.
-			final String name = ConnectionActor.getActorName(((JsonMessage) message).getAccountId());
+			final String name = ClientConnectionActor.getActorName(((JsonMessage) message).getAccountId());
 			return String.valueOf(name.hashCode() % NUMBER_OF_SHARDS);
 		} else {
 			return null;

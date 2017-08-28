@@ -37,7 +37,7 @@ import scala.concurrent.duration.Duration;
  */
 @Component
 @Scope("prototype")
-public class ConnectionActor extends AbstractActor {
+public class ClientConnectionActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
@@ -60,7 +60,7 @@ public class ConnectionActor extends AbstractActor {
 			getSelf(), LATENCY_REQUEST_MSG, getContext().dispatcher(), null);
 
 	@Autowired
-	public ConnectionActor(
+	public ClientConnectionActor(
 			Long accountId,
 			ActorRef connection,
 			ConnectionService connectionService,

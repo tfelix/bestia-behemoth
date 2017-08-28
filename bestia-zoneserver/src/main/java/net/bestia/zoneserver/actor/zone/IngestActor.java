@@ -6,13 +6,10 @@ import org.springframework.stereotype.Component;
 import net.bestia.zoneserver.actor.BestiaRoutingActor;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.battle.AttackPlayerUseActor;
-import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
-import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
+import net.bestia.zoneserver.actor.connection.ConnectionStatusActor;
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor;
 import net.bestia.zoneserver.actor.entity.EntitySyncActor;
 import net.bestia.zoneserver.actor.inventory.InventoryActor;
-import net.bestia.zoneserver.actor.login.LoginActor;
-import net.bestia.zoneserver.actor.login.LogoutActor;
 import net.bestia.zoneserver.actor.map.MapRequestChunkActor;
 import net.bestia.zoneserver.actor.map.TilesetRequestActor;
 
@@ -42,9 +39,6 @@ public class IngestActor extends BestiaRoutingActor {
 		// === Inventory ===
 		SpringExtension.actorOf(getContext(), InventoryActor.class);
 
-		// === Bestias ===
-		SpringExtension.actorOf(getContext(), BestiaInfoActor.class);
-		SpringExtension.actorOf(getContext(), ActivateBestiaActor.class);
 
 		// === Entities ===
 		SpringExtension.actorOf(getContext(), EntityInteractionRequestActor.class);
@@ -54,7 +48,7 @@ public class IngestActor extends BestiaRoutingActor {
 		SpringExtension.actorOf(getContext(), AttackPlayerUseActor.class);
 
 		// === House keeping actors ===
-		SpringExtension.actorOf(getContext(), LogoutActor.class);
+		
 
 	}
 

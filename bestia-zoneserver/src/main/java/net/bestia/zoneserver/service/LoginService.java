@@ -22,7 +22,7 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.server.MaintenanceLevel;
-import net.bestia.zoneserver.actor.connection.ConnectionActor;
+import net.bestia.zoneserver.actor.connection.ClientConnectionActor;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
 
@@ -152,7 +152,7 @@ public class LoginService {
 		// stopped.
 		final LogoutMessage logoutMsg = new LogoutMessage(accId);
 		akkaApi.sendToClient(logoutMsg);
-		akkaApi.sendToActor(ConnectionActor.getActorName(accId), logoutMsg);
+		akkaApi.sendToActor(ClientConnectionActor.getActorName(accId), logoutMsg);
 
 		// Unregister connection.
 		LOG.debug("Logout acc id: {}.", accId);

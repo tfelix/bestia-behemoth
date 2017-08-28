@@ -59,11 +59,11 @@ public class ConnectionManagerActor extends AbstractActor {
 	private void checkConnectionStatus(ClientConnectionStatusMessage msg) {
 
 		if (msg.getState() == ConnectionState.CONNECTED) {
-			final String actorName = ConnectionActor.getActorName(msg.getAccountId());
+			final String actorName = ClientConnectionActor.getActorName(msg.getAccountId());
 			try {
 				final ActorRef connectionActor = SpringExtension.actorOf(
 						getContext(), 
-						ConnectionActor.class,
+						ClientConnectionActor.class,
 						actorName,
 						msg.getAccountId(), msg.getWebserverRef());
 
@@ -86,7 +86,7 @@ public class ConnectionManagerActor extends AbstractActor {
 	 * @param msg
 	 */
 	private void sendToConnectionActor(long accoundId, Object msg) {
-		final String connectionActorName = ConnectionActor.getActorName(accoundId);
+		final String connectionActorName = ClientConnectionActor.getActorName(accoundId);
 		final String actorName = AkkaCluster.getNodeName(NAME, connectionActorName);
 		getContext().actorSelection(actorName).tell(msg, getSelf());
 	}

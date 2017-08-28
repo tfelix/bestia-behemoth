@@ -16,11 +16,14 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.ComponentMessage;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
+import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
 import net.bestia.zoneserver.actor.connection.LatencyManagerActor;
+import net.bestia.zoneserver.actor.connection.LoginAuthActor;
+import net.bestia.zoneserver.actor.connection.ConnectionStatusActor;
 import net.bestia.zoneserver.actor.entity.ComponentRedirectionActor;
-import net.bestia.zoneserver.actor.login.LoginActor;
 import net.bestia.zoneserver.actor.rest.ChangePasswordActor;
 import net.bestia.zoneserver.actor.rest.CheckUsernameDataActor;
 import net.bestia.zoneserver.actor.rest.RequestLoginActor;
@@ -100,7 +103,12 @@ public class IngestExActor extends AbstractActor {
 		// === Connection & Login ===
 		SpringExtension.actorOf(getContext(), ConnectionManagerActor.class);
 		SpringExtension.actorOf(getContext(), LatencyManagerActor.class);
-		SpringExtension.actorOf(getContext(), LoginActor.class);
+		SpringExtension.actorOf(getContext(), LoginAuthActor.class);
+		SpringExtension.actorOf(getContext(), ConnectionStatusActor.class);
+
+		// === Bestias ===
+		SpringExtension.actorOf(getContext(), BestiaInfoActor.class);
+		SpringExtension.actorOf(getContext(), ActivateBestiaActor.class);
 
 		// === UI ===
 		SpringExtension.actorOf(getContext(), ClientVarActor.class);
