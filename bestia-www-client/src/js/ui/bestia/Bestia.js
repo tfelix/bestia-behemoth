@@ -101,10 +101,8 @@ export default class Bestia {
 
 			this.playerBestiaId(b.id);
 			this.entityId(msg.eid);
-			this.location(b.cl.mdbn);
 			this.posX(b.cl.x);
 			this.posY(b.cl.y);
-			this.saveLocation(b.sl.mdbn);
 			this.customName(b.cn);
 			this.level(b.lv);
 			this.databaseName(b.b.bdbn);

@@ -288,7 +288,7 @@ export default class TileRender extends Renderer {
 
 		var offset = { x: this._rendered.x1, y: this._rendered.y1 };
 
-		LOG.debug('Updating the pathfinder data with offset: ');
+		//LOG.debug('Updating the pathfinder data with offset: ');
 
 		pathfinder.setGrid(offset, grid);
 		pathfinder.setAcceptableTiles([1]);

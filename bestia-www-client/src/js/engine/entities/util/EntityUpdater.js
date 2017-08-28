@@ -1,7 +1,7 @@
 import MID from '../../../io/messages/MID.js';
 import LOG from '../../../util/Log';
 import entityCacheEx from '../EntityCacheEx';
-import {phaserSpriteCache, phaserPlayerSprite} from './../../PhaserSpriteCache';
+import spriteCache from './../../PhaserSpriteCache';
 
 /**
  * The updater will hook into the messaging system and listen for entity update
@@ -66,10 +66,11 @@ export default class EntityUpdater {
 
 				// Build the display object and attach it to the sprite cache.
 				this._ctx.entityFactory.build(msg, function(displayObj){
-					phaserSpriteCache[msg.eid] = displayObj;
+					
+					spriteCache.setSprite(msg.eid, displayObj);
 
 					if(msg.eid === this._ctx.playerBestia.entityId()) {
-						phaserPlayerSprite = displayObj;
+						spriteCache.setPlayerSprite(displayObj);
 					}
 				});
 				break;
