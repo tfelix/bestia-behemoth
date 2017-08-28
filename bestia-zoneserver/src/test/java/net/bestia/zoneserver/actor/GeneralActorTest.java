@@ -58,9 +58,9 @@ public class GeneralActorTest {
 	 */
 	@Test
 	public void staticNameFieldPresen() {
-		PackageLoader<BestiaRoutingActor> actorLoader = new PackageLoader<>(BestiaRoutingActor.class,
+		PackageLoader<AbstractActor> actorLoader = new PackageLoader<>(AbstractActor.class,
 				"net.bestia.zoneserver.actor");
-		Set<Class<? extends BestiaRoutingActor>> classes = actorLoader.getSubClasses();
+		Set<Class<? extends AbstractActor>> classes = actorLoader.getSubClasses();
 
 		List<String> failedClasses = new ArrayList<>();
 		for (Class<? extends AbstractActor> clazz : classes) {

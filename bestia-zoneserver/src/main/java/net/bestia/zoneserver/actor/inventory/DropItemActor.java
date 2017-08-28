@@ -3,11 +3,11 @@ package net.bestia.zoneserver.actor.inventory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import akka.actor.AbstractActor;
 
 @Component
 @Scope("prototype")
-public class DropItemActor extends BestiaRoutingActor {
+public class DropItemActor extends AbstractActor {
 
 	public static final String NAME = "dropItem";
 	
@@ -15,9 +15,9 @@ public class DropItemActor extends BestiaRoutingActor {
 	}
 
 	@Override
-	protected void handleMessage(Object msg) {
+	public Receive createReceive() {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 }

@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.actor.entity;
 
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -9,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.Entity;
@@ -22,7 +22,7 @@ import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.AkkaSender;
-import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 import net.bestia.zoneserver.map.MapService;
 
 /**
@@ -35,7 +35,7 @@ import net.bestia.zoneserver.map.MapService;
  */
 @Component
 @Scope("prototype")
-public class EntitySyncActor extends BestiaRoutingActor {
+public class EntitySyncActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().getSystem(), this);
 
@@ -45,22 +45,33 @@ public class EntitySyncActor extends BestiaRoutingActor {
 	private final PlayerEntityService playerEntityService;
 
 	@Autowired
-	public EntitySyncActor(EntityService entityService, PlayerEntityService playerEntityService) {
-		super(Arrays.asList(EntitySyncRequestMessage.class));
+	public EntitySyncActor(EntityService entityService,
+			PlayerEntityService playerEntityService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 	}
 
 	@Override
-	protected void handleMessage(Object msg) {
+	public Receive createReceive() {
+		return receiveBuilder()
+				.match(EntitySyncRequestMessage.class, this::onSyncRequest)
+				.build();
+	}
 
-		final EntitySyncRequestMessage syncMsg = (EntitySyncRequestMessage) msg;
-		final long requestAccId = syncMsg.getAccountId();
+	@Override
+	public void preStart() throws Exception {
+		final RedirectMessage msg = RedirectMessage.get(EntitySyncRequestMessage.class);
+		context().parent().tell(msg, getSelf());
+	}
+
+	private void onSyncRequest(EntitySyncRequestMessage msg) {
+
+		final long requestAccId = msg.getAccountId();
 
 		LOG.debug("Account {} requests a full entity sync.", requestAccId);
 
-		final Entity activeEntity = playerEntityService.getActivePlayerEntity(syncMsg.getAccountId());
+		final Entity activeEntity = playerEntityService.getActivePlayerEntity(msg.getAccountId());
 		final Point activePos = entityService.getComponent(activeEntity, PositionComponent.class)
 				.orElseThrow(IllegalArgumentException::new)
 				.getPosition();

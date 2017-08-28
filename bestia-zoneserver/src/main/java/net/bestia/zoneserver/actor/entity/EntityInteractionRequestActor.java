@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.actor.entity;
 
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -9,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.Entity;
@@ -20,18 +20,18 @@ import net.bestia.messages.entity.EntityInteractionMessage;
 import net.bestia.messages.entity.EntityInteractionRequestMessage;
 import net.bestia.model.entity.InteractionType;
 import net.bestia.zoneserver.AkkaSender;
-import net.bestia.zoneserver.actor.BestiaRoutingActor;
+import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 
 /**
  * Receives interaction requests for an entity. It will query the system and ask
  * the entity how the player is able to interact with it.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Component
 @Scope("prototype")
-public class EntityInteractionRequestActor extends BestiaRoutingActor {
+public class EntityInteractionRequestActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public final static String NAME = "requestInteract";
@@ -44,7 +44,6 @@ public class EntityInteractionRequestActor extends BestiaRoutingActor {
 	public EntityInteractionRequestActor(EntityService entityService,
 			PlayerEntityService pes,
 			InteractionService interactService) {
-		super(Arrays.asList(EntityInteractionRequestMessage.class));
 
 		// FIXME Entitiy basierte services in ein context object auslagern.
 		this.entityService = Objects.requireNonNull(entityService);
@@ -53,10 +52,21 @@ public class EntityInteractionRequestActor extends BestiaRoutingActor {
 	}
 
 	@Override
-	protected void handleMessage(Object msg) {
+	public Receive createReceive() {
+		return receiveBuilder()
+				.match(EntityInteractionRequestMessage.class, this::onInteractionRequest)
+				.build();
+	}
 
-		final EntityInteractionRequestMessage rm = (EntityInteractionRequestMessage) msg;
-		final Entity entity = entityService.getEntity(rm.getEntityId());
+	@Override
+	public void preStart() throws Exception {
+		final RedirectMessage msg = RedirectMessage.get(EntityInteractionRequestMessage.class);
+		context().parent().tell(msg, getSelf());
+	}
+
+	private void onInteractionRequest(EntityInteractionRequestMessage msg) {
+
+		final Entity entity = entityService.getEntity(msg.getEntityId());
 
 		if (entity == null) {
 			LOG.warning("Entity not found. Message was: {}", msg.toString());
@@ -69,18 +79,18 @@ public class EntityInteractionRequestActor extends BestiaRoutingActor {
 		// Entity does not seam to interact.
 		if (!interactionComp.isPresent()) {
 			final EntityInteractionMessage reply = new EntityInteractionMessage(
-					rm.getAccountId(),
-					rm.getEntityId(),
+					msg.getAccountId(),
+					msg.getEntityId(),
 					InteractionType.NONE);
 			AkkaSender.sendClient(getContext(), reply);
 
 			return;
 		} else {
-			final Entity pbe = playerEntityService.getActivePlayerEntity(rm.getEntityId());
+			final Entity pbe = playerEntityService.getActivePlayerEntity(msg.getEntityId());
 			final Set<InteractionType> interactions = interactService.getPossibleInteractions(pbe, entity);
 			final EntityInteractionMessage reply = new EntityInteractionMessage(
-					rm.getAccountId(),
-					rm.getEntityId(),
+					msg.getAccountId(),
+					msg.getEntityId(),
 					interactions);
 			AkkaSender.sendClient(getContext(), reply);
 		}

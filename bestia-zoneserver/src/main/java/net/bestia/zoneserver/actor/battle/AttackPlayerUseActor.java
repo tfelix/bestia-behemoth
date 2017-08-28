@@ -18,6 +18,7 @@ import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.AttackImpl;
 import net.bestia.model.domain.AttackTarget;
 import net.bestia.model.geometry.Point;
+import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 import net.bestia.zoneserver.battle.AttackService;
 import net.bestia.zoneserver.battle.BattleService;
 
@@ -60,7 +61,13 @@ public class AttackPlayerUseActor extends AbstractActor {
 				.build();
 	}
 
-	protected void handleAttackMessage(AttackUseMessage msg) {
+	@Override
+	public void preStart() throws Exception {
+		final RedirectMessage msg = RedirectMessage.get(AttackUseMessage.class);
+		context().parent().tell(msg, getSelf());
+	}
+
+	private void handleAttackMessage(AttackUseMessage msg) {
 
 		final Entity pbe = playerEntityService.getActivePlayerEntity(msg.getAccountId());
 
@@ -80,13 +87,13 @@ public class AttackPlayerUseActor extends AbstractActor {
 		} else {
 
 			// Check if the bestia owns this attack.
-			if(!attackService.knowsAttack(pbe, msg.getAttackId())) {
+			if (!attackService.knowsAttack(pbe, msg.getAttackId())) {
 				LOG.warning("Player {} does now know attack: {}", pbe, msg);
 				return;
 			}
-			
+
 			usedAttack = attackDao.findOne(msg.getAttackId());
-			if(usedAttack == null) {
+			if (usedAttack == null) {
 				LOG.warning("Attack not found: {}.", msg);
 				return;
 			}
@@ -99,12 +106,13 @@ public class AttackPlayerUseActor extends AbstractActor {
 		final EntitySkillMessage skillMsg;
 		final AttackTarget atkTarget = usedAttack.getTarget();
 
-		switch(atkTarget) {
+		switch (atkTarget) {
 		case ENEMY_ENTITY:
 		case FRIENDLY_ENTITY:
 		case SELF:
-			// if an entity was targeted a entity id must be provided in the message.
-			if(msg.getTargetEntityId() <= 0) {
+			// if an entity was targeted a entity id must be provided in the
+			// message.
+			if (msg.getTargetEntityId() <= 0) {
 				LOG.warning("");
 			}
 			skillMsg = new EntitySkillMessage(pbe.getId(), usedAttack.getId(), msg.getTargetEntityId());
@@ -113,11 +121,11 @@ public class AttackPlayerUseActor extends AbstractActor {
 			final Point targetPoint = new Point(msg.getX(), msg.getY());
 			skillMsg = new EntitySkillMessage(pbe.getId(), usedAttack.getId(), targetPoint);
 			break;
-			default:
-				LOG.warning("No valid target for the attack was found.");
-				return;
+		default:
+			LOG.warning("No valid target for the attack was found.");
+			return;
 		}
-		
+
 		getSender().tell(skillMsg, getSelf());
 	}
 }

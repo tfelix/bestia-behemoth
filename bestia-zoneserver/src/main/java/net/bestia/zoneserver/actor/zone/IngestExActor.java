@@ -14,16 +14,21 @@ import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.ComponentMessage;
-import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.battle.AttackPlayerUseActor;
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
+import net.bestia.zoneserver.actor.connection.ConnectionStatusActor;
 import net.bestia.zoneserver.actor.connection.LatencyManagerActor;
 import net.bestia.zoneserver.actor.connection.LoginAuthActor;
-import net.bestia.zoneserver.actor.connection.ConnectionStatusActor;
 import net.bestia.zoneserver.actor.entity.ComponentRedirectionActor;
+import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor;
+import net.bestia.zoneserver.actor.entity.EntitySyncActor;
+import net.bestia.zoneserver.actor.inventory.ListInventoryActor;
+import net.bestia.zoneserver.actor.map.MapRequestChunkActor;
+import net.bestia.zoneserver.actor.map.TilesetRequestActor;
 import net.bestia.zoneserver.actor.rest.ChangePasswordActor;
 import net.bestia.zoneserver.actor.rest.CheckUsernameDataActor;
 import net.bestia.zoneserver.actor.rest.RequestLoginActor;
@@ -110,6 +115,20 @@ public class IngestExActor extends AbstractActor {
 		SpringExtension.actorOf(getContext(), BestiaInfoActor.class);
 		SpringExtension.actorOf(getContext(), ActivateBestiaActor.class);
 
+		// === Inventory ===
+		SpringExtension.actorOf(getContext(), ListInventoryActor.class);
+
+		// === Map ===
+		SpringExtension.actorOf(getContext(), MapRequestChunkActor.class);
+		SpringExtension.actorOf(getContext(), TilesetRequestActor.class);
+
+		// === Entities ===
+		SpringExtension.actorOf(getContext(), EntityInteractionRequestActor.class);
+		SpringExtension.actorOf(getContext(), EntitySyncActor.class);
+
+		// === Attacking ===
+		SpringExtension.actorOf(getContext(), AttackPlayerUseActor.class);
+
 		// === UI ===
 		SpringExtension.actorOf(getContext(), ClientVarActor.class);
 
@@ -152,22 +171,6 @@ public class IngestExActor extends AbstractActor {
 	}
 
 	/**
-	 * Redirect all other messages to the legacy actor.
-	 * 
-	 * @param msg
-	 */
-	private void redirectLegacy(Object msg) {
-		LOG.debug("IngestEx legacy: {}.", msg);
-		AkkaSender.sendToActor(getContext(), IngestActor.NAME, msg, getSender());
-
-		if (redirections.containsKey(msg.getClass())) {
-			redirections.get(msg.getClass()).forEach(ref -> {
-				ref.tell(msg, getSender());
-			});
-		}
-	}
-
-	/**
 	 * Checks if a sub-actor wants to redirect this message and if so deliver it
 	 * to all subscribed actors.
 	 */
@@ -178,9 +181,7 @@ public class IngestExActor extends AbstractActor {
 				ref.forward(msg, getContext());
 			});
 		} else {
-			LOG.warning("IngestEx received non redirected: {}.", msg);
-			redirectLegacy(msg);
-			// unhandled(msg);
+			unhandled(msg);
 		}
 	}
 }
