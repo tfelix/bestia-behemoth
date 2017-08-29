@@ -1,4 +1,6 @@
 import Signal from '../../io/Signal.js';
+import TileRenderer from '../renderer/TileRenderer';
+import EntityRenderer from '../renderer/EntityRenderer';
 import renderManger from '../renderer/RenderManager';
 
 /**
@@ -15,6 +17,10 @@ export default class InitializeState {
 	constructor(ctx) {
 		
 		this._ctx = ctx;
+
+		// We must keep reference since the module ref is lost inside
+		// the phaser game object.
+		this._renderManager = renderManger;
 	}
 
 	/**
@@ -22,8 +28,12 @@ export default class InitializeState {
 	 */
 	preload() {
 
+		// ==== PREPARE RENDERER ====
+		this._renderManager.addRender(new TileRenderer(this._ctx));
+		this._renderManager.addRender(new EntityRenderer(this._ctx));
+
 		// Load all static render assets.
-		renderManger.load(this.game);
+		this._renderManager.load(this.game);
 		
 		// Initialize the context since our engine is now ready.
 		this.game.load.image('castindicator_small', this._ctx.url.getIndicatorUrl('big'));

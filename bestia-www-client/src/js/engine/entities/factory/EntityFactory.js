@@ -18,8 +18,6 @@ export default class EntityFactory {
 	constructor(ctx) {
 	
 		this.descLoader = new DescriptionLoader(ctx);
-		
-		this._ctx = ctx;
 	
 		/**
 		 * Registry for the builder to register themselfes.
@@ -27,7 +25,7 @@ export default class EntityFactory {
 		this.builder = [];
 
 		this.register(new SpriteBuilder(this, ctx));
-		this.register(new DynamicSpriteBuilder(this, ctx));
+		//this.register(new DynamicSpriteBuilder(this, ctx));
 		this.register(new ItemBuilder(this, ctx));
 	}
 	
@@ -135,7 +133,7 @@ export default class EntityFactory {
 			}
 			
 			let entity = builder.build(data, descFile);
-			this._ctx.entityCache.addEntity(entity);	
+			//this._ctx.entityCache.addEntity(entity);	
 
 			// Call the callback handler.
 			fnOnComplete(entity);

@@ -19,7 +19,6 @@ export default class SpriteBuilder extends Builder {
 		 * Url helper.
 		 */
 		this._url = ctx.url;
-		
 		this._pubsub = ctx.pubsub;
 	}
 	

@@ -51,9 +51,9 @@ export default class LoadingState {
 		// Create new multisprite entity from player bestia. This call will
 		// initialize a loading process even if visible sprite gets destroyed by
 		// changing game states thus caching our asset.
-		let pb = this._ctx.playerBestia;
-		let updateMsg = { s: pb.sprite(), a: 'APPEAR', s: { s: pb.sprite(), t: pb.spriteType() } };
-		this._ctx.entityFactory.load(updateMsg, this._checkFinishedLoading.bind(this));
+		//let pb = this._ctx.playerBestia;
+		//let updateMsg = { s: pb.sprite(), a: 'APPEAR', s: { s: pb.sprite(), t: pb.spriteType() } };
+		//this._ctx.entityFactory.load(updateMsg, this._checkFinishedLoading.bind(this));
 
 		let tileRender = renderManger.getRender(TileRender.NAME);
 		let chunks = tileRender.getVisibleChunks();

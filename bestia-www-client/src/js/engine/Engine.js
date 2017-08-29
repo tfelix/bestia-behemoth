@@ -8,9 +8,6 @@ import GameState from './states/GameState.js';
 import InitializeState from './states/InitializeState';
 import LoadingState from './states/LoadingState.js';
 import DebugChatCommands from './debug/DebugChatCommands';
-import renderManager from './renderer/RenderManager';
-import TileRenderer from './renderer/TileRenderer';
-import EntityRenderer from './renderer/EntityRenderer';
 import LOG from '../util/Log';
 
 /**
@@ -37,19 +34,14 @@ export default class Engine {
 		this._debug = new DebugChatCommands(pubsub, this.game);
 
 		// Prepare the context.
-		let ctx = new EngineContext(pubsub, url);
-		this._ctx = ctx;
+		this._ctx = new EngineContext(pubsub, url);
 		
 		// Create the states.
-		this.game.state.add('boot', new BootState(ctx));
-		this.game.state.add('initial_loading', new InitializeState(ctx));
-		this.game.state.add('connecting', new ConnectingState(ctx));
-		this.game.state.add('load', new LoadingState(ctx));
-		this.game.state.add('game', new GameState(ctx));
-
-		// ==== PREPARE RENDERER ====
-		renderManager.addRender(new TileRenderer(ctx));
-		renderManager.addRender(new EntityRenderer());
+		this.game.state.add('boot', new BootState(this._ctx));
+		this.game.state.add('initial_loading', new InitializeState(this._ctx));
+		this.game.state.add('connecting', new ConnectingState(this._ctx));
+		this.game.state.add('load', new LoadingState(this._ctx));
+		this.game.state.add('game', new GameState(this._ctx));
 
 		// ==== PREPARE HANDLER ====
 

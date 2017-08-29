@@ -7,7 +7,6 @@ import renderManager from '../renderer/RenderManager';
 import WorldHelper from '../map/WorldHelper';
 import LOG from '../../util/Log';
 import PhaserDebug from '../plugins/phaser-debug';
-import pathfinder from '../map/pathfinder';
 
 /**
  * Central game state for controlling the games logic.
@@ -52,8 +51,6 @@ export default class GameState {
 		// ========= TESTING =========
 		this.game.world.setBounds(0, 0, 800, 600);
 		// ========= END TESTING =========
-
-		this._ctx.entityUpdater.releaseHold();
 	}
 
 	/**
