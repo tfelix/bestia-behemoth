@@ -68,12 +68,6 @@ export default class GameState {
 
 		//pathfinder.update();
 
-		// Update the animation frame groups of all multi sprite entities.
-		let entities = this._ctx.entityCache.getAllEntities();
-		entities.forEach(function (entity) {
-			entity.tickAnimation();
-		});
-
 		// Group sort the sprite layer.
 		groups.sort(GROUP_LAYERS.SPRITES);
 	}

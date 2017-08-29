@@ -48,8 +48,14 @@ export default class EntityRenderer extends Renderer {
             } else {
                 sprite.x = entity.x;
                 sprite.y = entity.y;
+                this.tickEntityAnimation(entity, sprite);
             }
-        });
+        }, this);
+    }
+
+    tickEntityAnimation(entity, sprite) {
+        // TODO Das hier implementieren und aus entity raus holen.
+        //entity.tickAnimation();
     }
 
     buildEntitySprite(entity) {
