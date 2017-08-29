@@ -66,14 +66,14 @@ export default class DescriptionLoader {
 	 */
 	_getUrlFromData(data) {
 
-		switch (data.s.t.toUpperCase()) {
+		switch (data.sprite.type.toUpperCase()) {
 		case 'PACK':
 		case 'DYNAMIC':
 			// its an mob.
-			return this._url.getMobDescUrl(data.s.s);
+			return this._url.getMobDescUrl(data.sprite.name);
 		default:
 			// its an object.
-			return this._url.getObjectDescUrl(data.s.s);
+			return this._url.getObjectDescUrl(data.sprite.name);
 		}
 	}
 
@@ -84,6 +84,6 @@ export default class DescriptionLoader {
 	 *            data
 	 */
 	_getNameFromData(data) {
-		return data.s.s;
+		return data.sprite.name;
 	}
 }
