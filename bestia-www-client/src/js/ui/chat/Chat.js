@@ -216,7 +216,6 @@ export default class Chat {
 		// Handle the selection of a new bestia for the bestia id
 		// (chat messages are input messages).
 		this._pubsub.subscribe(Signal.BESTIA_SELECTED, function (_, bestia) {
-			this._currentBestiaId = bestia.playerBestiaId();
 			this._currentEntityId = bestia.entityId();
 		}, this);
 

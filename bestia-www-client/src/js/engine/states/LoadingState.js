@@ -39,7 +39,7 @@ export default class LoadingState {
 	preload() {
 
 		// Set loading counter (we load two assets)
-		this._loadingCounter = 2;
+		this._loadingCounter = 1;
 
 		// Announce loading.
 		this._ctx.pubsub.publish(Signal.ENGINE_PREPARE_MAPLOAD);

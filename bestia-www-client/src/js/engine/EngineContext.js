@@ -1,10 +1,9 @@
 /*global Phaser */
 import Signal from '../io/Signal';
-import EntityCache from './entities/util/EntityCache';
 import DemandLoader from './core/DemandLoader';
 import IndicatorManager from './indicator/IndicatorManager';
 import EffectsManager from './fx/EffectsManager';
-import EntityUpdater from './entities/util/EntityUpdater';
+import EntityUpdater from './entities/EntityUpdater';
 import AnimationManager from './animation/AnimationManager';
 
 export default class EngineContext {
@@ -27,7 +26,6 @@ export default class EngineContext {
 		// methods of the engine ctx inside the object ctor should be avoided to tackle the problem.
 		this._isInit = true;
 		this._game = phaserGame;		
-		this._entityCache = new EntityCache();		
 		this._demandLoader = new DemandLoader(this);
 		this._indicatorManager = new IndicatorManager(this);
 		this._fxManager = new EffectsManager(this);
@@ -87,11 +85,6 @@ export default class EngineContext {
 	get entityUpdater() {
 		this._checkInit();
 		return this._entityUpdater;
-	}
-	
-	get entityCache() {
-		this._checkInit();
-		return this._entityCache;
 	}
 	
 	get render() {

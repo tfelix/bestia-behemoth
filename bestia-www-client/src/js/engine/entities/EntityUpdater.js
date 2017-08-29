@@ -1,6 +1,6 @@
-import MID from '../../../io/messages/MID.js';
-import LOG from '../../../util/Log';
-import entityCacheEx from '../EntityCacheEx';
+import MID from '../../io/messages/MID.js';
+import LOG from '../../util/Log';
+import entityCacheEx from './EntityCacheEx';
 
 /**
  * The updater will hook into the messaging system and listen for entity update

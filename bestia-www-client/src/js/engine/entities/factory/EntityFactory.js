@@ -25,7 +25,7 @@ export default class EntityFactory {
 		this.builder = [];
 
 		this.register(new SpriteBuilder(this, ctx));
-		//this.register(new DynamicSpriteBuilder(this, ctx));
+		this.register(new DynamicSpriteBuilder(this, ctx));
 		this.register(new ItemBuilder(this, ctx));
 	}
 	
