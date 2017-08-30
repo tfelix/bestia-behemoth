@@ -57,9 +57,6 @@ export default class EntityUpdater {
 	 * movement of the entity.
 	 */
 	_handlerOnMove(_, msg) {
-		if (this._isBuffered(msg)) {
-			return;
-		}
 
 		var entity = entityCacheEx.getEntity(msg.eid);
 
@@ -89,11 +86,8 @@ export default class EntityUpdater {
 	 * near it. If distance is too far away hard correct it.
 	 */
 	_handlerOnPosition(_, msg) {
-		if (this._isBuffered(msg)) {
-			return;
-		}
 
-		var entity = this._ctx.entityCache.getEntity(msg.eid);
+		var entity = entityCacheEx.getEntity(msg.eid);
 		// Entity not in cache. We cant do anything.
 		if (entity !== null) {
 			//entity.setPosition(msg.x, msg.y);
