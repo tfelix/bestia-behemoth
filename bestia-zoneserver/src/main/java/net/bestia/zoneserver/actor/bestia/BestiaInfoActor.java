@@ -75,10 +75,9 @@ public class BestiaInfoActor extends AbstractActor {
 	private void handleInfoRequest(BestiaInfoRequestMessage msg) {
 		LOG.debug(String.format("Received: %s", msg.toString()));
 
-		final BestiaInfoRequestMessage rbimsg = (BestiaInfoRequestMessage) msg;
-		final long accId = rbimsg.getAccountId();
+		final long accId = msg.getAccountId();
 
-		final Set<Entity> bestias = playerEntityService.getPlayerEntities(rbimsg.getAccountId());
+		final Set<Entity> bestias = playerEntityService.getPlayerEntities(msg.getAccountId());
 
 		for (Entity pbe : bestias) {
 
