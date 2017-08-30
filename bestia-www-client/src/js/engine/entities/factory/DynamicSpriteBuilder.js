@@ -24,10 +24,10 @@ export default class DynamicSpriteBuilder extends SpriteBuilder {
 	build(data, desc) {
 		LOG.debug('Building dynamic sprite.', data);
 		
-		var entity = new MultispriteEntity(this._ctx, data.eid, data.x, data.y, desc);
+		var entity = new MultispriteEntity(this._ctx, data.eid, data.position.x, data.position.y, desc);
 
 		// Setup the phaser sprite.
-		entity.setSprite(data.s.s);
+		entity.setSprite(data.sprite.name);
 		
 		// Set the apropriate callbacks for the (player) entities.
 		/*
@@ -41,13 +41,13 @@ export default class DynamicSpriteBuilder extends SpriteBuilder {
 		
 		groups.get(GROUP_LAYERS.SPRITES).add(entity._sprite);
 
-		if (data.a === 'APPEAR') {
+		if (data.action === 'APPEAR') {
 			entity.appear();
 		} else {
 			entity.show();
 		}
 
-		entity.setPosition(data.x, data.y);
+		entity.setPosition(data.position.x, data.position.y);
 		
 		entity.entityId = data.eid;
 			
@@ -59,7 +59,7 @@ export default class DynamicSpriteBuilder extends SpriteBuilder {
 	 * corrected.
 	 */
 	canBuild(data) {
-		return data.s.t === 'DYNAMIC';
+		return data.sprite.type === 'DYNAMIC';
 	}
 
 }

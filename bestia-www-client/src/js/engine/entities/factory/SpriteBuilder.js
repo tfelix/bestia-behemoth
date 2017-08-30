@@ -24,7 +24,7 @@ export default class SpriteBuilder extends Builder {
 	
 	build(data, desc) {
 		LOG.debug('Building pack sprite.', data);
-		var entity = new SpriteEntity(this._ctx, data.eid, data.x, data.y, desc);
+		var entity = new SpriteEntity(this._ctx, data.eid, data.position.x, data.position.y, desc);
 		
 		groups.get(GROUP_LAYERS.SPRITES).add(entity._sprite);
 		
@@ -39,7 +39,7 @@ export default class SpriteBuilder extends Builder {
 			this._pubsub.publish(Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_out', entity: entity});
 		}.bind(this);
 
-		if (data.a === 'APPEAR') {
+		if (data.action === 'APPEAR') {
 			entity.appear();
 		} else {
 			entity.show();
@@ -115,6 +115,6 @@ export default class SpriteBuilder extends Builder {
 	}
 
 	canBuild(data) {
-		return data.s.t.toUpperCase() === 'PACK';
+		return data.sprite.type.toUpperCase() === 'PACK';
 	}
 }

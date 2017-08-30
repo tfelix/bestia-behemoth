@@ -23,12 +23,14 @@ export default class TileRender extends Renderer {
 		this._ctx = ctx;
 		this._pubsub = ctx.pubsub;
 
+		this._isFirstDraw = true;
+
 		this._lastPlayerPos = { x: -1, y: -1 };
 
 		// Some basic init.
 		this.clear();
 		this._pubsub.subscribe(MID.MAP_CHUNK, this._handleChunkReceived, this);
-		this._pubsub.subscribe(Signal.ENGINE_GAME_STARTED, function(){
+		this._pubsub.subscribe(Signal.ENGINE_GAME_STARTED, function () {
 			this.clearDraw();
 		}, this);
 	}
@@ -44,6 +46,12 @@ export default class TileRender extends Renderer {
 	 * Checks if we need a redraw.
 	 */
 	get isDirty() {
+
+		if (this._isFirstDraw) {
+			return true;
+		}
+
+		// TODO das hier kann besser gemacht werden.
 		let pb = this._ctx.playerBestia;
 		return this._lastPlayerPos.x !== pb.posX() || this._lastPlayerPos.y !== pb.posY();
 	}
@@ -213,6 +221,7 @@ export default class TileRender extends Renderer {
 	 * current player position.
 	 */
 	clearDraw() {
+
 		let player = this._ctx.playerBestia;
 		if (player == null) {
 			console.error('PlayerBestia not found in context. Can not draw tilemap.');
@@ -264,21 +273,21 @@ export default class TileRender extends Renderer {
 	_updatePathInfo() {
 		// Set the grid to a static value. Must be updated when player moves.
 		var grid = new Array(this._gameSize.y);
-		
+
 		for (var y = 0; y < this._gameSize.y; y++) {
 
 			grid[y] = new Array(this._gameSize.x);
 
 			for (var x = 0; x < this._gameSize.x; x++) {
-				
+
 				var offsetX = this._rendered.x1 + x;
 				var offsetY = this._rendered.y1 + y;
 
 				var gid = this._getGid(offsetX, offsetY);
-				
+
 				// TODO Feststellen ob die GID lauffähig ist oder nicht.
 				var isGidWalkable = true;
-				if(isGidWalkable) {
+				if (isGidWalkable) {
 					grid[y][x] = 1;
 				} else {
 					grid[y][x] = 0;
@@ -299,6 +308,11 @@ export default class TileRender extends Renderer {
 	 * decides if a re-render of the map is needed.
 	 */
 	update() {
+
+		if (this._isFirstDraw) {
+			this._isFirstDraw = false;
+			this.clearDraw();
+		}
 
 		let tPos = { x: this._ctx.playerBestia.posX(), y: this._ctx.playerBestia.posY() };
 

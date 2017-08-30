@@ -120,20 +120,15 @@ export default class EntityFactory {
 				throw 'No eid (entity id) is given.';
 			}
 			
-			if(data.x === undefined || data.y === undefined) {
+			if(data.position.x === undefined || data.position.y === undefined) {
 				throw 'No x and/or y (x, y) postion is given';
 			}
 			
-			if(!data.s) {
+			if(!data.sprite) {
 				throw 'No spritename (s) given';
 			}
 			
-			if(!data.a) {
-				throw 'No action (a) given';
-			}
-			
 			let entity = builder.build(data, descFile);
-			//this._ctx.entityCache.addEntity(entity);	
 
 			// Call the callback handler.
 			fnOnComplete(entity);

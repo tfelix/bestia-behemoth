@@ -57,7 +57,12 @@ export default class DescriptionLoader {
 			LOG.debug('Description loaded: ' + name + ' from: ' + url);
 			
 			var descFile = this.getDescription(name);
-			fnCallback(descFile);
+			try {
+				fnCallback(descFile);
+			} catch(err) {
+				LOG.error('Error while executing callback after loaded description: ' + JSON.stringify(descFile), err);
+			}
+			
 		}.bind(this));
 	}
 

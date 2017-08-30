@@ -63,5 +63,17 @@ export default class LoadingState {
 		let msg = new EntitySyncRequestMessage();
 		this._ctx.pubsub.send(msg);
 	}
+
+	create() {
+		var style = {
+			font : 'bold 32px Arial',
+			fill : '#fff',
+			boundsAlignH :'center',
+			boundsAlignV : 'middle'
+		};
+		var txt = this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'Loading', style);
+		txt.anchor.set(0.5);
+		txt.align = 'center';
+	}
 }
 
