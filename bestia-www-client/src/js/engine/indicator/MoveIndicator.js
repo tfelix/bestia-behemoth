@@ -3,8 +3,8 @@
 import Indicator from './Indicator.js';
 import Message from '../../io/messages/Message.js';
 import WorldHelper from '../map/WorldHelper.js';
-import pathfinder from '../map/pathfinder';
-import { engineContext } from '../EngineData';
+import { engineContext, entityCache, pathfinder } from '../EngineData';
+import { entityAddMovement } from '../entities/EntityHelper';
 import Signal from '../../io/Signal';
 
 /**
@@ -39,15 +39,27 @@ export default class MoveIndicator extends Indicator {
 		// Remove first element since its the current position.
 		path.shift();
 
-		var player = this._ctx.playerBestia;
-		var msg = new Message.EntityMove(player.playerBestiaId, player.entityId(), path, player.statusBasedValues.walkspeed());
-		this._ctx.pubsub.send(msg);
+		var pbid = this._playerBestia.playerBestiaId();
+		var eid = this._playerBestia.entityId();
+		var speed = this._playerBestia.statusBasedValues.walkspeed();
+
+		var msg = new Message.EntityMove(pbid,
+			eid,
+			path,
+			speed);
+		this._pubsub.send(msg);
 
 		// Start movement locally as well.
-		this._ctx.playerEntity.moveTo(path, player.statusBasedValues.walkspeed());
+		var entity = entityCache.getEntity(eid);
+		entityAddMovement(entity, path, speed, 0);
 	}
 
 	_onClick(pointer) {
+
+		// No player no movement.
+		if (!this._playerBestia) {
+			return;
+		}
 
 		// Only left button.
 		if (pointer.button !== Phaser.Mouse.LEFT_BUTTON) {
@@ -58,16 +70,10 @@ export default class MoveIndicator extends Indicator {
 		this._effect.alpha = 1;
 		this._game.add.tween(this._effect).to({ alpha: 0 }, 500, Phaser.Easing.Cubic.Out, true);
 
-		var player = this._ctx.playerBestia;
-
-		if (player === null) {
-			return;
-		}
-
 		var goal = WorldHelper.getTileXY(pointer.worldX, pointer.worldY);
 
 		// Start the path calculation
-		pathfinder.findPath(player.position(), goal, this._onPathFound.bind(this));
+		pathfinder.findPath(this._playerBestia.position(), goal, this._onPathFound.bind(this));
 	}
 
 	/**

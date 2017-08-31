@@ -34,6 +34,9 @@ export default class EntityRenderer extends Renderer {
      */
     update() {
         entityCache.getAllEntities().forEach(function (entity) {
+            
+            // Iterate over all entities and try to get the sprite and
+            // check the current animation, position, movement etc.
             var sprite = spriteCache.getSprite(entity.eid);
 
             if (!sprite) {
@@ -43,9 +46,14 @@ export default class EntityRenderer extends Renderer {
                     entity.action = null;
                 }
             } else {
-                sprite.x = entity.x;
-                sprite.y = entity.y;
-                this.tickEntityAnimation(entity, sprite);
+
+                if(entity.movement) {
+                    this.moveEntity(entity, sprite);
+                } else {
+                    sprite.x = entity.x;
+                    sprite.y = entity.y;
+                    this.tickEntityAnimation(entity, sprite);
+                }
             }
         }, this);
     }
@@ -62,5 +70,13 @@ export default class EntityRenderer extends Renderer {
             spriteCache.setSprite(entity.eid, displayObj);
 
         }.bind(this));
+    }
+
+    /**
+     * Starts the movement process of the entity.
+     */
+    moveEntity(entity, sprite) {
+
+        delete entity.movement;
     }
 }

@@ -1,6 +1,7 @@
 import MID from '../../io/messages/MID.js';
 import LOG from '../../util/Log';
-import {entityCache} from '../EngineData';
+import { entityCache } from '../EngineData';
+import { entityAddMovement } from '../entities/EntityDataHelper';
 
 /**
  * The updater will hook into the messaging system and listen for entity update
@@ -74,11 +75,7 @@ export default class EntityUpdater {
 		}
 
 		// Attach the movement data to the entity.
-		entity.movement = {
-			path: path,
-			speed: msg.w,
-			delta: msg.d + msg.l
-		};
+		entityAddMovement(entity, path, msg.w, msg.d + msg.l);
 	}
 
 	/**
@@ -86,16 +83,8 @@ export default class EntityUpdater {
 	 * near it. If distance is too far away hard correct it.
 	 */
 	_handlerOnPosition(_, msg) {
-
 		var entity = entityCache.getEntity(msg.eid);
-		// Entity not in cache. We cant do anything.
 		if (entity !== null) {
-			//entity.setPosition(msg.x, msg.y);
-		}
-
-		// Update the alternate cache.
-		entity = entityCache.getEntity(msg.eid);
-		if(entity !== null) {
 			entity.position.x = msg.x;
 			entity.position.y = msg.y;
 		}
