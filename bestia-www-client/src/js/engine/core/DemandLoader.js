@@ -14,14 +14,13 @@ import LOG from '../../util/Log';
  */
 export default class DemandLoader {
 	
-	constructor(ctx) {
+	constructor(phaserGame) {
 		
 		this._cache = {};
 		
-		this._ctx = ctx;
-		
-		this._phaserCache = ctx.game.cache;
-		this._loader = ctx.game.load;
+		this._game = phaserGame;
+		this._phaserCache = phaserGame.cache;
+		this._loader = phaserGame.load;
 
 		/**
 		 * Asset packs do load multiple keys. These keys with their reference to
@@ -31,7 +30,7 @@ export default class DemandLoader {
 		this._packKeyCache = {};
 
 		// Add the callbacks.
-		this._ctx.game.load.onFileComplete.add(this._fileLoadedCallback, this);
+		this._game.load.onFileComplete.add(this._fileLoadedCallback, this);
 		
 		//pubsub.subscribe(DemandLoader.Message.LOAD, this._asyncLoad, this);
 		//pubsub.subscribe(DemandLoader.Message.LOAD_PACK, this._asyncLoadPack, this);

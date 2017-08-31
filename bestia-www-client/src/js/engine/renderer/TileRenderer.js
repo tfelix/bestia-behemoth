@@ -5,7 +5,7 @@ import Signal from '../../io/Signal';
 import Message from '../../io/messages/Message';
 import TilesetManager from '../map/TilesetManager';
 import NOOP from '../../util/NOOP';
-import pathfinder from '../map/Pathfinder';
+import { pathfinder } from '../EngineData';
 import LOG from '../../util/Log';
 
 const MIN_SAFETY_TILES = 3;
@@ -17,11 +17,11 @@ const MIN_SAFETY_TILES = 3;
  */
 export default class TileRender extends Renderer {
 
-	constructor(ctx) {
+	constructor(pubsub, game) {
 		super();
 
-		this._ctx = ctx;
-		this._pubsub = ctx.pubsub;
+		this._pubsub = pubsub;
+		this._game = game;
 
 		this._isFirstDraw = true;
 
@@ -29,9 +29,16 @@ export default class TileRender extends Renderer {
 
 		// Some basic init.
 		this.clear();
+
 		this._pubsub.subscribe(MID.MAP_CHUNK, this._handleChunkReceived, this);
+
 		this._pubsub.subscribe(Signal.ENGINE_GAME_STARTED, function () {
 			this.clearDraw();
+		}, this);
+
+		this._pubsub.subscribe(Signal.BESTIA_SELECTED, function (_, bestia) {
+			this._isFirstDraw = true;
+			this._playerBestia = bestia;
 		}, this);
 	}
 
@@ -51,16 +58,15 @@ export default class TileRender extends Renderer {
 			return true;
 		}
 
-		// TODO das hier kann besser gemacht werden.
-		let pb = this._ctx.playerBestia;
-		return this._lastPlayerPos.x !== pb.posX() || this._lastPlayerPos.y !== pb.posY();
+		return this._lastPlayerPos.x !== this._playerBestia.posX()
+			|| this._lastPlayerPos.y !== this._playerBestia.posY();
 	}
 
 	/**
 	 * Clears all chunks and basically resets the tile renderer.
 	 */
 	clear() {
-		this._tilesetManager = new TilesetManager(this._ctx);
+		this._tilesetManager = new TilesetManager();
 		this._rendered = { x1: 0, x2: 0, y1: 0, y2: 0 };
 		this._newRendered = { x1: 0, x2: 0, y1: 0, y2: 0 };
 		/**
@@ -175,10 +181,9 @@ export default class TileRender extends Renderer {
 	 * now depending on the game size and player position.
 	 */
 	getVisibleChunks() {
-		let pb = this._ctx.playerBestia;
 		let xChunks = Math.ceil(WorldHelper.SIGHT_RANGE.x / WorldHelper.CHUNK_SIZE);
 		let yChunks = Math.ceil(WorldHelper.SIGHT_RANGE.y / WorldHelper.CHUNK_SIZE);
-		let playerChunk = this._tileToGlobChunk(pb.posX(), pb.posY());
+		let playerChunk = this._tileToGlobChunk(this._playerBestia.posX(), this._playerBestia.posY());
 		let chunks = [];
 
 		for (let x = playerChunk.x - xChunks; x < playerChunk.x + xChunks; x++) {
@@ -222,14 +227,13 @@ export default class TileRender extends Renderer {
 	 */
 	clearDraw() {
 
-		let player = this._ctx.playerBestia;
-		if (player == null) {
+		if (this._playerBestia == null) {
 			console.error('PlayerBestia not found in context. Can not draw tilemap.');
 			return;
 		}
 
 		// Prepare the new tilemap.
-		this._map = this._ctx.game.add.tilemap();
+		this._map = this._game.add.tilemap();
 
 		// We must create tileset images for every tileset image loaded.
 		this._tilesetManager.getCachedTilesets().forEach(function (ts) {
@@ -242,9 +246,9 @@ export default class TileRender extends Renderer {
 		this._layer.sendToBack();
 
 		// We must calculate the game size.
-		this._gameSize = WorldHelper.getTileXY(this._ctx.game.width, this._ctx.game.height);
+		this._gameSize = WorldHelper.getTileXY(this._game.width, this._game.height);
 
-		let pos = { x: player.posX(), y: player.posY() };
+		let pos = { x: this._playerBestia.posX(), y: this._playerBestia.posY() };
 
 		let startX = Math.max(0, pos.x - WorldHelper.SIGHT_RANGE.x);
 		let startY = Math.max(0, pos.x - WorldHelper.SIGHT_RANGE.y);
@@ -261,8 +265,8 @@ export default class TileRender extends Renderer {
 		}
 
 		this._rendered = { x1: startX, x2: endX, y1: startY, y2: endY };
-		this._lastPlayerPos.x = player.posX();
-		this._lastPlayerPos.y = player.posY();
+		this._lastPlayerPos.x = this._playerBestia.posX();
+		this._lastPlayerPos.y = this._playerBestia.posY();
 
 		this._updatePathInfo();
 	}
@@ -309,12 +313,16 @@ export default class TileRender extends Renderer {
 	 */
 	update() {
 
+		if (!this._playerBestia) {
+			return;
+		}
+
 		if (this._isFirstDraw) {
 			this._isFirstDraw = false;
 			this.clearDraw();
 		}
 
-		let tPos = { x: this._ctx.playerBestia.posX(), y: this._ctx.playerBestia.posY() };
+		let tPos = { x: this._playerBestia.posX(), y: this._playerBestia.posY() };
 
 		// Tile distance to display left.
 		let tdLeft = Math.max(0, tPos.x - this._rendered.x1);

@@ -5,7 +5,7 @@ const MAX_ITER_PER_FRAME = 1000;
 /**
  * Helper functions to calculate a walkable path client side.
  */
-class Pathfinder {
+export default class Pathfinder {
 
     constructor() {
 
@@ -90,7 +90,3 @@ class Pathfinder {
         this._easystar.calculate();
     }
 }
-
-var pathfinder = new Pathfinder();
-
-export { pathfinder as default };

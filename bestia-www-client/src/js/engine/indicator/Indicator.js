@@ -1,6 +1,7 @@
 import WorldHelper from '../map/WorldHelper.js';
 import groups, {GROUP_LAYERS} from '../core/Groups';
 import IndicatorManager from './IndicatorManager.js';
+import { engineContext } from '../EngineData';
 
 /**
  * Basic indicator for visualization of the mouse pointer. This visualization is
@@ -14,8 +15,6 @@ export default class Indicator {
 		if (!(manager instanceof IndicatorManager)) {
 			throw new Error('Manager can not be null.');
 		}
-
-		this._ctx = manager.ctx;
 		
 		this._manager = manager;
 
@@ -26,16 +25,16 @@ export default class Indicator {
 		// Move the marker to the current active mouse position.
 		this._onMouseMove();
 
-		this._ctx.game.input.addMoveCallback(this._onMouseMove, this);
-		this._ctx.game.input.onDown.add(this._onClick, this);
+		engineContext.game.input.addMoveCallback(this._onMouseMove, this);
+		engineContext.game.input.onDown.add(this._onClick, this);
 		
 		groups.get(GROUP_LAYERS.SPRITES_BOTTOM).add(this._marker);
 	}
 
 	deactivate() {
 		
-		this._ctx.game.input.deleteMoveCallback(this._onMouseMove, this);
-		this._ctx.game.input.onDown.remove(this._onClick, this);
+		engineContext.game.input.deleteMoveCallback(this._onMouseMove, this);
+		engineContext.game.input.onDown.remove(this._onClick, this);
 		
 		groups.get(GROUP_LAYERS.SPRITES_BOTTOM).remove(this._marker);
 	}
@@ -92,7 +91,7 @@ export default class Indicator {
 			return;
 		}
 
-		var pointer = this._ctx.game.input.activePointer;
+		var pointer = engineContext.game.input.activePointer;
 
 		// From px to tiles and back.
 		var cords = WorldHelper.getTileXY(pointer.worldX, pointer.worldY);

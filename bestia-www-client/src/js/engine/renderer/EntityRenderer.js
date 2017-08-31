@@ -1,7 +1,6 @@
 import Renderer from './Renderer';
-import entityCache from '../entities/EntityCacheEx';
 import LOG from '../../util/Log';
-import spriteCache from '../PhaserSpriteCache';
+import { spriteCache, entityCache } from '../EngineData';
 import EntityFactory from './../entities/factory/EntityFactory';
 
 /**
@@ -12,15 +11,10 @@ export default class EntityRenderer extends Renderer {
     /**
      * 
      */
-    constructor(ctx) {
+    constructor() {
         super();
 
-        if(!ctx) {
-            throw 'Context can not be null.';
-        }
-
-        this._entitySprites = {};
-        this._entityFactory = new EntityFactory(ctx);
+        this._entityFactory = new EntityFactory();
     }
 
     get name() {
@@ -35,6 +29,9 @@ export default class EntityRenderer extends Renderer {
         // no op
     }
 
+    /**
+     * 
+     */
     update() {
         entityCache.getAllEntities().forEach(function (entity) {
             var sprite = spriteCache.getSprite(entity.eid);
@@ -63,10 +60,7 @@ export default class EntityRenderer extends Renderer {
         this._entityFactory.build(entity, function (displayObj) {
 
             spriteCache.setSprite(entity.eid, displayObj);
-            /*
-            if (msg.eid === this._ctx.playerBestia.entityId()) {
-                spriteCache.setPlayerSprite(displayObj);
-            }*/
+
         }.bind(this));
     }
 }

@@ -2,6 +2,7 @@ import SpriteBuilder from './SpriteBuilder';
 import DynamicSpriteBuilder from './DynamicSpriteBuilder.js';
 import ItemBuilder from './ItemBuilder.js';
 import NOOP from '../../../util/NOOP.js';
+import LOG from '../../../util/Log';
 import DescriptionLoader from '../../core/DescriptionLoader.js';
 
 
@@ -14,11 +15,11 @@ import DescriptionLoader from '../../core/DescriptionLoader.js';
  * @author Thomas Felix <thomas.felix@tfelix.de>
  */
 export default class EntityFactory {
-	
+
 	constructor(ctx) {
-	
+
 		this.descLoader = new DescriptionLoader(ctx);
-	
+
 		/**
 		 * Registry for the builder to register themselfes.
 		 */
@@ -28,7 +29,7 @@ export default class EntityFactory {
 		this.register(new DynamicSpriteBuilder(this, ctx));
 		this.register(new ItemBuilder(this, ctx));
 	}
-	
+
 	/**
 	 * Registers dynamically new builder objects which react upon incoming
 	 * entity update messages.
@@ -36,7 +37,7 @@ export default class EntityFactory {
 	register(builder) {
 		this.builder.push(builder);
 	}
-	
+
 	/**
 	 * This will only load the assets specified in the given data set. The
 	 * callback function is executed after all loads have been performed.
@@ -47,10 +48,10 @@ export default class EntityFactory {
 	 */
 	load(data, fnOnComplete) {
 		fnOnComplete = fnOnComplete || NOOP;
-		
+
 		// Add the flag to the data object for taking it to the builder.
 		data.onlyLoad = true;
-		
+
 		this.build(data, fnOnComplete);
 	}
 
@@ -69,6 +70,8 @@ export default class EntityFactory {
 	 *            onlyLoad - Flag of the builder should only load the assets.
 	 */
 	build(data, fnOnComplete) {
+		LOG.debug('Building entity: ' + JSON.stringify(data));
+
 		fnOnComplete = fnOnComplete || NOOP;
 
 		// Do we already have the desc file?
@@ -96,7 +99,7 @@ export default class EntityFactory {
 			fnOnComplete(null);
 			return;
 		}
-		
+
 		var builder = this._getBuilder(data, descFile);
 
 		if (!builder) {
@@ -107,31 +110,36 @@ export default class EntityFactory {
 
 		// The builder is now responsible for figuring out which files to load
 		// additionally. It must be all given in the JSON file.
-		builder.load(descFile, function() {
-			
+		builder.load(descFile, function () {
+
 			// Abort if there is only loading required.
-			if(data.onlyLoad === true) {
+			if (data.onlyLoad === true) {
 				fnOnComplete(null);
 				return;
 			}
-			
+
 			// Do some sanity checks.
-			if(data.eid === undefined) {
+			if (data.eid === undefined) {
 				throw 'No eid (entity id) is given.';
 			}
-			
-			if(data.position.x === undefined || data.position.y === undefined) {
+
+			if (data.position.x === undefined || data.position.y === undefined) {
 				throw 'No x and/or y (x, y) postion is given';
 			}
-			
-			if(!data.sprite) {
+
+			if (!data.sprite) {
 				throw 'No spritename (s) given';
 			}
-			
+
 			let entity = builder.build(data, descFile);
 
 			// Call the callback handler.
-			fnOnComplete(entity);
+			try {
+				fnOnComplete(entity);
+			} catch (err) {
+				LOG.warn('Could not perform callback after entity was build.', fnOnComplete);
+			}
+
 		}.bind(this));
 	}
 

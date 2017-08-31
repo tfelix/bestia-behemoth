@@ -1,7 +1,12 @@
 import Signal from '../../io/Signal.js';
+import LOG from '../../util/Log';
+import RenderManager from '../renderer/RenderManager';
 import TileRenderer from '../renderer/TileRenderer';
 import EntityRenderer from '../renderer/EntityRenderer';
-import renderManger from '../renderer/RenderManager';
+import IndicatorManager from '../indicator/IndicatorManager';
+import DemandLoader from '../core/DemandLoader';
+import {engineContext} from '../EngineData';
+import EntityUpdater from '../entities/EntityUpdater';
 
 /**
  * The state is triggered for the first game loading. A real loading screen will
@@ -14,13 +19,8 @@ import renderManger from '../renderer/RenderManager';
  */
 export default class InitializeState {
 	
-	constructor(ctx) {
-		
-		this._ctx = ctx;
-
-		// We must keep reference since the module ref is lost inside
-		// the phaser game object.
-		this._renderManager = renderManger;
+	constructor() {
+		// no op.
 	}
 
 	/**
@@ -28,30 +28,41 @@ export default class InitializeState {
 	 */
 	preload() {
 
+		// Perform the outstanding inits.
+		// Since the objects often reference to the engine context inside their 
+		// ctor the order of the initialization is really important. Nether the less accessing the
+		// methods of the engine ctx inside the object ctor should be avoided to tackle the problem.		
+		engineContext.loader = new DemandLoader(this);
+		engineContext.indicatorManager = new IndicatorManager(this);
+		engineContext.entityUpdater = new EntityUpdater(engineContext.pubsub);
+
+
 		// ==== PREPARE RENDERER ====
-		this._renderManager.addRender(new TileRenderer(this._ctx));
-		this._renderManager.addRender(new EntityRenderer(this._ctx));
+		engineContext.renderManager = new RenderManager();
+		engineContext.renderManager.addRender(new TileRenderer(engineContext.pubsub, this.game));
+		engineContext.renderManager.addRender(new EntityRenderer(this._ctx));
 
 		// Load all static render assets.
-		this._renderManager.load(this.game);
+		engineContext.renderManager.load(this.game);
 		
 		// Initialize the context since our engine is now ready.
-		this.game.load.image('castindicator_small', this._ctx.url.getIndicatorUrl('big'));
-		this.game.load.image('castindicator_medium', this._ctx.url.getIndicatorUrl('medium'));
-		this.game.load.image('castindicator_big', this._ctx.url.getIndicatorUrl('small'));
-		this.game.load.image('default_item', this._ctx.url.getItemIconUrl('_default'));
+		// TODO Das hier in die indicator implementationen überführen.
+		this.game.load.image('castindicator_small', engineContext.url.getIndicatorUrl('big'));
+		this.game.load.image('castindicator_medium', engineContext.url.getIndicatorUrl('medium'));
+		this.game.load.image('castindicator_big', engineContext.url.getIndicatorUrl('small'));
+		this.game.load.image('default_item', engineContext.url.getItemIconUrl('_default'));
 
 		// Load the static data from the manager.
-		this._ctx.indicatorManager.load();
-		this._ctx.fxManager.load();
+		engineContext.indicatorManager.load();
 	}
 
 	/**
 	 * Signal the finished loading.
 	 */
 	create() {
-
-		this._ctx.pubsub.publish(Signal.ENGINE_INIT_LOADED);
+		LOG.info('Initializing finished. switching to: connecting state.');
+		engineContext.pubsub.publish(Signal.ENGINE_INIT_LOADED);
+		engineContext.pubsub.publish(Signal.IO_CONNECT);
+		this.game.state.start('connecting');
 	}
-
 }

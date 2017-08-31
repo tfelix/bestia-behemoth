@@ -1,6 +1,5 @@
 import ChatFx from './ChatFx.js';
 import DamageFx from './DamageFx.js';
-import BrightnessFx from './BrightnessFx.js';
 import DialogFx from './DialogFx.js';
 
 const MAX_CACHE_SIZE = 50;

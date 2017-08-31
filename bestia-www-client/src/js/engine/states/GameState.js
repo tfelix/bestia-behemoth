@@ -3,10 +3,10 @@
 import Signal from '../../io/Signal.js';
 import groups, {GROUP_LAYERS} from '../core/Groups';
 import TileRender from '../renderer/TileRenderer';
-import renderManager from '../renderer/RenderManager';
 import WorldHelper from '../map/WorldHelper';
 import LOG from '../../util/Log';
 import PhaserDebug from '../plugins/phaser-debug';
+import { engineContext, pathfinder } from '../EngineData';
 
 /**
  * Central game state for controlling the games logic.
@@ -18,11 +18,9 @@ import PhaserDebug from '../plugins/phaser-debug';
  */
 export default class GameState {
 
-	constructor(context) {
+	constructor() {
 
 		this._marker = null;
-
-		this._ctx = context;
 	}
 
 	create() {
@@ -42,11 +40,10 @@ export default class GameState {
 		// ==== /PLUGINS ====
 
 		// Trigger fx create effects.
-		this._ctx.fxManager.create();
-		this._ctx.indicatorManager.create();
+		engineContext.indicatorManager.create();
 
 		// Activate move handler.
-		this._ctx.indicatorManager.showDefault();
+		engineContext.indicatorManager.showDefault();
 
 		// ========= TESTING =========
 		this.game.world.setBounds(0, 0, 800, 600);
@@ -59,14 +56,10 @@ export default class GameState {
 	update() {
 
 		// Calls the renderer.
-		renderManager.update();
+		engineContext.renderManager.update();
+		engineContext.indicatorManager.update();
 
-		// Trigger the update effects.
-		this._ctx.fxManager.update();
-
-		this._ctx.indicatorManager.update();
-
-		//pathfinder.update();
+		pathfinder.update();
 
 		// Group sort the sprite layer.
 		groups.sort(GROUP_LAYERS.SPRITES);

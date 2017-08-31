@@ -1,5 +1,6 @@
 import WorldHelper from '../map/WorldHelper.js';
 import NOOP from '../../util/NOOP';
+import { engineContext } from '../EngineData';
 
 /**
  * Base entity for display via the bestia engine/phaser. It is a thin wrapper to
@@ -7,7 +8,7 @@ import NOOP from '../../util/NOOP';
  */
 export default class Entity {
 
-	constructor(ctx, id) {
+	constructor(id) {
 		/**
 		 * Position in tile coordinates.
 		 * 
@@ -29,9 +30,7 @@ export default class Entity {
 		 */
 		this._id = id || -1;
 
-		this._game = ctx.game;
-
-		this._ctx = ctx;
+		this._game = engineContext.game;
 
 		/**
 		 * This function is called when the mouse is hovered over the main

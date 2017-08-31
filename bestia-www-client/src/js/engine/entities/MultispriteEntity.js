@@ -15,8 +15,8 @@ const NULL_OFFSET = {x: 0, y: 0};
  *            sprite.
  */
 export default class MultispriteEntity extends SpriteEntity {
-	constructor(game, id, x ,y, desc) {
-		super(game, id, x, y, desc);
+	constructor(id, x ,y, desc) {
+		super(id, x, y, desc);
 		
 		/**
 		 * Contains information about all multi sprites added to this sprite. It

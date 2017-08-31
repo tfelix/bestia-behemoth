@@ -2,6 +2,7 @@ import SpriteBuilder from './SpriteBuilder';
 import MultispriteEntity from '../MultispriteEntity';
 import LOG from '../../../util/Log';
 import groups, {GROUP_LAYERS} from '../../core/Groups';
+import { engineContext } from '../../EngineData';
 
 /**
  * This is able to create sprite entities which differ to the runtime. It must
@@ -11,20 +12,20 @@ import groups, {GROUP_LAYERS} from '../../core/Groups';
  */
 export default class DynamicSpriteBuilder extends SpriteBuilder {
 	
-	constructor(factory, ctx) {
-		super(factory, ctx);
+	constructor(factory) {
+		super(factory);
 		
 		// Register with factory.
 		this.type = 'dynamic';
 		this.version = 1;
 		
-		this._pubsub = ctx.pubsub;
+		this._pubsub = engineContext.pubsub;
 	}
 	
 	build(data, desc) {
 		LOG.debug('Building dynamic sprite.', data);
 		
-		var entity = new MultispriteEntity(this._ctx, data.eid, data.position.x, data.position.y, desc);
+		var entity = new MultispriteEntity(data.eid, data.position.x, data.position.y, desc);
 
 		// Setup the phaser sprite.
 		entity.setSprite(data.sprite.name);

@@ -1,6 +1,6 @@
 import MID from '../../io/messages/MID.js';
 import LOG from '../../util/Log';
-import entityCacheEx from './EntityCacheEx';
+import {entityCache} from '../EngineData';
 
 /**
  * The updater will hook into the messaging system and listen for entity update
@@ -18,12 +18,12 @@ import entityCacheEx from './EntityCacheEx';
  */
 export default class EntityUpdater {
 
-	constructor(ctx) {
+	constructor(pubsub) {
 
 		// === SUBSCRIBE ===
-		ctx.pubsub.subscribe(MID.ENTITY_UPDATE, this._handlerOnUpdate.bind(this));
-		ctx.pubsub.subscribe(MID.ENTITY_MOVE, this._handlerOnMove.bind(this));
-		ctx.pubsub.subscribe(MID.ENTITY_POSITION, this._handlerOnPosition.bind(this));
+		pubsub.subscribe(MID.ENTITY_UPDATE, this._handlerOnUpdate.bind(this));
+		pubsub.subscribe(MID.ENTITY_MOVE, this._handlerOnMove.bind(this));
+		pubsub.subscribe(MID.ENTITY_POSITION, this._handlerOnPosition.bind(this));
 	}
 
 	/**
@@ -42,11 +42,11 @@ export default class EntityUpdater {
 					action: 'appear'
 				}
 
-				entityCacheEx.addEntity(entityData);
+				entityCache.addEntity(entityData);
 				break;
 			case 'VANISH':
 			case 'DIE':
-				var entity = entityCacheEx.getEntity(msg.eid);
+				var entity = entityCache.getEntity(msg.eid);
 				entity.action = 'remove';
 				break;
 		}
@@ -58,7 +58,7 @@ export default class EntityUpdater {
 	 */
 	_handlerOnMove(_, msg) {
 
-		var entity = entityCacheEx.getEntity(msg.eid);
+		var entity = entityCache.getEntity(msg.eid);
 
 		// Entity not in cache. We cant do anything.
 		if (entity === null) {
@@ -87,14 +87,14 @@ export default class EntityUpdater {
 	 */
 	_handlerOnPosition(_, msg) {
 
-		var entity = entityCacheEx.getEntity(msg.eid);
+		var entity = entityCache.getEntity(msg.eid);
 		// Entity not in cache. We cant do anything.
 		if (entity !== null) {
 			//entity.setPosition(msg.x, msg.y);
 		}
 
 		// Update the alternate cache.
-		entity = entityCacheEx.getEntity(msg.eid);
+		entity = entityCache.getEntity(msg.eid);
 		if(entity !== null) {
 			entity.position.x = msg.x;
 			entity.position.y = msg.y;

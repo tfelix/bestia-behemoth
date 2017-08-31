@@ -31,6 +31,13 @@ export default class Renderer {
 	clear() {
 		throw 'This method must be overwritten.';
 	}
+
+	/**
+	 * Is called if the stage is created and initial setups should be done in here.
+	 */
+	create() {
+		// no op.
+	}
 	
 	/**
 	 * This is called by the render manager in each update step of the render

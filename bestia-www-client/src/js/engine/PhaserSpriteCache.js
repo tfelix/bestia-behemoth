@@ -3,7 +3,7 @@
  * Contains a cache holding references to display objects and entity ids which must
  * be used to reference them vice versa.
  */
-class PhaserSpriteCache {
+export default class PhaserSpriteCache {
 
     constructor() {
 
@@ -12,7 +12,6 @@ class PhaserSpriteCache {
 
     clear() {
         this._spriteCache = {};
-        this._playerSprite = null;
     }
 
     getSprite(eid) {
@@ -21,14 +20,6 @@ class PhaserSpriteCache {
 
     setSprite(eid, sprite) {
         this._spriteCache[eid] = sprite;
-    }
-
-    getPlayerSprite() {
-        return this._playerSprite;
-    }
-
-    setPlayerSprite(sprite) {
-        this._playerSprite = sprite;
     }
 }
 
@@ -43,7 +34,3 @@ var entityData = {
 				}
 
 */
-
-var cache = new PhaserSpriteCache();
-
-export {cache as default};

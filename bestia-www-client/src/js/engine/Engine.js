@@ -1,13 +1,12 @@
 /*global Phaser */
 
 import Signal from '../io/Signal.js';
-import EngineContext from './EngineContext.js';
 import BootState from './states/BootState.js';
 import ConnectingState from './states/ConnectingState.js';
 import GameState from './states/GameState.js';
 import InitializeState from './states/InitializeState';
 import LoadingState from './states/LoadingState.js';
-import DebugChatCommands from './debug/DebugChatCommands';
+import { engineContext } from './EngineData';
 import LOG from '../util/Log';
 
 /**
@@ -28,14 +27,11 @@ export default class Engine {
 		// Determine the size of the canvas. And create the game object.
 		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'bestia-canvas', null, false, false);
 
-		this._pubsub = pubsub;
-		
-		// Prepare the debug command.
-		this._debug = new DebugChatCommands(pubsub, this.game);
+		// Setup the static/global data for the components to fetch.
+		engineContext.game = this.game;
+		engineContext.pubsub = pubsub;
+		engineContext.url = url;
 
-		// Prepare the context.
-		this._ctx = new EngineContext(pubsub, url);
-		
 		// Create the states.
 		this.game.state.add('boot', new BootState(this._ctx));
 		this.game.state.add('initial_loading', new InitializeState(this._ctx));
@@ -49,24 +45,22 @@ export default class Engine {
 		// loading. This event will fire if we have established a connection.
 		pubsub.subscribe(Signal.BESTIA_SELECTED, this._handlerOnBestiaSelected, this);
 		pubsub.subscribe(Signal.IO_DISCONNECTED, this._handlerOnConnectionLost, this);
-		pubsub.subscribe(Signal.ENGINE_BOOTED, this._handlerOnBooted, this);
-		pubsub.subscribe(Signal.ENGINE_INIT_LOADED, this._handlerOnInitLoaded, this);
 		pubsub.subscribe(Signal.ENGINE_FINISHED_MAPLOAD, this._handlerOnFinishedMapload, this);
-		
+
 		// When everything is setup. Start the engine.
 		this.game.state.start('boot');
 	}
-	
+
 	/**
 	 * Triggers a mapload if a bestia was selected.
 	 */
 	_handlerOnBestiaSelected(_, data) {
 		LOG.info('A new bestia selected. Starting loading process.');
-		
+
 		// TODO Check if we can go without loading: we must be inside view range AND
 		// have the multi sprite cached. Currently not supported.
-		
-		this.game.state.start('load');		
+
+		this.game.state.start('load');
 	}
 
 	/**
@@ -75,23 +69,6 @@ export default class Engine {
 	_handlerOnConnectionLost() {
 		LOG.info('Connection lost switching to: connecting state.');
 		this.game.state.start('connecting');
-	}
-
-	/**
-	 * Loading the minimum assets was finished. No prepare to connect.
-	 */
-	_handlerOnInitLoaded() {
-		LOG.info('Initializing finished. switching to: connecting state.');
-		this.game.state.start('connecting');
-		this._ctx.pubsub.publish(Signal.IO_CONNECT);
-	}
-
-	/**
-	 * After booting was done. Init the game.
-	 */
-	_handlerOnBooted() {
-		LOG.info('Booting finished. Starting load.');
-		this.game.state.start('initial_loading');
 	}
 
 	_handlerOnFinishedMapload() {

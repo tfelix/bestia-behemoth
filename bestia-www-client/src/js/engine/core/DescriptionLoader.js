@@ -1,5 +1,6 @@
 import NOOP from '../../util/NOOP.js';
 import LOG from '../../util/Log';
+import { engineContext } from '../EngineData';
 
 /**
  * This class is responsible for loading the description files of entities. It
@@ -7,10 +8,10 @@ import LOG from '../../util/Log';
  * operations are backed by the DemandLoader and thus are asynchronous.
  */
 export default class DescriptionLoader {
-	constructor(ctx) {
-		
-		this._loader = ctx.loader;
-		this._url = ctx.url;
+	constructor() {
+
+		this._loader = engineContext.loader;
+		this._url = engineContext.url;
 	}
 
 	/**
@@ -23,10 +24,10 @@ export default class DescriptionLoader {
 	 *            name - The name of the sprite/visual description file.
 	 */
 	getDescription(name) {
-		if((typeof name) !== 'string') {
+		if ((typeof name) !== 'string') {
 			name = this._getNameFromData(name) + '_desc';
 		}
-		
+
 		return this._loader.get(name, 'json');
 	}
 
@@ -41,28 +42,28 @@ export default class DescriptionLoader {
 	 *            fnCallback - Callback function. Executed when the data was
 	 *            loaded.
 	 */
-	loadDescription(data, fnCallback) {		
+	loadDescription(data, fnCallback) {
 		fnCallback = fnCallback || NOOP;
 
 		var url = this._getUrlFromData(data);
 		var name = this._getNameFromData(data) + '_desc';
-		
+
 		LOG.debug('Loading description: ' + name + ' from: ' + url);
 
 		this._loader.load({
-			key : name,
-			type : 'json',
-			url : url
-		}, function() {
+			key: name,
+			type: 'json',
+			url: url
+		}, function () {
 			LOG.debug('Description loaded: ' + name + ' from: ' + url);
-			
+
 			var descFile = this.getDescription(name);
 			try {
 				fnCallback(descFile);
-			} catch(err) {
+			} catch (err) {
 				LOG.error('Error while executing callback after loaded description: ' + JSON.stringify(descFile), err);
 			}
-			
+
 		}.bind(this));
 	}
 
@@ -72,13 +73,13 @@ export default class DescriptionLoader {
 	_getUrlFromData(data) {
 
 		switch (data.sprite.type.toUpperCase()) {
-		case 'PACK':
-		case 'DYNAMIC':
-			// its an mob.
-			return this._url.getMobDescUrl(data.sprite.name);
-		default:
-			// its an object.
-			return this._url.getObjectDescUrl(data.sprite.name);
+			case 'PACK':
+			case 'DYNAMIC':
+				// its an mob.
+				return this._url.getMobDescUrl(data.sprite.name);
+			default:
+				// its an object.
+				return this._url.getObjectDescUrl(data.sprite.name);
 		}
 	}
 

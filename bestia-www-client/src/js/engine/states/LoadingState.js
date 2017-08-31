@@ -1,6 +1,6 @@
 import Signal from '../../io/Signal.js';
 import TileRender from '../renderer/TileRenderer';
-import renderManger from '../renderer/RenderManager';
+import { engineContext } from '../EngineData';
 import EntitySyncRequestMessage from '../../message/EntitySyncRequestMessage';
 
 /**
@@ -19,9 +19,9 @@ import EntitySyncRequestMessage from '../../message/EntitySyncRequestMessage';
  * @constructor
  */
 export default class LoadingState {
-	constructor(ctx) {
 
-		this._ctx = ctx;
+	constructor() {
+		// no op.
 	}
 
 	/**
@@ -32,7 +32,7 @@ export default class LoadingState {
 		this._loadingCounter--;
 
 		if (this._loadingCounter === 0) {
-			this._ctx.pubsub.publish(Signal.ENGINE_FINISHED_MAPLOAD);
+			engineContext.pubsub.publish(Signal.ENGINE_FINISHED_MAPLOAD);
 		}
 	}
 
@@ -42,7 +42,7 @@ export default class LoadingState {
 		this._loadingCounter = 1;
 
 		// Announce loading.
-		this._ctx.pubsub.publish(Signal.ENGINE_PREPARE_MAPLOAD);
+		engineContext.pubsub.publish(Signal.ENGINE_PREPARE_MAPLOAD);
 
 		// Prepare the loading screen.
 		this.gfx = this.add.graphics(0, 0);
@@ -55,13 +55,13 @@ export default class LoadingState {
 		//let updateMsg = { s: pb.sprite(), a: 'APPEAR', s: { s: pb.sprite(), t: pb.spriteType() } };
 		//this._ctx.entityFactory.load(updateMsg, this._checkFinishedLoading.bind(this));
 
-		let tileRender = renderManger.getRender(TileRender.NAME);
+		let tileRender = engineContext.renderManager.getRender(TileRender.NAME);
 		let chunks = tileRender.getVisibleChunks();
 		tileRender.loadChunks(chunks, this._checkFinishedLoading.bind(this));
 
 		// Request a loading of all entities.
 		let msg = new EntitySyncRequestMessage();
-		this._ctx.pubsub.send(msg);
+		engineContext.pubsub.send(msg);
 	}
 
 	create() {

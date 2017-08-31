@@ -4,6 +4,8 @@ import Indicator from './Indicator.js';
 import Message from '../../io/messages/Message.js';
 import WorldHelper from '../map/WorldHelper.js';
 import pathfinder from '../map/pathfinder';
+import { engineContext } from '../EngineData';
+import Signal from '../../io/Signal';
 
 /**
  * Basic indicator for visualization of the mouse pointer.
@@ -16,10 +18,13 @@ export default class MoveIndicator extends Indicator {
 
 		this._effect = null;
 
+		this._pubsub = engineContext.pubsub;
+		this._game = engineContext.game;
 
-		this._pubsub = manager.ctx.pubsub;
-		this._game = manager.ctx.game;
-		this._ctx = manager.ctx;
+		this.playerBestia = null;
+		this._pubsub.subscribe(Signal.BESTIA_SELECTED, function (_, bestia) {
+			this._playerBestia = bestia;
+		}, this);
 	}
 
 	_onPathFound(path) {
@@ -70,7 +75,7 @@ export default class MoveIndicator extends Indicator {
 	 */
 	load() {
 
-		this._game.load.spritesheet('cursor', this._ctx.url.getIndicatorUrl('cursor'), 32, 32);
+		this._game.load.spritesheet('cursor', engineContext.url.getIndicatorUrl('cursor'), 32, 32);
 	}
 
 	/**

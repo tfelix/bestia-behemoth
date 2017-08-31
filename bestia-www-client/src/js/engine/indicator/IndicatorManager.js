@@ -15,7 +15,7 @@ import BasicAttackIndicator from './BasicAttackIndicator.js';
  */
 export default class IndicatorManager {
 	
-	constructor(ctx) {
+	constructor() {
 
 		/**
 		 * Holds all the registered indicators.
@@ -36,15 +36,13 @@ export default class IndicatorManager {
 		 * @private
 		 */
 		this._active = null;
-
-		this.ctx = ctx;
 		
 		this._moveIndicator = new MoveIndicator(this);
 		this._nullIndicator = new NullIndicator(this);
 		
 		// Register the available indicators.
 		this._indicators.push(this._moveIndicator);
-		this._indicators.push(new ItemCastIndicator(this));
+		//this._indicators.push(new ItemCastIndicator(this));
 		this._indicators.push(new BasicAttackIndicator(this));
 	}
 	

@@ -16,8 +16,8 @@ const FACING = Object.freeze({
 
 export default class SpriteEntity extends Entity {
 	
-	constructor(ctx, id, x, y, desc) {
-		super(ctx, id);
+	constructor(id, x, y, desc) {
+		super(id);
 		
 		x = x || 0;
 		y = y || 0;

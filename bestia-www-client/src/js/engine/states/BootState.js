@@ -1,6 +1,13 @@
-
 import Signal from '../../io/Signal.js';
+import LOG from '../../util/Log';
+import {engineContext} from '../EngineData';
 
+var style = {
+	font : 'bold 32px Arial',
+	fill : '#fff',
+	boundsAlignH :'center',
+	boundsAlignV : 'middle'
+};
 
 /**
  * State is triggered once when the game starts. It will preload all the REALLY
@@ -13,28 +20,27 @@ import Signal from '../../io/Signal.js';
  */
 export default class BootState {
 	
-	constructor(ctx) {
-		
-		this._ctx = ctx;
+	constructor() {
+		//no op
 	}
 	
 	/**
 	 * Preload all the needed assets in order to display a loading screen.
 	 */
-	preload() {
-		
-		// Initialize the context with the new created phaser objects.
-		this._ctx.initialize(this.game);
-		
-		//this.game.load.image('logo', this._ctx.url.getImageUrl('logo_small'));
+	preload() {		
+		// TODO Load all needed data.
 	}
 	
 	create() {
+		var txt = this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'Booting', style);
 		
 		// Prevent rightclick.
 		this.game.canvas.oncontextmenu = (e) => e.preventDefault();
 		
 		// Setup the game context.
-		this._ctx.pubsub.publish(Signal.ENGINE_BOOTED);
+		engineContext.pubsub.publish(Signal.ENGINE_BOOTED);
+
+		LOG.info('Booting finished. Starting to initialize.');
+		this.game.state.start('initial_loading');
 	}
 }

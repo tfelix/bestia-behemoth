@@ -8,7 +8,7 @@ import Signal from '../../io/Signal';
  * has to be manually synchronized with the engine graphics inside a update step
  * towards the engine graphics.
  */
-class EntityCacheEx {
+export default class EntityCacheEx {
 	
 	/**
 	 * Ctor.
@@ -96,6 +96,3 @@ class EntityCacheEx {
 	}
 
 }
-
-var entityCache = new EntityCacheEx();
-export {entityCache as default};

@@ -5,7 +5,7 @@ import LOG from '../../util/Log';
  * The render manager controls the single render layers of the engine and is responsible
  * for calling them in the update step if the renderer mark themselves as dirty.
  */
-class RenderManager {
+export default class RenderManager {
 
 	constructor() {
 		this._renderer = [];
@@ -19,9 +19,9 @@ class RenderManager {
 	 */
 	addRender(render) {
 		this._renderer.push(render);
-		
+
 		// If it has a name attach it to the named renderer.
-		if(render.name) {
+		if (render.name) {
 			this._named[render.name] = render;
 		}
 	}
@@ -47,7 +47,10 @@ class RenderManager {
 	}
 
 	/**
-	 * Clears all renderer.
+	 * Clears all renderer resources. 
+	 * This basically frees all resources used up by the renderers.
+	 * This does NOT remove the renderer from the manager it only clears
+	 * the data used up by them.
 	 */
 	clear() {
 		this._renderer.forEach((r) => {
@@ -64,9 +67,15 @@ class RenderManager {
 			if (r.isDirty) {
 				r.update();
 			}
-		});
+		}, this);
+	}
+
+	/**
+	 * Creates the renderer and sets up resources which the renderer need.
+	 */
+	create() {
+		this._renderer.forEach((r) => {
+			r.create();
+		}, this);
 	}
 }
-
-var renderManager = new RenderManager();
-export { renderManager as default };

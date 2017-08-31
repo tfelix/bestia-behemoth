@@ -1,42 +1,43 @@
 import Builder from './Builder.js';
 import SpriteEntity from '../SpriteEntity';
-import groups, {GROUP_LAYERS} from '../../core/Groups';
+import groups, { GROUP_LAYERS } from '../../core/Groups';
 import LOG from '../../../util/Log';
 import Signal from '../../../io/Signal';
+import { engineContext } from '../../EngineData';
 
 /**
  * Responsible for building the packed (multisprite) entities. These are usually
  * mobs. All sprites which consists of multiple sprites with animation data.
  */
 export default class SpriteBuilder extends Builder {
-	constructor(factory, ctx) {
-		super(factory, ctx);
-		
+	constructor(factory) {
+		super(factory);
+
 		// Register with factory.
 		this.version = 1;
-		
+
 		/**
 		 * Url helper.
 		 */
-		this._url = ctx.url;
-		this._pubsub = ctx.pubsub;
+		this._url = engineContext.url;
+		this._pubsub = engineContext.pubsub;
 	}
-	
+
 	build(data, desc) {
 		LOG.debug('Building pack sprite.', data);
-		var entity = new SpriteEntity(this._ctx, data.eid, data.position.x, data.position.y, desc);
-		
+		var entity = new SpriteEntity(data.eid, data.position.x, data.position.y, desc);
+
 		groups.get(GROUP_LAYERS.SPRITES).add(entity._sprite);
-		
+
 		// We need to check how we can interact with this entity. If this is
 		// clear we add the behaviour of the move over. Currently its attack
 		// only.
-		entity.onInputOver = function() {
-			this._pubsub.publish(Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_over', entity: entity});
+		entity.onInputOver = function () {
+			this._pubsub.publish(Signal.ENGINE_REQUEST_INDICATOR, { handle: 'basic_attack_over', entity: entity });
 		}.bind(this);
-		
-		entity.onInputOut = function() {
-			this._pubsub.publish(Signal.ENGINE_REQUEST_INDICATOR, {handle: 'basic_attack_out', entity: entity});
+
+		entity.onInputOut = function () {
+			this._pubsub.publish(Signal.ENGINE_REQUEST_INDICATOR, { handle: 'basic_attack_out', entity: entity });
 		}.bind(this);
 
 		if (data.action === 'APPEAR') {
@@ -60,7 +61,8 @@ export default class SpriteBuilder extends Builder {
 	load(descFile, fnOnComplete) {
 
 		var pack = this._extendPack(descFile);
-		this._ctx.loader.loadPackData(pack, fnOnComplete);
+		LOG.debug('Loading pack data: ' + JSON.stringify(pack));
+		engineContext.loader.loadPackData(pack, fnOnComplete);
 
 	}
 
@@ -83,30 +85,30 @@ export default class SpriteBuilder extends Builder {
 
 		var msprites = descFile.multiSprite || [];
 
-		msprites.concat(additionalSprites).forEach(function(msName) {
+		msprites.concat(additionalSprites).forEach(function (msName) {
 
 			// Load the sprite.
 			packArray.push({
-				type : 'atlasJSONHash',
-				key : msName,
-				textureURL : this._url.getMultiSheetUrl(msName),
-				atlasURL : this._url.getMultiAtlasUrl(msName),
-				atlasData : null
+				type: 'atlasJSONHash',
+				key: msName,
+				textureURL: this._url.getMultiSheetUrl(msName),
+				atlasURL: this._url.getMultiAtlasUrl(msName),
+				atlasData: null
 			});
 
 			// Load the description.
 			packArray.push({
-				type : 'json',
-				key : msName + '_desc',
-				url : this._url.getMultiDescUrl(msName)
+				type: 'json',
+				key: msName + '_desc',
+				url: this._url.getMultiDescUrl(msName)
 			});
 
 			// Also include the offset file for this combination.
 			var offsetFileName = 'offset_' + msName + '_' + key;
 			packArray.push({
-				type : 'json',
-				key : offsetFileName,
-				url : this._url.getMultiOffsetUrl(msName, offsetFileName)
+				type: 'json',
+				key: offsetFileName,
+				url: this._url.getMultiOffsetUrl(msName, offsetFileName)
 			});
 
 		}, this);

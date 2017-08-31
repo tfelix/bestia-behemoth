@@ -6,10 +6,12 @@ import uglify from 'rollup-plugin-uglify';
 import replace from 'rollup-plugin-replace';
 
 export default [{
-  entry: 'src/js/main.js',
-  dest: 'build/js/behemoth.js',
-  format: 'iife',
-  sourceMap: true,
+  input: 'src/js/main.js',
+  output: {
+    file: 'build/js/behemoth.js',
+    format: 'iife'
+  },
+  sourcemap: true,
   plugins: [
     json(),
     replace({
@@ -36,24 +38,28 @@ export default [{
     (process.env.NODE_ENV === 'production' && uglify())
   ]
 }, {
-  entry: 'src/js/pages/login.js',
-  dest: 'build/js/login.js',
-  format: 'iife',
-  sourceMap: true,
+  input: 'src/js/pages/login.js',
+  output: {
+    file: 'build/js/login.js',
+    format: 'iife'
+  },
+  sourcemap: true,
   plugins: [
     json(),
-    resolve({jsnext: true, main: true}),
+    resolve({ jsnext: true, main: true }),
     commonjs()
   ]
 },
 {
-  entry: 'src/js/pages/register.js',
-  dest: 'build/js/register.js',
-  format: 'iife',
-  sourceMap: true,
+  input: 'src/js/pages/register.js',
+  output: {
+    file: 'build/js/register.js',
+    format: 'iife'
+  },
+  sourcemap: true,
   plugins: [
     json(),
-    resolve({jsnext: true, main: true}),
+    resolve({ jsnext: true, main: true }),
     commonjs()
   ]
 }];
