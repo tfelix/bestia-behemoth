@@ -14,6 +14,14 @@ export default class ClearCommand extends BasicCommand {
 		this.cmdRegex = /\/clear/i;
 		this.cmdHandle = 'clear';
 	}
+
+	_shortHelp(chat) {
+		chat.addLocalMessage('Clears the chat.');
+	}
+
+	_help(chat) {
+		chat.addLocalMessage('Clears the chat.');
+	}
 	
 	_doCommand(cmdStr, chat) {
 		chat.messages.removeAll();
