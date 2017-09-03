@@ -36,6 +36,7 @@ export default class EntityRenderer extends Renderer {
      * 
      */
     update() {
+        // TODO This is a mess. Cleanup.
         entityCache.getAllEntities().forEach(function (entity) {
 
             // Iterate over all entities and try to get the sprite and

@@ -50,68 +50,13 @@ export default class SpriteBuilder extends Builder {
 		return sprite;
 	}
 
-	/**
-	 * Responsible for loading all the needed date before a build of the object
-	 * can be performed.
-	 * 
-	 * @param data
+			/**
+	 * Loads all needed assets in order to perform a visual build of this
+	 * entity. The fnOnComplete is called when all data has been loaded.
 	 */
-	load(descFile, fnOnComplete) {
-
-		var pack = this._extendPack(descFile);
-		LOG.debug('Loading pack data: ' + JSON.stringify(pack));
-		engineContext.loader.loadPackData(pack, fnOnComplete);
-
-	}
-
-	/**
-	 * Extends the given pack with multisprite data. Also dynamic multisprites
-	 * can be requested by setting the additional sprite array.
-	 * 
-	 * @param descFile
-	 * @param additionalSprites
-	 * @returns
-	 */
-	_extendPack(descFile, additionalSprites) {
-
-		additionalSprites = additionalSprites || [];
-
+	load(descFile, fnOnComplete) {	
 		var pack = descFile.assetpack;
-		var key = descFile.name;
-
-		var packArray = pack[key];
-
-		var msprites = descFile.multiSprite || [];
-
-		msprites.concat(additionalSprites).forEach(function (msName) {
-
-			// Load the sprite.
-			packArray.push({
-				type: 'atlasJSONHash',
-				key: msName,
-				textureURL: this._url.getMultiSheetUrl(msName),
-				atlasURL: this._url.getMultiAtlasUrl(msName),
-				atlasData: null
-			});
-
-			// Load the description.
-			packArray.push({
-				type: 'json',
-				key: msName + '_desc',
-				url: this._url.getMultiDescUrl(msName)
-			});
-
-			// Also include the offset file for this combination.
-			var offsetFileName = 'offset_' + msName + '_' + key;
-			packArray.push({
-				type: 'json',
-				key: offsetFileName,
-				url: this._url.getMultiOffsetUrl(msName, offsetFileName)
-			});
-
-		}, this);
-
-		return pack;
+		engineContext.loader.loadPackData(pack, fnOnComplete);
 	}
 
 	canBuild(data) {

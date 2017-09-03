@@ -13,7 +13,7 @@
  * @param {delta} delta - The time delay for this movement and this client. The movement 
  * has started since this time already and must be speed up to compensate for this.
  */
-function entityAddMovement(entity, path, walkspeed, delta) {
+export function entityAddMovement(entity, path, walkspeed, delta) {
 
     walkspeed = walkspeed || 1;
     delta = delta || 0;
@@ -31,8 +31,6 @@ function entityAddMovement(entity, path, walkspeed, delta) {
  * 
  * @return {boolean}
  */
-function entityHasMovement(entity) {
+export function entityHasMovement(entity) {
     return entity.hasOwnProperty('movement');
 }
-
-export { entityAddMovement, entityHasMovement };

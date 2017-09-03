@@ -1,6 +1,5 @@
 import SpriteBuilder from './SpriteBuilder';
 import DynamicSpriteBuilder from './DynamicSpriteBuilder.js';
-import ItemBuilder from './ItemBuilder.js';
 import NOOP from '../../../util/NOOP.js';
 import LOG from '../../../util/Log';
 import DescriptionLoader from '../../DescriptionLoader.js';
@@ -27,7 +26,6 @@ export default class EntityFactory {
 
 		this.register(new SpriteBuilder(game));
 		this.register(new DynamicSpriteBuilder(game));
-		//this.register(new ItemBuilder(this, ctx));
 	}
 
 	/**
@@ -82,11 +80,11 @@ export default class EntityFactory {
 			// the entity. Hand over the now loaded description file as well as
 			// the callback.
 			LOG.debug('Description not found. Loading it.');
-			this.descLoader.loadDescription(data, this._continueBuild.bind(this, data, fnOnComplete));
+			this.descLoader.loadDescription(data, this._continueBuildWithDescription.bind(this, data, fnOnComplete));
 
 		} else {
 			LOG.debug('Description present building entity.');
-			this._continueBuild(data, fnOnComplete, descFile);
+			this._continueBuildWithDescription(data, fnOnComplete, descFile);
 		}
 	}
 
@@ -94,7 +92,7 @@ export default class EntityFactory {
 	 * After we got the initial description file we now must continue the
 	 * creation of the entity.
 	 */
-	_continueBuild(data, fnOnComplete, descFile) {
+	_continueBuildWithDescription(data, fnOnComplete, descFile) {
 		if (descFile === null) {
 			// Could not load desc file.
 			LOG.warn('Could not load description file from data: ' + JSON.stringify(data));

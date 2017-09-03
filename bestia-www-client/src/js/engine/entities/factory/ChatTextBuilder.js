@@ -1,16 +1,25 @@
 
+
+
+// Constant text style.
+ChatTextEntity.STYLE = {
+	font : '26px Arial',
+	fill : '#fff',
+	boundsAlignH : 'center',
+	boundsAlignV : 'middle'
+};
+
+ChatTextEntity.CHAT_DISPLAY_TIME = 3000;
+
 /**
- * Displays a chat text over a entity for a certain time.
+ * Offset of the chat text to be moved up.
+ * 
+ * @constant
  */
-export default class ChatTextEntity {
-	
-	/**
-	 * 
-	 * @param {Phaser.Sprite}
-	 *            origin - This is the sprite over which the chat text will be
-	 *            displayed.
-	 */
-	constructor(game, text, origin) {
+ChatTextEntity.Y_OFFSET = 65;
+
+/*
+
 
 		this._game = game;
 
@@ -43,22 +52,6 @@ export default class ChatTextEntity {
 			self._game.world.removeChild(self._sprite);
 			self._sprite.destroy();
 		}, ChatTextEntity.CHAT_DISPLAY_TIME);
-	}
-}
-
-// Constant text style.
-ChatTextEntity.STYLE = {
-	font : '26px Arial',
-	fill : '#fff',
-	boundsAlignH : 'center',
-	boundsAlignV : 'middle'
-};
-
-ChatTextEntity.CHAT_DISPLAY_TIME = 3000;
-
-/**
- * Offset of the chat text to be moved up.
- * 
- * @constant
- */
-ChatTextEntity.Y_OFFSET = 65;
+    }
+    
+    */

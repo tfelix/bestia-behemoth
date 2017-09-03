@@ -3,6 +3,8 @@ import groups, { GROUP_LAYERS } from '../../Groups';
 import LOG from '../../../util/Log';
 import { setupSpriteAnimation } from '../SpriteAnimationHelper';
 import WorldHelper from '../../map/WorldHelper';
+import { engineContext } from '../../EngineData';
+import { playSubspriteAnimation } from '../MultispriteAnimationHelper';
 
 const NULL_OFFSET = { x: 0, y: 0 };
 
@@ -54,7 +56,7 @@ export default class DynamicSpriteBuilder extends Builder {
 
 			let anchor = msDesc.anchor || { x: 0, y: 0 };
 			let msSprite = this._game.make.sprite(anchor.x, anchor.y, msName);
-			sprite.addChild(sprite);
+			sprite.addChild(msSprite);
 
 			msSprite.anchor = anchor;
 
@@ -69,7 +71,7 @@ export default class DynamicSpriteBuilder extends Builder {
 			msSprite.animations.add('top_left.png', ['top_left.png'], 0, true, false);
 
 			// Generate offset information.
-			let offsetFileName = this.getOffsetFilename(msName, data.name);
+			let offsetFileName = this.getOffsetFilename(msName, desc.name);
 			let offsets = this._game.cache.getJSON(offsetFileName) || {};
 
 			// Prepare the info object.
@@ -83,22 +85,74 @@ export default class DynamicSpriteBuilder extends Builder {
 				name: msName,
 				defaultCords: defaultCords
 			};
-
-			sprite.name = msName;
-
-			// The whole sprite setup is stupid. We need safty check because we
-			// call setSprite() from the parent ctor. Fix this.
-			if (!this._multiSprites) {
-				this._multiSprites = [];
-			}
-
-			this._multiSprites.push(msData);
 		}, this);
 
 		// After setting the subsprites we must manually call set
-		this._playSubspriteAnimation(this._sprite.animations.currentAnim.name);
+		playSubspriteAnimation(sprite, sprite.animations.currentAnim.name);
 
 		return sprite;
+	}
+
+	/**
+	 * Responsible for loading all the needed date before a build of the object
+	 * can be performed.
+	 * 
+	 * @param data
+	 */
+	load(descFile, fnOnComplete) {
+
+		var pack = this._extendPack(descFile);
+		engineContext.loader.loadPackData(pack, fnOnComplete);
+	}
+
+	/**
+	* Extends the given pack with multisprite data. Also dynamic multisprites
+	* can be requested by setting the additional sprite array.
+	* 
+	* @param descFile
+	* @param additionalSprites
+	* @returns
+	*/
+	_extendPack(descFile, additionalSprites) {
+
+		additionalSprites = additionalSprites || [];
+
+		var pack = descFile.assetpack;
+		var key = descFile.name;
+
+		var packArray = pack[key];
+
+		var msprites = descFile.multiSprite || [];
+
+		msprites.concat(additionalSprites).forEach(function (msName) {
+
+			// Load the sprite.
+			packArray.push({
+				type: 'atlasJSONHash',
+				key: msName,
+				textureURL: engineContext.url.getMultiSheetUrl(msName),
+				atlasURL: engineContext.url.getMultiAtlasUrl(msName),
+				atlasData: null
+			});
+
+			// Load the description.
+			packArray.push({
+				type: 'json',
+				key: msName + '_desc',
+				url: engineContext.url.getMultiDescUrl(msName)
+			});
+
+			// Also include the offset file for this combination.
+			var offsetFileName = 'offset_' + msName + '_' + key;
+			packArray.push({
+				type: 'json',
+				key: offsetFileName,
+				url: engineContext.url.getMultiOffsetUrl(msName, offsetFileName)
+			});
+
+		}, this);
+
+		return pack;
 	}
 
 	/**

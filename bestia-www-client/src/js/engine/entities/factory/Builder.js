@@ -36,7 +36,6 @@ export default class Builder {
 	 * entity. The fnOnComplete is called when all data has been loaded.
 	 */
 	load(descFile, fnOnComplete) {	
-		var pack = descFile.assetpack;
-		engineContext.loader.loadPackData(pack, fnOnComplete);
+		throw 'Childs must overwrite the load methood';
 	}
 }
