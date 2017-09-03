@@ -2,6 +2,8 @@ import Renderer from './Renderer';
 import LOG from '../../util/Log';
 import { spriteCache, entityCache } from '../EngineData';
 import EntityFactory from './../entities/factory/EntityFactory';
+import { entityHasMovement } from '../entities/EntityDataHelper';
+import SpriteMovementHelper from '../entities/SpriteMovementHelper';
 
 /**
  * Synchronizes the entity sprite position with the current sprite position of the game engine.
@@ -34,7 +36,7 @@ export default class EntityRenderer extends Renderer {
      */
     update() {
         entityCache.getAllEntities().forEach(function (entity) {
-            
+
             // Iterate over all entities and try to get the sprite and
             // check the current animation, position, movement etc.
             var sprite = spriteCache.getSprite(entity.eid);
@@ -46,8 +48,8 @@ export default class EntityRenderer extends Renderer {
                     entity.action = null;
                 }
             } else {
-
-                if(entity.movement) {
+                // Sprite is available.
+                if (entityHasMovement(entity)) {
                     this.moveEntity(entity, sprite);
                 } else {
                     sprite.x = entity.x;
@@ -76,7 +78,7 @@ export default class EntityRenderer extends Renderer {
      * Starts the movement process of the entity.
      */
     moveEntity(entity, sprite) {
-
+        LOG.info('Moving entity.');
         delete entity.movement;
     }
 }

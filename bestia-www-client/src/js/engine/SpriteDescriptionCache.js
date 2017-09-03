@@ -7,7 +7,12 @@
  * If there is an animation requested which does not exist it will return an alternative usable
  * animation name.
  */
-export default class SpriteAnimationCache {
+export default class SpriteDescriptionCache {
+
+	constructor() {
+
+		this._data = {};
+	}
 
 	/**
 	 * Adds the given sprite description to the manager and parses its data to a better usable
@@ -17,7 +22,32 @@ export default class SpriteAnimationCache {
 	 * @param {object} desc - Description for the sprite object.
 	 */
 	addSpriteDescription(desc) {
-		throw 'implement';
+
+		this._data[desc.name] = {
+			data: desc,
+			availableAnimationNames: this._getAnimationNames(desc)
+		};
+
+	}
+
+	/**
+	 * Extracts the available animation names from a description data file.
+	 */
+	_getAnimationNames(data) {
+		return data.animations.map(function (val) {
+			return val.name;
+		});
+	}
+
+	getRandomStandAnimation(spriteName) {
+		// Find all animations in which it stands.
+		var standAnimations = this._data[spriteName].animations.filter(function(anim) {
+			return anim.name.indexOf('stand') !== -1;
+		});
+
+		// Pick a custom one.
+		var i = Math.floor(Math.random() * standAnimations.length);
+		return standAnimations[i];
 	}
 
 	getOffsetDescription(spriteName, multisprite) {
@@ -30,6 +60,6 @@ export default class SpriteAnimationCache {
 	 * @public
 	 */
 	clear() {
-		throw 'implement';
+		this._data = {};
 	}
 }

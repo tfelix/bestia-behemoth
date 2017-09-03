@@ -26,4 +26,13 @@ function entityAddMovement(entity, path, walkspeed, delta) {
 
 }
 
-export { entityAddMovement };
+/**
+ * Checks if an entity structure has has movement attached.
+ * 
+ * @return {boolean}
+ */
+function entityHasMovement(entity) {
+    return entity.hasOwnProperty('movement');
+}
+
+export { entityAddMovement, entityHasMovement };

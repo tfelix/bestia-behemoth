@@ -1,4 +1,3 @@
-import SpriteEntity from './SpriteEntity.js';
 import LOG from './../../util/Log';
 
 const NULL_OFFSET = {x: 0, y: 0};
@@ -14,9 +13,8 @@ const NULL_OFFSET = {x: 0, y: 0};
  *            playerBestiaId The ID of the player bestia represented by this
  *            sprite.
  */
-export default class MultispriteEntity extends SpriteEntity {
+export default class MultispriteEntity {
 	constructor(id, x ,y, desc) {
-		super(id, x, y, desc);
 		
 		/**
 		 * Contains information about all multi sprites added to this sprite. It

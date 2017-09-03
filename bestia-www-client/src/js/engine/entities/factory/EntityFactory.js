@@ -3,7 +3,7 @@ import DynamicSpriteBuilder from './DynamicSpriteBuilder.js';
 import ItemBuilder from './ItemBuilder.js';
 import NOOP from '../../../util/NOOP.js';
 import LOG from '../../../util/Log';
-import DescriptionLoader from '../../core/DescriptionLoader.js';
+import DescriptionLoader from '../../DescriptionLoader.js';
 
 
 /**
@@ -12,7 +12,7 @@ import DescriptionLoader from '../../core/DescriptionLoader.js';
  * uses the correct javascript class to manage it. It gets added to the entity
  * cache to receive updates.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  */
 export default class EntityFactory {
 
@@ -26,8 +26,8 @@ export default class EntityFactory {
 		this.builder = [];
 
 		this.register(new SpriteBuilder(this, ctx));
-		this.register(new DynamicSpriteBuilder(this, ctx));
-		this.register(new ItemBuilder(this, ctx));
+		//this.register(new DynamicSpriteBuilder(this, ctx));
+		//this.register(new ItemBuilder(this, ctx));
 	}
 
 	/**
@@ -81,9 +81,11 @@ export default class EntityFactory {
 			// We must first load this file because we dont know anything about
 			// the entity. Hand over the now loaded description file as well as
 			// the callback.
+			LOG.debug('Description not found. Loading it.');
 			this.descLoader.loadDescription(data, this._continueBuild.bind(this, data, fnOnComplete));
 
 		} else {
+			LOG.debug('Description present building entity.');
 			this._continueBuild(data, fnOnComplete, descFile);
 		}
 	}
@@ -95,7 +97,7 @@ export default class EntityFactory {
 	_continueBuild(data, fnOnComplete, descFile) {
 		if (descFile === null) {
 			// Could not load desc file.
-			console.warn('Could not load description file from data: ' + JSON.stringify(data));
+			LOG.warn('Could not load description file from data: ' + JSON.stringify(data));
 			fnOnComplete(null);
 			return;
 		}
@@ -103,7 +105,7 @@ export default class EntityFactory {
 		var builder = this._getBuilder(data, descFile);
 
 		if (!builder) {
-			console.warn('No builder registered to build entity from data: ' + JSON.stringify(data));
+			LOG.warn('No builder registered to build entity from data: ' + JSON.stringify(data));
 			fnOnComplete(null);
 			return;
 		}
@@ -131,8 +133,15 @@ export default class EntityFactory {
 				throw 'No spritename (s) given';
 			}
 
-			let entity = builder.build(data, descFile);
+			let entity = null;
 
+			try {
+				entity = builder.build(data, descFile);
+			} catch(err) {
+				LOG.warn('Error while build sprite: ' + err);
+				entity = null;
+			}
+			
 			// Call the callback handler.
 			try {
 				fnOnComplete(entity);

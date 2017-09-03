@@ -1,7 +1,7 @@
 import SpriteBuilder from './SpriteBuilder';
 import MultispriteEntity from '../MultispriteEntity';
 import LOG from '../../../util/Log';
-import groups, {GROUP_LAYERS} from '../../core/Groups';
+import groups, {GROUP_LAYERS} from '../../Groups';
 import { engineContext } from '../../EngineData';
 
 /**

@@ -1,5 +1,5 @@
-import NOOP from '../../util/NOOP.js';
-import LOG from '../../util/Log';
+import NOOP from '../util/NOOP.js';
+import LOG from '../util/Log';
 
 /**
  * Performs and manages on demand reloads for assets. If something has to be

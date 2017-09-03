@@ -4,7 +4,7 @@ import RenderManager from '../renderer/RenderManager';
 import TileRenderer from '../renderer/TileRenderer';
 import EntityRenderer from '../renderer/EntityRenderer';
 import IndicatorManager from '../indicator/IndicatorManager';
-import DemandLoader from '../core/DemandLoader';
+import DemandLoader from '../DemandLoader';
 import {engineContext} from '../EngineData';
 import EntityUpdater from '../entities/EntityUpdater';
 

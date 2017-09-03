@@ -1,7 +1,7 @@
 /*global Phaser */
 
 import Signal from '../../io/Signal.js';
-import groups, {GROUP_LAYERS} from '../core/Groups';
+import groups, {GROUP_LAYERS} from '../Groups';
 import TileRender from '../renderer/TileRenderer';
 import WorldHelper from '../map/WorldHelper';
 import LOG from '../../util/Log';
@@ -70,9 +70,4 @@ export default class GameState {
 		this.game.debug.cameraInfo(this.game.camera, 32, 32);
 		// @endif
 	}
-
-	shutdown() {
-
-	}
-
 }

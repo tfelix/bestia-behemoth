@@ -1,6 +1,5 @@
 import Builder from './Builder.js';
-import SpriteEntity from '../SpriteEntity';
-import groups, { GROUP_LAYERS } from '../../core/Groups';
+import groups, { GROUP_LAYERS } from '../../Groups';
 import LOG from '../../../util/Log';
 import Signal from '../../../io/Signal';
 import { engineContext } from '../../EngineData';

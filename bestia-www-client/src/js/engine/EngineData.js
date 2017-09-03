@@ -1,6 +1,7 @@
 import PhaserSpriteCache from './PhaserSpriteCache';
 import EntityCacheEx from './entities/EntityCacheEx';
 import Pathfinder from './map/Pathfinder';
+import SpriteDescriptionCache from './SpriteDescriptionCache';
 
 /**
  * Contains the data for the phaser engine to render.
@@ -9,6 +10,7 @@ import Pathfinder from './map/Pathfinder';
 var spriteCache = new PhaserSpriteCache();
 var entityCache = new EntityCacheEx();
 var pathfinder = new Pathfinder(); 
+var descriptionCache = new SpriteDescriptionCache();
 
 var engineContext = {
     pubsub: null,
@@ -20,4 +22,4 @@ var engineContext = {
     entityUpdater: null
 };
 
-export {spriteCache, entityCache, engineContext, pathfinder};
+export {spriteCache, entityCache, engineContext, pathfinder, descriptionCache};

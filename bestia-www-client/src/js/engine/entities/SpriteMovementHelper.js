@@ -28,7 +28,36 @@ function getWalkDuration(length, walkspeed) {
     return Math.round((1 / 1.4) * length / walkspeed * 1000);
 }
 
-var SpriteHelper = {
+var SpriteMovementHelper = {
+
+    /**
+     * Helper function to setup a sprite with all the information contained
+     * inside a description object.
+     * 
+     * @param sprite
+     * @param {String} spriteName - Name of the sprite to be setup.
+     */
+    setupSprite(sprite, spriteName) {
+
+        var desc = engineContext.descriptionCache.getDescription(spriteName);
+
+        // Setup the normal data.
+        sprite.anchor = desc.anchor || {
+            x: 0.5,
+            y: 0.5
+        };
+        sprite.scale.setTo(desc.scale || 1);
+        // Sprite is invisible at first.
+        sprite.alpha = 0;
+
+        var anims = desc.animations || [];
+
+        // Register all the animations of the sprite.
+        anims.forEach(function (anim) {
+            var frames = Phaser.Animation.generateFrameNames(anim.name + '/', anim.from, anim.to, '.png', 3);
+            sprite.animations.add(anim.name, frames, anim.fps, true, false);
+        }, this);
+    },
 
     /**
      * Moves the entity along a certain path. The path is an array with {x: INT,
@@ -111,6 +140,42 @@ var SpriteHelper = {
         var animName = this._getWalkAnimationName(path[0], path[1]);
         this.playAnimation(animName);
         sprite.tweenMove.start();
+    },
+
+    /**
+     * This is a move advanced checking algorithm for the position. It will see
+     * if the entity is moving towards the current point and until there is a
+     * threshold it will only fasten the movement speed to reach the given point
+     * or slow down the movement if the sprite has already passed it. For
+     * smoother calculation we weill be in pixel space.
+     */
+    setPosition: function (sprite, x, y) {
+
+        // Position directly if we are not moving.
+        if(!this.isMoving(sprite, x, y)) {
+            sprite.x = x;
+            sprite.y = y;
+            return;
+        }
+
+        let posPx = WorldHelper.getPxXY(x, y);
+        let curPosPx = this.getPositionPx();
+
+        // We need to check if we are moving away or towards our given position.
+        let curPathPos = this._currentPath[this._currentPathCounter];
+        var curPathPosPx = WorldHelper.getPxXY(curPathPos.x, curPathPos.y);
+
+        let d = WorldHelper.getDistance(curPosPx, curPathPosPx);
+
+        if (isNaN(d)) {
+            // Some error occured while calculating the distance.
+            LOG.warn('Error while calculating the distance.');
+            return;
+        }
+
+        // TODO Do some lerping here.
+
+
     },
 
     /**
@@ -229,8 +294,69 @@ var SpriteHelper = {
         }
 
         sprite.play(name);
+    },
+
+    /**
+     * Tests if the entity sprite supports a certain animation name. It gets a
+     * bit complicated since some animations are implemented purely in software
+     * (right walking a mirror of left walking).
+     * 
+     * @param name
+     */
+    _hasAnimationName(name) {
+        if (name.indexOf('right') !== -1) {
+            name = name.replace('right', 'left');
+        }
+
+        return this._availableAnimationNames.indexOf(name) !== -1;
+    },
+
+	/**
+	 * Tries to find a alternate animation. If no supported animation could be
+	 * found, we will return null.
+	 * 
+	 * @private
+	 * @return {String} - Newly found animation to display, or NULL if no
+	 *         suitable animation could been found.
+	 */
+    _getAnimationFallback: function (name) {
+        if (name === 'stand_down_left' || name === 'stand_left') {
+            // Try to replace it with stand down.
+            if (this._availableAnimationNames.indexOf('stand_down') === -1) {
+                return null;
+            } else {
+                return 'stand_down';
+            }
+        }
+
+        if (name == 'stand_left_up') {
+            // Try to replace it with stand down.
+            if (this._availableAnimationNames.indexOf('stand_up') === -1) {
+                return null;
+            } else {
+                return 'stand_up';
+            }
+        }
+
+        if (name == 'stand_right') {
+            // Try to replace it with stand down.
+            if (this._availableAnimationNames.indexOf('stand_up') === -1) {
+                return null;
+            } else {
+                return 'stand_up';
+            }
+        }
+
+        return null;
+    },
+
+    /**
+     * Returns true if the entity is currently moving.
+     */
+    isMoving: function (sprite) {
+        return sprite._movingTween !== null && sprite._movingTween.isRunning;
     }
 }
 
 
-export { SpriteHelper as default };
+export { SpriteMovementHelper as default };

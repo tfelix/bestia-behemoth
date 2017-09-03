@@ -1,6 +1,6 @@
-import NOOP from '../../util/NOOP.js';
-import LOG from '../../util/Log';
-import { engineContext } from '../EngineData';
+import NOOP from '../util/NOOP.js';
+import LOG from '../util/Log';
+import { engineContext } from './EngineData';
 
 /**
  * This class is responsible for loading the description files of entities. It

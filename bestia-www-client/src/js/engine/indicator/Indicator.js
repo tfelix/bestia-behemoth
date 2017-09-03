@@ -1,5 +1,5 @@
 import WorldHelper from '../map/WorldHelper.js';
-import groups, {GROUP_LAYERS} from '../core/Groups';
+import groups, {GROUP_LAYERS} from '../Groups';
 import IndicatorManager from './IndicatorManager.js';
 import { engineContext } from '../EngineData';
 
