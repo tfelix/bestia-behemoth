@@ -45,16 +45,16 @@ export default class SpriteBuilder extends Builder {
 
 
 		// Switch to idle animation.
-		sprite.animations.play('stand_up');
+		sprite.animations.play('stand_down');
 
 		return sprite;
 	}
 
-			/**
+	/**
 	 * Loads all needed assets in order to perform a visual build of this
 	 * entity. The fnOnComplete is called when all data has been loaded.
 	 */
-	load(descFile, fnOnComplete) {	
+	load(descFile, fnOnComplete) {
 		var pack = descFile.assetpack;
 		engineContext.loader.loadPackData(pack, fnOnComplete);
 	}

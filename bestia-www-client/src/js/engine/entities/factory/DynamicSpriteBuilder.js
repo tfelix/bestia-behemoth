@@ -39,6 +39,8 @@ export default class DynamicSpriteBuilder extends Builder {
 
 		groups.get(GROUP_LAYERS.SPRITES).add(sprite);
 
+		setupSpriteAnimation(sprite, desc);
+
 		// Add the multi sprites if there are some of them.
 		var multisprites = desc.multiSprite || [];
 

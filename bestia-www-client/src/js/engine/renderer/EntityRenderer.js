@@ -17,6 +17,8 @@ export default class EntityRenderer extends Renderer {
     constructor(game) {
         super();
 
+        this._game = game;
+
         this._entityFactory = new EntityFactory(game);
     }
 
@@ -54,8 +56,8 @@ export default class EntityRenderer extends Renderer {
                 if (entityHasMovement(entity)) {
                     this.moveEntity(entity, sprite);
                 } else {
-                    sprite.x = entity.x;
-                    sprite.y = entity.y;
+                    //sprite.x = entity.x;
+                    //sprite.y = entity.y;
                     this.tickEntityAnimation(entity, sprite);
                 }
 
@@ -82,7 +84,10 @@ export default class EntityRenderer extends Renderer {
             if (displayObj) {
                 LOG.debug('Adding sprite to sprite cache: ' + entity.sprite.name);
                 spriteCache.setSprite(entity.eid, displayObj);
-                displayObj.alpha = 1;
+                displayObj.alpha = 0;
+                
+                // Fade in the entity.
+                this._game.add.tween(displayObj).to( { alpha: 1 }, 500, Phaser.Easing.Linear.None, true);
             }
 
         }.bind(this));
