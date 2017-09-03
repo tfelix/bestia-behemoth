@@ -13,11 +13,11 @@ import LOG from '../util/Log';
  *            that one.
  */
 export default class DemandLoader {
-	
+
 	constructor(phaserGame) {
-		
+
 		this._cache = {};
-		
+
 		this._game = phaserGame;
 		this._phaserCache = phaserGame.cache;
 		this._loader = phaserGame.load;
@@ -31,25 +31,22 @@ export default class DemandLoader {
 
 		// Add the callbacks.
 		this._game.load.onFileComplete.add(this._fileLoadedCallback, this);
-		
-		//pubsub.subscribe(DemandLoader.Message.LOAD, this._asyncLoad, this);
-		//pubsub.subscribe(DemandLoader.Message.LOAD_PACK, this._asyncLoadPack, this);
 	}
-	
+
 	/**
 	 * Performs an async loading of the given data via the pubsub system.
 	 */
 	_asyncLoad(_, msg) {
 		this.load(msg.data, msg.callback);
 	}
-	
+
 	/**
 	 * Performs an async loading of the given pack via the pubsub system.
 	 */
 	_asyncLoadPack(_, msg) {
 		this.loadPack(msg.data, msg.callback);
 	}
-	
+
 	_fileLoadedCallback(progress, key) {
 
 		var cacheData = null;
@@ -72,13 +69,13 @@ export default class DemandLoader {
 			var pack = this._phaserCache.getJSON(key);
 
 			// Add all files of this pack to our file list.
-			var keyList = pack[key].map(function(x) {
+			var keyList = pack[key].map(function (x) {
 				return x.key;
 			});
 
 			// Save the keys inside the pack into the pack key cache with a
 			// reference to the main cache key.
-			keyList.forEach(function(x) {
+			keyList.forEach(function (x) {
 				this._packKeyCache[x] = key;
 			}, this);
 
@@ -91,18 +88,18 @@ export default class DemandLoader {
 		} else {
 			cacheData.toLoad--;
 			if (cacheData.toLoad === 0) {
-				
+
 				// Delete the entry in cache.
 				delete this._cache[key];
 
-				cacheData.callbackFns.forEach(function(x) {
+				cacheData.callbackFns.forEach(function (x) {
 					try {
 						x();
 					} catch (err) {
 						console.error('DemandLoader#_fileLoadedCallback: ' + err, x);
 					}
 				});
-				
+
 				// Restart to fetch queued stuff.
 				this._loader.start();
 			}
@@ -120,7 +117,7 @@ export default class DemandLoader {
 
 			var hasCache = true;
 
-			keys.forEach(function(val) {
+			keys.forEach(function (val) {
 				hasCache = hasCache & this._hasLoaded(val.key, val.type);
 			}.bind(this));
 
@@ -142,14 +139,14 @@ export default class DemandLoader {
 		}
 
 		switch (type) {
-		case 'image':
-		case 'item':
-			return this._phaserCache.getImage(key);
-		case 'json':
-			return this._phaserCache.getJSON(key);
-		default:
-			console.warn('DemandLoader#get: Unknown type.');
-			return false;
+			case 'image':
+			case 'item':
+				return this._phaserCache.getImage(key);
+			case 'json':
+				return this._phaserCache.getJSON(key);
+			default:
+				console.warn('DemandLoader#get: Unknown type.');
+				return false;
 		}
 	}
 
@@ -161,17 +158,17 @@ export default class DemandLoader {
 	 */
 	_hasLoaded(key, type) {
 		switch (type) {
-		case 'image':
-		case 'item':
-		// Atlas is currently inconsistently handled inside the cache.
-		// see https://github.com/photonstorm/phaser/issues/2893
-		case 'atlasJSONHash':
-			return this._phaserCache.checkImageKey(key);
-		case 'json':
-			return this._phaserCache.checkJSONKey(key);
-		default:
-			console.warn('_hasLoaded: Unknown type.');
-			return false;
+			case 'image':
+			case 'item':
+			// Atlas is currently inconsistently handled inside the cache.
+			// see https://github.com/photonstorm/phaser/issues/2893
+			case 'atlasJSONHash':
+				return this._phaserCache.checkImageKey(key);
+			case 'json':
+				return this._phaserCache.checkJSONKey(key);
+			default:
+				console.warn('_hasLoaded: Unknown type.');
+				return false;
 
 		}
 	}
@@ -189,7 +186,7 @@ export default class DemandLoader {
 		// only one key.
 		// So I guess we re safe.
 		var key = '';
-		for ( var a in pack) {
+		for (var a in pack) {
 			key = a;
 			break;
 		}
@@ -200,43 +197,44 @@ export default class DemandLoader {
 			this._cache[key].callbackFns.push(fnOnComplete);
 			return;
 		}
-		
+
 		// Remove all files from this pack which are already loaded.
-		let notLoadedFiles = pack[key].filter(function(file){
+		let notLoadedFiles = pack[key].filter(function (file) {
 			return !this._hasLoaded(file.key, file.type);
 		}, this);
-		
-		if(notLoadedFiles.length === 0) {
+
+		if (notLoadedFiles.length === 0) {
 			try {
 				fnOnComplete();
-			} catch(e) {
+			} catch (e) {
 				LOG.error('Could not execute demand loader callback. ' + e, fnOnComplete);
 			}
 			return;
 		} else {
-			LOG.debug('Not all assets loaded. Loading: ', notLoadedFiles);
+			LOG.debug('Not all assets loaded. Loading: ' + JSON.stringify(notLoadedFiles));
 		}
 
 		// Add all files of this pack to our file list.
-		var keyList = notLoadedFiles.map(function(x) {
+		var keyList = notLoadedFiles.map(function (x) {
 			return x.key;
 		});
-		
+
 		// Check if there are
 
-		keyList.forEach(function(x) {
+		keyList.forEach(function (x) {
 			this._packKeyCache[x] = key;
 		}, this);
 
-		this._cache[key] ={
-			key : key,
-			callbackFns : [ fnOnComplete ],
-			toLoad : keyList.length,
+		this._cache[key] = {
+			key: key,
+			callbackFns: [fnOnComplete],
+			toLoad: keyList.length,
 			items: keyList,
-			type : 'file'
+			type: 'file'
 		};
 
 		// Start to load all data in this pack.
+		LOG.debug('Loading pack file: ' + JSON.stringify(pack) + ' key: ' + key);
 		this._loader.pack(key, null, pack);
 		this._loader.start();
 	}
@@ -262,37 +260,32 @@ export default class DemandLoader {
 			this._cache[data.key].callbackFns.push(fnOnComplete);
 			return;
 		}
-		
+
 		if (this._hasLoaded(data.key, data.type)) {
 			fnOnComplete();
 			return;
 		}
 
 		switch (data.type) {
-		case 'json':
-			this._loader.json(data.key, data.url);
-			break;
-		case 'image':
-			this._loader.image(data.key, data.url);
-			break;
-		default:
-			LOG.warn('Loading this type not supported: ' + data.type);
-			return;
+			case 'json':
+				this._loader.json(data.key, data.url);
+				break;
+			case 'image':
+				this._loader.image(data.key, data.url);
+				break;
+			default:
+				LOG.warn('Loading this type not supported: ' + data.type);
+				return;
 		}
 
 		let countObj = {
-			key : data.key,
-			callbackFns : [ fnOnComplete ],
-			toLoad : 1,
-			type : 'file'
+			key: data.key,
+			callbackFns: [fnOnComplete],
+			toLoad: 1,
+			type: 'file'
 		};
 
 		this._cache[data.key] = countObj;
 		this._loader.start();
 	}
 }
-
-DemandLoader.Message = Object.freeze({
-	LOAD : 'loader.load',
-	LOAD_PACK : 'loader.pack'
-});

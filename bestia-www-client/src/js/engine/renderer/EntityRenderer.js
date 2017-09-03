@@ -4,6 +4,7 @@ import { spriteCache, entityCache } from '../EngineData';
 import EntityFactory from './../entities/factory/EntityFactory';
 import { entityHasMovement } from '../entities/EntityDataHelper';
 import SpriteMovementHelper from '../entities/SpriteMovementHelper';
+import { isMultisprite, playSubspriteAnimation } from '../entities/MultispriteAnimationHelper';
 
 /**
  * Synchronizes the entity sprite position with the current sprite position of the game engine.
@@ -13,10 +14,10 @@ export default class EntityRenderer extends Renderer {
     /**
      * 
      */
-    constructor() {
+    constructor(game) {
         super();
 
-        this._entityFactory = new EntityFactory();
+        this._entityFactory = new EntityFactory(game);
     }
 
     get name() {
@@ -56,6 +57,14 @@ export default class EntityRenderer extends Renderer {
                     sprite.y = entity.y;
                     this.tickEntityAnimation(entity, sprite);
                 }
+
+                if(entity.animation) {
+                    if(isMultisprite(sprite)) {
+                        playSubspriteAnimation(sprite, entity.animation);
+                    } else {
+                        sprite.animations.play(entity.animation);
+                    }
+                }
             }
         }, this);
     }
@@ -69,7 +78,11 @@ export default class EntityRenderer extends Renderer {
         // Build the display object and attach it to the sprite cache.
         this._entityFactory.build(entity, function (displayObj) {
 
-            spriteCache.setSprite(entity.eid, displayObj);
+            if (displayObj) {
+                LOG.debug('Adding sprite to sprite cache: ' + entity.sprite.name);
+                spriteCache.setSprite(entity.eid, displayObj);
+                displayObj.alpha = 1;
+            }
 
         }.bind(this));
     }

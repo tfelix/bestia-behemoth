@@ -15,7 +15,6 @@ var descriptionCache = new SpriteDescriptionCache();
 var engineContext = {
     pubsub: null,
     renderManager: null,
-    demandLoader: null,
     indicatorManager: null,
     loader: null,
     url: null,

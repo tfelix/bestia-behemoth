@@ -1,14 +1,13 @@
+import {engineContext} from '../../EngineData';
+
 /**
  * Baseclass of the builder. It is used automatically to create map entities
  * (bestias, items etc.)
  */
 export default class Builder {
 	
-	constructor(factory, ctx) {
-		
-		this._factory = factory;
-		
-		this._ctx = ctx;
+	constructor() {
+		// no op.
 	}
 
 	/**
@@ -16,7 +15,7 @@ export default class Builder {
 	 */
 	build() {
 		
-		throw new Error('Must be overwritten by child class.');
+		throw 'Must be overwritten by child class.';
 		
 	}
 
@@ -24,6 +23,11 @@ export default class Builder {
 	 * Checks whenever a concrete builder can generate/build a given dataset.
 	 */
 	canBuild(data) {
+
+		if(!this.type || !this.version) {
+			throw 'The fields type and/or version are not implemented by this class.';
+		}
+
 		return data.type === this.type && data.version === this.version;
 	}
 
@@ -33,6 +37,6 @@ export default class Builder {
 	 */
 	load(descFile, fnOnComplete) {	
 		var pack = descFile.assetpack;
-		this._ctx.loader.loadPackData(pack, fnOnComplete);
+		engineContext.loader.loadPackData(pack, fnOnComplete);
 	}
 }

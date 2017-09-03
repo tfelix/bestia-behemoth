@@ -16,17 +16,17 @@ import DescriptionLoader from '../../DescriptionLoader.js';
  */
 export default class EntityFactory {
 
-	constructor(ctx) {
+	constructor(game) {
 
-		this.descLoader = new DescriptionLoader(ctx);
+		this.descLoader = new DescriptionLoader();
 
 		/**
 		 * Registry for the builder to register themselfes.
 		 */
 		this.builder = [];
 
-		this.register(new SpriteBuilder(this, ctx));
-		//this.register(new DynamicSpriteBuilder(this, ctx));
+		this.register(new SpriteBuilder(game));
+		this.register(new DynamicSpriteBuilder(game));
 		//this.register(new ItemBuilder(this, ctx));
 	}
 

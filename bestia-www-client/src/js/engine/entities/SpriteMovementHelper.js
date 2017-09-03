@@ -31,35 +31,6 @@ function getWalkDuration(length, walkspeed) {
 var SpriteMovementHelper = {
 
     /**
-     * Helper function to setup a sprite with all the information contained
-     * inside a description object.
-     * 
-     * @param sprite
-     * @param {String} spriteName - Name of the sprite to be setup.
-     */
-    setupSprite(sprite, spriteName) {
-
-        var desc = engineContext.descriptionCache.getDescription(spriteName);
-
-        // Setup the normal data.
-        sprite.anchor = desc.anchor || {
-            x: 0.5,
-            y: 0.5
-        };
-        sprite.scale.setTo(desc.scale || 1);
-        // Sprite is invisible at first.
-        sprite.alpha = 0;
-
-        var anims = desc.animations || [];
-
-        // Register all the animations of the sprite.
-        anims.forEach(function (anim) {
-            var frames = Phaser.Animation.generateFrameNames(anim.name + '/', anim.from, anim.to, '.png', 3);
-            sprite.animations.add(anim.name, frames, anim.fps, true, false);
-        }, this);
-    },
-
-    /**
      * Moves the entity along a certain path. The path is an array with {x: INT,
      * y: INT} components. The path must not contain the current position of the
      * entity.
