@@ -2,8 +2,7 @@ import Renderer from './Renderer';
 import LOG from '../../util/Log';
 import { spriteCache, entityCache } from '../EngineData';
 import EntityFactory from './../entities/factory/EntityFactory';
-import { entityHasMovement } from '../entities/EntityDataHelper';
-import SpriteMovementHelper from '../entities/SpriteMovementHelper';
+import { entityHasMovement, spriteMovePath } from '../entities/SpriteMovementHelper';
 import { isMultisprite, playSubspriteAnimation } from '../entities/MultispriteAnimationHelper';
 
 /**
@@ -52,24 +51,38 @@ export default class EntityRenderer extends Renderer {
                     entity.action = null;
                 }
             } else {
-                // Sprite is available.
-                if (entityHasMovement(entity)) {
-                    this.moveEntity(entity, sprite);
-                } else {
-                    //sprite.x = entity.x;
-                    //sprite.y = entity.y;
-                    this.tickEntityAnimation(entity, sprite);
-                }
-
-                if(entity.animation) {
-                    if(isMultisprite(sprite)) {
-                        playSubspriteAnimation(sprite, entity.animation);
-                    } else {
-                        sprite.animations.play(entity.animation);
-                    }
-                }
+                this.checkSpriteRender(entity, sprite);
             }
         }, this);
+    }
+
+    /**
+     * Checks if some render operations are waiting to be executed for this sprite.
+     * 
+     * @param {object} entity 
+     * @param {PhaserJS.Sprite} sprite 
+     */
+    checkSpriteRender(entity, sprite) {
+
+        if (entityHasMovement(entity)) {
+            LOG.info('Moving entity: ' + entity.id);
+
+            spriteMovePath(sprite, entity.movement.path, entity.movement.walkspeed);
+
+            delete entity.movement;
+        } else {
+            //sprite.x = entity.x;
+            //sprite.y = entity.y;
+            this.tickEntityAnimation(entity, sprite);
+        }
+
+        if (entity.animation) {
+            if (isMultisprite(sprite)) {
+                playSubspriteAnimation(sprite, entity.animation);
+            } else {
+                sprite.animations.play(entity.animation);
+            }
+        }
     }
 
     tickEntityAnimation(entity, sprite) {
@@ -85,19 +98,14 @@ export default class EntityRenderer extends Renderer {
                 LOG.debug('Adding sprite to sprite cache: ' + entity.sprite.name);
                 spriteCache.setSprite(entity.eid, displayObj);
                 displayObj.alpha = 0;
-                
+
                 // Fade in the entity.
-                this._game.add.tween(displayObj).to( { alpha: 1 }, 500, Phaser.Easing.Linear.None, true);
+                this._game.add.tween(displayObj).to({ alpha: 1 }, 500, Phaser.Easing.Linear.None, true);
+
+                // Check if it needs rendering.
+                this.checkSpriteRender(entity, displayObj);
             }
 
         }.bind(this));
-    }
-
-    /**
-     * Starts the movement process of the entity.
-     */
-    moveEntity(entity, sprite) {
-        LOG.info('Moving entity.');
-        delete entity.movement;
     }
 }

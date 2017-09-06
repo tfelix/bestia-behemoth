@@ -24,7 +24,7 @@ export default class SpriteBuilder extends Builder {
 		LOG.debug('Building: ' + JSON.stringify(data) + ' (sprite)');
 
 		// Create the sprite.
-		var pos = WorldHelper.getPxXY(data.position.x + 0.5, data.position.y + 0.5);
+		var pos = WorldHelper.getPxXY(data.position.x + 0.5, data.position.y + 0.9);
 		var sprite = this._game.add.sprite(pos.x, pos.y, desc.name);
 
 		groups.get(GROUP_LAYERS.SPRITES).add(sprite);

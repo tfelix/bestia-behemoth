@@ -4,7 +4,7 @@ import LOG from '../../../util/Log';
 import { setupSpriteAnimation } from '../SpriteAnimationHelper';
 import WorldHelper from '../../map/WorldHelper';
 import { engineContext } from '../../EngineData';
-import { playSubspriteAnimation } from '../MultispriteAnimationHelper';
+import { playSubspriteAnimation, addSubsprite } from '../MultispriteAnimationHelper';
 
 const NULL_OFFSET = { x: 0, y: 0 };
 
@@ -32,10 +32,8 @@ export default class DynamicSpriteBuilder extends Builder {
 	build(data, desc) {
 		LOG.debug('Building: ' + JSON.stringify(data) + ' (dynamic sprite)');
 
-		var pos = WorldHelper.getPxXY(data.position.x + 0.5, data.position.y + 0.5);
+		var pos = WorldHelper.getPxXY(data.position.x + 0.5, data.position.y + 0.9);
 		var sprite = this._game.add.sprite(pos.x, pos.y, desc.name);
-
-		sprite.bType = 'multi';
 
 		groups.get(GROUP_LAYERS.SPRITES).add(sprite);
 
@@ -45,6 +43,7 @@ export default class DynamicSpriteBuilder extends Builder {
 		var multisprites = desc.multiSprite || [];
 
 		multisprites.forEach(function (msName) {
+			LOG.debug('Adding multisprite: ' + msName);
 
 			// Get the desc file of the multisprite.
 			var msDescName = msName + '_desc';
@@ -56,11 +55,17 @@ export default class DynamicSpriteBuilder extends Builder {
 				return;
 			}
 
+			let defaultCords = offsets.defaultCords || {
+				x: 0,
+				y: 0
+			};
+			
+			let msSprite = this._game.make.sprite(0, 0, msName);
 			let anchor = msDesc.anchor || { x: 0, y: 0 };
-			let msSprite = this._game.make.sprite(anchor.x, anchor.y, msName);
-			sprite.addChild(msSprite);
-
+			
 			msSprite.anchor = anchor;
+			msSprite.x = defaultCords.x;
+			msSprite.y = defaultCords.y;
 
 			// TODO This should be automatically parsed.
 			// Setup the normal data.
@@ -77,16 +82,20 @@ export default class DynamicSpriteBuilder extends Builder {
 			let offsets = this._game.cache.getJSON(offsetFileName) || {};
 
 			// Prepare the info object.
-			let defaultCords = offsets.defaultCords || {
-				x: 0,
-				y: 0
-			};
+			
+			
 			let msData = {
 				sprite: sprite,
 				offsets: offsets.offsets || [],
 				name: msName,
 				defaultCords: defaultCords
 			};
+
+			// Save the multisprite data to the phaser sprite.
+			// maybe we can centralize this aswell.
+			msSprite._subspriteData = msData;
+
+			addSubsprite(sprite, msSprite);
 		}, this);
 
 		// After setting the subsprites we must manually call set

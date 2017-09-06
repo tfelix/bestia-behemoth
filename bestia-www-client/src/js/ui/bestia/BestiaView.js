@@ -162,7 +162,7 @@ export default class BestiaView {
 
 		if (bestia !== null) {
 			// Just update it.
-			bestia.update(msg.b);
+			bestia.update(msg);
 			return;
 		}
 
@@ -200,6 +200,6 @@ export default class BestiaView {
 	 */
 	_selectBestia(bestia) {
 		this.selectedBestia(bestia);
-		this._pubsub.publish(Signal.BESTIA_SELECTED, this.selectedBestia());
+		this._pubsub.publish(Signal.BESTIA_SELECTED, bestia);
 	}
 }
