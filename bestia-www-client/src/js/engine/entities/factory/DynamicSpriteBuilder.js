@@ -85,17 +85,12 @@ export default class DynamicSpriteBuilder extends Builder {
 			
 			
 			let msData = {
-				sprite: sprite,
 				offsets: offsets.offsets || [],
 				name: msName,
 				defaultCords: defaultCords
 			};
 
-			// Save the multisprite data to the phaser sprite.
-			// maybe we can centralize this aswell.
-			msSprite._subspriteData = msData;
-
-			addSubsprite(sprite, msSprite);
+			addSubsprite(sprite, msSprite, msData);
 		}, this);
 
 		// After setting the subsprites we must manually call set
