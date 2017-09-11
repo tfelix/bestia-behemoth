@@ -31,7 +31,7 @@ export function setupSpriteAnimation(sprite, description) {
     }.bind(this));
 }
 
-export function addSubsprite(sprite, subsprite) {
+export function addSubsprite(sprite, subsprite, msData) {
     if (!sprite.hasOwnProperty('_subsprites')) {
         sprite._subsprites = [];
     }

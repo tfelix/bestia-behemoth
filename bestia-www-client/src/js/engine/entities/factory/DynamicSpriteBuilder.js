@@ -43,7 +43,7 @@ export default class DynamicSpriteBuilder extends Builder {
 		var multisprites = desc.multiSprite || [];
 
 		multisprites.forEach(function (msName) {
-			LOG.debug('Adding multisprite: ' + msName);
+			LOG.debug('Adding multisprite to main sprite: ' + msName);
 
 			// Get the desc file of the multisprite.
 			var msDescName = msName + '_desc';
@@ -82,7 +82,7 @@ export default class DynamicSpriteBuilder extends Builder {
 			msSprite.animations.add('top_left.png', ['top_left.png'], 0, true, false);
 
 			// Prepare the info object.	
-			let msData = {
+			var msData = {
 				offsets: offsets.offsets || [],
 				name: msName,
 				defaultCords: defaultCords

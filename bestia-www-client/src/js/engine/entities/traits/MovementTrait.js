@@ -1,6 +1,7 @@
 import { engineContext } from '../../EngineData';
 import Trait from './Trait';
 import LOG from '../../../util/Log';
+import WorldHelper from '../../map/WorldHelper';
 
 /**
  * Adds a movement structure to an entity.
@@ -297,7 +298,7 @@ export class MovementTrait extends Trait {
 
         LOG.info('Moving entity: ' + entity.id);
 
-        spriteMovePath(sprite, entity.movement.path, entity.movement.walkspeed);
+        this.spriteMovePath(sprite, entity.movement.path, entity.movement.walkspeed);
 
         entityRemoveMovement(entity);
     }
@@ -315,7 +316,7 @@ export class MovementTrait extends Trait {
     spriteMovePath(sprite, path, speed = 1.0) {
 
         // Push current position of the entity (start) to the path aswell.
-        path.unshift(this.getPosition());
+        //path.unshift({x: sprite.x, y: sprite.y});
 
         sprite.tweenMove = this._game.add.tween(sprite);
 
@@ -357,9 +358,9 @@ export class MovementTrait extends Trait {
             var isLast = this._currentPath.length === (this._currentPathCounter - 1);
 
 
-            var nextAnim = this._getWalkAnimationName(pos, path[this._currentPathCounter + 1]);
+            var nextAnim = getWalkAnimationName(pos, path[this._currentPathCounter + 1]);
 
-            this.playAnimation(nextAnim, isLast);
+            sprite.animations.play(nextAnim, isLast);
 
         }, this);
 
@@ -370,9 +371,9 @@ export class MovementTrait extends Trait {
             var size = path.length;
             var currentPos = path[size - 1];
             var lastPos = path[size - 2];
-            var nextAnim = this._getStandAnimationName(lastPos, currentPos);
+            var nextAnim = getStandAnimationName(lastPos, currentPos);
 
-            this.playAnimation(nextAnim);
+            sprite.animations.play(nextAnim);
 
             this.position = currentPos;
 
@@ -380,8 +381,8 @@ export class MovementTrait extends Trait {
 
         // Start the first animation immediately, because the usual checks
         // only start to check after the first tween has finished.
-        var animName = this._getWalkAnimationName(path[0], path[1]);
-        this.playAnimation(animName);
+        var animName = getWalkAnimationName(path[0], path[1]);
+        sprite.animations.play(animName);
         sprite.tweenMove.start();
     }
 }
