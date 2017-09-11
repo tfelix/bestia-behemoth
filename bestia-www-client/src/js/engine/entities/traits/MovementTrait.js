@@ -1,20 +1,6 @@
-import { engineContext } from '../EngineData';
-import LOG from '../../util/Log';
-
-/**
- * Helper methods and function to perform sprite entity manipulations on phaser sprites.
- */
-
-const FACING = Object.freeze({
-    TOP: 1,
-    TOP_RIGHT: 2,
-    RIGHT: 3,
-    BOTTOM_RIGHT: 4,
-    BOTTOM: 5,
-    BOTTOM_LEFT: 6,
-    LEFT: 7,
-    TOP_LEFT: 8
-});
+import { engineContext } from '../../EngineData';
+import Trait from './Trait';
+import LOG from '../../../util/Log';
 
 /**
  * Adds a movement structure to an entity.
@@ -38,96 +24,27 @@ export function entityAddMovement(entity, path, walkspeed, delta) {
 }
 
 /**
- * Checks if an entity structure has has movement attached.
- * 
- * @return {boolean}
+ * Removes the movement trait again from the entity.
+ * @param {object} entity An entity representing object.
  */
-export function entityHasMovement(entity) {
-    return entity.hasOwnProperty('movement');
+function entityRemoveMovement(entity) {
+    delete entity.movement;
 }
 
 /**
-     * Moves the entity along a certain path. The path is an array with {x: INT,
-     * y: INT} components. The path must not contain the current position of the
-     * entity.
-     * 
-     * @param {Array[]} -
-     *            Array containing point objects {x: Number, y: Number} objects.
-     * @param {float}
-     *            speed - The movement speed.
-     */
-export function spriteMovePath(sprite, path, speed = 1.0) {
+ * Helper methods and function to perform sprite entity manipulations on phaser sprites.
+ */
 
-    // Push current position of the entity (start) to the path aswell.
-    path.unshift(this.getPosition());
-
-    sprite.tweenMove = engineContext.game.add.tween(sprite);
-
-    this._currentPathCounter = 0;
-    this._currentPath = path;
-
-    // Calculate coordinate arrays from path.
-    path.forEach(function (ele, i) {
-        // This is our current position. No need to move TO this position.
-        if (i === 0) {
-            return;
-        }
-
-        var cords = WorldHelper.getSpritePxXY(ele.x, ele.y);
-
-        // We go single tile steps.
-        var duration = getWalkDuration(1, speed);
-        var lastTile = path[i - 1];
-
-        // Check if we go diagonal to adjust speed.
-        var distance = WorldHelper.getDistance(lastTile, ele);
-        if (distance > 1.01) {
-            // diagonal move. Multi with sqrt(2).
-            duration *= 1.414;
-        }
-
-        // Start the animation.
-        sprite.tweenMove.to({
-            x: cords.x,
-            y: cords.y
-        }, duration, Phaser.Easing.Linear.None, false);
-    }, this);
-
-    // After each child tween has completed check if 
-    sprite.tweenMove.onChildComplete.add(function () {
-        this._currentPathCounter++;
-
-        var currentPosition = this._currentPath[this._currentPathCounter];
-        var isLast = this._currentPath.length === (this._currentPathCounter - 1);
-
-
-        var nextAnim = this._getWalkAnimationName(pos, path[this._currentPathCounter + 1]);
-
-        this.playAnimation(nextAnim, isLast);
-
-    }, this);
-
-    // At the end of the movement fetch the correct standing animation
-    // and stop the movement.
-    sprite.tweenMove.onComplete.addOnce(function () {
-
-        var size = path.length;
-        var currentPos = path[size - 1];
-        var lastPos = path[size - 2];
-        var nextAnim = this._getStandAnimationName(lastPos, currentPos);
-
-        this.playAnimation(nextAnim);
-
-        this.position = currentPos;
-
-    }, this);
-
-    // Start the first animation immediately, because the usual checks
-    // only start to check after the first tween has finished.
-    var animName = this._getWalkAnimationName(path[0], path[1]);
-    this.playAnimation(animName);
-    sprite.tweenMove.start();
-}
+const FACING = Object.freeze({
+    TOP: 1,
+    TOP_RIGHT: 2,
+    RIGHT: 3,
+    BOTTOM_RIGHT: 4,
+    BOTTOM: 5,
+    BOTTOM_LEFT: 6,
+    LEFT: 7,
+    TOP_LEFT: 8
+});
 
 /**
  * Calculates the duration in ms of the total walk of the given path.
@@ -354,4 +271,117 @@ function _getAnimationFallback(name) {
  */
 function isMoving(sprite) {
     return sprite._movingTween !== null && sprite._movingTween.isRunning;
+}
+
+export class MovementTrait extends Trait {
+
+    constructor(game) {
+        super();
+
+        if(!game) {
+            throw 'game can not be null.';
+        }
+
+        this._game = game;
+    }
+
+    /**
+     * Checks if the given entity contains the movement trait.
+     * @param {object} entity Entity object. 
+     */
+    hasTrait(entity) {
+        return entity.hasOwnProperty('movement');
+    }
+
+    handleTrait(entity, sprite) {
+
+        LOG.info('Moving entity: ' + entity.id);
+
+        spriteMovePath(sprite, entity.movement.path, entity.movement.walkspeed);
+
+        entityRemoveMovement(entity);
+    }
+
+    /**
+     * Moves the entity along a certain path. The path is an array with {x: INT,
+     * y: INT} components. The path must not contain the current position of the
+     * entity.
+     * 
+     * @param {Array[]} -
+     *            Array containing point objects {x: Number, y: Number} objects.
+     * @param {float}
+     *            speed - The movement speed.
+     */
+    spriteMovePath(sprite, path, speed = 1.0) {
+
+        // Push current position of the entity (start) to the path aswell.
+        path.unshift(this.getPosition());
+
+        sprite.tweenMove = this._game.add.tween(sprite);
+
+        this._currentPathCounter = 0;
+        this._currentPath = path;
+
+        // Calculate coordinate arrays from path.
+        path.forEach(function (ele, i) {
+            // This is our current position. No need to move TO this position.
+            if (i === 0) {
+                return;
+            }
+
+            var cords = WorldHelper.getSpritePxXY(ele.x, ele.y);
+
+            // We go single tile steps.
+            var duration = getWalkDuration(1, speed);
+            var lastTile = path[i - 1];
+
+            // Check if we go diagonal to adjust speed.
+            var distance = WorldHelper.getDistance(lastTile, ele);
+            if (distance > 1.01) {
+                // diagonal move. Multi with sqrt(2).
+                duration *= 1.414;
+            }
+
+            // Start the animation.
+            sprite.tweenMove.to({
+                x: cords.x,
+                y: cords.y
+            }, duration, Phaser.Easing.Linear.None, false);
+        }, this);
+
+        // After each child tween has completed check if 
+        sprite.tweenMove.onChildComplete.add(function () {
+            this._currentPathCounter++;
+
+            var currentPosition = this._currentPath[this._currentPathCounter];
+            var isLast = this._currentPath.length === (this._currentPathCounter - 1);
+
+
+            var nextAnim = this._getWalkAnimationName(pos, path[this._currentPathCounter + 1]);
+
+            this.playAnimation(nextAnim, isLast);
+
+        }, this);
+
+        // At the end of the movement fetch the correct standing animation
+        // and stop the movement.
+        sprite.tweenMove.onComplete.addOnce(function () {
+
+            var size = path.length;
+            var currentPos = path[size - 1];
+            var lastPos = path[size - 2];
+            var nextAnim = this._getStandAnimationName(lastPos, currentPos);
+
+            this.playAnimation(nextAnim);
+
+            this.position = currentPos;
+
+        }, this);
+
+        // Start the first animation immediately, because the usual checks
+        // only start to check after the first tween has finished.
+        var animName = this._getWalkAnimationName(path[0], path[1]);
+        this.playAnimation(animName);
+        sprite.tweenMove.start();
+    }
 }

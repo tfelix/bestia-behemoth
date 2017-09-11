@@ -1,10 +1,10 @@
 import Builder from './Builder.js';
 import groups, { GROUP_LAYERS } from '../../Groups';
 import LOG from '../../../util/Log';
-import { setupSpriteAnimation } from '../SpriteAnimationHelper';
+import { setupSpriteAnimation } from '../traits/VisualTrait';
 import WorldHelper from '../../map/WorldHelper';
 import { engineContext } from '../../EngineData';
-import { playSubspriteAnimation, addSubsprite } from '../MultispriteAnimationHelper';
+import { addSubsprite } from '../traits/VisualTrait';
 
 const NULL_OFFSET = { x: 0, y: 0 };
 
@@ -49,6 +49,10 @@ export default class DynamicSpriteBuilder extends Builder {
 			var msDescName = msName + '_desc';
 			var msDesc = this._game.cache.getJSON(msDescName);
 
+			// Generate offset information.
+			let offsetFileName = this._getOffsetFilename(msName, desc.name);
+			let offsets = this._game.cache.getJSON(offsetFileName) || {};
+
 			// Was not loaded. Should not happen.
 			if (msDesc == null) {
 				LOG.warn('Subsprite description was not loaded. This should not happen: ' + msDescName);
@@ -77,13 +81,7 @@ export default class DynamicSpriteBuilder extends Builder {
 			msSprite.animations.add('top.png', ['top.png'], 0, true, false);
 			msSprite.animations.add('top_left.png', ['top_left.png'], 0, true, false);
 
-			// Generate offset information.
-			let offsetFileName = this.getOffsetFilename(msName, desc.name);
-			let offsets = this._game.cache.getJSON(offsetFileName) || {};
-
-			// Prepare the info object.
-			
-			
+			// Prepare the info object.	
 			let msData = {
 				offsets: offsets.offsets || [],
 				name: msName,
@@ -92,9 +90,6 @@ export default class DynamicSpriteBuilder extends Builder {
 
 			addSubsprite(sprite, msSprite, msData);
 		}, this);
-
-		// After setting the subsprites we must manually call set
-		playSubspriteAnimation(sprite, sprite.animations.currentAnim.name);
 
 		return sprite;
 	}
@@ -169,7 +164,7 @@ export default class DynamicSpriteBuilder extends Builder {
 		return data.sprite.type === 'DYNAMIC';
 	}
 
-	getOffsetFilename(multispriteName, mainspriteName) {
+	_getOffsetFilename(multispriteName, mainspriteName) {
 		return 'offset_' + multispriteName + '_' + mainspriteName;
 	}
 

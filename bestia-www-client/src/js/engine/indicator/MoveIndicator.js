@@ -4,7 +4,7 @@ import Indicator from './Indicator.js';
 import Message from '../../io/messages/Message.js';
 import WorldHelper from '../map/WorldHelper.js';
 import { engineContext, entityCache, pathfinder } from '../EngineData';
-import { entityAddMovement } from '../entities/SpriteMovementHelper';
+import { entityAddMovement } from '../entities/traits/MovementTrait';
 import Signal from '../../io/Signal';
 
 /**
