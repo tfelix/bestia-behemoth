@@ -34,10 +34,10 @@ export default class EntityRenderer extends Renderer {
     }
 
     /**
-     * 
+     * Iterates through every entity and checks if there is render work to be done
+     * to display stuff attached to this entity.
      */
     update() {
-        // TODO This is a mess. Cleanup.
         entityCache.getAllEntities().forEach(function (entity) {
             this.traits.forEach(function (trait) {
                 if (trait.hasTrait(entity)) {

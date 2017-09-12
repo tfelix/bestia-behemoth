@@ -2,6 +2,7 @@ import { engineContext } from '../../EngineData';
 import Trait from './Trait';
 import LOG from '../../../util/Log';
 import WorldHelper from '../../map/WorldHelper';
+import { addEntityAnimation } from './AnimationTrait';
 
 /**
  * Adds a movement structure to an entity.
@@ -12,7 +13,7 @@ import WorldHelper from '../../map/WorldHelper';
  * @param {delta} delta - The time delay for this movement and this client. The movement 
  * has started since this time already and must be speed up to compensate for this.
  */
-export function entityAddMovement(entity, path, walkspeed, delta) {
+export function addEntityMovement(entity, path, walkspeed, delta) {
 
     walkspeed = walkspeed || 1;
     delta = delta || 0;
@@ -59,8 +60,6 @@ function getWalkDuration(length, walkspeed) {
     return Math.round((1 / 1.4) * length / walkspeed * 1000);
 }
 
-
-
 /**
  * This is a move advanced checking algorithm for the position. It will see
  * if the entity is moving towards the current point and until there is a
@@ -71,7 +70,7 @@ function getWalkDuration(length, walkspeed) {
 function setPosition(sprite, x, y) {
 
     // Position directly if we are not moving.
-    if (!this.isMoving(sprite, x, y)) {
+    if (!isMoving(sprite, x, y)) {
         sprite.x = x;
         sprite.y = y;
         return;
@@ -91,8 +90,6 @@ function setPosition(sprite, x, y) {
         LOG.warn('Error while calculating the distance.');
         return;
     }
-
-    // TODO Do some lerping here.
 }
 
 /**
@@ -174,100 +171,6 @@ function getStandAnimationName(oldTile, newTile) {
 }
 
 /**
- * Plays a specific animation. If it is a walk animation then by the name of
- * the animation the method takes core of flipping the sprite for mirrored
- * animations. It also handles stopping running animations and changing
- * between them.
- * 
- * @public
- * @param {String} name - Name of the animation to play.
- */
-function playAnimation(sprite, entityData, name) {
-
-    LOG.debug('Playing animation: ' + name);
-
-    // If the animation is already playing just leave it.
-    if (name === sprite.animations.name) {
-        return;
-    }
-
-    // We need to mirror the sprite for right sprites.
-    if (name.indexOf('right') !== -1) {
-        sprite.scale.x = -1 * this._data.scale;
-        name = name.replace('right', 'left');
-    } else {
-        sprite.scale.x = this._data.scale;
-    }
-
-    // Check if the sprite 'knows' this animation. If not we have several
-    // fallback strategys to test before we fail.
-    if (!this._hasAnimationName(name)) {
-        name = this._getAnimationFallback(name);
-
-        if (name === null) {
-            LOG.warn('Could not found alternate animation solution for: ' + name);
-            return;
-        }
-    }
-
-    sprite.play(name);
-}
-
-/**
- * Tests if the entity sprite supports a certain animation name. It gets a
- * bit complicated since some animations are implemented purely in software
- * (right walking a mirror of left walking).
- * 
- * @param name
- */
-function _hasAnimationName(name) {
-    if (name.indexOf('right') !== -1) {
-        name = name.replace('right', 'left');
-    }
-
-    return this._availableAnimationNames.indexOf(name) !== -1;
-}
-
-/**
- * Tries to find a alternate animation. If no supported animation could be
- * found, we will return null.
- * 
- * @private
- * @return {String} - Newly found animation to display, or NULL if no
- *         suitable animation could been found.
- */
-function _getAnimationFallback(name) {
-    if (name === 'stand_down_left' || name === 'stand_left') {
-        // Try to replace it with stand down.
-        if (this._availableAnimationNames.indexOf('stand_down') === -1) {
-            return null;
-        } else {
-            return 'stand_down';
-        }
-    }
-
-    if (name == 'stand_left_up') {
-        // Try to replace it with stand down.
-        if (this._availableAnimationNames.indexOf('stand_up') === -1) {
-            return null;
-        } else {
-            return 'stand_up';
-        }
-    }
-
-    if (name == 'stand_right') {
-        // Try to replace it with stand down.
-        if (this._availableAnimationNames.indexOf('stand_up') === -1) {
-            return null;
-        } else {
-            return 'stand_up';
-        }
-    }
-
-    return null;
-}
-
-/**
  * Returns true if the entity is currently moving.
  */
 function isMoving(sprite) {
@@ -298,7 +201,7 @@ export class MovementTrait extends Trait {
 
         LOG.info('Moving entity: ' + entity.id);
 
-        this.spriteMovePath(sprite, entity.movement.path, entity.movement.walkspeed);
+        this.spriteMovePath(sprite, entity);
 
         entityRemoveMovement(entity);
     }
@@ -313,7 +216,10 @@ export class MovementTrait extends Trait {
      * @param {float}
      *            speed - The movement speed.
      */
-    spriteMovePath(sprite, path, speed = 1.0) {
+    spriteMovePath(sprite, entity) {
+
+        let path = entity.movement.path;
+        let speed = entity.movement.walkspeed || 1;
 
         // Push current position of the entity (start) to the path aswell.
         path.unshift(WorldHelper.getTileXY(sprite.x, sprite.y));
@@ -361,7 +267,7 @@ export class MovementTrait extends Trait {
             } else {
                 var currentPosition = currentPath[currentPathCounter];
                 var nextAnim = getWalkAnimationName(currentPosition, path[currentPathCounter + 1]);
-                sprite.animations.play(nextAnim);
+                addEntityAnimation(entity, nextAnim);
             }
 
         }, this);
@@ -374,17 +280,15 @@ export class MovementTrait extends Trait {
             var currentPos = path[size - 1];
             var lastPos = path[size - 2];
             var nextAnim = getStandAnimationName(lastPos, currentPos);
-
-            sprite.animations.play(nextAnim);
+            addEntityAnimation(entity, nextAnim);
 
             this.position = currentPos;
-
         }, this);
 
         // Start the first animation immediately, because the usual checks
         // only start to check after the first tween has finished.
-        var animName = getWalkAnimationName(path[0], path[1]);
-        sprite.animations.play(animName);
+        var nextAnim = getWalkAnimationName(path[0], path[1]);
+        addEntityAnimation(entity, nextAnim);
         sprite.tweenMove.start();
     }
 }
