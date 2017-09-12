@@ -26,14 +26,6 @@ export function addEntityMovement(entity, path, walkspeed, delta) {
 }
 
 /**
- * Removes the movement trait again from the entity.
- * @param {object} entity An entity representing object.
- */
-function entityRemoveMovement(entity) {
-    delete entity.movement;
-}
-
-/**
  * Helper methods and function to perform sprite entity manipulations on phaser sprites.
  */
 
