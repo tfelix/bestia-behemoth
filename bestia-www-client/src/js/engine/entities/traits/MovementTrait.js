@@ -316,12 +316,12 @@ export class MovementTrait extends Trait {
     spriteMovePath(sprite, path, speed = 1.0) {
 
         // Push current position of the entity (start) to the path aswell.
-        //path.unshift({x: sprite.x, y: sprite.y});
+        path.unshift(WorldHelper.getTileXY(sprite.x, sprite.y));
 
         sprite.tweenMove = this._game.add.tween(sprite);
 
-        this._currentPathCounter = 0;
-        this._currentPath = path;
+        let currentPathCounter = 0;
+        let currentPath = path;
 
         // Calculate coordinate arrays from path.
         path.forEach(function (ele, i) {
@@ -350,17 +350,19 @@ export class MovementTrait extends Trait {
             }, duration, Phaser.Easing.Linear.None, false);
         }, this);
 
-        // After each child tween has completed check if 
+        // After each child tween has completed check the next walking direction and
+        // update the entity movement.
         sprite.tweenMove.onChildComplete.add(function () {
-            this._currentPathCounter++;
+            currentPathCounter++;
 
-            var currentPosition = this._currentPath[this._currentPathCounter];
-            var isLast = this._currentPath.length === (this._currentPathCounter - 1);
-
-
-            var nextAnim = getWalkAnimationName(pos, path[this._currentPathCounter + 1]);
-
-            sprite.animations.play(nextAnim, isLast);
+            var isLast = currentPath.length + 1 === currentPathCounter;
+            if(isLast) {
+                // We keep standing still now.
+            } else {
+                var currentPosition = currentPath[currentPathCounter];
+                var nextAnim = getWalkAnimationName(currentPosition, path[currentPathCounter + 1]);
+                sprite.animations.play(nextAnim);
+            }
 
         }, this);
 

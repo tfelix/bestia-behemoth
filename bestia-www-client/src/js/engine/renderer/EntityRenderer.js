@@ -1,8 +1,9 @@
 import Renderer from './Renderer';
 import LOG from '../../util/Log';
-import { spriteCache, entityCache } from '../EngineData';
+import { spriteCache, entityCache, engineContext } from '../EngineData';
 import { MovementTrait } from '../entities/traits/MovementTrait';
 import { VisualTrait } from '../entities/traits/VisualTrait';
+import { ChatTrait } from '../entities/traits/ChatTrait';
 
 
 /**
@@ -16,6 +17,7 @@ export default class EntityRenderer extends Renderer {
         this.traits = [];
         this.traits.push(new VisualTrait(game))
         this.traits.push(new MovementTrait(game));
+        this.traits.push(new ChatTrait(game, engineContext.pubsub));
     }
 
     get name() {
