@@ -3,6 +3,16 @@ import Signal from '../../../io/Signal';
 import { entityCache } from '../../EngineData';
 import LOG from '../../../util/Log';
 
+const CHAT_DISPLAY_DURATION_MS = 3500;
+const SPRITE_Y_OFFSET = 90;
+
+const CHAT_STYLE = Object.freeze({
+    font: '18px Arial',
+    fill: '#ffffff',
+    boundsAlignH : 'center',
+	boundsAlignV : 'middle'
+});
+
 /**
  * Renders a chat message to the client if there is chat data associated with an entity.
  */
@@ -11,11 +21,11 @@ export class ChatTrait extends Trait {
     constructor(game, pubsub) {
         super();
 
-        if(!game) {
+        if (!game) {
             throw 'game can not be null.';
         }
 
-        if(!pubsub) {
+        if (!pubsub) {
             throw 'pubsub can not be null.';
         }
 
@@ -31,13 +41,13 @@ export class ChatTrait extends Trait {
     _onChatMsgHandler(_, msg) {
 
         // Message must be directed to an actual entity.
-        if(!msg.entityId) {
+        if (!msg.entityId) {
             return;
         }
 
         LOG.debug('Incoming chat message for entity: ' + msg.entityId);
         var entity = entityCache.getEntity(msg.entityId);
-        if(!entity) {
+        if (!entity) {
             LOG.debug('Entity not found. Cant add chat message.');
             return;
         }
@@ -63,12 +73,32 @@ export class ChatTrait extends Trait {
         delete entity.chatMsg;
 
         // Check if there is already a chat sprite attached. 
-        if(sprite.chatMsg) {
-            LOG.debug('Added chat message! ' + text);
-        } else {
-            // Create new chat sprite and attach it.
-            LOG.debug('Added chat message 2! ' + text);
+        if (sprite.chatMsg) {
+            sprite.chatMsg.destroy();
+            delete sprite.chatMsg;
         }
+
+        this._createChatVisual(sprite, text);
     }
 
+    _createChatVisual(sprite, text) {
+        let box = this._game.add.graphics(0, 0);
+        box.beginFill(0x000000);
+        box.alpha = 0.8;
+		let textSprite = this._game.add.text(5, 1, text, CHAT_STYLE);
+		box.drawRect(0, 0, textSprite.width + 10, textSprite.height + 2);
+		box.addChild(textSprite);
+	
+		// Add chat msg and keep reference.
+        sprite.addChild(box);
+        box.position.x = - Math.round(box.width / 2);
+        box.position.y = - (sprite.height + SPRITE_Y_OFFSET);
+
+        sprite.chatMsg = box;
+        
+        this._game.time.events.add(CHAT_DISPLAY_DURATION_MS, function(){
+            sprite.chatMsg.destroy();
+            delete sprite.chatMsg;
+        }, this);
+    }
 }
