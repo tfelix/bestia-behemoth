@@ -105,16 +105,12 @@ export class VisualTrait extends Trait {
      */
     _checkSpriteRender(entity, sprite) {
 
-        this._tickSubspriteAnimation(sprite, entity);
-
         if (entity.hasOwnProperty('nextAnimation')) {
-
             this._playAnimation(sprite, entity, entity.nextAnimation);
+        }
 
-            if (this._isMultisprite(sprite)) {
-                this._playSubspriteAnimation(sprite, entity.animation);
-                this._tickSubspriteAnimation(sprite, entity);
-            }
+        if (this._isMultisprite(sprite)) {
+            this._tickSubspriteAnimation(sprite, entity);
         }
     }
 
@@ -122,7 +118,7 @@ export class VisualTrait extends Trait {
      * Checks if the given sprite is a bestia multisprite.
      */
     _isMultisprite(sprite) {
-        return false;
+        return sprite.hasOwnProperty('_subsprites');
     }
 
     /**
@@ -168,7 +164,24 @@ export class VisualTrait extends Trait {
 
         sprite.animations.play(animName);
 
+        if (this._isMultisprite(sprite)) {
+            this._playSubspriteAnimation(sprite, entity.nextAnimation);
+        }
+
         delete entity.nextAnimation;
+    }
+
+    _playSubspriteAnimation(animName) {
+        // Iterate over all subsprites an set their animations.
+        this._multiSprites.forEach(function (s) {
+            let subAnim = this._getSubspriteAnimation(s.name, mainAnimName);
+            if (subAnim === null) {
+                // no suitable sub animation found. Do nothing.
+                return;
+            }
+            s.sprite.play(subAnim);
+
+        }, this);
     }
 
     /**
@@ -176,5 +189,23 @@ export class VisualTrait extends Trait {
      */
     _tickSubspriteAnimation(sprite, entity) {
 
+        var curAnim = sprite.animations.name;
+
+        // The frame names are ???/001.png etc.
+        if (sprite.frameName === undefined) {
+            console.error('Soll nicht passieren');
+        }
+        var start = sprite.frameName.length - 7;
+        var frameNumber = sprite.frameName.substring(start, start + 3);
+        var curFrame = parseInt(frameNumber, 10);
+
+        sprite._subsprites.forEach(function (subSprite) {
+
+            // Get the current sub sprite anim name.
+            let subPos = this._getSubspriteOffset(subSprite.name, curAnim, curFrame);
+
+            subSprite.position.x = subPos.x;
+            subSprite.position.y = subPos.y;
+        }, this);
     }
 }

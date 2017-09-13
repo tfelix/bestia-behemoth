@@ -63,11 +63,45 @@ export default class SpriteDescriptionCache {
         return standAnimations[i];
     }
 
-    getOffsetDescription(spriteName, multisprite) {
-        throw 'implement';
+    /**
+     * Returns the current offset for the given subsprite, animation of the main
+     * sprite and current animation frame.
+     * 
+     * @param {string} subsprite
+     *            Name of the subsprite to look for its anchor offset.
+     * @param {string} currentAnim
+     *            Currently running animation of the main sprite.
+     * @param {number} currentFrame
+     *            The current frame of the main sprite. Note that frame numbers start with 1.
+     * @returns
+     */
+    getSubspriteOffset(subsprite, currentAnim, currentFrame) {
+
+        let subData = this._getSubspriteData(subsprite);
+
+        for (let i = 0; i < subData.offsets.length; i++) {
+            if (subData.offsets[i].triggered !== currentAnim) {
+                continue;
+            }
+
+            if (subData.offsets[i].offsets.length > currentFrame - 1) {
+                return subData.offsets[i].offsets[currentFrame - 1];
+            } else {
+                LOG.warn('getSubspriteOffset: Not enough frames found for:', subsprite, ' currentAnim:', currentAnim);
+                return subData.defaultCords;
+            }
+        }
+
+        // If nothing found return default.
+        if (!subData.defaultCords) {
+            LOG.warn('getSubspriteOffset: No default cords found for:', subsprite, 'currentAnim:', currentAnim);
+            return NULL_OFFSET;
+        }
+
+        return subData.defaultCords;
     }
 
-        /**
+    /**
      * Tries to find a alternate animation. If no supported animation could be
      * found, we will return null.
      * 
@@ -110,8 +144,8 @@ export default class SpriteDescriptionCache {
      * Checks if a certain animation name is associated with a sprite. 
      * It gets a bit complicated since some animations are implemented 
      * purely in software (right walking a mirror of left walking).
-     * @param {*} spriteName 
-     * @param {*} animatioName 
+     * @param {string} spriteName The name of the sprite 
+     * @param {string} animatioName The animation name to check if the sprite has it.
      * @return {boolean} TRUE if the sprite has this animation. FALSE otherwise.
      */
     hasAnimation(spriteName, animatioName) {
@@ -119,8 +153,7 @@ export default class SpriteDescriptionCache {
             animatioName = animatioName.replace('right', 'left');
         }
 
-        return true;
-        //return _availableAnimationNames.indexOf(name) !== -1;
+        return this._data[spriteName].indexOf(animatioName) !== -1;
     }
 
 	/**
