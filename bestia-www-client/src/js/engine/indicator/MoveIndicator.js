@@ -4,7 +4,7 @@ import Indicator from './Indicator.js';
 import Message from '../../io/messages/Message.js';
 import WorldHelper from '../map/WorldHelper.js';
 import { engineContext, entityCache, pathfinder } from '../EngineData';
-import { entityAddMovement } from '../entities/traits/MovementTrait';
+import { addEntityMovement } from '../entities/traits/MovementTrait';
 import Signal from '../../io/Signal';
 
 /**
@@ -51,7 +51,7 @@ export default class MoveIndicator extends Indicator {
 
 		// Start movement locally as well.
 		var entity = entityCache.getEntity(eid);
-		entityAddMovement(entity, path, speed, 0);
+		addEntityMovement(entity, path, speed, 0);
 	}
 
 	_onClick(pointer) {

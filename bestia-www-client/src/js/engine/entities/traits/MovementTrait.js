@@ -2,7 +2,7 @@ import { engineContext } from '../../EngineData';
 import Trait from './Trait';
 import LOG from '../../../util/Log';
 import WorldHelper from '../../map/WorldHelper';
-import { addEntityAnimation } from './AnimationTrait';
+import { addEntityAnimation } from './VisualTrait';
 
 /**
  * Adds a movement structure to an entity.
@@ -28,7 +28,6 @@ export function addEntityMovement(entity, path, walkspeed, delta) {
 /**
  * Helper methods and function to perform sprite entity manipulations on phaser sprites.
  */
-
 const FACING = Object.freeze({
     TOP: 1,
     TOP_RIGHT: 2,
@@ -85,12 +84,12 @@ function setPosition(sprite, x, y) {
 }
 
 /**
-     * Returns the animation name for walking to this position, from the old
-     * position.
-     * 
-     * @param oldPos
-     * @param newPos
-     */
+ * Returns the animation name for walking to this position, from the old
+ * position.
+ * 
+ * @param oldPos
+ * @param newPos
+ */
 function getWalkAnimationName(oldTile, newTile) {
 
     var x = newTile.x - oldTile.x;
@@ -169,6 +168,10 @@ function isMoving(sprite) {
     return sprite._movingTween !== null && sprite._movingTween.isRunning;
 }
 
+/**
+ * Checks if there is a movement patch attached to an entity. If so this
+ * trait will perform the rendering of the movement.
+ */
 export class MovementTrait extends Trait {
 
     constructor(game) {
@@ -190,12 +193,11 @@ export class MovementTrait extends Trait {
     }
 
     handleTrait(entity, sprite) {
-
         LOG.info('Moving entity: ' + entity.id);
 
         this.spriteMovePath(sprite, entity);
 
-        entityRemoveMovement(entity);
+        delete entity.movement;
     }
 
     /**

@@ -31,22 +31,6 @@ export default class SpriteBuilder extends Builder {
 
 		setupSpriteAnimation(sprite, desc);
 
-		// We need to check how we can interact with this entity. If this is
-		// clear we add the behaviour of the move over. Currently its attack
-		// only.
-		/*
-		entity.onInputOver = function () {
-			this._pubsub.publish(Signal.ENGINE_REQUEST_INDICATOR, { handle: 'basic_attack_over', entity: entity });
-		}.bind(this);
-
-		entity.onInputOut = function () {
-			this._pubsub.publish(Signal.ENGINE_REQUEST_INDICATOR, { handle: 'basic_attack_out', entity: entity });
-		}.bind(this);*/
-
-
-		// Switch to idle animation.
-		sprite.animations.play('stand_down');
-
 		return sprite;
 	}
 

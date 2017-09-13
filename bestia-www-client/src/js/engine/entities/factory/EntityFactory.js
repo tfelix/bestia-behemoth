@@ -3,6 +3,7 @@ import DynamicSpriteBuilder from './DynamicSpriteBuilder.js';
 import NOOP from '../../../util/NOOP.js';
 import LOG from '../../../util/Log';
 import DescriptionLoader from '../../DescriptionLoader.js';
+import { descriptionCache } from '../../EngineData';
 
 
 /**
@@ -64,8 +65,6 @@ export default class EntityFactory {
 	 * @param {Function}
 	 *            fnOnComplete - Callback function getting the entity reference
 	 *            when the build process was completed.
-	 * @param {boolean}
-	 *            onlyLoad - Flag of the builder should only load the assets.
 	 */
 	build(data, fnOnComplete) {
 		LOG.debug('Building entity: ' + JSON.stringify(data));
@@ -80,7 +79,11 @@ export default class EntityFactory {
 			// the entity. Hand over the now loaded description file as well as
 			// the callback.
 			LOG.debug('Description not found. Loading it.');
-			this.descLoader.loadDescription(data, this._continueBuildWithDescription.bind(this, data, fnOnComplete));
+			this.descLoader.loadDescription(data, function(descFile){
+				// Description file was loaded. We can now store it.
+				descriptionCache.addSpriteDescription(descFile);
+				this._continueBuildWithDescription(data, fnOnComplete, descFile);
+			}.bind(this));
 
 		} else {
 			LOG.debug('Description present building entity.');

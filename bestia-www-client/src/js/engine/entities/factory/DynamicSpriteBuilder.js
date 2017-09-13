@@ -3,7 +3,7 @@ import groups, { GROUP_LAYERS } from '../../Groups';
 import LOG from '../../../util/Log';
 import { setupSpriteAnimation } from '../traits/VisualTrait';
 import WorldHelper from '../../map/WorldHelper';
-import { engineContext } from '../../EngineData';
+import { engineContext, descriptionCache } from '../../EngineData';
 import { addSubsprite } from '../traits/VisualTrait';
 
 const NULL_OFFSET = { x: 0, y: 0 };
@@ -58,37 +58,20 @@ export default class DynamicSpriteBuilder extends Builder {
 				LOG.warn('Subsprite description was not loaded. This should not happen: ' + msDescName);
 				return;
 			}
-
+			
+			let msSprite = this._game.make.sprite(0, 0, msName);
+			
 			let defaultCords = offsets.defaultCords || {
 				x: 0,
 				y: 0
 			};
-			
-			let msSprite = this._game.make.sprite(0, 0, msName);
-			let anchor = msDesc.anchor || { x: 0, y: 0 };
-			
-			msSprite.anchor = anchor;
 			msSprite.x = defaultCords.x;
 			msSprite.y = defaultCords.y;
 
-			// TODO This should be automatically parsed.
 			// Setup the normal data.
-			msSprite.scale.setTo(msDesc.scale || 1);
-			msSprite.animations.add('bottom.png', ['bottom.png'], 0, true, false);
-			msSprite.animations.add('bottom_left.png', ['bottom_left.png'], 0, true, false);
-			msSprite.animations.add('left.png', ['left.png'], 0, true, false);
-			msSprite.animations.add('left.png', ['left.png'], 0, true, false);
-			msSprite.animations.add('top.png', ['top.png'], 0, true, false);
-			msSprite.animations.add('top_left.png', ['top_left.png'], 0, true, false);
+			setupSpriteAnimation(msSprite, msDesc);
 
-			// Prepare the info object.	
-			var msData = {
-				offsets: offsets.offsets || [],
-				name: msName,
-				defaultCords: defaultCords
-			};
-
-			addSubsprite(sprite, msSprite, msData);
+			addSubsprite(sprite, msSprite);
 		}, this);
 
 		return sprite;
@@ -103,7 +86,15 @@ export default class DynamicSpriteBuilder extends Builder {
 	load(descFile, fnOnComplete) {
 
 		var pack = this._extendPack(descFile);
-		engineContext.loader.loadPackData(pack, fnOnComplete);
+		engineContext.loader.loadPackData(pack, function(){
+
+			// Save the requested description data into the cache.
+			//descriptionCache.
+			LOG.info('Sprites loaded.');
+
+			// Call original callback fn.
+			fnOnComplete();
+		}.bind(this));
 	}
 
 	/**
@@ -166,17 +157,5 @@ export default class DynamicSpriteBuilder extends Builder {
 
 	_getOffsetFilename(multispriteName, mainspriteName) {
 		return 'offset_' + multispriteName + '_' + mainspriteName;
-	}
-
-	/**
-	 * Searches for the data of the subsprite.
-	 */
-	_getSubspriteData(subspriteName) {
-		for (let i = 0; i < this._multiSprites.length; i++) {
-			if (this._multiSprites[i].name === subspriteName) {
-				return this._multiSprites[i];
-			}
-		}
-		return null;
 	}
 }

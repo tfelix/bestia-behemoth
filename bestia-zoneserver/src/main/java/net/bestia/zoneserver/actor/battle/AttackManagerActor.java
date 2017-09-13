@@ -62,6 +62,7 @@ public class AttackManagerActor extends AbstractActor {
 	 *            The message describing the attack.
 	 */
 	private void handleEntitySkillMessage(EntitySkillMessage msg) {
+		LOG.debug("Received skill message: {}", msg);
 
 	}
 

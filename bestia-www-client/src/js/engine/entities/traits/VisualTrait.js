@@ -1,7 +1,11 @@
 import LOG from '../../../util/Log';
 import Trait from './Trait';
 import EntityFactory from '../factory/EntityFactory';
-import { spriteCache } from '../../EngineData';
+import { spriteCache, descriptionCache } from '../../EngineData';
+
+export function addEntityAnimation(entity, animName) {
+    entity.nextAnimation = animName;
+}
 
 /**
  * Helper function to setup a sprite with all the information contained
@@ -31,7 +35,7 @@ export function setupSpriteAnimation(sprite, description) {
     }.bind(this));
 }
 
-export function addSubsprite(sprite, subsprite, msData) {
+export function addSubsprite(sprite, subsprite) {
     if (!sprite.hasOwnProperty('_subsprites')) {
         sprite._subsprites = [];
     }
@@ -39,10 +43,6 @@ export function addSubsprite(sprite, subsprite, msData) {
     // iterate over all added subsprites.
     sprite._subsprites.push(subsprite);
     sprite.addChild(subsprite);
-
-    // Save the multisprite data to the phaser sprite.
-    // maybe we can centralize this aswell.
-    subsprite._subspriteData = msData;
 }
 
 export class VisualTrait extends Trait {
@@ -50,7 +50,7 @@ export class VisualTrait extends Trait {
     constructor(game) {
         super();
 
-        if(!game) {
+        if (!game) {
             throw 'game can not be null.';
         }
 
@@ -70,7 +70,7 @@ export class VisualTrait extends Trait {
                 entity.action = null;
             }
         } else {
-            this.checkSpriteRender(entity, sprite);
+            this._checkSpriteRender(entity, sprite);
         }
     }
 
@@ -79,15 +79,19 @@ export class VisualTrait extends Trait {
         this._entityFactory.build(entity, function (displayObj) {
 
             if (displayObj) {
-                LOG.debug('Adding sprite to sprite cache: ' + entity.sprite.name);
+                LOG.debug('Created sprite: ' + entity.sprite.name);
                 spriteCache.setSprite(entity.eid, displayObj);
+
                 displayObj.alpha = 0;
+
+                // Switch to idle animation.
+                addEntityAnimation(entity, 'stand_down');
 
                 // Fade in the entity.
                 this._game.add.tween(displayObj).to({ alpha: 1 }, 500, Phaser.Easing.Linear.None, true);
 
                 // Check if it needs rendering.
-                this.checkSpriteRender(entity, displayObj);
+                this._checkSpriteRender(entity, displayObj);
             }
 
         }.bind(this));
@@ -99,20 +103,78 @@ export class VisualTrait extends Trait {
      * @param {object} entity 
      * @param {PhaserJS.Sprite} sprite 
      */
-    checkSpriteRender(entity, sprite) {
+    _checkSpriteRender(entity, sprite) {
 
-        this.tickEntityAnimation(entity, sprite);
+        this._tickSubspriteAnimation(sprite, entity);
 
-        if (entity.hasOwnProperty('animation')) {
-            if (isMultisprite(sprite)) {
-                playSubspriteAnimation(sprite, entity.animation);
-            } else {
-                sprite.animations.play(entity.animation);
+        if (entity.hasOwnProperty('nextAnimation')) {
+
+            this._playAnimation(sprite, entity, entity.nextAnimation);
+
+            if (this._isMultisprite(sprite)) {
+                this._playSubspriteAnimation(sprite, entity.animation);
+                this._tickSubspriteAnimation(sprite, entity);
             }
         }
     }
 
-    tickEntityAnimation(entity, sprite) {
+    /**
+     * Checks if the given sprite is a bestia multisprite.
+     */
+    _isMultisprite(sprite) {
+        return false;
+    }
+
+    /**
+     * Plays a specific animation. If it is a walk animation then by the name of
+     * the animation the method takes core of flipping the sprite for mirrored
+     * animations. It also handles stopping running animations and changing
+     * between them.
+     * 
+     * @public
+     * @param {String} animName - Name of the animation to play.
+     */
+    _playAnimation(sprite, entity, animName) {
+
+        LOG.debug('Playing animation: ' + animName);
+
+        // If the animation is already playing just leave it.
+        if (animName === sprite.animations.name) {
+            return;
+        }
+
+        // Check if the sprite 'knows' this animation. If not we have several
+        // fallback strategys to test before we fail.
+        if (!descriptionCache.hasAnimation(sprite.key, animName)) {
+
+            animName = descriptionCache.getAnimationFallback(sprite.key, animName);
+
+            if (animName === null) {
+                LOG.warn('Could not found alternate animation solution for: ' + name);
+                return;
+            }
+        }
+
+        // Get description data of this sprite.
+        let desc = descriptionCache.getSpriteDescription(sprite.key);
+
+        // We need to mirror the sprite for right sprites.
+        if (animName.indexOf('right') !== -1) {
+            sprite.scale.x = -1 * desc.scale;
+            animName = animName.replace('right', 'left');
+        } else {
+            sprite.scale.x = desc.scale;
+        }
+
+        sprite.animations.play(animName);
+
+        delete entity.nextAnimation;
+    }
+
+    /**
+     * Update any subsprite animation with the current subsprite offset postion.
+     */
+    _tickSubspriteAnimation(sprite, entity) {
 
     }
 }
