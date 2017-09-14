@@ -8,7 +8,7 @@ import net.bestia.messages.JsonMessage;
 /**
  * Send if the player wants to drop an item to the ground.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class InventoryItemDropMessage extends JsonMessage {
@@ -16,7 +16,7 @@ public class InventoryItemDropMessage extends JsonMessage {
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;
 
-	public final static String MESSAGE_ID = "inventory.item.drop";
+	public final static String MESSAGE_ID = "inventory.drop";
 
 	@JsonProperty("iid")
 	private int itemId;

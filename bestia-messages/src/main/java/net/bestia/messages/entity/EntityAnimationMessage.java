@@ -12,7 +12,7 @@ import net.bestia.model.geometry.Point;
  * system is very flexible and allows the play of animation which can alter
  * existing entities or display certain effects. Only
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class EntityAnimationMessage extends EntityJsonMessage {

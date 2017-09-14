@@ -1,13 +1,11 @@
 [Unit]
-Description = Zoneserver for the Bestia Browsergame
+Description = Zoneserver for the bestia browsergame
 After       = syslog.target
 
 [Service]
-ExecStart=/usr/bin/java -jar /opt/bestia-zone/bestia-zoneserver.jar
+ExecStart=/usr/bin/java -Xmx512m -jar /opt/bestia-zone/bestia-zoneserver.jar
 User = bestia
 Restart = always
 
 [Install]
-# multi-user.target corresponds to run level 3
-# roughtly meaning wanted by system start
 WantedBy    = multi-user.target

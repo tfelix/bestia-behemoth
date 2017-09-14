@@ -28,7 +28,8 @@ public enum InteractionType {
 
 	/**
 	 * The player can interact with the entity via clicking on it. The entity
-	 * should handle such clicks via a script component.
+	 * should handle such clicks via a special script component like displaying
+	 * a special GUI to the user.
 	 */
 	INTERACT,
 

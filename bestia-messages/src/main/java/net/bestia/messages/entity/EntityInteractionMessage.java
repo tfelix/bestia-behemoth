@@ -11,11 +11,10 @@ import net.bestia.messages.EntityJsonMessage;
 import net.bestia.model.entity.InteractionType;
 
 /**
- * By sending this message the client wants to get to know how he is able to
- * interact with the given entity. The server will respond with a list of
- * possible interactions.
+ * By sending this message to the client the client is informed how 
+ * he will be able to interact with this entity.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class EntityInteractionMessage extends EntityJsonMessage {
