@@ -193,7 +193,7 @@ export class MovementTrait extends Trait {
     }
 
     handleTrait(entity, sprite) {
-        LOG.info('Moving entity: ' + entity.id);
+        LOG.info('Moving entity: ' + entity.eid);
 
         this.spriteMovePath(sprite, entity);
 
