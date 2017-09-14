@@ -78,21 +78,25 @@ export class VisualTrait extends Trait {
         // Build the display object and attach it to the sprite cache.
         this._entityFactory.build(entity, function (displayObj) {
 
-            if (displayObj) {
-                LOG.debug('Created sprite: ' + entity.sprite.name);
-                spriteCache.setSprite(entity.eid, displayObj);
-
-                displayObj.alpha = 0;
-
-                // Switch to idle animation.
-                addEntityAnimation(entity, 'stand_down');
-
-                // Fade in the entity.
-                this._game.add.tween(displayObj).to({ alpha: 1 }, 500, Phaser.Easing.Linear.None, true);
-
-                // Check if it needs rendering.
-                this._checkSpriteRender(entity, displayObj);
+            if (!displayObj) {
+                LOG.warn('Could not create sprite for entity: ' + JSON.stringify(entity));
+                return;
             }
+
+            LOG.debug('Created sprite: ' + entity.sprite.name);
+            spriteCache.setSprite(entity.eid, displayObj);
+
+            displayObj.alpha = 0;
+
+            // Fade in the entity.
+            this._game.add.tween(displayObj).to({ alpha: 1 }, 500, Phaser.Easing.Linear.None, true);
+
+            /*
+            // Check if it needs rendering.
+            this._checkSpriteRender(entity, displayObj);*/
+
+            // Switch to idle animation.
+            addEntityAnimation(entity, 'stand_down');
 
         }.bind(this));
     }
@@ -171,15 +175,17 @@ export class VisualTrait extends Trait {
         delete entity.nextAnimation;
     }
 
-    _playSubspriteAnimation(animName) {
+    _playSubspriteAnimation(sprite, animName) {
         // Iterate over all subsprites an set their animations.
-        this._multiSprites.forEach(function (s) {
-            let subAnim = this._getSubspriteAnimation(s.name, mainAnimName);
+        sprite._subsprites.forEach(function (subsprite) {
+            let subAnim = descriptionCache.getSubspriteAnimation(subsprite.key, animName);
+            
             if (subAnim === null) {
-                // no suitable sub animation found. Do nothing.
+                LOG.warn('No subsprite animation found for: ' + animName + ' on sprite: ' + subsprite.key);
                 return;
             }
-            s.sprite.play(subAnim);
+            
+            subsprite.animations.play(subAnim);
 
         }, this);
     }
@@ -202,10 +208,10 @@ export class VisualTrait extends Trait {
         sprite._subsprites.forEach(function (subSprite) {
 
             // Get the current sub sprite anim name.
-            let subPos = this._getSubspriteOffset(subSprite.name, curAnim, curFrame);
+           // let subPos = this._getSubspriteOffset(subSprite.name, curAnim, curFrame);
 
-            subSprite.position.x = subPos.x;
-            subSprite.position.y = subPos.y;
+            //subSprite.position.x = subPos.x;
+            //subSprite.position.y = subPos.y;
         }, this);
     }
 }

@@ -102,6 +102,17 @@ export default class SpriteDescriptionCache {
     }
 
     /**
+     * Returns the assoziated subsprite animation name. Or null if no animation was found.
+     * 
+     * @param {string} subspriteName Name of the subsprite.
+     * @param {string} animName Name of the animation which is played on the main sprite.
+     * @param {string} spriteName Name of the main sprite.
+     */
+    getSubspriteAnimation(spriteName, subspriteName, animName) {
+        return null;
+    }
+
+    /**
      * Tries to find a alternate animation. If no supported animation could be
      * found, we will return null.
      * 
@@ -153,7 +164,11 @@ export default class SpriteDescriptionCache {
             animatioName = animatioName.replace('right', 'left');
         }
 
-        return this._data[spriteName].indexOf(animatioName) !== -1;
+        if (!this._data.hasOwnProperty(spriteName)) {
+            return false;
+        }
+
+        return this._data[spriteName].availableAnimationNames.indexOf(animatioName) !== -1;
     }
 
 	/**
