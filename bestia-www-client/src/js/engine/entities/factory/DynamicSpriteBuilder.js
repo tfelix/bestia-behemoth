@@ -72,6 +72,7 @@ export default class DynamicSpriteBuilder extends Builder {
 			setupSpriteAnimation(msSprite, msDesc);
 
 			addSubsprite(sprite, msSprite);
+
 		}, this);
 
 		return sprite;

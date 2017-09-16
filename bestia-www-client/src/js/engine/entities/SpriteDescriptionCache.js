@@ -1,5 +1,7 @@
 import LOG from '../../util/Log';
 
+const OFFSET_ZERO = Object.freeze({ x: 0, y: 0 });
+
 /**
  * This class holds globally all sprite animation data of instanced sprites. It should be asked
  * if a sprite wants to perform an animation this cache is asked if the animation does exist.
@@ -25,6 +27,8 @@ export default class SpriteDescriptionCache {
 	 */
     addSpriteDescription(desc) {
 
+        LOG.debug('Adding sprite desc for: ' + desc.name);
+
         this._data[desc.name] = {
             data: desc,
             availableAnimationNames: this._getAnimationNames(desc)
@@ -36,7 +40,7 @@ export default class SpriteDescriptionCache {
             LOG.warn('Subsprite name and subsprite description must be given.');
         }
 
-        LOG.debug('Adding subsprite info for: ' + subDesc.targetSprite);
+        LOG.debug('Adding subsprite desc for: ' + subspriteName);
 
         // We transform the data a little to make lookups easier.
         var transformedSubDesc = {
@@ -56,7 +60,7 @@ export default class SpriteDescriptionCache {
     }
 
     getSpriteDescription(spriteKey) {
-        if(!this.hasSpriteDescription(spriteKey)) {
+        if (!this.hasSpriteDescription(spriteKey)) {
             return null;
         } else {
             return this._data[spriteKey].data;
@@ -104,30 +108,32 @@ export default class SpriteDescriptionCache {
      *            The current frame of the main sprite. Note that frame numbers start with 1.
      * @returns
      */
-    getSubspriteOffset(subsprite, currentAnim, currentFrame) {
+    getSubspriteOffset(parentSprite, subsprite, currentAnim, currentFrame) {
 
-        let subData = this._getSubspriteData(subsprite);
-
-        for (let i = 0; i < subData.offsets.length; i++) {
-            if (subData.offsets[i].triggered !== currentAnim) {
-                continue;
-            }
-
-            if (subData.offsets[i].offsets.length > currentFrame - 1) {
-                return subData.offsets[i].offsets[currentFrame - 1];
-            } else {
-                LOG.warn('getSubspriteOffset: Not enough frames found for:', subsprite, ' currentAnim:', currentAnim);
-                return subData.defaultCords;
-            }
+        if (!this._offsetData.hasOwnProperty(parentSprite)) {
+            // No subsprite data present.
+            return OFFSET_ZERO;
         }
 
-        // If nothing found return default.
-        if (!subData.defaultCords) {
-            LOG.warn('getSubspriteOffset: No default cords found for:', subsprite, 'currentAnim:', currentAnim);
-            return NULL_OFFSET;
+        var data = this._offsetData[parentSprite];
+
+        if (!data.hasOwnProperty(subsprite)) {
+            return OFFSET_ZERO;
         }
 
-        return subData.defaultCords;
+        data = data[subsprite];
+
+        if (!data.hasOwnProperty(currentAnim)) {
+            return data.defaultCords || OFFSET_ZERO;
+        }
+
+        data = data[currentAnim];
+
+        if(data.offsets.length < currentFrame) {
+            return data.defaultCords || OFFSET_ZERO;
+        }
+
+        return data.offsets[currentFrame - 1];
     }
 
     /**
@@ -153,7 +159,7 @@ export default class SpriteDescriptionCache {
 
         data = data[subspriteName];
 
-        if(!data.hasOwnProperty(animName)) {
+        if (!data.hasOwnProperty(animName)) {
             return 'bottom';
         }
 

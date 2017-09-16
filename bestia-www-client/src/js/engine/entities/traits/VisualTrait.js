@@ -183,7 +183,7 @@ export class VisualTrait extends Trait {
     _playSubspriteAnimation(sprite, animName) {
         // Iterate over all subsprites an set their animations.
         sprite._subsprites.forEach(function (subsprite) {
-            
+
             animName = this._performLeftRightFlip(sprite, animName);
 
             let subAnim = descriptionCache.getSubspriteAnimation(sprite.key, subsprite.key, animName);
@@ -210,10 +210,10 @@ export class VisualTrait extends Trait {
         sprite._subsprites.forEach(function (subSprite) {
 
             // Get the current sub sprite anim name.
-            // let subPos = this._getSubspriteOffset(subSprite.name, curAnim, curFrame);
+            let subPos = descriptionCache.getSubspriteOffset(sprite.key, subSprite.key, curAnim, curFrame);
+            subSprite.position.x = subPos.x;
+            subSprite.position.y = subPos.y;
 
-            //subSprite.position.x = subPos.x;
-            //subSprite.position.y = subPos.y;
         }, this);
     }
 }
