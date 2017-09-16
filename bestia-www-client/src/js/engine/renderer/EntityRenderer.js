@@ -33,6 +33,10 @@ export default class EntityRenderer extends Renderer {
         // no op
     }
 
+    load(game) {
+        game.load.image('default_item', engineContext.url.getItemIconUrl('_default'));
+    }
+
     /**
      * Iterates through every entity and checks if there is render work to be done
      * to display stuff attached to this entity.

@@ -1,6 +1,6 @@
 import BasicCommand from './BasicCommand.js';
 import LOG from '../../../util/Log';
-import Signal from '../../../io/Signal';
+import { setDebugEntityIdDisplay } from './../../../engine/renderer/DebugRenderer';
 
 /**
  * Can be used to send debug commands directly to the engine.
@@ -17,7 +17,7 @@ export default class DebugCommand extends BasicCommand {
 		this.paramRegex = /\/debug (.*)/i;
 		this.cmdHandle = 'debug';
 	}
-	
+
 	_doCommand(cmdStr, chat, pubsub) {
 		let command = this.matches[1];
 
@@ -25,7 +25,13 @@ export default class DebugCommand extends BasicCommand {
 		let commandData = command.split('.');
 
 		LOG.debug('Received debug command:', command);
-		pubsub.publish(Signal.ENGINE_DEBUG_CMD, commandData);
+		this._switchExecuteCommand(commandData);
+	}
+
+	_switchExecuteCommand(cmdStr) {
+		
+		setDebugEntityIdDisplay(true);
+		
 	}
 }
 

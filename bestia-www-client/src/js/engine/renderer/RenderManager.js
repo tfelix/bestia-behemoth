@@ -64,7 +64,7 @@ export default class RenderManager {
 	 */
 	update() {
 		this._renderer.forEach((r) => {
-			if (r.isDirty) {
+			if (r.isDirty()) {
 				r.update();
 			}
 		}, this);

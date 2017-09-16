@@ -52,7 +52,7 @@ export default class TileRender extends Renderer {
 	/**
 	 * Checks if we need a redraw.
 	 */
-	get isDirty() {
+	isDirty() {
 
 		if (this._isFirstDraw) {
 			return true;

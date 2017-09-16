@@ -21,7 +21,7 @@ export default class Renderer {
 	/**
 	 * Reports if the renderer is dirty and should be rendered.
 	 */
-	get isDirty() {
+	isDirty() {
 		return this._isDirty;
 	}
 	

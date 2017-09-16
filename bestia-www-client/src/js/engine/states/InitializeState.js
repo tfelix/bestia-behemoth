@@ -3,9 +3,11 @@ import LOG from '../../util/Log';
 import RenderManager from '../renderer/RenderManager';
 import TileRenderer from '../renderer/TileRenderer';
 import EntityRenderer from '../renderer/EntityRenderer';
+import { DebugRenderer } from '../renderer/DebugRenderer';
+import { EntityMenuRenderer } from '../renderer/EntityMenuRenderer';
 import IndicatorManager from '../indicator/IndicatorManager';
 import DemandLoader from '../DemandLoader';
-import {engineContext} from '../EngineData';
+import { engineContext } from '../EngineData';
 import EntityUpdater from '../entities/EntityUpdater';
 
 /**
@@ -18,7 +20,7 @@ import EntityUpdater from '../entities/EntityUpdater';
  * @class Bestia.Engine.States.InitialLoadingState
  */
 export default class InitializeState {
-	
+
 	constructor() {
 		// no op.
 	}
@@ -41,16 +43,17 @@ export default class InitializeState {
 		engineContext.renderManager = new RenderManager();
 		engineContext.renderManager.addRender(new TileRenderer(engineContext.pubsub, this.game));
 		engineContext.renderManager.addRender(new EntityRenderer(this.game));
+		engineContext.renderManager.addRender(new DebugRenderer(this.game));
+		engineContext.renderManager.addRender(new EntityMenuRenderer(this.game));
 
 		// Load all static render assets.
 		engineContext.renderManager.load(this.game);
-		
+
 		// Initialize the context since our engine is now ready.
 		// TODO Das hier in die indicator implementationen überführen.
 		this.game.load.image('castindicator_small', engineContext.url.getIndicatorUrl('big'));
 		this.game.load.image('castindicator_medium', engineContext.url.getIndicatorUrl('medium'));
 		this.game.load.image('castindicator_big', engineContext.url.getIndicatorUrl('small'));
-		this.game.load.image('default_item', engineContext.url.getItemIconUrl('_default'));
 
 		// Load the static data from the manager.
 		engineContext.indicatorManager.load();
