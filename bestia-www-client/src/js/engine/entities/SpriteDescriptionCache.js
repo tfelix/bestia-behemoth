@@ -142,24 +142,24 @@ export default class SpriteDescriptionCache {
     getSubspriteAnimation(spriteName, subspriteName, animName) {
         if (!this._offsetData.hasOwnProperty(spriteName)) {
             // No subsprite data present.
-            return 'bottom.png';
+            return 'bottom';
         }
 
         var data = this._offsetData[spriteName];
 
         if (!data.hasOwnProperty(subspriteName)) {
-            return 'bottom.png';
+            return 'bottom';
         }
 
         data = data[subspriteName];
 
         if(!data.hasOwnProperty(animName)) {
-            return 'bottom.png';
+            return 'bottom';
         }
 
         data = data[animName];
 
-        return data.animationName || 'bottom.png';
+        return data.animationName || 'bottom';
     }
 
     /**

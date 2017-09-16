@@ -125,6 +125,22 @@ export class VisualTrait extends Trait {
         return sprite.hasOwnProperty('_subsprites');
     }
 
+    _performLeftRightFlip(sprite, animName) {
+        // Get description data of this sprite.
+        let desc = descriptionCache.getSpriteDescription(sprite.key);
+
+        // We need to mirror the sprite for right sprites.
+        if (animName.indexOf('right') !== -1) {
+            sprite.scale.x = -1 * desc.scale;
+            animName = animName.replace('right', 'left');
+        } else {
+            sprite.scale.x = desc.scale;
+        }
+
+        sprite.animations.play(animName);
+        return animName;
+    }
+
     /**
      * Plays a specific animation. If it is a walk animation then by the name of
      * the animation the method takes core of flipping the sprite for mirrored
@@ -155,18 +171,7 @@ export class VisualTrait extends Trait {
             }
         }
 
-        // Get description data of this sprite.
-        let desc = descriptionCache.getSpriteDescription(sprite.key);
-
-        // We need to mirror the sprite for right sprites.
-        if (animName.indexOf('right') !== -1) {
-            sprite.scale.x = -1 * desc.scale;
-            animName = animName.replace('right', 'left');
-        } else {
-            sprite.scale.x = desc.scale;
-        }
-
-        sprite.animations.play(animName);
+        this._performLeftRightFlip(sprite, animName);
 
         if (this._isMultisprite(sprite)) {
             this._playSubspriteAnimation(sprite, entity.nextAnimation);
@@ -178,9 +183,9 @@ export class VisualTrait extends Trait {
     _playSubspriteAnimation(sprite, animName) {
         // Iterate over all subsprites an set their animations.
         sprite._subsprites.forEach(function (subsprite) {
-
-            // TODO hier wird oft stand_right walk_right requested, subsprites hier -1 skalieren.
             
+            animName = this._performLeftRightFlip(sprite, animName);
+
             let subAnim = descriptionCache.getSubspriteAnimation(sprite.key, subsprite.key, animName);
             subsprite.frameName = subAnim;
 
@@ -205,7 +210,7 @@ export class VisualTrait extends Trait {
         sprite._subsprites.forEach(function (subSprite) {
 
             // Get the current sub sprite anim name.
-           // let subPos = this._getSubspriteOffset(subSprite.name, curAnim, curFrame);
+            // let subPos = this._getSubspriteOffset(subSprite.name, curAnim, curFrame);
 
             //subSprite.position.x = subPos.x;
             //subSprite.position.y = subPos.y;

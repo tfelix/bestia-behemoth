@@ -4,11 +4,11 @@
   "scale":1.2,
   "name": "female_01",
   "animations": [
-		{"name": "bottom.png", "from": 1, "to": 1, "fps": 0 },
-		{"name": "bottom_left.png", "from": 1, "to": 1, "fps": 0 },
-		{"name": "left.png", "from": 1, "to": 1, "fps": 0 },
-		{"name": "top.png", "from": 1, "to": 1, "fps": 0 },
-		{"name": "top_left.png", "from": 1, "to": 1, "fps": 0 }
+		{"name": "bottom", "from": 1, "to": 1, "fps": 0 },
+		{"name": "bottom_left", "from": 1, "to": 1, "fps": 0 },
+		{"name": "left", "from": 1, "to": 1, "fps": 0 },
+		{"name": "top", "from": 1, "to": 1, "fps": 0 },
+		{"name": "top_left", "from": 1, "to": 1, "fps": 0 }
 	],
   "anchor":{  
     "x":0.5,
