@@ -1,3 +1,4 @@
+import LOG from '../../util/Log';
 
 /**
  * This class holds globally all sprite animation data of instanced sprites. It should be asked
@@ -30,8 +31,36 @@ export default class SpriteDescriptionCache {
         };
     }
 
+    addSubspriteOffset(subspriteName, subDesc) {
+        if (!subDesc || !subspriteName) {
+            LOG.warn('Subsprite name and subsprite description must be given.');
+        }
+
+        LOG.debug('Adding subsprite info for: ' + subDesc.targetSprite);
+
+        // We transform the data a little to make lookups easier.
+        var transformedSubDesc = {
+            defaultCords: subDesc.defaultCords
+        };
+
+        subDesc.offsets.forEach(function (offset) {
+            transformedSubDesc[offset.triggered] = {
+                animationName: offset.name,
+                offsets: offset.offsets
+            };
+        }, this);
+
+        // Build the tree.
+        this._offsetData[subDesc.targetSprite] = {};
+        this._offsetData[subDesc.targetSprite][subspriteName] = transformedSubDesc;
+    }
+
     getSpriteDescription(spriteKey) {
-        return this._data[spriteKey].data;
+        if(!this.hasSpriteDescription(spriteKey)) {
+            return null;
+        } else {
+            return this._data[spriteKey].data;
+        }
     }
 
     /**
@@ -102,14 +131,35 @@ export default class SpriteDescriptionCache {
     }
 
     /**
-     * Returns the assoziated subsprite animation name. Or null if no animation was found.
+     * Returns the assoziated subsprite animation name. 
+     * Or 'bottom.png' if no animation was found which is the default 'look
+     * down' animation.
      * 
      * @param {string} subspriteName Name of the subsprite.
      * @param {string} animName Name of the animation which is played on the main sprite.
      * @param {string} spriteName Name of the main sprite.
      */
     getSubspriteAnimation(spriteName, subspriteName, animName) {
-        return null;
+        if (!this._offsetData.hasOwnProperty(spriteName)) {
+            // No subsprite data present.
+            return 'bottom.png';
+        }
+
+        var data = this._offsetData[spriteName];
+
+        if (!data.hasOwnProperty(subspriteName)) {
+            return 'bottom.png';
+        }
+
+        data = data[subspriteName];
+
+        if(!data.hasOwnProperty(animName)) {
+            return 'bottom.png';
+        }
+
+        data = data[animName];
+
+        return data.animationName || 'bottom.png';
     }
 
     /**

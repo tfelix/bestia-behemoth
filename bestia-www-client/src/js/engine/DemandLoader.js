@@ -96,7 +96,7 @@ export default class DemandLoader {
 					try {
 						x();
 					} catch (err) {
-						console.error('DemandLoader#_fileLoadedCallback: ' + err, x);
+						LOG.error('DemandLoader#_fileLoadedCallback: ' + err, x);
 					}
 				});
 
@@ -145,7 +145,7 @@ export default class DemandLoader {
 			case 'json':
 				return this._phaserCache.getJSON(key);
 			default:
-				console.warn('DemandLoader#get: Unknown type.');
+				LOG.warn('DemandLoader#get: Unknown type.');
 				return false;
 		}
 	}

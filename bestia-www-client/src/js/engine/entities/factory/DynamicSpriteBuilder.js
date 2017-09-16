@@ -58,9 +58,9 @@ export default class DynamicSpriteBuilder extends Builder {
 				LOG.warn('Subsprite description was not loaded. This should not happen: ' + msDescName);
 				return;
 			}
-			
+
 			let msSprite = this._game.make.sprite(0, 0, msName);
-			
+
 			let defaultCords = offsets.defaultCords || {
 				x: 0,
 				y: 0
@@ -86,12 +86,31 @@ export default class DynamicSpriteBuilder extends Builder {
 	load(descFile, fnOnComplete) {
 
 		var pack = this._extendPack(descFile);
-		engineContext.loader.loadPackData(pack, function(){
+		engineContext.loader.loadPackData(pack, function () {
 
-			// Save the requested description data into the cache.
-			//descriptionCache.
-			LOG.info('Sprites loaded.');
+			// Iterate over all the keys of the pack since it is of the pattern:
+			// mastersmith : 
+			//	0: {type: "atlasJSONHash", key: "mastersmith", textureURL: "assets/sprite/mob/mastersmith/mastersmith.png", atlasURL: "../mastersmith/mastersmith.json"}
+			//	1: {type: "atlasJSONHash", key: "female_01", textureURL: "assets/sprite/multi/female_01/female_01.png", atlasURL: ".../female_01/female_01.json",}
+			//
+			for (var key in pack) {
+				if (pack.hasOwnProperty(key)) {
+					
+					var dataArray = pack[key];
+					
+					dataArray.forEach(function(entry){
+						
+						if(entry.key.indexOf('offset') === 0 && entry.type === 'json') {
+							// Starts with the string offset to the key is a offset subsprite description.
+							var offsetData = this._game.cache.getJSON(entry.key);
+							// TODO subsprite name automatisch auslesen.
+							descriptionCache.addSubspriteOffset('female_01', offsetData);
+						}
 
+					}, this);
+				}
+			}
+			
 			// Call original callback fn.
 			fnOnComplete();
 		}.bind(this));

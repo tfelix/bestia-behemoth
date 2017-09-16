@@ -136,7 +136,7 @@ export class VisualTrait extends Trait {
      */
     _playAnimation(sprite, entity, animName) {
 
-        LOG.debug('Playing animation: ' + animName);
+        LOG.debug('Playing animation: ' + animName + ' for entity: ' + entity.eid);
 
         // If the animation is already playing just leave it.
         if (animName === sprite.animations.name) {
@@ -178,14 +178,11 @@ export class VisualTrait extends Trait {
     _playSubspriteAnimation(sprite, animName) {
         // Iterate over all subsprites an set their animations.
         sprite._subsprites.forEach(function (subsprite) {
-            let subAnim = descriptionCache.getSubspriteAnimation(subsprite.key, animName);
+
+            // TODO hier wird oft stand_right walk_right requested, subsprites hier -1 skalieren.
             
-            if (subAnim === null) {
-                LOG.warn('No subsprite animation found for: ' + animName + ' on sprite: ' + subsprite.key);
-                return;
-            }
-            
-            subsprite.animations.play(subAnim);
+            let subAnim = descriptionCache.getSubspriteAnimation(sprite.key, subsprite.key, animName);
+            subsprite.frameName = subAnim;
 
         }, this);
     }
