@@ -83,6 +83,8 @@ export class ChatTrait extends Trait {
 
     _createChatVisual(sprite, text) {
         let box = this._game.add.graphics(0, 0);
+        // Prevent scaling by model.
+        box.setScaleMinMax(1, 1);
         box.beginFill(0x000000);
         box.alpha = 0.8;
 		let textSprite = this._game.add.text(5, 1, text, CHAT_STYLE);
