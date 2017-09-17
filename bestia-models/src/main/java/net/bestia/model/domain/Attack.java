@@ -1,6 +1,14 @@
 package net.bestia.model.domain;
 
 public interface Attack {
+	
+	/**
+	 * Basic attack id used for the default attack every bestia has. Each bestia
+	 * has the default melee or ranged attack.
+	 */
+	public final static int DEFAULT_MELEE_ATTACK_ID = -1;
+
+	public final static int DEFAULT_RANGE_ATTACK_ID = -2;
 
 	/**
 	 * @return ID of the attack.

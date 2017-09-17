@@ -16,16 +16,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Table(name = "attacks")
 public class AttackImpl implements Serializable, Attack {
 
-	/**
-	 * Basic attack id used for the default attack every bestia has. Each bestia
-	 * has the default melee or ranged attack.
-	 */
-	@Transient
-	public final static int DEFAULT_MELEE_ATTACK_ID = -1;
-
-	@Transient
-	public final static int DEFAULT_RANGE_ATTACK_ID = -2;
-
 	@Transient
 	private static AttackImpl defaultMeleeAttack;
 

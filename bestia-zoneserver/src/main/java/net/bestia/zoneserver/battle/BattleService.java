@@ -57,7 +57,8 @@ public class BattleService {
 
 	/**
 	 * Checks if the given entity is able to cast the attack (it knows it) and
-	 * also if the current mana is enough to use this skill.
+	 * also if the current mana is enough to use this skill. This has to take
+	 * into account any mana cost reducing status effects.
 	 * 
 	 * @param attacker
 	 * @param attackId
@@ -143,7 +144,7 @@ public class BattleService {
 			return null;
 		}
 
-		// Check the line of sight if needed.
+		// Check the line of sight is needed.
 		if (usedAttack.needsLineOfSight() && !hasLineOfSight(atkPosition.getPosition(), defPosition.getPosition())) {
 			LOG.debug("Attacker has no line of sight.");
 			return null;
@@ -155,12 +156,28 @@ public class BattleService {
 		final StatusBasedValues atkStatusBased = statusService.getStatusBasedValues(attacker).get();
 		final StatusBasedValues defStatusBased = statusService.getStatusBasedValues(defender).get();
 
-		// TODO Calculates the damage.
+		Damage primaryDamage;
 
-		Damage primaryDamage = Damage.getHit(12);
+		// Check if this was a skill or a normal attack.
+		if (usedAttack.getId() == Attack.DEFAULT_MELEE_ATTACK_ID) {
+			primaryDamage = calculateMeleeDamage(attacker, defender);
+		} else if (usedAttack.getId() == Attack.DEFAULT_RANGE_ATTACK_ID) {
+			primaryDamage = calculateRangeDamage();
+		} else {
+			primaryDamage = calculateRangeDamage();
+		}
+
 		Damage receivedDamage = takeDamage(defender, primaryDamage);
-		
+
 		return receivedDamage;
+	}
+
+	private Damage calculateRangeDamage() {
+		return Damage.getHit(10);
+	}
+
+	private Damage calculateMeleeDamage(Entity attacker, Entity defender) {
+		return Damage.getHit(10);
 	}
 
 	/**
@@ -171,8 +188,7 @@ public class BattleService {
 	 * @param pbe
 	 */
 	public void attackSelf(AttackUseMessage atkMsg, Attack usedAttack, Entity pbe) {
-		// TODO Auto-generated method stub
-
+		// TODO Coden.
 	}
 
 	/**
@@ -183,7 +199,17 @@ public class BattleService {
 	 * @param trueDamage
 	 */
 	public void takeTrueDamage(Entity defender, Damage trueDamage) {
-		// TODO Auto-generated method stub
+		final int damage = trueDamage.getDamage();
+
+		StatusValues values = statusService.getStatusValues(defender).orElseThrow(IllegalArgumentException::new);
+		
+		if (values.getCurrentHealth() <= damage) {
+			killEntity(defender);
+			return;
+		}
+
+		values.addHealth(-damage);
+		statusService.save(defender, values);
 	}
 
 	/**
@@ -221,7 +247,6 @@ public class BattleService {
 
 		return primaryDamage;
 	}
-	
 
 	/**
 	 * Checks the damage and reduces it by resistances or status effects.
@@ -239,8 +264,8 @@ public class BattleService {
 	 * public Damage checkDamage(Damage damage) { return null; }
 	 */
 
-	public void killEntity(Entity entity) {
-		LOG.trace("Entity {} killed.", entity);
+	public void killEntity(Entity killed) {
+		LOG.trace("Entity {} killed.", killed);
 	}
 
 	/**

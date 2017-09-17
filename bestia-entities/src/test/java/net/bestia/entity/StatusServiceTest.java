@@ -5,6 +5,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import org.junit.Assert;
@@ -224,17 +225,12 @@ public class StatusServiceTest {
 		statusService.getManaTick(INVALID_ENTITY_ID);
 	}
 
-	@Test(expected = NullPointerException.class)
-	public void saveStatusValues_null_throws() {
-		statusService.saveStatusValues(statusEntity, null);
-	}
-
 	@Test(expected = IllegalArgumentException.class)
 	public void saveStatusValues_validEntityId_dontSaveComponent() {
 		StatusValues sv = new StatusValues();
 		sv.setCurrentHealth(5);
 		sv.setCurrentMana(6);
-		statusService.saveStatusValues(INVALID_ENTITY_ID, sv);
+		statusService.save(INVALID_ENTITY_ID, sv);
 	}
 
 	@Test
@@ -242,7 +238,7 @@ public class StatusServiceTest {
 		StatusValues sv = new StatusValues();
 		sv.setCurrentHealth(5);
 		sv.setCurrentMana(6);
-		statusService.saveStatusValues(STATUS_ENTITY_ID, sv);
+		statusService.save(STATUS_ENTITY_ID, sv);
 
 		verify(statusValues).set(sv);
 		verify(entityService).updateComponent(statusComp);
@@ -253,7 +249,7 @@ public class StatusServiceTest {
 		StatusValues sv = new StatusValues();
 		sv.setCurrentHealth(100);
 		sv.setCurrentMana(100);
-		statusService.saveStatusValues(STATUS_ENTITY_ID, sv);
+		statusService.save(STATUS_ENTITY_ID, sv);
 
 		verify(entityService, times(0)).updateComponent(statusComp);
 	}
@@ -273,6 +269,15 @@ public class StatusServiceTest {
 	@Test
 	public void getStatusValue_invalidEntityId_empty() {
 		Assert.assertFalse(statusService.getStatusValues(INVALID_ENTITY_ID).isPresent());
+	}
+	
+
+	public void save(Entity entity, StatusPoints spoint) {
+
+	}
+
+	public void save(long entityId, StatusPoints spoint) {
+		
 	}
 
 }

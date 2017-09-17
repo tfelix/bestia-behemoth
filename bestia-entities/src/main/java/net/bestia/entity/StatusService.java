@@ -310,8 +310,9 @@ public class StatusService {
 	 * @param entity
 	 * @param values
 	 */
-	public void saveStatusValues(Entity entity, StatusValues values) {
+	public void save(Entity entity, StatusValues values) {
 
+		Objects.requireNonNull(entity);
 		Objects.requireNonNull(values);
 
 		final StatusComponent statusComp = entityService.getComponent(entity, StatusComponent.class)
@@ -343,16 +344,55 @@ public class StatusService {
 	}
 
 	/**
-	 * This is an alias for {@link #saveStatusValues(Entity, StatusValues)}.
+	 * This is an alias for {@link #save(Entity, StatusValues)}.
 	 * 
 	 * @param entityId
 	 *            The entity ID for which to save the status values.
 	 * @param sval
 	 *            The status values to save for this entity.
 	 */
-	public void saveStatusValues(long entityId, StatusValues sval) {
+	public void save(long entityId, StatusValues sval) {
 		final Entity e = entityService.getEntity(entityId);
-		saveStatusValues(e, sval);
+		save(e, sval);
+	}
+
+	/**
+	 * Attaches the new set status points to the entity.
+	 * 
+	 * @param entity
+	 *            The entity to attach the status points to.
+	 * @param spoint
+	 *            The new status points to save.
+	 */
+	public void save(Entity entity, StatusPoints spoint) {
+
+		Objects.requireNonNull(entity);
+		Objects.requireNonNull(spoint);
+
+		final StatusComponent statusComp = entityService.getComponent(entity, StatusComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+
+		statusComp.setStatusPoints(spoint);
+
+		// Reset the status based values since they need to be recalculated now.
+		// Get them via getStatusBasedValues.
+		statusComp.setStatusBasedValues(null);
+
+		entityService.updateComponent(statusComp);
+	}
+
+	/**
+	 * Saves the new status points to the entity. It first resolves the entity.
+	 * The its an alias to {@link #save(Entity, StatusPoints)}.
+	 * 
+	 * @param entityId
+	 *            The entity to attach the status points to.
+	 * @param spoint
+	 *            The new status points to save.
+	 */
+	public void save(long entityId, StatusPoints spoint) {
+		final Entity e = entityService.getEntity(entityId);
+		save(e, spoint);
 	}
 
 }

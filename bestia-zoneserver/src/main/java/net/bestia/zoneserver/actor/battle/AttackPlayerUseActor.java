@@ -76,11 +76,11 @@ public class AttackPlayerUseActor extends AbstractActor {
 		final Attack usedAttack;
 
 		// Some special handling for basic attacks.
-		if (msg.getAttackId() == BattleService.DEFAULT_MELEE_ATTACK_ID) {
+		if (msg.getAttackId() == Attack.DEFAULT_MELEE_ATTACK_ID) {
 
 			usedAttack = AttackImpl.getDefaultMeleeAttack();
 
-		} else if (msg.getAttackId() == BattleService.DEFAULT_RANGE_ATTACK_ID) {
+		} else if (msg.getAttackId() == Attack.DEFAULT_RANGE_ATTACK_ID) {
 
 			usedAttack = AttackImpl.getDefaultMeleeAttack();
 
@@ -93,6 +93,7 @@ public class AttackPlayerUseActor extends AbstractActor {
 			}
 
 			usedAttack = attackDao.findOne(msg.getAttackId());
+			
 			if (usedAttack == null) {
 				LOG.warning("Attack not found: {}.", msg);
 				return;

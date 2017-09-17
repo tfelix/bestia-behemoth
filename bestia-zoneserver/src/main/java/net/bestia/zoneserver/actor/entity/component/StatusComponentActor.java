@@ -67,7 +67,7 @@ public class StatusComponentActor extends BestiaPeriodicTerminatingActor {
 
 			}
 			
-			statusService.saveStatusValues(entityId, sval);
+			statusService.save(entityId, sval);
 
 		} catch (IllegalArgumentException e) {
 			// Could not tick regeneration for this entity id. Probably no
