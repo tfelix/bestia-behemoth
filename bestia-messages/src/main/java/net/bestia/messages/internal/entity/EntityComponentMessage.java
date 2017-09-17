@@ -4,7 +4,9 @@ import net.bestia.messages.EntityInternalMessage;
 
 /**
  * This message is send to an entity actor to signal that a new actor should be
- * spawned who handles a special
+ * spawned who handles this component in any way. Usually this is the case if
+ * there is some kind of periodic handling of some components like script
+ * callbacks.
  * 
  * @author Thomas Felix
  *
@@ -12,7 +14,15 @@ import net.bestia.messages.EntityInternalMessage;
 public class EntityComponentMessage extends EntityInternalMessage {
 
 	public enum ComponentState {
-		INSTALL, REMOVE
+		/**
+		 * Signals the entity actor to start the component watching.
+		 */
+		INSTALL,
+
+		/**
+		 * This will remove the component observing.
+		 */
+		REMOVE
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -27,10 +37,17 @@ public class EntityComponentMessage extends EntityInternalMessage {
 		this.state = state;
 	}
 
+	/**
+	 * @return The component ID which should be processed.
+	 */
 	public long getComponentId() {
 		return componentId;
 	}
 
+	/**
+	 * @return The state if this actor should start or stop observing this
+	 *         component.
+	 */
 	public ComponentState getState() {
 		return state;
 	}

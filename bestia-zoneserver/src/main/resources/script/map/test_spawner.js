@@ -1,12 +1,14 @@
 
 
 /**
- * Test Spawner script. Checks how many entities are alive and
+ * Test Spawner script. Checks how many entities are alive and if not enough are alive respawns them.
  */
 
 var SPAWN_COUNT = 10;
 
 function checkEntities() {
+	
+	BAPI.log('Checking entities...');
 	
 	var data = BAPI.getScriptVar(SUID);
 	var entities = [];

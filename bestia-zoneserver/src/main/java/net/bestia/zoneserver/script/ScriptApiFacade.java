@@ -34,8 +34,7 @@ import net.bestia.zoneserver.battle.BattleService;
 @Component
 public class ScriptApiFacade implements ScriptApi {
 
-	// private static final Logger SCRIPT_LOG =
-	// LoggerFactory.getLogger("script_log");
+	private static final Logger SCRIPT_LOG = LoggerFactory.getLogger("script");
 	private static final Logger LOG = LoggerFactory.getLogger(ScriptApiFacade.class);
 
 	private ScriptEntityFactory scriptEntityFactory;
@@ -99,32 +98,17 @@ public class ScriptApiFacade implements ScriptApi {
 
 	@Override
 	public void info(String text) {
-		LOG.info(text);
+		SCRIPT_LOG.info(text);
 	}
 
 	@Override
 	public void debug(String text) {
-		LOG.debug(text);
-	}
-
-	public void saveData(String scriptUid, String json) {
-
-		LOG.error("Not implemented yet");
-		// SCRIPT_LOG.debug("Saving script data for script: {} data: {}.",
-		// scriptUid, json);
-	}
-
-	public String loadData(String scriptUid) {
-
-		LOG.error("Not implemented yet");
-		return "";
-		// SCRIPT_LOG.debug("Loading script data for script: {} data: {}.",
-		// scriptUid, "nothing");
+		SCRIPT_LOG.debug(text);
 	}
 
 	@Override
 	public long createEntity(CollisionShape shape) {
-		LOG.trace("Creating a new entity.");
+		LOG.trace("Creating a new raw entity.");
 
 		final Entity entity = scriptEntityFactory.build(shape);
 
