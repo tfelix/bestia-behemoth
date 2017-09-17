@@ -162,7 +162,8 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 	 * @param clazz
 	 *            The class of the {@link UntypedActor} to instantiate.
 	 * @param name
-	 *            The name under which the actor should be created.
+	 *            The name under which the actor should be created. The name can
+	 *            be null then the actor is created with a random name.
 	 * @return The created and already registered new actor.
 	 */
 	public static ActorRef actorOf(ActorContext context, Class<? extends AbstractActor> clazz, String name) {
@@ -182,7 +183,8 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 	 * @param clazz
 	 *            The class of the {@link AbstractActor} to be instantiated.
 	 * @param name
-	 *            The name under which the actor should be created.
+	 *            The name under which the actor should be created. The name can
+	 *            be null then the actor is created with a random name.
 	 * @param args
 	 *            The additional arguments delivered to the actor.
 	 * @return

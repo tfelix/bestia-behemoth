@@ -1,7 +1,7 @@
 package net.bestia.entity.component;
 
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -9,9 +9,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorContext;
 import akka.actor.ActorRef;
 import net.bestia.entity.EntityService;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.entity.component.MovementComponentActor;
+import net.bestia.zoneserver.actor.entity.component.ScriptComponentActor;
+import net.bestia.zoneserver.actor.entity.component.StatusComponentActor;
 
 /**
  * Depending on the given component ID this factory will create an actor
@@ -27,18 +32,22 @@ public class EntityComponentActorFactory {
 
 	private final EntityService entityService;
 
-	private final Map<String, ActorComponentFactoryModule<? extends Component>> componentModules = new HashMap<>();
+	private static final Map<Class<? extends Component>, Class<? extends AbstractActor>> ACTOR_FOR_COMPONENTS;
+
+	static {
+		Map<Class<? extends Component>, Class<? extends AbstractActor>> actorForComp = new HashMap<>();
+
+		actorForComp.put(StatusComponent.class, StatusComponentActor.class);
+		actorForComp.put(ScriptComponent.class, ScriptComponentActor.class);
+		actorForComp.put(PositionComponent.class, MovementComponentActor.class);
+
+		ACTOR_FOR_COMPONENTS = Collections.unmodifiableMap(actorForComp);
+	}
 
 	@Autowired
-	public EntityComponentActorFactory(EntityService entityService,
-			List<ActorComponentFactoryModule<? extends Component>> modules) {
-		Objects.requireNonNull(modules);
+	public EntityComponentActorFactory(EntityService entityService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
-
-		for (ActorComponentFactoryModule<? extends Component> module : modules) {
-			componentModules.put(module.buildActorFor().getName(), module);
-		}
 	}
 
 	/**
@@ -59,16 +68,29 @@ public class EntityComponentActorFactory {
 			return null;
 		}
 
-		final String compClazzName = comp.getClass().getName();
+		final Class<? extends Component> compClazz = comp.getClass();
 
-		if (!componentModules.containsKey(compClazzName)) {
-			LOG.warn("Component {} (id: {}) has now factory module attached.", compClazzName, componentId);
+		if (!ACTOR_FOR_COMPONENTS.containsKey(compClazz)) {
+			LOG.warn("Component {} (id: {}) has now factory module attached.", compClazz.getName(), componentId);
 			return null;
 		}
 
-		final ActorRef compActor = componentModules.get(compClazzName).buildActor(ctx, comp);
+		final ActorRef compActor = buildActor(ctx, comp);
+
 		LOG.debug("Starting component {} actor: {} ", componentId, compActor);
 		return compActor;
 	}
 
+	/**
+	 * Creates the actor.
+	 */
+	private ActorRef buildActor(ActorContext ctx, Component comp) {
+
+		final Class<? extends AbstractActor> actorClass = ACTOR_FOR_COMPONENTS.get(comp.getClass());
+
+		return SpringExtension.actorOf(ctx,
+				actorClass,
+				null,
+				comp.getEntityId());
+	}
 }
