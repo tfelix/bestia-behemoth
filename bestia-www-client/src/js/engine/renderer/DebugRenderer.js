@@ -64,6 +64,7 @@ export class DebugRenderer extends Renderer {
             }
 
             let eidSprite = this._game.add.text(0, 0, entity.eid, TXT_STYLE);
+            eidSprite.anchor.set(0.5, 0);
             eidSprite.setScaleMinMax(1, 1);
 
             sprite._debugEidTxt = eidSprite;

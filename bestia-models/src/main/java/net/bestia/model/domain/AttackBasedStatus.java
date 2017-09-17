@@ -3,7 +3,7 @@ package net.bestia.model.domain;
 /**
  * Specifies on which status value an attack is based.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public enum AttackBasedStatus {

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import net.bestia.messages.JsonMessage;
 
 /**
- * A message from the client to the server to use an attack.
+ * A message from the client to the server to use an attack/skill.
  * 
  * @author Thomas Felix
  *

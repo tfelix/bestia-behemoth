@@ -3,6 +3,8 @@ package net.bestia.zoneserver.battle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,7 @@ import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusValues;
 import net.bestia.model.entity.StatusBasedValues;
+import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.model.map.Map;
@@ -29,8 +32,6 @@ import net.bestia.zoneserver.map.MapService;
  * This service is used to perform attacks and damage calculation for battle
  * related tasks.
  * 
- * TODO This service is work in progress.
- * 
  * @author Thomas Felix
  *
  */
@@ -38,11 +39,7 @@ import net.bestia.zoneserver.map.MapService;
 public class BattleService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(BattleService.class);
-	
-	public final static int DEFAULT_MELEE_ATTACK_ID = -1;
-	public final static int DEFAULT_RANGE_ATTACK_ID = -2;
 
-	private final Point ZERO = new Point(0, 0);
 	private final EntityService entityService;
 	private final StatusService statusService;
 	private final MapService mapService;
@@ -58,41 +55,65 @@ public class BattleService {
 		this.mapService = Objects.requireNonNull(mapService);
 	}
 
+	/**
+	 * Checks if the given entity is able to cast the attack (it knows it) and
+	 * also if the current mana is enough to use this skill.
+	 * 
+	 * @param attacker
+	 * @param attackId
+	 * @return
+	 */
 	public boolean canUseAttack(Entity attacker, int attackId) {
 		return true;
 	}
 
 	/**
-	 * Attacks the ground.
+	 * It must be checked if an entity is eligible for receiving damage. This
+	 * means that an {@link StatusComponent} as well as a
+	 * {@link PositionComponent} must be present.
+	 * 
+	 * @return TRUE if the entity is abtle to receive damage. FALSE otherwise.
+	 */
+	private boolean canEntityReceiveDamage(Entity entity) {
+		// Check if we have valid x and y.
+		if (!entityService.hasComponent(entity, StatusComponent.class)) {
+			LOG.warn("Not entity {} does not have status components.", entity.getId());
+			return false;
+		}
+
+		if (!entityService.hasComponent(entity, PositionComponent.class)) {
+			LOG.warn("Not entity {} does not have position components.", entity.getId());
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Performs an attack/skill against a ground target.
 	 * 
 	 * @param atkMsg
 	 * @param usedAttack
 	 */
 	public void attackGround(Attack usedAttack, Entity attacker, Point target) {
 
-		// Check if we have valid x and y.
-		if (!entityService.hasComponent(attacker, StatusComponent.class)) {
-			return;
-		}
-
-		if (!entityService.hasComponent(attacker, PositionComponent.class)) {
-			return;
-		}
-
-		PositionComponent atkPos = entityService.getComponent(attacker, PositionComponent.class).get();
-		// StatusComponent statusComp =
-		// entityCtx.getComponent().getComponent(attacker,
-		// StatusComponent.class).get();
-
-		// Check if target is in sight.
-		if (usedAttack.needsLineOfSight() && !hasLineOfSight(atkPos.getPosition(), target)) {
-			// No line of sight.
+		if (canEntityReceiveDamage(attacker)) {
 			return;
 		}
 
 		// Check if target is in range.
-		if (usedAttack.getRange() < atkPos.getPosition().getDistance(target)) {
-			// Out of range.
+		if (!isInRange(usedAttack, attacker, target)) {
+			return;
+		}
+
+		final PositionComponent atkPos = entityService.getComponent(attacker, PositionComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+		final StatusComponent statusComp = entityService.getComponent(attacker, StatusComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+
+		// Check if target is in sight.
+		if (usedAttack.needsLineOfSight() && !hasLineOfSight(atkPos.getPosition(), target)) {
+			// No line of sight.
 			return;
 		}
 	}
@@ -105,35 +126,27 @@ public class BattleService {
 	 * @param attacker
 	 * @param defender
 	 */
-	public void attackEntity(Attack usedAttack, Entity attacker, Entity defender) {
+	public Damage attackEntity(Attack usedAttack, Entity attacker, Entity defender) {
 		LOG.trace("Entity {} attacks entity {} with {}.", attacker, defender, usedAttack);
 
-		if (!entityService.hasComponent(attacker, StatusComponent.class)
-				|| !entityService.hasComponent(defender, StatusComponent.class)) {
-			LOG.warn("Not both entities have status components.");
-			return;
+		if (!canEntityReceiveDamage(attacker) || !canEntityReceiveDamage(defender)) {
+			return null;
 		}
 
-		if (!entityService.hasComponent(attacker, PositionComponent.class)
-				|| !entityService.hasComponent(defender, PositionComponent.class)) {
-			LOG.warn("Not both entities have position components.");
-			return;
+		final PositionComponent atkPosition = entityService.getComponent(attacker, PositionComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+		final PositionComponent defPosition = entityService.getComponent(defender, PositionComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
+
+		// Check if the target is in range.
+		if (!isInRange(usedAttack, attacker, defPosition.getPosition())) {
+			return null;
 		}
 
-		final PositionComponent atkPosition = entityService.getComponent(attacker, PositionComponent.class).get();
-		final PositionComponent defPosition = entityService.getComponent(defender, PositionComponent.class).get();
-
-		// Check the line of sight.
+		// Check the line of sight if needed.
 		if (usedAttack.needsLineOfSight() && !hasLineOfSight(atkPosition.getPosition(), defPosition.getPosition())) {
 			LOG.debug("Attacker has no line of sight.");
-			return;
-		}
-
-		// Check if target is in range.
-		if (usedAttack.getRange() < atkPosition.getPosition().getDistance(defPosition.getPosition())) {
-			// Out of range.
-			LOG.debug("Attack was out of range.");
-			return;
+			return null;
 		}
 
 		final StatusPoints atkStatus = statusService.getStatusPoints(attacker).get();
@@ -146,12 +159,44 @@ public class BattleService {
 
 		Damage primaryDamage = Damage.getHit(12);
 		Damage receivedDamage = takeDamage(defender, primaryDamage);
+		
+		return receivedDamage;
 	}
 
+	/**
+	 * Attacks itself.
+	 * 
+	 * @param atkMsg
+	 * @param usedAttack
+	 * @param pbe
+	 */
+	public void attackSelf(AttackUseMessage atkMsg, Attack usedAttack, Entity pbe) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/**
+	 * The true damage is applied directly to the entity without further
+	 * reducing the damage via armor.
+	 * 
+	 * @param defender
+	 * @param trueDamage
+	 */
 	public void takeTrueDamage(Entity defender, Damage trueDamage) {
 		// TODO Auto-generated method stub
 	}
 
+	/**
+	 * This will perform a check damage for reducing it and alter all possible
+	 * status effects and then apply the damage to the entity. If its health
+	 * sinks below 0 then the {@link #kill()} method will be triggered. It will
+	 * also trigger any attached script trigger for received damage this is
+	 * onTakeDamage and onApplyDamage.
+	 * 
+	 * @param damage
+	 *            The damage to apply to this entity.
+	 * @return The actually applied damage.
+	 */
 	public Damage takeDamage(Entity defender, Damage primaryDamage) {
 		LOG.trace("Entity {} takes damage: {}.", defender, primaryDamage);
 
@@ -176,21 +221,26 @@ public class BattleService {
 
 		return primaryDamage;
 	}
+	
+
+	/**
+	 * Checks the damage and reduces it by resistances or status effects.
+	 * Returns the reduced damage the damage can be 0 if the damage was negated
+	 * altogether. If there are effects which would be run out because of this
+	 * damage then the checking will NOT run them out. It is only a check. Only
+	 * applying the damage via {@link #takeDamage(Damage)} will trigger this
+	 * removals.
+	 * 
+	 * @param damage
+	 *            The damage to check if taken.
+	 * @return Possibly reduced damage or NULL of it was negated completly.
+	 */
+	/*
+	 * public Damage checkDamage(Damage damage) { return null; }
+	 */
 
 	public void killEntity(Entity entity) {
 		LOG.trace("Entity {} killed.", entity);
-	}
-
-	/**
-	 * Attacks itself.
-	 * 
-	 * @param atkMsg
-	 * @param usedAttack
-	 * @param pbe
-	 */
-	public void attackSelf(AttackUseMessage atkMsg, Attack usedAttack, Entity pbe) {
-		// TODO Auto-generated method stub
-
 	}
 
 	/**
@@ -206,24 +256,17 @@ public class BattleService {
 	 *         is no direct line of sight.
 	 */
 	private boolean hasLineOfSight(Point start, Point end) {
-		// Find the rect enclosing the two points.
-		final double d1 = ZERO.getDistance(start);
-		final double d2 = ZERO.getDistance(end);
+		final long x1, x2, y1, y2;
 
-		final Point smaller, bigger;
+		x1 = Math.min(start.getX(), end.getX());
+		x2 = Math.max(start.getX(), end.getX());
+		y1 = Math.min(start.getY(), end.getY());
+		y2 = Math.max(start.getY(), end.getY());
 
-		if (d1 < d2) {
-			smaller = start;
-			bigger = end;
-		} else {
-			smaller = end;
-			bigger = start;
-		}
+		final long width = x2 - x1;
+		final long height = y2 - y1;
 
-		final long width = bigger.getX() - bigger.getX();
-		final long height = bigger.getY() - bigger.getY();
-
-		final Rect bbox = new Rect(smaller.getX(), smaller.getY(), width, height);
+		final Rect bbox = new Rect(x1, y1, width, height);
 
 		final Map map = mapService.getMap(bbox);
 
@@ -231,9 +274,22 @@ public class BattleService {
 
 		final boolean doesMapBlock = lineOfSight.stream().filter(map::blocksSight).findAny().isPresent();
 
-		// TODO We need to check temporarly entity sight blocking as well.
+		final Set<Entity> blockingEntities = entityService.getCollidingEntities(bbox);
+		final boolean doesEntityBlock = blockingEntities.stream().anyMatch(entity -> {
+			final Optional<PositionComponent> pos = entityService.getComponent(entity, PositionComponent.class);
 
-		return doesMapBlock;
+			if (!pos.isPresent()) {
+				return false;
+			}
+
+			final CollisionShape shape = pos.get().getShape();
+
+			return lineOfSight.stream().anyMatch(los -> {
+				return shape.collide(los);
+			});
+		});
+
+		return !doesMapBlock && !doesEntityBlock;
 	}
 
 	/**
@@ -270,42 +326,36 @@ public class BattleService {
 	}
 
 	/**
-	 * Returns a list with all available attacks.
+	 * Checks if a given attack is in range for a target position. It is
+	 * important to ask the attached entity scripts as these can alter the
+	 * effective range.
 	 * 
-	 * @return A list of all available attacks.
+	 * @param usedAttack
+	 *            The attack beeing used.
+	 * @param attacker
+	 *            The attacker who uses the attack.
+	 * @param defenderPos
+	 *            The target position where the attack is directed.
+	 * @return TRUE if the attack is in range. FALSE otherwise.
 	 */
-	// List<Attack> getAttacks();
+	private boolean isInRange(Attack usedAttack, Entity attacker, Point defenderPos) {
+
+		final Point atkPosition = entityService.getComponent(attacker, PositionComponent.class)
+				.orElseThrow(IllegalArgumentException::new)
+				.getPosition();
+		final int effectiveRange = getEffectiveSkillRange(usedAttack, attacker);
+		return effectiveRange < atkPosition.getDistance(atkPosition);
+	}
 
 	/**
-	 * This will perform a check damage for reducing it and alter all possible
-	 * status effects and then apply the damage to the entity. If its health
-	 * sinks below 0 then the {@link #kill()} method will be triggered.
+	 * Calculates the effective range of the attack. A skill range can be
+	 * altered by an equipment or a buff for example.
 	 * 
-	 * @param damage
-	 *            The damage to apply to this entity.
-	 * @return The reduced damage.
+	 * @param usedAttack
+	 * @param user
+	 * @return
 	 */
-	// Damage takeDamage(Damage damage);
-
-	/**
-	 * Checks the damage and reduces it by resistances or status effects.
-	 * Returns the reduced damage the damage can be 0 if the damage was negated
-	 * altogether. If there are effects which would be run out because of this
-	 * damage then the checking will NOT run them out. It is only a check. Only
-	 * applying the damage via {@link #takeDamage(Damage)} will trigger this
-	 * removals.
-	 * 
-	 * @param damage
-	 *            The damage to check if taken.
-	 * @return Possibly reduced damage or NULL of it was negated completly.
-	 */
-	// Damage checkDamage(Damage damage);
-
-	/**
-	 * Returns the amount of EXP given if the entity was killed.
-	 * 
-	 * @return The amount of EXP given by this entity.
-	 */
-	// int getKilledExp();
-
+	private int getEffectiveSkillRange(Attack usedAttack, Entity user) {
+		return 1;
+	}
 }
