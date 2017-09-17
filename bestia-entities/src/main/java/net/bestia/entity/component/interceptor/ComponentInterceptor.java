@@ -32,14 +32,30 @@ public abstract class ComponentInterceptor<T extends Component> {
 	}
 
 	public void triggerCreateAction(EntityService entityService, Entity entity, Component comp) {
-		final T castComp = triggerClass.cast(comp);
-		onCreateAction(entityService, entity, castComp);
+		if (comp.getClass().isAssignableFrom(triggerClass)) {
+			onCreateAction(entityService, entity, triggerClass.cast(comp));
+		} else {
+			throw new IllegalArgumentException("Wrong component class. Not supported by this recycler.");
+		}
 	}
 
 	public void triggerUpdateAction(EntityService entityService, Entity entity, Component comp) {
-		final T castComp = triggerClass.cast(comp);
-		onUpdateAction(entityService, entity, castComp);
+		if (comp.getClass().isAssignableFrom(triggerClass)) {
+			onUpdateAction(entityService, entity, triggerClass.cast(comp));
+		} else {
+			throw new IllegalArgumentException("Wrong component class. Not supported by this recycler.");
+		}
 	}
+
+	public void triggerDeleteAction(EntityService entityService, Entity entity, Component comp) {
+		if (comp.getClass().isAssignableFrom(triggerClass)) {
+			onDeleteAction(entityService, entity, triggerClass.cast(comp));
+		} else {
+			throw new IllegalArgumentException("Wrong component class. Not supported by this recycler.");
+		}
+	}
+
+	protected abstract void onDeleteAction(EntityService entityService, Entity entity, T comp);
 
 	/**
 	 * This method is called if a trigger of the given component is detected.

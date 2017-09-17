@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import akka.actor.PoisonPill;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.deleter.ComponentDeleter;
-import net.bestia.entity.component.deleter.EntityCache;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**

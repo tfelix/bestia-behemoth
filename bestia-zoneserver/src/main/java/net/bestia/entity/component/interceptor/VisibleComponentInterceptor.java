@@ -63,4 +63,9 @@ public class VisibleComponentInterceptor extends ComponentInterceptor<VisibleCom
 		akkaApi.sendActiveInRangeClients(msg);
 	}
 
+	@Override
+	protected void onDeleteAction(EntityService entityService, Entity entity, VisibleComponent comp) {
+		// no op.
+	}
+
 }

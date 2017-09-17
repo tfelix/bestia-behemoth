@@ -29,38 +29,38 @@ public class StatusComponentInterceptor extends ComponentInterceptor<StatusCompo
 
 	private static final Logger LOG = LoggerFactory.getLogger(StatusComponentInterceptor.class);
 
-	private final ZoneAkkaApi actorApi;
+	private final ZoneAkkaApi akkaApi;
 
 	@Autowired
 	public StatusComponentInterceptor(ZoneAkkaApi actorApi) {
 		super(StatusComponent.class);
 
-		this.actorApi = Objects.requireNonNull(actorApi);
+		this.akkaApi = Objects.requireNonNull(actorApi);
 	}
 
 	@Override
 	protected void onUpdateAction(EntityService entityService, Entity entity, StatusComponent comp) {
-		
+
 		LOG.trace("StatusComponent updated for entity {}", entity.getId());
-		
+
 		// Check if its a player and needs updates of the entity status.
 		final Optional<PlayerComponent> playerComp = entityService.getComponent(entity, PlayerComponent.class);
-		
-		if(!playerComp.isPresent()) {
+
+		if (!playerComp.isPresent()) {
 			return;
 		}
-		
+
 		final long accId = playerComp.get().getOwnerAccountId();
-		
+
 		final EntityStatusUpdateMessage msg = new EntityStatusUpdateMessage(
-				accId, 
-				entity.getId(), 
+				accId,
+				entity.getId(),
 				comp.getStatusPoints(),
 				comp.getUnmodifiedStatusPoints(),
 				comp.getValues(),
 				comp.getStatusBasedValues());
-		actorApi.sendToClient(msg);
-		
+		akkaApi.sendToClient(msg);
+
 	}
 
 	/**
@@ -71,10 +71,19 @@ public class StatusComponentInterceptor extends ComponentInterceptor<StatusCompo
 	protected void onCreateAction(EntityService entityService, Entity entity, StatusComponent comp) {
 
 		LOG.trace("StatusComponent created.");
-		
-		final EntityComponentMessage msg = EntityComponentMessage.start(entity.getId(), comp.getId());
-		actorApi.sendEntityActor(entity.getId(), msg);
 
+		final EntityComponentMessage msg = EntityComponentMessage.start(entity.getId(), comp.getId());
+		akkaApi.sendEntityActor(entity.getId(), msg);
+
+	}
+
+	@Override
+	protected void onDeleteAction(EntityService entityService, Entity entity, StatusComponent comp) {
+		// Stop the actor timing the entity component.
+		LOG.trace("StatusComponent deleted. Stopping updates.");
+
+		final EntityComponentMessage msg = EntityComponentMessage.stop(comp.getEntityId(), comp.getId());
+		akkaApi.sendEntityActor(comp.getEntityId(), msg);
 	}
 
 }

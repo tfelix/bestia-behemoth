@@ -57,4 +57,20 @@ public class PlayerComponentInterceptor extends ComponentInterceptor<PlayerCompo
 		playerBestiaDao.save(playerBestia);
 	}
 
+	@Override
+	protected void onDeleteAction(EntityService entityService, Entity entity, PlayerComponent comp) {
+		LOG.debug("Recycling PlayerComponent: {}.", comp);
+
+		final long pbid = comp.getPlayerBestiaId();
+		final PlayerBestia playerBestia = playerBestiaDao.findOne(pbid);
+
+		if (playerBestia == null) {
+			LOG.warn("Could not find player bestia with id {}.", pbid);
+			return;
+		}
+
+		playerBestia.setEntityId(0L);
+		playerBestiaDao.save(playerBestia);
+	}
+
 }

@@ -12,10 +12,10 @@ import org.springframework.context.annotation.Configuration;
 
 import com.hazelcast.core.HazelcastInstance;
 
+import net.bestia.entity.EntityCache;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.deleter.ComponentDeleter;
-import net.bestia.entity.component.deleter.EntityCache;
 import net.bestia.entity.component.interceptor.ComponentInterceptor;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.MapParameter;

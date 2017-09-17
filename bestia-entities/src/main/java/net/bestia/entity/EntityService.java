@@ -25,6 +25,7 @@ import com.hazelcast.core.IdGenerator;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.PositionComponent;
+import net.bestia.entity.component.deleter.EntityCache;
 import net.bestia.entity.component.interceptor.ComponentInterceptor;
 
 /**
@@ -48,6 +49,8 @@ public class EntityService {
 	private final IdGenerator entityIdGen;
 	private final IMap<Long, Component> components;
 	private final IdGenerator idGenerator;
+	
+	private final EntityCache cache;
 
 	private final Map<Class<? extends Component>, List<ComponentInterceptor<? extends Component>>> interceptors = new HashMap<>();
 

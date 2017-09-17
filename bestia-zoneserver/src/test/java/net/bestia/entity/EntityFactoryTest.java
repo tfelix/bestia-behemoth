@@ -19,7 +19,6 @@ import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
 import net.bestia.entity.component.PlayerComponent;
 import net.bestia.entity.component.PlayerComponentSetter;
-import net.bestia.entity.component.deleter.EntityCache;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 @RunWith(MockitoJUnitRunner.class)

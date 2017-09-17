@@ -1,4 +1,4 @@
-package net.bestia.entity.component.deleter;
+package net.bestia.entity;
 
 import java.util.HashMap;
 import java.util.LinkedList;
