@@ -17,17 +17,13 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MultiMap;
 
-import net.bestia.messages.bestia.BestiaActivateMessage;
-import net.bestia.model.domain.PlayerBestia;
-import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
-import net.bestia.zoneserver.service.PlayerBestiaService;
-import net.bestia.entity.Entity;
-import net.bestia.entity.EntityService;
 import net.bestia.entity.component.LevelComponent;
 import net.bestia.entity.component.PlayerComponent;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.StatusComponent;
+import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.geometry.Rect;
+import net.bestia.zoneserver.service.PlayerBestiaService;
 
 /**
  * This service manages the entities which are controlled by a player.
@@ -47,17 +43,15 @@ public class PlayerEntityService {
 	private final IMap<Long, Long> activeEntities;
 	private final EntityService entityService;
 	private final PlayerBestiaService playerBestiaService;
-	private final ZoneAkkaApi akkaApi;
 
 	@Autowired
 	public PlayerEntityService(HazelcastInstance hz, EntityService entityService,
-			PlayerBestiaService playerBestiaService, ZoneAkkaApi akkaApi) {
+			PlayerBestiaService playerBestiaService) {
 
 		this.activeEntities = hz.getMap(ACTIVE_ENTITIES_KEY);
 		this.playerBestiaEntitiesIds = hz.getMultiMap(PLAYER_ENTITIES_KEY);
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerBestiaService = Objects.requireNonNull(playerBestiaService);
-		this.akkaApi = Objects.requireNonNull(akkaApi);
 	}
 
 	/**

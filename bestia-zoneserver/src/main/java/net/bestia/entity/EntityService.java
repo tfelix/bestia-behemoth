@@ -236,56 +236,6 @@ public class EntityService {
 	}
 
 	/**
-	 * Alias to {@link #getComponent(Entity, Class)}.
-	 * 
-	 * @param entityId
-	 *            The ID of the entity.
-	 * @param clazz
-	 *            The class of the {@link Component} to retrieve.
-	 * @return The component if it was attached to this entity.
-	 */
-	public <T extends Component> Optional<T> getComponent(long entityId, Class<T> clazz) {
-
-		final Entity e = getEntity(entityId);
-
-		if (e == null) {
-			LOG.warn("Entity {} not found for component lookup: {}", entityId, clazz);
-			return Optional.empty();
-		}
-
-		return getComponent(e, clazz);
-	}
-
-	public <T extends Component> Optional<T> getComponent(Entity e, Class<T> clazz) {
-		Objects.requireNonNull(e);
-		Objects.requireNonNull(clazz);
-
-		LOG.trace("Getting component {} from entity: {}", clazz.getSimpleName(), e);
-
-		@SuppressWarnings("unchecked")
-		final long compId = e.getComponentId((Class<Component>) clazz);
-
-		if (compId == 0) {
-			return Optional.empty();
-		}
-
-		final Component comp;
-
-		components.lock(compId);
-		try {
-			comp = components.get(compId);
-		} finally {
-			components.unlock(compId);
-		}
-
-		if (comp == null || !comp.getClass().isAssignableFrom(clazz)) {
-			return Optional.empty();
-		}
-
-		return Optional.of(clazz.cast(comp));
-	}
-
-	/**
 	 * Creates a new component which can be used with an entity. The component
 	 * is not yet saved in the system and can be filled with data. When the
 	 * component is filled it should be attached to an entity by calling
@@ -538,5 +488,55 @@ public class EntityService {
 	 */
 	public Component getComponent(long componentId) {
 		return components.get(componentId);
+	}
+	
+	/**
+	 * Alias to {@link #getComponent(Entity, Class)}.
+	 * 
+	 * @param entityId
+	 *            The ID of the entity.
+	 * @param clazz
+	 *            The class of the {@link Component} to retrieve.
+	 * @return The component if it was attached to this entity.
+	 */
+	public <T extends Component> Optional<T> getComponent(long entityId, Class<T> clazz) {
+
+		final Entity e = getEntity(entityId);
+
+		if (e == null) {
+			LOG.warn("Entity {} not found for component lookup: {}", entityId, clazz);
+			return Optional.empty();
+		}
+
+		return getComponent(e, clazz);
+	}
+
+	public <T extends Component> Optional<T> getComponent(Entity e, Class<T> clazz) {
+		Objects.requireNonNull(e);
+		Objects.requireNonNull(clazz);
+
+		LOG.trace("Getting component {} from entity: {}", clazz.getSimpleName(), e);
+
+		@SuppressWarnings("unchecked")
+		final long compId = e.getComponentId((Class<Component>) clazz);
+
+		if (compId == 0) {
+			return Optional.empty();
+		}
+
+		final Component comp;
+
+		components.lock(compId);
+		try {
+			comp = components.get(compId);
+		} finally {
+			components.unlock(compId);
+		}
+
+		if (comp == null || !comp.getClass().isAssignableFrom(clazz)) {
+			return Optional.empty();
+		}
+
+		return Optional.of(clazz.cast(comp));
 	}
 }
