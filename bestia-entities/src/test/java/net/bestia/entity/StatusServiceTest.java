@@ -5,7 +5,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import org.junit.Assert;
@@ -28,7 +27,6 @@ import net.bestia.model.entity.StatusBasedValues;
 @RunWith(MockitoJUnitRunner.class)
 public class StatusServiceTest {
 
-	//private final static long PLAYER_BESTIA_ID = 123;
 	private final static long STATUS_ENTITY_ID = 69;
 	private final static long INVALID_ENTITY_ID = 1235;
 
@@ -271,13 +269,27 @@ public class StatusServiceTest {
 		Assert.assertFalse(statusService.getStatusValues(INVALID_ENTITY_ID).isPresent());
 	}
 	
-
-	public void save(Entity entity, StatusPoints spoint) {
-
+	@Test
+	public void save_statusPointsEntity_isSaved() {
+		statusService.save(statusEntity, statusPoints);
+		Assert.assertTrue(statusService.getStatusBasedValues(statusEntity).isPresent());
+		verify(entityService).updateComponent(statusComp);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void save_nonStatusPointsEntity_throws() {
+		statusService.save(nonStatusEntity, statusPoints);
 	}
 
-	public void save(long entityId, StatusPoints spoint) {
-		
+	@Test
+	public void save_statusPointsEntityId_isSaved() {
+		statusService.save(STATUS_ENTITY_ID, statusPoints);
+		Assert.assertTrue(statusService.getStatusBasedValues(statusEntity).isPresent());
+		verify(entityService).updateComponent(statusComp);
 	}
-
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void save_nonStatusPointsEntityId_throws() {
+		statusService.save(INVALID_ENTITY_ID, statusPoints);
+	}
 }

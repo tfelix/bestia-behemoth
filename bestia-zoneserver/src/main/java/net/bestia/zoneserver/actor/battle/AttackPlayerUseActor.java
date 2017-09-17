@@ -20,7 +20,6 @@ import net.bestia.model.domain.AttackTarget;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 import net.bestia.zoneserver.battle.AttackService;
-import net.bestia.zoneserver.battle.BattleService;
 
 /**
  * This actor simply performs some safety checks for incoming player attack
