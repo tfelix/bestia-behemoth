@@ -22,7 +22,7 @@ import net.bestia.model.domain.PlayerBestia;
  *
  */
 @Component
-public class PlayerComponentInterceptor extends ComponentInterceptor<PlayerComponent> {
+public class PlayerComponentInterceptor extends BaseComponentInterceptor<PlayerComponent> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PlayerComponentInterceptor.class);
 

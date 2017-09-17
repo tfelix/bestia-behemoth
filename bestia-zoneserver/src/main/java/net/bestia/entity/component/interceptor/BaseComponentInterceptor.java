@@ -16,11 +16,11 @@ import net.bestia.entity.component.Component;
  * @author Thomas Felix
  *
  */
-public abstract class ComponentInterceptor<T extends Component> {
+public abstract class BaseComponentInterceptor<T extends Component> {
 
 	private final Class<T> triggerClass;
 
-	ComponentInterceptor(Class<T> type) {
+	BaseComponentInterceptor(Class<T> type) {
 		this.triggerClass = Objects.requireNonNull(type);
 	}
 

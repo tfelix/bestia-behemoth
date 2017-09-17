@@ -1,12 +1,9 @@
 package net.bestia.entity;
 
 import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,15 +19,14 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
 
-import net.bestia.model.geometry.CollisionShape;
+import akka.actor.PoisonPill;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.PositionComponent;
-import net.bestia.entity.component.deleter.EntityCache;
-import net.bestia.entity.component.interceptor.ComponentInterceptor;
+import net.bestia.entity.component.interceptor.Interceptor;
+import net.bestia.model.geometry.CollisionShape;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
- * FIXME ComponentInterceptor Management in eine eigene Klasse auslagern
- * zusammen mit dem ComponentChange handler und dem component delete handler.
  * 
  * @author Thomas Felix
  *
@@ -49,13 +45,16 @@ public class EntityService {
 	private final IdGenerator entityIdGen;
 	private final IMap<Long, Component> components;
 	private final IdGenerator idGenerator;
-	
-	private final EntityCache cache;
 
-	private final Map<Class<? extends Component>, List<ComponentInterceptor<? extends Component>>> interceptors = new HashMap<>();
+	private final Interceptor interceptor;
+	private final EntityCache cache;
+	private final ZoneAkkaApi akkaApi;
 
 	@Autowired
-	public EntityService(HazelcastInstance hz) {
+	public EntityService(HazelcastInstance hz, 
+			ZoneAkkaApi akkaApi, 
+			Interceptor interceptor, 
+			EntityCache cache) {
 
 		Objects.requireNonNull(hz);
 
@@ -63,26 +62,9 @@ public class EntityService {
 		this.entities = hz.getMap(ECS_ENTITY_MAP);
 		this.idGenerator = hz.getIdGenerator(COMP_ID_GEN);
 		this.components = Objects.requireNonNull(hz).getMap(COMP_MAP);
-	}
-
-	/**
-	 * Adds an interceptor which gets notified if certain components will
-	 * change. He then can perform actions like update the clients in range
-	 * about the occuring component change.
-	 * 
-	 * @param interceptor
-	 *            The interceptor to listen to certain triggering events.
-	 */
-	public void addInterceptor(ComponentInterceptor<? extends Component> interceptor) {
-		Objects.requireNonNull(interceptor);
-
-		final Class<? extends Component> triggerType = interceptor.getTriggerType();
-
-		if (!interceptors.containsKey(triggerType)) {
-			interceptors.put(triggerType, new ArrayList<>());
-		}
-
-		interceptors.get(triggerType).add(interceptor);
+		this.akkaApi = Objects.requireNonNull(akkaApi);
+		this.interceptor = Objects.requireNonNull(interceptor);
+		this.cache = Objects.requireNonNull(cache);
 	}
 
 	/**
@@ -123,9 +105,13 @@ public class EntityService {
 		Objects.requireNonNull(entity);
 
 		final long eid = entity.getId();
-
 		LOG.trace("Deleting entity: {}", eid);
+
 		entities.lock(eid);
+
+		// Send message to kill off entity actor.
+		akkaApi.sendEntityActor(entity.getId(), PoisonPill.getInstance());
+
 		try {
 			// Delete all components.
 			deleteAllComponents(entity);
@@ -134,6 +120,8 @@ public class EntityService {
 		} finally {
 			entities.unlock(eid);
 		}
+
+		cache.stashEntity(entity);
 	}
 
 	/**
@@ -234,7 +222,6 @@ public class EntityService {
 	 */
 	public Set<Entity> getCollidingEntities(CollisionShape area) {
 
-		// TODO Das muss noch effektiver gestaltet werden.
 		final Set<Entity> colliders = new HashSet<>();
 
 		entities.forEach((id, entity) -> {
@@ -358,7 +345,7 @@ public class EntityService {
 			entities.unlock(entityId);
 		}
 
-		interceptCreatedComponent(e, comp);
+		interceptor.interceptCreated(this, e, comp);
 	}
 
 	public void attachComponents(Entity e, Collection<Component> attachComponents) {
@@ -397,20 +384,8 @@ public class EntityService {
 
 		// After all is saved intercept the created components.
 		attachComponents.forEach(c -> {
-			interceptCreatedComponent(e, c);
+			interceptor.interceptCreated(this, e, c);
 		});
-	}
-
-	private void interceptCreatedComponent(Entity entity, Component createdComp) {
-
-		// Check possible interceptors.
-		if (interceptors.containsKey(createdComp.getClass())) {
-			LOG.debug("Intercepting created component {} for: {}.", createdComp, entity);
-			interceptors.get(createdComp.getClass()).forEach(intercep -> {
-				// Need to cast so we dont get problems with typings.
-				intercep.triggerCreateAction(this, entity, createdComp);
-			});
-		}
 	}
 
 	/**
@@ -434,16 +409,6 @@ public class EntityService {
 			components.unlock(component.getId());
 		}
 
-		// Check possible interceptors.
-		if (interceptors.containsKey(component.getClass())) {
-			final Entity ownerEntity = getEntity(component.getEntityId());
-			LOG.debug("Intercepting update component {} for: {}.", component, ownerEntity);
-
-			interceptors.get(component.getClass()).forEach(intercep -> {
-				// Need to cast so we dont get problems with typings.
-				intercep.triggerUpdateAction(this, ownerEntity, component);
-			});
-		}
 	}
 
 	/**
@@ -481,6 +446,10 @@ public class EntityService {
 		} finally {
 			components.unlock(component.getId());
 		}
+		
+		interceptor.interceptDeleted(this, entity, component);
+		
+		cache.stashComponente(component);
 
 		component.setEntityId(0);
 	}

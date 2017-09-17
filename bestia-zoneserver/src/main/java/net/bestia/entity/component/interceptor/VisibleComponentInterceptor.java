@@ -20,7 +20,7 @@ import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
  *
  */
 @Component
-public class VisibleComponentInterceptor extends ComponentInterceptor<VisibleComponent> {
+public class VisibleComponentInterceptor extends BaseComponentInterceptor<VisibleComponent> {
 
 	private final ZoneAkkaApi akkaApi;
 	

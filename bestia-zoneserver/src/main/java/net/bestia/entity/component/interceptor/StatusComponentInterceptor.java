@@ -25,7 +25,7 @@ import net.bestia.entity.component.StatusComponent;
  *
  */
 @Component
-public class StatusComponentInterceptor extends ComponentInterceptor<StatusComponent> {
+public class StatusComponentInterceptor extends BaseComponentInterceptor<StatusComponent> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(StatusComponentInterceptor.class);
 

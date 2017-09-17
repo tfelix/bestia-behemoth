@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import akka.actor.Address;
 import net.bestia.entity.Entity;
-import net.bestia.entity.EntityDeleterService;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.PlayerBestiaEntityFactory;
 import net.bestia.entity.PlayerEntityService;
@@ -44,7 +43,6 @@ public class LoginService {
 	private final PlayerBestiaService playerBestiaService;
 	private final ZoneAkkaApi akkaApi;
 	private final PlayerBestiaEntityFactory playerEntityFactory;
-	private final EntityDeleterService deleteService;
 	private final EntityService entityService;
 
 	@Autowired
@@ -55,7 +53,6 @@ public class LoginService {
 			PlayerBestiaService playerBestiaService,
 			ZoneAkkaApi akkaApi,
 			PlayerBestiaEntityFactory playerEntityFactory,
-			EntityDeleterService deleteService,
 			EntityService entityService) {
 
 		this.config = Objects.requireNonNull(config);
@@ -65,7 +62,6 @@ public class LoginService {
 		this.playerBestiaService = Objects.requireNonNull(playerBestiaService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 		this.playerEntityFactory = Objects.requireNonNull(playerEntityFactory);
-		this.deleteService = Objects.requireNonNull(deleteService);
 		this.entityService = Objects.requireNonNull(entityService);
 	}
 
@@ -168,7 +164,7 @@ public class LoginService {
 		playerEntityService.removePlayerBestias(accId);
 
 		// Recycle all entities.
-		playerEntities.forEach(deleteService::deleteEntity);
+		playerEntities.forEach(entityService::delete);
 	}
 
 	public void logoutAllFromServer(Address address) {

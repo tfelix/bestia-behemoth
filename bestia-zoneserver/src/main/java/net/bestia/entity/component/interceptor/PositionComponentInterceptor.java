@@ -22,7 +22,7 @@ import net.bestia.entity.component.PositionComponent;
  *
  */
 @Component
-public class PositionComponentInterceptor extends ComponentInterceptor<PositionComponent> {
+public class PositionComponentInterceptor extends BaseComponentInterceptor<PositionComponent> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PositionComponentInterceptor.class);
 

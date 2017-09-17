@@ -2,21 +2,13 @@ package net.bestia.zoneserver.configuration;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.hazelcast.core.HazelcastInstance;
-
 import net.bestia.entity.EntityCache;
-import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
-import net.bestia.entity.component.deleter.ComponentDeleter;
-import net.bestia.entity.component.interceptor.ComponentInterceptor;
+import net.bestia.entity.component.interceptor.BaseComponentInterceptor;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.zoneserver.environment.date.BestiaDate;
@@ -31,7 +23,7 @@ import net.bestia.zoneserver.environment.date.BestiaDate;
 @Configuration
 public class ZoneBaseConfiguration {
 
-	private final static Logger LOG = LoggerFactory.getLogger(ZoneBaseConfiguration.class);
+	//private final static Logger LOG = LoggerFactory.getLogger(ZoneBaseConfiguration.class);
 
 	/**
 	 * Gets the current time of the bestia zoneserver.
@@ -51,29 +43,9 @@ public class ZoneBaseConfiguration {
 	}
 
 	@Bean
-	public EntityService entityService(HazelcastInstance hz, ApplicationContext ctx) {
-
-		final EntityService entityService = new EntityService(hz);
-
-		@SuppressWarnings("rawtypes")
-		final Map<String, ComponentInterceptor> interceptors = ctx.getBeansOfType(ComponentInterceptor.class);
-
-		LOG.info("Found {} component interceptors. Adding to entity service.", interceptors.size());
-
-		for (ComponentInterceptor<?> interceptor : interceptors.values()) {
-
-			entityService.addInterceptor(interceptor);
-			LOG.debug("Added component interceptor: {}", interceptor.getClass().getSimpleName());
-
-		}
-
-		return entityService;
-	}
-
-	@Bean
 	public EntityCache entityRecycler(
 			StaticConfigService config,
-			List<ComponentDeleter<? extends Component>> recyclers) {
+			List<BaseComponentInterceptor<? extends Component>> recyclers) {
 		return new EntityCache(config.getEntityBufferSize(), recyclers);
 	}
 

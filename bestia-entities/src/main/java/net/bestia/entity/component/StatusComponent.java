@@ -6,7 +6,6 @@ import net.bestia.model.domain.StatusPointsImpl;
 import net.bestia.model.domain.StatusValues;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.entity.StatusBasedValuesImpl;
-import net.bestia.entity.StatusService;
 
 /**
  * Entities having this component can be participate in the attacking system. It

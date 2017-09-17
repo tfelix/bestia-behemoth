@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.component.Component;
+import net.bestia.entity.component.interceptor.BaseComponentInterceptor;
 
 /**
  * The {@link EntityCache} is used to get rid of an entity and its
@@ -31,7 +32,7 @@ public class EntityCache {
 	private final Map<String, Queue<Component>> components = new HashMap<>();
 
 	public EntityCache(int maxCachedInstances,
-			List<ComponentDeleter<? extends Component>> componentRecyclers) {
+			List<BaseComponentInterceptor<? extends Component>> interceptors) {
 
 		if (maxCachedInstances < 0) {
 			throw new IllegalArgumentException("MaxCachedInstances must be positive.");
@@ -40,8 +41,8 @@ public class EntityCache {
 		this.maxCachedInstances = maxCachedInstances;
 	}
 
-	public EntityCache(List<ComponentDeleter<? extends Component>> componentRecyclers) {
-		this(DEFAULT_MAX_CACHED_INSTANCES, componentRecyclers);
+	public EntityCache(List<BaseComponentInterceptor<? extends Component>> interceptors) {
+		this(DEFAULT_MAX_CACHED_INSTANCES, interceptors);
 	}
 
 

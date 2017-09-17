@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.bestia.entity.Entity;
-import net.bestia.entity.EntityDeleterService;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.MobFactory;
 import net.bestia.entity.MovingEntityService;
@@ -43,7 +42,6 @@ public class ScriptApiFacade implements ScriptApi {
 	private BattleService battleService;
 	private ScriptService scriptService;
 	private MovingEntityService moveService;
-	private EntityDeleterService entityDeleter;
 	private MobFactory mobFactory;
 	private ScriptVarDAO scriptVarDao;
 
@@ -64,11 +62,6 @@ public class ScriptApiFacade implements ScriptApi {
 	@Autowired
 	public void setScriptEntityFactory(ScriptEntityFactory scriptEntityFactory) {
 		this.scriptEntityFactory = scriptEntityFactory;
-	}
-
-	@Autowired
-	public void EntityDeleterService(EntityDeleterService entityRecycler) {
-		this.entityDeleter = entityRecycler;
 	}
 
 	@Autowired
@@ -188,7 +181,7 @@ public class ScriptApiFacade implements ScriptApi {
 	public void delete(long entityId) {
 
 		final Entity entity = entityService.getEntity(entityId);
-		entityDeleter.deleteEntity(entity);
+		entityService.delete(entity);
 
 	}
 

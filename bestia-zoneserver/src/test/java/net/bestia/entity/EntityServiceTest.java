@@ -20,7 +20,7 @@ import net.bestia.testing.BasicMocks;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.VisibleComponent;
-import net.bestia.entity.component.interceptor.ComponentInterceptor;
+import net.bestia.entity.component.interceptor.BaseComponentInterceptor;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EntityServiceTest {
@@ -37,13 +37,13 @@ public class EntityServiceTest {
 
 	private HazelcastInstance hz = basicMocks.hazelcastMock();
 
-	private ComponentInterceptor<PositionComponent> interceptor;
+	private BaseComponentInterceptor<PositionComponent> interceptor;
 
 	@SuppressWarnings("unchecked")
 	@Before
 	public void setup() {
 
-		interceptor = (ComponentInterceptor<PositionComponent>) mock(ComponentInterceptor.class);
+		interceptor = (BaseComponentInterceptor<PositionComponent>) mock(BaseComponentInterceptor.class);
 
 		when(interceptor.getTriggerType()).thenReturn(PositionComponent.class);
 		when(ownedComp.getEntityId()).thenReturn(1337L);

@@ -12,7 +12,7 @@ import net.bestia.entity.component.ScriptComponent;
 import net.bestia.messages.internal.entity.EntityComponentMessage;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
-public class ScriptComponentInterceptor extends ComponentInterceptor<ScriptComponent> {
+public class ScriptComponentInterceptor extends BaseComponentInterceptor<ScriptComponent> {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ScriptComponentInterceptor.class);
 	private final ZoneAkkaApi akkaApi;
