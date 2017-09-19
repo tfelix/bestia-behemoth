@@ -1,5 +1,7 @@
 package net.bestia.messages.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,7 +10,57 @@ import net.bestia.messages.EntityJsonMessage;
 import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.geometry.Point;
 
+/**
+ * This sends a first rough update of an entity to all clients which are in
+ * range. Such a message is send if the client itself moves and sees new
+ * entities in visible range or if the entity itself was spawned.
+ * 
+ * @author Thomas Felix
+ *
+ */
 public class EntityUpdateMessage extends EntityJsonMessage {
+
+	public static class Builder {
+
+		private SpriteInfo spriteInfo;
+		private long x;
+		private long y;
+		private EntityAction action;
+		private List<String> tags = new ArrayList<>();
+
+		public Builder(EntityUpdateMessage oldMsg) {
+			
+			this.spriteInfo = oldMsg.spriteInfo;
+			this.x = oldMsg.x;
+			this.y = oldMsg.y;
+			this.action = oldMsg.action;
+			this.tags = oldMsg.tags;
+		}
+
+		public Builder() {
+
+		}
+		
+		public void setAction(EntityAction action) {
+			this.action = action;
+		}
+		
+		public void setX(long x) {
+			this.x = x;
+		}
+		
+		public void setY(long y) {
+			this.y = y;
+		}
+		
+		public void setSpriteInfo(SpriteInfo spriteInfo) {
+			this.spriteInfo = spriteInfo;
+		}
+		
+		public List<String> getTags() {
+			return tags;
+		}
+	}
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.update";
@@ -25,11 +77,28 @@ public class EntityUpdateMessage extends EntityJsonMessage {
 	@JsonProperty("a")
 	private EntityAction action;
 
+	@JsonProperty("t")
+	private List<String> tags;
+
 	/**
 	 * Priv. ctor for jackson.
 	 */
 	protected EntityUpdateMessage() {
 		// no op.
+	}
+
+	/**
+	 * Constructor which uses the builder pattern for immutable data.
+	 * 
+	 * @param builder
+	 */
+	public EntityUpdateMessage(Builder builder) {
+		
+		this.spriteInfo = Objects.requireNonNull(builder.spriteInfo);
+		this.x = builder.x;
+		this.y = builder.y;
+		this.action = Objects.requireNonNull(builder.action);
+		this.tags = new ArrayList<>(Objects.requireNonNull(builder.tags));
 	}
 
 	public EntityUpdateMessage(long accId, long entityId, long x, long y, SpriteInfo info, EntityAction action) {

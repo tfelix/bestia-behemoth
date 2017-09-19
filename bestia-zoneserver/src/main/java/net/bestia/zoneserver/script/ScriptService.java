@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
+import net.bestia.entity.component.ScriptComponent.Callback;
 import net.bestia.messages.internal.entity.EntityComponentMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
@@ -146,14 +147,14 @@ public class ScriptService {
 		final ScriptComponent scriptComp = entityService.getComponent(scriptEntityId, ScriptComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
-		final String callbackName = scriptComp.getOnIntervalCallbackName();
+		final String callbackName = scriptComp.getCallbackName(Callback.ON_INTERVAL);
 
 		final ScriptIdent ident = resolver.resolveScriptIdent(callbackName);
 		final CompiledScript script = resolveScript(ident);
 
 		// Prepare additional bindings.
 		final SimpleBindings bindings = new SimpleBindings();
-		bindings.put("SUID", scriptComp.getScriptUUID());
+		bindings.put("SUID", scriptComp.getScriptUuid());
 
 		setupScriptBindings(script, ident, bindings);
 		callFunction(script, ident.getFunctionName());
@@ -178,7 +179,7 @@ public class ScriptService {
 		final ScriptComponent scriptComp = entityService.getComponent(entity, ScriptComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
-		scriptComp.setOnIntervalCallbackName(callbackFunctionName);
+		scriptComp.setCallbackName(Callback.ON_INTERVAL, callbackFunctionName);
 		entityService.updateComponent(scriptComp);
 
 		// Tell the actor which script to periodically call.
@@ -197,7 +198,7 @@ public class ScriptService {
 		final ScriptComponent scriptComp = entityService.getComponent(entity, ScriptComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
-		scriptComp.setOnIntervalCallbackName(null);
+		scriptComp.removeCallback(Callback.ON_INTERVAL);
 		entityService.updateComponent(scriptComp);
 	}
 }
