@@ -15,7 +15,9 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.component.PositionComponent;
+import net.bestia.entity.component.TagComponent;
 import net.bestia.entity.component.VisibleComponent;
+import net.bestia.messages.entity.EntityAction;
 import net.bestia.messages.entity.EntitySyncRequestMessage;
 import net.bestia.messages.entity.EntityUpdateMessage;
 import net.bestia.model.domain.SpriteInfo;
@@ -81,18 +83,30 @@ public class EntitySyncActor extends AbstractActor {
 		final Set<Entity> visibleEntities = entityService.getCollidingEntities(updateRect)
 				.stream()
 				.filter(e -> entityService.hasComponent(e, VisibleComponent.class))
+				.filter(e -> entityService.hasComponent(e, TagComponent.class))
+				.filter(e -> entityService.hasComponent(e, PositionComponent.class))
 				.collect(Collectors.toSet());
+		
+		// Prepare the builder so it does not need to get created every time.
+		EntityUpdateMessage.Builder builder = new EntityUpdateMessage.Builder();
+		builder.setAction(EntityAction.UPDATE);
 
 		for (Entity e : visibleEntities) {
 
 			final VisibleComponent visComp = entityService.getComponent(e, VisibleComponent.class).get();
 			final PositionComponent posComp = entityService.getComponent(e, PositionComponent.class).get();
+			final TagComponent tagComp = entityService.getComponent(e, TagComponent.class).get();
 
 			final SpriteInfo sprite = visComp.getVisual();
-			final EntityUpdateMessage updateMsg = EntityUpdateMessage.getUpdate(requestAccId,
-					e.getId(),
-					posComp.getPosition(),
-					sprite);
+			
+			builder.setSpriteInfo(sprite);
+			builder.setPosition(posComp.getPosition());
+			builder.setEid(e.getId());
+			
+			builder.getTags().clear();
+			builder.getTags().addAll(tagComp.getAllTags());
+
+			final EntityUpdateMessage updateMsg = builder.build();
 
 			AkkaSender.sendClient(getContext(), updateMsg);
 		}

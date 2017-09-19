@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.bestia.entity.Entity;
-import net.bestia.entity.MobFactory;
+import net.bestia.entity.factory.MobFactory;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;

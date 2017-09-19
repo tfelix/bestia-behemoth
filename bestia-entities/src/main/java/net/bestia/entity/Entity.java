@@ -24,7 +24,6 @@ public class Entity implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private final long id;
-
 	private final Map<String, Long> components = new HashMap<>();
 
 	/**
@@ -33,7 +32,7 @@ public class Entity implements Serializable {
 	 * @param id
 	 *            The ID of the entity.
 	 */
-	Entity(long id) {
+	public Entity(long id) {
 		this.id = id;
 	}
 

@@ -1,4 +1,4 @@
-package net.bestia.entity;
+package net.bestia.entity.factory;
 
 import java.util.Objects;
 
@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import net.bestia.entity.Entity;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.PositionComponentSetter;
 import net.bestia.entity.component.ScriptComponent;

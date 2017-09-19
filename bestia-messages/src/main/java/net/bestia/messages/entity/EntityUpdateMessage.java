@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import net.bestia.entity.component.TagComponent.Tag;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.geometry.Point;
@@ -26,39 +27,58 @@ public class EntityUpdateMessage extends EntityJsonMessage {
 		private long x;
 		private long y;
 		private EntityAction action;
-		private List<String> tags = new ArrayList<>();
+		private List<Tag> tags = new ArrayList<>();
+		private long eid;
+		private long accountId;
 
 		public Builder(EntityUpdateMessage oldMsg) {
-			
+
 			this.spriteInfo = oldMsg.spriteInfo;
 			this.x = oldMsg.x;
 			this.y = oldMsg.y;
 			this.action = oldMsg.action;
 			this.tags = oldMsg.tags;
+			this.accountId = oldMsg.getAccountId();
+			this.eid = oldMsg.getEntityId();
 		}
 
 		public Builder() {
 
 		}
-		
+
+		public void setEid(long eid) {
+			this.eid = eid;
+		}
+
 		public void setAction(EntityAction action) {
 			this.action = action;
 		}
-		
+
 		public void setX(long x) {
 			this.x = x;
 		}
-		
+
 		public void setY(long y) {
 			this.y = y;
 		}
-		
+
 		public void setSpriteInfo(SpriteInfo spriteInfo) {
 			this.spriteInfo = spriteInfo;
 		}
-		
-		public List<String> getTags() {
+
+		public List<Tag> getTags() {
 			return tags;
+		}
+
+		public void setPosition(Point position) {
+			Objects.requireNonNull(position);
+
+			this.x = position.getX();
+			this.y = position.getY();
+		}
+
+		public EntityUpdateMessage build() {
+			return new EntityUpdateMessage(this);
 		}
 	}
 
@@ -78,7 +98,7 @@ public class EntityUpdateMessage extends EntityJsonMessage {
 	private EntityAction action;
 
 	@JsonProperty("t")
-	private List<String> tags;
+	private List<Tag> tags;
 
 	/**
 	 * Priv. ctor for jackson.
@@ -93,7 +113,8 @@ public class EntityUpdateMessage extends EntityJsonMessage {
 	 * @param builder
 	 */
 	public EntityUpdateMessage(Builder builder) {
-		
+		super(builder.accountId, builder.eid);
+
 		this.spriteInfo = Objects.requireNonNull(builder.spriteInfo);
 		this.x = builder.x;
 		this.y = builder.y;

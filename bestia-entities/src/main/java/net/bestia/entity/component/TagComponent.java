@@ -1,12 +1,11 @@
 package net.bestia.entity.component;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
 
 /**
- * The tag component allows attach simple data to the entity.
+ * The tag component allows attach simple data to an entity.
  * 
  * @author Thomas Felix
  *
@@ -14,10 +13,15 @@ import java.util.Optional;
 public class TagComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
+	
+	public enum Tag {
+		PERSIST,
+		MOB,
+		NPC,
+		ITEM
+	}
 
-	public static final String TAG_PERSIST = "persist";
-
-	private final Map<String, Object> data = new HashMap<>();
+	private EnumSet<Tag> tags = EnumSet.noneOf(Tag.class);
 
 	public TagComponent(long id) {
 		super(id);
@@ -25,41 +29,23 @@ public class TagComponent extends Component {
 	}
 
 	public void clear() {
-		data.clear();
+		tags.clear();
 	}
 
-	public void add(String key, Object value) {
-		
-		// Only allow serializable values.
-		if(!(value instanceof Serializable)) {
-			new IllegalArgumentException("Value object must be serializable.");
-		}
-		
-		data.put(key, value);
+	public void add(Tag t) {
+		tags.add(t);
 	}
 
-	public boolean has(String tag) {
-		return data.containsKey(tag);
+	public boolean has(Tag t) {
+		return tags.contains(t);
+	}
+	
+	public Collection<Tag> getAllTags() {
+		return Collections.unmodifiableSet(tags);
 	}
 
 	@Override
 	public String toString() {
-		return String.format("TagComponent[%s]", data);
-	}
-
-	public <T> Optional<T> get(String key, Class<T> type) {
-
-		if (data.containsKey(key)) {
-			final Object obj = data.get(key);
-
-			if (type.isAssignableFrom(type)) {
-				return Optional.of(type.cast(obj));
-			} else {
-				return Optional.empty();
-			}
-
-		} else {
-			return Optional.empty();
-		}
+		return String.format("TagComponent[%s]", tags.toString());
 	}
 }

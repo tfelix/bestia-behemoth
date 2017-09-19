@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.MobFactory;
 import net.bestia.entity.MovingEntityService;
-import net.bestia.entity.ScriptEntityFactory;
 import net.bestia.entity.component.PlayerComponent;
+import net.bestia.entity.factory.MobFactory;
+import net.bestia.entity.factory.ScriptEntityFactory;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.dao.ScriptVarDAO;
 import net.bestia.model.domain.ScriptVar;

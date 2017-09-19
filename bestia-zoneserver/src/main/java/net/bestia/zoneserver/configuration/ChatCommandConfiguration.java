@@ -3,7 +3,7 @@ package net.bestia.zoneserver.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import net.bestia.entity.MobFactory;
+import net.bestia.entity.factory.MobFactory;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.chat.ChatCommandService;
 import net.bestia.zoneserver.chat.MetaChatCommand;

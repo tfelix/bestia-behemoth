@@ -1,4 +1,4 @@
-package net.bestia.entity;
+package net.bestia.entity.factory;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -1,4 +1,4 @@
-package net.bestia.entity;
+package net.bestia.entity.factory;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -16,6 +16,8 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import net.bestia.entity.Entity;
+import net.bestia.entity.StatusService;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
 import net.bestia.entity.component.EquipComponent;
@@ -30,6 +32,9 @@ import net.bestia.entity.component.PositionComponentSetter;
 import net.bestia.entity.component.StatusComponent;
 import net.bestia.entity.component.VisibleComponent;
 import net.bestia.entity.component.VisibleComponentSetter;
+import net.bestia.entity.factory.Blueprint;
+import net.bestia.entity.factory.EntityFactory;
+import net.bestia.entity.factory.PlayerBestiaEntityFactory;
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.SpriteInfo;

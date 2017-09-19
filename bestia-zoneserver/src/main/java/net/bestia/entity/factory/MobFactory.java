@@ -1,4 +1,4 @@
-package net.bestia.entity;
+package net.bestia.entity.factory;
 
 import java.util.Objects;
 import java.util.Set;
@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import net.bestia.entity.Entity;
+import net.bestia.entity.StatusService;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
 import net.bestia.entity.component.EquipComponent;
@@ -16,6 +18,7 @@ import net.bestia.entity.component.LevelComponentSetter;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.PositionComponentSetter;
 import net.bestia.entity.component.StatusComponent;
+import net.bestia.entity.component.TagComponent;
 import net.bestia.entity.component.VisibleComponent;
 import net.bestia.entity.component.VisibleComponentSetter;
 import net.bestia.model.dao.BestiaDAO;
@@ -36,6 +39,7 @@ public class MobFactory {
 				.addComponent(InventoryComponent.class)
 				.addComponent(PositionComponent.class)
 				.addComponent(LevelComponent.class)
+				.addComponent(TagComponent.class)
 				.addComponent(StatusComponent.class);
 
 		mobBlueprint = builder.build();
