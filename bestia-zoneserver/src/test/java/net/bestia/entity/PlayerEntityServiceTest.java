@@ -78,7 +78,6 @@ public class PlayerEntityServiceTest {
 
 		entityService = mock(EntityService.class);
 		playerBestiaService = mock(PlayerBestiaService.class);
-		akkaApi = mock(ZoneAkkaApi.class);
 
 		playerEntity = mock(Entity.class);
 		masterEntity = mock(Entity.class);
@@ -147,7 +146,7 @@ public class PlayerEntityServiceTest {
 		
 		when(playerBestiaService.getMaster(KNOWN_ACC_ID)).thenReturn(masterPlayerBestia);
 
-		pbeService = new PlayerEntityService(hz, entityService, playerBestiaService, akkaApi);
+		pbeService = new PlayerEntityService(hz, entityService, playerBestiaService);
 
 	}
 

@@ -1,14 +1,12 @@
 package net.bestia.entity.component;
 
+import static org.mockito.Mockito.when;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import static org.mockito.Mockito.*;
-
-import java.util.Arrays;
-
 import org.mockito.junit.MockitoJUnitRunner;
 
 import akka.actor.ActorContext;
@@ -38,9 +36,6 @@ public class EntityComponentActorFactoryTest {
 	
 	@Mock
 	private ActorContext ctx;
-	
-	@Mock
-	ActorComponentFactoryModule<PositionComponent> posActorModule;
 
 	@Before
 	public void setup() {
@@ -49,9 +44,7 @@ public class EntityComponentActorFactoryTest {
 		when(entityService.getComponent(NON_CREAT_MODULE_COMP_ID)).thenReturn(statComp);
 		when(entityService.getComponent(NOT_EXISTING_COMP_ID)).thenReturn(null);
 		
-		when(posActorModule.buildActor(ctx, posComp)).thenReturn(ref);
-		
-		fac = new EntityComponentActorFactory(entityService, Arrays.asList(posActorModule));
+		fac = new EntityComponentActorFactory(entityService);
 	}
 
 	@Test
@@ -69,8 +62,6 @@ public class EntityComponentActorFactoryTest {
 	@Test
 	public void startActor_existingComponentId_startsActor() {
 		ActorRef actor = fac.startActor(ctx, EXISTING_COMP_ID);
-		
-		verify(posActorModule).buildActor(ctx, posComp);
 		Assert.assertNotNull(actor);
 	}
 }

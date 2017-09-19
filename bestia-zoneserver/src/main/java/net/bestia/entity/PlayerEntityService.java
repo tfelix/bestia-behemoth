@@ -83,13 +83,6 @@ public class PlayerEntityService {
 		activeEntities.put(accId, activeEntityId);
 
 		LOG.debug("Activating entity id: {} for account: {}.", activeEntityId, accId);
-
-		/*
-		final BestiaActivateMessage activateMsg = new BestiaActivateMessage(accId,
-				playerComp.getPlayerBestiaId(),
-				activeEntityId);
-		akkaApi.sendToClient(activateMsg);
-		*/
 	}
 
 	/**

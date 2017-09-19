@@ -27,6 +27,9 @@ import net.bestia.model.geometry.CollisionShape;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
+ * The {@link EntityService} is a central very important part of the bestia
+ * game. It gives access to all entities in the game which represent all
+ * interactive beeings with which the player can interact.
  * 
  * @author Thomas Felix
  *
@@ -51,9 +54,9 @@ public class EntityService {
 	private final ZoneAkkaApi akkaApi;
 
 	@Autowired
-	public EntityService(HazelcastInstance hz, 
-			ZoneAkkaApi akkaApi, 
-			Interceptor interceptor, 
+	public EntityService(HazelcastInstance hz,
+			ZoneAkkaApi akkaApi,
+			Interceptor interceptor,
 			EntityCache cache) {
 
 		Objects.requireNonNull(hz);
@@ -90,7 +93,13 @@ public class EntityService {
 	 * @return
 	 */
 	public Entity newEntity() {
-		final Entity e = new Entity(getNewEntityId());
+		
+		Entity e = cache.getEntity();
+		
+		if(e == null) {
+			e = new Entity(getNewEntityId());
+		}
+		
 		saveEntity(e);
 		return e;
 	}
@@ -396,9 +405,9 @@ public class EntityService {
 		} finally {
 			components.unlock(component.getId());
 		}
-		
+
 		interceptor.interceptDeleted(this, entity, component);
-		
+
 		cache.stashComponente(component);
 
 		component.setEntityId(0);
@@ -489,7 +498,7 @@ public class EntityService {
 	public Component getComponent(long componentId) {
 		return components.get(componentId);
 	}
-	
+
 	/**
 	 * Alias to {@link #getComponent(Entity, Class)}.
 	 * 

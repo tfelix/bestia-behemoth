@@ -21,6 +21,8 @@ export default class EntityUpdater {
 
 	constructor(pubsub) {
 
+		this._pubsub = pubsub;
+
 		// === SUBSCRIBE ===
 		pubsub.subscribe(MID.ENTITY_UPDATE, this._handlerOnUpdate.bind(this));
 		pubsub.subscribe(MID.ENTITY_MOVE, this._handlerOnMove.bind(this));

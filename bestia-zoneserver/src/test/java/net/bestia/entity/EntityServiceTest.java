@@ -1,5 +1,12 @@
 package net.bestia.entity;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,20 +14,15 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.*;
-
-import java.util.Arrays;
-import java.util.Collection;
-
 import com.hazelcast.core.HazelcastInstance;
 
-import net.bestia.model.geometry.Point;
-import net.bestia.model.geometry.Rect;
-import net.bestia.testing.BasicMocks;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.VisibleComponent;
-import net.bestia.entity.component.interceptor.BaseComponentInterceptor;
+import net.bestia.entity.component.interceptor.Interceptor;
+import net.bestia.model.geometry.Point;
+import net.bestia.testing.BasicMocks;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EntityServiceTest {
@@ -34,55 +36,33 @@ public class EntityServiceTest {
 
 	@Mock
 	private PositionComponent ownedComp;
+	
+	@Mock
+	private ZoneAkkaApi akkaApi;
+	
+	@Mock
+	private Interceptor interceptor;
+	
+	@Mock
+	private EntityCache cache;
 
 	private HazelcastInstance hz = basicMocks.hazelcastMock();
 
-	private BaseComponentInterceptor<PositionComponent> interceptor;
-
-	@SuppressWarnings("unchecked")
 	@Before
 	public void setup() {
 
-		interceptor = (BaseComponentInterceptor<PositionComponent>) mock(BaseComponentInterceptor.class);
-
-		when(interceptor.getTriggerType()).thenReturn(PositionComponent.class);
 		when(ownedComp.getEntityId()).thenReturn(1337L);
 
-		entityService = new EntityService(hz);
+		entityService = new EntityService(hz, akkaApi, interceptor, cache);
 	}
 
-	@Test(expected = NullPointerException.class)
-	public void addInterceptor_null_throws() {
-		entityService.addInterceptor(null);
-	}
-
-	@Test
-	public void addInterceptor_intercetor_calledWhenComponentUpdateCreateDelete() {
-		entityService.addInterceptor(interceptor);
-
-		verify(interceptor).getTriggerType();
-
-		Entity e1 = entityService.newEntity();
-		PositionComponent comp = entityService.newComponent(PositionComponent.class);
-		comp.setShape(new Rect(10, 10));
-		// Should no called until all values are set.
-		verify(interceptor, times(0)).triggerCreateAction(entityService, e1, comp);
-
-		entityService.attachComponent(e1, comp);
-
-		verify(interceptor, times(1)).triggerCreateAction(entityService, e1, comp);
-
-		entityService.updateComponent(comp);
-
-		verify(interceptor).triggerUpdateAction(entityService, e1, comp);
-
-		entityService.deleteComponent(e1, comp);
-	}
 
 	@Test
 	public void newEntity_returnsNewEntity() {
 		Entity e1 = entityService.newEntity();
 		Entity e2 = entityService.newEntity();
+		
+		verify(cache, times(2)).getEntity();
 		Assert.assertNotEquals(0, e1.getId());
 		Assert.assertNotEquals(0, e2.getId());
 		Assert.assertNotEquals(e1, e2);
@@ -250,8 +230,6 @@ public class EntityServiceTest {
 	@Test
 	public void deleteAllComponents_validEntity_deletesAllComponentsCallsInterceptor() {
 		Entity e1 = entityService.newEntity();
-
-		entityService.addInterceptor(interceptor);
 
 		PositionComponent pc = entityService.newComponent(PositionComponent.class);
 		VisibleComponent vc = entityService.newComponent(VisibleComponent.class);
