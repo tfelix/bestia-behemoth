@@ -54,10 +54,10 @@ public class HeartbeatActorTest {
 		 */
 		new TestKit(system) {
 			{
-				SpringExtension.actorOf(system, HeartbeatActor.class, "heartbeat");
+				SpringExtension.actorOf(system, MemDbHeartbeatActor.class, "heartbeat");
 				
 				// the run() method needs to finish within 3 seconds
-				String strDuration = String.format("%d seconds", HeartbeatActor.HEARTBEAT_INTERVAL_S - 5);
+				String strDuration = String.format("%d seconds", MemDbHeartbeatActor.HEARTBEAT_INTERVAL_S - 5);
 				
 				within(duration(strDuration), () -> {
 					

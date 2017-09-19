@@ -74,7 +74,7 @@ public class EntityPersistService {
 		// Only store if it was flagged with a tag.
 		Optional<TagComponent> tagComp = entityService.getComponent(entity, TagComponent.class);
 
-		if (!tagComp.isPresent() || !tagComp.get().has(TagComponent.TAG_PERSIST)) {
+		if (!tagComp.isPresent() || !tagComp.get().has(TagComponent.Tag.PERSIST)) {
 			return;
 		}
 

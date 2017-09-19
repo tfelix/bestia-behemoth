@@ -20,7 +20,6 @@ import akka.actor.PoisonPill;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
-import net.bestia.zoneserver.actor.entity.component.PeriodicScriptActor;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -66,10 +65,6 @@ public class ScriptServiceTest {
 	public void setup() {
 
 		when(runnerRef.path()).thenReturn(runnerRefPath);
-
-		// Actor ref can only be test probe
-		// https://stackoverflow.com/questions/10868983/spock-mocks-for-akkas-actorref
-		when(akkaApi.startUnnamedActor(PeriodicScriptActor.class)).thenReturn(runnerRef);
 
 		when(entityService.getEntity(INVALID_ENTITY_ID)).thenReturn(null);
 		when(entityService.getEntity(VALID_ENTITY_ID)).thenReturn(scriptEntity);
@@ -171,21 +166,19 @@ public class ScriptServiceTest {
 		scriptService.stopScriptInterval(scriptEntity);
 
 		verify(entityService).getComponent(scriptEntity, ScriptComponent.class);
-		verify(akkaApi, never()).sendToActor(any(ActorPath.class), any(PoisonPill.class));
+		
+		verify(akkaApi, never()).sendEntityActor(any(), any());
 		verify(entityService, never()).updateComponent(argument.capture());
 	}
 
 	@Test
 	public void stopScriptInterval_intervalSetBefore_stopsInterval() {
-		ArgumentCaptor<ScriptComponent> argument = ArgumentCaptor.forClass(ScriptComponent.class);
 
 		scriptService.startScriptInterval(scriptEntity, 2000, CALLBACK_FN_NAME);
 		scriptService.stopScriptInterval(scriptEntity);
 
 		verify(entityService).getComponent(scriptEntity, ScriptComponent.class);
-		verify(akkaApi).sendToActor(any(ActorPath.class), PoisonPill.getInstance());
-		// verify(entityService).saveComponent(argument.capture());
-		// Assert.assertTrue(argument.getValue().getClass().equals(ScriptComponent.class));
+		verify(akkaApi).sendEntityActor(any(), PoisonPill.getInstance());
 	}
 
 }

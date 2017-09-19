@@ -93,13 +93,13 @@ public class EntityService {
 	 * @return
 	 */
 	public Entity newEntity() {
-		
+
 		Entity e = cache.getEntity();
-		
-		if(e == null) {
+
+		if (e == null) {
 			e = new Entity(getNewEntityId());
 		}
-		
+
 		saveEntity(e);
 		return e;
 	}
@@ -520,6 +520,17 @@ public class EntityService {
 		return getComponent(e, clazz);
 	}
 
+	/**
+	 * Returns the requested component of the entity. If the component does not
+	 * exist the optional will be empty.
+	 * 
+	 * @param e
+	 *            The entity to request its component.
+	 * @param clazz
+	 *            The component class which component is requested.
+	 * @return The optional containing the component or nothing if the entity
+	 *         has not this component attached.
+	 */
 	public <T extends Component> Optional<T> getComponent(Entity e, Class<T> clazz) {
 		Objects.requireNonNull(e);
 		Objects.requireNonNull(clazz);

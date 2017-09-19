@@ -16,7 +16,7 @@ import net.bestia.zoneserver.configuration.StaticConfigService;
 import scala.concurrent.duration.Duration;
 
 /**
- * This actor sends a heartbeat to the system so the zone node is seen as alive.
+ * This actor sends a heartbeat to the discovery system so the zone node is seen as alive.
  * If the heartbeat stops for too long the memory db will remove the node from
  * the active list.
  * 
@@ -25,7 +25,7 @@ import scala.concurrent.duration.Duration;
  */
 @Component
 @Scope("prototype")
-public class HeartbeatActor extends AbstractActor {
+public class MemDbHeartbeatActor extends AbstractActor {
 
 	public static final String NAME = "heartbeat";
 
@@ -46,7 +46,7 @@ public class HeartbeatActor extends AbstractActor {
 	}
 
 	@Autowired
-	public HeartbeatActor(
+	public MemDbHeartbeatActor(
 			StaticConfigService configService,
 			DiscoveryService discoveryService) {
 

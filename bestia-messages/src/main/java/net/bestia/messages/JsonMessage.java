@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * for the clients. All messages meant to be send to the client via jackson
  * serialization and deserialization should use this base class.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

@@ -113,6 +113,11 @@ public class MapGeneratorMasterActor extends AbstractActor {
 				.build();
 	}
 
+	/**
+	 * If a {@link MapParameter} message arrives the actor will initialize the
+	 * creation of the map.
+	 * 
+	 */
 	private void handleMapParameter(MapParameter params) {
 		LOG.info("Received map base parameter. Starting to generate map. ({})", params);
 		LOG.info("Putting server into maintenance mode and disconnecting all users.");

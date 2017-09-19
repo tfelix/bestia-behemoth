@@ -20,7 +20,7 @@ import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.ClusterControlActor;
-import net.bestia.zoneserver.actor.zone.HeartbeatActor;
+import net.bestia.zoneserver.actor.zone.MemDbHeartbeatActor;
 import net.bestia.zoneserver.actor.zone.IngestExActor;
 import net.bestia.zoneserver.actor.zone.SendActiveRangeActor;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
@@ -71,7 +71,7 @@ public class ZoneStarter implements CommandLineRunner {
 
 		// System actors.
 		akkaApi.startActor(ZoneClusterListenerActor.class);
-		akkaApi.startActor(HeartbeatActor.class);
+		akkaApi.startActor(MemDbHeartbeatActor.class);
 
 		// Maybe this needs to be more sophisticated done only when we joined
 		// the cluster.
