@@ -133,9 +133,10 @@ public class StatusService {
 	public void calculateStatusPoints(Entity entity) {
 		Objects.requireNonNull(entity);
 
-		entityService.getComponent(entity, StatusComponent.class).ifPresent(statusComp -> {
-			calculateStatusPoints(entity, statusComp);
-		});
+		entityService.getComponent(entity, StatusComponent.class)
+				.ifPresent(statusComp -> {
+					calculateStatusPoints(entity, statusComp);
+				});
 	}
 
 	/**

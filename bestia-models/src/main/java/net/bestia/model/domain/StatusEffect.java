@@ -14,7 +14,10 @@ public class StatusEffect implements Serializable {
 	private int id;
 
 	private String datebaseName;
-	
+
+	/**
+	 * Flag if the status is transmitted towards a client.
+	 */
 	private boolean isClientVisible;
 
 	public int getId() {

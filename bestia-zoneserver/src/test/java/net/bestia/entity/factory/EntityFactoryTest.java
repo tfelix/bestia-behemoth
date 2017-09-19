@@ -75,11 +75,6 @@ public class EntityFactoryTest {
 		factory.buildEntity(null);
 	}
 
-	@Test(expected = NullPointerException.class)
-	public void build_nullComponentSetter_throws() {
-		factory.buildEntity(blueprint, null);
-	}
-
 	@Test
 	public void makeSet() {
 		Set<ComponentSetter<? extends Component>> set = EntityFactory.makeSet(playerSet);

@@ -1,7 +1,6 @@
 package net.bestia.entity.factory;
 
 import java.util.Objects;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,8 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.StatusService;
-import net.bestia.entity.component.Component;
-import net.bestia.entity.component.ComponentSetter;
 import net.bestia.entity.component.EquipComponent;
 import net.bestia.entity.component.InventoryComponent;
 import net.bestia.entity.component.LevelComponent;
@@ -19,12 +16,21 @@ import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.PositionComponentSetter;
 import net.bestia.entity.component.StatusComponent;
 import net.bestia.entity.component.TagComponent;
+import net.bestia.entity.component.TagComponent.Tag;
+import net.bestia.entity.component.TagComponentSetter;
 import net.bestia.entity.component.VisibleComponent;
 import net.bestia.entity.component.VisibleComponentSetter;
 import net.bestia.model.dao.BestiaDAO;
 import net.bestia.model.domain.Bestia;
 import net.bestia.model.geometry.Point;
 
+/**
+ * Mob factory will create entities which serve as standard mobs for the bestia
+ * system.
+ * 
+ * @author Thomas Felix
+ *
+ */
 @org.springframework.stereotype.Component
 public class MobFactory {
 
@@ -71,13 +77,9 @@ public class MobFactory {
 		final PositionComponentSetter posSetter = new PositionComponentSetter(new Point(x, y));
 		final VisibleComponentSetter visSetter = new VisibleComponentSetter(bestia.getSpriteInfo());
 		final LevelComponentSetter levelSetter = new LevelComponentSetter(bestia.getLevel(), 0);
+		final TagComponentSetter tagSetter = new TagComponentSetter(Tag.MOB);
 
-		final Set<ComponentSetter<? extends Component>> comps = EntityFactory.makeSet(
-				posSetter,
-				visSetter,
-				levelSetter);
-
-		final Entity mob = entityFactory.buildEntity(mobBlueprint, comps);
+		final Entity mob = entityFactory.buildEntity(mobBlueprint, posSetter, visSetter, tagSetter, levelSetter);
 
 		// Calculate the status points now.
 		statusService.calculateStatusPoints(mob);

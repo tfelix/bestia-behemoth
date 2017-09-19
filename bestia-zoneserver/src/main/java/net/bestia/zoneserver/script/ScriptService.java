@@ -200,5 +200,9 @@ public class ScriptService {
 
 		scriptComp.removeCallback(Callback.ON_INTERVAL);
 		entityService.updateComponent(scriptComp);
+
+		// Tell the actor which script to periodically call.
+		final EntityComponentMessage compMessage = EntityComponentMessage.stop(entity.getId(), scriptComp.getId());
+		akkaApi.sendEntityActor(entity.getId(), compMessage);
 	}
 }

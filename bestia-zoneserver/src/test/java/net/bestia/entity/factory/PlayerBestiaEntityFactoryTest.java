@@ -73,6 +73,7 @@ public class PlayerBestiaEntityFactoryTest {
 	@Captor
 	private ArgumentCaptor<Blueprint> blueprintCaptor;
 
+	@SuppressWarnings("unchecked")
 	@Before
 	public void setup() {
 
@@ -84,7 +85,7 @@ public class PlayerBestiaEntityFactoryTest {
 		when(playerBestia.getCurrentPosition()).thenReturn(currentPos);
 
 		//when(entityFactory.buildEntity(any())).thenReturn(new Entity(ENTITY_ID));
-		when(entityFactory.buildEntity(any(), any())).thenReturn(new Entity(ENTITY_ID));
+		when(entityFactory.buildEntity(any(), any(Set.class))).thenReturn(new Entity(ENTITY_ID));
 
 		factory = new PlayerBestiaEntityFactory(entityFactory, statusService);
 	}

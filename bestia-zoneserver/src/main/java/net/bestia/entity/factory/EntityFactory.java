@@ -64,6 +64,13 @@ class EntityFactory {
 	public Entity buildEntity(Blueprint blueprint) {
 		return buildEntity(blueprint, Collections.emptySet());
 	}
+	
+	@SafeVarargs
+	public final Entity buildEntity(Blueprint blueprint, 
+			ComponentSetter<? extends Component>... setter) {
+
+		return buildEntity(blueprint, makeSet(setter));
+	}
 
 	public Entity buildEntity(Blueprint blueprint,
 			Set<ComponentSetter<? extends Component>> setter) {
