@@ -67,7 +67,7 @@ public class EntityFactoryTest {
 		
 		when(playerSet.getSupportedType()).thenReturn(PlayerComponent.class);
 
-		factory = new EntityFactory(entityService, akkaApi, cache);
+		factory = new EntityFactory(entityService, akkaApi);
 	}
 
 	@Test(expected = NullPointerException.class)

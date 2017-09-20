@@ -284,6 +284,8 @@ public class EntityService {
 	public void attachComponents(Entity e, Collection<Component> attachComponents) {
 		Objects.requireNonNull(e);
 		Objects.requireNonNull(components);
+		
+		LOG.trace("Attaching components: {} to entity: {}.", attachComponents, e.getId());
 
 		// Add component to entity and to the comp map.
 		final long entityId = e.getId();

@@ -32,10 +32,11 @@ public class HazelcastConfiguration {
 			ComponentMapStore compMapStore) {
 
 		final Config cfg = new ClasspathXmlConfig("hazelcast.xml");
-		Map<String, MapConfig> mapConfigs = cfg.getMapConfigs();
+		// Temporarly disabled the mapstore since we got concurrenty problems.
+		//Map<String, MapConfig> mapConfigs = cfg.getMapConfigs();
 
 		// Set our map storages.
-		MapConfig entitiesCfg = mapConfigs.get(ENTITIES_MAP_NAME);
+		/*MapConfig entitiesCfg = mapConfigs.get(ENTITIES_MAP_NAME);
 
 		MapStoreConfig mapStoreCfg = new MapStoreConfig();
 		mapStoreCfg.setImplementation(entityMapStore);
@@ -50,7 +51,7 @@ public class HazelcastConfiguration {
 
 		componentCfg.setMapStoreConfig(mapStoreCfg);
 		
-		mapConfigs.put("components", componentCfg);
+		mapConfigs.put("components", componentCfg);*/
 
 		return Hazelcast.newHazelcastInstance(cfg);
 	}

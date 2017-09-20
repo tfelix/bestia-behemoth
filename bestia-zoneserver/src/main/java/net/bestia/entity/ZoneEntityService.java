@@ -67,6 +67,18 @@ public class ZoneEntityService extends EntityService {
 
 		return e;
 	}
+	
+	@Override
+	public <T extends Component> T newComponent(Class<T> clazz) {
+		
+		final T addedComp = cache.getComponent(clazz);
+		
+		if(addedComp != null) {
+			return addedComp;
+		} else {
+			return super.newComponent(clazz);
+		}
+	}
 
 	/**
 	 * Deletes the entity

@@ -133,7 +133,7 @@ public class InventoryComponent extends Component {
 
 	@Override
 	public String toString() {
-		return String.format("InventoryComp[maxWeight: %f.1f, items: %d/%d]", getMaxWeight(), items.size(),
+		return String.format("InventoryComp[maxWeight: %.1f, items: %d/%d]", getMaxWeight(), items.size(),
 				getMaxItemCount());
 	}
 }

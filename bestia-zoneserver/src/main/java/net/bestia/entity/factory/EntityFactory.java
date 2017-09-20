@@ -13,13 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.bestia.zoneserver.actor.entity.EntityManagerActor;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.entity.Entity;
-import net.bestia.entity.EntityCache;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
+import net.bestia.zoneserver.actor.entity.EntityManagerActor;
+import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * The EcsEntityFactory is responsible for translating ecs blueprints into
@@ -34,18 +33,15 @@ class EntityFactory {
 	private final static Logger LOG = LoggerFactory.getLogger(EntityFactory.class);
 
 	private final EntityService entityService;
-	private final EntityCache cache;
 	private final ZoneAkkaApi akkaApi;
 
 	@Autowired
 	EntityFactory(
 			EntityService entityService,
-			ZoneAkkaApi akkaApi,
-			EntityCache recycler) {
+			ZoneAkkaApi akkaApi) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
-		this.cache = Objects.requireNonNull(recycler);
 	}
 
 	/**
@@ -90,12 +86,8 @@ class EntityFactory {
 
 		// Add all given components in the blueprint.
 		for (Class<? extends Component> compClazz : blueprint.getComponents()) {
-
-			Component addedComp = cache.getComponent(compClazz);
 			
-			if(addedComp == null) {
-				addedComp = entityService.newComponent(compClazz);
-			}
+			final Component addedComp = entityService.newComponent(compClazz);
 
 			// Fill the component with values from a supported setter.
 			final Optional<ComponentSetter<? extends Component>> foundSetter = setter.stream()

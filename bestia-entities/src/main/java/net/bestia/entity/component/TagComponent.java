@@ -46,6 +46,6 @@ public class TagComponent extends Component {
 
 	@Override
 	public String toString() {
-		return String.format("TagComponent[%s]", tags.toString());
+		return String.format("TagComponent%s", tags.toString());
 	}
 }
