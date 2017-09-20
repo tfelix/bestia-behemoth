@@ -15,6 +15,12 @@ import com.hazelcast.core.HazelcastInstance;
 import net.bestia.memoryserver.persistance.ComponentMapStore;
 import net.bestia.memoryserver.persistance.EntityMapStore;
 
+/**
+ * Configures the hazelcast instance.
+ * 
+ * @author Thomas Felix
+ *
+ */
 @Configuration
 public class HazelcastConfiguration {
 	
@@ -29,7 +35,6 @@ public class HazelcastConfiguration {
 		Map<String, MapConfig> mapConfigs = cfg.getMapConfigs();
 
 		// Set our map storages.
-		
 		MapConfig entitiesCfg = mapConfigs.get(ENTITIES_MAP_NAME);
 
 		MapStoreConfig mapStoreCfg = new MapStoreConfig();

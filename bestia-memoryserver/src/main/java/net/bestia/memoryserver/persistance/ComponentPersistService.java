@@ -2,6 +2,8 @@ package net.bestia.memoryserver.persistance;
 
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,8 @@ import net.bestia.entity.component.Component;
 @Service
 public class ComponentPersistService {
 
+	private final static Logger LOG = LoggerFactory.getLogger(ComponentPersistService.class);
+	
 	private final ObjectSerializer<Component> serializer = new ObjectSerializer<>();
 	private final ComponentDataDAO componentDao;
 
@@ -40,6 +44,8 @@ public class ComponentPersistService {
 	 *            The component to persist.
 	 */
 	public void store(Component comp) {
+		
+		LOG.trace("Storing component {}.", comp);
 
 		Objects.requireNonNull(comp);
 
@@ -66,6 +72,7 @@ public class ComponentPersistService {
 		final ComponentData data = componentDao.findOne(id);
 
 		if (data == null) {
+			LOG.debug("Did not find component {} inside database. Returning null.", id);
 			return null;
 		}
 

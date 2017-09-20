@@ -10,7 +10,7 @@ import net.bestia.entity.component.InteractionComponent;
 
 /**
  * Service to control the interaction between entities. Usually in this
- * interaction some sorte of scripting is involved to determine the art of
+ * interaction some sort of scripting is involved to determine the art of
  * interactions which are possible.
  * 
  * @author Thomas Felix

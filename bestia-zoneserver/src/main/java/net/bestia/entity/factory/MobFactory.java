@@ -45,7 +45,7 @@ public class MobFactory {
 				.addComponent(InventoryComponent.class)
 				.addComponent(PositionComponent.class)
 				.addComponent(LevelComponent.class)
-				.addComponent(TagComponent.class)
+				//.addComponent(TagComponent.class)
 				.addComponent(StatusComponent.class);
 
 		mobBlueprint = builder.build();
@@ -77,9 +77,9 @@ public class MobFactory {
 		final PositionComponentSetter posSetter = new PositionComponentSetter(new Point(x, y));
 		final VisibleComponentSetter visSetter = new VisibleComponentSetter(bestia.getSpriteInfo());
 		final LevelComponentSetter levelSetter = new LevelComponentSetter(bestia.getLevel(), 0);
-		final TagComponentSetter tagSetter = new TagComponentSetter(Tag.MOB);
+		//final TagComponentSetter tagSetter = new TagComponentSetter(Tag.MOB);
 
-		final Entity mob = entityFactory.buildEntity(mobBlueprint, posSetter, visSetter, tagSetter, levelSetter);
+		final Entity mob = entityFactory.buildEntity(mobBlueprint, posSetter, visSetter, levelSetter);
 
 		// Calculate the status points now.
 		statusService.calculateStatusPoints(mob);

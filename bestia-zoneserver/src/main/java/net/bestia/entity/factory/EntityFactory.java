@@ -81,12 +81,7 @@ class EntityFactory {
 		LOG.debug("Creating entity with: {}", blueprint);
 
 		// Check if we can use recycled entity.
-		Entity e = cache.getEntity();
-
-		if (e == null) {
-			LOG.debug("No recycled entity present. Creating new entity.");
-			e = entityService.newEntity();
-		}
+		Entity e = entityService.newEntity();
 
 		// Start a actor for this entity.
 		akkaApi.sendToActor(EntityManagerActor.NAME, e.getId());

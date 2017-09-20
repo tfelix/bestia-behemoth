@@ -25,7 +25,7 @@ import net.bestia.testing.BasicMocks;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 @RunWith(MockitoJUnitRunner.class)
-public class EntityServiceTest {
+public class ZoneEntityServiceTest {
 
 	private EntityService entityService;
 
@@ -53,7 +53,7 @@ public class EntityServiceTest {
 
 		when(ownedComp.getEntityId()).thenReturn(1337L);
 
-		entityService = new EntityService(hz, akkaApi, interceptor, cache);
+		entityService = new ZoneEntityService(hz, akkaApi, interceptor, cache);
 	}
 
 

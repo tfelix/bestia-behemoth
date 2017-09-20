@@ -52,4 +52,9 @@ public class ScriptComponent extends Component {
 	public void setScriptUUID(String scriptUUID) {
 		this.scriptUuid = scriptUUID;
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("ScriptComponent[callbacks: %s]", callbackNames.toString());
+	}
 }

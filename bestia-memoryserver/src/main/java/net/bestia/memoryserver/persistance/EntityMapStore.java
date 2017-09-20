@@ -18,8 +18,9 @@ import net.bestia.entity.Entity;
 
 /**
  * Specialized class which enables the entities to be persistedly stored into a
- * persistent database. This is needed if the bestia server goes down or is shut
- * down so the world keeps persisted and can be reloaded.
+ * database. This is needed if the bestia server goes down or is shut down so
+ * the world keeps persisted and can be reloaded. This store classes synchronize
+ * in memory objects with persistent databases.
  * 
  * @author Thomas Felix
  *
@@ -33,8 +34,7 @@ public class EntityMapStore implements MapStore<Long, Entity> {
 	/**
 	 * Ctor. EntityPersistService must be marked with Lazy since it has a
 	 * indirect dependency to a {@link CrudRepository} which in turn uses a
-	 * hazelcast instance because of caching. This forms a circular
-	 * dependency.
+	 * hazelcast instance because of caching. This forms a circular dependency.
 	 * 
 	 * @param entityPersistService
 	 */
@@ -104,8 +104,6 @@ public class EntityMapStore implements MapStore<Long, Entity> {
 
 	@Override
 	public synchronized void storeAll(Map<Long, Entity> entities) {
-
-		LOG.trace("Persisting {} entities.", entities.size());
 
 		for (Entity entity : entities.values()) {
 			entityPersistService.store(entity);

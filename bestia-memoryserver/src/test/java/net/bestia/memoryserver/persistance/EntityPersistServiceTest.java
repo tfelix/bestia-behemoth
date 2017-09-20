@@ -47,7 +47,7 @@ public class EntityPersistServiceTest {
 		when(entityService.getComponent(taggedEntity, TagComponent.class)).thenReturn(Optional.of(tagComp));
 		when(entityService.getComponent(untaggedEntity, TagComponent.class)).thenReturn(Optional.empty());
 		
-		when(tagComp.has(TagComponent.TAG_PERSIST)).thenReturn(true);
+		when(tagComp.has(TagComponent.Tag.PERSIST)).thenReturn(true);
 
 		service = new EntityPersistService(entityDao, entityService);
 	}

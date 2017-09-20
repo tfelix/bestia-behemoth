@@ -19,12 +19,9 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
 
-import akka.actor.PoisonPill;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.PositionComponent;
-import net.bestia.entity.component.interceptor.Interceptor;
 import net.bestia.model.geometry.CollisionShape;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * The {@link EntityService} is a central very important part of the bestia
@@ -49,15 +46,8 @@ public class EntityService {
 	private final IMap<Long, Component> components;
 	private final IdGenerator idGenerator;
 
-	private final Interceptor interceptor;
-	private final EntityCache cache;
-	private final ZoneAkkaApi akkaApi;
-
 	@Autowired
-	public EntityService(HazelcastInstance hz,
-			ZoneAkkaApi akkaApi,
-			Interceptor interceptor,
-			EntityCache cache) {
+	public EntityService(HazelcastInstance hz) {
 
 		Objects.requireNonNull(hz);
 
@@ -65,9 +55,6 @@ public class EntityService {
 		this.entities = hz.getMap(ECS_ENTITY_MAP);
 		this.idGenerator = hz.getIdGenerator(COMP_ID_GEN);
 		this.components = Objects.requireNonNull(hz).getMap(COMP_MAP);
-		this.akkaApi = Objects.requireNonNull(akkaApi);
-		this.interceptor = Objects.requireNonNull(interceptor);
-		this.cache = Objects.requireNonNull(cache);
 	}
 
 	/**
@@ -93,13 +80,7 @@ public class EntityService {
 	 * @return
 	 */
 	public Entity newEntity() {
-
-		Entity e = cache.getEntity();
-
-		if (e == null) {
-			e = new Entity(getNewEntityId());
-		}
-
+		final Entity e = new Entity(getNewEntityId());
 		saveEntity(e);
 		return e;
 	}
@@ -118,9 +99,6 @@ public class EntityService {
 
 		entities.lock(eid);
 
-		// Send message to kill off entity actor.
-		akkaApi.sendEntityActor(entity.getId(), PoisonPill.getInstance());
-
 		try {
 			// Delete all components.
 			deleteAllComponents(entity);
@@ -129,8 +107,6 @@ public class EntityService {
 		} finally {
 			entities.unlock(eid);
 		}
-
-		cache.stashEntity(entity);
 	}
 
 	/**
@@ -303,8 +279,6 @@ public class EntityService {
 			components.unlock(compId);
 			entities.unlock(entityId);
 		}
-
-		interceptor.interceptCreated(this, e, comp);
 	}
 
 	public void attachComponents(Entity e, Collection<Component> attachComponents) {
@@ -340,11 +314,6 @@ public class EntityService {
 		} finally {
 			entities.unlock(entityId);
 		}
-
-		// After all is saved intercept the created components.
-		attachComponents.forEach(c -> {
-			interceptor.interceptCreated(this, e, c);
-		});
 	}
 
 	/**
@@ -388,10 +357,14 @@ public class EntityService {
 	 * removing bulk components. Important: CALL {@link #saveEntity(Entity)}
 	 * after using this private method!
 	 * 
+	 * It is protected so that the zoneserver implementation of the
+	 * EntityService can override this method to implement interceptor and cache
+	 * calls.
+	 * 
 	 * @param entity
 	 * @param component
 	 */
-	private void prepareComponentRemove(Entity entity, Component component) {
+	protected void prepareComponentRemove(Entity entity, Component component) {
 		Objects.requireNonNull(entity);
 		Objects.requireNonNull(component);
 
@@ -405,10 +378,6 @@ public class EntityService {
 		} finally {
 			components.unlock(component.getId());
 		}
-
-		interceptor.interceptDeleted(this, entity, component);
-
-		cache.stashComponente(component);
 
 		component.setEntityId(0);
 	}
@@ -535,10 +504,9 @@ public class EntityService {
 		Objects.requireNonNull(e);
 		Objects.requireNonNull(clazz);
 
-		LOG.trace("Getting component {} from entity: {}", clazz.getSimpleName(), e);
 
-		@SuppressWarnings("unchecked")
-		final long compId = e.getComponentId((Class<Component>) clazz);
+
+		final long compId = e.getComponentId(clazz);
 
 		if (compId == 0) {
 			return Optional.empty();

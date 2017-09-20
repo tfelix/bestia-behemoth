@@ -3,6 +3,8 @@ package net.bestia.memoryserver.persistance;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,8 @@ import net.bestia.util.ObjectSerializer;
 
 @Service
 public class EntityPersistService {
+	
+	private final Logger LOG = LoggerFactory.getLogger(EntityPersistService.class);
 
 	private final ObjectSerializer<Entity> serializer = new ObjectSerializer<>();
 	private final EntityDataDAO entityDao;
@@ -55,6 +59,7 @@ public class EntityPersistService {
 		final EntityData data = entityDao.findOne(id);
 
 		if (data == null) {
+			LOG.debug("Did not find entity {} inside database. Returning null.", id);
 			return null;
 		}
 
@@ -77,6 +82,8 @@ public class EntityPersistService {
 		if (!tagComp.isPresent() || !tagComp.get().has(TagComponent.Tag.PERSIST)) {
 			return;
 		}
+		
+		LOG.debug("Entity {} is tagged with PERSIST. Storing it.", entity);
 
 		// Find all the components of the entity.
 		final byte[] data = serializer.serialize(entity);
