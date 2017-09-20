@@ -21,6 +21,7 @@ import net.bestia.entity.component.ScriptComponent.Callback;
 import net.bestia.messages.internal.entity.EntityComponentMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
+import net.bestia.zoneserver.script.env.ScriptEnv;
 
 /**
  * This class is responsible for fetching the script, creating a appropriate
@@ -120,6 +121,16 @@ public class ScriptService {
 
 		setupScriptBindings(script, ident, new SimpleBindings());
 		callFunction(script, ident.getFunctionName());
+	}
+	
+	/**
+	 * This call method tries to call the script attached to this entity. By doing so it will first check if there is a script 
+	 * @param env
+	 * @param scriptEntity
+	 */
+	public boolean callScript(ScriptEnv env, Entity scriptEntity) {
+		
+		return false;
 	}
 
 	public void callItemScript(String name, Entity source, Entity target) {

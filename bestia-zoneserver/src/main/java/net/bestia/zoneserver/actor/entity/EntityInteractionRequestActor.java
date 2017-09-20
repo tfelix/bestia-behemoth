@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.actor.entity;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +10,8 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.InteractionService;
-import net.bestia.entity.PlayerEntityService;
-import net.bestia.entity.component.InteractionComponent;
 import net.bestia.messages.entity.EntityInteractionMessage;
 import net.bestia.messages.entity.EntityInteractionRequestMessage;
 import net.bestia.model.entity.InteractionType;
@@ -36,18 +32,13 @@ public class EntityInteractionRequestActor extends AbstractActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public final static String NAME = "requestInteract";
 
-	private final EntityService entityService;
+
 	private final InteractionService interactService;
-	private final PlayerEntityService playerEntityService;
 
 	@Autowired
 	public EntityInteractionRequestActor(EntityService entityService,
-			PlayerEntityService pes,
 			InteractionService interactService) {
-
-		// FIXME Entitiy basierte services in ein context object auslagern.
-		this.entityService = Objects.requireNonNull(entityService);
-		this.playerEntityService = Objects.requireNonNull(pes);
+	
 		this.interactService = Objects.requireNonNull(interactService);
 	}
 
@@ -65,35 +56,17 @@ public class EntityInteractionRequestActor extends AbstractActor {
 	}
 
 	private void onInteractionRequest(EntityInteractionRequestMessage msg) {
+		LOG.debug("Received message: {}", msg);
 
-		final Entity entity = entityService.getEntity(msg.getEntityId());
-
-		if (entity == null) {
-			LOG.warning("Entity not found. Message was: {}", msg.toString());
-			return;
-		}
-
-		final Optional<InteractionComponent> interactionComp = entityService.getComponent(entity,
-				InteractionComponent.class);
-
-		// Entity does not seam to interact.
-		if (!interactionComp.isPresent()) {
-			final EntityInteractionMessage reply = new EntityInteractionMessage(
-					msg.getAccountId(),
-					msg.getEntityId(),
-					InteractionType.NONE);
-			AkkaSender.sendClient(getContext(), reply);
-
-			return;
-		} else {
-			final Entity pbe = playerEntityService.getActivePlayerEntity(msg.getEntityId());
-			final Set<InteractionType> interactions = interactService.getPossibleInteractions(pbe, entity);
-			final EntityInteractionMessage reply = new EntityInteractionMessage(
-					msg.getAccountId(),
-					msg.getEntityId(),
-					interactions);
-			AkkaSender.sendClient(getContext(), reply);
-		}
+		// TODO Ist das hier manipulationssicher oder sendet uns der user beliebige entity ids?
+		final Set<InteractionType> interactions = interactService.getPossibleInteractions(msg.getEntityId(),
+				msg.getInteractedEntityId());
+		
+		final EntityInteractionMessage reply = new EntityInteractionMessage(
+				msg.getAccountId(),
+				msg.getEntityId(),
+				interactions);
+		AkkaSender.sendClient(getContext(), reply);
 	}
 
 }

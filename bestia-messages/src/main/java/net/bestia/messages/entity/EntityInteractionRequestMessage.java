@@ -1,5 +1,7 @@
 package net.bestia.messages.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import net.bestia.messages.EntityJsonMessage;
 
 /**
@@ -7,7 +9,7 @@ import net.bestia.messages.EntityJsonMessage;
  * interact with the given entity. The server will respond with a list of
  * possible interactions.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class EntityInteractionRequestMessage extends EntityJsonMessage {
@@ -15,6 +17,9 @@ public class EntityInteractionRequestMessage extends EntityJsonMessage {
 	private static final long serialVersionUID = 1L;
 
 	public static final String MESSAGE_ID = "entity.interactreq";
+	
+	@JsonProperty("ieid")
+	private long interactedEntityId;
 
 	/**
 	 * Priv ctor for jackson.
@@ -23,8 +28,14 @@ public class EntityInteractionRequestMessage extends EntityJsonMessage {
 		// no op.
 	}
 
-	public EntityInteractionRequestMessage(long accId, long eid) {
-		super(accId, eid);
+	public EntityInteractionRequestMessage(long accId, long entityId, long interactEntityId) {
+		super(accId, entityId);
+		
+		this.interactedEntityId = interactEntityId;
+	}
+	
+	public long getInteractedEntityId() {
+		return interactedEntityId;
 	}
 
 	@Override
@@ -39,6 +50,6 @@ public class EntityInteractionRequestMessage extends EntityJsonMessage {
 
 	@Override
 	public EntityInteractionRequestMessage createNewInstance(long accountId) {
-		return new EntityInteractionRequestMessage(accountId, getEntityId());
+		return new EntityInteractionRequestMessage(accountId, getEntityId(), getInteractedEntityId());
 	}
 }

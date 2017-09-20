@@ -13,12 +13,35 @@ import java.util.EnumSet;
 public class TagComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	public enum Tag {
+
+		/**
+		 * Entity should be persisted by the system in case of a server
+		 * crash/stop.
+		 */
 		PERSIST,
+
+		/**
+		 * This tagged entity is a usual bestia mob.
+		 */
 		MOB,
+
+		/**
+		 * This tagged entity is a usual bestia NPC.
+		 */
 		NPC,
-		ITEM
+
+		/**
+		 * Items lying on the ground which can be picked up by the player.
+		 */
+		ITEM,
+
+		/**
+		 * A natural resource which can be harvested if the needed skills are
+		 * learned by the player.
+		 */
+		RESOURCE
 	}
 
 	private EnumSet<Tag> tags = EnumSet.noneOf(Tag.class);
@@ -39,7 +62,7 @@ public class TagComponent extends Component {
 	public boolean has(Tag t) {
 		return tags.contains(t);
 	}
-	
+
 	public Collection<Tag> getAllTags() {
 		return Collections.unmodifiableSet(tags);
 	}

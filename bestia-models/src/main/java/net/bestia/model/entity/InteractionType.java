@@ -31,12 +31,5 @@ public enum InteractionType {
 	 * should handle such clicks via a special script component like displaying
 	 * a special GUI to the user.
 	 */
-	INTERACT,
-
-	/**
-	 * Generic entity. No special treatment in the engine. It will "just be
-	 * displayed."
-	 */
-	NONE
-
+	INTERACT
 }

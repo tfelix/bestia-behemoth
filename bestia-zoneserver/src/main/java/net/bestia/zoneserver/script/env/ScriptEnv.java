@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.script;
+package net.bestia.zoneserver.script.env;
 
 import java.util.Map;
 
