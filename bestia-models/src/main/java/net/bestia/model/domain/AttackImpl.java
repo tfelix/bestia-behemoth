@@ -28,7 +28,7 @@ public class AttackImpl implements Serializable, Attack {
 		defaultMeleeAttack.manaCost = 0;
 		defaultMeleeAttack.range = 1;
 		defaultMeleeAttack.lineOfSight = true;
-		defaultMeleeAttack.basedStatus = AttackBasedStatus.NORMAL;
+		defaultMeleeAttack.type = AttackType.MELEE_PHYSICAL;
 		defaultMeleeAttack.target = AttackTarget.ENEMY_ENTITY;
 		defaultMeleeAttack.casttime = 0;
 		defaultMeleeAttack.cooldown = 1500;
@@ -56,6 +56,12 @@ public class AttackImpl implements Serializable, Attack {
 	private int manaCost;
 
 	/**
+	 * Flag tells if the attack has a script which needs to get executed upon
+	 * execution.
+	 */
+	private boolean hasScript;
+
+	/**
 	 * Range of the attack. Range is a mysql reserved word, so quots are needed.
 	 */
 	@JsonProperty("r")
@@ -69,8 +75,8 @@ public class AttackImpl implements Serializable, Attack {
 	private boolean lineOfSight;
 
 	@Enumerated(EnumType.STRING)
-	@JsonProperty("bs")
-	private AttackBasedStatus basedStatus;
+	@JsonProperty("ty")
+	private AttackType type;
 
 	/**
 	 * Casttime in ms. 0 means it is instant.
@@ -194,24 +200,6 @@ public class AttackImpl implements Serializable, Attack {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see net.bestia.model.domain.IAttack#getBasedStatus()
-	 */
-	@Override
-	public AttackBasedStatus getBasedStatus() {
-		return basedStatus;
-	}
-
-	/**
-	 * @param basedStatus
-	 *            the basedStatus to set
-	 */
-	public void setBasedStatus(AttackBasedStatus basedStatus) {
-		this.basedStatus = basedStatus;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see net.bestia.model.domain.IAttack#getCasttime()
 	 */
 	@Override
@@ -257,6 +245,17 @@ public class AttackImpl implements Serializable, Attack {
 	@Override
 	public String getIndicator() {
 		return indicator;
+	}
+
+	@Override
+	public AttackType getType() {
+		return type;
+	}
+	
+
+	@Override
+	public boolean hasScript() {
+		return hasScript;
 	}
 
 	/**

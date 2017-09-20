@@ -1,7 +1,7 @@
 package net.bestia.model.domain;
 
 public interface Attack {
-	
+
 	/**
 	 * Basic attack id used for the default attack every bestia has. Each bestia
 	 * has the default melee or ranged attack.
@@ -41,17 +41,18 @@ public interface Attack {
 	int getManaCost();
 
 	/**
+	 * @return TRUE if there is a script which can get called when executing
+	 *         this attack.
+	 */
+	boolean hasScript();
+
+	/**
 	 * Returns if the attack requires a line of sight.
 	 * 
 	 * @return TRUE of the attack requires a line of sight to the enemy. FALSE
 	 *         otherwise.
 	 */
 	boolean needsLineOfSight();
-
-	/**
-	 * @return The status 
-	 */
-	AttackBasedStatus getBasedStatus();
 
 	/**
 	 * Base cast time of an attack in ms.
@@ -81,5 +82,10 @@ public interface Attack {
 	 */
 	String getIndicator();
 
-	//AttackType getType();
+	/**
+	 * Returns the type of attack.
+	 * 
+	 * @return
+	 */
+	AttackType getType();
 }

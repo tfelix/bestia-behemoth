@@ -3,15 +3,24 @@ package net.bestia.model.domain;
 public enum AttackType {
 
 	/**
-	 * A melee attack is performed using the strength of the entity/bestia to
-	 * perform the attack.
+	 * Attack is based on special attack stat its nature is a magic one.
 	 */
-	MELEE,
+	MAGIC,
 
 	/**
-	 * A ranged attack is some sort of projectile hurled towards the target.
-	 * This might be either magic ranged (fireballs, lightning etc) or
-	 * conventional projectils like arrows.
+	 * Attack is based on normal attack stat since its a physical attack.
 	 */
-	RANGED
+	MELEE_PHYSICAL,
+	
+	/**
+	 * Attack is a physical ranged attack.
+	 */
+	RANGED_PHYSICAL,
+
+	/**
+	 * Attacks which do a special calculation and deal no real damage (it uses
+	 * none of the battle based stats). All effects or damage is done via
+	 * scripts which are deployed upon usage of this attack.
+	 */
+	NO_DAMAGE
 }

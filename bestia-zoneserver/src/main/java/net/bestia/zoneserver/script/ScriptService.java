@@ -19,7 +19,6 @@ import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
 import net.bestia.entity.component.ScriptComponent.Callback;
 import net.bestia.messages.internal.entity.EntityComponentMessage;
-import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.script.env.ScriptEnv;
 
@@ -122,23 +121,29 @@ public class ScriptService {
 		setupScriptBindings(script, ident, new SimpleBindings());
 		callFunction(script, ident.getFunctionName());
 	}
-	
+
 	/**
-	 * This call method tries to call the script attached to this entity. By doing so it will first check if there is a script 
+	 * This call method tries to call the script attached to this entity. By
+	 * doing so it will first check if there is a script
+	 * 
+	 * @param env
+	 * @param scriptEntity
+	 */
+	public boolean callScript(ScriptEnv env, String name) {
+
+		return false;
+	}
+
+	/**
+	 * This call method tries to call the script attached to this entity. By
+	 * doing so it will first check if there is a script
+	 * 
 	 * @param env
 	 * @param scriptEntity
 	 */
 	public boolean callScript(ScriptEnv env, Entity scriptEntity) {
-		
+
 		return false;
-	}
-
-	public void callItemScript(String name, Entity source, Entity target) {
-		throw new IllegalStateException("Not implemented.");
-	}
-
-	public void callItemScript(String name, Entity source, Point target) {
-		throw new IllegalStateException("Not implemented.");
 	}
 
 	/**
@@ -173,7 +178,9 @@ public class ScriptService {
 
 	/**
 	 * Starts a recurring script interval attached to an entity. After the given
-	 * delay timer in ms the script call will be invoked.
+	 * delay timer in ms the script call will be invoked. The scripts must be
+	 * attached to an entity since this is the only mechanism to allow time
+	 * based trigger control of scripts.
 	 * 
 	 * @param entity
 	 * @param delay

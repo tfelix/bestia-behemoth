@@ -5,14 +5,14 @@ import java.util.List;
 import java.util.Objects;
 
 import net.bestia.model.domain.Attack;
-import net.bestia.model.domain.AttackBasedStatus;
 import net.bestia.model.domain.AttackTarget;
+import net.bestia.model.domain.AttackType;
 import net.bestia.model.domain.Element;
 
 /**
  * Wraps/decorates an attack to modify its returned values.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class AttackDecorator implements Attack {
@@ -23,7 +23,7 @@ public class AttackDecorator implements Attack {
 	private String dbName = null;
 	private Element element = null;
 	private Boolean lineOfSight = null;
-	private AttackBasedStatus basedStat = null;
+	private AttackType type = null;
 
 	private final List<AttackModifier> modifier = new ArrayList<>();
 
@@ -104,13 +104,13 @@ public class AttackDecorator implements Attack {
 	}
 
 	@Override
-	public AttackBasedStatus getBasedStatus() {
+	public AttackType getType() {
 
-		if (basedStat == null) {
-			return wrappedAttack.getBasedStatus();
+		if (type == null) {
+			return wrappedAttack.getType();
 		}
 
-		return basedStat;
+		return type;
 	}
 
 	@Override
@@ -165,4 +165,8 @@ public class AttackDecorator implements Attack {
 		return wrappedAttack.getIndicator();
 	}
 
+	@Override
+	public boolean hasScript() {
+		return wrappedAttack.hasScript();
+	}
 }
