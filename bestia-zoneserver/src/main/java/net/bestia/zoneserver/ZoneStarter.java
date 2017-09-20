@@ -14,7 +14,7 @@ import akka.actor.Props;
 import akka.cluster.singleton.ClusterSingletonManager;
 import akka.cluster.singleton.ClusterSingletonManagerSettings;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.battle.AttackManagerActor;
+import net.bestia.zoneserver.actor.battle.AttackUseActor;
 import net.bestia.zoneserver.actor.entity.EntityManagerActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
@@ -67,7 +67,7 @@ public class ZoneStarter implements CommandLineRunner {
 		akkaApi.startActor(MapGeneratorClientActor.class);
 		
 		// Battle actors.
-		akkaApi.startActor(AttackManagerActor.class);
+		akkaApi.startActor(AttackUseActor.class);
 
 		// System actors.
 		akkaApi.startActor(ZoneClusterListenerActor.class);
