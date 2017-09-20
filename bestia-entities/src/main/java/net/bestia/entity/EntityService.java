@@ -93,10 +93,9 @@ public class EntityService {
 	 */
 	public void delete(Entity entity) {
 		Objects.requireNonNull(entity);
+		LOG.trace("delete(): {}", entity);
 
 		final long eid = entity.getId();
-		LOG.trace("Deleting entity: {}", eid);
-
 		entities.lock(eid);
 
 		try {
@@ -117,6 +116,7 @@ public class EntityService {
 	 *            Removes the entity.
 	 */
 	public void delete(long entityId) {
+		LOG.trace("delete(): {}", entityId);
 		delete(entities.get(entityId));
 	}
 
@@ -128,7 +128,7 @@ public class EntityService {
 	 *            The entity to put into the memory database.
 	 */
 	private void saveEntity(Entity entity) {
-		LOG.trace("Saving entity: {}", entity);
+		LOG.trace("saveEntity(): {}", entity);
 
 		// Remove entity context since it can not be serialized.
 		entities.lock(entity.getId());
@@ -284,7 +284,7 @@ public class EntityService {
 	public void attachComponents(Entity e, Collection<Component> attachComponents) {
 		Objects.requireNonNull(e);
 		Objects.requireNonNull(components);
-		
+
 		LOG.trace("Attaching components: {} to entity: {}.", attachComponents, e.getId());
 
 		// Add component to entity and to the comp map.
@@ -417,6 +417,12 @@ public class EntityService {
 
 			final Component comp = components.get(componentId);
 
+			if (comp == null) {
+				LOG.warn("Component with ID {} not attached to entity {}. Skipping removal.", componentId,
+						entity.getId());
+				continue;
+			}
+
 			LOG.trace("Preparing to remove: {} from entity: {}", comp, entity);
 			prepareComponentRemove(entity, comp);
 
@@ -505,8 +511,7 @@ public class EntityService {
 	public <T extends Component> Optional<T> getComponent(Entity e, Class<T> clazz) {
 		Objects.requireNonNull(e);
 		Objects.requireNonNull(clazz);
-
-
+		LOG.trace("getComponent(): {}, {}", e, clazz);
 
 		final long compId = e.getComponentId(clazz);
 
@@ -523,7 +528,17 @@ public class EntityService {
 			components.unlock(compId);
 		}
 
-		if (comp == null || !comp.getClass().isAssignableFrom(clazz)) {
+		if (comp == null) {
+			LOG.error("Component {} (id: {}) owned by entity {} can not be found.", clazz, compId, e);
+			e.removeComponent(compId);
+			saveEntity(e);
+			return Optional.empty();
+		}
+
+		if (!comp.getClass().isAssignableFrom(clazz)) {
+			LOG.error("Loaded component {} owned by entity {} has wrong class.", comp, e);
+			e.removeComponent(comp);
+			saveEntity(e);
 			return Optional.empty();
 		}
 

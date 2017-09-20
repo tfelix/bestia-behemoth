@@ -113,7 +113,7 @@ public class Entity implements Serializable {
 
 	@Override
 	public String toString() {
-		return String.format("Entity[id: %d]", getId());
+		return String.format("Entity[id: %d, comps: %s]", getId(), components);
 	}
 
 	@Override

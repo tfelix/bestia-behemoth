@@ -120,7 +120,7 @@ public class LoginService {
 			LOG.warn("Could not login because of exception.", e);
 			return null;
 		}
-		
+
 		return account;
 	}
 
@@ -135,6 +135,8 @@ public class LoginService {
 		if (accId < 0) {
 			throw new IllegalArgumentException("Account ID must be positive.");
 		}
+		// Unregister connection.
+		LOG.debug("logout: {}.", accId);
 
 		final Account acc = accountDao.findOne(accId);
 
@@ -150,21 +152,27 @@ public class LoginService {
 		akkaApi.sendToClient(logoutMsg);
 		akkaApi.sendToActor(ClientConnectionActor.getActorName(accId), logoutMsg);
 
-		// Unregister connection.
-		LOG.debug("Logout acc id: {}.", accId);
-
 		final Set<Entity> playerEntities = playerEntityService.getPlayerEntities(accId);
 
-		try {
-			playerEntities.forEach(playerEntityService::save);
-		} catch (Exception e) {
-			LOG.warn("Something went wrong saving entities.", e);
-		}
+		playerEntities.forEach(entity -> {
+			try {
+				playerEntityService.save(entity);
+			} catch (Exception e) {
+				LOG.warn("Something went wrong saving entity {}.", entity, e);
+			}
+		});
 
+		// Only remove the player bestia.
 		playerEntityService.removePlayerBestias(accId);
 
 		// Recycle all entities.
-		playerEntities.forEach(entityService::delete);
+		playerEntities.forEach(entity -> {
+			try {
+				entityService.delete(entity);
+			} catch (Exception e) {
+				LOG.warn("Something went wrong deleting entity {}.", entity, e);
+			}
+		});
 	}
 
 	public void logoutAllFromServer(Address address) {

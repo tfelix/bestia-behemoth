@@ -7,7 +7,9 @@ import { ChatTrait } from '../entities/traits/ChatTrait';
 
 
 /**
- * Synchronizes the entity sprite position with the current sprite position of the game engine.
+ * Synchronizes the entity sprite position with the current sprite position of the game 
+ * engine. Since an entity holds some very complex data structures the renderer is broken 
+ * apart in differnt sub renderer which are responsible for single traits of an entity.
  */
 export default class EntityRenderer extends Renderer {
 

@@ -52,15 +52,20 @@ public class Interceptor {
 	 * @param e
 	 * @param c
 	 */
-	private void checkComponentOwner(Entity e, Component c) {
+	private boolean ownsComponent(Entity e, Component c) {
 		if (e.getId() != c.getEntityId()) {
-			throw new IllegalArgumentException("Component is not owned by that entity.");
+			LOG.warn("Component {} is not owned by entity: {}.", c, e);
+			return false;
 		}
+
+		return true;
 	}
 
 	public void interceptUpdate(EntityService entityService, Entity entity, Component component) {
-		checkComponentOwner(entity, component);
-		
+		if (!ownsComponent(entity, component)) {
+			return;
+		}
+
 		// Check possible interceptors.
 		if (interceptors.containsKey(component.getClass())) {
 			LOG.debug("Intercepting update component {} for: {}.", component, entity);
@@ -73,11 +78,13 @@ public class Interceptor {
 	}
 
 	public void interceptCreated(EntityService entityService, Entity entity, Component component) {
-		checkComponentOwner(entity, component);
-		
+		if (!ownsComponent(entity, component)) {
+			return;
+		}
+
 		if (interceptors.containsKey(component.getClass())) {
 			LOG.debug("Intercepting created component {} for: {}.", component, entity);
-			
+
 			interceptors.get(component.getClass()).forEach(intercep -> {
 				// Need to cast so we dont get problems with typings.
 				intercep.triggerCreateAction(entityService, entity, component);
@@ -86,8 +93,10 @@ public class Interceptor {
 	}
 
 	public void interceptDeleted(EntityService entityService, Entity entity, Component component) {
-		checkComponentOwner(entity, component);
-		
+		if (!ownsComponent(entity, component)) {
+			return;
+		}
+
 		// Check possible interceptors.
 		if (interceptors.containsKey(component.getClass())) {
 			LOG.debug("Intercepting update component {} for: {}.", component, entity);

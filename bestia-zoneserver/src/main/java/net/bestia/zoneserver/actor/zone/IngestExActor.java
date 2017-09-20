@@ -177,7 +177,7 @@ public class IngestExActor extends AbstractActor {
 	private void handleIncomingMessage(Object msg) {
 		if (redirections.containsKey(msg.getClass())) {
 			redirections.get(msg.getClass()).forEach(ref -> {
-				LOG.warning("IngestEx forwarding: {} to {}.", msg, ref);
+				LOG.debug("IngestEx forwarding: {} to {}.", msg, ref);
 				ref.forward(msg, getContext());
 			});
 		} else {

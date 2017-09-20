@@ -64,6 +64,9 @@ public class EntityPersistService {
 		}
 
 		final Entity entity = serializer.deserialize(data.getData());
+		
+		LOG.debug("Loaded entity: {} for id: {}.", entity, id);
+		
 		return entity;
 	}
 
