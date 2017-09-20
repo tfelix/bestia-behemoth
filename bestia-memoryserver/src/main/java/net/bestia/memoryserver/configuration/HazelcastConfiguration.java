@@ -25,6 +25,7 @@ import net.bestia.memoryserver.persistance.EntityMapStore;
 public class HazelcastConfiguration {
 	
 	private final static String ENTITIES_MAP_NAME = "entities";
+	private final static String COMPONENTS_MAP_NAME = "components";
 
 	@Bean
 	public HazelcastInstance hazelcastInstance(
@@ -33,25 +34,28 @@ public class HazelcastConfiguration {
 
 		final Config cfg = new ClasspathXmlConfig("hazelcast.xml");
 		// Temporarly disabled the mapstore since we got concurrenty problems.
-		//Map<String, MapConfig> mapConfigs = cfg.getMapConfigs();
+		Map<String, MapConfig> mapConfigs = cfg.getMapConfigs();
 
 		// Set our map storages.
-		/*MapConfig entitiesCfg = mapConfigs.get(ENTITIES_MAP_NAME);
+		MapConfig entitiesCfg = mapConfigs.get(ENTITIES_MAP_NAME);
 
 		MapStoreConfig mapStoreCfg = new MapStoreConfig();
 		mapStoreCfg.setImplementation(entityMapStore);
+		mapStoreCfg.setWriteDelaySeconds(1);
 
 		entitiesCfg.setMapStoreConfig(mapStoreCfg);
+		
 		mapConfigs.put(ENTITIES_MAP_NAME, entitiesCfg);
-
+		
 		MapConfig componentCfg = new MapConfig();
 
 		mapStoreCfg = new MapStoreConfig();
 		mapStoreCfg.setImplementation(compMapStore);
+		mapStoreCfg.setWriteDelaySeconds(1);
 
 		componentCfg.setMapStoreConfig(mapStoreCfg);
 		
-		mapConfigs.put("components", componentCfg);*/
+		mapConfigs.put(COMPONENTS_MAP_NAME, componentCfg);
 
 		return Hazelcast.newHazelcastInstance(cfg);
 	}

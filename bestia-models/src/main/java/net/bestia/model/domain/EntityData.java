@@ -2,6 +2,7 @@ package net.bestia.model.domain;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -22,6 +23,7 @@ public class EntityData implements Serializable {
 	@Id
 	private long id;
 
+	@Column(nullable = false, length = 65000)
 	private byte[] data;
 
 	public long getId() {
