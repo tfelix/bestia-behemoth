@@ -82,13 +82,13 @@ public class EntitySyncActor extends AbstractActor {
 
 		final Set<Entity> visibleEntities = entityService.getCollidingEntities(updateRect)
 				.stream()
-				.filter(e -> entityService.hasComponent(e, VisibleComponent.class))
-				.filter(e -> entityService.hasComponent(e, TagComponent.class))
-				.filter(e -> entityService.hasComponent(e, PositionComponent.class))
+				//.filter(e -> entityService.hasComponent(e, VisibleComponent.class))
+				//.filter(e -> entityService.hasComponent(e, TagComponent.class))
+				//.filter(e -> entityService.hasComponent(e, PositionComponent.class))
 				.collect(Collectors.toSet());
 		
 		// Prepare the builder so it does not need to get created every time.
-		EntityUpdateMessage.Builder builder = new EntityUpdateMessage.Builder();
+		final EntityUpdateMessage.Builder builder = new EntityUpdateMessage.Builder(requestAccId);
 		builder.setAction(EntityAction.UPDATE);
 
 		for (Entity e : visibleEntities) {

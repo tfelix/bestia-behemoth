@@ -29,21 +29,11 @@ public class EntityUpdateMessage extends EntityJsonMessage {
 		private EntityAction action;
 		private List<Tag> tags = new ArrayList<>();
 		private long eid;
-		private long accountId;
+		private final long accountId;
 
-		public Builder(EntityUpdateMessage oldMsg) {
+		public Builder(long requestAccId) {
 
-			this.spriteInfo = oldMsg.spriteInfo;
-			this.x = oldMsg.x;
-			this.y = oldMsg.y;
-			this.action = oldMsg.action;
-			this.tags = oldMsg.tags;
-			this.accountId = oldMsg.getAccountId();
-			this.eid = oldMsg.getEntityId();
-		}
-
-		public Builder() {
-
+			this.accountId = requestAccId;
 		}
 
 		public void setEid(long eid) {

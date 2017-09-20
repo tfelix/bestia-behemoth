@@ -1,5 +1,9 @@
 package net.bestia.zoneserver;
 
+import org.slf4j.LoggerFactory;
+
+import org.slf4j.Logger;
+
 import akka.actor.ActorContext;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
@@ -29,6 +33,8 @@ import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
  */
 public final class AkkaSender {
 
+	private final static Logger LOG = LoggerFactory.getLogger(AkkaSender.class);
+
 	private AkkaSender() {
 		// no op.
 	}
@@ -45,10 +51,15 @@ public final class AkkaSender {
 	 */
 	public static void sendClient(ActorContext context, JsonMessage msg) {
 
+		if (msg.getAccountId() == 0) {
+			LOG.warn("AccID 0 is not valid. Message wont get delivered.");
+		}
+
 		final String actorName = AkkaCluster.getNodeName(
 				IngestExActor.NAME,
 				ConnectionManagerActor.NAME,
 				ClientConnectionActor.getActorName(msg.getAccountId()));
+
 		final ActorSelection actor = context.actorSelection(actorName);
 		actor.tell(msg, ActorRef.noSender());
 	}

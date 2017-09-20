@@ -96,7 +96,7 @@ public class EntityMapStore implements MapStore<Long, Entity> {
 	@Override
 	public synchronized void store(Long id, Entity entity) {
 
-		LOG.trace("Persisting entity: {}", entity);
+		LOG.trace("Store entity: {}", entity);
 
 		entityPersistService.store(entity);
 
@@ -105,6 +105,8 @@ public class EntityMapStore implements MapStore<Long, Entity> {
 	@Override
 	public synchronized void storeAll(Map<Long, Entity> entities) {
 
+		LOG.trace("Store all {} entities.", entities);
+		
 		for (Entity entity : entities.values()) {
 			entityPersistService.store(entity);
 		}

@@ -112,7 +112,7 @@ public class ClientConnectionActor extends AbstractActor {
 	 *            The account ID.
 	 * @return The unique name of the connection actor.
 	 */
-	public static String getActorName(long accId) {
+	public static String getActorName(long accId) {		
 		return String.format(ACTOR_NAME, accId);
 	}
 

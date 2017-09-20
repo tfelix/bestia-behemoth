@@ -78,11 +78,13 @@ public class EntityPersistService {
 	 */
 	public void store(Entity entity) {
 		Objects.requireNonNull(entity);
+		LOG.trace("store(): {}", entity);
 
 		// Only store if it was flagged with a tag.
 		final Optional<TagComponent> tagComp = entityService.getComponent(entity, TagComponent.class);
 
 		if (!tagComp.isPresent() || !tagComp.get().has(TagComponent.Tag.PERSIST)) {
+			LOG.trace("Entity {} not tagged with PERSIST. Dont store.", entity);
 			return;
 		}
 		
