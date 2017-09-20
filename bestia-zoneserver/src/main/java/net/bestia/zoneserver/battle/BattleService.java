@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +20,7 @@ import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.StatusComponent;
 import net.bestia.messages.attack.AttackUseMessage;
 import net.bestia.model.battle.Damage;
+import net.bestia.model.dao.AttackDAO;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusValues;
@@ -40,6 +43,9 @@ public class BattleService {
 
 	private final static Logger LOG = LoggerFactory.getLogger(BattleService.class);
 
+	private final Random rand = ThreadLocalRandom.current();
+
+	private final AttackDAO atkDao;
 	private final EntityService entityService;
 	private final StatusService statusService;
 	private final MapService mapService;
@@ -48,11 +54,13 @@ public class BattleService {
 	public BattleService(
 			EntityService entityService,
 			StatusService statusService,
-			MapService mapService) {
+			MapService mapService,
+			AttackDAO atkDao) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.statusService = Objects.requireNonNull(statusService);
 		this.mapService = Objects.requireNonNull(mapService);
+		this.atkDao = Objects.requireNonNull(atkDao);
 	}
 
 	/**
@@ -120,6 +128,21 @@ public class BattleService {
 	}
 
 	/**
+	 * Alias for {@link #attackEntity(Attack, Entity, Entity)}.
+	 * 
+	 * @param attackId
+	 * @param atkEntityId
+	 * @param defEntityId
+	 * @return
+	 */
+	public Damage attackEntity(int attackId, long atkEntityId, long defEntityId) {
+		final Entity attacker = entityService.getEntity(atkEntityId);
+		final Entity defender = entityService.getEntity(defEntityId);
+		final Attack atk = atkDao.findOne(attackId);
+		return attackEntity(atk, attacker, defender);
+	}
+
+	/**
 	 * This method should be used if a entity directly attacks another entity.
 	 * Both entities must posess a {@link StatusComponent}.
 	 * 
@@ -150,6 +173,7 @@ public class BattleService {
 			return null;
 		}
 
+		// Prepare the battle context.
 		final StatusPoints atkStatus = statusService.getStatusPoints(attacker).get();
 		final StatusPoints defStatus = statusService.getStatusPoints(defender).get();
 
@@ -157,14 +181,21 @@ public class BattleService {
 		final StatusBasedValues defStatusBased = statusService.getStatusBasedValues(defender).get();
 
 		Damage primaryDamage;
+		BattleContext.Builder builder = new BattleContext.Builder(usedAttack, attacker);
+		builder.setAttackerStatus(atkStatus)
+				.setDefenderStatus(defStatus)
+				.setAttackerBasedValues(atkStatusBased)
+				.setDefenderBasedValues(defStatusBased);
+
+		final BattleContext battleCtx = builder.build();
 
 		// Check if this was a skill or a normal attack.
 		if (usedAttack.getId() == Attack.DEFAULT_MELEE_ATTACK_ID) {
-			primaryDamage = calculateMeleeDamage(attacker, defender);
+			primaryDamage = calculateMeleeDamage(battleCtx);
 		} else if (usedAttack.getId() == Attack.DEFAULT_RANGE_ATTACK_ID) {
-			primaryDamage = calculateRangeDamage();
+			primaryDamage = calculateRangePhysicalDamage(battleCtx);
 		} else {
-			primaryDamage = calculateRangeDamage();
+			primaryDamage = calculateRangePhysicalDamage(battleCtx);
 		}
 
 		Damage receivedDamage = takeDamage(defender, primaryDamage);
@@ -172,12 +203,31 @@ public class BattleService {
 		return receivedDamage;
 	}
 
-	private Damage calculateRangeDamage() {
+	private Damage calculateRangePhysicalDamage(BattleContext battleCtx) {
 		return Damage.getHit(10);
 	}
 
-	private Damage calculateMeleeDamage(Entity attacker, Entity defender) {
-		return Damage.getHit(10);
+	/**
+	 * This calculates the taken battle damage. Currently this is only a
+	 * placeholder until the real damage formula is invented.
+	 * 
+	 * Please not that this method ONLY calculates the damage. If the attack is
+	 * controlled by a script this wont get checked by this method anymore. Only
+	 * raw damage calculation is performed.
+	 * 
+	 * @param battleCtx
+	 * @return The calculated damage by this attack.
+	 */
+	private Damage calculateMeleeDamage(BattleContext battleCtx) {
+
+		final int atk = battleCtx.getAttackerStatusPoints().getStrength();
+		final int def = battleCtx.getDefenderStatusPoints().getVitality();
+
+		final float defenseMod = Math.min(0.95f, 1 - battleCtx.getDefenderStatusPoints().getDefense() / 100.f);
+
+		float dmg = (atk + (5 * rand.nextFloat())) * defenseMod - def;
+
+		return Damage.getHit((int) dmg);
 	}
 
 	/**
@@ -202,7 +252,7 @@ public class BattleService {
 		final int damage = trueDamage.getDamage();
 
 		StatusValues values = statusService.getStatusValues(defender).orElseThrow(IllegalArgumentException::new);
-		
+
 		if (values.getCurrentHealth() <= damage) {
 			killEntity(defender);
 			return;

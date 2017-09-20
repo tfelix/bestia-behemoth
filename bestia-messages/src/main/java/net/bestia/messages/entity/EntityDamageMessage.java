@@ -44,7 +44,7 @@ public class EntityDamageMessage extends EntityJsonMessage {
 	/**
 	 * Ctor.
 	 * 
-	 * @param uuid
+	 * @param entityId
 	 *            UUID of the entity receiving this damage.
 	 * @param dmg
 	 *            The amount of damage to receive.s

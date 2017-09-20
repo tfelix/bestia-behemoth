@@ -15,7 +15,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.ComponentMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.battle.AttackPlayerUseActor;
+import net.bestia.zoneserver.actor.battle.AttackUseActor;
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
@@ -127,7 +127,7 @@ public class IngestExActor extends AbstractActor {
 		SpringExtension.actorOf(getContext(), EntitySyncActor.class);
 
 		// === Attacking ===
-		SpringExtension.actorOf(getContext(), AttackPlayerUseActor.class);
+		SpringExtension.actorOf(getContext(), AttackUseActor.class);
 
 		// === UI ===
 		SpringExtension.actorOf(getContext(), ClientVarActor.class);
