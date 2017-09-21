@@ -22,6 +22,9 @@ import net.bestia.entity.component.PlayerStatusComponentSetter;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.PositionComponentSetter;
 import net.bestia.entity.component.StatusComponent;
+import net.bestia.entity.component.TagComponent;
+import net.bestia.entity.component.TagComponent.Tag;
+import net.bestia.entity.component.TagComponentSetter;
 import net.bestia.entity.component.VisibleComponent;
 import net.bestia.entity.component.VisibleComponentSetter;
 
@@ -46,6 +49,7 @@ public class PlayerBestiaEntityFactory {
 				.addComponent(InventoryComponent.class)
 				.addComponent(PositionComponent.class)
 				.addComponent(PlayerComponent.class)
+				.addComponent(TagComponent.class)
 				.addComponent(LevelComponent.class)
 				.addComponent(StatusComponent.class);
 
@@ -78,6 +82,7 @@ public class PlayerBestiaEntityFactory {
 		final PositionComponentSetter posSetter = new PositionComponentSetter(playerBestia.getCurrentPosition());
 		final VisibleComponentSetter visSetter = new VisibleComponentSetter(playerBestia.getOrigin().getSpriteInfo());
 		final PlayerComponentSetter playerSetter = new PlayerComponentSetter(playerBestia);
+		final TagComponentSetter tagSetter = new TagComponentSetter(Tag.PLAYER);
 		final LevelComponentSetter levelSetter = new LevelComponentSetter(playerBestia.getLevel(),
 				playerBestia.getExp());
 		final PlayerStatusComponentSetter statusSetter = new PlayerStatusComponentSetter(playerBestia);
@@ -87,6 +92,7 @@ public class PlayerBestiaEntityFactory {
 				visSetter,
 				playerSetter,
 				levelSetter,
+				tagSetter,
 				statusSetter);
 
 		final Entity playerEntity = entityFactory.buildEntity(playerBestiaBlueprint, comps);

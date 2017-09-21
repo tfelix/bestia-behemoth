@@ -294,7 +294,7 @@ public class EntityService {
 				.filter(c -> c.getEntityId() != 0 && c.getEntityId() != entityId)
 				.findAny()
 				.ifPresent(x -> {
-					throw new IllegalArgumentException("Component was already attached to entity: " + x.toString());
+					throw new IllegalArgumentException("Component is already attached to other entity: " + x.toString());
 				});
 
 		try {

@@ -52,6 +52,8 @@ public class EntitySyncActor extends AbstractActor {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
+
+		//LOG.error("Init gecalled.");
 	}
 
 	@Override
@@ -62,9 +64,15 @@ public class EntitySyncActor extends AbstractActor {
 	}
 
 	@Override
+	public void postRestart(Throwable reason) throws Exception {
+		//LOG.error(reason, "WTF");
+	}
+
+	@Override
 	public void preStart() throws Exception {
 		final RedirectMessage msg = RedirectMessage.get(EntitySyncRequestMessage.class);
 		context().parent().tell(msg, getSelf());
+		//LOG.error("Was ist hier los?");
 	}
 
 	private void onSyncRequest(EntitySyncRequestMessage msg) {
@@ -82,12 +90,13 @@ public class EntitySyncActor extends AbstractActor {
 
 		final Set<Entity> visibleEntities = entityService.getCollidingEntities(updateRect)
 				.stream()
-				//.filter(e -> entityService.hasComponent(e, VisibleComponent.class))
-				//.filter(e -> entityService.hasComponent(e, TagComponent.class))
-				//.filter(e -> entityService.hasComponent(e, PositionComponent.class))
+				.filter(e -> entityService.hasComponent(e, VisibleComponent.class))
+				.filter(e -> entityService.hasComponent(e, TagComponent.class))
+				.filter(e -> entityService.hasComponent(e, PositionComponent.class))
 				.collect(Collectors.toSet());
-		
-		// Prepare the builder so it does not need to get created every time.
+
+		// Prepare the builder so it does not need to get created every
+		// time.
 		final EntityUpdateMessage.Builder builder = new EntityUpdateMessage.Builder(requestAccId);
 		builder.setAction(EntityAction.UPDATE);
 
@@ -98,11 +107,11 @@ public class EntitySyncActor extends AbstractActor {
 			final TagComponent tagComp = entityService.getComponent(e, TagComponent.class).get();
 
 			final SpriteInfo sprite = visComp.getVisual();
-			
+
 			builder.setSpriteInfo(sprite);
 			builder.setPosition(posComp.getPosition());
 			builder.setEid(e.getId());
-			
+
 			builder.getTags().clear();
 			builder.getTags().addAll(tagComp.getAllTags());
 
@@ -110,6 +119,7 @@ public class EntitySyncActor extends AbstractActor {
 
 			AkkaSender.sendClient(getContext(), updateMsg);
 		}
+
 	}
 
 }

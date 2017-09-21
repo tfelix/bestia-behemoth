@@ -5,12 +5,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.ComponentMessage;
@@ -149,6 +151,7 @@ public class IngestExActor extends AbstractActor {
 					componentRedirActor.tell(msg, getSelf());
 				})
 				.match(RedirectMessage.class, this::handleMessageRedirectRequest)
+				.match(Terminated.class, this::handleRouteeStopped)
 				.matchAny(this::handleIncomingMessage)
 				.build();
 	}
@@ -163,11 +166,43 @@ public class IngestExActor extends AbstractActor {
 		LOG.debug("Installing message route for: {} to: {}.", requestedClasses.getClasses(), getSender());
 
 		requestedClasses.getClasses().forEach(clazz -> {
+
 			if (!redirections.containsKey(clazz)) {
 				redirections.put(clazz, new ArrayList<>());
 			}
-			redirections.get(clazz).add(getSender());
+
+			// If a actor terminates we must delete him from our routing list.
+			final ActorRef routee = getSender();
+			getContext().watch(routee);
+
+			redirections.get(clazz).add(routee);
 		});
+	}
+
+	/**
+	 * Called if a routee has stopped working. Must be deleted from the list.
+	 */
+	private void handleRouteeStopped(Terminated msg) {
+		
+		// Maybe the complete gets empty and can be removed.
+		Class<?> classToDelete = null;
+
+		for(Entry<Class<?>, List<ActorRef>> entry : redirections.entrySet()) {
+			if(entry.getValue().contains(msg.actor())) {
+				
+				entry.getValue().remove(msg.getActor());
+				
+				LOG.debug("Deleting dead actor route: {}.", msg.actor());
+				
+				if(entry.getValue().isEmpty()) {
+					classToDelete = entry.getKey();
+				}
+			}
+		}
+		
+		if(classToDelete != null) {
+			redirections.remove(classToDelete);
+		}
 	}
 
 	/**
@@ -176,10 +211,13 @@ public class IngestExActor extends AbstractActor {
 	 */
 	private void handleIncomingMessage(Object msg) {
 		if (redirections.containsKey(msg.getClass())) {
-			redirections.get(msg.getClass()).forEach(ref -> {
+			
+			final List<ActorRef> routees = redirections.get(msg.getClass());
+			routees.forEach(ref -> {
 				LOG.debug("IngestEx forwarding: {} to {}.", msg, ref);
 				ref.forward(msg, getContext());
 			});
+			
 		} else {
 			unhandled(msg);
 		}

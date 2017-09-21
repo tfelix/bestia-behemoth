@@ -41,7 +41,12 @@ public class TagComponent extends Component {
 		 * A natural resource which can be harvested if the needed skills are
 		 * learned by the player.
 		 */
-		RESOURCE
+		RESOURCE, 
+		
+		/**
+		 * Entity is under the control of a player.
+		 */
+		PLAYER
 	}
 
 	private EnumSet<Tag> tags = EnumSet.noneOf(Tag.class);
