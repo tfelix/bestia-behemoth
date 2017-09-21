@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
@@ -25,6 +26,12 @@ public class Interceptor {
 	private static final Logger LOG = LoggerFactory.getLogger(Interceptor.class);
 	private final Map<Class<? extends Component>, List<BaseComponentInterceptor<? extends Component>>> interceptors = new HashMap<>();
 
+	@Autowired
+	public Interceptor(List<BaseComponentInterceptor<? extends Component>> interceptors) {
+		
+		interceptors.forEach(this::addInterceptor);
+	}
+	
 	/**
 	 * Adds an intercepter which gets notified if certain components will
 	 * change. He then can perform actions like update the clients in range
@@ -35,6 +42,7 @@ public class Interceptor {
 	 */
 	public void addInterceptor(BaseComponentInterceptor<? extends Component> interceptor) {
 		Objects.requireNonNull(interceptor);
+		LOG.debug("Adding intercetor: {}.", interceptor);
 
 		final Class<? extends Component> triggerType = interceptor.getTriggerType();
 
