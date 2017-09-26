@@ -23,5 +23,4 @@ public interface BestiaAttackDAO extends org.springframework.data.repository.Rep
 	 */
 	@Query("FROM BestiaAttack ba WHERE ba.bestia.id = :bestiaId ORDER BY ba.minLevel ASC")
 	public List<BestiaAttack> getAllAttacksForBestia(@Param("bestiaId") int bestiaId);
-
 }

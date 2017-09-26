@@ -64,19 +64,6 @@ public class BattleService {
 	}
 
 	/**
-	 * Checks if the given entity is able to cast the attack (it knows it) and
-	 * also if the current mana is enough to use this skill. This has to take
-	 * into account any mana cost reducing status effects.
-	 * 
-	 * @param attacker
-	 * @param attackId
-	 * @return
-	 */
-	public boolean canUseAttack(Entity attacker, int attackId) {
-		return true;
-	}
-
-	/**
 	 * It must be checked if an entity is eligible for receiving damage. This
 	 * means that an {@link StatusComponent} as well as a
 	 * {@link PositionComponent} must be present.
@@ -104,8 +91,11 @@ public class BattleService {
 	 * @param atkMsg
 	 * @param usedAttack
 	 */
-	public void attackGround(Attack usedAttack, Entity attacker, Point target) {
-
+	public void attackGround(int atkId, long attackerId, Point target) {
+		
+		final Attack usedAttack = atkDao.findOne(atkId);
+		final Entity attacker = entityService.getEntity(attackerId);
+		
 		if (canEntityReceiveDamage(attacker)) {
 			return;
 		}
