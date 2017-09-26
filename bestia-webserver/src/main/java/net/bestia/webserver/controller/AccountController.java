@@ -79,7 +79,6 @@ public class AccountController {
 	 *            The name of the account to login.
 	 * @param password
 	 *            The password to this account.
-	 * @return
 	 */
 	@CrossOrigin(origins = "http://localhost")
 	@RequestMapping("login")
@@ -104,7 +103,6 @@ public class AccountController {
 	 *            The new password.
 	 * @param email
 	 *            Name or E-Mail of the account to reset the password.
-	 * @return
 	 */
 	@CrossOrigin(origins = "http://localhost")
 	@RequestMapping("password")
@@ -147,9 +145,9 @@ public class AccountController {
 		final UserNameCheck checkedUsername = akkaApi.checkAvailableUserName(usernameCheck);
 
 		if (checkedUsername == null) {
-			return new ResponseEntity<UserNameCheck>(HttpStatus.SERVICE_UNAVAILABLE);
+			return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
 		} else {
-			return new ResponseEntity<UserNameCheck>(checkedUsername, HttpStatus.OK);
+			return new ResponseEntity<>(checkedUsername, HttpStatus.OK);
 		}
 	}
 }
