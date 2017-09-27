@@ -60,15 +60,31 @@ public class AttackService {
 	 */
 	public void learnAttack(long entityId, int attackId) {
 		LOG.debug("Entity {} learns attack {}.");
-	
+
 	}
 
+	/**
+	 * Checks if the bestia knows this attack.
+	 * 
+	 * @param entityId
+	 * @param attackId
+	 * @return
+	 */
 	public boolean knowsAttack(long entityId, int attackId) {
 		final Attack attack = attackDao.findOne(attackId);
 		final Entity attacker = entityService.getEntity(attackId);
 		return knowsAttack(attacker, attack);
 	}
 
+	/**
+	 * This method checks if the bestia has learned the attack and can use it.
+	 * In order to do so it uses the {@link AttackListComponent}. If the entity
+	 * does not own this component false is returned.
+	 * 
+	 * @param entity
+	 * @param attack
+	 * @return TRUE if the entity knows the attack FALSE otherwise.
+	 */
 	public boolean knowsAttack(Entity entity, Attack attack) {
 		// TODO Fixme
 		return true;
