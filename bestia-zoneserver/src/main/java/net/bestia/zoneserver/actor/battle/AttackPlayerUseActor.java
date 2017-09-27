@@ -11,9 +11,7 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.PlayerEntityService;
 import net.bestia.messages.attack.AttackUseMessage;
 import net.bestia.messages.internal.entity.EntitySkillMessage;
-import net.bestia.model.dao.AttackDAO;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
-import net.bestia.zoneserver.battle.AttackService;
 
 /**
  * This actor simply performs some safety checks for incoming player attack
@@ -29,20 +27,12 @@ public class AttackPlayerUseActor extends AbstractActor {
 
 	public final static String NAME = "attackPlayerUse";
 
-	//private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-
 	private final PlayerEntityService playerEntityService;
 
-	private final AttackService attackService;
-
 	@Autowired
-	public AttackPlayerUseActor(
-			PlayerEntityService playerEntityService,
-			AttackDAO attackDao,
-			AttackService attackService) {
+	public AttackPlayerUseActor(PlayerEntityService playerEntityService) {
 
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
-		this.attackService = Objects.requireNonNull(attackService);
 	}
 
 	@Override
@@ -67,11 +57,6 @@ public class AttackPlayerUseActor extends AbstractActor {
 	private void handleAttackMessage(AttackUseMessage msg) {
 
 		final Entity pbe = playerEntityService.getActivePlayerEntity(msg.getAccountId());
-
-		// We must check if all preconditions for using the attack are
-		// fulfilled.
-
-		attackService.knowsAttack(pbe, msg.getAttackId());
 
 		// Does the target of the attack matches the target provided in the
 		// message?

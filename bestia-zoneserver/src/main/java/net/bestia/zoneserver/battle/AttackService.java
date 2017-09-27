@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.battle;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -86,8 +87,14 @@ public class AttackService {
 	 * @return TRUE if the entity knows the attack FALSE otherwise.
 	 */
 	public boolean knowsAttack(Entity entity, Attack attack) {
-		// TODO Fixme
-		return true;
+
+		final Optional<AttackListComponent> attacks = entityService.getComponent(entity, AttackListComponent.class);
+
+		if (!attacks.isPresent()) {
+			return false;
+		}
+
+		return attacks.get().contains(attack.getId());
 	}
 
 	/**
