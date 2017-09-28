@@ -5,7 +5,12 @@ public enum AttackType {
 	/**
 	 * Attack is based on special attack stat its nature is a magic one.
 	 */
-	MAGIC,
+	MELEE_MAGIC,
+	
+	/**
+	 * A ranged magic attack.
+	 */
+	RANGED_MAGIC,
 
 	/**
 	 * Attack is based on normal attack stat since its a physical attack.

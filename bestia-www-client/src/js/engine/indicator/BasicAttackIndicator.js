@@ -2,6 +2,7 @@ import Indicator from './Indicator.js';
 import Signal from '../../io/Signal.js';
 import WorldHelper from '../map/WorldHelper.js';
 import Message from '../../io/messages/Message.js';
+import LOG from '../../util/Log';
 import { engineContext } from '../EngineData';
 
 /**
@@ -93,21 +94,7 @@ export default class BasicAttackIndicator extends Indicator {
 		var d = WorldHelper.getDistance(player.getPosition(), pointerCords);
 		
 		if(d > this.RANGE) {
-			// Move to target.
-			/*
-			var path = this._ctx.zone.findPath(player.position, pointerCords).nodes;
-
-			// Path not found.
-			if (path.length === 0) {
-				return;
-			}
-
-			path = path.reverse();
-			let msg = new Message.BestiaMove(player.playerBestiaId, path, this._ctx.playerBestia.walkspeed());
-			this._ctx.pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
-
-			// Start movement locally as well.
-			player.moveTo(path, this._ctx.playerBestia.walkspeed());*/
+			LOG.warn('Out of range.');
 		} else {
 			// Attack.
 			let msg = new Message.BasicMeleeAttackUse(this._targetEntity.id);
