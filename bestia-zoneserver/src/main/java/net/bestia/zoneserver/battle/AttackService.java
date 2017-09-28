@@ -3,21 +3,19 @@ package net.bestia.zoneserver.battle;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.StatusService;
 import net.bestia.entity.component.AttackListComponent;
 import net.bestia.entity.component.LevelComponent;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.StatusComponent;
 import net.bestia.model.dao.AttackDAO;
 import net.bestia.model.domain.Attack;
-import net.bestia.zoneserver.map.MapService;
 
 /**
  * Provides all access to let entities learn attacks.
@@ -32,19 +30,13 @@ public class AttackService {
 
 	private final AttackDAO attackDao;
 	private final EntityService entityService;
-	private final StatusService statusService;
-	private final MapService mapService;
 
 	@Autowired
 	public AttackService(
 			EntityService entityService,
-			StatusService statusService,
-			MapService mapService,
 			AttackDAO atkDao) {
 
 		this.entityService = Objects.requireNonNull(entityService);
-		this.statusService = Objects.requireNonNull(statusService);
-		this.mapService = Objects.requireNonNull(mapService);
 		this.attackDao = Objects.requireNonNull(atkDao);
 	}
 
@@ -104,9 +96,11 @@ public class AttackService {
 	 * 
 	 * @param attacker
 	 * @param attackId
-	 * @return
+	 * @return TRUE of the entity can now use this skill/attack.
 	 */
 	public boolean canUseAttack(long attackerId, int attackId) {
+		
+		// TODO Check line of sight.
 
 		final Attack attack = attackDao.findOne(attackId);
 		final Entity attacker = entityService.getEntity(attackId);
