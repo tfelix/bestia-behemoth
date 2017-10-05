@@ -60,7 +60,7 @@ function getWalkDuration(length, walkspeed) {
  */
 function setPosition(sprite, x, y) {
 
-    // Position directly if we are not moving.
+    // Position directly if we are actually not moving.
     if (!isMoving(sprite, x, y)) {
         sprite.x = x;
         sprite.y = y;

@@ -89,6 +89,8 @@ export default class EntityUpdater {
 		if (entity !== null) {
 			entity.position.x = msg.x;
 			entity.position.y = msg.y;
+		} else {
+			LOG.warn('Position update for entity: ' + msg.eid + ' received. Entity not found.');
 		}
 	}
 }

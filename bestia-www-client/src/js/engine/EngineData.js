@@ -4,7 +4,8 @@ import Pathfinder from './map/Pathfinder';
 import SpriteDescriptionCache from './entities/SpriteDescriptionCache';
 
 /**
- * Contains the data for the phaser engine to render.
+ * Contains the data for the phaser engine to render. This data is accessed
+ * in a global and static way.
  */
 
 var spriteCache = new PhaserSpriteCache();

@@ -1,5 +1,6 @@
 import MID from '../../io/messages/MID';
 import Message from '../../io/messages/Message';
+import LOG from '../../util/Log';
 import { engineContext } from '../EngineData';
 
 const TILE_KEY_PREFIX = 'tiles_';
@@ -98,7 +99,11 @@ export default class TilesetManager {
 				let fns = this._callbacks[gid];
 				delete this._callbacks[gid];
 				fns.forEach(function (fn) {
-					fn(gid, this);
+					try {
+						fn(gid, this);
+					} catch(err) {
+						LOG.error('TilesetManager#_runCallbacks: Error during tileset callback.' + err);
+					}
 				}, this);
 			}
 		}, this);

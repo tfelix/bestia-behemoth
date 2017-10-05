@@ -1,5 +1,3 @@
-/*global Phaser */
-
 import Indicator from './Indicator.js';
 import Message from '../../io/messages/Message.js';
 import WorldHelper from '../map/WorldHelper.js';
@@ -22,14 +20,13 @@ export default class MoveIndicator extends Indicator {
 		this._game = engineContext.game;
 
 		this.playerBestia = null;
+		
 		this._pubsub.subscribe(Signal.BESTIA_SELECTED, function (_, bestia) {
 			this._playerBestia = bestia;
 		}, this);
 	}
 
 	_onPathFound(path) {
-		// Callback function.
-
 		path = path || [];
 
 		if (path.length === 0) {

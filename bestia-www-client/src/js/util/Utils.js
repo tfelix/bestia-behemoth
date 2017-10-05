@@ -26,15 +26,3 @@ export function strStartsWith(str, start) {
 	}
 	return str.slice(0, start.length) == start;
 }
-
-/**
- * Calculates the euclidian distance between the two objects. Both must have a x
- * and y property.
- * 
- * @return {float} Distance between the two points.
- */
-export function distance(d1, d2) {
-	var x = d1.x - d2.x;
-	var y = d1.y - d2.y;
-	return Math.sqrt(x * x + y * y);
-}

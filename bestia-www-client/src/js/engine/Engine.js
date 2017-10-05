@@ -32,7 +32,7 @@ export default class Engine {
 		engineContext.pubsub = pubsub;
 		engineContext.url = url;
 
-		// Create the states.
+		// ==== Create the states ====
 		this.game.state.add('boot', new BootState(this._ctx));
 		this.game.state.add('initial_loading', new InitializeState(this._ctx));
 		this.game.state.add('connecting', new ConnectingState(this._ctx));
@@ -68,11 +68,13 @@ export default class Engine {
 	 */
 	_handlerOnConnectionLost() {
 		LOG.info('Connection lost switching to: connecting state.');
+		
 		this.game.state.start('connecting');
 	}
 
 	_handlerOnFinishedMapload() {
 		LOG.info('Mapload finished. Starting game.');
+		
 		this.game.state.start('game');
 	}
 }

@@ -46,6 +46,7 @@ export class ChatTrait extends Trait {
         }
 
         LOG.debug('Incoming chat message for entity: ' + msg.entityId);
+        
         var entity = entityCache.getEntity(msg.entityId);
         if (!entity) {
             LOG.debug('Entity not found. Cant add chat message.');
@@ -104,7 +105,7 @@ export class ChatTrait extends Trait {
         sprite.chatMsg = box;
 
         this._game.time.events.add(CHAT_DISPLAY_DURATION_MS, function () {
-            // Only destroy the chat message if it was not already replaced by another one.
+            // Only destroy the chat message if it was not yet replaced by another one.
             if (box.alive) {
                 box.destroy();
                 delete sprite.chatMsg;
