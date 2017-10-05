@@ -11,7 +11,7 @@ export default class LatencyResponseMessage {
     constructor(latencyRequestMsg) {
         this.mid = LatencyResponseMessage.MID;
 
-        // Kepp the timestamp.
+        // Keep the timestamp.
         this.s = latencyRequestMsg.s;
     }
 

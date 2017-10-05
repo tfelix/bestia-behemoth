@@ -16,10 +16,15 @@ import Storage from '../util/Storage.js';
  */
 export default class Authenticator {
 	
-	constructor(pubsub) {
+	/**
+	 * 
+	 * @param {Pubsub} pubsub 
+	 * @param {Storage} storage 
+	 */
+	constructor(pubsub, storage) {
 		
 		this._pubsub = pubsub;
-		this._storage = new Storage();
+		this._storage = storage;
 		
 		this._pubsub.subscribe(Signal.IO_CONNECTED, this._onConnected, this);
 		this._pubsub.subscribe(MID.SYSTEM_AUTHREPLY, this._onAuthReply, this);
@@ -47,13 +52,16 @@ export default class Authenticator {
 		LOG.trace('Received auth reply.');
 
 		if(msg.state === 'ACCEPTED') {
+			LOG.debug('Login was accepted.');
 			this._pubsub.publish(Signal.IO_AUTH_CONNECTED, msg);
 		} else {
 			LOG.debug('Login was denied.');
 			this._pubsub.publish(Signal.IO_AUTH_ERROR);
 			this._pubsub.publish(Signal.IO_DISCONNECT);
 			// Go to login if there is wrong data.
-			window.location.replace(Urls.loginHtml);
+			if(window && windows.location) {
+				window.location.replace(Urls.loginHtml);
+			}
 		}
 	}
 	
