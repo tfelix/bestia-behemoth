@@ -11,7 +11,7 @@ export default [{
     file: 'build/js/behemoth.js',
     format: 'iife'
   },
-  sourcemap: true,
+  sourcemap: 'inline',
   plugins: [
     json(),
     replace({
@@ -30,6 +30,9 @@ export default [{
       }
     }),
     babel({
+      babelrc: false,
+      presets: [['es2015', { modules: false }]],
+      plugins: ["external-helpers"],
       exclude: [
         'node_modules/**',
         '*.less'
