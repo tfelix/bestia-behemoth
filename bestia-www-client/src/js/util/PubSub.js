@@ -12,10 +12,6 @@ import LOG from '../util/Log';
  */
 export default class PubSub {
 
-	/**
-	 * @class PubSub
-	 * @constructor
-	 */
 	constructor() {
 
 		/**
