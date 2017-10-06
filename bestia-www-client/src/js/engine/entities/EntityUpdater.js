@@ -13,14 +13,22 @@ import { addEntityMovement } from '../entities/traits/MovementTrait';
  * The updates of the entities are hold back until releaseHold is called.
  * </p>
  * 
- * @param {Bestia.PubSub}
+ * @class 
+ * @param {PubSub}
  *            pubsub - Reference to the bestia publish/subscriber system for
  *            hooking into update calls.
  */
 export default class EntityUpdater {
 
+	/**
+	 * 
+	 * @param {PubSub} pubsub 
+	 */
 	constructor(pubsub) {
 
+		if(!pubsub) {
+			throw 'Pubsub can not be empty or null.';
+		
 		this._pubsub = pubsub;
 
 		// === SUBSCRIBE ===

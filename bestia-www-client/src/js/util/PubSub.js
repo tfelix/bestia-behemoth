@@ -1,7 +1,6 @@
 /**
  * @author Thomas Felix <thomas.felix@tfelix.de>
  * @copyright 2015 Thomas Felix
- * @module util/PubSub
  */
 
 import Signal from '../io/Signal';
@@ -10,14 +9,12 @@ import LOG from '../util/Log';
 /**
  * Publish/Subscriber object. Central object for the game inter communucation.
  * 
- * @class PubSub
  */
 export default class PubSub {
 
 	/**
-	 * Creates a PubSub object.
-	 * 
-	 * @constructs PubSub
+	 * @class PubSub
+	 * @constructor
 	 */
 	constructor() {
 
@@ -36,20 +33,19 @@ export default class PubSub {
 		 */
 		this._currentlyActive = false;
 
+		/**
+		 * @private
+		 */
 		this._publishCache = [];
 	}
 
 	/**
 	 * Subscibes to the bestia publish subscriber model.
 	 * 
-	 * @member PubSub#subscribe
-	 * @param {string}
-	 *            e - Eventname or topic to subscribe to.
-	 * @param {function}
-	 *            fn - Callback function which will get invoked if such an event
+	 * @param {string} e - Eventname or topic to subscribe to.
+	 * @param {callback} fn - Callback function which will get invoked if such an event
 	 *            happens.
-	 * @param {*}
-	 *            [ctx] - Context which is bound to the function.
+	 * @param {*} ctx - Context which is bound to the function.
 	 */
 	subscribe(e, fn, ctx) {
 		if (typeof e !== 'string') {
@@ -71,11 +67,8 @@ export default class PubSub {
 	 * Removes the function from the publisher list. If no function is given it
 	 * removes ALL event handler from the given callback name.
 	 * 
-	 * @method PubSub#unsubscribe
-	 * @param {string}
-	 *            e - Name of the event handler.
-	 * @param {function}
-	 *            fn - Function to be removed from this handler.
+	 * @param {string} e - Name of the event handler.
+	 * @param {callback} fn - Function to be removed from this handler.
 	 * @returns {boolean} TRUE upon success, FALSE otherwise.
 	 */
 	unsubscribe(e, fn) {
@@ -126,9 +119,7 @@ export default class PubSub {
 	/**
 	 * This directly sends a message request to the server. It is shortcut for
 	 * publish(IO_SEND_MESSAGE, data);
-	 * 
-	 * @method PubSub#send
-	 * @public
+	 *
 	 * @param {Object} data - Data to be send to the server.
 	 */
 	send(data) {
