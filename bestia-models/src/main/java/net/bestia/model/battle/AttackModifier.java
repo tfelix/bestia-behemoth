@@ -3,7 +3,7 @@ package net.bestia.model.battle;
 /**
  * The {@link AttackModifier} is used to numerically alter attack parameters.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class AttackModifier {

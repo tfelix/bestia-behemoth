@@ -77,7 +77,7 @@ public class StatusBasedValuesImpl implements Serializable, StatusBasedValues {
 	 * @see net.bestia.model.entity.IStatusBasedValues#getCasttime()
 	 */
 	@Override
-	public float getCasttime() {
+	public float getCasttimeMod() {
 		return 1;
 	}
 
@@ -85,7 +85,7 @@ public class StatusBasedValuesImpl implements Serializable, StatusBasedValues {
 	 * @see net.bestia.model.entity.IStatusBasedValues#getCastduration()
 	 */
 	@Override
-	public float getCastduration() {
+	public float getCastdurationMod() {
 		return 1;
 	}
 
@@ -133,7 +133,7 @@ public class StatusBasedValuesImpl implements Serializable, StatusBasedValues {
 	 * @see net.bestia.model.entity.IStatusBasedValues#getAttackSpeed()
 	 */
 	@Override
-	public int getAttackSpeed() {
+	public float getAttackSpeed() {
 		return 0;
 	}
 
@@ -141,12 +141,12 @@ public class StatusBasedValuesImpl implements Serializable, StatusBasedValues {
 	 * @see net.bestia.model.entity.IStatusBasedValues#getWalkspeed()
 	 */
 	@Override
-	public Walkspeed getWalkspeed() {
+	public Walkspeed getWalkspeedMod() {
 		return Walkspeed.fromFloat(1);
 	}
 
 	@Override
-	public float getCooldown() {
+	public float getCooldownMod() {
 		// TODO Auto-generated method stub
 		return 1.0f;
 	}

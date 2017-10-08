@@ -67,7 +67,7 @@ public class MovingEntityService {
 	public int getMoveDelayMs(Entity entity, Point newPos) {
 
 		final Walkspeed walkspeed = statusService.getStatusBasedValues(entity)
-				.map(StatusBasedValues::getWalkspeed)
+				.map(StatusBasedValues::getWalkspeedMod)
 				.orElse(Walkspeed.ZERO);
 
 		final Optional<Point> pos = entityService.getComponent(entity, PositionComponent.class)

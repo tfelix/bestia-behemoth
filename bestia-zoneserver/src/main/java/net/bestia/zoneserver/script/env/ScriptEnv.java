@@ -17,6 +17,4 @@ public interface ScriptEnv {
 	 * Sets the script variables for this execution.
 	 */
 	void setupEnvironment(Map<String, Object> bindings);
-
-	//void executeScript();
 }

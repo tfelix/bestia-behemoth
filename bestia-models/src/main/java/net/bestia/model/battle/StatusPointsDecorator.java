@@ -22,7 +22,7 @@ public class StatusPointsDecorator implements StatusPoints, Serializable {
 
 	private final StatusPoints wrapped;
 
-	private List<StatusPointsModifier> statusMods = new ArrayList<>();
+	private final List<StatusPointsModifier> statusMods = new ArrayList<>();
 
 	/**
 	 * Ctor. Wrapps the given {@link StatusPoints} object and allows the
@@ -38,7 +38,12 @@ public class StatusPointsDecorator implements StatusPoints, Serializable {
 	}
 
 	public void addModifier(StatusPointsModifier mod) {
-		statusMods.add(Objects.requireNonNull(mod));
+		
+		if(mod == null) {
+			return;
+		}
+		
+		statusMods.add(mod);
 	}
 
 	public void removeModifier(StatusPointsModifier mod) {

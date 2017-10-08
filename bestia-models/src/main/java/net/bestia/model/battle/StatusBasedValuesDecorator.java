@@ -14,7 +14,7 @@ import net.bestia.model.map.Walkspeed;
  * This decorator decorates a {@link StatusBasedValues} and is able to change
  * these values by attaching {@link StatusBasedValueModifier} to it.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class StatusBasedValuesDecorator implements StatusBasedValues, Serializable {
@@ -131,7 +131,7 @@ public class StatusBasedValuesDecorator implements StatusBasedValues, Serializab
 	}
 
 	@Override
-	public float getCasttime() {
+	public float getCasttimeMod() {
 		
 		final float mod = sumFloat(StatusBasedValueModifier::getDodgeMod);
 		final int value = sumInt(StatusBasedValueModifier::getDodgeValue);
@@ -140,7 +140,7 @@ public class StatusBasedValuesDecorator implements StatusBasedValues, Serializab
 	}
 
 	@Override
-	public float getCastduration() {
+	public float getCastdurationMod() {
 		
 		final float mod = sumFloat(StatusBasedValueModifier::getCastDurationMod);
 		final int value = sumInt(StatusBasedValueModifier::getCastDurationValue);
@@ -194,7 +194,7 @@ public class StatusBasedValuesDecorator implements StatusBasedValues, Serializab
 	}
 
 	@Override
-	public int getAttackSpeed() {
+	public float getAttackSpeed() {
 		
 		final float mod = sumFloat(StatusBasedValueModifier::getAttackSpeedMod);
 		final int value = sumInt(StatusBasedValueModifier::getAttackSpeedValue);
@@ -203,7 +203,7 @@ public class StatusBasedValuesDecorator implements StatusBasedValues, Serializab
 	}
 
 	@Override
-	public Walkspeed getWalkspeed() {
+	public Walkspeed getWalkspeedMod() {
 		
 		final float mod = sumFloat(StatusBasedValueModifier::getWalkspeedMod);
 		final int value = sumInt(StatusBasedValueModifier::getWalkspeedValue);
@@ -213,8 +213,8 @@ public class StatusBasedValuesDecorator implements StatusBasedValues, Serializab
 	}
 
 	@Override
-	public float getCooldown() {
-		return wrapped.getCooldown();
+	public float getCooldownMod() {
+		return wrapped.getCooldownMod();
 	}
 
 }

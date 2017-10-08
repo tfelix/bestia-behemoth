@@ -102,6 +102,11 @@ public final class DamageVariables {
 	public void setBonusMagicRangedDamage(int bonusMagicRangedDamage) {
 		this.bonusMagicRangedDamage = bonusMagicRangedDamage;
 	}
+
+	public int getBonusAttack() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 	
 }

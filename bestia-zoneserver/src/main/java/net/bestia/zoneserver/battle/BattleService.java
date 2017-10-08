@@ -288,22 +288,6 @@ public class BattleService {
 		return primaryDamage;
 	}
 
-	/**
-	 * Checks the damage and reduces it by resistances or status effects.
-	 * Returns the reduced damage the damage can be 0 if the damage was negated
-	 * altogether. If there are effects which would be run out because of this
-	 * damage then the checking will NOT run them out. It is only a check. Only
-	 * applying the damage via {@link #takeDamage(Damage)} will trigger this
-	 * removals.
-	 * 
-	 * @param damage
-	 *            The damage to check if taken.
-	 * @return Possibly reduced damage or NULL of it was negated completly.
-	 */
-	/*
-	 * public Damage checkDamage(Damage damage) { return null; }
-	 */
-
 	public void killEntity(Entity killed) {
 		LOG.trace("Entity {} killed.", killed);
 	}

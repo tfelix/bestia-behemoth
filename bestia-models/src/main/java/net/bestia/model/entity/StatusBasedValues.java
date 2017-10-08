@@ -26,13 +26,13 @@ public interface StatusBasedValues {
 	void setLevel(int level);
 
 	/**
-	 * @return Returns the current HP regeneration per tick.
+	 * @return Returns the current HP regeneration per second.
 	 */
 	@JsonProperty("hpr")
 	float getHpRegenRate();
 
 	/**
-	 * @return The current mana regeneration per tick.
+	 * @return The current mana regeneration per second.
 	 */
 	@JsonProperty("manar")
 	float getManaRegenRate();
@@ -59,10 +59,10 @@ public interface StatusBasedValues {
 	int getDodge();
 
 	@JsonProperty("ct")
-	float getCasttime();
-	
+	float getCasttimeMod();
+
 	@JsonProperty("cd")
-	float getCooldown();
+	float getCooldownMod();
 
 	/**
 	 * Modifier to denote how LONG the spells incantation will last once they
@@ -74,7 +74,7 @@ public interface StatusBasedValues {
 	 * @return A modifier of the cast duration.
 	 */
 	@JsonProperty("cdu")
-	float getCastduration();
+	float getCastdurationMod();
 
 	@JsonIgnore
 	int getWillpowerResistance();
@@ -91,9 +91,15 @@ public interface StatusBasedValues {
 	@JsonIgnore
 	int getRangedBonusDamage();
 
+	/**
+	 * This returns the attacks per second. This is only used for basic attacks
+	 * since skill attacks usually have their own cooldown timer.
+	 * 
+	 * @return
+	 */
 	@JsonProperty("aspd")
-	int getAttackSpeed();
+	float getAttackSpeed();
 
 	@JsonProperty("w")
-	Walkspeed getWalkspeed();
+	Walkspeed getWalkspeedMod();
 }
