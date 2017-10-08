@@ -1,8 +1,12 @@
 {
     "compilerOptions": {
-        "target": "ES6"
+        "target": "ES6",
+        "alwaysStrict": true,
+        "checkJs": true,
+        "allowSyntheticDefaultImports": true
     },
     "exclude": [
-        "../node_modules"
+        "node_modules",
+        "**/node_modules/*"
     ]
 }

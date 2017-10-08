@@ -32,17 +32,6 @@ export default class WorldHelper {
 	}
 
 	/**
-	 * Finds a path between a start and a goal coordinate. The coordiantes must
-	 * be given in tile space coordiantes.
-	 * 
-	 * @method Bestia.Engine.World#findPath
-	 * @public
-	 */
-	static findPath(start, goal) {
-		return this._astar.findPath(start, goal);
-	}
-
-	/**
 	 * Returns the px coordiantes if tiles x and y coordiantes are given.
 	 * 
 	 * @method Bestia.Engine.World#getPxXY

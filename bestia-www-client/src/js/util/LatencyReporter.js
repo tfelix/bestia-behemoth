@@ -12,6 +12,10 @@ export default class LatencyReporter {
 
     constructor(pubsub) {
 
+        if(!pubsub) {
+            throw 'pubsub can not be null.';
+        }
+
         this.pubsub = pubsub;
 
         // Setup the binding.

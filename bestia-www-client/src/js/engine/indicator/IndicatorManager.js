@@ -74,7 +74,8 @@ export default class IndicatorManager {
 
 	/**
 	 * Will trigger all load events on the registered indicators. This should be
-	 * called in the load event of phaser.
+	 * called in the initial load event of the engine to fetch all presets the indicator
+	 * need.
 	 */
 	load() {
 		this._indicators.forEach(function(x) {
@@ -97,11 +98,7 @@ export default class IndicatorManager {
 	 * depending on the game tick.
 	 */
 	update() {
-		/*if(!this.ctx.game.input.pointer1.withinGame) {
-			this.hide();
-		} else {
-			this.show();
-		}*/
+
 	}
 
 	/**

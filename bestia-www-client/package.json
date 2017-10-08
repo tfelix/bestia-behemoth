@@ -17,7 +17,7 @@
     "build:cssRegister": "lessc ./src/css/pages/register.less --source-map-map-inline | cssmin > ./build/css/register.css",
     "build:css": "parallelshell \"npm run build:cssMain\" \"npm run build:cssLogin\" \"npm run build:cssRegister\"",
     "build:css:watch": "watch \"npm run build:css\" ./src/css",
-    "build:js": "rollup --config rollup.config.js",
+    "build:js": "rollup -c",
     "prebuild:watch": "npm run mkdir",
     "build:watch": "parallelshell \"npm run build:html -- -w\" \"npm run build:assets -- -w\" \"npm run build:css:watch\" \"npm run build:js -- --watch\" \"npm run server\""
   },

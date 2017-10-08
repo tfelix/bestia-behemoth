@@ -33,8 +33,6 @@ export default class EntityCacheEx {
 	 * 
 	 * @param {String|Number}
 	 *            id - Identifier of the entity.
-	 * @param {Bestia.Engine.BasicEntity}
-	 *            entity - The entity to add to the cache.
 	 */
 	addEntity(entity) {
 	
