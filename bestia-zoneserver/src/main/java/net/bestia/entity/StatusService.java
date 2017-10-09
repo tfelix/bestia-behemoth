@@ -94,10 +94,12 @@ public class StatusService {
 	 * The entity must posess the {@link StatusComponent} or an empty optional
 	 * is returned.
 	 * 
+	 * @deprecated Points should be calculated now on the fly.
 	 * @param entity
 	 *            The entity which status points to retrieve.
 	 * @return The by status effects or equip modified {@link StatusPoints}.
 	 */
+	@Deprecated
 	public Optional<StatusPoints> getStatusPoints(Entity entity) {
 		Objects.requireNonNull(entity);
 
@@ -150,7 +152,8 @@ public class StatusService {
 		final PlayerComponent playerComp = entityService.getComponent(entity, PlayerComponent.class)
 				.orElseThrow(IllegalStateException::new);
 
-		final StatusPoints statusPoints = new StatusPointsImpl();
+		final StatusPoints statusPoints = statusComp.getUnmodifiedStatusPoints();
+		final ConditionValues condValues = statusComp.getConditionValues();
 
 		final PlayerBestia pb = playerBestiaDao.findOne(playerComp.getPlayerBestiaId());
 
@@ -179,9 +182,10 @@ public class StatusService {
 
 		final int maxMana = baseValues.getMana() * 2 + ivs.getMana() + effortValues.getMana() / 4 * level / 100 + 10
 				+ level * 2;
+		
+		condValues.setMaxHealth(maxHp);
+		condValues.setMaxMana(maxMana);
 
-		statusPoints.setMaxHp(maxHp);
-		statusPoints.setMaxMana(maxMana);
 		statusPoints.setStrenght(str);
 		statusPoints.setVitality(vit);
 		statusPoints.setIntelligence(intel);
@@ -300,7 +304,7 @@ public class StatusService {
 	public Optional<ConditionValues> getStatusValues(Entity entity) {
 
 		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
-		return statusComp.map(sc -> Optional.of(sc.getValues())).orElse(Optional.empty());
+		return statusComp.map(sc -> Optional.of(sc.getConditionValues())).orElse(Optional.empty());
 	}
 
 	/**
@@ -319,26 +323,8 @@ public class StatusService {
 		final StatusComponent statusComp = entityService.getComponent(entity, StatusComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
-		// Sanity check the data.
-		final StatusPoints sp = statusComp.getStatusPoints();
-
-		// Cap to max.
-		if (values.getCurrentHealth() > sp.getMaxHp()) {
-			values.setCurrentHealth(sp.getMaxHp());
-		}
-
-		// Cap to max.
-		if (values.getCurrentMana() > sp.getMaxMana()) {
-			values.setCurrentMana(sp.getMaxMana());
-		}
-
 		// If values are equal if so dont do anything.
-		final ConditionValues curValues = statusComp.getValues();
-		if (curValues.getCurrentHealth() == values.getCurrentHealth()
-				&& curValues.getCurrentMana() == values.getCurrentMana()) {
-			return;
-		}
-
+		final ConditionValues curValues = statusComp.getConditionValues();
 		curValues.set(values);
 
 		entityService.updateComponent(statusComp);

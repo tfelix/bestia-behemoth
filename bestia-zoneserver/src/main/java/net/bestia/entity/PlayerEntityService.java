@@ -330,7 +330,7 @@ public class PlayerEntityService {
 		final StatusComponent statusComp = entityService.getComponent(playerEntity, StatusComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
-		playerBestia.setStatusValues(statusComp.getValues());
+		playerBestia.setStatusValues(statusComp.getConditionValues());
 
 		// Current position.
 		final PositionComponent posComp = entityService.getComponent(playerEntity, PositionComponent.class)

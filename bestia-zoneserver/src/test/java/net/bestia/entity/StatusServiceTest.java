@@ -79,7 +79,7 @@ public class StatusServiceTest {
 		when(statusComp.getStatusBasedValues()).thenReturn(basedValues);
 		when(statusComp.getStatusPoints()).thenReturn(statusPoints);
 		when(statusComp.getUnmodifiedStatusPoints()).thenReturn(statusPoints);
-		when(statusComp.getValues()).thenReturn(statusValues);
+		when(statusComp.getConditionValues()).thenReturn(statusValues);
 
 		when(levelComp.getLevel()).thenReturn(10);
 
@@ -98,8 +98,6 @@ public class StatusServiceTest {
 		when(statusValues.getCurrentHealth()).thenReturn(10);
 		when(statusValues.getCurrentMana()).thenReturn(10);
 
-		when(statusPoints.getMaxHp()).thenReturn(10);
-		when(statusPoints.getMaxMana()).thenReturn(10);
 		when(statusPoints.getMagicDefense()).thenReturn(10);
 		when(statusPoints.getDefense()).thenReturn(10);
 		when(statusPoints.getStrength()).thenReturn(10);

@@ -63,7 +63,7 @@ public class SetCommandTest {
 	public void setup() {
 		
 		when(statusComp.getStatusPoints()).thenReturn(statusPoints);
-		when(statusComp.getValues()).thenReturn(values);
+		when(statusComp.getConditionValues()).thenReturn(values);
 		
 		when(playerEntityService.getActivePlayerEntity(anyLong())).thenReturn(entity);
 		

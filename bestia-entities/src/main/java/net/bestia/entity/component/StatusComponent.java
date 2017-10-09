@@ -25,13 +25,9 @@ public class StatusComponent extends Component {
 	 */
 	private StatusPoints unmodifiedStatusPoints = new StatusPointsImpl();
 	private StatusPoints statusPoints = new StatusPointsImpl();
-	
 	private StatusBasedValues statusBasedValues = new StatusBasedValuesImpl(statusPoints, 1);
-
 	private Element unmodifiedElement = Element.NORMAL;
 	private Element element = Element.NORMAL;
-
-	// Current HP and Mana
 	private ConditionValues values = new ConditionValues();
 
 	public StatusComponent(long id) {
@@ -105,7 +101,7 @@ public class StatusComponent extends Component {
 		this.statusPoints = statusPoints;
 	}
 
-	public ConditionValues getValues() {
+	public ConditionValues getConditionValues() {
 		return values;
 	}
 

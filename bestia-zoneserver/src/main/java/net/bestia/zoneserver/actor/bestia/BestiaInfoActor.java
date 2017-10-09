@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.actor.bestia;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,15 +14,15 @@ import akka.event.LoggingAdapter;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.PlayerEntityService;
-import net.bestia.entity.StatusService;
 import net.bestia.entity.component.PlayerComponent;
+import net.bestia.entity.component.StatusComponent;
 import net.bestia.messages.bestia.BestiaInfoMessage;
 import net.bestia.messages.bestia.BestiaInfoRequestMessage;
 import net.bestia.messages.entity.EntityStatusUpdateMessage;
 import net.bestia.model.dao.PlayerBestiaDAO;
+import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
-import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
@@ -43,22 +44,19 @@ public class BestiaInfoActor extends AbstractActor {
 	private final EntityService entityService;
 	private final PlayerEntityService playerEntityService;
 	private final PlayerBestiaDAO playerBestiaDao;
-	private final StatusService statusService;
 
 	@Autowired
 	public BestiaInfoActor(
 			EntityService entityService,
 			PlayerBestiaDAO playerBestiaDao,
-			StatusService statusService,
 			PlayerEntityService playerEntityService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
-		this.statusService = Objects.requireNonNull(statusService);
 
 	}
-	
+
 	@Override
 	public void preStart() throws Exception {
 		final RedirectMessage msg = RedirectMessage.get(BestiaInfoRequestMessage.class);
@@ -86,10 +84,19 @@ public class BestiaInfoActor extends AbstractActor {
 
 			final PlayerBestia pb = playerBestiaDao.findOne(pbComp.getPlayerBestiaId());
 
-			final StatusPoints statusPoints = statusService.getStatusPoints(pbe).get();
-			final StatusPoints unmodStatusPoints = statusService.getUnmodifiedStatusPoints(pbe).get();
-			final ConditionValues statusValues = statusService.getStatusValues(pbe).get();
-			final StatusBasedValues statusBasedValues = statusService.getStatusBasedValues(pbe).get();
+			final Optional<StatusComponent> statusComp = entityService.getComponent(pbe, StatusComponent.class);
+			
+			if(!statusComp.isPresent()) {
+				LOG.error("StatusComponent of bestia entity is missing. Skipping entity.");
+				continue;
+			}
+			
+			final StatusComponent status = statusComp.get();
+
+			final StatusPoints statusPoints = status.getStatusPoints();
+			final StatusPoints unmodStatusPoints = status.getUnmodifiedStatusPoints();
+			final ConditionValues condValues = status.getConditionValues();
+			final StatusBasedValues statusBasedValues = status.getStatusBasedValues();
 
 			// Send the normal bestia info message.
 			final BestiaInfoMessage bimsg = new BestiaInfoMessage(accId, pbe.getId(), pb);
@@ -101,7 +108,7 @@ public class BestiaInfoActor extends AbstractActor {
 					pbe.getId(),
 					statusPoints,
 					unmodStatusPoints,
-					statusValues,
+					condValues,
 					statusBasedValues);
 			AkkaSender.sendClient(getContext(), esmsg);
 		}

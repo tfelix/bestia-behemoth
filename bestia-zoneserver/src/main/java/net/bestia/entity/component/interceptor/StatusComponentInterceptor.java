@@ -57,7 +57,7 @@ public class StatusComponentInterceptor extends BaseComponentInterceptor<StatusC
 				entity.getId(),
 				comp.getStatusPoints(),
 				comp.getUnmodifiedStatusPoints(),
-				comp.getValues(),
+				comp.getConditionValues(),
 				comp.getStatusBasedValues());
 		akkaApi.sendToClient(msg);
 

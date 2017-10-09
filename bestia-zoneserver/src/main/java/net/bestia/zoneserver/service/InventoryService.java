@@ -10,16 +10,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.LevelComponent;
+import net.bestia.entity.component.StatusComponent;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.ItemDAO;
 import net.bestia.model.dao.PlayerItemDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.PlayerItem;
-import net.bestia.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.bestia.entity.StatusService;
-import net.bestia.entity.component.LevelComponent;
 
 /**
  * This service kind of manages the user relationship with the inventory. Since
@@ -46,20 +46,17 @@ public class InventoryService {
 	private final AccountDAO accountDao;
 	private final ItemDAO itemDao;
 	private final EntityService entityService;
-	private final StatusService statusService;
 
 	@Autowired
 	public InventoryService(PlayerItemDAO playerItemDao,
 			AccountDAO accDao,
 			ItemDAO itemDao,
-			EntityService entityService,
-			StatusService statusService) {
+			EntityService entityService) {
 
 		this.playerItemDao = Objects.requireNonNull(playerItemDao);
 		this.accountDao = Objects.requireNonNull(accDao);
 		this.itemDao = Objects.requireNonNull(itemDao);
 		this.entityService = Objects.requireNonNull(entityService);
-		this.statusService = Objects.requireNonNull(statusService);
 
 	}
 
@@ -87,11 +84,11 @@ public class InventoryService {
 			return 0;
 		}
 
-		final int weight = statusService.getStatusPoints(entity).map(status -> {
-			return BASE_WEIGHT + status.getStrength() * 4 * level;
-		}).orElse(0);
+		final int str = entityService.getComponent(entity, StatusComponent.class)
+				.map(c -> c.getStatusPoints().getStrength())
+				.orElse(0);
 
-		return weight;
+		return BASE_WEIGHT + str * 4 * level;
 	}
 
 	/**

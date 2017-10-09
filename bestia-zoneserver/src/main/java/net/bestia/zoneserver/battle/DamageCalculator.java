@@ -102,7 +102,7 @@ public class DamageCalculator {
 
 		if (rand.nextFloat() > baseCritRate) {
 			// Scored critical hit.
-			return 1.4f * dmgVars.getBonusCritMod();
+			return 1.4f * dmgVars.getCriticalDamageMod();
 		} else {
 			// no crit.
 			return 1f;
@@ -187,20 +187,20 @@ public class DamageCalculator {
 	private float getStatusAtk(BattleContext ctx) {
 
 		final Entity attacker = ctx.getAttacker();
-		
+
 		final Attack atk = ctx.getUsedAttack();
 
 		final int level = entityService.getComponent(attacker, LevelComponent.class)
 				.map(LevelComponent::getLevel)
 				.orElse(1);
-		
+
 		final StatusPoints statusPoints = entityService.getComponent(attacker, StatusComponent.class)
 				.get()
 				.getStatusPoints();
 
-		if(atk.getType() == AttackType.MELEE_PHYSICAL) {
+		if (atk.getType() == AttackType.MELEE_PHYSICAL) {
 			return level / 4.0f + statusPoints.getStrength() + statusPoints.getDexterity() / 5.f;
-		} else if(atk.getType() == AttackType.RANGED_PHYSICAL) {
+		} else if (atk.getType() == AttackType.RANGED_PHYSICAL) {
 			return level / 4.0f + statusPoints.getDexterity() + statusPoints.getStrength() / 5.f;
 		} else {
 			// Magical attack.

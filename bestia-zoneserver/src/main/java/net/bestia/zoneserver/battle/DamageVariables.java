@@ -15,12 +15,20 @@ public final class DamageVariables {
 	private int bonusPhysicalRangedDamage = 0;
 	private int bonusMagicRangedDamage = 0;
 	
+	private float criticalDamageMod = 1.f;
+	
 	private float armor = 1.f;
 	private float magicArmor = 1.f;
 	
-	private float bonusCritMod = 1.f;
+	private float neededManaMod = 1.f;
+	
+	private float attackRangeMod = 1.f;
+	private int attackRangeBonus = 0;
 	
 	//private int bonusAttack = 0;
+	
+	private float criticalMod = 1.f;
+	private boolean isCriticalHit;
 	
 	public DamageVariables() {
 		// no op.
@@ -78,14 +86,6 @@ public final class DamageVariables {
 		this.magicArmor = magicResist;
 	}
 
-	public float getBonusCritMod() {
-		return bonusCritMod;
-	}
-
-	public void setBonusCritMod(float bonusCritMod) {
-		this.bonusCritMod = bonusCritMod;
-	}
-
 	/*
 	public int getBonusAttack() {
 		return bonusAttack;
@@ -108,5 +108,42 @@ public final class DamageVariables {
 		return 0;
 	}
 	
+	public float getNeededManaMod() {
+		return neededManaMod;
+	}
 	
+	public void setNeededManaMod(float neededManaMod) {
+		this.neededManaMod = neededManaMod;
+	}
+	
+	public int getAttackRangeBonus() {
+		return attackRangeBonus;
+	}
+	
+	public float getAttackRangeMod() {
+		return attackRangeMod;
+	}
+	
+	public boolean isCriticalHit() {
+		return isCriticalHit;
+	}
+	
+	public void setCriticalHit(boolean isCriticalHit) {
+		this.isCriticalHit = isCriticalHit;
+	}
+	
+	public float getCriticalMod() {
+		return criticalMod;
+	}
+	
+	public void setCriticalMod(float criticalMod) {
+		if(criticalMod < 0) {
+			criticalMod = 0;
+		}
+		this.criticalMod = criticalMod;
+	}
+	
+	public float getCriticalDamageMod() {
+		return criticalDamageMod;
+	}
 }
