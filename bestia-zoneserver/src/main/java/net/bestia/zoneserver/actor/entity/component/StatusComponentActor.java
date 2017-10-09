@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import net.bestia.entity.StatusService;
-import net.bestia.model.domain.StatusValues;
+import net.bestia.model.domain.ConditionValues;
 import net.bestia.zoneserver.actor.BestiaPeriodicTerminatingActor;
 
 /**
@@ -47,7 +47,7 @@ public class StatusComponentActor extends BestiaPeriodicTerminatingActor {
 			healthIncrement += statusService.getHealthTick(entityId);
 			manaIncrement += statusService.getManaTick(entityId);
 
-			StatusValues sval = statusService.getStatusValues(entityId).orElseThrow(IllegalArgumentException::new);
+			ConditionValues sval = statusService.getStatusValues(entityId).orElseThrow(IllegalArgumentException::new);
 
 			if (healthIncrement > 1) {
 				

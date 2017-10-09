@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.model.domain.StatusPoints;
-import net.bestia.model.domain.StatusValues;
+import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.entity.StatusBasedValues;
 
 /**
@@ -27,7 +27,7 @@ public class EntityStatusUpdateMessage extends EntityJsonMessage {
 	private final StatusPoints statusPoints;
 
 	@JsonProperty("sv")
-	private final StatusValues statusValues;
+	private final ConditionValues statusValues;
 
 	@JsonProperty("osp")
 	private final StatusPoints unmodifiedStatusPoints;
@@ -57,7 +57,7 @@ public class EntityStatusUpdateMessage extends EntityJsonMessage {
 			long entityId,
 			StatusPoints statusPoints,
 			StatusPoints unmodifiedStatusPoints,
-			StatusValues statusValues,
+			ConditionValues statusValues,
 			StatusBasedValues statusBasedValues) {
 		super(accId, entityId);
 
@@ -76,7 +76,7 @@ public class EntityStatusUpdateMessage extends EntityJsonMessage {
 		return statusBasedValues;
 	}
 
-	public StatusValues getStatusValues() {
+	public ConditionValues getStatusValues() {
 		return statusValues;
 	}
 

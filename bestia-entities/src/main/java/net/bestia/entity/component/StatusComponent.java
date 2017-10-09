@@ -3,7 +3,7 @@ package net.bestia.entity.component;
 import net.bestia.model.domain.Element;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
-import net.bestia.model.domain.StatusValues;
+import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.entity.StatusBasedValuesImpl;
 
@@ -32,7 +32,7 @@ public class StatusComponent extends Component {
 	private Element element = Element.NORMAL;
 
 	// Current HP and Mana
-	private StatusValues values = new StatusValues();
+	private ConditionValues values = new ConditionValues();
 
 	public StatusComponent(long id) {
 		super(id);
@@ -105,7 +105,7 @@ public class StatusComponent extends Component {
 		this.statusPoints = statusPoints;
 	}
 
-	public StatusValues getValues() {
+	public ConditionValues getValues() {
 		return values;
 	}
 
@@ -124,7 +124,7 @@ public class StatusComponent extends Component {
 		return String.format("StatusComponent[id: %d]", getId());
 	}
 
-	public void setStatusValues(StatusValues statusValues) {
+	public void setStatusValues(ConditionValues statusValues) {
 		values.set(statusValues);
 	}
 }

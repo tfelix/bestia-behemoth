@@ -40,9 +40,6 @@ public class StatusPointsImplTest {
 		sp1.setAgility(10);
 		sp1.setDexterity(10);
 		
-		sp1.setMaxHp(100);
-		sp1.setMaxMana(100);
-		
 		sp1.setDefense(10);
 		sp1.setMagicDefense(10);
 	
@@ -55,9 +52,6 @@ public class StatusPointsImplTest {
 		Assert.assertEquals(20, sp1.getIntelligence());
 		Assert.assertEquals(20, sp1.getVitality());
 		Assert.assertEquals(20, sp1.getVitality());
-		
-		Assert.assertEquals(200, sp1.getMaxHp());
-		Assert.assertEquals(200, sp1.getMaxMana());
 	}
 	
 	@Test
@@ -73,20 +67,5 @@ public class StatusPointsImplTest {
 		
 		Assert.assertEquals(0, sp.getDefense());
 		Assert.assertEquals(0, sp.getMagicDefense());
-	}
-	
-	@Test
-	public void illegal_low_maxHp() {
-		StatusPoints sp = new StatusPointsImpl();
-
-		sp.setMaxHp(-10);
-		Assert.assertEquals(1, sp.getMaxHp());
-	}
-	
-	@Test
-	public void illegal_low_maxMana() {
-		StatusPoints sp = new StatusPointsImpl();
-		sp.setMaxMana(-10);
-		Assert.assertEquals(1, sp.getMaxMana());
 	}
 }

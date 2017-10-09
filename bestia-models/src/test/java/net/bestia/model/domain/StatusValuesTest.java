@@ -8,8 +8,8 @@ public class StatusValuesTest {
 	@Test
 	public void set_notNull_correctValues() {
 
-		StatusValues vals = new StatusValues();
-		StatusValues rhs = new StatusValues();
+		ConditionValues vals = new ConditionValues();
+		ConditionValues rhs = new ConditionValues();
 		rhs.setCurrentHealth(123);
 		rhs.setCurrentMana(100);
 		vals.set(rhs);
@@ -22,14 +22,14 @@ public class StatusValuesTest {
 	@Test(expected = NullPointerException.class)
 	public void set_null_throws() {
 
-		StatusValues vals = new StatusValues();
+		ConditionValues vals = new ConditionValues();
 		vals.set(null);
 
 	}
 
 	@Test
 	public void addHealth_negative_nonNegative() {
-		StatusValues sv = new StatusValues();
+		ConditionValues sv = new ConditionValues();
 		sv.setCurrentHealth(10);
 		sv.addHealth(-100);
 		Assert.assertEquals(0, sv.getCurrentHealth());
@@ -37,7 +37,7 @@ public class StatusValuesTest {
 
 	@Test
 	public void addHealth_positive_correct() {
-		StatusValues sv = new StatusValues();
+		ConditionValues sv = new ConditionValues();
 		sv.setCurrentHealth(10);
 		sv.addHealth(10);
 		Assert.assertEquals(20, sv.getCurrentHealth());
@@ -45,7 +45,7 @@ public class StatusValuesTest {
 
 	@Test
 	public void addMana_negative_nonNegative() {
-		StatusValues sv = new StatusValues();
+		ConditionValues sv = new ConditionValues();
 		sv.setCurrentMana(10);
 		sv.addMana(-100);
 		Assert.assertEquals(0, sv.getCurrentMana());
@@ -53,7 +53,7 @@ public class StatusValuesTest {
 
 	@Test
 	public void addMana_positive_correct() {
-		StatusValues sv = new StatusValues();
+		ConditionValues sv = new ConditionValues();
 		sv.setCurrentMana(10);
 		sv.addMana(10);
 		Assert.assertEquals(20, sv.getCurrentMana());

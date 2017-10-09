@@ -23,7 +23,7 @@ import net.bestia.model.battle.Damage;
 import net.bestia.model.dao.AttackDAO;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.StatusPoints;
-import net.bestia.model.domain.StatusValues;
+import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
@@ -241,7 +241,7 @@ public class BattleService {
 	public void takeTrueDamage(Entity defender, Damage trueDamage) {
 		final int damage = trueDamage.getDamage();
 
-		StatusValues values = statusService.getStatusValues(defender).orElseThrow(IllegalArgumentException::new);
+		ConditionValues values = statusService.getStatusValues(defender).orElseThrow(IllegalArgumentException::new);
 
 		if (values.getCurrentHealth() <= damage) {
 			killEntity(defender);
@@ -270,7 +270,7 @@ public class BattleService {
 				.orElseThrow(IllegalArgumentException::new);
 
 		final StatusPoints status = statusComp.getStatusPoints();
-		final StatusValues statusValues = statusComp.getValues();
+		final ConditionValues statusValues = statusComp.getValues();
 
 		// TODO Possibly reduce the damge or reflect it etc.
 

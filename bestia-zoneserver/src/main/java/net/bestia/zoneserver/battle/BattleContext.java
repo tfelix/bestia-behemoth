@@ -5,7 +5,7 @@ import java.util.Objects;
 import net.bestia.entity.Entity;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.StatusPoints;
-import net.bestia.model.domain.StatusValues;
+import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.entity.StatusBasedValues;
 
 /**
@@ -27,8 +27,8 @@ public final class BattleContext {
 		private StatusPoints defenderStatusPoints;
 		private StatusBasedValues attackerStatusBased;
 		private StatusBasedValues defenderStatusBased;
-		private StatusValues attackerStatusValues;
-		private StatusValues defenderStatusValues;
+		private ConditionValues attackerStatusValues;
+		private ConditionValues defenderStatusValues;
 
 		public Builder(Attack usedAttack, Entity attacker) {
 
@@ -72,8 +72,8 @@ public final class BattleContext {
 	private final StatusPoints defenderStatusPoints;
 	private final StatusBasedValues attackerStatusBased;
 	private final StatusBasedValues defenderStatusBased;
-	private final StatusValues attackerStatusValues;
-	private final StatusValues defenderStatusValues;
+	private final ConditionValues attackerStatusValues;
+	private final ConditionValues defenderStatusValues;
 
 	private BattleContext(Builder builder) {
 
@@ -123,11 +123,11 @@ public final class BattleContext {
 		return defenderStatusBased;
 	}
 
-	public StatusValues getAttackerStatusValues() {
+	public ConditionValues getAttackerStatusValues() {
 		return attackerStatusValues;
 	}
 
-	public StatusValues getDefenderStatusValues() {
+	public ConditionValues getDefenderStatusValues() {
 		return defenderStatusValues;
 	}
 }

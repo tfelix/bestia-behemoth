@@ -57,7 +57,7 @@ public class PlayerBestia implements Serializable {
 
 	@Embedded
 	@JsonUnwrapped
-	private StatusValues statusValues;
+	private ConditionValues statusValues;
 
 	@Embedded
 	@JsonProperty("cl")
@@ -245,7 +245,7 @@ public class PlayerBestia implements Serializable {
 		this.entityId = entityId;
 	}
 
-	public StatusValues getStatusValues() {
+	public ConditionValues getStatusValues() {
 		return statusValues;
 	}
 
@@ -295,7 +295,7 @@ public class PlayerBestia implements Serializable {
 		this.owner = owner;
 	}
 
-	public void setStatusValues(StatusValues sv) {
+	public void setStatusValues(ConditionValues sv) {
 		this.statusValues = Objects.requireNonNull(sv);
 	}
 }

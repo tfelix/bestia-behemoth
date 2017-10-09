@@ -5,22 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public interface StatusPoints {
 
 	/**
-	 * Current maximum HP value.
-	 * 
-	 * @return current maximum HP.
-	 */
-	@JsonProperty("mhp")
-	int getMaxHp();
-
-	/**
-	 * Returns the max mana.
-	 * 
-	 * @return Max mana.
-	 */
-	@JsonProperty("mmana")
-	int getMaxMana();
-
-	/**
 	 * Defense against regular physical attacks.
 	 * 
 	 * @return Physical attack defense.
@@ -90,9 +74,5 @@ public interface StatusPoints {
 	void setMagicDefense(int mdef);
 
 	void setDefense(int def);
-
-	void setMaxMana(int maxMana);
-
-	void setMaxHp(int maxHp);
 
 }

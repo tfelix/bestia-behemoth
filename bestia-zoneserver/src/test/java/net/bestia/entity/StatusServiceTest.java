@@ -21,7 +21,7 @@ import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
-import net.bestia.model.domain.StatusValues;
+import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.entity.StatusBasedValues;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -58,7 +58,7 @@ public class StatusServiceTest {
 	private BaseValues baseValues;
 
 	@Mock
-	private StatusValues statusValues;
+	private ConditionValues statusValues;
 
 	@Mock
 	private StatusPoints statusPoints;
@@ -225,7 +225,7 @@ public class StatusServiceTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void saveStatusValues_validEntityId_dontSaveComponent() {
-		StatusValues sv = new StatusValues();
+		ConditionValues sv = new ConditionValues();
 		sv.setCurrentHealth(5);
 		sv.setCurrentMana(6);
 		statusService.save(INVALID_ENTITY_ID, sv);
@@ -233,7 +233,7 @@ public class StatusServiceTest {
 
 	@Test
 	public void saveStatusValues_validEntity_savesComponent() {
-		StatusValues sv = new StatusValues();
+		ConditionValues sv = new ConditionValues();
 		sv.setCurrentHealth(5);
 		sv.setCurrentMana(6);
 		statusService.save(STATUS_ENTITY_ID, sv);
@@ -244,7 +244,7 @@ public class StatusServiceTest {
 
 	@Test
 	public void saveStatusValues_statusValuesNotChanges_noSaveComponentCalled() {
-		StatusValues sv = new StatusValues();
+		ConditionValues sv = new ConditionValues();
 		sv.setCurrentHealth(100);
 		sv.setCurrentMana(100);
 		statusService.save(STATUS_ENTITY_ID, sv);
@@ -254,13 +254,13 @@ public class StatusServiceTest {
 
 	@Test
 	public void getStatusValue_validEntityId_validValue() {
-		StatusValues sv = statusService.getStatusValues(statusEntity).get();
+		ConditionValues sv = statusService.getStatusValues(statusEntity).get();
 		assertNotNull(sv);
 	}
 
 	@Test
 	public void getStatusValue_validEntity_validValue() {
-		StatusValues sv = statusService.getStatusValues(statusEntity).get();
+		ConditionValues sv = statusService.getStatusValues(statusEntity).get();
 		assertNotNull(sv);
 	}
 

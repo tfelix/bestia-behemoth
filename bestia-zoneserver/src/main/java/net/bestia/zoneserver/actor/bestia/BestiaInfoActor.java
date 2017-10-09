@@ -21,7 +21,7 @@ import net.bestia.messages.entity.EntityStatusUpdateMessage;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
-import net.bestia.model.domain.StatusValues;
+import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
@@ -88,7 +88,7 @@ public class BestiaInfoActor extends AbstractActor {
 
 			final StatusPoints statusPoints = statusService.getStatusPoints(pbe).get();
 			final StatusPoints unmodStatusPoints = statusService.getUnmodifiedStatusPoints(pbe).get();
-			final StatusValues statusValues = statusService.getStatusValues(pbe).get();
+			final ConditionValues statusValues = statusService.getStatusValues(pbe).get();
 			final StatusBasedValues statusBasedValues = statusService.getStatusBasedValues(pbe).get();
 
 			// Send the normal bestia info message.

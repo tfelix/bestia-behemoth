@@ -15,8 +15,6 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 
 	private static final long serialVersionUID = 1L;
 
-	private int maxHp;
-	private int maxMana;
 	private int strength;
 	private int vitality;
 	private int intelligence;
@@ -32,8 +30,6 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 
 	public StatusPointsImpl(StatusPoints rhs) {
 
-		maxHp = rhs.getMaxHp();
-		maxMana = rhs.getMaxMana();
 		strength = rhs.getStrength();
 		vitality = rhs.getVitality();
 		intelligence = rhs.getIntelligence();
@@ -43,28 +39,6 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		defense = rhs.getDefense();
 		magicDefense = rhs.getMagicDefense();
 
-	}
-
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bestia.model.domain.IStatusPoints#getMaxHp()
-	 */
-	@Override
-	public int getMaxHp() {
-		return maxHp;
-	}
-
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.bestia.model.domain.IStatusPoints#getMaxMana()
-	 */
-	@Override
-	public int getMaxMana() {
-		return maxMana;
 	}
 
 	/*
@@ -263,10 +237,6 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 	 */
 
 	public void add(StatusPoints rhs) {
-
-		this.maxHp += rhs.getMaxHp();
-		this.maxMana += rhs.getMaxMana();
-
 		this.strength += rhs.getStrength();
 		this.vitality += rhs.getVitality();
 		this.intelligence += rhs.getIntelligence();
@@ -281,8 +251,6 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 	public String toString() {
 		return String.format("SP[maxHp: %d, maxMana: %d, str: %d vit: %d, int: %d,"
 				+ " will: %d, agi: %d, dex: %d, def: %d, mdef: %d]",
-				maxHp,
-				maxMana,
 				strength,
 				vitality,
 				intelligence,
@@ -291,25 +259,5 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 				dexterity,
 				defense,
 				magicDefense);
-	}
-
-	@Override
-	public void setMaxMana(int maxMana) {
-		
-		if(maxMana < 1) {
-			maxMana = 1;
-		}
-		
-		this.maxMana = maxMana;
-	}
-
-	@Override
-	public void setMaxHp(int maxHp) {
-		
-		if(maxHp < 1) {
-			maxHp = 1;
-		}
-		
-		this.maxHp = maxHp;
 	}
 }

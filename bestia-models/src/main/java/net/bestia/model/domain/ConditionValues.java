@@ -15,25 +15,54 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  */
 @Embeddable
-public class StatusValues implements Serializable {
+public class ConditionValues implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	private int currentHealth;
 	private int currentMana;
+	private int maxHealth;
+	private int maxMana;
 
+	/**
+	 * @return The current health.
+	 */
 	@JsonProperty("chp")
 	public int getCurrentHealth() {
 		return currentHealth;
 	}
 
+	/**
+	 * Current maximum HP value.
+	 * 
+	 * @return current maximum HP.
+	 */
+	@JsonProperty("mhp")
+	public int getMaxHealth() {
+		return maxHealth;
+	}
+
+	/**
+	 * @return The current mana.
+	 */
 	@JsonProperty("cmana")
 	public int getCurrentMana() {
 		return currentMana;
 	}
 
 	/**
-	 * Sets the current health value. The value can not be less then 0.
+	 * Returns the max mana.
+	 * 
+	 * @return Max mana.
+	 */
+	@JsonProperty("mmana")
+	public int getMaxMana() {
+		return maxMana;
+	}
+
+	/**
+	 * Sets the current health value. The value can not be less then 0 and not
+	 * bigger then the current max value.
 	 * 
 	 * @param currentHealth
 	 *            The new health value.
@@ -43,11 +72,16 @@ public class StatusValues implements Serializable {
 			currentHealth = 0;
 		}
 
+		if (currentHealth > maxHealth) {
+			currentHealth = maxHealth;
+		}
+
 		this.currentHealth = currentHealth;
 	}
 
 	/**
-	 * Sets the current mana value. The value can not be less then 0.
+	 * Sets the current mana value. The value can not be less then 0 and not
+	 * bigger then the current max value.
 	 * 
 	 * @param currentMana
 	 *            New current mana value.
@@ -57,7 +91,27 @@ public class StatusValues implements Serializable {
 			currentMana = 0;
 		}
 
+		if (currentMana > maxMana) {
+			currentMana = maxMana;
+		}
+
 		this.currentMana = currentMana;
+	}
+	
+	public void setMaxHealth(int maxHealth) {
+		this.maxHealth = maxHealth;
+		
+		if(maxHealth > currentHealth) {
+			setCurrentHealth(maxHealth);
+		}
+	}
+	
+	public void setMaxMana(int maxMana) {
+		this.maxMana = maxMana;
+		
+		if(maxMana > currentMana) {
+			setCurrentMana(maxMana);
+		}
 	}
 
 	/**
@@ -66,7 +120,7 @@ public class StatusValues implements Serializable {
 	 * @param rhs
 	 *            The object to set all the local values to.
 	 */
-	public void set(StatusValues rhs) {
+	public void set(ConditionValues rhs) {
 
 		setCurrentHealth(rhs.getCurrentHealth());
 		setCurrentMana(rhs.getCurrentMana());
@@ -98,7 +152,7 @@ public class StatusValues implements Serializable {
 	public void addMana(int mana) {
 		this.setCurrentMana(this.currentMana + mana);
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("SV[mana: %d, hp: %d]", getCurrentMana(), getCurrentHealth());

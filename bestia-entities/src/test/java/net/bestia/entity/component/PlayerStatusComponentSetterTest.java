@@ -13,7 +13,7 @@ import net.bestia.model.domain.Bestia;
 import net.bestia.model.domain.Element;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
-import net.bestia.model.domain.StatusValues;
+import net.bestia.model.domain.ConditionValues;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PlayerStatusComponentSetterTest {
@@ -36,7 +36,7 @@ public class PlayerStatusComponentSetterTest {
 	private StatusPoints origStatusPoints;
 	
 	@Mock
-	private StatusValues statusValues;
+	private ConditionValues statusValues;
 	
 	@Before
 	public void setup() {

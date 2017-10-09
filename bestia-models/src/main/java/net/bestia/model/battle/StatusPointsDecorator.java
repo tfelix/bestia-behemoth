@@ -69,24 +69,6 @@ public class StatusPointsDecorator implements StatusPoints, Serializable {
 	}
 
 	@Override
-	public int getMaxHp() {
-
-		final int val = sumInt(StatusPointsModifier::getMaxHpValue);
-		final float mod = sumFloat(StatusPointsModifier::getMaxHpValue);
-
-		return Math.round(wrapped.getMaxHp() * mod) + val;
-	}
-
-	@Override
-	public int getMaxMana() {
-
-		final int val = sumInt(StatusPointsModifier::getMaxManaValue);
-		final float mod = sumFloat(StatusPointsModifier::getMaxManaMod);
-
-		return Math.round(wrapped.getMaxMana() * mod) + val;
-	}
-
-	@Override
 	public int getDefense() {
 
 		final int val = sumInt(StatusPointsModifier::getDefenseValue);
@@ -188,14 +170,6 @@ public class StatusPointsDecorator implements StatusPoints, Serializable {
 
 	public void setDefense(int def) {
 		wrapped.setDefense(def);
-	}
-
-	public void setMaxMana(int maxMana) {
-		wrapped.setMaxMana(maxMana);
-	}
-
-	public void setMaxHp(int maxHp) {
-		wrapped.setMaxHp(maxHp);
 	}
 
 	public void clearModifier() {

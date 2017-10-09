@@ -13,7 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.PlayerBestia;
-import net.bestia.model.domain.StatusValues;
+import net.bestia.model.domain.ConditionValues;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -34,7 +34,7 @@ public class PlayerBestiaDAOTest {
 		
 		PlayerBestia pb = new PlayerBestia();
 		
-		StatusValues sv = new StatusValues();
+		ConditionValues sv = new ConditionValues();
 		sv.setCurrentHealth(10);
 		sv.setCurrentMana(10);
 			

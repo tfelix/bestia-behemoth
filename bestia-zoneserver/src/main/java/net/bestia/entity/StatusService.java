@@ -13,7 +13,7 @@ import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
-import net.bestia.model.domain.StatusValues;
+import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.entity.StatusBasedValuesImpl;
 import net.bestia.entity.component.LevelComponent;
@@ -276,9 +276,9 @@ public class StatusService {
 	 * 
 	 * @param entityId
 	 *            The entity id.
-	 * @return The {@link StatusValues} of this entity.
+	 * @return The {@link ConditionValues} of this entity.
 	 */
-	public Optional<StatusValues> getStatusValues(long entityId) {
+	public Optional<ConditionValues> getStatusValues(long entityId) {
 		final Entity e = entityService.getEntity(entityId);
 
 		if (e == null) {
@@ -295,9 +295,9 @@ public class StatusService {
 	 * 
 	 * @param entity
 	 *            The entity.
-	 * @return The {@link StatusValues} of this entity.
+	 * @return The {@link ConditionValues} of this entity.
 	 */
-	public Optional<StatusValues> getStatusValues(Entity entity) {
+	public Optional<ConditionValues> getStatusValues(Entity entity) {
 
 		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
 		return statusComp.map(sc -> Optional.of(sc.getValues())).orElse(Optional.empty());
@@ -311,7 +311,7 @@ public class StatusService {
 	 * @param entity
 	 * @param values
 	 */
-	public void save(Entity entity, StatusValues values) {
+	public void save(Entity entity, ConditionValues values) {
 
 		Objects.requireNonNull(entity);
 		Objects.requireNonNull(values);
@@ -333,7 +333,7 @@ public class StatusService {
 		}
 
 		// If values are equal if so dont do anything.
-		final StatusValues curValues = statusComp.getValues();
+		final ConditionValues curValues = statusComp.getValues();
 		if (curValues.getCurrentHealth() == values.getCurrentHealth()
 				&& curValues.getCurrentMana() == values.getCurrentMana()) {
 			return;
@@ -345,14 +345,14 @@ public class StatusService {
 	}
 
 	/**
-	 * This is an alias for {@link #save(Entity, StatusValues)}.
+	 * This is an alias for {@link #save(Entity, ConditionValues)}.
 	 * 
 	 * @param entityId
 	 *            The entity ID for which to save the status values.
 	 * @param sval
 	 *            The status values to save for this entity.
 	 */
-	public void save(long entityId, StatusValues sval) {
+	public void save(long entityId, ConditionValues sval) {
 		final Entity e = entityService.getEntity(entityId);
 		save(e, sval);
 	}
