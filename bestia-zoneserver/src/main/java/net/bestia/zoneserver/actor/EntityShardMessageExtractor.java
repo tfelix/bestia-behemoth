@@ -1,7 +1,5 @@
 package net.bestia.zoneserver.actor;
 
-import org.springframework.stereotype.Component;
-
 import akka.cluster.sharding.ShardRegion;
 import net.bestia.messages.EntityMessage;
 
@@ -12,7 +10,6 @@ import net.bestia.messages.EntityMessage;
  * @author Thomas Felix
  *
  */
-@Component
 public class EntityShardMessageExtractor implements ShardRegion.MessageExtractor {
 
 	private final static int NUMBER_OF_SHARDS = 10;

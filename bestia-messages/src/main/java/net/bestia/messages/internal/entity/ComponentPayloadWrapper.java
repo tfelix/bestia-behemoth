@@ -2,6 +2,8 @@ package net.bestia.messages.internal.entity;
 
 import java.util.Objects;
 
+import net.bestia.messages.EntityInternalMessage;
+
 /**
  * This class wraps a message directed towards a component of an entity. This
  * wrapper can be safely send towards the entity manager actor which will lookup
@@ -11,16 +13,15 @@ import java.util.Objects;
  * @author Thomas Felix
  *
  */
-public final class ComponentPayloadWrapper {
+public final class ComponentPayloadWrapper extends EntityInternalMessage {
 
+	private static final long serialVersionUID = 1L;
 	private final Object payload;
-
 	private final long componentId;
-	private final long entityId;
 
 	public ComponentPayloadWrapper(long entityId, long componentId, Object payload) {
+		super(entityId);
 
-		this.entityId = entityId;
 		this.componentId = componentId;
 		this.payload = Objects.requireNonNull(payload);
 	}
@@ -33,13 +34,9 @@ public final class ComponentPayloadWrapper {
 		return componentId;
 	}
 
-	public long getEntityId() {
-		return entityId;
-	}
-
 	@Override
 	public String toString() {
-		return String.format("ComponentPayloadWrapper[eid: %d, compId: %d, payload: %s...]", entityId, componentId,
+		return String.format("ComponentPayloadWrapper[eid: %d, compId: %d, payload: %s...]", getEntityId(), componentId,
 				payload.toString().substring(0, 10));
 	}
 }

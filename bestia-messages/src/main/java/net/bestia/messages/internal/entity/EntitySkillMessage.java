@@ -18,7 +18,6 @@ public class EntitySkillMessage implements Serializable {
 
 	private final Point targetPostion;
 	private final long targetEntityId;
-
 	private final long sourceEntityId;
 	private final int attackId;
 

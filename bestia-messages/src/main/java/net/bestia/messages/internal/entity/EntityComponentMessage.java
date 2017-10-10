@@ -3,10 +3,10 @@ package net.bestia.messages.internal.entity;
 import net.bestia.messages.EntityInternalMessage;
 
 /**
- * This message is send to an entity actor to signal that a new actor should be
- * spawned who handles this component in any way. Usually this is the case if
- * there is some kind of periodic handling of some components like script
- * callbacks.
+ * This message is send to an entity actor to signal that a new component actor
+ * should be spawned who handles this component in any way. Usually this is the
+ * case if there is some kind of periodic handling of some components like
+ * script callbacks.
  * 
  * @author Thomas Felix
  *

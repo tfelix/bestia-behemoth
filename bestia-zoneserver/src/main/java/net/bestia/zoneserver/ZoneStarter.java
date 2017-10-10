@@ -11,17 +11,21 @@ import org.springframework.stereotype.Component;
 import akka.actor.ActorSystem;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
+import akka.cluster.sharding.ClusterSharding;
+import akka.cluster.sharding.ClusterShardingSettings;
 import akka.cluster.singleton.ClusterSingletonManager;
 import akka.cluster.singleton.ClusterSingletonManagerSettings;
+import net.bestia.zoneserver.actor.EntityShardMessageExtractor;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.battle.AttackUseActor;
 import net.bestia.zoneserver.actor.entity.EntityManagerActor;
+import net.bestia.zoneserver.actor.entity.EntityShardManagerActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.ClusterControlActor;
-import net.bestia.zoneserver.actor.zone.MemDbHeartbeatActor;
 import net.bestia.zoneserver.actor.zone.IngestExActor;
+import net.bestia.zoneserver.actor.zone.MemDbHeartbeatActor;
 import net.bestia.zoneserver.actor.zone.SendActiveRangeActor;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.zone.ZoneClusterListenerActor;
@@ -55,7 +59,7 @@ public class ZoneStarter implements CommandLineRunner {
 		LOG.info("Starting actor system...");
 
 		akkaApi.startActor(IngestExActor.class);
-		
+
 		akkaApi.startActor(SendActiveRangeActor.class);
 		akkaApi.startActor(ActiveClientUpdateActor.class);
 
@@ -65,7 +69,7 @@ public class ZoneStarter implements CommandLineRunner {
 		// Maintenance actors.
 		akkaApi.startActor(MapGeneratorMasterActor.class);
 		akkaApi.startActor(MapGeneratorClientActor.class);
-		
+
 		// Battle actors.
 		akkaApi.startActor(AttackUseActor.class);
 
@@ -73,6 +77,17 @@ public class ZoneStarter implements CommandLineRunner {
 		akkaApi.startActor(ZoneClusterListenerActor.class);
 		akkaApi.startActor(MemDbHeartbeatActor.class);
 
+		registerShardedActors();
+		
+		registerSingeltons();
+
+		// Trigger the startup script.
+		scriptService.callScript("startup");
+
+		LOG.info("Bestia Zone startup completed.");
+	}
+
+	private void registerSingeltons() {
 		// Maybe this needs to be more sophisticated done only when we joined
 		// the cluster.
 		// Setup the init actor singelton for creation of the system.
@@ -81,10 +96,15 @@ public class ZoneStarter implements CommandLineRunner {
 		final Props globalInitProps = SpringExtension.getSpringProps(system, ClusterControlActor.class);
 		Props clusterProbs = ClusterSingletonManager.props(globalInitProps, PoisonPill.getInstance(), settings);
 		system.actorOf(clusterProbs, "globalInit");
+	}
 
-		// Trigger the startup script.
-		scriptService.callScript("startup");
+	private void registerShardedActors() {
+		LOG.info("Register the entity sharded actor.");
 
-		LOG.info("Bestia Zone startup completed.");
+		final ClusterShardingSettings settings = ClusterShardingSettings.create(system);
+		final ClusterSharding sharding = ClusterSharding.get(system);
+		final Props props = SpringExtension.getSpringProps(system, EntityShardManagerActor.class);
+		final EntityShardMessageExtractor extractor = new EntityShardMessageExtractor();
+		sharding.start("entityManager", props, settings, extractor);
 	}
 }

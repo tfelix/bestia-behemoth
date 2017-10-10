@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.cluster.sharding.ClusterSharding;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.EntityMessage;
@@ -30,7 +31,7 @@ public class EntityManagerActor extends AbstractActor {
 
 	public static final String NAME = "entity";
 
-	// private ActorRef entityShardRegion;
+	private ActorRef entityShardRegion;
 
 	public EntityManagerActor() {
 		// no op.
@@ -46,8 +47,7 @@ public class EntityManagerActor extends AbstractActor {
 
 	@Override
 	public void preStart() throws Exception {
-		// entityShardRegion =
-		// ClusterSharding.get(getContext().system()).shardRegion("entity");
+		entityShardRegion = ClusterSharding.get(getContext().system()).shardRegion("entity");
 
 		// After the start we must inform the ingest actor that we want to
 		// receive messages.
@@ -61,7 +61,7 @@ public class EntityManagerActor extends AbstractActor {
 	 */
 	public void onEntityComponentMessage(ComponentPayloadWrapper msg) {
 		LOG.debug("Received: {}.", msg);
-		// entityShardRegion.tell(msg, getSelf());
+		entityShardRegion.tell(msg, getSelf());
 
 		// Currenty we dont use sharding only send to local system.
 		AkkaSender.sendEntityActor(getContext(), msg.getEntityId(), msg);
