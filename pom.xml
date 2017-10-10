@@ -19,6 +19,7 @@
 	<modules>
 		<module>bestia-models</module>
 		<module>bestia-messages</module>
+		<module>bestia-messages-proto</module>
 		<module>bestia-server-commons</module>
 		<module>bestia-zoneserver</module>
 		<module>bestia-webserver</module>
@@ -110,32 +111,32 @@
 					<shortRevisionLength>6</shortRevisionLength>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>findbugs-maven-plugin</artifactId>
-				<version>${findbugs.version}</version>
-				<configuration>
-					<effort>Max</effort>
-					<failOnError>
-						false
-					</failOnError>
-					<threshold>Low</threshold>
-					<xmlOutput>true</xmlOutput>
-					<findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
-				</configuration>
-				<executions>
-					<execution>
-						<id>analyze-compile</id>
-						<phase>compile</phase>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 		<pluginManagement>
-			<plugins>
+				<plugins>
+					<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>findbugs-maven-plugin</artifactId>
+					<version>${findbugs.version}</version>
+					<configuration>
+						<effort>Max</effort>
+						<failOnError>
+							false
+						</failOnError>
+						<threshold>Low</threshold>
+						<xmlOutput>true</xmlOutput>
+						<findbugsXmlOutputDirectory>${project.build.directory}/findbugs</findbugsXmlOutputDirectory>
+					</configuration>
+					<executions>
+						<execution>
+							<id>analyze-compile</id>
+							<phase>compile</phase>
+							<goals>
+								<goal>check</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
