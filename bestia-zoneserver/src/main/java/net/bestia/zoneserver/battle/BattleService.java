@@ -67,30 +67,15 @@ public class BattleService {
 	}
 
 	/**
-	 * It must be checked if an entity is eligible for receiving damage. This
-	 * means that an {@link StatusComponent} as well as a
-	 * {@link PositionComponent} must be present.
+	 * Attacks itself.
 	 * 
-	 * @return TRUE if the entity is abtle to receive damage. FALSE otherwise.
+	 * @param atkMsg
+	 * @param usedAttack
+	 * @param pbe
 	 */
-	private boolean canEntityReceiveDamage(Entity entity) {
-		// Check if we have valid x and y.
-		if (!entityService.hasComponent(entity, StatusComponent.class)) {
-			LOG.warn("Not entity {} does not have status component.", entity.getId());
-			return false;
-		}
+	public void attackSelf(AttackUseMessage atkMsg, Attack usedAttack, Entity pbe) {
 
-		if (!entityService.hasComponent(entity, PositionComponent.class)) {
-			LOG.warn("Not entity {} does not have position component.", entity.getId());
-			return false;
-		}
-
-		if (!entityService.hasComponent(entity, LevelComponent.class)) {
-			LOG.warn("Not entity {} does not have level component.", entity.getId());
-			return false;
-		}
-
-		return true;
+		throw new IllegalStateException("Not yet implemented.");
 	}
 
 	/**
@@ -157,21 +142,9 @@ public class BattleService {
 		}
 
 		// Prepare the battle context.
-		final StatusPoints atkStatus = statusService.getStatusPoints(attacker).get();
-		final StatusPoints defStatus = statusService.getStatusPoints(defender).get();
-
-		final StatusBasedValues atkStatusBased = statusService.getStatusBasedValues(attacker).get();
-		final StatusBasedValues defStatusBased = statusService.getStatusBasedValues(defender).get();
+		final BattleContext battleCtx = createBattleContext(usedAttack, attacker, defender);
 
 		Damage primaryDamage;
-		BattleContext.Builder builder = new BattleContext.Builder(usedAttack, attacker);
-		builder.setAttackerStatus(atkStatus)
-				.setDefenderStatus(defStatus)
-				.setAttackerBasedValues(atkStatusBased)
-				.setDefenderBasedValues(defStatusBased);
-
-		final BattleContext battleCtx = builder.build();
-
 		// Check if this was a skill or a normal attack.
 		if (usedAttack.getId() == Attack.DEFAULT_MELEE_ATTACK_ID) {
 			primaryDamage = calculateMeleeDamage(battleCtx);
@@ -187,6 +160,48 @@ public class BattleService {
 		// possibly more.
 
 		return receivedDamage;
+	}
+
+	private BattleContext createBattleContext(Attack usedAttack, Entity attacker, Entity defender) {
+		final StatusPoints atkStatus = getStatusPoints(attacker);
+		final StatusPoints defStatus = getStatusPoints(defender);
+
+		final StatusBasedValues atkStatusBased = getStatBased(attacker);
+		final StatusBasedValues defStatusBased = getStatBased(defender);
+
+		final BattleContext.Builder builder = new BattleContext.Builder(usedAttack, attacker);
+		builder.setAttackerStatus(atkStatus)
+				.setDefenderStatus(defStatus)
+				.setAttackerBasedValues(atkStatusBased)
+				.setDefenderBasedValues(defStatusBased);
+		return builder.build();
+	}
+
+	/**
+	 * It must be checked if an entity is eligible for receiving damage. This
+	 * means that an {@link StatusComponent} as well as a
+	 * {@link PositionComponent} must be present.
+	 * 
+	 * @return TRUE if the entity is abtle to receive damage. FALSE otherwise.
+	 */
+	private boolean canEntityReceiveDamage(Entity entity) {
+		// Check if we have valid x and y.
+		if (!entityService.hasComponent(entity, StatusComponent.class)) {
+			LOG.warn("Entity {} does not have status component.", entity);
+			return false;
+		}
+
+		if (!entityService.hasComponent(entity, PositionComponent.class)) {
+			LOG.warn("Entity {} does not have position component.", entity);
+			return false;
+		}
+
+		if (!entityService.hasComponent(entity, LevelComponent.class)) {
+			LOG.warn("Entity {} does not have level component.", entity);
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -254,7 +269,7 @@ public class BattleService {
 			LOG.trace("Non physical attacks always hits.");
 			return true;
 		}
-		
+
 		final StatusBasedValues atkStatBased = getStatBased(attacker);
 		final StatusBasedValues defStatBased = getStatBased(defender);
 
@@ -410,17 +425,6 @@ public class BattleService {
 	}
 
 	/**
-	 * Attacks itself.
-	 * 
-	 * @param atkMsg
-	 * @param usedAttack
-	 * @param pbe
-	 */
-	public void attackSelf(AttackUseMessage atkMsg, Attack usedAttack, Entity pbe) {
-		// TODO Coden.
-	}
-
-	/**
 	 * The true damage is applied directly to the entity without further
 	 * reducing the damage via armor.
 	 * 
@@ -556,6 +560,9 @@ public class BattleService {
 		return usedAttack.getRange();
 	}
 
+	/**
+	 * @return Current position of the entity.
+	 */
 	private Point getPosition(Entity e) {
 		return entityService.getComponent(e, PositionComponent.class)
 				.map(p -> p.getPosition())
@@ -563,8 +570,6 @@ public class BattleService {
 	}
 
 	/**
-	 * @param e
-	 *            The entity.
 	 * @return The level of the entity.
 	 */
 	private int getLevel(Entity e) {
@@ -574,7 +579,6 @@ public class BattleService {
 	}
 
 	/**
-	 * @param attacker
 	 * @return The {@link StatusPoints} of a entity.
 	 */
 	private StatusPoints getStatusPoints(Entity e) {
@@ -583,6 +587,9 @@ public class BattleService {
 				.orElse(new StatusPointsImpl());
 	}
 
+	/**
+	 * @return {@link StatusBasedValues} of the entity.
+	 */
 	private StatusBasedValues getStatBased(Entity e) {
 		return entityService.getComponent(e, StatusComponent.class)
 				.map(StatusComponent::getStatusBasedValues)

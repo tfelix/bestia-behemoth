@@ -1,4 +1,4 @@
-syntax = "proto3";
+throw new IllegalStateException("Not yet implemented.");syntax = "proto3";
 
 package net.bestia.message; 
 
