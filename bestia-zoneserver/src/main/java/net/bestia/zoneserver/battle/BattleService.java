@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.StatusService;
 import net.bestia.entity.component.LevelComponent;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.StatusComponent;
@@ -24,9 +23,9 @@ import net.bestia.model.battle.Damage;
 import net.bestia.model.dao.AttackDAO;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.AttackType;
+import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
-import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
@@ -50,18 +49,15 @@ public class BattleService {
 
 	private final AttackDAO atkDao;
 	private final EntityService entityService;
-	private final StatusService statusService;
 	private final MapService mapService;
 
 	@Autowired
 	public BattleService(
 			EntityService entityService,
-			StatusService statusService,
 			MapService mapService,
 			AttackDAO atkDao) {
 
 		this.entityService = Objects.requireNonNull(entityService);
-		this.statusService = Objects.requireNonNull(statusService);
 		this.mapService = Objects.requireNonNull(mapService);
 		this.atkDao = Objects.requireNonNull(atkDao);
 	}
@@ -127,8 +123,9 @@ public class BattleService {
 			return null;
 		}
 
-		// Create the damage variables.
-		final DamageVariables dmgVars = null;
+		// Create the damage variables. These variables are modified via worn
+		// equipment and status effects.
+		final DamageVariables dmgVars = new DamageVariables();
 
 		if (!isAttackPossible(usedAttack, attacker, defender, dmgVars)) {
 			LOG.trace("Attack was not possible.");
@@ -144,6 +141,7 @@ public class BattleService {
 		// Prepare the battle context.
 		final BattleContext battleCtx = createBattleContext(usedAttack, attacker, defender);
 
+		// TODO ab hier weiter machen.
 		Damage primaryDamage;
 		// Check if this was a skill or a normal attack.
 		if (usedAttack.getId() == Attack.DEFAULT_MELEE_ATTACK_ID) {
@@ -326,13 +324,13 @@ public class BattleService {
 
 		final int neededMana = (int) Math.ceil(attack.getManaCost() * dmgVars.getNeededManaMod());
 
-		final StatusComponent statusComp = entityService.getComponent(attacker, StatusComponent.class).get();
-		final int currentMana = statusComp.getConditionValues().getCurrentMana();
+		final ConditionValues attackerCondition = getConditional(attacker);
+		final int currentMana = attackerCondition.getCurrentMana();
 
 		LOG.trace("Needed mana: {}/{}", neededMana, currentMana);
 
 		if (currentMana >= neededMana) {
-			statusComp.getConditionValues().setCurrentMana(currentMana - neededMana);
+			attackerCondition.setCurrentMana(currentMana - neededMana);
 			return true;
 		} else {
 			return false;
@@ -356,7 +354,7 @@ public class BattleService {
 
 		if (!attack.needsLineOfSight()) {
 			LOG.trace("Attack does not need los.");
-			return false;
+			return true;
 		}
 
 		final Point start = entityService.getComponent(attacker, PositionComponent.class).get().getPosition();
@@ -432,17 +430,18 @@ public class BattleService {
 	 * @param trueDamage
 	 */
 	public void takeTrueDamage(Entity defender, Damage trueDamage) {
-		final int damage = trueDamage.getDamage();
-
-		ConditionValues values = statusService.getStatusValues(defender).orElseThrow(IllegalArgumentException::new);
-
-		if (values.getCurrentHealth() <= damage) {
-			killEntity(defender);
-			return;
-		}
-
-		values.addHealth(-damage);
-		statusService.save(defender, values);
+		/*
+		 * final int damage = trueDamage.getDamage();
+		 * 
+		 * ConditionValues values =
+		 * statusService.getStatusValues(defender).orElseThrow(
+		 * IllegalArgumentException::new);
+		 * 
+		 * if (values.getCurrentHealth() <= damage) { killEntity(defender);
+		 * return; }
+		 * 
+		 * values.addHealth(-damage); statusService.save(defender, values);
+		 */
 	}
 
 	/**
@@ -462,7 +461,6 @@ public class BattleService {
 		final StatusComponent statusComp = entityService.getComponent(defender, StatusComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
-		final StatusPoints status = statusComp.getStatusPoints();
 		final ConditionValues statusValues = statusComp.getConditionValues();
 
 		// TODO Possibly reduce the damge or reflect it etc.
@@ -533,19 +531,14 @@ public class BattleService {
 	 */
 	private boolean isInRange(Attack attack, Entity attacker, Entity defender) {
 
-		final Point atkPosition = entityService.getComponent(attacker, PositionComponent.class)
-				.orElseThrow(IllegalArgumentException::new)
-				.getPosition();
-
-		final Point defPosition = entityService.getComponent(defender, PositionComponent.class)
-				.orElseThrow(IllegalArgumentException::new)
-				.getPosition();
+		final Point atkPosition = getPosition(attacker);
+		final Point defPosition = getPosition(defender);
 
 		final int effectiveRange = getEffectiveSkillRange(attack, attacker);
 
 		LOG.trace("Effective attack range: {}", effectiveRange);
 
-		return effectiveRange <= atkPosition.getDistance(defPosition);
+		return effectiveRange >= atkPosition.getDistance(defPosition);
 	}
 
 	/**
@@ -593,6 +586,15 @@ public class BattleService {
 	private StatusBasedValues getStatBased(Entity e) {
 		return entityService.getComponent(e, StatusComponent.class)
 				.map(StatusComponent::getStatusBasedValues)
+				.orElseThrow(IllegalArgumentException::new);
+	}
+
+	/**
+	 * @return {@link StatusBasedValues} of the entity.
+	 */
+	private ConditionValues getConditional(Entity e) {
+		return entityService.getComponent(e, StatusComponent.class)
+				.map(StatusComponent::getConditionValues)
 				.orElseThrow(IllegalArgumentException::new);
 	}
 

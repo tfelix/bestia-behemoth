@@ -2,6 +2,8 @@ package net.bestia.zoneserver.actor.entity;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
@@ -18,8 +20,8 @@ import net.bestia.zoneserver.actor.SpringExtension;
  * @author Thomas Felix
  *
  */
-@Configuration
-@Profile("production")
+@Component
+@Scope("prototype")
 public class EntityShardManagerActor extends AbstractActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().getSystem(), this);
 

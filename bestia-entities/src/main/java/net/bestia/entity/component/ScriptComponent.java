@@ -21,7 +21,7 @@ public class ScriptComponent extends Component {
 	public enum Callback {
 
 		/**
-		 * Script is called on a regular basis.
+		 * Script is called on a regular time basis.
 		 */
 		ON_INTERVAL,
 
@@ -36,13 +36,13 @@ public class ScriptComponent extends Component {
 		ON_LEAVE_AREA,
 
 		/**
-		 * Script is called if the entity get damage awarded.
+		 * Script is called if the entity is damage awarded.
 		 */
 		ON_TAKE_DMG,
 
 		/**
 		 * This hook gets called before the damage is calculated to the script
-		 * so the script can influence the damage.
+		 * so the script can influence the damage calculation.
 		 */
 		ON_BEFORE_TAKE_DMG,
 

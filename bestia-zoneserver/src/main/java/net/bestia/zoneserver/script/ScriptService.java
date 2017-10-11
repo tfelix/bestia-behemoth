@@ -21,6 +21,7 @@ import net.bestia.entity.component.ScriptComponent.Callback;
 import net.bestia.messages.internal.entity.EntityComponentMessage;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.script.env.ScriptEnv;
+import net.bestia.zoneserver.script.exec.ScriptFunctionExecutor;
 
 /**
  * This class is responsible for fetching the script, creating a appropriate
@@ -117,33 +118,11 @@ public class ScriptService {
 
 		final ScriptIdent ident = resolver.resolveScriptIdent(name);
 		final CompiledScript script = resolveScript(ident);
+		
+		//final ScriptFunctionExecutor funcExec = new ScriptFunctionExecutor("main", env, script);
 
 		setupScriptBindings(script, ident, new SimpleBindings());
 		callFunction(script, ident.getFunctionName());
-	}
-
-	/**
-	 * This call method tries to call the script attached to this entity. By
-	 * doing so it will first check if there is a script
-	 * 
-	 * @param env
-	 * @param scriptEntity
-	 */
-	public boolean callScript(ScriptEnv env, String name) {
-
-		return false;
-	}
-
-	/**
-	 * This call method tries to call the script attached to this entity. By
-	 * doing so it will first check if there is a script
-	 * 
-	 * @param env
-	 * @param scriptEntity
-	 */
-	public boolean callScript(ScriptEnv env, Entity scriptEntity) {
-
-		return false;
 	}
 
 	/**
@@ -194,8 +173,7 @@ public class ScriptService {
 		Objects.requireNonNull(entity);
 		Objects.requireNonNull(callbackFunctionName);
 
-		final ScriptComponent scriptComp = entityService.getComponent(entity, ScriptComponent.class)
-				.orElseThrow(IllegalArgumentException::new);
+		final ScriptComponent scriptComp = getScriptComponent(entity);
 
 		scriptComp.setCallbackName(Callback.ON_INTERVAL, callbackFunctionName);
 		entityService.updateComponent(scriptComp);
@@ -213,8 +191,7 @@ public class ScriptService {
 	public void stopScriptInterval(Entity entity) {
 		Objects.requireNonNull(entity);
 
-		final ScriptComponent scriptComp = entityService.getComponent(entity, ScriptComponent.class)
-				.orElseThrow(IllegalArgumentException::new);
+		final ScriptComponent scriptComp = getScriptComponent(entity);
 
 		scriptComp.removeCallback(Callback.ON_INTERVAL);
 		entityService.updateComponent(scriptComp);
@@ -222,5 +199,10 @@ public class ScriptService {
 		// Tell the actor which script to periodically call.
 		final EntityComponentMessage compMessage = EntityComponentMessage.stop(entity.getId(), scriptComp.getId());
 		akkaApi.sendEntityActor(entity.getId(), compMessage);
+	}
+
+	private ScriptComponent getScriptComponent(Entity entity) {
+		return entityService.getComponent(entity, ScriptComponent.class)
+				.orElseThrow(IllegalArgumentException::new);
 	}
 }
