@@ -10,6 +10,8 @@ public class StatusValuesTest {
 
 		ConditionValues vals = new ConditionValues();
 		ConditionValues rhs = new ConditionValues();
+		rhs.setMaxHealth(200);
+		rhs.setMaxMana(200);
 		rhs.setCurrentHealth(123);
 		rhs.setCurrentMana(100);
 		vals.set(rhs);
@@ -38,9 +40,10 @@ public class StatusValuesTest {
 	@Test
 	public void addHealth_positive_correct() {
 		ConditionValues sv = new ConditionValues();
+		sv.setMaxHealth(18);
 		sv.setCurrentHealth(10);
 		sv.addHealth(10);
-		Assert.assertEquals(20, sv.getCurrentHealth());
+		Assert.assertEquals(18, sv.getCurrentHealth());
 	}
 
 	@Test
@@ -54,8 +57,9 @@ public class StatusValuesTest {
 	@Test
 	public void addMana_positive_correct() {
 		ConditionValues sv = new ConditionValues();
+		sv.setMaxMana(18);
 		sv.setCurrentMana(10);
 		sv.addMana(10);
-		Assert.assertEquals(20, sv.getCurrentMana());
+		Assert.assertEquals(18, sv.getCurrentMana());
 	}
 }

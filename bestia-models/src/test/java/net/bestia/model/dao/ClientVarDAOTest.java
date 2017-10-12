@@ -29,6 +29,7 @@ public class ClientVarDAOTest {
 	@Before
 	public void setup() {
 		Account acc = new Account();
+		acc.setId(ACC_ID);
 		accDao.save(acc);
 		
 		ClientVar cv = new ClientVar(acc, EXISTING_KEY, "test1234");

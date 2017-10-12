@@ -122,6 +122,8 @@ public class ConditionValues implements Serializable {
 	 */
 	public void set(ConditionValues rhs) {
 
+		setMaxHealth(rhs.getMaxHealth());
+		setMaxMana(rhs.getMaxMana());
 		setCurrentHealth(rhs.getCurrentHealth());
 		setCurrentMana(rhs.getCurrentMana());
 
