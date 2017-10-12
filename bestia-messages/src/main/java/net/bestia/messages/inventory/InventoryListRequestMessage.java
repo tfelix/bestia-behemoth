@@ -14,13 +14,6 @@ public class InventoryListRequestMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * Priv. ctor for jackson.
-	 */
-	protected InventoryListRequestMessage() {
-		// no op.
-	}
-
 	public InventoryListRequestMessage(long accId) {
 		super(accId);
 		// no op.

@@ -26,12 +26,6 @@ public class EntityDamageMessage extends EntityJsonMessage {
 	@JsonProperty("d")
 	private final List<Damage> damage = new ArrayList<>();
 
-	/**
-	 * Std. Ctor for Jackson.
-	 */
-	protected EntityDamageMessage() {
-		// no op.
-	}
 
 	/**
 	 * Helper ctor if receiving acc is not known when the message is created.

@@ -36,13 +36,6 @@ public class InventoryItemSetMessage extends JsonMessage {
 	/**
 	 * Ctor.
 	 */
-	protected InventoryItemSetMessage() {
-		// no op.
-	}
-
-	/**
-	 * Ctor.
-	 */
 	public InventoryItemSetMessage(long accId) {
 		super(accId);
 		

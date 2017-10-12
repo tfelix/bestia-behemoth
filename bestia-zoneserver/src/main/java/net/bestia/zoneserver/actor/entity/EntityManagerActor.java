@@ -9,7 +9,7 @@ import akka.cluster.sharding.ClusterSharding;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.EntityMessage;
-import net.bestia.messages.internal.entity.ComponentPayloadWrapper;
+import net.bestia.messages.cluster.entity.ComponentPayloadWrapper;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.IngestExActor;

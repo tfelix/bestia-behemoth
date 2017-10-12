@@ -18,7 +18,7 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
 import net.bestia.entity.component.ScriptComponent.Callback;
-import net.bestia.messages.internal.entity.EntityComponentMessage;
+import net.bestia.messages.cluster.entity.EntityComponentMessage;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.script.env.ScriptEnv;
 import net.bestia.zoneserver.script.exec.ScriptFunctionExecutor;

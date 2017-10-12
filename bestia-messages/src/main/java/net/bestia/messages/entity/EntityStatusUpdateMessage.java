@@ -39,18 +39,7 @@ public class EntityStatusUpdateMessage extends EntityJsonMessage {
 	public String getMessageId() {
 		return MESSAGE_ID;
 	}
-	
-	/**
-	 * For jackson.
-	 */
-	protected EntityStatusUpdateMessage() {
-		
-		this.statusBasedValues = null;
-		this.statusPoints = null;
-		this.unmodifiedStatusPoints = null;
-		this.statusValues = null;
-		
-	}
+
 
 	public EntityStatusUpdateMessage(
 			long accId,

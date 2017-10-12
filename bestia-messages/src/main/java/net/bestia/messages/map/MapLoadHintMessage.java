@@ -25,12 +25,6 @@ public class MapLoadHintMessage extends JsonMessage {
 	@JsonProperty("s")
 	private List<SpriteInfo> sprites = new ArrayList<>();
 
-	/**
-	 * Priv. ctor. for jackson.
-	 */
-	protected MapLoadHintMessage() {
-		// no op.
-	}
 
 	public MapLoadHintMessage(long accId, List<SpriteInfo> sprites) {
 		super(accId);

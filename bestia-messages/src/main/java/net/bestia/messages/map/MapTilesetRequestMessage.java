@@ -20,10 +20,6 @@ public class MapTilesetRequestMessage extends JsonMessage {
 	@JsonProperty("gid")
 	private int tileId;
 
-	protected MapTilesetRequestMessage() {
-		tileId = 0;
-	}
-
 	public MapTilesetRequestMessage(long accId, int gid) {
 		super(accId);
 		

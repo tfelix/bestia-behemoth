@@ -18,10 +18,6 @@ public class ClientVarMessage extends JsonMessage {
 	
 	@JsonProperty("d")
 	private String data;
-
-	protected ClientVarMessage() {
-		// no op.
-	}
 	
 	public ClientVarMessage(long accId, String uuid, String data) {
 		super(accId);

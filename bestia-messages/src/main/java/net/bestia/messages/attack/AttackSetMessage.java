@@ -32,10 +32,6 @@ public class AttackSetMessage extends JsonMessage {
 
 	@JsonProperty("s5")
 	private int atkSlotId5;
-
-	protected AttackSetMessage() {
-		// no op.
-	}
 	
 	public AttackSetMessage(long accId) {
 		super(accId);

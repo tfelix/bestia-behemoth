@@ -10,7 +10,7 @@ import akka.actor.AbstractActor;
 import net.bestia.entity.Entity;
 import net.bestia.entity.PlayerEntityService;
 import net.bestia.messages.attack.AttackUseMessage;
-import net.bestia.messages.internal.entity.EntitySkillMessage;
+import net.bestia.messages.cluster.entity.EntitySkillMessage;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 
 /**

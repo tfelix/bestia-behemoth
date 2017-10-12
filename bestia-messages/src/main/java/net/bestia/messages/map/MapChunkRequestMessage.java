@@ -24,12 +24,6 @@ public class MapChunkRequestMessage extends JsonMessage {
 	@JsonProperty("c")
 	private List<Point> chunks = new ArrayList<>();
 
-	/**
-	 * Jackson priv. ctor.
-	 */
-	protected MapChunkRequestMessage() {
-		// no op.
-	}
 
 	public MapChunkRequestMessage(long accId, List<Point> chunks) {
 		super(accId);

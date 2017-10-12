@@ -13,13 +13,6 @@ import net.bestia.messages.JsonMessage;
  *
  */
 public class AttackListRequestMessage extends JsonMessage {
-
-	/**
-	 * Priv. ctor. This is needed for jackson.
-	 */
-	protected AttackListRequestMessage() {
-		// no op.
-	}
 	
 	public AttackListRequestMessage(long accId) {
 		super(accId);

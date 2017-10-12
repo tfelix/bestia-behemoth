@@ -30,10 +30,7 @@ public class LoginAuthMessage extends JsonMessage {
 	@JsonIgnore
 	private String clientIp;
 
-	protected LoginAuthMessage() {
-		// no op.
-	}
-
+	
 	public LoginAuthMessage(long accountId, String token, String agent) {
 		super(accountId);
 		

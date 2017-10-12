@@ -17,9 +17,6 @@ public class InventoryItemCastConfirmMessage extends InventoryItemCastMessage {
 	@JsonProperty("s")
 	private boolean success = true;
 	
-	protected InventoryItemCastConfirmMessage() {
-		// no op.
-	}
 	
 	public InventoryItemCastConfirmMessage(InventoryItemCastMessage msg, boolean success) {
 		super(msg.getAccountId(), msg);

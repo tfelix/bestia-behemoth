@@ -92,13 +92,6 @@ public class TranslationRequestMessage extends JsonMessage {
 	@JsonProperty("t")
 	private String token;
 
-	/**
-	 * Std. Ctor.
-	 */
-	public TranslationRequestMessage() {
-		items = new ArrayList<>();
-		token = "";
-	}
 	
 	public TranslationRequestMessage(long accId, List<TranslationItem> items) {
 		super(accId);

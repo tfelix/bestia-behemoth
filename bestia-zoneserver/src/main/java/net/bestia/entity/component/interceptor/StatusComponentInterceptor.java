@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import net.bestia.messages.cluster.entity.EntityComponentMessage;
 import net.bestia.messages.entity.EntityStatusUpdateMessage;
-import net.bestia.messages.internal.entity.EntityComponentMessage;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;

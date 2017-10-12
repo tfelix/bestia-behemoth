@@ -6,9 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import net.bestia.messages.cluster.entity.EntityComponentMessage;
 import net.bestia.messages.entity.EntityPositionMessage;
 import net.bestia.messages.entity.EntityUpdateMessage;
-import net.bestia.messages.internal.entity.EntityComponentMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.entity.Entity;

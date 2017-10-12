@@ -23,10 +23,6 @@ public class LoginAuthReplyMessage extends JsonMessage {
 	@JsonProperty("username")
 	private String username;
 
-	protected LoginAuthReplyMessage() {
-		
-		// no op.
-	}
 	
 	public LoginAuthReplyMessage(long accId, LoginState state, String username) {
 		super(accId);

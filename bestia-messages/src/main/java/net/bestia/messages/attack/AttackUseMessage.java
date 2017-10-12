@@ -30,13 +30,6 @@ public class AttackUseMessage extends JsonMessage {
 	@JsonProperty("tid")
 	private long targetEntityId;
 	
-	/**
-	 * Priv. ctor. Used for jackson.
-	 */
-	protected AttackUseMessage() {
-		// no op.
-	}
-	
 	public AttackUseMessage(long accId) {
 		super(accId);
 		// no op.

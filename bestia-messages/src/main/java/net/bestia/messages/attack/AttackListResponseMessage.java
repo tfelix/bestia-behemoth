@@ -27,13 +27,6 @@ public class AttackListResponseMessage extends JsonMessage {
 	@JsonProperty("atks")
 	private List<BestiaAttack> attacks;
 	
-	/**
-	 * Priv. ctor. This is needed for jackson.
-	 */
-	protected AttackListResponseMessage() {
-		// no op.
-	}
-	
 	public AttackListResponseMessage(long accId) {
 		super(accId);
 	}

@@ -27,10 +27,6 @@ public class EntityPositionMessage extends EntityJsonMessage {
 	@JsonProperty("y")
 	private long currentY;
 
-	public EntityPositionMessage() {
-		// no op.
-	}
-
 	/**
 	 * Sets the current receiver account to 0. This is useful if the receiver
 	 * account is not yet known upon creation of this message.

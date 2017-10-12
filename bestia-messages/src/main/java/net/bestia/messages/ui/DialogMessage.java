@@ -22,13 +22,7 @@ public class DialogMessage extends JsonMessage {
 
 	@JsonProperty("n")
 	private final List<DialogNode> nodes;
-
-	/**
-	 * Std. ctor.
-	 */
-	public DialogMessage() {
-		this.nodes = Collections.unmodifiableList(new ArrayList<>());
-	}
+	
 
 	public DialogMessage(long accId, List<DialogNode> nodes) {
 		super(accId);

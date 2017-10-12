@@ -21,12 +21,6 @@ public class EntityInteractionRequestMessage extends EntityJsonMessage {
 	@JsonProperty("ieid")
 	private long interactedEntityId;
 
-	/**
-	 * Priv ctor for jackson.
-	 */
-	protected EntityInteractionRequestMessage() {
-		// no op.
-	}
 
 	public EntityInteractionRequestMessage(long accId, long entityId, long interactEntityId) {
 		super(accId, entityId);

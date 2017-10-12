@@ -35,10 +35,7 @@ public class TranslationResponseMessage extends JsonMessage {
 	 */
 	@JsonProperty("t")
 	private String token;
-	
-	protected TranslationResponseMessage() {
-		
-	}
+
 	
 	public TranslationResponseMessage(long accId, String token, List<TranslationItem> items) {
 		super(accId);

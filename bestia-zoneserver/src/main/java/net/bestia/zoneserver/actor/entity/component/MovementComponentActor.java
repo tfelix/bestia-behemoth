@@ -15,9 +15,9 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.MovingEntityService;
 import net.bestia.entity.PlayerEntityService;
-import net.bestia.messages.entity.EntityMoveMessage;
+import net.bestia.messages.cluster.entity.EntityMoveMessage;
+import net.bestia.messages.entity.EntityMoveRequestMessage;
 import net.bestia.messages.entity.EntityPositionMessage;
-import net.bestia.messages.internal.entity.EntityMoveInternalMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.SpringExtension;
 
@@ -55,8 +55,8 @@ public class MovementComponentActor extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(EntityMoveInternalMessage.class, this::handleMoveInternal)
-				.match(EntityMoveMessage.class, this::handleMove)
+				.match(EntityMoveMessage.class, this::handleMoveInternal)
+				.match(EntityMoveRequestMessage.class, this::handleMove)
 				.match(EntityPositionMessage.class, this::handlePosition)
 				.match(Terminated.class, this::handleTerminated)
 				.build();
@@ -71,7 +71,7 @@ public class MovementComponentActor extends AbstractActor {
 		movingService.moveToPosition(msg.getEntityId(), msg.getPosition());
 	}
 
-	private void handleMove(EntityMoveMessage msg) {
+	private void handleMove(EntityMoveRequestMessage msg) {
 		// We need to check if the user owns this entity.
 		if(!playerEntityService.hasPlayerEntity(msg.getAccountId(), msg.getEntityId())) {
 			// Player does not own this bestia so we abort.
@@ -82,7 +82,7 @@ public class MovementComponentActor extends AbstractActor {
 		movePath(msg.getPath());
 	}
 
-	private void handleMoveInternal(EntityMoveInternalMessage msg) {
+	private void handleMoveInternal(EntityMoveMessage msg) {
 		movePath(msg.getPath());
 	}
 

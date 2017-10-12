@@ -41,13 +41,6 @@ public class EntityAnimationMessage extends EntityJsonMessage {
 	private int duration;
 
 	/**
-	 * For Jackson.
-	 */
-	protected EntityAnimationMessage() {
-		// no op.
-	}
-
-	/**
 	 * Helper ctor if the receiving account id is not known when the message is
 	 * created.
 	 * 

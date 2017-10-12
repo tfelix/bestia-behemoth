@@ -42,14 +42,10 @@ public class ChatMessage extends EntityJsonMessage {
 	@JsonProperty("t")
 	private long time;
 
-	/**
-	 * Std. Ctor So the Jason Library can create this object.
-	 */
-	protected ChatMessage() {
-		// no op.
-	}
-
-	public ChatMessage(long accId, long entityId, String message, Mode mode) {
+	public ChatMessage(long accId,
+			long entityId,
+			String message,
+			Mode mode) {
 		super(accId, entityId);
 
 		this.chatMode = mode;
@@ -58,25 +54,29 @@ public class ChatMessage extends EntityJsonMessage {
 	}
 
 	public ChatMessage(long newAccountId, long entityId, ChatMessage chat) {
-		super(newAccountId, chat.getEntityId());
-		
+		super(newAccountId, entityId);
+
 		this.chatMessageId = chat.chatMessageId;
 		this.chatMode = chat.chatMode;
 		this.receiverNickname = chat.receiverNickname;
 		this.senderNickname = chat.senderNickname;
 		this.text = chat.text;
-		this.time = chat.time;		
+		this.time = chat.time;
 	}
 
+	public ChatMessage(long accId, String text, Mode chatMode) {
+		super(accId, 0);
+
+		this.text = text;
+		this.chatMode = chatMode;
+		this.time = System.currentTimeMillis() / 1000L;
+	}
 
 	public static ChatMessage getSystemMessage(Account account, String translationKey, Object... args) {
 
 		final String text = I18n.t(account, translationKey, args);
 
-		ChatMessage msg = new ChatMessage();
-		msg.setText(text);
-		msg.setTime(System.currentTimeMillis() / 1000L);
-		msg.setChatMode(Mode.SYSTEM);
+		ChatMessage msg = new ChatMessage(account.getId(), text, Mode.SYSTEM);
 		return msg;
 	}
 

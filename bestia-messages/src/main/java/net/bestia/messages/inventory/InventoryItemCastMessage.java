@@ -31,13 +31,7 @@ public class InventoryItemCastMessage extends JsonMessage {
 
 	private int y;
 
-	/**
-	 * Std. Ctor.
-	 */
-	protected InventoryItemCastMessage() {
-		// no op.
-	}
-
+	
 	public InventoryItemCastMessage(long accId, InventoryItemCastMessage copy) {
 		super(accId);
 

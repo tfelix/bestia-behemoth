@@ -18,9 +18,6 @@ public class LogoutMessage extends JsonMessage {
 
 	public static final String MESSAGE_ID = "system.logout";
 
-	protected LogoutMessage() {
-		// no op.
-	}
 
 	public LogoutMessage(long accId) {
 		super(accId);

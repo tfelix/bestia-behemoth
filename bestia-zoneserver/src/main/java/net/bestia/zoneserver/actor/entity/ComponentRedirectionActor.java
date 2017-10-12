@@ -10,7 +10,7 @@ import akka.actor.AbstractActor;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
 import net.bestia.messages.ComponentMessage;
-import net.bestia.messages.internal.entity.ComponentPayloadWrapper;
+import net.bestia.messages.cluster.entity.ComponentPayloadWrapper;
 
 /**
  * Some messages which are coming from the client can not directly associated

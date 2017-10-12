@@ -91,13 +91,6 @@ public class EntityUpdateMessage extends EntityJsonMessage {
 	private List<Tag> tags;
 
 	/**
-	 * Priv. ctor for jackson.
-	 */
-	protected EntityUpdateMessage() {
-		// no op.
-	}
-
-	/**
 	 * Constructor which uses the builder pattern for immutable data.
 	 * 
 	 * @param builder

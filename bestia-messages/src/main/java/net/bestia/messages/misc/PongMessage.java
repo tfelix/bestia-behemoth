@@ -18,12 +18,6 @@ public class PongMessage extends JsonMessage {
 	@JsonProperty("s")
 	private long start;
 
-	/**
-	 * Ctor.
-	 */
-	protected PongMessage() {
-		// no op.
-	}
 
 	public PongMessage(long accId, long start) {
 		super(accId);

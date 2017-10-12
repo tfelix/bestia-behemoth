@@ -15,26 +15,8 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>com.hazelcast</groupId>
-			<artifactId>hazelcast</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.typesafe.akka</groupId>
-			<artifactId>akka-actor_2.11</artifactId>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>net.bestia</groupId>
-			<artifactId>bestia-models</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.bestia</groupId>
-			<artifactId>bestia-entities</artifactId>
+			<artifactId>bestia-message-cluster</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

@@ -20,12 +20,6 @@ public class MapMoveMessage extends JsonMessage {
 
 	private Point target;
 
-	/**
-	 * Ctor.
-	 */
-	protected MapMoveMessage() {
-		// no op.
-	}
 
 	/**
 	 * Ctor. With account ID and target point to move the active bestia to.

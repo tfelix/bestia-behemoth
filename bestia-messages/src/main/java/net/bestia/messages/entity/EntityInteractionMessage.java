@@ -26,12 +26,6 @@ public class EntityInteractionMessage extends EntityJsonMessage {
 	@JsonProperty("is")
 	private final List<InteractionType> interactions = new ArrayList<>();
 
-	/**
-	 * Priv ctor. for jackson.
-	 */
-	protected EntityInteractionMessage() {
-		// no op.
-	}
 	
 	public EntityInteractionMessage(long accId, long eid, InteractionType interaction) {
 		super(accId, eid);

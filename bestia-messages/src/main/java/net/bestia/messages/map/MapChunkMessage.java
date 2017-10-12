@@ -30,12 +30,6 @@ public class MapChunkMessage extends JsonMessage {
 		return MESSAGE_ID;
 	}
 
-	/**
-	 * Priv ctor for jackson.
-	 */
-	protected MapChunkMessage() {
-		// no op.
-	}
 
 	public MapChunkMessage(long accId, List<MapChunk> chunks) {
 		super(accId);

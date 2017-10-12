@@ -19,9 +19,6 @@ public class PingMessage extends JsonMessage {
 	@JsonProperty("s")
 	private long start;
 
-	protected PingMessage() {
-		// no op.
-	}
 
 	public PingMessage(long accId) {
 		super(accId);

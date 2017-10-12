@@ -14,9 +14,6 @@ public class BestiaInfoRequestMessage extends JsonMessage {
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "bestia.requestinfo";
 	
-	protected BestiaInfoRequestMessage() {
-		// no op.
-	}
 	
 	public BestiaInfoRequestMessage(long accId) {
 		super(accId);

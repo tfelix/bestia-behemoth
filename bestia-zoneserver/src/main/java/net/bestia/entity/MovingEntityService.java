@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import net.bestia.entity.component.PositionComponent;
-import net.bestia.messages.internal.entity.ComponentPayloadWrapper;
-import net.bestia.messages.internal.entity.EntityMoveInternalMessage;
+import net.bestia.messages.cluster.entity.ComponentPayloadWrapper;
+import net.bestia.messages.cluster.entity.EntityMoveMessage;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.Point;
@@ -201,7 +201,7 @@ public class MovingEntityService {
 				.getComponent(entityId, PositionComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
-		final EntityMoveInternalMessage msg = new EntityMoveInternalMessage(entityId, path);
+		final EntityMoveMessage msg = new EntityMoveMessage(entityId, path);
 		final ComponentPayloadWrapper wrappedMsg = new ComponentPayloadWrapper(posComp.getEntityId(), posComp.getId(), msg);
 
 		akkaApi.sendEntityActor(entityId, wrappedMsg);

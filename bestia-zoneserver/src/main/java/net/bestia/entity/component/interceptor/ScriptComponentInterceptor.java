@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
-import net.bestia.messages.internal.entity.EntityComponentMessage;
+import net.bestia.messages.cluster.entity.EntityComponentMessage;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 public class ScriptComponentInterceptor extends BaseComponentInterceptor<ScriptComponent> {

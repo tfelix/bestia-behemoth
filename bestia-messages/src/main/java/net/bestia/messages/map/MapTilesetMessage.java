@@ -23,12 +23,6 @@ public class MapTilesetMessage extends JsonMessage {
 	@JsonProperty("ts")
 	private final SimpleTileset tileset;
 
-	/**
-	 * Priv. ctor for jackson.
-	 */
-	protected MapTilesetMessage() {
-		tileset = null;
-	}
 
 	public MapTilesetMessage(long accId, SimpleTileset tileset) {
 		super(accId);
