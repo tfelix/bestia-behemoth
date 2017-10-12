@@ -22,12 +22,12 @@ import net.bestia.webserver.actor.WebserverActorApi;
 @RequestMapping("v1/server")
 public class ServerController {
 
-	private final WebserverActorApi akkaApi;
+	private final WebserverActorApi akkaApi = null;
 
-	@Autowired
-	public ServerController(WebserverActorApi akkaApi) {
+	//@Autowired
+	public ServerController() {
 
-		this.akkaApi = Objects.requireNonNull(akkaApi);
+		//this.akkaApi = Objects.requireNonNull(akkaApi);
 	}
 
 	/**

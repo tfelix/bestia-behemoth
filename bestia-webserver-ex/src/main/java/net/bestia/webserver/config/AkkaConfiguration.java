@@ -1,27 +1,14 @@
 package net.bestia.webserver.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.hazelcast.core.HazelcastInstance;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import akka.actor.Deploy;
-import akka.actor.Props;
-import akka.actor.TypedActor;
-import akka.actor.TypedProps;
-import akka.japi.Creator;
-import akka.routing.FromConfig;
 import net.bestia.server.AkkaCluster;
 import net.bestia.webserver.actor.ActorSystemTerminator;
-import net.bestia.webserver.actor.ClusterConnectActor;
-import net.bestia.webserver.actor.ClusterConnectionListenerActor;
-import net.bestia.webserver.actor.WebserverActorApi;
 import net.bestia.webserver.service.ConfigurationService;
 
 /**
@@ -36,39 +23,16 @@ import net.bestia.webserver.service.ConfigurationService;
 @Configuration
 public class AkkaConfiguration {
 
-	private final static Logger LOG = LoggerFactory.getLogger(AkkaConfiguration.class);
+	//private final static Logger LOG = LoggerFactory.getLogger(AkkaConfiguration.class);
 	private final static String AKKA_CONFIG_NAME = "akka";
 
 	private ActorSystemTerminator terminator = null;
 
 	@Bean
 	public ActorSystem actorSystem(Config akkaConfig,
-			HazelcastInstance hzClient,
 			ConfigurationService serverConfig) {
 
-		final ActorSystem system = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
-
-		final Props clusterConnectProps = ClusterConnectActor.props(hzClient);
-		system.actorOf(clusterConnectProps, ClusterConnectActor.NAME);
-
-		// Subscribe for dead letter checking and domain events.
-		final Props clusterListenerProps = ClusterConnectionListenerActor.props(serverConfig, hzClient);
-		system.actorOf(clusterListenerProps);
-
-		return system;
-	}
-
-	/**
-	 * Router to send messages to the bestia system.
-	 *
-	 */
-	@Bean
-	public ActorRef uplinkRouter(ActorSystem system) {
-
-		ActorRef msgRouter = system.actorOf(FromConfig.getInstance().props(), "uplink");
-		LOG.info("Message ingest path: {}", msgRouter.path().toString());
-
-		return msgRouter;
+		return ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
 	}
 
 	/**
@@ -81,9 +45,9 @@ public class AkkaConfiguration {
 	 * @return The singelton {@link ActorSystemTerminator}.
 	 */
 	@Bean
-	public ActorSystemTerminator systemTerminator(ActorSystem system, HazelcastInstance hz) {
+	public ActorSystemTerminator systemTerminator(ActorSystem system) {
 		if (terminator == null) {
-			terminator = new ActorSystemTerminator(system, hz);
+			terminator = new ActorSystemTerminator(system);
 		}
 		return terminator;
 	}

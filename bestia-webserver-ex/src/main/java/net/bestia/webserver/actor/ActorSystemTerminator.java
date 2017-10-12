@@ -6,8 +6,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hazelcast.core.HazelcastInstance;
-
 import akka.actor.ActorSystem;
 import scala.concurrent.Await;
 import scala.concurrent.duration.Duration;
@@ -24,12 +22,10 @@ public class ActorSystemTerminator implements Runnable {
 	
 	private boolean hasRun = false;
 	private final ActorSystem system;
-	private final HazelcastInstance hz;
 	
-	public ActorSystemTerminator(ActorSystem system, HazelcastInstance hz) {
+	public ActorSystemTerminator(ActorSystem system) {
 		
 		this.system = Objects.requireNonNull(system);
-		this.hz = Objects.requireNonNull(hz);
 	}
 
 	public void run() {
@@ -40,9 +36,6 @@ public class ActorSystemTerminator implements Runnable {
 		hasRun = true;
 		
 		LOG.info("Terminating the akka system and hazelcast.");
-		
-		// Shutdown Hazelcast.
-		hz.shutdown();
 		
 		// exit JVM when ActorSystem has been terminated
 		final Runnable exit = new Runnable() {

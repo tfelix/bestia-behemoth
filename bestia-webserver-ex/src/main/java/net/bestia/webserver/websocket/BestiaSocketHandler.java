@@ -27,13 +27,13 @@ public class BestiaSocketHandler extends TextWebSocketHandler {
 	private static final Logger LOG = LoggerFactory.getLogger(BestiaSocketHandler.class);
 
 	private static final String ATTRIBUTE_ACTOR_REF = "actorRef";
-	private final WebserverActorApi actorApi;
+	private final WebserverActorApi actorApi = null;
 	private final ConfigurationService config;
 
 	@Autowired
-	public BestiaSocketHandler(WebserverActorApi actorApi, ConfigurationService config) {
+	public BestiaSocketHandler(ConfigurationService config) {
 
-		this.actorApi = Objects.requireNonNull(actorApi);
+		//this.actorApi = Objects.requireNonNull(actorApi);
 		this.config = Objects.requireNonNull(config);
 	}
 

@@ -31,7 +31,7 @@ import net.bestia.webserver.service.ConfigurationService;
 public class AccountController {
 
 	private final ConfigurationService config;
-	private final WebserverActorApi akkaApi;
+	private final WebserverActorApi akkaApi = null;
 
 	/**
 	 * Transforms the server reply to a better usable response for the clients.
@@ -63,11 +63,10 @@ public class AccountController {
 	}
 
 	@Autowired
-	public AccountController(ConfigurationService config,
-			WebserverActorApi akkaApi) {
+	public AccountController(ConfigurationService config) {
 
 		this.config = Objects.requireNonNull(config);
-		this.akkaApi = Objects.requireNonNull(akkaApi);
+		//this.akkaApi = Objects.requireNonNull(akkaApi);
 	}
 
 	/**
