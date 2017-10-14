@@ -6,9 +6,14 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import net.bestia.zoneserver.actor.zone.IngestExActor;
 import net.bestia.zoneserver.actor.zone.MemDbHeartbeatActor;
-import net.bestia.zoneserver.actor.zone.SendActiveClientsActor;
 import net.bestia.zoneserver.actor.zone.ZoneClusterListenerActor;
 
+/**
+ * Central root actor of the bestia zone hierarchy.
+ * 
+ * @author Thomas Felix
+ *
+ */
 @Component
 @Scope("prototype")
 public class BestiaRootActor extends AbstractActor {
@@ -18,11 +23,15 @@ public class BestiaRootActor extends AbstractActor {
 	public BestiaRootActor() {
 
 		SpringExtension.actorOf(getContext(), IngestExActor.class);
-		//SpringExtension.actorOf(getContext(), SendActiveClientsActor.class);
 
 		// System actors.
 		SpringExtension.actorOf(getContext(), ZoneClusterListenerActor.class);
 		SpringExtension.actorOf(getContext(), MemDbHeartbeatActor.class);
+
+		// Maintenance actors.
+		// Noch nicht migriert.
+		// akkaApi.startActor(MapGeneratorMasterActor.class);
+		// akkaApi.startActor(MapGeneratorClientActor.class);
 	}
 
 	@Override

@@ -7,15 +7,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
-import com.hazelcast.core.HazelcastInstance;
-
-import net.bestia.entity.EntityService;
-import net.bestia.entity.ZoneEntityService;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.EntityCache;
 import net.bestia.entity.component.interceptor.BaseComponentInterceptor;
-import net.bestia.entity.component.interceptor.Interceptor;
-import net.bestia.messages.MessageApi;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.zoneserver.environment.date.BestiaDate;
@@ -56,13 +50,4 @@ public class ZoneBaseConfiguration {
 			List<BaseComponentInterceptor<? extends Component>> recyclers) {
 		return new EntityCache(config.getEntityBufferSize(), recyclers);
 	}
-	
-	@Bean
-	public EntityService entityService(HazelcastInstance hz,
-			MessageApi akkaApi,
-			Interceptor interceptor,
-			EntityCache cache) {
-		return new ZoneEntityService(hz, akkaApi, interceptor, cache);
-	}
-
 }

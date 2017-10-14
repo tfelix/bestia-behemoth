@@ -19,8 +19,12 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
 
+import akka.actor.PoisonPill;
 import net.bestia.entity.component.Component;
+import net.bestia.entity.component.EntityCache;
 import net.bestia.entity.component.PositionComponent;
+import net.bestia.entity.component.interceptor.Interceptor;
+import net.bestia.messages.MessageApi;
 import net.bestia.model.geometry.CollisionShape;
 
 /**
@@ -46,8 +50,15 @@ public class EntityService {
 	private final IMap<Long, Component> components;
 	private final IdGenerator idGenerator;
 
+	private final Interceptor interceptor;
+	private final EntityCache cache;
+	private final MessageApi messageApi;
+
 	@Autowired
-	public EntityService(HazelcastInstance hz) {
+	public EntityService(HazelcastInstance hz,
+			MessageApi akkaApi,
+			Interceptor interceptor,
+			EntityCache cache) {
 
 		Objects.requireNonNull(hz);
 
@@ -55,6 +66,10 @@ public class EntityService {
 		this.entities = hz.getMap(ECS_ENTITY_MAP);
 		this.idGenerator = hz.getIdGenerator(COMP_ID_GEN);
 		this.components = Objects.requireNonNull(hz).getMap(COMP_MAP);
+
+		this.messageApi = Objects.requireNonNull(akkaApi);
+		this.interceptor = Objects.requireNonNull(interceptor);
+		this.cache = Objects.requireNonNull(cache);
 	}
 
 	/**
@@ -80,18 +95,30 @@ public class EntityService {
 	 * @return
 	 */
 	public Entity newEntity() {
-		final Entity e = new Entity(getNewEntityId());
-		saveEntity(e);
+
+		Entity e = cache.getEntity();
+
+		if (e == null) {
+			LOG.debug("No recycled entity present. Creating new entity.");
+			e = new Entity(getNewEntityId());
+			saveEntity(e);
+		}
+
 		return e;
 	}
 
 	/**
 	 * Deletes the entity
 	 * 
-	 * @param entityId
-	 *            The entity id to remove from the memory database.
+	 * @param entity
+	 *            The entity id remove from the memory database.
 	 */
 	public void delete(Entity entity) {
+		Objects.requireNonNull(entity);
+
+		// Send message to kill off entity actor.
+		messageApi.sendToEntity(entity.getId(), PoisonPill.getInstance());
+
 		Objects.requireNonNull(entity);
 		LOG.trace("delete(): {}", entity);
 
@@ -106,6 +133,8 @@ public class EntityService {
 		} finally {
 			entities.unlock(eid);
 		}
+
+		cache.stashEntity(entity);
 	}
 
 	/**
@@ -231,19 +260,24 @@ public class EntityService {
 	 * @return
 	 */
 	public <T extends Component> T newComponent(Class<T> clazz) {
-		Objects.requireNonNull(clazz);
 
-		final Component comp;
-		try {
-			@SuppressWarnings("unchecked")
-			Constructor<Component> ctor = (Constructor<Component>) clazz.getConstructor(long.class);
-			comp = ctor.newInstance(getId());
-		} catch (Exception ex) {
-			LOG.error("Could not instantiate component.", ex);
-			throw new IllegalArgumentException(ex);
+		final T addedComp = cache.getComponent(clazz);
+
+		if (addedComp != null) {
+			return addedComp;
+		} else {
+			final Component comp;
+			try {
+				@SuppressWarnings("unchecked")
+				final Constructor<Component> ctor = (Constructor<Component>) clazz.getConstructor(long.class);
+				comp = ctor.newInstance(getId());
+			} catch (Exception ex) {
+				LOG.error("Could not instantiate component.", ex);
+				throw new IllegalArgumentException(ex);
+			}
+
+			return clazz.cast(comp);
 		}
-
-		return clazz.cast(comp);
 	}
 
 	/**
@@ -267,10 +301,13 @@ public class EntityService {
 
 		comp.setEntityId(entityId);
 		e.addComponent(comp);
-		
+
 		updateComponent(comp);
 		saveEntity(e);
+
 		LOG.trace("Added component {} to entity id: {}", comp, e.getId());
+
+		interceptor.interceptCreated(this, e, comp);
 	}
 
 	/**
@@ -308,6 +345,11 @@ public class EntityService {
 		} finally {
 			entities.unlock(entityId);
 		}
+
+		// After all is saved intercept the created components.
+		attachComponents.forEach(c -> {
+			interceptor.interceptCreated(this, e, c);
+		});
 	}
 
 	/**
@@ -331,6 +373,7 @@ public class EntityService {
 			components.unlock(component.getId());
 		}
 
+		interceptor.interceptUpdate(this, getEntity(component.getEntityId()), component);
 	}
 
 	/**
@@ -358,7 +401,7 @@ public class EntityService {
 	 * @param entity
 	 * @param component
 	 */
-	protected void prepareComponentRemove(Entity entity, Component component) {
+	private void prepareComponentRemove(Entity entity, Component component) {
 		Objects.requireNonNull(entity);
 		Objects.requireNonNull(component);
 
@@ -374,6 +417,9 @@ public class EntityService {
 		}
 
 		component.setEntityId(0);
+		
+		interceptor.interceptDeleted(this, entity, component);
+		cache.stashComponente(component);
 	}
 
 	/**

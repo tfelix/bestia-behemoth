@@ -48,11 +48,6 @@ public class ZoneStarter implements CommandLineRunner {
 	public void run(String... strings) throws Exception {
 		LOG.info("Starting actor system...");
 
-		// Maintenance actors.
-		// Noch nicht migriert.
-		//akkaApi.startActor(MapGeneratorMasterActor.class);
-		//akkaApi.startActor(MapGeneratorClientActor.class);
-
 		registerShardedActors();
 		
 		registerSingeltons();
@@ -78,7 +73,6 @@ public class ZoneStarter implements CommandLineRunner {
 
 	private void registerShardedActors() {
 		LOG.info("Register the sharded actor.");
-
 		final ClusterShardingSettings settings = ClusterShardingSettings.create(system);
 		final ClusterSharding sharding = ClusterSharding.get(system);
 		final Props props = SpringExtension.getSpringProps(system, EntityShardManagerActor.class);
