@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.web.UserNameCheck;
+import net.bestia.messages.account.UserNameCheck;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;

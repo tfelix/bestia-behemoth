@@ -23,6 +23,13 @@ public class ChatEchoMessage extends JsonMessage {
 
 	@JsonProperty("cmid")
 	private int chatMessageId;
+	
+	/**
+	 * Needed for MessageTypeIdResolver 
+	 */
+	private ChatEchoMessage() {
+		super(0);
+	}
 
 	private ChatEchoMessage(ChatMessage rhs) {
 		super(rhs.getAccountId());

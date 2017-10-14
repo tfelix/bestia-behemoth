@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import net.bestia.messages.web.AccountLoginRequest;
-import net.bestia.messages.web.AccountRegistration;
-import net.bestia.messages.web.AccountRegistrationReply;
-import net.bestia.messages.web.UserNameCheck;
+import net.bestia.messages.account.AccountLoginRequest;
+import net.bestia.messages.account.AccountRegistration;
+import net.bestia.messages.account.AccountRegistrationReply;
+import net.bestia.messages.account.UserNameCheck;
 import net.bestia.webserver.actor.WebserverActorApi;
 import net.bestia.webserver.exceptions.NoConnectedException;
 import net.bestia.webserver.service.ConfigurationService;

@@ -60,6 +60,10 @@ public class EntityMoveRequestMessage extends EntityJsonMessage implements Compo
 	private int latency;
 
 
+	private EntityMoveRequestMessage() {
+		super(0, 0);
+	}
+	
 	/**
 	 * Helper ctor if the receiving account id is not known upon creation of
 	 * this message.

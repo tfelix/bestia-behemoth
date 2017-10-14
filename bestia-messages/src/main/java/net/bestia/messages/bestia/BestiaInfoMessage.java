@@ -29,6 +29,13 @@ public class BestiaInfoMessage extends EntityJsonMessage {
 
 	@JsonProperty("b")
 	private PlayerBestia bestia;
+	
+	/**
+	 * Needed for MessageTypeIdResolver 
+	 */
+	private BestiaInfoMessage() {
+		super(0, 0);
+	}
 
 	public BestiaInfoMessage(long accId, long entityId, PlayerBestia pb) {
 		super(accId, entityId);

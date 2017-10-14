@@ -25,6 +25,10 @@ public class EntityDamageMessage extends EntityJsonMessage {
 
 	@JsonProperty("d")
 	private final List<Damage> damage = new ArrayList<>();
+	
+	private EntityDamageMessage() {
+		super(0, 0);
+	}
 
 
 	/**

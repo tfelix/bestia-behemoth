@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import net.bestia.messages.web.ServerStatusMessage;
+import net.bestia.messages.account.ServerStatusMessage;
 import net.bestia.webserver.actor.WebserverActorApi;
 
 /**

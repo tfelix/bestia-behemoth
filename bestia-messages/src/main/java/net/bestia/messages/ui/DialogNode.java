@@ -6,7 +6,7 @@ import java.io.Serializable;
  * These nodes will be read by the client software which will then decide how to
  * display this information.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class DialogNode implements Serializable {

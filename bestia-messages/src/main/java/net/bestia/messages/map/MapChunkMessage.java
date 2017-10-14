@@ -13,7 +13,7 @@ import net.bestia.model.map.MapChunk;
  * This message contains all needed information for the client to load and
  * display a piece of a map.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class MapChunkMessage extends JsonMessage {
@@ -25,11 +25,12 @@ public class MapChunkMessage extends JsonMessage {
 	@JsonProperty("c")
 	private final List<MapChunk> chunks = new ArrayList<>();
 
-	@Override
-	public String getMessageId() {
-		return MESSAGE_ID;
+	/**
+	 * Needed for MessageTypeIdResolver
+	 */
+	private MapChunkMessage() {
+		super(0);
 	}
-
 
 	public MapChunkMessage(long accId, List<MapChunk> chunks) {
 		super(accId);
@@ -38,6 +39,11 @@ public class MapChunkMessage extends JsonMessage {
 		Objects.requireNonNull(chunks, "Chunks can not be null.");
 
 		this.chunks.addAll(chunks);
+	}
+	
+	@Override
+	public String getMessageId() {
+		return MESSAGE_ID;
 	}
 
 	@Override

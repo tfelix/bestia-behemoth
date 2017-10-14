@@ -9,7 +9,7 @@ import net.bestia.messages.JsonMessage;
  * issued by the webserver so the zone can logout any pending entities
  * controlled by the player.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class LogoutMessage extends JsonMessage {
@@ -18,10 +18,16 @@ public class LogoutMessage extends JsonMessage {
 
 	public static final String MESSAGE_ID = "system.logout";
 
+	/**
+	 * Needed for MessageTypeIdResolver
+	 */
+	private LogoutMessage() {
+		super(0);
+	}
 
 	public LogoutMessage(long accId) {
 		super(accId);
-		
+
 		// no op.
 	}
 

@@ -10,8 +10,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import net.bestia.messages.web.AccountRegistration;
-import net.bestia.messages.web.AccountRegistrationError;
+import net.bestia.messages.account.AccountRegistration;
+import net.bestia.messages.account.AccountRegistrationError;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.BestiaDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;

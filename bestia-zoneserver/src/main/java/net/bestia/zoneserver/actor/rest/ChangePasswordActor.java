@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.web.ChangePasswordRequest;
+import net.bestia.messages.account.ChangePasswordRequest;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 import net.bestia.zoneserver.service.AccountService;
 

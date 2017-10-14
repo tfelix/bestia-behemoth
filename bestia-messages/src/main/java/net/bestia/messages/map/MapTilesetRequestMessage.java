@@ -9,7 +9,7 @@ import net.bestia.messages.JsonMessage;
  * can be found inside the tilesets. These tilest data can be requested from the
  * server via such an request.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class MapTilesetRequestMessage extends JsonMessage {
@@ -19,6 +19,13 @@ public class MapTilesetRequestMessage extends JsonMessage {
 
 	@JsonProperty("gid")
 	private int tileId;
+	
+	/**
+	 * Needed for MessageTypeIdResolver 
+	 */
+	private MapTilesetRequestMessage() {
+		super(0);
+	}
 
 	public MapTilesetRequestMessage(long accId, int gid) {
 		super(accId);

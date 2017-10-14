@@ -1,4 +1,4 @@
-package net.bestia.messages.web;
+package net.bestia.messages.account;
 
 /**
  * Error which can happen during account registration.

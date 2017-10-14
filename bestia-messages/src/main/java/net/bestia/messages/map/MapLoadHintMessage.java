@@ -14,7 +14,7 @@ import net.bestia.model.domain.SpriteInfo;
  * map and suggests a loading of these. The server regenerates this list from
  * time to time and resends it.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class MapLoadHintMessage extends JsonMessage {
@@ -23,17 +23,19 @@ public class MapLoadHintMessage extends JsonMessage {
 	public static final String MESSAGE_ID = "map.loadhint";
 
 	@JsonProperty("s")
-	private List<SpriteInfo> sprites = new ArrayList<>();
+	private final List<SpriteInfo> sprites = new ArrayList<>();
 
+	/**
+	 * Needed for MessageTypeIdResolver 
+	 */
+	private MapLoadHintMessage() {
+		super(0);
+	}
 
 	public MapLoadHintMessage(long accId, List<SpriteInfo> sprites) {
 		super(accId);
 
-		this.sprites = new ArrayList<>(sprites);
-	}
-
-	public void addSprite(SpriteInfo sprite) {
-		sprites.add(sprite);
+		this.sprites.addAll(sprites);
 	}
 
 	@Override

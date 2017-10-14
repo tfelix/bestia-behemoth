@@ -13,7 +13,7 @@ import net.bestia.model.geometry.Point;
  * Asks the server to send the data of the map in the current viewport (with
  * some additional extra data to buffer some movements).
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class MapChunkRequestMessage extends JsonMessage {
@@ -22,13 +22,19 @@ public class MapChunkRequestMessage extends JsonMessage {
 	public static final String MESSAGE_ID = "map.requestdata";
 
 	@JsonProperty("c")
-	private List<Point> chunks = new ArrayList<>();
+	private final List<Point> chunks = new ArrayList<>();
 
+	/**
+	 * Needed for MessageTypeIdResolver 
+	 */
+	private MapChunkRequestMessage() {
+		super(0);
+	}
 
 	public MapChunkRequestMessage(long accId, List<Point> chunks) {
 		super(accId);
 
-		this.chunks = new ArrayList<>(Objects.requireNonNull(chunks));
+		this.chunks.addAll(Objects.requireNonNull(chunks));
 	}
 
 	/**

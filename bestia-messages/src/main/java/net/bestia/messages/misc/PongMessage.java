@@ -14,14 +14,21 @@ public class PongMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "lat.res";
-	
-	@JsonProperty("s")
-	private long start;
 
+	private final long start;
+
+	/**
+	 * Needed for MessageTypeIdResolver
+	 */
+	private PongMessage() {
+		super(0);
+		
+		this.start = 0;
+	}
 
 	public PongMessage(long accId, long start) {
 		super(accId);
-		
+
 		this.start = start;
 	}
 
@@ -29,13 +36,10 @@ public class PongMessage extends JsonMessage {
 	public String getMessageId() {
 		return MESSAGE_ID;
 	}
-	
+
+	@JsonProperty("s")
 	public long getStart() {
 		return start;
-	}
-	
-	public void setStart(long start) {
-		this.start = start;
 	}
 
 	@Override

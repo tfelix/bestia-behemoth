@@ -1,116 +1,63 @@
 package net.bestia.messages.ui;
 
-import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
-import net.bestia.model.domain.TranslationCategory;
 
 /**
  * This message requests a translation from the server. The data is fetched via
  * our I18N interface and then delivered to the client with an translation
  * response message.
  * 
- * TODO Das hier noch überarbeiten. Immutable machen bzw anders lösen.
- * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class TranslationRequestMessage extends JsonMessage {
-
-	public static class TranslationItem implements Serializable {
-
-		private static final long serialVersionUID = 1L;
-
-		@JsonProperty("c")
-		private TranslationCategory category;
-
-		@JsonProperty("k")
-		private String key;
-
-		@JsonProperty("v")
-		private String value;
-
-		public TranslationItem() {
-			category = TranslationCategory.ITEM;
-			key = "UNKNOWN";
-			value = "NOT-SET";
-		}
-
-		public TranslationItem(TranslationCategory category, String key) {
-			this.category = category;
-			this.key = key;
-		}
-
-		public TranslationCategory getCategory() {
-			return category;
-		}
-
-		public void setCategory(TranslationCategory type) {
-			this.category = type;
-		}
-
-		public String getKey() {
-			return key;
-		}
-
-		public void setKey(String key) {
-			this.key = key;
-		}
-
-		public String getValue() {
-			return value;
-		}
-
-		public void setValue(String value) {
-			this.value = value;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("TranslationItem[type: %s, key: %s, value: %s]", category.toString(), key, value);
-		}
-	}
 
 	@JsonIgnore
 	private static final long serialVersionUID = 1L;
 
 	public static final String MESSAGE_ID = "translation.request";
 
-	@JsonProperty("is")
-	private List<TranslationItem> items;
+	private final List<TranslationItem> items;
 
 	/**
 	 * The token is put in the answer of this message. Synce these requests are
 	 * async the token can be used by the client to identify the answers of the
 	 * request.
 	 */
-	@JsonProperty("t")
-	private String token;
-
+	private final String token;
 	
-	public TranslationRequestMessage(long accId, List<TranslationItem> items) {
-		super(accId);
+	private TranslationRequestMessage() {
+		super(0);
 		
-		this.items = new ArrayList<>(items);
+		this.token = null;
+		this.items = null;
 	}
 
+	@JsonCreator
+	public TranslationRequestMessage(long accId,
+			@JsonProperty("t") String token,
+			@JsonProperty("is") List<TranslationItem> items) {
+		super(accId);
+
+		this.token = Objects.requireNonNull(token);
+		this.items = Collections.unmodifiableList(new ArrayList<>(items));
+	}
+
+	@JsonProperty("is")
 	public List<TranslationItem> getItems() {
 		return items;
 	}
 
-	public void setItems(List<TranslationItem> items) {
-		this.items = items;
-	}
-
-	public void setToken(String token) {
-		this.token = token;
-	}
-
+	@JsonProperty("t")
 	public String getToken() {
 		return token;
 	}
@@ -127,7 +74,7 @@ public class TranslationRequestMessage extends JsonMessage {
 
 	@Override
 	public TranslationRequestMessage createNewInstance(long accountId) {
-		
-		return new TranslationRequestMessage(accountId, items);
+
+		return new TranslationRequestMessage(accountId, token, items);
 	}
 }

@@ -2,11 +2,11 @@ package net.bestia.webserver.actor;
 
 import org.springframework.web.socket.WebSocketSession;
 
-import net.bestia.messages.web.AccountLoginRequest;
-import net.bestia.messages.web.AccountRegistration;
-import net.bestia.messages.web.AccountRegistrationReply;
-import net.bestia.messages.web.ServerStatusMessage;
-import net.bestia.messages.web.UserNameCheck;
+import net.bestia.messages.account.AccountLoginRequest;
+import net.bestia.messages.account.AccountRegistration;
+import net.bestia.messages.account.AccountRegistrationReply;
+import net.bestia.messages.account.ServerStatusMessage;
+import net.bestia.messages.account.UserNameCheck;
 import net.bestia.webserver.exceptions.WrongCredentialsException;
 
 public interface WebserverActorApi {

@@ -17,17 +17,20 @@ public class EntityInteractionRequestMessage extends EntityJsonMessage {
 	private static final long serialVersionUID = 1L;
 
 	public static final String MESSAGE_ID = "entity.interactreq";
-	
+
 	@JsonProperty("ieid")
 	private long interactedEntityId;
 
+	private EntityInteractionRequestMessage() {
+		super(0, 0);
+	}
 
 	public EntityInteractionRequestMessage(long accId, long entityId, long interactEntityId) {
 		super(accId, entityId);
-		
+
 		this.interactedEntityId = interactEntityId;
 	}
-	
+
 	public long getInteractedEntityId() {
 		return interactedEntityId;
 	}

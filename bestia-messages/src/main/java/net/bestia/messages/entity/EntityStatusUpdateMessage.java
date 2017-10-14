@@ -40,6 +40,15 @@ public class EntityStatusUpdateMessage extends EntityJsonMessage {
 		return MESSAGE_ID;
 	}
 
+	private EntityStatusUpdateMessage() {
+		super(0, 0);
+
+		this.statusBasedValues = null;
+		this.unmodifiedStatusPoints = null;
+		this.statusValues = null;
+		this.statusPoints = null;
+
+	}
 
 	public EntityStatusUpdateMessage(
 			long accId,

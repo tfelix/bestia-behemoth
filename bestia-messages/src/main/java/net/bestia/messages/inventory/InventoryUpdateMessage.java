@@ -65,6 +65,13 @@ public class InventoryUpdateMessage extends JsonMessage {
 
 	@JsonProperty("pis")
 	private List<UpdateItem> playerItems;
+	
+	/**
+	 * Needed for MessageTypeIdResolver 
+	 */
+	private InventoryUpdateMessage() {
+		super(0);
+	}
 
 	public InventoryUpdateMessage(long accId) {
 		super(accId);

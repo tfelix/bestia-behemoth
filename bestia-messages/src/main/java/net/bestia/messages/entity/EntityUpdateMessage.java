@@ -89,6 +89,12 @@ public class EntityUpdateMessage extends EntityJsonMessage {
 
 	@JsonProperty("t")
 	private List<Tag> tags;
+	
+	
+	private EntityUpdateMessage() {
+		super(0, 0);
+
+	}
 
 	/**
 	 * Constructor which uses the builder pattern for immutable data.

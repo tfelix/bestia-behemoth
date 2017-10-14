@@ -24,6 +24,9 @@ public class InventoryItemDropMessage extends JsonMessage {
 	@JsonProperty("a")
 	private int amount;
 
+	private InventoryItemDropMessage() {
+		super(0);
+	}
 
 	/**
 	 * Ctor.

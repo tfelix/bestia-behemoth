@@ -13,11 +13,15 @@ public class ClientVarMessage extends JsonMessage {
 
 	private static final String MESSAGE_ID = "cvar";
 
-	@JsonProperty("uuid")
-	private String uuid;
+	private final String uuid;
+	private final String data;
 	
-	@JsonProperty("d")
-	private String data;
+	public ClientVarMessage() {
+		super(0);
+		
+		this.uuid = null;
+		this.data = null;
+	}
 	
 	public ClientVarMessage(long accId, String uuid, String data) {
 		super(accId);
@@ -26,10 +30,12 @@ public class ClientVarMessage extends JsonMessage {
 		this.data = Objects.requireNonNull(data);
 	}
 
+	@JsonProperty("uuid")
 	public String getUuid() {
 		return uuid;
 	}
 	
+	@JsonProperty("d")
 	public String getData() {
 		return data;
 	}

@@ -15,21 +15,33 @@ public class PingMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "lat.req";
-	
-	@JsonProperty("s")
-	private long start;
 
+	private final long start;
+
+	/**
+	 * Needed for MessageTypeIdResolver
+	 */
+	private PingMessage() {
+		super(0);
+
+		start = 0;
+	}
 
 	public PingMessage(long accId) {
 		super(accId);
-		
+
 		start = System.currentTimeMillis();
 	}
 
 	public PingMessage(long accountId, long currentTimeMillis) {
 		super(accountId);
-		
+
 		this.start = currentTimeMillis;
+	}
+	
+	@JsonProperty("s")
+	public long getStart() {
+		return start;
 	}
 
 	@Override

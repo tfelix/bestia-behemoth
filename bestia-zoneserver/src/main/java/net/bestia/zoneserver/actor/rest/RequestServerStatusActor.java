@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
-import net.bestia.messages.web.ServerStatusMessage;
+import net.bestia.messages.account.ServerStatusMessage;
 import net.bestia.model.server.MaintenanceLevel;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;

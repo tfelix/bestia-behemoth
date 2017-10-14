@@ -10,11 +10,17 @@ import net.bestia.messages.JsonMessage;
  *
  */
 public class BestiaInfoRequestMessage extends JsonMessage {
-	
+
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "bestia.requestinfo";
-	
-	
+
+	/**
+	 * Needed for MessageTypeIdResolver
+	 */
+	private BestiaInfoRequestMessage() {
+		super(0);
+	}
+
 	public BestiaInfoRequestMessage(long accId) {
 		super(accId);
 	}
@@ -23,7 +29,7 @@ public class BestiaInfoRequestMessage extends JsonMessage {
 	public String getMessageId() {
 		return MESSAGE_ID;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("RequestBestiaInfoMessage[accId: %d]", getAccountId());

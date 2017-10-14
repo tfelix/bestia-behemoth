@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
-import net.bestia.messages.web.AccountRegistration;
+import net.bestia.messages.account.AccountRegistration;
 import net.bestia.zoneserver.service.AccountService;
 
 /**

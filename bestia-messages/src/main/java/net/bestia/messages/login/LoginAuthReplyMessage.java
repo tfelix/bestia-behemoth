@@ -2,6 +2,7 @@ package net.bestia.messages.login;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import net.bestia.messages.JsonMessage;
@@ -17,33 +18,35 @@ public class LoginAuthReplyMessage extends JsonMessage {
 	public static final String MESSAGE_ID = "system.loginauthreply";
 	private static final long serialVersionUID = 1L;
 
-	@JsonProperty("state")
-	private LoginState state;
 	
-	@JsonProperty("username")
-	private String username;
+	private final LoginState state;
 
-	
+	@JsonProperty("username")
+	private final String username;
+
+	/**
+	 * Needed for MessageTypeIdResolver
+	 */
+	private LoginAuthReplyMessage() {
+		super(0);
+		this.state = null;
+		this.username = null;
+	}
+
+	@JsonCreator
 	public LoginAuthReplyMessage(long accId, LoginState state, String username) {
 		super(accId);
-		
+
 		this.state = Objects.requireNonNull(state);
 		this.username = Objects.requireNonNull(username);
 	}
-
-	/*
-	public LoginAuthReplyMessage(LoginState state, String username) {
-		this(0, state, username);
-	}*/
-
-	public void setLoginState(LoginState state) {
-		this.state = state;
-	}
-
+	
+	@JsonProperty("state")
 	public LoginState getLoginState() {
 		return state;
 	}
-	
+
+	@JsonProperty("username")
 	public String getUsername() {
 		return username;
 	}
@@ -56,8 +59,8 @@ public class LoginAuthReplyMessage extends JsonMessage {
 	@Override
 	public String toString() {
 		return String.format(
-				"LoginAuthReplyMessage[accountId: %d, state: %s]", 
-				getAccountId(), 
+				"LoginAuthReplyMessage[accountId: %d, state: %s]",
+				getAccountId(),
 				state.toString());
 	}
 

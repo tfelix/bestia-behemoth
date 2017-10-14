@@ -23,6 +23,13 @@ public class AttackListRequestMessage extends JsonMessage {
 	private static final long serialVersionUID = 1L;
 
 	public static final String MESSAGE_ID = "attack.list.request";
+	
+	/**
+	 * Needed for MessageTypeIdResolver 
+	 */
+	private AttackListRequestMessage() {
+		super(0);
+	}
 
 	@Override
 	public String getMessageId() {

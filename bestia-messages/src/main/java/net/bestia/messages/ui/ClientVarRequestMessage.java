@@ -36,6 +36,11 @@ public class ClientVarRequestMessage extends JsonMessage {
 
 	@JsonProperty("d")
 	private String data;
+	
+	private ClientVarRequestMessage() {
+		super(0);
+		// no op.
+	}
 
 	public ClientVarRequestMessage(long accountId) {
 		super(accountId);

@@ -32,11 +32,18 @@ public class AttackSetMessage extends JsonMessage {
 
 	@JsonProperty("s5")
 	private int atkSlotId5;
-	
+
+	/**
+	 * Needed for MessageTypeIdResolver
+	 */
+	private AttackSetMessage() {
+		super(0);
+	}
+
 	public AttackSetMessage(long accId) {
 		super(accId);
 	}
-	
+
 	public int getAtkSlotId1() {
 		return atkSlotId1;
 	}

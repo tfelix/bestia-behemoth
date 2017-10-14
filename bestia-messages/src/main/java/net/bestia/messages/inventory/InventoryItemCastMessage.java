@@ -8,7 +8,7 @@ import net.bestia.messages.JsonMessage;
  * Signals the server to use an castable item on the map possibly spawning map
  * entities or doing things to the map/zone itself.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class InventoryItemCastMessage extends JsonMessage {
@@ -31,6 +31,10 @@ public class InventoryItemCastMessage extends JsonMessage {
 
 	private int y;
 
+	protected InventoryItemCastMessage() {
+		super(0);
+		// no op.
+	}
 	
 	public InventoryItemCastMessage(long accId, InventoryItemCastMessage copy) {
 		super(accId);

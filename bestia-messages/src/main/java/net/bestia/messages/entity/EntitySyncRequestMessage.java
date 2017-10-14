@@ -15,6 +15,9 @@ public class EntitySyncRequestMessage extends JsonMessage {
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.sync";
 
+	private EntitySyncRequestMessage() {
+		super(0);
+	}
 
 	public EntitySyncRequestMessage(long accId) {
 		super(accId);

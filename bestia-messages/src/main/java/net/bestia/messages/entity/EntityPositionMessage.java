@@ -13,7 +13,7 @@ import net.bestia.model.geometry.Point;
  * will be performed. Otherwise only a validation or a little adjustment will
  * happen by the client.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class EntityPositionMessage extends EntityJsonMessage {
@@ -26,6 +26,10 @@ public class EntityPositionMessage extends EntityJsonMessage {
 
 	@JsonProperty("y")
 	private long currentY;
+	
+	private EntityPositionMessage() {
+		super(0, 0);
+	}
 
 	/**
 	 * Sets the current receiver account to 0. This is useful if the receiver

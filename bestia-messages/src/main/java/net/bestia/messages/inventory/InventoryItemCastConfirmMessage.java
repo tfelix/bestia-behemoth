@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * The server confirms the casting of an item to the client.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class InventoryItemCastConfirmMessage extends InventoryItemCastMessage {
@@ -17,6 +17,10 @@ public class InventoryItemCastConfirmMessage extends InventoryItemCastMessage {
 	@JsonProperty("s")
 	private boolean success = true;
 	
+	@SuppressWarnings("unused")
+	private InventoryItemCastConfirmMessage() {
+		// no op.
+	}
 	
 	public InventoryItemCastConfirmMessage(InventoryItemCastMessage msg, boolean success) {
 		super(msg.getAccountId(), msg);

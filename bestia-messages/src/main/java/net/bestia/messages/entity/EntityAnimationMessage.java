@@ -39,6 +39,13 @@ public class EntityAnimationMessage extends EntityJsonMessage {
 	 */
 	@JsonProperty("d")
 	private int duration;
+	
+	/**
+	 * Required for MessageTypeIdResolver
+	 */
+	private EntityAnimationMessage() {
+		super(0, 0);
+	}
 
 	/**
 	 * Helper ctor if the receiving account id is not known when the message is

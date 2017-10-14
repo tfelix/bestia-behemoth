@@ -23,6 +23,14 @@ public class MapTilesetMessage extends JsonMessage {
 	@JsonProperty("ts")
 	private final SimpleTileset tileset;
 
+	/**
+	 * Needed for MessageTypeIdResolver 
+	 */
+	private MapTilesetMessage() {
+		super(0);
+		
+		tileset = null;
+	}
 
 	public MapTilesetMessage(long accId, SimpleTileset tileset) {
 		super(accId);

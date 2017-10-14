@@ -26,6 +26,9 @@ public class EntityInteractionMessage extends EntityJsonMessage {
 	@JsonProperty("is")
 	private final List<InteractionType> interactions = new ArrayList<>();
 
+	private EntityInteractionMessage() {
+		super(0, 0);
+	}
 	
 	public EntityInteractionMessage(long accId, long eid, InteractionType interaction) {
 		super(accId, eid);

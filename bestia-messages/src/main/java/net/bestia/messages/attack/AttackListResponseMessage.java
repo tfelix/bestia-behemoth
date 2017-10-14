@@ -27,6 +27,13 @@ public class AttackListResponseMessage extends JsonMessage {
 	@JsonProperty("atks")
 	private List<BestiaAttack> attacks;
 	
+	/**
+	 * Needed for MessageTypeIdResolver 
+	 */
+	private AttackListResponseMessage() {
+		super(0);
+	}
+	
 	public AttackListResponseMessage(long accId) {
 		super(accId);
 	}

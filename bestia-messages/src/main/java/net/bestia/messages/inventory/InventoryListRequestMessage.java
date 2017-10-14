@@ -5,7 +5,7 @@ import net.bestia.messages.JsonMessage;
 /**
  * Client requests to list the inventory.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class InventoryListRequestMessage extends JsonMessage {
@@ -14,6 +14,11 @@ public class InventoryListRequestMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 
+	private InventoryListRequestMessage() {
+		super(0);
+		// no op.
+	}
+	
 	public InventoryListRequestMessage(long accId) {
 		super(accId);
 		// no op.

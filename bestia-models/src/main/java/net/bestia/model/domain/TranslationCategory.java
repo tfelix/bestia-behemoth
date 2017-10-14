@@ -3,7 +3,7 @@ package net.bestia.model.domain;
 /**
  * A few categories to put translation items into.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public enum TranslationCategory {

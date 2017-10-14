@@ -12,7 +12,7 @@ import net.bestia.messages.JsonMessage;
 /**
  * This message will trigger the client to open a dialog NPC box.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class DialogMessage extends JsonMessage {
@@ -23,6 +23,11 @@ public class DialogMessage extends JsonMessage {
 	@JsonProperty("n")
 	private final List<DialogNode> nodes;
 	
+	private DialogMessage() {
+		super(0);
+		
+		this.nodes = null;
+	}
 
 	public DialogMessage(long accId, List<DialogNode> nodes) {
 		super(accId);

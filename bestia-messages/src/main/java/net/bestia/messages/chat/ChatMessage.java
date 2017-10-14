@@ -42,6 +42,13 @@ public class ChatMessage extends EntityJsonMessage {
 	@JsonProperty("t")
 	private long time;
 
+	/**
+	 * Needed for MessageTypeIdResolver
+	 */
+	private ChatMessage() {
+		super(0, 0);
+	}
+
 	public ChatMessage(long accId,
 			long entityId,
 			String message,

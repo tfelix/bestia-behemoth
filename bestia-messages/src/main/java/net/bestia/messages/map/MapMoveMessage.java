@@ -18,8 +18,16 @@ public class MapMoveMessage extends JsonMessage {
 
 	public final static String MESSAGE_ID = "map.move";
 
-	private Point target;
+	private final Point target;
 
+	/**
+	 * Needed for MessageTypeIdResolver
+	 */
+	private MapMoveMessage() {
+		super(0);
+
+		this.target = null;
+	}
 
 	/**
 	 * Ctor. With account ID and target point to move the active bestia to.
@@ -31,17 +39,7 @@ public class MapMoveMessage extends JsonMessage {
 	 */
 	public MapMoveMessage(long accId, Point target) {
 		super(accId);
-		
-		this.target = Objects.requireNonNull(target);
-	}
 
-	/**
-	 * Sets the position to which the bestia will be moved.
-	 * 
-	 * @param target
-	 *            The position to move the bestia to.
-	 */
-	public void setTarget(Point target) {
 		this.target = Objects.requireNonNull(target);
 	}
 
@@ -58,7 +56,7 @@ public class MapMoveMessage extends JsonMessage {
 	public String getMessageId() {
 		return MESSAGE_ID;
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("MapMoveMesasge[accId: %d, target: %s]", getAccountId(), getTarget().toString());

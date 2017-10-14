@@ -30,6 +30,9 @@ public class InventoryListMessage extends JsonMessage {
 	@JsonProperty("mw")
 	private int maxWeight;
 	
+	private InventoryListMessage() {
+		super(0);
+	}
 
 	/**
 	 * Ctor.

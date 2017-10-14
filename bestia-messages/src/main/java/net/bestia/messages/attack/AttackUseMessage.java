@@ -29,7 +29,14 @@ public class AttackUseMessage extends JsonMessage {
 
 	@JsonProperty("tid")
 	private long targetEntityId;
-	
+
+	/**
+	 * Needed for MessageTypeIdResolver
+	 */
+	private AttackUseMessage() {
+		super(0);
+	}
+
 	public AttackUseMessage(long accId) {
 		super(accId);
 		// no op.

@@ -16,7 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.testkit.javadsl.TestKit;
-import net.bestia.messages.web.AccountLoginRequest;
+import net.bestia.messages.account.AccountLoginRequest;
 import net.bestia.zoneserver.actor.ActorTestConfig;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.service.LoginService;
