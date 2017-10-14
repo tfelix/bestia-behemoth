@@ -14,8 +14,8 @@ import net.bestia.messages.attack.AttackUseMessage;
 import net.bestia.messages.entity.EntityDamageMessage;
 import net.bestia.messages.internal.entity.EntitySkillMessage;
 import net.bestia.model.battle.Damage;
-import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.SendActiveClientsActor;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 import net.bestia.zoneserver.battle.BattleService;
 
@@ -35,13 +35,15 @@ public class AttackUseActor extends AbstractActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private final BattleService battleService;
-	private final ActorRef clientSendActor;
+	private final ActorRef transformAtkMsg;
+	private final ActorRef sendActiveRange;
 
 	@Autowired
 	public AttackUseActor(BattleService battleService) {
 
 		this.battleService = Objects.requireNonNull(battleService);
-		this.clientSendActor = SpringExtension.actorOf(getContext(), AttackPlayerUseActor.class);
+		this.transformAtkMsg = SpringExtension.actorOf(getContext(), AttackPlayerUseActor.class);
+		this.sendActiveRange = SpringExtension.actorOf(getContext(), SendActiveClientsActor.class);
 	}
 
 	@Override
@@ -66,7 +68,7 @@ public class AttackUseActor extends AbstractActor {
 	 */
 	private void handleAttackMessage(AttackUseMessage msg) {
 		LOG.debug("Received essage: {}.", msg);
-		clientSendActor.tell(msg, getSelf());
+		transformAtkMsg.tell(msg, getSelf());
 	}
 
 	/**
@@ -85,7 +87,7 @@ public class AttackUseActor extends AbstractActor {
 					msg.getTargetEntityId());
 			
 			final EntityDamageMessage dmgMsg = new EntityDamageMessage(msg.getTargetEntityId(), dmg);
-			AkkaSender.sendActiveInRangeClients(getContext(), dmgMsg);
+			sendActiveRange.tell(dmgMsg, getSelf());
 
 		} else {
 			LOG.warning("Attackmode Currently not supported.");

@@ -13,9 +13,11 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
+import akka.cluster.sharding.ClusterSharding;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.ComponentMessage;
+import net.bestia.server.EntryActorNames;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.battle.AttackUseActor;
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
@@ -99,19 +101,28 @@ public class IngestExActor extends AbstractActor {
 
 	private ActorRef componentRedirActor;
 
+	private final ActorRef shardConnections;
+	private final ActorRef shardEntities;
+	private final ActorRef messageHub;
+
 	public IngestExActor() {
 
 		// Setup the internal sub-actors of the ingest actor first.
 		componentRedirActor = SpringExtension.actorOf(getContext(), ComponentRedirectionActor.class);
 
+		final ClusterSharding sharding = ClusterSharding.get(getContext().getSystem());
+		shardEntities = sharding.shardRegion(EntryActorNames.SHARD_ENTITY);
+
 		// === Connection & Login ===
-		SpringExtension.actorOf(getContext(), ConnectionManagerActor.class);
+		shardConnections = SpringExtension.actorOf(getContext(), ConnectionManagerActor.class);
+		messageHub = SpringExtension.actorOf(getContext(), MessageRouterActor.class, shardEntities, shardConnections);
+		
 		SpringExtension.actorOf(getContext(), LatencyManagerActor.class);
 		SpringExtension.actorOf(getContext(), LoginAuthActor.class);
 		SpringExtension.actorOf(getContext(), ConnectionStatusActor.class);
 
 		// === Bestias ===
-		SpringExtension.actorOf(getContext(), BestiaInfoActor.class);
+		SpringExtension.actorOf(getContext(), BestiaInfoActor.class, messageHub);
 		SpringExtension.actorOf(getContext(), ActivateBestiaActor.class);
 
 		// === Inventory ===
@@ -180,24 +191,24 @@ public class IngestExActor extends AbstractActor {
 	 * Called if a routee has stopped working. Must be deleted from the list.
 	 */
 	private void handleRouteeStopped(Terminated msg) {
-		
+
 		// Maybe the complete gets empty and can be removed.
 		Class<?> classToDelete = null;
 
-		for(Entry<Class<?>, List<ActorRef>> entry : redirections.entrySet()) {
-			if(entry.getValue().contains(msg.actor())) {
-				
+		for (Entry<Class<?>, List<ActorRef>> entry : redirections.entrySet()) {
+			if (entry.getValue().contains(msg.actor())) {
+
 				entry.getValue().remove(msg.getActor());
-				
+
 				LOG.debug("Deleting dead actor route: {}.", msg.actor());
-				
-				if(entry.getValue().isEmpty()) {
+
+				if (entry.getValue().isEmpty()) {
 					classToDelete = entry.getKey();
 				}
 			}
 		}
-		
-		if(classToDelete != null) {
+
+		if (classToDelete != null) {
 			redirections.remove(classToDelete);
 		}
 	}
@@ -208,13 +219,13 @@ public class IngestExActor extends AbstractActor {
 	 */
 	private void handleIncomingMessage(Object msg) {
 		if (redirections.containsKey(msg.getClass())) {
-			
+
 			final List<ActorRef> routees = redirections.get(msg.getClass());
 			routees.forEach(ref -> {
 				LOG.debug("IngestEx forwarding: {} to {}.", msg, ref);
 				ref.forward(msg, getContext());
 			});
-			
+
 		} else {
 			unhandled(msg);
 		}

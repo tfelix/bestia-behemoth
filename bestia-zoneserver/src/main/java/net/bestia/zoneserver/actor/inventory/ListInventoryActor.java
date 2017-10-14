@@ -12,9 +12,7 @@ import akka.actor.ActorRef;
 import net.bestia.messages.inventory.InventoryListMessage;
 import net.bestia.messages.inventory.InventoryListRequestMessage;
 import net.bestia.model.domain.PlayerItem;
-import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.service.InventoryService;
 
 /**
@@ -42,10 +40,10 @@ public class ListInventoryActor extends AbstractActor {
 	 *            The {@link BestiaActorContext}.
 	 */
 	@Autowired
-	public ListInventoryActor(InventoryService inventoryService) {
+	public ListInventoryActor(InventoryService inventoryService, ActorRef msgHub) {
 
 		this.inventoryService = Objects.requireNonNull(inventoryService);
-		sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
+		this.sendClient = Objects.requireNonNull(msgHub);
 	}
 
 	@Override

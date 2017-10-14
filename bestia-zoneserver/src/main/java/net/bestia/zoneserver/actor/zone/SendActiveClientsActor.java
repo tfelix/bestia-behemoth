@@ -18,7 +18,6 @@ import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.map.MapService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
@@ -44,11 +43,12 @@ public class SendActiveClientsActor extends AbstractActor {
 
 	@Autowired
 	public SendActiveClientsActor(PlayerEntityService playerEntityService,
-			EntityService entityService) {
+			EntityService entityService,
+			ActorRef sendClient) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
-		sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
+		this.sendClient = Objects.requireNonNull(sendClient);
 	}
 
 	@Override

@@ -218,6 +218,13 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 		final ActorRef actor = (name == null) ? context.actorOf(props) : context.actorOf(props, name);
 		return actor;
 	}
+	
+	public static ActorRef actorOf(ActorContext context,
+			Class<? extends AbstractActor> clazz,
+			Object... args) {
+		final String actorName = getActorName(clazz);
+		return actorOf(context, clazz, actorName, args);
+	}
 
 	/**
 	 * Alias for {@link #unnamedActorOf(ActorSystem, Class)} but allows

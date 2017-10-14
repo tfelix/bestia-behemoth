@@ -11,6 +11,8 @@ public final class EntryActorNames {
 
 	public static final String ENTITY_MANAGER = "entity";
 	
+	public static final String SHARD_ENTITY = "entityShardManager";
+	
 	private EntryActorNames() {
 		// no op.
 	}

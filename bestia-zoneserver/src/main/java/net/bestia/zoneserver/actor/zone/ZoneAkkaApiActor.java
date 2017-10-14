@@ -11,7 +11,6 @@ import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.messages.MessageApi;
 import net.bestia.server.AkkaCluster;
-import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.SpringExtension;
 
 /**

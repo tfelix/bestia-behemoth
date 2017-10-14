@@ -16,9 +16,7 @@ import net.bestia.messages.map.MapTilesetRequestMessage;
 import net.bestia.model.domain.TilesetData;
 import net.bestia.model.map.Tileset;
 import net.bestia.model.map.TilesetService;
-import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
 
 /**
  * The user queries the name/data of an {@link TilesetData}. He only sends the
@@ -38,10 +36,10 @@ public class TilesetRequestActor extends AbstractActor {
 	private final ActorRef sendClient;
 
 	@Autowired
-	public TilesetRequestActor(TilesetService tilesetService) {
+	public TilesetRequestActor(TilesetService tilesetService, ActorRef msgHub) {
 
 		this.tilesetService = Objects.requireNonNull(tilesetService);
-		sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
+		this.sendClient = Objects.requireNonNull(msgHub);
 	}
 
 	@Override

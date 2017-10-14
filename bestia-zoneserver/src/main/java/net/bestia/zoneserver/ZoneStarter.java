@@ -15,6 +15,7 @@ import akka.cluster.sharding.ClusterSharding;
 import akka.cluster.sharding.ClusterShardingSettings;
 import akka.cluster.singleton.ClusterSingletonManager;
 import akka.cluster.singleton.ClusterSingletonManagerSettings;
+import net.bestia.server.EntryActorNames;
 import net.bestia.zoneserver.actor.BestiaRootActor;
 import net.bestia.zoneserver.actor.EntityShardMessageExtractor;
 import net.bestia.zoneserver.actor.SpringExtension;
@@ -82,6 +83,6 @@ public class ZoneStarter implements CommandLineRunner {
 		final ClusterSharding sharding = ClusterSharding.get(system);
 		final Props props = SpringExtension.getSpringProps(system, EntityShardManagerActor.class);
 		final EntityShardMessageExtractor extractor = new EntityShardMessageExtractor();
-		sharding.start("entityShardManager", props, settings, extractor);
+		sharding.start(EntryActorNames.SHARD_ENTITY, props, settings, extractor);
 	}
 }

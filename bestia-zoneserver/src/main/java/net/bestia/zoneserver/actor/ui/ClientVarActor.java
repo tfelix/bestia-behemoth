@@ -13,8 +13,6 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.ui.ClientVarMessage;
 import net.bestia.messages.ui.ClientVarRequestMessage;
 import net.bestia.model.domain.ClientVar;
-import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.service.ClientVarService;
 
 /**
@@ -36,10 +34,11 @@ public class ClientVarActor extends AbstractActor {
 	private final ActorRef sendClient;
 
 	@Autowired
-	public ClientVarActor(ClientVarService cvarService) {
+	public ClientVarActor(ClientVarService cvarService, 
+			ActorRef msgHub) {
 
 		this.cvarService = Objects.requireNonNull(cvarService);
-		sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
+		this.sendClient = Objects.requireNonNull(msgHub);
 	}
 	
 	@Override

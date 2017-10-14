@@ -8,13 +8,15 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.messages.chat.ChatMessage;
-import net.bestia.zoneserver.AkkaSender;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.SendActiveClientsActor;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
@@ -33,6 +35,7 @@ public class PublicChatActor extends AbstractActor {
 
 	private final PlayerEntityService playerEntityService;
 	private final EntityService entityService;
+	private final ActorRef sendActiveRange;
 
 	@Autowired
 	public PublicChatActor(PlayerEntityService playerEntityService,
@@ -40,6 +43,7 @@ public class PublicChatActor extends AbstractActor {
 		
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		this.entityService = Objects.requireNonNull(entityService);
+		sendActiveRange = SpringExtension.actorOf(getContext(), SendActiveClientsActor.class);
 	}
 
 	@Override
@@ -80,7 +84,7 @@ public class PublicChatActor extends AbstractActor {
 		// We dont need to send a echo back because the player entity is also
 		// active in the area so this call also includes the sender of the chat
 		// message.
-		AkkaSender.sendActiveInRangeClients(getContext(), chatEntityMsg);
+		sendActiveRange.tell(chatEntityMsg, getSelf());
 	}
 
 }
