@@ -17,16 +17,14 @@ import com.typesafe.config.ConfigFactory;
 
 import akka.actor.ActorSystem;
 import akka.actor.Address;
-import akka.actor.Deploy;
 import akka.actor.TypedActor;
 import akka.actor.TypedProps;
 import akka.cluster.Cluster;
-import akka.japi.Creator;
-import net.bestia.messages.MessageApi;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.DiscoveryService;
+import net.bestia.zoneserver.actor.AkkaMessageApi;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApiActor;
+import net.bestia.zoneserver.actor.ZoneMessageApi;
 
 /**
  * Generates the akka configuration file which is used to connect to the remote
@@ -82,20 +80,12 @@ public class AkkaConfiguration implements DisposableBean {
 
 	@Bean
 	@Primary
-	public MessageApi zoneAkkaApi(ActorSystem system) {
+	public ZoneMessageApi messageApi(ActorSystem system) {
 
-		final MessageApi api = TypedActor.get(system)
-				.typedActorOf(
-						new TypedProps<ZoneAkkaApiActor>(MessageApi.class, new Creator<ZoneAkkaApiActor>() {
-							private static final long serialVersionUID = 1L;
-
-							@Override
-							public ZoneAkkaApiActor create() throws Exception {
-								return new ZoneAkkaApiActor();
-							}
-						}).withDeploy(Deploy.local()), "internalZoneApi");
-
-		return api;
+		final TypedProps<AkkaMessageApi> typedProps = new TypedProps<>(ZoneMessageApi.class, AkkaMessageApi.class);
+		final ZoneMessageApi msgApi = TypedActor.get(system).typedActorOf(typedProps, "akkaMsgApi");
+		
+		return msgApi;
 	}
 
 	/**

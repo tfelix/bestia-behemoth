@@ -45,7 +45,7 @@ public class VisibleComponentInterceptor extends BaseComponentInterceptor<Visibl
 		final long y = posComp.get().getPosition().getY();
 		
 		final EntityUpdateMessage msg = new EntityUpdateMessage(0, eid, x, y, comp.getVisual(), EntityAction.UPDATE);
-		msgApi.sendActiveInRangeClients(msg);
+		msgApi.sendToActiveClientsInRange(msg);
 	}
 
 	@Override
@@ -62,7 +62,7 @@ public class VisibleComponentInterceptor extends BaseComponentInterceptor<Visibl
 		final long y = posComp.get().getPosition().getY();
 		
 		final EntityUpdateMessage msg = new EntityUpdateMessage(0, eid, x, y, comp.getVisual());
-		msgApi.sendActiveInRangeClients(msg);
+		msgApi.sendToActiveClientsInRange(msg);
 	}
 
 	@Override

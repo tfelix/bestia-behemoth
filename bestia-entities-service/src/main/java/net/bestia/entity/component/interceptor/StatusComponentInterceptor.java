@@ -73,7 +73,7 @@ public class StatusComponentInterceptor extends BaseComponentInterceptor<StatusC
 		LOG.trace("StatusComponent created.");
 
 		final EntityComponentMessage msg = EntityComponentMessage.start(entity.getId(), comp.getId());
-		msgApi.sendEntityActor(entity.getId(), msg);
+		msgApi.sendToEntity(entity.getId(), msg);
 
 	}
 
@@ -83,7 +83,7 @@ public class StatusComponentInterceptor extends BaseComponentInterceptor<StatusC
 		LOG.trace("StatusComponent deleted. Stopping updates.");
 
 		final EntityComponentMessage msg = EntityComponentMessage.stop(comp.getEntityId(), comp.getId());
-		msgApi.sendEntityActor(comp.getEntityId(), msg);
+		msgApi.sendToEntity(comp.getEntityId(), msg);
 	}
 
 }

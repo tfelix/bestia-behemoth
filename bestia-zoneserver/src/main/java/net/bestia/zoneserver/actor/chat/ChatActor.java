@@ -39,9 +39,14 @@ public class ChatActor extends AbstractActor {
 	private ActorRef partyChatActor;
 
 	@Autowired
-	public ChatActor(ChatCommandService chatCmdService) {
+	public ChatActor(ChatCommandService chatCmdService, ActorRef msgHub) {
 
 		this.chatCmdService = Objects.requireNonNull(chatCmdService);
+
+		publicChatActor = SpringExtension.actorOf(getContext(), PublicChatActor.class, msgHub);
+		whisperChatActor = SpringExtension.actorOf(getContext(), WhisperChatActor.class, msgHub);
+		partyChatActor = SpringExtension.actorOf(getContext(), PartyChatActor.class, msgHub);
+		guildChatActor = SpringExtension.actorOf(getContext(), GuildChatActor.class, msgHub);
 	}
 
 	@Override
@@ -51,11 +56,6 @@ public class ChatActor extends AbstractActor {
 
 	@Override
 	public void preStart() throws Exception {
-		publicChatActor = SpringExtension.actorOf(getContext(), PublicChatActor.class);
-		whisperChatActor = SpringExtension.actorOf(getContext(), WhisperChatActor.class);
-		partyChatActor = SpringExtension.actorOf(getContext(), PartyChatActor.class);
-		guildChatActor = SpringExtension.actorOf(getContext(), GuildChatActor.class);
-
 		// Register for chat commands.
 		final RedirectMessage redirMsg = RedirectMessage.get(ChatMessage.class);
 		getContext().parent().tell(redirMsg, getSelf());

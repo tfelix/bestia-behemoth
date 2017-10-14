@@ -39,11 +39,11 @@ public class AttackUseActor extends AbstractActor {
 	private final ActorRef sendActiveRange;
 
 	@Autowired
-	public AttackUseActor(BattleService battleService) {
+	public AttackUseActor(BattleService battleService, ActorRef msgHub) {
 
 		this.battleService = Objects.requireNonNull(battleService);
 		this.transformAtkMsg = SpringExtension.actorOf(getContext(), AttackPlayerUseActor.class);
-		this.sendActiveRange = SpringExtension.actorOf(getContext(), SendActiveClientsActor.class);
+		this.sendActiveRange = SpringExtension.actorOf(getContext(), SendActiveClientsActor.class, msgHub);
 	}
 
 	@Override

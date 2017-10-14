@@ -149,7 +149,9 @@ public class LoginService {
 		// stopped.
 		final LogoutMessage logoutMsg = new LogoutMessage(accId);
 		akkaApi.sendToClient(logoutMsg);
-		akkaApi.sendToActor(ClientConnectionActor.getActorName(accId), logoutMsg);
+		// FIXME Das hier an die neue API anpassen.
+		//akkaApi.
+		//sendToActor(ClientConnectionActor.getActorName(accId), logoutMsg);
 
 		final Set<Entity> playerEntities = playerEntityService.getPlayerEntities(accId);
 

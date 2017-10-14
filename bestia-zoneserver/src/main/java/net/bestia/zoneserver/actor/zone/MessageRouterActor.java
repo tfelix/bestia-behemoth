@@ -8,8 +8,6 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
-import akka.event.Logging;
-import akka.event.LoggingAdapter;
 import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
 
@@ -24,7 +22,6 @@ import net.bestia.messages.JsonMessage;
 @Scope("prototype")
 public class MessageRouterActor extends AbstractActor {
 	
-	//private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "messageRouter";
 	
 	private ActorRef entities;

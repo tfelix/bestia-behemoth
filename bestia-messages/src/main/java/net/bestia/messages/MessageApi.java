@@ -29,17 +29,8 @@ public interface MessageApi {
 	 *            The message to send to all active players inside the update
 	 *            range.
 	 */
-	void sendActiveInRangeClients(EntityJsonMessage message);
+	void sendToActiveClientsInRange(EntityJsonMessage message);
 
-	/**
-	 * Sends a message to an actor with the given name in the actor system. The
-	 * names of actors are usually accessed by a public static string member of
-	 * the actor class.
-	 * 
-	 * @param actorName
-	 * @param message
-	 */
-	void sendToActor(String actorName, Object message);
 
 	/**
 	 * Sends a message directly to the entity actor managing a single entity
@@ -50,5 +41,5 @@ public interface MessageApi {
 	 * @param msg
 	 *            The message to send.
 	 */
-	void sendEntityActor(long entityId, Object msg);
+	void sendToEntity(long entityId, Object msg);
 }

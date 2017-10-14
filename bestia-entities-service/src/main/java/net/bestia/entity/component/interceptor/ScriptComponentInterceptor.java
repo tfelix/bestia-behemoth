@@ -32,7 +32,7 @@ public class ScriptComponentInterceptor extends BaseComponentInterceptor<ScriptC
 		LOG.trace("ScriptComponent deleted. Stopping actor.");
 
 		EntityComponentMessage msg = EntityComponentMessage.stop(comp.getEntityId(), comp.getId());
-		akkaApi.sendEntityActor(comp.getEntityId(), msg);
+		akkaApi.sendToEntity(comp.getEntityId(), msg);
 	}
 
 	@Override

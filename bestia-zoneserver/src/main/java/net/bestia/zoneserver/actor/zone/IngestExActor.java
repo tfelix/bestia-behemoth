@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.ComponentMessage;
 import net.bestia.server.EntryActorNames;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.ZoneMessageApi;
 import net.bestia.zoneserver.actor.battle.AttackUseActor;
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
@@ -105,7 +107,8 @@ public class IngestExActor extends AbstractActor {
 	private final ActorRef shardEntities;
 	private final ActorRef messageHub;
 
-	public IngestExActor() {
+	@Autowired
+	public IngestExActor(ZoneMessageApi akkaMsgApi) {
 
 		// Setup the internal sub-actors of the ingest actor first.
 		componentRedirActor = SpringExtension.actorOf(getContext(), ComponentRedirectionActor.class);
@@ -117,6 +120,9 @@ public class IngestExActor extends AbstractActor {
 		shardConnections = SpringExtension.actorOf(getContext(), ConnectionManagerActor.class);
 		messageHub = SpringExtension.actorOf(getContext(), MessageRouterActor.class, shardEntities, shardConnections);
 		
+		// Setup the messaging system.
+		akkaMsgApi.setMessageEntry(messageHub);
+		
 		SpringExtension.actorOf(getContext(), LatencyManagerActor.class);
 		SpringExtension.actorOf(getContext(), LoginAuthActor.class);
 		SpringExtension.actorOf(getContext(), ConnectionStatusActor.class);
@@ -126,24 +132,24 @@ public class IngestExActor extends AbstractActor {
 		SpringExtension.actorOf(getContext(), ActivateBestiaActor.class);
 
 		// === Inventory ===
-		SpringExtension.actorOf(getContext(), ListInventoryActor.class);
+		SpringExtension.actorOf(getContext(), ListInventoryActor.class, messageHub);
 
 		// === Map ===
-		SpringExtension.actorOf(getContext(), MapRequestChunkActor.class);
-		SpringExtension.actorOf(getContext(), TilesetRequestActor.class);
+		SpringExtension.actorOf(getContext(), MapRequestChunkActor.class, messageHub);
+		SpringExtension.actorOf(getContext(), TilesetRequestActor.class, messageHub);
 
 		// === Entities ===
-		SpringExtension.actorOf(getContext(), EntityInteractionRequestActor.class);
-		SpringExtension.actorOf(getContext(), EntitySyncActor.class);
+		SpringExtension.actorOf(getContext(), EntityInteractionRequestActor.class, messageHub);
+		SpringExtension.actorOf(getContext(), EntitySyncActor.class, messageHub);
 
 		// === Attacking ===
-		SpringExtension.actorOf(getContext(), AttackUseActor.class);
+		SpringExtension.actorOf(getContext(), AttackUseActor.class, messageHub);
 
 		// === UI ===
-		SpringExtension.actorOf(getContext(), ClientVarActor.class);
+		SpringExtension.actorOf(getContext(), ClientVarActor.class, messageHub);
 
 		// === Chat ===
-		SpringExtension.actorOf(getContext(), ChatActor.class);
+		SpringExtension.actorOf(getContext(), ChatActor.class, messageHub);
 
 		// === Web/REST actors ===
 		SpringExtension.actorOf(getContext(), CheckUsernameDataActor.class);

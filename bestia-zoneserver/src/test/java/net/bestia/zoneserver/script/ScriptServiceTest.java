@@ -167,7 +167,7 @@ public class ScriptServiceTest {
 
 		verify(entityService).getComponent(scriptEntity, ScriptComponent.class);
 		
-		verify(akkaApi, never()).sendEntityActor(any(), any());
+		verify(akkaApi, never()).sendToEntity(any(), any());
 		verify(entityService, never()).updateComponent(argument.capture());
 	}
 
@@ -178,7 +178,7 @@ public class ScriptServiceTest {
 		scriptService.stopScriptInterval(scriptEntity);
 
 		verify(entityService).getComponent(scriptEntity, ScriptComponent.class);
-		verify(akkaApi).sendEntityActor(any(), PoisonPill.getInstance());
+		verify(akkaApi).sendToEntity(any(), PoisonPill.getInstance());
 	}
 
 }

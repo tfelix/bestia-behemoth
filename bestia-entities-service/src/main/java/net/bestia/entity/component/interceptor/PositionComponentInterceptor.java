@@ -42,7 +42,7 @@ public class PositionComponentInterceptor extends BaseComponentInterceptor<Posit
 
 		// Update all active players in sight with the new position path.
 		final EntityPositionMessage posMessage = new EntityPositionMessage(entity.getId(), comp.getPosition());
-		msgApi.sendActiveInRangeClients(posMessage);
+		msgApi.sendToActiveClientsInRange(posMessage);
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public class PositionComponentInterceptor extends BaseComponentInterceptor<Posit
 		LOG.trace("Position component created.");
 
 		final EntityComponentMessage msg = EntityComponentMessage.start(entity.getId(), comp.getId());
-		msgApi.sendEntityActor(entity.getId(), msg);
+		msgApi.sendToEntity(entity.getId(), msg);
 	}
 
 	@Override
@@ -68,7 +68,7 @@ public class PositionComponentInterceptor extends BaseComponentInterceptor<Posit
 
 		// Send status update to all clients in range.
 		final EntityUpdateMessage updateMsg = EntityUpdateMessage.getDespawnUpdate(entityId, position);
-		msgApi.sendActiveInRangeClients(updateMsg);
+		msgApi.sendToActiveClientsInRange(updateMsg);
 	}
 
 }

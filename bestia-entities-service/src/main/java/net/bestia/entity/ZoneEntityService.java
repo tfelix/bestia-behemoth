@@ -92,7 +92,7 @@ public class ZoneEntityService extends EntityService {
 		Objects.requireNonNull(entity);
 
 		// Send message to kill off entity actor.
-		messageApi.sendEntityActor(entity.getId(), PoisonPill.getInstance());
+		messageApi.sendToEntity(entity.getId(), PoisonPill.getInstance());
 
 		super.delete(entity);
 		cache.stashEntity(entity);

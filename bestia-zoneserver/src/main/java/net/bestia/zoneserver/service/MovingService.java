@@ -207,6 +207,6 @@ public class MovingService {
 		final EntityMoveMessage msg = new EntityMoveMessage(entityId, path);
 		final ComponentPayloadWrapper wrappedMsg = new ComponentPayloadWrapper(posComp.getEntityId(), posComp.getId(), msg);
 
-		akkaApi.sendEntityActor(entityId, wrappedMsg);
+		akkaApi.sendToEntity(entityId, wrappedMsg);
 	}
 }

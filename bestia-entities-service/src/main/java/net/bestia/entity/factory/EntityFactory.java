@@ -18,7 +18,6 @@ import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
 import net.bestia.messages.MessageApi;
-import net.bestia.server.EntryActorNames;
 
 /**
  * The EcsEntityFactory is responsible for translating ecs blueprints into
@@ -79,7 +78,7 @@ class EntityFactory {
 		Entity e = entityService.newEntity();
 
 		// Start a actor for this entity.
-		akkaApi.sendToActor(EntryActorNames.ENTITY_MANAGER, e.getId());
+		akkaApi.sendToEntity(e.getId(), e.getId());
 		
 		List<Component> addedComponents = new ArrayList<>(blueprint.getComponents().size());
 
