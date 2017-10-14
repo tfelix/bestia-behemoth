@@ -10,6 +10,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.EntityMessage;
 import net.bestia.messages.internal.entity.ComponentPayloadWrapper;
+import net.bestia.server.EntryActorNames;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.IngestExActor;
@@ -29,7 +30,7 @@ public class EntityManagerActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().getSystem(), this);
 
-	public static final String NAME = "entity";
+	public static final String NAME = EntryActorNames.ENTITY_MANAGER;
 
 	private ActorRef entityShardRegion;
 
