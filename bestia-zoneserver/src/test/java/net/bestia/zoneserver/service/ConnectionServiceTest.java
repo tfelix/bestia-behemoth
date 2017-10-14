@@ -44,7 +44,7 @@ public class ConnectionServiceTest {
 		sys2 = mocks.actorSystemByName("test2");
 		
 		webserver1 = new TestProbe(sys1, "webserver1");
-		webserver1 = new TestProbe(sys2, "webserver2");
+		webserver2 = new TestProbe(sys2, "webserver2");
 	}
 	
 	@After
@@ -52,8 +52,9 @@ public class ConnectionServiceTest {
 		Future<Terminated> t1 = sys1.terminate();
 		Future<Terminated> t2 = sys2.terminate();
 		
-		t1.wait();
-		t2.wait();
+		while(!t1.isCompleted() && !t2.isCompleted()) {
+			Thread.sleep(100);
+		}
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -93,12 +94,12 @@ public class ConnectionServiceTest {
 	}
 	
 	@Test
-	public void isOnline_accIdNotOnline_false() {
+	public void isConnected_accIdNotOnline_false() {
 		Assert.assertFalse(conSrv.isConnected(NOT_CONNECTED_ACC_ID));
 	}
 	
 	@Test
-	public void isOnline_accIdOnline_true() {
+	public void isConnected_accIdOnline_true() {
 		conSrv.connected(CONNECTED_ACC_ID, webserver1.ref().path().address());
 		Assert.assertTrue(conSrv.isConnected(CONNECTED_ACC_ID));
 	}

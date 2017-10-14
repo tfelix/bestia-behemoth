@@ -112,15 +112,13 @@ public class StatusServiceTest {
 		when(entityService.getComponent(nonStatusEntity, StatusComponent.class)).thenReturn(Optional.empty());
 		when(entityService.getComponent(statusEntity, StatusComponent.class)).thenReturn(Optional.of(statusComp));
 		when(entityService.getComponent(statusEntity, LevelComponent.class)).thenReturn(Optional.of(levelComp));
-		//when(entityService.getComponent(statusEntity, PlayerComponent.class)).thenReturn(Optional.of(playerComp));
+		when(entityService.getComponent(statusEntity, PlayerComponent.class)).thenReturn(Optional.of(playerComp));
 
 		when(entityService.getComponent(STATUS_ENTITY_ID, StatusComponent.class)).thenReturn(Optional.of(statusComp));
 
-		//when(playerBestiaDao.findOne(PLAYER_BESTIA_ID)).thenReturn(playerBestia);
-
-		//when(playerBestia.getBaseValues()).thenReturn(baseValues);
-		//when(playerBestia.getEffortValues()).thenReturn(baseValues);
-		//when(playerBestia.getIndividualValue()).thenReturn(baseValues);
+		when(playerBestia.getBaseValues()).thenReturn(baseValues);
+		when(playerBestia.getEffortValues()).thenReturn(baseValues);
+		when(playerBestia.getIndividualValue()).thenReturn(baseValues);
 
 		statusService = new StatusService(entityService, playerBestiaDao);
 	}
@@ -242,6 +240,9 @@ public class StatusServiceTest {
 
 	@Test
 	public void saveStatusValues_statusValuesNotChanges_noSaveComponentCalled() {
+		
+		ConditionValues cvOrig = statusService.getConditionalValues(STATUS_ENTITY_ID).get();
+		
 		ConditionValues sv = new ConditionValues();
 		sv.setCurrentHealth(100);
 		sv.setCurrentMana(100);
@@ -264,7 +265,7 @@ public class StatusServiceTest {
 
 	@Test
 	public void getStatusValue_invalidEntityId_empty() {
-		Assert.assertFalse(statusService.getStatusValues(INVALID_ENTITY_ID).isPresent());
+		Assert.assertFalse(statusService.getConditionalValues(INVALID_ENTITY_ID).isPresent());
 	}
 	
 	@Test

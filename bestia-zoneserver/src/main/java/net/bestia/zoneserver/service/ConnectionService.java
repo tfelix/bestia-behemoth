@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.service;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ public class ConnectionService {
 	 * @return TRUE if account is currently online or FALSE.
 	 */
 	public boolean isConnected(long accId) {
-		return clientOnServer.containsValue(accId);
+		return clientOnServer.containsKey(accId);
 	}
 
 	/**
@@ -53,10 +54,12 @@ public class ConnectionService {
 	 *            The connected account id.
 	 */
 	public void connected(long accountId, Address address) {
+		Objects.requireNonNull(address);
+		
 		if (accountId < 0) {
 			throw new IllegalArgumentException("Account ID must be positive.");
 		}
-		LOG.debug("Account {} now listed as connected.", accountId);
+		LOG.debug("Account {} now listed as connected on: {}.", accountId, address);
 
 		final String addrStr = address.toString();
 

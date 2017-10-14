@@ -159,4 +159,35 @@ public class ConditionValues implements Serializable {
 	public String toString() {
 		return String.format("SV[mana: %d, hp: %d]", getCurrentMana(), getCurrentHealth());
 	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + currentHealth;
+		result = prime * result + currentMana;
+		result = prime * result + maxHealth;
+		result = prime * result + maxMana;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ConditionValues other = (ConditionValues) obj;
+		if (currentHealth != other.currentHealth)
+			return false;
+		if (currentMana != other.currentMana)
+			return false;
+		if (maxHealth != other.maxHealth)
+			return false;
+		if (maxMana != other.maxMana)
+			return false;
+		return true;
+	}
 }

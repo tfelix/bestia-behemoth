@@ -282,7 +282,7 @@ public class StatusService {
 	 *            The entity id.
 	 * @return The {@link ConditionValues} of this entity.
 	 */
-	public Optional<ConditionValues> getStatusValues(long entityId) {
+	public Optional<ConditionValues> getConditionalValues(long entityId) {
 		final Entity e = entityService.getEntity(entityId);
 
 		if (e == null) {
@@ -325,6 +325,11 @@ public class StatusService {
 
 		// If values are equal if so dont do anything.
 		final ConditionValues curValues = statusComp.getConditionValues();
+		
+		if(curValues.equals(values)) {
+			return;
+		}
+		
 		curValues.set(values);
 
 		entityService.updateComponent(statusComp);

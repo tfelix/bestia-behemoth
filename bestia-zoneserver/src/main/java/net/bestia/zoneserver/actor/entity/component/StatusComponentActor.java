@@ -47,7 +47,7 @@ public class StatusComponentActor extends BestiaPeriodicTerminatingActor {
 			healthIncrement += statusService.getHealthTick(entityId);
 			manaIncrement += statusService.getManaTick(entityId);
 
-			ConditionValues sval = statusService.getStatusValues(entityId).orElseThrow(IllegalArgumentException::new);
+			ConditionValues sval = statusService.getConditionalValues(entityId).orElseThrow(IllegalArgumentException::new);
 
 			if (healthIncrement > 1) {
 				

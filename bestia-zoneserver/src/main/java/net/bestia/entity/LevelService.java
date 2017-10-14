@@ -16,8 +16,6 @@ import net.bestia.entity.component.LevelComponent;
 @Service
 public class LevelService {
 
-	
-
 	private EntityService entityService;
 	private StatusService statusService;
 
@@ -39,10 +37,10 @@ public class LevelService {
 	 */
 	public void setLevel(Entity entity, int level) {
 
-		final LevelComponent statusComp = entityService.getComponent(entity, LevelComponent.class)
+		final LevelComponent lvComp = entityService.getComponent(entity, LevelComponent.class)
 				.orElseThrow(IllegalStateException::new);
 
-		statusComp.setLevel(level);
+		lvComp.setLevel(level);
 
 		// Invalidate the status points if the entity has a status component.
 		statusService.calculateStatusPoints(entity);
