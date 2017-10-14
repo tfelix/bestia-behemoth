@@ -107,26 +107,21 @@ class SpringActorProducer implements IndirectActorProducer {
 
 		// Remove all available arg classes. But do this in a smart ways.
 		// Because of inheritance a simple remove wont do it. We need to check
-		// espacially for interface implementations.
+		// especially for interface implementations.
 		availableArgsClasses.forEach(availClass -> {
-			
-			if(neededArgs.contains(availClass)) {
-				neededArgs.remove(availClass);
-			} else {
-				// Do a safety check for inherited classes.
-				Iterator<Class<?>> neededClazzIt = neededArgs.iterator();
-				
-				while(neededClazzIt.hasNext()) {
-					Class<?> clazz = neededClazzIt.next();
-					if(clazz.isAssignableFrom(availClass)) {
-						neededClazzIt.remove();
-						// We can break early.
-						break;
-					}
+
+			// Do a safety check for inherited classes.
+			Iterator<Class<?>> neededClazzIt = neededArgs.iterator();
+
+			while (neededClazzIt.hasNext()) {
+				Class<?> clazz = neededClazzIt.next();
+				if (clazz.isAssignableFrom(availClass)) {
+					neededClazzIt.remove();
+					// We can break early.
+					break;
 				}
-				
 			}
-			
+
 		});
 
 		// Try to create the missing args via spring beans invocation.
@@ -162,7 +157,11 @@ class SpringActorProducer implements IndirectActorProducer {
 
 			// We did not find a suitable param. Use the spring instanced.
 			for (int i = 0; i < instancedArgs.size(); i++) {
-				if (instancedArgs.get(i).getClass().equals(boxPrimitiveClass(param))) {
+				final Class<?> boxedClass = boxPrimitiveClass(param);
+				final Class<?> instancedClass = instancedArgs.get(i).getClass();
+				// Must be checked this way because spring sometimes proxy
+				// instanced classes.
+				if (boxedClass.isAssignableFrom(instancedClass)) {
 					sortedArgs.add(instancedArgs.get(i));
 					instancedArgs.remove(i);
 					break;
