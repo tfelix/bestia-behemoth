@@ -263,24 +263,22 @@ public class EntityService {
 		}
 
 		// Add component to entity and to the comp map.
-		final long compId = comp.getId();
 		final long entityId = e.getId();
 
 		comp.setEntityId(entityId);
 		e.addComponent(comp);
-
-		components.lock(compId);
-		entities.lock(entityId);
-		try {
-			components.put(compId, comp);
-			saveEntity(e);
-			LOG.trace("Added component {} to entity id: {}", comp, e.getId());
-		} finally {
-			components.unlock(compId);
-			entities.unlock(entityId);
-		}
+		
+		updateComponent(comp);
+		saveEntity(e);
+		LOG.trace("Added component {} to entity id: {}", comp, e.getId());
 	}
 
+	/**
+	 * Attaches all the components in one go to the entity.
+	 * 
+	 * @param e
+	 * @param attachComponents
+	 */
 	public void attachComponents(Entity e, Collection<Component> attachComponents) {
 		Objects.requireNonNull(e);
 		Objects.requireNonNull(components);
@@ -293,24 +291,18 @@ public class EntityService {
 		attachComponents.stream()
 				.filter(c -> c.getEntityId() != 0 && c.getEntityId() != entityId)
 				.findAny()
-				.ifPresent(x -> {
-					throw new IllegalArgumentException("Component is already attached to other entity: " + x.toString());
+				.ifPresent(c -> {
+					throw new IllegalArgumentException(
+							"Component is already attached to other entity: " + c.toString());
 				});
 
 		try {
 			entities.lock(entityId);
 			for (Component comp : attachComponents) {
-				final long compId = comp.getId();
-
 				comp.setEntityId(entityId);
 				e.addComponent(comp);
 
-				components.lock(compId);
-				try {
-					components.put(compId, comp);
-				} finally {
-					components.unlock(compId);
-				}
+				updateComponent(comp);
 			}
 			saveEntity(e);
 		} finally {

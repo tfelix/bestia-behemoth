@@ -29,6 +29,8 @@ public class PeriodicScriptActor extends AbstractActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private final static String TICK_MSG = "onTick";
+	
+	public final static String NAME ="periodicScript";
 
 	private Cancellable tick;
 

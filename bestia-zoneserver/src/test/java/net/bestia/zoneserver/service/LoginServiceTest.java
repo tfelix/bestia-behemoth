@@ -182,7 +182,7 @@ public class LoginServiceTest {
 		loginService.login(USER_ACC_ID);
 		loginService.logout(USER_ACC_ID);
 
-		verify(connectionService).disconnected(USER_ACC_ID);
+		verify(connectionService).disconnectAccount(USER_ACC_ID);
 
 		verify(playerEntityService).save(bestiaEntity);
 		verify(playerEntityService).removePlayerBestias(USER_ACC_ID);

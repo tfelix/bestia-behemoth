@@ -12,7 +12,7 @@ public class ScriptFileResolverTest {
 	@Test
 	public void getGlobalScriptFile_ok() {
 		File globScript = resolver.getGlobalScriptFile();
-		Assert.assertTrue(globScript.toString().endsWith("api.js"));
+		Assert.assertTrue(globScript.toString().endsWith("helper.js"));
 	}
 
 	@Test(expected = NullPointerException.class)

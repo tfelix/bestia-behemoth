@@ -96,7 +96,7 @@ public class ClientConnectionActor extends AbstractActor {
 	public void postStop() throws Exception {
 		latencyTick.cancel();
 
-		connectionService.disconnected(accountId);
+		connectionService.disconnectAccount(accountId);
 		latencyService.delete(accountId);
 		
 		// Clean up the associated entity actors.

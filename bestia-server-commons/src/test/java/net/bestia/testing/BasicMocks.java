@@ -28,8 +28,11 @@ public class BasicMocks {
 
 	@Bean
 	public ActorSystem actorSystem() {
+		return actorSystemByName("test-system");
+	}
 
-		return actorSystem("test-cluster");
+	public ActorSystem actorSystemByName(String name) {
+		return actorSystem(name);
 	}
 
 	public ActorSystem actorSystem(String systemName) {

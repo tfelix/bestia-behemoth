@@ -15,7 +15,6 @@ import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
-import net.bestia.zoneserver.service.ConnectionService;
 import net.bestia.zoneserver.service.LoginService;
 
 /**
@@ -49,8 +48,6 @@ public class LoginAuthActor extends AbstractActor {
 	/**
 	 * Ctor.
 	 * 
-	 * @param connectionService
-	 *            {@link ConnectionService}
 	 * @param loginService
 	 *            {@link LoginService}
 	 */

@@ -19,6 +19,8 @@ import net.bestia.zoneserver.service.AccountService;
 @Component
 @Scope("prototype")
 public class RegisterAccountActor extends AbstractActor {
+	
+	public final static String NAME = "RESTregisterAccount";
 
 	private final AccountService accService;
 

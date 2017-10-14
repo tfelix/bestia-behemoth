@@ -29,6 +29,8 @@ import scala.concurrent.duration.Duration;
 public class PeriodicMoveActor extends AbstractActor {
 
 	private final static String TICK_MSG = "onTick";
+	
+	public final static String NAME ="periodicMove";
 
 	private Cancellable tick;
 

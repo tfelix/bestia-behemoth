@@ -13,6 +13,9 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
 import net.bestia.util.PackageLoader;
+import net.bestia.zoneserver.actor.connection.ClientConnectionActor;
+import net.bestia.zoneserver.actor.entity.EntityActor;
+import net.bestia.zoneserver.actor.zone.ClusterControlActor;
 
 /**
  * Especially testing if all actors are annotated correctly.
@@ -23,6 +26,12 @@ import net.bestia.util.PackageLoader;
 public class GeneralActorTest {
 
 	private final static Set<Class<? extends AbstractActor>> IGNORED_ACTORS = new HashSet<>();
+	
+	static {
+		IGNORED_ACTORS.add(ClusterControlActor.class);
+		IGNORED_ACTORS.add(EntityActor.class);
+		IGNORED_ACTORS.add(ClientConnectionActor.class);
+	}
 
 	/**
 	 * Tests if all actors have the correct spring component annotations.
@@ -57,17 +66,19 @@ public class GeneralActorTest {
 	 * NAME field.
 	 */
 	@Test
-	public void staticNameFieldPresen() {
+	public void staticNameFieldPresent() {
 		PackageLoader<AbstractActor> actorLoader = new PackageLoader<>(AbstractActor.class,
 				"net.bestia.zoneserver.actor");
-		Set<Class<? extends AbstractActor>> classes = actorLoader.getSubClasses();
+		Set<Class<? extends AbstractActor>> classes = actorLoader.getConcreteSubClasses();
 
 		List<String> failedClasses = new ArrayList<>();
 		for (Class<? extends AbstractActor> clazz : classes) {
 			try {
 				clazz.getField("NAME");
 			} catch (Exception e) {
-				failedClasses.add(clazz.getCanonicalName());
+				if(!IGNORED_ACTORS.contains(clazz)) {
+					failedClasses.add(clazz.getCanonicalName());
+				}
 			}
 		}
 

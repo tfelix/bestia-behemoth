@@ -1,33 +1,64 @@
 package net.bestia.zoneserver.service;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.MultiMap;
 
+import akka.actor.ActorSystem;
+import akka.actor.Terminated;
 import akka.testkit.TestProbe;
 import net.bestia.testing.BasicMocks;
+import scala.concurrent.Future;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ConnectionServiceTest {
 
 	private static final long CONNECTED_ACC_ID = 10;
 	private static final long NOT_CONNECTED_ACC_ID = 11;
 	private BasicMocks mocks = new BasicMocks();
 	private HazelcastInstance hz = mocks.hazelcastMock();
+	
+	private ActorSystem sys1;
+	private ActorSystem sys2;
 
 	private ConnectionService conSrv;
-	private TestProbe webserver;
+	
+	private TestProbe webserver1;
+	private TestProbe webserver2;
+	
+	@Mock
+	private MultiMap<String, Long> clients;
 
 	@Before
 	public void setup() {
 		conSrv = new ConnectionService(hz);
-		webserver = new TestProbe(mocks.actorSystem(), "webserver");
+		
+		sys1 = mocks.actorSystemByName("test1");
+		sys2 = mocks.actorSystemByName("test2");
+		
+		webserver1 = new TestProbe(sys1, "webserver1");
+		webserver1 = new TestProbe(sys2, "webserver2");
+	}
+	
+	@After
+	public void teardown() throws InterruptedException {
+		Future<Terminated> t1 = sys1.terminate();
+		Future<Terminated> t2 = sys2.terminate();
+		
+		t1.wait();
+		t2.wait();
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void addClient_negAccId_throws() {
-		conSrv.connected(-13, webserver.ref().path().address());
+		conSrv.connected(-13, webserver1.ref().path().address());
 	}
 
 	@Test(expected = NullPointerException.class)
@@ -37,17 +68,28 @@ public class ConnectionServiceTest {
 
 	@Test
 	public void addClient_posIdNotNullPath_works() {
-		conSrv.connected(13, webserver.ref().path().address());
+		conSrv.connected(13, webserver1.ref().path().address());
 		Assert.assertTrue(conSrv.isConnected(13));
 	}
 
-
 	@Test
 	public void removeClient_validAccId_works() {
-		conSrv.connected(15, webserver.ref().path().address());
-		conSrv.disconnected(15);
-		boolean con = conSrv.isConnected(15);
-		Assert.assertFalse(con);
+		conSrv.connected(15, webserver1.ref().path().address());
+		conSrv.connected(16, webserver1.ref().path().address());
+		conSrv.connected(25, webserver2.ref().path().address());
+		conSrv.connected(26, webserver2.ref().path().address());
+		
+		conSrv.disconnectAccount(15);
+		Assert.assertFalse(conSrv.isConnected(15));
+		Assert.assertTrue(conSrv.isConnected(16));
+		Assert.assertTrue(conSrv.isConnected(25));
+		Assert.assertTrue(conSrv.isConnected(26));
+		
+		conSrv.disconnectedAllFromServer(webserver2.ref().path().address());
+		Assert.assertTrue(conSrv.isConnected(16));
+		Assert.assertFalse(conSrv.isConnected(25));
+		Assert.assertFalse(conSrv.isConnected(26));
+		
 	}
 	
 	@Test
@@ -57,7 +99,7 @@ public class ConnectionServiceTest {
 	
 	@Test
 	public void isOnline_accIdOnline_true() {
-		conSrv.connected(CONNECTED_ACC_ID, webserver.ref().path().address());
+		conSrv.connected(CONNECTED_ACC_ID, webserver1.ref().path().address());
 		Assert.assertTrue(conSrv.isConnected(CONNECTED_ACC_ID));
 	}
 }

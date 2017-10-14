@@ -22,8 +22,11 @@ import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import com.hazelcast.core.HazelcastInstance;
@@ -39,6 +42,7 @@ import net.bestia.entity.component.PlayerComponent;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.service.PlayerBestiaService;
 
+@RunWith(MockitoJUnitRunner.class)
 public class PlayerEntityServiceTest {
 	
 	private static final long MASTER_ENTITY_ID = 71;
@@ -56,16 +60,28 @@ public class PlayerEntityServiceTest {
 
 	private final BasicMocks mocks = new BasicMocks();
 	private final HazelcastInstance hz = mocks.hazelcastMock();
-
+	
+	@Mock
 	private EntityService entityService;
+	
+	@Mock
 	private PlayerBestiaService playerBestiaService;
+	
+	@Mock
 	private ZoneAkkaApi akkaApi;
-
+	
+	@Mock
 	private Entity playerEntity;
+	
+	@Mock
 	private Entity masterEntity;
+	
+	@Mock
 	private Entity otherPlayerEntity;
 	
 	private PlayerEntityService pbeService;
+	
+	@Mock
 	private PlayerBestia masterPlayerBestia;
 	
 	private final Rect inRangeRect = new Rect(0, 0, 100, 100);
@@ -75,13 +91,6 @@ public class PlayerEntityServiceTest {
 
 	@Before
 	public void setup() {
-
-		entityService = mock(EntityService.class);
-		playerBestiaService = mock(PlayerBestiaService.class);
-
-		playerEntity = mock(Entity.class);
-		masterEntity = mock(Entity.class);
-		otherPlayerEntity = mock(Entity.class);
 		
 		when(playerEntity.getId()).thenReturn(PLAYER_ENTITY_ID);
 		when(masterEntity.getId()).thenReturn(MASTER_ENTITY_ID);
@@ -104,7 +113,6 @@ public class PlayerEntityServiceTest {
 		when(otherPlayerComponent.getOwnerAccountId()).thenReturn(OTHER_ACC_ID);
 		when(otherPlayerComponent.getPlayerBestiaId()).thenReturn(NOTOWNED_ENTITY_ID);
 
-		masterPlayerBestia = mock(PlayerBestia.class);
 		when(masterPlayerBestia.getId()).thenReturn(MASTER_PB_ID);
 
 		when(entityService.hasComponent(any(Entity.class), any())).thenReturn(false);

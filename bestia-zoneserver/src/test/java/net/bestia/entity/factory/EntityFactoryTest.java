@@ -90,7 +90,7 @@ public class EntityFactoryTest {
 
 		verify(entityService).newEntity();
 		verify(entityService).newComponent(PlayerComponent.class);
-		verify(entityService).updateComponent(any());
+		verify(entityService).attachComponents(any(), any());
 	}
 
 }
