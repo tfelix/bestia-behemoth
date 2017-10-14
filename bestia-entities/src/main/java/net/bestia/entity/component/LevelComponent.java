@@ -8,8 +8,6 @@ package net.bestia.entity.component;
  */
 public class LevelComponent extends Component {
 
-	public static final int MAX_LEVEL = 50;
-
 	private static final long serialVersionUID = 1L;
 
 	public LevelComponent(long id) {
@@ -29,14 +27,10 @@ public class LevelComponent extends Component {
 		return level;
 	}
 
-	public int getKilledExp() {
-		return level * 10;
-	}
-
 	public void setLevel(int level) {
 
-		if (level < 0 || level > MAX_LEVEL) {
-			throw new IllegalArgumentException("Level can not be negative and bigger then" + MAX_LEVEL);
+		if (level < 0) {
+			throw new IllegalArgumentException("Level can not be negative." );
 		}
 
 		this.level = level;

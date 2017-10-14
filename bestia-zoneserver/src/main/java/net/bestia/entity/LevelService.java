@@ -2,6 +2,8 @@ package net.bestia.entity;
 
 import java.util.Objects;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,10 @@ import net.bestia.entity.component.LevelComponent;
  */
 @Service
 public class LevelService {
+
+	private static final Logger LOG = LoggerFactory.getLogger(LevelService.class);
+
+	private static final int MAX_LEVEL = 10;
 
 	private EntityService entityService;
 	private StatusService statusService;
@@ -37,6 +43,14 @@ public class LevelService {
 	 */
 	public void setLevel(Entity entity, int level) {
 
+		LOG.debug("Setting entity {} level to {}.", entity, level);
+
+		Objects.requireNonNull(entity);
+		
+		if (level <= 0 || level > MAX_LEVEL) {
+			throw new IllegalArgumentException("Level must be between 1 and " + MAX_LEVEL);
+		}
+
 		final LevelComponent lvComp = entityService.getComponent(entity, LevelComponent.class)
 				.orElseThrow(IllegalStateException::new);
 
@@ -56,7 +70,7 @@ public class LevelService {
 
 		return entityService.getComponent(entity, LevelComponent.class)
 				.map(lv -> lv.getLevel())
-				.orElse(0);
+				.orElse(1);
 	}
 
 	private void checkLevelup(Entity entity, LevelComponent levelComponent) {
@@ -64,17 +78,20 @@ public class LevelService {
 		final int neededExp = (int) Math
 				.round(Math.pow(levelComponent.getLevel(), 3) / 10 + 15 + levelComponent.getLevel() * 1.5);
 
-		if (levelComponent.getExp() > neededExp) {
+		LOG.trace("Entity {} has {}/{} exp for levelup.", entity, neededExp, levelComponent.getExp());
+
+		if (levelComponent.getExp() > neededExp && levelComponent.getLevel() < MAX_LEVEL) {
 
 			levelComponent.setExp(levelComponent.getExp() - neededExp);
 			levelComponent.setLevel(levelComponent.getLevel() + 1);
 			checkLevelup(entity, levelComponent);
 
-		} else {
-
-			statusService.calculateStatusPoints(entity);
-			entityService.updateComponent(levelComponent);
 		}
+
+		// Finally recalculate the status if all level ups have recursively
+		// resolved.
+		statusService.calculateStatusPoints(entity);
+		entityService.updateComponent(levelComponent);
 	}
 
 	/**
@@ -86,6 +103,13 @@ public class LevelService {
 	 * @param exp
 	 */
 	public void addExp(Entity entity, int exp) {
+		
+		LOG.trace("Entity {} gains {} exp.", entity, exp);
+		
+		if(exp < 0) {
+			throw new IllegalArgumentException("Exp can not be negative.");
+		}
+		
 		final LevelComponent levelComp = entityService.getComponent(entity, LevelComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
