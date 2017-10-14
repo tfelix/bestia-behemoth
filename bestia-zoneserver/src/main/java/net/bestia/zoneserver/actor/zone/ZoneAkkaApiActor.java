@@ -49,16 +49,6 @@ public class ZoneAkkaApiActor implements MessageApi {
 	}
 
 	@Override
-	public ActorRef startActor(Class<? extends AbstractActor> actorClazz) {
-
-		ActorRef actor = SpringExtension.actorOf(context.system(), actorClazz);
-
-		LOG.info("Starting actor: {}, path: {}", actorClazz, actor.path().toString());
-
-		return actor;
-	}
-
-	@Override
 	public void sendEntityActor(long entityId, Object msg) {
 		AkkaSender.sendEntityActor(context, entityId, msg);
 	}

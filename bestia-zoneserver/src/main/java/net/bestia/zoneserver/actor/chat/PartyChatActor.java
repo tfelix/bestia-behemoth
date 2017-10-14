@@ -7,12 +7,14 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.dao.PartyDAO;
 import net.bestia.model.domain.Party;
-import net.bestia.zoneserver.AkkaSender;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 
 /**
  * Handles party chat messages.
@@ -28,11 +30,13 @@ public class PartyChatActor extends AbstractActor {
 	public static final String NAME = "party";
 
 	private final PartyDAO partyDao;
+	private final ActorRef sendClient;
 
 	@Autowired
 	public PartyChatActor(PartyDAO partyDao) {
 
 		this.partyDao = Objects.requireNonNull(partyDao);
+		sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 
 	@Override
@@ -60,13 +64,13 @@ public class PartyChatActor extends AbstractActor {
 			LOG.debug("Account {} is no member of any party.", chatMsg.getAccountId());
 			final ChatMessage replyMsg = ChatMessage.getSystemMessage(chatMsg.getAccountId(),
 					"Not a member of a party.");
-			AkkaSender.sendClient(getContext(), replyMsg);
+			sendClient.tell(replyMsg, getSelf());
 			return;
 		}
 
 		party.getMembers().forEach(member -> {
 			final ChatMessage reply = chatMsg.createNewInstance(member.getId());
-			AkkaSender.sendClient(getContext(), reply);
+			sendClient.tell(reply, getSelf());
 		});
 	}
 

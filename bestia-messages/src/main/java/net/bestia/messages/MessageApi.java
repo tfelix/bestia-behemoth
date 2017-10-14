@@ -1,9 +1,6 @@
 package net.bestia.messages;
 
-import akka.actor.AbstractActor;
-import akka.actor.ActorRef;
-import net.bestia.messages.EntityJsonMessage;
-import net.bestia.messages.JsonMessage;
+import net.bestia.entity.component.PositionComponent;
 
 /**
  * This is the central interface for any external component like services or
@@ -43,14 +40,6 @@ public interface MessageApi {
 	 * @param message
 	 */
 	void sendToActor(String actorName, Object message);
-
-	/**
-	 * Helper to start actors.
-	 * 
-	 * @param actorClazz
-	 * @return
-	 */
-	ActorRef startActor(Class<? extends AbstractActor> actorClazz);
 
 	/**
 	 * Sends a message directly to the entity actor managing a single entity

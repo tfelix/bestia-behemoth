@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.map.MapTilesetMessage;
@@ -15,8 +16,9 @@ import net.bestia.messages.map.MapTilesetRequestMessage;
 import net.bestia.model.domain.TilesetData;
 import net.bestia.model.map.Tileset;
 import net.bestia.model.map.TilesetService;
-import net.bestia.zoneserver.AkkaSender;
+import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 
 /**
  * The user queries the name/data of an {@link TilesetData}. He only sends the
@@ -33,11 +35,13 @@ public class TilesetRequestActor extends AbstractActor {
 	public static String NAME = "tileset";
 
 	private final TilesetService tilesetService;
+	private final ActorRef sendClient;
 
 	@Autowired
 	public TilesetRequestActor(TilesetService tilesetService) {
 
 		this.tilesetService = Objects.requireNonNull(tilesetService);
+		sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 
 	@Override
@@ -67,7 +71,7 @@ public class TilesetRequestActor extends AbstractActor {
 				msg.getAccountId(),
 				ts.get().getSimpleTileset());
 
-		AkkaSender.sendClient(getContext(), response);
+		sendClient.tell(response, getSelf());
 	}
 
 }

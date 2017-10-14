@@ -135,7 +135,7 @@ public class LoginService {
 			throw new IllegalArgumentException("Account ID must be positive.");
 		}
 		// Unregister connection.
-		LOG.debug("logout: {}.", accId);
+		LOG.debug("Logout account: {}.", accId);
 
 		final Account acc = accountDao.findOne(accId);
 

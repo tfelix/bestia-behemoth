@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.EntityService;
@@ -17,13 +18,13 @@ import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.AkkaSender;
+import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.map.MapService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /***
  * If a {@link EntityJsonMessage} is received by this actor it will check if the
- * given entity contains a {@link PositionComponent} and if it does so it will
+ * given entity contains a {@link PositionComponent} and if it does it will
  * detect all active player entities in the update range of the game and forward
  * the message to them via a {@link SendClientActor}.
  * 
@@ -32,20 +33,22 @@ import net.bestia.zoneserver.service.PlayerEntityService;
  */
 @Component
 @Scope("prototype")
-public class SendActiveRangeActor extends AbstractActor {
+public class SendActiveClientsActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public static final String NAME = "sendToActiveInRange";
 
 	private final PlayerEntityService playerEntityService;
 	private final EntityService entityService;
+	private final ActorRef sendClient;
 
 	@Autowired
-	public SendActiveRangeActor(PlayerEntityService playerEntityService,
+	public SendActiveClientsActor(PlayerEntityService playerEntityService,
 			EntityService entityService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
+		sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 
 	@Override
@@ -81,7 +84,8 @@ public class SendActiveRangeActor extends AbstractActor {
 
 		for (Long activeId : activeIds) {
 			final JsonMessage newMsg = msg.createNewInstance(activeId);
-			AkkaSender.sendClient(getContext(), newMsg);
+			
+			sendClient.tell(newMsg, getSelf());
 		}
 	}
 }

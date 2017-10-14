@@ -2,8 +2,6 @@ package net.bestia.entity;
 
 import org.springframework.stereotype.Component;
 
-import akka.actor.AbstractActor;
-import akka.actor.ActorRef;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.messages.MessageApi;
@@ -27,12 +25,6 @@ public class NullMessageApi implements MessageApi {
 	public void sendToActor(String actorName, Object message) {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public ActorRef startActor(Class<? extends AbstractActor> actorClazz) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

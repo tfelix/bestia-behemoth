@@ -8,11 +8,13 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import net.bestia.messages.inventory.InventoryListMessage;
 import net.bestia.messages.inventory.InventoryListRequestMessage;
 import net.bestia.model.domain.PlayerItem;
-import net.bestia.zoneserver.AkkaSender;
+import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.service.InventoryService;
 
 /**
@@ -31,6 +33,8 @@ public class ListInventoryActor extends AbstractActor {
 
 	private final InventoryService inventoryService;
 
+	private final ActorRef sendClient;
+
 	/**
 	 * Ctor.
 	 * 
@@ -41,6 +45,7 @@ public class ListInventoryActor extends AbstractActor {
 	public ListInventoryActor(InventoryService inventoryService) {
 
 		this.inventoryService = Objects.requireNonNull(inventoryService);
+		sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 
 	@Override
@@ -63,6 +68,6 @@ public class ListInventoryActor extends AbstractActor {
 		final List<PlayerItem> items = inventoryService.findPlayerItemsForAccount(ilmsg.getAccountId());
 		invMsg.setPlayerItems(items);
 
-		AkkaSender.sendClient(getContext(), invMsg);
+		sendClient.tell(invMsg, getSender());
 	}
 }

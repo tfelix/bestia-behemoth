@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.Entity;
@@ -23,8 +24,9 @@ import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.entity.StatusBasedValues;
-import net.bestia.zoneserver.AkkaSender;
+import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
@@ -44,6 +46,8 @@ public class BestiaInfoActor extends AbstractActor {
 	private final EntityService entityService;
 	private final PlayerEntityService playerEntityService;
 	private final PlayerBestiaDAO playerBestiaDao;
+	
+	private final ActorRef sendClient;
 
 	@Autowired
 	public BestiaInfoActor(
@@ -55,6 +59,7 @@ public class BestiaInfoActor extends AbstractActor {
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
 
+		sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 
 	@Override
@@ -100,7 +105,7 @@ public class BestiaInfoActor extends AbstractActor {
 
 			// Send the normal bestia info message.
 			final BestiaInfoMessage bimsg = new BestiaInfoMessage(accId, pbe.getId(), pb);
-			AkkaSender.sendClient(getContext(), bimsg);
+			sendClient.tell(bimsg, getSelf());
 
 			// Now send the bestia status messages.
 			final EntityStatusUpdateMessage esmsg = new EntityStatusUpdateMessage(
@@ -110,7 +115,7 @@ public class BestiaInfoActor extends AbstractActor {
 					unmodStatusPoints,
 					condValues,
 					statusBasedValues);
-			AkkaSender.sendClient(getContext(), esmsg);
+			sendClient.tell(esmsg, getSelf());
 		}
 	}
 }

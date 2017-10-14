@@ -101,9 +101,6 @@ public class IngestExActor extends AbstractActor {
 
 	public IngestExActor() {
 
-		// This is a temporary setup. Should be done inside a own actor with
-		// this as a super actor.
-
 		// Setup the internal sub-actors of the ingest actor first.
 		componentRedirActor = SpringExtension.actorOf(getContext(), ComponentRedirectionActor.class);
 

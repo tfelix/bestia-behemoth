@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Class can be send to a client and contains an entity id.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public abstract class EntityJsonMessage extends JsonMessage implements EntityMessage {

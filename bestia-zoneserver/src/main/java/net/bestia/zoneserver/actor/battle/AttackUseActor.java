@@ -34,18 +34,13 @@ public class AttackUseActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	// private final AttackService attackService;
 	private final BattleService battleService;
-	// private final AttackDAO attackDao;
 	private final ActorRef clientSendActor;
 
 	@Autowired
 	public AttackUseActor(BattleService battleService) {
 
-		// this.attackService = Objects.requireNonNull(attackService);
-		// this.attackDao = Objects.requireNonNull(attackDao);
 		this.battleService = Objects.requireNonNull(battleService);
-
 		this.clientSendActor = SpringExtension.actorOf(getContext(), AttackPlayerUseActor.class);
 	}
 

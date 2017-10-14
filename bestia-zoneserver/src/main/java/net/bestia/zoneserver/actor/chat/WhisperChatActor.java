@@ -7,11 +7,13 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.domain.Account;
-import net.bestia.zoneserver.AkkaSender;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.service.AccountService;
 
 /**
@@ -29,11 +31,13 @@ public class WhisperChatActor extends AbstractActor {
 	public static final String NAME = "whisper";
 
 	private final AccountService accService;
+	private final ActorRef sendClient;
 
 	@Autowired
 	public WhisperChatActor(AccountService accService) {
 
 		this.accService = Objects.requireNonNull(accService);
+		sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 
 	@Override
@@ -67,6 +71,6 @@ public class WhisperChatActor extends AbstractActor {
 		}
 
 		final ChatMessage reply = chatMsg.createNewInstance(acc.getId());
-		AkkaSender.sendClient(getContext(), reply);
+		sendClient.tell(reply, getSelf());
 	}
 }

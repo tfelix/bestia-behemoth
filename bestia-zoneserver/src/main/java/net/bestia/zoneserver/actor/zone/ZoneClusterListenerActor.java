@@ -26,7 +26,7 @@ import net.bestia.zoneserver.service.LoginService;
  * Logs information about the whole behemoth cluster and reacts on cluster
  * events. It will manage 
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Component

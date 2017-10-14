@@ -1,17 +1,19 @@
 package net.bestia.zoneserver.actor.connection;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.InvalidActorNameException;
-import akka.actor.PoisonPill;
+import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.ClientConnectionStatusMessage;
 import net.bestia.messages.internal.ClientConnectionStatusMessage.ConnectionState;
-import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 
@@ -19,6 +21,8 @@ import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
  * This is a central manager actor which will start up sharded actors for each
  * connection. It manages the connection to the players and hold references to
  * the webserver to which they are connected.
+ * 
+ * FIXME This must be done sharded.
  * 
  * @author Thomas Felix
  *
@@ -31,6 +35,9 @@ public class ConnectionManagerActor extends AbstractActor {
 
 	public static final String NAME = "connection";
 
+	private Map<Long, ActorRef> idToConnections = new HashMap<>();
+	private Map<ActorRef, Long> connectionsToId = new HashMap<>();
+
 	public ConnectionManagerActor() {
 		// no op.
 	}
@@ -39,6 +46,7 @@ public class ConnectionManagerActor extends AbstractActor {
 	public Receive createReceive() {
 		return receiveBuilder()
 				.match(ClientConnectionStatusMessage.class, this::checkConnectionStatus)
+				.match(Terminated.class, this::handleConnectionTeminated)
 				.build();
 	}
 
@@ -50,6 +58,16 @@ public class ConnectionManagerActor extends AbstractActor {
 		context().parent().tell(msg, getSelf());
 	}
 
+	private void handleConnectionTeminated(Terminated t) {
+		if(!connectionsToId.containsKey(t.actor())) {
+			return;
+		}
+		
+		final long connectionId = connectionsToId.get(t.actor());
+		connectionsToId.remove(t.actor());
+		idToConnections.remove(connectionId);
+	}
+
 	/**
 	 * Checks if the user is connected or disconnected. Based upon this state a
 	 * connection is established or closed.
@@ -59,24 +77,35 @@ public class ConnectionManagerActor extends AbstractActor {
 	private void checkConnectionStatus(ClientConnectionStatusMessage msg) {
 
 		if (msg.getState() == ConnectionState.CONNECTED) {
-			final String actorName = ClientConnectionActor.getActorName(msg.getAccountId());
-			try {
-				final ActorRef connectionActor = SpringExtension.actorOf(
-						getContext(), 
-						ClientConnectionActor.class,
-						actorName,
-						msg.getAccountId(), msg.getWebserverRef());
-
-				LOG.debug("Received start request for account connection: {}. Actor name: {}",
-						msg.getAccountId(),
-						connectionActor.path().toString());
-			} catch (InvalidActorNameException ex) {
-				LOG.debug("Actor with actor name already active: {}", actorName);
-				return;
-			}
+			startConnectionActor(msg);
 		} else {
-			// Terminate if there is a connection existing.
-			sendToConnectionActor(msg.getAccountId(), PoisonPill.getInstance());
+			// Simplay forward message.
+			sendToConnectionActor(msg.getAccountId(), msg);
+		}
+	}
+
+	private void startConnectionActor(ClientConnectionStatusMessage msg) {
+		final String actorName = ClientConnectionActor.getActorName(msg.getAccountId());
+		try {
+			final ActorRef connectionActor = SpringExtension.actorOf(
+					getContext(),
+					ClientConnectionActor.class,
+					actorName,
+					msg.getAccountId(), msg.getWebserverRef());
+			
+			getContext().watch(connectionActor);
+			
+			// Add it to the cache.
+			connectionsToId.put(connectionActor, msg.getAccountId());
+			idToConnections.put(msg.getAccountId(), connectionActor);
+
+			LOG.debug("Received start request for account connection: {}. Actor name: {}",
+					msg.getAccountId(),
+					connectionActor.path().toString());
+
+		} catch (InvalidActorNameException ex) {
+			LOG.debug("Actor with actor name already active: {}", actorName);
+			return;
 		}
 	}
 
@@ -86,8 +115,6 @@ public class ConnectionManagerActor extends AbstractActor {
 	 * @param msg
 	 */
 	private void sendToConnectionActor(long accoundId, Object msg) {
-		final String connectionActorName = ClientConnectionActor.getActorName(accoundId);
-		final String actorName = AkkaCluster.getNodeName(NAME, connectionActorName);
-		getContext().actorSelection(actorName).tell(msg, getSelf());
+		idToConnections.get(accoundId).tell(msg, getSelf());
 	}
 }

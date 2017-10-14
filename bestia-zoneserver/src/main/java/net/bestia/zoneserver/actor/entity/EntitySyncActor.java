@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.Entity;
@@ -22,8 +23,9 @@ import net.bestia.messages.entity.EntityUpdateMessage;
 import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.AkkaSender;
+import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.map.MapService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
@@ -45,6 +47,7 @@ public class EntitySyncActor extends AbstractActor {
 
 	private final EntityService entityService;
 	private final PlayerEntityService playerEntityService;
+	private final ActorRef sendClient;
 
 	@Autowired
 	public EntitySyncActor(EntityService entityService,
@@ -53,7 +56,7 @@ public class EntitySyncActor extends AbstractActor {
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 
-		//LOG.error("Init gecalled.");
+		sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 
 	@Override
@@ -117,7 +120,7 @@ public class EntitySyncActor extends AbstractActor {
 
 			final EntityUpdateMessage updateMsg = builder.build();
 
-			AkkaSender.sendClient(getContext(), updateMsg);
+			sendClient.tell(updateMsg, getSelf());
 		}
 
 	}

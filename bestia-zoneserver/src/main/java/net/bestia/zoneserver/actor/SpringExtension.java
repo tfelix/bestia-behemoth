@@ -2,6 +2,8 @@ package net.bestia.zoneserver.actor;
 
 import java.lang.reflect.Field;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +26,8 @@ import akka.actor.Props;
  */
 @Component
 public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringAkkaExt> {
+	
+	private final static Logger LOG = LoggerFactory.getLogger(SpringExtension.class);
 
 	/**
 	 * The identifier used to access the SpringExtension.
@@ -121,7 +125,7 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 
 	/**
 	 * Creates a new actor via injection of spring dependencies. Does give the
-	 * actor a custom name by the user.
+	 * actor a custom name by the user and starts actor on the root actor system.
 	 * 
 	 * @param system
 	 * @param clazz
@@ -131,9 +135,23 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 	 * @return The created {@link ActorRef}.
 	 */
 	public static ActorRef actorOf(ActorSystem system, Class<? extends AbstractActor> clazz, String actorName) {
-
 		final Props props = getSpringProps(system, clazz);
-		return (actorName == null) ? system.actorOf(props) : system.actorOf(props, actorName);
+		final ActorRef actor = (actorName == null) ? system.actorOf(props) : system.actorOf(props, actorName);
+		LOG.debug("Started actor: {}, path: {}", clazz, actor.path());
+		return actor;
+	}
+	
+	/**
+	 * Unlike {@link #createActor(Class)} this wont check the given class for a
+	 * name and just assign a random name. This is important when a lot of
+	 * actors are created and destroyed to avoid performance bottlenecks.
+	 * 
+	 * @param clazz
+	 *            The class to create an actor from.
+	 * @return The created and already registered new actor.
+	 */
+	public static ActorRef unnamedActorOf(ActorSystem system, Class<? extends AbstractActor> clazz) {		
+		return actorOf(system, clazz, null);
 	}
 
 	/**
@@ -169,7 +187,9 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 	public static ActorRef actorOf(ActorContext context, Class<? extends AbstractActor> clazz, String name) {
 
 		final Props props = getSpringProps(context.system(), clazz);
-		return (name == null) ? context.actorOf(props) : context.actorOf(props, name);
+		final ActorRef actor = (name == null) ? context.actorOf(props) : context.actorOf(props, name);
+		LOG.debug("Started actor: {}, path: {}", clazz, actor.path());
+		return actor;
 	}
 
 	/**
@@ -195,22 +215,8 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 			Object... args) {
 
 		final Props props = getSpringProps(context.system(), clazz, args);
-		return (name == null) ? context.actorOf(props) : context.actorOf(props, name);
-	}
-
-	/**
-	 * Unlike {@link #createActor(Class)} this wont check the given class for a
-	 * name and just assign a random name. This is important when a lot of
-	 * actors are created and destroyed to avoid performance bottlenecks.
-	 * 
-	 * @param clazz
-	 *            The class to create an actor from.
-	 * @return The created and already registered new actor.
-	 */
-	public static ActorRef unnamedActorOf(ActorSystem system, Class<? extends AbstractActor> clazz) {
-
-		final Props props = getSpringProps(system, clazz);
-		return system.actorOf(props);
+		final ActorRef actor = (name == null) ? context.actorOf(props) : context.actorOf(props, name);
+		return actor;
 	}
 
 	/**
@@ -223,9 +229,7 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 	 * @return
 	 */
 	public static ActorRef unnamedActorOf(ActorContext ctx, Class<? extends AbstractActor> clazz, Object... args) {
-
-		final Props props = getSpringProps(ctx.system(), clazz, args);
-		return ctx.actorOf(props);
+		return actorOf(ctx, clazz, null, args);
 	}
 
 	/**

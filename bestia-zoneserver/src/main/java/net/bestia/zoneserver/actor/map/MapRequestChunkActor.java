@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.Entity;
@@ -18,8 +19,9 @@ import net.bestia.messages.map.MapChunkMessage;
 import net.bestia.messages.map.MapChunkRequestMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.map.MapChunk;
-import net.bestia.zoneserver.AkkaSender;
+import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.map.MapService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
@@ -41,6 +43,7 @@ public class MapRequestChunkActor extends AbstractActor {
 	private final PlayerEntityService pbService;
 	private final EntityService entityService;
 	private final MapService mapService;
+	private final ActorRef sendClient;
 
 	@Autowired
 	public MapRequestChunkActor(
@@ -51,6 +54,7 @@ public class MapRequestChunkActor extends AbstractActor {
 		this.pbService = Objects.requireNonNull(pbService);
 		this.mapService = Objects.requireNonNull(mapService);
 		this.entityService = Objects.requireNonNull(entityService);
+		sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 
 	@Override
@@ -89,6 +93,6 @@ public class MapRequestChunkActor extends AbstractActor {
 		final List<MapChunk> chunks = mapService.getChunks(msg.getChunks());
 
 		final MapChunkMessage response = new MapChunkMessage(msg.getAccountId(), chunks);
-		AkkaSender.sendClient(getContext(), response);
+		sendClient.tell(response, getSelf());
 	}
 }

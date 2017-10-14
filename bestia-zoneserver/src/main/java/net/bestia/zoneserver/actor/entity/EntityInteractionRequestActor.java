@@ -8,14 +8,16 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.EntityService;
 import net.bestia.messages.entity.EntityInteractionMessage;
 import net.bestia.messages.entity.EntityInteractionRequestMessage;
 import net.bestia.model.entity.InteractionType;
-import net.bestia.zoneserver.AkkaSender;
+import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.service.InteractionService;
 
 /**
@@ -32,14 +34,15 @@ public class EntityInteractionRequestActor extends AbstractActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	public final static String NAME = "requestInteract";
 
-
 	private final InteractionService interactService;
+	private final ActorRef sendClient;
 
 	@Autowired
 	public EntityInteractionRequestActor(EntityService entityService,
 			InteractionService interactService) {
 	
 		this.interactService = Objects.requireNonNull(interactService);
+		sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 
 	@Override
@@ -66,7 +69,9 @@ public class EntityInteractionRequestActor extends AbstractActor {
 				msg.getAccountId(),
 				msg.getEntityId(),
 				interactions);
-		AkkaSender.sendClient(getContext(), reply);
+		
+		
+		sendClient.tell(reply, getSelf());
 	}
 
 }

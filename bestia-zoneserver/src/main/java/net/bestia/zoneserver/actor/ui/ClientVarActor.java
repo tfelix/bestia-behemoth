@@ -7,12 +7,14 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.ui.ClientVarMessage;
 import net.bestia.messages.ui.ClientVarRequestMessage;
 import net.bestia.model.domain.ClientVar;
-import net.bestia.zoneserver.AkkaSender;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.service.ClientVarService;
 
 /**
@@ -31,11 +33,13 @@ public class ClientVarActor extends AbstractActor {
 	public static final String NAME = "clientvar";
 
 	private final ClientVarService cvarService;
+	private final ActorRef sendClient;
 
 	@Autowired
 	public ClientVarActor(ClientVarService cvarService) {
 
 		this.cvarService = Objects.requireNonNull(cvarService);
+		sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 	
 	@Override
@@ -112,7 +116,7 @@ public class ClientVarActor extends AbstractActor {
 
 		final ClientVar cvar = cvarService.find(accId, key);
 		final ClientVarMessage cvarMsg = new ClientVarMessage(accId, msg.getUuid(), cvar.getData());
-		AkkaSender.sendClient(getContext(), cvarMsg);
+		sendClient.tell(cvarMsg, getSelf());
 	}
 
 }

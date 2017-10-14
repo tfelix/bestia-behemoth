@@ -15,20 +15,11 @@ import akka.cluster.sharding.ClusterSharding;
 import akka.cluster.sharding.ClusterShardingSettings;
 import akka.cluster.singleton.ClusterSingletonManager;
 import akka.cluster.singleton.ClusterSingletonManagerSettings;
-import net.bestia.messages.MessageApi;
+import net.bestia.zoneserver.actor.BestiaRootActor;
 import net.bestia.zoneserver.actor.EntityShardMessageExtractor;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.battle.AttackUseActor;
-import net.bestia.zoneserver.actor.entity.EntityManagerActor;
 import net.bestia.zoneserver.actor.entity.EntityShardManagerActor;
-import net.bestia.zoneserver.actor.map.MapGeneratorClientActor;
-import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
-import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.ClusterControlActor;
-import net.bestia.zoneserver.actor.zone.IngestExActor;
-import net.bestia.zoneserver.actor.zone.MemDbHeartbeatActor;
-import net.bestia.zoneserver.actor.zone.SendActiveRangeActor;
-import net.bestia.zoneserver.actor.zone.ZoneClusterListenerActor;
 import net.bestia.zoneserver.script.ScriptService;
 
 /**
@@ -42,14 +33,12 @@ public class ZoneStarter implements CommandLineRunner {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ZoneStarter.class);
 
-	private final MessageApi akkaApi;
 	private final ActorSystem system;
 	private final ScriptService scriptService;
 
 	@Autowired
-	public ZoneStarter(ActorSystem system, MessageApi akkaApi, ScriptService scriptService) {
+	public ZoneStarter(ActorSystem system, ScriptService scriptService) {
 
-		this.akkaApi = Objects.requireNonNull(akkaApi);
 		this.system = Objects.requireNonNull(system);
 		this.scriptService = Objects.requireNonNull(scriptService);
 	}
@@ -58,28 +47,16 @@ public class ZoneStarter implements CommandLineRunner {
 	public void run(String... strings) throws Exception {
 		LOG.info("Starting actor system...");
 
-		akkaApi.startActor(IngestExActor.class);
-
-		akkaApi.startActor(SendActiveRangeActor.class);
-		akkaApi.startActor(ActiveClientUpdateActor.class);
-
-		// Entity
-		akkaApi.startActor(EntityManagerActor.class);
-
 		// Maintenance actors.
-		akkaApi.startActor(MapGeneratorMasterActor.class);
-		akkaApi.startActor(MapGeneratorClientActor.class);
-
-		// Battle actors.
-		akkaApi.startActor(AttackUseActor.class);
-
-		// System actors.
-		akkaApi.startActor(ZoneClusterListenerActor.class);
-		akkaApi.startActor(MemDbHeartbeatActor.class);
+		// Noch nicht migriert.
+		//akkaApi.startActor(MapGeneratorMasterActor.class);
+		//akkaApi.startActor(MapGeneratorClientActor.class);
 
 		registerShardedActors();
 		
 		registerSingeltons();
+		
+		SpringExtension.actorOf(system, BestiaRootActor.class);
 
 		// Trigger the startup script.
 		scriptService.callScript("startup");
@@ -99,12 +76,12 @@ public class ZoneStarter implements CommandLineRunner {
 	}
 
 	private void registerShardedActors() {
-		LOG.info("Register the entity sharded actor.");
+		LOG.info("Register the sharded actor.");
 
 		final ClusterShardingSettings settings = ClusterShardingSettings.create(system);
 		final ClusterSharding sharding = ClusterSharding.get(system);
 		final Props props = SpringExtension.getSpringProps(system, EntityShardManagerActor.class);
 		final EntityShardMessageExtractor extractor = new EntityShardMessageExtractor();
-		sharding.start("entityManager", props, settings, extractor);
+		sharding.start("entityShardManager", props, settings, extractor);
 	}
 }
