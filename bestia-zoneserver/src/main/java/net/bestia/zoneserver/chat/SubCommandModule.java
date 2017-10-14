@@ -3,8 +3,8 @@ package net.bestia.zoneserver.chat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.bestia.messages.MessageApi;
 import net.bestia.model.domain.Account;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * The sub modules are used to implement chat command modules which are used by
@@ -15,7 +15,7 @@ import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
  */
 abstract class SubCommandModule extends BaseChatCommand {
 
-	public SubCommandModule(ZoneAkkaApi akkaApi) {
+	public SubCommandModule(MessageApi akkaApi) {
 		super(akkaApi);
 		// no op.
 	}

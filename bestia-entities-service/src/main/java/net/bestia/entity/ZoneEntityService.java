@@ -12,8 +12,9 @@ import com.hazelcast.core.HazelcastInstance;
 
 import akka.actor.PoisonPill;
 import net.bestia.entity.component.Component;
+import net.bestia.entity.component.EntityCache;
 import net.bestia.entity.component.interceptor.Interceptor;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
+import net.bestia.messages.MessageApi;
 
 /**
  * This is a special implementation of the {@link EntityService}. It wrappes
@@ -33,18 +34,18 @@ public class ZoneEntityService extends EntityService {
 
 	private final Interceptor interceptor;
 	private final EntityCache cache;
-	private final ZoneAkkaApi akkaApi;
+	private final MessageApi messageApi;
 
 	@Autowired
 	public ZoneEntityService(HazelcastInstance hz,
-			ZoneAkkaApi akkaApi,
+			MessageApi akkaApi,
 			Interceptor interceptor,
 			EntityCache cache) {
 		super(hz);
 
 		Objects.requireNonNull(hz);
 
-		this.akkaApi = Objects.requireNonNull(akkaApi);
+		this.messageApi = Objects.requireNonNull(akkaApi);
 		this.interceptor = Objects.requireNonNull(interceptor);
 		this.cache = Objects.requireNonNull(cache);
 	}
@@ -91,7 +92,7 @@ public class ZoneEntityService extends EntityService {
 		Objects.requireNonNull(entity);
 
 		// Send message to kill off entity actor.
-		akkaApi.sendEntityActor(entity.getId(), PoisonPill.getInstance());
+		messageApi.sendEntityActor(entity.getId(), PoisonPill.getInstance());
 
 		super.delete(entity);
 		cache.stashEntity(entity);

@@ -1,4 +1,4 @@
-package net.bestia.messages.cluster.entity;
+package net.bestia.messages.internal.entity;
 
 import java.util.ArrayList;
 import java.util.List;

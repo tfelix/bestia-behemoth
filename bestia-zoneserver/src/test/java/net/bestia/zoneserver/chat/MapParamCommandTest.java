@@ -8,10 +8,10 @@ import org.mockito.Mock;
 import static org.mockito.Mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MapParamCommandTest {
@@ -19,7 +19,7 @@ public class MapParamCommandTest {
 	private MapParamCommand cmd;
 
 	@Mock
-	private ZoneAkkaApi akkaApi;
+	private MessageApi akkaApi;
 
 	@Mock
 	private Account acc;

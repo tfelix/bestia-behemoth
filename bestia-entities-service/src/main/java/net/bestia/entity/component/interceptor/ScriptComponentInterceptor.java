@@ -9,16 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
-import net.bestia.messages.cluster.entity.EntityComponentMessage;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
+import net.bestia.messages.MessageApi;
+import net.bestia.messages.internal.entity.EntityComponentMessage;
 
 public class ScriptComponentInterceptor extends BaseComponentInterceptor<ScriptComponent> {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ScriptComponentInterceptor.class);
-	private final ZoneAkkaApi akkaApi;
+	private final MessageApi akkaApi;
 
 	@Autowired
-	public ScriptComponentInterceptor(ZoneAkkaApi akkaApi) {
+	public ScriptComponentInterceptor(MessageApi akkaApi) {
 		super(ScriptComponent.class);
 		
 		this.akkaApi = Objects.requireNonNull(akkaApi);

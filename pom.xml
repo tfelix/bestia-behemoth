@@ -25,6 +25,7 @@
 		<module>bestia-webserver</module>
 		<module>bestia-memoryserver</module>
 		<module>bestia-entities</module>
+		<module>bestia-entities-service</module>
 		<module>bestia-watchtower</module>
 		<module>bestia-palantir</module>
 		<!-- Experimental modules -->

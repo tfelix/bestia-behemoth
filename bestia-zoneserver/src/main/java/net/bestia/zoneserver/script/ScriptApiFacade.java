@@ -10,17 +10,17 @@ import org.springframework.stereotype.Component;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.MovingEntityService;
 import net.bestia.entity.component.PlayerComponent;
 import net.bestia.entity.factory.MobFactory;
 import net.bestia.entity.factory.ScriptEntityFactory;
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.dao.ScriptVarDAO;
 import net.bestia.model.domain.ScriptVar;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.battle.BattleService;
+import net.bestia.zoneserver.service.MovingService;
 
 /**
  * Bundles all kind of services to provide an extensive script API. This API is
@@ -38,10 +38,10 @@ public class ScriptApiFacade implements ScriptApi {
 
 	private ScriptEntityFactory scriptEntityFactory;
 	private EntityService entityService;
-	private ZoneAkkaApi akkaApi;
+	private MessageApi akkaApi;
 	private BattleService battleService;
 	private ScriptService scriptService;
-	private MovingEntityService moveService;
+	private MovingService moveService;
 	private MobFactory mobFactory;
 	private ScriptVarDAO scriptVarDao;
 
@@ -70,7 +70,7 @@ public class ScriptApiFacade implements ScriptApi {
 	}
 
 	@Autowired
-	public void setAkkaApi(ZoneAkkaApi akkaApi) {
+	public void setAkkaApi(MessageApi akkaApi) {
 		this.akkaApi = akkaApi;
 	}
 
@@ -85,7 +85,7 @@ public class ScriptApiFacade implements ScriptApi {
 	}
 
 	@Autowired
-	public void setMoveService(MovingEntityService moveService) {
+	public void setMoveService(MovingService moveService) {
 		this.moveService = moveService;
 	}
 

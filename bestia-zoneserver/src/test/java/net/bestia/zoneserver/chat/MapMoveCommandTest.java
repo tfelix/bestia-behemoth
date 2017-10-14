@@ -17,15 +17,15 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.component.PositionComponent;
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.model.geometry.Size;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MapMoveCommandTest {
@@ -44,7 +44,7 @@ public class MapMoveCommandTest {
 	private AccountDAO accDao;
 
 	@Mock
-	private ZoneAkkaApi akkaApi;
+	private MessageApi akkaApi;
 
 	@Mock
 	private PlayerEntityService playerEntityService;

@@ -12,7 +12,6 @@ import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
@@ -20,6 +19,7 @@ import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.map.MapService;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /***
  * If a {@link EntityJsonMessage} is received by this actor it will check if the

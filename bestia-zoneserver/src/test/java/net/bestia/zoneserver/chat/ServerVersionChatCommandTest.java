@@ -8,9 +8,9 @@ import org.mockito.Mock;
 import static org.mockito.Mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.domain.Account;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.StaticConfigService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -19,7 +19,7 @@ public class ServerVersionChatCommandTest {
 	private ServerVersionChatCommand cmd;
 	
 	@Mock
-	private ZoneAkkaApi akkaApi;
+	private MessageApi akkaApi;
 	
 	@Mock
 	private Account acc;

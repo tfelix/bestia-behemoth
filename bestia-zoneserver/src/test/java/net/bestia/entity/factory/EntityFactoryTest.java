@@ -16,15 +16,15 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import net.bestia.entity.Entity;
-import net.bestia.entity.EntityCache;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
+import net.bestia.entity.component.EntityCache;
 import net.bestia.entity.component.PlayerComponent;
 import net.bestia.entity.component.PlayerComponentSetter;
 import net.bestia.entity.factory.Blueprint;
 import net.bestia.entity.factory.EntityFactory;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
+import net.bestia.messages.MessageApi;
 
 @RunWith(MockitoJUnitRunner.class)
 public class EntityFactoryTest {
@@ -47,7 +47,7 @@ public class EntityFactoryTest {
 	private PlayerComponent playerComp;
 	
 	@Mock
-	private ZoneAkkaApi akkaApi;
+	private MessageApi akkaApi;
 	
 	@Mock
 	private EntityCache cache;

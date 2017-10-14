@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
-import net.bestia.messages.cluster.ClientConnectionStatusMessage;
-import net.bestia.messages.cluster.ClientConnectionStatusMessage.ConnectionState;
+import net.bestia.messages.internal.ClientConnectionStatusMessage;
+import net.bestia.messages.internal.ClientConnectionStatusMessage.ConnectionState;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 import net.bestia.zoneserver.service.LoginService;
 

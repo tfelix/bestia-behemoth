@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component;
 import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import akka.actor.ActorSystem;
+import net.bestia.messages.MessageApi;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.map.MapGeneratorMasterActor;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * Generates a new map upon command. This will basically send a message to start
@@ -33,7 +33,7 @@ public class MapGenerateCommand extends BaseChatCommand {
 	private ActorSystem system;
 
 	@Autowired
-	public MapGenerateCommand(ZoneAkkaApi akkaApi, ActorSystem system) {
+	public MapGenerateCommand(MessageApi akkaApi, ActorSystem system) {
 		super(akkaApi);
 
 		this.system = system;

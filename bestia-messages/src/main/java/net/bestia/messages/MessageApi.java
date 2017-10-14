@@ -1,8 +1,7 @@
-package net.bestia.zoneserver.actor.zone;
+package net.bestia.messages;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
-import net.bestia.entity.component.PositionComponent;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
 
@@ -13,7 +12,7 @@ import net.bestia.messages.JsonMessage;
  * @author Thomas Felix
  *
  */
-public interface ZoneAkkaApi {
+public interface MessageApi {
 
 	/**
 	 * The message is send towards the client.

@@ -125,7 +125,7 @@
 		<!-- BESTIA DEPENDENCIES -->
 		<dependency>
 			<groupId>net.bestia</groupId>
-			<artifactId>bestia-message</artifactId>
+			<artifactId>bestia-message-cluster</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -135,7 +135,7 @@
 		</dependency>
 		<dependency>
 			<groupId>net.bestia</groupId>
-			<artifactId>bestia-entities</artifactId>
+			<artifactId>bestia-entities-service</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<!-- Include shared testing code as well in test scope -->

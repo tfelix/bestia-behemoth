@@ -9,6 +9,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 
 import net.bestia.entity.component.LevelComponent;
+import net.bestia.entity.component.LevelService;
 
 import static org.mockito.Mockito.*;
 

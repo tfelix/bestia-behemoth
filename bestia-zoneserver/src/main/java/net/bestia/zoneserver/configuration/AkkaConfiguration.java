@@ -21,10 +21,10 @@ import akka.actor.TypedActor;
 import akka.actor.TypedProps;
 import akka.cluster.Cluster;
 import akka.japi.Creator;
+import net.bestia.messages.MessageApi;
 import net.bestia.server.AkkaCluster;
 import net.bestia.server.DiscoveryService;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.zone.ZoneAkkaApiActor;
 
 /**
@@ -80,11 +80,11 @@ public class AkkaConfiguration implements DisposableBean {
 	}
 
 	@Bean
-	public ZoneAkkaApi zoneAkkaApi(ActorSystem system) {
+	public MessageApi zoneAkkaApi(ActorSystem system) {
 
-		final ZoneAkkaApi api = TypedActor.get(system)
+		final MessageApi api = TypedActor.get(system)
 				.typedActorOf(
-						new TypedProps<ZoneAkkaApiActor>(ZoneAkkaApi.class, new Creator<ZoneAkkaApiActor>() {
+						new TypedProps<ZoneAkkaApiActor>(MessageApi.class, new Creator<ZoneAkkaApiActor>() {
 							private static final long serialVersionUID = 1L;
 
 							@Override

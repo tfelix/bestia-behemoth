@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.PropertySource;
 
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
+import net.bestia.messages.MessageApi;
 import net.bestia.zoneserver.script.ScriptApi;
 import net.bestia.zoneserver.script.ScriptCache;
 import net.bestia.zoneserver.script.ScriptCompiler;
@@ -93,7 +93,7 @@ public class ScriptConfiguration {
 	 * Configures the global bindings for the script engine.
 	 */
 	@Bean
-	public ScriptEngine scriptEngine(ZoneAkkaApi akkaApi, ScriptApi scriptApi, StaticConfigService config) {
+	public ScriptEngine scriptEngine(MessageApi akkaApi, ScriptApi scriptApi, StaticConfigService config) {
 		final ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
 		
 		LOG.info("Starting script engine: {} (version {}).",

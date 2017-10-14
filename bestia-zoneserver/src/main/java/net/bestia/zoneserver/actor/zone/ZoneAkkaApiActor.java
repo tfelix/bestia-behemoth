@@ -9,18 +9,19 @@ import akka.actor.ActorRef;
 import akka.actor.TypedActor;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
+import net.bestia.messages.MessageApi;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.SpringExtension;
 
 /**
- * Implementation of the {@link ZoneAkkaApi} provides a entry from OO "normal"
+ * Implementation of the {@link MessageApi} provides a entry from OO "normal"
  * code into the world of akka messages.
  * 
  * @author Thomas Felix
  *
  */
-public class ZoneAkkaApiActor implements ZoneAkkaApi {
+public class ZoneAkkaApiActor implements MessageApi {
 
 	private final static Logger LOG = LoggerFactory.getLogger(ZoneAkkaApiActor.class);
 

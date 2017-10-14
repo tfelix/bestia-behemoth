@@ -8,6 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import net.bestia.entity.component.LevelComponent;
+import net.bestia.entity.component.PlayerComponent;
+import net.bestia.entity.component.StatusComponent;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.PlayerBestia;
@@ -16,9 +19,6 @@ import net.bestia.model.domain.StatusPointsImpl;
 import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.entity.StatusBasedValuesImpl;
-import net.bestia.entity.component.LevelComponent;
-import net.bestia.entity.component.PlayerComponent;
-import net.bestia.entity.component.StatusComponent;
 
 /**
  * The service class is responsible for recalculating the status values for a

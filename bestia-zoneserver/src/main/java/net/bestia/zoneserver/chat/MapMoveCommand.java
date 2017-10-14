@@ -12,13 +12,13 @@ import org.springframework.stereotype.Component;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.component.PositionComponent;
+import net.bestia.messages.MessageApi;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.MapParameter;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * Moves the player to the given map coordinates if he has GM permissions.
@@ -38,7 +38,7 @@ public class MapMoveCommand extends BaseChatCommand {
 
 	@Autowired
 	public MapMoveCommand(
-			ZoneAkkaApi akkaApi,
+			MessageApi akkaApi,
 			PlayerEntityService pbService,
 			EntityService entityService,
 			MapParameterDAO mapParamDao) {

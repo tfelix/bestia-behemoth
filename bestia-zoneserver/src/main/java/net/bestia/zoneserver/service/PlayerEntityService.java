@@ -1,4 +1,4 @@
-package net.bestia.entity;
+package net.bestia.zoneserver.service;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -17,13 +17,14 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MultiMap;
 
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
 import net.bestia.entity.component.LevelComponent;
 import net.bestia.entity.component.PlayerComponent;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.StatusComponent;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.service.PlayerBestiaService;
 
 /**
  * This service manages the entities which are controlled by a player.

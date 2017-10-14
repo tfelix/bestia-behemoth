@@ -17,8 +17,7 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
-import net.bestia.zoneserver.actor.entity.EntityManagerActor;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
+import net.bestia.messages.MessageApi;
 
 /**
  * The EcsEntityFactory is responsible for translating ecs blueprints into
@@ -33,12 +32,12 @@ class EntityFactory {
 	private final static Logger LOG = LoggerFactory.getLogger(EntityFactory.class);
 
 	private final EntityService entityService;
-	private final ZoneAkkaApi akkaApi;
+	private final MessageApi akkaApi;
 
 	@Autowired
 	EntityFactory(
 			EntityService entityService,
-			ZoneAkkaApi akkaApi) {
+			MessageApi akkaApi) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);

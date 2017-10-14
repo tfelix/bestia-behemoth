@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.factory.MobFactory;
+import net.bestia.messages.MessageApi;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * Spawns a mob for a given mob database name.
@@ -26,7 +26,7 @@ public class MobSpawnModule extends SubCommandModule {
 	private static final Pattern CMD_PATTERN = Pattern.compile("mob (\\w+) (\\d+) (\\d+)");
 	private final MobFactory mobFactory;
 
-	public MobSpawnModule(ZoneAkkaApi akkaApi, MobFactory mobFactory) {
+	public MobSpawnModule(MessageApi akkaApi, MobFactory mobFactory) {
 		super(akkaApi);
 
 		this.mobFactory = Objects.requireNonNull(mobFactory);

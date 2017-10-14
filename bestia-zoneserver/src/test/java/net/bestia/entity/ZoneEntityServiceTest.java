@@ -17,12 +17,13 @@ import org.mockito.junit.MockitoJUnitRunner;
 import com.hazelcast.core.HazelcastInstance;
 
 import net.bestia.entity.component.Component;
+import net.bestia.entity.component.EntityCache;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.VisibleComponent;
 import net.bestia.entity.component.interceptor.Interceptor;
+import net.bestia.messages.MessageApi;
 import net.bestia.model.geometry.Point;
 import net.bestia.testing.BasicMocks;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ZoneEntityServiceTest {
@@ -38,7 +39,7 @@ public class ZoneEntityServiceTest {
 	private PositionComponent ownedComp;
 	
 	@Mock
-	private ZoneAkkaApi akkaApi;
+	private MessageApi akkaApi;
 	
 	@Mock
 	private Interceptor interceptor;

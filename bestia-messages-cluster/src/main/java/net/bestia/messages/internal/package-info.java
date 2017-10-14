@@ -5,4 +5,4 @@
  * package.
  * <p>
  */
-package net.bestia.messages.cluster;
+package net.bestia.messages.internal;

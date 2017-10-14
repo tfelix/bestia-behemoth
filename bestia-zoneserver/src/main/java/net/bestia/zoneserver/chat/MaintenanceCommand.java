@@ -9,10 +9,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import net.bestia.messages.MessageApi;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.server.MaintenanceLevel;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
 import net.bestia.zoneserver.service.LoginService;
 
@@ -38,7 +38,7 @@ public class MaintenanceCommand extends BaseChatCommand {
 
 	@Autowired
 	public MaintenanceCommand(
-			ZoneAkkaApi akkaApi, 
+			MessageApi akkaApi, 
 			LoginService loginService, 
 			RuntimeConfigService config) {
 		super(akkaApi);

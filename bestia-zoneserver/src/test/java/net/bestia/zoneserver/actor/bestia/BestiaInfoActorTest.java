@@ -22,12 +22,12 @@ import akka.actor.ActorSystem;
 import akka.testkit.javadsl.TestKit;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.StatusService;
 import net.bestia.messages.bestia.BestiaInfoRequestMessage;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.zoneserver.actor.ActorTestConfig;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest

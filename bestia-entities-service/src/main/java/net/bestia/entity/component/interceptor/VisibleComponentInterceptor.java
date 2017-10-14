@@ -9,9 +9,9 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.VisibleComponent;
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.entity.EntityAction;
 import net.bestia.messages.entity.EntityUpdateMessage;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * A visible component is sent to the client upon creation.
@@ -22,12 +22,12 @@ import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 @Component
 public class VisibleComponentInterceptor extends BaseComponentInterceptor<VisibleComponent> {
 
-	private final ZoneAkkaApi akkaApi;
+	private final MessageApi msgApi;
 	
-	VisibleComponentInterceptor(ZoneAkkaApi akkaApi) {
+	VisibleComponentInterceptor(MessageApi akkaApi) {
 		super(VisibleComponent.class);
 
-		this.akkaApi = Objects.requireNonNull(akkaApi);
+		this.msgApi = Objects.requireNonNull(akkaApi);
 	}
 
 	@Override
@@ -43,7 +43,7 @@ public class VisibleComponentInterceptor extends BaseComponentInterceptor<Visibl
 		final long y = posComp.get().getPosition().getY();
 		
 		final EntityUpdateMessage msg = new EntityUpdateMessage(0, eid, x, y, comp.getVisual(), EntityAction.UPDATE);
-		akkaApi.sendActiveInRangeClients(msg);
+		msgApi.sendActiveInRangeClients(msg);
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class VisibleComponentInterceptor extends BaseComponentInterceptor<Visibl
 		final long y = posComp.get().getPosition().getY();
 		
 		final EntityUpdateMessage msg = new EntityUpdateMessage(0, eid, x, y, comp.getVisual());
-		akkaApi.sendActiveInRangeClients(msg);
+		msgApi.sendActiveInRangeClients(msg);
 	}
 
 	@Override

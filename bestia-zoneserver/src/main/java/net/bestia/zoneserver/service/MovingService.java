@@ -1,4 +1,4 @@
-package net.bestia.entity;
+package net.bestia.zoneserver.service;
 
 import java.util.List;
 import java.util.Objects;
@@ -10,14 +10,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.StatusService;
 import net.bestia.entity.component.PositionComponent;
-import net.bestia.messages.cluster.entity.ComponentPayloadWrapper;
-import net.bestia.messages.cluster.entity.EntityMoveMessage;
+import net.bestia.messages.MessageApi;
+import net.bestia.messages.internal.entity.ComponentPayloadWrapper;
+import net.bestia.messages.internal.entity.EntityMoveMessage;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.map.Walkspeed;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * This manager holds references of currently moving entities and their movement
@@ -30,21 +33,21 @@ import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
  *
  */
 @Service
-public class MovingEntityService {
+public class MovingService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(MovingEntityService.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MovingService.class);
 
 	private static final float TILES_PER_SECOND = 1.4f;
 	private static final float SQRT_TWO = (float) Math.sqrt(2);
 
 	private final EntityService entityService;
 	private final StatusService statusService;
-	private final ZoneAkkaApi akkaApi;
+	private final MessageApi akkaApi;
 
 	@Autowired
-	public MovingEntityService(EntityService entityService,
+	public MovingService(EntityService entityService,
 			StatusService statusService,
-			ZoneAkkaApi akkaApi) {
+			MessageApi akkaApi) {
 
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 		this.entityService = Objects.requireNonNull(entityService);

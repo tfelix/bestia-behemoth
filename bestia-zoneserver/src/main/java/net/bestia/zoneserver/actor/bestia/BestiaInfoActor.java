@@ -13,7 +13,6 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.component.PlayerComponent;
 import net.bestia.entity.component.StatusComponent;
 import net.bestia.messages.bestia.BestiaInfoMessage;
@@ -26,6 +25,7 @@ import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * This actor gathers all needed information about the bestias in the players

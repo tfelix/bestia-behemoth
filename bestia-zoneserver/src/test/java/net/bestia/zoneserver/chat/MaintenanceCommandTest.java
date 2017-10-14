@@ -9,12 +9,12 @@ import static org.mockito.Mockito.*;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.server.MaintenanceLevel;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
 import net.bestia.zoneserver.service.LoginService;
 
@@ -30,7 +30,7 @@ public class MaintenanceCommandTest {
 	private AccountDAO accDao;
 
 	@Mock
-	private ZoneAkkaApi akkaApi;
+	private MessageApi akkaApi;
 
 	@Mock
 	private LoginService loginService;

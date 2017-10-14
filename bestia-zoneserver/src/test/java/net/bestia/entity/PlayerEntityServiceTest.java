@@ -33,14 +33,14 @@ import com.hazelcast.core.HazelcastInstance;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.PlayerEntityService;
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.geometry.Rect;
 import net.bestia.testing.BasicMocks;
 import net.bestia.entity.component.PlayerComponent;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.service.PlayerBestiaService;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PlayerEntityServiceTest {
@@ -68,7 +68,7 @@ public class PlayerEntityServiceTest {
 	private PlayerBestiaService playerBestiaService;
 	
 	@Mock
-	private ZoneAkkaApi akkaApi;
+	private MessageApi akkaApi;
 	
 	@Mock
 	private Entity playerEntity;

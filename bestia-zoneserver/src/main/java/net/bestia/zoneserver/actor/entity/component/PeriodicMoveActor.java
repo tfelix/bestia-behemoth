@@ -13,8 +13,8 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import akka.actor.Cancellable;
 import akka.actor.Scheduler;
-import net.bestia.entity.MovingEntityService;
 import net.bestia.model.geometry.Point;
+import net.bestia.zoneserver.service.MovingService;
 import scala.concurrent.duration.Duration;
 
 /**
@@ -34,7 +34,7 @@ public class PeriodicMoveActor extends AbstractActor {
 
 	private Cancellable tick;
 
-	private final MovingEntityService movingService;
+	private final MovingService movingService;
 
 	private final long entityId;
 	private final Queue<Point> path = new LinkedList<>();
@@ -43,7 +43,7 @@ public class PeriodicMoveActor extends AbstractActor {
 	public PeriodicMoveActor(
 			long entityId,
 			List<Point> path,
-			MovingEntityService movingService) {
+			MovingService movingService) {
 
 		this.path.addAll(path);
 		this.movingService = Objects.requireNonNull(movingService);

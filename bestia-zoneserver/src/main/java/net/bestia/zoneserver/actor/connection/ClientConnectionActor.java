@@ -14,7 +14,7 @@ import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.JsonMessage;
-import net.bestia.messages.cluster.ClientConnectionStatusMessage;
+import net.bestia.messages.internal.ClientConnectionStatusMessage;
 import net.bestia.messages.login.LogoutMessage;
 import net.bestia.messages.misc.PingMessage;
 import net.bestia.zoneserver.service.ConnectionService;

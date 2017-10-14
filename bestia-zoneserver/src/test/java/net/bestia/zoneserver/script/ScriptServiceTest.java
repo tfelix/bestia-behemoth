@@ -20,7 +20,7 @@ import akka.actor.PoisonPill;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
+import net.bestia.messages.MessageApi;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ScriptServiceTest {
@@ -38,7 +38,7 @@ public class ScriptServiceTest {
 	@Mock
 	private EntityService entityService;
 	@Mock
-	private ZoneAkkaApi akkaApi;
+	private MessageApi akkaApi;
 	@Mock
 	private ScriptApi scriptApi;
 	@Mock

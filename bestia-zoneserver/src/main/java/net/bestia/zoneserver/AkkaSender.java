@@ -9,6 +9,7 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSelection;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.JsonMessage;
+import net.bestia.messages.MessageApi;
 import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.connection.ClientConnectionActor;
 import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
@@ -17,7 +18,6 @@ import net.bestia.zoneserver.actor.entity.EntityManagerActor;
 import net.bestia.zoneserver.actor.zone.ActiveClientUpdateActor;
 import net.bestia.zoneserver.actor.zone.IngestExActor;
 import net.bestia.zoneserver.actor.zone.SendActiveRangeActor;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * Contains static helper methods to send special messages to certain actors
@@ -26,7 +26,7 @@ import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
  * special names.
  * 
  * Usually this class is used from actors itself. From the outside the
- * {@link ZoneAkkaApi} is used.
+ * {@link MessageApi} is used.
  * 
  * @author Thomas Felix
  *

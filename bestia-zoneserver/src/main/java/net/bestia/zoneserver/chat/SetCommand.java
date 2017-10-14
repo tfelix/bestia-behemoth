@@ -24,13 +24,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.StatusComponent;
+import net.bestia.messages.MessageApi;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * The set command is a very powerful admin and debugging command. It can set
@@ -97,7 +97,7 @@ public class SetCommand extends BaseChatCommand {
 
 	@Autowired
 	public SetCommand(AccountDAO accDao,
-			ZoneAkkaApi akkaApi,
+			MessageApi akkaApi,
 			EntityService entityService,
 			PlayerEntityService playerBestiaService) {
 		super(akkaApi);

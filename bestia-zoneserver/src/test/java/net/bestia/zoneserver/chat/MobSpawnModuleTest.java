@@ -8,8 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import net.bestia.entity.factory.MobFactory;
+import net.bestia.messages.MessageApi;
 import net.bestia.model.domain.Account;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MobSpawnModuleTest {
@@ -17,7 +17,7 @@ public class MobSpawnModuleTest {
 	private MobSpawnModule module;
 
 	@Mock
-	private ZoneAkkaApi akkaApi;
+	private MessageApi akkaApi;
 
 	@Mock
 	private MobFactory mobFactory;

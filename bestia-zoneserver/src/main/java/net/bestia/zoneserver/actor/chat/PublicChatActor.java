@@ -12,10 +12,10 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.zoneserver.AkkaSender;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * Handles public chat of the user and sends them to all entities which can

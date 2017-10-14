@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import net.bestia.messages.cluster.entity.EntityComponentMessage;
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.entity.EntityStatusUpdateMessage;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
+import net.bestia.messages.internal.entity.EntityComponentMessage;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.PlayerComponent;
@@ -29,13 +29,13 @@ public class StatusComponentInterceptor extends BaseComponentInterceptor<StatusC
 
 	private static final Logger LOG = LoggerFactory.getLogger(StatusComponentInterceptor.class);
 
-	private final ZoneAkkaApi akkaApi;
+	private final MessageApi msgApi;
 
 	@Autowired
-	public StatusComponentInterceptor(ZoneAkkaApi actorApi) {
+	public StatusComponentInterceptor(MessageApi actorApi) {
 		super(StatusComponent.class);
 
-		this.akkaApi = Objects.requireNonNull(actorApi);
+		this.msgApi = Objects.requireNonNull(actorApi);
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class StatusComponentInterceptor extends BaseComponentInterceptor<StatusC
 				comp.getUnmodifiedStatusPoints(),
 				comp.getConditionValues(),
 				comp.getStatusBasedValues());
-		akkaApi.sendToClient(msg);
+		msgApi.sendToClient(msg);
 
 	}
 
@@ -73,7 +73,7 @@ public class StatusComponentInterceptor extends BaseComponentInterceptor<StatusC
 		LOG.trace("StatusComponent created.");
 
 		final EntityComponentMessage msg = EntityComponentMessage.start(entity.getId(), comp.getId());
-		akkaApi.sendEntityActor(entity.getId(), msg);
+		msgApi.sendEntityActor(entity.getId(), msg);
 
 	}
 
@@ -83,7 +83,7 @@ public class StatusComponentInterceptor extends BaseComponentInterceptor<StatusC
 		LOG.trace("StatusComponent deleted. Stopping updates.");
 
 		final EntityComponentMessage msg = EntityComponentMessage.stop(comp.getEntityId(), comp.getId());
-		akkaApi.sendEntityActor(comp.getEntityId(), msg);
+		msgApi.sendEntityActor(comp.getEntityId(), msg);
 	}
 
 }

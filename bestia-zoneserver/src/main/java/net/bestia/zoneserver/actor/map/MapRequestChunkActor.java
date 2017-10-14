@@ -13,7 +13,6 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.messages.map.MapChunkMessage;
 import net.bestia.messages.map.MapChunkRequestMessage;
@@ -22,6 +21,7 @@ import net.bestia.model.map.MapChunk;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 import net.bestia.zoneserver.map.MapService;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * This actor generates a data message containing all the data/map chunks needed

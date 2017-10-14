@@ -1,4 +1,4 @@
-package net.bestia.messages.cluster;
+package net.bestia.messages.internal;
 
 import java.util.Collection;
 import java.util.Collections;

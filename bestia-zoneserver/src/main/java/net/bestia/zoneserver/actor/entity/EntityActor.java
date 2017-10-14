@@ -15,9 +15,9 @@ import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.component.EntityComponentActorFactory;
-import net.bestia.messages.cluster.entity.ComponentPayloadWrapper;
-import net.bestia.messages.cluster.entity.EntityComponentMessage;
-import net.bestia.messages.cluster.entity.EntityComponentMessage.ComponentState;
+import net.bestia.messages.internal.entity.ComponentPayloadWrapper;
+import net.bestia.messages.internal.entity.EntityComponentMessage;
+import net.bestia.messages.internal.entity.EntityComponentMessage.ComponentState;
 
 /**
  * The {@link EntityActor} is a persistent actor managing all aspects of a

@@ -17,11 +17,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.testkit.javadsl.TestKit;
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.ui.ClientVarRequestMessage;
 import net.bestia.model.domain.ClientVar;
 import net.bestia.zoneserver.actor.ActorTestConfig;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.service.ClientVarService;
 
 @RunWith(SpringRunner.class)
@@ -44,7 +44,7 @@ public class ClientVarActorTest {
 	private ClientVarService cvarService;
 	
 	@MockBean
-	private ZoneAkkaApi akkaApi;
+	private MessageApi akkaApi;
 
 	@Mock
 	private ClientVar cvar;

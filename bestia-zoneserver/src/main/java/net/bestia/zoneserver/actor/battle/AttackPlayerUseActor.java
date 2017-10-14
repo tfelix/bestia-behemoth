@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
 import net.bestia.entity.Entity;
-import net.bestia.entity.PlayerEntityService;
 import net.bestia.messages.attack.AttackUseMessage;
-import net.bestia.messages.cluster.entity.EntitySkillMessage;
+import net.bestia.messages.internal.entity.EntitySkillMessage;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * This actor simply performs some safety checks for incoming player attack

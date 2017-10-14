@@ -7,12 +7,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.MapParameter;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 /**
  * Returns the max current mapsize.
@@ -30,11 +30,11 @@ public class MapParamCommand extends BaseChatCommand {
 	private static final Logger LOG = LoggerFactory.getLogger(MapParamCommand.class);
 	
 	private final MapParameterDAO mapParamDao;
-	private final ZoneAkkaApi akkaApi;
+	private final MessageApi akkaApi;
 
 	@Autowired
 	public MapParamCommand(
-			ZoneAkkaApi akkaApi, 
+			MessageApi akkaApi, 
 			MapParameterDAO mapParamDao) {
 		super(akkaApi);
 		

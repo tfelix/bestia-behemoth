@@ -4,15 +4,15 @@ import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.chat.ChatMessage;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 
 abstract class BaseChatCommand implements ChatCommand {
 
-	private final ZoneAkkaApi akkaApi;
+	private final MessageApi akkaApi;
 
 	@Autowired
-	public BaseChatCommand(ZoneAkkaApi akkaApi) {
+	public BaseChatCommand(MessageApi akkaApi) {
 
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 	}

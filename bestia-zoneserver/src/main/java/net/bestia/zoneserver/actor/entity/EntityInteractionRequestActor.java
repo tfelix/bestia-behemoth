@@ -11,12 +11,12 @@ import akka.actor.AbstractActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.InteractionService;
 import net.bestia.messages.entity.EntityInteractionMessage;
 import net.bestia.messages.entity.EntityInteractionRequestMessage;
 import net.bestia.model.entity.InteractionType;
 import net.bestia.zoneserver.AkkaSender;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
+import net.bestia.zoneserver.service.InteractionService;
 
 /**
  * Receives interaction requests for an entity. It will query the system and ask

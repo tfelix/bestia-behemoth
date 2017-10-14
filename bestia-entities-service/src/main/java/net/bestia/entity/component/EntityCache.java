@@ -1,4 +1,4 @@
-package net.bestia.entity;
+package net.bestia.entity.component;
 
 import java.util.HashMap;
 import java.util.LinkedList;

@@ -1,4 +1,4 @@
-package net.bestia.entity;
+package net.bestia.entity.component;
 
 import java.util.Objects;
 
@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import net.bestia.entity.component.LevelComponent;
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.StatusService;
 
 /**
  * This service manages entities to level up and to receive exp.

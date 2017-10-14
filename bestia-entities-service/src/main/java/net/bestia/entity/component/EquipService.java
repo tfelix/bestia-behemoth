@@ -1,7 +1,8 @@
-package net.bestia.entity;
+package net.bestia.entity.component;
 
 import org.springframework.stereotype.Service;
 
+import net.bestia.entity.Entity;
 import net.bestia.model.domain.Item;
 
 @Service

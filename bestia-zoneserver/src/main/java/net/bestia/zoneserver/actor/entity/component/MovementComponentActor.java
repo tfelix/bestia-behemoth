@@ -13,13 +13,13 @@ import akka.actor.PoisonPill;
 import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.entity.MovingEntityService;
-import net.bestia.entity.PlayerEntityService;
-import net.bestia.messages.cluster.entity.EntityMoveMessage;
 import net.bestia.messages.entity.EntityMoveRequestMessage;
 import net.bestia.messages.entity.EntityPositionMessage;
+import net.bestia.messages.internal.entity.EntityMoveMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.service.MovingService;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * Handle movement of an entity. It will announce the intended move path with
@@ -38,14 +38,14 @@ public class MovementComponentActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	private final MovingEntityService movingService;
+	private final MovingService movingService;
 	private final PlayerEntityService playerEntityService;
 
 	private ActorRef periodicMoveActor;
 	private final long entityId;
 
 	@Autowired
-	public MovementComponentActor(long entityId, MovingEntityService movingService, PlayerEntityService playerEntityService) {
+	public MovementComponentActor(long entityId, MovingService movingService, PlayerEntityService playerEntityService) {
 
 		this.movingService = Objects.requireNonNull(movingService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);

@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 import akka.actor.Address;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.PlayerEntityService;
 import net.bestia.entity.factory.PlayerBestiaEntityFactory;
+import net.bestia.messages.MessageApi;
 import net.bestia.messages.account.AccountLoginRequest;
 import net.bestia.messages.login.LogoutMessage;
 import net.bestia.model.dao.AccountDAO;
@@ -22,7 +22,6 @@ import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.server.MaintenanceLevel;
 import net.bestia.zoneserver.actor.connection.ClientConnectionActor;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
 
 /**
@@ -41,7 +40,7 @@ public class LoginService {
 	private final ConnectionService connectionService;
 	private final PlayerEntityService playerEntityService;
 	private final PlayerBestiaService playerBestiaService;
-	private final ZoneAkkaApi akkaApi;
+	private final MessageApi akkaApi;
 	private final PlayerBestiaEntityFactory playerEntityFactory;
 	private final EntityService entityService;
 
@@ -51,7 +50,7 @@ public class LoginService {
 			PlayerEntityService playerEntityService,
 			ConnectionService connectionService,
 			PlayerBestiaService playerBestiaService,
-			ZoneAkkaApi akkaApi,
+			MessageApi akkaApi,
 			PlayerBestiaEntityFactory playerEntityFactory,
 			EntityService entityService) {
 

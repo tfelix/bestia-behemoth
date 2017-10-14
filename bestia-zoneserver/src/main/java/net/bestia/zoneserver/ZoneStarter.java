@@ -15,6 +15,7 @@ import akka.cluster.sharding.ClusterSharding;
 import akka.cluster.sharding.ClusterShardingSettings;
 import akka.cluster.singleton.ClusterSingletonManager;
 import akka.cluster.singleton.ClusterSingletonManagerSettings;
+import net.bestia.messages.MessageApi;
 import net.bestia.zoneserver.actor.EntityShardMessageExtractor;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.battle.AttackUseActor;
@@ -27,7 +28,6 @@ import net.bestia.zoneserver.actor.zone.ClusterControlActor;
 import net.bestia.zoneserver.actor.zone.IngestExActor;
 import net.bestia.zoneserver.actor.zone.MemDbHeartbeatActor;
 import net.bestia.zoneserver.actor.zone.SendActiveRangeActor;
-import net.bestia.zoneserver.actor.zone.ZoneAkkaApi;
 import net.bestia.zoneserver.actor.zone.ZoneClusterListenerActor;
 import net.bestia.zoneserver.script.ScriptService;
 
@@ -42,12 +42,12 @@ public class ZoneStarter implements CommandLineRunner {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ZoneStarter.class);
 
-	private final ZoneAkkaApi akkaApi;
+	private final MessageApi akkaApi;
 	private final ActorSystem system;
 	private final ScriptService scriptService;
 
 	@Autowired
-	public ZoneStarter(ActorSystem system, ZoneAkkaApi akkaApi, ScriptService scriptService) {
+	public ZoneStarter(ActorSystem system, MessageApi akkaApi, ScriptService scriptService) {
 
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 		this.system = Objects.requireNonNull(system);
