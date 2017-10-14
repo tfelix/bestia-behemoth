@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.bestia.messages.MessageApi;
@@ -28,6 +29,7 @@ public class PositionComponentInterceptor extends BaseComponentInterceptor<Posit
 
 	private final MessageApi msgApi;
 
+	@Autowired
 	public PositionComponentInterceptor(MessageApi akkaApi) {
 		super(PositionComponent.class);
 

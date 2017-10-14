@@ -36,8 +36,7 @@ class EntityFactory {
 	private final MessageApi akkaApi;
 
 	@Autowired
-	EntityFactory(
-			EntityService entityService,
+	EntityFactory(EntityService entityService,
 			MessageApi akkaApi) {
 
 		this.entityService = Objects.requireNonNull(entityService);

@@ -8,6 +8,7 @@ import java.util.Queue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.component.Component;
@@ -21,6 +22,7 @@ import net.bestia.entity.component.interceptor.BaseComponentInterceptor;
  * @author Thomas Felix
  *
  */
+@org.springframework.stereotype.Component
 public class EntityCache {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EntityCache.class);
@@ -41,6 +43,7 @@ public class EntityCache {
 		this.maxCachedInstances = maxCachedInstances;
 	}
 
+	@Autowired
 	public EntityCache(List<BaseComponentInterceptor<? extends Component>> interceptors) {
 		this(DEFAULT_MAX_CACHED_INSTANCES, interceptors);
 	}

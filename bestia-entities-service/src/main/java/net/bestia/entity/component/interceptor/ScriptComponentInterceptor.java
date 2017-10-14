@@ -5,6 +5,7 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
@@ -12,6 +13,7 @@ import net.bestia.entity.component.ScriptComponent;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.internal.entity.EntityComponentMessage;
 
+@Component
 public class ScriptComponentInterceptor extends BaseComponentInterceptor<ScriptComponent> {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ScriptComponentInterceptor.class);

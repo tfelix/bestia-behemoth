@@ -3,6 +3,7 @@ package net.bestia.entity.component.interceptor;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import net.bestia.entity.Entity;
@@ -24,6 +25,7 @@ public class VisibleComponentInterceptor extends BaseComponentInterceptor<Visibl
 
 	private final MessageApi msgApi;
 	
+	@Autowired
 	VisibleComponentInterceptor(MessageApi akkaApi) {
 		super(VisibleComponent.class);
 

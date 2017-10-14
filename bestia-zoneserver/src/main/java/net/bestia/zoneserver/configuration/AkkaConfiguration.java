@@ -9,6 +9,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
 import com.typesafe.config.Config;
@@ -80,6 +81,7 @@ public class AkkaConfiguration implements DisposableBean {
 	}
 
 	@Bean
+	@Primary
 	public MessageApi zoneAkkaApi(ActorSystem system) {
 
 		final MessageApi api = TypedActor.get(system)
