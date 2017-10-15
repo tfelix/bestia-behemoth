@@ -22,6 +22,7 @@ import net.bestia.model.domain.AttackImpl;
 import net.bestia.model.domain.AttackType;
 import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.domain.Element;
+import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.map.MapService;
@@ -61,6 +62,12 @@ public class BattleServiceTest {
 	private PositionComponent posCompDef;
 	
 	@Mock
+	private LevelComponent lvAtk;
+	
+	@Mock
+	private LevelComponent lvDef;
+	
+	@Mock
 	private StatusComponent statusCompAtk;
 	
 	@Mock
@@ -77,6 +84,12 @@ public class BattleServiceTest {
 	
 	@Mock
 	private StatusBasedValues statBasedDef;
+	
+	@Mock
+	private StatusPoints atkStats;
+	
+	@Mock
+	private StatusPoints defStats;
 
 
 	@Before
@@ -98,6 +111,12 @@ public class BattleServiceTest {
 		when(entityService.getComponent(defender, PositionComponent.class)).thenReturn(Optional.of(posCompDef));
 		when(entityService.getComponent(attacker, StatusComponent.class)).thenReturn(Optional.of(statusCompAtk));
 		when(entityService.getComponent(defender, StatusComponent.class)).thenReturn(Optional.of(statusCompDef));
+		when(entityService.getComponent(attacker, LevelComponent.class)).thenReturn(Optional.of(lvAtk));
+		when(entityService.getComponent(defender, LevelComponent.class)).thenReturn(Optional.of(lvDef));
+		
+		// Setup level comp.
+		when(lvAtk.getLevel()).thenReturn(12);
+		when(lvDef.getLevel()).thenReturn(7);
 		
 		// Setup pos comps.
 		when(posCompAtk.getPosition()).thenReturn(new Point(10, 5));
@@ -108,6 +127,8 @@ public class BattleServiceTest {
 		when(statusCompAtk.getStatusBasedValues()).thenReturn(statBasedAtk);		
 		when(statusCompDef.getConditionValues()).thenReturn(defenderCond);
 		when(statusCompDef.getStatusBasedValues()).thenReturn(statBasedDef);
+		when(statusCompAtk.getStatusPoints()).thenReturn(atkStats);
+		when(statusCompDef.getStatusPoints()).thenReturn(defStats);
 		
 		// Setup cond valus.
 		when(attackerCond.getCurrentMana()).thenReturn(100);
@@ -115,6 +136,14 @@ public class BattleServiceTest {
 		// Setup status based.
 		when(statBasedAtk.getHitrate()).thenReturn(23);
 		when(statBasedDef.getDodge()).thenReturn(40);
+		
+		// Setup status vals.
+		when(atkStats.getDexterity()).thenReturn(34);
+		when(defStats.getDexterity()).thenReturn(10);
+		
+		when(atkStats.getAgility()).thenReturn(21);
+		when(defStats.getAgility()).thenReturn(35);
+		
 		
 		
 		// Setup attack

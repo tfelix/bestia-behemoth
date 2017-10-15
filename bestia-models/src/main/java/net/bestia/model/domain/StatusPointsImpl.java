@@ -15,14 +15,14 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 
 	private static final long serialVersionUID = 1L;
 
-	private int strength;
-	private int vitality;
-	private int intelligence;
-	private int willpower;
-	private int agility;
-	private int dexterity;
-	private int defense;
-	private int magicDefense;
+	private int strength = 1;
+	private int vitality = 1;
+	private int intelligence = 1;
+	private int willpower = 1;
+	private int agility = 1;
+	private int dexterity = 1;
+	private int defense = 0;
+	private int magicDefense = 0;
 
 	public StatusPointsImpl() {
 		// no op.

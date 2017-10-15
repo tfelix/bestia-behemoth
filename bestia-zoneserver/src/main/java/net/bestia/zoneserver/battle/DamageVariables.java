@@ -9,26 +9,20 @@ package net.bestia.zoneserver.battle;
  *
  */
 public final class DamageVariables {
-
-	private int bonusPhysicalMeleeDamage = 0;
-	private int bonusMagicMeleeDamage = 0;
-	private int bonusPhysicalRangedDamage = 0;
-	private int bonusMagicRangedDamage = 0;
 	
 	private float criticalDamageMod = 1.f;
 	
 	private float armor = 1.f;
 	private float magicArmor = 1.f;
 	
-	private float neededManaMod = 1.f;
-	
+	private float neededManaMod = 1.f;	
 	private float attackRangeMod = 1.f;
 	private int attackRangeBonus = 0;
 	
 	//private int bonusAttack = 0;
 	
 	private float criticalMod = 1.f;
-	private boolean isCriticalHit;
+	private boolean isCriticalHit = false;
 	
 	public DamageVariables() {
 		// no op.
@@ -46,30 +40,6 @@ public final class DamageVariables {
 		return null;
 	}
 
-	public int getBonusPhysicalMeleeDamage() {
-		return bonusPhysicalMeleeDamage;
-	}
-
-	public void setBonusPhysicalMeleeDamage(int bonusPhysicalMeleeDamage) {
-		this.bonusPhysicalMeleeDamage = bonusPhysicalMeleeDamage;
-	}
-
-	public int getBonusMagicMeleeDamage() {
-		return bonusMagicMeleeDamage;
-	}
-
-	public void setBonusMagicMeleeDamage(int bonusMagicMeleeDamage) {
-		this.bonusMagicMeleeDamage = bonusMagicMeleeDamage;
-	}
-
-	public int getBonusPhysicalRangedDamage() {
-		return bonusPhysicalRangedDamage;
-	}
-
-	public void setBonusPhysicalRangedDamage(int bonusPhysicalRangedDamage) {
-		this.bonusPhysicalRangedDamage = bonusPhysicalRangedDamage;
-	}
-
 	public float getArmorMod() {
 		return armor;
 	}
@@ -78,33 +48,15 @@ public final class DamageVariables {
 		this.armor = armorMod;
 	}
 
-	public float getMagicResist() {
+	public float getMagicResistMod() {
 		return magicArmor;
 	}
 
-	public void setMagicResist(float magicResist) {
+	public void setMagicResistMod(float magicResist) {
 		this.magicArmor = magicResist;
 	}
 
-	/*
 	public int getBonusAttack() {
-		return bonusAttack;
-	}
-
-	public void setBonusAttack(int bonusAttack) {
-		this.bonusAttack = bonusAttack;
-	}
-*/
-	public int getBonusMagicRangedDamage() {
-		return bonusMagicRangedDamage;
-	}
-
-	public void setBonusMagicRangedDamage(int bonusMagicRangedDamage) {
-		this.bonusMagicRangedDamage = bonusMagicRangedDamage;
-	}
-
-	public int getBonusAttack() {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 	
@@ -145,5 +97,26 @@ public final class DamageVariables {
 	
 	public float getCriticalDamageMod() {
 		return criticalDamageMod;
+	}
+
+	public float getAttackBonus() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public float getMagicMeleeAttackMod() {
+		return 1;
+	}
+
+	public float getPhysicalMeleeAttackMod() {
+		return 1;
+	}
+
+	public float getMagicRangedAttackMod() {
+		return 1;
+	}
+
+	public float getPhysicalRangedAttackMod() {
+		return 1;
 	}
 }
