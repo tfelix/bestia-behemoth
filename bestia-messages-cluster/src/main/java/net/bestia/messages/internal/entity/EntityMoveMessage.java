@@ -1,6 +1,7 @@
 package net.bestia.messages.internal.entity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import net.bestia.messages.EntityInternalMessage;
@@ -24,7 +25,7 @@ public class EntityMoveMessage extends EntityInternalMessage {
 	public EntityMoveMessage(long entityId, List<Point> path) {
 		super(entityId);
 		
-		this.path = new ArrayList<>(path);
+		this.path = Collections.unmodifiableList(new ArrayList<>(path));
 	}
 
 	public List<Point> getPath() {

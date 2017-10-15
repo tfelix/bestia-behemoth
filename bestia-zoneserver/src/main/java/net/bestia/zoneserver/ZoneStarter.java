@@ -19,7 +19,7 @@ import net.bestia.server.EntryActorNames;
 import net.bestia.zoneserver.actor.BestiaRootActor;
 import net.bestia.zoneserver.actor.EntityShardMessageExtractor;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.entity.EntityShardManagerActor;
+import net.bestia.zoneserver.actor.entity.EntityActor;
 import net.bestia.zoneserver.actor.zone.ClusterControlActor;
 import net.bestia.zoneserver.script.ScriptService;
 
@@ -75,7 +75,7 @@ public class ZoneStarter implements CommandLineRunner {
 		LOG.info("Register the sharded actor.");
 		final ClusterShardingSettings settings = ClusterShardingSettings.create(system);
 		final ClusterSharding sharding = ClusterSharding.get(system);
-		final Props props = SpringExtension.getSpringProps(system, EntityShardManagerActor.class);
+		final Props props = SpringExtension.getSpringProps(system, EntityActor.class);
 		final EntityShardMessageExtractor extractor = new EntityShardMessageExtractor();
 		sharding.start(EntryActorNames.SHARD_ENTITY, props, settings, extractor);
 	}

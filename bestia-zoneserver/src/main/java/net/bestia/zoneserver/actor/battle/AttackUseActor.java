@@ -12,7 +12,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.attack.AttackUseMessage;
 import net.bestia.messages.entity.EntityDamageMessage;
-import net.bestia.messages.internal.entity.EntitySkillMessage;
+import net.bestia.messages.internal.entity.EntitySkillUseMessage;
 import net.bestia.model.battle.Damage;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.SendActiveClientsActor;
@@ -50,13 +50,13 @@ public class AttackUseActor extends AbstractActor {
 	public Receive createReceive() {
 		return receiveBuilder()
 				.match(AttackUseMessage.class, this::handleAttackMessage)
-				.match(EntitySkillMessage.class, this::handleEntitySkillMessage)
+				.match(EntitySkillUseMessage.class, this::handleEntitySkillMessage)
 				.build();
 	}
 
 	@Override
 	public void preStart() throws Exception {
-		final RedirectMessage msg = RedirectMessage.get(AttackUseMessage.class, EntitySkillMessage.class);
+		final RedirectMessage msg = RedirectMessage.get(AttackUseMessage.class, EntitySkillUseMessage.class);
 		context().parent().tell(msg, getSelf());
 	}
 
@@ -77,7 +77,7 @@ public class AttackUseActor extends AbstractActor {
 	 * @param msg
 	 *            The message describing the attack.
 	 */
-	private void handleEntitySkillMessage(EntitySkillMessage msg) {
+	private void handleEntitySkillMessage(EntitySkillUseMessage msg) {
 		LOG.debug("Received skill message: {}", msg);
 
 		if (msg.getTargetEntityId() != 0) {

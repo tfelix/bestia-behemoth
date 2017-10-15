@@ -49,7 +49,7 @@ public class PositionComponentInterceptor extends BaseComponentInterceptor<Posit
 	protected void onCreateAction(EntityService entityService, Entity entity, PositionComponent comp) {
 		LOG.trace("Position component created.");
 
-		final EntityComponentMessage msg = EntityComponentMessage.start(entity.getId(), comp.getId());
+		final EntityComponentMessage msg = EntityComponentMessage.install(entity.getId(), comp.getId());
 		msgApi.sendToEntity(entity.getId(), msg);
 	}
 

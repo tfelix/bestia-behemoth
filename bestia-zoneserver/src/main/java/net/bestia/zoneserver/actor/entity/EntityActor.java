@@ -35,8 +35,6 @@ import net.bestia.messages.internal.entity.EntityComponentMessage.ComponentState
 public class EntityActor extends AbstractActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().getSystem(), this);
 
-	private final static String ACTOR_NAME_TEMPLATE = "entity-%d";
-
 	private final EntityComponentActorFactory factory;
 
 	/**
@@ -44,39 +42,29 @@ public class EntityActor extends AbstractActor {
 	 */
 	private Map<Long, ActorRef> actorsByComponentId = new HashMap<>();
 	private Map<ActorRef, Long> componentIdsByActor = new HashMap<>();
+	
+	private long entityId;
 
 	@Autowired
-	public EntityActor(long entityId, EntityComponentActorFactory factory) {
+	public EntityActor(EntityComponentActorFactory factory) {
 
 		this.factory = Objects.requireNonNull(factory);
-		// this.entityId = entityId;
-	}
-
-	/**
-	 * Returns the unique actor name based on the entity id.
-	 * 
-	 * @param entityId
-	 * @return
-	 */
-	public static String getActorName(long entityId) {
-		if (entityId < 0) {
-			throw new IllegalArgumentException("Entity id must be positive.");
-		}
-		return String.format(ACTOR_NAME_TEMPLATE, entityId);
 	}
 
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
+				.match(Long.class, this::handleEntityIdStart)
 				.match(EntityComponentMessage.class, this::handleComponentMessage)
 				.match(ComponentPayloadWrapper.class, this::handleComponentPayload)
 				.match(Terminated.class, this::handleTerminated)
-				.matchAny(this::handleAll)
 				.build();
 	}
 
-	private void handleAll(Object msg) {
-		LOG.debug("MSG: {}.", msg);
+	private void handleEntityIdStart(Long entityId) {
+		LOG.debug("Started for entity: {}.", entityId);
+		
+		this.entityId = entityId;
 	}
 
 	/**

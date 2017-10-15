@@ -2,6 +2,7 @@ package net.bestia.zoneserver.actor;
 
 import akka.cluster.sharding.ShardRegion;
 import net.bestia.messages.EntityMessage;
+import net.bestia.messages.internal.entity.EntityEnvelope;
 
 /**
  * Defines methods for extracting the shard id from the incoming messages for
@@ -25,9 +26,15 @@ public class EntityShardMessageExtractor implements ShardRegion.MessageExtractor
 
 	@Override
 	public Object entityMessage(Object message) {
-		// Message is not wrapped. It IS the payload itself. No need to extract
-		// anything.
-		return message;
+
+		if (message instanceof EntityEnvelope) {
+			return ((EntityEnvelope) message).getPayload();
+		} else {
+			// Otherwise the message is not wrapped. It IS the payload itself.
+			// No need to extract
+			// anything.
+			return message;
+		}
 	}
 
 	@Override

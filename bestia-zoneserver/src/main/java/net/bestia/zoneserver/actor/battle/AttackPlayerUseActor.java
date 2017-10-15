@@ -9,13 +9,13 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import net.bestia.entity.Entity;
 import net.bestia.messages.attack.AttackUseMessage;
-import net.bestia.messages.internal.entity.EntitySkillMessage;
+import net.bestia.messages.internal.entity.EntitySkillUseMessage;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * This actor simply performs some safety checks for incoming player attack
- * messages and then returns a appropriate {@link EntitySkillMessage} back to
+ * messages and then returns a appropriate {@link EntitySkillUseMessage} back to
  * the sender which will use it to perform the skill/attack.
  * 
  * @author Thomas Felix
@@ -62,7 +62,7 @@ public class AttackPlayerUseActor extends AbstractActor {
 		// message?
 		// If this is not the case by the user send data dont perform the
 		// attack.
-		final EntitySkillMessage skillMsg = new EntitySkillMessage(pbe.getId(),
+		final EntitySkillUseMessage skillMsg = new EntitySkillUseMessage(pbe.getId(),
 				msg.getAttackId(),
 				msg.getTargetEntityId());
 

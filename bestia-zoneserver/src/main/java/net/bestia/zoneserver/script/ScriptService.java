@@ -177,7 +177,7 @@ public class ScriptService {
 		entityService.updateComponent(scriptComp);
 
 		// Tell the actor which script to periodically call.
-		final EntityComponentMessage compMessage = EntityComponentMessage.start(entity.getId(), scriptComp.getId());
+		final EntityComponentMessage compMessage = EntityComponentMessage.install(entity.getId(), scriptComp.getId());
 		akkaApi.sendToEntity(entity.getId(), compMessage);
 	}
 
@@ -195,7 +195,7 @@ public class ScriptService {
 		entityService.updateComponent(scriptComp);
 
 		// Tell the actor which script to periodically call.
-		final EntityComponentMessage compMessage = EntityComponentMessage.stop(entity.getId(), scriptComp.getId());
+		final EntityComponentMessage compMessage = EntityComponentMessage.remove(entity.getId(), scriptComp.getId());
 		akkaApi.sendToEntity(entity.getId(), compMessage);
 	}
 

@@ -72,7 +72,7 @@ public class StatusComponentInterceptor extends BaseComponentInterceptor<StatusC
 
 		LOG.trace("StatusComponent created.");
 
-		final EntityComponentMessage msg = EntityComponentMessage.start(entity.getId(), comp.getId());
+		final EntityComponentMessage msg = EntityComponentMessage.install(entity.getId(), comp.getId());
 		msgApi.sendToEntity(entity.getId(), msg);
 
 	}
@@ -82,7 +82,7 @@ public class StatusComponentInterceptor extends BaseComponentInterceptor<StatusC
 		// Stop the actor timing the entity component.
 		LOG.trace("StatusComponent deleted. Stopping updates.");
 
-		final EntityComponentMessage msg = EntityComponentMessage.stop(comp.getEntityId(), comp.getId());
+		final EntityComponentMessage msg = EntityComponentMessage.remove(comp.getEntityId(), comp.getId());
 		msgApi.sendToEntity(comp.getEntityId(), msg);
 	}
 

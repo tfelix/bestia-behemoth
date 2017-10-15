@@ -31,7 +31,7 @@ public class ScriptComponentInterceptor extends BaseComponentInterceptor<ScriptC
 		// Stop the actor timing the entity component.
 		LOG.trace("ScriptComponent deleted. Stopping actor.");
 
-		EntityComponentMessage msg = EntityComponentMessage.stop(comp.getEntityId(), comp.getId());
+		EntityComponentMessage msg = EntityComponentMessage.remove(comp.getEntityId(), comp.getId());
 		akkaApi.sendToEntity(comp.getEntityId(), msg);
 	}
 

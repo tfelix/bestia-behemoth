@@ -12,7 +12,7 @@ import net.bestia.model.geometry.Point;
  * @author Thomas Felix
  *
  */
-public class EntitySkillMessage implements Serializable {
+public class EntitySkillUseMessage implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -21,7 +21,7 @@ public class EntitySkillMessage implements Serializable {
 	private final long sourceEntityId;
 	private final int attackId;
 
-	public EntitySkillMessage(long sourceEntityId, int attackId, long targetEntityId) {
+	public EntitySkillUseMessage(long sourceEntityId, int attackId, long targetEntityId) {
 
 		this.targetPostion = null;
 		this.targetEntityId = targetEntityId;
@@ -29,7 +29,7 @@ public class EntitySkillMessage implements Serializable {
 		this.attackId = attackId;
 	}
 
-	public EntitySkillMessage(long sourceEntityId, int attackId, Point targetPosition) {
+	public EntitySkillUseMessage(long sourceEntityId, int attackId, Point targetPosition) {
 
 		this.targetPostion = Objects.requireNonNull(targetPosition);
 		this.targetEntityId = 0;

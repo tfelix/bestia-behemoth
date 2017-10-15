@@ -59,7 +59,7 @@ public class EntityComponentMessage extends EntityInternalMessage {
 	 *            The component ID to stop.
 	 * @return Creates a message that will stop the given component actor.
 	 */
-	public static EntityComponentMessage stop(long entityId, long componentId) {
+	public static EntityComponentMessage remove(long entityId, long componentId) {
 		return new EntityComponentMessage(entityId, componentId, ComponentState.REMOVE);
 	}
 
@@ -70,7 +70,7 @@ public class EntityComponentMessage extends EntityInternalMessage {
 	 *            The component ID to stop.
 	 * @return Creates a message that will start the given component actor.
 	 */
-	public static EntityComponentMessage start(long entityId, long componentId) {
+	public static EntityComponentMessage install(long entityId, long componentId) {
 		return new EntityComponentMessage(entityId, componentId, ComponentState.INSTALL);
 	}
 }
