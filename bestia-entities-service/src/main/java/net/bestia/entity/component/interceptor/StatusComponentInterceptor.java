@@ -41,7 +41,7 @@ public class StatusComponentInterceptor extends BaseComponentInterceptor<StatusC
 	@Override
 	protected void onUpdateAction(EntityService entityService, Entity entity, StatusComponent comp) {
 
-		LOG.trace("StatusComponent updated for entity {}", entity.getId());
+		LOG.debug("Component {} is updated.", comp);
 
 		// Check if its a player and needs updates of the entity status.
 		final Optional<PlayerComponent> playerComp = entityService.getComponent(entity, PlayerComponent.class);
@@ -70,7 +70,7 @@ public class StatusComponentInterceptor extends BaseComponentInterceptor<StatusC
 	@Override
 	protected void onCreateAction(EntityService entityService, Entity entity, StatusComponent comp) {
 
-		LOG.trace("StatusComponent created.");
+		LOG.debug("Component {} is created.", comp);
 
 		final EntityComponentMessage msg = EntityComponentMessage.install(entity.getId(), comp.getId());
 		msgApi.sendToEntity(entity.getId(), msg);
@@ -80,7 +80,7 @@ public class StatusComponentInterceptor extends BaseComponentInterceptor<StatusC
 	@Override
 	protected void onDeleteAction(EntityService entityService, Entity entity, StatusComponent comp) {
 		// Stop the actor timing the entity component.
-		LOG.trace("StatusComponent deleted. Stopping updates.");
+		LOG.debug("Component {} is deleted.", comp);
 
 		final EntityComponentMessage msg = EntityComponentMessage.remove(comp.getEntityId(), comp.getId());
 		msgApi.sendToEntity(comp.getEntityId(), msg);

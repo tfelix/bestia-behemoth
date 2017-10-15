@@ -43,7 +43,7 @@ public class PlayerComponentInterceptor extends BaseComponentInterceptor<PlayerC
 	@Override
 	protected void onCreateAction(EntityService entityService, Entity entity, PlayerComponent comp) {
 
-		LOG.trace("intercept onCreate: PlayerComponent.");
+		LOG.debug("intercept onCreate: PlayerComponent.");
 
 		final long pbid = comp.getPlayerBestiaId();
 		final PlayerBestia playerBestia = playerBestiaDao.findOne(pbid);
@@ -59,6 +59,7 @@ public class PlayerComponentInterceptor extends BaseComponentInterceptor<PlayerC
 
 	@Override
 	protected void onDeleteAction(EntityService entityService, Entity entity, PlayerComponent comp) {
+		
 		LOG.debug("Recycling PlayerComponent: {}.", comp);
 
 		final long pbid = comp.getPlayerBestiaId();

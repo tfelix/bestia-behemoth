@@ -3,6 +3,8 @@ package net.bestia.entity.component.interceptor;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +24,8 @@ import net.bestia.messages.entity.EntityUpdateMessage;
  */
 @Component
 public class VisibleComponentInterceptor extends BaseComponentInterceptor<VisibleComponent> {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(VisibleComponentInterceptor.class);
 
 	private final MessageApi msgApi;
 	
@@ -34,6 +38,9 @@ public class VisibleComponentInterceptor extends BaseComponentInterceptor<Visibl
 
 	@Override
 	protected void onUpdateAction(EntityService entityService, Entity entity, VisibleComponent comp) {
+		
+		LOG.debug("Component {} is updated.", comp);
+		
 		final long eid = entity.getId();
 		Optional<PositionComponent> posComp = entityService.getComponent(entity, PositionComponent.class);
 		
@@ -50,6 +57,8 @@ public class VisibleComponentInterceptor extends BaseComponentInterceptor<Visibl
 
 	@Override
 	protected void onCreateAction(EntityService entityService, Entity entity, VisibleComponent comp) {
+		
+		LOG.debug("Component {} is updated.", comp);
 		
 		final long eid = entity.getId();
 		Optional<PositionComponent> posComp = entityService.getComponent(entity, PositionComponent.class);

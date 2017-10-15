@@ -29,7 +29,7 @@ public class ScriptComponentInterceptor extends BaseComponentInterceptor<ScriptC
 	@Override
 	protected void onDeleteAction(EntityService entityService, Entity entity, ScriptComponent comp) {
 		// Stop the actor timing the entity component.
-		LOG.trace("ScriptComponent deleted. Stopping actor.");
+		LOG.debug("Component {} is deleted.", comp);
 
 		EntityComponentMessage msg = EntityComponentMessage.remove(comp.getEntityId(), comp.getId());
 		akkaApi.sendToEntity(comp.getEntityId(), msg);

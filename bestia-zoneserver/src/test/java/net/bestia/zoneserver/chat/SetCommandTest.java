@@ -20,9 +20,8 @@ import net.bestia.entity.component.StatusComponent;
 import net.bestia.messages.MessageApi;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.model.domain.Element;
-import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.ConditionValues;
+import net.bestia.model.domain.StatusPoints;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -90,7 +89,6 @@ public class SetCommandTest {
 	public void executeCommand_setEnumValue_works() {
 		setCmd.executeCommand(acc, "/set status.element fire");	
 		
-		verify(statusComp).setElement(Element.FIRE);
 		verify(entityService).updateComponent(statusComp);
 	} 
 	

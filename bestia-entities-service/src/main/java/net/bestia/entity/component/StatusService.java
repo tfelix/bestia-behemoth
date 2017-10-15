@@ -1,4 +1,4 @@
-package net.bestia.entity;
+package net.bestia.entity.component;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
 import net.bestia.entity.component.LevelComponent;
 import net.bestia.entity.component.PlayerComponent;
 import net.bestia.entity.component.StatusComponent;
@@ -36,7 +38,7 @@ public class StatusService {
 	/**
 	 * How often the regeneration should tick for each entity.
 	 */
-	public static final int REGENERATION_TICK_RATE_MS = 1000;
+	public static final int REGENERATION_TICK_RATE_MS = 8000;
 
 	private final EntityService entityService;
 

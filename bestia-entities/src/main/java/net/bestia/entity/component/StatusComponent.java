@@ -64,12 +64,16 @@ public class StatusComponent extends Component {
 		return statusBasedValues;
 	}
 
-	public void setElement(Element element) {
+	void setElement(Element element) {
 		this.element = element;
 	}
 
-	public void setUnmodifiedElement(Element originalElement) {
+	void setUnmodifiedElement(Element originalElement) {
 		this.unmodifiedElement = originalElement;
+	}
+	
+	public ConditionValues getConditionValues() {
+		return values;
 	}
 
 	/**
@@ -97,12 +101,8 @@ public class StatusComponent extends Component {
 	 * @param statusPoints
 	 *            The new status values.
 	 */
-	public void setStatusPoints(StatusPoints statusPoints) {
+	void setStatusPoints(StatusPoints statusPoints) {
 		this.statusPoints = statusPoints;
-	}
-
-	public ConditionValues getConditionValues() {
-		return values;
 	}
 
 	/**
@@ -111,16 +111,16 @@ public class StatusComponent extends Component {
 	 * @param statusBasedValues
 	 *            The new status based values.
 	 */
-	public void setStatusBasedValues(StatusBasedValues statusBasedValues) {
+	void setStatusBasedValues(StatusBasedValues statusBasedValues) {
 		this.statusBasedValues = statusBasedValues;
+	}
+	
+	void setStatusValues(ConditionValues statusValues) {
+		values.set(statusValues);
 	}
 
 	@Override
 	public String toString() {
 		return String.format("StatusComponent[id: %d]", getId());
-	}
-
-	public void setStatusValues(ConditionValues statusValues) {
-		values.set(statusValues);
 	}
 }

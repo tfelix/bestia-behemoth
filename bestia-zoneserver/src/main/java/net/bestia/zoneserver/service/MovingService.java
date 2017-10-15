@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.StatusService;
 import net.bestia.entity.component.PositionComponent;
+import net.bestia.entity.component.StatusService;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.internal.entity.ComponentPayloadWrapper;
 import net.bestia.messages.internal.entity.EntityMoveMessage;

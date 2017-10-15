@@ -1,4 +1,4 @@
-package net.bestia.entity;
+package net.bestia.entity.component;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -7,9 +7,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
 import net.bestia.entity.component.LevelComponent;
 import net.bestia.entity.component.LevelService;
+import net.bestia.entity.component.StatusService;
 
 import static org.mockito.Mockito.*;
 

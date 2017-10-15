@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.entity.Entity;
-import net.bestia.entity.StatusService;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
 import net.bestia.entity.component.EquipComponent;
@@ -22,6 +21,7 @@ import net.bestia.entity.component.PlayerStatusComponentSetter;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.PositionComponentSetter;
 import net.bestia.entity.component.StatusComponent;
+import net.bestia.entity.component.StatusService;
 import net.bestia.entity.component.TagComponent;
 import net.bestia.entity.component.TagComponent.Tag;
 import net.bestia.entity.component.TagComponentSetter;

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.StatusService;
 
 /**
  * This service manages entities to level up and to receive exp.

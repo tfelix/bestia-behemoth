@@ -38,7 +38,7 @@ public class PositionComponentInterceptor extends BaseComponentInterceptor<Posit
 
 	@Override
 	protected void onUpdateAction(EntityService entityService, Entity entity, PositionComponent comp) {
-		LOG.trace("Position component is updated.");
+		LOG.debug("Component {} is updated.", comp);
 
 		// Update all active players in sight with the new position path.
 		final EntityPositionMessage posMessage = new EntityPositionMessage(entity.getId(), comp.getPosition());
@@ -47,7 +47,7 @@ public class PositionComponentInterceptor extends BaseComponentInterceptor<Posit
 
 	@Override
 	protected void onCreateAction(EntityService entityService, Entity entity, PositionComponent comp) {
-		LOG.trace("Position component created.");
+		LOG.debug("Component {} is created.", comp);
 
 		final EntityComponentMessage msg = EntityComponentMessage.install(entity.getId(), comp.getId());
 		msgApi.sendToEntity(entity.getId(), msg);
@@ -55,7 +55,7 @@ public class PositionComponentInterceptor extends BaseComponentInterceptor<Posit
 
 	@Override
 	protected void onDeleteAction(EntityService entityService, Entity entity, PositionComponent comp) {
-		LOG.debug("Recycling position component.");
+		LOG.debug("Component {} is deleted.", comp);
 
 		final long entityId = comp.getEntityId();
 

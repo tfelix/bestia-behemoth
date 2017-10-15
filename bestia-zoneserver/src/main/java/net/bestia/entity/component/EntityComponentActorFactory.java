@@ -77,7 +77,9 @@ public class EntityComponentActorFactory {
 
 		final ActorRef compActor = buildActor(ctx, comp);
 
-		LOG.debug("Starting component {} actor: {} ", componentId, compActor);
+		LOG.debug("Starting componenent actor: {} ({}) for entity: {}.", compClazz.getSimpleName(), componentId,
+				comp.getEntityId());
+
 		return compActor;
 	}
 

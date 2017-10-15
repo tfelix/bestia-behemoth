@@ -335,12 +335,13 @@ public class EntityService {
 
 		try {
 			entities.lock(entityId);
+
 			for (Component comp : attachComponents) {
 				comp.setEntityId(entityId);
 				e.addComponent(comp);
-
-				updateComponent(comp);
+				internalUpdateComponent(comp);
 			}
+
 			saveEntity(e);
 		} finally {
 			entities.unlock(entityId);
@@ -366,14 +367,21 @@ public class EntityService {
 			throw new IllegalArgumentException("Component is not attached to entity. Call attachComponent first.");
 		}
 
+		internalUpdateComponent(component);
+
+		interceptor.interceptUpdate(this, getEntity(component.getEntityId()), component);
+	}
+
+	/**
+	 * Updates the component but does not trigger the interceptor call yet.
+	 */
+	private void internalUpdateComponent(Component component) {
 		components.lock(component.getId());
 		try {
 			components.put(component.getId(), component);
 		} finally {
 			components.unlock(component.getId());
 		}
-
-		interceptor.interceptUpdate(this, getEntity(component.getEntityId()), component);
 	}
 
 	/**
@@ -417,7 +425,7 @@ public class EntityService {
 		}
 
 		component.setEntityId(0);
-		
+
 		interceptor.interceptDeleted(this, entity, component);
 		cache.stashComponente(component);
 	}
@@ -502,8 +510,8 @@ public class EntityService {
 	}
 
 	/**
-	 * FIXME Unit Testen. Returns the component with the given ID or null if the
-	 * component does not exist.
+	 * Returns the component with the given ID or null if the component does not
+	 * exist.
 	 * 
 	 * @param componentId
 	 *            The component ID to retrieve the component.

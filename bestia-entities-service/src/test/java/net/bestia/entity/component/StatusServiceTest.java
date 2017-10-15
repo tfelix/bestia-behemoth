@@ -1,4 +1,4 @@
-package net.bestia.entity;
+package net.bestia.entity.component;
 
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.times;
@@ -14,9 +14,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
 import net.bestia.entity.component.LevelComponent;
 import net.bestia.entity.component.PlayerComponent;
 import net.bestia.entity.component.StatusComponent;
+import net.bestia.entity.component.StatusService;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.PlayerBestia;

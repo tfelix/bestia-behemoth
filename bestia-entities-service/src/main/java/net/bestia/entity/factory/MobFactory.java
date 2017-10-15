@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import net.bestia.entity.Entity;
-import net.bestia.entity.StatusService;
 import net.bestia.entity.component.EquipComponent;
 import net.bestia.entity.component.InventoryComponent;
 import net.bestia.entity.component.LevelComponent;
@@ -15,6 +14,7 @@ import net.bestia.entity.component.LevelComponentSetter;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.PositionComponentSetter;
 import net.bestia.entity.component.StatusComponent;
+import net.bestia.entity.component.StatusService;
 import net.bestia.entity.component.TagComponent;
 import net.bestia.entity.component.TagComponent.Tag;
 import net.bestia.entity.component.TagComponentSetter;

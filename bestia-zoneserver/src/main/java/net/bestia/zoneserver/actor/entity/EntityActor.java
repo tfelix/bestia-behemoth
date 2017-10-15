@@ -94,6 +94,7 @@ public class EntityActor extends AbstractActor {
 	private void handleComponentMessage(EntityComponentMessage msg) {
 
 		if (msg.getState() == ComponentState.INSTALL) {
+			LOG.debug("Installing component: {} on entity: {}.", msg.getComponentId(), entityId);
 
 			// Install the component.
 			final ActorRef compActor = factory.startActor(getContext(), msg.getComponentId());
@@ -109,6 +110,7 @@ public class EntityActor extends AbstractActor {
 			componentIdsByActor.put(compActor, msg.getComponentId());
 
 		} else {
+			LOG.debug("Removing component: {} on entity: {}.", msg.getComponentId(), entityId);
 
 			// Remove the component.
 			final ActorRef compRef = actorsByComponentId.get(msg.getComponentId());

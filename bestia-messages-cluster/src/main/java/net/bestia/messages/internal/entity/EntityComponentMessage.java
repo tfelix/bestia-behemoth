@@ -73,4 +73,10 @@ public class EntityComponentMessage extends EntityInternalMessage {
 	public static EntityComponentMessage install(long entityId, long componentId) {
 		return new EntityComponentMessage(entityId, componentId, ComponentState.INSTALL);
 	}
+
+	@Override
+	public String toString() {
+		return String.format("EntityComponentMessage[eid: %d, cid: %d, s: %s]", getEntityId(), getComponentId(),
+				getState());
+	}
 }
