@@ -1,7 +1,10 @@
 package net.bestia.zoneserver.configuration;
 
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +18,8 @@ import org.springframework.context.annotation.Profile;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
+import akka.actor.ActorPath;
+import akka.actor.ActorPaths;
 import akka.actor.ActorSystem;
 import akka.actor.Address;
 import akka.actor.TypedActor;
@@ -52,7 +57,12 @@ public class AkkaConfiguration implements DisposableBean {
 		final Config akkaConfig = ConfigFactory.load(AKKA_CONFIG_NAME);
 		//LOG.debug("Loaded akka config: {}.", akkaConfig.toString());
 
-		systemInstance = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
+		//systemInstance = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
+		systemInstance = ActorSystem.create("BestiaBehemoth", akkaConfig);
+		
+		//Arrays.asList(ActorPaths.fromString("akka.tcp://BestiaBehemoth@localhost:6767");
+		Address addr = new Address("tcp", "BestiaBehemoth", "localhost", 6767);
+		Cluster.get(systemInstance).join(addr);
 
 		// initialize the application context in the Akka Spring extension.
 		SpringExtension.initialize(systemInstance, appContext);
