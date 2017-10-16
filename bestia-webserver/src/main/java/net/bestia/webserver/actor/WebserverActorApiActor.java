@@ -39,7 +39,7 @@ public class WebserverActorApiActor implements WebserverActorApi {
 	private final static Logger LOG = LoggerFactory.getLogger(WebserverActorApiActor.class);
 	private final static Timeout REST_CALL_TIMEOUTS = new Timeout(Duration.create(5, "seconds"));
 
-	private final ActorRef uplinkRouter;
+	private final ActorRef uplinkRouter = null;
 	private final ActorContext context;
 	private final ObjectMapper mapper;
 
@@ -47,7 +47,7 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 	public WebserverActorApiActor(ActorRef uplinkRouter) {
 
-		this.uplinkRouter = Objects.requireNonNull(uplinkRouter);
+		//this.uplinkRouter = Objects.requireNonNull(uplinkRouter);
 		this.context = TypedActor.context();
 		this.mapper = new ObjectMapper();
 	}

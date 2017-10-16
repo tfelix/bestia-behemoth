@@ -27,7 +27,7 @@ public class SpriteInfo implements Serializable {
 
 	@JsonProperty("t")
 	@Enumerated(EnumType.STRING)
-	public VisualType type;
+	public VisualType type = VisualType.PACK;
 
 	/**
 	 * For Jackson Only.

@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
+import akka.cluster.client.ClusterClientReceptionist;
 import akka.cluster.sharding.ClusterSharding;
 import akka.cluster.sharding.ClusterShardingSettings;
 import akka.cluster.singleton.ClusterSingletonManager;
@@ -21,6 +23,7 @@ import net.bestia.zoneserver.actor.EntityShardMessageExtractor;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.entity.EntityActor;
 import net.bestia.zoneserver.actor.zone.ClusterControlActor;
+import net.bestia.zoneserver.actor.zone.IngestActor;
 import net.bestia.zoneserver.script.ScriptService;
 
 /**
@@ -51,6 +54,12 @@ public class ZoneStarter implements CommandLineRunner {
 		registerShardedActors();
 		
 		registerSingeltons();
+		
+		// Das hier evtl noch in den RootActor packen?
+		ActorRef ingest = system.actorOf(Props.create(IngestActor.class), "ingest");
+		ClusterClientReceptionist.get(system).registerService(ingest);
+		
+		ingest.tell("Local Message.", ActorRef.noSender());
 		
 		SpringExtension.actorOf(system, BestiaRootActor.class);
 

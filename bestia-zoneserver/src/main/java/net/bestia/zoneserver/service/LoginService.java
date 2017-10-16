@@ -21,7 +21,6 @@ import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.server.MaintenanceLevel;
-import net.bestia.zoneserver.actor.connection.ClientConnectionActor;
 import net.bestia.zoneserver.configuration.RuntimeConfigService;
 
 /**

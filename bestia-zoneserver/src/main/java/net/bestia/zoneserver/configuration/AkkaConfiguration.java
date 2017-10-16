@@ -46,24 +46,27 @@ public class AkkaConfiguration implements DisposableBean {
 	private ActorSystem systemInstance;
 
 	@Bean
-	public ActorSystem actorSystem(DiscoveryService clusterConfig, ApplicationContext appContext)
+	public ActorSystem actorSystem(ApplicationContext appContext)
 			throws UnknownHostException {
 
 		final Config akkaConfig = ConfigFactory.load(AKKA_CONFIG_NAME);
+		//LOG.debug("Loaded akka config: {}.", akkaConfig.toString());
 
 		systemInstance = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
 
 		// initialize the application context in the Akka Spring extension.
 		SpringExtension.initialize(systemInstance, appContext);
 
-		final Address selfAddr = Cluster.get(systemInstance).selfAddress();
-		final List<Address> seedNodes = clusterConfig.getClusterSeedNodes();
+		//final Address selfAddr = Cluster.get(systemInstance).selfAddress();
+		//Cluster.get(systemInstance).join(selfAddr);
+		
+		//final List<Address> seedNodes = clusterConfig.getClusterSeedNodes();
 
-		LOG.info("Received live endpoints: {}", seedNodes);
+		//LOG.info("Received live endpoints: {}", seedNodes);
 
 		// Check if there are at least some seeds or if we need to bootstrap
 		// the cluster.
-		if (seedNodes.size() == 0) {
+		/*if (seedNodes.size() == 0) {
 			// Join as seed node since desired number of seeds is not
 			// reached.
 			LOG.info("Joining as bootstrap seed node.");
@@ -71,9 +74,9 @@ public class AkkaConfiguration implements DisposableBean {
 		} else {
 			LOG.info("Joining as regular node.");
 			Cluster.get(systemInstance).joinSeedNodes(seedNodes);
-		}
+		}*/
 
-		LOG.info("Zoneserver Akka Address is: {}", selfAddr);
+		//LOG.info("Zoneserver Akka Address is: {}", selfAddr);
 
 		return systemInstance;
 	}

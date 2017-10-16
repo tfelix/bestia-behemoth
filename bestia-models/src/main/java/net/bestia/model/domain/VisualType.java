@@ -15,13 +15,13 @@ public enum VisualType {
 	/**
 	 * The sprite, its animations etc is described via the bestia pack format.
 	 * This is the usual format for mob sprites. They are described inside this
-	 * pack.
+	 * pack. It is actual quite the default sprite format.
 	 */
 	PACK,
 
 	/**
-	 * It is an item sprite. (Basically a still image but in a different
-	 * folder).
+	 * It is an item sprite. (Basically a still image but located in a different
+	 * data folder).
 	 */
 	ITEM,
 
@@ -34,7 +34,8 @@ public enum VisualType {
 	DYNAMIC,
 
 	/**
-	 * Visualization is done via an descriptive json file.
+	 * Visualization is done via an descriptive json file and is rendered by combining
+	 * different components.
 	 */
 	OBJECT
 }

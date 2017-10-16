@@ -1,0 +1,13 @@
+{
+	dbName: "poring",
+	components: [{
+		
+	}]
+}
+ODER
+[{
+	spriteInfo: {
+		sprite: "bonfire_small",
+		type: "pack"
+	}
+}]

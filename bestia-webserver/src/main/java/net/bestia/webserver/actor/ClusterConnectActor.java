@@ -32,7 +32,7 @@ public class ClusterConnectActor extends AbstractActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 	private final Cluster cluster = Cluster.get(getContext().system());
 	private final static String TICK_MSG = "tryConnect";
-	public final static String NAME = "clusterConnect";
+	public final static String NAME = "cluster";
 
 	private final DiscoveryService clusterConfig;
 
@@ -44,6 +44,7 @@ public class ClusterConnectActor extends AbstractActor {
 	public ClusterConnectActor(HazelcastInstance hz) {
 
 		Objects.requireNonNull(hz);
+		
 		this.clusterConfig = new DiscoveryService(hz);
 	}
 

@@ -66,7 +66,9 @@ public class ClientMessageHandlerActor extends AbstractActor {
 	 * @param mapper
 	 *            An jackson json mapper.
 	 */
-	public ClientMessageHandlerActor(WebSocketSession session, ObjectMapper mapper, ActorRef uplinkRouter) {
+	public ClientMessageHandlerActor(WebSocketSession session, 
+			ObjectMapper mapper, 
+			ActorRef uplinkRouter) {
 
 		this.session = Objects.requireNonNull(session, "Session can not be null.");
 		this.mapper = Objects.requireNonNull(mapper, "Mapper can not be null.");

@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
+import akka.cluster.client.ClusterClientReceptionist;
 import net.bestia.zoneserver.actor.zone.IngestExActor;
 import net.bestia.zoneserver.actor.zone.MemDbHeartbeatActor;
 import net.bestia.zoneserver.actor.zone.ZoneClusterListenerActor;
@@ -22,7 +24,8 @@ public class BestiaRootActor extends AbstractActor {
 
 	public BestiaRootActor() {
 
-		SpringExtension.actorOf(getContext(), IngestExActor.class);
+		final ActorRef ingest = SpringExtension.actorOf(getContext(), IngestExActor.class);
+		ClusterClientReceptionist.get(getContext().getSystem()).registerService(ingest);
 
 		// System actors.
 		SpringExtension.actorOf(getContext(), ZoneClusterListenerActor.class);

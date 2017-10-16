@@ -19,6 +19,7 @@ import akka.japi.Creator;
 import akka.routing.FromConfig;
 import net.bestia.server.AkkaCluster;
 import net.bestia.webserver.actor.ActorSystemTerminator;
+import net.bestia.webserver.actor.ClientConnectActor;
 import net.bestia.webserver.actor.ClusterConnectActor;
 import net.bestia.webserver.actor.ClusterConnectionListenerActor;
 import net.bestia.webserver.actor.WebserverActorApi;
@@ -47,29 +48,23 @@ public class AkkaConfiguration {
 			HazelcastInstance hzClient,
 			ConfigurationService serverConfig) {
 
-		final ActorSystem system = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
+		LOG.debug("Starting actor system.");
+		final ActorSystem system = ActorSystem.create("webserver", akkaConfig);
 
-		final Props clusterConnectProps = ClusterConnectActor.props(hzClient);
-		system.actorOf(clusterConnectProps, ClusterConnectActor.NAME);
-
+		//LOG.debug("Starting ClusterConnectActor.");
+		//final Props clusterConnectProps = ClusterConnectActor.props(hzClient);
+		//system.actorOf(clusterConnectProps, ClusterConnectActor.NAME);
+		
+		LOG.debug("Starting ClusterConnectActor.");
+		Props props = Props.create(ClientConnectActor.class);
+		system.actorOf(props, "connection");
+		
+		//LOG.debug("Starting ClusterConnectionListenerActor.");
 		// Subscribe for dead letter checking and domain events.
-		final Props clusterListenerProps = ClusterConnectionListenerActor.props(serverConfig, hzClient);
-		system.actorOf(clusterListenerProps);
+		//final Props clusterListenerProps = ClusterConnectionListenerActor.props(serverConfig, hzClient);
+		//system.actorOf(clusterListenerProps, "clusterListtener");
 
 		return system;
-	}
-
-	/**
-	 * Router to send messages to the bestia system.
-	 *
-	 */
-	@Bean
-	public ActorRef uplinkRouter(ActorSystem system) {
-
-		ActorRef msgRouter = system.actorOf(FromConfig.getInstance().props(), "uplink");
-		LOG.info("Message ingest path: {}", msgRouter.path().toString());
-
-		return msgRouter;
 	}
 
 	/**
@@ -96,7 +91,7 @@ public class AkkaConfiguration {
 	}
 
 	@Bean
-	public WebserverActorApi webserverLogin(ActorSystem system, ActorRef uplinkRouter) {
+	public WebserverActorApi webserverLogin(ActorSystem system) {
 
 		final WebserverActorApi login = TypedActor.get(system)
 				.typedActorOf(
@@ -106,7 +101,7 @@ public class AkkaConfiguration {
 
 									@Override
 									public WebserverActorApiActor create() throws Exception {
-										return new WebserverActorApiActor(uplinkRouter);
+										return new WebserverActorApiActor(null);
 									}
 								}).withDeploy(Deploy.local()),
 						"loginWebActor");
