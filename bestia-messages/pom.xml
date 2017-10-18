@@ -8,15 +8,15 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>bestia-message</artifactId>
-	<name>bestia-message</name>
+	<artifactId>bestia-messages</artifactId>
+	<name>bestia-messages</name>
 
 	<description>Messages for the Bestia Behemeoth server. Used to communicate internally and with the client.</description>
 
 	<dependencies>
 		<dependency>
 			<groupId>net.bestia</groupId>
-			<artifactId>bestia-message-cluster</artifactId>
+			<artifactId>bestia-messages-cluster</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

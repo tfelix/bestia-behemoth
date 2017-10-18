@@ -51,6 +51,12 @@
 		<dependency>
 			<groupId>com.hazelcast</groupId>
 			<artifactId>hazelcast</artifactId>
+			<version>${hazelcast.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.hazelcast</groupId>
+			<artifactId>hazelcast</artifactId>
 			<classifier>tests</classifier>
 			<scope>test</scope>
 		</dependency>
@@ -63,12 +69,12 @@
 		</dependency>
 		<dependency>
 			<groupId>net.bestia</groupId>
-			<artifactId>bestia-message</artifactId>
+			<artifactId>bestia-messages</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.bestia</groupId>
-			<artifactId>bestia-message-cluster</artifactId>
+			<artifactId>bestia-messages-cluster</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<!-- Include shared testing code as well in test scope -->

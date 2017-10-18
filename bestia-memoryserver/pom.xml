@@ -7,8 +7,8 @@
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>bestia-memdbserver</artifactId>
-	<name>bestia-memorydbserver</name>
+	<artifactId>bestia-memoryserver</artifactId>
+	<name>bestia-memoryserver</name>
 
 	<description>In-Memory datbase for fast acces to the bestia in memory database layer.</description>
 

@@ -8,8 +8,8 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>bestia-message-cluster</artifactId>
-	<name>bestia-message-cluster</name>
+	<artifactId>bestia-messages-cluster</artifactId>
+	<name>bestia-messages-cluster</name>
 
 	<description>All the messages used only inside the cluster for inter-actor communication.</description>
 

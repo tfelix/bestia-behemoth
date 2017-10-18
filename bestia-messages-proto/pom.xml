@@ -8,8 +8,8 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>bestia-message-proto</artifactId>
-	<name>bestia-message-proto</name>
+	<artifactId>bestia-messages-proto</artifactId>
+	<name>bestia-messages-proto</name>
 
 	<description>The messages for the Bestia Behemoth project. The messages are used for server and client communication. They are based on Google ProtocolBuffer implementation.</description>
 

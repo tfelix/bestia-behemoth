@@ -18,6 +18,7 @@ import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.StatusComponent;
 import net.bestia.model.battle.Damage;
 import net.bestia.model.dao.AttackDAO;
+import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.AttackImpl;
 import net.bestia.model.domain.AttackType;
 import net.bestia.model.domain.ConditionValues;
@@ -152,6 +153,7 @@ public class BattleServiceTest {
 		when(atk.getType()).thenReturn(AttackType.MELEE_PHYSICAL);
 		when(atk.needsLineOfSight()).thenReturn(false);
 		when(atk.getManaCost()).thenReturn(2);
+		when(atk.getId()).thenReturn(Attack.DEFAULT_MELEE_ATTACK_ID);
 		
 
 		battleService = new BattleService(entityService, mapService, atkDao);

@@ -81,7 +81,7 @@
 
 		<dependency>
 			<groupId>net.bestia</groupId>
-			<artifactId>bestia-message</artifactId>
+			<artifactId>bestia-messages</artifactId>
 			<version>${project.version}</version>
 			<exclusions>
 				<exclusion>  <!-- declare the exclusion here -->

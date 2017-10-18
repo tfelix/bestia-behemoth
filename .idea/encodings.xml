@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bestia-entities" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bestia-entities-service" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bestia-memoryserver" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bestia-messages" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bestia-messages-cluster" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bestia-messages-proto" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bestia-models" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bestia-palantir" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bestia-server-commons" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bestia-server-commons-ex" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bestia-watchtower" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bestia-webserver" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bestia-webserver-ex" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/bestia-zoneserver" charset="UTF-8" />
+  </component>
+</project>

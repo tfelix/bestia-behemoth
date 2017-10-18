@@ -125,7 +125,7 @@
 		<!-- BESTIA DEPENDENCIES -->
 		<dependency>
 			<groupId>net.bestia</groupId>
-			<artifactId>bestia-message-cluster</artifactId>
+			<artifactId>bestia-messages-cluster</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
