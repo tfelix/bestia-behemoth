@@ -4,21 +4,28 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.actor.Address;
 import akka.actor.Cancellable;
 import akka.actor.Deploy;
 import akka.actor.Props;
+import akka.actor.Terminated;
 import akka.cluster.Cluster;
 import akka.cluster.ClusterEvent;
 import akka.cluster.ClusterEvent.MemberUp;
+import akka.cluster.client.ClusterClient;
+import akka.cluster.client.ClusterClientSettings;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
+import net.bestia.webserver.ClusterConnectionTerminated;
 import scala.concurrent.duration.Duration;
 
 /**
- * This actor tries to re-establish connection with the bestia cluster. After
- * the conenction has been established it will terminate.
+ * This actor tries to re-establish connection with the bestia cluster. If the
+ * connection is terminated it will start to re-establish the connection
+ * automatically. If the connection goes away it will send a error message to
+ * the
  * 
  * @author Thomas Felix
  *
@@ -26,17 +33,15 @@ import scala.concurrent.duration.Duration;
 public class ClusterConnectActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-	private final Cluster cluster = Cluster.get(getContext().system());
-	private final static String TICK_MSG = "tryConnect";
-	public final static String NAME = "cluster";
 
-	private final Cancellable tick = getContext().getSystem().scheduler().schedule(
-			Duration.create(1, TimeUnit.SECONDS),
-			Duration.create(10, TimeUnit.SECONDS),
-			getSelf(), TICK_MSG, getContext().dispatcher(), null);
+	private final ActorRef uplink;
 
 	public ClusterConnectActor() {
-		// no op.
+
+		final ClusterClientSettings settings = ClusterClientSettings.create(getContext().getSystem());
+		uplink = getContext().actorOf(ClusterClient.props(settings), "uplink");
+
+		getContext().watch(uplink);
 	}
 
 	/**
@@ -59,19 +64,17 @@ public class ClusterConnectActor extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(MemberUp.class, this::handleMemberUp)
-				.matchEquals(TICK_MSG, msg -> connect())
+				.match(Terminated.class, this::handleConnectionLost)
 				.build();
 	}
 
 	/**
-	 * Checks if we are now connected.
+	 * Notifiy parent about connection lost.
 	 * 
 	 * @param msg
 	 */
-	private void handleMemberUp(MemberUp msg) {
-		// We are connected. Can now terminate.
-		context().stop(getSelf());
+	private void handleConnectionLost(Terminated msg) {
+		getContext().parent().tell(new ClusterConnectionTerminated(), getSelf());
 	}
 
 	/**
@@ -89,19 +92,5 @@ public class ClusterConnectActor extends AbstractActor {
 		LOG.info("Got seed nodes: {}.", seedNodes);
 		LOG.info("Attempting to joing the bestia cluster...");
 
-		cluster.joinSeedNodes(seedNodes);
-	}
-
-	// subscribe to cluster changes
-	@Override
-	public void preStart() {
-		cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(), MemberUp.class);
-	}
-
-	// un-subscribe when restart
-	@Override
-	public void postStop() {
-		cluster.unsubscribe(getSelf());
-		tick.cancel();
 	}
 }

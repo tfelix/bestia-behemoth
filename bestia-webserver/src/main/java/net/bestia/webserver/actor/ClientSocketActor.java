@@ -14,6 +14,9 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Deploy;
 import akka.actor.Props;
+import akka.actor.Terminated;
+import akka.cluster.client.ClusterClient;
+import akka.cluster.client.ClusterClientSettings;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
@@ -26,31 +29,15 @@ import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
 import net.bestia.messages.login.LogoutMessage;
 
-/**
- * This actor will handle all the message exchange with the websocket. When a
- * message from the zone cluster is received it will forward the message to the
- * client or if client messages are incoming it will handle them and forward
- * them into the system.
- * 
- * @author Thomas Felix
- *
- */
-public class ClientMessageHandlerActor extends AbstractActor {
+public class ClientSocketActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	private final WebSocketSession session;
+	private final ActorRef uplink;
 	private final ObjectMapper mapper;
-	private ActorRef uplinkRouter;
+	private final WebSocketSession session;
 
 	private boolean isAuthenticated = false;
-
-	/**
-	 * Flag if the server was already notified about the close. Since we are
-	 * entering the close state from multiple paths we need to make sure to
-	 * execute the server send only once.
-	 */
-	private boolean notifiedServerClose = false;
 
 	/**
 	 * Account id is set as soon as the connection gets confirmed from the
@@ -58,36 +45,28 @@ public class ClientMessageHandlerActor extends AbstractActor {
 	 */
 	private long accountId = 0;
 
-	/**
-	 * Ctor.
-	 * 
-	 * @param session
-	 *            The websocket session attached to this connection.
-	 * @param mapper
-	 *            An jackson json mapper.
-	 */
-	public ClientMessageHandlerActor(WebSocketSession session, 
-			ObjectMapper mapper, 
-			ActorRef uplinkRouter) {
+	public ClientSocketActor(WebSocketSession session, ObjectMapper mapper, ActorRef uplink) {
 
-		this.session = Objects.requireNonNull(session, "Session can not be null.");
-		this.mapper = Objects.requireNonNull(mapper, "Mapper can not be null.");
-		this.uplinkRouter = Objects.requireNonNull(uplinkRouter);
+		// final ClusterClientSettings settings =
+		// ClusterClientSettings.create(getContext().getSystem());
+		// uplink = getContext().actorOf(ClusterClient.props(settings),
+		// "uplink");
+		// sendToUplink("FUCK YOU FROM CLIENT");
+
+		this.mapper = Objects.requireNonNull(mapper);
+		this.uplink = Objects.requireNonNull(uplink);
+		this.session = Objects.requireNonNull(session);
+
+		// Watch the uplink in case it goes down.
+		getContext().watch(uplink);
 	}
 
-	/**
-	 * Akka props helper method.
-	 * 
-	 * @param session
-	 * @param mapper
-	 * @return
-	 */
-	public static Props props(WebSocketSession session, ObjectMapper mapper, ActorRef uplinkRouter) {
-		return Props.create(new Creator<ClientMessageHandlerActor>() {
+	public static Props props(WebSocketSession session, ObjectMapper mapper, ActorRef uplink) {
+		return Props.create(new Creator<ClientSocketActor>() {
 			private static final long serialVersionUID = 1L;
 
-			public ClientMessageHandlerActor create() throws Exception {
-				return new ClientMessageHandlerActor(session, mapper, uplinkRouter);
+			public ClientSocketActor create() throws Exception {
+				return new ClientSocketActor(session, mapper, uplink);
 			}
 		}).withDeploy(Deploy.local());
 	}
@@ -95,26 +74,34 @@ public class ClientMessageHandlerActor extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
+				.match(Terminated.class, this::handleUplinkClosed)
 				.match(LoginAuthReplyMessage.class, this::handleLoginAuth)
 				.match(LogoutMessage.class, this::handleServerLogout)
 				.match(AccountMessage.class, this::sendToClient)
-				.match(String.class, this::handlePayload)
+				.match(String.class, this::handleClientPayload)
 				.build();
 	}
 
-	private void sendToClient(AccountMessage message) {
-		// Send the payload to the client.
-		try {
-			final String payload = mapper.writeValueAsString(message);
-			LOG.debug("Server sending: {}.", payload);
-			session.sendMessage(new TextMessage(payload));
-		} catch (JsonProcessingException e) {
-			LOG.error("Could not serialize server message: {}.", message.toString());
-		} catch (IOException e) {
-			// Could not send to client.
-			closeClientConnection(CloseStatus.NORMAL);
-		}
+	@Override
+	public void postStop() throws Exception {
 
+		// Send the server that we have closed the connection.
+		closeSocketConnection(CloseStatus.NORMAL);
+		
+		// If we were fully connected, disconnect from the server aswell.
+		if (accountId == 0 || !isAuthenticated) {
+			return;
+		}
+		
+		final ClientConnectionStatusMessage ccsmsg = new ClientConnectionStatusMessage(
+				accountId,
+				ConnectionState.DISCONNECTED,
+				getSelf());
+		sendToUplink(ccsmsg);
+	}
+
+	private void handleUplinkClosed(Terminated t) {
+		System.err.println("Connection to remote system lost.");
 	}
 
 	/**
@@ -125,7 +112,10 @@ public class ClientMessageHandlerActor extends AbstractActor {
 		// Send the message to the client like every other message.
 		sendToClient(msg);
 
-		closeClientConnection(CloseStatus.NORMAL);
+		closeSocketConnection(CloseStatus.NORMAL);
+		
+		// Kill ourself.
+		getContext().stop(getSelf());
 	}
 
 	/**
@@ -134,7 +124,7 @@ public class ClientMessageHandlerActor extends AbstractActor {
 	 * @param payload
 	 *            Payload data from the client.
 	 */
-	private void handlePayload(String payload) {
+	private void handleClientPayload(String payload) {
 		// We only accept auth messages if we are not connected. Every other
 		// message will disconnect the client.
 		if (!isAuthenticated) {
@@ -143,14 +133,14 @@ public class ClientMessageHandlerActor extends AbstractActor {
 
 				// Send the LoginRequest to the cluster.
 				// Somehow centralize the names of the actors.
-				uplinkRouter.tell(loginReqMsg, getSelf());
+				sendToUplink(loginReqMsg);
 
 			} catch (IOException e) {
 				// Wrong message. Terminate connection.
 				LOG.warning("Client {} send wrong auth message. Payload was: {}.",
 						session.getRemoteAddress(),
 						payload);
-				closeClientConnection(CloseStatus.PROTOCOL_ERROR);
+				closeSocketConnection(CloseStatus.PROTOCOL_ERROR);
 			}
 		} else {
 			try {
@@ -162,18 +152,18 @@ public class ClientMessageHandlerActor extends AbstractActor {
 				msg = msg.createNewInstance(accountId);
 
 				LOG.debug("Client sending: {}.", msg.toString());
-				uplinkRouter.tell(msg, getSelf());
+				sendToUplink(msg);
 
 			} catch (IOException e) {
 				LOG.warning("Malformed message. Client: {}, Payload: {}, Error: {}.",
 						session.getRemoteAddress(),
 						payload,
 						e.toString());
-				closeClientConnection(CloseStatus.BAD_DATA);
+				closeSocketConnection(CloseStatus.BAD_DATA);
 			}
 		}
 	}
-
+	
 	/**
 	 * Either stores the connection details if server accepted the connection or
 	 * close the websocket.
@@ -193,26 +183,37 @@ public class ClientMessageHandlerActor extends AbstractActor {
 					accountId,
 					ConnectionState.CONNECTED,
 					getSelf());
-			uplinkRouter.tell(ccsmsg, getSelf());
+			uplink.tell(ccsmsg, getSelf());
 
 		} else {
 			sendToClient(msg);
-			closeClientConnection(CloseStatus.PROTOCOL_ERROR);
+			closeSocketConnection(CloseStatus.PROTOCOL_ERROR);
 		}
 	}
 
-	private void closeClientConnection(CloseStatus status) {
+	private void sendToUplink(Object msg) {
+		uplink.tell(new ClusterClient.Send("/user/ingest", msg, true), getSelf());
+	}
 
-		// If we were fully connected, disconnect from the server.
-		if (accountId != 0 && isAuthenticated && !notifiedServerClose) {
-			LOG.debug("Closing connection to {}.", session.getRemoteAddress().toString());
-			notifiedServerClose = true;
-			final ClientConnectionStatusMessage ccsmsg = new ClientConnectionStatusMessage(
-					accountId,
-					ConnectionState.DISCONNECTED,
-					getSelf());
-			uplinkRouter.tell(ccsmsg, ActorRef.noSender());
+	private void sendToClient(AccountMessage message) {
+		// Send the payload to the client.
+		try {
+			final String payload = mapper.writeValueAsString(message);
+			LOG.debug("Server sending: {}.", payload);
+			session.sendMessage(new TextMessage(payload));
+		} catch (JsonProcessingException e) {
+			LOG.error("Could not serialize server message: {}.", message.toString());
+		} catch (IOException e) {
+			// Could not send to client.
+			closeSocketConnection(CloseStatus.NORMAL);
+			getContext().stop(getSelf());
 		}
+
+	}
+
+	private void closeSocketConnection(CloseStatus status) {
+		
+		LOG.debug("Closing connection to {}.", session.getRemoteAddress().toString());
 
 		// If the websocket session is still opened and we are terminated from
 		// the akka side, close it here.
@@ -223,14 +224,5 @@ public class ClientMessageHandlerActor extends AbstractActor {
 				// no op.
 			}
 		}
-
-		// Kill ourself.
-		getContext().stop(getSelf());
-	}
-
-	@Override
-	public void postStop() throws Exception {
-		super.postStop();
-		closeClientConnection(CloseStatus.NORMAL);
 	}
 }

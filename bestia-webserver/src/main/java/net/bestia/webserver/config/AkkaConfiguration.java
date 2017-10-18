@@ -14,9 +14,10 @@ import akka.actor.Props;
 import akka.actor.TypedActor;
 import akka.actor.TypedProps;
 import akka.japi.Creator;
-import net.bestia.webserver.actor.ClientConnectActor;
+import net.bestia.webserver.actor.ClientSocketActor;
 import net.bestia.webserver.actor.WebserverActorApi;
 import net.bestia.webserver.actor.WebserverActorApiActor;
+import net.bestia.webserver.actor.WebserverRootActor;
 import net.bestia.webserver.service.ConfigurationService;
 
 /**
@@ -40,19 +41,9 @@ public class AkkaConfiguration {
 
 		LOG.debug("Starting actor system.");
 		final ActorSystem system = ActorSystem.create("webserver", akkaConfig);
-
-		//LOG.debug("Starting ClusterConnectActor.");
-		//final Props clusterConnectProps = ClusterConnectActor.props(hzClient);
-		//system.actorOf(clusterConnectProps, ClusterConnectActor.NAME);
 		
-		LOG.debug("Starting ClusterConnectActor.");
-		Props props = Props.create(ClientConnectActor.class);
-		system.actorOf(props, "connection");
-		
-		//LOG.debug("Starting ClusterConnectionListenerActor.");
-		// Subscribe for dead letter checking and domain events.
-		//final Props clusterListenerProps = ClusterConnectionListenerActor.props(serverConfig, hzClient);
-		//system.actorOf(clusterListenerProps, "clusterListtener");
+		LOG.debug("Starting webserver root actor.");	
+		system.actorOf(WebserverRootActor.props(), "webserver");
 
 		return system;
 	}
@@ -76,6 +67,7 @@ public class AkkaConfiguration {
 									public WebserverActorApiActor create() throws Exception {
 										return new WebserverActorApiActor(null);
 									}
+									
 								}).withDeploy(Deploy.local()),
 						"loginWebActor");
 

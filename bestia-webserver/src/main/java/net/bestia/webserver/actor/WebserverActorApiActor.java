@@ -2,7 +2,6 @@ package net.bestia.webserver.actor;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,7 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 	private final ActorRef uplinkRouter = null;
 	private final ActorContext context;
-	private final ObjectMapper mapper;
+	private final ObjectMapper mapper = new ObjectMapper();
 
 	private final Map<String, ActorRef> openedSockets = new HashMap<>();
 
@@ -49,7 +48,6 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 		//this.uplinkRouter = Objects.requireNonNull(uplinkRouter);
 		this.context = TypedActor.context();
-		this.mapper = new ObjectMapper();
 	}
 
 	@Override

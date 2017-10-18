@@ -21,7 +21,7 @@ import net.bestia.webserver.service.ConfigurationService;
  * @author Thomas Felix
  *
  */
-//@Component
+@Component
 public class BestiaSocketHandler extends TextWebSocketHandler {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BestiaSocketHandler.class);
