@@ -14,6 +14,7 @@ import com.hazelcast.core.MultiMap;
 import akka.actor.ActorSystem;
 import akka.actor.Terminated;
 import akka.testkit.TestProbe;
+import net.bestia.HazelMock;
 import net.bestia.testing.BasicMocks;
 import scala.concurrent.Future;
 
@@ -23,7 +24,7 @@ public class ConnectionServiceTest {
 	private static final long CONNECTED_ACC_ID = 10;
 	private static final long NOT_CONNECTED_ACC_ID = 11;
 	private BasicMocks mocks = new BasicMocks();
-	private HazelcastInstance hz = mocks.hazelcastMock();
+	private HazelcastInstance hz = HazelMock.hazelcastMock();
 	
 	private ActorSystem sys1;
 	private ActorSystem sys2;

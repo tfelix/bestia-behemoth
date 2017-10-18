@@ -26,7 +26,6 @@ import akka.actor.TypedActor;
 import akka.actor.TypedProps;
 import akka.cluster.Cluster;
 import net.bestia.server.AkkaCluster;
-import net.bestia.server.DiscoveryService;
 import net.bestia.zoneserver.actor.AkkaMessageApi;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.ZoneMessageApi;

@@ -11,7 +11,6 @@ import akka.actor.AbstractActor;
 import akka.actor.Address;
 import akka.actor.Cancellable;
 import akka.cluster.Cluster;
-import net.bestia.server.DiscoveryService;
 import net.bestia.zoneserver.configuration.StaticConfigService;
 import scala.concurrent.duration.Duration;
 
@@ -33,7 +32,6 @@ public class MemDbHeartbeatActor extends AbstractActor {
 	public static final int HEARTBEAT_INTERVAL_S = 10;
 
 	private final String serverName;
-	private final DiscoveryService discoveryService;
 
 	private final Cancellable tick = getContext().getSystem().scheduler().schedule(
 			Duration.create(500, TimeUnit.MILLISECONDS),
@@ -47,11 +45,10 @@ public class MemDbHeartbeatActor extends AbstractActor {
 
 	@Autowired
 	public MemDbHeartbeatActor(
-			StaticConfigService configService,
-			DiscoveryService discoveryService) {
+			StaticConfigService configService) {
 
 		this.serverName = configService.getServerName();
-		this.discoveryService = Objects.requireNonNull(discoveryService);
+		//this.discoveryService = Objects.requireNonNull(discoveryService);
 	}
 
 	/**
@@ -59,7 +56,7 @@ public class MemDbHeartbeatActor extends AbstractActor {
 	 */
 	private void handleTick() {
 		final Address clusterAddr = Cluster.get(context().system()).selfAddress();
-		discoveryService.addClusterNode(serverName, clusterAddr);
+		//discoveryService.addClusterNode(serverName, clusterAddr);
 	}
 
 	@Override

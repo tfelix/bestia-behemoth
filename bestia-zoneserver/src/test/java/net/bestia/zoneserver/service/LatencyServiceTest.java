@@ -6,13 +6,14 @@ import org.junit.Test;
 
 import com.hazelcast.core.HazelcastInstance;
 
+import net.bestia.HazelMock;
 import net.bestia.testing.BasicMocks;
 
 
 public class LatencyServiceTest {
 
 	private final static BasicMocks mocks = new BasicMocks();
-	private final static HazelcastInstance hz = mocks.hazelcastMock();
+	private final static HazelcastInstance hz = HazelMock.hazelcastMock();
 	private static final long ACC_ID = 789;
 	
 	private LatencyService latencyService;

@@ -1,10 +1,7 @@
 package net.bestia.webserver.actor;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-
-import com.hazelcast.core.HazelcastInstance;
 
 import akka.actor.AbstractActor;
 import akka.actor.Address;
@@ -17,7 +14,6 @@ import akka.cluster.ClusterEvent.MemberUp;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
-import net.bestia.server.DiscoveryService;
 import scala.concurrent.duration.Duration;
 
 /**
@@ -34,18 +30,13 @@ public class ClusterConnectActor extends AbstractActor {
 	private final static String TICK_MSG = "tryConnect";
 	public final static String NAME = "cluster";
 
-	private final DiscoveryService clusterConfig;
-
 	private final Cancellable tick = getContext().getSystem().scheduler().schedule(
 			Duration.create(1, TimeUnit.SECONDS),
 			Duration.create(10, TimeUnit.SECONDS),
 			getSelf(), TICK_MSG, getContext().dispatcher(), null);
 
-	public ClusterConnectActor(HazelcastInstance hz) {
-
-		Objects.requireNonNull(hz);
-		
-		this.clusterConfig = new DiscoveryService(hz);
+	public ClusterConnectActor() {
+		// no op.
 	}
 
 	/**
@@ -55,12 +46,12 @@ public class ClusterConnectActor extends AbstractActor {
 	 * @param config
 	 * @return
 	 */
-	public static Props props(HazelcastInstance hz) {
+	public static Props props() {
 		return Props.create(new Creator<ClusterConnectActor>() {
 			private static final long serialVersionUID = 1L;
 
 			public ClusterConnectActor create() throws Exception {
-				return new ClusterConnectActor(hz);
+				return new ClusterConnectActor();
 			}
 		}).withDeploy(Deploy.local());
 	}
@@ -88,9 +79,9 @@ public class ClusterConnectActor extends AbstractActor {
 	 */
 	public void connect() {
 
-		final List<Address> seedNodes = clusterConfig.getClusterSeedNodes();
+		final List<Address> seedNodes = null;
 
-		if (seedNodes.isEmpty()) {
+		if (seedNodes == null || seedNodes.isEmpty()) {
 			LOG.error("No seed cluster nodes found. Can not join the system. Retry.");
 			return;
 		}

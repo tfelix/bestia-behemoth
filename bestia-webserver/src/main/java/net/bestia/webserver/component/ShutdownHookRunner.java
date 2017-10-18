@@ -7,7 +7,6 @@ import org.springframework.boot.CommandLineRunner;
 
 import akka.actor.ActorSystem;
 import akka.cluster.Cluster;
-import net.bestia.webserver.actor.ActorSystemTerminator;
 
 /**
  * This will register a shutdown hook the the webserver, if we are terminated
@@ -21,16 +20,10 @@ public class ShutdownHookRunner implements CommandLineRunner {
 	private static final Logger LOG = LoggerFactory.getLogger(ShutdownHookRunner.class);
 
 	private ActorSystem system;
-	private ActorSystemTerminator systemTerminator;
 
 	@Autowired
 	public void setSystem(ActorSystem system) {
 		this.system = system;
-	}
-	
-	@Autowired
-	public void setSystemTerminator(ActorSystemTerminator systemTerminator) {
-		this.systemTerminator = systemTerminator;
 	}
 
 	@Override
@@ -46,7 +39,7 @@ public class ShutdownHookRunner implements CommandLineRunner {
 				cluster.leave(cluster.selfAddress());
 				
 				// This will end the actor system and hazelcast.
-				systemTerminator.run();
+				
 			}
 		});
 

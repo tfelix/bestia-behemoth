@@ -16,8 +16,8 @@ import net.bestia.webserver.websocket.BestiaSocketHandler;
  * @author Thomas Felix
  *
  */
-//@Configuration
-//@EnableWebSocket
+@Configuration
+@EnableWebSocket
 public class WebSocketConfiguration implements WebSocketConfigurer {
 
 	private final BestiaSocketHandler socketHandler;

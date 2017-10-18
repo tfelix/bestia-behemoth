@@ -4,8 +4,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import com.hazelcast.core.HazelcastInstance;
-
 import akka.actor.AbstractActor;
 import akka.actor.Deploy;
 import akka.actor.Props;
@@ -37,7 +35,6 @@ public class ClusterConnectionListenerActor extends AbstractActor {
 
 	private final Set<Member> zoneMember = new HashSet<>();
 	private final ConfigurationService config;
-	private final HazelcastInstance hzClient;
 
 	/**
 	 * Ctor.
@@ -47,10 +44,9 @@ public class ClusterConnectionListenerActor extends AbstractActor {
 	 * @param mapper
 	 *            An jackson json mapper.
 	 */
-	public ClusterConnectionListenerActor(ConfigurationService config, HazelcastInstance hzClient) {
+	public ClusterConnectionListenerActor(ConfigurationService config) {
 
 		this.config = Objects.requireNonNull(config);
-		this.hzClient = Objects.requireNonNull(hzClient);
 	}
 
 	/**
@@ -60,12 +56,12 @@ public class ClusterConnectionListenerActor extends AbstractActor {
 	 * @param config
 	 * @return
 	 */
-	public static Props props(ConfigurationService config, HazelcastInstance hzClient) {
+	public static Props props(ConfigurationService config) {
 		return Props.create(new Creator<ClusterConnectionListenerActor>() {
 			private static final long serialVersionUID = 1L;
 
 			public ClusterConnectionListenerActor create() throws Exception {
-				return new ClusterConnectionListenerActor(config, hzClient);
+				return new ClusterConnectionListenerActor(config);
 			}
 		}).withDeploy(Deploy.local());
 	}
@@ -139,7 +135,7 @@ public class ClusterConnectionListenerActor extends AbstractActor {
 			config.setConnectedToCluster(false);
 			
 			// Restart connection actor.
-			final Props clusterConnectProps = ClusterConnectActor.props(hzClient);
+			final Props clusterConnectProps = ClusterConnectActor.props();
 			getContext().system().actorOf(clusterConnectProps, ClusterConnectActor.NAME);
 		}
 	}

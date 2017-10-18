@@ -3,7 +3,7 @@ package net.bestia.entity;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -31,14 +31,12 @@ import org.mockito.stubbing.Answer;
 
 import com.hazelcast.core.HazelcastInstance;
 
-import net.bestia.entity.Entity;
-import net.bestia.entity.EntityService;
+import net.bestia.HazelMock;
+import net.bestia.entity.component.PlayerComponent;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.geometry.Rect;
-import net.bestia.testing.BasicMocks;
-import net.bestia.entity.component.PlayerComponent;
 import net.bestia.zoneserver.service.PlayerBestiaService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
@@ -58,8 +56,7 @@ public class PlayerEntityServiceTest {
 	private static final long MASTER_PB_ID = 42;
 	private static final long PLAYER_PB_ID = 43;
 
-	private final BasicMocks mocks = new BasicMocks();
-	private final HazelcastInstance hz = mocks.hazelcastMock();
+	private final HazelcastInstance hz = HazelMock.hazelcastMock();
 	
 	@Mock
 	private EntityService entityService;
