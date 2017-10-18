@@ -1,6 +1,5 @@
 package net.bestia.zoneserver.actor.zone;
 
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;

@@ -29,7 +29,6 @@
 		<module>bestia-watchtower</module>
 		<module>bestia-palantir</module>
 		<!-- Experimental modules -->
-		<module>bestia-webserver-ex</module>
 		<module>bestia-messages-cluster</module>
 	</modules>
 
