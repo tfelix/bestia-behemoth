@@ -12,7 +12,7 @@ import net.bestia.model.domain.PlayerBestia;
 /**
  * DAO for accessing and manipulating the {@link PlayerBestia}s.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Repository("playerBestiaDao")
