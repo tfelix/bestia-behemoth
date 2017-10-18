@@ -160,7 +160,7 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>${spring.version}</version>
 				<configuration>
-					<mainClass>net.bestia.Application</mainClass>
+					<mainClass>net.bestia.zoneserver.Application</mainClass>
 					<layout>ZIP</layout>
 				</configuration>
 				<executions>
