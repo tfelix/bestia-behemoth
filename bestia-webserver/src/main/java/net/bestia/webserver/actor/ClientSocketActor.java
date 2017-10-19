@@ -16,7 +16,6 @@ import akka.actor.Deploy;
 import akka.actor.Props;
 import akka.actor.Terminated;
 import akka.cluster.client.ClusterClient;
-import akka.cluster.client.ClusterClientSettings;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;

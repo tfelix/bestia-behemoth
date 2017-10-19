@@ -1,0 +1,125 @@
+@import "colors.less";
+
+body {
+	font-size: 10pt;
+	font-weight: 300;
+	font-family: 'Open Sans', 'Verdana', sans-serif;
+}
+
+a {
+	color: @linkColor;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+.box {
+	border: 1px solid #141824;
+	box-shadow: 0 0 4px #202020;
+	display: inline-block;
+	background: #464646;
+}
+
+.box:after {
+    content:'';
+    display:block;
+    box-shadow: inset 0 0 1px #e4e4e4;
+    pointer-events: none;
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+}
+
+button {
+	background: #d6b554;
+	display:inline-block;
+	color: #262216;
+	font-size: 13pt;
+	width: 100px;
+	padding: 6px 3px;
+	width: 110px;
+	border: 1px solid #f9df92;
+	border-radius: 3px;
+	
+	&:hover {
+		color: @white;
+		box-shadow: 0 0 3px #202020, inset 0 0 4px #95a4d1;
+	}
+}
+
+.centered {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	/* bring your own prefixes */
+	transform: translate(-50%, -50%);
+}
+
+footer {
+	display: inline-block;
+	text-align: center;
+	height: 80px;
+	line-height: 80px;
+	width: 100%;
+	background: rgba(0, 0, 0, 0.6);
+	border-top: solid black 1px;
+	bottom: 0px;
+	left: 0px;
+	color: #c4c4c4;
+	font-size: 1.0em;
+	vertical-align: middle;
+	position: absolute;
+	letter-spacing: 0.15em;
+}
+
+
+.bestiaButton {
+	border: solid 2px @borderLight;
+	box-shadow: inset 0px 0px 2px 0px rgba(0,0,0,0.9);
+}
+
+// Generall border style.
+.bestiaMenu {
+	border: solid 2px @borderBlack;
+	background: @menuBack;
+	box-shadow: inset 0px 0px 2px 0px rgba(0,0,0,0.9), 0px 0px 1px 0px rgba(0,0,0,0.9);
+}
+
+.flex() {
+  display: -webkit-flex;
+  display:-ms-flexbox;
+  display: flex;
+}
+
+/**
+ User can click on this marked item. Usually this indicates a click cursor.
+ */
+.clickable {
+	cursor: pointer;
+}
+
+.slider(@height) {
+	transition: bottom 0.5s, opacity 0.3s;
+	opacity: 0;
+	background: @lightBackground;
+	padding: 10px 5px 0 5px;
+	position: absolute;
+	z-index: 200;
+	bottom: -@height;
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+	
+	.header {
+		padding: 5px 0;
+	}
+}
+
+.slider_active {
+	bottom: 0px;
+	opacity: 1;
+}

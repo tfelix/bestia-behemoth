@@ -78,8 +78,9 @@ public class BattleService {
 	/**
 	 * Performs an attack/skill against a ground target.
 	 * 
-	 * @param atkMsg
-	 * @param usedAttack
+	 * @param atkId
+	 * @param attackerId
+	 * @param target Point to attack.
 	 */
 	public void attackGround(int atkId, long attackerId, Point target) {
 
@@ -342,11 +343,7 @@ public class BattleService {
 	 * Checks if there is a direct line of sight between the two points. This
 	 * does not only take static map features into account but also dynamic
 	 * effects like entities which might block the direct line of sight.
-	 * 
-	 * @param start
-	 *            Start point of the line of sight.
-	 * @param end
-	 *            The end point of the line of sight.
+	 *
 	 * @return Returns TRUE if there is a direct line of sight. FALSE if there
 	 *         is no direct line of sight.
 	 */
@@ -375,7 +372,7 @@ public class BattleService {
 
 		final List<Point> lineOfSight = lineOfSight(start, end);
 
-		final boolean doesMapBlock = lineOfSight.stream().filter(map::blocksSight).findAny().isPresent();
+		final boolean doesMapBlock = lineOfSight.stream().anyMatch(map::blocksSight);
 
 		final Set<Entity> blockingEntities = entityService.getCollidingEntities(bbox);
 		final boolean doesEntityBlock = blockingEntities.stream().anyMatch(entity -> {
@@ -387,9 +384,7 @@ public class BattleService {
 
 			final CollisionShape shape = pos.get().getShape();
 
-			return lineOfSight.stream().anyMatch(los -> {
-				return shape.collide(los);
-			});
+			return lineOfSight.stream().anyMatch(shape::collide);
 		});
 
 		final boolean hasLos = !doesMapBlock && !doesEntityBlock;
@@ -409,8 +404,7 @@ public class BattleService {
 	 * controlled by a script this wont get checked by this method anymore. Only
 	 * raw damage calculation is performed.
 	 * 
-	 * @param usedAttack
-	 * 
+	 * @param atk
 	 * @param battleCtx
 	 * @param dmgVars
 	 * @return The calculated damage by this attack.
@@ -544,6 +538,33 @@ public class BattleService {
 		final float eleMod = ElementModifier.getModifier(atkEle, defEle) / 100f;
 		LOG.trace("ElementMod: {}", eleMod);
 		return eleMod;
+	}
+
+	/**
+	 * Gets the current damage variables of an entity counting for itself.
+	 * This usually boosts the own values for more damage.
+	 * This function will also invoke all the scripts currently attached to the entity
+	 * which might alter the damage var.
+	 *
+	 * @param e The entity to get the damage vars for.
+	 * @return The current damage vars of the entity.
+	 */
+	private DamageVariables getOwnDamageVars(Entity e) {
+
+		return null;
+	}
+
+	/**
+	 * Gets the current damage variable reduction. It is not very common albeit possible that the
+	 * enemy defender is able to reduce in some way by his own equipment or by scripts the attackers damage
+	 * variables. This function will query all data to calculate such an reduction object.
+	 *
+	 * @param e The entity
+	 * @return The enemies {@link DamageVariables} reduction.
+	 */
+	private DamageVariables getDefenderDamageVars(Entity e) {
+
+		return null;
 	}
 
 	/**

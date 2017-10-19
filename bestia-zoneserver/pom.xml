@@ -56,30 +56,29 @@
 
 		<dependency>
 			<groupId>com.typesafe.akka</groupId>
-			<artifactId>akka-cluster_2.11</artifactId>
+			<artifactId>akka-cluster_2.12</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.typesafe.akka</groupId>
-			<artifactId>akka-slf4j_2.11</artifactId>
+			<artifactId>akka-slf4j_2.12</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.typesafe.akka</groupId>
-			<artifactId>akka-cluster-tools_2.11</artifactId>
+			<artifactId>akka-cluster-tools_2.12</artifactId>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-cluster-sharding_2.11 -->
 		<dependency>
 			<groupId>com.typesafe.akka</groupId>
-			<artifactId>akka-cluster-sharding_2.11</artifactId>
+			<artifactId>akka-cluster-sharding_2.12</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.typesafe.akka</groupId>
-			<artifactId>akka-testkit_2.11</artifactId>
+			<artifactId>akka-testkit_2.12</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>com.typesafe.akka</groupId>
-			<artifactId>akka-persistence_2.11</artifactId>
+			<artifactId>akka-persistence_2.12</artifactId>
 		</dependency>
 
 		<dependency>

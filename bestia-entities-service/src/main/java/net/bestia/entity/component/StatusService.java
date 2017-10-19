@@ -10,9 +10,6 @@ import org.springframework.stereotype.Service;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.component.LevelComponent;
-import net.bestia.entity.component.PlayerComponent;
-import net.bestia.entity.component.StatusComponent;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.PlayerBestia;
@@ -107,11 +104,8 @@ public class StatusService {
 
 		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
 
-		if (!statusComp.isPresent()) {
-			return Optional.empty();
-		}
+		return statusComp.map(StatusComponent::getStatusPoints);
 
-		return Optional.of(statusComp.get().getStatusPoints());
 	}
 
 	public Optional<StatusPoints> getUnmodifiedStatusPoints(Entity entity) {
@@ -119,11 +113,8 @@ public class StatusService {
 
 		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
 
-		if (!statusComp.isPresent()) {
-			return Optional.empty();
-		}
+		return statusComp.map(StatusComponent::getUnmodifiedStatusPoints);
 
-		return Optional.of(statusComp.get().getUnmodifiedStatusPoints());
 	}
 
 	/**
@@ -138,9 +129,7 @@ public class StatusService {
 		Objects.requireNonNull(entity);
 
 		entityService.getComponent(entity, StatusComponent.class)
-				.ifPresent(statusComp -> {
-					calculateStatusPoints(entity, statusComp);
-				});
+				.ifPresent(statusComp -> calculateStatusPoints(entity, statusComp));
 	}
 
 	/**
@@ -217,7 +206,7 @@ public class StatusService {
 		// Retrieve the level.
 		final int level = entityService.getComponent(entity, LevelComponent.class)
 				.map(LevelComponent::getLevel)
-				.orElse(1);
+				.orElse(0b1);
 
 		// Mob entities should have their status points already be set.
 		if (entityService.hasComponent(entity, PlayerComponent.class)) {
@@ -238,7 +227,7 @@ public class StatusService {
 	 * might be smaller then 1. We use this to save the value between the ticks
 	 * until we have at least 1 mana and can add this to the user status.
 	 * 
-	 * @param entityId
+	 * @param entityId The ID of the entity.
 	 * @return The ticked mana value.
 	 */
 	public float getManaTick(long entityId) {
@@ -260,7 +249,7 @@ public class StatusService {
 	 * ticks until we have at least 1 health and can add this to the user
 	 * status.
 	 * 
-	 * @param entityId
+	 * @param entityId The ID of the entity.
 	 * @return The ticked health value.
 	 */
 	public float getHealthTick(long entityId) {
@@ -314,8 +303,8 @@ public class StatusService {
 	 * It also makes sure the current mana and health are not exeeding the max
 	 * hp and max mana from the status points of this entity.
 	 * 
-	 * @param entity
-	 * @param values
+	 * @param entity The entity to save the conditional values.
+	 * @param values The new conditional values.
 	 */
 	public void save(Entity entity, ConditionValues values) {
 
@@ -327,7 +316,7 @@ public class StatusService {
 
 		// If values are equal if so dont do anything.
 		final ConditionValues curValues = statusComp.getConditionValues();
-		
+
 		if(curValues.equals(values)) {
 			return;
 		}

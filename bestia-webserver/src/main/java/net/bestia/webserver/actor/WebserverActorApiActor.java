@@ -2,6 +2,7 @@ package net.bestia.webserver.actor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,16 +39,15 @@ public class WebserverActorApiActor implements WebserverActorApi {
 	private final static Logger LOG = LoggerFactory.getLogger(WebserverActorApiActor.class);
 	private final static Timeout REST_CALL_TIMEOUTS = new Timeout(Duration.create(5, "seconds"));
 
-	private final ActorRef uplinkRouter = null;
-	private final ActorContext context;
+	private final ActorContext context = TypedActor.context();
 	private final ObjectMapper mapper = new ObjectMapper();
-
 	private final Map<String, ActorRef> openedSockets = new HashMap<>();
+	
+	private final ActorRef uplink;
 
-	public WebserverActorApiActor(ActorRef uplinkRouter) {
+	public WebserverActorApiActor(ActorRef uplink) {
 
-		//this.uplinkRouter = Objects.requireNonNull(uplinkRouter);
-		this.context = TypedActor.context();
+		this.uplink = Objects.requireNonNull(uplink);
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public class WebserverActorApiActor implements WebserverActorApi {
 		final AccountLoginRequest data = new AccountLoginRequest(accName, password);
 
 		try {
-			final Future<Object> future = Patterns.ask(uplinkRouter, data, REST_CALL_TIMEOUTS);
+			final Future<Object> future = Patterns.ask(uplink, data, REST_CALL_TIMEOUTS);
 			final AccountLoginRequest result = (AccountLoginRequest) Await.result(future,
 					REST_CALL_TIMEOUTS.duration());
 			return result;
@@ -70,15 +70,20 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 	@Override
 	public void setupWebsocketConnection(String sessionUid, WebSocketSession session) {
+
+		LOG.debug("Starting new client socket: {}.", sessionUid);
+
 		// Setup the actor to access the zone server cluster.
-		final String actorName = String.format("socket-%s", session.getId());
-		final Props messageHandlerProps = ClientMessageHandlerActor.props(session, mapper, uplinkRouter);
+		final String actorName = String.format("socket-%s", sessionUid);
+		final Props messageHandlerProps = ClientSocketActor.props(session, mapper, uplink);
 		final ActorRef messageActor = context.actorOf(messageHandlerProps, actorName);
 		openedSockets.put(sessionUid, messageActor);
 	}
 
 	@Override
 	public void closeWebsocketConnection(String sessionUid) {
+
+		LOG.debug("closeWebsocketConnection: {}.", sessionUid);
 
 		if (!openedSockets.containsKey(sessionUid)) {
 			LOG.warn("No opened connection with uid: {}", sessionUid);
@@ -108,7 +113,7 @@ public class WebserverActorApiActor implements WebserverActorApi {
 		final ChangePasswordRequest data = new ChangePasswordRequest(accName, oldPassword, newPassword);
 
 		try {
-			final Future<Object> future = Patterns.ask(uplinkRouter, data, REST_CALL_TIMEOUTS);
+			final Future<Object> future = Patterns.ask(uplink, data, REST_CALL_TIMEOUTS);
 			final Boolean result = (Boolean) Await.result(future, REST_CALL_TIMEOUTS.duration());
 			return result;
 		} catch (Exception e) {
@@ -123,7 +128,7 @@ public class WebserverActorApiActor implements WebserverActorApi {
 		LOG.debug("REST user name check: {}.", data);
 
 		try {
-			final Future<Object> future = Patterns.ask(uplinkRouter, data, REST_CALL_TIMEOUTS);
+			final Future<Object> future = Patterns.ask(uplink, data, REST_CALL_TIMEOUTS);
 			final UserNameCheck result = (UserNameCheck) Await.result(future, REST_CALL_TIMEOUTS.duration());
 			return result;
 		} catch (Exception e) {
@@ -140,7 +145,7 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 		try {
 			final ServerStatusMessage.Request req = new ServerStatusMessage.Request();
-			final Future<Object> future = Patterns.ask(uplinkRouter, req, REST_CALL_TIMEOUTS);
+			final Future<Object> future = Patterns.ask(uplink, req, REST_CALL_TIMEOUTS);
 			final ServerStatusMessage result = (ServerStatusMessage) Await.result(future,
 					REST_CALL_TIMEOUTS.duration());
 			return result;
@@ -152,11 +157,11 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 	@Override
 	public AccountRegistrationReply registerAccount(AccountRegistration registration) {
-		
+
 		LOG.debug("REST account registration requested.");
 
 		try {
-			final Future<Object> future = Patterns.ask(uplinkRouter, registration, REST_CALL_TIMEOUTS);
+			final Future<Object> future = Patterns.ask(uplink, registration, REST_CALL_TIMEOUTS);
 			final AccountRegistrationReply result = (AccountRegistrationReply) Await.result(future,
 					REST_CALL_TIMEOUTS.duration());
 			return result;

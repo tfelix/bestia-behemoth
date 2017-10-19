@@ -1,25 +1,16 @@
 package net.bestia.webserver.actor;
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
-import akka.actor.Address;
-import akka.actor.Cancellable;
 import akka.actor.Deploy;
 import akka.actor.Props;
 import akka.actor.Terminated;
-import akka.cluster.Cluster;
-import akka.cluster.ClusterEvent;
-import akka.cluster.ClusterEvent.MemberUp;
 import akka.cluster.client.ClusterClient;
 import akka.cluster.client.ClusterClientSettings;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
-import net.bestia.webserver.ClusterConnectionTerminated;
-import scala.concurrent.duration.Duration;
+import net.bestia.webserver.messages.web.ClusterConnectionTerminated;
 
 /**
  * This actor tries to re-establish connection with the bestia cluster. If the
@@ -34,13 +25,17 @@ public class ClusterConnectActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	private final ActorRef uplink;
+	private ActorRef uplink;
 
 	public ClusterConnectActor() {
 
+		createUplink();
+	}
+	
+	private void createUplink() {
+		LOG.info("Connecting to cluster.");
 		final ClusterClientSettings settings = ClusterClientSettings.create(getContext().getSystem());
 		uplink = getContext().actorOf(ClusterClient.props(settings), "uplink");
-
 		getContext().watch(uplink);
 	}
 
@@ -74,23 +69,8 @@ public class ClusterConnectActor extends AbstractActor {
 	 * @param msg
 	 */
 	private void handleConnectionLost(Terminated msg) {
+		LOG.info("Connection to cluster lost.");
 		getContext().parent().tell(new ClusterConnectionTerminated(), getSelf());
-	}
-
-	/**
-	 * Tries to connect to the cluster.
-	 */
-	public void connect() {
-
-		final List<Address> seedNodes = null;
-
-		if (seedNodes == null || seedNodes.isEmpty()) {
-			LOG.error("No seed cluster nodes found. Can not join the system. Retry.");
-			return;
-		}
-
-		LOG.info("Got seed nodes: {}.", seedNodes);
-		LOG.info("Attempting to joing the bestia cluster...");
-
+		createUplink();
 	}
 }

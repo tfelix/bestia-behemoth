@@ -30,6 +30,7 @@
 		<module>bestia-palantir</module>
 		<!-- Experimental modules -->
 		<module>bestia-messages-cluster</module>
+		<module>bestia-webserver-ex</module>
 	</modules>
 
 	<properties>
@@ -39,7 +40,7 @@
 		<findbugs.version>3.0.4</findbugs.version>
 		<spring.version>1.5.4.RELEASE</spring.version>
 		<hazelcast.version>3.7.4</hazelcast.version>	
-		<akka.version>2.5.3</akka.version>
+		<akka.version>2.5.6</akka.version>
 		<slf4j.version>1.7.25</slf4j.version>
 	</properties>
 
@@ -202,38 +203,38 @@
 
 			<dependency>
 				<groupId>com.typesafe.akka</groupId>
-				<artifactId>akka-actor_2.11</artifactId>
+				<artifactId>akka-actor_2.12</artifactId>
 				<version>${akka.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.typesafe.akka</groupId>
-				<artifactId>akka-persistence_2.11</artifactId>
+				<artifactId>akka-persistence_2.12</artifactId>
 				<version>${akka.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.typesafe.akka</groupId>
-				<artifactId>akka-cluster_2.11</artifactId>
+				<artifactId>akka-cluster_2.12</artifactId>
 				<version>${akka.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.typesafe.akka</groupId>
-				<artifactId>akka-cluster-sharding_2.11</artifactId>
+				<artifactId>akka-cluster-sharding_2.12</artifactId>
 				<version>${akka.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.typesafe.akka</groupId>
-				<artifactId>akka-slf4j_2.11</artifactId>
+				<artifactId>akka-slf4j_2.12</artifactId>
 				<version>${akka.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.typesafe.akka</groupId>
-				<artifactId>akka-cluster-tools_2.11</artifactId>
+				<artifactId>akka-cluster-tools_2.12</artifactId>
 				<version>${akka.version}</version>
 			</dependency>
 			<!-- https://mvnrepository.com/artifact/com.typesafe.akka/akka-testkit_2.11 -->
 			<dependency>
 				<groupId>com.typesafe.akka</groupId>
-				<artifactId>akka-testkit_2.11</artifactId>
+				<artifactId>akka-testkit_2.12</artifactId>
 				<version>${akka.version}</version>
 				<scope>test</scope>
 			</dependency>

@@ -8,16 +8,15 @@ import org.springframework.context.annotation.Configuration;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Deploy;
-import akka.actor.Props;
 import akka.actor.TypedActor;
 import akka.actor.TypedProps;
 import akka.japi.Creator;
-import net.bestia.webserver.actor.ClientSocketActor;
+import net.bestia.webserver.actor.ClusterConnectActor;
 import net.bestia.webserver.actor.WebserverActorApi;
 import net.bestia.webserver.actor.WebserverActorApiActor;
-import net.bestia.webserver.actor.WebserverRootActor;
 import net.bestia.webserver.service.ConfigurationService;
 
 /**
@@ -34,6 +33,8 @@ public class AkkaConfiguration {
 
 	private final static Logger LOG = LoggerFactory.getLogger(AkkaConfiguration.class);
 	private final static String AKKA_CONFIG_NAME = "akka";
+	
+	private ActorRef rootActor;
 
 	@Bean
 	public ActorSystem actorSystem(Config akkaConfig,
@@ -43,7 +44,7 @@ public class AkkaConfiguration {
 		final ActorSystem system = ActorSystem.create("webserver", akkaConfig);
 		
 		LOG.debug("Starting webserver root actor.");	
-		system.actorOf(WebserverRootActor.props(), "webserver");
+		rootActor = system.actorOf(ClusterConnectActor.props(), "clusterUplink");
 
 		return system;
 	}
@@ -65,7 +66,7 @@ public class AkkaConfiguration {
 
 									@Override
 									public WebserverActorApiActor create() throws Exception {
-										return new WebserverActorApiActor(null);
+										return new WebserverActorApiActor(rootActor);
 									}
 									
 								}).withDeploy(Deploy.local()),
