@@ -1,7 +1,7 @@
 package net.bestia.zoneserver.battle;
 
+import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,7 +11,7 @@ import net.bestia.model.domain.Element;
  * Returns the attack damage modifier for a given elemental set of the attacker
  * and defender. Since this class is immutable it is thread-safe.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public final class ElementModifier {
@@ -19,7 +19,7 @@ public final class ElementModifier {
 	/**
 	 * Wraps the creation of element keys to retrieve the element modifier.
 	 * 
-	 * @author Thomas Felix <thomas.felix@tfelix.de>
+	 * @author Thomas Felix
 	 *
 	 */
 	private static class ElementKey {
@@ -52,7 +52,7 @@ public final class ElementModifier {
 	 * means a multiplier factor of 1.00.
 	 */
 	private final static Map<ElementKey, Integer> elementMap = new HashMap<>();
-	private final static Set<Element> legalAttackElements = new HashSet<>();
+	private final static Set<Element> legalAttackElements = EnumSet.noneOf(Element.class);
 	static {
 		// Setup the elements.
 		// LEVEL 1
@@ -513,19 +513,26 @@ public final class ElementModifier {
 	}
 
 	/**
+	 * Dont instantiate this class. Use static accessor methods.
+	 */
+	private ElementModifier() {
+		// no op.
+	}
+
+	/**
 	 * Returns the damage modifier for a given attacker element and defender
-	 * element.
+	 * element. Attack element must always be of level 1.
 	 * 
 	 * @param attacker
 	 *            Element of the attacker.
 	 * @param defender
 	 *            Element of the defender.
-	 * @return
+	 * @return The damage modifier.
 	 */
 	public static int getModifier(Element attacker, Element defender) {
 
 		if (!legalAttackElements.contains(attacker)) {
-			throw new IllegalArgumentException("Attack element must be level 1.");
+			throw new IllegalArgumentException("Attack element must always be level 1.");
 		}
 
 		final ElementKey key = new ElementKey(attacker, defender);
@@ -533,9 +540,17 @@ public final class ElementModifier {
 	}
 
 	/**
-	 * Dont instantiate this class. Use static accessor methods.
+	 * Alias of {@link #getModifier(Element, Element)} but returns the value as
+	 * a float value (e.g. 1.25 instead of 125).
+	 * 
+	 * @param attacker
+	 *            Element of the attacker. Must be level 1 element.
+	 * @param defender
+	 *            Element of the defender.
+	 * @return The damage modifier.
 	 */
-	private ElementModifier() {
-		// no op.
+	public static float getModifierFloat(Element attacker, Element defender) {
+		return getModifierFloat(attacker, defender) / 100f;
 	}
+
 }

@@ -88,4 +88,18 @@ public interface Attack {
 	 * @return
 	 */
 	AttackType getType();
+
+	/**
+	 * @return TRUE if the attack is ranged or FALSE if its melee.
+	 */
+	default boolean isRanged() {
+		return getType() == AttackType.RANGED_MAGIC || getType() == AttackType.RANGED_PHYSICAL;
+	}
+	
+	/**
+	 * @return TRUE if the attack is magic or FALSE if its physical.
+	 */
+	default boolean isMagic() {
+		return getType() == AttackType.RANGED_MAGIC || getType() == AttackType.MELEE_MAGIC;
+	}
 }
