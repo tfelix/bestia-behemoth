@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import akka.actor.ActorContext;
 import akka.actor.ActorRef;
+import akka.actor.Deploy;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.TypedActor;
@@ -42,7 +43,7 @@ public class WebserverActorApiActor implements WebserverActorApi {
 	private final ActorContext context = TypedActor.context();
 	private final ObjectMapper mapper = new ObjectMapper();
 	private final Map<String, ActorRef> openedSockets = new HashMap<>();
-	
+
 	private final ActorRef uplink;
 
 	public WebserverActorApiActor(ActorRef uplink) {
@@ -75,7 +76,7 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 		// Setup the actor to access the zone server cluster.
 		final String actorName = String.format("socket-%s", sessionUid);
-		final Props messageHandlerProps = ClientSocketActor.props(session, mapper, uplink);
+		final Props messageHandlerProps = ClientSocketActor.props(session, mapper, uplink).withDeploy(Deploy.local());
 		final ActorRef messageActor = context.actorOf(messageHandlerProps, actorName);
 		openedSockets.put(sessionUid, messageActor);
 	}

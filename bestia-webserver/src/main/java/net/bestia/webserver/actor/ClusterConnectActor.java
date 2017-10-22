@@ -1,5 +1,7 @@
 package net.bestia.webserver.actor;
 
+import java.util.Objects;
+
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Deploy;
@@ -11,6 +13,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import net.bestia.webserver.messages.web.ClusterConnectionTerminated;
+import net.bestia.webserver.service.ConfigurationService;
 
 /**
  * This actor tries to re-establish connection with the bestia cluster. If the
@@ -26,9 +29,11 @@ public class ClusterConnectActor extends AbstractActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private ActorRef uplink;
+	private final ConfigurationService config;
 
-	public ClusterConnectActor() {
+	public ClusterConnectActor(ConfigurationService config) {
 
+		this.config = Objects.requireNonNull(config);
 		createUplink();
 	}
 	
@@ -37,6 +42,9 @@ public class ClusterConnectActor extends AbstractActor {
 		final ClusterClientSettings settings = ClusterClientSettings.create(getContext().getSystem());
 		uplink = getContext().actorOf(ClusterClient.props(settings), "uplink");
 		getContext().watch(uplink);
+		
+		// TODO das hier erst auf true setzen wenn die connection besteht.
+		config.setConnectedToCluster(true);
 	}
 
 	/**
@@ -46,12 +54,12 @@ public class ClusterConnectActor extends AbstractActor {
 	 * @param config
 	 * @return
 	 */
-	public static Props props() {
+	public static Props props(ConfigurationService config) {
 		return Props.create(new Creator<ClusterConnectActor>() {
 			private static final long serialVersionUID = 1L;
 
 			public ClusterConnectActor create() throws Exception {
-				return new ClusterConnectActor();
+				return new ClusterConnectActor(config);
 			}
 		}).withDeploy(Deploy.local());
 	}
@@ -60,9 +68,14 @@ public class ClusterConnectActor extends AbstractActor {
 	public Receive createReceive() {
 		return receiveBuilder()
 				.match(Terminated.class, this::handleConnectionLost)
+				.matchAny(this::handleAllMessages)
 				.build();
 	}
 
+	private void handleAllMessages(Object msg) {
+		uplink.tell(new ClusterClient.Send("/user/ingest", msg, true), getSender());
+	}
+	
 	/**
 	 * Notifiy parent about connection lost.
 	 * 

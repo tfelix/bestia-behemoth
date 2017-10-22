@@ -22,24 +22,21 @@ public class LoginAuthMessage extends JsonMessage {
 	public static final String MESSAGE_ID = "system.loginauth";
 
 	private final String token;
-	private final String browserAgent;
+	//private final String browserAgent;
 	
 	private LoginAuthMessage() {
 		super(0);
 
 		token = null;
-		browserAgent = null;
 	}
 
 
 	@JsonCreator
-	public LoginAuthMessage(long accountId,
-			@JsonProperty("token") String token, 
-			@JsonProperty("agent") String agent) {
+	public LoginAuthMessage(@JsonProperty("accId") long accountId,
+			@JsonProperty("token") String token) {
 		super(accountId);
 
 		this.token = Objects.requireNonNull(token);
-		this.browserAgent = Objects.requireNonNull(agent);
 	}
 
 	/**
@@ -64,12 +61,12 @@ public class LoginAuthMessage extends JsonMessage {
 	@Override
 	public LoginAuthMessage createNewInstance(long accountId) {
 
-		return new LoginAuthMessage(accountId, token, browserAgent);
+		return new LoginAuthMessage(accountId, token);
 	}
 
 	public LoginAuthMessage createNewInstance(String clientIp) {
 
-		return new LoginAuthMessage(getAccountId(), token, browserAgent);
+		return new LoginAuthMessage(getAccountId(), token);
 	}
 
 }

@@ -46,12 +46,6 @@ public class ClientSocketActor extends AbstractActor {
 
 	public ClientSocketActor(WebSocketSession session, ObjectMapper mapper, ActorRef uplink) {
 
-		// final ClusterClientSettings settings =
-		// ClusterClientSettings.create(getContext().getSystem());
-		// uplink = getContext().actorOf(ClusterClient.props(settings),
-		// "uplink");
-		// sendToUplink("FUCK YOU FROM CLIENT");
-
 		this.mapper = Objects.requireNonNull(mapper);
 		this.uplink = Objects.requireNonNull(uplink);
 		this.session = Objects.requireNonNull(session);
@@ -96,7 +90,7 @@ public class ClientSocketActor extends AbstractActor {
 				accountId,
 				ConnectionState.DISCONNECTED,
 				getSelf());
-		sendToUplink(ccsmsg);
+		uplink.tell(ccsmsg, getSelf());
 	}
 
 	private void handleUplinkClosed(Terminated t) {
@@ -132,13 +126,14 @@ public class ClientSocketActor extends AbstractActor {
 
 				// Send the LoginRequest to the cluster.
 				// Somehow centralize the names of the actors.
-				sendToUplink(loginReqMsg);
+				uplink.tell(loginReqMsg, getSelf());
 
 			} catch (IOException e) {
 				// Wrong message. Terminate connection.
 				LOG.warning("Client {} send wrong auth message. Payload was: {}.",
 						session.getRemoteAddress(),
-						payload);
+						payload,
+						e);
 				closeSocketConnection(CloseStatus.PROTOCOL_ERROR);
 			}
 		} else {
@@ -151,7 +146,7 @@ public class ClientSocketActor extends AbstractActor {
 				msg = msg.createNewInstance(accountId);
 
 				LOG.debug("Client sending: {}.", msg.toString());
-				sendToUplink(msg);
+				uplink.tell(msg, getSelf());
 
 			} catch (IOException e) {
 				LOG.warning("Malformed message. Client: {}, Payload: {}, Error: {}.",
@@ -190,10 +185,6 @@ public class ClientSocketActor extends AbstractActor {
 		}
 	}
 
-	private void sendToUplink(Object msg) {
-		uplink.tell(new ClusterClient.Send("/user/ingest", msg, true), getSelf());
-	}
-
 	private void sendToClient(AccountMessage message) {
 		// Send the payload to the client.
 		try {
@@ -211,12 +202,11 @@ public class ClientSocketActor extends AbstractActor {
 	}
 
 	private void closeSocketConnection(CloseStatus status) {
-		
-		LOG.debug("Closing connection to {}.", session.getRemoteAddress().toString());
 
 		// If the websocket session is still opened and we are terminated from
 		// the akka side, close it here.
 		if (session.isOpen()) {
+			LOG.debug("Closing connection to {}.", session.getRemoteAddress().toString());
 			try {
 				session.close(status);
 			} catch (IOException e1) {

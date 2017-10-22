@@ -33,7 +33,7 @@ public class AkkaConfiguration {
 
 	private final static Logger LOG = LoggerFactory.getLogger(AkkaConfiguration.class);
 	private final static String AKKA_CONFIG_NAME = "akka";
-	
+
 	private ActorRef rootActor;
 
 	@Bean
@@ -42,9 +42,9 @@ public class AkkaConfiguration {
 
 		LOG.debug("Starting actor system.");
 		final ActorSystem system = ActorSystem.create("webserver", akkaConfig);
-		
-		LOG.debug("Starting webserver root actor.");	
-		rootActor = system.actorOf(ClusterConnectActor.props(), "clusterUplink");
+
+		LOG.debug("Starting webserver root actor.");
+		rootActor = system.actorOf(ClusterConnectActor.props(serverConfig).withDeploy(Deploy.local()), "clusterUplink");
 
 		return system;
 	}
@@ -68,7 +68,7 @@ public class AkkaConfiguration {
 									public WebserverActorApiActor create() throws Exception {
 										return new WebserverActorApiActor(rootActor);
 									}
-									
+
 								}).withDeploy(Deploy.local()),
 						"loginWebActor");
 

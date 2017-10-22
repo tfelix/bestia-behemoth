@@ -58,8 +58,8 @@ public class BestiaSocketHandler extends TextWebSocketHandler {
 		}
 
 		final String sessionUid = UUID.randomUUID().toString();
-		actorApi.setupWebsocketConnection(sessionUid, session);
 		session.getAttributes().put(ATTRIBUTE_ACTOR_REF, sessionUid);
+		actorApi.setupWebsocketConnection(sessionUid, session);
 	}
 
 	@Override

@@ -49,8 +49,8 @@ public class LoginActorTest {
 
 	public LoginActorTest() {
 		
-		validAuthMsg = new LoginAuthMessage(ACC_ID, VALID_TOKEN, "");
-		invalidAuthMsg = new LoginAuthMessage(ACC_ID, INVALID_TOKEN, "");
+		validAuthMsg = new LoginAuthMessage(ACC_ID, VALID_TOKEN);
+		invalidAuthMsg = new LoginAuthMessage(ACC_ID, INVALID_TOKEN);
 	}
 
 	@BeforeClass
