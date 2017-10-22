@@ -224,6 +224,7 @@ public class IngestExActor extends AbstractActor {
 	 * to all subscribed actors.
 	 */
 	private void handleIncomingMessage(Object msg) {
+		
 		if (redirections.containsKey(msg.getClass())) {
 
 			final List<ActorRef> routees = redirections.get(msg.getClass());

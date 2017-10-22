@@ -55,13 +55,7 @@ public class ZoneStarter implements CommandLineRunner {
 		
 		registerSingeltons();
 		
-		// Das hier evtl noch in den RootActor packen?
-		ActorRef ingest = system.actorOf(Props.create(IngestActor.class), "ingest");
-		ClusterClientReceptionist.get(system).registerService(ingest);
-		
-		ingest.tell("Local Message.", ActorRef.noSender());
-		
-		SpringExtension.actorOf(system, BestiaRootActor.class);
+		final ActorRef rootActor = SpringExtension.actorOf(system, BestiaRootActor.class);		
 
 		// Trigger the startup script.
 		scriptService.callScript("startup");

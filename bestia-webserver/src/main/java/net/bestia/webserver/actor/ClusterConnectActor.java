@@ -73,7 +73,7 @@ public class ClusterConnectActor extends AbstractActor {
 	}
 
 	private void handleAllMessages(Object msg) {
-		uplink.tell(new ClusterClient.Send("/user/ingest", msg, true), getSender());
+		uplink.tell(new ClusterClient.Send("/user/bestia/ingest", msg, true), getSender());
 	}
 	
 	/**

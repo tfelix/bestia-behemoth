@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.cluster.client.ClusterClientReceptionist;
+import net.bestia.messages.internal.ClientMessageWrapper;
+import net.bestia.zoneserver.actor.zone.IngestActor;
 import net.bestia.zoneserver.actor.zone.IngestExActor;
 import net.bestia.zoneserver.actor.zone.MemDbHeartbeatActor;
 import net.bestia.zoneserver.actor.zone.ZoneClusterListenerActor;
@@ -21,11 +23,16 @@ import net.bestia.zoneserver.actor.zone.ZoneClusterListenerActor;
 public class BestiaRootActor extends AbstractActor {
 
 	public final static String NAME = "bestia";
+	
+	private final ActorRef mainMsgHandler;
 
 	public BestiaRootActor() {
-
-		final ActorRef ingest = SpringExtension.actorOf(getContext(), IngestExActor.class);
+		
+		// Das hier evtl noch in den RootActor packen?
+		final ActorRef ingest = SpringExtension.actorOf(getContext(), IngestActor.class);
 		ClusterClientReceptionist.get(getContext().getSystem()).registerService(ingest);
+
+		mainMsgHandler = SpringExtension.actorOf(getContext(), IngestExActor.class);
 
 		// System actors.
 		SpringExtension.actorOf(getContext(), ZoneClusterListenerActor.class);
@@ -39,6 +46,12 @@ public class BestiaRootActor extends AbstractActor {
 
 	@Override
 	public Receive createReceive() {
-		return receiveBuilder().build();
+		return receiveBuilder()
+				.match(ClientMessageWrapper.class, this::handleClientMessage)
+				.build();
+	}
+	
+	private void handleClientMessage(ClientMessageWrapper msg) {
+		mainMsgHandler.tell(msg.getPayload(), getSender());
 	}
 }
