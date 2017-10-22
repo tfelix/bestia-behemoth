@@ -1,19 +1,13 @@
 package net.bestia.webserver.actor;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.WebSocketSession;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import akka.actor.ActorContext;
 import akka.actor.ActorRef;
-import akka.actor.Deploy;
-import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.TypedActor;
 import akka.pattern.Patterns;
@@ -25,6 +19,9 @@ import net.bestia.messages.account.ChangePasswordRequest;
 import net.bestia.messages.account.ServerStatusMessage;
 import net.bestia.messages.account.UserNameCheck;
 import net.bestia.webserver.exceptions.WrongCredentialsException;
+import net.bestia.webserver.messages.web.ClientPayloadMessage;
+import net.bestia.webserver.messages.web.CloseConnection;
+import net.bestia.webserver.messages.web.PrepareConnection;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -41,14 +38,16 @@ public class WebserverActorApiActor implements WebserverActorApi {
 	private final static Timeout REST_CALL_TIMEOUTS = new Timeout(Duration.create(5, "seconds"));
 
 	private final ActorContext context = TypedActor.context();
-	private final ObjectMapper mapper = new ObjectMapper();
-	private final Map<String, ActorRef> openedSockets = new HashMap<>();
-
+	
+	private final ActorRef connections;
 	private final ActorRef uplink;
 
 	public WebserverActorApiActor(ActorRef uplink) {
 
 		this.uplink = Objects.requireNonNull(uplink);
+		
+		final Props connectionProps = ConnectionHandshakeActor.props(uplink);
+		this.connections = context.actorOf(connectionProps, "connections");
 	}
 
 	@Override
@@ -73,36 +72,26 @@ public class WebserverActorApiActor implements WebserverActorApi {
 	public void setupWebsocketConnection(String sessionUid, WebSocketSession session) {
 
 		LOG.debug("Starting new client socket: {}.", sessionUid);
-
-		// Setup the actor to access the zone server cluster.
-		final String actorName = String.format("socket-%s", sessionUid);
-		final Props messageHandlerProps = ClientSocketActor.props(session, mapper, uplink).withDeploy(Deploy.local());
-		final ActorRef messageActor = context.actorOf(messageHandlerProps, actorName);
-		openedSockets.put(sessionUid, messageActor);
+		
+		PrepareConnection prepCon = new PrepareConnection(sessionUid, session);
+		connections.tell(prepCon, ActorRef.noSender());
 	}
 
 	@Override
 	public void closeWebsocketConnection(String sessionUid) {
 
 		LOG.debug("closeWebsocketConnection: {}.", sessionUid);
-
-		if (!openedSockets.containsKey(sessionUid)) {
-			LOG.warn("No opened connection with uid: {}", sessionUid);
-			return;
-		}
-
-		openedSockets.get(sessionUid).tell(PoisonPill.getInstance(), ActorRef.noSender());
-		openedSockets.remove(sessionUid);
+		
+		final CloseConnection closeMsg = new CloseConnection(sessionUid);
+		connections.tell(closeMsg, ActorRef.noSender());
 	}
 
 	@Override
 	public void handleClientMessage(String sessionUid, String payload) {
-		if (!openedSockets.containsKey(sessionUid)) {
-			LOG.warn("No opened connection with uid: {}", sessionUid);
-			return;
-		}
+		
+		final ClientPayloadMessage clientMsg = new ClientPayloadMessage(sessionUid, payload);
+		connections.tell(clientMsg, ActorRef.noSender());
 
-		openedSockets.get(sessionUid).tell(payload, ActorRef.noSender());
 	}
 
 	@Override
