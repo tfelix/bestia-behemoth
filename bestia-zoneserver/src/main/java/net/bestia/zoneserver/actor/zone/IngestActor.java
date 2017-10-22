@@ -9,20 +9,22 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.internal.ClientMessageWrapper;
 
 /**
- * Central ingestion point for web clients.
- * @author Thomas
+ * Central ingestion point for web clients. The incoming messages are wrapped
+ * and send to the parent actor.
+ * 
+ * @author Thomas Felix
  *
  */
 @Component
 @Scope("prototype")
 public class IngestActor extends AbstractActor {
-	
+
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
-	
+
 	public static final String NAME = "ingest";
-	
+
 	public IngestActor() {
-		
+
 	}
 
 	@Override

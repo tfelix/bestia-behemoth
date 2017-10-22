@@ -15,7 +15,7 @@ import net.bestia.model.domain.PlayerBestia;
  * itself can be null inside this message to save bandwidth if only status value
  * have changed.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class BestiaInfoMessage extends EntityJsonMessage {

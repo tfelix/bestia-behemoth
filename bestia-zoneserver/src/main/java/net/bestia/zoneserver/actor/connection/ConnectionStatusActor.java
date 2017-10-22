@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import net.bestia.messages.internal.ClientConnectionStatusMessage;
 import net.bestia.messages.internal.ClientConnectionStatusMessage.ConnectionState;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
@@ -27,11 +28,13 @@ public class ConnectionStatusActor extends AbstractActor {
 	public static final String NAME = "logout";
 
 	private final LoginService loginService;
+	private final ActorRef messageHub;
 
 	@Autowired
-	public ConnectionStatusActor(LoginService loginService) {
+	public ConnectionStatusActor(LoginService loginService, ActorRef msgHub) {
 
 		this.loginService = Objects.requireNonNull(loginService);
+		this.messageHub = Objects.requireNonNull(msgHub);
 	}
 
 	@Override
@@ -47,9 +50,8 @@ public class ConnectionStatusActor extends AbstractActor {
 		context().parent().tell(msg, getSelf());
 	}
 
-	private void onConnectionStateChanged(ClientConnectionStatusMessage msg) {
-		final ClientConnectionStatusMessage ccmsg = (ClientConnectionStatusMessage) msg;
-
+	private void onConnectionStateChanged(ClientConnectionStatusMessage ccmsg) {
+		
 		if (ccmsg.getState() == ConnectionState.CONNECTED) {
 			// TODO Spawn all player entities. Do this logic here not in the
 			// login service anymore.
@@ -57,6 +59,9 @@ public class ConnectionStatusActor extends AbstractActor {
 			// Unregister.
 			loginService.logout(ccmsg.getAccountId());
 		}
+		
+		// In both cased send the message towards the connection actor.
+		messageHub.tell(ccmsg, getSelf());
 	}
 
 }

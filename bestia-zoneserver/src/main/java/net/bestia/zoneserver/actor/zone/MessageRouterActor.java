@@ -1,15 +1,15 @@
 package net.bestia.zoneserver.actor.zone;
 
-import java.util.Objects;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.cluster.sharding.ClusterSharding;
 import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
+import net.bestia.server.EntryActorNames;
 
 /**
  * Central message control hub. Incoming messages are deliverd to clients or
@@ -24,14 +24,15 @@ public class MessageRouterActor extends AbstractActor {
 	
 	public static final String NAME = "messageRouter";
 	
-	private ActorRef entities;
-	private ActorRef clients;
+	private final ActorRef entities;
+	private final ActorRef clients;
 
 	@Autowired
-	public MessageRouterActor(ActorRef shardEntities, ActorRef shardClients) {
+	public MessageRouterActor() {
 
-		this.entities = Objects.requireNonNull(shardEntities);
-		this.clients = Objects.requireNonNull(shardClients);
+		final ClusterSharding sharding = ClusterSharding.get(getContext().getSystem());
+		this.entities = sharding.shardRegion(EntryActorNames.SHARD_ENTITY);
+		this.clients = sharding.shardRegion(EntryActorNames.SHARD_CONNECTION);
 	}
 
 	@Override

@@ -8,22 +8,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.PoisonPill;
 import akka.actor.Props;
-import akka.cluster.client.ClusterClientReceptionist;
 import akka.cluster.sharding.ClusterSharding;
 import akka.cluster.sharding.ClusterShardingSettings;
 import akka.cluster.singleton.ClusterSingletonManager;
 import akka.cluster.singleton.ClusterSingletonManagerSettings;
 import net.bestia.server.EntryActorNames;
 import net.bestia.zoneserver.actor.BestiaRootActor;
+import net.bestia.zoneserver.actor.ConnectionShardMessageExtractor;
 import net.bestia.zoneserver.actor.EntityShardMessageExtractor;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.connection.ClientConnectionActor;
 import net.bestia.zoneserver.actor.entity.EntityActor;
 import net.bestia.zoneserver.actor.zone.ClusterControlActor;
-import net.bestia.zoneserver.actor.zone.IngestActor;
 import net.bestia.zoneserver.script.ScriptService;
 
 /**
@@ -55,7 +54,7 @@ public class ZoneStarter implements CommandLineRunner {
 		
 		registerSingeltons();
 		
-		final ActorRef rootActor = SpringExtension.actorOf(system, BestiaRootActor.class);		
+		SpringExtension.actorOf(system, BestiaRootActor.class);		
 
 		// Trigger the startup script.
 		scriptService.callScript("startup");
@@ -76,10 +75,17 @@ public class ZoneStarter implements CommandLineRunner {
 
 	private void registerShardedActors() {
 		LOG.info("Register the sharded actor.");
+		
+		// Entity sharding.
 		final ClusterShardingSettings settings = ClusterShardingSettings.create(system);
 		final ClusterSharding sharding = ClusterSharding.get(system);
-		final Props props = SpringExtension.getSpringProps(system, EntityActor.class);
-		final EntityShardMessageExtractor extractor = new EntityShardMessageExtractor();
-		sharding.start(EntryActorNames.SHARD_ENTITY, props, settings, extractor);
+		final Props entityProps = SpringExtension.getSpringProps(system, EntityActor.class);
+		final EntityShardMessageExtractor entityExtractor = new EntityShardMessageExtractor();
+		sharding.start(EntryActorNames.SHARD_ENTITY, entityProps, settings, entityExtractor);
+		
+		// Connection sharding.
+		final Props connectionProps = SpringExtension.getSpringProps(system, ClientConnectionActor.class);
+		final ConnectionShardMessageExtractor connectionExtractor = new ConnectionShardMessageExtractor();
+		sharding.start(EntryActorNames.SHARD_CONNECTION, connectionProps, settings, connectionExtractor);
 	}
 }

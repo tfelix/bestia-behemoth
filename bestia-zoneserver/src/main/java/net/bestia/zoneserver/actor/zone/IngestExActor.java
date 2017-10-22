@@ -14,18 +14,15 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
-import akka.cluster.sharding.ClusterSharding;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.ComponentMessage;
-import net.bestia.server.EntryActorNames;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.ZoneMessageApi;
 import net.bestia.zoneserver.actor.battle.AttackUseActor;
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
-import net.bestia.zoneserver.actor.connection.ConnectionManagerActor;
 import net.bestia.zoneserver.actor.connection.ConnectionStatusActor;
 import net.bestia.zoneserver.actor.connection.LatencyManagerActor;
 import net.bestia.zoneserver.actor.connection.LoginAuthActor;
@@ -101,10 +98,7 @@ public class IngestExActor extends AbstractActor {
 
 	private Map<Class<?>, List<ActorRef>> redirections = new HashMap<>();
 
-	private ActorRef componentRedirActor;
-
-	private final ActorRef shardConnections;
-	private final ActorRef shardEntities;
+	private final ActorRef componentRedirActor;
 	private final ActorRef messageHub;
 
 	@Autowired
@@ -113,19 +107,16 @@ public class IngestExActor extends AbstractActor {
 		// Setup the internal sub-actors of the ingest actor first.
 		componentRedirActor = SpringExtension.actorOf(getContext(), ComponentRedirectionActor.class);
 
-		final ClusterSharding sharding = ClusterSharding.get(getContext().getSystem());
-		shardEntities = sharding.shardRegion(EntryActorNames.SHARD_ENTITY);
-
 		// === Connection & Login ===
-		shardConnections = SpringExtension.actorOf(getContext(), ConnectionManagerActor.class);
-		messageHub = SpringExtension.actorOf(getContext(), MessageRouterActor.class, shardEntities, shardConnections);
+		messageHub = SpringExtension.actorOf(getContext(), MessageRouterActor.class);
 		
 		// Setup the messaging system.
 		akkaMsgApi.setMessageEntry(messageHub);
 		
+		// === Login and connection ===
 		SpringExtension.actorOf(getContext(), LatencyManagerActor.class);
 		SpringExtension.actorOf(getContext(), LoginAuthActor.class);
-		SpringExtension.actorOf(getContext(), ConnectionStatusActor.class);
+		SpringExtension.actorOf(getContext(), ConnectionStatusActor.class, messageHub);
 
 		// === Bestias ===
 		SpringExtension.actorOf(getContext(), BestiaInfoActor.class, messageHub);
