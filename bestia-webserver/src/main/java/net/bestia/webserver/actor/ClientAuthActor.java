@@ -20,6 +20,7 @@ import akka.japi.Creator;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
+import net.bestia.webserver.messages.web.ClientPayloadMessage;
 import net.bestia.webserver.messages.web.ZoneConnectionAccepted;
 import scala.concurrent.duration.Duration;
 
@@ -32,7 +33,7 @@ import scala.concurrent.duration.Duration;
  */
 public class ClientAuthActor extends BaseSocketActor {
 
-	final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	protected static final String TICK_MSG = "net.bestia.TICK_MSG";
 	private Cancellable ticker = getContext().system()
@@ -49,7 +50,10 @@ public class ClientAuthActor extends BaseSocketActor {
 	 */
 	private boolean dontCloseSocket = false;
 
-	public ClientAuthActor(String uid, WebSocketSession session, ObjectMapper mapper, ActorRef uplink) {
+	public ClientAuthActor(String uid,
+			WebSocketSession session,
+			ObjectMapper mapper,
+			ActorRef uplink) {
 		super(uplink, mapper, session);
 
 		this.uid = Objects.requireNonNull(uid);
@@ -69,15 +73,15 @@ public class ClientAuthActor extends BaseSocketActor {
 	public Receive createReceive() {
 		return receiveBuilder()
 				.match(LoginAuthReplyMessage.class, this::handleLoginAuth)
-				.match(String.class, this::handleClientPayload)
+				.match(ClientPayloadMessage.class, this::handleClientPayload)
 				.build();
 	}
 
 	@Override
 	public void postStop() throws Exception {
-		
+
 		ticker.cancel();
-		
+
 		// If the websocket session is still opened and we are terminated from
 		// the akka side, close it here.
 		if (session.isOpen() && !dontCloseSocket) {
@@ -97,12 +101,12 @@ public class ClientAuthActor extends BaseSocketActor {
 	 *            Payload data from the client.
 	 * @throws IOException
 	 */
-	protected void handleClientPayload(String payload) throws IOException {
+	protected void handleClientPayload(ClientPayloadMessage payload) throws IOException {
 		// We only accept auth messages if we are not connected. Every other
 		// message will disconnect the client.
-
 		try {
-			final LoginAuthMessage loginReqMsg = mapper.readValue(payload, LoginAuthMessage.class);
+			
+			final LoginAuthMessage loginReqMsg = mapper.readValue(payload.getMessage(), LoginAuthMessage.class);
 			// Send the LoginRequest to the cluster.
 			uplink.tell(loginReqMsg, getSelf());
 

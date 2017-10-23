@@ -1,38 +1,36 @@
 package net.bestia.webserver.actor;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Deploy;
-import akka.actor.PoisonPill;
 import akka.actor.Props;
 import akka.actor.Terminated;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
 import akka.japi.Creator;
-import net.bestia.webserver.messages.web.ClientPayloadMessage;
-import net.bestia.webserver.messages.web.CloseConnection;
 import net.bestia.webserver.messages.web.PrepareConnection;
+import net.bestia.webserver.messages.web.SocketMessage;
 import net.bestia.webserver.messages.web.ZoneConnectionAccepted;
 
 public class ConnectionHandshakeActor extends AbstractActor {
 
-	private ActorRef uplink;
+	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+
+	private final ActorRef uplink;
 	private final ObjectMapper mapper = new ObjectMapper();
-
-	private final Map<String, ActorRef> uidToActorAuth = new HashMap<>();
-	private final Map<ActorRef, String> actorToUidAuth = new HashMap<>();
-
-	private final Map<String, ActorRef> uidToActor = new HashMap<>();
-	private final Map<ActorRef, String> actorToUid = new HashMap<>();
+	private final BiMap<String, ActorRef> pendingConnections = HashBiMap.create();
+	private final ActorRef connectionsActor;
 
 	private ConnectionHandshakeActor(ActorRef uplink) {
 
 		this.uplink = Objects.requireNonNull(uplink);
+		this.connectionsActor = getContext().actorOf(ConnectionsActor.props(uplink), "openedConnections");
 	}
 
 	public static Props props(ActorRef uplink) {
@@ -50,101 +48,54 @@ public class ConnectionHandshakeActor extends AbstractActor {
 		return receiveBuilder()
 				.match(PrepareConnection.class, this::handlePrepareConnection)
 				.match(ZoneConnectionAccepted.class, this::handleAcceptedConnection)
-				.match(CloseConnection.class, this::handleClientSocketClosed)
-				.match(ClientPayloadMessage.class, this::handleClientPayloadMessage)
+				.match(SocketMessage.class, this::redirectMessage)
 				.match(Terminated.class, this::handleClosedConnection)
 				.build();
 	}
-
-	private void handleClientPayloadMessage(ClientPayloadMessage msg) {
-
-		ActorRef actor = uidToActor.get(msg.getUid());
-
-		if (actor != null) {
-			actor.tell(msg.getMessage(), getSelf());
-			return;
-		}
-
-		// Try to send to auth actor.
-		actor = uidToActorAuth.get(msg.getUid());
-
-		if (actor != null) {
-			actor.tell(msg.getMessage(), getSelf());
-		}
-	}
-
-	private void handleClientSocketClosed(CloseConnection msg) {
-
-		// get the mapped uid.
-		String actorUid = uidMapper.get(msg.getUid());
-		
-		if(actorUid == null) {
-			return;
-		}
-		
-		ActorRef actor = uidToActor.get(actorUid);
-
-		if (actor != null) {
-			actor.tell(PoisonPill.getInstance(), getSelf());
-		}
-
-		actor = uidToActorAuth.get(actorUid);
-
-		if (actor != null) {
-			actor.tell(PoisonPill.getInstance(), getSelf());
+	
+	private void redirectMessage(SocketMessage msg) {
+		if (pendingConnections.containsKey(msg.getSessionId())) {
+			pendingConnections.get(msg.getSessionId()).tell(msg, getSelf());
+		} else {
+			connectionsActor.tell(msg, getSelf());
 		}
 	}
 
 	private void handleClosedConnection(Terminated msg) {
-		
-		
 
 		// Check if this is an auth actor.
-		String uid = actorToUidAuth.get(msg.actor());
-		actorToUidAuth.remove(msg.actor());
-		if (uid != null) {
-			uidToActorAuth.remove(uid);
-		}
+		LOG.debug("Killing connection actor: {}", msg.actor());
+		pendingConnections.inverse().remove(msg.actor());
 
-		uid = actorToUid.get(msg.actor());
-		actorToUid.remove(msg.actor());
-		if (uid != null) {
-			uidToActor.remove(uid);
-		}
 	}
 
 	private void handlePrepareConnection(PrepareConnection msg) {
-		
 
-		final String actorName = String.format("socket-auth-%s", actorUid);
+		// Depending from which the message originated we will interpret this
+		// message as a start authentication or open the connection.
+		if (pendingConnections.inverse().containsKey(getSender())) {
+			// Message is from a pending connection. We will forward message to
+			// open the connection.
+			connectionsActor.tell(msg, getSelf());
+			pendingConnections.inverse().remove(getSender());
+		} else {
+			final String actorName = String.format("socket-auth-%s", msg.getSessionId());
 
-		final Props socketProps = ClientAuthActor.props(msg.getSessionId(), msg.getSession(), mapper, uplink);
-		final ActorRef socketActor = getContext().actorOf(socketProps, actorName);
+			final Props socketProps = ClientAuthActor.props(msg.getSessionId(), msg.getSession(), mapper, uplink);
+			final ActorRef socketActor = getContext().actorOf(socketProps, actorName);
+			
+			getContext().watch(socketActor);
 
-		uidToActorAuth.put(actorUid, socketActor);
-		actorToUidAuth.put(socketActor, actorUid);
+			pendingConnections.put(msg.getSessionId(), socketActor);
+		}
 	}
 
 	/**
-	 * Server accepted connection.
+	 * Server accepted connection. Forward to open the connection.
 	 * 
 	 * @param msg
 	 */
 	private void handleAcceptedConnection(ZoneConnectionAccepted msg) {
-		
-		String actorUid = UUID.randomUUID().toString();
-		uidMapper.put(msg.getUid(), actorUid);
-
-		final String actorName = String.format("socket-%s", msg.getUid());
-
-		final Props socketProps = ClientSocketActor.props(msg,
-				mapper,
-				uplink).withDeploy(Deploy.local());
-		final ActorRef socketActor = getContext().actorOf(socketProps, actorName);
-		actorToUid.put(socketActor, msg.getUid());
-		uidToActor.put(msg.getUid(), socketActor);
-
-		// Tell the client login was succesful.
-		socketActor.tell(msg.getLoginMessage(), getSelf());
+		connectionsActor.tell(msg, getSelf());
 	}
 }

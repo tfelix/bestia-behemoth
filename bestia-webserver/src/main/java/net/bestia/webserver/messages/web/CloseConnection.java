@@ -2,7 +2,7 @@ package net.bestia.webserver.messages.web;
 
 import java.util.Objects;
 
-public class CloseConnection {
+public class CloseConnection implements SocketMessage {
 	
 	private final String uid;
 	
@@ -10,8 +10,9 @@ public class CloseConnection {
 		
 		this.uid = Objects.requireNonNull(uid);
 	}
-	
-	public String getUid() {
+
+	@Override
+	public String getSessionId() {
 		return uid;
 	}
 }

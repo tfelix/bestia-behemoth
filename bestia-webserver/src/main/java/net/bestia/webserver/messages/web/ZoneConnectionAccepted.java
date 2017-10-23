@@ -6,7 +6,7 @@ import org.springframework.web.socket.WebSocketSession;
 
 import net.bestia.messages.login.LoginAuthReplyMessage;
 
-public class ZoneConnectionAccepted {
+public class ZoneConnectionAccepted implements SocketMessage {
 
 	private final LoginAuthReplyMessage loginMessage;
 	private final WebSocketSession session;
@@ -27,7 +27,8 @@ public class ZoneConnectionAccepted {
 		return session;
 	}
 
-	public String getUid() {
+	@Override
+	public String getSessionId() {
 		return uid;
 	}
 }

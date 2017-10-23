@@ -21,7 +21,7 @@ import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LogoutMessage;
 import net.bestia.webserver.messages.web.ZoneConnectionAccepted;
 
-public class ClientSocketActor extends BaseSocketActor {
+public class ClientActor extends BaseSocketActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
@@ -33,7 +33,7 @@ public class ClientSocketActor extends BaseSocketActor {
 
 	private LoginAuthReplyMessage loginReply;
 
-	public ClientSocketActor(ZoneConnectionAccepted zoneConnection, ObjectMapper mapper, ActorRef uplink) {
+	public ClientActor(ZoneConnectionAccepted zoneConnection, ObjectMapper mapper, ActorRef uplink) {
 		super(uplink, mapper, zoneConnection.getSession());
 
 		this.accountId = zoneConnection.getLoginMessage().getAccountId();
@@ -46,11 +46,11 @@ public class ClientSocketActor extends BaseSocketActor {
 	}
 
 	public static Props props(ZoneConnectionAccepted zoneConnection, ObjectMapper mapper, ActorRef uplink) {
-		return Props.create(new Creator<ClientSocketActor>() {
+		return Props.create(new Creator<ClientActor>() {
 			private static final long serialVersionUID = 1L;
 
-			public ClientSocketActor create() throws Exception {
-				return new ClientSocketActor(zoneConnection, mapper, uplink);
+			public ClientActor create() throws Exception {
+				return new ClientActor(zoneConnection, mapper, uplink);
 			}
 		}).withDeploy(Deploy.local());
 	}

@@ -2,7 +2,14 @@ package net.bestia.webserver.messages.web;
 
 import java.util.Objects;
 
-public class ClientPayloadMessage {
+/**
+ * Message from a client. Directed towards the server. Must be de-serialized by
+ * the socket actor.
+ * 
+ * @author Thomas Felix
+ *
+ */
+public class ClientPayloadMessage implements SocketMessage {
 
 	private final String uid;
 	private final String message;
@@ -13,11 +20,12 @@ public class ClientPayloadMessage {
 		this.message = Objects.requireNonNull(message);
 	}
 
-	public String getUid() {
-		return uid;
-	}
-
 	public String getMessage() {
 		return message;
+	}
+
+	@Override
+	public String getSessionId() {
+		return uid;
 	}
 }
