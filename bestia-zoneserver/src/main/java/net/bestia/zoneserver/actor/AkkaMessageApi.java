@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import akka.actor.ActorRef;
 import net.bestia.messages.EntityJsonMessage;
+import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
-import net.bestia.messages.internal.entity.EntityEnvelope;
 
 public class AkkaMessageApi implements ZoneMessageApi {
 	
@@ -27,11 +27,9 @@ public class AkkaMessageApi implements ZoneMessageApi {
 	}
 
 	@Override
-	public void sendToEntity(long entityId, Object msg) {
-		LOG.debug("sendToEntity: id: {}, msg: {}", entityId, msg);
-		
-		final EntityEnvelope env = new EntityEnvelope(entityId, msg);
-		msgRouter.tell(env, ActorRef.noSender());
+	public void sendToEntity(EntityMessage msg) {
+		LOG.debug("sendToEntity: {}", msg);
+		msgRouter.tell(msg, ActorRef.noSender());
 	}
 
 	/**
@@ -41,6 +39,7 @@ public class AkkaMessageApi implements ZoneMessageApi {
 	 * @param msgRouter
 	 *            The actor ref to the messaging actor.
 	 */
+	@Override
 	public void setMessageEntry(ActorRef msgRouter) {
 		this.msgRouter = msgRouter;
 	}

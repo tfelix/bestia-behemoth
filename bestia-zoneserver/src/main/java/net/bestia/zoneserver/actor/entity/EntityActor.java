@@ -1,12 +1,13 @@
 package net.bestia.zoneserver.actor.entity;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
@@ -15,7 +16,8 @@ import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.entity.component.EntityComponentActorFactory;
-import net.bestia.messages.internal.entity.ComponentPayloadWrapper;
+import net.bestia.messages.EntityMessage;
+import net.bestia.messages.internal.entity.ComponentEnvelope;
 import net.bestia.messages.internal.entity.EntityComponentMessage;
 import net.bestia.messages.internal.entity.EntityComponentMessage.ComponentState;
 
@@ -40,9 +42,8 @@ public class EntityActor extends AbstractActor {
 	/**
 	 * Saves the references for the actors managing components.
 	 */
-	private Map<Long, ActorRef> actorsByComponentId = new HashMap<>();
-	private Map<ActorRef, Long> componentIdsByActor = new HashMap<>();
-	
+	private BiMap<Long, ActorRef> componentActors = HashBiMap.create();
+
 	private long entityId;
 
 	@Autowired
@@ -54,34 +55,28 @@ public class EntityActor extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(Long.class, this::handleEntityIdStart)
 				.match(EntityComponentMessage.class, this::handleComponentMessage)
-				.match(ComponentPayloadWrapper.class, this::handleComponentPayload)
+				.match(ComponentEnvelope.class, this::handleComponentPayload)
 				.match(Terminated.class, this::handleTerminated)
 				.build();
-	}
-
-	private void handleEntityIdStart(Long entityId) {
-		LOG.debug("Started for entity: {}.", entityId);
-		
-		this.entityId = entityId;
 	}
 
 	/**
 	 * Checks if we have such a associated component and if so delivers the
 	 * message.
 	 */
-	private void handleComponentPayload(ComponentPayloadWrapper msg) {
+	private void handleComponentPayload(ComponentEnvelope msg) {
+		checkStartup(msg);
 
 		final long compId = msg.getComponentId();
 
-		if (!actorsByComponentId.containsKey(compId)) {
+		if (!componentActors.containsKey(compId)) {
 			LOG.debug("Component message unhandled: {}.", msg);
 			unhandled(msg);
 			return;
 		}
 
-		final ActorRef compActor = actorsByComponentId.get(compId);
+		final ActorRef compActor = componentActors.get(compId);
 		LOG.debug("Forwarding comp message: {} to: {}.", msg, compActor);
 		compActor.tell(msg.getPayload(), getSelf());
 	}
@@ -92,36 +87,36 @@ public class EntityActor extends AbstractActor {
 	 * @param msg
 	 */
 	private void handleComponentMessage(EntityComponentMessage msg) {
+		checkStartup(msg);
 
 		if (msg.getState() == ComponentState.INSTALL) {
-			LOG.debug("Installing component: {} on entity: {}.", msg.getComponentId(), entityId);
-
-			// Install the component.
-			final ActorRef compActor = factory.startActor(getContext(), msg.getComponentId());
-
-			if (compActor == null) {
-				LOG.warning("Component actor for comp id {} was not created.", msg.getComponentId());
-				return;
-			}
-
-			context().watch(compActor);
-
-			actorsByComponentId.put(msg.getComponentId(), compActor);
-			componentIdsByActor.put(compActor, msg.getComponentId());
-
+			installComponent(msg.getComponentId());
 		} else {
-			LOG.debug("Removing component: {} on entity: {}.", msg.getComponentId(), entityId);
-
-			// Remove the component.
-			final ActorRef compRef = actorsByComponentId.get(msg.getComponentId());
-
-			if (compRef == null) {
-				LOG.debug("Actor for component {} not found.", msg.getComponentId());
-				return;
-			}
-
-			compRef.tell(PoisonPill.getInstance(), getSelf());
+			removeComponent(msg.getComponentId());
 		}
+	}
+
+	private void installComponent(long componentId) {
+		LOG.debug("Installing component: {} on entity: {}.", componentId, entityId);
+
+		// Install the component.
+		final ActorRef compActor = factory.startActor(getContext(), componentId);
+
+		if (compActor == null) {
+			LOG.warning("Component actor for comp id {} was not created.", componentId);
+			return;
+		}
+
+		context().watch(compActor);
+		componentActors.put(componentId, compActor);
+	}
+
+	private void removeComponent(long componentId) {
+		LOG.debug("Removing component: {} on entity: {}.", componentId, entityId);
+
+		// Remove the component.
+		final ActorRef compRef = componentActors.getOrDefault(componentId, ActorRef.noSender());
+		compRef.tell(PoisonPill.getInstance(), getSelf());
 	}
 
 	/**
@@ -132,10 +127,15 @@ public class EntityActor extends AbstractActor {
 	 */
 	private void handleTerminated(Terminated term) {
 
-		final ActorRef termActor = term.actor();
-		final long compId = componentIdsByActor.get(termActor);
+		componentActors.inverse().remove(term.actor());
+	}
 
-		componentIdsByActor.remove(termActor);
-		actorsByComponentId.remove(compId);
+	/**
+	 * Checks if we have already a defined entity id and if not we use it.
+	 */
+	private void checkStartup(EntityMessage msg) {
+		if (entityId == 0) {
+			entityId = msg.getEntityId();
+		}
 	}
 }

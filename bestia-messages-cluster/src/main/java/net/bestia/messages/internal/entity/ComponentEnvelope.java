@@ -13,19 +13,22 @@ import net.bestia.messages.EntityInternalMessage;
  * @author Thomas Felix
  *
  */
-public final class ComponentPayloadWrapper extends EntityInternalMessage {
+public final class ComponentEnvelope extends EntityInternalMessage {
 
 	private static final long serialVersionUID = 1L;
 	private final Object payload;
 	private final long componentId;
 
-	public ComponentPayloadWrapper(long entityId, long componentId, Object payload) {
+	public ComponentEnvelope(long entityId, long componentId, Object payload) {
 		super(entityId);
 
 		this.componentId = componentId;
 		this.payload = Objects.requireNonNull(payload);
 	}
 
+	/**
+	 * @return The payload for the component actor.
+	 */
 	public Object getPayload() {
 		return payload;
 	}

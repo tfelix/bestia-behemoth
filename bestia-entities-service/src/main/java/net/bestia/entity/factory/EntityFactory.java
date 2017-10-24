@@ -17,7 +17,6 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
-import net.bestia.messages.MessageApi;
 
 /**
  * The EcsEntityFactory is responsible for translating ecs blueprints into
@@ -32,14 +31,11 @@ class EntityFactory {
 	private final static Logger LOG = LoggerFactory.getLogger(EntityFactory.class);
 
 	private final EntityService entityService;
-	private final MessageApi akkaApi;
 
 	@Autowired
-	EntityFactory(EntityService entityService,
-			MessageApi akkaApi) {
+	EntityFactory(EntityService entityService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
-		this.akkaApi = Objects.requireNonNull(akkaApi);
 	}
 
 	/**
@@ -76,9 +72,6 @@ class EntityFactory {
 
 		// Check if we can use recycled entity.
 		Entity e = entityService.newEntity();
-
-		// Start a actor for this entity.
-		akkaApi.sendToEntity(e.getId(), e.getId());
 		
 		List<Component> addedComponents = new ArrayList<>(blueprint.getComponents().size());
 

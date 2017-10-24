@@ -52,7 +52,7 @@ public class ClientConnectionActor extends AbstractActor {
 
 		this.connectionService = Objects.requireNonNull(connectionService);
 		this.loginService = Objects.requireNonNull(loginService);
-		
+
 	}
 
 	@Override
@@ -67,12 +67,12 @@ public class ClientConnectionActor extends AbstractActor {
 
 	@Override
 	public void postStop() throws Exception {
-		connectionService.disconnectAccount(accountId);
 
-		// Clean up the associated entity actors.
+		// Stop connection and clean up the associated entity actors.
+		connectionService.disconnectAccount(accountId);
 		loginService.logout(accountId);
 
-		LOG.debug("Connection actor stopped: {}, account: {}", getSelf().path(), accountId);
+		LOG.debug("Connection removed: {}, account: {}", getSelf().path(), accountId);
 	}
 
 	/**
@@ -86,6 +86,11 @@ public class ClientConnectionActor extends AbstractActor {
 		return String.format(ACTOR_NAME, accId);
 	}
 
+	/**
+	 * Gets called if a new connection was established.
+	 * 
+	 * @param msg
+	 */
 	private void handleConnectionStatus(ClientConnectionStatusMessage msg) {
 		if (msg.getState() == ConnectionState.CONNECTED) {
 			startConnectionActor(msg);
@@ -97,19 +102,19 @@ public class ClientConnectionActor extends AbstractActor {
 	}
 
 	private void startConnectionActor(ClientConnectionStatusMessage msg) {
-		
-		if(msg.getState() !=  ConnectionState.CONNECTED) {
+
+		if (msg.getState() != ConnectionState.CONNECTED) {
 			return;
 		}
-		
+
 		accountId = msg.getAccountId();
 		clientConnection = msg.getWebserverRef();
-		
+
 		getContext().watch(clientConnection);
-		
+
 		SpringExtension.actorOf(getContext(), LatencyPingActor.class, accountId, clientConnection);
-		
-		LOG.debug("Connection actor started: {}, account: {}", getSelf().path(), accountId);
+
+		LOG.debug("Connection established: {}, account: {}", getSelf().path(), accountId);
 	}
 
 	/**
@@ -139,12 +144,12 @@ public class ClientConnectionActor extends AbstractActor {
 	 */
 	private void onMessageForClient(JsonMessage msg) {
 		LOG.debug(String.format("Sending to client %d: %s", msg.getAccountId(), msg));
-		
-		if(clientConnection == null) {
+
+		if (clientConnection == null) {
 			LOG.warning("Can not send to client. Not actorRef set! MSG: {}", msg);
 		} else {
 			clientConnection.tell(msg, getSelf());
 		}
-		
+
 	}
 }

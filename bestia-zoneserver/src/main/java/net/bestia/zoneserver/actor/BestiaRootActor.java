@@ -28,7 +28,6 @@ public class BestiaRootActor extends AbstractActor {
 
 	public BestiaRootActor() {
 		
-		// Das hier evtl noch in den RootActor packen?
 		final ActorRef ingest = SpringExtension.actorOf(getContext(), IngestActor.class);
 		ClusterClientReceptionist.get(getContext().getSystem()).registerService(ingest);
 

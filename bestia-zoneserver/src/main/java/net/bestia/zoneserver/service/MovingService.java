@@ -15,7 +15,7 @@ import net.bestia.entity.EntityService;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.StatusService;
 import net.bestia.messages.MessageApi;
-import net.bestia.messages.internal.entity.ComponentPayloadWrapper;
+import net.bestia.messages.internal.entity.ComponentEnvelope;
 import net.bestia.messages.internal.entity.EntityMoveMessage;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.entity.StatusBasedValues;
@@ -205,8 +205,8 @@ public class MovingService {
 				.orElseThrow(IllegalArgumentException::new);
 
 		final EntityMoveMessage msg = new EntityMoveMessage(entityId, path);
-		final ComponentPayloadWrapper wrappedMsg = new ComponentPayloadWrapper(posComp.getEntityId(), posComp.getId(), msg);
+		final ComponentEnvelope wrappedMsg = new ComponentEnvelope(posComp.getEntityId(), posComp.getId(), msg);
 
-		akkaApi.sendToEntity(entityId, wrappedMsg);
+		akkaApi.sendToEntity(wrappedMsg);
 	}
 }

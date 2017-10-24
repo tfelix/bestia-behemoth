@@ -41,5 +41,5 @@ public interface MessageApi {
 	 * @param msg
 	 *            The message to send.
 	 */
-	void sendToEntity(long entityId, Object msg);
+	void sendToEntity(EntityMessage message);
 }
