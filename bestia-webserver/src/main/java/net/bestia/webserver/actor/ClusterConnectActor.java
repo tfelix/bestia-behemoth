@@ -39,6 +39,7 @@ public class ClusterConnectActor extends AbstractActor {
 	
 	private void createUplink() {
 		LOG.info("Connecting to cluster.");
+		
 		final ClusterClientSettings settings = ClusterClientSettings.create(getContext().getSystem());
 		uplink = getContext().actorOf(ClusterClient.props(settings), "uplink");
 		getContext().watch(uplink);

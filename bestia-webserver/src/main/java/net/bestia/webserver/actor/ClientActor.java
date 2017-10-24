@@ -15,8 +15,8 @@ import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import net.bestia.messages.AccountMessage;
 import net.bestia.messages.JsonMessage;
-import net.bestia.messages.internal.ClientConnectionStatusMessage;
-import net.bestia.messages.internal.ClientConnectionStatusMessage.ConnectionState;
+import net.bestia.messages.internal.ClientConnectMessage;
+import net.bestia.messages.internal.ClientConnectMessage.ConnectionState;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LogoutMessage;
 import net.bestia.webserver.messages.web.ZoneConnectionAccepted;
@@ -69,7 +69,7 @@ public class ClientActor extends BaseSocketActor {
 	public void preStart() throws Exception {
 		// Announce to the server that we have a connected client.
 
-		final ClientConnectionStatusMessage cccm = new ClientConnectionStatusMessage(accountId,
+		final ClientConnectMessage cccm = new ClientConnectMessage(accountId,
 				ConnectionState.CONNECTED,
 				getSelf());
 
@@ -98,7 +98,7 @@ public class ClientActor extends BaseSocketActor {
 			}
 		}
 
-		final ClientConnectionStatusMessage ccsmsg = new ClientConnectionStatusMessage(
+		final ClientConnectMessage ccsmsg = new ClientConnectMessage(
 				accountId,
 				ConnectionState.DISCONNECTED,
 				getSelf());

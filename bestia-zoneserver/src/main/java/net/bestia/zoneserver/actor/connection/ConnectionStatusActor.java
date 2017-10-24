@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
-import net.bestia.messages.internal.ClientConnectionStatusMessage;
-import net.bestia.messages.internal.ClientConnectionStatusMessage.ConnectionState;
+import net.bestia.messages.internal.ClientConnectMessage;
+import net.bestia.messages.internal.ClientConnectMessage.ConnectionState;
 import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
 import net.bestia.zoneserver.service.LoginService;
 
@@ -40,17 +40,17 @@ public class ConnectionStatusActor extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(ClientConnectionStatusMessage.class, this::onConnectionStateChanged)
+				.match(ClientConnectMessage.class, this::onConnectionStateChanged)
 				.build();
 	}
 
 	@Override
 	public void preStart() throws Exception {
-		final RedirectMessage msg = RedirectMessage.get(ClientConnectionStatusMessage.class);
+		final RedirectMessage msg = RedirectMessage.get(ClientConnectMessage.class);
 		context().parent().tell(msg, getSelf());
 	}
 
-	private void onConnectionStateChanged(ClientConnectionStatusMessage ccmsg) {
+	private void onConnectionStateChanged(ClientConnectMessage ccmsg) {
 		
 		if (ccmsg.getState() == ConnectionState.CONNECTED) {
 			// TODO Spawn all player entities. Do this logic here not in the

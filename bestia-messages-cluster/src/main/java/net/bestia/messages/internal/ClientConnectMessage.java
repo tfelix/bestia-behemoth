@@ -14,7 +14,7 @@ import net.bestia.messages.AccountMessage;
  * @author Thomas Felix
  *
  */
-public class ClientConnectionStatusMessage extends AccountMessage {
+public class ClientConnectMessage extends AccountMessage {
 
 	private static final long serialVersionUID = 1L;
 
@@ -25,7 +25,7 @@ public class ClientConnectionStatusMessage extends AccountMessage {
 	private final ConnectionState state;
 	private final ActorRef webserverRef;
 
-	public ClientConnectionStatusMessage(long accId, ConnectionState state, ActorRef webserverRef) {
+	public ClientConnectMessage(long accId, ConnectionState state, ActorRef webserverRef) {
 		super(accId);
 		this.state = state;
 		this.webserverRef = Objects.requireNonNull(webserverRef);
@@ -49,7 +49,7 @@ public class ClientConnectionStatusMessage extends AccountMessage {
 	}
 
 	@Override
-	public ClientConnectionStatusMessage createNewInstance(long accountId) {
-		return new ClientConnectionStatusMessage(accountId, this.state, this.webserverRef);
+	public ClientConnectMessage createNewInstance(long accountId) {
+		return new ClientConnectMessage(accountId, this.state, this.webserverRef);
 	}
 }

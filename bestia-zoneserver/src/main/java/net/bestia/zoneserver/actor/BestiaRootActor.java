@@ -28,10 +28,12 @@ public class BestiaRootActor extends AbstractActor {
 
 	public BestiaRootActor() {
 		
-		final ActorRef ingest = SpringExtension.actorOf(getContext(), IngestActor.class);
+		mainMsgHandler = SpringExtension.actorOf(getContext(), IngestExActor.class);
+		
+		final ActorRef ingest = SpringExtension.actorOf(getContext(), IngestActor.class, mainMsgHandler);
 		ClusterClientReceptionist.get(getContext().getSystem()).registerService(ingest);
 
-		mainMsgHandler = SpringExtension.actorOf(getContext(), IngestExActor.class);
+		
 
 		// System actors.
 		SpringExtension.actorOf(getContext(), ZoneClusterListenerActor.class);

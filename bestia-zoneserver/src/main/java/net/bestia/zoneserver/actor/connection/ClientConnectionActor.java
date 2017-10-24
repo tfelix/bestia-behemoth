@@ -12,8 +12,8 @@ import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.JsonMessage;
-import net.bestia.messages.internal.ClientConnectionStatusMessage;
-import net.bestia.messages.internal.ClientConnectionStatusMessage.ConnectionState;
+import net.bestia.messages.internal.ClientConnectMessage;
+import net.bestia.messages.internal.ClientConnectMessage.ConnectionState;
 import net.bestia.messages.login.LogoutMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.service.ConnectionService;
@@ -41,10 +41,12 @@ public class ClientConnectionActor extends AbstractActor {
 	private final static String ACTOR_NAME = "connection-%d";
 
 	private long accountId;
-	private ActorRef clientConnection;
+	private ActorRef clientSocket;
 
 	private final LoginService loginService;
 	private final ConnectionService connectionService;
+	
+	private final ActorRef zoneDigest;
 
 	@Autowired
 	public ClientConnectionActor(ConnectionService connectionService,
@@ -53,13 +55,14 @@ public class ClientConnectionActor extends AbstractActor {
 		this.connectionService = Objects.requireNonNull(connectionService);
 		this.loginService = Objects.requireNonNull(loginService);
 
+		this.zoneDigest = SpringExtension.actorOf(getContext(), ZoneDigestActor.class);
 	}
 
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
 				.match(LogoutMessage.class, this::handleLogout)
-				.match(ClientConnectionStatusMessage.class, this::handleConnectionStatus)
+				.match(ClientConnectMessage.class, this::handleConnectionStatus)
 				.match(JsonMessage.class, this::onMessageForClient)
 				.match(Terminated.class, this::onClientConnectionClosed)
 				.build();
@@ -91,28 +94,28 @@ public class ClientConnectionActor extends AbstractActor {
 	 * 
 	 * @param msg
 	 */
-	private void handleConnectionStatus(ClientConnectionStatusMessage msg) {
+	private void handleConnectionStatus(ClientConnectMessage msg) {
 		if (msg.getState() == ConnectionState.CONNECTED) {
 			startConnectionActor(msg);
 		} else {
 			// Simply forward message. And then kill ourself.
-			clientConnection.tell(msg, getSelf());
+			clientSocket.tell(msg, getSelf());
 			getContext().stop(getSelf());
 		}
 	}
 
-	private void startConnectionActor(ClientConnectionStatusMessage msg) {
+	private void startConnectionActor(ClientConnectMessage msg) {
 
 		if (msg.getState() != ConnectionState.CONNECTED) {
 			return;
 		}
 
 		accountId = msg.getAccountId();
-		clientConnection = msg.getWebserverRef();
+		clientSocket = msg.getWebserverRef();
 
-		getContext().watch(clientConnection);
+		getContext().watch(clientSocket);
 
-		SpringExtension.actorOf(getContext(), LatencyPingActor.class, accountId, clientConnection);
+		SpringExtension.actorOf(getContext(), LatencyPingActor.class, accountId, clientSocket);
 
 		LOG.debug("Connection established: {}, account: {}", getSelf().path(), accountId);
 	}
@@ -123,6 +126,7 @@ public class ClientConnectionActor extends AbstractActor {
 	 * 
 	 */
 	private void onClientConnectionClosed(Terminated msg) {
+		LOG.debug("Client {} has closed connection.", accountId);
 		getContext().stop(getSelf());
 	}
 
@@ -131,7 +135,7 @@ public class ClientConnectionActor extends AbstractActor {
 	 * webserver so he can terminate the client connection but we also terminate
 	 * this actor since we are not needed anymore and the webserver might be
 	 * down and wont reply with a appropriate
-	 * {@link ClientConnectionStatusMessage}.
+	 * {@link ClientConnectMessage}.
 	 */
 	private void handleLogout(LogoutMessage msg) {
 		onMessageForClient(msg);
@@ -145,10 +149,10 @@ public class ClientConnectionActor extends AbstractActor {
 	private void onMessageForClient(JsonMessage msg) {
 		LOG.debug(String.format("Sending to client %d: %s", msg.getAccountId(), msg));
 
-		if (clientConnection == null) {
+		if (clientSocket == null) {
 			LOG.warning("Can not send to client. Not actorRef set! MSG: {}", msg);
 		} else {
-			clientConnection.tell(msg, getSelf());
+			clientSocket.tell(msg, getSelf());
 		}
 
 	}
