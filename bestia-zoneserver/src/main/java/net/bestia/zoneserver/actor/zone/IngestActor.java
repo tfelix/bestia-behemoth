@@ -8,9 +8,10 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.cluster.sharding.ClusterSharding;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.internal.ClientMessageWrapper;
+import net.bestia.server.EntryActorNames;
 
 /**
  * Central ingestion point for web clients. The incoming messages are wrapped
@@ -28,23 +29,23 @@ public class IngestActor extends AbstractActor {
 	public static final String NAME = "ingest";
 	
 	private final ActorRef clientIngestActor;
+	private final ActorRef clients;
 
 	@Autowired
 	public IngestActor(ActorRef clientIngestActor) {
 
 		this.clientIngestActor = Objects.requireNonNull(clientIngestActor);
+		final ClusterSharding sharding = ClusterSharding.get(getContext().getSystem());
+		this.clients = sharding.shardRegion(EntryActorNames.SHARD_CONNECTION);
 	}
 
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder().matchAny(s -> {
 			
-			clientIngestActor.tell(s, getSender());
+			LOG.debug("Received message from remote: {}", s);
+			clients.tell(s, getSender());
 			
-			// Redirect the incoming messages wrapped to the parent.
-			//final ClientMessageWrapper wrapper = new ClientMessageWrapper(s);
-			//LOG.debug("Received message from remote: {}", s);
-			//getContext().parent().tell(wrapper, getSender());
 		}).build();
 	}
 

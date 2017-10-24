@@ -14,6 +14,8 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.JsonMessage;
 import net.bestia.messages.internal.ClientConnectMessage;
 import net.bestia.messages.internal.ClientConnectMessage.ConnectionState;
+import net.bestia.messages.login.LoginAuthMessage;
+import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LogoutMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.service.ConnectionService;
@@ -45,7 +47,7 @@ public class ClientConnectionActor extends AbstractActor {
 
 	private final LoginService loginService;
 	private final ConnectionService connectionService;
-	
+
 	private final ActorRef zoneDigest;
 
 	@Autowired
@@ -61,9 +63,11 @@ public class ClientConnectionActor extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
+				.match(LoginAuthMessage.class, this::handleLoginAuthRequest)
+				.match(LoginAuthReplyMessage.class, this::handleLoginAuthReply)
 				.match(LogoutMessage.class, this::handleLogout)
 				.match(ClientConnectMessage.class, this::handleConnectionStatus)
-				.match(JsonMessage.class, this::onMessageForClient)
+				.match(JsonMessage.class, this::sendMessageToClient)
 				.match(Terminated.class, this::onClientConnectionClosed)
 				.build();
 	}
@@ -90,6 +94,36 @@ public class ClientConnectionActor extends AbstractActor {
 	}
 
 	/**
+	 * This is the very first message the get from the system asking us to
+	 * authenticate.
+	 * 
+	 * @param msg
+	 */
+	private void handleLoginAuthRequest(LoginAuthMessage msg) {
+
+		// If we are already authenticated we must ignore this message as this
+		// message contains an untrusted account id and might be spoofed in
+		// order to inject data into another connection actor.
+		if (accountId != 0) {
+			LOG.warning("Account is already authenticated. Ignoring new request.");
+			return;
+		}
+
+		// At first this points to the auth actor.
+		clientSocket = getSender();
+		getContext().watch(clientSocket);
+
+		final ActorRef authRequest = SpringExtension.actorOf(getContext(), LoginAuthActor.class);
+		authRequest.tell(msg, getSelf());
+
+	}
+
+	private void handleLoginAuthReply(LoginAuthReplyMessage msg) {
+		accountId = msg.getAccountId();
+		sendMessageToClient(msg);
+	}
+
+	/**
 	 * Gets called if a new connection was established.
 	 * 
 	 * @param msg
@@ -107,12 +141,18 @@ public class ClientConnectionActor extends AbstractActor {
 	private void startConnectionActor(ClientConnectMessage msg) {
 
 		if (msg.getState() != ConnectionState.CONNECTED) {
+			getContext().stop(getSelf());
 			return;
 		}
-
+		
 		accountId = msg.getAccountId();
-		clientSocket = msg.getWebserverRef();
+		
+		// Cleanup of we are wired to another actor.
+		if(clientSocket != null) {
+			getContext().unwatch(clientSocket);
+		}
 
+		clientSocket = msg.getWebserverRef();
 		getContext().watch(clientSocket);
 
 		SpringExtension.actorOf(getContext(), LatencyPingActor.class, accountId, clientSocket);
@@ -134,11 +174,10 @@ public class ClientConnectionActor extends AbstractActor {
 	 * When we receive a special logout message we must forward it towards the
 	 * webserver so he can terminate the client connection but we also terminate
 	 * this actor since we are not needed anymore and the webserver might be
-	 * down and wont reply with a appropriate
-	 * {@link ClientConnectMessage}.
+	 * down and wont reply with a appropriate {@link ClientConnectMessage}.
 	 */
 	private void handleLogout(LogoutMessage msg) {
-		onMessageForClient(msg);
+		sendMessageToClient(msg);
 		getContext().stop(getSelf());
 	}
 
@@ -146,7 +185,7 @@ public class ClientConnectionActor extends AbstractActor {
 	 * Message must be forwarded to the client webserver so the message can be
 	 * received by the client.
 	 */
-	private void onMessageForClient(JsonMessage msg) {
+	private void sendMessageToClient(JsonMessage msg) {
 		LOG.debug(String.format("Sending to client %d: %s", msg.getAccountId(), msg));
 
 		if (clientSocket == null) {

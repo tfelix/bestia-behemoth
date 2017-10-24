@@ -106,5 +106,8 @@ public class LoginAuthActor extends AbstractActor {
 			getSender().tell(response, getSelf());
 
 		}
+		
+		// Finished work and can stop now.
+		getContext().stop(getSelf());
 	}
 }

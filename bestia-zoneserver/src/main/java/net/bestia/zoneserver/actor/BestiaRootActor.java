@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.cluster.client.ClusterClientReceptionist;
-import net.bestia.messages.internal.ClientMessageWrapper;
 import net.bestia.zoneserver.actor.zone.IngestActor;
 import net.bestia.zoneserver.actor.zone.IngestExActor;
 import net.bestia.zoneserver.actor.zone.MemDbHeartbeatActor;
@@ -47,12 +46,7 @@ public class BestiaRootActor extends AbstractActor {
 
 	@Override
 	public Receive createReceive() {
-		return receiveBuilder()
-				.match(ClientMessageWrapper.class, this::handleClientMessage)
-				.build();
+		return receiveBuilder().build();
 	}
-	
-	private void handleClientMessage(ClientMessageWrapper msg) {
-		mainMsgHandler.tell(msg.getPayload(), getSender());
-	}
+
 }
