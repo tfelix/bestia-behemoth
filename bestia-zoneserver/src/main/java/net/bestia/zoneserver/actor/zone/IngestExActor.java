@@ -16,7 +16,6 @@ import akka.actor.ActorRef;
 import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.ComponentMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.ZoneMessageApi;
 import net.bestia.zoneserver.actor.battle.AttackUseActor;
@@ -26,7 +25,6 @@ import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.connection.ConnectionStatusActor;
 import net.bestia.zoneserver.actor.connection.LatencyManagerActor;
 import net.bestia.zoneserver.actor.connection.LoginAuthActor;
-import net.bestia.zoneserver.actor.entity.ComponentRedirectionActor;
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor;
 import net.bestia.zoneserver.actor.entity.EntitySyncActor;
 import net.bestia.zoneserver.actor.inventory.ListInventoryActor;
@@ -98,14 +96,10 @@ public class IngestExActor extends AbstractActor {
 
 	private Map<Class<?>, List<ActorRef>> redirections = new HashMap<>();
 
-	private final ActorRef componentRedirActor;
 	private final ActorRef messageHub;
 
 	@Autowired
 	public IngestExActor(ZoneMessageApi akkaMsgApi) {
-
-		// Setup the internal sub-actors of the ingest actor first.
-		componentRedirActor = SpringExtension.actorOf(getContext(), ComponentRedirectionActor.class);
 
 		// === Connection & Login ===
 		messageHub = SpringExtension.actorOf(getContext(), MessageRouterActor.class);
@@ -152,9 +146,6 @@ public class IngestExActor extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(ComponentMessage.class, msg -> {
-					componentRedirActor.tell(msg, getSelf());
-				})
 				.match(RedirectMessage.class, this::handleMessageRedirectRequest)
 				.match(Terminated.class, this::handleRouteeStopped)
 				.matchAny(this::handleIncomingMessage)

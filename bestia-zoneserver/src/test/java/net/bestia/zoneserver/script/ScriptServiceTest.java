@@ -16,11 +16,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import akka.actor.ActorPath;
 import akka.actor.ActorRef;
-import akka.actor.PoisonPill;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
 import net.bestia.messages.MessageApi;
+import net.bestia.messages.internal.entity.EntityKillMessage;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ScriptServiceTest {
@@ -167,7 +167,7 @@ public class ScriptServiceTest {
 
 		verify(entityService).getComponent(scriptEntity, ScriptComponent.class);
 		
-		verify(akkaApi, never()).sendToEntity(any(), any());
+		verify(akkaApi, never()).sendToEntity(any());
 		verify(entityService, never()).updateComponent(argument.capture());
 	}
 
@@ -178,7 +178,7 @@ public class ScriptServiceTest {
 		scriptService.stopScriptInterval(scriptEntity);
 
 		verify(entityService).getComponent(scriptEntity, ScriptComponent.class);
-		verify(akkaApi).sendToEntity(any(), PoisonPill.getInstance());
+		verify(akkaApi).sendToEntity(any(EntityKillMessage.class));
 	}
 
 }

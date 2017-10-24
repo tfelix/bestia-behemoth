@@ -5,9 +5,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.entity.component.Component;
-import net.bestia.entity.component.PositionComponent;
-import net.bestia.messages.ComponentMessage;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.map.Walkspeed;
@@ -32,7 +29,7 @@ import net.bestia.model.map.Walkspeed;
  * @author Thomas Felix
  *
  */
-public class EntityMoveRequestMessage extends EntityJsonMessage implements ComponentMessage {
+public class EntityMoveRequestMessage extends EntityJsonMessage {
 
 	private static final long serialVersionUID = 1L;
 	public static final String MESSAGE_ID = "entity.move";
@@ -168,10 +165,5 @@ public class EntityMoveRequestMessage extends EntityJsonMessage implements Compo
 	@Override
 	public EntityMoveRequestMessage createNewInstance(long accountId) {
 		return new EntityMoveRequestMessage(accountId, getEntityId(), getPath(), Walkspeed.fromFloat(walkspeed));
-	}
-
-	@Override
-	public Class<? extends Component> targetsComponent() {
-		return PositionComponent.class;
 	}
 }

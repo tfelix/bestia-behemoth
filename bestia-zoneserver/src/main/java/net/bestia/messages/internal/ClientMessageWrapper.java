@@ -1,8 +1,8 @@
 package net.bestia.messages.internal;
 
 /**
- * Incoming client messages are wrapped for identification in the root bestia
- * actor.
+ * Incoming client messages are wrapped so that the root bestia actor can
+ * identify them as client messages.
  * 
  * @author Thomas Felix
  *
