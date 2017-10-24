@@ -19,6 +19,7 @@ import net.bestia.messages.JsonMessage;
 import net.bestia.messages.internal.ClientConnectMessage;
 import net.bestia.messages.internal.ClientConnectMessage.ConnectionState;
 import net.bestia.messages.login.LogoutMessage;
+import net.bestia.webserver.messages.web.ClientPayloadMessage;
 import net.bestia.webserver.messages.web.ZoneConnectionAccepted;
 
 public class ClientActor extends BaseSocketActor {
@@ -56,7 +57,7 @@ public class ClientActor extends BaseSocketActor {
 				.match(LogoutMessage.class, this::handleServerLogout)
 				.match(ZoneConnectionAccepted.class, this::handleZoneConnectionAccepted)
 				.match(AccountMessage.class, this::sendToClient)
-				.match(String.class, this::handleClientPayload)
+				.match(ClientPayloadMessage.class, this::handleClientPayload)
 				.build();
 	}
 
@@ -123,13 +124,13 @@ public class ClientActor extends BaseSocketActor {
 	 *            Payload data from the client.
 	 * @throws IOException
 	 */
-	private void handleClientPayload(String payload) throws IOException {
+	private void handleClientPayload(ClientPayloadMessage payload) throws IOException {
 		// We only accept auth messages if we are not connected. Every other
 		// message will disconnect the client.
 
 		try {
 			// Turn the text message into a bestia message.
-			JsonMessage msg = mapper.readValue(payload, JsonMessage.class);
+			JsonMessage msg = mapper.readValue(payload.getMessage(), JsonMessage.class);
 
 			// Regenerate the account id from this session. (we dont trust
 			// the client to tell us the right account id).

@@ -28,4 +28,9 @@ public class ClientPayloadMessage implements SocketMessage {
 	public String getSessionId() {
 		return uid;
 	}
+	
+	@Override
+	public String toString() {
+		return String.format("ClientPayload[uid: %s, msg: %s]", getSessionId(), getMessage());
+	}
 }

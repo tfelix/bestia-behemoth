@@ -24,13 +24,11 @@ public class ConnectionHandshakeActor extends AbstractActor {
 
 	private final ActorRef uplink;
 	private final ObjectMapper mapper = new ObjectMapper();
-	private final BiMap<String, ActorRef> pendingConnections = HashBiMap.create();
-	private final ActorRef connectionsActor;
+	private final BiMap<String, ActorRef> connections = HashBiMap.create();
 
 	private ConnectionHandshakeActor(ActorRef uplink) {
 
 		this.uplink = Objects.requireNonNull(uplink);
-		this.connectionsActor = getContext().actorOf(ConnectionsActor.props(uplink), "openedConnections");
 	}
 
 	public static Props props(ActorRef uplink) {
@@ -52,43 +50,30 @@ public class ConnectionHandshakeActor extends AbstractActor {
 				.match(Terminated.class, this::handleClosedConnection)
 				.build();
 	}
-	
+
 	private void redirectMessage(SocketMessage msg) {
-		
-		if (pendingConnections.containsKey(msg.getSessionId())) {
-			pendingConnections.get(msg.getSessionId()).tell(msg, getSelf());
-		} else {
-			connectionsActor.tell(msg, getSelf());
-		}
+		LOG.debug("Received from client: {}", msg);
+		final ActorRef clientActor = connections.getOrDefault(msg.getSessionId(), ActorRef.noSender());
+		clientActor.tell(msg, getSelf());
 	}
 
 	private void handleClosedConnection(Terminated msg) {
 
 		// Check if this is an auth actor.
 		LOG.debug("Killing connection actor: {}", msg.actor());
-		pendingConnections.inverse().remove(msg.actor());
+		connections.inverse().remove(msg.actor());
 
 	}
 
 	private void handlePrepareConnection(PrepareConnection msg) {
 
-		// Depending from which the message originated we will interpret this
-		// message as a start authentication or open the connection.
-		if (pendingConnections.inverse().containsKey(getSender())) {
-			// Message is from a pending connection. We will forward message to
-			// open the connection.
-			connectionsActor.tell(msg, getSelf());
-			pendingConnections.inverse().remove(getSender());
-		} else {
-			final String actorName = String.format("socket-auth-%s", msg.getSessionId());
+		final String actorName = String.format("socket-auth-%s", msg.getSessionId());
+		final Props socketProps = ClientAuthActor.props(msg.getSessionId(), msg.getSession(), mapper, uplink);
+		final ActorRef socketActor = getContext().actorOf(socketProps, actorName);
 
-			final Props socketProps = ClientAuthActor.props(msg.getSessionId(), msg.getSession(), mapper, uplink);
-			final ActorRef socketActor = getContext().actorOf(socketProps, actorName);
-			
-			getContext().watch(socketActor);
+		getContext().watch(socketActor);
 
-			pendingConnections.put(msg.getSessionId(), socketActor);
-		}
+		connections.put(msg.getSessionId(), socketActor);
 	}
 
 	/**
@@ -97,6 +82,13 @@ public class ConnectionHandshakeActor extends AbstractActor {
 	 * @param msg
 	 */
 	private void handleAcceptedConnection(ZoneConnectionAccepted msg) {
-		connectionsActor.tell(msg, getSelf());
+		final String actorName = String.format("socket-%s", msg.getSessionId());
+		final Props socketProps = ClientActor.props(uplink, mapper, msg.getSession());
+		final ActorRef socketActor = getContext().actorOf(socketProps, actorName);
+
+		getContext().watch(socketActor);
+
+		connections.put(msg.getSessionId(), socketActor);
+		socketActor.tell(msg, getSelf());
 	}
 }
