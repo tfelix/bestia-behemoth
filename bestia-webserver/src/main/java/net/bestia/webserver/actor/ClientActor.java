@@ -17,7 +17,6 @@ import net.bestia.messages.AccountMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.messages.internal.ClientConnectMessage;
 import net.bestia.messages.internal.ClientConnectMessage.ConnectionState;
-import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LogoutMessage;
 import net.bestia.webserver.messages.web.ZoneConnectionAccepted;
 
@@ -31,8 +30,6 @@ public class ClientActor extends BaseSocketActor {
 	 */
 	private final long accountId;
 
-	private LoginAuthReplyMessage loginReply;
-
 	public ClientActor(ZoneConnectionAccepted zoneConnection, ObjectMapper mapper, ActorRef uplink) {
 		super(uplink, mapper, zoneConnection.getSession());
 
@@ -42,7 +39,17 @@ public class ClientActor extends BaseSocketActor {
 		// FIXME Das geht halt nie down. Weil richtiger uplink gekapselt.
 		getContext().watch(uplink);
 
-		loginReply = zoneConnection.getLoginMessage();
+		// Announce to the server that we have a connected client.
+
+		final ClientConnectMessage cccm = new ClientConnectMessage(accountId,
+				ConnectionState.CONNECTED,
+				getSelf());
+
+		uplink.tell(cccm, getSelf());
+
+		// Send the client the login message. This must be done when the server
+		// has completed the registration of the client and awaits data now.
+		sendToClient(zoneConnection.getLoginMessage());
 	}
 
 	public static Props props(ZoneConnectionAccepted zoneConnection, ObjectMapper mapper, ActorRef uplink) {
@@ -63,24 +70,6 @@ public class ClientActor extends BaseSocketActor {
 				.match(AccountMessage.class, this::sendToClient)
 				.match(String.class, this::handleClientPayload)
 				.build();
-	}
-
-	@Override
-	public void preStart() throws Exception {
-		// Announce to the server that we have a connected client.
-
-		final ClientConnectMessage cccm = new ClientConnectMessage(accountId,
-				ConnectionState.CONNECTED,
-				getSelf());
-
-		uplink.tell(cccm, getSelf());
-
-		// Send the client the login message. This must be done when the server
-		// has completed the registration of the client and awaits data now.
-		sendToClient(loginReply);
-		
-		// Save memory now.
-		loginReply = null;
 	}
 
 	@Override

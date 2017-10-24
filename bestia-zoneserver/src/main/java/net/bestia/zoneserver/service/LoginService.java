@@ -36,7 +36,6 @@ public class LoginService {
 
 	private final RuntimeConfigService config;
 	private final AccountDAO accountDao;
-	private final ConnectionService connectionService;
 	private final PlayerEntityService playerEntityService;
 	private final PlayerBestiaService playerBestiaService;
 	private final MessageApi akkaApi;
@@ -47,7 +46,6 @@ public class LoginService {
 	public LoginService(RuntimeConfigService config,
 			AccountDAO accountDao,
 			PlayerEntityService playerEntityService,
-			ConnectionService connectionService,
 			PlayerBestiaService playerBestiaService,
 			MessageApi akkaApi,
 			PlayerBestiaEntityFactory playerEntityFactory,
@@ -56,7 +54,6 @@ public class LoginService {
 		this.config = Objects.requireNonNull(config);
 		this.accountDao = Objects.requireNonNull(accountDao);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
-		this.connectionService = Objects.requireNonNull(connectionService);
 		this.playerBestiaService = Objects.requireNonNull(playerBestiaService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 		this.playerEntityFactory = Objects.requireNonNull(playerEntityFactory);
@@ -185,13 +182,14 @@ public class LoginService {
 	 * @param level
 	 */
 	public void logoutAllUsersBelow(UserLevel level) {
-		connectionService.getAllConnectedAccountIds().forEachRemaining(accId -> {
+		throw new IllegalStateException("Currently broken.");
+		/*connectionService.getAllConnectedAccountIds().forEachRemaining(accId -> {
 			final Account acc = accountDao.findOne(accId);
 
 			if (acc.getUserLevel().compareTo(level) == -1) {
 				logout(accId);
 			}
-		});
+		});*/
 	}
 
 	public AccountLoginRequest setNewLoginToken(AccountLoginRequest request) {

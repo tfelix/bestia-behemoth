@@ -48,9 +48,6 @@ public class AccountServiceTest {
 	private BestiaDAO bestiaDao;
 
 	@Mock
-	private ConnectionService connectionService;
-
-	@Mock
 	private Password password;
 
 	@Mock
@@ -116,7 +113,7 @@ public class AccountServiceTest {
 		when(password.matches(EXISTING_PASSWORD)).thenReturn(true);
 		when(password.matches(OLD_PSWD)).thenReturn(true);
 
-		accService = new AccountService(accountDao, playerBestiaDao, bestiaDao, connectionService);
+		accService = new AccountService(accountDao, playerBestiaDao, bestiaDao);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

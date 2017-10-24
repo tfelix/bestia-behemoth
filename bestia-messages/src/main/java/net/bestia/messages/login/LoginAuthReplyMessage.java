@@ -10,7 +10,7 @@ import net.bestia.messages.JsonMessage;
 /**
  * Message is replied from the login server after a {@link LoginAuthMessage}.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class LoginAuthReplyMessage extends JsonMessage {

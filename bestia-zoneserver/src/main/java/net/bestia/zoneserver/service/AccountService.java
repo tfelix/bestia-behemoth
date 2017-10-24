@@ -40,15 +40,12 @@ public class AccountService {
 	private AccountDAO accountDao;
 	private PlayerBestiaDAO playerBestiaDao;
 	private BestiaDAO bestiaDao;
-	private ConnectionService connectionService;
 
 	@Autowired
-	public AccountService(AccountDAO accDao, PlayerBestiaDAO playerBestiaDao, BestiaDAO bestiaDao,
-			ConnectionService connectionService) {
+	public AccountService(AccountDAO accDao, PlayerBestiaDAO playerBestiaDao, BestiaDAO bestiaDao) {
 		this.accountDao = Objects.requireNonNull(accDao);
 		this.bestiaDao = Objects.requireNonNull(bestiaDao);
 		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
-		this.connectionService = Objects.requireNonNull(connectionService);
 	}
 
 	private int getIdFromPlayerClass(PlayerClass pc) {
@@ -192,9 +189,11 @@ public class AccountService {
 		}
 
 		// Check if this account is online.
+		/*
 		if (connectionService.isConnected(acc.getId())) {
 			return null;
-		}
+		}*/
+		LOG.warn("Currently broken!");
 
 		return acc;
 	}

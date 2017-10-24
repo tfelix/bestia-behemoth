@@ -22,18 +22,12 @@ import net.bestia.zoneserver.actor.battle.AttackUseActor;
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
-import net.bestia.zoneserver.actor.connection.ConnectionStatusActor;
 import net.bestia.zoneserver.actor.connection.LatencyManagerActor;
-import net.bestia.zoneserver.actor.connection.LoginAuthActor;
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor;
 import net.bestia.zoneserver.actor.entity.EntitySyncActor;
 import net.bestia.zoneserver.actor.inventory.ListInventoryActor;
 import net.bestia.zoneserver.actor.map.MapRequestChunkActor;
 import net.bestia.zoneserver.actor.map.TilesetRequestActor;
-import net.bestia.zoneserver.actor.rest.ChangePasswordActor;
-import net.bestia.zoneserver.actor.rest.CheckUsernameDataActor;
-import net.bestia.zoneserver.actor.rest.RequestLoginActor;
-import net.bestia.zoneserver.actor.rest.RequestServerStatusActor;
 import net.bestia.zoneserver.actor.ui.ClientVarActor;
 
 /**
@@ -50,7 +44,7 @@ import net.bestia.zoneserver.actor.ui.ClientVarActor;
  */
 @Component
 @Scope("prototype")
-public class IngestExActor extends AbstractActor {
+public class ClientMessageActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
@@ -71,7 +65,7 @@ public class IngestExActor extends AbstractActor {
 
 		/**
 		 * Creates a redirection message for the given classes. This message can
-		 * be send to a {@link IngestExActor} to redirect the message flow.
+		 * be send to a {@link ClientMessageActor} to redirect the message flow.
 		 * 
 		 * @param classes
 		 * @return A new redirection request message.
@@ -99,7 +93,7 @@ public class IngestExActor extends AbstractActor {
 	private final ActorRef messageHub;
 
 	@Autowired
-	public IngestExActor(ZoneMessageApi akkaMsgApi) {
+	public ClientMessageActor(ZoneMessageApi akkaMsgApi) {
 
 		// === Connection & Login ===
 		messageHub = SpringExtension.actorOf(getContext(), MessageRouterActor.class);
@@ -109,8 +103,6 @@ public class IngestExActor extends AbstractActor {
 		
 		// === Login and connection ===
 		SpringExtension.actorOf(getContext(), LatencyManagerActor.class);
-		SpringExtension.actorOf(getContext(), LoginAuthActor.class);
-		SpringExtension.actorOf(getContext(), ConnectionStatusActor.class, messageHub);
 
 		// === Bestias ===
 		SpringExtension.actorOf(getContext(), BestiaInfoActor.class, messageHub);
@@ -135,12 +127,6 @@ public class IngestExActor extends AbstractActor {
 
 		// === Chat ===
 		SpringExtension.actorOf(getContext(), ChatActor.class, messageHub);
-
-		// === Web/REST actors ===
-		SpringExtension.actorOf(getContext(), CheckUsernameDataActor.class);
-		SpringExtension.actorOf(getContext(), ChangePasswordActor.class);
-		SpringExtension.actorOf(getContext(), RequestLoginActor.class);
-		SpringExtension.actorOf(getContext(), RequestServerStatusActor.class);
 	}
 
 	@Override

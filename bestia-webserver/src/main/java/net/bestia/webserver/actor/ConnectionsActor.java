@@ -19,6 +19,12 @@ import net.bestia.webserver.messages.web.ClientPayloadMessage;
 import net.bestia.webserver.messages.web.CloseConnection;
 import net.bestia.webserver.messages.web.ZoneConnectionAccepted;
 
+/**
+ * Holds a reference to all currently conneceted client sockets.
+ * 
+ * @author Thomas Felix
+ *
+ */
 public class ConnectionsActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
@@ -73,7 +79,7 @@ public class ConnectionsActor extends AbstractActor {
 	private void handleClientSocketClosed(CloseConnection msg) {
 
 		final ActorRef connectionActor = connections.get(msg.getSessionId());
-		if(connectionActor != null) {
+		if (connectionActor != null) {
 			connectionActor.tell(PoisonPill.getInstance(), getSelf());
 		}
 

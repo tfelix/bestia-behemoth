@@ -13,12 +13,11 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.JsonMessage;
 import net.bestia.messages.internal.ClientConnectMessage;
+import net.bestia.messages.internal.FromClient;
 import net.bestia.messages.internal.ClientConnectMessage.ConnectionState;
 import net.bestia.messages.login.LoginAuthMessage;
-import net.bestia.messages.login.LoginAuthReplyMessage;
-import net.bestia.messages.login.LogoutMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.service.ConnectionService;
+import net.bestia.zoneserver.actor.zone.ClientMessageActor;
 import net.bestia.zoneserver.service.LoginService;
 
 /**
@@ -46,29 +45,20 @@ public class ClientConnectionActor extends AbstractActor {
 	private ActorRef clientSocket;
 
 	private final LoginService loginService;
-	private final ConnectionService connectionService;
-
-	private final ActorRef zoneDigest;
+	private ActorRef clientIngest;
 
 	@Autowired
-	public ClientConnectionActor(ConnectionService connectionService,
-			LoginService loginService) {
+	public ClientConnectionActor(LoginService loginService) {
 
-		this.connectionService = Objects.requireNonNull(connectionService);
 		this.loginService = Objects.requireNonNull(loginService);
-
-		this.zoneDigest = SpringExtension.actorOf(getContext(), ZoneDigestActor.class);
 	}
 
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(LoginAuthMessage.class, this::handleLoginAuthRequest)
-				.match(LoginAuthReplyMessage.class, this::handleLoginAuthReply)
-				.match(LogoutMessage.class, this::handleLogout)
-				.match(ClientConnectMessage.class, this::handleConnectionStatus)
+				.match(FromClient.class, this::handleClientMessage)
 				.match(JsonMessage.class, this::sendMessageToClient)
-				.match(Terminated.class, this::onClientConnectionClosed)
+				.match(Terminated.class, m -> onClientConnectionClosed())
 				.build();
 	}
 
@@ -76,7 +66,6 @@ public class ClientConnectionActor extends AbstractActor {
 	public void postStop() throws Exception {
 
 		// Stop connection and clean up the associated entity actors.
-		connectionService.disconnectAccount(accountId);
 		loginService.logout(accountId);
 
 		LOG.debug("Connection removed: {}, account: {}", getSelf().path(), accountId);
@@ -118,11 +107,6 @@ public class ClientConnectionActor extends AbstractActor {
 
 	}
 
-	private void handleLoginAuthReply(LoginAuthReplyMessage msg) {
-		accountId = msg.getAccountId();
-		sendMessageToClient(msg);
-	}
-
 	/**
 	 * Gets called if a new connection was established.
 	 * 
@@ -132,9 +116,7 @@ public class ClientConnectionActor extends AbstractActor {
 		if (msg.getState() == ConnectionState.CONNECTED) {
 			startConnectionActor(msg);
 		} else {
-			// Simply forward message. And then kill ourself.
-			clientSocket.tell(msg, getSelf());
-			getContext().stop(getSelf());
+			onClientConnectionClosed();
 		}
 	}
 
@@ -144,11 +126,13 @@ public class ClientConnectionActor extends AbstractActor {
 			getContext().stop(getSelf());
 			return;
 		}
-		
+
+		clientIngest = SpringExtension.actorOf(getContext(), ClientMessageActor.class);
+
 		accountId = msg.getAccountId();
-		
+
 		// Cleanup of we are wired to another actor.
-		if(clientSocket != null) {
+		if (clientSocket != null) {
 			getContext().unwatch(clientSocket);
 		}
 
@@ -165,20 +149,20 @@ public class ClientConnectionActor extends AbstractActor {
 	 * Connection actor must clean the server resources by terminating itself.
 	 * 
 	 */
-	private void onClientConnectionClosed(Terminated msg) {
-		LOG.debug("Client {} has closed connection.", accountId);
+	private void onClientConnectionClosed() {
+		LOG.debug("Socket actor account {} has terminated.", accountId);
 		getContext().stop(getSelf());
 	}
 
-	/**
-	 * When we receive a special logout message we must forward it towards the
-	 * webserver so he can terminate the client connection but we also terminate
-	 * this actor since we are not needed anymore and the webserver might be
-	 * down and wont reply with a appropriate {@link ClientConnectMessage}.
-	 */
-	private void handleLogout(LogoutMessage msg) {
-		sendMessageToClient(msg);
-		getContext().stop(getSelf());
+	private void handleClientMessage(FromClient msg) {
+		Object payload = msg.getPayload();
+		if (payload instanceof LoginAuthMessage) {
+			handleLoginAuthRequest((LoginAuthMessage) payload);
+		} else if (payload instanceof ClientConnectMessage) {
+			handleConnectionStatus((ClientConnectMessage) payload);
+		} else {
+			clientIngest.tell(payload, getSelf());
+		}
 	}
 
 	/**
@@ -186,6 +170,7 @@ public class ClientConnectionActor extends AbstractActor {
 	 * received by the client.
 	 */
 	private void sendMessageToClient(JsonMessage msg) {
+
 		LOG.debug(String.format("Sending to client %d: %s", msg.getAccountId(), msg));
 
 		if (clientSocket == null) {
@@ -193,6 +178,19 @@ public class ClientConnectionActor extends AbstractActor {
 		} else {
 			clientSocket.tell(msg, getSelf());
 		}
+	}
 
+	/**
+	 * Checks if the user has already authenticated. This is important to do
+	 * otherwise forged messages from the webserver could trick the actor into
+	 * beliving the client has alreads authed. MUST be called before every
+	 * method invocation other then auth itself.
+	 * 
+	 * @return
+	 */
+	private void throwIfNotAuthenticated() {
+		if (0 == accountId) {
+			throw new IllegalStateException("Client connection not authenticated.");
+		}
 	}
 }

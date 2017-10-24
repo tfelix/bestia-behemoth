@@ -6,9 +6,12 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.cluster.client.ClusterClientReceptionist;
-import net.bestia.zoneserver.actor.zone.IngestActor;
-import net.bestia.zoneserver.actor.zone.IngestExActor;
+import net.bestia.zoneserver.actor.rest.ChangePasswordActor;
+import net.bestia.zoneserver.actor.rest.CheckUsernameDataActor;
+import net.bestia.zoneserver.actor.rest.RequestLoginActor;
+import net.bestia.zoneserver.actor.rest.RequestServerStatusActor;
 import net.bestia.zoneserver.actor.zone.MemDbHeartbeatActor;
+import net.bestia.zoneserver.actor.zone.WebIngestActor;
 import net.bestia.zoneserver.actor.zone.ZoneClusterListenerActor;
 
 /**
@@ -22,17 +25,12 @@ import net.bestia.zoneserver.actor.zone.ZoneClusterListenerActor;
 public class BestiaRootActor extends AbstractActor {
 
 	public final static String NAME = "bestia";
-	
-	private final ActorRef mainMsgHandler;
+
 
 	public BestiaRootActor() {
 		
-		mainMsgHandler = SpringExtension.actorOf(getContext(), IngestExActor.class);
-		
-		final ActorRef ingest = SpringExtension.actorOf(getContext(), IngestActor.class, mainMsgHandler);
+		final ActorRef ingest = SpringExtension.actorOf(getContext(), WebIngestActor.class);
 		ClusterClientReceptionist.get(getContext().getSystem()).registerService(ingest);
-
-		
 
 		// System actors.
 		SpringExtension.actorOf(getContext(), ZoneClusterListenerActor.class);
@@ -42,6 +40,12 @@ public class BestiaRootActor extends AbstractActor {
 		// Noch nicht migriert.
 		// akkaApi.startActor(MapGeneratorMasterActor.class);
 		// akkaApi.startActor(MapGeneratorClientActor.class);
+		
+		// === Web/REST actors ===
+		SpringExtension.actorOf(getContext(), CheckUsernameDataActor.class);
+		SpringExtension.actorOf(getContext(), ChangePasswordActor.class);
+		SpringExtension.actorOf(getContext(), RequestLoginActor.class);
+		SpringExtension.actorOf(getContext(), RequestServerStatusActor.class);
 	}
 
 	@Override

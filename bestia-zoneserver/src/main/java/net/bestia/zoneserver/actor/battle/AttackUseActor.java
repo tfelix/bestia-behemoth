@@ -16,7 +16,7 @@ import net.bestia.messages.internal.entity.EntitySkillUseMessage;
 import net.bestia.model.battle.Damage;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.SendActiveClientsActor;
-import net.bestia.zoneserver.actor.zone.IngestExActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
 import net.bestia.zoneserver.battle.BattleService;
 
 /**
