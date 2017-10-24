@@ -3,6 +3,7 @@ package net.bestia.webserver.actor;
 import java.io.IOException;
 
 import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.WebSocketSession;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -28,36 +29,22 @@ public class ClientActor extends BaseSocketActor {
 	 * Account id is set as soon as the connection gets confirmed from the
 	 * server.
 	 */
-	private final long accountId;
+	private long accountId;
 
-	public ClientActor(ZoneConnectionAccepted zoneConnection, ObjectMapper mapper, ActorRef uplink) {
-		super(uplink, mapper, zoneConnection.getSession());
-
-		this.accountId = zoneConnection.getLoginMessage().getAccountId();
+	public ClientActor(ActorRef uplink, ObjectMapper mapper, WebSocketSession session) {
+		super(uplink, mapper, session);
 
 		// Watch the uplink in case it goes down.
 		// FIXME Das geht halt nie down. Weil richtiger uplink gekapselt.
 		getContext().watch(uplink);
-
-		// Announce to the server that we have a connected client.
-
-		final ClientConnectMessage cccm = new ClientConnectMessage(accountId,
-				ConnectionState.CONNECTED,
-				getSelf());
-
-		uplink.tell(cccm, getSelf());
-
-		// Send the client the login message. This must be done when the server
-		// has completed the registration of the client and awaits data now.
-		sendToClient(zoneConnection.getLoginMessage());
 	}
 
-	public static Props props(ZoneConnectionAccepted zoneConnection, ObjectMapper mapper, ActorRef uplink) {
+	public static Props props(ActorRef uplink, ObjectMapper mapper, WebSocketSession session) {
 		return Props.create(new Creator<ClientActor>() {
 			private static final long serialVersionUID = 1L;
 
 			public ClientActor create() throws Exception {
-				return new ClientActor(zoneConnection, mapper, uplink);
+				return new ClientActor(uplink, mapper, session);
 			}
 		}).withDeploy(Deploy.local());
 	}
@@ -67,6 +54,7 @@ public class ClientActor extends BaseSocketActor {
 		return receiveBuilder()
 				.match(Terminated.class, this::handleUplinkClosed)
 				.match(LogoutMessage.class, this::handleServerLogout)
+				.match(ZoneConnectionAccepted.class, this::handleZoneConnectionAccepted)
 				.match(AccountMessage.class, this::sendToClient)
 				.match(String.class, this::handleClientPayload)
 				.build();
@@ -109,6 +97,23 @@ public class ClientActor extends BaseSocketActor {
 
 		// Kill ourself.
 		getContext().stop(getSelf());
+	}
+
+	private void handleZoneConnectionAccepted(ZoneConnectionAccepted msg) {
+		
+		// This acc id is verified by the server.
+		this.accountId = msg.getLoginMessage().getAccountId();
+
+		// Announce to the server that we have a connected client.
+		final ClientConnectMessage cccm = new ClientConnectMessage(accountId,
+				ConnectionState.CONNECTED,
+				getSelf());
+
+		uplink.tell(cccm, getSelf());
+
+		// Send the client the login message. This must be done when the server
+		// has completed the registration of the client and awaits data now.
+		sendToClient(msg.getLoginMessage());
 	}
 
 	/**

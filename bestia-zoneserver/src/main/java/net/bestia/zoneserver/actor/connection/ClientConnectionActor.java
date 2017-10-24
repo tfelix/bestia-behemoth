@@ -161,6 +161,7 @@ public class ClientConnectionActor extends AbstractActor {
 		} else if (payload instanceof ClientConnectMessage) {
 			handleConnectionStatus((ClientConnectMessage) payload);
 		} else {
+			throwIfNotAuthenticated();
 			clientIngest.tell(payload, getSelf());
 		}
 	}

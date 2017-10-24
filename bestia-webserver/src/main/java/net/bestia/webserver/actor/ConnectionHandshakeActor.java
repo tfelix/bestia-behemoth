@@ -54,6 +54,7 @@ public class ConnectionHandshakeActor extends AbstractActor {
 	}
 	
 	private void redirectMessage(SocketMessage msg) {
+		
 		if (pendingConnections.containsKey(msg.getSessionId())) {
 			pendingConnections.get(msg.getSessionId()).tell(msg, getSelf());
 		} else {

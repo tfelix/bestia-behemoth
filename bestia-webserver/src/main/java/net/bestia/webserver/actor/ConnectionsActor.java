@@ -99,14 +99,18 @@ public class ConnectionsActor extends AbstractActor {
 	 */
 	private void handleNewConnection(ZoneConnectionAccepted msg) {
 
-		final String actorName = String.format("socket-auth-%s", msg.getSessionId());
+		final String actorName = String.format("socket-%s", msg.getSessionId());
 
-		final Props socketProps = ClientActor.props(msg, mapper, uplink);
+		final Props socketProps = ClientActor.props(uplink, mapper, msg.getSession());
 		final ActorRef socketActor = getContext().actorOf(socketProps, actorName);
 
-		getContext().watch(socketActor);
-
 		connections.put(msg.getSessionId(), socketActor);
+		
+		getContext().watch(socketActor);
+		
+		// Now send the actor the server signal.
+		socketActor.tell(msg, getSelf());
+		
 		LOG.debug("Startet new connection actor: {}", socketActor);
 	}
 
