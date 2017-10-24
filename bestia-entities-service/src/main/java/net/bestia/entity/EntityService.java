@@ -19,12 +19,12 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
 
-import akka.actor.PoisonPill;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.EntityCache;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.interceptor.Interceptor;
 import net.bestia.messages.MessageApi;
+import net.bestia.messages.internal.entity.EntityKillMessage;
 import net.bestia.model.geometry.CollisionShape;
 
 /**
@@ -117,9 +117,8 @@ public class EntityService {
 		Objects.requireNonNull(entity);
 
 		// Send message to kill off entity actor.
-		messageApi.sendToEntity(entity.getId(), PoisonPill.getInstance());
+		messageApi.sendToEntity(new EntityKillMessage(entity.getId()));
 
-		Objects.requireNonNull(entity);
 		LOG.trace("delete(): {}", entity);
 
 		final long eid = entity.getId();
@@ -366,6 +365,8 @@ public class EntityService {
 		if (component.getEntityId() == 0) {
 			throw new IllegalArgumentException("Component is not attached to entity. Call attachComponent first.");
 		}
+		
+		// Check if the component needs an update.
 
 		internalUpdateComponent(component);
 
@@ -373,7 +374,7 @@ public class EntityService {
 	}
 
 	/**
-	 * Updates the component but does not trigger the interceptor call yet.
+	 * Updates the component but does not trigger the interceptor call yet. It only updates the component if 
 	 */
 	private void internalUpdateComponent(Component component) {
 		components.lock(component.getId());

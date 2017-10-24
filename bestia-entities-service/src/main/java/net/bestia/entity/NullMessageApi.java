@@ -3,6 +3,7 @@ package net.bestia.entity;
 import org.springframework.stereotype.Component;
 
 import net.bestia.messages.EntityJsonMessage;
+import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
 import net.bestia.messages.MessageApi;
 
@@ -26,7 +27,7 @@ public class NullMessageApi implements MessageApi {
 	}
 
 	@Override
-	public void sendToEntity(long entityId, Object msg) {
+	public void sendToEntity(EntityMessage message) {
 		// no op.
 	}
 

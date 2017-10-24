@@ -32,7 +32,7 @@ public class ScriptComponentInterceptor extends BaseComponentInterceptor<ScriptC
 		LOG.debug("Component {} is deleted.", comp);
 
 		EntityComponentMessage msg = EntityComponentMessage.remove(comp.getEntityId(), comp.getId());
-		akkaApi.sendToEntity(comp.getEntityId(), msg);
+		akkaApi.sendToEntity(msg);
 	}
 
 	@Override

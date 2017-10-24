@@ -50,7 +50,7 @@ public class PositionComponentInterceptor extends BaseComponentInterceptor<Posit
 		LOG.debug("Component {} is created.", comp);
 
 		final EntityComponentMessage msg = EntityComponentMessage.install(entity.getId(), comp.getId());
-		msgApi.sendToEntity(entity.getId(), msg);
+		msgApi.sendToEntity(msg);
 	}
 
 	@Override
