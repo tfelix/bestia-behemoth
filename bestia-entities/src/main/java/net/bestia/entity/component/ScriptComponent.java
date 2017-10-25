@@ -2,6 +2,8 @@ package net.bestia.entity.component;
 
 import java.util.EnumMap;
 
+import com.google.common.base.Objects;
+
 /**
  * Holds various script callbacks for entities.
  * 
@@ -101,4 +103,26 @@ public class ScriptComponent extends Component {
 	public String toString() {
 		return String.format("ScriptComponent[callbacks: %s]", callbackNames.toString());
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(callbackNames, scriptUuid);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof ScriptComponent)) {
+			return false;
+		}
+		final ScriptComponent other = (ScriptComponent) obj;
+		return Objects.equal(callbackNames, other.callbackNames)
+				&& Objects.equal(scriptUuid, other.scriptUuid);
+	}
+
 }

@@ -1,5 +1,7 @@
 package net.bestia.entity.component;
 
+import java.util.Objects;
+
 /**
  * Level components allow entities to receive exp and level up.
  * 
@@ -30,7 +32,7 @@ public class LevelComponent extends Component {
 	void setLevel(int level) {
 
 		if (level < 0) {
-			throw new IllegalArgumentException("Level can not be negative." );
+			throw new IllegalArgumentException("Level can not be negative.");
 		}
 
 		this.level = level;
@@ -47,6 +49,28 @@ public class LevelComponent extends Component {
 		}
 
 		this.exp = exp;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(level, exp);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof LevelComponent)) {
+			return false;
+		}
+		final LevelComponent other = (LevelComponent) obj;
+
+		return Objects.equals(level, other.level)
+				&& Objects.equals(exp, other.exp);
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package net.bestia.entity.component;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Objects;
 
 /**
  * The tag component allows attach simple data to an entity.
@@ -41,8 +42,8 @@ public class TagComponent extends Component {
 		 * A natural resource which can be harvested if the needed skills are
 		 * learned by the player.
 		 */
-		RESOURCE, 
-		
+		RESOURCE,
+
 		/**
 		 * Entity is under the control of a player.
 		 */
@@ -70,6 +71,24 @@ public class TagComponent extends Component {
 
 	public Collection<Tag> getAllTags() {
 		return Collections.unmodifiableSet(tags);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(tags);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		final TagComponent other = (TagComponent) obj;
+		return Objects.equals(this.tags, other.tags);
 	}
 
 	@Override

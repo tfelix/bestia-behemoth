@@ -9,15 +9,15 @@ import net.bestia.model.domain.EquipmentSlot;
 import net.bestia.model.domain.Item;
 
 /**
- * Entities implementing this interface can be equipped with items.
+ * Entities owning this component are able to equip items.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class EquipComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private final Set<EquipmentSlot> slots = new HashSet<>();
 	private final Set<Item> equipments = new HashSet<>();
 
@@ -57,13 +57,13 @@ public class EquipComponent extends Component {
 	public Set<EquipmentSlot> getAvailableEquipmentSlots() {
 		return Collections.unmodifiableSet(slots);
 	}
-	
+
 	public void getAvailableEquipmentSlots(Set<EquipmentSlot> slots) {
 		Objects.requireNonNull(slots);
 		this.slots.clear();
 		this.slots.addAll(slots);
 	}
-	
+
 	@Override
 	public String toString() {
 		return String.format("EquipComponent[id: %d]", getId());

@@ -1,5 +1,7 @@
 package net.bestia.entity.component;
 
+import java.util.Objects;
+
 public class PlayerComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
@@ -35,7 +37,29 @@ public class PlayerComponent extends Component {
 
 	@Override
 	public String toString() {
-		return String.format("PlayerComponent[id: %d, accId: %d, pbId: %d]", getId(), getOwnerAccountId(), getPlayerBestiaId());
+		return String.format("PlayerComponent[id: %d, accId: %d, pbId: %d]", getId(), getOwnerAccountId(),
+				getPlayerBestiaId());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(ownerAccountId, playerBestiaId);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof PlayerComponent)) {
+			return false;
+		}
+		final PlayerComponent other = (PlayerComponent) obj;
+		return Objects.equals(ownerAccountId, other.ownerAccountId)
+				&& Objects.equals(playerBestiaId, other.playerBestiaId);
 	}
 
 }

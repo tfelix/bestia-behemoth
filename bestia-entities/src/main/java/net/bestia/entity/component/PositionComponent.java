@@ -68,7 +68,8 @@ public class PositionComponent extends Component {
 	/**
 	 * Set the facing direction.
 	 * 
-	 * @param facing The new facing.
+	 * @param facing
+	 *            The new facing.
 	 */
 	public void setFacing(Direction facing) {
 		this.facing = facing;
@@ -129,11 +130,7 @@ public class PositionComponent extends Component {
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((facing == null) ? 0 : facing.hashCode());
-		result = prime * result + ((shape == null) ? 0 : shape.hashCode());
-		return result;
+		return Objects.hash(facing, shape, sightBlocking);
 	}
 
 	@Override
@@ -144,15 +141,10 @@ public class PositionComponent extends Component {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		PositionComponent other = (PositionComponent) obj;
-		if (facing != other.facing)
-			return false;
-		if (shape == null) {
-			if (other.shape != null)
-				return false;
-		} else if (!shape.equals(other.shape))
-			return false;
-		return true;
+		final PositionComponent other = (PositionComponent) obj;
+		return Objects.equals(facing, other.facing)
+				&& Objects.equals(shape, other.shape)
+				&& Objects.equals(sightBlocking, other.sightBlocking);
 	}
 
 }
