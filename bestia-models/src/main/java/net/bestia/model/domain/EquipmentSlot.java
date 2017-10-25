@@ -3,13 +3,13 @@ package net.bestia.model.domain;
 /**
  * Slots which can be used to equip something.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public enum EquipmentSlot {
 	
 	HEAD,
-	BREAST,
+	TORSO,
 	SHOULDER,
 	ARMS,
 	HANDS,
