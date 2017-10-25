@@ -1,10 +1,6 @@
 package net.bestia.zoneserver.configuration;
 
 import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,14 +14,11 @@ import org.springframework.context.annotation.Profile;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import akka.actor.ActorPath;
-import akka.actor.ActorPaths;
 import akka.actor.ActorSystem;
 import akka.actor.Address;
 import akka.actor.TypedActor;
 import akka.actor.TypedProps;
 import akka.cluster.Cluster;
-import net.bestia.server.AkkaCluster;
 import net.bestia.zoneserver.actor.AkkaMessageApi;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.ZoneMessageApi;
@@ -54,38 +47,14 @@ public class AkkaConfiguration implements DisposableBean {
 			throws UnknownHostException {
 
 		final Config akkaConfig = ConfigFactory.load(AKKA_CONFIG_NAME);
-		//LOG.debug("Loaded akka config: {}.", akkaConfig.toString());
+		LOG.debug("Loaded akka config: {}.", akkaConfig.toString());
 
-		//systemInstance = ActorSystem.create(AkkaCluster.CLUSTER_NAME, akkaConfig);
 		systemInstance = ActorSystem.create("BestiaBehemoth", akkaConfig);
-		
-		//Arrays.asList(ActorPaths.fromString("akka.tcp://BestiaBehemoth@localhost:6767");
 		Address addr = new Address("tcp", "BestiaBehemoth", "localhost", 6767);
 		Cluster.get(systemInstance).join(addr);
 
 		// initialize the application context in the Akka Spring extension.
 		SpringExtension.initialize(systemInstance, appContext);
-
-		//final Address selfAddr = Cluster.get(systemInstance).selfAddress();
-		//Cluster.get(systemInstance).join(selfAddr);
-		
-		//final List<Address> seedNodes = clusterConfig.getClusterSeedNodes();
-
-		//LOG.info("Received live endpoints: {}", seedNodes);
-
-		// Check if there are at least some seeds or if we need to bootstrap
-		// the cluster.
-		/*if (seedNodes.size() == 0) {
-			// Join as seed node since desired number of seeds is not
-			// reached.
-			LOG.info("Joining as bootstrap seed node.");
-			Cluster.get(systemInstance).join(selfAddr);
-		} else {
-			LOG.info("Joining as regular node.");
-			Cluster.get(systemInstance).joinSeedNodes(seedNodes);
-		}*/
-
-		//LOG.info("Zoneserver Akka Address is: {}", selfAddr);
 
 		return systemInstance;
 	}
@@ -96,7 +65,7 @@ public class AkkaConfiguration implements DisposableBean {
 
 		final TypedProps<AkkaMessageApi> typedProps = new TypedProps<>(ZoneMessageApi.class, AkkaMessageApi.class);
 		final ZoneMessageApi msgApi = TypedActor.get(system).typedActorOf(typedProps, "akkaMsgApi");
-		
+
 		return msgApi;
 	}
 

@@ -57,7 +57,6 @@ public class BestiaInfoActor extends AbstractActor {
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
-
 		this.msgHub = Objects.requireNonNull(msgHub);
 	}
 

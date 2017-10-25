@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * informed when getting the player bestia data how to display it and also when
  * an entity gets an update.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Embeddable
@@ -77,6 +77,27 @@ public class SpriteInfo implements Serializable {
 
 	public void setSprite(String sprite) {
 		this.sprite = sprite;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(type, sprite);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof SpriteInfo)) {
+			return false;
+		}
+		final SpriteInfo other = (SpriteInfo) obj;
+		return Objects.equals(type, other.type)
+				&& Objects.equals(sprite, other.sprite);
 	}
 
 	@Override

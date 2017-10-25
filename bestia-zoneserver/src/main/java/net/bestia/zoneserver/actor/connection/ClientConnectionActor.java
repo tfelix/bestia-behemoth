@@ -16,6 +16,8 @@ import net.bestia.messages.internal.ClientConnectMessage;
 import net.bestia.messages.internal.FromClient;
 import net.bestia.messages.internal.ClientConnectMessage.ConnectionState;
 import net.bestia.messages.login.LoginAuthMessage;
+import net.bestia.messages.login.LoginAuthReplyMessage;
+import net.bestia.messages.login.LoginState;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.ClientMessageActor;
 import net.bestia.zoneserver.service.LoginService;
@@ -57,6 +59,7 @@ public class ClientConnectionActor extends AbstractActor {
 	public Receive createReceive() {
 		return receiveBuilder()
 				.match(FromClient.class, this::handleClientMessage)
+				.match(LoginAuthReplyMessage.class, this::checkLoginAuthReply)
 				.match(JsonMessage.class, this::sendMessageToClient)
 				.match(Terminated.class, m -> onClientConnectionClosed())
 				.build();
@@ -83,6 +86,50 @@ public class ClientConnectionActor extends AbstractActor {
 	}
 
 	/**
+	 * These kind of messages are coming from the client. Since we receive
+	 * messages from both directions (server and from the client) as
+	 * {@link JsonMessage} we must differentiate them. This is done by wrapping
+	 * the message.
+	 * 
+	 * @param msg
+	 *            The wrapped message if it comes from the client.
+	 */
+	private void handleClientMessage(FromClient msg) {
+		Object payload = msg.getPayload();
+		if (payload instanceof LoginAuthMessage) {
+			
+			handleLoginAuthRequest((LoginAuthMessage) payload);
+			
+		} else if (payload instanceof ClientConnectMessage) {
+			
+			handleConnectionStatus((ClientConnectMessage) payload);
+			
+		} else {
+			
+			throwIfNotAuthenticated();
+			clientIngest.tell(payload, getSelf());
+			
+		}
+	}
+
+	/**
+	 * Special method as the reply is filtered from the auth actor sending it
+	 * back. Since we have a fairly long startup time we will initilize the
+	 * messaging struct now if the auth was sucessful. The reduced the cances
+	 * that we have not finished initializing if the client starts to talk to
+	 * us.
+	 * 
+	 * @param msg
+	 */
+	private void checkLoginAuthReply(LoginAuthReplyMessage msg) {
+		if(msg.getLoginState() == LoginState.ACCEPTED) {
+			clientIngest = SpringExtension.actorOf(getContext(), ClientMessageActor.class);
+		}
+
+		sendMessageToClient(msg);
+	}
+
+	/**
 	 * This is the very first message the get from the system asking us to
 	 * authenticate.
 	 * 
@@ -104,7 +151,6 @@ public class ClientConnectionActor extends AbstractActor {
 
 		final ActorRef authRequest = SpringExtension.actorOf(getContext(), LoginAuthActor.class);
 		authRequest.tell(msg, getSelf());
-
 	}
 
 	/**
@@ -121,13 +167,6 @@ public class ClientConnectionActor extends AbstractActor {
 	}
 
 	private void startConnectionActor(ClientConnectMessage msg) {
-
-		if (msg.getState() != ConnectionState.CONNECTED) {
-			getContext().stop(getSelf());
-			return;
-		}
-
-		clientIngest = SpringExtension.actorOf(getContext(), ClientMessageActor.class);
 
 		accountId = msg.getAccountId();
 
@@ -152,18 +191,6 @@ public class ClientConnectionActor extends AbstractActor {
 	private void onClientConnectionClosed() {
 		LOG.debug("Socket actor account {} has terminated.", accountId);
 		getContext().stop(getSelf());
-	}
-
-	private void handleClientMessage(FromClient msg) {
-		Object payload = msg.getPayload();
-		if (payload instanceof LoginAuthMessage) {
-			handleLoginAuthRequest((LoginAuthMessage) payload);
-		} else if (payload instanceof ClientConnectMessage) {
-			handleConnectionStatus((ClientConnectMessage) payload);
-		} else {
-			throwIfNotAuthenticated();
-			clientIngest.tell(payload, getSelf());
-		}
 	}
 
 	/**

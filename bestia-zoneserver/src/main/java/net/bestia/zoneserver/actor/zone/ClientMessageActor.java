@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -90,17 +91,23 @@ public class ClientMessageActor extends AbstractActor {
 
 	private Map<Class<?>, List<ActorRef>> redirections = new HashMap<>();
 
-	private final ActorRef messageHub;
+	private final ZoneMessageApi msgApi;
+	private ActorRef messageHub;
 
 	@Autowired
 	public ClientMessageActor(ZoneMessageApi akkaMsgApi) {
 
+		this.msgApi = Objects.requireNonNull(akkaMsgApi);
+	}
+
+	@Override
+	public void preStart() throws Exception {
 		// === Connection & Login ===
 		messageHub = SpringExtension.actorOf(getContext(), MessageRouterActor.class);
-		
+
 		// Setup the messaging system.
-		akkaMsgApi.setMessageEntry(messageHub);
-		
+		msgApi.setMessageEntry(messageHub);
+
 		// === Login and connection ===
 		SpringExtension.actorOf(getContext(), LatencyManagerActor.class);
 
@@ -145,7 +152,7 @@ public class ClientMessageActor extends AbstractActor {
 	 */
 	private void handleMessageRedirectRequest(RedirectMessage requestedClasses) {
 
-		LOG.debug("Installing message route for: {} to: {}.", requestedClasses.getClasses(), getSender());
+		LOG.debug("Installing route for: {} to: {}.", requestedClasses.getClasses(), getSender());
 
 		requestedClasses.getClasses().forEach(clazz -> {
 
@@ -192,12 +199,12 @@ public class ClientMessageActor extends AbstractActor {
 	 * to all subscribed actors.
 	 */
 	private void handleIncomingMessage(Object msg) {
-		
+
 		if (redirections.containsKey(msg.getClass())) {
 
 			final List<ActorRef> routees = redirections.get(msg.getClass());
 			routees.forEach(ref -> {
-				LOG.debug("IngestEx forwarding: {} to {}.", msg, ref);
+				LOG.debug("Client message forwarding: {} to {}.", msg, ref);
 				ref.forward(msg, getContext());
 			});
 
