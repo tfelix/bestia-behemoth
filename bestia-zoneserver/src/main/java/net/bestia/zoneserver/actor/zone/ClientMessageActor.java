@@ -18,7 +18,6 @@ import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.ZoneMessageApi;
 import net.bestia.zoneserver.actor.battle.AttackUseActor;
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
@@ -49,7 +48,7 @@ public class ClientMessageActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
-	public static final String NAME = "ingestEx";
+	public static final String NAME = "clientMessageIngest";
 
 	/**
 	 * This message is send towards actors (usually an IngestActor) which will
@@ -91,22 +90,16 @@ public class ClientMessageActor extends AbstractActor {
 
 	private Map<Class<?>, List<ActorRef>> redirections = new HashMap<>();
 
-	private final ZoneMessageApi msgApi;
-	private ActorRef messageHub;
+	private final ActorRef messageHub;
 
 	@Autowired
-	public ClientMessageActor(ZoneMessageApi akkaMsgApi) {
+	public ClientMessageActor(ActorRef messageHub) {
 
-		this.msgApi = Objects.requireNonNull(akkaMsgApi);
+		this.messageHub = Objects.requireNonNull(messageHub);
 	}
 
 	@Override
 	public void preStart() throws Exception {
-		// === Connection & Login ===
-		messageHub = SpringExtension.actorOf(getContext(), MessageRouterActor.class);
-
-		// Setup the messaging system.
-		msgApi.setMessageEntry(messageHub);
 
 		// === Login and connection ===
 		SpringExtension.actorOf(getContext(), LatencyManagerActor.class);

@@ -14,12 +14,14 @@ import org.springframework.context.annotation.Profile;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Address;
 import akka.actor.TypedActor;
 import akka.actor.TypedProps;
 import akka.cluster.Cluster;
 import net.bestia.zoneserver.actor.AkkaMessageApi;
+import net.bestia.zoneserver.actor.BestiaRootActor;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.ZoneMessageApi;
 
@@ -67,6 +69,17 @@ public class AkkaConfiguration implements DisposableBean {
 		final ZoneMessageApi msgApi = TypedActor.get(system).typedActorOf(typedProps, "akkaMsgApi");
 
 		return msgApi;
+	}
+	
+	@Bean
+	public ActorRef rootActor(ZoneMessageApi msgApi) {
+		LOG.info("Starting actor system...");
+
+		final ActorRef rootActor = SpringExtension.actorOf(systemInstance, BestiaRootActor.class, msgApi);
+
+		LOG.info("Bestia Zone startup completed.");
+		
+		return rootActor;
 	}
 
 	/**

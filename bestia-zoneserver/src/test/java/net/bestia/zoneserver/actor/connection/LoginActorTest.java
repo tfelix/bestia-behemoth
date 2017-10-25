@@ -78,7 +78,7 @@ public class LoginActorTest {
 	public void registers_RedirectMessage_after_start() {
 		new TestKit(system) {
 			{
-				SpringExtension.unnamedActorOf(system, LoginAuthActor.class);
+				SpringExtension.actorOf(system, LoginAuthActor.class);
 				expectMsgClass(duration("3 second"), RedirectMessage.class);
 			}
 		};
@@ -88,7 +88,7 @@ public class LoginActorTest {
 	public void onValidLogin_loginAccepted() {
 		new TestKit(system) {
 			{
-				final ActorRef actor = SpringExtension.unnamedActorOf(system, LoginAuthActor.class);
+				final ActorRef actor = SpringExtension.actorOf(system, LoginAuthActor.class);
 
 				within(duration("1 seconds"), () -> {
 					actor.tell(validAuthMsg, getRef());
@@ -107,7 +107,7 @@ public class LoginActorTest {
 	public void onInvalidLogin_loginDenied() {
 		new TestKit(system) {
 			{
-				final ActorRef actor = SpringExtension.unnamedActorOf(system, LoginAuthActor.class);
+				final ActorRef actor = SpringExtension.actorOf(system, LoginAuthActor.class);
 
 				within(duration("1 seconds"), () -> {
 					actor.tell(invalidAuthMsg, getRef());

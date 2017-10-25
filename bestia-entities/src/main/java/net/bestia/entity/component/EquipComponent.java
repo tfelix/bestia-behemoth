@@ -65,6 +65,27 @@ public class EquipComponent extends Component {
 	}
 
 	@Override
+	public int hashCode() {
+		return Objects.hash(slots, equipments);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof EquipComponent)) {
+			return false;
+		}
+		final EquipComponent other = (EquipComponent) obj;
+		return Objects.equals(equipments, other.equipments)
+				&& Objects.equals(slots, other.slots);
+	}
+
+	@Override
 	public String toString() {
 		return String.format("EquipComponent[id: %d]", getId());
 	}

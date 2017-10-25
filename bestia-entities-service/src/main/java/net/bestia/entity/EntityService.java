@@ -366,7 +366,11 @@ public class EntityService {
 			throw new IllegalArgumentException("Component is not attached to entity. Call attachComponent first.");
 		}
 		
-		// Check if the component needs an update.
+		// Check if the component actually needs an update.
+		if(getComponent(component.getId()).equals(component)) {
+			LOG.trace("Component has not changed. Omitting update.");
+			return;
+		}
 
 		internalUpdateComponent(component);
 

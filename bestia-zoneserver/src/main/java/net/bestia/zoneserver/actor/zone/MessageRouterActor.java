@@ -1,15 +1,15 @@
 package net.bestia.zoneserver.actor.zone;
 
+import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
-import akka.cluster.sharding.ClusterSharding;
 import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
-import net.bestia.server.EntryActorNames;
 
 /**
  * Central message control hub. Incoming messages are deliverd to clients or
@@ -28,11 +28,11 @@ public class MessageRouterActor extends AbstractActor {
 	private final ActorRef clients;
 
 	@Autowired
-	public MessageRouterActor() {
+	public MessageRouterActor(ActorRef entities, ActorRef clients) {
 
-		final ClusterSharding sharding = ClusterSharding.get(getContext().getSystem());
-		this.entities = sharding.shardRegion(EntryActorNames.SHARD_ENTITY);
-		this.clients = sharding.shardRegion(EntryActorNames.SHARD_CONNECTION);
+		
+		this.entities = Objects.requireNonNull(entities);
+		this.clients = Objects.requireNonNull(clients);
 	}
 
 	@Override
@@ -40,14 +40,15 @@ public class MessageRouterActor extends AbstractActor {
 		return receiveBuilder()
 				.match(EntityMessage.class, this::sendToEntityActor)
 				.match(JsonMessage.class, this::sendToClient)
+				.match(String.class, s -> System.err.println(s))
 				.build();
 	}
 
-	private void sendToEntityActor(Object msg) {
+	private void sendToEntityActor(EntityMessage msg) {
 		entities.tell(msg, getSender());
 	}
 
-	private void sendToClient(Object msg) {
+	private void sendToClient(JsonMessage msg) {
 		clients.tell(msg, getSender());
 	}
 }

@@ -13,13 +13,10 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.JsonMessage;
 import net.bestia.messages.internal.ClientConnectMessage;
-import net.bestia.messages.internal.FromClient;
 import net.bestia.messages.internal.ClientConnectMessage.ConnectionState;
+import net.bestia.messages.internal.FromClient;
 import net.bestia.messages.login.LoginAuthMessage;
-import net.bestia.messages.login.LoginAuthReplyMessage;
-import net.bestia.messages.login.LoginState;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor;
 import net.bestia.zoneserver.service.LoginService;
 
 /**
@@ -47,19 +44,19 @@ public class ClientConnectionActor extends AbstractActor {
 	private ActorRef clientSocket;
 
 	private final LoginService loginService;
-	private ActorRef clientIngest;
+	private final ActorRef clientIngest;
 
 	@Autowired
-	public ClientConnectionActor(LoginService loginService) {
+	public ClientConnectionActor(LoginService loginService, ActorRef clientIngest) {
 
 		this.loginService = Objects.requireNonNull(loginService);
+		this.clientIngest = Objects.requireNonNull(clientIngest);
 	}
 
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
 				.match(FromClient.class, this::handleClientMessage)
-				.match(LoginAuthReplyMessage.class, this::checkLoginAuthReply)
 				.match(JsonMessage.class, this::sendMessageToClient)
 				.match(Terminated.class, m -> onClientConnectionClosed())
 				.build();
@@ -110,23 +107,6 @@ public class ClientConnectionActor extends AbstractActor {
 			clientIngest.tell(payload, getSelf());
 			
 		}
-	}
-
-	/**
-	 * Special method as the reply is filtered from the auth actor sending it
-	 * back. Since we have a fairly long startup time we will initilize the
-	 * messaging struct now if the auth was sucessful. The reduced the cances
-	 * that we have not finished initializing if the client starts to talk to
-	 * us.
-	 * 
-	 * @param msg
-	 */
-	private void checkLoginAuthReply(LoginAuthReplyMessage msg) {
-		if(msg.getLoginState() == LoginState.ACCEPTED) {
-			clientIngest = SpringExtension.actorOf(getContext(), ClientMessageActor.class);
-		}
-
-		sendMessageToClient(msg);
 	}
 
 	/**

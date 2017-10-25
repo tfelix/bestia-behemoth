@@ -88,7 +88,7 @@ public class BestiaInfoActorTest {
 	public void onBestiaInfoRequest_sends_info_to_clients() {
 		new TestKit(system) {
 			{
-				final ActorRef actor = SpringExtension.unnamedActorOf(system, BestiaInfoActor.class);
+				final ActorRef actor = SpringExtension.actorOf(system, BestiaInfoActor.class);
 
 				within(duration("1 seconds"), () -> {
 					actor.tell(infoReq, getRef());

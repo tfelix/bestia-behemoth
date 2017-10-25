@@ -41,6 +41,10 @@ class SpringActorProducer implements IndirectActorProducer {
 	public SpringActorProducer(ApplicationContext applicationContext,
 			Class<? extends Actor> actorBeanClass,
 			Object... args) {
+		
+		if(Stream.of(args).anyMatch(x -> x == null)) {
+			throw new IllegalArgumentException("Arguments can not contain null.");
+		}
 
 		this.applicationContext = Objects.requireNonNull(applicationContext);
 		this.actorBeanClass = Objects.requireNonNull(actorBeanClass);

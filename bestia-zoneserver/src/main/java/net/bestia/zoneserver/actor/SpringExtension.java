@@ -117,10 +117,13 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 		}
 	}
 
-	public static ActorRef actorOf(ActorSystem system, Class<? extends AbstractActor> clazz) {
-
+	
+	public static ActorRef actorOf(ActorSystem system, Class<? extends AbstractActor> clazz, Object... args) {
+		final Props props = (args == null) ? getSpringProps(system, clazz) : getSpringProps(system, clazz, args);
 		final String actorName = getActorName(clazz);
-		return actorOf(system, clazz, actorName);
+		final ActorRef actor = (actorName == null) ? system.actorOf(props) : system.actorOf(props, actorName);
+		LOG.debug("Started actor: {}, path: {}", clazz, actor.path());
+		return actor;
 	}
 
 	/**
@@ -134,12 +137,14 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 	 *            random name is used.
 	 * @return The created {@link ActorRef}.
 	 */
-	public static ActorRef actorOf(ActorSystem system, Class<? extends AbstractActor> clazz, String actorName) {
+	public static ActorRef actorOf(ActorSystem system, Class<? extends AbstractActor> clazz) {
 		final Props props = getSpringProps(system, clazz);
+		final String actorName = getActorName(clazz);
 		final ActorRef actor = (actorName == null) ? system.actorOf(props) : system.actorOf(props, actorName);
 		LOG.debug("Started actor: {}, path: {}", clazz, actor.path());
 		return actor;
 	}
+	
 	
 	/**
 	 * Unlike {@link #createActor(Class)} this wont check the given class for a
@@ -150,9 +155,10 @@ public class SpringExtension extends AbstractExtensionId<SpringExtension.SpringA
 	 *            The class to create an actor from.
 	 * @return The created and already registered new actor.
 	 */
+	/*
 	public static ActorRef unnamedActorOf(ActorSystem system, Class<? extends AbstractActor> clazz) {		
 		return actorOf(system, clazz, null);
-	}
+	}*/
 
 	/**
 	 * Like {@link #createActor(Class, String)} but it will examine the given

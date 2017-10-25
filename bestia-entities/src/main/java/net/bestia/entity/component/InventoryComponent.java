@@ -2,6 +2,7 @@ package net.bestia.entity.component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import net.bestia.model.domain.Item;
@@ -129,6 +130,28 @@ public class InventoryComponent extends Component {
 		} else {
 			return false;
 		}
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(items, maxItems, maxWeight);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof InventoryComponent)) {
+			return false;
+		}
+		final InventoryComponent other = (InventoryComponent) obj;
+		return Objects.equals(items, other.items)
+				&& Objects.equals(maxItems, other.maxItems)
+				&& Objects.equals(maxWeight, other.maxWeight);
 	}
 
 	@Override
