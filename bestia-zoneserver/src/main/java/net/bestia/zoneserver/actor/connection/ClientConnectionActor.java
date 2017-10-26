@@ -158,7 +158,7 @@ public class ClientConnectionActor extends AbstractActor {
 		clientSocket = msg.getWebserverRef();
 		getContext().watch(clientSocket);
 
-		SpringExtension.actorOf(getContext(), LatencyPingActor.class, accountId, clientSocket);
+		//SpringExtension.actorOf(getContext(), LatencyPingActor.class, accountId, clientSocket);
 
 		LOG.debug("Connection established: {}, account: {}", getSelf().path(), accountId);
 	}

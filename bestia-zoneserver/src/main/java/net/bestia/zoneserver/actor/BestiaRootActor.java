@@ -29,6 +29,7 @@ import net.bestia.zoneserver.actor.zone.ClientMessageActor;
 import net.bestia.zoneserver.actor.zone.ClusterControlActor;
 import net.bestia.zoneserver.actor.zone.MemDbHeartbeatActor;
 import net.bestia.zoneserver.actor.zone.MessageRouterActor;
+import net.bestia.zoneserver.actor.zone.MessageRouterActor.SetMessageRoutes;
 import net.bestia.zoneserver.actor.zone.WebIngestActor;
 import net.bestia.zoneserver.actor.zone.ZoneClusterListenerActor;
 import net.bestia.zoneserver.script.ScriptService;
@@ -47,8 +48,8 @@ public class BestiaRootActor extends AbstractActor {
 
 	public final static String NAME = "bestia";
 
-	private ActorRef clientMessageIngest;
-	private ActorRef messageHub;
+	private ActorRef clientMessageHandler;
+	private final ActorRef messageHub;
 	
 	private final ScriptService scriptService;
 	private final ZoneMessageApi akkaMsgApi;
@@ -59,10 +60,14 @@ public class BestiaRootActor extends AbstractActor {
 
 		this.scriptService = Objects.requireNonNull(scriptService);
 		this.akkaMsgApi = Objects.requireNonNull(akkaMsgApi);
+		
+		this.messageHub = SpringExtension.actorOf(getContext(), MessageRouterActor.class);
 	}
 
 	@Override
 	public void preStart() throws Exception {
+		
+		clientMessageHandler = SpringExtension.actorOf(getContext(), ClientMessageActor.class, messageHub);
 		
 		registerShardedActors();
 		
@@ -70,8 +75,6 @@ public class BestiaRootActor extends AbstractActor {
 		
 		// Setup the messaging system.
 		akkaMsgApi.setMessageEntry(messageHub);
-		
-		clientMessageIngest = SpringExtension.actorOf(getContext(), ClientMessageActor.class, messageHub);
 		
 		// System actors.
 		SpringExtension.actorOf(getContext(), ZoneClusterListenerActor.class);
@@ -126,10 +129,11 @@ public class BestiaRootActor extends AbstractActor {
 
 		// Connection sharding.
 		// Circular dependency auflösen!!!
-		final Props connectionProps = SpringExtension.getSpringProps(system, ClientConnectionActor.class, clientMessageIngest);
+		final Props connectionProps = SpringExtension.getSpringProps(system, ClientConnectionActor.class, clientMessageHandler);
 		final ConnectionShardMessageExtractor connectionExtractor = new ConnectionShardMessageExtractor();
 		final ActorRef clients = sharding.start(EntryActorNames.SHARD_CONNECTION, connectionProps, settings, connectionExtractor);
 		
-		messageHub = SpringExtension.actorOf(getContext(), ClientConnectionActor.class, entities, clients);
+		final SetMessageRoutes setMsg = new SetMessageRoutes(entities, clients);
+		messageHub.tell(setMsg, getSelf());
 	}
 }

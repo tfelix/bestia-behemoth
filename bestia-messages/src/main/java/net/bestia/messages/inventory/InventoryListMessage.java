@@ -14,7 +14,7 @@ import net.bestia.model.domain.PlayerItem;
  * Upon receiving this message the client should trigger a reset of the invntory
  * and display the new list of items.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class InventoryListMessage extends JsonMessage {

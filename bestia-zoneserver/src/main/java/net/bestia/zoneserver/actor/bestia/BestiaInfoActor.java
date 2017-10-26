@@ -115,7 +115,5 @@ public class BestiaInfoActor extends AbstractActor {
 					statusBasedValues);
 			msgHub.tell(esmsg, getSelf());
 		}
-		
-		msgHub.tell("wtf=", getSelf());
 	}
 }

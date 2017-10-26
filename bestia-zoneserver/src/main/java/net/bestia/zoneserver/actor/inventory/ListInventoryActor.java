@@ -66,6 +66,6 @@ public class ListInventoryActor extends AbstractActor {
 		final List<PlayerItem> items = inventoryService.findPlayerItemsForAccount(ilmsg.getAccountId());
 		invMsg.setPlayerItems(items);
 
-		sendClient.tell(invMsg, getSender());
+		sendClient.tell(invMsg, getSelf());
 	}
 }
