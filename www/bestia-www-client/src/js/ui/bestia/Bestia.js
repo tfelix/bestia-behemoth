@@ -1,5 +1,5 @@
 /**
- * @author       Thomas Felix <thomas.felix@tfelix.de>
+ * @author       Thomas Felix
  * @copyright    2015 Thomas Felix
  */
 
@@ -11,6 +11,7 @@ import ItemViewModel from '../inventory/Item';
 import StatusPoint from './StatusPoints';
 import StatusPointsComparer from './StatusPointsComparer';
 import StatusBasedValues from './StatusBasedValues';
+import ConditionValues from '.ConditionValues';
 
 /**
  * ViewModel of a Bestia.
@@ -66,8 +67,9 @@ export default class Bestia {
 
 		this.statusPoints = new StatusPoint();
 		this.unmodifiedStatusPoints = new StatusPoint();
-		this.comparedStatusPoints = new StatusPointsComparer();
+		this.comparedStatusPoints = new StatusPointsComparer(this.statusPoints, this.unmodifiedStatusPoints);
 		this.statusBasedValues = new StatusBasedValues();
+		this.conditionValues = new ConditionValues();
 
 		this.update(msg);
 	}
@@ -91,23 +93,24 @@ export default class Bestia {
 	 *            msg - Message object from the server.
 	 */
 	update(msg) {
-		if (msg !== undefined) {
-
-			// Status points
-			let sp = msg.sp;
-
-			// Bestia
-			let b = msg.b;
-
-			this.playerBestiaId(b.id);
-			this.entityId(msg.eid);
-			this.posX(b.cl.x);
-			this.posY(b.cl.y);
-			this.customName(b.cn);
-			this.level(b.lv);
-			this.databaseName(b.b.bdbn);
-			this.sprite(b.b.sp.s);
-			this.spriteType(b.b.sp.t);
+		if (msg === undefined) {
+			return;
 		}
+
+		// Status points
+		let sp = msg.sp;
+
+		// Bestia
+		let b = msg.b;
+
+		this.playerBestiaId(b.id);
+		this.entityId(msg.eid);
+		this.posX(b.cl.x);
+		this.posY(b.cl.y);
+		this.customName(b.cn);
+		this.level(b.lv);
+		this.databaseName(b.b.bdbn);
+		this.sprite(b.b.sp.s);
+		this.spriteType(b.b.sp.t);
 	}
 }

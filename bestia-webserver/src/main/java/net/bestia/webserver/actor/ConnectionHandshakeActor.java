@@ -53,8 +53,11 @@ public class ConnectionHandshakeActor extends AbstractActor {
 
 	private void redirectMessage(SocketMessage msg) {
 		LOG.debug("Received from client: {}", msg);
-		final ActorRef clientActor = connections.getOrDefault(msg.getSessionId(), ActorRef.noSender());
-		clientActor.tell(msg, getSelf());
+		final ActorRef clientActor = connections.get(msg.getSessionId());
+		
+		if(clientActor != null) {
+			clientActor.tell(msg, getSelf());
+		}
 	}
 
 	private void handleClosedConnection(Terminated msg) {

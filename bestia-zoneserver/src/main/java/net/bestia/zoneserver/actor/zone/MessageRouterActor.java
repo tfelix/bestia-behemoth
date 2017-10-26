@@ -8,10 +8,8 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
-import net.bestia.messages.entity.EntityStatusUpdateMessage;
 
 /**
  * Central message control hub. Incoming messages are deliverd to clients or

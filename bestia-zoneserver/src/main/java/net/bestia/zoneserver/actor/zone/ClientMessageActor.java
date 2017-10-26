@@ -106,24 +106,24 @@ public class ClientMessageActor extends AbstractActor {
 
 		// === Bestias ===
 		SpringExtension.actorOf(getContext(), BestiaInfoActor.class, messageRouter);
-		//SpringExtension.actorOf(getContext(), ActivateBestiaActor.class);
+		SpringExtension.actorOf(getContext(), ActivateBestiaActor.class);
 
 		// === Inventory ===
 		SpringExtension.actorOf(getContext(), ListInventoryActor.class, messageRouter);
 
 		// === Map ===
-		//SpringExtension.actorOf(getContext(), MapRequestChunkActor.class, messageHub);
-		//SpringExtension.actorOf(getContext(), TilesetRequestActor.class, messageHub);
+		SpringExtension.actorOf(getContext(), MapRequestChunkActor.class, messageRouter);
+		SpringExtension.actorOf(getContext(), TilesetRequestActor.class, messageRouter);
 
 		// === Entities ===
-		//SpringExtension.actorOf(getContext(), EntityInteractionRequestActor.class, messageHub);
+		SpringExtension.actorOf(getContext(), EntityInteractionRequestActor.class, messageRouter);
 		SpringExtension.actorOf(getContext(), EntitySyncActor.class, messageRouter);
 
 		// === Attacking ===
-		//SpringExtension.actorOf(getContext(), AttackUseActor.class, messageHub);
+		SpringExtension.actorOf(getContext(), AttackUseActor.class, messageRouter);
 
 		// === UI ===
-		//SpringExtension.actorOf(getContext(), ClientVarActor.class, messageHub);
+		SpringExtension.actorOf(getContext(), ClientVarActor.class, messageRouter);
 
 		// === Chat ===
 		SpringExtension.actorOf(getContext(), ChatActor.class, messageRouter);
