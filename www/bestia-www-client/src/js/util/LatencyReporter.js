@@ -10,25 +10,25 @@ import LatencyResponseMessage from '../message/external/LatencyResponseMessage';
  */
 export default class LatencyReporter {
 
-    constructor(pubsub) {
+	constructor(pubsub) {
 
-        if(!pubsub) {
-            throw 'pubsub can not be null.';
-        }
+		if (!pubsub) {
+			throw 'pubsub can not be null.';
+		}
 
-        this.pubsub = pubsub;
+		this.pubsub = pubsub;
 
-        // Setup the binding.
-        this.pubsub.subscribe(MID.LATENCY_REQ, this._handleRequest, this);
-    }
+		// Setup the binding.
+		this.pubsub.subscribe(MID.LATENCY_REQ, this._handleRequest, this);
+	}
 
-    /**
-     * Handle the latency request of the server. Basically turn the message 
-     * into a latency response and resend it.
-     */
-    _handleRequest(_, msg) {
+	/**
+	 * Handle the latency request of the server. Basically turn the message 
+	 * into a latency response and resend it.
+	 */
+	_handleRequest(_, msg) {
 
-        var reply = new LatencyResponseMessage(msg);
-        this.pubsub.send(reply);
-    }
+		var reply = new LatencyResponseMessage(msg);
+		this.pubsub.send(reply);
+	}
 }

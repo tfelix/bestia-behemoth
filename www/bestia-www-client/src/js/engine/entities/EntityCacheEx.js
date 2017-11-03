@@ -1,5 +1,3 @@
-import Signal from '../../io/Signal';
-
 /**
  * The entity cache holds references to entities with their unique id as a key.
  * If an update of the entity is send from the server it can be looked up from

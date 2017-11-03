@@ -71,7 +71,6 @@ export default class DescriptionLoader {
 	 * Returns the right description URL depending on the data type.
 	 */
 	_getUrlFromData(data) {
-
 		switch (data.sprite.type.toUpperCase()) {
 			case 'PACK':
 			case 'DYNAMIC':

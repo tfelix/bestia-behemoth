@@ -8,7 +8,6 @@ import Urls from '../Urls';
 import MID from './messages/MID';
 import LOG from '../util/Log';
 import AuthenticateMessage from '../message/external/AuthenticateMessage';
-import Storage from '../util/Storage.js';
 
 /**
  * Class which reads the login token from a storage system and tries to
@@ -22,6 +21,14 @@ export default class Authenticator {
 	 * @param {Storage} storage 
 	 */
 	constructor(pubsub, storage) {
+
+		if(!pubsub) {
+			throw 'PubSub can not be null.';
+		}
+
+		if(!storage) {
+			throw 'Storage can not be null.';
+		}
 		
 		this._pubsub = pubsub;
 		this._storage = storage;
@@ -81,18 +88,18 @@ export default class Authenticator {
 		var state = true;
 
 		if (!data) {
-			console.error('No login data present.');
+			LOG.error('No login data present.');
 			state = false;
 		}
 
 		if (!state || data.token === undefined) {
-			console.error('Login: token missing.');
+			LOG.error('Login: token missing.');
 			state = false;
 		} else if (!state | data.accId === undefined) {
-			console.error('Login: account id missing.');
+			LOG.error('Login: account id missing.');
 			state = false;
 		} else if (!state | data.username === undefined) {
-			console.error('Login: username missing.');
+			LOG.error('Login: username missing.');
 			state = false;
 		}
 

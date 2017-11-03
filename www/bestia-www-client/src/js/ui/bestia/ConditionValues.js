@@ -29,7 +29,7 @@ export default class ConditionValues {
 		}, this);
 	
 		if (msg !== undefined) {
-			this.update(msg, curHp, curMana);
+			this.update(msg);
 		}
 	}
 	

@@ -20,7 +20,7 @@ import net.bestia.webserver.messages.web.CloseConnection;
 import net.bestia.webserver.messages.web.ZoneConnectionAccepted;
 
 /**
- * Holds a reference to all currently conneceted client sockets.
+ * Holds a reference to all currently connected client sockets.
  * 
  * @author Thomas Felix
  *

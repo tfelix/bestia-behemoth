@@ -14,6 +14,7 @@ import BestiaView from './ui/bestia/BestiaView';
 import ShortcutView from './ui/shortcut/ShortcutView';
 import ClientVarManager from './ui/ClientVarManager';
 import LatencyReporter from './util/LatencyReporter';
+import Storage from './util/Storage';
 
 // JSDoc definitions.
 /**
@@ -24,8 +25,9 @@ import LatencyReporter from './util/LatencyReporter';
 
 // Creating all needed components.
 let pubsub = new PubSub();
+let storage = new Storage();
 let urlHelper = new UrlHelper('assets/');
-let auth = new Authenticator(pubsub);
+let auth = new Authenticator(pubsub, storage);
 let engine = new Engine(pubsub, urlHelper);
 let connection = new Connection(pubsub);
 let cvarManager = new ClientVarManager(pubsub);

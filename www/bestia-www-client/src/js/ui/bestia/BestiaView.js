@@ -137,13 +137,11 @@ export default class BestiaView {
 		}
 
 		if (msg.sv) {
-			bestia.statusPoints.updateValues(msg.sv);
-			bestia.comparedStatusPoints.setPoints(bestia.statusPoints);
+			bestia.conditionValues.update(msg.sv);
 		}
 
 		if (msg.osp) {
 			bestia.unmodifiedStatusPoints.update(msg.osp);
-			bestia.comparedStatusPoints.setUnmodifiedPoints(bestia.unmodifiedStatusPoints);
 		}
 
 		if (msg.sbv) {
@@ -166,7 +164,7 @@ export default class BestiaView {
 			return;
 		}
 
-		var bestia = new Bestia(this._pubsub, msg, this._urlHelper);
+		bestia = new Bestia(this._pubsub, msg, this._urlHelper);
 		// If the bestia was not found however to the extended logic. First add
 		// it.
 		this.bestias.push(bestia);

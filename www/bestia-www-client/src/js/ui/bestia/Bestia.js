@@ -6,12 +6,10 @@
 import ko from 'knockout';
 import Message from '../../io/messages/Message';
 import Signal from '../../io/Signal';
-import Attack from '../attack/Attack';
-import ItemViewModel from '../inventory/Item';
 import StatusPoint from './StatusPoints';
 import StatusPointsComparer from './StatusPointsComparer';
 import StatusBasedValues from './StatusBasedValues';
-import ConditionValues from '.ConditionValues';
+import ConditionValues from './ConditionValues';
 
 /**
  * ViewModel of a Bestia.
@@ -96,9 +94,6 @@ export default class Bestia {
 		if (msg === undefined) {
 			return;
 		}
-
-		// Status points
-		let sp = msg.sp;
 
 		// Bestia
 		let b = msg.b;

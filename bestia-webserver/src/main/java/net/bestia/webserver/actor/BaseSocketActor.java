@@ -35,9 +35,9 @@ public abstract class BaseSocketActor extends AbstractActor {
 			final String payload = mapper.writeValueAsString(message);
 			LOG.debug("Server sending: {}.", payload);
 			session.sendMessage(new TextMessage(payload));
-		} catch (IOException e) {
+		} catch (IOException | IllegalStateException e) {
 			// Could not send to client.
-			LOG.error("Could not serialize server message: {}.", message.toString());
+			LOG.error("Could not send message: {}.", message.toString(), e);
 			getContext().stop(getSelf());
 		}
 	}

@@ -44,7 +44,7 @@ public class ClusterConnectActor extends AbstractActor {
 		uplink = getContext().actorOf(ClusterClient.props(settings), "uplink");
 		getContext().watch(uplink);
 		
-		// TODO das hier erst auf true setzen wenn die connection besteht.
+		// FIXME das hier erst auf true setzen wenn die connection besteht.
 		config.setConnectedToCluster(true);
 	}
 

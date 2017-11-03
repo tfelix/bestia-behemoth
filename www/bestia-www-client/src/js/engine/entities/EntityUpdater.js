@@ -19,16 +19,16 @@ import { addEntityMovement } from '../entities/traits/MovementTrait';
  *            hooking into update calls.
  */
 export default class EntityUpdater {
-
 	/**
 	 * 
 	 * @param {PubSub} pubsub 
 	 */
 	constructor(pubsub) {
 
-		if(!pubsub) {
+		if (!pubsub) {
 			throw 'Pubsub can not be empty or null.';
-		
+		}
+
 		this._pubsub = pubsub;
 
 		// === SUBSCRIBE ===
@@ -51,7 +51,7 @@ export default class EntityUpdater {
 					sprite: { name: msg.s.s, type: msg.s.t },
 					position: { x: msg.x, y: msg.y },
 					action: 'appear'
-				}
+				};
 
 				entityCache.addEntity(entityData);
 				break;
@@ -85,7 +85,7 @@ export default class EntityUpdater {
 		}
 
 		// Attach the movement data to the entity.
-		entityAddMovement(entity, path, msg.w, msg.d + msg.l);
+		addEntityMovement(entity, path, msg.w, msg.d + msg.l);
 	}
 
 	/**
