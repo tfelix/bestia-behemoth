@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package bestia;
+
+option java_package = "net.bestia.message";
+option java_outer_classname = "AccountProto";
+
+message Account {
+    uint32 account_id = 1;
+}

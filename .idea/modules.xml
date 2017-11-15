@@ -12,10 +12,8 @@
       <module fileurl="file://$PROJECT_DIR$/bestia-models/bestia-models.iml" filepath="$PROJECT_DIR$/bestia-models/bestia-models.iml" />
       <module fileurl="file://$PROJECT_DIR$/bestia-palantir/bestia-palantir.iml" filepath="$PROJECT_DIR$/bestia-palantir/bestia-palantir.iml" />
       <module fileurl="file://$PROJECT_DIR$/bestia-server-commons/bestia-server-commons.iml" filepath="$PROJECT_DIR$/bestia-server-commons/bestia-server-commons.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bestia-server-commons-ex/bestia-server-commons-ex.iml" filepath="$PROJECT_DIR$/bestia-server-commons-ex/bestia-server-commons-ex.iml" />
       <module fileurl="file://$PROJECT_DIR$/bestia-watchtower/bestia-watchtower.iml" filepath="$PROJECT_DIR$/bestia-watchtower/bestia-watchtower.iml" />
       <module fileurl="file://$PROJECT_DIR$/bestia-webserver/bestia-webserver.iml" filepath="$PROJECT_DIR$/bestia-webserver/bestia-webserver.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bestia-webserver-ex/bestia-webserver-ex.iml" filepath="$PROJECT_DIR$/bestia-webserver-ex/bestia-webserver-ex.iml" />
       <module fileurl="file://$PROJECT_DIR$/bestia-zoneserver/bestia-zoneserver.iml" filepath="$PROJECT_DIR$/bestia-zoneserver/bestia-zoneserver.iml" />
     </modules>
   </component>

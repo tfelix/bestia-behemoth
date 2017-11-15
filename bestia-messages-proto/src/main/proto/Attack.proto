@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+import "Account.proto";
+import "Entity.proto";
+import "Point.proto";
+
+package bestia;
+
+option java_package = "net.bestia.message";
+option java_outer_classname = "AttackProto";
+
+message Attack {
+    Account account = 1;
+    Entity entity = 2;
+    uint32 attackId = 3;
+    Point targetPoint = 4;
+    Entity targetEntity = 5;
+}

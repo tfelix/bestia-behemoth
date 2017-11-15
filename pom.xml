@@ -30,7 +30,6 @@
 		<module>bestia-palantir</module>
 		<!-- Experimental modules -->
 		<module>bestia-messages-cluster</module>
-		<module>bestia-webserver-ex</module>
 	</modules>
 
 	<properties>
