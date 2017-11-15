@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * 2D Point. Immutable. Used as coordinates in various systems.
  * 
- * @author Thomas Felix <thoams.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Embeddable

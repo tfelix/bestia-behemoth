@@ -33,7 +33,7 @@ public class InventoryService {
 		// Now we must check if we have a status component.
 		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
 
-		if(statusComp.isPresent()) {
+		if (statusComp.isPresent()) {
 			// Calculate the carriable weight.
 			final int maxWeight = statusComp.get().getStatusPoints().getStrength() * 10 + 100;
 			invComp.setMaxWeight(maxWeight);
@@ -49,10 +49,13 @@ public class InventoryService {
 	 * items. If this number is reached no more items can be added to the inventory.
 	 * If this is set to another value then {@link InventoryComponent#UNLIMITED_ITEMS} then the weight is ignored.
 	 *
+	 * @param entity      The entity to update the max num item component.
 	 * @param maxNumItems The maximum number of items which can be attached to this inventory component.
 	 */
-	public void setMaxItem(Entity entity, int maxNumItems) {
-
+	public void setMaxItemCount(Entity entity, int maxNumItems) {
+		final InventoryComponent invComp = checkAndGetInventoryComp(entity);
+		invComp.setMaxItemCount(maxNumItems);
+		entityService.updateComponent(invComp);
 	}
 
 	/**

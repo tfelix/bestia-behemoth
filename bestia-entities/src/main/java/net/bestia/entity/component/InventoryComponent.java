@@ -21,14 +21,17 @@ public class InventoryComponent extends Component {
 	 */
 	public static final int UNLIMITED_ITEMS = -1;
 	private static final long serialVersionUID = 1L;
+
 	private float maxWeight;
-	private int maxItems;
+	private int maxItemCount;
+
 	private List<ItemCount> items = new ArrayList<>();
+
 	public InventoryComponent(long id) {
 		super(id);
 
 		maxWeight = 0;
-		maxItems = UNLIMITED_ITEMS;
+		maxItemCount = UNLIMITED_ITEMS;
 	}
 
 	/**
@@ -47,7 +50,7 @@ public class InventoryComponent extends Component {
 	 * @param maxWeight The maximum weight in units. One unit is 0.1kg.
 	 */
 	void setMaxWeight(int maxWeight) {
-		if(maxWeight < 0) {
+		if (maxWeight < 0) {
 			throw new IllegalArgumentException("MaxWeight can not be negative.");
 		}
 
@@ -61,7 +64,9 @@ public class InventoryComponent extends Component {
 	 * @return Current item weight.
 	 */
 	public float getWeight() {
-		return items.stream().mapToInt(x -> x.amount * x.item.getWeight()).sum() / 10f;
+		return items.stream()
+				.mapToInt(x -> x.amount * x.item.getWeight())
+				.sum() / 10f;
 	}
 
 	/**
@@ -70,7 +75,11 @@ public class InventoryComponent extends Component {
 	 * @return The maximum item count. -1 if unlimited.
 	 */
 	public int getMaxItemCount() {
-		return maxItems;
+		return maxItemCount;
+	}
+
+	public void setMaxItemCount(int maxItemCount) {
+		this.maxItemCount = maxItemCount;
 	}
 
 	/**
@@ -116,7 +125,9 @@ public class InventoryComponent extends Component {
 	 * @return
 	 */
 	public boolean removeItem(Item item, int amount) {
-		Optional<ItemCount> inventoryItem = items.stream().filter(x -> x.item.getId() == item.getId()).findFirst();
+		Optional<ItemCount> inventoryItem = items.stream()
+				.filter(x -> x.item.getId() == item.getId())
+				.findFirst();
 		if (inventoryItem.isPresent()) {
 
 			ItemCount ic = inventoryItem.get();
@@ -137,7 +148,7 @@ public class InventoryComponent extends Component {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(items, maxItems, maxWeight);
+		return Objects.hash(items, maxItemCount, maxWeight);
 	}
 
 	@Override
@@ -153,7 +164,7 @@ public class InventoryComponent extends Component {
 		}
 		final InventoryComponent other = (InventoryComponent) obj;
 		return Objects.equals(items, other.items)
-				&& Objects.equals(maxItems, other.maxItems)
+				&& Objects.equals(maxItemCount, other.maxItemCount)
 				&& Objects.equals(maxWeight, other.maxWeight);
 	}
 

@@ -2,6 +2,7 @@ package net.bestia.entity.component;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
@@ -32,6 +33,7 @@ public class PositionComponent extends Component {
 	 * 
 	 * @return TRUE if the entity should block line of sight. FALSE otherwise.
 	 */
+	@JsonProperty("sb")
 	public boolean isSightBlocking() {
 		return sightBlocking;
 	}
@@ -51,6 +53,7 @@ public class PositionComponent extends Component {
 	 * 
 	 * @return Current position of the entity.
 	 */
+	@JsonProperty("p")
 	public Point getPosition() {
 		return shape.getAnchor();
 	}
@@ -61,6 +64,7 @@ public class PositionComponent extends Component {
 	 * 
 	 * @return The face direction.
 	 */
+	@JsonProperty("f")
 	public Direction getFacing() {
 		return facing;
 	}
