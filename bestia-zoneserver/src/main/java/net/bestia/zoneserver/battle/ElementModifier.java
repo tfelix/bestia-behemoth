@@ -14,7 +14,7 @@ import net.bestia.model.domain.Element;
  * @author Thomas Felix
  *
  */
-public final class ElementModifier {
+final class ElementModifier {
 
 	/**
 	 * Wraps the creation of element keys to retrieve the element modifier.
@@ -26,7 +26,7 @@ public final class ElementModifier {
 		private final Element el1;
 		private final Element el2;
 
-		public ElementKey(Element el1, Element el2) {
+		ElementKey(Element el1, Element el2) {
 			this.el1 = el1;
 			this.el2 = el2;
 		}
@@ -529,14 +529,14 @@ public final class ElementModifier {
 	 *            Element of the defender.
 	 * @return The damage modifier.
 	 */
-	public static int getModifier(Element attacker, Element defender) {
+	static int getModifier(Element attacker, Element defender) {
 
 		if (!legalAttackElements.contains(attacker)) {
 			throw new IllegalArgumentException("Attack element must always be level 1.");
 		}
 
 		final ElementKey key = new ElementKey(attacker, defender);
-		return elementMap.get(key).intValue();
+		return elementMap.get(key);
 	}
 
 	/**
@@ -549,8 +549,8 @@ public final class ElementModifier {
 	 *            Element of the defender.
 	 * @return The damage modifier.
 	 */
-	public static float getModifierFloat(Element attacker, Element defender) {
-		return getModifierFloat(attacker, defender) / 100f;
+	static float getModifierFloat(Element attacker, Element defender) {
+		return getModifier(attacker, defender) / 100f;
 	}
 
 }
