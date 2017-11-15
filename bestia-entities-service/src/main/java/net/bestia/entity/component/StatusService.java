@@ -295,7 +295,7 @@ public class StatusService {
 	public Optional<ConditionValues> getStatusValues(Entity entity) {
 
 		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
-		return statusComp.map(sc -> Optional.of(sc.getConditionValues())).orElse(Optional.empty());
+		return statusComp.map(StatusComponent::getConditionValues);
 	}
 
 	/**

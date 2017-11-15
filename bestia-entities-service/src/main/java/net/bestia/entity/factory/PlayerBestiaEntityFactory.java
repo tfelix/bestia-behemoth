@@ -3,30 +3,14 @@ package net.bestia.entity.factory;
 import java.util.Objects;
 import java.util.Set;
 
+import net.bestia.entity.component.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.entity.Entity;
-import net.bestia.entity.component.Component;
-import net.bestia.entity.component.ComponentSetter;
-import net.bestia.entity.component.EquipComponent;
-import net.bestia.entity.component.InventoryComponent;
-import net.bestia.entity.component.LevelComponent;
-import net.bestia.entity.component.LevelComponentSetter;
-import net.bestia.entity.component.PlayerComponent;
-import net.bestia.entity.component.PlayerComponentSetter;
-import net.bestia.entity.component.PlayerStatusComponentSetter;
-import net.bestia.entity.component.PositionComponent;
-import net.bestia.entity.component.PositionComponentSetter;
-import net.bestia.entity.component.StatusComponent;
-import net.bestia.entity.component.StatusService;
-import net.bestia.entity.component.TagComponent;
 import net.bestia.entity.component.TagComponent.Tag;
-import net.bestia.entity.component.TagComponentSetter;
-import net.bestia.entity.component.VisibleComponent;
-import net.bestia.entity.component.VisibleComponentSetter;
 
 /**
  * The factory is used to create player entities which can be controlled via a
@@ -58,12 +42,16 @@ public class PlayerBestiaEntityFactory {
 
 	private final StatusService statusService;
 	private final EntityFactory entityFactory;
+	private final InventoryService inventoryService;
 
 	@Autowired
-	public PlayerBestiaEntityFactory(EntityFactory entityFactory, StatusService statusService) {
+	public PlayerBestiaEntityFactory(EntityFactory entityFactory,
+	                                 StatusService statusService,
+	                                 InventoryService inventoryService) {
 		
 		this.entityFactory = Objects.requireNonNull(entityFactory);
 		this.statusService = Objects.requireNonNull(statusService);
+		this.inventoryService = Objects.requireNonNull(inventoryService);
 	}
 
 	/**
@@ -99,6 +87,7 @@ public class PlayerBestiaEntityFactory {
 		
 		// Calculate the status points now.
 		statusService.calculateStatusPoints(playerEntity);
+		inventoryService.updateMaxWeight(playerEntity);
 
 		return playerEntity;
 	}

@@ -210,7 +210,7 @@ public class BattleService {
 	private boolean isEntityItem(Entity entity) {
 		// not implemented && entityService.hasComponent(entity,
 		// LevelComponent.class)
-		return entityService.hasComponent(entity, PositionComponent.class) && false;
+		return entityService.hasComponent(entity, PositionComponent.class);
 	}
 
 	/**

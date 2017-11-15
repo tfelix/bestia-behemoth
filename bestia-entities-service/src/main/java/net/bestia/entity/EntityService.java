@@ -92,7 +92,7 @@ public class EntityService {
 	 * Returns a fresh entity which can be used inside the system. It already
 	 * has a unique ID and can be used to persist date.
 	 * 
-	 * @return
+	 * @return A newly created entity.
 	 */
 	public Entity newEntity() {
 
@@ -140,8 +140,7 @@ public class EntityService {
 	 * Deletes the entity given by its id. This is a alias for
 	 * {@link #delete(Entity)}.
 	 * 
-	 * @param entity
-	 *            Removes the entity.
+	 * @param entityId Removes this entity.
 	 */
 	public void delete(long entityId) {
 		LOG.trace("delete(): {}", entityId);
@@ -170,7 +169,7 @@ public class EntityService {
 	/**
 	 * Returns the ID entity with the given ID.
 	 * 
-	 * @param entityId
+	 * @param entityId Lookups this entity.
 	 * @return The {@link Entity} or NULL if no such id is stored.
 	 */
 	public Entity getEntity(long entityId) {
@@ -205,7 +204,7 @@ public class EntityService {
 	 * {@link #getCollidingEntities(CollisionShape)}.
 	 * 
 	 * @param entity
-	 * @return
+	 * @return All entities colliding with this entity.
 	 */
 	public Set<Entity> getCollidingEntities(Entity entity) {
 		LOG.trace("Finding all colliding entities for: {}.", entity);
@@ -269,7 +268,7 @@ public class EntityService {
 			try {
 				@SuppressWarnings("unchecked")
 				final Constructor<Component> ctor = (Constructor<Component>) clazz.getConstructor(long.class);
-				comp = ctor.newInstance(getId());
+				comp = ctor.newInstance(getNewId());
 			} catch (Exception ex) {
 				LOG.error("Could not instantiate component.", ex);
 				throw new IllegalArgumentException(ex);
@@ -347,9 +346,7 @@ public class EntityService {
 		}
 
 		// After all is saved intercept the created components.
-		attachComponents.forEach(c -> {
-			interceptor.interceptCreated(this, e, c);
-		});
+		attachComponents.forEach(c -> interceptor.interceptCreated(this, e, c));
 	}
 
 	/**
@@ -365,14 +362,19 @@ public class EntityService {
 		if (component.getEntityId() == 0) {
 			throw new IllegalArgumentException("Component is not attached to entity. Call attachComponent first.");
 		}
-		
-		// Check if the component actually needs an update.
-		if(getComponent(component.getId()).equals(component)) {
-			LOG.trace("Component has not changed. Omitting update.");
-			return;
-		}
 
-		internalUpdateComponent(component);
+		// Acquire the lock for updating the component.
+		components.lock(component.getId());
+		try {
+			// Check if the component actually needs an update.
+			if(getComponent(component.getId()).equals(component)) {
+				return;
+			}
+
+			internalUpdateComponent(component);
+		} finally {
+			components.unlock(component.getId());
+		}
 
 		interceptor.interceptUpdate(this, getEntity(component.getEntityId()), component);
 	}
@@ -392,10 +394,10 @@ public class EntityService {
 	/**
 	 * @return Non 0 new id of a component.
 	 */
-	private long getId() {
+	private long getNewId() {
 		final long id = idGenerator.newId();
 		if (id == 0) {
-			return getId();
+			return getNewId();
 		} else {
 			return id;
 		}

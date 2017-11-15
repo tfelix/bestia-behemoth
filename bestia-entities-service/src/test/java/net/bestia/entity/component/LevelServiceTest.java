@@ -1,5 +1,7 @@
 package net.bestia.entity.component;
 
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -7,19 +9,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import net.bestia.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.bestia.entity.component.LevelComponent;
-import net.bestia.entity.component.LevelService;
-import net.bestia.entity.component.StatusService;
-
-import static org.mockito.Mockito.*;
-
 import java.util.Optional;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LevelServiceTest {
-	
+
 	private final int LEVEL = 4;
 
 	@Mock
@@ -36,12 +33,12 @@ public class LevelServiceTest {
 
 	@Mock
 	private Entity nonComponentEntity;
-	
+
 	private LevelService lvService;
 
 	@Before
 	public void setup() {
-		
+
 		when(lvComp.getLevel()).thenReturn(LEVEL);
 
 		when(entityService.getComponent(entity, LevelComponent.class)).thenReturn(Optional.of(lvComp));
@@ -71,40 +68,40 @@ public class LevelServiceTest {
 
 		lvService.setLevel(entity, -1);
 	}
-	
+
 	@Test(expected = IllegalArgumentException.class)
 	public void addExp_negExp_throws() {
 
 		lvService.addExp(entity, -10);
 	}
-	
+
 	@Test
 	public void addExp_validExp_checksLevelUp() {
 
 		lvService.addExp(entity, 100);
-		
+
 		verify(statusService).calculateStatusPoints(entity);
 		verify(entityService).updateComponent(lvComp);
 	}
-	
+
 	@Test(expected = IllegalArgumentException.class)
 	public void addExp_nonCompEntity_nothing() {
 
 		lvService.addExp(nonComponentEntity, 100);
 	}
-	
+
 	@Test
 	public void getLevel_nonLevelComponentEntity_returnsMinLevel1() {
 
 		Assert.assertEquals(1, lvService.getLevel(nonComponentEntity));
 	}
-	
+
 	@Test
 	public void getLevel_levelComponentEntity_returnsLevel() {
 
 		Assert.assertEquals(LEVEL, lvService.getLevel(entity));
 	}
-	
+
 	@Test
 	public void getExp_nonLevelComponentEntity_returns0() {
 

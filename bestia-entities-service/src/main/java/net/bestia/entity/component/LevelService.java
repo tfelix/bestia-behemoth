@@ -128,7 +128,7 @@ public class LevelService {
 	 */
 	public int getExp(Entity entity) {
 		return entityService.getComponent(entity, LevelComponent.class)
-				.map(lv -> lv.getExp())
+				.map(LevelComponent::getExp)
 				.orElse(0);
 	}
 

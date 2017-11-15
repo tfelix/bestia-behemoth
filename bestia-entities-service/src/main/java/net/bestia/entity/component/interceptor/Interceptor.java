@@ -1,24 +1,18 @@
 package net.bestia.entity.component.interceptor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import net.bestia.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.bestia.entity.component.Component;
+import java.util.*;
 
 /**
  * Main class for collecting and triggering component interaction interceptions.
- * 
- * @author Thomas Felix
  *
+ * @author Thomas Felix
  */
 @org.springframework.stereotype.Component
 public class Interceptor {
@@ -28,17 +22,16 @@ public class Interceptor {
 
 	@Autowired
 	public Interceptor(List<BaseComponentInterceptor<? extends Component>> interceptors) {
-		
+
 		interceptors.forEach(this::addInterceptor);
 	}
-	
+
 	/**
 	 * Adds an intercepter which gets notified if certain components will
 	 * change. He then can perform actions like update the clients in range
 	 * about the occurring component change.
-	 * 
-	 * @param interceptor
-	 *            The intercepter to listen to certain triggering events.
+	 *
+	 * @param interceptor The intercepter to listen to certain triggering events.
 	 */
 	public void addInterceptor(BaseComponentInterceptor<? extends Component> interceptor) {
 		Objects.requireNonNull(interceptor);
@@ -56,9 +49,6 @@ public class Interceptor {
 	/**
 	 * Checks if the entity owns the component. If not an
 	 * {@link IllegalArgumentException} is thrown.
-	 * 
-	 * @param e
-	 * @param c
 	 */
 	private boolean ownsComponent(Entity e, Component c) {
 		if (e.getId() != c.getEntityId()) {
@@ -109,9 +99,7 @@ public class Interceptor {
 		if (interceptors.containsKey(component.getClass())) {
 			LOG.debug("Intercepting update component {} for: {}.", component, entity);
 
-			interceptors.get(component.getClass()).forEach(intercep -> {
-				intercep.triggerDeleteAction(entityService, entity, component);
-			});
+			interceptors.get(component.getClass()).forEach(intercep -> intercep.triggerDeleteAction(entityService, entity, component));
 		}
 	}
 }

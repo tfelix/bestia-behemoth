@@ -1,12 +1,13 @@
 package net.bestia.entity.component;
 
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
-
+import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
+import net.bestia.model.dao.PlayerBestiaDAO;
+import net.bestia.model.domain.BaseValues;
+import net.bestia.model.domain.ConditionValues;
+import net.bestia.model.domain.PlayerBestia;
+import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.entity.StatusBasedValues;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,18 +15,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import net.bestia.entity.Entity;
-import net.bestia.entity.EntityService;
-import net.bestia.entity.component.LevelComponent;
-import net.bestia.entity.component.PlayerComponent;
-import net.bestia.entity.component.StatusComponent;
-import net.bestia.entity.component.StatusService;
-import net.bestia.model.dao.PlayerBestiaDAO;
-import net.bestia.model.domain.BaseValues;
-import net.bestia.model.domain.PlayerBestia;
-import net.bestia.model.domain.StatusPoints;
-import net.bestia.model.domain.ConditionValues;
-import net.bestia.model.entity.StatusBasedValues;
+import java.util.Optional;
+
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StatusServiceTest {
@@ -86,7 +79,7 @@ public class StatusServiceTest {
 
 		when(levelComp.getLevel()).thenReturn(10);
 
-		
+
 		when(basedValues.getHpRegenRate()).thenReturn(0.5f);
 		when(basedValues.getManaRegenRate()).thenReturn(0.5f);
 
@@ -243,9 +236,9 @@ public class StatusServiceTest {
 
 	@Test
 	public void saveStatusValues_statusValuesNotChanges_noSaveComponentCalled() {
-		
+
 		ConditionValues cvOrig = statusService.getConditionalValues(STATUS_ENTITY_ID).get();
-		
+
 		ConditionValues sv = new ConditionValues();
 		sv.setCurrentHealth(100);
 		sv.setCurrentMana(100);
@@ -270,14 +263,14 @@ public class StatusServiceTest {
 	public void getStatusValue_invalidEntityId_empty() {
 		Assert.assertFalse(statusService.getConditionalValues(INVALID_ENTITY_ID).isPresent());
 	}
-	
+
 	@Test
 	public void save_statusPointsEntity_isSaved() {
 		statusService.save(statusEntity, statusPoints);
 		Assert.assertTrue(statusService.getStatusBasedValues(statusEntity).isPresent());
 		verify(entityService).updateComponent(statusComp);
 	}
-	
+
 	@Test(expected = IllegalArgumentException.class)
 	public void save_nonStatusPointsEntity_throws() {
 		statusService.save(nonStatusEntity, statusPoints);
@@ -289,7 +282,7 @@ public class StatusServiceTest {
 		Assert.assertTrue(statusService.getStatusBasedValues(statusEntity).isPresent());
 		verify(entityService).updateComponent(statusComp);
 	}
-	
+
 	@Test(expected = IllegalArgumentException.class)
 	public void save_nonStatusPointsEntityId_throws() {
 		statusService.save(INVALID_ENTITY_ID, statusPoints);
