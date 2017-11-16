@@ -19,7 +19,7 @@ import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
 import net.bestia.entity.component.ScriptComponent.Callback;
 import net.bestia.messages.MessageApi;
-import net.bestia.messages.internal.entity.EntityComponentMessage;
+import net.bestia.messages.internal.entity.EntityComponentStateMessage;
 
 /**
  * This class is responsible for fetching the script, creating a appropriate
@@ -177,7 +177,7 @@ public class ScriptService {
 		entityService.updateComponent(scriptComp);
 
 		// Tell the actor which script to periodically call.
-		final EntityComponentMessage compMessage = EntityComponentMessage.install(entity.getId(), scriptComp.getId());
+		final EntityComponentStateMessage compMessage = EntityComponentStateMessage.install(entity.getId(), scriptComp.getId());
 		akkaApi.sendToEntity(compMessage);
 	}
 
@@ -195,7 +195,7 @@ public class ScriptService {
 		entityService.updateComponent(scriptComp);
 
 		// Tell the actor which script to periodically call.
-		final EntityComponentMessage compMessage = EntityComponentMessage.remove(entity.getId(), scriptComp.getId());
+		final EntityComponentStateMessage compMessage = EntityComponentStateMessage.remove(entity.getId(), scriptComp.getId());
 		akkaApi.sendToEntity(compMessage);
 	}
 

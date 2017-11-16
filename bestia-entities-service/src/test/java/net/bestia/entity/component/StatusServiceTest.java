@@ -7,6 +7,7 @@ import net.bestia.model.domain.BaseValues;
 import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
+import net.bestia.model.domain.StatusPointsImpl;
 import net.bestia.model.entity.StatusBasedValues;
 import org.junit.Assert;
 import org.junit.Before;
@@ -74,7 +75,7 @@ public class StatusServiceTest {
 		//when(statusComp.getOriginalElement()).thenReturn(Element.NORMAL);
 		when(statusComp.getStatusBasedValues()).thenReturn(basedValues);
 		when(statusComp.getStatusPoints()).thenReturn(statusPoints);
-		when(statusComp.getUnmodifiedStatusPoints()).thenReturn(statusPoints);
+		when(statusComp.getOriginalStatusPoints()).thenReturn(statusPoints);
 		when(statusComp.getConditionValues()).thenReturn(statusValues);
 
 		when(levelComp.getLevel()).thenReturn(10);
@@ -235,27 +236,44 @@ public class StatusServiceTest {
 	}
 
 	@Test
-	public void saveStatusValues_statusValuesNotChanges_noSaveComponentCalled() {
+	public void save_conditionValuesNotChanges_noSaveComponentCalled() {
 
 		ConditionValues cvOrig = statusService.getConditionalValues(STATUS_ENTITY_ID).get();
 
 		ConditionValues sv = new ConditionValues();
-		sv.setCurrentHealth(100);
-		sv.setCurrentMana(100);
+		sv.set(cvOrig);
+		
+		when(cvOrig.equals(sv)).thenReturn(true);
+		
 		statusService.save(STATUS_ENTITY_ID, sv);
+
+		verify(entityService, times(0)).updateComponent(statusComp);
+	}
+	
+	@Test
+	public void save_statusPointsNotChanges_noSaveComponentCalled() {
+
+		StatusPoints spOrig = statusService.getStatusPoints(statusEntity).get();
+
+		StatusPoints sp = new StatusPointsImpl();
+		sp.set(spOrig);
+		
+		when(spOrig.equals(sp)).thenReturn(true);
+		
+		statusService.save(STATUS_ENTITY_ID, sp);
 
 		verify(entityService, times(0)).updateComponent(statusComp);
 	}
 
 	@Test
 	public void getStatusValue_validEntityId_validValue() {
-		ConditionValues sv = statusService.getStatusValues(statusEntity).get();
+		ConditionValues sv = statusService.getConditionalValues(statusEntity).get();
 		assertNotNull(sv);
 	}
 
 	@Test
 	public void getStatusValue_validEntity_validValue() {
-		ConditionValues sv = statusService.getStatusValues(statusEntity).get();
+		ConditionValues sv = statusService.getConditionalValues(statusEntity).get();
 		assertNotNull(sv);
 	}
 

@@ -23,10 +23,10 @@ public class StatusComponent extends Component {
 	/**
 	 * Unmodified status points.
 	 */
-	private StatusPoints unmodifiedStatusPoints = new StatusPointsImpl();
+	private StatusPoints originalStatusPoints = new StatusPointsImpl();
 	private StatusPoints statusPoints = new StatusPointsImpl();
 	private StatusBasedValues statusBasedValues = new StatusBasedValuesImpl(statusPoints, 1);
-	private Element unmodifiedElement = Element.NORMAL;
+	private Element originalElement = Element.NORMAL;
 	private Element element = Element.NORMAL;
 	private ConditionValues values = new ConditionValues();
 
@@ -39,28 +39,29 @@ public class StatusComponent extends Component {
 	 * {@link StatusPointsImpl}s of this entity. Please note that this status
 	 * points might have been altered via items, equipments or status effects.
 	 * The original status points without this effects applied can be obtained
-	 * via {@link #getUnmodifiedStatusPoints()}.
+	 * via {@link #getOriginalStatusPoints()}.
 	 * 
 	 * @return The current status points of the entity.
 	 */
-	public StatusPoints getStatusPoints() {
+	StatusPoints getStatusPoints() {
 		return statusPoints;
 	}
 
-	public StatusPoints getUnmodifiedStatusPoints() {
-		return unmodifiedStatusPoints;
+	StatusPoints getOriginalStatusPoints() {
+		return originalStatusPoints;
 	}
 
 	/**
 	 * Sets the status points of this component.
 	 * 
 	 * @param statusPoints
+	 *            The original, unmodified {@link StatusPoints}.
 	 */
-	public void setUnmodifiedStatusPoints(StatusPoints unmodifiedStatusPoints) {
-		this.unmodifiedStatusPoints = unmodifiedStatusPoints;
+	void setOriginalStatusPoints(StatusPoints statusPoints) {
+		this.originalStatusPoints = statusPoints;
 	}
 
-	public StatusBasedValues getStatusBasedValues() {
+	StatusBasedValues getStatusBasedValues() {
 		return statusBasedValues;
 	}
 
@@ -69,10 +70,10 @@ public class StatusComponent extends Component {
 	}
 
 	void setUnmodifiedElement(Element originalElement) {
-		this.unmodifiedElement = originalElement;
+		this.originalElement = originalElement;
 	}
-	
-	public ConditionValues getConditionValues() {
+
+	ConditionValues getConditionValues() {
 		return values;
 	}
 
@@ -82,8 +83,8 @@ public class StatusComponent extends Component {
 	 * 
 	 * @return The original unaltered element.
 	 */
-	public Element getOriginalElement() {
-		return unmodifiedElement;
+	Element getOriginalElement() {
+		return originalElement;
 	}
 
 	/**
@@ -91,7 +92,7 @@ public class StatusComponent extends Component {
 	 * 
 	 * @return The current element of the entity.
 	 */
-	public Element getElement() {
+	Element getElement() {
 		return element;
 	}
 
@@ -114,8 +115,8 @@ public class StatusComponent extends Component {
 	void setStatusBasedValues(StatusBasedValues statusBasedValues) {
 		this.statusBasedValues = statusBasedValues;
 	}
-	
-	void setStatusValues(ConditionValues statusValues) {
+
+	void setConditionValues(ConditionValues statusValues) {
 		values.set(statusValues);
 	}
 

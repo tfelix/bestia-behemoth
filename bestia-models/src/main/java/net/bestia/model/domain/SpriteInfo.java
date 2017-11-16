@@ -22,6 +22,14 @@ public class SpriteInfo implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	private static final SpriteInfo EMPTY_SPRITE;
+
+	static {
+		EMPTY_SPRITE = new SpriteInfo();
+		EMPTY_SPRITE.setType(VisualType.SINGLE);
+		EMPTY_SPRITE.setSprite("");
+	}
+
 	@JsonProperty("s")
 	public String sprite;
 
@@ -37,19 +45,6 @@ public class SpriteInfo implements Serializable {
 	}
 
 	/**
-	 * Constructs an empty placeholder visual which can be seen as such inside
-	 * the engine.
-	 * 
-	 * @return A invisible placeholder sprite info.
-	 */
-	public static SpriteInfo empty() {
-		final SpriteInfo info = new SpriteInfo();
-		info.setType(VisualType.SINGLE);
-		info.setSprite("");
-		return info;
-	}
-
-	/**
 	 * Ctor.
 	 * 
 	 * @param sprite
@@ -61,6 +56,32 @@ public class SpriteInfo implements Serializable {
 
 		this.sprite = Objects.requireNonNull(sprite);
 		this.type = type;
+	}
+
+	private SpriteInfo(SpriteInfo rhs) {
+		this(rhs.getSprite(), rhs.getType());
+	}
+
+	/**
+	 * Constructs an empty placeholder visual which can be seen as such inside
+	 * the engine.
+	 * 
+	 * @return A invisible placeholder sprite info.
+	 */
+	public static SpriteInfo empty() {
+		return new SpriteInfo(EMPTY_SPRITE);
+	}
+
+	/**
+	 * Creates an sprite info for a item sprite which is usually only a static
+	 * image.
+	 * 
+	 * @param image
+	 *            Name of the static item sprite image.
+	 * @return A {@link SpriteInfo} instance describing the item.
+	 */
+	public static SpriteInfo item(String image) {
+		return new SpriteInfo(image, VisualType.ITEM);
 	}
 
 	public VisualType getType() {

@@ -11,7 +11,7 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
 import net.bestia.messages.MessageApi;
-import net.bestia.messages.internal.entity.EntityComponentMessage;
+import net.bestia.messages.internal.entity.EntityComponentStateMessage;
 
 @Component
 public class ScriptComponentInterceptor extends BaseComponentInterceptor<ScriptComponent> {
@@ -31,7 +31,7 @@ public class ScriptComponentInterceptor extends BaseComponentInterceptor<ScriptC
 		// Stop the actor timing the entity component.
 		LOG.debug("Component {} is deleted.", comp);
 
-		EntityComponentMessage msg = EntityComponentMessage.remove(comp.getEntityId(), comp.getId());
+		EntityComponentStateMessage msg = EntityComponentStateMessage.remove(comp.getEntityId(), comp.getId());
 		akkaApi.sendToEntity(msg);
 	}
 

@@ -18,8 +18,8 @@ import akka.event.LoggingAdapter;
 import net.bestia.entity.component.EntityComponentActorFactory;
 import net.bestia.messages.EntityMessage;
 import net.bestia.messages.internal.entity.ComponentEnvelope;
-import net.bestia.messages.internal.entity.EntityComponentMessage;
-import net.bestia.messages.internal.entity.EntityComponentMessage.ComponentState;
+import net.bestia.messages.internal.entity.EntityComponentStateMessage;
+import net.bestia.messages.internal.entity.EntityComponentStateMessage.ComponentState;
 
 /**
  * The {@link EntityActor} is a persistent actor managing all aspects of a
@@ -55,7 +55,7 @@ public class EntityActor extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(EntityComponentMessage.class, this::handleComponentMessage)
+				.match(EntityComponentStateMessage.class, this::handleComponentMessage)
 				.match(ComponentEnvelope.class, this::handleComponentPayload)
 				.match(Terminated.class, this::handleTerminated)
 				.build();
@@ -86,7 +86,7 @@ public class EntityActor extends AbstractActor {
 	 * 
 	 * @param msg
 	 */
-	private void handleComponentMessage(EntityComponentMessage msg) {
+	private void handleComponentMessage(EntityComponentStateMessage msg) {
 		checkStartup(msg);
 
 		if (msg.getState() == ComponentState.INSTALL) {

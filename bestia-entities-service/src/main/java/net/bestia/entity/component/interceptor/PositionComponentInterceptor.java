@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.entity.EntityPositionMessage;
 import net.bestia.messages.entity.EntityUpdateMessage;
-import net.bestia.messages.internal.entity.EntityComponentMessage;
+import net.bestia.messages.internal.entity.EntityComponentStateMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
@@ -30,10 +30,10 @@ public class PositionComponentInterceptor extends BaseComponentInterceptor<Posit
 	private final MessageApi msgApi;
 
 	@Autowired
-	public PositionComponentInterceptor(MessageApi akkaApi) {
+	public PositionComponentInterceptor(MessageApi msgApi) {
 		super(PositionComponent.class);
 
-		this.msgApi = Objects.requireNonNull(akkaApi);
+		this.msgApi = Objects.requireNonNull(msgApi);
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class PositionComponentInterceptor extends BaseComponentInterceptor<Posit
 	protected void onCreateAction(EntityService entityService, Entity entity, PositionComponent comp) {
 		LOG.debug("Component {} is created.", comp);
 
-		final EntityComponentMessage msg = EntityComponentMessage.install(entity.getId(), comp.getId());
+		final EntityComponentStateMessage msg = EntityComponentStateMessage.install(entity.getId(), comp.getId());
 		msgApi.sendToEntity(msg);
 	}
 

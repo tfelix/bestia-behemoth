@@ -1,6 +1,6 @@
 
 /**
- * This package contains the factories which are used to creat any kind of
+ * This package contains the factories which are used to create any kind of
  * entities in the game.
  * 
  * @author Thomas Felix

@@ -41,4 +41,9 @@ public class EntityComponentMessage extends EntityJsonMessage {
 	public String getMessageId() {
 		return MESSAGE_ID;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("EntityCompMessage[c: %s]", getComponent());
+	}
 }

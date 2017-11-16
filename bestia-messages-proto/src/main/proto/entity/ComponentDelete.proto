@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "Account.proto";
+import "Entity.proto";
+
+package bestia;
+
+option java_package = "net.bestia.message.entity";
+option java_outer_classname = "ComponentDeleteProto";
+
+message ComponentDelete {
+    Account account = 1;
+    Entity entity = 2;
+    uint64 componentId = 3;
+}

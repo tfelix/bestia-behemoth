@@ -21,6 +21,7 @@ import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentSetter;
 import net.bestia.entity.component.EquipComponent;
 import net.bestia.entity.component.InventoryComponent;
+import net.bestia.entity.component.InventoryService;
 import net.bestia.entity.component.LevelComponent;
 import net.bestia.entity.component.LevelComponentSetter;
 import net.bestia.entity.component.PlayerComponent;
@@ -66,6 +67,9 @@ public class PlayerBestiaEntityFactoryTest {
 
 	@Mock
 	private StatusService statusService;
+	
+	@Mock
+	private InventoryService inventoryService;
 
 	@Captor
 	private ArgumentCaptor<Set<ComponentSetter<? extends Component>>> componentSetterCaptor;
@@ -87,17 +91,17 @@ public class PlayerBestiaEntityFactoryTest {
 		//when(entityFactory.buildEntity(any())).thenReturn(new Entity(ENTITY_ID));
 		when(entityFactory.buildEntity(any(), any(Set.class))).thenReturn(new Entity(ENTITY_ID));
 
-		factory = new PlayerBestiaEntityFactory(entityFactory, statusService);
+		factory = new PlayerBestiaEntityFactory(entityFactory, statusService, inventoryService);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void bctor_arg1Null_throws() {
-		new PlayerBestiaEntityFactory(null, statusService);
+		new PlayerBestiaEntityFactory(null, statusService, inventoryService);
 	}
 
 	@Test(expected = NullPointerException.class)
 	public void bctor_arg2Null_throws() {
-		new PlayerBestiaEntityFactory(entityFactory, null);
+		new PlayerBestiaEntityFactory(entityFactory, null, inventoryService);
 	}
 
 	@Test(expected = NullPointerException.class)

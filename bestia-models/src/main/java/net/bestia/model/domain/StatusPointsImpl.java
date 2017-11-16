@@ -7,7 +7,7 @@ import javax.persistence.Embeddable;
 /**
  * Status values for bestia entities.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Embeddable
@@ -227,6 +227,20 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		}
 
 		this.dexterity = dexterity;
+	}
+	
+	@Override
+	public void set(StatusPoints rhs) {
+		
+		this.agility = rhs.getAgility();
+		this.defense = rhs.getDefense();
+		this.dexterity = rhs.getDexterity();
+		this.intelligence = rhs.getIntelligence();
+		this.magicDefense = rhs.getMagicDefense();
+		this.strength = rhs.getStrength();
+		this.vitality = rhs.getVitality();
+		this.willpower = rhs.getWillpower();
+		
 	}
 
 	/*

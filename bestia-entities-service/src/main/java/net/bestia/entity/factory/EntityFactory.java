@@ -84,10 +84,8 @@ class EntityFactory {
 			final Optional<ComponentSetter<? extends Component>> foundSetter = setter.stream()
 					.filter(s -> s.getSupportedType().equals(compClazz))
 					.findAny();
-			
-			if(foundSetter.isPresent()) {
-				foundSetter.get().setComponent(addedComp);
-			}
+
+			foundSetter.ifPresent(componentSetter -> componentSetter.setComponent(addedComp));
 			
 			addedComponents.add(addedComp);
 		}

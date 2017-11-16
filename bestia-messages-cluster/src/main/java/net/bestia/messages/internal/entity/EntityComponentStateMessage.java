@@ -11,7 +11,7 @@ import net.bestia.messages.EntityInternalMessage;
  * @author Thomas Felix
  *
  */
-public class EntityComponentMessage extends EntityInternalMessage {
+public class EntityComponentStateMessage extends EntityInternalMessage {
 
 	public enum ComponentState {
 		/**
@@ -30,7 +30,7 @@ public class EntityComponentMessage extends EntityInternalMessage {
 	private final long componentId;
 	private final ComponentState state;
 
-	public EntityComponentMessage(long entityId, long componentId, ComponentState state) {
+	public EntityComponentStateMessage(long entityId, long componentId, ComponentState state) {
 		super(entityId);
 
 		this.componentId = componentId;
@@ -59,8 +59,8 @@ public class EntityComponentMessage extends EntityInternalMessage {
 	 *            The component ID to stop.
 	 * @return Creates a message that will stop the given component actor.
 	 */
-	public static EntityComponentMessage remove(long entityId, long componentId) {
-		return new EntityComponentMessage(entityId, componentId, ComponentState.REMOVE);
+	public static EntityComponentStateMessage remove(long entityId, long componentId) {
+		return new EntityComponentStateMessage(entityId, componentId, ComponentState.REMOVE);
 	}
 
 	/**
@@ -70,8 +70,8 @@ public class EntityComponentMessage extends EntityInternalMessage {
 	 *            The component ID to stop.
 	 * @return Creates a message that will start the given component actor.
 	 */
-	public static EntityComponentMessage install(long entityId, long componentId) {
-		return new EntityComponentMessage(entityId, componentId, ComponentState.INSTALL);
+	public static EntityComponentStateMessage install(long entityId, long componentId) {
+		return new EntityComponentStateMessage(entityId, componentId, ComponentState.INSTALL);
 	}
 
 	@Override

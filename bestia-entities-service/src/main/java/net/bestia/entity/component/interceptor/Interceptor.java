@@ -22,7 +22,7 @@ public class Interceptor {
 
 	@Autowired
 	public Interceptor(List<BaseComponentInterceptor<? extends Component>> interceptors) {
-
+		Objects.requireNonNull(interceptors);
 		interceptors.forEach(this::addInterceptor);
 	}
 

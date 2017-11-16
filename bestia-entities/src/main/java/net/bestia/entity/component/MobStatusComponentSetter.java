@@ -24,7 +24,7 @@ public class MobStatusComponentSetter extends ComponentSetter<StatusComponent> {
 	protected void performSetting(StatusComponent comp) {
 		
 		comp.setUnmodifiedElement(bestia.getElement());
-		comp.setUnmodifiedStatusPoints(bestia.getStatusPoints());
+		comp.setOriginalStatusPoints(bestia.getStatusPoints());
 	}
 
 }

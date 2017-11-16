@@ -93,12 +93,10 @@ public class StatusService {
 	 * The entity must posess the {@link StatusComponent} or an empty optional
 	 * is returned.
 	 * 
-	 * @deprecated Points should be calculated now on the fly.
 	 * @param entity
 	 *            The entity which status points to retrieve.
 	 * @return The by status effects or equip modified {@link StatusPoints}.
 	 */
-	@Deprecated
 	public Optional<StatusPoints> getStatusPoints(Entity entity) {
 		Objects.requireNonNull(entity);
 
@@ -113,7 +111,7 @@ public class StatusService {
 
 		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
 
-		return statusComp.map(StatusComponent::getUnmodifiedStatusPoints);
+		return statusComp.map(StatusComponent::getOriginalStatusPoints);
 
 	}
 
@@ -143,7 +141,7 @@ public class StatusService {
 		final PlayerComponent playerComp = entityService.getComponent(entity, PlayerComponent.class)
 				.orElseThrow(IllegalStateException::new);
 
-		final StatusPoints statusPoints = statusComp.getUnmodifiedStatusPoints();
+		final StatusPoints statusPoints = statusComp.getOriginalStatusPoints();
 		final ConditionValues condValues = statusComp.getConditionValues();
 
 		final PlayerBestia pb = playerBestiaDao.findOne(playerComp.getPlayerBestiaId());
@@ -173,7 +171,7 @@ public class StatusService {
 
 		final int maxMana = baseValues.getMana() * 2 + ivs.getMana() + effortValues.getMana() / 4 * level / 100 + 10
 				+ level * 2;
-		
+
 		condValues.setMaxHealth(maxHp);
 		condValues.setMaxMana(maxMana);
 
@@ -185,7 +183,7 @@ public class StatusService {
 		statusPoints.setDexterity(dex);
 
 		// Update all component values.
-		statusComp.setUnmodifiedStatusPoints(statusPoints);
+		statusComp.setOriginalStatusPoints(statusPoints);
 
 		entityService.updateComponent(statusComp);
 	}
@@ -214,7 +212,7 @@ public class StatusService {
 		}
 
 		// Currently only use status values 1:1.
-		StatusPoints statusPoints = new StatusPointsImpl(statusComp.getUnmodifiedStatusPoints());
+		StatusPoints statusPoints = new StatusPointsImpl(statusComp.getOriginalStatusPoints());
 
 		statusComp.setStatusPoints(statusPoints);
 		statusComp.setStatusBasedValues(new StatusBasedValuesImpl(statusPoints, level));
@@ -227,7 +225,8 @@ public class StatusService {
 	 * might be smaller then 1. We use this to save the value between the ticks
 	 * until we have at least 1 mana and can add this to the user status.
 	 * 
-	 * @param entityId The ID of the entity.
+	 * @param entityId
+	 *            The ID of the entity.
 	 * @return The ticked mana value.
 	 */
 	public float getManaTick(long entityId) {
@@ -249,7 +248,8 @@ public class StatusService {
 	 * ticks until we have at least 1 health and can add this to the user
 	 * status.
 	 * 
-	 * @param entityId The ID of the entity.
+	 * @param entityId
+	 *            The ID of the entity.
 	 * @return The ticked health value.
 	 */
 	public float getHealthTick(long entityId) {
@@ -280,7 +280,7 @@ public class StatusService {
 			return Optional.empty();
 		}
 
-		return getStatusValues(e);
+		return getConditionalValues(e);
 	}
 
 	/**
@@ -292,7 +292,7 @@ public class StatusService {
 	 *            The entity.
 	 * @return The {@link ConditionValues} of this entity.
 	 */
-	public Optional<ConditionValues> getStatusValues(Entity entity) {
+	public Optional<ConditionValues> getConditionalValues(Entity entity) {
 
 		final Optional<StatusComponent> statusComp = entityService.getComponent(entity, StatusComponent.class);
 		return statusComp.map(StatusComponent::getConditionValues);
@@ -303,8 +303,10 @@ public class StatusService {
 	 * It also makes sure the current mana and health are not exeeding the max
 	 * hp and max mana from the status points of this entity.
 	 * 
-	 * @param entity The entity to save the conditional values.
-	 * @param values The new conditional values.
+	 * @param entity
+	 *            The entity to save the conditional values.
+	 * @param values
+	 *            The new conditional values.
 	 */
 	public void save(Entity entity, ConditionValues values) {
 
@@ -317,10 +319,10 @@ public class StatusService {
 		// If values are equal if so dont do anything.
 		final ConditionValues curValues = statusComp.getConditionValues();
 
-		if(curValues.equals(values)) {
+		if (curValues.equals(values)) {
 			return;
 		}
-		
+
 		curValues.set(values);
 
 		entityService.updateComponent(statusComp);
@@ -355,10 +357,13 @@ public class StatusService {
 		final StatusComponent statusComp = entityService.getComponent(entity, StatusComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
-		statusComp.setStatusPoints(spoint);
+		if (statusComp.getStatusPoints().equals(spoint)) {
+			return;
+		}
 
 		// Reset the status based values since they need to be recalculated now.
 		// Get them via getStatusBasedValues.
+		statusComp.setStatusPoints(spoint);
 		statusComp.setStatusBasedValues(null);
 
 		entityService.updateComponent(statusComp);
@@ -377,5 +382,4 @@ public class StatusService {
 		final Entity e = entityService.getEntity(entityId);
 		save(e, spoint);
 	}
-
 }

@@ -64,7 +64,7 @@ public class PlayerStatusComponentSetterTest {
 		
 		setter.setComponent(statusComp);
 		
-		verify(statusComp).setStatusValues(statusValues);
+		verify(statusComp).setConditionValues(statusValues);
 		verify(statusComp).setUnmodifiedElement(Element.FIRE);
 	}
 

@@ -35,7 +35,7 @@ public abstract class BaseComponentInterceptor<T extends Component> {
 		if (comp.getClass().isAssignableFrom(triggerClass)) {
 			onCreateAction(entityService, entity, triggerClass.cast(comp));
 		} else {
-			throw new IllegalArgumentException("Wrong component class. Not supported by this recycler.");
+			throw new IllegalArgumentException("Wrong component class. Not supported by this interceptor.");
 		}
 	}
 
@@ -43,7 +43,7 @@ public abstract class BaseComponentInterceptor<T extends Component> {
 		if (comp.getClass().isAssignableFrom(triggerClass)) {
 			onUpdateAction(entityService, entity, triggerClass.cast(comp));
 		} else {
-			throw new IllegalArgumentException("Wrong component class. Not supported by this recycler.");
+			throw new IllegalArgumentException("Wrong component class. Not supported by this interceptor.");
 		}
 	}
 
@@ -51,10 +51,21 @@ public abstract class BaseComponentInterceptor<T extends Component> {
 		if (comp.getClass().isAssignableFrom(triggerClass)) {
 			onDeleteAction(entityService, entity, triggerClass.cast(comp));
 		} else {
-			throw new IllegalArgumentException("Wrong component class. Not supported by this recycler.");
+			throw new IllegalArgumentException("Wrong component class. Not supported by this interceptor.");
 		}
 	}
 
+	/**
+	 * This method is called if a trigger of the given component deletion is
+	 * detected.
+	 * 
+	 * @param entityService
+	 *            The entity service.
+	 * @param entity
+	 *            The entity which previously owned the deleted component.
+	 * @param comp
+	 *            The deleted component.
+	 */
 	protected abstract void onDeleteAction(EntityService entityService, Entity entity, T comp);
 
 	/**

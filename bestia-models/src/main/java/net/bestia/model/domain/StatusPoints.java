@@ -75,4 +75,11 @@ public interface StatusPoints {
 
 	void setDefense(int def);
 
+	/**
+	 * Copies all values from the given {@link StatusPoints} instance.
+	 * 
+	 * @param rhs The {@link StatusPoints} object to copy.
+	 */
+	void set(StatusPoints rhs);
+
 }

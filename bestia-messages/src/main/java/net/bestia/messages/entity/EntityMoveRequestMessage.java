@@ -132,9 +132,9 @@ public class EntityMoveRequestMessage extends EntityJsonMessage {
 	}
 
 	/**
-	 * Turns the list of coordiantes into a array of points.
+	 * Turns the list of coordinates into a array of points.
 	 * 
-	 * @return
+	 * @return The array of point objects.
 	 */
 	public List<Point> getPath() {
 		if (cordsX.size() != cordsY.size()) {

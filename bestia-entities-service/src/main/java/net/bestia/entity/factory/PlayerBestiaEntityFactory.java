@@ -24,7 +24,7 @@ public class PlayerBestiaEntityFactory {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PlayerBestiaEntityFactory.class);
 
-	private static final Blueprint playerBestiaBlueprint;
+	private static final Blueprint PLAYER_BESTIA_BLUEPRINT;
 
 	static {
 		Blueprint.Builder builder = new Blueprint.Builder();
@@ -37,7 +37,7 @@ public class PlayerBestiaEntityFactory {
 				.addComponent(LevelComponent.class)
 				.addComponent(StatusComponent.class);
 
-		playerBestiaBlueprint = builder.build();
+		PLAYER_BESTIA_BLUEPRINT = builder.build();
 	}
 
 	private final StatusService statusService;
@@ -83,9 +83,10 @@ public class PlayerBestiaEntityFactory {
 				tagSetter,
 				statusSetter);
 
-		final Entity playerEntity = entityFactory.buildEntity(playerBestiaBlueprint, comps);
+		final Entity playerEntity = entityFactory.buildEntity(PLAYER_BESTIA_BLUEPRINT, comps);
 		
 		// Calculate the status points now.
+		// FIXME das hier in die entsprechenden setter einbauen.
 		statusService.calculateStatusPoints(playerEntity);
 		inventoryService.updateMaxWeight(playerEntity);
 

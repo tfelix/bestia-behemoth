@@ -97,7 +97,7 @@ public class BestiaInfoActor extends AbstractActor {
 			final StatusComponent status = statusComp.get();
 
 			final StatusPoints statusPoints = status.getStatusPoints();
-			final StatusPoints unmodStatusPoints = status.getUnmodifiedStatusPoints();
+			final StatusPoints unmodStatusPoints = status.getOriginalStatusPoints();
 			final ConditionValues condValues = status.getConditionValues();
 			final StatusBasedValues statusBasedValues = status.getStatusBasedValues();
 

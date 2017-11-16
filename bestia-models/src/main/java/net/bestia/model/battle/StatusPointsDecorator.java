@@ -13,7 +13,7 @@ import net.bestia.model.domain.StatusPoints;
  * This implements the {@link StatusPoints} interface but this class allows to
  * add {@link StatusPointsModifier} which will modify the status upon returning.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class StatusPointsDecorator implements StatusPoints, Serializable {
@@ -179,5 +179,10 @@ public class StatusPointsDecorator implements StatusPoints, Serializable {
 	@Override
 	public String toString() {
 		return "StatusPointsDecorator[]";
+	}
+
+	@Override
+	public void set(StatusPoints rhs) {
+		wrapped.set(rhs);
 	}
 }

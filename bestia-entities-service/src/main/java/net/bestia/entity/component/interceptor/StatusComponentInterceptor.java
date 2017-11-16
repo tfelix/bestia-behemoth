@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.entity.EntityStatusUpdateMessage;
-import net.bestia.messages.internal.entity.EntityComponentMessage;
+import net.bestia.messages.internal.entity.EntityComponentStateMessage;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.PlayerComponent;
@@ -52,11 +52,13 @@ public class StatusComponentInterceptor extends BaseComponentInterceptor<StatusC
 
 		final long accId = playerComp.get().getOwnerAccountId();
 
+		// FIXME dauernd eine methode im service callen ist dumm. Object wird
+		// mherfahr deserialisiert. Am besten nur einmal das object holen.
 		final EntityStatusUpdateMessage msg = new EntityStatusUpdateMessage(
 				accId,
 				entity.getId(),
 				comp.getStatusPoints(),
-				comp.getUnmodifiedStatusPoints(),
+				comp.getOriginalStatusPoints(),
 				comp.getConditionValues(),
 				comp.getStatusBasedValues());
 		msgApi.sendToClient(msg);
@@ -72,7 +74,7 @@ public class StatusComponentInterceptor extends BaseComponentInterceptor<StatusC
 
 		LOG.debug("Component {} is created.", comp);
 
-		final EntityComponentMessage msg = EntityComponentMessage.install(entity.getId(), comp.getId());
+		final EntityComponentStateMessage msg = EntityComponentStateMessage.install(entity.getId(), comp.getId());
 		msgApi.sendToEntity(msg);
 
 	}
@@ -82,7 +84,7 @@ public class StatusComponentInterceptor extends BaseComponentInterceptor<StatusC
 		// Stop the actor timing the entity component.
 		LOG.debug("Component {} is deleted.", comp);
 
-		final EntityComponentMessage msg = EntityComponentMessage.remove(comp.getEntityId(), comp.getId());
+		final EntityComponentStateMessage msg = EntityComponentStateMessage.remove(comp.getEntityId(), comp.getId());
 		msgApi.sendToEntity(msg);
 	}
 

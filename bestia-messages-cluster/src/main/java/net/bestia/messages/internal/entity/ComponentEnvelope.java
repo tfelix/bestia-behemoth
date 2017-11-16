@@ -39,7 +39,7 @@ public final class ComponentEnvelope extends EntityInternalMessage {
 
 	@Override
 	public String toString() {
-		return String.format("ComponentPayloadWrapper[eid: %d, compId: %d, payload: %s...]", getEntityId(), componentId,
+		return String.format("ComponentEnvelope[eid: %d, compId: %d, payload: %s...]", getEntityId(), componentId,
 				payload.toString().substring(0, 10));
 	}
 }
