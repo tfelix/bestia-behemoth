@@ -16,13 +16,48 @@
 
 <body class="noscroll">
 
+	<script>
+		function dropFile(ev) {
+			console.log("Drop");
+			ev.preventDefault();
+			// If dropped items aren't files, reject them
+			var dt = ev.dataTransfer;
+			if (dt.items) {
+				// Use DataTransferItemList interface to access the file(s)
+				for (var i = 0; i < dt.items.length; i++) {
+					if (dt.items[i].kind == "file") {
+						var f = dt.items[i].getAsFile();
+						console.log("... file[" + i + "].name = " + f.name);
+					}
+				}
+			} else {
+				// Use DataTransfer interface to access the file(s)
+				for (var i = 0; i < dt.files.length; i++) {
+					console.log("... file[" + i + "].name = " + dt.files[i].name);
+				}
+			}
+		}
+
+		function dragOverFile(ev) {
+			console.log("dragOver");
+			// Prevent default select and drag behavior
+			ev.preventDefault();
+		}
+
+	</script>
+
 	<header>
 		<ul>
 			<li>AnimEdit</li>
 			<li>Test</li>
 		</ul>
 	</header>
+<!-- ondragend="dragend_handler(event);" -->
+	<div id="filedrop" style="width: 300px; height: 200px; background: white;" ondrop="dropFile(event);" ondragover="dragOverFile(event);">
+		<strong>Drop a file into this area.</strong>
+	</div>
 
 	<div id="engine"></div>
 </body>
+
 </html>
