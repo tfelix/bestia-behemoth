@@ -7,8 +7,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
-	<link rel="stylesheet" href="spectre.min.css">
-	<link rel="stylesheet" href="main.css">
 
 	<!-- JAVASCRIPT -->
 	<script src="main.js"></script>
@@ -46,18 +44,40 @@
 
 	</script>
 
-	<header>
-		<ul>
-			<li>AnimEdit</li>
-			<li>Test</li>
-		</ul>
-	</header>
-<!-- ondragend="dragend_handler(event);" -->
+	<h1>Animation Editor</h1>
+
+	<div class="container">
+		<div class="columns col-gapless">
+			<div class="column col-2">
+				<h5>Main anims</h5>
+			</div>
+			<div class="column col-8">
+				<div id="engine"></div>
+				<div id="controls">
+					<button>First</button>
+					<button>&lt;</button>
+
+					<button>Play</button>
+					<button>Pause</button>
+
+					<button>&gt;</button>
+					<button>Last</button>
+				</div>
+			</div>
+			<div class="column col-2">
+				<h5>Anims: female_01</h5>
+			</div>
+		</div>
+	</div>
+
+
+	<!-- ondragend="dragend_handler(event);" -->
 	<div id="filedrop" style="width: 300px; height: 200px; background: white;" ondrop="dropFile(event);" ondragover="dragOverFile(event);">
 		<strong>Drop a file into this area.</strong>
 	</div>
 
-	<div id="engine"></div>
+
+
 </body>
 
 </html>

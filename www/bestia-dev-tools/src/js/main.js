@@ -1,16 +1,17 @@
 import 'phaser';
 import StandbyState from './states/StandbyState';
 import { version } from '../../package.json';
+import '../css/main.scss';
+
 require('file-loader?name=[name].[ext]!../index.html');
-require('file-loader?name=[name].[ext]!../css/main.css');
 require('file-loader?name=[name].[ext]!../css/spectre.min.css');
 
 console.log('Bestia Toolsuite - v' + version);
 
 let config = {
     type: Phaser.WEBGL,
-    width: 800,
-    height: 600,
+    width: 500,
+    height: 500,
     parent: 'engine',
     scene: StandbyState
 };
