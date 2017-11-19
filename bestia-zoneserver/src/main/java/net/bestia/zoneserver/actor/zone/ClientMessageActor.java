@@ -20,7 +20,6 @@ import akka.event.LoggingAdapter;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.battle.AttackUseActor;
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
-import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.connection.LatencyManagerActor;
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor;
@@ -105,7 +104,6 @@ public class ClientMessageActor extends AbstractActor {
 		SpringExtension.actorOf(getContext(), LatencyManagerActor.class);
 
 		// === Bestias ===
-		//SpringExtension.actorOf(getContext(), BestiaInfoActor.class, messageRouter);
 		SpringExtension.actorOf(getContext(), ActivateBestiaActor.class);
 
 		// === Inventory ===

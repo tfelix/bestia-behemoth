@@ -66,15 +66,9 @@ public class EntitySyncActor extends AbstractActor {
 	}
 
 	@Override
-	public void postRestart(Throwable reason) throws Exception {
-		//LOG.error(reason, "WTF");
-	}
-
-	@Override
 	public void preStart() throws Exception {
 		final RedirectMessage msg = RedirectMessage.get(EntitySyncRequestMessage.class);
 		context().parent().tell(msg, getSelf());
-		//LOG.error("Was ist hier los?");
 	}
 
 	private void onSyncRequest(EntitySyncRequestMessage msg) {

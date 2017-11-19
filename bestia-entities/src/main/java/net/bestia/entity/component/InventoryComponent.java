@@ -14,6 +14,7 @@ import java.util.Optional;
  *
  * @author Thomas Felix
  */
+@ComponentSync(SyncType.OWNER)
 public class InventoryComponent extends Component {
 
 	/**

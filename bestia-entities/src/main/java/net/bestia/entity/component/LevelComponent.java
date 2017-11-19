@@ -8,6 +8,7 @@ import java.util.Objects;
  * @author Thomas Felix
  *
  */
+@ComponentSync(SyncType.OWNER)
 public class LevelComponent extends Component {
 
 	private static final long serialVersionUID = 1L;

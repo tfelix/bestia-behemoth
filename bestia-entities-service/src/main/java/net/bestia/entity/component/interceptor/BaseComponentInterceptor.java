@@ -25,7 +25,7 @@ public abstract class BaseComponentInterceptor<T extends Component> {
 	}
 
 	/**
-	 * @return The class which triggers this interceptor.
+	 * @return The class which triggers this intercepter.
 	 */
 	public Class<T> getTriggerType() {
 		return triggerClass;

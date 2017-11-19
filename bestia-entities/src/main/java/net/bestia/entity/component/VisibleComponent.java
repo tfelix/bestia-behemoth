@@ -13,6 +13,7 @@ import net.bestia.model.domain.SpriteInfo;
  * @author Thomas Felix
  *
  */
+@ComponentSync(SyncType.ALL)
 public class VisibleComponent extends Component {
 
 	private static final long serialVersionUID = 1L;

@@ -16,6 +16,7 @@ import net.bestia.model.entity.StatusBasedValuesImpl;
  * @author Thomas Felix
  *
  */
+@ComponentSync(SyncType.OWNER)
 public class StatusComponent extends Component {
 
 	private static final long serialVersionUID = 1L;

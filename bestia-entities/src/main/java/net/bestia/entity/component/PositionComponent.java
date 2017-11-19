@@ -14,6 +14,7 @@ import net.bestia.model.geometry.Point;
  * @author Thomas Felix
  *
  */
+@ComponentSync(SyncType.ALL)
 public class PositionComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
