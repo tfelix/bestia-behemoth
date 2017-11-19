@@ -20,6 +20,15 @@ public class EntityComponentDeleteMessage extends EntityJsonMessage {
 	
 	@JsonProperty("cid")
 	private final long componentId;
+	
+	/**
+	 * For jackson.
+	 */
+	EntityComponentDeleteMessage() {
+		super(0, 0);
+		
+		this.componentId = 0;
+	}
 
 	public EntityComponentDeleteMessage(long accId, long entityId, long componentId) {
 		super(accId, entityId);

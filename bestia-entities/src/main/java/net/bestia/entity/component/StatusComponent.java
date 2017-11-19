@@ -43,11 +43,11 @@ public class StatusComponent extends Component {
 	 * 
 	 * @return The current status points of the entity.
 	 */
-	StatusPoints getStatusPoints() {
+	public StatusPoints getStatusPoints() {
 		return statusPoints;
 	}
 
-	StatusPoints getOriginalStatusPoints() {
+	public StatusPoints getOriginalStatusPoints() {
 		return originalStatusPoints;
 	}
 
@@ -61,7 +61,7 @@ public class StatusComponent extends Component {
 		this.originalStatusPoints = statusPoints;
 	}
 
-	StatusBasedValues getStatusBasedValues() {
+	public StatusBasedValues getStatusBasedValues() {
 		return statusBasedValues;
 	}
 
@@ -73,7 +73,7 @@ public class StatusComponent extends Component {
 		this.originalElement = originalElement;
 	}
 
-	ConditionValues getConditionValues() {
+	public ConditionValues getConditionValues() {
 		return values;
 	}
 
@@ -83,7 +83,7 @@ public class StatusComponent extends Component {
 	 * 
 	 * @return The original unaltered element.
 	 */
-	Element getOriginalElement() {
+	public Element getOriginalElement() {
 		return originalElement;
 	}
 
@@ -92,7 +92,7 @@ public class StatusComponent extends Component {
 	 * 
 	 * @return The current element of the entity.
 	 */
-	Element getElement() {
+	public Element getElement() {
 		return element;
 	}
 

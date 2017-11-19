@@ -13,10 +13,20 @@ import java.util.Objects;
  */
 public class EntityComponentMessage extends EntityJsonMessage {
 
+	private static final long serialVersionUID = 1L;
+
 	public static final String MESSAGE_ID = "entity.comp";
 
 	@JsonProperty("c")
 	private final Component component;
+	
+	/**
+	 * For Jackson.
+	 */
+	EntityComponentMessage() {
+		super(0, 0);
+		component = null;
+	}
 
 	/**
 	 * @param accId    The account ID receiving this message.

@@ -52,8 +52,6 @@ public class StatusComponentInterceptor extends BaseComponentInterceptor<StatusC
 
 		final long accId = playerComp.get().getOwnerAccountId();
 
-		// FIXME dauernd eine methode im service callen ist dumm. Object wird
-		// mherfahr deserialisiert. Am besten nur einmal das object holen.
 		final EntityStatusUpdateMessage msg = new EntityStatusUpdateMessage(
 				accId,
 				entity.getId(),
