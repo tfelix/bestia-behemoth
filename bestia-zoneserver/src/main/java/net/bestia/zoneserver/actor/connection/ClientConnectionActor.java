@@ -94,18 +94,18 @@ public class ClientConnectionActor extends AbstractActor {
 	private void handleClientMessage(FromClient msg) {
 		Object payload = msg.getPayload();
 		if (payload instanceof LoginAuthMessage) {
-			
+
 			handleLoginAuthRequest((LoginAuthMessage) payload);
-			
+
 		} else if (payload instanceof ClientConnectMessage) {
-			
+
 			handleConnectionStatus((ClientConnectMessage) payload);
-			
+
 		} else {
-			
+
 			throwIfNotAuthenticated();
 			clientIngest.tell(payload, getSelf());
-			
+
 		}
 	}
 
@@ -140,17 +140,24 @@ public class ClientConnectionActor extends AbstractActor {
 	 */
 	private void handleConnectionStatus(ClientConnectMessage msg) {
 		if (msg.getState() == ConnectionState.CONNECTED) {
-			startConnectionActor(msg);
+			initClientConnection(msg);
 		} else {
 			onClientConnectionClosed();
 		}
 	}
 
-	private void startConnectionActor(ClientConnectMessage msg) {
+	/**
+	 * Initializes a client connection.
+	 * 
+	 * @param msg
+	 */
+	private void initClientConnection(ClientConnectMessage msg) {
 
+		LOG.debug("Client has connected: {}.", msg);
+		
 		accountId = msg.getAccountId();
 
-		// Cleanup of we are wired to another actor.
+		// Cleanup of we are now wired to another actor.
 		if (clientSocket != null) {
 			getContext().unwatch(clientSocket);
 		}
@@ -159,6 +166,8 @@ public class ClientConnectionActor extends AbstractActor {
 		getContext().watch(clientSocket);
 
 		SpringExtension.actorOf(getContext(), LatencyPingActor.class, accountId, clientSocket);
+		
+		// Spawn the client master bestia.
 
 		LOG.debug("Connection established: {}, account: {}", getSelf().path(), accountId);
 	}

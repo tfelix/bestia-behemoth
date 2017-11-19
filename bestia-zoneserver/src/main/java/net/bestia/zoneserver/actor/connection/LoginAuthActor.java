@@ -13,6 +13,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
+import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
 import net.bestia.zoneserver.service.LoginService;
@@ -44,17 +45,13 @@ public class LoginAuthActor extends AbstractActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private final LoginService loginService;
+	private final AccountDAO accountDao;
 
-	/**
-	 * Ctor.
-	 * 
-	 * @param loginService
-	 *            {@link LoginService}
-	 */
 	@Autowired
-	public LoginAuthActor(LoginService loginService) {
+	public LoginAuthActor(LoginService loginService,  AccountDAO accountDao) {
 
 		this.loginService = Objects.requireNonNull(loginService);
+		this.accountDao = Objects.requireNonNull(accountDao);
 	}
 
 	@Override
@@ -73,23 +70,9 @@ public class LoginAuthActor extends AbstractActor {
 	private void handleAuthMessage(LoginAuthMessage msg) {
 		LOG.debug("LoginRequestMessage received: {}", msg.toString());
 
-		final LoginAuthMessage loginMsg = (LoginAuthMessage) msg;
-		final long accId = loginMsg.getAccountId();
+		final long accId = msg.getAccountId();
 
-		if (!loginService.canLogin(accId, loginMsg.getToken())) {
-
-			final LoginAuthReplyMessage response = new LoginAuthReplyMessage(
-					accId,
-					LoginState.DENIED,
-					"");
-			getSender().tell(response, getSelf());
-
-			return;
-		}
-
-		final Account account = loginService.login(accId);
-
-		if (account == null) {
+		if (!loginService.canLogin(accId, msg.getToken())) {
 
 			final LoginAuthReplyMessage response = new LoginAuthReplyMessage(
 					accId,
@@ -98,15 +81,15 @@ public class LoginAuthActor extends AbstractActor {
 			getSender().tell(response, getSelf());
 
 		} else {
-
+			
+			final Account account = accountDao.findOne(accId);
 			final LoginAuthReplyMessage response = new LoginAuthReplyMessage(
 					accId,
 					LoginState.ACCEPTED,
 					account.getName());
 			getSender().tell(response, getSelf());
-
 		}
-		
+
 		// Finished work and can stop now.
 		getContext().stop(getSelf());
 	}

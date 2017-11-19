@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import akka.actor.Address;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.factory.PlayerBestiaEntityFactory;
@@ -39,25 +38,27 @@ public class LoginService {
 	private final PlayerEntityService playerEntityService;
 	private final PlayerBestiaService playerBestiaService;
 	private final MessageApi akkaApi;
-	private final PlayerBestiaEntityFactory playerEntityFactory;
 	private final EntityService entityService;
+	private final PlayerBestiaEntityFactory playerEntityFactory;
+
 
 	@Autowired
 	public LoginService(RuntimeConfigService config,
 			AccountDAO accountDao,
 			PlayerEntityService playerEntityService,
-			PlayerBestiaService playerBestiaService,
 			MessageApi akkaApi,
 			PlayerBestiaEntityFactory playerEntityFactory,
+			PlayerBestiaService playerBestiaService,
+			PlayerBestiaEntityFactory playerFactory,
 			EntityService entityService) {
 
 		this.config = Objects.requireNonNull(config);
 		this.accountDao = Objects.requireNonNull(accountDao);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
-		this.playerBestiaService = Objects.requireNonNull(playerBestiaService);
 		this.akkaApi = Objects.requireNonNull(akkaApi);
-		this.playerEntityFactory = Objects.requireNonNull(playerEntityFactory);
 		this.entityService = Objects.requireNonNull(entityService);
+		this.playerBestiaService = Objects.requireNonNull(playerBestiaService);
+		this.playerEntityFactory = Objects.requireNonNull(playerEntityFactory);
 	}
 
 	/**
@@ -70,6 +71,7 @@ public class LoginService {
 	 * @return The logged in Account or NULL if login failed.
 	 */
 	public Account login(long accId) {
+
 		if (accId < 0) {
 			throw new IllegalArgumentException("Account ID must be positive.");
 		}
@@ -81,10 +83,7 @@ public class LoginService {
 			return null;
 		}
 
-		// TODO Das hier ist ein fehler. Erst den client complett anmelden und
-		// danach beginnen die entities zu instanzieren.
-
-		// Spawn all bestia entities for this account into the world.
+		// Spawn the player bestia of this account.
 		final PlayerBestia master = playerBestiaService.getMaster(accId);
 
 		Entity masterEntity = null;
@@ -145,9 +144,6 @@ public class LoginService {
 		// stopped.
 		final LogoutMessage logoutMsg = new LogoutMessage(accId);
 		akkaApi.sendToClient(logoutMsg);
-		// FIXME Das hier an die neue API anpassen.
-		//akkaApi.
-		//sendToActor(ClientConnectionActor.getActorName(accId), logoutMsg);
 
 		final Set<Entity> playerEntities = playerEntityService.getPlayerEntities(accId);
 
@@ -172,7 +168,11 @@ public class LoginService {
 		});
 	}
 
-	public void logoutAllFromServer(Address address) {
+	/**
+	 * Perform a logout on all users currently connected to the server.
+	 */
+	public void logoutAll() {
+		// TODO Auto-generated method stub
 
 	}
 
@@ -183,13 +183,12 @@ public class LoginService {
 	 */
 	public void logoutAllUsersBelow(UserLevel level) {
 		throw new IllegalStateException("Currently broken.");
-		/*connectionService.getAllConnectedAccountIds().forEachRemaining(accId -> {
-			final Account acc = accountDao.findOne(accId);
-
-			if (acc.getUserLevel().compareTo(level) == -1) {
-				logout(accId);
-			}
-		});*/
+		/*
+		 * connectionService.getAllConnectedAccountIds().forEachRemaining(accId
+		 * -> { final Account acc = accountDao.findOne(accId);
+		 * 
+		 * if (acc.getUserLevel().compareTo(level) == -1) { logout(accId); } });
+		 */
 	}
 
 	public AccountLoginRequest setNewLoginToken(AccountLoginRequest request) {
@@ -251,6 +250,7 @@ public class LoginService {
 			return false;
 		}
 
+		// Special handling of maintenance mode.
 		if (config.getMaintenanceMode() != MaintenanceLevel.NONE) {
 
 			// Depending on maintenance mode certain users can login.
@@ -268,10 +268,5 @@ public class LoginService {
 
 		LOG.trace("Account {} login permitted.", accId);
 		return true;
-	}
-
-	public void logoutAll() {
-		// TODO Auto-generated method stub
-
 	}
 }

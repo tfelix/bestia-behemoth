@@ -2,9 +2,7 @@ package net.bestia.zoneserver.actor.zone;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +18,6 @@ import akka.cluster.Member;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.server.AkkaCluster;
-import net.bestia.zoneserver.service.LoginService;
 
 /**
  * Logs information about the whole behemoth cluster and reacts on cluster
@@ -37,14 +34,11 @@ public class ZoneClusterListenerActor extends AbstractActor {
 	public final static String NAME = "clusterStatus";
 
 	private final Cluster cluster = Cluster.get(getContext().system());
-	private final LoginService loginService;
 
 	private final List<Member> webserverMember = new ArrayList<>();
 	
-	@Autowired
-	public ZoneClusterListenerActor(LoginService loginService) {
-		
-		this.loginService = Objects.requireNonNull(loginService);
+	public ZoneClusterListenerActor() {
+		// no op.
 	}
 
 	/**
@@ -92,11 +86,6 @@ public class ZoneClusterListenerActor extends AbstractActor {
 	
 	private void handleMemberRemoved(MemberRemoved mRemoved) {
 		LOG.info("Member was removed: {}", mRemoved.member());
-
-		if (!mRemoved.member().hasRole(AkkaCluster.ROLE_WEB)) {
-			LOG.debug("Webserver is removed: {}. Disconnecting all clients.", mRemoved.member());			
-			loginService.logoutAllFromServer(mRemoved.member().address());
-		}
 	}
 	
 	private void handleMemberEvent(MemberEvent event) {

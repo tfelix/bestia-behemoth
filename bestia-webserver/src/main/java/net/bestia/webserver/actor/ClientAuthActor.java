@@ -28,7 +28,7 @@ import scala.concurrent.duration.Duration;
  * Handles the client auth handshake. If the client sends no auth packet during
  * a defined time windows the actor stops.
  * 
- * @author Thomas
+ * @author Thomas Felix
  *
  */
 public class ClientAuthActor extends BaseSocketActor {

@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import akka.actor.Address;
 import akka.testkit.TestProbe;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
@@ -129,8 +130,9 @@ public class LoginServiceTest {
 		loginService = new LoginService(config,
 				accountDao,
 				playerEntityService,
-				playerBestiaService,
 				akkaApi,
+				playerEntityFactory,
+				playerBestiaService,
 				playerEntityFactory,
 				entityService);
 	}

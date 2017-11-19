@@ -32,7 +32,7 @@ import net.bestia.zoneserver.actor.ui.ClientVarActor;
 
 /**
  * The ingestion extended actor is a development actor to help the transition
- * towards a cleaner actor massaging managment. It serves as a proxy
+ * towards a cleaner actor massaging management. It serves as a proxy
  * re-directing the incoming messages towards the new system or to the legacy
  * system.
  * 
@@ -105,7 +105,7 @@ public class ClientMessageActor extends AbstractActor {
 		SpringExtension.actorOf(getContext(), LatencyManagerActor.class);
 
 		// === Bestias ===
-		SpringExtension.actorOf(getContext(), BestiaInfoActor.class, messageRouter);
+		//SpringExtension.actorOf(getContext(), BestiaInfoActor.class, messageRouter);
 		SpringExtension.actorOf(getContext(), ActivateBestiaActor.class);
 
 		// === Inventory ===

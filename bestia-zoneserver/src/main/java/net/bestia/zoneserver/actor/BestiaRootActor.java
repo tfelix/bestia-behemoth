@@ -120,15 +120,16 @@ public class BestiaRootActor extends AbstractActor {
 
 		final ActorSystem system = getContext().system();
 
-		// Entity sharding.
+		
 		final ClusterShardingSettings settings = ClusterShardingSettings.create(system);
 		final ClusterSharding sharding = ClusterSharding.get(system);
+		
+		// Entity sharding.
 		final Props entityProps = SpringExtension.getSpringProps(system, EntityActor.class);
 		final EntityShardMessageExtractor entityExtractor = new EntityShardMessageExtractor();
 		final ActorRef entities = sharding.start(EntryActorNames.SHARD_ENTITY, entityProps, settings, entityExtractor);
 
 		// Connection sharding.
-		// Circular dependency auflösen!!!
 		final Props connectionProps = SpringExtension.getSpringProps(system, ClientConnectionActor.class, clientMessageHandler);
 		final ConnectionShardMessageExtractor connectionExtractor = new ConnectionShardMessageExtractor();
 		final ActorRef clients = sharding.start(EntryActorNames.SHARD_CONNECTION, connectionProps, settings, connectionExtractor);
