@@ -27,7 +27,6 @@ import net.bestia.zoneserver.actor.rest.RequestLoginActor;
 import net.bestia.zoneserver.actor.rest.RequestServerStatusActor;
 import net.bestia.zoneserver.actor.zone.ClientMessageActor;
 import net.bestia.zoneserver.actor.zone.ClusterControlActor;
-import net.bestia.zoneserver.actor.zone.MemDbHeartbeatActor;
 import net.bestia.zoneserver.actor.zone.MessageRouterActor;
 import net.bestia.zoneserver.actor.zone.MessageRouterActor.SetMessageRoutes;
 import net.bestia.zoneserver.actor.zone.WebIngestActor;
@@ -78,7 +77,6 @@ public class BestiaRootActor extends AbstractActor {
 		
 		// System actors.
 		SpringExtension.actorOf(getContext(), ZoneClusterListenerActor.class);
-		SpringExtension.actorOf(getContext(), MemDbHeartbeatActor.class);
 
 		// Maintenance actors.
 		// Noch nicht migriert.
