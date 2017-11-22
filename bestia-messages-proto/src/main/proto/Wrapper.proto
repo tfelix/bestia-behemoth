@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package bestia;
+
+option java_package = "net.bestia.message";
+option java_outer_classname = "WrapperProto";
+
+/**
+ Contains a wrapped message so the code can access one set
+ inner field.
+ */
+message Wrapper {
+    uint64 x = 1;
+    uint64 y = 2;
+}

@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * to fetch all kinds of hot-loaded, dynamic translations for the bestia game
  * system like quests, attack descriptions and item names etc.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Entity

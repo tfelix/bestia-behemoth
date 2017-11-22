@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/behemoth.iml" filepath="$PROJECT_DIR$/behemoth.iml" />
       <module fileurl="file://$PROJECT_DIR$/bestia-entities/bestia-entities.iml" filepath="$PROJECT_DIR$/bestia-entities/bestia-entities.iml" />
       <module fileurl="file://$PROJECT_DIR$/bestia-entities-service/bestia-entities-service.iml" filepath="$PROJECT_DIR$/bestia-entities-service/bestia-entities-service.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bestia-i18nserver/bestia-i18nserver.iml" filepath="$PROJECT_DIR$/bestia-i18nserver/bestia-i18nserver.iml" />
       <module fileurl="file://$PROJECT_DIR$/bestia-memoryserver/bestia-memoryserver.iml" filepath="$PROJECT_DIR$/bestia-memoryserver/bestia-memoryserver.iml" />
       <module fileurl="file://$PROJECT_DIR$/bestia-messages/bestia-messages.iml" filepath="$PROJECT_DIR$/bestia-messages/bestia-messages.iml" />
       <module fileurl="file://$PROJECT_DIR$/bestia-messages-cluster/bestia-messages-cluster.iml" filepath="$PROJECT_DIR$/bestia-messages-cluster/bestia-messages-cluster.iml" />

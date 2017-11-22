@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="bestia-entities" />
         <module name="bestia-entities-service" />
+        <module name="bestia-i18nserver" />
         <module name="bestia-memoryserver" />
         <module name="bestia-message-cluster" />
         <module name="bestia-message-proto" />
@@ -28,6 +29,7 @@
       <module name="behemoth" target="1.8" />
       <module name="bestia-entities" target="1.8" />
       <module name="bestia-entities-service" target="1.8" />
+      <module name="bestia-i18nserver" target="1.8" />
       <module name="bestia-memdbserver" target="1.8" />
       <module name="bestia-memoryserver" target="1.8" />
       <module name="bestia-message" target="1.8" />
