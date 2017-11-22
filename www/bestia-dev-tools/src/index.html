@@ -44,14 +44,58 @@
 
 	</script>
 
-	<h1>Animation Editor</h1>
+
+
+	<header>
+		<h1>Animation Editor</h1>
+		<input class="form-input" type="file" id="main-sprite" style="width: 400px; display: inline">
+		<button class="btn">Load</button>
+		<button class="btn">New</button>
+		<button class="btn">Check</button>
+		<button class="btn">Save</button>
+	</header>
 
 	<div class="container">
 		<div class="columns col-gapless">
 			<div class="column col-2">
-				<h5>Main anims</h5>
+				<h4>mastersmith</h4>
+				<div class="divider"></div>
+				<table>
+					<tr>
+						<td>Type:</td>
+						<td>multisprite</td>
+					</tr>
+					<tr>
+						<td>Version:</td>
+						<td>1</td>
+					</tr>
+					<tr>
+						<td>Scale:</td>
+						<td>0.68</td>
+					</tr>
+					<tr>
+						<td>Anchor:</td>
+						<td>X: Y:
+							<button class="btn btn-primary btn-sm">Set</button>
+						</td>
+					</tr>
+				</table>
+				<div class="divider"></div>
+
+				<h5>Sprite hierarchy</h5>
+				<div class="form-group">
+					<label class="form-label" for="input-sprite">Add sprite</label>
+					<input class="form-input" type="file" id="input-sprite">
+				</div>
+				<ul>
+					<li>S: mastersmith
+						<ul>
+							<li>S: female_01 - Offsets</li>
+						</ul>
+					</li>
+				</ul>
 			</div>
-			<div class="column col-8">
+			<div class="column col-6">
 				<div id="engine"></div>
 				<div id="controls">
 					<button>First</button>
@@ -67,16 +111,25 @@
 			<div class="column col-2">
 				<h5>Anims: female_01</h5>
 			</div>
+			<div class="column col-2">
+				<h5>Offsets</h5>
+
+				Default cords:
+
+				<div class="divider"></div>
+				<ol>
+					<li>X: Y:</li>
+					<li>X: Y:</li>
+					<li>X: Y:</li>
+					<li>X: Y:</li>
+				</ol>
+
+				<div class="divider"></div>
+				Add TriggeredBy == SubSpriteAnim +
+
+			</div>
 		</div>
 	</div>
-
-
-	<!-- ondragend="dragend_handler(event);" -->
-	<div id="filedrop" style="width: 300px; height: 200px; background: white;" ondrop="dropFile(event);" ondragover="dragOverFile(event);">
-		<strong>Drop a file into this area.</strong>
-	</div>
-
-
 
 </body>
 

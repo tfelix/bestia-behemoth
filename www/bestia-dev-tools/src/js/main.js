@@ -4,7 +4,6 @@ import { version } from '../../package.json';
 import '../css/main.scss';
 
 require('file-loader?name=[name].[ext]!../index.html');
-require('file-loader?name=[name].[ext]!../css/spectre.min.css');
 
 console.log('Bestia Toolsuite - v' + version);
 

@@ -1,5 +1,8 @@
 package net.bestia.zoneserver.actor.entity.component;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import akka.actor.AbstractActor;
 
 /**
@@ -9,6 +12,8 @@ import akka.actor.AbstractActor;
  * @author Thomas Felix
  *
  */
+@Component
+@Scope("prototype")
 public class AiComponentActor extends AbstractActor {
 
 	@Override

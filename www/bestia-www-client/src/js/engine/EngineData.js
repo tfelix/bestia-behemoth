@@ -20,7 +20,7 @@ var engineContext = {
     loader: null,
     url: null,
     entityUpdater: null,
-    data : {}
+    data: {}
 };
 
 export {
