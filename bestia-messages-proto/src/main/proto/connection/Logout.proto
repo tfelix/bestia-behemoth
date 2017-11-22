@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "Account.proto";
+
+package bestia;
+
+option java_package = "net.bestia.message";
+option java_outer_classname = "LogoutProto";
+
+/**
+ * This message is send to the player in order to signal a (forced) logout from
+ * the system. If the player disconnects by its own this message is not the
+ * message to be send. In this case a {@link LogoutBroadcastMessage} will be
+ * issued by the webserver so the zone can logout any pending entities
+ * controlled by the player.
+*/
+message Logout {
+    Account account = 1;
+}

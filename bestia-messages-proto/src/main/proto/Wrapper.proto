@@ -1,5 +1,9 @@
 syntax = "proto3";
 
+import "chat/Chat.proto";
+//import "connections/LoginAuth.proto";
+import "connection/Logout.proto";
+
 package bestia;
 
 option java_package = "net.bestia.message";
@@ -10,6 +14,9 @@ option java_outer_classname = "WrapperProto";
  inner field.
  */
 message Wrapper {
-    uint64 x = 1;
-    uint64 y = 2;
+
+    oneof payload {
+        Chat chat = 1;
+        Logout logout = 2;
+    }
 }

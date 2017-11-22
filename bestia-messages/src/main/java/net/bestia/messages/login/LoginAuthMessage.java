@@ -12,7 +12,7 @@ import net.bestia.messages.JsonMessage;
  * will send the given access token from the request to the login server which
  * must respond accordingly.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public class LoginAuthMessage extends JsonMessage {
