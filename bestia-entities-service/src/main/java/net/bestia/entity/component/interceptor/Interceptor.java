@@ -1,26 +1,28 @@
 package net.bestia.entity.component.interceptor;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.*;
 
 /**
  * Main class for collecting and triggering component interaction interceptions.
  *
  * @author Thomas Felix
  */
-@org.springframework.stereotype.Component
 public class Interceptor {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Interceptor.class);
 	private final Map<Class<? extends Component>, List<BaseComponentInterceptor<? extends Component>>> interceptors = new HashMap<>();
 
-	@Autowired
 	public Interceptor(List<BaseComponentInterceptor<? extends Component>> interceptors) {
 		Objects.requireNonNull(interceptors);
 		interceptors.forEach(this::addInterceptor);

@@ -21,7 +21,7 @@ import net.bestia.messages.account.UserNameCheck;
 import net.bestia.webserver.exceptions.WrongCredentialsException;
 import net.bestia.webserver.messages.web.ClientPayloadMessage;
 import net.bestia.webserver.messages.web.CloseConnection;
-import net.bestia.webserver.messages.web.PrepareConnection;
+import net.bestia.webserver.messages.web.OpenConnection;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
@@ -46,7 +46,7 @@ public class WebserverActorApiActor implements WebserverActorApi {
 
 		this.uplink = Objects.requireNonNull(uplink);
 		
-		final Props connectionProps = ConnectionHandshakeActor.props(uplink);
+		final Props connectionProps = ConnectionsActor.props(uplink);
 		this.connections = context.actorOf(connectionProps, "connections");
 	}
 
@@ -69,11 +69,11 @@ public class WebserverActorApiActor implements WebserverActorApi {
 	}
 
 	@Override
-	public void setupWebsocketConnection(String sessionUid, WebSocketSession session) {
+	public void openWebsocketConnection(String sessionUid, WebSocketSession session) {
 
-		LOG.debug("Starting new client socket: {}.", sessionUid);
+		LOG.debug("Opening new client socket: {}.", sessionUid);
 		
-		PrepareConnection prepCon = new PrepareConnection(sessionUid, session);
+		final OpenConnection prepCon = new OpenConnection(sessionUid, session);
 		connections.tell(prepCon, ActorRef.noSender());
 	}
 

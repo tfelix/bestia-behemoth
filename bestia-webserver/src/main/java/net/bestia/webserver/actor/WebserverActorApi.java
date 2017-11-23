@@ -53,7 +53,7 @@ public interface WebserverActorApi {
 	 * @param session
 	 *            The websocket session.
 	 */
-	void setupWebsocketConnection(String sessionUid, WebSocketSession session);
+	void openWebsocketConnection(String sessionUid, WebSocketSession session);
 
 	/**
 	 * This closes the websocket session.

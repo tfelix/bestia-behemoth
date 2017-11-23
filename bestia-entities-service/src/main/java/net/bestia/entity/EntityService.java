@@ -562,8 +562,10 @@ public class EntityService {
 	 *         has not this component attached.
 	 */
 	public <T extends Component> Optional<T> getComponent(Entity e, Class<T> clazz) {
-		Objects.requireNonNull(e);
-		Objects.requireNonNull(clazz);
+		if(e == null || clazz == null) {
+			return Optional.empty();
+		}
+		
 		LOG.trace("getComponent(): {}, {}", e, clazz);
 
 		final long compId = e.getComponentId(clazz);

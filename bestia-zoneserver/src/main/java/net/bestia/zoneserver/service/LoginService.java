@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
+import net.bestia.entity.component.PlayerComponent;
 import net.bestia.entity.factory.PlayerBestiaEntityFactory;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.account.AccountLoginRequest;
@@ -40,7 +41,6 @@ public class LoginService {
 	private final MessageApi akkaApi;
 	private final EntityService entityService;
 	private final PlayerBestiaEntityFactory playerEntityFactory;
-
 
 	@Autowired
 	public LoginService(RuntimeConfigService config,
@@ -89,11 +89,17 @@ public class LoginService {
 		Entity masterEntity = null;
 
 		if (master.getEntityId() != 0) {
-			LOG.debug("Login in acc: {}. Master bestia already spawned (eid: {}). Using it", accId,
+			LOG.debug("Login in acc: {}. Master bestia already spawned (eid: {}). Using it.", accId,
 					master.getEntityId());
+
 			masterEntity = entityService.getEntity(master.getEntityId());
 
-			if (masterEntity == null) {
+			// Safetycheck the entity.
+			final boolean isPlayersMasterEntity = entityService.getComponent(masterEntity, PlayerComponent.class)
+					.map(pc -> pc.getPlayerBestiaId() == master.getId())
+					.orElse(false);
+
+			if (masterEntity == null || !isPlayersMasterEntity) {
 				LOG.warn("Master entity {} for account {} not found even though ID was set. Spawning it.",
 						master.getEntityId(), accId);
 				masterEntity = playerEntityFactory.build(master);
@@ -104,16 +110,14 @@ public class LoginService {
 			masterEntity = playerEntityFactory.build(master);
 		}
 
-		try {
-			// Save the entity.
-			// Now activate the master and notify the client.
-			playerEntityService.putPlayerEntity(masterEntity);
-			playerEntityService.setActiveEntity(accId, masterEntity.getId());
-		} catch (IllegalArgumentException e) {
-			// Seems the entity has no player component. Aborting.
-			LOG.warn("Could not login because of exception.", e);
-			return null;
-		}
+		// Save the entity.
+		// Now activate the master and notify the client.
+		playerEntityService.putPlayerEntity(masterEntity);
+		playerEntityService.setActiveEntity(accId, masterEntity.getId());
+		
+		// Update the DB.
+		master.setEntityId(masterEntity.getId());
+		playerBestiaService.save(master);
 
 		return account;
 	}

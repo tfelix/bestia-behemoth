@@ -168,6 +168,7 @@ public class ClientConnectionActor extends AbstractActor {
 		SpringExtension.actorOf(getContext(), LatencyPingActor.class, accountId, clientSocket);
 		
 		// Spawn the client master bestia.
+		loginService.login(accountId);
 
 		LOG.debug("Connection established: {}, account: {}", getSelf().path(), accountId);
 	}

@@ -11,12 +11,12 @@ import org.springframework.web.socket.WebSocketSession;
  * @author Thomas Felix
  *
  */
-public class PrepareConnection implements SocketMessage {
+public class OpenConnection implements SocketMessage {
 
 	private final String sessionUid;
 	private final WebSocketSession session;
 
-	public PrepareConnection(String sessionUid, WebSocketSession session) {
+	public OpenConnection(String sessionUid, WebSocketSession session) {
 
 		this.sessionUid = Objects.requireNonNull(sessionUid);
 		this.session = Objects.requireNonNull(session);

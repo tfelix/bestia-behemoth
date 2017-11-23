@@ -11,8 +11,8 @@ export default class EntityComponentUpdates {
 		this._updatedEntities = new Set();
 
 
-		pubsub.subscribe("entity.comp", this._onComponentUpdate);
-		pubsub.subscribe("entity.Del", this._onComponentDelete);
+		pubsub.subscribe('entity.comp', this._onComponentUpdate);
+		pubsub.subscribe('entity.Del', this._onComponentDelete);
 	}
 
     /**

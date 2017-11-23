@@ -17,10 +17,10 @@ import akka.event.LoggingAdapter;
 import akka.japi.Creator;
 import net.bestia.webserver.messages.web.ClientPayloadMessage;
 import net.bestia.webserver.messages.web.CloseConnection;
-import net.bestia.webserver.messages.web.ZoneConnectionAccepted;
+import net.bestia.webserver.messages.web.OpenConnection;
 
 /**
- * Holds a reference to all currently connected client sockets.
+ * Holds a reference to all currently connected client sockets and manages them.
  * 
  * @author Thomas Felix
  *
@@ -52,7 +52,7 @@ public class ConnectionsActor extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(ZoneConnectionAccepted.class, this::handleNewConnection)
+				.match(OpenConnection.class, this::handleClientSocketOpened)
 				.match(ClientPayloadMessage.class, this::handleClientPayloadMessage)
 				.match(CloseConnection.class, this::handleClientSocketClosed)
 				.match(Terminated.class, this::handleClosedConnection)
@@ -66,52 +66,44 @@ public class ConnectionsActor extends AbstractActor {
 	 */
 	private void handleClientPayloadMessage(ClientPayloadMessage msg) {
 
-		final ActorRef socket = connections.get(msg.getSessionId());
+		final ActorRef socketActor = connections.get(msg.getSessionId());
 
-		if (socket == null) {
+		if (socketActor == null) {
 			LOG.debug("No active connection for session: {}", msg.getSessionId());
 			return;
 		}
 
-		socket.tell(msg.getMessage(), getSelf());
+		socketActor.tell(msg, getSelf());
+	}
+	
+	private void handleClientSocketOpened(OpenConnection msg) {
+		
+		final Props socketProps = ClientActor.props(uplink, mapper, msg.getSession());
+		final String actorName = String.format("socket-%s", msg.getSessionId());
+		final ActorRef socketActor = getContext().actorOf(socketProps, actorName);
+		
+		getContext().watch(socketActor);
+		connections.put(msg.getSessionId(), socketActor);
+		
+		LOG.debug("Client {} opened connection. Starting actor {}.", msg.getSessionId(), socketActor);
+		
 	}
 
 	private void handleClientSocketClosed(CloseConnection msg) {
+		
+		LOG.debug("Client {} closed connection. Stopping actor.", msg.getSessionId());
 
 		final ActorRef connectionActor = connections.get(msg.getSessionId());
 		if (connectionActor != null) {
 			connectionActor.tell(PoisonPill.getInstance(), getSelf());
 		}
-
 	}
 
 	private void handleClosedConnection(Terminated msg) {
 
-		LOG.debug("Killing connection actor: {}", msg.actor());
+		LOG.debug("Removing closed connection actor: {}", msg.actor());
+		
 		connections.inverse().remove(msg.actor());
 
 	}
-
-	/**
-	 * Opens a new connection.
-	 * 
-	 * @param msg
-	 */
-	private void handleNewConnection(ZoneConnectionAccepted msg) {
-
-		final String actorName = String.format("socket-%s", msg.getSessionId());
-
-		final Props socketProps = ClientActor.props(uplink, mapper, msg.getSession());
-		final ActorRef socketActor = getContext().actorOf(socketProps, actorName);
-
-		connections.put(msg.getSessionId(), socketActor);
-		
-		getContext().watch(socketActor);
-		
-		// Now send the actor the server signal.
-		socketActor.tell(msg, getSelf());
-		
-		LOG.debug("Startet new connection actor: {}", socketActor);
-	}
-
 }
