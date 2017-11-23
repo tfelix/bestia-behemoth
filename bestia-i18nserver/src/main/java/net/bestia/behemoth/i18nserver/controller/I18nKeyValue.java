@@ -1,4 +1,4 @@
-package net.bestia.behemoth.translateserver.controller;
+package net.bestia.behemoth.i18nserver.controller;
 
 public class I18nKeyValue {
 

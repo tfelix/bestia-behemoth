@@ -1,4 +1,4 @@
-package net.bestia.behemoth.translateserver.controller;
+package net.bestia.behemoth.i18nserver.controller;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;

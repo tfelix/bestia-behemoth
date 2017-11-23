@@ -1,4 +1,4 @@
-package net.bestia.behemoth.translateserver;
+package net.bestia.behemoth.i18nserver;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
