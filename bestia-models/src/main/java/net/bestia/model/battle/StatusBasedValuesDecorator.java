@@ -140,30 +140,12 @@ public class StatusBasedValuesDecorator implements StatusBasedValues, Serializab
 	}
 
 	@Override
-	public float getCastdurationMod() {
+	public float getSpellDurationMod() {
 		
 		final float mod = sumFloat(StatusBasedValueModifier::getCastDurationMod);
 		final int value = sumInt(StatusBasedValueModifier::getCastDurationValue);
 
 		return wrapped.getDodge() * mod + value;
-	}
-
-	@Override
-	public int getWillpowerResistance() {
-		
-		final float mod = sumFloat(StatusBasedValueModifier::getWillpowerResMod);
-		final int value = sumInt(StatusBasedValueModifier::getWillpowerResValue);
-
-		return Math.round(wrapped.getDodge() * mod) + value;
-	}
-
-	@Override
-	public int getVitalityResistance() {
-		
-		final float mod = sumFloat(StatusBasedValueModifier::getVitalityResMod);
-		final int value = sumInt(StatusBasedValueModifier::getVitalityResValue);
-
-		return Math.round(wrapped.getDodge() * mod) + value;
 	}
 
 	@Override

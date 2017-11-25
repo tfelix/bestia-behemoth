@@ -86,7 +86,7 @@ public class AttackService {
 			return false;
 		}
 
-		return attacks.get().contains(attack.getId());
+		return attacks.get().knowsAttack(attack.getId());
 	}
 
 	/**

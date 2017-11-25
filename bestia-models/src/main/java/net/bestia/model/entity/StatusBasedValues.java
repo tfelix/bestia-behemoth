@@ -74,13 +74,7 @@ public interface StatusBasedValues {
 	 * @return A modifier of the cast duration.
 	 */
 	@JsonProperty("cdu")
-	float getCastdurationMod();
-
-	@JsonIgnore
-	int getWillpowerResistance();
-
-	@JsonIgnore
-	int getVitalityResistance();
+	float getSpellDurationMod();
 
 	@JsonProperty("hr")
 	int getHitrate();

@@ -1,6 +1,7 @@
 package net.bestia.model.domain;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.persistence.Embeddable;
 
@@ -97,19 +98,19 @@ public class ConditionValues implements Serializable {
 
 		this.currentMana = currentMana;
 	}
-	
+
 	public void setMaxHealth(int maxHealth) {
 		this.maxHealth = maxHealth;
-		
-		if(maxHealth > currentHealth) {
+
+		if (maxHealth > currentHealth) {
 			setCurrentHealth(maxHealth);
 		}
 	}
-	
+
 	public void setMaxMana(int maxMana) {
 		this.maxMana = maxMana;
-		
-		if(maxMana > currentMana) {
+
+		if (maxMana > currentMana) {
 			setCurrentMana(maxMana);
 		}
 	}
@@ -159,16 +160,10 @@ public class ConditionValues implements Serializable {
 	public String toString() {
 		return String.format("SV[mana: %d, hp: %d]", getCurrentMana(), getCurrentHealth());
 	}
-	
+
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + currentHealth;
-		result = prime * result + currentMana;
-		result = prime * result + maxHealth;
-		result = prime * result + maxMana;
-		return result;
+		return Objects.hash(currentHealth, currentMana, maxHealth, maxMana);
 	}
 
 	@Override

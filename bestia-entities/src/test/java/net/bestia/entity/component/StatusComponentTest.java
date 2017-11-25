@@ -50,7 +50,7 @@ public class StatusComponentTest {
 		StatusComponent c1 = getFilledComponent();
 		StatusComponent c2 = getFilledComponent();
 		
-		Assert.assertEquals(c1, c2);
+		Assert.assertTrue(c1.equals(c2));
 	}
 	
 	@Test

@@ -85,24 +85,8 @@ public class StatusBasedValuesImpl implements Serializable, StatusBasedValues {
 	 * @see net.bestia.model.entity.IStatusBasedValues#getCastduration()
 	 */
 	@Override
-	public float getCastdurationMod() {
+	public float getSpellDurationMod() {
 		return 1;
-	}
-
-	/* (non-Javadoc)
-	 * @see net.bestia.model.entity.IStatusBasedValues#getWillpowerResistance()
-	 */
-	@Override
-	public int getWillpowerResistance() {
-		return 0;
-	}
-
-	/* (non-Javadoc)
-	 * @see net.bestia.model.entity.IStatusBasedValues#getVitalityResistance()
-	 */
-	@Override
-	public int getVitalityResistance() {
-		return 0;
 	}
 
 	/* (non-Javadoc)

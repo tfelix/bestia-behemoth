@@ -1,6 +1,7 @@
 package net.bestia.model.domain;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.persistence.Embeddable;
 
@@ -21,7 +22,7 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 	private int willpower = 1;
 	private int agility = 1;
 	private int dexterity = 1;
-	private int defense = 0;
+	private int physicalDefense = 0;
 	private int magicDefense = 0;
 
 	public StatusPointsImpl() {
@@ -36,7 +37,7 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		willpower = rhs.getWillpower();
 		agility = rhs.getAgility();
 		dexterity = rhs.getDexterity();
-		defense = rhs.getDefense();
+		physicalDefense = rhs.getDefense();
 		magicDefense = rhs.getMagicDefense();
 
 	}
@@ -48,7 +49,7 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 	 */
 	@Override
 	public int getDefense() {
-		return defense;
+		return physicalDefense;
 	}
 
 	@Override
@@ -60,7 +61,7 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 			def = 1000;
 		}
 
-		this.defense = def;
+		this.physicalDefense = def;
 	}
 
 	/*
@@ -228,19 +229,19 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 
 		this.dexterity = dexterity;
 	}
-	
+
 	@Override
 	public void set(StatusPoints rhs) {
-		
+
 		this.agility = rhs.getAgility();
-		this.defense = rhs.getDefense();
+		this.physicalDefense = rhs.getDefense();
 		this.dexterity = rhs.getDexterity();
 		this.intelligence = rhs.getIntelligence();
 		this.magicDefense = rhs.getMagicDefense();
 		this.strength = rhs.getStrength();
 		this.vitality = rhs.getVitality();
 		this.willpower = rhs.getWillpower();
-		
+
 	}
 
 	/*
@@ -258,7 +259,39 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 		this.dexterity += rhs.getDexterity();
 		this.willpower += rhs.getWillpower();
 		this.magicDefense += rhs.getMagicDefense();
-		this.defense += rhs.getDefense();
+		this.physicalDefense += rhs.getDefense();
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(agility, physicalDefense, dexterity, intelligence, magicDefense, strength, vitality,
+				willpower);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		
+		
+		
+		if (!(obj instanceof StatusPoints)) {
+			return false;
+		}
+		StatusPoints other = (StatusPoints) obj;
+		
+		return Objects.equals(agility, other.getAgility()) && 
+				Objects.equals(physicalDefense, other.getDefense()) &&
+				Objects.equals(dexterity, other.getDexterity()) &&
+				Objects.equals(intelligence, other.getIntelligence()) &&
+				Objects.equals(magicDefense, other.getMagicDefense()) &&
+				Objects.equals(strength, other.getStrength()) &&
+				Objects.equals(vitality, other.getVitality()) &&
+				Objects.equals(willpower, other.getWillpower());
 	}
 
 	@Override
@@ -271,7 +304,7 @@ public class StatusPointsImpl implements Serializable, StatusPoints {
 				willpower,
 				agility,
 				dexterity,
-				defense,
+				physicalDefense,
 				magicDefense);
 	}
 }

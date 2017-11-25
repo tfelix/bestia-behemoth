@@ -32,8 +32,8 @@ public class LevelComponent extends Component {
 
 	void setLevel(int level) {
 
-		if (level < 0) {
-			throw new IllegalArgumentException("Level can not be negative.");
+		if (level <= 0) {
+			level = 1;
 		}
 
 		this.level = level;
@@ -46,7 +46,7 @@ public class LevelComponent extends Component {
 	void setExp(int exp) {
 
 		if (exp < 0) {
-			throw new IllegalArgumentException("Exp must be positive.");
+			exp = 0;
 		}
 
 		this.exp = exp;

@@ -29,7 +29,7 @@ public class AttackListComponent extends Component {
 	 *            The attack id to check.
 	 * @return TRUE if the bestia knows it. FALSE otherwise.
 	 */
-	public boolean contains(int attackId) {
+	public boolean knowsAttack(int attackId) {
 		return knownAttacks.contains(attackId);
 	}
 
