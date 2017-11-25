@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
+import net.bestia.entity.component.BattleComponent;
+import net.bestia.entity.component.ItemComponent;
 import net.bestia.entity.component.LevelComponent;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.StatusComponent;
@@ -24,7 +26,6 @@ import net.bestia.model.dao.AttackDAO;
 import net.bestia.model.domain.Attack;
 import net.bestia.model.domain.AttackType;
 import net.bestia.model.domain.ConditionValues;
-import net.bestia.model.domain.Element;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
 import net.bestia.model.entity.StatusBasedValues;
@@ -51,6 +52,7 @@ public class BattleService {
 	private final AttackDAO atkDao;
 	private final EntityService entityService;
 	private final MapService mapService;
+	private final DamageCalculator damageCalculator;
 
 	@Autowired
 	public BattleService(
@@ -61,6 +63,7 @@ public class BattleService {
 		this.entityService = Objects.requireNonNull(entityService);
 		this.mapService = Objects.requireNonNull(mapService);
 		this.atkDao = Objects.requireNonNull(atkDao);
+		this.damageCalculator = new DamageCalculator();
 	}
 
 	/**
@@ -71,12 +74,14 @@ public class BattleService {
 	 * @param pbe
 	 */
 	public void attackSelf(AttackUseMessage atkMsg, Attack usedAttack, Entity pbe) {
-
+		// FIXME Reparieren.
 		throw new IllegalStateException("Not yet implemented.");
 	}
 
 	/**
-	 * Performs an attack/skill against a ground target.
+	 * Performs an attack/skill against a ground target. This will usually spawn
+	 * an entity doing AOE damage over time but pre-attack checks have to be
+	 * made as well.
 	 * 
 	 * @param atkId
 	 * @param attackerId
@@ -84,7 +89,7 @@ public class BattleService {
 	 *            Point to attack.
 	 */
 	public void attackGround(int atkId, long attackerId, Point target) {
-
+		// FIXME Reparieren.
 		throw new IllegalStateException("Not yet implemented.");
 	}
 
@@ -117,12 +122,13 @@ public class BattleService {
 		LOG.trace("Entity {} attacks entity {} with {}.", attacker, defender, usedAttack);
 
 		if (isEntityItem(defender)) {
-			LOG.debug("Defending entity is item.");
+			LOG.debug("Defending entity is an item.");
 			return attackItemEntity(usedAttack, attacker, defender);
 		} else if (isDefaultEntity(defender)) {
+			LOG.debug("Defending entity is a bestia.");
 			return attackDefaultEntity(usedAttack, attacker, defender);
 		} else {
-			LOG.warn("Entity can not receive damage because has no needed components.");
+			LOG.warn("Entity can not receive damage because of missing components.");
 			return null;
 		}
 	}
@@ -139,30 +145,30 @@ public class BattleService {
 	 * @return The calculated damage object.
 	 */
 	private Damage attackDefaultEntity(Attack usedAttack, Entity attacker, Entity defender) {
-		// Create the damage variables. These variables are modified via worn
-		// equipment and status effects.
-		final DamageVariables dmgVars = new DamageVariables();
 
-		if (!isAttackPossible(usedAttack, attacker, defender, dmgVars)) {
+		// Prepare the battle context since this is needed to carry all
+		// information.
+		final BattleContext battleCtx = createBattleContext(usedAttack, attacker, defender);
+
+		if (!isAttackPossible(battleCtx)) {
 			LOG.trace("Attack was not possible.");
 			return null;
 		}
 
+		// Check if attack hits.
+
 		LOG.trace("Attack did hit.");
 
-		checkCriticalHit(usedAttack, attacker, defender, dmgVars);
+		isCriticalHit(battleCtx);
 
-		if (!doesAttackHit(usedAttack, attacker, defender, dmgVars)) {
+		if (!doesAttackHit(battleCtx)) {
 			return Damage.getMiss();
 		}
 
-		// Prepare the battle context.
-		final BattleContext battleCtx = createBattleContext(usedAttack, attacker, defender);
-
-		final Damage primaryDamage = calculateDefaultDamage(usedAttack, attacker, defender, battleCtx, dmgVars);
+		final Damage primaryDamage = damageCalculator.calculateDamage(battleCtx);
 		LOG.trace("Primary damage calculated: {}", primaryDamage);
 
-		// Damage can be reduced by effects.
+		// Damage can now be reduced by effects.
 		final Damage receivedDamage = takeDamage(attacker, defender, primaryDamage);
 		LOG.trace("Entity {} received damage: {}", defender, primaryDamage);
 
@@ -182,21 +188,30 @@ public class BattleService {
 	 * @return The received damage.
 	 */
 	private Damage attackItemEntity(Attack usedAttack, Entity attacker, Entity defender) {
+		// FIXME Implementieren.
 		throw new IllegalStateException("Not yet implemented.");
 	}
 
 	private BattleContext createBattleContext(Attack usedAttack, Entity attacker, Entity defender) {
+		final DamageVariables dmgVars = getDamageVars(attacker);
+
 		final StatusPoints atkStatus = getStatusPoints(attacker);
 		final StatusPoints defStatus = getStatusPoints(defender);
 
 		final StatusBasedValues atkStatusBased = getStatBased(attacker);
 		final StatusBasedValues defStatusBased = getStatBased(defender);
 
-		final BattleContext.Builder builder = new BattleContext.Builder(usedAttack, attacker);
+		final ConditionValues atkCond = getConditional(attacker);
+		final ConditionValues defCond = getConditional(defender);
+
+		final BattleContext.Builder builder = new BattleContext.Builder(usedAttack, attacker, dmgVars);
 		builder.setAttackerStatus(atkStatus)
 				.setDefenderStatus(defStatus)
 				.setAttackerBasedValues(atkStatusBased)
-				.setDefenderBasedValues(defStatusBased);
+				.setDefenderBasedValues(defStatusBased)
+				.setAttackerCondition(atkCond)
+				.setDefenderCondition(defCond);
+
 		return builder.build();
 	}
 
@@ -208,9 +223,8 @@ public class BattleService {
 	 * @return TRUE if this is an item entity.
 	 */
 	private boolean isEntityItem(Entity entity) {
-		// not implemented && entityService.hasComponent(entity,
-		// LevelComponent.class)
-		return entityService.hasComponent(entity, PositionComponent.class);
+		return entityService.hasComponent(entity, PositionComponent.class)
+				&& entityService.hasComponent(entity, ItemComponent.class);
 	}
 
 	/**
@@ -241,60 +255,16 @@ public class BattleService {
 	}
 
 	/**
-	 * Checks if the attack performs a critical hit onto the target. The outcome
-	 * of the critical hit check is then saved into dmgVars.
-	 * 
-	 * @param attack
-	 * @param attacker
-	 * @param defender
-	 * @param dmgVars
-	 */
-	private void checkCriticalHit(Attack attack, Entity attacker, Entity defender, DamageVariables dmgVars) {
-
-		LOG.trace("Calculating: criticalHit");
-
-		if (attack.isMagic() || attack.getType() == AttackType.NO_DAMAGE) {
-			LOG.trace("Attack is magic. Can not hit critical.");
-			dmgVars.setCriticalHit(false);
-			return;
-		}
-
-		final int atkLv = getLevel(attacker);
-		final int defLv = getLevel(defender);
-
-		final StatusPoints atkStatus = getStatusPoints(attacker);
-		final StatusPoints defStatus = getStatusPoints(defender);
-
-		final float atkDex = atkStatus.getDexterity();
-		final float defDex = defStatus.getDexterity();
-
-		final float atkAgi = atkStatus.getAgility();
-		final float defAgi = defStatus.getAgility();
-
-		float crit = (0.02f + ((atkLv / defLv) / 5)
-				+ ((atkDex / defDex) / 2)
-				+ ((atkAgi / defAgi) / 2))
-				* dmgVars.getCriticalChanceMod();
-
-		crit = between(0.01f, 0.95f, crit);
-
-		LOG.trace("Crit chance: {}", crit);
-
-		if (rand.nextFloat() < crit) {
-			LOG.trace("Attack was critical hit.");
-			dmgVars.setCriticalHit(true);
-		} else {
-			LOG.trace("Attack did not critical hit.");
-			dmgVars.setCriticalHit(false);
-		}
-	}
-
-	/**
 	 * Checks if the attack is able to hit its target.
 	 * 
 	 * @return TRUE if the attack hits the target. FALSE otherwise.
 	 */
-	private boolean doesAttackHit(Attack attack, Entity attacker, Entity defender, DamageVariables dmgVars) {
+	private boolean doesAttackHit(BattleContext battleCtx) {
+
+		final Attack attack = battleCtx.getUsedAttack();
+		final Entity attacker = battleCtx.getAttacker();
+		final Entity defender = battleCtx.getDefender();
+		final DamageVariables dmgVar = battleCtx.getDamageVariables();
 
 		LOG.trace("Calculate hit.");
 
@@ -312,7 +282,7 @@ public class BattleService {
 
 		float hitrate = 0.5f * atkStatBased.getHitrate() / defStatBased.getDodge();
 
-		if (dmgVars.isCriticalHit()) {
+		if (dmgVar.isCriticalHit()) {
 			hitrate *= 3;
 		}
 
@@ -330,20 +300,18 @@ public class BattleService {
 	}
 
 	/**
-	 * Checks if an attack is possible of if certain preconditions like line of
-	 * sight, ammo and mana are missing.
-	 * 
-	 * @param dmgVars
+	 * Checks if an attack is even possible at all. Attacks only succeed if
+	 * certain preconditions like line of sight, ammo and mana are not missing.
 	 * 
 	 * @return TRUE if the attack action is possible. FALSE otherwise.
 	 */
-	private boolean isAttackPossible(Attack attack, Entity attacker, Entity defender, DamageVariables dmgVars) {
-		return isInRange(attack, attacker, defender)
-				&& hasLineOfSight(attack, attacker, defender)
-				&& hasMana(attack, attacker, dmgVars)
-				&& hasAmmo(attack, attacker);
+	private boolean isAttackPossible(BattleContext battleCtx) {
+		return isInRange(battleCtx)
+				&& hasLineOfSight(battleCtx)
+				&& hasAttackerEnoughMana(battleCtx)
+				&& hasAmmo(battleCtx);
 	}
-	
+
 	/**
 	 * Checks if a given attack is in range for a target position. It is
 	 * important to ask the attached entity scripts as these can alter the
@@ -357,18 +325,18 @@ public class BattleService {
 	 *            The target position where the attack is directed.
 	 * @return TRUE if the attack is in range. FALSE otherwise.
 	 */
-	private boolean isInRange(Attack attack, Entity attacker, Entity defender) {
+	private boolean isInRange(BattleContext battleCtx) {
 
-		final Point atkPosition = getPosition(attacker);
-		final Point defPosition = getPosition(defender);
+		final Point atkPosition = getPosition(battleCtx.getAttacker());
+		final Point defPosition = getPosition(battleCtx.getDefender());
 
-		final int effectiveRange = getEffectiveSkillRange(attack, attacker);
+		final int effectiveRange = getEffectiveSkillRange(battleCtx.getUsedAttack(), battleCtx.getAttacker());
 
 		LOG.trace("Effective attack range: {}", effectiveRange);
 
 		return effectiveRange >= atkPosition.getDistance(defPosition);
 	}
-	
+
 	/**
 	 * Checks if there is a direct line of sight between the two points. This
 	 * does not only take static map features into account but also dynamic
@@ -377,7 +345,11 @@ public class BattleService {
 	 * @return Returns TRUE if there is a direct line of sight. FALSE if there
 	 *         is no direct line of sight.
 	 */
-	private boolean hasLineOfSight(Attack attack, Entity attacker, Entity defender) {
+	private boolean hasLineOfSight(BattleContext battleCtx) {
+
+		final Attack attack = battleCtx.getUsedAttack();
+		final Entity attacker = battleCtx.getAttacker();
+		final Entity defender = battleCtx.getDefender();
 
 		if (!attack.needsLineOfSight()) {
 			LOG.trace("Attack does not need los.");
@@ -423,226 +395,88 @@ public class BattleService {
 	}
 
 	/**
-	 * Check if the entity has the mana needed for the attack.
+	 * Checks if the attack performs a critical hit onto the target. The outcome
+	 * of the critical hit check is then saved into damage variables.
 	 * 
-	 * @param attacker
-	 * @param attack
-	 * @param dmgVars
-	 * @return TRUE if the entity has enough mana to perform the attack. FALSE
-	 *         otherwise.
 	 */
-	private boolean hasMana(Attack attack, Entity attacker, DamageVariables dmgVars) {
+	private boolean isCriticalHit(BattleContext battleCtx) {
 
-		final int neededMana = (int) Math.ceil(attack.getManaCost() * dmgVars.getNeededManaMod());
+		final Attack attack = battleCtx.getUsedAttack();
+		final Entity attacker = battleCtx.getAttacker();
+		final Entity defender = battleCtx.getDefender();
+		final DamageVariables dmgVars = battleCtx.getDamageVariables();
 
-		final ConditionValues attackerCondition = getConditional(attacker);
-		final int currentMana = attackerCondition.getCurrentMana();
+		LOG.trace("Calculating: criticalHit");
 
-		LOG.trace("Needed mana: {}/{}", neededMana, currentMana);
+		if (attack.isMagic() || attack.getType() == AttackType.NO_DAMAGE) {
+			LOG.trace("Attack is magic. Can not hit critical.");
+			dmgVars.setCriticalHit(false);
+			return false;
+		}
 
-		if (currentMana >= neededMana) {
-			attackerCondition.setCurrentMana(currentMana - neededMana);
-			
+		final int atkLv = getLevel(attacker);
+		final int defLv = getLevel(defender);
+
+		final StatusPoints atkStatus = getStatusPoints(attacker);
+		final StatusPoints defStatus = getStatusPoints(defender);
+
+		final float atkDex = atkStatus.getDexterity();
+		final float defDex = defStatus.getDexterity();
+
+		final float atkAgi = atkStatus.getAgility();
+		final float defAgi = defStatus.getAgility();
+
+		float crit = (0.02f + ((atkLv / defLv) / 5)
+				+ ((atkDex / defDex) / 2)
+				+ ((atkAgi / defAgi) / 2))
+				* dmgVars.getCriticalChanceMod();
+
+		crit = between(0.01f, 0.95f, crit);
+
+		LOG.trace("Crit chance: {}", crit);
+
+		if (rand.nextFloat() < crit) {
+			LOG.trace("Attack was critical hit.");
+			dmgVars.setCriticalHit(true);
 			return true;
 		} else {
+			LOG.trace("Attack did not critical hit.");
+			dmgVars.setCriticalHit(false);
 			return false;
 		}
 	}
-	
-	private boolean hasAmmo(Attack attack, Entity attacker) {
+
+	/**
+	 * Calculates the needed mana for an attack. Mana cost can be reduced by
+	 * effects or scripts.
+	 * 
+	 * @param battleCtx
+	 *            The {@link BattleContext}.
+	 * @return The actual mana costs for this attack.
+	 */
+	private int getNeededMana(BattleContext battleCtx) {
+		final Attack attack = battleCtx.getUsedAttack();
+		final DamageVariables dmgVars = battleCtx.getDamageVariables();
+
+		final int neededMana = (int) Math.ceil(attack.getManaCost() * dmgVars.getNeededManaMod());
+		LOG.trace("Needed mana: {}/{}", neededMana, attack.getManaCost());
+		return neededMana;
+	}
+
+	/**
+	 * Check if the entity has the mana needed for the attack.
+	 * 
+	 * @return TRUE if the entity has enough mana to perform the attack. FALSE
+	 *         otherwise.
+	 */
+	private boolean hasAttackerEnoughMana(BattleContext battleCtx) {
+		final int neededMana = getNeededMana(battleCtx);
+		return battleCtx.getAttackerCondition().getCurrentMana() >= neededMana;
+	}
+
+	private boolean hasAmmo(BattleContext battleCtx) {
 		LOG.warn("hasAmmo currently not implemented.");
 		return true;
-	}
-
-
-	/**
-	 * This calculates the taken battle damage. Currently this is only a
-	 * placeholder until the real damage formula is invented.
-	 * 
-	 * Please not that this method ONLY calculates the damage. If the attack is
-	 * controlled by a script this wont get checked by this method anymore. Only
-	 * raw damage calculation is performed.
-	 * 
-	 * @param atk
-	 * @param battleCtx
-	 * @param dmgVars
-	 * @return The calculated damage by this attack.
-	 */
-	private Damage calculateDefaultDamage(Attack atk,
-			Entity attacker,
-			Entity defender,
-			BattleContext battleCtx,
-			DamageVariables dmgVars) {
-
-		final float baseAtk = getBaseAttack(atk, attacker, defender, battleCtx, dmgVars);
-		final float atkMod = getAttackModifier(atk, dmgVars);
-		final float hardDefMod = getHardDefenseModifier(atk, defender, dmgVars);
-		final float critMod = getCritModifier(dmgVars);
-		final float softDef = getSoftDefense(atk, defender);
-
-		final int damage = (int) Math.floor(baseAtk * atkMod * hardDefMod * critMod - softDef);
-
-		LOG.trace("Damage (melee): {}.", damage);
-
-		return Damage.getHit(damage);
-	}
-
-	private float getBaseAttack(Attack usedAttack,
-			Entity attacker,
-			Entity defender,
-			BattleContext battleCtx,
-			DamageVariables dmgVars) {
-
-		final float statusAtk = getStatusAttack(usedAttack, attacker);
-		final float varMod = dmgVars.isCriticalHit() ? 1f : calculateVarMod();
-		final float weaponAtk = calculateWeaponAtk();
-		final float varModRed = varMod - varMod / 2 - 0.5f;
-		final float ammaAtk = usedAttack.isRanged() ? getAmmoAtk(usedAttack, attacker, defender) : 0f;
-		final int bonusAtk = usedAttack.isMagic() ? dmgVars.getAttackMagicBonus() : dmgVars.getAttackPhysicalBonus();
-		final float elementMod = getElementMod(usedAttack, attacker, defender);
-		final float elementBonusMod = getElementBonusMod(usedAttack, attacker, dmgVars);
-
-		float baseAtk = (2 * statusAtk * varMod + weaponAtk * varModRed + ammaAtk + bonusAtk);
-		baseAtk = baseAtk * elementMod * elementBonusMod;
-		baseAtk = Math.min(1, baseAtk);
-
-		LOG.trace("BaseAtk: {}.", baseAtk);
-
-		return baseAtk;
-	}
-
-	/**
-	 * @return The attack value based solely on the status of the entity.
-	 */
-	private float getStatusAttack(Attack atk, Entity attacker) {
-
-		final float lvMod = getLevel(attacker) / 4;
-		final StatusPoints sp = getStatusPoints(attacker);
-
-		if (atk.isMagic()) {
-			final float statusAtk = lvMod + sp.getStrength() + sp.getDexterity() / 5;
-			LOG.trace("StatusAtk (magic): {}", statusAtk);
-			return statusAtk;
-		} else {
-			if (atk.isRanged()) {
-				final float statusAtk = lvMod + sp.getDexterity() + sp.getStrength() / 5;
-				LOG.trace("StatusAtk (ranged physical): {}", statusAtk);
-				return statusAtk;
-			} else {
-				final float statusAtk = lvMod + sp.getStrength() + sp.getDexterity() / 5;
-				LOG.trace("StatusAtk (melee physical): {}", statusAtk);
-				return statusAtk;
-			}
-		}
-	}
-
-	private float getAmmoAtk(Attack usedAttack, Entity attacker, Entity defender) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	private float getSoftDefense(Attack atk, Entity defender) {
-
-		final StatusPoints defStatus = getStatusPoints(defender);
-		final int lv = getLevel(defender);
-
-		float softDef;
-
-		switch (atk.getType()) {
-		case MELEE_MAGIC:
-		case RANGED_MAGIC:
-			softDef = lv / 2.f + defStatus.getVitality() + defStatus.getWillpower() / 4.f
-					+ defStatus.getIntelligence() / 5.f;
-		case MELEE_PHYSICAL:
-		case RANGED_PHYSICAL:
-			softDef = lv / 2.f + defStatus.getVitality() + defStatus.getStrength() / 3.f;
-		default:
-			softDef = 0;
-		}
-
-		softDef = Math.min(0f, softDef);
-
-		LOG.trace("SoftDefense: {}.", softDef);
-
-		return softDef;
-	}
-
-	/**
-	 * @return The critical modifier.
-	 */
-	private float getCritModifier(DamageVariables dmgVars) {
-
-		float critMod = dmgVars.isCriticalHit() ? 1.4f * dmgVars.getCriticalDamageMod() : 1.0f;
-		critMod = Math.min(1.0f, critMod);
-
-		LOG.trace("CritMod: {}.", critMod);
-
-		return critMod;
-	}
-
-	private float getHardDefenseModifier(Attack atk,
-			Entity defender,
-			DamageVariables dmgVars) {
-
-		final StatusPoints defStatus = getStatusPoints(defender);
-		float defMod;
-
-		switch (atk.getType()) {
-		case MELEE_MAGIC:
-		case RANGED_MAGIC:
-			defMod = 1 - (defStatus.getMagicDefense() / 100f + dmgVars.getMagicDefenseMod());
-		case MELEE_PHYSICAL:
-		case RANGED_PHYSICAL:
-			defMod = 1 - (defStatus.getDefense() / 100f + dmgVars.getPhysicalDefenseMod());
-		default:
-			defMod = 1;
-		}
-
-		defMod = between(0.05f, 1.0f, defMod);
-
-		LOG.trace("HardDefenseMod: {}.", defMod);
-
-		return defMod;
-	}
-
-	/**
-	 * @return Gets the attack modifier of the attack.
-	 */
-	private float getAttackModifier(Attack atk, DamageVariables dmgVars) {
-
-		float atkMod;
-
-		switch (atk.getType()) {
-		case MELEE_MAGIC:
-			atkMod = dmgVars.getAttackMagicMod() * dmgVars.getAttackMeleeMod();
-		case MELEE_PHYSICAL:
-			atkMod = dmgVars.getAttackMeleeMod() * dmgVars.getAttackMeleeMod();
-		case RANGED_MAGIC:
-			atkMod = dmgVars.getAttackRangedMod() * dmgVars.getAttackRangedMod();
-		case RANGED_PHYSICAL:
-			atkMod = dmgVars.getAttackRangedMod() * dmgVars.getAttackRangedMod();
-		default:
-			atkMod = 1.0f;
-		}
-
-		LOG.trace("AttackMod: {}.", atkMod);
-
-		return Math.min(0, atkMod);
-	}
-
-	private float getElementMod(Attack atk, Entity attacker, Entity defender) {
-		final Element atkEle = getElement(attacker, atk);
-		final Element defEle = getElement(defender);
-		final float eleMod = ElementModifier.getModifier(atkEle, defEle) / 100f;
-		LOG.trace("ElementMod: {}", eleMod);
-		return eleMod;
-	}
-
-	private float getElementBonusMod(Attack atk, Entity attacker, DamageVariables dmgVars) {
-		final Element atkEle = getElement(attacker, atk);
-		final float eleMod = dmgVars.getElementBonusMod(atkEle);
-		LOG.trace("ElementBonusMod: {}", eleMod);
-		return eleMod;
 	}
 
 	/**
@@ -655,41 +489,9 @@ public class BattleService {
 	 *            The entity to get the damage vars for.
 	 * @return The current damage vars of the entity.
 	 */
-	private DamageVariables getOwnDamageVars(Entity e) {
-
-		return null;
-	}
-
-	/**
-	 * Gets the current damage variable reduction. It is not very common albeit
-	 * possible that the enemy defender is able to reduce in some way by his own
-	 * equipment or by scripts the attackers damage variables. This function
-	 * will query all data to calculate such an reduction object.
-	 *
-	 * @param e
-	 *            The entity
-	 * @return The enemies {@link DamageVariables} reduction.
-	 */
-	private DamageVariables getDefenderDamageVars(Entity e) {
-
-		return null;
-	}
-
-	/**
-	 * Calculates the variance modification.
-	 * 
-	 * @return A random value between 0.85 and 1.
-	 */
-	private float calculateVarMod() {
-		return 1 - (rand.nextFloat() * 0.15f);
-	}
-
-	private float calculateWeaponAtk() {
-		LOG.warn("calculateWeaponAtk is currently not implemented.");
-
-		final float weaponAtk = 10;
-		LOG.trace("WeaponAtk: {}", weaponAtk);
-		return weaponAtk;
+	private DamageVariables getDamageVars(Entity e) {
+		// FIXME Implementieren.
+		return new DamageVariables();
 	}
 
 	/**
@@ -700,18 +502,19 @@ public class BattleService {
 	 * @param trueDamage
 	 */
 	public void takeTrueDamage(Entity defender, Damage trueDamage) {
-		/*
-		 * final int damage = trueDamage.getDamage();
-		 * 
-		 * ConditionValues values =
-		 * statusService.getStatusValues(defender).orElseThrow(
-		 * IllegalArgumentException::new);
-		 * 
-		 * if (values.getCurrentHealth() <= damage) { killEntity(defender);
-		 * return; }
-		 * 
-		 * values.addHealth(-damage); statusService.save(defender, values);
-		 */
+
+		final int damage = trueDamage.getDamage();
+
+		entityService.getComponent(defender, StatusComponent.class).ifPresent(statusComp -> {
+
+			statusComp.getConditionValues().addHealth(-damage);
+
+			if (statusComp.getConditionValues().getCurrentHealth() == 0) {
+				killEntity(defender);
+			}
+
+			entityService.updateComponent(statusComp);
+		});
 	}
 
 	/**
@@ -731,24 +534,25 @@ public class BattleService {
 		final StatusComponent statusComp = entityService.getComponent(defender, StatusComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
-		final ConditionValues statusValues = statusComp.getConditionValues();
-
-		// TODO Possibly reduce the damge or reflect it etc.
+		// TODO Possibly reduce the damage via effects or scripts.
 		int damage = primaryDamage.getDamage();
-		Damage reducedDamage = new Damage(damage, primaryDamage.getType());
+		final Damage reducedDamage = new Damage(damage, primaryDamage.getType());
 
 		// Hit the entity and add the origin entity into the list of received
 		// damage dealers.
+		final BattleComponent battleComp = entityService.getComponentOrCreate(defender, BattleComponent.class);
+		battleComp.addDamageReceived(attacker.getId(), damage);
+		entityService.updateComponent(battleComp);
 
-		if (statusValues.getCurrentHealth() < damage) {
-			killEntity(defender);
-			return reducedDamage;
-		}
-
-		statusValues.addHealth(-damage);
+		final ConditionValues condValues = statusComp.getConditionValues();
+		condValues.addHealth(-damage);
 		entityService.updateComponent(statusComp);
-
-		return primaryDamage;
+		
+		if (condValues.getCurrentHealth() == 0) {
+			killEntity(defender);
+		}
+		
+		return reducedDamage;
 	}
 
 	/**
@@ -817,46 +621,12 @@ public class BattleService {
 	}
 
 	/**
-	 * @return The element of the entity.
-	 */
-	private Element getElement(Entity e) {
-		return entityService.getComponent(e, StatusComponent.class)
-				.map(StatusComponent::getElement)
-				.orElse(Element.NORMAL);
-	}
-
-	/**
-	 * The used attacker element which is dependent from the current buffs to
-	 * the entity, the equipped weapon and the used attack.
-	 * 
-	 * @param attacker
-	 *            The attacking entity.
-	 * @param atk
-	 *            The used attack.
-	 * @return The current attacking element.
-	 */
-	private Element getElement(Entity attacker, Attack atk) {
-		// TODO Auto-generated method stub
-		LOG.warn("Currently only normal element.");
-		return Element.NORMAL;
-	}
-
-	/**
 	 * @return Current position of the entity.
 	 */
 	private Point getPosition(Entity e) {
 		return entityService.getComponent(e, PositionComponent.class)
 				.map(p -> p.getPosition())
 				.orElse(new Point(0, 0));
-	}
-
-	/**
-	 * @return The level of the entity.
-	 */
-	private int getLevel(Entity e) {
-		return entityService.getComponent(e, LevelComponent.class)
-				.map(lv -> lv.getLevel())
-				.orElse(1);
 	}
 
 	/**
@@ -884,6 +654,15 @@ public class BattleService {
 		return entityService.getComponent(e, StatusComponent.class)
 				.map(StatusComponent::getConditionValues)
 				.orElseThrow(IllegalArgumentException::new);
+	}
+
+	/**
+	 * @return The level of the entity.
+	 */
+	private int getLevel(Entity e) {
+		return entityService.getComponent(e, LevelComponent.class)
+				.map(lv -> lv.getLevel())
+				.orElse(1);
 	}
 
 	private float between(float min, float max, float val) {

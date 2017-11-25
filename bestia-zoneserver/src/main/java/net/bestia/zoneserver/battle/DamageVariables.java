@@ -5,13 +5,14 @@ import net.bestia.model.domain.Element;
 /**
  * A set of variables which are used to modify a running damage calculation
  * operation. These variable set is piped through a script environment and can
- * be modified by attack scripts or by all equipment scripts.
+ * be modified by attack scripts or by all equipment scripts for each incoming
+ * attack.
  * 
  * @author Thomas Felix
  *
  */
 public final class DamageVariables {
-	
+
 	// Attack
 	private int attackPhysicalBonus = 0;
 	private int attackMagicBonus = 0;
@@ -19,7 +20,7 @@ public final class DamageVariables {
 	private float attackPhysicalMod = 1f;
 	private float attackRangedMod = 1f;
 	private float attackMeleeMod = 1f;
-	
+
 	// Weapon
 	private float weaponMod = 1.f;
 
@@ -57,13 +58,15 @@ public final class DamageVariables {
 	}
 
 	/**
-	 * Adds all values from the argument to the local values and return a new damage variable object.
+	 * Adds all values from the argument to the local values and return a new
+	 * damage variable object.
+	 * 
 	 * @param rhs
 	 * @return
 	 */
 	public DamageVariables add(DamageVariables rhs) {
 		final DamageVariables vars = new DamageVariables();
-		
+
 		// Attack
 		vars.setAttackPhysicalBonus(getAttackPhysicalBonus() + rhs.getAttackPhysicalBonus());
 		vars.setAttackMagicBonus(getAttackMagicBonus() + rhs.getAttackMagicBonus());
@@ -71,7 +74,7 @@ public final class DamageVariables {
 		vars.setAttackPhysicalMod(getAttackPhysicalMod() + rhs.getAttackPhysicalMod());
 		vars.setAttackRangedMod(getAttackRangedMod() + rhs.getAttackRangedMod());
 		vars.setAttackMeleeMod(getAttackRangedMod() + rhs.getAttackRangedMod());
-		
+
 		// Weapon
 		vars.setWeaponMod(getWeaponMod() + rhs.getWeaponMod());
 
@@ -89,10 +92,10 @@ public final class DamageVariables {
 		vars.setNeededManaMod(getNeededManaMod() + rhs.getNeededManaMod());
 		vars.setAttackRangedMod(getAttackRangedMod() + rhs.getAttackRangedMod());
 		vars.setAttackRangeBonus(getAttackRangeBonus() + rhs.getAttackRangeBonus());
-		
+
 		return vars;
 	}
-	
+
 	public float getElementBonusMod(Element atkEle) {
 		return 0;
 	}

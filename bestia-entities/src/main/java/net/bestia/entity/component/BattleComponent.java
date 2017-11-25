@@ -1,8 +1,11 @@
 package net.bestia.entity.component;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Contains data regarding a battle. This is important to distribute EXP for
@@ -35,7 +38,7 @@ public class BattleComponent extends Component {
 	/**
 	 * Time delay until a received damage is beeing removed.
 	 */
-	private static final int DAMAGE_ENTRY_REMOVE_DELAY_MS = 30 * 60 * 1000;
+	private static final int DAMAGE_ENTRY_REMOVE_DELAY_MS = 30 * 60 * 1000; // 30min
 
 	private final Map<Long, DamageEntry> damageReceived = new HashMap<>();
 
@@ -48,12 +51,27 @@ public class BattleComponent extends Component {
 	 * Removes all damage entries which are older then
 	 * {@link #DAMAGE_ENTRY_REMOVE_DELAY_MS}.
 	 */
-	public void pruneDamageEntries() {
+	public void clearOldDamageEntries() {
 		final long curTime = System.currentTimeMillis();
 		damageReceived.entrySet().removeIf(x -> x.getValue().time + DAMAGE_ENTRY_REMOVE_DELAY_MS < curTime);
 	}
 
+	/**
+	 * Removes all damage entries regardles of how old they are.
+	 */
+	public void clearDamageEntries() {
+		damageReceived.clear();
+	}
+
 	public void addDamageReceived(long originEntityId, int damage) {
+
+		if (originEntityId <= 0) {
+			return;
+		}
+
+		if (damage <= 0) {
+			return;
+		}
 
 		final long curTime = System.currentTimeMillis();
 
@@ -79,6 +97,31 @@ public class BattleComponent extends Component {
 				damageReceived.entrySet().removeIf(x -> x.getValue().damage < minKeptDamage);
 			}
 		}
+	}
+
+	/**
+	 * @return The percentage damage distribution done by all entities. The map
+	 *         is immutable.
+	 */
+	public Map<Long, Double> getDamageDistribution() {
+
+		final double totalDmg = damageReceived.values().stream().mapToLong(x -> x.damage).sum();
+
+		final Map<Long, Double> damageDist = damageReceived.entrySet()
+				.stream()
+				.collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().damage / totalDmg));
+
+		return Collections.unmodifiableMap(damageDist);
+	}
+
+	/**
+	 * Returns a set of all damage dealers who took part into damaging this
+	 * entity. The set is immutable.
+	 * 
+	 * @return
+	 */
+	public Set<Long> getDamageDealers() {
+		return Collections.unmodifiableSet(damageReceived.keySet());
 	}
 
 	@Override

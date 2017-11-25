@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.battle;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import net.bestia.entity.Entity;
 import net.bestia.model.domain.Attack;
@@ -20,20 +21,24 @@ public final class BattleContext {
 
 		private final Attack usedAttack;
 		private final Entity attacker;
+		private final DamageVariables damageVariables;
+		
 		private Entity defender;
-		private int distance;
-
+		
 		private StatusPoints attackerStatusPoints;
 		private StatusPoints defenderStatusPoints;
+		
 		private StatusBasedValues attackerStatusBased;
 		private StatusBasedValues defenderStatusBased;
-		private ConditionValues attackerStatusValues;
-		private ConditionValues defenderStatusValues;
+		
+		private ConditionValues attackerCondValues;
+		private ConditionValues defenderCondValues;
 
-		public Builder(Attack usedAttack, Entity attacker) {
+		public Builder(Attack usedAttack, Entity attacker, DamageVariables dmgVars) {
 
 			this.usedAttack = Objects.requireNonNull(usedAttack);
 			this.attacker = Objects.requireNonNull(attacker);
+			this.damageVariables = Objects.requireNonNull(dmgVars);
 		}
 
 		public BattleContext build() {
@@ -60,35 +65,45 @@ public final class BattleContext {
 			return this;
 		}
 
+		public Builder setAttackerCondition(ConditionValues atkCond) {
+			this.attackerCondValues = atkCond;
+			return this;
+		}
+
+		public Builder setDefenderCondition(ConditionValues defCond) {
+			this.defenderCondValues = defCond;
+			return this;
+		}
+
 	}
 
 	private final Attack usedAttack;
 	private final Entity attacker;
+	private final DamageVariables damageVariables;
 
 	private final Entity defender;
-	private final int distance;
 
 	private final StatusPoints attackerStatusPoints;
 	private final StatusPoints defenderStatusPoints;
 	private final StatusBasedValues attackerStatusBased;
 	private final StatusBasedValues defenderStatusBased;
-	private final ConditionValues attackerStatusValues;
-	private final ConditionValues defenderStatusValues;
+	private final ConditionValues attackerCondtitionValues;
+	private final ConditionValues defenderConditionValues;
 
 	private BattleContext(Builder builder) {
 
 		this.usedAttack = builder.usedAttack;
 		this.attacker = builder.attacker;
+		this.damageVariables = builder.damageVariables;
 
 		this.defender = builder.defender;
-		this.distance = builder.distance;
 
 		this.attackerStatusPoints = builder.attackerStatusPoints;
 		this.defenderStatusPoints = builder.defenderStatusPoints;
 		this.attackerStatusBased = builder.attackerStatusBased;
 		this.defenderStatusBased = builder.defenderStatusBased;
-		this.attackerStatusValues = builder.attackerStatusValues;
-		this.defenderStatusValues = builder.defenderStatusValues;
+		this.attackerCondtitionValues = builder.attackerCondValues;
+		this.defenderConditionValues = builder.defenderCondValues;
 	}
 
 	public Attack getUsedAttack() {
@@ -102,9 +117,9 @@ public final class BattleContext {
 	public Entity getDefender() {
 		return defender;
 	}
-
-	public int getDistance() {
-		return distance;
+	
+	public DamageVariables getDamageVariables() {
+		return damageVariables;
 	}
 
 	public StatusPoints getAttackerStatusPoints() {
@@ -123,11 +138,11 @@ public final class BattleContext {
 		return defenderStatusBased;
 	}
 
-	public ConditionValues getAttackerStatusValues() {
-		return attackerStatusValues;
+	public ConditionValues getAttackerCondition() {
+		return attackerCondtitionValues;
 	}
-
-	public ConditionValues getDefenderStatusValues() {
-		return defenderStatusValues;
+	
+	public ConditionValues getDefenderCondition() {
+		return defenderConditionValues;
 	}
 }

@@ -140,7 +140,8 @@ public class EntityService {
 	 * Deletes the entity given by its id. This is a alias for
 	 * {@link #delete(Entity)}.
 	 * 
-	 * @param entityId Removes this entity.
+	 * @param entityId
+	 *            Removes this entity.
 	 */
 	public void delete(long entityId) {
 		LOG.trace("delete(): {}", entityId);
@@ -169,7 +170,8 @@ public class EntityService {
 	/**
 	 * Returns the ID entity with the given ID.
 	 * 
-	 * @param entityId Lookups this entity.
+	 * @param entityId
+	 *            Lookups this entity.
 	 * @return The {@link Entity} or NULL if no such id is stored.
 	 */
 	public Entity getEntity(long entityId) {
@@ -367,7 +369,7 @@ public class EntityService {
 		components.lock(component.getId());
 		try {
 			// Check if the component actually needs an update.
-			if(getComponent(component.getId()).equals(component)) {
+			if (getComponent(component.getId()).equals(component)) {
 				return;
 			}
 
@@ -380,7 +382,8 @@ public class EntityService {
 	}
 
 	/**
-	 * Updates the component but does not trigger the interceptor call yet. It only updates the component if 
+	 * Updates the component but does not trigger the interceptor call yet. It
+	 * only updates the component if
 	 */
 	private void internalUpdateComponent(Component component) {
 		components.lock(component.getId());
@@ -562,10 +565,10 @@ public class EntityService {
 	 *         has not this component attached.
 	 */
 	public <T extends Component> Optional<T> getComponent(Entity e, Class<T> clazz) {
-		if(e == null || clazz == null) {
+		if (e == null || clazz == null) {
 			return Optional.empty();
 		}
-		
+
 		LOG.trace("getComponent(): {}, {}", e, clazz);
 
 		final long compId = e.getComponentId(clazz);
@@ -598,5 +601,20 @@ public class EntityService {
 		}
 
 		return Optional.of(clazz.cast(comp));
+	}
+
+	/**
+	 * Returns the component if a component of this type was already attached to
+	 * the entity. Otherwise it creates a new component and returns it
+	 * afterwards.
+	 * 
+	 * @param e
+	 *            The entity to
+	 * @param clazz
+	 *            The component class which is requested.
+	 * @return The requested of created component.
+	 */
+	public <T extends Component> T getComponentOrCreate(Entity e, Class<T> clazz) {
+		return getComponent(e, clazz).orElse(newComponent(clazz));
 	}
 }

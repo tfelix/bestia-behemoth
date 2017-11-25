@@ -3,6 +3,9 @@ package net.bestia.entity.component;
 import net.bestia.model.domain.Element;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
+
+import java.util.Objects;
+
 import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.entity.StatusBasedValuesImpl;
@@ -29,7 +32,7 @@ public class StatusComponent extends Component {
 	private StatusBasedValues statusBasedValues = new StatusBasedValuesImpl(statusPoints, 1);
 	private Element originalElement = Element.NORMAL;
 	private Element element = Element.NORMAL;
-	private ConditionValues values = new ConditionValues();
+	private ConditionValues condValues = new ConditionValues();
 
 	public StatusComponent(long id) {
 		super(id);
@@ -75,7 +78,7 @@ public class StatusComponent extends Component {
 	}
 
 	public ConditionValues getConditionValues() {
-		return values;
+		return condValues;
 	}
 
 	/**
@@ -118,7 +121,46 @@ public class StatusComponent extends Component {
 	}
 
 	void setConditionValues(ConditionValues statusValues) {
-		values.set(statusValues);
+		condValues.set(statusValues);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(element, originalElement, originalStatusPoints, statusBasedValues, statusPoints,
+				condValues);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof StatusComponent)) {
+			return false;
+		}
+		StatusComponent other = (StatusComponent) obj;
+		if (element != other.element) {
+			return false;
+		}
+		if (originalElement != other.originalElement) {
+			return false;
+		}
+		if (!originalStatusPoints.equals(other.originalStatusPoints)) {
+			return false;
+		}
+		if (!statusBasedValues.equals(other.statusBasedValues)) {
+			return false;
+		}
+		if (!statusPoints.equals(other.statusPoints)) {
+			return false;
+		}
+		if (!condValues.equals(other.condValues)) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
