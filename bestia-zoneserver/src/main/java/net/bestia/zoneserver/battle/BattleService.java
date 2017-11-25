@@ -286,7 +286,7 @@ public class BattleService {
 			hitrate *= 3;
 		}
 
-		hitrate = between(0.05f, 1, hitrate);
+		hitrate = BattleUtil.between(0.05f, 1, hitrate);
 
 		LOG.trace("Hit chance: {}", hitrate);
 
@@ -431,7 +431,7 @@ public class BattleService {
 				+ ((atkAgi / defAgi) / 2))
 				* dmgVars.getCriticalChanceMod();
 
-		crit = between(0.01f, 0.95f, crit);
+		crit = BattleUtil.between(0.01f, 0.95f, crit);
 
 		LOG.trace("Crit chance: {}", crit);
 
@@ -663,9 +663,5 @@ public class BattleService {
 		return entityService.getComponent(e, LevelComponent.class)
 				.map(lv -> lv.getLevel())
 				.orElse(1);
-	}
-
-	private float between(float min, float max, float val) {
-		return Math.max(min, Math.min(max, val));
 	}
 }

@@ -1,12 +1,12 @@
 package net.bestia.zoneserver.battle;
 
 import java.util.Objects;
-import java.util.Optional;
 
 import net.bestia.entity.Entity;
 import net.bestia.model.domain.Attack;
-import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.ConditionValues;
+import net.bestia.model.domain.Element;
+import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.entity.StatusBasedValues;
 
 /**
@@ -144,5 +144,25 @@ public final class BattleContext {
 	
 	public ConditionValues getDefenderCondition() {
 		return defenderConditionValues;
+	}
+
+	public Element getDefenderElement() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Element getAttackElement() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public int getAttackerLevel() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	public int getDefenderLevel() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 }

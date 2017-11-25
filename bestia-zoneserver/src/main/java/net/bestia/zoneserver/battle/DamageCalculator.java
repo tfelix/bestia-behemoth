@@ -7,12 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import net.bestia.entity.Entity;
-import net.bestia.entity.component.LevelComponent;
-import net.bestia.entity.component.StatusComponent;
 import net.bestia.model.battle.Damage;
 import net.bestia.model.domain.Attack;
-import net.bestia.model.domain.AttackType;
 import net.bestia.model.domain.Element;
 import net.bestia.model.domain.StatusPoints;
 
@@ -61,17 +57,20 @@ public class DamageCalculator {
 	}
 
 	private float getBaseAttack(BattleContext battleCtx) {
+		
+		final Attack usedAttack = battleCtx.getUsedAttack();
+		final DamageVariables dmgVars = battleCtx.getDamageVariables();
 
-		final float statusAtk = getStatusAttack(usedAttack, attacker);
-		final float varMod = dmgVars.isCriticalHit() ? 1f : calculateVarMod();
+		final float statusAtk = getStatusAttack(battleCtx);
+		final float varMod = battleCtx.getDamageVariables().isCriticalHit() ? 1f : calculateVarMod();
 		final float weaponAtk = calculateWeaponAtk();
 		final float varModRed = varMod - varMod / 2 - 0.5f;
-		final float ammaAtk = usedAttack.isRanged() ? getAmmoAtk(usedAttack, attacker, defender) : 0f;
+		final float ammaAtk = usedAttack.isRanged() ? getAmmoAtk(battleCtx) : 0f;
 		final int bonusAtk = usedAttack.isMagic() ? dmgVars.getAttackMagicBonus() : dmgVars.getAttackPhysicalBonus();
-		final float elementMod = getElementMod(usedAttack, attacker, defender);
-		final float elementBonusMod = getElementBonusMod(usedAttack, attacker, dmgVars);
+		final float elementMod = getElementMod(battleCtx);
+		final float elementBonusMod = getElementBonusMod(battleCtx);
 
-		float baseAtk = (2 * statusAtk * varMod + weaponAtk * varModRed + ammaAtk + bonusAtk);
+		float baseAtk = 2 * statusAtk * varMod + weaponAtk * varModRed + ammaAtk + bonusAtk;
 		baseAtk = baseAtk * elementMod * elementBonusMod;
 		baseAtk = Math.min(1, baseAtk);
 
@@ -83,32 +82,34 @@ public class DamageCalculator {
 	/**
 	 * @return The attack value based solely on the status of the entity.
 	 */
-	private float getStatusAttack(Attack atk, Entity attacker) {
+	private float getStatusAttack(BattleContext battleCtx) {
 
-		final float lvMod = getLevel(attacker) / 4;
-		final StatusPoints sp = getStatusPoints(attacker);
+		final Attack atk = battleCtx.getUsedAttack();
+		final float lvMod = battleCtx.getAttackerLevel() / 4;
+		final StatusPoints sp = battleCtx.getAttackerStatusPoints();
 
+		final float statusAtk;
 		if (atk.isMagic()) {
-			final float statusAtk = lvMod + sp.getStrength() + sp.getDexterity() / 5;
+			statusAtk = lvMod + sp.getStrength() + sp.getDexterity() / 5;
 			LOG.trace("StatusAtk (magic): {}", statusAtk);
-			return statusAtk;
+		} else if (atk.isRanged()) {
+			statusAtk = lvMod + sp.getDexterity() + sp.getStrength() / 5;
+			LOG.trace("StatusAtk (ranged physical): {}", statusAtk);
 		} else {
-			if (atk.isRanged()) {
-				final float statusAtk = lvMod + sp.getDexterity() + sp.getStrength() / 5;
-				LOG.trace("StatusAtk (ranged physical): {}", statusAtk);
-				return statusAtk;
-			} else {
-				final float statusAtk = lvMod + sp.getStrength() + sp.getDexterity() / 5;
-				LOG.trace("StatusAtk (melee physical): {}", statusAtk);
-				return statusAtk;
-			}
+			statusAtk = lvMod + sp.getStrength() + sp.getDexterity() / 5;
+			LOG.trace("StatusAtk (melee physical): {}", statusAtk);
+
 		}
+
+		return statusAtk;
 	}
 
-	private float getSoftDefense(Attack atk, Entity defender) {
-
-		final StatusPoints defStatus = getStatusPoints(defender);
-		final int lv = getLevel(defender);
+	private float getSoftDefense(BattleContext battleCtx) {
+		
+		final Attack atk = battleCtx.getUsedAttack(); 
+		//Entity defender
+		final StatusPoints defStatus = battleCtx.getDefenderStatusPoints();
+		final int lv = battleCtx.getDefenderLevel();
 
 		float softDef;
 
@@ -131,11 +132,12 @@ public class DamageCalculator {
 		return softDef;
 	}
 
-	private float getHardDefenseModifier(Attack atk,
-			Entity defender,
-			DamageVariables dmgVars) {
+	private float getHardDefenseModifier(BattleContext battleCtx) {
 
-		final StatusPoints defStatus = getStatusPoints(defender);
+		final Attack atk = battleCtx.getUsedAttack();
+		final DamageVariables dmgVars = battleCtx.getDamageVariables();
+		final StatusPoints defStatus = battleCtx.getDefenderStatusPoints();
+
 		float defMod;
 
 		switch (atk.getType()) {
@@ -149,7 +151,7 @@ public class DamageCalculator {
 			defMod = 1;
 		}
 
-		defMod = between(0.05f, 1.0f, defMod);
+		defMod = BattleUtil.between(0.05f, 1.0f, defMod);
 
 		LOG.trace("HardDefenseMod: {}.", defMod);
 
@@ -159,19 +161,22 @@ public class DamageCalculator {
 	/**
 	 * @return Gets the attack modifier of the attack.
 	 */
-	private float getAttackModifier(Attack atk, DamageVariables dmgVars) {
+	private float getAttackModifier(BattleContext battleCtx) {
+
+		final Attack atk = battleCtx.getUsedAttack();
+		final DamageVariables dmgVars = battleCtx.getDamageVariables();
 
 		float atkMod;
 
 		switch (atk.getType()) {
 		case MELEE_MAGIC:
-			atkMod = dmgVars.getAttackMagicMod() * dmgVars.getAttackMeleeMod();
 		case MELEE_PHYSICAL:
-			atkMod = dmgVars.getAttackMeleeMod() * dmgVars.getAttackMeleeMod();
+			atkMod = dmgVars.getAttackMagicMod() * dmgVars.getAttackMeleeMod();
+			break;
 		case RANGED_MAGIC:
-			atkMod = dmgVars.getAttackRangedMod() * dmgVars.getAttackRangedMod();
 		case RANGED_PHYSICAL:
 			atkMod = dmgVars.getAttackRangedMod() * dmgVars.getAttackRangedMod();
+			break;
 		default:
 			atkMod = 1.0f;
 		}
@@ -184,7 +189,9 @@ public class DamageCalculator {
 	/**
 	 * @return The critical modifier.
 	 */
-	private float getCritModifier(DamageVariables dmgVars) {
+	private float getCritModifier(BattleContext battleCtx) {
+		
+		final DamageVariables dmgVars = battleCtx.getDamageVariables();
 
 		float critMod = dmgVars.isCriticalHit() ? 1.4f * dmgVars.getCriticalDamageMod() : 1.0f;
 		critMod = Math.min(1.0f, critMod);
@@ -194,21 +201,23 @@ public class DamageCalculator {
 		return critMod;
 	}
 
-	private float getElementMod(Attack atk, Entity attacker, Entity defender) {
-		final Element atkEle = getElement(attacker, atk);
-		final Element defEle = getElement(defender);
+	private float getElementMod(BattleContext battleCtx) {
+		
+		final Element atkEle = battleCtx.getAttackElement();
+		final Element defEle = battleCtx.getDefenderElement();
+		
 		final float eleMod = ElementModifier.getModifier(atkEle, defEle) / 100f;
 		LOG.trace("ElementMod: {}", eleMod);
 		return eleMod;
 	}
 
-	private float getElementBonusMod(Attack atk, Entity attacker, DamageVariables dmgVars) {
-		final Element atkEle = getElement(attacker, atk);
-		final float eleMod = dmgVars.getElementBonusMod(atkEle);
+	private float getElementBonusMod(BattleContext battleCtx) {
+		final Element atkEle = battleCtx.getAttackElement();
+		final float eleMod = battleCtx.getDamageVariables().getElementBonusMod(atkEle);
 		LOG.trace("ElementBonusMod: {}", eleMod);
 		return eleMod;
 	}
-	
+
 	private float calculateWeaponAtk() {
 		LOG.warn("calculateWeaponAtk is currently not implemented.");
 
@@ -216,17 +225,14 @@ public class DamageCalculator {
 		LOG.trace("WeaponAtk: {}", weaponAtk);
 		return weaponAtk;
 	}
+	
+	private float getAmmoAtk(BattleContext battleCtx) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 
 	// HELPER METHODS
-	/**
-	 * @return The level of the entity.
-	 */
-	private int getLevel(Entity e) {
-		return entityService.getComponent(e, LevelComponent.class)
-				.map(lv -> lv.getLevel())
-				.orElse(1);
-	}
-	
+
 	/**
 	 * Calculates the variance modification.
 	 * 
@@ -234,35 +240,5 @@ public class DamageCalculator {
 	 */
 	private float calculateVarMod() {
 		return 1 - (rand.nextFloat() * 0.15f);
-	}
-
-	/**
-	 * The used attacker element which is dependent from the current buffs to
-	 * the entity, the equipped weapon and the used attack.
-	 * 
-	 * @param attacker
-	 *            The attacking entity.
-	 * @param atk
-	 *            The used attack.
-	 * @return The current attacking element.
-	 */
-	private Element getElement(Entity attacker, Attack atk) {
-		// TODO Auto-generated method stub
-		LOG.warn("Currently only normal element.");
-		return Element.NORMAL;
-	}
-	
-	private float getAmmoAtk(BattleContext battleCtx) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-	
-	/**
-	 * @return The element of the entity.
-	 */
-	private Element getElement(Entity e) {
-		return entityService.getComponent(e, StatusComponent.class)
-				.map(StatusComponent::getElement)
-				.orElse(Element.NORMAL);
 	}
 }
