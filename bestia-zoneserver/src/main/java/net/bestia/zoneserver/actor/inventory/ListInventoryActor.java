@@ -13,6 +13,8 @@ import net.bestia.entity.component.InventoryService;
 import net.bestia.messages.inventory.InventoryListMessage;
 import net.bestia.messages.inventory.InventoryListRequestMessage;
 import net.bestia.model.domain.PlayerItem;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
 
 /**
@@ -43,7 +45,7 @@ public class ListInventoryActor extends AbstractActor {
 	public ListInventoryActor(InventoryService inventoryService, ActorRef msgHub) {
 
 		this.inventoryService = Objects.requireNonNull(inventoryService);
-		this.sendClient = Objects.requireNonNull(msgHub);
+		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 
 	@Override

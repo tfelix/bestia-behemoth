@@ -39,14 +39,14 @@ public class ChatActor extends AbstractActor {
 	private ActorRef partyChatActor;
 
 	@Autowired
-	public ChatActor(ChatCommandService chatCmdService, ActorRef msgHub) {
+	public ChatActor(ChatCommandService chatCmdService) {
 
 		this.chatCmdService = Objects.requireNonNull(chatCmdService);
 
-		publicChatActor = SpringExtension.actorOf(getContext(), PublicChatActor.class, msgHub);
-		whisperChatActor = SpringExtension.actorOf(getContext(), WhisperChatActor.class, msgHub);
-		partyChatActor = SpringExtension.actorOf(getContext(), PartyChatActor.class, msgHub);
-		guildChatActor = SpringExtension.actorOf(getContext(), GuildChatActor.class, msgHub);
+		publicChatActor = SpringExtension.actorOf(getContext(), PublicChatActor.class);
+		whisperChatActor = SpringExtension.actorOf(getContext(), WhisperChatActor.class);
+		partyChatActor = SpringExtension.actorOf(getContext(), PartyChatActor.class);
+		guildChatActor = SpringExtension.actorOf(getContext(), GuildChatActor.class);
 	}
 
 	@Override

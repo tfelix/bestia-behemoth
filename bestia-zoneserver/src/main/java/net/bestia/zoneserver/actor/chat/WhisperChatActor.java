@@ -12,6 +12,8 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.domain.Account;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.service.AccountService;
 
 /**
@@ -32,10 +34,10 @@ public class WhisperChatActor extends AbstractActor {
 	private final ActorRef msgHub;
 
 	@Autowired
-	public WhisperChatActor(AccountService accService, ActorRef msgHub) {
+	public WhisperChatActor(AccountService accService) {
 
 		this.accService = Objects.requireNonNull(accService);
-		this.msgHub = Objects.requireNonNull(msgHub);
+		this.msgHub = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 
 	@Override

@@ -27,8 +27,6 @@ import net.bestia.zoneserver.actor.rest.RequestLoginActor;
 import net.bestia.zoneserver.actor.rest.RequestServerStatusActor;
 import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor;
 import net.bestia.zoneserver.actor.zone.ClusterControlActor;
-import net.bestia.zoneserver.actor.zone.MessageRouterActor;
-import net.bestia.zoneserver.actor.zone.MessageRouterActor.SetMessageRoutes;
 import net.bestia.zoneserver.actor.zone.WebIngestActor;
 import net.bestia.zoneserver.actor.zone.ZoneClusterListenerActor;
 import net.bestia.zoneserver.script.ScriptService;
@@ -48,33 +46,36 @@ public class BestiaRootActor extends AbstractActor {
 	public final static String NAME = "bestia";
 
 	private ActorRef clientMessageHandler;
-	private final ActorRef messageHub;
-	
+
 	private final ScriptService scriptService;
-	private final ZoneMessageApi akkaMsgApi;
-	
+
+	private ActorSystem system;
+	private ClusterSharding sharding;
+	private ClusterShardingSettings settings;
 
 	@Autowired
-	public BestiaRootActor(ScriptService scriptService, ZoneMessageApi akkaMsgApi) {
+	public BestiaRootActor(ScriptService scriptService) {
 
 		this.scriptService = Objects.requireNonNull(scriptService);
-		this.akkaMsgApi = Objects.requireNonNull(akkaMsgApi);
-		
-		this.messageHub = SpringExtension.actorOf(getContext(), MessageRouterActor.class);
+
+		this.system = getContext().system();
+		this.settings = ClusterShardingSettings.create(system);
+		this.sharding = ClusterSharding.get(system);
 	}
 
 	@Override
 	public void preStart() throws Exception {
-		
-		clientMessageHandler = SpringExtension.actorOf(getContext(), ClientMessageHandlerActor.class, messageHub);
-		
-		registerShardedActors();
-		
+
 		registerSingeltons();
+		ActorRef helperProxy = registerSharding();
+
+		clientMessageHandler = SpringExtension.actorOf(getContext(), ClientMessageHandlerActor.class);
 		
+		helperProxy.tell(clientMessageHandler, getSelf());
+
 		// Setup the messaging system.
-		akkaMsgApi.setMessageEntry(messageHub);
-		
+		// akkaMsgApi.setMessageEntry(messageHub);
+
 		// System actors.
 		SpringExtension.actorOf(getContext(), ZoneClusterListenerActor.class);
 
@@ -88,10 +89,10 @@ public class BestiaRootActor extends AbstractActor {
 		SpringExtension.actorOf(getContext(), ChangePasswordActor.class);
 		SpringExtension.actorOf(getContext(), RequestLoginActor.class);
 		SpringExtension.actorOf(getContext(), RequestServerStatusActor.class);
-		
+
 		// Trigger the startup script.
 		scriptService.callScript("startup");
-		
+
 		final ActorRef ingest = SpringExtension.actorOf(getContext(), WebIngestActor.class);
 		ClusterClientReceptionist.get(getContext().getSystem()).registerService(ingest);
 	}
@@ -101,38 +102,37 @@ public class BestiaRootActor extends AbstractActor {
 		return receiveBuilder().build();
 	}
 
+	private ActorRef registerSharding() {
+		// Setup the init actor singelton for creation of the system.
+		LOG.info("Starting the sharding.");
+
+		// Entity sharding.
+		final Props entityProps = SpringExtension.getSpringProps(system, EntityActor.class);
+		final EntityShardMessageExtractor entityExtractor = new EntityShardMessageExtractor();
+		sharding.start(EntryActorNames.SHARD_ENTITY, entityProps, settings, entityExtractor);
+
+		// Client connection sharding.
+		ActorRef helperProxy = SpringExtension.actorOf(getContext(), ProxyHelperActor.class);
+		final Props connectionProps = SpringExtension.getSpringProps(system, ClientConnectionActor.class,
+				helperProxy);
+		final ConnectionShardMessageExtractor connectionExtractor = new ConnectionShardMessageExtractor();
+		sharding.start(EntryActorNames.SHARD_CONNECTION, connectionProps, settings, connectionExtractor);
+
+		LOG.info("Started the sharding.");
+		return helperProxy;
+	}
+
 	private void registerSingeltons() {
 		// Setup the init actor singelton for creation of the system.
 		LOG.info("Starting the global init singeltons.");
-		
+
 		final ActorSystem system = getContext().system();
-		
+
 		final ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system);
 		final Props globalInitProps = SpringExtension.getSpringProps(system, ClusterControlActor.class);
 		Props clusterProbs = ClusterSingletonManager.props(globalInitProps, PoisonPill.getInstance(), settings);
 		system.actorOf(clusterProbs, "globalInit");
-	}
-	
-	private void registerShardedActors() {
-		LOG.info("Register the sharded actor.");
 
-		final ActorSystem system = getContext().system();
-
-		
-		final ClusterShardingSettings settings = ClusterShardingSettings.create(system);
-		final ClusterSharding sharding = ClusterSharding.get(system);
-		
-		// Entity sharding.
-		final Props entityProps = SpringExtension.getSpringProps(system, EntityActor.class);
-		final EntityShardMessageExtractor entityExtractor = new EntityShardMessageExtractor();
-		final ActorRef entities = sharding.start(EntryActorNames.SHARD_ENTITY, entityProps, settings, entityExtractor);
-
-		// Client connection sharding.
-		final Props connectionProps = SpringExtension.getSpringProps(system, ClientConnectionActor.class, clientMessageHandler);
-		final ConnectionShardMessageExtractor connectionExtractor = new ConnectionShardMessageExtractor();
-		final ActorRef clients = sharding.start(EntryActorNames.SHARD_CONNECTION, connectionProps, settings, connectionExtractor);
-		
-		final SetMessageRoutes setMsg = new SetMessageRoutes(entities, clients);
-		messageHub.tell(setMsg, getSelf());
+		LOG.info("Started the global init singeltons.");
 	}
 }

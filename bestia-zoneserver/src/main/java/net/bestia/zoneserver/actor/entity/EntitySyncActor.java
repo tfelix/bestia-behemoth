@@ -23,6 +23,8 @@ import net.bestia.messages.entity.EntityUpdateMessage;
 import net.bestia.model.domain.SpriteInfo;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
 import net.bestia.zoneserver.map.MapService;
 import net.bestia.zoneserver.service.PlayerEntityService;
@@ -49,13 +51,11 @@ public class EntitySyncActor extends AbstractActor {
 
 	@Autowired
 	public EntitySyncActor(EntityService entityService,
-			PlayerEntityService playerEntityService,
-			ActorRef msgHub) {
+			PlayerEntityService playerEntityService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
-
-		sendClient = Objects.requireNonNull(msgHub);
+		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 
 	@Override

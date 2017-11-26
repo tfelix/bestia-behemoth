@@ -15,8 +15,8 @@ import net.bestia.messages.entity.EntityDamageMessage;
 import net.bestia.messages.internal.entity.EntitySkillUseMessage;
 import net.bestia.model.battle.Damage;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.SendClientsInRangeActor;
 import net.bestia.zoneserver.battle.BattleService;
 
 /**
@@ -43,7 +43,7 @@ public class AttackUseActor extends AbstractActor {
 
 		this.battleService = Objects.requireNonNull(battleService);
 		this.transformAtkMsg = SpringExtension.actorOf(getContext(), AttackPlayerUseActor.class);
-		this.sendActiveRange = SpringExtension.actorOf(getContext(), SendClientActor.class, msgHub);
+		this.sendActiveRange = SpringExtension.actorOf(getContext(), SendClientsInRangeActor.class);
 	}
 
 	@Override

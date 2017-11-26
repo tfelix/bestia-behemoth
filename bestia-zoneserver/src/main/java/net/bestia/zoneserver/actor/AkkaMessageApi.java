@@ -7,8 +7,9 @@ import akka.actor.ActorRef;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
+import net.bestia.messages.MessageApi;
 
-public class AkkaMessageApi implements ZoneMessageApi {
+public class AkkaMessageApi implements MessageApi {
 	
 	private final static Logger LOG = LoggerFactory.getLogger(AkkaMessageApi.class);
 	
@@ -30,17 +31,5 @@ public class AkkaMessageApi implements ZoneMessageApi {
 	public void sendToEntity(EntityMessage msg) {
 		LOG.debug("sendToEntity: {}", msg);
 		msgRouter.tell(msg, ActorRef.noSender());
-	}
-
-	/**
-	 * Sets the entry point of all message routing into the bestia system. Must
-	 * be set before the other methods can be invoked.
-	 * 
-	 * @param msgRouter
-	 *            The actor ref to the messaging actor.
-	 */
-	@Override
-	public void setMessageEntry(ActorRef msgRouter) {
-		this.msgRouter = msgRouter;
 	}
 }

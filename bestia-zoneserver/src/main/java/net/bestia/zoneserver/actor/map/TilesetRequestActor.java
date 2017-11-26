@@ -16,6 +16,8 @@ import net.bestia.messages.map.MapTilesetRequestMessage;
 import net.bestia.model.domain.TilesetData;
 import net.bestia.model.map.Tileset;
 import net.bestia.model.map.TilesetService;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
 
 /**
@@ -36,10 +38,10 @@ public class TilesetRequestActor extends AbstractActor {
 	private final ActorRef sendClient;
 
 	@Autowired
-	public TilesetRequestActor(TilesetService tilesetService, ActorRef msgHub) {
+	public TilesetRequestActor(TilesetService tilesetService) {
 
 		this.tilesetService = Objects.requireNonNull(tilesetService);
-		this.sendClient = Objects.requireNonNull(msgHub);
+		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 
 	@Override

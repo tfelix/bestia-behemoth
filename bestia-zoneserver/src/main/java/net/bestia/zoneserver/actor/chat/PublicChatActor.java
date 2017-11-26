@@ -15,6 +15,8 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.messages.chat.ChatMessage;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.SendClientsInRangeActor;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
@@ -37,12 +39,11 @@ public class PublicChatActor extends AbstractActor {
 
 	@Autowired
 	public PublicChatActor(PlayerEntityService playerEntityService,
-			EntityService entityService,
-			ActorRef msgHub) {
+			EntityService entityService) {
 		
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		this.entityService = Objects.requireNonNull(entityService);
-		sendActiveRange = Objects.requireNonNull(msgHub);
+		this.sendActiveRange = SpringExtension.actorOf(getContext(), SendClientsInRangeActor.class);
 	}
 
 	@Override

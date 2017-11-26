@@ -15,6 +15,8 @@ import net.bestia.entity.EntityService;
 import net.bestia.messages.entity.EntityInteractionMessage;
 import net.bestia.messages.entity.EntityInteractionRequestMessage;
 import net.bestia.model.entity.InteractionType;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
 import net.bestia.zoneserver.service.InteractionService;
 
@@ -37,11 +39,10 @@ public class EntityInteractionRequestActor extends AbstractActor {
 
 	@Autowired
 	public EntityInteractionRequestActor(EntityService entityService,
-			InteractionService interactService,
-			ActorRef msgHub) {
+			InteractionService interactService) {
 	
 		this.interactService = Objects.requireNonNull(interactService);
-		sendClient = Objects.requireNonNull(msgHub);
+		sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 
 	@Override

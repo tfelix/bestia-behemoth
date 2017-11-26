@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
@@ -89,13 +88,10 @@ public class ClientMessageHandlerActor extends AbstractActor {
 	}
 
 	private Map<Class<?>, List<ActorRef>> redirections = new HashMap<>();
-
-	private ActorRef messageRouter;
 	
 	@Autowired
-	public ClientMessageHandlerActor(ActorRef msgHub) {
-
-		messageRouter = Objects.requireNonNull(msgHub);
+	public ClientMessageHandlerActor() {
+		// no op.
 	}
 
 	@Override
@@ -109,24 +105,24 @@ public class ClientMessageHandlerActor extends AbstractActor {
 		SpringExtension.actorOf(getContext(), BestiaInfoActor.class);
 
 		// === Inventory ===
-		SpringExtension.actorOf(getContext(), ListInventoryActor.class, messageRouter);
+		SpringExtension.actorOf(getContext(), ListInventoryActor.class);
 
 		// === Map ===
-		SpringExtension.actorOf(getContext(), MapRequestChunkActor.class, messageRouter);
-		SpringExtension.actorOf(getContext(), TilesetRequestActor.class, messageRouter);
+		SpringExtension.actorOf(getContext(), MapRequestChunkActor.class);
+		SpringExtension.actorOf(getContext(), TilesetRequestActor.class);
 
 		// === Entities ===
-		SpringExtension.actorOf(getContext(), EntityInteractionRequestActor.class, messageRouter);
-		SpringExtension.actorOf(getContext(), EntitySyncActor.class, messageRouter);
+		SpringExtension.actorOf(getContext(), EntityInteractionRequestActor.class);
+		SpringExtension.actorOf(getContext(), EntitySyncActor.class);
 
 		// === Attacking ===
-		SpringExtension.actorOf(getContext(), AttackUseActor.class, messageRouter);
+		SpringExtension.actorOf(getContext(), AttackUseActor.class);
 
 		// === UI ===
-		SpringExtension.actorOf(getContext(), ClientVarActor.class, messageRouter);
+		SpringExtension.actorOf(getContext(), ClientVarActor.class);
 
 		// === Chat ===
-		SpringExtension.actorOf(getContext(), ChatActor.class, messageRouter);
+		SpringExtension.actorOf(getContext(), ChatActor.class);
 	}
 
 	@Override

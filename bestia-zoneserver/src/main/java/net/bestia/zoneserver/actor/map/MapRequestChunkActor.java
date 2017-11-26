@@ -19,6 +19,8 @@ import net.bestia.messages.map.MapChunkMessage;
 import net.bestia.messages.map.MapChunkRequestMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.map.MapChunk;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
 import net.bestia.zoneserver.map.MapService;
 import net.bestia.zoneserver.service.PlayerEntityService;
@@ -47,13 +49,12 @@ public class MapRequestChunkActor extends AbstractActor {
 	public MapRequestChunkActor(
 			MapService mapService,
 			PlayerEntityService pbService,
-			EntityService entityService,
-			ActorRef msgHub) {
+			EntityService entityService) {
 
 		this.pbService = Objects.requireNonNull(pbService);
 		this.mapService = Objects.requireNonNull(mapService);
 		this.entityService = Objects.requireNonNull(entityService);
-		this.sendClient = Objects.requireNonNull(msgHub);
+		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 
 	@Override
