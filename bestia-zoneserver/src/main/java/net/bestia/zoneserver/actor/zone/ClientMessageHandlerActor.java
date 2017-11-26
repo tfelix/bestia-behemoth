@@ -21,6 +21,7 @@ import net.bestia.zoneserver.actor.battle.AttackUseActor;
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
+import net.bestia.zoneserver.actor.chat.PlayerMoveRequestActor;
 import net.bestia.zoneserver.actor.connection.LatencyManagerActor;
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor;
 import net.bestia.zoneserver.actor.entity.EntitySyncActor;
@@ -113,6 +114,7 @@ public class ClientMessageHandlerActor extends AbstractActor {
 
 		// === Entities ===
 		SpringExtension.actorOf(getContext(), EntityInteractionRequestActor.class);
+		SpringExtension.actorOf(getContext(), PlayerMoveRequestActor.class);
 		SpringExtension.actorOf(getContext(), EntitySyncActor.class);
 
 		// === Attacking ===

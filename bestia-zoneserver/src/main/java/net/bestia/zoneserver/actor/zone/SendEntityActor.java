@@ -8,7 +8,7 @@ import akka.actor.ActorRef;
 import akka.cluster.sharding.ClusterSharding;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.JsonMessage;
+import net.bestia.messages.EntityMessage;
 import net.bestia.server.EntryActorNames;
 
 /**
@@ -39,7 +39,7 @@ public class SendEntityActor extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(JsonMessage.class, msg -> {
+				.match(EntityMessage.class, msg -> {
 					LOG.debug("Sending to entty: {}", msg);
 					entityActorShard.tell(msg, getSender());
 				})

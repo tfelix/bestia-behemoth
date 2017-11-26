@@ -12,7 +12,7 @@ import net.bestia.model.map.Walkspeed;
 /**
  * <p>
  * This message is send from the server to all clients as soon as a movement is
- * started.
+ * started as well as from the clients to the server.
  * </p>
  * <p>
  * It is also send from the client to the server in order to perform a movement.
