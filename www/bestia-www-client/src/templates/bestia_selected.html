@@ -9,6 +9,7 @@
         </p>
     </div>
 
+
     <div class="bar hp-bar" style="clear: both;" data-bind="with: conditionValues">
         <div class="bar-bg">
             <div data-bind="style: {width: hpWidth}"></div>
@@ -17,7 +18,7 @@
             HP: <span data-bind="text: curHp">0</span> / <span data-bind="text: maxHp">0</span>
         </div>
     </div>
-    <div class="bar mana-bar" data-bind="with: statusPoints">
+    <div class="bar mana-bar" data-bind="with: conditionValues">
         <div class="bar-bg">
             <div data-bind="style: {width: manaWidth}"></div>
         </div>

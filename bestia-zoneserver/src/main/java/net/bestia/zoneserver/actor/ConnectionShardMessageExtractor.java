@@ -21,7 +21,13 @@ public class ConnectionShardMessageExtractor implements ShardRegion.MessageExtra
 	@Override
 	public String entityId(Object message) {
 		if (message instanceof AccountMessage) {
-			return ClientConnectionActor.getActorName(((AccountMessage) message).getAccountId());
+			final long accId = ((AccountMessage) message).getAccountId();
+			
+			if(accId <= 0) {
+				return null;
+			}
+			
+			return ClientConnectionActor.getActorName(accId);
 		} else {
 			return null;
 		}
@@ -39,7 +45,13 @@ public class ConnectionShardMessageExtractor implements ShardRegion.MessageExtra
 		if (message instanceof AccountMessage) {
 			// Use actor name to get the hash more evenly distributed.
 			// Maybe not necessairy.
-			final String name = ClientConnectionActor.getActorName(((AccountMessage) message).getAccountId());
+			final long accId = ((AccountMessage) message).getAccountId();
+			
+			if(accId <= 0) {
+				return null;
+			}
+			
+			final String name = ClientConnectionActor.getActorName(accId);
 			return String.valueOf(name.hashCode() % NUMBER_OF_SHARDS);
 		} else {
 			return null;

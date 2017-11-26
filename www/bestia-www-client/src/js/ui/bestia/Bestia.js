@@ -7,24 +7,15 @@ import ko from 'knockout';
 import Message from '../../io/messages/Message';
 import Signal from '../../io/Signal';
 import StatusPoint from './StatusPoints';
-import StatusPointsComparer from './StatusPointsComparer';
+//import StatusPointsComparer from './StatusPointsComparer';
 import StatusBasedValues from './StatusBasedValues';
 import ConditionValues from './ConditionValues';
 
 /**
- * ViewModel of a Bestia.
+ * Viewmodel for a Bestia.
  * 
- * @class Bestia.Bestia
- * 
- * @param {Bestia.PubSub}
- *            pubsub - Publish/Subscriber interface.
- * @param {Object}
- *            msg - Optional. Server message object to initialize the model with
- *            values.
- * @param {Object}
- *            statusPoints - StatusPoints data object from the server to hold
- *            information about the current stats.
- * @constructor
+ * @export
+ * @class Bestia
  */
 export default class Bestia {
 
@@ -65,7 +56,7 @@ export default class Bestia {
 
 		this.statusPoints = new StatusPoint();
 		this.unmodifiedStatusPoints = new StatusPoint();
-		this.comparedStatusPoints = new StatusPointsComparer(this.statusPoints, this.unmodifiedStatusPoints);
+		//this.comparedStatusPoints = new StatusPointsComparer(this.statusPoints, this.unmodifiedStatusPoints);
 		this.statusBasedValues = new StatusBasedValues();
 		this.conditionValues = new ConditionValues();
 
@@ -87,8 +78,7 @@ export default class Bestia {
 	 * Updates the model with new data from the server.
 	 * 
 	 * @method Bestia.Bestia#update
-	 * @param {Object}
-	 *            msg - Message object from the server.
+	 * @param {Object} msg - Message object from the server.
 	 */
 	update(msg) {
 		if (msg === undefined) {

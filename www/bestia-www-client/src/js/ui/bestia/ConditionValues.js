@@ -24,6 +24,7 @@ export default class ConditionValues {
 		this.manaWidth = ko.computed(function() {
 			return (this.maxMana() === 0) ? '0%' : (Math.floor(this.curMana() * 100 / this.maxMana())) + '%';
 		}, this);
+		
 		this.hpWidth = ko.computed(function() {
 			return (this.maxHp() === 0) ? '0%' : (Math.floor(this.curHp() * 100 / this.maxHp())) + '%';
 		}, this);
@@ -37,9 +38,7 @@ export default class ConditionValues {
 	 * ViewModel for the Status points.
 	 * 
 	 * @method Bestia.StatusPoint
-	 *#update
-	 * @param {Object}
-	 *            msg - Message from the server to fill the model.
+	 * @param {Object} msg - Message from the server to fill the model.
 	 */
 	update(msg) {
 		this.maxMana(msg.mmana);

@@ -130,7 +130,7 @@ public class LoginService {
 	 *            The account id to logout.
 	 */
 	public void logout(long accId) {
-		if (accId < 0) {
+		if (accId <= 0) {
 			throw new IllegalArgumentException("Account ID must be positive.");
 		}
 		// Unregister connection.
@@ -139,7 +139,7 @@ public class LoginService {
 		final Account acc = accountDao.findOne(accId);
 
 		if (acc == null) {
-			LOG.warn("Can not logout account id: %d. ID does not exist.", accId);
+			LOG.warn("Can not logout account id: {}. ID does not exist.", accId);
 			return;
 		}
 
@@ -161,6 +161,8 @@ public class LoginService {
 
 		// Only remove the player bestia.
 		playerEntityService.removePlayerBestias(accId);
+		
+		LOG.trace("Removing player bestias.");
 
 		// Recycle all entities.
 		playerEntities.forEach(entity -> {

@@ -7,29 +7,38 @@ import akka.actor.ActorRef;
 import net.bestia.messages.EntityJsonMessage;
 import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
-import net.bestia.messages.MessageApi;
 
-public class AkkaMessageApi implements MessageApi {
+public class AkkaMessageApi implements ZoneMessageApi {
 	
 	private final static Logger LOG = LoggerFactory.getLogger(AkkaMessageApi.class);
-	
-	private ActorRef msgRouter;
+
+	private ActorRef sendToClientActor;
+	private ActorRef sendToActiveActor;
+	private ActorRef sendToEntityActor;
 
 	@Override
 	public void sendToClient(JsonMessage message) {
 		LOG.debug("sendToClient: {}", message);
-		msgRouter.tell(message, ActorRef.noSender());
+		sendToClientActor.tell(message, ActorRef.noSender());
 	}
 
 	@Override
 	public void sendToActiveClientsInRange(EntityJsonMessage message) {
 		LOG.debug("sendToActiveClientsInRange: {}", message);
-		msgRouter.tell(message, ActorRef.noSender());
+		sendToActiveActor.tell(message, ActorRef.noSender());
 	}
 
 	@Override
 	public void sendToEntity(EntityMessage msg) {
 		LOG.debug("sendToEntity: {}", msg);
-		msgRouter.tell(msg, ActorRef.noSender());
+		sendToEntityActor.tell(msg, ActorRef.noSender());
+	}
+
+	@Override
+	public void setReceivingActor(ActorRef singleClient, ActorRef allClientsRange, ActorRef entity) {
+		
+		this.sendToClientActor = singleClient;
+		this.sendToActiveActor = allClientsRange;
+		this.sendToEntityActor = entity;
 	}
 }

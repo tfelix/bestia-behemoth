@@ -27,6 +27,9 @@ import net.bestia.zoneserver.actor.rest.RequestLoginActor;
 import net.bestia.zoneserver.actor.rest.RequestServerStatusActor;
 import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor;
 import net.bestia.zoneserver.actor.zone.ClusterControlActor;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
+import net.bestia.zoneserver.actor.zone.SendClientsInRangeActor;
+import net.bestia.zoneserver.actor.zone.SendEntityActor;
 import net.bestia.zoneserver.actor.zone.WebIngestActor;
 import net.bestia.zoneserver.actor.zone.ZoneClusterListenerActor;
 import net.bestia.zoneserver.script.ScriptService;
@@ -48,15 +51,17 @@ public class BestiaRootActor extends AbstractActor {
 	private ActorRef clientMessageHandler;
 
 	private final ScriptService scriptService;
+	private final ZoneMessageApi messageApi;
 
 	private ActorSystem system;
 	private ClusterSharding sharding;
 	private ClusterShardingSettings settings;
 
 	@Autowired
-	public BestiaRootActor(ScriptService scriptService) {
+	public BestiaRootActor(ScriptService scriptService, ZoneMessageApi messageApi) {
 
 		this.scriptService = Objects.requireNonNull(scriptService);
+		this.messageApi = Objects.requireNonNull(messageApi);
 
 		this.system = getContext().system();
 		this.settings = ClusterShardingSettings.create(system);
@@ -70,11 +75,15 @@ public class BestiaRootActor extends AbstractActor {
 		ActorRef helperProxy = registerSharding();
 
 		clientMessageHandler = SpringExtension.actorOf(getContext(), ClientMessageHandlerActor.class);
-		
+
 		helperProxy.tell(clientMessageHandler, getSelf());
 
-		// Setup the messaging system.
-		// akkaMsgApi.setMessageEntry(messageHub);
+		// Setup the messaging system. This is also needed because the message
+		// api is created bevor the registering takes place
+		// thus to break the circular dependency this trick is needed.
+		messageApi.setReceivingActor(SpringExtension.actorOf(getContext(), SendClientActor.class), 
+				SpringExtension.actorOf(getContext(), SendClientsInRangeActor.class), 
+				SpringExtension.actorOf(getContext(), SendEntityActor.class));
 
 		// System actors.
 		SpringExtension.actorOf(getContext(), ZoneClusterListenerActor.class);
@@ -93,6 +102,7 @@ public class BestiaRootActor extends AbstractActor {
 		// Trigger the startup script.
 		scriptService.callScript("startup");
 
+		// Register the cluster client receptionist for receiving messages.
 		final ActorRef ingest = SpringExtension.actorOf(getContext(), WebIngestActor.class);
 		ClusterClientReceptionist.get(getContext().getSystem()).registerService(ingest);
 	}

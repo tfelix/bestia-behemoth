@@ -24,6 +24,7 @@ import net.bestia.messages.MessageApi;
 import net.bestia.zoneserver.actor.AkkaMessageApi;
 import net.bestia.zoneserver.actor.BestiaRootActor;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.ZoneMessageApi;
 
 /**
  * Generates the akka configuration file which is used to connect to the remote
@@ -63,10 +64,10 @@ public class AkkaConfiguration implements DisposableBean {
 
 	@Bean
 	@Primary
-	public MessageApi messageApi(ActorSystem system) {
+	public ZoneMessageApi messageApi(ActorSystem system) {
 
-		final TypedProps<AkkaMessageApi> typedProps = new TypedProps<>(MessageApi.class, AkkaMessageApi.class);
-		final MessageApi msgApi = TypedActor.get(system).typedActorOf(typedProps, "akkaMsgApi");
+		final TypedProps<AkkaMessageApi> typedProps = new TypedProps<>(ZoneMessageApi.class, AkkaMessageApi.class);
+		final ZoneMessageApi msgApi = TypedActor.get(system).typedActorOf(typedProps, "akkaMsgApi");
 
 		return msgApi;
 	}

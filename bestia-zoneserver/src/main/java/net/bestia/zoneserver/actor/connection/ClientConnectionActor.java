@@ -192,7 +192,8 @@ public class ClientConnectionActor extends AbstractActor {
 		LOG.debug(String.format("Sending to client %d: %s", msg.getAccountId(), msg));
 
 		if (clientSocket == null) {
-			LOG.warning("Can not send to client. Not actorRef set! MSG: {}", msg);
+			LOG.warning("Can not send to client. Not actorRef set! Stopping. MSG: {}", msg);
+			getContext().stop(getSelf());
 		} else {
 			clientSocket.tell(msg, getSelf());
 		}
