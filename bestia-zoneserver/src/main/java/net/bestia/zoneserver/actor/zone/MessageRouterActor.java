@@ -12,9 +12,9 @@ import net.bestia.messages.EntityMessage;
 import net.bestia.messages.JsonMessage;
 
 /**
- * Central message control hub. Incoming messages are deliverd to clients or
- * bestia subcomponents. The message actors are set via a message to break a
- * circular dependency.
+ * Central message control hub. Incoming messages are either delivered to
+ * connected clients or entity actors. The message actors are set via a message
+ * to break a circular dependency.
  * 
  * @author Thomas Felix
  *
@@ -26,6 +26,7 @@ public class MessageRouterActor extends AbstractActor {
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	public static class SetMessageRoutes {
+
 		private final ActorRef entities;
 		private final ActorRef clients;
 

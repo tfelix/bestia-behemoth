@@ -18,13 +18,11 @@ import net.bestia.zoneserver.environment.date.BestiaDate;
  * Central bean definitions for the main bestia zoneserver. Some beans require a
  * special setup. These beans are setup via this configuration here.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Configuration
 public class ZoneBaseConfiguration {
-
-	//private final static Logger LOG = LoggerFactory.getLogger(ZoneBaseConfiguration.class);
 
 	/**
 	 * Gets the current time of the bestia zoneserver.

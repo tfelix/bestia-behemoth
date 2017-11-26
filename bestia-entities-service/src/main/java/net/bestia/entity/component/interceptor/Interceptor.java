@@ -37,7 +37,7 @@ public class Interceptor {
 	 */
 	public void addInterceptor(BaseComponentInterceptor<? extends Component> interceptor) {
 		Objects.requireNonNull(interceptor);
-		LOG.debug("Adding intercetor: {}.", interceptor);
+		LOG.debug("Adding intercetor: {}.", interceptor.getClass().getName());
 
 		final Class<? extends Component> triggerType = interceptor.getTriggerType();
 

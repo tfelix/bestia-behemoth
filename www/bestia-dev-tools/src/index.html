@@ -7,53 +7,19 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
-
-	<!-- JAVASCRIPT -->
-	<script src="main.js"></script>
 </head>
 
 <body class="noscroll">
 
-	<script>
-		function dropFile(ev) {
-			console.log("Drop");
-			ev.preventDefault();
-			// If dropped items aren't files, reject them
-			var dt = ev.dataTransfer;
-			if (dt.items) {
-				// Use DataTransferItemList interface to access the file(s)
-				for (var i = 0; i < dt.items.length; i++) {
-					if (dt.items[i].kind == "file") {
-						var f = dt.items[i].getAsFile();
-						console.log("... file[" + i + "].name = " + f.name);
-					}
-				}
-			} else {
-				// Use DataTransfer interface to access the file(s)
-				for (var i = 0; i < dt.files.length; i++) {
-					console.log("... file[" + i + "].name = " + dt.files[i].name);
-				}
-			}
-		}
-
-		function dragOverFile(ev) {
-			console.log("dragOver");
-			// Prevent default select and drag behavior
-			ev.preventDefault();
-		}
-
-	</script>
-
-
-
 	<header>
 		<h1>Animation Editor</h1>
-		<input class="form-input" type="file" id="main-sprite" style="width: 400px; display: inline">
 		<button class="btn">Load</button>
 		<button class="btn">New</button>
 		<button class="btn">Check</button>
 		<button class="btn">Save</button>
 	</header>
+
+	<div id="dropzone" data-bind="event: {dragover: dropController.onDragOver, drop: dropController.onDrop}, bindingContext: $context">Drop JSON files here</div>
 
 	<div class="container">
 		<div class="columns col-gapless">
@@ -130,7 +96,8 @@
 			</div>
 		</div>
 	</div>
-
+	<!-- JAVASCRIPT -->
+	<script src="main.js"></script>
 </body>
 
 </html>
