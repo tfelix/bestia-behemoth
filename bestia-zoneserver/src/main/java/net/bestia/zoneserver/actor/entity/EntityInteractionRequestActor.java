@@ -15,7 +15,7 @@ import net.bestia.entity.EntityService;
 import net.bestia.messages.entity.EntityInteractionMessage;
 import net.bestia.messages.entity.EntityInteractionRequestMessage;
 import net.bestia.model.entity.InteractionType;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
 import net.bestia.zoneserver.service.InteractionService;
 
 /**

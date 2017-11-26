@@ -20,6 +20,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.battle.AttackUseActor;
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
+import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.connection.LatencyManagerActor;
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor;
@@ -43,7 +44,7 @@ import net.bestia.zoneserver.actor.ui.ClientVarActor;
  */
 @Component
 @Scope("prototype")
-public class ClientMessageActor extends AbstractActor {
+public class ClientMessageHandlerActor extends AbstractActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
@@ -64,7 +65,7 @@ public class ClientMessageActor extends AbstractActor {
 
 		/**
 		 * Creates a redirection message for the given classes. This message can
-		 * be send to a {@link ClientMessageActor} to redirect the message flow.
+		 * be send to a {@link ClientMessageHandlerActor} to redirect the message flow.
 		 * 
 		 * @param classes
 		 * @return A new redirection request message.
@@ -92,7 +93,7 @@ public class ClientMessageActor extends AbstractActor {
 	private ActorRef messageRouter;
 	
 	@Autowired
-	public ClientMessageActor(ActorRef msgHub) {
+	public ClientMessageHandlerActor(ActorRef msgHub) {
 
 		messageRouter = Objects.requireNonNull(msgHub);
 	}
@@ -105,6 +106,7 @@ public class ClientMessageActor extends AbstractActor {
 
 		// === Bestias ===
 		SpringExtension.actorOf(getContext(), ActivateBestiaActor.class);
+		SpringExtension.actorOf(getContext(), BestiaInfoActor.class);
 
 		// === Inventory ===
 		SpringExtension.actorOf(getContext(), ListInventoryActor.class, messageRouter);

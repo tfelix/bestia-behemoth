@@ -13,7 +13,7 @@ import net.bestia.entity.component.InventoryService;
 import net.bestia.messages.inventory.InventoryListMessage;
 import net.bestia.messages.inventory.InventoryListRequestMessage;
 import net.bestia.model.domain.PlayerItem;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
 
 /**
  * This actor will create a list of the currently owned inventory items and send

@@ -24,7 +24,9 @@ import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.entity.StatusBasedValues;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.SendClientActor;
+import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
 import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
@@ -46,6 +48,7 @@ public class BestiaInfoActor extends AbstractActor {
 	private final PlayerBestiaDAO playerBestiaDao;
 	
 	private final ActorRef msgHub;
+	private final ActorRef sendClient;
 
 	@Autowired
 	public BestiaInfoActor(
@@ -58,6 +61,8 @@ public class BestiaInfoActor extends AbstractActor {
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
 		this.msgHub = Objects.requireNonNull(msgHub);
+		
+		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 
 	@Override
@@ -95,7 +100,6 @@ public class BestiaInfoActor extends AbstractActor {
 			}
 			
 			final StatusComponent status = statusComp.get();
-
 			final StatusPoints statusPoints = status.getStatusPoints();
 			final StatusPoints unmodStatusPoints = status.getOriginalStatusPoints();
 			final ConditionValues condValues = status.getConditionValues();
@@ -104,6 +108,7 @@ public class BestiaInfoActor extends AbstractActor {
 			// Send the normal bestia info message.
 			final BestiaInfoMessage bimsg = new BestiaInfoMessage(accId, pbe.getId(), pb);
 			msgHub.tell(bimsg, getSelf());
+			sendClient.tell(bimsg, getSelf());
 
 			// Now send the bestia status messages.
 			final EntityStatusUpdateMessage esmsg = new EntityStatusUpdateMessage(

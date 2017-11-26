@@ -19,7 +19,7 @@ import net.bestia.messages.map.MapChunkMessage;
 import net.bestia.messages.map.MapChunkRequestMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.map.MapChunk;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
 import net.bestia.zoneserver.map.MapService;
 import net.bestia.zoneserver.service.PlayerEntityService;
 

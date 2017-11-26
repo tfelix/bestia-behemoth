@@ -15,7 +15,7 @@ import net.bestia.messages.login.LoginAuthReplyMessage;
 import net.bestia.messages.login.LoginState;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
 import net.bestia.zoneserver.service.LoginService;
 
 /**

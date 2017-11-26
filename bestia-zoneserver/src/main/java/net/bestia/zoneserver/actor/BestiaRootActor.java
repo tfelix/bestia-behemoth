@@ -25,7 +25,7 @@ import net.bestia.zoneserver.actor.rest.ChangePasswordActor;
 import net.bestia.zoneserver.actor.rest.CheckUsernameDataActor;
 import net.bestia.zoneserver.actor.rest.RequestLoginActor;
 import net.bestia.zoneserver.actor.rest.RequestServerStatusActor;
-import net.bestia.zoneserver.actor.zone.ClientMessageActor;
+import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor;
 import net.bestia.zoneserver.actor.zone.ClusterControlActor;
 import net.bestia.zoneserver.actor.zone.MessageRouterActor;
 import net.bestia.zoneserver.actor.zone.MessageRouterActor.SetMessageRoutes;
@@ -66,7 +66,7 @@ public class BestiaRootActor extends AbstractActor {
 	@Override
 	public void preStart() throws Exception {
 		
-		clientMessageHandler = SpringExtension.actorOf(getContext(), ClientMessageActor.class, messageHub);
+		clientMessageHandler = SpringExtension.actorOf(getContext(), ClientMessageHandlerActor.class, messageHub);
 		
 		registerShardedActors();
 		
@@ -127,7 +127,7 @@ public class BestiaRootActor extends AbstractActor {
 		final EntityShardMessageExtractor entityExtractor = new EntityShardMessageExtractor();
 		final ActorRef entities = sharding.start(EntryActorNames.SHARD_ENTITY, entityProps, settings, entityExtractor);
 
-		// Connection sharding.
+		// Client connection sharding.
 		final Props connectionProps = SpringExtension.getSpringProps(system, ClientConnectionActor.class, clientMessageHandler);
 		final ConnectionShardMessageExtractor connectionExtractor = new ConnectionShardMessageExtractor();
 		final ActorRef clients = sharding.start(EntryActorNames.SHARD_CONNECTION, connectionProps, settings, connectionExtractor);
