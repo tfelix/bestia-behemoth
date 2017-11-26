@@ -47,20 +47,17 @@ public class BestiaInfoActor extends AbstractActor {
 	private final PlayerEntityService playerEntityService;
 	private final PlayerBestiaDAO playerBestiaDao;
 	
-	private final ActorRef msgHub;
 	private final ActorRef sendClient;
 
 	@Autowired
 	public BestiaInfoActor(
 			EntityService entityService,
 			PlayerBestiaDAO playerBestiaDao,
-			PlayerEntityService playerEntityService,
-			ActorRef msgHub) {
+			PlayerEntityService playerEntityService) {
 
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
-		this.msgHub = Objects.requireNonNull(msgHub);
 		
 		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
@@ -107,7 +104,6 @@ public class BestiaInfoActor extends AbstractActor {
 
 			// Send the normal bestia info message.
 			final BestiaInfoMessage bimsg = new BestiaInfoMessage(accId, pbe.getId(), pb);
-			msgHub.tell(bimsg, getSelf());
 			sendClient.tell(bimsg, getSelf());
 
 			// Now send the bestia status messages.
@@ -118,7 +114,7 @@ public class BestiaInfoActor extends AbstractActor {
 					unmodStatusPoints,
 					condValues,
 					statusBasedValues);
-			msgHub.tell(esmsg, getSelf());
+			sendClient.tell(esmsg, getSelf());
 		}
 	}
 }
