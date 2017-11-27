@@ -24,19 +24,23 @@ export default class EntityCacheEx {
 		 * @private
 		 */
 		this._entityCache = null;
+
+		this._isDirty = false;
 	}
 
 	/**
 	 * Adds an entity to the cache with the given identifier.
 	 * 
-	 * @param {String|Number}
-	 *            id - Identifier of the entity.
+	 * @param {Object.eid|number} entity - Identifier of the entity.
 	 */
 	addEntity(entity) {
+
+		if(typeof entity === 'number') {
+			entity = {eid: entity};
+		}
 	
 		this._entityCache = null;
 		this._cache[entity.eid] = entity;
-	
 	}
 	
 	/**
@@ -58,7 +62,7 @@ export default class EntityCacheEx {
 	/**
 	 * Removes the entity from the cache.
 	 * 
-	 * @param entity
+	 * @param {number} id - Removes the given entity from the cache.
 	 */
 	removeEntity(id) {
 		

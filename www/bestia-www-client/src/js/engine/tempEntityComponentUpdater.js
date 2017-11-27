@@ -1,3 +1,4 @@
+import MID from '../io/messages/MID';
 
 /**
  * This class takes incoming component updates and syncs the entity model with this 
@@ -6,44 +7,64 @@
  */
 export default class EntityComponentUpdates {
 
-	constructor(pubsub) {
+	constructor(pubsub, entityCache) {
 
-		this._updatedEntities = new Set();
+		this._entityCache = entityCache;
 
-
-		pubsub.subscribe('entity.comp', this._onComponentUpdate);
-		pubsub.subscribe('entity.Del', this._onComponentDelete);
+		pubsub.subscribe(MID.ENTITY_COMPONENT_UPDATE, this._onComponentUpdate);
+		pubsub.subscribe(MID.ENTITY_COMPONENT_DELETE, this._onComponentDelete);
 	}
 
     /**
      * Called if an update for an entity with its component is send.
      */
 	_onComponentUpdate(_, msg) {
+		let e = this._getOrCreateEntity(msg.eid);
 
+		// Check if the component differs from each other.
+		if (this._isComponentDataEqual(e.components[msg.ct], msg.c)) {
+			return;
+		}
+
+		e.components[msg.ct] = msg.c;
+		e.isDirty = true;
 	}
 
     /**
      * Called if an component was deleted from the system.
      */
 	_onComponentDelete(_, msg) {
-
+		let e = this._getOrCreateEntity(msg.eid);
+		if (e.components.hasOwnProperty(msg.cid)) {
+			// Mark the component as deleted so the renderer can remove it
+			// in the next pass.
+			e.componentsDeleted[msg.cid] = e.components[msg.cid];
+			delete e.components[msg.cid];
+			e.isDirty = true;
+		}
 	}
 
-	hasUpdatedComponents() {
-		return this._updatedEntities.size > 0;
+	/**
+	 * Checks if two component objects are the same.
+	 */
+	_isComponentDataEqual(lhs, rhs) {
+		// Cheap trick but our objects remain the order of properties
+		// thus this works.
+		JSON.stringify(lhs) === JSON.stringify(rhs);
 	}
 
-    /**
-     * Returns a list with all updated entities since the last call.
-     */
-	getUpdatedEntities() {
+	_getOrCreateEntity(eid) {
+		let entity = this._entityCache.getEntity(eid);
 
-	}
+		if (entity == null) {
+			this._entityCache.addEntity(eid);
+		}
 
-    /**
-     * Resets the counter for the updated entities.
-     */
-	clearUpdatedEntities() {
-		this._updatedEntities.clear();
+		if (!entity.components) {
+			entity.components = {};
+			entity.isDirty = true;
+		}
+
+		return entity;
 	}
 }

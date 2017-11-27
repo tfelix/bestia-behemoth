@@ -15,7 +15,7 @@ export default class Renderer {
 	 * Returns the name of the renderer. Must be overwritten by childs.
 	 */
 	get name() {
-		throw 'This method must be overwritten.';
+		return 'OVERRIDE_ME';
 	}
 	
 	/**

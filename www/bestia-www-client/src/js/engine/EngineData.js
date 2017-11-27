@@ -14,19 +14,19 @@ var pathfinder = new Pathfinder();
 var descriptionCache = new SpriteDescriptionCache();
 
 var engineContext = {
-    pubsub: null,
-    renderManager: null,
-    indicatorManager: null,
-    loader: null,
-    url: null,
-    entityUpdater: null,
-    data: {}
+	pubsub: null,
+	renderManager: null,
+	indicatorManager: null,
+	loader: null,
+	url: null,
+	entityUpdater: null,
+	data: {}
 };
 
 export {
-    spriteCache,
-    entityCache,
-    engineContext,
-    pathfinder,
-    descriptionCache
+	spriteCache,
+	entityCache,
+	engineContext,
+	pathfinder,
+	descriptionCache
 };

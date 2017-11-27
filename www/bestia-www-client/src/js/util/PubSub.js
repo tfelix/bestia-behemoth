@@ -1,5 +1,5 @@
 /**
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  * @copyright 2015 Thomas Felix
  */
 
@@ -9,6 +9,8 @@ import LOG from '../util/Log';
 /**
  * Publish/Subscriber object. Central object for the game inter communucation.
  * 
+ * @export
+ * @class PubSub
  */
 export default class PubSub {
 
@@ -39,7 +41,7 @@ export default class PubSub {
 	 * Subscibes to the bestia publish subscriber model.
 	 * 
 	 * @param {string} e - Eventname or topic to subscribe to.
-	 * @param {callback} fn - Callback function which will get invoked if such an event
+	 * @param {function} fn - Callback function which will get invoked if such an event
 	 *            happens.
 	 * @param {*} ctx - Context which is bound to the function.
 	 */
@@ -64,7 +66,7 @@ export default class PubSub {
 	 * removes ALL event handler from the given callback name.
 	 * 
 	 * @param {string} e - Name of the event handler.
-	 * @param {callback} fn - Function to be removed from this handler.
+	 * @param {function} fn - Function to be removed from this handler.
 	 * @returns {boolean} TRUE upon success, FALSE otherwise.
 	 */
 	unsubscribe(e, fn) {
@@ -102,7 +104,7 @@ export default class PubSub {
 	 */
 	_updateCache() {
 		// Guard. If there are still active iterations, avoid infinte loop.
-		if (this._currentlyActive > 0) {
+		if (this._currentlyActive) {
 			return;
 		}
 

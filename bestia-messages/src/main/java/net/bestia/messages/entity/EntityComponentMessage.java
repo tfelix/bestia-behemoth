@@ -17,6 +17,9 @@ public class EntityComponentMessage extends EntityJsonMessage {
 	private static final long serialVersionUID = 1L;
 
 	public static final String MESSAGE_ID = "entity.comp";
+	
+	@JsonProperty("ct")
+	private final String componentName;
 
 	@JsonProperty("c")
 	private final Component component;
@@ -27,6 +30,7 @@ public class EntityComponentMessage extends EntityJsonMessage {
 	EntityComponentMessage() {
 		super(0, 0);
 		component = null;
+		componentName = null;
 	}
 
 	/**
@@ -36,7 +40,9 @@ public class EntityComponentMessage extends EntityJsonMessage {
 	public EntityComponentMessage(long accId, Component component) {
 		super(accId, component.getEntityId());
 
-		this.component = Objects.requireNonNull(component);
+		Objects.requireNonNull(component);
+		this.componentName = component.getClass().getSimpleName().toUpperCase();
+		this.component = component;
 	}
 
 	public Component getComponent() {
