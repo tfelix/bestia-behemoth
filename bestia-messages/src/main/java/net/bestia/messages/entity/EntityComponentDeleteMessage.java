@@ -16,7 +16,7 @@ public class EntityComponentDeleteMessage extends EntityJsonMessage {
 	
 	private static final long serialVersionUID = 1L;
 
-	public final static String MESSAGE_ID = "entity.compDel";
+	public final static String MESSAGE_ID = "entity.comp.del";
 	
 	@JsonProperty("cid")
 	private final long componentId;

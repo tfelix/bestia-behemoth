@@ -2,6 +2,8 @@ package net.bestia.entity.component;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Each component needs a unique ID because this is required by the way
  * components are saved into the DHT of hazelcast. This is must be unique in the
@@ -38,6 +40,7 @@ public abstract class Component implements Serializable {
 	 * 
 	 * @return The entity id to which this component is attached.
 	 */
+	@JsonProperty("eid")
 	public long getEntityId() {
 		return entityId;
 	}

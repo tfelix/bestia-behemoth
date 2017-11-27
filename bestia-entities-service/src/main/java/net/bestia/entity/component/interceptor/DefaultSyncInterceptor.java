@@ -85,7 +85,7 @@ public class DefaultSyncInterceptor extends BaseComponentInterceptor<Component> 
 			return;
 		}
 
-		final EntityComponentMessage ecm = new EntityComponentMessage(0, entity.getId(), comp);
+		final EntityComponentMessage ecm = new EntityComponentMessage(0, comp);
 		ComponentSync syncAnno = comp.getClass().getAnnotation(ComponentSync.class);
 
 		if (syncAnno.value() == SyncType.ALL) {

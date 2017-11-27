@@ -1,5 +1,6 @@
 package net.bestia.messages.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import net.bestia.entity.component.Component;
 import net.bestia.messages.EntityJsonMessage;
@@ -32,8 +33,8 @@ public class EntityComponentMessage extends EntityJsonMessage {
 	 * @param accId    The account ID receiving this message.
 	 * @param entityId The entity this message is related to.
 	 */
-	public EntityComponentMessage(long accId, long entityId, Component component) {
-		super(accId, entityId);
+	public EntityComponentMessage(long accId, Component component) {
+		super(accId, component.getEntityId());
 
 		this.component = Objects.requireNonNull(component);
 	}
@@ -41,10 +42,16 @@ public class EntityComponentMessage extends EntityJsonMessage {
 	public Component getComponent() {
 		return component;
 	}
+	
+	@JsonIgnore
+	@Override
+	public long getEntityId() {
+		return super.getEntityId();
+	}
 
 	@Override
 	public JsonMessage createNewInstance(long accountId) {
-		return new EntityComponentMessage(accountId, getEntityId(), component);
+		return new EntityComponentMessage(accountId, component);
 	}
 
 	@Override

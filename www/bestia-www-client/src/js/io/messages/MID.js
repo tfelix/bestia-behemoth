@@ -27,6 +27,8 @@ var MID = {
 	ENTITY_POSITION: 'entity.position',
 	ENTITY_MOVE: 'entity.move',
 	ENTITY_STATUS: 'entity.status',
+	ENTITY_COMPONENT_UPDATE: 'entity.comp',
+	ENTITY_COMPONENT_DELETE: 'entity.comp.del',
 	
 	MAP_TILESET: 'map.tileset',
 	MAP_TILESET_REQUEST: 'map.tilesetrequest',

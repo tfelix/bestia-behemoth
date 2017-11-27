@@ -4,9 +4,10 @@ package net.bestia.model.geometry;
  * The interface provides a common interface for the existing collision shapes.
  * These are used by the game to determine if a collision has happened.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
+//@JsonTypeInfo(include=As.WRAPPER_OBJECT, use=Id.NAME)
 public interface CollisionShape {
 
 	/**

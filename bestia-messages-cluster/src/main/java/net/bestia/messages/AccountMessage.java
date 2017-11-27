@@ -37,6 +37,7 @@ public abstract class AccountMessage extends Message {
 	 * 
 	 * @return
 	 */
+	@JsonProperty("aid")
 	public long getAccountId() {
 		return accountId;
 	}
