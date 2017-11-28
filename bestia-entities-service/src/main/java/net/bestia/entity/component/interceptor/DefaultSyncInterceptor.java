@@ -87,7 +87,7 @@ public class DefaultSyncInterceptor extends BaseComponentInterceptor<Component> 
 		}
 
 		final EntityComponentMessage ecm = new EntityComponentMessage(0, comp);
-		ComponentSync syncAnno = comp.getClass().getAnnotation(ComponentSync.class);
+		final ComponentSync syncAnno = comp.getClass().getAnnotation(ComponentSync.class);
 
 		if (syncAnno.value() == SyncType.ALL) {
 			msgApi.sendToActiveClientsInRange(ecm);
