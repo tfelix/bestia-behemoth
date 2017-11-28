@@ -139,10 +139,8 @@ public class MovingService {
 
 		LOG.trace("Moving entity {} to postition: {}. Facing: {}", entityId, newPos, newFacing);
 
-		// Check if a new collision has occurred and if necessary trigger
+		// TODO Check if a new collision has occurred and if necessary trigger
 		// scripts.
-
-		// Update all AI actors.
 
 		entityService.updateComponent(posComp);
 	}

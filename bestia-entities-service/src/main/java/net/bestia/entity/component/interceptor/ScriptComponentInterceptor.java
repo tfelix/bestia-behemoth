@@ -13,16 +13,25 @@ import net.bestia.entity.component.ScriptComponent;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.internal.entity.EntityComponentStateMessage;
 
+/**
+ * This cleans only up if the script component gets removed. Not all script
+ * components will lead to the installation of a PeriodicScriptActor. Only when
+ * called via the script this actor is created. Removal must be done
+ * automatically. Thats the job of this interceptor.
+ * 
+ * @author Thomas Felix
+ *
+ */
 @Component
 public class ScriptComponentInterceptor extends BaseComponentInterceptor<ScriptComponent> {
-	
+
 	private static final Logger LOG = LoggerFactory.getLogger(ScriptComponentInterceptor.class);
 	private final MessageApi akkaApi;
 
 	@Autowired
 	public ScriptComponentInterceptor(MessageApi akkaApi) {
 		super(ScriptComponent.class);
-		
+
 		this.akkaApi = Objects.requireNonNull(akkaApi);
 	}
 

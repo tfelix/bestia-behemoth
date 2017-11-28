@@ -9,12 +9,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
+import net.bestia.entity.component.ComponentActor;
 import net.bestia.entity.component.ComponentSync;
 import net.bestia.entity.component.PlayerComponent;
 import net.bestia.entity.component.SyncType;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.entity.EntityComponentDeleteMessage;
 import net.bestia.messages.entity.EntityComponentMessage;
+import net.bestia.messages.internal.entity.EntityComponentStateMessage;
 
 /**
  * This component interceptor will test all components if a change will lead to
@@ -54,8 +56,14 @@ public class DefaultSyncInterceptor extends BaseComponentInterceptor<Component> 
 	protected void onDeleteAction(EntityService entityService, Entity entity, Component comp) {
 		LOG.debug("Component {} is deleted.", comp);
 
+		// Start the component actor if it is annotated that way.
+		if (comp.getClass().isAnnotationPresent(ComponentActor.class)) {
+			final EntityComponentStateMessage msg = EntityComponentStateMessage.remove(comp.getEntityId(),
+					comp.getId());
+			msgApi.sendToEntity(msg);
+		}
+
 		// TODO Hier fehlt noch der check.
-		
 		final EntityComponentDeleteMessage ecdMsg = new EntityComponentDeleteMessage(0, entity.getId(), comp.getId());
 		msgApi.sendToActiveClientsInRange(ecdMsg);
 	}
@@ -63,12 +71,21 @@ public class DefaultSyncInterceptor extends BaseComponentInterceptor<Component> 
 	@Override
 	protected void onUpdateAction(EntityService entityService, Entity entity, Component comp) {
 		LOG.debug("Component {} is updated.", comp);
+
 		performComponentSync(entityService, entity, comp);
 	}
 
 	@Override
 	protected void onCreateAction(EntityService entityService, Entity entity, Component comp) {
 		LOG.debug("Component {} is created.", comp);
+
+		// Start the component actor if it is annotated that way.
+		if (comp.getClass().isAnnotationPresent(ComponentActor.class)) {
+			final EntityComponentStateMessage msg = EntityComponentStateMessage.install(comp.getEntityId(),
+					comp.getId());
+			msgApi.sendToEntity(msg);
+		}
+
 		performComponentSync(entityService, entity, comp);
 	}
 
@@ -92,12 +109,13 @@ public class DefaultSyncInterceptor extends BaseComponentInterceptor<Component> 
 		if (syncAnno.value() == SyncType.ALL) {
 			msgApi.sendToActiveClientsInRange(ecm);
 		} else {
-			// Message should be send to a single clients. Thus we need to get the receiving account id.
+			// Message should be send to a single clients. Thus we need to get
+			// the receiving account id.
 			entityService.getComponent(entity, PlayerComponent.class).ifPresent(pc -> {
 				final long receivingAccId = pc.getOwnerAccountId();
 				msgApi.sendToClient(ecm.createNewInstance(receivingAccId));
 			});
-			
+
 		}
 	}
 }

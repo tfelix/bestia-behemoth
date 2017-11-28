@@ -20,7 +20,8 @@ import net.bestia.zoneserver.actor.entity.component.StatusComponentActor;
 
 /**
  * Depending on the given component ID this factory will create an actor
- * suitable for the component.
+ * suitable for the component. This is currently done by checking the annotation
+ * of the component.
  * 
  * @author Thomas Felix
  *
@@ -68,16 +69,57 @@ public class EntityComponentActorFactory {
 			return null;
 		}
 
+		ActorRef actor = startActorByAnnotation(ctx, comp);
+
+		// Das hier bald weglassen.
+		if (actor == null) {
+			actor = startActorByLegacyLookup(ctx, comp);
+		}
+
+		return actor;
+	}
+
+	private ActorRef startActorByAnnotation(ActorContext ctx, Component comp) {
+		if (!comp.getClass().isAnnotationPresent(ComponentActor.class)) {
+			LOG.warn("Component {} (id: {}) has now ComponentActor annotation. Can not create Actor.",
+					comp.getClass().getName(), comp.getId());
+			return null;
+		}
+
+		final ComponentActor compActor = comp.getClass().getAnnotation(ComponentActor.class);
+		try {
+			final Class<?> actorClass = Class.forName(compActor.value());
+			final ActorRef actorRef = buildActor(ctx, comp);
+
+			LOG.debug("Starting componenent actor: {} ({}) for entity: {}.",
+					actorClass.getSimpleName(),
+					comp.getId(),
+					comp.getEntityId());
+
+			return actorRef;
+		} catch (ClassNotFoundException e) {
+			LOG.warn("Could not start ComponentActor. Class not found: {}.", compActor.value());
+			return null;
+		}
+	}
+
+	/**
+	 * Old version to start actors. Will be replaced by annotation.
+	 * 
+	 * @deprecated
+	 */
+	private ActorRef startActorByLegacyLookup(ActorContext ctx, Component comp) {
+
 		final Class<? extends Component> compClazz = comp.getClass();
 
 		if (!ACTOR_FOR_COMPONENTS.containsKey(compClazz)) {
-			LOG.warn("Component {} (id: {}) has now factory module attached.", compClazz.getName(), componentId);
+			LOG.warn("Component {} (id: {}) has now factory module attached.", compClazz.getName(), comp.getId());
 			return null;
 		}
 
 		final ActorRef compActor = buildActor(ctx, comp);
 
-		LOG.debug("Starting componenent actor: {} ({}) for entity: {}.", compClazz.getSimpleName(), componentId,
+		LOG.debug("Starting componenent actor: {} ({}) for entity: {}.", compClazz.getSimpleName(), comp.getId(),
 				comp.getEntityId());
 
 		return compActor;

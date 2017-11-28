@@ -17,6 +17,11 @@ import java.lang.annotation.Retention;
  */
 public @interface ComponentActor {
 
-
+	/**
+	 * Fully qualified actor name to get spawned if this component is
+	 * installed.
+	 * 
+	 * @return
+	 */
 	String value();
 }

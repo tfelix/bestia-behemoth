@@ -122,7 +122,7 @@ public class EntitySyncActor extends AbstractActor {
 			sendClient.tell(updateMsg, getSelf());
 		}
 
-		// NEW API
+		// TODO auf NEW API umstellen. (Components)
 		final List<net.bestia.entity.component.Component> test = entityService.getCollidingEntities(updateRect)
 				.stream()
 				.map(e -> entityService.getAllComponents(e))
