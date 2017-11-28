@@ -8,7 +8,7 @@ import java.util.Objects;
  * @author Thomas Felix
  *
  */
-@ComponentSync(SyncType.OWNER)
+@ComponentSync(SyncType.ALL)
 public class LevelComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
@@ -39,6 +39,8 @@ public class LevelComponent extends Component {
 		this.level = level;
 	}
 
+	// FIXME Die EXP nur an eigene entities aussenden. Fremde entities sollten
+	// das nicht bekommen. Dynamisch per jackson blocken?
 	public int getExp() {
 		return exp;
 	}

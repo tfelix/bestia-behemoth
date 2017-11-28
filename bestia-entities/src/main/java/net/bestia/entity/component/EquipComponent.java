@@ -14,6 +14,7 @@ import net.bestia.model.domain.Item;
  * @author Thomas Felix
  *
  */
+@ComponentSync(SyncType.OWNER)
 public class EquipComponent extends Component {
 
 	private static final long serialVersionUID = 1L;

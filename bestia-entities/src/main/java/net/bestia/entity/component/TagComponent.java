@@ -11,6 +11,7 @@ import java.util.Objects;
  * @author Thomas Felix
  *
  */
+@ComponentSync(SyncType.ALL)
 public class TagComponent extends Component {
 
 	private static final long serialVersionUID = 1L;

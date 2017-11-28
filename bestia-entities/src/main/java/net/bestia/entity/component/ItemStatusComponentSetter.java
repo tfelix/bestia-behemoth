@@ -7,7 +7,7 @@ import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
 
 /**
- * Items have a lookup table for their status values. Their status values are
+ * Item entities have a lookup table for their status values. Their status values are
  * dependent upon their level. Special values are changed 
  * 
  * @author Thomas Felix

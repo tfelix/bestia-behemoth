@@ -1,6 +1,3 @@
-/**
- * 
- */
 package net.bestia.entity.component;
 
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
