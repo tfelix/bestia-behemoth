@@ -34,7 +34,7 @@ public class ComponentInterceptorConfiguration {
 			MessageApi msgApi) {
 
 		final Interceptor interceptor = new Interceptor(interceptors);
-		interceptor.addInterceptor(new DefaultSyncInterceptor(msgApi));
+		interceptor.addDefaultInterceptor((new DefaultSyncInterceptor(msgApi)));
 
 		return interceptor;
 	}

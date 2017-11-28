@@ -2,7 +2,7 @@ package net.bestia.entity.component;
 
 import java.io.Serializable;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Each component needs a unique ID because this is required by the way
@@ -40,7 +40,7 @@ public abstract class Component implements Serializable {
 	 * 
 	 * @return The entity id to which this component is attached.
 	 */
-	@JsonProperty("eid")
+	@JsonIgnore
 	public long getEntityId() {
 		return entityId;
 	}

@@ -21,7 +21,9 @@ import net.bestia.entity.component.Component;
 public class Interceptor {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Interceptor.class);
+	
 	private final Map<Class<? extends Component>, List<BaseComponentInterceptor<? extends Component>>> interceptors = new HashMap<>();
+	private BaseComponentInterceptor<Component> defaultInterceptor;
 
 	public Interceptor(List<BaseComponentInterceptor<? extends Component>> interceptors) {
 		Objects.requireNonNull(interceptors);
@@ -47,6 +49,15 @@ public class Interceptor {
 
 		interceptors.get(triggerType).add(interceptor);
 	}
+	
+	/**
+	 * Sets the default interceptor.
+	 * 
+	 * @param interceptor
+	 */
+	public void addDefaultInterceptor(BaseComponentInterceptor<Component> interceptor) {
+		this.defaultInterceptor = interceptor;
+	}
 
 	/**
 	 * Checks if the entity owns the component. If not an
@@ -65,6 +76,10 @@ public class Interceptor {
 		if (!ownsComponent(entity, component)) {
 			return;
 		}
+		
+		if(defaultInterceptor != null) {
+			defaultInterceptor.triggerUpdateAction(entityService, entity, component);
+		}
 
 		// Check possible interceptors.
 		if (interceptors.containsKey(component.getClass())) {
@@ -81,6 +96,10 @@ public class Interceptor {
 		if (!ownsComponent(entity, component)) {
 			return;
 		}
+		
+		if(defaultInterceptor != null) {
+			defaultInterceptor.triggerCreateAction(entityService, entity, component);
+		}
 
 		if (interceptors.containsKey(component.getClass())) {
 			LOG.debug("Intercepting created component {} for: {}.", component, entity);
@@ -95,6 +114,10 @@ public class Interceptor {
 	public void interceptDeleted(EntityService entityService, Entity entity, Component component) {
 		if (!ownsComponent(entity, component)) {
 			return;
+		}
+		
+		if(defaultInterceptor != null) {
+			defaultInterceptor.triggerDeleteAction(entityService, entity, component);
 		}
 
 		// Check possible interceptors.
