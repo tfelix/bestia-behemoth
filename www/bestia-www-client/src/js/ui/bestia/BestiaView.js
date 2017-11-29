@@ -15,10 +15,8 @@ import LOG from '../../util/Log';
  * 
  * @class Bestia.BestiaInfoViewModel
  * @constructor
- * @param {PubSub}
- *            pubsub - Publish/Subscriber interface.
- * @param {UrlHelper}
- *            urlHelper - Helper for resolving URLs.
+ * @param {PubSub} pubsub - Publish/Subscriber interface.
+ * @param {UrlHelper} urlHelper - Helper for resolving URLs.
  */
 export default class BestiaView {
 

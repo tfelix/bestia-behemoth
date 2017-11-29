@@ -1,5 +1,5 @@
 /**
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  * @copyright 2015 Thomas Felix
  */
 
@@ -17,7 +17,7 @@ export default class Authenticator {
 	
 	/**
 	 * 
-	 * @param {Pubsub} pubsub 
+	 * @param {PubSub} pubsub 
 	 * @param {Storage} storage 
 	 */
 	constructor(pubsub, storage) {
@@ -66,7 +66,7 @@ export default class Authenticator {
 			this._pubsub.publish(Signal.IO_AUTH_ERROR);
 			this._pubsub.publish(Signal.IO_DISCONNECT);
 			// Go to login if there is wrong data.
-			if(window && windows.location) {
+			if(window && window.location) {
 				window.location.replace(Urls.loginHtml);
 			}
 		}
@@ -77,8 +77,7 @@ export default class Authenticator {
 	 * everything is looking good. Otherwise false.
 	 * 
 	 * @private
-	 * @param {Object}
-	 *            data - The data object containting the login data.
+	 * @param {Object} data - The data object containting the login data.
 	 * @method Bestia.Connection#checkLoginData
 	 * @returns TRUE if all the login data is existing. FALSE if there is something
 	 *          missing or an error.
@@ -95,10 +94,10 @@ export default class Authenticator {
 		if (!state || data.token === undefined) {
 			LOG.error('Login: token missing.');
 			state = false;
-		} else if (!state | data.accId === undefined) {
+		} else if (!state || data.accId === undefined) {
 			LOG.error('Login: account id missing.');
 			state = false;
-		} else if (!state | data.username === undefined) {
+		} else if (!state || data.username === undefined) {
 			LOG.error('Login: username missing.');
 			state = false;
 		}

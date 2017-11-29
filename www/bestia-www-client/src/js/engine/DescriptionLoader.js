@@ -20,8 +20,7 @@ export default class DescriptionLoader {
 	 * the data object. The DescriptionLoader will try to determine its name
 	 * then from the data object.
 	 * 
-	 * @param {String}
-	 *            name - The name of the sprite/visual description file.
+	 * @param {String} name - The name of the sprite/visual description file.
 	 */
 	getDescription(name) {
 		if ((typeof name) !== 'string') {
@@ -36,11 +35,8 @@ export default class DescriptionLoader {
 	 * loaded the callback function will be executed. It will get the
 	 * description file object as an argument.
 	 * 
-	 * @param {object}
-	 *            data - Object describing the description.
-	 * @param {function}
-	 *            fnCallback - Callback function. Executed when the data was
-	 *            loaded.
+	 * @param {object} data - Object describing the description.
+	 * @param {function} fnCallback - Callback function. Executed when the data was loaded.
 	 */
 	loadDescription(data, fnCallback) {
 		fnCallback = fnCallback || NOOP;
@@ -85,8 +81,7 @@ export default class DescriptionLoader {
 	/**
 	 * Returns the sprite name from the given data object.
 	 * 
-	 * @param {object}
-	 *            data
+	 * @param {object} data
 	 */
 	_getNameFromData(data) {
 		return data.sprite.name;

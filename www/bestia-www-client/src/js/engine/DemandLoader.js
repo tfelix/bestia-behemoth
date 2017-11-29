@@ -44,7 +44,7 @@ export default class DemandLoader {
 	 * Performs an async loading of the given pack via the pubsub system.
 	 */
 	_asyncLoadPack(_, msg) {
-		this.loadPack(msg.data, msg.callback);
+		this.loadPackData(msg.data, msg.callback);
 	}
 
 	_fileLoadedCallback(progress, key) {
@@ -167,7 +167,7 @@ export default class DemandLoader {
 			case 'json':
 				return this._phaserCache.checkJSONKey(key);
 			default:
-				console.warn('_hasLoaded: Unknown type.');
+				LOG.warn('_hasLoaded: Unknown type.');
 				return false;
 
 		}
@@ -247,7 +247,7 @@ export default class DemandLoader {
 	 */
 	load(data, fnOnComplete) {
 		if (Array.isArray(data)) {
-			console.error('Loading of arrays not yet supported.');
+			LOG.error('Loading of arrays not yet supported.');
 			return;
 		}
 

@@ -59,7 +59,6 @@ ko.components.register('bestia-inventory', {
 	template: { fromUrl: 'inventory.html' }
 });
 
-
 ko.components.register('bestia-attacks', {
 	viewModel: {
 		createViewModel: function () {
@@ -69,7 +68,6 @@ ko.components.register('bestia-attacks', {
 	template: { fromUrl: 'attacks.html' }
 });
 
-
 ko.components.register('bestia-shortcuts', {
 	viewModel: {
 		createViewModel: function () {
@@ -78,7 +76,6 @@ ko.components.register('bestia-shortcuts', {
 	},
 	template: { fromUrl: 'shortcuts.html' }
 });
-
 
 ko.components.register('bestia-overview', {
 	viewModel: { instance: bestiaView },
