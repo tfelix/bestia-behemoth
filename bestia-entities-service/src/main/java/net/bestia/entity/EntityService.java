@@ -370,7 +370,9 @@ public class EntityService {
 		components.lock(component.getId());
 		try {
 			// Check if the component actually needs an update.
-			if (getComponent(component.getId()).equals(component)) {
+			// Component might be null if this was called via attach component.
+			final Component oldComponent = getComponent(component.getId());
+			if (oldComponent != null && oldComponent.equals(component)) {
 				return;
 			}
 
@@ -629,7 +631,14 @@ public class EntityService {
 	 * @return The requested of created component.
 	 */
 	public <T extends Component> T getComponentOrCreate(Entity e, Class<T> clazz) {
-		return getComponent(e, clazz).orElse(newComponent(clazz));
+		final Optional<T> optComp = getComponent(e, clazz);
+		if(optComp.isPresent()) {
+			return optComp.get();
+		} else {
+			final T comp = newComponent(clazz);
+			attachComponent(e, comp);
+			return comp;
+		}
 	}
 
 	/**

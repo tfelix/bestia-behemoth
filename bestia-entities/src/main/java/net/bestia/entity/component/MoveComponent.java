@@ -9,8 +9,8 @@ import net.bestia.model.geometry.Point;
 
 /**
  * If this component is added to an entity it will start moving along the path
- * saved into this component. If the path is completely resolved the component is
- * removed.
+ * saved into this component. If the path is completely resolved the component
+ * is removed.
  * 
  * @author Thomas Felix
  *
@@ -20,7 +20,7 @@ import net.bestia.model.geometry.Point;
 public class MoveComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private final Queue<Point> path = new LinkedList<>();
 
 	public MoveComponent(long id) {
@@ -30,6 +30,18 @@ public class MoveComponent extends Component {
 
 	public Queue<Point> getPath() {
 		return path;
+	}
+
+	public void setPath(Collection<Point> path) {
+		this.path.clear();
+		this.path.addAll(path);
+	}
+
+	@Override
+	public String toString() {
+		return String.format("MoveComponent[id: %d, eid: %d, path: %s]", getId(),
+				getEntityId(),
+				path);
 	}
 
 	@Override
@@ -57,10 +69,5 @@ public class MoveComponent extends Component {
 			return false;
 		}
 		return true;
-	}
-
-	public void setPath(Collection<Point> path) {
-		this.path.clear();
-		this.path.addAll(path);
 	}
 }

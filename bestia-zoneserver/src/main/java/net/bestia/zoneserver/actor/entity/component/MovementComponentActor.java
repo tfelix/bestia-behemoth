@@ -93,6 +93,7 @@ public class MovementComponentActor extends AbstractActor {
 	 */
 	private void handleMoveTick() {
 
+		// TODO Diese logik evtl in den MovingService überführen.
 		final Optional<MoveComponent> optMc = entityService.getComponent(entityId, MoveComponent.class);
 		
 		if(optMc.isPresent()) {
@@ -110,6 +111,8 @@ public class MovementComponentActor extends AbstractActor {
 				final int moveDelay = movingService.getMoveDelayMs(entityId, path.peek()) / 2;
 				LOG.debug("MoveCompActor: moveTo: {}, nextMove: {} in: {} ms.", nextPoint, path.peek(), moveDelay);
 				setupMoveTick(moveDelay);
+				// Save the updated move component.
+				entityService.updateComponent(optMc.get());
 			}
 		} else {
 			getContext().stop(getSelf());
