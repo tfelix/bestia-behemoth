@@ -133,7 +133,7 @@ public class EntitySyncActor extends AbstractActor {
 				.collect(Collectors.toList());
 		
 		test.forEach(c -> {
-			final EntityComponentMessage ecm = new EntityComponentMessage(0, c);
+			final EntityComponentMessage ecm = new EntityComponentMessage(0, c, 0);
 			ComponentSync syncAnno = c.getClass().getAnnotation(ComponentSync.class);
 			
 			if (syncAnno.value() == SyncType.ALL) {

@@ -23,6 +23,9 @@ public class EntityComponentMessage extends EntityJsonMessage {
 
 	@JsonProperty("c")
 	private final Component component;
+	
+	@JsonProperty("l")
+	private final int latency;
 
 	/**
 	 * For Jackson.
@@ -31,6 +34,7 @@ public class EntityComponentMessage extends EntityJsonMessage {
 		super(0, 0);
 		component = null;
 		componentName = null;
+		latency = 0;
 	}
 
 	/**
@@ -39,12 +43,17 @@ public class EntityComponentMessage extends EntityJsonMessage {
 	 * @param entityId
 	 *            The entity this message is related to.
 	 */
-	public EntityComponentMessage(long accId, Component component) {
+	public EntityComponentMessage(long accId, Component component, int latency) {
 		super(accId, component.getEntityId());
+		
+		if(latency < 0) {
+			throw new IllegalArgumentException("Latency can not be negative.");
+		}
 
 		Objects.requireNonNull(component);
 		this.componentName = component.getClass().getSimpleName().toUpperCase().replace("COMPONENT", "");
 		this.component = component;
+		this.latency = latency;
 	}
 
 	public Component getComponent() {
@@ -59,7 +68,11 @@ public class EntityComponentMessage extends EntityJsonMessage {
 
 	@Override
 	public JsonMessage createNewInstance(long accountId) {
-		return new EntityComponentMessage(accountId, component);
+		return new EntityComponentMessage(accountId, component, 0);
+	}
+	
+	public JsonMessage createNewInstance(long accountId, int latency) {
+		return new EntityComponentMessage(accountId, component, latency);
 	}
 
 	@Override

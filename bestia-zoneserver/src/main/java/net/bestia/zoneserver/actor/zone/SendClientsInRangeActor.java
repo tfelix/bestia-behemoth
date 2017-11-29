@@ -49,6 +49,7 @@ public class SendClientsInRangeActor extends AbstractActor {
 		this.entityService = Objects.requireNonNull(entityService);
 		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
+		
 	}
 
 	@Override
@@ -82,9 +83,8 @@ public class SendClientsInRangeActor extends AbstractActor {
 
 		final List<Long> activeIds = playerEntityService.getActiveAccountIdsInRange(updateRect);
 
-		for (Long activeId : activeIds) {
-			final JsonMessage newMsg = msg.createNewInstance(activeId);
-			
+		for (Long activeId : activeIds) {		
+			final JsonMessage newMsg = msg.createNewInstance(activeId);		
 			sendClient.tell(newMsg, getSelf());
 		}
 	}
