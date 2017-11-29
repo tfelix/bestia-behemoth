@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.actor.chat;
+package net.bestia.zoneserver.actor.map;
 
 import java.util.Objects;
 
@@ -7,14 +7,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
-import akka.actor.ActorRef;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.component.PositionComponent;
+import net.bestia.entity.component.MoveComponent;
 import net.bestia.messages.entity.EntityMoveRequestMessage;
-import net.bestia.messages.internal.entity.ComponentEnvelope;
-import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
-import net.bestia.zoneserver.actor.zone.SendEntityActor;
 
 /**
  * Incoming player requests to move a bestia must be send towards the actor of
@@ -28,13 +24,11 @@ import net.bestia.zoneserver.actor.zone.SendEntityActor;
 @Scope("prototype")
 public class PlayerMoveRequestActor extends AbstractActor {
 
-	private final ActorRef entityActor;
 	private final EntityService entityService;
 
 	@Autowired
 	public PlayerMoveRequestActor(EntityService entityService) {
 
-		this.entityActor = SpringExtension.actorOf(getContext(), SendEntityActor.class);
 		this.entityService = Objects.requireNonNull(entityService);
 	}
 
@@ -53,11 +47,10 @@ public class PlayerMoveRequestActor extends AbstractActor {
 	}
 
 	private void handleMoveRequest(EntityMoveRequestMessage msg) {
-
-		entityService.getComponent(msg.getEntityId(), PositionComponent.class).ifPresent(posComp -> {
-			final ComponentEnvelope ce = new ComponentEnvelope(msg.getEntityId(), posComp.getId(), msg);
-			entityActor.tell(ce, getSender());
-		});
+		
+		final MoveComponent mc = entityService.getComponentOrCreate(msg.getEntityId(), MoveComponent.class);
+		mc.setPath(msg.getPath());
+		entityService.updateComponent(mc);
 
 	}
 }

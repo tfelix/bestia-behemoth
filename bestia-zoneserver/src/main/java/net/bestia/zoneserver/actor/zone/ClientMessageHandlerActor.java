@@ -21,12 +21,12 @@ import net.bestia.zoneserver.actor.battle.AttackUseActor;
 import net.bestia.zoneserver.actor.bestia.ActivateBestiaActor;
 import net.bestia.zoneserver.actor.bestia.BestiaInfoActor;
 import net.bestia.zoneserver.actor.chat.ChatActor;
-import net.bestia.zoneserver.actor.chat.PlayerMoveRequestActor;
 import net.bestia.zoneserver.actor.connection.LatencyManagerActor;
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor;
 import net.bestia.zoneserver.actor.entity.EntitySyncActor;
 import net.bestia.zoneserver.actor.inventory.ListInventoryActor;
 import net.bestia.zoneserver.actor.map.MapRequestChunkActor;
+import net.bestia.zoneserver.actor.map.PlayerMoveRequestActor;
 import net.bestia.zoneserver.actor.map.TilesetRequestActor;
 import net.bestia.zoneserver.actor.ui.ClientVarActor;
 
