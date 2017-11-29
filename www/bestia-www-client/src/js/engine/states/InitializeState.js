@@ -7,8 +7,9 @@ import { DebugRenderer } from '../renderer/DebugRenderer';
 import { EntityMenuRenderer } from '../renderer/EntityMenuRenderer';
 import IndicatorManager from '../indicator/IndicatorManager';
 import DemandLoader from '../DemandLoader';
-import { engineContext } from '../EngineData';
+import { engineContext, entityCache } from '../EngineData';
 import EntityUpdater from '../entities/EntityUpdater';
+import EntityComponentUpdater from '../EntityComponentUpdater';
 
 /**
  * The state is triggered for the first game loading. A real loading screen will
@@ -37,6 +38,7 @@ export default class InitializeState {
 		engineContext.loader = new DemandLoader(this);
 		engineContext.indicatorManager = new IndicatorManager();
 		engineContext.entityUpdater = new EntityUpdater(engineContext.pubsub);
+		engineContext.entityComponentUpdater = new EntityComponentUpdater(engineContext.pubsub, entityCache);
 
 
 		// ==== PREPARE RENDERER ====

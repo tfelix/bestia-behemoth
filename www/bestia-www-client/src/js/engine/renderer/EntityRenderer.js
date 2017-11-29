@@ -1,5 +1,5 @@
 import Renderer from './Renderer';
-import { spriteCache, entityCache, engineContext } from '../EngineData';
+import { spriteCache, entityCache, engineContext, entityComponentUpdater } from '../EngineData';
 import { MovementTrait } from '../entities/traits/MovementTrait';
 import { VisualTrait } from '../entities/traits/VisualTrait';
 import { ChatTrait } from '../entities/traits/ChatTrait';
@@ -26,8 +26,7 @@ export default class EntityRenderer extends Renderer {
 	}
 
 	isDirty() {
-		// Currently we render each step.
-		return true;
+		return entityComponentUpdater.getDirtyEntityIds().length > 0;
 	}
 
 	clear() {
@@ -43,7 +42,11 @@ export default class EntityRenderer extends Renderer {
      * to display stuff attached to this entity.
      */
 	update() {
-		entityCache.getAllEntities().forEach(function (entity) {
+		
+		entityComponentUpdater.getDirtyEntityIds().forEach(function (entityId) {
+			
+			var entity = entityCache.getEntity(entityId);
+			
 			this.traits.forEach(function (trait) {
 				if (trait.hasTrait(entity)) {
 					// Iterate over all entities and try to get the sprite and
@@ -53,5 +56,7 @@ export default class EntityRenderer extends Renderer {
 				}
 			}, this);
 		}, this);
+
+		entityComponentUpdater.resetDirtyEntityIds();
 	}
 }

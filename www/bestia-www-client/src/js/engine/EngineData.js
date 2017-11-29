@@ -12,7 +12,11 @@ var spriteCache = new PhaserSpriteCache();
 var entityCache = new EntityCacheEx();
 var pathfinder = new Pathfinder();
 var descriptionCache = new SpriteDescriptionCache();
+var entityComponentUpdater = null;
 
+/**
+ * The engine context ist setup inside the initialize state.
+ */
 var engineContext = {
 	pubsub: null,
 	renderManager: null,
@@ -28,5 +32,6 @@ export {
 	entityCache,
 	engineContext,
 	pathfinder,
+	entityComponentUpdater,
 	descriptionCache
 };

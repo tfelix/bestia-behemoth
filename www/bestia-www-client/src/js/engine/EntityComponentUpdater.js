@@ -5,11 +5,12 @@ import MID from '../io/messages/MID';
  * data to keep it in sync with the server.
  * The engine should access this information to render the entities.
  */
-export default class EntityComponentUpdates {
+export default class EntityComponentUpdater {
 
 	constructor(pubsub, entityCache) {
 
 		this._entityCache = entityCache;
+		this._dirtyEntityIds = [];
 
 		pubsub.subscribe(MID.ENTITY_COMPONENT_UPDATE, this._onComponentUpdate);
 		pubsub.subscribe(MID.ENTITY_COMPONENT_DELETE, this._onComponentDelete);
@@ -27,7 +28,7 @@ export default class EntityComponentUpdates {
 		}
 
 		e.components[msg.ct] = msg.c;
-		e.isDirty = true;
+		this._dirtyEntityIds.push(msg.eid);
 	}
 
     /**
@@ -40,7 +41,7 @@ export default class EntityComponentUpdates {
 			// in the next pass.
 			e.componentsDeleted[msg.cid] = e.components[msg.cid];
 			delete e.components[msg.cid];
-			e.isDirty = true;
+			this._dirtyEntityIds.push(msg.eid);
 		}
 	}
 
@@ -66,5 +67,16 @@ export default class EntityComponentUpdates {
 		}
 
 		return entity;
+	}
+
+	/**
+	 * 
+	 */
+	getDirtyEntityIds() {
+		return this._dirtyEntityIds;
+	}
+
+	resetDirtyEntityIds() {
+		this._dirtyEntityIds = [];
 	}
 }
