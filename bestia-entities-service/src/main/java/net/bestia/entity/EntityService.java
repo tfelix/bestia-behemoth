@@ -21,6 +21,7 @@ import com.hazelcast.core.IdGenerator;
 
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.EntityCache;
+import net.bestia.entity.component.MoveComponent;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.interceptor.Interceptor;
 import net.bestia.messages.MessageApi;
@@ -458,6 +459,19 @@ public class EntityService {
 
 		saveEntity(entity);
 	}
+	
+	/**
+	 * Alias for {@link #deleteComponent(Entity, Component)}.
+	 * @param entityId
+	 * @param clazz
+	 */
+	public void deleteComponent(long entityId, Class<MoveComponent> clazz) {
+		
+		getComponent(entityId, clazz).ifPresent(c -> {
+			deleteComponent(getEntity(entityId), c);
+		});
+			
+	}
 
 	/**
 	 * Removes all the components from the entity.
@@ -616,5 +630,18 @@ public class EntityService {
 	 */
 	public <T extends Component> T getComponentOrCreate(Entity e, Class<T> clazz) {
 		return getComponent(e, clazz).orElse(newComponent(clazz));
+	}
+
+	/**
+	 * Alias for {@link #getComponentOrCreate(Entity, Class)}.
+	 * 
+	 * @param entityId
+	 *            The entity id to fetch or create a component for.
+	 * @param clazz
+	 *            The component to create.
+	 * @return The component.
+	 */
+	public <T extends Component> T getComponentOrCreate(long entityId, Class<T> clazz) {
+		return getComponentOrCreate(getEntity(entityId), clazz);
 	}
 }

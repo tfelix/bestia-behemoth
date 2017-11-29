@@ -73,6 +73,8 @@ public class DefaultSyncInterceptor extends BaseComponentInterceptor<Component> 
 		LOG.debug("Component {} is updated.", comp);
 
 		performComponentSync(entityService, entity, comp);
+		
+		// TODO vielleicht ist es nützlich hier die aktoren zu benachrichtigen.
 	}
 
 	@Override

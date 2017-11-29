@@ -1,8 +1,5 @@
 package net.bestia.entity.component;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -14,9 +11,6 @@ import akka.actor.ActorContext;
 import akka.actor.ActorRef;
 import net.bestia.entity.EntityService;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.entity.component.MovementComponentActor;
-import net.bestia.zoneserver.actor.entity.component.ScriptComponentActor;
-import net.bestia.zoneserver.actor.entity.component.StatusComponentActor;
 
 /**
  * Depending on the given component ID this factory will create an actor
@@ -32,18 +26,6 @@ public class EntityComponentActorFactory {
 	private static final Logger LOG = LoggerFactory.getLogger(EntityComponentActorFactory.class);
 
 	private final EntityService entityService;
-
-	private static final Map<Class<? extends Component>, Class<? extends AbstractActor>> ACTOR_FOR_COMPONENTS;
-
-	static {
-		Map<Class<? extends Component>, Class<? extends AbstractActor>> actorForComp = new HashMap<>();
-
-		actorForComp.put(StatusComponent.class, StatusComponentActor.class);
-		actorForComp.put(ScriptComponent.class, ScriptComponentActor.class);
-		actorForComp.put(PositionComponent.class, MovementComponentActor.class);
-
-		ACTOR_FOR_COMPONENTS = Collections.unmodifiableMap(actorForComp);
-	}
 
 	@Autowired
 	public EntityComponentActorFactory(EntityService entityService) {
@@ -69,14 +51,7 @@ public class EntityComponentActorFactory {
 			return null;
 		}
 
-		ActorRef actor = startActorByAnnotation(ctx, comp);
-
-		// Das hier bald weglassen.
-		if (actor == null) {
-			actor = startActorByLegacyLookup(ctx, comp);
-		}
-
-		return actor;
+		return startActorByAnnotation(ctx, comp);
 	}
 
 	private ActorRef startActorByAnnotation(ActorContext ctx, Component comp) {
@@ -88,8 +63,13 @@ public class EntityComponentActorFactory {
 
 		final ComponentActor compActor = comp.getClass().getAnnotation(ComponentActor.class);
 		try {
-			final Class<?> actorClass = Class.forName(compActor.value());
-			final ActorRef actorRef = buildActor(ctx, comp);
+			@SuppressWarnings("unchecked")
+			final Class<? extends AbstractActor> actorClass = (Class<? extends AbstractActor>) Class.forName(compActor.value());
+			
+			final ActorRef actorRef = SpringExtension.actorOf(ctx,
+					actorClass,
+					null,
+					comp.getEntityId());
 
 			LOG.debug("Starting componenent actor: {} ({}) for entity: {}.",
 					actorClass.getSimpleName(),
@@ -101,40 +81,5 @@ public class EntityComponentActorFactory {
 			LOG.warn("Could not start ComponentActor. Class not found: {}.", compActor.value());
 			return null;
 		}
-	}
-
-	/**
-	 * Old version to start actors. Will be replaced by annotation.
-	 * 
-	 * @deprecated
-	 */
-	private ActorRef startActorByLegacyLookup(ActorContext ctx, Component comp) {
-
-		final Class<? extends Component> compClazz = comp.getClass();
-
-		if (!ACTOR_FOR_COMPONENTS.containsKey(compClazz)) {
-			LOG.warn("Component {} (id: {}) has now factory module attached.", compClazz.getName(), comp.getId());
-			return null;
-		}
-
-		final ActorRef compActor = buildActor(ctx, comp);
-
-		LOG.debug("Starting componenent actor: {} ({}) for entity: {}.", compClazz.getSimpleName(), comp.getId(),
-				comp.getEntityId());
-
-		return compActor;
-	}
-
-	/**
-	 * Creates the actor.
-	 */
-	private ActorRef buildActor(ActorContext ctx, Component comp) {
-
-		final Class<? extends AbstractActor> actorClass = ACTOR_FOR_COMPONENTS.get(comp.getClass());
-
-		return SpringExtension.actorOf(ctx,
-				actorClass,
-				null,
-				comp.getEntityId());
 	}
 }

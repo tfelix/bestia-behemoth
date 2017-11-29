@@ -1,25 +1,24 @@
 package net.bestia.zoneserver.actor.entity.component;
 
-import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
-import akka.actor.ActorRef;
-import akka.actor.PoisonPill;
-import akka.actor.Terminated;
+import akka.actor.Cancellable;
+import akka.actor.Scheduler;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.entity.EntityMoveRequestMessage;
-import net.bestia.messages.entity.EntityPositionMessage;
-import net.bestia.messages.internal.entity.EntityMoveMessage;
+import net.bestia.entity.EntityService;
+import net.bestia.entity.component.MoveComponent;
 import net.bestia.model.geometry.Point;
-import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.service.MovingService;
-import net.bestia.zoneserver.service.PlayerEntityService;
+import scala.concurrent.duration.Duration;
 
 /**
  * Handle movement of an entity. It will announce the intended move path with
@@ -33,79 +32,104 @@ import net.bestia.zoneserver.service.PlayerEntityService;
 @Component
 @Scope("prototype")
 public class MovementComponentActor extends AbstractActor {
-
+	
+	private final static String TICK_MSG = "onTick";
 	public final static String NAME = "moveComponent";
-
+	
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
+	
+	private Cancellable tick;
 
 	private final MovingService movingService;
-	private final PlayerEntityService playerEntityService;
+	private final EntityService entityService;
 
-	private ActorRef periodicMoveActor;
 	private final long entityId;
 
 	@Autowired
-	public MovementComponentActor(long entityId, MovingService movingService, PlayerEntityService playerEntityService) {
+	public MovementComponentActor(long entityId,
+			MovingService movingService,
+			EntityService entityService) {
 
 		this.movingService = Objects.requireNonNull(movingService);
-		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		this.entityId = entityId;
+		this.entityService = entityService;
 	}
 
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(EntityMoveMessage.class, this::handleMoveInternal)
-				.match(EntityMoveRequestMessage.class, this::handleMove)
-				.match(EntityPositionMessage.class, this::handlePosition)
-				.match(Terminated.class, this::handleTerminated)
+				.matchEquals(TICK_MSG, x -> {
+					handleMoveTick();
+				})
 				.build();
 	}
-
-	/**
-	 * Sets entity directly to a fixed position movement.
-	 */
-	private void handlePosition(EntityPositionMessage msg) {
-		// This message should be coming only from the internal system so we
-		// need no security checks.
-		movingService.moveToPosition(msg.getEntityId(), msg.getPosition());
+	
+	@Override
+	public void preStart() throws Exception {
+		
+		final Optional<MoveComponent> optMc = entityService.getComponent(entityId, MoveComponent.class);
+		
+		if(optMc.isPresent()) {
+			final Point nextPos = optMc.get().getPath().peek();
+			final int moveDelay = movingService.getMoveDelayMs(entityId, nextPos) / 2;
+			setupMoveTick(moveDelay);
+		} else {
+			getContext().stop(getSelf());
+		}
 	}
 
-	private void handleMove(EntityMoveRequestMessage msg) {
-		// We need to check if the user owns this entity.
-		if(!playerEntityService.hasPlayerEntity(msg.getAccountId(), msg.getEntityId())) {
-			// Player does not own this bestia so we abort.
-			LOG.warning("Player does not own the entity to move: {}.", msg);
+	@Override
+	public void postStop() throws Exception {
+
+		if (tick != null) {
+			tick.cancel();
+		}
+
+		entityService.deleteComponent(entityId, MoveComponent.class);
+	}
+	
+	/**
+	 * Move the entity.
+	 */
+	private void handleMoveTick() {
+
+		final Optional<MoveComponent> optMc = entityService.getComponent(entityId, MoveComponent.class);
+		
+		if(optMc.isPresent()) {
+			final Queue<Point> path = optMc.get().getPath();
+			final Point nextPoint = path.poll();
+			
+			movingService.moveToPosition(entityId, nextPoint);
+
+			// Path empty and can we terminate now?
+			if (path.isEmpty()) {
+				getContext().stop(getSelf());
+			} else {
+				// Here comes the trick: after half the time consider the entity
+				// moved/active on the next tile in the path.
+				final int moveDelay = movingService.getMoveDelayMs(entityId, path.peek()) / 2;
+				LOG.debug("MoveCompActor: moveTo: {}, nextMove: {} in: {} ms.", nextPoint, path.peek(), moveDelay);
+				setupMoveTick(moveDelay);
+			}
+		} else {
+			getContext().stop(getSelf());
+		}
+	}
+	
+	/**
+	 * Setup a new movement tick based on the delay. If the delay is negative we
+	 * know that we can not move and thus end the movement and this actor.
+	 * 
+	 * @param delayMs
+	 */
+	private void setupMoveTick(int delayMs) {
+		if (delayMs < 0) {
+			getContext().stop(getSelf());
 			return;
 		}
-		
-		movePath(msg.getPath());
-	}
 
-	private void handleMoveInternal(EntityMoveMessage msg) {
-		movePath(msg.getPath());
-	}
-
-	private void movePath(List<Point> path) {
-
-		if (periodicMoveActor != null) {
-			getContext().unwatch(periodicMoveActor);
-			periodicMoveActor.tell(PoisonPill.getInstance(), getSelf());
-		}
-
-		periodicMoveActor = SpringExtension.unnamedActorOf(getContext(), PeriodicMoveActor.class, path, entityId);
-		getContext().watch(periodicMoveActor);
-	}
-
-	/**
-	 * Handle the termination of the periodic movement and remove the actor ref
-	 * so we can start a new one.
-	 */
-	private void handleTerminated(Terminated term) {
-
-		final ActorRef termActor = term.actor();
-		if (periodicMoveActor.equals(termActor)) {
-			periodicMoveActor = null;
-		}
+		final Scheduler shed = getContext().system().scheduler();
+		tick = shed.scheduleOnce(Duration.create(delayMs, TimeUnit.MILLISECONDS),
+				getSelf(), TICK_MSG, getContext().dispatcher(), null);
 	}
 }

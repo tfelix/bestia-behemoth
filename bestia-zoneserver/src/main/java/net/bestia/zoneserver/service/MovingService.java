@@ -12,11 +12,9 @@ import org.springframework.stereotype.Service;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
+import net.bestia.entity.component.MoveComponent;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.StatusService;
-import net.bestia.messages.MessageApi;
-import net.bestia.messages.internal.entity.ComponentEnvelope;
-import net.bestia.messages.internal.entity.EntityMoveMessage;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.Point;
@@ -42,14 +40,11 @@ public class MovingService {
 
 	private final EntityService entityService;
 	private final StatusService statusService;
-	private final MessageApi akkaApi;
 
 	@Autowired
 	public MovingService(EntityService entityService,
-			StatusService statusService,
-			MessageApi akkaApi) {
+			StatusService statusService) {
 
-		this.akkaApi = Objects.requireNonNull(akkaApi);
 		this.entityService = Objects.requireNonNull(entityService);
 		this.statusService = Objects.requireNonNull(statusService);
 	}
@@ -187,7 +182,7 @@ public class MovingService {
 	/**
 	 * This triggers a longer movement by using a path. This involves spinning
 	 * up an actor which will continuously update the movement of the entity
-	 * until an error occures or the end of the path has been reached.
+	 * until an error occurs or the end of the path has been reached.
 	 * 
 	 * @param entityId
 	 *            The entity to move.
@@ -195,16 +190,9 @@ public class MovingService {
 	 *            The path to move along.
 	 */
 	public void movePath(long entityId, List<Point> path) {
-
-		LOG.trace("Moving entity {} along path: {}", entityId, path);
-
-		final PositionComponent posComp = entityService
-				.getComponent(entityId, PositionComponent.class)
-				.orElseThrow(IllegalArgumentException::new);
-
-		final EntityMoveMessage msg = new EntityMoveMessage(entityId, path);
-		final ComponentEnvelope wrappedMsg = new ComponentEnvelope(posComp.getEntityId(), posComp.getId(), msg);
-
-		akkaApi.sendToEntity(wrappedMsg);
+		LOG.trace("Moving entity {} along path: {}", entityId, path);	
+		final MoveComponent mc = entityService.getComponentOrCreate(entityId, MoveComponent.class);
+		mc.setPath(path);
+		entityService.updateComponent(mc);
 	}
 }

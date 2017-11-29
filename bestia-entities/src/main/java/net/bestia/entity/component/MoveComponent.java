@@ -1,5 +1,6 @@
 package net.bestia.entity.component;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
@@ -56,5 +57,10 @@ public class MoveComponent extends Component {
 			return false;
 		}
 		return true;
+	}
+
+	public void setPath(Collection<Point> path) {
+		this.path.clear();
+		this.path.addAll(path);
 	}
 }
