@@ -1,4 +1,4 @@
-import Renderer from './Render';
+import Renderer from './Renderer';
 import LOG from '../../util/Log';
 
 /**
@@ -15,12 +15,12 @@ import LOG from '../../util/Log';
  */
 export default class WeatherRenderer extends Renderer {
 
-    constructor() {
+	constructor() {
+		super();
+		// no op.
+	}
 
-
-    }
-
-    load() {
-        LOG.info('Weather loaded.');
-    }
+	load() {
+		LOG.info('Weather loaded.');
+	}
 }

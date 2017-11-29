@@ -1,3 +1,4 @@
+/** global Phaser */
 import Renderer from './Renderer';
 
 /**
@@ -11,6 +12,8 @@ import Renderer from './Renderer';
 export default class WorldInfoRenderer extends Renderer {
 	
 	constructor(game, groups) {
+		super();
+
 		/**
 		 * Reference to a phaser game.
 		 * 

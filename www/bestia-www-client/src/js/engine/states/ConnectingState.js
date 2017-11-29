@@ -1,6 +1,4 @@
 
-import Signal from '../../io/Signal.js';
-
 /**
  * State is established if the connection is lost. It will wait for a
  * reconnection event to occure and start the loading phase.

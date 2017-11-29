@@ -93,7 +93,7 @@ public class MovementComponentActor extends AbstractActor {
 	 */
 	private void handleMoveTick() {
 
-		// TODO Diese logik evtl in den MovingService überführen.
+		// TODO Diese logik evtl in den MovingService überführen?
 		final Optional<MoveComponent> optMc = entityService.getComponent(entityId, MoveComponent.class);
 		
 		if(optMc.isPresent()) {

@@ -1,10 +1,4 @@
-/*global Phaser */
-
-import Signal from '../../io/Signal.js';
 import groups, {GROUP_LAYERS} from '../Groups';
-import TileRender from '../renderer/TileRenderer';
-import WorldHelper from '../map/WorldHelper';
-import LOG from '../../util/Log';
 import PhaserDebug from '../plugins/phaser-debug';
 import { engineContext, pathfinder } from '../EngineData';
 

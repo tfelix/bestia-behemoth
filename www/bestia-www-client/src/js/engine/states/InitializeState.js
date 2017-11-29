@@ -35,7 +35,7 @@ export default class InitializeState {
 		// ctor the order of the initialization is really important. Nether the less accessing the
 		// methods of the engine ctx inside the object ctor should be avoided to tackle the problem.		
 		engineContext.loader = new DemandLoader(this);
-		engineContext.indicatorManager = new IndicatorManager(this);
+		engineContext.indicatorManager = new IndicatorManager();
 		engineContext.entityUpdater = new EntityUpdater(engineContext.pubsub);
 
 
