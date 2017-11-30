@@ -1,5 +1,7 @@
 
 export default {
 	MOVE: 'MOVE',
-	VISIBLE: 'VISIBLE'
+	VISIBLE: 'VISIBLE',
+	STATUS: 'STATUS',
+	POSITION: 'POSITION'
 };

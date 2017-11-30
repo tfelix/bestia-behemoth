@@ -9,6 +9,8 @@ import Bestia from './Bestia.js';
 import MID from '../../io/messages/MID.js';
 import Message from '../../io/messages/Message.js';
 import LOG from '../../util/Log';
+import EntityComponentFilter from '../../engine/entities/EntityComponentFilter';
+import ComponentNames from '../../engine/entities/ComponentNames';
 
 /**
  * Holds and manages a complete overview of all selected bestias.
@@ -68,20 +70,22 @@ export default class BestiaView {
 		pubsub.subscribe(MID.BESTIA_INFO, this._handleBestiaInfo.bind(this));
 		pubsub.subscribe(MID.ENTITY_STATUS, this._handleBestiaStatus.bind(this));
 		pubsub.subscribe(MID.BESTIA_ACTIVATE, this._handleOnActivate.bind(this));
-		pubsub.subscribe(MID.ENTITY_POSITION, this._handlerOnPosition, this);
+
+		this._componentFilter = new EntityComponentFilter(pubsub);
+		this._componentFilter.addCallbackUpdate(ComponentNames.POSITION, this._handlerOnPosition.bind(this));
 	}
 
 	/**
 	 * Check if we must update the position of one of our bestias.
 	 */
-	_handlerOnPosition(_, msg) {
-		for (let i = 0; i < this.bestias().length; i++) {
-			let bestia = this.bestias()[i];
-			if (bestia.entityId() === msg.eid) {
-				bestia.posX(msg.x);
-				bestia.posY(msg.y);
-			}
+	_handlerOnPosition(msg) {
+		// Only use if the component is for your bestia.
+		let bestia = this.getBestiaByEntityId(msg.eid);
+		if(bestia === null) {
+			return;
 		}
+		bestia.posX(msg.c.p.x);
+		bestia.posY(msg.c.p.y);
 	}
 
 	/**
