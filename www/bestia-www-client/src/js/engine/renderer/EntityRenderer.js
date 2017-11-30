@@ -1,5 +1,5 @@
 import Renderer from './Renderer';
-import { spriteCache, entityCache, engineContext, entityComponentUpdater } from '../EngineData';
+import { spriteCache, entityCache, engineContext } from '../EngineData';
 import { MovementTrait } from '../entities/traits/MovementTrait';
 import { VisualTrait } from '../entities/traits/VisualTrait';
 import { ChatTrait } from '../entities/traits/ChatTrait';
@@ -19,6 +19,8 @@ export default class EntityRenderer extends Renderer {
 		this.traits.push(new VisualTrait(game));
 		this.traits.push(new MovementTrait(game));
 		this.traits.push(new ChatTrait(game, engineContext.pubsub));
+
+		this._compUpdater = engineContext.entityComponentUpdater;
 	}
 
 	get name() {
@@ -26,7 +28,7 @@ export default class EntityRenderer extends Renderer {
 	}
 
 	isDirty() {
-		return entityComponentUpdater.getDirtyEntityIds().length > 0;
+		return this._compUpdater.getDirtyEntityIds().length > 0;
 	}
 
 	clear() {
@@ -43,7 +45,7 @@ export default class EntityRenderer extends Renderer {
      */
 	update() {
 		
-		entityComponentUpdater.getDirtyEntityIds().forEach(function (entityId) {
+		this._compUpdater.getDirtyEntityIds().forEach(function (entityId) {
 			
 			var entity = entityCache.getEntity(entityId);
 			
@@ -57,6 +59,6 @@ export default class EntityRenderer extends Renderer {
 			}, this);
 		}, this);
 
-		entityComponentUpdater.resetDirtyEntityIds();
+		this._compUpdater.resetDirtyEntityIds();
 	}
 }

@@ -12,8 +12,8 @@ export default class EntityComponentUpdater {
 		this._entityCache = entityCache;
 		this._dirtyEntityIds = [];
 
-		pubsub.subscribe(MID.ENTITY_COMPONENT_UPDATE, this._onComponentUpdate);
-		pubsub.subscribe(MID.ENTITY_COMPONENT_DELETE, this._onComponentDelete);
+		pubsub.subscribe(MID.ENTITY_COMPONENT_UPDATE, this._onComponentUpdate, this);
+		pubsub.subscribe(MID.ENTITY_COMPONENT_DELETE, this._onComponentDelete, this);
 	}
 
     /**
@@ -57,8 +57,9 @@ export default class EntityComponentUpdater {
 	_getOrCreateEntity(eid) {
 		let entity = this._entityCache.getEntity(eid);
 
-		if (entity == null) {
+		if (!entity) {
 			this._entityCache.addEntity(eid);
+			entity = this._entityCache.getEntity(eid);
 		}
 
 		if (!entity.components) {
