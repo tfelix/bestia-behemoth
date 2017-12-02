@@ -1,4 +1,4 @@
-import MID from '../io/messages/MID';
+import MID from '../../io/messages/MID';
 
 /**
  * This class takes incoming component updates and syncs the entity model with this 

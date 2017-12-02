@@ -1,5 +1,5 @@
 /**
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  * @copyright 2015 Thomas Felix
  */
 

@@ -1,4 +1,4 @@
-import { version } from '../../package.json';
+ import { version } from '../../package.json';
 import ko from 'knockout';
 import KoAjaxComponentLoader from './ui/KoAjaxComponentLoader';
 import PubSub from './util/PubSub';

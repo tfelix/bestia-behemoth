@@ -95,6 +95,17 @@ let Signal = {
 	 * Engine debug command send via the chat. This is transported to the engine to be executed.
 	 */
 	ENGINE_DEBUG_CMD: 'engine.dbgcmd',
+
+	/**
+	 * This message is emitted if a change to an entity was detected. The
+	 * entity structure itself is given as a parameter.
+	 */
+	ENTITY_UPDATE: 'entity.update',
+
+	/**
+	 * This is called if the entity is completly deleted.
+	 */
+	ENTITY_DELETE: 'entity.delefe'
 };
 
 export default Signal;
