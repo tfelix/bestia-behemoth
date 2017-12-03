@@ -38,7 +38,7 @@ export default class StatusPoints {
 	 * @param {Object}
 	 *            msg - Message from the server to fill the model.
 	 */
-	update(msg, curHp, curMana) {
+	update(msg) {
 		
 		this.str(msg.atk);
 		this.vit(msg.def);

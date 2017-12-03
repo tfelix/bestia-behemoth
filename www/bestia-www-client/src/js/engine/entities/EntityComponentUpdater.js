@@ -3,6 +3,7 @@ import LOG from '../../util/Log';
 import Signal from '../../io/Signal';
 import PositionCompTranslator from './PositionCompTranslator';
 import StatusComponentTranslator from './StatusComponentTranslator';
+import VisualComponentTranslator from './VisualComponentTranslator';
 
 /**
  * This class takes incoming component updates and syncs the entity model with this 
@@ -18,6 +19,7 @@ export default class EntityComponentUpdater {
 		this._translators = [];
 		this._translators.push(new PositionCompTranslator());
 		this._translators.push(new StatusComponentTranslator());
+		this._translators.push(new VisualComponentTranslator());
 
 		this._pubsub = pubsub;
 

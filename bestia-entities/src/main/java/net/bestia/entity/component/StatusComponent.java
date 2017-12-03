@@ -6,6 +6,8 @@ import net.bestia.model.domain.StatusPointsImpl;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import net.bestia.model.domain.ConditionValues;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.entity.StatusBasedValuesImpl;
@@ -28,11 +30,22 @@ public class StatusComponent extends Component {
 	/**
 	 * Unmodified status points.
 	 */
+	@JsonProperty("osp")
 	private StatusPoints originalStatusPoints = new StatusPointsImpl();
+	
+	@JsonProperty("sp")
 	private StatusPoints statusPoints = new StatusPointsImpl();
+	
+	@JsonProperty("sbv")
 	private StatusBasedValues statusBasedValues = new StatusBasedValuesImpl(statusPoints, 1);
+	
+	@JsonProperty("oe")
 	private Element originalElement = Element.NORMAL;
+	
+	@JsonProperty("e")
 	private Element element = Element.NORMAL;
+	
+	@JsonProperty("cv")
 	private ConditionValues condValues = new ConditionValues();
 
 	public StatusComponent(long id) {

@@ -38,12 +38,12 @@ export default class ConditionValues {
 	 * ViewModel for the Status points.
 	 * 
 	 * @method Bestia.StatusPoint
-	 * @param {Object} msg - Message from the server to fill the model.
+	 * @param {Object} data - Message from the server to fill the model.
 	 */
-	update(msg) {
-		this.maxMana(msg.mmana);
-		this.maxHp(msg.mhp);
-		this.curMana(msg.cmana);
-		this.curHp(msg.chp);
+	update(data) {
+		this.maxMana(data.maxMana);
+		this.maxHp(data.maxHp);
+		this.curMana(data.currentMana);
+		this.curHp(data.currentHp);
 	}
 }

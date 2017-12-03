@@ -5,6 +5,7 @@ import java.util.Objects;
 public class PlayerComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
+	
 	private long ownerAccountId;
 	private long playerBestiaId;
 

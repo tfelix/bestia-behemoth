@@ -10,6 +10,8 @@ import StatusPoint from './StatusPoints';
 //import StatusPointsComparer from './StatusPointsComparer';
 import StatusBasedValues from './StatusBasedValues';
 import ConditionValues from './ConditionValues';
+import ComponentNames from '../../engine/entities/ComponentNames';
+import StatusComponentTranslator from '../../engine/entities/StatusComponentTranslator';
 
 /**
  * Viewmodel for a Bestia.
@@ -62,7 +64,7 @@ export default class Bestia {
 		this.slot = ko.observable();
 
 		this.statusPoints = new StatusPoint();
-		this.unmodifiedStatusPoints = new StatusPoint();
+		this.originalStatusPoints = new StatusPoint();
 		//this.comparedStatusPoints = new StatusPointsComparer(this.statusPoints, this.unmodifiedStatusPoints);
 		this.statusBasedValues = new StatusBasedValues();
 		this.conditionValues = new ConditionValues();
@@ -90,7 +92,21 @@ export default class Bestia {
 			return;
 		}
 
-		console.log("GEHT");
+		this.customName("HelloWorld");
+
+		// PLAYER COMPONENT
+		if(entity.components.hasOwnProperty(ComponentNames.PLAYER)) {
+			
+		}
+
+		// Check if status is present.
+		if(entity.components.hasOwnProperty(ComponentNames.STATUS)) {
+			let statComp = entity.components[ComponentNames.STATUS];
+			this.statusPoints.update(statComp.statusPoints);
+			this.originalStatusPoints.update(statComp.originalStatusPoints);
+			this.conditionValues.update(statComp.conditionValues);
+			this.statusBasedValues.update(statComp.statusBasedValues);
+		}
 
 		// Bestia
 		//let b = msg.b;
