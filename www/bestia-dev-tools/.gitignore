@@ -9,5 +9,6 @@ _SpecRunner.html
 vendor
 doc
 npm-debug.log
+testBundle.js
 
 phaser.js
