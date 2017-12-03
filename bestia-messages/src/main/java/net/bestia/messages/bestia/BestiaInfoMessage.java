@@ -1,12 +1,12 @@
 package net.bestia.messages.bestia;
 
-import java.util.Objects;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.EntityJsonMessage;
-import net.bestia.model.domain.PlayerBestia;
+import net.bestia.messages.JsonMessage;
 
 /**
  * This message is send to the client to trigger a initial synchronization about
@@ -18,61 +18,53 @@ import net.bestia.model.domain.PlayerBestia;
  * @author Thomas Felix
  *
  */
-public class BestiaInfoMessage extends EntityJsonMessage {
+public class BestiaInfoMessage extends JsonMessage {
 
 	private static final long serialVersionUID = 1L;
 
 	public final static String MESSAGE_ID = "bestia.info";
 
-	@JsonProperty("im")
-	private boolean isMaster;
+	@JsonProperty("m")
+	private long masterEid;
 
-	@JsonProperty("b")
-	private PlayerBestia bestia;
+	private List<Long> bestiaEids = new ArrayList<>();
 	
 	/**
 	 * Needed for MessageTypeIdResolver 
 	 */
 	private BestiaInfoMessage() {
-		super(0, 0);
+		super(0);
 	}
 
-	public BestiaInfoMessage(long accId, long entityId, PlayerBestia pb) {
-		super(accId, entityId);
+	public BestiaInfoMessage(long accId, long masterEntityId, Collection<Long> bestiaEntityIds) {
+		super(accId);
 
-		Objects.requireNonNull(pb);
-
-		this.isMaster = pb.getMaster() != null;
-		this.bestia = pb;
+		this.masterEid = masterEntityId;
+		this.bestiaEids.addAll(bestiaEntityIds);
 	}
 
-	@JsonIgnore
-	public boolean isMaster() {
-		return isMaster;
-	}
-
-	public void setIsMaster(boolean isMaster) {
-		this.isMaster = isMaster;
-	}
-
-	public PlayerBestia getBestia() {
-		return bestia;
-	}
 
 	@Override
 	public String getMessageId() {
 		return MESSAGE_ID;
 	}
+	
+	public long getMasterEid() {
+		return masterEid;
+	}
+	
+	public List<Long> getBestiaEids() {
+		return bestiaEids;
+	}
 
 	@Override
 	public String toString() {
-		return String.format("BestiaInfoMessage[accId: %d, isMaster: %b, bestia: %s]",
-				getAccountId(),
-				isMaster, bestia.toString());
+		return String.format("BestiaInfoMessage[accId: %d, master: %d, bestias: %s]",
+				getAccountId(), getMasterEid(), getBestiaEids());
 	}
 
 	@Override
 	public BestiaInfoMessage createNewInstance(long accountId) {
-		return new BestiaInfoMessage(accountId, getEntityId(), getBestia());
+		return new BestiaInfoMessage(accountId, getMasterEid(), getBestiaEids());
 	}
 }

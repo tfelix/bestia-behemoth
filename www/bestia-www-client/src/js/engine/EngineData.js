@@ -23,7 +23,6 @@ var engineContext = {
 	loader: null,
 	url: null,
 	entityUpdater: null,
-	entityComponentUpdater: null,
 	data: {}
 };
 

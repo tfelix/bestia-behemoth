@@ -1,4 +1,8 @@
 import MID from '../../io/messages/MID';
+import LOG from '../../util/Log';
+import Signal from '../../io/Signal';
+import PositionCompTranslator from './PositionCompTranslator';
+import StatusComponentTranslator from './StatusComponentTranslator';
 
 /**
  * This class takes incoming component updates and syncs the entity model with this 
@@ -10,7 +14,12 @@ export default class EntityComponentUpdater {
 	constructor(pubsub, entityCache) {
 
 		this._entityCache = entityCache;
-		this._dirtyEntityIds = [];
+
+		this._translators = [];
+		this._translators.push(new PositionCompTranslator());
+		this._translators.push(new StatusComponentTranslator());
+
+		this._pubsub = pubsub;
 
 		pubsub.subscribe(MID.ENTITY_COMPONENT_UPDATE, this._onComponentUpdate, this);
 		pubsub.subscribe(MID.ENTITY_COMPONENT_DELETE, this._onComponentDelete, this);
@@ -20,15 +29,31 @@ export default class EntityComponentUpdater {
      * Called if an update for an entity with its component is send.
      */
 	_onComponentUpdate(_, msg) {
-		let e = this._getOrCreateEntity(msg.eid);
 
-		// Check if the component differs from each other.
-		if (this._isComponentDataEqual(e.components[msg.ct], msg.c)) {
+		let transMsg = null;
+
+		// Try to translate the message into a usable format.
+		this._translators.forEach(trans => {
+			if (trans.handlesComponent(msg)) {
+				transMsg = trans.translate(msg);
+			}
+		});
+
+		if (transMsg === null) {
+			LOG.warn('Component message could not be translated.');
 			return;
 		}
 
-		e.components[msg.ct] = msg.c;
-		this._dirtyEntityIds.push(msg.eid);
+		let entity = this._getOrCreateEntity(transMsg.eid);
+
+		// Check if the component differs from each other.
+		let component = entity.components[transMsg.type];
+		if (this._isComponentDataEqual(component, transMsg)) {
+			return;
+		}
+
+		entity.components[transMsg.type] = transMsg;
+		this._pubsub.publish(Signal.ENTITY_UPDATE, entity, component);
 	}
 
     /**
@@ -41,7 +66,6 @@ export default class EntityComponentUpdater {
 			// in the next pass.
 			e.componentsDeleted[msg.cid] = e.components[msg.cid];
 			delete e.components[msg.cid];
-			this._dirtyEntityIds.push(msg.eid);
 		}
 	}
 
@@ -64,20 +88,8 @@ export default class EntityComponentUpdater {
 
 		if (!entity.components) {
 			entity.components = {};
-			entity.isDirty = true;
 		}
 
 		return entity;
-	}
-
-	/**
-	 * 
-	 */
-	getDirtyEntityIds() {
-		return this._dirtyEntityIds;
-	}
-
-	resetDirtyEntityIds() {
-		this._dirtyEntityIds = [];
 	}
 }

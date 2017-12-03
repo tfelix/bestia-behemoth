@@ -1,6 +1,6 @@
 /**
  * @author Thomas Felix
- * @copyright 2015 Thomas Felix
+ * @copyright 2017 Thomas Felix
  */
 
 import ko from 'knockout';
@@ -9,16 +9,12 @@ import Bestia from './Bestia.js';
 import MID from '../../io/messages/MID.js';
 import Message from '../../io/messages/Message.js';
 import LOG from '../../util/Log';
-import EntityComponentFilter from '../../engine/entities/EntityComponentFilter';
-import ComponentNames from '../../engine/entities/ComponentNames';
 
 /**
- * Holds and manages a complete overview of all selected bestias.
+ * Holds the views to all bestias.
  * 
- * @class Bestia.BestiaInfoViewModel
- * @constructor
- * @param {PubSub} pubsub - Publish/Subscriber interface.
- * @param {UrlHelper} urlHelper - Helper for resolving URLs.
+ * @export
+ * @class BestiaView
  */
 export default class BestiaView {
 
@@ -34,6 +30,11 @@ export default class BestiaView {
 		this._pubsub = pubsub;
 
 		this._urlHelper = urlHelper;
+
+		this._masterEntityId = 0;
+		this._playerBestiasEids = [];
+
+		this._entityMessageBuffer = [];
 
 		/**
 		 * Holds the currently selected bestia.
@@ -68,24 +69,26 @@ export default class BestiaView {
 		pubsub.subscribe(Signal.IO_AUTH_CONNECTED, this._handleConnected.bind(this));
 		pubsub.subscribe(Signal.IO_DISCONNECTED, this._handleDisconnected.bind(this));
 		pubsub.subscribe(MID.BESTIA_INFO, this._handleBestiaInfo.bind(this));
-		pubsub.subscribe(MID.ENTITY_STATUS, this._handleBestiaStatus.bind(this));
 		pubsub.subscribe(MID.BESTIA_ACTIVATE, this._handleOnActivate.bind(this));
-
-		this._componentFilter = new EntityComponentFilter(pubsub);
-		this._componentFilter.addCallbackUpdate(ComponentNames.POSITION, this._handlerOnPosition.bind(this));
+		pubsub.subscribe(Signal.ENTITY_UPDATE, this._handleEntityUpdated, this);
 	}
 
 	/**
 	 * Check if we must update the position of one of our bestias.
 	 */
-	_handlerOnPosition(msg) {
-		// Only use if the component is for your bestia.
-		let bestia = this.getBestiaByEntityId(msg.eid);
-		if(bestia === null) {
+	_handleEntityUpdated(_, entity) {
+
+		// Buffer messages as long as we dont know which are our entities.
+		if(this._masterEntityId === 0) {
+			this._entityMessageBuffer.push(entity);
 			return;
 		}
-		bestia.posX(msg.c.p.x);
-		bestia.posY(msg.c.p.y);
+
+		// Only use if the component is for your bestia.
+		let bestia = this.getBestiaByEntityId(entity.eid);
+		if(bestia) {
+			bestia.update(entity);
+		}
 	}
 
 	/**
@@ -121,61 +124,29 @@ export default class BestiaView {
 	}
 
 	/**
-	 * Handles incoming bestia status messages. If the bestia is already registered into the view 
-	 * its status information is updated.
-	 */
-	_handleBestiaStatus(_, msg) {
-
-		var bestia = this.getBestiaByEntityId(msg.eid);
-
-		if (bestia === null) {
-			LOG.debug('Bestia was not found. Cant update status values.');
-			return;
-		}
-
-		// Status points present?
-		if (msg.sp) {
-			bestia.statusPoints.update(msg.sp);
-		}
-
-		if (msg.sv) {
-			bestia.conditionValues.update(msg.sv);
-		}
-
-		if (msg.osp) {
-			bestia.unmodifiedStatusPoints.update(msg.osp);
-		}
-
-		if (msg.sbv) {
-			bestia.statusBasedValues.update(msg.sbv);
-		}
-	}
-
-	/**
 	 * Handler to fill out the data. We get this data from the bestia.update
 	 * messages.
 	 */
 	_handleBestiaInfo(_, msg) {
 		LOG.debug('Update bestia model with data: ' + JSON.stringify(msg));
 
-		var bestia = this.getBestiaByEntityId(msg.eid);
+		this._masterEntityId = msg.m;
+		this._playerBestiasEids = msg.bestiaEids;
 
-		if (bestia !== null) {
-			// Just update it.
-			bestia.update(msg);
-			return;
-		}
+		// Clear all bestias.
+		this.bestias.removeAll();
 
-		bestia = new Bestia(this._pubsub, msg, this._urlHelper);
-		// If the bestia was not found however to the extended logic. First add
-		// it.
-		this.bestias.push(bestia);
+		this._playerBestiasEids.forEach(eid => {
+			let bestia = new Bestia(eid, this._pubsub, this._urlHelper);
+			this.bestias.push(bestia);
+		});
 
-		// Check if we have unselected master and use a given master bestia for this.
-		if (this.masterBestia() === null && msg.im === true) {
-			LOG.debug('Selecting the master bestia.');
-			this.masterBestia(bestia);
-			this._selectBestia(bestia);
+		// Check the buffer.
+		if(this._entityMessageBuffer.length > 0) {
+			this._entityMessageBuffer.forEach(msg => {
+				this._handleEntityUpdated('', msg);
+			});
+			this._entityMessageBuffer = [];
 		}
 	}
 

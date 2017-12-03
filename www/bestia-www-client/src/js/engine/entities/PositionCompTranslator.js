@@ -21,9 +21,14 @@ export default class PositionCompTranslator {
 
 	translate(componentMsg) {
 		return {
-			position: {x: 0, y: 0},
-			shapeType: 'point',
-			shapeData: {}
+			type: ComponentNames.POSITION,
+			eid: componentMsg.eid,
+			id: componentMsg.c.id,
+			position: {
+				x: componentMsg.c.p.x, 
+				y: componentMsg.c.p.y
+			},
+			shapeType: 'point'
 		};
 	}
-};
+}

@@ -19,7 +19,14 @@ import ConditionValues from './ConditionValues';
  */
 export default class Bestia {
 
-	constructor(pubsub, msg, urlHelper) {
+	/**
+	 * Creates an instance of Bestia.
+	 * @param {any} eid Entity ID of this bestia.
+	 * @param {any} pubsub 
+	 * @param {any} urlHelper 
+	 * @memberof Bestia
+	 */
+	constructor(eid, pubsub, urlHelper) {
 		if (!pubsub) {
 			throw 'Bestia: PubSub must be given.';
 		}
@@ -34,7 +41,7 @@ export default class Bestia {
 		this._urlHelper = urlHelper;
 
 		this.playerBestiaId = ko.observable(0);
-		this.entityId = ko.observable(0);
+		this.entityId = ko.observable(eid);
 		this.databaseName = ko.observable('');
 		this.equip = [];
 		this.location = ko.observable('');
@@ -59,8 +66,6 @@ export default class Bestia {
 		//this.comparedStatusPoints = new StatusPointsComparer(this.statusPoints, this.unmodifiedStatusPoints);
 		this.statusBasedValues = new StatusBasedValues();
 		this.conditionValues = new ConditionValues();
-
-		this.update(msg);
 	}
 
 	/**
@@ -78,16 +83,19 @@ export default class Bestia {
 	 * Updates the model with new data from the server.
 	 * 
 	 * @method Bestia.Bestia#update
-	 * @param {Object} msg - Message object from the server.
+	 * @param {Object} entity - Message object from the server.
 	 */
-	update(msg) {
-		if (msg === undefined) {
+	update(entity) {
+		if (!entity) {
 			return;
 		}
 
-		// Bestia
-		let b = msg.b;
+		console.log("GEHT");
 
+		// Bestia
+		//let b = msg.b;
+
+		/*
 		this.playerBestiaId(b.id);
 		this.entityId(msg.eid);
 		this.posX(b.cl.x);
@@ -96,6 +104,6 @@ export default class Bestia {
 		this.level(b.lv);
 		this.databaseName(b.b.bdbn);
 		this.sprite(b.b.sp.s);
-		this.spriteType(b.b.sp.t);
+		this.spriteType(b.b.sp.t);*/
 	}
 }
