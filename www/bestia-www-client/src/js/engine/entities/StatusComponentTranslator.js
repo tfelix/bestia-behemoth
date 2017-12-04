@@ -19,39 +19,39 @@ export default class StatusComponentTranslator {
 		return {
 			type: ComponentNames.STATUS,
 			eid: componentMsg.eid,
-			id: componentMsg.c.id,
+			id: componentMsg.pl.id,
 			originalStatusPoints: {
-				strength: componentMsg.c.osp.str,
-				vitality: componentMsg.c.osp.vit,
-				intelligence: componentMsg.c.osp.int,
-				willpower: componentMsg.c.osp.will,
-				agility: componentMsg.c.osp.agi,
-				dexterity: componentMsg.c.osp.dex,
-				magicDefense: componentMsg.c.osp.mdef,
-				physicalDefense: componentMsg.c.osp.def
+				strength: componentMsg.pl.osp.str,
+				vitality: componentMsg.pl.osp.vit,
+				intelligence: componentMsg.pl.osp.int,
+				willpower: componentMsg.pl.osp.will,
+				agility: componentMsg.pl.osp.agi,
+				dexterity: componentMsg.pl.osp.dex,
+				magicDefense: componentMsg.pl.osp.mdef,
+				physicalDefense: componentMsg.pl.osp.def
 			},
 			statusPoints: {
-				strength: componentMsg.c.sp.str,
-				vitality: componentMsg.c.sp.vit,
-				intelligence: componentMsg.c.sp.int,
-				willpower: componentMsg.c.sp.will,
-				agility: componentMsg.c.sp.agi,
-				dexterity: componentMsg.c.sp.dex,
-				magicDefense: componentMsg.c.sp.mdef,
-				physicalDefense: componentMsg.c.sp.def
+				strength: componentMsg.pl.sp.str,
+				vitality: componentMsg.pl.sp.vit,
+				intelligence: componentMsg.pl.sp.int,
+				willpower: componentMsg.pl.sp.will,
+				agility: componentMsg.pl.sp.agi,
+				dexterity: componentMsg.pl.sp.dex,
+				magicDefense: componentMsg.pl.sp.mdef,
+				physicalDefense: componentMsg.pl.sp.def
 			},
 			statusBasedValues: {
-				walkspeed: componentMsg.c.sbv.w.speed,
-				manaRegen: componentMsg.c.sbv.manar,
-				healthRegen: componentMsg.c.sbv.hpr
+				walkspeed: componentMsg.pl.sbv.w.speed,
+				manaRegen: componentMsg.pl.sbv.manar,
+				healthRegen: componentMsg.pl.sbv.hpr
 			},
-			element: componentMsg.c.e,
-			originalElement: componentMsg.c.oe,
+			element: componentMsg.pl.e,
+			originalElement: componentMsg.pl.oe,
 			conditionValues: {
-				currentHp: componentMsg.c.cv.chp,
-				maxHp: componentMsg.c.cv.mhp,
-				currentMana: componentMsg.c.cv.cmana,
-				maxMana: componentMsg.c.cv.mmana
+				currentHp: componentMsg.pl.cv.chp,
+				maxHp: componentMsg.pl.cv.mhp,
+				currentMana: componentMsg.pl.cv.cmana,
+				maxMana: componentMsg.pl.cv.mmana
 			}
 		};
 	}

@@ -90,6 +90,7 @@ public class EntityComponentEnvelope extends EntityJsonMessage {
 	 * 
 	 * @param entityId
 	 *            The entity to which this component should belong.
+	 * @param l 
 	 * @param componentName
 	 *            The name of the component to use. If its a Component class
 	 *            then please use the {@link #componentName} static method to
@@ -99,14 +100,14 @@ public class EntityComponentEnvelope extends EntityJsonMessage {
 	 *            {@link Serializable}.
 	 * @return A sendable envelope.
 	 */
-	public static EntityComponentEnvelope forPayload(long entityId, String componentName, Object payload) {
+	public static EntityComponentEnvelope forPayload(long accountId, long entityId, String componentName, Object payload) {
 
 		Objects.requireNonNull(payload);
-		if (!(payload.getClass().isAssignableFrom(Serializable.class))) {
+		if (!(Serializable.class.isAssignableFrom(payload.getClass()))) {
 			throw new IllegalArgumentException("Payload must implement Serializable.");
 		}
 
-		return new EntityComponentEnvelope(0, entityId, componentName, payload, 0);
+		return new EntityComponentEnvelope(accountId, entityId, componentName, payload, 0);
 	}
 
 	public static EntityComponentEnvelope forComponent(Component component) {

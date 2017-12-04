@@ -66,7 +66,7 @@ public class PlayerComponentInterceptor extends BaseComponentInterceptor<PlayerC
 		final PlayerComponentMessage msg = new PlayerComponentMessage(pbid,
 				playerBestia.getOrigin().getDatabaseName(),
 				playerBestia.getName());
-		final EntityComponentEnvelope ece = EntityComponentEnvelope.forPayload(entity.getId(),
+		final EntityComponentEnvelope ece = EntityComponentEnvelope.forPayload(comp.getOwnerAccountId(), entity.getId(),
 				EntityComponentEnvelope.componentName(PlayerComponent.class), msg);
 		msgApi.sendToClient(ece);
 	}

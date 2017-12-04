@@ -23,11 +23,11 @@ export default class VisualComponentTranslator {
 		return {
 			type: ComponentNames.VISIBLE,
 			eid: componentMsg.eid,
-			id: componentMsg.c.id,
-			visible: componentMsg.c.vis,
+			id: componentMsg.pl.id,
+			visible: componentMsg.pl.vis,
 			visual: {
-				sprite: componentMsg.c.v.s,
-				type: componentMsg.c.v.t
+				sprite: componentMsg.pl.v.s,
+				type: componentMsg.pl.v.t
 			}
 		};
 	}
