@@ -23,10 +23,10 @@ export default class PositionCompTranslator {
 		return {
 			type: ComponentNames.POSITION,
 			eid: componentMsg.eid,
-			id: componentMsg.c.id,
+			id: componentMsg.pl.id,
 			position: {
-				x: componentMsg.c.p.x, 
-				y: componentMsg.c.p.y
+				x: componentMsg.pl.p.x, 
+				y: componentMsg.pl.p.y
 			},
 			shapeType: 'point'
 		};

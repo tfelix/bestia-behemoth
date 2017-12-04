@@ -9,6 +9,7 @@ import SpriteDescriptionCache from './entities/SpriteDescriptionCache';
  */
 
 var spriteCache = new PhaserSpriteCache();
+// Der Cache kann ggf raus.
 var entityCache = new EntityCacheEx();
 var pathfinder = new Pathfinder();
 var descriptionCache = new SpriteDescriptionCache();

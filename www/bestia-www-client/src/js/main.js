@@ -29,7 +29,7 @@ import EntityComponentUpdater from './engine/entities/EntityComponentUpdater';
 let pubsub = new PubSub();
 let storage = new Storage();
 let urlHelper = new UrlHelper('assets/');
-let entityUpdater = new EntityComponentUpdater(pubsub, new EntityCacheEx());
+let entityCompUpdater = new EntityComponentUpdater(pubsub, new EntityCacheEx());
 let auth = new Authenticator(pubsub, storage);
 let engine = new Engine(pubsub, urlHelper);
 let connection = new Connection(pubsub);

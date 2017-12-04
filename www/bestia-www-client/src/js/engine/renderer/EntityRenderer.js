@@ -1,4 +1,5 @@
 import Renderer from './Renderer';
+import Signal from '../../io/Signal';
 import { spriteCache, entityCache, engineContext } from '../EngineData';
 import { MovementTrait } from '../entities/traits/MovementTrait';
 import { VisualTrait } from '../entities/traits/VisualTrait';
@@ -12,15 +13,18 @@ import { ChatTrait } from '../entities/traits/ChatTrait';
  */
 export default class EntityRenderer extends Renderer {
 
-	constructor(game) {
+	constructor(game, pubsub) {
 		super();
+
+		this._updatedEntitites = [];
 
 		this.traits = [];
 		this.traits.push(new VisualTrait(game));
 		this.traits.push(new MovementTrait(game));
 		this.traits.push(new ChatTrait(game, engineContext.pubsub));
 
-		this._compUpdater = engineContext.entityComponentUpdater;
+		//this._compUpdater = engineContext.entityComponentUpdater;
+		pubsub.subscribe(Signal.ENTITY_UPDATE, this._handleEntityUpdate, this);
 	}
 
 	get name() {
@@ -28,11 +32,15 @@ export default class EntityRenderer extends Renderer {
 	}
 
 	isDirty() {
-		return this._compUpdater.getDirtyEntityIds().length > 0;
+		return this._updatedEntitites.length > 0;
 	}
 
 	clear() {
 		// no op
+	}
+
+	_handleEntityUpdate(_, entity) {
+		this._updatedEntitites.push(entity);
 	}
 
 	load(game) {
@@ -45,9 +53,7 @@ export default class EntityRenderer extends Renderer {
      */
 	update() {
 		
-		this._compUpdater.getDirtyEntityIds().forEach(function (entityId) {
-			
-			var entity = entityCache.getEntity(entityId);
+		this._updatedEntitites.forEach(function (entity) {
 			
 			this.traits.forEach(function (trait) {
 				if (trait.hasTrait(entity)) {
@@ -59,6 +65,6 @@ export default class EntityRenderer extends Renderer {
 			}, this);
 		}, this);
 
-		this._compUpdater.resetDirtyEntityIds();
+		this._updatedEntitites = [];
 	}
 }

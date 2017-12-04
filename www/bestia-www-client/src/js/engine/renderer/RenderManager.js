@@ -1,4 +1,3 @@
-import TileRenderer from './TileRenderer';
 import LOG from '../../util/Log';
 
 /**

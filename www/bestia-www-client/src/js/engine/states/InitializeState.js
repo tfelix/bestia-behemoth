@@ -41,7 +41,7 @@ export default class InitializeState {
 		// ==== PREPARE RENDERER ====
 		engineContext.renderManager = new RenderManager();
 		engineContext.renderManager.addRender(new TileRenderer(engineContext.pubsub, this.game));
-		engineContext.renderManager.addRender(new EntityRenderer(this.game));
+		engineContext.renderManager.addRender(new EntityRenderer(this.game, engineContext.pubsub));
 		engineContext.renderManager.addRender(new DebugRenderer(this.game));
 		engineContext.renderManager.addRender(new EntityMenuRenderer(this.game));
 
