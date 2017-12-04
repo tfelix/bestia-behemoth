@@ -42,7 +42,16 @@ export default class Bestia {
 
 		this.playerBestiaId = ko.observable(0);
 		this.entityId = ko.observable(eid);
+		
 		this.databaseName = ko.observable('');
+		this.customName = ko.observable('');
+
+		this.sprite = ko.observable('');
+		this.spriteType = ko.observable('');
+		this.iconUrl = ko.pureComputed(function () {
+			return urlHelper.getMobIconUrl(self.databaseName());
+		});
+
 		this.equip = [];
 		
 		this.location = ko.observable('');
@@ -52,21 +61,14 @@ export default class Bestia {
 			return { x: this.posX(), y: this.posY() };
 		}, this);
 		this.saveLocation = ko.observable();
-		this.customName = ko.observable('');
-		
-		this.sprite = ko.observable('');
-		this.spriteType = ko.observable('');
 		
 		this.statusEffects = [];
-		this.iconUrl = ko.pureComputed(function () {
-			return urlHelper.getMobIconUrl(self.databaseName());
-		});
+		
 		this.level = ko.observable(1);
 		this.slot = ko.observable();
 
 		this.statusPoints = new StatusPoint();
 		this.originalStatusPoints = new StatusPoint();
-		//this.comparedStatusPoints = new StatusPointsComparer(this.statusPoints, this.unmodifiedStatusPoints);
 		this.statusBasedValues = new StatusBasedValues();
 		this.conditionValues = new ConditionValues();
 	}
