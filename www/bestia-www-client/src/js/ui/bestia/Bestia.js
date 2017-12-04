@@ -95,11 +95,12 @@ export default class Bestia {
 			return;
 		}
 
-		this.customName("HelloWorld");
-
 		// PLAYER COMPONENT
 		if(entity.components.hasOwnProperty(ComponentNames.PLAYER)) {
-			
+			let comp = entity.components[ComponentNames.PLAYER];
+			this.databaseName(comp.databaseName);
+			this.customName(comp.customName);
+			this.playerBestiaId(comp.playerBestiaId);
 		}
 
 		// Check if status is present.
@@ -115,20 +116,12 @@ export default class Bestia {
 			let comp = entity.components[ComponentNames.VISIBLE];
 			this.sprite(comp.visual.sprite);
 			this.spriteType(comp.visual.type);
+			this.entityId(comp.eid);
 		}
 
-		// Bestia
-		//let b = msg.b;
-
 		/*
-		this.playerBestiaId(b.id);
-		this.entityId(msg.eid);
 		this.posX(b.cl.x);
 		this.posY(b.cl.y);
-		this.customName(b.cn);
-		this.level(b.lv);
-		this.databaseName(b.b.bdbn);
-		this.sprite(b.b.sp.s);
-		this.spriteType(b.b.sp.t);*/
+		this.level(b.lv);*/
 	}
 }

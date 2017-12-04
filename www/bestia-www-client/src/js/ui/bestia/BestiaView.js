@@ -89,6 +89,11 @@ export default class BestiaView {
 		if(bestia) {
 			bestia.update(entity);
 		}
+
+		// Check if we must select the master bestia.
+		if(this.selectedBestia() === null && bestia.entityId() === this._masterEntityId) {
+			this.selectedBestia(bestia);
+		}
 	}
 
 	/**

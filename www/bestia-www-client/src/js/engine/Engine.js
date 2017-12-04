@@ -16,7 +16,7 @@ import LOG from '../util/Log';
  * 
  * @constructor
  * @class Bestia.Engine
- * @param {Bestia.PubSub}
+ * @param {PubSub}
  *            pubsub - Publish/Subscriber interface.
  */
 export default class Engine {
@@ -33,11 +33,11 @@ export default class Engine {
 		engineContext.url = url;
 
 		// ==== Create the states ====
-		this.game.state.add('boot', new BootState(this._ctx));
-		this.game.state.add('initial_loading', new InitializeState(this._ctx));
-		this.game.state.add('connecting', new ConnectingState(this._ctx));
-		this.game.state.add('load', new LoadingState(this._ctx));
-		this.game.state.add('game', new GameState(this._ctx));
+		this.game.state.add('boot', new BootState());
+		this.game.state.add('initial_loading', new InitializeState());
+		this.game.state.add('connecting', new ConnectingState());
+		this.game.state.add('load', new LoadingState());
+		this.game.state.add('game', new GameState());
 
 		// ==== PREPARE HANDLER ====
 
