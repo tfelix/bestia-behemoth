@@ -5,7 +5,7 @@ import net.bestia.entity.EntityService;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.entity.EntityComponentDeleteMessage;
-import net.bestia.messages.entity.EntityComponentMessage;
+import net.bestia.messages.entity.EntityComponentEnvelope;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,14 +39,14 @@ public class DefaultSyncInterceptorTest {
 	public void triggerCreateAction_anyComponent_sendMessage() {
 
 		interceptor.triggerCreateAction(entityService, entity, positionComponent);
-		Mockito.verify(msgApi).sendToActiveClientsInRange(Mockito.any(EntityComponentMessage.class));
+		Mockito.verify(msgApi).sendToActiveClientsInRange(Mockito.any(EntityComponentEnvelope.class));
 	}
 	
 	@Test
 	public void triggerUpdateActionn_anyComponent_sendMessage() {
 
 		interceptor.triggerUpdateAction(entityService, entity, positionComponent);
-		Mockito.verify(msgApi).sendToActiveClientsInRange(Mockito.any(EntityComponentMessage.class));
+		Mockito.verify(msgApi).sendToActiveClientsInRange(Mockito.any(EntityComponentEnvelope.class));
 	}
 	
 	@Test

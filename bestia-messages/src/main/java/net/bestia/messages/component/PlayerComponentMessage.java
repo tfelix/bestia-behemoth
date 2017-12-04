@@ -1,44 +1,50 @@
 package net.bestia.messages.component;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import net.bestia.messages.EntityJsonMessage;
-import net.bestia.messages.JsonMessage;
-
-public class PlayerComponentMessage extends EntityJsonMessage {
-	
-	public static final String MESSAGE_ID = "comp.player";
+/**
+ * This is a special message send if a player component was attached to the
+ * entity.
+ * 
+ * @author Thomas Felix
+ *
+ */
+public class PlayerComponentMessage implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	@JsonProperty("pbid")
-	private int playerBestiaId;
-	
+	private final long playerBestiaId;
+
 	@JsonProperty("dbn")
-	private String databaseName;
-	
+	private final String databaseName;
+
 	@JsonProperty("cn")
-	private String customName;
+	private final String customName;
 
-	public PlayerComponentMessage(long accId, long entityId) {
-		super(accId, entityId);
-		// no op.
-	}
+	public PlayerComponentMessage(long playerBestiaId, String databaseName, String customName) {
 
-	@Override
-	public String getMessageId() {
-		return MESSAGE_ID;
-	}
-
-	@Override
-	public JsonMessage createNewInstance(long accountId) {
-		// TODO Auto-generated method stub
-		return null;
+		this.playerBestiaId = playerBestiaId;
+		this.databaseName = databaseName;
+		this.customName = customName;
 	}
 	
+	public long getPlayerBestiaId() {
+		return playerBestiaId;
+	}
+	
+	public String getDatabaseName() {
+		return databaseName;
+	}
+	
+	public String getCustomName() {
+		return customName;
+	}
+
 	@Override
 	public String toString() {
-		return String.format("PlayerComponentMessage[]");
+		return String.format("PlayerComponentMessage[pbid: %d]", getPlayerBestiaId());
 	}
-
 }

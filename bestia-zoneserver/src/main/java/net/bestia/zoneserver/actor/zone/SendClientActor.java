@@ -12,7 +12,7 @@ import akka.cluster.sharding.ClusterSharding;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.JsonMessage;
-import net.bestia.messages.entity.EntityComponentMessage;
+import net.bestia.messages.entity.EntityComponentEnvelope;
 import net.bestia.server.EntryActorNames;
 import net.bestia.zoneserver.service.LatencyService;
 
@@ -54,12 +54,12 @@ public class SendClientActor extends AbstractActor {
 
 		LOG.debug("Sending to client: {}", msg);
 
-		if (msg instanceof EntityComponentMessage) {
+		if (msg instanceof EntityComponentEnvelope) {
 			// If its a component message include the client latency in the
 			// message because the clients might need this for animation
 			// critical data.
 			final int latency = latencyService.getClientLatency(msg.getAccountId());
-			clientConnection.tell(((EntityComponentMessage) msg).createNewInstance(msg.getAccountId(), latency), getSender());
+			clientConnection.tell(((EntityComponentEnvelope) msg).createNewInstance(msg.getAccountId(), latency), getSender());
 		} else {
 			clientConnection.tell(msg, getSender());
 		}

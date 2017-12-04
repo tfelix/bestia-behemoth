@@ -17,7 +17,7 @@ import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ComponentSync;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.SyncType;
-import net.bestia.messages.entity.EntityComponentMessage;
+import net.bestia.messages.entity.EntityComponentEnvelope;
 import net.bestia.messages.entity.EntitySyncRequestMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
@@ -85,7 +85,7 @@ public class EntitySyncActor extends AbstractActor {
 
 		final Rect updateRect = MapService.getUpdateRect(activePos);
 
-		final List<net.bestia.entity.component.Component> test = entityService.getCollidingEntities(updateRect)
+		final List<net.bestia.entity.component.Component> components = entityService.getCollidingEntities(updateRect)
 				.stream()
 				.map(e -> entityService.getAllComponents(e))
 				.flatMap(c -> c.stream())
@@ -94,8 +94,8 @@ public class EntitySyncActor extends AbstractActor {
 				})
 				.collect(Collectors.toList());
 		
-		test.forEach(c -> {
-			final EntityComponentMessage ecm = new EntityComponentMessage(0, c, 0);
+		components.forEach(c -> {
+			final EntityComponentEnvelope ecm = EntityComponentEnvelope.forComponent(c);
 			ComponentSync syncAnno = c.getClass().getAnnotation(ComponentSync.class);
 			
 			if (syncAnno.value() == SyncType.ALL) {

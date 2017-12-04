@@ -15,7 +15,7 @@ import net.bestia.entity.component.PlayerComponent;
 import net.bestia.entity.component.SyncType;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.entity.EntityComponentDeleteMessage;
-import net.bestia.messages.entity.EntityComponentMessage;
+import net.bestia.messages.entity.EntityComponentEnvelope;
 import net.bestia.messages.internal.entity.EntityComponentStateMessage;
 
 /**
@@ -105,7 +105,7 @@ public class DefaultSyncInterceptor extends BaseComponentInterceptor<Component> 
 			return;
 		}
 
-		final EntityComponentMessage ecm = new EntityComponentMessage(0, comp, 0);
+		final EntityComponentEnvelope ecm = EntityComponentEnvelope.forComponent(comp);
 		final ComponentSync syncAnno = comp.getClass().getAnnotation(ComponentSync.class);
 
 		if (syncAnno.value() == SyncType.ALL) {

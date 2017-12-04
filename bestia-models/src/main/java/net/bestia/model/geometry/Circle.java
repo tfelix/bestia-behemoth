@@ -5,7 +5,7 @@ import com.google.common.base.Objects;
 /**
  * Represents a circle collision shape.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public final class Circle implements CollisionShape {
