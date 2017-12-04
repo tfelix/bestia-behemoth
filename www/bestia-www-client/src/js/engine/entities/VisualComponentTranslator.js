@@ -24,10 +24,10 @@ export default class VisualComponentTranslator {
 			type: ComponentNames.VISIBLE,
 			eid: componentMsg.eid,
 			id: componentMsg.c.id,
-			visible: componentMsg.c.visible,
+			visible: componentMsg.c.vis,
 			visual: {
-				sprite: componentMsg.c.visual.s,
-				type: componentMsg.c.visual.t
+				sprite: componentMsg.c.v.s,
+				type: componentMsg.c.v.t
 			}
 		};
 	}

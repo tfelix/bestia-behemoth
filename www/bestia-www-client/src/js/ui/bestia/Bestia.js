@@ -7,11 +7,9 @@ import ko from 'knockout';
 import Message from '../../io/messages/Message';
 import Signal from '../../io/Signal';
 import StatusPoint from './StatusPoints';
-//import StatusPointsComparer from './StatusPointsComparer';
 import StatusBasedValues from './StatusBasedValues';
 import ConditionValues from './ConditionValues';
 import ComponentNames from '../../engine/entities/ComponentNames';
-import StatusComponentTranslator from '../../engine/entities/StatusComponentTranslator';
 
 /**
  * Viewmodel for a Bestia.
@@ -46,6 +44,7 @@ export default class Bestia {
 		this.entityId = ko.observable(eid);
 		this.databaseName = ko.observable('');
 		this.equip = [];
+		
 		this.location = ko.observable('');
 		this.posX = ko.observable(0);
 		this.posY = ko.observable(0);
@@ -54,8 +53,10 @@ export default class Bestia {
 		}, this);
 		this.saveLocation = ko.observable();
 		this.customName = ko.observable('');
+		
 		this.sprite = ko.observable('');
 		this.spriteType = ko.observable('');
+		
 		this.statusEffects = [];
 		this.iconUrl = ko.pureComputed(function () {
 			return urlHelper.getMobIconUrl(self.databaseName());
@@ -106,6 +107,12 @@ export default class Bestia {
 			this.originalStatusPoints.update(statComp.originalStatusPoints);
 			this.conditionValues.update(statComp.conditionValues);
 			this.statusBasedValues.update(statComp.statusBasedValues);
+		}
+
+		if(entity.components.hasOwnProperty(ComponentNames.VISIBLE)) {
+			let comp = entity.components[ComponentNames.VISIBLE];
+			this.sprite(comp.visual.sprite);
+			this.spriteType(comp.visual.type);
 		}
 
 		// Bestia

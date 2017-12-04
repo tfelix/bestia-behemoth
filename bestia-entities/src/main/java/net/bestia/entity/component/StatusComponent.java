@@ -30,22 +30,12 @@ public class StatusComponent extends Component {
 	/**
 	 * Unmodified status points.
 	 */
-	@JsonProperty("osp")
 	private StatusPoints originalStatusPoints = new StatusPointsImpl();
-	
-	@JsonProperty("sp")
 	private StatusPoints statusPoints = new StatusPointsImpl();
-	
-	@JsonProperty("sbv")
 	private StatusBasedValues statusBasedValues = new StatusBasedValuesImpl(statusPoints, 1);
-	
-	@JsonProperty("oe")
 	private Element originalElement = Element.NORMAL;
-	
-	@JsonProperty("e")
 	private Element element = Element.NORMAL;
-	
-	@JsonProperty("cv")
+
 	private ConditionValues condValues = new ConditionValues();
 
 	public StatusComponent(long id) {
@@ -61,10 +51,12 @@ public class StatusComponent extends Component {
 	 * 
 	 * @return The current status points of the entity.
 	 */
+	@JsonProperty("sp")
 	public StatusPoints getStatusPoints() {
 		return statusPoints;
 	}
 
+	@JsonProperty("osp")
 	public StatusPoints getOriginalStatusPoints() {
 		return originalStatusPoints;
 	}
@@ -79,6 +71,7 @@ public class StatusComponent extends Component {
 		this.originalStatusPoints = statusPoints;
 	}
 
+	@JsonProperty("sbv")
 	public StatusBasedValues getStatusBasedValues() {
 		return statusBasedValues;
 	}
@@ -91,6 +84,7 @@ public class StatusComponent extends Component {
 		this.originalElement = originalElement;
 	}
 
+	@JsonProperty("cv")
 	public ConditionValues getConditionValues() {
 		return condValues;
 	}
@@ -101,6 +95,7 @@ public class StatusComponent extends Component {
 	 * 
 	 * @return The original unaltered element.
 	 */
+	@JsonProperty("oe")
 	public Element getOriginalElement() {
 		return originalElement;
 	}
@@ -110,6 +105,7 @@ public class StatusComponent extends Component {
 	 * 
 	 * @return The current element of the entity.
 	 */
+	@JsonProperty("e")
 	public Element getElement() {
 		return element;
 	}

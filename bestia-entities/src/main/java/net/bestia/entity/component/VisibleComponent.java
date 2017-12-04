@@ -2,6 +2,8 @@ package net.bestia.entity.component;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import net.bestia.model.domain.SpriteInfo;
 
 /**
@@ -30,6 +32,7 @@ public class VisibleComponent extends Component {
 	 * 
 	 * @return The {@link SpriteInfo} of this entity.
 	 */
+	@JsonProperty("v")
 	public SpriteInfo getVisual() {
 		return spriteInfo;
 	}
@@ -49,6 +52,7 @@ public class VisibleComponent extends Component {
 	 * 
 	 * @return TRUE if the entity is visible. FALSE otherwise.
 	 */
+	@JsonProperty("vis")
 	public boolean isVisible() {
 		return visible;
 	}
