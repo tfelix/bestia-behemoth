@@ -39,7 +39,19 @@ export default class EntityRenderer extends Renderer {
 		// no op
 	}
 
+	/**
+	 * If the entity was changed we need to update the entity inside the queue to 
+	 * the latest version and issue an update.
+	 */
 	_handleEntityUpdate(_, entity) {
+		// We must check if we have an entity with this id already in queue.
+		let index = this._updatedEntitites.findIndex(v => v.eid === entity.eid);
+
+		if(index !== -1) {
+			this._updatedEntitites.splice(index, 1);
+		}
+
+		// Add the new entity.
 		this._updatedEntitites.push(entity);
 	}
 

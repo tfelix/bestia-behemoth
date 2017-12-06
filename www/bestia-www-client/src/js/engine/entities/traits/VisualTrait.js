@@ -82,7 +82,8 @@ export class VisualTrait extends Trait {
 				return;
 			}
 
-			LOG.debug('Created sprite: ' + entity.sprite.name);
+			let visComp = entity.components[ComponentNames.VISIBLE];
+			LOG.debug('Created sprite: ' + visComp.visual.sprite);
 			spriteCache.setSprite(entity.eid, displayObj);
 
 			displayObj.alpha = 0;
@@ -95,7 +96,9 @@ export class VisualTrait extends Trait {
             this._checkSpriteRender(entity, displayObj);*/
 
 			// Switch to idle animation.
-			//addEntityAnimation(entity, 'stand_down');
+			entity.nextAnimation = 'stand_down';
+
+			this._checkSpriteRender(entity, displayObj);
 
 		}.bind(this));
 	}
@@ -112,8 +115,9 @@ export class VisualTrait extends Trait {
 			this._playAnimation(sprite, entity, entity.nextAnimation);
 		}
 
+		// If this is a multisprite also change the animation of the subsprites.
 		if (this._isMultisprite(sprite)) {
-			this._tickSubspriteAnimation(sprite, entity);
+			this._tickSubspriteAnimation(sprite);
 		}
 	}
 
@@ -194,7 +198,7 @@ export class VisualTrait extends Trait {
     /**
      * Update any subsprite animation with the current subsprite offset postion.
      */
-	_tickSubspriteAnimation(sprite, entity) {
+	_tickSubspriteAnimation(sprite) {
 
 		var curAnim = sprite.animations.name;
 

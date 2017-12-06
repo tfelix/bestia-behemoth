@@ -33,7 +33,8 @@ export default class DynamicSpriteBuilder extends Builder {
 	build(data, desc) {
 		LOG.debug('Building: ' + JSON.stringify(data) + ' (dynamic sprite)');
 
-		var pos = WorldHelper.getPxXY(data.position.x + 0.5, data.position.y + 0.9);
+		let posComp = data.components[ComponentNames.POSITION];
+		var pos = WorldHelper.getPxXY(posComp.position.x + 0.5, posComp.position.y + 0.9);
 		var sprite = this._game.add.sprite(pos.x, pos.y, desc.name);
 
 		groups.get(GROUP_LAYERS.SPRITES).add(sprite);
@@ -82,8 +83,6 @@ export default class DynamicSpriteBuilder extends Builder {
 	/**
 	 * Responsible for loading all the needed date before a build of the object
 	 * can be performed.
-	 * 
-	 * @param data
 	 */
 	load(descFile, fnOnComplete) {
 
@@ -126,9 +125,7 @@ export default class DynamicSpriteBuilder extends Builder {
 	* @param additionalSprites
 	* @returns
 	*/
-	_extendPack(descFile, additionalSprites) {
-
-		additionalSprites = additionalSprites || [];
+	_extendPack(descFile, additionalSprites = []) {
 
 		var pack = descFile.assetpack;
 		var key = descFile.name;

@@ -4,6 +4,7 @@ import NOOP from '../../../util/NOOP.js';
 import LOG from '../../../util/Log';
 import DescriptionLoader from '../../DescriptionLoader.js';
 import { descriptionCache } from '../../EngineData';
+import ComponentNames from '../ComponentNames';
 
 
 /**
@@ -41,9 +42,7 @@ export default class EntityFactory {
 	 * This will only load the assets specified in the given data set. The
 	 * callback function is executed after all loads have been performed.
 	 * 
-	 * @param {Function}
-	 *            fnOnComplete - Callback function getting the entity reference
-	 *            when the load process was completed.
+	 * @param {Function} fnOnComplete - Callback function getting the entity reference when the load process was completed.
 	 */
 	load(data, fnOnComplete) {
 		fnOnComplete = fnOnComplete || NOOP;
@@ -62,9 +61,7 @@ export default class EntityFactory {
 	 * used when to only load the sprite data which might be needed for
 	 * preloading form a different game state.
 	 * 
-	 * @param {Function}
-	 *            fnOnComplete - Callback function getting the entity reference
-	 *            when the build process was completed.
+	 * @param {Function} fnOnComplete - Callback function getting the entity reference when the build process was completed.
 	 */
 	build(data, fnOnComplete) {
 		LOG.debug('Building entity: ' + JSON.stringify(data));
@@ -79,7 +76,7 @@ export default class EntityFactory {
 			// the entity. Hand over the now loaded description file as well as
 			// the callback.
 			LOG.debug('Description not found. Loading it.');
-			this.descLoader.loadDescription(data, function(descFile){
+			this.descLoader.loadDescription(data, function (descFile) {
 				// Description file was loaded. We can now store it.
 				descriptionCache.addSpriteDescription(descFile);
 				this._continueBuildWithDescription(data, fnOnComplete, descFile);
@@ -117,20 +114,23 @@ export default class EntityFactory {
 
 			// Abort if there is only loading required.
 			if (data.onlyLoad === true) {
+				LOG.debug('Aborting entity creation. Data was only loaded.');
 				fnOnComplete(null);
 				return;
 			}
 
 			// Do some sanity checks.
-			if (data.eid === undefined) {
+			if (!data.eid) {
 				throw 'No eid (entity id) is given.';
 			}
 
-			if (data.position.x === undefined || data.position.y === undefined) {
+			let positionComp = data.components[ComponentNames.POSITION];
+			if (!positionComp.position.x || !positionComp.position.y) {
 				throw 'No x and/or y (x, y) postion is given';
 			}
 
-			if (!data.sprite) {
+			let visComp = data.components[ComponentNames.VISIBLE];
+			if (!visComp.visual.sprite) {
 				throw 'No spritename (s) given';
 			}
 
@@ -138,16 +138,17 @@ export default class EntityFactory {
 
 			try {
 				entity = builder.build(data, descFile);
-			} catch(err) {
+			} catch (err) {
 				LOG.warn('Error while build sprite: ' + err);
 				entity = null;
 			}
-			
+
 			// Call the callback handler.
 			try {
 				fnOnComplete(entity);
 			} catch (err) {
 				LOG.warn('Could not perform callback after entity was build.', fnOnComplete);
+				LOG.warn('Error: ', err);
 			}
 
 		}.bind(this));
