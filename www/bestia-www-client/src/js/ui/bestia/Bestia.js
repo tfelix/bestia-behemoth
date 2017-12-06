@@ -119,9 +119,15 @@ export default class Bestia {
 			this.entityId(comp.eid);
 		}
 
-		/*
-		this.posX(b.cl.x);
-		this.posY(b.cl.y);
-		this.level(b.lv);*/
+		if(entity.components.hasOwnProperty(ComponentNames.POSITION)) {
+			let comp = entity.components[ComponentNames.POSITION];
+			this.posX(comp.position.x);
+			this.posY(comp.position.y);
+		}
+
+		if(entity.components.hasOwnProperty(ComponentNames.LEVEL)) {
+			let comp = entity.components[ComponentNames.LEVEL];
+			this.level(comp.level);
+		}
 	}
 }
