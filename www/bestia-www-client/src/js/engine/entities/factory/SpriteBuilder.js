@@ -1,7 +1,7 @@
 import Builder from './Builder.js';
 import groups, { GROUP_LAYERS } from '../../Groups';
 import LOG from '../../../util/Log';
-import Signal from '../../../io/Signal';
+import ComponentNames from '../ComponentNames';
 import { engineContext } from '../../EngineData';
 import { setupSpriteAnimation } from '../traits/VisualTrait';
 import WorldHelper from '../../map/WorldHelper';
@@ -44,6 +44,6 @@ export default class SpriteBuilder extends Builder {
 	}
 
 	canBuild(data) {
-		return data.sprite.type.toUpperCase() === 'PACK';
+		return data.components[ComponentNames.VISIBLE].visual.type.toUpperCase() === 'PACK';
 	}
 }

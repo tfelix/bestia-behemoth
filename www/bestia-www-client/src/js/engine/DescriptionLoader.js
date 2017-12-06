@@ -1,5 +1,6 @@
 import NOOP from '../util/NOOP.js';
 import LOG from '../util/Log';
+import ComponentNames from '../engine/entities/ComponentNames';
 import { engineContext } from './EngineData';
 
 /**
@@ -67,14 +68,15 @@ export default class DescriptionLoader {
 	 * Returns the right description URL depending on the data type.
 	 */
 	_getUrlFromData(data) {
-		switch (data.sprite.type.toUpperCase()) {
+		let visual = data.components[ComponentNames.VISIBLE].visual;
+		switch (visual.type.toUpperCase()) {
 			case 'PACK':
 			case 'DYNAMIC':
 				// its an mob.
-				return this._url.getMobDescUrl(data.sprite.name);
+				return this._url.getMobDescUrl(visual.sprite);
 			default:
 				// its an object.
-				return this._url.getObjectDescUrl(data.sprite.name);
+				return this._url.getObjectDescUrl(visual.sprite);
 		}
 	}
 
@@ -84,6 +86,6 @@ export default class DescriptionLoader {
 	 * @param {object} data
 	 */
 	_getNameFromData(data) {
-		return data.sprite.name;
+		return data.components[ComponentNames.VISIBLE].visual.sprite;
 	}
 }

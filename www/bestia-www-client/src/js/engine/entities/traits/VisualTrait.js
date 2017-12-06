@@ -4,9 +4,10 @@ import EntityFactory from '../factory/EntityFactory';
 import { spriteCache, descriptionCache } from '../../EngineData';
 import ComponentNames from '../ComponentNames';
 
+/*
 export function addEntityAnimation(entity, animName) {
 	entity.nextAnimation = animName;
-}
+}*/
 
 /**
  * Helper function to setup a sprite with all the information contained
@@ -66,10 +67,7 @@ export class VisualTrait extends Trait {
 	handleTrait(entity, sprite) {
 		if (!sprite) {
 			// We have no sprite. Maybe we need to create it.
-			if (entity.action === 'appear') {
-				this.buildEntitySprite(entity);
-				entity.action = null;
-			}
+			this.buildEntitySprite(entity);
 		} else {
 			this._checkSpriteRender(entity, sprite);
 		}
@@ -97,7 +95,7 @@ export class VisualTrait extends Trait {
             this._checkSpriteRender(entity, displayObj);*/
 
 			// Switch to idle animation.
-			addEntityAnimation(entity, 'stand_down');
+			//addEntityAnimation(entity, 'stand_down');
 
 		}.bind(this));
 	}
@@ -164,7 +162,7 @@ export class VisualTrait extends Trait {
 		// fallback strategys to test before we fail.
 		if (!descriptionCache.hasAnimation(sprite.key, animName)) {
 
-			animName = descriptionCache.getAnimationFallback(sprite.key, animName);
+			animName = descriptionCache.getAnimationFallback(animName);
 
 			if (animName === null) {
 				LOG.warn('Could not found alternate animation solution for: ' + name);

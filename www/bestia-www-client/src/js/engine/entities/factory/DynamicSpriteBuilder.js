@@ -3,10 +3,11 @@ import groups, { GROUP_LAYERS } from '../../Groups';
 import LOG from '../../../util/Log';
 import { setupSpriteAnimation } from '../traits/VisualTrait';
 import WorldHelper from '../../map/WorldHelper';
+import ComponentNames from '../ComponentNames';
 import { engineContext, descriptionCache } from '../../EngineData';
 import { addSubsprite } from '../traits/VisualTrait';
 
-const NULL_OFFSET = { x: 0, y: 0 };
+//const NULL_OFFSET = { x: 0, y: 0 };
 
 /**
  * This is able to create sprite entities which differ to the runtime. It must
@@ -172,7 +173,7 @@ export default class DynamicSpriteBuilder extends Builder {
 	 * corrected.
 	 */
 	canBuild(data) {
-		return data.sprite.type === 'DYNAMIC';
+		return data.components[ComponentNames.VISIBLE].visual.type.toUpperCase() === 'DYNAMIC';
 	}
 
 	_getOffsetFilename(multispriteName, mainspriteName) {

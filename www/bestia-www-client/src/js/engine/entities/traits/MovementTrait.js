@@ -1,8 +1,6 @@
-import { engineContext } from '../../EngineData';
 import Trait from './Trait';
 import LOG from '../../../util/Log';
 import WorldHelper from '../../map/WorldHelper';
-import { addEntityAnimation } from './VisualTrait';
 
 /**
  * Adds a movement structure to an entity.
@@ -87,8 +85,8 @@ function setPosition(sprite, x, y) {
  * Returns the animation name for walking to this position, from the old
  * position.
  * 
- * @param oldPos
- * @param newPos
+ * @param oldTile
+ * @param newTile
  */
 function getWalkAnimationName(oldTile, newTile) {
 
@@ -128,8 +126,8 @@ function getWalkAnimationName(oldTile, newTile) {
 /**
  * Returns the animation name for standing to this position.
  * 
- * @param oldPos
- * @param newPos
+ * @param oldTile
+ * @param newTile
  */
 function getStandAnimationName(oldTile, newTile) {
 	var x = newTile.x - oldTile.x;
@@ -261,7 +259,7 @@ export class MovementTrait extends Trait {
 			} else {
 				var currentPosition = currentPath[currentPathCounter];
 				var nextAnim = getWalkAnimationName(currentPosition, path[currentPathCounter + 1]);
-				addEntityAnimation(entity, nextAnim);
+				//addEntityAnimation(entity, nextAnim);
 			}
 
 		}, this);
@@ -274,7 +272,7 @@ export class MovementTrait extends Trait {
 			var currentPos = path[size - 1];
 			var lastPos = path[size - 2];
 			var nextAnim = getStandAnimationName(lastPos, currentPos);
-			addEntityAnimation(entity, nextAnim);
+			//addEntityAnimation(entity, nextAnim);
 
 			this.position = currentPos;
 		}, this);
@@ -282,7 +280,7 @@ export class MovementTrait extends Trait {
 		// Start the first animation immediately, because the usual checks
 		// only start to check after the first tween has finished.
 		var nextAnim = getWalkAnimationName(path[0], path[1]);
-		addEntityAnimation(entity, nextAnim);
+		//addEntityAnimation(entity, nextAnim);
 		sprite.tweenMove.start();
 	}
 }

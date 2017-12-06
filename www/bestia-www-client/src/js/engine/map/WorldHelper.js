@@ -16,38 +16,34 @@ export default class WorldHelper {
 	static get TILE_SIZE() {
 		return TILE_SIZE;
 	}
-	
+
 	/**
 	 * Size of the chunks in tiles.
 	 */
 	static get CHUNK_SIZE() {
 		return CHUNK_SIZE;
 	}
-	
+
 	/**
 	 * Sight range of the player in tiles. X and Y direction.
 	 */
 	static get SIGHT_RANGE() {
-		return {x: SIGHT_RANGE_X, y: SIGHT_RANGE_Y};
+		return { x: SIGHT_RANGE_X, y: SIGHT_RANGE_Y };
 	}
 
 	/**
 	 * Returns the px coordiantes if tiles x and y coordiantes are given.
 	 * 
 	 * @method Bestia.Engine.World#getPxXY
-	 * @param {int}
-	 *            tileX - Tile x coordiantes.
-	 * @param {int}
-	 *            tileY - Tile y coordiantes.
-	 * @param {Object}
-	 *            obj - Optional: Object to update with the new coordiantes.
-	 * @return {Object} - X and Y px coordiantes in the form
-	 * @{code {x: INT, y: INT}}.
+	 * @param {number} tileX - Tile x coordiantes.
+	 * @param {number} tileY - Tile y coordiantes.
+	 * @param {Object} obj - Optional: Object to update with the new coordiantes.
+	 * @return {Object} - X and Y px coordiantes in the form {x: INT, y: INT}.
 	 */
-	static getPxXY(tileX, tileY, obj) {
+	static getPxXY(tileX, tileY, obj = undefined) {
 		obj = obj || {
-			x : 0,
-			y : 0
+			x: 0,
+			y: 0
 		};
 
 		obj.x = tileX * this.TILE_SIZE;
@@ -64,8 +60,8 @@ export default class WorldHelper {
 	 */
 	static getSpritePxXY(tileX, tileY, obj) {
 		obj = obj || {
-			x : 0,
-			y : 0
+			x: 0,
+			y: 0
 		};
 		this.getPxXY(tileX, tileY, obj);
 		obj.x = obj.x + this.TILE_SIZE / 2;
@@ -77,16 +73,13 @@ export default class WorldHelper {
 	 * Returns the tile coordinates if coordinates in pixel are given.
 	 * 
 	 * @method Bestia.Engine.World#getTileXY
-	 * @param {Object}
-	 *            obj - Optional: An object with gets updated with the new
-	 *            coordiantes.
-	 * @return {Object} - X and Y tile coordiantes in px in the form
-	 * @{code {x: INT, y: INT}}.
+	 * @param {Object} obj - Optional: An object with gets updated with the new coordiantes.
+	 * @return {Object} - X and Y tile coordiantes in px in the form {x: INT, y: INT}.
 	 */
-	static getTileXY(pxX, pxY, obj) {
+	static getTileXY(pxX, pxY, obj = undefined) {
 		obj = obj || {
-			x : 0,
-			y : 0
+			x: 0,
+			y: 0
 		};
 
 		obj.x = Math.floor(pxX / this.TILE_SIZE);
