@@ -6,6 +6,7 @@ import StatusComponentTranslator from './StatusComponentTranslator';
 import VisualComponentTranslator from './VisualComponentTranslator';
 import PlayerComponentTranslator from './PlayerComponentTranslator';
 import LevelComponentTranslator from './LevelComponentTranslator';
+import MoveComponentTranslator from './MoveComponentTranslator';
 
 /**
  * This class takes incoming component updates and syncs the entity model with this 
@@ -24,6 +25,7 @@ export default class EntityComponentUpdater {
 		this._translators.push(new VisualComponentTranslator());
 		this._translators.push(new PlayerComponentTranslator());
 		this._translators.push(new LevelComponentTranslator());
+		this._translators.push(new MoveComponentTranslator());
 
 		this._pubsub = pubsub;
 
@@ -39,27 +41,29 @@ export default class EntityComponentUpdater {
 		let transMsg = null;
 
 		// Try to translate the message into a usable format.
-		this._translators.forEach(trans => {
+		for(let i = 0; i < this._translators.length; i++) {
+			let trans = this._translators[i];
 			if (trans.handlesComponent(msg)) {
 				transMsg = trans.translate(msg);
+				break;
 			}
-		});
+		}
 
 		if (transMsg === null) {
 			LOG.warn('Component message could not be translated.');
 			return;
+		} else {
+			let entity = this._getOrCreateEntity(transMsg.eid);
+
+			// Check if the component differs from each other.
+			let component = entity.components[transMsg.type];
+			if (this._isComponentDataEqual(component, transMsg)) {
+				return;
+			}
+
+			entity.components[transMsg.type] = transMsg;
+			this._pubsub.publish(Signal.ENTITY_UPDATE, entity, component);
 		}
-
-		let entity = this._getOrCreateEntity(transMsg.eid);
-
-		// Check if the component differs from each other.
-		let component = entity.components[transMsg.type];
-		if (this._isComponentDataEqual(component, transMsg)) {
-			return;
-		}
-
-		entity.components[transMsg.type] = transMsg;
-		this._pubsub.publish(Signal.ENTITY_UPDATE, entity, component);
 	}
 
     /**

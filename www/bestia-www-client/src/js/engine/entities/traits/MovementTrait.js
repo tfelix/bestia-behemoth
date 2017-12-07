@@ -1,31 +1,14 @@
 import Trait from './Trait';
 import LOG from '../../../util/Log';
 import WorldHelper from '../../map/WorldHelper';
-
-/**
- * Adds a movement structure to an entity.
- * 
- * @param {object} entity - The entity to add the movement structure to.
- * @param {array} path - An array containing points (x and y objects) to describe a movement path.
- * @param {float} walkspeed - The walkspeed of the entity.
- * @param {delta} delta - The time delay for this movement and this client. The movement 
- * has started since this time already and must be speed up to compensate for this.
- */
-export function addEntityMovement(entity, path, walkspeed, delta) {
-
-	walkspeed = walkspeed || 1;
-	delta = delta || 0;
-
-	entity.movement = {
-		path: path,
-		speed: walkspeed,
-		delta: delta
-	};
-}
+import ComponentNames from '../ComponentNames';
+import Signal from '../../../io/Signal';
+import { playEntityAnimation } from './VisualTrait';
 
 /**
  * Helper methods and function to perform sprite entity manipulations on phaser sprites.
  */
+/*
 const FACING = Object.freeze({
 	TOP: 1,
 	TOP_RIGHT: 2,
@@ -35,7 +18,7 @@ const FACING = Object.freeze({
 	BOTTOM_LEFT: 6,
 	LEFT: 7,
 	TOP_LEFT: 8
-});
+});*/
 
 /**
  * Calculates the duration in ms of the total walk of the given path.
@@ -59,7 +42,7 @@ function getWalkDuration(length, walkspeed) {
 function setPosition(sprite, x, y) {
 
 	// Position directly if we are actually not moving.
-	if (!isMoving(sprite, x, y)) {
+	if (!isMoving(sprite)) {
 		sprite.x = x;
 		sprite.y = y;
 		return;
@@ -169,10 +152,14 @@ function isMoving(sprite) {
 /**
  * Checks if there is a movement patch attached to an entity. If so this
  * trait will perform the rendering of the movement.
+ * 
+ * @export
+ * @class MovementTrait
+ * @extends {Trait}
  */
 export class MovementTrait extends Trait {
 
-	constructor(game) {
+	constructor(game, pubsub) {
 		super();
 
 		if (!game) {
@@ -180,6 +167,15 @@ export class MovementTrait extends Trait {
 		}
 
 		this._game = game;
+		//pubsub.subscribe(Signal.ENTITY_UPDATE, this._handleEntityUpdate, this);
+	}
+
+	_handleEntityUpdate(_, entity, component) {
+		if(component.type !== ComponentNames.MOVE) {
+			return;
+		}
+
+		// DEN ANSATZ VERFOLGEN?
 	}
 
     /**
@@ -187,27 +183,23 @@ export class MovementTrait extends Trait {
      * @param {object} entity Entity object. 
      */
 	hasTrait(entity) {
-		return entity.hasOwnProperty('movement');
+		return entity.components.hasOwnProperty(ComponentNames.MOVE);
 	}
 
 	handleTrait(entity, sprite) {
 		LOG.info('Moving entity: ' + entity.eid);
-
 		this.spriteMovePath(sprite, entity);
-
-		delete entity.movement;
 	}
 
-    /**
-     * Moves the entity along a certain path. The path is an array with {x: INT,
+	/**
+	 * Moves the entity along a certain path. The path is an array with {x: INT,
      * y: INT} components. The path must not contain the current position of the
      * entity.
-     * 
-     * @param {Array[]} -
-     *            Array containing point objects {x: Number, y: Number} objects.
-     * @param {float}
-     *            speed - The movement speed.
-     */
+	 * 
+	 * @param {any} sprite 
+	 * @param {any} entity 
+	 * @memberof MovementTrait
+	 */
 	spriteMovePath(sprite, entity) {
 
 		let path = entity.movement.path;
@@ -259,7 +251,7 @@ export class MovementTrait extends Trait {
 			} else {
 				var currentPosition = currentPath[currentPathCounter];
 				var nextAnim = getWalkAnimationName(currentPosition, path[currentPathCounter + 1]);
-				//addEntityAnimation(entity, nextAnim);
+				playEntityAnimation(entity, nextAnim);
 			}
 
 		}, this);
@@ -272,7 +264,7 @@ export class MovementTrait extends Trait {
 			var currentPos = path[size - 1];
 			var lastPos = path[size - 2];
 			var nextAnim = getStandAnimationName(lastPos, currentPos);
-			//addEntityAnimation(entity, nextAnim);
+			playEntityAnimation(entity, nextAnim);
 
 			this.position = currentPos;
 		}, this);
@@ -280,7 +272,7 @@ export class MovementTrait extends Trait {
 		// Start the first animation immediately, because the usual checks
 		// only start to check after the first tween has finished.
 		var nextAnim = getWalkAnimationName(path[0], path[1]);
-		//addEntityAnimation(entity, nextAnim);
+		playEntityAnimation(entity, nextAnim);
 		sprite.tweenMove.start();
 	}
 }

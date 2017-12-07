@@ -4,10 +4,19 @@ import EntityFactory from '../factory/EntityFactory';
 import { spriteCache, descriptionCache } from '../../EngineData';
 import ComponentNames from '../ComponentNames';
 
-/*
-export function addEntityAnimation(entity, animName) {
-	entity.nextAnimation = animName;
-}*/
+/**
+ * This will play the entity animation in the next tick of the render system.
+ * 
+ * @export
+ * @param {any} entity The entity to play the animation.
+ * @param {any} animName The animation to play for this entity.
+ */
+export function playEntityAnimation(entity, animName) {
+	if (!entity.components[ComponentNames.VISIBLE]) {
+		entity.components[ComponentNames.VISIBLE] = {};
+	}
+	entity.components[ComponentNames.VISIBLE].nextAnimation = animName;
+}
 
 /**
  * Helper function to setup a sprite with all the information contained
@@ -91,10 +100,6 @@ export class VisualTrait extends Trait {
 			// Fade in the entity.
 			this._game.add.tween(displayObj).to({ alpha: 1 }, 500, Phaser.Easing.Linear.None, true);
 
-            /*
-            // Check if it needs rendering.
-            this._checkSpriteRender(entity, displayObj);*/
-
 			// Switch to idle animation.
 			entity.nextAnimation = 'stand_down';
 
@@ -111,8 +116,10 @@ export class VisualTrait extends Trait {
      */
 	_checkSpriteRender(entity, sprite) {
 
-		if (entity.hasOwnProperty('nextAnimation')) {
-			this._playAnimation(sprite, entity, entity.nextAnimation);
+		let nextAnim = entity.components[ComponentNames.VISIBLE].nextAnimation;
+		if (nextAnim) {
+			this._playAnimation(sprite, entity, nextAnim);
+			delete entity.components[ComponentNames.VISIBLE].nextAnimation;
 		}
 
 		// If this is a multisprite also change the animation of the subsprites.
@@ -179,8 +186,6 @@ export class VisualTrait extends Trait {
 		if (this._isMultisprite(sprite)) {
 			this._playSubspriteAnimation(sprite, entity.nextAnimation);
 		}
-
-		delete entity.nextAnimation;
 	}
 
 	_playSubspriteAnimation(sprite, animName) {
@@ -204,7 +209,7 @@ export class VisualTrait extends Trait {
 
 		// The frame names are ???/001.png etc.
 		if (sprite.frameName === undefined) {
-			console.error('Soll nicht passieren');
+			LOG.error('Unknown subsprite name. Should not happen.');
 		}
 		var start = sprite.frameName.length - 7;
 		var frameNumber = sprite.frameName.substring(start, start + 3);

@@ -7,8 +7,7 @@ import { DebugRenderer } from '../renderer/DebugRenderer';
 import { EntityMenuRenderer } from '../renderer/EntityMenuRenderer';
 import IndicatorManager from '../indicator/IndicatorManager';
 import DemandLoader from '../DemandLoader';
-import { engineContext, entityCache } from '../EngineData';
-import EntityUpdater from '../entities/EntityUpdater';
+import { engineContext } from '../EngineData';
 
 /**
  * The state is triggered for the first game loading. A real loading screen will
@@ -36,7 +35,6 @@ export default class InitializeState {
 		// methods of the engine ctx inside the object ctor should be avoided to tackle the problem.		
 		engineContext.loader = new DemandLoader(this);
 		engineContext.indicatorManager = new IndicatorManager();
-		engineContext.entityUpdater = new EntityUpdater(engineContext.pubsub);
 
 		// ==== PREPARE RENDERER ====
 		engineContext.renderManager = new RenderManager();

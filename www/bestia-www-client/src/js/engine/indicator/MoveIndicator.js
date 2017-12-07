@@ -1,9 +1,10 @@
 import Indicator from './Indicator.js';
+import LOG from '../../util/Log';
 import Message from '../../io/messages/Message.js';
 import WorldHelper from '../map/WorldHelper.js';
 import { engineContext, entityCache, pathfinder } from '../EngineData';
-import { addEntityMovement } from '../entities/traits/MovementTrait';
 import Signal from '../../io/Signal';
+import { addMoveComponent } from '../entities/MoveComponentTranslator';
 
 /**
  * Basic indicator for visualization of the mouse pointer.
@@ -19,9 +20,10 @@ export default class MoveIndicator extends Indicator {
 		this._pubsub = engineContext.pubsub;
 		this._game = engineContext.game;
 
-		this.playerBestia = null;
+		this._playerBestia = null;
 		
 		this._pubsub.subscribe(Signal.BESTIA_SELECTED, function (_, bestia) {
+			LOG.debug('MoveIndivator: New Bestia detected.');
 			this._playerBestia = bestia;
 		}, this);
 	}
@@ -48,7 +50,7 @@ export default class MoveIndicator extends Indicator {
 
 		// Start movement locally as well.
 		var entity = entityCache.getEntity(eid);
-		addEntityMovement(entity, path, speed, 0);
+		addMoveComponent(entity, path, speed);
 	}
 
 	_onClick(pointer) {
