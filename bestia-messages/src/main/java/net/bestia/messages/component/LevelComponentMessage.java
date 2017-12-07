@@ -4,14 +4,14 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class LevelComponent implements Serializable {
+public class LevelComponentMessage implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
 	@JsonProperty("lv")
 	private final int level;
 
-	public LevelComponent(int level) {
+	public LevelComponentMessage(int level) {
 		
 		this.level = level;
 	}

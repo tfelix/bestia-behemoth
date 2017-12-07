@@ -5,6 +5,7 @@ import PositionCompTranslator from './PositionCompTranslator';
 import StatusComponentTranslator from './StatusComponentTranslator';
 import VisualComponentTranslator from './VisualComponentTranslator';
 import PlayerComponentTranslator from './PlayerComponentTranslator';
+import LevelComponentTranslator from './LevelComponentTranslator';
 
 /**
  * This class takes incoming component updates and syncs the entity model with this 
@@ -22,6 +23,7 @@ export default class EntityComponentUpdater {
 		this._translators.push(new StatusComponentTranslator());
 		this._translators.push(new VisualComponentTranslator());
 		this._translators.push(new PlayerComponentTranslator());
+		this._translators.push(new LevelComponentTranslator());
 
 		this._pubsub = pubsub;
 

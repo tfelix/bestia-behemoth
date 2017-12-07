@@ -65,6 +65,7 @@ export default class Bestia {
 		this.statusEffects = [];
 		
 		this.level = ko.observable(1);
+		this.exp = ko.observable(0);
 		this.slot = ko.observable();
 
 		this.statusPoints = new StatusPoint();
@@ -128,6 +129,7 @@ export default class Bestia {
 		if(entity.components.hasOwnProperty(ComponentNames.LEVEL)) {
 			let comp = entity.components[ComponentNames.LEVEL];
 			this.level(comp.level);
+			this.exp(comp.exp);
 		}
 	}
 }

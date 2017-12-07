@@ -6,13 +6,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * This level component messages contains the current EXP amount of the bestia
- * this is send to the owner of the bestia. The normal {@link LevelComponent} is
+ * this is send to the owner of the bestia. The normal {@link LevelComponentMessage} is
  * send to all others which only contains the level.
  * 
  * @author Thomas Felix
  *
  */
-public class LevelComponentEx implements Serializable {
+public class LevelComponentExMessage implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -22,7 +22,7 @@ public class LevelComponentEx implements Serializable {
 	@JsonProperty("e")
 	private final int exp;
 
-	public LevelComponentEx(int level, int exp) {
+	public LevelComponentExMessage(int level, int exp) {
 
 		this.level = level;
 		this.exp = exp;
