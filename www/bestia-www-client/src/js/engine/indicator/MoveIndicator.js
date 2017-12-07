@@ -2,7 +2,7 @@ import Indicator from './Indicator.js';
 import LOG from '../../util/Log';
 import Message from '../../io/messages/Message.js';
 import WorldHelper from '../map/WorldHelper.js';
-import { engineContext, entityCache, pathfinder } from '../EngineData';
+import { engineContext, pathfinder } from '../EngineData';
 import Signal from '../../io/Signal';
 import { addMoveComponent } from '../entities/MoveComponentTranslator';
 
@@ -21,10 +21,18 @@ export default class MoveIndicator extends Indicator {
 		this._game = engineContext.game;
 
 		this._playerBestia = null;
+		this._playerEntity = null;
 		
 		this._pubsub.subscribe(Signal.BESTIA_SELECTED, function (_, bestia) {
 			LOG.debug('MoveIndivator: New Bestia detected.');
 			this._playerBestia = bestia;
+		}, this);
+
+		// Catch the currently selected entity if its getting updated.
+		this._pubsub.subscribe(Signal.ENTITY_UPDATE, function (_, entity) {
+			if(this._playerBestia && entity.eid === this._playerBestia.entityId()) {
+				this._playerEntity = entity;
+			}
 		}, this);
 	}
 
@@ -49,8 +57,7 @@ export default class MoveIndicator extends Indicator {
 		this._pubsub.send(msg);
 
 		// Start movement locally as well.
-		var entity = entityCache.getEntity(eid);
-		addMoveComponent(entity, path, speed);
+		addMoveComponent(this._playerEntity, path, speed);
 	}
 
 	_onClick(pointer) {

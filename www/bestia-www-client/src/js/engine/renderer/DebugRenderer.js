@@ -1,11 +1,11 @@
 import Renderer from './Renderer';
-import { engineContext, entityCache, spriteCache } from '../EngineData';
+import { engineContext, spriteCache } from '../EngineData';
 
 const TXT_STYLE = Object.freeze({
-    font: '15px Arial',
-    fill: '#ffffff',
-    boundsAlignH: 'center',
-    boundsAlignV: 'middle'
+	font: '15px Arial',
+	fill: '#ffffff',
+	boundsAlignH: 'center',
+	boundsAlignV: 'middle'
 });
 
 /**
@@ -14,62 +14,63 @@ const TXT_STYLE = Object.freeze({
  */
 export function setDebugEntityIdDisplay(isEnabled) {
 
-    engineContext.data.showEntityId = isEnabled;
+	engineContext.data.showEntityId = isEnabled;
 
-    if (!isEnabled) {
-        entityCache.getAllEntities().forEach(function (entity) {
-            var sprite = spriteCache.getSprite(entity.eid);
+	if (!isEnabled) {
+		/*entityCache.getAllEntities().forEach(function (entity) {
+			var sprite = spriteCache.getSprite(entity.eid);
 
-            if (sprite == null || sprite._debugEidTxt) {
-                return;
-            }
+			if (sprite == null || sprite._debugEidTxt) {
+				return;
+			}
 
-            sprite._debugEidTxt.destroy();
-            delete sprite._debugEidTxt;
+			sprite._debugEidTxt.destroy();
+			delete sprite._debugEidTxt;
 
-        }, this);
-    }
+		}, this);*/
+	}
 }
 
 export class DebugRenderer extends Renderer {
 
-    constructor(game) {
-        super();
+	constructor(game) {
+		super();
 
-        this._game = game;
-    }
+		this._game = game;
+	}
 
-    get name() {
-        return 'debug';
-    }
+	get name() {
+		return 'debug';
+	}
 
-    isDirty() {
-        return engineContext.data.hasOwnProperty('showEntityId');
-    }
+	isDirty() {
+		return engineContext.data.hasOwnProperty('showEntityId');
+	}
 
-    clear() {
-        // no op
-    }
+	clear() {
+		// no op
+	}
 
     /**
      * Iterates through every entity and checks if there is render work to be done
      * to display stuff attached to this entity.
      */
-    update() {
-        entityCache.getAllEntities().forEach(function (entity) {
-            var sprite = spriteCache.getSprite(entity.eid);
+	update() {
+		/*
+		entityCache.getAllEntities().forEach(function (entity) {
+			var sprite = spriteCache.getSprite(entity.eid);
 
-            if (sprite == null || sprite._debugEidTxt) {
-                return;
-            }
+			if (sprite == null || sprite._debugEidTxt) {
+				return;
+			}
 
-            let eidSprite = this._game.add.text(0, 0, entity.eid, TXT_STYLE);
-            eidSprite.anchor.set(0.5, 0);
-            eidSprite.setScaleMinMax(1, 1);
+			let eidSprite = this._game.add.text(0, 0, entity.eid, TXT_STYLE);
+			eidSprite.anchor.set(0.5, 0);
+			eidSprite.setScaleMinMax(1, 1);
 
-            sprite._debugEidTxt = eidSprite;
-            sprite.addChild(eidSprite);
+			sprite._debugEidTxt = eidSprite;
+			sprite.addChild(eidSprite);
 
-        }, this);
-    }
+		}, this);*/
+	}
 }

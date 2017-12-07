@@ -23,7 +23,6 @@ export default class EntityRenderer extends Renderer {
 		this.traits.push(new MovementTrait(game, engineContext.pubsub));
 		this.traits.push(new ChatTrait(game, engineContext.pubsub));
 
-		//this._compUpdater = engineContext.entityComponentUpdater;
 		pubsub.subscribe(Signal.ENTITY_UPDATE, this._handleEntityUpdate, this);
 	}
 
@@ -74,6 +73,9 @@ export default class EntityRenderer extends Renderer {
 					var sprite = spriteCache.getSprite(entity.eid);
 					trait.handleTrait(entity, sprite);
 				}
+
+				// Call some cleanup code if needed.
+				trait.postEntityIteration();
 			}, this);
 		}, this);
 

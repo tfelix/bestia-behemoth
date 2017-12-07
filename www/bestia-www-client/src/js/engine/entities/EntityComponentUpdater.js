@@ -76,6 +76,7 @@ export default class EntityComponentUpdater {
 			// in the next pass.
 			e.componentsDeleted[msg.cid] = e.components[msg.cid];
 			delete e.components[msg.cid];
+			this._pubsub.publish(Signal.ENTITY_UPDATE, e);
 		}
 	}
 

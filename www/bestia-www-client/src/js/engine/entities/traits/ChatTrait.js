@@ -1,6 +1,5 @@
 import Trait from './Trait';
 import Signal from '../../../io/Signal';
-import { entityCache } from '../../EngineData';
 import LOG from '../../../util/Log';
 
 const CHAT_DISPLAY_DURATION_MS = 3500;
@@ -31,6 +30,7 @@ export class ChatTrait extends Trait {
 
 		this._pubsub = pubsub;
 		this._game = game;
+		this._chatBuffer = {};
 
 		this._pubsub.subscribe(Signal.CHAT_RECEIVED, this._onChatMsgHandler, this);
 	}
@@ -46,14 +46,11 @@ export class ChatTrait extends Trait {
 		}
 
 		LOG.debug('Incoming chat message for entity: ' + msg.entityId);
+		this._chatBuffer[msg.entityId] = msg;
+	}
 
-		var entity = entityCache.getEntity(msg.entityId);
-		if (!entity) {
-			LOG.debug('Entity not found. Cant add chat message.');
-			return;
-		}
-
-		entity.chatMsg = msg.text();
+	postEntityIteration() {
+		this._chatBuffer = {};
 	}
 
     /**
@@ -61,7 +58,7 @@ export class ChatTrait extends Trait {
      * @param {object} entity Entity object. 
      */
 	hasTrait(entity) {
-		return entity.hasOwnProperty('chatMsg');
+		return this._chatBuffer.hasOwnProperty(entity.eid);
 	}
 
     /**
@@ -70,9 +67,7 @@ export class ChatTrait extends Trait {
      * @param {PhaserJS.Sprite} sprite Sprite object from PhaserJS.
      */
 	handleTrait(entity, sprite) {
-		let text = entity.chatMsg;
-		delete entity.chatMsg;
-
+		let text = this._chatBuffer[entity.eid].text();
 		this._createChatVisual(sprite, text);
 	}
 
