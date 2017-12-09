@@ -1,13 +1,9 @@
+import * as Phaser from 'phaser';
 import Signal from '../../io/Signal.js';
 import LOG from '../../util/Log';
-import {engineContext} from '../EngineData';
-
-var style = {
-	font : 'bold 32px Arial',
-	fill : '#fff',
-	boundsAlignH :'center',
-	boundsAlignV : 'middle'
-};
+import {
+	engineContext
+} from '../EngineData';
 
 /**
  * State is triggered once when the game starts. It will preload all the REALLY
@@ -18,29 +14,37 @@ var style = {
  * 
  * @constructor
  */
-export default class BootState {
-	
-	constructor() {
-		//no op
-	}
-	
-	/**
-	 * Preload all the needed assets in order to display a loading screen.
-	 */
-	preload() {		
-		// TODO Load all needed data.
-	}
-	
-	create() {
-		var txt = this.game.add.text(this.game.world.centerX, this.game.world.centerY, 'Booting', style);
-		
-		// Prevent rightclick.
-		this.game.canvas.oncontextmenu = (e) => e.preventDefault();
-		
-		// Setup the game context.
-		engineContext.pubsub.publish(Signal.ENGINE_BOOTED);
+export default class BootState extends Phaser.Scene {
 
+	constructor(config) {
+		super(config);
+		Phaser.Scene.call(this, {
+			key: 'boot'
+		});
+	}
+
+	preload() {
+		// no op.
+	}
+
+	create() {
+
+		const style = {
+			fontFamily: 'Arial',
+			fontSize: 64,
+			color: '#ffff00'
+		};
+
+		// text.setOrigin(0.5);
+		var txt = this.add.text(100, 100, 'Booting', style);
+		txt.setOrigin(0.5);
+
+		// Prevent rightclick on canvas.
+		this.game.canvas.oncontextmenu = (e) => e.preventDefault();
+
+		// Setup the game context.
 		LOG.info('Booting finished. Starting to initialize.');
-		this.game.state.start('initial_loading');
+		engineContext.pubsub.publish(Signal.ENGINE_BOOTED);
+		this.scene.start('initialize');
 	}
 }

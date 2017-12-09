@@ -1,5 +1,5 @@
 import groups, {GROUP_LAYERS} from '../Groups';
-import PhaserDebug from '../plugins/phaser-debug';
+//import PhaserDebug from '../plugins/phaser-debug';
 import { engineContext, pathfinder } from '../EngineData';
 
 /**
@@ -28,7 +28,7 @@ export default class GameState {
 
 		// ==== PLUGINS ====
 		// @ifdef DEVELOPMENT
-		this.game.plugins.add(PhaserDebug);
+		//this.game.plugins.add(PhaserDebug);
 		this.game.stage.disableVisibilityChange = true;
 		// @endif	
 		// ==== /PLUGINS ====

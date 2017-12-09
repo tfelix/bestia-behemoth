@@ -1,3 +1,5 @@
+'use strict';
+
 var webpack = require('webpack');
 var nodeExternals = require('webpack-node-externals');
 var WebpackShellPlugin = require('webpack-shell-plugin');

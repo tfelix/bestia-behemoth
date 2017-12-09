@@ -13,7 +13,7 @@ import { ChatTrait } from '../entities/traits/ChatTrait';
  */
 export default class EntityRenderer extends Renderer {
 
-	constructor(game, pubsub) {
+	constructor(pubsub, game) {
 		super();
 
 		this._updatedEntitites = [];
@@ -54,8 +54,8 @@ export default class EntityRenderer extends Renderer {
 		this._updatedEntitites.push(entity);
 	}
 
-	load(game) {
-		game.load.image('default_item', engineContext.url.getItemIconUrl('_default'));
+	load(loader) {
+		loader.image('default_item', engineContext.url.getItemIconUrl('_default'));
 	}
 
     /**

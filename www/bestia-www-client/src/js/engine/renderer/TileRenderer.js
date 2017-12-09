@@ -9,6 +9,7 @@ import { pathfinder } from '../EngineData';
 import LOG from '../../util/Log';
 
 const MIN_SAFETY_TILES = 3;
+const NAME = 'tile';
 
 /**
  * The tile renderer is responsible for controlling and managing the correct
@@ -46,7 +47,7 @@ export default class TileRender extends Renderer {
 	 * The name of this render.
 	 */
 	get name() {
-		return TileRender.NAME;
+		return NAME;
 	}
 
 	/**
@@ -169,7 +170,7 @@ export default class TileRender extends Renderer {
 			if (tilesToLoad === 0) {
 				callbackFn();
 			}
-		}.bind(this)
+		}.bind(this);
 
 		tileGids.forEach(function (gid) {
 			this._tilesetManager.getTileset(gid, tileCallback);
@@ -228,7 +229,7 @@ export default class TileRender extends Renderer {
 	clearDraw() {
 
 		if (this._playerBestia == null) {
-			console.error('PlayerBestia not found in context. Can not draw tilemap.');
+			LOG.error('PlayerBestia not found in context. Can not draw tilemap.');
 			return;
 		}
 
@@ -287,7 +288,7 @@ export default class TileRender extends Renderer {
 				var offsetX = this._rendered.x1 + x;
 				var offsetY = this._rendered.y1 + y;
 
-				var gid = this._getGid(offsetX, offsetY);
+				//var gid = this._getGid(offsetX, offsetY);
 
 				// TODO Feststellen ob die GID lauffähig ist oder nicht.
 				var isGidWalkable = true;
@@ -428,5 +429,3 @@ export default class TileRender extends Renderer {
 		}
 	}
 }
-
-TileRender.NAME = 'tile';

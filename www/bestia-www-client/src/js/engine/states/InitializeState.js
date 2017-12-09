@@ -1,3 +1,4 @@
+import * as Phaser from 'phaser';
 import Signal from '../../io/Signal.js';
 import LOG from '../../util/Log';
 import RenderManager from '../renderer/RenderManager';
@@ -16,12 +17,15 @@ import { engineContext } from '../EngineData';
  * image, logos etc.
  * 
  * @constructor
- * @class Bestia.Engine.States.InitialLoadingState
+ * @class InitializeState
  */
-export default class InitializeState {
+export default class InitializeState extends Phaser.Scene {
 
-	constructor() {
-		// no op.
+	constructor(config) {
+		super(config);
+		Phaser.Scene.call(this, {
+			key: 'initialize'
+		});
 	}
 
 	/**
@@ -33,27 +37,27 @@ export default class InitializeState {
 		// Since the objects often reference to the engine context inside their 
 		// ctor the order of the initialization is really important. Nether the less accessing the
 		// methods of the engine ctx inside the object ctor should be avoided to tackle the problem.		
-		engineContext.loader = new DemandLoader(this);
+		//engineContext.loader = new DemandLoader(this);
 		engineContext.indicatorManager = new IndicatorManager();
 
 		// ==== PREPARE RENDERER ====
 		engineContext.renderManager = new RenderManager();
-		engineContext.renderManager.addRender(new TileRenderer(engineContext.pubsub, this.game));
-		engineContext.renderManager.addRender(new EntityRenderer(this.game, engineContext.pubsub));
-		engineContext.renderManager.addRender(new DebugRenderer(this.game));
-		engineContext.renderManager.addRender(new EntityMenuRenderer(this.game));
+		engineContext.renderManager.addRender(new TileRenderer(engineContext.pubsub, this));
+		engineContext.renderManager.addRender(new EntityRenderer(engineContext.pubsub, this));
+		//engineContext.renderManager.addRender(new DebugRenderer(this));
+		//engineContext.renderManager.addRender(new EntityMenuRenderer(this));
 
 		// Load all static render assets.
-		engineContext.renderManager.load(this.game);
+		engineContext.renderManager.load(this.load);
 
 		// Initialize the context since our engine is now ready.
 		// TODO Das hier in die indicator implementationen überführen.
-		this.game.load.image('castindicator_small', engineContext.url.getIndicatorUrl('big'));
-		this.game.load.image('castindicator_medium', engineContext.url.getIndicatorUrl('medium'));
-		this.game.load.image('castindicator_big', engineContext.url.getIndicatorUrl('small'));
+		this.load.image('castindicator_small', engineContext.url.getIndicatorUrl('big'));
+		this.load.image('castindicator_medium', engineContext.url.getIndicatorUrl('medium'));
+		this.load.image('castindicator_big', engineContext.url.getIndicatorUrl('small'));
 
 		// Load the static data from the manager.
-		engineContext.indicatorManager.load();
+		engineContext.indicatorManager.load(this.load);
 	}
 
 	/**
@@ -63,6 +67,6 @@ export default class InitializeState {
 		LOG.info('Initializing finished. switching to: connecting state.');
 		engineContext.pubsub.publish(Signal.ENGINE_INIT_LOADED);
 		engineContext.pubsub.publish(Signal.IO_CONNECT);
-		this.game.state.start('connecting');
+		//this.game.state.start('connecting');
 	}
 }

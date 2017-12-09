@@ -39,8 +39,8 @@ export default class RenderManager {
 	 * Load the static assets from all registered renderer.
 	 */
 	load(game) {
-		LOG.debug('Loading static render assets.');
 		this._renderer.forEach((r) => {
+			LOG.debug('Loading static render assets: ' + r.name);
 			r.load(game);
 		});
 	}

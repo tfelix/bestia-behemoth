@@ -5,15 +5,18 @@ const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
+const OUT_DIR = './dist';
+
 module.exports = {
+    context: path.resolve(__dirname),
     entry: './src/js/main.js',
-    devtool: 'inline-source-map',
+    devtool: 'source-map',
     output: {
-        filename: 'behemoth.js',
-        path: path.resolve(__dirname, 'dist')
+        filename: 'behemoth.bundle.js',
+        path: path.resolve(__dirname, OUT_DIR)
     },
     devServer: {
-        contentBase: './bundle'
+        contentBase: OUT_DIR
     },
     module: {
         rules: [
@@ -22,9 +25,14 @@ module.exports = {
     ]
     },
     plugins: [
-        new CleanWebpackPlugin(['dist']),
+        new webpack.DefinePlugin({
+            'CANVAS_RENDERER': JSON.stringify(false),
+            'WEBGL_RENDERER': JSON.stringify(true)
+        }),
+        new CleanWebpackPlugin([OUT_DIR]),
         new CopyWebpackPlugin([
-            { from: '../game-data', to: 'dist/assets' }
+            { from: '../game-data', to: 'assets' },
+            { from: './src', ignore: ['js/**/*.js', 'js/**/*.json']}
         ])
     ]
 };

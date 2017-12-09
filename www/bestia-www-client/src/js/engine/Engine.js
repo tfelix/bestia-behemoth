@@ -1,5 +1,4 @@
-/*global Phaser */
-
+import * as Phaser from 'phaser';
 import Signal from '../io/Signal.js';
 import BootState from './states/BootState.js';
 import ConnectingState from './states/ConnectingState.js';
@@ -14,18 +13,28 @@ import LOG from '../util/Log';
  * input and sending these data to the server. It manages the phaserjs states
  * and also the state transitions depending on external events.
  * 
- * @constructor
+ * @constructor *           
  * @class Bestia.Engine
- * @param {PubSub}
- *            pubsub - Publish/Subscriber interface.
+ * @param {PubSub} pubsub - Publish/Subscriber interface.
  */
 export default class Engine {
 	constructor(pubsub, url) {
 
 		this._disconnectCount = 0;
 
+		const config = {
+			type: Phaser.WEBGL,
+			width: 800,
+			height: 600,
+			backgroundColor: '#000000',
+			parent: 'bestia-canvas',
+			scene: [BootState, InitializeState],
+			title: 'Bestia - The Browsergame',
+			url: 'http://bestia-game.net'
+		};
+
 		// Determine the size of the canvas. And create the game object.
-		this.game = new Phaser.Game(800, 600, Phaser.AUTO, 'bestia-canvas', null, false, false);
+		this.game = new Phaser.Game(config);
 
 		// Setup the static/global data for the components to fetch.
 		engineContext.game = this.game;
@@ -33,11 +42,11 @@ export default class Engine {
 		engineContext.url = url;
 
 		// ==== Create the states ====
-		this.game.state.add('boot', new BootState());
-		this.game.state.add('initial_loading', new InitializeState());
-		this.game.state.add('connecting', new ConnectingState());
-		this.game.state.add('load', new LoadingState());
-		this.game.state.add('game', new GameState());
+		//this.game.state.add('boot', new BootState());
+		//this.game.state.add('initial_loading', new InitializeState());
+		//this.game.state.add('connecting', new ConnectingState());
+		//this.game.state.add('load', new LoadingState());
+		//this.game.state.add('game', new GameState());
 
 		// ==== PREPARE HANDLER ====
 
@@ -48,7 +57,7 @@ export default class Engine {
 		pubsub.subscribe(Signal.ENGINE_FINISHED_MAPLOAD, this._handlerOnFinishedMapload, this);
 
 		// When everything is setup. Start the engine.
-		this.game.state.start('boot');
+		this.game.scene.start('boot');
 	}
 
 	/**
