@@ -43,7 +43,7 @@ ko.components.loaders.unshift(new KoAjaxComponentLoader());
 // === Register the components ===
 ko.components.register('bestia-chat', {
 	viewModel: {
-		createViewModel: function (params, componentInfo) {
+		createViewModel: function () {
 			return new Chat(pubsub);
 		}
 	},

@@ -1,9 +1,8 @@
 import Trait from './Trait';
 import LOG from '../../../util/Log';
 import WorldHelper from '../../map/WorldHelper';
-import ComponentNames from '../ComponentNames';
-import Signal from '../../../io/Signal';
-import { playEntityAnimation } from './VisualTrait';
+import ComponentNames from '../../entities/ComponentNames';
+import { playEntityAnimation } from '../util/SpriteHelper';
 
 /**
  * Helper methods and function to perform sprite entity manipulations on phaser sprites.

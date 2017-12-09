@@ -3,7 +3,7 @@ import groups, { GROUP_LAYERS } from '../../Groups';
 import LOG from '../../../util/Log';
 import ComponentNames from '../ComponentNames';
 import { engineContext } from '../../EngineData';
-import { setupSpriteAnimation } from '../traits/VisualTrait';
+import { setupSpriteAnimation } from '../../renderer/util/SpriteHelper';
 import WorldHelper from '../../map/WorldHelper';
 
 /**

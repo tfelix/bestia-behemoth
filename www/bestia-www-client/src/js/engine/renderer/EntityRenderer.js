@@ -1,9 +1,9 @@
 import Renderer from './Renderer';
 import Signal from '../../io/Signal';
 import { spriteCache, engineContext } from '../EngineData';
-import { MovementTrait } from '../entities/traits/MovementTrait';
-import { VisualTrait } from '../entities/traits/VisualTrait';
-import { ChatTrait } from '../entities/traits/ChatTrait';
+import { MovementTrait } from './traits/MovementTrait';
+import { VisualTrait } from './traits/VisualTrait';
+import { ChatTrait } from './traits/ChatTrait';
 
 
 /**

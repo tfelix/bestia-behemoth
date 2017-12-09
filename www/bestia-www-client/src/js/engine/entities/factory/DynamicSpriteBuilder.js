@@ -1,13 +1,10 @@
 import Builder from './Builder.js';
 import groups, { GROUP_LAYERS } from '../../Groups';
 import LOG from '../../../util/Log';
-import { setupSpriteAnimation } from '../traits/VisualTrait';
+import { setupSpriteAnimation, addSubsprite } from '../../renderer/util/SpriteHelper';
 import WorldHelper from '../../map/WorldHelper';
 import ComponentNames from '../ComponentNames';
 import { engineContext, descriptionCache } from '../../EngineData';
-import { addSubsprite } from '../traits/VisualTrait';
-
-//const NULL_OFFSET = { x: 0, y: 0 };
 
 /**
  * This is able to create sprite entities which differ to the runtime. It must
