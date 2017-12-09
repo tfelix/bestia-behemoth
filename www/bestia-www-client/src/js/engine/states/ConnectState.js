@@ -5,7 +5,7 @@ import * as Phaser from 'phaser';
  * reconnection event to occure and start the loading phase.
  * 
  * @constructor
- * @class Bestia.Engine.States.BootState
+ * @class ConnectState
  */
 export default class ConnectState extends Phaser.Scene {
 

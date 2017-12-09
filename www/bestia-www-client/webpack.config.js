@@ -19,10 +19,15 @@ module.exports = {
         contentBase: OUT_DIR
     },
     module: {
-        rules: [
-            {test: /\.css$/, use: ['style-loader', 'css-loader']},
-            {test: /\.scss$/, use: ['style-loader', 'css-loader', 'sass-loader']}
-    ]
+        rules: [{
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader']
+            },
+            {
+                test: /\.less$/,
+                use: ['style-loader', 'css-loader', 'less-loader']
+            }
+        ]
     },
     plugins: [
         new webpack.DefinePlugin({
@@ -30,9 +35,14 @@ module.exports = {
             'WEBGL_RENDERER': JSON.stringify(true)
         }),
         new CleanWebpackPlugin([OUT_DIR]),
-        new CopyWebpackPlugin([
-            { from: '../game-data', to: 'assets' },
-            { from: './src', ignore: ['js/**/*.js', 'js/**/*.json']}
+        new CopyWebpackPlugin([{
+                from: '../game-data',
+                to: 'assets'
+            },
+            {
+                from: './src',
+                ignore: ['js/**/*.js', 'js/**/*.json']
+            }
         ])
     ]
 };

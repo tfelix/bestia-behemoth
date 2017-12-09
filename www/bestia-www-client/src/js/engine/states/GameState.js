@@ -1,18 +1,20 @@
 import groups, {GROUP_LAYERS} from '../Groups';
-//import PhaserDebug from '../plugins/phaser-debug';
 import { engineContext, pathfinder } from '../EngineData';
 
 /**
  * Central game state for controlling the games logic.
  * 
  * @constructor
- * @class Bestia.Engine.States.GameState
- * @param {Bestia.Engine}
- *            engine - Reference to the bestia engine.
+ * @class GameState
  */
-export default class GameState {
+export default class GameState extends Phaser.Scene {
 
-	constructor() {
+	constructor(config) {
+		super(config);
+
+		Phaser.Scene.call(this, {
+			key: 'game'
+		});
 
 		this._marker = null;
 	}
@@ -24,13 +26,11 @@ export default class GameState {
 		 * init the groups when the final (game_state) is started.
 		 */
 		// Groups can be created.
-		groups.initilize(this.game);
+		groups.initilize(this);
 
 		// ==== PLUGINS ====
-		// @ifdef DEVELOPMENT
 		//this.game.plugins.add(PhaserDebug);
 		this.game.stage.disableVisibilityChange = true;
-		// @endif	
 		// ==== /PLUGINS ====
 
 		// Trigger fx create effects.
@@ -38,14 +38,11 @@ export default class GameState {
 
 		// Activate move handler.
 		engineContext.indicatorManager.showDefault();
-
-		// ========= TESTING =========
-		this.game.world.setBounds(0, 0, 800, 600);
-		// ========= END TESTING =========
 	}
 
 	/**
-	 * In this step the synchronize the bestia model with the phaser engine representation of sprites.
+	 * In this step the synchronize the bestia model with the phaser engine representation
+	 * of sprites.
 	 */
 	update() {
 
@@ -60,8 +57,6 @@ export default class GameState {
 	}
 
 	render() {
-		// @ifdef DEVELOPMENT
-		this.game.debug.cameraInfo(this.game.camera, 32, 32);
-		// @endif
+		this.debug.cameraInfo(this.game.camera, 32, 32);
 	}
 }

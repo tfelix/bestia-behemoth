@@ -42,7 +42,6 @@ export default class LoadState extends Phaser.Scene {
 	}
 
 	preload() {
-
 		// Set loading counter
 		this._loadingCounter = 1;
 

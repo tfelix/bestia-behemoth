@@ -39,15 +39,15 @@ export default class InitializeState extends Phaser.Scene {
 		// Since the objects often reference to the engine context inside their 
 		// ctor the order of the initialization is really important. Nether the less accessing the
 		// methods of the engine ctx inside the object ctor should be avoided to tackle the problem.		
-		//engineContext.loader = new DemandLoader(this);
+		engineContext.loader = new DemandLoader(this);
 		engineContext.indicatorManager = new IndicatorManager();
 
 		// ==== PREPARE RENDERER ====
 		engineContext.renderManager = new RenderManager();
 		engineContext.renderManager.addRender(new TileRenderer(engineContext.pubsub, this));
 		engineContext.renderManager.addRender(new EntityRenderer(engineContext.pubsub, this));
-		//engineContext.renderManager.addRender(new DebugRenderer(this));
-		//engineContext.renderManager.addRender(new EntityMenuRenderer(this));
+		engineContext.renderManager.addRender(new DebugRenderer(this));
+		engineContext.renderManager.addRender(new EntityMenuRenderer(this));
 
 		// Load all static render assets.
 		engineContext.renderManager.load(this.load);

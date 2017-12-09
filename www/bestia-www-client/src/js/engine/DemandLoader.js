@@ -8,9 +8,6 @@ import LOG from '../util/Log';
  * load it with a given callback function. After loading has completed the
  * function will be executed once.
  * 
- * @param {Phaser.Loader}
- *            loader - Reference to the phaser loader since we must hook into
- *            that one.
  */
 export default class DemandLoader {
 
@@ -29,8 +26,8 @@ export default class DemandLoader {
 		 */
 		this._packKeyCache = {};
 
-		// Add the callbacks.
-		this._game.load.onFileComplete.add(this._fileLoadedCallback, this);
+		this._game.load.events.on('LOADER_COMPLETE_EVENT',
+			this._fileLoadedCallback.bind(this));
 	}
 
 	/**
@@ -118,7 +115,7 @@ export default class DemandLoader {
 			var hasCache = true;
 
 			keys.forEach(function (val) {
-				hasCache = hasCache & this._hasLoaded(val.key, val.type);
+				hasCache = hasCache && this._hasLoaded(val.key, val.type);
 			}.bind(this));
 
 			return hasCache;
@@ -160,9 +157,9 @@ export default class DemandLoader {
 		switch (type) {
 			case 'image':
 			case 'item':
-			// Atlas is currently inconsistently handled inside the cache.
-			// see https://github.com/photonstorm/phaser/issues/2893
 			case 'atlasJSONHash':
+				// Atlas is currently inconsistently handled inside the cache.
+				// see https://github.com/photonstorm/phaser/issues/2893
 				return this._phaserCache.checkImageKey(key);
 			case 'json':
 				return this._phaserCache.checkJSONKey(key);

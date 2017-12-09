@@ -1,3 +1,4 @@
+import '../css/game/main.less';
 import { version } from '../../package.json';
 import ko from 'knockout';
 import KoAjaxComponentLoader from './ui/KoAjaxComponentLoader';
@@ -38,7 +39,6 @@ let bestiaView = new BestiaView(pubsub, urlHelper);
 
 // we register the component loader.
 ko.components.loaders.unshift(new KoAjaxComponentLoader());
-
 
 // === Register the components ===
 ko.components.register('bestia-chat', {
