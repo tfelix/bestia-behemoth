@@ -6,25 +6,20 @@ import SpriteDescriptionCache from './entities/SpriteDescriptionCache';
  * Contains the data for the phaser engine to render. This data is accessed
  * in a global and static way.
  */
-var spriteCache = new PhaserSpriteCache();
-var pathfinder = new Pathfinder();
-var descriptionCache = new SpriteDescriptionCache();
+export default class EngineData {
 
-/**
- * The engine context ist setup inside the initialize state.
- */
-var engineContext = {
-	pubsub: null,
-	renderManager: null,
-	indicatorManager: null,
-	loader: null,
-	url: null,
-	data: {}
-};
+	constructor(pubsub, url) {
 
-export {
-	spriteCache,
-	engineContext,
-	pathfinder,
-	descriptionCache
-};
+		this.spriteCache = new PhaserSpriteCache();
+		this.pathfinder = new Pathfinder();
+		this.descriptionCache = new SpriteDescriptionCache();
+
+		this.pubsub = pubsub;
+		this.url = url;
+		
+		this.renderManager = null;
+		this.indicatorManager = null;
+		this.loader = null;
+		this.data = {};
+	}
+}

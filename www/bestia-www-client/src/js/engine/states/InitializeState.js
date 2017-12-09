@@ -5,7 +5,6 @@ import RenderManager from '../renderer/RenderManager';
 import TileRenderer from '../renderer/TileRenderer';
 import EntityRenderer from '../renderer/EntityRenderer';
 import { DebugRenderer } from '../renderer/DebugRenderer';
-import { EntityMenuRenderer } from '../renderer/EntityMenuRenderer';
 import IndicatorManager from '../indicator/IndicatorManager';
 import DemandLoader from '../DemandLoader';
 import { engineContext } from '../EngineData';
@@ -47,7 +46,6 @@ export default class InitializeState extends Phaser.Scene {
 		engineContext.renderManager.addRender(new TileRenderer(engineContext.pubsub, this));
 		engineContext.renderManager.addRender(new EntityRenderer(engineContext.pubsub, this));
 		engineContext.renderManager.addRender(new DebugRenderer(this));
-		engineContext.renderManager.addRender(new EntityMenuRenderer(this));
 
 		// Load all static render assets.
 		engineContext.renderManager.load(this.load);
