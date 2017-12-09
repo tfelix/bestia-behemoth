@@ -15,6 +15,7 @@ export default class LatencyResponseMessage {
         this.s = latencyRequestMsg.s;
     }
 
+    static get MID() {
+        return 'lat.res';
+    }
 }
-
-LatencyResponseMessage.MID = 'lat.res';
