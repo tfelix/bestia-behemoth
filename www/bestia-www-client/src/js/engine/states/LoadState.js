@@ -1,3 +1,4 @@
+import * as Phaser from 'phaser';
 import Signal from '../../io/Signal.js';
 import TileRender from '../renderer/TileRenderer';
 import { engineContext } from '../EngineData';
@@ -18,10 +19,14 @@ import EntitySyncRequestMessage from '../../message/EntitySyncRequestMessage';
  * 
  * @constructor
  */
-export default class LoadingState {
+export default class LoadState extends Phaser.Scene {
 
-	constructor() {
-		// no op.
+	constructor(config) {
+		super(config);
+
+		Phaser.Scene.call(this, {
+			key: 'load'
+		});
 	}
 
 	/**
@@ -38,7 +43,7 @@ export default class LoadingState {
 
 	preload() {
 
-		// Set loading counter (we load two assets)
+		// Set loading counter
 		this._loadingCounter = 1;
 
 		// Announce loading.

@@ -23,9 +23,7 @@ export default class TileRender extends Renderer {
 
 		this._pubsub = pubsub;
 		this._game = game;
-
 		this._isFirstDraw = true;
-
 		this._lastPlayerPos = { x: -1, y: -1 };
 
 		// Some basic init.

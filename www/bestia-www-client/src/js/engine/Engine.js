@@ -1,12 +1,16 @@
 import * as Phaser from 'phaser';
 import Signal from '../io/Signal.js';
 import BootState from './states/BootState.js';
-import ConnectingState from './states/ConnectingState.js';
+import ConnectState from './states/ConnectState.js';
 import GameState from './states/GameState.js';
 import InitializeState from './states/InitializeState';
-import LoadingState from './states/LoadingState.js';
-import { engineContext } from './EngineData';
+import LoadState from './states/LoadState.js';
+import {
+	engineContext
+} from './EngineData';
 import LOG from '../util/Log';
+import EntityCacheEx from './entities/EntityCacheEx';
+import EntityComponentUpdater from './entities/EntityComponentUpdater';
 
 /**
  * Bestia Graphics engine. Responsible for displaying the game collecting user
@@ -28,10 +32,13 @@ export default class Engine {
 			height: 600,
 			backgroundColor: '#000000',
 			parent: 'bestia-canvas',
-			scene: [BootState, InitializeState],
+			scene: [BootState, InitializeState, ConnectState, LoadState],
 			title: 'Bestia - The Browsergame',
 			url: 'http://bestia-game.net'
 		};
+
+		let entityCache = new EntityCacheEx();
+		this._entityCompUpdater = new EntityComponentUpdater(pubsub, entityCache);
 
 		// Determine the size of the canvas. And create the game object.
 		this.game = new Phaser.Game(config);
@@ -68,8 +75,7 @@ export default class Engine {
 
 		// TODO Check if we can go without loading: we must be inside view range AND
 		// have the multi sprite cached. Currently not supported.
-
-		this.game.state.start('load');
+		this.game.scene.start('load');
 	}
 
 	/**
@@ -77,13 +83,11 @@ export default class Engine {
 	 */
 	_handlerOnConnectionLost() {
 		LOG.info('Connection lost switching to: connecting state.');
-		
-		this.game.state.start('connecting');
+		this.game.scene.start('connect');
 	}
 
 	_handlerOnFinishedMapload() {
 		LOG.info('Mapload finished. Starting game.');
-		
-		this.game.state.start('game');
+		this.game.scene.start('game');
 	}
 }

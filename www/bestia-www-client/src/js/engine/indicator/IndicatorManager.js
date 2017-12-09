@@ -1,7 +1,8 @@
 import NullIndicator from './NullIndicator';
 import MoveIndicator from './MoveIndicator.js';
-import ItemCastIndicator from './ItemCastIndicator.js';
+//import ItemCastIndicator from './ItemCastIndicator.js';
 import BasicAttackIndicator from './BasicAttackIndicator.js';
+import { engineContext } from '../EngineData';
 
 /**
  * The manager is responsible for switching the indicator depending on the needs
@@ -15,7 +16,7 @@ import BasicAttackIndicator from './BasicAttackIndicator.js';
  */
 export default class IndicatorManager {
 	
-	constructor() {
+	constructor(engineCtx) {
 
 		/**
 		 * Holds all the registered indicators.
@@ -29,6 +30,8 @@ export default class IndicatorManager {
 		 * @private
 		 */
 		this._indicatorStack = [];
+
+		this._ctx = engineContext;
 
 		/**
 		 * Holds the currently active indicator.
@@ -77,9 +80,15 @@ export default class IndicatorManager {
 	 * called in the initial load event of the engine to fetch all presets the indicator
 	 * need.
 	 */
-	load() {
+	load(loader) {
+
+		// Initialize the context since our engine is now ready.
+		loader.image('castindicator_small', this._ctx.url.getIndicatorUrl('big'));
+		loader.image('castindicator_medium', this._ctx.url.getIndicatorUrl('medium'));
+		loader.image('castindicator_big', this._ctx.url.getIndicatorUrl('small'));
+
 		this._indicators.forEach(function(x) {
-			x.load();
+			x.load(loader);
 		}, this);
 	}
 

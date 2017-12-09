@@ -1,3 +1,4 @@
+import * as Phaser from 'phaser';
 import Indicator from './Indicator.js';
 import Signal from '../../io/Signal.js';
 import WorldHelper from '../map/WorldHelper.js';
@@ -45,8 +46,8 @@ export default class BasicAttackIndicator extends Indicator {
 	/**
 	 * Preload all needed assets.
 	 */
-	load() {
-		engineContext.game.load.image('cursor_atk', engineContext.url.getIndicatorUrl('cursor_atk'));
+	load(loader) {
+		loader.image('cursor_atk', engineContext.url.getIndicatorUrl('cursor_atk'));
 	}
 
 	/**
