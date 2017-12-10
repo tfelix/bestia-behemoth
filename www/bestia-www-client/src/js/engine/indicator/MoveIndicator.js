@@ -3,10 +3,6 @@ import Indicator from './Indicator.js';
 import LOG from '../../util/Log';
 import Message from '../../io/messages/Message.js';
 import WorldHelper from '../map/WorldHelper.js';
-import {
-	engineContext,
-	pathfinder
-} from '../EngineData';
 import Signal from '../../io/Signal';
 import {
 	addMoveComponent
@@ -18,10 +14,12 @@ import {
  * @class Bestia.Engine.Indicator
  */
 export default class MoveIndicator extends Indicator {
-	constructor(manager) {
+	constructor(manager, engineContext) {
 		super(manager);
 
 		this._effect = null;
+
+		this._ctx = engineContext;
 
 		this._pubsub = engineContext.pubsub;
 		this._game = engineContext.game;
@@ -87,14 +85,14 @@ export default class MoveIndicator extends Indicator {
 		var goal = WorldHelper.getTileXY(pointer.worldX, pointer.worldY);
 
 		// Start the path calculation
-		pathfinder.findPath(this._playerBestia.position(), goal, this._onPathFound.bind(this));
+		this._ctx.pathfinder.findPath(this._playerBestia.position(), goal, this._onPathFound.bind(this));
 	}
 
 	/**
 	 * Override an create all needed game objects here.
 	 */
 	load(loader) {
-		loader.spritesheet('cursor', engineContext.url.getIndicatorUrl('cursor'), {
+		loader.spritesheet('cursor', this._ctx.url.getIndicatorUrl('cursor'), {
 			frameWidth: 32,
 			frameHeight: 32
 		});

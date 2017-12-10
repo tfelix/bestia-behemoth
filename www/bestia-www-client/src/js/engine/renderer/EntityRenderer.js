@@ -1,6 +1,5 @@
 import Renderer from './Renderer';
 import Signal from '../../io/Signal';
-import { spriteCache, engineContext } from '../EngineData';
 import { MovementTrait } from './traits/MovementTrait';
 import { VisualTrait } from './traits/VisualTrait';
 import { ChatTrait } from './traits/ChatTrait';
@@ -13,15 +12,17 @@ import { ChatTrait } from './traits/ChatTrait';
  */
 export default class EntityRenderer extends Renderer {
 
-	constructor(pubsub, game) {
+	constructor(pubsub, game, spriteCache, url) {
 		super();
 
 		this._updatedEntitites = [];
+		this._url = url;
+		this._spriteCache = spriteCache;
 
 		this.traits = [];
 		this.traits.push(new VisualTrait(game));
-		this.traits.push(new MovementTrait(game, engineContext.pubsub));
-		this.traits.push(new ChatTrait(game, engineContext.pubsub));
+		this.traits.push(new MovementTrait(game, pubsub));
+		this.traits.push(new ChatTrait(game, pubsub));
 
 		pubsub.subscribe(Signal.ENTITY_UPDATE, this._handleEntityUpdate, this);
 	}
@@ -55,7 +56,7 @@ export default class EntityRenderer extends Renderer {
 	}
 
 	load(loader) {
-		loader.image('default_item', engineContext.url.getItemIconUrl('_default'));
+		loader.image('default_item', this._url.getItemIconUrl('_default'));
 	}
 
     /**
@@ -70,7 +71,7 @@ export default class EntityRenderer extends Renderer {
 				if (trait.hasTrait(entity)) {
 					// Iterate over all entities and try to get the sprite and
 					// check the current animation, position, movement etc.
-					var sprite = spriteCache.getSprite(entity.eid);
+					var sprite = this._spriteCache.getSprite(entity.eid);
 					trait.handleTrait(entity, sprite);
 				}
 

@@ -1,20 +1,22 @@
 import LOG from '../../../util/Log';
+import * as Phaser from 'phaser';
 import Trait from './Trait';
 import EntityFactory from '../../entities/factory/EntityFactory';
-import { spriteCache, descriptionCache } from '../../EngineData';
 import ComponentNames from '../../entities/ComponentNames';
 
 export class VisualTrait extends Trait {
 
-	constructor(game) {
+	constructor(ctx) {
 		super();
 
-		if (!game) {
-			throw 'game can not be null.';
+		if (!ctx) {
+			throw 'Context can not be null.';
 		}
 
-		this._game = game;
-		this._entityFactory = new EntityFactory(game);
+		this._game = ctx.game;
+		this._spriteCache = ctx.spriteCache;
+		this._descCache = ctx.descriptionCache;
+		this._entityFactory = new EntityFactory(ctx.game);
 	}
 
 	hasTrait(entity) {
@@ -41,7 +43,7 @@ export class VisualTrait extends Trait {
 
 			let visComp = entity.components[ComponentNames.VISIBLE];
 			LOG.debug('Created sprite: ' + visComp.visual.sprite);
-			spriteCache.setSprite(entity.eid, displayObj);
+			this._spriteCache.setSprite(entity.eid, displayObj);
 
 			displayObj.alpha = 0;
 
@@ -60,7 +62,7 @@ export class VisualTrait extends Trait {
      * Checks if some render operations are waiting to be executed for this sprite.
      * 
      * @param {object} entity 
-     * @param {PhaserJS.Sprite} sprite 
+     * @param {Sprite} sprite 
      */
 	_checkSpriteRender(entity, sprite) {
 
@@ -85,7 +87,7 @@ export class VisualTrait extends Trait {
 
 	_performLeftRightFlip(sprite, animName) {
 		// Get description data of this sprite.
-		let desc = descriptionCache.getSpriteDescription(sprite.key);
+		let desc = this._descCache.getSpriteDescription(sprite.key);
 
 		// We need to mirror the sprite for right sprites.
 		if (animName.indexOf('right') !== -1) {
@@ -119,9 +121,9 @@ export class VisualTrait extends Trait {
 
 		// Check if the sprite 'knows' this animation. If not we have several
 		// fallback strategys to test before we fail.
-		if (!descriptionCache.hasAnimation(sprite.key, animName)) {
+		if (!this._descCache.hasAnimation(sprite.key, animName)) {
 
-			animName = descriptionCache.getAnimationFallback(animName);
+			animName = this._descCache.getAnimationFallback(animName);
 
 			if (animName === null) {
 				LOG.warn('Could not found alternate animation solution for: ' + name);
@@ -142,7 +144,7 @@ export class VisualTrait extends Trait {
 
 			animName = this._performLeftRightFlip(sprite, animName);
 
-			let subAnim = descriptionCache.getSubspriteAnimation(sprite.key, subsprite.key, animName);
+			let subAnim = this._descCache.getSubspriteAnimation(sprite.key, subsprite.key, animName);
 			subsprite.frameName = subAnim;
 
 		}, this);
@@ -166,7 +168,7 @@ export class VisualTrait extends Trait {
 		sprite._subsprites.forEach(function (subSprite) {
 
 			// Get the current sub sprite anim name.
-			let subPos = descriptionCache.getSubspriteOffset(sprite.key, subSprite.key, curAnim, curFrame);
+			let subPos = this._descCache.getSubspriteOffset(sprite.key, subSprite.key, curAnim, curFrame);
 			subSprite.position.x = subPos.x;
 			subSprite.position.y = subPos.y;
 
