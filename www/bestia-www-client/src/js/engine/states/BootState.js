@@ -1,9 +1,6 @@
 import * as Phaser from 'phaser';
 import Signal from '../../io/Signal.js';
 import LOG from '../../util/Log';
-import {
-	engineContext
-} from '../EngineData';
 
 /**
  * State is triggered once when the game starts. It will preload all the REALLY
@@ -27,7 +24,7 @@ export default class BootState extends Phaser.Scene {
 		// no op.
 	}
 
-	create() {
+	create(context) {
 
 		const style = {
 			fontFamily: 'Arial',
@@ -45,6 +42,6 @@ export default class BootState extends Phaser.Scene {
 		// Setup the game context.
 		LOG.info('Booting finished. Starting to initialize.');
 		engineContext.pubsub.publish(Signal.ENGINE_BOOTED);
-		this.scene.start('initialize');
+		this.scene.start('initialize', context);
 	}
 }

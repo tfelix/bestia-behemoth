@@ -7,7 +7,6 @@ import EntityRenderer from '../renderer/EntityRenderer';
 import { DebugRenderer } from '../renderer/DebugRenderer';
 import IndicatorManager from '../indicator/IndicatorManager';
 import DemandLoader from '../DemandLoader';
-import { engineContext } from '../EngineData';
 
 
 /**

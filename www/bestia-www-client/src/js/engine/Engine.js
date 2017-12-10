@@ -8,6 +8,7 @@ import LoadState from './states/LoadState';
 import LOG from '../util/Log';
 import EntityCacheEx from './entities/EntityCacheEx';
 import EntityComponentUpdater from './entities/EntityComponentUpdater';
+import EngineData from './EngineData';
 
 /**
  * Bestia Graphics engine. Responsible for displaying the game collecting user
@@ -22,6 +23,8 @@ export default class Engine {
 
 		this._disconnectCount = 0;
 
+		let engineContext = new EngineData(pubsub, url, this.game);
+
 		const config = {
 			type: Phaser.WEBGL,
 			width: 800,
@@ -30,7 +33,8 @@ export default class Engine {
 			parent: 'bestia-canvas',
 			scene: [BootState, InitializeState, ConnectState, LoadState, GameState],
 			title: 'Bestia - The Browsergame',
-			url: 'http://bestia-game.net'
+			url: 'http://bestia-game.net',
+			context: engineContext
 		};
 
 		let entityCache = new EntityCacheEx();
@@ -38,14 +42,8 @@ export default class Engine {
 
 		// Determine the size of the canvas. And create the game object.
 		this.game = new Phaser.Game(config);
-
-		// Setup the static/global data for the components to fetch.
-		engineContext.game = this.game;
-		engineContext.pubsub = pubsub;
-		engineContext.url = url;
-
+		
 		// ==== PREPARE HANDLER ====
-
 		// React on bestia selection changes. We need to re-trigger the map
 		// loading. This event will fire if we have established a connection.
 		pubsub.subscribe(Signal.BESTIA_SELECTED, this._handlerOnBestiaSelected, this);
@@ -53,7 +51,7 @@ export default class Engine {
 		pubsub.subscribe(Signal.ENGINE_FINISHED_MAPLOAD, this._handlerOnFinishedMapload, this);
 
 		// When everything is setup. Start the engine.
-		this.game.scene.start('boot');
+		this.game.scene.start('boot', engineContext);
 	}
 
 	/**

@@ -8,14 +8,15 @@ import SpriteDescriptionCache from './entities/SpriteDescriptionCache';
  */
 export default class EngineData {
 
-	constructor(pubsub, url) {
+	constructor(pubsub, url, game) {
+
+		this.pubsub = pubsub;
+		this.url = url;
+		this.game = game;
 
 		this.spriteCache = new PhaserSpriteCache();
 		this.pathfinder = new Pathfinder();
 		this.descriptionCache = new SpriteDescriptionCache();
-
-		this.pubsub = pubsub;
-		this.url = url;
 		
 		this.renderManager = null;
 		this.indicatorManager = null;

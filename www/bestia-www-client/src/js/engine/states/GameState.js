@@ -1,5 +1,5 @@
+import * as Phaser from 'phaser';
 import groups, {GROUP_LAYERS} from '../Groups';
-import { engineContext, pathfinder } from '../EngineData';
 
 /**
  * Central game state for controlling the games logic.
@@ -19,7 +19,7 @@ export default class GameState extends Phaser.Scene {
 		this._marker = null;
 	}
 
-	create() {
+	create(context) {
 
 		/**
 		 * Phaser whipes the scene graph when states change. Thus one need to
@@ -34,10 +34,10 @@ export default class GameState extends Phaser.Scene {
 		// ==== /PLUGINS ====
 
 		// Trigger fx create effects.
-		engineContext.indicatorManager.create();
+		context.indicatorManager.create();
 
 		// Activate move handler.
-		engineContext.indicatorManager.showDefault();
+		context.indicatorManager.showDefault();
 	}
 
 	/**
@@ -54,6 +54,7 @@ export default class GameState extends Phaser.Scene {
 
 		// Group sort the sprite layer.
 		groups.sort(GROUP_LAYERS.SPRITES);
+		//mushroom0.depth = mushroom0.y + mushroom0.height / 2;
 	}
 
 	render() {
