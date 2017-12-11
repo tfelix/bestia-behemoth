@@ -6,9 +6,7 @@ import GameState from './states/GameState.js';
 import InitializeState from './states/InitializeState';
 import LoadState from './states/LoadState';
 import LOG from '../util/Log';
-import EntityCacheEx from './entities/EntityCacheEx';
-import EntityComponentUpdater from './entities/EntityComponentUpdater';
-import EngineData from './EngineData';
+import EngineContext from './EngineContext';
 
 /**
  * Bestia Graphics engine. Responsible for displaying the game collecting user
@@ -16,14 +14,26 @@ import EngineData from './EngineData';
  * and also the state transitions depending on external events.
  *          
  * @class Engine
- * @param {PubSub} pubsub - Publish/Subscriber interface.
  */
 export default class Engine {
+	
+	/**
+	 * Creates an instance of Engine.
+	 * @param {PubSub} pubsub 
+	 * @param {any} url 
+	 * @memberof Engine
+	 */
 	constructor(pubsub, url) {
 
 		this._disconnectCount = 0;
 
-		let engineContext = new EngineData(pubsub, url, this.game);
+		let engineContext = new EngineContext(pubsub, url);
+
+		let bootState = new BootState(engineContext);
+		let initState = new InitializeState(engineContext);
+		let connectState = new ConnectState(engineContext);
+		let loadState = new LoadState(engineContext);
+		let gameState = new GameState(engineContext);
 
 		const config = {
 			type: Phaser.WEBGL,
@@ -31,14 +41,11 @@ export default class Engine {
 			height: 600,
 			backgroundColor: '#000000',
 			parent: 'bestia-canvas',
-			scene: [BootState, InitializeState, ConnectState, LoadState, GameState],
+			scene: [bootState, initState, connectState, loadState, gameState],
 			title: 'Bestia - The Browsergame',
 			url: 'http://bestia-game.net',
-			context: engineContext
+			engineContext: engineContext
 		};
-
-		let entityCache = new EntityCacheEx();
-		this._entityCompUpdater = new EntityComponentUpdater(pubsub, entityCache);
 
 		// Determine the size of the canvas. And create the game object.
 		this.game = new Phaser.Game(config);
@@ -51,7 +58,7 @@ export default class Engine {
 		pubsub.subscribe(Signal.ENGINE_FINISHED_MAPLOAD, this._handlerOnFinishedMapload, this);
 
 		// When everything is setup. Start the engine.
-		this.game.scene.start('boot', engineContext);
+		//this.game.scene.start('boot');
 	}
 
 	/**

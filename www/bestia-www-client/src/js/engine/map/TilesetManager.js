@@ -21,10 +21,9 @@ const TILE_KEY_PREFIX = 'tiles_';
 export default class TilesetManager {
 
 	/**
-	 * Ctor.
-	 * 
-	 * @param Pubsub -
-	 *            Pubsub interface.
+	 * Creates an instance of TilesetManager.
+	 * @param {any} ctx 
+	 * @memberof TilesetManager
 	 */
 	constructor(ctx) {
 

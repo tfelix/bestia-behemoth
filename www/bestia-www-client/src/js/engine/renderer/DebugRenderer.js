@@ -1,5 +1,4 @@
 import Renderer from './Renderer';
-import { engineContext } from '../EngineData';
 
 const TXT_STYLE = Object.freeze({
 	font: '15px Arial',

@@ -1,7 +1,6 @@
 import NOOP from '../util/NOOP.js';
 import LOG from '../util/Log';
 import ComponentNames from '../engine/entities/ComponentNames';
-import { engineContext } from './EngineData';
 
 /**
  * This class is responsible for loading the description files of entities. It
@@ -9,7 +8,13 @@ import { engineContext } from './EngineData';
  * operations are backed by the DemandLoader and thus are asynchronous.
  */
 export default class DescriptionLoader {
-	constructor() {
+	
+	/**
+	 * Creates an instance of DescriptionLoader.
+	 * @param {EngineContext} engineContext 
+	 * @memberof DescriptionLoader
+	 */
+	constructor(engineContext) {
 
 		this._loader = engineContext.loader;
 		this._url = engineContext.url;

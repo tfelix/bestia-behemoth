@@ -1,7 +1,6 @@
 import * as Phaser from 'phaser';
 import Signal from '../../io/Signal.js';
 import TileRender from '../renderer/TileRenderer';
-import { engineContext } from '../EngineData';
 import EntitySyncRequestMessage from '../../message/EntitySyncRequestMessage';
 
 /**

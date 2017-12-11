@@ -16,7 +16,7 @@ export class VisualTrait extends Trait {
 		this._game = ctx.game;
 		this._spriteCache = ctx.spriteCache;
 		this._descCache = ctx.descriptionCache;
-		this._entityFactory = new EntityFactory(ctx.game);
+		this._entityFactory = new EntityFactory(ctx);
 	}
 
 	hasTrait(entity) {

@@ -21,27 +21,14 @@ export default class BootState extends Phaser.Scene {
 	}
 
 	preload() {
-		// no op.
+		this.load.image('bestia-logo', 'assets/img/bestia-logo.png');
 	}
 
-	create(context) {
-
-		const style = {
-			fontFamily: 'Arial',
-			fontSize: 64,
-			color: '#ffff00'
-		};
-
-		// text.setOrigin(0.5);
-		var txt = this.add.text(100, 100, 'Booting', style);
-		txt.setOrigin(0.5);
-
-		// Prevent rightclick on canvas.
-		this.game.canvas.oncontextmenu = (e) => e.preventDefault();
-
+	create() {
 		// Setup the game context.
 		LOG.info('Booting finished. Starting to initialize.');
-		engineContext.pubsub.publish(Signal.ENGINE_BOOTED);
-		this.scene.start('initialize', context);
+		//engineContext.pubsub.publish(Signal.ENGINE_BOOTED);
+
+		this.scene.start('initialize', 'test');
 	}
 }

@@ -12,19 +12,19 @@ import { ChatTrait } from './traits/ChatTrait';
  */
 export default class EntityRenderer extends Renderer {
 
-	constructor(pubsub, game, spriteCache, url) {
+	constructor(engineContext) {
 		super();
 
 		this._updatedEntitites = [];
-		this._url = url;
-		this._spriteCache = spriteCache;
+		this._url = engineContext.url;
+		this._spriteCache = engineContext.spriteCache;
 
 		this.traits = [];
-		this.traits.push(new VisualTrait(game));
-		this.traits.push(new MovementTrait(game, pubsub));
-		this.traits.push(new ChatTrait(game, pubsub));
+		this.traits.push(new VisualTrait(engineContext));
+		this.traits.push(new MovementTrait(engineContext));
+		this.traits.push(new ChatTrait(engineContext));
 
-		pubsub.subscribe(Signal.ENTITY_UPDATE, this._handleEntityUpdate, this);
+		engineContext.pubsub.subscribe(Signal.ENTITY_UPDATE, this._handleEntityUpdate, this);
 	}
 
 	get name() {

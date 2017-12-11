@@ -16,10 +16,10 @@ import ComponentNames from '../ComponentNames';
  */
 export default class EntityFactory {
 
-	constructor(game, descCache) {
+	constructor(ctx) {
 
-		this.descLoader = new DescriptionLoader();
-		this._descCache = descCache;
+		this.descLoader = new DescriptionLoader(ctx);
+		this._descCache = ctx.descriptionCache;
 
 		/**
 		 * Registry for the builder to register themselfes.

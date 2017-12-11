@@ -1,8 +1,6 @@
 import NullIndicator from './NullIndicator';
 import MoveIndicator from './MoveIndicator.js';
-//import ItemCastIndicator from './ItemCastIndicator.js';
 import BasicAttackIndicator from './BasicAttackIndicator.js';
-import { engineContext } from '../EngineData';
 
 /**
  * The manager is responsible for switching the indicator depending on the needs
@@ -31,7 +29,7 @@ export default class IndicatorManager {
 		 */
 		this._indicatorStack = [];
 
-		this._ctx = engineContext;
+		this._ctx = engineCtx;
 
 		/**
 		 * Holds the currently active indicator.
@@ -40,13 +38,13 @@ export default class IndicatorManager {
 		 */
 		this._active = null;
 		
-		this._moveIndicator = new MoveIndicator(this);
+		this._moveIndicator = new MoveIndicator(this, engineCtx);
 		this._nullIndicator = new NullIndicator(this);
 		
 		// Register the available indicators.
 		this._indicators.push(this._moveIndicator);
 		//this._indicators.push(new ItemCastIndicator(this));
-		this._indicators.push(new BasicAttackIndicator(this));
+		this._indicators.push(new BasicAttackIndicator(this, engineCtx));
 	}
 	
 	/**

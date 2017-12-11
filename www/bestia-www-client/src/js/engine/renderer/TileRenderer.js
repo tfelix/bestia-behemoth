@@ -5,7 +5,6 @@ import Signal from '../../io/Signal';
 import Message from '../../io/messages/Message';
 import TilesetManager from '../map/TilesetManager';
 import NOOP from '../../util/NOOP';
-import { pathfinder } from '../EngineData';
 import LOG from '../../util/Log';
 
 const MIN_SAFETY_TILES = 3;
@@ -18,11 +17,12 @@ const NAME = 'tile';
  */
 export default class TileRender extends Renderer {
 
-	constructor(pubsub, game) {
+	constructor(engineContext) {
 		super();
 
-		this._pubsub = pubsub;
-		this._game = game;
+		this._ctx = engineContext;
+		this._pubsub = engineContext.pubsub;
+		this._game = engineContext.game;
 		this._isFirstDraw = true;
 		this._lastPlayerPos = { x: -1, y: -1 };
 
@@ -65,7 +65,7 @@ export default class TileRender extends Renderer {
 	 * Clears all chunks and basically resets the tile renderer.
 	 */
 	clear() {
-		this._tilesetManager = new TilesetManager();
+		this._tilesetManager = new TilesetManager(this._ctx);
 		this._rendered = { x1: 0, x2: 0, y1: 0, y2: 0 };
 		this._newRendered = { x1: 0, x2: 0, y1: 0, y2: 0 };
 		/**
@@ -302,8 +302,8 @@ export default class TileRender extends Renderer {
 
 		LOG.debug('Updating the pathfinder data with offset: ', offset);
 
-		pathfinder.setGrid(offset, grid);
-		pathfinder.setAcceptableTiles([1]);
+		this._ctx.pathfinder.setGrid(offset, grid);
+		this._ctx.pathfinder.setAcceptableTiles([1]);
 	}
 
 	/**
@@ -338,7 +338,7 @@ export default class TileRender extends Renderer {
 			for (let x = this._rendered.x2; x < newX2; x++) {
 				for (let y = this._rendered.y1; y < this._rendered.y2; y++) {
 					let gid = this._getGid(x, y);
-					this._map.putTile(1, x, y, this._layer);
+					this._map.putTile(gid, x, y, this._layer);
 				}
 			}
 

@@ -17,19 +17,15 @@ const CHAT_STYLE = Object.freeze({
  */
 export class ChatTrait extends Trait {
 
-	constructor(game, pubsub) {
+	constructor(engineContext) {
 		super();
 
-		if (!game) {
-			throw 'game can not be null.';
+		if (!engineContext) {
+			throw 'context can not be null.';
 		}
 
-		if (!pubsub) {
-			throw 'pubsub can not be null.';
-		}
-
-		this._pubsub = pubsub;
-		this._game = game;
+		this._pubsub = engineContext.pubsub;
+		this._game = engineContext.game;
 		this._chatBuffer = {};
 
 		this._pubsub.subscribe(Signal.CHAT_RECEIVED, this._onChatMsgHandler, this);
