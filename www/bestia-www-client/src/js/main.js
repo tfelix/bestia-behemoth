@@ -30,7 +30,7 @@ let storage = new Storage();
 let urlHelper = new UrlHelper('assets/');
 let auth = new Authenticator(pubsub, storage);
 let engine = new Engine(pubsub, urlHelper);
-let connection = new Connection(pubsub);
+let connection = new Connection(pubsub, true);
 let cvarManager = new ClientVarManager(pubsub);
 let latencyReporter = new LatencyReporter(pubsub);
 

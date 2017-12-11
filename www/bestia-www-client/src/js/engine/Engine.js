@@ -7,6 +7,7 @@ import InitializeState from './states/InitializeState';
 import LoadState from './states/LoadState';
 import LOG from '../util/Log';
 import EngineContext from './EngineContext';
+import ErrorState from './states/ErrorState';
 
 /**
  * Bestia Graphics engine. Responsible for displaying the game collecting user
@@ -34,6 +35,7 @@ export default class Engine {
 		let connectState = new ConnectState(engineContext);
 		let loadState = new LoadState(engineContext);
 		let gameState = new GameState(engineContext);
+		let errorState = new ErrorState(engineContext);
 
 		const config = {
 			type: Phaser.WEBGL,
@@ -41,7 +43,7 @@ export default class Engine {
 			height: 600,
 			backgroundColor: '#000000',
 			parent: 'bestia-canvas',
-			scene: [bootState, initState, connectState, loadState, gameState],
+			scene: [bootState, initState, connectState, loadState, gameState, errorState],
 			title: 'Bestia - The Browsergame',
 			url: 'http://bestia-game.net',
 			engineContext: engineContext
