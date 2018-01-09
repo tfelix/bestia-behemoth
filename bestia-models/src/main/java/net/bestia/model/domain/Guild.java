@@ -1,7 +1,9 @@
 package net.bestia.model.domain;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -29,7 +31,7 @@ public class Guild implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Transient
-	public static final int MAX_LEVEL = 10;
+	public static final int MAX_GUILD_LEVEL = 10;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -42,6 +44,8 @@ public class Guild implements Serializable {
 	private String emblem;
 
 	private int level = 1;
+	
+	private int experience = 0;
 
 	/**
 	 * Last time the leader of this guild was changed. If it is null then the
@@ -59,8 +63,11 @@ public class Guild implements Serializable {
 	@JoinColumn(nullable = false, unique = true)
 	private GuildMember leader;
 
-	@OneToMany(mappedBy = "guild", fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "guild", fetch = FetchType.LAZY)
 	private Set<GuildMember> members;
+	
+	@OneToMany(mappedBy = "guild", fetch = FetchType.LAZY)
+	private Set<GuildRank> ranks;
 
 	/**
 	 * Std. ctor. for Hibernate.
@@ -132,8 +139,8 @@ public class Guild implements Serializable {
 	 *            the level to set
 	 */
 	public void setLevel(int level) {
-		if (level > MAX_LEVEL || level < 0) {
-			throw new IllegalArgumentException("Guild level must be between 0 and " + MAX_LEVEL);
+		if (level > MAX_GUILD_LEVEL || level < 0) {
+			throw new IllegalArgumentException("Guild level must be between 0 and " + MAX_GUILD_LEVEL);
 		}
 		this.level = level;
 	}
@@ -150,22 +157,49 @@ public class Guild implements Serializable {
 	 *            the leader to set
 	 */
 	public void setLeader(GuildMember leader) {
-		this.leader = leader;
+		this.leader = Objects.requireNonNull(leader);
 	}
 
 	/**
 	 * @return the members
 	 */
 	public Set<GuildMember> getMembers() {
-		return members;
+		return Collections.unmodifiableSet(members);
 	}
 
 	/**
 	 * @param members
 	 *            the members to set
 	 */
-	public void setMembers(Set<GuildMember> members) {
-		this.members = members;
+	public void addMember(GuildMember member) {
+		this.members.add(member);
+	}
+	
+	/**
+	 * @param member Removes this {@link GuildMember} from the guild.
+	 */
+	public void removeMember(GuildMember member) {
+		this.members.remove(member);
+	}
+	
+	public Set<GuildRank> getRanks() {
+		return Collections.unmodifiableSet(ranks);
+	}
+	
+	public void removeRank(GuildRank rank) {
+		this.ranks.remove(rank);
+	}
+	
+	public void addRank(GuildRank rank) {
+		this.ranks.add(rank);
+	}
+	
+	public void addExp(int exp) {
+		this.experience += exp;
+	}
+	
+	public int getExp() {
+		return experience;
 	}
 
 	@Override

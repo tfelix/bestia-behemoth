@@ -18,7 +18,7 @@ import javax.persistence.Transient;
  * probability. The probability ranges from 0.01% to 100%. The probability is
  * saved as a fixed point decimal.
  * 
- * @author Thomas
+ * @author Thomas Felix
  *
  */
 @Entity

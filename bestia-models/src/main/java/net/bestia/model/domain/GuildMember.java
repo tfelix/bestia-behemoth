@@ -11,20 +11,16 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * Describes a member of a guild. This needs to be an extra entity because we
  * save additional information about each guild member like tax values, given
  * exp and some guild specific stuff.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  * 
  */
 @Entity
-@Table(name = "guild_member", uniqueConstraints = { @UniqueConstraint(columnNames = {
-		"GUILD_ID", "ACCOUNT_ID" }) })
+@Table(name = "guild_member", uniqueConstraints = { @UniqueConstraint(columnNames = { "GUILD_ID", "PLAYER_BESTIA_ID" }) })
 public class GuildMember implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -34,14 +30,16 @@ public class GuildMember implements Serializable {
 	private int id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "ACCOUNT_ID", nullable = false)
-	@JsonProperty("a")
-	private Account account;
+	@JoinColumn(name = "PLAYER_BESTIA_ID", nullable = false)
+	private PlayerBestia playerBestia;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "GUILD_ID", nullable = false)
-	@JsonIgnore
 	private Guild guild;
+	
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "RANK_ID", nullable = true)
+	private GuildRank rank;
 
 	private int expEarned;
 
@@ -55,16 +53,16 @@ public class GuildMember implements Serializable {
 	/**
 	 * Ctor.
 	 */
-	public GuildMember(Guild guild, Account accont) {
+	public GuildMember(Guild guild, PlayerBestia playerBestia) {
 		if (guild == null) {
 			throw new IllegalArgumentException("Guild can not be null.");
 		}
-		if (account == null) {
+		if (playerBestia == null) {
 			throw new IllegalArgumentException("Account can not be null.");
 		}
 
 		this.guild = guild;
-		this.account = accont;
+		this.playerBestia = playerBestia;
 	}
 
 	/**
@@ -85,16 +83,16 @@ public class GuildMember implements Serializable {
 	/**
 	 * @return the member
 	 */
-	public Account getMember() {
-		return account;
+	public PlayerBestia getMember() {
+		return playerBestia;
 	}
 
 	/**
 	 * @param member
 	 *            the member to set
 	 */
-	public void setMember(Account member) {
-		this.account = member;
+	public void setPlayerBestia(PlayerBestia playerBestia) {
+		this.playerBestia = playerBestia;
 	}
 
 	/**
@@ -106,9 +104,21 @@ public class GuildMember implements Serializable {
 
 	/**
 	 * @param expEarned
-	 *            the expEarned to set
+	 *            The expEarned to set
 	 */
 	public void setExpEarned(int expEarned) {
 		this.expEarned = expEarned;
+	}
+
+	/**
+	 * @param expEarned
+	 *            Adds the amount to the earned exp.
+	 */
+	public void addExpEarned(int expEarned) {
+		this.expEarned += expEarned;
+	}
+
+	public GuildRank getRank() {
+		return rank;
 	}
 }
