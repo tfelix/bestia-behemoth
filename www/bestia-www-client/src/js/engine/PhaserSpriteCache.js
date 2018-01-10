@@ -24,15 +24,3 @@ export default class PhaserSpriteCache {
         this._spriteCache[eid] = sprite;
     }
 }
-
-/*
-var entityData = {
-					eid: msg.eid,
-					sprite: { name: msg.s.s, type: msg.s.t },
-                    position: { x: msg.x, y: msg.y },
-                    movement: { path: [], speed: 0, delta: 0 }
-                    action: remove || appear
-                    animation: null
-				}
-
-*/

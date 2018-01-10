@@ -1,5 +1,3 @@
-import {engineContext} from '../../EngineData';
-
 /**
  * Baseclass of the builder. It is used automatically to create map entities
  * (bestias, items etc.)

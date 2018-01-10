@@ -1,10 +1,12 @@
+import * as Phaser from 'phaser';
 import Indicator from './Indicator.js';
 import LOG from '../../util/Log';
 import Message from '../../io/messages/Message.js';
 import WorldHelper from '../map/WorldHelper.js';
-import { engineContext, pathfinder } from '../EngineData';
 import Signal from '../../io/Signal';
-import { addMoveComponent } from '../entities/MoveComponentTranslator';
+import {
+	addMoveComponent
+} from '../entities/MoveComponentTranslator';
 
 /**
  * Basic indicator for visualization of the mouse pointer.
@@ -12,17 +14,19 @@ import { addMoveComponent } from '../entities/MoveComponentTranslator';
  * @class Bestia.Engine.Indicator
  */
 export default class MoveIndicator extends Indicator {
-	constructor(manager) {
+	constructor(manager, engineContext) {
 		super(manager);
 
 		this._effect = null;
+
+		this._ctx = engineContext;
 
 		this._pubsub = engineContext.pubsub;
 		this._game = engineContext.game;
 
 		this._playerBestia = null;
 		this._playerEntity = null;
-		
+
 		this._pubsub.subscribe(Signal.BESTIA_SELECTED, function (_, bestia) {
 			LOG.debug('MoveIndivator: New Bestia detected.');
 			this._playerBestia = bestia;
@@ -30,7 +34,7 @@ export default class MoveIndicator extends Indicator {
 
 		// Catch the currently selected entity if its getting updated.
 		this._pubsub.subscribe(Signal.ENTITY_UPDATE, function (_, entity) {
-			if(this._playerBestia && entity.eid === this._playerBestia.entityId()) {
+			if (this._playerBestia && entity.eid === this._playerBestia.entityId()) {
 				this._playerEntity = entity;
 			}
 		}, this);
@@ -74,20 +78,24 @@ export default class MoveIndicator extends Indicator {
 
 		// Display fx.
 		this._effect.alpha = 1;
-		this._game.add.tween(this._effect).to({ alpha: 0 }, 500, Phaser.Easing.Cubic.Out, true);
+		this._game.add.tween(this._effect).to({
+			alpha: 0
+		}, 500, Phaser.Easing.Cubic.Out, true);
 
 		var goal = WorldHelper.getTileXY(pointer.worldX, pointer.worldY);
 
 		// Start the path calculation
-		pathfinder.findPath(this._playerBestia.position(), goal, this._onPathFound.bind(this));
+		this._ctx.pathfinder.findPath(this._playerBestia.position(), goal, this._onPathFound.bind(this));
 	}
 
 	/**
 	 * Override an create all needed game objects here.
 	 */
-	load() {
-
-		this._game.load.spritesheet('cursor', engineContext.url.getIndicatorUrl('cursor'), 32, 32);
+	load(loader) {
+		loader.spritesheet('cursor', this._ctx.url.getIndicatorUrl('cursor'), {
+			frameWidth: 32,
+			frameHeight: 32
+		});
 	}
 
 	/**

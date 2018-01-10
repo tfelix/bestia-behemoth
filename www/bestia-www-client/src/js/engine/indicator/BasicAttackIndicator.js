@@ -1,9 +1,9 @@
+import * as Phaser from 'phaser';
 import Indicator from './Indicator.js';
 import Signal from '../../io/Signal.js';
 import WorldHelper from '../map/WorldHelper.js';
 import Message from '../../io/messages/Message.js';
 import LOG from '../../util/Log';
-import { engineContext } from '../EngineData';
 
 /**
  * This indicator will manage the the snapping and colorization effect of an
@@ -11,7 +11,7 @@ import { engineContext } from '../EngineData';
  */
 export default class BasicAttackIndicator extends Indicator {
 	
-	constructor(manager) {
+	constructor(manager, engineContext) {
 		super(manager);
 		
 		/**
@@ -25,35 +25,36 @@ export default class BasicAttackIndicator extends Indicator {
 
 		this._targetSprite = null;
 		this._targetEntity = null;
+		this._ctx = engineContext;
 
 		// Listen for activation signal.
 		engineContext.pubsub.subscribe(Signal.ENGINE_REQUEST_INDICATOR, this._handleIndicator.bind(this));
 	}
 	
 	activate() {
-		engineContext.game.input.onDown.add(this._onClick, this);
+		this._ctx.game.input.onDown.add(this._onClick, this);
 		this._marker.reset();
 		this._targetSprite.addChild(this._marker);
 		this._targetSprite.bringToTop();
 	}
 
 	deactivate() {
-		engineContext.game.input.onDown.remove(this._onClick, this);
+		this._ctx.game.input.onDown.remove(this._onClick, this);
 		this._marker.kill();
 	}
 
 	/**
 	 * Preload all needed assets.
 	 */
-	load() {
-		engineContext.game.load.image('cursor_atk', engineContext.url.getIndicatorUrl('cursor_atk'));
+	load(loader) {
+		loader.image('cursor_atk', this._ctx.url.getIndicatorUrl('cursor_atk'));
 	}
 
 	/**
 	 * Preload all needed assets.
 	 */
 	create() {
-		this._marker = engineContext.game.make.sprite(0, 0, 'cursor_atk');
+		this._marker = this._ctx.game.make.sprite(0, 0, 'cursor_atk');
 		this._marker.anchor.setTo(0.5, 0.5);
 		this._marker.angle = 0;
 	}
@@ -98,7 +99,7 @@ export default class BasicAttackIndicator extends Indicator {
 		} else {
 			// Attack.
 			let msg = new Message.BasicMeleeAttackUse(this._targetEntity.id);
-			engineContext.pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
+			this._ctx.pubsub.publish(Signal.IO_SEND_MESSAGE, msg);
 		}
 	}	
 }

@@ -1,7 +1,5 @@
-/*global SockJS */
-
 /**
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  * @copyright 2015 Thomas Felix
  */
 
@@ -19,9 +17,7 @@ import LOG from '../util/Log';
  * 
  * The reconnection implements a backoff algorithm if a disconnection happens.
  * 
- * @class Bestia.Connection
- * @param {Bestia.PubSub}
- *            pubsub - Publish/Subscriber interface.
+ * @class Connection
  */
 export default class Connection {
 
@@ -30,7 +26,7 @@ export default class Connection {
 	 * 
 	 * @constructor
 	 */
-	constructor(pubsub) {
+	constructor(pubsub, shouldReconnect = false) {
 
 		this._socket = null;
 
@@ -45,7 +41,7 @@ export default class Connection {
 		/**
 		 * Flag if a reconnection attempt should be made.
 		 */
-		this._shouldReconnect = false;
+		this.shouldReconnect = shouldReconnect;
 		this._connectionTries = 0;
 		this._timeoutHndl = 0;
 
@@ -84,19 +80,16 @@ export default class Connection {
 	 * in a developing state.
 	 * 
 	 * @private
-	 * @param {String}
-	 *            direction - ['send' | 'receive'] direction of the message.
-	 * @param {String}
-	 *            msgString - Stringified JSON of the message.
-	 * @param {Object}
-	 *            msgObj - Message object.
+	 * @param {String} direction - ['send' | 'receive'] direction of the message.
+	 * @param {String} msgString - Stringified JSON of the message.
+	 * @param {Object} msgObj - Message object.
 	 * 
 	 */
 	_debug(direction, msgString, msgObj) {
 		if (direction === 'send') {
-			this.debugBytesSend += msgString.length;
+			this.debugBytesSend(this.debugBytesSend() + msgString.length);
 		} else {
-			this.debugBytesReceived += msgString.length;
+			this.debugBytesReceived(this.debugBytesReceived() + msgString.length);
 		}
 
 		// Check if debug data struct exists. Or create it.
@@ -146,7 +139,7 @@ export default class Connection {
 			// Most likly we are not authenticated. Back to login.
 			this._pubsub.publish(Signal.IO_DISCONNECTED);
 
-			if(this._shouldReconnect) {
+			if(this.shouldReconnect) {
 				this._connectRetry();
 			}		
 		}.bind(this);
@@ -180,7 +173,7 @@ export default class Connection {
 	 */
 	disconnect() {
 		
-		this._shouldReconnect = false;
+		this.shouldReconnect = false;
 		if (this._timeoutHndl !== 0) {
 			clearTimeout(this._timeoutHndl);
 		}

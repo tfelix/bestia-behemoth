@@ -3,7 +3,6 @@ import DynamicSpriteBuilder from './DynamicSpriteBuilder.js';
 import NOOP from '../../../util/NOOP.js';
 import LOG from '../../../util/Log';
 import DescriptionLoader from '../../DescriptionLoader.js';
-import { descriptionCache } from '../../EngineData';
 import ComponentNames from '../ComponentNames';
 
 
@@ -17,9 +16,10 @@ import ComponentNames from '../ComponentNames';
  */
 export default class EntityFactory {
 
-	constructor(game) {
+	constructor(ctx) {
 
-		this.descLoader = new DescriptionLoader();
+		this.descLoader = new DescriptionLoader(ctx);
+		this._descCache = ctx.descriptionCache;
 
 		/**
 		 * Registry for the builder to register themselfes.
@@ -78,7 +78,7 @@ export default class EntityFactory {
 			LOG.debug('Description not found. Loading it.');
 			this.descLoader.loadDescription(data, function (descFile) {
 				// Description file was loaded. We can now store it.
-				descriptionCache.addSpriteDescription(descFile);
+				this._descCache.addSpriteDescription(descFile);
 				this._continueBuildWithDescription(data, fnOnComplete, descFile);
 			}.bind(this));
 

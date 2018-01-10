@@ -2,9 +2,9 @@ import Builder from './Builder.js';
 import groups, { GROUP_LAYERS } from '../../Groups';
 import LOG from '../../../util/Log';
 import ComponentNames from '../ComponentNames';
-import { engineContext } from '../../EngineData';
-import { setupSpriteAnimation } from '../traits/VisualTrait';
+import { setupSpriteAnimation } from '../../renderer/util/SpriteHelper';
 import WorldHelper from '../../map/WorldHelper';
+
 
 /**
  * Responsible for building the packed (multisprite) entities. These are usually

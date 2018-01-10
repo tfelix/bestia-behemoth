@@ -1,7 +1,6 @@
 import MID from '../../io/messages/MID';
 import Message from '../../io/messages/Message';
 import LOG from '../../util/Log';
-import { engineContext } from '../EngineData';
 
 const TILE_KEY_PREFIX = 'tiles_';
 
@@ -22,17 +21,18 @@ const TILE_KEY_PREFIX = 'tiles_';
 export default class TilesetManager {
 
 	/**
-	 * Ctor.
-	 * 
-	 * @param Pubsub -
-	 *            Pubsub interface.
+	 * Creates an instance of TilesetManager.
+	 * @param {any} ctx 
+	 * @memberof TilesetManager
 	 */
-	constructor() {
+	constructor(ctx) {
 
-		this._pubsub = engineContext.pubsub;
+		this._pubsub = ctx.pubsub;
 
 		this._tilestes = [];
 		this._callbacks = {};
+
+		this._ctx = ctx;
 
 		// map.tileset
 		this._pubsub.subscribe(MID.MAP_TILESET, this._handleTilesetReceived.bind(this));
@@ -48,14 +48,14 @@ export default class TilesetManager {
 		data.ts.key = key;
 
 		// Do we have the image already saved?
-		if (engineContext.loader.has(key, 'image')) {
+		if (this._ctx.loader.has(key, 'image')) {
 			this._handleTilesetCompleteLoad(data.ts);
 		} else {
 			// Prepare the loader and set a callback.
-			engineContext.loader.load({
+			this._ctx.loader.load({
 				key: key,
 				type: 'image',
-				url: engineContext.url.getTilemapUrl(data.ts.name)
+				url: this._ctx.url.getTilemapUrl(data.ts.name)
 			}, function () {
 				this._handleTilesetCompleteLoad(data.ts);
 			}.bind(this));

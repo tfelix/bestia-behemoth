@@ -1,4 +1,5 @@
- import { version } from '../../package.json';
+import '../css/game/main.less';
+import { version } from '../../package.json';
 import ko from 'knockout';
 import KoAjaxComponentLoader from './ui/KoAjaxComponentLoader';
 import PubSub from './util/PubSub';
@@ -15,8 +16,6 @@ import ShortcutView from './ui/shortcut/ShortcutView';
 import ClientVarManager from './ui/ClientVarManager';
 import LatencyReporter from './util/LatencyReporter';
 import Storage from './util/Storage';
-import EntityCacheEx from './engine/entities/EntityCacheEx';
-import EntityComponentUpdater from './engine/entities/EntityComponentUpdater';
 
 // JSDoc definitions.
 /**
@@ -29,10 +28,9 @@ import EntityComponentUpdater from './engine/entities/EntityComponentUpdater';
 let pubsub = new PubSub();
 let storage = new Storage();
 let urlHelper = new UrlHelper('assets/');
-let entityCompUpdater = new EntityComponentUpdater(pubsub, new EntityCacheEx());
 let auth = new Authenticator(pubsub, storage);
 let engine = new Engine(pubsub, urlHelper);
-let connection = new Connection(pubsub);
+let connection = new Connection(pubsub, true);
 let cvarManager = new ClientVarManager(pubsub);
 let latencyReporter = new LatencyReporter(pubsub);
 
@@ -42,11 +40,10 @@ let bestiaView = new BestiaView(pubsub, urlHelper);
 // we register the component loader.
 ko.components.loaders.unshift(new KoAjaxComponentLoader());
 
-
 // === Register the components ===
 ko.components.register('bestia-chat', {
 	viewModel: {
-		createViewModel: function (params, componentInfo) {
+		createViewModel: function () {
 			return new Chat(pubsub);
 		}
 	},
@@ -74,7 +71,7 @@ ko.components.register('bestia-attacks', {
 ko.components.register('bestia-shortcuts', {
 	viewModel: {
 		createViewModel: function () {
-			return new ShortcutView(pubsub);
+			return new ShortcutView(pubsub, 2, 5);
 		}
 	},
 	template: { fromUrl: 'shortcuts.html' }

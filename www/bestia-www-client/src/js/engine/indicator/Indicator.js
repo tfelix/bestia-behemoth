@@ -1,7 +1,6 @@
 import WorldHelper from '../map/WorldHelper.js';
 import groups, {GROUP_LAYERS} from '../Groups';
 import IndicatorManager from './IndicatorManager.js';
-import { engineContext } from '../EngineData';
 
 /**
  * Basic indicator for visualization of the mouse pointer. This visualization is
@@ -11,12 +10,13 @@ import { engineContext } from '../EngineData';
  */
 export default class Indicator {
 
-	constructor(manager) {
+	constructor(manager, game) {
 		if (!(manager instanceof IndicatorManager)) {
 			throw new Error('Manager can not be null.');
 		}
 		
 		this._manager = manager;
+		this._game = game;
 
 		this._marker = null;
 	}
@@ -25,16 +25,16 @@ export default class Indicator {
 		// Move the marker to the current active mouse position.
 		this._onMouseMove();
 
-		engineContext.game.input.addMoveCallback(this._onMouseMove, this);
-		engineContext.game.input.onDown.add(this._onClick, this);
+		this._game.input.addMoveCallback(this._onMouseMove, this);
+		this._game.input.onDown.add(this._onClick, this);
 		
 		groups.get(GROUP_LAYERS.SPRITES_BOTTOM).add(this._marker);
 	}
 
 	deactivate() {
 		
-		engineContext.game.input.deleteMoveCallback(this._onMouseMove, this);
-		engineContext.game.input.onDown.remove(this._onClick, this);
+		this._game.input.deleteMoveCallback(this._onMouseMove, this);
+		this._game.input.onDown.remove(this._onClick, this);
 		
 		groups.get(GROUP_LAYERS.SPRITES_BOTTOM).remove(this._marker);
 	}
@@ -43,11 +43,9 @@ export default class Indicator {
 	 * Checks if this indicator can be overwritten by the new one. Usually this
 	 * is the default behaviour.
 	 * 
-	 * @param {Indicator}
-	 *            indicator - The new indicator intended to override the
-	 *            currently active one.
+	 * @param {Indicator} indicator - The new indicator intended to override the currently active one.
 	 */
-	allowOverwrite(indicator) {
+	allowOverwrite() {
 		return true;
 	}
 
@@ -91,7 +89,7 @@ export default class Indicator {
 			return;
 		}
 
-		var pointer = engineContext.game.input.activePointer;
+		var pointer = this._game.input.activePointer;
 
 		// From px to tiles and back.
 		var cords = WorldHelper.getTileXY(pointer.worldX, pointer.worldY);

@@ -1,13 +1,9 @@
 import Builder from './Builder.js';
 import groups, { GROUP_LAYERS } from '../../Groups';
 import LOG from '../../../util/Log';
-import { setupSpriteAnimation } from '../traits/VisualTrait';
+import { setupSpriteAnimation, addSubsprite } from '../../renderer/util/SpriteHelper';
 import WorldHelper from '../../map/WorldHelper';
 import ComponentNames from '../ComponentNames';
-import { engineContext, descriptionCache } from '../../EngineData';
-import { addSubsprite } from '../traits/VisualTrait';
-
-//const NULL_OFFSET = { x: 0, y: 0 };
 
 /**
  * This is able to create sprite entities which differ to the runtime. It must
@@ -20,14 +16,17 @@ import { addSubsprite } from '../traits/VisualTrait';
  */
 export default class DynamicSpriteBuilder extends Builder {
 
-	constructor(game) {
+	constructor(engineContext) {
 		super();
 
 		// Register with factory.
 		this.type = 'dynamic';
 		this.version = 1;
 
-		this._game = game;
+		this._game = engineContext.game;
+		this._url = engineContext.url;
+		this._load = engineContext.loader;
+		this._descCache = engineContext.descriptionCache;
 	}
 
 	build(data, desc) {
@@ -87,7 +86,7 @@ export default class DynamicSpriteBuilder extends Builder {
 	load(descFile, fnOnComplete) {
 
 		var pack = this._extendPack(descFile);
-		engineContext.loader.loadPackData(pack, function () {
+		this._load.loadPackData(pack, function () {
 
 			// Iterate over all the keys of the pack since it is of the pattern:
 			// mastersmith : 
@@ -105,7 +104,7 @@ export default class DynamicSpriteBuilder extends Builder {
 							// Starts with the string offset to the key is a offset subsprite description.
 							var offsetData = this._game.cache.getJSON(entry.key);
 							// TODO subsprite name automatisch auslesen.
-							descriptionCache.addSubspriteOffset('female_01', offsetData);
+							this._descCache.addSubspriteOffset('female_01', offsetData);
 						}
 
 					}, this);
@@ -140,8 +139,8 @@ export default class DynamicSpriteBuilder extends Builder {
 			packArray.push({
 				type: 'atlasJSONHash',
 				key: msName,
-				textureURL: engineContext.url.getMultiSheetUrl(msName),
-				atlasURL: engineContext.url.getMultiAtlasUrl(msName),
+				textureURL: this._url.getMultiSheetUrl(msName),
+				atlasURL: this._url.getMultiAtlasUrl(msName),
 				atlasData: null
 			});
 
@@ -149,7 +148,7 @@ export default class DynamicSpriteBuilder extends Builder {
 			packArray.push({
 				type: 'json',
 				key: msName + '_desc',
-				url: engineContext.url.getMultiDescUrl(msName)
+				url: this._url.getMultiDescUrl(msName)
 			});
 
 			// Also include the offset file for this combination.
@@ -157,7 +156,7 @@ export default class DynamicSpriteBuilder extends Builder {
 			packArray.push({
 				type: 'json',
 				key: offsetFileName,
-				url: engineContext.url.getMultiOffsetUrl(msName, offsetFileName)
+				url: this._url.getMultiOffsetUrl(msName, offsetFileName)
 			});
 
 		}, this);

@@ -2,7 +2,6 @@
  * Contains the different layer groups so the engine can draw the layers 
  * and thus the entities into correct z-order.
  */
-
 const GROUP_LAYERS = Object.freeze({
     TILES: 0,
     SPRITES_BOTTOM: 1,
@@ -40,26 +39,26 @@ class GroupManager {
          * Mainlayer of all entity sprites in the game.
          */
         this._groups[GROUP_LAYERS.SPRITES] = game.add.group(undefined, 'sprites');
-        
+
         /**
          * Top layer over the sprites in the game.
          */
-        this._groups[GROUP_LAYERS.SPRITES_TOP] =game.add.group(undefined, 'sprites_over');
-        
+        this._groups[GROUP_LAYERS.SPRITES_TOP] = game.add.group(undefined, 'sprites_over');
+
         /**
          * Effect layer on top of each sprite and sprite overlay.
          */
         this._groups[GROUP_LAYERS.FX] = game.add.group(undefined, 'fx');
-        
+
         /**
          * A map overlay layer. Useful for text, names etc.
          */
         this._groups[GROUP_LAYERS.MAP_OVERLAY] = game.add.group(undefined, 'map_overlay');
-        
+
         /**
          * The outermost GUI layer. Is always visible and never overlayed.
          */
-		this._groups[GROUP_LAYERS.GUI] = game.add.group(undefined, 'gui');
+        this._groups[GROUP_LAYERS.GUI] = game.add.group(undefined, 'gui');
     }
 
     /**
@@ -76,8 +75,8 @@ class GroupManager {
      */
     get(layer) {
 
-        if(layer < 0 || layer > this._groups.length) {
-            throw 'Group#get: Layer id '+ layer +' is not present.';
+        if (layer < 0 || layer > this._groups.length) {
+            throw 'Group#get: Layer id ' + layer + ' is not present.';
         }
 
         return this._groups[layer];
@@ -87,5 +86,7 @@ class GroupManager {
 var groupManager = new GroupManager();
 groupManager.LAYERS = GROUP_LAYERS;
 
-export { groupManager as default, GROUP_LAYERS };
-
+export {
+    groupManager as default, 
+    GROUP_LAYERS
+};
