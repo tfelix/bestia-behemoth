@@ -1,12 +1,13 @@
 package net.bestia.model.dao;
 
-import org.springframework.data.repository.CrudRepository;
+import java.util.Optional;
+
 import org.springframework.stereotype.Repository;
 
 import net.bestia.model.domain.GuildMember;
 
 @Repository
-public interface GuildMemberDAO extends CrudRepository<GuildMember, Integer> {
+public interface GuildMemberDAO extends CrudOptionalRepository<GuildMember, Integer> {
 	
-	GuildMember findByPlayerBestiaId(long playerBestiaId);
+	Optional<GuildMember> findByPlayerBestiaId(long playerBestiaId);
 }

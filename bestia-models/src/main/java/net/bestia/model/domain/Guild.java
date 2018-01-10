@@ -219,4 +219,8 @@ public class Guild implements Serializable {
 	public Date getCreationDate() {
 		return new Date(creationDate.getTime());
 	}
+
+	public int getId() {
+		return id;
+	}
 }
