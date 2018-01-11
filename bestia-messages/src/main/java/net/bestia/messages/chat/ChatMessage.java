@@ -10,7 +10,7 @@ import net.bestia.model.domain.Account;
 /**
  * Chatmessage is sent from the user to the server and vice versa.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)

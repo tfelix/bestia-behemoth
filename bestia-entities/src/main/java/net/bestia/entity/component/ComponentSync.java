@@ -17,12 +17,6 @@ import java.lang.annotation.Retention;
  */
 public @interface ComponentSync {
 
-	/**
-	 * If only one sync type should be given this value can be used. However IF
-	 * the types array is used the array will take precedence.
-	 * 
-	 * @return
-	 */
 	SyncType value() default SyncType.OWNER;
 
 }

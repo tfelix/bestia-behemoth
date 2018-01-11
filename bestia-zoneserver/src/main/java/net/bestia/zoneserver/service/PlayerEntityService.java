@@ -134,6 +134,22 @@ public class PlayerEntityService {
 
 		return entity;
 	}
+	
+	/**
+	 * Tries to find the active player bestia id of the current selected bestia.
+	 * 
+	 * @return NULL if this account has no active bestia. The id otherwise.
+	 */
+	public long getActivePlayerBestiaId(long accId) {
+		final Entity e = getActivePlayerEntity(accId);
+		if(e == null) {
+			return 0;
+		}
+		
+		return entityService.getComponent(e, PlayerComponent.class)
+				.map(PlayerComponent::getPlayerBestiaId)
+				.orElse(0L);
+	}
 
 	/**
 	 * Returns a list of account ids from players which active bestia entity is

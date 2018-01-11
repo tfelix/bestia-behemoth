@@ -60,8 +60,8 @@ public class GuildRank {
 		if(taxRate < 0) {
 			taxRate = 0;
 		}
-		if(taxRate > 1) {
-			taxRate = 1;
+		if(taxRate > 0.8) {
+			taxRate = 0.8f;
 		}
 		this.taxRate = taxRate;
 	}

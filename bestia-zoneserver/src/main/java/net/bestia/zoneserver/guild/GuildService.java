@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.guild;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,7 +36,13 @@ public class GuildService {
 	private GuildMemberDAO memberDao;
 	private PlayerBestiaDAO playerBestiaDao;
 
-	public GuildService() {
+	public GuildService(GuildDAO guildDao, 
+			GuildMemberDAO guildMemberDao, 
+			PlayerBestiaDAO playerBestiaDao) {
+		
+		this.guildDao = Objects.requireNonNull(guildDao);
+		this.memberDao = Objects.requireNonNull(guildMemberDao);
+		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
 
 	}
 
@@ -74,7 +81,8 @@ public class GuildService {
 	}
 
 	public Optional<Guild> getGuildOfPlayer(long playerBestiaId) {
-		return memberDao.findByPlayerBestiaId(playerBestiaId).map(GuildMember::getGuild);
+		return memberDao.findByPlayerBestiaId(playerBestiaId)
+				.map(GuildMember::getGuild);
 	}
 
 	public int addExpTaxToGuild(long playerBestiaId, int earnedTotalExp) {
@@ -100,17 +108,16 @@ public class GuildService {
 	}
 
 	public int getNeededNextLevelExp(int guildId) {
-		return guildDao.findOne(guildId).map(guild -> getNeededNextLevelExp(guild)).orElse(0);
+		return guildDao.findOne(guildId)
+				.map(this::getNeededNextLevelExp)
+				.orElse(0);
 	}
-
-	/*
-	 * public Set<PlayerBestia> getGuildMembers(int guildId) {
-	 * 
-	 * }
-	 */
+	
 	public Set<PlayerBestia> getGuildMembersFromPlayer(long playerBestiaId) {
 		return getGuildOfPlayer(playerBestiaId).map(guild -> {
-			return guild.getMembers().stream().map(GuildMember::getMember).filter(x -> x.getId() != playerBestiaId)
+			return guild.getMembers().stream()
+					.map(GuildMember::getMember)
+					.filter(x -> x.getId() != playerBestiaId)
 					.collect(Collectors.toSet());
 		}).orElse(Collections.emptySet());
 	}

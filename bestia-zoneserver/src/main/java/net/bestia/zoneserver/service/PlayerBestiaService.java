@@ -21,7 +21,7 @@ import net.bestia.model.domain.PlayerItem;
 /**
  * The service for managing and editing of the player bestias.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Service

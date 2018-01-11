@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * Items can be added to a players inventory. They can be used, traded, sold,
  * dropped etc.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 @Entity
@@ -57,6 +57,9 @@ public class Item implements Serializable {
 	
 	@JsonProperty("i")
 	private String indicator;
+	
+	@JsonProperty("lv")
+	private int level;
 
 	/**
 	 * Maybe query a script for the range.
@@ -89,6 +92,10 @@ public class Item implements Serializable {
 	
 	public int getWeight() {
 		return weight;
+	}
+	
+	public int getLevel() {
+		return level;
 	}
 	
 	public int getUsableDefaultRange() {

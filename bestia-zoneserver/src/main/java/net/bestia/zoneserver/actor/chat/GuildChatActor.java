@@ -14,6 +14,8 @@ import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
+import net.bestia.zoneserver.entity.Entity;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 import net.bestia.zoneserver.guild.GuildService;
 
 /**
@@ -32,12 +34,15 @@ public class GuildChatActor extends AbstractActor {
 	public static final String NAME = "guild";
 	
 	private final GuildService guildService;
+	private final net.bestia.zoneserver.service.PlayerEntityService playerEntityService;
 	private final ActorRef sendActor;
 
 	@Autowired
-	public GuildChatActor(GuildService guildService) {
+	public GuildChatActor(GuildService guildService,
+			PlayerEntityService playerEntityService) {
 
 		this.guildService = Objects.requireNonNull(guildService);
+		this.playerEntityService = Objects.requireNonNull(playerEntityService);
 		sendActor = SpringExtension.actorOf(getContext(), SendClientActor.class);
 	}
 
@@ -56,9 +61,13 @@ public class GuildChatActor extends AbstractActor {
 			LOG.warning("Message {} is no guild message.", chatMsg);
 			return;
 		}
+	
+		final long playerBestiaId = playerEntityService.getActivePlayerBestiaId(chatMsg.getAccountId());
 		
-		// TODO Find the active player which emitted this message.
-		final long playerBestiaId = 10;
+		if(playerBestiaId == 0) {
+			return;
+		}
+
 		guildService.getGuildMembersFromPlayer(playerBestiaId).stream()
 		.filter(member -> member.getEntityId() != 0)
 		.map(PlayerBestia::getEntityId)

@@ -2,6 +2,8 @@ package net.bestia.entity.component;
 
 import java.util.Objects;
 
+import net.bestia.model.domain.ConditionValues;
+import net.bestia.model.domain.Element;
 import net.bestia.model.domain.Item;
 import net.bestia.model.domain.StatusPoints;
 import net.bestia.model.domain.StatusPointsImpl;
@@ -45,7 +47,12 @@ public class ItemStatusComponentSetter extends ComponentSetter<StatusComponent> 
 		sp.setDefense(10);
 		sp.setMagicDefense(10);
 		sp.setVitality(10);
+		
+		final ConditionValues condValue = new ConditionValues();
+		condValue.setMaxHealth(15 * item.getLevel());
 
+		comp.setElement(Element.NORMAL);
+		comp.setConditionValues(condValue);
 		comp.setStatusPoints(sp);
 	}
 

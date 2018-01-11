@@ -14,7 +14,7 @@ import net.bestia.zoneserver.actor.SpringExtension;
 
 /**
  * Depending on the given component ID this factory will create an actor
- * suitable for the component. This is currently done by checking the annotation
+ * suitable for the component. This is done by checking the annotation
  * of the component.
  * 
  * @author Thomas Felix

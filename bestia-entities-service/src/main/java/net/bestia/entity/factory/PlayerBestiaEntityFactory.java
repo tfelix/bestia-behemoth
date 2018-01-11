@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.entity.Entity;
+import net.bestia.entity.EntityService;
 import net.bestia.entity.component.TagComponent.Tag;
 
 /**
@@ -42,15 +43,18 @@ public class PlayerBestiaEntityFactory {
 
 	private final StatusService statusService;
 	private final EntityFactory entityFactory;
+	private final EntityService entityService;
 	private final InventoryService inventoryService;
 
 	@Autowired
 	public PlayerBestiaEntityFactory(EntityFactory entityFactory,
 	                                 StatusService statusService,
+	                                 EntityService entityService,
 	                                 InventoryService inventoryService) {
 		
 		this.entityFactory = Objects.requireNonNull(entityFactory);
 		this.statusService = Objects.requireNonNull(statusService);
+		this.entityService = Objects.requireNonNull(entityService);
 		this.inventoryService = Objects.requireNonNull(inventoryService);
 	}
 
@@ -89,6 +93,9 @@ public class PlayerBestiaEntityFactory {
 		// FIXME das hier in die entsprechenden setter einbauen.
 		statusService.calculateStatusPoints(playerEntity);
 		inventoryService.updateMaxWeight(playerEntity);
+		
+		// 
+		entityService.
 
 		return playerEntity;
 	}
