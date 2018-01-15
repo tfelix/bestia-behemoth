@@ -10,25 +10,25 @@ import LOG from '../../../util/Log';
  */
 
 const NORMAL = {
-    font: "18px Arial",
-    fill: "#ffffff",
-    align: "center",
+    font: '18px Arial',
+    fill: '#ffffff',
+    align: 'center',
     stroke: '#000000',
     strokeThickness: 3
 };
 
 const CRIT = {
-    font: "18px Arial",
-    fill: "#ffffff",
-    align: "center",
+    font: '18px Arial',
+    fill: '#ffffff',
+    align: 'center',
     stroke: '#000000',
     strokeThickness: 3
 };
 
 const HEAL = {
-    font: "18px Arial",
-    fill: "#ffffff",
-    align: "center",
+    font: '18px Arial',
+    fill: '#ffffff',
+    align: 'center',
     stroke: '#000000',
     strokeThickness: 3
 };

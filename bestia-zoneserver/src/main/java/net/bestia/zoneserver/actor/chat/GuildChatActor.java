@@ -14,9 +14,8 @@ import net.bestia.messages.chat.ChatMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
-import net.bestia.zoneserver.entity.Entity;
-import net.bestia.zoneserver.entity.PlayerEntityService;
 import net.bestia.zoneserver.guild.GuildService;
+import net.bestia.zoneserver.service.PlayerEntityService;
 
 /**
  * Handles guild chats. 

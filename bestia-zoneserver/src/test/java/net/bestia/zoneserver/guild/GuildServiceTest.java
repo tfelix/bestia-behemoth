@@ -1,11 +1,35 @@
 package net.bestia.zoneserver.guild;
 
+import org.junit.Before;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import net.bestia.model.dao.GuildDAO;
+import net.bestia.model.dao.GuildMemberDAO;
+import net.bestia.model.dao.PlayerBestiaDAO;
+
+@RunWith(MockitoJUnitRunner.class)
 public class GuildServiceTest {
 
 	private GuildService gs;
+	
+	@Mock
+	private GuildDAO guildDao;
+	
+	@Mock
+	private GuildMemberDAO guildMemberDao;
+	
+	@Mock
+	private PlayerBestiaDAO bestiaDao;
+	
+	@Before
+	public void setup() {
+		gs = new GuildService(guildDao, guildMemberDao, bestiaDao);
+	}
 
 	public void addPlayerToGuild_existingGuildEnoughSpace_memberAdded() {
-
+		
 	}
 
 	public void addPlayerToGuild_existingGuildFull_memberAdded() {

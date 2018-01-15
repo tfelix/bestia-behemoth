@@ -24,7 +24,7 @@ import net.bestia.zoneserver.actor.chat.ChatActor;
 import net.bestia.zoneserver.actor.connection.LatencyManagerActor;
 import net.bestia.zoneserver.actor.entity.EntityInteractionRequestActor;
 import net.bestia.zoneserver.actor.entity.EntitySyncActor;
-import net.bestia.zoneserver.actor.inventory.ListInventoryActor;
+import net.bestia.zoneserver.actor.inventory.InventoryRequestActor;
 import net.bestia.zoneserver.actor.map.MapRequestChunkActor;
 import net.bestia.zoneserver.actor.map.PlayerMoveRequestActor;
 import net.bestia.zoneserver.actor.map.TilesetRequestActor;
@@ -106,7 +106,7 @@ public class ClientMessageHandlerActor extends AbstractActor {
 		SpringExtension.actorOf(getContext(), BestiaInfoActor.class);
 
 		// === Inventory ===
-		SpringExtension.actorOf(getContext(), ListInventoryActor.class);
+		SpringExtension.actorOf(getContext(), InventoryRequestActor.class);
 
 		// === Map ===
 		SpringExtension.actorOf(getContext(), MapRequestChunkActor.class);

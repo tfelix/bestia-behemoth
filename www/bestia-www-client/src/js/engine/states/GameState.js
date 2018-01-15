@@ -54,7 +54,6 @@ export default class GameState extends Phaser.Scene {
 
 		// Group sort the sprite layer.
 		groups.sort(GROUP_LAYERS.SPRITES);
-		//mushroom0.depth = mushroom0.y + mushroom0.height / 2;
 	}
 
 	render() {

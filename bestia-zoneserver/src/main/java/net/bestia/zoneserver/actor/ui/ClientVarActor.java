@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -14,6 +13,7 @@ import net.bestia.messages.ui.ClientVarMessage;
 import net.bestia.messages.ui.ClientVarRequestMessage;
 import net.bestia.model.domain.ClientVar;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.service.ClientVarService;
 
@@ -26,7 +26,7 @@ import net.bestia.zoneserver.service.ClientVarService;
  */
 @Component
 @Scope("prototype")
-public class ClientVarActor extends AbstractActor {
+public class ClientVarActor extends ClientMessageDigestActor {
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
@@ -41,18 +41,8 @@ public class ClientVarActor extends AbstractActor {
 
 		this.cvarService = Objects.requireNonNull(cvarService);
 		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
-	}
-	
-	@Override
-	public void preStart() throws Exception {
-		//B
-	}
-
-	@Override
-	public Receive createReceive() {
-		return receiveBuilder()
-				.match(ClientVarRequestMessage.class, this::handleCvarReqest)
-				.build();
+		
+		this.redirectConfig.match(ClientVarRequestMessage.class, this::handleCvarReqest);
 	}
 
 	/**

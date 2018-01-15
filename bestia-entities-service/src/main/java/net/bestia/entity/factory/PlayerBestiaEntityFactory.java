@@ -93,9 +93,6 @@ public class PlayerBestiaEntityFactory {
 		// FIXME das hier in die entsprechenden setter einbauen.
 		statusService.calculateStatusPoints(playerEntity);
 		inventoryService.updateMaxWeight(playerEntity);
-		
-		// 
-		entityService.
 
 		return playerEntity;
 	}

@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import net.bestia.model.dao.GuildDAO;
 import net.bestia.model.dao.GuildMemberDAO;
-import net.bestia.model.dao.GuildRankDAO;
 import net.bestia.model.dao.PlayerBestiaDAO;
 import net.bestia.model.domain.Guild;
 import net.bestia.model.domain.GuildMember;
@@ -124,5 +123,25 @@ public class GuildService {
 
 	public int getSkillpointsToSpend(int guildId) {
 		return 0;
+	}
+
+	/**
+	 * Checks if the given account id has a bestia in the guild.
+	 * 
+	 * @param accountId
+	 * @param guildId
+	 * @return TRUE if the account id has at least one bestia inside this guild.
+	 */
+	public boolean isInGuild(long accountId, int guildId) {
+		final Optional<Guild> optGuild = guildDao.findOne(guildId);
+		
+		if(!optGuild.isPresent()) {
+			return false;
+		}
+		
+		return optGuild.get()
+				.getMembers()
+				.stream()
+				.anyMatch(m -> m.getMember().getOwner().getId() == accountId);
 	}
 }

@@ -7,15 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import net.bestia.entity.component.InventoryService;
 import net.bestia.messages.inventory.InventoryListMessage;
 import net.bestia.messages.inventory.InventoryListRequestMessage;
 import net.bestia.model.domain.PlayerItem;
 import net.bestia.zoneserver.actor.SpringExtension;
+import net.bestia.zoneserver.actor.zone.ClientMessageDigestActor;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
-import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
 
 /**
  * This actor will create a list of the currently owned inventory items and send
@@ -27,9 +26,9 @@ import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessag
  */
 @Component
 @Scope("prototype")
-public class ListInventoryActor extends AbstractActor {
+public class InventoryRequestActor extends ClientMessageDigestActor {
 
-	public static final String NAME = "listInventory";
+	public static final String NAME = "requestInventory";
 
 	private final InventoryService inventoryService;
 
@@ -42,22 +41,12 @@ public class ListInventoryActor extends AbstractActor {
 	 *            The {@link BestiaActorContext}.
 	 */
 	@Autowired
-	public ListInventoryActor(InventoryService inventoryService, ActorRef msgHub) {
+	public InventoryRequestActor(InventoryService inventoryService) {
 
 		this.inventoryService = Objects.requireNonNull(inventoryService);
 		this.sendClient = SpringExtension.actorOf(getContext(), SendClientActor.class);
-	}
-
-	@Override
-	public Receive createReceive() {
-		return receiveBuilder()
-				.match(InventoryListRequestMessage.class, this::onRequestInventory).build();
-	}
-
-	@Override
-	public void preStart() throws Exception {
-		final RedirectMessage msg = RedirectMessage.get(InventoryListRequestMessage.class);
-		context().parent().tell(msg, getSelf());
+		
+		redirectConfig.match(InventoryListRequestMessage.class, this::onRequestInventory);
 	}
 
 	private void onRequestInventory(InventoryListRequestMessage msg) {
