@@ -1,5 +1,7 @@
 package net.bestia.messages.guild;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import net.bestia.messages.AccountMessage;
 
 /**
@@ -14,6 +16,7 @@ public class GuildRequestMessage extends AccountMessage {
 
 	private static final String MESSAGE_ID = "guild.req";
 	
+	@JsonProperty("rgid")
 	public int requestedGuildId;
 	
 	public GuildRequestMessage(long accId, int guildId) {

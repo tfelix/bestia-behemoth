@@ -14,10 +14,11 @@ import net.bestia.messages.MessageApi;
 import net.bestia.messages.internal.entity.EntityComponentStateMessage;
 
 /**
- * This cleans only up if the script component gets removed. Not all script
- * components will lead to the installation of a PeriodicScriptActor. Only when
- * called via the script this actor is created. Removal must be done
- * automatically. Thats the job of this interceptor.
+ * This cleans only up if the script component gets removed. Not all attached
+ * script components will lead to the installation of a PeriodicScriptActor.
+ * Only when called via the script and setup a interval call this actor is
+ * created thus removal must be done automatically. Thats the job of this
+ * interceptor.
  * 
  * @author Thomas Felix
  *

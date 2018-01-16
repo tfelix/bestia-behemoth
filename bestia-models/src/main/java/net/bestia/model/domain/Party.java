@@ -36,11 +36,11 @@ public class Party implements Serializable {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false, unique = true, length = 25)
 	private String name;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "party")
-	private Set<Account> members = new HashSet<>();
+	private Set<PlayerBestia> members = new HashSet<>();
 
 	/**
 	 * Adds a new member to the party.
@@ -49,7 +49,7 @@ public class Party implements Serializable {
 	 *            The new member to be added to the party.
 	 * @return TRUE if the member could be added. FALSE if it couldnt.
 	 */
-	public boolean addMember(Account member) {
+	public boolean addMember(PlayerBestia member) {
 		if (members.size() < MAX_PARTY_MEMBER && !members.contains(member)) {
 			members.add(member);
 			return true;
@@ -57,13 +57,21 @@ public class Party implements Serializable {
 			return false;
 		}
 	}
+	
+	public void removeMember(PlayerBestia removeMember) {
+		members.remove(removeMember);
+	}
+	
+	public long getId() {
+		return id;
+	}
 
 	/**
 	 * Returns a READ-ONLY set of the members inside this party.
 	 * 
 	 * @return The current member of this party.
 	 */
-	public Set<Account> getMembers() {
+	public Set<PlayerBestia> getMembers() {
 		return Collections.unmodifiableSet(members);
 	}
 

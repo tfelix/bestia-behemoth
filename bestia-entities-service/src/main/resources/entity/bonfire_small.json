@@ -1,13 +1,5 @@
 {
-	dbName: "poring",
-	components: [{
-		
-	}]
-}
-ODER
-[{
-	spriteInfo: {
-		sprite: "bonfire_small",
-		type: "pack"
-	}
-}]
+ident: 'test'
+components: [
+	{type: 'sprite', data: {sprite: 'bonfire_small'}}
+]}
