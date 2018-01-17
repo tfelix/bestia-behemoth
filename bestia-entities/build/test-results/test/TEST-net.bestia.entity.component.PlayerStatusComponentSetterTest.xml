@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="net.bestia.entity.component.PlayerStatusComponentSetterTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2018-01-17T22:06:54" hostname="Solid" time="0.05">
-  <properties/>
-  <testcase name="setComponent_statusComponent_SetsCurrentHpAndMana" classname="net.bestia.entity.component.PlayerStatusComponentSetterTest" time="0.04"/>
-  <testcase name="getSupportedType_StatusCompClass" classname="net.bestia.entity.component.PlayerStatusComponentSetterTest" time="0.001"/>
-  <testcase name="setComponent_null_throws" classname="net.bestia.entity.component.PlayerStatusComponentSetterTest" time="0.002"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
