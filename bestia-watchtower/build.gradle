@@ -1,0 +1,15 @@
+
+description = 'bestia-watchtower'
+dependencies {
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter', version:'1.5.4.RELEASE'
+    compile(group: 'org.springframework.boot', name: 'spring-boot-starter-websocket', version:'1.5.4.RELEASE') {
+exclude(module: 'spring-boot-starter-tomcat')
+    }
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-jetty', version:'1.5.4.RELEASE'
+    compile group: 'com.typesafe.akka', name: 'akka-cluster_2.12', version:'2.5.6'
+    compile group: 'com.typesafe.akka', name: 'akka-slf4j_2.12', version:'2.5.6'
+    compile group: 'com.typesafe.akka', name: 'akka-cluster-tools_2.12', version:'2.5.6'
+    compile group: 'com.hazelcast', name: 'hazelcast-client', version:'3.7.4'
+    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version:'1.5.4.RELEASE'
+    testCompile group: 'com.typesafe.akka', name: 'akka-testkit_2.12', version:'2.5.6'
+}

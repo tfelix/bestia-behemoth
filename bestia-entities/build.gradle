@@ -1,0 +1,13 @@
+
+description = 'bestia-entities'
+dependencies {
+  compile project(':bestia-models')
+    testCompile group: 'org.mockito', name: 'mockito-core', version:'2.10.0'
+  testCompile project(':bestia-server-commons')
+}
+
+task packageTests(type: Jar) {
+  from sourceSets.test.output
+  classifier = 'tests'
+}
+artifacts.archives packageTests

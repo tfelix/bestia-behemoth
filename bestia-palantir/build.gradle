@@ -1,0 +1,7 @@
+
+description = 'bestia-palantir'
+dependencies {
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version:'2.8.4'
+    compile group: 'org.slf4j', name: 'slf4j-simple', version:'1.7.25'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.6'
+}

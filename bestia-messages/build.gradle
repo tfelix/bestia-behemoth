@@ -1,0 +1,5 @@
+
+description = 'bestia-messages'
+dependencies {
+  compile project(':bestia-messages-cluster')
+}

@@ -1,0 +1,28 @@
+rootProject.name = 'behemoth'
+include ':bestia-models'
+include ':bestia-messages'
+include ':bestia-messages-proto'
+include ':bestia-server-commons'
+include ':bestia-zoneserver'
+include ':bestia-webserver'
+include ':bestia-memoryserver'
+include ':bestia-i18nserver'
+include ':bestia-entities'
+include ':bestia-entities-service'
+include ':bestia-watchtower'
+include ':bestia-palantir'
+include ':bestia-messages-cluster'
+
+project(':bestia-models').projectDir = "$rootDir/bestia-models" as File
+project(':bestia-messages').projectDir = "$rootDir/bestia-messages" as File
+project(':bestia-messages-proto').projectDir = "$rootDir/bestia-messages-proto" as File
+project(':bestia-server-commons').projectDir = "$rootDir/bestia-server-commons" as File
+project(':bestia-zoneserver').projectDir = "$rootDir/bestia-zoneserver" as File
+project(':bestia-webserver').projectDir = "$rootDir/bestia-webserver" as File
+project(':bestia-memoryserver').projectDir = "$rootDir/bestia-memoryserver" as File
+project(':bestia-i18nserver').projectDir = "$rootDir/bestia-i18nserver" as File
+project(':bestia-entities').projectDir = "$rootDir/bestia-entities" as File
+project(':bestia-entities-service').projectDir = "$rootDir/bestia-entities-service" as File
+project(':bestia-watchtower').projectDir = "$rootDir/bestia-watchtower" as File
+project(':bestia-palantir').projectDir = "$rootDir/bestia-palantir" as File
+project(':bestia-messages-cluster').projectDir = "$rootDir/bestia-messages-cluster" as File
