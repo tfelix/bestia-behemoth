@@ -29,49 +29,23 @@
       <module name="behemoth" target="1.8" />
       <module name="bestia-entities" target="1.8" />
       <module name="bestia-entities-service" target="1.8" />
-      <module name="bestia-entities-service_main" target="1.8" />
-      <module name="bestia-entities-service_test" target="1.8" />
-      <module name="bestia-entities_main" target="1.8" />
-      <module name="bestia-entities_test" target="1.8" />
       <module name="bestia-i18nserver" target="1.8" />
-      <module name="bestia-i18nserver_main" target="1.8" />
-      <module name="bestia-i18nserver_test" target="1.8" />
       <module name="bestia-memdbserver" target="1.8" />
       <module name="bestia-memoryserver" target="1.8" />
-      <module name="bestia-memoryserver_main" target="1.8" />
-      <module name="bestia-memoryserver_test" target="1.8" />
       <module name="bestia-message" target="1.8" />
       <module name="bestia-message-cluster" target="1.8" />
       <module name="bestia-message-proto" target="1.8" />
       <module name="bestia-messages" target="1.8" />
       <module name="bestia-messages-cluster" target="1.8" />
-      <module name="bestia-messages-cluster_main" target="1.8" />
-      <module name="bestia-messages-cluster_test" target="1.8" />
       <module name="bestia-messages-proto" target="1.8" />
-      <module name="bestia-messages-proto_main" target="1.8" />
-      <module name="bestia-messages-proto_test" target="1.8" />
-      <module name="bestia-messages_main" target="1.8" />
-      <module name="bestia-messages_test" target="1.8" />
       <module name="bestia-models" target="1.8" />
-      <module name="bestia-models_main" target="1.8" />
-      <module name="bestia-models_test" target="1.8" />
       <module name="bestia-palantir" target="1.8" />
-      <module name="bestia-palantir_main" target="1.8" />
-      <module name="bestia-palantir_test" target="1.8" />
       <module name="bestia-server-commons" target="1.8" />
       <module name="bestia-server-commons-ex" target="1.8" />
-      <module name="bestia-server-commons_main" target="1.8" />
-      <module name="bestia-server-commons_test" target="1.8" />
       <module name="bestia-watchtower" target="1.8" />
-      <module name="bestia-watchtower_main" target="1.8" />
-      <module name="bestia-watchtower_test" target="1.8" />
       <module name="bestia-webserver" target="1.8" />
       <module name="bestia-webserver-ex" target="1.8" />
-      <module name="bestia-webserver_main" target="1.8" />
-      <module name="bestia-webserver_test" target="1.8" />
       <module name="bestia-zoneserver" target="1.8" />
-      <module name="bestia-zoneserver_main" target="1.8" />
-      <module name="bestia-zoneserver_test" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
