@@ -35,11 +35,9 @@ public interface MessageApi {
 	/**
 	 * Sends a message directly to the entity actor managing a single entity
 	 * inside the cluster.
-	 * 
-	 * @param entityId
-	 *            The entity ID which actor should receive the message.
-	 * @param msg
-	 *            The message to send.
+	 *
+	 * @deprecated This should not be necessairy with the component actors.
+	 * @param message The message is directed towards an actor managing the entity.
 	 */
 	void sendToEntity(EntityMessage message);
 }

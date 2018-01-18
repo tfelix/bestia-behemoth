@@ -3,19 +3,41 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/behemoth.iml" filepath="$PROJECT_DIR$/behemoth.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bestia-entities/bestia-entities.iml" filepath="$PROJECT_DIR$/bestia-entities/bestia-entities.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bestia-entities-service/bestia-entities-service.iml" filepath="$PROJECT_DIR$/bestia-entities-service/bestia-entities-service.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bestia-i18nserver/bestia-i18nserver.iml" filepath="$PROJECT_DIR$/bestia-i18nserver/bestia-i18nserver.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bestia-memoryserver/bestia-memoryserver.iml" filepath="$PROJECT_DIR$/bestia-memoryserver/bestia-memoryserver.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bestia-messages/bestia-messages.iml" filepath="$PROJECT_DIR$/bestia-messages/bestia-messages.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bestia-messages-cluster/bestia-messages-cluster.iml" filepath="$PROJECT_DIR$/bestia-messages-cluster/bestia-messages-cluster.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bestia-messages-proto/bestia-messages-proto.iml" filepath="$PROJECT_DIR$/bestia-messages-proto/bestia-messages-proto.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bestia-models/bestia-models.iml" filepath="$PROJECT_DIR$/bestia-models/bestia-models.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bestia-palantir/bestia-palantir.iml" filepath="$PROJECT_DIR$/bestia-palantir/bestia-palantir.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bestia-server-commons/bestia-server-commons.iml" filepath="$PROJECT_DIR$/bestia-server-commons/bestia-server-commons.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bestia-watchtower/bestia-watchtower.iml" filepath="$PROJECT_DIR$/bestia-watchtower/bestia-watchtower.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bestia-webserver/bestia-webserver.iml" filepath="$PROJECT_DIR$/bestia-webserver/bestia-webserver.iml" />
-      <module fileurl="file://$PROJECT_DIR$/bestia-zoneserver/bestia-zoneserver.iml" filepath="$PROJECT_DIR$/bestia-zoneserver/bestia-zoneserver.iml" />
+      <module fileurl="file://$PROJECT_DIR$/bestia-entities/bestia-entities.iml" filepath="$PROJECT_DIR$/bestia-entities/bestia-entities.iml" group="bestia-entities" />
+      <module fileurl="file://$PROJECT_DIR$/bestia-entities-service/bestia-entities-service.iml" filepath="$PROJECT_DIR$/bestia-entities-service/bestia-entities-service.iml" group="bestia-entities-service" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-entities-service/bestia-entities-service_main.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-entities-service/bestia-entities-service_main.iml" group="bestia-entities-service" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-entities-service/bestia-entities-service_test.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-entities-service/bestia-entities-service_test.iml" group="bestia-entities-service" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-entities/bestia-entities_main.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-entities/bestia-entities_main.iml" group="bestia-entities" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-entities/bestia-entities_test.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-entities/bestia-entities_test.iml" group="bestia-entities" />
+      <module fileurl="file://$PROJECT_DIR$/bestia-memoryserver/bestia-memoryserver.iml" filepath="$PROJECT_DIR$/bestia-memoryserver/bestia-memoryserver.iml" group="bestia-memoryserver" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-memoryserver/bestia-memoryserver_main.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-memoryserver/bestia-memoryserver_main.iml" group="bestia-memoryserver" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-memoryserver/bestia-memoryserver_test.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-memoryserver/bestia-memoryserver_test.iml" group="bestia-memoryserver" />
+      <module fileurl="file://$PROJECT_DIR$/bestia-messages/bestia-messages.iml" filepath="$PROJECT_DIR$/bestia-messages/bestia-messages.iml" group="bestia-messages" />
+      <module fileurl="file://$PROJECT_DIR$/bestia-messages-cluster/bestia-messages-cluster.iml" filepath="$PROJECT_DIR$/bestia-messages-cluster/bestia-messages-cluster.iml" group="bestia-messages-cluster" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-messages-cluster/bestia-messages-cluster_main.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-messages-cluster/bestia-messages-cluster_main.iml" group="bestia-messages-cluster" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-messages-cluster/bestia-messages-cluster_test.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-messages-cluster/bestia-messages-cluster_test.iml" group="bestia-messages-cluster" />
+      <module fileurl="file://$PROJECT_DIR$/bestia-messages-proto/bestia-messages-proto.iml" filepath="$PROJECT_DIR$/bestia-messages-proto/bestia-messages-proto.iml" group="bestia-messages-proto" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-messages-proto/bestia-messages-proto_main.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-messages-proto/bestia-messages-proto_main.iml" group="bestia-messages-proto" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-messages-proto/bestia-messages-proto_test.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-messages-proto/bestia-messages-proto_test.iml" group="bestia-messages-proto" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-messages/bestia-messages_main.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-messages/bestia-messages_main.iml" group="bestia-messages" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-messages/bestia-messages_test.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-messages/bestia-messages_test.iml" group="bestia-messages" />
+      <module fileurl="file://$PROJECT_DIR$/bestia-models/bestia-models.iml" filepath="$PROJECT_DIR$/bestia-models/bestia-models.iml" group="bestia-models" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-models/bestia-models_main.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-models/bestia-models_main.iml" group="bestia-models" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-models/bestia-models_test.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-models/bestia-models_test.iml" group="bestia-models" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-palantir/bestia-palantir_main.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-palantir/bestia-palantir_main.iml" group="bestia-palantir" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-palantir/bestia-palantir_test.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-palantir/bestia-palantir_test.iml" group="bestia-palantir" />
+      <module fileurl="file://$PROJECT_DIR$/bestia-server-commons/bestia-server-commons.iml" filepath="$PROJECT_DIR$/bestia-server-commons/bestia-server-commons.iml" group="bestia-server-commons" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-server-commons/bestia-server-commons_main.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-server-commons/bestia-server-commons_main.iml" group="bestia-server-commons" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-server-commons/bestia-server-commons_test.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-server-commons/bestia-server-commons_test.iml" group="bestia-server-commons" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-watchtower/bestia-watchtower.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-watchtower/bestia-watchtower.iml" group="bestia-watchtower" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-watchtower/bestia-watchtower_main.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-watchtower/bestia-watchtower_main.iml" group="bestia-watchtower" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-watchtower/bestia-watchtower_test.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-watchtower/bestia-watchtower_test.iml" group="bestia-watchtower" />
+      <module fileurl="file://$PROJECT_DIR$/bestia-webserver/bestia-webserver.iml" filepath="$PROJECT_DIR$/bestia-webserver/bestia-webserver.iml" group="bestia-webserver" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-webserver/bestia-webserver_main.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-webserver/bestia-webserver_main.iml" group="bestia-webserver" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-webserver/bestia-webserver_test.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-webserver/bestia-webserver_test.iml" group="bestia-webserver" />
+      <module fileurl="file://$PROJECT_DIR$/bestia-zoneserver/bestia-zoneserver.iml" filepath="$PROJECT_DIR$/bestia-zoneserver/bestia-zoneserver.iml" group="bestia-zoneserver" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-zoneserver/bestia-zoneserver_main.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-zoneserver/bestia-zoneserver_main.iml" group="bestia-zoneserver" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-zoneserver/bestia-zoneserver_test.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-zoneserver/bestia-zoneserver_test.iml" group="bestia-zoneserver" />
     </modules>
   </component>
 </project>
