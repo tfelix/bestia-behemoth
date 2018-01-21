@@ -12,7 +12,6 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.attack.AttackUseMessage;
 import net.bestia.messages.entity.EntityDamageMessage;
-import net.bestia.messages.internal.entity.EntitySkillUseMessage;
 import net.bestia.model.battle.Damage;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;

@@ -1,15 +1,16 @@
 package net.bestia.entity.component;
 
-import java.util.EnumMap;
-
-import com.google.common.base.Objects;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Holds various script callbacks for entities.
- * 
- * @author Thomas Felix
  *
+ * @author Thomas Felix
  */
+@ComponentActor(value = "net.bestia.zoneserver.actor.entity.component.ScriptComponentActor",
+		updateActorOnChange = true)
 public class ScriptComponent extends Component {
 
 	/**
@@ -18,9 +19,8 @@ public class ScriptComponent extends Component {
 	 * information which variables are available for the different script
 	 * environments consult the various script environment implementations in
 	 * the bestia-zone module.
-	 *
 	 */
-	public enum Callback {
+	public enum TriggerType {
 
 		/**
 		 * Script is called on a regular time basis.
@@ -64,65 +64,79 @@ public class ScriptComponent extends Component {
 		ON_ITEM_DROP
 	}
 
+	public static class ScriptCallback {
+		private final String uuid;
+		private final int intervalMs;
+		private final TriggerType type;
+		private final String script;
+
+		public ScriptCallback(String uuid, TriggerType type, String script, int intervalMs) {
+			this.uuid = uuid;
+			this.type = type;
+			this.script = script;
+			this.intervalMs = intervalMs;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+			ScriptCallback that = (ScriptCallback) o;
+			return java.util.Objects.equals(uuid, that.uuid) &&
+					type == that.type &&
+					java.util.Objects.equals(script, that.script);
+		}
+
+		@Override
+		public int hashCode() {
+			return java.util.Objects.hash(uuid, type, script);
+		}
+
+		public String getScript() {
+			return script;
+		}
+
+		public int getIntervalMs() {
+			return intervalMs;
+		}
+
+		public String getUuid() {
+			return uuid;
+		}
+	}
+
 	private static final long serialVersionUID = 1L;
 
-	private EnumMap<Callback, String> callbackNames = new EnumMap<>(Callback.class);
-
-	/**
-	 * Unique script name. Each invocation of a script has a unique name which
-	 * can be used to store and retrieve data.
-	 */
-	private String scriptUuid;
+	private final Map<String, ScriptCallback> callbacks = new HashMap<>();
 
 	public ScriptComponent(long id) {
 		super(id);
 		// no op.
 	}
 
-	public String getCallbackName(Callback c) {
-		return callbackNames.get(c);
+	public ScriptCallback getCallback(String uuid) {
+		return callbacks.get(uuid);
 	}
 
-	public void setCallbackName(Callback c, String name) {
-		callbackNames.put(c, name);
+	public void addCallback(ScriptCallback callback) {
+		callbacks.put(callback.uuid, callback);
 	}
 
-	public void removeCallback(Callback c) {
-		callbackNames.remove(c);
+	public void removeCallback(String uuid) {
+		callbacks.remove(uuid);
 	}
 
-	public String getScriptUuid() {
-		return scriptUuid;
+	public Set<String> getAllScriptUids() {
+		return callbacks.keySet();
 	}
 
-	public void setScriptUUID(String scriptUUID) {
-		this.scriptUuid = scriptUUID;
+	@Override
+	public void clear() {
+		callbacks.clear();
 	}
 
 	@Override
 	public String toString() {
-		return String.format("ScriptComponent[callbacks: %s]", callbackNames.toString());
+		return String.format("ScriptComponent[id: %d]", getId());
 	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(callbackNames, scriptUuid);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!super.equals(obj)) {
-			return false;
-		}
-		if (!(obj instanceof ScriptComponent)) {
-			return false;
-		}
-		final ScriptComponent other = (ScriptComponent) obj;
-		return Objects.equal(callbackNames, other.callbackNames)
-				&& Objects.equal(scriptUuid, other.scriptUuid);
-	}
-
 }

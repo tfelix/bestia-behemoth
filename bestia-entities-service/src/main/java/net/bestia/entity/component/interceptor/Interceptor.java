@@ -22,8 +22,8 @@ public class Interceptor {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Interceptor.class);
 	
-	private final Map<Class<? extends Component>, List<BaseComponentInterceptor<? extends Component>>> interceptors = new HashMap<>();
-	private BaseComponentInterceptor<Component> defaultInterceptor;
+	private final Map<Class<? extends Component>, List<BaseComponentInterceptor>> interceptors = new HashMap<>();
+	private final List<BaseComponentInterceptor> defaultInterceptors = new ArrayList<>();
 
 	public Interceptor(List<BaseComponentInterceptor<? extends Component>> interceptors) {
 		Objects.requireNonNull(interceptors);
@@ -49,14 +49,13 @@ public class Interceptor {
 
 		interceptors.get(triggerType).add(interceptor);
 	}
-	
+
 	/**
-	 * Sets the default interceptor.
-	 * 
-	 * @param interceptor
+	 * The default interceptor are called upon each component update. Regardless of their type.
+	 * Thus they are handy is no type specific components need to be scanned.
 	 */
-	public void addDefaultInterceptor(BaseComponentInterceptor<Component> interceptor) {
-		this.defaultInterceptor = interceptor;
+	public void addDefaultInterceptor(BaseComponentInterceptor interceptor) {
+		defaultInterceptors.add(interceptor);
 	}
 
 	/**
@@ -76,10 +75,10 @@ public class Interceptor {
 		if (!ownsComponent(entity, component)) {
 			return;
 		}
-		
-		if(defaultInterceptor != null) {
-			defaultInterceptor.triggerUpdateAction(entityService, entity, component);
-		}
+
+		defaultInterceptors.forEach(i -> {
+			i.triggerUpdateAction(entityService, entity, component);
+		});
 
 		// Check possible interceptors.
 		if (interceptors.containsKey(component.getClass())) {
@@ -96,10 +95,10 @@ public class Interceptor {
 		if (!ownsComponent(entity, component)) {
 			return;
 		}
-		
-		if(defaultInterceptor != null) {
-			defaultInterceptor.triggerCreateAction(entityService, entity, component);
-		}
+
+		defaultInterceptors.forEach(i -> {
+			i.triggerCreateAction(entityService, entity, component);
+		});
 
 		if (interceptors.containsKey(component.getClass())) {
 			LOG.debug("Intercepting created component {} for: {}.", component, entity);
@@ -115,10 +114,10 @@ public class Interceptor {
 		if (!ownsComponent(entity, component)) {
 			return;
 		}
-		
-		if(defaultInterceptor != null) {
-			defaultInterceptor.triggerDeleteAction(entityService, entity, component);
-		}
+
+		defaultInterceptors.forEach(i -> {
+			i.triggerDeleteAction(entityService, entity, component);
+		});
 
 		// Check possible interceptors.
 		if (interceptors.containsKey(component.getClass())) {

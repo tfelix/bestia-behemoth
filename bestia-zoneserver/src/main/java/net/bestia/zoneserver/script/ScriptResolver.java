@@ -18,11 +18,11 @@ class ScriptResolver {
 	 * item/apple.js - Same as above.
 	 * </pre>
 	 * 
-	 * @param callback
-	 * @return A {@link ScriptIdent} object containing all the needed entry
+	 * @param callbackName The name of the function to invoke.
+	 * @return A {@link ScriptCallback} object containing all the needed entry
 	 *         points to call into the js file.
 	 */
-	public ScriptIdent resolveScriptIdent(String callbackName) {
+	public ScriptCallback resolveScriptIdent(String callbackName) {
 
 		String[] token = callbackName.split(":");
 		String funcName;
@@ -45,27 +45,7 @@ class ScriptResolver {
 			scriptName = scriptName.substring(1);
 		}
 
-		// Detect the type.
-		ScriptType type;
-
-		String[] nameTokens = scriptName.toUpperCase().split("/");
-		if (nameTokens.length == 1) {
-			type = ScriptType.NONE;
-		} else {
-			if (nameTokens[0].startsWith("ITEM")) {
-				type = ScriptType.ITEM;
-			} else if (nameTokens[0].startsWith("ATTACK")) {
-				type = ScriptType.ATTACK;
-			} else if (nameTokens[0].startsWith("STATUS_EFFECT")) {
-				type = ScriptType.STATUS_EFFECT;
-			} else if (nameTokens[0].startsWith("MAP")) {
-				type = ScriptType.MAP;
-			} else {
-				throw new IllegalArgumentException("Unknown script type: " + nameTokens[0]);
-			}
-		}
-
-		return new ScriptIdent(type, scriptName, funcName);
+		return new ScriptCallback(scriptName, funcName);
 	}
 
 }

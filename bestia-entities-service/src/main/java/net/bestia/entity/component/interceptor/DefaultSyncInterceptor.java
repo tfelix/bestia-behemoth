@@ -16,7 +16,6 @@ import net.bestia.entity.component.SyncType;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.entity.EntityComponentDeleteMessage;
 import net.bestia.messages.entity.EntityComponentEnvelope;
-import net.bestia.messages.internal.entity.EntityComponentStateMessage;
 
 /**
  * This component interceptor will test all components if a change will lead to
@@ -73,8 +72,6 @@ public class DefaultSyncInterceptor extends BaseComponentInterceptor<Component> 
 		LOG.debug("Component {} is updated.", comp);
 
 		performComponentSync(entityService, entity, comp);
-		
-		// TODO vielleicht ist es nützlich hier die aktoren zu benachrichtigen.
 	}
 
 	@Override

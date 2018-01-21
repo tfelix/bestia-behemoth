@@ -20,8 +20,13 @@ public @interface ComponentActor {
 	/**
 	 * Fully qualified actor name to get spawned if this component is
 	 * installed.
-	 * 
-	 * @return
 	 */
 	String value();
+
+	/**
+	 * This flag determines if an instanced actor will actively updates
+	 * that an component has changed via a ComponentUpdateMessage which holds
+	 * the component id which has changed.
+	 */
+	boolean updateActorOnChange() default false;
 }

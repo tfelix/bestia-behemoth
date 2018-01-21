@@ -19,7 +19,6 @@ import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
 import net.bestia.entity.component.ScriptComponent.Callback;
 import net.bestia.messages.MessageApi;
-import net.bestia.messages.internal.entity.EntityComponentStateMessage;
 
 /**
  * This class is responsible for fetching the script, creating a appropriate
@@ -83,13 +82,13 @@ public class ScriptService {
 	 * @param script
 	 * @param functionName
 	 */
-	private synchronized void setupScriptBindings(CompiledScript script, ScriptIdent ident, Bindings bindings) {
+	private synchronized void setupScriptBindings(CompiledScript script, ScriptCallback ident, Bindings bindings) {
 
 		final Bindings scriptBindings = script.getEngine().getBindings(ScriptContext.ENGINE_SCOPE);
 		scriptBindings.putAll(bindings);
 	}
 
-	private CompiledScript resolveScript(ScriptIdent ident) {
+	private CompiledScript resolveScript(ScriptCallback ident) {
 		final CompiledScript script = scriptCache.getScript(ident.getType(), ident.getName());
 
 		if (script == null) {
@@ -114,7 +113,7 @@ public class ScriptService {
 		Objects.requireNonNull(name);
 		LOG.debug("Calling script: {}.", name);
 
-		final ScriptIdent ident = resolver.resolveScriptIdent(name);
+		final ScriptCallback ident = resolver.resolveScriptIdent(name);
 		final CompiledScript script = resolveScript(ident);
 		
 		//final ScriptFunctionExecutor funcExec = new ScriptFunctionExecutor("main", env, script);
@@ -142,7 +141,7 @@ public class ScriptService {
 
 		final String callbackName = scriptComp.getCallbackName(Callback.ON_INTERVAL);
 
-		final ScriptIdent ident = resolver.resolveScriptIdent(callbackName);
+		final ScriptCallback ident = resolver.resolveScriptIdent(callbackName);
 		final CompiledScript script = resolveScript(ident);
 
 		// Prepare additional bindings.
@@ -158,10 +157,7 @@ public class ScriptService {
 	 * delay timer in ms the script call will be invoked. The scripts must be
 	 * attached to an entity since this is the only mechanism to allow time
 	 * based trigger control of scripts.
-	 * 
-	 * @param entity
-	 * @param delay
-	 * @param callbackFunctionName
+	 *
 	 */
 	public void startScriptInterval(Entity entity, int delay, String callbackFunctionName) {
 		if (delay <= 0) {
@@ -175,16 +171,10 @@ public class ScriptService {
 
 		scriptComp.setCallbackName(Callback.ON_INTERVAL, callbackFunctionName);
 		entityService.updateComponent(scriptComp);
-
-		// Tell the actor which script to periodically call.
-		final EntityComponentStateMessage compMessage = EntityComponentStateMessage.install(entity.getId(), scriptComp.getId());
-		akkaApi.sendToEntity(compMessage);
 	}
 
 	/**
 	 * Stops the running script interval of the given entity.
-	 * 
-	 * @param entity
 	 */
 	public void stopScriptInterval(Entity entity) {
 		Objects.requireNonNull(entity);
@@ -193,10 +183,6 @@ public class ScriptService {
 
 		scriptComp.removeCallback(Callback.ON_INTERVAL);
 		entityService.updateComponent(scriptComp);
-
-		// Tell the actor which script to periodically call.
-		final EntityComponentStateMessage compMessage = EntityComponentStateMessage.remove(entity.getId(), scriptComp.getId());
-		akkaApi.sendToEntity(compMessage);
 	}
 
 	private ScriptComponent getScriptComponent(Entity entity) {

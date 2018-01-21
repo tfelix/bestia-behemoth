@@ -1,146 +1,105 @@
 package net.bestia.zoneserver.actor.entity.component;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
+import net.bestia.messages.EntityComponentUpdateMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Manages the {@link ScriptComponent} for an entity.
- * 
- * @author Thomas Felix
  *
+ * @author Thomas Felix
  */
 @Component
 @Scope("prototype")
 public class ScriptComponentActor extends AbstractActor {
-
-	/**
-	 * Adds a script callback actor this this actor.
-	 *
-	 */
-	public static final class AddScriptCallback {
-
-		private final String scriptUid;
-		private final int delayMs;
-
-		/**
-		 * 
-		 * @param scriptUid
-		 * @param callbackName
-		 * @param delayMs
-		 *            Delay between the calls in ms.
-		 */
-		public AddScriptCallback(String scriptUid, String callbackName, int delayMs) {
-
-			if (delayMs <= 0) {
-				throw new IllegalArgumentException("Delay must be bigger then 0.");
-			}
-
-			this.scriptUid = Objects.requireNonNull(scriptUid);
-			this.delayMs = delayMs;
-		}
-
-		public String getScriptUid() {
-			return scriptUid;
-		}
-
-		public int getDelay() {
-			return delayMs;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("AddScriptCallback[scriptUId: %s, delayMs: %d]", getScriptUid(), getDelay());
-		}
-	}
-
-	/**
-	 * Message to remove a previously added script callback actor.
-	 *
-	 */
-	public static final class RemoveScriptCallback {
-		private final String scriptUid;
-
-		public RemoveScriptCallback(String scriptUid) {
-
-			this.scriptUid = Objects.requireNonNull(scriptUid);
-		}
-
-		public String getScriptUid() {
-			return scriptUid;
-		}
-
-		@Override
-		public String toString() {
-			return String.format("AddScriptCallback[scriptUId: %s]", getScriptUid());
-		}
-	}
 
 	public final static String NAME = "scriptComponent";
 
 	private final LoggingAdapter LOG = Logging.getLogger(getContext().system(), this);
 
 	private final long entityId;
+	private final long componentId;
+	private final EntityService entityService;
 
-	private final Map<String, ActorRef> scriptActorByUuid = new HashMap<>();
-	private final Map<ActorRef, String> uuidByScriptActor = new HashMap<>();
+	private final BiMap<String, ActorRef> scriptActors = HashBiMap.create();
 
 	@Autowired
-	public ScriptComponentActor(long entityId) {
-
+	public ScriptComponentActor(long entityId, long componentId, EntityService entityService) {
 		this.entityId = entityId;
+		this.componentId = componentId;
+		this.entityService = Objects.requireNonNull(entityService);
 	}
 
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(AddScriptCallback.class, this::handleAddScript)
-				.match(RemoveScriptCallback.class, this::handleRemoveScript)
+				.match(EntityComponentUpdateMessage.class, this::handleComponentUpdate)
 				.match(Terminated.class, this::handleTerminated)
 				.build();
 	}
 
-	private void handleAddScript(AddScriptCallback msg) {
+	/**
+	 * The script component has changed. We try to look into the changes and create or delete all
+	 * the actors managing the components.
+	 *
+	 * @param msg
+	 */
+	private void handleComponentUpdate(EntityComponentUpdateMessage msg) {
+		entityService.getComponent(componentId, ScriptComponent.class).ifPresent(c -> {
+			final Set<String> currentActiveUids = scriptActors.keySet();
+			final Set<String> componentActiveUids = c.getAllScriptUids();
 
-		LOG.debug("Periodic script actor added: {}", msg);
+			componentActiveUids.stream()
+					.filter(cuid -> componentActiveUids.contains(cuid))
+					.map(c::getCallback)
+					.forEach(this::updateActor);
 
-		// First we check if we have already an actor with this uuid.
-		// If so we advice this actor to change its delay. Removing and adding
-		// is async and we dont want to handle the removal of this actor here.
-		if (scriptActorByUuid.containsKey(msg.getScriptUid())) {
-			scriptActorByUuid.get(msg.getScriptUid()).tell(msg, getSelf());
-			return;
-		}
+			currentActiveUids.stream()
+					.filter(cuid -> !componentActiveUids.contains(cuid))
+					.forEach(this::terminateActor);
 
-		final ActorRef priodicActor = SpringExtension.unnamedActorOf(getContext(), PeriodicScriptActor.class, entityId,
-				msg.getDelay(), msg.getScriptUid());
-
-		getContext().watch(priodicActor);
-		scriptActorByUuid.put(msg.getScriptUid(), priodicActor);
-		uuidByScriptActor.put(priodicActor, msg.getScriptUid());
+			componentActiveUids.stream()
+					.filter(cuid -> !currentActiveUids.contains(cuid))
+					.map(c::getCallback)
+					.forEach(this::createActor);
+		});
 	}
 
-	private void handleRemoveScript(RemoveScriptCallback msg) {
+	private void terminateActor(String uid) {
+		LOG.debug("Periodic script actor terminating: {}", uid);
+		final ActorRef ref = scriptActors.get(uid);
+		if (ref != null) {
+			ref.tell(PoisonPill.getInstance(), getSelf());
+		}
+	}
 
-		LOG.debug("Periodic script actor removed: {}", msg);
+	private void createActor(ScriptComponent.ScriptCallback callback) {
+		final ActorRef actor = SpringExtension.unnamedActorOf(getContext(),
+				PeriodicScriptActor.class, entityId,
+				callback.getIntervalMs(), callback.getScript());
 
-		final ActorRef actor = scriptActorByUuid.get(msg.getScriptUid());
+		getContext().watch(actor);
+	}
 
-		if (actor != null) {
-			actor.tell(PoisonPill.getInstance(), getSelf());
+	private void updateActor(ScriptComponent.ScriptCallback callback) {
+		final ActorRef ref = scriptActors.get(callback.getUuid());
+		if(ref != null) {
+			ref.tell(callback, getSelf());
 		}
 	}
 
@@ -149,15 +108,9 @@ public class ScriptComponentActor extends AbstractActor {
 	 * so we can start a new one.
 	 */
 	private void handleTerminated(Terminated term) {
-
 		LOG.debug("Periodic script actor terminated: {}", term.getActor().toString());
 
 		final ActorRef termActor = term.actor();
-		final String uuid = uuidByScriptActor.get(termActor);
-
-		if (uuid != null) {
-			uuidByScriptActor.remove(termActor);
-			scriptActorByUuid.remove(uuid);
-		}
+		scriptActors.inverse().remove(termActor);
 	}
 }

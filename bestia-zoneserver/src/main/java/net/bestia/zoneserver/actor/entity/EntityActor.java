@@ -1,30 +1,32 @@
 package net.bestia.zoneserver.actor.entity;
 
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.PoisonPill;
 import akka.actor.Terminated;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.entity.component.EntityComponentActorFactory;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import net.bestia.messages.EntityMessage;
-import net.bestia.messages.internal.entity.ComponentEnvelope;
-import net.bestia.messages.internal.entity.EntityComponentStateMessage;
-import net.bestia.messages.internal.entity.EntityComponentStateMessage.ComponentState;
+import net.bestia.messages.entity.ComponentEnvelope;
+import net.bestia.messages.entity.EntityComponentStateMessage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
+
+import static net.bestia.messages.entity.EntityComponentStateMessage.ComponentState.INSTALL;
 
 /**
  * The {@link EntityActor} is a persistent actor managing all aspects of a
  * spawned entity. This means it will keep references to AI actors or attached
- * script actors. This actor has to be used as an persisted shared actor.
+ * component actors. This actor has to be used as an persisted shared actor.
+ *
+ * If there are no more active component actors this actor will cease operation.
+ * However incoming component messages will restart this actor and attach the
+ * component actor once more.
  * 
  * This actor has to react on certain incoming request messages like for example
  * attaching a ticking script to the entity.
@@ -83,13 +85,11 @@ public class EntityActor extends AbstractActor {
 
 	/**
 	 * Adds or removes a active component actor from the entity.
-	 * 
-	 * @param msg
 	 */
 	private void handleComponentMessage(EntityComponentStateMessage msg) {
 		checkStartup(msg);
 
-		if (msg.getState() == ComponentState.INSTALL) {
+		if (msg.getState() == INSTALL) {
 			installComponent(msg.getComponentId());
 		} else {
 			removeComponent(msg.getComponentId());
@@ -126,8 +126,12 @@ public class EntityActor extends AbstractActor {
 	 *            The termination message from akka.
 	 */
 	private void handleTerminated(Terminated term) {
-
 		componentActors.inverse().remove(term.actor());
+
+		// Terminate if no components active anymore.
+		if(componentActors.size() == 0) {
+			getContext().stop(getSelf());
+		}
 	}
 
 	/**

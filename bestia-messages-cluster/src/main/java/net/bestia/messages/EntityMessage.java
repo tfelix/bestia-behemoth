@@ -14,5 +14,4 @@ public interface EntityMessage {
 	 * @return The entity id.
 	 */
 	long getEntityId();
-
 }

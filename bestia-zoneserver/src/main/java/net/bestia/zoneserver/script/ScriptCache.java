@@ -105,7 +105,7 @@ public class ScriptCache {
 	 *            The name of the scriptfile (without extention).
 	 * @return The compiled script or null of no script was found.
 	 */
-	public CompiledScript getScript(ScriptType type, String name) {
+	public CompiledScript getScript(String name) {
 		Objects.requireNonNull(name);
 		LOG.trace("Requesting script file: {} ({}).", name, type);
 

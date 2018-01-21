@@ -14,7 +14,6 @@ import net.bestia.entity.EntityService;
 import net.bestia.entity.component.TagComponent;
 import net.bestia.entity.component.TagComponent.Tag;
 import net.bestia.model.entity.InteractionType;
-import net.bestia.zoneserver.script.env.InteractionScriptEnv;
 
 /**
  * Service to control the interaction between entities. Usually in this

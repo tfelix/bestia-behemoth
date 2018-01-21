@@ -65,6 +65,7 @@ public class EntityCache {
 		LOG.trace("Stashing component: {}", component);
 
 		component.setEntityId(0);
+		component.clear();
 
 		final Class<? extends Component> compClass = component.getClass();
 

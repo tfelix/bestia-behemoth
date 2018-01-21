@@ -29,7 +29,6 @@ import net.bestia.zoneserver.script.ScriptApi;
 import net.bestia.zoneserver.script.ScriptCache;
 import net.bestia.zoneserver.script.ScriptCompiler;
 import net.bestia.zoneserver.script.ScriptFileResolver;
-import net.bestia.zoneserver.script.ScriptType;
 
 /**
  * Holds the script bean initialization.

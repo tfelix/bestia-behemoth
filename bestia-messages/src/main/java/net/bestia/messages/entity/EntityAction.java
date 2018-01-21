@@ -24,6 +24,9 @@ public enum EntityAction {
 	
 	/**
 	 * No particular action is needed. Just an update message regarding this entity.
+	 * @Deprecated Dont use this anymore. Use component updates instead.
+	 *
 	 */
+	@Deprecated
 	UPDATE
 }

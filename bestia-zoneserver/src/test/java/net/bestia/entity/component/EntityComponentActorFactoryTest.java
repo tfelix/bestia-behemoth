@@ -2,6 +2,7 @@ package net.bestia.entity.component;
 
 import static org.mockito.Mockito.when;
 
+import net.bestia.zoneserver.actor.entity.EntityComponentActorFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

@@ -25,16 +25,14 @@ import net.bestia.entity.component.MoveComponent;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.interceptor.Interceptor;
 import net.bestia.messages.MessageApi;
-import net.bestia.messages.internal.entity.EntityKillMessage;
 import net.bestia.model.geometry.CollisionShape;
 
 /**
  * The {@link EntityService} is a central very important part of the bestia
  * game. It gives access to all entities in the game which represent all
  * interactive beeings with which the player can interact.
- * 
- * @author Thomas Felix
  *
+ * @author Thomas Felix
  */
 @Service
 public class EntityService {
@@ -53,13 +51,11 @@ public class EntityService {
 
 	private final Interceptor interceptor;
 	private final EntityCache cache;
-	private final MessageApi messageApi;
 
 	@Autowired
 	public EntityService(HazelcastInstance hz,
-			MessageApi akkaApi,
-			Interceptor interceptor,
-			EntityCache cache) {
+	                     Interceptor interceptor,
+	                     EntityCache cache) {
 
 		Objects.requireNonNull(hz);
 
@@ -68,7 +64,6 @@ public class EntityService {
 		this.idGenerator = hz.getIdGenerator(COMP_ID_GEN);
 		this.components = Objects.requireNonNull(hz).getMap(COMP_MAP);
 
-		this.messageApi = Objects.requireNonNull(akkaApi);
 		this.interceptor = Objects.requireNonNull(interceptor);
 		this.cache = Objects.requireNonNull(cache);
 	}
@@ -76,7 +71,7 @@ public class EntityService {
 	/**
 	 * Returns a new ID either from the internal pool of the id generator of
 	 * hazelcast.
-	 * 
+	 *
 	 * @return A new, currently unused id.
 	 */
 	private long getNewEntityId() {
@@ -92,7 +87,7 @@ public class EntityService {
 	/**
 	 * Returns a fresh entity which can be used inside the system. It already
 	 * has a unique ID and can be used to persist date.
-	 * 
+	 *
 	 * @return A newly created entity.
 	 */
 	public Entity newEntity() {
@@ -109,16 +104,13 @@ public class EntityService {
 	}
 
 	/**
-	 * Deletes the entity
-	 * 
-	 * @param entity
-	 *            The entity id remove from the memory database.
+	 * Deletes the entity. If an entity has an active EntityActor the actor will
+	 * stop to operate if no more components are attached.
+	 *
+	 * @param entity The entity id remove from the memory database.
 	 */
 	public void delete(Entity entity) {
 		Objects.requireNonNull(entity);
-
-		// Send message to kill off entity actor.
-		messageApi.sendToEntity(new EntityKillMessage(entity.getId()));
 
 		LOG.trace("delete(): {}", entity);
 
@@ -140,9 +132,8 @@ public class EntityService {
 	/**
 	 * Deletes the entity given by its id. This is a alias for
 	 * {@link #delete(Entity)}.
-	 * 
-	 * @param entityId
-	 *            Removes this entity.
+	 *
+	 * @param entityId Removes this entity.
 	 */
 	public void delete(long entityId) {
 		LOG.trace("delete(): {}", entityId);
@@ -152,9 +143,8 @@ public class EntityService {
 	/**
 	 * Puts the entity into the memory database for access for the bestia
 	 * system.
-	 * 
-	 * @param entity
-	 *            The entity to put into the memory database.
+	 *
+	 * @param entity The entity to put into the memory database.
 	 */
 	private void saveEntity(Entity entity) {
 		LOG.trace("saveEntity(): {}", entity);
@@ -170,9 +160,8 @@ public class EntityService {
 
 	/**
 	 * Returns the ID entity with the given ID.
-	 * 
-	 * @param entityId
-	 *            Lookups this entity.
+	 *
+	 * @param entityId Lookups this entity.
 	 * @return The {@link Entity} or NULL if no such id is stored.
 	 */
 	public Entity getEntity(long entityId) {
@@ -186,9 +175,8 @@ public class EntityService {
 
 	/**
 	 * Gets all entities with the given ids.
-	 * 
-	 * @param ids
-	 *            IDs to return all entities.
+	 *
+	 * @param ids IDs to return all entities.
 	 * @return All entities which possess the given IDs.
 	 */
 	public Map<Long, Entity> getAllEntities(Set<Long> ids) {
@@ -201,12 +189,11 @@ public class EntityService {
 	 * Also only entities implementing position components can be checked
 	 * against collision. If the entity does not have a
 	 * {@link PositionComponent} an empty set will be returned.
-	 * 
+	 * <p>
 	 * This is basically a shortcut for a rather frequently called operation for
 	 * scripts to get entities colliding with script entities. It is similar to
 	 * {@link #getCollidingEntities(CollisionShape)}.
-	 * 
-	 * @param entity
+	 *
 	 * @return All entities colliding with this entity.
 	 */
 	public Set<Entity> getCollidingEntities(Entity entity) {
@@ -230,22 +217,20 @@ public class EntityService {
 	 * Returns all the entities which are in range. The detected collision
 	 * entities will have a {@link PositionComponent} for sure. Other components
 	 * are optional.
-	 * 
-	 * @param area
-	 *            The area in which the looked up entities lie.
+	 *
+	 * @param area The area in which the looked up entities lie.
 	 * @return All entities contained in the area.
 	 */
 	public Set<Entity> getCollidingEntities(CollisionShape area) {
 
 		final Set<Entity> colliders = new HashSet<>();
 
-		entities.forEach((id, entity) -> {
-			getComponent(entity, PositionComponent.class).ifPresent(posComp -> {
-				if (posComp.getShape().collide(area)) {
-					colliders.add(entity);
-				}
-			});
-		});
+		entities.forEach((id, entity) -> getComponent(entity, PositionComponent.class)
+				.ifPresent(posComp -> {
+					if (posComp.getShape().collide(area)) {
+						colliders.add(entity);
+					}
+				}));
 
 		return colliders;
 	}
@@ -256,9 +241,6 @@ public class EntityService {
 	 * component is filled it should be attached to an entity by calling
 	 * {@link #attachComponent(Entity, Component)}. If multiple components
 	 * should be attached at once on the entity then
-	 * 
-	 * @param clazz
-	 * @return
 	 */
 	public <T extends Component> T newComponent(Class<T> clazz) {
 
@@ -269,8 +251,7 @@ public class EntityService {
 		} else {
 			final Component comp;
 			try {
-				@SuppressWarnings("unchecked")
-				final Constructor<Component> ctor = (Constructor<Component>) clazz.getConstructor(long.class);
+				@SuppressWarnings("unchecked") final Constructor<Component> ctor = (Constructor<Component>) clazz.getConstructor(long.class);
 				comp = ctor.newInstance(getNewId());
 			} catch (Exception ex) {
 				LOG.error("Could not instantiate component.", ex);
@@ -284,9 +265,6 @@ public class EntityService {
 	/**
 	 * Re-attaches an existing component to an entity. The component must not be
 	 * owned by an entity (its entity id must be set to 0).
-	 * 
-	 * @param e
-	 * @param addedComp
 	 */
 	public void attachComponent(Entity e, Component comp) {
 		Objects.requireNonNull(e);
@@ -313,9 +291,6 @@ public class EntityService {
 
 	/**
 	 * Attaches all the components in one go to the entity.
-	 * 
-	 * @param e
-	 * @param attachComponents
 	 */
 	public void attachComponents(Entity e, Collection<Component> attachComponents) {
 		Objects.requireNonNull(e);
@@ -356,9 +331,8 @@ public class EntityService {
 	 * Saves the given component back into the database. Update of the
 	 * interceptors is called. If the component is not attached to an entity it
 	 * throws an exception.
-	 * 
-	 * @param component
-	 *            The component to be updated into the database.
+	 *
+	 * @param component The component to be updated into the database.
 	 */
 	public void updateComponent(Component component) {
 
@@ -371,6 +345,9 @@ public class EntityService {
 		try {
 			// Check if the component actually needs an update.
 			// Component might be null if this was called via attach component.
+			// TODO This re-fetch from earlier could be avoided!
+			// A save of the hash of this component could be performed upon fetching
+			// if the hash is different now the component has changed.
 			final Component oldComponent = getComponent(component.getId());
 			if (oldComponent != null && oldComponent.equals(component)) {
 				return;
@@ -381,7 +358,8 @@ public class EntityService {
 			components.unlock(component.getId());
 		}
 
-		interceptor.interceptUpdate(this, getEntity(component.getEntityId()), component);
+		final Entity ownerEntity = getEntity(component.getEntityId());
+		interceptor.interceptUpdate(this, ownerEntity, component);
 	}
 
 	/**
@@ -414,13 +392,10 @@ public class EntityService {
 	 * safe the entity. This is to avoid multiple saves to the entity when
 	 * removing bulk components. Important: CALL {@link #saveEntity(Entity)}
 	 * after using this private method!
-	 * 
+	 * <p>
 	 * It is protected so that the zoneserver implementation of the
 	 * EntityService can override this method to implement interceptor and cache
 	 * calls.
-	 * 
-	 * @param entity
-	 * @param component
 	 */
 	private void prepareComponentRemove(Entity entity, Component component) {
 		Objects.requireNonNull(entity);
@@ -447,11 +422,9 @@ public class EntityService {
 	 * Deletes a specific component from this entity. The entity reference is
 	 * needed since we remove the component ID also from the internal entity
 	 * registry.
-	 * 
-	 * @param entity
-	 *            The entity to delete the component from.
-	 * @param component
-	 *            The component to delete.
+	 *
+	 * @param entity    The entity to delete the component from.
+	 * @param component The component to delete.
 	 */
 	public void deleteComponent(Entity entity, Component component) {
 
@@ -461,25 +434,19 @@ public class EntityService {
 
 		saveEntity(entity);
 	}
-	
+
 	/**
 	 * Alias for {@link #deleteComponent(Entity, Component)}.
-	 * @param entityId
-	 * @param clazz
 	 */
 	public void deleteComponent(long entityId, Class<MoveComponent> clazz) {
-		
-		getComponent(entityId, clazz).ifPresent(c -> {
-			deleteComponent(getEntity(entityId), c);
-		});
-			
+		getComponent(entityId, clazz)
+				.ifPresent(c -> deleteComponent(getEntity(entityId), c));
 	}
 
 	/**
 	 * Removes all the components from the entity.
-	 * 
-	 * @param entity
-	 *            The entity to remove all components from.
+	 *
+	 * @param entity The entity to remove all components from.
 	 */
 	public void deleteAllComponents(Entity entity) {
 
@@ -505,11 +472,9 @@ public class EntityService {
 
 	/**
 	 * Checks if the entity has the given component.
-	 * 
-	 * @param entity
-	 *            The entity to check.
-	 * @param clazz
-	 *            The component class to check for.
+	 *
+	 * @param entity The entity to check.
+	 * @param clazz  The component class to check for.
 	 * @return TRUE if the entity has the component. FALSE otherwise.
 	 */
 	public boolean hasComponent(Entity entity, Class<? extends Component> clazz) {
@@ -521,9 +486,8 @@ public class EntityService {
 
 	/**
 	 * Returns all components of this entity.
-	 * 
-	 * @param entity
-	 *            The entity which components will get returned.
+	 *
+	 * @param entity The entity which components will get returned.
 	 * @return A collection of all components from this entity.
 	 */
 	public Collection<Component> getAllComponents(Entity entity) {
@@ -538,11 +502,10 @@ public class EntityService {
 	/**
 	 * Returns the component with the given ID or null if the component does not
 	 * exist.
-	 * 
-	 * @param componentId
-	 *            The component ID to retrieve the component.
+	 *
+	 * @param componentId The component ID to retrieve the component.
 	 * @return The requested component or NULL if the component id does not
-	 *         exist.
+	 * exist.
 	 */
 	public Component getComponent(long componentId) {
 		return components.get(componentId);
@@ -550,11 +513,9 @@ public class EntityService {
 
 	/**
 	 * Alias to {@link #getComponent(Entity, Class)}.
-	 * 
-	 * @param entityId
-	 *            The ID of the entity.
-	 * @param clazz
-	 *            The class of the {@link Component} to retrieve.
+	 *
+	 * @param entityId The ID of the entity.
+	 * @param clazz    The class of the {@link Component} to retrieve.
 	 * @return The component if it was attached to this entity.
 	 */
 	public <T extends Component> Optional<T> getComponent(long entityId, Class<T> clazz) {
@@ -572,13 +533,11 @@ public class EntityService {
 	/**
 	 * Returns the requested component of the entity. If the component does not
 	 * exist the optional will be empty.
-	 * 
-	 * @param e
-	 *            The entity to request its component.
-	 * @param clazz
-	 *            The component class which component is requested.
+	 *
+	 * @param e     The entity to request its component.
+	 * @param clazz The component class which component is requested.
 	 * @return The optional containing the component or nothing if the entity
-	 *         has not this component attached.
+	 * has not this component attached.
 	 */
 	public <T extends Component> Optional<T> getComponent(Entity e, Class<T> clazz) {
 		if (e == null || clazz == null) {
@@ -623,16 +582,14 @@ public class EntityService {
 	 * Returns the component if a component of this type was already attached to
 	 * the entity. Otherwise it creates a new component and returns it
 	 * afterwards.
-	 * 
-	 * @param e
-	 *            The entity to
-	 * @param clazz
-	 *            The component class which is requested.
+	 *
+	 * @param e     The entity to
+	 * @param clazz The component class which is requested.
 	 * @return The requested of created component.
 	 */
 	public <T extends Component> T getComponentOrCreate(Entity e, Class<T> clazz) {
 		final Optional<T> optComp = getComponent(e, clazz);
-		if(optComp.isPresent()) {
+		if (optComp.isPresent()) {
 			return optComp.get();
 		} else {
 			final T comp = newComponent(clazz);
@@ -643,11 +600,9 @@ public class EntityService {
 
 	/**
 	 * Alias for {@link #getComponentOrCreate(Entity, Class)}.
-	 * 
-	 * @param entityId
-	 *            The entity id to fetch or create a component for.
-	 * @param clazz
-	 *            The component to create.
+	 *
+	 * @param entityId The entity id to fetch or create a component for.
+	 * @param clazz    The component to create.
 	 * @return The component.
 	 */
 	public <T extends Component> T getComponentOrCreate(long entityId, Class<T> clazz) {

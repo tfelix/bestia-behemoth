@@ -56,6 +56,16 @@ public abstract class Component implements Serializable {
 		this.entityId = entityId;
 	}
 
+	/**
+	 * This method is called to restore the component state as if it had
+	 * been initialized. Not all components might to override this but
+	 * very complex ones which need to be cleared before reuse should do this
+	 * in this method.
+	 */
+	public void clear() {
+		// no op.
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

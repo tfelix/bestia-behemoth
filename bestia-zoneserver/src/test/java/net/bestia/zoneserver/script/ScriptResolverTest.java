@@ -9,8 +9,8 @@ public class ScriptResolverTest {
 
 	@Test
 	public void resolveScriptIdent_rootName_rootIdent() {
-		ScriptIdent ident1 = resolver.resolveScriptIdent("test");
-		ScriptIdent ident2 = resolver.resolveScriptIdent("test.js");
+		ScriptCallback ident1 = resolver.resolveScriptIdent("test");
+		ScriptCallback ident2 = resolver.resolveScriptIdent("test.js");
 
 		// Equal idents.
 		Assert.assertEquals(ident1, ident2);
@@ -21,7 +21,7 @@ public class ScriptResolverTest {
 
 	@Test
 	public void resolveScriptIdent_statusScript_validIdent() {
-		ScriptIdent ident = resolver.resolveScriptIdent("/status_effect/test");
+		ScriptCallback ident = resolver.resolveScriptIdent("/status_effect/test");
 
 		Assert.assertEquals(ScriptType.STATUS_EFFECT, ident.getType());
 		Assert.assertEquals("main", ident.getFunctionName());
@@ -30,7 +30,7 @@ public class ScriptResolverTest {
 
 	@Test
 	public void resolveScriptIdent_attackScript_validIdent() {
-		ScriptIdent ident = resolver.resolveScriptIdent("/attack/test");
+		ScriptCallback ident = resolver.resolveScriptIdent("/attack/test");
 
 		Assert.assertEquals(ScriptType.ATTACK, ident.getType());
 		Assert.assertEquals("main", ident.getFunctionName());
@@ -39,7 +39,7 @@ public class ScriptResolverTest {
 
 	@Test
 	public void resolveScriptIdent_statusScriptWithCallback_validIdent() {
-		ScriptIdent ident = resolver.resolveScriptIdent("/attack/test:callback");
+		ScriptCallback ident = resolver.resolveScriptIdent("/attack/test:callback");
 
 		Assert.assertEquals(ScriptType.ATTACK, ident.getType());
 		Assert.assertEquals("callback", ident.getFunctionName());

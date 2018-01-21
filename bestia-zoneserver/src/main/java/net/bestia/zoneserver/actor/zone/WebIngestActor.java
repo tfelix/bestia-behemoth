@@ -10,7 +10,7 @@ import akka.cluster.sharding.ClusterSharding;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.AccountMessage;
-import net.bestia.messages.internal.FromClient;
+import net.bestia.messages.FromClient;
 import net.bestia.server.EntryActorNames;
 
 /**

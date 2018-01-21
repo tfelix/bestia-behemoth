@@ -18,5 +18,4 @@ import java.lang.annotation.Retention;
 public @interface ComponentSync {
 
 	SyncType value() default SyncType.OWNER;
-
 }

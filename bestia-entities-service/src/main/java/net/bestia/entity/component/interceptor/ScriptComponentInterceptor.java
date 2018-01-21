@@ -11,7 +11,6 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
 import net.bestia.messages.MessageApi;
-import net.bestia.messages.internal.entity.EntityComponentStateMessage;
 
 /**
  * This cleans only up if the script component gets removed. Not all attached
