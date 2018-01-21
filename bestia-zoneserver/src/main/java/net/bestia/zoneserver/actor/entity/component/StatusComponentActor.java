@@ -97,7 +97,7 @@ public class StatusComponentActor extends AbstractActor {
 	}
 	
 	@Override
-	public void postStop() throws Exception {
+	public void postStop() {
 		tick.cancel();
 	}
 }

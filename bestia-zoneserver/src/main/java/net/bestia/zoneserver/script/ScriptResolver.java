@@ -18,13 +18,13 @@ class ScriptResolver {
 	 * item/apple.js - Same as above.
 	 * </pre>
 	 * 
-	 * @param callbackName The name of the function to invoke.
-	 * @return A {@link ScriptCallback} object containing all the needed entry
+	 * @param scriptPath The name of the function to invoke.
+	 * @return A {@link ScriptAnchor} object containing all the needed entry
 	 *         points to call into the js file.
 	 */
-	public ScriptCallback resolveScriptIdent(String callbackName) {
+	public ScriptAnchor resolveScriptIdent(String scriptPath) {
 
-		String[] token = callbackName.split(":");
+		String[] token = scriptPath.split(":");
 		String funcName;
 
 		if (token.length == 2) {
@@ -44,8 +44,6 @@ class ScriptResolver {
 		if (scriptName.startsWith("/")) {
 			scriptName = scriptName.substring(1);
 		}
-
-		return new ScriptCallback(scriptName, funcName);
+		return new ScriptAnchor(scriptName, funcName);
 	}
-
 }

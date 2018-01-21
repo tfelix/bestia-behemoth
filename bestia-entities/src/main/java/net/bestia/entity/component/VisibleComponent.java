@@ -19,12 +19,18 @@ import net.bestia.model.domain.SpriteInfo;
 public class VisibleComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
-	private SpriteInfo spriteInfo = SpriteInfo.empty();
-	private boolean visible = true;
+	private SpriteInfo spriteInfo;
+	private boolean visible;
 
 	public VisibleComponent(long id) {
 		super(id);
-		// no op.
+		clear();
+	}
+
+	@Override
+	public void clear() {
+		spriteInfo = SpriteInfo.empty();
+		visible = true;
 	}
 
 	/**
@@ -49,6 +55,9 @@ public class VisibleComponent extends Component {
 
 	/**
 	 * Gives a flag if the entity is currently visible.
+	 * @TODO This should ne be synced to the client then to prevent cheating.
+	 * Better way would be to change this component into another component
+	 * with other sync settings and then reset to this component.
 	 * 
 	 * @return TRUE if the entity is visible. FALSE otherwise.
 	 */

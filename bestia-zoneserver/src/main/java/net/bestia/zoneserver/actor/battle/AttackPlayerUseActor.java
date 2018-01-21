@@ -2,6 +2,7 @@ package net.bestia.zoneserver.actor.battle;
 
 import java.util.Objects;
 
+import net.bestia.messages.entity.EntitySkillUseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

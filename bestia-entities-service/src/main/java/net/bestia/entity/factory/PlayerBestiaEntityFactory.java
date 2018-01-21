@@ -43,18 +43,15 @@ public class PlayerBestiaEntityFactory {
 
 	private final StatusService statusService;
 	private final EntityFactory entityFactory;
-	private final EntityService entityService;
 	private final InventoryService inventoryService;
 
 	@Autowired
 	public PlayerBestiaEntityFactory(EntityFactory entityFactory,
 	                                 StatusService statusService,
-	                                 EntityService entityService,
 	                                 InventoryService inventoryService) {
 		
 		this.entityFactory = Objects.requireNonNull(entityFactory);
 		this.statusService = Objects.requireNonNull(statusService);
-		this.entityService = Objects.requireNonNull(entityService);
 		this.inventoryService = Objects.requireNonNull(inventoryService);
 	}
 

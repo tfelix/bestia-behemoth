@@ -23,9 +23,8 @@ import org.springframework.stereotype.Component;
  * start to compile the folder content and save the compiled script for later
  * use. The scripts can be reused but keep in mind that the scripts are usually
  * not thread safe and should store no persistent state.
- * 
- * @author Thomas Felix
  *
+ * @author Thomas Felix
  */
 @Component
 public class ScriptCache {
@@ -43,83 +42,52 @@ public class ScriptCache {
 		this.compiler = Objects.requireNonNull(compiler);
 	}
 
-	private String getKey(ScriptType type, String name) {
-		return type.toString() + "_" + FilenameUtils.getBaseName(name);
-	}
-
-	/**
-	 * Requests and compiles the script file and puts it into the cache under a
-	 * unique key.
-	 */
-	private void setupScript(File scriptFile, ScriptType type) {
-
+	private void setupScript(File scriptFile, String key) {
 		final CompiledScript compiledScript = compiler.compileScript(scriptFile);
-
-		if (compiledScript == null) {
-			return;
-		}
-		
-		final String name = FilenameUtils.getBaseName(scriptFile.getName());
-
-		final Bindings scriptBindings = compiledScript.getEngine().getBindings(ScriptContext.ENGINE_SCOPE);
-		
-		scriptBindings.put("SNAME", name);
-		scriptBindings.put("STYPE", type);
-
-		final String key = getKey(type, name);
-
 		cache.put(key, compiledScript);
 	}
 
 	/**
 	 * Adds a folder to the script cache. It will immediately start to compile
 	 * all the scripts inside this folder.
-	 * 
-	 * @param scriptFolder
-	 *            The folder to add to the cache.
+	 *
+	 * @param scriptFolder The folder to add to the cache.
 	 */
-	public void addFolder(Path scriptFolder, ScriptType type) {
+	public void cacheFolder(Path scriptFolder) {
 
-		LOG.info("Adding folder {} of scripts {} to script cache.", scriptFolder, type);
+		LOG.info("Adding folder {} of scripts {} to script cache.", scriptFolder);
 
 		// Starting to compile the scripts.
 		try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(scriptFolder)) {
 			for (Path path : directoryStream) {
-				
-				LOG.debug("Compiling script: {} (type: {})", path, type);
-				setupScript(path.toFile(), type);
-				
+
+				LOG.debug("Compiling script: {}", path);
+				final File scriptFile = resolver.getScriptFile(path.toString());
+				setupScript(scriptFile);
 			}
 		} catch (IOException e) {
 			LOG.error("Could not compile script.", e);
 		}
-
 	}
 
 	/**
 	 * Returns the compiled script of the given type and name.
-	 * 
-	 * @param type
-	 *            The type of the script to be returned.
-	 * @param name
-	 *            The name of the scriptfile (without extention).
+	 *
+	 * @param name The name of the scriptfile (without extention).
 	 * @return The compiled script or null of no script was found.
 	 */
 	public CompiledScript getScript(String name) {
 		Objects.requireNonNull(name);
-		LOG.trace("Requesting script file: {} ({}).", name, type);
+		LOG.trace("Requesting script file from cache: {}.", name);
 
-		final String key = getKey(type, name);
+		if (!cache.containsKey(name)) {
+			LOG.trace("Script was not found in cache. Compiling it first.");
 
-		if (!cache.containsKey(key)) {	
-			LOG.trace("Script was not found in cache. Compile it first.");
-			
-			final File scriptFile = resolver.getScriptFile(name, type);
-			setupScript(scriptFile, type);
+			final File scriptFile = resolver.getScriptFile(name);
+			setupScript(scriptFile, name);
 		}
 
-		return cache.get(key);
-
+		return cache.get(name);
 	}
 
 }

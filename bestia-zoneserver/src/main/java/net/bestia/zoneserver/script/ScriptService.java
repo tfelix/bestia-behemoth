@@ -1,6 +1,7 @@
 package net.bestia.zoneserver.script;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import javax.script.Bindings;
 import javax.script.CompiledScript;
@@ -17,8 +18,6 @@ import org.springframework.stereotype.Service;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ScriptComponent;
-import net.bestia.entity.component.ScriptComponent.Callback;
-import net.bestia.messages.MessageApi;
 
 /**
  * This class is responsible for fetching the script, creating a appropriate
@@ -39,17 +38,13 @@ public class ScriptService {
 	private final ScriptCache scriptCache;
 	private final ScriptResolver resolver;
 
-	private MessageApi akkaApi;
-
 	@Autowired
 	public ScriptService(
 			EntityService entityService,
-			MessageApi akkaApi,
 			ScriptCache cache,
 			ScriptResolver resolver) {
 
 		this.entityService = Objects.requireNonNull(entityService);
-		this.akkaApi = Objects.requireNonNull(akkaApi);
 		this.scriptCache = Objects.requireNonNull(cache);
 		this.resolver = Objects.requireNonNull(resolver);
 
@@ -58,9 +53,6 @@ public class ScriptService {
 	/**
 	 * This prepares the script bindings for usage inside this script and
 	 * finally calls the given function name.
-	 * 
-	 * @param script
-	 * @param functionName
 	 */
 	private synchronized void callFunction(CompiledScript script, String functionName) {
 		try {
@@ -78,17 +70,14 @@ public class ScriptService {
 	/**
 	 * This prepares the script bindings for usage inside this script and
 	 * finally calls the given function name.
-	 * 
-	 * @param script
-	 * @param functionName
 	 */
-	private synchronized void setupScriptBindings(CompiledScript script, ScriptCallback ident, Bindings bindings) {
+	private synchronized void setupScriptBindings(CompiledScript script, ScriptAnchor ident, Bindings bindings) {
 
 		final Bindings scriptBindings = script.getEngine().getBindings(ScriptContext.ENGINE_SCOPE);
 		scriptBindings.putAll(bindings);
 	}
 
-	private CompiledScript resolveScript(ScriptCallback ident) {
+	private CompiledScript resolveScript(ScriptAnchor ident) {
 		final CompiledScript script = scriptCache.getScript(ident.getType(), ident.getName());
 
 		if (script == null) {
@@ -113,7 +102,7 @@ public class ScriptService {
 		Objects.requireNonNull(name);
 		LOG.debug("Calling script: {}.", name);
 
-		final ScriptCallback ident = resolver.resolveScriptIdent(name);
+		final ScriptAnchor ident = resolver.resolveScriptIdent(name);
 		final CompiledScript script = resolveScript(ident);
 		
 		//final ScriptFunctionExecutor funcExec = new ScriptFunctionExecutor("main", env, script);
@@ -139,14 +128,9 @@ public class ScriptService {
 		final ScriptComponent scriptComp = entityService.getComponent(scriptEntityId, ScriptComponent.class)
 				.orElseThrow(IllegalArgumentException::new);
 
-		final String callbackName = scriptComp.getCallbackName(Callback.ON_INTERVAL);
-
-		final ScriptCallback ident = resolver.resolveScriptIdent(callbackName);
-		final CompiledScript script = resolveScript(ident);
-
-		// Prepare additional bindings.
-		final SimpleBindings bindings = new SimpleBindings();
-		bindings.put("SUID", scriptComp.getScriptUuid());
+		final String callbackAnchorString = scriptComp.getCallback(scriptUuid).getScript();
+		final ScriptAnchor anchor = ScriptAnchor.fromString(callbackAnchorString);
+		final CompiledScript script = resolveScript(anchor);
 
 		setupScriptBindings(script, ident, bindings);
 		callFunction(script, ident.getFunctionName());
@@ -167,26 +151,11 @@ public class ScriptService {
 		Objects.requireNonNull(entity);
 		Objects.requireNonNull(callbackFunctionName);
 
-		final ScriptComponent scriptComp = getScriptComponent(entity);
+		final ScriptComponent scriptComp = entityService.getComponentOrCreate(entity, ScriptComponent.class);
 
-		scriptComp.setCallbackName(Callback.ON_INTERVAL, callbackFunctionName);
+		final String scriptUuid = UUID.randomUUID().toString();
+		final ScriptAnchor callback = new ScriptComponent.ScriptCallback(scriptUuid, ScriptComponent.TriggerType.ON_INTERVAL);
+		scriptComp.addCallback(callback);
 		entityService.updateComponent(scriptComp);
-	}
-
-	/**
-	 * Stops the running script interval of the given entity.
-	 */
-	public void stopScriptInterval(Entity entity) {
-		Objects.requireNonNull(entity);
-
-		final ScriptComponent scriptComp = getScriptComponent(entity);
-
-		scriptComp.removeCallback(Callback.ON_INTERVAL);
-		entityService.updateComponent(scriptComp);
-	}
-
-	private ScriptComponent getScriptComponent(Entity entity) {
-		return entityService.getComponent(entity, ScriptComponent.class)
-				.orElseThrow(IllegalArgumentException::new);
 	}
 }

@@ -29,6 +29,13 @@ public class PositionComponent extends Component {
 		// no op.
 	}
 
+	@Override
+	public void clear() {
+		shape = new Point();
+		facing = Direction.SOUTH;
+		sightBlocking = false;
+	}
+
 	/**
 	 * Returns the flag if the entity is blocking the line of sight with its
 	 * collision shape.

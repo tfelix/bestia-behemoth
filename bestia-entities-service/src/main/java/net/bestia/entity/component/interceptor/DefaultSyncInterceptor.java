@@ -2,6 +2,7 @@ package net.bestia.entity.component.interceptor;
 
 import java.util.Objects;
 
+import net.bestia.messages.entity.EntityComponentStateMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

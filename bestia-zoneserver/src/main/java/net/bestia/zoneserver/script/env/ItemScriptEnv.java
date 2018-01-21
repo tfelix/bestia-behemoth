@@ -5,21 +5,21 @@ import net.bestia.zoneserver.script.ScriptApi;
 
 import java.util.Map;
 
-public class ItemScriptEnvironment extends BaseScriptEnvironment {
+public class ItemScriptEnv extends BaseScriptEnvironment {
 
 	private final Point targetPosition;
 	private final long userId;
 	private final long targetId;
 
-	public ItemScriptEnvironment(ScriptApi scriptApi, long userId, long targetId) {
+	public ItemScriptEnv(ScriptApi scriptApi, long userId, long targetId) {
 		this(scriptApi, userId, targetId, null);
 	}
 
-	public ItemScriptEnvironment(ScriptApi scriptApi, long userId, Point targetPosition) {
+	public ItemScriptEnv(ScriptApi scriptApi, long userId, Point targetPosition) {
 		this(scriptApi, userId, 0, targetPosition);
 	}
 
-	public ItemScriptEnvironment(
+	public ItemScriptEnv(
 			ScriptApi scriptApi,
 			long userId,
 			long targetId,

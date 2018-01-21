@@ -1,20 +1,19 @@
 package net.bestia.zoneserver.actor.entity.component;
 
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.actor.Cancellable;
 import akka.actor.Scheduler;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.zoneserver.actor.entity.component.ScriptComponentActor.AddScriptCallback;
+import net.bestia.entity.component.ScriptComponent;
 import net.bestia.zoneserver.script.ScriptService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import scala.concurrent.duration.Duration;
+
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This actor is used to run a periodically script function.
@@ -51,7 +50,7 @@ public class PeriodicScriptActor extends AbstractActor {
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(AddScriptCallback.class, this::handleDelayChange)
+				.match(ScriptComponent.ScriptCallback.class, this::handleDelayChange)
 				.matchEquals(TICK_MSG, x -> {
 					onTick();
 				})
@@ -72,9 +71,9 @@ public class PeriodicScriptActor extends AbstractActor {
 	 * 
 	 * @param msg
 	 */
-	private void handleDelayChange(AddScriptCallback msg) {
+	private void handleDelayChange(ScriptComponent.ScriptCallback msg) {
 		tick.cancel();
-		setupMoveTick(msg.getDelay());
+		setupMoveTick(msg.getIntervalMs());
 	}
 
 	private void onTick() {

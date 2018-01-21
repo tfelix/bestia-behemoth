@@ -2,15 +2,24 @@ package net.bestia.zoneserver.script;
 
 import java.util.Objects;
 
-class ScriptCallback {
+class ScriptAnchor {
 
 	private final String name;
 	private final String functionName;
 
-	public ScriptCallback(String name, String functionName) {
+	public ScriptAnchor(String name, String functionName) {
 
 		this.name = Objects.requireNonNull(name);
 		this.functionName = Objects.requireNonNull(functionName);
+	}
+
+	public static ScriptAnchor fromString(String anchorStr) {
+		final String[] token = anchorStr.split(":");
+		if(token.length != 2) {
+			throw new IllegalArgumentException("Invalid anchor string.");
+		}
+
+		return new ScriptAnchor(token[0], token[1]);
 	}
 
 	public String getName() {
@@ -21,9 +30,16 @@ class ScriptCallback {
 		return functionName;
 	}
 
+	/**
+	 * Creates a specialized string for safe the anchor.
+	 */
+	public String getAnchorString() {
+		return String.format("%s:%s", name, functionName);
+	}
+
 	@Override
 	public String toString() {
-		return String.format("ScriptCallback[name: %s, fn: %s]", name, functionName);
+		return String.format("ScriptAnchor[name: %s, fn: %s]", name, functionName);
 	}
 
 	@Override
@@ -39,7 +55,7 @@ class ScriptCallback {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ScriptCallback other = (ScriptCallback) obj;
+		ScriptAnchor other = (ScriptAnchor) obj;
 		if (functionName == null) {
 			if (other.functionName != null)
 				return false;

@@ -91,7 +91,8 @@ public class PlayerBestiaEntityFactoryTest {
 		//when(entityFactory.buildEntity(any())).thenReturn(new Entity(ENTITY_ID));
 		when(entityFactory.buildEntity(any(), any(Set.class))).thenReturn(new Entity(ENTITY_ID));
 
-		factory = new PlayerBestiaEntityFactory(entityFactory, statusService, inventoryService);
+		factory = new PlayerBestiaEntityFactory(entityFactory,
+				statusService, inventoryService);
 	}
 
 	@Test(expected = NullPointerException.class)

@@ -16,7 +16,7 @@ function checkEntities() {
 	if(data != null) {
 		var entities = JSON.parse();
 	} 
-		
+		super.setupEnvironment(bindings);
 	var newEntities = [];
 
 	var existingMobs = 0;

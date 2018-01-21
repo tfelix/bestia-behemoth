@@ -26,7 +26,6 @@ public class ComponentInterceptorConfiguration {
 	 * Adds a new default interceptor to the interceptor class.
 	 *
 	 */
-	@Primary
 	@Bean
 	public Interceptor defaultInterceptor(
 			List<BaseComponentInterceptor<? extends Component>> interceptors,
