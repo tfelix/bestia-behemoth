@@ -138,6 +138,7 @@
     <orderEntry type="library" name="Gradle: org.springframework:spring-aspects:4.3.9.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: com.google.guava:guava:20.0" level="project" />
     <orderEntry type="library" name="Gradle: org.aspectj:aspectjweaver:1.8.10" level="project" />
+    <orderEntry type="module" module-name="bestia-entities-core_main" />
     <orderEntry type="library" name="Gradle: org.apache.tomcat:tomcat-jdbc:8.5.15" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.tomcat:tomcat-juli:8.5.15" level="project" />
   </component>

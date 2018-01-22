@@ -171,6 +171,7 @@
     <orderEntry type="library" name="Gradle: com.github.jnr:jffi:1.2.16" level="project" />
     <orderEntry type="library" name="Gradle: com.github.jnr:jffi:native:1.2.16" level="project" />
     <orderEntry type="library" name="Gradle: com.github.jnr:jnr-x86asm:1.0.2" level="project" />
+    <orderEntry type="module" module-name="bestia-entities-core_main" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-pool2:2.4.2" level="project" />
     <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.8.8" level="project" />
   </component>

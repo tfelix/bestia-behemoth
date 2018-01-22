@@ -110,7 +110,5 @@ public class EntityMapStore implements MapStore<Long, Entity> {
 		for (Entity entity : entities.values()) {
 			entityPersistService.store(entity);
 		}
-
 	}
-
 }

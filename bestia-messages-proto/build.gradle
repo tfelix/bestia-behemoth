@@ -1,5 +1,4 @@
-
 description = 'bestia-messages-proto'
 dependencies {
-    compile group: 'com.google.protobuf', name: 'protobuf-java', version:'3.4.0'
+    compile group: 'com.google.protobuf', name: 'protobuf-java', version: '3.4.0'
 }

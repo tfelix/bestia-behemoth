@@ -1,5 +1,10 @@
 package net.bestia.zoneserver.script;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import javax.script.CompiledScript;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -8,15 +13,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import javax.script.Bindings;
-import javax.script.CompiledScript;
-import javax.script.ScriptContext;
-
-import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 /**
  * The script cache will accept folders which contain java scripts. It will

@@ -4,6 +4,9 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/behemoth.iml" filepath="$PROJECT_DIR$/behemoth.iml" />
       <module fileurl="file://$PROJECT_DIR$/bestia-entities/bestia-entities.iml" filepath="$PROJECT_DIR$/bestia-entities/bestia-entities.iml" group="bestia-entities" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-entities-core/bestia-entities-core.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-entities-core/bestia-entities-core.iml" group="bestia-entities-core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-entities-core/bestia-entities-core_main.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-entities-core/bestia-entities-core_main.iml" group="bestia-entities-core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-entities-core/bestia-entities-core_test.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-entities-core/bestia-entities-core_test.iml" group="bestia-entities-core" />
       <module fileurl="file://$PROJECT_DIR$/bestia-entities-service/bestia-entities-service.iml" filepath="$PROJECT_DIR$/bestia-entities-service/bestia-entities-service.iml" group="bestia-entities-service" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-entities-service/bestia-entities-service_main.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-entities-service/bestia-entities-service_main.iml" group="bestia-entities-service" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/bestia-entities-service/bestia-entities-service_test.iml" filepath="$PROJECT_DIR$/.idea/modules/bestia-entities-service/bestia-entities-service_test.iml" group="bestia-entities-service" />

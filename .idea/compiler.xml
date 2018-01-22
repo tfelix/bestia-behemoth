@@ -27,6 +27,8 @@
       <module name="behemoth (1)" target="1.5" />
       <module name="bestia-entities" target="1.5" />
       <module name="bestia-entities (1)" target="1.5" />
+      <module name="bestia-entities-core_main" target="1.8" />
+      <module name="bestia-entities-core_test" target="1.8" />
       <module name="bestia-entities-service" target="1.5" />
       <module name="bestia-entities-service (1)" target="1.5" />
       <module name="bestia-entities-service_main" target="1.8" />
