@@ -10,10 +10,10 @@ import java.lang.annotation.Target;
  * for editing via a PropertySetter.
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.PARAMETER, ElementType.FIELD})
+@Target({ElementType.METHOD, ElementType.FIELD})
 public @interface ScriptProperty {
 
-	enum Accessor { GETTER, SETTER, NONE }
+	enum Accessor { GETTER, SETTER, DEFAULT}
 
 	/**
 	 * This maps the value to this name. If the property
@@ -28,5 +28,5 @@ public @interface ScriptProperty {
 	 * name then the accesor is needed to specifiy it.
 	 * @return
 	 */
-	Accessor accessor() default Accessor.NONE;
+	Accessor accessor() default Accessor.DEFAULT;
 }

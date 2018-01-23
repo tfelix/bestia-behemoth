@@ -13,6 +13,8 @@ public class ScriptPropertyAccessorTest {
 		@ScriptProperty
 		private TestInner inner;
 
+		private String name = "Bruno";
+
 		private boolean notAnnotated = false;
 
 		public int getAge() {
@@ -21,6 +23,11 @@ public class ScriptPropertyAccessorTest {
 
 		public void setAge(int age) {
 			this.age = age;
+		}
+
+		@ScriptProperty("renamed")
+		public String getName() {
+			return name;
 		}
 
 		public void setNotAnnotated(boolean notAnnotated) {
@@ -91,9 +98,21 @@ public class ScriptPropertyAccessorTest {
 		Assert.assertEquals("#yolo", testAccess.getInner().getName());
 	}
 
+	@Test
 	public void set_nonAnnotaed_false() {
 		Assert.assertFalse(accessor.set("notAnnotated", testAccess, true));
 		Assert.assertFalse(testAccess.getNotAnnotated());
+	}
+
+	@Test
+	public void get_renamedGetter_returnsValue() {
+	Assert.assertEquals("Bruno", accessor.get("renamed", testAccess));
+	}
+
+	@Test
+	public void set_getterOnly_false() {
+		Assert.assertFalse(accessor.set("renamed", testAccess, "Bla"));
+		Assert.assertEquals("Bruno", testAccess.getName());
 	}
 
 	@Test
@@ -108,7 +127,6 @@ public class ScriptPropertyAccessorTest {
 
 	@Test
 	public void get_baseProperty_notNull() {
-		Assert.assertEquals(16, accessor.get("age", testAccess));
 		Assert.assertEquals("Thomas", accessor.get("inner.name", testAccess));
 	}
 }
