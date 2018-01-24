@@ -1,7 +1,7 @@
 package net.bestia.entity.component;
 
-import com.fasterxml.jackson.databind.util.BeanUtil;
-import org.reflections.ReflectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -19,6 +19,7 @@ import static org.reflections.ReflectionUtils.*;
  */
 public class ScriptPropertyAccessor {
 
+	private static final Logger LOG = LoggerFactory.getLogger(ScriptPropertyAccessor.class);
 	private static final Set<Class<?>> WRAPPER_TYPES = getWrapperTypes();
 
 	private static Set<Class<?>> getWrapperTypes() {
@@ -40,7 +41,18 @@ public class ScriptPropertyAccessor {
 		return WRAPPER_TYPES.contains(clazz) || clazz.isPrimitive();
 	}
 
-	private Map<String, ScriptPropertyAccessor> properties = new HashMap<>();
+	private static class AccessTuple {
+		public final Method objectGetter;
+		public final ScriptPropertyAccessor accessor;
+
+		public AccessTuple(Method objectGetter, ScriptPropertyAccessor accessor) {
+			this.objectGetter = objectGetter;
+			this.accessor = accessor;
+		}
+	}
+
+	private Map<String, AccessTuple> childs = new HashMap<>();
+	private Map<String, Field> properties = new HashMap<>();
 	private Map<String, Method> setters = new HashMap<>();
 	private Map<String, Method> getters = new HashMap<>();
 
@@ -54,25 +66,17 @@ public class ScriptPropertyAccessor {
 			final ScriptProperty scriptProperty = field.getAnnotation(ScriptProperty.class);
 			final String annotatedName = scriptProperty.value();
 
-			if(!isPrimitive(field.getType())) {
-				getSetter(clazz, field).ifPresent(setter -> {
-					if(annotatedName.length() > 0) {
-						saveChild(annotatedName, field.getType());
-					} else {
-						saveChild(createMethodName(setter), field.getType());
-					}
-				});
-
+			if (!isPrimitive(field.getType())) {
 				getGetter(clazz, field).ifPresent(getter -> {
-					if(annotatedName.length() > 0) {
-						saveChild(annotatedName, field.getType());
+					if (annotatedName.length() > 0) {
+						saveChild(annotatedName, field.getType(), getter);
 					} else {
-						saveChild(createMethodName(getter), field.getType());
+						saveChild(createMethodName(getter), field.getType(), getter);
 					}
 				});
 			} else {
 				getSetter(clazz, field).ifPresent(setter -> {
-					if(annotatedName.length() > 0) {
+					if (annotatedName.length() > 0) {
 						save(annotatedName, setter, setters);
 					} else {
 						save(createMethodName(setter), setter, setters);
@@ -80,16 +84,20 @@ public class ScriptPropertyAccessor {
 				});
 
 				getGetter(clazz, field).ifPresent(getter -> {
-					if(annotatedName.length() > 0) {
+					if (annotatedName.length() > 0) {
 						save(annotatedName, getter, getters);
 					} else {
 						save(createMethodName(getter), getter, getters);
 					}
 				});
-			}
 
-			if(Modifier.isPublic(field.getModifiers())) {
-				properties.put(field.getName(), new ScriptPropertyAccessor(field.getType()));
+				if (Modifier.isPublic(field.getModifiers())) {
+					if (annotatedName.length() > 0) {
+						properties.put(annotatedName, field);
+					} else {
+						properties.put(field.getName(), field);
+					}
+				}
 			}
 		});
 
@@ -105,11 +113,13 @@ public class ScriptPropertyAccessor {
 		});
 	}
 
-	private void saveChild(String acessorName, Class<?> nextType) {
-		if(properties.containsKey(acessorName)) {
+	private void saveChild(String acessorName, Class<?> nextType, Method getter) {
+		if (childs.containsKey(acessorName)) {
 			return;
 		}
-		properties.put(acessorName, new ScriptPropertyAccessor(nextType));
+		final ScriptPropertyAccessor accessor = new ScriptPropertyAccessor(nextType);
+		final AccessTuple tuple = new AccessTuple(getter, accessor);
+		childs.put(acessorName, tuple);
 	}
 
 	private String makeFirstUpperCase(String name) {
@@ -119,7 +129,7 @@ public class ScriptPropertyAccessor {
 	@SuppressWarnings("unchecked")
 	private Optional<Method> getGetter(Class<?> clazz, Field field) {
 		final String fieldUpperCase = makeFirstUpperCase(field.getName());
-		final String getterName = "set" + fieldUpperCase;
+		final String getterName = "get" + fieldUpperCase;
 		final Set<Method> methods = getMethods(clazz, withName(getterName));
 		return methods.stream().findFirst();
 	}
@@ -127,14 +137,14 @@ public class ScriptPropertyAccessor {
 	@SuppressWarnings("unchecked")
 	private Optional<Method> getSetter(Class<?> clazz, Field field) {
 		final String fieldUpperCase = makeFirstUpperCase(field.getName());
-		final String getterName = "get" + fieldUpperCase;
-		final Set<Method> methods = getMethods(clazz, withName(getterName));
+		final String setterName = "set" + fieldUpperCase;
+		final Set<Method> methods = getMethods(clazz, withName(setterName));
 		return methods.stream().findFirst();
 	}
 
 	private String createMethodName(Method m) {
 		final ScriptProperty scriptProp = m.getDeclaredAnnotation(ScriptProperty.class);
-		if(scriptProp != null && scriptProp.value().length() > 0) {
+		if (scriptProp != null && scriptProp.value().length() > 0) {
 			return scriptProp.value();
 		} else {
 			return m.getName().toLowerCase()
@@ -144,6 +154,10 @@ public class ScriptPropertyAccessor {
 	}
 
 	private void save(String annotatedName, Method m, Map<String, Method> save) {
+		if (save.containsKey(annotatedName)) {
+			LOG.warn("Property/Method {}/{} was annotated twice and is already referenced.",
+					annotatedName, m.getName());
+		}
 		save.put(annotatedName, m);
 	}
 
@@ -177,9 +191,16 @@ public class ScriptPropertyAccessor {
 			final String reducedKey = Stream.of(keys)
 					.skip(1)
 					.collect(Collectors.joining("."));
-			final ScriptPropertyAccessor accessor = properties.get(localKey);
-			final Object newObj = getLocalValue(localKey, obj);
-			return accessor.set(reducedKey, newObj, value);
+			final AccessTuple tuple = childs.get(localKey);
+			if (tuple == null) {
+				return false;
+			}
+			try {
+				final Object childObj = tuple.objectGetter.invoke(obj);
+				return tuple.accessor.set(reducedKey, childObj, value);
+			} catch (IllegalAccessException | InvocationTargetException e) {
+				return false;
+			}
 		}
 	}
 
@@ -197,12 +218,16 @@ public class ScriptPropertyAccessor {
 			final String reducedKey = Stream.of(keys)
 					.skip(1)
 					.collect(Collectors.joining("."));
-			final ScriptPropertyAccessor accessor = properties.get(localKey);
-			if(accessor == null) {
+			final AccessTuple tuple = childs.get(localKey);
+			if (tuple == null) {
 				return null;
 			}
-			final Object newObj = getLocalValue(localKey, obj);
-			return accessor.get(reducedKey, newObj);
+			try {
+				final Object childObj = tuple.objectGetter.invoke(obj);
+				return tuple.accessor.get(reducedKey, childObj);
+			} catch (IllegalAccessException | InvocationTargetException e) {
+				return null;
+			}
 		}
 	}
 
