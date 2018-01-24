@@ -147,18 +147,8 @@ public class InventoryService {
 	 *         otherwise.
 	 */
 	public boolean hasItem(long accId, int itemId, int amount) {
-
 		final PlayerItem item = playerItemDao.findPlayerItem(accId, itemId);
-
-		if (item == null) {
-			return false;
-		}
-
-		if (item.getAmount() < amount) {
-			return false;
-		} else {
-			return true;
-		}
+		return item != null && item.getAmount() >= amount;
 	}
 
 	/**
@@ -175,20 +165,12 @@ public class InventoryService {
 	 */
 	public boolean hasItem(long accId, String itemDbName, int amount) {
 		final Item item = itemDao.findItemByName(itemDbName);
-
-		if (item == null) {
-			return false;
-		}
-
-		return hasItem(accId, item.getId(), amount);
+		return item != null && hasItem(accId, item.getId(), amount);
 	}
 
 	/**
 	 * Adds an item to the account.
-	 * 
-	 * @param itemId
-	 * @param amount
-	 * @return
+	 *
 	 */
 	public boolean addItem(long accId, int itemId, int amount) {
 
@@ -226,19 +208,13 @@ public class InventoryService {
 
 	/**
 	 * Adds an item to the account. Like addItem.
-	 * 
-	 * @param accId
-	 * @param itemDbName
-	 * @param amount
+	 *
 	 */
 	public boolean addItem(long accId, String itemDbName, int amount) {
 		final Item item = itemDao.findItemByName(itemDbName);
 
-		if (item == null) {
-			return false;
-		}
+		return item != null && addItem(accId, item.getId(), amount);
 
-		return addItem(accId, item.getId(), amount);
 	}
 
 	/**
@@ -297,11 +273,8 @@ public class InventoryService {
 	public boolean removeItem(long accId, String itemDbName, int amount) {
 		final Item item = itemDao.findItemByName(itemDbName);
 
-		if (item == null) {
-			return false;
-		}
+		return item != null && removeItem(accId, item.getId(), amount);
 
-		return removeItem(accId, item.getId(), amount);
 	}
 
 	/**
@@ -347,9 +320,6 @@ public class InventoryService {
 	 * Delegates down to the DAO to find all items for the current account.
 	 * Note: This will and must change when we switch to bestia based
 	 * inventories.
-	 * 
-	 * @param accId
-	 * @return
 	 */
 	public List<PlayerItem> findPlayerItemsForAccount(long accId) {
 		return playerItemDao.findPlayerItemsForAccount(accId);
@@ -357,18 +327,11 @@ public class InventoryService {
 
 	/**
 	 * Checks if the user has the given player item with the wanted amount.
-	 * 
-	 * @param playerItemId
-	 * @param amount
-	 * @return
 	 */
 	public boolean hasPlayerItem(int playerItemId, int amount) {
 		final PlayerItem item = playerItemDao.findOne(playerItemId);
 
-		if (item == null) {
-			return false;
-		}
+		return item != null && item.getAmount() >= amount;
 
-		return item.getAmount() >= amount;
 	}
 }

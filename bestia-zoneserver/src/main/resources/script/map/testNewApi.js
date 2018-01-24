@@ -6,4 +6,5 @@ function main() {
     // BAPI.set(entityId, 'visual.type', 'PACK');
     // BAPI.set(entityId, 'visual.sprite', 'poring')
     entity.remove('visual');
+    entity.takeDmg(123)
 }

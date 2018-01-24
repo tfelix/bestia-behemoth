@@ -63,14 +63,12 @@ public class LevelService {
 
 	/**
 	 * Returns the level of the entity. The entity must possess the
-	 * {@link LevelComponent} or 0 is returned.
-	 * 
-	 * @param entity
+	 * {@link LevelComponent} or 1 is returned.
 	 */
 	public int getLevel(Entity entity) {
 
 		return entityService.getComponent(entity, LevelComponent.class)
-				.map(lv -> lv.getLevel())
+				.map(LevelComponent::getLevel)
 				.orElse(1);
 	}
 
