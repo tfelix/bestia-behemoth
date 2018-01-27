@@ -4,6 +4,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import net.bestia.zoneserver.entity.PlayerBestiaService;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

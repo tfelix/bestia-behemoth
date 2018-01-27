@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
 import akka.actor.Cancellable;
-import net.bestia.entity.component.StatusService;
+import net.bestia.zoneserver.battle.StatusService;
 import net.bestia.model.domain.ConditionValues;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;

@@ -33,11 +33,11 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="bestia-entities-service_main" />
+    <orderEntry type="module" module-name="bestia-entities_main" />
     <orderEntry type="module" module-name="bestia-messages_main" />
     <orderEntry type="module" module-name="bestia-messages-cluster_main" />
     <orderEntry type="module" module-name="bestia-server-commons_main" />
-    <orderEntry type="module" module-name="bestia-entities_main" />
+    <orderEntry type="module" module-name="bestia-entities-service_main" />
     <orderEntry type="module" module-name="bestia-models_main" />
     <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-slf4j_2.12:2.5.6" level="project" />
     <orderEntry type="library" name="Gradle: com.netflix.servo:servo-core:0.12.7" level="project" />

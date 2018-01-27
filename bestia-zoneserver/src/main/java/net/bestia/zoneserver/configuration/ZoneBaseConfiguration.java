@@ -8,8 +8,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 import net.bestia.entity.component.Component;
-import net.bestia.entity.component.EntityCache;
-import net.bestia.entity.component.interceptor.BaseComponentInterceptor;
+import net.bestia.entity.EntityCache;
+import net.bestia.entity.interceptor.BaseComponentInterceptor;
 import net.bestia.model.dao.MapParameterDAO;
 import net.bestia.model.domain.MapParameter;
 import net.bestia.zoneserver.environment.date.BestiaDate;

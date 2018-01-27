@@ -7,6 +7,8 @@ import static org.mockito.Mockito.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import net.bestia.zoneserver.entity.PlayerBestiaService;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +16,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import akka.actor.Address;
 import akka.testkit.TestProbe;
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;

@@ -1,4 +1,4 @@
-package net.bestia.entity.component;
+package entity.component;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
@@ -73,16 +73,16 @@ public class StatusServiceTest {
 		//when(statusComp.getElement()).thenReturn(Element.NORMAL);
 		//when(statusComp.getEntityId()).thenReturn(STATUS_ENTITY_ID);
 		//when(statusComp.getOriginalElement()).thenReturn(Element.NORMAL);
-		when(statusComp.getStatusBasedValues()).thenReturn(basedValues);
-		when(statusComp.getStatusPoints()).thenReturn(statusPoints);
-		when(statusComp.getOriginalStatusPoints()).thenReturn(statusPoints);
-		when(statusComp.getConditionValues()).thenReturn(statusValues);
+		Mockito.when(statusComp.getStatusBasedValues()).thenReturn(basedValues);
+		Mockito.when(statusComp.getStatusPoints()).thenReturn(statusPoints);
+		Mockito.when(statusComp.getOriginalStatusPoints()).thenReturn(statusPoints);
+		Mockito.when(statusComp.getConditionValues()).thenReturn(statusValues);
 
-		when(levelComp.getLevel()).thenReturn(10);
+		Mockito.when(levelComp.getLevel()).thenReturn(10);
 
 
-		when(basedValues.getHpRegenRate()).thenReturn(0.5f);
-		when(basedValues.getManaRegenRate()).thenReturn(0.5f);
+		Mockito.when(basedValues.getHpRegenRate()).thenReturn(0.5f);
+		Mockito.when(basedValues.getManaRegenRate()).thenReturn(0.5f);
 
 		//when(baseValues.getAgility()).thenReturn(10);
 		//when(baseValues.getAttack()).thenReturn(10);
@@ -92,30 +92,30 @@ public class StatusServiceTest {
 		//when(baseValues.getHp()).thenReturn(10);
 		//when(baseValues.getMana()).thenReturn(10);
 
-		when(statusValues.getCurrentHealth()).thenReturn(10);
-		when(statusValues.getCurrentMana()).thenReturn(10);
+		Mockito.when(statusValues.getCurrentHealth()).thenReturn(10);
+		Mockito.when(statusValues.getCurrentMana()).thenReturn(10);
 
-		when(statusPoints.getMagicDefense()).thenReturn(10);
-		when(statusPoints.getDefense()).thenReturn(10);
-		when(statusPoints.getStrength()).thenReturn(10);
-		when(statusPoints.getVitality()).thenReturn(10);
-		when(statusPoints.getIntelligence()).thenReturn(10);
-		when(statusPoints.getAgility()).thenReturn(10);
-		when(statusPoints.getWillpower()).thenReturn(10);
-		when(statusPoints.getDexterity()).thenReturn(10);
+		Mockito.when(statusPoints.getMagicDefense()).thenReturn(10);
+		Mockito.when(statusPoints.getDefense()).thenReturn(10);
+		Mockito.when(statusPoints.getStrength()).thenReturn(10);
+		Mockito.when(statusPoints.getVitality()).thenReturn(10);
+		Mockito.when(statusPoints.getIntelligence()).thenReturn(10);
+		Mockito.when(statusPoints.getAgility()).thenReturn(10);
+		Mockito.when(statusPoints.getWillpower()).thenReturn(10);
+		Mockito.when(statusPoints.getDexterity()).thenReturn(10);
 
-		when(entityService.getEntity(STATUS_ENTITY_ID)).thenReturn(statusEntity);
-		when(entityService.getEntity(INVALID_ENTITY_ID)).thenReturn(nonStatusEntity);
-		when(entityService.getComponent(nonStatusEntity, StatusComponent.class)).thenReturn(Optional.empty());
-		when(entityService.getComponent(statusEntity, StatusComponent.class)).thenReturn(Optional.of(statusComp));
-		when(entityService.getComponent(statusEntity, LevelComponent.class)).thenReturn(Optional.of(levelComp));
-		when(entityService.getComponent(statusEntity, PlayerComponent.class)).thenReturn(Optional.of(playerComp));
+		Mockito.when(entityService.getEntity(STATUS_ENTITY_ID)).thenReturn(statusEntity);
+		Mockito.when(entityService.getEntity(INVALID_ENTITY_ID)).thenReturn(nonStatusEntity);
+		Mockito.when(entityService.getComponent(nonStatusEntity, StatusComponent.class)).thenReturn(Optional.empty());
+		Mockito.when(entityService.getComponent(statusEntity, StatusComponent.class)).thenReturn(Optional.of(statusComp));
+		Mockito.when(entityService.getComponent(statusEntity, LevelComponent.class)).thenReturn(Optional.of(levelComp));
+		Mockito.when(entityService.getComponent(statusEntity, PlayerComponent.class)).thenReturn(Optional.of(playerComp));
 
-		when(entityService.getComponent(STATUS_ENTITY_ID, StatusComponent.class)).thenReturn(Optional.of(statusComp));
+		Mockito.when(entityService.getComponent(STATUS_ENTITY_ID, StatusComponent.class)).thenReturn(Optional.of(statusComp));
 
-		when(playerBestia.getBaseValues()).thenReturn(baseValues);
-		when(playerBestia.getEffortValues()).thenReturn(baseValues);
-		when(playerBestia.getIndividualValue()).thenReturn(baseValues);
+		Mockito.when(playerBestia.getBaseValues()).thenReturn(baseValues);
+		Mockito.when(playerBestia.getEffortValues()).thenReturn(baseValues);
+		Mockito.when(playerBestia.getIndividualValue()).thenReturn(baseValues);
 
 		statusService = new StatusService(entityService, playerBestiaDao);
 	}
@@ -135,7 +135,7 @@ public class StatusServiceTest {
 	public void getStatusBasedValues_statusEntity_returnsValues() {
 		Optional<StatusBasedValues> statBased = statusService.getStatusBasedValues(statusEntity);
 
-		verify(entityService).getComponent(statusEntity, StatusComponent.class);
+		Mockito.verify(entityService).getComponent(statusEntity, StatusComponent.class);
 		Assert.assertTrue(statBased.isPresent());
 	}
 
@@ -231,8 +231,8 @@ public class StatusServiceTest {
 		sv.setCurrentMana(6);
 		statusService.save(STATUS_ENTITY_ID, sv);
 
-		verify(statusValues).set(sv);
-		verify(entityService).updateComponent(statusComp);
+		Mockito.verify(statusValues).set(sv);
+		Mockito.verify(entityService).updateComponent(statusComp);
 	}
 
 	@Test
@@ -243,11 +243,11 @@ public class StatusServiceTest {
 		ConditionValues sv = new ConditionValues();
 		sv.set(cvOrig);
 		
-		when(cvOrig.equals(sv)).thenReturn(true);
+		Mockito.when(cvOrig.equals(sv)).thenReturn(true);
 		
 		statusService.save(STATUS_ENTITY_ID, sv);
 
-		verify(entityService, times(0)).updateComponent(statusComp);
+		Mockito.verify(entityService, Mockito.times(0)).updateComponent(statusComp);
 	}
 	
 	@Test
@@ -258,11 +258,11 @@ public class StatusServiceTest {
 		StatusPoints sp = new StatusPointsImpl();
 		sp.set(spOrig);
 		
-		when(spOrig.equals(sp)).thenReturn(true);
+		Mockito.when(spOrig.equals(sp)).thenReturn(true);
 		
 		statusService.save(STATUS_ENTITY_ID, sp);
 
-		verify(entityService, times(0)).updateComponent(statusComp);
+		Mockito.verify(entityService, Mockito.times(0)).updateComponent(statusComp);
 	}
 
 	@Test
@@ -286,7 +286,7 @@ public class StatusServiceTest {
 	public void save_statusPointsEntity_isSaved() {
 		statusService.save(statusEntity, statusPoints);
 		Assert.assertTrue(statusService.getStatusBasedValues(statusEntity).isPresent());
-		verify(entityService).updateComponent(statusComp);
+		Mockito.verify(entityService).updateComponent(statusComp);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -298,7 +298,7 @@ public class StatusServiceTest {
 	public void save_statusPointsEntityId_isSaved() {
 		statusService.save(STATUS_ENTITY_ID, statusPoints);
 		Assert.assertTrue(statusService.getStatusBasedValues(statusEntity).isPresent());
-		verify(entityService).updateComponent(statusComp);
+		Mockito.verify(entityService).updateComponent(statusComp);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

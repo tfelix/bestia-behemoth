@@ -18,7 +18,7 @@ import net.bestia.model.entity.InteractionType;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
-import net.bestia.zoneserver.service.InteractionService;
+import net.bestia.zoneserver.entity.InteractionService;
 
 /**
  * Receives interaction requests for an entity. It will query the system and ask

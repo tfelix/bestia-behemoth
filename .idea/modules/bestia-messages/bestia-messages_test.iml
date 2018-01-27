@@ -33,9 +33,10 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="bestia-messages_main" />
     <orderEntry type="module" module-name="bestia-messages-cluster_main" />
     <orderEntry type="module" module-name="bestia-entities_main" />
+    <orderEntry type="library" name="Gradle: ch.qos.logback:logback-core:1.1.11" level="project" />
+    <orderEntry type="module" module-name="bestia-messages_main" />
     <orderEntry type="module" module-name="bestia-models_main" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-data-jpa:1.5.4.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.data:spring-data-jpa:1.11.4.RELEASE" level="project" />
@@ -89,10 +90,9 @@
     <orderEntry type="library" name="Gradle: antlr:antlr:2.7.7" level="project" />
     <orderEntry type="library" name="Gradle: org.jboss:jandex:2.0.0.Final" level="project" />
     <orderEntry type="library" name="Gradle: dom4j:dom4j:1.6.1" level="project" />
-    <orderEntry type="library" name="Gradle: org.apache.tomcat:tomcat-juli:8.5.15" level="project" />
     <orderEntry type="module" module-name="bestia-entities-core_main" />
+    <orderEntry type="library" name="Gradle: org.apache.tomcat:tomcat-juli:8.5.15" level="project" />
     <orderEntry type="library" name="Gradle: xml-apis:xml-apis:1.0.b2" level="project" />
-    <orderEntry type="library" name="Gradle: ch.qos.logback:logback-core:1.1.11" level="project" />
   </component>
   <component name="TestModuleProperties" production-module="bestia-messages_main" />
 </module>

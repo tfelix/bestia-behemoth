@@ -5,12 +5,11 @@ import java.util.List;
 import net.bestia.entity.component.interceptor.ActorUpdateComponentInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 
 import net.bestia.entity.component.Component;
-import net.bestia.entity.component.interceptor.BaseComponentInterceptor;
-import net.bestia.entity.component.interceptor.DefaultSyncInterceptor;
-import net.bestia.entity.component.interceptor.Interceptor;
+import net.bestia.entity.interceptor.BaseComponentInterceptor;
+import net.bestia.entity.interceptor.DefaultSyncInterceptor;
+import net.bestia.entity.interceptor.Interceptor;
 import net.bestia.messages.MessageApi;
 
 /**

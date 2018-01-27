@@ -1,7 +1,9 @@
-package net.bestia.entity.component;
+package net.bestia.zoneserver.entity;
 
 import java.util.Objects;
 
+import net.bestia.entity.component.LevelComponent;
+import net.bestia.zoneserver.battle.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

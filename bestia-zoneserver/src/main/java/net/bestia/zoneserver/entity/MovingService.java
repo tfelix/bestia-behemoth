@@ -1,4 +1,4 @@
-package net.bestia.zoneserver.service;
+package net.bestia.zoneserver.entity;
 
 import java.util.List;
 import java.util.Objects;
@@ -14,7 +14,7 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.MoveComponent;
 import net.bestia.entity.component.PositionComponent;
-import net.bestia.entity.component.StatusService;
+import net.bestia.zoneserver.battle.StatusService;
 import net.bestia.model.domain.Direction;
 import net.bestia.model.entity.StatusBasedValues;
 import net.bestia.model.geometry.Point;

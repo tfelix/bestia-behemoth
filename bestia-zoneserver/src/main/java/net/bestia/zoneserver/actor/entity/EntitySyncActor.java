@@ -26,7 +26,7 @@ import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessag
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.SendClientsInRangeActor;
 import net.bestia.zoneserver.map.MapService;
-import net.bestia.zoneserver.service.PlayerEntityService;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**
  * This actor listens to engine requests to perform a full entity

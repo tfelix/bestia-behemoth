@@ -4,6 +4,7 @@ import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.ComponentActor;
+import net.bestia.entity.interceptor.BaseComponentInterceptor;
 import net.bestia.messages.EntityComponentUpdateMessage;
 import net.bestia.messages.MessageApi;
 import net.bestia.messages.entity.ComponentEnvelope;

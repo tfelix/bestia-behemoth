@@ -17,7 +17,7 @@ import net.bestia.entity.component.PositionComponent;
 import net.bestia.messages.chat.ChatMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.SendClientsInRangeActor;
-import net.bestia.zoneserver.service.PlayerEntityService;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**
  * Handles public chat of the user and sends them to all entities which can

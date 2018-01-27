@@ -23,7 +23,7 @@ import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
 import net.bestia.zoneserver.map.MapService;
-import net.bestia.zoneserver.service.PlayerEntityService;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**
  * This actor generates a data message containing all the data/map chunks needed

@@ -37,8 +37,8 @@ import net.bestia.messages.MessageApi;
 import net.bestia.messages.bestia.BestiaActivateMessage;
 import net.bestia.model.domain.PlayerBestia;
 import net.bestia.model.geometry.Rect;
-import net.bestia.zoneserver.service.PlayerBestiaService;
-import net.bestia.zoneserver.service.PlayerEntityService;
+import net.bestia.zoneserver.entity.PlayerBestiaService;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PlayerEntityServiceTest {

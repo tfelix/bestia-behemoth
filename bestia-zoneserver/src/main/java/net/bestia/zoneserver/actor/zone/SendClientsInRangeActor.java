@@ -20,7 +20,7 @@ import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.map.MapService;
-import net.bestia.zoneserver.service.PlayerEntityService;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /***
  * If a {@link EntityJsonMessage} is received by this actor it will check if the

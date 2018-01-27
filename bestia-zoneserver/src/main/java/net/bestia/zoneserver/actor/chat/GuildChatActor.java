@@ -15,7 +15,7 @@ import net.bestia.model.domain.PlayerBestia;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.guild.GuildService;
-import net.bestia.zoneserver.service.PlayerEntityService;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**
  * Handles guild chats. 
@@ -33,7 +33,7 @@ public class GuildChatActor extends AbstractActor {
 	public static final String NAME = "guild";
 	
 	private final GuildService guildService;
-	private final net.bestia.zoneserver.service.PlayerEntityService playerEntityService;
+	private final PlayerEntityService playerEntityService;
 	private final ActorRef sendActor;
 
 	@Autowired

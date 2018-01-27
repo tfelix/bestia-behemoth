@@ -17,7 +17,7 @@ import akka.event.LoggingAdapter;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.MoveComponent;
 import net.bestia.model.geometry.Point;
-import net.bestia.zoneserver.service.MovingService;
+import net.bestia.zoneserver.entity.MovingService;
 import scala.concurrent.duration.Duration;
 
 /**

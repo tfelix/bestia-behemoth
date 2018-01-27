@@ -20,11 +20,9 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
 
 import net.bestia.entity.component.Component;
-import net.bestia.entity.component.EntityCache;
 import net.bestia.entity.component.MoveComponent;
 import net.bestia.entity.component.PositionComponent;
-import net.bestia.entity.component.interceptor.Interceptor;
-import net.bestia.messages.MessageApi;
+import net.bestia.entity.interceptor.Interceptor;
 import net.bestia.model.geometry.CollisionShape;
 
 /**

@@ -20,7 +20,7 @@ import net.bestia.model.domain.ScriptVar;
 import net.bestia.model.geometry.CollisionShape;
 import net.bestia.model.geometry.Point;
 import net.bestia.zoneserver.battle.BattleService;
-import net.bestia.zoneserver.service.MovingService;
+import net.bestia.zoneserver.entity.MovingService;
 
 /**
  * Bundles all kind of services to provide an extensive script API. This API is

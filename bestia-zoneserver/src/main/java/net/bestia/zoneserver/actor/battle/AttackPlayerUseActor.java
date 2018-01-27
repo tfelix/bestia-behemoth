@@ -11,7 +11,7 @@ import akka.actor.AbstractActor;
 import net.bestia.entity.Entity;
 import net.bestia.messages.attack.AttackUseMessage;
 import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
-import net.bestia.zoneserver.service.PlayerEntityService;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**
  * This actor simply performs some safety checks for incoming player attack

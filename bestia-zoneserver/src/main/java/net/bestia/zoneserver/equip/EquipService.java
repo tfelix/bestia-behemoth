@@ -1,4 +1,4 @@
-package net.bestia.entity.component;
+package net.bestia.zoneserver.equip;
 
 import org.springframework.stereotype.Service;
 

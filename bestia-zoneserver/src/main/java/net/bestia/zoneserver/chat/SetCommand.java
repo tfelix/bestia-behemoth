@@ -30,7 +30,7 @@ import net.bestia.messages.MessageApi;
 import net.bestia.model.dao.AccountDAO;
 import net.bestia.model.domain.Account;
 import net.bestia.model.domain.Account.UserLevel;
-import net.bestia.zoneserver.service.PlayerEntityService;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**
  * The set command is a very powerful admin and debugging command. It can set

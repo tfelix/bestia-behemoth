@@ -18,7 +18,7 @@ import net.bestia.messages.bestia.BestiaInfoRequestMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
-import net.bestia.zoneserver.service.PlayerEntityService;
+import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**
  * This actor gathers all needed information about the bestias in the players

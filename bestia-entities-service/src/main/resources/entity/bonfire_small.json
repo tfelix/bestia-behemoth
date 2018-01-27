@@ -1,5 +1,0 @@
-{
-ident: 'test'
-components: [
-	{type: 'sprite', data: {sprite: 'bonfire_small'}}
-]}

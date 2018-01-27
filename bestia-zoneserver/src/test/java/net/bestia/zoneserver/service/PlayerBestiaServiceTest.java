@@ -1,7 +1,6 @@
 package net.bestia.zoneserver.service;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -12,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import net.bestia.zoneserver.entity.PlayerBestiaService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

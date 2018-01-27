@@ -1,4 +1,4 @@
-package net.bestia.entity.component;
+package entity.component;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
@@ -39,10 +39,10 @@ public class LevelServiceTest {
 	@Before
 	public void setup() {
 
-		when(lvComp.getLevel()).thenReturn(LEVEL);
+		Mockito.when(lvComp.getLevel()).thenReturn(LEVEL);
 
-		when(entityService.getComponent(entity, LevelComponent.class)).thenReturn(Optional.of(lvComp));
-		when(entityService.getComponent(nonComponentEntity, LevelComponent.class)).thenReturn(Optional.empty());
+		Mockito.when(entityService.getComponent(entity, LevelComponent.class)).thenReturn(Optional.of(lvComp));
+		Mockito.when(entityService.getComponent(nonComponentEntity, LevelComponent.class)).thenReturn(Optional.empty());
 
 		lvService = new LevelService(entityService, statusService);
 	}
@@ -53,8 +53,8 @@ public class LevelServiceTest {
 		lvService.setLevel(entity, 10);
 
 		// Verify recalc status values.
-		verify(lvComp).setLevel(10);
-		verify(statusService).calculateStatusPoints(entity);
+		Mockito.verify(lvComp).setLevel(10);
+		Mockito.verify(statusService).calculateStatusPoints(entity);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -80,8 +80,8 @@ public class LevelServiceTest {
 
 		lvService.addExp(entity, 100);
 
-		verify(statusService).calculateStatusPoints(entity);
-		verify(entityService).updateComponent(lvComp);
+		Mockito.verify(statusService).calculateStatusPoints(entity);
+		Mockito.verify(entityService).updateComponent(lvComp);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
