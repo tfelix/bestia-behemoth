@@ -1,4 +1,5 @@
 description = 'bestia-messages'
 dependencies {
     compile project(':bestia-messages-cluster')
+    compile project(':bestia-entities-core')
 }

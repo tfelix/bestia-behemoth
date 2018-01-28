@@ -1,7 +1,5 @@
 package net.bestia.messages;
 
-import net.bestia.entity.component.PositionComponent;
-
 /**
  * This is the central interface for any external component like services or
  * components to interact with the akka system.
@@ -21,8 +19,7 @@ public interface MessageApi {
 
 	/**
 	 * Sends the message to all active player bestias in update range. The given
-	 * message must refer to an entity source which has a
-	 * {@link PositionComponent} attached. Otherwise the message origin position
+	 * message must refer to an entity source which has a attached. Otherwise the message origin position
 	 * can not be determined and thus no updates send to players.
 	 * 
 	 * @param message

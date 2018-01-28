@@ -20,7 +20,7 @@ dependencies {
     compile group: 'com.netflix.servo', name: 'servo-core', version: '0.12.7'
     compile project(':bestia-messages-cluster')
     compile project(':bestia-server-commons')
-    compile project(':bestia-entities-service')
+    compile project(':bestia-entities-core')
     compile group: 'de.tfelix.bestia', name: 'worldgen', version: '1.0.0-ALPHA'
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.5.4.RELEASE'
     testCompile group: 'com.typesafe.akka', name: 'akka-testkit_2.12', version: '2.5.6'

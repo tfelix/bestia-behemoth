@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.ActorRef;
-import net.bestia.entity.component.InventoryService;
+import net.bestia.zoneserver.bestia.InventoryService;
 import net.bestia.messages.inventory.InventoryListMessage;
 import net.bestia.messages.inventory.InventoryListRequestMessage;
 import net.bestia.model.domain.PlayerItem;

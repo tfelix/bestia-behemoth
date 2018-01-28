@@ -1,9 +1,12 @@
-package net.bestia.entity.component;
+package net.bestia.zoneserver.bestia;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import net.bestia.entity.component.InventoryComponent;
+import net.bestia.entity.component.LevelComponent;
+import net.bestia.entity.component.StatusComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

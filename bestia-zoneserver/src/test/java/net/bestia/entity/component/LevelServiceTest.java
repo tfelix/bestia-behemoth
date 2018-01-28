@@ -1,4 +1,4 @@
-package entity.component;
+package net.bestia.entity.component;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;

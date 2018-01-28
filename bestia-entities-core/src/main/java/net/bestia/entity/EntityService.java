@@ -1,29 +1,21 @@
 package net.bestia.entity;
 
-import java.lang.reflect.Constructor;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
-
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.MoveComponent;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.interceptor.Interceptor;
 import net.bestia.model.geometry.CollisionShape;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.lang.reflect.Constructor;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * The {@link EntityService} is a central very important part of the bestia

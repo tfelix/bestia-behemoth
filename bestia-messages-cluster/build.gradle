@@ -3,6 +3,6 @@ description = 'bestia-messages-cluster'
 dependencies {
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version:'2.8.0'
     compile group: 'com.typesafe.akka', name: 'akka-actor_2.12', version:'2.5.6'
-  compile project(':bestia-entities')
+  compile project(':bestia-entities-core')
   compile project(':bestia-models')
 }
