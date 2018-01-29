@@ -12,7 +12,6 @@ import akka.cluster.sharding.ClusterSharding;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import net.bestia.messages.JsonMessage;
-import net.bestia.messages.entity.EntityComponentEnvelope;
 import net.bestia.server.EntryActorNames;
 import net.bestia.zoneserver.service.LatencyService;
 

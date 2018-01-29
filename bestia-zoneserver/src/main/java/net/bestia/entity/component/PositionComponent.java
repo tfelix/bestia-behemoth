@@ -15,7 +15,7 @@ import net.bestia.model.geometry.Point;
  *
  */
 @ComponentSync(SyncType.ALL)
-@ComponentActor("net.bestia.zoneserver.actor.entity.component.MovementComponentActor")
+@ComponentActor("net.bestia.zoneserver.actor.net.bestia.entity.component.MovementComponentActor")
 public class PositionComponent extends Component {
 
 	private static final long serialVersionUID = 1L;

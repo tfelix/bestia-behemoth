@@ -22,7 +22,7 @@ import net.bestia.model.entity.StatusBasedValuesImpl;
  *
  */
 @ComponentSync(SyncType.OWNER)
-@ComponentActor("net.bestia.zoneserver.actor.entity.component.StatusComponentActor")
+@ComponentActor("net.bestia.zoneserver.actor.net.bestia.entity.component.StatusComponentActor")
 public class StatusComponent extends Component {
 
 	private static final long serialVersionUID = 1L;

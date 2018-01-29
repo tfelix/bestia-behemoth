@@ -17,7 +17,6 @@ import net.bestia.entity.EntityService;
 import net.bestia.entity.component.ComponentSync;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.SyncType;
-import net.bestia.messages.entity.EntityComponentEnvelope;
 import net.bestia.messages.entity.EntitySyncRequestMessage;
 import net.bestia.model.geometry.Point;
 import net.bestia.model.geometry.Rect;

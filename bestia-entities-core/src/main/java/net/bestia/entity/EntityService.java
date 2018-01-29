@@ -4,9 +4,7 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
 import net.bestia.entity.component.Component;
-import net.bestia.entity.component.MoveComponent;
-import net.bestia.entity.component.PositionComponent;
-import net.bestia.entity.interceptor.Interceptor;
+import net.bestia.entity.component.interceptor.Interceptor;
 import net.bestia.model.geometry.CollisionShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -186,6 +184,7 @@ public class EntityService {
 	 *
 	 * @return All entities colliding with this entity.
 	 */
+	/*
 	public Set<Entity> getCollidingEntities(Entity entity) {
 		LOG.trace("Finding all colliding entities for: {}.", entity);
 
@@ -201,7 +200,7 @@ public class EntityService {
 		LOG.trace("Found colliding entities: {}.", collidingEntities);
 
 		return collidingEntities;
-	}
+	}*/
 
 	/**
 	 * Returns all the entities which are in range. The detected collision
@@ -211,6 +210,7 @@ public class EntityService {
 	 * @param area The area in which the looked up entities lie.
 	 * @return All entities contained in the area.
 	 */
+	/*
 	public Set<Entity> getCollidingEntities(CollisionShape area) {
 
 		final Set<Entity> colliders = new HashSet<>();
@@ -224,6 +224,7 @@ public class EntityService {
 
 		return colliders;
 	}
+	*/
 
 	/**
 	 * Creates a new component which can be used with an entity. The component
@@ -428,7 +429,7 @@ public class EntityService {
 	/**
 	 * Alias for {@link #deleteComponent(Entity, Component)}.
 	 */
-	public void deleteComponent(long entityId, Class<MoveComponent> clazz) {
+	public void deleteComponent(long entityId, Class<Component> clazz) {
 		getComponent(entityId, clazz)
 				.ifPresent(c -> deleteComponent(getEntity(entityId), c));
 	}

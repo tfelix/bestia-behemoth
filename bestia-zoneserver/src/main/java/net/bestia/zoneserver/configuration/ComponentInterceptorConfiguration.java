@@ -1,16 +1,12 @@
 package net.bestia.zoneserver.configuration;
 
-import java.util.List;
-
-import net.bestia.entity.component.interceptor.ActorUpdateComponentInterceptor;
+import net.bestia.entity.component.Component;
+import net.bestia.entity.component.interceptor.*;
+import net.bestia.messages.MessageApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import net.bestia.entity.component.Component;
-import net.bestia.entity.interceptor.BaseComponentInterceptor;
-import net.bestia.entity.interceptor.DefaultSyncInterceptor;
-import net.bestia.entity.interceptor.Interceptor;
-import net.bestia.messages.MessageApi;
+import java.util.List;
 
 /**
  * Configuration for the component interceptor.
@@ -30,9 +26,9 @@ public class ComponentInterceptorConfiguration {
 			List<BaseComponentInterceptor<? extends Component>> interceptors,
 			MessageApi msgApi) {
 
-		final Interceptor interceptor = new Interceptor(interceptors);
-		interceptor.addInterceptor(new DefaultSyncInterceptor(msgApi));
-		interceptor.addInterceptor(new ActorUpdateComponentInterceptor(msgApi));
+		final InterceptorComposite interceptor = new InterceptorComposite(interceptors);
+		interceptor.addDefaultInterceptor(new DefaultSyncInterceptor(msgApi));
+		interceptor.addDefaultInterceptor(new ActorUpdateComponentInterceptor(msgApi));
 
 		return interceptor;
 	}
