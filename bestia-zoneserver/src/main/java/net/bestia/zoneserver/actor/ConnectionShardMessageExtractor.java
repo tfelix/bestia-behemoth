@@ -57,5 +57,4 @@ public class ConnectionShardMessageExtractor implements ShardRegion.MessageExtra
 			return null;
 		}
 	}
-
 }

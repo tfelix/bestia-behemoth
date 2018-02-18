@@ -2,6 +2,7 @@ package net.bestia.zoneserver.actor.connection;
 
 import java.util.Objects;
 
+import net.bestia.messages.ClientFromMessageEnvelope;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,6 @@ import akka.event.LoggingAdapter;
 import net.bestia.messages.JsonMessage;
 import net.bestia.messages.client.ClientConnectMessage;
 import net.bestia.messages.client.ClientConnectMessage.ConnectionState;
-import net.bestia.messages.FromClient;
 import net.bestia.messages.login.LoginAuthMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.service.LoginService;
@@ -44,19 +44,19 @@ public class ClientConnectionActor extends AbstractActor {
 	private ActorRef clientSocket;
 
 	private final LoginService loginService;
-	private final ActorRef clientIngest;
+	private final ActorRef postmaster;
 
 	@Autowired
-	public ClientConnectionActor(LoginService loginService, ActorRef clientIngest) {
+	public ClientConnectionActor(LoginService loginService, ActorRef postmaster) {
 
 		this.loginService = Objects.requireNonNull(loginService);
-		this.clientIngest = Objects.requireNonNull(clientIngest);
+		this.postmaster = Objects.requireNonNull(postmaster);
 	}
 
 	@Override
 	public Receive createReceive() {
 		return receiveBuilder()
-				.match(FromClient.class, this::handleClientMessage)
+				.match(ClientFromMessageEnvelope.class, this::handleClientMessage)
 				.match(JsonMessage.class, this::sendMessageToClient)
 				.match(Terminated.class, m -> onClientConnectionClosed())
 				.build();
@@ -91,8 +91,8 @@ public class ClientConnectionActor extends AbstractActor {
 	 * @param msg
 	 *            The wrapped message if it comes from the client.
 	 */
-	private void handleClientMessage(FromClient msg) {
-		Object payload = msg.getPayload();
+	private void handleClientMessage(ClientFromMessageEnvelope msg) {
+		Object payload = msg.getContent();
 		if (payload instanceof LoginAuthMessage) {
 
 			handleLoginAuthRequest((LoginAuthMessage) payload);
@@ -104,7 +104,7 @@ public class ClientConnectionActor extends AbstractActor {
 		} else {
 
 			throwIfNotAuthenticated();
-			clientIngest.tell(payload, getSelf());
+			postmaster.tell(msg, getSelf());
 
 		}
 	}
@@ -112,8 +112,6 @@ public class ClientConnectionActor extends AbstractActor {
 	/**
 	 * This is the very first message the get from the system asking us to
 	 * authenticate.
-	 * 
-	 * @param msg
 	 */
 	private void handleLoginAuthRequest(LoginAuthMessage msg) {
 
@@ -135,8 +133,6 @@ public class ClientConnectionActor extends AbstractActor {
 
 	/**
 	 * Gets called if a new connection was established.
-	 * 
-	 * @param msg
 	 */
 	private void handleConnectionStatus(ClientConnectMessage msg) {
 		if (msg.getState() == ConnectionState.CONNECTED) {
@@ -148,8 +144,6 @@ public class ClientConnectionActor extends AbstractActor {
 
 	/**
 	 * Initializes a client connection.
-	 * 
-	 * @param msg
 	 */
 	private void initClientConnection(ClientConnectMessage msg) {
 
@@ -204,8 +198,6 @@ public class ClientConnectionActor extends AbstractActor {
 	 * otherwise forged messages from the webserver could trick the actor into
 	 * beliving the client has alreads authed. MUST be called before every
 	 * method invocation other then auth itself.
-	 * 
-	 * @return
 	 */
 	private void throwIfNotAuthenticated() {
 		if (0 == accountId) {

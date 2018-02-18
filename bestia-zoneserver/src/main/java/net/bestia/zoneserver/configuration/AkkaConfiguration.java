@@ -1,7 +1,13 @@
 package net.bestia.zoneserver.configuration;
 
-import java.net.UnknownHostException;
-
+import akka.actor.*;
+import akka.cluster.Cluster;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import net.bestia.messages.MessageApi;
+import net.bestia.zoneserver.actor.AkkaMessageApi;
+import net.bestia.zoneserver.actor.BestiaRootActor;
+import net.bestia.zoneserver.actor.SpringExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -11,20 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-
-import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.Address;
-import akka.actor.TypedActor;
-import akka.actor.TypedProps;
-import akka.cluster.Cluster;
-import net.bestia.messages.MessageApi;
-import net.bestia.zoneserver.actor.AkkaMessageApi;
-import net.bestia.zoneserver.actor.BestiaRootActor;
-import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.ZoneMessageApi;
+import java.net.UnknownHostException;
 
 /**
  * Generates the akka configuration file which is used to connect to the remote
@@ -64,12 +57,10 @@ public class AkkaConfiguration implements DisposableBean {
 
 	@Bean
 	@Primary
-	public ZoneMessageApi messageApi(ActorSystem system) {
+	public MessageApi messageApi(ActorSystem system) {
 
-		final TypedProps<AkkaMessageApi> typedProps = new TypedProps<>(ZoneMessageApi.class, AkkaMessageApi.class);
-		final ZoneMessageApi msgApi = TypedActor.get(system).typedActorOf(typedProps, "akkaMsgApi");
-
-		return msgApi;
+		final TypedProps<AkkaMessageApi> typedProps = new TypedProps<>(MessageApi.class, AkkaMessageApi.class);
+		return TypedActor.get(system).typedActorOf(typedProps, "akkaMsgApi");
 	}
 	
 	@Bean
@@ -93,6 +84,5 @@ public class AkkaConfiguration implements DisposableBean {
 		if (systemInstance != null) {
 			systemInstance.terminate();
 		}
-
 	}
 }

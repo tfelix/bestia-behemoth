@@ -18,7 +18,7 @@ import net.bestia.model.map.Tileset;
 import net.bestia.model.map.TilesetService;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
-import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
 
 /**
  * The user queries the name/data of an {@link TilesetData}. He only sends the

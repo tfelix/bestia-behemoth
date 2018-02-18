@@ -16,7 +16,7 @@ import net.bestia.entity.Entity;
 import net.bestia.messages.bestia.BestiaInfoMessage;
 import net.bestia.messages.bestia.BestiaInfoRequestMessage;
 import net.bestia.zoneserver.actor.SpringExtension;
-import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 

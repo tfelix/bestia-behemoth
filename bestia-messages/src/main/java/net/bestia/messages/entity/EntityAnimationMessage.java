@@ -50,9 +50,7 @@ public class EntityAnimationMessage extends EntityJsonMessage {
 	/**
 	 * Helper ctor if the receiving account id is not known when the message is
 	 * created.
-	 * 
-	 * @param ownerEntityId
-	 * @param animationName
+	 *
 	 */
 	public EntityAnimationMessage(long ownerEntityId, String animationName) {
 		this(0, ownerEntityId, 0, animationName);

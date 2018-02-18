@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import akka.actor.AbstractActor;
-import net.bestia.messages.misc.PongMessage;
-import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
+import net.bestia.messages.client.PongMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
 import net.bestia.zoneserver.service.LatencyService;
 
 /**

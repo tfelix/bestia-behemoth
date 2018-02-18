@@ -39,6 +39,7 @@
     <orderEntry type="module" module-name="bestia-models_main" />
     <orderEntry type="library" name="Gradle: com.typesafe.akka:akka-slf4j_2.12:2.5.6" level="project" />
     <orderEntry type="library" name="Gradle: com.netflix.servo:servo-core:0.12.7" level="project" />
+    <orderEntry type="library" name="Gradle: io.github.microutils:kotlin-logging:1.4.9" level="project" />
     <orderEntry type="library" name="Gradle: de.tfelix.bestia:worldgen:1.0.0-ALPHA" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-data-jpa:1.5.4.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.data:spring-data-jpa:1.11.4.RELEASE" level="project" />

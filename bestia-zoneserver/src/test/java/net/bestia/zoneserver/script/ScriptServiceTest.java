@@ -105,12 +105,12 @@ public class ScriptServiceTest {
 
 	@Test
 	public void callScript_errorInScript_doesNothing() {
-		scriptService.callScript(ERROR_SCRIPT_FILE);
+		scriptService.callScriptMainFunction(ERROR_SCRIPT_FILE);
 	}
 
 	@Test
 	public void callScript_validScript_ok() {
-		scriptService.callScript(VALID_SCRIPT_FILE);
+		scriptService.callScriptMainFunction(VALID_SCRIPT_FILE);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

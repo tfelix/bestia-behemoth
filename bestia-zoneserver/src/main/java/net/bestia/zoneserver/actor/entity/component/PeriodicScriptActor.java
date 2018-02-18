@@ -89,8 +89,6 @@ public class PeriodicScriptActor extends AbstractActor {
 	/**
 	 * Setup a new movement tick based on the delay. If the delay is negative we
 	 * know that we can not move and thus end the movement and this actor.
-	 * 
-	 * @param delay
 	 */
 	private void setupMoveTick(int delay) {
 		if (delay < 0) {

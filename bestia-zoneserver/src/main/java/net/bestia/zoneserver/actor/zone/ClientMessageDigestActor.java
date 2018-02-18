@@ -6,25 +6,20 @@ import java.util.List;
 import akka.actor.AbstractActor;
 import akka.japi.pf.FI;
 import akka.japi.pf.ReceiveBuilder;
-import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
 
-/**
- * 
- * @author Thomas Felix
- *
- */
 public class ClientMessageDigestActor extends AbstractActor {
 	
 	private class Tuple<P> {
 		final Class<P> type;
 		final FI.UnitApply<P> apply;
 		
-		public Tuple(Class<P> type, FI.UnitApply<P> apply) {
+		Tuple(Class<P> type, FI.UnitApply<P> apply) {
 			this.type = type;
 			this.apply = apply;
 		}
 		
-		public void apply(ReceiveBuilder builder) {
+		void apply(ReceiveBuilder builder) {
 			builder.match(type, apply);
 		}
 	}
@@ -39,7 +34,7 @@ public class ClientMessageDigestActor extends AbstractActor {
 		
 		public <P> void match(Class<P> type, FI.UnitApply<P> apply) {
 			isConfigured = true;
-			tuples.add(new Tuple<P>(type, apply));
+			tuples.add(new Tuple<>(type, apply));
 		}
 	}
 	
@@ -47,7 +42,6 @@ public class ClientMessageDigestActor extends AbstractActor {
 	
 	@Override
 	public void preStart() throws Exception {
-		
 		checkConfigPresent();
 		
 		redirectConfig.getTuples().forEach(t -> {
@@ -58,20 +52,15 @@ public class ClientMessageDigestActor extends AbstractActor {
 
 	@Override
 	public Receive createReceive() {
-		
 		checkConfigPresent();
 		
 		final ReceiveBuilder builder = receiveBuilder();
-		
-		redirectConfig.getTuples().forEach(t -> {
-			t.apply(builder);
-		});
-		
+		redirectConfig.getTuples().forEach(t -> t.apply(builder));
 		return builder.build();
 	}
 	
 	private void checkConfigPresent() {
-		if(redirectConfig.isConfigured == false) {
+		if(!redirectConfig.isConfigured) {
 			throw new IllegalStateException("setMessageHandler was not called in the childs ctor!");
 		}
 	}

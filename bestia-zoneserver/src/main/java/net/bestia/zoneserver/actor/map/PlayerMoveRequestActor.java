@@ -10,7 +10,7 @@ import akka.actor.AbstractActor;
 import net.bestia.entity.EntityService;
 import net.bestia.entity.component.MoveComponent;
 import net.bestia.messages.entity.EntityMoveRequestMessage;
-import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
 
 /**
  * Incoming player requests to move a bestia must be send towards the actor of

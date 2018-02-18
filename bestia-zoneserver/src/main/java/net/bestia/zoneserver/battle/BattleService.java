@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
+import net.bestia.zoneserver.entity.EntitySearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,16 +52,19 @@ public class BattleService {
 
 	private final AttackDAO atkDao;
 	private final EntityService entityService;
+	private final EntitySearchService entitySearchService;
 	private final MapService mapService;
 	private final DamageCalculator damageCalculator;
 
 	@Autowired
 	public BattleService(
 			EntityService entityService,
+			EntitySearchService entitySearchService,
 			MapService mapService,
 			AttackDAO atkDao) {
 
 		this.entityService = Objects.requireNonNull(entityService);
+		this.entitySearchService = Objects.requireNonNull(entitySearchService);
 		this.mapService = Objects.requireNonNull(mapService);
 		this.atkDao = Objects.requireNonNull(atkDao);
 		this.damageCalculator = new DamageCalculator();
@@ -68,10 +72,7 @@ public class BattleService {
 
 	/**
 	 * Attacks itself.
-	 * 
-	 * @param atkMsg
-	 * @param usedAttack
-	 * @param pbe
+	 *
 	 */
 	public void attackSelf(AttackUseMessage atkMsg, Attack usedAttack, Entity pbe) {
 		// FIXME Reparieren.
@@ -82,9 +83,7 @@ public class BattleService {
 	 * Performs an attack/skill against a ground target. This will usually spawn
 	 * an entity doing AOE damage over time but pre-attack checks have to be
 	 * made as well.
-	 * 
-	 * @param atkId
-	 * @param attackerId
+	 *
 	 * @param target
 	 *            Point to attack.
 	 */
@@ -369,7 +368,7 @@ public class BattleService {
 
 		final boolean doesMapBlock = lineOfSight.stream().anyMatch(map::blocksSight);
 
-		final Set<Entity> blockingEntities = entityService.getCollidingEntities(bbox);
+		final Set<Entity> blockingEntities = entitySearchService.getCollidingEntities(bbox);
 		final boolean doesEntityBlock = blockingEntities.stream().anyMatch(entity -> {
 			final Optional<PositionComponent> pos = entityService.getComponent(entity, PositionComponent.class);
 

@@ -14,7 +14,7 @@ import net.bestia.messages.inventory.InventoryListRequestMessage;
 import net.bestia.model.dao.GuildDAO;
 import net.bestia.zoneserver.actor.SpringExtension;
 import net.bestia.zoneserver.actor.zone.SendClientActor;
-import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
 import net.bestia.zoneserver.guild.GuildService;
 
 /**

@@ -212,7 +212,7 @@ public class ScriptApiFacade implements ScriptApi {
 		}
 
 		final ChatMessage chatMsg = new ChatMessage(accId, playerEntityId, message, mode);
-		akkaApi.sendToClient(chatMsg);
+		akkaApi.sendToClient(accId, chatMsg);
 	}
 
 	@Override

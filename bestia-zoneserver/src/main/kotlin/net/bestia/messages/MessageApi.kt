@@ -1,5 +1,7 @@
 package net.bestia.messages
 
+import akka.actor.ActorRef
+
 /**
  * This is the central interface for any external component like services or
  * components to interact with the akka system.
@@ -11,21 +13,22 @@ interface MessageApi {
   /**
    * The message is send towards the client.
    *
-   * @param message
-   * The message to be send to the client.
+   * @param message The message to be send to the client.
    */
-  fun sendToClient(message: JsonMessage)
+  fun sendToClient(clientAccountId: Long, message: JsonMessage)
 
   /**
    * Sends the message to all active player bestias in update range. The given
    * message must refer to an entity source which has a attached. Otherwise the message origin position
    * can not be determined and thus no updates send to players.
    *
-   * @param message
-   * The message to send to all active players inside the update
+   * @param entityIdWithPosition The entity will be used as starting point to
+   * determine all receiving entities. It therefore must have an position
+   * component attached.
+   * @param message The message to send to all active players inside the update
    * range.
    */
-  fun sendToActiveClientsInRange(message: EntityJsonMessage)
+  fun sendToActiveClientsInRange(entityIdWithPosition: Long, message: JsonMessage)
 
   /**
    * Sends a message directly to the entity actor managing a single entity
@@ -33,6 +36,10 @@ interface MessageApi {
    *
    * @param message The message is directed towards an actor managing the entity.
    */
-  @Deprecated("This should not be necessairy with the component actors.")
-  fun sendToEntity(message: EntityMessage)
+  fun sendToEntity(entityId: Long, message: Any)
+
+  /**
+   * Sets the central post message router for message digestion.
+   */
+  fun setPostmaster(postmaster: ActorRef)
 }

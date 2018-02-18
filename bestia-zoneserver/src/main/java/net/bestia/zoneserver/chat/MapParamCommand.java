@@ -61,12 +61,12 @@ public class MapParamCommand extends BaseChatCommand {
 		if(mapParam == null) {
 			LOG.warn("No map parameter found inside database.");
 			final ChatMessage msg = ChatMessage.getSystemMessage(account.getId(), "No map info found in database.");
-			akkaApi.sendToClient(msg);
+			akkaApi.sendToClient(account.getId(), msg);
 			return;
 		}
 		
 		final ChatMessage msg = ChatMessage.getSystemMessage(account.getId(), mapParam.toDetailString());
-		akkaApi.sendToClient(msg);
+		akkaApi.sendToClient(account.getId(), msg);
 	}
 
 	@Override

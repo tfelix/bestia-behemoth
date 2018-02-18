@@ -33,9 +33,7 @@ abstract class BaseChatCommand implements ChatCommand {
 	 *            The account id to send the text to.
 	 */
 	protected void sendSystemMessage(long accId, String text) {
-
 		final ChatMessage replyMsg = ChatMessage.getSystemMessage(accId, text);
-		akkaApi.sendToClient(replyMsg);
-
+		akkaApi.sendToClient(accId, replyMsg);
 	}
 }

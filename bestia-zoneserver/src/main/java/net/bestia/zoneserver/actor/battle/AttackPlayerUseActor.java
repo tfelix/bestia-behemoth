@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import akka.actor.AbstractActor;
 import net.bestia.entity.Entity;
 import net.bestia.messages.attack.AttackUseMessage;
-import net.bestia.zoneserver.actor.zone.ClientMessageHandlerActor.RedirectMessage;
+import net.bestia.zoneserver.actor.zone.ClientMessageActor.RedirectMessage;
 import net.bestia.zoneserver.entity.PlayerEntityService;
 
 /**

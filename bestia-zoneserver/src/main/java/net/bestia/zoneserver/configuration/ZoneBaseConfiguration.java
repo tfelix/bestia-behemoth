@@ -43,9 +43,7 @@ public class ZoneBaseConfiguration {
 
 	@Bean
 	@Primary
-	public EntityCache entityRecycler(
-			StaticConfigService config,
-			List<BaseComponentInterceptor<? extends Component>> recyclers) {
-		return new EntityCache(config.getEntityBufferSize(), recyclers);
+	public EntityCache entityRecycler(StaticConfigService config) {
+		return new EntityCache(config.getEntityBufferSize());
 	}
 }

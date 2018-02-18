@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import net.bestia.messages.EntityInternalMessage;
 import net.bestia.model.geometry.Point;
 
 /**
@@ -16,15 +15,11 @@ import net.bestia.model.geometry.Point;
  * @author Thomas Felix
  *
  */
-public class EntityMoveMessage extends EntityInternalMessage {
-
-	private static final long serialVersionUID = 1L;
+public class EntityMoveMessage {
 
 	private final List<Point> path;
 
-	public EntityMoveMessage(long entityId, List<Point> path) {
-		super(entityId);
-		
+	public EntityMoveMessage(List<Point> path) {
 		this.path = Collections.unmodifiableList(new ArrayList<>(path));
 	}
 
@@ -34,6 +29,6 @@ public class EntityMoveMessage extends EntityInternalMessage {
 
 	@Override
 	public String toString() {
-		return String.format("EntityMoveInternalMessage[eeid: %d, path: %s]", getEntityId(), path.toString());
+		return String.format("EntityMoveInternalMessage[path: %s]", path.toString());
 	}
 }

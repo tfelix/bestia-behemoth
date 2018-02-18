@@ -1,17 +1,15 @@
 package net.bestia.zoneserver.actor.zone;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.cluster.sharding.ClusterSharding;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import net.bestia.messages.AccountMessage;
-import net.bestia.messages.FromClient;
+import net.bestia.messages.ClientFromMessageEnvelope;
 import net.bestia.server.EntryActorNames;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 /**
  * Central influx point for web clients. The incoming messages are resend
@@ -34,14 +32,14 @@ public class WebIngestActor extends AbstractActor {
 	public WebIngestActor() {
 
 		final ClusterSharding sharding = ClusterSharding.get(context().system());
-		this.clients = sharding.shardRegion(EntryActorNames.INSTANCE.getSHARD_CONNECTION());
+		this.clients = sharding.shardRegion(EntryActorNames.SHARD_CONNECTION);
 	}
 
 	@Override
 	public Receive createReceive() {
-		return receiveBuilder().match(AccountMessage.class, msg -> {
+		return receiveBuilder().match(ClientFromMessageEnvelope.class, msg -> {
 			LOG.debug("Received message from remote: {}", msg);
-			clients.tell(new FromClient(msg), getSender());
+			clients.tell(msg, getSender());
 		}).build();
 	}
 }

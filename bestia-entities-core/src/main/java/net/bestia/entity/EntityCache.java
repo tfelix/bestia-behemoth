@@ -27,7 +27,7 @@ public class EntityCache {
 	private final Queue<Entity> entities = new LinkedList<>();
 	private final Map<String, Queue<Component>> components = new HashMap<>();
 
-	public EntityCache(int maxCachedInstances, List<Interceptor> interceptors) {
+	public EntityCache(int maxCachedInstances) {
 
 		if (maxCachedInstances < 0) {
 			throw new IllegalArgumentException("MaxCachedInstances must be positive.");
@@ -36,11 +36,9 @@ public class EntityCache {
 		this.maxCachedInstances = maxCachedInstances;
 	}
 
-	@Autowired
-	public EntityCache(List<Interceptor> interceptors) {
-		this(DEFAULT_MAX_CACHED_INSTANCES, interceptors);
+	public EntityCache() {
+		this(DEFAULT_MAX_CACHED_INSTANCES);
 	}
-
 
 	/**
 	 * Saves the component for later reuse. Null components can be given since
@@ -117,6 +115,5 @@ public class EntityCache {
 		} else {
 			return null;
 		}
-
 	}
 }

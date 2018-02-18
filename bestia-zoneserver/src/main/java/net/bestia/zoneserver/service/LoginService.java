@@ -149,7 +149,7 @@ public class LoginService {
 		// Depending on the logout state the actor might have already been
 		// stopped.
 		final LogoutMessage logoutMsg = new LogoutMessage(accId);
-		akkaApi.sendToClient(logoutMsg);
+		akkaApi.sendToClient(accId, logoutMsg);
 
 		final Set<Entity> playerEntities = playerEntityService.getPlayerEntities(accId);
 

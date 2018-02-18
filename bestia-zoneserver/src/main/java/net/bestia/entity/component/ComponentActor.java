@@ -25,7 +25,7 @@ public @interface ComponentActor {
 
 	/**
 	 * This flag determines if an instanced actor will actively updates
-	 * that an component has changed via a ComponentUpdateMessage which holds
+	 * that an component has changed via a {@link net.bestia.messages.ComponentChangedMessage} which holds
 	 * the component id which has changed.
 	 */
 	boolean updateActorOnChange() default false;

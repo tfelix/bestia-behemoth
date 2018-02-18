@@ -65,15 +65,13 @@ public class PlayerComponentInterceptor extends BaseComponentInterceptor<PlayerC
 		final PlayerComponentMessage msg = new PlayerComponentMessage(pbid,
 				playerBestia.getOrigin().getDatabaseName(),
 				playerBestia.getName());
-		final EntityComponentEnvelope ece = EntityComponentEnvelope.forPayload(comp.getOwnerAccountId(), entity.getId(),
-				EntityComponentEnvelope.componentName(PlayerComponent.class), msg);
-		msgApi.sendToClient(ece);
+		msgApi.sendToClient(comp.getOwnerAccountId(), msg);
 	}
 
 	@Override
 	protected void onDeleteAction(EntityService entityService, Entity entity, PlayerComponent comp) {
 
-		LOG.debug("intercept onCreate: PlayerComponent.");
+		LOG.debug("intercept onDelete: PlayerComponent.");
 
 		final long pbid = comp.getPlayerBestiaId();
 		final PlayerBestia playerBestia = playerBestiaDao.findOne(pbid);
@@ -90,7 +88,7 @@ public class PlayerComponentInterceptor extends BaseComponentInterceptor<PlayerC
 		EntityComponentDeleteMessage ecdm = new EntityComponentDeleteMessage(comp.getOwnerAccountId(), 
 				entity.getId(),
 				comp.getId());
-		msgApi.sendToClient(ecdm);
+		msgApi.sendToClient(comp.getOwnerAccountId(), ecdm);
 	}
 
 }

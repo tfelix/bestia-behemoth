@@ -5,7 +5,6 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.IdGenerator;
 import net.bestia.entity.component.Component;
 import net.bestia.entity.component.interceptor.Interceptor;
-import net.bestia.model.geometry.CollisionShape;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +26,10 @@ public class EntityService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(EntityService.class);
 
-	private final static String ECS_ENTITY_MAP = "entities";
-	private final static String ENTITIES_ID_GEN = "entities.id";
-	private static final String COMP_MAP = "components";
-	private static final String COMP_ID_GEN = "components.id";
+	public final static String ECS_ENTITY_MAP_KEY = "entities";
+	private final static String ENTITIES_ID_GEN_KEY = "entities.id";
+	private static final String COMP_MAP_KEY = "components";
+	private static final String COMP_ID_GEN_KEY = "components.id";
 
 	private final IMap<Long, Entity> entities;
 	private final IdGenerator entityIdGen;
@@ -47,10 +46,10 @@ public class EntityService {
 
 		Objects.requireNonNull(hz);
 
-		this.entityIdGen = hz.getIdGenerator(ENTITIES_ID_GEN);
-		this.entities = hz.getMap(ECS_ENTITY_MAP);
-		this.idGenerator = hz.getIdGenerator(COMP_ID_GEN);
-		this.components = Objects.requireNonNull(hz).getMap(COMP_MAP);
+		this.entityIdGen = hz.getIdGenerator(ENTITIES_ID_GEN_KEY);
+		this.entities = hz.getMap(ECS_ENTITY_MAP_KEY);
+		this.idGenerator = hz.getIdGenerator(COMP_ID_GEN_KEY);
+		this.components = Objects.requireNonNull(hz).getMap(COMP_MAP_KEY);
 
 		this.interceptor = Objects.requireNonNull(interceptor);
 		this.cache = Objects.requireNonNull(cache);
@@ -170,61 +169,6 @@ public class EntityService {
 	public Map<Long, Entity> getAllEntities(Set<Long> ids) {
 		return entities.getAll(ids);
 	}
-
-	/**
-	 * Returns all entities which are currently colliding with the given entity.
-	 * The entity to check for collisions must implement the position component.
-	 * Also only entities implementing position components can be checked
-	 * against collision. If the entity does not have a
-	 * {@link PositionComponent} an empty set will be returned.
-	 * <p>
-	 * This is basically a shortcut for a rather frequently called operation for
-	 * scripts to get entities colliding with script entities. It is similar to
-	 * {@link #getCollidingEntities(CollisionShape)}.
-	 *
-	 * @return All entities colliding with this entity.
-	 */
-	/*
-	public Set<Entity> getCollidingEntities(Entity entity) {
-		LOG.trace("Finding all colliding entities for: {}.", entity);
-
-		final Optional<PositionComponent> posComp = getComponent(entity, PositionComponent.class);
-
-		if (!posComp.isPresent()) {
-			return Collections.emptySet();
-		}
-
-		final CollisionShape shape = posComp.get().getShape();
-		Set<Entity> collidingEntities = getCollidingEntities(shape);
-
-		LOG.trace("Found colliding entities: {}.", collidingEntities);
-
-		return collidingEntities;
-	}*/
-
-	/**
-	 * Returns all the entities which are in range. The detected collision
-	 * entities will have a {@link PositionComponent} for sure. Other components
-	 * are optional.
-	 *
-	 * @param area The area in which the looked up entities lie.
-	 * @return All entities contained in the area.
-	 */
-	/*
-	public Set<Entity> getCollidingEntities(CollisionShape area) {
-
-		final Set<Entity> colliders = new HashSet<>();
-
-		entities.forEach((id, entity) -> getComponent(entity, PositionComponent.class)
-				.ifPresent(posComp -> {
-					if (posComp.getShape().collide(area)) {
-						colliders.add(entity);
-					}
-				}));
-
-		return colliders;
-	}
-	*/
 
 	/**
 	 * Creates a new component which can be used with an entity. The component
@@ -429,7 +373,7 @@ public class EntityService {
 	/**
 	 * Alias for {@link #deleteComponent(Entity, Component)}.
 	 */
-	public void deleteComponent(long entityId, Class<Component> clazz) {
+	public void deleteComponent(long entityId, Class<? extends Component> clazz) {
 		getComponent(entityId, clazz)
 				.ifPresent(c -> deleteComponent(getEntity(entityId), c));
 	}

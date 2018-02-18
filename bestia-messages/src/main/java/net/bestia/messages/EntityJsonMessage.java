@@ -15,11 +15,6 @@ public abstract class EntityJsonMessage extends JsonMessage implements EntityMes
 	@JsonProperty("eid")
 	private long entityId;
 	
-	/**
-	 * 
-	 * @param accId
-	 * @param entityId
-	 */
 	public EntityJsonMessage(long accId, long entityId) {
 		super(accId);
 		

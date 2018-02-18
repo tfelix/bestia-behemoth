@@ -11,7 +11,7 @@ import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Cancellable;
 import akka.actor.PoisonPill;
-import net.bestia.messages.misc.PingMessage;
+import net.bestia.messages.client.PingMessage;
 import net.bestia.zoneserver.service.LatencyService;
 import scala.concurrent.duration.Duration;
 

@@ -7,7 +7,12 @@ package net.bestia.server
  * @author Thomas Felix
  */
 object EntryActorNames {
+  @JvmField
   val ENTITY_MANAGER = "entity"
+
+  @JvmField
   val SHARD_ENTITY = "entityShard"
+
+  @JvmField
   val SHARD_CONNECTION = "connectionShard"
 }

@@ -2,6 +2,7 @@ package net.bestia.zoneserver.actor.zone;
 
 import java.util.Objects;
 
+import net.bestia.messages.component.LatencyInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -39,7 +40,7 @@ public class SendClientActor extends AbstractActor {
 
 	@Override
 	public void preStart() throws Exception {
-		clientConnection = ClusterSharding.get(getContext().getSystem()).shardRegion(EntryActorNames.INSTANCE.getSHARD_CONNECTION());
+		clientConnection = ClusterSharding.get(getContext().getSystem()).shardRegion(EntryActorNames.SHARD_CONNECTION);
 	}
 
 	@Override
@@ -53,12 +54,12 @@ public class SendClientActor extends AbstractActor {
 
 		LOG.debug("Sending to client: {}", msg);
 
-		if (msg instanceof EntityComponentEnvelope) {
+		if (msg instanceof LatencyInfo) {
 			// If its a component message include the client latency in the
 			// message because the clients might need this for animation
 			// critical data.
 			final int latency = latencyService.getClientLatency(msg.getAccountId());
-			clientConnection.tell(((EntityComponentEnvelope) msg).createNewInstance(msg.getAccountId(), latency), getSender());
+			clientConnection.tell(((LatencyInfo) msg).createNewInstance(msg.getAccountId(), latency), getSender());
 		} else {
 			clientConnection.tell(msg, getSender());
 		}

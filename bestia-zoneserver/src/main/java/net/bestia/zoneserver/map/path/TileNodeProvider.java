@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import net.bestia.zoneserver.entity.EntitySearchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,7 @@ public class TileNodeProvider implements NodeProvider<Point> {
 
 	private final Map gameMap;
 	private final EntityService entityService;
+	private final EntitySearchService entitySearchService;
 
 	/**
 	 * Turns an Optional<T> into a Stream<T> of length zero or one depending
@@ -42,17 +44,16 @@ public class TileNodeProvider implements NodeProvider<Point> {
 	 * See
 	 * https://stackoverflow.com/questions/22725537/using-java-8s-optional-with-streamflatmap
 	 */
+  @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 	private static <T> Stream<T> streamopt(Optional<T> opt) {
-		if (opt.isPresent())
-			return Stream.of(opt.get());
-		else
-			return Stream.empty();
+    return opt.map(Stream::of).orElseGet(Stream::empty);
 	}
 
-	public TileNodeProvider(Map gameMap, EntityService entityService) {
+	public TileNodeProvider(Map gameMap,EntityService entityService, EntitySearchService entitySearchService) {
 
 		this.gameMap = Objects.requireNonNull(gameMap);
 		this.entityService = Objects.requireNonNull(entityService);
+		this.entitySearchService = Objects.requireNonNull(entitySearchService);
 	}
 
 	@Override
@@ -164,11 +165,11 @@ public class TileNodeProvider implements NodeProvider<Point> {
 	 */
 	private boolean isEntityWalkable(long x, long y) {
 		final Point position = new Point(x, y);
-		final Set<Entity> entities = entityService.getCollidingEntities(position);
+		final Set<Entity> entities = entitySearchService.getCollidingEntities(position);
 
 		final boolean blocked = entities.stream()
 				.map(e -> entityService.getComponent(e, PositionComponent.class))
-				.flatMap(t -> streamopt(t))
+				.flatMap(TileNodeProvider::streamopt)
 				.anyMatch(pos -> pos.getShape().collide(position));
 
 		return !blocked;
