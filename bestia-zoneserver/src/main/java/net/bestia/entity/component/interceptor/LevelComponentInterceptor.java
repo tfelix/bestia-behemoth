@@ -46,7 +46,7 @@ public class LevelComponentInterceptor extends BaseComponentInterceptor<LevelCom
 
 	private void updateClientsWithLevel(EntityService entityService, Entity entity, LevelComponent comp) {
 		final long ownerAccId = entityService.getComponent(entity, PlayerComponent.class)
-				.map(pc -> pc.getOwnerAccountId())
+				.map(PlayerComponent::getOwnerAccountId)
 				.orElse(0L);
 
 		final LevelComponentMessage lcm = new LevelComponentMessage(comp.getLevel());

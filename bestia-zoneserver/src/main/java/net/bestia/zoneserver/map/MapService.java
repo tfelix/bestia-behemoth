@@ -77,12 +77,11 @@ public class MapService {
 	 * @return The viewable rect.
 	 */
 	public static Rect getViewRect(Point pos) {
-		final Rect viewArea = new Rect(
+		return new Rect(
 				pos.getX() - SIGHT_RANGE_TILES,
 				pos.getY() - SIGHT_RANGE_TILES,
 				pos.getX() + SIGHT_RANGE_TILES,
 				pos.getY() + SIGHT_RANGE_TILES);
-		return viewArea;
 	}
 
 	/**
@@ -94,12 +93,11 @@ public class MapService {
 	 * @return The viewable rect.
 	 */
 	public static Rect getUpdateRect(Point pos) {
-		final Rect viewArea = new Rect(
+		return new Rect(
 				pos.getX() - SIGHT_RANGE_TILES * 2,
 				pos.getY() - SIGHT_RANGE_TILES * 2,
 				pos.getX() + SIGHT_RANGE_TILES * 2,
 				pos.getY() + SIGHT_RANGE_TILES * 2);
-		return viewArea;
 	}
 
 	/**
@@ -121,10 +119,8 @@ public class MapService {
 		final double maxD = Math.ceil(Math.sqrt(2 * (SIGHT_RANGE_TILES * SIGHT_RANGE_TILES)));
 
 		final boolean isTooFar = chunks.stream()
-				.map(p -> MapChunk.getWorldCords(p))
-				.filter(wp -> wp.getDistance(pos) > maxD)
-				.findAny()
-				.isPresent();
+				.map(MapChunk::getWorldCords)
+				.anyMatch(wp -> wp.getDistance(pos) > maxD);
 
 		return !isTooFar;
 	}
@@ -143,8 +139,8 @@ public class MapService {
 	 * Retrieves and generates the map. It has the dimensions of the given
 	 * coordinates and contains all layers and tilemap data.
 	 * 
-	 * @param x
-	 * @param y
+	 * @param startX
+	 * @param startY
 	 * @param width
 	 * @param height
 	 * @return A {@link Map} containig the enclosed data.
@@ -237,12 +233,9 @@ public class MapService {
 
 	/**
 	 * Saved the given {@link MapDataDTO} to the database for later retrieval.
-	 * 
-	 * @param dto
-	 * @throws IOException
+	 *
 	 */
 	public void saveMapData(MapDataDTO dto) {
-
 		Objects.requireNonNull(dto);
 
 		try {
@@ -317,9 +310,6 @@ public class MapService {
 	/**
 	 * A list of chunk coordinates must be given and the method will return all
 	 * chunks of map data for the given coordinates.
-	 * 
-	 * @param chunkCords
-	 * @return
 	 */
 	public List<MapChunk> getChunks(List<Point> chunkCords) {
 		Objects.requireNonNull(chunkCords);

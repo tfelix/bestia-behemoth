@@ -95,7 +95,7 @@ public class LoginServiceTest {
 	public void setup() {
 
 		when(userAccount.getName()).thenReturn(ACC_NAME);
-		// when(gmAccount.getName()).thenReturn(ACC_NAME);
+		// when(gmAccount.getScriptName()).thenReturn(ACC_NAME);
 
 		when(password.matches(INVALID_PASSWORD)).thenReturn(false);
 		when(password.matches(VALID_PASSWORD)).thenReturn(true);

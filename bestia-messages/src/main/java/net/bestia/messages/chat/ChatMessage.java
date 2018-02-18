@@ -90,7 +90,7 @@ public class ChatMessage extends EntityJsonMessage {
 	/**
 	 * Creates a new chat message in the mode as a system message.
 	 * 
-	 * @param account
+	 * @param accId
 	 *            A account to receive the message.
 	 * @param text
 	 *            A text to send to the client.

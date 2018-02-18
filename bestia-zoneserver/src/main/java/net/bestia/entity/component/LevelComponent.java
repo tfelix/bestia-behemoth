@@ -29,7 +29,7 @@ public class LevelComponent extends Component {
 		return level;
 	}
 
-	void setLevel(int level) {
+	public void setLevel(int level) {
 
 		if (level <= 0) {
 			level = 1;
@@ -42,7 +42,7 @@ public class LevelComponent extends Component {
 		return exp;
 	}
 
-	void setExp(int exp) {
+	public void setExp(int exp) {
 
 		if (exp < 0) {
 			exp = 0;

@@ -179,7 +179,7 @@ public class MapGeneratorMasterActor extends AbstractActor {
 		availableNodes.clear();
 		currentLookupIdent = ThreadLocalRandom.current().nextInt();
 		final ActorSelection selection = context()
-				.actorSelection(AkkaCluster.getNodeName(MapGeneratorClientActor.NAME));
+				.actorSelection(AkkaCluster.INSTANCE.getNodeName(MapGeneratorClientActor.NAME));
 		selection.tell(new Identify(currentLookupIdent), getSelf());
 
 		// Wait three seconds until generation starts.

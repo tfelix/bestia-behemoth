@@ -17,172 +17,178 @@ import java.util.Optional;
 @ComponentSync(SyncType.OWNER)
 public class InventoryComponent extends Component {
 
-	/**
-	 * Constant for meaning that the item count is basically not limited.
-	 */
-	public static final int UNLIMITED_ITEMS = -1;
-	private static final long serialVersionUID = 1L;
+  /**
+   * Constant for meaning that the item count is basically not limited.
+   */
+  public static final int UNLIMITED_ITEMS = -1;
+  private static final long serialVersionUID = 1L;
 
-	private float maxWeight;
-	private int maxItemCount;
+  private float maxWeight;
+  private int maxItemCount;
 
-	private List<ItemCount> items = new ArrayList<>();
+  private final List<ItemCount> items = new ArrayList<>();
 
-	public InventoryComponent(long id) {
-		super(id);
+  public InventoryComponent(long id) {
+    super(id);
 
-		maxWeight = 0;
-		maxItemCount = UNLIMITED_ITEMS;
-	}
+    clear();
+  }
 
-	/**
-	 * Gives the maximum carryable weight of this entity. It is pos. infinite if
-	 * its unlimited.
-	 *
-	 * @return The maximum item weight.
-	 */
-	public float getMaxWeight() {
-		return maxWeight;
-	}
+  @Override
+  public void clear() {
+    items.clear();
+    maxItemCount = UNLIMITED_ITEMS;
+    maxWeight = 0;
+  }
 
-	/**
-	 * Sets the maximum weight this entity can carry.
-	 *
-	 * @param maxWeight The maximum weight in units. One unit is 0.1kg.
-	 */
-	void setMaxWeight(int maxWeight) {
-		if (maxWeight < 0) {
-			throw new IllegalArgumentException("MaxWeight can not be negative.");
-		}
+  /**
+   * Gives the maximum carryable weight of this entity. It is pos. infinite if
+   * its unlimited.
+   *
+   * @return The maximum item weight.
+   */
+  public float getMaxWeight() {
+    return maxWeight;
+  }
 
-		this.maxWeight = maxWeight;
-	}
+  /**
+   * Sets the maximum weight this entity can carry.
+   *
+   * @param maxWeight The maximum weight in units. One unit is 0.1kg.
+   */
+  public void setMaxWeight(int maxWeight) {
+    if (maxWeight < 0) {
+      throw new IllegalArgumentException("MaxWeight can not be negative.");
+    }
 
-	/**
-	 * The current item weight in kg. The item weight per item is saved as 0.1kg
-	 * per unit.
-	 *
-	 * @return Current item weight.
-	 */
-	public float getWeight() {
-		return items.stream()
-				.mapToInt(x -> x.amount * x.item.getWeight())
-				.sum() / 10f;
-	}
+    this.maxWeight = maxWeight;
+  }
 
-	/**
-	 * The maximum number of items for this unit. Or -1 of its unlimited.
-	 *
-	 * @return The maximum item count. -1 if unlimited.
-	 */
-	public int getMaxItemCount() {
-		return maxItemCount;
-	}
+  /**
+   * The current item weight in kg. The item weight per item is saved as 0.1kg
+   * per unit.
+   *
+   * @return Current item weight.
+   */
+  public float getWeight() {
+    return items.stream()
+            .mapToInt(x -> x.amount * x.item.getWeight())
+            .sum() / 10f;
+  }
 
-	public void setMaxItemCount(int maxItemCount) {
-		this.maxItemCount = maxItemCount;
-	}
+  /**
+   * The maximum number of items for this unit. Or -1 of its unlimited.
+   *
+   * @return The maximum item count. -1 if unlimited.
+   */
+  public int getMaxItemCount() {
+    return maxItemCount;
+  }
 
-	/**
-	 * The current number of item (slots) stored in this entity.
-	 *
-	 * @return Current number of item slots stored in this entity.
-	 */
-	public int getItemCount() {
-		return items.size();
-	}
+  public void setMaxItemCount(int maxItemCount) {
+    this.maxItemCount = maxItemCount;
+  }
 
-	/**
-	 * Adds the new item to the inventory. But this will work only if the number
-	 * of item slots are not exceeded and the total amount of weight does not be
-	 * bigger as the maximum amount of weight.
-	 *
-	 * @param item   The item to be added.
-	 * @param amount The amount of the item to be added to the inventory.
-	 * @return TRUE if the item has been added to the inventory. FALSE
-	 * otherwise.
-	 */
-	public boolean addItem(Item item, int amount) {
-		// Check count.
-		if (getItemCount() + 1 > getMaxItemCount()) {
-			return false;
-		}
+  /**
+   * The current number of item (slots) stored in this entity.
+   *
+   * @return Current number of item slots stored in this entity.
+   */
+  public int getItemCount() {
+    return items.size();
+  }
 
-		// Check weight.
-		if (item.getWeight() / .1f + getWeight() > getMaxWeight()) {
-			return false;
-		}
+  /**
+   * Adds the new item to the inventory. But this will work only if the number
+   * of item slots are not exceeded and the total amount of weight does not be
+   * bigger as the maximum amount of weight.
+   *
+   * @param item   The item to be added.
+   * @param amount The amount of the item to be added to the inventory.
+   * @return TRUE if the item has been added to the inventory. FALSE
+   * otherwise.
+   */
+  public boolean addItem(Item item, int amount) {
+    // Check count.
+    if (getItemCount() + 1 > getMaxItemCount()) {
+      return false;
+    }
 
-		items.add(new ItemCount(item, amount));
-		return true;
-	}
+    // Check weight.
+    if (item.getWeight() / .1f + getWeight() > getMaxWeight()) {
+      return false;
+    }
 
-	/**
-	 * Removes the item from the inventory. It returns true only if the item
-	 * could be successfully be removed.
-	 *
-	 * @param item
-	 * @param amount
-	 * @return
-	 */
-	public boolean removeItem(Item item, int amount) {
-		Optional<ItemCount> inventoryItem = items.stream()
-				.filter(x -> x.item.getId() == item.getId())
-				.findFirst();
-		if (inventoryItem.isPresent()) {
+    items.add(new ItemCount(item, amount));
+    return true;
+  }
 
-			ItemCount ic = inventoryItem.get();
+  /**
+   * Removes the item from the inventory. It returns true only if the item
+   * could be successfully be removed.
+   *
+   * @param item
+   * @param amount
+   * @return
+   */
+  public boolean removeItem(Item item, int amount) {
+    Optional<ItemCount> inventoryItem = items.stream()
+            .filter(x -> x.item.getId() == item.getId())
+            .findFirst();
+    if (inventoryItem.isPresent()) {
 
-			if (ic.amount > amount) {
-				ic.amount -= amount;
-				return true;
-			} else if (ic.amount == amount) {
-				items.remove(ic);
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
-	}
+      ItemCount ic = inventoryItem.get();
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(items, maxItemCount, maxWeight);
-	}
+      if (ic.amount > amount) {
+        ic.amount -= amount;
+        return true;
+      } else if (ic.amount == amount) {
+        items.remove(ic);
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!super.equals(obj)) {
-			return false;
-		}
-		if (!(obj instanceof InventoryComponent)) {
-			return false;
-		}
-		final InventoryComponent other = (InventoryComponent) obj;
-		return Objects.equals(items, other.items)
-				&& Objects.equals(maxItemCount, other.maxItemCount)
-				&& Objects.equals(maxWeight, other.maxWeight);
-	}
+  @Override
+  public int hashCode() {
+    return Objects.hash(items, maxItemCount, maxWeight);
+  }
 
-	@Override
-	public String toString() {
-		return String.format("InventoryComp[maxWeight: %.1f, items: %d/%d]", getMaxWeight(), items.size(),
-				getMaxItemCount());
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof InventoryComponent)) {
+      return false;
+    }
+    final InventoryComponent other = (InventoryComponent) obj;
+    return Objects.equals(items, other.items)
+            && Objects.equals(maxItemCount, other.maxItemCount)
+            && Objects.equals(maxWeight, other.maxWeight);
+  }
 
-	private static class ItemCount {
-		public int amount;
-		public Item item;
+  @Override
+  public String toString() {
+    return String.format("InventoryComp[maxWeight: %.1f, items: %d/%d]", getMaxWeight(), items.size(),
+            getMaxItemCount());
+  }
 
-		public ItemCount(Item item, int amount) {
+  private static class ItemCount {
+    public int amount;
+    public Item item;
 
-			this.amount = amount;
-			this.item = item;
-		}
-	}
+    public ItemCount(Item item, int amount) {
+
+      this.amount = amount;
+      this.item = item;
+    }
+  }
 }

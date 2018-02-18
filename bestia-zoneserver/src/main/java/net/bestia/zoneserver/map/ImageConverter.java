@@ -90,12 +90,4 @@ public class ImageConverter {
 		final int rgb = b & 0xFF;
 		return rgb;
 	}
-
-	
-	/*
-	 * Scale image:
-	 * Image scaled = sourceImage.getScaledInstance(-1, height, Image.SCALE_SMOOTH);
-  BufferedImage bufferedScaled = new BufferedImage(scaled.getWidth(null),  scaled.getHeight(null), BufferedImage.TYPE_INT_RGB);
-  bufferedScaled.getGraphics().drawImage(scaled, 0, 0, null);
-  */
 }

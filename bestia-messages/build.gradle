@@ -1,5 +1,6 @@
 description = 'bestia-messages'
+
 dependencies {
-    compile project(':bestia-messages-cluster')
-    compile project(':bestia-entities-core')
+  compile project(':bestia-models')
+  compile group: 'com.typesafe.akka', name: 'akka-actor_2.12', version: '2.5.6'
 }

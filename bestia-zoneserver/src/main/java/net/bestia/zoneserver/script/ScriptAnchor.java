@@ -22,7 +22,7 @@ class ScriptAnchor {
 		return new ScriptAnchor(token[0], token[1]);
 	}
 
-	public String getName() {
+	public String getScriptName() {
 		return name;
 	}
 

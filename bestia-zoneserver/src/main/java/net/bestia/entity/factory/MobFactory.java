@@ -2,6 +2,7 @@ package net.bestia.entity.factory;
 
 import java.util.Objects;
 
+import net.bestia.zoneserver.battle.StatusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,6 @@ import net.bestia.entity.component.LevelComponentSetter;
 import net.bestia.entity.component.PositionComponent;
 import net.bestia.entity.component.PositionComponentSetter;
 import net.bestia.entity.component.StatusComponent;
-import net.bestia.entity.component.StatusService;
 import net.bestia.entity.component.TagComponent;
 import net.bestia.entity.component.TagComponent.Tag;
 import net.bestia.entity.component.TagComponentSetter;

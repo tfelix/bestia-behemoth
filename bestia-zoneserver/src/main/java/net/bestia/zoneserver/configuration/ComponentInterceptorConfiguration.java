@@ -27,7 +27,7 @@ public class ComponentInterceptorConfiguration {
 			MessageApi msgApi) {
 
 		final InterceptorComposite interceptor = new InterceptorComposite(interceptors);
-		interceptor.addDefaultInterceptor(new DefaultSyncInterceptor(msgApi));
+		interceptor.addDefaultInterceptor(new ClientComponentSyncInterceptor(msgApi));
 		interceptor.addDefaultInterceptor(new ActorUpdateComponentInterceptor(msgApi));
 
 		return interceptor;

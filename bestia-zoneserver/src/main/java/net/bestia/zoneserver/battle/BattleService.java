@@ -218,8 +218,7 @@ public class BattleService {
 	/**
 	 * Check if the entity is an item entity. For this it must have a
 	 * {@link PositionComponent} and a ItemComponent assigned.
-	 * 
-	 * @param defender
+	 *
 	 * @return TRUE if this is an item entity.
 	 */
 	private boolean isEntityItem(Entity entity) {
@@ -316,13 +315,7 @@ public class BattleService {
 	 * Checks if a given attack is in range for a target position. It is
 	 * important to ask the attached entity scripts as these can alter the
 	 * effective range.
-	 * 
-	 * @param usedAttack
-	 *            The attack beeing used.
-	 * @param attacker
-	 *            The attacker who uses the attack.
-	 * @param defenderPos
-	 *            The target position where the attack is directed.
+	 *
 	 * @return TRUE if the attack is in range. FALSE otherwise.
 	 */
 	private boolean isInRange(BattleContext battleCtx) {
@@ -520,11 +513,11 @@ public class BattleService {
 	/**
 	 * This will perform a check damage for reducing it and alter all possible
 	 * status effects and then apply the damage to the entity. If its health
-	 * sinks below 0 then the {@link #kill()} method will be triggered. It will
+	 * sinks below 0 then the {@link #killEntity(Entity)} method will be triggered. It will
 	 * also trigger any attached script trigger for received damage this is
 	 * onTakeDamage and onApplyDamage.
 	 * 
-	 * @param damage
+	 * @param primaryDamage
 	 *            The damage to apply to this entity.
 	 * @return The actually applied damage.
 	 */
@@ -559,12 +552,12 @@ public class BattleService {
 	 * Entity received damage with not entity as origin. Just plain damage.
 	 * 
 	 * @param defender
-	 * @param primaryDamage
+	 * @param damage
 	 * @return
 	 */
-	public Damage takeDamage(Entity defender, int dmg) {
-		final Damage damage = Damage.getHit(dmg);
-		return takeDamage(null, defender, damage);
+	public Damage takeDamage(Entity defender, int damage) {
+		final Damage dmg = Damage.getHit(damage);
+		return takeDamage(null, defender, dmg);
 	}
 
 	public void killEntity(Entity killed) {
@@ -611,10 +604,6 @@ public class BattleService {
 	/**
 	 * Calculates the effective range of the attack. A skill range can be
 	 * altered by an equipment or a buff for example.
-	 * 
-	 * @param usedAttack
-	 * @param user
-	 * @return
 	 */
 	private int getEffectiveSkillRange(Attack usedAttack, Entity user) {
 		return usedAttack.getRange();
@@ -625,7 +614,7 @@ public class BattleService {
 	 */
 	private Point getPosition(Entity e) {
 		return entityService.getComponent(e, PositionComponent.class)
-				.map(p -> p.getPosition())
+				.map(PositionComponent::getPosition)
 				.orElse(new Point(0, 0));
 	}
 
@@ -634,7 +623,7 @@ public class BattleService {
 	 */
 	private StatusPoints getStatusPoints(Entity e) {
 		return entityService.getComponent(e, StatusComponent.class)
-				.map(c -> c.getStatusPoints())
+				.map(StatusComponent::getStatusPoints)
 				.orElse(new StatusPointsImpl());
 	}
 
@@ -661,7 +650,7 @@ public class BattleService {
 	 */
 	private int getLevel(Entity e) {
 		return entityService.getComponent(e, LevelComponent.class)
-				.map(lv -> lv.getLevel())
+				.map(LevelComponent::getLevel)
 				.orElse(1);
 	}
 }

@@ -35,7 +35,7 @@ public class ScriptConfiguration {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ScriptConfiguration.class);
 
-	@Value("${server.scriptDir}")
+	@Value("${script.path}")
 	private String baseDir;
 
 	@Autowired
@@ -43,25 +43,22 @@ public class ScriptConfiguration {
 
 	@Bean
 	public ScriptCache scriptCache(ScriptCompiler compiler) throws URISyntaxException {
+		final ScriptFileResolver resolver = new ScriptFileResolver(baseDir);
 		final ScriptCache cache = new ScriptCache(compiler, resolver);
 
 		final Path scriptBaseDir;
 
-		if (baseDir.startsWith("classpath:")) {
-			final String base = baseDir.substring(10);
-			URL res = getClass().getClassLoader().getResource(base);
+		final String classPathSuffix = "classpath:";
+		if (baseDir.startsWith(classPathSuffix)) {
+			final String base = baseDir.substring(classPathSuffix.length());
+			final URL res = getClass().getClassLoader().getResource(base);
 			final File classPath = new File(res.toURI());
 			scriptBaseDir = classPath.toPath();
 		} else {
 			scriptBaseDir = Paths.get(baseDir);
 		}
 
-		// Load all the scripts.
-		for (ScriptDir subDir : SCRIPT_SUB_DIRS) {
-			final Path scriptDir = Paths.get(scriptBaseDir.toString(), subDir.subDir);
-			cache.addFolder(scriptDir, subDir.type);
-		}
-
+		cache.cacheFolder(scriptBaseDir);
 		return cache;
 	}
 
@@ -72,7 +69,7 @@ public class ScriptConfiguration {
 	public ScriptEngine scriptEngine(
 			ScriptApi scriptApi,
 			StaticConfigService config
-	) {
+	) throws ScriptException, IOException {
 		final ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
 		
 		LOG.info("Starting script engine: {} (version {}).",
@@ -80,26 +77,19 @@ public class ScriptConfiguration {
 				engine.getFactory().getEngineVersion());
 
 		final Bindings bindings = engine.createBindings();
-
 		bindings.put("SERVER_VERSION", config.getServerVersion());
 		bindings.put("BAPI", scriptApi);
-
 		engine.setBindings(bindings, ScriptContext.GLOBAL_SCOPE);
 
-		ScriptFileResolver resolver = new ScriptFileResolver();
 		final File globScriptApiFile = resolver.getGlobalScriptFile();
-
 		try (FileReader scriptReader = new FileReader(globScriptApiFile)) {
-
 			// Add the helper scripts.
 			engine.eval(scriptReader);
-
 		} catch (ScriptException | IOException e) {
 			LOG.error("Could not compile script.", e);
-			return null;
+			throw e;
 		}
 
 		return engine;
 	}
-
 }

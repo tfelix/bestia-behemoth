@@ -59,7 +59,7 @@ public class ZoneClusterListenerActor extends AbstractActor {
 	}
 	
 	private void handleMemberUp(MemberUp mUp) {
-		if (mUp.member().hasRole(AkkaCluster.ROLE_WEB)) {
+		if (mUp.member().hasRole(AkkaCluster.INSTANCE.getROLE_WEB())) {
 			LOG.info("Webserver is up: {}", mUp.member());
 			
 			webserverMember.add(mUp.member());
@@ -73,7 +73,7 @@ public class ZoneClusterListenerActor extends AbstractActor {
 
 		// If its a webserver we can automatically down it. Since they will
 		// terminate upon disconnection.
-		if (mUnreachable.member().hasRole(AkkaCluster.ROLE_WEB)) {
+		if (mUnreachable.member().hasRole(AkkaCluster.INSTANCE.getROLE_WEB())) {
 			LOG.warning("Member has role WEBSERVER downing it.");
 			cluster.down(mUnreachable.member().address());
 		} else {

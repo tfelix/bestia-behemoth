@@ -16,7 +16,7 @@ public class ScriptResolverTest {
 		Assert.assertEquals(ident1, ident2);
 		Assert.assertEquals(ScriptType.NONE, ident1.getType());
 		Assert.assertEquals("main", ident1.getFunctionName());
-		Assert.assertEquals("test", ident1.getName());
+		Assert.assertEquals("test", ident1.getScriptName());
 	}
 
 	@Test
@@ -25,7 +25,7 @@ public class ScriptResolverTest {
 
 		Assert.assertEquals(ScriptType.STATUS_EFFECT, ident.getType());
 		Assert.assertEquals("main", ident.getFunctionName());
-		Assert.assertEquals("status_effect/test", ident.getName());
+		Assert.assertEquals("status_effect/test", ident.getScriptName());
 	}
 
 	@Test
@@ -34,7 +34,7 @@ public class ScriptResolverTest {
 
 		Assert.assertEquals(ScriptType.ATTACK, ident.getType());
 		Assert.assertEquals("main", ident.getFunctionName());
-		Assert.assertEquals("attack/test", ident.getName());
+		Assert.assertEquals("attack/test", ident.getScriptName());
 	}
 
 	@Test
@@ -43,7 +43,7 @@ public class ScriptResolverTest {
 
 		Assert.assertEquals(ScriptType.ATTACK, ident.getType());
 		Assert.assertEquals("callback", ident.getFunctionName());
-		Assert.assertEquals("attack/test", ident.getName());
+		Assert.assertEquals("attack/test", ident.getScriptName());
 	}
 
 	@Test(expected = IllegalArgumentException.class)

@@ -4,11 +4,10 @@ package net.bestia.zoneserver.map;
  * Contains the type of biomes which are used and supported by the bestia map
  * generation system.
  * 
- * @author Thomas Felix <thomas.felix@tfelix.de>
+ * @author Thomas Felix
  *
  */
 public enum Biome {
-
 	WATER,
 	DESERT,
 	BEACH,
@@ -27,5 +26,4 @@ public enum Biome {
 	TEMPERATE_GRASSLAND,
 	WETLANDS,
 	SAVANNAH
-	
 }

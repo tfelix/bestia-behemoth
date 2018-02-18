@@ -78,7 +78,7 @@ public class MovementComponentActor extends AbstractActor {
 		}
 	}
 
-	@Override
+  @Override
 	public void postStop() throws Exception {
 
 		if (tick != null) {

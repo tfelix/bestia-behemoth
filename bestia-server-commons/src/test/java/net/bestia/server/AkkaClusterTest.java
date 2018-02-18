@@ -9,15 +9,15 @@ public class AkkaClusterTest {
 	@Test(expected = NullPointerException.class)
 	@SuppressWarnings("all")
 	public void getNodeName_null_throws() {
-		AkkaCluster.getNodeName(null);
+		AkkaCluster.INSTANCE.getNodeName(null);
 	}
 	
 	@Test
 	public void getNodeName_ok() {
-		String test = AkkaCluster.getNodeName("test");
+		String test = AkkaCluster.INSTANCE.getNodeName("test");
 		Assert.assertEquals("/user/test", test);
 		
-		test = AkkaCluster.getNodeName("test", "bla");
+		test = AkkaCluster.INSTANCE.getNodeName("test", "bla");
 		Assert.assertEquals("/user/test/bla", test);
 	}
 

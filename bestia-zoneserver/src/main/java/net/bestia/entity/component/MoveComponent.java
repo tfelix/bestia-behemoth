@@ -16,7 +16,7 @@ import net.bestia.model.geometry.Point;
  *
  */
 @ComponentSync(SyncType.ALL)
-@ComponentActor("net.bestia.zoneserver.actor.net.bestia.entity.component.MovementComponentActor")
+@ComponentActor("net.bestia.zoneserver.actor.entity.component.MovementComponentActor")
 public class MoveComponent extends Component {
 
 	private static final long serialVersionUID = 1L;
@@ -61,13 +61,6 @@ public class MoveComponent extends Component {
 			return false;
 		}
 		MoveComponent other = (MoveComponent) obj;
-		if (path == null) {
-			if (other.path != null) {
-				return false;
-			}
-		} else if (!path.equals(other.path)) {
-			return false;
-		}
-		return true;
+		return path.equals(other.path);
 	}
 }

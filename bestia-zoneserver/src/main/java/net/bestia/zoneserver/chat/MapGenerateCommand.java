@@ -84,7 +84,7 @@ public class MapGenerateCommand extends BaseChatCommand {
 		LOG.info("New map parameter: {}", baseParams);
 
 		// Perform the map generation.
-		final String nodeName = AkkaCluster.getNodeName(MapGeneratorMasterActor.NAME);
+		final String nodeName = AkkaCluster.INSTANCE.getNodeName(MapGeneratorMasterActor.NAME);
 		final ActorSelection selection = system.actorSelection(nodeName);
 		selection.tell(baseParams, ActorRef.noSender());
 	}

@@ -77,11 +77,11 @@ public class ScriptService {
 		scriptBindings.putAll(bindings);
 	}
 
-	private CompiledScript resolveScript(ScriptAnchor ident) {
-		final CompiledScript script = scriptCache.getScript(ident.getType(), ident.getName());
+	private CompiledScript resolveScript(ScriptAnchor scriptAnchor) {
+		final CompiledScript script = scriptCache.getScript(scriptAnchor.getScriptName());
 
 		if (script == null) {
-			LOG.warn("Did not find script file: {} ({})", ident.getName(), ident.getType());
+			LOG.warn("Did not find script file: {} ({})", scriptAnchor);
 			throw new IllegalArgumentException("Could not find script.");
 		}
 

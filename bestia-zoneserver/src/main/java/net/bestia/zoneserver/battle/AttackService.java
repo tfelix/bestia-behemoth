@@ -58,10 +58,6 @@ public class AttackService {
 
 	/**
 	 * Checks if the bestia knows this attack.
-	 * 
-	 * @param entityId
-	 * @param attackId
-	 * @return
 	 */
 	public boolean knowsAttack(long entityId, int attackId) {
 		final Attack attack = attackDao.findOne(attackId);
@@ -93,9 +89,7 @@ public class AttackService {
 	 * Checks if the given entity is able to cast the attack (it knows it) and
 	 * also if the current mana is enough to use this skill. This has to take
 	 * into account any mana cost reducing status effects.
-	 * 
-	 * @param attacker
-	 * @param attackId
+	 *
 	 * @return TRUE of the entity can now use this skill/attack.
 	 */
 	public boolean canUseAttack(long attackerId, int attackId) {

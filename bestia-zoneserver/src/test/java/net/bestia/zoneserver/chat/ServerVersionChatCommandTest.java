@@ -42,8 +42,8 @@ public class ServerVersionChatCommandTest {
 
 	@Test
 	public void isCommand_validCommand_true() {
-		Assert.assertTrue(cmd.isCommand("/server"));
-		Assert.assertTrue(cmd.isCommand("/server "));
+		Assert.assertTrue(cmd.isCommand("/net/bestia/server"));
+		Assert.assertTrue(cmd.isCommand("/net/bestia/server "));
 		Assert.assertTrue(cmd.isCommand("/server test "));
 	}
 

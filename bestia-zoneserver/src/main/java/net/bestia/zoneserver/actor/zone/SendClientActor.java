@@ -39,7 +39,7 @@ public class SendClientActor extends AbstractActor {
 
 	@Override
 	public void preStart() throws Exception {
-		clientConnection = ClusterSharding.get(getContext().getSystem()).shardRegion(EntryActorNames.SHARD_CONNECTION);
+		clientConnection = ClusterSharding.get(getContext().getSystem()).shardRegion(EntryActorNames.INSTANCE.getSHARD_CONNECTION());
 	}
 
 	@Override

@@ -119,14 +119,14 @@ public class BestiaRootActor extends AbstractActor {
 		// Entity sharding.
 		final Props entityProps = SpringExtension.getSpringProps(system, EntityActor.class);
 		final EntityShardMessageExtractor entityExtractor = new EntityShardMessageExtractor();
-		sharding.start(EntryActorNames.SHARD_ENTITY, entityProps, settings, entityExtractor);
+		sharding.start(EntryActorNames.INSTANCE.getSHARD_ENTITY(), entityProps, settings, entityExtractor);
 
 		// Client connection sharding.
 		ActorRef helperProxy = SpringExtension.actorOf(getContext(), ProxyHelperActor.class);
 		final Props connectionProps = SpringExtension.getSpringProps(system, ClientConnectionActor.class,
 				helperProxy);
 		final ConnectionShardMessageExtractor connectionExtractor = new ConnectionShardMessageExtractor();
-		sharding.start(EntryActorNames.SHARD_CONNECTION, connectionProps, settings, connectionExtractor);
+		sharding.start(EntryActorNames.INSTANCE.getSHARD_CONNECTION(), connectionProps, settings, connectionExtractor);
 
 		LOG.info("Started the sharding.");
 		return helperProxy;

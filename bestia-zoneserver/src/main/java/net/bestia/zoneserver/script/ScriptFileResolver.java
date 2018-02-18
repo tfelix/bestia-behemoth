@@ -16,15 +16,12 @@ import org.springframework.stereotype.Component;
  *
  * @author Thomas Felix
  */
-@Component
 public class ScriptFileResolver {
 
 	private final static Logger LOG = LoggerFactory.getLogger(ScriptFileResolver.class);
 	private final String scriptBasePath;
 
-	public ScriptFileResolver(
-			@Value("${script.basePath:}") String scriptBasePath
-	) {
+	public ScriptFileResolver(String scriptBasePath) {
 
 		this.scriptBasePath = scriptBasePath;
 	}

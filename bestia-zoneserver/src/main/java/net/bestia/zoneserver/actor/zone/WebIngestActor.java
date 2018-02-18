@@ -33,8 +33,8 @@ public class WebIngestActor extends AbstractActor {
 	@Autowired
 	public WebIngestActor() {
 
-		final ClusterSharding sharding = ClusterSharding.get(getContext().getSystem());
-		this.clients = sharding.shardRegion(EntryActorNames.SHARD_CONNECTION);
+		final ClusterSharding sharding = ClusterSharding.get(context().system());
+		this.clients = sharding.shardRegion(EntryActorNames.INSTANCE.getSHARD_CONNECTION());
 	}
 
 	@Override

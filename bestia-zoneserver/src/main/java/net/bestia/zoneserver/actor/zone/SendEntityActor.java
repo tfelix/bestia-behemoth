@@ -33,7 +33,7 @@ public class SendEntityActor extends AbstractActor {
 
 	@Override
 	public void preStart() throws Exception {
-		entityActorShard = ClusterSharding.get(getContext().getSystem()).shardRegion(EntryActorNames.SHARD_ENTITY);
+		entityActorShard = ClusterSharding.get(getContext().getSystem()).shardRegion(EntryActorNames.INSTANCE.getSHARD_ENTITY());
 	}
 
 	@Override

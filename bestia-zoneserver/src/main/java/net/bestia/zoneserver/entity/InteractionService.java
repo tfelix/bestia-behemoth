@@ -57,7 +57,7 @@ public class InteractionService {
 	 * Asks the entity for all types of interactions which are possible with it
 	 * by the certain entity. It might be possible that the interaction
 	 * possibilities are dependent upon the invoker. Usually the questioning
-	 * part is also an {@link InteractionComponent} unit.
+	 * part is also an InteractionComponent unit.
 	 * 
 	 * The interaction is determined mostly by the tags of the entity on the
 	 * first place. In case of living and thinking entities (like NPCs) the NPC
@@ -66,7 +66,7 @@ public class InteractionService {
 	 * 
 	 * But also items are able to control via a script if the given player
 	 * should be able to interact with them. To determine this a script call is
-	 * made. See the {@link InteractionScriptEnv} for further information.
+	 * made. See the InteractionScriptEnv for further information.
 	 * 
 	 * @return A set of possible interactions.
 	 */
@@ -107,14 +107,6 @@ public class InteractionService {
 		return interactTypes;
 	}
 
-	/**
-	 * Performs the requested interaction with the given interactor.
-	 * 
-	 * @param type
-	 *            The type of requested interaction.
-	 * @param interactor
-	 *            The interactor which performs the interaction.
-	 */
 	public void triggerInteraction(InteractionType type, Entity source, Entity target) {
 		// TODO implementieren.
 	}

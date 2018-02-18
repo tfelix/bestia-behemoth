@@ -20,7 +20,7 @@ import akka.actor.ActorSystem;
  *
  */
 @RestController
-@RequestMapping("server")
+@RequestMapping("net/bestia/server")
 public class ServerController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ServerController.class);

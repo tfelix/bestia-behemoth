@@ -1,4 +1,9 @@
+plugins {
+  id 'org.springframework.boot' version '1.5.4.RELEASE'
+}
+
 description = 'bestia-zoneserver'
+
 dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '1.5.4.RELEASE'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter', version: '1.5.4.RELEASE'
@@ -18,11 +23,12 @@ dependencies {
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
     compile group: 'com.hazelcast', name: 'hazelcast-client', version: '3.7.4'
     compile group: 'com.netflix.servo', name: 'servo-core', version: '0.12.7'
-    compile project(':bestia-messages-cluster')
+    compile project(':bestia-messages')
     compile project(':bestia-server-commons')
     compile project(':bestia-entities-core')
     compile group: 'de.tfelix.bestia', name: 'worldgen', version: '1.0.0-ALPHA'
-    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.5.4.RELEASE'
+
+  testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.5.4.RELEASE'
     testCompile group: 'com.typesafe.akka', name: 'akka-testkit_2.12', version: '2.5.6'
     testCompile group: 'com.hazelcast', name: 'hazelcast', version: '3.7.4', classifier: 'tests'
     testCompile project(':bestia-server-commons')

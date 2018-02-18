@@ -20,128 +20,122 @@ import net.bestia.model.domain.PlayerBestia;
 
 /**
  * Service to manipulate the players guild.
- * 
- * @author Thomas Felix
  *
+ * @author Thomas Felix
  */
 @Service
 public class GuildService {
 
-	private static final Logger LOG = LoggerFactory.getLogger(GuildService.class);
-	private int BASE_MAX_GUILD_MEMBERS = 24;
+  private static final Logger LOG = LoggerFactory.getLogger(GuildService.class);
+  private int BASE_MAX_GUILD_MEMBERS = 24;
 
-	private GuildDAO guildDao;
-	// private GuildRankDAO rankDao;
-	private GuildMemberDAO memberDao;
-	private PlayerBestiaDAO playerBestiaDao;
+  private GuildDAO guildDao;
+  // private GuildRankDAO rankDao;
+  private GuildMemberDAO memberDao;
+  private PlayerBestiaDAO playerBestiaDao;
 
-	public GuildService(GuildDAO guildDao, 
-			GuildMemberDAO guildMemberDao, 
-			PlayerBestiaDAO playerBestiaDao) {
-		
-		this.guildDao = Objects.requireNonNull(guildDao);
-		this.memberDao = Objects.requireNonNull(guildMemberDao);
-		this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
+  public GuildService(GuildDAO guildDao,
+                      GuildMemberDAO guildMemberDao,
+                      PlayerBestiaDAO playerBestiaDao) {
 
-	}
+    this.guildDao = Objects.requireNonNull(guildDao);
+    this.memberDao = Objects.requireNonNull(guildMemberDao);
+    this.playerBestiaDao = Objects.requireNonNull(playerBestiaDao);
 
-	public void addPlayerToGuild(long playerBestiaId, int guildId) {
-		final PlayerBestia pb = playerBestiaDao.findOne(playerBestiaId);
-		if (pb == null) {
-			return;
-		}
+  }
 
-		guildDao.findOne(guildId).ifPresent(guild -> {
-			if (guild.getMembers().size() >= getMaxGuildMembers(guild)) {
-				return;
-			}
+  public void addPlayerToGuild(long playerBestiaId, int guildId) {
+    final PlayerBestia pb = playerBestiaDao.findOne(playerBestiaId);
+    if (pb == null) {
+      return;
+    }
 
-			final GuildMember gm = new GuildMember(guild, pb);
-			memberDao.save(gm);
-		});
-	}
+    guildDao.findOne(guildId).ifPresent(guild -> {
+      if (guild.getMembers().size() >= getMaxGuildMembers(guild)) {
+        return;
+      }
 
-	/**
-	 * The maximum number of guild members depends upon the guild skill
-	 * SG_MAX_MEMBERS extension.
-	 * 
-	 * @param guild
-	 * @return The calculated maximum number of guild members.
-	 */
-	public int getMaxGuildMembers(Guild guild) {
-		if (guild == null) {
-			return 0;
-		}
-		return BASE_MAX_GUILD_MEMBERS;
-	}
+      final GuildMember gm = new GuildMember(guild, pb);
+      memberDao.save(gm);
+    });
+  }
 
-	public boolean hasGuild(long playerBestiaId) {
-		return memberDao.findByPlayerBestiaId(playerBestiaId) != null;
-	}
+  /**
+   * The maximum number of guild members depends upon the guild skill
+   * SG_MAX_MEMBERS extension.
+   *
+   * @param guild
+   * @return The calculated maximum number of guild members.
+   */
+  public int getMaxGuildMembers(Guild guild) {
+    if (guild == null) {
+      return 0;
+    }
+    return BASE_MAX_GUILD_MEMBERS;
+  }
 
-	public Optional<Guild> getGuildOfPlayer(long playerBestiaId) {
-		return memberDao.findByPlayerBestiaId(playerBestiaId)
-				.map(GuildMember::getGuild);
-	}
+  public boolean hasGuild(long playerBestiaId) {
+    return memberDao.findByPlayerBestiaId(playerBestiaId) != null;
+  }
 
-	public int addExpTaxToGuild(long playerBestiaId, int earnedTotalExp) {
-		return memberDao.findByPlayerBestiaId(playerBestiaId).map(member -> {
-			final GuildRank rank = member.getRank();
-			if (rank == null) {
-				return 0;
-			}
+  public Optional<Guild> getGuildOfPlayer(long playerBestiaId) {
+    return memberDao.findByPlayerBestiaId(playerBestiaId)
+            .map(GuildMember::getGuild);
+  }
 
-			final int taxExp = (int) Math.ceil(rank.getTaxRate() * earnedTotalExp);
-			final Guild guild = member.getGuild();
-			guild.addExp(taxExp);
-			guildDao.save(guild);
+  public int addExpTaxToGuild(long playerBestiaId, int earnedTotalExp) {
+    return memberDao.findByPlayerBestiaId(playerBestiaId).map(member -> {
+      final GuildRank rank = member.getRank();
+      if (rank == null) {
+        return 0;
+      }
 
-			LOG.debug(String.format("Guild %d earned %d tax from pbid: %d", guild.getId(), taxExp, playerBestiaId));
+      final int taxExp = (int) Math.ceil(rank.getTaxRate() * earnedTotalExp);
+      final Guild guild = member.getGuild();
+      guild.addExp(taxExp);
+      guildDao.save(guild);
 
-			return taxExp;
-		}).orElse(0);
-	}
+      LOG.debug(String.format("Guild %d earned %d tax from pbid: %d", guild.getId(), taxExp, playerBestiaId));
 
-	public int getNeededNextLevelExp(Guild guild) {
-		return guild.getLevel() * 1000;
-	}
+      return taxExp;
+    }).orElse(0);
+  }
 
-	public int getNeededNextLevelExp(int guildId) {
-		return guildDao.findOne(guildId)
-				.map(this::getNeededNextLevelExp)
-				.orElse(0);
-	}
-	
-	public Set<PlayerBestia> getGuildMembersFromPlayer(long playerBestiaId) {
-		return getGuildOfPlayer(playerBestiaId).map(guild -> {
-			return guild.getMembers().stream()
-					.map(GuildMember::getMember)
-					.filter(x -> x.getId() != playerBestiaId)
-					.collect(Collectors.toSet());
-		}).orElse(Collections.emptySet());
-	}
+  public int getNeededNextLevelExp(Guild guild) {
+    return guild.getLevel() * 1000;
+  }
 
-	public int getSkillpointsToSpend(int guildId) {
-		return 0;
-	}
+  public int getNeededNextLevelExp(int guildId) {
+    return guildDao.findOne(guildId)
+            .map(this::getNeededNextLevelExp)
+            .orElse(0);
+  }
 
-	/**
-	 * Checks if the given account id has a bestia in the guild.
-	 * 
-	 * @param accountId
-	 * @param guildId
-	 * @return TRUE if the account id has at least one bestia inside this guild.
-	 */
-	public boolean isInGuild(long accountId, int guildId) {
-		final Optional<Guild> optGuild = guildDao.findOne(guildId);
-		
-		if(!optGuild.isPresent()) {
-			return false;
-		}
-		
-		return optGuild.get()
-				.getMembers()
-				.stream()
-				.anyMatch(m -> m.getMember().getOwner().getId() == accountId);
-	}
+  public Set<PlayerBestia> getGuildMembersFromPlayer(long playerBestiaId) {
+    return getGuildOfPlayer(playerBestiaId).map(guild -> guild.getMembers().stream()
+            .map(GuildMember::getMember)
+            .filter(x -> x.getId() != playerBestiaId)
+            .collect(Collectors.toSet())).orElse(Collections.emptySet());
+  }
+
+  public int getSkillpointsToSpend(int guildId) {
+    return 0;
+  }
+
+  /**
+   * Checks if the given account id has a bestia in the guild.
+   *
+   * @param accountId
+   * @param guildId
+   * @return TRUE if the account id has at least one bestia inside this guild.
+   */
+  public boolean isInGuild(long accountId, int guildId) {
+    final Optional<Guild> optGuild = guildDao.findOne(guildId);
+
+    return optGuild.map(guild -> guild
+            .getMembers()
+            .stream()
+            .anyMatch(m -> m.getMember().getOwner().getId() == accountId))
+            .orElse(false);
+  }
 }
