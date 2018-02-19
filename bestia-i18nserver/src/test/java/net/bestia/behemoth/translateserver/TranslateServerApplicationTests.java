@@ -1,4 +1,4 @@
-package net.bestia.behemoth.translateserver;
+package bestia.behemoth.translateserver;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

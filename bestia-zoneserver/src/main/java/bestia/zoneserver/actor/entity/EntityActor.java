@@ -1,0 +1,134 @@
+package bestia.zoneserver.actor.entity;
+
+import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
+import akka.actor.PoisonPill;
+import akka.actor.Terminated;
+import akka.event.Logging;
+import akka.event.LoggingAdapter;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import bestia.messages.ComponentMessageEnvelope;
+import bestia.messages.entity.ComponentInstallMessage;
+import bestia.messages.entity.ComponentRemoveMessage;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import java.util.Objects;
+
+/**
+ * The {@link EntityActor} is a persistent actor managing all aspects of a
+ * spawned entity. This means it will keep references to AI actors or attached
+ * component actors. This actor has to be used as an persisted shared actor.
+ * <p>
+ * If there are no more active component actors this actor will cease operation.
+ * However incoming component messages will restart this actor and attach the
+ * component actor once more.
+ * <p>
+ * This actor has to react on certain incoming request messages like for example
+ * attaching a ticking script to the entity.
+ *
+ * @author Thomas Felix
+ */
+@Component
+@Scope("prototype")
+public class EntityActor extends AbstractActor {
+  private final LoggingAdapter LOG = Logging.getLogger(getContext().getSystem(), this);
+
+  private final EntityComponentActorFactory factory;
+
+  /**
+   * Saves the references for the actors managing components.
+   */
+  private BiMap<Long, ActorRef> componentActors = HashBiMap.create();
+
+  private long entityId;
+
+  @Autowired
+  public EntityActor(EntityComponentActorFactory factory) {
+
+    this.factory = Objects.requireNonNull(factory);
+  }
+
+  @Override
+  public Receive createReceive() {
+    return receiveBuilder()
+            .match(ComponentInstallMessage.class, this::handleComponentInstall)
+            .match(ComponentRemoveMessage.class, this::handleComponentRemove)
+            .match(ComponentMessageEnvelope.class, this::handleComponentPayload)
+            .match(Terminated.class, this::handleTerminated)
+            .build();
+  }
+
+  /**
+   * Checks if we have such a associated component and if so delivers the
+   * message.
+   */
+  private void handleComponentPayload(ComponentMessageEnvelope msg) {
+    checkStartup(msg.getEntityId());
+
+    final long compId = msg.getComponentId();
+
+    if (!componentActors.containsKey(compId)) {
+      LOG.debug("Component message unhandled: {}.", msg);
+      unhandled(msg);
+      return;
+    }
+
+    final ActorRef compActor = componentActors.get(compId);
+    LOG.debug("Forwarding comp message: {} to: {}.", msg, compActor);
+    compActor.tell(msg.getContent(), getSelf());
+  }
+
+  /**
+   * Adds or removes a active component actor from the entity.
+   */
+  private void handleComponentInstall(ComponentInstallMessage msg) {
+    checkStartup(msg.getEntityId());
+
+    LOG.debug("Installing component: {} on entity: {}.", msg.getComponentId(), entityId);
+
+    // Install the component.
+    final ActorRef compActor = factory.startActor(getContext(), msg.getComponentId());
+
+    if (compActor == null) {
+      LOG.warning("Component actor for comp id {} was not created.", msg.getComponentId());
+      return;
+    }
+
+    context().watch(compActor);
+    componentActors.put(msg.getComponentId(), compActor);
+  }
+
+  private void handleComponentRemove(ComponentRemoveMessage msg) {
+    LOG.debug("Removing component: {} on entity: {}.", msg.getComponentId(), entityId);
+
+    // Remove the component.
+    final ActorRef compRef = componentActors.getOrDefault(msg.getComponentId(), ActorRef.noSender());
+    compRef.tell(PoisonPill.getInstance(), getSelf());
+  }
+
+  /**
+   * Check which actor was terminated and remove it.
+   *
+   * @param term The termination message from akka.
+   */
+  private void handleTerminated(Terminated term) {
+    componentActors.inverse().remove(term.actor());
+
+    // Terminate if no components active anymore.
+    if (componentActors.size() == 0) {
+      getContext().stop(getSelf());
+    }
+  }
+
+  /**
+   * Checks if we have already a defined entity id and if not we use it.
+   */
+  private void checkStartup(long entityId) {
+    if (entityId == 0) {
+      this.entityId = entityId;
+    }
+  }
+}

@@ -137,7 +137,7 @@
 		</merge-policy>
 	</map>
 	
-	<map name="net.bestia.server.nodes">
+	<map name="bestia.server.nodes">
 		<time-to-live-seconds>30</time-to-live-seconds>
 	</map>
 

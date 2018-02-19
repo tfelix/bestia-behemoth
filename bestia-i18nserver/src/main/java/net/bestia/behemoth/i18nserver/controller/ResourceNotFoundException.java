@@ -1,4 +1,4 @@
-package net.bestia.behemoth.i18nserver.controller;
+package bestia.behemoth.i18nserver.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

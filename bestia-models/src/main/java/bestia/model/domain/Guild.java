@@ -1,0 +1,226 @@
+package bestia.model.domain;
+
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Objects;
+import java.util.Set;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+/**
+ * Representation of a guild for the bestia game.
+ * 
+ * @author Thomas Felix
+ *
+ */
+@Entity
+@Table(name = "guilds")
+public class Guild implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	@Transient
+	public static final int MAX_GUILD_LEVEL = 10;
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private int id;
+
+	@Column(nullable = false, unique = true, length = 40)
+	private String name;
+
+	@Column(nullable = true)
+	private String emblem;
+
+	private int level = 1;
+	
+	private int experience = 0;
+
+	/**
+	 * Last time the leader of this guild was changed. If it is null then the
+	 * leader was never changed.
+	 */
+	@Column(nullable = true)
+	private Date lastLeaderChangeDate;
+
+	/**
+	 * Date when the guild was created.
+	 */
+	private Date creationDate;
+
+	@OneToOne
+	@JoinColumn(nullable = false, unique = true)
+	private GuildMember leader;
+
+	@OneToMany(mappedBy = "guild", fetch = FetchType.LAZY)
+	private Set<GuildMember> members;
+	
+	@OneToMany(mappedBy = "guild", fetch = FetchType.LAZY)
+	private Set<GuildRank> ranks;
+
+	/**
+	 * Std. ctor. for Hibernate.
+	 */
+	public Guild() {
+		creationDate = new Date();
+	}
+
+	/**
+	 * Ctor.
+	 * 
+	 * @param name
+	 *            The name of the guild. Must be between 1 and 40 characters.
+	 * @param leader
+	 *            The leader of this guild.
+	 */
+	public Guild(String name, GuildMember leader) {
+		if (name == null || name.isEmpty() || name.length() > 40) {
+			throw new IllegalArgumentException("Guild name can not be null or empty or longer then 40 character.");
+		}
+
+		if (leader == null) {
+			throw new IllegalArgumentException("Guildleader can not be null.");
+		}
+
+		this.name = name;
+		this.leader = leader;
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * @param name
+	 *            the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/**
+	 * @return the emblem
+	 */
+	public String getEmblem() {
+		return emblem;
+	}
+
+	/**
+	 * @param emblem
+	 *            the emblem to set
+	 */
+	public void setEmblem(String emblem) {
+		this.emblem = emblem;
+	}
+
+	/**
+	 * @return the level
+	 */
+	public int getLevel() {
+		return level;
+	}
+
+	/**
+	 * @param level
+	 *            the level to set
+	 */
+	public void setLevel(int level) {
+		if (level > MAX_GUILD_LEVEL || level < 0) {
+			throw new IllegalArgumentException("Guild level must be between 0 and " + MAX_GUILD_LEVEL);
+		}
+		this.level = level;
+	}
+
+	/**
+	 * @return the leader
+	 */
+	public GuildMember getLeader() {
+		return leader;
+	}
+
+	/**
+	 * @param leader
+	 *            the leader to set
+	 */
+	public void setLeader(GuildMember leader) {
+		this.leader = Objects.requireNonNull(leader);
+	}
+
+	/**
+	 * @return the members
+	 */
+	public Set<GuildMember> getMembers() {
+		return Collections.unmodifiableSet(members);
+	}
+
+	/**
+	 * @param members
+	 *            the members to set
+	 */
+	public void addMember(GuildMember member) {
+		this.members.add(member);
+	}
+	
+	/**
+	 * @param member Removes this {@link GuildMember} from the guild.
+	 */
+	public void removeMember(GuildMember member) {
+		this.members.remove(member);
+	}
+	
+	public Set<GuildRank> getRanks() {
+		return Collections.unmodifiableSet(ranks);
+	}
+	
+	public void removeRank(GuildRank rank) {
+		this.ranks.remove(rank);
+	}
+	
+	public void addRank(GuildRank rank) {
+		this.ranks.add(rank);
+	}
+	
+	public void addExp(int exp) {
+		this.experience += exp;
+	}
+	
+	public int getExp() {
+		return experience;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("Guild[id: %d, name: %s, lv: %d, #member: %d]",
+				id,
+				name,
+				level,
+				members.size());
+	}
+
+	/**
+	 * Returns the date when the guild was created.
+	 * 
+	 * @return The creation date of the guild.
+	 */
+	public Date getCreationDate() {
+		return new Date(creationDate.getTime());
+	}
+
+	public int getId() {
+		return id;
+	}
+}

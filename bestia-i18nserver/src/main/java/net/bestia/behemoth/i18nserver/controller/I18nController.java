@@ -1,4 +1,4 @@
-package net.bestia.behemoth.i18nserver.controller;
+package bestia.behemoth.i18nserver.controller;
 
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import net.bestia.model.dao.I18nDAO;
-import net.bestia.model.domain.I18n;
-import net.bestia.model.domain.TranslationCategory;
+import bestia.model.dao.I18nDAO;
+import bestia.model.domain.I18n;
+import bestia.model.domain.TranslationCategory;
 
 /**
  * The rest controller takes incoming translation keys and translates them into

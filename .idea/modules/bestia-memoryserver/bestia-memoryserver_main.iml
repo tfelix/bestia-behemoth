@@ -45,6 +45,7 @@
     <orderEntry type="module" module-name="bestia-entities-core_main" />
     <orderEntry type="module" module-name="bestia-messages_main" />
     <orderEntry type="module" module-name="bestia-models_main" />
+    <orderEntry type="library" name="Gradle: io.github.microutils:kotlin-logging:1.4.9" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-data-jpa:1.5.10.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-aop:1.5.10.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-jdbc:1.5.10.RELEASE" level="project" />
