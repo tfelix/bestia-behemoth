@@ -1,8 +1,14 @@
 description = 'bestia-memoryserver'
+
 dependencies {
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter', version: '1.5.4.RELEASE'
-    compile group: 'org.springframework.boot', name: 'spring-boot-starter-logging', version: '1.5.4.RELEASE'
-    compile group: 'com.hazelcast', name: 'hazelcast', version: '3.7.4'
-    compile project(':bestia-entities-core')
-    testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '1.5.4.RELEASE'
+  compile('org.springframework.boot:spring-boot-starter')
+  compile('org.springframework.boot:spring-boot-starter-logging')
+  compile('org.springframework.boot:spring-boot-starter-data-jpa')
+
+  compile group: 'mysql', name: 'mysql-connector-java', version: javaConnectorVersion
+  compile group: 'com.hazelcast', name: 'hazelcast', version: hazelcastVersion
+
+  compile project(':bestia-entities-core')
+
+  testCompile('org.springframework.boot:spring-boot-starter-test')
 }

@@ -3,6 +3,7 @@ package net.bestia.memoryserver.persistance;
 import java.util.Objects;
 import java.util.Optional;
 
+import net.bestia.entity.component.TagComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import net.bestia.entity.Entity;
 import net.bestia.entity.EntityService;
-import net.bestia.entity.component.TagComponent;
 import net.bestia.model.dao.EntityDataDAO;
 import net.bestia.model.domain.EntityData;
 import net.bestia.util.ObjectSerializer;
@@ -50,9 +50,6 @@ public class EntityPersistService {
 
 	/**
 	 * Loads the entity with the given id from the permanent storage.
-	 * 
-	 * @param id
-	 * @return
 	 */
 	public Entity load(Long id) {
 
@@ -96,7 +93,5 @@ public class EntityPersistService {
 		entityData.setId(entity.getId());
 		entityData.setData(data);
 		entityDao.save(entityData);
-
 	}
-
 }

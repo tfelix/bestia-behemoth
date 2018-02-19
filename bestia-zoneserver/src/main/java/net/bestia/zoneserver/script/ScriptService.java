@@ -95,7 +95,6 @@ public class ScriptService {
    *
    * @param name The name of the script to be called.
    */
-
   public void callScriptMainFunction(String name) {
     Objects.requireNonNull(name);
     LOG.debug("Calling script: {}.", name);

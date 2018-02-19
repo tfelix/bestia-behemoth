@@ -23,10 +23,5 @@ public class AttackScriptEnv implements ScriptEnv {
 		// Attacker ID
 		// Attack ID
 		// Defender ID
-		
-		
-		// TODO Auto-generated method stub
-		
 	}
-
 }

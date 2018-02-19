@@ -13,11 +13,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 @SpringBootApplication(scanBasePackages = ["net.bestia"])
 @EnableJpaRepositories(basePackages = ["net.bestia.model.dao"])
 @EntityScan(basePackages = ["net.bestia.model.domain"])
-object Application {
+class Application
 
-  @Throws(Exception::class)
-  @JvmStatic
-  fun main(args: Array<String>) {
-    SpringApplication.run(Application::class.java, *args)
-  }
+fun main(args: Array<String>) {
+  SpringApplication.run(Application::class.java, *args)
 }
